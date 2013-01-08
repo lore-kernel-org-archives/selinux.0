@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0829L0K017796
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2013 21:09:40 -0500
-Message-ID: <50EB7FD3.3040007@schaufler-ca.com>
-Date: Mon, 07 Jan 2013 18:09:23 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0829qG0017921
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2013 21:09:52 -0500
+Message-ID: <50EB7FDC.4010009@schaufler-ca.com>
+Date: Mon, 07 Jan 2013 18:09:32 -0800
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
 To: James Morris <jmorris@namei.org>
@@ -13,737 +13,1479 @@ CC: Casey Schaufler <casey@schaufler-ca.com>,
         Eric Paris <eparis@redhat.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH v12 4/9] LSM: Multiple concurrent LSMs
+Subject: [PATCH v12 6/9] LSM: Multiple concurrent LSMs
 References: <50EB7C50.3070605@schaufler-ca.com>
 In-Reply-To: <50EB7C50.3070605@schaufler-ca.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Subject: [PATCH v12 4/9] LSM: Multiple concurrent LSMs
+Subject: [PATCH v12 6/9] LSM: Multiple concurrent LSMs
 
 Change the infrastructure for Linux Security Modules (LSM)s
 from a single vector of hook handlers to a list based method
 for handling multiple concurrent modules. 
 
-Configuration changes.
-Headers files. Add securityfs files to report the
-registered and present LSMs.
+Changes for SELinux. Abstract access to security blobs.
+Add the now required parameter to reset_security_ops().
+Remove commoncap calls.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
 ---
- include/linux/lsm.h      |  174 +++++++++++++++++++++++++++++++
- include/linux/security.h |  255 +++++++++++++++++++++++++++++++++++++++-------
- security/Kconfig         |   79 +++++++++-----
- security/inode.c         |   79 +++++++++++++-
- 4 files changed, 521 insertions(+), 66 deletions(-)
+ security/selinux/hooks.c          |  410 ++++++++++++++++++-------------------
+ security/selinux/include/objsec.h |    2 +
+ security/selinux/include/xfrm.h   |    2 +-
+ security/selinux/netlabel.c       |   13 +-
+ security/selinux/selinuxfs.c      |    6 +-
+ security/selinux/xfrm.c           |    9 +-
+ 6 files changed, 222 insertions(+), 220 deletions(-)
 
-diff --git a/include/linux/lsm.h b/include/linux/lsm.h
-new file mode 100644
-index 0000000..5f36b6b
---- /dev/null
-+++ b/include/linux/lsm.h
-@@ -0,0 +1,174 @@
-+/*
-+ *
-+ * Copyright (C) 2012 Casey Schaufler <casey@schaufler-ca.com>
-+ * Copyright (C) 2012 Intel Corporation
-+ *
-+ *	This program is free software; you can redistribute it and/or modify
-+ *	it under the terms of the GNU General Public License as published by
-+ *	the Free Software Foundation, version 2.
-+ *
-+ * Author:
-+ *	Casey Schaufler <casey@schaufler-ca.com>
-+ *
-+ */
-+#ifndef _LINUX_LSM_H
-+#define _LINUX_LSM_H
-+
-+#include <linux/cred.h>
-+#include <linux/fs.h>
-+#include <linux/msg.h>
-+#include <linux/key.h>
-+#include <net/sock.h>
-+
-+/*
-+ * Maximum number of LSMs that can be used at a time.
-+ */
-+#define COMPOSER_MAX		CONFIG_SECURITY_COMPOSER_MAX
-+#define COMPOSER_NAMES_MAX	((SECURITY_NAME_MAX + 1) * COMPOSER_MAX)
-+
-+#include <linux/security.h>
-+
-+/*
-+ * Just a set of slots for each LSM to keep its blob in.
-+ */
-+struct lsm_blob {
-+	int	lsm_setcount;			/* Number of blobs set */
-+	void	*lsm_blobs[COMPOSER_MAX];	/* LSM specific blobs */
-+};
-+
-+static inline struct lsm_blob *lsm_alloc_blob(gfp_t gfp)
-+{
-+	return kzalloc(sizeof(struct lsm_blob), gfp);
-+}
-+
-+static inline void *lsm_get_blob(const struct lsm_blob *bp, const int lsm)
-+{
-+	if (bp == NULL)
-+		return NULL;
-+	return bp->lsm_blobs[lsm];
-+}
-+
-+static inline void lsm_set_blob(void **vpp, void *value, const int lsm)
-+{
-+	struct lsm_blob *bp = *vpp;
-+
-+	if (value == NULL && bp->lsm_blobs[lsm] != NULL)
-+		bp->lsm_setcount--;
-+	if (value != NULL && bp->lsm_blobs[lsm] == NULL)
-+		bp->lsm_setcount++;
-+
-+	bp->lsm_blobs[lsm] = value;
-+}
-+
-+static inline void *lsm_get_cred(const struct cred *cred,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(cred->security, sop->order);
-+}
-+
-+static inline void lsm_set_cred(struct cred *cred, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&cred->security, value, sop->order);
-+}
-+
-+static inline int lsm_set_init_cred(struct cred *cred, void *value,
-+					const struct security_operations *sop)
-+{
-+	if (cred->security == NULL) {
-+		cred->security = lsm_alloc_blob(GFP_KERNEL);
-+		if (cred->security == NULL)
-+			return -ENOMEM;
-+	}
-+
-+	lsm_set_blob(&cred->security, value, sop->order);
-+	return 0;
-+}
-+
-+static inline void *lsm_get_file(const struct file *file,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(file->f_security, sop->order);
-+}
-+
-+static inline void lsm_set_file(struct file *file, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&file->f_security, value, sop->order);
-+}
-+
-+static inline void *lsm_get_inode(const struct inode *inode,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(inode->i_security, sop->order);
-+}
-+
-+static inline void lsm_set_inode(struct inode *inode, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&inode->i_security, value, sop->order);
-+}
-+
-+static inline void *lsm_get_super(const struct super_block *super,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(super->s_security, sop->order);
-+}
-+
-+static inline void lsm_set_super(struct super_block *super, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&super->s_security, value, sop->order);
-+}
-+
-+static inline void *lsm_get_ipc(const struct kern_ipc_perm *ipc,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(ipc->security, sop->order);
-+}
-+
-+static inline void lsm_set_ipc(struct kern_ipc_perm *ipc, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&ipc->security, value, sop->order);
-+}
-+
-+static inline void *lsm_get_msg(const struct msg_msg *msg,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(msg->security, sop->order);
-+}
-+
-+static inline void lsm_set_msg(struct msg_msg *msg, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&msg->security, value, sop->order);
-+}
-+
-+#ifdef CONFIG_KEYS
-+static inline void *lsm_get_key(const struct key *key,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(key->security, sop->order);
-+}
-+
-+static inline void lsm_set_key(struct key *key, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&key->security, value, sop->order);
-+}
-+#endif
-+
-+static inline void *lsm_get_sock(const struct sock *sock,
-+					const struct security_operations *sop)
-+{
-+	return lsm_get_blob(sock->sk_security, sop->order);
-+}
-+
-+static inline void lsm_set_sock(struct sock *sock, void *value,
-+					const struct security_operations *sop)
-+{
-+	lsm_set_blob(&sock->sk_security, value, sop->order);
-+}
-+
-+#endif /* ! _LINUX_LSM_H */
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 0f6afc6..535a967 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -87,8 +87,6 @@ extern int cap_inode_removexattr(struct dentry *dentry, const char *name);
- extern int cap_inode_need_killpriv(struct dentry *dentry);
- extern int cap_inode_killpriv(struct dentry *dentry);
- extern int cap_mmap_addr(unsigned long addr);
--extern int cap_mmap_file(struct file *file, unsigned long reqprot,
--			 unsigned long prot, unsigned long flags);
- extern int cap_task_fix_setuid(struct cred *new, const struct cred *old, int flags);
- extern int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
- 			  unsigned long arg4, unsigned long arg5);
-@@ -112,8 +110,6 @@ struct seq_file;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 61a5336..8ec7ea0 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -150,6 +150,7 @@ static int selinux_secmark_enabled(void)
+  */
+ static void cred_init_security(void)
+ {
++	int rc;
+ 	struct cred *cred = (struct cred *) current->real_cred;
+ 	struct task_security_struct *tsec;
  
- extern int cap_netlink_send(struct sock *sk, struct sk_buff *skb);
+@@ -158,7 +159,9 @@ static void cred_init_security(void)
+ 		panic("SELinux:  Failed to initialize initial task.\n");
  
--void reset_security_ops(void);
--
- #ifdef CONFIG_MMU
- extern unsigned long mmap_min_addr;
- extern unsigned long dac_mmap_min_addr;
-@@ -184,15 +180,223 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
- 	opts->num_mnt_opts = 0;
+ 	tsec->osid = tsec->sid = SECINITSID_KERNEL;
+-	cred->security = tsec;
++	rc = lsm_set_init_cred(cred, tsec, &selinux_ops);
++	if (rc)
++		panic("SELinux:  Failed to initialize initial task.\n");
  }
  
-+/*
-+ * Index for LSM operations.
-+ */
-+enum lsm_hooks_index {
-+	lsm_ptrace_access_check,
-+	lsm_ptrace_traceme,
-+	lsm_capget,
-+	lsm_capset,
-+	lsm_capable,
-+	lsm_quotactl,
-+	lsm_quota_on,
-+	lsm_syslog,
-+	lsm_settime,
-+	lsm_vm_enough_memory,
-+	lsm_bprm_set_creds,
-+	lsm_bprm_check_security,
-+	lsm_bprm_secureexec,
-+	lsm_bprm_committing_creds,
-+	lsm_bprm_committed_creds,
-+	lsm_sb_alloc_security,
-+	lsm_sb_free_security,
-+	lsm_sb_copy_data,
-+	lsm_sb_remount,
-+	lsm_sb_kern_mount,
-+	lsm_sb_show_options,
-+	lsm_sb_statfs,
-+	lsm_sb_mount,
-+	lsm_sb_umount,
-+	lsm_sb_pivotroot,
-+	lsm_sb_set_mnt_opts,
-+	lsm_sb_clone_mnt_opts,
-+	lsm_sb_parse_opts_str,
-+	lsm_path_unlink,
-+	lsm_path_mkdir,
-+	lsm_path_rmdir,
-+	lsm_path_mknod,
-+	lsm_path_truncate,
-+	lsm_path_symlink,
-+	lsm_path_link,
-+	lsm_path_rename,
-+	lsm_path_chmod,
-+	lsm_path_chown,
-+	lsm_path_chroot,
-+	lsm_inode_alloc_security,
-+	lsm_inode_free_security,
-+	lsm_inode_init_security,
-+	lsm_inode_create,
-+	lsm_inode_link,
-+	lsm_inode_unlink,
-+	lsm_inode_symlink,
-+	lsm_inode_mkdir,
-+	lsm_inode_rmdir,
-+	lsm_inode_mknod,
-+	lsm_inode_rename,
-+	lsm_inode_readlink,
-+	lsm_inode_follow_link,
-+	lsm_inode_permission,
-+	lsm_inode_setattr,
-+	lsm_inode_getattr,
-+	lsm_inode_setxattr,
-+	lsm_inode_post_setxattr,
-+	lsm_inode_getxattr,
-+	lsm_inode_listxattr,
-+	lsm_inode_removexattr,
-+	lsm_inode_need_killpriv,
-+	lsm_inode_killpriv,
-+	lsm_inode_getsecurity,
-+	lsm_inode_setsecurity,
-+	lsm_inode_listsecurity,
-+	lsm_inode_getsecid,
-+	lsm_file_permission,
-+	lsm_file_alloc_security,
-+	lsm_file_free_security,
-+	lsm_file_ioctl,
-+	lsm_mmap_addr,
-+	lsm_mmap_file,
-+	lsm_file_mprotect,
-+	lsm_file_lock,
-+	lsm_file_fcntl,
-+	lsm_file_set_fowner,
-+	lsm_file_send_sigiotask,
-+	lsm_file_receive,
-+	lsm_file_open,
-+	lsm_task_create,
-+	lsm_task_free,
-+	lsm_cred_alloc_blank,
-+	lsm_cred_free,
-+	lsm_cred_prepare,
-+	lsm_cred_transfer,
-+	lsm_kernel_act_as,
-+	lsm_kernel_create_files_as,
-+	lsm_kernel_module_request,
-+	lsm_kernel_module_from_file,
-+	lsm_task_fix_setuid,
-+	lsm_task_setpgid,
-+	lsm_task_getpgid,
-+	lsm_task_getsid,
-+	lsm_task_getsecid,
-+	lsm_task_setnice,
-+	lsm_task_setioprio,
-+	lsm_task_getioprio,
-+	lsm_task_setrlimit,
-+	lsm_task_setscheduler,
-+	lsm_task_getscheduler,
-+	lsm_task_movememory,
-+	lsm_task_kill,
-+	lsm_task_wait,
-+	lsm_task_prctl,
-+	lsm_task_to_inode,
-+	lsm_ipc_permission,
-+	lsm_ipc_getsecid,
-+	lsm_msg_msg_alloc_security,
-+	lsm_msg_msg_free_security,
-+	lsm_msg_queue_alloc_security,
-+	lsm_msg_queue_free_security,
-+	lsm_msg_queue_associate,
-+	lsm_msg_queue_msgctl,
-+	lsm_msg_queue_msgsnd,
-+	lsm_msg_queue_msgrcv,
-+	lsm_shm_alloc_security,
-+	lsm_shm_free_security,
-+	lsm_shm_associate,
-+	lsm_shm_shmctl,
-+	lsm_shm_shmat,
-+	lsm_sem_alloc_security,
-+	lsm_sem_free_security,
-+	lsm_sem_associate,
-+	lsm_sem_semctl,
-+	lsm_sem_semop,
-+	lsm_netlink_send,
-+	lsm_d_instantiate,
-+	lsm_getprocattr,
-+	lsm_setprocattr,
-+	lsm_secid_to_secctx,
-+	lsm_secctx_to_secid,
-+	lsm_release_secctx,
-+	lsm_inode_notifysecctx,
-+	lsm_inode_setsecctx,
-+	lsm_inode_getsecctx,
-+	lsm_unix_stream_connect,
-+	lsm_unix_may_send,
-+	lsm_socket_create,
-+	lsm_socket_post_create,
-+	lsm_socket_bind,
-+	lsm_socket_connect,
-+	lsm_socket_listen,
-+	lsm_socket_accept,
-+	lsm_socket_sendmsg,
-+	lsm_socket_recvmsg,
-+	lsm_socket_getsockname,
-+	lsm_socket_getpeername,
-+	lsm_socket_getsockopt,
-+	lsm_socket_setsockopt,
-+	lsm_socket_shutdown,
-+	lsm_socket_sock_rcv_skb,
-+	lsm_socket_getpeersec_stream,
-+	lsm_socket_getpeersec_dgram,
-+	lsm_sk_alloc_security,
-+	lsm_sk_free_security,
-+	lsm_sk_clone_security,
-+	lsm_sk_getsecid,
-+	lsm_sock_graft,
-+	lsm_inet_conn_request,
-+	lsm_inet_csk_clone,
-+	lsm_inet_conn_established,
-+	lsm_secmark_relabel_packet,
-+	lsm_secmark_refcount_inc,
-+	lsm_secmark_refcount_dec,
-+	lsm_req_classify_flow,
-+	lsm_tun_dev_create,
-+	lsm_tun_dev_post_create,
-+	lsm_tun_dev_attach,
-+	lsm_xfrm_policy_alloc_security,
-+	lsm_xfrm_policy_clone_security,
-+	lsm_xfrm_policy_free_security,
-+	lsm_xfrm_policy_delete_security,
-+	lsm_xfrm_state_alloc_security,
-+	lsm_xfrm_state_free_security,
-+	lsm_xfrm_state_delete_security,
-+	lsm_xfrm_policy_lookup,
-+	lsm_xfrm_state_pol_flow_match,
-+	lsm_xfrm_decode_session,
-+	lsm_key_alloc,
-+	lsm_key_free,
-+	lsm_key_permission,
-+	lsm_key_getsecurity,
-+	lsm_audit_rule_init,
-+	lsm_audit_rule_known,
-+	lsm_audit_rule_match,
-+	lsm_audit_rule_free,
-+	lsm_name, /* Used by security/inode.c */
-+	LSM_MAX_HOOKS
-+};
-+
-+/*
-+ * There is a list for each hook.
-+ */
-+extern struct list_head lsm_hooks[LSM_MAX_HOOKS];
-+
- /**
-  * struct security_operations - main security structure
-  *
-  * Security module identifier.
-  *
-+ * @list:
-+ *	An array of lists of hooks. These are traversed on
-+ *	hook execution.
-+ *
-  * @name:
-  *	A string that acts as a unique identifier for the LSM with max number
-  *	of characters = SECURITY_NAME_MAX.
-  *
-+ * @order:
-+ *	The numeric order in which this LSM will be invoked.
-+ *	Set during LSM initialization. Used to identify
-+ *	which security blob to use when there is more than one LSM.
-+ *
-  * Security hooks for program execution operations.
-  *
-  * @bprm_set_creds:
-@@ -1384,7 +1588,9 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
-  * This is the main security structure.
-  */
- struct security_operations {
-+	struct list_head list[LSM_MAX_HOOKS];
- 	char name[SECURITY_NAME_MAX + 1];
-+	int order;
+ /*
+@@ -168,7 +171,7 @@ static inline u32 cred_sid(const struct cred *cred)
+ {
+ 	const struct task_security_struct *tsec;
  
- 	int (*ptrace_access_check) (struct task_struct *child, unsigned int mode);
- 	int (*ptrace_traceme) (struct task_struct *parent);
-@@ -1662,12 +1868,18 @@ struct security_operations {
- #endif /* CONFIG_AUDIT */
+-	tsec = cred->security;
++	tsec = lsm_get_cred(cred, &selinux_ops);
+ 	return tsec->sid;
+ }
+ 
+@@ -190,8 +193,9 @@ static inline u32 task_sid(const struct task_struct *task)
+  */
+ static inline u32 current_sid(void)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec;
+ 
++	tsec = lsm_get_cred(current_cred(), &selinux_ops);
+ 	return tsec->sid;
+ }
+ 
+@@ -212,22 +216,23 @@ static int inode_alloc_security(struct inode *inode)
+ 	isec->sid = SECINITSID_UNLABELED;
+ 	isec->sclass = SECCLASS_FILE;
+ 	isec->task_sid = sid;
+-	inode->i_security = isec;
++	lsm_set_inode(inode, isec, &selinux_ops);
+ 
+ 	return 0;
+ }
+ 
+ static void inode_free_security(struct inode *inode)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
+-	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
++	struct superblock_security_struct *sbsec =
++				lsm_get_super(inode->i_sb, &selinux_ops);
+ 
+ 	spin_lock(&sbsec->isec_lock);
+ 	if (!list_empty(&isec->list))
+ 		list_del_init(&isec->list);
+ 	spin_unlock(&sbsec->isec_lock);
+ 
+-	inode->i_security = NULL;
++	lsm_set_inode(inode, NULL, &selinux_ops);
+ 	kmem_cache_free(sel_inode_cache, isec);
+ }
+ 
+@@ -242,15 +247,15 @@ static int file_alloc_security(struct file *file)
+ 
+ 	fsec->sid = sid;
+ 	fsec->fown_sid = sid;
+-	file->f_security = fsec;
++	lsm_set_file(file, fsec, &selinux_ops);
+ 
+ 	return 0;
+ }
+ 
+ static void file_free_security(struct file *file)
+ {
+-	struct file_security_struct *fsec = file->f_security;
+-	file->f_security = NULL;
++	struct file_security_struct *fsec = lsm_get_file(file, &selinux_ops);
++	lsm_set_file(file, NULL, &selinux_ops);
+ 	kfree(fsec);
+ }
+ 
+@@ -269,15 +274,16 @@ static int superblock_alloc_security(struct super_block *sb)
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
+ 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+-	sb->s_security = sbsec;
++	lsm_set_super(sb, sbsec, &selinux_ops);
+ 
+ 	return 0;
+ }
+ 
+ static void superblock_free_security(struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec = sb->s_security;
+-	sb->s_security = NULL;
++	struct superblock_security_struct *sbsec =
++						lsm_get_super(sb, &selinux_ops);
++	lsm_set_super(sb, NULL, &selinux_ops);
+ 	kfree(sbsec);
+ }
+ 
+@@ -323,9 +329,10 @@ static int may_context_mount_sb_relabel(u32 sid,
+ 			struct superblock_security_struct *sbsec,
+ 			const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec = cred->security;
++	const struct task_security_struct *tsec;
+ 	int rc;
+ 
++	tsec = lsm_get_cred(cred, &selinux_ops);
+ 	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+ 	if (rc)
+@@ -340,8 +347,10 @@ static int may_context_mount_inode_relabel(u32 sid,
+ 			struct superblock_security_struct *sbsec,
+ 			const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec = cred->security;
++	const struct task_security_struct *tsec;
+ 	int rc;
++
++	tsec = lsm_get_cred(cred, &selinux_ops);
+ 	rc = avc_has_perm(tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+ 	if (rc)
+@@ -354,7 +363,8 @@ static int may_context_mount_inode_relabel(u32 sid,
+ 
+ static int sb_finish_set_opts(struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec =
++						lsm_get_super(sb, &selinux_ops);
+ 	struct dentry *root = sb->s_root;
+ 	struct inode *root_inode = root->d_inode;
+ 	int rc = 0;
+@@ -444,7 +454,8 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 				struct security_mnt_opts *opts)
+ {
+ 	int rc = 0, i;
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec =
++						lsm_get_super(sb, &selinux_ops);
+ 	char *context = NULL;
+ 	u32 len;
+ 	char tmp;
+@@ -504,8 +515,9 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 	}
+ 	if (sbsec->flags & ROOTCONTEXT_MNT) {
+ 		struct inode *root = sbsec->sb->s_root->d_inode;
+-		struct inode_security_struct *isec = root->i_security;
++		struct inode_security_struct *isec;
+ 
++		isec = lsm_get_inode(root, &selinux_ops);
+ 		rc = security_sid_to_context(isec->sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+@@ -555,10 +567,12 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ {
+ 	const struct cred *cred = current_cred();
+ 	int rc = 0, i;
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec =
++						lsm_get_super(sb, &selinux_ops);
+ 	const char *name = sb->s_type->name;
+ 	struct inode *inode = sbsec->sb->s_root->d_inode;
+-	struct inode_security_struct *root_isec = inode->i_security;
++	struct inode_security_struct *root_isec =
++					lsm_get_inode(inode, &selinux_ops);
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+ 	u32 defcontext_sid = 0;
+ 	char **mount_options = opts->mnt_opts;
+@@ -753,8 +767,10 @@ out_double_mount:
+ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 					struct super_block *newsb)
+ {
+-	const struct superblock_security_struct *oldsbsec = oldsb->s_security;
+-	struct superblock_security_struct *newsbsec = newsb->s_security;
++	const struct superblock_security_struct *oldsbsec =
++					lsm_get_super(oldsb, &selinux_ops);
++	struct superblock_security_struct *newsbsec =
++					lsm_get_super(newsb, &selinux_ops);
+ 
+ 	int set_fscontext =	(oldsbsec->flags & FSCONTEXT_MNT);
+ 	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
+@@ -789,16 +805,19 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 			newsbsec->sid = sid;
+ 		if (!set_rootcontext) {
+ 			struct inode *newinode = newsb->s_root->d_inode;
+-			struct inode_security_struct *newisec = newinode->i_security;
++			struct inode_security_struct *newisec =
++					lsm_get_inode(newinode, &selinux_ops);
+ 			newisec->sid = sid;
+ 		}
+ 		newsbsec->mntpoint_sid = sid;
+ 	}
+ 	if (set_rootcontext) {
+ 		const struct inode *oldinode = oldsb->s_root->d_inode;
+-		const struct inode_security_struct *oldisec = oldinode->i_security;
++		const struct inode_security_struct *oldisec =
++					lsm_get_inode(oldinode, &selinux_ops);
+ 		struct inode *newinode = newsb->s_root->d_inode;
+-		struct inode_security_struct *newisec = newinode->i_security;
++		struct inode_security_struct *newisec =
++					lsm_get_inode(newinode, &selinux_ops);
+ 
+ 		newisec->sid = oldisec->sid;
+ 	}
+@@ -1162,7 +1181,7 @@ static int selinux_proc_get_sid(struct dentry *dentry,
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
+ {
+ 	struct superblock_security_struct *sbsec = NULL;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	u32 sid;
+ 	struct dentry *dentry;
+ #define INITCONTEXTLEN 255
+@@ -1177,7 +1196,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	if (isec->initialized)
+ 		goto out_unlock;
+ 
+-	sbsec = inode->i_sb->s_security;
++	sbsec = lsm_get_super(inode->i_sb, &selinux_ops);
+ 	if (!(sbsec->flags & SE_SBINITIALIZED)) {
+ 		/* Defer initialization until selinux_complete_init,
+ 		   after the initial policy is loaded and the security
+@@ -1389,8 +1408,10 @@ static int task_has_perm(const struct task_struct *tsk1,
+ 	u32 sid1, sid2;
+ 
+ 	rcu_read_lock();
+-	__tsec1 = __task_cred(tsk1)->security;	sid1 = __tsec1->sid;
+-	__tsec2 = __task_cred(tsk2)->security;	sid2 = __tsec2->sid;
++	__tsec1 = lsm_get_cred(__task_cred(tsk1), &selinux_ops);
++	sid1 = __tsec1->sid;
++	__tsec2 = lsm_get_cred(__task_cred(tsk2), &selinux_ops);
++	sid2 = __tsec2->sid;
+ 	rcu_read_unlock();
+ 	return avc_has_perm(sid1, sid2, SECCLASS_PROCESS, perms, NULL);
+ }
+@@ -1480,7 +1501,7 @@ static int inode_has_perm(const struct cred *cred,
+ 		return 0;
+ 
+ 	sid = cred_sid(cred);
+-	isec = inode->i_security;
++	isec = lsm_get_inode(inode, &selinux_ops);
+ 
+ 	return avc_has_perm_flags(sid, isec->sid, isec->sclass, perms, adp, flags);
+ }
+@@ -1527,7 +1548,7 @@ static int file_has_perm(const struct cred *cred,
+ 			 struct file *file,
+ 			 u32 av)
+ {
+-	struct file_security_struct *fsec = file->f_security;
++	struct file_security_struct *fsec = lsm_get_file(file, &selinux_ops);
+ 	struct inode *inode = file->f_path.dentry->d_inode;
+ 	struct common_audit_data ad;
+ 	u32 sid = cred_sid(cred);
+@@ -1559,15 +1580,16 @@ static int may_create(struct inode *dir,
+ 		      struct dentry *dentry,
+ 		      u16 tclass)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	struct inode_security_struct *dsec;
+ 	struct superblock_security_struct *sbsec;
+ 	u32 sid, newsid;
+ 	struct common_audit_data ad;
+ 	int rc;
+ 
+-	dsec = dir->i_security;
+-	sbsec = dir->i_sb->s_security;
++	dsec = lsm_get_inode(dir, &selinux_ops);
++	sbsec = lsm_get_super(dir->i_sb, &selinux_ops);
+ 
+ 	sid = tsec->sid;
+ 	newsid = tsec->create_sid;
+@@ -1622,8 +1644,8 @@ static int may_link(struct inode *dir,
+ 	u32 av;
+ 	int rc;
+ 
+-	dsec = dir->i_security;
+-	isec = dentry->d_inode->i_security;
++	dsec = lsm_get_inode(dir, &selinux_ops);
++	isec = lsm_get_inode(dentry->d_inode, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_DENTRY;
+ 	ad.u.dentry = dentry;
+@@ -1666,10 +1688,10 @@ static inline int may_rename(struct inode *old_dir,
+ 	int old_is_dir, new_is_dir;
+ 	int rc;
+ 
+-	old_dsec = old_dir->i_security;
+-	old_isec = old_dentry->d_inode->i_security;
++	old_dsec = lsm_get_inode(old_dir, &selinux_ops);
++	old_isec = lsm_get_inode(old_dentry->d_inode, &selinux_ops);
+ 	old_is_dir = S_ISDIR(old_dentry->d_inode->i_mode);
+-	new_dsec = new_dir->i_security;
++	new_dsec = lsm_get_inode(new_dir, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_DENTRY;
+ 
+@@ -1697,7 +1719,7 @@ static inline int may_rename(struct inode *old_dir,
+ 	if (rc)
+ 		return rc;
+ 	if (new_dentry->d_inode) {
+-		new_isec = new_dentry->d_inode->i_security;
++		new_isec = lsm_get_inode(new_dentry->d_inode, &selinux_ops);
+ 		new_is_dir = S_ISDIR(new_dentry->d_inode->i_mode);
+ 		rc = avc_has_perm(sid, new_isec->sid,
+ 				  new_isec->sclass,
+@@ -1718,7 +1740,7 @@ static int superblock_has_perm(const struct cred *cred,
+ 	struct superblock_security_struct *sbsec;
+ 	u32 sid = cred_sid(cred);
+ 
+-	sbsec = sb->s_security;
++	sbsec = lsm_get_super(sb, &selinux_ops);
+ 	return avc_has_perm(sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
+ }
+ 
+@@ -1792,12 +1814,6 @@ static inline u32 open_file_to_av(struct file *file)
+ static int selinux_ptrace_access_check(struct task_struct *child,
+ 				     unsigned int mode)
+ {
+-	int rc;
+-
+-	rc = cap_ptrace_access_check(child, mode);
+-	if (rc)
+-		return rc;
+-
+ 	if (mode & PTRACE_MODE_READ) {
+ 		u32 sid = current_sid();
+ 		u32 csid = task_sid(child);
+@@ -1809,12 +1825,6 @@ static int selinux_ptrace_access_check(struct task_struct *child,
+ 
+ static int selinux_ptrace_traceme(struct task_struct *parent)
+ {
+-	int rc;
+-
+-	rc = cap_ptrace_traceme(parent);
+-	if (rc)
+-		return rc;
+-
+ 	return task_has_perm(parent, current, PROCESS__PTRACE);
+ }
+ 
+@@ -1835,13 +1845,6 @@ static int selinux_capset(struct cred *new, const struct cred *old,
+ 			  const kernel_cap_t *inheritable,
+ 			  const kernel_cap_t *permitted)
+ {
+-	int error;
+-
+-	error = cap_capset(new, old,
+-				      effective, inheritable, permitted);
+-	if (error)
+-		return error;
+-
+ 	return cred_has_perm(old, new, PROCESS__SETCAP);
+ }
+ 
+@@ -1858,12 +1861,6 @@ static int selinux_capset(struct cred *new, const struct cred *old,
+ static int selinux_capable(const struct cred *cred, struct user_namespace *ns,
+ 			   int cap, int audit)
+ {
+-	int rc;
+-
+-	rc = cap_capable(cred, ns, cap, audit);
+-	if (rc)
+-		return rc;
+-
+ 	return cred_has_capability(cred, cap, audit);
+ }
+ 
+@@ -1960,18 +1957,14 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 	struct inode *inode = bprm->file->f_path.dentry->d_inode;
+ 	int rc;
+ 
+-	rc = cap_bprm_set_creds(bprm);
+-	if (rc)
+-		return rc;
+-
+ 	/* SELinux context only depends on initial program or script and not
+ 	 * the script interpreter */
+ 	if (bprm->cred_prepared)
+ 		return 0;
+ 
+-	old_tsec = current_security();
+-	new_tsec = bprm->cred->security;
+-	isec = inode->i_security;
++	old_tsec = lsm_get_cred(current_cred(), &selinux_ops);
++	new_tsec = lsm_get_cred(bprm->cred, &selinux_ops);
++	isec = lsm_get_inode(inode, &selinux_ops);
+ 
+ 	/* Default to the current task SID. */
+ 	new_tsec->sid = old_tsec->sid;
+@@ -2046,7 +2039,8 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 			rcu_read_lock();
+ 			tracer = ptrace_parent(current);
+ 			if (likely(tracer != NULL)) {
+-				sec = __task_cred(tracer)->security;
++				sec = lsm_get_cred(__task_cred(tracer),
++						   &selinux_ops);
+ 				ptsid = sec->sid;
+ 			}
+ 			rcu_read_unlock();
+@@ -2069,7 +2063,8 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 
+ static int selinux_bprm_secureexec(struct linux_binprm *bprm)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	u32 sid, osid;
+ 	int atsecure = 0;
+ 
+@@ -2085,7 +2080,7 @@ static int selinux_bprm_secureexec(struct linux_binprm *bprm)
+ 					PROCESS__NOATSECURE, NULL);
+ 	}
+ 
+-	return (atsecure || cap_bprm_secureexec(bprm));
++	return atsecure;
+ }
+ 
+ static int match_file(const void *p, struct file *file, unsigned fd)
+@@ -2151,7 +2146,7 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
+ 	struct rlimit *rlim, *initrlim;
+ 	int rc, i;
+ 
+-	new_tsec = bprm->cred->security;
++	new_tsec = lsm_get_cred(bprm->cred, &selinux_ops);
+ 	if (new_tsec->sid == new_tsec->osid)
+ 		return;
+ 
+@@ -2192,7 +2187,8 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
+  */
+ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	struct itimerval itimer;
+ 	u32 osid, sid;
+ 	int rc, i;
+@@ -2339,7 +2335,8 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
+ 	int rc, i, *flags;
+ 	struct security_mnt_opts opts;
+ 	char *secdata, **mount_options;
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec =
++						lsm_get_super(sb, &selinux_ops);
+ 
+ 	if (!(sbsec->flags & SE_SBINITIALIZED))
+ 		return 0;
+@@ -2391,7 +2388,8 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
+ 			break;
+ 		case ROOTCONTEXT_MNT: {
+ 			struct inode_security_struct *root_isec;
+-			root_isec = sb->s_root->d_inode->i_security;
++			root_isec = lsm_get_inode(sb->s_root->d_inode,
++								&selinux_ops);
+ 
+ 			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
+ 				goto out_bad_option;
+@@ -2487,15 +2485,16 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 				       const struct qstr *qstr, char **name,
+ 				       void **value, size_t *len)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	struct inode_security_struct *dsec;
+ 	struct superblock_security_struct *sbsec;
+ 	u32 sid, newsid, clen;
+ 	int rc;
+ 	char *namep = NULL, *context;
+ 
+-	dsec = dir->i_security;
+-	sbsec = dir->i_sb->s_security;
++	dsec = lsm_get_inode(dir, &selinux_ops);
++	sbsec = lsm_get_super(dir->i_sb, &selinux_ops);
+ 
+ 	sid = tsec->sid;
+ 	newsid = tsec->create_sid;
+@@ -2519,7 +2518,8 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 
+ 	/* Possibly defer initialization to selinux_complete_init. */
+ 	if (sbsec->flags & SE_SBINITIALIZED) {
+-		struct inode_security_struct *isec = inode->i_security;
++		struct inode_security_struct *isec =
++					lsm_get_inode(inode, &selinux_ops);
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 		isec->sid = newsid;
+ 		isec->initialized = 1;
+@@ -2608,7 +2608,7 @@ static noinline int audit_inode_permission(struct inode *inode,
+ 					   unsigned flags)
+ {
+ 	struct common_audit_data ad;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	int rc;
+ 
+ 	ad.type = LSM_AUDIT_DATA_INODE;
+@@ -2648,7 +2648,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 	perms = file_mask_to_av(inode->i_mode, mask);
+ 
+ 	sid = cred_sid(cred);
+-	isec = inode->i_security;
++	isec = lsm_get_inode(inode, &selinux_ops);
+ 
+ 	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0, &avd);
+ 	audited = avc_audit_required(perms, &avd, rc,
+@@ -2723,7 +2723,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 				  const void *value, size_t size, int flags)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	struct superblock_security_struct *sbsec;
+ 	struct common_audit_data ad;
+ 	u32 newsid, sid = current_sid();
+@@ -2732,7 +2732,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 	if (strcmp(name, XATTR_NAME_SELINUX))
+ 		return selinux_inode_setotherxattr(dentry, name);
+ 
+-	sbsec = inode->i_sb->s_security;
++	sbsec = lsm_get_super(inode->i_sb, &selinux_ops);
+ 	if (!(sbsec->flags & SE_SBLABELSUPP))
+ 		return -EOPNOTSUPP;
+ 
+@@ -2800,7 +2800,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 					int flags)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	u32 newsid;
+ 	int rc;
+ 
+@@ -2855,7 +2855,7 @@ static int selinux_inode_getsecurity(const struct inode *inode, const char *name
+ 	u32 size;
+ 	int error;
+ 	char *context = NULL;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 
+ 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
+ 		return -EOPNOTSUPP;
+@@ -2891,7 +2891,7 @@ out_nofree:
+ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 				     const void *value, size_t size, int flags)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	u32 newsid;
+ 	int rc;
+ 
+@@ -2920,7 +2920,7 @@ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t
+ 
+ static void selinux_inode_getsecid(const struct inode *inode, u32 *secid)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	*secid = isec->sid;
+ }
+ 
+@@ -2942,8 +2942,8 @@ static int selinux_revalidate_file_permission(struct file *file, int mask)
+ static int selinux_file_permission(struct file *file, int mask)
+ {
+ 	struct inode *inode = file->f_path.dentry->d_inode;
+-	struct file_security_struct *fsec = file->f_security;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct file_security_struct *fsec = lsm_get_file(file, &selinux_ops);
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	u32 sid = current_sid();
+ 
+ 	if (!mask)
+@@ -3177,7 +3177,7 @@ static int selinux_file_set_fowner(struct file *file)
+ {
+ 	struct file_security_struct *fsec;
+ 
+-	fsec = file->f_security;
++	fsec = lsm_get_file(file, &selinux_ops);
+ 	fsec->fown_sid = current_sid();
+ 
+ 	return 0;
+@@ -3194,7 +3194,7 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
+ 	/* struct fown_struct is never outside the context of a struct file */
+ 	file = container_of(fown, struct file, f_owner);
+ 
+-	fsec = file->f_security;
++	fsec = lsm_get_file(file, &selinux_ops);
+ 
+ 	if (!signum)
+ 		perm = signal_to_av(SIGIO); /* as per send_sigio_to_task */
+@@ -3217,8 +3217,8 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
+ 	struct file_security_struct *fsec;
+ 	struct inode_security_struct *isec;
+ 
+-	fsec = file->f_security;
+-	isec = file->f_path.dentry->d_inode->i_security;
++	fsec = lsm_get_file(file, &selinux_ops);
++	isec = lsm_get_inode(file->f_path.dentry->d_inode, &selinux_ops);
+ 	/*
+ 	 * Save inode label and policy sequence number
+ 	 * at open-time so that selinux_file_permission
+@@ -3257,7 +3257,7 @@ static int selinux_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ 	if (!tsec)
+ 		return -ENOMEM;
+ 
+-	cred->security = tsec;
++	lsm_set_cred(cred, tsec, &selinux_ops);
+ 	return 0;
+ }
+ 
+@@ -3266,14 +3266,14 @@ static int selinux_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+  */
+ static void selinux_cred_free(struct cred *cred)
+ {
+-	struct task_security_struct *tsec = cred->security;
++	struct task_security_struct *tsec = lsm_get_cred(cred, &selinux_ops);
+ 
+ 	/*
+ 	 * cred->security == NULL if security_cred_alloc_blank() or
+ 	 * security_prepare_creds() returned an error.
+ 	 */
+-	BUG_ON(cred->security && (unsigned long) cred->security < PAGE_SIZE);
+-	cred->security = (void *) 0x7UL;
++	BUG_ON(tsec && (unsigned long) tsec < PAGE_SIZE);
++	lsm_set_cred(cred, NULL, &selinux_ops);
+ 	kfree(tsec);
+ }
+ 
+@@ -3286,13 +3286,13 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+ 	const struct task_security_struct *old_tsec;
+ 	struct task_security_struct *tsec;
+ 
+-	old_tsec = old->security;
++	old_tsec = lsm_get_cred(old, &selinux_ops);
+ 
+ 	tsec = kmemdup(old_tsec, sizeof(struct task_security_struct), gfp);
+ 	if (!tsec)
+ 		return -ENOMEM;
+ 
+-	new->security = tsec;
++	lsm_set_cred(new, tsec, &selinux_ops);
+ 	return 0;
+ }
+ 
+@@ -3301,9 +3301,15 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+  */
+ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+ {
+-	const struct task_security_struct *old_tsec = old->security;
+-	struct task_security_struct *tsec = new->security;
++	const struct task_security_struct *old_tsec;
++	struct task_security_struct *tsec;
+ 
++	old_tsec = lsm_get_cred(old, &selinux_ops);
++	tsec = lsm_get_cred(new, &selinux_ops);
++
++	/*
++	 * This is a data copy, not a pointer assignment.
++	 */
+ 	*tsec = *old_tsec;
+ }
+ 
+@@ -3313,7 +3319,7 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+  */
+ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ {
+-	struct task_security_struct *tsec = new->security;
++	struct task_security_struct *tsec = lsm_get_cred(new, &selinux_ops);
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+@@ -3336,8 +3342,8 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+  */
+ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
+-	struct task_security_struct *tsec = new->security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
++	struct task_security_struct *tsec = lsm_get_cred(new, &selinux_ops);
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+@@ -3387,23 +3393,11 @@ static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
+ 
+ static int selinux_task_setnice(struct task_struct *p, int nice)
+ {
+-	int rc;
+-
+-	rc = cap_task_setnice(p, nice);
+-	if (rc)
+-		return rc;
+-
+ 	return current_has_perm(p, PROCESS__SETSCHED);
+ }
+ 
+ static int selinux_task_setioprio(struct task_struct *p, int ioprio)
+ {
+-	int rc;
+-
+-	rc = cap_task_setioprio(p, ioprio);
+-	if (rc)
+-		return rc;
+-
+ 	return current_has_perm(p, PROCESS__SETSCHED);
+ }
+ 
+@@ -3429,12 +3423,6 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
+ 
+ static int selinux_task_setscheduler(struct task_struct *p)
+ {
+-	int rc;
+-
+-	rc = cap_task_setscheduler(p);
+-	if (rc)
+-		return rc;
+-
+ 	return current_has_perm(p, PROCESS__SETSCHED);
+ }
+ 
+@@ -3474,7 +3462,7 @@ static int selinux_task_wait(struct task_struct *p)
+ static void selinux_task_to_inode(struct task_struct *p,
+ 				  struct inode *inode)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = lsm_get_inode(inode, &selinux_ops);
+ 	u32 sid = task_sid(p);
+ 
+ 	isec->sid = sid;
+@@ -3729,7 +3717,7 @@ static int socket_sockcreate_sid(const struct task_security_struct *tsec,
+ 
+ static int sock_has_perm(struct task_struct *task, struct sock *sk, u32 perms)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 	u32 tsid = task_sid(task);
+@@ -3747,7 +3735,8 @@ static int sock_has_perm(struct task_struct *task, struct sock *sk, u32 perms)
+ static int selinux_socket_create(int family, int type,
+ 				 int protocol, int kern)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	u32 newsid;
+ 	u16 secclass;
+ 	int rc;
+@@ -3766,8 +3755,10 @@ static int selinux_socket_create(int family, int type,
+ static int selinux_socket_post_create(struct socket *sock, int family,
+ 				      int type, int protocol, int kern)
+ {
+-	const struct task_security_struct *tsec = current_security();
+-	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
++	struct inode_security_struct *isec =
++				lsm_get_inode(SOCK_INODE(sock), &selinux_ops);
+ 	struct sk_security_struct *sksec;
+ 	int err = 0;
+ 
+@@ -3784,7 +3775,7 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 	isec->initialized = 1;
+ 
+ 	if (sock->sk) {
+-		sksec = sock->sk->sk_security;
++		sksec = lsm_get_sock(sock->sk, &selinux_ops);
+ 		sksec->sid = isec->sid;
+ 		sksec->sclass = isec->sclass;
+ 		err = selinux_netlbl_socket_post_create(sock->sk, family);
+@@ -3815,7 +3806,8 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 	family = sk->sk_family;
+ 	if (family == PF_INET || family == PF_INET6) {
+ 		char *addrp;
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec =
++					lsm_get_sock(sk, &selinux_ops);
+ 		struct common_audit_data ad;
+ 		struct lsm_network_audit net = {0,};
+ 		struct sockaddr_in *addr4 = NULL;
+@@ -3899,7 +3891,7 @@ out:
+ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address, int addrlen)
+ {
+ 	struct sock *sk = sock->sk;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	int err;
+ 
+ 	err = sock_has_perm(current, sk, SOCKET__CONNECT);
+@@ -3967,9 +3959,9 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
+ 	if (err)
+ 		return err;
+ 
+-	newisec = SOCK_INODE(newsock)->i_security;
++	newisec = lsm_get_inode(SOCK_INODE(newsock), &selinux_ops);
+ 
+-	isec = SOCK_INODE(sock)->i_security;
++	isec = lsm_get_inode(SOCK_INODE(sock), &selinux_ops);
+ 	newisec->sclass = isec->sclass;
+ 	newisec->sid = isec->sid;
+ 	newisec->initialized = 1;
+@@ -4025,9 +4017,12 @@ static int selinux_socket_unix_stream_connect(struct sock *sock,
+ 					      struct sock *other,
+ 					      struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec_sock = sock->sk_security;
+-	struct sk_security_struct *sksec_other = other->sk_security;
+-	struct sk_security_struct *sksec_new = newsk->sk_security;
++	struct sk_security_struct *sksec_sock =
++					lsm_get_sock(sock, &selinux_ops);
++	struct sk_security_struct *sksec_other =
++					lsm_get_sock(other, &selinux_ops);
++	struct sk_security_struct *sksec_new =
++					lsm_get_sock(newsk, &selinux_ops);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 	int err;
+@@ -4058,8 +4053,8 @@ static int selinux_socket_unix_stream_connect(struct sock *sock,
+ static int selinux_socket_unix_may_send(struct socket *sock,
+ 					struct socket *other)
+ {
+-	struct sk_security_struct *ssec = sock->sk->sk_security;
+-	struct sk_security_struct *osec = other->sk->sk_security;
++	struct sk_security_struct *ssec = lsm_get_sock(sock->sk, &selinux_ops);
++	struct sk_security_struct *osec = lsm_get_sock(other->sk, &selinux_ops);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 
+@@ -4098,7 +4093,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 				       u16 family)
+ {
+ 	int err = 0;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	u32 sk_sid = sksec->sid;
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+@@ -4130,7 +4125,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+ 	int err;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	u16 family = sk->sk_family;
+ 	u32 sk_sid = sksec->sid;
+ 	struct common_audit_data ad;
+@@ -4200,7 +4195,7 @@ static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *op
+ 	int err = 0;
+ 	char *scontext;
+ 	u32 scontext_len;
+-	struct sk_security_struct *sksec = sock->sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sock->sk, &selinux_ops);
+ 	u32 peer_sid = SECSID_NULL;
+ 
+ 	if (sksec->sclass == SECCLASS_UNIX_STREAM_SOCKET ||
+@@ -4265,24 +4260,24 @@ static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority
+ 	sksec->peer_sid = SECINITSID_UNLABELED;
+ 	sksec->sid = SECINITSID_UNLABELED;
+ 	selinux_netlbl_sk_security_reset(sksec);
+-	sk->sk_security = sksec;
++	lsm_set_sock(sk, sksec, &selinux_ops);
+ 
+ 	return 0;
+ }
+ 
+ static void selinux_sk_free_security(struct sock *sk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+-	sk->sk_security = NULL;
++	lsm_set_sock(sk, NULL, &selinux_ops);
+ 	selinux_netlbl_sk_security_free(sksec);
+ 	kfree(sksec);
+ }
+ 
+ static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
+-	struct sk_security_struct *newsksec = newsk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
++	struct sk_security_struct *newsksec = lsm_get_sock(newsk, &selinux_ops);
+ 
+ 	newsksec->sid = sksec->sid;
+ 	newsksec->peer_sid = sksec->peer_sid;
+@@ -4296,7 +4291,8 @@ static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
+ 	if (!sk)
+ 		*secid = SECINITSID_ANY_SOCKET;
+ 	else {
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec =
++					lsm_get_sock(sk, &selinux_ops);
+ 
+ 		*secid = sksec->sid;
+ 	}
+@@ -4304,8 +4300,9 @@ static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
+ 
+ static void selinux_sock_graft(struct sock *sk, struct socket *parent)
+ {
+-	struct inode_security_struct *isec = SOCK_INODE(parent)->i_security;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct inode_security_struct *isec =
++			lsm_get_inode(SOCK_INODE(parent), &selinux_ops);
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+ 	if (sk->sk_family == PF_INET || sk->sk_family == PF_INET6 ||
+ 	    sk->sk_family == PF_UNIX)
+@@ -4316,7 +4313,7 @@ static void selinux_sock_graft(struct sock *sk, struct socket *parent)
+ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 				     struct request_sock *req)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	int err;
+ 	u16 family = sk->sk_family;
+ 	u32 newsid;
+@@ -4346,7 +4343,7 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ static void selinux_inet_csk_clone(struct sock *newsk,
+ 				   const struct request_sock *req)
+ {
+-	struct sk_security_struct *newsksec = newsk->sk_security;
++	struct sk_security_struct *newsksec = lsm_get_sock(newsk, &selinux_ops);
+ 
+ 	newsksec->sid = req->secid;
+ 	newsksec->peer_sid = req->peer_secid;
+@@ -4363,7 +4360,7 @@ static void selinux_inet_csk_clone(struct sock *newsk,
+ static void selinux_inet_conn_established(struct sock *sk, struct sk_buff *skb)
+ {
+ 	u16 family = sk->sk_family;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+ 	/* handle mapped IPv4 packets arriving via IPv6 sockets */
+ 	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
+@@ -4377,7 +4374,7 @@ static int selinux_secmark_relabel_packet(u32 sid)
+ 	const struct task_security_struct *__tsec;
+ 	u32 tsid;
+ 
+-	__tsec = current_security();
++	__tsec = lsm_get_cred(current_cred(), &selinux_ops);
+ 	tsid = __tsec->sid;
+ 
+ 	return avc_has_perm(tsid, sid, SECCLASS_PACKET, PACKET__RELABELTO, NULL);
+@@ -4416,7 +4413,7 @@ static int selinux_tun_dev_create(void)
+ 
+ static void selinux_tun_dev_post_create(struct sock *sk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+ 	/* we don't currently perform any NetLabel based labeling here and it
+ 	 * isn't clear that we would want to do so anyway; while we could apply
+@@ -4434,7 +4431,7 @@ static void selinux_tun_dev_post_create(struct sock *sk)
+ 
+ static int selinux_tun_dev_attach(struct sock *sk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	u32 sid = current_sid();
+ 	int err;
+ 
+@@ -4457,7 +4454,7 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ 	int err = 0;
+ 	u32 perm;
+ 	struct nlmsghdr *nlh;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+ 	if (skb->len < NLMSG_SPACE(0)) {
+ 		err = -EINVAL;
+@@ -4577,7 +4574,8 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
+ 	 * because we want to make sure we apply the necessary labeling
+ 	 * before IPsec is applied so we can leverage AH protection */
+ 	if (skb->sk) {
+-		struct sk_security_struct *sksec = skb->sk->sk_security;
++		struct sk_security_struct *sksec =
++					lsm_get_sock(skb->sk, &selinux_ops);
+ 		sid = sksec->sid;
+ 	} else
+ 		sid = SECINITSID_KERNEL;
+@@ -4609,7 +4607,7 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 
+ 	if (sk == NULL)
+ 		return NF_ACCEPT;
+-	sksec = sk->sk_security;
++	sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_NET;
+ 	ad.u.net = &net;
+@@ -4677,7 +4675,8 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 			peer_sid = SECINITSID_KERNEL;
+ 		}
+ 	} else {
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec =
++					lsm_get_sock(sk, &selinux_ops);
+ 		peer_sid = sksec->sid;
+ 		secmark_perm = PACKET__SEND;
+ 	}
+@@ -4738,12 +4737,6 @@ static unsigned int selinux_ipv6_postroute(unsigned int hooknum,
+ 
+ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+ {
+-	int err;
+-
+-	err = cap_netlink_send(sk, skb);
+-	if (err)
+-		return err;
+-
+ 	return selinux_nlmsg_perm(sk, skb);
+ }
+ 
+@@ -4761,15 +4754,15 @@ static int ipc_alloc_security(struct task_struct *task,
+ 	sid = task_sid(task);
+ 	isec->sclass = sclass;
+ 	isec->sid = sid;
+-	perm->security = isec;
++	lsm_set_ipc(perm, isec, &selinux_ops);
+ 
+ 	return 0;
+ }
+ 
+ static void ipc_free_security(struct kern_ipc_perm *perm)
+ {
+-	struct ipc_security_struct *isec = perm->security;
+-	perm->security = NULL;
++	struct ipc_security_struct *isec = lsm_get_ipc(perm, &selinux_ops);
++	lsm_set_ipc(perm, NULL, &selinux_ops);
+ 	kfree(isec);
+ }
+ 
+@@ -4782,16 +4775,16 @@ static int msg_msg_alloc_security(struct msg_msg *msg)
+ 		return -ENOMEM;
+ 
+ 	msec->sid = SECINITSID_UNLABELED;
+-	msg->security = msec;
++	lsm_set_msg(msg, msec, &selinux_ops);
+ 
+ 	return 0;
+ }
+ 
+ static void msg_msg_free_security(struct msg_msg *msg)
+ {
+-	struct msg_security_struct *msec = msg->security;
++	struct msg_security_struct *msec = lsm_get_msg(msg, &selinux_ops);
+ 
+-	msg->security = NULL;
++	lsm_set_msg(msg, NULL, &selinux_ops);
+ 	kfree(msec);
+ }
+ 
+@@ -4802,7 +4795,7 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = ipc_perms->security;
++	isec = lsm_get_ipc(ipc_perms, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = ipc_perms->key;
+@@ -4832,7 +4825,7 @@ static int selinux_msg_queue_alloc_security(struct msg_queue *msq)
+ 	if (rc)
+ 		return rc;
+ 
+-	isec = msq->q_perm.security;
++	isec = lsm_get_ipc(&msq->q_perm, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->q_perm.key;
+@@ -4857,7 +4850,7 @@ static int selinux_msg_queue_associate(struct msg_queue *msq, int msqflg)
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = msq->q_perm.security;
++	isec = lsm_get_ipc(&msq->q_perm, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->q_perm.key;
+@@ -4902,8 +4895,8 @@ static int selinux_msg_queue_msgsnd(struct msg_queue *msq, struct msg_msg *msg,
+ 	u32 sid = current_sid();
+ 	int rc;
+ 
+-	isec = msq->q_perm.security;
+-	msec = msg->security;
++	isec = lsm_get_ipc(&msq->q_perm, &selinux_ops);
++	msec = lsm_get_msg(msg, &selinux_ops);
+ 
+ 	/*
+ 	 * First time through, need to assign label to the message
+@@ -4947,8 +4940,8 @@ static int selinux_msg_queue_msgrcv(struct msg_queue *msq, struct msg_msg *msg,
+ 	u32 sid = task_sid(target);
+ 	int rc;
+ 
+-	isec = msq->q_perm.security;
+-	msec = msg->security;
++	isec = lsm_get_ipc(&msq->q_perm, &selinux_ops);
++	msec = lsm_get_msg(msg, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->q_perm.key;
+@@ -4973,7 +4966,7 @@ static int selinux_shm_alloc_security(struct shmid_kernel *shp)
+ 	if (rc)
+ 		return rc;
+ 
+-	isec = shp->shm_perm.security;
++	isec = lsm_get_ipc(&shp->shm_perm, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = shp->shm_perm.key;
+@@ -4998,7 +4991,7 @@ static int selinux_shm_associate(struct shmid_kernel *shp, int shmflg)
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = shp->shm_perm.security;
++	isec = lsm_get_ipc(&shp->shm_perm, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = shp->shm_perm.key;
+@@ -5065,7 +5058,7 @@ static int selinux_sem_alloc_security(struct sem_array *sma)
+ 	if (rc)
+ 		return rc;
+ 
+-	isec = sma->sem_perm.security;
++	isec = lsm_get_ipc(&sma->sem_perm, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = sma->sem_perm.key;
+@@ -5090,7 +5083,7 @@ static int selinux_sem_associate(struct sem_array *sma, int semflg)
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = sma->sem_perm.security;
++	isec = lsm_get_ipc(&sma->sem_perm, &selinux_ops);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = sma->sem_perm.key;
+@@ -5172,7 +5165,7 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
+ 
+ static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
+ {
+-	struct ipc_security_struct *isec = ipcp->security;
++	struct ipc_security_struct *isec = lsm_get_ipc(ipcp, &selinux_ops);
+ 	*secid = isec->sid;
+ }
+ 
+@@ -5197,7 +5190,7 @@ static int selinux_getprocattr(struct task_struct *p,
+ 	}
+ 
+ 	rcu_read_lock();
+-	__tsec = __task_cred(p)->security;
++	__tsec = lsm_get_cred(__task_cred(p), &selinux_ops);
+ 
+ 	if (!strcmp(name, "current"))
+ 		sid = __tsec->sid;
+@@ -5306,7 +5299,7 @@ static int selinux_setprocattr(struct task_struct *p,
+ 	   operation.  See selinux_bprm_set_creds for the execve
+ 	   checks and may_create for the file creation checks. The
+ 	   operation will then fail if the context is not permitted. */
+-	tsec = new->security;
++	tsec = lsm_get_cred(new, &selinux_ops);
+ 	if (!strcmp(name, "exec")) {
+ 		tsec->exec_sid = sid;
+ 	} else if (!strcmp(name, "fscreate")) {
+@@ -5420,21 +5413,21 @@ static int selinux_key_alloc(struct key *k, const struct cred *cred,
+ 	if (!ksec)
+ 		return -ENOMEM;
+ 
+-	tsec = cred->security;
++	tsec = lsm_get_cred(cred, &selinux_ops);
+ 	if (tsec->keycreate_sid)
+ 		ksec->sid = tsec->keycreate_sid;
+ 	else
+ 		ksec->sid = tsec->sid;
+ 
+-	k->security = ksec;
++	lsm_set_key(k, ksec, &selinux_ops);
+ 	return 0;
+ }
+ 
+ static void selinux_key_free(struct key *k)
+ {
+-	struct key_security_struct *ksec = k->security;
++	struct key_security_struct *ksec = lsm_get_key(k, &selinux_ops);
+ 
+-	k->security = NULL;
++	lsm_set_key(k, NULL, &selinux_ops);
+ 	kfree(ksec);
+ }
+ 
+@@ -5455,14 +5448,14 @@ static int selinux_key_permission(key_ref_t key_ref,
+ 	sid = cred_sid(cred);
+ 
+ 	key = key_ref_to_ptr(key_ref);
+-	ksec = key->security;
++	ksec = lsm_get_key(key, &selinux_ops);
+ 
+ 	return avc_has_perm(sid, ksec->sid, SECCLASS_KEY, perm, NULL);
+ }
+ 
+ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+ {
+-	struct key_security_struct *ksec = key->security;
++	struct key_security_struct *ksec = lsm_get_key(key, &selinux_ops);
+ 	char *context = NULL;
+ 	unsigned len;
+ 	int rc;
+@@ -5476,7 +5469,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+ 
+ #endif
+ 
+-static struct security_operations selinux_ops = {
++struct security_operations selinux_ops = {
+ 	.name =				"selinux",
+ 
+ 	.ptrace_access_check =		selinux_ptrace_access_check,
+@@ -5676,13 +5669,13 @@ static struct security_operations selinux_ops = {
+ 
+ static __init int selinux_init(void)
+ {
+-	if (!security_module_enable(&selinux_ops)) {
+-		selinux_enabled = 0;
++	if (!selinux_enabled) {
++		pr_info("SELinux:  Disabled at boot.\n");
+ 		return 0;
+ 	}
+ 
+-	if (!selinux_enabled) {
+-		printk(KERN_INFO "SELinux:  Disabled at boot.\n");
++	if (!security_module_enable(&selinux_ops)) {
++		selinux_enabled = 0;
+ 		return 0;
+ 	}
+ 
+@@ -5694,13 +5687,10 @@ static __init int selinux_init(void)
+ 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
+ 
+ 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
+-					    sizeof(struct inode_security_struct),
+-					    0, SLAB_PANIC, NULL);
++				    sizeof(struct inode_security_struct),
++				    0, SLAB_PANIC, NULL);
+ 	avc_init();
+ 
+-	if (register_security(&selinux_ops))
+-		panic("SELinux: Unable to register with kernel.\n");
+-
+ 	if (selinux_enforcing)
+ 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	else
+@@ -5824,6 +5814,8 @@ static int selinux_disabled;
+ 
+ int selinux_disable(void)
+ {
++	int rc;
++
+ 	if (ss_initialized) {
+ 		/* Not permitted after initial policy load. */
+ 		return -EINVAL;
+@@ -5834,13 +5826,17 @@ int selinux_disable(void)
+ 		return -EINVAL;
+ 	}
+ 
++	rc = reset_security_ops(&selinux_ops);
++	if (rc) {
++		pr_info("SELinux:  Runtime disable disallowed.\n");
++		return rc;
++	}
++
+ 	printk(KERN_INFO "SELinux:  Disabled at runtime.\n");
+ 
+ 	selinux_disabled = 1;
+ 	selinux_enabled = 0;
+ 
+-	reset_security_ops();
+-
+ 	/* Try to destroy the avc node cache */
+ 	avc_disable();
+ 
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 26c7eee..1d1dd10 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -24,6 +24,7 @@
+ #include <linux/binfmts.h>
+ #include <linux/in.h>
+ #include <linux/spinlock.h>
++#include <linux/lsm.h>
+ #include "flask.h"
+ #include "avc.h"
+ 
+@@ -115,5 +116,6 @@ struct key_security_struct {
  };
  
-+/*
-+ * The security operations vector for /proc interfaces.
-+ */
-+extern struct security_operations *lsm_present;
-+
- /* prototypes */
- extern int security_init(void);
- extern int security_module_enable(struct security_operations *ops);
--extern int register_security(struct security_operations *ops);
--extern void __init security_fixup_ops(struct security_operations *ops);
+ extern unsigned int selinux_checkreqprot;
++extern struct security_operations selinux_ops;
  
-+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
-+extern int reset_security_ops(struct security_operations *ops);
-+#endif /* CONFIG_SECURITY_SELINUX_DISABLE */
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index 65f67cb..1219221 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -31,7 +31,7 @@ static inline struct inode_security_struct *get_sock_isec(struct sock *sk)
+ 	if (!sk->sk_socket)
+ 		return NULL;
  
- /* Security operations */
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
-@@ -3035,36 +3247,5 @@ static inline void free_secdata(void *secdata)
- { }
- #endif /* CONFIG_SECURITY */
- 
--#ifdef CONFIG_SECURITY_YAMA
--extern int yama_ptrace_access_check(struct task_struct *child,
--				    unsigned int mode);
--extern int yama_ptrace_traceme(struct task_struct *parent);
--extern void yama_task_free(struct task_struct *task);
--extern int yama_task_prctl(int option, unsigned long arg2, unsigned long arg3,
--			   unsigned long arg4, unsigned long arg5);
--#else
--static inline int yama_ptrace_access_check(struct task_struct *child,
--					   unsigned int mode)
--{
--	return 0;
--}
--
--static inline int yama_ptrace_traceme(struct task_struct *parent)
--{
--	return 0;
--}
--
--static inline void yama_task_free(struct task_struct *task)
--{
--}
--
--static inline int yama_task_prctl(int option, unsigned long arg2,
--				  unsigned long arg3, unsigned long arg4,
--				  unsigned long arg5)
--{
--	return -ENOSYS;
--}
--#endif /* CONFIG_SECURITY_YAMA */
--
- #endif /* ! __LINUX_SECURITY_H */
- 
-diff --git a/security/Kconfig b/security/Kconfig
-index e9c6ac7..83415b6 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -123,49 +123,74 @@ source security/tomoyo/Kconfig
- source security/apparmor/Kconfig
- source security/yama/Kconfig
- 
-+config SECURITY_COMPOSER_MAX
-+	int "Maximum allowed security modules (1 to 12)"
-+	depends on SECURITY
-+	default 6
-+	range 1 12
-+	help
-+	  The number of security modules that can be loaded.
-+	  The default value allows for all of the upstream modules.
-+	  The maximum allowed value is 12.
-+
- source security/integrity/Kconfig
- 
- choice
--	prompt "Default security module"
--	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
--	default DEFAULT_SECURITY_SMACK if SECURITY_SMACK
--	default DEFAULT_SECURITY_TOMOYO if SECURITY_TOMOYO
--	default DEFAULT_SECURITY_APPARMOR if SECURITY_APPARMOR
--	default DEFAULT_SECURITY_YAMA if SECURITY_YAMA
--	default DEFAULT_SECURITY_DAC
-+	depends on SECURITY
-+	prompt "Presented security module"
-+	default PRESENT_SECURITY_SELINUX \
-+		if SECURITY_SELINUX && !(SECURITY_APPARMOR || SECURITY_SMACK)
-+	default PRESENT_SECURITY_SMACK \
-+		if SECURITY_SMACK && !(SECURITY_APPARMOR || SECURITY_SELINUX)
-+	default PRESENT_SECURITY_APPARMOR \
-+		if SECURITY_APPARMOR && !(SECURITY_SMACK || SECURITY_SELINUX)
-+	default PRESENT_SECURITY_FIRST \
-+		if SECURITY_APPARMOR || SECURITY_SMACK || SECURITY_SELINUX
-+	default PRESENT_SECURITY_NONE
- 
- 	help
--	  Select the security module that will be used by default if the
--	  kernel parameter security= is not specified.
-+	  Select the security module that will be presented
-+	  with the /proc/*/attr interface.
-+	  If not specified the first registered LSM that uses
-+	  the /proc/*/attr interface will be chosen.
- 
--	config DEFAULT_SECURITY_SELINUX
-+	config PRESENT_SECURITY_SELINUX
- 		bool "SELinux" if SECURITY_SELINUX=y
-+		help
-+		  Present SELinux context information in the
-+		  files in /proc/*/attr
- 
--	config DEFAULT_SECURITY_SMACK
-+	config PRESENT_SECURITY_SMACK
- 		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
-+		help
-+		  Present Smack process label information
-+		  in /proc/*/attr/current
- 
--	config DEFAULT_SECURITY_TOMOYO
--		bool "TOMOYO" if SECURITY_TOMOYO=y
--
--	config DEFAULT_SECURITY_APPARMOR
-+	config PRESENT_SECURITY_APPARMOR
- 		bool "AppArmor" if SECURITY_APPARMOR=y
-+		help
-+		  Present AppArmor context information in the
-+		  files in /proc/*/attr
- 
--	config DEFAULT_SECURITY_YAMA
--		bool "Yama" if SECURITY_YAMA=y
-+	config PRESENT_SECURITY_FIRST
-+		bool "Use first registered LSM"
-+		help
-+		  Present information from the first LSM that uses
-+		  /proc/*/attr in the files in /proc/*/attr
- 
--	config DEFAULT_SECURITY_DAC
--		bool "Unix Discretionary Access Controls"
-+	config PRESENT_SECURITY_NONE
-+		bool "Present Nothing"
-+		help
-+		  Do not present LSM information in /proc/*/attr
- 
- endchoice
- 
--config DEFAULT_SECURITY
-+config PRESENT_SECURITY
- 	string
--	default "selinux" if DEFAULT_SECURITY_SELINUX
--	default "smack" if DEFAULT_SECURITY_SMACK
--	default "tomoyo" if DEFAULT_SECURITY_TOMOYO
--	default "apparmor" if DEFAULT_SECURITY_APPARMOR
--	default "yama" if DEFAULT_SECURITY_YAMA
--	default "" if DEFAULT_SECURITY_DAC
-+	default "selinux" if PRESENT_SECURITY_SELINUX
-+	default "smack" if PRESENT_SECURITY_SMACK
-+	default "apparmor" if PRESENT_SECURITY_APPARMOR
-+	default "FIRSTLSM" if PRESENT_SECURITY_FIRST
-+	default "NOTHING"
- 
- endmenu
--
-diff --git a/security/inode.c b/security/inode.c
-index 43ce6e1..1ca6aaf 100644
---- a/security/inode.c
-+++ b/security/inode.c
-@@ -21,6 +21,9 @@
- #include <linux/namei.h>
- #include <linux/security.h>
- #include <linux/magic.h>
-+#ifdef CONFIG_SECURITY
-+#include <linux/lsm.h>
-+#endif
- 
- static struct vfsmount *mount;
- static int mount_count;
-@@ -215,6 +218,70 @@ void securityfs_remove(struct dentry *dentry)
- }
- EXPORT_SYMBOL_GPL(securityfs_remove);
- 
-+#ifdef CONFIG_SECURITY
-+static struct dentry *lsm_dentry;
-+static ssize_t lsm_read(struct file *filp, char __user *buf, size_t count,
-+			loff_t *ppos)
-+{
-+	struct security_operations *sop;
-+	char *data;
-+	int len;
-+
-+	data = kzalloc(COMPOSER_NAMES_MAX + 1, GFP_KERNEL);
-+	if (data == NULL)
-+		return -ENOMEM;
-+
-+	list_for_each_entry(sop, &lsm_hooks[lsm_name], list[lsm_name]) {
-+		strcat(data, sop->name);
-+		strcat(data, ",");
-+	}
-+	len = strlen(data);
-+	if (len > 1)
-+		data[len-1] = '\n';
-+
-+	len = simple_read_from_buffer(buf, count, ppos, data, len);
-+	kfree(data);
-+
-+	return len;
-+}
-+
-+static const struct file_operations lsm_ops = {
-+	.read = lsm_read,
-+	.llseek = generic_file_llseek,
-+};
-+
-+static struct dentry *present_dentry;
-+static ssize_t present_read(struct file *filp, char __user *buf, size_t count,
-+			loff_t *ppos)
-+{
-+	struct security_operations *sop = lsm_present;
-+	char *raw;
-+	char *data;
-+	int len;
-+
-+	if (sop)
-+		raw = sop->name;
-+	else
-+		raw = "(none)";
-+	len = strlen(raw);
-+
-+	data = kstrdup(raw, GFP_KERNEL);
-+	if (data == NULL)
-+		return -ENOMEM;
-+
-+	data[len] = '\n';
-+	len = simple_read_from_buffer(buf, count, ppos, data, len + 1);
-+	kfree(data);
-+
-+	return len;
-+}
-+
-+static const struct file_operations present_ops = {
-+	.read = present_read,
-+	.llseek = generic_file_llseek,
-+};
-+#endif /* CONFIG_SECURITY */
-+
- static struct kobject *security_kobj;
- 
- static int __init securityfs_init(void)
-@@ -226,9 +293,17 @@ static int __init securityfs_init(void)
- 		return -EINVAL;
- 
- 	retval = register_filesystem(&fs_type);
--	if (retval)
-+	if (retval) {
- 		kobject_put(security_kobj);
--	return retval;
-+		return retval;
-+	}
-+#ifdef CONFIG_SECURITY
-+	lsm_dentry = securityfs_create_file("lsm", S_IRUGO, NULL, NULL,
-+		&lsm_ops);
-+	present_dentry = securityfs_create_file("present", S_IRUGO, NULL, NULL,
-+		&present_ops);
-+#endif /* CONFIG_SECURITY */
-+	return 0;
+-	return SOCK_INODE(sk->sk_socket)->i_security;
++	return lsm_get_inode(SOCK_INODE(sk->sk_socket), &selinux_ops);
  }
  
- core_initcall(securityfs_init);
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index da4b8b2..7a9cbd0 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -81,7 +81,7 @@ static int selinux_netlbl_sidlookup_cached(struct sk_buff *skb,
+ static struct netlbl_lsm_secattr *selinux_netlbl_sock_genattr(struct sock *sk)
+ {
+ 	int rc;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	struct netlbl_lsm_secattr *secattr;
+ 
+ 	if (sksec->nlbl_secattr != NULL)
+@@ -221,7 +221,8 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
+ 	 * being labeled by it's parent socket, if it is just exit */
+ 	sk = skb->sk;
+ 	if (sk != NULL) {
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec =
++					lsm_get_sock(sk, &selinux_ops);
+ 		if (sksec->nlbl_state != NLBL_REQSKB)
+ 			return 0;
+ 		secattr = sksec->nlbl_secattr;
+@@ -283,7 +284,7 @@ inet_conn_request_return:
+  */
+ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 
+ 	if (family == PF_INET)
+ 		sksec->nlbl_state = NLBL_LABELED;
+@@ -304,7 +305,7 @@ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
+ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
+ {
+ 	int rc;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	struct netlbl_lsm_secattr *secattr;
+ 
+ 	if (family != PF_INET)
+@@ -402,7 +403,7 @@ int selinux_netlbl_socket_setsockopt(struct socket *sock,
+ {
+ 	int rc = 0;
+ 	struct sock *sk = sock->sk;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	struct netlbl_lsm_secattr secattr;
+ 
+ 	if (level == IPPROTO_IP && optname == IP_OPTIONS &&
+@@ -435,7 +436,7 @@ int selinux_netlbl_socket_setsockopt(struct socket *sock,
+ int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr)
+ {
+ 	int rc;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = lsm_get_sock(sk, &selinux_ops);
+ 	struct netlbl_lsm_secattr *secattr;
+ 
+ 	if (sksec->nlbl_state != NLBL_REQSKB &&
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 3a6e873..415c6b7 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -83,7 +83,7 @@ static int task_has_security(struct task_struct *tsk,
+ 	u32 sid = 0;
+ 
+ 	rcu_read_lock();
+-	tsec = __task_cred(tsk)->security;
++	tsec = lsm_get_cred(__task_cred(tsk), &selinux_ops);
+ 	if (tsec)
+ 		sid = tsec->sid;
+ 	rcu_read_unlock();
+@@ -1264,7 +1264,7 @@ static int sel_make_bools(void)
+ 		if (len >= PAGE_SIZE)
+ 			goto out;
+ 
+-		isec = (struct inode_security_struct *)inode->i_security;
++		isec = lsm_get_inode(inode, &selinux_ops);
+ 		ret = security_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid);
+ 		if (ret)
+ 			goto out;
+@@ -1831,7 +1831,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto err;
+ 
+ 	inode->i_ino = ++sel_last_ino;
+-	isec = (struct inode_security_struct *)inode->i_security;
++	isec = lsm_get_inode(inode, &selinux_ops);
+ 	isec->sid = SECINITSID_DEVNULL;
+ 	isec->sclass = SECCLASS_CHR_FILE;
+ 	isec->initialized = 1;
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 48665ec..02979a3 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -198,7 +198,8 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
+ 	struct xfrm_user_sec_ctx *uctx, u32 sid)
+ {
+ 	int rc = 0;
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	struct xfrm_sec_ctx *ctx = NULL;
+ 	char *ctx_str = NULL;
+ 	u32 str_len;
+@@ -334,7 +335,8 @@ void selinux_xfrm_policy_free(struct xfrm_sec_ctx *ctx)
+  */
+ int selinux_xfrm_policy_delete(struct xfrm_sec_ctx *ctx)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	int rc = 0;
+ 
+ 	if (ctx) {
+@@ -379,7 +381,8 @@ void selinux_xfrm_state_free(struct xfrm_state *x)
+   */
+ int selinux_xfrm_state_delete(struct xfrm_state *x)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec =
++				lsm_get_cred(current_cred(), &selinux_ops);
+ 	struct xfrm_sec_ctx *ctx = x->security;
+ 	int rc = 0;
+ 
 
 
 --
