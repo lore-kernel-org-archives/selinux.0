@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0829L0B017796
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2013 21:09:21 -0500
-Message-ID: <50EB7FBE.80309@schaufler-ca.com>
-Date: Mon, 07 Jan 2013 18:09:02 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0829uwi017944
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2013 21:10:00 -0500
+Message-ID: <50EB7FE5.5070105@schaufler-ca.com>
+Date: Mon, 07 Jan 2013 18:09:41 -0800
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
 To: James Morris <jmorris@namei.org>
@@ -13,393 +13,228 @@ CC: Casey Schaufler <casey@schaufler-ca.com>,
         Eric Paris <eparis@redhat.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
         Kees Cook <keescook@chromium.org>
-Subject: [PATCH v12 1/9] LSM: Multiple concurrent LSMs
+Subject: [PATCH v12 8/9] LSM: Multiple concurrent LSMs
 References: <50EB7C50.3070605@schaufler-ca.com>
 In-Reply-To: <50EB7C50.3070605@schaufler-ca.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Subject: [PATCH v12 1/9] LSM: Multiple concurrent LSMs
+Subject: [PATCH v12 8/9] LSM: Multiple concurrent LSMs
 
 Change the infrastructure for Linux Security Modules (LSM)s
 from a single vector of hook handlers to a list based method
 for handling multiple concurrent modules. 
 
-Changes for AppArmor. Abstract access to security blobs.
+Abstract access to security blobs.
 Remove commoncap calls.
-
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
 ---
- security/apparmor/context.c         |   10 +++---
- security/apparmor/domain.c          |   19 ++++------
- security/apparmor/include/context.h |   13 +++++--
- security/apparmor/lsm.c             |   66 +++++++++++++----------------------
- 4 files changed, 45 insertions(+), 63 deletions(-)
+ security/tomoyo/common.h        |    6 +++--
+ security/tomoyo/domain.c        |    2 +-
+ security/tomoyo/securityfs_if.c |    9 +++++---
+ security/tomoyo/tomoyo.c        |   47 ++++++++++++++++++++++-----------------
+ 4 files changed, 38 insertions(+), 26 deletions(-)
 
-diff --git a/security/apparmor/context.c b/security/apparmor/context.c
-index 8a9b502..3d9e460 100644
---- a/security/apparmor/context.c
-+++ b/security/apparmor/context.c
-@@ -76,7 +76,7 @@ void aa_dup_task_context(struct aa_task_cxt *new, const struct aa_task_cxt *old)
-  */
- int aa_replace_current_profile(struct aa_profile *profile)
- {
--	struct aa_task_cxt *cxt = current_cred()->security;
-+	struct aa_task_cxt *cxt = lsm_get_cred(current_cred(), &apparmor_ops);
- 	struct cred *new;
- 	BUG_ON(!profile);
- 
-@@ -87,7 +87,7 @@ int aa_replace_current_profile(struct aa_profile *profile)
- 	if (!new)
- 		return -ENOMEM;
- 
--	cxt = new->security;
-+	cxt = lsm_get_cred(new, &apparmor_ops);
- 	if (unconfined(profile) || (cxt->profile->ns != profile->ns)) {
- 		/* if switching to unconfined or a different profile namespace
- 		 * clear out context state
-@@ -123,7 +123,7 @@ int aa_set_current_onexec(struct aa_profile *profile)
- 	if (!new)
- 		return -ENOMEM;
- 
--	cxt = new->security;
-+	cxt = lsm_get_cred(new, &apparmor_ops);
- 	aa_get_profile(profile);
- 	aa_put_profile(cxt->onexec);
- 	cxt->onexec = profile;
-@@ -150,7 +150,7 @@ int aa_set_current_hat(struct aa_profile *profile, u64 token)
- 		return -ENOMEM;
- 	BUG_ON(!profile);
- 
--	cxt = new->security;
-+	cxt = lsm_get_cred(new, &apparmor_ops);
- 	if (!cxt->previous) {
- 		/* transfer refcount */
- 		cxt->previous = cxt->profile;
-@@ -187,7 +187,7 @@ int aa_restore_previous_profile(u64 token)
- 	if (!new)
- 		return -ENOMEM;
- 
--	cxt = new->security;
-+	cxt = lsm_get_cred(new, &apparmor_ops);
- 	if (cxt->token != token) {
- 		abort_creds(new);
- 		return -EACCES;
-diff --git a/security/apparmor/domain.c b/security/apparmor/domain.c
-index 60f0c76..7ad4e26 100644
---- a/security/apparmor/domain.c
-+++ b/security/apparmor/domain.c
-@@ -353,14 +353,12 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
- 		bprm->file->f_path.dentry->d_inode->i_mode
- 	};
- 	const char *name = NULL, *target = NULL, *info = NULL;
--	int error = cap_bprm_set_creds(bprm);
--	if (error)
--		return error;
-+	int error = 0;
- 
- 	if (bprm->cred_prepared)
- 		return 0;
- 
--	cxt = bprm->cred->security;
-+	cxt = lsm_get_cred(bprm->cred, &apparmor_ops);
- 	BUG_ON(!cxt);
- 
- 	profile = aa_get_profile(aa_newest_version(cxt->profile));
-@@ -539,15 +537,10 @@ cleanup:
-  */
- int apparmor_bprm_secureexec(struct linux_binprm *bprm)
- {
--	int ret = cap_bprm_secureexec(bprm);
--
- 	/* the decision to use secure exec is computed in set_creds
- 	 * and stored in bprm->unsafe.
- 	 */
--	if (!ret && (bprm->unsafe & AA_SECURE_X_NEEDED))
--		ret = 1;
--
--	return ret;
-+	return bprm->unsafe & AA_SECURE_X_NEEDED;
- }
- 
- /**
-@@ -557,7 +550,7 @@ int apparmor_bprm_secureexec(struct linux_binprm *bprm)
- void apparmor_bprm_committing_creds(struct linux_binprm *bprm)
- {
- 	struct aa_profile *profile = __aa_current_profile();
--	struct aa_task_cxt *new_cxt = bprm->cred->security;
-+	struct aa_task_cxt *new_cxt = lsm_get_cred(bprm->cred, &apparmor_ops);
- 
- 	/* bail out if unconfined or not changing profile */
- 	if ((new_cxt->profile == profile) ||
-@@ -634,7 +627,7 @@ int aa_change_hat(const char *hats[], int count, u64 token, bool permtest)
- 
- 	/* released below */
- 	cred = get_current_cred();
--	cxt = cred->security;
-+	cxt = lsm_get_cred(cred, &apparmor_ops);
- 	profile = aa_cred_profile(cred);
- 	previous_profile = cxt->previous;
- 
-@@ -770,7 +763,7 @@ int aa_change_profile(const char *ns_name, const char *hname, bool onexec,
- 	}
- 
- 	cred = get_current_cred();
--	cxt = cred->security;
-+	cxt = lsm_get_cred(cred, &apparmor_ops);
- 	profile = aa_cred_profile(cred);
- 
- 	/*
-diff --git a/security/apparmor/include/context.h b/security/apparmor/include/context.h
-index a9cbee4..8484e55 100644
---- a/security/apparmor/include/context.h
-+++ b/security/apparmor/include/context.h
-@@ -18,6 +18,7 @@
- #include <linux/cred.h>
- #include <linux/slab.h>
- #include <linux/sched.h>
+diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
+index d4f166b..ef0cdcc 100644
+--- a/security/tomoyo/common.h
++++ b/security/tomoyo/common.h
+@@ -28,6 +28,7 @@
+ #include <linux/in.h>
+ #include <linux/in6.h>
+ #include <linux/un.h>
 +#include <linux/lsm.h>
- 
- #include "policy.h"
- 
-@@ -81,6 +82,8 @@ int aa_set_current_onexec(struct aa_profile *profile);
- int aa_set_current_hat(struct aa_profile *profile, u64 token);
- int aa_restore_previous_profile(u64 cookie);
- 
-+extern struct security_operations apparmor_ops;
-+
- /**
-  * __aa_task_is_confined - determine if @task has any confinement
-  * @task: task to check confinement of  (NOT NULL)
-@@ -89,7 +92,9 @@ int aa_restore_previous_profile(u64 cookie);
+ #include <net/sock.h>
+ #include <net/af_unix.h>
+ #include <net/ip.h>
+@@ -1079,6 +1080,7 @@ extern struct list_head tomoyo_domain_list;
+ extern struct list_head tomoyo_name_list[TOMOYO_MAX_HASH];
+ extern struct list_head tomoyo_namespace_list;
+ extern struct mutex tomoyo_policy_lock;
++extern struct security_operations tomoyo_security_ops;
+ extern struct srcu_struct tomoyo_ss;
+ extern struct tomoyo_domain_info tomoyo_kernel_domain;
+ extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
+@@ -1202,7 +1204,7 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
   */
- static inline bool __aa_task_is_confined(struct task_struct *task)
+ static inline struct tomoyo_domain_info *tomoyo_domain(void)
  {
--	struct aa_task_cxt *cxt = __task_cred(task)->security;
-+	struct aa_task_cxt *cxt;
-+
-+	cxt = lsm_get_cred(__task_cred(task), &apparmor_ops);
- 
- 	BUG_ON(!cxt || !cxt->profile);
- 	if (unconfined(aa_newest_version(cxt->profile)))
-@@ -108,7 +113,7 @@ static inline bool __aa_task_is_confined(struct task_struct *task)
-  */
- static inline struct aa_profile *aa_cred_profile(const struct cred *cred)
- {
--	struct aa_task_cxt *cxt = cred->security;
-+	struct aa_task_cxt *cxt = lsm_get_cred(cred, &apparmor_ops);
- 	BUG_ON(!cxt || !cxt->profile);
- 	return aa_newest_version(cxt->profile);
- }
-@@ -136,8 +141,10 @@ static inline struct aa_profile *__aa_current_profile(void)
-  */
- static inline struct aa_profile *aa_current_profile(void)
- {
--	const struct aa_task_cxt *cxt = current_cred()->security;
-+	const struct aa_task_cxt *cxt;
- 	struct aa_profile *profile;
-+
-+	cxt = lsm_get_cred(current_cred(), &apparmor_ops);
- 	BUG_ON(!cxt || !cxt->profile);
- 
- 	profile = aa_newest_version(cxt->profile);
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 8c2a7f6..28d6fd4 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -48,8 +48,8 @@ int apparmor_initialized __initdata;
-  */
- static void apparmor_cred_free(struct cred *cred)
- {
--	aa_free_task_context(cred->security);
--	cred->security = NULL;
-+	aa_free_task_context(lsm_get_cred(cred, &apparmor_ops));
-+	lsm_set_cred(cred, NULL, &apparmor_ops);
- }
- 
- /*
-@@ -62,7 +62,7 @@ static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- 	if (!cxt)
- 		return -ENOMEM;
- 
--	cred->security = cxt;
-+	lsm_set_cred(cred, cxt, &apparmor_ops);
- 	return 0;
- }
- 
-@@ -77,8 +77,8 @@ static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
- 	if (!cxt)
- 		return -ENOMEM;
- 
--	aa_dup_task_context(cxt, old->security);
--	new->security = cxt;
-+	aa_dup_task_context(cxt, lsm_get_cred(old, &apparmor_ops));
-+	lsm_set_cred(new, cxt, &apparmor_ops);
- 	return 0;
- }
- 
-@@ -87,8 +87,8 @@ static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
-  */
- static void apparmor_cred_transfer(struct cred *new, const struct cred *old)
- {
--	const struct aa_task_cxt *old_cxt = old->security;
--	struct aa_task_cxt *new_cxt = new->security;
-+	const struct aa_task_cxt *old_cxt = lsm_get_cred(old, &apparmor_ops);
-+	struct aa_task_cxt *new_cxt = lsm_get_cred(new, &apparmor_ops);
- 
- 	aa_dup_task_context(new_cxt, old_cxt);
- }
-@@ -96,19 +96,11 @@ static void apparmor_cred_transfer(struct cred *new, const struct cred *old)
- static int apparmor_ptrace_access_check(struct task_struct *child,
- 					unsigned int mode)
- {
--	int error = cap_ptrace_access_check(child, mode);
--	if (error)
--		return error;
--
- 	return aa_ptrace(current, child, mode);
- }
- 
- static int apparmor_ptrace_traceme(struct task_struct *parent)
- {
--	int error = cap_ptrace_traceme(parent);
--	if (error)
--		return error;
--
- 	return aa_ptrace(parent, current, PTRACE_MODE_ATTACH);
- }
- 
-@@ -140,14 +132,11 @@ static int apparmor_capable(const struct cred *cred, struct user_namespace *ns,
- 			    int cap, int audit)
- {
- 	struct aa_profile *profile;
--	/* cap_capable returns 0 on success, else -EPERM */
--	int error = cap_capable(cred, ns, cap, audit);
--	if (!error) {
--		profile = aa_cred_profile(cred);
--		if (!unconfined(profile))
--			error = aa_capable(current, profile, cap, audit);
--	}
--	return error;
-+
-+	profile = aa_cred_profile(cred);
-+	if (!unconfined(profile))
-+		return aa_capable(current, profile, cap, audit);
-+	return 0;
+-	return current_cred()->security;
++	return lsm_get_cred(current_cred(), &tomoyo_security_ops);
  }
  
  /**
-@@ -375,7 +364,7 @@ static int apparmor_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
- 
- static int apparmor_file_open(struct file *file, const struct cred *cred)
+@@ -1215,7 +1217,7 @@ static inline struct tomoyo_domain_info *tomoyo_domain(void)
+ static inline struct tomoyo_domain_info *tomoyo_real_domain(struct task_struct
+ 							    *task)
  {
--	struct aa_file_cxt *fcxt = file->f_security;
-+	struct aa_file_cxt *fcxt = lsm_get_file(file, &apparmor_ops);
- 	struct aa_profile *profile;
- 	int error = 0;
- 
-@@ -409,8 +398,8 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
- static int apparmor_file_alloc_security(struct file *file)
- {
- 	/* freed by apparmor_file_free_security */
--	file->f_security = aa_alloc_file_context(GFP_KERNEL);
--	if (!file->f_security)
-+	lsm_set_file(file, aa_alloc_file_context(GFP_KERNEL), &apparmor_ops);
-+	if (!lsm_get_file(file, &apparmor_ops))
- 		return -ENOMEM;
- 	return 0;
- 
-@@ -418,14 +407,15 @@ static int apparmor_file_alloc_security(struct file *file)
- 
- static void apparmor_file_free_security(struct file *file)
- {
--	struct aa_file_cxt *cxt = file->f_security;
-+	struct aa_file_cxt *cxt = lsm_get_file(file, &apparmor_ops);
- 
-+	lsm_set_file(file, NULL, &apparmor_ops);
- 	aa_free_file_context(cxt);
+-	return task_cred_xxx(task, security);
++	return lsm_get_cred(__task_cred(task), &tomoyo_security_ops);
  }
  
- static int common_file_perm(int op, struct file *file, u32 mask)
- {
--	struct aa_file_cxt *fcxt = file->f_security;
-+	struct aa_file_cxt *fcxt = lsm_get_file(file, &apparmor_ops);
- 	struct aa_profile *profile, *fprofile = aa_cred_profile(file->f_cred);
- 	int error = 0;
+ /**
+diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
+index 3865145..15042e7 100644
+--- a/security/tomoyo/domain.c
++++ b/security/tomoyo/domain.c
+@@ -840,7 +840,7 @@ force_jump_domain:
+ 		domain = old_domain;
+ 	/* Update reference count on "struct tomoyo_domain_info". */
+ 	atomic_inc(&domain->users);
+-	bprm->cred->security = domain;
++	lsm_set_cred(bprm->cred, domain, &tomoyo_security_ops);
+ 	kfree(exename.name);
+ 	if (!retval) {
+ 		ee->r.domain = domain;
+diff --git a/security/tomoyo/securityfs_if.c b/security/tomoyo/securityfs_if.c
+index 8592f2fc..37feaf5 100644
+--- a/security/tomoyo/securityfs_if.c
++++ b/security/tomoyo/securityfs_if.c
+@@ -75,8 +75,10 @@ static ssize_t tomoyo_write_self(struct file *file, const char __user *buf,
+ 					error = -ENOMEM;
+ 				} else {
+ 					struct tomoyo_domain_info *old_domain =
+-						cred->security;
+-					cred->security = new_domain;
++						lsm_get_cred(cred,
++							&tomoyo_security_ops);
++					lsm_set_cred(cred, new_domain,
++							&tomoyo_security_ops);
+ 					atomic_inc(&new_domain->users);
+ 					atomic_dec(&old_domain->users);
+ 					commit_creds(cred);
+@@ -242,7 +244,8 @@ static int __init tomoyo_initerface_init(void)
+ 	struct dentry *tomoyo_dir;
  
-@@ -472,7 +462,7 @@ static int common_mmap(int op, struct file *file, unsigned long prot,
- 	struct dentry *dentry;
- 	int mask = 0;
- 
--	if (!file || !file->f_security)
-+	if (!file || !lsm_get_file(file, &apparmor_ops))
+ 	/* Don't create securityfs entries unless registered. */
+-	if (current_cred()->security != &tomoyo_kernel_domain)
++	if (lsm_get_cred(current_cred(), &tomoyo_security_ops) !=
++			&tomoyo_kernel_domain)
  		return 0;
  
- 	if (prot & PROT_READ)
-@@ -510,7 +500,7 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
- 	struct aa_profile *profile;
- 	/* released below */
- 	const struct cred *cred = get_task_cred(task);
--	struct aa_task_cxt *cxt = cred->security;
-+	struct aa_task_cxt *cxt = lsm_get_cred(cred, &apparmor_ops);
- 	profile = aa_cred_profile(cred);
- 
- 	if (strcmp(name, "current") == 0)
-@@ -614,7 +604,7 @@ static int apparmor_task_setrlimit(struct task_struct *task,
- 	return error;
+ 	tomoyo_dir = securityfs_create_dir("tomoyo", NULL);
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index a2ee362..b2a58ae 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -17,7 +17,7 @@
+  */
+ static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
+ {
+-	new->security = NULL;
++	lsm_set_cred(new, NULL, &tomoyo_security_ops);
+ 	return 0;
  }
  
--static struct security_operations apparmor_ops = {
-+struct security_operations apparmor_ops = {
- 	.name =				"apparmor",
- 
- 	.ptrace_access_check =		apparmor_ptrace_access_check,
-@@ -878,6 +868,7 @@ static int param_set_mode(const char *val, struct kernel_param *kp)
+@@ -33,8 +33,10 @@ static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
+ static int tomoyo_cred_prepare(struct cred *new, const struct cred *old,
+ 			       gfp_t gfp)
+ {
+-	struct tomoyo_domain_info *domain = old->security;
+-	new->security = domain;
++	struct tomoyo_domain_info *domain;
++
++	domain = lsm_get_cred(old, &tomoyo_security_ops);
++	lsm_set_cred(new, domain, &tomoyo_security_ops);
+ 	if (domain)
+ 		atomic_inc(&domain->users);
+ 	return 0;
+@@ -58,9 +60,13 @@ static void tomoyo_cred_transfer(struct cred *new, const struct cred *old)
   */
- static int __init set_init_cxt(void)
+ static void tomoyo_cred_free(struct cred *cred)
+ {
+-	struct tomoyo_domain_info *domain = cred->security;
+-	if (domain)
++	struct tomoyo_domain_info *domain;
++
++	domain = lsm_get_cred(cred, &tomoyo_security_ops);
++	if (domain) {
+ 		atomic_dec(&domain->users);
++		lsm_set_cred(cred, NULL, &tomoyo_security_ops);
++	}
+ }
+ 
+ /**
+@@ -72,12 +78,6 @@ static void tomoyo_cred_free(struct cred *cred)
+  */
+ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+ {
+-	int rc;
+-
+-	rc = cap_bprm_set_creds(bprm);
+-	if (rc)
+-		return rc;
+-
+ 	/*
+ 	 * Do only if this function is called for the first time of an execve
+ 	 * operation.
+@@ -98,13 +98,13 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+ 	 * stored inside "bprm->cred->security" will be acquired later inside
+ 	 * tomoyo_find_next_domain().
+ 	 */
+-	atomic_dec(&((struct tomoyo_domain_info *)
+-		     bprm->cred->security)->users);
++	atomic_dec(&((struct tomoyo_domain_info *)lsm_get_cred(bprm->cred,
++						&tomoyo_security_ops))->users);
+ 	/*
+ 	 * Tell tomoyo_bprm_check_security() is called for the first time of an
+ 	 * execve operation.
+ 	 */
+-	bprm->cred->security = NULL;
++	lsm_set_cred(bprm->cred, NULL, &tomoyo_security_ops);
+ 	return 0;
+ }
+ 
+@@ -117,8 +117,9 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+  */
+ static int tomoyo_bprm_check_security(struct linux_binprm *bprm)
+ {
+-	struct tomoyo_domain_info *domain = bprm->cred->security;
++	struct tomoyo_domain_info *domain;
+ 
++	domain = lsm_get_cred(bprm->cred, &tomoyo_security_ops);
+ 	/*
+ 	 * Execute permission is checked against pathname passed to do_execve()
+ 	 * using current domain.
+@@ -503,7 +504,7 @@ static int tomoyo_socket_sendmsg(struct socket *sock, struct msghdr *msg,
+  * tomoyo_security_ops is a "struct security_operations" which is used for
+  * registering TOMOYO.
+  */
+-static struct security_operations tomoyo_security_ops = {
++struct security_operations tomoyo_security_ops = {
+ 	.name                = "tomoyo",
+ 	.cred_alloc_blank    = tomoyo_cred_alloc_blank,
+ 	.cred_prepare        = tomoyo_cred_prepare,
+@@ -545,16 +546,22 @@ struct srcu_struct tomoyo_ss;
+  */
+ static int __init tomoyo_init(void)
  {
 +	int rc;
- 	struct cred *cred = (struct cred *)current->real_cred;
- 	struct aa_task_cxt *cxt;
+ 	struct cred *cred = (struct cred *) current_cred();
  
-@@ -886,9 +877,9 @@ static int __init set_init_cxt(void)
- 		return -ENOMEM;
- 
- 	cxt->profile = aa_get_profile(root_ns->unconfined);
--	cred->security = cxt;
-+	rc = lsm_set_init_cred(cred, cxt, &apparmor_ops);
- 
--	return 0;
-+	return rc;
++	/* register ourselves with the security framework */
+ 	if (!security_module_enable(&tomoyo_security_ops))
+ 		return 0;
+-	/* register ourselves with the security framework */
+-	if (register_security(&tomoyo_security_ops) ||
+-	    init_srcu_struct(&tomoyo_ss))
++
++	if (init_srcu_struct(&tomoyo_ss))
+ 		panic("Failure registering TOMOYO Linux");
+ 	printk(KERN_INFO "TOMOYO Linux initialized\n");
+-	cred->security = &tomoyo_kernel_domain;
++
++	rc = lsm_set_init_cred(cred, &tomoyo_kernel_domain,
++				&tomoyo_security_ops);
++	if (rc)
++		panic("Failure allocating credential for TOMOYO Linux");
++
+ 	tomoyo_mm_init();
+ 	return 0;
  }
- 
- static int __init apparmor_init(void)
-@@ -913,12 +904,6 @@ static int __init apparmor_init(void)
- 		goto register_security_out;
- 	}
- 
--	error = register_security(&apparmor_ops);
--	if (error) {
--		AA_ERROR("Unable to register AppArmor\n");
--		goto set_init_cxt_out;
--	}
--
- 	/* Report that AppArmor successfully initialized */
- 	apparmor_initialized = 1;
- 	if (aa_g_profile_mode == APPARMOR_COMPLAIN)
-@@ -930,9 +915,6 @@ static int __init apparmor_init(void)
- 
- 	return error;
- 
--set_init_cxt_out:
--	aa_free_task_context(current->real_cred->security);
--
- register_security_out:
- 	aa_free_root_ns();
- 
 
 
 --
