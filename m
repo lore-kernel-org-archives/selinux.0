@@ -1,56 +1,43 @@
-Message-ID: <50ED5C8E.4040202@redhat.com>
-Date: Wed, 09 Jan 2013 13:03:26 +0100
-From: Ondrej Oprala <ooprala@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09DSgmf000374
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 08:28:42 -0500
+Date: Thu, 10 Jan 2013 00:28:30 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: John Johansen <john.johansen@canonical.com>
+cc: Casey Schaufler <casey@schaufler-ca.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        LSM <linux-security-module@vger.kernel.org>,
+        LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
+In-Reply-To: <50EC8447.1000301@canonical.com>
+Message-ID: <alpine.LRH.2.02.1301100028160.5423@tundra.namei.org>
+References: <50EB7C50.3070605@schaufler-ca.com> <20130108140159.83c07fa6a680e355f024970f@canb.auug.org.au> <50EB9A5E.1080306@schaufler-ca.com> <alpine.LRH.2.02.1301081942030.24212@tundra.namei.org> <50EC8447.1000301@canonical.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: setfscreatecon optimizations
-References: <50EC1D32.3090607@redhat.com> <50EC31AE.5040807@tycho.nsa.gov>
-In-Reply-To: <50EC31AE.5040807@tycho.nsa.gov>
-Content-Type: multipart/mixed;
- boundary="------------010806020101070905030104"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010806020101070905030104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 8 Jan 2013, John Johansen wrote:
 
-Thank you for the pointers, it helped me out a lot. I tested the patched 
-libselinux with
-$cp -a dir1 dir2
-and got an approx. 20% save in instruction count. The patch is attached.
-Thanks,
-Ondrej
+> > I'd say we need to see the actual use-case for Smack and Apparmor being 
+> > used together, along with at least one major distro committing to support 
+> > this.
+> > 
+> >
+> Ubuntu is very interested in stacking
 
-On 01/08/2013 03:48 PM, Stephen Smalley wrote:
-> On 01/08/2013 08:20 AM, Ondrej Oprala wrote:
->> Hi, there have been some attempts on the coreutils mailing list at
->> optimizing cp copying by caching the selinux security context ( please
->> see: 
->> http://lists.gnu.org/archive/html/coreutils/2013-01/msg00012.html ).
->> Would it be possible to perform some kind of caching inside
->> setfscreatecon? For example not going through the whole process of
->> setfscreatecon if the context to be set equals the current one?
->
-> I think that should be possible.  The relevant code that would need to 
-> be modified is in libselinux/src/procattr.c.  You would likely want to 
-> modify the common helper for all of the set*con functions, 
-> setprocattrcon_raw().  A conceptually similar cache exists in 
-> libselinux/src/setrans_client.c; note the methods used to make it 
-> thread-safe and to ensure that it is properly freed. You would need a 
-> separate cache for each kind of attribute that can be set, i.e. 
-> current, exec, fscreate, keycreate, sockcreate. You could likely also 
-> cache the tid.
+Which modules?
 
 
---------------010806020101070905030104
-Content-Type: text/plain; charset=UTF-8;
- name="DIFF"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="DIFF"
+-- 
+James Morris
+<jmorris@namei.org>
 
-
---------------010806020101070905030104--
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
