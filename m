@@ -1,246 +1,99 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09GQTiC016390
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 11:26:29 -0500
-Message-ID: <50ED9A22.1090300@schaufler-ca.com>
-Date: Wed, 09 Jan 2013 08:26:10 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09H7UGd019611
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 12:07:30 -0500
+Message-ID: <50EDA3C0.8050601@schaufler-ca.com>
+Date: Wed, 09 Jan 2013 09:07:12 -0800
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-CC: jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, john.johansen@canonical.com, eparis@redhat.com,
-        keescook@chromium.org, Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v12 3/9] LSM: Multiple concurrent LSMs
-References: <50EB7C50.3070605@schaufler-ca.com> <50EB7FCD.3030107@schaufler-ca.com> <201301092211.CGF18746.LMOHJFOOFQtVSF@I-love.SAKURA.ne.jp>
-In-Reply-To: <201301092211.CGF18746.LMOHJFOOFQtVSF@I-love.SAKURA.ne.jp>
+To: James Morris <jmorris@namei.org>
+CC: Stephen Rothwell <sfr@canb.auug.org.au>,
+        LSM <linux-security-module@vger.kernel.org>,
+        LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+        John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton c <akpm@linux-foundation.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
+References: <50EB7C50.3070605@schaufler-ca.com> <20130108140159.83c07fa6a680e355f024970f@canb.auug.org.au> <50EB9A5E.1080306@schaufler-ca.com> <alpine.LRH.2.02.1301081942030.24212@tundra.namei.org> <50EC53E3.6070606@schaufler-ca.com> <alpine.LRH.2.02.1301100031590.5423@tundra.namei.org>
+In-Reply-To: <alpine.LRH.2.02.1301100031590.5423@tundra.namei.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 1/9/2013 5:11 AM, Tetsuo Handa wrote:
-> Casey Schaufler wrote:
->> +/* Save user chosen LSM(s) */
->>  static int __init choose_lsm(char *str)
->>  {
->> -	strncpy(chosen_lsm, str, SECURITY_NAME_MAX);
->> +	char *cp;
->> +	char *ep;
->> +	int i;
->> +
->> +	strncpy(allowed_lsms, str, COMPOSER_NAMES_MAX);
->> +	cp = allowed_lsms;
->> +
->> +	for (i = 0; i < COMPOSER_MAX; i++) {
->> +		ep = strchr(cp, ',');
->> +		if (ep != NULL)
->> +			*ep = '\0';
->> +		if (strlen(cp) > SECURITY_NAME_MAX)
->> +			pr_warn("LSM \"%s\" is invalid and ignored.\n", cp);
-> panic() might be OK for notifying the administrator of invalid module name.
-
-I don't think panic is a good idea unless there is no alternative.
-Even then it's a bad idea. It's just all you can do.
-
->> +		else
->> +			strncpy(specified_lsms[i], cp, SECURITY_NAME_MAX);
->> +		if (ep == NULL)
->> +			break;
->> +		cp = ep + 1;
->> +	}
->> +
->>  	return 1;
->>  }
->>  __setup("security=", choose_lsm);
->> @@ -94,74 +398,303 @@ __setup("security=", choose_lsm);
->>   * to check if your LSM is currently loaded during kernel initialization.
->>   *
->>   * Return true if:
->> - *	-The passed LSM is the one chosen by user at boot time,
->> - *	-or the passed LSM is configured as the default and the user did not
->> - *	 choose an alternate LSM at boot time.
->> + *	-The passed LSM is on the list of LSMs specified at boot time,
->> + *	-or no boot list was specified.
->>   * Otherwise, return false.
->>   */
->>  int __init security_module_enable(struct security_operations *ops)
->>  {
->> -	return !strcmp(ops->name, chosen_lsm);
->> -}
->> +	struct security_operations *sop;
->> +	int i;
->>  
->> -/**
->> - * register_security - registers a security framework with the kernel
->> - * @ops: a pointer to the struct security_options that is to be registered
->> - *
->> - * This function allows a security module to register itself with the
->> - * kernel security subsystem.  Some rudimentary checking is done on the @ops
->> - * value passed to this function. You'll need to check first if your LSM
->> - * is allowed to register its @ops by calling security_module_enable(@ops).
->> - *
->> - * If there is already a security module registered with the kernel,
->> - * an error will be returned.  Otherwise %0 is returned on success.
->> - */
->> -int __init register_security(struct security_operations *ops)
->> -{
-> This change makes security_module_enable() to imply register_security(), but
-> do we want to continue booting (i.e. "return 0;" rather than "panic();" if
-> security_module_enable() failed by "Too many" or "LSM conflict on ..." cases?
-
-I'm personally sensitive to people screaming that "every time I try to
-configure security the system breaks!" so I am disinclined to introduce
-a hard failure.
-
-> John Johansen wrote:
->> Stephen Smalley wrote:
->>> IIRC, the AppArmor devs indicated that they plan to start using secids,
->>> which would mean that it would not be possible to stack AppArmor with Smack
->>> or SELinux using this mechanism.  So eventually that would have to be
->>> addressed in order for this to even support the AppArmor+Smack or
->>> AppArmor+SELinux use cases.
->>>
->> We do intend to use secids, but it is being done so that its
->> configurable. Configuring it off means you loose apparmor
->> mediation for the bits that need secids. Solving the secids
->> issue is of interest but its not required atm.
-> If "configuration" means runtime degeneracy rather than compile time choice, we
-> need to be able to distinguish "AppArmor should be enabled only when no
-> conflict", "AppArmor should be enabled with degeneracy when conflict" and
-> "AppArmor should not be enabled". How do we tell the administrator's choice to
-> AppArmor, and how can security_module_enable() tell the situation to AppArmor?
+On 1/9/2013 5:42 AM, James Morris wrote:
+> On Tue, 8 Jan 2013, Casey Schaufler wrote:
 >
-> I guess security_module_enable() need to return something like
->
->   -ENOENT if that module's name is not passed to security= argument,
->   -EBUSY if that module's name is passed to security= argument but cannot be
->   loaded due to conflicts,
->   -ENOSPC if that module's name is passed to security= argument but cannot be
->   loaded due to out of blob slot,
->   0 if that module's name is passed to security= argument and successfully
->   loaded
->
-> so that the caller of security_module_enable() can "panic();" for -ENOSPC case
-> and "return 0;" for -ENOENT case and "continue initialization" for 0 case and
-> optionally "retry security_module_enable() with degenerated security ops" for
-> -EBUSY case.
->
-> In this case, we want to specify default name of LSM modules (which will be
-> used when security= argument is not specified) via kernel config.
+>> What I was hoping to say, and apparently didn't, is that people
+>> are developing "total" solutions in user space, when some of the
+>> work ought to be done in an LSM. Work that is appropriate to the
+>> kernel is being done in user space. Often badly, because the
+>> kernel provides too many mechanisms to circumvent user space
+>> based access controls.
+> People do stupid things all the time.
 
-I am not considering runtime degeneracy.
+No argument there.
+But sometimes it's not a matter of doing a stupid thing so much
+as doing what is pragmatic with the tools provided.
 
-> Casey Schaufler wrote:
->> -	if (verify(ops)) {
->> -		printk(KERN_DEBUG "%s could not verify "
->> -		       "security_operations structure.\n", __func__);
->> -		return -EINVAL;
->> +	/*
->> +	 * Set up the operation vector early, but only once.
->> +	 * This allows LSM specific file systems to check to see if they
->> +	 * should come on line.
->> +	 */
->> +	if (ops == NULL) {
->> +		pr_debug("%s could not verify security_operations.\n",
->> +				__func__);
->> +		return 0;
->>  	}
->> +	/*
->> +	 * Return success if the LSM is already resistered
->> +	 */
->> +	for_each_hook(sop, name)
->> +		if (sop == ops)
->> +			return 1;
->>  
->> -	if (security_ops != &default_security_ops)
->> -		return -EAGAIN;
->> +	/*
->> +	 * This LSM has not yet been ordered.
->> +	 */
->> +	ops->order = -1;
->>  
->> -	security_ops = ops;
->> +	if (lsm_count >= COMPOSER_MAX) {
->> +		pr_warn("Too many security modules. %s not loaded.\n",
->> +				ops->name);
->> +		return 0;
->> +	}
->>  
->> -	return 0;
->> +	if (specified_lsms[0][0] != '\0') {
-> We can do "specified_lsms[0][0] = '\0';" after "do_security_initcalls();" so
-> that LKM-based LSMs can be loaded without depending on security= argument?
+> How is this particular case our problem to fix?
 
-You are going to have to introduce more mechanism if you want to
-provide for LKM-based LSMs. How about we consider a change here until
-you can propose that mechanism in its entirety.
+Well, somebody ought to, and we're the experts.
 
->> +		for (i = 0; specified_lsms[i][0] != '\0'; i++) {
->> +			if (strcmp(ops->name, specified_lsms[i]) == 0) {
->> +				ops->order = i;
->> +				break;
->> +			}
->> +		}
->> +		if (ops->order == -1) {
->> +			pr_notice("LSM %s declined by boot options.\n",
->> +					ops->name);
->> +			return 0;
->> +		}
->> +	}
->> +	/*
->> +	 * Check for conflicting LSMs.
->> +	 */
->> +#ifdef CONFIG_SECURITY_NETWORK_XFRM
->> +	if (ops->xfrm_policy_alloc_security &&
->> +	    !list_empty(&lsm_hooks[lsm_xfrm_policy_alloc_security])) {
->> +		pr_warn("LSM conflict on %s. %s not loaded.\n",
->> +				"xfrm_policy_alloc_security", ops->name);
->> +		return 0;
->> +	}
->> +#endif
->> +	if (ops->secid_to_secctx &&
->> +	    !list_empty(&lsm_hooks[lsm_secid_to_secctx])) {
->> +		pr_warn("LSM conflict on %s. %s not loaded.\n",
->> +			"secid_to_secctx", ops->name);
->> +		return 0;
->> +	}
->> +
->> +	/*
->> +	 * The order will already be set if the command line
->> +	 * includes "security=".
->> +	 *
->> +	 * Do this before the enlisting. If there is an error
->> +	 * (Very unlikely!) that prevents the enlisting from
->> +	 * completing it is still necessary to have a blob slot
->> +	 * for it.
->> +	 */
-> I think "If there is an error (Very unlikely!)" never happens after this point.
+> Do you have any concrete examples?
+
+ChromiumOS. Android (OK, the binder driver is in the kernel, but it
+isn't a proper driver, it should be an LSM). dbus. X11 security
+mechanisms in various incarnations dating back to the UNIX days.
+
+All are things that implement their own policies, and all of which
+could have reduced exposure if they could depend on access controls
+the kernel does not provide.
+
+Those last two paragraphs represent an opinion, by the way.
+An informed opinion, but it should not be considered a criticism
+of any of those fine systems or system components. 
+
+>> And before we get too far, distros are no longer the driving force
+>> for Linux development. I suggest that "operating systems", including
+>> ChromiumOS, Android and Tizen are every bit as important. 
+> Indeed.  I was including these projects as "distros".
 >
->> +	if (ops->order == -1)
->> +		ops->order = lsm_count;
->> +	lsm_count++;
->> +
->> +	/*
->> +	 * Use the LSM specified by CONFIG_SECURITY_PRESENT for
->> +	 * [gs]etprocattr. If the LSM specified is PRESENT_FIRST
->> +	 * use the first LSM to register that has the hooks.
->> +	 * If the specified LSM lacks the hooks treat it as if
->> +	 * there is no LSM registered that supplied them.
->> +	 */
->> +	if (ops->getprocattr && ops->setprocattr &&
->> +	    (!strcmp(ops->name, present_lsm) ||
->> +	     (!lsm_present && !strcmp(PRESENT_FIRST, present_lsm)))) {
->> +		lsm_present = ops;
->> +		present_getprocattr = ops->getprocattr;
->> +		present_setprocattr = ops->setprocattr;
->> +		pr_info("Security Module %s is presented in /proc.\n",
->> +			ops->name);
->> +	}
->> +	/*
->> +	 * Return success after registering the LSM.
->> +	 */
->> +	lsm_enlist_ops(ops);
->> +
->> +	return 1;
->>  }
+>>> What is the UID issue and how does LSM stacking address it?
+>> Android utilizes UIDs in a way that has often been referred to as
+>> "hijacking". The UID mechanism supports much of what they want,
+>> but clearly isn't complete. Now that Android is moving to multi-user
+>> support they're hitting conflicts with their use of the UID 
+>> attribute. They really ought to be using an LSM that implements
+>> the security policy they want rather than hacking around the
+>> behavior of UID based controls.
+> Right, so they implement an LSM to do what they need.  What does this have 
+> to do with stacking?
+
+SELinux has proven to be a useful debugging tool in the Android
+environment. If Android implemented their own LSM today they would
+no longer be able to use SELinux to help them track down bugs.
+
+
+>>> Also, are you saying that security mechanisms are inherently easier to 
+>>> configure if they're composed from a variety of distinct modules vs. a 
+>>> monolithic scheme? 
+>> Nope. I'm saying that for specific use cases including but not limited to
+>> telephones, TVs and surveillance networks it is simpler and more appropriate
+>> to create the access control and security schemes that directly address
+>> the needs than to attempt to squeeze them into corsets designed in the
+>> 1990's.
+> That may be true, but we do need at least one significant user to step up 
+> with concrete plans for deployment.
+
+John Johansen has spoken up for Ubuntu.
+I suggest that we already have stacking deployed for Yama,
+it's just not a general solution.
+Kees Cook has another small LSM he'd like to stack as he does Yama.
+
+I don't see that lack of "concrete plans for deployment" is
+going to be an issue.
 
 
 --
