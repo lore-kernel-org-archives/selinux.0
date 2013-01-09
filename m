@@ -1,36 +1,110 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09EUtOp006088
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 09:30:55 -0500
-Received: by mail-la0-f44.google.com with SMTP id fr10so1938413lab.17
-        for <selinux@tycho.nsa.gov>; Wed, 09 Jan 2013 06:30:23 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09EpEUS007836
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 09:51:14 -0500
+Received: by mail-lb0-f172.google.com with SMTP id y2so1130171lbk.17
+        for <selinux@tycho.nsa.gov>; Wed, 09 Jan 2013 06:51:06 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <50ED5C8E.4040202@redhat.com>
+In-Reply-To: <CACLa4pvjb4Y_AMcuTv_6Aoa=2QUhsWiZT6iknOHG3B6EQe2yTw@mail.gmail.com>
 References: <50EC1D32.3090607@redhat.com>
 	<50EC31AE.5040807@tycho.nsa.gov>
 	<50ED5C8E.4040202@redhat.com>
-Date: Wed, 9 Jan 2013 09:30:22 -0500
-Message-ID: <CACLa4pvjb4Y_AMcuTv_6Aoa=2QUhsWiZT6iknOHG3B6EQe2yTw@mail.gmail.com>
+	<CACLa4pvjb4Y_AMcuTv_6Aoa=2QUhsWiZT6iknOHG3B6EQe2yTw@mail.gmail.com>
+Date: Wed, 9 Jan 2013 09:51:06 -0500
+Message-ID: <CACLa4pur4DFPnuj-v10DPuBQ4hDqnV0gb02zR0-+ORwiT67CFQ@mail.gmail.com>
 Subject: Re: setfscreatecon optimizations
 From: Eric Paris <eparis@parisplace.org>
 To: Ondrej Oprala <ooprala@redhat.com>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed; boundary=e0cb4efe33802ec58504d2dc31c5
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jan 9, 2013 at 7:03 AM, Ondrej Oprala <ooprala@redhat.com> wrote:
-> Thank you for the pointers, it helped me out a lot. I tested the patched
-> libselinux with
-> $cp -a dir1 dir2
-> and got an approx. 20% save in instruction count. The patch is attached.
-> Thanks,
+--e0cb4efe33802ec58504d2dc31c5
+Content-Type: text/plain; charset=ISO-8859-1
 
-Thanks!  I'm working on it right now.  You did the:
-        __selinux_once(once, init_procattr);
-        init_thread_destructor();
-Before variable declaration and you do not handle context==NULL, which
-is how you clear the value.  I'll fix both of those up and apply to
-the devel tree.  Thanks so much!
+Something like the attached?
+
+On Wed, Jan 9, 2013 at 9:30 AM, Eric Paris <eparis@parisplace.org> wrote:
+> On Wed, Jan 9, 2013 at 7:03 AM, Ondrej Oprala <ooprala@redhat.com> wrote:
+>> Thank you for the pointers, it helped me out a lot. I tested the patched
+>> libselinux with
+>> $cp -a dir1 dir2
+>> and got an approx. 20% save in instruction count. The patch is attached.
+>> Thanks,
+>
+> Thanks!  I'm working on it right now.  You did the:
+>         __selinux_once(once, init_procattr);
+>         init_thread_destructor();
+> Before variable declaration and you do not handle context==NULL, which
+> is how you clear the value.  I'll fix both of those up and apply to
+> the devel tree.  Thanks so much!
+
+--e0cb4efe33802ec58504d2dc31c5
+Content-Type: application/octet-stream; name="tmp.patch"
+Content-Disposition: attachment; filename="tmp.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hbql5ugg0
+
+Y29tbWl0IDI0ZmZjYThmNmI5M2FhZTVlYjg4MWIwMWFiZDk3MzhkZjU5YzgzZTYKQXV0aG9yOiBP
+bmRyZWogT3ByYWxhIDxvb3ByYWxhQHJlZGhhdC5jb20+CkRhdGU6ICAgV2VkIEphbiA5IDExOjM3
+OjQzIDIwMTMgKzAxMDAKCiAgICBsaWJzZWxpbnV4OiBvcHRpbWl6ZSBzZXQqY29uIGZ1bmN0aW9u
+cwogICAgCiAgICBTZXQqY29uIG5vdyBjYWNoZXMgdGhlIHNlY3VyaXR5IGNvbnRleHQgYW5kIG9u
+bHkgcmUtc2V0cyBpdCBpZiBpdCBjaGFuZ2VzLgogICAgCiAgICBTaWduZWQtb2ZmLWJ5OiBFcmlj
+IFBhcmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4KCmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L3NyYy9w
+cm9jYXR0ci5jIGIvbGlic2VsaW51eC9zcmMvcHJvY2F0dHIuYwppbmRleCA4MzM4MWU0Li40MDM0
+NWU5IDEwMDY0NAotLS0gYS9saWJzZWxpbnV4L3NyYy9wcm9jYXR0ci5jCisrKyBiL2xpYnNlbGlu
+dXgvc3JjL3Byb2NhdHRyLmMKQEAgLTgsMTEgKzgsNTQgQEAKICNpbmNsdWRlICJzZWxpbnV4X2lu
+dGVybmFsLmgiCiAjaW5jbHVkZSAicG9saWN5LmgiCiAKK3N0YXRpYyBfX3RocmVhZCBwaWRfdCB0
+aWQgPSAtMTsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9jdXJyZW50
+ID0gTlVMTDsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9leGVjID0g
+TlVMTDsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9mc2NyZWF0ZSA9
+IE5VTEw7CitzdGF0aWMgX190aHJlYWQgc2VjdXJpdHlfY29udGV4dF90IHByZXZfa2V5Y3JlYXRl
+ID0gTlVMTDsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9zb2NrY3Jl
+YXRlID0gTlVMTDsKKworc3RhdGljIHB0aHJlYWRfb25jZV90IG9uY2UgPSBQVEhSRUFEX09OQ0Vf
+SU5JVDsKK3N0YXRpYyBwdGhyZWFkX2tleV90IGRlc3RydWN0b3Jfa2V5Oworc3RhdGljIGludCBk
+ZXN0cnVjdG9yX2tleV9pbml0aWFsaXplZCA9IDA7CitzdGF0aWMgX190aHJlYWQgY2hhciBkZXN0
+cnVjdG9yX2luaXRpYWxpemVkOworCiBzdGF0aWMgcGlkX3QgZ2V0dGlkKHZvaWQpCiB7CiAJcmV0
+dXJuIHN5c2NhbGwoX19OUl9nZXR0aWQpOwogfQogCitzdGF0aWMgdm9pZCBwcm9jYXR0cl90aHJl
+YWRfZGVzdHJ1Y3Rvcih2b2lkIF9fYXR0cmlidXRlX18oKHVudXNlZCkpICp1bnVzZWQpCit7CisJ
+ZnJlZShwcmV2X2N1cnJlbnQpOworCWZyZWUocHJldl9leGVjKTsKKwlmcmVlKHByZXZfZnNjcmVh
+dGUpOworCWZyZWUocHJldl9rZXljcmVhdGUpOworCWZyZWUocHJldl9zb2NrY3JlYXRlKTsKK30K
+Kwordm9pZCBfX2F0dHJpYnV0ZV9fKChkZXN0cnVjdG9yKSkgcHJvY2F0dHJfZGVzdHJ1Y3Rvcih2
+b2lkKTsKKwordm9pZCBoaWRkZW4gX19hdHRyaWJ1dGVfXygoZGVzdHJ1Y3RvcikpIHByb2NhdHRy
+X2Rlc3RydWN0b3Iodm9pZCkKK3sKKwlpZiAoZGVzdHJ1Y3Rvcl9rZXlfaW5pdGlhbGl6ZWQpCisJ
+CV9fc2VsaW51eF9rZXlfZGVsZXRlKGRlc3RydWN0b3Jfa2V5KTsKK30KKworc3RhdGljIGlubGlu
+ZSB2b2lkIGluaXRfdGhyZWFkX2Rlc3RydWN0b3Iodm9pZCkKK3sKKwlpZiAoZGVzdHJ1Y3Rvcl9p
+bml0aWFsaXplZCA9PSAwKSB7CisJCV9fc2VsaW51eF9zZXRzcGVjaWZpYyhkZXN0cnVjdG9yX2tl
+eSwgKHZvaWQgKikxKTsKKwkJZGVzdHJ1Y3Rvcl9pbml0aWFsaXplZCA9IDE7CisJfQorfQorCitz
+dGF0aWMgdm9pZCBpbml0X3Byb2NhdHRyKHZvaWQpCit7CisJaWYgKF9fc2VsaW51eF9rZXlfY3Jl
+YXRlKCZkZXN0cnVjdG9yX2tleSwgcHJvY2F0dHJfdGhyZWFkX2Rlc3RydWN0b3IpID09IDApCisJ
+CWRlc3RydWN0b3Jfa2V5X2luaXRpYWxpemVkID0gMTsKK30KKwogc3RhdGljIGludCBnZXRwcm9j
+YXR0cmNvbl9yYXcoc2VjdXJpdHlfY29udGV4dF90ICogY29udGV4dCwKIAkJCSAgICAgIHBpZF90
+IHBpZCwgY29uc3QgY2hhciAqYXR0cikKIHsKQEAgLTIwLDcgKzYzLDYgQEAgc3RhdGljIGludCBn
+ZXRwcm9jYXR0cmNvbl9yYXcoc2VjdXJpdHlfY29udGV4dF90ICogY29udGV4dCwKIAlzaXplX3Qg
+c2l6ZTsKIAlpbnQgZmQsIHJjOwogCXNzaXplX3QgcmV0OwotCXBpZF90IHRpZDsKIAlpbnQgZXJy
+bm9faG9sZDsKIAogCWlmIChwaWQgPiAwKQpAQCAtODcsMTkgKzEyOSw1NiBAQCBzdGF0aWMgaW50
+IGdldHByb2NhdHRyY29uKHNlY3VyaXR5X2NvbnRleHRfdCAqIGNvbnRleHQsCiAJcmV0dXJuIHJl
+dDsKIH0KIAorI2RlZmluZSBVUERBVEVfQ0FDSEUoY29udGV4dCwgY2FjaGUpCVwKKwlpZiAoIWNv
+bnRleHQgJiYgIWNhY2hlKQkJXAorCQlyZXR1cm4gMDsJCVwKKwlpZiAoIWNvbnRleHQpIHsJCQlc
+CisJCWZyZWUoY2FjaGUpOwkJXAorCQljYWNoZSA9IE5VTEw7CQlcCisJfSBlbHNlIHsJCQlcCisJ
+CWlmIChjYWNoZSAmJiAhc3RyY21wKGNvbnRleHQsY2FjaGUpKSBcCisJCQlyZXR1cm4gMDsJXAor
+CQlmcmVlKGNhY2hlKTsJCVwKKwkJY2FjaGUgPSBzdHJkdXAoY29udGV4dCk7XAorCX0KKwogc3Rh
+dGljIGludCBzZXRwcm9jYXR0cmNvbl9yYXcoc2VjdXJpdHlfY29udGV4dF90IGNvbnRleHQsCiAJ
+CQkgICAgICBwaWRfdCBwaWQsIGNvbnN0IGNoYXIgKmF0dHIpCiB7CiAJY2hhciAqcGF0aDsKIAlp
+bnQgZmQsIHJjOwotCXBpZF90IHRpZDsKIAlzc2l6ZV90IHJldDsKIAlpbnQgZXJybm9faG9sZDsK
+IAorCV9fc2VsaW51eF9vbmNlKG9uY2UsIGluaXRfcHJvY2F0dHIpOworCWluaXRfdGhyZWFkX2Rl
+c3RydWN0b3IoKTsKKworCXN3aXRjaCAoYXR0clswXSkgeworCQljYXNlICdjJzoKKwkJCVVQREFU
+RV9DQUNIRShjb250ZXh0LCBwcmV2X2N1cnJlbnQpOworCQkJYnJlYWs7CisJCWNhc2UgJ2UnOgor
+CQkJVVBEQVRFX0NBQ0hFKGNvbnRleHQsIHByZXZfZXhlYyk7CisJCQlicmVhazsKKwkJY2FzZSAn
+Zic6CisJCQlVUERBVEVfQ0FDSEUoY29udGV4dCwgcHJldl9mc2NyZWF0ZSk7CisJCQlicmVhazsK
+KwkJY2FzZSAnayc6CisJCQlVUERBVEVfQ0FDSEUoY29udGV4dCwgcHJldl9rZXljcmVhdGUpOwor
+CQkJYnJlYWs7CisJCWNhc2UgJ3MnOgorCQkJVVBEQVRFX0NBQ0hFKGNvbnRleHQsIHByZXZfc29j
+a2NyZWF0ZSk7CisJCQlicmVhazsKKwkJZGVmYXVsdDoKKwkJCXJldHVybiAtMTsKKwl9OworCiAJ
+aWYgKHBpZCA+IDApCiAJCXJjID0gYXNwcmludGYoJnBhdGgsICIvcHJvYy8lZC9hdHRyLyVzIiwg
+cGlkLCBhdHRyKTsKIAllbHNlIHsKLQkJdGlkID0gZ2V0dGlkKCk7CisJCWlmICh0aWQgPT0gLTEp
+CisJCQl0aWQgPSBnZXR0aWQoKTsKKwogCQlyYyA9IGFzcHJpbnRmKCZwYXRoLCAiL3Byb2Mvc2Vs
+Zi90YXNrLyVkL2F0dHIvJXMiLCB0aWQsIGF0dHIpOwogCX0KIAlpZiAocmMgPCAwKQo=
+--e0cb4efe33802ec58504d2dc31c5--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
