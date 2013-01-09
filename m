@@ -1,110 +1,247 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09EpEUS007836
-	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 09:51:14 -0500
-Received: by mail-lb0-f172.google.com with SMTP id y2so1130171lbk.17
-        for <selinux@tycho.nsa.gov>; Wed, 09 Jan 2013 06:51:06 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r09GQTiC016390
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2013 11:26:29 -0500
+Message-ID: <50ED9A22.1090300@schaufler-ca.com>
+Date: Wed, 09 Jan 2013 08:26:10 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <CACLa4pvjb4Y_AMcuTv_6Aoa=2QUhsWiZT6iknOHG3B6EQe2yTw@mail.gmail.com>
-References: <50EC1D32.3090607@redhat.com>
-	<50EC31AE.5040807@tycho.nsa.gov>
-	<50ED5C8E.4040202@redhat.com>
-	<CACLa4pvjb4Y_AMcuTv_6Aoa=2QUhsWiZT6iknOHG3B6EQe2yTw@mail.gmail.com>
-Date: Wed, 9 Jan 2013 09:51:06 -0500
-Message-ID: <CACLa4pur4DFPnuj-v10DPuBQ4hDqnV0gb02zR0-+ORwiT67CFQ@mail.gmail.com>
-Subject: Re: setfscreatecon optimizations
-From: Eric Paris <eparis@parisplace.org>
-To: Ondrej Oprala <ooprala@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary=e0cb4efe33802ec58504d2dc31c5
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+CC: jmorris@namei.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, john.johansen@canonical.com, eparis@redhat.com,
+        keescook@chromium.org, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v12 3/9] LSM: Multiple concurrent LSMs
+References: <50EB7C50.3070605@schaufler-ca.com> <50EB7FCD.3030107@schaufler-ca.com> <201301092211.CGF18746.LMOHJFOOFQtVSF@I-love.SAKURA.ne.jp>
+In-Reply-To: <201301092211.CGF18746.LMOHJFOOFQtVSF@I-love.SAKURA.ne.jp>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---e0cb4efe33802ec58504d2dc31c5
-Content-Type: text/plain; charset=ISO-8859-1
+On 1/9/2013 5:11 AM, Tetsuo Handa wrote:
+> Casey Schaufler wrote:
+>> +/* Save user chosen LSM(s) */
+>>  static int __init choose_lsm(char *str)
+>>  {
+>> -	strncpy(chosen_lsm, str, SECURITY_NAME_MAX);
+>> +	char *cp;
+>> +	char *ep;
+>> +	int i;
+>> +
+>> +	strncpy(allowed_lsms, str, COMPOSER_NAMES_MAX);
+>> +	cp = allowed_lsms;
+>> +
+>> +	for (i = 0; i < COMPOSER_MAX; i++) {
+>> +		ep = strchr(cp, ',');
+>> +		if (ep != NULL)
+>> +			*ep = '\0';
+>> +		if (strlen(cp) > SECURITY_NAME_MAX)
+>> +			pr_warn("LSM \"%s\" is invalid and ignored.\n", cp);
+> panic() might be OK for notifying the administrator of invalid module name.
 
-Something like the attached?
+I don't think panic is a good idea unless there is no alternative.
+Even then it's a bad idea. It's just all you can do.
 
-On Wed, Jan 9, 2013 at 9:30 AM, Eric Paris <eparis@parisplace.org> wrote:
-> On Wed, Jan 9, 2013 at 7:03 AM, Ondrej Oprala <ooprala@redhat.com> wrote:
->> Thank you for the pointers, it helped me out a lot. I tested the patched
->> libselinux with
->> $cp -a dir1 dir2
->> and got an approx. 20% save in instruction count. The patch is attached.
->> Thanks,
+>> +		else
+>> +			strncpy(specified_lsms[i], cp, SECURITY_NAME_MAX);
+>> +		if (ep == NULL)
+>> +			break;
+>> +		cp = ep + 1;
+>> +	}
+>> +
+>>  	return 1;
+>>  }
+>>  __setup("security=", choose_lsm);
+>> @@ -94,74 +398,303 @@ __setup("security=", choose_lsm);
+>>   * to check if your LSM is currently loaded during kernel initialization.
+>>   *
+>>   * Return true if:
+>> - *	-The passed LSM is the one chosen by user at boot time,
+>> - *	-or the passed LSM is configured as the default and the user did not
+>> - *	 choose an alternate LSM at boot time.
+>> + *	-The passed LSM is on the list of LSMs specified at boot time,
+>> + *	-or no boot list was specified.
+>>   * Otherwise, return false.
+>>   */
+>>  int __init security_module_enable(struct security_operations *ops)
+>>  {
+>> -	return !strcmp(ops->name, chosen_lsm);
+>> -}
+>> +	struct security_operations *sop;
+>> +	int i;
+>>  
+>> -/**
+>> - * register_security - registers a security framework with the kernel
+>> - * @ops: a pointer to the struct security_options that is to be registered
+>> - *
+>> - * This function allows a security module to register itself with the
+>> - * kernel security subsystem.  Some rudimentary checking is done on the @ops
+>> - * value passed to this function. You'll need to check first if your LSM
+>> - * is allowed to register its @ops by calling security_module_enable(@ops).
+>> - *
+>> - * If there is already a security module registered with the kernel,
+>> - * an error will be returned.  Otherwise %0 is returned on success.
+>> - */
+>> -int __init register_security(struct security_operations *ops)
+>> -{
+> This change makes security_module_enable() to imply register_security(), but
+> do we want to continue booting (i.e. "return 0;" rather than "panic();" if
+> security_module_enable() failed by "Too many" or "LSM conflict on ..." cases?
+
+I'm personally sensitive to people screaming that "every time I try to
+configure security the system breaks!" so I am disinclined to introduce
+a hard failure.
+
+> John Johansen wrote:
+>> Stephen Smalley wrote:
+>>> IIRC, the AppArmor devs indicated that they plan to start using secids,
+>>> which would mean that it would not be possible to stack AppArmor with Smack
+>>> or SELinux using this mechanism.  So eventually that would have to be
+>>> addressed in order for this to even support the AppArmor+Smack or
+>>> AppArmor+SELinux use cases.
+>>>
+>> We do intend to use secids, but it is being done so that its
+>> configurable. Configuring it off means you loose apparmor
+>> mediation for the bits that need secids. Solving the secids
+>> issue is of interest but its not required atm.
+> If "configuration" means runtime degeneracy rather than compile time choice, we
+> need to be able to distinguish "AppArmor should be enabled only when no
+> conflict", "AppArmor should be enabled with degeneracy when conflict" and
+> "AppArmor should not be enabled". How do we tell the administrator's choice to
+> AppArmor, and how can security_module_enable() tell the situation to AppArmor?
 >
-> Thanks!  I'm working on it right now.  You did the:
->         __selinux_once(once, init_procattr);
->         init_thread_destructor();
-> Before variable declaration and you do not handle context==NULL, which
-> is how you clear the value.  I'll fix both of those up and apply to
-> the devel tree.  Thanks so much!
+> I guess security_module_enable() need to return something like
+>
+>   -ENOENT if that module's name is not passed to security= argument,
+>   -EBUSY if that module's name is passed to security= argument but cannot be
+>   loaded due to conflicts,
+>   -ENOSPC if that module's name is passed to security= argument but cannot be
+>   loaded due to out of blob slot,
+>   0 if that module's name is passed to security= argument and successfully
+>   loaded
+>
+> so that the caller of security_module_enable() can "panic();" for -ENOSPC case
+> and "return 0;" for -ENOENT case and "continue initialization" for 0 case and
+> optionally "retry security_module_enable() with degenerated security ops" for
+> -EBUSY case.
+>
+> In this case, we want to specify default name of LSM modules (which will be
+> used when security= argument is not specified) via kernel config.
 
---e0cb4efe33802ec58504d2dc31c5
-Content-Type: application/octet-stream; name="tmp.patch"
-Content-Disposition: attachment; filename="tmp.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hbql5ugg0
+I am not considering runtime degeneracy.
 
-Y29tbWl0IDI0ZmZjYThmNmI5M2FhZTVlYjg4MWIwMWFiZDk3MzhkZjU5YzgzZTYKQXV0aG9yOiBP
-bmRyZWogT3ByYWxhIDxvb3ByYWxhQHJlZGhhdC5jb20+CkRhdGU6ICAgV2VkIEphbiA5IDExOjM3
-OjQzIDIwMTMgKzAxMDAKCiAgICBsaWJzZWxpbnV4OiBvcHRpbWl6ZSBzZXQqY29uIGZ1bmN0aW9u
-cwogICAgCiAgICBTZXQqY29uIG5vdyBjYWNoZXMgdGhlIHNlY3VyaXR5IGNvbnRleHQgYW5kIG9u
-bHkgcmUtc2V0cyBpdCBpZiBpdCBjaGFuZ2VzLgogICAgCiAgICBTaWduZWQtb2ZmLWJ5OiBFcmlj
-IFBhcmlzIDxlcGFyaXNAcmVkaGF0LmNvbT4KCmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L3NyYy9w
-cm9jYXR0ci5jIGIvbGlic2VsaW51eC9zcmMvcHJvY2F0dHIuYwppbmRleCA4MzM4MWU0Li40MDM0
-NWU5IDEwMDY0NAotLS0gYS9saWJzZWxpbnV4L3NyYy9wcm9jYXR0ci5jCisrKyBiL2xpYnNlbGlu
-dXgvc3JjL3Byb2NhdHRyLmMKQEAgLTgsMTEgKzgsNTQgQEAKICNpbmNsdWRlICJzZWxpbnV4X2lu
-dGVybmFsLmgiCiAjaW5jbHVkZSAicG9saWN5LmgiCiAKK3N0YXRpYyBfX3RocmVhZCBwaWRfdCB0
-aWQgPSAtMTsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9jdXJyZW50
-ID0gTlVMTDsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9leGVjID0g
-TlVMTDsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9mc2NyZWF0ZSA9
-IE5VTEw7CitzdGF0aWMgX190aHJlYWQgc2VjdXJpdHlfY29udGV4dF90IHByZXZfa2V5Y3JlYXRl
-ID0gTlVMTDsKK3N0YXRpYyBfX3RocmVhZCBzZWN1cml0eV9jb250ZXh0X3QgcHJldl9zb2NrY3Jl
-YXRlID0gTlVMTDsKKworc3RhdGljIHB0aHJlYWRfb25jZV90IG9uY2UgPSBQVEhSRUFEX09OQ0Vf
-SU5JVDsKK3N0YXRpYyBwdGhyZWFkX2tleV90IGRlc3RydWN0b3Jfa2V5Oworc3RhdGljIGludCBk
-ZXN0cnVjdG9yX2tleV9pbml0aWFsaXplZCA9IDA7CitzdGF0aWMgX190aHJlYWQgY2hhciBkZXN0
-cnVjdG9yX2luaXRpYWxpemVkOworCiBzdGF0aWMgcGlkX3QgZ2V0dGlkKHZvaWQpCiB7CiAJcmV0
-dXJuIHN5c2NhbGwoX19OUl9nZXR0aWQpOwogfQogCitzdGF0aWMgdm9pZCBwcm9jYXR0cl90aHJl
-YWRfZGVzdHJ1Y3Rvcih2b2lkIF9fYXR0cmlidXRlX18oKHVudXNlZCkpICp1bnVzZWQpCit7CisJ
-ZnJlZShwcmV2X2N1cnJlbnQpOworCWZyZWUocHJldl9leGVjKTsKKwlmcmVlKHByZXZfZnNjcmVh
-dGUpOworCWZyZWUocHJldl9rZXljcmVhdGUpOworCWZyZWUocHJldl9zb2NrY3JlYXRlKTsKK30K
-Kwordm9pZCBfX2F0dHJpYnV0ZV9fKChkZXN0cnVjdG9yKSkgcHJvY2F0dHJfZGVzdHJ1Y3Rvcih2
-b2lkKTsKKwordm9pZCBoaWRkZW4gX19hdHRyaWJ1dGVfXygoZGVzdHJ1Y3RvcikpIHByb2NhdHRy
-X2Rlc3RydWN0b3Iodm9pZCkKK3sKKwlpZiAoZGVzdHJ1Y3Rvcl9rZXlfaW5pdGlhbGl6ZWQpCisJ
-CV9fc2VsaW51eF9rZXlfZGVsZXRlKGRlc3RydWN0b3Jfa2V5KTsKK30KKworc3RhdGljIGlubGlu
-ZSB2b2lkIGluaXRfdGhyZWFkX2Rlc3RydWN0b3Iodm9pZCkKK3sKKwlpZiAoZGVzdHJ1Y3Rvcl9p
-bml0aWFsaXplZCA9PSAwKSB7CisJCV9fc2VsaW51eF9zZXRzcGVjaWZpYyhkZXN0cnVjdG9yX2tl
-eSwgKHZvaWQgKikxKTsKKwkJZGVzdHJ1Y3Rvcl9pbml0aWFsaXplZCA9IDE7CisJfQorfQorCitz
-dGF0aWMgdm9pZCBpbml0X3Byb2NhdHRyKHZvaWQpCit7CisJaWYgKF9fc2VsaW51eF9rZXlfY3Jl
-YXRlKCZkZXN0cnVjdG9yX2tleSwgcHJvY2F0dHJfdGhyZWFkX2Rlc3RydWN0b3IpID09IDApCisJ
-CWRlc3RydWN0b3Jfa2V5X2luaXRpYWxpemVkID0gMTsKK30KKwogc3RhdGljIGludCBnZXRwcm9j
-YXR0cmNvbl9yYXcoc2VjdXJpdHlfY29udGV4dF90ICogY29udGV4dCwKIAkJCSAgICAgIHBpZF90
-IHBpZCwgY29uc3QgY2hhciAqYXR0cikKIHsKQEAgLTIwLDcgKzYzLDYgQEAgc3RhdGljIGludCBn
-ZXRwcm9jYXR0cmNvbl9yYXcoc2VjdXJpdHlfY29udGV4dF90ICogY29udGV4dCwKIAlzaXplX3Qg
-c2l6ZTsKIAlpbnQgZmQsIHJjOwogCXNzaXplX3QgcmV0OwotCXBpZF90IHRpZDsKIAlpbnQgZXJy
-bm9faG9sZDsKIAogCWlmIChwaWQgPiAwKQpAQCAtODcsMTkgKzEyOSw1NiBAQCBzdGF0aWMgaW50
-IGdldHByb2NhdHRyY29uKHNlY3VyaXR5X2NvbnRleHRfdCAqIGNvbnRleHQsCiAJcmV0dXJuIHJl
-dDsKIH0KIAorI2RlZmluZSBVUERBVEVfQ0FDSEUoY29udGV4dCwgY2FjaGUpCVwKKwlpZiAoIWNv
-bnRleHQgJiYgIWNhY2hlKQkJXAorCQlyZXR1cm4gMDsJCVwKKwlpZiAoIWNvbnRleHQpIHsJCQlc
-CisJCWZyZWUoY2FjaGUpOwkJXAorCQljYWNoZSA9IE5VTEw7CQlcCisJfSBlbHNlIHsJCQlcCisJ
-CWlmIChjYWNoZSAmJiAhc3RyY21wKGNvbnRleHQsY2FjaGUpKSBcCisJCQlyZXR1cm4gMDsJXAor
-CQlmcmVlKGNhY2hlKTsJCVwKKwkJY2FjaGUgPSBzdHJkdXAoY29udGV4dCk7XAorCX0KKwogc3Rh
-dGljIGludCBzZXRwcm9jYXR0cmNvbl9yYXcoc2VjdXJpdHlfY29udGV4dF90IGNvbnRleHQsCiAJ
-CQkgICAgICBwaWRfdCBwaWQsIGNvbnN0IGNoYXIgKmF0dHIpCiB7CiAJY2hhciAqcGF0aDsKIAlp
-bnQgZmQsIHJjOwotCXBpZF90IHRpZDsKIAlzc2l6ZV90IHJldDsKIAlpbnQgZXJybm9faG9sZDsK
-IAorCV9fc2VsaW51eF9vbmNlKG9uY2UsIGluaXRfcHJvY2F0dHIpOworCWluaXRfdGhyZWFkX2Rl
-c3RydWN0b3IoKTsKKworCXN3aXRjaCAoYXR0clswXSkgeworCQljYXNlICdjJzoKKwkJCVVQREFU
-RV9DQUNIRShjb250ZXh0LCBwcmV2X2N1cnJlbnQpOworCQkJYnJlYWs7CisJCWNhc2UgJ2UnOgor
-CQkJVVBEQVRFX0NBQ0hFKGNvbnRleHQsIHByZXZfZXhlYyk7CisJCQlicmVhazsKKwkJY2FzZSAn
-Zic6CisJCQlVUERBVEVfQ0FDSEUoY29udGV4dCwgcHJldl9mc2NyZWF0ZSk7CisJCQlicmVhazsK
-KwkJY2FzZSAnayc6CisJCQlVUERBVEVfQ0FDSEUoY29udGV4dCwgcHJldl9rZXljcmVhdGUpOwor
-CQkJYnJlYWs7CisJCWNhc2UgJ3MnOgorCQkJVVBEQVRFX0NBQ0hFKGNvbnRleHQsIHByZXZfc29j
-a2NyZWF0ZSk7CisJCQlicmVhazsKKwkJZGVmYXVsdDoKKwkJCXJldHVybiAtMTsKKwl9OworCiAJ
-aWYgKHBpZCA+IDApCiAJCXJjID0gYXNwcmludGYoJnBhdGgsICIvcHJvYy8lZC9hdHRyLyVzIiwg
-cGlkLCBhdHRyKTsKIAllbHNlIHsKLQkJdGlkID0gZ2V0dGlkKCk7CisJCWlmICh0aWQgPT0gLTEp
-CisJCQl0aWQgPSBnZXR0aWQoKTsKKwogCQlyYyA9IGFzcHJpbnRmKCZwYXRoLCAiL3Byb2Mvc2Vs
-Zi90YXNrLyVkL2F0dHIvJXMiLCB0aWQsIGF0dHIpOwogCX0KIAlpZiAocmMgPCAwKQo=
---e0cb4efe33802ec58504d2dc31c5--
+> Casey Schaufler wrote:
+>> -	if (verify(ops)) {
+>> -		printk(KERN_DEBUG "%s could not verify "
+>> -		       "security_operations structure.\n", __func__);
+>> -		return -EINVAL;
+>> +	/*
+>> +	 * Set up the operation vector early, but only once.
+>> +	 * This allows LSM specific file systems to check to see if they
+>> +	 * should come on line.
+>> +	 */
+>> +	if (ops == NULL) {
+>> +		pr_debug("%s could not verify security_operations.\n",
+>> +				__func__);
+>> +		return 0;
+>>  	}
+>> +	/*
+>> +	 * Return success if the LSM is already resistered
+>> +	 */
+>> +	for_each_hook(sop, name)
+>> +		if (sop == ops)
+>> +			return 1;
+>>  
+>> -	if (security_ops != &default_security_ops)
+>> -		return -EAGAIN;
+>> +	/*
+>> +	 * This LSM has not yet been ordered.
+>> +	 */
+>> +	ops->order = -1;
+>>  
+>> -	security_ops = ops;
+>> +	if (lsm_count >= COMPOSER_MAX) {
+>> +		pr_warn("Too many security modules. %s not loaded.\n",
+>> +				ops->name);
+>> +		return 0;
+>> +	}
+>>  
+>> -	return 0;
+>> +	if (specified_lsms[0][0] != '\0') {
+> We can do "specified_lsms[0][0] = '\0';" after "do_security_initcalls();" so
+> that LKM-based LSMs can be loaded without depending on security= argument?
+
+You are going to have to introduce more mechanism if you want to
+provide for LKM-based LSMs. How about we consider a change here until
+you can propose that mechanism in its entirety.
+
+>> +		for (i = 0; specified_lsms[i][0] != '\0'; i++) {
+>> +			if (strcmp(ops->name, specified_lsms[i]) == 0) {
+>> +				ops->order = i;
+>> +				break;
+>> +			}
+>> +		}
+>> +		if (ops->order == -1) {
+>> +			pr_notice("LSM %s declined by boot options.\n",
+>> +					ops->name);
+>> +			return 0;
+>> +		}
+>> +	}
+>> +	/*
+>> +	 * Check for conflicting LSMs.
+>> +	 */
+>> +#ifdef CONFIG_SECURITY_NETWORK_XFRM
+>> +	if (ops->xfrm_policy_alloc_security &&
+>> +	    !list_empty(&lsm_hooks[lsm_xfrm_policy_alloc_security])) {
+>> +		pr_warn("LSM conflict on %s. %s not loaded.\n",
+>> +				"xfrm_policy_alloc_security", ops->name);
+>> +		return 0;
+>> +	}
+>> +#endif
+>> +	if (ops->secid_to_secctx &&
+>> +	    !list_empty(&lsm_hooks[lsm_secid_to_secctx])) {
+>> +		pr_warn("LSM conflict on %s. %s not loaded.\n",
+>> +			"secid_to_secctx", ops->name);
+>> +		return 0;
+>> +	}
+>> +
+>> +	/*
+>> +	 * The order will already be set if the command line
+>> +	 * includes "security=".
+>> +	 *
+>> +	 * Do this before the enlisting. If there is an error
+>> +	 * (Very unlikely!) that prevents the enlisting from
+>> +	 * completing it is still necessary to have a blob slot
+>> +	 * for it.
+>> +	 */
+> I think "If there is an error (Very unlikely!)" never happens after this point.
+>
+>> +	if (ops->order == -1)
+>> +		ops->order = lsm_count;
+>> +	lsm_count++;
+>> +
+>> +	/*
+>> +	 * Use the LSM specified by CONFIG_SECURITY_PRESENT for
+>> +	 * [gs]etprocattr. If the LSM specified is PRESENT_FIRST
+>> +	 * use the first LSM to register that has the hooks.
+>> +	 * If the specified LSM lacks the hooks treat it as if
+>> +	 * there is no LSM registered that supplied them.
+>> +	 */
+>> +	if (ops->getprocattr && ops->setprocattr &&
+>> +	    (!strcmp(ops->name, present_lsm) ||
+>> +	     (!lsm_present && !strcmp(PRESENT_FIRST, present_lsm)))) {
+>> +		lsm_present = ops;
+>> +		present_getprocattr = ops->getprocattr;
+>> +		present_setprocattr = ops->setprocattr;
+>> +		pr_info("Security Module %s is presented in /proc.\n",
+>> +			ops->name);
+>> +	}
+>> +	/*
+>> +	 * Return success after registering the LSM.
+>> +	 */
+>> +	lsm_enlist_ops(ops);
+>> +
+>> +	return 1;
+>>  }
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
