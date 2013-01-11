@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0B0lTcn013157
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jan 2013 19:47:35 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0B1E0Dn014447
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jan 2013 20:14:00 -0500
 From: ebiederm@xmission.com (Eric W. Biederman)
 To: John Johansen <john.johansen@canonical.com>
 Cc: James Morris <jmorris@namei.org>, Casey Schaufler <casey@schaufler-ca.com>,
@@ -17,11 +17,12 @@ References: <50EB7C50.3070605@schaufler-ca.com>
 	<alpine.LRH.2.02.1301081942030.24212@tundra.namei.org>
 	<50EC8447.1000301@canonical.com>
 	<alpine.LRH.2.02.1301100028160.5423@tundra.namei.org>
-	<50EE9733.2060409@canonical.com>
-Date: Thu, 10 Jan 2013 16:46:46 -0800
-In-Reply-To: <50EE9733.2060409@canonical.com> (John Johansen's message of
-	"Thu, 10 Jan 2013 02:25:55 -0800")
-Message-ID: <87lic0sg09.fsf@xmission.com>
+	<50EE9733.2060409@canonical.com> <87lic0sg09.fsf@xmission.com>
+	<50EF6368.6070504@canonical.com>
+Date: Thu, 10 Jan 2013 17:13:02 -0800
+In-Reply-To: <50EF6368.6070504@canonical.com> (John Johansen's message of
+	"Thu, 10 Jan 2013 16:57:12 -0800")
+Message-ID: <87d2xcsesh.fsf@xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
@@ -30,33 +31,22 @@ List-Id: selinux@tycho.nsa.gov
 
 John Johansen <john.johansen@canonical.com> writes:
 
-> On 01/09/2013 05:28 AM, James Morris wrote:
->> On Tue, 8 Jan 2013, John Johansen wrote:
+>> When a distro is run in a container it is desirable to be able to run
+>> the distro's security policy in that container.  Ideally this will get
+>> addressed by being able to do some level of per user namespace stacking.
+>> Say selinux outside and apparmor inside a container.
 >> 
->>>> I'd say we need to see the actual use-case for Smack and Apparmor being 
->>>> used together, along with at least one major distro committing to support 
->>>> this.
->>>>
->>>>
->>> Ubuntu is very interested in stacking
+>> I think this would take a little more work than what Casey has currently
+>> devised but I am hopeful an additional layer of stacking can be added
+>> after Casey has merged the basic layer of stacking.
 >> 
->> Which modules?
->> 
-> Well Yama which has now been special cased, and in the past there has been
-> discussion about other special case LSMs like case is proposing for module
-> loading. There has been interest around both selinux + apparmor and
-> smack + apparmor. I am not sure of all of the use cases that have lead to
-> such question but some of them have been around containers, with say
-> selinux on the host and apparmor in the container, or visa versa.
+> Right the general case will take more, but doing things like selinux on
+> the outside and apparmor inside are doable right now. And we are working
+> on supporting stacked apparmor policy right now so apparmor outside and
+> a different apparmor policy inside will be doable soon.
 
-When a distro is run in a container it is desirable to be able to run
-the distro's security policy in that container.  Ideally this will get
-addressed by being able to do some level of per user namespace stacking.
-Say selinux outside and apparmor inside a container.
-
-I think this would take a little more work than what Casey has currently
-devised but I am hopeful an additional layer of stacking can be added
-after Casey has merged the basic layer of stacking.
+Cool.  For stacked apparmor how are you deciding which tasks get which
+policy?  Is this based on user namespaces or something else?
 
 Eric
 
