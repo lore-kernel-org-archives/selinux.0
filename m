@@ -1,41 +1,60 @@
-Message-ID: <50F4098B.2050802@tycho.nsa.gov>
-Date: Mon, 14 Jan 2013 08:35:07 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0EHCdGq007890
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jan 2013 12:12:42 -0500
+Subject: [PATCH 1/2] selinux: add the "attach_queue" permission to the
+ "tun_socket" class
+To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Cc: Eric Paris <eparis@parisplace.org>, Jason Wang <jasowang@redhat.com>
+Date: Mon, 14 Jan 2013 12:12:13 -0500
+Message-ID: <20130114171212.31874.23795.stgit@localhost>
+In-Reply-To: <20130114170837.31874.78897.stgit@localhost>
+References: <20130114170837.31874.78897.stgit@localhost>
 MIME-Version: 1.0
-To: =?GB2312?B?tq3u2g==?= <dywisdomno1@gmail.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: Re: Security label of file in Yaffs2 on Android
-References: <CAPG=pduMTUpeY+Goikvh6nOAtcAvxn4h1Ai36H0ihwqfCHs9Eg@mail.gmail.com> <50F407C7.5020402@tycho.nsa.gov>
-In-Reply-To: <50F407C7.5020402@tycho.nsa.gov>
-Content-Type: text/plain; charset=GB2312
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/14/2013 08:27 AM, Stephen Smalley wrote:
-> On 01/13/2013 11:15 PM, ¶­îÚ wrote:
->> Hello
->> I want to set security label(use xattr security.mylabel) of the file in
->> Yaffs2 on Android.
->> I've been able to use setxattr syscall to set security label, and use
->> getxattr syscall to verify the change right after that.
->> The problem is that the change is gone when i reboot the emulator.I used
->> to try the same process on linux and ext2 filesystem£¬and the change
->> will last like forever.
->>
->> Is is about the emulator? Or it is all about the support level of xattr
->> in Yaffs2£¿
->>
->> Thank you for any help.
-> 
-> What kernel are you using?  We had to patch the emulator kernel for SE
-> Android, back-porting a more recent snapshot of the yaffs2 code that
-> provides native support for xattrs and applying a further change to
-> ensure that new inodes are assigned a SELinux attribute on creation.
-> 
-> Also, how are you invoking the emulator?
+Add a new permission to align with the new TUN multiqueue support,
+"tun_socket:attach_queue".
 
-And which partition are you trying to modify?  /data or /system?
+The corresponding SELinux reference policy patch is show below:
+
+ diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
+ index 28802c5..a0664a1 100644
+ --- a/policy/flask/access_vectors
+ +++ b/policy/flask/access_vectors
+ @@ -827,6 +827,9 @@ class kernel_service
+
+  class tun_socket
+  inherits socket
+ +{
+ +       attach_queue
+ +}
+
+  class x_pointer
+  inherits x_device
+
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+Acked-by: Eric Paris <eparis@parisplace.org>
+Tested-by: Jason Wang <jasowang@redhat.com>
+---
+ security/selinux/include/classmap.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index df2de54..14d04e6 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -150,6 +150,6 @@ struct security_class_mapping secclass_map[] = {
+ 	    NULL } },
+ 	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
+ 	{ "tun_socket",
+-	  { COMMON_SOCK_PERMS, NULL } },
++	  { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+ 	{ NULL }
+   };
 
 
 --
