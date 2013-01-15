@@ -1,49 +1,81 @@
-Message-ID: <50F56457.5040904@tycho.nsa.gov>
-Date: Tue, 15 Jan 2013 09:14:47 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: =?GB2312?B?tq3u2g==?= <dywisdomno1@gmail.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: Re: Security label of file in Yaffs2 on Android
-References: <CAPG=pduMTUpeY+Goikvh6nOAtcAvxn4h1Ai36H0ihwqfCHs9Eg@mail.gmail.com> <50F407C7.5020402@tycho.nsa.gov> <CAPG=pdsAfAFBDakun1JTMOmbNbwdNAFX+=CNGTTVkXJvuAPqGg@mail.gmail.com> <CAPG=pdvVT4fAees1q2FsXafnBrsD8-y3dePbM_OMLAdC==r+nA@mail.gmail.com> <CAPG=pdvW9n4oAwankdawNo1u_duQQH=BM0cNNuEhC3Lm_phk+A@mail.gmail.com>
-In-Reply-To: <CAPG=pdvW9n4oAwankdawNo1u_duQQH=BM0cNNuEhC3Lm_phk+A@mail.gmail.com>
-Content-Type: text/plain; charset=GB2312
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0FKiNRl015131
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2013 15:44:24 -0500
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r0FKiCYE028636
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2013 15:44:12 -0500
+Received: from [10.10.52.105] (vpn-52-105.rdu2.redhat.com [10.10.52.105])
+	by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id r0FKZ3n1025142
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2013 15:35:07 -0500
+Message-ID: <1358282103.2081.13.camel@localhost>
+Subject: __thread and fork() is a big no-no
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Tue, 15 Jan 2013 15:35:03 -0500
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/15/2013 04:52 AM, ¶­îÚ wrote:
-> LOL,Too early to end the problem.
-> My goal is to "attached every file and dir in android with a security 
-> label".
-> The files under /data can be setxattr and the change can last after the 
-> reboot of the emulator now, but the change of setxattr to the files 
-> under /system still can't last after the reboot of the emulator. That's 
-> really weird. According to init.rc, both the /data and /system were 
-> mounted in yaffs type. I can't figure out any difference between them to 
-> cause this.
-> ps:
-> I modified init.rc to make /system mounted rw.
+Looking at the set*createcon cache patch we realized it wasn't working
+right.  Quickly putting together a test program we found that:
 
-http://developer.android.com/tools/devices/emulator.html#diskimages
+static __thread pid_t tid = 0;
 
-"The emulator does not permit renaming the temporary system image or
-persisting it at device power-off."
+int main(void)
+{
+        pid_t child;
+ 
+        tid = syscall(__NR_gettid);
+        printf("parent=%d\n", tid);
+ 
+        child = fork();
+        if (child == 0)
+                printf("child=%d\n", tid);
+         return 0;
+}
 
-This is presumably because system images aren't normally modified at
-runtime, unlike the user data images.
+We expected to get results like:
+parent=6500
+child=0
 
-To create a system image with security labels for SE Android, we
-modified mkyaffs2image to create the image with the extended attributes
-already set based on our external/sepolicy/file_contexts configuration,
-which specifies a mapping from pathname regexes to security contexts.
-It shouldn't be hard to generalize our code to support other xattrs.
-Our changes to external/yaffs2 have been merged into AOSP.  We also did
-the same thing for make_ext4fs (system/extras/ext4_utils), as ext4 is
-used on modern devices.
+Instead you find result like:
+parent=6500
+child=6500
 
+Thread local storage is NOT initialized across fork().  It's always been
+known that threads and fork() don't play well together:
+http://www.linuxprogrammingblog.com/threads-and-fork-think-twice-before-using-them
 
+But we weren't threading the parent or the child, so we expected it to
+work.  Instead we've had to add a call to pthread_atfork() which
+explicitly resets tid at fork.  Basically just:
 
+static void clear(void)
+{
+        tid = 0;
+}
+ 
+int main(void)
+{
+...
+        int rc;
+        rc = pthread_atfork(NULL, NULL, clear);
+        if (rc)
+                return rc;
+...
+}
+
+We actually call this ptherad_atfork() inside the init_procattr()
+function which is only called once.  I'm wondering if we suffer from the
+same problems with __thread variables and fork() in the library callers
+elsewhere in the code.  I'll take a look.
+
+Just letting folks know something interesting we found yesterday, in
+case they find it interesting...
+
+-Eric
 
 
 --
