@@ -1,15 +1,28 @@
-Message-ID: <50F5C5F0.7050309@tycho.nsa.gov>
-Date: Tue, 15 Jan 2013 16:11:12 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+To: sds@tycho.nsa.gov
+From: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Date: Tue, 15 Jan 2013 16:58:51 -0500 (EST)
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: __thread and fork() is a big no-no
-References: <1358282103.2081.13.camel@localhost> <50F5C3B5.9020104@tycho.nsa.gov>
-In-Reply-To: <50F5C3B5.9020104@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: =?utf-8?B?UmU6IF9fdGhyZWFkIGFuZCBmb3JrKCkgaXMgYSBiaWcgbm8tbm8=?=
+Message-ID: <1090524285.6034746.1358287131109.JavaMail.root@zmail12.collab.prod.int.phx2.redhat.com>
+Content-Type: multipart/mixed;boundary="__1358287145398TOUCHDOWN_BOUNDARY__"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+--__1358287145398TOUCHDOWN_BOUNDARY__
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+It is not about caching tid,  it is about ALL __thread variables not being cleared across fork. In this case the parent used a setfscreatecon, forked, then the child tried to use setfscreatecon! and found the cached version. But in kernel the child did not have a Sid set. Failure. __thread variables and fork() == bad stuff. 
+
+
+-----Original Message-----
+From: Stephen Smalley [sds@tycho.nsa.gov]
+Received: Tuesday, 15 Jan 2013, 4:13pm
+To: Eric Paris [eparis@redhat.com]
+CC: selinux@tycho.nsa.gov
+Subject: Re: __thread and fork() is a big no-no
+
 
 On 01/15/2013 04:01 PM, Stephen Smalley wrote:
 > On 01/15/2013 03:35 PM, Eric Paris wrote:
@@ -81,6 +94,8 @@ whether you care to support set*con for threads other than the thread
 group leader in multi-threaded applications.
 
 
+
+--__1358287145398TOUCHDOWN_BOUNDARY__--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
