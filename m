@@ -1,116 +1,48 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.3.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0F4IFcZ023197
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jan 2013 23:18:16 -0500
-Message-ID: <50F4D83E.9050802@schaufler-ca.com>
-Date: Mon, 14 Jan 2013 20:17:02 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <50F56457.5040904@tycho.nsa.gov>
+Date: Tue, 15 Jan 2013 09:14:47 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@namei.org>,
-        LSM <linux-security-module@vger.kernel.org>,
-        LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
-        John Johansen <john.johansen@canonical.com>,
-        Eric Paris <eparis@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Kees Cook <keescook@chromium.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
-References: <50EB7C50.3070605@schaufler-ca.com> <50EC5BCD.9000908@tycho.nsa.gov>
-In-Reply-To: <50EC5BCD.9000908@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: =?GB2312?B?tq3u2g==?= <dywisdomno1@gmail.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+        "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Subject: Re: Security label of file in Yaffs2 on Android
+References: <CAPG=pduMTUpeY+Goikvh6nOAtcAvxn4h1Ai36H0ihwqfCHs9Eg@mail.gmail.com> <50F407C7.5020402@tycho.nsa.gov> <CAPG=pdsAfAFBDakun1JTMOmbNbwdNAFX+=CNGTTVkXJvuAPqGg@mail.gmail.com> <CAPG=pdvVT4fAees1q2FsXafnBrsD8-y3dePbM_OMLAdC==r+nA@mail.gmail.com> <CAPG=pdvW9n4oAwankdawNo1u_duQQH=BM0cNNuEhC3Lm_phk+A@mail.gmail.com>
+In-Reply-To: <CAPG=pdvW9n4oAwankdawNo1u_duQQH=BM0cNNuEhC3Lm_phk+A@mail.gmail.com>
+Content-Type: text/plain; charset=GB2312
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 1/8/2013 9:47 AM, Stephen Smalley wrote:
-> On 01/07/2013 08:54 PM, Casey Schaufler wrote:
->> Subject: [PATCH v12 0/9] LSM: Multiple concurrent LSMs
->>
->> Change the infrastructure for Linux Security Modules (LSM)s
->> from a single vector of hook handlers to a list based method
->> for handling multiple concurrent modules.
->>
->> A level of indirection has been introduced in the handling of
->> security blobs. LSMs no longer access ->security fields directly,
->> instead they use an abstraction provided by lsm_[gs]et field
->> functions.
->>
->> The XFRM hooks are only used by SELinux and it is not clear
->> that they can be shared. The First LSM that registers using
->> those hooks gets to use them. Any subsequent LSM that uses
->> those hooks is denied registration.
->>
->> Secids have not been made shareable. Only one LSM that uses
->> secids (SELinux and Smack) can be used at a time. The first
->> to register wins.
->>
->> The "security=" boot option takes a comma separated list of
->> LSMs, registering them in the order presented. The LSM hooks
->> will be executed in the order registered. Hooks that return
->> errors are not short circuited. All hooks are called even
->> if one of the LSM hooks fails. The result returned will be
->> that of the last LSM hook that failed.
->>
->> Some hooks don't fit that model. setprocattr, getprocattr,
->> and a few others are special cased. All behavior from
->> security/capability.c has been moved into the hook handling.
->> The security/commoncap functions used to get called from
->> the LSM specific code. The handling of the capability
->> functions has been moved out of the LSMs and into the
->> hook handling.
->>
->> The /proc/*/attr interfaces are given to one LSM. This
->> can be done by setting CONFIG_SECURITY_PRESENT. Additional
->> interfaces have been created in /proc/*/attr so that
->> each LSM has its own named interfaces.
->>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->
-> Have you run any benchmarks, particularly to compare performance
-> overhead in the simple case of a single LSM?
->
+On 01/15/2013 04:52 AM, ¶­îÚ wrote:
+> LOL,Too early to end the problem.
+> My goal is to "attached every file and dir in android with a security 
+> label".
+> The files under /data can be setxattr and the change can last after the 
+> reboot of the emulator now, but the change of setxattr to the files 
+> under /system still can't last after the reboot of the emulator. That's 
+> really weird. According to init.rc, both the /data and /system were 
+> mounted in yaffs type. I can't figure out any difference between them to 
+> cause this.
+> ps:
+> I modified init.rc to make /system mounted rw.
 
-Yes. Finally.
+http://developer.android.com/tools/devices/emulator.html#diskimages
+
+"The emulator does not permit renaming the temporary system image or
+persisting it at device power-off."
+
+This is presumably because system images aren't normally modified at
+runtime, unlike the user data images.
+
+To create a system image with security labels for SE Android, we
+modified mkyaffs2image to create the image with the extended attributes
+already set based on our external/sepolicy/file_contexts configuration,
+which specifies a mapping from pathname regexes to security contexts.
+It shouldn't be hard to generalize our code to support other xattrs.
+Our changes to external/yaffs2 have been merged into AOSP.  We also did
+the same thing for make_ext4fs (system/extras/ext4_utils), as ext4 is
+used on modern devices.
 
 
-I ran a series of micro-benchmarks on the assumption that
-we're most concerned with system call performance. I used
-lmbench, not because it's the world's greatest benchmark
-but because it targets some of the things I care about.
-I am perfectly happy to accept suggestions of other benchmarks,
-but I make no guarantees that I'll be able to run them.
-
-I ran sets of three runs for each configuration and tossed
-any benchmark where I had too great a deviation. I ran one
-set on Fedora 17 and another on Ubuntu 12.04. I ran what I
-consider some interesting configurations, with both the old
-LSM infrastructure and the stacking infrastructure.
-
-I compared the performance for these configurations:
-
-	CONFIG_SECURITY disabled
-	CONFIG_SECURITY enabled, no LSM specified
-	CONFIG_SECURITY enabled, SELinux enabled
-	CONFIG_SECURITY enabled, SELinux and Yama enabled
-	CONFIG_SECURITY enabled, Smack enabled
-	CONFIG_SECURITY enabled, Smack and Yama enabled
-
-I also ran SELinux + AppArmor + Yama, Smack + AppArmor + Yama
-and Smack + AppArmor + TOMOYO + Yama under the stacking
-framework, but as I can't run them without it I can't do
-comparisons.
-
-I found that with security disabled I got 0.79% worse
-overall performance with Fedora but a 0.81% better overall
-performance with Ubuntu. The combined was 0.01% better,
-so I figure that the methodology looks OK.
-
-On Fedora I found that for all comparable configurations
-stacking added 1.23%. For Ubuntu, it was 0.61%.
-
-I am no statistician, and I do not aspire to becoming one. 
-I know that my methods were nowhere near clean and were
-in fact very noisy. I had to disqualify a good number of
-my results because the deviation between runs was too large.
 
 
 
