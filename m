@@ -1,22 +1,24 @@
-Subject: Re: __thread and fork() is a big no-no
-From: Colin Walters <walters@verbum.org>
-To: Eric Paris <eparis@redhat.com>
-Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-In-Reply-To: <1090524285.6034746.1358287131109.JavaMail.root@zmail12.collab.prod.int.phx2.redhat.com>
-References: 
-	 <1090524285.6034746.1358287131109.JavaMail.root@zmail12.collab.prod.int.phx2.redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Date: Tue, 15 Jan 2013 17:27:05 -0500
-Message-ID: <1358288825.977.25.camel@localhost>
-Mime-Version: 1.0
+Received: from [144.51.25.4] (moss-lions [144.51.25.4])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0GEUFmk004689
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2013 09:30:15 -0500
+Message-ID: <50F6B9BC.5050707@tycho.nsa.gov>
+Date: Wed, 16 Jan 2013 09:31:24 -0500
+From: James Carter <jwcart2@tycho.nsa.gov>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: SELinux List going down this after noon
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2013-01-15 at 16:58 -0500, Eric Paris wrote:
-> It is not about caching tid,  it is about ALL __thread variables not being cleared across fork. 
+The SELinux list will be down from approximately 2pm today until 6am 
+tomorrow.
 
-Using pthread_atfork() is a way to ensure it *is* cleared.
+Sorry for the inconvenience.
 
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
