@@ -1,115 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0MFEUAI017835
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 10:14:30 -0500
-Received: by mail-fa0-f69.google.com with SMTP id v1so8858231fav.8
-        for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 07:14:27 -0800 (PST)
-From: Hung Truong <hung.truong@tridsys.com>
-References: <3086262d0228a121663cb87f5d77a07a@mail.gmail.com>
- <756D04455A661C4CA25DC5BA4902A7A70130D8@XCH-PHX-204.sw.nos.boeing.com>
- <d2ec19d66b29b9d3206b49e021bd9aff@mail.gmail.com> <50FEAC01.3080605@redhat.com>
-In-Reply-To: <50FEAC01.3080605@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0MFFf1n017951
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 10:15:41 -0500
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r0MFFdGh025444
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 10:15:39 -0500
+Message-ID: <50FEA4FB.8020707@redhat.com>
+Date: Tue, 22 Jan 2013 09:40:59 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Date: Tue, 22 Jan 2013 10:14:25 -0500
-Message-ID: <91c6e6b735a86f02709d38f526230fb3@mail.gmail.com>
-Subject: RE: Turn off "dontaudit" rules in monolithic policy
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+To: eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: [PATCH 22/84] libselinux: sefcontontext_compile: Add error handling
+Content-Type: multipart/mixed;
+ boundary="------------050806030405070209070303"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Could you tell me how to compile a policy without dontaudit rules?  Thanks.
-
-
-Hung Truong | Trident Systems Incorporated
-Sr. Embedded Engineer, Software System Engineering Group
-10201 Fairfax Boulevard | Suite 300 | Fairfax, VA 22030
-d: 703.267.6746 | f: 703.273.6608
-e: hung.truong@tridsys.com | www.tridsys.com
-
-
-
-Notice: The information contained in this email message is considered
-confidential and proprietary to the sender and is intended solely for review
-and use by the named recipient.  Any unauthorized review, use or
-distribution is strictly prohibited. If you have received this message in
-error, please advise the sender by reply email and delete the message.
-
-
------Original Message-----
-From: Daniel J Walsh [mailto:dwalsh@redhat.com]
-Sent: Tuesday, January 22, 2013 10:11 AM
-To: Hung Truong
-Cc: Vu, Joseph; SELinux
-Subject: Re: Turn off "dontaudit" rules in monolithic policy
+This is a multi-part message in MIME format.
+--------------050806030405070209070303
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
 
+   This patch looks good to me. acked.
 
-On 01/22/2013 09:31 AM, Hung Truong wrote:
-> I am using version 3.7.19-155el6.6.
->
->
->
-> *From:*Vu, Joseph [mailto:joseph.vu@boeing.com
-> <mailto:joseph.vu@boeing.com>] *Sent:* Tuesday, January 22, 2013 9:19
-> AM
-> *To:* Hung Truong; SELinux *Subject:* RE: Turn off "dontaudit" rules
-> in monolithic policy
->
->
->
-> Hung,
->
->
->
-> I have been trying to rebuild monolithic policy and was not able to.
->
-> What version of SELinux Policy and RHT are you using?
->
->
->
-> ----------------------------------------------------------------------
-> ----------
->
->  *From:*owner-selinux@tycho.nsa.gov
-> <mailto:owner-selinux@tycho.nsa.gov>
-> [mailto:owner-selinux@tycho.nsa.gov] *On Behalf Of *Hung Truong
-> *Sent:* Monday, January 21, 2013 11:25 AM *To:* SELinux *Subject:*
-> Turn off "dontaudit" rules in monolithic policy
->
->
->
-> I have a custom monolithic build based on RHEL6 policy. I get this
-> error when try to turn off dontaudit rules:
->
-> $ semodule -DB
->
->
-> libsemanage.semanage_link_sandbox: Could not access sandbox base file
-> /etc/selinux/targeted/modules/bmp/base.pp. (No such file or directory)
->
-> Is there other way to turn off dontaudit rules in a monilithic policy?
->
->
->
-> Many thanks,
->
-> --Hung Truong
->
-Why not compile two policies one with and one without dontaudit rules?
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.13 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlD+rAEACgkQrlYvE4MpobMNDgCfaLNiljkPI6ilm65DgUSBCHmP
-W10An1cOKmfs7qCG8xEKaEwjVguLMLZU
-=MkCV
+iEYEARECAAYFAlD+pPsACgkQrlYvE4MpobOPbQCeLToHug/9rYu0ylGcPom2NOFT
+LfMAoKXiEZ77TbLFvQzSQuKustvIMQNt
+=T3Ng
 -----END PGP SIGNATURE-----
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+--------------050806030405070209070303
+Content-Type: text/x-patch;
+ name="0022-libselinux-sefcontontext_compile-Add-error-handling-.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0022-libselinux-sefcontontext_compile-Add-error-handling-.pa";
+ filename*1="tch"
+
+
+--------------050806030405070209070303--
