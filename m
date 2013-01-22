@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0MEuoD5014430
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 09:56:50 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0MEv4L5014510
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 09:57:04 -0500
 Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r0MEumc7003437
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r0MEv2mf017384
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 09:56:48 -0500
-Message-ID: <50FEA8AF.2090608@redhat.com>
-Date: Tue, 22 Jan 2013 09:56:47 -0500
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2013 09:57:02 -0500
+Message-ID: <50FEA8BC.7000209@redhat.com>
+Date: Tue, 22 Jan 2013 09:57:00 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 69/84] libsemanage: fixes from coverity
+Subject: [PATCH 70/84] libsepol: coverity fixes
 Content-Type: multipart/mixed;
- boundary="------------090200070502060500040609"
+ boundary="------------020603070506040609040207"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090200070502060500040609
+--------------020603070506040609040207
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,17 +32,17 @@ Hash: SHA1
 Version: GnuPG v1.4.13 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlD+qK8ACgkQrlYvE4MpobPOywCdEzt1qEt/RHJS4RONMFwHhBSB
-kBcAn1s+fz536IXoO3QdvNXMoFFZoxst
-=Wz/k
+iEYEARECAAYFAlD+qLsACgkQrlYvE4MpobPpQACeJfnv4/N4BC+CnLP/svTUh6HL
+NgsAoIr8XAeq71y50bCCCvTE+4K0Wlnn
+=kVQz
 -----END PGP SIGNATURE-----
 
---------------090200070502060500040609
+--------------020603070506040609040207
 Content-Type: text/x-patch;
- name="0069-libsemanage-fixes-from-coverity.patch"
+ name="0070-libsepol-coverity-fixes.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0069-libsemanage-fixes-from-coverity.patch"
+ filename="0070-libsepol-coverity-fixes.patch"
 
 
---------------090200070502060500040609--
+--------------020603070506040609040207--
