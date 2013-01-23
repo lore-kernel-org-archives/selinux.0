@@ -1,94 +1,90 @@
-Message-ID: <510004B2.5020703@tycho.nsa.gov>
-Date: Wed, 23 Jan 2013 10:41:38 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r0NGIhjm013831
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2013 11:18:43 -0500
+Message-ID: <51000D67.3040103@schaufler-ca.com>
+Date: Wed, 23 Jan 2013 08:18:47 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Jan Stancek <jstancek@redhat.com>
-CC: selinux@tycho.nsa.gov, serge@hallyn.com, jburke@redhat.com
-Subject: Re: [selinux-testsuite][PATCH] use extfs ioctls only when running
- on ext[234]
-References: <6012e6d654ddc5defd9e283745ff7d10a2fa20b5.1358947507.git.jstancek@redhat.com>
-In-Reply-To: <6012e6d654ddc5defd9e283745ff7d10a2fa20b5.1358947507.git.jstancek@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+CC: jmorris@namei.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, john.johansen@canonical.com, eparis@redhat.com,
+        keescook@chromium.org, Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH v12 3/9] LSM: Multiple concurrent LSMs
+References: <50FDD315.7090606@schaufler-ca.com> <201301221009.JDB30838.tFFMVFLOQJSOOH@I-love.SAKURA.ne.jp> <50FDF4FC.1010308@schaufler-ca.com> <201301221623.JIH35408.LFSJQFOFOOHVMt@I-love.SAKURA.ne.jp> <50FEEBE6.80605@schaufler-ca.com> <201301232030.HAH52121.VFtOSLHQFJOOMF@I-love.SAKURA.ne.jp>
+In-Reply-To: <201301232030.HAH52121.VFtOSLHQFJOOMF@I-love.SAKURA.ne.jp>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/23/2013 08:27 AM, Jan Stancek wrote:
-> EXT2_* ioctls are likely to fail on other filesystems,
-> for example: xfs.
+On 1/23/2013 3:30 AM, Tetsuo Handa wrote:
+> Casey, let me confirm what your requirements are.
 >
-> Signed-off-by: Jan Stancek <jstancek@redhat.com>
-> ---
->   tests/ioctl/Makefile       |    6 ++++++
->   tests/ioctl/test_ioctl.c   |    2 ++
->   tests/ioctl/test_noioctl.c |    2 ++
->   3 files changed, 10 insertions(+), 0 deletions(-)
+> Confirm 1:
+>
+>   You can tolerate writing LSM modules as loadable kernel modules. Right?
 
-Shouldn't really be a compile-time flag but rather a runtime test of the 
-filesystem type, right?  Otherwise it presumes you built it on the same 
-system and in the same filesystem where you will run it.
+In the future, hypothetically, yes. Not now. I have exactly
+zero interest in fighting the battles that resulted in a static
+LSM scheme all over again. I can't even remember which side I
+was on last time around. I want to keep the issues of multiple
+and loadable LSMs separate and distinct.
 
-I thought however that your earlier patch to switch it to using FS_IOC_ 
-command values would have
-addressed the issue of other filesystem types already?  What error are 
-you getting from xfs?  The code already checks for one errno value to 
-distinguish the not-supported case.
+> Confirm 2:
+>
+>   You don't want to allow loading of LKM-based LSM modules which cannot be
+>   unloaded safely/cleanly. Right?
 
-> diff --git a/tests/ioctl/Makefile b/tests/ioctl/Makefile
-> index 8dce555..def5267 100644
-> --- a/tests/ioctl/Makefile
-> +++ b/tests/ioctl/Makefile
-> @@ -1,4 +1,10 @@
->   TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-> +
-> +DIR_FS=$(shell df -TP . | awk '{print $2}' | grep 'ext[234]')
-> +ifneq (x$(DIR_FS),x)
-> +    CFLAGS += -DUSE_EXTFS_IOCTLS
-> +endif
-> +
->   all: $(TARGETS)
->   clean:
->   	rm -f $(TARGETS)
-> diff --git a/tests/ioctl/test_ioctl.c b/tests/ioctl/test_ioctl.c
-> index 0852f41..fa5d021 100644
-> --- a/tests/ioctl/test_ioctl.c
-> +++ b/tests/ioctl/test_ioctl.c
-> @@ -49,6 +49,7 @@ int main(int argc, char **argv) {
->       exit(1);
->     }
+That is strictly an issue for loadable modules. The only case I
+care about at present is SELinux and reset_security_ops().
+
+> Confirm 3:
 >
-> +#ifdef USE_EXTFS_IOCTLS
->     /* This one should hit the FILE__GETATTR or FILE__READ test */
->     rc = ioctl(fd, EXT2_IOC_GETVERSION, &val);
->     if( rc != 0 ) {
-> @@ -63,6 +64,7 @@ int main(int argc, char **argv) {
->       perror("test_ioctl:EXT2_IOC_SETVERSION");
->       exit(1);
->     }
-> +#endif
+>   When unloading a LKM-based LSM module, you want to make sure that all
+>   resources used by that module are cleaned up. Right?
+
+That is strictly an issues for LKM-based modules, and I have no interest
+in encumbering multiple LSM support with the issues of LKM-based modules.
+
+> Confirm 4:
 >
->     close(fd);
->     exit(0);
-> diff --git a/tests/ioctl/test_noioctl.c b/tests/ioctl/test_noioctl.c
-> index ef3fac5..b0ca660 100644
-> --- a/tests/ioctl/test_noioctl.c
-> +++ b/tests/ioctl/test_noioctl.c
-> @@ -68,6 +68,7 @@ int main(int argc, char **argv) {
->       exit(1);
->     }
+>   You consider that requisite mechanisms for LSM framework for supporting
+>   LKM-based LSMs are
 >
-> +#ifdef USE_EXTFS_IOCTLS
->     /*
->      * This one depends on kernel version:
->      * New:  Should hit the FILE__READ test and succeed.
-> @@ -86,6 +87,7 @@ int main(int argc, char **argv) {
->       perror("test_noioctl:EXT2_IOC_SETVERSION");
->       exit(1);
->     }
-> +#endif
+>    (a) "safe unloading" : LKM-based LSM modules can be unloaded safely.
 >
->     close(fd);
->     exit(0);
+>    (b) "clean unloading" : All resources used by LKM-based LSM module can be
+>        cleaned up upon unload.
 >
+>   . Right?
+
+I consider support for LKM-based security modules to be outside the scope
+of the work at hand. I have no intention of doing things to make LKM-based
+modules more difficult in the future. I also have no intention of going
+out of my way to make them easier.
+
+> Confirm 5:
+>
+>   You want any LSM modules (including LKM-based LSM modules) to manage security
+>   blobs using "struct lsm_blob" provided by LSM framework. Right?
+
+I would need to look at a proposal on how LKM-based are supposed to
+work before I would answer a question at that depth. I am regrettably
+not available for that work presently.
+
+> Confirm 6:
+>
+>   You want to implement a mechanism which makes it possible to allow LKM-based
+>   LSM module to clean up all resources upon unloading. Right?
+
+I am uninterested in LKM-based LSMs at present. I have none of the time, energy
+or inclination required to tackle that project. I believe that including LKM-based
+LSMs in the multiple concurrent LSM project would significantly increases resistance
+to the project's acceptance.
+
+Arguments around, about or including LKM-based LSM support are not
+relevant to the task at hand and impede its progress. Please, can
+we hold them for later?
+
 
 
 --
