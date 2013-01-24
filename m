@@ -1,37 +1,29 @@
-Message-ID: <51002C72.1000100@tycho.nsa.gov>
-Date: Wed, 23 Jan 2013 13:31:14 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Jan Stancek <jstancek@redhat.com>
-CC: selinux@tycho.nsa.gov, serge@hallyn.com, jburke@redhat.com
+Date: Thu, 24 Jan 2013 04:36:04 +0000
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Jan Stancek <jstancek@redhat.com>, selinux@tycho.nsa.gov, serge@hallyn.com,
+        jburke@redhat.com
 Subject: Re: [selinux-testsuite][PATCH] use extfs ioctls only when running
  on ext[234]
-References: <286629059.3171068.1358964951492.JavaMail.root@redhat.com>
-In-Reply-To: <286629059.3171068.1358964951492.JavaMail.root@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Message-ID: <20130124043604.GA13239@mail.hallyn.com>
+References: <2101640213.3126557.1358959802946.JavaMail.root@redhat.com>
+ <51002308.3050709@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <51002308.3050709@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 01/23/2013 01:15 PM, Jan Stancek wrote:
-> That diff looks to be addressing same issue, so there shouldn't
-> be need for another patch.
->
-> I'm guessing we are not using same repo.
-> $ git remote -v
-> origin  git://git.selinuxproject.org/~serge/selinux-testsuite.git (fetch)
-> origin  git://git.selinuxproject.org/~serge/selinux-testsuite.git (push)
-> $ git pull
-> Already up-to-date.
-> $ grep "errno" -r tests/ioctl/
-> $
->
-> Can you share your git uri please?
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> Odd, I have the following diff locally.
 
-Same repo, but this is a local change not yet committed in my working 
-copy.  I'm guessing that I forgot to send it or it just never got applied.
+Hi,
 
+is there any commit message or author attribution for the diff, so I
+can apply it to the testsuite?
 
-
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
