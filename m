@@ -1,105 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r11KxVbg024768
-	for <selinux@tycho.nsa.gov>; Fri, 1 Feb 2013 15:59:31 -0500
-Received: by mail-lb0-f177.google.com with SMTP id go11so4869729lbb.22
-        for <selinux@tycho.nsa.gov>; Fri, 01 Feb 2013 12:59:29 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r19Jl02J007766
+	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2013 14:47:00 -0500
+Received: by mail-ob0-f182.google.com with SMTP id va7so4897935obc.41
+        for <selinux@tycho.nsa.gov>; Sat, 09 Feb 2013 11:46:56 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <C1432A7484D61749AF22A060C2B03C5D1632046A2B@StaEx7mb3.telecom.sna.samsung.com>
-References: <C1432A7484D61749AF22A060C2B03C5D1632046A1B@StaEx7mb3.telecom.sna.samsung.com>
-	<50EC37E2.2000705@tycho.nsa.gov>
-	<C1432A7484D61749AF22A060C2B03C5D1632046A2B@StaEx7mb3.telecom.sna.samsung.com>
-Date: Fri, 1 Feb 2013 15:59:27 -0500
-Message-ID: <CACLa4ptb6y9G8xEvFvzuMiUdjz8yJ+0K2e1JLEd+B=SgKULFVQ@mail.gmail.com>
-Subject: Re: Fixing external/libsepol issues found by Klocwork
-From: Eric Paris <eparis@parisplace.org>
-To: Alice Chu <alice.chu@sta.samsung.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+From: =?ISO-8859-1?Q?Brian_Iv=E1n_Mart=EDnez?= <xangelux@gmail.com>
+Date: Sat, 9 Feb 2013 13:21:54 -0600
+Message-ID: <CACcxAnHapENU25rsrcjijfdVNdvp9yyGBvVDys=pBg_qssPLGg@mail.gmail.com>
+Subject: 
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=bcaec54b45ac205e4104d54f9976
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-> From: Alice Chu <alice.chu@sta.samsung.com>
-> Date: Wed, 9 Jan 2013 18:34:32 -0800
-> Subject: [PATCH] Fix memory leak issues found by Klocwork
+--bcaec54b45ac205e4104d54f9976
+Content-Type: text/plain; charset=ISO-8859-1
 
-> diff --git a/src/link.c b/src/link.c
-> index 01d3231..4d36132 100644
-> --- a/src/link.c
-> +++ b/src/link.c
+Hi, first time mailer here.
 
-> @@ -1301,7 +1303,8 @@ static int copy_avrule_list(avrule_t * list, avrule_t ** dst,
->                         if (new_rule->perms == NULL) {
->                                 new_rule->perms = new_perm;
->                         } else {
-> -                               tail_perm->next = new_perm;
-> +                               if (tail_perm) /* make sure no dereferencing of NULL pointer*/
-> +                                       tail_perm->next = new_perm;
->                         }
->                         tail_perm = new_perm;
->                         cur_perm = cur_perm->next;
+Lately I've grown curious about SELinux and I would like to be able to
+install it on my Archlinux. There are packages in the AUR repo but those
+are from before glibc-2.16, with the update the packages broke. I have
+successfully build and installed libselinux and libsepol  but now it's turn
+for pam with selinux enabled which fails with the complain that it doesn't
+know rlim size in the pam_unix_passwd.c file.
 
-I actually made this assert(tail_perm); If we did hit the case where
-this was null, someone changed the code flow and broke it.  I don't
-want to silently hide that fact.
+I posted this in the G+ group trying to figure out if is a bug in pam or in
+SELinux and the guys there told me to post it here.
 
-> diff --git a/src/policydb.c b/src/policydb.c
-> index ff292f6..fd9b57b 100644
-> --- a/src/policydb.c
-> +++ b/src/policydb.c
-> @@ -3448,7 +3448,8 @@ static int avrule_block_read(policydb_t * p,
->                         if (curblock->branch_list == NULL) {
->                                 curblock->branch_list = curdecl;
->                         } else {
-> -                               last_decl->next = curdecl;
-> +                               if (last_decl != NULL)
-> +                                       last_decl->next = curdecl;
->                         }
->                         last_decl = curdecl;
->                         num_decls--;
+The AUR package I try to use to build pam is
+https://aur.archlinux.org/packages/selinux-pam/ .
 
-Same
+Thanks
 
-> @@ -3457,7 +3458,8 @@ static int avrule_block_read(policydb_t * p,
->                 if (*block == NULL) {
->                         *block = curblock;
->                 } else {
-> -                       last_block->next = curblock;
-> +                       if (last_block != NULL)
-> +                               last_block->next = curblock;
->                 }
->                 last_block = curblock;
+--bcaec54b45ac205e4104d54f9976
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Similar, but not quite the same.  Since we rely on the caller setting
-*block to NULL. I actually added 2 asserts.  One here on last_block
-and one at the top on *block == NULL.
+<div dir=3D"ltr">Hi, first time mailer here. <br><br>Lately I&#39;ve grown =
+curious about SELinux and I would like to be able to install it on my Archl=
+inux. There are packages in the AUR repo but those are from before glibc-2.=
+16, with the update the packages broke. I have successfully build and insta=
+lled libselinux and libsepol=A0 but now it&#39;s turn for pam with selinux =
+enabled which fails with the complain that it doesn&#39;t know rlim size in=
+ the pam_unix_passwd.c file. <br>
 
->
-> diff --git a/src/policydb_convert.c b/src/policydb_convert.c
-> index 32832bb..3fc40cb 100644
-> --- a/src/policydb_convert.c
-> +++ b/src/policydb_convert.c
-> @@ -20,6 +20,7 @@ int policydb_from_image(sepol_handle_t * handle,
->         pf.handle = handle;
->
->         if (policydb_read(policydb, &pf, 0)) {
-> +               policydb_destroy(policydb);
->                 ERR(handle, "policy image is invalid");
->                 errno = EINVAL;
->                 return STATUS_ERR;
+<br>I posted this in the G+ group trying to figure out if is a bug in pam o=
+r in SELinux and the guys there told me to post it here. <br><br>The AUR pa=
+ckage I try to use to build pam is <a href=3D"https://aur.archlinux.org/pac=
+kages/selinux-pam/">https://aur.archlinux.org/packages/selinux-pam/</a> .<b=
+r>
 
-No.  All of the callers seem to do init() and then destroy() on error.
- If we called destroy() as well it would be a double free.  Destroy
-does not reset everything to nulls, it just frees the memory.
+<br>Thanks<br></div>
 
-
-You should seem most of these patches in the next upstream push.  (Or
-at least something like these fixes)
-
-Thanks so much!
-
--Eric
+--bcaec54b45ac205e4104d54f9976--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
