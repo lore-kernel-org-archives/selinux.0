@@ -1,23 +1,62 @@
-Message-ID: <511A3B8F.8000702@tycho.nsa.gov>
-Date: Tue, 12 Feb 2013 07:54:39 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r1CM48tN016300
+	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2013 17:04:09 -0500
+Message-ID: <511ABC09.3040605@schaufler-ca.com>
+Date: Tue, 12 Feb 2013 14:02:49 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Brian_Iv=E1n_Mart=EDnez?= <xangelux@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: systemd selinux
-References: <CACcxAnHapENU25rsrcjijfdVNdvp9yyGBvVDys=pBg_qssPLGg@mail.gmail.com> <51193FDB.5030506@tycho.nsa.gov> <CACcxAnH-j-A0SkZvsbV7OLpD8o9CfeOu_UmyYTdcKEmjXpxyTQ@mail.gmail.com> <511946AB.10802@tycho.nsa.gov> <CACcxAnHzphj13zgYvkVOu-kptpf5zwR2YN6aY6AtpQ6WwPvAmA@mail.gmail.com> <511951CC.1000607@tycho.nsa.gov> <CACcxAnF8p+zJJ7XeV9JbWmLvxKWH2vJKKZXRcUXTN6U6GKy7BA@mail.gmail.com> <CACcxAnEXkFasdDFKVw8baaXP7bbgx5vndfL=j7dUAsVhrMxxMA@mail.gmail.com> <51195783.5080201@tycho.nsa.gov> <CACcxAnHVdep6fkEFxqwt0ZmoPshDVG1PTvNpEEMGEL_gaZ_d8g@mail.gmail.com> <51195BFC.3000604@tycho.nsa.gov> <CACcxAnEiKMCS6pHj7cizm83OOhq+Zj4nFh7qSMjDFE78Oz5o9w@mail.gmail.com> <CACcxAnEa45SCjEJNxUf_b303-d9QjnyV36nOSBeHQgE6zKP7Bg@mail.gmail.com>
-In-Reply-To: <CACcxAnEa45SCjEJNxUf_b303-d9QjnyV36nOSBeHQgE6zKP7Bg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "J. Bruce Fields" <bfields@fieldses.org>
+CC: Steve Dickson <SteveD@redhat.com>,
+        Trond Myklebust <Trond.Myklebust@netapp.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        Linux NFS list <linux-nfs@vger.kernel.org>,
+        Linux FS devel list <linux-fsdevel@vger.kernel.org>,
+        Linux Security List <linux-security-module@vger.kernel.org>,
+        SELinux List <selinux@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 00/15] lnfs: 3.8-rc6 release
+References: <1360327163-20360-1-git-send-email-SteveD@redhat.com> <20130212214131.GI10267@fieldses.org>
+In-Reply-To: <20130212214131.GI10267@fieldses.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 02/11/2013 06:01 PM, Brian Iván Martínez wrote:
-> Me bothering again, I'm trying to build libselinux 2.1.12 and in the
-> make step I get the error undefined pcre_free, pcre_free_study,
-> pcre_compile, pcre_study and pcre_exec in the file label_file.c , is
-> there a patch to be applied or configuration needed or a bug?
+On 2/12/2013 1:41 PM, J. Bruce Fields wrote:
+> On Fri, Feb 08, 2013 at 07:39:08AM -0500, Steve Dickson wrote:
+>>  include/linux/security.h            |  57 +++-
+> ...
+>>  security/capability.c               |  19 +-
+>>  security/security.c                 |  24 +-
+>>  security/selinux/hooks.c            |  92 +++++-
+>>  security/selinux/include/security.h |   2 +
+>>  security/selinux/ss/policydb.c      |   5 +-
+>>  security/smack/smack_lsm.c          |  11 +
+>>  33 files changed, 1352 insertions(+), 214 deletions(-)
+> Are we still waiting on ACKs from the security people for these bits?
 
-Requires libpcre.
+I'm not going to NAK it, because I don't know it won't work,
+but I'm not going to ACK it either, because I have not been
+able to get it to work. I have no idea what the problem
+might be, and the "obvious" things we've tried have proven
+ineffective. I may have a bad set of user space tools. There
+may be more work on Smack hooks required. I can't tell, and
+there's way too much NFS set-up involved to make progress in
+the limited time I have available.
+
+If you're waiting for my ACK, no, you don't have it.
+If you're OK with a lack of NAK, go ahead. There will
+be changes someday I suspect, but I can't put this high
+enough on my priorities to devote the time required
+just now.
+
+>
+> --b.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
 
 --
