@@ -1,63 +1,92 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r1CM48tN016300
-	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2013 17:04:09 -0500
-Message-ID: <511ABC09.3040605@schaufler-ca.com>
-Date: Tue, 12 Feb 2013 14:02:49 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: Steve Dickson <SteveD@redhat.com>,
-        Trond Myklebust <Trond.Myklebust@netapp.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS list <linux-nfs@vger.kernel.org>,
-        Linux FS devel list <linux-fsdevel@vger.kernel.org>,
-        Linux Security List <linux-security-module@vger.kernel.org>,
-        SELinux List <selinux@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 00/15] lnfs: 3.8-rc6 release
-References: <1360327163-20360-1-git-send-email-SteveD@redhat.com> <20130212214131.GI10267@fieldses.org>
-In-Reply-To: <20130212214131.GI10267@fieldses.org>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <511A3B8F.8000702@tycho.nsa.gov>
+References: <CACcxAnHapENU25rsrcjijfdVNdvp9yyGBvVDys=pBg_qssPLGg@mail.gmail.com>
+ <51193FDB.5030506@tycho.nsa.gov> <CACcxAnH-j-A0SkZvsbV7OLpD8o9CfeOu_UmyYTdcKEmjXpxyTQ@mail.gmail.com>
+ <511946AB.10802@tycho.nsa.gov> <CACcxAnHzphj13zgYvkVOu-kptpf5zwR2YN6aY6AtpQ6WwPvAmA@mail.gmail.com>
+ <511951CC.1000607@tycho.nsa.gov> <CACcxAnF8p+zJJ7XeV9JbWmLvxKWH2vJKKZXRcUXTN6U6GKy7BA@mail.gmail.com>
+ <CACcxAnEXkFasdDFKVw8baaXP7bbgx5vndfL=j7dUAsVhrMxxMA@mail.gmail.com>
+ <51195783.5080201@tycho.nsa.gov> <CACcxAnHVdep6fkEFxqwt0ZmoPshDVG1PTvNpEEMGEL_gaZ_d8g@mail.gmail.com>
+ <51195BFC.3000604@tycho.nsa.gov> <CACcxAnEiKMCS6pHj7cizm83OOhq+Zj4nFh7qSMjDFE78Oz5o9w@mail.gmail.com>
+ <CACcxAnEa45SCjEJNxUf_b303-d9QjnyV36nOSBeHQgE6zKP7Bg@mail.gmail.com> <511A3B8F.8000702@tycho.nsa.gov>
+From: =?ISO-8859-1?Q?Brian_Iv=E1n_Mart=EDnez?= <xangelux@gmail.com>
+Date: Tue, 12 Feb 2013 18:53:19 -0600
+Message-ID: <CACcxAnGeKe_o4oMTZJZuUk+v2NANcQTQODR6ZMo9CJeTQX7uJg@mail.gmail.com>
+Subject: Re: systemd selinux
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=e89a8fb1f500dfb02204d59093a3
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 2/12/2013 1:41 PM, J. Bruce Fields wrote:
-> On Fri, Feb 08, 2013 at 07:39:08AM -0500, Steve Dickson wrote:
->>  include/linux/security.h            |  57 +++-
-> ...
->>  security/capability.c               |  19 +-
->>  security/security.c                 |  24 +-
->>  security/selinux/hooks.c            |  92 +++++-
->>  security/selinux/include/security.h |   2 +
->>  security/selinux/ss/policydb.c      |   5 +-
->>  security/smack/smack_lsm.c          |  11 +
->>  33 files changed, 1352 insertions(+), 214 deletions(-)
-> Are we still waiting on ACKs from the security people for these bits?
+--e89a8fb1f500dfb02204d59093a3
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I'm not going to NAK it, because I don't know it won't work,
-but I'm not going to ACK it either, because I have not been
-able to get it to work. I have no idea what the problem
-might be, and the "obvious" things we've tried have proven
-ineffective. I may have a bad set of user space tools. There
-may be more work on Smack hooks required. I can't tell, and
-there's way too much NFS set-up involved to make progress in
-the limited time I have available.
+Ok, I have fixed most of the packages, I just need to update
+policycoreutils, how can I build it so it is integraded with systemd (maybe
+create a Unit for restorecond) I only have the package from
+https://aur.archlinux.org/packages/selinux-usr-policycoreutils/ to guide
+me, but there is an restorecond provided and I'm not sure that will work,
+everything is implemented to work with sysvinit scripts.
 
-If you're waiting for my ACK, no, you don't have it.
-If you're OK with a lack of NAK, go ahead. There will
-be changes someday I suspect, but I can't put this high
-enough on my priorities to devote the time required
-just now.
 
+2013/2/12 Stephen Smalley <sds@tycho.nsa.gov>
+
+> On 02/11/2013 06:01 PM, Brian Iv=E1n Mart=EDnez wrote:
 >
-> --b.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Me bothering again, I'm trying to build libselinux 2.1.12 and in the
+>> make step I get the error undefined pcre_free, pcre_free_study,
+>> pcre_compile, pcre_study and pcre_exec in the file label_file.c , is
+>> there a patch to be applied or configuration needed or a bug?
+>>
+>
+> Requires libpcre.
+>
 >
 
+
+--=20
+Ellos se r=EDen de mi por que soy diferente, yo me r=EDo de ellos por que t=
+odos
+son iguales-- J. Davis
+
+--e89a8fb1f500dfb02204d59093a3
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Ok, I have fixed most of the packages, I just need to upda=
+te policycoreutils, how can I build it so it is integraded with systemd (ma=
+ybe create a Unit for restorecond) I only have the package from <a href=3D"=
+https://aur.archlinux.org/packages/selinux-usr-policycoreutils/">https://au=
+r.archlinux.org/packages/selinux-usr-policycoreutils/</a> to guide me, but =
+there is an restorecond provided and I&#39;m not sure that will work, every=
+thing is implemented to work with sysvinit scripts.<br>
+
+</div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">2013/2/=
+12 Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.go=
+v" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span><br><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex">
+
+<div class=3D"im">On 02/11/2013 06:01 PM, Brian Iv=E1n Mart=EDnez wrote:<br=
+>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+Me bothering again, I&#39;m trying to build libselinux 2.1.12 and in the<br=
+>
+make step I get the error undefined pcre_free, pcre_free_study,<br>
+pcre_compile, pcre_study and pcre_exec in the file label_file.c , is<br>
+there a patch to be applied or configuration needed or a bug?<br>
+</blockquote>
+<br></div>
+Requires libpcre.<br>
+<br>
+</blockquote></div><br><br clear=3D"all"><br>-- <br>Ellos se r=EDen de mi p=
+or que soy diferente, yo me r=EDo de ellos por que todos son iguales-- J. D=
+avis
+</div>
+
+--e89a8fb1f500dfb02204d59093a3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
