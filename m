@@ -1,98 +1,117 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r1FL3i3E024963
-	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2013 16:03:44 -0500
-Date: Fri, 15 Feb 2013 22:03:21 +0100
-From: Luis Ressel <aranea@aixah.de>
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: Eric Paris <eparis@parisplace.org>
-Subject: Re: Mount of cgroup filesystems fails when booting in SELinux
- enforcing mode
-Message-ID: <20130215220321.53fd94c4@gentp.lnet>
-In-Reply-To: <511E8CC3.7010207@tycho.nsa.gov>
-References: <20130214222502.2f7d657c@gentp.lnet>
-	<511E38E7.4040609@tycho.nsa.gov>
-	<20130215150649.22c20d5c@gentp.lnet>
-	<511E45F6.4030300@tycho.nsa.gov>
-	<20130215160240.47e8d1da@gentp.lnet>
-	<511E5568.90103@tycho.nsa.gov>
-	<20130215170749.624be7b1@gentp.lnet>
-	<511E7C2A.1070101@tycho.nsa.gov>
-	<20130215194414.611081d4@gentp.lnet>
-	<511E8CC3.7010207@tycho.nsa.gov>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA512;
- boundary="Sig_/G4HujQvs+KB3C7y0hWA63Wz"; protocol="application/pgp-signature"
+MIME-Version: 1.0
+In-Reply-To: <511B95E8.9030401@tycho.nsa.gov>
+References: <CACcxAnHapENU25rsrcjijfdVNdvp9yyGBvVDys=pBg_qssPLGg@mail.gmail.com>
+ <51193FDB.5030506@tycho.nsa.gov> <CACcxAnH-j-A0SkZvsbV7OLpD8o9CfeOu_UmyYTdcKEmjXpxyTQ@mail.gmail.com>
+ <511946AB.10802@tycho.nsa.gov> <CACcxAnHzphj13zgYvkVOu-kptpf5zwR2YN6aY6AtpQ6WwPvAmA@mail.gmail.com>
+ <511951CC.1000607@tycho.nsa.gov> <CACcxAnF8p+zJJ7XeV9JbWmLvxKWH2vJKKZXRcUXTN6U6GKy7BA@mail.gmail.com>
+ <CACcxAnEXkFasdDFKVw8baaXP7bbgx5vndfL=j7dUAsVhrMxxMA@mail.gmail.com>
+ <51195783.5080201@tycho.nsa.gov> <CACcxAnHVdep6fkEFxqwt0ZmoPshDVG1PTvNpEEMGEL_gaZ_d8g@mail.gmail.com>
+ <51195BFC.3000604@tycho.nsa.gov> <CACcxAnEiKMCS6pHj7cizm83OOhq+Zj4nFh7qSMjDFE78Oz5o9w@mail.gmail.com>
+ <CACcxAnEa45SCjEJNxUf_b303-d9QjnyV36nOSBeHQgE6zKP7Bg@mail.gmail.com>
+ <511A3B8F.8000702@tycho.nsa.gov> <CACcxAnGeKe_o4oMTZJZuUk+v2NANcQTQODR6ZMo9CJeTQX7uJg@mail.gmail.com>
+ <511B95E8.9030401@tycho.nsa.gov>
+From: =?ISO-8859-1?Q?Brian_Iv=E1n_Mart=EDnez?= <xangelux@gmail.com>
+Date: Sun, 17 Feb 2013 00:43:46 -0600
+Message-ID: <CACcxAnFy6v79Eiz5uA_Ac92c+kuJRhCi3BEw_ZkzG25G4etuSg@mail.gmail.com>
+Subject: Re: systemd selinux
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=bcaec54b45ac82ef6f04d5e5f0c3
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Sig_/G4HujQvs+KB3C7y0hWA63Wz
-Content-Type: text/plain; charset=US-ASCII
+--bcaec54b45ac82ef6f04d5e5f0c3
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 15 Feb 2013 14:30:11 -0500
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On 02/15/2013 01:44 PM, Luis Ressel wrote:
-> > Again, you're right. On this boot, dontaudit rules were actually
-> > enabled. Now, here's another log where they are disabled again.
->=20
-> This line from your log file:
->=20
-> audit_printk_skb: 643 callbacks suppressed
->=20
-> indicates that you are hitting the printk ratelimit (to prevent
-> flooding of syslog) and therefore dropping messages.
->=20
-> You could apply the attached patch or something like it to disable
-> the printk ratelimit on audit messages.
-
-Thanks! Now I finally got a denial message. kernel_t needs search
-permissions on unlabeled_t dirs, that's all.
-
-> However, you might want to first fix some of the obvious denials in
-> your policy.  The rlimitinh, siginh, and noatsecure ones can
-> generally be ignored.  But you are getting various other denials that
-> likely should be allowed.  Adding the unconfined module to your
-> policy would automatically eliminate any denials for the kernel or
-> init domains.
-
-Yes, I did all this testing in a VM, not on the system where I
-originally encountered these issues, and I didn't fine-tune the VM
-policy. And my policy doesn't include the unconfined module because it
-was optional in my distro, defaulted to off and I thought it was only
-neccessary for targeted mode. But I'll try it out now.
+Thanks for the help, I found the fedora package for policycoreutils and
+copied the unit file to make the daemon run in every boot, you said it
+wasn't necessary but it would be nice to have working everything I can and
+even if I have the time and energy after this getting the gui tools too.
+Anyway, I've downloaded the selinux notebook and the first thing I notice
+is the change in the directories so I'm running thinking selinux was in
+/selinux and no it isn't, should I erase the entry in the fstab or should I
+change it to point to /sys/fs/selinux?. Another thing is, I installed an
+old policy wich is sysvinit compatible but now I can't boot in enforcing
+because it complains about not finding /dev/shm to boot (in permissive is
+fine), in the IRC one guy helped me (I'm really sorry, I forgot the
+username) and said it could be a policy issue so I should install a new one
+either from Fedora's lates packages or from Tresys and then try to create
+one based on those. My question is, could that be the issue or should I
+search somewhere else?
 
 
-I want to thank you again for your fast and helpful responses. Without
-your help, I probably wouldn't have been able to resolve this issue, at
-least not within resonable time. You really saved me from having severe
-headaches!
+2013/2/13 Stephen Smalley <sds@tycho.nsa.gov>
 
-Luis
+> On 02/12/2013 07:53 PM, Brian Iv=E1n Mart=EDnez wrote:
+>
+>> Ok, I have fixed most of the packages, I just need to update
+>> policycoreutils, how can I build it so it is integraded with systemd
+>> (maybe create a Unit for restorecond) I only have the package from
+>> https://aur.archlinux.org/**packages/selinux-usr-**policycoreutils/<http=
+s://aur.archlinux.org/packages/selinux-usr-policycoreutils/>to guide
+>> me, but there is an restorecond provided and I'm not sure that will
+>> work, everything is implemented to work with sysvinit scripts.
+>>
+>
+> restorecond isn't required for SELinux operation.
+>
+>
 
---Sig_/G4HujQvs+KB3C7y0hWA63Wz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
+--=20
+Ellos se r=EDen de mi por que soy diferente, yo me r=EDo de ellos por que t=
+odos
+son iguales-- J. Davis
 
-iQIcBAEBCgAGBQJRHqKnAAoJEOBVC/zizycOQNoP/A6gWbAs9Myjf8URCI982zwt
-Z+WlgR6Q9rRByh5TI6nuZt7oiDmrzEWldbrNnm9aqexcUwrxBY33+o3VSguxryqf
-Zjb6nXMU5Xu/Dhp9fz6u+326KwOEjW6pgk3h5cuOKXWj4PIf/CIIvdq6y69wgH6s
-OoJ40/ogoaZjnFeyb7p97RSwgxzP5HJRgK0MM0uu7tFgq2vzhhx8oddajrxIYqfK
-DYtK7oiEsJNZjeS4CYCoD1WfjL2JJX9gjQsZBi2s4NU1bekZCJ+EzQo0Z3kVHe6X
-cxwNQQaNinAbAqHmSVfEgAKB+NNXz5KSDOzV3CZ+4CjQVIFzDpLgi3XPoKerEJI5
-jlYm3RM/2kxlGeqyVrQdNrRCfl8O+ZFQHXnWyb24w+JpPwRwvp82FiBAi2iXgCuj
-BgjPF5kCDDDItJIgt13TChDyyTZ6yfzKqmnwue5XjMaFTdna1fUMDaSbAih7m8Yd
-Bl7VDk42MyTFTcFbTCO/dDp506x9ClIDHyMYXxIR4sAqo1kMtM9lgPrfnH4ey6L5
-OxUJ7/yWPPbcC7OdM3dkHqeWarCoaK9DOK4I3L6PqofvAmh7vuHh5kAgOzu99yj2
-EHF3eXXwJb2081KKf+o4kz6bHrpKLnaz9ZhaWgDC1yAQpwberA2kXlzk/subBdXr
-+/mfUOGQPrVpTwxdOp88
-=KqSm
------END PGP SIGNATURE-----
+--bcaec54b45ac82ef6f04d5e5f0c3
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
---Sig_/G4HujQvs+KB3C7y0hWA63Wz--
+<div dir=3D"ltr">Thanks for the help, I found the fedora package for policy=
+coreutils and copied the unit file to make the daemon run in every boot, yo=
+u said it wasn&#39;t necessary but it would be nice to have working everyth=
+ing I can and even if I have the time and energy after this getting the gui=
+ tools too. Anyway, I&#39;ve downloaded the selinux notebook and the first =
+thing I notice is the change in the directories so I&#39;m running thinking=
+ selinux was in /selinux and no it isn&#39;t, should I erase the entry in t=
+he fstab or should I change it to point to /sys/fs/selinux?. Another thing =
+is, I installed an old policy wich is sysvinit compatible but now I can&#39=
+;t boot in enforcing because it complains about not finding /dev/shm to boo=
+t (in permissive is fine), in the IRC one guy helped me (I&#39;m really sor=
+ry, I forgot the username) and said it could be a policy issue so I should =
+install a new one either from Fedora&#39;s lates packages or from Tresys an=
+d then try to create one based on those. My question is, could that be the =
+issue or should I search somewhere else?<br>
+
+</div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">2013/2/=
+13 Stephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.go=
+v" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span><br><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex">
+
+<div class=3D"im">On 02/12/2013 07:53 PM, Brian Iv=E1n Mart=EDnez wrote:<br=
+>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+Ok, I have fixed most of the packages, I just need to update<br>
+policycoreutils, how can I build it so it is integraded with systemd<br>
+(maybe create a Unit for restorecond) I only have the package from<br>
+<a href=3D"https://aur.archlinux.org/packages/selinux-usr-policycoreutils/"=
+ target=3D"_blank">https://aur.archlinux.org/<u></u>packages/selinux-usr-<u=
+></u>policycoreutils/</a> to guide<br>
+me, but there is an restorecond provided and I&#39;m not sure that will<br>
+work, everything is implemented to work with sysvinit scripts.<br>
+</blockquote>
+<br></div>
+restorecond isn&#39;t required for SELinux operation.<br>
+<br>
+</blockquote></div><br><br clear=3D"all"><br>-- <br>Ellos se r=EDen de mi p=
+or que soy diferente, yo me r=EDo de ellos por que todos son iguales-- J. D=
+avis
+</div>
+
+--bcaec54b45ac82ef6f04d5e5f0c3--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
