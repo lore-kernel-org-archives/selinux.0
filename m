@@ -1,46 +1,25 @@
-From: "Langland, Blake" <blangland@integrity-apps.com>
-To: Paul Moore <paul@paul-moore.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        "selinux@tycho.nsa.gov"
-	<selinux@tycho.nsa.gov>
-Subject: RE: SELinux network labeling
-Date: Wed, 13 Mar 2013 17:29:47 +0000
-Message-ID: <DA8D339A60101247B36E202899B1C93A7C93C5@CHUNEX01.integrity-apps.com>
-References: <DA8D339A60101247B36E202899B1C93A7C9378@CHUNEX01.integrity-apps.com>
- <514080E7.8020602@tycho.nsa.gov> <2547229.Czz0AkDGmt@sifl>
-In-Reply-To: <2547229.Czz0AkDGmt@sifl>
-Content-Type: text/plain; charset="us-ascii"
+Message-ID: <5140BA30.9020802@tycho.nsa.gov>
+Date: Wed, 13 Mar 2013 13:41:04 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
+To: "Langland, Blake" <blangland@integrity-apps.com>
+CC: Paul Moore <paul@paul-moore.com>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: SELinux network labeling
+References: <DA8D339A60101247B36E202899B1C93A7C9378@CHUNEX01.integrity-apps.com> <514080E7.8020602@tycho.nsa.gov> <2547229.Czz0AkDGmt@sifl> <DA8D339A60101247B36E202899B1C93A7C93C5@CHUNEX01.integrity-apps.com>
+In-Reply-To: <DA8D339A60101247B36E202899B1C93A7C93C5@CHUNEX01.integrity-apps.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Great, thank you guys for the clarification. Unfortunately I can't explain too much more about our specific configuration, but I think I am headed down the correct path now with the netlabel/CIPSO peer labeling.
+On 03/13/2013 01:29 PM, Langland, Blake wrote:
+> Great, thank you guys for the clarification. Unfortunately I can't explain too much more about our specific configuration, but I think I am headed down the correct path now with the netlabel/CIPSO peer labeling.
+>
+> Just a general question about the CIPSO labeling: Is there anything that SELinux does to prevent an adversary from modifying the CIPSO label while on the wire? From what I can tell one would have to rely on other security measures like authentication/encryption to prevent this. I guess this may be a benefit of IPSec peer labeling since it provides authentication and encryption in addition to network labeling. The reason I ruled that out IPSec labeling is that we are using Openswan for IPSec and it is my understanding after talking with Josh Brindle that labeling is not supported in Openswan. Are there any plans to bring labeled associations to Openswan?
 
-Just a general question about the CIPSO labeling: Is there anything that SELinux does to prevent an adversary from modifying the CIPSO label while on the wire? From what I can tell one would have to rely on other security measures like authentication/encryption to prevent this. I guess this may be a benefit of IPSec peer labeling since it provides authentication and encryption in addition to network labeling. The reason I ruled that out IPSec labeling is that we are using Openswan for IPSec and it is my understanding after talking with Josh Brindle that labeling is not supported in Openswan. Are there any plans to bring labeled associations to Openswan?
-
-Blake Langland
-
------Original Message-----
-From: Paul Moore [mailto:paul@paul-moore.com] 
-Sent: Wednesday, March 13, 2013 7:03 AM
-To: Langland, Blake
-Cc: Stephen Smalley; selinux@tycho.nsa.gov
-Subject: Re: SELinux network labeling
-
-On Wednesday, March 13, 2013 09:36:39 AM Stephen Smalley wrote:
-> netlabel vs labeled ipsec:  netlabel only supports passing MLS labels 
-> via CIPSO, no user:role:type preservation.  labeled ipsec supports 
-> passing the entire security context, including user:role:type.
-
-Just one quick comment, and a word of caution, that the differences between CIPSO and labeled IPsec are much greater than what is described above.
-
->From a SELinux policy perspective Stephen does touch on the main point: CIPSO labeled traffic will look like system_u:object_r:netlabel_peer_t:{MLS-LABEL}
-to SELinux regardless of the user:role:type of the sender (only the "MLS- LABEL" information is passed over the wire) while labeled IPsec will pass the full context over the wire.  However, stepping back just the SELinux policy there are other differences between the two protocols that need to be considered when building a full solution.
-
---
-paul moore
-www.paul-moore.com
-
+You can always use regular IPSEC to protect the packet (including its 
+CIPSO label).  Labeled IPSEC is only required if you want to convey the 
+entire security context to the peer.
 
 
 --
