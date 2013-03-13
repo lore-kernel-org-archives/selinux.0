@@ -1,49 +1,41 @@
-Message-ID: <514080E7.8020602@tycho.nsa.gov>
-Date: Wed, 13 Mar 2013 09:36:39 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2DE2xwu020663
+	for <selinux@tycho.nsa.gov>; Wed, 13 Mar 2013 10:02:59 -0400
+Received: by mail-qa0-f52.google.com with SMTP id bs12so647203qab.11
+        for <selinux@tycho.nsa.gov>; Wed, 13 Mar 2013 07:02:57 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
 To: "Langland, Blake" <blangland@integrity-apps.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 Subject: Re: SELinux network labeling
-References: <DA8D339A60101247B36E202899B1C93A7C9378@CHUNEX01.integrity-apps.com>
-In-Reply-To: <DA8D339A60101247B36E202899B1C93A7C9378@CHUNEX01.integrity-apps.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Date: Wed, 13 Mar 2013 10:02:54 -0400
+Message-ID: <2547229.Czz0AkDGmt@sifl>
+In-Reply-To: <514080E7.8020602@tycho.nsa.gov>
+References: <DA8D339A60101247B36E202899B1C93A7C9378@CHUNEX01.integrity-apps.com> <514080E7.8020602@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/12/2013 04:55 PM, Langland, Blake wrote:
-> Hello,
->
-> I am trying to set up a system using SELinux system that needs to have
-> certain network traffic blocked based on the MLS label. Basically, there
-> are two machines running SELinux (call them A and B). Both machines have
-> two processes, say A1 and B1 are at sensitivity s0, and A2 and B2 are at
-> s1. I want to let process A1 talk to B1, and A2 talk to B2, but block
-> A1->B2, and A2->B1. Without using labeled IPsec, what systems for
-> network labeling should I use? With the Netlabel fallback labels I am
-> not able to specify the port. I currently am setting the label via
-> secmark based on the source, destination, and port, and then running
-> each process at the appropriate level, and also have the port labeled at
-> the appropriate level. This is not blocking the traffic I want it to.
->
-> I have been reading Paul Moore’s blogs about Secmark and network
-> labeling and am a little bit confused about packet vs. peer labeling.
-> Are both packet and peer labeling required? If both are, am I out of
-> luck since Netlabel can not specify a port? If only packet labeling is
-> required, what is causing the scheme explained above to not block traffic?
+On Wednesday, March 13, 2013 09:36:39 AM Stephen Smalley wrote:
+> netlabel vs labeled ipsec:  netlabel only supports passing MLS labels
+> via CIPSO, no user:role:type preservation.  labeled ipsec supports
+> passing the entire security context, including user:role:type.
 
-secmark/packet labeling: labels based on packet attributes that are only 
-passed around locally within the network stack for local access control, 
-similar to iptables rules.
+Just one quick comment, and a word of caution, that the differences between 
+CIPSO and labeled IPsec are much greater than what is described above.
 
-netlabel or labeled ipsec / peer labeling: labels derived from sender 
-security context that are propagated across the network with the packet 
-and can be used on the remote end for end-to-end access control.
+>From a SELinux policy perspective Stephen does touch on the main point: CIPSO 
+labeled traffic will look like system_u:object_r:netlabel_peer_t:{MLS-LABEL} 
+to SELinux regardless of the user:role:type of the sender (only the "MLS-
+LABEL" information is passed over the wire) while labeled IPsec will pass the 
+full context over the wire.  However, stepping back just the SELinux policy 
+there are other differences between the two protocols that need to be 
+considered when building a full solution.
 
-netlabel vs labeled ipsec:  netlabel only supports passing MLS labels 
-via CIPSO, no user:role:type preservation.  labeled ipsec supports 
-passing the entire security context, including user:role:type.
-
+-- 
+paul moore
+www.paul-moore.com
 
 
 --
