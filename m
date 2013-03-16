@@ -1,60 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2EKAWVw000826
-	for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2013 16:10:32 -0400
-Received: from [IPv6:2001:470:e1cc:3:6c39:92ff:fe2d:53a0] (unknown [IPv6:2001:470:e1cc:3:6c39:92ff:fe2d:53a0])
-	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by mx1.mthode.org (Postfix) with ESMTPSA id A0CB7ADF0
-	for <selinux@tycho.nsa.gov>; Thu, 14 Mar 2013 16:10:36 -0400 (EDT)
-Message-ID: <51422EB6.7000807@mthode.org>
-Date: Thu, 14 Mar 2013 15:10:30 -0500
-From: Matthew Thode <mthode@mthode.org>
-Reply-To: mthode@mthode.org
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2GCF1FR001530
+	for <selinux@tycho.nsa.gov>; Sat, 16 Mar 2013 08:15:01 -0400
+Received: by mail-wi0-f175.google.com with SMTP id l13so1291611wie.2
+        for <selinux@tycho.nsa.gov>; Sat, 16 Mar 2013 05:14:53 -0700 (PDT)
 MIME-Version: 1.0
+Date: Sat, 16 Mar 2013 13:06:47 +0100
+Message-ID: <CAOFt0CRpFTOD8S2iktjUdLDPVOhG9Cvq9j51sqxDsQLVno=irQ@mail.gmail.com>
+Subject: Compiling Selinux from Source
+From: Kernel freak <kernelfreak@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: semanage support for nsswitch
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="----enig2CRKRXUSNNRTUWWFALSES"
+Content-Type: multipart/alternative; boundary=f46d043be13009fdf404d809971d
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
-------enig2CRKRXUSNNRTUWWFALSES
+--f46d043be13009fdf404d809971d
 Content-Type: text/plain; charset=ISO-8859-1
+
+Hello,
+         I want to make some modifications to SElinux itself for some of my
+work. I am currently using Fedora v18 with KDE. I downloaded the Linux
+kernel, and also the reference policy source. Both seem to give me an
+error. The errors are
+While compiling the policy '@localhost serefpolicy-3.11.1]$ sudo make conf
+make: *** No rule to make target `policy/modules/contrib/metadata.xml',
+needed by `tmp/admin.xml'.  Stop.'
+
+While compiling Selinux  from Linux kernel 3.7.10
+'@localhost selinux]$ make
+make: *** No rule to make target `/include/classmap.h', needed by
+`/flask.h'.  Stop.'
+
+I fail to understand what am i missing here. I checked the contrib
+directory, it turns out to be empty. Also, i downloaded the serefpolicy
+using yum-utils. Kindly let me know or some links. Thank you for your time.
+
+--f46d043be13009fdf404d809971d
+Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-I've noticed that semanage does not support nsswitch, is there a reason
-for this or am I somehow blind?
+Hello,<br>=A0=A0=A0=A0=A0=A0=A0=A0 I want to make some modifications to SEl=
+inux itself for some of my work. I am currently using Fedora v18 with KDE. =
+I downloaded the Linux kernel, and also the reference policy source. Both s=
+eem to give me an error. The errors are<br>
+While compiling the policy &#39;@localhost serefpolicy-3.11.1]$ sudo make c=
+onf<br>make: *** No rule to make target `policy/modules/contrib/metadata.xm=
+l&#39;, needed by `tmp/admin.xml&#39;.=A0 Stop.&#39;<br><br>While compiling=
+ Selinux=A0 from Linux kernel 3.7.10<br>
+&#39;@localhost selinux]$ make<br>make: *** No rule to make target `/includ=
+e/classmap.h&#39;, needed by `/flask.h&#39;.=A0 Stop.&#39;<br><br>I fail to=
+ understand what am i missing here. I checked the contrib directory, it tur=
+ns out to be empty. Also, i downloaded the serefpolicy using yum-utils. Kin=
+dly let me know or some links. Thank you for your time.<br>
 
---=20
--- Matthew Thode
-
-
-------enig2CRKRXUSNNRTUWWFALSES
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRQi7CAAoJECRx6z5ArFrDJoIQANHhHyCgdjvHRTMI9ApGgD6l
-Quhu5Djmi/oA0AOPZQMpj9yrWUFWl05sVdZwHFK9hAZcrFTx+sQExBzYg0ECh0Gi
-ZNvIKBBGPjTxXbTb+60f4fSBcMv03crsO/CRdhbi0R8cFeyO73egCIv5qw3OqTl3
-9Vdmii/O+8O9cWrrMqbNSTr6dveIlRa4vtBLwQ7+T+RZHPVkPnR8WFsEC0fE/M6p
-viynBD0sN8DDA4IBoNDfN8CGcAVPZ1t32of8S0HPM9fTafqYok0pEPqBvQacVdoc
-oYBHTMRuA2sVcy6Hl8dncU6XoqD/KWE6YCp7NPySQG/aD9VktoZ/wr/9vTsA2W5p
-hVozcxD5NZrsYmCv4oPocQvmr5sPGjqI8xdKIjIrFZVLsEabmy2VqN/RkY1Ii3Yn
-eb/l4ANCMLTm0NW6Ja1gNhcrTqiPALM+iuPBiQiMp3VbVeVBMC0HwXpv33UmVJIA
-UrgG3ZG/Tb8TV09MEfzd0p0g0XLC9sRo4uRhGn+6PcRLsIZzq8lWSjKdNrLHU3Pr
-YkSgKFIEf6cajC6aaQi2becjtUiBMpi14u61IRLs+CRJ9kQC1VVOhFBKkAupx9yV
-CNXWA72mv8X2Pixys//LHJeBlePqkgg2mReMz/wSnubhOZzPSCRfxwPhACjHNH0Z
-bpIEHUcJGK37wx/MRhbR
-=s2KF
------END PGP SIGNATURE-----
-
-------enig2CRKRXUSNNRTUWWFALSES--
+--f46d043be13009fdf404d809971d--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
