@@ -1,92 +1,97 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2SEDKZA007808
-	for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2013 10:13:20 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2T3WrtJ029370
+	for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2013 23:32:53 -0400
+Message-ID: <51550B67.40108@davequigley.com>
+Date: Thu, 28 Mar 2013 23:32:55 -0400
+From: Dave Quigley <dpquigl@davequigley.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Thu, 28 Mar 2013 10:13:17 -0400
-From: David Quigley <dpquigl@davequigley.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Rob Shelley
- <rob@cirris.com>, <selinux@tycho.nsa.gov>
-Subject: Re: Filesystem module
-In-Reply-To: <5151EF48.3090403@redhat.com>
-References: <71EBD3EA436C4B47B4A5FEFEB7370793389F07D5@Mail.cirris.com>
- <5151D34F.7090204@tresys.com> <5151EF48.3090403@redhat.com>
-Message-ID: <10afc77cc74d7492ba83dcb1c1766747@countercultured.net>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+CC: Steve Dickson <SteveD@redhat.com>,
+        Trond Myklebust <Trond.Myklebust@netapp.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        Linux NFS list <linux-nfs@vger.kernel.org>,
+        Linux Security List <linux-security-module@vger.kernel.org>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 13/14] NFSD: Server implementation of MAC Labeling
+References: <1364478845-29796-1-git-send-email-SteveD@redhat.com> <1364478845-29796-14-git-send-email-SteveD@redhat.com> <20130328185845.GI7080@fieldses.org> <20130328191918.GA14748@fieldses.org>
+In-Reply-To: <20130328191918.GA14748@fieldses.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/26/2013 14:56, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On 3/28/2013 3:19 PM, J. Bruce Fields wrote:
+> Dave, I think these are both questions for you?
 >
-> On 03/26/2013 12:56 PM, Christopher J. PeBenito wrote:
->> On 03/25/13 17:14, Rob Shelley wrote:
->>> I am evaluating OCFS2 on a CentOS 6.3 cluster and have run into a 
->>> little
->>> bit of a snag with SELinux.  After the OCFS2 partition is mounted 
->>> no
->>> writes can be performed to the shared device from either node 
->>> because
->>> they are being blocked by SELinux.  The core of the issue is that 
->>> the
->>> CentOS default policy does not list OCFS2 as a filesystem that 
->>> supports
->>> xattrs in filesystem.te.  It's a one line fix:
+> --b.
+>
+> On Thu, Mar 28, 2013 at 02:58:45PM -0400, bfields wrote:
+>> On Thu, Mar 28, 2013 at 09:54:04AM -0400, Steve Dickson wrote:
+>>> @@ -1988,6 +2044,50 @@ nfsd4_encode_aclname(struct svc_rqst *rqstp, struct nfs4_ace *ace,
+>>>   			      FATTR4_WORD0_RDATTR_ERROR)
+>>>   #define WORD1_ABSENT_FS_ATTRS FATTR4_WORD1_MOUNTED_ON_FILEID
 >>>
->>> fs_use_xattr ocfs2 gen_context(system_u:object_r:fs_t,s0);
->>>
->>> However, it would seem that the only way to implement this change 
->>> in
->>> filesystem.te is by rebuilding the base policy.  (I have not found 
->>> a way
->>> to just reload the filesytem module of the base policy.)  And even 
->>> if
->>> there were an easy way to reload just the filesystem module of the 
->>> base
->>> policy I believe this would be overwritten if an update is 
->>> released.
->>>
->>> So, I was wondering if there was a way to incorporate this line 
->>> into a
->>> module, say ocfs2.te.  My initial attempts have failed, but I am 
->>> assuming
->>> that is because I do not have the correct dependencies listed in 
->>> the
->>> require section.
->>>
->>> Any suggestions?
+>>> +#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
+>>> +static inline __be32
+>>> +nfsd4_encode_security_label(struct svc_rqst *rqstp, struct dentry *dentry, __be32 **pp, int *buflen)
+>>> +{
+>>> +	void *context;
+>>> +	int err;
+>>> +	int len;
+>>> +	uint32_t pi = 0;
+>>> +	uint32_t lfs = 0;
+>>> +	__be32 *p = *pp;
+>>> +
+>>> +	err = 0;
+>>> +	(void)security_inode_getsecctx(dentry->d_inode, &context, &len);
+>>> +	if (len < 0)
+>>> +		return nfserrno(len);
+>>> +
+>>> +	if (*buflen < ((XDR_QUADLEN(len) << 2) + 4 + 4 + 4)) {
+>>> +		err = nfserr_resource;
+>>> +		goto out;
+>>> +	}
+>>> +
+>>> +	/* XXX: A call to the translation code should be placed here
+>>> +	 * for now send 0  until we have that to indicate the null
+>>> +	 * translation */
 >>
->> Unfortunately you can only add fs_use statements to the base module, 
->> so
->> you'd have to rebuild the base module.
+>> Could we better a better comment here?
+
+We could remove this comment all together if you want. We're trying to 
+indicate that at some point in the future there will be a label 
+translation facility like idmapd but for labels instead. This is where 
+the call would go if we had it. I had a basic version of the code a long 
+time ago and that is where I had the call but there was way too much 
+work to make it usable for now. Instead I just pass the null translation 
+indicator on the wire and we wave our hands and say don't look at the 
+man behind the curtain.
+
+> ...
+>>> +#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
+>>> +__be32 nfsd4_set_nfs4_label(struct svc_rqst *rqstp, struct svc_fh *fhp,
+>>> +		struct nfs4_label *label)
+>>> +{
+>>> +	__be32 error;
+>>> +	int host_error;
+>>> +	struct dentry *dentry;
+>>> +
+>>> +	/* XXX: should we have a MAY_SSECCTX? */
 >>
-> You should be able to mount the file system with a single label.
->
-> mount -o context="system_u..."
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.13 (GNU/Linux)
-> Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
->
-> iEYEARECAAYFAlFR70gACgkQrlYvE4MpobNnFACglqXTfagTP1SGv4B48u40GcAR
-> v6EAni59zLo5gElDUCDuVueMXSI/0Ek2
-> =zKaF
-> -----END PGP SIGNATURE-----
->
+>> Again: could we get an answer to this question?
+
+I'm pretty sure we can just remove that comment. It was a question from 
+about 5 years ago now and I never found a compelling reason to say yes 
+to it.
+
+>>
+>> --b.
 > --
-> This message was distributed to subscribers of the selinux mailing 
-> list.
-> If you no longer wish to subscribe, send mail to 
-> majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> To unsubscribe from this list: send the line "unsubscribe linux-nfs" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-
-Is there a reason that fs_use statements need to be in the base module 
-other than its just how it is in the kernel and tool chain? Is that 
-something that could be changed?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
