@@ -1,94 +1,120 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2T3ZTEb029442
-	for <selinux@tycho.nsa.gov>; Thu, 28 Mar 2013 23:35:29 -0400
-Message-ID: <51550C03.1000107@davequigley.com>
-Date: Thu, 28 Mar 2013 23:35:31 -0400
-From: Dave Quigley <dpquigl@davequigley.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r2TEcWSL003572
+	for <selinux@tycho.nsa.gov>; Fri, 29 Mar 2013 10:38:32 -0400
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Fri, 29 Mar 2013 10:38:29 -0400
+From: David Quigley <dpquigl@davequigley.com>
 To: "J. Bruce Fields" <bfields@fieldses.org>
-CC: Steve Dickson <SteveD@redhat.com>,
-        Trond Myklebust <Trond.Myklebust@netapp.com>,
+Cc: Steve Dickson <steved@redhat.com>,
+        Trond Myklebust
+ <trond.myklebust@netapp.com>,
         "J. Bruce Fields" <bfields@redhat.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS list <linux-nfs@vger.kernel.org>,
-        Linux Security List <linux-security-module@vger.kernel.org>,
-        SELinux List <selinux@tycho.nsa.gov>
+        "David
+ P. Quigley" <dpquigl@tycho.nsa.gov>,
+        Linux NFS list
+ <linux-nfs@vger.kernel.org>,
+        Linux Security List
+ <linux-security-module@vger.kernel.org>,
+        SELinux List
+ <selinux@tycho.nsa.gov>
 Subject: Re: [PATCH 13/14] NFSD: Server implementation of MAC Labeling
-References: <1364478845-29796-1-git-send-email-SteveD@redhat.com> <1364478845-29796-14-git-send-email-SteveD@redhat.com> <20130328161444.GF7080@fieldses.org>
-In-Reply-To: <20130328161444.GF7080@fieldses.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <20130329142331.GA22307@fieldses.org>
+References: <1364478845-29796-1-git-send-email-SteveD@redhat.com>
+ <1364478845-29796-14-git-send-email-SteveD@redhat.com>
+ <20130328185845.GI7080@fieldses.org> <20130328191918.GA14748@fieldses.org>
+ <51550B67.40108@davequigley.com> <20130329142331.GA22307@fieldses.org>
+Message-ID: <f82b93c023fdaaf4a466317582a783e5@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 3/28/2013 12:14 PM, J. Bruce Fields wrote:
-> On Thu, Mar 28, 2013 at 09:54:04AM -0400, Steve Dickson wrote:
->> From: David Quigley <dpquigl@davequigley.com>
+On 03/29/2013 10:23, J. Bruce Fields wrote:
+> On Thu, Mar 28, 2013 at 11:32:55PM -0400, Dave Quigley wrote:
+>> On 3/28/2013 3:19 PM, J. Bruce Fields wrote:
+>> >Dave, I think these are both questions for you?
+>> >
+>> >--b.
+>> >
+>> >On Thu, Mar 28, 2013 at 02:58:45PM -0400, bfields wrote:
+>> >>On Thu, Mar 28, 2013 at 09:54:04AM -0400, Steve Dickson wrote:
+>> >>>@@ -1988,6 +2044,50 @@ nfsd4_encode_aclname(struct svc_rqst 
+>> *rqstp, struct nfs4_ace *ace,
+>> >>>  			      FATTR4_WORD0_RDATTR_ERROR)
+>> >>>  #define WORD1_ABSENT_FS_ATTRS FATTR4_WORD1_MOUNTED_ON_FILEID
+>> >>>
+>> >>>+#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
+>> >>>+static inline __be32
+>> >>>+nfsd4_encode_security_label(struct svc_rqst *rqstp, struct 
+>> dentry *dentry, __be32 **pp, int *buflen)
+>> >>>+{
+>> >>>+	void *context;
+>> >>>+	int err;
+>> >>>+	int len;
+>> >>>+	uint32_t pi = 0;
+>> >>>+	uint32_t lfs = 0;
+>> >>>+	__be32 *p = *pp;
+>> >>>+
+>> >>>+	err = 0;
+>> >>>+	(void)security_inode_getsecctx(dentry->d_inode, &context, 
+>> &len);
+>> >>>+	if (len < 0)
+>> >>>+		return nfserrno(len);
+>> >>>+
+>> >>>+	if (*buflen < ((XDR_QUADLEN(len) << 2) + 4 + 4 + 4)) {
+>> >>>+		err = nfserr_resource;
+>> >>>+		goto out;
+>> >>>+	}
+>> >>>+
+>> >>>+	/* XXX: A call to the translation code should be placed here
+>> >>>+	 * for now send 0  until we have that to indicate the null
+>> >>>+	 * translation */
+>> >>
+>> >>Could we better a better comment here?
 >>
->> This patch adds the ability to encode and decode file labels on the server for
->> the purpose of sending them to the client and also to process label change
->> requests from the client.
->>
->> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
->> Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
->> Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
->> Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
->> ---
->>   fs/nfsd/nfs4proc.c |  41 +++++++++++++++++++
->>   fs/nfsd/nfs4xdr.c  | 116 ++++++++++++++++++++++++++++++++++++++++++++++++++---
->>   fs/nfsd/nfsd.h     |   6 ++-
->>   fs/nfsd/vfs.c      |  29 ++++++++++++++
->>   fs/nfsd/vfs.h      |   2 +
->>   fs/nfsd/xdr4.h     |   3 ++
->>   6 files changed, 191 insertions(+), 6 deletions(-)
->>
->> diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
->> index ae73175..bb17589 100644
->> --- a/fs/nfsd/nfs4proc.c
->> +++ b/fs/nfsd/nfs4proc.c
->> @@ -42,6 +42,36 @@
->>   #include "current_stateid.h"
->>   #include "netns.h"
->>
->> +#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
->> +#include <linux/security.h>
->> +
->> +static inline void
->> +nfsd4_security_inode_setsecctx(struct svc_fh *resfh, struct nfs4_label *label, u32 *bmval)
->> +{
->> +	struct inode *inode = resfh->fh_dentry->d_inode;
->> +	int status;
->> +
->> +	mutex_lock(&inode->i_mutex);
->> +	status = security_inode_setsecctx(resfh->fh_dentry,
->> +		label->label, label->len);
->> +	mutex_unlock(&inode->i_mutex);
->> +
->> +	if (status)
->> +		/*
->> +		 * We should probably fail the whole open at this point,
->> +		 * but we've already created or opened the file, so it's
->> +		 * too late; So this seems the least of evils:
->> +		 */
->> +		bmval[2] &= ~FATTR4_WORD2_SECURITY_LABEL;
+>> We could remove this comment all together if you want. We're trying
+>> to indicate that at some point in the future there will be a label
+>> translation facility like idmapd but for labels instead. This is
+>> where the call would go if we had it. I had a basic version of the
+>> code a long time ago and that is where I had the call but there was
+>> way too much work to make it usable for now. Instead I just pass the
+>> null translation indicator on the wire and we wave our hands and say
+>> don't look at the man behind the curtain.
 >
-> Is there any way to avoid this?
+> So how about just:
 >
-> How does the vfs open code handle this?  It has to be able to set a
-> security contexts atomically on open(O_CREAT), doesn't it?
+> 	/*
+> 	 * For now we use a 0 here to indicate the null translation; in
+> 	 * the future we may place a call to translation code here.
+> 	 */
 >
 
-I believe the way this is handled is that the inode is created and 
-labeled and then only after that is it bound to the namespace. Because 
-of that ordering we can fail and release the inode without it ever 
-having a dentry in the namespace.
+Works for me.
 
+>>
+>> >...
+>> >>>+#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
+>> >>>+__be32 nfsd4_set_nfs4_label(struct svc_rqst *rqstp, struct 
+>> svc_fh *fhp,
+>> >>>+		struct nfs4_label *label)
+>> >>>+{
+>> >>>+	__be32 error;
+>> >>>+	int host_error;
+>> >>>+	struct dentry *dentry;
+>> >>>+
+>> >>>+	/* XXX: should we have a MAY_SSECCTX? */
+>> >>
+>> >>Again: could we get an answer to this question?
+>>
+>> I'm pretty sure we can just remove that comment. It was a question
+>> from about 5 years ago now and I never found a compelling reason to
+>> say yes to it.
+>
+> OK, let's remove the comment.
+>
 
+Agreed
 > --b.
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-nfs" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
 
 
 --
