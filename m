@@ -1,99 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r31HcZEK028919
-	for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2013 13:38:35 -0400
-Received: by mail-lb0-f172.google.com with SMTP id u10so2162069lbi.31
-        for <selinux@tycho.nsa.gov>; Mon, 01 Apr 2013 10:38:32 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r31Henoe029278
+	for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2013 13:40:49 -0400
+Received: by mail-la0-f43.google.com with SMTP id ek20so2320812lab.2
+        for <selinux@tycho.nsa.gov>; Mon, 01 Apr 2013 10:40:47 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <10afc77cc74d7492ba83dcb1c1766747@countercultured.net>
-References: <71EBD3EA436C4B47B4A5FEFEB7370793389F07D5@Mail.cirris.com>
-	<5151D34F.7090204@tresys.com>
-	<5151EF48.3090403@redhat.com>
-	<10afc77cc74d7492ba83dcb1c1766747@countercultured.net>
-Date: Mon, 1 Apr 2013 13:38:32 -0400
-Message-ID: <CACLa4psjCJNTLJY_2v4y3Wuqz3LC6gQ=gmi11+BbjdqM7kRxKQ@mail.gmail.com>
-Subject: Re: Filesystem module
+In-Reply-To: <20130401185508.3d15476e@fornost.bigon.be>
+References: <20130321123256.198ba5b6@soldur.bigon.be>
+	<5159AEA8.2090004@tresys.com>
+	<20130401185508.3d15476e@fornost.bigon.be>
+Date: Mon, 1 Apr 2013 13:40:46 -0400
+Message-ID: <CACLa4psh+Litc-ko0g7NhQ3BDYRX7_BX1TZqzg4uxYVhZ3VQzw@mail.gmail.com>
+Subject: Re: File context not applied due to regex ordering
 From: Eric Paris <eparis@parisplace.org>
-To: David Quigley <dpquigl@davequigley.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Rob Shelley <rob@cirris.com>, SE-Linux <selinux@tycho.nsa.gov>
+To: Laurent Bigonville <bigon@debian.org>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE-Linux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Last I remember, nothing which took a full range component could be
-properly supported in a module.  So the answer is 'that's just how it
-is in the toolchain'.  But no inherent reason without a little coding
-it couldn't be different.
+I feel like we talked about it...  Regex ordering is a bit tricky.  I
+think I hacked up a patch which added an additional tie breaker step
+with the total number of 'non-regex' type characters being used.  It's
+been long lost though...
 
-On Thu, Mar 28, 2013 at 10:13 AM, David Quigley <dpquigl@davequigley.com> wrote:
-> On 03/26/2013 14:56, Daniel J Walsh wrote:
->>
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> On 03/26/2013 12:56 PM, Christopher J. PeBenito wrote:
->>>
->>> On 03/25/13 17:14, Rob Shelley wrote:
->>>>
->>>> I am evaluating OCFS2 on a CentOS 6.3 cluster and have run into a little
->>>> bit of a snag with SELinux.  After the OCFS2 partition is mounted no
->>>> writes can be performed to the shared device from either node because
->>>> they are being blocked by SELinux.  The core of the issue is that the
->>>> CentOS default policy does not list OCFS2 as a filesystem that supports
->>>> xattrs in filesystem.te.  It's a one line fix:
->>>>
->>>> fs_use_xattr ocfs2 gen_context(system_u:object_r:fs_t,s0);
->>>>
->>>> However, it would seem that the only way to implement this change in
->>>> filesystem.te is by rebuilding the base policy.  (I have not found a way
->>>> to just reload the filesytem module of the base policy.)  And even if
->>>> there were an easy way to reload just the filesystem module of the base
->>>> policy I believe this would be overwritten if an update is released.
->>>>
->>>> So, I was wondering if there was a way to incorporate this line into a
->>>> module, say ocfs2.te.  My initial attempts have failed, but I am
->>>> assuming
->>>> that is because I do not have the correct dependencies listed in the
->>>> require section.
->>>>
->>>> Any suggestions?
->>>
->>>
->>> Unfortunately you can only add fs_use statements to the base module, so
->>> you'd have to rebuild the base module.
->>>
->> You should be able to mount the file system with a single label.
->>
->> mount -o context="system_u..."
->>
->> -----BEGIN PGP SIGNATURE-----
->> Version: GnuPG v1.4.13 (GNU/Linux)
->> Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
->>
->> iEYEARECAAYFAlFR70gACgkQrlYvE4MpobNnFACglqXTfagTP1SGv4B48u40GcAR
->> v6EAni59zLo5gElDUCDuVueMXSI/0Ek2
->> =zKaF
->> -----END PGP SIGNATURE-----
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->> with
->> the words "unsubscribe selinux" without quotes as the message.
+Do you still have that hack around?  Maybe we can see what others think?
+
+On Mon, Apr 1, 2013 at 12:55 PM, Laurent Bigonville <bigon@debian.org> wrote:
+> Le Mon, 1 Apr 2013 11:58:32 -0400,
+> "Christopher J. PeBenito" <cpebenito@tresys.com> a écrit :
 >
+>> On 03/21/13 07:32, Laurent Bigonville wrote:
+>> > Hello,
+>> >
+>> > I remember that I already talk about this on IRC a while back, but I
+>> > don't remember if there was any outcome.
+>> >
+>> > The refpolicy is containing the following filecontext:
+>> >
+>> > /usr/(s)?bin/gdm(3)?    --
+>> > gen_context(system_u:object_r:xdm_exec_t,s0)
+>> >
+>> > But for some reasons /usr/sbin/gdm3 is labeled on disk as bin_t
+>> > instead of xdm_exec_t. matchpathcon is giving me this:
+>> >
+>> > /usr/bin/gdm        system_u:object_r:xdm_exec_t:SystemLow
+>> > /usr/bin/gdm3       system_u:object_r:xdm_exec_t:SystemLow
+>> > /usr/sbin/gdm       system_u:object_r:bin_t:SystemLow
+>> > /usr/sbin/gdm3      system_u:object_r:bin_t:SystemLow
+>> >
+>> > Changing the regex to /usr/s?bin/gdm(3)? fix the issue.
+>> >
+>> > Shouldn't this be fixed in the userspace libraries?
+>>
+>> I'm not clear; are you saying this is a file context sorting issue or
+>> a matchpathcon error?  Matchpathcon should be able to handle a regex
+>> with ()? so I'd guess its a sorting issue.  Since sorting file
+>> contexts is tricky, it would probably be simpler to fix the policy.
+>>
 >
+> I don't think this is a matchpathcon error only as the fc applied on
+> disk by restorecon are matching the one returned by matchpathcon.
 >
-> Is there a reason that fs_use statements need to be in the base module other
-> than its just how it is in the kernel and tool chain? Is that something that
-> could be changed?
+> I remember during the discussion on IRC that somebody said that it might
+> be related to the order the regex were ordered but nothing more.
+>
+> I'll propose a patch to fix this particular case, but can we be sure
+> this is not happening in other places too?
+>
+> Cheers
+>
+> Laurent Bigonville
 >
 >
 > --
 > This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
