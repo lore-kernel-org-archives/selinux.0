@@ -1,57 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r31Ftr4C021760
-	for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2013 11:55:53 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r31Fwkco022006
+	for <selinux@tycho.nsa.gov>; Mon, 1 Apr 2013 11:58:46 -0400
+Message-ID: <5159AEA8.2090004@tresys.com>
+Date: Mon, 1 Apr 2013 11:58:32 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Mon, 01 Apr 2013 11:55:24 -0400
-From: David Quigley <dpquigl@davequigley.com>
-To: "Vu, Joseph" <joseph.vu@boeing.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-        "J. Bruce Fields"
- <bfields@fieldses.org>,
-        Steve Dickson <steved@redhat.com>,
-        Trond Myklebust
- <trond.myklebust@netapp.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        "David
- P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS list
- <linux-nfs@vger.kernel.org>,
-        Linux Security List
- <linux-security-module@vger.kernel.org>,
-        SELinux List
- <selinux@tycho.nsa.gov>
-Subject: RE: [PATCH 13/14] NFSD: Server implementation of MAC Labeling
-In-Reply-To: <756D04455A661C4CA25DC5BA4902A7A722698B22@XCH-PHX-204.sw.nos.boeing.com>
-References: <1364478845-29796-1-git-send-email-SteveD@redhat.com>
- <1364478845-29796-14-git-send-email-SteveD@redhat.com>
- <20130328161444.GF7080@fieldses.org> <51550C03.1000107@davequigley.com>
- <20130329144050.GB22307@fieldses.org>
- <001ff69afd411b0318d7122bf07bd218@countercultured.net>
- <5155B0E3.9040108@schaufler-ca.com> <20130329184219.GG22307@fieldses.org>
- <5155F51E.8020603@schaufler-ca.com>
- <756D04455A661C4CA25DC5BA4902A7A722698B22@XCH-PHX-204.sw.nos.boeing.com>
-Message-ID: <b226f82606306e86ffaede6909512e6d@countercultured.net>
+To: Laurent Bigonville <bigon@debian.org>
+CC: <selinux@tycho.nsa.gov>
+Subject: Re: File context not applied due to regex ordering
+References: <20130321123256.198ba5b6@soldur.bigon.be>
+In-Reply-To: <20130321123256.198ba5b6@soldur.bigon.be>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/01/2013 08:54, Vu, Joseph wrote:
+On 03/21/13 07:32, Laurent Bigonville wrote:
+> Hello,
+> 
+> I remember that I already talk about this on IRC a while back, but I
+> don't remember if there was any outcome.
+> 
+> The refpolicy is containing the following filecontext:
+> 
+> /usr/(s)?bin/gdm(3)?    --      gen_context(system_u:object_r:xdm_exec_t,s0)
+> 
+> But for some reasons /usr/sbin/gdm3 is labeled on disk as bin_t instead
+> of xdm_exec_t. matchpathcon is giving me this:
+> 
+> /usr/bin/gdm	system_u:object_r:xdm_exec_t:SystemLow
+> /usr/bin/gdm3	system_u:object_r:xdm_exec_t:SystemLow
+> /usr/sbin/gdm	system_u:object_r:bin_t:SystemLow
+> /usr/sbin/gdm3	system_u:object_r:bin_t:SystemLow
+> 
+> Changing the regex to /usr/s?bin/gdm(3)? fix the issue.
+> 
+> Shouldn't this be fixed in the userspace libraries?
 
-> What is a good, and working alternative for NFS in term of SE label?
+I'm not clear; are you saying this is a file context sorting issue or a matchpathcon error?  Matchpathcon should be able to handle a regex with ()? so I'd guess its a sorting issue.  Since sorting file contexts is tricky, it would probably be simpler to fix the policy.
 
-There isn't any unless you want to start a labeled cifs project. We 
-looked at CIFS and NFSv4 back when I started this project and from what 
-we saw NFS had the more open community. There are other solutions but 
-they are not ideal. I believe someone did SELinux labels on network 
-attached storage by treating the NAS as an iSCSI device. This isn't 
-ideal because it has concurrency issues. Someone proposed xattr for 
-NFSv4/NFSv3 support and that was shot down as well (and for good 
-reason). I don't share Casey's skepticism about the long term importance 
-of NFS. I think with NFSv4 and all the work that has gone into it we'll 
-see NFS being important in Linux and enterprises for a very long time to 
-come.
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
