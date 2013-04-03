@@ -1,93 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r32DF7NW004190
-	for <selinux@tycho.nsa.gov>; Tue, 2 Apr 2013 09:15:07 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r33JvhEd027201
+	for <selinux@tycho.nsa.gov>; Wed, 3 Apr 2013 15:57:44 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8;
  format=flowed
-Date: Tue, 02 Apr 2013 09:15:05 -0400
+Date: Wed, 03 Apr 2013 15:57:36 -0400
 From: David Quigley <dpquigl@davequigley.com>
-To: "Vu, Joseph" <joseph.vu@boeing.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-        "J. Bruce Fields"
- <bfields@fieldses.org>,
-        Steve Dickson <steved@redhat.com>,
-        Trond Myklebust
- <trond.myklebust@netapp.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        "David
- P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS list
- <linux-nfs@vger.kernel.org>,
+To: "Myklebust, Trond" <trond.myklebust@netapp.com>
+Cc: Steve Dickson <steved@redhat.com>, "J. Bruce Fields"
+ <bfields@redhat.com>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        Linux NFS
+ list <linux-nfs@vger.kernel.org>,
+        Linux FS devel list
+ <linux-fsdevel@vger.kernel.org>,
         Linux Security List
  <linux-security-module@vger.kernel.org>,
         SELinux List
  <selinux@tycho.nsa.gov>
-Subject: RE: [PATCH 13/14] NFSD: Server implementation of MAC Labeling
-In-Reply-To: <756D04455A661C4CA25DC5BA4902A7A722698BD4@XCH-PHX-204.sw.nos.boeing.com>
-References: <1364478845-29796-1-git-send-email-SteveD@redhat.com>
- <1364478845-29796-14-git-send-email-SteveD@redhat.com>
- <20130328161444.GF7080@fieldses.org> <51550C03.1000107@davequigley.com>
- <20130329144050.GB22307@fieldses.org>
- <001ff69afd411b0318d7122bf07bd218@countercultured.net>
- <5155B0E3.9040108@schaufler-ca.com> <20130329184219.GG22307@fieldses.org>
- <5155F51E.8020603@schaufler-ca.com>
- <756D04455A661C4CA25DC5BA4902A7A722698B22@XCH-PHX-204.sw.nos.boeing.com>
- <b226f82606306e86ffaede6909512e6d@countercultured.net>
- <756D04455A661C4CA25DC5BA4902A7A722698BD4@XCH-PHX-204.sw.nos.boeing.com>
-Message-ID: <b6420854e9df99c00632d0c9af85bc08@countercultured.net>
+Subject: Re: [PATCH 01/19] Security: Add hook to calculate context based on
+ a negative dentry.
+In-Reply-To: <1364945729.3026.7.camel@leira.trondhjem.org>
+References: <1364939160-20874-1-git-send-email-SteveD@redhat.com>
+ <1364939160-20874-2-git-send-email-SteveD@redhat.com>
+ <1364945729.3026.7.camel@leira.trondhjem.org>
+Message-ID: <a3ffb6cefc84dad5602a1e5d04093645@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/02/2013 09:01, Vu, Joseph wrote:
-> Thank you David.
+On 04/02/2013 19:35, Myklebust, Trond wrote:
+> On Tue, 2013-04-02 at 17:45 -0400, Steve Dickson wrote:
+>> From: David Quigley <dpquigl@davequigley.com>
+>>
+>> There is a time where we need to calculate a context without the
+>> inode having been created yet. To do this we take the negative 
+>> dentry and
+>> calculate a context based on the process and the parent directory 
+>> contexts.
+>>
 >
-> It is good that the community at least support some short term 
-> solution.
-> Labeled NFS has been working hard to get the community acceptance.
->
-> Thanks.
->
->
-> -----Original Message-----
-> From: David Quigley [mailto:dpquigl@davequigley.com]
-> Sent: Monday, April 01, 2013 10:55 AM
-> To: Vu, Joseph
-> Cc: Casey Schaufler; J. Bruce Fields; Steve Dickson; Trond Myklebust;
-> J. Bruce Fields; David P. Quigley; Linux NFS list; Linux Security
-> List; SELinux List
-> Subject: RE: [PATCH 13/14] NFSD: Server implementation of MAC 
-> Labeling
->
-> On 04/01/2013 08:54, Vu, Joseph wrote:
->
->> What is a good, and working alternative for NFS in term of SE label?
->
-> There isn't any unless you want to start a labeled cifs project. We
-> looked at CIFS and NFSv4 back when I started this project and from
-> what we saw NFS had the more open community. There are other 
-> solutions
-> but they are not ideal. I believe someone did SELinux labels on
-> network attached storage by treating the NAS as an iSCSI device. This
-> isn't ideal because it has concurrency issues. Someone proposed xattr
-> for
-> NFSv4/NFSv3 support and that was shot down as well (and for good
-> reason). I don't share Casey's skepticism about the long term
-> importance of NFS. I think with NFSv4 and all the work that has gone
-> into it we'll see NFS being important in Linux and enterprises for a
-> very long time to come.
+> Can you remind me again why this is needed? Basing security decisions 
+> on
+> the namespace seems just seems to run against the basic selinux 
+> concept.
+> Is it for apparmor and tomoyo support in LNFS?
 
-
-I don't consider this a short term solution. Labeled NFS is a long term 
-solution with short term milestones that get us something working fairly 
-quickly and I mean fairly quickly in IETF terms (about 5 years). I don't 
-buy Casey's assessment that network file-system protocols are old school 
-and on the way out. A number of storage vendors are doing lots of real 
-work into new versions of NFS and CIFS and they are major technologies 
-in enterprise storage. To be honest I can't even figure out what sort of 
-"long term" solutions Casey is talking about. It looks like he strung 
-together a bunch a buzz words together into some vague ephemeral 
-concept. Typing his idea of future storage into Google doesn't really 
-come up with anything substantive either.
+The thing is we aren't creating it based on the namespace. The negative 
+dentry has a reference to its parent which is the label being used for 
+the computation. The problem is there is no way for us to do this 
+calculation in NFS because the place it needs to be done is lacking the 
+actual inode so instead we use the process and the parent label. If 
+there is a transition in place it would act on the parent label and 
+process label anyway. Its not like we're deciding that /usr/foo/bar gets 
+labeled with bar_t but instead we're saying that process foo created a 
+file in a directory labeled foo_t so it becomes bar_t. Alternatively if 
+no transition is in place we'd instead say that because foo is labeled 
+foo_t we're creating a file underneath that so it gets labeled foo_t.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
