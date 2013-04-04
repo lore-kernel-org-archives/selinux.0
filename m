@@ -1,59 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r34Ek3vi028145
-	for <selinux@tycho.nsa.gov>; Thu, 4 Apr 2013 10:46:04 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r34Ek2D3003024
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 4 Apr 2013 10:46:02 -0400
-Subject: [PATCH v3] selinux: fix problems in netnode when BUG() is compiled
- out
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r34HAvCB007676
+	for <selinux@tycho.nsa.gov>; Thu, 4 Apr 2013 13:10:57 -0400
+Received: by mail-wi0-f170.google.com with SMTP id hm11so976734wib.1
+        for <selinux@tycho.nsa.gov>; Thu, 04 Apr 2013 10:10:56 -0700 (PDT)
+Date: Thu, 4 Apr 2013 19:10:45 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: selinux@tycho.nsa.gov
-From: Paul Moore <pmoore@redhat.com>
-Date: Thu, 04 Apr 2013 10:46:00 -0400
-Message-ID: <20130404144600.6650.16381.stgit@localhost>
+Subject: newrole and tmux
+Message-ID: <20130404171045.GB12515@siphos.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When the BUG() macro is disabled at compile time it can cause some
-problems in the SELinux netnode code: invalid return codes and
-uninitialized variables.  This patch fixes this by making sure we take
-some corrective action after the BUG() macro.
+Hi all,
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Paul Moore <pmoore@redhat.com>
+I'm running with policycoreutils-2.1.13 and am noticing that tmux does not
+display its terminal output when I have switched roles with newrole. tmux is
+not SELinux-aware (not linked with libselinux) and this behavior is also
+apparent when I run in permissive mode, so I'm guessing this has to do with
+what newrole does rather then SELinux policy itself.
 
----
+During a strace, I notice that what I believe is the file descriptor
+representing the standard output of the tmux application is readonly,
+whereas when I have not switched roles, this is read-write.
 
-In the process of cleaning up a local git tree I realized I had this
-patch still sitting in my tree that for some reason hadn't been
-merged upstream.  Originally sent back on December 5, 2012.
----
- security/selinux/netnode.c |    2 ++
- 1 file changed, 2 insertions(+)
+Non-working:
+#v+
+10905 recvmsg(8, {msg_name(0)=NULL, msg_iov(1)=[{"31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:"..., 65071}], msg_controllen=24, {cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=SCM_RIGHTS, {10}}, msg_flags=0}, 0) = 10036
+10905 fcntl(9, F_GETFL)                 = 0x8000 (flags O_RDONLY|O_LARGEFILE)
+10905 fcntl(9, F_SETFL, O_RDONLY|O_NONBLOCK|O_LARGEFILE) = 0
+#v-
 
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index c5454c0..03a72c3 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
- 		break;
- 	default:
- 		BUG();
-+		return;
- 	}
- 
- 	/* we need to impose a limit on the growth of the hash table so check
-@@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
- 		break;
- 	default:
- 		BUG();
-+		ret = -EINVAL;
- 	}
- 	if (ret != 0)
- 		goto out;
+Working:
+#v+
+10905 recvmsg(8, {msg_name(0)=NULL, msg_iov(1)=[{"31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:"..., 65071}], msg_controllen=24, {cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=SCM_RIGHTS, {10}}, msg_flags=0}, 0) = 12116
+10905 fcntl(9, F_GETFL)                 = 0x8002 (flags O_RDWR|O_LARGEFILE)
+10905 fcntl(9, F_SETFL, O_RDWR|O_NONBLOCK|O_LARGEFILE) = 0
+#v-
 
+When the output isn't displayed, tmux does still work: I can run commands
+(as if it is a shell) and can even see the output when I'm also attached
+elsewhere - as long as I haven't switched roles. I can also send tmux
+commands (like detach) which succeed.
+
+Screen does not have this problem - even after switching roles, I can
+succesfully attach/detach screens. Even more, I can launch a screen session
+*after* switching role, and then I *can* use tmux (so tmux within screen)
+and get its output.
+
+Is there anything I can do to debug this further? newrole doesn't contain
+much. Also, if some of you could see if they have the same problem or not
+(tmux 1.6 and tmux 1.8 both have this behavior).
+
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
