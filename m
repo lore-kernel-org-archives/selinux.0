@@ -1,61 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r33JvhEd027201
-	for <selinux@tycho.nsa.gov>; Wed, 3 Apr 2013 15:57:44 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r34Ek3vi028145
+	for <selinux@tycho.nsa.gov>; Thu, 4 Apr 2013 10:46:04 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r34Ek2D3003024
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Thu, 4 Apr 2013 10:46:02 -0400
+Subject: [PATCH v3] selinux: fix problems in netnode when BUG() is compiled
+ out
+To: selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Date: Thu, 04 Apr 2013 10:46:00 -0400
+Message-ID: <20130404144600.6650.16381.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Wed, 03 Apr 2013 15:57:36 -0400
-From: David Quigley <dpquigl@davequigley.com>
-To: "Myklebust, Trond" <trond.myklebust@netapp.com>
-Cc: Steve Dickson <steved@redhat.com>, "J. Bruce Fields"
- <bfields@redhat.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS
- list <linux-nfs@vger.kernel.org>,
-        Linux FS devel list
- <linux-fsdevel@vger.kernel.org>,
-        Linux Security List
- <linux-security-module@vger.kernel.org>,
-        SELinux List
- <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 01/19] Security: Add hook to calculate context based on
- a negative dentry.
-In-Reply-To: <1364945729.3026.7.camel@leira.trondhjem.org>
-References: <1364939160-20874-1-git-send-email-SteveD@redhat.com>
- <1364939160-20874-2-git-send-email-SteveD@redhat.com>
- <1364945729.3026.7.camel@leira.trondhjem.org>
-Message-ID: <a3ffb6cefc84dad5602a1e5d04093645@countercultured.net>
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/02/2013 19:35, Myklebust, Trond wrote:
-> On Tue, 2013-04-02 at 17:45 -0400, Steve Dickson wrote:
->> From: David Quigley <dpquigl@davequigley.com>
->>
->> There is a time where we need to calculate a context without the
->> inode having been created yet. To do this we take the negative 
->> dentry and
->> calculate a context based on the process and the parent directory 
->> contexts.
->>
->
-> Can you remind me again why this is needed? Basing security decisions 
-> on
-> the namespace seems just seems to run against the basic selinux 
-> concept.
-> Is it for apparmor and tomoyo support in LNFS?
+When the BUG() macro is disabled at compile time it can cause some
+problems in the SELinux netnode code: invalid return codes and
+uninitialized variables.  This patch fixes this by making sure we take
+some corrective action after the BUG() macro.
 
-The thing is we aren't creating it based on the namespace. The negative 
-dentry has a reference to its parent which is the label being used for 
-the computation. The problem is there is no way for us to do this 
-calculation in NFS because the place it needs to be done is lacking the 
-actual inode so instead we use the process and the parent label. If 
-there is a transition in place it would act on the parent label and 
-process label anyway. Its not like we're deciding that /usr/foo/bar gets 
-labeled with bar_t but instead we're saying that process foo created a 
-file in a directory labeled foo_t so it becomes bar_t. Alternatively if 
-no transition is in place we'd instead say that because foo is labeled 
-foo_t we're creating a file underneath that so it gets labeled foo_t.
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+
+---
+
+In the process of cleaning up a local git tree I realized I had this
+patch still sitting in my tree that for some reason hadn't been
+merged upstream.  Originally sent back on December 5, 2012.
+---
+ security/selinux/netnode.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index c5454c0..03a72c3 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
+ 		break;
+ 	default:
+ 		BUG();
++		return;
+ 	}
+ 
+ 	/* we need to impose a limit on the growth of the hash table so check
+@@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
+ 		break;
+ 	default:
+ 		BUG();
++		ret = -EINVAL;
+ 	}
+ 	if (ret != 0)
+ 		goto out;
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
