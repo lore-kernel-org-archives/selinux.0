@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r39FHm7l006471
-	for <selinux@tycho.nsa.gov>; Tue, 9 Apr 2013 11:17:48 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r39Fvsnl009322
+	for <selinux@tycho.nsa.gov>; Tue, 9 Apr 2013 11:57:56 -0400
 From: Paul Moore <pmoore@redhat.com>
 To: Eric Dumazet <eric.dumazet@gmail.com>
 Cc: Casey Schaufler <casey@schaufler-ca.com>,
@@ -8,49 +8,58 @@ Cc: Casey Schaufler <casey@schaufler-ca.com>,
         mvadkert@redhat.com, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org
 Subject: Re: [PATCH] tcp: assign the sock correctly to an outgoing SYNACK packet
-Date: Tue, 09 Apr 2013 11:17:41 -0400
-Message-ID: <5235720.yJLYRg7eit@sifl>
-In-Reply-To: <1365520026.3887.139.camel@edumazet-glaptop>
-References: <3505145.vfXt1x4t0P@sifl> <7718638.lBZi8geXkP@sifl> <1365520026.3887.139.camel@edumazet-glaptop>
+Date: Tue, 09 Apr 2013 11:57:49 -0400
+Message-ID: <1874420.dSqDS2QrBc@sifl>
+In-Reply-To: <1365521576.3887.147.camel@edumazet-glaptop>
+References: <3505145.vfXt1x4t0P@sifl> <5235720.yJLYRg7eit@sifl> <1365521576.3887.147.camel@edumazet-glaptop>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, April 09, 2013 08:07:06 AM Eric Dumazet wrote:
-> On Tue, 2013-04-09 at 10:52 -0400, Paul Moore wrote:
-> > Perhaps I'm misunderstanding, but these comments above only apply if we
-> > were to increase the size of the sk_buff struct, yes?  What I proposed,
-> > replacing "secmark" with a blob, does not currently change the size of
-> > the sk_buff struct so the performance and memory usage should remain
-> > unchanged as well.
->
-> If blob size is 4 bytes, thats fine.
+On Tuesday, April 09, 2013 08:32:56 AM Eric Dumazet wrote:
+> On Tue, 2013-04-09 at 11:17 -0400, Paul Moore wrote:
+> > The "blob" is a void pointer, so 8 bytes.  We're talking about removing
+> > the "secmark" field (4 bytes) and adding a void pointer (8 bytes).  I've
+> > shown several different approaches that make this change without
+> > increasing the overall size of the sk_buff struct.
 > 
-> If not, read again my mail.
+> You want to use 4 extra bytes in sk_buff. You'll have to show us why we
+> close the way for other valid uses of the current holes.
+> 
+> I have no idea why its needed, and why it can't be solved in another
+> way.
 
-The "blob" is a void pointer, so 8 bytes.  We're talking about removing the 
-"secmark" field (4 bytes) and adding a void pointer (8 bytes).  I've shown 
-several different approaches that make this change without increasing the 
-overall size of the sk_buff struct.
+FWIW, I was focusing on arriving at a basic design that addressed the initial 
+reasons for not including a security blob in a sk_buff.  In the beginning I 
+thought it was both the need for LSM hook in the skb management routines as 
+well as the memory overhead in the skb itself.  During the course of our 
+discussion it became clear that the hooks were acceptable, it was the memory 
+overhead that was the concern, so that is what I (and Casey) focused on.
 
-One of the proposals makes use of the existing holes in the third cacheline to 
-make the change without any increase in size, misalignment, or cacheline 
-changes.  You were concerned that at some point in the future, the hardware 
-encapsulation developers *might* want to add another field.
+Based on your latest comment, it appears that we have some possible candidates 
+for adding a security blob (void *) to the sk_buff that address your technical 
+arguments, I wasn't aware we had reached that point, but it is indeed good 
+news.  Now we just need to make our case that it is the "Right Thing to Do", 
+that is perfectly reasonable.
 
-Taking your comments into consideration I just made another proposal which 
-preserves the overall size of the sk_buff struct, as well as the 4 byte hole 
-in the third cacheline (for possible use by hw encapsulation folks at some 
-later date).  It does shift the "dma_cookie" field from the second to the 
-third cacheline, but considering the fields already in the third cacheline 
-this may be a good thing.
+> It looks like _I_ have to do your work.
 
-To the best of my knowledge, all of the proposals I've posted this morning do 
-not change the size of the sk_buff so the cloned sk_buff 
-functionality/performance/etc. should not be affected.  If that is not the 
-case, please let me know because I'm currently at a loss (even after re-
-reading your email).
+I don't believe I ever asked you to do anything other than to repost a patch 
+you posted to the LSM list so we could get it included upstream.  A patch that 
+you created to counter my proposed fix for a SELinux regression.  Further, I 
+tested your patch, and ACK'd it earlier this morning.
+
+I suppose I also asked you to explain/clarify a few of your technical 
+objections a bit further so I could address them, but that just seems like 
+normal peer design review.
+
+> Sorry, I have no more time to spend on this topic. You'll have to convince
+> David, not me.
+
+Well, thank you for your time; I'm sure we'll get to talk about this again in 
+the future.  It looks like we've had enough of a conversation now that I can 
+start working on some patches.
 
 -- 
 paul moore
