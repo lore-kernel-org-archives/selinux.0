@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r39102CA014295
-	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2013 21:00:02 -0400
-Message-ID: <5163680F.4030200@schaufler-ca.com>
-Date: Mon, 08 Apr 2013 17:59:59 -0700
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r391P2CR015691
+	for <selinux@tycho.nsa.gov>; Mon, 8 Apr 2013 21:25:03 -0400
+Message-ID: <51636DEB.5000308@schaufler-ca.com>
+Date: Mon, 08 Apr 2013 18:24:59 -0700
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
 To: Eric Dumazet <eric.dumazet@gmail.com>
@@ -12,81 +12,31 @@ CC: David Miller <davem@davemloft.net>, pmoore@redhat.com,
         Casey Schaufler <casey@schaufler-ca.com>
 Subject: Re: [PATCH] tcp: assign the sock correctly to an outgoing SYNACK
  packet
-References: <3505145.vfXt1x4t0P@sifl>  <20130408.171512.973275376690340387.davem@davemloft.net>  <2921619.mqaHl5PnPI@sifl>  <20130408.173325.1683493727549657170.davem@davemloft.net>  <51635573.7030706@schaufler-ca.com> <1365467636.3887.67.camel@edumazet-glaptop>
-In-Reply-To: <1365467636.3887.67.camel@edumazet-glaptop>
+References: <3505145.vfXt1x4t0P@sifl>   <20130408.171512.973275376690340387.davem@davemloft.net>   <2921619.mqaHl5PnPI@sifl>   <20130408.173325.1683493727549657170.davem@davemloft.net>   <51635573.7030706@schaufler-ca.com>  <1365467636.3887.67.camel@edumazet-glaptop>  <5163680F.4030200@schaufler-ca.com> <1365469759.3887.69.camel@edumazet-glaptop>
+In-Reply-To: <1365469759.3887.69.camel@edumazet-glaptop>
 Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/8/2013 5:33 PM, Eric Dumazet wrote:
-> On Mon, 2013-04-08 at 16:40 -0700, Casey Schaufler wrote:
+On 4/8/2013 6:09 PM, Eric Dumazet wrote:
+> On Mon, 2013-04-08 at 17:59 -0700, Casey Schaufler wrote:
 >
->> OK, let's do the math.
->>
->> First off, it's 4 bytes, not 8. It replaces the secmark.
->> Your increased memory usage is going to be
->>
->> 	4 bytes/packet *  M packets/second * N seconds
->>
->> Where M is the rate at which you're processing packets and
->> N is the length of time it takes to process a packet.
->>
->> Let's pretend we have an embedded system that does nothing but send
->> 128 byte packets on a 10Gb port. That's 10M packets/second. If it
->> takes a full second to process a packet the overhead is 40MB for that
->> second. I have it on good authority that packets can be processed
->> in considerably less time than that. The real number is more like
->> 0.05 seconds. That means your actual overhead is more like 1MB.
->>
->> These are dumbed down calculations. I am not a memory usage expert.
->> I am convinced that "real" calculations are going to get similar
->> numbers. I am, of course, willing to be swayed by evidence that I
->> am wrong.
->>
->> Compare that to the overhead associated with using CIPSO on packets
->> that never leave the box.
-> Maths are not that simple,
+>> I don't see that with adding 4 bytes. Again, I'm willing to be
+>> educated if I'm wrong.
+> Feel free to add 4 bytes without having the 'align to 8 bytes' problem
+> on 64 bit arches. Show us your patch.
 
-I am willing to accept that. I am willing to be
-educated. I would be interested to see what the
-"real" maths are, and how far off my dumb version
-might actually be.
+Recall that it's replacing an existing 4 byte value with an 8 byte value.
+My compiler days were quite short and long ago, but it would seem that
+an 8 byte value ought not have an 'align to 8 bytes' problem.
 
-> and its not about size of sk_buff, since the
-> number of in-flight skb should be quite small.
+Again, I'm willing to be educated.
 
-The reason we're told that there can't be a blob
-pointer in the sk_buff is that it increases the size
-of the sk_buff. Yes, it *is* about the size.
-
-> Its the time to init this memory for _every_ packet.
-
-Which is a function of the size, no?
-
-> sizeof(sk_buff) is 0xf8, very close to cross the 256 bytes limit.
-
-0xf8 + 0x4 = 0xfc
-248 + 4 = 252
-
-> Add a single _byte_ and it becomes a matter of adding a _cache_ line,
-> and thats 25 % cost, assuming 64bytes cache lines.
-
-I don't see that with adding 4 bytes. Again, I'm willing to be
-educated if I'm wrong.
-
-> So instead of processing 10M packets per second, we would process 9M
-> packets per second, or maybe less.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
-> Yes, 256 bytes per sk_buff, this is the current insane situation.
-> (Not counting the struct skb_shared_info, adding at least one additional
-> cache line)
-
-Sorry, but I don't see what's insane with either the
-current 248 byte sk_buff or a 252 byte sk_buff.
-
-As always, I am willing to be educated.
-
-Thank you.
 
 
 --
