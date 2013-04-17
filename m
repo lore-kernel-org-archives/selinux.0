@@ -1,70 +1,130 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3H4WONQ008753
-	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 00:32:24 -0400
-Received: by mail-ee0-f54.google.com with SMTP id e51so510405eek.13
-        for <selinux@tycho.nsa.gov>; Tue, 16 Apr 2013 18:34:08 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3HEGR1m024547
+	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 10:16:27 -0400
+Received: from iad-wprd-xchw02.corp.verio.net (iad-wprd-xchw02.corp.verio.net [198.87.7.165])
+	by relay1-bcrtfl2.verio.net (Postfix) with ESMTP id 6D4D8B038688
+	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 10:16:24 -0400 (EDT)
 MIME-Version: 1.0
-In-Reply-To: <516DC5DD.7060701@schaufler-ca.com>
-References: <59c95e1372b37c3a2b93ad17b176753e@countercultured.net>
-	<09e4c4ea-e59a-4164-a5ba-6d69779d0351@email.android.com>
-	<CACLa4psnaXVrOprc=0FvwNnw65v+Ue=_E6zRuc-EktOwiVE=Gw@mail.gmail.com>
-	<516DC5DD.7060701@schaufler-ca.com>
-Date: Tue, 16 Apr 2013 19:34:07 -0600
-Message-ID: <CANnLRdgW=BuTNa6sTbhRqpD914_QTKU8HY9wkvh2bjZdj3LwWw@mail.gmail.com>
-Subject: Re: Stop Disabling SELinux
-From: Stephen John Smoogen <smooge@gmail.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Eric Paris <eparis@parisplace.org>, Landon Hurley <ljrhurley@gmail.com>,
-        David Quigley <dpquigl@davequigley.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=089e0160c4fc6592e004da847b97
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01CE3B76.24029BE9"
+Subject: Not sending AVC denials to audit.log
+Date: Wed, 17 Apr 2013 10:16:23 -0400
+Message-ID: <0971982CF6B9AB418FFD5FEF7F50CB9F05E09E0C@IAD-WPRD-XCHB03.corp.verio.net>
+From: "Rodney Simioni" <rodney.simioni@verio.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---089e0160c4fc6592e004da847b97
-Content-Type: text/plain; charset=ISO-8859-1
+This is a multi-part message in MIME format.
 
-On 16 April 2013 15:42, Casey Schaufler <casey@schaufler-ca.com> wrote:
-
-> On 4/16/2013 11:06 AM, Eric Paris wrote:
-> > Is it wrong I want to disable SELinux just to see Dan cry?
->
-> Yes, it's wrong that you want to disable SELinux just to see Dan cry.
->
->
->
-Plus I don't think it would make him cry. The Braves coming back to
-Boston.. that will make him cry... but turning off Selinux... not even :).
-
-
-
--- 
-Stephen J Smoogen.
-
---089e0160c4fc6592e004da847b97
-Content-Type: text/html; charset=ISO-8859-1
+------_=_NextPart_001_01CE3B76.24029BE9
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><br><div class=3D"gmail=
-_quote">On 16 April 2013 15:42, Casey Schaufler <span dir=3D"ltr">&lt;<a hr=
-ef=3D"mailto:casey@schaufler-ca.com" target=3D"_blank">casey@schaufler-ca.c=
-om</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div class=3D"im">On 4/16/2013 11:06 AM, Eri=
-c Paris wrote:<br>
-&gt; Is it wrong I want to disable SELinux just to see Dan cry?<br>
-<br>
-</div>Yes, it&#39;s wrong that you want to disable SELinux just to see Dan =
-cry.<br>
-<div class=3D"HOEnZb"><div class=3D"h5"><br>
-<br></div></div></blockquote><div><br></div><div style>Plus I don&#39;t thi=
-nk it would make him cry. The Braves coming back to Boston.. that will make=
- him cry... but turning off Selinux... not even :).</div><div><br></div>
-<div><br></div><div>=A0</div></div>-- <br><div dir=3D"ltr">Stephen J Smooge=
-n.<br><br></div>
-</div></div>
+Hi,
 
---089e0160c4fc6592e004da847b97--
+=20
+
+I have a few development tests that are failing when I put the server in
+'enforcing` mode; however, it's not sending AVC denials to the
+audit.log.
+
+I have also used 'semanage dontaudit' in both on and off position and
+it's not generating denials. When I put the server in 'permissive mode`,
+the tests do not fail.
+
+Why isn't selinux sending the denials to the audit.log when the tests
+fail? How do I go about finding the culprit(s) that is/are failing my
+tests? Thanks in advance.
+
+=20
+
+Rodney
+
+
+
+This email message is intended for the use of the person to whom it has =
+been sent, and may contain information that is confidential or legally =
+protected. If you are not the intended recipient or have received this =
+message in error, you are not authorized to copy, distribute, or =
+otherwise use this message or its attachments. Please notify the sender =
+immediately by return e-mail and permanently delete this message and any =
+attachments. Verio Inc. makes no warranty that this email is error or =
+virus free.  Thank you.
+
+------_=_NextPart_001_01CE3B76.24029BE9
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta =
+http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
+vlink=3Dpurple><div class=3DWordSection1><p =
+class=3DMsoNormal>Hi,<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>I have a few =
+development tests that are failing when I put the server in =
+&#8216;enforcing` mode; however, it&#8217;s not sending AVC denials to =
+the audit.log.<o:p></o:p></p><p class=3DMsoNormal>I have also used =
+&#8216;semanage dontaudit&#8217; in both on and off position and =
+it&#8217;s not generating denials. When I put the server in =
+&#8216;permissive mode`, the tests do not fail.<o:p></o:p></p><p =
+class=3DMsoNormal>Why isn&#8217;t selinux sending the denials to the =
+audit.log when the tests fail? How do I go about finding the culprit(s) =
+that is/are failing my tests? Thanks in advance.<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal>Rodney<o:p></o:p></p></div><p></p><p><br>This email =
+message is intended for the use of the person to whom it has been sent, =
+and may contain information that is confidential or legally protected. =
+If you are not the intended recipient or have received this message in =
+error, you are not authorized to copy, distribute, or otherwise use this =
+message or its attachments. Please notify the sender immediately by =
+return e-mail and permanently delete this message and any attachments. =
+Verio Inc. makes no warranty that this email is error or virus free.  =
+Thank you.</p></body></html>
+------_=_NextPart_001_01CE3B76.24029BE9--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
