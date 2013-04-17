@@ -1,130 +1,103 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3HEGR1m024547
-	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 10:16:27 -0400
-Received: from iad-wprd-xchw02.corp.verio.net (iad-wprd-xchw02.corp.verio.net [198.87.7.165])
-	by relay1-bcrtfl2.verio.net (Postfix) with ESMTP id 6D4D8B038688
-	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 10:16:24 -0400 (EDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3HEoqa7029788
+	for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 10:50:52 -0400
+Received: by mail-pd0-f179.google.com with SMTP id x11so918574pdj.10
+        for <selinux@tycho.nsa.gov>; Wed, 17 Apr 2013 07:50:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01CE3B76.24029BE9"
-Subject: Not sending AVC denials to audit.log
-Date: Wed, 17 Apr 2013 10:16:23 -0400
-Message-ID: <0971982CF6B9AB418FFD5FEF7F50CB9F05E09E0C@IAD-WPRD-XCHB03.corp.verio.net>
-From: "Rodney Simioni" <rodney.simioni@verio.net>
-To: <selinux@tycho.nsa.gov>
+In-Reply-To: <0971982CF6B9AB418FFD5FEF7F50CB9F05E09E0C@IAD-WPRD-XCHB03.corp.verio.net>
+References: <0971982CF6B9AB418FFD5FEF7F50CB9F05E09E0C@IAD-WPRD-XCHB03.corp.verio.net>
+Date: Wed, 17 Apr 2013 09:50:49 -0500
+Message-ID: <CAFPpqQG+N8UuSZ3cM_iuHM6rXiG6xYBrTzBoX_mHo+BWs2fPew@mail.gmail.com>
+Subject: Re: Not sending AVC denials to audit.log
+From: Ted Toth <txtoth@gmail.com>
+To: Rodney Simioni <rodney.simioni@verio.net>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=047d7bd6c73ea0382504da8f9c64
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
-
-------_=_NextPart_001_01CE3B76.24029BE9
-Content-Type: text/plain;
-	charset="us-ascii"
+--047d7bd6c73ea0382504da8f9c64
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-=20
-
-I have a few development tests that are failing when I put the server in
-'enforcing` mode; however, it's not sending AVC denials to the
-audit.log.
-
-I have also used 'semanage dontaudit' in both on and off position and
-it's not generating denials. When I put the server in 'permissive mode`,
-the tests do not fail.
-
-Why isn't selinux sending the denials to the audit.log when the tests
-fail? How do I go about finding the culprit(s) that is/are failing my
-tests? Thanks in advance.
-
-=20
-
-Rodney
+You might try 'semanage -DB' to disable all of the dontaudits. Run
+'semanage -B' to re-enable dontaudits.
 
 
+On Wed, Apr 17, 2013 at 9:16 AM, Rodney Simioni <rodney.simioni@verio.net>w=
+rote:
 
-This email message is intended for the use of the person to whom it has =
-been sent, and may contain information that is confidential or legally =
-protected. If you are not the intended recipient or have received this =
-message in error, you are not authorized to copy, distribute, or =
-otherwise use this message or its attachments. Please notify the sender =
-immediately by return e-mail and permanently delete this message and any =
-attachments. Verio Inc. makes no warranty that this email is error or =
-virus free.  Thank you.
+> Hi,****
+>
+> ** **
+>
+> I have a few development tests that are failing when I put the server in
+> =91enforcing` mode; however, it=92s not sending AVC denials to the audit.=
+log.*
+> ***
+>
+> I have also used =91semanage dontaudit=92 in both on and off position and=
+ it=92s
+> not generating denials. When I put the server in =91permissive mode`, the
+> tests do not fail.****
+>
+> Why isn=92t selinux sending the denials to the audit.log when the tests
+> fail? How do I go about finding the culprit(s) that is/are failing my
+> tests? Thanks in advance.****
+>
+> ** **
+>
+> Rodney****
+>
+>
+> This email message is intended for the use of the person to whom it has
+> been sent, and may contain information that is confidential or legally
+> protected. If you are not the intended recipient or have received this
+> message in error, you are not authorized to copy, distribute, or otherwis=
+e
+> use this message or its attachments. Please notify the sender immediately
+> by return e-mail and permanently delete this message and any attachments.
+> Verio Inc. makes no warranty that this email is error or virus free. Than=
+k
+> you.
+>
 
-------_=_NextPart_001_01CE3B76.24029BE9
-Content-Type: text/html;
-	charset="us-ascii"
+--047d7bd6c73ea0382504da8f9c64
+Content-Type: text/html; charset=windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta =
-http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 14 =
-(filtered medium)"><style><!--
-/* Font Definitions */
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri","sans-serif";}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p =
-class=3DMsoNormal>Hi,<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>I have a few =
-development tests that are failing when I put the server in =
-&#8216;enforcing` mode; however, it&#8217;s not sending AVC denials to =
-the audit.log.<o:p></o:p></p><p class=3DMsoNormal>I have also used =
-&#8216;semanage dontaudit&#8217; in both on and off position and =
-it&#8217;s not generating denials. When I put the server in =
-&#8216;permissive mode`, the tests do not fail.<o:p></o:p></p><p =
-class=3DMsoNormal>Why isn&#8217;t selinux sending the denials to the =
-audit.log when the tests fail? How do I go about finding the culprit(s) =
-that is/are failing my tests? Thanks in advance.<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal>Rodney<o:p></o:p></p></div><p></p><p><br>This email =
-message is intended for the use of the person to whom it has been sent, =
-and may contain information that is confidential or legally protected. =
-If you are not the intended recipient or have received this message in =
-error, you are not authorized to copy, distribute, or otherwise use this =
-message or its attachments. Please notify the sender immediately by =
-return e-mail and permanently delete this message and any attachments. =
-Verio Inc. makes no warranty that this email is error or virus free.  =
-Thank you.</p></body></html>
-------_=_NextPart_001_01CE3B76.24029BE9--
+<div dir=3D"ltr">You might try &#39;semanage -DB&#39; to disable all of the=
+ dontaudits. Run &#39;semanage -B&#39; to re-enable dontaudits.</div><div c=
+lass=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On Wed, Apr 17, 201=
+3 at 9:16 AM, Rodney Simioni <span dir=3D"ltr">&lt;<a href=3D"mailto:rodney=
+.simioni@verio.net" target=3D"_blank">rodney.simioni@verio.net</a>&gt;</spa=
+n> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div lang=3D"EN-US" link=3D"blue" vlink=3D"p=
+urple"><div><p class=3D"MsoNormal">Hi,<u></u><u></u></p><p class=3D"MsoNorm=
+al"><u></u>=A0<u></u></p>
+<p class=3D"MsoNormal">I have a few development tests that are failing when=
+ I put the server in =91enforcing` mode; however, it=92s not sending AVC de=
+nials to the audit.log.<u></u><u></u></p><p class=3D"MsoNormal">I have also=
+ used =91semanage dontaudit=92 in both on and off position and it=92s not g=
+enerating denials. When I put the server in =91permissive mode`, the tests =
+do not fail.<u></u><u></u></p>
+<p class=3D"MsoNormal">Why isn=92t selinux sending the denials to the audit=
+.log when the tests fail? How do I go about finding the culprit(s) that is/=
+are failing my tests? Thanks in advance.<u></u><u></u></p><p class=3D"MsoNo=
+rmal">
+<u></u>=A0<u></u></p><p class=3D"MsoNormal">Rodney<u></u><u></u></p></div><=
+p></p><p><br>This email message is intended for the use of the person to wh=
+om it has been sent, and may contain information that is confidential or le=
+gally protected. If you are not the intended recipient or have received thi=
+s message in error, you are not authorized to copy, distribute, or otherwis=
+e use this message or its attachments. Please notify the sender immediately=
+ by return e-mail and permanently delete this message and any attachments. =
+Verio Inc. makes no warranty that this email is error or virus free.  Thank=
+ you.</p>
+</div></blockquote></div><br></div>
+
+--047d7bd6c73ea0382504da8f9c64--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
