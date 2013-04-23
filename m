@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3NG4tNF016267
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2013 12:05:03 -0400
-Message-ID: <5176B12C.4000506@schaufler-ca.com>
-Date: Tue, 23 Apr 2013 09:05:00 -0700
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3NG4S9L016197
+	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2013 12:04:28 -0400
+Message-ID: <5176B109.1070508@schaufler-ca.com>
+Date: Tue, 23 Apr 2013 09:04:25 -0700
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
 To: LSM <linux-security-module@vger.kernel.org>,
@@ -13,1204 +13,744 @@ CC: John Johansen <john.johansen@canonical.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
         Kees Cook <keescook@chromium.org>,
         Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH v13 9/9] LSM: Documentation and cleanup
+Subject: [PATCH v13 4/9] LSM: Multiple security context maintenance
 References: <5176ABB7.5080300@schaufler-ca.com>
 In-Reply-To: <5176ABB7.5080300@schaufler-ca.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Subject: [PATCH v13 9/9] LSM: Documentation and cleanup
+Subject: [PATCH v13 4/9] LSM: Multiple security context maintenance
 
-Add a description of the ways secuirty modules work now.
-Remove security/capability.c as it is no longer used.
+The legacy use of a security context is that there is
+a text string which is interpreted by a single LSM.
+When there is more than one LSM that uses a security
+context the conbined string is managed by the lsm
+infrastructure. Because the blob release mechanism
+can't tell how the blob was allocated it's necessary
+to tell it. This is accomplished by providing the
+security operations pointer of the LSM that created
+the context or NULL if it was created by the lsm
+infrastructure.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
 ---
- Documentation/security/LSM.txt |   39 +-
- security/Makefile              |    3 +-
- security/capability.c          | 1104 ----------------------------------------
- 3 files changed, 31 insertions(+), 1115 deletions(-)
+ fs/sysfs/dir.c                          |    3 ++-
+ fs/sysfs/inode.c                        |    5 +++--
+ fs/sysfs/sysfs.h                        |    7 ++++---
+ fs/xattr.c                              |    8 +++++---
+ include/linux/security.h                |   22 ++++++++++++----------
+ include/net/scm.h                       |    6 ++++--
+ include/net/xfrm.h                      |    5 +++--
+ kernel/audit.c                          |   23 +++++++++++++----------
+ kernel/auditfilter.c                    |    5 +++--
+ kernel/auditsc.c                        |   20 ++++++++++++--------
+ net/ipv4/ip_sockglue.c                  |    5 +++--
+ net/netfilter/nf_conntrack_netlink.c    |   12 +++++-------
+ net/netfilter/nf_conntrack_standalone.c |    5 +++--
+ net/netlabel/netlabel_unlabeled.c       |   21 +++++++++++++--------
+ net/netlabel/netlabel_user.c            |    5 +++--
+ security/security.c                     |   13 +++++++++----
+ 16 files changed, 97 insertions(+), 68 deletions(-)
 
-diff --git a/Documentation/security/LSM.txt b/Documentation/security/LSM.txt
-index c335a76..f979e00 100644
---- a/Documentation/security/LSM.txt
-+++ b/Documentation/security/LSM.txt
-@@ -9,18 +9,39 @@ CONFIG_DEFAULT_SECURITY and can be overridden at boot-time via the
- "security=..." kernel command line argument, in the case where multiple
- LSMs were built into a given kernel.
+diff --git a/fs/sysfs/dir.c b/fs/sysfs/dir.c
+index e145126..9470c42 100644
+--- a/fs/sysfs/dir.c
++++ b/fs/sysfs/dir.c
+@@ -287,7 +287,8 @@ void release_sysfs_dirent(struct sysfs_dirent * sd)
+ 		kfree(sd->s_name);
+ 	if (sd->s_iattr && sd->s_iattr->ia_secdata)
+ 		security_release_secctx(sd->s_iattr->ia_secdata,
+-					sd->s_iattr->ia_secdata_len);
++					sd->s_iattr->ia_secdata_len,
++					sd->s_iattr->ia_sop);
+ 	kfree(sd->s_iattr);
+ 	sysfs_free_ino(sd->s_ino);
+ 	kmem_cache_free(sysfs_dir_cachep, sd);
+diff --git a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+index 0ce3ccf..4c318a3 100644
+--- a/fs/sysfs/inode.c
++++ b/fs/sysfs/inode.c
+@@ -157,6 +157,7 @@ static int sysfs_sd_setsecdata(struct sysfs_dirent *sd, void **secdata, u32 *sec
+ int sysfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		size_t size, int flags)
+ {
++	struct security_operations *sop;
+ 	struct sysfs_dirent *sd = dentry->d_fsdata;
+ 	void *secdata;
+ 	int error;
+@@ -172,7 +173,7 @@ int sysfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		if (error)
+ 			goto out;
+ 		error = security_inode_getsecctx(dentry->d_inode,
+-						&secdata, &secdata_len);
++						&secdata, &secdata_len, &sop);
+ 		if (error)
+ 			goto out;
  
-+Both CONFIG_DEFAULT_SECURITY and the "security=" option take a comma
-+separated list of LSM names. The LSM hooks are invoked in the order
-+specified. All hooks provided are invoked regardless of the outcome
-+of preceeding hooks. Hooks the return success or failure results
-+return success if all of the LSM provided hooks succeed and the error
-+code of the last failing hook on error.
-+
-+The /proc filesystem attribute interface supports files from a time
-+when only one LSM could be used at a time. CONFIG_PRESENT_SECURITY
-+defines which LSM uses these interfaces. There are also LSM identified
-+interfaces which should be used in preference to the undifferentiated
-+interfaces.
-+
-+The three networking mechanisms supporting LSM attributes are
-+restricted to providing those attributes for a single LSM each.
-+CONFIG_SECMARK_LSM specifies which LSM will provide hooks for the
-+secmark mechanism. CONFIG_NETLABEL_LSM specifies which LSM hooks
-+are used by NetLabel to provide IPv4 CIPSO headers. CONFIG_XFRM_LSM
-+specifies the LSM providing xfrm hooks.
-+
-+The Linux capabilities system is used in conjunction with any LSMs.
-+LSM hooks are called after the capability checks in most cases,
-+but after in a small number of cases. All LSM hooks need to be aware
-+of the potential interactions with the capability system. For more
-+details on capabilities, see capabilities(7) in the Linux man-pages
-+project.
-+
- The primary users of the LSM interface are Mandatory Access Control
- (MAC) extensions which provide a comprehensive security policy. Examples
- include SELinux, Smack, Tomoyo, and AppArmor. In addition to the larger
--MAC extensions, other extensions can be built using the LSM to provide
--specific changes to system operation when these tweaks are not available
--in the core functionality of Linux itself.
--
--Without a specific LSM built into the kernel, the default LSM will be the
--Linux capabilities system. Most LSMs choose to extend the capabilities
--system, building their checks on top of the defined capability hooks.
--For more details on capabilities, see capabilities(7) in the Linux
--man-pages project.
-+MAC extensions, other extensions such as Yama can be built using the LSM
-+to provide specific changes to system operation when these tweaks are not
-+available in the core functionality of Linux itself.
+@@ -181,7 +182,7 @@ int sysfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		mutex_unlock(&sysfs_mutex);
  
- Based on http://kerneltrap.org/Linux/Documenting_Security_Module_Intent,
- a new LSM is accepted into the kernel when its intent (a description of
-diff --git a/security/Makefile b/security/Makefile
-index c26c81e..b1875b1 100644
---- a/security/Makefile
-+++ b/security/Makefile
-@@ -14,9 +14,8 @@ obj-y					+= commoncap.o
- obj-$(CONFIG_MMU)			+= min_addr.o
+ 		if (secdata)
+-			security_release_secctx(secdata, secdata_len);
++			security_release_secctx(secdata, secdata_len, sop);
+ 	} else
+ 		return -EINVAL;
+ out:
+diff --git a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
+index d1e4043..3895884 100644
+--- a/fs/sysfs/sysfs.h
++++ b/fs/sysfs/sysfs.h
+@@ -39,9 +39,10 @@ struct sysfs_elem_bin_attr {
+ };
  
- # Object file lists
--obj-$(CONFIG_SECURITY)			+= security.o capability.o
-+obj-$(CONFIG_SECURITY)			+= security.o
- obj-$(CONFIG_SECURITYFS)		+= inode.o
--# Must precede capability.o in order to stack properly.
- obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_SMACK)		+= smack/built-in.o
- obj-$(CONFIG_AUDIT)			+= lsm_audit.o
-diff --git a/security/capability.c b/security/capability.c
-deleted file mode 100644
-index d7b2a38..0000000
---- a/security/capability.c
-+++ /dev/null
-@@ -1,1104 +0,0 @@
--/*
-- *  Capabilities Linux Security Module
-- *
-- *  This is the default security module in case no other module is loaded.
-- *
-- *	This program is free software; you can redistribute it and/or modify
-- *	it under the terms of the GNU General Public License as published by
-- *	the Free Software Foundation; either version 2 of the License, or
-- *	(at your option) any later version.
-- *
-- */
--
--#include <linux/security.h>
--
--static int cap_syslog(int type)
--{
--	return 0;
--}
--
--static int cap_quotactl(int cmds, int type, int id, struct super_block *sb)
--{
--	return 0;
--}
--
--static int cap_quota_on(struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_bprm_check_security(struct linux_binprm *bprm)
--{
--	return 0;
--}
--
--static void cap_bprm_committing_creds(struct linux_binprm *bprm)
--{
--}
--
--static void cap_bprm_committed_creds(struct linux_binprm *bprm)
--{
--}
--
--static int cap_sb_alloc_security(struct super_block *sb)
--{
--	return 0;
--}
--
--static void cap_sb_free_security(struct super_block *sb)
--{
--}
--
--static int cap_sb_copy_data(char *orig, char *copy)
--{
--	return 0;
--}
--
--static int cap_sb_remount(struct super_block *sb, void *data)
--{
--	return 0;
--}
--
--static int cap_sb_kern_mount(struct super_block *sb, int flags, void *data)
--{
--	return 0;
--}
--
--static int cap_sb_show_options(struct seq_file *m, struct super_block *sb)
--{
--	return 0;
--}
--
--static int cap_sb_statfs(struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_sb_mount(const char *dev_name, struct path *path,
--			const char *type, unsigned long flags, void *data)
--{
--	return 0;
--}
--
--static int cap_sb_umount(struct vfsmount *mnt, int flags)
--{
--	return 0;
--}
--
--static int cap_sb_pivotroot(struct path *old_path, struct path *new_path)
--{
--	return 0;
--}
--
--static int cap_sb_set_mnt_opts(struct super_block *sb,
--			       struct security_mnt_opts *opts)
--{
--	if (unlikely(opts->num_mnt_opts))
--		return -EOPNOTSUPP;
--	return 0;
--}
--
--static void cap_sb_clone_mnt_opts(const struct super_block *oldsb,
--				  struct super_block *newsb)
--{
--}
--
--static int cap_sb_parse_opts_str(char *options, struct security_mnt_opts *opts)
--{
--	return 0;
--}
--
--static int cap_inode_alloc_security(struct inode *inode)
--{
--	return 0;
--}
--
--static void cap_inode_free_security(struct inode *inode)
--{
--}
--
--static int cap_inode_init_security(struct inode *inode, struct inode *dir,
--				   const struct qstr *qstr, char **name,
--				   void **value, size_t *len)
--{
--	return -EOPNOTSUPP;
--}
--
--static int cap_inode_create(struct inode *inode, struct dentry *dentry,
--			    umode_t mask)
--{
--	return 0;
--}
--
--static int cap_inode_link(struct dentry *old_dentry, struct inode *inode,
--			  struct dentry *new_dentry)
--{
--	return 0;
--}
--
--static int cap_inode_unlink(struct inode *inode, struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_symlink(struct inode *inode, struct dentry *dentry,
--			     const char *name)
--{
--	return 0;
--}
--
--static int cap_inode_mkdir(struct inode *inode, struct dentry *dentry,
--			   umode_t mask)
--{
--	return 0;
--}
--
--static int cap_inode_rmdir(struct inode *inode, struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_mknod(struct inode *inode, struct dentry *dentry,
--			   umode_t mode, dev_t dev)
--{
--	return 0;
--}
--
--static int cap_inode_rename(struct inode *old_inode, struct dentry *old_dentry,
--			    struct inode *new_inode, struct dentry *new_dentry)
--{
--	return 0;
--}
--
--static int cap_inode_readlink(struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_follow_link(struct dentry *dentry,
--				 struct nameidata *nameidata)
--{
--	return 0;
--}
--
--static int cap_inode_permission(struct inode *inode, int mask)
--{
--	return 0;
--}
--
--static int cap_inode_setattr(struct dentry *dentry, struct iattr *iattr)
--{
--	return 0;
--}
--
--static int cap_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
--{
--	return 0;
--}
--
--static void cap_inode_post_setxattr(struct dentry *dentry, const char *name,
--				    const void *value, size_t size, int flags)
--{
--}
--
--static int cap_inode_getxattr(struct dentry *dentry, const char *name)
--{
--	return 0;
--}
--
--static int cap_inode_listxattr(struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_inode_getsecurity(const struct inode *inode, const char *name,
--				 void **buffer, bool alloc)
--{
--	return -EOPNOTSUPP;
--}
--
--static int cap_inode_setsecurity(struct inode *inode, const char *name,
--				 const void *value, size_t size, int flags)
--{
--	return -EOPNOTSUPP;
--}
--
--static int cap_inode_listsecurity(struct inode *inode, char *buffer,
--				  size_t buffer_size)
--{
--	return 0;
--}
--
--static void cap_inode_getsecid(const struct inode *inode, u32 *secid)
--{
--	*secid = 0;
--}
--
--#ifdef CONFIG_SECURITY_PATH
--static int cap_path_mknod(struct path *dir, struct dentry *dentry, umode_t mode,
--			  unsigned int dev)
--{
--	return 0;
--}
--
--static int cap_path_mkdir(struct path *dir, struct dentry *dentry, umode_t mode)
--{
--	return 0;
--}
--
--static int cap_path_rmdir(struct path *dir, struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_path_unlink(struct path *dir, struct dentry *dentry)
--{
--	return 0;
--}
--
--static int cap_path_symlink(struct path *dir, struct dentry *dentry,
--			    const char *old_name)
--{
--	return 0;
--}
--
--static int cap_path_link(struct dentry *old_dentry, struct path *new_dir,
--			 struct dentry *new_dentry)
--{
--	return 0;
--}
--
--static int cap_path_rename(struct path *old_path, struct dentry *old_dentry,
--			   struct path *new_path, struct dentry *new_dentry)
--{
--	return 0;
--}
--
--static int cap_path_truncate(struct path *path)
--{
--	return 0;
--}
--
--static int cap_path_chmod(struct path *path, umode_t mode)
--{
--	return 0;
--}
--
--static int cap_path_chown(struct path *path, kuid_t uid, kgid_t gid)
--{
--	return 0;
--}
--
--static int cap_path_chroot(struct path *root)
--{
--	return 0;
--}
--#endif
--
--static int cap_file_permission(struct file *file, int mask)
--{
--	return 0;
--}
--
--static int cap_file_alloc_security(struct file *file)
--{
--	return 0;
--}
--
--static void cap_file_free_security(struct file *file)
--{
--}
--
--static int cap_file_ioctl(struct file *file, unsigned int command,
--			  unsigned long arg)
--{
--	return 0;
--}
--
--static int cap_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
--			     unsigned long prot)
--{
--	return 0;
--}
--
--static int cap_file_lock(struct file *file, unsigned int cmd)
--{
--	return 0;
--}
--
--static int cap_file_fcntl(struct file *file, unsigned int cmd,
--			  unsigned long arg)
--{
--	return 0;
--}
--
--static int cap_file_set_fowner(struct file *file)
--{
--	return 0;
--}
--
--static int cap_file_send_sigiotask(struct task_struct *tsk,
--				   struct fown_struct *fown, int sig)
--{
--	return 0;
--}
--
--static int cap_file_receive(struct file *file)
--{
--	return 0;
--}
--
--static int cap_file_open(struct file *file, const struct cred *cred)
--{
--	return 0;
--}
--
--static int cap_task_create(unsigned long clone_flags)
--{
--	return 0;
--}
--
--static void cap_task_free(struct task_struct *task)
--{
--}
--
--static int cap_cred_alloc_blank(struct cred *cred, gfp_t gfp)
--{
--	return 0;
--}
--
--static void cap_cred_free(struct cred *cred)
--{
--}
--
--static int cap_cred_prepare(struct cred *new, const struct cred *old, gfp_t gfp)
--{
--	return 0;
--}
--
--static void cap_cred_transfer(struct cred *new, const struct cred *old)
--{
--}
--
--static int cap_kernel_act_as(struct cred *new, u32 secid)
--{
--	return 0;
--}
--
--static int cap_kernel_create_files_as(struct cred *new, struct inode *inode)
--{
--	return 0;
--}
--
--static int cap_kernel_module_request(char *kmod_name)
--{
--	return 0;
--}
--
--static int cap_kernel_module_from_file(struct file *file)
--{
--	return 0;
--}
--
--static int cap_task_setpgid(struct task_struct *p, pid_t pgid)
--{
--	return 0;
--}
--
--static int cap_task_getpgid(struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_getsid(struct task_struct *p)
--{
--	return 0;
--}
--
--static void cap_task_getsecid(struct task_struct *p, u32 *secid)
--{
--	*secid = 0;
--}
--
--static int cap_task_getioprio(struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_setrlimit(struct task_struct *p, unsigned int resource,
--		struct rlimit *new_rlim)
--{
--	return 0;
--}
--
--static int cap_task_getscheduler(struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_movememory(struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_wait(struct task_struct *p)
--{
--	return 0;
--}
--
--static int cap_task_kill(struct task_struct *p, struct siginfo *info,
--			 int sig, const struct cred *ucred)
--{
--	return 0;
--}
--
--static void cap_task_to_inode(struct task_struct *p, struct inode *inode)
--{
--}
--
--static int cap_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
--{
--	return 0;
--}
--
--static void cap_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
--{
--	*secid = 0;
--}
--
--static int cap_msg_msg_alloc_security(struct msg_msg *msg)
--{
--	return 0;
--}
--
--static void cap_msg_msg_free_security(struct msg_msg *msg)
--{
--}
--
--static int cap_msg_queue_alloc_security(struct msg_queue *msq)
--{
--	return 0;
--}
--
--static void cap_msg_queue_free_security(struct msg_queue *msq)
--{
--}
--
--static int cap_msg_queue_associate(struct msg_queue *msq, int msqflg)
--{
--	return 0;
--}
--
--static int cap_msg_queue_msgctl(struct msg_queue *msq, int cmd)
--{
--	return 0;
--}
--
--static int cap_msg_queue_msgsnd(struct msg_queue *msq, struct msg_msg *msg,
--				int msgflg)
--{
--	return 0;
--}
--
--static int cap_msg_queue_msgrcv(struct msg_queue *msq, struct msg_msg *msg,
--				struct task_struct *target, long type, int mode)
--{
--	return 0;
--}
--
--static int cap_shm_alloc_security(struct shmid_kernel *shp)
--{
--	return 0;
--}
--
--static void cap_shm_free_security(struct shmid_kernel *shp)
--{
--}
--
--static int cap_shm_associate(struct shmid_kernel *shp, int shmflg)
--{
--	return 0;
--}
--
--static int cap_shm_shmctl(struct shmid_kernel *shp, int cmd)
--{
--	return 0;
--}
--
--static int cap_shm_shmat(struct shmid_kernel *shp, char __user *shmaddr,
--			 int shmflg)
--{
--	return 0;
--}
--
--static int cap_sem_alloc_security(struct sem_array *sma)
--{
--	return 0;
--}
--
--static void cap_sem_free_security(struct sem_array *sma)
--{
--}
--
--static int cap_sem_associate(struct sem_array *sma, int semflg)
--{
--	return 0;
--}
--
--static int cap_sem_semctl(struct sem_array *sma, int cmd)
--{
--	return 0;
--}
--
--static int cap_sem_semop(struct sem_array *sma, struct sembuf *sops,
--			 unsigned nsops, int alter)
--{
--	return 0;
--}
--
--#ifdef CONFIG_SECURITY_NETWORK
--static int cap_unix_stream_connect(struct sock *sock, struct sock *other,
--				   struct sock *newsk)
--{
--	return 0;
--}
--
--static int cap_unix_may_send(struct socket *sock, struct socket *other)
--{
--	return 0;
--}
--
--static int cap_socket_create(int family, int type, int protocol, int kern)
--{
--	return 0;
--}
--
--static int cap_socket_post_create(struct socket *sock, int family, int type,
--				  int protocol, int kern)
--{
--	return 0;
--}
--
--static int cap_socket_bind(struct socket *sock, struct sockaddr *address,
--			   int addrlen)
--{
--	return 0;
--}
--
--static int cap_socket_connect(struct socket *sock, struct sockaddr *address,
--			      int addrlen)
--{
--	return 0;
--}
--
--static int cap_socket_listen(struct socket *sock, int backlog)
--{
--	return 0;
--}
--
--static int cap_socket_accept(struct socket *sock, struct socket *newsock)
--{
--	return 0;
--}
--
--static int cap_socket_sendmsg(struct socket *sock, struct msghdr *msg, int size)
--{
--	return 0;
--}
--
--static int cap_socket_recvmsg(struct socket *sock, struct msghdr *msg,
--			      int size, int flags)
--{
--	return 0;
--}
--
--static int cap_socket_getsockname(struct socket *sock)
--{
--	return 0;
--}
--
--static int cap_socket_getpeername(struct socket *sock)
--{
--	return 0;
--}
--
--static int cap_socket_setsockopt(struct socket *sock, int level, int optname)
--{
--	return 0;
--}
--
--static int cap_socket_getsockopt(struct socket *sock, int level, int optname)
--{
--	return 0;
--}
--
--static int cap_socket_shutdown(struct socket *sock, int how)
--{
--	return 0;
--}
--
--static int cap_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
--{
--	return 0;
--}
--
--static int cap_socket_getpeersec_stream(struct socket *sock,
--					char __user *optval,
--					int __user *optlen, unsigned len)
--{
--	return -ENOPROTOOPT;
--}
--
--static int cap_socket_getpeersec_dgram(struct socket *sock,
--				       struct sk_buff *skb, u32 *secid)
--{
--	return -ENOPROTOOPT;
--}
--
--static int cap_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
--{
--	return 0;
--}
--
--static void cap_sk_free_security(struct sock *sk)
--{
--}
--
--static void cap_sk_clone_security(const struct sock *sk, struct sock *newsk)
--{
--}
--
--static void cap_sk_getsecid(struct sock *sk, u32 *secid)
--{
--}
--
--static void cap_sock_graft(struct sock *sk, struct socket *parent)
--{
--}
--
--static int cap_inet_conn_request(struct sock *sk, struct sk_buff *skb,
--				 struct request_sock *req)
--{
--	return 0;
--}
--
--static void cap_inet_csk_clone(struct sock *newsk,
--			       const struct request_sock *req)
--{
--}
--
--static void cap_inet_conn_established(struct sock *sk, struct sk_buff *skb)
--{
--}
--
--static int cap_secmark_relabel_packet(u32 secid)
--{
--	return 0;
--}
--
--static void cap_secmark_refcount_inc(void)
--{
--}
--
--static void cap_secmark_refcount_dec(void)
--{
--}
--
--static void cap_req_classify_flow(const struct request_sock *req,
--				  struct flowi *fl)
--{
--}
--
--static int cap_tun_dev_alloc_security(void **security)
--{
--	return 0;
--}
--
--static void cap_tun_dev_free_security(void *security)
--{
--}
--
--static int cap_tun_dev_create(void)
--{
--	return 0;
--}
--
--static int cap_tun_dev_attach_queue(void *security)
--{
--	return 0;
--}
--
--static int cap_tun_dev_attach(struct sock *sk, void *security)
--{
--	return 0;
--}
--
--static int cap_tun_dev_open(void *security)
--{
--	return 0;
--}
--
--static void cap_skb_owned_by(struct sk_buff *skb, struct sock *sk)
--{
--}
--
--#endif	/* CONFIG_SECURITY_NETWORK */
--
--#ifdef CONFIG_SECURITY_NETWORK_XFRM
--static int cap_xfrm_policy_alloc_security(struct xfrm_sec_ctx **ctxp,
--					  struct xfrm_user_sec_ctx *sec_ctx)
--{
--	return 0;
--}
--
--static int cap_xfrm_policy_clone_security(struct xfrm_sec_ctx *old_ctx,
--					  struct xfrm_sec_ctx **new_ctxp)
--{
--	return 0;
--}
--
--static void cap_xfrm_policy_free_security(struct xfrm_sec_ctx *ctx)
--{
--}
--
--static int cap_xfrm_policy_delete_security(struct xfrm_sec_ctx *ctx)
--{
--	return 0;
--}
--
--static int cap_xfrm_state_alloc_security(struct xfrm_state *x,
--					 struct xfrm_user_sec_ctx *sec_ctx,
--					 u32 secid)
--{
--	return 0;
--}
--
--static void cap_xfrm_state_free_security(struct xfrm_state *x)
--{
--}
--
--static int cap_xfrm_state_delete_security(struct xfrm_state *x)
--{
--	return 0;
--}
--
--static int cap_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 sk_sid, u8 dir)
--{
--	return 0;
--}
--
--static int cap_xfrm_state_pol_flow_match(struct xfrm_state *x,
--					 struct xfrm_policy *xp,
--					 const struct flowi *fl)
--{
--	return 1;
--}
--
--static int cap_xfrm_decode_session(struct sk_buff *skb, u32 *fl, int ckall)
--{
--	return 0;
--}
--
--#endif /* CONFIG_SECURITY_NETWORK_XFRM */
--static void cap_d_instantiate(struct dentry *dentry, struct inode *inode)
--{
--}
--
--static int cap_getprocattr(struct task_struct *p, char *name, char **value)
--{
--	return -EINVAL;
--}
--
--static int cap_setprocattr(struct task_struct *p, char *name, void *value,
--			   size_t size)
--{
--	return -EINVAL;
--}
--
--static int cap_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
--{
--	return -EOPNOTSUPP;
--}
--
--static int cap_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
--{
--	*secid = 0;
--	return 0;
--}
--
--static void cap_release_secctx(char *secdata, u32 seclen)
--{
--}
--
--static int cap_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
--{
--	return 0;
--}
--
--static int cap_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
--{
--	return 0;
--}
--
--static int cap_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
--{
--	return 0;
--}
--#ifdef CONFIG_KEYS
--static int cap_key_alloc(struct key *key, const struct cred *cred,
--			 unsigned long flags)
--{
--	return 0;
--}
--
--static void cap_key_free(struct key *key)
--{
--}
--
--static int cap_key_permission(key_ref_t key_ref, const struct cred *cred,
--			      key_perm_t perm)
--{
--	return 0;
--}
--
--static int cap_key_getsecurity(struct key *key, char **_buffer)
--{
--	*_buffer = NULL;
--	return 0;
--}
--
--#endif /* CONFIG_KEYS */
--
--#ifdef CONFIG_AUDIT
--static int cap_audit_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule)
--{
--	return 0;
--}
--
--static int cap_audit_rule_known(struct audit_krule *krule)
--{
--	return 0;
--}
--
--static int cap_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
--				struct audit_context *actx)
--{
--	return 0;
--}
--
--static void cap_audit_rule_free(void *lsmrule)
--{
--}
--#endif /* CONFIG_AUDIT */
--
--#define set_to_cap_if_null(ops, function)				\
--	do {								\
--		if (!ops->function) {					\
--			ops->function = cap_##function;			\
--			pr_debug("Had to override the " #function	\
--				 " security operation with the default.\n");\
--			}						\
--	} while (0)
--
--void __init security_fixup_ops(struct security_operations *ops)
--{
--	set_to_cap_if_null(ops, ptrace_access_check);
--	set_to_cap_if_null(ops, ptrace_traceme);
--	set_to_cap_if_null(ops, capget);
--	set_to_cap_if_null(ops, capset);
--	set_to_cap_if_null(ops, capable);
--	set_to_cap_if_null(ops, quotactl);
--	set_to_cap_if_null(ops, quota_on);
--	set_to_cap_if_null(ops, syslog);
--	set_to_cap_if_null(ops, settime);
--	set_to_cap_if_null(ops, vm_enough_memory);
--	set_to_cap_if_null(ops, bprm_set_creds);
--	set_to_cap_if_null(ops, bprm_committing_creds);
--	set_to_cap_if_null(ops, bprm_committed_creds);
--	set_to_cap_if_null(ops, bprm_check_security);
--	set_to_cap_if_null(ops, bprm_secureexec);
--	set_to_cap_if_null(ops, sb_alloc_security);
--	set_to_cap_if_null(ops, sb_free_security);
--	set_to_cap_if_null(ops, sb_copy_data);
--	set_to_cap_if_null(ops, sb_remount);
--	set_to_cap_if_null(ops, sb_kern_mount);
--	set_to_cap_if_null(ops, sb_show_options);
--	set_to_cap_if_null(ops, sb_statfs);
--	set_to_cap_if_null(ops, sb_mount);
--	set_to_cap_if_null(ops, sb_umount);
--	set_to_cap_if_null(ops, sb_pivotroot);
--	set_to_cap_if_null(ops, sb_set_mnt_opts);
--	set_to_cap_if_null(ops, sb_clone_mnt_opts);
--	set_to_cap_if_null(ops, sb_parse_opts_str);
--	set_to_cap_if_null(ops, inode_alloc_security);
--	set_to_cap_if_null(ops, inode_free_security);
--	set_to_cap_if_null(ops, inode_init_security);
--	set_to_cap_if_null(ops, inode_create);
--	set_to_cap_if_null(ops, inode_link);
--	set_to_cap_if_null(ops, inode_unlink);
--	set_to_cap_if_null(ops, inode_symlink);
--	set_to_cap_if_null(ops, inode_mkdir);
--	set_to_cap_if_null(ops, inode_rmdir);
--	set_to_cap_if_null(ops, inode_mknod);
--	set_to_cap_if_null(ops, inode_rename);
--	set_to_cap_if_null(ops, inode_readlink);
--	set_to_cap_if_null(ops, inode_follow_link);
--	set_to_cap_if_null(ops, inode_permission);
--	set_to_cap_if_null(ops, inode_setattr);
--	set_to_cap_if_null(ops, inode_getattr);
--	set_to_cap_if_null(ops, inode_setxattr);
--	set_to_cap_if_null(ops, inode_post_setxattr);
--	set_to_cap_if_null(ops, inode_getxattr);
--	set_to_cap_if_null(ops, inode_listxattr);
--	set_to_cap_if_null(ops, inode_removexattr);
--	set_to_cap_if_null(ops, inode_need_killpriv);
--	set_to_cap_if_null(ops, inode_killpriv);
--	set_to_cap_if_null(ops, inode_getsecurity);
--	set_to_cap_if_null(ops, inode_setsecurity);
--	set_to_cap_if_null(ops, inode_listsecurity);
--	set_to_cap_if_null(ops, inode_getsecid);
--#ifdef CONFIG_SECURITY_PATH
--	set_to_cap_if_null(ops, path_mknod);
--	set_to_cap_if_null(ops, path_mkdir);
--	set_to_cap_if_null(ops, path_rmdir);
--	set_to_cap_if_null(ops, path_unlink);
--	set_to_cap_if_null(ops, path_symlink);
--	set_to_cap_if_null(ops, path_link);
--	set_to_cap_if_null(ops, path_rename);
--	set_to_cap_if_null(ops, path_truncate);
--	set_to_cap_if_null(ops, path_chmod);
--	set_to_cap_if_null(ops, path_chown);
--	set_to_cap_if_null(ops, path_chroot);
--#endif
--	set_to_cap_if_null(ops, file_permission);
--	set_to_cap_if_null(ops, file_alloc_security);
--	set_to_cap_if_null(ops, file_free_security);
--	set_to_cap_if_null(ops, file_ioctl);
--	set_to_cap_if_null(ops, mmap_addr);
--	set_to_cap_if_null(ops, file_mprotect);
--	set_to_cap_if_null(ops, file_lock);
--	set_to_cap_if_null(ops, file_fcntl);
--	set_to_cap_if_null(ops, file_set_fowner);
--	set_to_cap_if_null(ops, file_send_sigiotask);
--	set_to_cap_if_null(ops, file_receive);
--	set_to_cap_if_null(ops, file_open);
--	set_to_cap_if_null(ops, task_create);
--	set_to_cap_if_null(ops, task_free);
--	set_to_cap_if_null(ops, cred_alloc_blank);
--	set_to_cap_if_null(ops, cred_free);
--	set_to_cap_if_null(ops, cred_prepare);
--	set_to_cap_if_null(ops, cred_transfer);
--	set_to_cap_if_null(ops, kernel_act_as);
--	set_to_cap_if_null(ops, kernel_create_files_as);
--	set_to_cap_if_null(ops, kernel_module_request);
--	set_to_cap_if_null(ops, kernel_module_from_file);
--	set_to_cap_if_null(ops, task_fix_setuid);
--	set_to_cap_if_null(ops, task_setpgid);
--	set_to_cap_if_null(ops, task_getpgid);
--	set_to_cap_if_null(ops, task_getsid);
--	set_to_cap_if_null(ops, task_getsecid);
--	set_to_cap_if_null(ops, task_setnice);
--	set_to_cap_if_null(ops, task_setioprio);
--	set_to_cap_if_null(ops, task_getioprio);
--	set_to_cap_if_null(ops, task_setrlimit);
--	set_to_cap_if_null(ops, task_setscheduler);
--	set_to_cap_if_null(ops, task_getscheduler);
--	set_to_cap_if_null(ops, task_movememory);
--	set_to_cap_if_null(ops, task_wait);
--	set_to_cap_if_null(ops, task_kill);
--	set_to_cap_if_null(ops, task_prctl);
--	set_to_cap_if_null(ops, task_to_inode);
--	set_to_cap_if_null(ops, ipc_permission);
--	set_to_cap_if_null(ops, ipc_getsecid);
--	set_to_cap_if_null(ops, msg_msg_alloc_security);
--	set_to_cap_if_null(ops, msg_msg_free_security);
--	set_to_cap_if_null(ops, msg_queue_alloc_security);
--	set_to_cap_if_null(ops, msg_queue_free_security);
--	set_to_cap_if_null(ops, msg_queue_associate);
--	set_to_cap_if_null(ops, msg_queue_msgctl);
--	set_to_cap_if_null(ops, msg_queue_msgsnd);
--	set_to_cap_if_null(ops, msg_queue_msgrcv);
--	set_to_cap_if_null(ops, shm_alloc_security);
--	set_to_cap_if_null(ops, shm_free_security);
--	set_to_cap_if_null(ops, shm_associate);
--	set_to_cap_if_null(ops, shm_shmctl);
--	set_to_cap_if_null(ops, shm_shmat);
--	set_to_cap_if_null(ops, sem_alloc_security);
--	set_to_cap_if_null(ops, sem_free_security);
--	set_to_cap_if_null(ops, sem_associate);
--	set_to_cap_if_null(ops, sem_semctl);
--	set_to_cap_if_null(ops, sem_semop);
--	set_to_cap_if_null(ops, netlink_send);
--	set_to_cap_if_null(ops, d_instantiate);
--	set_to_cap_if_null(ops, getprocattr);
--	set_to_cap_if_null(ops, setprocattr);
--	set_to_cap_if_null(ops, secid_to_secctx);
--	set_to_cap_if_null(ops, secctx_to_secid);
--	set_to_cap_if_null(ops, release_secctx);
--	set_to_cap_if_null(ops, inode_notifysecctx);
--	set_to_cap_if_null(ops, inode_setsecctx);
--	set_to_cap_if_null(ops, inode_getsecctx);
--#ifdef CONFIG_SECURITY_NETWORK
--	set_to_cap_if_null(ops, unix_stream_connect);
--	set_to_cap_if_null(ops, unix_may_send);
--	set_to_cap_if_null(ops, socket_create);
--	set_to_cap_if_null(ops, socket_post_create);
--	set_to_cap_if_null(ops, socket_bind);
--	set_to_cap_if_null(ops, socket_connect);
--	set_to_cap_if_null(ops, socket_listen);
--	set_to_cap_if_null(ops, socket_accept);
--	set_to_cap_if_null(ops, socket_sendmsg);
--	set_to_cap_if_null(ops, socket_recvmsg);
--	set_to_cap_if_null(ops, socket_getsockname);
--	set_to_cap_if_null(ops, socket_getpeername);
--	set_to_cap_if_null(ops, socket_setsockopt);
--	set_to_cap_if_null(ops, socket_getsockopt);
--	set_to_cap_if_null(ops, socket_shutdown);
--	set_to_cap_if_null(ops, socket_sock_rcv_skb);
--	set_to_cap_if_null(ops, socket_getpeersec_stream);
--	set_to_cap_if_null(ops, socket_getpeersec_dgram);
--	set_to_cap_if_null(ops, sk_alloc_security);
--	set_to_cap_if_null(ops, sk_free_security);
--	set_to_cap_if_null(ops, sk_clone_security);
--	set_to_cap_if_null(ops, sk_getsecid);
--	set_to_cap_if_null(ops, sock_graft);
--	set_to_cap_if_null(ops, inet_conn_request);
--	set_to_cap_if_null(ops, inet_csk_clone);
--	set_to_cap_if_null(ops, inet_conn_established);
--	set_to_cap_if_null(ops, secmark_relabel_packet);
--	set_to_cap_if_null(ops, secmark_refcount_inc);
--	set_to_cap_if_null(ops, secmark_refcount_dec);
--	set_to_cap_if_null(ops, req_classify_flow);
--	set_to_cap_if_null(ops, tun_dev_alloc_security);
--	set_to_cap_if_null(ops, tun_dev_free_security);
--	set_to_cap_if_null(ops, tun_dev_create);
--	set_to_cap_if_null(ops, tun_dev_open);
--	set_to_cap_if_null(ops, tun_dev_attach_queue);
--	set_to_cap_if_null(ops, tun_dev_attach);
--	set_to_cap_if_null(ops, skb_owned_by);
--#endif	/* CONFIG_SECURITY_NETWORK */
--#ifdef CONFIG_SECURITY_NETWORK_XFRM
--	set_to_cap_if_null(ops, xfrm_policy_alloc_security);
--	set_to_cap_if_null(ops, xfrm_policy_clone_security);
--	set_to_cap_if_null(ops, xfrm_policy_free_security);
--	set_to_cap_if_null(ops, xfrm_policy_delete_security);
--	set_to_cap_if_null(ops, xfrm_state_alloc_security);
--	set_to_cap_if_null(ops, xfrm_state_free_security);
--	set_to_cap_if_null(ops, xfrm_state_delete_security);
--	set_to_cap_if_null(ops, xfrm_policy_lookup);
--	set_to_cap_if_null(ops, xfrm_state_pol_flow_match);
--	set_to_cap_if_null(ops, xfrm_decode_session);
--#endif	/* CONFIG_SECURITY_NETWORK_XFRM */
--#ifdef CONFIG_KEYS
--	set_to_cap_if_null(ops, key_alloc);
--	set_to_cap_if_null(ops, key_free);
--	set_to_cap_if_null(ops, key_permission);
--	set_to_cap_if_null(ops, key_getsecurity);
--#endif	/* CONFIG_KEYS */
--#ifdef CONFIG_AUDIT
--	set_to_cap_if_null(ops, audit_rule_init);
--	set_to_cap_if_null(ops, audit_rule_known);
--	set_to_cap_if_null(ops, audit_rule_match);
--	set_to_cap_if_null(ops, audit_rule_free);
--#endif
--}
+ struct sysfs_inode_attrs {
+-	struct iattr	ia_iattr;
+-	void		*ia_secdata;
+-	u32		ia_secdata_len;
++	struct iattr			ia_iattr;
++	void				*ia_secdata;
++	u32				ia_secdata_len;
++	struct security_operations	*ia_sop;
+ };
+ 
+ /*
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 3377dff..542e78d 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -146,15 +146,17 @@ ssize_t
+ xattr_getsecurity(struct inode *inode, const char *name, void *value,
+ 			size_t size)
+ {
++	struct security_operations *sop;
+ 	void *buffer = NULL;
+ 	ssize_t len;
+ 
+ 	if (!value || !size) {
+-		len = security_inode_getsecurity(inode, name, &buffer, false);
++		len = security_inode_getsecurity(inode, name, &buffer,
++							false, &sop);
+ 		goto out_noalloc;
+ 	}
+ 
+-	len = security_inode_getsecurity(inode, name, &buffer, true);
++	len = security_inode_getsecurity(inode, name, &buffer, true, &sop);
+ 	if (len < 0)
+ 		return len;
+ 	if (size < len) {
+@@ -163,7 +165,7 @@ xattr_getsecurity(struct inode *inode, const char *name, void *value,
+ 	}
+ 	memcpy(value, buffer, len);
+ out:
+-	security_release_secctx(buffer, len);
++	security_release_secctx(buffer, len, sop);
+ out_noalloc:
+ 	return len;
+ }
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 038df6f..4430b09 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1323,9 +1323,11 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	Convert secid to security context.  If secdata is NULL the length of
+  *	the result will be returned in seclen, but no secdata will be returned.
+  *	This does mean that the length could change between calls to check the
+- *	length and the next call which actually allocates and returns the secdata.
+- *	@secid contains the security ID.
+- *	@secdata contains the pointer that stores the converted security context.
++ *	length and the next call which actually allocates and returns the
++ *	secdata.
++ *	@secid contains the security IDs.
++ *	@secdata contains the pointer that stores the converted security
++ *	context.
+  *	@seclen pointer which contains the length of the data
+  * @secctx_to_secid:
+  *	Convert security context to secid.
+@@ -1770,7 +1772,7 @@ int security_inode_listxattr(struct dentry *dentry);
+ int security_inode_removexattr(struct dentry *dentry, const char *name);
+ int security_inode_need_killpriv(struct dentry *dentry);
+ int security_inode_killpriv(struct dentry *dentry);
+-int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc);
++int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc, struct security_operations **secops);
+ int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
+ void security_inode_getsecid(const struct inode *inode, struct secids *secid);
+@@ -1847,13 +1849,13 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+ int security_getprocattr(struct task_struct *p, char *name, char **value);
+ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+-int security_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen);
++int security_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen, struct security_operations **secops);
+ int security_secctx_to_secid(const char *secdata, u32 seclen, struct secids *secid);
+-void security_release_secctx(char *secdata, u32 seclen);
++void security_release_secctx(char *secdata, u32 seclen, struct security_operations *secops);
+ 
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
+-int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
++int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen, struct security_operations **secops);
+ #else /* CONFIG_SECURITY */
+ struct security_mnt_opts {
+ };
+@@ -2178,7 +2180,7 @@ static inline int security_inode_killpriv(struct dentry *dentry)
+ 	return cap_inode_killpriv(dentry);
+ }
+ 
+-static inline int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
++static inline int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc, struct security_operations **secops)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -2525,7 +2527,7 @@ static inline int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+ 	return cap_netlink_send(sk, skb);
+ }
+ 
+-static inline int security_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen)
++static inline int security_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen, struct security_operations **secops)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -2549,7 +2551,7 @@ static inline int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32
+ {
+ 	return -EOPNOTSUPP;
+ }
+-static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
++static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen, struct security_operations **secops)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/include/net/scm.h b/include/net/scm.h
+index e0ce1eb..33d1dda 100644
+--- a/include/net/scm.h
++++ b/include/net/scm.h
+@@ -92,16 +92,18 @@ static __inline__ int scm_send(struct socket *sock, struct msghdr *msg,
+ #ifdef CONFIG_SECURITY_NETWORK
+ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct scm_cookie *scm)
+ {
++	struct security_operations *sop;
+ 	char *secdata;
+ 	u32 seclen;
+ 	int err;
+ 
+ 	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
+-		err = security_secid_to_secctx(&scm->secid, &secdata, &seclen);
++		err = security_secid_to_secctx(&scm->secid, &secdata, &seclen,
++						&sop);
+ 
+ 		if (!err) {
+ 			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
+-			security_release_secctx(secdata, seclen);
++			security_release_secctx(secdata, seclen, sop);
+ 		}
+ 	}
+ }
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 45976ad..1dd770e 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -699,15 +699,16 @@ static inline void xfrm_audit_helper_usrinfo(kuid_t auid, u32 ses, u32 secid,
+ 	char *secctx;
+ 	u32 secctx_len;
+ 	struct secids sid;
++	struct security_operations *sop;
+ 
+ 	sid.si_lsm[0] = secid;
+ 
+ 	audit_log_format(audit_buf, " auid=%u ses=%u",
+ 			 from_kuid(&init_user_ns, auid), ses);
+ 	if (secid != 0 &&
+-	    security_secid_to_secctx(&sid, &secctx, &secctx_len) == 0) {
++	    security_secid_to_secctx(&sid, &secctx, &secctx_len, &sop) == 0) {
+ 		audit_log_format(audit_buf, " subj=%s", secctx);
+-		security_release_secctx(secctx, secctx_len);
++		security_release_secctx(secctx, secctx_len, sop);
+ 	} else
+ 		audit_log_task_context(audit_buf);
+ }
+diff --git a/kernel/audit.c b/kernel/audit.c
+index eab4b52..a01ab21 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -268,6 +268,7 @@ static int audit_log_config_change(char *function_name, int new, int old,
+ 				   kuid_t loginuid, u32 sessionid,
+ 				   struct secids *sid, int allow_changes)
+ {
++	struct security_operations *sop;
+ 	struct audit_buffer *ab;
+ 	int rc = 0;
+ 
+@@ -280,13 +281,13 @@ static int audit_log_config_change(char *function_name, int new, int old,
+ 		char *ctx = NULL;
+ 		u32 len;
+ 
+-		rc = security_secid_to_secctx(sid, &ctx, &len);
++		rc = security_secid_to_secctx(sid, &ctx, &len, &sop);
+ 		if (rc) {
+ 			audit_log_format(ab, " sid=%u", sid->si_count);
+ 			allow_changes = 0; /* Something weird, deny request */
+ 		} else {
+ 			audit_log_format(ab, " subj=%s", ctx);
+-			security_release_secctx(ctx, len);
++			security_release_secctx(ctx, len, sop);
+ 		}
+ 	}
+ 	audit_log_format(ab, " res=%d", allow_changes);
+@@ -611,6 +612,7 @@ static int audit_netlink_ok(struct sk_buff *skb, u16 msg_type)
+ static int audit_log_common_recv_msg(struct audit_buffer **ab, u16 msg_type,
+ 				     kuid_t auid, u32 ses, struct secids *sid)
+ {
++	struct security_operations *sop;
+ 	int rc = 0;
+ 	char *ctx = NULL;
+ 	u32 len;
+@@ -628,12 +630,12 @@ static int audit_log_common_recv_msg(struct audit_buffer **ab, u16 msg_type,
+ 			 from_kuid(&init_user_ns, current_uid()),
+ 			 from_kuid(&init_user_ns, auid), ses);
+ 	if (sid) {
+-		rc = security_secid_to_secctx(sid, &ctx, &len);
++		rc = security_secid_to_secctx(sid, &ctx, &len, &sop);
+ 		if (rc)
+ 			audit_log_format(*ab, " ssid=%u", sid->si_count);
+ 		else {
+ 			audit_log_format(*ab, " subj=%s", ctx);
+-			security_release_secctx(ctx, len);
++			security_release_secctx(ctx, len, sop);
+ 		}
+ 	}
+ 
+@@ -642,6 +644,7 @@ static int audit_log_common_recv_msg(struct audit_buffer **ab, u16 msg_type,
+ 
+ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ {
++	struct security_operations *sop;
+ 	u32			seq;
+ 	struct secids		sid;
+ 	void			*data;
+@@ -850,21 +853,21 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 		len = 0;
+ 		if (audit_sig_sid.si_count) {
+ 			err = security_secid_to_secctx(&audit_sig_sid, &ctx,
+-							&len);
++							&len, &sop);
+ 			if (err)
+ 				return err;
+ 		}
+ 		sig_data = kmalloc(sizeof(*sig_data) + len, GFP_KERNEL);
+ 		if (!sig_data) {
+ 			if (audit_sig_sid.si_count)
+-				security_release_secctx(ctx, len);
++				security_release_secctx(ctx, len, sop);
+ 			return -ENOMEM;
+ 		}
+ 		sig_data->uid = from_kuid(&init_user_ns, audit_sig_uid);
+ 		sig_data->pid = audit_sig_pid;
+ 		if (audit_sig_sid.si_count) {
+ 			memcpy(sig_data->ctx, ctx, len);
+-			security_release_secctx(ctx, len);
++			security_release_secctx(ctx, len, sop);
+ 		}
+ 		audit_send_reply(NETLINK_CB(skb).portid, seq, AUDIT_SIGNAL_INFO,
+ 				0, 0, sig_data, sizeof(*sig_data) + len);
+@@ -1544,17 +1547,17 @@ void audit_log_secctx(struct audit_buffer *ab, u32 secid)
+ 	u32 len;
+ 	char *secctx;
+ 	struct secids secids;
++	struct security_operations *sop;
+ 
+ 	memset(&secids, 0, sizeof(secids));
+ 
+ 	secids.si_lsm[0] = secid;
+-	secids.si_count = 1;
+ 
+-	if (security_secid_to_secctx(&secids, &secctx, &len)) {
++	if (security_secid_to_secctx(&secids, &secctx, &len, &sop)) {
+ 		audit_panic("Cannot convert secid to context");
+ 	} else {
+ 		audit_log_format(ab, " obj=%s", secctx);
+-		security_release_secctx(secctx, len);
++		security_release_secctx(secctx, len, sop);
+ 	}
+ }
+ EXPORT_SYMBOL(audit_log_secctx);
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 765873b..9a65644 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1114,6 +1114,7 @@ static void audit_log_rule_change(kuid_t loginuid, u32 sessionid,
+ 				  struct audit_krule *rule,
+ 				  int res)
+ {
++	struct security_operations *sop;
+ 	struct audit_buffer *ab;
+ 
+ 	if (!audit_enabled)
+@@ -1127,11 +1128,11 @@ static void audit_log_rule_change(kuid_t loginuid, u32 sessionid,
+ 	if (sid->si_count) {
+ 		char *ctx = NULL;
+ 		u32 len;
+-		if (security_secid_to_secctx(sid, &ctx, &len))
++		if (security_secid_to_secctx(sid, &ctx, &len, &sop))
+ 			audit_log_format(ab, " ssid=%u", sid->si_count);
+ 		else {
+ 			audit_log_format(ab, " subj=%s", ctx);
+-			security_release_secctx(ctx, len);
++			security_release_secctx(ctx, len, sop);
+ 		}
+ 	}
+ 	audit_log_format(ab, " op=");
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index e7e788b..c00fe05 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1109,12 +1109,13 @@ void audit_log_task_context(struct audit_buffer *ab)
+ 	unsigned len;
+ 	int error;
+ 	struct secids sid;
++	struct security_operations *sop;
+ 
+ 	security_task_getsecid(current, &sid);
+ 	if (sid.si_count == 0)
+ 		return;
+ 
+-	error = security_secid_to_secctx(&sid, &ctx, &len);
++	error = security_secid_to_secctx(&sid, &ctx, &len, &sop);
+ 	if (error) {
+ 		if (error != -EINVAL)
+ 			goto error_path;
+@@ -1122,7 +1123,7 @@ void audit_log_task_context(struct audit_buffer *ab)
+ 	}
+ 
+ 	audit_log_format(ab, " subj=%s", ctx);
+-	security_release_secctx(ctx, len);
++	security_release_secctx(ctx, len, sop);
+ 	return;
+ 
+ error_path:
+@@ -1190,6 +1191,7 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+ 				 unsigned int sessionid, struct secids *sid,
+ 				 char *comm)
+ {
++	struct security_operations *sop;
+ 	struct audit_buffer *ab;
+ 	char *ctx = NULL;
+ 	u32 len;
+@@ -1202,12 +1204,12 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+ 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
+ 			 from_kuid(&init_user_ns, auid),
+ 			 from_kuid(&init_user_ns, uid), sessionid);
+-	if (security_secid_to_secctx(sid, &ctx, &len)) {
++	if (security_secid_to_secctx(sid, &ctx, &len, &sop)) {
+ 		audit_log_format(ab, " obj=(none)");
+ 		rc = 1;
+ 	} else {
+ 		audit_log_format(ab, " obj=%s", ctx);
+-		security_release_secctx(ctx, len);
++		security_release_secctx(ctx, len, sop);
+ 	}
+ 	audit_log_format(ab, " ocomm=");
+ 	audit_log_untrustedstring(ab, comm);
+@@ -1432,6 +1434,7 @@ static void audit_log_fcaps(struct audit_buffer *ab, struct audit_names *name)
+ 
+ static void show_special(struct audit_context *context, int *call_panic)
+ {
++	struct security_operations *sop;
+ 	struct audit_buffer *ab;
+ 	int i;
+ 
+@@ -1457,12 +1460,12 @@ static void show_special(struct audit_context *context, int *call_panic)
+ 		if (sip->si_count) {
+ 			char *ctx = NULL;
+ 			u32 len;
+-			if (security_secid_to_secctx(sip, &ctx, &len)) {
++			if (security_secid_to_secctx(sip, &ctx, &len, &sop)) {
+ 				audit_log_format(ab, " osid=%u", sip->si_count);
+ 				*call_panic = 1;
+ 			} else {
+ 				audit_log_format(ab, " obj=%s", ctx);
+-				security_release_secctx(ctx, len);
++				security_release_secctx(ctx, len, sop);
+ 			}
+ 		}
+ 		if (context->ipc.has_perm) {
+@@ -1530,6 +1533,7 @@ static void show_special(struct audit_context *context, int *call_panic)
+ static void audit_log_name(struct audit_context *context, struct audit_names *n,
+ 			   int record_num, int *call_panic)
+ {
++	struct security_operations *sop;
+ 	struct audit_buffer *ab;
+ 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_PATH);
+ 	if (!ab)
+@@ -1574,12 +1578,12 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
+ 	if (n->osid.si_count != 0) {
+ 		char *ctx = NULL;
+ 		u32 len;
+-		if (security_secid_to_secctx(&n->osid, &ctx, &len)) {
++		if (security_secid_to_secctx(&n->osid, &ctx, &len, &sop)) {
+ 			audit_log_format(ab, " osid=%u", n->osid.si_count);
+ 			*call_panic = 2;
+ 		} else {
+ 			audit_log_format(ab, " obj=%s", ctx);
+-			security_release_secctx(ctx, len);
++			security_release_secctx(ctx, len, sop);
+ 		}
+ 	}
+ 
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index a55f8c0..7f0c3bb 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -110,18 +110,19 @@ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
+ 	char *secdata;
+ 	u32 seclen;
+ 	struct secids secid;
++	struct security_operations *sop;
+ 	int err;
+ 
+ 	err = security_socket_getpeersec_dgram(NULL, skb, &secid);
+ 	if (err)
+ 		return;
+ 
+-	err = security_secid_to_secctx(&secid, &secdata, &seclen);
++	err = security_secid_to_secctx(&secid, &secdata, &seclen, &sop);
+ 	if (err)
+ 		return;
+ 
+ 	put_cmsg(msg, SOL_IP, SCM_SECURITY, seclen, secdata);
+-	security_release_secctx(secdata, seclen);
++	security_release_secctx(secdata, seclen, sop);
+ }
+ 
+ static void ip_cmsg_recv_dstaddr(struct msghdr *msg, struct sk_buff *skb)
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 4a95072..cdcf9ab 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -302,12 +302,11 @@ ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
+ 	int len, ret;
+ 	char *secctx;
+ 	struct secids secid;
+-
+-	memset(&secid, 0, sizeof(secid));
++	struct security_operations *sop;
+ 
+ 	secid.si_lsm[0] = ct->secmark;
+ 
+-	ret = security_secid_to_secctx(&secid, &secctx, &len);
++	ret = security_secid_to_secctx(&secid, &secctx, &len, &sop);
+ 	if (ret)
+ 		return 0;
+ 
+@@ -322,7 +321,7 @@ ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
+ 
+ 	ret = 0;
+ nla_put_failure:
+-	security_release_secctx(secctx, len);
++	security_release_secctx(secctx, len, sop);
+ 	return ret;
+ }
+ #else
+@@ -554,12 +553,11 @@ ctnetlink_secctx_size(const struct nf_conn *ct)
+ #ifdef CONFIG_NF_CONNTRACK_SECMARK
+ 	int len, ret;
+ 	struct secids secid;
+-
+-	memset(&secid, 0, sizeof(secid));
++	struct security_operations *sop;
+ 
+ 	secid.si_lsm[0] = ct->secmark;
+ 
+-	ret = security_secid_to_secctx(&secid, NULL, &len);
++	ret = security_secid_to_secctx(&secid, NULL, &len, &sop);
+ 	if (ret)
+ 		return 0;
+ 
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 4e5bb3e..fc571d4 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -124,18 +124,19 @@ static int ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
+ 	u32 len;
+ 	char *secctx;
+ 	struct secids secid;
++	struct security_operations *sop;
+ 
+ 	memset(&secid, 0, sizeof(secid));
+ 
+ 	secid.si_lsm[0] = ct->secmark;
+ 
+-	ret = security_secid_to_secctx(&secid, &secctx, &len);
++	ret = security_secid_to_secctx(&secid, &secctx, &len, &sop);
+ 	if (ret)
+ 		return 0;
+ 
+ 	ret = seq_printf(s, "secctx=%s ", secctx);
+ 
+-	security_release_secctx(secctx, len);
++	security_release_secctx(secctx, len, sop);
+ 	return ret;
+ }
+ #else
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 520caaa..d77e085 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -397,6 +397,7 @@ int netlbl_unlhsh_add(struct net *net,
+ 	char *secctx = NULL;
+ 	u32 secctx_len;
+ 	struct secids sid;
++	struct security_operations *sop;
+ 
+ 	sid.si_lsm[0] = secid;
+ 
+@@ -463,9 +464,10 @@ unlhsh_add_return:
+ 	if (audit_buf != NULL) {
+ 		if (security_secid_to_secctx(&sid,
+ 					     &secctx,
+-					     &secctx_len) == 0) {
++					     &secctx_len,
++					     &sop) == 0) {
+ 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
+-			security_release_secctx(secctx, secctx_len);
++			security_release_secctx(secctx, secctx_len, sop);
+ 		}
+ 		audit_log_format(audit_buf, " res=%u", ret_val == 0 ? 1 : 0);
+ 		audit_log_end(audit_buf);
+@@ -499,6 +501,7 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
+ 	char *secctx;
+ 	u32 secctx_len;
+ 	struct secids sid;
++	struct security_operations *sop;
+ 
+ 	spin_lock(&netlbl_unlhsh_lock);
+ 	list_entry = netlbl_af4list_remove(addr->s_addr, mask->s_addr,
+@@ -521,9 +524,9 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
+ 		sid.si_lsm[0] = entry->secid;
+ 		if (entry != NULL &&
+ 		    security_secid_to_secctx(&sid,
+-					     &secctx, &secctx_len) == 0) {
++					     &secctx, &secctx_len, &sop) == 0) {
+ 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
+-			security_release_secctx(secctx, secctx_len);
++			security_release_secctx(secctx, secctx_len, sop);
+ 		}
+ 		audit_log_format(audit_buf, " res=%u", entry != NULL ? 1 : 0);
+ 		audit_log_end(audit_buf);
+@@ -563,6 +566,7 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
+ 	char *secctx;
+ 	u32 secctx_len;
+ 	struct secids sid;
++	struct security_operations *sop;
+ 
+ 	spin_lock(&netlbl_unlhsh_lock);
+ 	list_entry = netlbl_af6list_remove(addr, mask, &iface->addr6_list);
+@@ -584,9 +588,9 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
+ 		sid.si_lsm[0] = entry->secid;
+ 		if (entry != NULL &&
+ 		    security_secid_to_secctx(&sid,
+-					     &secctx, &secctx_len) == 0) {
++					     &secctx, &secctx_len, &sop) == 0) {
+ 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
+-			security_release_secctx(secctx, secctx_len);
++			security_release_secctx(secctx, secctx_len, sop);
+ 		}
+ 		audit_log_format(audit_buf, " res=%u", entry != NULL ? 1 : 0);
+ 		audit_log_end(audit_buf);
+@@ -1100,6 +1104,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
+ 	struct net_device *dev;
+ 	void *data;
+ 	struct secids secid;
++	struct security_operations *sop;
+ 	char *secctx;
+ 	u32 secctx_len;
+ 
+@@ -1160,14 +1165,14 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
+ 		secid.si_lsm[0] = addr6->secid;
+ 	}
+ 
+-	ret_val = security_secid_to_secctx(&secid, &secctx, &secctx_len);
++	ret_val = security_secid_to_secctx(&secid, &secctx, &secctx_len, &sop);
+ 	if (ret_val != 0)
+ 		goto list_cb_failure;
+ 	ret_val = nla_put(cb_arg->skb,
+ 			  NLBL_UNLABEL_A_SECCTX,
+ 			  secctx_len,
+ 			  secctx);
+-	security_release_secctx(secctx, secctx_len);
++	security_release_secctx(secctx, secctx_len, sop);
+ 	if (ret_val != 0)
+ 		goto list_cb_failure;
+ 
+diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
+index 7ef8262..469aa0e 100644
+--- a/net/netlabel/netlabel_user.c
++++ b/net/netlabel/netlabel_user.c
+@@ -101,6 +101,7 @@ struct audit_buffer *netlbl_audit_start_common(int type,
+ 	char *secctx;
+ 	u32 secctx_len;
+ 	struct secids secid;
++	struct security_operations *sop;
+ 
+ 	if (audit_enabled == 0)
+ 		return NULL;
+@@ -116,9 +117,9 @@ struct audit_buffer *netlbl_audit_start_common(int type,
+ 			 audit_info->sessionid);
+ 
+ 	if (audit_info->secid != 0 &&
+-	    security_secid_to_secctx(&secid, &secctx, &secctx_len) == 0) {
++	    security_secid_to_secctx(&secid, &secctx, &secctx_len, &sop) == 0) {
+ 		audit_log_format(audit_buf, " subj=%s", secctx);
+-		security_release_secctx(secctx, secctx_len);
++		security_release_secctx(secctx, secctx_len, sop);
+ 	}
+ 
+ 	return audit_buf;
+diff --git a/security/security.c b/security/security.c
+index 000a1fc..6594d8d 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -627,7 +627,9 @@ int security_inode_killpriv(struct dentry *dentry)
+ 	return security_ops->inode_killpriv(dentry);
+ }
+ 
+-int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
++int security_inode_getsecurity(const struct inode *inode, const char *name,
++				void **buffer, bool alloc,
++				struct security_operations **secops)
+ {
+ 	if (unlikely(IS_PRIVATE(inode)))
+ 		return -EOPNOTSUPP;
+@@ -1047,7 +1049,8 @@ int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+ 	return security_ops->netlink_send(sk, skb);
+ }
+ 
+-int security_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen)
++int security_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen,
++				struct security_operations **secops)
+ {
+ 	return security_ops->secid_to_secctx(secid->si_lsm[0], secdata, seclen);
+ }
+@@ -1061,7 +1064,8 @@ int security_secctx_to_secid(const char *secdata, u32 seclen,
+ }
+ EXPORT_SYMBOL(security_secctx_to_secid);
+ 
+-void security_release_secctx(char *secdata, u32 seclen)
++void security_release_secctx(char *secdata, u32 seclen,
++				struct security_operations *sop)
+ {
+ 	security_ops->release_secctx(secdata, seclen);
+ }
+@@ -1079,7 +1083,8 @@ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
+ }
+ EXPORT_SYMBOL(security_inode_setsecctx);
+ 
+-int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
++int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen,
++				struct security_operations **secops)
+ {
+ 	return security_ops->inode_getsecctx(inode, ctx, ctxlen);
+ }
 
 
 --
