@@ -1,64 +1,47 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3L1HtGK002763
-	for <selinux@tycho.nsa.gov>; Sat, 20 Apr 2013 21:17:55 -0400
-Message-ID: <51733E4A.1050004@davequigley.com>
-Date: Sat, 20 Apr 2013 21:18:02 -0400
-From: Dave Quigley <dpquigl@davequigley.com>
+Message-ID: <51768370.2010004@redhat.com>
+Date: Tue, 23 Apr 2013 08:49:52 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: William Roberts <bill.c.roberts@gmail.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: semenage-argparse: Now with full help test (except -E) and support
- for the login subcommand
-References: <51732CC7.8040503@davequigley.com> <CAFftDdpwv2PFj0VdogxYYHwHdc+EaxtXkG5HXybGbtmadKYMcg@mail.gmail.com>
-In-Reply-To: <CAFftDdpwv2PFj0VdogxYYHwHdc+EaxtXkG5HXybGbtmadKYMcg@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Krishna Raman <kraman@redhat.com>
+CC: Anand Avati <aavati@redhat.com>, selinux@tycho.nsa.gov, eparis@redhat.com,
+        sds@tycho.nsa.gov
+Subject: Re: [PATCH v2] selinux: consider filesystem subtype in policies
+References: <20130416225619.GA30164@sh-el5.eng.rdu2.redhat.com> <996251684.1130163.1366692878289.JavaMail.root@redhat.com> <2112203249.6272542.1366693065128.JavaMail.root@redhat.com>
+In-Reply-To: <2112203249.6272542.1366693065128.JavaMail.root@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/20/2013 8:19 PM, William Roberts wrote:
-> As a quick glance, the only thing that stands out is the all caps
-> OBJECT, as well as the fact that its not a very descriptive name.
-> However, this could be just following convention from elsewhere.
->
->
-> On Sat, Apr 20, 2013 at 5:03 PM, Dave Quigley <dpquigl@davequigley.com
-> <mailto:dpquigl@davequigley.com>> wrote:
->
->     semenage-argparse:  Now with full help test (except  -E) and support
->     for the login subcommand
->
->     Hello,
->         I added more help text to the semanage-argparse rewrite and also
->     implemented support for login. I would like anyone and everyone to
->     look at the code and give me feedback. I am in no way shape or form
->     a python guru so I'm glad to have any and all constructive feedback.
->     Please let me know what you think.
->
->     https://github.com/dpquigl/__semanage-argparse/
->     <https://github.com/dpquigl/semanage-argparse/>
->
->     Dave
->
->     --
->     This message was distributed to subscribers of the selinux mailing list.
->     If you no longer wish to subscribe, send mail to
->     majordomo@tycho.nsa.gov <mailto:majordomo@tycho.nsa.gov> with
->     the words "unsubscribe selinux" without quotes as the message.
->
->
->
->
-> --
-> Respectfully,
->
-> William C Roberts
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-To I copied and pasted those lines exactly as they were from the 
-original semanage. I can definitely try to make them something more 
-descriptive.
+On 04/23/2013 12:57 AM, Krishna Raman wrote:
+> Nothing new from my end. AFAIK, Dan Walsh was working with someone to find
+> a good solution for this issue. He said it might take a week or two to work
+> out details.
+> 
+> --kr
+> 
+> ----- Original Message ----- From: "Anand Avati" <aavati@redhat.com> To:
+> selinux@tycho.nsa.gov Cc: eparis@redhat.com, dwalsh@redhat.com,
+> kraman@redhat.com, sds@tycho.nsa.gov Sent: Monday, April 22, 2013 9:54:38
+> PM Subject: Re: [PATCH v2] selinux: consider filesystem subtype in
+> policies
+> 
+> Hi all, Any comments?
+> 
+> Thanks! Avati
+> 
+Eric is actually the one working on the solution.
 
-Dave
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.13 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlF2g3AACgkQrlYvE4MpobPDGACgiCT1IyeQM7OfKjo0qzgoc2Lr
+SAsAnizib55GJ8POUaAk9HNFyhTR5p1o
+=nWhq
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
