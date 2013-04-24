@@ -1,57 +1,211 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3OFcSOU014977
-	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 11:38:44 -0400
-Received: by mail-qa0-f44.google.com with SMTP id j8so974195qah.3
-        for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 08:38:26 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3OIpEG3022685
+	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 14:51:31 -0400
+Received: by mail-qc0-f180.google.com with SMTP id b40so1132472qcq.11
+        for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 11:51:12 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        selinux@tycho.nsa.gov
-Subject: Re: Build regressions/improvements in v3.9-rc8
-Date: Wed, 24 Apr 2013 11:38:23 -0400
-Message-ID: <11026580.BGB2mffbp5@sifl>
-In-Reply-To: <alpine.DEB.2.00.1304232131300.11127@ayla.of.borg>
-References: <alpine.DEB.2.00.1304232131300.11127@ayla.of.borg>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: LSM <linux-security-module@vger.kernel.org>,
+        LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v13 5/9] LSM: Networking component isolation
+Date: Wed, 24 Apr 2013 14:51:09 -0400
+Message-ID: <18474523.4Ny9IacvUQ@sifl>
+In-Reply-To: <5176B10F.9040607@schaufler-ca.com>
+References: <5176ABB7.5080300@schaufler-ca.com> <5176B10F.9040607@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, April 23, 2013 09:32:02 PM Geert Uytterhoeven wrote:
-> Below is the list of build error/warning regressions/improvements in
-> v3.9-rc8[1] compared to v3.8[2].
+On Tuesday, April 23, 2013 09:04:31 AM Casey Schaufler wrote:
+> Subject: [PATCH v13 5/9] LSM: Networking component isolation
 > 
-> Summarized:
->   - build errors: +19/-58
->   - build warnings: +223/-377
+> The NetLabel, XFRM and secmark networking mechanisms are
+> limited to providing security information managed by one
+> LSM. These changes interface the single LSM networking
+> components with the multiple LSM system. Each of the
+> networking components will identify the security ops
+> vector of the LSM that will use it. There are various
+> wrapper functions provided to make this obvious and
+> painless.
 > 
-> JFYI, when comparing v3.9-rc8 to v3.9-rc7[3], the summaries are:
->   - build errors: +9/-8
->   - build warnings: +96/-145
-> 
-> Note that there may be false regressions, as some logs are incomplete.
-> Still, they're build errors/warnings.
-> 
-> As I haven't mastered kup yet, there's no verbose summary at
-> http://www.kernel.org/pub/linux/kernel/people/geert/linux-log/v3.9-rc8.summa
-> ry.gz
-> 
-> Happy fixing! ;-)
-> 
-> Thanks to the linux-next team for providing the build service.
-> 
-> [1] http://kisskb.ellerman.id.au/kisskb/head/6122/ (all 118 configs)
-> [2] http://kisskb.ellerman.id.au/kisskb/head/5896/ (117 out of 118 configs)
-> [3] http://kisskb.ellerman.id.au/kisskb/head/6094/ (all 118 configs)
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
 ...
 
-> => 93:1 + security/selinux/netnode.c: warning: 'idx' may be used
-> uninitialized in this function [-Wuninitialized]: 174:27 => 174:2, 174:27 +
+> diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+> index 2c95d55..c0cf965 100644
+> --- a/include/net/netlabel.h
+> +++ b/include/net/netlabel.h
+> @@ -406,7 +406,8 @@ int netlbl_secattr_catmap_setrng(struct
+> netlbl_lsm_secattr_catmap *catmap, /*
+>   * LSM protocol operations (NetLabel LSM/kernel API)
+>   */
+> -int netlbl_enabled(void);
+> +int netlbl_register_lsm(struct security_operations *lsmops);
 
-FYI: A fix for this was (re)sent to the SELinux list on April 4th.
+Nit picky, but I'd prefer "netlbl_lsm_register()".
 
- * http://marc.info/?l=selinux&m=136508710131898&w=2
+> +int netlbl_enabled(struct security_operations *lsmops);
+>  int netlbl_sock_setattr(struct sock *sk,
+>  			u16 family,
+>  			const struct netlbl_lsm_secattr *secattr);
+
+...
+
+> diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+> index 7c94aed..2881d48 100644
+> --- a/net/netlabel/netlabel_kapi.c
+> +++ b/net/netlabel/netlabel_kapi.c
+> @@ -607,23 +607,48 @@ int netlbl_secattr_catmap_setrng(struct
+> netlbl_lsm_secattr_catmap *catmap, * LSM Functions
+>   */
+> 
+> +struct security_operations *netlbl_active_lsm;
+> +/**
+> + * netlbl_register_lsm - Reserve the NetLabel subsystem for an LSM
+> + *
+> + * Description:
+> + * To avoid potential conflicting views between LSMs over
+> + * what should go in the network label reserve the Netlabel
+> + * mechanism for use by one LSM. netlbl_enabled will return
+> + * false for all other LSMs.
+> + *
+> + */
+
+You need a description for the 'lsm' parameter in the comment header above.
+
+Also, this is extremely nit picky but I'd like to see some vertical whitespace 
+between the netlbl_active_lsm declaration and the function header.
+
+> +int netlbl_register_lsm(struct security_operations *lsm)
+> +{
+> +	if (lsm == NULL)
+> +		return -EINVAL;
+> +
+> +	if (netlbl_active_lsm == NULL)
+> +		netlbl_active_lsm = lsm;
+> +	else if (netlbl_active_lsm != lsm)
+> +		return -EBUSY;
+> +
+> +	printk(KERN_INFO "NetLabel: Registered LSM \"%s\".\n", lsm->name);
+> +	return 0;
+> +}
+> +
+>  /**
+>   * netlbl_enabled - Determine if the NetLabel subsystem is enabled
+>   *
+>   * Description:
+>   * The LSM can use this function to determine if it should use NetLabel
+> - * security attributes in it's enforcement mechanism.  Currently, NetLabel
+> - * considered to be enabled when it's configuration contains a valid
+> + * security attributes in it's enforcement mechanism.  NetLabel
+> + * considered to be enabled when the LSM making the call is registered
+> + * the netlabel configuration contains a valid setup for
+>   * at least one labeled protocol (i.e. NetLabel can understand incoming
+>   * labeled packets of at least one type); otherwise NetLabel is considered
+>   * be disabled.
+>   *
+>   */
+
+Same thing, you need a description for the 'lsm' parameter in the comment 
+header above.
+
+> -int netlbl_enabled(void)
+> +int netlbl_enabled(struct security_operations *lsm)
+>  {
+> -	/* At some point we probably want to expose this mechanism to the user
+> -	 * as well so that admins can toggle NetLabel regardless of the
+> -	 * configuration */
+
+It really doesn't matter if you remove that comment or not, but I believe it 
+still applies so long as we do the LSM check first.
+
+> +	if (netlbl_active_lsm != lsm)
+> +		return 0;
+>  	return (atomic_read(&netlabel_mgmt_protocount) > 0);
+>  }
+
+...
+
+> diff --git a/net/netlabel/netlabel_user.h b/net/netlabel/netlabel_user.h
+> index a6f1705..9990b24 100644
+> --- a/net/netlabel/netlabel_user.h
+> +++ b/net/netlabel/netlabel_user.h
+> @@ -41,6 +41,65 @@
+> 
+>  /* NetLabel NETLINK helper functions */
+> 
+> +extern struct security_operations *netlbl_active_lsm;
+> +
+> +/**
+> + * netlbl_secid_to_secctx - call the registered secid_to_secctx LSM hook
+> + * @secid - The secid to convert
+> + * @secdata - Where to put the result
+> + * @seclen - Where to put the length of the result
+> + *
+> + * Returns: the result of calling the hook.
+> + */
+> +static inline int netlbl_secid_to_secctx(u32 secid, char **secdata, u32
+> *seclen) +{
+> +	if (netlbl_active_lsm == NULL)
+> +		return -EINVAL;
+> +	return netlbl_active_lsm->secid_to_secctx(secid, secdata, seclen);
+> +}
+> +
+> +/**
+> + * netlbl_release_secctx - call the registered release_secctx LSM hook
+> + * @secdata - The security context to release
+> + * @seclen - The size of the context to release
+> + *
+> + */
+> +static inline void netlbl_release_secctx(char *secdata, u32 seclen)
+> +{
+> +	if (netlbl_active_lsm != NULL)
+> +		netlbl_active_lsm->release_secctx(secdata, seclen);
+> +}
+> +
+> +/**
+> + * netlbl_secctx_to_secid - call the registered seccts_to_secid LSM hook
+> + * @secdata - The security context
+> + * @seclen - The size of the security context
+> + * @secid - Where to put the result
+> + *
+> + * Returns: the result of calling the hook
+> + */
+> +static inline int netlbl_secctx_to_secid(const char *secdata, u32 seclen,
+> +					 u32 *secid)
+> +{
+> +	if (netlbl_active_lsm == NULL) {
+> +		*secid = 0;
+> +		return -EINVAL;
+> +	}
+> +	return netlbl_active_lsm->secctx_to_secid(secdata, seclen, secid);
+> +}
+> +
+> +/**
+> + * netlbl_task_getsecid - call the registered task_getsecid LSM hook
+> + * @p - The task
+> + * @secid - Where to put the secid
+> + *
+> + */
+> +static inline void netlbl_task_getsecid(struct task_struct *p, u32 *secid)
+> +{
+> +	if (netlbl_active_lsm)
+> +		netlbl_active_lsm->task_getsecid(p, secid);
+> +}
+
+Any particular reason you put all these functions in 'netlabel_user.h'?  I ask 
+because this header is related to the NetLabel netlink interface, with some 
+minor audit stuff tossed in for good measure; it really has nothing to do with 
+the LSM secctx/secid stuff.  I'd probably prefer these functions end up in 
+their own header file for the sake of better organization, maybe 
+'netlabel_secid.h'?
 
 -- 
 paul moore
