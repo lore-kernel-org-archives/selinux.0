@@ -1,86 +1,234 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3OLFetF002264
-	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 17:15:56 -0400
-Received: by mail-qe0-f44.google.com with SMTP id w7so1604921qeb.31
-        for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 14:15:38 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: LSM <linux-security-module@vger.kernel.org>,
-        LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        John Johansen <john.johansen@canonical.com>,
-        Eric Paris <eparis@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v13 0/9] LSM: Multiple concurrent LSMs
-Date: Wed, 24 Apr 2013 17:15:36 -0400
-Message-ID: <3235150.vl4U7U54yV@sifl>
-In-Reply-To: <51783EFC.8050607@schaufler-ca.com>
-References: <5176ABB7.5080300@schaufler-ca.com> <3554062.6nBMExN24s@sifl> <51783EFC.8050607@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3OM6ZTB005736
+	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 18:06:35 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Wed, 24 Apr 2013 18:06:32 -0400
+From: David Quigley <dpquigl@davequigley.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>, <eparis@redhat.com>
+Cc: Steve Dickson <steved@redhat.com>,
+        Trond Myklebust
+ <trond.myklebust@netapp.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        "David
+ P. Quigley" <dpquigl@tycho.nsa.gov>,
+        Linux NFS list
+ <linux-nfs@vger.kernel.org>,
+        Linux FS devel list
+ <linux-fsdevel@vger.kernel.org>,
+        Linux Security List
+ <linux-security-module@vger.kernel.org>,
+        SELinux List
+ <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 07/17] SELinux: Add new labeling type native labels
+In-Reply-To: <20130424220359.GR20275@fieldses.org>
+References: <1366834683-29075-1-git-send-email-SteveD@redhat.com>
+ <1366834683-29075-8-git-send-email-SteveD@redhat.com>
+ <20130424220359.GR20275@fieldses.org>
+Message-ID: <143483770355839ca2227b46847efebb@countercultured.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, April 24, 2013 01:22:20 PM Casey Schaufler wrote:
-> On 4/24/2013 11:57 AM, Paul Moore wrote:
-> > I know we had a good discussion about this a while back and I just wanted
-> > to hear from you about this current patchset; how does the labeled
-> > networking LSM assignment work?  Is it first-come-first-served based on
-> > the 'security=' setting?
-> 
-> It's explicitly set in security/Kconfig. The problem with
-> first-come-first-serve is that the LSMs don't actually register
-> in the order specified, either at build time or boot time.
-> Further, until the init phase is complete, you don't know which
-> LSMs are actually going to register. That, and I promised Tetsuo
-> I wouldn't go out of my way to prevent late module loading in
-> the future.
-> 
-> I could do order checking on module registration and take
-> the networking component away from an LSM that registered
-> earlier, but with a larger order number I suppose.
+On 04/24/2013 18:03, J. Bruce Fields wrote:
+> On Wed, Apr 24, 2013 at 04:17:53PM -0400, Steve Dickson wrote:
+>> From: David Quigley <dpquigl@davequigley.com>
+>>
+>> There currently doesn't exist a labeling type that is adequate for 
+>> use with
+>> labeled NFS. Since NFS doesn't really support xattrs we can't use 
+>> the use xattr
+>> labeling behavior. For this we developed a new labeling type. The 
+>> native
+>> labeling type is used solely by NFS to ensure NFS inodes are labeled 
+>> at runtime
+>> by the NFS code instead of relying on the SELinux security server on 
+>> the client
+>> end.
+>
+> Ditto, can we get get an ACK/NACK from someone responsible for this
+> code?
+>
+> --b.
+>
+>>
+>> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+>> Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
+>> Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
+>> Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
+>> ---
+>>  include/linux/security.h            |  3 +++
+>>  security/selinux/hooks.c            | 35 
+>> ++++++++++++++++++++++++++---------
+>>  security/selinux/include/security.h |  2 ++
+>>  security/selinux/ss/policydb.c      |  5 ++++-
+>>  4 files changed, 35 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/include/linux/security.h b/include/linux/security.h
+>> index 4ab51e2..bc924d7 100644
+>> --- a/include/linux/security.h
+>> +++ b/include/linux/security.h
+>> @@ -61,6 +61,9 @@ struct mm_struct;
+>>  #define SECURITY_CAP_NOAUDIT 0
+>>  #define SECURITY_CAP_AUDIT 1
+>>
+>> +/* LSM Agnostic defines for sb_set_mnt_opts */
+>> +#define SECURITY_LSM_NATIVE_LABELS	1
+>> +
+>>  struct ctl_table;
+>>  struct audit_krule;
+>>  struct user_namespace;
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 6cb24ec..d7ff806 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -81,6 +81,7 @@
+>>  #include <linux/syslog.h>
+>>  #include <linux/user_namespace.h>
+>>  #include <linux/export.h>
+>> +#include <linux/security.h>
+>>  #include <linux/msg.h>
+>>  #include <linux/shm.h>
+>>
+>> @@ -284,13 +285,14 @@ static void superblock_free_security(struct 
+>> super_block *sb)
+>>
+>>  /* The file system's label must be initialized prior to use. */
+>>
+>> -static const char *labeling_behaviors[6] = {
+>> +static const char *labeling_behaviors[7] = {
+>>  	"uses xattr",
+>>  	"uses transition SIDs",
+>>  	"uses task SIDs",
+>>  	"uses genfs_contexts",
+>>  	"not configured for labeling",
+>>  	"uses mountpoint labeling",
+>> +	"uses native labeling",
+>>  };
+>>
+>>  static int inode_doinit_with_dentry(struct inode *inode, struct 
+>> dentry *opt_dentry);
+>> @@ -678,14 +680,21 @@ static int selinux_set_mnt_opts(struct 
+>> super_block *sb,
+>>  	if (strcmp(sb->s_type->name, "proc") == 0)
+>>  		sbsec->flags |= SE_SBPROC;
+>>
+>> -	/* Determine the labeling behavior to use for this filesystem 
+>> type. */
+>> -	rc = security_fs_use((sbsec->flags & SE_SBPROC) ? "proc" : 
+>> sb->s_type->name, &sbsec->behavior, &sbsec->sid);
+>> -	if (rc) {
+>> -		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
+>> -		       __func__, sb->s_type->name, rc);
+>> -		goto out;
+>> +	if (!sbsec->behavior) {
+>> +		/*
+>> +		 * Determine the labeling behavior to use for this
+>> +		 * filesystem type.
+>> +		 */
+>> +		rc = security_fs_use((sbsec->flags & SE_SBPROC) ?
+>> +					"proc" : sb->s_type->name,
+>> +					&sbsec->behavior, &sbsec->sid);
+>> +		if (rc) {
+>> +			printk(KERN_WARNING
+>> +				"%s: security_fs_use(%s) returned %d\n",
+>> +					__func__, sb->s_type->name, rc);
+>> +			goto out;
+>> +		}
+>>  	}
+>> -
+>>  	/* sets the context of the superblock for the fs being mounted. */
+>>  	if (fscontext_sid) {
+>>  		rc = may_context_mount_sb_relabel(fscontext_sid, sbsec, cred);
+>> @@ -700,6 +709,11 @@ static int selinux_set_mnt_opts(struct 
+>> super_block *sb,
+>>  	 * sets the label used on all file below the mountpoint, and will 
+>> set
+>>  	 * the superblock context if not already set.
+>>  	 */
+>> +	if (kern_flags & SECURITY_LSM_NATIVE_LABELS && !context_sid) {
+>> +		sbsec->behavior = SECURITY_FS_USE_NATIVE;
+>> +		*set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
+>> +	}
+>> +
+>>  	if (context_sid) {
+>>  		if (!fscontext_sid) {
+>>  			rc = may_context_mount_sb_relabel(context_sid, sbsec,
+>> @@ -731,7 +745,8 @@ static int selinux_set_mnt_opts(struct 
+>> super_block *sb,
+>>  	}
+>>
+>>  	if (defcontext_sid) {
+>> -		if (sbsec->behavior != SECURITY_FS_USE_XATTR) {
+>> +		if (sbsec->behavior != SECURITY_FS_USE_XATTR &&
+>> +			sbsec->behavior != SECURITY_FS_USE_NATIVE) {
+>>  			rc = -EINVAL;
+>>  			printk(KERN_WARNING "SELinux: defcontext option is "
+>>  			       "invalid for this filesystem type\n");
+>> @@ -1199,6 +1214,8 @@ static int inode_doinit_with_dentry(struct 
+>> inode *inode, struct dentry *opt_dent
+>>  	}
+>>
+>>  	switch (sbsec->behavior) {
+>> +	case SECURITY_FS_USE_NATIVE:
+>> +		break;
+>>  	case SECURITY_FS_USE_XATTR:
+>>  		if (!inode->i_op->getxattr) {
+>>  			isec->sid = sbsec->def_sid;
+>> diff --git a/security/selinux/include/security.h 
+>> b/security/selinux/include/security.h
+>> index 6d38851..8fd8e18 100644
+>> --- a/security/selinux/include/security.h
+>> +++ b/security/selinux/include/security.h
+>> @@ -169,6 +169,8 @@ int security_get_allow_unknown(void);
+>>  #define SECURITY_FS_USE_GENFS		4 /* use the genfs support */
+>>  #define SECURITY_FS_USE_NONE		5 /* no labeling support */
+>>  #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
+>> +#define SECURITY_FS_USE_NATIVE		7 /* use native label support */
+>> +#define SECURITY_FS_USE_MAX		7 /* Highest SECURITY_FS_USE_XXX */
+>>
+>>  int security_fs_use(const char *fstype, unsigned int *behavior,
+>>  	u32 *sid);
+>> diff --git a/security/selinux/ss/policydb.c 
+>> b/security/selinux/ss/policydb.c
+>> index 9cd9b7c..c8adde3 100644
+>> --- a/security/selinux/ss/policydb.c
+>> +++ b/security/selinux/ss/policydb.c
+>> @@ -2168,7 +2168,10 @@ static int ocontext_read(struct policydb *p, 
+>> struct policydb_compat_info *info,
+>>
+>>  				rc = -EINVAL;
+>>  				c->v.behavior = le32_to_cpu(buf[0]);
+>> -				if (c->v.behavior > SECURITY_FS_USE_NONE)
+>> +				/* Determined at runtime, not in policy DB. */
+>> +				if (c->v.behavior == SECURITY_FS_USE_MNTPOINT)
+>> +					goto out;
+>> +				if (c->v.behavior > SECURITY_FS_USE_MAX)
+>>  					goto out;
+>>
+>>  				rc = -ENOMEM;
+>> --
+>> 1.8.1.4
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-nfs" 
+>> in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Hmmm.  How difficult would it be to enforce the order during LSM registration?  
-As discussed previously, I'm not a big fan of assigning the network controls 
-at compile time when the LSMs can be toggled at boot time.
 
-The real solution is to just get the netdev folks to accept a security blob in 
-the sk_buff so we can fix this (and many other problems) once and for all.  I 
-still haven't given up on this effort but I think it would be silly to hold up 
-the stacking effort for the sk_buff security blob.
+Eric,
+    Can I get a review of the code and an ACK? I know people did this a 
+long time ago but we need someone to review it more recently and I've 
+been told you've been the one keeping an eye on SELinux related kernel 
+changes.
 
-> The default configuration gives xfrm and secmark to SELinux
-> and NetLabel to Smack. If Smack is not included NetLabel goes
-> to SELinux. When LSMs using any of these facilities are added
-> in the future we'll have to negotiate the defaults.
-
-The defaults are always going to be wrong for someone.
-
-> An interesting aside that may be relevant is that the error
-> condition behavior makes it advisable to have the LSM you care
-> about most go last. If the networking components were strictly
-> FCFS you might have to chose an ordering you might not want for
-> other reasons.
-
-Well, maybe not ... I think.  If we take a FCFS approach to the network 
-controls then only one LSM is really ever going to throw an error on the 
-network hooks, yes?
-
-> It would be possible to have a boot time specification for
-> the networking components if you think it's important. I do
-> worry about making it excessively complicated. I'd be much more
-> concerned if more LSMs used the networking components.
-
-I think the "excessively complicated" boat has already sailed :)
-
-I'm still in favor of assigning the network hooks to the LSM at boot based on 
-the "security=" configuration.
-
--- 
-paul moore
-www.paul-moore.com
-
+Dave
 
 --
 This message was distributed to subscribers of the selinux mailing list.
