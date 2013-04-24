@@ -1,75 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3NIfRqM029363
-	for <selinux@tycho.nsa.gov>; Tue, 23 Apr 2013 14:41:27 -0400
-Received: from /spool/local
-	by e38.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-	for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
-	Tue, 23 Apr 2013 12:41:24 -0600
-Message-ID: <1366742457.31304.545.camel@falcor1.watson.ibm.com>
-Subject: Re: [PATCH 00/19] lnfs: 3.9-rc5 release
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: Steve Dickson <SteveD@redhat.com>
-Cc: "J. Bruce Fields" <bfields@redhat.com>,
-        Trond Myklebust
- <Trond.Myklebust@netapp.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS list <linux-nfs@vger.kernel.org>,
-        Linux FS devel list
- <linux-fsdevel@vger.kernel.org>,
-        Linux Security List
- <linux-security-module@vger.kernel.org>,
-        SELinux List
- <selinux@tycho.nsa.gov>
-Date: Tue, 23 Apr 2013 14:40:57 -0400
-In-Reply-To: <5176CD42.4080405@RedHat.com>
-References: <1364939160-20874-1-git-send-email-SteveD@redhat.com>
-	 <20130410150940.GB24404@pad.fieldses.org> <5176ACE5.2020207@RedHat.com>
-	 <20130423160520.GE20622@pad.fieldses.org>
-	 <20130423172227.GF20622@pad.fieldses.org> <5176CD42.4080405@RedHat.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3OFcSOU014977
+	for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 11:38:44 -0400
+Received: by mail-qa0-f44.google.com with SMTP id j8so974195qah.3
+        for <selinux@tycho.nsa.gov>; Wed, 24 Apr 2013 08:38:26 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        selinux@tycho.nsa.gov
+Subject: Re: Build regressions/improvements in v3.9-rc8
+Date: Wed, 24 Apr 2013 11:38:23 -0400
+Message-ID: <11026580.BGB2mffbp5@sifl>
+In-Reply-To: <alpine.DEB.2.00.1304232131300.11127@ayla.of.borg>
+References: <alpine.DEB.2.00.1304232131300.11127@ayla.of.borg>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2013-04-23 at 14:04 -0400, Steve Dickson wrote:
-> On 23/04/13 13:22, J. Bruce Fields wrote:
-> >>> What exactly was failing?
-> >> > 
-> >> > Sorry I can't find the results right now.  I'll re-run and let you know.
-> > The server is returning -EOPNOTSUPP in response to an nfs4 SETATTR which
-> > sets a mode.
-> > 
-> > The operation shouldn't be failing, and if it does it should return an
-> > NFS error, not -ERRNO.
-> > 
-> > I can't reproduce this just by doing chmod on the linux client.  I'm not
-> > sure what pynfs is doing differently to trigger the bug.
-> thanks for talking a look...  
+On Tuesday, April 23, 2013 09:32:02 PM Geert Uytterhoeven wrote:
+> Below is the list of build error/warning regressions/improvements in
+> v3.9-rc8[1] compared to v3.8[2].
 > 
-> Hmm... I wonder if the fact nfsd4_set_nfs4_label() is returning 
-> -EOPNOTSUPP instead of something like nfserr_attrnotsupp when 
-> labels are not configured... Something you've pointed out 
-> twice now... 
->     http://www.spinics.net/lists/linux-nfs/msg36104.html
+> Summarized:
+>   - build errors: +19/-58
+>   - build warnings: +223/-377
 > 
-> If it is this problem I wonder why a chmod would not trigger it...
+> JFYI, when comparing v3.9-rc8 to v3.9-rc7[3], the summaries are:
+>   - build errors: +9/-8
+>   - build warnings: +96/-145
+> 
+> Note that there may be false regressions, as some logs are incomplete.
+> Still, they're build errors/warnings.
+> 
+> As I haven't mastered kup yet, there's no verbose summary at
+> http://www.kernel.org/pub/linux/kernel/people/geert/linux-log/v3.9-rc8.summa
+> ry.gz
+> 
+> Happy fixing! ;-)
+> 
+> Thanks to the linux-next team for providing the build service.
+> 
+> [1] http://kisskb.ellerman.id.au/kisskb/head/6122/ (all 118 configs)
+> [2] http://kisskb.ellerman.id.au/kisskb/head/5896/ (117 out of 118 configs)
+> [3] http://kisskb.ellerman.id.au/kisskb/head/6094/ (all 118 configs)
 
-Do you by any chance have EVM enabled?  EVM includes the i_mode in the
-HMAC calculation.  Anytime the i_mode changes, the existing HMAC is
-verified, before recalculating the HMAC to reflect the change.  The
-hooks are there to update the HMAC, when using chmod.
+...
 
-I posted a couple of patches to audit this type of error last week, but
-haven't sent a pull request yet.
+> => 93:1 + security/selinux/netnode.c: warning: 'idx' may be used
+> uninitialized in this function [-Wuninitialized]: 174:27 => 174:2, 174:27 +
 
-evm: audit integrity metadata failures
-integrity: move integrity_audit_msg()
-evm: calculate HMAC after initializing posix acl
+FYI: A fix for this was (re)sent to the SELinux list on April 4th.
 
-thanks,
+ * http://marc.info/?l=selinux&m=136508710131898&w=2
 
-Mimi
-
+-- 
+paul moore
+www.paul-moore.com
 
 
 --
