@@ -1,58 +1,71 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r3PLZCSM001852
-	for <selinux@tycho.nsa.gov>; Thu, 25 Apr 2013 17:35:12 -0400
-Message-ID: <1366925707.22597.YahooMailNeo@web163405.mail.gq1.yahoo.com>
-Date: Thu, 25 Apr 2013 14:35:07 -0700 (PDT)
-From: Andy Ruch <adruch2002@yahoo.com>
-Reply-To: Andy Ruch <adruch2002@yahoo.com>
-Subject: SELinux errors with pam_faillock
-To: SELinux ML <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="1091002116-147978722-1366925707=:22597"
+In-Reply-To: <20130425200130.GA17297@siphos.be>
+References: <CADjGSjhkWnxg6rEzUowJ4pU0icFYbboxeDh2ejZ6gpg83W0QYA@mail.gmail.com>
+	<20130425200130.GA17297@siphos.be>
+Date: Thu, 25 Apr 2013 19:15:22 -0400
+Message-ID: <CADjGSjipXROGK+9_bpJZngjBF7rH-=U3nUpwyUdgA_UERbn=Vg@mail.gmail.com>
+Subject: Re: [Ann] SELinux userspace release
+From: Joshua Brindle <brindle@quarksecurity.com>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Cc: SELinux <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---1091002116-147978722-1366925707=:22597
-Content-Type: text/plain; charset=us-ascii
+On Thu, Apr 25, 2013 at 4:01 PM, Sven Vermeulen
+<sven.vermeulen@siphos.be> wrote:
+> On Tue, Apr 23, 2013 at 10:34:52AM -0400, Joshua Brindle wrote:
+>> A new release of the SELinux userspace has been posted to:
+>> http://userspace.selinuxproject.org/trac/wiki/Releases
+>>
+>> Most of the changes were bug fixes related to leaking file descriptors and
+>> memory errors reported by Coverity. The full Changelog is in each package.
+>
+> I had a few issues while getting this release in Gentoo.
+>
 
-Hello,
+I suppose this is what I get for testing on Fedora with everything
+already installed...
 
-I'm receiving some SELinux errors related to the pam_faillock module. I'm running RHEL 6.3 with a custom policy based on the reference policy. 
+>
+> https://bugs.gentoo.org/show_bug.cgi?id=467258
+>
+> - libselinux does not provide selinux_current_policy_path() but this method is
+>   used in policycoreutils in a number of locations.
+>
+> I had to take the definition from this method from
+> http://svnweb.mageia.org/packages/cauldron/libselinux/current/SOURCES/libselinux-rhat.patch?revision=400400&view=co&pathrev=400400
+> (only included the definition in Gentoo for now). Seems that this is a
+> much-needed function (otherwise tools like semanage just break).
+>
+>
+> https://bugs.gentoo.org/show_bug.cgi?id=467264
+>
+> - using semanage permissive fails with stacktrace referring to a Makefile on
+>   a non-existing location (/usr/share/selinux/default/Makefile)
+>
+> I have yet to find the culprit of this (getting late so that'll be for
+> tomorrow evening).
+>
 
+semanage permissive builds a module to make a permissive domain. On
+Fedora there is an out-of-tree policy build environment in
+/usr/share/selinux. Without this environment it can't build a module.
+Does Gentoo have it in a different place or just not at all?
 
-When a user enters an incorrect password, the pam faillock module will track it with a file in /var/run/faillock/<user>. This is being applied whenever the user enters their password (i.e. console login, newrole, sudo). Everything works appropriately for the console login. For newrole and sudo, I'm getting errors when the /var/run/faillock/<user> file is trying to be created. Basically, newrole_t and <role>_sudo_t don't have permission to create files in a faillog_t dir. 
+>
+> https://bugs.gentoo.org/show_bug.cgi?id=467268
+>
+> - policycoreutils' sepolicy command requires yum python bindings
+>
+> Since yum is not available on Gentoo, is this really necessary?
+>
 
+Unfortunate. I'd exclude it for now and hopefully we can work out
+making it more distro independent.
 
-I found a rule in 'selinuxutil.te' allowing newrole_t to read/write to faillog: "auth_rw_faillog(newrole_t)". However, this rule only allows writing if the file already exists. It doesn't address if the faillock file needs to be created. 
-
-
-I'm able to address the issues with the following rules:
-
-# Note that these rules would be applied in the sudo interface to support all sudo types
-
-create_files_pattern( sysadm_sudo_t, faillog_t, faillog_t )
-setattr_files_pattern( sysadm_sudo_t, faillog_t, faillog_t )allow sysadm_sudo_t_t self:capability:chown;
-
-
-create_files_pattern( newrole_t, faillog_t, faillog_t )
-setattr_files_pattern( newrole_t, faillog_t, faillog_t )
-allow newrole_t self:capability:chown;
-
-Is this the correct solution? Or should a transition be happening when faillock executes?
-
-
-Thanks,
-Andy Ruch
-
---1091002116-147978722-1366925707=:22597
-Content-Type: text/html; charset=us-ascii
-
-<html><body><div style="color:#000; background-color:#fff; font-family:times new roman, new york, times, serif;font-size:12pt"><div>Hello,</div><div><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">I'm receiving some SELinux errors related to the pam_faillock module. I'm running RHEL 6.3 with a custom policy based on the reference policy. <br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">When a user enters an incorrect password, the pam faillock module will track it with a file in /var/run/faillock/&lt;user&gt;. This is being applied whenever the user enters their
- password (i.e. console login, newrole, sudo). Everything works appropriately for the console login. For newrole and sudo, I'm getting errors when the /var/run/faillock/&lt;user&gt; file is trying to be created. Basically, newrole_t and &lt;role&gt;_sudo_t don't have permission to create files in a faillog_t dir. <br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">I found a rule in 'selinuxutil.te' allowing newrole_t to read/write to faillog: "auth_rw_faillog(newrole_t)". However, this rule only allows writing if the file already exists. It doesn't address if the faillock file needs to be created. <br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new
- roman,new york,times,serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">I'm able to address the issues with the following rules:</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;"># Note that these rules would be applied in the sudo interface to support all sudo types<br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">create_files_pattern( sysadm_sudo_t, faillog_t, faillog_t )</div><div style="color: rgb(0, 0,
- 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">setattr_files_pattern( sysadm_sudo_t, faillog_t, faillog_t )</div>allow sysadm_sudo_t_t self:capability:chown;<br><br><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">create_files_pattern( newrole_t, faillog_t, faillog_t )</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">setattr_files_pattern( newrole_t, faillog_t, faillog_t )</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">allow newrole_t self:capability:chown;</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new
- york,times,serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">Is this the correct solution? Or should a transition be happening when faillock executes?<br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">Thanks,</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: times new roman,new york,times,serif; background-color: transparent; font-style: normal;">Andy Ruch<br></div></div></body></html>
---1091002116-147978722-1366925707=:22597--
+> Wkr,
+>         Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
