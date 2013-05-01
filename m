@@ -1,39 +1,28 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r41ChYwP027308
-	for <selinux@tycho.nsa.gov>; Wed, 1 May 2013 08:43:36 -0400
-Received: by mail-ee0-f54.google.com with SMTP id e49so668560eek.13
-        for <selinux@tycho.nsa.gov>; Wed, 01 May 2013 05:43:32 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r41DuWjU000492
+	for <selinux@tycho.nsa.gov>; Wed, 1 May 2013 09:56:32 -0400
+Received: by mail-wg0-f48.google.com with SMTP id f11so1363698wgh.3
+        for <selinux@tycho.nsa.gov>; Wed, 01 May 2013 06:56:30 -0700 (PDT)
+Received: from siphos.be (ip-83-101-67-57.customer.schedom-europe.net. [83.101.67.57])
+        by mx.google.com with ESMTPSA id fp2sm32327633wib.7.2013.05.01.06.56.28
+        for <selinux@tycho.nsa.gov>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Wed, 01 May 2013 06:56:28 -0700 (PDT)
+Date: Wed, 1 May 2013 15:55:44 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: selinux@tycho.nsa.gov
+Subject: What provides _policy?
+Message-ID: <20130501135544.GA21525@siphos.be>
 MIME-Version: 1.0
-In-Reply-To: <5181072c.4648320a.7ef1.ffff8111@mx.google.com>
-References: <5181072c.4648320a.7ef1.ffff8111@mx.google.com>
-Date: Wed, 1 May 2013 08:43:30 -0400
-Message-ID: <CADjGSjjHJk=M97=qTH+hybhZ8v9dCkt8eYO+LWtrDrS0k6ofsw@mail.gmail.com>
-Subject: Re: Current Makefile system is inconvenient/limited
-From: Joshua Brindle <brindle@quarksecurity.com>
-To: Michael Seyfert <michael@codesand.org>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-No, we all think it. It's become unwieldy with optional dependencies
-too. There are also mutual dependencies between parts of the SELinux
-userspace.
+Recent policycoreutils' sepolicy imports "_policy", but I am having troubles
+finding where _policy is provided?
 
-Do you have any suggestions on improving it? IMHO autoconf is hell on
-earth, and it was attempted a couple time. Something like Scons
-*might* help, but I'm not convinced.
-
-On Wed, May 1, 2013 at 8:14 AM, Michael Seyfert <michael@codesand.org> wrote:
-> The current system for building selinux requires a lot of workarounds like C_INCLUDE_PATH and is also interdependent on setools. I was looking at the debian packages and they require two build throughs of selinux just to get things to compile properly. Am I the only one that thinks this is a problem?
-> --
-> Michael Seyfert
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
