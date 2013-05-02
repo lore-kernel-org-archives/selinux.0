@@ -1,4 +1,4 @@
-Date: Fri, 3 May 2013 09:36:44 +1000 (EST)
+Date: Fri, 3 May 2013 09:37:03 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: Steve Dickson <SteveD@redhat.com>
 cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
@@ -8,11 +8,11 @@ cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
         Linux FS devel list <linux-fsdevel@vger.kernel.org>,
         Linux Security List <linux-security-module@vger.kernel.org>,
         SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 05/17] Security: Add Hook to test if the particular xattr
- is part of a MAC model.
-In-Reply-To: <1367515151-31015-6-git-send-email-SteveD@redhat.com>
-Message-ID: <alpine.LRH.2.02.1305030936360.1113@tundra.namei.org>
-References: <1367515151-31015-1-git-send-email-SteveD@redhat.com> <1367515151-31015-6-git-send-email-SteveD@redhat.com>
+Subject: Re: [PATCH 06/17] LSM: Add flags field to security_sb_set_mnt_opts
+ for in kernel mount data.
+In-Reply-To: <1367515151-31015-7-git-send-email-SteveD@redhat.com>
+Message-ID: <alpine.LRH.2.02.1305030936480.1113@tundra.namei.org>
+References: <1367515151-31015-1-git-send-email-SteveD@redhat.com> <1367515151-31015-7-git-send-email-SteveD@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -22,169 +22,152 @@ On Thu, 2 May 2013, Steve Dickson wrote:
 
 > From: David Quigley <dpquigl@davequigley.com>
 > 
-> The interface to request security labels from user space is the xattr
-> interface. When requesting the security label from an NFS server it is
-> important to make sure the requested xattr actually is a MAC label. This allows
-> us to make sure that we get the desired semantics from the attribute instead of
-> something else such as capabilities or a time based LSM.
+> There is no way to differentiate if a text mount option is passed from user
+> space or the kernel. A flags field is being added to the
+> security_sb_set_mnt_opts hook to allow for in kernel security flags to be sent
+> to the LSM for processing in addition to the text options received from mount.
+> This patch also updated existing code to fix compilation errors.
 > 
-> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 > Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
 > Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
 > Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
-
 
 Acked-by: James Morris <james.l.morris@oracle.com>
 
 
 > ---
->  include/linux/security.h   | 14 ++++++++++++++
->  security/capability.c      |  6 ++++++
->  security/security.c        |  6 ++++++
->  security/selinux/hooks.c   |  6 ++++++
->  security/smack/smack_lsm.c | 11 +++++++++++
->  5 files changed, 43 insertions(+)
+>  fs/nfs/super.c           |  3 ++-
+>  include/linux/security.h | 13 ++++++++++---
+>  security/capability.c    |  5 ++++-
+>  security/security.c      |  7 +++++--
+>  security/selinux/hooks.c | 12 ++++++++++--
+>  5 files changed, 31 insertions(+), 9 deletions(-)
 > 
+> diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+> index 29f2d86..d84eb57 100644
+> --- a/fs/nfs/super.c
+> +++ b/fs/nfs/super.c
+> @@ -2378,7 +2378,8 @@ static int nfs_bdi_register(struct nfs_server *server)
+>  int nfs_set_sb_security(struct super_block *s, struct dentry *mntroot,
+>  			struct nfs_mount_info *mount_info)
+>  {
+> -	return security_sb_set_mnt_opts(s, &mount_info->parsed->lsm_opts);
+> +	return security_sb_set_mnt_opts(s, &mount_info->parsed->lsm_opts,
+> +								0, NULL);
+>  }
+>  EXPORT_SYMBOL_GPL(nfs_set_sb_security);
+>  
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index f3d7956..934f96f 100644
+> index 934f96f..4ab51e2 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -1323,6 +1323,13 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	@pages contains the number of pages.
->   *	Return 0 if permission is granted.
->   *
-> + * @ismaclabel:
-> + *	Check if the extended attribute specified by @name
-> + *	represents a MAC label. Returns 1 if name is a MAC
-> + *	attribute otherwise returns 0.
-> + *	@name full extended attribute name to check against
-> + *	LSM as a MAC label.
-> + *
->   * @secid_to_secctx:
->   *	Convert secid to security context.  If secdata is NULL the length of
->   *	the result will be returned in seclen, but no secdata will be returned.
-> @@ -1604,6 +1611,7 @@ struct security_operations {
->  
->  	int (*getprocattr) (struct task_struct *p, char *name, char **value);
->  	int (*setprocattr) (struct task_struct *p, char *name, void *value, size_t size);
-> +	int (*ismaclabel) (const char *name);
->  	int (*secid_to_secctx) (u32 secid, char **secdata, u32 *seclen);
->  	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
->  	void (*release_secctx) (char *secdata, u32 seclen);
-> @@ -1857,6 +1865,7 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
->  int security_getprocattr(struct task_struct *p, char *name, char **value);
->  int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
->  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
-> +int security_ismaclabel(const char *name);
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
->  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
->  void security_release_secctx(char *secdata, u32 seclen);
-> @@ -2545,6 +2554,11 @@ static inline int security_netlink_send(struct sock *sk, struct sk_buff *skb)
->  	return cap_netlink_send(sk, skb);
+> @@ -1456,7 +1456,9 @@ struct security_operations {
+>  	int (*sb_pivotroot) (struct path *old_path,
+>  			     struct path *new_path);
+>  	int (*sb_set_mnt_opts) (struct super_block *sb,
+> -				struct security_mnt_opts *opts);
+> +				struct security_mnt_opts *opts,
+> +				unsigned long kern_flags,
+> +				unsigned long *set_kern_flags);
+>  	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
+>  				   struct super_block *newsb);
+>  	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
+> @@ -1747,7 +1749,10 @@ int security_sb_mount(const char *dev_name, struct path *path,
+>  		      const char *type, unsigned long flags, void *data);
+>  int security_sb_umount(struct vfsmount *mnt, int flags);
+>  int security_sb_pivotroot(struct path *old_path, struct path *new_path);
+> -int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *opts);
+> +int security_sb_set_mnt_opts(struct super_block *sb,
+> +				struct security_mnt_opts *opts,
+> +				unsigned long kern_flags,
+> +				unsigned long *set_kern_flags);
+>  void security_sb_clone_mnt_opts(const struct super_block *oldsb,
+>  				struct super_block *newsb);
+>  int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
+> @@ -2037,7 +2042,9 @@ static inline int security_sb_pivotroot(struct path *old_path,
 >  }
 >  
-> +static inline int security_ismaclabel(const char *name)
-> +{
-> +	return 0;
-> +}
-> +
->  static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  static inline int security_sb_set_mnt_opts(struct super_block *sb,
+> -					   struct security_mnt_opts *opts)
+> +					   struct security_mnt_opts *opts,
+> +					   unsigned long kern_flags,
+> +					   unsigned long *set_kern_flags)
 >  {
->  	return -EOPNOTSUPP;
+>  	return 0;
+>  }
 > diff --git a/security/capability.c b/security/capability.c
-> index 782045e..71e5052 100644
+> index 71e5052..4708973 100644
 > --- a/security/capability.c
 > +++ b/security/capability.c
-> @@ -822,6 +822,11 @@ static int cap_setprocattr(struct task_struct *p, char *name, void *value,
->  	return -EINVAL;
+> @@ -91,7 +91,10 @@ static int cap_sb_pivotroot(struct path *old_path, struct path *new_path)
 >  }
 >  
-> +static int cap_ismaclabel(const char *name)
-> +{
-> +	return 0;
-> +}
+>  static int cap_sb_set_mnt_opts(struct super_block *sb,
+> -			       struct security_mnt_opts *opts)
+> +			       struct security_mnt_opts *opts,
+> +			       unsigned long kern_flags,
+> +			       unsigned long *set_kern_flags)
 > +
->  static int cap_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
 >  {
->  	return -EOPNOTSUPP;
-> @@ -1041,6 +1046,7 @@ void __init security_fixup_ops(struct security_operations *ops)
->  	set_to_cap_if_null(ops, d_instantiate);
->  	set_to_cap_if_null(ops, getprocattr);
->  	set_to_cap_if_null(ops, setprocattr);
-> +	set_to_cap_if_null(ops, ismaclabel);
->  	set_to_cap_if_null(ops, secid_to_secctx);
->  	set_to_cap_if_null(ops, secctx_to_secid);
->  	set_to_cap_if_null(ops, release_secctx);
+>  	if (unlikely(opts->num_mnt_opts))
+>  		return -EOPNOTSUPP;
 > diff --git a/security/security.c b/security/security.c
-> index 7c18e3c..07391f3 100644
+> index 07391f3..df8ade2 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -1057,6 +1057,12 @@ int security_netlink_send(struct sock *sk, struct sk_buff *skb)
->  	return security_ops->netlink_send(sk, skb);
+> @@ -294,9 +294,12 @@ int security_sb_pivotroot(struct path *old_path, struct path *new_path)
 >  }
 >  
-> +int security_ismaclabel(const char *name)
-> +{
-> +	return security_ops->ismaclabel(name);
-> +}
-> +EXPORT_SYMBOL(security_ismaclabel);
-> +
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  int security_sb_set_mnt_opts(struct super_block *sb,
+> -				struct security_mnt_opts *opts)
+> +				struct security_mnt_opts *opts,
+> +				unsigned long kern_flags,
+> +				unsigned long *set_kern_flags)
 >  {
->  	return security_ops->secid_to_secctx(secid, secdata, seclen);
+> -	return security_ops->sb_set_mnt_opts(sb, opts);
+> +	return security_ops->sb_set_mnt_opts(sb, opts, kern_flags,
+> +						set_kern_flags);
+>  }
+>  EXPORT_SYMBOL(security_sb_set_mnt_opts);
+>  
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 622b205..273e28b 100644
+> index 273e28b..6cb24ec 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -5423,6 +5423,11 @@ abort_change:
->  	return error;
->  }
->  
-> +static int selinux_ismaclabel(const char *name)
-> +{
-> +	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
-> +}
-> +
->  static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+> @@ -552,7 +552,9 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
+>   * labeling information.
+>   */
+>  static int selinux_set_mnt_opts(struct super_block *sb,
+> -				struct security_mnt_opts *opts)
+> +				struct security_mnt_opts *opts,
+> +				unsigned long kern_flags,
+> +				unsigned long *set_kern_flags)
 >  {
->  	return security_sid_to_context(secid, secdata, seclen);
-> @@ -5661,6 +5666,7 @@ static struct security_operations selinux_ops = {
->  	.getprocattr =			selinux_getprocattr,
->  	.setprocattr =			selinux_setprocattr,
+>  	const struct cred *cred = current_cred();
+>  	int rc = 0, i;
+> @@ -580,6 +582,12 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>  			"before the security server is initialized\n");
+>  		goto out;
+>  	}
+> +	if (kern_flags && !set_kern_flags) {
+> +		/* Specifying internal flags without providing a place to
+> +		 * place the results is not allowed */
+> +		rc = -EINVAL;
+> +		goto out;
+> +	}
 >  
-> +	.ismaclabel =			selinux_ismaclabel,
->  	.secid_to_secctx =		selinux_secid_to_secctx,
->  	.secctx_to_secid =		selinux_secctx_to_secid,
->  	.release_secctx =		selinux_release_secctx,
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index fa64740..ca01d71 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -3329,6 +3329,16 @@ static void smack_audit_rule_free(void *vrule)
->  #endif /* CONFIG_AUDIT */
+>  	/*
+>  	 * Binary mount data FS will come through this function twice.  Once
+> @@ -949,7 +957,7 @@ static int superblock_doinit(struct super_block *sb, void *data)
+>  		goto out_err;
 >  
->  /**
-> + * smack_ismaclabel - check if xattr @name references a smack MAC label
-> + * @name: Full xattr name to check.
-> + */
-> +static int smack_ismaclabel(const char *name)
-> +{
-> +	return (strcmp(name, XATTR_SMACK_SUFFIX) == 0);
-> +}
-> +
-> +
-> +/**
->   * smack_secid_to_secctx - return the smack label for a secid
->   * @secid: incoming integer
->   * @secdata: destination
-> @@ -3524,6 +3534,7 @@ struct security_operations smack_ops = {
->  	.audit_rule_free =		smack_audit_rule_free,
->  #endif /* CONFIG_AUDIT */
+>  out:
+> -	rc = selinux_set_mnt_opts(sb, &opts);
+> +	rc = selinux_set_mnt_opts(sb, &opts, 0, NULL);
 >  
-> +	.ismaclabel =			smack_ismaclabel,
->  	.secid_to_secctx = 		smack_secid_to_secctx,
->  	.secctx_to_secid = 		smack_secctx_to_secid,
->  	.release_secctx = 		smack_release_secctx,
+>  out_err:
+>  	security_free_mnt_opts(&opts);
 > -- 
 > 1.8.1.4
 > 
