@@ -1,4 +1,4 @@
-Date: Fri, 3 May 2013 09:36:27 +1000 (EST)
+Date: Fri, 3 May 2013 09:37:47 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: Steve Dickson <SteveD@redhat.com>
 cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
@@ -8,11 +8,11 @@ cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
         Linux FS devel list <linux-fsdevel@vger.kernel.org>,
         Linux Security List <linux-security-module@vger.kernel.org>,
         SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 04/17] Security: Add hook to calculate context based on
- a negative dentry.
-In-Reply-To: <1367515151-31015-5-git-send-email-SteveD@redhat.com>
-Message-ID: <alpine.LRH.2.02.1305030935520.1113@tundra.namei.org>
-References: <1367515151-31015-1-git-send-email-SteveD@redhat.com> <1367515151-31015-5-git-send-email-SteveD@redhat.com>
+Subject: Re: [PATCH 14/17] NFS: Extend NFS xattr handlers to accept the
+ security namespace
+In-Reply-To: <1367515151-31015-15-git-send-email-SteveD@redhat.com>
+Message-ID: <alpine.LRH.2.02.1305030937410.1113@tundra.namei.org>
+References: <1367515151-31015-1-git-send-email-SteveD@redhat.com> <1367515151-31015-15-git-send-email-SteveD@redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -22,199 +22,103 @@ On Thu, 2 May 2013, Steve Dickson wrote:
 
 > From: David Quigley <dpquigl@davequigley.com>
 > 
-> There is a time where we need to calculate a context without the
-> inode having been created yet. To do this we take the negative dentry and
-> calculate a context based on the process and the parent directory contexts.
+> The existing NFSv4 xattr handlers do not accept xattr calls to the security
+> namespace. This patch extends these handlers to accept xattrs from the security
+> namespace in addition to the default NFSv4 ACL namespace.
 > 
 > Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 > Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
 > Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
 > Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
 
-
 Acked-by: James Morris <james.l.morris@oracle.com>
 
 
 > ---
->  include/linux/security.h | 27 +++++++++++++++++++++++++++
->  security/capability.c    |  8 ++++++++
->  security/security.c      | 10 ++++++++++
->  security/selinux/hooks.c | 35 +++++++++++++++++++++++++++++++++++
->  4 files changed, 80 insertions(+)
+>  fs/nfs/nfs4proc.c   | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  security/security.c |  1 +
+>  2 files changed, 51 insertions(+)
 > 
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 032c366..f3d7956 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -26,6 +26,7 @@
->  #include <linux/capability.h>
->  #include <linux/slab.h>
->  #include <linux/err.h>
-> +#include <linux/string.h>
+> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+> index 0e5b319..7b65c99 100644
+> --- a/fs/nfs/nfs4proc.c
+> +++ b/fs/nfs/nfs4proc.c
+> @@ -5518,6 +5518,53 @@ static size_t nfs4_xattr_list_nfs4_acl(struct dentry *dentry, char *list,
+>  	return len;
+>  }
 >  
->  struct linux_binprm;
->  struct cred;
-> @@ -306,6 +307,15 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	Parse a string of security data filling in the opts structure
->   *	@options string containing all mount options known by the LSM
->   *	@opts binary data structure usable by the LSM
-> + * @dentry_init_security:
-> + *	Compute a context for a dentry as the inode is not yet available
-> + *	since NFSv4 has no label backed by an EA anyway.
-> + *	@dentry dentry to use in calculating the context.
-> + *	@mode mode used to determine resource type.
-> + *	@name name of the last path component used to create file
-> + *	@ctx pointer to place the pointer to the resulting context in.
-> + *	@ctxlen point to place the length of the resulting context.
-> + *
->   *
->   * Security hooks for inode operations.
->   *
-> @@ -1443,6 +1453,10 @@ struct security_operations {
->  	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
->  				   struct super_block *newsb);
->  	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
-> +	int (*dentry_init_security) (struct dentry *dentry, int mode,
-> +					struct qstr *name, void **ctx,
-> +					u32 *ctxlen);
-> +
->  
->  #ifdef CONFIG_SECURITY_PATH
->  	int (*path_unlink) (struct path *dir, struct dentry *dentry);
-> @@ -1729,6 +1743,9 @@ int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *o
->  void security_sb_clone_mnt_opts(const struct super_block *oldsb,
->  				struct super_block *newsb);
->  int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
-> +int security_dentry_init_security(struct dentry *dentry, int mode,
-> +					struct qstr *name, void **ctx,
-> +					u32 *ctxlen);
->  
->  int security_inode_alloc(struct inode *inode);
->  void security_inode_free(struct inode *inode);
-> @@ -2033,6 +2050,16 @@ static inline int security_inode_alloc(struct inode *inode)
->  static inline void security_inode_free(struct inode *inode)
->  { }
->  
-> +static inline int security_dentry_init_security(struct dentry *dentry,
-> +						 int mode,
-> +						 struct qstr *name,
-> +						 void **ctx,
-> +						 u32 *ctxlen)
+> +#ifdef CONFIG_NFS_V4_SECURITY_LABEL
+> +static inline int nfs4_server_supports_labels(struct nfs_server *server)
 > +{
+> +	return server->caps & NFS_CAP_SECURITY_LABEL;
+> +}
+> +
+> +static int nfs4_xattr_set_nfs4_label(struct dentry *dentry, const char *key,
+> +				   const void *buf, size_t buflen,
+> +				   int flags, int type)
+> +{
+> +	if (security_ismaclabel(key))
+> +		return nfs4_set_security_label(dentry, buf, buflen);
+> +
 > +	return -EOPNOTSUPP;
 > +}
 > +
-> +
->  static inline int security_inode_init_security(struct inode *inode,
->  						struct inode *dir,
->  						const struct qstr *qstr,
-> diff --git a/security/capability.c b/security/capability.c
-> index 6783c3e..782045e 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -108,6 +108,13 @@ static int cap_sb_parse_opts_str(char *options, struct security_mnt_opts *opts)
->  	return 0;
->  }
->  
-> +static int cap_dentry_init_security(struct dentry *dentry, int mode,
-> +					struct qstr *name, void **ctx,
-> +					u32 *ctxlen)
+> +static int nfs4_xattr_get_nfs4_label(struct dentry *dentry, const char *key,
+> +				   void *buf, size_t buflen, int type)
 > +{
-> +	return 0;
+> +	if (security_ismaclabel(key))
+> +		return nfs4_get_security_label(dentry->d_inode, buf, buflen);
+> +	return -EOPNOTSUPP;
 > +}
 > +
->  static int cap_inode_alloc_security(struct inode *inode)
->  {
->  	return 0;
-> @@ -930,6 +937,7 @@ void __init security_fixup_ops(struct security_operations *ops)
->  	set_to_cap_if_null(ops, sb_set_mnt_opts);
->  	set_to_cap_if_null(ops, sb_clone_mnt_opts);
->  	set_to_cap_if_null(ops, sb_parse_opts_str);
-> +	set_to_cap_if_null(ops, dentry_init_security);
->  	set_to_cap_if_null(ops, inode_alloc_security);
->  	set_to_cap_if_null(ops, inode_free_security);
->  	set_to_cap_if_null(ops, inode_init_security);
+> +static size_t nfs4_xattr_list_nfs4_label(struct dentry *dentry, char *list,
+> +				       size_t list_len, const char *name,
+> +				       size_t name_len, int type)
+> +{
+> +	size_t len = 0;
+> +
+> +	if (nfs_server_capable(dentry->d_inode, NFS_CAP_SECURITY_LABEL)) {
+> +		len = security_inode_listsecurity(dentry->d_inode, NULL, 0);
+> +		if (list && len <= list_len)
+> +			security_inode_listsecurity(dentry->d_inode, list, len);
+> +	}
+> +	return len;
+> +}
+> +
+> +static const struct xattr_handler nfs4_xattr_nfs4_label_handler = {
+> +	.prefix = XATTR_SECURITY_PREFIX,
+> +	.list	= nfs4_xattr_list_nfs4_label,
+> +	.get	= nfs4_xattr_get_nfs4_label,
+> +	.set	= nfs4_xattr_set_nfs4_label,
+> +};
+> +#endif
+> +
+> +
+>  /*
+>   * nfs_fhget will use either the mounted_on_fileid or the fileid
+>   */
+> @@ -7270,6 +7317,9 @@ static const struct xattr_handler nfs4_xattr_nfs4_acl_handler = {
+>  
+>  const struct xattr_handler *nfs4_xattr_handlers[] = {
+>  	&nfs4_xattr_nfs4_acl_handler,
+> +#ifdef CONFIG_NFS_V4_SECURITY_LABEL
+> +	&nfs4_xattr_nfs4_label_handler,
+> +#endif
+>  	NULL
+>  };
+>  
 > diff --git a/security/security.c b/security/security.c
-> index 03f248b..7c18e3c 100644
+> index df8ade2..758af6b 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -12,6 +12,7 @@
->   */
->  
->  #include <linux/capability.h>
-> +#include <linux/dcache.h>
->  #include <linux/module.h>
->  #include <linux/init.h>
->  #include <linux/kernel.h>
-> @@ -324,6 +325,15 @@ void security_inode_free(struct inode *inode)
->  	security_ops->inode_free_security(inode);
+> @@ -660,6 +660,7 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
+>  		return 0;
+>  	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
 >  }
+> +EXPORT_SYMBOL(security_inode_listsecurity);
 >  
-> +int security_dentry_init_security(struct dentry *dentry, int mode,
-> +					struct qstr *name, void **ctx,
-> +					u32 *ctxlen)
-> +{
-> +	return security_ops->dentry_init_security(dentry, mode, name,
-> +							ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_dentry_init_security);
-> +
->  int security_inode_init_security(struct inode *inode, struct inode *dir,
->  				 const struct qstr *qstr,
->  				 const initxattrs initxattrs, void *fs_data)
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7171a95..622b205 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2484,6 +2484,40 @@ static void selinux_inode_free_security(struct inode *inode)
->  	inode_free_security(inode);
->  }
->  
-> +static int selinux_dentry_init_security(struct dentry *dentry, int mode,
-> +					struct qstr *name, void **ctx,
-> +					u32 *ctxlen)
-> +{
-> +	const struct cred *cred = current_cred();
-> +	struct task_security_struct *tsec;
-> +	struct inode_security_struct *dsec;
-> +	struct superblock_security_struct *sbsec;
-> +	struct inode *dir = dentry->d_parent->d_inode;
-> +	u32 newsid;
-> +	int rc;
-> +
-> +	tsec = cred->security;
-> +	dsec = dir->i_security;
-> +	sbsec = dir->i_sb->s_security;
-> +
-> +	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
-> +		newsid = tsec->create_sid;
-> +	} else {
-> +		rc = security_transition_sid(tsec->sid, dsec->sid,
-> +					     inode_mode_to_security_class(mode),
-> +					     name,
-> +					     &newsid);
-> +		if (rc) {
-> +			printk(KERN_WARNING
-> +				"%s: security_transition_sid failed, rc=%d\n",
-> +			       __func__, -rc);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
-> +}
-> +
->  static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
->  				       const struct qstr *qstr, char **name,
->  				       void **value, size_t *len)
-> @@ -5531,6 +5565,7 @@ static struct security_operations selinux_ops = {
->  	.sb_clone_mnt_opts =		selinux_sb_clone_mnt_opts,
->  	.sb_parse_opts_str = 		selinux_parse_opts_str,
->  
-> +	.dentry_init_security =		selinux_dentry_init_security,
->  
->  	.inode_alloc_security =		selinux_inode_alloc_security,
->  	.inode_free_security =		selinux_inode_free_security,
+>  void security_inode_getsecid(const struct inode *inode, u32 *secid)
+>  {
 > -- 
 > 1.8.1.4
 > 
