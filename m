@@ -1,185 +1,163 @@
-Date: Fri, 3 May 2013 09:37:03 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Steve Dickson <SteveD@redhat.com>
-cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Linux NFS list <linux-nfs@vger.kernel.org>,
-        Linux FS devel list <linux-fsdevel@vger.kernel.org>,
-        Linux Security List <linux-security-module@vger.kernel.org>,
-        SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 06/17] LSM: Add flags field to security_sb_set_mnt_opts
- for in kernel mount data.
-In-Reply-To: <1367515151-31015-7-git-send-email-SteveD@redhat.com>
-Message-ID: <alpine.LRH.2.02.1305030936480.1113@tundra.namei.org>
-References: <1367515151-31015-1-git-send-email-SteveD@redhat.com> <1367515151-31015-7-git-send-email-SteveD@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r43D7KkM000821
+	for <selinux@tycho.nsa.gov>; Fri, 3 May 2013 09:07:20 -0400
+From: Chris PeBenito <cpebenito@tresys.com>
+To: <selinux@tycho.nsa.gov>
+CC: Chris PeBenito <cpebenito@tresys.com>
+Subject: [PATCH 1/1] Add SELinux policy capability for always checking packet and peer classes.
+Date: Fri, 3 May 2013 09:05:39 -0400
+Message-ID: <1367586339-12509-1-git-send-email-cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2 May 2013, Steve Dickson wrote:
+Currently the packet class in SELinux is not checked if there are no
+SECMARK rules in the security or mangle netfilter tables.  Some systems
+prefer that packets are always checked, for example, to protect the system
+should the netfilter rules fail to load or if the nefilter rules
+were maliciously flushed.
 
-> From: David Quigley <dpquigl@davequigley.com>
-> 
-> There is no way to differentiate if a text mount option is passed from user
-> space or the kernel. A flags field is being added to the
-> security_sb_set_mnt_opts hook to allow for in kernel security flags to be sent
-> to the LSM for processing in addition to the text options received from mount.
-> This patch also updated existing code to fix compilation errors.
-> 
-> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
-> Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
-> Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
-> Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
+Add the always_check_network policy capability which, when enabled, treats
+SECMARK as enabled, even if there are no netfilter SECMARK rules and
+treats peer labeling as enabled, even if there is no Netlabel or
+labeled IPSEC configuration.
 
-Acked-by: James Morris <james.l.morris@oracle.com>
+Includes definition of "redhat1" SELinux policy capability, which
+exists in the SELinux userpace library, to keep ordering correct.
 
+The SELinux userpace portion of this was merged last year, but this kernel
+change fell on the floor.
 
-> ---
->  fs/nfs/super.c           |  3 ++-
->  include/linux/security.h | 13 ++++++++++---
->  security/capability.c    |  5 ++++-
->  security/security.c      |  7 +++++--
->  security/selinux/hooks.c | 12 ++++++++++--
->  5 files changed, 31 insertions(+), 9 deletions(-)
-> 
-> diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-> index 29f2d86..d84eb57 100644
-> --- a/fs/nfs/super.c
-> +++ b/fs/nfs/super.c
-> @@ -2378,7 +2378,8 @@ static int nfs_bdi_register(struct nfs_server *server)
->  int nfs_set_sb_security(struct super_block *s, struct dentry *mntroot,
->  			struct nfs_mount_info *mount_info)
->  {
-> -	return security_sb_set_mnt_opts(s, &mount_info->parsed->lsm_opts);
-> +	return security_sb_set_mnt_opts(s, &mount_info->parsed->lsm_opts,
-> +								0, NULL);
->  }
->  EXPORT_SYMBOL_GPL(nfs_set_sb_security);
->  
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 934f96f..4ab51e2 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1456,7 +1456,9 @@ struct security_operations {
->  	int (*sb_pivotroot) (struct path *old_path,
->  			     struct path *new_path);
->  	int (*sb_set_mnt_opts) (struct super_block *sb,
-> -				struct security_mnt_opts *opts);
-> +				struct security_mnt_opts *opts,
-> +				unsigned long kern_flags,
-> +				unsigned long *set_kern_flags);
->  	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
->  				   struct super_block *newsb);
->  	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
-> @@ -1747,7 +1749,10 @@ int security_sb_mount(const char *dev_name, struct path *path,
->  		      const char *type, unsigned long flags, void *data);
->  int security_sb_umount(struct vfsmount *mnt, int flags);
->  int security_sb_pivotroot(struct path *old_path, struct path *new_path);
-> -int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *opts);
-> +int security_sb_set_mnt_opts(struct super_block *sb,
-> +				struct security_mnt_opts *opts,
-> +				unsigned long kern_flags,
-> +				unsigned long *set_kern_flags);
->  void security_sb_clone_mnt_opts(const struct super_block *oldsb,
->  				struct super_block *newsb);
->  int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
-> @@ -2037,7 +2042,9 @@ static inline int security_sb_pivotroot(struct path *old_path,
->  }
->  
->  static inline int security_sb_set_mnt_opts(struct super_block *sb,
-> -					   struct security_mnt_opts *opts)
-> +					   struct security_mnt_opts *opts,
-> +					   unsigned long kern_flags,
-> +					   unsigned long *set_kern_flags)
->  {
->  	return 0;
->  }
-> diff --git a/security/capability.c b/security/capability.c
-> index 71e5052..4708973 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -91,7 +91,10 @@ static int cap_sb_pivotroot(struct path *old_path, struct path *new_path)
->  }
->  
->  static int cap_sb_set_mnt_opts(struct super_block *sb,
-> -			       struct security_mnt_opts *opts)
-> +			       struct security_mnt_opts *opts,
-> +			       unsigned long kern_flags,
-> +			       unsigned long *set_kern_flags)
-> +
->  {
->  	if (unlikely(opts->num_mnt_opts))
->  		return -EOPNOTSUPP;
-> diff --git a/security/security.c b/security/security.c
-> index 07391f3..df8ade2 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -294,9 +294,12 @@ int security_sb_pivotroot(struct path *old_path, struct path *new_path)
->  }
->  
->  int security_sb_set_mnt_opts(struct super_block *sb,
-> -				struct security_mnt_opts *opts)
-> +				struct security_mnt_opts *opts,
-> +				unsigned long kern_flags,
-> +				unsigned long *set_kern_flags)
->  {
-> -	return security_ops->sb_set_mnt_opts(sb, opts);
-> +	return security_ops->sb_set_mnt_opts(sb, opts, kern_flags,
-> +						set_kern_flags);
->  }
->  EXPORT_SYMBOL(security_sb_set_mnt_opts);
->  
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 273e28b..6cb24ec 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -552,7 +552,9 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
->   * labeling information.
->   */
->  static int selinux_set_mnt_opts(struct super_block *sb,
-> -				struct security_mnt_opts *opts)
-> +				struct security_mnt_opts *opts,
-> +				unsigned long kern_flags,
-> +				unsigned long *set_kern_flags)
->  {
->  	const struct cred *cred = current_cred();
->  	int rc = 0, i;
-> @@ -580,6 +582,12 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->  			"before the security server is initialized\n");
->  		goto out;
->  	}
-> +	if (kern_flags && !set_kern_flags) {
-> +		/* Specifying internal flags without providing a place to
-> +		 * place the results is not allowed */
-> +		rc = -EINVAL;
-> +		goto out;
-> +	}
->  
->  	/*
->  	 * Binary mount data FS will come through this function twice.  Once
-> @@ -949,7 +957,7 @@ static int superblock_doinit(struct super_block *sb, void *data)
->  		goto out_err;
->  
->  out:
-> -	rc = selinux_set_mnt_opts(sb, &opts);
-> +	rc = selinux_set_mnt_opts(sb, &opts, 0, NULL);
->  
->  out_err:
->  	security_free_mnt_opts(&opts);
-> -- 
-> 1.8.1.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
+---
+ security/selinux/hooks.c            | 26 +++++++++++++++++++++-----
+ security/selinux/include/security.h |  3 +++
+ security/selinux/selinuxfs.c        |  4 +++-
+ security/selinux/ss/services.c      |  3 +++
+ 4 files changed, 30 insertions(+), 6 deletions(-)
 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5c6f2cd..31df7ab 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -138,12 +138,28 @@ static struct kmem_cache *sel_inode_cache;
+  * This function checks the SECMARK reference counter to see if any SECMARK
+  * targets are currently configured, if the reference counter is greater than
+  * zero SECMARK is considered to be enabled.  Returns true (1) if SECMARK is
+- * enabled, false (0) if SECMARK is disabled.
++ * enabled, false (0) if SECMARK is disabled.  If the always_check_network
++ * policy capability is enabled, SECMARK is always considered enabled.
+  *
+  */
+ static int selinux_secmark_enabled(void)
+ {
+-	return (atomic_read(&selinux_secmark_refcount) > 0);
++	return (selinux_policycap_alwaysnetwork || atomic_read(&selinux_secmark_refcount));
++}
++
++/**
++ * selinux_peerlbl_enabled - Check to see if peer labeling is currently enabled
++ *
++ * Description:
++ * This function checks if NetLabel or labeled IPSEC is enabled.  Returns true
++ * (1) if any are enabled or false (0) if neither are enabled.  If the
++ * always_check_network policy capability is enabled, peer labeling
++ * is always considered enabled.
++ *
++ */
++static int selinux_peerlbl_enabled(void)
++{
++	return (selinux_policycap_alwaysnetwork || netlbl_enabled() || selinux_xfrm_enabled());
+ }
+ 
+ /*
+@@ -4177,7 +4193,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 		return selinux_sock_rcv_skb_compat(sk, skb, family);
+ 
+ 	secmark_active = selinux_secmark_enabled();
+-	peerlbl_active = netlbl_enabled() || selinux_xfrm_enabled();
++	peerlbl_active = selinux_peerlbl_enabled();
+ 	if (!secmark_active && !peerlbl_active)
+ 		return 0;
+ 
+@@ -4559,7 +4575,7 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 
+ 	secmark_active = selinux_secmark_enabled();
+ 	netlbl_active = netlbl_enabled();
+-	peerlbl_active = netlbl_active || selinux_xfrm_enabled();
++	peerlbl_active = selinux_peerlbl_enabled();
+ 	if (!secmark_active && !peerlbl_active)
+ 		return NF_ACCEPT;
+ 
+@@ -4711,7 +4727,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 		return NF_ACCEPT;
+ #endif
+ 	secmark_active = selinux_secmark_enabled();
+-	peerlbl_active = netlbl_enabled() || selinux_xfrm_enabled();
++	peerlbl_active = selinux_peerlbl_enabled();
+ 	if (!secmark_active && !peerlbl_active)
+ 		return NF_ACCEPT;
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 6d38851..376a1d7 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -68,12 +68,15 @@ extern int selinux_enabled;
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
+ 	POLICYDB_CAPABILITY_OPENPERM,
++	POLICYDB_CAPABILITY_REDHAT1,
++	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
+ extern int selinux_policycap_netpeer;
+ extern int selinux_policycap_openperm;
++extern int selinux_policycap_alwaysnetwork;
+ 
+ /*
+  * type_datum properties
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index ff42773..5122aff 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -44,7 +44,9 @@
+ /* Policy capability filenames */
+ static char *policycap_names[] = {
+ 	"network_peer_controls",
+-	"open_perms"
++	"open_perms",
++	"redhat1",
++	"always_check_network"
+ };
+ 
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index b4feecc..4cee8a7 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -72,6 +72,7 @@
+ 
+ int selinux_policycap_netpeer;
+ int selinux_policycap_openperm;
++int selinux_policycap_alwaysnetwork;
+ 
+ static DEFINE_RWLOCK(policy_rwlock);
+ 
+@@ -1812,6 +1813,8 @@ static void security_load_policycaps(void)
+ 						  POLICYDB_CAPABILITY_NETPEER);
+ 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_OPENPERM);
++	selinux_policycap_alwaysnetwork = ebitmap_get_bit(&policydb.policycaps,
++						  POLICYDB_CAPABILITY_ALWAYSNETWORK);
+ }
+ 
+ static int security_preserve_bools(struct policydb *p);
 -- 
-James Morris
-<jmorris@namei.org>
+1.8.2.1
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
