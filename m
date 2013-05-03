@@ -1,163 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r43D7KkM000821
-	for <selinux@tycho.nsa.gov>; Fri, 3 May 2013 09:07:20 -0400
-From: Chris PeBenito <cpebenito@tresys.com>
-To: <selinux@tycho.nsa.gov>
-CC: Chris PeBenito <cpebenito@tresys.com>
-Subject: [PATCH 1/1] Add SELinux policy capability for always checking packet and peer classes.
-Date: Fri, 3 May 2013 09:05:39 -0400
-Message-ID: <1367586339-12509-1-git-send-email-cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r43HeI3g020429
+	for <selinux@tycho.nsa.gov>; Fri, 3 May 2013 13:40:18 -0400
+Received: by mail-wg0-f46.google.com with SMTP id n12so1790235wgh.25
+        for <selinux@tycho.nsa.gov>; Fri, 03 May 2013 10:40:15 -0700 (PDT)
+Received: from siphos.be (ip-83-101-67-57.customer.schedom-europe.net. [83.101.67.57])
+        by mx.google.com with ESMTPSA id d8sm18488688wiv.10.2013.05.03.10.40.13
+        for <selinux@tycho.nsa.gov>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Fri, 03 May 2013 10:40:14 -0700 (PDT)
+Date: Fri, 3 May 2013 19:39:26 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: selinux@tycho.nsa.gov
+Subject: Re: What provides _policy?
+Message-ID: <20130503173926.GA22935@siphos.be>
+References: <20130501135544.GA21525@siphos.be>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20130501135544.GA21525@siphos.be>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently the packet class in SELinux is not checked if there are no
-SECMARK rules in the security or mangle netfilter tables.  Some systems
-prefer that packets are always checked, for example, to protect the system
-should the netfilter rules fail to load or if the nefilter rules
-were maliciously flushed.
+On Wed, May 01, 2013 at 03:55:44PM +0200, Sven Vermeulen wrote:
+> Recent policycoreutils' sepolicy imports "_policy", but I am having troubles
+> finding where _policy is provided?
 
-Add the always_check_network policy capability which, when enabled, treats
-SECMARK as enabled, even if there are no netfilter SECMARK rules and
-treats peer labeling as enabled, even if there is no Netlabel or
-labeled IPSEC configuration.
+Okay so I know that _policy comes from policy.c which is build through
+"setup.py build" and is provided through a _policy.so file (I was looking
+for _policy.py which isn't created).
 
-Includes definition of "redhat1" SELinux policy capability, which
-exists in the SELinux userpace library, to keep ordering correct.
+However, I'm having a hard time debugging why I get the following:
 
-The SELinux userpace portion of this was merged last year, but this kernel
-change fell on the floor.
+  File "/usr/bin/sepolicy-2.7", line 63, in __call__
+    from sepolicy.network import domains
+  File "/usr/lib64/python2.7/site-packages/sepolicy/network.py", line 44, in <module>
+    portrecs, portrecsbynum = _gen_port_dict()
+  File "/usr/lib64/python2.7/site-packages/sepolicy/network.py", line 31, in _gen_port_dict
+    for i in info(sepolicy.PORT):
+  File "/usr/lib64/python2.7/site-packages/sepolicy/__init__.py", line 182, in info
+    dict_list = _policy.info(setype, name)
+RuntimeError: No such file or directory
 
-Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
----
- security/selinux/hooks.c            | 26 +++++++++++++++++++++-----
- security/selinux/include/security.h |  3 +++
- security/selinux/selinuxfs.c        |  4 +++-
- security/selinux/ss/services.c      |  3 +++
- 4 files changed, 30 insertions(+), 6 deletions(-)
+What could this error be about? I get this when I try 
+"sepolicy communicate -s portage_t".
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5c6f2cd..31df7ab 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -138,12 +138,28 @@ static struct kmem_cache *sel_inode_cache;
-  * This function checks the SECMARK reference counter to see if any SECMARK
-  * targets are currently configured, if the reference counter is greater than
-  * zero SECMARK is considered to be enabled.  Returns true (1) if SECMARK is
-- * enabled, false (0) if SECMARK is disabled.
-+ * enabled, false (0) if SECMARK is disabled.  If the always_check_network
-+ * policy capability is enabled, SECMARK is always considered enabled.
-  *
-  */
- static int selinux_secmark_enabled(void)
- {
--	return (atomic_read(&selinux_secmark_refcount) > 0);
-+	return (selinux_policycap_alwaysnetwork || atomic_read(&selinux_secmark_refcount));
-+}
-+
-+/**
-+ * selinux_peerlbl_enabled - Check to see if peer labeling is currently enabled
-+ *
-+ * Description:
-+ * This function checks if NetLabel or labeled IPSEC is enabled.  Returns true
-+ * (1) if any are enabled or false (0) if neither are enabled.  If the
-+ * always_check_network policy capability is enabled, peer labeling
-+ * is always considered enabled.
-+ *
-+ */
-+static int selinux_peerlbl_enabled(void)
-+{
-+	return (selinux_policycap_alwaysnetwork || netlbl_enabled() || selinux_xfrm_enabled());
- }
- 
- /*
-@@ -4177,7 +4193,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		return selinux_sock_rcv_skb_compat(sk, skb, family);
- 
- 	secmark_active = selinux_secmark_enabled();
--	peerlbl_active = netlbl_enabled() || selinux_xfrm_enabled();
-+	peerlbl_active = selinux_peerlbl_enabled();
- 	if (!secmark_active && !peerlbl_active)
- 		return 0;
- 
-@@ -4559,7 +4575,7 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
- 
- 	secmark_active = selinux_secmark_enabled();
- 	netlbl_active = netlbl_enabled();
--	peerlbl_active = netlbl_active || selinux_xfrm_enabled();
-+	peerlbl_active = selinux_peerlbl_enabled();
- 	if (!secmark_active && !peerlbl_active)
- 		return NF_ACCEPT;
- 
-@@ -4711,7 +4727,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 		return NF_ACCEPT;
- #endif
- 	secmark_active = selinux_secmark_enabled();
--	peerlbl_active = netlbl_enabled() || selinux_xfrm_enabled();
-+	peerlbl_active = selinux_peerlbl_enabled();
- 	if (!secmark_active && !peerlbl_active)
- 		return NF_ACCEPT;
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 6d38851..376a1d7 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -68,12 +68,15 @@ extern int selinux_enabled;
- enum {
- 	POLICYDB_CAPABILITY_NETPEER,
- 	POLICYDB_CAPABILITY_OPENPERM,
-+	POLICYDB_CAPABILITY_REDHAT1,
-+	POLICYDB_CAPABILITY_ALWAYSNETWORK,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
- 
- extern int selinux_policycap_netpeer;
- extern int selinux_policycap_openperm;
-+extern int selinux_policycap_alwaysnetwork;
- 
- /*
-  * type_datum properties
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index ff42773..5122aff 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -44,7 +44,9 @@
- /* Policy capability filenames */
- static char *policycap_names[] = {
- 	"network_peer_controls",
--	"open_perms"
-+	"open_perms",
-+	"redhat1",
-+	"always_check_network"
- };
- 
- unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b4feecc..4cee8a7 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -72,6 +72,7 @@
- 
- int selinux_policycap_netpeer;
- int selinux_policycap_openperm;
-+int selinux_policycap_alwaysnetwork;
- 
- static DEFINE_RWLOCK(policy_rwlock);
- 
-@@ -1812,6 +1813,8 @@ static void security_load_policycaps(void)
- 						  POLICYDB_CAPABILITY_NETPEER);
- 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
- 						  POLICYDB_CAPABILITY_OPENPERM);
-+	selinux_policycap_alwaysnetwork = ebitmap_get_bit(&policydb.policycaps,
-+						  POLICYDB_CAPABILITY_ALWAYSNETWORK);
- }
- 
- static int security_preserve_bools(struct policydb *p);
--- 
-1.8.2.1
-
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
