@@ -1,71 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r46IDU98005148
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2013 14:13:30 -0400
-Message-ID: <5187F2C7.3070602@redhat.com>
-Date: Mon, 06 May 2013 14:13:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r46IdN2G006502
+	for <selinux@tycho.nsa.gov>; Mon, 6 May 2013 14:39:23 -0400
+Received: by mail-wi0-f171.google.com with SMTP id l13so2874767wie.4
+        for <selinux@tycho.nsa.gov>; Mon, 06 May 2013 11:39:21 -0700 (PDT)
+Date: Mon, 6 May 2013 20:38:29 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: What provides _policy?
+Message-ID: <20130506183828.GA26604@siphos.be>
+References: <20130501135544.GA21525@siphos.be>
+ <20130503173926.GA22935@siphos.be>
+ <5187DFB7.9050700@redhat.com>
 MIME-Version: 1.0
-To: Andy Ruch <adruch2002@yahoo.com>
-CC: SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: SELinux errors with pam_faillock
-References: <1366925707.22597.YahooMailNeo@web163405.mail.gq1.yahoo.com>
-In-Reply-To: <1366925707.22597.YahooMailNeo@web163405.mail.gq1.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <5187DFB7.9050700@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 06, 2013 at 12:52:07PM -0400, Daniel J Walsh wrote:
+> > However, I'm having a hard time debugging why I get the following:
+> > 
+> > File "/usr/bin/sepolicy-2.7", line 63, in __call__ from sepolicy.network
+> > import domains File
+> > "/usr/lib64/python2.7/site-packages/sepolicy/network.py", line 44, in
+> > <module> portrecs, portrecsbynum = _gen_port_dict() File
+> > "/usr/lib64/python2.7/site-packages/sepolicy/network.py", line 31, in
+> > _gen_port_dict for i in info(sepolicy.PORT): File
+> > "/usr/lib64/python2.7/site-packages/sepolicy/__init__.py", line 182, in
+> > info dict_list = _policy.info(setype, name) RuntimeError: No such file or
+> > directory
+> > 
+> > What could this error be about? I get this when I try "sepolicy communicate
+> > -s portage_t".
+> > 
+> Where are you executing this?
 
-On 04/25/2013 05:35 PM, Andy Ruch wrote:
-> Hello,
-> 
-> I'm receiving some SELinux errors related to the pam_faillock module. I'm 
-> running RHEL 6.3 with a custom policy based on the reference policy.
-> 
-> When a user enters an incorrect password, the pam faillock module will
-> track it with a file in /var/run/faillock/<user>. This is being applied
-> whenever the user enters their password (i.e. console login, newrole,
-> sudo). Everything works appropriately for the console login. For newrole
-> and sudo, I'm getting errors when the /var/run/faillock/<user> file is
-> trying to be created. Basically, newrole_t and <role>_sudo_t don't have
-> permission to create files in a faillog_t dir.
-> 
-> I found a rule in 'selinuxutil.te' allowing newrole_t to read/write to
-> faillog: "auth_rw_faillog(newrole_t)". However, this rule only allows
-> writing if the file already exists. It doesn't address if the faillock file
-> needs to be created.
-> 
-> I'm able to address the issues with the following rules:
-> 
-> # Note that these rules would be applied in the sudo interface to support
-> all sudo types create_files_pattern( sysadm_sudo_t, faillog_t, faillog_t ) 
-> setattr_files_pattern( sysadm_sudo_t, faillog_t, faillog_t ) allow
-> sysadm_sudo_t_t self:capability:chown;
-> 
-> create_files_pattern( newrole_t, faillog_t, faillog_t ) 
-> setattr_files_pattern( newrole_t, faillog_t, faillog_t ) allow newrole_t
-> self:capability:chown;
-> 
-> Is this the correct solution? Or should a transition be happening when
-> faillock executes?
-> 
-> Thanks, Andy Ruch
-We don't have these rules in policy either.
+If you mean distribution: Gentoo Hardened.
+If you mean location: anywhere (like in /root).
+If you mean context: I'm staff_u:sysadm_r:sysadm_t at the time of executing.
 
-I would add
+I get the same stacktrace with "sepolicy transition".
 
-auth_manage_faillog(sysadm_sudo_t)
-auth_manage_faillog(newrole_t)
+I notice that there is some port specific stuff in the stack trace;
+"semanage port -l" works ok here.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.13 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlGH8scACgkQrlYvE4MpobMPPQCfQWcTrvlU8zeaW+Zzvx2wG2rC
-CtkAn3kapX0n0p6bwJR/7G57JSeG7Yh5
-=6NjD
------END PGP SIGNATURE-----
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
