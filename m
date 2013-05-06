@@ -1,54 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r46DoINY019961
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2013 09:50:18 -0400
-Message-ID: <5187B50C.4020106@tresys.com>
-Date: Mon, 6 May 2013 09:50:04 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r46DtxRw020151
+	for <selinux@tycho.nsa.gov>; Mon, 6 May 2013 09:55:59 -0400
+Message-ID: <5187B668.5010903@tresys.com>
+Date: Mon, 6 May 2013 09:55:52 -0400
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Paul Moore <pmoore@redhat.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: Clarification of labeled IPsec checks
-References: <51840BF4.7000302@tresys.com> <39078390.44gaRjNkjA@sifl>
-In-Reply-To: <39078390.44gaRjNkjA@sifl>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+CC: <selinux@tycho.nsa.gov>
+Subject: Re: redhat1 polcap (was Re: [PATCH 1/1] Add SELinux policy capability
+ for always checking packet and peer classes.)
+References: <1367586339-12509-1-git-send-email-cpebenito@tresys.com> <20130503181140.GC22935@siphos.be>
+In-Reply-To: <20130503181140.GC22935@siphos.be>
 Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/03/13 15:20, Paul Moore wrote:
-> On Friday, May 03, 2013 03:11:48 PM Christopher J. PeBenito wrote:
->> I'm doing some spring cleaning on refpolicy, cleaning out some old
->> unused/unnecessary networking permissions.  I'm trying to make sure I have
->> the permissions checks straight, since labeled networking isn't common use.
->>  For labeled IPsec, we have the following permissions (assuming all policy
->> capabilities are on--assume maximum checks):
+On 05/03/13 14:11, Sven Vermeulen wrote:
+> On Fri, May 03, 2013 at 09:05:39AM -0400, Chris PeBenito wrote:
+> [...]
+>> Includes definition of "redhat1" SELinux policy capability, which
+>> exists in the SELinux userpace library, to keep ordering correct.
 >>
->> netif: ingress/egress
->> node: sendto/recvfrom
->> peer: recv
->> association: sendto/recvfrom
->>
->> I'm told that association perms are checked in the following cases:
->>
->> sendto: when a packet leaves the box (legacy only) and when a SA/flow is
->> checked recvfrom: when an incoming packet is queued on a socket (legacy
->> only)
->>
->> Does "legacy only" mean the checks will eventually go away, or is it for a
->> legacy IPsec configuration?
+>> The SELinux userpace portion of this was merged last year, but this kernel
+>> change fell on the floor.
 > 
-> In this case "legacy" refers to a SELinux policy that doesn't have the netpeer 
-> policy capability enabled.
+> Would it make sense to rename the "redhat1" capability as "ptrace_child" or
+> so? The name "redhat1" seems quite different from the other ones
+> (network_peer_controls, open_perms, always_check_network).
 
-So with the capability on, you can only get a sendto check for association, never recvfrom?  Wouldn't it make more sense to have a peer send permission instead, going forward?  That way we can have the something more expected (send/recv for the same class), rather than peer:recv and association:sendto which seems confusing.
- 
-> It has been a while since we introduced the netpeer policy capability so I 
-> imagine we could start a process of deprecating policies that don't enable it.  
-> We could dump a warning message if someone loads a policy with the netpeer 
-> capability disabled and then after a few releases (how many?) we could remove 
-> the legacy bits from the kernel and reject policies which don't have the 
-> netpeer capability set.
+The name matches what is in libsepol.  So if we change libsepol we can also change this.
 
-The common case obviously is no labeling, and in that case, there wouldn't be checks.  So I suspect this wouldn't have any real problems.  My guess is systems that use this wouldn't be changing their OS very often, and when they do, it would be major jumps (e.g. RHEL6 to RHEL7), so they'd be anticipating changes like this.
+> Also, what is that about?
+
+Not sure which item you're asking about.
+
 
 -- 
 Chris PeBenito
