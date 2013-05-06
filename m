@@ -1,129 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r469FInT006941
-	for <selinux@tycho.nsa.gov>; Mon, 6 May 2013 05:15:18 -0400
-Date: Mon, 6 May 2013 19:18:29 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: linux-security-module@vger.kernel.org
-cc: linux-kernel@vger.kernel.org,
-        Linux Security Summit Program Committee <lss-pc@ext.namei.org>,
-        lwn@lwn.net, fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov,
-        ubuntu-hardened@lists.ubuntu.com, tomoyo-users-en@lists.sourceforge.jp,
-        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        Audit-ML <linux-audit@redhat.com>, gentoo-hardened@gentoo.org,
-        "C. Craig Ross" <ccr@linuxfoundation.org>, keyrings@linux-nfs.org,
-        tpmdd-devel@lists.sourceforge.net, kernel-hardening@lists.openwall.com
-Subject: [ANNOUNCE] Linux Security Summit 2013 - CFP
-Message-ID: <alpine.LRH.2.02.1305061853410.31937@tundra.namei.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r46DoINY019961
+	for <selinux@tycho.nsa.gov>; Mon, 6 May 2013 09:50:18 -0400
+Message-ID: <5187B50C.4020106@tresys.com>
+Date: Mon, 6 May 2013 09:50:04 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Paul Moore <pmoore@redhat.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Clarification of labeled IPsec checks
+References: <51840BF4.7000302@tresys.com> <39078390.44gaRjNkjA@sifl>
+In-Reply-To: <39078390.44gaRjNkjA@sifl>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-==========================================================================
-                 ANNOUNCEMENT AND CALL FOR PARTICIPATION
+On 05/03/13 15:20, Paul Moore wrote:
+> On Friday, May 03, 2013 03:11:48 PM Christopher J. PeBenito wrote:
+>> I'm doing some spring cleaning on refpolicy, cleaning out some old
+>> unused/unnecessary networking permissions.  I'm trying to make sure I have
+>> the permissions checks straight, since labeled networking isn't common use.
+>>  For labeled IPsec, we have the following permissions (assuming all policy
+>> capabilities are on--assume maximum checks):
+>>
+>> netif: ingress/egress
+>> node: sendto/recvfrom
+>> peer: recv
+>> association: sendto/recvfrom
+>>
+>> I'm told that association perms are checked in the following cases:
+>>
+>> sendto: when a packet leaves the box (legacy only) and when a SA/flow is
+>> checked recvfrom: when an incoming packet is queued on a socket (legacy
+>> only)
+>>
+>> Does "legacy only" mean the checks will eventually go away, or is it for a
+>> legacy IPsec configuration?
+> 
+> In this case "legacy" refers to a SELinux policy that doesn't have the netpeer 
+> policy capability enabled.
 
-                       LINUX SECURITY SUMMIT 2013
-                            19-20 SEPTEMBER
-                            NEW ORLEANS, USA
-==========================================================================
-
-
-DESCRIPTION
-
-  The Linux Security Summit (LSS) is a technical forum for collaboration
-  between Linux developers, researchers, and end users.  Its primary aim
-  is to foster community efforts in analyzing and solving Linux security
-  challenges.
-
-  The format of the summit will be:
-  
-    * Refereed presentations
-    * Subsystem reports
-    * Breakout development sessions 
-
-
-WEB SITE
-
-  http://kernsec.org/wiki/index.php/Linux_Security_Summit_2013
-
-
-DATES / LOCATION
-
-  The Linux Security Summit for 2013 will be held across 19 and 20 September
-  in New Orleans, USA.  It will be co-located with LinuxCon, as well
-  as Linux Plumbers.
+So with the capability on, you can only get a sendto check for association, never recvfrom?  Wouldn't it make more sense to have a peer send permission instead, going forward?  That way we can have the something more expected (send/recv for the same class), rather than peer:recv and association:sendto which seems confusing.
  
-  Note that Linux Security Summit attendees and speakers must be registered
-  to attend LinuxCon.  See the LinuxCon site for details on registration,
-  travel, and accommodation:
-  
-    https://events.linuxfoundation.org/events/linuxcon
+> It has been a while since we introduced the netpeer policy capability so I 
+> imagine we could start a process of deprecating policies that don't enable it.  
+> We could dump a warning message if someone loads a policy with the netpeer 
+> capability disabled and then after a few releases (how many?) we could remove 
+> the legacy bits from the kernel and reject policies which don't have the 
+> netpeer capability set.
 
-  The Linux Security Summit CFP is now open, and will close on 14th June.
-  
-  Accepted speakers will be notified by 21st of June.
+The common case obviously is no labeling, and in that case, there wouldn't be checks.  So I suspect this wouldn't have any real problems.  My guess is systems that use this wouldn't be changing their OS very often, and when they do, it would be major jumps (e.g. RHEL6 to RHEL7), so they'd be anticipating changes like this.
 
-
-WHO SHOULD ATTEND
-
-  The event is open to all registered LinuxCon attendees.
-  
-  You do not have to be a "security person" to attend -- we're seeking a
-  diverse range of attendees, and welcome the participation of general
-  developers, researchers, operations, and end-users.
-
-
-CALL FOR PARTICIPATION
-
-  The program committee currently seeks proposals for:
-
-  * Refereed Presentations:
-      45 minutes in length, including at least 10 minutes of discussion.
-      Papers are encouraged.
-
- 
-  Topic areas include, but are not limited to:
-  
-    * System hardening
-    * Access control
-    * Cryptography
-    * Integrity control
-    * Hardware security
-    * Networking
-    * Storage
-    * Virtualization
-    * Desktop
-    * Tools
-    * Management
-    * Case studies
-    * Emerging technologies, threats & techniques 
-    
-  Proposals should be submitted in plain text via email to the program
-  committee at:  lss-pc (_at_) ext.namei.org
-
-  Abstracts should be approximately 150 words in total.
-
-
-PROGRAM COMMITTEE
-
-  The Linux Security Summit for 2013 is organized by:
-
-    * James Morris, Oracle
-    * Serge Hallyn, Canonical
-    * Paul Moore, Red Hat
-    * Stephen Smalley, NSA
-    * Joshua Brindle, Quark Security
-    * Herbert Xu, Red Hat
-    * John Johansen, Canonical
-    * Kees Cook, Google
-    * Casey Schaufler, Intel
-    * Mimi Zohar, IBM
-
-  The program committee may be contacted as a group via email:
-
-     lss-pc (_at_) ext.namei.org
-   
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
