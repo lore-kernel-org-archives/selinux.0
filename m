@@ -1,72 +1,100 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r479E4QJ013193
-	for <selinux@tycho.nsa.gov>; Tue, 7 May 2013 05:14:04 -0400
-Received: by mail-wi0-f175.google.com with SMTP id h11so3489383wiv.2
-        for <selinux@tycho.nsa.gov>; Tue, 07 May 2013 02:14:02 -0700 (PDT)
-Received: from siphos.be (ip-83-101-67-57.customer.schedom-europe.net. [83.101.67.57])
-        by mx.google.com with ESMTPSA id m14sm1434993wij.9.2013.05.07.02.13.58
-        for <selinux@tycho.nsa.gov>
-        (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 07 May 2013 02:13:59 -0700 (PDT)
-Date: Tue, 7 May 2013 11:13:06 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] Fix KeyError when using sepolicy transition
-Message-ID: <20130507091306.GA10869@siphos.be>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r47D5cSu026082
+	for <selinux@tycho.nsa.gov>; Tue, 7 May 2013 09:05:39 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: Clarification of labeled IPsec checks
+Date: Tue, 07 May 2013 09:05:30 -0400
+Message-ID: <1703453.4GWkgsHxla@sifl>
+In-Reply-To: <5187B50C.4020106@tresys.com>
+References: <51840BF4.7000302@tresys.com> <39078390.44gaRjNkjA@sifl> <5187B50C.4020106@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When calling "sepolicy transition", a KeyError exception occurred:
+On Monday, May 06, 2013 09:50:04 AM Christopher J. PeBenito wrote:
+> On 05/03/13 15:20, Paul Moore wrote:
+> > On Friday, May 03, 2013 03:11:48 PM Christopher J. PeBenito wrote:
+> >> I'm doing some spring cleaning on refpolicy, cleaning out some old
+> >> unused/unnecessary networking permissions.  I'm trying to make sure I
+> >> have the permissions checks straight, since labeled networking isn't
+> >> common use.
+> >> 
+> >>  For labeled IPsec, we have the following permissions (assuming all
+> >>  policy
+> >> 
+> >> capabilities are on--assume maximum checks):
+> >> 
+> >> netif: ingress/egress
+> >> node: sendto/recvfrom
+> >> peer: recv
+> >> association: sendto/recvfrom
+> >> 
+> >> I'm told that association perms are checked in the following cases:
+> >> 
+> >> sendto: when a packet leaves the box (legacy only) and when a SA/flow is
+> >> checked recvfrom: when an incoming packet is queued on a socket (legacy
+> >> only)
+> >> 
+> >> Does "legacy only" mean the checks will eventually go away, or is it for
+> >> a legacy IPsec configuration?
+> > 
+> > In this case "legacy" refers to a SELinux policy that doesn't have the
+> > netpeer policy capability enabled.
+> 
+> So with the capability on, you can only get a sendto check for association,
+> never recvfrom?
 
-~# sepolicy transition -s sysadm_t -t portage_t
-Traceback (most recent call last):
-  File "/usr/bin/sepolicy-2.7", line 465, in <module>
-    args.func(args)
-  File "/usr/bin/sepolicy-2.7", line 309, in transition
-    mytrans.output()
-  File "/usr/lib64/python2.7/site-packages/sepolicy/transition.py", line 76, in output
-    print self.out(self.source)
-  File "/usr/lib64/python2.7/site-packages/sepolicy/transition.py", line 72, in out
-    buf+= self.out(x, seen, "%s%s ... " % (header, name))
-  File "/usr/lib64/python2.7/site-packages/sepolicy/transition.py", line 67, in out
-    for t in self.sdict[name]["map"]:
-KeyError: 'map'
+It might be worthwhile for you to look at the code, all the answers you're 
+looking for are in there ...
 
-By updating the code to first check if the "map" key is known to the dictionary
-(and only then executing the mentioned code) this error is no longer prevalent:
+The association:recvfrom check happens in selinux_xfrm_sock_rcv_skb() which is 
+now a legacy function/hook.  The association:sendto check happens in 
+selinux_xfrm_postroute_last() and selinux_xfrm_state_pol_flow_match(); the 
+XFRM postroute hook is a legacy function and the flow_match hook is not.
 
-~# sepolicy transition -s sysadm_t -t portage_t
-sysadm_t @ portage_exec_t --> portage_t
-sysadm_t ... dhcpc_t ... initrc_t ... puppet_t @ portage_exec_t --> portage_t
-sysadm_t ... dhcpc_t ... initrc_t ... puppet_t ... portage_fetch_t @ portage_exec_t --> portage_t
-sysadm_t ... dhcpc_t ... initrc_t ... crond_t @ portage_exec_t --> portage_t
-sysadm_t ... dhcpc_t ... initrc_t ... crond_t ... system_cronjob_t @ portage_exec_t --> portage_t
+The legacy XFRM sock_rcv_skb() hook is replaced by the peer:recv check in 
+selinux_socket_sock_rcv_skb().  The legacy XFRM postroute hook is replaced by 
+the checks in selinux_ip_postroute().
 
-Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
----
- policycoreutils/sepolicy/sepolicy/transition.py | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+> Wouldn't it make more sense to have a peer send permission instead, going
+> forward?
 
-diff --git a/policycoreutils/sepolicy/sepolicy/transition.py b/policycoreutils/sepolicy/sepolicy/transition.py
-index 5850622..5e308e3 100755
---- a/policycoreutils/sepolicy/sepolicy/transition.py
-+++ b/policycoreutils/sepolicy/sepolicy/transition.py
-@@ -64,8 +64,9 @@ class setrans:
-             return buf
-         seen.append(name)
- 
--        for t in self.sdict[name]["map"]:
--            buf += "%s%s @ %s --> %s\n" % (header, t["source"], t["target"], t["transtype"])
-+        if "map" in self.sdict[name]:
-+            for t in self.sdict[name]["map"]:
-+                buf += "%s%s @ %s --> %s\n" % (header, t["source"], t["target"], t["transtype"])
- 
-         if "child" in self.sdict[name]:
-             for x in self.sdict[name]["child"]:
+Huh?  Why?  To replace the association:sendto check in the XFRM 
+pol_flow_match() hook?  I don't think so, there isn't any "peer" checking 
+happening there, just matching SAs/policies.
+
+Did you mean something else?  Or am I misunderstanding you?
+
+> That way we can have the something more expected (send/recv for the same
+> class), rather than peer:recv and association:sendto which seems confusing.
+
+I think you may be misunderstanding the association:sendto check that is 
+happening in the pol_flow_match() hook.  This is probably compounded a bit by 
+the poor name for the permission, but it was has been there forever and 
+unfortunately it isn't likely to change anytime soon ...
+
+> > It has been a while since we introduced the netpeer policy capability so I
+> > imagine we could start a process of deprecating policies that don't enable
+> > it. We could dump a warning message if someone loads a policy with the
+> > netpeer capability disabled and then after a few releases (how many?) we
+> > could remove the legacy bits from the kernel and reject policies which
+> > don't have the netpeer capability set.
+> 
+> The common case obviously is no labeling, and in that case, there wouldn't
+> be checks.  So I suspect this wouldn't have any real problems.  My guess is
+> systems that use this wouldn't be changing their OS very often, and when
+> they do, it would be major jumps (e.g. RHEL6 to RHEL7), so they'd be
+> anticipating changes like this.
+
+Yeah, I agree.  I'll throw together a deprecation patch and toss it out so we 
+can have a bit more of a discussion on this.
+
 -- 
-1.8.1.5
+paul moore
+security and virtualization @ redhat
 
 
 --
