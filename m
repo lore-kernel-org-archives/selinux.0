@@ -1,86 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r478Yce0011458
-	for <selinux@tycho.nsa.gov>; Tue, 7 May 2013 04:34:38 -0400
-Received: by mail-we0-f178.google.com with SMTP id q57so204610wes.9
-        for <selinux@tycho.nsa.gov>; Tue, 07 May 2013 01:34:36 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r479E4QJ013193
+	for <selinux@tycho.nsa.gov>; Tue, 7 May 2013 05:14:04 -0400
+Received: by mail-wi0-f175.google.com with SMTP id h11so3489383wiv.2
+        for <selinux@tycho.nsa.gov>; Tue, 07 May 2013 02:14:02 -0700 (PDT)
 Received: from siphos.be (ip-83-101-67-57.customer.schedom-europe.net. [83.101.67.57])
-        by mx.google.com with ESMTPSA id dq8sm1398162wib.1.2013.05.07.01.34.34
+        by mx.google.com with ESMTPSA id m14sm1434993wij.9.2013.05.07.02.13.58
         for <selinux@tycho.nsa.gov>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Tue, 07 May 2013 01:34:35 -0700 (PDT)
-Date: Tue, 7 May 2013 10:33:42 +0200
+        Tue, 07 May 2013 02:13:59 -0700 (PDT)
+Date: Tue, 7 May 2013 11:13:06 +0200
 From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: selinux@tycho.nsa.gov
-Subject: Re: What provides _policy?
-Message-ID: <20130507083342.GA27823@siphos.be>
-References: <20130501135544.GA21525@siphos.be>
- <20130503173926.GA22935@siphos.be>
- <5187DFB7.9050700@redhat.com>
- <20130506183828.GA26604@siphos.be>
- <5187FBF7.3090703@redhat.com>
+Subject: [PATCH 1/1] Fix KeyError when using sepolicy transition
+Message-ID: <20130507091306.GA10869@siphos.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <5187FBF7.3090703@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, May 06, 2013 at 02:52:39PM -0400, Daniel J Walsh wrote:
-> You might have found a bug in the current upstream,  we don't have this
-> problem in Fedora.
-> 
-> I have attached the current fedora-sepolicy patch.
+When calling "sepolicy transition", a KeyError exception occurred:
 
-Apparently, the port information code (in info.c) assumes that MLS is
-enabled (it calls apol_context_get_range) and errors out if no range is
-found.
+~# sepolicy transition -s sysadm_t -t portage_t
+Traceback (most recent call last):
+  File "/usr/bin/sepolicy-2.7", line 465, in <module>
+    args.func(args)
+  File "/usr/bin/sepolicy-2.7", line 309, in transition
+    mytrans.output()
+  File "/usr/lib64/python2.7/site-packages/sepolicy/transition.py", line 76, in output
+    print self.out(self.source)
+  File "/usr/lib64/python2.7/site-packages/sepolicy/transition.py", line 72, in out
+    buf+= self.out(x, seen, "%s%s ... " % (header, name))
+  File "/usr/lib64/python2.7/site-packages/sepolicy/transition.py", line 67, in out
+    for t in self.sdict[name]["map"]:
+KeyError: 'map'
 
-The below "patch" fixes that behavior.
+By updating the code to first check if the "map" key is known to the dictionary
+(and only then executing the mentioned code) this error is no longer prevalent:
 
+~# sepolicy transition -s sysadm_t -t portage_t
+sysadm_t @ portage_exec_t --> portage_t
+sysadm_t ... dhcpc_t ... initrc_t ... puppet_t @ portage_exec_t --> portage_t
+sysadm_t ... dhcpc_t ... initrc_t ... puppet_t ... portage_fetch_t @ portage_exec_t --> portage_t
+sysadm_t ... dhcpc_t ... initrc_t ... crond_t @ portage_exec_t --> portage_t
+sysadm_t ... dhcpc_t ... initrc_t ... crond_t ... system_cronjob_t @ portage_exec_t --> portage_t
 
-diff -ur policycoreutils-2.1.14.orig/sepolicy/info.c policycoreutils-2.1.14/sepolicy/info.c
---- policycoreutils-2.1.14.orig/sepolicy/info.c	2013-05-01 15:49:48.424339861 +0200
-+++ policycoreutils-2.1.14/sepolicy/info.c	2013-05-07 10:16:52.238205378 +0200
-@@ -827,16 +827,14 @@
- 		if (py_insert_string(dict, "type", type))
- 			goto err;
+Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+---
+ policycoreutils/sepolicy/sepolicy/transition.py | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/policycoreutils/sepolicy/sepolicy/transition.py b/policycoreutils/sepolicy/sepolicy/transition.py
+index 5850622..5e308e3 100755
+--- a/policycoreutils/sepolicy/sepolicy/transition.py
++++ b/policycoreutils/sepolicy/sepolicy/transition.py
+@@ -64,8 +64,9 @@ class setrans:
+             return buf
+         seen.append(name)
  
--		if((range = apol_context_get_range(c)) == NULL) {
--			goto err;
--		}
--			
--		range_str = apol_mls_range_render(policydb, range);
--		if (range_str == NULL) {
--			goto err;
-+		if((range = apol_context_get_range(c)) != NULL) {
-+			range_str = apol_mls_range_render(policydb, range);
-+			if (range_str == NULL) {
-+				goto err;
-+			}
-+			if (py_insert_string(dict, "range", range_str))
-+				goto err;
- 		}
--		if (py_insert_string(dict, "range", range_str))
--			goto err;
+-        for t in self.sdict[name]["map"]:
+-            buf += "%s%s @ %s --> %s\n" % (header, t["source"], t["target"], t["transtype"])
++        if "map" in self.sdict[name]:
++            for t in self.sdict[name]["map"]:
++                buf += "%s%s @ %s --> %s\n" % (header, t["source"], t["target"], t["transtype"])
  
- 		if (py_insert_string(dict, "protocol", proto_str))
- 			goto err;
-Only in policycoreutils-2.1.14/sepolicy/sepolicy: __init__.pyc
-diff -ur policycoreutils-2.1.14.orig/sepolicy/sepolicy/network.py policycoreutils-2.1.14/sepolicy/sepolicy/network.py
---- policycoreutils-2.1.14.orig/sepolicy/sepolicy/network.py	2013-05-01 15:49:48.423339861 +0200
-+++ policycoreutils-2.1.14/sepolicy/sepolicy/network.py	2013-05-07 10:18:33.119205594 +0200
-@@ -39,7 +39,11 @@
-         else:
-             portrecs [(i['type'], i['protocol'])] = [port]
- 
--        portrecsbynum[(i['low'], i['high'],i['protocol'])] = (i['type'], i['range'])
-+        if 'range' in i:
-+            portrecsbynum[(i['low'], i['high'],i['protocol'])] = (i['type'], i['range'])
-+        else:
-+            portrecsbynum[(i['low'], i['high'],i['protocol'])] = (i['type'])
-+
-     return ( portrecs, portrecsbynum )
- portrecs, portrecsbynum = _gen_port_dict()
- 
+         if "child" in self.sdict[name]:
+             for x in self.sdict[name]["child"]:
+-- 
+1.8.1.5
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
