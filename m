@@ -1,59 +1,48 @@
-Message-ID: <518BEF50.1060809@tycho.nsa.gov>
-Date: Thu, 09 May 2013 14:47:44 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov, James Carter <jwcart2@tycho.nsa.gov>
-Subject: Re: Disabling rules
-References: <20130509183336.GA16336@siphos.be>
-In-Reply-To: <20130509183336.GA16336@siphos.be>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r49KpHAs007496
+	for <selinux@tycho.nsa.gov>; Thu, 9 May 2013 16:51:17 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+	by anor.bigon.be (Postfix) with ESMTP id E3FFB1A073
+	for <selinux@tycho.nsa.gov>; Thu,  9 May 2013 22:51:11 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+	by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id OnJSYo-WcCIO for <selinux@tycho.nsa.gov>;
+	Thu,  9 May 2013 22:51:10 +0200 (CEST)
+Received: from soldur.bigon.be (unknown [IPv6:2a02:578:85fc:1:dae:a3d6:709f:cc83])
+	(using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: bigon)
+	by anor.bigon.be (Postfix) with ESMTPSA id 05C861A067
+	for <selinux@tycho.nsa.gov>; Thu,  9 May 2013 22:51:09 +0200 (CEST)
+Date: Thu, 9 May 2013 22:51:06 +0200
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Subject: audit2allow/sepolgen not setting the locale properly when
+ calculating the bootdate
+Message-ID: <20130509225106.7191c1df@soldur.bigon.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/09/2013 02:33 PM, Sven Vermeulen wrote:
-> Hi all,
->
-> I was wondering if we could include a method for users or administrators to
-> remove (or disable) particular allow statements from the policy, without the
-> need to unload the module that provides the policy and replace it with a
-> similar policy (offering the same types and such, but just doesn't include
-> those rules the admin doesn't want to enable).
->
->>From my understanding, I think this has been discussed in the past, but not
-> accepted due to it becoming a mess (for admins) to maintain such policies:
-> in one module, rules would be allowed, and in another denied again.
->
-> Still, we can disable dontaudits, disable an entire module or put a
-> particular domain in permissive mode. Perhaps we could look into disabling
-> certain statements as well?
->
-> The reason I ask is that administrators might want to some just a fraction
-> of the granted permissions in the default policy, without having to maintain
-> an entire policy themselves. This could be useful for temporarily working
-> around possible vulnerabilities.
->
-> For (policy) developers as well, this could be a useful feature. One can
-> selectively disable some rules and test out the impact. For instance,
-> suppose we want to reduce the number of "open" permissions on certain files.
-> Historically, "open" was granted as well, but we might want to look into
-> inherited read/write access (without "open"). With such feature, we can test
-> out the impact without the need to do the (intensive) policy updates first.
-> Afterwards, the policy can then be properly reduced.
->
-> I was considering using constraints to implement this myself (locally), but
-> constraints cannot be added to modules (need to be in base according to the
-> selinuxproject wiki).
+Hello,
 
-This probably isn't what you mean/want, but you can certainly wrap 
-blocks of TE rules with conditionals and then disable them at runtime 
-via setsebool or semanage boolean already.
+When using a locale that use the date format other than MM/DD/YY,
+allow2audit -b is not working properly (shows <no matches>). The
+ausearch executable is expecting the date to be formatted in the user
+locale.
 
-If you mean selecting what statements get disabled at runtime without 
-previously wrapping them in a conditional in the original policy, then 
-that sounds like some of the functionality that was being implemented by 
-the CIL work, which had some notion of local policy transformations.
+Explicitly setting "locale.setlocale(locale.LC_ALL, '')" inside the
+sepolgen get_audit_boot_msgs() function (or in the allow2audit
+executable) is passing the correct date to the ausearch executable.
 
+I'll propose a patch for this if you want, but I'm not sure if you would
+prefer this to be fixed in the audit2allow executable or in the sepolgen
+python library.
+
+Cheers
+
+Laurent Bigonville
 
 --
 This message was distributed to subscribers of the selinux mailing list.
