@@ -1,12 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4ACk2PC015840
-	for <selinux@tycho.nsa.gov>; Fri, 10 May 2013 08:46:06 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4ACk4RL015878
+	for <selinux@tycho.nsa.gov>; Fri, 10 May 2013 08:46:05 -0400
 From: Laurent Bigonville <bigon@debian.org>
 To: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>
 Cc: selinux@tycho.nsa.gov
-Subject: [PATCH 11/16] libsemanage: Fix cases where hyphen were used as minus sign in manpages
-Date: Fri, 10 May 2013 14:45:19 +0200
-Message-Id: <1368189924-8501-12-git-send-email-bigon@debian.org>
+Subject: [PATCH 10/16] checkpolicy: Fix cases where hyphen were used as minus sign in manpages
+Date: Fri, 10 May 2013 14:45:18 +0200
+Message-Id: <1368189924-8501-11-git-send-email-bigon@debian.org>
 In-Reply-To: <1368189924-8501-1-git-send-email-bigon@debian.org>
 References: <1368189924-8501-1-git-send-email-bigon@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
@@ -15,143 +15,63 @@ List-Id: selinux@tycho.nsa.gov
 From: Laurent Bigonville <bigon@bigon.be>
 
 ---
- libsemanage/man/man3/semanage_bool_set_active.3 | 2 +-
- libsemanage/man/man3/semanage_count.3           | 2 +-
- libsemanage/man/man3/semanage_del.3             | 2 +-
- libsemanage/man/man3/semanage_exists.3          | 2 +-
- libsemanage/man/man3/semanage_iterate.3         | 4 ++--
- libsemanage/man/man3/semanage_list.3            | 2 +-
- libsemanage/man/man3/semanage_modify.3          | 2 +-
- libsemanage/man/man3/semanage_query.3           | 2 +-
- libsemanage/man/man3/semanage_set_root.3        | 2 +-
- 9 files changed, 10 insertions(+), 10 deletions(-)
+ checkpolicy/checkmodule.8 | 6 +++---
+ checkpolicy/checkpolicy.8 | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/libsemanage/man/man3/semanage_bool_set_active.3 b/libsemanage/man/man3/semanage_bool_set_active.3
-index 026e29d..d868fe8 100644
---- a/libsemanage/man/man3/semanage_bool_set_active.3
-+++ b/libsemanage/man/man3/semanage_bool_set_active.3
-@@ -40,7 +40,7 @@ This function requires an semanage connection to be established (see
- ).
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise 0 is returned.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_count.3 b/libsemanage/man/man3/semanage_count.3
-index b131cbe..b865a21 100644
---- a/libsemanage/man/man3/semanage_count.3
-+++ b/libsemanage/man/man3/semanage_count.3
-@@ -33,7 +33,7 @@ This function requires an semanage connection to be established (see
- )
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_del.3 b/libsemanage/man/man3/semanage_del.3
-index 5b11ce3..4dd0a77 100644
---- a/libsemanage/man/man3/semanage_del.3
-+++ b/libsemanage/man/man3/semanage_del.3
-@@ -40,7 +40,7 @@ This function requires an semanage connection to be established (see
- ).
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise 0 is returned.
+diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
+index 40f73c5..2a7ab5c 100644
+--- a/checkpolicy/checkmodule.8
++++ b/checkpolicy/checkmodule.8
+@@ -3,7 +3,7 @@
+ checkmodule \- SELinux policy module compiler
+ .SH SYNOPSIS
+ .B checkmodule
+-.I "[-h] [-b] [-m] [-M] [-U handle_unknown ] [-V] [-o output_file] [input_file]"
++.I "[\-h] [\-b] [\-m] [\-M] [\-U handle_unknown ] [\-V] [\-o output_file] [input_file]"
+ .SH "DESCRIPTION"
+ This manual page describes the
+ .BR checkmodule
+@@ -12,7 +12,7 @@ command.
+ .B checkmodule
+ is a program that checks and compiles a SELinux security policy module
+ into a binary representation.  It can generate either a base policy
+-module (default) or a non-base policy module (-m option); typically,
++module (default) or a non-base policy module (\-m option); typically,
+ you would build a non-base policy module to add to an existing module
+ store that already has a base module provided by the base policy.  Use
+ semodule_package to combine this module with its optional file
+@@ -48,7 +48,7 @@ Specify how the kernel should handle unknown classes or permissions (deny, allow
+ .SH EXAMPLE
+ .nf
+ # Build a MLS/MCS-enabled non-base policy module.
+-$ checkmodule -M -m httpd.te -o httpd.mod
++$ checkmodule \-M \-m httpd.te \-o httpd.mod
+ .fi
  
  .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_exists.3 b/libsemanage/man/man3/semanage_exists.3
-index da401c2..6d68c76 100644
---- a/libsemanage/man/man3/semanage_exists.3
-+++ b/libsemanage/man/man3/semanage_exists.3
-@@ -38,7 +38,7 @@ This function requires an semanage connection to be established (see
- )
+diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
+index 6826938..0086bdc 100644
+--- a/checkpolicy/checkpolicy.8
++++ b/checkpolicy/checkpolicy.8
+@@ -3,7 +3,7 @@
+ checkpolicy \- SELinux policy compiler
+ .SH SYNOPSIS
+ .B checkpolicy
+-.I "[-b] [-d] [-M] [-c policyvers] [-o output_file] [input_file]"
++.I "[\-b] [\-d] [\-M] [\-c policyvers] [\-o output_file] [input_file]"
+ .br
+ .SH "DESCRIPTION"
+ This manual page describes the
+@@ -14,7 +14,7 @@ command.
+ is a program that checks and compiles a SELinux security policy configuration
+ into a binary representation that can be loaded into the kernel.  If no 
+ input file name is specified, checkpolicy will attempt to read from
+-policy.conf or policy, depending on whether the -b flag is specified.
++policy.conf or policy, depending on whether the \-b flag is specified.
  
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other read calls to the semanage database until the next commit.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_iterate.3 b/libsemanage/man/man3/semanage_iterate.3
-index 8773800..1528164 100644
---- a/libsemanage/man/man3/semanage_iterate.3
-+++ b/libsemanage/man/man3/semanage_iterate.3
-@@ -31,7 +31,7 @@ if that is necessary.
- 
- The handler code may not invoke any semanage write requests for the same object type (i.e. modifying the underlying store is not allowed). The iterate function is reentrant only while inside a transaction (see
- .B semanage_begin_transaction
--). It is not safe to execute other semanage read or write requests within iterate if not inside a transaction. The handler may return -1 to signal error exit, 0 to signal continue, and 1 to signal successful exit early (the iterate function will stop accordingly). 
-+). It is not safe to execute other semanage read or write requests within iterate if not inside a transaction. The handler may return \-1 to signal error exit, 0 to signal continue, and 1 to signal successful exit early (the iterate function will stop accordingly).
- 
+ .SH OPTIONS
  .TP
- .B Parameters:
-@@ -50,7 +50,7 @@ This function requires an semanage connection to be established (see
- )
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_list.3 b/libsemanage/man/man3/semanage_list.3
-index 9376702..acc161f 100644
---- a/libsemanage/man/man3/semanage_list.3
-+++ b/libsemanage/man/man3/semanage_list.3
-@@ -39,7 +39,7 @@ This function requires an semanage connection to be established (see
- )
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_modify.3 b/libsemanage/man/man3/semanage_modify.3
-index 04bd801..ee23900 100644
---- a/libsemanage/man/man3/semanage_modify.3
-+++ b/libsemanage/man/man3/semanage_modify.3
-@@ -42,7 +42,7 @@ This function requires an semanage connection to be established (see
- ).
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise 0 is returned.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_query.3 b/libsemanage/man/man3/semanage_query.3
-index 1a6cdb2..e61c8b8 100644
---- a/libsemanage/man/man3/semanage_query.3
-+++ b/libsemanage/man/man3/semanage_query.3
-@@ -39,7 +39,7 @@ This function requires an semanage connection to be established (see
- )
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
-+In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
- Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
- 
- .SH "SEE ALSO"
-diff --git a/libsemanage/man/man3/semanage_set_root.3 b/libsemanage/man/man3/semanage_set_root.3
-index 2ae0f17..664822e 100644
---- a/libsemanage/man/man3/semanage_set_root.3
-+++ b/libsemanage/man/man3/semanage_set_root.3
-@@ -15,7 +15,7 @@ Set the alternate root directory for SELinux configuration directory.
- This function sets an alternate root directory to for SELinux configuration paths to be used by the semanage library.
- 
- .SH "RETURN VALUE"
--In case of failure, -1 is returned.
-+In case of failure, \-1 is returned.
- Otherwise 0 is returned.
- 
- .SH "SEE ALSO"
 -- 
 1.8.2.1
 
