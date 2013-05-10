@@ -1,133 +1,160 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4ACJXTC014155
-	for <selinux@tycho.nsa.gov>; Fri, 10 May 2013 08:19:33 -0400
-Message-ID: <518CE5CD.8000809@redhat.com>
-Date: Fri, 10 May 2013 08:19:25 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Laurent Bigonville <bigon@debian.org>
-CC: selinux@tycho.nsa.gov
-Subject: Re: audit2allow/sepolgen not setting the locale properly when calculating
- the bootdate
-References: <20130509225106.7191c1df@soldur.bigon.be>
-In-Reply-To: <20130509225106.7191c1df@soldur.bigon.be>
-Content-Type: multipart/mixed;
- boundary="------------060003050704070203050300"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4ACk2PC015840
+	for <selinux@tycho.nsa.gov>; Fri, 10 May 2013 08:46:06 -0400
+From: Laurent Bigonville <bigon@debian.org>
+To: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov
+Subject: [PATCH 11/16] libsemanage: Fix cases where hyphen were used as minus sign in manpages
+Date: Fri, 10 May 2013 14:45:19 +0200
+Message-Id: <1368189924-8501-12-git-send-email-bigon@debian.org>
+In-Reply-To: <1368189924-8501-1-git-send-email-bigon@debian.org>
+References: <1368189924-8501-1-git-send-email-bigon@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060003050704070203050300
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Laurent Bigonville <bigon@bigon.be>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+---
+ libsemanage/man/man3/semanage_bool_set_active.3 | 2 +-
+ libsemanage/man/man3/semanage_count.3           | 2 +-
+ libsemanage/man/man3/semanage_del.3             | 2 +-
+ libsemanage/man/man3/semanage_exists.3          | 2 +-
+ libsemanage/man/man3/semanage_iterate.3         | 4 ++--
+ libsemanage/man/man3/semanage_list.3            | 2 +-
+ libsemanage/man/man3/semanage_modify.3          | 2 +-
+ libsemanage/man/man3/semanage_query.3           | 2 +-
+ libsemanage/man/man3/semanage_set_root.3        | 2 +-
+ 9 files changed, 10 insertions(+), 10 deletions(-)
 
-On 05/09/2013 04:51 PM, Laurent Bigonville wrote:
-> Hello,
-> 
-> When using a locale that use the date format other than MM/DD/YY, 
-> allow2audit -b is not working properly (shows <no matches>). The ausearch
-> executable is expecting the date to be formatted in the user locale.
-> 
-> Explicitly setting "locale.setlocale(locale.LC_ALL, '')" inside the 
-> sepolgen get_audit_boot_msgs() function (or in the allow2audit executable)
-> is passing the correct date to the ausearch executable.
-> 
-> I'll propose a patch for this if you want, but I'm not sure if you would 
-> prefer this to be fixed in the audit2allow executable or in the sepolgen 
-> python library.
-> 
-> Cheers
-> 
-> Laurent Bigonville
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-We have a patch for this in Fedora now.  Attach patch is the difference
-between upstream and Fedora.  Eric and I will begin putting together a series
-of patches to get Fedora patches into upstream.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.13 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+diff --git a/libsemanage/man/man3/semanage_bool_set_active.3 b/libsemanage/man/man3/semanage_bool_set_active.3
+index 026e29d..d868fe8 100644
+--- a/libsemanage/man/man3/semanage_bool_set_active.3
++++ b/libsemanage/man/man3/semanage_bool_set_active.3
+@@ -40,7 +40,7 @@ This function requires an semanage connection to be established (see
+ ).
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise 0 is returned.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_count.3 b/libsemanage/man/man3/semanage_count.3
+index b131cbe..b865a21 100644
+--- a/libsemanage/man/man3/semanage_count.3
++++ b/libsemanage/man/man3/semanage_count.3
+@@ -33,7 +33,7 @@ This function requires an semanage connection to be established (see
+ )
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_del.3 b/libsemanage/man/man3/semanage_del.3
+index 5b11ce3..4dd0a77 100644
+--- a/libsemanage/man/man3/semanage_del.3
++++ b/libsemanage/man/man3/semanage_del.3
+@@ -40,7 +40,7 @@ This function requires an semanage connection to be established (see
+ ).
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise 0 is returned.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_exists.3 b/libsemanage/man/man3/semanage_exists.3
+index da401c2..6d68c76 100644
+--- a/libsemanage/man/man3/semanage_exists.3
++++ b/libsemanage/man/man3/semanage_exists.3
+@@ -38,7 +38,7 @@ This function requires an semanage connection to be established (see
+ )
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other read calls to the semanage database until the next commit.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_iterate.3 b/libsemanage/man/man3/semanage_iterate.3
+index 8773800..1528164 100644
+--- a/libsemanage/man/man3/semanage_iterate.3
++++ b/libsemanage/man/man3/semanage_iterate.3
+@@ -31,7 +31,7 @@ if that is necessary.
+ 
+ The handler code may not invoke any semanage write requests for the same object type (i.e. modifying the underlying store is not allowed). The iterate function is reentrant only while inside a transaction (see
+ .B semanage_begin_transaction
+-). It is not safe to execute other semanage read or write requests within iterate if not inside a transaction. The handler may return -1 to signal error exit, 0 to signal continue, and 1 to signal successful exit early (the iterate function will stop accordingly). 
++). It is not safe to execute other semanage read or write requests within iterate if not inside a transaction. The handler may return \-1 to signal error exit, 0 to signal continue, and 1 to signal successful exit early (the iterate function will stop accordingly).
+ 
+ .TP
+ .B Parameters:
+@@ -50,7 +50,7 @@ This function requires an semanage connection to be established (see
+ )
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_list.3 b/libsemanage/man/man3/semanage_list.3
+index 9376702..acc161f 100644
+--- a/libsemanage/man/man3/semanage_list.3
++++ b/libsemanage/man/man3/semanage_list.3
+@@ -39,7 +39,7 @@ This function requires an semanage connection to be established (see
+ )
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_modify.3 b/libsemanage/man/man3/semanage_modify.3
+index 04bd801..ee23900 100644
+--- a/libsemanage/man/man3/semanage_modify.3
++++ b/libsemanage/man/man3/semanage_modify.3
+@@ -42,7 +42,7 @@ This function requires an semanage connection to be established (see
+ ).
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise 0 is returned.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_query.3 b/libsemanage/man/man3/semanage_query.3
+index 1a6cdb2..e61c8b8 100644
+--- a/libsemanage/man/man3/semanage_query.3
++++ b/libsemanage/man/man3/semanage_query.3
+@@ -39,7 +39,7 @@ This function requires an semanage connection to be established (see
+ )
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned, and the semanage error callback is invoked, describing the error.
++In case of failure, \-1 is returned, and the semanage error callback is invoked, describing the error.
+ Otherwise a non-negative integer is returned (a commit number). The same number will be returned by all other semanage object read calls until the next commit.
+ 
+ .SH "SEE ALSO"
+diff --git a/libsemanage/man/man3/semanage_set_root.3 b/libsemanage/man/man3/semanage_set_root.3
+index 2ae0f17..664822e 100644
+--- a/libsemanage/man/man3/semanage_set_root.3
++++ b/libsemanage/man/man3/semanage_set_root.3
+@@ -15,7 +15,7 @@ Set the alternate root directory for SELinux configuration directory.
+ This function sets an alternate root directory to for SELinux configuration paths to be used by the semanage library.
+ 
+ .SH "RETURN VALUE"
+-In case of failure, -1 is returned.
++In case of failure, \-1 is returned.
+ Otherwise 0 is returned.
+ 
+ .SH "SEE ALSO"
+-- 
+1.8.2.1
 
-iEYEARECAAYFAlGM5c0ACgkQrlYvE4MpobOBaACg072AlvtRX5zX0Q/p7bvdUrJS
-zqgAniqFg98UT4pu9cfOaa1t+lJpQGr4
-=4dHo
------END PGP SIGNATURE-----
-
---------------060003050704070203050300
-Content-Type: text/x-patch;
- name="audit2allow.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="audit2allow.patch"
-
-diff --git a/policycoreutils/audit2allow/audit2allow b/policycoreutils/audit2allow/audit2allow
-index 8e0c396..1059bea 100644
---- a/policycoreutils/audit2allow/audit2allow
-+++ b/policycoreutils/audit2allow/audit2allow
-@@ -18,7 +18,7 @@
- # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- #
- 
--import sys
-+import sys, os
- 
- import sepolgen.audit as audit
- import sepolgen.policygen as policygen
-@@ -29,6 +29,8 @@ import sepolgen.defaults as defaults
- import sepolgen.module as module
- from sepolgen.sepolgeni18n import _
- import selinux.audit2why as audit2why
-+import locale
-+locale.setlocale(locale.LC_ALL, '')
- 
- class AuditToPolicy:
-     VERSION = "%prog .1"
-@@ -80,8 +82,7 @@ class AuditToPolicy:
-         parser.add_option("--interface-info", dest="interface_info", help="file name of interface information")
-         parser.add_option("--debug", dest="debug", action="store_true", default=False,
-                           help="leave generated modules for -M")
--
--        parser.add_option("-w", "--why", dest="audit2why",  action="store_true", default=False,
-+        parser.add_option("-w", "--why", dest="audit2why",  action="store_true", default=(os.path.basename(sys.argv[0])=="audit2why"),
-                           help="Translates SELinux audit messages into a description of why the access was denied")
- 
-         options, args = parser.parse_args()
-@@ -267,12 +268,10 @@ class AuditToPolicy:
-                     continue
- 
-                 if rc == audit2why.CONSTRAINT:
--                    print "\t\tPolicy constraint violation.\n"
--                    print "\t\tMay require adding a type attribute to the domain or type to satisfy the constraint.\n"
--                    print "\t\tConstraints are defined in the policy sources in policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).\n"
--                    for reason in data:
--                        print "\t\tNote: Possible cause is the source and target %s differ\n" % reason
--                    continue
-+                    print #!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access.\n"
-+                    print "#Constraint rule: \n\t" + data[0]
-+                    for reason in data[1:]:
-+                        print "#\tPossible cause is the source %s and target %s are different.\n\b" % reason
- 
-                 if rc == audit2why.RBAC:
-                     print "\t\tMissing role allow rule.\n"
-@@ -350,6 +349,9 @@ class AuditToPolicy:
-         except ValueError, e:
-             print e
-             sys.exit(1)
-+        except IOError, e:
-+            print e
-+            sys.exit(1)
- 
- if __name__ == "__main__":
-     app = AuditToPolicy()
-
---------------060003050704070203050300--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
