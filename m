@@ -1,42 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4ACkCI8015981
-	for <selinux@tycho.nsa.gov>; Fri, 10 May 2013 08:46:13 -0400
-From: Laurent Bigonville <bigon@debian.org>
-To: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Subject: [PATCH 16/16] policycoreutils: Do not include LDFLAGS in CFLAGS when building sepolicy
-Date: Fri, 10 May 2013 14:45:24 +0200
-Message-Id: <1368189924-8501-17-git-send-email-bigon@debian.org>
-In-Reply-To: <1368189924-8501-1-git-send-email-bigon@debian.org>
-References: <1368189924-8501-1-git-send-email-bigon@debian.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: eparis@parisplace.org
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] Enable setting security contexts on rootfs inodes.
+Date: Fri, 10 May 2013 10:25:56 -0400
+Message-Id: <1368195956-19672-1-git-send-email-sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Laurent Bigonville <bigon@bigon.be>
+rootfs (ramfs) can support setting of security contexts
+by userspace due to the vfs fallback behavior of calling
+the security module to set the in-core inode state
+for security.* attributes when the filesystem does not
+provide an xattr handler.  No xattr handler required
+as the inodes are pinned in memory and have no backing
+store.
 
-For some reasons, -fpie and -fPIE are being set in LDFLAGS, this is
-causing a FTBFS on Debian.
+This is useful in allowing early userspace to label individual
+files within a rootfs while still providing a policy-defined
+default via genfs.
 
--fpie and -fPIE are anyway useless for libraries
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- policycoreutils/sepolicy/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/policycoreutils/sepolicy/Makefile b/policycoreutils/sepolicy/Makefile
-index 11b534f..47f00da 100644
---- a/policycoreutils/sepolicy/Makefile
-+++ b/policycoreutils/sepolicy/Makefile
-@@ -9,7 +9,7 @@ LOCALEDIR ?= /usr/share/locale
- PYTHON ?= /usr/bin/python
- BASHCOMPLETIONDIR ?= $(DESTDIR)/etc/bash_completion.d/
- SHAREDIR ?= $(PREFIX)/share/sandbox
--override CFLAGS = $(LDFLAGS) -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
-+override CFLAGS = -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b28b7eb..6c13d06 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -405,6 +405,13 @@ static int sb_finish_set_opts(struct super_block *sb)
+ 	if (strncmp(sb->s_type->name, "sysfs", sizeof("sysfs")) == 0)
+ 		sbsec->flags |= SE_SBLABELSUPP;
  
- BASHCOMPLETIONS=sepolicy-bash-completion.sh 
++	/*
++	 * Special handling for rootfs. Is genfs but supports
++	 * setting SELinux context on in-core inodes.
++	 */
++	if (strncmp(sb->s_type->name, "rootfs", sizeof("rootfs")) == 0)
++		sbsec->flags |= SE_SBLABELSUPP;
++
+ 	/* Initialize the root inode. */
+ 	rc = inode_doinit_with_dentry(root_inode, root);
  
 -- 
-1.8.2.1
+1.8.1.4
 
 
 --
