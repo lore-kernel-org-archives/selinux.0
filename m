@@ -1,67 +1,77 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4HCi02U029008
-	for <selinux@tycho.nsa.gov>; Fri, 17 May 2013 08:44:00 -0400
-Received: by mail-ee0-f50.google.com with SMTP id c41so2553960eek.23
-        for <selinux@tycho.nsa.gov>; Fri, 17 May 2013 05:44:00 -0700 (PDT)
-Date: Fri, 17 May 2013 14:42:50 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: Steve Lawrence <slawrence@tresys.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Future of SETools and CIL
-Message-ID: <20130517124249.GA21913@siphos.be>
-References: <5194E01F.2040505@tresys.com>
+From: Paul Moore <paul@paul-moore.com>
+To: vlad halilov <vlad.halilov@gmail.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: connection between different labels
+Date: Fri, 17 May 2013 10:07:14 -0400
+Message-ID: <1542214.p1uj7fpFHc@sifl>
+In-Reply-To: <CAHw9pMX-Ji6hds9_oP97NEMzsG5MM_=jwD-mA=eGVWG-Z5jVEA@mail.gmail.com>
+References: <CAHw9pMX-Ji6hds9_oP97NEMzsG5MM_=jwD-mA=eGVWG-Z5jVEA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <5194E01F.2040505@tresys.com>
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 16, 2013 at 09:33:19AM -0400, Steve Lawrence wrote:
-> It has become clear that SETools has fallen behind userspace in terms of
-> features and general maintenance. We would like to get it to the point
-> where this is not the case, and to find a way to make sure it does not
-> happen again. We think the solution to the maintenance issue is to make
-> it more visible by merging the more useful parts of SETools into the
-> userspace repo, while deprecating/removing the remaining pieces.
+On Friday, May 17, 2013 12:58:27 AM vlad halilov wrote:
+> Hi again.
+
+Hello again.
+
+> Is selinux contain something functional like 'multilevel port'
+> from solaris trusted extension? Concept of mlp is declaring number of
+> programm to be 'label aware'. Program of this type, allowed to handling
+> network request for specified service from all labels and handling/generate
+> trafic for any labels in clearance. So, OS just delegate information
+> control to this programm.
+
+Yes, SELinux is capable of doing similar things.  However, I will caution you 
+that SELinux does not support network port polyinstantiation in the same way 
+as TSOL or Solaris TX; we have some workarounds that sorta do similar things 
+but it isn't the same.
+
+> As my mind, something like this is possible for selinux contexts (we can
+> allow traffic between different domains by policy, and selinux context
+> transfered by 'secret' local processing ;) but may be something like this
+> implemented for information labels s0,s1 etc?
 > 
-> However, we are well aware of the complexity of SETools, primarily
-> libapol, and that upstreaming it without any changes would not solve the
-> problems.
+> For example:
+> 
+> type=AVC msg=audit(1368735963.286:1998): avc:  denied  { recv } for 
+> pid=4773 comm="python-thinlinc" saddr=127.0.0.1 src=46092 daddr=127.0.0.1
+> dest=9000 netif=lo scontext=system_u:system_r:initrc_t:s0-s15:c0.c1023
+> tcontext=system_u:object_r:netlabel_peer_t:s4 tclass=peer
+> 
+> My userspace program need to send status message to master process that
+> executed with clearance s0-s15:c0.c1023  but denied with request. Hmmm..
+> But clearance of master process is enough to work with this information?
+> From some tests, i got result that 'real' leabel for master process is s0.
+> And all processes executed with label range handling connection only with
+> lowest label from range.
 
-Only SETools complex? I find the combination of all libraries and tools
-(libselinux, libsemanage, libsepol, sepolgen, policycoreutils, setools,
-checkpolicy) not always that obvious to manage. And many of them then try to
-have their interfaces supported in other languages (like python or ruby) and use
-swig to generate these bindings, which makes it - imo - even less obvious
-for troubleshooting. And then you have the complexity of python-2 versus
-python-3 that still needs to be sorted out :-(
+There are basically two parts to communicating over a network with a security 
+label above your effective security label and below your cleared security 
+label: initiating a new connection and sending data (e.g. creating a socket 
+with the appropriate label) and accepting a new connection and receiving data 
+(e.g. allowing a socket to receive data above it's effective security label 
+but still below it's cleared label).
 
-I'm in favor of all efforts to get the userspace and libraries things well
-documented and maintained and using a simple codebase...
+The first part, creating a socket with a different security label, can be done 
+with the setsockcreatecon() function which is part of the libselinux API.  If 
+successful, this function tells the kernel to label all future sockets with 
+the label provided by the function.  This allows you to create sockets with a 
+"s1" security label when the process is running as "s0-s15", and traffic sent 
+from these "s1" labeled sockets will be labeled as "s1" and NOT as "s0".  See 
+the manpage for more information.
 
-> So, we have done a little work behind the scenes to find a way
-> to reduce the complexity of libapol. As a first stab at it, we started
-> with an older version of libapol that is quite a bit less complex and
-> began porting it forward for use with modern userspace, and seeing if it
-> would make sense to eventually merge. 
+The second part, accepting data between the effective and cleared security 
+label, is done via the MLS attributes in the SELinux policy.  The 
+mlsnetreadtoclr, mlsnetwritetoclr, and mlsnetwriteranged are the attributes 
+you are likely the most relevant; the related SELinux policy interfaces can be 
+found in the kernel/mls.if interface file and are all named 'mls_socket_*'.
 
-Please take care not to depend on unknown patches only available in fedora.
+-- 
+paul moore
+www.paul-moore.com
 
-> Another discussion we would like to have, which may affect the future of
-> SETools/apol, is CIL. Is there still interest in CIL? And if so, have
-> there been any thoughts on using and migrating to CIL? Is more work
-> needed before this can happen? Has anyone put thought into higher level
-> languages that could sit on top of CIL? If there is interest, this may
-> affect the SETools changes, for example, syntactic policy analysis for
-> CIL is likely very different than current policy.
-
-I have been hearing of CIL for a few years, never tried it out. For me, as
-one of the SELinux guys for Gentoo Hardened, CIL only comes to play when the
-reference policy upon which we base ourselves is available in CIL and/or the
-updates of the reference policy are easily migrated to CIL as well.
-
-Wkr,
-	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
