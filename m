@@ -1,76 +1,125 @@
-From: Paul Moore <paul@paul-moore.com>
-To: vlad halilov <vlad.halilov@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: connection between different labels
-Date: Fri, 17 May 2013 10:07:14 -0400
-Message-ID: <1542214.p1uj7fpFHc@sifl>
-In-Reply-To: <CAHw9pMX-Ji6hds9_oP97NEMzsG5MM_=jwD-mA=eGVWG-Z5jVEA@mail.gmail.com>
-References: <CAHw9pMX-Ji6hds9_oP97NEMzsG5MM_=jwD-mA=eGVWG-Z5jVEA@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4HJ8rxO023585
+	for <selinux@tycho.nsa.gov>; Fri, 17 May 2013 15:08:53 -0400
+Subject: [PATCH] netlabel: improve domain mapping validation
+To: netdev@vger.kernel.org
+From: Paul Moore <pmoore@redhat.com>
+Cc: linux-security-module@vger.kernel.org, vlad.halilov@gmail.com,
+        selinux@tycho.nsa.gov
+Date: Fri, 17 May 2013 15:08:50 -0400
+Message-ID: <20130517190850.11148.51057.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, May 17, 2013 12:58:27 AM vlad halilov wrote:
-> Hi again.
+The net/netlabel/netlabel_domainhash.c:netlbl_domhsh_add() function
+does not properly validate new domain hash entries resulting in
+potential problems when an administrator attempts to add an invalid
+entry.  One such problem, as reported by Vlad Halilov, is a kernel
+BUG (found in netlabel_domainhash.c:netlbl_domhsh_audit_add()) when
+adding an IPv6 outbound mapping with a CIPSO configuration.
 
-Hello again.
+This patch corrects this problem by adding the necessary validation
+code to netlbl_domhsh_add() via the newly created
+netlbl_domhsh_validate() function.
 
-> Is selinux contain something functional like 'multilevel port'
-> from solaris trusted extension? Concept of mlp is declaring number of
-> programm to be 'label aware'. Program of this type, allowed to handling
-> network request for specified service from all labels and handling/generate
-> trafic for any labels in clearance. So, OS just delegate information
-> control to this programm.
+Ideally this patch should also be pushed to the currently active
+-stable trees.
 
-Yes, SELinux is capable of doing similar things.  However, I will caution you 
-that SELinux does not support network port polyinstantiation in the same way 
-as TSOL or Solaris TX; we have some workarounds that sorta do similar things 
-but it isn't the same.
+Reported-by: Vlad Halilov <vlad.halilov@gmail.com>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ net/netlabel/netlabel_domainhash.c |   69 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 69 insertions(+)
 
-> As my mind, something like this is possible for selinux contexts (we can
-> allow traffic between different domains by policy, and selinux context
-> transfered by 'secret' local processing ;) but may be something like this
-> implemented for information labels s0,s1 etc?
-> 
-> For example:
-> 
-> type=AVC msg=audit(1368735963.286:1998): avc:  denied  { recv } for 
-> pid=4773 comm="python-thinlinc" saddr=127.0.0.1 src=46092 daddr=127.0.0.1
-> dest=9000 netif=lo scontext=system_u:system_r:initrc_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:netlabel_peer_t:s4 tclass=peer
-> 
-> My userspace program need to send status message to master process that
-> executed with clearance s0-s15:c0.c1023  but denied with request. Hmmm..
-> But clearance of master process is enough to work with this information?
-> From some tests, i got result that 'real' leabel for master process is s0.
-> And all processes executed with label range handling connection only with
-> lowest label from range.
-
-There are basically two parts to communicating over a network with a security 
-label above your effective security label and below your cleared security 
-label: initiating a new connection and sending data (e.g. creating a socket 
-with the appropriate label) and accepting a new connection and receiving data 
-(e.g. allowing a socket to receive data above it's effective security label 
-but still below it's cleared label).
-
-The first part, creating a socket with a different security label, can be done 
-with the setsockcreatecon() function which is part of the libselinux API.  If 
-successful, this function tells the kernel to label all future sockets with 
-the label provided by the function.  This allows you to create sockets with a 
-"s1" security label when the process is running as "s0-s15", and traffic sent 
-from these "s1" labeled sockets will be labeled as "s1" and NOT as "s0".  See 
-the manpage for more information.
-
-The second part, accepting data between the effective and cleared security 
-label, is done via the MLS attributes in the SELinux policy.  The 
-mlsnetreadtoclr, mlsnetwritetoclr, and mlsnetwriteranged are the attributes 
-you are likely the most relevant; the related SELinux policy interfaces can be 
-found in the kernel/mls.if interface file and are all named 'mls_socket_*'.
-
--- 
-paul moore
-www.paul-moore.com
+diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
+index d8d4243..6bb1d42 100644
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -245,6 +245,71 @@ static void netlbl_domhsh_audit_add(struct netlbl_dom_map *entry,
+ 	}
+ }
+ 
++/**
++ * netlbl_domhsh_validate - Validate a new domain mapping entry
++ * @entry: the entry to validate
++ *
++ * This function validates the new domain mapping entry to ensure that it is
++ * a valid entry.  Returns zero on success, negative values on failure.
++ *
++ */
++static int netlbl_domhsh_validate(const struct netlbl_dom_map *entry)
++{
++	struct netlbl_af4list *iter4;
++	struct netlbl_domaddr4_map *map4;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct netlbl_af6list *iter6;
++	struct netlbl_domaddr6_map *map6;
++#endif /* IPv6 */
++
++	if (entry == NULL)
++		return -EINVAL;
++
++	switch (entry->type) {
++	case NETLBL_NLTYPE_UNLABELED:
++		if (entry->type_def.cipsov4 != NULL ||
++		    entry->type_def.addrsel != NULL)
++			return -EINVAL;
++		break;
++	case NETLBL_NLTYPE_CIPSOV4:
++		if (entry->type_def.cipsov4 == NULL)
++			return -EINVAL;
++		break;
++	case NETLBL_NLTYPE_ADDRSELECT:
++		netlbl_af4list_foreach(iter4, &entry->type_def.addrsel->list4) {
++			map4 = netlbl_domhsh_addr4_entry(iter4);
++			switch (map4->type) {
++			case NETLBL_NLTYPE_UNLABELED:
++				if (map4->type_def.cipsov4 != NULL)
++					return -EINVAL;
++				break;
++			case NETLBL_NLTYPE_CIPSOV4:
++				if (map4->type_def.cipsov4 == NULL)
++					return -EINVAL;
++				break;
++			default:
++				return -EINVAL;
++			}
++		}
++#if IS_ENABLED(CONFIG_IPV6)
++		netlbl_af6list_foreach(iter6, &entry->type_def.addrsel->list6) {
++			map6 = netlbl_domhsh_addr6_entry(iter6);
++			switch (map6->type) {
++			case NETLBL_NLTYPE_UNLABELED:
++				break;
++			default:
++				return -EINVAL;
++			}
++		}
++#endif /* IPv6 */
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ /*
+  * Domain Hash Table Functions
+  */
+@@ -311,6 +376,10 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+ 	struct netlbl_af6list *tmp6;
+ #endif /* IPv6 */
+ 
++	ret_val = netlbl_domhsh_validate(entry);
++	if (ret_val != 0)
++		return ret_val;
++
+ 	/* XXX - we can remove this RCU read lock as the spinlock protects the
+ 	 *       entire function, but before we do we need to fixup the
+ 	 *       netlbl_af[4,6]list RCU functions to do "the right thing" with
 
 
 --
