@@ -1,95 +1,90 @@
-From: Paul Moore <paul@paul-moore.com>
-To: vlad halilov <vlad.halilov@gmail.com>
-Cc: SELinux@tycho.nsa.gov
-Subject: Re: network, deep drive
-Date: Mon, 20 May 2013 14:58:02 -0400
-Message-ID: <2466345.2mjuuyBiSJ@sifl>
-In-Reply-To: <CAHw9pMUEcHa_HExVs+yyJOVk8oVEkQ84o4aywemZ+ZvMYT0=LA@mail.gmail.com>
-References: <CAHw9pMUEcHa_HExVs+yyJOVk8oVEkQ84o4aywemZ+ZvMYT0=LA@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4KKvHv5023617
+	for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 16:57:17 -0400
+Received: by mail-la0-f51.google.com with SMTP id lx15so4935443lab.10
+        for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 13:57:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <1368719808-14584-14-git-send-email-SteveD@redhat.com>
+References: <1368719808-14584-1-git-send-email-SteveD@redhat.com>
+	<1368719808-14584-14-git-send-email-SteveD@redhat.com>
+Date: Mon, 20 May 2013 16:57:16 -0400
+Message-ID: <CACLa4pta+uRLDgU=hriQLVseJvtA-FJDCRK-oYKmzVNiRs299Q@mail.gmail.com>
+Subject: Re: [PATCH 13/13] Kconfig: Add Kconfig entry for Labeled NFS V4 client
+From: Eric Paris <eparis@parisplace.org>
+To: Steve Dickson <SteveD@redhat.com>
+Cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        Linux NFS list <linux-nfs@vger.kernel.org>,
+        Linux FS devel list <linux-fsdevel@vger.kernel.org>,
+        Linux Security List <linux-security-module@vger.kernel.org>,
+        SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday, May 19, 2013 05:10:45 PM vlad halilov wrote:
-> That's some strange issue appears with labeled networking. I tried to test
-> some basic rules before mlp expreiments, but got unexpected results. Base
-> configuration (tx-like):
+On Thu, May 16, 2013 at 11:56 AM, Steve Dickson <SteveD@redhat.com> wrote:
+> From: Steve Dickson <steved@redhat.com>
+>
+> This patch adds the NFS_V4_SECURITY_LABEL entry which
+> enables security label support for the NFSv4 client
+>
+> Signed-off-by: Steve Dickson <steved@redhat.com>
+> ---
+>  fs/nfs/Kconfig | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+>
+> diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
+> index 79c500e..771831d3 100644
+> --- a/fs/nfs/Kconfig
+> +++ b/fs/nfs/Kconfig
+> @@ -107,6 +107,7 @@ config NFS_V4_1
+>  config NFS_V4_2
+>         bool "NFS client support for NFSv4.2"
+>         depends on NFS_V4_1
+> +       select NFS_V4_SECURITY_LABEL
 
-A few comments on your configuration below ...
- 
-> netlabelctl unlbl add interface:eth0 address:0.0.0.0/0
-> 	label:system_u:object_r:node_t:s1
-> netlabelctl unlbl add interface:eth0
-> 	address:192.168.1.196/0 label:system_u:object_r:node_t:s4
+So this will force it on...
 
-Generally node_t is used for network nodes while netif_t is used for 
-interfaces.  I would recommend changing from "node_t:s1" to "netif_t:s1" and 
-"node_t:s4" to "netif_t:s4".
+>         help
+>           This option enables support for minor version 1 of the NFSv4 protocol
+>           in the kernel's NFS client.
+> @@ -140,6 +141,24 @@ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
+>           If the NFS client is unchanged from the upstream kernel, this
+>           option should be set to the default "kernel.org".
+>
+> +config NFS_V4_SECURITY_LABEL
+> +       bool "Provide Security Label support for NFSv4 client"
+> +       depends on NFS_V4 && SECURITY
 
-Also just for clarification, you do realize that 0.0.0.0/0 and 192.168.1.196/0 
-are the same, yes?  In fact, you shouldn't even be able to configure the above 
-you should get an "netlabelctl:error, File exists" error message (I do on my 
-RHEL6 system).  Perhaps a cut-and-paste error when writing your email?
+Even if SECURITY is not set?
 
-> netlabelctl map del default
-> netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-> netlabelctl cipsov4 add pass doi:32 tags:1
-> netlabelctl map add default address:127.0.0.0/8 protocol:cipsov4,32
-> netlabelctl map add default address:192.168.1.96/32
-> 	protocol:cipsov4,32 #eth0
-> 
-> Iptables allowed all, and have no any secmark rules.
-> 
-> So, some examples. Here, i have executed nc in listen: nc -l 5000 with
-> user_u:user_r:user_t:s4 (additional policy that allow user_u to create
-> socket, allowing node_t, ingress  & etc in effect)
-> 
-> 1) telnet from same user (user_u:user_r:user_t:s4)  and same context is
-> succesfull. Two way exchange via 127.0.0.1 or 192.168.1.96 interfaces.
-> Thats right.
+Why are you forcing this on with a select?  select is dangerous..
 
-Good.
-
-> 2) telnet from external network from host (system_u:object_r:node_t:s4) same
-> result, two way exchange. That's right too.
-
-Good.
-
-> 3) telnet from external network (system_u:object_r:node_t:s1)  established,
-> but only one way (s1 -> s4). On trying to send string back from nc to
-> telnet and got connection closed... that's right from one side of view but
-> no deny avc in audit. Dontaudit rules disabled. One strange.
-
-I assume that the external network/host is unlabeled and you are using the 
-static/fallback labeling to label the incoming traffic?  If so, could you 
-first correct your static/fallback configuration (see above) and try again?
-
-> 4) telnet from same host but user context is ' user_u:user_r:user_t:s1' to
-> 127.0.0.1 or 192.168.1.96 - timed out... hmm.. that's strange. All needed
-> selinux context is allowed (or we got deny on step 1, but why we got
-> different result withing step 3? So, second issue.
-
-Any AVC denials?
-
-> 5) And most strange.... telnet from same host, different user
-> (user_u:user_r:user_t:s1:c0.c255) to any local address (127 or 192) got an
-> error: no space left on device . ouch. what device.. what space. space
-> space, i need space (sorry).
-
-You configured CIPSO to use only tag type #1 which is limited to categories 
-c0.c240.  If you want to use more than that you will need to look at the other 
-tag types: enumerated (#2) or ranged (#5).  Note that you can specify a 
-prioritized list of CIPSO tags in your netlabelctl command line, e.g. 
-'tags:2,5,1'; see the man page and the CIPSO draft specification[1] for more 
-details.
-
-[1] http://netlabel.sourceforge.net/files/draft-ietf-cipso-ipsecurity-01.txt
-
--- 
-paul moore
-www.paul-moore.com
-
+> +       help
+> +
+> +       Say Y here if you want enable fine-grained security label attribute
+> +       support for NFS version 4.  Security labels allow security modules like
+> +       SELinux and Smack to label files to facilitate enforcement of their policies.
+> +       Without this an NFSv4 mount will have the same label on each file.
+> +
+> +       If you do not wish to enable fine-grained security labels SELinux or
+> +       Smack policies on NFSv4 files, say N.
+> +
+> +       WARNING: there is still a chance of backwards-incompatible protocol changes.
+> +       For now we recommend "Y" only for developers and testers."
+> +
+> +       If unsure, say N.
+> +
+>  config ROOT_NFS
+>         bool "Root file system on NFS"
+>         depends on NFS_FS=y && IP_PNP
+> --
+> 1.8.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
