@@ -1,50 +1,94 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4KIJMpY014609
-	for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 14:19:22 -0400
-From: Laurent Bigonville <bigon@debian.org>
-To: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Subject: [PATCH] Properly build the swig exception file even if the headers are missing
-Date: Mon, 20 May 2013 20:18:45 +0200
-Message-Id: <1369073925-4446-1-git-send-email-bigon@debian.org>
+From: Paul Moore <paul@paul-moore.com>
+To: vlad halilov <vlad.halilov@gmail.com>
+Cc: SELinux@tycho.nsa.gov
+Subject: Re: network, deep drive
+Date: Mon, 20 May 2013 14:58:02 -0400
+Message-ID: <2466345.2mjuuyBiSJ@sifl>
+In-Reply-To: <CAHw9pMUEcHa_HExVs+yyJOVk8oVEkQ84o4aywemZ+ZvMYT0=LA@mail.gmail.com>
+References: <CAHw9pMUEcHa_HExVs+yyJOVk8oVEkQ84o4aywemZ+ZvMYT0=LA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Laurent Bigonville <bigon@bigon.be>
+On Sunday, May 19, 2013 05:10:45 PM vlad halilov wrote:
+> That's some strange issue appears with labeled networking. I tried to test
+> some basic rules before mlp expreiments, but got unexpected results. Base
+> configuration (tx-like):
 
-During build if the headers are not installed in the system path, the
-generated swig exception (.i) file might be empty.
----
- libselinux/src/exception.sh  | 2 +-
- libsemanage/src/exception.sh | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+A few comments on your configuration below ...
+ 
+> netlabelctl unlbl add interface:eth0 address:0.0.0.0/0
+> 	label:system_u:object_r:node_t:s1
+> netlabelctl unlbl add interface:eth0
+> 	address:192.168.1.196/0 label:system_u:object_r:node_t:s4
 
-diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
-index c3e61a5..b7cff7e09 100755
---- a/libselinux/src/exception.sh
-+++ b/libselinux/src/exception.sh
-@@ -15,6 +15,6 @@ echo "
- ;;
- esac
- }
--gcc -x c -c - -aux-info temp.aux < ../include/selinux/selinux.h
-+gcc -x c -c -I../include - -aux-info temp.aux < ../include/selinux/selinux.h
- for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except $i ; done 
- rm -f -- temp.aux -.o
-diff --git a/libsemanage/src/exception.sh b/libsemanage/src/exception.sh
-index 8693fb7..94619d2 100644
---- a/libsemanage/src/exception.sh
-+++ b/libsemanage/src/exception.sh
-@@ -9,6 +9,6 @@ echo "
- }
- "
- }
--gcc -x c -c - -aux-info temp.aux < ../include/semanage/semanage.h
-+gcc -x c -c -I../include - -aux-info temp.aux < ../include/semanage/semanage.h
- for i in `awk '/extern int/ { print $6 }' temp.aux`; do except $i ; done
- rm -f -- temp.aux -.o
+Generally node_t is used for network nodes while netif_t is used for 
+interfaces.  I would recommend changing from "node_t:s1" to "netif_t:s1" and 
+"node_t:s4" to "netif_t:s4".
+
+Also just for clarification, you do realize that 0.0.0.0/0 and 192.168.1.196/0 
+are the same, yes?  In fact, you shouldn't even be able to configure the above 
+you should get an "netlabelctl:error, File exists" error message (I do on my 
+RHEL6 system).  Perhaps a cut-and-paste error when writing your email?
+
+> netlabelctl map del default
+> netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
+> netlabelctl cipsov4 add pass doi:32 tags:1
+> netlabelctl map add default address:127.0.0.0/8 protocol:cipsov4,32
+> netlabelctl map add default address:192.168.1.96/32
+> 	protocol:cipsov4,32 #eth0
+> 
+> Iptables allowed all, and have no any secmark rules.
+> 
+> So, some examples. Here, i have executed nc in listen: nc -l 5000 with
+> user_u:user_r:user_t:s4 (additional policy that allow user_u to create
+> socket, allowing node_t, ingress  & etc in effect)
+> 
+> 1) telnet from same user (user_u:user_r:user_t:s4)  and same context is
+> succesfull. Two way exchange via 127.0.0.1 or 192.168.1.96 interfaces.
+> Thats right.
+
+Good.
+
+> 2) telnet from external network from host (system_u:object_r:node_t:s4) same
+> result, two way exchange. That's right too.
+
+Good.
+
+> 3) telnet from external network (system_u:object_r:node_t:s1)  established,
+> but only one way (s1 -> s4). On trying to send string back from nc to
+> telnet and got connection closed... that's right from one side of view but
+> no deny avc in audit. Dontaudit rules disabled. One strange.
+
+I assume that the external network/host is unlabeled and you are using the 
+static/fallback labeling to label the incoming traffic?  If so, could you 
+first correct your static/fallback configuration (see above) and try again?
+
+> 4) telnet from same host but user context is ' user_u:user_r:user_t:s1' to
+> 127.0.0.1 or 192.168.1.96 - timed out... hmm.. that's strange. All needed
+> selinux context is allowed (or we got deny on step 1, but why we got
+> different result withing step 3? So, second issue.
+
+Any AVC denials?
+
+> 5) And most strange.... telnet from same host, different user
+> (user_u:user_r:user_t:s1:c0.c255) to any local address (127 or 192) got an
+> error: no space left on device . ouch. what device.. what space. space
+> space, i need space (sorry).
+
+You configured CIPSO to use only tag type #1 which is limited to categories 
+c0.c240.  If you want to use more than that you will need to look at the other 
+tag types: enumerated (#2) or ranged (#5).  Note that you can specify a 
+prioritized list of CIPSO tags in your netlabelctl command line, e.g. 
+'tags:2,5,1'; see the man page and the CIPSO draft specification[1] for more 
+details.
+
+[1] http://netlabel.sourceforge.net/files/draft-ietf-cipso-ipsecurity-01.txt
+
 -- 
-1.8.3.rc2
+paul moore
+www.paul-moore.com
 
 
 --
