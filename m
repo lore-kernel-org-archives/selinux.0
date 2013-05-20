@@ -1,15 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4KKvHv5023617
-	for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 16:57:17 -0400
-Received: by mail-la0-f51.google.com with SMTP id lx15so4935443lab.10
-        for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 13:57:16 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4KLFPwS024911
+	for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 17:15:25 -0400
+Received: by mail-la0-f48.google.com with SMTP id fs12so6827279lab.21
+        for <selinux@tycho.nsa.gov>; Mon, 20 May 2013 14:15:24 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1368719808-14584-14-git-send-email-SteveD@redhat.com>
+In-Reply-To: <1368719808-14584-3-git-send-email-SteveD@redhat.com>
 References: <1368719808-14584-1-git-send-email-SteveD@redhat.com>
-	<1368719808-14584-14-git-send-email-SteveD@redhat.com>
-Date: Mon, 20 May 2013 16:57:16 -0400
-Message-ID: <CACLa4pta+uRLDgU=hriQLVseJvtA-FJDCRK-oYKmzVNiRs299Q@mail.gmail.com>
-Subject: Re: [PATCH 13/13] Kconfig: Add Kconfig entry for Labeled NFS V4 client
+	<1368719808-14584-3-git-send-email-SteveD@redhat.com>
+Date: Mon, 20 May 2013 17:15:24 -0400
+Message-ID: <CACLa4psYCePOArb=oVDs4M1RUY1j=5RPP8A3Lnw97MFLKkqO=Q@mail.gmail.com>
+Subject: Re: [PATCH 02/13] Security: Add Hook to test if the particular xattr
+ is part of a MAC model.
 From: Eric Paris <eparis@parisplace.org>
 To: Steve Dickson <SteveD@redhat.com>
 Cc: Trond Myklebust <Trond.Myklebust@netapp.com>,
@@ -23,61 +24,171 @@ Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Thu, May 16, 2013 at 11:56 AM, Steve Dickson <SteveD@redhat.com> wrote:
-> From: Steve Dickson <steved@redhat.com>
+> From: David Quigley <dpquigl@davequigley.com>
 >
-> This patch adds the NFS_V4_SECURITY_LABEL entry which
-> enables security label support for the NFSv4 client
+> The interface to request security labels from user space is the xattr
+> interface. When requesting the security label from an NFS server it is
+> important to make sure the requested xattr actually is a MAC label. This allows
+> us to make sure that we get the desired semantics from the attribute instead of
+> something else such as capabilities or a time based LSM.
 >
-> Signed-off-by: Steve Dickson <steved@redhat.com>
+> Acked-by: James Morris <james.l.morris@oracle.com>
+> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+> Signed-off-by: Miguel Rodel Felipe <Rodel_FM@dsi.a-star.edu.sg>
+> Signed-off-by: Phua Eu Gene <PHUA_Eu_Gene@dsi.a-star.edu.sg>
+> Signed-off-by: Khin Mi Mi Aung <Mi_Mi_AUNG@dsi.a-star.edu.sg>
+
+Acked-by: Eric Paris <eparis@redhat.com>
+
+
 > ---
->  fs/nfs/Kconfig | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
+>  include/linux/security.h   | 14 ++++++++++++++
+>  security/capability.c      |  6 ++++++
+>  security/security.c        |  6 ++++++
+>  security/selinux/hooks.c   |  6 ++++++
+>  security/smack/smack_lsm.c | 11 +++++++++++
+>  5 files changed, 43 insertions(+)
 >
-> diff --git a/fs/nfs/Kconfig b/fs/nfs/Kconfig
-> index 79c500e..771831d3 100644
-> --- a/fs/nfs/Kconfig
-> +++ b/fs/nfs/Kconfig
-> @@ -107,6 +107,7 @@ config NFS_V4_1
->  config NFS_V4_2
->         bool "NFS client support for NFSv4.2"
->         depends on NFS_V4_1
-> +       select NFS_V4_SECURITY_LABEL
-
-So this will force it on...
-
->         help
->           This option enables support for minor version 1 of the NFSv4 protocol
->           in the kernel's NFS client.
-> @@ -140,6 +141,24 @@ config NFS_V4_1_IMPLEMENTATION_ID_DOMAIN
->           If the NFS client is unchanged from the upstream kernel, this
->           option should be set to the default "kernel.org".
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index c2af462..cff3e4f 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1323,6 +1323,13 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+>   *     @pages contains the number of pages.
+>   *     Return 0 if permission is granted.
+>   *
+> + * @ismaclabel:
+> + *     Check if the extended attribute specified by @name
+> + *     represents a MAC label. Returns 1 if name is a MAC
+> + *     attribute otherwise returns 0.
+> + *     @name full extended attribute name to check against
+> + *     LSM as a MAC label.
+> + *
+>   * @secid_to_secctx:
+>   *     Convert secid to security context.  If secdata is NULL the length of
+>   *     the result will be returned in seclen, but no secdata will be returned.
+> @@ -1604,6 +1611,7 @@ struct security_operations {
 >
-> +config NFS_V4_SECURITY_LABEL
-> +       bool "Provide Security Label support for NFSv4 client"
-> +       depends on NFS_V4 && SECURITY
-
-Even if SECURITY is not set?
-
-Why are you forcing this on with a select?  select is dangerous..
-
-> +       help
+>         int (*getprocattr) (struct task_struct *p, char *name, char **value);
+>         int (*setprocattr) (struct task_struct *p, char *name, void *value, size_t size);
+> +       int (*ismaclabel) (const char *name);
+>         int (*secid_to_secctx) (u32 secid, char **secdata, u32 *seclen);
+>         int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
+>         void (*release_secctx) (char *secdata, u32 seclen);
+> @@ -1857,6 +1865,7 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+>  int security_getprocattr(struct task_struct *p, char *name, char **value);
+>  int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+> +int security_ismaclabel(const char *name);
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+>  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+>  void security_release_secctx(char *secdata, u32 seclen);
+> @@ -2547,6 +2556,11 @@ static inline int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+>         return cap_netlink_send(sk, skb);
+>  }
+>
+> +static inline int security_ismaclabel(const char *name)
+> +{
+> +       return 0;
+> +}
 > +
-> +       Say Y here if you want enable fine-grained security label attribute
-> +       support for NFS version 4.  Security labels allow security modules like
-> +       SELinux and Smack to label files to facilitate enforcement of their policies.
-> +       Without this an NFSv4 mount will have the same label on each file.
+>  static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>         return -EOPNOTSUPP;
+> diff --git a/security/capability.c b/security/capability.c
+> index 7aeec66..b3e8b93 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -823,6 +823,11 @@ static int cap_setprocattr(struct task_struct *p, char *name, void *value,
+>         return -EINVAL;
+>  }
+>
+> +static int cap_ismaclabel(const char *name)
+> +{
+> +       return 0;
+> +}
 > +
-> +       If you do not wish to enable fine-grained security labels SELinux or
-> +       Smack policies on NFSv4 files, say N.
+>  static int cap_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>         return -EOPNOTSUPP;
+> @@ -1042,6 +1047,7 @@ void __init security_fixup_ops(struct security_operations *ops)
+>         set_to_cap_if_null(ops, d_instantiate);
+>         set_to_cap_if_null(ops, getprocattr);
+>         set_to_cap_if_null(ops, setprocattr);
+> +       set_to_cap_if_null(ops, ismaclabel);
+>         set_to_cap_if_null(ops, secid_to_secctx);
+>         set_to_cap_if_null(ops, secctx_to_secid);
+>         set_to_cap_if_null(ops, release_secctx);
+> diff --git a/security/security.c b/security/security.c
+> index 0fe2b2e..c3ceb75 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1057,6 +1057,12 @@ int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+>         return security_ops->netlink_send(sk, skb);
+>  }
+>
+> +int security_ismaclabel(const char *name)
+> +{
+> +       return security_ops->ismaclabel(name);
+> +}
+> +EXPORT_SYMBOL(security_ismaclabel);
 > +
-> +       WARNING: there is still a chance of backwards-incompatible protocol changes.
-> +       For now we recommend "Y" only for developers and testers."
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>         return security_ops->secid_to_secctx(secid, secdata, seclen);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index b1f7bd7..bbf219a 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5454,6 +5454,11 @@ abort_change:
+>         return error;
+>  }
+>
+> +static int selinux_ismaclabel(const char *name)
+> +{
+> +       return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
+> +}
 > +
-> +       If unsure, say N.
+>  static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+>         return security_sid_to_context(secid, secdata, seclen);
+> @@ -5692,6 +5697,7 @@ static struct security_operations selinux_ops = {
+>         .getprocattr =                  selinux_getprocattr,
+>         .setprocattr =                  selinux_setprocattr,
+>
+> +       .ismaclabel =                   selinux_ismaclabel,
+>         .secid_to_secctx =              selinux_secid_to_secctx,
+>         .secctx_to_secid =              selinux_secctx_to_secid,
+>         .release_secctx =               selinux_release_secctx,
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index d52c780..a7f485b 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -3329,6 +3329,16 @@ static void smack_audit_rule_free(void *vrule)
+>  #endif /* CONFIG_AUDIT */
+>
+>  /**
+> + * smack_ismaclabel - check if xattr @name references a smack MAC label
+> + * @name: Full xattr name to check.
+> + */
+> +static int smack_ismaclabel(const char *name)
+> +{
+> +       return (strcmp(name, XATTR_SMACK_SUFFIX) == 0);
+> +}
 > +
->  config ROOT_NFS
->         bool "Root file system on NFS"
->         depends on NFS_FS=y && IP_PNP
+> +
+> +/**
+>   * smack_secid_to_secctx - return the smack label for a secid
+>   * @secid: incoming integer
+>   * @secdata: destination
+> @@ -3524,6 +3534,7 @@ struct security_operations smack_ops = {
+>         .audit_rule_free =              smack_audit_rule_free,
+>  #endif /* CONFIG_AUDIT */
+>
+> +       .ismaclabel =                   smack_ismaclabel,
+>         .secid_to_secctx =              smack_secid_to_secctx,
+>         .secctx_to_secid =              smack_secctx_to_secid,
+>         .release_secctx =               smack_release_secctx,
 > --
 > 1.8.1.4
 >
