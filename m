@@ -1,119 +1,70 @@
-Message-ID: <519E7B11.5060804@tresys.com>
-Date: Thu, 23 May 2013 16:24:49 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4NKQ6Lw024928
+	for <selinux@tycho.nsa.gov>; Thu, 23 May 2013 16:26:06 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, omoris@redhat.com,
+        pwouters@redhat.com
+Subject: Re: [RFC PATCH 2/2] xfrm: force a garbage collection after deleting a policy
+Date: Thu, 23 May 2013 16:26 -0400
+Message-ID: <3745713.ydSpZNh4x7@sifl>
+In-Reply-To: <519E6E36.4070600@cogentembedded.com>
+References: <20130523185659.19212.56853.stgit@localhost> <20130523190746.19212.6027.stgit@localhost> <519E6E36.4070600@cogentembedded.com>
 MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Future of SETools and CIL
-References: <5194E01F.2040505@tresys.com> <5194F142.2080600@tycho.nsa.gov> <519E636B.8010101@tresys.com> <519E7153.5070403@tycho.nsa.gov>
-In-Reply-To: <519E7153.5070403@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/23/2013 03:43 PM, James Carter wrote:
-> On 05/23/2013 02:43 PM, Steve Lawrence wrote:
->> On 05/16/2013 10:46 AM, James Carter wrote:
->>> On 05/16/2013 09:33 AM, Steve Lawrence wrote:
->>>> Another discussion we would like to have, which may affect the
->>>> future of
->>>> SETools/apol, is CIL. Is there still interest in CIL? And if so, have
->>>> there been any thoughts on using and migrating to CIL? Is more work
->>>> needed before this can happen? Has anyone put thought into higher level
->>>> languages that could sit on top of CIL? If there is interest, this may
->>>> affect the SETools changes, for example, syntactic policy analysis for
->>>> CIL is likely very different than current policy.
->>>
->>> I am still interested in CIL. In fact, I just got CIL to work on a
->>> translation of Refpolicy from early 2012. (And by work I mean produce a
->>> binary policy equivalent, according to sediff, with the binary produced
->>> by the Refpolicy build.) I just started this week on trying it against a
->>> recent version of Refpolicy. There are some issues that I need to work
->>> through; the biggest being how to handle the optional parameters to
->>> filetrans_pattern() and filetrans_add_pattern(). I hope to make both the
->>> CIL translation of Refpolicy and my many modifications to CIL available
->>> shortly.
->>>
->>> I am also interested in resurrecting the earlier policy toolchain work
->>> to convert to the use of source modules and allow the use of CIL for
->>> policy builds.
->>>
->>
->> That's great to hear! Did this require any patches to CIL at all? I'd
->> be happy
->> to review any changes.
->>
->
-> A few changes were made. ;)
->
->   b/Makefile              |   38
->   b/include/cil/cil.h     |    1
->   b/secilc.c              |   51 -
->   b/src/cil.c             |  237 ++---
->   b/src/cil_binary.c      | 1144 ++++++++++++++--------------
->   b/src/cil_binary.h      |    4
->   b/src/cil_build_ast.c   | 1717 +++++++++++++++++-------------------------
->   b/src/cil_build_ast.h   |   26
->   b/src/cil_copy_ast.c    | 1265 +++++++-----------------------
->   b/src/cil_copy_ast.h    |   18
->   b/src/cil_fqn.c         |    9
->   b/src/cil_internal.h    |  136 +--
->   b/src/cil_list.c        |  157 +--
->   b/src/cil_list.h        |   25
->   b/src/cil_mem.c         |   33
->   b/src/cil_mem.h         |    4
->   b/src/cil_parser.c      |    6
->   b/src/cil_policy.c      |  610 ++++++++------
->   b/src/cil_post.c        |  639 +++++++++++----
->   b/src/cil_resolve_ast.c |  889 ++++++++-------------
->   b/src/cil_resolve_ast.h |    6
->   b/src/cil_symtab.c      |  140 +--
->   b/src/cil_symtab.h      |    9
->   b/src/cil_tree.c        | 1959
-> +++++++++++++++++++++++++-----------------------
->   b/src/cil_verify.c      |  847 ++++++++------------
->   b/src/cil_verify.h      |    5
->   b/test/policy.cil       |    2
->   src/Makefile            |   57 -
->   28 files changed, 4591 insertions(+), 5443 deletions(-)
->
-> I will gladly send you patches if you want them, but I have 45 commits
-> in my tree.
->
+On Thursday, May 23, 2013 11:29:58 PM Sergei Shtylyov wrote:
+> Hello.
+> 
+> On 05/23/2013 11:07 PM, Paul Moore wrote:
+> > In some cases after deleting a policy from the SPD the policy would
+> > remain in the dst/flow/route cache for an extended period of time
+> > which caused problems for SELinux as its dynamic network access
+> > controls key off of the number of XFRM policy and state entries.
+> > This patch corrects this problem by forcing a XFRM garbage collection
+> > whenever a policy is sucessfully removed.
+> > 
+> > Reported-by: Ondrej Moris <omoris@redhat.com>
+> > Signed-off-by: Paul Moore <pmoore@redhat.com>
+> > ---
+> > 
+> >   include/net/xfrm.h     |    6 ++++++
+> >   net/key/af_key.c       |    4 ++++
+> >   net/xfrm/xfrm_policy.c |    3 ++-
+> >   net/xfrm/xfrm_user.c   |    2 ++
+> >   4 files changed, 14 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+> > index ae16531..918e4cd 100644
+> > --- a/include/net/xfrm.h
+> > +++ b/include/net/xfrm.h
+> 
+> [...]
+> 
+> > @@ -1194,6 +1196,10 @@ static inline int xfrm6_policy_check_reverse(struct
+> > sock *sk, int dir,> 
+> >   {
+> >   
+> >   	return 1;
+> >   
+> >   }
+> > 
+> > +static inline void xfrm_garbage_collect(struct net *net)
+> > +{
+> > +	return;
+> 
+>      Not needed.
+> 
+> > +}
 
-Nice! That would probably be a little difficult to deal with over email. 
-I've given you commit access the CIL repo on oss.tresys.com. If you'd 
-like, feel free to push your changes to a branch and I can give them a 
-quick review before they go to master.
+True, I added it for the sake of completeness, but I'll go ahead and remove 
+it.
 
-> Many of these commits are small. And many of the ones that are large are
-> just applying a similar change in many places. One of the big ones is
-> just to improve debug messages. Another big one is just a refactoring of
-> cil_list handling. Another very large one is the removal of
-> cil_conditional.
->
-> A surprisingly large number of the commits went towards adding support
-> for expression operations in classpermsets and classmappings. I haven't
-> been able to test CIL with actual permission expressions yet, because I
-> had been expanding them all in my parser when converting Refpolicy to
-> CIL policy. I don't expect any major problems because permission
-> expressions are handled with much of the same code that attributes and
-> other expressions are.
->
-> I am currently updating my parser to work with the latest Refpolicy and
-> testing should begin shortly. Hopefully, I will soon be able to report
-> success.
->
->> Regarding the policy toolchain, I just tried to rebase to previous policy
->> toolchain work/CIL integration and, not surprisingly, it ran into
->> conflict
->> issues on the very first patch. So it's probably not trivial, but I
->> imagine it's
->> not too difficult either.
->
-> That is my thought as well.
->
->
+-- 
+paul moore
+security and virtualization @ redhat
 
 
 --
