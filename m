@@ -1,58 +1,49 @@
-MIME-Version: 1.0
-In-Reply-To: <20130523005354.418a2541@fornost.bigon.be>
-References: <20130523005354.418a2541@fornost.bigon.be>
-Date: Thu, 23 May 2013 07:30:18 +0200
-Message-ID: <CAPzO=NzDH47Ksfc4o7F=citU7DR1BF0VF0QFrCFNB82M7FfakA@mail.gmail.com>
-Subject: Re: Last version of policycoreutils using Fedora only API
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: Laurent Bigonville <bigon@debian.org>
+Date: Thu, 23 May 2013 09:57:47 +0200
+From: Laurent Bigonville <bigon@debian.org>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
 Cc: SELinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7b5dbf9656065104dd5bfa30
+Subject: Re: Last version of policycoreutils using Fedora only API
+Message-ID: <20130523095747.22818ef6@soldur.bigon.be>
+In-Reply-To: <CAPzO=NzDH47Ksfc4o7F=citU7DR1BF0VF0QFrCFNB82M7FfakA@mail.gmail.com>
+References: <20130523005354.418a2541@fornost.bigon.be>
+	<CAPzO=NzDH47Ksfc4o7F=citU7DR1BF0VF0QFrCFNB82M7FfakA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7b5dbf9656065104dd5bfa30
-Content-Type: text/plain; charset=ISO-8859-1
+Le Thu, 23 May 2013 07:30:18 +0200,
+Sven Vermeulen <sven.vermeulen@siphos.be> a écrit :
 
-On May 23, 2013 1:09 AM, "Laurent Bigonville" <bigon@debian.org> wrote:
-> The last release of policycoreutils is using a function
-> (selinux_current_policy_path()) that is only available in Fedora. I
-> guess this shouldn't have made upstream.
->
-> An idea how this could be sorted for other distributions?
+> On May 23, 2013 1:09 AM, "Laurent Bigonville" <bigon@debian.org>
+> wrote:
+> > The last release of policycoreutils is using a function
+> > (selinux_current_policy_path()) that is only available in Fedora. I
+> > guess this shouldn't have made upstream.
+> >
+> > An idea how this could be sorted for other distributions?
+> 
+> Please see my answer to Joshua's announcement on the new userspace.
 
-Please see my answer to Joshua's announcement on the new userspace. You'll
-need to add in the function. There is also a dependency on yum Python
-bindings that you might need to remove, and depending on your directory
-structure you might need a /etc/selinux/sepolgen.conf (iirc) that defines
-where to find the refpolicy Makefile.
+Oh thanks, I messed this.
 
-Wkr,
-  Sven Vermeulen
+> You'll need to add in the function. 
 
---047d7b5dbf9656065104dd5bfa30
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Well I'm not a big fan of adding function in libraries that are not
+merged upstream. IIRC eparis told me on IRC that he has not happy with
+this new functions.
 
-<p dir=3D"ltr"><br>
-On May 23, 2013 1:09 AM, &quot;Laurent Bigonville&quot; &lt;<a href=3D"mail=
-to:bigon@debian.org">bigon@debian.org</a>&gt; wrote:<br>
-&gt; The last release of policycoreutils is using a function<br>
-&gt; (selinux_current_policy_path()) that is only available in Fedora. I<br=
->
-&gt; guess this shouldn&#39;t have made upstream.<br>
-&gt;<br>
-&gt; An idea how this could be sorted for other distributions?</p>
-<p dir=3D"ltr">Please see my answer to Joshua&#39;s announcement on the new=
- userspace. You&#39;ll need to add in the function. There is also a depende=
-ncy on yum Python bindings that you might need to remove, and depending on =
-your directory structure you might need a /etc/selinux/sepolgen.conf (iirc)=
- that defines where to find the refpolicy Makefile.</p>
+Is this (or a reworked) function planned to be merged?
 
-<p dir=3D"ltr">Wkr,<br>
-=A0 Sven Vermeulen</p>
+> There is also a dependency on yum Python bindings that you might
+> need to remove, and depending on your directory structure you might
+> need a /etc/selinux/sepolgen.conf (iirc) that defines where to find
+> the refpolicy Makefile.
 
---047d7b5dbf9656065104dd5bfa30--
+Cheers
+
+Laurent Bigonville
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
