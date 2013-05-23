@@ -1,50 +1,114 @@
-Message-ID: <519E636B.8010101@tresys.com>
-Date: Thu, 23 May 2013 14:43:55 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4NJ7ltw020121
+	for <selinux@tycho.nsa.gov>; Thu, 23 May 2013 15:07:47 -0400
+Subject: [RFC PATCH 2/2] xfrm: force a garbage collection after deleting a
+ policy
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Cc: omoris@redhat.com, pwouters@redhat.com
+Date: Thu, 23 May 2013 15:07:46 -0400
+Message-ID: <20130523190746.19212.6027.stgit@localhost>
+In-Reply-To: <20130523185659.19212.56853.stgit@localhost>
+References: <20130523185659.19212.56853.stgit@localhost>
 MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Future of SETools and CIL
-References: <5194E01F.2040505@tresys.com> <5194F142.2080600@tycho.nsa.gov>
-In-Reply-To: <5194F142.2080600@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/16/2013 10:46 AM, James Carter wrote:
-> On 05/16/2013 09:33 AM, Steve Lawrence wrote:
->> Another discussion we would like to have, which may affect the future of
->> SETools/apol, is CIL. Is there still interest in CIL? And if so, have
->> there been any thoughts on using and migrating to CIL? Is more work
->> needed before this can happen? Has anyone put thought into higher level
->> languages that could sit on top of CIL? If there is interest, this may
->> affect the SETools changes, for example, syntactic policy analysis for
->> CIL is likely very different than current policy.
->
-> I am still interested in CIL. In fact, I just got CIL to work on a
-> translation of Refpolicy from early 2012. (And by work I mean produce a
-> binary policy equivalent, according to sediff, with the binary produced
-> by the Refpolicy build.) I just started this week on trying it against a
-> recent version of Refpolicy. There are some issues that I need to work
-> through; the biggest being how to handle the optional parameters to
-> filetrans_pattern() and filetrans_add_pattern(). I hope to make both the
-> CIL translation of Refpolicy and my many modifications to CIL available
-> shortly.
->
-> I am also interested in resurrecting the earlier policy toolchain work
-> to convert to the use of source modules and allow the use of CIL for
-> policy builds.
->
+In some cases after deleting a policy from the SPD the policy would
+remain in the dst/flow/route cache for an extended period of time
+which caused problems for SELinux as its dynamic network access
+controls key off of the number of XFRM policy and state entries.
+This patch corrects this problem by forcing a XFRM garbage collection
+whenever a policy is sucessfully removed.
 
-That's great to hear! Did this require any patches to CIL at all? I'd be 
-happy to review any changes.
+Reported-by: Ondrej Moris <omoris@redhat.com>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ include/net/xfrm.h     |    6 ++++++
+ net/key/af_key.c       |    4 ++++
+ net/xfrm/xfrm_policy.c |    3 ++-
+ net/xfrm/xfrm_user.c   |    2 ++
+ 4 files changed, 14 insertions(+), 1 deletion(-)
 
-Regarding the policy toolchain, I just tried to rebase to previous 
-policy toolchain work/CIL integration and, not surprisingly, it ran into 
-conflict issues on the very first patch. So it's probably not trivial, 
-but I imagine it's not too difficult either.
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index ae16531..918e4cd 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1160,6 +1160,8 @@ static inline void xfrm_sk_free_policy(struct sock *sk)
+ 	}
+ }
+ 
++extern void xfrm_garbage_collect(struct net *net);
++
+ #else
+ 
+ static inline void xfrm_sk_free_policy(struct sock *sk) {}
+@@ -1194,6 +1196,10 @@ static inline int xfrm6_policy_check_reverse(struct sock *sk, int dir,
+ {
+ 	return 1;
+ }
++static inline void xfrm_garbage_collect(struct net *net)
++{
++	return;
++}
+ #endif
+ 
+ static __inline__
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 5b1e5af..c5fbd75 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2366,6 +2366,8 @@ static int pfkey_spddelete(struct sock *sk, struct sk_buff *skb, const struct sa
+ 
+ out:
+ 	xfrm_pol_put(xp);
++	if (err == 0)
++		xfrm_garbage_collect(net);
+ 	return err;
+ }
+ 
+@@ -2615,6 +2617,8 @@ static int pfkey_spdget(struct sock *sk, struct sk_buff *skb, const struct sadb_
+ 
+ out:
+ 	xfrm_pol_put(xp);
++	if (delete && err == 0)
++		xfrm_garbage_collect(net);
+ 	return err;
+ }
+ 
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 23cea0f..ea970b8 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2557,11 +2557,12 @@ static void __xfrm_garbage_collect(struct net *net)
+ 	}
+ }
+ 
+-static void xfrm_garbage_collect(struct net *net)
++void xfrm_garbage_collect(struct net *net)
+ {
+ 	flow_cache_flush();
+ 	__xfrm_garbage_collect(net);
+ }
++EXPORT_SYMBOL(xfrm_garbage_collect);
+ 
+ static void xfrm_garbage_collect_deferred(struct net *net)
+ {
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index aa77874..3f565e4 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -1681,6 +1681,8 @@ static int xfrm_get_policy(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ out:
+ 	xfrm_pol_put(xp);
++	if (delete && err == 0)
++		xfrm_garbage_collect(net);
+ 	return err;
+ }
+ 
 
-- Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
