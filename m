@@ -1,40 +1,78 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4OIKPLP027065
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2013 14:20:25 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4OIPXVN027287
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2013 14:25:33 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r4OIPXMi019896
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <selinux@tycho.nsa.gov>; Fri, 24 May 2013 14:25:34 -0400
 From: Paul Moore <pmoore@redhat.com>
-To: Eric Paris <eparis@redhat.com>, David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH v2 0/2] Fix the SELinux dynamic network access controls
-Date: Fri, 24 May 2013 14:20:23 -0400
-Message-ID: <2018143.PsiGxnXVKA@sifl>
-In-Reply-To: <20130524181430.24022.15997.stgit@localhost>
-References: <20130524181430.24022.15997.stgit@localhost>
+To: eparis@redhat.com
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH v3] selinux: fix problems in netnode when BUG() is compiled out
+Date: Fri, 24 May 2013 14:25:32 -0400
+Message-ID: <1527561.BHgFlbIGtA@sifl>
+In-Reply-To: <1854129.fLaNtYFx1j@sifl>
+References: <20130404144600.6650.16381.stgit@localhost> <1854129.fLaNtYFx1j@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, May 24, 2013 02:16:16 PM Paul Moore wrote:
-> A bump to v2 to incorporate Sergei's minor comment on the previous
-> patchset.  I've also gone ahead and dropped the "RFC" from the
-> patchset as I didn't see any significant comments/concerns from
-> anyone.
+On Monday, April 29, 2013 11:09:47 AM Paul Moore wrote:
+> On Thursday, April 04, 2013 10:46:00 AM Paul Moore wrote:
+> > When the BUG() macro is disabled at compile time it can cause some
+> > problems in the SELinux netnode code: invalid return codes and
+> > uninitialized variables.  This patch fixes this by making sure we take
+> > some corrective action after the BUG() macro.
+> > 
+> > Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> > Signed-off-by: Paul Moore <pmoore@redhat.com>
+> > 
+> > ---
+> > 
+> > In the process of cleaning up a local git tree I realized I had this
+> > patch still sitting in my tree that for some reason hadn't been
+> > merged upstream.  Originally sent back on December 5, 2012.
+> > ---
+> > 
+> >  security/selinux/netnode.c |    2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+> > index c5454c0..03a72c3 100644
+> > --- a/security/selinux/netnode.c
+> > +++ b/security/selinux/netnode.c
+> > @@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode
+> > *node) break;
+> > 
+> >  	default:
+> >  		BUG();
+> > 
+> > +		return;
+> > 
+> >  	}
+> >  	
+> >  	/* we need to impose a limit on the growth of the hash table so check
+> > 
+> > @@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16
+> > family,
+> > u32 *sid) break;
+> > 
+> >  	default:
+> >  		BUG();
+> > 
+> > +		ret = -EINVAL;
+> > 
+> >  	}
+> >  	if (ret != 0)
+> >  	
+> >  		goto out;
 > 
-> ---
-> 
-> Paul Moore (2):
->       selinux: fix the labeled xfrm/IPsec reference count handling
->       xfrm: force a garbage collection after deleting a policy
+> It would be nice to get this into 3.10.
 
-Hi Dave, Eric,
-
-I think we need to get this in for 3.10, assuming no objections from either 
-one of you, who wants to pull it into their tree?
-
--Paul
-
-P.S. Technically this could also be -stable material but I'm not pushing for 
-that as this isn't really a panic issue, just a nuisance.
+*COUGH*
+Hello?  3.10?  Hello?
+*COUGH*
 
 -- 
 paul moore
