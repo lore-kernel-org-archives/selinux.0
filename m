@@ -1,82 +1,112 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4OIPXVN027287
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2013 14:25:33 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r4OIPXMi019896
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 24 May 2013 14:25:34 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r4THapnS001355
+	for <selinux@tycho.nsa.gov>; Wed, 29 May 2013 13:36:51 -0400
+Subject: [PATCH v3 1/2] xfrm: force a garbage collection after deleting a
+ policy
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
-To: eparis@redhat.com
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH v3] selinux: fix problems in netnode when BUG() is compiled out
-Date: Fri, 24 May 2013 14:25:32 -0400
-Message-ID: <1527561.BHgFlbIGtA@sifl>
-In-Reply-To: <1854129.fLaNtYFx1j@sifl>
-References: <20130404144600.6650.16381.stgit@localhost> <1854129.fLaNtYFx1j@sifl>
+Cc: omoris@redhat.com, pwouters@redhat.com
+Date: Wed, 29 May 2013 13:36:25 -0400
+Message-ID: <20130529173625.31888.4007.stgit@localhost>
+In-Reply-To: <20130529173336.31888.29695.stgit@localhost>
+References: <20130529173336.31888.29695.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, April 29, 2013 11:09:47 AM Paul Moore wrote:
-> On Thursday, April 04, 2013 10:46:00 AM Paul Moore wrote:
-> > When the BUG() macro is disabled at compile time it can cause some
-> > problems in the SELinux netnode code: invalid return codes and
-> > uninitialized variables.  This patch fixes this by making sure we take
-> > some corrective action after the BUG() macro.
-> > 
-> > Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> > Signed-off-by: Paul Moore <pmoore@redhat.com>
-> > 
-> > ---
-> > 
-> > In the process of cleaning up a local git tree I realized I had this
-> > patch still sitting in my tree that for some reason hadn't been
-> > merged upstream.  Originally sent back on December 5, 2012.
-> > ---
-> > 
-> >  security/selinux/netnode.c |    2 ++
-> >  1 file changed, 2 insertions(+)
-> > 
-> > diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> > index c5454c0..03a72c3 100644
-> > --- a/security/selinux/netnode.c
-> > +++ b/security/selinux/netnode.c
-> > @@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode
-> > *node) break;
-> > 
-> >  	default:
-> >  		BUG();
-> > 
-> > +		return;
-> > 
-> >  	}
-> >  	
-> >  	/* we need to impose a limit on the growth of the hash table so check
-> > 
-> > @@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16
-> > family,
-> > u32 *sid) break;
-> > 
-> >  	default:
-> >  		BUG();
-> > 
-> > +		ret = -EINVAL;
-> > 
-> >  	}
-> >  	if (ret != 0)
-> >  	
-> >  		goto out;
-> 
-> It would be nice to get this into 3.10.
+In some cases after deleting a policy from the SPD the policy would
+remain in the dst/flow/route cache for an extended period of time
+which caused problems for SELinux as its dynamic network access
+controls key off of the number of XFRM policy and state entries.
+This patch corrects this problem by forcing a XFRM garbage collection
+whenever a policy is sucessfully removed.
 
-*COUGH*
-Hello?  3.10?  Hello?
-*COUGH*
+Reported-by: Ondrej Moris <omoris@redhat.com>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ include/net/xfrm.h     |    5 +++++
+ net/key/af_key.c       |    4 ++++
+ net/xfrm/xfrm_policy.c |    3 ++-
+ net/xfrm/xfrm_user.c   |    2 ++
+ 4 files changed, 13 insertions(+), 1 deletion(-)
 
--- 
-paul moore
-security and virtualization @ redhat
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index ae16531..94ce082 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1160,6 +1160,8 @@ static inline void xfrm_sk_free_policy(struct sock *sk)
+ 	}
+ }
+ 
++extern void xfrm_garbage_collect(struct net *net);
++
+ #else
+ 
+ static inline void xfrm_sk_free_policy(struct sock *sk) {}
+@@ -1194,6 +1196,9 @@ static inline int xfrm6_policy_check_reverse(struct sock *sk, int dir,
+ {
+ 	return 1;
+ }
++static inline void xfrm_garbage_collect(struct net *net)
++{
++}
+ #endif
+ 
+ static __inline__
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 5b1e5af..c5fbd75 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2366,6 +2366,8 @@ static int pfkey_spddelete(struct sock *sk, struct sk_buff *skb, const struct sa
+ 
+ out:
+ 	xfrm_pol_put(xp);
++	if (err == 0)
++		xfrm_garbage_collect(net);
+ 	return err;
+ }
+ 
+@@ -2615,6 +2617,8 @@ static int pfkey_spdget(struct sock *sk, struct sk_buff *skb, const struct sadb_
+ 
+ out:
+ 	xfrm_pol_put(xp);
++	if (delete && err == 0)
++		xfrm_garbage_collect(net);
+ 	return err;
+ }
+ 
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 23cea0f..ea970b8 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2557,11 +2557,12 @@ static void __xfrm_garbage_collect(struct net *net)
+ 	}
+ }
+ 
+-static void xfrm_garbage_collect(struct net *net)
++void xfrm_garbage_collect(struct net *net)
+ {
+ 	flow_cache_flush();
+ 	__xfrm_garbage_collect(net);
+ }
++EXPORT_SYMBOL(xfrm_garbage_collect);
+ 
+ static void xfrm_garbage_collect_deferred(struct net *net)
+ {
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index aa77874..3f565e4 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -1681,6 +1681,8 @@ static int xfrm_get_policy(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ out:
+ 	xfrm_pol_put(xp);
++	if (delete && err == 0)
++		xfrm_garbage_collect(net);
+ 	return err;
+ }
+ 
 
 
 --
