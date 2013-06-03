@@ -1,45 +1,185 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r53FBgev015038
-	for <selinux@tycho.nsa.gov>; Mon, 3 Jun 2013 11:11:42 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: David Miller <davem@davemloft.net>, selinux@tycho.nsa.gov
-Cc: netdev@vger.kernel.org, omoris@redhat.com, pwouters@redhat.com
-Subject: Re: [PATCH v3 0/2] Fix the SELinux dynamic network access controls
-Date: Mon, 03 Jun 2013 11:11:38 -0400
-Message-ID: <8410550.MlrVbe5Pkl@sifl>
-In-Reply-To: <20130531.173108.2170873839229968113.davem@davemloft.net>
-References: <20130529173336.31888.29695.stgit@localhost> <20130531.173108.2170873839229968113.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Eric Paris <eparis@redhat.com>
+To: torvalds@linux-foundation.org
+Cc: sds@tycho.nsa.gov, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@redhat.com>
+Subject: [RFC PATCH 1/2] selinux: merge selinux_inode_permission and inode_has_perm
+Date: Mon,  3 Jun 2013 14:59:00 -0400
+Message-Id: <1370285941-18367-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday, May 31, 2013 05:31:08 PM David Miller wrote:
-> From: Paul Moore <pmoore@redhat.com>
-> Date: Wed, 29 May 2013 13:36:18 -0400
-> 
-> > Take #3 ... two changes here: the first is a simple reordering of the
-> > two patches and the second is stripping the SELinux patch (2/2 in this
-> > patchset) of everything but the bare bones changes needed to fix the
-> > problem in the 3.10-rcX tree.
-> 
-> Series applied, but longer term I'd like to see this handled by generation
-> counts or similar during lookup time.
-> 
-> Doing a GC every policy delete hurts policy delete performance, something
-> we worked really hard to make as light weight as possible given the
-> constraints.
+selinux_inode_permission had some heavy lifting done to make it more
+performance polite.  But it still does largely the same thing as
+inode_has_perm.  So move that work into inode_has_perm and call
+inode_has_perm from selinux_inode_permission.
 
-Thanks for pulling in the fixes for 3.10-rcX.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ security/selinux/hooks.c | 92 ++++++++++++++++++++++--------------------------
+ 1 file changed, 42 insertions(+), 50 deletions(-)
 
-I promise to take a look at changing our approach to detecting an active 
-labeled IPsec configuration for future releases.  I need to cleanup our 
-labeled IPsec code anyway, it is in need of some TLC (you saw some of the 
-changes in the earlier version of this patchset).
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5c6f2cd..cfecb52 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1494,17 +1494,41 @@ static int task_has_system(struct task_struct *tsk,
+ 			    SECCLASS_SYSTEM, perms, NULL);
+ }
+ 
++static noinline int audit_inode_permission(struct inode *inode,
++					   struct common_audit_data *adp,
++					   u32 perms, u32 audited, u32 denied,
++					   unsigned flags)
++{
++	struct common_audit_data ad;
++	struct inode_security_struct *isec = inode->i_security;
++	int rc;
++
++	if (!adp) {
++		ad.type = LSM_AUDIT_DATA_INODE;
++		ad.u.inode = inode;
++		adp = &ad;
++	}
++
++	rc = slow_avc_audit(current_sid(), isec->sid, isec->sclass, perms,
++			    audited, denied, adp, flags);
++	if (rc)
++		return rc;
++	return 0;
++}
++
+ /* Check whether a task has a particular permission to an inode.
+    The 'adp' parameter is optional and allows other audit
+    data to be passed (e.g. the dentry). */
+ static int inode_has_perm(const struct cred *cred,
+ 			  struct inode *inode,
+-			  u32 perms,
++			  u32 perms, u32 dontaudit,
+ 			  struct common_audit_data *adp,
+ 			  unsigned flags)
+ {
+ 	struct inode_security_struct *isec;
+-	u32 sid;
++	struct av_decision avd;
++	u32 sid, denied, audited;
++	int rc, rc2;
+ 
+ 	validate_creds(cred);
+ 
+@@ -1514,6 +1538,14 @@ static int inode_has_perm(const struct cred *cred,
+ 	sid = cred_sid(cred);
+ 	isec = inode->i_security;
+ 
++	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0, &avd);
++	audited = avc_audit_required(perms, &avd, rc, dontaudit, &denied);
++	if (likely(!audited))
++		return rc;
++
++	rc2 = audit_inode_permission(inode, adp, perms, audited, denied, flags);
++	if (rc2)
++		return rc2;
+ 	return avc_has_perm_flags(sid, isec->sid, isec->sclass, perms, adp, flags);
+ }
+ 
+@@ -1529,7 +1561,7 @@ static inline int dentry_has_perm(const struct cred *cred,
+ 
+ 	ad.type = LSM_AUDIT_DATA_DENTRY;
+ 	ad.u.dentry = dentry;
+-	return inode_has_perm(cred, inode, av, &ad, 0);
++	return inode_has_perm(cred, inode, av, 0, &ad, 0);
+ }
+ 
+ /* Same as inode_has_perm, but pass explicit audit data containing
+@@ -1544,7 +1576,7 @@ static inline int path_has_perm(const struct cred *cred,
+ 
+ 	ad.type = LSM_AUDIT_DATA_PATH;
+ 	ad.u.path = *path;
+-	return inode_has_perm(cred, inode, av, &ad, 0);
++	return inode_has_perm(cred, inode, av, 0, &ad, 0);
+ }
+ 
+ /* Check whether a task can use an open file descriptor to
+@@ -1580,7 +1612,7 @@ static int file_has_perm(const struct cred *cred,
+ 	/* av is zero if only checking access to the descriptor. */
+ 	rc = 0;
+ 	if (av)
+-		rc = inode_has_perm(cred, inode, av, &ad, 0);
++		rc = inode_has_perm(cred, inode, av, 0, &ad, 0);
+ 
+ out:
+ 	return rc;
+@@ -2635,64 +2667,24 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *na
+ 	return dentry_has_perm(cred, dentry, FILE__READ);
+ }
+ 
+-static noinline int audit_inode_permission(struct inode *inode,
+-					   u32 perms, u32 audited, u32 denied,
+-					   unsigned flags)
+-{
+-	struct common_audit_data ad;
+-	struct inode_security_struct *isec = inode->i_security;
+-	int rc;
+-
+-	ad.type = LSM_AUDIT_DATA_INODE;
+-	ad.u.inode = inode;
+-
+-	rc = slow_avc_audit(current_sid(), isec->sid, isec->sclass, perms,
+-			    audited, denied, &ad, flags);
+-	if (rc)
+-		return rc;
+-	return 0;
+-}
+-
+ static int selinux_inode_permission(struct inode *inode, int mask)
+ {
+ 	const struct cred *cred = current_cred();
+-	u32 perms;
+-	bool from_access;
++	u32 perms, dontaudit = 0;
+ 	unsigned flags = mask & MAY_NOT_BLOCK;
+-	struct inode_security_struct *isec;
+-	u32 sid;
+-	struct av_decision avd;
+-	int rc, rc2;
+-	u32 audited, denied;
+ 
+-	from_access = mask & MAY_ACCESS;
++	if (mask & MAY_ACCESS)
++		dontaudit = FILE__AUDIT_ACCESS;
++
+ 	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
+ 
+ 	/* No permission to check.  Existence test. */
+ 	if (!mask)
+ 		return 0;
+ 
+-	validate_creds(cred);
+-
+-	if (unlikely(IS_PRIVATE(inode)))
+-		return 0;
+-
+ 	perms = file_mask_to_av(inode->i_mode, mask);
+ 
+-	sid = cred_sid(cred);
+-	isec = inode->i_security;
+-
+-	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0, &avd);
+-	audited = avc_audit_required(perms, &avd, rc,
+-				     from_access ? FILE__AUDIT_ACCESS : 0,
+-				     &denied);
+-	if (likely(!audited))
+-		return rc;
+-
+-	rc2 = audit_inode_permission(inode, perms, audited, denied, flags);
+-	if (rc2)
+-		return rc2;
+-	return rc;
++	return inode_has_perm(cred, inode, perms, dontaudit, NULL, flags);
+ }
+ 
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
 -- 
-paul moore
-security and virtualization @ redhat
+1.8.2.1
 
 
 --
