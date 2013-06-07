@@ -1,172 +1,51 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r57DmI39030290
-	for <selinux@tycho.nsa.gov>; Fri, 7 Jun 2013 09:48:18 -0400
-Message-ID: <51B1E492.5000903@itechfrontiers.com>
-Date: Fri, 07 Jun 2013 09:48:02 -0400
-From: "Patrick K., ITF" <cto@itechfrontiers.com>
+Message-ID: <51B2136F.10900@tycho.nsa.gov>
+Date: Fri, 07 Jun 2013 13:07:59 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: mthode@mthode.org
 CC: selinux@tycho.nsa.gov
 Subject: Re: selinux on zfs(onlinux)
-References: <51B125CE.5020801@mthode.org> <51B12FD4.5070206@itechfrontiers.com> <51B14452.8040701@mthode.org>
-In-Reply-To: <51B14452.8040701@mthode.org>
+References: <51B125CE.5020801@mthode.org>
+In-Reply-To: <51B125CE.5020801@mthode.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry If I'm double posting, My mail client software crashed during 
-drafting answer, so I don't know if mine posted or not.
+On 06/06/2013 08:14 PM, Matthew Thode wrote:
+> zfs is very close to usable as a root file-system with selinux, but is
+> just missing one thing, it doesn't know what to set the root context to
+> on mount.
+>
+> I am going to petition for this to be added as a property, but should it
+> be called rootcontext (want to make sure it's valid).
+>
+> system_u:object_r:fs_t is what I used just to get my system working
+> (including stuff like /usr, but meh).
+>
+>
+> here is the upstream bug if curious
+> https://github.com/zfsonlinux/zfs/issues/1504
 
+The mount options interpreted by SELinux are:
+1. context= (treat all inodes in the filesystem as if they had the 
+specified security context regardless of any on-disk extended attribute 
+value),
 
-On 6/6/2013 10:24 PM, Matthew Thode wrote:
- > On 06/06/2013 07:56 PM, Patrick K., ITF wrote:
- >> Hello,
- >>
- >> Excuse me,  But ZFS is a patented technology Owned by Oracle Inc., and
- >> only its implementation in CDDL was/is free.
- >>
- >> CDDL is incompatible with GPL,
- >>
- >> How come that ZFS can be used as root File System on Linux then?! , ZFS
- >> cannot be integrated into kernel due to Legal reasons as explained,
- >> unless every recipient makes modification and compilation 
-himself/herself.
- >>
- >> Even if you make a Module you cannot distribute it as binary, subject to
- >> derivative work.
- >>
- >> If you distribute it as Module you must distribute source code, and the
- >> recipient must compile the whole kernel (on every system that is being
- >> deployed).
- >>
- >> If you compile into binary module and distribute it, then due to linking
- >> you still violate CDDL (derivative work)
- >>
- >> All may result in getting sued by Oracle Inc. due to Patent violation.
- >>
- >>
- >> Best regards,
- >>
- >>     Patrick K.
- >>
- >> On 6/6/2013 8:14 PM, Matthew Thode wrote:
- >>> zfs is very close to usable as a root file-system with selinux, but is
- >>> just missing one thing, it doesn't know what to set the root context to
- >>> on mount.
- >>>
- >>> I am going to petition for this to be added as a property, but 
-should it
- >>> be called rootcontext (want to make sure it's valid).
- >>>
- >>> system_u:object_r:fs_t is what I used just to get my system working
- >>> (including stuff like /usr, but meh).
- >>>
- >>>
- >>> here is the upstream bug if curious
- >>> https://github.com/zfsonlinux/zfs/issues/1504
- >>>
- >>>
- >
- > zfs version 28 was released under the cddl, which means it is not able
- > to be integrated statically into the kernel and then redistributed (my
- > interpretation).  I can create my own static kernel image with zfs and
- > use it on my own though (and this is my preferred method of using it).
- >
+2. fscontext= (treat the filesystem/superblock as if it had the 
+specified security context, used in certain permission checks affecting 
+filesystem operations like mount and umount),
 
-I believe you need to consult with a lawyer, that's not entirely right, 
-I'm very well aware of that.(FreeBSD and Illumos - former OpenSolaris- 
-The question was rhetorical making you pay attention to the legal facts)
+3. rootcontext= (treat the root inode in the filesystem as if it had the 
+specified security context but the normal behavior for the rest, useful 
+for assigning an initial context to a root directory of e.g. a tmpfs 
+mount), and
 
+4. defcontext= (treat any file that lacks an extended attribute as if it 
+had the specified security context).
 
- > You are also able to use proprietary kernel modules as well.  Ever use
- > the AFS (filesystem) on Linux?  Here is a link as to what Linus has to
- > think on the mater.
- > http://linuxmafia.com/faq/Kernel/proprietary-kernel-modules.html
- >
-
-OpenAFS has different License it is IPL. Do you pay attention to the 
-licenses? You need to ask your lawyer.
-
-And it seems you do not read what Linus wrote, he admits about modules " 
-... (they can potentially be considered derived works, even if you don't 
-actually link them into the kernel, per se) ..."
-
-
-He somewhat wants to ignore that, as long as the IPR owner has no issue 
-Linus won't cause trouble, but Oracle Inc. has issues on this, They are 
-selling ZFS Storage and ZFS is a core feature of Solaris, They have very 
-clear commercial interest in it, in fact originally CDDL was chosen (at 
-SUN) to some extent due to keeping their rights.
-
-
-
-
- > The CDDL provides a patent grant and the conflict only affects
- > distribution of linked binaries on the GPL end.  Since the modules are
- > from Solaris, they are not considered a derived work, so the derived
- > work in the GPL is irrelevant.  It is my interpretation that I can make
- > and distribute a module, but that is not the question here.
- >
-
-
-This is different, The owner of the IPR (Intellectual Property Right) 
-Originally SUN Micros systems Inc and Now Oracle Inc, has not created 
-that Module, and has not granted such right,  only CDDL version is free 
-and comes with granted right  not infringing the patents.
-
-
-When third parties create module for Kernel they combine it with enough 
-code and adapt it with Linux Kernel that constitutes a derivative work, 
-which is in case of kernel it should be in GPL,  GPL requires you to 
-make all the code GPL,  you cannot change the License of the CDDL parts 
-(according to CDDL grant of rights), if you do that you would terminate 
-your agreement and you would lose granted rights to patents.
-
-When you create the Module in case of File system you make derivative 
-work of Linux then the entire work needs to be in GPL (While CDDL 
-license does not permit you to change the license of those parts that 
-are already in CDDL)
-
-
-In an enterprise if you deploy such Module, and use outsourced 
-technicians or companies then they are distributing illegal and 
-unlicensed code, since the fair usage case is when the owner of the 
-system applies modification to his/her/its system, if third parties do 
-so it is a clear case of distribution.
-
-Thus no sane and law abiding management would let you use that.
-
-
-Please see this page:
-
-https://blogs.oracle.com/chandan/entry/copyrights_licenses_and_cddl_illustrated
-
- > So, do you think the name for that zfs property would be accurate
- > (rootcontext)?
-
-
-The correct legal method of using ZFS under Linux is using it through 
-(iSCSI, Fiber Channel, ATAoE) SAN or NAS on FreeBSD, Illumos, Solaris or 
-Oracle's ZFS Storage systems. (or other commercial ZFS solutions based 
-on these OSes)
-
-
-What you ask here is subject to "promotion and facilitation of patent 
-infringement" which makes people liable under tort law, like many sites 
-out there promoting ZFS workarounds for Linux Kernel.
-
-
-Notice: Legal issues explained in this message are for information 
-purposes only and should not be considered as legal advice, please 
-consult with your lawyer for legal advice.
-
-Best Regards,
-
-Patrick K.
-
-
-P.S. Sorry If I'm double posting, My mail client software crashed during 
-drafting answer, so I don't know if mine posted or not.
+The context you specified is a fscontext (fs_t), not one normally used 
+for inodes.  But I'm not sure which one you meant to use or whether you 
+ultimately ought to support them all.
 
 
 --
