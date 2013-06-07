@@ -1,50 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r54FMgbG007644
-	for <selinux@tycho.nsa.gov>; Tue, 4 Jun 2013 11:22:42 -0400
-Received: by mail-ea0-f177.google.com with SMTP id j14so305671eak.36
-        for <selinux@tycho.nsa.gov>; Tue, 04 Jun 2013 08:22:41 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r570Dqgl020048
+	for <selinux@tycho.nsa.gov>; Thu, 6 Jun 2013 20:13:53 -0400
+Received: from [IPv6:2001:470:e1cc:2:2677:3ff:fe25:a674] (unknown [IPv6:2001:470:e1cc:2:2677:3ff:fe25:a674])
+	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx1.mthode.org (Postfix) with ESMTPSA id EBC7DB238
+	for <selinux@tycho.nsa.gov>; Thu,  6 Jun 2013 20:15:10 -0400 (EDT)
+Message-ID: <51B125CE.5020801@mthode.org>
+Date: Thu, 06 Jun 2013 19:14:06 -0500
+From: Matthew Thode <mthode@mthode.org>
+Reply-To: mthode@mthode.org
 MIME-Version: 1.0
-In-Reply-To: <CAGXs5wVBc3k_o9esDhB+fvfxLQ=U8JskzzhuYLxD6d_3Hf=gug@mail.gmail.com>
-References: <CAGXs5wVBc3k_o9esDhB+fvfxLQ=U8JskzzhuYLxD6d_3Hf=gug@mail.gmail.com>
-Date: Tue, 4 Jun 2013 11:22:40 -0400
-Message-ID: <CADjGSjisU8ZPsjuS2YoMc72RvFyJd+ZK4GfyX8-z_SZfoOJ2pw@mail.gmail.com>
-Subject: Re: xt_SECMARK and "unable to map security context 'httpcontext'" error
-From: Joshua Brindle <brindle@quarksecurity.com>
-To: Kevin Wilson <wkevils@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+Subject: selinux on zfs(onlinux)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="----enig2PTULJONKHEASIHANFVCU"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 4, 2013 at 11:04 AM, Kevin Wilson <wkevils@gmail.com> wrote:
-> Hi,
-> I tried this:
->
-> modprobe xt_SECMARK
-> iptables -t mangle -A PREROUTING -p tcp --dport 80 -j SECMARK --selctx
-> httpcontext
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+------enig2PTULJONKHEASIHANFVCU
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-You would need a full SELinux context here, such as
-system_u:object_r:http_packet_t:s0, and you'd need to ensure that the
-label actually exists in your policy.
+zfs is very close to usable as a root file-system with selinux, but is
+just missing one thing, it doesn't know what to set the root context to
+on mount.
 
-> and got:
-> iptables: No chain/target/match by that name.
->
->
-> Kernel log says:
-> localhost kernel: [  491.321048] xt_SECMARK: unable to
-> map security context 'httpcontext'
->
-> Any ideas what should I do to enable this rule?
->
-> regards,
-> Kevin
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+I am going to petition for this to be added as a property, but should it
+be called rootcontext (want to make sure it's valid).
+
+system_u:object_r:fs_t is what I used just to get my system working
+(including stuff like /usr, but meh).
+
+
+here is the upstream bug if curious
+https://github.com/zfsonlinux/zfs/issues/1504
+
+
+--=20
+-- Matthew Thode
+
+
+------enig2PTULJONKHEASIHANFVCU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRsSXaAAoJECRx6z5ArFrD5aMQAJcY53OEP31pT8u33iJPk9qD
+Z2jEH9AIyKvPVUUbtvL7nvhY6lef88mu8s+7YvXGYJWkz7xq4/odtf8TrZBi9bJ3
+41xojI4Lx91MX43kUQT4oQF7MNdnwe0Q8JpSGwo6Z7ETFcv9oa6cCo2iqUOxgzKI
+Va5CjxqsPviUMJJTOmP1nnDIVNXkuMaQhzJhujkydmt0ZjQMPkbQTIXvQMQ1gE60
+ajFOWa0t0t846+b3cOcOb87MQsMDPiRaBhVdR9dKXAVJ0JUw1JJDGBH9mZU3dz/a
+4LHO8O+/mLVPsFDaPPWaIa4XVS6xzylX+hHioPKx4g+rG7tiO4d5vhQjGqPuRzkJ
+ENaI3QRc/fYnwCvaq+re8aIV57qcXAqU9iFz8ttmKZH9pvFBhFJnxB1vG8IUE5u5
+vF5lqXMg06SULzsoIQpVl04xOQjxbv1vJISAntR0CBqok8p7kamzUe8Y3dCcwry3
+Zh9wMOYHcrVBJE1AXPGG+Tshi31RypIm8c+UOxE7ZfhdKvM0SCjADE4eYtQrzsGp
+vkrvtDBY3NRu0HcadXfKAJlhJM3jiEZatZRmgpiFveSk4APoiL3apr9EjkXAw4hK
+edWBgX7dW+tttKrkMCVoc3/XllIp2scvJpeFJsDDZcaGvLolZPgiq60vR681hmJ3
+eAqZkLsz8HXzyvgtwByy
+=luiX
+-----END PGP SIGNATURE-----
+
+------enig2PTULJONKHEASIHANFVCU--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
