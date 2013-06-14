@@ -1,76 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EJ3hce020696
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 15:04:12 -0400
-Subject: [PATCH 6/8] selinux: cleanup selinux_xfrm_decode_session()
-To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EJkjKn023385
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 15:46:45 -0400
 From: Paul Moore <pmoore@redhat.com>
-Date: Fri, 14 Jun 2013 15:04:10 -0400
-Message-ID: <20130614190410.30803.68249.stgit@localhost>
-In-Reply-To: <20130614185950.30803.17359.stgit@localhost>
-References: <20130614185950.30803.17359.stgit@localhost>
+To: selinux@tycho.nsa.gov
+Cc: cpebenito@tresys.com
+Subject: Deprecating policy capabilities (was: Clarification of labeled IPsec checks)
+Date: Fri, 14 Jun 2013 15:46:19 -0400
+Message-ID: <5219244.VNyImXJjQb@sifl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Some basic simplification.
+On Tuesday, May 07, 2013 09:05:30 AM Paul Moore wrote:
+> On Monday, May 06, 2013 09:50:04 AM Christopher J. PeBenito wrote:
+> > On 05/03/13 15:20, Paul Moore wrote:
+> > > It has been a while since we introduced the netpeer policy capability so
+> > > I imagine we could start a process of deprecating policies that don't
+> > > enable it. We could dump a warning message if someone loads a policy
+> > > with the netpeer capability disabled and then after a few releases (how
+> > > many?) we could remove the legacy bits from the kernel and reject
+> > > policies which don't have the netpeer capability set.
+> > 
+> > The common case obviously is no labeling, and in that case, there wouldn't
+> > be checks.  So I suspect this wouldn't have any real problems.  My guess
+> > is systems that use this wouldn't be changing their OS very often, and
+> > when they do, it would be major jumps (e.g. RHEL6 to RHEL7), so they'd be
+> > anticipating changes like this.
+> 
+> Yeah, I agree.  I'll throw together a deprecation patch and toss it out so
+> we can have a bit more of a discussion on this.
 
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/xfrm.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+I just took a closer look at this and as much as I would like to require 
+policies to enable the netpeer capability so we could remove a bunch of old 
+code, I don't think we can do this anytime soon.
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index 00801ce..425b9f9 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -215,34 +215,35 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
-  */
- int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
- {
-+	u32 sid_session = SECSID_NULL;
- 	struct sec_path *sp;
- 
--	*sid = SECSID_NULL;
--
- 	if (skb == NULL)
--		return 0;
-+		goto out;
- 
- 	sp = skb->sp;
- 	if (sp) {
--		int i, sid_set = 0;
-+		int i;
- 
--		for (i = sp->len-1; i >= 0; i--) {
-+		for (i = sp->len - 1; i >= 0; i--) {
- 			struct xfrm_state *x = sp->xvec[i];
- 			if (selinux_authorizable_xfrm(x)) {
- 				struct xfrm_sec_ctx *ctx = x->security;
- 
--				if (!sid_set) {
--					*sid = ctx->ctx_sid;
--					sid_set = 1;
--
-+				if (sid_session == SECSID_NULL) {
-+					sid_session = ctx->ctx_sid;
- 					if (!ckall)
--						break;
--				} else if (*sid != ctx->ctx_sid)
-+						goto out;
-+				} else if (sid_session != ctx->ctx_sid) {
-+					*sid = SECSID_NULL;
- 					return -EINVAL;
-+				}
- 			}
- 		}
- 	}
- 
-+out:
-+	*sid = sid_session;
- 	return 0;
- }
- 
+The problem is that the kernel still supports old policy versions, back to 
+v15, and the policy capability support wasn't added until policy v22.  For 
+obvious reasons, we can't really deprecate a policy capability (at least not 
+the netpeer capability) until our minimum supported policy version is v22 or 
+higher.  I'm not sure that is something we can really do at this point - 
+thoughts?
+
+-- 
+paul moore
+security and virtualization @ redhat
 
 
 --
