@@ -1,163 +1,145 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5CGju64002201
-	for <selinux@tycho.nsa.gov>; Wed, 12 Jun 2013 12:45:59 -0400
-Message-ID: <51B8A5C1.8030108@schaufler-ca.com>
-Date: Wed, 12 Jun 2013 09:45:53 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EJ3hcW020696
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 15:03:46 -0400
+Subject: [PATCH 2/8] selinux: cleanup and consolidate the XFRM
+ alloc/clone/delete/free code
+To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Date: Fri, 14 Jun 2013 15:03:45 -0400
+Message-ID: <20130614190345.30803.59602.stgit@localhost>
+In-Reply-To: <20130614185950.30803.17359.stgit@localhost>
+References: <20130614185950.30803.17359.stgit@localhost>
 MIME-Version: 1.0
-To: Linux Security Summit Program Committee <lss-pc@ext.namei.org>
-CC: lwn@lwn.net, fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov,
-        ubuntu-hardened@lists.ubuntu.com, tomoyo-users-en@lists.sourceforge.jp,
-        netfilter-devel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        Audit-ML <linux-audit@redhat.com>, gentoo-hardened@gentoo.org,
-        "C. Craig Ross" <ccr@linuxfoundation.org>, keyrings@linux-nfs.org,
-        tpmdd-devel@lists.sourceforge.net, kernel-hardening@lists.openwall.com
-Subject: Re: [ANNOUNCE] Linux Security Summit 2013 - CFP
-References: <alpine.LRH.2.02.1305061853410.31937@tundra.namei.org>
-In-Reply-To: <alpine.LRH.2.02.1305061853410.31937@tundra.namei.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 5/6/2013 2:18 AM, James Morris wrote:
-> ==========================================================================
->                  ANNOUNCEMENT AND CALL FOR PARTICIPATION
->
->                        LINUX SECURITY SUMMIT 2013
->                             19-20 SEPTEMBER
->                             NEW ORLEANS, USA
-> ==========================================================================
+The SELinux labeled IPsec code state management functions have been
+long neglected and could use some cleanup and consolidation.
 
-Multiple Concurrent Security Modules? Really?
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/xfrm.c |   71 ++++++++++++++++++++++++++---------------------
+ 1 file changed, 40 insertions(+), 31 deletions(-)
 
-This talk will cover the ongoing work to update the
-Linux Security Module (LSM) infrastructure to allow
-multiple concurrent security modules.
-
-The talk starts with a statement of the problem being
-solved, that the existing infrastructure allows only
-a single LSM (plus Yama) to be active at a time. The
-rationale for the current scheme will be discussed as
-well as what has changed so that the new scheme is in
-the works.
-
-The talk continues with a description of the externally
-visible changes and the reasons they've been made.
-The peculiar configuration issues with networking will
-be covered in some detail. The additions in /proc/.../attr
-will be noted.
-
-Next the structure of the stacking mechanism is detailed,
-with special attention to the allocation and freeing of
-security blobs. The handling of networking hooks and
-secids will be examined.
-
-Finally, the current project plan and status will be
-described.
-
->
->
-> DESCRIPTION
->
->   The Linux Security Summit (LSS) is a technical forum for collaboration
->   between Linux developers, researchers, and end users.  Its primary aim
->   is to foster community efforts in analyzing and solving Linux security
->   challenges.
->
->   The format of the summit will be:
->   
->     * Refereed presentations
->     * Subsystem reports
->     * Breakout development sessions 
->
->
-> WEB SITE
->
->   http://kernsec.org/wiki/index.php/Linux_Security_Summit_2013
->
->
-> DATES / LOCATION
->
->   The Linux Security Summit for 2013 will be held across 19 and 20 September
->   in New Orleans, USA.  It will be co-located with LinuxCon, as well
->   as Linux Plumbers.
->  
->   Note that Linux Security Summit attendees and speakers must be registered
->   to attend LinuxCon.  See the LinuxCon site for details on registration,
->   travel, and accommodation:
->   
->     https://events.linuxfoundation.org/events/linuxcon
->
->   The Linux Security Summit CFP is now open, and will close on 14th June.
->   
->   Accepted speakers will be notified by 21st of June.
->
->
-> WHO SHOULD ATTEND
->
->   The event is open to all registered LinuxCon attendees.
->   
->   You do not have to be a "security person" to attend -- we're seeking a
->   diverse range of attendees, and welcome the participation of general
->   developers, researchers, operations, and end-users.
->
->
-> CALL FOR PARTICIPATION
->
->   The program committee currently seeks proposals for:
->
->   * Refereed Presentations:
->       45 minutes in length, including at least 10 minutes of discussion.
->       Papers are encouraged.
->
->  
->   Topic areas include, but are not limited to:
->   
->     * System hardening
->     * Access control
->     * Cryptography
->     * Integrity control
->     * Hardware security
->     * Networking
->     * Storage
->     * Virtualization
->     * Desktop
->     * Tools
->     * Management
->     * Case studies
->     * Emerging technologies, threats & techniques 
->     
->   Proposals should be submitted in plain text via email to the program
->   committee at:  lss-pc (_at_) ext.namei.org
->
->   Abstracts should be approximately 150 words in total.
->
->
-> PROGRAM COMMITTEE
->
->   The Linux Security Summit for 2013 is organized by:
->
->     * James Morris, Oracle
->     * Serge Hallyn, Canonical
->     * Paul Moore, Red Hat
->     * Stephen Smalley, NSA
->     * Joshua Brindle, Quark Security
->     * Herbert Xu, Red Hat
->     * John Johansen, Canonical
->     * Kees Cook, Google
->     * Casey Schaufler, Intel
->     * Mimi Zohar, IBM
->
->   The program committee may be contacted as a group via email:
->
->      lss-pc (_at_) ext.namei.org
->    
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 07ae0c0..f8d7126 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -122,6 +122,33 @@ err:
+ }
+ 
+ /*
++ * Free the xfrm_sec_ctx structure.
++ */
++static void selinux_xfrm_free(struct xfrm_sec_ctx *ctx)
++{
++	if (!ctx)
++		return;
++
++	atomic_dec(&selinux_xfrm_refcount);
++	kfree(ctx);
++}
++
++/*
++ * Authorize the deletion of a labeled SA or policy rule.
++ */
++static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
++{
++	const struct task_security_struct *tsec = current_security();
++
++	if (!ctx)
++		return 0;
++
++	return avc_has_perm(tsec->sid, ctx->ctx_sid,
++			    SECCLASS_ASSOCIATION, ASSOCIATION__SETCONTEXT,
++			    NULL);
++}
++
++/*
+  * LSM hook implementation that authorizes that a flow can use
+  * a xfrm policy rule.
+  */
+@@ -258,17 +285,16 @@ int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
+ {
+ 	struct xfrm_sec_ctx *new_ctx;
+ 
+-	if (old_ctx) {
+-		new_ctx = kmalloc(sizeof(*old_ctx) + old_ctx->ctx_len,
+-				  GFP_ATOMIC);
+-		if (!new_ctx)
+-			return -ENOMEM;
++	if (!old_ctx)
++		return 0;
++
++	new_ctx = kmalloc(sizeof(*old_ctx) + old_ctx->ctx_len, GFP_ATOMIC);
++	if (!new_ctx)
++		return -ENOMEM;
++	memcpy(new_ctx, old_ctx, sizeof(*old_ctx) + old_ctx->ctx_len);
++	atomic_inc(&selinux_xfrm_refcount);
++	*new_ctxp = new_ctx;
+ 
+-		memcpy(new_ctx, old_ctx, sizeof(*new_ctx));
+-		memcpy(new_ctx->ctx_str, old_ctx->ctx_str, new_ctx->ctx_len);
+-		atomic_inc(&selinux_xfrm_refcount);
+-		*new_ctxp = new_ctx;
+-	}
+ 	return 0;
+ }
+ 
+@@ -277,8 +303,7 @@ int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
+  */
+ void selinux_xfrm_policy_free(struct xfrm_sec_ctx *ctx)
+ {
+-	atomic_dec(&selinux_xfrm_refcount);
+-	kfree(ctx);
++	selinux_xfrm_free(ctx);
+ }
+ 
+ /*
+@@ -286,14 +311,7 @@ void selinux_xfrm_policy_free(struct xfrm_sec_ctx *ctx)
+  */
+ int selinux_xfrm_policy_delete(struct xfrm_sec_ctx *ctx)
+ {
+-	const struct task_security_struct *tsec = current_security();
+-
+-	if (!ctx)
+-		return 0;
+-
+-	return avc_has_perm(tsec->sid, ctx->ctx_sid,
+-			    SECCLASS_ASSOCIATION, ASSOCIATION__SETCONTEXT,
+-			    NULL);
++	return selinux_xfrm_delete(ctx);
+ }
+ 
+ /*
+@@ -349,8 +367,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+  */
+ void selinux_xfrm_state_free(struct xfrm_state *x)
+ {
+-	atomic_dec(&selinux_xfrm_refcount);
+-	kfree(x->security);
++	selinux_xfrm_free(x->security);
+ }
+ 
+  /*
+@@ -358,15 +375,7 @@ void selinux_xfrm_state_free(struct xfrm_state *x)
+   */
+ int selinux_xfrm_state_delete(struct xfrm_state *x)
+ {
+-	const struct task_security_struct *tsec = current_security();
+-	struct xfrm_sec_ctx *ctx = x->security;
+-
+-	if (!ctx)
+-		return 0;
+-
+-	return avc_has_perm(tsec->sid, ctx->ctx_sid,
+-			    SECCLASS_ASSOCIATION, ASSOCIATION__SETCONTEXT,
+-			    NULL);
++	return selinux_xfrm_delete(x->security);
+ }
+ 
+ /*
 
 
 --
