@@ -1,51 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EJkjKn023385
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 15:46:45 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: cpebenito@tresys.com
-Subject: Deprecating policy capabilities (was: Clarification of labeled IPsec checks)
-Date: Fri, 14 Jun 2013 15:46:19 -0400
-Message-ID: <5219244.VNyImXJjQb@sifl>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EK3DRj024502
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 16:03:13 -0400
+Received: by mail-ea0-f174.google.com with SMTP id o10so567258eaj.19
+        for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 13:03:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <5219244.VNyImXJjQb@sifl>
+References: <5219244.VNyImXJjQb@sifl>
+Date: Fri, 14 Jun 2013 16:03:11 -0400
+Message-ID: <CADjGSjj7c9w9bPqunJjdBUohgwd8qJfvL=iovrZNHZ1Kwom+Nw@mail.gmail.com>
+Subject: Re: Deprecating policy capabilities (was: Clarification of labeled
+ IPsec checks)
+From: Joshua Brindle <brindle@quarksecurity.com>
+To: Paul Moore <pmoore@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday, May 07, 2013 09:05:30 AM Paul Moore wrote:
-> On Monday, May 06, 2013 09:50:04 AM Christopher J. PeBenito wrote:
-> > On 05/03/13 15:20, Paul Moore wrote:
-> > > It has been a while since we introduced the netpeer policy capability so
-> > > I imagine we could start a process of deprecating policies that don't
-> > > enable it. We could dump a warning message if someone loads a policy
-> > > with the netpeer capability disabled and then after a few releases (how
-> > > many?) we could remove the legacy bits from the kernel and reject
-> > > policies which don't have the netpeer capability set.
-> > 
-> > The common case obviously is no labeling, and in that case, there wouldn't
-> > be checks.  So I suspect this wouldn't have any real problems.  My guess
-> > is systems that use this wouldn't be changing their OS very often, and
-> > when they do, it would be major jumps (e.g. RHEL6 to RHEL7), so they'd be
-> > anticipating changes like this.
-> 
-> Yeah, I agree.  I'll throw together a deprecation patch and toss it out so
-> we can have a bit more of a discussion on this.
+On Fri, Jun 14, 2013 at 3:46 PM, Paul Moore <pmoore@redhat.com> wrote:
+> On Tuesday, May 07, 2013 09:05:30 AM Paul Moore wrote:
+>> On Monday, May 06, 2013 09:50:04 AM Christopher J. PeBenito wrote:
+>> > On 05/03/13 15:20, Paul Moore wrote:
+>> > > It has been a while since we introduced the netpeer policy capability so
+>> > > I imagine we could start a process of deprecating policies that don't
+>> > > enable it. We could dump a warning message if someone loads a policy
+>> > > with the netpeer capability disabled and then after a few releases (how
+>> > > many?) we could remove the legacy bits from the kernel and reject
+>> > > policies which don't have the netpeer capability set.
+>> >
+>> > The common case obviously is no labeling, and in that case, there wouldn't
+>> > be checks.  So I suspect this wouldn't have any real problems.  My guess
+>> > is systems that use this wouldn't be changing their OS very often, and
+>> > when they do, it would be major jumps (e.g. RHEL6 to RHEL7), so they'd be
+>> > anticipating changes like this.
+>>
+>> Yeah, I agree.  I'll throw together a deprecation patch and toss it out so
+>> we can have a bit more of a discussion on this.
+>
+> I just took a closer look at this and as much as I would like to require
+> policies to enable the netpeer capability so we could remove a bunch of old
+> code, I don't think we can do this anytime soon.
+>
+> The problem is that the kernel still supports old policy versions, back to
+> v15, and the policy capability support wasn't added until policy v22.  For
+> obvious reasons, we can't really deprecate a policy capability (at least not
+> the netpeer capability) until our minimum supported policy version is v22 or
+> higher.  I'm not sure that is something we can really do at this point -
+> thoughts?
+>
 
-I just took a closer look at this and as much as I would like to require 
-policies to enable the netpeer capability so we could remove a bunch of old 
-code, I don't think we can do this anytime soon.
-
-The problem is that the kernel still supports old policy versions, back to 
-v15, and the policy capability support wasn't added until policy v22.  For 
-obvious reasons, we can't really deprecate a policy capability (at least not 
-the netpeer capability) until our minimum supported policy version is v22 or 
-higher.  I'm not sure that is something we can really do at this point - 
-thoughts?
-
--- 
-paul moore
-security and virtualization @ redhat
-
+I doubt that anyone has tested a < v22 policy on a modern system in
+quite some time... I would wonder if it still works correctly. If it
+hasn't been it seems like a good idea to deprecate unused, untested
+configurations for stability and security. There isn't much of a
+reason to use old policies on new kernels since 1) pre-existing binary
+policies are unlikely to work on new distros and 2) the toolchain can
+build new policies from old source.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
