@@ -1,12 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EJ3hcY020696
-	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 15:03:53 -0400
-Subject: [PATCH 3/8] selinux: cleanup selinux_xfrm_policy_lookup() and
- selinux_xfrm_state_pol_flow_match()
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5EJ3hci020696
+	for <selinux@tycho.nsa.gov>; Fri, 14 Jun 2013 15:04:24 -0400
+Subject: [PATCH 8/8] selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
-Date: Fri, 14 Jun 2013 15:03:51 -0400
-Message-ID: <20130614190351.30803.84121.stgit@localhost>
+Date: Fri, 14 Jun 2013 15:04:22 -0400
+Message-ID: <20130614190422.30803.22358.stgit@localhost>
 In-Reply-To: <20130614185950.30803.17359.stgit@localhost>
 References: <20130614185950.30803.17359.stgit@localhost>
 MIME-Version: 1.0
@@ -14,97 +13,52 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Do some basic simplification and comment reformatting.
+Remove the BUG_ON() from selinux_skb_xfrm_sid() and propogate the
+error code up to the caller.  Also check the return values in the
+only caller function, selinux_skb_peerlbl_sid().
 
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- security/selinux/xfrm.c |   54 ++++++++++++++++-------------------------------
- 1 file changed, 18 insertions(+), 36 deletions(-)
+ security/selinux/hooks.c        |    8 ++++++--
+ security/selinux/include/xfrm.h |    5 ++---
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index f8d7126..4a7ba4a 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -155,42 +155,30 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
- int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d3555bd..4bc068b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3722,8 +3722,12 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
+ 	u32 nlbl_sid;
+ 	u32 nlbl_type;
+ 
+-	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+-	selinux_netlbl_skbuff_getsid(skb, family, &nlbl_type, &nlbl_sid);
++	err = selinux_skb_xfrm_sid(skb, &xfrm_sid);
++	if (unlikely(err))
++		return -EACCES;
++	err = selinux_netlbl_skbuff_getsid(skb, family, &nlbl_type, &nlbl_sid);
++	if (unlikely(err))
++		return -EACCES;
+ 
+ 	err = security_net_peersid_resolve(nlbl_sid, nlbl_type, xfrm_sid, sid);
+ 	if (unlikely(err)) {
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index 60774bc..7605251 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -76,10 +76,9 @@ static inline void selinux_xfrm_notify_policyload(void)
+ }
+ #endif
+ 
+-static inline void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
++static inline int selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
  {
- 	int rc;
--	u32 sel_sid;
- 
--	/* Context sid is either set to label or ANY_ASSOC */
--	if (ctx) {
--		if (!selinux_authorizable_ctx(ctx))
--			return -EINVAL;
--
--		sel_sid = ctx->ctx_sid;
--	} else
--		/*
--		 * All flows should be treated as polmatch'ing an
--		 * otherwise applicable "non-labeled" policy. This
--		 * would prevent inadvertent "leaks".
--		 */
-+	/* All flows should be treated as polmatch'ing an otherwise applicable
-+	 * "non-labeled" policy. This would prevent inadvertent "leaks". */
-+	if (!ctx)
- 		return 0;
- 
--	rc = avc_has_perm(fl_secid, sel_sid, SECCLASS_ASSOCIATION,
--			  ASSOCIATION__POLMATCH,
--			  NULL);
--
--	if (rc == -EACCES)
--		return -ESRCH;
-+	/* Context sid is either set to label or ANY_ASSOC */
-+	if (!selinux_authorizable_ctx(ctx))
-+		return -EINVAL;
- 
--	return rc;
-+	rc = avc_has_perm(fl_secid, ctx->ctx_sid,
-+			  SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, NULL);
-+	return (rc == -EACCES ? -ESRCH : rc);
+-	int err = selinux_xfrm_decode_session(skb, sid, 0);
+-	BUG_ON(err);
++	return selinux_xfrm_decode_session(skb, sid, 0);
  }
  
- /*
-  * LSM hook implementation that authorizes that a state matches
-  * the given policy, flow combo.
-  */
--
--int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *xp,
--			const struct flowi *fl)
-+int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
-+				      struct xfrm_policy *xp,
-+				      const struct flowi *fl)
- {
- 	u32 state_sid;
--	int rc;
- 
- 	if (!xp->security)
- 		if (x->security)
-@@ -213,18 +201,12 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *
- 	if (fl->flowi_secid != state_sid)
- 		return 0;
- 
--	rc = avc_has_perm(fl->flowi_secid, state_sid, SECCLASS_ASSOCIATION,
--			  ASSOCIATION__SENDTO,
--			  NULL)? 0:1;
--
--	/*
--	 * We don't need a separate SA Vs. policy polmatch check
--	 * since the SA is now of the same label as the flow and
--	 * a flow Vs. policy polmatch check had already happened
--	 * in selinux_xfrm_policy_lookup() above.
--	 */
--
--	return rc;
-+	/* We don't need a separate SA Vs. policy polmatch check since the SA
-+	 * is now of the same label as the flow and a flow Vs. policy polmatch
-+	 * check had already happened in selinux_xfrm_policy_lookup() above. */
-+	return (avc_has_perm(fl->flowi_secid, state_sid,
-+			    SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO,
-+			    NULL) ? 0 : 1);
- }
- 
- /*
+ #endif /* _SELINUX_XFRM_H_ */
 
 
 --
