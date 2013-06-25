@@ -1,12 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIhun018886
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:19:10 -0400
-Subject: [PATCH 8/9] selinux: cleanup the XFRM header
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIhup018886
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:19:16 -0400
+Subject: [PATCH 9/9] selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
 To: linux-security-module@vger.kernel.org, eparis@redhat.com,
         selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
-Date: Tue, 25 Jun 2013 17:19:08 -0400
-Message-ID: <20130625211908.5057.64769.stgit@localhost>
+Date: Tue, 25 Jun 2013 17:19:14 -0400
+Message-ID: <20130625211914.5057.14361.stgit@localhost>
 In-Reply-To: <20130625211306.5057.31329.stgit@localhost>
 References: <20130625211306.5057.31329.stgit@localhost>
 MIME-Version: 1.0
@@ -14,58 +14,52 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove the unused get_sock_isec() function and do some formatting
-fixes.
+Remove the BUG_ON() from selinux_skb_xfrm_sid() and propogate the
+error code up to the caller.  Also check the return values in the
+only caller function, selinux_skb_peerlbl_sid().
 
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- security/selinux/include/xfrm.h |   19 +++++--------------
- 1 file changed, 5 insertions(+), 14 deletions(-)
+ security/selinux/hooks.c        |    8 ++++++--
+ security/selinux/include/xfrm.h |    5 ++---
+ 2 files changed, 8 insertions(+), 5 deletions(-)
 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d3555bd..4bc068b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3722,8 +3722,12 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
+ 	u32 nlbl_sid;
+ 	u32 nlbl_type;
+ 
+-	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+-	selinux_netlbl_skbuff_getsid(skb, family, &nlbl_type, &nlbl_sid);
++	err = selinux_skb_xfrm_sid(skb, &xfrm_sid);
++	if (unlikely(err))
++		return -EACCES;
++	err = selinux_netlbl_skbuff_getsid(skb, family, &nlbl_type, &nlbl_sid);
++	if (unlikely(err))
++		return -EACCES;
+ 
+ 	err = security_net_peersid_resolve(nlbl_sid, nlbl_type, xfrm_sid, sid);
+ 	if (unlikely(err)) {
 diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index b463f210..60774bc 100644
+index 60774bc..7605251 100644
 --- a/security/selinux/include/xfrm.h
 +++ b/security/selinux/include/xfrm.h
-@@ -10,7 +10,7 @@
- #include <net/flow.h>
+@@ -76,10 +76,9 @@ static inline void selinux_xfrm_notify_policyload(void)
+ }
+ #endif
  
- int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
--			      struct xfrm_user_sec_ctx *sec_ctx);
-+			      struct xfrm_user_sec_ctx *uctx);
- int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
- 			      struct xfrm_sec_ctx **new_ctxp);
- void selinux_xfrm_policy_free(struct xfrm_sec_ctx *ctx);
-@@ -23,18 +23,8 @@ void selinux_xfrm_state_free(struct xfrm_state *x);
- int selinux_xfrm_state_delete(struct xfrm_state *x);
- int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
- int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
--			struct xfrm_policy *xp, const struct flowi *fl);
--
--/*
-- * Extract the security blob from the sock (it's actually on the socket)
-- */
--static inline struct inode_security_struct *get_sock_isec(struct sock *sk)
--{
--	if (!sk->sk_socket)
--		return NULL;
--
--	return SOCK_INODE(sk->sk_socket)->i_security;
--}
-+				      struct xfrm_policy *xp,
-+				      const struct flowi *fl);
- 
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
- extern atomic_t selinux_xfrm_refcount;
-@@ -74,7 +64,8 @@ static inline int selinux_xfrm_postroute_last(u32 sk_sid, struct sk_buff *skb,
- 	return 0;
+-static inline void selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
++static inline int selinux_skb_xfrm_sid(struct sk_buff *skb, u32 *sid)
+ {
+-	int err = selinux_xfrm_decode_session(skb, sid, 0);
+-	BUG_ON(err);
++	return selinux_xfrm_decode_session(skb, sid, 0);
  }
  
--static inline int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
-+static inline int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid,
-+					      int ckall)
- {
- 	*sid = SECSID_NULL;
- 	return 0;
+ #endif /* _SELINUX_XFRM_H_ */
 
 
 --
