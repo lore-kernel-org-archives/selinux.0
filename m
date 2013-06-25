@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIhuj018886
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:18:57 -0400
-Subject: [PATCH 6/9] selinux: cleanup some comment and whitespace issues in
- the XFRM code
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIEm2018719
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:18:20 -0400
+Subject: [PATCH 1/9] selinux: fix problems in netnode when BUG() is compiled
+ out
 To: linux-security-module@vger.kernel.org, eparis@redhat.com,
         selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
-Date: Tue, 25 Jun 2013 17:18:55 -0400
-Message-ID: <20130625211855.5057.97273.stgit@localhost>
+Date: Tue, 25 Jun 2013 17:18:18 -0400
+Message-ID: <20130625211818.5057.63.stgit@localhost>
 In-Reply-To: <20130625211306.5057.31329.stgit@localhost>
 References: <20130625211306.5057.31329.stgit@localhost>
 MIME-Version: 1.0
@@ -15,88 +15,43 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/xfrm.c |   23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+When the BUG() macro is disabled at compile time it can cause some
+problems in the SELinux netnode code: invalid return codes and
+uninitialized variables.  This patch fixes this by making sure we take
+some corrective action after the BUG() macro.
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index 1f6c6e6..00801ce 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -56,7 +56,7 @@
- atomic_t selinux_xfrm_refcount = ATOMIC_INIT(0);
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+
+---
+
+In the process of cleaning up a local git tree I realized I had this
+patch still sitting in my tree that for some reason hadn't been
+merged upstream.  Originally sent back on December 5, 2012.
+---
+ security/selinux/netnode.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index c5454c0..03a72c3 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
+ 		break;
+ 	default:
+ 		BUG();
++		return;
+ 	}
  
- /*
-- * Returns true if an LSM/SELinux context
-+ * Returns true if the context is an LSM/SELinux context.
-  */
- static inline int selinux_authorizable_ctx(struct xfrm_sec_ctx *ctx)
- {
-@@ -66,7 +66,7 @@ static inline int selinux_authorizable_ctx(struct xfrm_sec_ctx *ctx)
- }
- 
- /*
-- * Returns true if the xfrm contains a security blob for SELinux
-+ * Returns true if the xfrm contains a security blob for SELinux.
-  */
- static inline int selinux_authorizable_xfrm(struct xfrm_state *x)
- {
-@@ -149,8 +149,8 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
- }
- 
- /*
-- * LSM hook implementation that authorizes that a flow can use
-- * a xfrm policy rule.
-+ * LSM hook implementation that authorizes that a flow can use a xfrm policy
-+ * rule.
-  */
- int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
- {
-@@ -213,7 +213,6 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
-  * LSM hook implementation that checks and/or returns the xfrm sid for the
-  * incoming packet.
-  */
--
- int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
- {
- 	struct sec_path *sp;
-@@ -248,8 +247,7 @@ int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
- }
- 
- /*
-- * LSM hook implementation that allocs and transfers uctx spec to
-- * xfrm_policy.
-+ * LSM hook implementation that allocs and transfers uctx spec to xfrm_policy.
-  */
- int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
- 			      struct xfrm_user_sec_ctx *uctx)
-@@ -257,10 +255,9 @@ int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
- 	return selinux_xfrm_alloc_user(ctxp, uctx);
- }
- 
--
- /*
-- * LSM hook implementation that copies security data structure from old to
-- * new for policy cloning.
-+ * LSM hook implementation that copies security data structure from old to new
-+ * for policy cloning.
-  */
- int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
- 			      struct xfrm_sec_ctx **new_ctxp)
-@@ -352,9 +349,9 @@ void selinux_xfrm_state_free(struct xfrm_state *x)
- 	selinux_xfrm_free(x->security);
- }
- 
-- /*
--  * LSM hook implementation that authorizes deletion of labeled SAs.
--  */
-+/*
-+ * LSM hook implementation that authorizes deletion of labeled SAs.
-+ */
- int selinux_xfrm_state_delete(struct xfrm_state *x)
- {
- 	return selinux_xfrm_delete(x->security);
+ 	/* we need to impose a limit on the growth of the hash table so check
+@@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
+ 		break;
+ 	default:
+ 		BUG();
++		ret = -EINVAL;
+ 	}
+ 	if (ret != 0)
+ 		goto out;
 
 
 --
