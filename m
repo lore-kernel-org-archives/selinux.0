@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIEm2018719
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:18:20 -0400
-Subject: [PATCH 1/9] selinux: fix problems in netnode when BUG() is compiled
- out
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIhuf018886
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:18:43 -0400
+Subject: [PATCH 4/9] selinux: cleanup selinux_xfrm_policy_lookup() and
+ selinux_xfrm_state_pol_flow_match()
 To: linux-security-module@vger.kernel.org, eparis@redhat.com,
         selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
-Date: Tue, 25 Jun 2013 17:18:18 -0400
-Message-ID: <20130625211818.5057.63.stgit@localhost>
+Date: Tue, 25 Jun 2013 17:18:37 -0400
+Message-ID: <20130625211837.5057.30890.stgit@localhost>
 In-Reply-To: <20130625211306.5057.31329.stgit@localhost>
 References: <20130625211306.5057.31329.stgit@localhost>
 MIME-Version: 1.0
@@ -15,43 +15,97 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-When the BUG() macro is disabled at compile time it can cause some
-problems in the SELinux netnode code: invalid return codes and
-uninitialized variables.  This patch fixes this by making sure we take
-some corrective action after the BUG() macro.
+Do some basic simplification and comment reformatting.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Paul Moore <pmoore@redhat.com>
-
 ---
+ security/selinux/xfrm.c |   54 ++++++++++++++++-------------------------------
+ 1 file changed, 18 insertions(+), 36 deletions(-)
 
-In the process of cleaning up a local git tree I realized I had this
-patch still sitting in my tree that for some reason hadn't been
-merged upstream.  Originally sent back on December 5, 2012.
----
- security/selinux/netnode.c |    2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index c5454c0..03a72c3 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -166,6 +166,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
- 		break;
- 	default:
- 		BUG();
-+		return;
- 	}
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index f8d7126..4a7ba4a 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -155,42 +155,30 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
+ int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
+ {
+ 	int rc;
+-	u32 sel_sid;
  
- 	/* we need to impose a limit on the growth of the hash table so check
-@@ -225,6 +226,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
- 		break;
- 	default:
- 		BUG();
-+		ret = -EINVAL;
- 	}
- 	if (ret != 0)
- 		goto out;
+-	/* Context sid is either set to label or ANY_ASSOC */
+-	if (ctx) {
+-		if (!selinux_authorizable_ctx(ctx))
+-			return -EINVAL;
+-
+-		sel_sid = ctx->ctx_sid;
+-	} else
+-		/*
+-		 * All flows should be treated as polmatch'ing an
+-		 * otherwise applicable "non-labeled" policy. This
+-		 * would prevent inadvertent "leaks".
+-		 */
++	/* All flows should be treated as polmatch'ing an otherwise applicable
++	 * "non-labeled" policy. This would prevent inadvertent "leaks". */
++	if (!ctx)
+ 		return 0;
+ 
+-	rc = avc_has_perm(fl_secid, sel_sid, SECCLASS_ASSOCIATION,
+-			  ASSOCIATION__POLMATCH,
+-			  NULL);
+-
+-	if (rc == -EACCES)
+-		return -ESRCH;
++	/* Context sid is either set to label or ANY_ASSOC */
++	if (!selinux_authorizable_ctx(ctx))
++		return -EINVAL;
+ 
+-	return rc;
++	rc = avc_has_perm(fl_secid, ctx->ctx_sid,
++			  SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, NULL);
++	return (rc == -EACCES ? -ESRCH : rc);
+ }
+ 
+ /*
+  * LSM hook implementation that authorizes that a state matches
+  * the given policy, flow combo.
+  */
+-
+-int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *xp,
+-			const struct flowi *fl)
++int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
++				      struct xfrm_policy *xp,
++				      const struct flowi *fl)
+ {
+ 	u32 state_sid;
+-	int rc;
+ 
+ 	if (!xp->security)
+ 		if (x->security)
+@@ -213,18 +201,12 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *
+ 	if (fl->flowi_secid != state_sid)
+ 		return 0;
+ 
+-	rc = avc_has_perm(fl->flowi_secid, state_sid, SECCLASS_ASSOCIATION,
+-			  ASSOCIATION__SENDTO,
+-			  NULL)? 0:1;
+-
+-	/*
+-	 * We don't need a separate SA Vs. policy polmatch check
+-	 * since the SA is now of the same label as the flow and
+-	 * a flow Vs. policy polmatch check had already happened
+-	 * in selinux_xfrm_policy_lookup() above.
+-	 */
+-
+-	return rc;
++	/* We don't need a separate SA Vs. policy polmatch check since the SA
++	 * is now of the same label as the flow and a flow Vs. policy polmatch
++	 * check had already happened in selinux_xfrm_policy_lookup() above. */
++	return (avc_has_perm(fl->flowi_secid, state_sid,
++			    SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO,
++			    NULL) ? 0 : 1);
+ }
+ 
+ /*
 
 
 --
