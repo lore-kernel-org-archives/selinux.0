@@ -1,13 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIhuf018886
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:18:43 -0400
-Subject: [PATCH 4/9] selinux: cleanup selinux_xfrm_policy_lookup() and
- selinux_xfrm_state_pol_flow_match()
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PLIhun018886
+	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 17:19:10 -0400
+Subject: [PATCH 8/9] selinux: cleanup the XFRM header
 To: linux-security-module@vger.kernel.org, eparis@redhat.com,
         selinux@tycho.nsa.gov
 From: Paul Moore <pmoore@redhat.com>
-Date: Tue, 25 Jun 2013 17:18:37 -0400
-Message-ID: <20130625211837.5057.30890.stgit@localhost>
+Date: Tue, 25 Jun 2013 17:19:08 -0400
+Message-ID: <20130625211908.5057.64769.stgit@localhost>
 In-Reply-To: <20130625211306.5057.31329.stgit@localhost>
 References: <20130625211306.5057.31329.stgit@localhost>
 MIME-Version: 1.0
@@ -15,97 +14,58 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Do some basic simplification and comment reformatting.
+Remove the unused get_sock_isec() function and do some formatting
+fixes.
 
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- security/selinux/xfrm.c |   54 ++++++++++++++++-------------------------------
- 1 file changed, 18 insertions(+), 36 deletions(-)
+ security/selinux/include/xfrm.h |   19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index f8d7126..4a7ba4a 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -155,42 +155,30 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
- int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
- {
- 	int rc;
--	u32 sel_sid;
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index b463f210..60774bc 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -10,7 +10,7 @@
+ #include <net/flow.h>
  
--	/* Context sid is either set to label or ANY_ASSOC */
--	if (ctx) {
--		if (!selinux_authorizable_ctx(ctx))
--			return -EINVAL;
+ int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
+-			      struct xfrm_user_sec_ctx *sec_ctx);
++			      struct xfrm_user_sec_ctx *uctx);
+ int selinux_xfrm_policy_clone(struct xfrm_sec_ctx *old_ctx,
+ 			      struct xfrm_sec_ctx **new_ctxp);
+ void selinux_xfrm_policy_free(struct xfrm_sec_ctx *ctx);
+@@ -23,18 +23,8 @@ void selinux_xfrm_state_free(struct xfrm_state *x);
+ int selinux_xfrm_state_delete(struct xfrm_state *x);
+ int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
+ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
+-			struct xfrm_policy *xp, const struct flowi *fl);
 -
--		sel_sid = ctx->ctx_sid;
--	} else
--		/*
--		 * All flows should be treated as polmatch'ing an
--		 * otherwise applicable "non-labeled" policy. This
--		 * would prevent inadvertent "leaks".
--		 */
-+	/* All flows should be treated as polmatch'ing an otherwise applicable
-+	 * "non-labeled" policy. This would prevent inadvertent "leaks". */
-+	if (!ctx)
- 		return 0;
- 
--	rc = avc_has_perm(fl_secid, sel_sid, SECCLASS_ASSOCIATION,
--			  ASSOCIATION__POLMATCH,
--			  NULL);
+-/*
+- * Extract the security blob from the sock (it's actually on the socket)
+- */
+-static inline struct inode_security_struct *get_sock_isec(struct sock *sk)
+-{
+-	if (!sk->sk_socket)
+-		return NULL;
 -
--	if (rc == -EACCES)
--		return -ESRCH;
-+	/* Context sid is either set to label or ANY_ASSOC */
-+	if (!selinux_authorizable_ctx(ctx))
-+		return -EINVAL;
- 
--	return rc;
-+	rc = avc_has_perm(fl_secid, ctx->ctx_sid,
-+			  SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, NULL);
-+	return (rc == -EACCES ? -ESRCH : rc);
- }
- 
- /*
-  * LSM hook implementation that authorizes that a state matches
-  * the given policy, flow combo.
-  */
--
--int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *xp,
--			const struct flowi *fl)
-+int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
+-	return SOCK_INODE(sk->sk_socket)->i_security;
+-}
 +				      struct xfrm_policy *xp,
-+				      const struct flowi *fl)
- {
- 	u32 state_sid;
--	int rc;
++				      const struct flowi *fl);
  
- 	if (!xp->security)
- 		if (x->security)
-@@ -213,18 +201,12 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x, struct xfrm_policy *
- 	if (fl->flowi_secid != state_sid)
- 		return 0;
- 
--	rc = avc_has_perm(fl->flowi_secid, state_sid, SECCLASS_ASSOCIATION,
--			  ASSOCIATION__SENDTO,
--			  NULL)? 0:1;
--
--	/*
--	 * We don't need a separate SA Vs. policy polmatch check
--	 * since the SA is now of the same label as the flow and
--	 * a flow Vs. policy polmatch check had already happened
--	 * in selinux_xfrm_policy_lookup() above.
--	 */
--
--	return rc;
-+	/* We don't need a separate SA Vs. policy polmatch check since the SA
-+	 * is now of the same label as the flow and a flow Vs. policy polmatch
-+	 * check had already happened in selinux_xfrm_policy_lookup() above. */
-+	return (avc_has_perm(fl->flowi_secid, state_sid,
-+			    SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO,
-+			    NULL) ? 0 : 1);
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+ extern atomic_t selinux_xfrm_refcount;
+@@ -74,7 +64,8 @@ static inline int selinux_xfrm_postroute_last(u32 sk_sid, struct sk_buff *skb,
+ 	return 0;
  }
  
- /*
+-static inline int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
++static inline int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid,
++					      int ckall)
+ {
+ 	*sid = SECSID_NULL;
+ 	return 0;
 
 
 --
