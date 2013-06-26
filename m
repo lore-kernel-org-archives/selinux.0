@@ -1,73 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5PNsOZB027083
-	for <selinux@tycho.nsa.gov>; Tue, 25 Jun 2013 19:54:24 -0400
-Message-ID: <51CA2D5E.5010501@schaufler-ca.com>
-Date: Tue, 25 Jun 2013 16:53:02 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Paul Moore <pmoore@redhat.com>
-CC: linux-security-module@vger.kernel.org, eparis@redhat.com,
-        selinux@tycho.nsa.gov, Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r5QDqdNB008722
+	for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2013 09:52:55 -0400
+Received: by mail-gh0-f179.google.com with SMTP id f16so4618955ghb.10
+        for <selinux@tycho.nsa.gov>; Wed, 26 Jun 2013 06:52:39 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, eparis@redhat.com,
+        selinux@tycho.nsa.gov
 Subject: Re: [PATCH 0/9] Labeled networking patches for 3.11
-References: <20130625211306.5057.31329.stgit@localhost>
-In-Reply-To: <20130625211306.5057.31329.stgit@localhost>
-Content-Type: text/plain; charset=UTF-8
+Date: Wed, 26 Jun 2013 09:52:35 -0400
+Message-ID: <1673112.0yesQv5a1q@sifl>
+In-Reply-To: <51CA2D5E.5010501@schaufler-ca.com>
+References: <20130625211306.5057.31329.stgit@localhost> <51CA2D5E.5010501@schaufler-ca.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 6/25/2013 2:18 PM, Paul Moore wrote:
-> Nothing new here, all of these patches have been posted before.  I'm
-> posting these patches again for two reasons:
->
->  1. Remind Eric he still hasn't merged them into the SELinux tree
->  2. Send notice that I've pushed the patches to my -next tree so
->     they should be in the next spin of linux-next
->
-> I was hoping that there patches would have hit linux-next by now via
-> the SELinux tree but that hasn't happened so I'm going to do it via
-> my labeled networking tree (all the patches are labeled networking
-> related anyway).
+On Tuesday, June 25, 2013 04:53:02 PM Casey Schaufler wrote:
+> On 6/25/2013 2:18 PM, Paul Moore wrote:
+> > Nothing new here, all of these patches have been posted before.  I'm
+> > 
+> > posting these patches again for two reasons:
+> >  1. Remind Eric he still hasn't merged them into the SELinux tree
+> >  2. Send notice that I've pushed the patches to my -next tree so
+> >     they should be in the next spin of linux-next
+> > 
+> > I was hoping that there patches would have hit linux-next by now via
+> > the SELinux tree but that hasn't happened so I'm going to do it via
+> > my labeled networking tree (all the patches are labeled networking
+> > related anyway).
+> 
+> No objection from this end, but I'm curious about the motivation
+> for the changes as they affect the LSM interface.
 
-No objection from this end, but I'm curious about the motivation
-for the changes as they affect the LSM interface.
+I assume you are talking about patch 2/9?
 
->
-> For those who like their patches via git, here is the lblnet-next
-> tree:
->
->  * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
->
-> Enjoy,
-> -Paul
->
-> ---
->
-> Paul Moore (9):
->       selinux: fix problems in netnode when BUG() is compiled out
->       lsm: split the xfrm_state_alloc_security() hook implementation
->       selinux: cleanup and consolidate the XFRM alloc/clone/delete/free code
->       selinux: cleanup selinux_xfrm_policy_lookup() and selinux_xfrm_state_pol_flow_match()
->       selinux: cleanup selinux_xfrm_sock_rcv_skb() and selinux_xfrm_postroute_last()
->       selinux: cleanup some comment and whitespace issues in the XFRM code
->       selinux: cleanup selinux_xfrm_decode_session()
->       selinux: cleanup the XFRM header
->       selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
->
->
->  include/linux/security.h        |   26 ++
->  security/capability.c           |   15 +
->  security/security.c             |   13 -
->  security/selinux/hooks.c        |   11 +
->  security/selinux/include/xfrm.h |   45 ++--
->  security/selinux/netnode.c      |    2 
->  security/selinux/xfrm.c         |  453 +++++++++++++++++----------------------
->  7 files changed, 264 insertions(+), 301 deletions(-)
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+I guess first things first, the changes don't affect how the rest of the 
+kernel sees the LSM, only how an individual LSM is implemented.  If you look 
+at the pre-patch LSM hook implementation for security_xfrm_state_alloc() and 
+security_xfrm_state_alloc_acquire() you notice that they share a common LSM-
+specific implementation function, xfrm_state_alloc_security(), which takes 
+different arguments depending on the LSM hook.  If you look at how SELinux 
+implements this function (SELinux is the only example available that uses this 
+hook) you will notice that there the behavior varies quite a bit depending on 
+the LSM hook caller; in reality, the function is much cleaner and simpler if 
+we split it so that we have one hook implementation for each LSM hook - like 
+pretty much everything else in the LSM.
 
+-- 
+paul moore
+security and virtualization @ redhat
 
 --
 This message was distributed to subscribers of the selinux mailing list.
