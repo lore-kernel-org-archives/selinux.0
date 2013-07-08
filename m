@@ -1,64 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r67ErWMl017251
-	for <selinux@tycho.nsa.gov>; Sun, 7 Jul 2013 10:53:32 -0400
-Received: by mail-ie0-f173.google.com with SMTP id k13so8256475iea.18
-        for <selinux@tycho.nsa.gov>; Sun, 07 Jul 2013 07:53:30 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r68GUO5d005597
+	for <selinux@tycho.nsa.gov>; Mon, 8 Jul 2013 12:30:40 -0400
+Received: by mail-qa0-f47.google.com with SMTP id i13so5772582qae.20
+        for <selinux@tycho.nsa.gov>; Mon, 08 Jul 2013 09:30:23 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Waiman Long <waiman.long@hp.com>, Eric Paris <eparis@parisplace.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <james.l.morris@oracle.com>,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Chandramouleeswaran, Aswin" <aswin@hp.com>,
+        "Norton, Scott J" <scott.norton@hp.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/2 v5] SELinux: Reduce overhead of mls_level_isvalid() function call
+Date: Mon, 08 Jul 2013 12:30:17 -0400
+Message-ID: <2187595.WquvNei6zx@sifl>
+In-Reply-To: <51D6FE08.8030904@hp.com>
+References: <1370886908-65256-1-git-send-email-Waiman.Long@hp.com> <51B70EE4.5030209@tycho.nsa.gov> <51D6FE08.8030904@hp.com>
 MIME-Version: 1.0
-In-Reply-To: <20130707083310.GA32412@siphos.be>
-References: <20130705183902.GA26996@siphos.be>
-	<2894544.bL1dEvHUlK@sifl>
-	<20130706063952.GA29221@siphos.be>
-	<CAPzO=NxsvuEjfd8G4MVzRu=s=N39JifP-Kr-zowvKxq4Tt+Sqw@mail.gmail.com>
-	<CAOFCXec9Lox=mkSpzmkF+LCsFBWVcRfL3E8u5yM4nYBHveORNA@mail.gmail.com>
-	<20130706192147.GA23809@siphos.be>
-	<20130707083310.GA32412@siphos.be>
-Date: Sun, 7 Jul 2013 10:53:30 -0400
-Message-ID: <CAOFCXefGJKvCpjAu3UxLwYJgxrnXd7+rEkHvwxnsh=8GHn_R2A@mail.gmail.com>
-Subject: Re: Labeled IPSec trying to match policy for peer label? (solved)
-From: Chad Hanson <dahchanson@gmail.com>
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-Cc: Paul Moore <paul@paul-moore.com>, SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Glad to hear you found the issue. Everything else looked good,
-especially once you added the MCS range.
+On Friday, July 05, 2013 01:10:32 PM Waiman Long wrote:
+> On 06/11/2013 07:49 AM, Stephen Smalley wrote:
+> > On 06/10/2013 01:55 PM, Waiman Long wrote:
 
-On Sun, Jul 7, 2013 at 4:33 AM, Sven Vermeulen <sven.vermeulen@siphos.be> wrote:
-> On Sat, Jul 06, 2013 at 09:21:47PM +0200, Sven Vermeulen wrote:
->> On Sat, Jul 06, 2013 at 11:40:46AM -0400, Chad Hanson wrote:
->> > Are you running with MLS policy? I am curious since the last output
->> > showed: system_u:object_r:ipsec_spd_t:s0-s0:c0.c1023. I would expect
->> > the following SPD context for MLS:
->> > system_u:object_r:ipsec_spd_t:s0-s15:c0.c1023.  If not using MLS,  you
->> > would always fail in within_range()  at
->> >
->> > if (!mls_ready)    /*mls may not be enabled */
->> >            return 0
->> >
->> > There should be a log message at the startup of racoon if MLS is
->> > disabled. I didn't originally notice your original SPD context wasn't
->> > ranged: system_u:object_r:ipsec_spd_t:s0. This typically would be
->> > system_u:object_r:ipsec_spd_t:s0-s15:c0.c1023 on a MLS system.
->>
->> I'm running an MLS-enabled policy (but its MCS, so only a single sensitivity
->> level but multiple categories). I was thinking about the range as well, but
->> that doesn't seem to help.
->
-> Meh, it *was* the mls_ready variable - it was still 0.
->
-> I didn't see any logs because ipsec-tools initializes its logging (ploginit)
-> /after/ it calls the init_avc, so the log message about MLS being disabled
-> was never shown.
->
-> Turns out I had to allow racoon_t getattr rights on the security_t
-> filesystem and everything works now. I didn't catch it with permissive mode
-> because I changed to permissive mode /after/ racoon was started.
->
-> Thanks for all the help!
->
->         Sven Vermeulen
+...
+
+> >> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> > 
+> > Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> 
+> Thank for the Ack. Will that patch go into v3.11?
+
+[NOTE: I add the SELinux list to the CC line, for future reference, be sure to 
+send your SELinux patches there.]
+
+Your patch looked reasonable to me and Stephen ACK'd it so I went ahead and 
+pulled the 1/2 patch into my lblnet-next tree.  It is probably an abuse of the 
+system, but as you noted it in the description, it does have an impact on 
+socket creation so it isn't completely unrelated ;)
+
+If you don't want me to include your patch let me know and I'll drop it.
+
+Now, being in my lblnet-next tree means pretty much nothing in terms of 
+actually getting upstream, but it will at least get the patch into tomorrow's 
+spin of the linux-next tree.  I think is a good thing as it allows you to say 
+"my patch has been in linux-next for the past X weeks!" whenever Eric gets 
+around to merging patches again.
+
+Here are the details for the lblnet-next tree:
+
+ * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
+ * http://git.infradead.org/users/pcmoore/lblnet-2.6_next
+
+Also, a snapshot of what currently resides there:
+
+Paul Moore (9):
+      selinux: fix problems in netnode when BUG() is compiled out
+      lsm: split the xfrm_state_alloc_security() hook implementation
+      selinux: cleanup and consolidate the XFRM alloc/clone/delete/free code
+      selinux: cleanup selinux_xfrm_policy_lookup() ... 
+      selinux: cleanup selinux_xfrm_sock_rcv_skb() ... 
+      selinux: cleanup some comment and whitespace issues in the XFRM code
+      selinux: cleanup selinux_xfrm_decode_session()
+      selinux: cleanup the XFRM header
+      selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
+
+Waiman Long (1):
+      SELinux: Reduce overhead of mls_level_isvalid() function call
+
+ include/linux/security.h        |   26 ++
+ security/capability.c           |   15 +
+ security/security.c             |   13 -
+ security/selinux/hooks.c        |   11 +
+ security/selinux/include/xfrm.h |   45 ++--
+ security/selinux/netnode.c      |    2
+ security/selinux/ss/ebitmap.c   |   20 ++
+ security/selinux/ss/ebitmap.h   |    2
+ security/selinux/ss/mls.c       |   22 +-
+ security/selinux/ss/mls_types.h |    2
+ security/selinux/xfrm.c         |  453 ++++++++++++++++---------------------
+ 11 files changed, 291 insertions(+), 320 deletions(-)
+
+-- 
+paul moore
+www.paul-moore.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
