@@ -1,57 +1,73 @@
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Cc: sds@tycho.nsa.gov, waiman.long@hp.com
-Subject: Follow-up on the lblnet-next tree
-Date: Mon, 08 Jul 2013 15:28:11 -0400
-Message-ID: <5389823.3HQRbeCOef@sifl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: fix selinuxfs policy file on big endian systems
+Date: Wed, 10 Jul 2013 15:38:06 -0400
+Message-Id: <1373485086-6809-1-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just a quick follow-up to my emails from earlier today; I've built/booted the 
-lblnet-next tree on Fedora Rawhide and didn't see anything catastrophic, but 
-further testing is always welcome.  I also talked with Eric and he promised 
-that once 3.11-rc1 is released he will do a push the tree to James.  If he 
-doesn't, I promise to hunt him down and tar/feather him ;)
+The /sys/fs/selinux/policy file is not valid on big endian systems like
+ppc64 or s390.  Let's see why:
 
- * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
- * http://git.infradead.org/users/pcmoore/lblnet-2.6_next
+static int hashtab_cnt(void *key, void *data, void *ptr)
+{
+	int *cnt = ptr;
+	*cnt = *cnt + 1;
 
-Paul Moore (9):
-      selinux: fix problems in netnode when BUG() is compiled out
-      lsm: split the xfrm_state_alloc_security() hook implementation
-      selinux: cleanup and consolidate the XFRM alloc/clone/delete/free code
-      selinux: cleanup selinux_xfrm_policy_lookup() and ...
-      selinux: cleanup selinux_xfrm_sock_rcv_skb() and ...
-      selinux: cleanup some comment and whitespace issues in the XFRM code
-      selinux: cleanup selinux_xfrm_decode_session()
-      selinux: cleanup the XFRM header
-      selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
+	return 0;
+}
 
-Stephen Smalley (1):
-      SELinux: Enable setting security contexts on rootfs inodes.
+static int range_write(struct policydb *p, void *fp)
+{
+	size_t nel;
+[...]
+	/* count the number of entries in the hashtab */
+	nel = 0;
+	rc = hashtab_map(p->range_tr, hashtab_cnt, &nel);
+	if (rc)
+		return rc;
+	buf[0] = cpu_to_le32(nel);
+	rc = put_entry(buf, sizeof(u32), 1, fp);
 
-Waiman Long (1):
-      SELinux: Reduce overhead of mls_level_isvalid() function call
+So size_t is 64 bits.  But then we pass a pointer to it as we do to
+hashtab_cnt.  hashtab_cnt thinks it is a 32 bit int and only deals with
+the first 4 bytes.  On x86_64 which is little endian, those first 4
+bytes and the least significant, so this works out fine.  On ppc64/s390
+those first 4 bytes of memory are the high order bits.  So at the end of
+the call to hashtab_map nel has a HUGE number.  But the least
+significant 32 bits are all 0's.
 
+We then pass that 64 bit number to cpu_to_le32() which happily truncates
+it to a 32 bit number and does endian swapping.  But the low 32 bits are
+all 0's.  So no matter how many entries are in the hashtab, big endian
+systems always say there are 0 entries because I screwed up the
+counting.
 
- include/linux/security.h        |   26 ++
- security/capability.c           |   15 +
- security/security.c             |   13 -
- security/selinux/hooks.c        |   18 +-
- security/selinux/include/xfrm.h |   45 ++--
- security/selinux/netnode.c      |    2
- security/selinux/ss/ebitmap.c   |   20 ++
- security/selinux/ss/ebitmap.h   |    2
- security/selinux/ss/mls.c       |   22 +-
- security/selinux/ss/mls_types.h |    2
- security/selinux/xfrm.c         |  453 ++++++++++++++++---------------------
- 11 files changed, 298 insertions(+), 320 deletions(-)
+The fix is easy.  Use a 32 bit int, as the hashtab_cnt expects, for nel.
 
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+ security/selinux/ss/policydb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index c8adde3..f6195eb 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -3203,9 +3203,8 @@ static int range_write_helper(void *key, void *data, void *ptr)
+ 
+ static int range_write(struct policydb *p, void *fp)
+ {
+-	size_t nel;
+ 	__le32 buf[1];
+-	int rc;
++	int rc, nel;
+ 	struct policy_data pd;
+ 
+ 	pd.p = p;
 -- 
-paul moore
-security and virtualization @ redhat
+1.8.1.4
 
 
 --
