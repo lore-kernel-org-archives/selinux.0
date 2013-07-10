@@ -1,73 +1,86 @@
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: [PATCH] SELinux: fix selinuxfs policy file on big endian systems
-Date: Wed, 10 Jul 2013 15:38:06 -0400
-Message-Id: <1373485086-6809-1-git-send-email-eparis@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6AJxbFr028344
+	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2013 15:59:53 -0400
+Received: by mail-qa0-f43.google.com with SMTP id d13so7202169qak.2
+        for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2013 12:59:35 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Waiman Long <Waiman.Long@hp.com>, Eric Paris <eparis@parisplace.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <james.l.morris@oracle.com>,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Chandramouleeswaran, Aswin" <aswin@hp.com>,
+        "Norton, Scott J" <scott.norton@hp.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH v2 2/2] SELinux: Increase ebitmap_node size for 64-bit configuration
+Date: Wed, 10 Jul 2013 15:59:29 -0400
+Message-ID: <13877462.KLqXKMuvjE@sifl>
+In-Reply-To: <51DDA8E0.4030001@tycho.nsa.gov>
+References: <1370466902-21144-1-git-send-email-Waiman.Long@hp.com> <1370466902-21144-2-git-send-email-Waiman.Long@hp.com> <51DDA8E0.4030001@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The /sys/fs/selinux/policy file is not valid on big endian systems like
-ppc64 or s390.  Let's see why:
+On Wednesday, July 10, 2013 02:33:04 PM Stephen Smalley wrote:
+> On 06/05/2013 05:15 PM, Waiman Long wrote:
+> > Currently, the ebitmap_node structure has a fixed size of 32 bytes. On
+> > a 32-bit system, the overhead is 8 bytes, leaving 24 bytes for being
+> > used as bitmaps. The overhead ratio is 1/4.
+> > 
+> > On a 64-bit system, the overhead is 16 bytes. Therefore, only 16 bytes
+> > are left for bitmap purpose and the overhead ratio is 1/2. With a
+> > 3.8.2 kernel, a boot-up operation will cause the ebitmap_get_bit()
+> > function to be called about 9 million times. The average number of
+> > ebitmap_node traversal is about 3.7.
+> > 
+> > This patch increases the size of the ebitmap_node structure to 64
+> > bytes for 64-bit system to keep the overhead ratio at 1/4. This may
+> > also improve performance a little bit by making node to node traversal
+> > less frequent (< 2) as more bits are available in each node.
+> > 
+> > Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-static int hashtab_cnt(void *key, void *data, void *ptr)
-{
-	int *cnt = ptr;
-	*cnt = *cnt + 1;
+Looks good to me too.  Merged, built, and tested okay too.
 
-	return 0;
-}
+ * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
 
-static int range_write(struct policydb *p, void *fp)
-{
-	size_t nel;
-[...]
-	/* count the number of entries in the hashtab */
-	nel = 0;
-	rc = hashtab_map(p->range_tr, hashtab_cnt, &nel);
-	if (rc)
-		return rc;
-	buf[0] = cpu_to_le32(nel);
-	rc = put_entry(buf, sizeof(u32), 1, fp);
-
-So size_t is 64 bits.  But then we pass a pointer to it as we do to
-hashtab_cnt.  hashtab_cnt thinks it is a 32 bit int and only deals with
-the first 4 bytes.  On x86_64 which is little endian, those first 4
-bytes and the least significant, so this works out fine.  On ppc64/s390
-those first 4 bytes of memory are the high order bits.  So at the end of
-the call to hashtab_map nel has a HUGE number.  But the least
-significant 32 bits are all 0's.
-
-We then pass that 64 bit number to cpu_to_le32() which happily truncates
-it to a 32 bit number and does endian swapping.  But the low 32 bits are
-all 0's.  So no matter how many entries are in the hashtab, big endian
-systems always say there are 0 entries because I screwed up the
-counting.
-
-The fix is easy.  Use a 32 bit int, as the hashtab_cnt expects, for nel.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
- security/selinux/ss/policydb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index c8adde3..f6195eb 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -3203,9 +3203,8 @@ static int range_write_helper(void *key, void *data, void *ptr)
- 
- static int range_write(struct policydb *p, void *fp)
- {
--	size_t nel;
- 	__le32 buf[1];
--	int rc;
-+	int rc, nel;
- 	struct policy_data pd;
- 
- 	pd.p = p;
+> > ---
+> > 
+> >   security/selinux/ss/ebitmap.h |    8 +++++++-
+> >   1 files changed, 7 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+> > index e7eb3a9..712c8a7 100644
+> > --- a/security/selinux/ss/ebitmap.h
+> > +++ b/security/selinux/ss/ebitmap.h
+> > @@ -16,7 +16,13 @@
+> > 
+> >   #include <net/netlabel.h>
+> > 
+> > -#define EBITMAP_UNIT_NUMS	((32 - sizeof(void *) - sizeof(u32))	\
+> > +#ifdef CONFIG_64BIT
+> > +#define	EBITMAP_NODE_SIZE	64
+> > +#else
+> > +#define	EBITMAP_NODE_SIZE	32
+> > +#endif
+> > +
+> > +#define EBITMAP_UNIT_NUMS	((EBITMAP_NODE_SIZE-sizeof(void
+> > *)-sizeof(u32))\
+> > 
+> >   					/ sizeof(unsigned long))
+> >   
+> >   #define EBITMAP_UNIT_SIZE	BITS_PER_LONG
+> >   #define EBITMAP_SIZE		(EBITMAP_UNIT_NUMS * EBITMAP_UNIT_SIZE)
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-security-module" in the body of a message to
+> majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 -- 
-1.8.1.4
+paul moore
+www.paul-moore.com
 
 
 --
