@@ -1,92 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6AKIIrl029889
-	for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2013 16:18:18 -0400
-Received: by mail-qa0-f45.google.com with SMTP id ci6so7217230qab.4
-        for <selinux@tycho.nsa.gov>; Wed, 10 Jul 2013 13:18:18 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: fix selinuxfs policy file on big endian systems
-Date: Wed, 10 Jul 2013 16:18:15 -0400
-Message-ID: <23684681.259mmDk9Av@sifl>
-In-Reply-To: <1373485086-6809-1-git-send-email-eparis@redhat.com>
-References: <1373485086-6809-1-git-send-email-eparis@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6BIeUJL014530
+	for <selinux@tycho.nsa.gov>; Thu, 11 Jul 2013 14:40:30 -0400
+References: 
+Message-ID: <1373567937.10428.YahooMailNeo@web163406.mail.gq1.yahoo.com>
+Date: Thu, 11 Jul 2013 11:38:57 -0700 (PDT)
+From: Andy Ruch <adruch2002@yahoo.com>
+Reply-To: Andy Ruch <adruch2002@yahoo.com>
+Subject: AVC for unlabeled_t on cgroup
+To: SELinux ML <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/alternative; boundary="-346883024-1210401202-1373567937=:10428"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday, July 10, 2013 03:38:06 PM Eric Paris wrote:
-> The /sys/fs/selinux/policy file is not valid on big endian systems like
-> ppc64 or s390.  Let's see why:
-> 
-> static int hashtab_cnt(void *key, void *data, void *ptr)
-> {
-> 	int *cnt = ptr;
-> 	*cnt = *cnt + 1;
-> 
-> 	return 0;
-> }
-> 
-> static int range_write(struct policydb *p, void *fp)
-> {
-> 	size_t nel;
-> [...]
-> 	/* count the number of entries in the hashtab */
-> 	nel = 0;
-> 	rc = hashtab_map(p->range_tr, hashtab_cnt, &nel);
-> 	if (rc)
-> 		return rc;
-> 	buf[0] = cpu_to_le32(nel);
-> 	rc = put_entry(buf, sizeof(u32), 1, fp);
-> 
-> So size_t is 64 bits.  But then we pass a pointer to it as we do to
-> hashtab_cnt.  hashtab_cnt thinks it is a 32 bit int and only deals with
-> the first 4 bytes.  On x86_64 which is little endian, those first 4
-> bytes and the least significant, so this works out fine.  On ppc64/s390
-> those first 4 bytes of memory are the high order bits.  So at the end of
-> the call to hashtab_map nel has a HUGE number.  But the least
-> significant 32 bits are all 0's.
-> 
-> We then pass that 64 bit number to cpu_to_le32() which happily truncates
-> it to a 32 bit number and does endian swapping.  But the low 32 bits are
-> all 0's.  So no matter how many entries are in the hashtab, big endian
-> systems always say there are 0 entries because I screwed up the
-> counting.
-> 
-> The fix is easy.  Use a 32 bit int, as the hashtab_cnt expects, for nel.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+---346883024-1210401202-1373567937=:10428
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-This looked good to me, it applied cleanly, tested okay too (albeit on x86_64 
-and not ppc64 or s390), and since Eric asked I merged it ...
+Hello,=0A=0AI'm implementing a restrictive policy for RHEL 6.3 based on CLI=
+P. I've enabled the cgroup module but I'm still seeing the AVC below. This =
+is just one of a dozen similar AVC's for different inodes. When I look at t=
+he /cgroup after the system boots, everything has a cgroup_t label. Where w=
+ould the unlabeled_t be coming from?=0A=0A=0A=0Atype=3DSYSCALL msg=3Daudit(=
+07/11/2013 17:25:38.885:7) : arch=3Dx86_64 syscall=3Dmount success=3Dyes ex=
+it=3D0 a0=3D7f57846ac4c1 a1=3D7f57848b03c0 a2=3D7f57846ac4c1 a3=3D0 items=
+=3D0 ppid=3D1177 pid=3D1178 auid=3Dunset uid=3Droot gid=3Droot euid=3Droot =
+suid=3Droot fsuid=3Droot egid=3Droot sgid=3Droot fsgid=3Droot tty=3D(none) =
+ses=3Dunset comm=3Dcgconfigparser exe=3D/sbin/cgconfigparser subj=3Dsystem_=
+u:system_r:cgconfig_t:s0 key=3D(null) =0A=0Atype=3DAVC msg=3Daudit(07/11/20=
+13 17:25:38.885:7) : avc:=A0 denied=A0 { search } for=A0 pid=3D1178 comm=3D=
+cgconfigparser name=3D/ dev=3Dcgroup ino=3D12518 scontext=3Dsystem_u:system=
+_r:kernel_t:s0 tcontext=3Dsystem_u:object_r:unlabeled_t:s0 tclass=3Ddir =0A=
+=0A=0AThanks,=0AAndrew Ruch=0A
+---346883024-1210401202-1373567937=:10428
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
- * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
-
-> ---
->  security/selinux/ss/policydb.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index c8adde3..f6195eb 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -3203,9 +3203,8 @@ static int range_write_helper(void *key, void *data,
-> void *ptr)
-> 
->  static int range_write(struct policydb *p, void *fp)
->  {
-> -	size_t nel;
->  	__le32 buf[1];
-> -	int rc;
-> +	int rc, nel;
->  	struct policy_data pd;
-> 
->  	pd.p = p;
--- 
-paul moore
-www.paul-moore.com
-
+<html><body><div style=3D"color:#000; background-color:#fff; font-family:ti=
+mes new roman, new york, times, serif;font-size:12pt"><div id=3D"yiv4659585=
+439"><div><div style=3D"color:#000;background-color:#fff;font-family:times =
+new roman, new york, times, serif;font-size:12pt;"><div id=3D"yiv4659585439=
+yui_3_7_2_41_1373556488332_39">Hello,</div><div id=3D"yiv4659585439yui_3_7_=
+2_41_1373556488332_73"><br></div><div style=3D"color:rgb(0, 0, 0);font-size=
+:16px;font-family:times new roman, new york, times, serif;background-color:=
+transparent;font-style:normal;" id=3D"yiv4659585439yui_3_7_2_41_13735564883=
+32_75">I'm implementing a restrictive policy for RHEL 6.3 based on CLIP. I'=
+ve enabled the cgroup module but I'm still seeing the AVC below. This is ju=
+st one of a dozen similar AVC's for different inodes. When I look at the /c=
+group after the system boots, everything has a cgroup_t label. Where would =
+the unlabeled_t be coming from?<br><br
+ id=3D"yiv4659585439yui_3_7_2_41_1373556488332_67"></div><div id=3D"yiv4659=
+585439yui_3_7_2_41_1373556488332_68" style=3D"color:rgb(0, 0, 0);font-size:=
+16px;font-family:times new roman, new york, times, serif;background-color:t=
+ransparent;font-style:normal;"><br>type=3DSYSCALL msg=3Daudit(07/11/2013 17=
+:25:38.885:7) : arch=3Dx86_64 syscall=3Dmount success=3Dyes exit=3D0 a0=3D7=
+f57846ac4c1 a1=3D7f57848b03c0 a2=3D7f57846ac4c1 a3=3D0 items=3D0 ppid=3D117=
+7 pid=3D1178 auid=3Dunset uid=3Droot gid=3Droot euid=3Droot suid=3Droot fsu=
+id=3Droot egid=3Droot sgid=3Droot fsgid=3Droot tty=3D(none) ses=3Dunset com=
+m=3Dcgconfigparser exe=3D/sbin/cgconfigparser subj=3Dsystem_u:system_r:cgco=
+nfig_t:s0 key=3D(null) <br><br>type=3DAVC msg=3Daudit(07/11/2013 17:25:38.8=
+85:7) : avc:&nbsp; denied&nbsp; { search } for&nbsp; pid=3D1178 comm=3Dcgco=
+nfigparser name=3D/ dev=3Dcgroup ino=3D12518 scontext=3Dsystem_u:system_r:k=
+ernel_t:s0 tcontext=3Dsystem_u:object_r:unlabeled_t:s0 tclass=3Ddir <br><br=
+><br>Thanks,<br>Andrew Ruch<br></div></div></div></div></div></body></html>
+---346883024-1210401202-1373567937=:10428--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
