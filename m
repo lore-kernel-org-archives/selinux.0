@@ -1,32 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6GC9vhv003813
-	for <selinux@tycho.nsa.gov>; Tue, 16 Jul 2013 08:09:57 -0400
-Message-ID: <51E53811.1030903@redhat.com>
-Date: Tue, 16 Jul 2013 08:09:53 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6JKBoo6017235
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jul 2013 16:11:50 -0400
+Received: by mail-wi0-f175.google.com with SMTP id m6so194979wiv.8
+        for <selinux@tycho.nsa.gov>; Fri, 19 Jul 2013 13:11:49 -0700 (PDT)
+Received: from siphos.be (ip-83-101-67-57.customer.schedom-europe.net. [83.101.67.57])
+        by mx.google.com with ESMTPSA id z6sm25171889wiv.11.2013.07.19.13.11.44
+        for <selinux@tycho.nsa.gov>
+        (version=TLSv1 cipher=RC4-SHA bits=128/128);
+        Fri, 19 Jul 2013 13:11:45 -0700 (PDT)
+Date: Fri, 19 Jul 2013 22:11:16 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/2] sepolgen: Fix test that compares matchlist length
+Message-ID: <20130719201115.GA20879@siphos.be>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>,
-        Fedora SELinux Users <selinux@lists.fedoraproject.org>
-Subject: Now you too, can get the "setenforce 1" t-shirt.
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-All the cool kids are wearing it. pic.twitter.com/Xf06Q39asi
+When running the tests, the following failure occurs:
 
-https://mhayden.spreadshirt.com
+======================================================================
+FAIL: test_append (test_matching.TestMatchList)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/var/portage/portage/dev-python/sepolgen-1.1.9-r1/work/sepolgen-1.1.9-2.7/tests/test_matching.py", line 94, in test_append
+    self.assertEqual(len(ml), 1)
+AssertionError: 2 != 1
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.13 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+>From the test code, it looks like we use the matchlist length as a way to deduce
+if an .append() did the right thing or not (i.e. add to bastards or children).
+However, the length for the matchlist is defined as the sum of the lengths of
+both:
 
-iEYEARECAAYFAlHlOBEACgkQrlYvE4MpobM/9wCfRgmgBlroJfQK8pHL9+6m1XL3
-mSsAn2o59lyoNtp0Np+VlWbZbDJ3xqD8
-=ZEqT
------END PGP SIGNATURE-----
+    def __len__(self):
+        # Only return the length of the matches so
+        # that this can be used to test if there is
+        # a match.
+        return len(self.children) + len(self.bastards)
+
+As a result, the len(ml) should always increase with an append, and then check
+the length of one of the two sublists (children or bastards) to find out if this
+occurred in the right sublist.
+
+Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+---
+ sepolgen/tests/test_matching.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sepolgen/tests/test_matching.py b/sepolgen/tests/test_matching.py
+index 2282eca..161e001 100644
+--- a/sepolgen/tests/test_matching.py
++++ b/sepolgen/tests/test_matching.py
+@@ -56,7 +56,7 @@ class TestMatchList(unittest.TestCase):
+         a = matching.Match()
+         a.dist = 200
+         ml.append(a)
+-        self.assertEqual(len(ml), 1)
++        self.assertEqual(len(ml), 2)
+         self.assertEqual(len(ml.bastards), 1)
+ 
+         ml.allow_info_dir_change = False
+@@ -64,7 +64,7 @@ class TestMatchList(unittest.TestCase):
+         a.dist = 0
+         a.info_dir_change = True
+         ml.append(a)
+-        self.assertEqual(len(ml), 1)
++        self.assertEqual(len(ml), 3)
+         self.assertEqual(len(ml.bastards), 2)
+ 
+     def test_sort(self):
+-- 
+1.8.1.5
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
