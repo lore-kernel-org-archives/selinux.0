@@ -1,76 +1,68 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6JKBoo6017235
-	for <selinux@tycho.nsa.gov>; Fri, 19 Jul 2013 16:11:50 -0400
-Received: by mail-wi0-f175.google.com with SMTP id m6so194979wiv.8
-        for <selinux@tycho.nsa.gov>; Fri, 19 Jul 2013 13:11:49 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6JKCQCX017278
+	for <selinux@tycho.nsa.gov>; Fri, 19 Jul 2013 16:12:26 -0400
+Received: by mail-we0-f175.google.com with SMTP id t59so4446820wes.34
+        for <selinux@tycho.nsa.gov>; Fri, 19 Jul 2013 13:12:23 -0700 (PDT)
 Received: from siphos.be (ip-83-101-67-57.customer.schedom-europe.net. [83.101.67.57])
-        by mx.google.com with ESMTPSA id z6sm25171889wiv.11.2013.07.19.13.11.44
+        by mx.google.com with ESMTPSA id w4sm25179116wia.9.2013.07.19.13.12.21
         for <selinux@tycho.nsa.gov>
         (version=TLSv1 cipher=RC4-SHA bits=128/128);
-        Fri, 19 Jul 2013 13:11:45 -0700 (PDT)
-Date: Fri, 19 Jul 2013 22:11:16 +0200
+        Fri, 19 Jul 2013 13:12:22 -0700 (PDT)
+Date: Fri, 19 Jul 2013 22:11:53 +0200
 From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] sepolgen: Fix test that compares matchlist length
-Message-ID: <20130719201115.GA20879@siphos.be>
+Subject: [PATCH 2/2] sepolgen: Fix AttributeError: 'dict' object has no
+ attribute 'attributes'
+Message-ID: <20130719201152.GB20879@siphos.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-When running the tests, the following failure occurs:
+While running the tests, the test_export one fails as follows:
 
 ======================================================================
-FAIL: test_append (test_matching.TestMatchList)
+ERROR: test_export (test_interfaces.TestInterfaceSet)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/var/portage/portage/dev-python/sepolgen-1.1.9-r1/work/sepolgen-1.1.9-2.7/tests/test_matching.py", line 94, in test_append
-    self.assertEqual(len(ml), 1)
-AssertionError: 2 != 1
+  File "/var/portage/portage/dev-python/sepolgen-1.1.9-r1/work/sepolgen-1.1.9-2.7/tests/test_interfaces.py", line 263, in test_export
+    i.add_headers(h)
+  File "../src/./sepolgen/interfaces.py", line 412, in add_headers
+    self.add(i, attributes)
+  File "../src/./sepolgen/interfaces.py", line 407, in add
+    ifv = InterfaceVector(interface, attributes)
+  File "../src/./sepolgen/interfaces.py", line 257, in __init__
+    self.from_interface(interface, attributes)
+  File "../src/./sepolgen/interfaces.py", line 279, in from_interface
+    if not attributes.attributes.has_key(attr):
+AttributeError: 'dict' object has no attribute 'attributes'
 
->From the test code, it looks like we use the matchlist length as a way to deduce
-if an .append() did the right thing or not (i.e. add to bastards or children).
-However, the length for the matchlist is defined as the sum of the lengths of
-both:
+The test does not declare the attributes parameter (it is optional) so it
+becomes the empty dictionary object.
 
-    def __len__(self):
-        # Only return the length of the matches so
-        # that this can be used to test if there is
-        # a match.
-        return len(self.children) + len(self.bastards)
-
-As a result, the len(ml) should always increase with an append, and then check
-the length of one of the two sublists (children or bastards) to find out if this
-occurred in the right sublist.
+Changing "if attributes != None:" to "if attributes:" gets the tests to succeed
+and the code still seems to function correctly (ran "sepolgen-ifgen" and
+"sepolgen-ifgen -i /usr/share/selinux/strict/include" to trigger the code).
 
 Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
 ---
- sepolgen/tests/test_matching.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sepolgen/src/sepolgen/interfaces.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sepolgen/tests/test_matching.py b/sepolgen/tests/test_matching.py
-index 2282eca..161e001 100644
---- a/sepolgen/tests/test_matching.py
-+++ b/sepolgen/tests/test_matching.py
-@@ -56,7 +56,7 @@ class TestMatchList(unittest.TestCase):
-         a = matching.Match()
-         a.dist = 200
-         ml.append(a)
--        self.assertEqual(len(ml), 1)
-+        self.assertEqual(len(ml), 2)
-         self.assertEqual(len(ml.bastards), 1)
+diff --git a/sepolgen/src/sepolgen/interfaces.py b/sepolgen/src/sepolgen/interfaces.py
+index ae1c9c5..88a6dc3 100644
+--- a/sepolgen/src/sepolgen/interfaces.py
++++ b/sepolgen/src/sepolgen/interfaces.py
+@@ -273,7 +273,7 @@ class InterfaceVector:
+                 self.add_av(av)
  
-         ml.allow_info_dir_change = False
-@@ -64,7 +64,7 @@ class TestMatchList(unittest.TestCase):
-         a.dist = 0
-         a.info_dir_change = True
-         ml.append(a)
--        self.assertEqual(len(ml), 1)
-+        self.assertEqual(len(ml), 3)
-         self.assertEqual(len(ml.bastards), 2)
- 
-     def test_sort(self):
+         # Add typeattribute access
+-        if attributes != None:
++        if attributes:
+             for typeattribute in interface.typeattributes():
+                 for attr in typeattribute.attributes:
+                     if not attributes.attributes.has_key(attr):
 -- 
 1.8.1.5
 
