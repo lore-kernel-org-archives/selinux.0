@@ -1,52 +1,66 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6NK8XkH021145
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2013 16:08:33 -0400
-Received: by mail-pb0-f51.google.com with SMTP id um15so8852038pbc.24
-        for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2013 13:08:32 -0700 (PDT)
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Cc: sds@tycho.nsa.gov, waiman.long@hp.com
+Subject: Follow-up on the lblnet-next tree
+Date: Tue, 23 Jul 2013 18:05:03 -0400
+Message-ID: <3261672.EsmV8HmHXd@sifl>
 MIME-Version: 1.0
-In-Reply-To: <20130723195056.GA24395@siphos.be>
-References: <20130723122207.GA21664@siphos.be>
-	<51EE8B0F.4090103@tresys.com>
-	<20130723195056.GA24395@siphos.be>
-Date: Tue, 23 Jul 2013 16:08:32 -0400
-Message-ID: <CADjGSjgdngPHP4YQHgCTXkJ5VDBoiELvm-9+93YdpkVoaK+q4w@mail.gmail.com>
-Subject: Re: [refpolicy] Want to make typeattribute declarations possible in conditionals
-From: Joshua Brindle <brindle@quarksecurity.com>
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        refpolicy@oss1.tresys.com, SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jul 23, 2013 at 3:50 PM, Sven Vermeulen
-<sven.vermeulen@siphos.be> wrote:
-> On Tue, Jul 23, 2013 at 09:54:23AM -0400, Christopher J. PeBenito wrote:
->> On 7/23/2013 8:22 AM, Sven Vermeulen wrote:
->> > I would like to be able to assign attributes to types in a conditional
->> > statement. Right now, this isn't allowed, and I don't know if it is feasible
->>
->> Definitely a question for main SELinux list.
->
-> Ah ok, sorry about that.
->
->> > to look for a solution to this or not. Is this a real design constraint that
->> > will be hard to work around, or is this doable?
->>
->> It would require kernel changes.  Someone else can be more specific about the challenges for implementing it, but the one complication I can think of off the top of my head is that attributes are expanded in the base module during compile time.
->
-> The base only? Because attributes are declared in (non-base) modules as
-> well. Also, if they are expanded during policy (re)build, I was hoping we
-> could do some implementation without impacting SELinux at the kernel.
+Just a quick follow-up to let you know that I've rebased the lblnet-next tree 
+to Linus' post -rc2 tree from earlier today.  I did a quick build/boot/test 
+cycle and everything looked sane to me, but additional testing is always 
+welcome.
 
-He meant in constraints. E.g., if domain is used in a constraint, the
-set of types is expanded in the kernel binary policy and thus
-information about the domain attribute is lost. There is no chance
-this could be implemented without impacting the kernel. I believe the
-suggestion to use link-time tunables is the correct one, since the
-vast majority of booleans are actually defined as tunables in
-reference policy, and doing it at link-time could be done without
-changing the kernel.
+ * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
+ * http://git.infradead.org/users/pcmoore/lblnet-2.6_next
+
+The lblnet-next tree contents:
+
+Eric Paris (1):
+      SELinux: fix selinuxfs policy file on big endian systems
+
+Paul Moore (9):
+      selinux: fix problems in netnode when BUG() is compiled out
+      lsm: split the xfrm_state_alloc_security() hook implementation
+      selinux: cleanup and consolidate the XFRM alloc/clone/delete/free code
+      selinux: cleanup selinux_xfrm_policy_lookup() and 
+selinux_xfrm_state_pol_flow_match()
+      selinux: cleanup selinux_xfrm_sock_rcv_skb() and 
+selinux_xfrm_postroute_last()
+      selinux: cleanup some comment and whitespace issues in the XFRM code
+      selinux: cleanup selinux_xfrm_decode_session()
+      selinux: cleanup the XFRM header
+      selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
+
+Stephen Smalley (1):
+      SELinux: Enable setting security contexts on rootfs inodes.
+
+Waiman Long (2):
+      SELinux: Reduce overhead of mls_level_isvalid() function call
+      SELinux: Increase ebitmap_node size for 64-bit configuration
+
+
+ include/linux/security.h        |   26 ++
+ security/capability.c           |   15 +
+ security/security.c             |   13 -
+ security/selinux/hooks.c        |   18 +-
+ security/selinux/include/xfrm.h |   45 ++--
+ security/selinux/netnode.c      |    2 
+ security/selinux/ss/ebitmap.c   |   20 ++
+ security/selinux/ss/ebitmap.h   |   10 +
+ security/selinux/ss/mls.c       |   22 +-
+ security/selinux/ss/mls_types.h |    2 
+ security/selinux/ss/policydb.c  |    3 
+ security/selinux/xfrm.c         |  453 ++++++++++++++++---------------------
+ 12 files changed, 306 insertions(+), 323 deletions(-)
+
+-- 
+paul moore
+security and virtualization @ redhat
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
