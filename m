@@ -1,61 +1,269 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6NDsTxY026405
-	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2013 09:54:29 -0400
-Message-ID: <51EE8B0F.4090103@tresys.com>
-Date: Tue, 23 Jul 2013 09:54:23 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6NIRLwv014456
+	for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2013 14:27:37 -0400
+Received: by mail-gg0-f174.google.com with SMTP id y3so2388677ggc.33
+        for <selinux@tycho.nsa.gov>; Tue, 23 Jul 2013 11:27:16 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Cc: ocfs2-devel@oss.oracle.com, reiserfs-devel@vger.kernel.org,
+        eparis@parisplace.org, casey@schaufler-ca.com, zohar@us.ibm.com,
+        serge.hallyn@canonical.com
+Subject: Re: [PATCH] xattr: Constify ->name member of "struct xattr".
+Date: Tue, 23 Jul 2013 14:27:08 -0400
+Message-ID: <6427669.5bbOgfTxze@sifl>
+In-Reply-To: <201306082154.BDJ95357.MFQFVOJLSOtHFO@I-love.SAKURA.ne.jp>
+References: <201305292152.CCF10933.FQJHFLOtOFVMSO@I-love.SAKURA.ne.jp> <201306082154.BDJ95357.MFQFVOJLSOtHFO@I-love.SAKURA.ne.jp>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: <refpolicy@oss1.tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: [refpolicy] Want to make typeattribute declarations possible
- in conditionals
-References: <20130723122207.GA21664@siphos.be>
-In-Reply-To: <20130723122207.GA21664@siphos.be>
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 7/23/2013 8:22 AM, Sven Vermeulen wrote:
-> I would like to be able to assign attributes to types in a conditional
-> statement. Right now, this isn't allowed, and I don't know if it is feasible
-
-Definitely a question for main SELinux list.
-
-> to look for a solution to this or not. Is this a real design constraint that
-> will be hard to work around, or is this doable?
-
-It would require kernel changes.  Someone else can be more specific about the challenges for implementing it, but the one complication I can think of off the top of my head is that attributes are expanded in the base module during compile time.
-
-> Alternatives that I see are:
-
-What I had always hoped would alleviate this was the tunable implementation.  I was hoping it would have the same statement constraints as an optional, but instead of being controlled by dependence, it would be controlled by a Boolean or a Boolean expression (separate ones from the current booleans).  I think that almost all of the conditional policy we have right now should be tunable instead, since they are changes you make once (e.g. NFS home dirs), so it makes more sense as a link-time configuration option (aka tunable).  Then you wouldn't be wasting kernel memory on options you'll never toggle again.  That would eliminate the implementation issues of having conditional type attributes or conditional role* statements.
-
-However, the current implementation leverages the current conditionals; thus, it has the same constraints on usage.  Right now I think the best bet is to get CIL up and running, because it should have appropriate infrastructure for tunables as I described above.
-
-> - making the assignations part of separate, small SELinux modules that users can unload/load
-
-I think Fedora does this a little.  I am resistant to upstreaming it since it really breaks encapsulation.
-
-> - using interfaces that assign the permissions to the given domain, and use
->   this interface against the attribute. This will probably result in two
->   interfaces, foo_domain() to assign the attribute (for non-tunable usage)
->   and foo_domain_privileges() to assign the rights (for tunable usage) -
->   naming convention notwithstanding here.
-
-We have a little of this, but I'd like to eliminate it because it breaks abstraction.  The hope is that the implementation of the interface shouldn't affect how a caller uses it.
-
-> - decouple the requirement from the policy and let administrators do this
+On Saturday, June 08, 2013 09:54:56 PM Tetsuo Handa wrote:
+> >From 96df8b4be7f8702913a0245b2312958e2eea6caf Mon Sep 17 00:00:00 2001
 > 
-> The last approach means that the policy doesn't include the definitions
-> anymore, instead providing a method (in the SELinux userspace utilities or
-> distribution-specific) to assign attributes.
+> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Date: Sat, 8 Jun 2013 21:46:58 +0900
+> Subject: [PATCH] xattr: Constify ->name member of "struct xattr".
+> 
+> Since everybody sets kstrdup()ed constant string to "struct xattr"->name but
+> nobody modifies "struct xattr"->name , we can omit kstrdup() and its
+> failure checking by constifying ->name member of "struct xattr".
+> 
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-I'm a little surprised that you'd suggest that, as it makes more work for distro maintainers.  I'd be reluctant to do this, since it makes stock refpolicy less useful as a starting point for a system policy.
+[NOTE: Added the SELinux list to the To/CC line.]
 
+I looked over the patch and gave it a quick test on my system, everything 
+seems reasonable to me.
+
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Tested-by: Paul Moore <paul@paul-moore.com>
+
+> ---
+>  fs/ocfs2/xattr.h                    |    2 +-
+>  include/linux/security.h            |    8 ++++----
+>  include/linux/xattr.h               |    2 +-
+>  include/uapi/linux/reiserfs_xattr.h |    2 +-
+>  security/capability.c               |    2 +-
+>  security/integrity/evm/evm_main.c   |    2 +-
+>  security/security.c                 |    8 +++-----
+>  security/selinux/hooks.c            |   17 ++++++-----------
+>  security/smack/smack_lsm.c          |    9 +++------
+>  9 files changed, 21 insertions(+), 31 deletions(-)
+> 
+> diff --git a/fs/ocfs2/xattr.h b/fs/ocfs2/xattr.h
+> index e5c7f15..19f134e 100644
+> --- a/fs/ocfs2/xattr.h
+> +++ b/fs/ocfs2/xattr.h
+> @@ -32,7 +32,7 @@ enum ocfs2_xattr_type {
+> 
+>  struct ocfs2_security_xattr_info {
+>  	int enable;
+> -	char *name;
+> +	const char *name;
+>  	void *value;
+>  	size_t value_len;
+>  };
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 40560f4..2e64d73 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1466,7 +1466,7 @@ struct security_operations {
+>  	int (*inode_alloc_security) (struct inode *inode);
+>  	void (*inode_free_security) (struct inode *inode);
+>  	int (*inode_init_security) (struct inode *inode, struct inode *dir,
+> -				    const struct qstr *qstr, char **name,
+> +				    const struct qstr *qstr, const char **name,
+>  				    void **value, size_t *len);
+>  	int (*inode_create) (struct inode *dir,
+>  			     struct dentry *dentry, umode_t mode);
+> @@ -1737,7 +1737,7 @@ int security_inode_init_security(struct inode *inode,
+> struct inode *dir, const struct qstr *qstr,
+>  				 initxattrs initxattrs, void *fs_data);
+>  int security_old_inode_init_security(struct inode *inode, struct inode
+> *dir, -				     const struct qstr *qstr, char **name,
+> +				     const struct qstr *qstr, const char **name,
+>  				     void **value, size_t *len);
+>  int security_inode_create(struct inode *dir, struct dentry *dentry, umode_t
+> mode); int security_inode_link(struct dentry *old_dentry, struct inode
+> *dir, @@ -2048,8 +2048,8 @@ static inline int
+> security_inode_init_security(struct inode *inode, static inline int
+> security_old_inode_init_security(struct inode *inode, struct inode *dir,
+>  						   const struct qstr *qstr,
+> -						   char **name, void **value,
+> -						   size_t *len)
+> +						   const char **name,
+> +						   void **value, size_t *len)
+>  {
+>  	return -EOPNOTSUPP;
+>  }
+> diff --git a/include/linux/xattr.h b/include/linux/xattr.h
+> index fdbafc6..91b0a68 100644
+> --- a/include/linux/xattr.h
+> +++ b/include/linux/xattr.h
+> @@ -31,7 +31,7 @@ struct xattr_handler {
+>  };
+> 
+>  struct xattr {
+> -	char *name;
+> +	const char *name;
+>  	void *value;
+>  	size_t value_len;
+>  };
+> diff --git a/include/uapi/linux/reiserfs_xattr.h
+> b/include/uapi/linux/reiserfs_xattr.h index d8ce17c..38fdd64 100644
+> --- a/include/uapi/linux/reiserfs_xattr.h
+> +++ b/include/uapi/linux/reiserfs_xattr.h
+> @@ -16,7 +16,7 @@ struct reiserfs_xattr_header {
+>  };
+> 
+>  struct reiserfs_security_handle {
+> -	char *name;
+> +	const char *name;
+>  	void *value;
+>  	size_t length;
+>  };
+> diff --git a/security/capability.c b/security/capability.c
+> index 1728d4e..b311ff0 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -119,7 +119,7 @@ static void cap_inode_free_security(struct inode *inode)
+> }
+> 
+>  static int cap_inode_init_security(struct inode *inode, struct inode *dir,
+> -				   const struct qstr *qstr, char **name,
+> +				   const struct qstr *qstr, const char **name,
+>  				   void **value, size_t *len)
+>  {
+>  	return -EOPNOTSUPP;
+> diff --git a/security/integrity/evm/evm_main.c
+> b/security/integrity/evm/evm_main.c index cdbde17..2787080 100644
+> --- a/security/integrity/evm/evm_main.c
+> +++ b/security/integrity/evm/evm_main.c
+> @@ -405,7 +405,7 @@ int evm_inode_init_security(struct inode *inode,
+> 
+>  	evm_xattr->value = xattr_data;
+>  	evm_xattr->value_len = sizeof(*xattr_data);
+> -	evm_xattr->name = kstrdup(XATTR_EVM_SUFFIX, GFP_NOFS);
+> +	evm_xattr->name = XATTR_EVM_SUFFIX;
+>  	return 0;
+>  out:
+>  	kfree(xattr_data);
+> diff --git a/security/security.c b/security/security.c
+> index a3dce87..8849691 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -335,10 +335,10 @@ int security_inode_init_security(struct inode *inode,
+> struct inode *dir, if (unlikely(IS_PRIVATE(inode)))
+>  		return 0;
+> 
+> -	memset(new_xattrs, 0, sizeof new_xattrs);
+>  	if (!initxattrs)
+>  		return security_ops->inode_init_security(inode, dir, qstr,
+>  							 NULL, NULL, NULL);
+> +	memset(new_xattrs, 0, sizeof(new_xattrs));
+>  	lsm_xattr = new_xattrs;
+>  	ret = security_ops->inode_init_security(inode, dir, qstr,
+>  						&lsm_xattr->name,
+> @@ -353,16 +353,14 @@ int security_inode_init_security(struct inode *inode,
+> struct inode *dir, goto out;
+>  	ret = initxattrs(inode, new_xattrs, fs_data);
+>  out:
+> -	for (xattr = new_xattrs; xattr->name != NULL; xattr++) {
+> -		kfree(xattr->name);
+> +	for (xattr = new_xattrs; xattr->value != NULL; xattr++)
+>  		kfree(xattr->value);
+> -	}
+>  	return (ret == -EOPNOTSUPP) ? 0 : ret;
+>  }
+>  EXPORT_SYMBOL(security_inode_init_security);
+> 
+>  int security_old_inode_init_security(struct inode *inode, struct inode
+> *dir, -				     const struct qstr *qstr, char **name,
+> +				     const struct qstr *qstr, const char **name,
+>  				     void **value, size_t *len)
+>  {
+>  	if (unlikely(IS_PRIVATE(inode)))
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 5c6f2cd..16b8e51 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2516,7 +2516,8 @@ static void selinux_inode_free_security(struct inode
+> *inode) }
+> 
+>  static int selinux_inode_init_security(struct inode *inode, struct inode
+> *dir, -				       const struct qstr *qstr, char **name,
+> +				       const struct qstr *qstr,
+> +				       const char **name,
+>  				       void **value, size_t *len)
+>  {
+>  	const struct task_security_struct *tsec = current_security();
+> @@ -2524,7 +2525,7 @@ static int selinux_inode_init_security(struct inode
+> *inode, struct inode *dir, struct superblock_security_struct *sbsec;
+>  	u32 sid, newsid, clen;
+>  	int rc;
+> -	char *namep = NULL, *context;
+> +	char *context;
+> 
+>  	dsec = dir->i_security;
+>  	sbsec = dir->i_sb->s_security;
+> @@ -2560,19 +2561,13 @@ static int selinux_inode_init_security(struct inode
+> *inode, struct inode *dir, if (!ss_initialized || !(sbsec->flags &
+> SE_SBLABELSUPP))
+>  		return -EOPNOTSUPP;
+> 
+> -	if (name) {
+> -		namep = kstrdup(XATTR_SELINUX_SUFFIX, GFP_NOFS);
+> -		if (!namep)
+> -			return -ENOMEM;
+> -		*name = namep;
+> -	}
+> +	if (name)
+> +		*name = XATTR_SELINUX_SUFFIX;
+> 
+>  	if (value && len) {
+>  		rc = security_sid_to_context_force(newsid, &context, &clen);
+> -		if (rc) {
+> -			kfree(namep);
+> +		if (rc)
+>  			return rc;
+> -		}
+>  		*value = context;
+>  		*len = clen;
+>  	}
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index d52c780..46e5b47 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -554,7 +554,7 @@ static void smack_inode_free_security(struct inode
+> *inode) * Returns 0 if it all works out, -ENOMEM if there's no memory
+>   */
+>  static int smack_inode_init_security(struct inode *inode, struct inode
+> *dir, -				     const struct qstr *qstr, char **name,
+> +				     const struct qstr *qstr, const char **name,
+>  				     void **value, size_t *len)
+>  {
+>  	struct smack_known *skp;
+> @@ -564,11 +564,8 @@ static int smack_inode_init_security(struct inode
+> *inode, struct inode *dir, char *dsp = smk_of_inode(dir);
+>  	int may;
+> 
+> -	if (name) {
+> -		*name = kstrdup(XATTR_SMACK_SUFFIX, GFP_NOFS);
+> -		if (*name == NULL)
+> -			return -ENOMEM;
+> -	}
+> +	if (name)
+> +		*name = XATTR_SMACK_SUFFIX;
+> 
+>  	if (value) {
+>  		skp = smk_find_entry(csp);
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+paul moore
+www.paul-moore.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
