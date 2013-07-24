@@ -1,66 +1,49 @@
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Cc: sds@tycho.nsa.gov, waiman.long@hp.com
-Subject: Follow-up on the lblnet-next tree
-Date: Tue, 23 Jul 2013 18:05:03 -0400
-Message-ID: <3261672.EsmV8HmHXd@sifl>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6OJYmKl001414
+	for <selinux@tycho.nsa.gov>; Wed, 24 Jul 2013 15:34:49 -0400
+Received: by mail-la0-f43.google.com with SMTP id fs13so670789lab.30
+        for <selinux@tycho.nsa.gov>; Wed, 24 Jul 2013 12:34:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <201307231723.GBI69775.VSOLHFQFOOtJMF@I-love.SAKURA.ne.jp>
+References: <201305292152.CCF10933.FQJHFLOtOFVMSO@I-love.SAKURA.ne.jp>
+	<201306082154.BDJ95357.MFQFVOJLSOtHFO@I-love.SAKURA.ne.jp>
+	<20130609090721.GD5531@localhost>
+	<201306092109.GBB81777.JOHtFOMQVLSFOF@I-love.SAKURA.ne.jp>
+	<201306242205.GAE95336.LSFMFOFOQJOHtV@I-love.SAKURA.ne.jp>
+	<201307231723.GBI69775.VSOLHFQFOOtJMF@I-love.SAKURA.ne.jp>
+Date: Wed, 24 Jul 2013 15:34:46 -0400
+Message-ID: <CACLa4psOkoz+G3zKQMO922Y7XjRu9hyDZADEyM=mL-eUztQGcA@mail.gmail.com>
+Subject: Re: [PATCH] xattr: Constify ->name member of "struct xattr".
+From: Eric Paris <eparis@parisplace.org>
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+        LSM List <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just a quick follow-up to let you know that I've rebased the lblnet-next tree 
-to Linus' post -rc2 tree from earlier today.  I did a quick build/boot/test 
-cycle and everything looked sane to me, but additional testing is always 
-welcome.
+On Tue, Jul 23, 2013 at 4:23 AM, Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> I'm waiting for an ACK from SELinux people.
+> ----------------------------------------
+> >From 283a07233cfa2f64cb654f72bec86b9a61c60af0 Mon Sep 17 00:00:00 2001
+> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Date: Tue, 23 Jul 2013 17:20:12 +0900
+> Subject: [PATCH] xattr: Constify ->name member of "struct xattr".
+>
+> Since everybody sets kstrdup()ed constant string to "struct xattr"->name but
+> nobody modifies "struct xattr"->name , we can omit kstrdup() and its failure
+> checking by constifying ->name member of "struct xattr".
+>
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Reviewed-by: Joel Becker <jlbec@evilplan.org> [ocfs2]
+> Acked-by: Serge E. Hallyn <serge.hallyn@ubuntu.com>
+> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> Acked-by: Mimi Zohar <zohar@linux.vnet.ibm.com>
 
- * git://git.infradead.org/users/pcmoore/lblnet-2.6_next
- * http://git.infradead.org/users/pcmoore/lblnet-2.6_next
+Looks fine to me.
 
-The lblnet-next tree contents:
-
-Eric Paris (1):
-      SELinux: fix selinuxfs policy file on big endian systems
-
-Paul Moore (9):
-      selinux: fix problems in netnode when BUG() is compiled out
-      lsm: split the xfrm_state_alloc_security() hook implementation
-      selinux: cleanup and consolidate the XFRM alloc/clone/delete/free code
-      selinux: cleanup selinux_xfrm_policy_lookup() and 
-selinux_xfrm_state_pol_flow_match()
-      selinux: cleanup selinux_xfrm_sock_rcv_skb() and 
-selinux_xfrm_postroute_last()
-      selinux: cleanup some comment and whitespace issues in the XFRM code
-      selinux: cleanup selinux_xfrm_decode_session()
-      selinux: cleanup the XFRM header
-      selinux: remove the BUG_ON() from selinux_skb_xfrm_sid()
-
-Stephen Smalley (1):
-      SELinux: Enable setting security contexts on rootfs inodes.
-
-Waiman Long (2):
-      SELinux: Reduce overhead of mls_level_isvalid() function call
-      SELinux: Increase ebitmap_node size for 64-bit configuration
-
-
- include/linux/security.h        |   26 ++
- security/capability.c           |   15 +
- security/security.c             |   13 -
- security/selinux/hooks.c        |   18 +-
- security/selinux/include/xfrm.h |   45 ++--
- security/selinux/netnode.c      |    2 
- security/selinux/ss/ebitmap.c   |   20 ++
- security/selinux/ss/ebitmap.h   |   10 +
- security/selinux/ss/mls.c       |   22 +-
- security/selinux/ss/mls_types.h |    2 
- security/selinux/ss/policydb.c  |    3 
- security/selinux/xfrm.c         |  453 ++++++++++++++++---------------------
- 12 files changed, 306 insertions(+), 323 deletions(-)
-
--- 
-paul moore
-security and virtualization @ redhat
-
+Acked-by: Eric Paris <eparis@redhat.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
