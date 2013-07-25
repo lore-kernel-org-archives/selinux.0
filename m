@@ -1,109 +1,173 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6OKMqPa004548
-	for <selinux@tycho.nsa.gov>; Wed, 24 Jul 2013 16:22:52 -0400
-Received: by mail-lb0-f175.google.com with SMTP id r10so860175lbi.20
-        for <selinux@tycho.nsa.gov>; Wed, 24 Jul 2013 13:22:49 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6PIMst5017938
+	for <selinux@tycho.nsa.gov>; Thu, 25 Jul 2013 14:22:56 -0400
+Message-ID: <51F16CFB.6040603@schaufler-ca.com>
+Date: Thu, 25 Jul 2013 11:22:51 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <20130416225619.GA30164@sh-el5.eng.rdu2.redhat.com>
-References: <20130416225619.GA30164@sh-el5.eng.rdu2.redhat.com>
-Date: Wed, 24 Jul 2013 16:22:47 -0400
-Message-ID: <CACLa4pu=DEBO_Wfvh1PZEj3D2yQuxgz_dvQCLh677P7O6hKEPA@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: consider filesystem subtype in policies
-From: Eric Paris <eparis@parisplace.org>
-To: Anand Avati <avati@redhat.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, kraman@redhat.com
+To: LKLM <linux-kernel@vger.kernel.org>,
+        LSM <linux-security-module@vger.kernel.org>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>
+CC: John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH v14 0/6] LSM: Multiple concurrent LSMs
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 16, 2013 at 6:56 PM, Anand Avati <avati@redhat.com> wrote:
-> Not considering sub filesystem has the following limitation. Support
-> for SELinux in FUSE is dependent on the particular userspace
-> filesystem, which is identified by the subtype. For e.g, GlusterFS,
-> a FUSE based filesystem supports SELinux (by mounting and processing
-> FUSE requests in different threads, avoiding the mount time
-> deadlock), whereas other FUSE based filesystems (identified by a
-> different subtype) have the mount time deadlock.
->
-> By considering the subtype of the filesytem in the SELinux policies,
-> allows us to specify a filesystem subtype, in the following way:
->
-> fs_use_xattr fuse.glusterfs gen_context(system_u:object_r:fs_t,s0);
->
-> This way not all FUSE filesystems are put in the same bucket and
-> subjected to the limitations of the other subtypes.
->
-> Signed-off-by: Anand Avati <avati@redhat.com>
+Subject: [PATCH v14 0/6] LSM: Multiple concurrent LSMs
 
-[snip]
+Version 14 of this patchset is based on v3.10.
+It required significant change from version 13 due to changes
+in the audit code. It came out cleaner, especially in the changes
+to NetLabel. This version supports all existing LSMs running
+together at the same time. The combinations tested most completely
+are:
 
->  int security_genfs_sid(const char *fstype, char *name, u16 sclass,
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index b4feecc..f4e6b0b 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2324,25 +2324,51 @@ out:
->  /**
->   * security_fs_use - Determine how to handle labeling for a filesystem.
->   * @fstype: filesystem type
-> + * @subtype: filesystem subtype (e.g userspace FUSE filesystem)
->   * @behavior: labeling behavior
->   * @sid: SID for filesystem (superblock)
->   */
->  int security_fs_use(
->         const char *fstype,
-> +       const char *subtype,
->         unsigned int *behavior,
->         u32 *sid)
->  {
->         int rc = 0;
->         struct ocontext *c;
-> +       struct ocontext *base = NULL;
-> +       int baselen;
-> +       char *sub;
->
->         read_lock(&policy_rwlock);
->
-> -       c = policydb.ocontexts[OCON_FSUSE];
-> -       while (c) {
-> -               if (strcmp(fstype, c->u.name) == 0)
-> +       for (c = policydb.ocontexts[OCON_FSUSE]; c; c = c->next) {
-> +               if (strcmp(fstype, c->u.name) == 0) {
-> +                       if (!subtype)
-> +                               /* exact match, no subtype requested */
-> +                               break;
-> +                       /* save this for now, in case we do not find
-> +                          a subtype match */
-> +                       base = c;
-> +               }
-> +               if (!subtype)
-> +                       continue;
-> +               sub = strchr(c->u.name, '.');
-> +               if (!sub)
-> +                       /* not an entry with subtype */
-> +                       continue;
-> +               baselen = (sub - c->u.name);
-> +               if (strncmp(fstype, c->u.name, baselen) || fstype[baselen])
+    apparmor,tomoyo,smack,yama  - Ubuntu
+    apparmor,selinux,smack,yama - Fedora
 
-we have no idea how long fstype is.  baselen could be HUGE.  I'm
-trying to redo this patch right now.  No need for you to comment.
-Just putting it out there.
+I have been unable to figure out how to configure SELinux on
+Ubuntu and TOMOYO on Fedora. That's the only reason the list
+does not include all five LSMs at once. Combining LSMs that
+use networking is tricky, but can be done. There are changes
+coming from AppArmor that might make it even trickier, but
+that's a problem for the future.
 
-> +                       /* fstype does not match */
-> +                       continue;
-> +               sub++; /* move past '.' */
-> +               if (strcmp(subtype, sub) == 0)
-> +                       /* exact match of fstype AND subtype */
->                         break;
-> -               c = c->next;
->         }
-> +       if (!c)
-> +               /* in case we had found an fstype match but no subtype match */
-> +               c = base;
->
->         if (c) {
->                 *behavior = c->v.behavior;
+
+Change the infrastructure for Linux Security Modules (LSM)s from a
+single vector of hook handlers to a list based method for handling
+multiple concurrent modules. All combinations of existing LSMs
+are supported.
+
+The "security=" boot option takes a comma separated list of LSMs,
+registering them in the order presented. The LSM hooks will be
+executed in the order registered. Hooks that return errors are
+not short circuited. All hooks are called even if one of the LSM
+hooks fails. The result returned will be that of the last LSM
+hook that failed.
+
+All behavior from security/capability.c has been moved into
+the hook handling.  The security/commoncap functions used
+to get called from the LSM specific code. The handling of the
+capability functions has been moved out of the LSMs and into the
+hook handling.
+
+A level of indirection has been introduced in the handling of
+security blobs. LSMs no longer access ->security fields directly,
+instead they use an abstraction provided by lsm_[gs]et field
+functions.
+
+The notion that "the security context" can be represented as a
+single u32 "secid" does not scale to the case where multiple LSMs
+want to provide "the security context". The XFRM and secmark
+facilities appear unlikely to ever allow for more than the existing
+32 bit values. The NetLabel scheme might possibly be used to
+represent more than one labeling scheme (CIPSO does allow for
+multiple tags) although there is no plan to do so at this time.
+The SO_PEERSEC scheme is capable of providing information from
+multiple LSMs. Auditing can deal with multiple secids.
+
+The NetLabel, XFRM and secmark facilities are restricted to use
+by one LSM at a time. The SO_PEERSEC facility can provide information
+from multiple LSMs, but existing user space tools don't understand
+that. The default behavior is to assign each of these facilities
+to the first registered LSM that uses them. They can be configured
+for use by any of the LSMs that provide hooks for them. SO_PEERSEC
+can be configured to provide information from all of the LSMs that
+provide hooks.
+
+The /proc/*/attr interfaces are given to one LSM. This can be
+done by setting CONFIG_SECURITY_PRESENT. Additional interfaces
+have been created in /proc/*/attr so that each LSM has its own
+named interfaces. The name of the presenting LSM can be read from
+/sys/kernel/security/present. The list of LSMs being used can be
+read from /sys/kernel/security/lsm.
+
+A "security context" may now contrain information processed by
+more than one LSM. The proper form of a security context identifies
+the information it contains by LSM:
+
+    smack='Pop'selinux='system_u:object_r:etc_r:s0'
+
+A security context without the LSM identifying lsm='<text>' gets
+passed through to all of the LSMs that use a security context. This
+maintains compatability in the case where there is only one LSM
+using the security context.
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+---
+ Documentation/security/LSM.txt                     |   56 +-
+ drivers/usb/core/devio.c                           |   13 +-
+ fs/proc/base.c                                     |   36 +-
+ fs/sysfs/dir.c                                     |    3 +-
+ fs/sysfs/inode.c                                   |   12 +-
+ fs/sysfs/sysfs.h                                   |    7 +-
+ fs/xattr.c                                         |    8 +-
+ include/linux/cred.h                               |    4 +-
+ include/linux/lsm.h                                |  300 +++
+ include/linux/lsm_audit.h                          |    9 +-
+ include/linux/sched.h                              |    2 +-
+ include/linux/security.h                           |  580 ++++--
+ include/net/af_unix.h                              |    5 +-
+ include/net/netlabel.h                             |   15 +-
+ include/net/scm.h                                  |   11 +-
+ include/net/xfrm.h                                 |    9 +-
+ kernel/audit.c                                     |   55 +-
+ kernel/audit.h                                     |    9 +-
+ kernel/auditfilter.c                               |    4 +-
+ kernel/auditsc.c                                   |   53 +-
+ kernel/cred.c                                      |   17 +-
+ kernel/signal.c                                    |    7 +-
+ net/ipv4/cipso_ipv4.c                              |    9 +-
+ net/ipv4/ip_sockglue.c                             |    8 +-
+ .../netfilter/nf_conntrack_l3proto_ipv4_compat.c   |    8 +-
+ net/netfilter/nf_conntrack_netlink.c               |   13 +-
+ net/netfilter/nf_conntrack_standalone.c            |    8 +-
+ net/netfilter/xt_SECMARK.c                         |   13 +-
+ net/netlabel/netlabel_kapi.c                       |   47 +-
+ net/netlabel/netlabel_unlabeled.c                  |   57 +-
+ net/netlabel/netlabel_user.c                       |   10 +-
+ net/netlabel/netlabel_user.h                       |    1 +
+ net/unix/af_unix.c                                 |   14 +-
+ net/xfrm/xfrm_user.c                               |   33 +-
+ security/Kconfig                                   |  226 ++-
+ security/Makefile                                  |    3 +-
+ security/apparmor/context.c                        |   10 +-
+ security/apparmor/domain.c                         |   12 +-
+ security/apparmor/include/apparmor.h               |    3 +
+ security/apparmor/include/context.h                |    9 +-
+ security/apparmor/lsm.c                            |   64 +-
+ security/capability.c                              | 1106 -----------
+ security/commoncap.c                               |    6 -
+ security/inode.c                                   |   77 +-
+ security/integrity/ima/ima.h                       |    4 +-
+ security/integrity/ima/ima_policy.c                |    6 +-
+ security/security.c                                | 2082
++++++++++++++++++---
+ security/selinux/hooks.c                           |  431 ++--
+ security/selinux/include/objsec.h                  |    1 +
+ security/selinux/include/xfrm.h                    |    2 +-
+ security/selinux/netlabel.c                        |   46 +-
+ security/selinux/selinuxfs.c                       |    7 +-
+ security/selinux/ss/services.c                     |    5 +-
+ security/selinux/xfrm.c                            |    9 +-
+ security/smack/smack.h                             |    7 +-
+ security/smack/smack_access.c                      |    2 +-
+ security/smack/smack_lsm.c                         |  338 ++--
+ security/smack/smackfs.c                           |   26 +-
+ security/tomoyo/common.h                           |    6 +-
+ security/tomoyo/domain.c                           |    2 +-
+ security/tomoyo/securityfs_if.c                    |    7 +-
+ security/tomoyo/tomoyo.c                           |   34 +-
+ security/yama/Kconfig                              |    7 -
+ security/yama/yama_lsm.c                           |   33 +-
+ 64 files changed, 3679 insertions(+), 2328 deletions(-)
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
