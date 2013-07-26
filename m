@@ -1,51 +1,38 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6QLWliq016517
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2013 17:32:47 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r6QLWgA4003086
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6QLXhEd016556
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2013 17:33:44 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r6QLXTcN005382
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2013 17:32:42 -0400
-Message-ID: <51F2EAF8.2040201@redhat.com>
-Date: Fri, 26 Jul 2013 17:32:40 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2013 17:33:30 -0400
+Received: from redsox.boston.devel.redhat.com (redsox.boston.devel.redhat.com [10.19.60.53])
+	by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id r6QLXTSP012544
+	for <selinux@tycho.nsa.gov>; Fri, 26 Jul 2013 17:33:29 -0400
+Message-ID: <51F2EB28.10501@redhat.com>
+Date: Fri, 26 Jul 2013 17:33:28 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SELinux <selinux@tycho.nsa.gov>
-CC: Steve Grubb <sgrubb@redhat.com>
-Subject: Currently we handle adding audit records with semanage command in
- pocliycoreutils.
+Subject: This patch stops semanage from removing user records that are still
+ in use.
 Content-Type: multipart/mixed;
- boundary="------------010802040207060807090901"
+ boundary="------------070404040002070300070404"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010802040207060807090901
+--------------070404040002070300070404
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-The problem is useradd is not calling libsemanage functions directly, this
-patch moves the audit record calls into libsemanage.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.13 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlHy6vgACgkQrlYvE4MpobNx1wCgyyRY7vs3HlQYpHVZAZUSIijq
-p8cAniXvcKVQU3ahCiS9mAf+fM8oB+Zv
-=9OtP
------END PGP SIGNATURE-----
-
---------------010802040207060807090901
+--------------070404040002070300070404
 Content-Type: text/x-patch;
- name="0044-Move-handling-of-role-audit-messages-into-libsemanag.patch"
+ name="0045-Patch-stops-semanage-from-removing-user-record-while.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0044-Move-handling-of-role-audit-messages-into-libsemanag.pa";
+ filename*0="0045-Patch-stops-semanage-from-removing-user-record-while.pa";
  filename*1="tch"
 
 
---------------010802040207060807090901--
+--------------070404040002070300070404--
