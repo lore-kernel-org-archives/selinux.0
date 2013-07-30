@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6U1nldm003072
-	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2013 21:49:47 -0400
-Message-ID: <51F71BB5.2050101@schaufler-ca.com>
-Date: Mon, 29 Jul 2013 18:49:41 -0700
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6U1mqvc002995
+	for <selinux@tycho.nsa.gov>; Mon, 29 Jul 2013 21:48:52 -0400
+Message-ID: <51F71B65.5060205@schaufler-ca.com>
+Date: Mon, 29 Jul 2013 18:48:21 -0700
 From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
 To: Kees Cook <keescook@chromium.org>
@@ -13,62 +13,140 @@ CC: LKLM <linux-kernel@vger.kernel.org>,
         Eric Paris <eparis@redhat.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
         Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH v14 1/6] LSM: Security blob abstraction
-References: <51F16CFB.6040603@schaufler-ca.com> <51F16F21.3020305@schaufler-ca.com> <CAGXu5jJUiwjtEuCUB89NG9EQpxNytaaPT9PdPyHN_qUhwa+YUw@mail.gmail.com>
-In-Reply-To: <CAGXu5jJUiwjtEuCUB89NG9EQpxNytaaPT9PdPyHN_qUhwa+YUw@mail.gmail.com>
+Subject: Re: [PATCH v14 3/6] LSM: Explicit individual LSM associations
+References: <51F16CFB.6040603@schaufler-ca.com> <51F16F2B.5020606@schaufler-ca.com> <CAGXu5jLEd8vt0d7aEecP7BMCduTyeFs56wv07TCCXbRr001B+Q@mail.gmail.com>
+In-Reply-To: <CAGXu5jLEd8vt0d7aEecP7BMCduTyeFs56wv07TCCXbRr001B+Q@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 7/29/2013 2:15 PM, Kees Cook wrote:
+On 7/29/2013 1:51 PM, Kees Cook wrote:
 > On Thu, Jul 25, 2013 at 11:32 AM, Casey Schaufler
 > <casey@schaufler-ca.com> wrote:
->> Subject: [PATCH v14 1/6] LSM: Security blob abstraction
+>> Subject: [PATCH v14 3/6] LSM: Explicit individual LSM associations
+>> [...]
+>> Introduce feature specific security operation vectors
+>> for NetLabel, XFRM, secmark and presentation in the
+>> traditional /proc/.../attr interfaces. This allows
+>> proper handling of secids.
+>> [...]
+>> --- a/include/linux/lsm.h
+>> +++ b/include/linux/lsm.h
+>> @@ -164,9 +164,18 @@ static inline void lsm_init_secid(struct secids *secid, u32 lsecid, int order)
+>>  {
+>>         memset(secid, 0, sizeof(*secid));
 >>
->> Create an abstracted interface for security blobs.
->> Instead of directly accessing security blob pointers
->> Use lsm_get and lsm_set functions that hide the actual
->> mechanism used to maintain the security blobs. This
->> affects most uses of inode->i_security, file->f_security,
->> cred->security and similar fields in keys, sockets,
->> superblocks, ipc and keys.
+>> -       if (lsecid != 0)
+>> +       if (lsecid == 0)
+>> +               return;
+>> +       /*
+>> +        * An order of -1 means set it for all LSMs.
+>> +        */
+>> +       if (order < 0) {
+>> +               secid->si_lsm[0] = lsecid;
+>> +               secid->si_count++;
+>> +       } else {
+>> +               secid->si_lsm[order] = lsecid;
+>>                 secid->si_count = 1;
+>> -       secid->si_lsm[order] = lsecid;
+>> +       }
+>>  }
 >>
->> The use of a single 32 bit integer to refer to a security blob
->> does not scale to the case where there may be more than one
->> relevant security blob. Where it is possible to do so the use
->> of secids (u32) has been replaced with a struct secids, which
->> provides for multiple u32 values. There are components where
->> u32 secids remain at the request of the maintainer of that
->> component.
-> If I boot with "security=apparmor", lsm_set_blob ends up with a NULL
-> "bp" and Oopses the kernel. Still happens with
-> "security=yama,apparmor". As soon as I add smack anywhere in the list,
-> everything is fine. It seems like the AppArmor init needs to be
-> changed to:
+>>  static inline int lsm_zero_secid(struct secids *secid)
+>> @@ -178,39 +187,64 @@ static inline int lsm_zero_secid(struct secids *secid)
+>>
+>>  #ifdef CONFIG_SECURITY
+>>
+>> +extern struct security_operations *present_ops;
+>>  static inline struct security_operations *lsm_present_ops(void)
+>>  {
+>> -       return security_ops;
+>> +       return present_ops;
+>>  }
+>>
+>>  static inline int lsm_present_order(void)
+>>  {
+>> -       return 0;
+>> +       return present_ops->order;
+>>  }
+>>
+>> +#ifdef CONFIG_NETLABEL
+>> +extern struct security_operations *netlbl_ops;
+>> +
+>>  static inline struct security_operations *lsm_netlbl_ops(void)
+>>  {
+>> -       return security_ops;
+>> +       return netlbl_ops;
+>>  }
+>>
+>>  static inline int lsm_netlbl_order(void)
+>>  {
+>> -       return 0;
+>> +       return netlbl_ops->order;
+>>  }
+>> +#endif /* CONFIG_NETLABEL */
+>> +
+>> +#ifdef CONFIG_SECURITY_NETWORK_XFRM
+>> +extern struct security_operations *xfrm_ops;
+>>
+>>  static inline struct security_operations *lsm_xfrm_ops(void)
+>>  {
+>> -       return security_ops;
+>> +       return xfrm_ops;
+>>  }
+>>
+>>  static inline int lsm_xfrm_order(void)
+>>  {
+>> -       return 0;
+>> +       return xfrm_ops->order;
+>>  }
+>> +#endif /* CONFIG_SECURITY_NETWORK_XFRM */
+>> +
+>> +#ifdef CONFIG_NETWORK_SECMARK
+>> +extern struct security_operations *secmark_ops;
+>>
+>>  static inline struct security_operations *lsm_secmark_ops(void)
+>>  {
+>> -       return security_ops;
+>> +       return secmark_ops;
+>> +}
+>> +
+>> +static inline int lsm_secmark_order(void)
+>> +{
+>> +       return secmark_ops->order;
+>> +}
+>> +#endif /* CONFIG_NETWORK_SECMARK */
+>> +
+>> +#else /* CONFIG_SECURITY */
+>> +
+>> +static inline int lsm_xfrm_order(void)
+>> +{
+>> +       return 0;
+>>  }
+>>
+>>  static inline int lsm_secmark_order(void)
+>> @@ -218,6 +252,11 @@ static inline int lsm_secmark_order(void)
+>>         return 0;
+>>  }
+>>
+>> +static inline struct security_operations *lsm_secmark_ops(void)
+>> +{
+>> +       return NULL;
+>> +}
+>> +
+>>  #endif /* CONFIG_SECURITY */
+>>
+>>  #endif /* ! _LINUX_LSM_H */
+> Something went wrong here with the #ifdef/#else stuff here. I built
+> without CONFIG_SECURITY_NETWORK_XFRM and it fails, missing
+> lsm_xfrm_order().
 >
-> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-> index 78b271a..512f430 100644
-> --- a/security/apparmor/lsm.c
-> +++ b/security/apparmor/lsm.c
-> @@ -875,9 +875,9 @@ static int __init set_init_cxt(void)
->                 return -ENOMEM;
->
->         cxt->profile = aa_get_profile(root_ns->unconfined);
-> -       lsm_set_cred(cred, cxt, &apparmor_ops);
-> -
-> -       return 0;
-> +       printk(KERN_INFO "AA: cred:%p cxt:%p &apparmor_ops:%p\n",
-> +               cred, cxt, &apparmor_ops);
-> +       return lsm_set_init_cred(cred, cxt, &apparmor_ops);
+> If I added an #else to the CONFIG_SECURITY_NETWORK_XFRM check and made
+> lsm_xfrm_order() return 0 there too, it built fine.
 
-I've incorporated this fix (without the printk) and she looks good.
+Yup, I missed that configuration iteration at the end.
+I've incorporated a fix.
 
->  }
->
->  static int __init apparmor_init(void)
->
-> Or maybe it still needs lsm_set_cred, but an earlier
-> lsm_set_init_cred? It's not clear to me yet.
 >
 > -Kees
 >
