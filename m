@@ -1,64 +1,109 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6UIQQK5030667
-	for <selinux@tycho.nsa.gov>; Tue, 30 Jul 2013 14:26:27 -0400
-References: <CABhRnsXoNT5JBbMjd36w5o3Q4KEJ51CqHmL9FJihC-H5yrdqFg@mail.gmail.com>
-Message-ID: <1375208781.1906.YahooMailNeo@web87903.mail.ir2.yahoo.com>
-Date: Tue, 30 Jul 2013 19:26:21 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: Building the Base Policy Module
-To: Thomas COUDRAY <amanone@gmail.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <CABhRnsXoNT5JBbMjd36w5o3Q4KEJ51CqHmL9FJihC-H5yrdqFg@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r6ULlNn3010333
+	for <selinux@tycho.nsa.gov>; Tue, 30 Jul 2013 17:47:39 -0400
+Received: by mail-ye0-f174.google.com with SMTP id q9so2002092yen.5
+        for <selinux@tycho.nsa.gov>; Tue, 30 Jul 2013 14:47:20 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: LKLM <linux-kernel@vger.kernel.org>,
+        LSM <linux-security-module@vger.kernel.org>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v14 5/6] LSM: SO_PEERSEC configuration options
+Date: Tue, 30 Jul 2013 17:47:14 -0400
+Message-ID: <6712209.BXb1SVfVxH@sifl>
+In-Reply-To: <51F16F37.6040708@schaufler-ca.com>
+References: <51F16CFB.6040603@schaufler-ca.com> <51F16F37.6040708@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I thought I deleted that page a few months ago as it is out of date (although the principles are the same).
+On Thursday, July 25, 2013 11:32:23 AM Casey Schaufler wrote:
+> Subject: [PATCH v14 5/6] LSM: SO_PEERSEC configuration options
+> 
+> Refine the handling of SO_PEERSEC to enable legacy
+> user space runtimes, Fedora in particular, when running
+> with multiple LSMs that are capable of providing information
+> using getsockopt(). This introduces an additional configuration
+> option, and requires that the default be the legacy behavior.
+> 
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
-You can download the new tarball from: http://freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
+...
 
-In the directory: basic-selinux-policy/modular-base-policy there is a Makefile that goes through the steps. I've just built this on Fedora 17 and it built ok. I've not tested it for awhile but see no reason why it should not work. Just remember it is a very basic policy and just really allows everything.
+> --- a/security/Kconfig
+> +++ b/security/Kconfig
+> @@ -157,17 +157,49 @@ config SECMARK_LSM
+>  	help
+>  	  The name of the LSM to use with the networking secmark
+> 
+> -config SECURITY_PLAIN_CONTEXT
+> -	bool "Backward compatable contexts without lsm='value' formatting"
+> -	depends on SECURITY_SELINUX || SECURITY_SMACK
+> -	default y
+> +choice
+> +	depends on SECURITY && (SECURITY_SELINUX || SECURITY_SMACK)
+> +	prompt "Peersec LSM"
+> +	default PEERSEC_SECURITY_FIRST
+> +
+>  	help
+> -	  Without this value set security context strings will
+> -	  include the name of the lsm with which they are associated
+> -	  even if there is only one LSM that uses security contexts.
+> -	  This matches the way contexts were handled before it was
+> -	  possible to have multiple concurrent security modules.
+> -	  If you are unsure how to answer this question, answer Y.
+> +	  Select the security module that will send attribute
+> +	  information in IP header options.
+> +	  Most SELinux configurations do not take advantage
+> +	  of Netlabel, while all Smack configurations do. Unless
+> +	  there is a need to do otherwise chose Smack in preference
+> +	  to SELinux.
 
-The updated notes to build the various modules are in: basic-selinux-policy/message-filter/The SELinux Notebook - Building The Sample Policy.pdf
+I'm not hugely in love with the help text; the first sentence seems to be all 
+that is needed, the second seems unnecessary and not exactly fair to the LSMs.
 
-If you do find errors please let me know as I like things to work and will fix any problems.
+> +	config PEERSEC_SECURITY_FIRST
+> +		bool "First LSM providing for SO_PEERSEC"
+> +		help
+> +		  Provide the first available LSM's information with SO_PEERSEC
+> +
+> +	config PEERSEC_SECURITY_ALL
+> +		bool "Use lsm='value'lsm='value' format"
+> +		help
+> +		  Provide all available security information in SO_PEERSEC
+> +
+> +	config PEERSEC_SECURITY_SELINUX
+> +		bool "SELinux" if SECURITY_SELINUX=y
+> +		help
+> +		  Provide SELinux context with SO_PEERSEC
+> +
+> +	config PEERSEC_SECURITY_SMACK
+> +		bool "Smack" if SECURITY_SMACK=y
+> +		help
+> +		  Provide Smack labels with SO_PEERSEC
+> +
+> +endchoice
+> +
+> +config PEERSEC_LSM
+> +	string
+> +	default "smack" if PEERSEC_SECURITY_SMACK
+> +	default "selinux" if PEERSEC_SECURITY_SELINUX
+> +	default "(all)" if PEERSEC_SECURITY_ALL
+> +	default "(first)"
+> +	help
+> +	  The name of the LSM to use with Netlabel
+> 
+>  config SECURITY_PATH
+>  	bool "Security hooks for pathname based access control"
 
-
-Richard
-
-
-
------ Original Message -----
-From: Thomas COUDRAY <amanone@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: 
-Sent: Tuesday, 30 July 2013, 18:45
-Subject: Building the Base Policy Module
-
-I followed the SELinux documentation for building the base policy module.
-
-When I use checkmodule (checkmodule -o base.mod base.conf), I get this error.
-
-# checkmodule -o base.mod base.conf
-checkmodule:  loading policy configuration from base.conf
-base.conf:1014:ERROR 'unknown role unconfined_r' at token ';' on line 1014:
-role unconfined_r types { unconfined_t };
-# The only role defined for this policy:
-checkmodule:  error(s) encountered while parsing configuration
-
-Also the base.fc, dbus_context,  file, is missing.
-
-[1]: http://selinuxproject.org/page/Building_a_Basic_Policy#Building_the_Base_Policy_Module
-
-Thomas Coudray
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
-
+-- 
+paul moore
+www.paul-moore.com
 
 
 --
