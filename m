@@ -1,68 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r71MIBBH012731
-	for <selinux@tycho.nsa.gov>; Thu, 1 Aug 2013 18:18:27 -0400
-Received: by mail-qa0-f53.google.com with SMTP id hu14so73501qab.5
-        for <selinux@tycho.nsa.gov>; Thu, 01 Aug 2013 15:18:10 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: LKLM <linux-kernel@vger.kernel.org>,
-        LSM <linux-security-module@vger.kernel.org>,
-        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        John Johansen <john.johansen@canonical.com>,
-        Eric Paris <eparis@redhat.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v14 3/6] LSM: Explicit individual LSM associations
-Date: Thu, 01 Aug 2013 18:18:07 -0400
-Message-ID: <3087749.g8XAFtub5d@sifl>
-In-Reply-To: <51FADDE4.8080805@schaufler-ca.com>
-References: <51F16CFB.6040603@schaufler-ca.com> <1875185.QyWUQZtYy0@sifl> <51FADDE4.8080805@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r72I8BHN014060
+	for <selinux@tycho.nsa.gov>; Fri, 2 Aug 2013 14:08:11 -0400
+Subject: [PATCH] selinux: correct locking in selinux_netlbl_socket_connect)
+To: selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Cc: stable@vger.kernel.org
+Date: Fri, 02 Aug 2013 14:08:07 -0400
+Message-ID: <20130802180807.19794.24371.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday, August 01, 2013 03:15:00 PM Casey Schaufler wrote:
-> On 8/1/2013 2:30 PM, Paul Moore wrote:
-> > On Thursday, August 01, 2013 11:52:14 AM Casey Schaufler wrote:
-> >> On 8/1/2013 11:35 AM, Paul Moore wrote:
-> >>> Okay, so if I understand everything correctly, there are no new entries
-> >>> in
-> >>> /proc relating specifically to NetLabel, XFRM, or Secmark; although
-> >>> there
-> >>> are new LSM specific entries for the general /proc entries that exist
-> >>> now.  Yes?
-> >> 
-> >> That's correct.
-> >> 
-> >> There is /sys/kernel/security/present, which tells you which LSM is going
-> >> to show up in /proc/.../attr/current.
-> >> 
-> >> Should we have /sys/kernel/security/XFRM, /sys/kernel/security/secmark,
-> >> /sys/kernel/security/NetLabel and /sys/kernel/security/SO_PEERCRED?
-> > 
-> > Maybe.
-> > 
-> > While they might be helpful, I'm not 100% certain they are needed and
-> > further I'm not sure they are the "right" solution at this point.  Any
-> > thoughts, both for and against, are welcome.
-> 
-> What might be a more correct solution? Assuming, of course, that there's
-> a real problem.
+The SELinux/NetLabel glue code has a locking bug that affects systems
+with NetLabel enabled, see the kernel error message below.  This patch
+corrects this problem by converting the bottom half socket lock to a
+more conventional, and correct for this call-path, lock_sock() call.
 
-Well, like I said, I'm not sure they are needed in the first place, in other 
-words, I'm not sure there is a problem.  As for the correct solution, I think 
-we need to understand the problem, if there is one, before we can understand 
-the solution.
+ ===============================
+ [ INFO: suspicious RCU usage. ]
+ 3.11.0-rc3+ #19 Not tainted
+ -------------------------------
+ net/ipv4/cipso_ipv4.c:1928 suspicious rcu_dereference_protected() usage!
 
-How is that for an answer? :)
+ other info that might help us debug this:
 
-In short, I think we are best leaving them out until something comes along 
-which requires that we add the /proc entries.
+ rcu_scheduler_active = 1, debug_locks = 0
+ 2 locks held by ping/731:
+  #0:  (slock-AF_INET/1){+.-...}, at: [...] selinux_netlbl_socket_connect
+  #1:  (rcu_read_lock){.+.+..}, at: [<...>] netlbl_conn_setattr
 
--- 
-paul moore
-www.paul-moore.com
+ stack backtrace:
+ CPU: 1 PID: 731 Comm: ping Not tainted 3.11.0-rc3+ #19
+ Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+  0000000000000001 ffff88006f659d28 ffffffff81726b6a ffff88003732c500
+  ffff88006f659d58 ffffffff810e4457 ffff88006b845a00 0000000000000000
+  000000000000000c ffff880075aa2f50 ffff88006f659d90 ffffffff8169bec7
+ Call Trace:
+  [<ffffffff81726b6a>] dump_stack+0x54/0x74
+  [<ffffffff810e4457>] lockdep_rcu_suspicious+0xe7/0x120
+  [<ffffffff8169bec7>] cipso_v4_sock_setattr+0x187/0x1a0
+  [<ffffffff8170f317>] netlbl_conn_setattr+0x187/0x190
+  [<ffffffff8170f195>] ? netlbl_conn_setattr+0x5/0x190
+  [<ffffffff8131ac9e>] selinux_netlbl_socket_connect+0xae/0xc0
+  [<ffffffff81303025>] selinux_socket_connect+0x135/0x170
+  [<ffffffff8119d127>] ? might_fault+0x57/0xb0
+  [<ffffffff812fb146>] security_socket_connect+0x16/0x20
+  [<ffffffff815d3ad3>] SYSC_connect+0x73/0x130
+  [<ffffffff81739a85>] ? sysret_check+0x22/0x5d
+  [<ffffffff810e5e2d>] ? trace_hardirqs_on_caller+0xfd/0x1c0
+  [<ffffffff81373d4e>] ? trace_hardirqs_on_thunk+0x3a/0x3f
+  [<ffffffff815d52be>] SyS_connect+0xe/0x10
+  [<ffffffff81739a59>] system_call_fastpath+0x16/0x1b
+
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/netlabel.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index da4b8b2..6235d05 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -442,8 +442,7 @@ int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr)
+ 	    sksec->nlbl_state != NLBL_CONNLABELED)
+ 		return 0;
+ 
+-	local_bh_disable();
+-	bh_lock_sock_nested(sk);
++	lock_sock(sk);
+ 
+ 	/* connected sockets are allowed to disconnect when the address family
+ 	 * is set to AF_UNSPEC, if that is what is happening we want to reset
+@@ -464,7 +463,6 @@ int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr)
+ 		sksec->nlbl_state = NLBL_CONNLABELED;
+ 
+ socket_connect_return:
+-	bh_unlock_sock(sk);
+-	local_bh_enable();
++	release_sock(sk);
+ 	return rc;
+ }
 
 
 --
