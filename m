@@ -1,45 +1,45 @@
-Message-ID: <5204E5C5.1050802@tycho.nsa.gov>
-Date: Fri, 09 Aug 2013 08:51:17 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r7FBSilN010312
+	for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2013 07:28:44 -0400
+Received: by mail-wi0-f170.google.com with SMTP id hi8so392789wib.3
+        for <selinux@tycho.nsa.gov>; Thu, 15 Aug 2013 04:28:42 -0700 (PDT)
+Date: Thu, 15 Aug 2013 13:27:26 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: setools and gold linker
+Message-ID: <20130815112726.GA1104@siphos.be>
 MIME-Version: 1.0
-To: Dan Pou <danielp@sgi.com>
-CC: SELinux-NSA <SELinux@tycho.nsa.gov>
-Subject: Re: Programmatic domain change to unprivileged role
-References: <20130805190732.GT18909@localhost> <52015950.9010906@tycho.nsa.gov> <20130806203751.GA14875@localhost> <52023D7D.7040409@tycho.nsa.gov> <52024071.4000206@tycho.nsa.gov> <20130808195857.GB23152@localhost>
-In-Reply-To: <20130808195857.GB23152@localhost>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/08/2013 03:58 PM, Dan Pou wrote:
-> Thanks for the suggestion about strace, that is pointing to the problem.
-> I need to check the policy rules I have been adding to see how I got
-> here:
-> 
-> write(3, "user_u:sysadm_r:sysadm_t:s0\0", 28) = -1 EINVAL (Invalid
-> argument)
-> 
-> This is the second write.  When I test the same code with sshd_t to
-> <username> transition, I get one write, with a successful return of
-> default_context_with_level.
-> 
-> Thanks, this gives me something to go off of.
+Hi all
 
-Could be that security_compute_user() (which writes to
-/sys/fs/selinux/user) is getting an error or no results and thus the
-code is trying to fall back to the failsafe context (as specified in
-/etc/selinux/$SELINUXTYPE/contexts/failsafe_context), which isn't legal
-for user_u.
-The failsafe is to permit root / admin logins under such a situation.
+I have a bug report regarding SETools not being able to build when the "gold
+linker" is used [1]. The build output is as follows:
 
-I'd look to see what the result of writing to /sys/fs/selinux/user was
-and what was written to it in the strace output.  You can also directly
-call security_compute_user via the compute_user tool under
-libselinux/utils if you obtain and build the sources yourself.  That
-utility doesn't appear to get included in the libselinux-utils rpm though.
+x86_64-pc-linux-gnu-ranlib libqpol.a
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.7.2/../../../../x86_64-pc-linux-gnu/bin/ld:
+error: symbol qpol_policy_open_from_memory has undefined version 
+collect2: error: ld returned 1 exit status
 
+It doesn't like the following (unversioned) symver:
 
+__asm__(".symver qpol_policy_open_from_memory_old,qpol_policy_open_from_memory@");
 
+Handling these things is a bit beyond my comprehension, so I'm asking here.
+Would it be a good idea to, like the FUSE example mentioned in the
+bugreport, create a QPOL_UNVERSIONED in libqpol.map (with no content) and
+refer to that, like so:
+
+__asm__(".symver qpol_policy_open_from_memory_old,qpol_policy_open_from_memory@QPOL_UNVERSIONED");
+
+Same of course for the other unversioned ones.
+
+Wkr,
+	Sven Vermeulen
+
+[1] https://bugs.gentoo.org/show_bug.cgi?id=467136
 
 --
 This message was distributed to subscribers of the selinux mailing list.
