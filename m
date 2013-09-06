@@ -1,41 +1,91 @@
-Message-ID: <521F85E9.400@tycho.nsa.gov>
-Date: Thu, 29 Aug 2013 13:33:29 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r866itaF002837
+	for <selinux@tycho.nsa.gov>; Fri, 6 Sep 2013 02:44:56 -0400
+Message-ID: <522979E7.5070102@schaufler-ca.com>
+Date: Thu, 05 Sep 2013 23:44:55 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>
-CC: solomon <alwayssm@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: is there a validation mechanism or tool for SELinux policy configuration?
-References: <CA+Ja=Ypc-zGvX40VMTdKJKTia5Fs86d_JZKb7_3Wm1YsB-TMOg@mail.gmail.com> <521F7DF5.7090404@tycho.nsa.gov>
-In-Reply-To: <521F7DF5.7090404@tycho.nsa.gov>
+To: Kees Cook <keescook@chromium.org>
+CC: LKLM <linux-kernel@vger.kernel.org>,
+        LSM <linux-security-module@vger.kernel.org>,
+        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Eric Paris <eparis@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH v14 0/6] LSM: Multiple concurrent LSMs
+References: <20130806063002.GF2280@outflux.net> <520177E8.5080906@schaufler-ca.com> <CAGXu5jL6dtB0F7fPh17pyhD22q0Q9Nn=wxbPf5AMYsrJuTvvJA@mail.gmail.com> <521C0F07.6030102@schaufler-ca.com> <CAGXu5jJmJu5Ram_x51kk2eoFOrS-v7SWernXUM_azdXdxzMLVA@mail.gmail.com>
+In-Reply-To: <CAGXu5jJmJu5Ram_x51kk2eoFOrS-v7SWernXUM_azdXdxzMLVA@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 08/29/2013 12:59 PM, James Carter wrote:
-> On 08/29/2013 09:15 AM, solomon wrote:
->> hi,
->> I am trying to relate the SELinux policy configuration rules and their
->> corresponding implementations inside the SELinux module of linux kernel
->> source code. Is there anytool out there that can automate the whole
->> process
->> of such validation for me?
-> 
-> I am not sure what you are asking.
-> 
-> If you are asking if there is a way to verify that the policy loaded
-> into the kernel is the same as a particular source policy, then the
-> answer is yes.
-> 1) Build the source policy
-> 2) cat /sys/fs/selinux/policy > kernel.bin
-> 3) sediff source.bin \; kernel.bin > results
-> 
-> If you are asking if there is a way to validate whether the kernel
-> correctly enforces the policy, then I don't know. There used to be a
-> test suite for SELinux that tested the kernel's enforcement of the
-> various classes and permissions, but I don't know what the status of it is.
+On 9/5/2013 11:48 AM, Kees Cook wrote:
+> On Mon, Aug 26, 2013 at 7:29 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 8/6/2013 3:36 PM, Kees Cook wrote:
+>>> On Tue, Aug 6, 2013 at 3:25 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>>> On 8/5/2013 11:30 PM, Kees Cook wrote:
+>>>>> On Thu, Jul 25, 2013 at 11:52 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>>>>> The /proc/*/attr interfaces are given to one LSM. This can be
+>>>>>> done by setting CONFIG_SECURITY_PRESENT. Additional interfaces
+>>>>>> have been created in /proc/*/attr so that each LSM has its own
+>>>>>> named interfaces. The name of the presenting LSM can be read from
+>>>>> For me, this is one problem that was bothering me, but it was a cosmetic
+>>>>> one that I'd mentioned before: I really disliked the /proc/$pid/attr
+>>>>> interface being named "$lsm.$file". I feel it's important to build
+>>>>> directories in attr/ for each LSM. So, I spent time to figure out a way to
+>>>>> do this. This patch changes the interface to /proc/$pid/attr/$lsm/$file
+>>>>> instead, which I feel has a much more appealing organizational structure.
+>>>> I will confess that the reason I went with <lsm>.current instead of
+>>>> <lsm>/current was that the former was easier to implement.
+>>> Yeah, that's totally fine. It wasn't very obvious (to me) how to
+>>> implement this initially, so no problem at all. I'm glad there was
+>>> something more than bug fixes I could contribute to this series. :)
+>> Oh dear. I'm rebasing for 3.12 and the macros don't generate compiling
+>> code any longer. It seems that, among other things, readdir is no longer
+>> a member of file_operations.
+> Looks like f0c3b5093addc8bfe9fe3a5b01acb7ec7969eafa is what touched
+> fs/proc/base.c and it should just need a few tweaks from "readdir"
+> becoming "iterate", and the prototype changing.
+>
+> So it should just require bump the macros a little. Let's see if gmail
+> eats my paste...
+>
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 4c80ffd..f670349 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2358,17 +2358,17 @@ static const struct file_operations proc_pid_attr_operat
+>  };
+>
+>  #define LSM_DIR_OPS(LSM) \
+> -static int proc_##LSM##_attr_dir_readdir(struct file * filp, \
+> -                            void * dirent, filldir_t filldir) \
+> +static int proc_##LSM##_attr_dir_iterate(struct file * filp, \
+> +                            struct dir_context *ctx) \
+>  { \
+> -       return proc_pident_readdir(filp, dirent, filldir, \
+> +       return proc_pident_readdir(filp, ctx, \
+>                                    LSM##_attr_dir_stuff, \
+>                                    ARRAY_SIZE(LSM##_attr_dir_stuff)); \
+>  } \
+>  \
+>  static const struct file_operations proc_##LSM##_attr_dir_ops = { \
+>         .read           = generic_read_dir, \
+> -       .readdir        = proc_##LSM##_attr_dir_readdir, \
+> +       .iterate        = proc_##LSM##_attr_dir_iterate, \
+>         .llseek         = default_llseek, \
+>  }; \
+>  \
+>
+>
+> Do you have the rest of the series already ported to 3.12?
+>
+> -Kees
+>
+Yes, but I did it last week before my holiday started, and have not updated since.
+I will become active again upon my return. I hope to have the 3.12 version posted
+before the Security Summit.
 
-The SELinux kernel testsuite is available from:
-git clone git://git.selinuxproject.org/~serge/selinux-testsuite
 
 --
 This message was distributed to subscribers of the selinux mailing list.
