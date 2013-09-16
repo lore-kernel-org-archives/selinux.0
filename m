@@ -1,71 +1,92 @@
-Message-ID: <5236F536.3060609@tycho.nsa.gov>
-Date: Mon, 16 Sep 2013 08:10:30 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Dominick Grift <dominick.grift@gmail.com>
-CC: Joshua Brindle <brindle@quarksecurity.com>,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: Is this a bug in sesearch, or ...?
-References: <1379263465.20256.6.camel@d30>   <5235E660.2040602@quarksecurity.com> <1379316937.6787.15.camel@d30>  <5236F230.1040804@tycho.nsa.gov> <1379333222.6787.30.camel@d30>
-In-Reply-To: <1379333222.6787.30.camel@d30>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1379334768.6787.48.camel@d30>
+Subject: Re: RFC policycoreutils packaging
+From: Dominick Grift <dominick.grift@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+Date: Mon, 16 Sep 2013 14:32:48 +0200
+In-Reply-To: <5236F48B.7080407@tycho.nsa.gov>
+References: <1379166860.4313.21.camel@d30> <5236F48B.7080407@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/16/2013 08:07 AM, Dominick Grift wrote:
-> On Mon, 2013-09-16 at 07:57 -0400, Stephen Smalley wrote:
->> On 09/16/2013 03:35 AM, Dominick Grift wrote:
->>> On Sun, 2013-09-15 at 12:54 -0400, Joshua Brindle wrote:
->>>> Dominick Grift wrote:
->>>>> I was explaining the concept of (type) attributes using the domain type
->>>>> attribute as an example on IRC, and a sharp person embarrassed me by
->>>>> noting that the following rule returns nothing where he would have
->>>>> expected something:
->>>>>
->>>>> sesearch -A -d -s domain -c process -p fork
->>>>>
->>>>> Why does this not return anything? Is is because the target is "self"?
->>>>
->>>> "self" is resolved by the compiler, it isn't present in the kernel binary.
->>>>
->>>> You specified -d "do not search for type's attributes" and then gave an 
->>>> attribute as the source. I'm not sure what the intended behavior was but 
->>>> excluding the -d gave me back a large set of rules.
->>>
->>> The result i expected would have been the exact (direct) rule as
->>> specified in the policy:
->>>
->>> allow domain self : process fork;
->>>
->>> So not the large list that one gets without the -d option because that
->>> is not the direct rule
->>
->> direct means "granted to an individual type, not via attribute".  So it
->> omits any rules written in terms of attributes.
->>
+On Mon, 2013-09-16 at 08:07 -0400, Stephen Smalley wrote:
+> On 09/14/2013 09:54 AM, Dominick Grift wrote:
+> > We were discussing policycoreutils packaging and there are some things
+> > unclear to me:
+> > 
+> > 1. if one wants to run a monotlitic policy on a embedded system, then,
+> > besides fixfiles and checkpolicy, which tools from policycoreutils are
+> > needed?
 > 
-> Thanks, alright this is probably last attempt to understand this but really that is not my experience:
+> If you want a truly minimalist SELinux userspace, consider our port to
+> Android in the SE for Android project.  Policy is built monolithically
+> on the build host, with only the final binary policy installed to the
+> device, so you don't even need libsepol or checkpolicy on the device,
+> and you don't need libsemanage, semodule, or semanage at all.  We also
+> have a minimalist port of libselinux with glibc dependencies removed,
+> and a port of the SELinux utilities to the Android toolbox, although I
+> suspect you are using busybox and thus picking up its SELinux support
+> instead.
 > 
-> Take for example this comparison:
+> > 1.a How are home dir contexts generated with monolithic policy (  or
+> > should they be created manually ? ), i ask this because in Fedora the
+> > genhomedircon is just a script that calls semodule, but i think semodule
+> > does not work with monolithic policy. If true, how then is someone
+> > expected to generate home dir contexts?
 > 
-> # sesearch -A -d -t file_type  | head -n 3
-> Found 383 semantic av rules:
->    allow prelude_lml_t file_type : filesystem getattr ; 
->    allow files_unconfined_type file_type : filesystem { mount remount
-> unmount getattr relabelfrom relabelto transition associate quotamod
-> quotaget } ; 
+> Originally IIRC, genhomedircon was a python script that didn't use
+> semodule or libsemanage at all.  That's how it used to work in the
+> pre-modular/managed policy days.  Should be able to find it the
+> selinux-historical git repo.
 > 
-> # sesearch -A -t file_type  | head -n 3
-> Found 40415 semantic av rules:
->    allow mscan_var_run_t mscan_var_run_t : filesystem associate ; 
->    allow xguest_usertype tetex_data_t : lnk_file { read getattr } ; 
 > 
-> The former does not "expand" the target type attribute whereas the
-> latter expands the type attribute
+> > 2. Does the sandbox utility only work ( or only work properly ) in
+> > policy configurations that have the MCS security model enabled? If so
+> > should one then depend on a policy model that has MCS enabled?
+> 
+> I think it presumes that the MLS engine is enabled and thus it can use
+> categories.  Whether or not the configuration is MCS or MLS or something
+> altogether different doesn't matter so much as long as two processes
+> that have incomparable categories can't observe or modify each other.
 
-Interesting, I guess that's a bug to report to the setools folks.
-So does it only behave differently on self rules or does it behave
-differently on source vs target?
+Thanks for the explanation. Just as i expected.
+
+I am trying to give some constructive criticism, and, 
+
+Without trying to offend anyone it has been on my mind for a while that
+I sense a little lack of "vision" when it comes to how things evolve.
+
+I am not suggesting that i have the kind of vision needed to oversee all
+this.
+
+But a lot of this stuff comes from Fedora, and fedora does not support
+monolithic policy, nor does she support custom policy, or "default"
+policy.
+
+This stuff trickles down into the upstream and we end up with what i
+would describe as overall degradation.
+
+I cant use my own policy in Fedora because applications have identifiers
+hard-coded all over the place. I can't use monolithic policy because of
+for example no monolithic capable genhomedircon seems to be in
+policycoreutils. I probably cant install a policy without the optional
+MCS or MLS security models without breaking for example sandbox, or who
+knows what else.
+
+I really appreciate the essence of SELinux that its transparent to user
+space (in essence at least), and i am a bit alarmed to see it lose the
+flexibility it once had. I feel a bit helpless as well because i see
+some , what i consider, regression but i don't have what it takes to
+make it better.
+
+I would as a distribution try to give my customers optimal flexibility,
+because i want my distribution to be used for any kind of appliance
+without the need of major workarounds.
+
+Sorry for the rant, but i feel better now
+
 
 
 
