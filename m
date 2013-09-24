@@ -1,33 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8JFA8GV014278
-	for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2013 11:10:08 -0400
-Received: by mail-pa0-f50.google.com with SMTP id fb10so9804191pad.9
-        for <selinux@tycho.nsa.gov>; Thu, 19 Sep 2013 08:10:06 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8O1jrT3010278
+	for <selinux@tycho.nsa.gov>; Mon, 23 Sep 2013 21:45:53 -0400
+Date: Tue, 24 Sep 2013 11:47:35 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+cc: eparis@parisplace.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: add Paul Moore as a SELinux maintainer
+In-Reply-To: <20130918171403.24618.84645.stgit@localhost>
+Message-ID: <alpine.LRH.2.02.1309241147270.4043@tundra.namei.org>
+References: <20130918171403.24618.84645.stgit@localhost>
 MIME-Version: 1.0
-In-Reply-To: <20130919133835.6340379fcdb77565597a42b4@canb.auug.org.au>
-References: <2463483.ZIt3k7nxoC@sifl>
-	<20130919093533.0c8137f62938ebadd987a4f3@canb.auug.org.au>
-	<CAHC9VhSY27sWmy=k-1-M5vSTBxAAuj=SL81Qu8uDzfb_3ThsWg@mail.gmail.com>
-	<20130919133835.6340379fcdb77565597a42b4@canb.auug.org.au>
-Date: Thu, 19 Sep 2013 11:10:06 -0400
-Message-ID: <CAHC9VhRhpCTdHAdiKYfRnRXb6D9_FbLwRJmERczbd2mPXN=r-Q@mail.gmail.com>
-Subject: Re: Fwd: linux-next tree update for SELinux
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Eric Paris <eparis@redhat.com>, linux-next@vger.kernel.org,
-        SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Sep 18, 2013 at 11:38 PM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> Changed from today.
+On Wed, 18 Sep 2013, Paul Moore wrote:
 
-Great, thank you!
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  MAINTAINERS |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index e61c2e8..4fde706 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -7390,9 +7390,10 @@ SELINUX SECURITY MODULE
+>  M:	Stephen Smalley <sds@tycho.nsa.gov>
+>  M:	James Morris <james.l.morris@oracle.com>
+>  M:	Eric Paris <eparis@parisplace.org>
+> +M:	Paul Moore <paul@paul-moore.com>
+>  L:	selinux@tycho.nsa.gov (subscribers-only, general discussion)
+>  W:	http://selinuxproject.org
+> -T:	git git://git.infradead.org/users/eparis/selinux.git
+> +T:	git git://git.infradead.org/users/pcmoore/selinux
+>  S:	Supported
+>  F:	include/linux/selinux*
+>  F:	security/selinux/
+> 
+
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security.git next
+
 
 -- 
-paul moore
-www.paul-moore.com
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
