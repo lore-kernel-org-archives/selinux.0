@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8OGXXbc027550
-	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2013 12:33:33 -0400
-Subject: [selinux-testsuite RFC PATCH 2/4] test_policy: general Makefile
- cleanup
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8OGXdn1027564
+	for <selinux@tycho.nsa.gov>; Tue, 24 Sep 2013 12:33:39 -0400
+Subject: [selinux-testsuite RFC PATCH 3/4] test_policy: use RHEL instead of
+ REDHAT in Makefile
 To: serge@hallyn.com
 From: Paul Moore <pmoore@redhat.com>
 Cc: selinux@tycho.nsa.gov
-Date: Tue, 24 Sep 2013 12:33:27 -0400
-Message-ID: <20130924163327.27393.12285.stgit@localhost>
+Date: Tue, 24 Sep 2013 12:33:33 -0400
+Message-ID: <20130924163333.27393.21897.stgit@localhost>
 In-Reply-To: <20130924162401.27393.70353.stgit@localhost>
 References: <20130924162401.27393.70353.stgit@localhost>
 MIME-Version: 1.0
@@ -15,92 +15,81 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+We also rework some of the if statements to make it easier to add
+additional distributions, e.g. Fedora.
+
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- policy/Makefile |   51 +++++++++++++++++++++++++++------------------------
- 1 file changed, 27 insertions(+), 24 deletions(-)
+ policy/Makefile |   34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
 
 diff --git a/policy/Makefile b/policy/Makefile
-index 6fb9578..5dbb655 100644
+index 5dbb655..8763143 100644
 --- a/policy/Makefile
 +++ b/policy/Makefile
-@@ -1,36 +1,40 @@
--REDHAT_RELEASE=$(shell rpm -q redhat-release)
--REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-" | sed -e "s/[^0-9]*//g")
- 
--POLICYDEVEL = /usr/share/selinux/devel
-+POLDEV = /usr/share/selinux/devel
+@@ -3,8 +3,8 @@ POLDEV = /usr/share/selinux/devel
  SEMODULE = /usr/sbin/semodule
  CHECKPOLICY = /usr/bin/checkpolicy
--VERS := $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
--
--TARGETS=test_global.te test_capable_file.te test_capable_net.te \
--test_capable_sys.te test_dyntrace.te test_dyntrans.te test_entrypoint.te \
--test_execshare.te test_exectrace.te test_execute_no_trans.te \
--test_fdreceive.te test_file.te test_inherit.te test_ioctl.te test_ipc.te \
--test_link.te test_mkdir.te test_open.te test_ptrace.te test_readlink.te \
--test_relabel.te test_rename.te test_rxdir.te test_setattr.te test_setnice.te \
--test_sigkill.te test_stat.te test_sysctl.te test_task_create.te \
--test_task_getpgid.te test_task_getsched.te test_task_getsid.te \
--test_task_setpgid.te test_task_setsched.te test_transition.te test_wait.te
--
--VERS_GE_24 := $(shell [ $(VERS) -ge 24 ] && echo true )
--
--ifeq ($(VERS_GE_24),true)
--TARGETS+= test_bounds.te
-+
-+REDHAT_RELEASE=$(shell rpm -q redhat-release)
-+REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-" | sed -e "s/[^0-9]*//g")
-+
-+POL_VERS := $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
-+
-+TARGETS = \
-+	test_global.te test_capable_file.te test_capable_net.te \
-+	test_capable_sys.te test_dyntrace.te test_dyntrans.te \
-+	test_entrypoint.te test_execshare.te test_exectrace.te \
-+	test_execute_no_trans.te test_fdreceive.te test_file.te \
-+	test_inherit.te test_ioctl.te test_ipc.te test_link.te test_mkdir.te \
-+	test_open.te test_ptrace.te test_readlink.te \
-+	test_relabel.te test_rename.te test_rxdir.te test_setattr.te \
-+	test_setnice.te test_sigkill.te test_stat.te test_sysctl.te \
-+	test_task_create.te test_task_getpgid.te test_task_getsched.te \
-+	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
-+	test_transition.te test_wait.te
-+
-+ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
-+TARGETS += test_bounds.te
+ 
+-REDHAT_RELEASE=$(shell rpm -q redhat-release)
+-REDHAT_VERS=$(shell echo $(REDHAT_RELEASE) | cut -f3 -d"-" | sed -e "s/[^0-9]*//g")
++RHEL_REL=$(shell rpm -q redhat-release)
++RHEL_VERS=$(shell echo $(RHEL_REL) | cut -f3 -d"-" | sed -e "s/[^0-9]*//g")
+ 
+ POL_VERS := $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
+ 
+@@ -26,9 +26,12 @@ TARGETS += test_bounds.te
  endif
  
  all: $(TARGETS)
- ifeq (x$(REDHAT_VERS),$(filter x$(REDHAT_VERS),x4 x5))
- 	$(MAKE) -C redhat/$(REDHAT_VERS) all
- else
--	@if [ -d $(POLICYDEVEL) ]; then \
-+	@if [ -d $(POLDEV) ]; then \
+-ifeq (x$(REDHAT_VERS),$(filter x$(REDHAT_VERS),x4 x5))
+-	$(MAKE) -C redhat/$(REDHAT_VERS) all
+-else
++ifeq (x$(RHEL_VERS),$(filter x$(RHEL_VERS),x4 x5))
++	# RHEL specific policy build
++	$(MAKE) -C redhat/$(RHEL_VERS) all \
++	exit $$?
++endif
++	# General policy build
+ 	@if [ -d $(POLDEV) ]; then \
  		mkdir -p test_policy; \
  		cp test_policy.if test_policy; \
--		set -e; rm -f test_policy.te; cat $(TARGETS) > test_policy/test_policy.te; \
--		cd test_policy && $(MAKE) -f $(POLICYDEVEL)/Makefile test_policy.pp; \
-+		set -e; rm -f test_policy.te; \
-+		cat $(TARGETS) > test_policy/test_policy.te; \
-+		$(MAKE) -C test_policy -f $(POLDEV)/Makefile test_policy.pp; \
+@@ -38,23 +41,26 @@ else
  	else \
  		echo "ERROR: You must have selinux-policy-devel installed."; \
  	fi
-@@ -44,7 +48,7 @@ else
- 	$(SEMODULE) -i test_policy/test_policy.pp
- endif
+-endif
  
--unload:	
-+unload:
- ifeq (x$(REDHAT_VERS),$(filter x$(REDHAT_VERS),x4 x5))
- 	$(MAKE) -C redhat/$(REDHAT_VERS) unload
- else
-@@ -54,4 +58,3 @@ endif
+ load: all
+-ifeq (x$(REDHAT_VERS),$(filter x$(REDHAT_VERS),x4 x5))
+-	$(MAKE) -C redhat/$(REDHAT_VERS) load
+-else
++ifeq (x$(RHEL_VERS),$(filter x$(RHEL_VERS),x4 x5))
++	# RHEL specific policy load
++	$(MAKE) -C redhat/$(RHEL_VERS) load \
++	exit $$?
++endif
++	# General policy load
+ 	/usr/sbin/setsebool allow_domain_fd_use=0
+ 	$(SEMODULE) -i test_policy/test_policy.pp
+-endif
+ 
+ unload:
+-ifeq (x$(REDHAT_VERS),$(filter x$(REDHAT_VERS),x4 x5))
+-	$(MAKE) -C redhat/$(REDHAT_VERS) unload
+-else
++ifeq (x$(RHEL_VERS),$(filter x$(RHEL_VERS),x4 x5))
++	# RHEL specific policy unload
++	$(MAKE) -C redhat/$(RHEL_VERS) unload \
++	exit $$?
++endif
++	# General policy unload
+ 	/usr/sbin/setsebool allow_domain_fd_use=1
+ 	$(SEMODULE) -r test_policy
+-endif
  
  clean:
  	rm -rf test_policy tmp
--
 
 
 --
