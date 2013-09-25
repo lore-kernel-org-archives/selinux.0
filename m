@@ -1,50 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8PFqUjX011894
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 11:52:31 -0400
-Received: by mail-wi0-f175.google.com with SMTP id ez12so5660132wid.14
-        for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 08:52:29 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8PFqatt011927
+	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 11:52:36 -0400
+Received: by mail-we0-f179.google.com with SMTP id x55so6403689wes.10
+        for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 08:52:32 -0700 (PDT)
 From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/5] Mount sys before trying to mount selinuxfs
-Date: Wed, 25 Sep 2013 17:51:58 +0200
-Message-Id: <1380124322-32745-2-git-send-email-sven.vermeulen@siphos.be>
+Subject: [PATCH 4/5] Support udev-197 and higher
+Date: Wed, 25 Sep 2013 17:52:01 +0200
+Message-Id: <1380124322-32745-5-git-send-email-sven.vermeulen@siphos.be>
 In-Reply-To: <1380124322-32745-1-git-send-email-sven.vermeulen@siphos.be>
 References: <1380124322-32745-1-git-send-email-sven.vermeulen@siphos.be>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If /sys is not present, the attempt to mount selinuxfs will of course
-fail. So we try to mount /sys first (and only if that fails fall back to
-the /selinux mount point) and then try to mount selinuxfs.
+The errno value was not set, causing wrong return notifications and
+failing to have udev label things correctly.
+
+See https://bugzilla.redhat.com/show_bug.cgi?id=909826#c24 and
+see https://bugs.gentoo.org/show_bug.cgi?id=462626
 
 Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
 ---
- libselinux/src/load_policy.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ libselinux/src/label_file.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index 10e29b9..e419f1a 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -370,8 +370,16 @@ int selinux_init_load_policy(int *enforce)
- 	 * mount it if present for use in the calls below.  
- 	 */
- 	const char *mntpoint = NULL;
--	if (mount(SELINUXFS, SELINUXMNT, SELINUXFS, 0, 0) == 0 || errno == EBUSY) {
--		mntpoint = SELINUXMNT;
-+	/* First make sure /sys is mounted */
-+	if (mount("sysfs", "/sys", "sysfs", 0, 0) == 0 || errno == EBUSY) {
-+		if (mount(SELINUXFS, SELINUXMNT, SELINUXFS, 0, 0) == 0 || errno == EBUSY) {
-+			mntpoint = SELINUXMNT;
-+		} else {
-+			/* check old mountpoint */
-+			if (mount(SELINUXFS, OLDSELINUXMNT, SELINUXFS, 0, 0) == 0 || errno == EBUSY) {
-+				mntpoint = OLDSELINUXMNT;
-+			}
-+		}
- 	} else {
- 		/* check old mountpoint */
- 		if (mount(SELINUXFS, OLDSELINUXMNT, SELINUXFS, 0, 0) == 0 || errno == EBUSY) {
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 5f697f3..9b0d6b0 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -649,6 +649,8 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+ 				break;
+ 			} else if (rc == PCRE_ERROR_NOMATCH)
+ 				continue;
++
++			errno = ENOENT;
+ 			/* else it's an error */
+ 			goto finish;
+ 		}
+@@ -660,6 +662,7 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+ 		goto finish;
+ 	}
+ 
++	errno = 0;
+ 	ret = &spec_arr[i].lr;
+ 
+ finish:
 -- 
 1.8.1.5
 
