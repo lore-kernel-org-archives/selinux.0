@@ -1,50 +1,36 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8PFqatt011927
-	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 11:52:36 -0400
-Received: by mail-we0-f179.google.com with SMTP id x55so6403689wes.10
-        for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 08:52:32 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r8PFqUjW011894
+	for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 11:52:30 -0400
+Received: by mail-wg0-f44.google.com with SMTP id b13so6225105wgh.11
+        for <selinux@tycho.nsa.gov>; Wed, 25 Sep 2013 08:52:28 -0700 (PDT)
 From: Sven Vermeulen <sven.vermeulen@siphos.be>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 4/5] Support udev-197 and higher
-Date: Wed, 25 Sep 2013 17:52:01 +0200
-Message-Id: <1380124322-32745-5-git-send-email-sven.vermeulen@siphos.be>
-In-Reply-To: <1380124322-32745-1-git-send-email-sven.vermeulen@siphos.be>
-References: <1380124322-32745-1-git-send-email-sven.vermeulen@siphos.be>
+Subject: [PATCH 0/5] libselinux gentoo patches
+Date: Wed, 25 Sep 2013 17:51:57 +0200
+Message-Id: <1380124322-32745-1-git-send-email-sven.vermeulen@siphos.be>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The errno value was not set, causing wrong return notifications and
-failing to have udev label things correctly.
+Set of patches currently in use in the Gentoo distribution for libselinux. Most
+have been sent here over the past few months, but got little to no feedback.
 
-See https://bugzilla.redhat.com/show_bug.cgi?id=909826#c24 and
-see https://bugs.gentoo.org/show_bug.cgi?id=462626
+Sven Vermeulen (5):
+  Mount sys before trying to mount selinuxfs
+  Update pkgconfig definition
+  Make RANLIB variable overridable
+  Support udev-197 and higher
+  Current stable policycoreutils requires selinux_current_policy_path
 
-Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
----
- libselinux/src/label_file.c | 3 +++
- 1 file changed, 3 insertions(+)
+ libselinux/include/selinux/selinux.h             |  1 +
+ libselinux/man/man3/selinux_binary_policy_path.3 |  7 ++++++-
+ libselinux/src/Makefile                          |  2 +-
+ libselinux/src/label_file.c                      |  3 +++
+ libselinux/src/libselinux.pc.in                  |  4 ++--
+ libselinux/src/load_policy.c                     | 12 ++++++++++--
+ libselinux/src/selinux_config.c                  | 23 +++++++++++++++++++++++
+ libselinux/src/selinux_internal.h                |  1 +
+ 8 files changed, 47 insertions(+), 6 deletions(-)
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 5f697f3..9b0d6b0 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -649,6 +649,8 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
- 				break;
- 			} else if (rc == PCRE_ERROR_NOMATCH)
- 				continue;
-+
-+			errno = ENOENT;
- 			/* else it's an error */
- 			goto finish;
- 		}
-@@ -660,6 +662,7 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
- 		goto finish;
- 	}
- 
-+	errno = 0;
- 	ret = &spec_arr[i].lr;
- 
- finish:
 -- 
 1.8.1.5
 
