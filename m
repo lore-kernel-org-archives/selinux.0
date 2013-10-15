@@ -1,32 +1,51 @@
-Message-ID: <525710C7.2010901@tycho.nsa.gov>
-Date: Thu, 10 Oct 2013 16:40:39 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9FFP7ci015839
+	for <selinux@tycho.nsa.gov>; Tue, 15 Oct 2013 11:25:07 -0400
+Message-ID: <525D5E29.1050307@redhat.com>
+Date: Tue, 15 Oct 2013 11:24:25 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Langland, Blake" <blangland@integrity-apps.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: MLS over loopback interface
-References: <DA8D339A60101247B36E202899B1C93AA91986@CHUNEX01.integrity-apps.com> <5256F9D4.6080901@tycho.nsa.gov> <DA8D339A60101247B36E202899B1C93AA919DF@CHUNEX01.integrity-apps.com>
-In-Reply-To: <DA8D339A60101247B36E202899B1C93AA919DF@CHUNEX01.integrity-apps.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: zhangdaolong <zhangdl.fnst@cn.fujitsu.com>, kmacmillan@mentalrootkit.com,
+        SELinux <selinux@tycho.nsa.gov>, kmacmillan@tresys.com
+Subject: Re: There is  question about command semodule_deps
+References: <525BA0AB.8040408@cn.fujitsu.com>
+In-Reply-To: <525BA0AB.8040408@cn.fujitsu.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/10/2013 04:34 PM, Langland, Blake wrote:
-> Thanks for the replies. Here is an example of the AVC:
-> 
-> avc: denied { egress } for pid=2472 comm="java" saddr=192.168.25.102 src=60447 daddr=192.168.25.102 dest=8443 netif=lo scontext=user_s:user_r:user_java_t:s3 tcontext=system_u:object_r:lo_netif_t:s2 tclass=netif
-> 
-> (The opposite would be an ingress with user_java_t:s2 and lo_netif_t:s3)
-> Network peer labeling is netlabel.
-> Kernel Version: 2.6.32-279.el6.x86_64
-> 
-> I will try the suggestion of mls_net_write_within_range(), I'm still getting a hang of what uses the ranges have vs a single sensitivity.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-So, then you also need to make the interface ranged rather than
-single-level, e.g. s2-s3 or s0-s15:c0.c1024 if you want it to cover
-everything.
+On 10/14/2013 03:43 AM, zhangdaolong wrote:
+> Hi kmacmillan cc dwalsh
+> 
+> The command "semodule_deps" is new to me ,so i learn to use it. But there
+> is a problem that i can not understand ,The problem is as follows
+> 
+> There are four policy modules:a base policy module and three none base 
+> modules. and the relationship between them is as follows. 1) AB deps base; 
+> 2) C deps AB and base; 3) D deps AB,C and base;
+> 
+> I excute the command" semodule_deps -b base.pp AB.pp C.pp D.pp ",and expect
+> the following log is outputed. ----------------------------- module: C AB 
+> BASE module: D C AB BASE module: AB BASE } ------------------------------ 
+> But in fact the following log is outputed ----------------------------- 
+> module: C C BASE module: D C D BASE module: AB BASE } 
+> -----------------------------
+> 
+> I want to know the aboveoutput is correct or not?
+> 
+Pleas ask on the SELinux <selinux@tycho.nsa.gov> list.  I am not sure of the
+correct answer.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-
+iEYEARECAAYFAlJdXikACgkQrlYvE4MpobOzQgCeLoP/DBZJPIdszN6h6Qj1nMwx
+ewAAn34tiNn6PaMR9Q6E1IPnra1ryKBK
+=5Xmi
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
