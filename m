@@ -1,27 +1,27 @@
-Message-ID: <525EE1D9.6030909@tycho.nsa.gov>
-Date: Wed, 16 Oct 2013 14:58:33 -0400
+Message-ID: <525EE5CE.9090102@tycho.nsa.gov>
+Date: Wed, 16 Oct 2013 15:15:26 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 5/5] Current stable policycoreutils requires selinux_current_policy_path
-References: <1380124322-32745-1-git-send-email-sven.vermeulen@siphos.be> <1380124322-32745-6-git-send-email-sven.vermeulen@siphos.be>
-In-Reply-To: <1380124322-32745-6-git-send-email-sven.vermeulen@siphos.be>
+To: Laurent Bigonville <bigon@debian.org>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH 16/16] policycoreutils: Do not include LDFLAGS in CFLAGS
+ when building sepolicy
+References: <1368189924-8501-1-git-send-email-bigon@debian.org> <1368189924-8501-17-git-send-email-bigon@debian.org>
+In-Reply-To: <1368189924-8501-17-git-send-email-bigon@debian.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 09/25/2013 11:52 AM, Sven Vermeulen wrote:
-> Without this fix, stolen from Fedora's patchset, recent policycoreutils
-> just fails.
+On 05/10/2013 08:45 AM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
 > 
-> See http://marc.info/?t=136926404600001&r=1&w=2 and
-> see http://marc.info/?l=selinux&m=136692033821285&w=2
+> For some reasons, -fpie and -fPIE are being set in LDFLAGS, this is
+> causing a FTBFS on Debian.
 > 
-> Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+> -fpie and -fPIE are anyway useless for libraries
 
-Thank you, all 5 patches applied.
-
+Thanks, all 16 patches applied.
 
 
 --
