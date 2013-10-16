@@ -1,28 +1,39 @@
-Message-ID: <525EE862.70004@tycho.nsa.gov>
-Date: Wed, 16 Oct 2013 15:26:26 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/1] Open stdin as read/write
-References: <20130501202632.GB22742@siphos.be>
-In-Reply-To: <20130501202632.GB22742@siphos.be>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1381952836.5556.7.camel@d30>
+Subject: Re: Common Intermediate Language (CIL) Update
+From: Dominick Grift <dominick.grift@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>,
+        Steve Lawrence
+ <slawrence@tresys.com>
+Date: Wed, 16 Oct 2013 21:47:16 +0200
+In-Reply-To: <51F6A808.5080204@tycho.nsa.gov>
+References: <51F6A808.5080204@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 05/01/2013 04:26 PM, Sven Vermeulen wrote:
-> As per the discussion on the selinux development mailinglist, the tmux
-> application expects the stdin to be writeable. Although perhaps not the most
-> proper way, having newrole opening the descriptor in read/write keeps the
-> behaviour in line with what applications expect.
+On Mon, 2013-07-29 at 13:36 -0400, James Carter wrote:
+> The CIL compiler, secilc, is now able to create MLS, MCS, and non-MLS binary 
+> policies from a slightly modified version of Refpolicy that has been converted 
+> to CIL.
 > 
-> See also http://marc.info/?l=selinux&m=136518126930710&w=2
-> 
-> Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+> Anyone interested in trying CIL out can do the following:
 
-Thanks, applied.
+I cloned both the repositories in this mail as well as the one hosted by
+tresys but no new commits in either
 
+A couple of things stand out when i try this
+
+both non-mls and mls policy have no constraints according to seinfo
+both non-mls and mls policy have no neverallow rules according to seinfo
+the non-mls policy has a category "c0"
+
+I like what i am seeing a lot, unfortunately it is not really usable yet
+because user land can't work with it yet, and i need it to create home
+directory contexts
+
+looking forward to and update to this
 
 
 --
