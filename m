@@ -1,39 +1,27 @@
-Message-ID: <1381952836.5556.7.camel@d30>
-Subject: Re: Common Intermediate Language (CIL) Update
-From: Dominick Grift <dominick.grift@gmail.com>
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        Steve Lawrence
- <slawrence@tresys.com>
-Date: Wed, 16 Oct 2013 21:47:16 +0200
-In-Reply-To: <51F6A808.5080204@tycho.nsa.gov>
-References: <51F6A808.5080204@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <525EF057.4020303@tycho.nsa.gov>
+Date: Wed, 16 Oct 2013 16:00:23 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: "Leonidas S. Barbosa" <leosilva@linux.vnet.ibm.com>
+CC: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: Policycoreutils: refactoring Python 2.* to Python 3.*
+References: <20131015195728.GD20409@bluepex.com>
+In-Reply-To: <20131015195728.GD20409@bluepex.com>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2013-07-29 at 13:36 -0400, James Carter wrote:
-> The CIL compiler, secilc, is now able to create MLS, MCS, and non-MLS binary 
-> policies from a slightly modified version of Refpolicy that has been converted 
-> to CIL.
+On 10/15/2013 03:57 PM, Leonidas S. Barbosa wrote:
 > 
-> Anyone interested in trying CIL out can do the following:
+> I'd like to suggest the creation of branch in selinux repository
+> to work with this refactoring. (branch: python-3).
 
-I cloned both the repositories in this mail as well as the one hosted by
-tresys but no new commits in either
+I'd suggest we wait on this until we catch up with the pending Fedora
+patches for policycoreutils.  Then we can create a branch and you can
+feed up patches for it as you like.
 
-A couple of things stand out when i try this
 
-both non-mls and mls policy have no constraints according to seinfo
-both non-mls and mls policy have no neverallow rules according to seinfo
-the non-mls policy has a category "c0"
 
-I like what i am seeing a lot, unfortunately it is not really usable yet
-because user land can't work with it yet, and i need it to create home
-directory contexts
-
-looking forward to and update to this
 
 
 --
