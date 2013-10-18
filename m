@@ -1,66 +1,49 @@
-Message-ID: <52617C02.4060500@tycho.nsa.gov>
-Date: Fri, 18 Oct 2013 14:20:50 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Steve Lawrence <slawrence@tresys.com>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Dominick Grift <dominick.grift@gmail.com>
-Subject: Update to CIL
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <1382126564.3041.13.camel@d30>
+Subject: Re: Update to CIL
+From: Dominick Grift <dominick.grift@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>,
+        Steve Lawrence
+ <slawrence@tresys.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Date: Fri, 18 Oct 2013 22:02:44 +0200
+In-Reply-To: <52617C02.4060500@tycho.nsa.gov>
+References: <52617C02.4060500@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I pushed an update of CIL to bitbucket.
+On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
+> I pushed an update of CIL to bitbucket.
 
-Richard Haines submitted a patch to allow specifying the file contexts file. 
-Other than that, the changes were bug fixes or minor cleanups.
+I had to do this, to make it compile ( not sure what i might have broken
+by doing this ):
 
-Among the bug fixes:
+--- a/src/cil.c
++++ b/src/cil.c
+@@ -1493,7 +1493,6 @@ void cil_userbounds_init(struct cil_userbounds
+**userbounds)
+        *userbounds = cil_malloc(sizeof(**userbounds));
+ 
+        (*userbounds)->user_str = NULL;
+-       (*userbounds)->user = NULL;
+        (*userbounds)->bounds_str = NULL;
+ }
 
-Fixed the following issues with CIL first found by Richard Haines:
+Also a thing i noticed, which is unrelated to secilc, but related to
+cilpolicy is that object_r role is associated to identities.
 
-- Bug in constraint handling that caused them to be left out of the kernel policy.
-- Role and type attributes in constraints were not being expanded.
-- block_node was not being initialized before use in cil_resolve_blockabstract.
-- The value of CIL_KEY_CONS_T3 should be "u3" rather than "us" in cil_internal.h.
+The object_r string is not really a role, although it looks like it.
 
-Fixed the following issue first found by Dominick Grift:
+Its just a string that is used as a place holder for the role security
+attribute of objects.
 
-- Bug where categories show up in a non-mls kernel policy.
+Anyhow, i am going to write a minimum policy with secilc tomorrow i
+think, so maybe then i will find new bugs, insights.
 
+Thanks for your work
 
-Thank you to those who have been trying CIL out.
-
-
-Anyone interested in trying CIL out can do the following:
-
-1) Clone the CIL compiler and cilpolicy
-git clone https://jwcarter@bitbucket.org/jwcarter/secilc.git
-git clone https://jwcarter@bitbucket.org/jwcarter/cilpolicy.git
-
-2) Build secilc
-cd secilc
-make
-cd ..
-
-3) Build cilpolicy
-./secilc/secilc `cat cilpolicy/LISTING`
-
-
-To build an MLS policy:
-
-Edit "cilpolicy/mls_declarations" and change "(tunable enable_mls false)" to 
-"(tunable enable_mls true)"
-
-Build the MLS policy: ./secilc/secilc -M `cat cilpolicy/LISTING`
-
-MCS is similar.
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
 
 --
 This message was distributed to subscribers of the selinux mailing list.
