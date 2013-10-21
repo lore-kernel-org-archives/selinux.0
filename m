@@ -1,52 +1,58 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9KMnsKD021942
-	for <selinux@tycho.nsa.gov>; Sun, 20 Oct 2013 18:49:54 -0400
-Date: Mon, 21 Oct 2013 09:49:54 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [GIT PULL] SELinux updates for 3.12
-In-Reply-To: <2307607.HXDCGv9Ccf@sifl>
-Message-ID: <alpine.LRH.2.02.1310210947360.24529@tundra.namei.org>
-References: <2307607.HXDCGv9Ccf@sifl>
+Message-ID: <52651FA2.4010502@tresys.com>
+Date: Mon, 21 Oct 2013 08:35:46 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dominick Grift <dominick.grift@gmail.com>
+CC: James Carter <jwcart2@tycho.nsa.gov>,
+        SELinux List
+	<selinux@tycho.nsa.gov>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: Update to CIL
+References: <52617C02.4060500@tycho.nsa.gov> <1382126564.3041.13.camel@d30>
+In-Reply-To: <1382126564.3041.13.camel@d30>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 17 Oct 2013, Paul Moore wrote:
+On 10/18/2013 04:02 PM, Dominick Grift wrote:
+> On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
+>> I pushed an update of CIL to bitbucket.
+>
+> I had to do this, to make it compile ( not sure what i might have broken
+> by doing this ):
+>
+> --- a/src/cil.c
+> +++ b/src/cil.c
+> @@ -1493,7 +1493,6 @@ void cil_userbounds_init(struct cil_userbounds
+> **userbounds)
+>          *userbounds = cil_malloc(sizeof(**userbounds));
+>
+>          (*userbounds)->user_str = NULL;
+> -       (*userbounds)->user = NULL;
+>          (*userbounds)->bounds_str = NULL;
+>   }
+>
+> Also a thing i noticed, which is unrelated to secilc, but related to
+> cilpolicy is that object_r role is associated to identities.
+>
+> The object_r string is not really a role, although it looks like it.
+>
 
-> Hi James,
-> 
-> Here are a collection of SELinux updates that should be included in 3.12.  
-> This request contains mostly various cleanup patches with a few bugfixes and 
-> performance improvements thrown in for good measure.  The bulk of these 
-> patches were inherited from Eric's old tree, hence the merge/pull in the log.
-> 
-> Lastly, all of these patches have been in linux-next for some time now, and 
-> they all pass the SELinux testsuite with flying colors.
-> 
-> Enjoy,
-> -Paul
-> 
-> ---
-> The following changes since commit 6e4664525b1db28f8c4e1130957f70a94c19213e:
-> 
->   Linux 3.11 (2013-09-02 13:46:10 -0700)
-> 
-> are available in the git repository at:
-> 
->   git://git.infradead.org/users/pcmoore/selinux
-> 
+It is a role, it's just one that has been created and associated with 
+all types by default, so you've never needed to do it before in 
+refpolicy. In an attempt to make CIL consistent and to prevent errors in 
+policy, you now need to create and associate object_r just like you 
+would any other role.
 
-Why is no branch specified?
+> Its just a string that is used as a place holder for the role security
+> attribute of objects.
+>
+> Anyhow, i am going to write a minimum policy with secilc tomorrow i
+> think, so maybe then i will find new bugs, insights.
+>
+> Thanks for your work
+>
 
-git-pull fails in any case.
-
-
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
