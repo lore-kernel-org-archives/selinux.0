@@ -1,49 +1,53 @@
-Message-ID: <526578E8.1010908@tycho.nsa.gov>
-Date: Mon, 21 Oct 2013 14:56:40 -0400
+Message-ID: <52657D00.5070903@tycho.nsa.gov>
+Date: Mon, 21 Oct 2013 15:14:08 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>
-CC: Dominick Grift <dominick.grift@gmail.com>,
-        SELinux List <selinux@tycho.nsa.gov>,
-        Richard Haines <richard_c_haines@btinternet.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+CC: Steve Lawrence <slawrence@tresys.com>,
+        Dominick Grift <dominick.grift@gmail.com>,
+        SELinux List <selinux@tycho.nsa.gov>
 Subject: Re: Update to CIL
-References: <52617C02.4060500@tycho.nsa.gov> <1382126564.3041.13.camel@d30> <1382189566.3041.34.camel@d30> <52652B51.8050601@tresys.com>
-In-Reply-To: <52652B51.8050601@tresys.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <52617C02.4060500@tycho.nsa.gov> <1382199839.82880.YahooMailNeo@web87903.mail.ir2.yahoo.com>
+In-Reply-To: <1382199839.82880.YahooMailNeo@web87903.mail.ir2.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/21/2013 09:25 AM, Steve Lawrence wrote:
-> On 10/19/2013 09:32 AM, Dominick Grift wrote:
-
->>
->> Also i was not able to write TE AV rules with two target types. e.g.
->> where we previously used brace expansion: allow bla_t { foo_t
->> bar_t }:file read;
+On 10/19/2013 12:23 PM, Richard Haines wrote:
+> Thanks for the update. I added the fix used by Dominick and tested the various
+> fixes that are now okay. However (sorry) but one new bug has been introduced
+> and some others are still present:
 >
-> Yes, the source/target parameters of the allow rule only allow a single type or
-> typeattribute. CIL is not meant to be succinct. You'll find there's a great deal
-> of repetition. The idea is that higher level languages would allow for
-> succinctness.
->
->> I tried several things like: (allow (bla_t ( foo_t bar_t))
->> all_file_perms), but no go
->
-> If you really don't want two allow rules, you can create a typeattribute:
->
->    (typeattribute foobar)
->    (typeattributeset foobar (foo_t bar_t))
->    (allow bla_t foobar all_file_perms)
->
-> But unless the foobar attribute has some kind of meaning, it probably makes more
-> sense to just have two allow rules.
+> 1) New bug - I've been using tunables to select the different levels of
+>     support between Tresys and NSA compilers. Since this update, mapping
+>     inside tunables does not work (but only when using classpermissionset).
+>     The "tunable-mapping-error.cil" module demos this error.
 >
 
-We wanted to prevent writing rules such as "allow foo_t { file_type -bar_t 
-}:file read;" which expand into a large number of rules. Dan and others have 
-converted a large number rules like this into ones using attributes which has 
-really reduced the size of the binary policy. CIL requires what we believe to be 
-the best practice.
+I have noticed a problem with constraints in tunables not showing up as well.
+
+> 2) classmapping only takes the first entry whether in a boolean or not. The
+>     "map-perm-error.cil" module demos this error. The Tresys compiler has
+>     a different problem - see text in "map-perm-error.cil".
+>
+
+I did know about this. We are going to be making some changes to classmappings 
+and classpermissionsets, so this will be taken care of soon.
+
+> 3) Fails to resolve neverallow "*". The "neverallow-STAR.cil" module demos
+>     this error.
+>
+
+The "*" is currently seen to be an expression in CIL rather than as the name of 
+a set that includes all types. We are making some changes to expression and list 
+handling, so this could change. We have also been taking a look at using "all" 
+instead of "*" (since we use names instead of symbols elsewhere in CIL).
+
+At any rate, currently you would have to define a typeattributeset and use that 
+in the neverallow.
+
+
+Thanks for your help.
 
 -- 
 James Carter <jwcart2@tycho.nsa.gov>
