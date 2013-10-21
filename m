@@ -1,51 +1,60 @@
-Message-ID: <52653E45.5020908@tresys.com>
-Date: Mon, 21 Oct 2013 10:46:29 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9LFnTxH014308
+	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2013 11:49:31 -0400
+References: <52617C02.4060500@tycho.nsa.gov> <1382199839.82880.YahooMailNeo@web87903.mail.ir2.yahoo.com> <52652DE1.4020504@tresys.com>
+Message-ID: <1382370565.32009.YahooMailNeo@web87905.mail.ir2.yahoo.com>
+Date: Mon, 21 Oct 2013 16:49:25 +0100 (BST)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+Subject: Request for a new CIL statement
+To: Steve Lawrence <slawrence@tresys.com>,
+        James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <52652DE1.4020504@tresys.com>
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>
-CC: James Carter <jwcart2@tycho.nsa.gov>,
-        Dominick Grift
-	<dominick.grift@gmail.com>,
-        SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Update to CIL
-References: <52617C02.4060500@tycho.nsa.gov> <1382199839.82880.YahooMailNeo@web87903.mail.ir2.yahoo.com> <52652DE1.4020504@tresys.com> <1382365347.75138.YahooMailNeo@web87902.mail.ir2.yahoo.com>
-In-Reply-To: <1382365347.75138.YahooMailNeo@web87902.mail.ir2.yahoo.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/21/2013 10:22 AM, Richard Haines wrote:
->
->
->>>   4) Not sure if this is a bug or 'as designed', I tried using
->> "in" in a
->>>       booleanif statement but failed. The "in-boolean.cil" module
->> demos
->>>       this error.
->>>
->>
->> This should not be allowed. The only thing that should be allowed in a
->> booleanif statement are typetransitions, typerules, and avrules.
->>
->>
-> Regarding the allowed items - the 'call' statement is also allowed as I'm using it
-> already on both versions of the compiler so it seemed strange to exclude the 'in'
-> statement.
->
+As CIL now seems to be under serious development, could I put forward a 
+request for a new statement that would build variable length configuration
+file entries. This would allow policy writers to build all required
+configuration files to support the 'policy'. It would also allow the
+parameters used to be validated by the build process. 
 
-Yes, you're correct, I forgot about the call statement. That is allowed 
-in booleanif's, but that is because what basically happens with calls is 
-that the contents of the macro are copied into the booleanif. This means 
-that any macros called inside of a booleanif must only contain those 
-statements I listed above.
+Currently CIL generates the file_contexts entries using the 'filecon'
+statement, this method is okay for this application, however there are
+files that require entries with a variable number of parameters (examples:
+setrans.conf and seapp_contexts).
 
-However, the 'in' statment works kindof like a preprocessor macro in C, 
-only it knows about CIL namespaces. And so the 'in' statement never 
-makes it into the binary policy. This means that if we allowed 'in' 
-statements in booleanifs and you disabled a boolean at runtime, we 
-couldn't undo whatever changes the 'in' statement made, which is not 
-likely what the user intended. For this reason, we do not allow the 'in' 
-statement in booleanifs.
+What I've been trying to achieve (and failing) is to generate entries like
+these example seapp_contexts entries:
+   isSystemServer=true domain=system_server.process
+   user=_app seinfo=netclient domain=netclient_app.process type=netclient_app.log_file level=s0:c1020.c1023
+
+A possible statement format could be:
+(configfileentry filename "test string with %s for %s param" (type param1) (type param2) ...)       
+
+Examples:
+(configfileentry seapp_contexts "isSystemServer=true domain=%s" (type system_server.process))
+
+(configfileentry seapp_contexts "user=_app seinfo=netclient domain=%s type=%s level=%s"
+    (type netclient_app.process)
+    (type netclient_app.log_file)
+    (level s0:c1020.c1023))
+
+The final process would be to assemble all entries for each configuration
+filename and create the file (I'm not sure about sorting order but could be
+left to the process that uses the config file).
+
+I've been reworking the call/macro code to achieve this but I seem to be
+allergic to compiler code for some reason.
+
+If it does seem a worthwhile idea I'm happy to continue but will probably
+require a few pointers.
+
+Richard
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
