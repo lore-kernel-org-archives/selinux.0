@@ -1,64 +1,61 @@
-Message-ID: <52658E3D.3010701@tycho.nsa.gov>
-Date: Mon, 21 Oct 2013 16:27:41 -0400
+Message-ID: <5265905B.2020703@tycho.nsa.gov>
+Date: Mon, 21 Oct 2013 16:36:43 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Joe MacDonald <joe@deserted.net>
 CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/2] libselinux: support building on older PCRE libs
-References: <1382383000-16439-1-git-send-email-joe@deserted.net> <1382383000-16439-2-git-send-email-joe@deserted.net>
-In-Reply-To: <1382383000-16439-2-git-send-email-joe@deserted.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH 2/2] libselinux: avoid shadowing 'stat' in load_mmap
+References: <1382383000-16439-1-git-send-email-joe@deserted.net> <1382383000-16439-2-git-send-email-joe@deserted.net> <1382383000-16439-3-git-send-email-joe@deserted.net>
+In-Reply-To: <1382383000-16439-3-git-send-email-joe@deserted.net>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On 10/21/2013 03:16 PM, Joe MacDonald wrote:
-> Versions of PCRE prior to 8.20 did not have pcre_free_study().  In its
-> absence, use pcre_free() instead.
+>    label_file.c: In function ‘load_mmap’:
+>    label_file.c:238:81: error: declaration of ‘stat’ shadows a global declaration [-Werror=shadow]
+>    cc1: all warnings being treated as errors
+
+I don't particularly mind the change, but I neither see this warning nor
+see the underlying issue in the source code - where is the global stat
+declaration?  Is it in some system header file you have on your system?
+
 > 
 > Signed-off-by: Joe MacDonald <joe@deserted.net>
 > ---
->  libselinux/src/label_file.c           |    4 ++++
->  libselinux/utils/sefcontext_compile.c |    4 ++++
->  2 files changed, 8 insertions(+)
+>  libselinux/src/label_file.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
 > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 9b0d6b0..51520cf 100644
+> index 51520cf..af7c227 100644
 > --- a/libselinux/src/label_file.c
 > +++ b/libselinux/src/label_file.c
-> @@ -561,7 +561,11 @@ static void closef(struct selabel_handle *rec)
->  		free(spec->type_str);
->  		if (spec->regcomp) {
->  			pcre_free(spec->regex);
-> +#if (PCRE_MAJOR >= 8 && PCRE_MINOR >= 20)
->  			pcre_free_study(spec->sd);
-> +#else
-> +			pcre_free(spec->sd);
-
-We try to avoid #if / #ifdef scattered throughout the code.
-The preferred approach is to conditionally define pcre_free_study() to
-pcre_free() if building with the older libpcre.
-
-
-> +#endif
->  		}
+> @@ -235,7 +235,7 @@ static int process_line(struct selabel_handle *rec,
+>  	return 0;
+>  }
+>  
+> -static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *stat)
+> +static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *sb)
+>  {
+>  	struct saved_data *data = (struct saved_data *)rec->data;
+>  	char mmap_path[PATH_MAX + 1];
+> @@ -266,13 +266,13 @@ static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *
 >  	}
 >  
-> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-> index 6f79dd6..b34966b 100644
-> --- a/libselinux/utils/sefcontext_compile.c
-> +++ b/libselinux/utils/sefcontext_compile.c
-> @@ -301,7 +301,11 @@ static int free_specs(struct saved_data *data)
->  		free(specs[i].lr.ctx_trans);
->  		free(specs[i].regex_str);
->  		pcre_free(specs[i].regex);
-> +#if (PCRE_MAJOR >= 8 && PCRE_MINOR >= 20)
->  		pcre_free_study(specs[i].sd);
-> +#else
-> +		pcre_free(specs[i].sd);
-> +#endif
+>  	/* if mmap is old, ignore it */
+> -	if (mmap_stat.st_mtime < stat->st_mtime) {
+> +	if (mmap_stat.st_mtime < sb->st_mtime) {
+>  		close(mmapfd);
+>  		return -1;
 >  	}
->  	free(specs);
 >  
+> -	if (mmap_stat.st_mtime == stat->st_mtime &&
+> -	    mmap_stat.st_mtim.tv_nsec < stat->st_mtim.tv_nsec) {
+> +	if (mmap_stat.st_mtime == sb->st_mtime &&
+> +	    mmap_stat.st_mtim.tv_nsec < sb->st_mtim.tv_nsec) {
+>  		close(mmapfd);
+>  		return -1;
+>  	}
 > 
 
 
