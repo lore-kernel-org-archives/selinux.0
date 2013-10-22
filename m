@@ -1,61 +1,76 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9MGvgTa005786
-	for <selinux@tycho.nsa.gov>; Tue, 22 Oct 2013 12:57:43 -0400
-Received: by mail-ee0-f51.google.com with SMTP id d41so1021189eek.24
-        for <selinux@tycho.nsa.gov>; Tue, 22 Oct 2013 09:57:40 -0700 (PDT)
-Received: from yow-turd.ottawa.windriver.com ([128.224.252.2])
-        by mx.google.com with ESMTPSA id r48sm58928307eev.14.2013.10.22.09.57.37
-        for <selinux@tycho.nsa.gov>
-        (version=TLSv1.1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
-        Tue, 22 Oct 2013 09:57:38 -0700 (PDT)
-From: Joe MacDonald <joe@deserted.net>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH][v3] libselinux: support building on older PCRE libs
-Date: Tue, 22 Oct 2013 12:57:36 -0400
-Message-Id: <1382461056-20536-1-git-send-email-joe@deserted.net>
-In-Reply-To: <20131022150005.GD3728@deserted.net>
-References: <20131022150005.GD3728@deserted.net>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9MHCWtr006977
+	for <selinux@tycho.nsa.gov>; Tue, 22 Oct 2013 13:12:32 -0400
+Message-ID: <5266B1EB.50206@redhat.com>
+Date: Tue, 22 Oct 2013 13:12:11 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: hoefer@ieee.org, selinux@lists.fedoraproject.org,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Need information for building embedded system.
+References: <24010477.117631.1382460349532.JavaMail.root@vms170025>
+In-Reply-To: <24010477.117631.1382460349532.JavaMail.root@vms170025>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Versions of PCRE prior to 8.20 did not have pcre_free_study().  In its
-absence, use pcre_free() instead.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Signed-off-by: Joe MacDonald <joe@deserted.net>
----
+On 10/22/2013 12:45 PM, Don Hoefer wrote:
+> We are building an embedded system where the customer is requiring SELinux.
+> It is our own hardware so we build our own kernel and drivers and use the
+> ext2, jfs and tempfs file systems.  This is not new for us, but
+> incorporating SELinux is.
+> 
+> Does anyone know of a good knowledge resource for building embedded
+> systems with SELinux?
+> 
+> We are currently plowing through a frustrating step ahead/step back
+> process.  We have SELinux running but it seems to be broken, for example
+> one of our problems is that ls -Z shows "?" for SELinux file contexts: 
+> root@generic-powerpc:/#getfattr -m . -d var # file: var 
+> security.selinux="system_u:object_r:var_t"
+> 
+> root@generic-powerpc:/# ls -Z ? bin  ? boot  ? dev  ? etc  ? home  ? lib
+> ?lost+found  ? media  ? mnt  ? proc ? sbin  ?selinux  ? share  ? sys  ? tmp
+> ? usr  ? var  ?www
+> 
+> We were unsuccessful building policies on any of our development systems 
+> (Ubuntu/Debian based) but we are now using a Fedora 19 system and that is 
+> looking promising.
+> 
+> Any pointers or help would be appreciated.
+> 
+> Don Hoefer
+> 
+> 
+> 
+> -- selinux mailing list selinux@lists.fedoraproject.org 
+> https://admin.fedoraproject.org/mailman/listinfo/selinux
+> 
 
-[Re: [PATCH] libselinux: support building on older PCRE libs] On 13.10.22 (Tue
-11:56) Stephen Smalley wrote:
+You really should ask this question on the upstream SELinux
+<selinux@tycho.nsa.gov> list.
 
-> I think you want PCRE_MAJOR < 8 || PCRE_MAJOR == 8 && PCRE_MINOR < 20 to
-> avoid problems when we get to version 9.
+The reason the ls -Z command might not be working, is you have MLS turned on
+and are missing the s0, so your label is seen as invalid.
 
-That is exactly what I wanted, thanks Stephen.
+On Fedora 21.
+# getfattr -m . -d /var
+getfattr: Removing leading '/' from absolute path names
+# file: var
+security.selinux="system_u:object_r:var_t:s0"
 
--J.
 
- libselinux/src/label_file.h |    5 +++++
- 1 file changed, 5 insertions(+)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index bf0c9e2..0aad3e7 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -8,6 +8,11 @@
- #define SELINUX_MAGIC_COMPILED_FCONTEXT	0xf97cff8a
- #define SELINUX_COMPILED_FCONTEXT_MAX_VERS	1
- 
-+/* Prior to verison 8.20, libpcre did not have pcre_free_study() */
-+#if (PCRE_MAJOR < 8 || (PCRE_MAJOR == 8 && PCRE_MINOR < 20))
-+#define pcre_free_study  pcre_free
-+#endif
-+
- /* A file security context specification. */
- struct spec {
- 	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
--- 
-1.7.9.5
-
+iEYEARECAAYFAlJmsesACgkQrlYvE4MpobN4AACgrijpvSMl1/zDRbUvP3UnAZsj
+5CMAoLfZ+ySGbO5/cLW8HCVtJPyjeXzo
+=plDG
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
