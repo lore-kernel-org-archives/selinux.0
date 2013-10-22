@@ -1,38 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9LNbwBO011751
-	for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2013 19:37:58 -0400
-Received: by mail-wi0-f182.google.com with SMTP id ez12so4825522wid.15
-        for <selinux@tycho.nsa.gov>; Mon, 21 Oct 2013 16:37:55 -0700 (PDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9MBKGpp013956
+	for <selinux@tycho.nsa.gov>; Tue, 22 Oct 2013 07:20:17 -0400
+Date: Tue, 22 Oct 2013 22:20:38 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [GIT PULL] SELinux updates for 3.12
+In-Reply-To: <1587641.zEKSTAkKTO@sifl>
+Message-ID: <alpine.LRH.2.02.1310222220050.5947@tundra.namei.org>
+References: <2307607.HXDCGv9Ccf@sifl> <alpine.LRH.2.02.1310210947360.24529@tundra.namei.org> <1587641.zEKSTAkKTO@sifl>
 MIME-Version: 1.0
-Date: Mon, 21 Oct 2013 16:37:52 -0700
-Message-ID: <CAFftDdpSEHXGPiQUA6ZogeuBFTEwt9JELfO=pffcU=YQNTbiMw@mail.gmail.com>
-Subject: [RFC]: Stephen Smalley Facts
-From: William Roberts <bill.c.roberts@gmail.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=f46d043892b1ccea4604e948c569
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---f46d043892b1ccea4604e948c569
-Content-Type: text/plain; charset=ISO-8859-1
+On Mon, 21 Oct 2013, Paul Moore wrote:
 
-Taking proposals for new facts (Keep them clean and respectful please) for:
+> Why does a branch need to be specified?  The changes live in master and my 
+> understanding was that if a branch was not explicitly listed then master 
+> should be used.
+> 
 
-http://stephensmalleyfacts.com/
+Ok, I'll do that.  I'm not going to assume it.
+
+> > git-pull fails in any case.
+> 
+> Can you be more explicit?  It works for me ...
+
+$ git pull git://git.infradead.org/users/pcmoore/selinux
+You asked to pull from the remote 
+'git://git.infradead.org/users/pcmoore/selinux', but did not specify
+a branch. Because this is not the default configured remote
+for your current branch, you must specify a branch on the command line.
+
+
 
 -- 
-Respectfully,
-
-William C Roberts
-
---f46d043892b1ccea4604e948c569
-Content-Type: text/html; charset=ISO-8859-1
-
-<div dir="ltr">Taking proposals for new facts (Keep them clean and respectful please) for:<div><br></div><div><a href="http://stephensmalleyfacts.com/">http://stephensmalleyfacts.com/</a><br clear="all"><div><br></div>-- <br>
-Respectfully,<br><br>William C Roberts<br><br>
-</div></div>
-
---f46d043892b1ccea4604e948c569--
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
