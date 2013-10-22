@@ -1,25 +1,26 @@
-Message-ID: <5266C409.30700@tycho.nsa.gov>
-Date: Tue, 22 Oct 2013 14:29:29 -0400
+Message-ID: <5266C4EE.4080803@tycho.nsa.gov>
+Date: Tue, 22 Oct 2013 14:33:18 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Joe MacDonald <joe@deserted.net>
+To: Laurent Bigonville <bigon@debian.org>
 CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH][v3] libselinux: support building on older PCRE libs
-References: <20131022150005.GD3728@deserted.net> <1382461056-20536-1-git-send-email-joe@deserted.net>
-In-Reply-To: <1382461056-20536-1-git-send-email-joe@deserted.net>
+Subject: Re: [PATCH] --handle-unknown option takes a required argument
+References: <1373113953-16739-1-git-send-email-bigon@debian.org>
+In-Reply-To: <1373113953-16739-1-git-send-email-bigon@debian.org>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/22/2013 12:57 PM, Joe MacDonald wrote:
-> Versions of PCRE prior to 8.20 did not have pcre_free_study().  In its
-> absence, use pcre_free() instead.
+On 07/06/2013 08:32 AM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
 > 
-> Signed-off-by: Joe MacDonald <joe@deserted.net>
+> Fix a segmentation fault if the --handle-unknown option was set without
+> arguments.
+> 
+> Thanks to Alexandre Rebert and his team at Carnegie Mellon University
+> for detecting this crash.
 
-Thanks, applied.  I also applied the stat rename just for cleanliness,
-although I think the real problem lies elsewhere.
-
+Thanks, merged.
 
 
 
