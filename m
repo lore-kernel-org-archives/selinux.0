@@ -1,53 +1,53 @@
-Message-ID: <5266897F.7040907@tycho.nsa.gov>
-Date: Tue, 22 Oct 2013 10:19:43 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Joe MacDonald <joe@deserted.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/2] libselinux: support building on older PCRE libs
-References: <1382383000-16439-1-git-send-email-joe@deserted.net> <1382383000-16439-2-git-send-email-joe@deserted.net> <52658E3D.3010701@tycho.nsa.gov> <20131022141631.GB3728@deserted.net>
-In-Reply-To: <20131022141631.GB3728@deserted.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9MEkjv5028076
+	for <selinux@tycho.nsa.gov>; Tue, 22 Oct 2013 10:46:45 -0400
+Received: by mail-ea0-f170.google.com with SMTP id q10so3464119eaj.29
+        for <selinux@tycho.nsa.gov>; Tue, 22 Oct 2013 07:46:42 -0700 (PDT)
+Received: from yow-turd.ottawa.windriver.com ([128.224.252.2])
+        by mx.google.com with ESMTPSA id a1sm57708392eem.1.2013.10.22.07.46.40
+        for <selinux@tycho.nsa.gov>
+        (version=TLSv1.1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+        Tue, 22 Oct 2013 07:46:41 -0700 (PDT)
+From: Joe MacDonald <joe@deserted.net>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: support building on older PCRE libs
+Date: Tue, 22 Oct 2013 10:46:39 -0400
+Message-Id: <1382453199-19064-1-git-send-email-joe@deserted.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/22/2013 10:16 AM, Joe MacDonald wrote:
-> [Re: [PATCH 1/2] libselinux: support building on older PCRE libs] On 13.10.21 (Mon 16:27) Stephen Smalley wrote:
-> 
->> On 10/21/2013 03:16 PM, Joe MacDonald wrote:
->>> Versions of PCRE prior to 8.20 did not have pcre_free_study().  In its
->>> absence, use pcre_free() instead.
->>>
->>> Signed-off-by: Joe MacDonald <joe@deserted.net>
->>> ---
->>>  libselinux/src/label_file.c           |    4 ++++
->>>  libselinux/utils/sefcontext_compile.c |    4 ++++
->>>  2 files changed, 8 insertions(+)
->>>
->>> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
->>> index 9b0d6b0..51520cf 100644
->>> --- a/libselinux/src/label_file.c
->>> +++ b/libselinux/src/label_file.c
->>> @@ -561,7 +561,11 @@ static void closef(struct selabel_handle *rec)
->>>  		free(spec->type_str);
->>>  		if (spec->regcomp) {
->>>  			pcre_free(spec->regex);
->>> +#if (PCRE_MAJOR >= 8 && PCRE_MINOR >= 20)
->>>  			pcre_free_study(spec->sd);
->>> +#else
->>> +			pcre_free(spec->sd);
->>
->> We try to avoid #if / #ifdef scattered throughout the code.
->> The preferred approach is to conditionally define pcre_free_study() to
->> pcre_free() if building with the older libpcre.
-> 
-> Sure thing.  I'll resubmit.  Given that this is present in only two
-> files with the only obvious common #include (within the selinux repo
-> itself) being label_file.h, I'll put the #define there.  Does that seem
-> reasonable?
+Versions of PCRE prior to 8.20 did not have pcre_free_study().  In its
+absence, use pcre_free() instead.
 
-Yes, that looks right to me.
+Signed-off-by: Joe MacDonald <joe@deserted.net>
+---
 
+This will hit all uses of pcre_free_study() provided label_file.h gets
+included somewhere along the way.  Also makes it cleaner to back out when
+ancient versions of libpcre fall off the support map and it keeps the code
+from being filled with all-caps.
+
+ libselinux/src/label_file.h |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index bf0c9e2..7d48832 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -8,6 +8,11 @@
+ #define SELINUX_MAGIC_COMPILED_FCONTEXT	0xf97cff8a
+ #define SELINUX_COMPILED_FCONTEXT_MAX_VERS	1
+ 
++/* Prior to verison 8.20, libpcre did not have pcre_free_study() */
++#if (PCRE_MAJOR < 8 || PCRE_MINOR < 20)
++#define pcre_free_study  pcre_free
++#endif
++
+ /* A file security context specification. */
+ struct spec {
+ 	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
+-- 
+1.7.9.5
 
 
 --
