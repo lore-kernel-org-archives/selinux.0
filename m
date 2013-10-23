@@ -1,45 +1,64 @@
-Message-ID: <1382549242.3041.94.camel@d30>
-Subject: Re: Update to CIL
-From: Dominick Grift <dominick.grift@gmail.com>
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        Steve Lawrence
- <slawrence@tresys.com>,
-        Richard Haines <richard_c_haines@btinternet.com>
-Date: Wed, 23 Oct 2013 19:27:22 +0200
-In-Reply-To: <526800C8.5050306@tycho.nsa.gov>
-References: <52617C02.4060500@tycho.nsa.gov> <1382541329.3041.88.camel@d30>
-	 <5267F222.5010606@tycho.nsa.gov> <526800C8.5050306@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9NIW1Vj024717
+	for <selinux@tycho.nsa.gov>; Wed, 23 Oct 2013 14:32:01 -0400
+Message-ID: <52680E66.9090500@redhat.com>
+Date: Wed, 23 Oct 2013 13:59:02 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Mark Montague <mark@catseye.org>, selinux@lists.fedoraproject.org,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: filtering outgoing packets with SELinux and iptables
+References: <CADM6DBaR5oqiNNPwneaoWPSkTaqKk8NnK5ZfsrLWgOquyk40Uw@mail.gmail.com>	<5267E47B.5010401@catseye.org> <5267E847.8040309@catseye.org>
+In-Reply-To: <5267E847.8040309@catseye.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2013-10-23 at 13:00 -0400, James Carter wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+On 10/23/2013 11:16 AM, Mark Montague wrote:
+> On October 23, 2013 11:00 , Mark Montague <mark@catseye.org> wrote:
+>> On October 23, 2013 10:28 , Konstantin Ryabitsev <icon@fedoraproject.org>
+>> wrote:
+>>> I would like to be able to only allow httpd_myapp_script_t to connect
+>>> to 192.168.1.1 port 443, but not any other IP address. This is actually
+>>> quite common -- an application may need to make a REST call to some
+>>> site, but it really has no business talking to any other hosts on the
+>>> net.
+>> 
+>> # Restrict what things running under php-fpm can access.  We're using a #
+>> local policy named phpfcgi here because Red Hat's policies include an #
+>> alias of httpd_t for phpfpm_t, and if we use that then these rules would 
+>> # prevent httpd from communicating with clients. -N PHPFPM -A OUTPUT -m
+>> selinux --task-ctx system_u:system_r:phpfcgi_t:s0 -j PHPFPM
 > 
-> I am sorry. I got so caught up in the painful memories of having to deal with 
-> the selinux_labeled_boolean interface that I missed what you were actually 
-> trying to do.
+> I should add that the local SELinux policy that I'm using for PHP-FPM is a 
+> modified version of prometheanfire's work, which he has previous posted to
+> this list:
 > 
-> What you want to do here is quite reasonable and we should make it possible in CIL.
+> https://github.com/prometheanfire/selinux-modules.git
 > 
-> Thanks again for the feedback.
+> I've renamed the types and added a couple extra allow rules for things that
+> my installation of PHP-FPM needs to be able to do, but none of the
+> modifications are related to restricting network traffic; the magic for
+> that is all in the kernel module and iptables rules.
 > 
+> 
+> -- Mark Montague mark@catseye.org -- selinux mailing list 
+> selinux@lists.fedoraproject.org 
+> https://admin.fedoraproject.org/mailman/listinfo/selinux
+It is better that these types of questions go to the upstream SELinux list
+<selinux@tycho.nsa.gov>
 
-I am not sure if it makes sense to make this work, as it sets a
-precedence. I mean whats next: specify file contexts via macros?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-The nature of CIL will make it easy to do this manually instead:
-
-consider module "mybool":
-
-> (type mybool_t)
-> (call selinux_boolean_type (mybool_t))
-
-> (genfscon "selinuxfs" "/booleans/mybool" (system_u object_r
->           mybool_t ((s0) (s0))))
-
+iEYEARECAAYFAlJoDmYACgkQrlYvE4MpobOUZwCgp2J9uCiby7hpgdCJ6l+V4IjB
+0e0An22kxst8CQsk70mqcftxUyBKmjKi
+=/b1Z
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
