@@ -1,61 +1,80 @@
-Message-ID: <52696E16.4020402@tycho.nsa.gov>
-Date: Thu, 24 Oct 2013 14:59:34 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: SELinux: Update policy version to support constraints info
-References: <1382398322.27942.61.camel@localhost> <5266730C.2010205@tycho.nsa.gov> <1382610164.40150.YahooMailNeo@web87904.mail.ir2.yahoo.com> <11155540.a6QObQOMze@sifl>
-In-Reply-To: <11155540.a6QObQOMze@sifl>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 24 Oct 2013 14:04:46 -0500 (CDT)
+From: Don Hoefer <don.hoefer@verizon.net>
+Reply-to: hoefer@ieee.org
+To: sds@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov
+Message-id: <6904957.313951.1382641486454.JavaMail.root@vms170025>
+Subject: Re: Re: Need information on building embedded systems.
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/24/2013 02:36 PM, Paul Moore wrote:
-> On Thursday, October 24, 2013 11:22:44 AM Richard Haines wrote:
->> ----- Original Message -----
->>
->>> From: Stephen Smalley <sds@tycho.nsa.gov>
->>> To: Eric Paris <eparis@redhat.com>
->>> Cc: selinux@tycho.nsa.gov
->>> Sent: Tuesday, 22 October 2013, 13:43
->>> Subject: Re: SELinux: Update policy version to support constraints info
->>>
->>> On 10/21/2013 07:32 PM, Eric Paris wrote:
->>>>  From: Richard Haines <richard_c_haines@btinternet.com>
->>>>  Date: Tue, 18 Dec 2012 19:37:46 +0000
->>>>  
->>>>  Update the policy version (POLICYDB_VERSION_CONSTRAINT_NAMES) to allow
->>>>  holding of policy source info for constraints.
->>>
->>> Before we get into code review, let me ask the following:
->>> Why do we need a new kernel binary policy version for information that
->>> is only used by userspace?  Why can't this information be extracted from
->>> the policy module format or stored in an auxiliary file used only by
->>> userspace?
->>
->> True it could be done the ways you suggest, however the module format would
->> only work for modular policies and the auxiliary file (I felt) would be
->> difficult to track (could be another config type file maybe?).
-> 
-> My current two cents on the issue ...
-> 
-> Working under the assumption that the userspace tools would much prefer to 
-> read the policy directly from the kernel (for obvious reasons), it makes sense 
-> to me that we provide this additional constraint information along with the 
-> rest of the policy.  Having to pull policy information from both the kernel 
-> and a regular file seems like it could lead to all sorts of problems.
-> 
-> Further, I believe that for the majority of systems the extra ~5k of kernel 
-> memory is not a major deal breaker, although I will concede that for smaller 
-> systems (Android perhaps?) this might be more of a concern.  What if, along 
-> with this extra constraint information, we add a toggle (perhaps via a new 
-> policy capability) which would trigger the kernel to either preserve the 
-> constraint info or discard it when the policy is loaded? 
+ Here is a complete list of what we are working with. the processor is a Freescale PowerPC.
 
-No, if we take it, it should be unconditionally preserved IMHO.
+
+
+kernel: 3.8.13
+libselinux:  2.1.9
+checkpolicy:  2.1.8
+libsepol:  2.1.4
+policycoreutils:  2.1.10
+busybox:  1.20.2
+eldk:  5.3
+ Don Hoefer
+
+
+On 10/24/13, Stephen Smalley<sds@tycho.nsa.gov> wrote:
+ 
+On 10/24/2013 01:15 PM, Don Hoefer wrote:
+> We are building an embedded system where the customer requires SELinux. It is our own hardware so we build our own kernel and drivers and use the ext2, jfs and tempfs file systems. This is not new for us, but incorporating SELinux is.
+> 
+> Does anyone know of a good knowledge resource for building embedded systems with SELinux?
+> 
+> We are currently plowing through a frustrating step ahead/step back process. We are either unable to build a policy, or a minimal policy we build often causes the development system to fail to boot. Any policy we get onto the embedded system appears to fail to load properly. We think that some pieces may be missing but we are unable to debug due to lack of knowledge.
+> 
+> I suspect that our boot process with SELinux is incomplete and that we are missing some libraries, for example:
+> 
+> root@generic-powerpc:~#semanage
+> Traceback (most recent call last):
+> File "/usr/sbin/semanage", line 24, in <module>
+> import seobject
+> File "/usr/lib/python2.7/site-packages/seobject.py", line 24,in <module>
+> import pwd, grp, string, selinux, tempfile, os, re, sys,stat
+> ImportError: No module named selinux
+> 
+> Also, the selinux fs is not mounted and policies are not loaded during boot. We can do this with init scripts but isn't it too late by then?
+> 
+> Any help would be welcome.
+
+I'd suggest you have a look at what we did in porting SELinux to
+Android, both regard to our approach and possible reuse of some of our
+minimalist port of libselinux and other components. See:
+http://selinuxproject.org/page/SEAndroid
+
+There is a published technical paper linked from that page that
+describes the approach in detail, along with several presentations
+describing it and of course how to obtain the code itself.
+
+You really don't need much of the SELinux userspace for an embedded
+system. Aside from our minimalist port of libselinux and a
+reimplementation of specific utilities as part of the Android init
+built-in commands and toolbox, we left the rest of the SELinux userspace
+either completely unused or only used on the build host itself, not on
+the device. We certainly didn't bother porting semanage or any other
+python components.
+
+We also wrote a policy from scratch tailored to Android and to a very
+well-defined set of security goals, as described in the paper and
+presentations. We did not use the SELinux reference policy nor did we
+use anything generated by mdp as a starting point.
+
+It would help to know your kernel (version) and what userspace you are
+using as your baseline (e.g. are you using busybox? what is providing
+your init program?).
+
+
+
 
 
 
