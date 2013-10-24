@@ -1,30 +1,32 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OEwsAG031426
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:58:54 -0400
-Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9OEwqah014600
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OExjV5031533
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:59:45 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9OExhIg003716
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:58:52 -0400
-Message-ID: <526935AB.40908@redhat.com>
-Date: Thu, 24 Oct 2013 10:58:51 -0400
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:59:43 -0400
+Message-ID: <526935DE.4050202@redhat.com>
+Date: Thu, 24 Oct 2013 10:59:42 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 50/74] Only list disabled modules if the user ask for
+Subject: [PATCH 51/74] If a user specifies a module to add that does not exist
 Content-Type: multipart/mixed;
- boundary="------------080105000503070403090807"
+ boundary="------------090402090205090509090007"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------080105000503070403090807
+--------------090402090205090509090007
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
+Improve error handling in semanage to not rely on the library to report
+errors, but give better user feedback.
 
    This patch looks good to me. acked.
 
@@ -32,18 +34,18 @@ Hash: SHA1
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJpNasACgkQrlYvE4MpobPriQCgvRroK9q4XtV16isW96I8EWtP
-514AoIAmQgnCyT6tuDii0ONWvxqFe2Xq
-=VURR
+iEYEARECAAYFAlJpNd4ACgkQrlYvE4MpobNYnwCg3BSmrit6DZhn9WLbwZNSVJRK
+CXsAn2hv1X0s6Sa4joQY3RfobquIcoWH
+=2OCW
 -----END PGP SIGNATURE-----
 
---------------080105000503070403090807
+--------------090402090205090509090007
 Content-Type: text/x-patch;
- name="0050-Only-list-disabled-modules-if-the-user-ask-for-local.patch"
+ name="0051-If-a-user-specifies-a-module-to-add-that-does-not-ex.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0050-Only-list-disabled-modules-if-the-user-ask-for-local.pa";
+ filename*0="0051-If-a-user-specifies-a-module-to-add-that-does-not-ex.pa";
  filename*1="tch"
 
 
---------------080105000503070403090807--
+--------------090402090205090509090007--
