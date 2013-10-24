@@ -1,80 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OGerTn008004
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 12:40:53 -0400
-Message-ID: <52694D8B.3050705@redhat.com>
-Date: Thu, 24 Oct 2013 12:40:43 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Dominick Grift <dominick.grift@gmail.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Allow audit2allow to return constraint information from policy
-References: <5269207C.4090809@redhat.com> <1382630560.3041.150.camel@d30>
-In-Reply-To: <1382630560.3041.150.camel@d30>
-Content-Type: text/plain; charset=UTF-8
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OHFvDK010458
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 13:16:01 -0400
+Received: from vms170025pub.verizon.net ([unknown] [192.168.1.50])
+ by vms173007.mailsrvcs.net
+ (Sun Java(tm) System Messaging Server 7u2-7.02 32bit (built Apr 16 2009))
+ with ESMTP id <0MV6004MONYNJ860@vms173007.mailsrvcs.net> for
+ selinux@tycho.nsa.gov; Thu, 24 Oct 2013 12:15:59 -0500 (CDT)
+Date: Thu, 24 Oct 2013 12:15:59 -0500 (CDT)
+From: Don Hoefer <don.hoefer@verizon.net>
+Reply-to: hoefer@ieee.org
+To: selinux@tycho.nsa.gov
+Message-id: <24396153.302492.1382634959317.JavaMail.root@vms170025>
+Subject: Need information on building embedded systems.
+MIME-version: 1.0
+Content-type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+ We are building an embedded system where the customer requires SELinux. It is our own hardware so we build our own kernel and drivers and use the ext2, jfs and tempfs file systems. This is not new for us, but incorporating SELinux is.
 
-On 10/24/2013 12:02 PM, Dominick Grift wrote:
-> On Thu, 2013-10-24 at 09:28 -0400, Daniel J Walsh wrote:
->> At the end of last year I was complaining about audit2allow and the
->> SELinux tools chain not being able to give better information about what
->> constraint is being violated, so a admin or policy writer could have a
->> clue on how to fix the problem.
->> 
->> A fairly common problem is domains trying to change the role or user
->> component of the label.  Or in the MCS and MLS world, what attribute do I
->> need to add to my policy to allow the AVC.
->> 
->> Richard Haines wrote some nice patches to add the constraint information
->> to the kernel and to change user space to reveal this information.
->> 
->> Sadly we thought these discussions had happened on the list, but I guess
->> we had taken it private.  Here is the userspace patch to reveal this
->> information.
->> 
->> The kernel team will be posting the kernel patch hopefully soon.  We
->> believe that even though the kernel does not need the additional
->> information about the constraint, the limited space required to carry
->> this information makes sense.
->> 
-> 
-> 
-> Can we though make that information opt-in
-> 
-> I think it annoying that when i run audit2allow my screen gets filled with
-> all kinds of information i am not interested in
-> 
-> I could find a option to get rid of the noise
-> 
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-Well I think it should be opt out.
+Does anyone know of a good knowledge resource for building embedded systems with SELinux?
 
-You could easily make a script to do this, something like:
+We are currently plowing through a frustrating step ahead/step back process. We are either unable to build a policy, or a minimal policy we build often causes the development system to fail to boot. Any policy we get onto the embedded system appears to fail to load properly. We think that some pieces may be missing but we are unable to debug due to lack of knowledge.
 
-audit2allow $@ | grep ^allow
+I suspect that our boot process with SELinux is incomplete and that we are missing some libraries, for example:
 
-But it is something I would like to add.
+root@generic-powerpc:~#semanage
+Traceback (most recent call last):
+ File "/usr/sbin/semanage", line 24, in <module>
+ import seobject
+ File "/usr/lib/python2.7/site-packages/seobject.py", line 24,in <module>
+ import pwd, grp, string, selinux, tempfile, os, re, sys,stat
+ImportError: No module named selinux
 
-audit2allow -q
+Also, the selinux fs is not mounted and policies are not loaded during boot.  We can do this with init scripts but isn't it too late by then?
 
-Or something like that.
+Any help would be welcome.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+ Don Hoefer
 
-iEYEARECAAYFAlJpTYsACgkQrlYvE4MpobOnwACfeTrGTGApAl16dUInFwydpa7M
-qfYAniJOtt5Yq2hAHgCMgOKH+MriOwj7
-=g/bx
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
