@@ -1,33 +1,31 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9ODi3tq023259
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:44:03 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9ODi0Zl018505
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9ODih58023286
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:44:43 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9ODieho003355
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:44:01 -0400
-Message-ID: <5269241E.7050600@redhat.com>
-Date: Thu, 24 Oct 2013 09:43:58 -0400
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:44:41 -0400
+Message-ID: <52692448.4050409@redhat.com>
+Date: Thu, 24 Oct 2013 09:44:40 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 03/74] handle-unknown should be an optional argument
+Subject: [PATCH 04/74] Allow " " and ":" in file name transtions
 Content-Type: multipart/mixed;
- boundary="------------000702000002000908080104"
+ boundary="------------060407080400030206030904"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000702000002000908080104
+--------------060407080400030206030904
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-I believe this was already applied upstream but we still have it.
-
-Basically stops a crash if you call hanlde-unknown without an option
+We need filename transitions to supported files with " " and ":" in them in Fedora
 
    This patch looks good to me. acked.
 
@@ -35,17 +33,17 @@ Basically stops a crash if you call hanlde-unknown without an option
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJpJB4ACgkQrlYvE4MpobMuXgCguRCvwlDptmFIu2CQOdsREZFI
-NJYAoKt9rJEokmqlJSO4CV1uMUrEebSe
-=E3Yg
+iEYEARECAAYFAlJpJEgACgkQrlYvE4MpobNM9ACcDv6MGpOyTML+Zx1hoZ+fuo/e
+QeAAoK+VjWPWIk6yZzOg+OQ/wrL/JggY
+=z8eL
 -----END PGP SIGNATURE-----
 
---------------000702000002000908080104
+--------------060407080400030206030904
 Content-Type: text/x-patch;
- name="0003-handle-unknown-should-be-an-optional-argument.patch"
+ name="0004-Allow-and-in-file-name-transtions.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0003-handle-unknown-should-be-an-optional-argument.patch"
+ filename="0004-Allow-and-in-file-name-transtions.patch"
 
 
---------------000702000002000908080104--
+--------------060407080400030206030904--
