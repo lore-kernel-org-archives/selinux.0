@@ -1,43 +1,66 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OHFvDK010458
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 13:16:01 -0400
-Received: from vms170025pub.verizon.net ([unknown] [192.168.1.50])
- by vms173007.mailsrvcs.net
- (Sun Java(tm) System Messaging Server 7u2-7.02 32bit (built Apr 16 2009))
- with ESMTP id <0MV6004MONYNJ860@vms173007.mailsrvcs.net> for
- selinux@tycho.nsa.gov; Thu, 24 Oct 2013 12:15:59 -0500 (CDT)
-Date: Thu, 24 Oct 2013 12:15:59 -0500 (CDT)
-From: Don Hoefer <don.hoefer@verizon.net>
-Reply-to: hoefer@ieee.org
-To: selinux@tycho.nsa.gov
-Message-id: <24396153.302492.1382634959317.JavaMail.root@vms170025>
-Subject: Need information on building embedded systems.
-MIME-version: 1.0
-Content-type: text/plain; charset=UTF-8
+Message-ID: <52695BB5.20708@tycho.nsa.gov>
+Date: Thu, 24 Oct 2013 13:41:09 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: hoefer@ieee.org
+CC: Don Hoefer <don.hoefer@verizon.net>, selinux@tycho.nsa.gov
+Subject: Re: Need information on building embedded systems.
+References: <24396153.302492.1382634959317.JavaMail.root@vms170025>
+In-Reply-To: <24396153.302492.1382634959317.JavaMail.root@vms170025>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- We are building an embedded system where the customer requires SELinux. It is our own hardware so we build our own kernel and drivers and use the ext2, jfs and tempfs file systems. This is not new for us, but incorporating SELinux is.
+On 10/24/2013 01:15 PM, Don Hoefer wrote:
+>  We are building an embedded system where the customer requires SELinux. It is our own hardware so we build our own kernel and drivers and use the ext2, jfs and tempfs file systems. This is not new for us, but incorporating SELinux is.
+> 
+> Does anyone know of a good knowledge resource for building embedded systems with SELinux?
+> 
+> We are currently plowing through a frustrating step ahead/step back process. We are either unable to build a policy, or a minimal policy we build often causes the development system to fail to boot. Any policy we get onto the embedded system appears to fail to load properly. We think that some pieces may be missing but we are unable to debug due to lack of knowledge.
+> 
+> I suspect that our boot process with SELinux is incomplete and that we are missing some libraries, for example:
+> 
+> root@generic-powerpc:~#semanage
+> Traceback (most recent call last):
+>  File "/usr/sbin/semanage", line 24, in <module>
+>  import seobject
+>  File "/usr/lib/python2.7/site-packages/seobject.py", line 24,in <module>
+>  import pwd, grp, string, selinux, tempfile, os, re, sys,stat
+> ImportError: No module named selinux
+> 
+> Also, the selinux fs is not mounted and policies are not loaded during boot.  We can do this with init scripts but isn't it too late by then?
+> 
+> Any help would be welcome.
 
-Does anyone know of a good knowledge resource for building embedded systems with SELinux?
+I'd suggest you have a look at what we did in porting SELinux to
+Android, both regard to our approach and possible reuse of some of our
+minimalist port of libselinux and other components.  See:
+http://selinuxproject.org/page/SEAndroid
 
-We are currently plowing through a frustrating step ahead/step back process. We are either unable to build a policy, or a minimal policy we build often causes the development system to fail to boot. Any policy we get onto the embedded system appears to fail to load properly. We think that some pieces may be missing but we are unable to debug due to lack of knowledge.
+There is a published technical paper linked from that page that
+describes the approach in detail, along with several presentations
+describing it and of course how to obtain the code itself.
 
-I suspect that our boot process with SELinux is incomplete and that we are missing some libraries, for example:
+You really don't need much of the SELinux userspace for an embedded
+system.  Aside from our minimalist port of libselinux and a
+reimplementation of specific utilities as part of the Android init
+built-in commands and toolbox, we left the rest of the SELinux userspace
+either completely unused or only used on the build host itself, not on
+the device.  We certainly didn't bother porting semanage or any other
+python components.
 
-root@generic-powerpc:~#semanage
-Traceback (most recent call last):
- File "/usr/sbin/semanage", line 24, in <module>
- import seobject
- File "/usr/lib/python2.7/site-packages/seobject.py", line 24,in <module>
- import pwd, grp, string, selinux, tempfile, os, re, sys,stat
-ImportError: No module named selinux
+We also wrote a policy from scratch tailored to Android and to a very
+well-defined set of security goals, as described in the paper and
+presentations.  We did not use the SELinux reference policy nor did we
+use anything generated by mdp as a starting point.
 
-Also, the selinux fs is not mounted and policies are not loaded during boot.  We can do this with init scripts but isn't it too late by then?
+It would help to know your kernel (version) and what userspace you are
+using as your baseline (e.g. are you using busybox?  what is providing
+your init program?).
 
-Any help would be welcome.
 
- Don Hoefer
+
+
 
 
 --
