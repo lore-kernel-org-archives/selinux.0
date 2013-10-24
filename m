@@ -1,31 +1,30 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OEBu4e027070
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:11:56 -0400
-Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9OEBs7q022974
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OEFFJV027286
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:15:15 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9OEFBOk017471
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:11:55 -0400
-Message-ID: <52692AAA.5010003@redhat.com>
-Date: Thu, 24 Oct 2013 10:11:54 -0400
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 10:15:12 -0400
+Message-ID: <52692B6E.3030707@redhat.com>
+Date: Thu, 24 Oct 2013 10:15:10 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 28/74] Need to set the locale to current locale
+Subject: [PATCH 29/74] We were asked to open output file for append rather
 Content-Type: multipart/mixed;
- boundary="------------050807060307010904060406"
+ boundary="------------080207040709080203030306"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050807060307010904060406
+--------------080207040709080203030306
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Python requires code to set the locale variable.
 
    This patch looks good to me. acked.
 
@@ -33,17 +32,18 @@ Python requires code to set the locale variable.
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJpKqoACgkQrlYvE4MpobNGyQCfaIAVs8121uD9Y0y4OwMtk0kO
-+EQAn2rI4fJBD52IL5fWrC3HijUMXh1h
-=o1Fh
+iEYEARECAAYFAlJpK24ACgkQrlYvE4MpobP5pwCfdQ+LPcLPL5u4WjFBhFdcrQ+v
+14UAoNCOque27ZxeSpD2GvXPmwby0Ujs
+=WpYp
 -----END PGP SIGNATURE-----
 
---------------050807060307010904060406
+--------------080207040709080203030306
 Content-Type: text/x-patch;
- name="0028-Need-to-set-the-locale-to-current-locale.patch"
+ name="0029-We-were-asked-to-open-output-file-for-append-rather-.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0028-Need-to-set-the-locale-to-current-locale.patch"
+ filename*0="0029-We-were-asked-to-open-output-file-for-append-rather-.pa";
+ filename*1="tch"
 
 
---------------050807060307010904060406--
+--------------080207040709080203030306--
