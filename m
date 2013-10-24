@@ -1,58 +1,107 @@
-Message-ID: <1382645796.3041.159.camel@d30>
-Subject: Re: Update to CIL
-From: Dominick Grift <dominick.grift@gmail.com>
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        Steve Lawrence
- <slawrence@tresys.com>,
-        Richard Haines <richard_c_haines@btinternet.com>
-Date: Thu, 24 Oct 2013 22:16:36 +0200
-In-Reply-To: <52617C02.4060500@tycho.nsa.gov>
-References: <52617C02.4060500@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <5269859E.1080807@tycho.nsa.gov>
+Date: Thu, 24 Oct 2013 16:39:58 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: SELinux: Update policy version to support constraints info
+References: <1382398322.27942.61.camel@localhost>
+In-Reply-To: <1382398322.27942.61.camel@localhost>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
-> I pushed an update of CIL to bitbucket.
-
-Now that we can specify contraints in "loadable modules" i noticed that
-i can alter the behavior of existing constraints in the sense that they
-can be overridden
-
-take for example this instance
-
-in the domain module ( which i consider "base" ) i have this constraint:
-
-> (constrain (process (transition dyntransition noatsecure siginh rlimitinh))
->            (or (or (or (eq u1 u2) (and (eq t1
->            can_change_process_identity) (eq t2 process_user_target)))
->            (and (eq t1 can_system_change) (eq u2 system_u)))
->            (eq t1 process_uncond_exempt)))
+On 10/21/2013 07:32 PM, Eric Paris wrote:
+> From: Richard Haines <richard_c_haines@btinternet.com>
+> Date: Tue, 18 Dec 2012 19:37:46 +0000
+> 
+> Update the policy version (POLICYDB_VERSION_CONSTRAINT_NAMES) to allow
+> holding of policy source info for constraints.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  security/selinux/include/security.h |    3 +-
+>  security/selinux/ss/constraint.h    |    1 +
+>  security/selinux/ss/policydb.c      |  100 ++++++++++++++++++++++++++++++++---
+>  security/selinux/ss/policydb.h      |   11 ++++
+>  4 files changed, 107 insertions(+), 8 deletions(-)
 > 
 
-This seems to work fine. however if i now want to extent this from a loadable
-module. for example the cron module:
+> diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/constraint.h
+> index 149dda7..3855ea8 100644
+> --- a/security/selinux/ss/constraint.h
+> +++ b/security/selinux/ss/constraint.h
+> @@ -48,6 +48,7 @@ struct constraint_expr {
+>  	u32 op;			/* operator */
+>  
+>  	struct ebitmap names;	/* names */
+> +	struct type_set_datum *type_names;
 
-> (constrain (process (transition dyntransition noatsecure siginh rlimitinh))
->            (or (eq u1 u2) (and (eq t1 cron_source_domain) (or
->            (eq t2 cron_job_domain) (eq u2 system_u)))))
+Why did you change the name of the structure in the kernel from the one
+used in libsepol (struct type_set)?
 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 9cd9b7c..f1b23df 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -613,11 +618,20 @@ static int common_destroy(void *key, void *datum, void *p)
+>  	return 0;
+>  }
+>  
+> -static int cls_destroy(void *key, void *datum, void *p)
+> +static void type_set_destroy(struct type_set_datum * t)
+> +{
+> +	if (t != NULL) {
+> +		ebitmap_destroy(&t->types);
+> +		ebitmap_destroy(&t->negset);
+> +	}
+> +}
 
-Then the former "base" constraint no longer works. Its not getting extended
-but rather a new one gets added and now the first one fails because the second on
-is not met
+So you don't free(t) here, yet every caller does so afterward.
+Although I see it isn't that way in libsepol so maybe you are trying to
+stay consistent in case you use these elsewhere in the kernel as is done
+in libsepol?
 
-it would have been nice if cilc merged the two into a single constraint instead
+> @@ -629,6 +643,10 @@ static int cls_destroy(void *key, void *datum, void *p)
+>  			e = constraint->expr;
+>  			while (e) {
+>  				ebitmap_destroy(&e->names);
+> +				if (p->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES) {
+> +					type_set_destroy(e->type_names);
+> +					kfree(e->type_names);
+> +				}
 
-In practice its not a big deal because the source policy is probably on the system
-anyways so might as well put it in the domain module
+Should we have a constraint_expr_destroy() as we do in libsepol?
 
-But it would have been nice if i could put it in the module where it belongs so that when
-i choose to disable the module, the module related constraint rules disappear as well
+>  				etmp = e;
+>  				e = e->next;
+>  				kfree(etmp);
+> @@ -643,6 +661,10 @@ static int cls_destroy(void *key, void *datum, void *p)
+>  			e = constraint->expr;
+>  			while (e) {
+>  				ebitmap_destroy(&e->names);
+> +				if (p->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES) {
+> +					type_set_destroy(e->type_names);
+> +					kfree(e->type_names);
+> +				}
 
-Is this a right assumption or are my constraints just wrong?
+So we don't have to repeat this?
+
+>  				etmp = e;
+>  				e = e->next;
+>  				kfree(etmp);
+> @@ -775,7 +797,7 @@ void policydb_destroy(struct policydb *p)
+>  
+>  	for (i = 0; i < SYM_NUM; i++) {
+>  		cond_resched();
+> -		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+> +		hashtab_map(p->symtab[i].table, destroy_f[i], p);
+
+Couldn't we avoid the need for passing down the policydb and checking
+the version just by ensuring e->type_names gets initialized to NULL and
+then the type_set_destroy() and kfree() calls degenerate to no-ops?  I
+suppose this works, but it complicates the code a bit.
+
 
 
 --
