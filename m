@@ -1,32 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9ODnbhI023873
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:49:37 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9ODnZeT021314
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9ODpvmF024283
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:51:57 -0400
+Received: from int-mx12.intmail.prod.int.phx2.redhat.com (int-mx12.intmail.prod.int.phx2.redhat.com [10.5.11.25])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9ODptWv020015
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:49:35 -0400
-Message-ID: <5269256F.60503@redhat.com>
-Date: Thu, 24 Oct 2013 09:49:35 -0400
+	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 09:51:55 -0400
+Message-ID: <526925FA.9000309@redhat.com>
+Date: Thu, 24 Oct 2013 09:51:54 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: [PATCH 10/74] This patch fixes python parsing.
+Subject: [PATCH 11/74] Patch to change *setfilecon to not return ENOSUP if
 Content-Type: multipart/mixed;
- boundary="------------000602050000010408070305"
+ boundary="------------070305060104030607010500"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------000602050000010408070305
+--------------070305060104030607010500
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-We had some resource/memory leaks in our python bindings, this patch cleans
-these up and cleans up some of the code.
+This patch might be somewhat controversial, basically makes *setfilecon
+commands not fail if the caller tries to set the file context on a file system
+that does not support XATTRs, and the file context it is trying to set matches
+the current file context.
+
+setfilecon("/mnt/nfshare/dwalsh", "system_u:object_r:nfs_t:s0")
+
+Would not fail for example.
+
 
    This patch looks good to me. acked.
 
@@ -34,17 +41,18 @@ these up and cleans up some of the code.
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJpJW4ACgkQrlYvE4MpobNNZgCdHLt3HXy04qVRY51jhG1lev6K
-WQ4AnRb8wWrVreOvaI30UX9vhOgJhtcA
-=HRxB
+iEYEARECAAYFAlJpJfoACgkQrlYvE4MpobO99QCcDi2w/WdXxj7E7xj9gq8am85x
+4j8AoNQZm75o1mV5WtbzvE3Zamxw5I24
+=Spvh
 -----END PGP SIGNATURE-----
 
---------------000602050000010408070305
+--------------070305060104030607010500
 Content-Type: text/x-patch;
- name="0010-This-patch-fixes-python-parsing.patch"
+ name="0011-Patch-to-change-setfilecon-to-not-return-ENOSUP-if-c.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename="0010-This-patch-fixes-python-parsing.patch"
+ filename*0="0011-Patch-to-change-setfilecon-to-not-return-ENOSUP-if-c.pa";
+ filename*1="tch"
 
 
---------------000602050000010408070305--
+--------------070305060104030607010500--
