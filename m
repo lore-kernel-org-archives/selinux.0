@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9PJiHl2005457
-	for <selinux@tycho.nsa.gov>; Fri, 25 Oct 2013 15:44:17 -0400
-Received: from int-mx01.intmail.prod.int.phx2.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9PJiD4s027114
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9PJj25W005490
+	for <selinux@tycho.nsa.gov>; Fri, 25 Oct 2013 15:45:02 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9PJj1oG028350
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Fri, 25 Oct 2013 15:44:14 -0400
-Message-ID: <526ACA09.6080505@redhat.com>
-Date: Fri, 25 Oct 2013 15:44:09 -0400
+	for <selinux@tycho.nsa.gov>; Fri, 25 Oct 2013 15:45:01 -0400
+Message-ID: <526ACA3C.7020206@redhat.com>
+Date: Fri, 25 Oct 2013 15:45:00 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: Michal Trunecka patch to allow restorecon to accept {}
+Subject: Sven Vermeulen patch to fix sepolgen test code
 Content-Type: multipart/mixed;
- boundary="------------090007000207080104010209"
+ boundary="------------090601050807030802000600"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------090007000207080104010209
+--------------090601050807030802000600
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -32,18 +32,17 @@ Hash: SHA1
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJqygkACgkQrlYvE4MpobMaUACeO27DcUNzft1wOIcxQZ0L8O09
-M5gAoLMadAN6eQ2kSnhlJVaKVPRdczTN
-=jDWw
+iEYEARECAAYFAlJqyjwACgkQrlYvE4MpobPOrACfXpHHSoNEDHytIY+7ium4lYFD
+OYMAoL4Ssd2HQadUHpviHTxsK96av8Go
+=GExO
 -----END PGP SIGNATURE-----
 
---------------090007000207080104010209
+--------------090601050807030802000600
 Content-Type: text/x-patch;
- name="0006-Michal-Trunecka-patch-to-allow-restorecon-to-accept-.patch"
+ name="0002-Sven-Vermeulen-patch-to-fix-sepolgen-test-code.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
- filename*0="0006-Michal-Trunecka-patch-to-allow-restorecon-to-accept-.pa";
- filename*1="tch"
+ filename*0="0002-Sven-Vermeulen-patch-to-fix-sepolgen-test-code.patch"
 
 
---------------090007000207080104010209--
+--------------090601050807030802000600--
