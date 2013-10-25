@@ -1,50 +1,80 @@
-Message-ID: <526A9AB8.8060204@tycho.nsa.gov>
-Date: Fri, 25 Oct 2013 12:22:16 -0400
+Message-ID: <526AABFC.7070709@tycho.nsa.gov>
+Date: Fri, 25 Oct 2013 13:35:56 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: hoefer@ieee.org
-CC: Don Hoefer <don.hoefer@verizon.net>, selinux@tycho.nsa.gov
-Subject: Re: Need information on building embedded systems.
-References: <6904957.313951.1382641486454.JavaMail.root@vms170025>
-In-Reply-To: <6904957.313951.1382641486454.JavaMail.root@vms170025>
-Content-Type: text/plain; charset=UTF-8
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SELinux <selinux@tycho.nsa.gov>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: Allow audit2allow to return constraint information from policy
+References: <5269207C.4090809@redhat.com>
+In-Reply-To: <5269207C.4090809@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/24/2013 03:04 PM, Don Hoefer wrote:
->  Here is a complete list of what we are working with. the processor is a Freescale PowerPC.
+On 10/24/2013 09:28 AM, Daniel J Walsh wrote:
+> Sadly we thought these discussions had happened on the list, but I guess we
+> had taken it private.  Here is the userspace patch to reveal this information.
 > 
-> 
-> 
-<snip>
-> libselinux:  2.1.9
-> checkpolicy:  2.1.8
-> libsepol:  2.1.4
-> policycoreutils:  2.1.10
-<snip>
+> The kernel team will be posting the kernel patch hopefully soon.  We believe
+> that even though the kernel does not need the additional information about the
+> constraint, the limited space required to carry this information makes sense.
 
-Are you using those specific versions because newer ones have
-dependencies on components that don't exist in your embedded Linux?
-That's ok, just wondering.
+I gave comments on the kernel patch, so hopefully that can be revised
+and resubmitted.
 
-The folks who previously did work on embedded SELinux prior to our
-Android work tried to introduce an EMBEDDED option for libselinux (make
-EMBEDDED=y) that would omit certain portions they didn't need or want.
-That is still present but likely won't build at the moment; you'd have
-to exclude some additional files as well to get it back into a buildable
-state.
+For this one, can we get the patch submitted by Richard after making
+changes as per these comments?
 
-Or you could possibly just use our Android port of libselinux, as that
-is already greatly reduced and avoids any glibc-specific dependencies.
+And I think it should be split up into separate patches for libsepol,
+libselinux, policycoreutils, and sepolgen.
 
-checkpolicy and libsepol are only truly required on the build host, not
-the device, unless you need/want the ability to downgrade policy formats
-at load time.
+Check your coding style as per CodingStyle, use scripts/checkpatch.pl
+from the kernel as a rough guide, and use scripts/Lindent as a last
+resort if you've messed up.
 
-The parts of policycoreutils that matter to you should already exist in
-some form in busybox if you build it with SELinux support enabled
+Why did we need a new modular format version in addition to a new kernel
+format version?  You don't appear to use it anywhere.
 
+On the sepol_class_name_to_id() and sepol_perm_name_to_av() helpers,
+libselinux has security_class_to_string() / string_to_security_class()
+and security_av_perm_to_string() / string_to_av_perm() /
+security_av_string() helpers and libsepol has sepol_av_to_string().
+Just wondering if we should try and use consistent names aside from
+sepol_ prefix and different implementations (policy-based vs
+selinuxfs-based).
 
+Output looks like:
+# audit2why -p /etc/selinux/targeted/policy/policy.29 < avc
+type=AVC msg=audit(1382706778.165:3267): avc:  denied  { signal } for
+pid=4076 comm="bash"
+scontext=unconfined_u:unconfined_r:sandbox_t:s0:c353,c935
+tcontext=unconfined_u:unconfined_r:sandbox_t:s0:c96,c826 tclass=process
+
+	Was caused by:
+
+#Constraint rule:
+	mlsconstrain process { signal } ((h1 dom h2 -Fail-)  or (t1=sandbox_t
+neq TYPE_ENTRY -Fail-) { POLICY_SOURCE: mcs_constrained_type } );
+Constraint DENIED
+mlsconstrain process { sigkill sigstop } ((h1 dom h2 -Fail-)  or
+(t1=sandbox_t  neq TYPE_ENTRY -Fail-) { POLICY_SOURCE:
+mcs_constrained_type } ); Constraint DENIED
+
+#	Possible cause is the source level (s0:c353,c935) and target level
+(s0:c96,c826) are different.
+
+Is there a reason it wasn't displayed in the same way as the original
+constraint (e.g. why doesn't it say ( t1 != mcs_constrained_type), why
+is it partially postfix notation (neq) and what is the purpose of
+putting TYPE_ENTRY into the output?  And why didn't it suggest assigning
+the attribute to the source type as an alternative fix?
+
+Buffer/string management looks...complicated.  Can we reduce all of the
+copying/allocation that goes on there?  And have you run this through
+valgrind (likely need a C test program that directly uses the libsepol
+interface; could even add it as a menu option under the debug (-d)
+facility of checkpolicy).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
