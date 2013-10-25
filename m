@@ -1,50 +1,58 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9OKmaHQ024224
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 16:48:36 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-	by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id r9OKmYTO005451
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
-	for <selinux@tycho.nsa.gov>; Thu, 24 Oct 2013 16:48:34 -0400
-Message-ID: <526987A1.1040204@redhat.com>
-Date: Thu, 24 Oct 2013 16:48:33 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <526A9525.3060106@tycho.nsa.gov>
+Date: Fri, 25 Oct 2013 11:58:29 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: eparis@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] Need to delete all managed objects before readding them
-Content-Type: multipart/mixed;
- boundary="------------050505070302000403030005"
+To: hoefer@ieee.org
+CC: Don Hoefer <don.hoefer@verizon.net>, selinux@tycho.nsa.gov
+Subject: Re: Need information on building embedded systems.
+References: <22095736.309560.1382638891432.JavaMail.root@vms170025>
+In-Reply-To: <22095736.309560.1382638891432.JavaMail.root@vms170025>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050505070302000403030005
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On 10/24/2013 02:21 PM, Don Hoefer wrote:
+>  We are using kernel 3.8.13, busybox 1.20.2.  init says that it is version 2.88, along with that we have the typical Sys-V init with /etc/rc?.d startup scripts.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+So did you enable the SELinux support in your init and busybox when you
+built it?
 
-We need to delete all modifications before we re-add them, otherwise we end up
-with conflicts on user/login mappings.
-   This patch looks good to me. acked.
+We didn't develop the busybox SELinux support ourselves; that was done
+by others in the SELinux community, but it has been in upstream busybox
+for a while.  I'm not sure what state it is in currently.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+sysvinit was extended by Red Hat with SELinux support long ago and that
+was upstreamed as well.  init typically performs the initial policy load.
 
-iEYEARECAAYFAlJph6EACgkQrlYvE4MpobPW1QCdHNpLIzTF0mkn/7q8TJE/sNYi
-xegAn32VlxNrrIBqTnQ9w+fpmFJZdlU5
-=vdCH
------END PGP SIGNATURE-----
+What CONFIG_SECURITY_* options did you enable in your kernel
+configuration?  A sample set enabled in one of our Android kernel trees is:
++CONFIG_AUDIT=y
++CONFIG_SECURITY=y
++CONFIG_LSM_MMAP_MIN_ADDR=4096
++CONFIG_SECURITY_NETWORK=y
++CONFIG_SECURITY_SELINUX=y
++CONFIG_DEFAULT_SECURITY_SELINUX=y
++CONFIG_NETWORK_SECMARK=y
++CONFIG_NF_CONNTRACK_SECMARK=y
++CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=y
++CONFIG_NETFILTER_XT_TARGET_SECMARK=y
++CONFIG_NETFILTER_ADVANCED=y
++CONFIG_IP_NF_SECURITY=y
 
---------------050505070302000403030005
-Content-Type: text/x-patch;
- name="0002-Need-to-delete-all-managed-objects-before-readding-t.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0002-Need-to-delete-all-managed-objects-before-readding-t.pa";
- filename*1="tch"
+You also need the CONFIG_*_FS_XATTR and CONFIG_*_FS_SECURITY options
+enabled for each filesystem that you use that supports per-file security
+attributes, e.g.
+
+Kernel 3.8.13 supports up through policy.28, so as long as your
+checkpolicy generates a policy file in version 28 or older you are fine.
+ The -c option to checkpolicy can be used to force it to an older
+version; we use that for Android to ensure compatibility with the
+Android 3.4 kernels.
 
 
---------------050505070302000403030005--
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
