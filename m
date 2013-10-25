@@ -1,54 +1,48 @@
-Message-ID: <526A9525.3060106@tycho.nsa.gov>
-Date: Fri, 25 Oct 2013 11:58:29 -0400
+Message-ID: <526A9AB8.8060204@tycho.nsa.gov>
+Date: Fri, 25 Oct 2013 12:22:16 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: hoefer@ieee.org
 CC: Don Hoefer <don.hoefer@verizon.net>, selinux@tycho.nsa.gov
 Subject: Re: Need information on building embedded systems.
-References: <22095736.309560.1382638891432.JavaMail.root@vms170025>
-In-Reply-To: <22095736.309560.1382638891432.JavaMail.root@vms170025>
+References: <6904957.313951.1382641486454.JavaMail.root@vms170025>
+In-Reply-To: <6904957.313951.1382641486454.JavaMail.root@vms170025>
 Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/24/2013 02:21 PM, Don Hoefer wrote:
->  We are using kernel 3.8.13, busybox 1.20.2.  init says that it is version 2.88, along with that we have the typical Sys-V init with /etc/rc?.d startup scripts.
+On 10/24/2013 03:04 PM, Don Hoefer wrote:
+>  Here is a complete list of what we are working with. the processor is a Freescale PowerPC.
+> 
+> 
+> 
+<snip>
+> libselinux:  2.1.9
+> checkpolicy:  2.1.8
+> libsepol:  2.1.4
+> policycoreutils:  2.1.10
+<snip>
 
-So did you enable the SELinux support in your init and busybox when you
-built it?
+Are you using those specific versions because newer ones have
+dependencies on components that don't exist in your embedded Linux?
+That's ok, just wondering.
 
-We didn't develop the busybox SELinux support ourselves; that was done
-by others in the SELinux community, but it has been in upstream busybox
-for a while.  I'm not sure what state it is in currently.
+The folks who previously did work on embedded SELinux prior to our
+Android work tried to introduce an EMBEDDED option for libselinux (make
+EMBEDDED=y) that would omit certain portions they didn't need or want.
+That is still present but likely won't build at the moment; you'd have
+to exclude some additional files as well to get it back into a buildable
+state.
 
-sysvinit was extended by Red Hat with SELinux support long ago and that
-was upstreamed as well.  init typically performs the initial policy load.
+Or you could possibly just use our Android port of libselinux, as that
+is already greatly reduced and avoids any glibc-specific dependencies.
 
-What CONFIG_SECURITY_* options did you enable in your kernel
-configuration?  A sample set enabled in one of our Android kernel trees is:
-+CONFIG_AUDIT=y
-+CONFIG_SECURITY=y
-+CONFIG_LSM_MMAP_MIN_ADDR=4096
-+CONFIG_SECURITY_NETWORK=y
-+CONFIG_SECURITY_SELINUX=y
-+CONFIG_DEFAULT_SECURITY_SELINUX=y
-+CONFIG_NETWORK_SECMARK=y
-+CONFIG_NF_CONNTRACK_SECMARK=y
-+CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=y
-+CONFIG_NETFILTER_XT_TARGET_SECMARK=y
-+CONFIG_NETFILTER_ADVANCED=y
-+CONFIG_IP_NF_SECURITY=y
+checkpolicy and libsepol are only truly required on the build host, not
+the device, unless you need/want the ability to downgrade policy formats
+at load time.
 
-You also need the CONFIG_*_FS_XATTR and CONFIG_*_FS_SECURITY options
-enabled for each filesystem that you use that supports per-file security
-attributes, e.g.
-
-Kernel 3.8.13 supports up through policy.28, so as long as your
-checkpolicy generates a policy file in version 28 or older you are fine.
- The -c option to checkpolicy can be used to force it to an older
-version; we use that for Android to ensure compatibility with the
-Android 3.4 kernels.
-
+The parts of policycoreutils that matter to you should already exist in
+some form in busybox if you build it with SELinux support enabled
 
 
 
