@@ -1,80 +1,58 @@
-Message-ID: <526AABFC.7070709@tycho.nsa.gov>
-Date: Fri, 25 Oct 2013 13:35:56 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux <selinux@tycho.nsa.gov>,
+Message-ID: <1382723585.3041.169.camel@d30>
+Subject: Re: Update to CIL
+From: Dominick Grift <dominick.grift@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>,
+        Steve Lawrence
+ <slawrence@tresys.com>,
         Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: Allow audit2allow to return constraint information from policy
-References: <5269207C.4090809@redhat.com>
-In-Reply-To: <5269207C.4090809@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 25 Oct 2013 19:53:05 +0200
+In-Reply-To: <52617C02.4060500@tycho.nsa.gov>
+References: <52617C02.4060500@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/24/2013 09:28 AM, Daniel J Walsh wrote:
-> Sadly we thought these discussions had happened on the list, but I guess we
-> had taken it private.  Here is the userspace patch to reveal this information.
+On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
+> I pushed an update of CIL to bitbucket.
+
+Is it me or is the negator "not" not working here:
+
+> (boolean secure_mode_insmod false)
+
+> (booleanif (not secure_mode_insmod)
+>   (true
+>     (allow loadkernelmodule self (capability (sys_module sys_nice)))
+>     (allow loadkernelmodule kernel_t (process (setsched)))))
 > 
-> The kernel team will be posting the kernel patch hopefully soon.  We believe
-> that even though the kernel does not need the additional information about the
-> constraint, the limited space required to carry this information makes sense.
 
-I gave comments on the kernel patch, so hopefully that can be revised
-and resubmitted.
 
-For this one, can we get the patch submitted by Richard after making
-changes as per these comments?
+> (macro kernel_load_module ((type ARG1))
+>   (typeattributeset loadkernelmodule ARG1))
 
-And I think it should be split up into separate patches for libsepol,
-libselinux, policycoreutils, and sepolgen.
+> (call kernel_load_module (kernel_t))
 
-Check your coding style as per CodingStyle, use scripts/checkpatch.pl
-from the kernel as a rough guide, and use scripts/Lindent as a last
-resort if you've messed up.
+> # getsebool -a | grep insmod
+> secure_mode_insmod --> off
 
-Why did we need a new modular format version in addition to a new kernel
-format version?  You don't appear to use it anywhere.
 
-On the sepol_class_name_to_id() and sepol_perm_name_to_av() helpers,
-libselinux has security_class_to_string() / string_to_security_class()
-and security_av_perm_to_string() / string_to_av_perm() /
-security_av_string() helpers and libsepol has sepol_av_to_string().
-Just wondering if we should try and use consistent names aside from
-sepol_ prefix and different implementations (policy-based vs
-selinuxfs-based).
+> # sesearch -ASCT -p sys_module | grep insmod
+> ET allow kernel_t kernel_t : capability { sys_module sys_nice } ; [ secure_mode_insmod ! ]
 
-Output looks like:
-# audit2why -p /etc/selinux/targeted/policy/policy.29 < avc
-type=AVC msg=audit(1382706778.165:3267): avc:  denied  { signal } for
-pid=4076 comm="bash"
-scontext=unconfined_u:unconfined_r:sandbox_t:s0:c353,c935
-tcontext=unconfined_u:unconfined_r:sandbox_t:s0:c96,c826 tclass=process
+> # ausearch -m user_avc,avc,selinux_err -ts 19:35 -i | grep sys_module | audit2why
+> type=AVC msg=audit(10/25/2013 19:35:43.392:140) : avc:  denied  { sys_module } for  pid=494 comm=modprobe capability=sys_module  scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:system_r:kernel_t:s0 tclass=capability 
+> 
+>         Was caused by:
+>         The boolean secure_mode_policyload was set incorrectly. 
+>         Description:
+>         Allow secure to mode policyload
+> 
+>         Allow access by executing:
+>         # setsebool -P secure_mode_policyload 1
 
-	Was caused by:
 
-#Constraint rule:
-	mlsconstrain process { signal } ((h1 dom h2 -Fail-)  or (t1=sandbox_t
-neq TYPE_ENTRY -Fail-) { POLICY_SOURCE: mcs_constrained_type } );
-Constraint DENIED
-mlsconstrain process { sigkill sigstop } ((h1 dom h2 -Fail-)  or
-(t1=sandbox_t  neq TYPE_ENTRY -Fail-) { POLICY_SOURCE:
-mcs_constrained_type } ); Constraint DENIED
 
-#	Possible cause is the source level (s0:c353,c935) and target level
-(s0:c96,c826) are different.
-
-Is there a reason it wasn't displayed in the same way as the original
-constraint (e.g. why doesn't it say ( t1 != mcs_constrained_type), why
-is it partially postfix notation (neq) and what is the purpose of
-putting TYPE_ENTRY into the output?  And why didn't it suggest assigning
-the attribute to the source type as an alternative fix?
-
-Buffer/string management looks...complicated.  Can we reduce all of the
-copying/allocation that goes on there?  And have you run this through
-valgrind (likely need a C test program that directly uses the libsepol
-interface; could even add it as a menu option under the debug (-d)
-facility of checkpolicy).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
