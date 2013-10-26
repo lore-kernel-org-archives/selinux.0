@@ -1,62 +1,99 @@
-Message-ID: <526AD092.3070903@tycho.nsa.gov>
-Date: Fri, 25 Oct 2013 16:12:02 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: eparis@redhat.com, selinux@tycho.nsa.gov
-Subject: Re: Sven Vermeulen patch to fix sepolgen test code
-References: <526ACA3C.7020206@redhat.com>
-In-Reply-To: <526ACA3C.7020206@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Message-ID: <1382788727.3592.16.camel@d30>
+Subject: Re: Update to CIL
+From: Dominick Grift <dominick.grift@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>,
+        Steve Lawrence
+ <slawrence@tresys.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Date: Sat, 26 Oct 2013 13:58:47 +0200
+In-Reply-To: <52617C02.4060500@tycho.nsa.gov>
+References: <52617C02.4060500@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/25/2013 03:45 PM, Daniel J Walsh wrote:
+On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
+> I pushed an update of CIL to bitbucket.
+
+Some other things i noticed:
+
+dontaudit seems to not work ( at least not in the scenario below ):
+
+> (macro domtrans_pattern ((type ARG1) (type ARG2) (type ARG3))
+>   (call domain_auto_transition_pattern (ARG1 ARG2 ARG3))
+>   (allow ARG3 ARG1 (fd (use)))
+>   (allow ARG3 ARG1 (rw_fifo_file_perms))
+>   (allow ARG3 ARG1 (process (sigchld))))
+
+> (macro domain_auto_transition_pattern ((type ARG1) (type ARG2) (type ARG3))
+>   (call domain_transition_pattern (ARG1 ARG2 ARG3))
+>   (typetransition ARG1 ARG2 process "*" ARG3))
+
+> (macro domain_transition_pattern ((type ARG1) (type ARG2) (type ARG3))
+>   (allow ARG1 ARG2 (mmap_file_perms))
+>   (allow ARG1 ARG3 (process (transition)))
+>   (dontaudit ARG1 ARG3 (process (noatsecure siginh rlimitinh))))
+
+> (macro systemd_domtrans_cgroups_agent ((type ARG1))
+>   (call domtrans_pattern (ARG1 systemd_cgroups_agent_exec_t
+>             systemd_cgroups_agent_t)))
+
+> (optional dependsonsystemd_kernel
+> (call systemd_signal (kernel_t))
+> (call systemd_sigchld (kernel_t))
+> (call systemd_domtrans (kernel_t))
+> (call domain_dyntrans_type (kernel_t))
+> (call systemd_domtrans_cgroups_agent (kernel_t))
+> (call systemd_dyntrans (kernel_t)))
+
+> # sesearch --dontaudit -s kernel_t
 > 
->    This patch looks good to me. acked.
 
-This reverts the fix I just applied, and causes make test to fail in
-sepolgen for me.  Do you see a different result?  Also, cc me.
+> allow kernel_t systemd_cgroups_agent_t:process { siginh rlimitinh noatsecure };
+> 
 
-Current selinux master:
-cd selinux
-git checkout master
-git pull
-cd sepolgen
-make test
-$ make test
-make -C tests test
-make[1]: Entering directory `/home/sds/selinux/sepolgen/tests'
-python run-tests.py
-...........................................
-----------------------------------------------------------------------
-Ran 43 tests in 0.811s
+I am also seeing a weird issue where some things are created with a wrong context
 
-OK
-make[1]: Leaving directory `/home/sds/selinux/sepolgen/tests'
+for example:
 
-With this patch:
-make -C tests test
-make[1]: Entering directory `/home/sds/selinux/sepolgen/tests'
-python run-tests.py
-............................F..............
-======================================================================
-FAIL: test_append (test_matching.TestMatchList)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/sds/selinux/sepolgen/tests/test_matching.py", line 54, in
-test_append
-    self.assertEqual(len(ml), 2)
-AssertionError: 1 != 2
+> # ls -alZ /dev/pts/ptmx
+> c---------. root root system_u:system_r:kernel_t:s0    /dev/pts/ptmx
 
-----------------------------------------------------------------------
-Ran 43 tests in 0.796s
+there is a type transition rule:
 
-FAILED (failures=1)
-make[1]: *** [test] Error 1
-make[1]: Leaving directory `/home/sds/selinux/sepolgen/tests'
-make: *** [test] Error 2
+> (macro filesystem_devpts_filetrans ((type ARG1) (class ARG2) (name ARG3)
+>             (type ARG4))
+>   (call devices_list (ARG1))
+>   (call filetrans_pattern (ARG1 devpts_t ARG2 ARG3 ARG4)))
 
+> (macro filetrans_pattern ((type ARG1) (type ARG2) (class ARG3)
+>             (name ARG4) (type ARG5))
+>   (allow ARG1 ARG2 (rw_dir_perms))
+>   (typetransition ARG1 ARG2 ARG3 ARG4 ARG5))
+
+> (macro term_filetrans_ptmx ((type ARG1) (name ARG2))
+> (call filesystem_devpts_filetrans (ARG1 chr_file ARG2 ptmx_t))
+> (call devices_filetrans (ARG1 chr_file ARG2 ptmx_t)))
+
+> (macro devices_filetrans ((type ARG1) (class ARG2) (name ARG3) (type ARG4))
+>   (call filetrans_pattern (ARG1 device_t ARG2 ARG3 ARG4)))
+
+> (call term_filetrans_ptmx (kernel_t "ptmx"))
+
+
+> # sesearch -ASCT -s kernel_t | grep ptmx
+>    allow kernel_t ptmx_t : chr_file { create getattr setattr open } ; 
+> type_transition kernel_t device_t : chr_file ptmx_t "ptmx"; 
+> type_transition kernel_t devpts_t : chr_file ptmx_t "ptmx";
+
+
+By the way on a slight unrelated note:
+
+In the filecon() we use symlink, char, block (etc) but elsewhere its lnk_file, chr_file, blk_file (etc)
+
+I prefer consistency
 
 
 
