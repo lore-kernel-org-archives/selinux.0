@@ -1,65 +1,71 @@
-Date: Mon, 28 Oct 2013 14:36:05 +0100
-From: Laurent Bigonville <bigon@debian.org>
+Message-ID: <526E6A01.4070904@redhat.com>
+Date: Mon, 28 Oct 2013 09:43:29 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel J Walsh
- <dwalsh@redhat.com>,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: avc_has_perm() returns -1 even when SELinux is in permissive
- mode
-Message-ID: <20131028143605.02a85190@soldur.bigon.be>
-In-Reply-To: <526E5D5C.8010505@tycho.nsa.gov>
-References: <20131027144337.5b89c5a8@fornost.bigon.be>
-	<526E5D5C.8010505@tycho.nsa.gov>
-Mime-Version: 1.0
+CC: eparis@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: Sven Vermeulen patch to fix sepolgen test code
+References: <526ACA3C.7020206@redhat.com> <526AD092.3070903@tycho.nsa.gov>
+In-Reply-To: <526AD092.3070903@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Le Mon, 28 Oct 2013 08:49:32 -0400,
-Stephen Smalley <sds@tycho.nsa.gov> a écrit :
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On 10/27/2013 09:43 AM, Laurent Bigonville wrote:
-> > Hello,
-> > 
-> > After some debugging on Debian to figure out why D-Bus why denying
-> > messages between my user session and policykit with SELinux in
-> > permissive mode, eparis pointed me that Fedora has a patch for this
-> > in the avc_has_perm() function.
-> > 
-> > The patch[0] itself seems pretty trivial and I was wondering if it
-> > (or something similar) could be merged in the upstream codebase.
-> > 
-> > But, if I'm not wrong, this patch makes avc_has_perm() and
-> > avc_has_perm_noaudit() have different behavior when the machine is
-> > running in permissive mode, shouldn't this be tested in the
-> > avc_has_perm_noaudit() function instead?
+On 10/25/2013 04:12 PM, Stephen Smalley wrote:
+> On 10/25/2013 03:45 PM, Daniel J Walsh wrote:
+>> 
+>> This patch looks good to me. acked.
 > 
-> I'm pretty sure I NAKed that previously.  Permissive mode isn't
-> supposed to hide other kinds of errors/bugs other than policy
-> denials, so making it hide arbitrary error conditions (which could
-> include completely bogus security contexts, security classes, memory
-> allocation failure, etc) is definitely not a good thing.
-> Particularly if there is absolutely no logging of what the issue was
-> so that you have a hope of noting it before switching to enforcing.
+> This reverts the fix I just applied, and causes make test to fail in 
+> sepolgen for me.  Do you see a different result?  Also, cc me.
+> 
+> Current selinux master: cd selinux git checkout master git pull cd
+> sepolgen make test $ make test make -C tests test make[1]: Entering
+> directory `/home/sds/selinux/sepolgen/tests' python run-tests.py 
+> .......................................... 
+> ---------------------------------------------------------------------- Ran
+> 43 tests in 0.811s
+> 
+> OK make[1]: Leaving directory `/home/sds/selinux/sepolgen/tests'
+> 
+> With this patch: make -C tests test make[1]: Entering directory
+> `/home/sds/selinux/sepolgen/tests' python run-tests.py 
+> ...........................F.............. 
+> ====================================================================== 
+> FAIL: test_append (test_matching.TestMatchList) 
+> ---------------------------------------------------------------------- 
+> Traceback (most recent call last): File
+> "/home/sds/selinux/sepolgen/tests/test_matching.py", line 54, in 
+> test_append self.assertEqual(len(ml), 2) AssertionError: 1 != 2
+> 
+> ---------------------------------------------------------------------- Ran
+> 43 tests in 0.796s
+> 
+> FAILED (failures=1) make[1]: *** [test] Error 1 make[1]: Leaving directory
+> `/home/sds/selinux/sepolgen/tests' make: *** [test] Error 2
+> 
+> 
+> 
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
+> 
+> 
 
-Thanks for the answers, I've reopened a bug[0] against d-bus, also I
-have the feeling that other applications are expecting the Fedora
-behavior (systemd?). If somebody want to add a comment, to the bug that
-would be great.
+I agree the value should be 1 not 2.  Need to drop patch.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-I'm not too sure what to do here, personally don't want to diverge from
-upstream too much, especially with such behavior changes, Sven are you
-adding a patch for this in Gentoo?
-
-Cheers,
-
-Laurent Bigonville
-
-[0] https://bugs.freedesktop.org/show_bug.cgi?id=70894
-
-PS: The avc_has_perm(3) manpage is wrong as it states that it will
-returns 0 in permissive mode, I guess this should be removed.
-
+iEYEARECAAYFAlJuagEACgkQrlYvE4MpobPrcwCghA4N8gmCWO2B1lpFIpoZtTup
+dRAAnRYzJTYM1bunKIz84G1U4bf1dcHU
+=tFPq
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
