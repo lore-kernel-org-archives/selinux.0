@@ -1,25 +1,41 @@
-Received: from [192.168.25.131] (moss-pluto [192.168.25.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id r9UIXBhx001711
-	for <selinux@tycho.nsa.gov>; Wed, 30 Oct 2013 14:33:11 -0400
-Message-ID: <527150E7.10306@tycho.nsa.gov>
-Date: Wed, 30 Oct 2013 14:33:11 -0400
+Message-ID: <5271566F.4070207@tycho.nsa.gov>
+Date: Wed, 30 Oct 2013 14:56:47 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: [ANN] SELinux userspace release
-References: <52714B27.5090108@tycho.nsa.gov>
-In-Reply-To: <52714B27.5090108@tycho.nsa.gov>
+To: SELinux-NSA <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Eric Paris <eparis@redhat.com>,
+        Joshua Brindle <brindle@quarksecurity.com>,
+        Steve Lawrence <slawrence@tresys.com>
+Subject: Pruning dead/obsolete branches?
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/30/2013 02:08 PM, Stephen Smalley wrote:
-> A new release of the SELinux userspace has been posted to:
-> http://userspace.selinuxproject.org/trac/wiki/Releases
-> 
-> For git users, a new tag has been pushed for this release, 20131013.
+Hi,
 
-Sorry, that should be 20131030.
+There are a number of old branches in the selinux repo that I think can
+be safely pruned, but I wanted to confirm first.
+
+The branches other than master are:
+- autotools:  last attempt to convert over to using autotools.  Last
+commit 2008.
+
+- integration: last attempt to integrate src-policy into master?  Last
+commit 2011.
+
+- queue:  Eric's branch for changes queued for merging to master, kind
+of a next branch.  Last commit Feb 2013.
+
+- src-policy:  source policy module work.  Last commit 2010.
+
+- src-revert:  Not really sure.  Last commit 2011.
+
+- stable_1_0:  attempt to provide a long term stable series tracking the
+1.x versions of selinux userspace for long term distro users.  Last
+commit 2008.  Turned out to be pointless because the long term distros
+did their own backporting and maintenance.
+
+Any reason to retain any of these branches at this point?
 
 
 
