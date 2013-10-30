@@ -1,301 +1,111 @@
-Message-ID: <52716BC7.5070005@tycho.nsa.gov>
-Date: Wed, 30 Oct 2013 16:27:51 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <52716DE6.8040401@redhat.com>
+Date: Wed, 30 Oct 2013 16:36:54 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: selinux@tycho.nsa.gov, Richard Haines <richard_c_haines@btinternet.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: Re: SELinux: Update policy version to support constraints info
-References: <1382398322.27942.61.camel@localhost>
-In-Reply-To: <1382398322.27942.61.camel@localhost>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <jbrindle@tresys.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Been looking at further shrinkage of the SELinux footprint on
+ Linux.
+References: <52715E75.5000005@redhat.com> <527168B1.4040905@tycho.nsa.gov>
+In-Reply-To: <527168B1.4040905@tycho.nsa.gov>
 Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/21/2013 07:32 PM, Eric Paris wrote:
-> From: Richard Haines <richard_c_haines@btinternet.com>
-> Date: Tue, 18 Dec 2012 19:37:46 +0000
-> 
-> Update the policy version (POLICYDB_VERSION_CONSTRAINT_NAMES) to allow
-> holding of policy source info for constraints.
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Can we get an updated version of this patch with my comments addressed
-so we can get this queued for mainline?  The libsepol/checkpolicy I just
-released includes the userspace support, so it would be nice if the
-kernel support could become available in the not-too-distant future.
-
-
-> ---
->  security/selinux/include/security.h |    3 +-
->  security/selinux/ss/constraint.h    |    1 +
->  security/selinux/ss/policydb.c      |  100 ++++++++++++++++++++++++++++++++---
->  security/selinux/ss/policydb.h      |   11 ++++
->  4 files changed, 107 insertions(+), 8 deletions(-)
+On 10/30/2013 04:14 PM, Stephen Smalley wrote:
+> On 10/30/2013 03:31 PM, Daniel J Walsh wrote:
+>> We are trying to shrink out cloud image as small as possible.  One idea
+>> was to shrink SELinux Policy footprint by adding compression to it.
+>> 
+>> Here is a patch I have been fooling around with which would read a
+>> policy.29 file if it was compressed with xz.
+>> 
+>> xz compression does around a 90% compression on the policy file,  and
+>> does not slow the load in any meaningfull way.
+>> 
+>> I also have done a patch to try out gzip.
+>> 
+>> gzip and xz are already used in systemd, which means we would not need to
+>> add a new requirement to the minimal system.
+>> 
+>> xz seems quicker and smaller then gzip.
+>> 
+>> Have not started playing with libsemanage yet.
+>> 
+>> What do you think?  Is xz availabel on Android?
 > 
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 927fc14..bdf0a56 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -33,13 +33,14 @@
->  #define POLICYDB_VERSION_ROLETRANS	26
->  #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
->  #define POLICYDB_VERSION_DEFAULT_TYPE	28
-> +#define POLICYDB_VERSION_CONSTRAINT_NAMES	29
->  
->  /* Range of policy versions we understand*/
->  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
->  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
->  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
->  #else
-> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_DEFAULT_TYPE
-> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
->  #endif
->  
->  /* Mask for just the mount related flags */
-> diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/constraint.h
-> index 149dda7..3855ea8 100644
-> --- a/security/selinux/ss/constraint.h
-> +++ b/security/selinux/ss/constraint.h
-> @@ -48,6 +48,7 @@ struct constraint_expr {
->  	u32 op;			/* operator */
->  
->  	struct ebitmap names;	/* names */
-> +	struct type_set_datum *type_names;
->  
->  	struct constraint_expr *next;   /* next expression */
->  };
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 9cd9b7c..f1b23df 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -143,6 +143,11 @@ static struct policydb_compat_info policydb_compat[] = {
->  		.sym_num	= SYM_NUM,
->  		.ocon_num	= OCON_NUM,
->  	},
-> +	{
-> +		.version	= POLICYDB_VERSION_CONSTRAINT_NAMES,
-> +		.sym_num	= SYM_NUM,
-> +		.ocon_num	= OCON_NUM,
-> +	},
->  };
->  
->  static struct policydb_compat_info *policydb_lookup_compat(int version)
-> @@ -613,11 +618,20 @@ static int common_destroy(void *key, void *datum, void *p)
->  	return 0;
->  }
->  
-> -static int cls_destroy(void *key, void *datum, void *p)
-> +static void type_set_destroy(struct type_set_datum * t)
-> +{
-> +	if (t != NULL) {
-> +		ebitmap_destroy(&t->types);
-> +		ebitmap_destroy(&t->negset);
-> +	}
-> +}
-> +
-> +static int cls_destroy(void *key, void *datum, void *datap)
->  {
->  	struct class_datum *cladatum;
->  	struct constraint_node *constraint, *ctemp;
->  	struct constraint_expr *e, *etmp;
-> +	struct policydb *p = datap;
->  
->  	kfree(key);
->  	if (datum) {
-> @@ -629,6 +643,10 @@ static int cls_destroy(void *key, void *datum, void *p)
->  			e = constraint->expr;
->  			while (e) {
->  				ebitmap_destroy(&e->names);
-> +				if (p->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES) {
-> +					type_set_destroy(e->type_names);
-> +					kfree(e->type_names);
-> +				}
->  				etmp = e;
->  				e = e->next;
->  				kfree(etmp);
-> @@ -643,6 +661,10 @@ static int cls_destroy(void *key, void *datum, void *p)
->  			e = constraint->expr;
->  			while (e) {
->  				ebitmap_destroy(&e->names);
-> +				if (p->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES) {
-> +					type_set_destroy(e->type_names);
-> +					kfree(e->type_names);
-> +				}
->  				etmp = e;
->  				e = e->next;
->  				kfree(etmp);
-> @@ -775,7 +797,7 @@ void policydb_destroy(struct policydb *p)
->  
->  	for (i = 0; i < SYM_NUM; i++) {
->  		cond_resched();
-> -		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
-> +		hashtab_map(p->symtab[i].table, destroy_f[i], p);
->  		hashtab_destroy(p->symtab[i].table);
->  	}
->  
-> @@ -1156,8 +1178,34 @@ bad:
->  	return rc;
->  }
->  
-> -static int read_cons_helper(struct constraint_node **nodep, int ncons,
-> -			    int allowxtarget, void *fp)
-> +static void type_set_init(struct type_set_datum * t)
-> +{
-> +	ebitmap_init(&t->types);
-> +	ebitmap_init(&t->negset);
-> +}
-> +
-> +static int type_set_read(struct type_set_datum * t, void *fp)
-> +{
-> +	__le32 buf[1];
-> +	int rc;
-> +
-> +	if (ebitmap_read(&t->types, fp))
-> +		return -EINVAL;
-> +	if (ebitmap_read(&t->negset, fp))
-> +		return -EINVAL;
-> +
-> +	rc = next_entry(buf, fp, sizeof(u32));
-> +	if (rc < 0)
-> +		return -EINVAL;
-> +	t->flags = le32_to_cpu(buf[0]);
-> +
-> +	return 0;
-> +}
-> +
-> +
-> +static int read_cons_helper(struct policydb *p,
-> +				struct constraint_node **nodep,
-> +				int ncons, int allowxtarget, void *fp)
->  {
->  	struct constraint_node *c, *lc;
->  	struct constraint_expr *e, *le;
-> @@ -1196,6 +1244,7 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
->  			rc = next_entry(buf, fp, (sizeof(u32) * 3));
->  			if (rc)
->  				return rc;
-> +
->  			e->expr_type = le32_to_cpu(buf[0]);
->  			e->attr = le32_to_cpu(buf[1]);
->  			e->op = le32_to_cpu(buf[2]);
-> @@ -1225,6 +1274,17 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
->  				rc = ebitmap_read(&e->names, fp);
->  				if (rc)
->  					return rc;
-> +
-> +				if (p->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES) {
-> +					e->type_names = kzalloc(sizeof(*e->type_names), GFP_KERNEL);
-> +					if (!e->type_names)
-> +						return -ENOMEM;
-> +
-> +					type_set_init(e->type_names);
-> +					rc = type_set_read(e->type_names, fp);
-> +					if (rc)
-> +						return rc;
-> +				}
->  				break;
->  			default:
->  				return -EINVAL;
-> @@ -1233,6 +1293,7 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
->  		}
->  		if (depth != 0)
->  			return -EINVAL;
-> +
->  		lc = c;
->  	}
->  
-> @@ -1301,7 +1362,7 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
->  			goto bad;
->  	}
->  
-> -	rc = read_cons_helper(&cladatum->constraints, ncons, 0, fp);
-> +	rc = read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
->  	if (rc)
->  		goto bad;
->  
-> @@ -1311,7 +1372,7 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
->  		if (rc)
->  			goto bad;
->  		ncons = le32_to_cpu(buf[0]);
-> -		rc = read_cons_helper(&cladatum->validatetrans, ncons, 1, fp);
-> +		rc = read_cons_helper(p, &cladatum->validatetrans, ncons, 1, fp);
->  		if (rc)
->  			goto bad;
->  	}
-> @@ -1339,7 +1400,7 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
->  
->  	return 0;
->  bad:
-> -	cls_destroy(key, cladatum, NULL);
-> +	cls_destroy(key, cladatum, p);
->  	return rc;
->  }
->  
-> @@ -2750,6 +2811,24 @@ static int common_write(void *vkey, void *datum, void *ptr)
->  	return 0;
->  }
->  
-> +static int type_set_write(struct type_set_datum * t, void *fp)
-> +{
-> +	int rc;
-> +	__le32 buf[1];
-> +
-> +	if (ebitmap_write(&t->types, fp))
-> +		return -EINVAL;
-> +	if (ebitmap_write(&t->negset, fp))
-> +		return -EINVAL;
-> +
-> +	buf[0] = cpu_to_le32(t->flags);
-> +	rc = put_entry(buf, sizeof(u32), 1, fp);
-> +	if (rc)
-> +		return -EINVAL;
-> +
-> +	return 0;
-> +}
-> +
->  static int write_cons_helper(struct policydb *p, struct constraint_node *node,
->  			     void *fp)
->  {
-> @@ -2781,6 +2860,13 @@ static int write_cons_helper(struct policydb *p, struct constraint_node *node,
->  				rc = ebitmap_write(&e->names, fp);
->  				if (rc)
->  					return rc;
-> +
-> +				if (p->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES) {
-> +					rc = type_set_write(e->type_names, fp);
-> +					if (rc)
-> +						return rc;
-> +				}
-> +
->  				break;
->  			default:
->  				break;
-> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> index da63747..c0bb6cb 100644
-> --- a/security/selinux/ss/policydb.h
-> +++ b/security/selinux/ss/policydb.h
-> @@ -154,6 +154,17 @@ struct cond_bool_datum {
->  struct cond_node;
->  
->  /*
-> + * type set preserves data needed to determine constraint info from
-> + * policy source. This is not used by the kernel policy but allows
-> + * utilities such as audit2allow to determine constraint denials.
-> + */
-> +struct type_set_datum {
-> +	struct ebitmap types;
-> +	struct ebitmap negset;
-> +	u32 flags;
-> +};
-> +
-> +/*
->   * The configuration data includes security contexts for
->   * initial SIDs, unlabeled file systems, TCP and UDP port numbers,
->   * network interfaces, and nodes.  This structure stores the
+> Personally, I'd much rather see work done on shrinking the actual policy 
+> size in Fedora rather than just compressing it.  Both by reducing the 
+> overall size of refpolicy through coalescing similar domains/types and by
+> making better use of the work that has already been done to support putting
+> policy modules into rpms and only installing what actually get used.
 > 
+> On the former, I wrote a little tool for Android called sepolicy-analyze 
+> that identifies all equivalent types in the policy.  It works nicely on the
+> Android policy but unfortunately I gave up waiting on it running on Fedora
+> policy because it is so large.  We're also looking at extending that tool
+> to identify isomorphic types, not just equivalent ones.  I know apol has a
+> similar feature under the Analysis tab (Types relationship summary) but it
+> only does it on a pairwise basis; there doesn't seem to be any way to apply
+> it systematically.
+> 
+> Anyway, with regard to impact on Android of your patch, it won't affect it
+> as libselinux is forked (and significantly modified) there as Joshua noted
+> and we don't bring over any of libsemanage or policycoreutils either (we
+> reimplemented the pieces of policycoreutils that we wanted in the Android
+> init and toolbox programs, just as people previously did in busybox).  And
+> we only build/use libsepol and checkpolicy on the build host, not the
+> device.  So I think the only real concern is whether this is an acceptable
+> dependency on conventional Linux distros.
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
+> 
+Well we have done some work on combining like domains, see antivirus and
+spamassassin, but this is a lot of work which no one has time for.
 
+I would love to see the mailserver and mailclients domains combined.
+
+If people want to suggest or more importantly submit patches to combine other
+domains, I am all for it.
+
+Problems with shipping policy within rpm still exists. although we (Red Hat)
+are at least moving toward layered products shipping their own policy.
+openstack-selinux, openshift-selinux, gluster-selinux.  This is more for them
+updating quicker then RHEL.
+
+1. semanage is slowwwwwwwww.  If we ran all pp files without combining them
+into a single transaction the installation  and yum updates would take a long
+time.
+2.  Cordination between domains, we put a fix into an interface and we need to
+trigger 10 packages to update.
+
+For every apache bug in policy, do we want to wait for an update apache
+package, or do we ship lots more packages.
+
+3. Uninstall of types leaves unlabeled_t content on disk.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlJxbeYACgkQrlYvE4MpobOrgwCgqurQA/VYLedbOs4nKzysnsIy
+Q8AAoOd7jQXImOyRbhDDoMHWhzZ1d/h4
+=V0Rp
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
