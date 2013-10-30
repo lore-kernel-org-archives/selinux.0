@@ -1,19 +1,18 @@
-Message-ID: <52715741.4060405@tresys.com>
-Date: Wed, 30 Oct 2013 15:00:17 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <5271574B.5050501@quarksecurity.com>
+Date: Wed, 30 Oct 2013 15:00:27 -0400
+From: Joshua Brindle <brindle@quarksecurity.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: SELinux-NSA <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        Eric Paris <eparis@redhat.com>,
-        Joshua Brindle <brindle@quarksecurity.com>
+        Eric Paris <eparis@redhat.com>, Steve Lawrence <slawrence@tresys.com>
 Subject: Re: Pruning dead/obsolete branches?
 References: <5271566F.4070207@tycho.nsa.gov>
 In-Reply-To: <5271566F.4070207@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/30/2013 02:56 PM, Stephen Smalley wrote:
+Stephen Smalley wrote:
 > Hi,
 >
 > There are a number of old branches in the selinux repo that I think can
@@ -39,15 +38,12 @@ On 10/30/2013 02:56 PM, Stephen Smalley wrote:
 > did their own backporting and maintenance.
 >
 > Any reason to retain any of these branches at this point?
->
->
->
 
-src-revert, src-policy, and integration are all related to CIL with the 
-eventual goal of getting it upstreamed. There is ongoing work with these 
-branches, just not yet committed, so we should at least keep these around.
+Aside from queue +1 on removing all these.
 
-- Steve
+For queue, I'm not sure if it is necessary or useful, I'll let Eric 
+chime in.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
