@@ -1,93 +1,80 @@
-Message-ID: <52724ABC.8020705@tycho.nsa.gov>
-Date: Thu, 31 Oct 2013 08:19:08 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <52725064.4080508@tresys.com>
+Date: Thu, 31 Oct 2013 08:43:16 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: SELinux-NSA <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Split policycoreutils up?
-References: <5272491F.2090004@tycho.nsa.gov>
-In-Reply-To: <5272491F.2090004@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Been looking at further shrinkage of the SELinux footprint on
+ Linux.
+References: <52715E75.5000005@redhat.com> <527168B1.4040905@tycho.nsa.gov> <52716DE6.8040401@redhat.com> <52716F8C.6060109@tycho.nsa.gov> <5271706B.2030201@tycho.nsa.gov>
+In-Reply-To: <5271706B.2030201@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 10/31/2013 08:12 AM, Stephen Smalley wrote:
-> Hi,
-> 
-> policycoreutils started life as a minimalist set of utilities required
-> for SELinux operation.  It has grown far beyond that, and now includes a
-> number of non-essential components.  Some of those components have also
-> grown dependencies on external libraries from setools (in particular,
-> sepolicy, which is now a dependency for semanage, sandbox, and gui?).
-> 
-> So I was wondering whether it is worthwhile to split up policycoreutils
-> into multiple source packages, or otherwise support a minimalist build
-> of it.
-> 
-> Fedora already generates multiple separate binary packages from it:
-> 
-> 1) policycoreutils (secon, semodule_*, fixfiles, genhomedircon,
-> load_policy, restorecon, run_init, semodule, sestatus, setfiles, setsebool)
-> 
-> Not sure what relies upon secon that leads to it being included in the
-> base package - maybe init scripts? semodule_deps, semodule_expand, and
-> semodule_link are all purely developer tools that shouldn't be needed in
-> common practice.  semodule_package is necessary only if building policy
-> modules, so I'd tend to put that in a -devel package.  Not sure whether
-> run_init is truly required in Fedora outside of -mls policy?  sestatus
-> isn't required for operation but is convenient to have.  The rest make
-> sense to me as part of the base package.
-> 
-> 2) policycoreutils-devel (sepolicy and sepolgen* from the separate
-> sepolgen source package, which gets combined into the policycoreutils
-> source package in Fedora)
-> 
-> Not sure how much sense this one makes in its current form separate from
-> policycoreutils-python below.
-> 
-> 3)  policycoreutils-python (audit2allow, audit2why, seamanage, chcat,
-> sandbox?, /usr/lib*/python*/site-packages/*)
-> 
-> Confused by why sandbox appears here but its dependencies are below in
-> policycoreutils-sandbox.  audit2allow/audit2why are effectively policy
-> development tools.   chcat seems more like a base utility although I'm
-> not sure how many people use it rather than just using chcon -l or
-> semanage these days.  semanage is required for management if using
-> managed/modular policy, so it is more fundamental than
-> audit2allow/audit2why, chcat, or sandbox.
-> 
-> 4) policycoreutils-gui (selinux-polgengui, system-config-selinux)
-> 
-> Seems reasonable.
-> 
-> 5) policycoreutils-newrole (newrole)
-> 
-> I'd tend to put this into the base or at least with run_init.  IIRC, it
-> was only separated to avoid having an unnecessary setuid/file-caps
-> binary in the non-MLS case. If the common thread is MLS, then I'd tend
-> to put newrole, run_init, and chcat together.
-> 
-> 6) policycoreutils-restorecond (restorecond)
-> 
-> Makes sense as an optional component.
+On 10/30/2013 04:47 PM, Stephen Smalley wrote:
+> On 10/30/2013 04:43 PM, Stephen Smalley wrote:
+>> On 10/30/2013 04:36 PM, Daniel J Walsh wrote:
+>>> Well we have done some work on combining like domains, see antivirus and
+>>> spamassassin, but this is a lot of work which no one has time for.
+>>>
+>>> I would love to see the mailserver and mailclients domains combined.
+>>>
+>>> If people want to suggest or more importantly submit patches to combine other
+>>> domains, I am all for it.
+>>>
+>>> Problems with shipping policy within rpm still exists. although we (Red Hat)
+>>> are at least moving toward layered products shipping their own policy.
+>>> openstack-selinux, openshift-selinux, gluster-selinux.  This is more for them
+>>> updating quicker then RHEL.
+>>>
+>>> 1. semanage is slowwwwwwwww.  If we ran all pp files without combining them
+>>> into a single transaction the installation  and yum updates would take a long
+>>> time.
+>>
+>> Yes, I have to wonder if we don't need a complete overhaul/replacement
+>> of libsemanage (+ module portions of libsepol).  It seems like
+>> semodule/semanage transactions are far slower than running the entire
+>> policy through checkpolicy again (i.e. just using source modules and
+>> running them through m4 + checkpolicy on each transaction, ala the
+>> source policy module work that sadly has yet to reach maturity/completion).
+>
+> However, on this note, I'm pretty sure that the rpm work allows you to
+> just collect up all of the policy modules and run semodule once at the
+> end (collections or whatever).  So that particular problem should be
+> solved already even for the binary modules.
+>
 
-Also, do we even need/use restorecond anymore?  Isn't it obsoleted by
-name-based type transitions?
+This is correct. the collection feature of RPM gathers up all selinux 
+policies from all the rpms in the yum/rpm transaction and installs them 
+all in a single semanage transaction. Note that although the work was 
+upstreamed, last I checked, the building of the selinux plugin that 
+performs the work to aggregate and install the policy modules is 
+currently disabled on fedora.
 
-> 
-> 7) policycoreutils-sandbox (seunshare, /usr/share/sandbox)
-> 
-> Ditto, except that I'd expect sandbox from policycoreutils-python in
-> this one too.
-> 
-> So, I guess the question is whether it provides any value to split up
-> the source package itself (as opposed to just the generated packages),
-> and if so, what the best decomposition is.
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+>>
+>>> 2.  Cordination between domains, we put a fix into an interface and we need to
+>>> trigger 10 packages to update.
+>>>
+>>> For every apache bug in policy, do we want to wait for an update apache
+>>> package, or do we ship lots more packages.
+>>
+>> That's also fixed if we go with source modules, right, since interface
+>> change would get applied by the m4 + checkpolicy cycle.  Or CIL.
+>>
+>>> 3. Uninstall of types leaves unlabeled_t content on disk.
+>>
+>> That's the only one that seems fundamental.  What if we pushed all file
+>> type declarations into their own module linked to the base filesystem
+>> package and just always installed that?  That won't affect policy size
+>> substantially; it is the allow rules that are the issue IIUC, not just
+>> the type decls.
+>>
+
+The way this is handled in the RPM collection feature is modules are 
+never uninstalled, even if the package that installed that module is. 
+Not ideal, but it solves this problem.
 
 
 --
