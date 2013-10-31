@@ -1,32 +1,42 @@
-Subject: Re: Been looking at further shrinkage of the SELinux footprint on
- Linux.
-From: Colin Walters <walters@verbum.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle
- <jbrindle@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <52715E75.5000005@redhat.com>
-References: <52715E75.5000005@redhat.com>
+Message-ID: <1383212707.7870.3.camel@d30>
+Subject: Re: Update to CIL
+From: Dominick Grift <dominick.grift@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>,
+        Steve Lawrence
+ <slawrence@tresys.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Date: Thu, 31 Oct 2013 10:45:07 +0100
+In-Reply-To: <52617C02.4060500@tycho.nsa.gov>
+References: <52617C02.4060500@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Date: Wed, 30 Oct 2013 19:54:30 -0400
-Message-ID: <1383177270.23834.37.camel@localhost>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2013-10-30 at 15:31 -0400, Daniel J Walsh wrote:
+On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
+> I pushed an update of CIL to bitbucket.
 
-> Here is a patch I have been fooling around with which would read a policy.29
-> file if it was compressed with xz.
+Here is another way to make secilc segfault:
 
-Hm, it's kind of ugly to attempt to open the policy with LZMA and only
-if that returns (any kind of error) fails fall back to the old code.
-Wouldn't it be better to say check whether or not it starts with a new
-magic number, like the kernel policydb_read() function does?
+> (typeattribute canrelabeltoshadow)
+> 
+> (typeattribute authunconfined)
 
-In other words have:
+> ; Never allow relabelto operation on shadow_t files unless the source
+> ; is associated with canrelabeltoshadow or authunconfined
+> 
+> (typeattribute notcanrelabeltoshadoworauthunconfined)
+> 
+> (typeattributeset notcanrelabeltoshadoworauthunconfined
+>             (not (or notcanrelabeltoshadoworauthunconfined authunconfined)))
+> 
+> (neverallow notcanrelabeltoshadoworauthunconfined shadow_t (file
+>             (relabelto)))
+> 
 
-[New 32 bit magic number] [Compressed policy]
+Its obviously a bug in the policy, but nonetheless it is like you said earlier: secilc should not segfault
+
 
 
 
