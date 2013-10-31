@@ -1,139 +1,70 @@
-From: Dan Walsh <dwalsh@redhat.com>
-To: sds@tycho.nsa.gov, eparis@redhat.com
-Cc: selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>
-Subject: [PATCH 01/11] Add test suite for audit2allow and sepolgen_ifgen
-Date: Thu, 31 Oct 2013 10:53:58 -0400
-Message-Id: <1383231238-7637-2-git-send-email-dwalsh@redhat.com>
-In-Reply-To: <1383231238-7637-1-git-send-email-dwalsh@redhat.com>
-References: <1383231238-7637-1-git-send-email-dwalsh@redhat.com>
+Message-ID: <527275AC.2020206@tycho.nsa.gov>
+Date: Thu, 31 Oct 2013 11:22:20 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux-NSA <SELinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Eric Paris <eparis@redhat.com>,
+        Joshua Brindle <brindle@quarksecurity.com>,
+        Steve Lawrence <slawrence@tresys.com>
+Subject: Re: Pruning dead/obsolete branches?
+References: <5271566F.4070207@tycho.nsa.gov>
+In-Reply-To: <5271566F.4070207@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
----
- policycoreutils/audit2allow/Makefile            |  4 +++
- policycoreutils/audit2allow/test.log            | 36 +++++++++++++++++++
- policycoreutils/audit2allow/test_audit2allow.py | 46 +++++++++++++++++++++++++
- 3 files changed, 86 insertions(+)
- create mode 100644 policycoreutils/audit2allow/test.log
- create mode 100644 policycoreutils/audit2allow/test_audit2allow.py
+On 10/30/2013 02:56 PM, Stephen Smalley wrote:
+> Hi,
+> 
+> There are a number of old branches in the selinux repo that I think can
+> be safely pruned, but I wanted to confirm first.
+> 
+> The branches other than master are:
+<snip>
+> - queue:  Eric's branch for changes queued for merging to master, kind
+> of a next branch.  Last commit Feb 2013.
 
-diff --git a/policycoreutils/audit2allow/Makefile b/policycoreutils/audit2allow/Makefile
-index fc290ea..f838b13 100644
---- a/policycoreutils/audit2allow/Makefile
-+++ b/policycoreutils/audit2allow/Makefile
-@@ -4,12 +4,16 @@ BINDIR ?= $(PREFIX)/bin
- LIBDIR ?= $(PREFIX)/lib
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
-+PYTHON ?= /usr/bin/python
- 
- all: audit2why
- 
- audit2why:
- 	ln -sf audit2allow audit2why
- 
-+test: all
-+	@$(PYTHON) test_audit2allow.py -v
-+
- install: all
- 	-mkdir -p $(BINDIR)
- 	install -m 755 audit2allow $(BINDIR)
-diff --git a/policycoreutils/audit2allow/test.log b/policycoreutils/audit2allow/test.log
-new file mode 100644
-index 0000000..8d23541
---- /dev/null
-+++ b/policycoreutils/audit2allow/test.log
-@@ -0,0 +1,36 @@
-+node=bill.example.com type=AVC_PATH msg=audit(1166045975.667:1128):  path="/usr/lib/libGL.so.1.2"
-+type=AVC msg=audit(1166045975.667:1129): avc: denied { write } for comm=local dev=dm-0 name=root.lock pid=10581 scontext=system_u:system_r:postfix_local_t:s0 tclass=file tcontext=system_u:object_r:mail_spool_t:s0
-+node=bob.example.com type=PATH msg=audit(1166111074.191:74): item=0 name="/etc/auto.net" inode=16483485 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:automount_lock_t:s0 type=CWD msg=audit(1166111074.191:74):  cwd="/"
-+node=bob.example.com type=SYSCALL msg=audit(1166111074.191:74): arch=40000003 syscall=33 success=no exit=-13 a0=92c5288 a1=1 a2=154d50 a3=92c5120 items=1 ppid=13935 pid=13944 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) comm="automount" exe="/usr/sbin/automount" subj=system_u:system_r:automount_t:s0 key=(null)
-+node=bob.example.com type=AVC msg=audit(1166111074.191:74): avc:  denied  { execute } for  pid=13944 comm="automount" name="auto.net" dev=dm-0 ino=16483485 scontext=system_u:system_r:automount_t:s0 tcontext=system_u:object_r:automount_lock_t:s0 tclass=file
-+node=james.example.com type=SYSCALL msg=audit(1165963069.244:851): arch=40000003 syscall=102 success=no exit=-13 a0=2 a1=bf96a830 a2=b5b1e8 a3=9e58ac0 items=0 ppid=21133 pid=21134 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts10 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
-+node=james.example.com type=AVC msg=audit(1165963069.244:851): avc:  denied  { name_bind } for  pid=21134 comm="httpd" src=81 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:reserved_port_t:s0 tclass=tcp_socket
-+node=tom.example.com type=SYSCALL msg=audit(1165963069.244:852): arch=40000003 syscall=102 success=no exit=-13 a0=2 a1=bf96a830 a2=b5b1e8 a3=9e58ac0 items=0 ppid=21133 pid=21134 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts10 comm="smbd" exe="/usr/sbin/smbd" subj=system_u:system_r:smbd_t:s0 key=(null)
-+node=tom.example.com type=AVC msg=audit(1165963069.244:852): avc:  denied  { name_connect } for  pid=21134 comm="smbd" src=81 scontext=system_u:system_r:smbd_t:s0 tcontext=system_u:object_r:reserved_port_t:s0 tclass=tcp_socket
-+node=mary.example.com type=SYSCALL msg=audit(1166023021.373:910): arch=40000003 syscall=12 success=no exit=-13 a0=8493cd8 a1=cc3 a2=3282ec a3=bf992a04 items=0 ppid=24423 pid=24427 auid=3267 uid=0 gid=0 euid=3267 suid=3267 fsuid=3267 egid=3267 sgid=3267 fsgid=3267 tty=(none) comm="vsftpd" exe="/usr/sbin/vsftpd" subj=system_u:system_r:ftpd_t:s0 key=(null)
-+node=mary.example.com type=AVC msg=audit(1166023021.373:910): avc:  denied  { search } for  pid=24427 comm="vsftpd" name="home" dev=dm-0 ino=9338881 scontext=system_u:system_r:ftpd_t:s0 tcontext=system_u:object_r:home_root_t:s0 tclass=dir
-+node=tom.example.com type=SYSCALL msg=audit(1165963069.244:852): arch=40000003 syscall=102 success=no exit=-13 a0=2 a1=bf96a830 a2=b5b1e8 a3=9e58ac0 items=0 ppid=21133 pid=21134 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts10 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
-+node=tom.example.com type=AVC msg=audit(1165963069.244:852): avc:  denied  { name_connect } for  pid=21134 comm="httpd" src=81 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:reserved_port_t:s0 tclass=tcp_socket
-+node=dan.example.com type=AVC_PATH msg=audit(1166017682.366:877):  path="/var/www/html/index.html"
-+node=dan.example.com type=SYSCALL msg=audit(1166017682.366:877): arch=40000003 syscall=196 success=no exit=-13 a0=96226a8 a1=bf88b01c a2=31fff4 a3=2008171 items=0 ppid=23762 pid=23768 auid=3267 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
-+node=dan.example.com type=AVC msg=audit(1166017682.366:877): avc:  denied  { execute_no_trans } for  pid=23768 comm="httpd" name="index.html" dev=dm-0 ino=7996439 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-+node=judy.example.com type=SYSCALL msg=audit(1165963069.244:853): arch=40000003 syscall=102 success=no exit=-13 a0=2 a1=bf96a830 a2=b5b1e8 a3=9e58ac0 items=0 ppid=21133 pid=21134 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts10 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
-+node=judy.example.com type=AVC msg=audit(1165963069.244:853): avc:  denied  { name_connect } for  pid=21134 comm="httpd" src=81 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:mysqld_port_t:s0 tclass=tcp_socket
-+node=judy.example.com type=SYSCALL msg=audit(1165963069.244:853): arch=40000003 syscall=102 success=no exit=-13 a0=2 a1=bf96a830 a2=b5b1e8 a3=9e58ac0 items=0 ppid=21133 pid=21134 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts10 comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
-+node=judy.example.com type=AVC msg=audit(1165963069.244:853): avc:  denied  { name_connect } for  pid=21134 comm="httpd" src=81 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:reserved_port_t:s0 tclass=tcp_socket
-+node=patty.example.com type=AVC_PATH msg=audit(1166036885.378:1097):  path="/var/www/cgi-bin"
-+node=patty.example.com type=SYSCALL msg=audit(1166036885.378:1097): arch=40000003 syscall=196 success=no exit=-13 a0=9624f38 a1=bf88b11c a2=31fff4 a3=2008171 items=0 ppid=23762 pid=23770 auid=3267 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) comm="httpd" exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t:s0 key=(null)
-+node=patty.example.com type=AVC msg=audit(1166036885.378:1097): avc:  denied  { execute } for  pid=23770 comm="httpd" name="cgi-bin" dev=dm-0 ino=7995597 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:httpd_sys_script_exec_t:s0 tclass=file
-+node=sam.example.com type=SYSCALL msg=audit(1166038880.318:1103): arch=40000003 syscall=5 success=no exit=-13 a0=bf96f068 a1=18800 a2=0 a3=bf973110 items=0 ppid=23765 pid=12387 auid=3267 uid=48 gid=48 euid=48 suid=48 fsuid=48 egid=48 sgid=48 fsgid=48 tty=(none) comm="sealert.cgi" exe="/usr/bin/perl" subj=system_u:system_r:httpd_sys_script_t:s0 key=(null)
-+node=sam.example.com type=AVC msg=audit(1166038880.318:1103): avc:  denied  { write } for  pid=12387 comm="sealert.cgi" name="sealert-upload" dev=dm-0 ino=8093724 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:httpd_sys_content_t:s0 tclass=file
-+node=holycross.devel.redhat.com type=AVC_PATH msg=audit(1166027294.395:952):  path="/home/devel/dwalsh/public_html"
-+node=holycross.devel.redhat.com type=SYSCALL msg=audit(1166027294.395:952): arch=40000003 syscall=196 success=yes exit=0 a0=8495230 a1=849c830 a2=874ff4 a3=328d28 items=0 ppid=7234 pid=7236 auid=3267 uid=3267 gid=3267 euid=3267 suid=3267 fsuid=3267 egid=3267 sgid=3267 fsgid=3267 tty=(none) comm="vsftpd" exe="/usr/sbin/vsftpd" subj=system_u:system_r:ftpd_t:s0 key=(null)
-+node=holycross.devel.redhat.com type=AVC msg=audit(1166027294.395:952): avc:  denied  { getattr } for  pid=7236 comm="vsftpd" name="public_html" dev=dm-0 ino=9601649 scontext=system_u:system_r:ftpd_t:s0 tcontext=system_u:object_r:httpd_sys_content_t:s0 tclass=file
-+host=dhcppc2 type=AVC msg=audit(1216729188.853:241): avc:  denied  { read } for pid=14066 comm="qemu-kvm" name="HelpdeskRHEL4-RHEL4.x86_64" dev=tmpfs ino=333 scontext=system_u:system_r:qemu_t:s0 tcontext=system_u:object_r:fixed_disk_device_t:s0 tclass=blk_file host=dhcppc2 type=SYSCALL msg=audit(1216729188.853:241): arch=c000003e syscall=2 success=no exit=-13 a0=7fff6f654680 a1=0 a2=1a4 a3=3342f67a70 items=0 ppid=2953 pid=14066 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="qemu-kvm" exe="/usr/bin/qemu-kvm" subj=system_u:system_r:qemu_t:s0 key=(null)
-+node=mallorn.farre.nom type=AVC msg=audit(1228276291.360:466): avc:  denied  { execute } for  pid=13015 comm="npviewer.bin" path="/opt/real/RealPlayer/mozilla/nphelix.so" dev=dm-0 ino=2850912 scontext=unconfined_u:unconfined_r:nsplugin_t:s0 tcontext=unconfined_u:object_r:usr_t:s0 tclass=file 
-+node=mallorn.farre.nom type=SYSCALL msg=audit(1228276291.360:466): arch=40000003 syscall=192 success=no exit=-13 a0=0 a1=9eec a2=5 a3=802 items=0 ppid=13014 pid=13015 auid=500 uid=500 gid=500 euid=500 suid=500 fsuid=500 egid=500 sgid=500 fsgid=500 tty=(none) ses=63 comm="npviewer.bin" exe="/usr/lib/nspluginwrapper/npviewer.bin" subj=unconfined_u:unconfined_r:nsplugin_t:s0 key=(null)
-+node=mary.example.com type=SYSCALL msg=audit(1166023021.373:910): arch=40000003 syscall=12 success=no exit=-13 a0=8493cd8 a1=cc3 a2=3282ec a3=bf992a04 items=0 ppid=24423 pid=24427 auid=3267 uid=0 gid=0 euid=3267 suid=3267 fsuid=3267 egid=3267 sgid=3267 fsgid=3267 tty=(none) comm="vssmbd" exe="/usr/sbin/vssmbd" subj=system_u:system_r:smbd_t:s0 key=(null)
-+node=mary.example.com type=AVC msg=audit(1166023021.373:910): avc:  denied  { read } for  pid=24427 comm="vssmbd" name="home" dev=dm-0 ino=9338881 scontext=system_u:system_r:smbd_t:s0 tcontext=system_u:object_r:ssh_home_t:s0 tclass=file
-+node=lilly.example.com type=AVC_PATH msg=audit(1164783469.561:109):  path="/linuxtest/LVT/lvt/log.current"
-+node=lilly.example.com type=SYSCALL msg=audit(1164783469.561:109): arch=14 syscall=11 success=yes exit=0 a0=10120520 a1=10120a78 a2=10120970 a3=118 items=0 ppid=8310 pid=8311 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) comm="smbd" exe="/usr/sbin/smbd" subj=root:system_r:smbd_t:s0 key=(null)
-+node=lilly.example.com type=AVC msg=audit(1164783469.561:109): avc:  denied  { append } for  pid=8311 comm="smbd" name="log.current" dev=dm-0 ino=130930 scontext=root:system_r:smbd_t:s0 tcontext=root:object_r:default_t:s0 tclass=dir
-diff --git a/policycoreutils/audit2allow/test_audit2allow.py b/policycoreutils/audit2allow/test_audit2allow.py
-new file mode 100644
-index 0000000..d7d872e
---- /dev/null
-+++ b/policycoreutils/audit2allow/test_audit2allow.py
-@@ -0,0 +1,46 @@
-+import unittest, os, shutil 
-+from tempfile import mkdtemp
-+from subprocess import Popen, PIPE
-+
-+class Audit2allowTests(unittest.TestCase):
-+    def assertDenied(self, err):
-+        self.assert_('Permission denied' in err,
-+                     '"Permission denied" not found in %r' % err)
-+    def assertNotFound(self, err):
-+        self.assert_('not found' in err,
-+                     '"not found" not found in %r' % err)
-+
-+    def assertFailure(self, status):
-+        self.assert_(status != 0,
-+                     '"Succeeded when it should have failed')
-+
-+    def assertSuccess(self, cmd, status, err):
-+        self.assert_(status == 0,
-+                     '"%s should have succeeded for this test %r' %  (cmd, err))
-+
-+    def test_sepolgen_ifgen(self):
-+        "Verify sepolgen-ifgen works"
-+        p = Popen(['sudo', 'sepolgen-ifgen'], stdout = PIPE)
-+        out, err = p.communicate()
-+        if err:
-+            print(out, err)
-+        self.assertSuccess("sepolgen-ifgen", p.returncode, err)
-+
-+    def test_audit2allow(self):
-+        "Verify audit2allow works"
-+        p = Popen(['audit2allow',"-i","test.log"], stdout = PIPE)
-+        out, err = p.communicate()
-+        if err:
-+            print(out, err)
-+        self.assertSuccess("audit2allow", p.returncode, err)
-+
-+    def test_audit2why(self):
-+        "Verify audit2why works"
-+        p = Popen(['audit2why',"-i","test.log"], stdout = PIPE)
-+        out, err = p.communicate()
-+        if err:
-+            print(out, err)
-+        self.assertSuccess("audit2why", p.returncode, err)
-+
-+if __name__ == "__main__":
-+    unittest.main()
--- 
-1.8.3.1
+So on the queue branch, I see many commits that have been merged albeit
+in different form but others that have not, e.g.
+
+commit 56834fe9295e9539da49ca7f02270389c29f31e0
+Author: Dan Walsh <dwalsh@redhat.com>
+Date:   Tue Feb 5 17:08:27 2013 -0500
+
+    policycoreutils: seunshare: creating NEWIPC for each sandbox
+
+    To make sure we don't have a conflict on semaphores or other IPC
+    mechanisms between 2 sandboxes.
+
+    Signed-off-by: Eric Paris <eparis@redhat.com>
+
+commit fcf02585e898360a631dbf7d3d383556d6f5c9a0
+Author: Eric Paris <eparis@redhat.com>
+Date:   Tue Feb 5 15:15:14 2013 -0500
+
+    policycoreutils: newrole: error on fcntl failure
+
+    We were trying to clear O_NONBLOCK from fd 0,1,2 but did not check the
+    return code.  We should check the return value and error out if it
+    failed.
+
+    Signed-off-by: Eric Paris <eparis@redhat.com>
+
+commit 1e5eff0e1685fc05549a4ae749f56efad6f8599a
+Author: Eric Paris <eparis@redhat.com>
+Date:   Tue Feb 5 15:10:05 2013 -0500
+
+    policycoreutils: newrole: check return of fcntl in relabel_tty
+
+    In relabel_tty we open the tty O_NONBLOCK then immediately clear
+    O_NONBLOCK.  This is so the open() will quickly return EWOULDBLOCK and
+    we do not deadlock.  We were not checking the return value of the fcntl.
+    Check that return value.
+
+    Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Were these intentionally dropped or just lost?
 
 
 --
