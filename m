@@ -1,43 +1,47 @@
-Message-ID: <1383212707.7870.3.camel@d30>
-Subject: Re: Update to CIL
-From: Dominick Grift <dominick.grift@gmail.com>
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        Steve Lawrence
- <slawrence@tresys.com>,
-        Richard Haines <richard_c_haines@btinternet.com>
-Date: Thu, 31 Oct 2013 10:45:07 +0100
-In-Reply-To: <52617C02.4060500@tycho.nsa.gov>
-References: <52617C02.4060500@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Message-ID: <52723F44.5070908@tycho.nsa.gov>
+Date: Thu, 31 Oct 2013 07:30:12 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Colin Walters <walters@verbum.org>
+CC: Daniel J Walsh <dwalsh@redhat.com>, Joshua Brindle <jbrindle@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Been looking at further shrinkage of the SELinux footprint on
+ Linux.
+References: <52715E75.5000005@redhat.com> <1383170519.23834.34.camel@localhost>
+In-Reply-To: <1383170519.23834.34.camel@localhost>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2013-10-18 at 14:20 -0400, James Carter wrote:
-> I pushed an update of CIL to bitbucket.
-
-Here is another way to make secilc segfault:
-
-> (typeattribute canrelabeltoshadow)
+On 10/30/2013 06:01 PM, Colin Walters wrote:
+> On Wed, 2013-10-30 at 15:31 -0400, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> We are trying to shrink out cloud image as small as possible.  One idea was to
+>> shrink SELinux Policy footprint by adding compression to it.
+>>
+>> Here is a patch I have been fooling around with which would read a policy.29
+>> file if it was compressed with xz.
 > 
-> (typeattribute authunconfined)
+> Given that security_load_policy() just copies the data from userspace,
+> rather than taking advantage of mmap in any way, it makes total sense to
+> me to ship it compressed.
 
-> ; Never allow relabelto operation on shadow_t files unless the source
-> ; is associated with canrelabeltoshadow or authunconfined
-> 
-> (typeattribute notcanrelabeltoshadoworauthunconfined)
-> 
-> (typeattributeset notcanrelabeltoshadoworauthunconfined
->             (not (or notcanrelabeltoshadoworauthunconfined authunconfined)))
-> 
-> (neverallow notcanrelabeltoshadoworauthunconfined shadow_t (file
->             (relabelto)))
-> 
+Maybe I misunderstood you, but the callers of security_load_policy()
+(e.g. selinux_mkload_policy, selinux_init_load_policy) work by mmap'ing
+the policy file and then passing that region to security_load_policy().
+ They only currently have to copy it if they need to modify the policy
+at load time (e.g. if the userspace policy version is newer than that
+supported by the kernel and it needs to downgrade to the kernel version).
 
-Its obviously a bug in the policy, but nonetheless it is like you said earlier: secilc should not segfault
-
-
+> 
+> xz is usually a better choice for new compression deployments since very
+> often you want its asymmetric tradeoff of good but expensive compression
+> and fast decompression, unlike the more symmetric gzip.
+> 
+> Since policy is only loaded occasionally, xz also makes sense to me.
+> 
 
 
 --
