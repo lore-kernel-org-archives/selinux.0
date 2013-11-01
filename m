@@ -1,51 +1,59 @@
-Message-ID: <527408F3.3080705@tycho.nsa.gov>
-Date: Fri, 01 Nov 2013 16:02:59 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <52741B6C.8010006@redhat.com>
+Date: Fri, 01 Nov 2013 17:21:48 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Gabriele Scotti <gabriele.sct@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Android emulator
-References: <CALQuvJCYEZky6kT6DkSpDB9pj_07yHe7cP4cUdZPd5mpwuawEw@mail.gmail.com> <52740796.5090806@tycho.nsa.gov>
-In-Reply-To: <52740796.5090806@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Stephen Smalley <sds@tycho.nsa.gov>, "Carlos O'Donell" <carlos@redhat.com>
+CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, codonell@redhat.com
+Subject: Re: Handling unknown permissions in userspace object managers
+References: <1383319095.28218.37.camel@flatline.rdu.redhat.com>  <5273CD37.6060602@tycho.nsa.gov> <1383321297.28218.40.camel@flatline.rdu.redhat.com> <5273D003.70601@tycho.nsa.gov> <5273DE3D.4070402@redhat.com> <5273DEB3.5050808@tycho.nsa.gov>
+In-Reply-To: <5273DEB3.5050808@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/01/2013 03:57 PM, Stephen Smalley wrote:
-> On 11/01/2013 03:42 PM, Gabriele Scotti wrote:
->> Dear Sirs,
->>
->> I am writing to enquire about the android emulator behavior: I'm using the AOSP
->> master branch with the SE for Android modifications and I'm trying to place
->> restrictions on what application can use the bind channel.
->> I have two custom application in the untrusted domain that can communicate
->> each other and I want to block this communication, so I modified the file
->> app.te by removing the binder call from appdomain to appdomain but they can
->> still communicate.
->> I should like to know if I can do this with the emulator or there are
->> restrictions, otherwise I assume that I'm writing a wrong policy.
-> 
-> Questions specific to SE for Android should go to the seandroid-list,
-> which was split off about a year ago from the regular selinux list.
-> Subscribe by sending 'subscribe seandroid-list' in the body of an email
-> to majordomo@tycho.nsa.gov and then post to seandroid-list@tycho.nsa.gov.
-> 
-> With regard to your question though, many forms of communication in
-> Android are indirect via the system_server, which all apps are expected
-> to be allowed to call via binder.  Thus, even if you cut off direct
-> binder calls between two app domains, they can likely still send Intents
-> and such via the system_server.
-> 
-> Strongly isolating apps is more likely to be achieved either by
-> leveraging the multi-user support and installing the apps under
-> different user accounts, or by implementing your own container solution
-> as has been done by others (e.g. KNOX, Cells).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I likely should have also mentioned our Intent MAC work, which was
-exploring mandatory controls over Intents (in our intent_mac branch).
-But we are now looking into replacing that with something based on the
-IntentFirewall mechanism that appeared in Android 4.3.
+On 11/01/2013 01:02 PM, Stephen Smalley wrote:
+> On 11/01/2013 01:00 PM, Carlos O'Donell wrote:
+>> On 11/01/2013 12:00 PM, Stephen Smalley wrote:
+>>> But selinux_check_access() is IMHO a better way to go for any new code 
+>>> unless it is so performance-critical that the context, class, and perm 
+>>> lookups per check are prohibitive.
+>> 
+>> The code in question is from glibc's nscd and used when determining if 
+>> the user should or should not have access to specific cache results, and 
+>> therefore it is performance sensitive. The faster we can determine if 
+>> access is allowed the faster we can return a result to a client that 
+>> needs an answer about a particular credential. I'm happing doing the 
+>> translations at startup when the daemon is initializing, but I'm not 
+>> happy to do them at every request arriving to the daemon. Unless someone 
+>> says this needs to be fully dynamic I'd like to avoid any costs during 
+>> the request handling phase.
+> 
+> I doubt the overhead of the SID/class/perm lookup compares to the IPC 
+> overhead, but I can't say that I've measured it.  But feel free to use 
+> whichever interface you prefer.
+> 
+> 
+> 
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
+> 
+We could potentially optimize the calls similarly to what we did with
+procattr, where we cache the previous lookup.  Since the
+source,type,class,perm flags will often be repeated.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
+iEYEARECAAYFAlJ0G2wACgkQrlYvE4MpobM5twCeN14XzW+AaRpnMHf58EAETeuu
+IVYAoOmXkl9dIh4ARQjQDkl3JIH1WUnj
+=5ZEm
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
