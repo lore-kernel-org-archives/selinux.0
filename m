@@ -1,125 +1,260 @@
-Message-ID: <5272A6ED.1000504@redhat.com>
-Date: Thu, 31 Oct 2013 14:52:29 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Steve Lawrence <slawrence@tresys.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Been looking at further shrinkage of the SELinux footprint on
- Linux.
-References: <52715E75.5000005@redhat.com> <527168B1.4040905@tycho.nsa.gov> <52716DE6.8040401@redhat.com> <52716F8C.6060109@tycho.nsa.gov> <5271706B.2030201@tycho.nsa.gov> <52725064.4080508@tresys.com> <52725380.3050808@tycho.nsa.gov>
-In-Reply-To: <52725380.3050808@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: sds@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov, eparis@redhat.com,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] SELinux: V2-Update policy version to support constraints  info
+Date: Fri,  1 Nov 2013 11:40:43 +0000
+Message-Id: <1383306043-5504-1-git-send-email-richard_c_haines@btinternet.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Update the policy version (POLICYDB_VERSION_CONSTRAINT_NAMES) to allow
+holding of policy source info for constraints.
 
-On 10/31/2013 08:56 AM, Stephen Smalley wrote:
-> On 10/31/2013 08:43 AM, Steve Lawrence wrote:
->> On 10/30/2013 04:47 PM, Stephen Smalley wrote:
->>> On 10/30/2013 04:43 PM, Stephen Smalley wrote:
->>>> On 10/30/2013 04:36 PM, Daniel J Walsh wrote:
->>>>> Well we have done some work on combining like domains, see
->>>>> antivirus and spamassassin, but this is a lot of work which no one
->>>>> has time for.
->>>>> 
->>>>> I would love to see the mailserver and mailclients domains
->>>>> combined.
->>>>> 
->>>>> If people want to suggest or more importantly submit patches to 
->>>>> combine other domains, I am all for it.
->>>>> 
->>>>> Problems with shipping policy within rpm still exists. although we 
->>>>> (Red Hat) are at least moving toward layered products shipping
->>>>> their own policy. openstack-selinux, openshift-selinux,
->>>>> gluster-selinux.  This is more for them updating quicker then
->>>>> RHEL.
->>>>> 
->>>>> 1. semanage is slowwwwwwwww.  If we ran all pp files without 
->>>>> combining them into a single transaction the installation  and yum
->>>>> updates would take a long time.
->>>> 
->>>> Yes, I have to wonder if we don't need a complete
->>>> overhaul/replacement of libsemanage (+ module portions of libsepol).
->>>> It seems like semodule/semanage transactions are far slower than
->>>> running the entire policy through checkpolicy again (i.e. just using
->>>> source modules and running them through m4 + checkpolicy on each
->>>> transaction, ala the source policy module work that sadly has yet to
->>>> reach maturity/completion).
->>> 
->>> However, on this note, I'm pretty sure that the rpm work allows you to 
->>> just collect up all of the policy modules and run semodule once at the 
->>> end (collections or whatever).  So that particular problem should be 
->>> solved already even for the binary modules.
->>> 
->> 
->> This is correct. the collection feature of RPM gathers up all selinux 
->> policies from all the rpms in the yum/rpm transaction and installs them 
->> all in a single semanage transaction. Note that although the work was 
->> upstreamed, last I checked, the building of the selinux plugin that 
->> performs the work to aggregate and install the policy modules is 
->> currently disabled on fedora.
-> 
-> That seems surprising given that it was developed for Fedora originally. 
-> Can someone ping Panu or whoever is maintaining rpm these days and ask why
-> it is disabled or whether it can be enabled?
-> 
->>>>> 3. Uninstall of types leaves unlabeled_t content on disk.
->>>> 
->>>> That's the only one that seems fundamental.  What if we pushed all
->>>> file type declarations into their own module linked to the base
->>>> filesystem package and just always installed that?  That won't affect
->>>> policy size substantially; it is the allow rules that are the issue
->>>> IIUC, not just the type decls.
->>>> 
->> 
->> The way this is handled in the RPM collection feature is modules are 
->> never uninstalled, even if the package that installed that module is. Not
->> ideal, but it solves this problem.
-> 
-> I guess the question is what behavior is desired here.  If you remove the
-> type itself, then these days it will get treated as unlabeled (so it 
-> becomes inaccessible to anything that doesn't have permissions to 
-> unlabeled, but that shouldn't be an issue for unconfined users) and if 
-> someone later re-installs the package/policy, then it should get remapped
-> to its original context due to the deferred context mapping support.  Is
-> that sufficient?  If not, then my proposed approach above of pushing all of
-> the file type declarations into a single module (probably the base module)
-> and never removing them would allow the types to always remain valid but
-> they'd still be inaccessible except to domains that are allowed access to
-> file_type (e.g. unconfined) when you remove the modules defining the allow
-> rules.  Is that sufficient?  If not, then your approach of never removing
-> modules will work but seems the least optimal to me.
-> 
-Well I like the idea of defining alias for modules when they are not
-installed.  The biggest problem I see is around executables and potentially
-readable content.  If I install a package that labels something as
-foobar_exec_t and leaves the content on uninstall, a confined domain that was
-able to execute foobar_exec_t will now not be able to execute unlabeled_t.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ security/selinux/include/security.h |  3 +-
+ security/selinux/ss/constraint.h    |  1 +
+ security/selinux/ss/policydb.c      | 96 +++++++++++++++++++++++++++++++++----
+ security/selinux/ss/policydb.h      | 11 +++++
+ 4 files changed, 101 insertions(+), 10 deletions(-)
 
-If we could alias foobar_exec_t to bin_t when foobar.pp is not installed, then
-we get a little closer to the default, and I don;t have restorecon -R -v
-fixing unlabeled_t files.
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 927fc14..bdf0a56 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -33,13 +33,14 @@
+ #define POLICYDB_VERSION_ROLETRANS	26
+ #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
+ #define POLICYDB_VERSION_DEFAULT_TYPE	28
++#define POLICYDB_VERSION_CONSTRAINT_NAMES	29
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_DEFAULT_TYPE
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
+ #endif
+ 
+ /* Mask for just the mount related flags */
+diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/constraint.h
+index 149dda7..96fd947 100644
+--- a/security/selinux/ss/constraint.h
++++ b/security/selinux/ss/constraint.h
+@@ -48,6 +48,7 @@ struct constraint_expr {
+ 	u32 op;			/* operator */
+ 
+ 	struct ebitmap names;	/* names */
++	struct type_set *type_names;
+ 
+ 	struct constraint_expr *next;   /* next expression */
+ };
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 9cd9b7c..60af34a 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -143,6 +143,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num	= SYM_NUM,
+ 		.ocon_num	= OCON_NUM,
+ 	},
++	{
++		.version	= POLICYDB_VERSION_CONSTRAINT_NAMES,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	},
+ };
+ 
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -613,6 +618,19 @@ static int common_destroy(void *key, void *datum, void *p)
+ 	return 0;
+ }
+ 
++static void constraint_expr_destroy(struct constraint_expr *expr)
++{
++	if (expr) {
++		ebitmap_destroy(&expr->names);
++		if (expr->type_names) {
++			ebitmap_destroy(&expr->type_names->types);
++			ebitmap_destroy(&expr->type_names->negset);
++			kfree(expr->type_names);
++		}
++		kfree(expr);
++	}
++}
++
+ static int cls_destroy(void *key, void *datum, void *p)
+ {
+ 	struct class_datum *cladatum;
+@@ -628,10 +646,9 @@ static int cls_destroy(void *key, void *datum, void *p)
+ 		while (constraint) {
+ 			e = constraint->expr;
+ 			while (e) {
+-				ebitmap_destroy(&e->names);
+ 				etmp = e;
+ 				e = e->next;
+-				kfree(etmp);
++				constraint_expr_destroy(etmp);
+ 			}
+ 			ctemp = constraint;
+ 			constraint = constraint->next;
+@@ -642,16 +659,14 @@ static int cls_destroy(void *key, void *datum, void *p)
+ 		while (constraint) {
+ 			e = constraint->expr;
+ 			while (e) {
+-				ebitmap_destroy(&e->names);
+ 				etmp = e;
+ 				e = e->next;
+-				kfree(etmp);
++				constraint_expr_destroy(etmp);
+ 			}
+ 			ctemp = constraint;
+ 			constraint = constraint->next;
+ 			kfree(ctemp);
+ 		}
+-
+ 		kfree(cladatum->comkey);
+ 	}
+ 	kfree(datum);
+@@ -1156,8 +1171,34 @@ bad:
+ 	return rc;
+ }
+ 
+-static int read_cons_helper(struct constraint_node **nodep, int ncons,
+-			    int allowxtarget, void *fp)
++static void type_set_init(struct type_set *t)
++{
++	ebitmap_init(&t->types);
++	ebitmap_init(&t->negset);
++}
++
++static int type_set_read(struct type_set *t, void *fp)
++{
++	__le32 buf[1];
++	int rc;
++
++	if (ebitmap_read(&t->types, fp))
++		return -EINVAL;
++	if (ebitmap_read(&t->negset, fp))
++		return -EINVAL;
++
++	rc = next_entry(buf, fp, sizeof(u32));
++	if (rc < 0)
++		return -EINVAL;
++	t->flags = le32_to_cpu(buf[0]);
++
++	return 0;
++}
++
++
++static int read_cons_helper(struct policydb *p,
++				struct constraint_node **nodep,
++				int ncons, int allowxtarget, void *fp)
+ {
+ 	struct constraint_node *c, *lc;
+ 	struct constraint_expr *e, *le;
+@@ -1225,6 +1266,18 @@ static int read_cons_helper(struct constraint_node **nodep, int ncons,
+ 				rc = ebitmap_read(&e->names, fp);
+ 				if (rc)
+ 					return rc;
++				if (p->policyvers >=
++					POLICYDB_VERSION_CONSTRAINT_NAMES) {
++						e->type_names = kzalloc(sizeof
++						(*e->type_names),
++						GFP_KERNEL);
++					if (!e->type_names)
++						return -ENOMEM;
++					type_set_init(e->type_names);
++					rc = type_set_read(e->type_names, fp);
++					if (rc)
++						return rc;
++				}
+ 				break;
+ 			default:
+ 				return -EINVAL;
+@@ -1301,7 +1354,7 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 			goto bad;
+ 	}
+ 
+-	rc = read_cons_helper(&cladatum->constraints, ncons, 0, fp);
++	rc = read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
+ 	if (rc)
+ 		goto bad;
+ 
+@@ -1311,7 +1364,8 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+ 		if (rc)
+ 			goto bad;
+ 		ncons = le32_to_cpu(buf[0]);
+-		rc = read_cons_helper(&cladatum->validatetrans, ncons, 1, fp);
++		rc = read_cons_helper(p, &cladatum->validatetrans,
++				ncons, 1, fp);
+ 		if (rc)
+ 			goto bad;
+ 	}
+@@ -2750,6 +2804,24 @@ static int common_write(void *vkey, void *datum, void *ptr)
+ 	return 0;
+ }
+ 
++static int type_set_write(struct type_set *t, void *fp)
++{
++	int rc;
++	__le32 buf[1];
++
++	if (ebitmap_write(&t->types, fp))
++		return -EINVAL;
++	if (ebitmap_write(&t->negset, fp))
++		return -EINVAL;
++
++	buf[0] = cpu_to_le32(t->flags);
++	rc = put_entry(buf, sizeof(u32), 1, fp);
++	if (rc)
++		return -EINVAL;
++
++	return 0;
++}
++
+ static int write_cons_helper(struct policydb *p, struct constraint_node *node,
+ 			     void *fp)
+ {
+@@ -2781,6 +2853,12 @@ static int write_cons_helper(struct policydb *p, struct constraint_node *node,
+ 				rc = ebitmap_write(&e->names, fp);
+ 				if (rc)
+ 					return rc;
++				if (p->policyvers >=
++					POLICYDB_VERSION_CONSTRAINT_NAMES) {
++					rc = type_set_write(e->type_names, fp);
++					if (rc)
++						return rc;
++				}
+ 				break;
+ 			default:
+ 				break;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index da63747..725d594 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -154,6 +154,17 @@ struct cond_bool_datum {
+ struct cond_node;
+ 
+ /*
++ * type set preserves data needed to determine constraint info from
++ * policy source. This is not used by the kernel policy but allows
++ * utilities such as audit2allow to determine constraint denials.
++ */
++struct type_set {
++	struct ebitmap types;
++	struct ebitmap negset;
++	u32 flags;
++};
++
++/*
+  * The configuration data includes security contexts for
+  * initial SIDs, unlabeled file systems, TCP and UDP port numbers,
+  * network interfaces, and nodes.  This structure stores the
+-- 
+1.8.3.1
 
-similarly  foobar_usr content to -> usr_t, and foobar_etc_t to etc_t
-foobar_var_t -> var_t ...
-
-
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlJypu0ACgkQrlYvE4MpobPR7QCfbNb+dv1mBHrBXsXNK/v97t36
-7lMAoODN4Uk/JtjsEVw3ksDNF2u+HpvT
-=YwCv
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
