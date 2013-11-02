@@ -1,59 +1,69 @@
-Message-ID: <52741B6C.8010006@redhat.com>
-Date: Fri, 01 Nov 2013 17:21:48 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, "Carlos O'Donell" <carlos@redhat.com>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, codonell@redhat.com
-Subject: Re: Handling unknown permissions in userspace object managers
-References: <1383319095.28218.37.camel@flatline.rdu.redhat.com>  <5273CD37.6060602@tycho.nsa.gov> <1383321297.28218.40.camel@flatline.rdu.redhat.com> <5273D003.70601@tycho.nsa.gov> <5273DE3D.4070402@redhat.com> <5273DEB3.5050808@tycho.nsa.gov>
-In-Reply-To: <5273DEB3.5050808@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <52716DE6.8040401@redhat.com>
+References: <52715E75.5000005@redhat.com>
+	<527168B1.4040905@tycho.nsa.gov>
+	<52716DE6.8040401@redhat.com>
+Date: Sat, 2 Nov 2013 17:42:38 +0100
+Message-ID: <CAPzO=NyM2K5zb3DemGOxCFVU3dwuFDjo23AgtxS=oSwxrFdDxA@mail.gmail.com>
+Subject: Re: Been looking at further shrinkage of the SELinux footprint on Linux.
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Oct 30, 2013 at 9:36 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+[...]
+>> On 10/30/2013 03:31 PM, Daniel J Walsh wrote:
+>>> We are trying to shrink out cloud image as small as possible.  One idea
+>>> was to shrink SELinux Policy footprint by adding compression to it.
+[...]
+>> Personally, I'd much rather see work done on shrinking the actual policy
+>> size in Fedora rather than just compressing it.  Both by reducing the
+>> overall size of refpolicy through coalescing similar domains/types and by
+>> making better use of the work that has already been done to support putting
+>> policy modules into rpms and only installing what actually get used.
+[...]
+> Well we have done some work on combining like domains, see antivirus and
+> spamassassin, but this is a lot of work which no one has time for.
+>
+> I would love to see the mailserver and mailclients domains combined.
+>
+> If people want to suggest or more importantly submit patches to combine other
+> domains, I am all for it.
+>
+> Problems with shipping policy within rpm still exists. although we (Red Hat)
+> are at least moving toward layered products shipping their own policy.
+> openstack-selinux, openshift-selinux, gluster-selinux.  This is more for them
+> updating quicker then RHEL.
 
-On 11/01/2013 01:02 PM, Stephen Smalley wrote:
-> On 11/01/2013 01:00 PM, Carlos O'Donell wrote:
->> On 11/01/2013 12:00 PM, Stephen Smalley wrote:
->>> But selinux_check_access() is IMHO a better way to go for any new code 
->>> unless it is so performance-critical that the context, class, and perm 
->>> lookups per check are prohibitive.
->> 
->> The code in question is from glibc's nscd and used when determining if 
->> the user should or should not have access to specific cache results, and 
->> therefore it is performance sensitive. The faster we can determine if 
->> access is allowed the faster we can return a result to a client that 
->> needs an answer about a particular credential. I'm happing doing the 
->> translations at startup when the daemon is initializing, but I'm not 
->> happy to do them at every request arriving to the daemon. Unless someone 
->> says this needs to be fully dynamic I'd like to avoid any costs during 
->> the request handling phase.
-> 
-> I doubt the overhead of the SID/class/perm lookup compares to the IPC 
-> overhead, but I can't say that I've measured it.  But feel free to use 
-> whichever interface you prefer.
-> 
-> 
-> 
-> 
-> -- This message was distributed to subscribers of the selinux mailing
-> list. If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
-> as the message.
-> 
-We could potentially optimize the calls similarly to what we did with
-procattr, where we cache the previous lookup.  Since the
-source,type,class,perm flags will often be repeated.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+In Gentoo, we try to only install the SELinux policies related to the
+package that is installed. So if a system does not have a web server,
+no httpd policies are loaded. This works pretty well. My workstation
+(which is where I do all my SELinux policy development on) has 100
+policy modules loaded; my servers usually have around 50 to 60 modules
+loaded. That makes running things like "semodule -B" rather smooth.
+Not really fast, but one doesn't need to switch to another thing to do
+while waiting (4 seconds on a VM I'm currently playing with).
 
-iEYEARECAAYFAlJ0G2wACgkQrlYvE4MpobM5twCeN14XzW+AaRpnMHf58EAETeuu
-IVYAoOmXkl9dIh4ARQjQDkl3JIH1WUnj
-=5ZEm
------END PGP SIGNATURE-----
+When updates occur only on a module's .te file, it could even be
+distributed towards the users easily (no need to do a full policy
+refresh), although I usually wait and make a full policy release.
+
+It probably doesn't take long for Fedora/RedHat to find out which
+packages need which SELinux policy modules. A quick way to find them
+is to parse the RPM file list and check the file contexts of the
+SELinux policy tree for matches.
+
+> For every apache bug in policy, do we want to wait for an update apache
+> package, or do we ship lots more packages.
+
+I'd go for the latter. Put the policies in their own RPMs.
+
+Wkr,
+  Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
