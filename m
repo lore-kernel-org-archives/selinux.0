@@ -1,70 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA2LIoEC000535
-	for <selinux@tycho.nsa.gov>; Sat, 2 Nov 2013 17:18:52 -0400
-Received: by mail-qc0-f182.google.com with SMTP id n7so3142254qcx.41
-        for <selinux@tycho.nsa.gov>; Sat, 02 Nov 2013 14:18:49 -0700 (PDT)
-Message-ID: <52756C2D.1030408@quarksecurity.com>
-Date: Sat, 02 Nov 2013 17:18:37 -0400
-From: Joshua Brindle <brindle@quarksecurity.com>
-MIME-Version: 1.0
-To: Casey Schaufler <casey@schaufler-ca.com>
-CC: Sven Vermeulen <sven.vermeulen@siphos.be>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Been looking at further shrinkage of the SELinux footprint on
- Linux.
-References: <52715E75.5000005@redhat.com>	<527168B1.4040905@tycho.nsa.gov>	<52716DE6.8040401@redhat.com> <CAPzO=NyM2K5zb3DemGOxCFVU3dwuFDjo23AgtxS=oSwxrFdDxA@mail.gmail.com> <52753FEA.2020800@schaufler-ca.com>
-In-Reply-To: <52753FEA.2020800@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA2NE3ji005835
+	for <selinux@tycho.nsa.gov>; Sat, 2 Nov 2013 19:14:05 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+	by anor.bigon.be (Postfix) with ESMTP id 691C01A1A5
+	for <selinux@tycho.nsa.gov>; Sun,  3 Nov 2013 00:13:54 +0100 (CET)
+Received: from anor.bigon.be ([127.0.0.1])
+	by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id i4zAH_JhPJsh for <selinux@tycho.nsa.gov>;
+	Sun,  3 Nov 2013 00:13:51 +0100 (CET)
+Received: from fornost.bigon.be (unknown [IPv6:2a02:578:85fc:1:226:18ff:fe08:6073])
+	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: bigon)
+	by anor.bigon.be (Postfix) with ESMTPSA id 3D7E31A00F
+	for <selinux@tycho.nsa.gov>; Sun,  3 Nov 2013 00:13:51 +0100 (CET)
+From: Laurent Bigonville <bigon@debian.org>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: [PATCH 1/2] Explicitly link libselinux against -lpthread
+Date: Sun,  3 Nov 2013 00:13:49 +0100
+Message-Id: <1383434030-5853-1-git-send-email-bigon@debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler wrote:
-> On 11/2/2013 9:42 AM, Sven Vermeulen wrote:
->> On Wed, Oct 30, 2013 at 9:36 PM, Daniel J Walsh<dwalsh@redhat.com>  wrote:
->> [...]
->>>> On 10/30/2013 03:31 PM, Daniel J Walsh wrote:
->>>>> We are trying to shrink out cloud image as small as possible.  One idea
->>>>> was to shrink SELinux Policy footprint by adding compression to it.
->> [...]
->>>> Personally, I'd much rather see work done on shrinking the actual policy
->>>> size in Fedora rather than just compressing it.  Both by reducing the
->>>> overall size of refpolicy through coalescing similar domains/types and by
->>>> making better use of the work that has already been done to support putting
->>>> policy modules into rpms and only installing what actually get used.
->> [...]
->>> Well we have done some work on combining like domains, see antivirus and
->>> spamassassin, but this is a lot of work which no one has time for.
->>>
->>> I would love to see the mailserver and mailclients domains combined.
->>>
->>> If people want to suggest or more importantly submit patches to combine other
->>> domains, I am all for it.
->>>
->>> Problems with shipping policy within rpm still exists. although we (Red Hat)
->>> are at least moving toward layered products shipping their own policy.
->>> openstack-selinux, openshift-selinux, gluster-selinux.  This is more for them
->>> updating quicker then RHEL.
->> In Gentoo, we try to only install the SELinux policies related to the
->> package that is installed. So if a system does not have a web server,
->> no httpd policies are loaded. This works pretty well. My workstation
->> (which is where I do all my SELinux policy development on) has 100
->> policy modules loaded; my servers usually have around 50 to 60 modules
->> loaded. That makes running things like "semodule -B" rather smooth.
->> Not really fast, but one doesn't need to switch to another thing to do
->> while waiting (4 seconds on a VM I'm currently playing with).
->
-> A lot of work is being done to improve the start-up time
-> of consumer (e.g. phones) devices and "disposable" VMs. We're
-> talking about people getting their knickers in a twist over
-> security adding 20 milliseconds to the boot process. Your
-> 4 second semodule run is not going to fly.
+From: Laurent Bigonville <bigon@bigon.be>
 
-semodule has nothing to do with the boot process. It is used to rebuild 
-policies when something changes, e.g., a module is added or removed from 
-the policy.
+libselinux is using pthread functions internally without explicitly
+linking against it.
 
+If the executable is itself not linked against libpthread, this could
+lead to some weird ld.so assertions, see:
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=728529
+---
+ libselinux/src/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 02dd829..2a79b27 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -114,7 +114,7 @@ $(LIBA): $(OBJS)
+ 	$(RANLIB) $@
+ 
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(CFLAGS) -shared -o $@ $^ -lpcre -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
++	$(CC) $(CFLAGS) -shared -o $@ $^ -lpcre -lpthread -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
+ 	ln -sf $@ $(TARGET) 
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+-- 
+1.8.4.2
 
 
 --
