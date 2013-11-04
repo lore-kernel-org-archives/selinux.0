@@ -1,44 +1,47 @@
-Message-ID: <5277D42D.6050609@tycho.nsa.gov>
-Date: Mon, 04 Nov 2013 12:06:53 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA4M14xo009193
+	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2013 17:01:04 -0500
+Received: by mail-ea0-f180.google.com with SMTP id l9so3123951eaj.11
+        for <selinux@tycho.nsa.gov>; Mon, 04 Nov 2013 14:01:02 -0800 (PST)
+Received: from siphos.be ([193.244.33.62])
+        by mx.google.com with ESMTPSA id s3sm51838243eeo.3.2013.11.04.14.00.54
+        for <selinux@tycho.nsa.gov>
+        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
+        Mon, 04 Nov 2013 14:01:00 -0800 (PST)
+Date: Mon, 4 Nov 2013 23:00:23 +0100
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: selinux@tycho.nsa.gov
+Subject: No module named policycoreutils.default_encoding_utf8 ?
+Message-ID: <20131104220022.GA6511@siphos.be>
 MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-CC: selinux@tycho.nsa.gov
-Subject: Re: review of a dbus-selinux patch
-References: <1383578801.23834.59.camel@localhost>
-In-Reply-To: <1383578801.23834.59.camel@localhost>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/04/2013 10:26 AM, Colin Walters wrote:
-> Hi,
-> 
-> Does anyone have comments on:
-> https://bugs.freedesktop.org/show_bug.cgi?id=71187
-> 
-> We expect people to be able to change major policy types without
-> recompiling userspace, correct?
-> 
-> The patch makes sense to me (just needs some style fixups per smcv's
-> comments).  However, from a quick look at the X.org xselinux code, it
-> looks like it also hardcodes e.g. SECCLASS_X_DRAWABLE; we'd need
-> a similar change there, right?
+Hi all,
 
-XSELinux correctly uses selinux_set_mapping() so that libselinux
-internally creates a mapping from arbitrary class/perm indices used by
-XSELinux and the policy values and handles all of the translation at
-runtime on avc_has_perm() calls.
+In policycoreutils-2.2.1/semanage/semanage, the first import is:
 
-dbusd can either do the same thing or it can start using
-selinux_check_access() instead of directly calling the AVC at all.  Then
-all of the SID/context, class, and perm lookups and AVC setup/usage is
-transparent to the application, at some potential runtime overhead cost
-(but doubt it is significant).  Same topic came up recently for
-glibc/ncsd (subject:  Handling unknown permissions in userspace object
-managers).
+"""
+import policycoreutils.default_encoding_utf8
+"""
 
+On my system (Python 2.7) this fails with:
 
+Traceback (most recent call last):
+  File "/usr/sbin/semanage-python2.7", line 26, in <module>
+    import policycoreutils.default_encoding_utf8
+ImportError: No module named policycoreutils.default_encoding_utf8
+
+Is this specific for a particular Python version?
+
+I commented it out and most other things work just fine (I only have a small
+issue with audit2allow not wanting to generate refpolicy-style modules even
+though the interface_info file is - I think - up2date and is being read by
+audit2allow).
+
+Wkr,
+	Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
