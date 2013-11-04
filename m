@@ -1,14 +1,13 @@
-Message-ID: <5277B25A.7030105@redhat.com>
-Date: Mon, 04 Nov 2013 09:42:34 -0500
+Message-ID: <5277B3FB.80405@redhat.com>
+Date: Mon, 04 Nov 2013 09:49:31 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
         SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Been looking at further shrinkage of the SELinux footprint on
- Linux.
-References: <52715E75.5000005@redhat.com>	<527168B1.4040905@tycho.nsa.gov>	<52716DE6.8040401@redhat.com> <CAPzO=NyM2K5zb3DemGOxCFVU3dwuFDjo23AgtxS=oSwxrFdDxA@mail.gmail.com>
-In-Reply-To: <CAPzO=NyM2K5zb3DemGOxCFVU3dwuFDjo23AgtxS=oSwxrFdDxA@mail.gmail.com>
+Subject: Re: [PATCH 01/11] Add test suite for audit2allow and sepolgen_ifgen
+References: <1383231238-7637-1-git-send-email-dwalsh@redhat.com>	<1383231238-7637-2-git-send-email-dwalsh@redhat.com> <CAPzO=NxkH-M329OrNVhS4+-smHfwgG9fZXs8fwEyGkJ5NaNqdQ@mail.gmail.com>
+In-Reply-To: <CAPzO=NxkH-M329OrNVhS4+-smHfwgG9fZXs8fwEyGkJ5NaNqdQ@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -16,73 +15,55 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 11/02/2013 12:42 PM, Sven Vermeulen wrote:
-> On Wed, Oct 30, 2013 at 9:36 PM, Daniel J Walsh <dwalsh@redhat.com> wrote: 
-> [...]
->>> On 10/30/2013 03:31 PM, Daniel J Walsh wrote:
->>>> We are trying to shrink out cloud image as small as possible.  One
->>>> idea was to shrink SELinux Policy footprint by adding compression to
->>>> it.
-> [...]
->>> Personally, I'd much rather see work done on shrinking the actual
->>> policy size in Fedora rather than just compressing it.  Both by
->>> reducing the overall size of refpolicy through coalescing similar
->>> domains/types and by making better use of the work that has already
->>> been done to support putting policy modules into rpms and only
->>> installing what actually get used.
-> [...]
->> Well we have done some work on combining like domains, see antivirus and 
->> spamassassin, but this is a lot of work which no one has time for.
->> 
->> I would love to see the mailserver and mailclients domains combined.
->> 
->> If people want to suggest or more importantly submit patches to combine
->> other domains, I am all for it.
->> 
->> Problems with shipping policy within rpm still exists. although we (Red
->> Hat) are at least moving toward layered products shipping their own
->> policy. openstack-selinux, openshift-selinux, gluster-selinux.  This is
->> more for them updating quicker then RHEL.
+On 11/02/2013 12:51 PM, Sven Vermeulen wrote:
+> On Thu, Oct 31, 2013 at 3:53 PM, Dan Walsh <dwalsh@redhat.com> wrote:
+>> +++ b/policycoreutils/audit2allow/test.log @@ -0,0 +1,36 @@ 
+>> +node=bill.example.com type=AVC_PATH msg=audit(1166045975.667:1128):
+>> path="/usr/lib/libGL.so.1.2" +type=AVC msg=audit(1166045975.667:1129):
+>> avc: denied { write } for comm=local dev=dm-0 name=root.lock pid=10581
+>> scontext=system_u:system_r:postfix_local_t:s0 tclass=file
+>> tcontext=system_u:object_r:mail_spool_t:s0 +node=bob.example.com
+>> type=PATH msg=audit(1166111074.191:74): item=0 name="/etc/auto.net"
+>> inode=16483485 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00
+>> obj=system_u:object_r:automount_lock_t:s0 type=CWD
+>> msg=audit(1166111074.191:74):  cwd="/" +node=bob.example.com type=SYSCALL
+>> msg=audit(1166111074.191:74): arch=40000003 syscall=33 success=no
+>> exit=-13 a0=92c5288 a1=1 a2=154d50 a3=92c5120 items=1 ppid=13935
+>> pid=13944 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
+>> fsgid=0 tty=(none) comm="automount" exe="/usr/sbin/automount"
+>> subj=system_u:system_r:automount_t:s0 key=(null)
 > 
-> In Gentoo, we try to only install the SELinux policies related to the 
-> package that is installed. So if a system does not have a web server, no
-> httpd policies are loaded. This works pretty well. My workstation (which is
-> where I do all my SELinux policy development on) has 100 policy modules
-> loaded; my servers usually have around 50 to 60 modules loaded. That makes
-> running things like "semodule -B" rather smooth. Not really fast, but one
-> doesn't need to switch to another thing to do while waiting (4 seconds on a
-> VM I'm currently playing with).
+> Aren't those tests only possible when SELinux is enabled and the policy
+> modules for the given types (such as automount_lock_t, mail_spool_t, ...)
+> are loaded?
 > 
-> When updates occur only on a module's .te file, it could even be 
-> distributed towards the users easily (no need to do a full policy refresh),
-> although I usually wait and make a full policy release.
+> Also, it seems like the test only supports MLS-enabled policies; in Gentoo
+> we also support non-MLS policies.
 > 
-> It probably doesn't take long for Fedora/RedHat to find out which packages
-> need which SELinux policy modules. A quick way to find them is to parse the
-> RPM file list and check the file contexts of the SELinux policy tree for
-> matches.
-> 
->> For every apache bug in policy, do we want to wait for an update apache 
->> package, or do we ship lots more packages.
-> 
-> I'd go for the latter. Put the policies in their own RPMs.
+> May I suggest to - have a test-mls.log and test-nonmls.log with the AVC
+> information specific for those policies - use only types that are part of a
+> base policy (and not have types in there that might not be available on a
+> system) - only run the test if SELinux is enabled and a policy is loaded
 > 
 > Wkr, Sven Vermeulen
+> 
 > 
 > -- This message was distributed to subscribers of the selinux mailing
 > list. If you no longer wish to subscribe, send mail to
 > majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
 > as the message.
 > 
-And how do  you handle the problem of removing policy when packages get
-removed?  What happens to the programs content?
+I was just grabbing the audit logs we test with setroubleshoot, so if you
+would like to give more generic tests that would be fine with me.
+
+Adding a policy.29  to test with it would seem to be a little heavy weight.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJ3sloACgkQrlYvE4MpobN2vQCg5mjJMYrd+AlXec2uTlxIAPuq
-bwIAoIOq4f6eU59dwtjO2s+aXZEmbqC8
-=zEME
+iEYEARECAAYFAlJ3s/sACgkQrlYvE4MpobM/CACfc3yklTZROuol2mWfho0Rkfua
+zcYAoN3TKfL8RawZLcOnN4AGpF1BWuHs
+=JJHz
 -----END PGP SIGNATURE-----
 
 --
