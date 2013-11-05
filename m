@@ -1,47 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA4M14xo009193
-	for <selinux@tycho.nsa.gov>; Mon, 4 Nov 2013 17:01:04 -0500
-Received: by mail-ea0-f180.google.com with SMTP id l9so3123951eaj.11
-        for <selinux@tycho.nsa.gov>; Mon, 04 Nov 2013 14:01:02 -0800 (PST)
-Received: from siphos.be ([193.244.33.62])
-        by mx.google.com with ESMTPSA id s3sm51838243eeo.3.2013.11.04.14.00.54
-        for <selinux@tycho.nsa.gov>
-        (version=TLSv1.2 cipher=RC4-SHA bits=128/128);
-        Mon, 04 Nov 2013 14:01:00 -0800 (PST)
-Date: Mon, 4 Nov 2013 23:00:23 +0100
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: selinux@tycho.nsa.gov
-Subject: No module named policycoreutils.default_encoding_utf8 ?
-Message-ID: <20131104220022.GA6511@siphos.be>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA5F5Y1S002030
+	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2013 10:05:34 -0500
+Message-ID: <52790935.2040006@redhat.com>
+Date: Tue, 05 Nov 2013 10:05:25 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+To: Sven Vermeulen <sven.vermeulen@siphos.be>, selinux@tycho.nsa.gov
+Subject: Re: No module named policycoreutils.default_encoding_utf8 ?
+References: <20131104220022.GA6511@siphos.be>
+In-Reply-To: <20131104220022.GA6511@siphos.be>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In policycoreutils-2.2.1/semanage/semanage, the first import is:
+On 11/04/2013 05:00 PM, Sven Vermeulen wrote:
+> Hi all,
+> 
+> In policycoreutils-2.2.1/semanage/semanage, the first import is:
+> 
+> """ import policycoreutils.default_encoding_utf8 """
+> 
+Yes this is for internationlization but we should just remove it.  As I port
+to python3 it will no longer be necessary.
 
-"""
-import policycoreutils.default_encoding_utf8
-"""
+This patch switches python2 to always use unicode, which is the default for
+python3.
 
-On my system (Python 2.7) this fails with:
+> On my system (Python 2.7) this fails with:
+> 
+> Traceback (most recent call last): File "/usr/sbin/semanage-python2.7",
+> line 26, in <module> import policycoreutils.default_encoding_utf8 
+> ImportError: No module named policycoreutils.default_encoding_utf8
+> 
+> Is this specific for a particular Python version?
+> 
+> I commented it out and most other things work just fine (I only have a
+> small issue with audit2allow not wanting to generate refpolicy-style
+> modules even though the interface_info file is - I think - up2date and is
+> being read by audit2allow).
+> 
+> Wkr, Sven Vermeulen
+> 
+> -- This message was distributed to subscribers of the selinux mailing
+> list. If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without quotes
+> as the message.
+> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-Traceback (most recent call last):
-  File "/usr/sbin/semanage-python2.7", line 26, in <module>
-    import policycoreutils.default_encoding_utf8
-ImportError: No module named policycoreutils.default_encoding_utf8
-
-Is this specific for a particular Python version?
-
-I commented it out and most other things work just fine (I only have a small
-issue with audit2allow not wanting to generate refpolicy-style modules even
-though the interface_info file is - I think - up2date and is being read by
-audit2allow).
-
-Wkr,
-	Sven Vermeulen
+iEYEARECAAYFAlJ5CTUACgkQrlYvE4MpobPP5ACfUEiGrG1iXAB9410oDNv6d4v4
+/zoAnRb8BcSM841DDCz5/epKGrxteq5C
+=H0mM
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
