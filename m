@@ -1,81 +1,57 @@
-Message-ID: <527A62DA.7060500@redhat.com>
-Date: Wed, 06 Nov 2013 10:40:10 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+In-Reply-To: <20131104151648.312ac51e@soldur.bigon.be>
+References: <1383434030-5853-1-git-send-email-bigon@debian.org>
+	<52779C9A.4050306@tycho.nsa.gov>
+	<52779EB0.1020700@tycho.nsa.gov>
+	<5277A835.9000804@redhat.com>
+	<20131104151648.312ac51e@soldur.bigon.be>
+Date: Wed, 6 Nov 2013 16:40:52 +0100
+Message-ID: <CAPzO=NyXAKskkzesaoxVeEZVOunUOtKMtCSkA8-GveXLkwZj8w@mail.gmail.com>
+Subject: Re: [PATCH 1/2] Explicitly link libselinux against -lpthread
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Laurent Bigonville <bigon@debian.org>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
         SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Been looking at further shrinkage of the SELinux footprint on
- Linux.
-References: <52715E75.5000005@redhat.com>	<527168B1.4040905@tycho.nsa.gov>	<52716DE6.8040401@redhat.com>	<CAPzO=NyM2K5zb3DemGOxCFVU3dwuFDjo23AgtxS=oSwxrFdDxA@mail.gmail.com>	<5277B25A.7030105@redhat.com> <CAPzO=NwDTKKxx5KsT0X+R57vqPz4aDdrmoRV-f4DiowjQNi_2Q@mail.gmail.com>
-In-Reply-To: <CAPzO=NwDTKKxx5KsT0X+R57vqPz4aDdrmoRV-f4DiowjQNi_2Q@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Nov 4, 2013 at 3:16 PM, Laurent Bigonville <bigon@debian.org> wrote:
+>> Yes we originally added the link for pthread_atfork, but have
+>> replaced that with a GCC Equivalebt __selinux_atfork.
+>>
+>> Laurent, does debian not work without -lpthread?  Gcc guys did  not
+>> want to require all apps that use libselinux to compile against
+>> lpthread.
+>
+> I think it's the upgrade from a version of libselinux that was linking
+> against -lpthread (2.1.13) to a version that doesn't that caused the
+> problem (well this is my wild uninformed guess).
+>
+> The Debian bug
+> is at: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=728529
+>
+> This could probably be fixed in debian by rebuilding all the reverse
+> dependencies of libselinux, but that will also affect Gentoo too (added
+> Sven in CC), or the downstreams should carry the patch.
+>
+> I'm a bit lost with these pthread issues :/
 
-On 11/06/2013 10:35 AM, Sven Vermeulen wrote:
-> On Mon, Nov 4, 2013 at 3:42 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
->>> In Gentoo, we try to only install the SELinux policies related to the 
->>> package that is installed. So if a system does not have a web server,
->>> no httpd policies are loaded.
-> [...]
->> And how do  you handle the problem of removing policy when packages get 
->> removed?  What happens to the programs content?
-> 
-> Good point. We don't handle that - if the package is removed and no other
-> package exists that has a dependency on the SELinux policy, then the
-> SELinux policy is also removed. Which invalidates the contexts of the
-> files. I reckon that users who hit issues with that would relabel the
-> files, which usually labels them to the "parent" type (such as var_t for
-> things in /var/www then). But I have not received such case(s) for review
-> yet.
-> 
-> Wkr, Sven Vermeulen
-> 
-These are the types of things that I have to worry about with a Huge installed
-base.  Just removing the apache.pp would instantaneously would invalidate all
-content in /var/www, but also types in any other policy that was installed
-that uses apache_content_template.
+Without linking to libpthread (bugs
+https://bugs.gentoo.org/show_bug.cgi?id=473714 and
+https://bugs.gentoo.org/show_bug.cgi?id=476866) we couldn't build some
+of the tools that support SELinux (i.e. link with libselinux) whereas,
+if we disable SELinux support, they do build properly (busybox is the
+one most often found as it is used for our initramfs building so
+generally one of the packages that is immediately seen - others might
+exist like cryptsetup and such).
 
-# grep apache_content_template *.te
-apache.te:apache_content_template(httpd_sys)
-apache.te:apache_content_template(httpd_user)
-apcupsd.te:	apache_content_template(apcupsd_cgi)
-awstats.te:apache_content_template(awstats)
-bugzilla.te:apache_content_template(bugzilla)
-collectd.te:apache_content_template(collectd)
-cvs.te:	apache_content_template(cvs)
-dirsrv-admin.te:	apache_content_template(dirsrvadmin)
-dspam.te:	apache_content_template(dspam)
-git.te:apache_content_template(git)
-lightsquid.te:	apache_content_template(lightsquid)
-man2html.te:	apache_content_template(man2html)
-mediawiki.te:	apache_content_template(mediawiki)
-mojomojo.te:	apache_content_template(mojomojo)
-munin.te:apache_content_template(munin)
-mythtv.te:apache_content_template(mythtv)
-nagios.te:	apache_content_template(nagios)
-nut.te:	apache_content_template(nutups_cgi)
-openshift.te:	apache_content_template(openshift)
-prelude.te:	apache_content_template(prewikka)
-smokeping.te:	apache_content_template(smokeping_cgi)
-squid.te:	apache_content_template(squid)
-w3c.te:apache_content_template(w3c_validator)
-webalizer.te:	apache_content_template(webalizer)
-zoneminder.te:	apache_content_template(zoneminder)
+If another fix or approach solves this I'm too fine with this. It is
+just something I know less about on how to proceed (not my cup of tea,
+so to speak).
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlJ6YtoACgkQrlYvE4MpobPKGQCgkSWaIi99d8HtcxPV6M0DF/Wb
-qwoAmwYmiREd5koNXu1RYI7TJDDnvPsG
-=ZeKi
------END PGP SIGNATURE-----
+Wkr,
+  Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
