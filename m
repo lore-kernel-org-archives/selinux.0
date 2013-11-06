@@ -1,43 +1,65 @@
-Message-ID: <527AA169.9090505@tycho.nsa.gov>
-Date: Wed, 06 Nov 2013 15:07:05 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <527AD1FE.9040200@gmail.com>
+Date: Thu, 07 Nov 2013 00:34:22 +0100
+From: =?UTF-8?B?VGltb3Row6llIFJhdmllcg==?= <siosm99@gmail.com>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>
-CC: selinux@tycho.nsa.gov
-Subject: Re: No module named policycoreutils.default_encoding_utf8 ?
-References: <20131104220022.GA6511@siphos.be>
-In-Reply-To: <20131104220022.GA6511@siphos.be>
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Steve Lawrence <slawrence@tresys.com>
+CC: SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Been looking at further shrinkage of the SELinux footprint on
+ Linux.
+References: <52715E75.5000005@redhat.com> <527168B1.4040905@tycho.nsa.gov> <52716DE6.8040401@redhat.com> <52716F8C.6060109@tycho.nsa.gov> <5271706B.2030201@tycho.nsa.gov> <52725064.4080508@tresys.com> <52725380.3050808@tycho.nsa.gov> <5272A6ED.1000504@redhat.com>
+In-Reply-To: <5272A6ED.1000504@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/04/2013 05:00 PM, Sven Vermeulen wrote:
-> Hi all,
+On 31/10/2013 19:52, Daniel J Walsh wrote:
+> On 10/31/2013 08:56 AM, Stephen Smalley wrote:
+>> I guess the question is what behavior is desired here.  If you remove the
+>> type itself, then these days it will get treated as unlabeled (so it 
+>> becomes inaccessible to anything that doesn't have permissions to 
+>> unlabeled, but that shouldn't be an issue for unconfined users) and if 
+>> someone later re-installs the package/policy, then it should get remapped
+>> to its original context due to the deferred context mapping support.  Is
+>> that sufficient?  If not, then my proposed approach above of pushing all of
+>> the file type declarations into a single module (probably the base module)
+>> and never removing them would allow the types to always remain valid but
+>> they'd still be inaccessible except to domains that are allowed access to
+>> file_type (e.g. unconfined) when you remove the modules defining the allow
+>> rules.  Is that sufficient?  If not, then your approach of never removing
+>> modules will work but seems the least optimal to me.
 > 
-> In policycoreutils-2.2.1/semanage/semanage, the first import is:
+> Well I like the idea of defining alias for modules when they are not
+> installed.  The biggest problem I see is around executables and potentially
+> readable content.  If I install a package that labels something as
+> foobar_exec_t and leaves the content on uninstall, a confined domain that was
+> able to execute foobar_exec_t will now not be able to execute unlabeled_t.
 > 
-> """
-> import policycoreutils.default_encoding_utf8
-> """
+> If we could alias foobar_exec_t to bin_t when foobar.pp is not installed, then
+> we get a little closer to the default, and I don;t have restorecon -R -v
+> fixing unlabeled_t files.
 > 
-> On my system (Python 2.7) this fails with:
-> 
-> Traceback (most recent call last):
->   File "/usr/sbin/semanage-python2.7", line 26, in <module>
->     import policycoreutils.default_encoding_utf8
-> ImportError: No module named policycoreutils.default_encoding_utf8
-> 
-> Is this specific for a particular Python version?
-> 
-> I commented it out and most other things work just fine (I only have a small
-> issue with audit2allow not wanting to generate refpolicy-style modules even
-> though the interface_info file is - I think - up2date and is being read by
-> audit2allow).
+> similarly  foobar_usr content to -> usr_t, and foobar_etc_t to etc_t
+> foobar_var_t -> var_t ...
 
-Did sepolgen-ifgen complete successfully?
-Can you provide more information about how audit2allow -R is failing?
-Maybe some sample input and output.
+Hi,
 
+I'm afraid this would cause undesired and unexpected "un-confining" of
+programs / content that used to be confined which could lead to
+information leaks for example.
+
+Are programs needing access to data from an uninstalled packages
+something that does effectively happen ? Requiring a custom policy to
+allow such corner cases does not feel excessive here.
+
+Moreover, changing the labels to some other valid ones may confuse the
+admin/user more than if files were to be kept with their original labels
+(if all the types are kept available at all times) or if the labels are
+set to unlabeled_t which is explicitly telling what happened.
+
+Cheers,
+
+Tim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
