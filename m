@@ -1,58 +1,60 @@
-Message-ID: <52790D3E.4080701@redhat.com>
-Date: Tue, 05 Nov 2013 10:22:38 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA648OGt017267
+	for <selinux@tycho.nsa.gov>; Tue, 5 Nov 2013 23:08:24 -0500
+Received: from [10.0.3.42] (unknown [10.0.3.42])
+	(using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx1.mthode.org (Postfix) with ESMTPSA id EFE7A124C8
+	for <selinux@tycho.nsa.gov>; Tue,  5 Nov 2013 23:10:32 -0500 (EST)
+Message-ID: <5279C0A6.2090703@mthode.org>
+Date: Tue, 05 Nov 2013 22:08:06 -0600
+From: Matthew Thode <mthode@mthode.org>
+Reply-To: mthode@mthode.org
 MIME-Version: 1.0
-To: SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Patch to remove default encoding patch.
-Content-Type: multipart/mixed;
- boundary="------------020401010607080103000607"
+To: selinux@tycho.nsa.gov
+Subject: kernel function to verify rootcontext
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="mG78e2EVSAvwLtlMPk7Mn0IMTsBQShA44"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020401010607080103000607
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--mG78e2EVSAvwLtlMPk7Mn0IMTsBQShA44
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Is there a kernel function used to verify that a rootcontext is valid
+(exists and/or is formatted correctly).
 
-The default encoding patch, was never upstreamed.  default_encoding module
-switched python2 to always use unicode.  Potentially in some languages
-semanage will blow up when errors are reported.
+--=20
+-- Matthew Thode
 
-The need for this patch is going away in python3, which should be the default
-in Fedora 21/22.
+
+--mG78e2EVSAvwLtlMPk7Mn0IMTsBQShA44
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-iEYEARECAAYFAlJ5DT4ACgkQrlYvE4MpobMvrgCfcEvZY4q7F17q9dbYJrHJXpae
-Ut8AoM2TP99Ca0/lJAjoMTGsqr50P35/
-=BHTe
+iQIcBAEBAgAGBQJSecCzAAoJECRx6z5ArFrDQJkQAJwTJ27bsr8tyLmqXlzpMlZ2
+N/M1H6Z+v2Fz3AJEPc5nrSqMP3QrgGBGfHAT1LMi17TAluLig4TS7U9wDfwYjhry
+VyXS9REqO7rPxZKoyAbKCX7R6b9nV/+iDljp2UJ7LDG+x//ukaIMPEtxFa0pQ6oK
+TSp4ZD8Eq9JllJkm3x6ahv1ZK9MshKCD4ZB9BBxotHq7u9yu62dAapXW4H88bOXY
++IEZpyZgtEBt01SnpvZiJh9cnr61U+ud9DjJ+eASw4dl7gv0JcnDvCLLleCGnc4C
+SegE+LC1cM9UDhjyj6ufoItYHoVcu0KqZS8DgvMLPwY0GJdAcpAoBrHobaEyDGHk
+z4+T/2st9SY5d3xfdgIMQyiFLWyYIax/t+iq3dRe3xG5JgvsNPd+gxzNLgDqx0GX
+u2CV1yG38mZKY3gvD3knUyPrc2wzTOE+yyavz4lVAwEcBa9l7g1/uk39bFj6Wl1R
+lWIhfgpBZjtpjDMh/AQgt6unzwV1As+YHLD7QOVYYDLnZGI56UBLczARieQZxAQw
+rLBYm+nE64CppI4UtdwuMAFQihodhg0ijdLqPVLhgeCB6+zhUAEWnUUilwjxm7q9
+3YPSAIJfnwFbYBSeo3uuTwyMjhTJ/96LZB1XkrI+AnkJwITV759PzADIcKbsJEtK
+m1MZQXDITyTjlsnJfUFG
+=B2oJ
 -----END PGP SIGNATURE-----
 
---------------020401010607080103000607
-Content-Type: text/x-patch;
- name="semanage_default_encoding.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="semanage_default_encoding.patch"
-
-diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-index bd6c526..36b41cd 100644
---- a/policycoreutils/semanage/semanage
-+++ b/policycoreutils/semanage/semanage
-@@ -23,7 +23,6 @@
- #
- #
- 
--import policycoreutils.default_encoding_utf8
- import argparse
- import seobject
- import sys
-
---------------020401010607080103000607--
+--mG78e2EVSAvwLtlMPk7Mn0IMTsBQShA44--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
