@@ -1,47 +1,39 @@
-Message-ID: <527A567D.7050401@tycho.nsa.gov>
-Date: Wed, 06 Nov 2013 09:47:25 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Laurent Bigonville <bigon@debian.org>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 3/3] Minor manpages improvements
-References: <1383740641-9927-1-git-send-email-bigon@debian.org> <1383740641-9927-3-git-send-email-bigon@debian.org>
-In-Reply-To: <1383740641-9927-3-git-send-email-bigon@debian.org>
+In-Reply-To: <5277B25A.7030105@redhat.com>
+References: <52715E75.5000005@redhat.com>
+	<527168B1.4040905@tycho.nsa.gov>
+	<52716DE6.8040401@redhat.com>
+	<CAPzO=NyM2K5zb3DemGOxCFVU3dwuFDjo23AgtxS=oSwxrFdDxA@mail.gmail.com>
+	<5277B25A.7030105@redhat.com>
+Date: Wed, 6 Nov 2013 16:35:19 +0100
+Message-ID: <CAPzO=NwDTKKxx5KsT0X+R57vqPz4aDdrmoRV-f4DiowjQNi_2Q@mail.gmail.com>
+Subject: Re: Been looking at further shrinkage of the SELinux footprint on Linux.
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/06/2013 07:24 AM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
-> 
-> ---
->  policycoreutils/audit2allow/audit2allow.1      | 2 +-
->  policycoreutils/gui/selinux-polgengui.8        | 2 +-
->  policycoreutils/gui/system-config-selinux.8    | 2 +-
->  policycoreutils/load_policy/load_policy.8      | 2 +-
->  policycoreutils/mcstrans/man/man8/mcstransd.8  | 4 ++--
->  policycoreutils/scripts/fixfiles.8             | 4 ++--
->  policycoreutils/secon/secon.1                  | 2 +-
->  policycoreutils/semanage/semanage-boolean.8    | 2 +-
->  policycoreutils/semanage/semanage-dontaudit.8  | 2 +-
->  policycoreutils/semanage/semanage-export.8     | 6 +++---
->  policycoreutils/semanage/semanage-fcontext.8   | 2 +-
->  policycoreutils/semanage/semanage-import.8     | 4 ++--
->  policycoreutils/semanage/semanage-interface.8  | 4 ++--
->  policycoreutils/semanage/semanage-login.8      | 8 ++++----
->  policycoreutils/semanage/semanage-module.8     | 2 +-
->  policycoreutils/semanage/semanage-node.8       | 2 +-
->  policycoreutils/semanage/semanage-permissive.8 | 2 +-
->  policycoreutils/semanage/semanage-port.8       | 2 +-
->  policycoreutils/semanage/semanage-user.8       | 4 ++--
->  policycoreutils/semanage/semanage.8            | 2 +-
->  policycoreutils/sepolicy/sepolicy-generate.8   | 8 +++-----
->  policycoreutils/setfiles/restorecon.8          | 4 ++--
->  22 files changed, 35 insertions(+), 37 deletions(-)
+On Mon, Nov 4, 2013 at 3:42 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> In Gentoo, we try to only install the SELinux policies related to the
+>> package that is installed. So if a system does not have a web server, no
+>> httpd policies are loaded.
+[...]
+> And how do  you handle the problem of removing policy when packages get
+> removed?  What happens to the programs content?
 
-Merged all three patches to #next.  Will be included in policycoreutils 2.3.
+Good point. We don't handle that - if the package is removed and no
+other package exists that has a dependency on the SELinux policy, then
+the SELinux policy is also removed. Which invalidates the contexts of
+the files. I reckon that users who hit issues with that would relabel
+the files, which usually labels them to the "parent" type (such as
+var_t for things in /var/www then). But I have not received such
+case(s) for review yet.
 
-
+Wkr,
+  Sven Vermeulen
 
 --
 This message was distributed to subscribers of the selinux mailing list.
