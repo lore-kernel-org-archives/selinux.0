@@ -1,67 +1,44 @@
-Message-ID: <527AD1FE.9040200@gmail.com>
-Date: Thu, 07 Nov 2013 00:34:22 +0100
-From: =?UTF-8?B?VGltb3Row6llIFJhdmllcg==?= <siosm99@gmail.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Steve Lawrence <slawrence@tresys.com>
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Been looking at further shrinkage of the SELinux footprint on
- Linux.
-References: <52715E75.5000005@redhat.com> <527168B1.4040905@tycho.nsa.gov> <52716DE6.8040401@redhat.com> <52716F8C.6060109@tycho.nsa.gov> <5271706B.2030201@tycho.nsa.gov> <52725064.4080508@tresys.com> <52725380.3050808@tycho.nsa.gov> <5272A6ED.1000504@redhat.com>
-In-Reply-To: <5272A6ED.1000504@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: review of a dbus-selinux patch
+From: Colin Walters <walters@verbum.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <5277D42D.6050609@tycho.nsa.gov>
+References: <1383578801.23834.59.camel@localhost>
+	 <5277D42D.6050609@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-g285+NppxASjaQXDdHc8"
+Date: Thu, 07 Nov 2013 14:57:30 -0500
+Message-ID: <1383854250.23834.146.camel@localhost>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 31/10/2013 19:52, Daniel J Walsh wrote:
-> On 10/31/2013 08:56 AM, Stephen Smalley wrote:
->> I guess the question is what behavior is desired here.  If you remove the
->> type itself, then these days it will get treated as unlabeled (so it 
->> becomes inaccessible to anything that doesn't have permissions to 
->> unlabeled, but that shouldn't be an issue for unconfined users) and if 
->> someone later re-installs the package/policy, then it should get remapped
->> to its original context due to the deferred context mapping support.  Is
->> that sufficient?  If not, then my proposed approach above of pushing all of
->> the file type declarations into a single module (probably the base module)
->> and never removing them would allow the types to always remain valid but
->> they'd still be inaccessible except to domains that are allowed access to
->> file_type (e.g. unconfined) when you remove the modules defining the allow
->> rules.  Is that sufficient?  If not, then your approach of never removing
->> modules will work but seems the least optimal to me.
-> 
-> Well I like the idea of defining alias for modules when they are not
-> installed.  The biggest problem I see is around executables and potentially
-> readable content.  If I install a package that labels something as
-> foobar_exec_t and leaves the content on uninstall, a confined domain that was
-> able to execute foobar_exec_t will now not be able to execute unlabeled_t.
-> 
-> If we could alias foobar_exec_t to bin_t when foobar.pp is not installed, then
-> we get a little closer to the default, and I don;t have restorecon -R -v
-> fixing unlabeled_t files.
-> 
-> similarly  foobar_usr content to -> usr_t, and foobar_etc_t to etc_t
-> foobar_var_t -> var_t ...
 
-Hi,
+--=-g285+NppxASjaQXDdHc8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-I'm afraid this would cause undesired and unexpected "un-confining" of
-programs / content that used to be confined which could lead to
-information leaks for example.
+On Mon, 2013-11-04 at 12:06 -0500, Stephen Smalley wrote:
 
-Are programs needing access to data from an uninstalled packages
-something that does effectively happen ? Requiring a custom policy to
-allow such corner cases does not feel excessive here.
+> XSELinux correctly uses selinux_set_mapping() so that libselinux
+> internally creates a mapping from arbitrary class/perm indices used by
+> XSELinux and the policy values and handles all of the translation at
+> runtime on avc_has_perm() calls.
 
-Moreover, changing the labels to some other valid ones may confuse the
-admin/user more than if files were to be kept with their original labels
-(if all the types are kept available at all times) or if the labels are
-set to unlabeled_t which is explicitly telling what happened.
+Ok, I see how this works now.  It was not obvious at all to me initially
+that the order of the #defines in XSELinux had to correspond to the
+security_class_mapping struct array.
 
-Cheers,
+But then I only discovered while writing a patch to document
+selinux_set_mapping() that there are man pages now for the libselinux
+API, and I guess the docs in the headers are not really used anymore?
 
-Tim
+Anyways I attached the patch...maybe it'll be useful.
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+
+--=-g285+NppxASjaQXDdHc8
+Content-Disposition: attachment; filename="0001-selinux_set_mapping-Document-it.patch"
+Content-Type: text/x-patch; name="0001-selinux_set_mapping-Document-it.patch"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+
+--=-g285+NppxASjaQXDdHc8--
