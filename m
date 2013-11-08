@@ -1,20 +1,358 @@
-From: Dan Walsh <dwalsh@redhat.com>
-To: sds@tycho.nsa.gov, eparis@redhat.com
-Cc: selinux@tycho.nsa.gov
-Subject: Current upstreamable patch set from Fedora
-Date: Fri,  8 Nov 2013 08:17:27 -0500
-Message-Id: <1383916655-9354-1-git-send-email-dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rA8FhWkL031659
+	for <selinux@tycho.nsa.gov>; Fri, 8 Nov 2013 10:43:32 -0500
+Received: by mail-qe0-f50.google.com with SMTP id 1so2077401qee.9
+        for <selinux@tycho.nsa.gov>; Fri, 08 Nov 2013 07:43:30 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        eparis@redhat.com
+Subject: Re: [PATCH] SELinux: V2-Update policy version to support constraints info
+Date: Fri, 08 Nov 2013 10:43:27 -0500
+Message-ID: <2028093.sfk1GSmjqs@sifl>
+In-Reply-To: <52739A62.2020800@tycho.nsa.gov>
+References: <1383306043-5504-1-git-send-email-richard_c_haines@btinternet.com> <52739A62.2020800@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[PATCH 01/08] Call proper dbus function
-[PATCH 02/08] Only return writeable files that are enabled
-[PATCH 03/08] Add domain to short list of domains, when -t and -d
-[PATCH 04/08] Fix up desktop files to match current standards
-[PATCH 05/08] Add support to return sesitivities and cats for python
-[PATCH 06/08] Update po
-[PATCH 07/08] Cleanup whitespace
-[PATCH 08/08] Add message to tell user to install sandbox policy
+On Friday, November 01, 2013 08:11:14 AM Stephen Smalley wrote:
+> On 11/01/2013 07:40 AM, Richard Haines wrote:
+> > Update the policy version (POLICYDB_VERSION_CONSTRAINT_NAMES) to allow
+> > holding of policy source info for constraints.
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> 
+> Thanks!
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+Applied, thanks.  However, I'm not pushing to up to my SELinux tree until 
+after 3.13-rc1 is released.
+
+> > ---
+> > 
+> >  security/selinux/include/security.h |  3 +-
+> >  security/selinux/ss/constraint.h    |  1 +
+> >  security/selinux/ss/policydb.c      | 96
+> >  +++++++++++++++++++++++++++++++++---- security/selinux/ss/policydb.h    
+> >   | 11 +++++
+> >  4 files changed, 101 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/security/selinux/include/security.h
+> > b/security/selinux/include/security.h index 927fc14..bdf0a56 100644
+> > --- a/security/selinux/include/security.h
+> > +++ b/security/selinux/include/security.h
+> > @@ -33,13 +33,14 @@
+> > 
+> >  #define POLICYDB_VERSION_ROLETRANS	26
+> >  #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
+> >  #define POLICYDB_VERSION_DEFAULT_TYPE	28
+> > 
+> > +#define POLICYDB_VERSION_CONSTRAINT_NAMES	29
+> > 
+> >  /* Range of policy versions we understand*/
+> >  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+> >  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+> >  #define
+> >  POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+> >  #else
+> > 
+> > -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_DEFAULT_TYPE
+> > +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
+> > 
+> >  #endif
+> >  
+> >  /* Mask for just the mount related flags */
+> > 
+> > diff --git a/security/selinux/ss/constraint.h
+> > b/security/selinux/ss/constraint.h index 149dda7..96fd947 100644
+> > --- a/security/selinux/ss/constraint.h
+> > +++ b/security/selinux/ss/constraint.h
+> > @@ -48,6 +48,7 @@ struct constraint_expr {
+> > 
+> >  	u32 op;			/* operator */
+> >  	
+> >  	struct ebitmap names;	/* names */
+> > 
+> > +	struct type_set *type_names;
+> > 
+> >  	struct constraint_expr *next;   /* next expression */
+> >  
+> >  };
+> > 
+> > diff --git a/security/selinux/ss/policydb.c
+> > b/security/selinux/ss/policydb.c index 9cd9b7c..60af34a 100644
+> > --- a/security/selinux/ss/policydb.c
+> > +++ b/security/selinux/ss/policydb.c
+> > @@ -143,6 +143,11 @@ static struct policydb_compat_info policydb_compat[]
+> > = {> 
+> >  		.sym_num	= SYM_NUM,
+> >  		.ocon_num	= OCON_NUM,
+> >  	
+> >  	},
+> > 
+> > +	{
+> > +		.version	= POLICYDB_VERSION_CONSTRAINT_NAMES,
+> > +		.sym_num	= SYM_NUM,
+> > +		.ocon_num	= OCON_NUM,
+> > +	},
+> > 
+> >  };
+> >  
+> >  static struct policydb_compat_info *policydb_lookup_compat(int version)
+> > 
+> > @@ -613,6 +618,19 @@ static int common_destroy(void *key, void *datum,
+> > void *p)> 
+> >  	return 0;
+> >  
+> >  }
+> > 
+> > +static void constraint_expr_destroy(struct constraint_expr *expr)
+> > +{
+> > +	if (expr) {
+> > +		ebitmap_destroy(&expr->names);
+> > +		if (expr->type_names) {
+> > +			ebitmap_destroy(&expr->type_names->types);
+> > +			ebitmap_destroy(&expr->type_names->negset);
+> > +			kfree(expr->type_names);
+> > +		}
+> > +		kfree(expr);
+> > +	}
+> > +}
+> > +
+> > 
+> >  static int cls_destroy(void *key, void *datum, void *p)
+> >  {
+> >  
+> >  	struct class_datum *cladatum;
+> > 
+> > @@ -628,10 +646,9 @@ static int cls_destroy(void *key, void *datum, void
+> > *p)> 
+> >  		while (constraint) {
+> >  		
+> >  			e = constraint->expr;
+> >  			while (e) {
+> > 
+> > -				ebitmap_destroy(&e->names);
+> > 
+> >  				etmp = e;
+> >  				e = e->next;
+> > 
+> > -				kfree(etmp);
+> > +				constraint_expr_destroy(etmp);
+> > 
+> >  			}
+> >  			ctemp = constraint;
+> >  			constraint = constraint->next;
+> > 
+> > @@ -642,16 +659,14 @@ static int cls_destroy(void *key, void *datum, void
+> > *p)> 
+> >  		while (constraint) {
+> >  		
+> >  			e = constraint->expr;
+> >  			while (e) {
+> > 
+> > -				ebitmap_destroy(&e->names);
+> > 
+> >  				etmp = e;
+> >  				e = e->next;
+> > 
+> > -				kfree(etmp);
+> > +				constraint_expr_destroy(etmp);
+> > 
+> >  			}
+> >  			ctemp = constraint;
+> >  			constraint = constraint->next;
+> >  			kfree(ctemp);
+> >  		
+> >  		}
+> > 
+> > -
+> > 
+> >  		kfree(cladatum->comkey);
+> >  	
+> >  	}
+> >  	kfree(datum);
+> > 
+> > @@ -1156,8 +1171,34 @@ bad:
+> >  	return rc;
+> >  
+> >  }
+> > 
+> > -static int read_cons_helper(struct constraint_node **nodep, int ncons,
+> > -			    int allowxtarget, void *fp)
+> > +static void type_set_init(struct type_set *t)
+> > +{
+> > +	ebitmap_init(&t->types);
+> > +	ebitmap_init(&t->negset);
+> > +}
+> > +
+> > +static int type_set_read(struct type_set *t, void *fp)
+> > +{
+> > +	__le32 buf[1];
+> > +	int rc;
+> > +
+> > +	if (ebitmap_read(&t->types, fp))
+> > +		return -EINVAL;
+> > +	if (ebitmap_read(&t->negset, fp))
+> > +		return -EINVAL;
+> > +
+> > +	rc = next_entry(buf, fp, sizeof(u32));
+> > +	if (rc < 0)
+> > +		return -EINVAL;
+> > +	t->flags = le32_to_cpu(buf[0]);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +
+> > +static int read_cons_helper(struct policydb *p,
+> > +				struct constraint_node **nodep,
+> > +				int ncons, int allowxtarget, void *fp)
+> > 
+> >  {
+> >  
+> >  	struct constraint_node *c, *lc;
+> >  	struct constraint_expr *e, *le;
+> > 
+> > @@ -1225,6 +1266,18 @@ static int read_cons_helper(struct constraint_node
+> > **nodep, int ncons,> 
+> >  				rc = ebitmap_read(&e->names, fp);
+> >  				if (rc)
+> >  				
+> >  					return rc;
+> > 
+> > +				if (p->policyvers >=
+> > +					POLICYDB_VERSION_CONSTRAINT_NAMES) {
+> > +						e->type_names = kzalloc(sizeof
+> > +						(*e->type_names),
+> > +						GFP_KERNEL);
+> > +					if (!e->type_names)
+> > +						return -ENOMEM;
+> > +					type_set_init(e->type_names);
+> > +					rc = type_set_read(e->type_names, fp);
+> > +					if (rc)
+> > +						return rc;
+> > +				}
+> > 
+> >  				break;
+> >  			
+> >  			default:
+> >  				return -EINVAL;
+> > 
+> > @@ -1301,7 +1354,7 @@ static int class_read(struct policydb *p, struct
+> > hashtab *h, void *fp)> 
+> >  			goto bad;
+> >  	
+> >  	}
+> > 
+> > -	rc = read_cons_helper(&cladatum->constraints, ncons, 0, fp);
+> > +	rc = read_cons_helper(p, &cladatum->constraints, ncons, 0, fp);
+> > 
+> >  	if (rc)
+> >  	
+> >  		goto bad;
+> > 
+> > @@ -1311,7 +1364,8 @@ static int class_read(struct policydb *p, struct
+> > hashtab *h, void *fp)> 
+> >  		if (rc)
+> >  		
+> >  			goto bad;
+> >  		
+> >  		ncons = le32_to_cpu(buf[0]);
+> > 
+> > -		rc = read_cons_helper(&cladatum->validatetrans, ncons, 1, fp);
+> > +		rc = read_cons_helper(p, &cladatum->validatetrans,
+> > +				ncons, 1, fp);
+> > 
+> >  		if (rc)
+> >  		
+> >  			goto bad;
+> >  	
+> >  	}
+> > 
+> > @@ -2750,6 +2804,24 @@ static int common_write(void *vkey, void *datum,
+> > void *ptr)> 
+> >  	return 0;
+> >  
+> >  }
+> > 
+> > +static int type_set_write(struct type_set *t, void *fp)
+> > +{
+> > +	int rc;
+> > +	__le32 buf[1];
+> > +
+> > +	if (ebitmap_write(&t->types, fp))
+> > +		return -EINVAL;
+> > +	if (ebitmap_write(&t->negset, fp))
+> > +		return -EINVAL;
+> > +
+> > +	buf[0] = cpu_to_le32(t->flags);
+> > +	rc = put_entry(buf, sizeof(u32), 1, fp);
+> > +	if (rc)
+> > +		return -EINVAL;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > 
+> >  static int write_cons_helper(struct policydb *p, struct constraint_node
+> >  *node,>  
+> >  			     void *fp)
+> >  
+> >  {
+> > 
+> > @@ -2781,6 +2853,12 @@ static int write_cons_helper(struct policydb *p,
+> > struct constraint_node *node,> 
+> >  				rc = ebitmap_write(&e->names, fp);
+> >  				if (rc)
+> >  				
+> >  					return rc;
+> > 
+> > +				if (p->policyvers >=
+> > +					POLICYDB_VERSION_CONSTRAINT_NAMES) {
+> > +					rc = type_set_write(e->type_names, fp);
+> > +					if (rc)
+> > +						return rc;
+> > +				}
+> > 
+> >  				break;
+> >  			
+> >  			default:
+> >  				break;
+> > 
+> > diff --git a/security/selinux/ss/policydb.h
+> > b/security/selinux/ss/policydb.h index da63747..725d594 100644
+> > --- a/security/selinux/ss/policydb.h
+> > +++ b/security/selinux/ss/policydb.h
+> > @@ -154,6 +154,17 @@ struct cond_bool_datum {
+> > 
+> >  struct cond_node;
+> >  
+> >  /*
+> > 
+> > + * type set preserves data needed to determine constraint info from
+> > + * policy source. This is not used by the kernel policy but allows
+> > + * utilities such as audit2allow to determine constraint denials.
+> > + */
+> > +struct type_set {
+> > +	struct ebitmap types;
+> > +	struct ebitmap negset;
+> > +	u32 flags;
+> > +};
+> > +
+> > +/*
+> > 
+> >   * The configuration data includes security contexts for
+> >   * initial SIDs, unlabeled file systems, TCP and UDP port numbers,
+> >   * network interfaces, and nodes.  This structure stores the
+
+-- 
+paul moore
+www.paul-moore.com
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
