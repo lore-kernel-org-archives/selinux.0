@@ -1,9 +1,9 @@
 From: Dan Walsh <dwalsh@redhat.com>
 To: sds@tycho.nsa.gov, eparis@redhat.com
 Cc: selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>
-Subject: [PATCH 07/08] Cleanup whitespace
-Date: Fri,  8 Nov 2013 08:17:34 -0500
-Message-Id: <1383916655-9354-8-git-send-email-dwalsh@redhat.com>
+Subject: [PATCH 02/08] Only return writeable files that are enabled
+Date: Fri,  8 Nov 2013 08:17:29 -0500
+Message-Id: <1383916655-9354-3-git-send-email-dwalsh@redhat.com>
 In-Reply-To: <1383916655-9354-1-git-send-email-dwalsh@redhat.com>
 References: <1383916655-9354-1-git-send-email-dwalsh@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
@@ -11,39 +11,23 @@ List-Id: selinux@tycho.nsa.gov
 
 Signed-off-by: Dan Walsh <dwalsh@redhat.com>
 ---
- policycoreutils/setsebool/setsebool.8 | 1 -
- policycoreutils/setsebool/setsebool.c | 4 ++--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ policycoreutils/sepolicy/sepolicy/__init__.py | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/policycoreutils/setsebool/setsebool.8 b/policycoreutils/setsebool/setsebool.8
-index 7338f15..916a58c 100644
---- a/policycoreutils/setsebool/setsebool.8
-+++ b/policycoreutils/setsebool/setsebool.8
-@@ -20,7 +20,6 @@ the policy file on disk. So they will be persistent across reboots.
- 
- If the \-N option is given, the policy on disk is not reloaded into the kernel.
- 
--
- If the \-V option is given, verbose error messages will be printed from semanage libraries.
- 
- 
-diff --git a/policycoreutils/setsebool/setsebool.c b/policycoreutils/setsebool/setsebool.c
-index 89412d0..b101f08 100644
---- a/policycoreutils/setsebool/setsebool.c
-+++ b/policycoreutils/setsebool/setsebool.c
-@@ -53,10 +53,10 @@ int main(int argc, char **argv)
- 			permanent = 1;
- 			break;
- 		case 'N':
--		        reload = 0;
-+			reload = 0;
- 			break;
- 		case 'V':
--		        verbose = 1;
-+			verbose = 1;
- 			break;
- 		default:
- 			usage();
+diff --git a/policycoreutils/sepolicy/sepolicy/__init__.py b/policycoreutils/sepolicy/sepolicy/__init__.py
+index fd95c16..679725d 100644
+--- a/policycoreutils/sepolicy/sepolicy/__init__.py
++++ b/policycoreutils/sepolicy/sepolicy/__init__.py
+@@ -141,6 +141,9 @@ def get_writable_files(setype):
+     for i in permlist:
+         if i['target'] in attributes:
+             continue
++        if "enabled" in i:
++            if not i["enabled"]:
++                continue
+         if i['target'].endswith("_t"):
+             if i['target'] not in file_types:
+                 continue
 -- 
 1.8.4.2
 
