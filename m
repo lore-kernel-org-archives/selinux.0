@@ -1,44 +1,27 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rADGC4D0005073
-	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 11:12:04 -0500
-Message-ID: <5283A4C7.8090901@redhat.com>
-Date: Wed, 13 Nov 2013 11:11:51 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <5283A616.3080201@tycho.nsa.gov>
+Date: Wed, 13 Nov 2013 11:17:26 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Paul Howarth <paul@city-fan.org>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux Coloring book?
-References: <52839664.1080600@redhat.com> <5283A220.2080305@city-fan.org>
-In-Reply-To: <5283A220.2080305@city-fan.org>
-Content-Type: text/plain; charset=UTF-8
+To: Dan Walsh <dwalsh@redhat.com>, eparis@redhat.com
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 01/05] Make sure we do the polkit check on all dbus interfaces.
+References: <1384357088-21451-1-git-send-email-dwalsh@redhat.com>
+In-Reply-To: <1384357088-21451-1-git-send-email-dwalsh@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 11/13/2013 10:38 AM, Dan Walsh wrote:
+> Change policy kit to only allow access on the console.
+> ---
+>  policycoreutils/sepolicy/org.selinux.policy | 36 +++++++++++++++--------------
+>  policycoreutils/sepolicy/selinux_server.py  |  7 +++++-
+>  2 files changed, 25 insertions(+), 18 deletions(-)
 
-On 11/13/2013 11:00 AM, Paul Howarth wrote:
-> On 13/11/13 15:10, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
->> 
->> New article on opensource.com describing SELinux enforcement in simple
->> terms. Check it out.
->> 
->> http://opensource.com/business/13/11/selinux-policy-guide
-> 
-> SELinux was in RHEL 4, not just since RHEL 6. We still have an EL4 box on 
-> extended life support here with SELinux enforcing.
+Pushed as policycoreutils-2.2.3 along with the dbus call bug fix from
+the prior set.
 
-Yes this is a typo and I have asked OpenSource.com to fix it.  People seem to
-be reading it closely, since I have heard for lots of people about this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.15 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iEYEARECAAYFAlKDpMcACgkQrlYvE4MpobMhhgCfaqjqpl0ze4JxCqvHBh1luR3x
-HJEAoMIG3B1NugAW5Im+LCP3Ktub2I+U
-=7gbs
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
