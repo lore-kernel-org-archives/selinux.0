@@ -1,13 +1,14 @@
-Message-ID: <527D677B.7040305@redhat.com>
-Date: Fri, 08 Nov 2013 17:36:43 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rADFAWtc032487
+	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 10:10:32 -0500
+Message-ID: <52839664.1080600@redhat.com>
+Date: Wed, 13 Nov 2013 10:10:28 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, eparis@redhat.com
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 08/08] Add message to tell user to install sandbox policy
- package.
-References: <1383916655-9354-1-git-send-email-dwalsh@redhat.com> <1383916655-9354-9-git-send-email-dwalsh@redhat.com> <527D532A.8080209@tycho.nsa.gov>
-In-Reply-To: <527D532A.8080209@tycho.nsa.gov>
+To: SELinux <selinux@tycho.nsa.gov>,
+        Fedora SELinux Users <selinux@lists.fedoraproject.org>,
+        Community support for Fedora users <users@lists.fedoraproject.org>
+Subject: SELinux Coloring book?
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -15,26 +16,18 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-On 11/08/2013 04:10 PM, Stephen Smalley wrote:
-> On 11/08/2013 08:17 AM, Dan Walsh wrote:
->> Sandbox policy is huge do to macro expansion.  We do not install this by
->> default but sandbox command can fail without it installed.  This patch
->> prints a message to the user to install the package.
->> 
->> Signed-off-by: Dan Walsh <dwalsh@redhat.com>
-> 
-> Thanks, applied to #next.  Did not receive patch 06/08. patch 01/08 looked
-> like a bug fix that should get pushed as an update, yes?
-> 
-> 
-Yes.
+New article on opensource.com describing SELinux enforcement in simple terms.
+ Check it out.
+
+http://opensource.com/business/13/11/selinux-policy-guide
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.15 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJ9Z3sACgkQrlYvE4MpobNUlQCgrCVMPpmgZbd53nIogRXYgf9D
-i/wAnjVV9AK2RRtJ+XF4ECw6RjH8ukVe
-=R2Le
+iEYEARECAAYFAlKDlmQACgkQrlYvE4MpobOjsACfZ4Vtbl8ypCUcN4ofVv/UeeVy
+/+0AoNGtmaM2Sz2ONX1fOtW/TpTcm2Ob
+=td+O
 -----END PGP SIGNATURE-----
 
 --
