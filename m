@@ -1,79 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rADG0biX003987
-	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 11:00:37 -0500
-Received: from roary.micron.com (roary.uk.virtensys.com [86.15.121.9])
-	(authenticated bits=0)
-	by goalkeeper.city-fan.org (8.14.7/8.14.7) with ESMTP id rADG0XTs031604
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-CAMELLIA256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 16:00:33 GMT
-Message-ID: <5283A220.2080305@city-fan.org>
-Date: Wed, 13 Nov 2013 16:00:32 +0000
-From: Paul Howarth <paul@city-fan.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rADGC4D0005073
+	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 11:12:04 -0500
+Message-ID: <5283A4C7.8090901@redhat.com>
+Date: Wed, 13 Nov 2013 11:11:51 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
+To: Paul Howarth <paul@city-fan.org>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: SELinux Coloring book?
-References: <52839664.1080600@redhat.com>
-In-Reply-To: <52839664.1080600@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <52839664.1080600@redhat.com> <5283A220.2080305@city-fan.org>
+In-Reply-To: <5283A220.2080305@city-fan.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 13/11/13 15:10, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> New article on opensource.com describing SELinux enforcement in simple terms.
->   Check it out.
->
-> http://opensource.com/business/13/11/selinux-policy-guide
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-SELinux was in RHEL 4, not just since RHEL 6. We still have an EL4 box 
-on extended life support here with SELinux enforcing.
+On 11/13/2013 11:00 AM, Paul Howarth wrote:
+> On 13/11/13 15:10, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE----- Hash: SHA1
+>> 
+>> New article on opensource.com describing SELinux enforcement in simple
+>> terms. Check it out.
+>> 
+>> http://opensource.com/business/13/11/selinux-policy-guide
+> 
+> SELinux was in RHEL 4, not just since RHEL 6. We still have an EL4 box on 
+> extended life support here with SELinux enforcing.
 
-# sestatus
-SELinux status:		enabled
-SELinuxfs mount:	/selinux
-Current mode:		enforcing
-Mode from config file:	enforcing
-Policy version:		18
-Policy from config file:targeted
+Yes this is a typo and I have asked OpenSource.com to fix it.  People seem to
+be reading it closely, since I have heard for lots of people about this.
 
-Policy booleans:
-allow_syslog_to_console	inactive
-allow_ypbind		inactive
-dhcpd_disable_trans	inactive
-httpd_builtin_scripting	active
-httpd_disable_trans	inactive
-httpd_enable_cgi	active
-httpd_enable_homedirs	active
-httpd_ssi_exec		active
-httpd_tty_comm		inactive
-httpd_unified		active
-mysqld_disable_trans	inactive
-named_disable_trans	inactive
-named_write_master_zonesinactive
-nscd_disable_trans	inactive
-ntpd_disable_trans	inactive
-pegasus_disable_trans	inactive
-portmap_disable_trans	inactive
-postgresql_disable_transinactive
-snmpd_disable_trans	inactive
-squid_disable_trans	inactive
-syslogd_disable_trans	inactive
-use_nfs_home_dirs	inactive
-use_samba_home_dirs	inactive
-use_syslogng		inactive
-winbind_disable_trans	inactive
-ypbind_disable_trans	inactive
-# cat /etc/redhat-release
-Red Hat Enterprise Linux ES release 4 (Nahant Update 9)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.15 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-Of course, things have changed quite a bit since EL4...
-
-Paul.
-
-
-
+iEYEARECAAYFAlKDpMcACgkQrlYvE4MpobMhhgCfaqjqpl0ze4JxCqvHBh1luR3x
+HJEAoMIG3B1NugAW5Im+LCP3Ktub2I+U
+=7gbs
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
