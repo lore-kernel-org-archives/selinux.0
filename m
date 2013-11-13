@@ -1,26 +1,23 @@
-Message-ID: <5283A616.3080201@tycho.nsa.gov>
-Date: Wed, 13 Nov 2013 11:17:26 -0500
+Message-ID: <5283A66A.3020209@tycho.nsa.gov>
+Date: Wed, 13 Nov 2013 11:18:50 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Dan Walsh <dwalsh@redhat.com>, eparis@redhat.com
 CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 01/05] Make sure we do the polkit check on all dbus interfaces.
-References: <1384357088-21451-1-git-send-email-dwalsh@redhat.com>
-In-Reply-To: <1384357088-21451-1-git-send-email-dwalsh@redhat.com>
+Subject: Re: [PATCH 04/05] Add -P semodule option to man page
+References: <1384357428-21732-1-git-send-email-dwalsh@redhat.com> <1384357428-21732-2-git-send-email-dwalsh@redhat.com>
+In-Reply-To: <1384357428-21732-2-git-send-email-dwalsh@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/13/2013 10:38 AM, Dan Walsh wrote:
-> Change policy kit to only allow access on the console.
+On 11/13/2013 10:43 AM, Dan Walsh wrote:
 > ---
->  policycoreutils/sepolicy/org.selinux.policy | 36 +++++++++++++++--------------
->  policycoreutils/sepolicy/selinux_server.py  |  7 +++++-
->  2 files changed, 25 insertions(+), 18 deletions(-)
+>  policycoreutils/semodule/semodule.8 | 3 +++
+>  1 file changed, 3 insertions(+)
 
-Pushed as policycoreutils-2.2.3 along with the dbus call bug fix from
-the prior set.
-
+patch 1 applied to #master and pushed as policycoreutils 2.2.3.
+patches 2-4 applied to #next.
 
 
 --
