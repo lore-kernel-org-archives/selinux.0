@@ -1,29 +1,32 @@
 From: Dan Walsh <dwalsh@redhat.com>
 To: sds@tycho.nsa.gov, eparis@redhat.com
 Cc: selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>
-Subject: [PATCH 03/05] selinux_current_policy_path will return none on a disabled SELinux system
-Date: Wed, 13 Nov 2013 10:43:46 -0500
-Message-Id: <1384357428-21732-1-git-send-email-dwalsh@redhat.com>
+Subject: [PATCH 04/05] Add -P semodule option to man page
+Date: Wed, 13 Nov 2013 10:43:47 -0500
+Message-Id: <1384357428-21732-2-git-send-email-dwalsh@redhat.com>
+In-Reply-To: <1384357428-21732-1-git-send-email-dwalsh@redhat.com>
+References: <1384357428-21732-1-git-send-email-dwalsh@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 ---
- policycoreutils/audit2allow/sepolgen-ifgen | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ policycoreutils/semodule/semodule.8 | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/policycoreutils/audit2allow/sepolgen-ifgen b/policycoreutils/audit2allow/sepolgen-ifgen
-index 3967ba5..83c7ecf 100644
---- a/policycoreutils/audit2allow/sepolgen-ifgen
-+++ b/policycoreutils/audit2allow/sepolgen-ifgen
-@@ -63,7 +63,7 @@ def parse_options():
+diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+index 35277e9..2a91697 100644
+--- a/policycoreutils/semodule/semodule.8
++++ b/policycoreutils/semodule/semodule.8
+@@ -59,6 +59,9 @@ do not reload policy after commit
+ .B  \-h,\-\-help        
+ prints help message and quit
+ .TP
++.B \-P,\-\-preserve_tunables
++Preserve tunables in policy
++.TP
+ .B  \-v,\-\-verbose     
+ be verbose
  
- def get_policy():
-     p = selinux.selinux_current_policy_path()
--    if os.path.exists(p):
-+    if p and os.path.exists(p):
-         return p
-     i = selinux.security_policyvers()
-     p = selinux.selinux_binary_policy_path() + "." + str(i)
 -- 
 1.8.4.2
 
