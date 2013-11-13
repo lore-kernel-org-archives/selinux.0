@@ -1,101 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rADHDmS8010033
-	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 12:13:48 -0500
-Received: by mail-qc0-f180.google.com with SMTP id e9so423014qcy.39
-        for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 09:13:47 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <CAKuJGC9FTi__fc6+4O9nViDiCnT-+xrsFvR+E4FXAfML8x+QSQ@mail.gmail.com>
-References: <52839664.1080600@redhat.com> <CAKuJGC9FTi__fc6+4O9nViDiCnT-+xrsFvR+E4FXAfML8x+QSQ@mail.gmail.com>
-From: leo kirotawa <kirotawa@gmail.com>
-Date: Wed, 13 Nov 2013 15:13:26 -0200
-Message-ID: <CA+KS1kZE+KjVoitQq6=QZrhrHVdiEZCCUjMUWbvKyCZsa7Prxw@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rADHZIeB011676
+	for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 12:35:18 -0500
+Received: by mail-ee0-f50.google.com with SMTP id b45so375360eek.9
+        for <selinux@tycho.nsa.gov>; Wed, 13 Nov 2013 09:35:12 -0800 (PST)
+Message-ID: <1384364110.30406.53.camel@d30>
 Subject: Re: SELinux Coloring book?
-To: "Lakshmipathi.G" <lakshmipathi.g@gmail.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
+From: Dominick Grift <dominick.grift@gmail.com>
+To: Bruno Wolff III <bruno@wolff.to>
+Cc: Tony Scully <tonyjscully@gmail.com>, Daniel J Walsh <dwalsh@redhat.com>,
         Community support for Fedora users <users@lists.fedoraproject.org>,
-        Fedora SELinux Users <selinux@lists.fedoraproject.org>,
-        SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=047d7bf0cfec88a40a04eb12169a
+        Fedora
+ SELinux Users <selinux@lists.fedoraproject.org>,
+        SELinux
+ <selinux@tycho.nsa.gov>
+Date: Wed, 13 Nov 2013 18:35:10 +0100
+In-Reply-To: <20131113171326.GA13491@wolff.to>
+References: <52839664.1080600@redhat.com>
+	 <1bddae0010527398cc85d89bb8f1aad9.squirrel@host290.hostmonster.com>
+	 <CAMk6u_TUztYjqUTFCd5ukcHWOYt=cJaJv2ARvw-RafcVAAVUQw@mail.gmail.com>
+	 <20131113171326.GA13491@wolff.to>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---047d7bf0cfec88a40a04eb12169a
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-it is a interesting approach...but why tux(kernel/pinguin) has this psycho
-face, hehe.
-
-
-On Wed, Nov 13, 2013 at 3:10 PM, Lakshmipathi.G <lakshmipathi.g@gmail.com>w=
-rote:
-
->
->
->> http://opensource.com/business/13/11/selinux-policy-guide
->>
->>
-> Thanks! Its an interesting approach for SELinux guide/document.
->
+On Wed, 2013-11-13 at 11:13 -0600, Bruno Wolff III wrote:
+> On Wed, Nov 13, 2013 at 17:10:43 +0000,
+>    Tony Scully <tonyjscully@gmail.com> wrote:
+> >That's excellent!
+> 
+> The mls case might have been overly simplified. It didn't cover writing, 
+> where the dominance goes in the other direction. People might be incorrectly 
+> left with the impression the top secret can do everything that secret 
+> can do.
 > --
-> ----
-> Cheers,
-> Lakshmipathi.G
-> FOSS Programmer.
-> www.giis.co.in
->
-> --
-> selinux mailing list
-> selinux@lists.fedoraproject.org
-> https://admin.fedoraproject.org/mailman/listinfo/selinux
->
+
+I agree with you on the danger of oversimplification in generel with
+regard to explaining SELinux
+
+This is also why i find it sub-optimal to leave the two other default
+security models out of the equation (RBAC/IBAC)
+
+It is mentioned in the article that SELinux complements Linux security,
+by briefly touching on IBAC one would clarify at least to some degree
+how SELinux associates with Linux security
+
+RBAC by itself is worth mentioning in my view, if only to have touched
+on each security attribute in a security context tuple.
+
+The idea of the illustrated article is nice, but the article is not
+comprehensive.
+
+Granted, there are constraints. You cannot simply publish a three page
+article on a medium like this i suspect
 
 
 
---=20
-----------------------------------------------
-Le=F4nidas S. Barbosa (Kirotawa)
-
---047d7bf0cfec88a40a04eb12169a
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">it is a interesting approach...but why tux(kernel/pinguin)=
- has this psycho face, hehe.<br></div><div class=3D"gmail_extra"><br><br><d=
-iv class=3D"gmail_quote">On Wed, Nov 13, 2013 at 3:10 PM, Lakshmipathi.G <s=
-pan dir=3D"ltr">&lt;<a href=3D"mailto:lakshmipathi.g@gmail.com" target=3D"_=
-blank">lakshmipathi.g@gmail.com</a>&gt;</span> wrote:<br>
-
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div dir=3D"ltr"><br><div class=3D"gmail_ext=
-ra"><div class=3D"gmail_quote"><blockquote class=3D"gmail_quote" style=3D"m=
-argin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-
-
-<br>
-<a href=3D"http://opensource.com/business/13/11/selinux-policy-guide" targe=
-t=3D"_blank">http://opensource.com/business/13/11/selinux-policy-guide</a><=
-br>
-<br></blockquote><div><br></div><div>Thanks! Its an interesting approach fo=
-r SELinux guide/document. =A0</div></div><span class=3D"HOEnZb"><font color=
-=3D"#888888"><div><br></div>-- <br>----<br>Cheers,<br>Lakshmipathi.G<br>FOS=
-S Programmer.<br>
-
-<a href=3D"http://www.giis.co.in" target=3D"_blank">www.giis.co.in</a>
-</font></span></div></div>
-<br>--<br>
-selinux mailing list<br>
-<a href=3D"mailto:selinux@lists.fedoraproject.org">selinux@lists.fedoraproj=
-ect.org</a><br>
-<a href=3D"https://admin.fedoraproject.org/mailman/listinfo/selinux" target=
-=3D"_blank">https://admin.fedoraproject.org/mailman/listinfo/selinux</a><br=
-></blockquote></div><br><br clear=3D"all"><br>-- <br><div>-----------------=
------------------------------</div>
-
-Le=F4nidas S. Barbosa (Kirotawa)<br><br>
-</div>
-
---047d7bf0cfec88a40a04eb12169a--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
