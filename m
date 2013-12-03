@@ -1,150 +1,139 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rB3GYXNY017802
-	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2013 11:34:33 -0500
-Subject: [PATCH 2/2] selinux: handle TCP SYN-ACK packets correctly in
- selinux_ip_postroute()
-To: selinux@tycho.nsa.gov
-From: Paul Moore <pmoore@redhat.com>
-Cc: Janak.Desai@gtri.gatech.edu
-Date: Tue, 03 Dec 2013 11:34:27 -0500
-Message-ID: <20131203163427.4743.11976.stgit@localhost>
-In-Reply-To: <20131203163012.4743.26970.stgit@localhost>
-References: <20131203163012.4743.26970.stgit@localhost>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rB3HBhLO021020
+	for <selinux@tycho.nsa.gov>; Tue, 3 Dec 2013 12:11:43 -0500
+Received: from MX1.integrity-apps.com (localhost.localdomain [127.0.0.1])
+	by localhost (Email Security Appliance) with SMTP id 7095CC33C8_29E10CDB
+	for <selinux@tycho.nsa.gov>; Tue,  3 Dec 2013 17:11:41 +0000 (GMT)
+Received: from chunex01.integrity-apps.com (unknown [172.25.1.12])
+	by MX1.integrity-apps.com (Sophos Email Appliance) with ESMTP id 261D1C05F3_29E10CDF
+	for <selinux@tycho.nsa.gov>; Tue,  3 Dec 2013 17:11:41 +0000 (GMT)
+From: "Marino, Claudio" <cmarino@integrity-apps.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: RE: subscribe selinux
+Date: Tue, 3 Dec 2013 17:11:40 +0000
+Message-ID: <D06E30E1B8C24A4DAB7535F0E91D6275F3FA97@CHUNEX01.integrity-apps.com>
+Content-Type: multipart/alternative;
+	boundary="_000_D06E30E1B8C24A4DAB7535F0E91D6275F3FA97CHUNEX01integrity_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In selinux_ip_postroute() we perform access checks based on the
-packet's security label.  For locally generated traffic we get the
-packet's security label from the associated socket; this works in all
-cases except for TCP SYN-ACK packets.  In the case of SYN-ACK packet's
-the correct security label is stored in the connection's request_sock,
-not the server's socket.  Unfortunately, at the point in time when
-selinux_ip_postroute() is called we can't query the request_sock
-directly, we need to recreate the label using the same logic that
-originally labeled the associated request_sock.
+--_000_D06E30E1B8C24A4DAB7535F0E91D6275F3FA97CHUNEX01integrity_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-See the inline comments for more explanation.
+Hello,
 
-Reported-by: Janak Desai <Janak.Desai@gtri.gatech.edu>
-Tested-by: Janak Desai <Janak.Desai@gtri.gatech.edu>
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/hooks.c |   68 ++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 53 insertions(+), 15 deletions(-)
+I am looking at using SELinux for a GUI based MLS workstation.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 877bab7..cc076a9 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3847,6 +3847,30 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
- 	return 0;
- }
- 
-+/**
-+ * selinux_conn_sid - Determine the child socket label for a connection
-+ * @sk_sid: the parent socket's SID
-+ * @skb_sid: the packet's SID
-+ * @conn_sid: the resulting connection SID
-+ *
-+ * If @skb_sid is valid then the user:role:type information from @sk_sid is
-+ * combined with the MLS information from @skb_sid in order to create
-+ * @conn_sid.  If @skb_sid is not valid then then @conn_sid is simply a copy
-+ * of @sk_sid.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int selinux_conn_sid(u32 sk_sid, u32 skb_sid, u32 *conn_sid)
-+{
-+	int err = 0;
-+
-+	if (skb_sid != SECSID_NULL)
-+		err = security_sid_mls_copy(sk_sid, skb_sid, conn_sid);
-+	else
-+		*conn_sid = sk_sid;
-+
-+	return err;
-+}
-+
- /* socket security operations */
- 
- static int socket_sockcreate_sid(const struct task_security_struct *tsec,
-@@ -4453,7 +4477,7 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	struct sk_security_struct *sksec = sk->sk_security;
- 	int err;
- 	u16 family = sk->sk_family;
--	u32 newsid;
-+	u32 connsid;
- 	u32 peersid;
- 
- 	/* handle mapped IPv4 packets arriving via IPv6 sockets */
-@@ -4463,16 +4487,11 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	err = selinux_skb_peerlbl_sid(skb, family, &peersid);
- 	if (err)
- 		return err;
--	if (peersid == SECSID_NULL) {
--		req->secid = sksec->sid;
--		req->peer_secid = SECSID_NULL;
--	} else {
--		err = security_sid_mls_copy(sksec->sid, peersid, &newsid);
--		if (err)
--			return err;
--		req->secid = newsid;
--		req->peer_secid = peersid;
--	}
-+	err = selinux_conn_sid(sksec->sid, peersid, &connsid);
-+	if (err)
-+		return err;
-+	req->secid = connsid;
-+	req->peer_secid = peersid;
- 
- 	return selinux_netlbl_inet_conn_request(req, family);
- }
-@@ -4846,12 +4865,12 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 	if (!secmark_active && !peerlbl_active)
- 		return NF_ACCEPT;
- 
--	/* if the packet is being forwarded then get the peer label from the
--	 * packet itself; otherwise check to see if it is from a local
--	 * application or the kernel, if from an application get the peer label
--	 * from the sending socket, otherwise use the kernel's sid */
- 	sk = skb->sk;
- 	if (sk == NULL) {
-+		/* Without an associated socket the packet is either coming
-+		 * from the kernel or it is being forwarded; check the packet
-+		 * to determine which and if the packet is being forwarded
-+		 * query the packet directly to determine the security label. */
- 		if (skb->skb_iif) {
- 			secmark_perm = PACKET__FORWARD_OUT;
- 			if (selinux_skb_peerlbl_sid(skb, family, &peer_sid))
-@@ -4860,7 +4879,26 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 			secmark_perm = PACKET__SEND;
- 			peer_sid = SECINITSID_KERNEL;
- 		}
-+	} else if (sk->sk_state == TCP_LISTEN) {
-+		/* Locally generated packet but the associated socket is in the
-+		 * listening state which means this is a SYN-ACK packet.  In
-+		 * this particular case the correct security label is assigned
-+		 * to the connection/request_sock but unfortunately we can't
-+		 * query the request_sock as it isn't queued on the parent
-+		 * socket until after the SYN-ACK packet is sent; the only
-+		 * viable choice is to regenerate the label like we do in
-+		 * selinux_inet_conn_request().  See also selinux_ip_output()
-+		 * for similar problems. */
-+		u32 skb_sid;
-+		struct sk_security_struct *sksec = sk->sk_security;
-+		if (selinux_skb_peerlbl_sid(skb, family, &skb_sid))
-+			return NF_DROP;
-+		if (selinux_conn_sid(sksec->sid, skb_sid, &peer_sid))
-+			return NF_DROP;
-+		secmark_perm = PACKET__SEND;
- 	} else {
-+		/* Locally generated packet, fetch the security label from the
-+		 * associated socket. */
- 		struct sk_security_struct *sksec = sk->sk_security;
- 		peer_sid = sksec->sid;
- 		secmark_perm = PACKET__SEND;
+For my example I have created a user (user_s1) with a classification of s2 =
+and a second user (user_s2) with classification s3.  When in the enforcing =
+mode I am not able to log in (from the GUI)  to either users.  It just brin=
+g be back to the login screen.
 
+After going into permissive mode I try and see what is being blocked by sea=
+rching the /var/log/audit/audit.log file and looking for "AVC" but I can't =
+find anything about the login denial.  I have used setroubleshoot but still=
+ can't understand what needs to be modified to make it work.
+
+Has anyone gotten a GUI to work with SELinux?  If so what polices need to b=
+e modified?
+
+Thanks for our help,
+
+Claudio
+
+
+
+--_000_D06E30E1B8C24A4DAB7535F0E91D6275F3FA97CHUNEX01integrity_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 14 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+span.EmailStyle18
+	{mso-style-type:personal-reply;
+	font-family:"Calibri","sans-serif";
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"blue" vlink=3D"purple">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">Hello,<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">I am looking at using SELinux for a GUI based MLS wo=
+rkstation.&nbsp;
+<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">For my example I have created a user (user_s1) with =
+a classification of s2 and a second user (user_s2) with classification s3.&=
+nbsp; When in the enforcing mode I am not able to log in (from the GUI) &nb=
+sp;to either users.&nbsp; It just bring be back to
+ the login screen.&nbsp; <o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">After going into permissive mode I try and see what =
+is being blocked by searching the /var/log/audit/audit.log file and looking=
+ for &#8220;AVC&#8221; but I can&#8217;t find anything about the login deni=
+al.&nbsp; I have used setroubleshoot but still can&#8217;t understand
+ what needs to be modified to make it work.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Has anyone gotten a GUI to work with SELinux?<span s=
+tyle=3D"color:#1F497D">&nbsp;
+</span>If so what polices need to be modified?<span style=3D"color:#1F497D"=
+><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Thanks for our help,<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Claudio<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_D06E30E1B8C24A4DAB7535F0E91D6275F3FA97CHUNEX01integrity_--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
