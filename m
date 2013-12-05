@@ -1,35 +1,43 @@
-Message-ID: <52A0E2CE.2080304@tycho.nsa.gov>
-Date: Thu, 05 Dec 2013 15:32:14 -0500
+Message-ID: <52A0ED28.6050804@tycho.nsa.gov>
+Date: Thu, 05 Dec 2013 16:16:24 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Andy Ruch <adruch2002@yahoo.com>, SELinux ML <selinux@tycho.nsa.gov>
-Subject: Re: Information flow paths over devtty_t
-References: <1386273455.65331.YahooMailNeo@web163402.mail.gq1.yahoo.com>
-In-Reply-To: <1386273455.65331.YahooMailNeo@web163402.mail.gq1.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Dominick Grift <dominick.grift@gmail.com>
+CC: Pavel Roschin <roshin@scriptumplus.ru>, selinux@tycho.nsa.gov
+Subject: Re: avtab dense hash table
+References: <20131205130431.7fe3c727.roshin@scriptumplus.ru>	 <52A08A87.2030009@tycho.nsa.gov> <1386258595.2469.18.camel@d30>
+In-Reply-To: <1386258595.2469.18.camel@d30>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/05/2013 02:57 PM, Andy Ruch wrote:
-> I'm implementing a strict SELinux policy based on the reference policy using RHEL 6.3. Using 'apol' to analyze my information flow paths, I've been able to eliminate most of the tty/console paths. However, I can't seem to find a way to eliminate the access to the controlling terminal devtty_t. 
+On 12/05/2013 10:49 AM, Dominick Grift wrote:
+> On Thu, 2013-12-05 at 09:15 -0500, Stephen Smalley wrote:
 > 
+>> So, first, originally the policy was much smaller.  I'm personally of
+>> the view that people need to take a chainsaw to the refpolicy and look
+>> to greatly coalesce domains/types
 > 
-> I see that this is allowed in domain.te:
-> 
-> # Use trusted objects in /dev
-> dev_rw_null(domain)
-> dev_rw_zero(domain)
-> term_use_controlling_term(domain)
-> 
-> 
-> Is devtty_t something I should be concerned about? Is this a type that can be used to share information between processes or is it special like /dev/null and /dev/zero?
+> Could you please give some examples of existing types that you would
+> merge or even remove and why. I might be able to find patterns in how
+> you decide when its worth to merge types and when not in your opinion. I
+> generally like the idea but i could use some inspiration. Where would
+> you draw the line and why?
 
-It is special; it represents the controlling terminal for the current
-process.
+I have a tool for SE for Android (under external/sepolicy/tools -
+sepolicy-analyze.c) that analyzes that policy for identical types and
+reports them.  Also looks for redundant allow rules (allowed by
+attribute and individually).  Unfortunately the type equivalence
+analysis seems to take forever on Fedora policy since it does it by
+first expanding the attributes; I have a patch to do it without
+requiring full attribute expansion but that fails to identify some
+cases.  apol also has a types relationship analysis facility that will
+let you examine how two types compare, but only a pairwise basis.
 
-Whether or not it could be an issue likely depends on whether you
-support newrole -l or any other way of changing levels while preserving
-the same controlling tty.
+We're also planning to extend sepolicy-analyze to not only report
+equivalent types but also look for isomorphic types, as we otherwise
+never see identical domains due to the unique entrypoint, tmpfs, and
+similar relationships.
 
 
 
