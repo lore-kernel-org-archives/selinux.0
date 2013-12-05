@@ -1,43 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rB5Jvbpa030609
-	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2013 14:57:37 -0500
-Message-ID: <1386273455.65331.YahooMailNeo@web163402.mail.gq1.yahoo.com>
-Date: Thu, 5 Dec 2013 11:57:35 -0800 (PST)
-From: Andy Ruch <adruch2002@yahoo.com>
-Reply-To: Andy Ruch <adruch2002@yahoo.com>
-Subject: Information flow paths over devtty_t
-To: SELinux ML <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rB5KUXsO000807
+	for <selinux@tycho.nsa.gov>; Thu, 5 Dec 2013 15:30:33 -0500
+Message-ID: <52A0E25A.6000800@tresys.com>
+Date: Thu, 5 Dec 2013 15:30:18 -0500
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="303371348-1736189734-1386273455=:65331"
+To: Andy Ruch <adruch2002@yahoo.com>, SELinux ML <selinux@tycho.nsa.gov>
+Subject: Re: Information flow paths over devtty_t
+References: <1386273455.65331.YahooMailNeo@web163402.mail.gq1.yahoo.com>
+In-Reply-To: <1386273455.65331.YahooMailNeo@web163402.mail.gq1.yahoo.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---303371348-1736189734-1386273455=:65331
-Content-Type: text/plain; charset=us-ascii
+On 12/05/13 14:57, Andy Ruch wrote:
+> I'm implementing a strict SELinux policy based on the reference policy using RHEL 6.3. Using 'apol' to analyze my information flow paths, I've been able to eliminate most of the tty/console paths. However, I can't seem to find a way to eliminate the access to the controlling terminal devtty_t.
+> 
+> I see that this is allowed in domain.te:
+> 
+> # Use trusted objects in /dev
+> dev_rw_null(domain)
+> dev_rw_zero(domain)
+> term_use_controlling_term(domain)
+> 
+> 
+> Is devtty_t something I should be concerned about? Is this a type that can be used to share information between processes or is it special like /dev/null and /dev/zero?
 
-I'm implementing a strict SELinux policy based on the reference policy using RHEL 6.3. Using 'apol' to analyze my information flow paths, I've been able to eliminate most of the tty/console paths. However, I can't seem to find a way to eliminate the access to the controlling terminal devtty_t. 
+Its essentially an alias for the terminal associated with the process.  So read/write to it is the same as read/write on the actual tty/pty.  So two processes could only communicate if the real terminal, e.g. /dev/tty0 is accessible to both of the processes.
 
+see `man 4 tty`
 
-I see that this is allowed in domain.te:
+So in a nutshell, its special like /dev/null and zero, so typically its ignored during an info flow analysis.
 
-# Use trusted objects in /dev
-dev_rw_null(domain)
-dev_rw_zero(domain)
-term_use_controlling_term(domain)
-
-
-Is devtty_t something I should be concerned about? Is this a type that can be used to share information between processes or is it special like /dev/null and /dev/zero?
-
-Thanks,
-Andrew
-
---303371348-1736189734-1386273455=:65331
-Content-Type: text/html; charset=us-ascii
-
-<html><body><div style="color:#000; background-color:#fff; font-family:HelveticaNeue, Helvetica Neue, Helvetica, Arial, Lucida Grande, sans-serif;font-size:12pt"><div>I'm implementing a strict SELinux policy based on the reference policy using RHEL 6.3. Using 'apol' to analyze my information flow paths, I've been able to eliminate most of the tty/console paths. However, I can't seem to find a way to eliminate the access to the controlling terminal devtty_t. <br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;">I see that this is allowed in domain.te:</div><div><br></div><div style="color: rgb(0, 0, 0); font-size: 16px;
- font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;"># Use trusted objects in /dev<br>dev_rw_null(domain)<br>dev_rw_zero(domain)<br>term_use_controlling_term(domain)</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;">Is devtty_t something I should be concerned about? Is this a type that can be used to share information between processes or is it
- special like /dev/null and /dev/zero?</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;"><br></div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;">Thanks,</div><div style="color: rgb(0, 0, 0); font-size: 16px; font-family: HelveticaNeue,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif; background-color: transparent; font-style: normal;">Andrew<br></div></div></body></html>
---303371348-1736189734-1386273455=:65331--
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
