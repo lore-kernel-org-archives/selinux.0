@@ -1,28 +1,31 @@
-Message-ID: <52A631F2.9090508@tycho.nsa.gov>
-Date: Mon, 09 Dec 2013 16:11:14 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rBAJrbGv025342
+	for <selinux@tycho.nsa.gov>; Tue, 10 Dec 2013 14:53:38 -0500
+Subject: [PATCH 0/2] Additional TCP SYN-ACK fixes for labeled IPsec
+To: selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Cc: janak.desai@gtri.gatech.edu
+Date: Tue, 10 Dec 2013 14:53:11 -0500
+Message-ID: <20131210195150.3404.61178.stgit@localhost>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/1] Ignore selevel/serange if MLS is disabled
-References: <20131209192348.GA3638@siphos.be>
-In-Reply-To: <20131209192348.GA3638@siphos.be>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 12/09/2013 02:23 PM, Sven Vermeulen wrote:
-> Currently, the selevel/serange values (which are often set on a default
-> 's0' value) are used for ports, users, contexts and logins. This breaks
-> non-MLS setups.
-> 
-> This patch will only call the necessary mls functions if mls is actually
-> enabled.
-> 
-> Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+In addition to the patches posted earlier, there are two additional
+labeled IPsec patches needed to fix up the SYN-ACK issue.
 
-Thanks, pushed as policycoreutils 2.2.5.
+---
+
+Paul Moore (2):
+      selinux: look for IPsec labels on both inbound and outbound packets
+      selinux: process labeled IPsec TCP SYN-ACK packets properly in selinux_ip_postroute()
 
 
+ security/selinux/hooks.c        |   44 ++++++++++++++++++++++++++++------
+ security/selinux/include/xfrm.h |    8 ++++--
+ security/selinux/xfrm.c         |   51 +++++++++++++++++++++++++++++++--------
+ 3 files changed, 82 insertions(+), 21 deletions(-)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
