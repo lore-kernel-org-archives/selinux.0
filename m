@@ -1,46 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.31.250])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rBGKxWUW016119
-	for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2013 15:59:33 -0500
-Received: by mail-qe0-f48.google.com with SMTP id gc15so4352480qeb.7
-        for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2013 12:59:31 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id rBGLCWII017430
+	for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2013 16:12:32 -0500
+Received: by mail-qc0-f179.google.com with SMTP id i8so4204491qcq.10
+        for <selinux@tycho.nsa.gov>; Mon, 16 Dec 2013 13:12:31 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: sds@tycho.nsa.gov, james.l.morris@oracle.com, eparis@parisplace.org,
-        yongjun_wei@trendmicro.com.cn, linux-security-module@vger.kernel.org,
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <james.l.morris@oracle.com>,
+        Eric Paris <eparis@parisplace.org>, Evan McNabb <emcnabb@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>, linux-kernel@vger.kernel.org,
         selinux@tycho.nsa.gov
-Subject: Re: [PATCH -next] SELinux: remove duplicated include from hooks.c
-Date: Mon, 16 Dec 2013 15:59:27 -0500
-Message-ID: <2355492.3Xh2eE7mBi@sifl>
-In-Reply-To: <CAPgLHd9RPS63ghK_ABTr57zdDqrg0EbceLUM3RHUJ+o5GQBNOQ@mail.gmail.com>
-References: <CAPgLHd9RPS63ghK_ABTr57zdDqrg0EbceLUM3RHUJ+o5GQBNOQ@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: selinux_setprocattr()->ptrace_parent() needs rcu_read_lock()
+Date: Mon, 16 Dec 2013 16:12:28 -0500
+Message-ID: <8620584.RBbmYcQIT9@sifl>
+In-Reply-To: <20131214163317.GB21675@redhat.com>
+References: <20131205165953.GA24844@redhat.com> <20131214163256.GA21675@redhat.com> <20131214163317.GB21675@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday, December 16, 2013 02:15:40 PM Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Saturday, December 14, 2013 05:33:17 PM Oleg Nesterov wrote:
+> selinux_setprocattr() does ptrace_parent(p) under task_lock(p),
+> but task_struct->alloc_lock doesn't pin ->parent or ->ptrace,
+> this looks confusing and triggers the "suspicious RCU usage"
+> warning because ptrace_parent() does rcu_dereference_check().
 > 
-> Remove duplicated include.
+> And in theory this is wrong, spin_lock()->preempt_disable()
+> doesn't necessarily imply rcu_read_lock() we need to access
+> the ->parent.
 > 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> Reported-by: Evan McNabb <emcnabb@redhat.com>
+> Signed-off-by: Oleg Nesterov <oleg@redhat.com>
 > ---
->  security/selinux/hooks.c | 1 -
->  1 file changed, 1 deletion(-)
+>  security/selinux/hooks.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
 Applied, thanks.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index d0aa173..d7bb6f1 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -81,7 +81,6 @@
->  #include <linux/syslog.h>
->  #include <linux/user_namespace.h>
->  #include <linux/export.h>
-> -#include <linux/security.h>
->  #include <linux/msg.h>
->  #include <linux/shm.h>
+> @@ -5503,11 +5503,11 @@ static int selinux_setprocattr(struct ta
+>  		/* Check for ptracing, and update the task SID if ok.
+>  		   Otherwise, leave SID unchanged and fail. */
+>  		ptsid = 0;
+> -		task_lock(p);
+> +		rcu_read_lock();
+>  		tracer = ptrace_parent(p);
+>  		if (tracer)
+>  			ptsid = task_sid(tracer);
+> -		task_unlock(p);
+> +		rcu_read_unlock();
+> 
+>  		if (tracer) {
+>  			error = avc_has_perm(ptsid, sid, SECCLASS_PROCESS,
 
 -- 
 paul moore
