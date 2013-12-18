@@ -1,14 +1,11 @@
 MIME-Version: 1.0
-In-Reply-To: <52B1E1AA.8090509@tycho.nsa.gov>
+In-Reply-To: <52B2190F.1020100@tycho.nsa.gov>
 References: <CACVacMuiN=2GPxdHpCSToAEUJNmMwn1nE+hg-xqywO0crwdDNA@mail.gmail.com>
- <52B07D69.70209@tycho.nsa.gov>
- <CACVacMvNNP3HLAEW_RhzuHxqUvq77nmApstS5V_xKoEG1zbZkA@mail.gmail.com>
- <52B094C0.7080107@tycho.nsa.gov>
- <CACVacMu4EvcdZzLVbBRFUvgg_RA0Mc7awZ0x_mzoxadmO6TSkw@mail.gmail.com>
- <CACVacMtV2+QbQiGvQRoDu3HaVd7p45BJFU01E7jKMdbJH06K1g@mail.gmail.com>
- <52B1E1AA.8090509@tycho.nsa.gov>
-Date: Wed, 18 Dec 2013 13:53:22 -0800
-Message-ID: <CACVacMssmARBBZEp_2GEnnKORu2tfdJMzMC2LjMZ8CuEcpKZEw@mail.gmail.com>
+ <52B20217.8030908@tycho.nsa.gov>
+ <CACVacMszVX7Yuv1rcuzphQ2YXXCABMb2aQ1CY3zcoaiNmoqHYw@mail.gmail.com>
+ <52B2190F.1020100@tycho.nsa.gov>
+Date: Wed, 18 Dec 2013 13:55:47 -0800
+Message-ID: <CACVacMv_03+PW1oVfXM1O234CmsqGUbKWMWtB3ZnkWyN--d2Bw@mail.gmail.com>
 Subject: Re: /bin/bash: Bad interpreter: Permission denied.
 From: Jay Corrales <jscorrales1122@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -20,28 +17,10 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 12/18/13, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 12/18/2013 10:32 AM, Jay Corrales wrote:
->> Folks,
->>
->> We think we've run into a bug with rhel5. Could be that the policy
->> database contains corruption, or contains some data structures that lead
->> to buggy results (e.g. AVC execute_no_trans). Is there a way to see
->> additional debug info in the LSM during run time? I've tried adding
->> "debug" to the boot time kernel parameters, but does not add any new
->> logging or reporting info for selinux.
+> On 12/18/2013 04:46 PM, Jay Corrales wrote:
+>> ls -Z shows system_u:object_r:awips_exec_t. If execute_no_trans allow
+>> is add, it does not run in the awips_exec_t domain, but in user_t.
 >
-> More likely just a bug in your policy.  I can't really tell though as
-> you haven't shown an AVC that corresponds to the policy that you listed.
+> Um, what is the file mode, i.e. is it executable?
 
-We restored an image of our previous build and ran the policy. There
-was no perm denied error. It ran perfectly. The difference in builds
-represents an installer media and updated policies. leading me to
-believe there is something fundamentally wrong with the installer
-media producing a corrupted policy database.
-
-Is there a way to know why it is reporting an AVC for
-execute_no_trans? The audit.log does not show enough info for this. We
-were hoping for some way to look at the LSM, other than running an
-embedded kernel and attaching gdb.
-
-Thanks
+0755, yes the executable bit is set.
