@@ -1,30 +1,39 @@
-Message-ID: <52B1E1AA.8090509@tycho.nsa.gov>
-Date: Wed, 18 Dec 2013 12:55:54 -0500
+Message-ID: <52B201BA.9070505@tycho.nsa.gov>
+Date: Wed, 18 Dec 2013 15:12:42 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Jay Corrales <jscorrales1122@gmail.com>
-Subject: Re: /bin/bash: Bad interpreter: Permission denied.
-References: <CACVacMuiN=2GPxdHpCSToAEUJNmMwn1nE+hg-xqywO0crwdDNA@mail.gmail.com>	<52B07D69.70209@tycho.nsa.gov>	<CACVacMvNNP3HLAEW_RhzuHxqUvq77nmApstS5V_xKoEG1zbZkA@mail.gmail.com>	<52B094C0.7080107@tycho.nsa.gov>	<CACVacMu4EvcdZzLVbBRFUvgg_RA0Mc7awZ0x_mzoxadmO6TSkw@mail.gmail.com>
- <CACVacMtV2+QbQiGvQRoDu3HaVd7p45BJFU01E7jKMdbJH06K1g@mail.gmail.com>
-In-Reply-To: <CACVacMtV2+QbQiGvQRoDu3HaVd7p45BJFU01E7jKMdbJH06K1g@mail.gmail.com>
+To: Laurent Bigonville <bigon@debian.org>, SELinux-NSA <SELinux@tycho.nsa.gov>,
+ "Christopher J. PeBenito" <cpebenito@tresys.com>,
+ Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: sepolicy-ifgen: Syntax error on line 179876 gen_context
+ [type=GEN_CONTEXT]"
+References: <20131217224418.04849ca7@fornost.bigon.be>
+In-Reply-To: <20131217224418.04849ca7@fornost.bigon.be>
 Content-Type: text/plain; charset=ISO-8859-1
-Cc: SELinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/18/2013 10:32 AM, Jay Corrales wrote:
-> Folks,
->  
-> We think we've run into a bug with rhel5. Could be that the policy
-> database contains corruption, or contains some data structures that lead
-> to buggy results (e.g. AVC execute_no_trans). Is there a way to see
-> additional debug info in the LSM during run time? I've tried adding
-> "debug" to the boot time kernel parameters, but does not add any new
-> logging or reporting info for selinux.
+On 12/17/2013 04:44 PM, Laurent Bigonville wrote:
+> Hi,
+> 
+> With the current refpolicy, sepolicy-ifgen is complaining with the
+> following error:
+> 
+> error parsing
+> file /usr/share/selinux/default/include/kernel/selinux.if: could not
+> parse text: "/usr/share/selinux/default/include/kernel/selinux.if:
+> Syntax error on line 179876 gen_context [type=GEN_CONTEXT]"
+> 
+> 
+> The line that seems to cause this issue is:
+> genfscon selinuxfs /booleans/$2 gen_context(system_u:object_r:$1,s0) in
+> selinux.if.
+> 
+> The full debug output of sepolicy-ifgen -vd is attached in this mail.
 
-More likely just a bug in your policy.  I can't really tell though as
-you haven't shown an AVC that corresponds to the policy that you listed.
- You can easily check whether you did or did not allow something by
-using sesearch from setools.
+Looks like that line is commented-out in Fedora's selinux.if, and it is
+preceded by a comment that notes it can only be used in the base module.
+
+Is this a regression in sepolgen-ifgen or just never supported by it?
