@@ -1,36 +1,40 @@
-Message-ID: <52B20217.8030908@tycho.nsa.gov>
-Date: Wed, 18 Dec 2013 15:14:15 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBIKL9rN017020
+ for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2013 15:21:09 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov, Andy Ruch <adruch2002@yahoo.com>
+Subject: Re: selinux control for network interface using SOCK_RAW
+Date: Wed, 18 Dec 2013 15:21:05 -0500
+Message-ID: <4723476.XQtkhknjQL@sifl>
+In-Reply-To: <1387381759.80678.YahooMailNeo@web163404.mail.gq1.yahoo.com>
+References: <1387381759.80678.YahooMailNeo@web163404.mail.gq1.yahoo.com>
 MIME-Version: 1.0
-To: Jay Corrales <jscorrales1122@gmail.com>, SELinux@tycho.nsa.gov
-Subject: Re: /bin/bash: Bad interpreter: Permission denied.
-References: <CACVacMuiN=2GPxdHpCSToAEUJNmMwn1nE+hg-xqywO0crwdDNA@mail.gmail.com>
-In-Reply-To: <CACVacMuiN=2GPxdHpCSToAEUJNmMwn1nE+hg-xqywO0crwdDNA@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/17/2013 11:23 AM, Jay Corrales wrote:
-> Folks,
+On Wednesday, December 18, 2013 07:49:19 AM Andy Ruch wrote:
+> Hello,
 > 
-> We're running RedHat Enterprise Linux 5 (rhel5) with selinux strict and
-> enforcing mode, and finding that something in our configuration prevents a
-> simple shell script from domain transitioning from user_t to awips_t
-> context. If we run a test virtual machine with a new install of rhel5, it
-> does run OK, but something in our current configuration prevents this
-> result. Wondering if it makes sense to run a tool like apol to find any
-> clues as to why? The audit log (/var/log/audit/audit.log) shows an AVC
-> requiring execute_no_trans for user_t (no listed here).
+> I'm trying to restrict an application to only have access to some network
+> interfaces. I'm running a custom policy on a RHEL 6.3 system. The
+> application is opening the socket as AF_PACKET and SOCK_RAW. However,
+> selinux doesn't seem to be controlling any raw access to the interfaces.
 
-Here you say you have a execute_no_trans denial.
+SELinux does not provide any per-packet access controls for AF_PACKET sockets.  
+The basic problem is that AF_PACKET traffic is an opaque blob as far as the 
+kernel is concerned.  The application may carefully craft well formed IP 
+packets, but the kernel doesn't do any inspection/parsing of the data sent 
+down via a AF_PACKET socket, it is just a blob to passed off to the network 
+device.
 
-> [root@localhost ~]# sesearch -a -s user_t -t awips_exec_t -c file -p
-> execute
+I suppose we could do something with the netif:egress access control for 
+packet sockets, but that would require a new LSM hook and some SELinux glue as 
+AF_PACKET traffic isn't subject to the netfilter hooks SELinux currently uses 
+(if I recall correctly).
 
-Here you search for execute permission.
-
-They are different.
-
-Also, what does ls -Z show for the script?
+-- 
+paul moore
+security and virtualization @ redhat
