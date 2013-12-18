@@ -1,45 +1,49 @@
-Message-ID: <52B21B8A.2030108@tycho.nsa.gov>
-Date: Wed, 18 Dec 2013 17:02:50 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBIM4S56024205
+ for <selinux@tycho.nsa.gov>; Wed, 18 Dec 2013 17:04:34 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux fixes for 3.13 (part three)
+Date: Wed, 18 Dec 2013 17:04:26 -0500
+Message-ID: <3917996.DVt9Qik8HG@sifl>
 MIME-Version: 1.0
-To: Jay Corrales <jscorrales1122@gmail.com>
-Subject: Re: /bin/bash: Bad interpreter: Permission denied.
-References: <CACVacMuiN=2GPxdHpCSToAEUJNmMwn1nE+hg-xqywO0crwdDNA@mail.gmail.com>	<52B07D69.70209@tycho.nsa.gov>	<CACVacMvNNP3HLAEW_RhzuHxqUvq77nmApstS5V_xKoEG1zbZkA@mail.gmail.com>	<52B094C0.7080107@tycho.nsa.gov>	<CACVacMu4EvcdZzLVbBRFUvgg_RA0Mc7awZ0x_mzoxadmO6TSkw@mail.gmail.com>	<CACVacMtV2+QbQiGvQRoDu3HaVd7p45BJFU01E7jKMdbJH06K1g@mail.gmail.com>	<52B1E1AA.8090509@tycho.nsa.gov>
- <CACVacMssmARBBZEp_2GEnnKORu2tfdJMzMC2LjMZ8CuEcpKZEw@mail.gmail.com>
-In-Reply-To: <CACVacMssmARBBZEp_2GEnnKORu2tfdJMzMC2LjMZ8CuEcpKZEw@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: SELinux@tycho.nsa.gov
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/18/2013 04:53 PM, Jay Corrales wrote:
-> On 12/18/13, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 12/18/2013 10:32 AM, Jay Corrales wrote:
->>> Folks,
->>>
->>> We think we've run into a bug with rhel5. Could be that the policy
->>> database contains corruption, or contains some data structures that lead
->>> to buggy results (e.g. AVC execute_no_trans). Is there a way to see
->>> additional debug info in the LSM during run time? I've tried adding
->>> "debug" to the boot time kernel parameters, but does not add any new
->>> logging or reporting info for selinux.
->>
->> More likely just a bug in your policy.  I can't really tell though as
->> you haven't shown an AVC that corresponds to the policy that you listed.
-> 
-> We restored an image of our previous build and ran the policy. There
-> was no perm denied error. It ran perfectly. The difference in builds
-> represents an installer media and updated policies. leading me to
-> believe there is something fundamentally wrong with the installer
-> media producing a corrupted policy database.
-> 
-> Is there a way to know why it is reporting an AVC for
-> execute_no_trans? The audit.log does not show enough info for this. We
-> were hoping for some way to look at the LSM, other than running an
-> embedded kernel and attaching gdb.
+Hi James,
 
-nosuid mount would suppress the transition.
+Two more small patches for 3.13-rcX.  Both fix long standing issues, and both 
+should be very uncontroversial.  FYI, I've left my previous sent 3.13-rcX 
+fixes in the tree below, including the revert patch that Linus did himself 
+before it could flow from the SELinux tree.
 
-Or maybe you don't have the type_transition rule in your policy at all?
+Enjoy,
+-Paul
+
+---
+The following changes are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux_fixes master
+
+for you to fetch changes up to 67439a11ae99e19cfdc3a8f6d7fde24e07e34acb:
+
+  selinux: selinux_setprocattr()->ptrace_parent() needs rcu_read_lock() 
+(2013-12-16 16:16:08 -0500)
+
+----------------------------------------------------------------
+Chad Hanson (1):
+      selinux: fix broken peer recv check
+
+Oleg Nesterov (1):                                                              
+      selinux: selinux_setprocattr()->ptrace_parent() needs rcu_read_lock()     
+                                                                                
+ security/selinux/hooks.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+-- 
+paul moore
+security and virtualization @ redhat
