@@ -1,61 +1,93 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBJKmgRK023406
+ for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2013 15:48:42 -0500
+References: <1387381759.80678.YahooMailNeo@web163404.mail.gq1.yahoo.com>
+ <4723476.XQtkhknjQL@sifl>
+ <1387399050.90718.YahooMailNeo@web163405.mail.gq1.yahoo.com>
+ <1762865.mJVkh9reke@sifl>
+Message-ID: <1387486120.26231.YahooMailNeo@web163402.mail.gq1.yahoo.com>
+Date: Thu, 19 Dec 2013 12:48:40 -0800 (PST)
+From: Andy Ruch <adruch2002@yahoo.com>
+Subject: Re: selinux control for network interface using SOCK_RAW
+To: Paul Moore <pmoore@redhat.com>
+In-Reply-To: <1762865.mJVkh9reke@sifl>
 MIME-Version: 1.0
-In-Reply-To: <52B21B8A.2030108@tycho.nsa.gov>
-References: <CACVacMuiN=2GPxdHpCSToAEUJNmMwn1nE+hg-xqywO0crwdDNA@mail.gmail.com>
- <52B07D69.70209@tycho.nsa.gov>
- <CACVacMvNNP3HLAEW_RhzuHxqUvq77nmApstS5V_xKoEG1zbZkA@mail.gmail.com>
- <52B094C0.7080107@tycho.nsa.gov>
- <CACVacMu4EvcdZzLVbBRFUvgg_RA0Mc7awZ0x_mzoxadmO6TSkw@mail.gmail.com>
- <CACVacMtV2+QbQiGvQRoDu3HaVd7p45BJFU01E7jKMdbJH06K1g@mail.gmail.com>
- <52B1E1AA.8090509@tycho.nsa.gov>
- <CACVacMssmARBBZEp_2GEnnKORu2tfdJMzMC2LjMZ8CuEcpKZEw@mail.gmail.com>
- <52B21B8A.2030108@tycho.nsa.gov>
-Date: Wed, 18 Dec 2013 20:39:23 -0800
-Message-ID: <CACVacMs8M7S83mq62Z00aMQjWf7XnQg0Q+eq7tWH7c3tw=3+Fw@mail.gmail.com>
-Subject: Re: /bin/bash: Bad interpreter: Permission denied.
-From: Jay Corrales <jscorrales1122@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: SELinux@tycho.nsa.gov
+Content-Type: text/plain; charset=utf-8
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Reply-To: Andy Ruch <adruch2002@yahoo.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Ah OK, nosuid was the answer. I did read this somewhere, but fell out of mind.
 
-Thank you
 
-On 12/18/13, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 12/18/2013 04:53 PM, Jay Corrales wrote:
->> On 12/18/13, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> On 12/18/2013 10:32 AM, Jay Corrales wrote:
->>>> Folks,
->>>>
->>>> We think we've run into a bug with rhel5. Could be that the policy
->>>> database contains corruption, or contains some data structures that
->>>> lead
->>>> to buggy results (e.g. AVC execute_no_trans). Is there a way to see
->>>> additional debug info in the LSM during run time? I've tried adding
->>>> "debug" to the boot time kernel parameters, but does not add any new
->>>> logging or reporting info for selinux.
->>>
->>> More likely just a bug in your policy.  I can't really tell though as
->>> you haven't shown an AVC that corresponds to the policy that you listed.
->>
->> We restored an image of our previous build and ran the policy. There
->> was no perm denied error. It ran perfectly. The difference in builds
->> represents an installer media and updated policies. leading me to
->> believe there is something fundamentally wrong with the installer
->> media producing a corrupted policy database.
->>
->> Is there a way to know why it is reporting an AVC for
->> execute_no_trans? The audit.log does not show enough info for this. We
->> were hoping for some way to look at the LSM, other than running an
->> embedded kernel and attaching gdb.
+
+
+
+> On Wednesday, December 18, 2013 2:15 PM, Paul Moore <pmoore@redhat.com> wrote:
+> > On Wednesday, December 18, 2013 12:37:30 PM Andy Ruch wrote:
+>>  > On Wednesday, December 18, 2013 1:21 PM, Paul Moore 
+> <pmoore@redhat.com> 
+> wrote:
+>>  > > On Wednesday, December 18, 2013 07:49:19 AM Andy Ruch wrote:
+>>  >>  Hello,
+>>  >>  
+>>  >>  I'm trying to restrict an application to only have access to 
+> some
+>>  >>  network interfaces. I'm running a custom policy on a RHEL 6.3 
+> system.
+>>  >>  The application is opening the socket as AF_PACKET and SOCK_RAW.
+>>  >>  However, selinux doesn't seem to be controlling any raw 
+> access to the
+>>  >>  interfaces.
+>>  > 
+>>  > SELinux does not provide any per-packet access controls for AF_PACKET
+>>  > sockets.  The basic problem is that AF_PACKET traffic is an opaque 
+> blob
+>>  > as far as the kernel is concerned.  The application may carefully 
+> craft
+>>  > well formed IP packets, but the kernel doesn't do any 
+> inspection/parsing
+>>  > of the data sent down via a AF_PACKET socket, it is just a blob to 
+> passed
+>>  > off to the network device.
+>>  > 
+>>  > I suppose we could do something with the netif:egress access control 
+> for
+>>  > packet sockets, but that would require a new LSM hook and some SELinux
+>>  > glue as AF_PACKET traffic isn't subject to the netfilter hooks 
+> SELinux
+>>  > currently uses (if I recall correctly).
+>> 
+>>  I'm not looking for any per-packet control. I was just hoping to 
+> restrict my
+>>  application's use of the packet socket to a single interface, i.e. 
+> prevent
+>>  access an out-of-band management network. The netif ingress/egress
+>>  permissions are what I would have expected but I say that without knowing
+>>  anything about how those are implemented.
+> 
+> Unfortunately, it is per-packet access control and currently we only provide 
+> per-packet access control for IP based sockets.
+> 
+> 
+> -- 
+> paul moore
+> security and virtualization @ redhat
 >
-> nosuid mount would suppress the transition.
->
-> Or maybe you don't have the type_transition rule in your policy at all?
->
->
->
+
+
+I considered what you said about the capability not being
+available to restrict the AF_PACKET traffic on a per interface basis. It led me
+to investigate my selinux policy further beyond just my application. I saw that
+several applications had the ability to use AF_PACKET sockets, including
+applications like virtd, xen, dnsmasq, ping, traceroute, and more. My system
+also runs virtual machines so I grew more concerned that I’m not able to restrict
+virtd’s network access if it were compromised.
+ 
+You described the fix as adding a new LSM hook and SELinux
+glue. How difficult would this be to add? And if it was fixed, what would be
+the process for getting it released into RHEL 6?
+
+Andy
