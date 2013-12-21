@@ -1,75 +1,116 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBJLjikj026839
- for <selinux@tycho.nsa.gov>; Thu, 19 Dec 2013 16:45:44 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: Andy Ruch <adruch2002@yahoo.com>
-Subject: Re: selinux control for network interface using SOCK_RAW
-Date: Thu, 19 Dec 2013 16:45:19 -0500
-Message-ID: <1600831.ZeRduynSxN@sifl>
-In-Reply-To: <1387486120.26231.YahooMailNeo@web163402.mail.gq1.yahoo.com>
-References: <1387381759.80678.YahooMailNeo@web163404.mail.gq1.yahoo.com>
- <1762865.mJVkh9reke@sifl>
- <1387486120.26231.YahooMailNeo@web163402.mail.gq1.yahoo.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBLE3ruH029881
+ for <selinux@tycho.nsa.gov>; Sat, 21 Dec 2013 09:03:54 -0500
+Received: from mail-ie0-f172.google.com (mail-ie0-f172.google.com
+ [209.85.223.172])
+ (using TLSv1 with cipher ECDHE-RSA-RC4-SHA (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id F2EDF140C4DA0
+ for <selinux@tycho.nsa.gov>; Sat, 21 Dec 2013 15:03:36 +0100 (CET)
+Received: by mail-ie0-f172.google.com with SMTP id qd12so4436595ieb.31
+ for <selinux@tycho.nsa.gov>; Sat, 21 Dec 2013 06:03:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Sat, 21 Dec 2013 15:03:35 +0100
+Message-ID: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>
+Subject: Bug in libselinux/src/setrans_client.c
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, December 19, 2013 12:48:40 PM Andy Ruch wrote:
-> I considered what you said about the capability not being
-> available to restrict the AF_PACKET traffic on a per interface basis. It led
-> me to investigate my selinux policy further beyond just my application. I
-> saw that several applications had the ability to use AF_PACKET sockets,
-> including applications like virtd, xen, dnsmasq, ping, traceroute, and
-> more. My system also runs virtual machines so I grew more concerned that
-> I’m not able to restrict virtd’s network access if it were compromised.
->  
-> You described the fix as adding a new LSM hook and SELinux glue. How
-> difficult would this be to add?
+Hi,
 
-Off the top of my head, it would require the following at a minimum:
+After upgrading to coreutils 8.22, cp is crashing when building
+policycoreutils package (see gdb backtrace below). A segmentation
+fault occurred in libselinux/src/lsetfilecon.c line 12 [1], when
+calling "strlen(context)" with a NULL context. This code path has been
+possible because selinux_trans_to_raw_context(0, &rcontext) returns 0
+even though rcontext is NULL, in libselinux/src/setrans_client.c lines
+287-290 [2]. I think this function should return a non-null value like
+-1 on line 289. Could you please fix this bug?
 
-* LSM hooks in the AF_PACKET code to perform access control before the packet 
-is handed off to the network device layer, see "net/packet/af_packet.c".
+System information:
+I'm running SELinux on Archlinux using packages from
+https://github.com/fishilico/siosm-selinux/ and a policy patched from
+the Reference Policy. I'm using coreutils 8.22, libselinux 2.2,
+libsepol 2.2 and glibc 2.18.
 
-* SELinux/LSM glue code to implement the SELinux access controls for the 
-outbound AF_PACKET traffic, see "selinux_ip_postroute()".  I think the only 
-outbound access control that makes sense in this case would be the 
-netif:egress control, although there may be some use for secmark, I just 
-haven't thought much about secmark in a non-IP case.
+Thanks,
 
-* Check to ensure that inbound AF_PACKET traffic ends up going through the 
-socket filter code and hitting the security_sock_rcv_skb() LSM hook, if not, 
-an additional LSM hook would be needed in the AF_PACKET code to deal with 
-inbound traffic.
+Nicolas
+(IooNag on irc.freenode.net)
 
-* SELinux/LSM glue code to implement the SELinux access controls for the 
-outbound AF_PACKET traffic, see "selinux_socket_sock_rcv_skb()".  Similar to 
-the outbound access control, I believe netif:ingress is the key control with a 
-possibility for secmark as well.
+[1] http://userspace.selinuxproject.org/trac/browser/libselinux/src/fsetfilecon.c?rev=51d9a078c260b230f65863766e73e6db0b2c2d3a
+[2] http://userspace.selinuxproject.org/trac/browser/libselinux/src/setrans_client.c?rev=aa62cd60f7192123b509c2518e7a2083e34a65a2#L284
 
-* Add a new SELinux policy capability ("selinux_policycap_packet"?) to 
-enable/disable all of the new controls listed above.
+GDB Coredump:
 
-Policy wise, I don't think there would be any extra work required as we would 
-be reusing the existing network ingress/egress controls and doing so in such a 
-way that preserves their intent.  If anything, I think the changes would be 
-more in line with what the policy author originally intended.
+# systemd-coredumpctl gdb
+TIME                                         PID   UID   GID SIG EXE
+             sam. 2013-12-21 14:23:00 CET   2872  1000   100  11 /usr/bin/cp
+GNU gdb (GDB) 7.6.2
+Copyright (C) 2013 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-unknown-linux-gnu".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /usr/bin/cp...done.
+[New LWP 2872]
 
-I'm somewhat interested in this now, if you're not going to follow-up on this 
-with any patches please let me know and I'll toss is on my todo pile, but be 
-warned, the pile is tall and gets taller with each passing day :)
+warning: Could not load shared library symbols for linux-vdso.so.1.
+Do you need "set solib-search-path" or "set sysroot"?
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
 
-> And if it was fixed, what would be the process for getting it released into
-> RHEL 6?
-
-That is something that is best discussed with your RH support contact and not 
-with the SELinux community at large.  Feel free to contact me off list if 
-needed.
-
--- 
-paul moore
-security and virtualization @ redhat
+warning: no loadable sections found in added symbol-file
+system-supplied DSO at 0x7fff82d84000
+Core was generated by `cp -af setfiles.8 setfiles.8.man'.
+Program terminated with signal 11, Segmentation fault.
+#0  0x00007fb34934c9ba in strlen () from /usr/lib/libc.so.6
+(gdb) bt
+#0  0x00007fb34934c9ba in strlen () from /usr/lib/libc.so.6
+#1  0x00007fb349a9b1db in lsetfilecon_raw_internal
+(path=0x7fff82c3bea9 "setfiles.8.man", context=0x0) at
+lsetfilecon.c:12
+#2  0x00007fb349a9b2b6 in lsetfilecon (path=0x7fff82c3bea9
+"setfiles.8.man", context=0x0) at lsetfilecon.c:38
+#3  0x0000000000409a55 in restorecon_private (path=0x7fff82c3bea9
+"setfiles.8.man", local=local@entry=true) at src/selinux.c:195
+#4  0x0000000000409f68 in restorecon (path=0x7fff82c3bea9
+"setfiles.8.man", recurse=<optimized out>, local=<optimized out>) at
+src/selinux.c:301
+#5  0x0000000000405c0b in set_file_security_ctx
+(dst_name=0x7fff82c3bea9 "setfiles.8.man", process_local=<optimized
+out>, recurse=<optimized out>, x=<optimized out>) at src/copy.c:835
+#6  0x000000000040893b in copy_reg (src_sb=0x7fff82c39df0,
+new_dst=<synthetic pointer>, omitted_permissions=36,
+dst_mode=<optimized out>, x=0x7fff82c3a210,
+    dst_name=0x7fff82c3bea9 "setfiles.8.man", src_name=0x7fff82c3be9e
+"setfiles.8") at src/copy.c:952
+#7  copy_internal (src_name=src_name@entry=0x7fff82c3be9e
+"setfiles.8", dst_name=dst_name@entry=0x7fff82c3bea9 "setfiles.8.man",
+new_dst=<optimized out>, new_dst@entry=false,
+    device=device@entry=0, ancestors=ancestors@entry=0x0,
+x=x@entry=0x7fff82c3a210,
+command_line_arg=command_line_arg@entry=true,
+    first_dir_created_per_command_line_arg=first_dir_created_per_command_line_arg@entry=0x7fff82c3a0af,
+copy_into_self=copy_into_self@entry=0x7fff82c3a0f8,
+    rename_succeeded=rename_succeeded@entry=0x0) at src/copy.c:2503
+#8  0x00000000004094bc in copy (src_name=src_name@entry=0x7fff82c3be9e
+"setfiles.8", dst_name=dst_name@entry=0x7fff82c3bea9 "setfiles.8.man",
+nonexistent_dst=nonexistent_dst@entry=false,
+    options=options@entry=0x7fff82c3a210,
+copy_into_self=copy_into_self@entry=0x7fff82c3a0f8,
+rename_succeeded=rename_succeeded@entry=0x0) at src/copy.c:2809
+#9  0x0000000000404fb0 in do_copy (n_files=<optimized out>,
+file=0x7fff82c3a418, target_directory=<optimized out>,
+target_directory@entry=0x0,
+no_target_directory=no_target_directory@entry=false,
+    x=x@entry=0x7fff82c3a210) at src/cp.c:765
+#10 0x0000000000403ba9 in main (argc=4, argv=0x7fff82c3a408) at src/cp.c:1212
