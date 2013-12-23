@@ -1,27 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBNLf1Ie023679
- for <selinux@tycho.nsa.gov>; Mon, 23 Dec 2013 16:41:01 -0500
-Received: by mail-lb0-f169.google.com with SMTP id u14so2524250lbd.14
- for <selinux@tycho.nsa.gov>; Mon, 23 Dec 2013 13:40:57 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBNMXb0L025770
+ for <selinux@tycho.nsa.gov>; Mon, 23 Dec 2013 17:33:38 -0500
+Date: Tue, 24 Dec 2013 09:34:14 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+Subject: Re: [GIT PULL] SELinux fixes for 3.13 (part three)
+In-Reply-To: <1678336.HYoZuQ9LME@sifl>
+Message-ID: <alpine.LRH.2.02.1312240933320.22187@tundra.namei.org>
+References: <3917996.DVt9Qik8HG@sifl> <1678336.HYoZuQ9LME@sifl>
 MIME-Version: 1.0
-In-Reply-To: <CAB9W1A3=HRroR3maO7ox5bOdkpgjk3zzi7dneAsFRCpQ_MYqsg@mail.gmail.com>
-References: <CAB9W1A3=HRroR3maO7ox5bOdkpgjk3zzi7dneAsFRCpQ_MYqsg@mail.gmail.com>
-Date: Mon, 23 Dec 2013 16:40:57 -0500
-Message-ID: <CACLa4ps7hw8pbzrD-1YJzC3i9rGfDUROURo4qf7oMR7jPewVpg@mail.gmail.com>
-Subject: Re: [PATCH libselinux] Fix a bug in the userspace AVC that broke
- per-domain permissive mode.
-From: Eric Paris <eparis@parisplace.org>
-To: Stephen Smalley <stephen.smalley@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Ack.  But can you put brackets around the sizeof call?  You and your
-old school ways...
+On Mon, 23 Dec 2013, Paul Moore wrote:
 
-On Mon, Dec 23, 2013 at 2:07 PM, Stephen Smalley
-<stephen.smalley@gmail.com> wrote:
->
+> On Wednesday, December 18, 2013 05:04:26 PM Paul Moore wrote:
+> > Hi James,
+> > 
+> > Two more small patches for 3.13-rcX.  Both fix long standing issues, and
+> > both should be very uncontroversial.  FYI, I've left my previous sent
+> > 3.13-rcX fixes in the tree below, including the revert patch that Linus did
+> > himself before it could flow from the SELinux tree.
+> > 
+
+Can you make a new branch for me to pull from, based on current Linus?
+
+
+-- 
+James Morris
+<jmorris@namei.org>
