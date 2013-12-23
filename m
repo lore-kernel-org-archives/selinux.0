@@ -1,62 +1,71 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBNJ7Se7016323
- for <selinux@tycho.nsa.gov>; Mon, 23 Dec 2013 14:07:28 -0500
-Received: by mail-bk0-f42.google.com with SMTP id w11so2143066bkz.29
- for <selinux@tycho.nsa.gov>; Mon, 23 Dec 2013 11:07:26 -0800 (PST)
 MIME-Version: 1.0
-Date: Mon, 23 Dec 2013 14:07:26 -0500
-Message-ID: <CAB9W1A3=HRroR3maO7ox5bOdkpgjk3zzi7dneAsFRCpQ_MYqsg@mail.gmail.com>
-Subject: [PATCH libselinux] Fix a bug in the userspace AVC that broke
- per-domain permissive mode.
+In-Reply-To: <52B84CDF.7020508@redhat.com>
+References: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>
+ <CAPJdAQBu3=ZyEqUqn_eq4HagfGZZP3-9u_Taimozkkt4EjGfZg@mail.gmail.com>
+ <CAJfZ7=m0BoejRQsbTU+5+YLyid8tb1r9tTzeQSR7ZJS1ZmkFsQ@mail.gmail.com>
+ <52B84CDF.7020508@redhat.com>
+Date: Mon, 23 Dec 2013 14:08:36 -0500
+Message-ID: <CAB9W1A2_WCtEvzvU77r7qHJ97NuC8GXig757CsSaERAxRUOMRg@mail.gmail.com>
+Subject: Re: Bug in libselinux/src/setrans_client.c
 From: Stephen Smalley <stephen.smalley@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- Daniel Walsh <dwalsh@redhat.com>
-Content-Type: multipart/mixed; boundary=20cf301cc42caba4d104ee385604
+To: Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: selinux <Selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---20cf301cc42caba4d104ee385604
-Content-Type: text/plain; charset=ISO-8859-1
+Calling *setfilecon() with a NULL context is a bug in the caller.  Not
+opposed to having it return an error, but what do you intend for the
+caller to do in that case?  It never should have called it with a NULL
+context in the first place.
 
-
-
---20cf301cc42caba4d104ee385604
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-Fix-a-bug-in-the-userspace-AVC-that-broke-per-domain.patch"
-Content-Disposition: attachment;
-	filename="0001-Fix-a-bug-in-the-userspace-AVC-that-broke-per-domain.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hpk3ig2t0
-
-RnJvbSAyODIxZTgyN2VjZjVlODk2MWE1ZDM3NTA1MjBjYWY4YjdmMDkwMjdjIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIFNtYWxsZXkgPHNkc0B0eWNoby5uc2EuZ292PgpE
-YXRlOiBNb24sIDIzIERlYyAyMDEzIDE0OjAzOjMxIC0wNTAwClN1YmplY3Q6IFtQQVRDSF0gRml4
-IGEgYnVnIGluIHRoZSB1c2Vyc3BhY2UgQVZDIHRoYXQgYnJva2UgcGVyLWRvbWFpbgogcGVybWlz
-c2l2ZSBtb2RlLgoKRmFpbHVyZSB0byBjb3B5IHRoZSBlbnRpcmUgYXZfZGVjaXNpb24gc3RydWN0
-dXJlLCBpbmNsdWRpbmcgdGhlCmZsYWdzIGZpZWxkLCB3b3VsZCBwcmV2ZW50IHByZXNlcnZhdGlv
-biBvZiB0aGUgU0VMSU5VWF9BVkRfRkxBR1NfUEVSTUlTU0lWRQpmbGFnIGFuZCB0aHVzIGNhdXNl
-IHBlci1kb21haW4gcGVybWlzc2l2ZSB0byBub3QgYmUgaG9ub3JlZCBmb3IgdXNlcnNwYWNlCnBl
-cm1pc3Npb24gY2hlY2tzLgoKQWxzbyBlbnN1cmUgdGhhdCB3ZSBjbGVhciB0aGUgZW50aXJlIHN0
-cnVjdHVyZS4KClNpZ25lZC1vZmYtYnk6IFN0ZXBoZW4gU21hbGxleSA8c2RzQHR5Y2hvLm5zYS5n
-b3Y+Ci0tLQogbGlic2VsaW51eC9zcmMvYXZjLmMgfCAxMiArKy0tLS0tLS0tLS0KIDEgZmlsZSBj
-aGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2xp
-YnNlbGludXgvc3JjL2F2Yy5jIGIvbGlic2VsaW51eC9zcmMvYXZjLmMKaW5kZXggZjE0ZWViNy4u
-Y2NhYzY5OSAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9zcmMvYXZjLmMKKysrIGIvbGlic2VsaW51
-eC9zcmMvYXZjLmMKQEAgLTMzNiwxMSArMzM2LDcgQEAgc3RhdGljIGlubGluZSBzdHJ1Y3QgYXZj
-X25vZGUgKmF2Y19yZWNsYWltX25vZGUodm9pZCkKIAogc3RhdGljIGlubGluZSB2b2lkIGF2Y19j
-bGVhcl9hdmNfZW50cnkoc3RydWN0IGF2Y19lbnRyeSAqYWUpCiB7Ci0JYWUtPnNzaWQgPSBhZS0+
-dHNpZCA9IGFlLT5jcmVhdGVfc2lkID0gTlVMTDsKLQlhZS0+dGNsYXNzID0gMDsKLQlhZS0+YXZk
-LmFsbG93ZWQgPSBhZS0+YXZkLmRlY2lkZWQgPSAwOwotCWFlLT5hdmQuYXVkaXRhbGxvdyA9IGFl
-LT5hdmQuYXVkaXRkZW55ID0gMDsKLQlhZS0+dXNlZCA9IDA7CisJbWVtc2V0KGFlLCAwLCBzaXpl
-b2YgKmFlKTsKIH0KIAogc3RhdGljIGlubGluZSBzdHJ1Y3QgYXZjX25vZGUgKmF2Y19jbGFpbV9u
-b2RlKHNlY3VyaXR5X2lkX3Qgc3NpZCwKQEAgLTQ4OCwxMSArNDg0LDcgQEAgc3RhdGljIGludCBh
-dmNfaW5zZXJ0KHNlY3VyaXR5X2lkX3Qgc3NpZCwgc2VjdXJpdHlfaWRfdCB0c2lkLAogCQlnb3Rv
-IG91dDsKIAl9CiAKLQlub2RlLT5hZS5hdmQuYWxsb3dlZCA9IGFlLT5hdmQuYWxsb3dlZDsKLQlu
-b2RlLT5hZS5hdmQuZGVjaWRlZCA9IGFlLT5hdmQuZGVjaWRlZDsKLQlub2RlLT5hZS5hdmQuYXVk
-aXRhbGxvdyA9IGFlLT5hdmQuYXVkaXRhbGxvdzsKLQlub2RlLT5hZS5hdmQuYXVkaXRkZW55ID0g
-YWUtPmF2ZC5hdWRpdGRlbnk7Ci0Jbm9kZS0+YWUuYXZkLnNlcW5vID0gYWUtPmF2ZC5zZXFubzsK
-KwltZW1jcHkoJm5vZGUtPmFlLmF2ZCwgJmFlLT5hdmQsIHNpemVvZiBhZS0+YXZkKTsKIAlhZXJl
-Zi0+YWUgPSAmbm9kZS0+YWU7CiAgICAgICBvdXQ6CiAJcmV0dXJuIHJjOwotLSAKMS44LjMuMQoK
---20cf301cc42caba4d104ee385604--
+On Mon, Dec 23, 2013 at 9:46 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> On 12/21/2013 09:27 AM, Nicolas Iooss wrote:
+>> My first message was not so clear. The check in
+>> libselinux/src/lsetfilecon.c line 35 [1] doesn't work because
+>> selinux_trans_to_raw_context(context, &rcontext) returns 0 and sets
+>> rcontext to NULL. This is why I'm asking to change the return value to
+>> something else if you want "cp -a" working. This fix is not to introduce a
+>> new feature but to fix an existing one.
+>>
+>> Nicolas
+>>
+>
+> How about if we add a check on lsetfilecon_raw?  Changing the behaviour on
+> selinux_trans_to_raw_context might cause other problems.
+>
+>
+> diff --git a/libselinux/src/lsetfilecon.c b/libselinux/src/lsetfilecon.c
+> index 461e3f7..af3775e 100644
+> - --- a/libselinux/src/lsetfilecon.c
+> +++ b/libselinux/src/lsetfilecon.c
+> @@ -9,6 +9,10 @@
+>
+>  int lsetfilecon_raw(const char *path, const security_context_t context)
+>  {
+> +       if (! context) {
+> +               errno=EINVAL;
+> +               return -1;
+> +       }
+>         return lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1
+>                          0);
+>  }
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1
+> Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+>
+> iEYEARECAAYFAlK4TN8ACgkQrlYvE4MpobNstACfcVXS9KZVDW9gc7PQrG7xUgVs
+> foIAoOe8r4LO0CoyzwGW3+TWsX2oaRKq
+> =BgSq
+> -----END PGP SIGNATURE-----
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
