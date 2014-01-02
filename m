@@ -1,257 +1,175 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s02ECrLc000630
- for <selinux@tycho.nsa.gov>; Thu, 2 Jan 2014 09:12:54 -0500
-Date: Thu, 2 Jan 2014 22:12:28 +0800 (CST)
-From: bigclouds <bigclouds@163.com>
-To: russell@coker.com.au
-Subject: Re:Re: question about basic selinux concept
-In-Reply-To: <201401022053.56630.russell@coker.com.au>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s02EZmaE001919
+ for <selinux@tycho.nsa.gov>; Thu, 2 Jan 2014 09:35:48 -0500
+Message-ID: <52C57934.70200@redhat.com>
+Date: Thu, 02 Jan 2014 09:35:32 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: bigclouds <bigclouds@163.com>, russell@coker.com.au
+Subject: Re: question about basic selinux concept
 References: <2a7b84d3.10951.143524a4a81.Coremail.bigclouds@163.com>
  <201401022053.56630.russell@coker.com.au>
-Content-Type: multipart/alternative;
- boundary="----=_Part_289145_849768432.1388671948525"
-MIME-Version: 1.0
-Message-ID: <7d555483.13261.143534c56ee.Coremail.bigclouds@163.com>
+ <7d555483.13261.143534c56ee.Coremail.bigclouds@163.com>
+In-Reply-To: <7d555483.13261.143534c56ee.Coremail.bigclouds@163.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-------=_Part_289145_849768432.1388671948525
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-aGksIHRoYW5rcyBSdXNzZWxsIENva2VyOgpteSBsYXN0IHF1ZXN0aW9uIGlzICBjb25mdXNpbmcK
-MS4KdGhlcmUgYXJlIHR3byBjYXRlZ29yeWllcyxjNTIwIGFuZCBjODcsYXQgbW9zdCBob3cgbWFu
-eSBjYXRlZ29yaWVzIGNhbiAgZXhpc3QgaW4gYSBsYWJlbD8gYzUyMCxjODcsYzEsYzIsYyouLi4u
-CiAKMi4KeW91IHNhaWQgICIgSW4gTUNTIHRvIHJlYWQgYSBmaWxlIGEgcHJvY2VzcyBuZWVkcyB0
-byBoYXZlIGV2ZXJ5IApjYXRlZ29yeSB0aGF0IHRoZSBmaWxlIGhhcyAob3IgaXQgbmVlZHMgdG8g
-YmUgaW4gYSBkb21haW4gdGhhdCBjYW4gb3ZlcnJpZGUgCnRoZSBNQ1MgY29udHJvbHMpLiIKYXMg
-Zm9yIGEgZmlsZSwgYSBwcm9jZXNzIHdpdGggc2FtZSBNQ1MgbXVzdCBiZSBhIHNwaWNpZmljIHR5
-cGUgPyAgICBub3QgYWxsIHByb2Nlc3NlcyBsYWJlbGVkIGFueSB0eXBlIHdpdGggdGhlIHNhbWUg
-TUNTIGNhbiBhY2Nlc3MgdGhlIGZpbGU/ICBpZiBpIGFtIHJpZ2h0PwpodHRwczovL2FjY2Vzcy5y
-ZWRoYXQuY29tL3NpdGUvZG9jdW1lbnRhdGlvbi9lbi1VUy9SZWRfSGF0X0VudGVycHJpc2VfTGlu
-dXgvNi9odG1sL1NlY3VyaXR5LUVuaGFuY2VkX0xpbnV4L2NoMDdzMDIuaHRtbApPbmx5IHByb2Nl
-c3NlcyBsYWJlbGVkICBzdmlydF90IHdpdGggdGhlIHNhbWUgTUNTIGZpZWxkcyBhcmUgYWJsZSB0
-byByZWFkL3dyaXRlIHRoZXNlIGltYWdlIGZpbGVzIGFuZCBkZXZpY2VzLgogCiAKdGhhbmtzCgoK
-CgoKCgoKCkF0IDIwMTQtMDEtMDIgMTc6NTM6NTYsIlJ1c3NlbGwgQ29rZXIiIDxydXNzZWxsQGNv
-a2VyLmNvbS5hdT4gd3JvdGU6Cj5PbiBUaHUsIDIgSmFuIDIwMTQsIGJpZ2Nsb3VkcyA8YmlnY2xv
-dWRzQDE2My5jb20+IHdyb3RlOgo+PiB0aGVyZSBhcmUgbm90IG1hbnkgZG9jdW1lbnQgIGFib3V0
-IGludGVybmFsIG9mIHNlbGludXggb24gdGhlIGludGVybmV0Lgo+PiBjb3VsZCB5b3UgYW5zd2Vy
-IG15ICBxdWVzdGlvbnMsIHRoYW5rcwo+PiAjIHBzIC1lWiB8IGdyZXAgcWVtdS1rdm0KPj4gc3lz
-dGVtX3U6c3lzdGVtX3I6c3ZpcnRfdDpzMDpjODcsYzUyMCAyNzk1MCA/IDAwOjAwOjE3IHFlbXUt
-a3ZtCj4+IAo+PiAxLnRoZXJlLCBzdmlydF90IGlzIGEgZG9tYWluIG9yIGEgdHlwZT8gaG93IHRv
-IGNyZWF0ZSBhIG5ldyB0eXBlICwganVzdCBhCj4+IHNhbXBsZSBpcyBvawo+Cj5JbiB0aGUgd2F5
-IHRoYXQgU0UgTGludXggd29ya3MgaW50ZXJuYWxseSB0aGVyZSBpc24ndCBhIGRpZmZlcmVuY2Uu
-ICBXaXRoIHRoZSAKPndheSB0aGUgcG9saWN5IGlzIHdyaXR0ZW4gdGhlIGF0dHJpYnV0ZSAiZG9t
-YWluIiBpcyBhcHBsaWVkIHRvIGFueSB0eXBlIHRoYXQgCj5jYW4gYmUgdXNlZCBmb3IgbGFiZWxs
-aW5nIGEgcHJvY2Vzcy4KPgo+Iwo+IyBpbml0X3QgaXMgdGhlIGRvbWFpbiBvZiB0aGUgaW5pdCBw
-cm9jZXNzLgo+Iwo+dHlwZSBpbml0X3QsIGluaXRyY190cmFuc2l0aW9uX2RvbWFpbjsKPnR5cGUg
-aW5pdF9leGVjX3Q7Cj5kb21haW5fdHlwZShpbml0X3QpCj5kb21haW5fZW50cnlfZmlsZShpbml0
-X3QsIGluaXRfZXhlY190KQo+a2VybmVsX2RvbXRyYW5zX3RvKGluaXRfdCwgaW5pdF9leGVjX3Qp
-Cj5yb2xlIHN5c3RlbV9yIHR5cGVzIGluaXRfdDsKPgo+QWJvdmUgaXMgYSBzbmlwcGV0IGZyb20g
-aW5pdC50ZS4gIEl0IGNyZWF0ZXMgdGhlICJ0eXBlIiAod2hlcmUgdGhlIHdvcmQgCj5hcHBsaWVz
-IHRvIGEgcG9saWN5IGxhbmd1YWdlIGtleXdvcmQpIGluaXRfdCBhbmQgdGhlbiB1c2VzIHRoZSBp
-bnRlcmZhY2UgCj4iZG9tYWluX3R5cGUiIHRvIGdpdmUgaXQgdGhlIGF0dHJpYnV0ZSAiZG9tYWlu
-Ii4KPgo+PiAyLmhvdyB0byBrbm93ICAgaG93IG11Y2ggYXV0aG9yaXR5ICAsIG9uIGhvdyBtYW55
-IGZpbGVzLGRpcnMsc29ja2V0cy4uLi4gCj4+IHRoZSBwcm9jZXNzIG9mIHFlbXUta3ZtICBoYXM/
-IGlzIHRoZXJlIGEgY29tbWFuZCB0byBzaG93IHRoYXQ/Cj4KPlRoZSBjb21tYW5kcyAiYXBvbCIg
-YW5kICJzZXNlYXJjaCIgYWxsb3cgeW91IHRvIGRpc2NvdmVyIHRoYXQuCj4KPj4gMy4gczAsIGlm
-IGl0IGNhbiBiZSBzMSxzMi4uLi4oaW1hZ2VzIGhhdmUgdGhlIHNhbWUgcyopLCBpZiBpIGRvIHNv
-ICwgYW55Cj4+IG90aGVyIHJlcXVpcmVtZW50PyBpZiAgdHlwZSBpcyB0YXJnZXRlZCwgaWYgdGFy
-Z2V0ZWQgaGFzIG9ubHkgb25lIGxldmVsLAo+PiBzMD8gICBpbiB0YXJnZXRlZCBjYXNlLCBzMSxz
-Mi4uLmlzIG5vdCB2YWxpZD8KPgo+czEgb25seSBleGlzdHMgaWYgeW91IHVzZSB0aGUgTUxTIChN
-dWx0aSBMZXZlbCBTZWN1cml0eSkgcG9saWN5LCB3aGljaCB5b3UgCj5hbG1vc3QgY2VydGFpbmx5
-IGFyZW4ndCB1c2luZyAoaXQncyBhbiBhZHZhbmNlZCBmZWF0dXJlIGFuZCBub3QgZW5hYmxlZCBi
-eSAKPmRlZmF1bHQgaW4gYW55IGRpc3RyaWJ1dGlvbiB5b3UgYXJlIGxpa2VseSB0byB1c2UpLgo+
-Cj5UaGF0IGxldmVsIGZpZWxkIGluIHRoZSBsYWJlbCBpcyBhbHNvIHVzZWQgYnkgTUNTIChNdWx0
-aSBDYXRlZ29yeSBTZWN1cml0eSkgCj53aGljaCBhbGxvd3MgdmFsdWVzIHN1Y2ggYXMgInMwOmMw
-IiBhbmQgInMwOmMwLGMzIi4gIEZlZWwgZnJlZSB0byBleHBlcmltZW50IAo+d2l0aCB0aGF0LCB5
-b3UgY2FuIHVzZSB0aGUgY29tbWFuZCAicnVuY29uIiB0byBsYXVuY2ggYSBwcm9jZXNzIHdpdGgg
-YSAKPmRpZmZlcmVudCBsZXZlbCBhbmQgc2VlIHdoYXQgYWNjZXNzIGl0IGlzIHBlcm1pdHRlZCB0
-byBoYXZlIHRvIGZpbGVzIG9mIAo+ZGlmZmVyZW50IGxldmVsLgo+Cj4+IDQud2hhdCBkb2VzIHMo
-c2Vuc2l0aXZlKSBhbmQgYyhjbGFzcykgbWVhbj8KPgo+Rm9yIE1DUyBpdCdzIG9ubHkgczAgc28g
-aXQgbWVhbnMgbm90aGluZyBmb3IgeW91LiAgTUxTIGlzIG1vcmUgY29tcGxleCwgbWFzdGVyIAo+
-TUNTIGZpcnN0Lgo+Cj4+IDUuIHRoZXJlIGFyZSB0d28gY2xhc3MsIGM1MjAsYzg3LiAgIHdoYXQg
-aXMgdGhlIHVwcGVyIGxpbWl0IG9mIGNsYXNzCj4+IGFtb3VudC4KPgo+VGhlIGNhdGVnb3JpZXMg
-KG5vdCBjbGFzc2VzKSBhcmUgbnVtYmVyZWQgZnJvbSBjMCB0byBjMTAyMywgdGhlcmUgYXJlIDEw
-MjQgb2YgCj50aGVtIGJ1dCB0aGlzIGlzIGEgcG9saWN5IGNvbXBpbGF0aW9uIGNob2ljZSwgeW91
-IGNvdWxkIHJlYnVpbGQgdGhlIHBvbGljeSBhbmQgCj51c2UgbW9yZSBvciBsZXNzLiAgSW4gTUNT
-IHRvIHJlYWQgYSBmaWxlIGEgcHJvY2VzcyBuZWVkcyB0byBoYXZlIGV2ZXJ5IAo+Y2F0ZWdvcnkg
-dGhhdCB0aGUgZmlsZSBoYXMgKG9yIGl0IG5lZWRzIHRvIGJlIGluIGEgZG9tYWluIHRoYXQgY2Fu
-IG92ZXJyaWRlIAo+dGhlIE1DUyBjb250cm9scykuCj4KPi0tIAo+TXkgTWFpbiBCbG9nICAgICAg
-ICAgaHR0cDovL2V0YmUuY29rZXIuY29tLmF1Lwo+TXkgRG9jdW1lbnRzIEJsb2cgICAgaHR0cDov
-L2RvYy5jb2tlci5jb20uYXUvCg==
-------=_Part_289145_849768432.1388671948525
-Content-Type: text/html; charset=GBK
-Content-Transfer-Encoding: base64
+On 01/02/2014 09:12 AM, bigclouds wrote:
+> hi, thanks Russell Coker: my last question is  confusing 1. there are two
+> categoryies,c520 and c87,at most how many categories can  exist in a label?
+> c520,c87,c1,c2,c*....
+> 
+In most policies we set this up to 1024.  But distributions could change this.
 
-PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
-Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+aGksIHRoYW5rcyBSdXNzZWxsJm5ic3A7Q29rZXI6PC9k
-aXY+PGRpdj5teSBsYXN0IHF1ZXN0aW9uJm5ic3A7aXMgJm5ic3A7Y29uZnVzaW5nPC9kaXY+PGRp
-dj4xLjwvZGl2PjxkaXY+dGhlcmUgYXJlIHR3byBjYXRlZ29yeWllcyxjNTIwIGFuZCBjODcsYXQg
-bW9zdCZuYnNwO2hvdyBtYW55IGNhdGVnb3JpZXMgY2FuJm5ic3A7Jm5ic3A7ZXhpc3QgaW4gYSBs
-YWJlbD8gYzUyMCxjODcsYzEsYzIsYyouLi4uPC9kaXY+PGRpdj4mbmJzcDs8L2Rpdj48ZGl2PjIu
-PC9kaXY+PGRpdj55b3Ugc2FpZCAmbmJzcDsiJm5ic3A7SW4mbmJzcDtNQ1MmbmJzcDt0byZuYnNw
-O3JlYWQmbmJzcDthJm5ic3A7ZmlsZSZuYnNwO2EmbmJzcDtwcm9jZXNzJm5ic3A7bmVlZHMmbmJz
-cDt0byZuYnNwO2hhdmUmbmJzcDtldmVyeSZuYnNwOzxicj5jYXRlZ29yeSZuYnNwO3RoYXQmbmJz
-cDt0aGUmbmJzcDtmaWxlJm5ic3A7aGFzJm5ic3A7KG9yJm5ic3A7aXQmbmJzcDtuZWVkcyZuYnNw
-O3RvJm5ic3A7YmUmbmJzcDtpbiZuYnNwO2EmbmJzcDtkb21haW4mbmJzcDt0aGF0Jm5ic3A7Y2Fu
-Jm5ic3A7b3ZlcnJpZGUmbmJzcDs8YnI+dGhlJm5ic3A7TUNTJm5ic3A7Y29udHJvbHMpLiI8L2Rp
-dj48ZGl2PmFzIGZvciBhIGZpbGUsIGEgcHJvY2VzcyB3aXRoIHNhbWUgTUNTIG11c3QgYmUgYSBz
-cGljaWZpYyB0eXBlJm5ic3A7PyZuYnNwOyZuYnNwOyZuYnNwOyBub3QgYWxsIHByb2Nlc3NlcyBs
-YWJlbGVkIGFueSB0eXBlIHdpdGggdGhlIHNhbWUgTUNTIGNhbiBhY2Nlc3MgdGhlIGZpbGU/Jm5i
-c3A7IGlmIGkgYW0gcmlnaHQ/PC9kaXY+PGRpdj48YSBocmVmPSJodHRwczovL2FjY2Vzcy5yZWRo
-YXQuY29tL3NpdGUvZG9jdW1lbnRhdGlvbi9lbi1VUy9SZWRfSGF0X0VudGVycHJpc2VfTGludXgv
-Ni9odG1sL1NlY3VyaXR5LUVuaGFuY2VkX0xpbnV4L2NoMDdzMDIuaHRtbCI+aHR0cHM6Ly9hY2Nl
-c3MucmVkaGF0LmNvbS9zaXRlL2RvY3VtZW50YXRpb24vZW4tVVMvUmVkX0hhdF9FbnRlcnByaXNl
-X0xpbnV4LzYvaHRtbC9TZWN1cml0eS1FbmhhbmNlZF9MaW51eC9jaDA3czAyLmh0bWw8L2E+PC9k
-aXY+PGRpdj48c3BhbiBzdHlsZT0iZm9udDogMTZweC8yMHB4ICZxdW90O2xpYmVyYXRpb24gc2Fu
-cyZxdW90OywgJnF1b3Q7TXlyaWFkICZxdW90OywgJnF1b3Q7Qml0c3RyZWFtIFZlcmEgU2FucyZx
-dW90OywgJnF1b3Q7THVjaWRhIEdyYW5kZSZxdW90OywgJnF1b3Q7THV4aSBTYW5zJnF1b3Q7LCAm
-cXVvdDtUcmVidWNoZXQgTVMmcXVvdDssIGhlbHZldGljYSwgdmVyZGFuYSwgYXJpYWwsIHNhbnMt
-c2VyaWY7IHRleHQtYWxpZ246IGxlZnQ7IGNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IHRleHQtdHJh
-bnNmb3JtOiBub25lOyB0ZXh0LWluZGVudDogMHB4OyBsZXR0ZXItc3BhY2luZzogbm9ybWFsOyB3
-b3JkLXNwYWNpbmc6IDBweDsgZmxvYXQ6IG5vbmU7IGRpc3BsYXk6IGlubGluZSAhaW1wb3J0YW50
-OyB3aGl0ZS1zcGFjZTogbm9ybWFsOyBvcnBoYW5zOiA0OyB3aWRvd3M6IDQ7IGJhY2tncm91bmQt
-Y29sb3I6IHJnYigyMzgsIDIzOCwgMjM4KTsgLXdlYmtpdC10ZXh0LXN0cm9rZS13aWR0aDogMHB4
-OyI+T25seSBwcm9jZXNzZXMgbGFiZWxlZCZuYnNwOyA8L3NwYW4+PHNwYW4gY2xhc3M9ImVtcGhh
-c2lzIiBzdHlsZT0iZm9udDogMTZweC8yMHB4ICZxdW90O2xpYmVyYXRpb24gc2FucyZxdW90Oywg
-JnF1b3Q7TXlyaWFkICZxdW90OywgJnF1b3Q7Qml0c3RyZWFtIFZlcmEgU2FucyZxdW90OywgJnF1
-b3Q7THVjaWRhIEdyYW5kZSZxdW90OywgJnF1b3Q7THV4aSBTYW5zJnF1b3Q7LCAmcXVvdDtUcmVi
-dWNoZXQgTVMmcXVvdDssIGhlbHZldGljYSwgdmVyZGFuYSwgYXJpYWwsIHNhbnMtc2VyaWY7IG1h
-cmdpbjogMHB4OyBwYWRkaW5nOiAwcHg7IGJvcmRlcjogMHB4IGN1cnJlbnRDb2xvcjsgdGV4dC1h
-bGlnbjogbGVmdDsgY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgdGV4dC10cmFuc2Zvcm06IG5vbmU7
-IHRleHQtaW5kZW50OiAwcHg7IGxldHRlci1zcGFjaW5nOiBub3JtYWw7IHdvcmQtc3BhY2luZzog
-MHB4OyB2ZXJ0aWNhbC1hbGlnbjogYmFzZWxpbmU7IHdoaXRlLXNwYWNlOiBub3JtYWw7IG9ycGhh
-bnM6IDQ7IHdpZG93czogNDsgYmFja2dyb3VuZC1jb2xvcjogcmdiKDIzOCwgMjM4LCAyMzgpOyAt
-d2Via2l0LXRleHQtc3Ryb2tlLXdpZHRoOiAwcHg7Ij48ZW0gc3R5bGU9Im1hcmdpbjogMHB4OyBw
-YWRkaW5nOiAwcHg7IGJvcmRlcjogMHB4IGN1cnJlbnRDb2xvcjsgZm9udC1zaXplOiAxNnB4OyB2
-ZXJ0aWNhbC1hbGlnbjogYmFzZWxpbmU7IG9ycGhhbnM6IDQgIWltcG9ydGFudDsgd2lkb3dzOiA0
-ICFpbXBvcnRhbnQ7IGJhY2tncm91bmQtY29sb3I6IHRyYW5zcGFyZW50OyI+c3ZpcnRfdDwvZW0+
-PC9zcGFuPjxzcGFuIHN0eWxlPSJmb250OiAxNnB4LzIwcHggJnF1b3Q7bGliZXJhdGlvbiBzYW5z
-JnF1b3Q7LCAmcXVvdDtNeXJpYWQgJnF1b3Q7LCAmcXVvdDtCaXRzdHJlYW0gVmVyYSBTYW5zJnF1
-b3Q7LCAmcXVvdDtMdWNpZGEgR3JhbmRlJnF1b3Q7LCAmcXVvdDtMdXhpIFNhbnMmcXVvdDssICZx
-dW90O1RyZWJ1Y2hldCBNUyZxdW90OywgaGVsdmV0aWNhLCB2ZXJkYW5hLCBhcmlhbCwgc2Fucy1z
-ZXJpZjsgdGV4dC1hbGlnbjogbGVmdDsgY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgdGV4dC10cmFu
-c2Zvcm06IG5vbmU7IHRleHQtaW5kZW50OiAwcHg7IGxldHRlci1zcGFjaW5nOiBub3JtYWw7IHdv
-cmQtc3BhY2luZzogMHB4OyBmbG9hdDogbm9uZTsgZGlzcGxheTogaW5saW5lICFpbXBvcnRhbnQ7
-IHdoaXRlLXNwYWNlOiBub3JtYWw7IG9ycGhhbnM6IDQ7IHdpZG93czogNDsgYmFja2dyb3VuZC1j
-b2xvcjogcmdiKDIzOCwgMjM4LCAyMzgpOyAtd2Via2l0LXRleHQtc3Ryb2tlLXdpZHRoOiAwcHg7
-Ij48c3BhbiBjbGFzcz0iQXBwbGUtY29udmVydGVkLXNwYWNlIj4mbmJzcDs8L3NwYW4+d2l0aCB0
-aGUgc2FtZSBNQ1MgZmllbGRzIGFyZSBhYmxlIHRvIHJlYWQvd3JpdGUgdGhlc2UgaW1hZ2UgZmls
-ZXMgYW5kIGRldmljZXMuPC9zcGFuPjwvZGl2PjxkaXY+PHNwYW4gc3R5bGU9ImZvbnQ6IDE2cHgv
-MjBweCAmcXVvdDtsaWJlcmF0aW9uIHNhbnMmcXVvdDssICZxdW90O015cmlhZCAmcXVvdDssICZx
-dW90O0JpdHN0cmVhbSBWZXJhIFNhbnMmcXVvdDssICZxdW90O0x1Y2lkYSBHcmFuZGUmcXVvdDss
-ICZxdW90O0x1eGkgU2FucyZxdW90OywgJnF1b3Q7VHJlYnVjaGV0IE1TJnF1b3Q7LCBoZWx2ZXRp
-Y2EsIHZlcmRhbmEsIGFyaWFsLCBzYW5zLXNlcmlmOyB0ZXh0LWFsaWduOiBsZWZ0OyBjb2xvcjog
-cmdiKDUxLCA1MSwgNTEpOyB0ZXh0LXRyYW5zZm9ybTogbm9uZTsgdGV4dC1pbmRlbnQ6IDBweDsg
-bGV0dGVyLXNwYWNpbmc6IG5vcm1hbDsgd29yZC1zcGFjaW5nOiAwcHg7IGZsb2F0OiBub25lOyBk
-aXNwbGF5OiBpbmxpbmUgIWltcG9ydGFudDsgd2hpdGUtc3BhY2U6IG5vcm1hbDsgb3JwaGFuczog
-NDsgd2lkb3dzOiA0OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMjM4LCAyMzgsIDIzOCk7IC13ZWJr
-aXQtdGV4dC1zdHJva2Utd2lkdGg6IDBweDsiPjwvc3Bhbj4mbmJzcDs8L2Rpdj48ZGl2PjxzcGFu
-IHN0eWxlPSJmb250OiAxNnB4LzIwcHggJnF1b3Q7bGliZXJhdGlvbiBzYW5zJnF1b3Q7LCAmcXVv
-dDtNeXJpYWQgJnF1b3Q7LCAmcXVvdDtCaXRzdHJlYW0gVmVyYSBTYW5zJnF1b3Q7LCAmcXVvdDtM
-dWNpZGEgR3JhbmRlJnF1b3Q7LCAmcXVvdDtMdXhpIFNhbnMmcXVvdDssICZxdW90O1RyZWJ1Y2hl
-dCBNUyZxdW90OywgaGVsdmV0aWNhLCB2ZXJkYW5hLCBhcmlhbCwgc2Fucy1zZXJpZjsgdGV4dC1h
-bGlnbjogbGVmdDsgY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgdGV4dC10cmFuc2Zvcm06IG5vbmU7
-IHRleHQtaW5kZW50OiAwcHg7IGxldHRlci1zcGFjaW5nOiBub3JtYWw7IHdvcmQtc3BhY2luZzog
-MHB4OyBmbG9hdDogbm9uZTsgZGlzcGxheTogaW5saW5lICFpbXBvcnRhbnQ7IHdoaXRlLXNwYWNl
-OiBub3JtYWw7IG9ycGhhbnM6IDQ7IHdpZG93czogNDsgYmFja2dyb3VuZC1jb2xvcjogcmdiKDIz
-OCwgMjM4LCAyMzgpOyAtd2Via2l0LXRleHQtc3Ryb2tlLXdpZHRoOiAwcHg7Ij48L3NwYW4+Jm5i
-c3A7PC9kaXY+PGRpdj50aGFua3M8YnI+PGJyPjxicj48YnI+PGJyPjxicj48L2Rpdj48ZGl2Pjwv
-ZGl2PjxkaXYgaWQ9ImRpdk5ldGVhc2VNYWlsQ2FyZCI+PC9kaXY+PGRpdj48YnI+PC9kaXY+PHBy
-ZT48YnI+QXQmbmJzcDsyMDE0LTAxLTAyJm5ic3A7MTc6NTM6NTYsIlJ1c3NlbGwmbmJzcDtDb2tl
-ciImbmJzcDsmbHQ7cnVzc2VsbEBjb2tlci5jb20uYXUmZ3Q7Jm5ic3A7d3JvdGU6CiZndDtPbiZu
-YnNwO1RodSwmbmJzcDsyJm5ic3A7SmFuJm5ic3A7MjAxNCwmbmJzcDtiaWdjbG91ZHMmbmJzcDsm
-bHQ7YmlnY2xvdWRzQDE2My5jb20mZ3Q7Jm5ic3A7d3JvdGU6CiZndDsmZ3Q7Jm5ic3A7dGhlcmUm
-bmJzcDthcmUmbmJzcDtub3QmbmJzcDttYW55Jm5ic3A7ZG9jdW1lbnQmbmJzcDsmbmJzcDthYm91
-dCZuYnNwO2ludGVybmFsJm5ic3A7b2YmbmJzcDtzZWxpbnV4Jm5ic3A7b24mbmJzcDt0aGUmbmJz
-cDtpbnRlcm5ldC4KJmd0OyZndDsmbmJzcDtjb3VsZCZuYnNwO3lvdSZuYnNwO2Fuc3dlciZuYnNw
-O215Jm5ic3A7Jm5ic3A7cXVlc3Rpb25zLCZuYnNwO3RoYW5rcwomZ3Q7Jmd0OyZuYnNwOyMmbmJz
-cDtwcyZuYnNwOy1lWiZuYnNwO3wmbmJzcDtncmVwJm5ic3A7cWVtdS1rdm0KJmd0OyZndDsmbmJz
-cDtzeXN0ZW1fdTpzeXN0ZW1fcjpzdmlydF90OnMwOmM4NyxjNTIwJm5ic3A7Mjc5NTAmbmJzcDs/
-Jm5ic3A7MDA6MDA6MTcmbmJzcDtxZW11LWt2bQomZ3Q7Jmd0OyZuYnNwOwomZ3Q7Jmd0OyZuYnNw
-OzEudGhlcmUsJm5ic3A7c3ZpcnRfdCZuYnNwO2lzJm5ic3A7YSZuYnNwO2RvbWFpbiZuYnNwO29y
-Jm5ic3A7YSZuYnNwO3R5cGU/Jm5ic3A7aG93Jm5ic3A7dG8mbmJzcDtjcmVhdGUmbmJzcDthJm5i
-c3A7bmV3Jm5ic3A7dHlwZSZuYnNwOywmbmJzcDtqdXN0Jm5ic3A7YQomZ3Q7Jmd0OyZuYnNwO3Nh
-bXBsZSZuYnNwO2lzJm5ic3A7b2sKJmd0OwomZ3Q7SW4mbmJzcDt0aGUmbmJzcDt3YXkmbmJzcDt0
-aGF0Jm5ic3A7U0UmbmJzcDtMaW51eCZuYnNwO3dvcmtzJm5ic3A7aW50ZXJuYWxseSZuYnNwO3Ro
-ZXJlJm5ic3A7aXNuJ3QmbmJzcDthJm5ic3A7ZGlmZmVyZW5jZS4mbmJzcDsmbmJzcDtXaXRoJm5i
-c3A7dGhlJm5ic3A7CiZndDt3YXkmbmJzcDt0aGUmbmJzcDtwb2xpY3kmbmJzcDtpcyZuYnNwO3dy
-aXR0ZW4mbmJzcDt0aGUmbmJzcDthdHRyaWJ1dGUmbmJzcDsiZG9tYWluIiZuYnNwO2lzJm5ic3A7
-YXBwbGllZCZuYnNwO3RvJm5ic3A7YW55Jm5ic3A7dHlwZSZuYnNwO3RoYXQmbmJzcDsKJmd0O2Nh
-biZuYnNwO2JlJm5ic3A7dXNlZCZuYnNwO2ZvciZuYnNwO2xhYmVsbGluZyZuYnNwO2EmbmJzcDtw
-cm9jZXNzLgomZ3Q7CiZndDsjCiZndDsjJm5ic3A7aW5pdF90Jm5ic3A7aXMmbmJzcDt0aGUmbmJz
-cDtkb21haW4mbmJzcDtvZiZuYnNwO3RoZSZuYnNwO2luaXQmbmJzcDtwcm9jZXNzLgomZ3Q7Iwom
-Z3Q7dHlwZSZuYnNwO2luaXRfdCwmbmJzcDtpbml0cmNfdHJhbnNpdGlvbl9kb21haW47CiZndDt0
-eXBlJm5ic3A7aW5pdF9leGVjX3Q7CiZndDtkb21haW5fdHlwZShpbml0X3QpCiZndDtkb21haW5f
-ZW50cnlfZmlsZShpbml0X3QsJm5ic3A7aW5pdF9leGVjX3QpCiZndDtrZXJuZWxfZG9tdHJhbnNf
-dG8oaW5pdF90LCZuYnNwO2luaXRfZXhlY190KQomZ3Q7cm9sZSZuYnNwO3N5c3RlbV9yJm5ic3A7
-dHlwZXMmbmJzcDtpbml0X3Q7CiZndDsKJmd0O0Fib3ZlJm5ic3A7aXMmbmJzcDthJm5ic3A7c25p
-cHBldCZuYnNwO2Zyb20mbmJzcDtpbml0LnRlLiZuYnNwOyZuYnNwO0l0Jm5ic3A7Y3JlYXRlcyZu
-YnNwO3RoZSZuYnNwOyJ0eXBlIiZuYnNwOyh3aGVyZSZuYnNwO3RoZSZuYnNwO3dvcmQmbmJzcDsK
-Jmd0O2FwcGxpZXMmbmJzcDt0byZuYnNwO2EmbmJzcDtwb2xpY3kmbmJzcDtsYW5ndWFnZSZuYnNw
-O2tleXdvcmQpJm5ic3A7aW5pdF90Jm5ic3A7YW5kJm5ic3A7dGhlbiZuYnNwO3VzZXMmbmJzcDt0
-aGUmbmJzcDtpbnRlcmZhY2UmbmJzcDsKJmd0OyJkb21haW5fdHlwZSImbmJzcDt0byZuYnNwO2dp
-dmUmbmJzcDtpdCZuYnNwO3RoZSZuYnNwO2F0dHJpYnV0ZSZuYnNwOyJkb21haW4iLgomZ3Q7CiZn
-dDsmZ3Q7Jm5ic3A7Mi5ob3cmbmJzcDt0byZuYnNwO2tub3cmbmJzcDsmbmJzcDsmbmJzcDtob3cm
-bmJzcDttdWNoJm5ic3A7YXV0aG9yaXR5Jm5ic3A7Jm5ic3A7LCZuYnNwO29uJm5ic3A7aG93Jm5i
-c3A7bWFueSZuYnNwO2ZpbGVzLGRpcnMsc29ja2V0cy4uLi4mbmJzcDsKJmd0OyZndDsmbmJzcDt0
-aGUmbmJzcDtwcm9jZXNzJm5ic3A7b2YmbmJzcDtxZW11LWt2bSZuYnNwOyZuYnNwO2hhcz8mbmJz
-cDtpcyZuYnNwO3RoZXJlJm5ic3A7YSZuYnNwO2NvbW1hbmQmbmJzcDt0byZuYnNwO3Nob3cmbmJz
-cDt0aGF0PwomZ3Q7CiZndDtUaGUmbmJzcDtjb21tYW5kcyZuYnNwOyJhcG9sIiZuYnNwO2FuZCZu
-YnNwOyJzZXNlYXJjaCImbmJzcDthbGxvdyZuYnNwO3lvdSZuYnNwO3RvJm5ic3A7ZGlzY292ZXIm
-bmJzcDt0aGF0LgomZ3Q7CiZndDsmZ3Q7Jm5ic3A7My4mbmJzcDtzMCwmbmJzcDtpZiZuYnNwO2l0
-Jm5ic3A7Y2FuJm5ic3A7YmUmbmJzcDtzMSxzMi4uLi4oaW1hZ2VzJm5ic3A7aGF2ZSZuYnNwO3Ro
-ZSZuYnNwO3NhbWUmbmJzcDtzKiksJm5ic3A7aWYmbmJzcDtpJm5ic3A7ZG8mbmJzcDtzbyZuYnNw
-OywmbmJzcDthbnkKJmd0OyZndDsmbmJzcDtvdGhlciZuYnNwO3JlcXVpcmVtZW50PyZuYnNwO2lm
-Jm5ic3A7Jm5ic3A7dHlwZSZuYnNwO2lzJm5ic3A7dGFyZ2V0ZWQsJm5ic3A7aWYmbmJzcDt0YXJn
-ZXRlZCZuYnNwO2hhcyZuYnNwO29ubHkmbmJzcDtvbmUmbmJzcDtsZXZlbCwKJmd0OyZndDsmbmJz
-cDtzMD8mbmJzcDsmbmJzcDsmbmJzcDtpbiZuYnNwO3RhcmdldGVkJm5ic3A7Y2FzZSwmbmJzcDtz
-MSxzMi4uLmlzJm5ic3A7bm90Jm5ic3A7dmFsaWQ/CiZndDsKJmd0O3MxJm5ic3A7b25seSZuYnNw
-O2V4aXN0cyZuYnNwO2lmJm5ic3A7eW91Jm5ic3A7dXNlJm5ic3A7dGhlJm5ic3A7TUxTJm5ic3A7
-KE11bHRpJm5ic3A7TGV2ZWwmbmJzcDtTZWN1cml0eSkmbmJzcDtwb2xpY3ksJm5ic3A7d2hpY2gm
-bmJzcDt5b3UmbmJzcDsKJmd0O2FsbW9zdCZuYnNwO2NlcnRhaW5seSZuYnNwO2FyZW4ndCZuYnNw
-O3VzaW5nJm5ic3A7KGl0J3MmbmJzcDthbiZuYnNwO2FkdmFuY2VkJm5ic3A7ZmVhdHVyZSZuYnNw
-O2FuZCZuYnNwO25vdCZuYnNwO2VuYWJsZWQmbmJzcDtieSZuYnNwOwomZ3Q7ZGVmYXVsdCZuYnNw
-O2luJm5ic3A7YW55Jm5ic3A7ZGlzdHJpYnV0aW9uJm5ic3A7eW91Jm5ic3A7YXJlJm5ic3A7bGlr
-ZWx5Jm5ic3A7dG8mbmJzcDt1c2UpLgomZ3Q7CiZndDtUaGF0Jm5ic3A7bGV2ZWwmbmJzcDtmaWVs
-ZCZuYnNwO2luJm5ic3A7dGhlJm5ic3A7bGFiZWwmbmJzcDtpcyZuYnNwO2Fsc28mbmJzcDt1c2Vk
-Jm5ic3A7YnkmbmJzcDtNQ1MmbmJzcDsoTXVsdGkmbmJzcDtDYXRlZ29yeSZuYnNwO1NlY3VyaXR5
-KSZuYnNwOwomZ3Q7d2hpY2gmbmJzcDthbGxvd3MmbmJzcDt2YWx1ZXMmbmJzcDtzdWNoJm5ic3A7
-YXMmbmJzcDsiczA6YzAiJm5ic3A7YW5kJm5ic3A7InMwOmMwLGMzIi4mbmJzcDsmbmJzcDtGZWVs
-Jm5ic3A7ZnJlZSZuYnNwO3RvJm5ic3A7ZXhwZXJpbWVudCZuYnNwOwomZ3Q7d2l0aCZuYnNwO3Ro
-YXQsJm5ic3A7eW91Jm5ic3A7Y2FuJm5ic3A7dXNlJm5ic3A7dGhlJm5ic3A7Y29tbWFuZCZuYnNw
-OyJydW5jb24iJm5ic3A7dG8mbmJzcDtsYXVuY2gmbmJzcDthJm5ic3A7cHJvY2VzcyZuYnNwO3dp
-dGgmbmJzcDthJm5ic3A7CiZndDtkaWZmZXJlbnQmbmJzcDtsZXZlbCZuYnNwO2FuZCZuYnNwO3Nl
-ZSZuYnNwO3doYXQmbmJzcDthY2Nlc3MmbmJzcDtpdCZuYnNwO2lzJm5ic3A7cGVybWl0dGVkJm5i
-c3A7dG8mbmJzcDtoYXZlJm5ic3A7dG8mbmJzcDtmaWxlcyZuYnNwO29mJm5ic3A7CiZndDtkaWZm
-ZXJlbnQmbmJzcDtsZXZlbC4KJmd0OwomZ3Q7Jmd0OyZuYnNwOzQud2hhdCZuYnNwO2RvZXMmbmJz
-cDtzKHNlbnNpdGl2ZSkmbmJzcDthbmQmbmJzcDtjKGNsYXNzKSZuYnNwO21lYW4/CiZndDsKJmd0
-O0ZvciZuYnNwO01DUyZuYnNwO2l0J3MmbmJzcDtvbmx5Jm5ic3A7czAmbmJzcDtzbyZuYnNwO2l0
-Jm5ic3A7bWVhbnMmbmJzcDtub3RoaW5nJm5ic3A7Zm9yJm5ic3A7eW91LiZuYnNwOyZuYnNwO01M
-UyZuYnNwO2lzJm5ic3A7bW9yZSZuYnNwO2NvbXBsZXgsJm5ic3A7bWFzdGVyJm5ic3A7CiZndDtN
-Q1MmbmJzcDtmaXJzdC4KJmd0OwomZ3Q7Jmd0OyZuYnNwOzUuJm5ic3A7dGhlcmUmbmJzcDthcmUm
-bmJzcDt0d28mbmJzcDtjbGFzcywmbmJzcDtjNTIwLGM4Ny4mbmJzcDsmbmJzcDsmbmJzcDt3aGF0
-Jm5ic3A7aXMmbmJzcDt0aGUmbmJzcDt1cHBlciZuYnNwO2xpbWl0Jm5ic3A7b2YmbmJzcDtjbGFz
-cwomZ3Q7Jmd0OyZuYnNwO2Ftb3VudC4KJmd0OwomZ3Q7VGhlJm5ic3A7Y2F0ZWdvcmllcyZuYnNw
-Oyhub3QmbmJzcDtjbGFzc2VzKSZuYnNwO2FyZSZuYnNwO251bWJlcmVkJm5ic3A7ZnJvbSZuYnNw
-O2MwJm5ic3A7dG8mbmJzcDtjMTAyMywmbmJzcDt0aGVyZSZuYnNwO2FyZSZuYnNwOzEwMjQmbmJz
-cDtvZiZuYnNwOwomZ3Q7dGhlbSZuYnNwO2J1dCZuYnNwO3RoaXMmbmJzcDtpcyZuYnNwO2EmbmJz
-cDtwb2xpY3kmbmJzcDtjb21waWxhdGlvbiZuYnNwO2Nob2ljZSwmbmJzcDt5b3UmbmJzcDtjb3Vs
-ZCZuYnNwO3JlYnVpbGQmbmJzcDt0aGUmbmJzcDtwb2xpY3kmbmJzcDthbmQmbmJzcDsKJmd0O3Vz
-ZSZuYnNwO21vcmUmbmJzcDtvciZuYnNwO2xlc3MuJm5ic3A7Jm5ic3A7SW4mbmJzcDtNQ1MmbmJz
-cDt0byZuYnNwO3JlYWQmbmJzcDthJm5ic3A7ZmlsZSZuYnNwO2EmbmJzcDtwcm9jZXNzJm5ic3A7
-bmVlZHMmbmJzcDt0byZuYnNwO2hhdmUmbmJzcDtldmVyeSZuYnNwOwomZ3Q7Y2F0ZWdvcnkmbmJz
-cDt0aGF0Jm5ic3A7dGhlJm5ic3A7ZmlsZSZuYnNwO2hhcyZuYnNwOyhvciZuYnNwO2l0Jm5ic3A7
-bmVlZHMmbmJzcDt0byZuYnNwO2JlJm5ic3A7aW4mbmJzcDthJm5ic3A7ZG9tYWluJm5ic3A7dGhh
-dCZuYnNwO2NhbiZuYnNwO292ZXJyaWRlJm5ic3A7CiZndDt0aGUmbmJzcDtNQ1MmbmJzcDtjb250
-cm9scykuCiZndDsKJmd0Oy0tJm5ic3A7CiZndDtNeSZuYnNwO01haW4mbmJzcDtCbG9nJm5ic3A7
-Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7aHR0cDovL2V0
-YmUuY29rZXIuY29tLmF1LwomZ3Q7TXkmbmJzcDtEb2N1bWVudHMmbmJzcDtCbG9nJm5ic3A7Jm5i
-c3A7Jm5ic3A7Jm5ic3A7aHR0cDovL2RvYy5jb2tlci5jb20uYXUvCjwvcHJlPjwvZGl2Pjxicj48
-YnI+PHNwYW4gdGl0bGU9Im5ldGVhc2Vmb290ZXIiPjxzcGFuIGlkPSJuZXRlYXNlX21haWxfZm9v
-dGVyIj48L3NwYW4+PC9zcGFuPg==
-------=_Part_289145_849768432.1388671948525--
+> 2. you said  " In MCS to read a file a process needs to have every category
+> that the file has (or it needs to be in a domain that can override the MCS
+> controls)." as for a file, a process with same MCS must be a spicific type
+> ?    not all processes labeled any type with the same MCS can access the
+> file?  if i am right? 
+> https://access.redhat.com/site/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/ch07s02.html
+>
+> 
+Only processes labeled  /svirt_t/ with the same MCS fields are able to
+> read/write these image files and devices.
+> 
+> 
+For some simple descriptions of the different enforcements (Type, MCS, MLS)
+read http://opensource.com/business/13/11/selinux-policy-guide, includes cartoons.
+
+One thing to understand from a policy point of view is MCS Separation only
+effects domains(types) that opt into it, at least for Red Hat Based Policies.
+
+In fedora 21 I get.
+
+seinfo -amcs_constrained_type -x
+   mcs_constrained_type
+      svirt_kvm_net_t
+      svirt_lxc_net_t
+      openshift_app_t
+      openshift_min_t
+      openshift_net_t
+      openshift_min_app_t
+      openshift_net_app_t
+      svirt_tcg_t
+      netlabel_peer_t
+      sandbox_x_t
+      svirt_t
+      sandbox_min_t
+      sandbox_net_t
+      sandbox_web_t
+      openshift_t
+      svirt_qemu_net_t
+
+This means most domains like unconfined_t are not effected.  For sVirt
+separations we default to picking two unique categories for each domain
+launched by libvirt.  (We do the same for sandbox, openshift, and containers).
+ Then MCS separation requires that the MCS Categories of the process dominate
+the target.  This means a label of s0:c1,c2 can access files labeled s0,
+s0:c1, s0:c2, s0:c1,c2.  Note a process labeled s0:c1,c2 would not be allowed
+access to a file labeled s0:c1,c3. since the calling process does not contain
+c3.  By convention we never use a single category, which means we usually have
+files labeled s0 and s0:c1,c2.
+
+Secondarily we control access based on the type enforcement.  svirt_t would
+only be allowed to write svirt_image_t.  It would be allowed to read usr_t but
+not write usr_t.  svirt_t is not allowed to read shadow_t, even if shadow_t
+had an MCS Label of s0, or s0:c1,c2 ..In the end a process running as
+svirt_t:s0:c1,c2 could write to a file labeled svirt_image_t:s0:c1,c2.  We
+rely on libvirt to make sure we don't have images labeled svirt_image_t:s0.
+
+This video on openshift shows the enforcement in action.
+
+http://people.fedoraproject.org/~dwalsh/SELinux/Presentations/openshift_selinux.ogv
+> thanks
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> At 2014-01-02 17:53:56,"Russell Coker" <russell@coker.com.au> wrote:
+>> On Thu, 2 Jan 2014, bigclouds <bigclouds@163.com> wrote:
+>>> there are not many document  about internal of selinux on the
+>>> internet. could you answer my  questions, thanks # ps -eZ | grep
+>>> qemu-kvm system_u:system_r:svirt_t:s0:c87,c520 27950 ? 00:00:17
+>>> qemu-kvm
+>>> 
+>>> 1.there, svirt_t is a domain or a type? how to create a new type , just
+>>> a sample is ok
+>> 
+>> In the way that SE Linux works internally there isn't a difference.  With
+>> the way the policy is written the attribute "domain" is applied to any
+>> type that can be used for labelling a process.
+>> 
+>> # # init_t is the domain of the init process. # type init_t,
+>> initrc_transition_domain; type init_exec_t; domain_type(init_t) 
+>> domain_entry_file(init_t, init_exec_t) kernel_domtrans_to(init_t,
+>> init_exec_t) role system_r types init_t;
+>> 
+>> Above is a snippet from init.te.  It creates the "type" (where the word 
+>> applies to a policy language keyword) init_t and then uses the interface
+>>  "domain_type" to give it the attribute "domain".
+>> 
+>>> 2.how to know   how much authority  , on how many
+>>> files,dirs,sockets.... the process of qemu-kvm  has? is there a command
+>>> to show that?
+>> 
+>> The commands "apol" and "sesearch" allow you to discover that.
+>> 
+>>> 3. s0, if it can be s1,s2....(images have the same s*), if i do so ,
+>>> any other requirement? if  type is targeted, if targeted has only one
+>>> level, s0?   in targeted case, s1,s2...is not valid?
+>> 
+>> s1 only exists if you use the MLS (Multi Level Security) policy, which
+>> you almost certainly aren't using (it's an advanced feature and not
+>> enabled by default in any distribution you are likely to use).
+>> 
+>> That level field in the label is also used by MCS (Multi Category
+>> Security) which allows values such as "s0:c0" and "s0:c0,c3".  Feel free
+>> to experiment with that, you can use the command "runcon" to launch a
+>> process with a different level and see what access it is permitted to
+>> have to files of different level.
+>> 
+>>> 4.what does s(sensitive) and c(class) mean?
+>> 
+>> For MCS it's only s0 so it means nothing for you.  MLS is more complex,
+>> master MCS first.
+>> 
+>>> 5. there are two class, c520,c87.   what is the upper limit of class 
+>>> amount.
+>> 
+>> The categories (not classes) are numbered from c0 to c1023, there are
+>> 1024 of them but this is a policy compilation choice, you could rebuild
+>> the policy and use more or less.  In MCS to read a file a process needs
+>> to have every category that the file has (or it needs to be in a domain
+>> that can override the MCS controls).
+>> 
+>> -- My Main Blog         http://etbe.coker.com.au/ My Documents Blog
+>> http://doc.coker.com.au/
+> 
+> 
+> 
+> 
+> 
+> _______________________________________________ Selinux mailing list 
+> Selinux@tycho.nsa.gov To unsubscribe, send email to
+> Selinux-leave@tycho.nsa.gov. To get help, send an email containing "help"
+> to Selinux-request@tycho.nsa.gov.
+> 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlLFeTQACgkQrlYvE4MpobOq7wCgv7OB/W9Zs1kK7+giZKB0OBHd
+sOUAn3uEkYE9e5zqJ/XH1zF9LPKQ0Xbz
+=/A8Y
+-----END PGP SIGNATURE-----
