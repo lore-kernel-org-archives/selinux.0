@@ -1,213 +1,82 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s05M1csD022944
- for <selinux@tycho.nsa.gov>; Sun, 5 Jan 2014 17:01:39 -0500
-Date: Sun, 5 Jan 2014 23:01:31 +0100
-From: Laurent Bigonville <bigon@debian.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s029s2C5021419
+ for <selinux@tycho.nsa.gov>; Thu, 2 Jan 2014 04:54:02 -0500
+From: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: Refactor rpm_execcon() into a new
- setexecfilecon()
-Message-ID: <20140105230131.42fcbddf@fornost.bigon.be>
-In-Reply-To: <1353425275-10277-2-git-send-email-guillem@debian.org>
-References: <1353425275-10277-1-git-send-email-guillem@debian.org>
- <1353425275-10277-2-git-send-email-guillem@debian.org>
+Subject: Re: question about basic selinux concept
+Date: Thu, 2 Jan 2014 20:53:56 +1100
+References: <2a7b84d3.10951.143524a4a81.Coremail.bigclouds@163.com>
+In-Reply-To: <2a7b84d3.10951.143524a4a81.Coremail.bigclouds@163.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Cc: Eric Paris <eparis@redhat.com>
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Message-Id: <201401022053.56630.russell@coker.com.au>
+Reply-To: russell@coker.com.au
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
-
-I guess this patch got lost somewhere, is there still any plan to merge
-it?
-
-Cheers,
-
-Laurent Bigonville
-
-Le Tue, 20 Nov 2012 16:27:55 +0100,
-Guillem Jover <guillem@debian.org> a écrit :
-
-> This new function allows a process to invoke helper programs with
-> a new execution context based on the filename, this is initially
-> intended for package managers so that they can easily execute
-> package scriptlets or maintainer scripts.
+On Thu, 2 Jan 2014, bigclouds <bigclouds@163.com> wrote:
+> there are not many document  about internal of selinux on the internet.
+> could you answer my  questions, thanks
+> # ps -eZ | grep qemu-kvm
+> system_u:system_r:svirt_t:s0:c87,c520 27950 ? 00:00:17 qemu-kvm
 > 
-> Base rpm_execcon() off this new function.
-> 
-> Signed-off-by: Guillem Jover <guillem@debian.org>
-> ---
->  libselinux/Makefile                        |  3 +++
->  libselinux/include/selinux/selinux.h       |  4 ++++
->  libselinux/man/man3/getexeccon.3           | 23
-> ++++++++++++++++++++--- libselinux/src/Makefile                    |
-> 3 --- libselinux/src/{rpm.c => setexecfilecon.c} | 27
-> ++++++++++++++++++++------- 5 files changed, 47 insertions(+), 13
-> deletions(-) rename libselinux/src/{rpm.c => setexecfilecon.c} (71%)
-> 
-> diff --git a/libselinux/Makefile b/libselinux/Makefile
-> index fd4f0b1..6142b60 100644
-> --- a/libselinux/Makefile
-> +++ b/libselinux/Makefile
-> @@ -16,6 +16,9 @@ endif
->  ifeq ($(DISABLE_BOOL),y)
->  	EMFLAGS+= -DDISABLE_BOOL
->  endif
-> +ifeq ($(DISABLE_RPM),y)
-> +	EMFLAGS+= -DDISABLE_RPM
-> +endif
->  ifeq ($(DISABLE_SETRANS),y)
->  	EMFLAGS+= -DDISABLE_SETRANS
->  endif
-> diff --git a/libselinux/include/selinux/selinux.h
-> b/libselinux/include/selinux/selinux.h index 6b9089d..e1e965d 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -565,6 +565,10 @@ int selinuxfs_exists(void);
->  /* clear selinuxmnt variable and free allocated memory */
->  void fini_selinuxmnt(void);
->  
-> +/* Set an appropriate security context based on the filename of a
-> helper
-> + * program, falling back to a new context with the specified type. */
-> +extern int setexecfilecon(const char *filename, const char
-> *fallback_type); +
->  /* Execute a helper for rpm in an appropriate security context. */
->  extern int rpm_execcon(unsigned int verified,
->  		       const char *filename,
-> diff --git a/libselinux/man/man3/getexeccon.3
-> b/libselinux/man/man3/getexeccon.3 index c188a3a..1b66ab6 100644
-> --- a/libselinux/man/man3/getexeccon.3
-> +++ b/libselinux/man/man3/getexeccon.3
-> @@ -15,6 +15,8 @@ rpm_execcon \- run a helper for rpm in an
-> appropriate security context .sp
->  .BI "int setexeccon_raw(security_context_t "context );
->  .sp
-> +.BI "int setexecfilecon(const char *" filename ", const char *"
-> fallback_type ); +.sp
->  .BI "int rpm_execcon(unsigned int " verified ", const char *"
-> filename ", char *const " argv "[] , char *const " envp "[]); .
->  .SH "DESCRIPTION"
-> @@ -62,7 +64,21 @@ Signal handlers that perform an
->  must take care to
->  save, reset, and restore the exec context to avoid unexpected
-> behavior. 
-> +.BR setexecfilecon ()
-> +sets the context used for the next
-> +.BR execve (2)
-> +call, based on the policy for the
-> +.IR filename ,
-> +and falling back to a new context with a
-> +.I fallback_type
-> +in case there is no transition.
-> +
->  .BR rpm_execcon ()
-> +is deprecated; please use
-> +.BR setexecfilecon ()
-> +in conjunction with
-> +.BR execve (2)
-> +in all new code. This function
->  runs a helper for rpm in an appropriate security context.  The
->  verified parameter should contain the return code from the signature
->  verification (0 == ok, 1 == notfound, 2 == verifyfail, 3 ==
-> @@ -76,10 +92,11 @@ environment arrays.
->  On error \-1 is returned.
->  
->  On success
-> -.BR getexeccon ()
-> -and
-> +.BR getexeccon (),
->  .BR setexeccon ()
-> -returns 0.
-> +and
-> +.BR setexecfilecon ()
-> +return 0.
->  .BR rpm_execcon ()
->  only returns upon errors, as it calls
->  .BR execve (2).
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index ac019df..a7e5311 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -47,9 +47,6 @@ endif
->  ifeq ($(DISABLE_BOOL),y)
->  	UNUSED_SRCS+=booleans.c
->  endif
-> -ifeq ($(DISABLE_RPM),y)
-> -	UNUSED_SRCS+=rpm.c
-> -endif
->  
->  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
->  SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c,
-> $(wildcard *.c)) diff --git a/libselinux/src/rpm.c
-> b/libselinux/src/setexecfilecon.c similarity index 71%
-> rename from libselinux/src/rpm.c
-> rename to libselinux/src/setexecfilecon.c
-> index b89f1bb..b3afa13 100644
-> --- a/libselinux/src/rpm.c
-> +++ b/libselinux/src/setexecfilecon.c
-> @@ -5,15 +5,14 @@
->  #include "selinux_internal.h"
->  #include "context_internal.h"
->  
-> -int rpm_execcon(unsigned int verified __attribute__ ((unused)),
-> -		const char *filename, char *const argv[], char
-> *const envp[]) +int setexecfilecon(const char *filename, const char
-> *fallback_type) {
->  	security_context_t mycon = NULL, fcon = NULL, newcon = NULL;
->  	context_t con = NULL;
->  	int rc = 0;
->  
->  	if (is_selinux_enabled() < 1)
-> -		return execve(filename, argv, envp);
-> +		return 0;
->  
->  	rc = getcon(&mycon);
->  	if (rc < 0)
-> @@ -28,12 +27,12 @@ int rpm_execcon(unsigned int verified
-> __attribute__ ((unused)), goto out;
->  
->  	if (!strcmp(mycon, newcon)) {
-> -		/* No default transition, use rpm_script_t for now.
-> */
-> +		/* No default transition, use fallback_type for now.
-> */ rc = -1;
->  		con = context_new(mycon);
->  		if (!con)
->  			goto out;
-> -		if (context_type_set(con, "rpm_script_t"))
-> +		if (context_type_set(con, fallback_type))
->  			goto out;
->  		freecon(newcon);
->  		newcon = strdup(context_str(con));
-> @@ -47,8 +46,8 @@ int rpm_execcon(unsigned int verified __attribute__
-> ((unused)), goto out;
->        out:
->  
-> -	if (rc >= 0 || security_getenforce() < 1)
-> -		rc = execve(filename, argv, envp);
-> +	if (rc < 0 && security_getenforce() == 0)
-> +		rc = 0;
->  
->  	context_free(con);
->  	freecon(newcon);
-> @@ -56,3 +55,17 @@ int rpm_execcon(unsigned int verified
-> __attribute__ ((unused)), freecon(mycon);
->  	return rc < 0 ? rc : 0;
->  }
-> +
-> +#ifndef DISABLE_RPM
-> +int rpm_execcon(unsigned int verified __attribute__ ((unused)),
-> +		const char *filename, char *const argv[], char
-> *const envp[]) +{
-> +	int rc;
-> +
-> +	rc = setexecfilecon(filename, "rpm_script_t");
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	return execve(filename, argv, envp);
-> +}
-> +#endif
+> 1.there, svirt_t is a domain or a type? how to create a new type , just a
+> sample is ok
+
+In the way that SE Linux works internally there isn't a difference.  With the 
+way the policy is written the attribute "domain" is applied to any type that 
+can be used for labelling a process.
+
+#
+# init_t is the domain of the init process.
+#
+type init_t, initrc_transition_domain;
+type init_exec_t;
+domain_type(init_t)
+domain_entry_file(init_t, init_exec_t)
+kernel_domtrans_to(init_t, init_exec_t)
+role system_r types init_t;
+
+Above is a snippet from init.te.  It creates the "type" (where the word 
+applies to a policy language keyword) init_t and then uses the interface 
+"domain_type" to give it the attribute "domain".
+
+> 2.how to know   how much authority  , on how many files,dirs,sockets.... 
+> the process of qemu-kvm  has? is there a command to show that?
+
+The commands "apol" and "sesearch" allow you to discover that.
+
+> 3. s0, if it can be s1,s2....(images have the same s*), if i do so , any
+> other requirement? if  type is targeted, if targeted has only one level,
+> s0?   in targeted case, s1,s2...is not valid?
+
+s1 only exists if you use the MLS (Multi Level Security) policy, which you 
+almost certainly aren't using (it's an advanced feature and not enabled by 
+default in any distribution you are likely to use).
+
+That level field in the label is also used by MCS (Multi Category Security) 
+which allows values such as "s0:c0" and "s0:c0,c3".  Feel free to experiment 
+with that, you can use the command "runcon" to launch a process with a 
+different level and see what access it is permitted to have to files of 
+different level.
+
+> 4.what does s(sensitive) and c(class) mean?
+
+For MCS it's only s0 so it means nothing for you.  MLS is more complex, master 
+MCS first.
+
+> 5. there are two class, c520,c87.   what is the upper limit of class
+> amount.
+
+The categories (not classes) are numbered from c0 to c1023, there are 1024 of 
+them but this is a policy compilation choice, you could rebuild the policy and 
+use more or less.  In MCS to read a file a process needs to have every 
+category that the file has (or it needs to be in a domain that can override 
+the MCS controls).
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
