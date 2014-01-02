@@ -1,441 +1,121 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id rBVJ2w8B031108
- for <selinux@tycho.nsa.gov>; Tue, 31 Dec 2013 14:02:58 -0500
-Received: by mail-pd0-f180.google.com with SMTP id q10so12710463pdj.11
- for <selinux@tycho.nsa.gov>; Tue, 31 Dec 2013 11:02:56 -0800 (PST)
-Received: from [192.168.0.6] (ip24-253-3-239.lv.lv.cox.net. [24.253.3.239])
- by mx.google.com with ESMTPSA id ic7sm90218661pbc.29.2013.12.31.11.02.54
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Tue, 31 Dec 2013 11:02:55 -0800 (PST)
-Message-ID: <52C314CB.4040306@networkcrypt.com>
-Date: Tue, 31 Dec 2013 11:02:35 -0800
-From: Francis Cunnane <frankc@networkcrypt.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s029Ux7u020629
+ for <selinux@tycho.nsa.gov>; Thu, 2 Jan 2014 04:30:59 -0500
+Date: Thu, 2 Jan 2014 17:30:37 +0800 (CST)
+From: bigclouds <bigclouds@163.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: question about basic selinux concept
+Content-Type: multipart/alternative;
+ boundary="----=_Part_250111_1912463999.1388655037057"
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Bug in libselinux/src/setrans_client.c
-References: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>
- <CAPJdAQBu3=ZyEqUqn_eq4HagfGZZP3-9u_Taimozkkt4EjGfZg@mail.gmail.com>
- <CAJfZ7=m0BoejRQsbTU+5+YLyid8tb1r9tTzeQSR7ZJS1ZmkFsQ@mail.gmail.com>
- <52B84CDF.7020508@redhat.com>
- <CAJfZ7=mZCdh7_Mh9kng-pOHx3RAJ6Qn2W5VvmoVVJy7tUMRtag@mail.gmail.com>
- <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
- <52C235CA.2010607@mthode.org> <52C27333.3060801@networkcrypt.com>
- <52C31282.6080809@mthode.org>
-In-Reply-To: <52C31282.6080809@mthode.org>
-Content-Type: multipart/signed; protocol="application/pkcs7-signature";
- micalg=sha1; boundary="------------ms050606010401000108000107"
-Reply-To: frankc@networkcrypt.com
+Message-ID: <2a7b84d3.10951.143524a4a81.Coremail.bigclouds@163.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a cryptographically signed message in MIME format.
-
---------------ms050606010401000108000107
-Content-Type: multipart/alternative;
- boundary="------------000206030500080709070700"
-
-This is a multi-part message in MIME format.
---------------000206030500080709070700
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-tHERE IS ONE MARINE AT nsa, WHY DON'T YOU ASK HIM?
-
-On 12/31/2013 10:52 AM, Matthew Thode wrote:
-> On 12/31/2013 01:33 AM, Francis Cunnane wrote:
->> What do you propose....  This is free software.... Don't be a Jew.
->>
->>    On 12/30/2013 7:11 PM, Matthew Thode wrote:
->>> On 12/30/2013 10:11 AM, Stephen Smalley wrote:
->>>> Calling *setfilecon() with a NULL context is a bug in the caller, ju=
-st
->>>> like calling strlen() with a NULL string.
->>>> Fix the callers, please.
->>>>
->>>> On Wed, Dec 25, 2013 at 9:36 AM, Nicolas Iooss
->>>> <nicolas.iooss@m4x.org> wrote:
->>>>> 2013/12/23 Daniel J Walsh wrote:
->>>>>> On 12/21/2013 09:27 AM, Nicolas Iooss wrote:
->>>>>>> My first message was not so clear. The check in
->>>>>>> libselinux/src/lsetfilecon.c line 35 [1] doesn't work because
->>>>>>> selinux_trans_to_raw_context(context, &rcontext) returns 0 and se=
-ts
->>>>>>> rcontext to NULL. This is why I'm asking to change the return
->>>>>>> value to
->>>>>>> something else if you want "cp -a" working. This fix is not to
->>>>>>> introduce a
->>>>>>> new feature but to fix an existing one.
->>>>>>>
->>>>>>> Nicolas
->>>>>>>
->>>>>> How about if we add a check on lsetfilecon_raw?  Changing the
->>>>>> behaviour on
->>>>>> selinux_trans_to_raw_context might cause other problems.
->>>>> I agree. I've found
->>>>> http://selinuxproject.org/page/LibselinuxAPISummary which says
->>>>> precisely for selinux_trans_to_raw_context: "If passed NULL, sets t=
-he
->>>>> returned context to NULL and returns 0." As this feature is
->>>>> documented, callers may rely on it and changing this behavior is
->>>>> likely to break things.
->>>>>
->>>>> Moreover setfilecon_raw and fsetfilecon_raw have the same NULL-poin=
-ter
->>>>> dereference issue. Do these functions need a patch too?
->>>>>
->>>>> By the way, other callers of selinux_trans_to_raw_context may also
->>>>> share this bug: avc_context_to_sid, security_canonicalize_context,
->>>>> security_check_context, etc. Is doing a segmentation fault the
->>>>> expected way to tell the caller it used a NULL pointer and should h=
-ave
->>>>> manually checked every parameter before calling any libselinux
->>>>> function?
->>>>>
->>>>> Thanks and merry Christmas!
->>>>>
->>>>> Nicolas
->>>>>
->>>>>> diff --git a/libselinux/src/lsetfilecon.c
->>>>>> b/libselinux/src/lsetfilecon.c
->>>>>> index 461e3f7..af3775e 100644
->>>>>> - --- a/libselinux/src/lsetfilecon.c
->>>>>> +++ b/libselinux/src/lsetfilecon.c
->>>>>> @@ -9,6 +9,10 @@
->>>>>>
->>>>>>    int lsetfilecon_raw(const char *path, const security_context_t
->>>>>> context)
->>>>>>    {
->>>>>> +       if (! context) {
->>>>>> +               errno=3DEINVAL;
->>>>>> +               return -1;
->>>>>> +       }
->>>>>>           return lsetxattr(path, XATTR_NAME_SELINUX, context,
->>>>>> strlen(context) + 1
->>>>>>                            0);
->>>>>>    }
->>>>> _______________________________________________
->>>>> Selinux mailing list
->>>>> Selinux@tycho.nsa.gov
->>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>>> To get help, send an email containing "help" to
->>>>> Selinux-request@tycho.nsa.gov.
->>>> _______________________________________________
->>>> Selinux mailing list
->>>> Selinux@tycho.nsa.gov
->>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>> To get help, send an email containing "help" to
->>>> Selinux-request@tycho.nsa.gov.
->>>>
->>> I think I may have hit this bug as well.
->>>
->>> https://bugs.gentoo.org/show_bug.cgi?id=3D495274
->>>
->>>
->>>
->>> _______________________________________________
->>> Selinux mailing list
->>> Selinux@tycho.nsa.gov
->>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>> To get help, send an email containing "help" to
->>> Selinux-request@tycho.nsa.gov.
->>
->>
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.=
-nsa.gov.
->>
-> If I had any more info in the bug report then what was mentioned here,
-> it was meant to help.  Also, on vacation, so won't be of much help this=
-
-> week :P
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
-
-
---------------000206030500080709070700
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-  <head>
-    <meta content=3D"text/html; charset=3DISO-8859-1"
-      http-equiv=3D"Content-Type">
-  </head>
-  <body bgcolor=3D"#FFFFFF" text=3D"#000000">
-    <div class=3D"moz-cite-prefix">tHERE IS ONE MARINE AT nsa, WHY DON'T
-      YOU ASK HIM?<br>
-      <br>
-      On 12/31/2013 10:52 AM, Matthew Thode wrote:<br>
-    </div>
-    <blockquote cite=3D"mid:52C31282.6080809@mthode.org" type=3D"cite">
-      <pre wrap=3D"">On 12/31/2013 01:33 AM, Francis Cunnane wrote:
-</pre>
-      <blockquote type=3D"cite">
-        <pre wrap=3D"">What do you propose....  This is free software....=
- Don't be a Jew.
-
-  On 12/30/2013 7:11 PM, Matthew Thode wrote:
-</pre>
-        <blockquote type=3D"cite">
-          <pre wrap=3D"">On 12/30/2013 10:11 AM, Stephen Smalley wrote:
-</pre>
-          <blockquote type=3D"cite">
-            <pre wrap=3D"">Calling *setfilecon() with a NULL context is a=
- bug in the caller, just
-like calling strlen() with a NULL string.
-Fix the callers, please.
-
-On Wed, Dec 25, 2013 at 9:36 AM, Nicolas Iooss
-<a class=3D"moz-txt-link-rfc2396E" href=3D"mailto:nicolas.iooss@m4x.org">=
-&lt;nicolas.iooss@m4x.org&gt;</a> wrote:
-</pre>
-            <blockquote type=3D"cite">
-              <pre wrap=3D"">2013/12/23 Daniel J Walsh wrote:
-</pre>
-              <blockquote type=3D"cite">
-                <pre wrap=3D"">On 12/21/2013 09:27 AM, Nicolas Iooss wrot=
-e:
-</pre>
-                <blockquote type=3D"cite">
-                  <pre wrap=3D"">My first message was not so clear. The c=
-heck in
-libselinux/src/lsetfilecon.c line 35 [1] doesn't work because
-selinux_trans_to_raw_context(context, &amp;rcontext) returns 0 and sets
-rcontext to NULL. This is why I'm asking to change the return
-value to
-something else if you want "cp -a" working. This fix is not to
-introduce a
-new feature but to fix an existing one.
-
-Nicolas
-
-</pre>
-                </blockquote>
-                <pre wrap=3D"">How about if we add a check on lsetfilecon=
-_raw?  Changing the
-behaviour on
-selinux_trans_to_raw_context might cause other problems.
-</pre>
-              </blockquote>
-              <pre wrap=3D"">I agree. I've found
-<a class=3D"moz-txt-link-freetext" href=3D"http://selinuxproject.org/page=
-/LibselinuxAPISummary">http://selinuxproject.org/page/LibselinuxAPISummar=
-y</a> which says
-precisely for selinux_trans_to_raw_context: "If passed NULL, sets the
-returned context to NULL and returns 0." As this feature is
-documented, callers may rely on it and changing this behavior is
-likely to break things.
-
-Moreover setfilecon_raw and fsetfilecon_raw have the same NULL-pointer
-dereference issue. Do these functions need a patch too?
-
-By the way, other callers of selinux_trans_to_raw_context may also
-share this bug: avc_context_to_sid, security_canonicalize_context,
-security_check_context, etc. Is doing a segmentation fault the
-expected way to tell the caller it used a NULL pointer and should have
-manually checked every parameter before calling any libselinux
-function?
-
-Thanks and merry Christmas!
-
-Nicolas
-
-</pre>
-              <blockquote type=3D"cite">
-                <pre wrap=3D"">
-diff --git a/libselinux/src/lsetfilecon.c
-b/libselinux/src/lsetfilecon.c
-index 461e3f7..af3775e 100644
-- --- a/libselinux/src/lsetfilecon.c
-+++ b/libselinux/src/lsetfilecon.c
-@@ -9,6 +9,10 @@
-
-  int lsetfilecon_raw(const char *path, const security_context_t
-context)
-  {
-+       if (! context) {
-+               errno=3DEINVAL;
-+               return -1;
-+       }
-         return lsetxattr(path, XATTR_NAME_SELINUX, context,
-strlen(context) + 1
-                          0);
-  }
-</pre>
-              </blockquote>
-              <pre wrap=3D"">____________________________________________=
-___
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
-v">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
-"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux-request@tych=
-o.nsa.gov">Selinux-request@tycho.nsa.gov</a>.
-</pre>
-            </blockquote>
-            <pre wrap=3D"">______________________________________________=
-_
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
-v">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
-"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux-request@tych=
-o.nsa.gov">Selinux-request@tycho.nsa.gov</a>.
-
-</pre>
-          </blockquote>
-          <pre wrap=3D"">I think I may have hit this bug as well.
-
-<a class=3D"moz-txt-link-freetext" href=3D"https://bugs.gentoo.org/show_b=
-ug.cgi?id=3D495274">https://bugs.gentoo.org/show_bug.cgi?id=3D495274</a>
-
-
-
-_______________________________________________
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
-v">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
-"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux-request@tych=
-o.nsa.gov">Selinux-request@tycho.nsa.gov</a>.
-</pre>
-        </blockquote>
-        <pre wrap=3D"">
-
-
-
-_______________________________________________
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
-v">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
-"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to <a class=3D"moz-txt-link-=
-abbreviated" href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-reques=
-t@tycho.nsa.gov</a>.
-
-</pre>
-      </blockquote>
-      <pre wrap=3D"">If I had any more info in the bug report then what w=
-as mentioned here,
-it was meant to help.  Also, on vacation, so won't be of much help this
-week :P
-
-</pre>
-      <br>
-      <fieldset class=3D"mimeAttachmentHeader"></fieldset>
-      <br>
-      <pre wrap=3D"">_______________________________________________
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
-v">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
-"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to <a class=3D"moz-txt-link-=
-abbreviated" href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-reques=
-t@tycho.nsa.gov</a>.
-</pre>
-    </blockquote>
-    <br>
-  </body>
-</html>
-
---------------000206030500080709070700--
-
---------------ms050606010401000108000107
-Content-Type: application/pkcs7-signature; name="smime.p7s"
+------=_Part_250111_1912463999.1388655037057
+Content-Type: text/plain; charset=GBK
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIKUjCC
-BRowggQCoAMCAQICEG0Z6qcZT2ozIuYiMnqqcd4wDQYJKoZIhvcNAQEFBQAwga4xCzAJBgNV
-BAYTAlVTMQswCQYDVQQIEwJVVDEXMBUGA1UEBxMOU2FsdCBMYWtlIENpdHkxHjAcBgNVBAoT
-FVRoZSBVU0VSVFJVU1QgTmV0d29yazEhMB8GA1UECxMYaHR0cDovL3d3dy51c2VydHJ1c3Qu
-Y29tMTYwNAYDVQQDEy1VVE4tVVNFUkZpcnN0LUNsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQg
-RW1haWwwHhcNMTEwNDI4MDAwMDAwWhcNMjAwNTMwMTA0ODM4WjCBkzELMAkGA1UEBhMCR0Ix
-GzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UE
-ChMRQ09NT0RPIENBIExpbWl0ZWQxOTA3BgNVBAMTMENPTU9ETyBDbGllbnQgQXV0aGVudGlj
-YXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC
-ggEBAJKEhFtLV5jUXi+LpOFAyKNTWF9mZfEyTvefMn1V0HhMVbdClOD5J3EHxcZppLkyxPFA
-GpDMJ1Zifxe1cWmu5SAb5MtjXmDKokH2auGj/7jfH0htZUOMKi4rYzh337EXrMLaggLW1DJq
-1GdvIBOPXDX65VSAr9hxCh03CgJQU2yVHakQFLSZlVkSMf8JotJM3FLb3uJAAVtIaN3FSrTg
-7SQfOq9xXwfjrL8UO7AlcWg99A/WF1hGFYE8aIuLgw9teiFX5jSw2zJ+40rhpVJyZCaRTqWS
-D//gsWD9Gm9oUZljjRqLpcxCm5t9ImPTqaD8zp6Q30QZ9FxbNboW86eb/8ECAwEAAaOCAUsw
-ggFHMB8GA1UdIwQYMBaAFImCZ33EnSZwAEu0UEh83j2uBG59MB0GA1UdDgQWBBR6E04AdFvG
-eGNkJ8Ev4qBbvHnFezAOBgNVHQ8BAf8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADARBgNV
-HSAECjAIMAYGBFUdIAAwWAYDVR0fBFEwTzBNoEugSYZHaHR0cDovL2NybC51c2VydHJ1c3Qu
-Y29tL1VUTi1VU0VSRmlyc3QtQ2xpZW50QXV0aGVudGljYXRpb25hbmRFbWFpbC5jcmwwdAYI
-KwYBBQUHAQEEaDBmMD0GCCsGAQUFBzAChjFodHRwOi8vY3J0LnVzZXJ0cnVzdC5jb20vVVRO
-QWRkVHJ1c3RDbGllbnRfQ0EuY3J0MCUGCCsGAQUFBzABhhlodHRwOi8vb2NzcC51c2VydHJ1
-c3QuY29tMA0GCSqGSIb3DQEBBQUAA4IBAQCF1r54V1VtM39EUv5C1QaoAQOAivsNsv1Kv/av
-QUn1G1rF0q0bc24+6SZ85kyYwTAo38v7QjyhJT4KddbQPTmGZtGhm7VNm2+vKGwdr+XqdFqo
-2rHA8XV6L566k3nK/uKRHlZ0sviN0+BDchvtj/1gOSBH+4uvOmVIPJg9pSW/ve9g4EnlFsjr
-P0OD8ODuDcHTzTNfm9C9YGqzO/761Mk6PB/tm/+bSTO+Qik5g+4zaS6CnUVNqGnagBsePdIa
-XXxHmaWbCG0SmYbWXVcHG6cwvktJRLiQfsrReTjrtDP6oDpdJlieYVUYtCHVmdXgQ0BCML7q
-peeU0rD+83X5f27nMIIFMDCCBBigAwIBAgIRAOEtgEtOQn3CQDAg7XarCEcwDQYJKoZIhvcN
-AQEFBQAwgZMxCzAJBgNVBAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAO
-BgNVBAcTB1NhbGZvcmQxGjAYBgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMTkwNwYDVQQDEzBD
-T01PRE8gQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EwHhcNMTMw
-ODI0MDAwMDAwWhcNMTQwODI0MjM1OTU5WjAoMSYwJAYJKoZIhvcNAQkBFhdmcmFua2NAbmV0
-d29ya2NyeXB0LmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMAeIDcQUaZ7
-PNQnapzhdKSlZ/AwhZsa+bZUkz9PH8SfzpUYHrLOlEaT0G0r78I8PYFpnIdeicQVwceTphBw
-kOfKrWTJKvacxP9QhfnmLFVjLSraSdnQsZZMsugDdImmfWF7xx1w3Zij/7tSbuAkx8S0hekg
-xxbI+jgTb4Wg0LRlyH4clZs31/Xju/WT0mOJ6ykLLgxE1jose1tjIoWvipCR6+Rx6Z4OH7Du
-hXhVf95E96FsdErTGlxTTtsWEfVLU0h2ytX1UILG1BqX9D+L3PPdbi/myOGnmRmSJ0f7Q+4H
-pSci5l/SfrFMZcnl0eVGYRJfx2O8nLMg1r4dnGDYZKUCAwEAAaOCAecwggHjMB8GA1UdIwQY
-MBaAFHoTTgB0W8Z4Y2QnwS/ioFu8ecV7MB0GA1UdDgQWBBSItP/9ZiynH7iNipGrLSRDTik7
-YjAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADAgBgNVHSUEGTAXBggrBgEFBQcDBAYL
-KwYBBAGyMQEDBQIwEQYJYIZIAYb4QgEBBAQDAgUgMEYGA1UdIAQ/MD0wOwYMKwYBBAGyMQEC
-AQEBMCswKQYIKwYBBQUHAgEWHWh0dHBzOi8vc2VjdXJlLmNvbW9kby5uZXQvQ1BTMFcGA1Ud
-HwRQME4wTKBKoEiGRmh0dHA6Ly9jcmwuY29tb2RvY2EuY29tL0NPTU9ET0NsaWVudEF1dGhl
-bnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcmwwgYgGCCsGAQUFBwEBBHwwejBSBggrBgEF
-BQcwAoZGaHR0cDovL2NydC5jb21vZG9jYS5jb20vQ09NT0RPQ2xpZW50QXV0aGVudGljYXRp
-b25hbmRTZWN1cmVFbWFpbENBLmNydDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuY29tb2Rv
-Y2EuY29tMCIGA1UdEQQbMBmBF2ZyYW5rY0BuZXR3b3JrY3J5cHQuY29tMA0GCSqGSIb3DQEB
-BQUAA4IBAQAzWNJ9HY0CfcYtnshAOBHgkfhJsiBO4Np6aYj3UZCmEIiQq8x0u+rxTcMgs2dm
-Lp5Rx17MQ3qQVZxQWpjLt5+2vCV3mS1EPwrd9KUuuVT6br3ymKLC5v5SvLqsMv6q1ze3XPej
-UO8QM+6BIm9KajrVbB8ND2EcAZwCLr4aUQ5eKMxcZCVgR1ZMXH++so3hYAjTtWiPhYkTJyml
-E2FTx+fdvH8tOkZalgIzxKlBEXStdXzuzNySz8qMN5Efqbh+6RyhzfdtshWYC1J1i8WtpY+e
-wSLMqMFVVcu96n6I3oW2jUMAaZG3Ur+pw5qNEupxIeLOVZaqLXgezbJvPN4F43w8MYIEHDCC
-BBgCAQEwgakwgZMxCzAJBgNVBAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIx
-EDAOBgNVBAcTB1NhbGZvcmQxGjAYBgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMTkwNwYDVQQD
-EzBDT01PRE8gQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDh
-LYBLTkJ9wkAwIO12qwhHMAkGBSsOAwIaBQCgggJHMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0B
-BwEwHAYJKoZIhvcNAQkFMQ8XDTEzMTIzMTE5MDIzNVowIwYJKoZIhvcNAQkEMRYEFINGHOGy
-PbMgqdrXX7tAbQ3wuwuVMGwGCSqGSIb3DQEJDzFfMF0wCwYJYIZIAWUDBAEqMAsGCWCGSAFl
-AwQBAjAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4D
-AgcwDQYIKoZIhvcNAwICASgwgboGCSsGAQQBgjcQBDGBrDCBqTCBkzELMAkGA1UEBhMCR0Ix
-GzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UE
-ChMRQ09NT0RPIENBIExpbWl0ZWQxOTA3BgNVBAMTMENPTU9ETyBDbGllbnQgQXV0aGVudGlj
-YXRpb24gYW5kIFNlY3VyZSBFbWFpbCBDQQIRAOEtgEtOQn3CQDAg7XarCEcwgbwGCyqGSIb3
-DQEJEAILMYGsoIGpMIGTMQswCQYDVQQGEwJHQjEbMBkGA1UECBMSR3JlYXRlciBNYW5jaGVz
-dGVyMRAwDgYDVQQHEwdTYWxmb3JkMRowGAYDVQQKExFDT01PRE8gQ0EgTGltaXRlZDE5MDcG
-A1UEAxMwQ09NT0RPIENsaWVudCBBdXRoZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENB
-AhEA4S2AS05CfcJAMCDtdqsIRzANBgkqhkiG9w0BAQEFAASCAQCy9pwYgs/EDlVaZqBe9R34
-w8UlS5KHu3kdZ3iSq90VYgkHrSOI7SWQuHtkS2iotfITwD2HZRL4zsQYQGjEvT49oArDQQ7s
-1pCNXziPvHAZhBn5T+aMM19Y6m08HWwiS6Ujuy7pNBO7bEQRi/YEs7SWCGgo/XgCaYGDBUyc
-FpV5uCcczXZ8AuZP9ufCNJaVpTt1kyzAqJRJJVmCMruIIGTMVud5VdlRPQAetUJVA5Px471F
-+yRtnGx7VQm+sIbZI8hGXT2bm4vgV3s+hBY0FQ1T1dB0NAJ9DhW5VwcqyxjKf3DC/z/LJ+/p
-wfgXGintQXQdfGzVj2eRn/9gCI9q4n5bAAAAAAAA
---------------ms050606010401000108000107--
+aGksYWxsCnRoZXJlIGFyZSBub3QgbWFueSBkb2N1bWVudCAgYWJvdXQgaW50ZXJuYWwgb2Ygc2Vs
+aW51eCBvbiB0aGUgaW50ZXJuZXQuCmNvdWxkIHlvdSBhbnN3ZXIgbXkgIHF1ZXN0aW9ucywgdGhh
+bmtzCiMgcHMgLWVaIHwgZ3JlcCBxZW11LWt2bQpzeXN0ZW1fdTpzeXN0ZW1fcjpzdmlydF90OnMw
+OmM4NyxjNTIwIDI3OTUwID8gMDA6MDA6MTcgcWVtdS1rdm0KIAoxLnRoZXJlLCBzdmlydF90IGlz
+IGEgZG9tYWluIG9yIGEgdHlwZT8gaG93IHRvIGNyZWF0ZSBhIG5ldyB0eXBlICwganVzdCBhIHNh
+bXBsZSBpcyBvawoKCjIuaG93IHRvIGtub3cgICBob3cgbXVjaCBhdXRob3JpdHkgICwgb24gaG93
+IG1hbnkgZmlsZXMsZGlycyxzb2NrZXRzLi4uLiAgdGhlIHByb2Nlc3Mgb2YgcWVtdS1rdm0gIGhh
+cz8gaXMgdGhlcmUgYSBjb21tYW5kIHRvIHNob3cgdGhhdD8KICBvZiBjb3VyY2UgYSBpbWFnZSBs
+YWJlbGVkIHdpdGggc3lzdGVtX3U6b2JqZWN0X3I6c3ZpcnRfaW1hZ2VfdDpzMDpjODcsYzUyMCBp
+cyBhY2Nlc3NhYmxlIGJ5IHRoYXQgcWVtdS1rdm0sIGFueXRoaW5nIGVsc2U/CmlmIGEgcHJvY2Vz
+cyBpcyBjb21wcm9taXNlZCwgaG93IG11Y2ggcmVzb3VyY2VzIHRoZSBwcm9jZXNzIGV4cG9zZT8g
+aG93IHRvIHNob3cgIHRoZSByZXNvdXJjZXMgICB0byB1c2VyKHRocm91Z2h0IGEgY29tbWFuZCk/
+CgoKMy4gczAsIGlmIGl0IGNhbiBiZSBzMSxzMi4uLi4oaW1hZ2VzIGhhdmUgdGhlIHNhbWUgcyop
+LCBpZiBpIGRvIHNvICwgYW55IG90aGVyIHJlcXVpcmVtZW50PyAKIGlmICB0eXBlIGlzIHRhcmdl
+dGVkLCBpZiB0YXJnZXRlZCBoYXMgb25seSBvbmUgbGV2ZWwsIHMwPyAgIGluIHRhcmdldGVkIGNh
+c2UsIHMxLHMyLi4uaXMgbm90IHZhbGlkPwoKCjQud2hhdCBkb2VzIHMoc2Vuc2l0aXZlKSBhbmQg
+YyhjbGFzcykgbWVhbj8gIAoKCjUuIHRoZXJlIGFyZSB0d28gY2xhc3MsIGM1MjAsYzg3LiAgIHdo
+YXQgaXMgdGhlIHVwcGVyIGxpbWl0IG9mIGNsYXNzIGFtb3VudC4KCgoKCgoKCgptYW55IHRoYW5r
+cwogCi0tcnBtCmxpYnNlbGludXgtdXRpbHMtMi4wLjk0LTUuMy5lbDZfNC4xLng4Nl82NApzZWxp
+bnV4LXBvbGljeS10YXJnZXRlZC0zLjcuMTktMTk1LmVsNl80LjUubm9hcmNoCmxpYnNlbGludXgt
+cHl0aG9uLTIuMC45NC01LjMuZWw2XzQuMS54ODZfNjQKbGlic2VsaW51eC0yLjAuOTQtNS4zLmVs
+Nl80LjEueDg2XzY0CnNlbGludXgtcG9saWN5LTMuNy4xOS0xOTUuZWw2XzQuNS5ub2FyY2gKbGli
+c2VsaW51eC1kZXZlbC0yLjAuOTQtNS4zLmVsNl80LjEueDg2XzY0
+------=_Part_250111_1912463999.1388655037057
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
+
+PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
+Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAwKTsg
+Zm9udC1mYW1pbHk6IGFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7Ij5o
+aSxhbGw8L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTog
+YXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPnRoZXJlIGFyZSBub3Qg
+bWFueSBkb2N1bWVudCZuYnNwOyBhYm91dCBpbnRlcm5hbCBvZiBzZWxpbnV4IG9uIHRoZSBpbnRl
+cm5ldC48L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTog
+YXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPmNvdWxkIHlvdSBhbnN3
+ZXIgbXkgJm5ic3A7cXVlc3Rpb25zLCB0aGFua3M8L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdi
+KDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWln
+aHQ6IDEuNzsiPiMgcHMgLWVaIHwgZ3JlcCBxZW11LWt2bQo8L2Rpdj48ZGl2IHN0eWxlPSJjb2xv
+cjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGlu
+ZS1oZWlnaHQ6IDEuNzsiPgpzeXN0ZW1fdTpzeXN0ZW1fcjpzdmlydF90OnMwOmM4NyxjNTIwIDI3
+OTUwID8gIDAwOjAwOjE3IHFlbXUta3ZtPC9kaXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAw
+LCAwKTsgZm9udC1mYW1pbHk6IGFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAx
+Ljc7Ij4mbmJzcDs8L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZh
+bWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPjEudGhlcmUs
+IHN2aXJ0X3QgaXMgYSBkb21haW4gb3IgYSB0eXBlPyBob3cgdG8gY3JlYXRlIGEgbmV3IHR5cGUg
+LCBqdXN0IGEgc2FtcGxlIGlzIG9rPC9kaXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAw
+KTsgZm9udC1mYW1pbHk6IGFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7
+Ij48YnI+PC9kaXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAwKTsgZm9udC1mYW1pbHk6
+IGFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7Ij4yLmhvdyB0byBrbm93
+ICZuYnNwOyBob3cgbXVjaCZuYnNwO2F1dGhvcml0eSAmbmJzcDssIG9uIGhvdyBtYW55IGZpbGVz
+LGRpcnMsc29ja2V0cy4uLi4mbmJzcDsgdGhlIHByb2Nlc3Mgb2YgcWVtdS1rdm0mbmJzcDsgaGFz
+PyBpcyB0aGVyZSBhIGNvbW1hbmQgdG8gc2hvdyB0aGF0PzwvZGl2PjxkaXYgc3R5bGU9ImNvbG9y
+OiByZ2IoMCwgMCwgMCk7IGZvbnQtZmFtaWx5OiBhcmlhbDsgZm9udC1zaXplOiAxNHB4OyBsaW5l
+LWhlaWdodDogMS43OyI+Jm5ic3A7IG9mIGNvdXJjZSBhIGltYWdlIGxhYmVsZWQgd2l0aCZuYnNw
+OzxzcGFuIHN0eWxlPSJ3aGl0ZS1zcGFjZTogcHJlLXdyYXA7IGJhY2tncm91bmQtY29sb3I6IHJn
+YigyNDUsIDI0NSwgMjQ1KTsgZm9udC1zaXplOiAwLjllbTsgbGluZS1oZWlnaHQ6IDE4cHg7IG9y
+cGhhbnM6IDQ7IHdpZG93czogNDsiPnN5c3RlbV91Om9iamVjdF9yOnN2aXJ0X2ltYWdlX3Q6czA6
+Yzg3LGM1MjAgaXMgYWNjZXNzYWJsZSBieSB0aGF0IHFlbXUta3ZtLCBhbnl0aGluZyBlbHNlPzwv
+c3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZh
+bWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPmlmIGEgcHJv
+Y2VzcyBpcyZuYnNwOzwvc3Bhbj5jb21wcm9taXNlZCwgaG93IG11Y2ggcmVzb3VyY2VzIHRoZSBw
+cm9jZXNzIGV4cG9zZT8gaG93IHRvIHNob3cgJm5ic3A7dGhlIHJlc291cmNlcyAmbmJzcDsgdG8g
+dXNlcih0aHJvdWdodCBhIGNvbW1hbmQpPzwvZGl2PjxkaXY+PGJyPjwvZGl2PjxkaXYgc3R5bGU9
+ImNvbG9yOiByZ2IoMCwgMCwgMCk7IGZvbnQtZmFtaWx5OiBhcmlhbDsgZm9udC1zaXplOiAxNHB4
+OyBsaW5lLWhlaWdodDogMS43OyI+My4gczAsIGlmIGl0IGNhbiBiZSBzMSxzMi4uLi4oaW1hZ2Vz
+IGhhdmUgdGhlIHNhbWUgcyopLCZuYnNwO2lmIGkgZG8gc28gLCBhbnkgb3RoZXImbmJzcDtyZXF1
+aXJlbWVudD8mbmJzcDs8L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250
+LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPiZuYnNw
+O2lmICZuYnNwO3R5cGUgaXMgdGFyZ2V0ZWQsIGlmIHRhcmdldGVkIGhhcyBvbmx5IG9uZSBsZXZl
+bCwgczA/ICZuYnNwOyBpbiB0YXJnZXRlZCBjYXNlLCBzMSxzMi4uLmlzIG5vdCB2YWxpZD88L2Rp
+dj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZv
+bnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPjxicj48L2Rpdj48ZGl2IHN0eWxlPSJj
+b2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsg
+bGluZS1oZWlnaHQ6IDEuNzsiPjQud2hhdCBkb2VzIHMoc2Vuc2l0aXZlKSBhbmQgYyhjbGFzcykg
+bWVhbj8gJm5ic3A7PC9kaXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAwKTsgZm9udC1m
+YW1pbHk6IGFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7Ij48YnI+PC9k
+aXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAwKTsgZm9udC1mYW1pbHk6IGFyaWFsOyBm
+b250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7Ij41LiB0aGVyZSBhcmUgdHdvIGNsYXNz
+LCBjNTIwLGM4Ny4gJm5ic3A7IHdoYXQgaXMgdGhlIHVwcGVyIGxpbWl0IG9mIGNsYXNzIGFtb3Vu
+dC48L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJp
+YWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPjxicj48L2Rpdj48ZGl2IHN0
+eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTog
+MTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPjxicj48L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdi
+KDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWln
+aHQ6IDEuNzsiPjxicj48L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250
+LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPjxicj48
+L2Rpdj48ZGl2IHN0eWxlPSJjb2xvcjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7
+IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNzsiPm1hbnkgdGhhbmtzPC9kaXY+PGRp
+diBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAwKTsgZm9udC1mYW1pbHk6IGFyaWFsOyBmb250LXNp
+emU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7Ij4mbmJzcDs8L2Rpdj48ZGl2IHN0eWxlPSJjb2xv
+cjogcmdiKDAsIDAsIDApOyBmb250LWZhbWlseTogYXJpYWw7IGZvbnQtc2l6ZTogMTRweDsgbGlu
+ZS1oZWlnaHQ6IDEuNzsiPi0tcnBtPC9kaXY+PGRpdiBzdHlsZT0iY29sb3I6IHJnYigwLCAwLCAw
+KTsgZm9udC1mYW1pbHk6IGFyaWFsOyBmb250LXNpemU6IDE0cHg7IGxpbmUtaGVpZ2h0OiAxLjc7
+Ij5saWJzZWxpbnV4LXV0aWxzLTIuMC45NC01LjMuZWw2XzQuMS54ODZfNjQ8YnI+c2VsaW51eC1w
+b2xpY3ktdGFyZ2V0ZWQtMy43LjE5LTE5NS5lbDZfNC41Lm5vYXJjaDxicj5saWJzZWxpbnV4LXB5
+dGhvbi0yLjAuOTQtNS4zLmVsNl80LjEueDg2XzY0PGJyPmxpYnNlbGludXgtMi4wLjk0LTUuMy5l
+bDZfNC4xLng4Nl82NDxicj5zZWxpbnV4LXBvbGljeS0zLjcuMTktMTk1LmVsNl80LjUubm9hcmNo
+PGJyPmxpYnNlbGludXgtZGV2ZWwtMi4wLjk0LTUuMy5lbDZfNC4xLng4Nl82NDwvZGl2PjwvZGl2
+PjwvZGl2Pjxicj48YnI+PHNwYW4gdGl0bGU9Im5ldGVhc2Vmb290ZXIiPjxzcGFuIGlkPSJuZXRl
+YXNlX21haWxfZm9vdGVyIj48L3NwYW4+PC9zcGFuPg==
+------=_Part_250111_1912463999.1388655037057--
