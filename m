@@ -1,63 +1,89 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s03E3LPP030864
- for <selinux@tycho.nsa.gov>; Fri, 3 Jan 2014 09:03:21 -0500
-Date: Sat, 4 Jan 2014 01:03:27 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-Subject: Re: [GIT PULL] SELinux patches for 3.14
-In-Reply-To: <1779478.s7lCfjzb0Q@sifl>
-Message-ID: <alpine.LRH.2.02.1401040055270.20163@tundra.namei.org>
-References: <231455217.pFFWomdpV7@sifl>
- <alpine.LRH.2.02.1401031817290.15881@tundra.namei.org>
- <1779478.s7lCfjzb0Q@sifl>
+Message-ID: <52C7ED26.7000502@m4x.org>
+Date: Sat, 04 Jan 2014 12:14:46 +0100
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Subject: Re: Bug in libselinux/src/setrans_client.c
+References: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>	<CAPJdAQBu3=ZyEqUqn_eq4HagfGZZP3-9u_Taimozkkt4EjGfZg@mail.gmail.com>	<CAJfZ7=m0BoejRQsbTU+5+YLyid8tb1r9tTzeQSR7ZJS1ZmkFsQ@mail.gmail.com>	<52B84CDF.7020508@redhat.com>	<CAJfZ7=mZCdh7_Mh9kng-pOHx3RAJ6Qn2W5VvmoVVJy7tUMRtag@mail.gmail.com>
+ <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
+In-Reply-To: <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: selinux <Selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 3 Jan 2014, Paul Moore wrote:
+I've reported this bug to coreutils' bug tracker and the caller is going
+to be fixed: http://debbugs.gnu.org/cgi/bugreport.cgi?bug=16335
 
-> On Friday, January 03, 2014 06:20:18 PM James Morris wrote:
-> > On Thu, 2 Jan 2014, Paul Moore wrote:
-> > > Hi James,
-> > > 
-> > > With 3.13-rc6 out, it looks like it is time to pass along the SELinux pull
-> > > request for 3.14.  The tree below includes the patches listed here as well
-> > > as the 3.13-rcX fixes I've sent you previously (I've omitted the 3.13-rcX
-> > > fixes in the list below for the sake of clarity).  Of the five new
-> > > patches here, all but Richard's patch are fixes, and minor ones at that.
-> > > 
-> > > On a sorta related note, over the past month or two, I've learned that my
-> > > simplistic approach to managing the SELinux tree is just a wee bit too
-> > > simplistic.  After the 3.14 merge window closes I'm going to move to a
-> > > branch based approach which should make things a bit easier for everyone
-> > > (okay, mostly me) when it comes to -next and -stable.
-> > > 
-> > > Enjoy,
-> > > -Paul
-> > > 
-> > > ---
-> > > 
-> > > The following changes since commit 
-> 5e01dc7b26d9f24f39abace5da98ccbd6a5ceb52:
-> > >   Linux 3.12 (2013-11-03 15:41:51 -0800)
-> > > 
-> > > are available in the git repository at:
-> > >   git://git.infradead.org/users/pcmoore/selinux master
-> > 
-> > Against my current next:
-> > 18952 files changed, 1930106 insertions(+), 883402 deletions(-)
-> > 
-> > Looks like you rebased your main branch for the mainline fixes -- usually
-> > these are done out of band.
+Thanks,
+
+Nicolas
+
+On 30/12/2013 17:11, Stephen Smalley wrote :
+> Calling *setfilecon() with a NULL context is a bug in the caller, just
+> like calling strlen() with a NULL string.
+> Fix the callers, please.
 > 
-> No rebasing on my end, at least not an intentional one.  
-
-Ok, I was looking at the wrong thing in my tree.
-
--- 
-James Morris
-<jmorris@namei.org>
+> On Wed, Dec 25, 2013 at 9:36 AM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>> 2013/12/23 Daniel J Walsh wrote:
+>>>
+>>> On 12/21/2013 09:27 AM, Nicolas Iooss wrote:
+>>>> My first message was not so clear. The check in
+>>>> libselinux/src/lsetfilecon.c line 35 [1] doesn't work because
+>>>> selinux_trans_to_raw_context(context, &rcontext) returns 0 and sets
+>>>> rcontext to NULL. This is why I'm asking to change the return value to
+>>>> something else if you want "cp -a" working. This fix is not to introduce a
+>>>> new feature but to fix an existing one.
+>>>>
+>>>> Nicolas
+>>>>
+>>>
+>>> How about if we add a check on lsetfilecon_raw?  Changing the behaviour on
+>>> selinux_trans_to_raw_context might cause other problems.
+>>
+>> I agree. I've found
+>> http://selinuxproject.org/page/LibselinuxAPISummary which says
+>> precisely for selinux_trans_to_raw_context: "If passed NULL, sets the
+>> returned context to NULL and returns 0." As this feature is
+>> documented, callers may rely on it and changing this behavior is
+>> likely to break things.
+>>
+>> Moreover setfilecon_raw and fsetfilecon_raw have the same NULL-pointer
+>> dereference issue. Do these functions need a patch too?
+>>
+>> By the way, other callers of selinux_trans_to_raw_context may also
+>> share this bug: avc_context_to_sid, security_canonicalize_context,
+>> security_check_context, etc. Is doing a segmentation fault the
+>> expected way to tell the caller it used a NULL pointer and should have
+>> manually checked every parameter before calling any libselinux
+>> function?
+>>
+>> Thanks and merry Christmas!
+>>
+>> Nicolas
+>>
+>>>
+>>>
+>>> diff --git a/libselinux/src/lsetfilecon.c b/libselinux/src/lsetfilecon.c
+>>> index 461e3f7..af3775e 100644
+>>> - --- a/libselinux/src/lsetfilecon.c
+>>> +++ b/libselinux/src/lsetfilecon.c
+>>> @@ -9,6 +9,10 @@
+>>>
+>>>  int lsetfilecon_raw(const char *path, const security_context_t context)
+>>>  {
+>>> +       if (! context) {
+>>> +               errno=EINVAL;
+>>> +               return -1;
+>>> +       }
+>>>         return lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1
+>>>                          0);
+>>>  }
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
