@@ -1,89 +1,48 @@
-Message-ID: <52C7ED26.7000502@m4x.org>
-Date: Sat, 04 Jan 2014 12:14:46 +0100
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s05AjKuV031353
+ for <selinux@tycho.nsa.gov>; Sun, 5 Jan 2014 05:45:20 -0500
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id DE1AC1A054
+ for <selinux@tycho.nsa.gov>; Sun,  5 Jan 2014 11:45:14 +0100 (CET)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id ljvyNJkm1Ozs for <selinux@tycho.nsa.gov>;
+ Sun,  5 Jan 2014 11:45:13 +0100 (CET)
+Received: from fornost.bigon.be (unknown
+ [IPv6:2a02:578:85fc:1:226:18ff:fe08:6073])
+ (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 13D6B1A00F
+ for <selinux@tycho.nsa.gov>; Sun,  5 Jan 2014 11:45:13 +0100 (CET)
+Date: Sun, 5 Jan 2014 11:45:02 +0100
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Subject: Mounting selinuxfs as read-only inside chroot
+Message-ID: <20140105114502.4a9fd0ff@fornost.bigon.be>
 MIME-Version: 1.0
-To: Stephen Smalley <stephen.smalley@gmail.com>
-Subject: Re: Bug in libselinux/src/setrans_client.c
-References: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>	<CAPJdAQBu3=ZyEqUqn_eq4HagfGZZP3-9u_Taimozkkt4EjGfZg@mail.gmail.com>	<CAJfZ7=m0BoejRQsbTU+5+YLyid8tb1r9tTzeQSR7ZJS1ZmkFsQ@mail.gmail.com>	<52B84CDF.7020508@redhat.com>	<CAJfZ7=mZCdh7_Mh9kng-pOHx3RAJ6Qn2W5VvmoVVJy7tUMRtag@mail.gmail.com>
- <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
-In-Reply-To: <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: selinux <Selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I've reported this bug to coreutils' bug tracker and the caller is going
-to be fixed: http://debbugs.gnu.org/cgi/bugreport.cgi?bug=16335
+Hi,
 
-Thanks,
+I'm maybe missing something, but was wondering, what is the benefit of
+mounting the selinuxfs in a chroot as read-only vs not mounting it at
+all as the user space will anyway report selinux as disabled.
 
-Nicolas
+For example, it seems that mock is doing that (looking at the ML
+archive it's the primary reasons this has been implemented).
 
-On 30/12/2013 17:11, Stephen Smalley wrote :
-> Calling *setfilecon() with a NULL context is a bug in the caller, just
-> like calling strlen() with a NULL string.
-> Fix the callers, please.
-> 
-> On Wed, Dec 25, 2013 at 9:36 AM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->> 2013/12/23 Daniel J Walsh wrote:
->>>
->>> On 12/21/2013 09:27 AM, Nicolas Iooss wrote:
->>>> My first message was not so clear. The check in
->>>> libselinux/src/lsetfilecon.c line 35 [1] doesn't work because
->>>> selinux_trans_to_raw_context(context, &rcontext) returns 0 and sets
->>>> rcontext to NULL. This is why I'm asking to change the return value to
->>>> something else if you want "cp -a" working. This fix is not to introduce a
->>>> new feature but to fix an existing one.
->>>>
->>>> Nicolas
->>>>
->>>
->>> How about if we add a check on lsetfilecon_raw?  Changing the behaviour on
->>> selinux_trans_to_raw_context might cause other problems.
->>
->> I agree. I've found
->> http://selinuxproject.org/page/LibselinuxAPISummary which says
->> precisely for selinux_trans_to_raw_context: "If passed NULL, sets the
->> returned context to NULL and returns 0." As this feature is
->> documented, callers may rely on it and changing this behavior is
->> likely to break things.
->>
->> Moreover setfilecon_raw and fsetfilecon_raw have the same NULL-pointer
->> dereference issue. Do these functions need a patch too?
->>
->> By the way, other callers of selinux_trans_to_raw_context may also
->> share this bug: avc_context_to_sid, security_canonicalize_context,
->> security_check_context, etc. Is doing a segmentation fault the
->> expected way to tell the caller it used a NULL pointer and should have
->> manually checked every parameter before calling any libselinux
->> function?
->>
->> Thanks and merry Christmas!
->>
->> Nicolas
->>
->>>
->>>
->>> diff --git a/libselinux/src/lsetfilecon.c b/libselinux/src/lsetfilecon.c
->>> index 461e3f7..af3775e 100644
->>> - --- a/libselinux/src/lsetfilecon.c
->>> +++ b/libselinux/src/lsetfilecon.c
->>> @@ -9,6 +9,10 @@
->>>
->>>  int lsetfilecon_raw(const char *path, const security_context_t context)
->>>  {
->>> +       if (! context) {
->>> +               errno=EINVAL;
->>> +               return -1;
->>> +       }
->>>         return lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1
->>>                          0);
->>>  }
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+I'm asking this because several tools in debian that are using chroot
+to build/test (pbuilder, piuparts,...) .deb are mounting the selinuxfs
+r/w and this is causing issues with dpkg if the policy is not installed
+in the chroot.
+
+I'm planing to propose to mount the selinuxfs as r/o in the chroot they
+are using, but I would like to understand this a bit more first.
+
+Cheers,
+
+Laurent Bigonville
