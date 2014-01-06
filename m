@@ -1,58 +1,109 @@
-Message-ID: <52CB1928.5020002@redhat.com>
-Date: Mon, 06 Jan 2014 15:59:20 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s06MFHAR028374
+ for <selinux@tycho.nsa.gov>; Mon, 6 Jan 2014 17:15:17 -0500
+Received: by mail-qa0-f52.google.com with SMTP id cm18so3553042qab.11
+ for <selinux@tycho.nsa.gov>; Mon, 06 Jan 2014 14:15:15 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH] SELinux: Fix memory leak upon loading policy
+Date: Mon, 06 Jan 2014 17:12:50 -0500
+Message-ID: <2121445.eP5ZhhDIJm@sifl>
+In-Reply-To: <201401062128.EGC13224.HOFMOVFLFQJOtS@I-love.SAKURA.ne.jp>
+References: <201401062128.EGC13224.HOFMOVFLFQJOtS@I-love.SAKURA.ne.jp>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: Bug in libselinux/src/setrans_client.c
-References: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>
- <CAPJdAQBu3=ZyEqUqn_eq4HagfGZZP3-9u_Taimozkkt4EjGfZg@mail.gmail.com>
- <CAJfZ7=m0BoejRQsbTU+5+YLyid8tb1r9tTzeQSR7ZJS1ZmkFsQ@mail.gmail.com>
- <52B84CDF.7020508@redhat.com>
- <CAJfZ7=mZCdh7_Mh9kng-pOHx3RAJ6Qn2W5VvmoVVJy7tUMRtag@mail.gmail.com>
- <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
- <52C235CA.2010607@mthode.org> <52C27333.3060801@networkcrypt.com>
- <52C31282.6080809@mthode.org> <52CAD237.3060701@redhat.com>
- <52CAECB7.6050500@tycho.nsa.gov> <52CAEF39.6020404@redhat.com>
- <52CAF1DC.9080300@tycho.nsa.gov>
-In-Reply-To: <52CAF1DC.9080300@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ eparis@redhat.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday, January 06, 2014 09:28:15 PM Tetsuo Handa wrote:
+> Hello.
+> 
+> I got below leak with linux-3.10.0-54.0.1.el7.x86_64 .
+> 
+> [  681.903890] kmemleak: 5538 new suspected memory leaks (see
+> /sys/kernel/debug/kmemleak)
+> 
+> Below is a patch, but I don't know whether we need special handing for
+> undoing ebitmap_set_bit() call.
+> ----------
+> 
+> >From fe97527a90fe95e2239dfbaa7558f0ed559c0992 Mon Sep 17 00:00:00 2001
+> 
+> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Date: Mon, 6 Jan 2014 16:30:21 +0900
+> Subject: [PATCH] SELinux: Fix memory leak upon loading policy
+> 
+> Commit 2463c26d "SELinux: put name based create rules in a hashtable" did
+> not check return value from hashtab_insert() in filename_trans_read(). It
+> leaks memory if hashtab_insert() returns error.
+> 
+>   unreferenced object 0xffff88005c9160d0 (size 8):
+>     comm "systemd", pid 1, jiffies 4294688674 (age 235.265s)
+>     hex dump (first 8 bytes):
+>       57 0b 00 00 6b 6b 6b a5                          W...kkk.
+>     backtrace:
+>       [<ffffffff816604ae>] kmemleak_alloc+0x4e/0xb0
+>       [<ffffffff811cba5e>] kmem_cache_alloc_trace+0x12e/0x360
+>       [<ffffffff812aec5d>] policydb_read+0xd1d/0xf70
+>       [<ffffffff812b345c>] security_load_policy+0x6c/0x500
+>       [<ffffffff812a623c>] sel_write_load+0xac/0x750
+>       [<ffffffff811eb680>] vfs_write+0xc0/0x1f0
+>       [<ffffffff811ec08c>] SyS_write+0x4c/0xa0
+>       [<ffffffff81690419>] system_call_fastpath+0x16/0x1b
+>       [<ffffffffffffffff>] 0xffffffffffffffff
+> 
+> However, we should not return EEXIST error to the caller, or the systemd
+> will show below message and the boot sequence freezes.
+> 
+>   systemd[1]: Failed to load SELinux policy. Freezing.
+> 
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> ---
+>  security/selinux/ss/policydb.c |   14 +++++++++++++-
+>  1 files changed, 13 insertions(+), 1 deletions(-)
+> 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index f6195eb..c8985db 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1941,7 +1941,19 @@ static int filename_trans_read(struct policydb *p,
+> void *fp) if (rc)
+>  			goto out;
+> 
+> -		hashtab_insert(p->filename_trans, ft, otype);
+> +		rc = hashtab_insert(p->filename_trans, ft, otype);
+> +		if (rc) {
+> +			/*
+> +			 * Do not return -EEXIST to the caller, or the system
+> +			 * will not boot.
+> +			 */
+> +			if (rc != -EEXIST)
+> +				goto out;
+> +			/* But free memory to avoid memory leak. */
+> +			kfree(ft);
+> +			kfree(name);
+> +			kfree(otype);
+> +		}
+>  	}
+>  	hash_eval(p->filename_trans, "filenametr");
+>  	return 0;
 
-On 01/06/2014 01:11 PM, Stephen Smalley wrote:
-> On 01/06/2014 01:00 PM, Daniel J Walsh wrote:
->> How is returning a ERRNO/ERROR for bad values hiding bugs from callers?
->> We are actually telling the callers what is bad.
-> 
-> Not really.  Stack trace is more informative than EINVAL, as the one will
-> show you exactly where you failed and what the arguments were, whereas
-> EINVAL could be a result of any of the arguments or a side effect elsewhere
-> in the function.  And the original functions that prompted this discussion
-> have never allowed you to pass NULL as contexts.  Would you add a NULL
-> check inside of every string.h function in libc?
-> 
-> 
-> 
-> _______________________________________________ Selinux mailing list 
-> Selinux@tycho.nsa.gov To unsubscribe, send email to
-> Selinux-leave@tycho.nsa.gov. To get help, send an email containing "help"
-> to Selinux-request@tycho.nsa.gov.
-> 
-> 
-- From a programmer point of view yes, but from an enterprise point of view no.
- I would prefer the apps to have a chance to reasonably fail.  Our functions
-define return codes, while functions like strlen, strcmp and strcp do not have
-failure modes.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Thanks for sending this patch.  Mimi found a similar issue a little while ago 
+and found a number of hashtab_insert() failures which were causing a fair 
+number of memory leaks.
 
-iEYEARECAAYFAlLLGSgACgkQrlYvE4MpobOb/ACg5bJKo8bGUHXpWVZyA6NpUo/v
-jBIAn0OUcGiVnVLiSibgssvOLOqjem6o
-=uKuI
------END PGP SIGNATURE-----
+I'm not going to merge this patch at the moment.  While we should check the 
+return value of hashtab_insert(), and fix the memory leaks when it fails, I 
+still want to better understand why that hashtab_insert() function is failing 
+in the first place on what would appear to be a "normal" operation.  Ideally 
+we would first resolve the hashtab_insert() failures, then we could check the 
+return value, release the memory when necessary, and return errors to the 
+caller.
+
+-- 
+paul moore
+www.paul-moore.com
