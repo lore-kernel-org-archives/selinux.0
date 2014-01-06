@@ -1,33 +1,44 @@
-Message-ID: <52CAF1DC.9080300@tycho.nsa.gov>
-Date: Mon, 06 Jan 2014 13:11:40 -0500
+Message-ID: <52CAFC9C.2040708@tycho.nsa.gov>
+Date: Mon, 06 Jan 2014 13:57:32 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: Bug in libselinux/src/setrans_client.c
-References: <CAJfZ7=myQGgMdJ3NWZHUPvSTpOA-mfJUFLGQLvVdCz7a3N5evQ@mail.gmail.com>
- <CAPJdAQBu3=ZyEqUqn_eq4HagfGZZP3-9u_Taimozkkt4EjGfZg@mail.gmail.com>
- <CAJfZ7=m0BoejRQsbTU+5+YLyid8tb1r9tTzeQSR7ZJS1ZmkFsQ@mail.gmail.com>
- <52B84CDF.7020508@redhat.com>
- <CAJfZ7=mZCdh7_Mh9kng-pOHx3RAJ6Qn2W5VvmoVVJy7tUMRtag@mail.gmail.com>
- <CAB9W1A0+me3z9_c7qBxWRBxecX1yKCjqjO7vtNtcb0kHG+-xLQ@mail.gmail.com>
- <52C235CA.2010607@mthode.org> <52C27333.3060801@networkcrypt.com>
- <52C31282.6080809@mthode.org> <52CAD237.3060701@redhat.com>
- <52CAECB7.6050500@tycho.nsa.gov> <52CAEF39.6020404@redhat.com>
-In-Reply-To: <52CAEF39.6020404@redhat.com>
+To: William Roberts <bill.c.roberts@gmail.com>,
+ Kernel freak <kernelfreak@gmail.com>
+Subject: Re: Allowing all access in SELinux without permissive mode.
+References: <CAOFt0CSftkNgEVBaM3Hr6eb+ygYyd2JoSATTir1=EOQy5+uQmA@mail.gmail.com>
+ <CAFftDdq=R1Ueiz6_SGi0auF0Y8UWUmktNE7Nt8xhtjoUrKX0GQ@mail.gmail.com>
+In-Reply-To: <CAFftDdq=R1Ueiz6_SGi0auF0Y8UWUmktNE7Nt8xhtjoUrKX0GQ@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Cc: "selinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/06/2014 01:00 PM, Daniel J Walsh wrote:
-> How is returning a ERRNO/ERROR for bad values hiding bugs from callers?  We
-> are actually telling the callers what is bad.
+On 01/06/2014 11:32 AM, William Roberts wrote:
+> On Mon, Jan 6, 2014 at 4:08 AM, Kernel freak <kernelfreak@gmail.com> wrote:
+>> Hello Friends,
+>>                       I am currently working on SELinux and as a part of it,
+>> I need to make some changes to it. Basically, I would like to allow all
+>> access requests, but not by enabling permissive mode.
+> 
+> That's what permissive mode is. It logs all requests not granted and
+> allows them to
+> happen. Why would you need to modify the code?
+> 
+> If you need finer granularity, you can use the permissive attribute on domains
+> so in global enforcing mode, domains declared with this will run in
+> permissive mode.
 
-Not really.  Stack trace is more informative than EINVAL, as the one
-will show you exactly where you failed and what the arguments were,
-whereas EINVAL could be a result of any of the arguments or a side
-effect elsewhere in the function.  And the original functions that
-prompted this discussion have never allowed you to pass NULL as
-contexts.  Would you add a NULL check inside of every string.h function
-in libc?
+Also, note that the default behavior of security_compute_av() is to
+allow everything until you load a policy (until ss_initialized is set).
+
+If you want to allow everything and collect avc messages, you want
+permissive mode (either global permissive mode or per-domain permissive
+mode).  That logic however is in the AVC (security/selinux/avc.c) not in
+the security server (security/selinux/ss/*).
+
+If you want to allow everything and not generate avc messages, you can
+just not load a policy.  security_compute_av will already allow
+everything by default until you load a policy, just by setting
+avd->allowed to all-bits-set.
