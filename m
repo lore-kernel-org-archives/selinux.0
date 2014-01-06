@@ -1,86 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s06CSTpW022404
- for <selinux@tycho.nsa.gov>; Mon, 6 Jan 2014 07:28:29 -0500
-To: eparis@redhat.com, jmorris@namei.org, selinux@tycho.nsa.gov
-Subject: [PATCH] SELinux: Fix memory leak upon loading policy
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Message-Id: <201401062128.EGC13224.HOFMOVFLFQJOtS@I-love.SAKURA.ne.jp>
-Date: Mon, 6 Jan 2014 21:28:15 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Cc: linux-security-module@vger.kernel.org
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s06F0aWb031677
+ for <selinux@tycho.nsa.gov>; Mon, 6 Jan 2014 10:00:37 -0500
+Date: Tue, 7 Jan 2014 02:00:43 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+Subject: Re: [GIT PULL] SELinux patches for 3.14
+In-Reply-To: <231455217.pFFWomdpV7@sifl>
+Message-ID: <alpine.LRH.2.02.1401070200000.5247@tundra.namei.org>
+References: <231455217.pFFWomdpV7@sifl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello.
+On Thu, 2 Jan 2014, Paul Moore wrote:
 
-I got below leak with linux-3.10.0-54.0.1.el7.x86_64 .
+> Hi James,
+> 
+> With 3.13-rc6 out, it looks like it is time to pass along the SELinux pull 
+> request for 3.14.  The tree below includes the patches listed here as well as 
+> the 3.13-rcX fixes I've sent you previously (I've omitted the 3.13-rcX fixes 
+> in the list below for the sake of clarity).  Of the five new patches here, all 
+> but Richard's patch are fixes, and minor ones at that.
+> 
+> On a sorta related note, over the past month or two, I've learned that my 
+> simplistic approach to managing the SELinux tree is just a wee bit too 
+> simplistic.  After the 3.14 merge window closes I'm going to move to a branch 
+> based approach which should make things a bit easier for everyone (okay, 
+> mostly me) when it comes to -next and -stable.
+> 
+> Enjoy,
+> -Paul
+> 
+> ---
+> 
+> The following changes since commit 5e01dc7b26d9f24f39abace5da98ccbd6a5ceb52:
+> 
+>   Linux 3.12 (2013-11-03 15:41:51 -0800)
+> 
+> are available in the git repository at:
+> 
+>   git://git.infradead.org/users/pcmoore/selinux master
 
-[  681.903890] kmemleak: 5538 new suspected memory leaks (see /sys/kernel/debug/kmemleak)
+I resync'd my next branch for the TPM pull, and I've now pulled your 
+request in, too.
 
-Below is a patch, but I don't know whether we need special handing for undoing
-ebitmap_set_bit() call.
-----------
->From fe97527a90fe95e2239dfbaa7558f0ed559c0992 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 6 Jan 2014 16:30:21 +0900
-Subject: [PATCH] SELinux: Fix memory leak upon loading policy
 
-Commit 2463c26d "SELinux: put name based create rules in a hashtable" did not
-check return value from hashtab_insert() in filename_trans_read(). It leaks
-memory if hashtab_insert() returns error.
-
-  unreferenced object 0xffff88005c9160d0 (size 8):
-    comm "systemd", pid 1, jiffies 4294688674 (age 235.265s)
-    hex dump (first 8 bytes):
-      57 0b 00 00 6b 6b 6b a5                          W...kkk.
-    backtrace:
-      [<ffffffff816604ae>] kmemleak_alloc+0x4e/0xb0
-      [<ffffffff811cba5e>] kmem_cache_alloc_trace+0x12e/0x360
-      [<ffffffff812aec5d>] policydb_read+0xd1d/0xf70
-      [<ffffffff812b345c>] security_load_policy+0x6c/0x500
-      [<ffffffff812a623c>] sel_write_load+0xac/0x750
-      [<ffffffff811eb680>] vfs_write+0xc0/0x1f0
-      [<ffffffff811ec08c>] SyS_write+0x4c/0xa0
-      [<ffffffff81690419>] system_call_fastpath+0x16/0x1b
-      [<ffffffffffffffff>] 0xffffffffffffffff
-
-However, we should not return EEXIST error to the caller, or the systemd will
-show below message and the boot sequence freezes.
-
-  systemd[1]: Failed to load SELinux policy. Freezing.
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
----
- security/selinux/ss/policydb.c |   14 +++++++++++++-
- 1 files changed, 13 insertions(+), 1 deletions(-)
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index f6195eb..c8985db 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1941,7 +1941,19 @@ static int filename_trans_read(struct policydb *p, void *fp)
- 		if (rc)
- 			goto out;
- 
--		hashtab_insert(p->filename_trans, ft, otype);
-+		rc = hashtab_insert(p->filename_trans, ft, otype);
-+		if (rc) {
-+			/*
-+			 * Do not return -EEXIST to the caller, or the system
-+			 * will not boot.
-+			 */
-+			if (rc != -EEXIST)
-+				goto out;
-+			/* But free memory to avoid memory leak. */
-+			kfree(ft);
-+			kfree(name);
-+			kfree(otype);
-+		}
- 	}
- 	hash_eval(p->filename_trans, "filenametr");
- 	return 0;
 -- 
-1.7.1
+James Morris
+<jmorris@namei.org>
