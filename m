@@ -1,47 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s086G69R026247
- for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2014 01:16:07 -0500
-Date: Wed, 8 Jan 2014 17:16:24 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-Subject: Re: [GIT PULL] SELinux patches for 3.14 (part two)
-In-Reply-To: <3613128.CelVDdi87u@sifl>
-Message-ID: <alpine.LRH.2.02.1401081716120.20842@tundra.namei.org>
-References: <3613128.CelVDdi87u@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s08GOHtO022745
+ for <selinux@tycho.nsa.gov>; Wed, 8 Jan 2014 11:24:20 -0500
+Received: by mail-qe0-f50.google.com with SMTP id 1so1935318qec.23
+ for <selinux@tycho.nsa.gov>; Wed, 08 Jan 2014 08:24:18 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: how to use interface and node?
+Date: Wed, 08 Jan 2014 11:24:14 -0500
+Message-ID: <1832306.L1JRPPnfM3@sifl>
+In-Reply-To: <15d7ab10.150e4.143702cead9.Coremail.bigclouds@163.com>
+References: <15d7ab10.150e4.143702cead9.Coremail.bigclouds@163.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 7 Jan 2014, Paul Moore wrote:
+On Wednesday, January 08, 2014 12:47:08 PM bigclouds wrote:
+> hi,all
+> how to use interface and node?
 
-> Hi James,
-> 
-> Another pull request for 3.14; this time just a single patch that fixes a 
-> memory leak.  The tree below is the exact same as the first 3.14 pull request 
-> with the patch below added.  I don't expect any merge problems.
-> 
-> Enjoy,
-> -Paul
-> 
-> ---
-> The following changes since commit 5e01dc7b26d9f24f39abace5da98ccbd6a5ceb52:
-> 
->   Linux 3.12 (2013-11-03 15:41:51 -0800)
-> 
-> are available in the git repository at:
-> 
->   git://git.infradead.org/users/pcmoore/selinux master
-> 
-> for you to fetch changes up to 8ed814602876bec9bad2649ca17f34b499357a1c:
-> 
+We commonly call the network interface and node access controls the network 
+ingress and egress controls; here are two links you may find helpful.
 
-Thanks, pulled.
+ * http://paulmoore.livejournal.com/2128.html
+ * http://paulmoore.livejournal.com/5536.html
 
+> 1. if i can deny a process to use a interface or node(IP)?
+
+Read the links above, they should help explain how to do this.  You could also 
+consider using using secmark for something like this, although I personally 
+find secmark more difficult to manage.
+
+ * http://paulmoore.livejournal.com/4281.html
+
+> 2. node, it means local IP or remote IP. like nfs, if server side can allow
+> a specific IP to mount?
+
+I believe the links above should answer this for you and get you started on 
+configuring your system, but if you still have questions don't hesitate to 
+come back and ask.
 
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+www.paul-moore.com
