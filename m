@@ -1,56 +1,68 @@
-Message-ID: <52CECB1E.8010007@tycho.nsa.gov>
-Date: Thu, 09 Jan 2014 11:15:26 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09GMOwF000957
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 11:22:24 -0500
+Message-ID: <52CECCAC.5070805@tresys.com>
+Date: Thu, 9 Jan 2014 11:22:04 -0500
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
+To: Dominick Grift <dominick.grift@gmail.com>
 Subject: Re: [RFC] CIL and Source Policy Integration
-References: <52CDB8AC.4090504@tresys.com>
-In-Reply-To: <52CDB8AC.4090504@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <52CDB8AC.4090504@tresys.com>		
+ <1389274525.14773.32.camel@x220.localdomain>	
+ <1389279068.15411.6.camel@x220.localdomain> <52CEBFC8.5060506@tresys.com>
+ <1389283773.15747.18.camel@x220.localdomain>
+In-Reply-To: <1389283773.15747.18.camel@x220.localdomain>
+Content-Type: text/plain; charset="UTF-8"
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/08/2014 03:44 PM, Steve Lawrence wrote:
-> As has been posted to this list before in the past, we have made a lot
-> of progress with CIL [1]. Although we are still making changes, we are
-> now capable of building SELinux binary policies from CIL versions of
-> refpolicy and SEAndroid policy. A related project that we are working
-> on, and the purpose of this RFC, is to modify SELinux userspace to
-> include the CIL and the Source Policy work completed a few years ago.
-> We have completed a preliminary integration, so we are sending out this
-> RFC to start discussions and ask questions. To start it off, what is in
-> the way of getting these branches merged into master, and how can we
-> help mitigate that? Are the any changes that you question? Can we find
-> a work around?
+On 01/09/2014 11:09 AM, Dominick Grift wrote:
+> On Thu, 2014-01-09 at 10:27 -0500, Steve Lawrence wrote:
 > 
-> Instead of sending the patchset to this list (54 commits, 4000
-> insertions, 2000 deletions), all the changes are pushed to the selinux
-> git repository to the following three branches, each one building on the
-> other. The branches and their purpose is described below:
+>> Considering this patchset really only changes where modules are
+>> installed and the format of those modules, I suspect you're right that
+>> copying the targeted configuration is causing some issues. Plus the fact
+>> that the policy is based on old refpolicy and not fedora policy, I
+>> expected policy related issues. However, the main goal of this RFC was
+>> to determine if the CIL and Source policy integration is headed down the
+>> right path, and determine if there are any high level design flaws or
+>> any issues that need to be worked out for upstream integration to occur.
+>> If the only remaining issue is getting a system working in enforcing, I
+>> think we're okay with that.
+>>
+>> We'll continue to look into the issues you described and see if we can
+>> come up with fixes, but I suspect they are more policy/configuration
+>> related, and not problems with the patchset.
+>>
+>> Thanks!
+>> - Steve
 > 
-> src-revert:
->    Reverts changes made to master that conflict with the src-policy
->    branch (e.g. how paths are handled, enabled/disable modules). Rather
->    than dealing with a large amount of conflicts, it was easier to just
->    remove the commits which add conflicting features, rebase the old
->    source policy work on top of that, and add back any features that in
->    manner consistent with source policy. This also reverts the preserve
->    tunables patchset, but as I look at it while typing this, I realize
->    that was unnecessary. Aside from numerous conflicts and the need to
->    add CIL support, the only real issue is that the preserve tunables
->    feature uses the -P flag, which source policy uses for priority. So I
->    guess we'll have to pick a different letter.
+> Alright, i understand. I do suspect this is more than just a simple
+> policy issue but i can't narrow it down at the moment. Login mappings
+> are missing one way or another, and that seems to break other things
+> like home dir context generation. Since semodule -B initiates all this i
+> would argue that semodule -B functionality for at least some part is
+> broken on way or another.
+> 
+> I did do other tests and they seems to all pass.
+> 
+> For example disabling and enabling modules:
+> 
+> so for example:
+> 
+> semodule -d irc (disabled it: confirmed with sesearch)
+> cd cilpolicy xargs -a LISTING semodule -i
+> (tells me that it will disable irc module after install because its set
+> disabled: confirmed with sesearch)
+> semodule -e irc (enables it again: confirmed with sesearch)
+> 
+> 
 
-Obviously we'll need that support as it is used.
+Yes, looking into some more, I think you're right. There's a bug
+somewhere. Still looking into it.
 
-> integration:
->    This branch builds CIL into libsepol, and updates libsepol,
->    libsemanage, semodule, and semanage to work with and understand only
->    CIL files.  Switching to CIL has a few side effects, such as removing
->    base modules, versions, upgrades, adding configuration options to
->    semanage.conf, etc. This also removes support for binary .pp modules.
-
-So what's the transition plan for distributions with existing binary .pp
-modules, some of which will be locally generated by users?
+Thanks,
+- Steve
