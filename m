@@ -1,96 +1,36 @@
-Message-ID: <1389283545.15209.59.camel@localhost>
+Message-ID: <52CEC9DD.4000901@tycho.nsa.gov>
+Date: Thu, 09 Jan 2014 11:10:05 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>, Steven Rostedt <rostedt@goodmis.org>
 Subject: Re: [PATCH] SELinux: Fix possible NULL pointer dereference in
  selinux_inode_permission()
-From: Eric Paris <eparis@redhat.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Date: Thu, 09 Jan 2014 11:05:45 -0500
-In-Reply-To: <1389283030.15209.56.camel@localhost>
-References: <20140109101932.0508dec7@gandalf.local.home>
- <CACLa4pv+EUGHO+MKj8ckhmi8YKiTNVL9pSM+DDsjg+0jbjOCcA@mail.gmail.com>
- <20140109105114.5c409fef@gandalf.local.home>
- <1389283030.15209.56.camel@localhost>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+References: <20140109101932.0508dec7@gandalf.local.home>	
+ <CACLa4pv+EUGHO+MKj8ckhmi8YKiTNVL9pSM+DDsjg+0jbjOCcA@mail.gmail.com>	
+ <20140109105114.5c409fef@gandalf.local.home>	
+ <1389283030.15209.56.camel@localhost> <1389283545.15209.59.camel@localhost>
+In-Reply-To: <1389283545.15209.59.camel@localhost>
+Content-Type: text/plain; charset=UTF-8
 Cc: LKML <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>,
  linux-security-module@vger.kernel.org,
  Alexander Viro <viro@zeniv.linux.org.uk>,
  James Morris <james.l.morris@oracle.com>,
  Andrew Morton <akpm@linux-foundation.org>,
- "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-[adding lsm and selinux]
+On 01/09/2014 11:05 AM, Eric Paris wrote:
+> [adding lsm and selinux]
+> 
+> Am I just crazy, or was this bug discussed (and obviously not fixed)
+> some time ago?
+> 
+> VFS can still use inodes after security_inode_free_security() was
+> called...
 
-Am I just crazy, or was this bug discussed (and obviously not fixed)
-some time ago?
-
-VFS can still use inodes after security_inode_free_security() was
-called...
-
-On Thu, 2014-01-09 at 10:57 -0500, Eric Paris wrote:
-> On Thu, 2014-01-09 at 10:51 -0500, Steven Rostedt wrote:
-> > On Thu, 9 Jan 2014 10:31:55 -0500
-> > Eric Paris <eparis@parisplace.org> wrote:
-> > 
-> > > Didn't Al find this/something very similar.  I really hate this
-> > 
-> > I'm not involved with the vfs, so I'm unaware of other solutions
-> > presented. I just hit this now and solving bugs is where I get a chance
-> > to learn about other aspects of the kernel. ;-)
-> > 
-> > > solution.  Why should every LSM try to understand the intimate
-> > > lifetime rules of the parent subsystems?  The real problem is that
-> > > inode_free_security() is being called while the inode is still in use.
-> > >  While I agree with the assessment, I disagree with the solution.  Let
-> > > me try to find where Al and Christoph talked about this....
-> > > 
-> > 
-> > The other obvious solution (but not as trivial to implement) is to call
-> > the security_inode_free() and friends (probably __destroy_inode()
-> > itself) after a synchronize_rcu().
-> > 
-> > Perhaps something like this?
-> 
-> I can't for the life of me find that conversation!  Maybe I'm just
-> making it all up...  Usually I forget conversations, not remember ones
-> that didn't happen...
-> 
-> Assuming the VFS guys say that delaying __destroy_inode() is safe like
-> that, I like it better.  It also means that this is fixed for all LSMs,
-> not just SELinux...
-> 
-> -Eric
-> 
-> > 
-> > -- Steve
-> > 
-> > diff --git a/fs/inode.c b/fs/inode.c
-> > index 4bcdad3..a8f3b88 100644
-> > --- a/fs/inode.c
-> > +++ b/fs/inode.c
-> > @@ -252,16 +252,17 @@ EXPORT_SYMBOL(__destroy_inode);
-> >  static void i_callback(struct rcu_head *head)
-> >  {
-> >  	struct inode *inode = container_of(head, struct inode, i_rcu);
-> > +	__destroy_inode(inode);
-> >  	kmem_cache_free(inode_cachep, inode);
-> >  }
-> >  
-> >  static void destroy_inode(struct inode *inode)
-> >  {
-> >  	BUG_ON(!list_empty(&inode->i_lru));
-> > -	__destroy_inode(inode);
-> > -	if (inode->i_sb->s_op->destroy_inode)
-> > +	if (inode->i_sb->s_op->destroy_inode) {
-> > +		__destroy_inode(inode);
-> >  		inode->i_sb->s_op->destroy_inode(inode);
-> > -	else
-> > +	} else
-> >  		call_rcu(&inode->i_rcu, i_callback);
-> >  }
-> >  
-> 
+I didn't know that was the case; originally when we added the hook it
+was not possible.   I have seen a Red Hat bugzilla report about it,
+but no upstream discussion.
