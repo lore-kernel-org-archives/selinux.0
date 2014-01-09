@@ -1,80 +1,53 @@
-Message-ID: <52CF04B9.7010007@tycho.nsa.gov>
-Date: Thu, 09 Jan 2014 15:21:13 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Victor Porton <porton@narod.ru>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Restrict to a fixed Internet domain in a sandbox
-References: <23731389285461@web11j.yandex.ru> <52CEF794.3030501@tycho.nsa.gov>
- <39121389295897@web13m.yandex.ru> <52CEF9C2.1080903@tycho.nsa.gov>
- <47571389297500@web28h.yandex.ru> <52CF0129.5070904@tycho.nsa.gov>
- <97521389298485@web1m.yandex.ru>
-In-Reply-To: <97521389298485@web1m.yandex.ru>
-Content-Type: text/plain; charset=KOI8-R
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09KKwt2018164
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 15:20:58 -0500
+Received: from /spool/local
+ by e38.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ Violators will be prosecuted
+ for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
+ Thu, 9 Jan 2014 13:20:56 -0700
+Message-ID: <1389298851.15186.57.camel@dhcp-9-2-203-236.watson.ibm.com>
+Subject: Re: [PATCH] SELinux: Fix possible NULL pointer dereference in
+ selinux_inode_permission()
+From: Mimi Zohar <zohar@linux.vnet.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu, 09 Jan 2014 15:20:51 -0500
+In-Reply-To: <52CEC9DD.4000901@tycho.nsa.gov>
+References: <20140109101932.0508dec7@gandalf.local.home>
+ <CACLa4pv+EUGHO+MKj8ckhmi8YKiTNVL9pSM+DDsjg+0jbjOCcA@mail.gmail.com>
+ <20140109105114.5c409fef@gandalf.local.home>
+ <1389283030.15209.56.camel@localhost> <1389283545.15209.59.camel@localhost>
+ <52CEC9DD.4000901@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+ linux-security-module@vger.kernel.org, Eric Paris <eparis@redhat.com>,
+ James Morris <james.l.morris@oracle.com>, stable <stable@vger.kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, selinux@tycho.nsa.gov,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/09/2014 03:14 PM, Victor Porton wrote:
-> 09.01.2014, 22:06, "Stephen Smalley" <sds@tycho.nsa.gov>:
->> On 01/09/2014 02:58 PM, Victor Porton wrote:
->>
->>>  09.01.2014, 21:35, "Stephen Smalley" <sds@tycho.nsa.gov>:
->>>>  On 01/09/2014 02:31 PM, Victor Porton wrote:
->>>>>   09.01.2014, 21:25, "Stephen Smalley" <sds@tycho.nsa.gov>:
->>>>>>   On 01/09/2014 11:37 AM, Victor Porton wrote:
->>>>>>>    I remind that sandbox is implemented in Fedora using SELinux.
->>>>>>>
->>>>>>>    It would be useful to restrict sandboxed application to connect only to one, programmatically specified Internet domain (just like Java and JavaScript security).
->>>>>>>
->>>>>>>    It seems it is impossible with current SELinux.
->>>>>>>
->>>>>>>    Could you add necessary features? Please!
->>>>>>   I'm not aware of any missing kernel features required to support your
->>>>>>   functionality.  I think all you are missing is two userspace components:
->>>>>   AFAIK, there are no support for this in Linux kernel.
->>>>>
->>>>>   It is why I advise to add a new syscall (see my previous message).
->>>>>>    a library that provides whatever interface you design, and a daemon
->>>>>>   that receives the specification in whatever form you design and turns it
->>>>>>   into a set of SELinux and iptables SECMARK/CONNSECMARK rules to label
->>>>>>   the packets so that SELinux can mediate them accordingly, and loads that
->>>>>>   into the kernel for enforcement.
->>>>>   I've already explained some reasons why iptables solution would be wrong. One of the reasons is that this would confuse a system administrator by appearance of new unexpected rules, the automatically added rules would also disappear when iptables script is reloaded, what could make errors for regular users. To use iptables this way seems a really bad idea.
->>>>  For SECMARK/CONNSECMARK, there is a separate dedicated security table to
->>>>  avoid such conflicts.
->>>  Also I think, implementing it my way would be much more efficient than your way.
->>
->> You are certainly free to implement it any way you like; it is open
->> source software after all.  But implementing a new kernel mechanism +
->> system call when it can already be achieved using existing mechanism is
->> generally discouraged.  You haven't even tried...
+On Thu, 2014-01-09 at 11:10 -0500, Stephen Smalley wrote: 
+> On 01/09/2014 11:05 AM, Eric Paris wrote:
+> > [adding lsm and selinux]
+> > 
+> > Am I just crazy, or was this bug discussed (and obviously not fixed)
+> > some time ago?
+> > 
+> > VFS can still use inodes after security_inode_free_security() was
+> > called...
 > 
-> I've looked into iptables. It has 32 bit marks.
-> 
-> The first idea is to set the mark to the label of the sandbox process.
-> 
-> But it is wrong, other packages may use the same 32 bit numbers.
-> 
-> The same applies to SECMARK which are also 32 bit wide.
-> 
-> So, to implement it, we would need to introduce a new standard, which marks are used by which packages. A very bad idea.
-> 
-> It's better to implement it in kernel. I prophecy that sandboxes will become more and more important, and this feature will be very useful.
+> I didn't know that was the case; originally when we added the hook it
+> was not possible.   I have seen a Red Hat bugzilla report about it,
+> but no upstream discussion.
 
-You misunderstand SECMARK.  It is a handle to a security context, which
-is assigned to the sk_buff and then used in SELinux packet send/recv
-checks that can be used to control packet flow.
+For those of us that don't have access to the RH bugzilla, can someone
+please summarize the problem?
 
-http://selinuxproject.org/page/NB_Networking
-http://james-morris.livejournal.com/11010.html
-http://www.linux.com/learn/tutorials/421152-using-selinux-and-iptables-together
-http://paulmoore.livejournal.com/4281.html
+thanks,
 
-Note that most if not all of those articles were written before a
-separate security table was introduced, so these days you would use -t
-security and make sure your kernel enables CONFIG_IP_NF_SECURITY=y as
-well as the SECMARK/CONNSECMARK options.
-
-But again, you are free to do as you like.
+Mimi
