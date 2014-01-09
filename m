@@ -7,8 +7,8 @@ References: <23731389285461@web11j.yandex.ru> <52CEF794.3030501@tycho.nsa.gov>
 Subject: Re: Restrict to a fixed Internet domain in a sandbox
 Mime-Version: 1.0
 Content-Type: text/plain; charset=koi8-r
-Message-Id: <54261389296650@web13m.yandex.ru>
-Date: Thu, 09 Jan 2014 21:44:10 +0200
+Message-Id: <47571389297500@web28h.yandex.ru>
+Date: Thu, 09 Jan 2014 21:58:20 +0200
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -41,11 +41,7 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 > For SECMARK/CONNSECMARK, there is a separate dedicated security table to
 > avoid such conflicts.
 
-You force me (user) to start some scripts under root. But I want my software to be installable by a regular user in his home directory. It is one reason why adding new syscall into the kernel (see my previous email) would be better than creating such a daemon.
-
-Also, I continue to highly doubt that your usage of IP would not interfere with normal system administration.
-
-It is also unclear how to implement your daemon. It should create a new kind of "mark" every time a new sandbox binary starts (for two different sandboxes not to interfere with each other). I am not quite sure that this can be implemented in iptables.
+Also I think, implementing it my way would be much more efficient than your way.
 
 -- 
 Victor Porton - http://portonvictor.org
