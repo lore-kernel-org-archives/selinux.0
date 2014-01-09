@@ -1,87 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09LFotP021489
- for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 16:15:50 -0500
-Received: by mail-we0-f177.google.com with SMTP id x55so1030483wes.22
- for <selinux@tycho.nsa.gov>; Thu, 09 Jan 2014 13:15:48 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09LrQ3N023549
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 16:53:26 -0500
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com
+ (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s09LrOD1024917
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 16:53:24 -0500
+Received: from redsox.boston.devel.redhat.com (redsox.boston.devel.redhat.com
+ [10.19.60.53])
+ by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id
+ s09LrNYI029621
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 16:53:23 -0500
+Message-ID: <52CF1A53.9080501@redhat.com>
+Date: Thu, 09 Jan 2014 16:53:23 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdoV=7u78pWD1VM8hnDA4qJoZT2yFHk0PvsSXRThZcZQ1g@mail.gmail.com>
-References: <47061389296301@web13m.yandex.ru>
- <CAFftDdoV=7u78pWD1VM8hnDA4qJoZT2yFHk0PvsSXRThZcZQ1g@mail.gmail.com>
-Date: Thu, 9 Jan 2014 13:15:48 -0800
-Message-ID: <CAFftDdovOGiPX5_1hikwKcEG0VnmZaEdFiWXZg_oyt2fELyjoA@mail.gmail.com>
-Subject: Re: My proposal for a new feature in Linux kernel
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Victor Porton <porton@narod.ru>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: Changing unlabeled_t on files to invalid_label_t.
 Content-Type: text/plain; charset=ISO-8859-1
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Some links:
-http://superuser.com/questions/463649/linux-routing-and-hma
-http://lwn.net/Articles/531114/
-http://serverfault.com/questions/218707/iptables-rules-to-allow-http-traffic-to-one-domain-only
-http://www.linux.com/learn/tutorials/421152-using-selinux-and-iptables-together
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+We would like to change
+
+sid file_labels         gen_context(system_u:object_r:unlabeled_t,s0)
+
+to something like
+
+sid file_labels         gen_context(system_u:object_r:invalid_label_t,s0)
+
+Since explaining to someone that a file without a label is file_t, but if it
+has a label that the kernel does not understand it is labeled as unlabeled_t.
+A file with a label is unlabeled_t????  While a file without a label is file_t.
 
 
-On Thu, Jan 9, 2014 at 1:12 PM, William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> Just so you know. Syscall means the interface between userspace and
-> the kernel changing modes. What your describing doesn't really need a
-> syscall.
->
-> Solutions to your problem exist via iptables and SELinux network
-> labeling rules. Obviously, you will need to research or possible do
-> some additional work in this
-> area to solve your problem.
->
-> You also might want to look into using namespaces. Bu unsharing the
-> networking namespace, you can provide a virtual network stack to each
-> process, and
-> use veth devices to connect to a real device. Then you can use
-> iptables rules in that namespace without impacting the rest of your
-> system.
->
-> You might want to look at LXC as well.
->
->
-> On Thu, Jan 9, 2014 at 11:38 AM, Victor Porton <porton@narod.ru> wrote:
->> So my final proposal:
->>
->> struct full_sockaddr_t {
->>   struct sockaddr *ADDR;
->>   socklen_t LENGTH;
->> };
->>
->> // Syscall
->> int selinux_restrict_domains(struct full_sockaddr_t *socks, unsigned int num_socks);
->>
->> This call would restrict the sockets accessed by a process (and its childs) to the specified array of socket addresses.
->>
->> For security reasons it should be impossible to add more hosts to this list. (We may allow to further restrict.)
->>
->> Please implement it in Linux kernel.
->>
->> --
->> Victor Porton - http://portonvictor.org
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
->
-> --
-> Respectfully,
->
-> William C Roberts
+#
+# unlabeled_t is the type of unlabeled objects.
+# Objects that have no known labeling information or that
+# have labels that are no longer valid are treated as having this type.
+#
 
+#
+# file_t is the default type of a file that has not yet been
+# assigned an extended attribute (EA) value (when using a filesystem
+# that supports EAs).
+#
 
+These two type definitions seem to conflict, with file_t winning at least on
+systems that support XAttrs.
 
--- 
-Respectfully,
+I would guess a better fix would be to change the kernel to handle the case
+where an object is unlabeled_t one way and if it is labeled and the kernel
+does not understand the label differently.
 
-William C Roberts
+sid invalid_file_labels gen_context(system_u:object_r:invalid_label_t,s0)
+
+Opinions....
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+
+iEYEARECAAYFAlLPGlMACgkQrlYvE4MpobOrDwCgwSduQpyqjGFni/0dksiv0I2j
+uEAAn181YTHYYRj0XSern/+CPtuUp7Vu
+=3HJ3
+-----END PGP SIGNATURE-----
