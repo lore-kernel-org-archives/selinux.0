@@ -1,81 +1,102 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09ISgD7010181
- for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 13:28:42 -0500
-From: Victor Porton <porton@narod.ru>
-To: William Roberts <bill.c.roberts@gmail.com>
-In-Reply-To: <CAFftDdrHOnNgKaYO2HhN=fTawk6yKDXY_8X4hBmd-7pALzx_bQ@mail.gmail.com>
-References: <23731389285461@web11j.yandex.ru> <160241389286775@web6m.yandex.ru>
- <CAFftDdp_crpiVmPZhwkDyRQqX4NhKOuxeP4=_P2KShXVv_aJtQ@mail.gmail.com>
- <43611389287982@web25g.yandex.ru>
- <CAFftDdrHOnNgKaYO2HhN=fTawk6yKDXY_8X4hBmd-7pALzx_bQ@mail.gmail.com>
-Subject: Re: Restrict to a fixed Internet domain in a sandbox
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Message-Id: <202091389292115@web8h.yandex.ru>
-Date: Thu, 09 Jan 2014 20:28:35 +0200
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <52CEEBA0.8050203@tycho.nsa.gov>
+Date: Thu, 09 Jan 2014 13:34:08 -0500
+From: James Carter <jwcart2@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Steve Lawrence <slawrence@tresys.com>
+Subject: Re: [RFC] CIL and Source Policy Integration
+References: <52CDB8AC.4090504@tresys.com> <52CECB1E.8010007@tycho.nsa.gov>
+ <52CED4D5.4090003@tresys.com>
+In-Reply-To: <52CED4D5.4090003@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-09.01.2014, 19:34, "William Roberts" <bill.c.roberts@gmail.com>:
-> You wouldn't want your application to set up the security... that
-> would be like asking the fox to guard the hen house. You would want to
-> establish all these things before your application is running.
-> However, you would need to administer this policy somehow, which is
-> going to be specific on the environment you are running.
-
-The security cannot be set in advance, because before my application starts, which domains should be allowed is not known. It can be setup only from the inside of my application.
-
-My application is not the fox to guard the hen house, because I am going my application "safe" (in the same sense as "ls" and "cp" Linux commands are safe, they don't do anything without user's approval).
-
-But by design my application may run programs downloaded from the Web without user's interaction. This is why I need a sandbox and restrict networking to a certain domain (which domain is calculated by my application based on its input data).
-
-> What Java and JavaScript are doing doesn't really relate to SELinux
-> directly IMO. SELinux is controlling the interactions to resources of
-> the Linux Kernel (assuming no userspace object managers).
-
-Despite of the real (implemented) security behind Java is too bad, basic Java security ideas were designed by wise guys. We should follow their wisdom and implement these ideas in SELinux.
-
-> Im not really a desktop SELinux guy, more on Android. So I cant tell
-> you the specifics of how to do it, but I know it can be done.
->
-> Bill
->
-> On Thu, Jan 9, 2014 at 9:19 AM, Victor Porton <porton@narod.ru> wrote:
->
->> š09.01.2014, 19:03, "William Roberts" <bill.c.roberts@gmail.com>:
->>> šCould you just do this with normal iptables rules? Optionally using
->>> šlabeled networking to label packets coming in.
->> šIt could be done with iptables, but:
+On 01/09/2014 11:56 AM, Steve Lawrence wrote:
+> On 01/09/2014 11:15 AM, Stephen Smalley wrote:
+>> On 01/08/2014 03:44 PM, Steve Lawrence wrote:
+>>>
+>>> src-revert:
+>>>     Reverts changes made to master that conflict with the src-policy
+>>>     branch (e.g. how paths are handled, enabled/disable modules). Rather
+>>>     than dealing with a large amount of conflicts, it was easier to just
+>>>     remove the commits which add conflicting features, rebase the old
+>>>     source policy work on top of that, and add back any features that in
+>>>     manner consistent with source policy. This also reverts the preserve
+>>>     tunables patchset, but as I look at it while typing this, I realize
+>>>     that was unnecessary. Aside from numerous conflicts and the need to
+>>>     add CIL support, the only real issue is that the preserve tunables
+>>>     feature uses the -P flag, which source policy uses for priority. So I
+>>>     guess we'll have to pick a different letter.
 >>
->> š1. My application would need root access to manipulate netfilter. It is not acceptable.
+>> Obviously we'll need that support as it is used.
 >>
->> š2. Even if my application has permissions enough to manipulate iptables, rules automatically created by it would interfere with customary way system administrators manually edit iptables script. It is very bad (and possibly may even impose a security treat).
+>
+> Agreed
+>
+>>> integration:
+>>>     This branch builds CIL into libsepol, and updates libsepol,
+>>>     libsemanage, semodule, and semanage to work with and understand only
+>>>     CIL files.  Switching to CIL has a few side effects, such as removing
+>>>     base modules, versions, upgrades, adding configuration options to
+>>>     semanage.conf, etc. This also removes support for binary .pp modules.
 >>
->> šI am about a quite particular application I am going to write, and I now am writing its algorithm specification. Not to turn my application into spam mail bomber or something similar, I really need to restrict to a fixed domain as a security measure. It is important. It is done in JavaScript and Java, obviously SELinux should not be behind JavaScript and Java in security.
->>> šOn Thu, Jan 9, 2014 at 8:59 AM, Victor Porton <porton@narod.ru> wrote:
->>>> šš09.01.2014, 18:39, "Victor Porton" <porton@narod.ru>:
->>>>> ššI remind that sandbox is implemented in Fedora using SELinux.
->>>>>
->>>>> ššIt would be useful to restrict sandboxed application to connect only to one, programmatically specified Internet domain (just like Java and JavaScript security).
->>>>>
->>>>> ššIt seems it is impossible with current SELinux.
->>>>>
->>>>> ššCould you add necessary features? Please!
->>>> ššYou could add a syscall like:
->>>>
->>>> ššint selinux_restrict_domain(const char *domain);
->>>>
->>>> šš(We could modify this interface to restrict to a finite list of domains instead of one domain, but personally I don't need this.)
->> š--
->> šVictor Porton - http://portonvictor.org
+>> So what's the transition plan for distributions with existing binary .pp
+>> modules, some of which will be locally generated by users?
+>>
 >
-> --
-> Respectfully,
+> This is a tricky problem. A few ways I've thought (there's probably some
+> more, I'm all ears):
 >
-> William C Roberts
+> 1) Add high level language support, treat .pp files as a higher level
+> language, and create a pp to cil converter. I think reversing .pp files
+> was looked at in the past (I forget who or where it ended up), though
+> I'm not sure how easy it would be translate a .pp to .cil. This would
+> probably be ideal and would minimize the transition pain, but the
+> difficulty of converting pp to cil is unknown to me.
+>
+
+A pp to cil converter should not be too hard in general, since all the m4 stuff 
+has been expanded. But it would be better to convert from source.
+
+> 2) Similar to 1, add high level language support, but have distributions
+> switch over to using source refpolicy, and have a te/if/fc to cil
+> converter. This would be nice in that distros could still work off of
+> the familiar refpolicy. The downsides are this doesn't solve the problem
+> of users with custom .pp modules, and as Jim has found out, converting
+> from source refpolicy to cil is not an easy process, and requires some
+> manual intervention. It's possible we could start massaging refpolicy
+> into something that is easier to automatically convert to cil, but I
+> don't know what would be needed.
+>
+
+I don't think the distro policy presents too much of a problem. Conversion 
+requires patching the old refpolicy tree in a few places (maybe more for 
+Fedora's policy), but once the conversion is done, both Refpolicy packages and 
+CIL source can be generated from the same policy without any manual intervention.
+
+There have already been some patches made to Refpolicy to make it easier to 
+convert to CIL and I am willing to generate new patches. I have also done some 
+work on Fedora's policy to see what is needed to convert it to CIL, but have 
+been spending more time on the CIL compiler recently.
+
+Converting the module source is easy if the rest of the policy is around in a 
+form that can be converted to CIL. It shouldn't be too hard to make a tool that 
+can read in a CIL policy and a Refpolicy source module and output a CIL source 
+module and I plan on doing that.
+
+> 3) Add a configuration option (semanage.conf?) which specifies which
+> format the module store is in (pp vs cil). Userspace always supports
+> both, but only one at a time. The downside of this is we have to
+> maintain two separate policy types. We could eventually deprecate .pp
+> support, but it might take a while before everyone switches over to cil
+> to the point where we could deprecate.
+>
+
+We probably need to do this regardless, don't we?
 
 -- 
-Victor Porton - http://portonvictor.org
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
