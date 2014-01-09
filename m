@@ -1,41 +1,28 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09GW6JT001905
- for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 11:32:06 -0500
-Received: by mail-we0-f171.google.com with SMTP id q58so3030952wes.30
- for <selinux@tycho.nsa.gov>; Thu, 09 Jan 2014 08:32:04 -0800 (PST)
-Message-ID: <1389285122.15747.27.camel@x220.localdomain>
-Subject: Re: [RFC] CIL and Source Policy Integration
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Date: Thu, 09 Jan 2014 17:32:02 +0100
-In-Reply-To: <52CECCAC.5070805@tresys.com>
-References: <52CDB8AC.4090504@tresys.com>
- <1389274525.14773.32.camel@x220.localdomain>
- <1389279068.15411.6.camel@x220.localdomain> <52CEBFC8.5060506@tresys.com>
- <1389283773.15747.18.camel@x220.localdomain> <52CECCAC.5070805@tresys.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: SELinux List <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09GbovE002489
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 11:37:50 -0500
+Received: from web11j.yandex.ru (web11j.yandex.ru [5.45.198.52])
+ by forward15.mail.yandex.net (Yandex) with ESMTP id C47149E1C3C
+ for <selinux@tycho.nsa.gov>; Thu,  9 Jan 2014 20:37:41 +0400 (MSK)
+From: Victor Porton <porton@narod.ru>
+To: selinux@tycho.nsa.gov
+Subject: Restrict to a fixed Internet domain in a sandbox
+MIME-Version: 1.0
+Message-Id: <23731389285461@web11j.yandex.ru>
+Date: Thu, 09 Jan 2014 18:37:41 +0200
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2014-01-09 at 11:22 -0500, Steve Lawrence wrote:
+I remind that sandbox is implemented in Fedora using SELinux.
 
-> 
-> Yes, looking into some more, I think you're right. There's a bug
-> somewhere. Still looking into it.
-> 
+It would be useful to restrict sandboxed application to connect only to one, programmatically specified Internet domain (just like Java and JavaScript security).
 
-Thank you. I do not want to flood this thread so i will only post if i
-find issues, everything else works as far as i am concerned.
+It seems it is impossible with current SELinux.
 
-For example i just tested toggling booleans on and off with setsebool,
-and that worked fine as well.
+Could you add necessary features? Please!
 
-I am currently only focusing on CIL, not on whether the user space
-modifications are backwards compatible.
-
-> Thanks,
-> - Steve
+-- 
+Victor Porton - http://portonvictor.org
