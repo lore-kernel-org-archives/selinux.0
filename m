@@ -1,60 +1,96 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09G9YC8031993
- for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 11:09:37 -0500
-Received: by mail-wg0-f51.google.com with SMTP id z12so2740800wgg.6
- for <selinux@tycho.nsa.gov>; Thu, 09 Jan 2014 08:09:35 -0800 (PST)
-Message-ID: <1389283773.15747.18.camel@x220.localdomain>
-Subject: Re: [RFC] CIL and Source Policy Integration
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Date: Thu, 09 Jan 2014 17:09:33 +0100
-In-Reply-To: <52CEBFC8.5060506@tresys.com>
-References: <52CDB8AC.4090504@tresys.com>
- <1389274525.14773.32.camel@x220.localdomain>
- <1389279068.15411.6.camel@x220.localdomain> <52CEBFC8.5060506@tresys.com>
+Message-ID: <1389283545.15209.59.camel@localhost>
+Subject: Re: [PATCH] SELinux: Fix possible NULL pointer dereference in
+ selinux_inode_permission()
+From: Eric Paris <eparis@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Date: Thu, 09 Jan 2014 11:05:45 -0500
+In-Reply-To: <1389283030.15209.56.camel@localhost>
+References: <20140109101932.0508dec7@gandalf.local.home>
+ <CACLa4pv+EUGHO+MKj8ckhmi8YKiTNVL9pSM+DDsjg+0jbjOCcA@mail.gmail.com>
+ <20140109105114.5c409fef@gandalf.local.home>
+ <1389283030.15209.56.camel@localhost>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Cc: SELinux List <selinux@tycho.nsa.gov>
+Cc: LKML <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>,
+ linux-security-module@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ James Morris <james.l.morris@oracle.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2014-01-09 at 10:27 -0500, Steve Lawrence wrote:
+[adding lsm and selinux]
 
-> Considering this patchset really only changes where modules are
-> installed and the format of those modules, I suspect you're right that
-> copying the targeted configuration is causing some issues. Plus the fact
-> that the policy is based on old refpolicy and not fedora policy, I
-> expected policy related issues. However, the main goal of this RFC was
-> to determine if the CIL and Source policy integration is headed down the
-> right path, and determine if there are any high level design flaws or
-> any issues that need to be worked out for upstream integration to occur.
-> If the only remaining issue is getting a system working in enforcing, I
-> think we're okay with that.
+Am I just crazy, or was this bug discussed (and obviously not fixed)
+some time ago?
+
+VFS can still use inodes after security_inode_free_security() was
+called...
+
+On Thu, 2014-01-09 at 10:57 -0500, Eric Paris wrote:
+> On Thu, 2014-01-09 at 10:51 -0500, Steven Rostedt wrote:
+> > On Thu, 9 Jan 2014 10:31:55 -0500
+> > Eric Paris <eparis@parisplace.org> wrote:
+> > 
+> > > Didn't Al find this/something very similar.  I really hate this
+> > 
+> > I'm not involved with the vfs, so I'm unaware of other solutions
+> > presented. I just hit this now and solving bugs is where I get a chance
+> > to learn about other aspects of the kernel. ;-)
+> > 
+> > > solution.  Why should every LSM try to understand the intimate
+> > > lifetime rules of the parent subsystems?  The real problem is that
+> > > inode_free_security() is being called while the inode is still in use.
+> > >  While I agree with the assessment, I disagree with the solution.  Let
+> > > me try to find where Al and Christoph talked about this....
+> > > 
+> > 
+> > The other obvious solution (but not as trivial to implement) is to call
+> > the security_inode_free() and friends (probably __destroy_inode()
+> > itself) after a synchronize_rcu().
+> > 
+> > Perhaps something like this?
 > 
-> We'll continue to look into the issues you described and see if we can
-> come up with fixes, but I suspect they are more policy/configuration
-> related, and not problems with the patchset.
+> I can't for the life of me find that conversation!  Maybe I'm just
+> making it all up...  Usually I forget conversations, not remember ones
+> that didn't happen...
 > 
-> Thanks!
-> - Steve
-
-Alright, i understand. I do suspect this is more than just a simple
-policy issue but i can't narrow it down at the moment. Login mappings
-are missing one way or another, and that seems to break other things
-like home dir context generation. Since semodule -B initiates all this i
-would argue that semodule -B functionality for at least some part is
-broken on way or another.
-
-I did do other tests and they seems to all pass.
-
-For example disabling and enabling modules:
-
-so for example:
-
-semodule -d irc (disabled it: confirmed with sesearch)
-cd cilpolicy xargs -a LISTING semodule -i
-(tells me that it will disable irc module after install because its set
-disabled: confirmed with sesearch)
-semodule -e irc (enables it again: confirmed with sesearch)
+> Assuming the VFS guys say that delaying __destroy_inode() is safe like
+> that, I like it better.  It also means that this is fixed for all LSMs,
+> not just SELinux...
+> 
+> -Eric
+> 
+> > 
+> > -- Steve
+> > 
+> > diff --git a/fs/inode.c b/fs/inode.c
+> > index 4bcdad3..a8f3b88 100644
+> > --- a/fs/inode.c
+> > +++ b/fs/inode.c
+> > @@ -252,16 +252,17 @@ EXPORT_SYMBOL(__destroy_inode);
+> >  static void i_callback(struct rcu_head *head)
+> >  {
+> >  	struct inode *inode = container_of(head, struct inode, i_rcu);
+> > +	__destroy_inode(inode);
+> >  	kmem_cache_free(inode_cachep, inode);
+> >  }
+> >  
+> >  static void destroy_inode(struct inode *inode)
+> >  {
+> >  	BUG_ON(!list_empty(&inode->i_lru));
+> > -	__destroy_inode(inode);
+> > -	if (inode->i_sb->s_op->destroy_inode)
+> > +	if (inode->i_sb->s_op->destroy_inode) {
+> > +		__destroy_inode(inode);
+> >  		inode->i_sb->s_op->destroy_inode(inode);
+> > -	else
+> > +	} else
+> >  		call_rcu(&inode->i_rcu, i_callback);
+> >  }
+> >  
+> 
