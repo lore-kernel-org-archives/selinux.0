@@ -1,40 +1,36 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09EpMPt026030
- for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 09:51:22 -0500
-Received: by mail-wi0-f172.google.com with SMTP id en1so7029486wid.5
- for <selinux@tycho.nsa.gov>; Thu, 09 Jan 2014 06:51:11 -0800 (PST)
-Message-ID: <1389279068.15411.6.camel@x220.localdomain>
-Subject: Re: [RFC] CIL and Source Policy Integration
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Date: Thu, 09 Jan 2014 15:51:08 +0100
-In-Reply-To: <1389274525.14773.32.camel@x220.localdomain>
-References: <52CDB8AC.4090504@tresys.com>
- <1389274525.14773.32.camel@x220.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: SELinux List <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09FCogt027741
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 10:12:50 -0500
+Date: Thu, 9 Jan 2014 23:12:41 +0800 (CST)
+From: bigclouds <bigclouds@163.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: what is the default context of a program without selinux-aware
+Content-Type: multipart/alternative;
+ boundary="----=_Part_212888_1970062264.1389280361915"
+MIME-Version: 1.0
+Message-ID: <5afe1098.e51c.143778ffdbb.Coremail.bigclouds@163.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2014-01-09 at 14:35 +0100, Dominick Grift wrote:
-> On Wed, 2014-01-08 at 15:44 -0500, Steve Lawrence wrote:
-> 
-> > Thanks, and we look forward to receive your feedback.
-> 
-> I played with this a bit this morning. Followed all steps.
+------=_Part_212888_1970062264.1389280361915
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 
-When one runs semodule -B, things start to break because of the login
-mappings that disappear, and as a consequence the home dir contexts also
-disappear.
+aGksYWxsCjEuCndoYXQgaXMgdGhlIGRlZmF1bHQgY29udGV4dCBvZiBhIHByb2dyYW0gd2l0aG91
+dCBzZWxpbnV4LWF3YXJlPwogCjIuCmFueSBhZHZhbnRhZ2VtZW50IGZvciBhIHByb2dyYW0gdG8g
+aW1wbGVtZW50IHNlbGludXgtYXdhcmU/CiAKdGhhbmtz
+------=_Part_212888_1970062264.1389280361915
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
 
-It removes the login mappings, and the content of user home directories
-end up with type default_t
-
-Most of the issues are due to: "cp
--r /etc/selinux/targeted/{contexts,seusers,setrans.conf} /etc/selinux/cil-test/"
-
-It should work without that step (either that or i am overlooking
-things)
+PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
+Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+aGksYWxsPC9kaXY+PGRpdj4xLjwvZGl2PjxkaXY+d2hh
+dCBpcyB0aGUgZGVmYXVsdCBjb250ZXh0IG9mIGEgcHJvZ3JhbSB3aXRob3V0IHNlbGludXgtYXdh
+cmU/PC9kaXY+PGRpdj4mbmJzcDs8L2Rpdj48ZGl2PjIuPC9kaXY+PGRpdj5hbnkgYWR2YW50YWdl
+bWVudCBmb3IgYSBwcm9ncmFtIHRvIGltcGxlbWVudCBzZWxpbnV4LWF3YXJlPzwvZGl2PjxkaXY+
+Jm5ic3A7PC9kaXY+PGRpdj50aGFua3M8L2Rpdj48L2Rpdj48YnI+PGJyPjxzcGFuIHRpdGxlPSJu
+ZXRlYXNlZm9vdGVyIj48c3BhbiBpZD0ibmV0ZWFzZV9tYWlsX2Zvb3RlciI+PC9zcGFuPjwvc3Bh
+bj4=
+------=_Part_212888_1970062264.1389280361915--
