@@ -1,30 +1,41 @@
-Message-ID: <52CEE3A9.9010307@tycho.nsa.gov>
-Date: Thu, 09 Jan 2014 13:00:09 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Tawfiq Shah <tawfiqshah@gmail.com>, russell@coker.com.au
-Subject: Re: question about basic selinux concept
-References: <2a7b84d3.10951.143524a4a81.Coremail.bigclouds@163.com>
- <201401022053.56630.russell@coker.com.au>
- <CAP_GsaT1K32RbaqiqtK8z+P4LciQJDN7nRCVcd-7jF9xCbaPTA@mail.gmail.com>
-In-Reply-To: <CAP_GsaT1K32RbaqiqtK8z+P4LciQJDN7nRCVcd-7jF9xCbaPTA@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: selinux@tycho.nsa.gov
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s09GMsVO001026
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jan 2014 11:22:55 -0500
+Date: Thu, 9 Jan 2014 11:22:49 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] SELinux: Fix possible NULL pointer dereference in
+ selinux_inode_permission()
+Message-ID: <20140109112249.30d457d8@gandalf.local.home>
+In-Reply-To: <52CEC9DD.4000901@tycho.nsa.gov>
+References: <20140109101932.0508dec7@gandalf.local.home>
+ <CACLa4pv+EUGHO+MKj8ckhmi8YKiTNVL9pSM+DDsjg+0jbjOCcA@mail.gmail.com>
+ <20140109105114.5c409fef@gandalf.local.home>
+ <1389283030.15209.56.camel@localhost>
+ <1389283545.15209.59.camel@localhost>
+ <52CEC9DD.4000901@tycho.nsa.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Cc: LKML <linux-kernel@vger.kernel.org>, Eric Paris <eparis@redhat.com>,
+ linux-security-module@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ James Morris <james.l.morris@oracle.com>, stable <stable@vger.kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/09/2014 12:52 PM, Tawfiq Shah wrote:
-> Hi all,
-> Is there any documentation on which LSM hook function is responsible for
-> sending the request to the security server and the function responsible for
-> relaying the decision of the security server to the LSM enforcement hooks?
+On Thu, 09 Jan 2014 11:10:05 -0500
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-The most accurate and up-to-date documentation is the code, but if you
-prefer non-code descriptions, some possibilities would be:
-http://www.nsa.gov/research/_files/selinux/papers/module-abs.shtml
+> I didn't know that was the case; originally when we added the hook it
+> was not possible.   I have seen a Red Hat bugzilla report about it,
+> but no upstream discussion.
 
-http://www.usenix.org/events/sec02/full_papers/wright/wright.pdf
+Maybe not enough people use SELinux ;-)
 
-http://www.kroah.com/linux/talks/ols_2002_lsm_paper/lsm.pdf
+Do you know what the Red Hat BZ # was?
+
+-- Steve
