@@ -1,63 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0AGNOgQ012823
- for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 11:23:25 -0500
-Received: by mail-qe0-f51.google.com with SMTP id 1so4672985qee.24
- for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 08:23:23 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Changing unlabeled_t on files to invalid_label_t.
-Date: Fri, 10 Jan 2014 11:23:20 -0500
-Message-ID: <2155090.3LV9Wham8T@sifl>
-In-Reply-To: <52D01C2F.9060005@tycho.nsa.gov>
-References: <52CF1A53.9080501@redhat.com> <52D00A39.5020100@tycho.nsa.gov>
- <52D01C2F.9060005@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+From: Victor Porton <porton@narod.ru>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <52CEF9C2.1080903@tycho.nsa.gov>
+References: <23731389285461@web11j.yandex.ru> <52CEF794.3030501@tycho.nsa.gov>
+ <39121389295897@web13m.yandex.ru> <52CEF9C2.1080903@tycho.nsa.gov>
+Subject: Re: Restrict to a fixed Internet domain in a sandbox
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Message-Id: <51901389379280@web5j.yandex.ru>
+Date: Fri, 10 Jan 2014 20:41:20 +0200
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, January 10, 2014 11:13:35 AM Stephen Smalley wrote:
-> On 01/10/2014 09:56 AM, Stephen Smalley wrote:
-> > On 01/10/2014 09:49 AM, Paul Moore wrote:
-> >> On Friday, January 10, 2014 09:42:42 AM Stephen Smalley wrote:
-> >>> On 01/09/2014 06:07 PM, Eric Paris wrote:
-> >>>> I believe we need a new initial sid.  SECINITSID_INVALID_LABEL....
-> >>> 
-> >>> Difficult (impossible?) to do in a fully backward compatible manner (to
-> >>> include the case of loading new policy on old kernel, whether initially
-> >>> or update/reload on an already running kernel with an older policy).
-> >> 
-> >> Do we really need to worry about being able to load new policy into a old
-> >> kernel?  In general I thought the backward compatible issue was that
-> >> newer
-> >> kernels needed to support older userspace, not the other way around.
-> > 
-> > Well, you'll at least need code in the kernel to handle the case where
-> > the policy does not define any new initial SIDs that you introduce in
-> > the policy, remapping them to e.g. unlabeled or something.
+09.01.2014, 21:35, "Stephen Smalley" <sds@tycho.nsa.gov>:
+> On 01/09/2014 02:31 PM, Victor Porton wrote:
+>
+>> š09.01.2014, 21:25, "Stephen Smalley" <sds@tycho.nsa.gov>:
+>>> šOn 01/09/2014 11:37 AM, Victor Porton wrote:
+>>>> ššI remind that sandbox is implemented in Fedora using SELinux.
+>>>>
+>>>> ššIt would be useful to restrict sandboxed application to connect only to one, programmatically specified Internet domain (just like Java and JavaScript security).
+>>>>
+>>>> ššIt seems it is impossible with current SELinux.
+>>>>
+>>>> ššCould you add necessary features? Please!
+>>> šI'm not aware of any missing kernel features required to support your
+>>> šfunctionality. šI think all you are missing is two userspace components:
+>> šAFAIK, there are no support for this in Linux kernel.
+>>
+>> šIt is why I advise to add a new syscall (see my previous message).
+>>> šša library that provides whatever interface you design, and a daemon
+>>> šthat receives the specification in whatever form you design and turns it
+>>> šinto a set of SELinux and iptables SECMARK/CONNSECMARK rules to label
+>>> šthe packets so that SELinux can mediate them accordingly, and loads that
+>>> šinto the kernel for enforcement.
+>> šI've already explained some reasons why iptables solution would be wrong. One of the reasons is that this would confuse a system administrator by appearance of new unexpected rules, the automatically added rules would also disappear when iptables script is reloaded, what could make errors for regular users. To use iptables this way seems a really bad idea.
+>
+> For SECMARK/CONNSECMARK, there is a separate dedicated security table to
+> avoid such conflicts.
 
-Yep.
+We need to make a separate ID for every sandbox process (with all its children) (there may be more than one, even run simultaneously by the same user). This ID should be in some way passed to NetFilter. Does iptables provide a way to add such an ID to the rules? (Moreover we need to somehow ensure that this ID would not interact with rules created by other software packages or by an administrator?)
 
-> > And you likely want to ensure that people don't accidentally load new
-> > policy into old kernel and break things, whether by tying the new
-> > initial SIDS to a policy capability or policy version.
-
-Yep.  I imagine this would be a new policy version, but that is just a gut 
-feeling not backed up by any actual inspection or serious thought.
-
-> But reusing one of the dead initial SIDs might be easier - I think you
-> have done that previously for some of the networking ones.
-
-Yep, we reused the netmsg initial SID for NetLabel traffic that is missing 
-user/role/type information.
-
-For the record, I'm in no hurry to rework the initial SID bits, I just think 
-that ultimately they could use some improvement similar to what was done with 
-the dynamic class/permissions code.
+Can it be safely done with iptables? Please be specific.
 
 -- 
-paul moore
-www.paul-moore.com
+Victor Porton - http://portonvictor.org
