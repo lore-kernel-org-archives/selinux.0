@@ -1,26 +1,54 @@
-Message-ID: <52D00748.9070205@tycho.nsa.gov>
-Date: Fri, 10 Jan 2014 09:44:24 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0AEkvox005356
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 09:46:57 -0500
+Received: by mail-qc0-f179.google.com with SMTP id e16so1748358qcx.10
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 06:46:56 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: bigclouds <bigclouds@163.com>
+Subject: Re: what is the default context of a program without selinux-aware
+Date: Fri, 10 Jan 2014 09:46:53 -0500
+Message-ID: <4559656.d5XEX0NFLP@sifl>
+In-Reply-To: <275288ad.1a14f.1437b6c4395.Coremail.bigclouds@163.com>
+References: <5afe1098.e51c.143778ffdbb.Coremail.bigclouds@163.com>
+ <CAHC9VhRrQLTiL2LTVPAz7Z3Fex-mBNTgLZq-2wzwy5eVT5skSw@mail.gmail.com>
+ <275288ad.1a14f.1437b6c4395.Coremail.bigclouds@163.com>
 MIME-Version: 1.0
-To: Bryan Harris <bryanlharris@me.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: new to selinux
-References: <441837E5-55B1-463C-A8E2-7F48F2C847E0@me.com>
-In-Reply-To: <441837E5-55B1-463C-A8E2-7F48F2C847E0@me.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/10/2014 04:16 AM, Bryan Harris wrote:
-> Hello,
-> 
-> I'm wondering if it is possible to use selinux network & process labeling, iptables, and something like /usr/bin/script to create an environment where we can enforce session recording for ssh sessions.
-> 
-> We will soon have a requirement to record our actions on customer environments, but at the same time we also need to block users who have not activated the recording.  Is selinux policy an appropriate way to accomplish these requirements?  I'd like to search for the details and learn more, but if I'm taking the wrong approach I'd like to know that before starting out.
-> 
-> Any guidance is greatly appreciated.  Thanks in advance.
+[NOTE: re-adding the SELinux mailing list]
 
-I think linux-audit is where you want to be,
-https://www.redhat.com/mailman/listinfo/linux-audit
+On Friday, January 10, 2014 05:12:09 PM bigclouds wrote:
+> 1. a program with selinux-aware  means  the program call libselinux api.
+> what is the advantage?  is it same as defining security policy for the
+> program?
+
+Typically people use the libselinux API to accomplish specific goals that were 
+not possible otherwise, e.g. affecting the label assigned to newly created 
+sockets.  I suggest looking at the libselinux API to better understand what 
+advantages it offers.
+
+> 2. if a program is writen by myself, when i launch it, what is its context?
+> inherit from user? or bash?
+
+It is dependent on your security policy.  You can use the '-Z' option with the 
+'ps' command to view the SELinux label of running processes.
+
+> At 2014-01-10 02:18:45,"Paul Moore" <paul@paul-moore.com> wrote:
+> >On Thu, Jan 9, 2014 at 10:12 AM, bigclouds <bigclouds@163.com> wrote:
+> >> 1. what is the default context of a program without selinux-aware?
+> >
+> >The SELinux context of a running process is determined by the security
+> >policy.
+> >
+> >> 2. any advantagement for a program to implement selinux-aware?
+> >
+> >Could you be more specific about what you mean by "selinux-aware"?
+
+-- 
+paul moore
+www.paul-moore.com
