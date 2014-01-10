@@ -1,57 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0AJqkKa025685
- for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 14:52:46 -0500
-From: Victor Porton <porton@narod.ru>
-To: Joshua Brindle <brindle@quarksecurity.com>
-In-Reply-To: <52D04C59.20406@quarksecurity.com>
-References: <1171389381947@web15m.yandex.ru> <52D04C59.20406@quarksecurity.com>
-Subject: Re: Create new NetFilter table
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Message-Id: <25561389383560@web15m.yandex.ru>
-Date: Fri, 10 Jan 2014 21:52:40 +0200
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0AL8R4u030198
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 16:08:28 -0500
+Received: from [172.16.0.199] ([172.16.0.199]) (authenticated bits=0)
+ by knetgate.kensnet.org (8.14.4/8.14.4) with ESMTP id s0AL8F1S022571
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-CAMELLIA256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 21:08:16 GMT
+Message-ID: <52D0613F.3030805@kensnet.org>
+Date: Fri, 10 Jan 2014 21:08:15 +0000
+From: Ken Smith <kens@kensnet.org>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Web Application access to files in /mnt/
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
+Hi All, I could do with some simple guidance. I have a web application, 
+written in Perl, that is part of MythTV. It can stream video from files 
+mounted in /mnt.
 
-10.01.2014, 21:39, "Joshua Brindle" <brindle@quarksecurity.com>:
-> Victor Porton wrote:
->
->> šI propose to create a new NetFilter table dedicated to rules created programmatically (not by explicit admin's iptables command).
->>
->> šOtherwise an admin could be tempted to say `iptables -F security` which would probably break rules created for example by sandboxing software (which may follow same-origin policy to restrict one particular program to certain domain and port only). Note that in this case `iptables -F security` is a security risk (sandbox breaking)?
->>
->> šNew table could be possibly be called:
->>
->> š- temp
->> š- temporary
->> š- auto
->> š- automatic
->> š- volatile
->> š- daemon
->> š- system
->> š- sys
->>
->> šIn iptables docs it should be said that this table should not be manipulated manually.
->
-> Is it possible that the solution to your sandboxing problem is seccomp
-> filter?
->
-> http://outflux.net/teach-seccomp/
->
-> You'd filter out any syscall that can make outbound connections and then
-> only pass already opened sockets to the sandboxed threads?
->
-> seccomp filter was actually created for sandboxing, so that user
-> applications could voluntarily shed the ability to call certain syscalls
-> before handling untrusted data.
+The report from SElinux is
 
-seccomp would not work for me, because I need network enabled sandboxes. Moreover we should be able to filter out certain subnets such as 127.0.0.0/255.0.0.0 (and others), This cleanly can't be done with seccomp.
+Source Context                system_u:system_r:httpd_sys_script_t:s0
+Target Context                system_u:object_r:file_t:s0
+Target Objects                /mnt/store0 [ dir ]
+Source                        mythweb.pl
+
+What would be the best approach. Should I relabel the files in /mnt or 
+create a module like this
+
+# grep mythweb.pl /var/log/audit/audit.log | audit2allow -M mypol
+# semodule -i mypol.pp
+
+Thanks in advance
+
+Ken
+
+
 
 -- 
-Victor Porton - http://portonvictor.org
+This message has been scanned for viruses and
+dangerous content by MailScanner, and is
+believed to be clean.
