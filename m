@@ -1,58 +1,26 @@
-Message-ID: <52D006E2.5030906@tycho.nsa.gov>
-Date: Fri, 10 Jan 2014 09:42:42 -0500
+Message-ID: <52D00748.9070205@tycho.nsa.gov>
+Date: Fri, 10 Jan 2014 09:44:24 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>, Paul Moore <paul@paul-moore.com>
-Subject: Re: Changing unlabeled_t on files to invalid_label_t.
-References: <52CF1A53.9080501@redhat.com>
- <1389306084.15747.41.camel@x220.localdomain> <1453694.LHeEgrvlzg@sifl>
- <CACLa4pvs_qwHn3sf-y0bMZ5wSPs6C39nFZGsptDqo=kje2E5tg@mail.gmail.com>
-In-Reply-To: <CACLa4pvs_qwHn3sf-y0bMZ5wSPs6C39nFZGsptDqo=kje2E5tg@mail.gmail.com>
+To: Bryan Harris <bryanlharris@me.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: new to selinux
+References: <441837E5-55B1-463C-A8E2-7F48F2C847E0@me.com>
+In-Reply-To: <441837E5-55B1-463C-A8E2-7F48F2C847E0@me.com>
 Content-Type: text/plain; charset=ISO-8859-1
-Cc: SE-Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/09/2014 06:07 PM, Eric Paris wrote:
-> static int superblock_alloc_security(struct super_block *sb)
-> {
-> ...
->          sbsec->def_sid = SECINITSID_FILE;
+On 01/10/2014 04:16 AM, Bryan Harris wrote:
+> Hello,
 > 
-> static int inode_alloc_security(struct inode *inode)
-> {
->         struct inode_security_struct *isec;
-> ...
->         isec->sid = SECINITSID_UNLABELED;
+> I'm wondering if it is possible to use selinux network & process labeling, iptables, and something like /usr/bin/script to create an environment where we can enforce session recording for ssh sessions.
 > 
-> static int inode_doinit_with_dentry(struct inode *inode, struct dentry
-> *opt_dentry)
-> {
-> ...
->         if (rc != -ENODATA) {
->                 sid = sbsec->def_sid;
-> ...
->         if (rc) {
-> ...
->                 /* Leave with the unlabeled SID */
->                 rc = 0;
->                 break;
+> We will soon have a requirement to record our actions on customer environments, but at the same time we also need to block users who have not activated the recording.  Is selinux policy an appropriate way to accomplish these requirements?  I'd like to search for the details and learn more, but if I'm taking the wrong approach I'd like to know that before starting out.
 > 
-> So there you have it...
-> 
-> I believe we need a new initial sid.  SECINITSID_INVALID_LABEL....
+> Any guidance is greatly appreciated.  Thanks in advance.
 
-Difficult (impossible?) to do in a fully backward compatible manner (to
-include the case of loading new policy on old kernel, whether initially
-or update/reload on an already running kernel with an older policy).
-
-SECINITSID_NUM is baked into the kernel, as are the indices.
-You are more likely to have success by reusing one of the currently
-unused initial SIDs for a new purpose, especially as some of them have
-never been used in any mainline kernel (some of them predate Linux 2.6.0).
-
-Dynamic initial sid lookup (ala the dynamic class/perm lookup) support
-would be nice to have, but at most that will allow us to delete obsolete
-initial SIDs from refpolicy, not fix old kernels.
+I think linux-audit is where you want to be,
+https://www.redhat.com/mailman/listinfo/linux-audit
