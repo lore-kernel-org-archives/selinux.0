@@ -1,61 +1,63 @@
-Message-ID: <52D01C6E.7050201@tycho.nsa.gov>
-Date: Fri, 10 Jan 2014 11:14:38 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0AGNOgQ012823
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 11:23:25 -0500
+Received: by mail-qe0-f51.google.com with SMTP id 1so4672985qee.24
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jan 2014 08:23:23 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Subject: Re: Changing unlabeled_t on files to invalid_label_t.
-References: <52CF1A53.9080501@redhat.com> <52D01AA2.6080304@tycho.nsa.gov>
- <52D01C1B.8040909@redhat.com>
-In-Reply-To: <52D01C1B.8040909@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 10 Jan 2014 11:23:20 -0500
+Message-ID: <2155090.3LV9Wham8T@sifl>
+In-Reply-To: <52D01C2F.9060005@tycho.nsa.gov>
+References: <52CF1A53.9080501@redhat.com> <52D00A39.5020100@tycho.nsa.gov>
+ <52D01C2F.9060005@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: SE-Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/10/2014 11:13 AM, Daniel J Walsh wrote:
-> On 01/10/2014 11:06 AM, Stephen Smalley wrote:
->> On 01/09/2014 04:53 PM, Daniel J Walsh wrote:
->>> We would like to change
->>>
->>> sid file_labels         gen_context(system_u:object_r:unlabeled_t,s0)
->>>
->>> to something like
->>>
->>> sid file_labels
->>> gen_context(system_u:object_r:invalid_label_t,s0)
->>>
->>> Since explaining to someone that a file without a label is file_t, but if
->>> it has a label that the kernel does not understand it is labeled as
->>> unlabeled_t. A file with a label is unlabeled_t????  While a file without
->>> a label is file_t.
->>>
->>>
->>> # # unlabeled_t is the type of unlabeled objects. # Objects that have no
->>> known labeling information or that # have labels that are no longer valid
->>> are treated as having this type. #
->>>
->>> # # file_t is the default type of a file that has not yet been # assigned
->>> an extended attribute (EA) value (when using a filesystem # that supports
->>> EAs). #
->>>
->>> These two type definitions seem to conflict, with file_t winning at least
->>> on systems that support XAttrs.
-> 
->> BTW, if you want to just solve the problem you originally described, you 
->> can do that just by changing policy to assign unlabeled_t to the file 
->> initial SID, and then you'll get unlabeled_t for both.  That's what we do
->> in the Android policy.
-> 
-> 
-> Yes I am thinking about that but then we still have the unlabeled_t when the
-> object is actually labeled.
+On Friday, January 10, 2014 11:13:35 AM Stephen Smalley wrote:
+> On 01/10/2014 09:56 AM, Stephen Smalley wrote:
+> > On 01/10/2014 09:49 AM, Paul Moore wrote:
+> >> On Friday, January 10, 2014 09:42:42 AM Stephen Smalley wrote:
+> >>> On 01/09/2014 06:07 PM, Eric Paris wrote:
+> >>>> I believe we need a new initial sid.  SECINITSID_INVALID_LABEL....
+> >>> 
+> >>> Difficult (impossible?) to do in a fully backward compatible manner (to
+> >>> include the case of loading new policy on old kernel, whether initially
+> >>> or update/reload on an already running kernel with an older policy).
+> >> 
+> >> Do we really need to worry about being able to load new policy into a old
+> >> kernel?  In general I thought the backward compatible issue was that
+> >> newer
+> >> kernels needed to support older userspace, not the other way around.
+> > 
+> > Well, you'll at least need code in the kernel to handle the case where
+> > the policy does not define any new initial SIDs that you introduce in
+> > the policy, remapping them to e.g. unlabeled or something.
 
-Being labeled with a label unknown to the policy is effectively
-equivalent to being unlabeled.
+Yep.
 
-> 
-> Changing file_t to unlabeled_t, then we have to change some interfaces that
-> deal with file_t to deal with unlabeled_t.
-> 
-> and add an alias for file_t.
+> > And you likely want to ensure that people don't accidentally load new
+> > policy into old kernel and break things, whether by tying the new
+> > initial SIDS to a policy capability or policy version.
+
+Yep.  I imagine this would be a new policy version, but that is just a gut 
+feeling not backed up by any actual inspection or serious thought.
+
+> But reusing one of the dead initial SIDs might be easier - I think you
+> have done that previously for some of the networking ones.
+
+Yep, we reused the netmsg initial SID for NetLabel traffic that is missing 
+user/role/type information.
+
+For the record, I'm in no hurry to rework the initial SID bits, I just think 
+that ultimately they could use some improvement similar to what was done with 
+the dynamic class/permissions code.
+
+-- 
+paul moore
+www.paul-moore.com
