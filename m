@@ -1,36 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0C1bZW0018125
- for <selinux@tycho.nsa.gov>; Sat, 11 Jan 2014 20:37:35 -0500
-From: Russell Coker <russell@coker.com.au>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0CH5Nrw012406
+ for <selinux@tycho.nsa.gov>; Sun, 12 Jan 2014 12:05:23 -0500
+Received: from gentp.lnet (gentp.lnet [IPv6:::1])
+ by gentp.lnet (Postfix) with ESMTP id A80C226B9CE
+ for <selinux@tycho.nsa.gov>; Sun, 12 Jan 2014 18:05:20 +0100 (CET)
+Date: Sun, 12 Jan 2014 18:05:20 +0100
+From: Luis Ressel <aranea@aixah.de>
 To: selinux@tycho.nsa.gov
-Subject: Re: Changing unlabeled_t on files to invalid_label_t.
-Date: Sun, 12 Jan 2014 12:37:30 +1100
-Message-ID: <25734134.uy91zhLtTd@russell.coker.com.au>
-In-Reply-To: <2516775.9uuOuGk0G5@sifl>
-References: <52CF1A53.9080501@redhat.com> <52D006E2.5030906@tycho.nsa.gov>
- <2516775.9uuOuGk0G5@sifl>
+Subject: Re: Web Application access to files in /mnt/
+Message-ID: <20140112180520.32098337@gentp.lnet>
+In-Reply-To: <1389390257.20258.71.camel@x220.localdomain>
+References: <52D0613F.3030805@kensnet.org>
+ <1389390257.20258.71.camel@x220.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Reply-To: russell@coker.com.au
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ boundary="Sig_/k6hMLQUbxKNdNVA6uxJ7dIn"; protocol="application/pgp-signature"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 10 Jan 2014 09:49:28 Paul Moore wrote:
-> Do we really need to worry about being able to load new policy into a old 
-> kernel?  In general I thought the backward compatible issue was that newer 
-> kernels needed to support older userspace, not the other way around.
+--Sig_/k6hMLQUbxKNdNVA6uxJ7dIn
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Yes.  One case is when you have a Xen server that uses the kernel from the 
-Dom0 for the DomUs (which is easier than taking the DomU kernel to the Dom0).
+Additionally, I'd mount /mnt/store0 with the mount option
+context=3Dsystem_u:object_r:my_app_content_t and only grant your
+application access on that, instead of file_t.
 
-Another case is hardware compatability issues, being able to upgrade all user-
-space before dealing with hardware issues is a good option to have.
+If you don't need the separation proposed by Dominick Grift (e.g.
+because the video files are public anyway), you could even just do a
+"mount -o context=3Dsystem_u:object_r:httpd_sys_content_t ?? /mnt/store0"
+without having to create a custom policy.
 
-Finally allowing the possibility of downgrading the kernel in case of 
-discovering a bug in the new kernel is a good thing.
 
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Regards,
+Luis Ressel
+
+
+--=20
+Luis Ressel <aranea@aixah.de>
+GPG fpr: F08D 2AF6 655E 25DE 52BC  E53D 08F5 7F90 3029 B5BD
+
+--Sig_/k6hMLQUbxKNdNVA6uxJ7dIn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQJ8BAEBCgBmBQJS0stQXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
+ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXRBMjU3MDBFQTc5QkYzMkY4NEQzMTFGNDlD
+NzE4OTFBNkEwRUZCN0U5AAoJEMcYkaag77fpb7cP/339Vf6+syHOQLbhwRvT9QEQ
++vN2AvZ1L0CN36In3+Bs+djkMAyWbkJnbOlT6e1mjQq43TgP0j6VHOqOXGcPwp3E
+RopBUVuZJbTDdY+9cExlhMw6kSTNJNUhGy/wjsunCqgZObIlt4tYvXVW6OiUnHoc
+sXRuZdAOBKeUDLty4JI7HNyx9Mz/gcFe//07QDVGvQfIrxDvyCpBdc7N313kBtYr
+lvSXdgI3oxr5Vqe9blTri9ypqCLg68JIwXOn/7KuZz0keSKMZee+X8AeFQKJe4z4
+Ea02bKioGG0SIIhH46P6O8xEGJ3hR4SwalISeU2QViJzGcQjtFK7K/4d/6ZkZzEW
+ALJOvstfP31Yb7LzrXvbi4cw0D7iePFGXCOHCqzni7eI1497ftN5zurI1lIoRfjy
+Atm2poXLioZ+rLRbccGPsoKIr9RxG1HOO3xg+StXtd6KttUiGjdp6pg0TIxWEAwb
+4tTGYd7dx6rCJ7QtR1KoTLQweNqfMlzmbEwdUV9XFyqMaKJzvjYMnbwqMLZ2zeJD
+zGO9LbMff+y9ObYagoYhZ5N9/j9wtH96eiY7H1ZrjAjzzw2Q/2EV9bgUuV5Byw7I
+T5qoFzZd/nbg9mPu+3OGh9fA2qfVU2NCaKMITkPf+dBLL4+kPoHZ62YMx5tKhGbB
+0i4W7QYU16CAIpdYVa2M
+=SPXe
+-----END PGP SIGNATURE-----
+
+--Sig_/k6hMLQUbxKNdNVA6uxJ7dIn--
