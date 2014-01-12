@@ -1,69 +1,96 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0CH5Nrw012406
- for <selinux@tycho.nsa.gov>; Sun, 12 Jan 2014 12:05:23 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0CJqMWm017254
+ for <selinux@tycho.nsa.gov>; Sun, 12 Jan 2014 14:52:22 -0500
 Received: from gentp.lnet (gentp.lnet [IPv6:::1])
- by gentp.lnet (Postfix) with ESMTP id A80C226B9CE
- for <selinux@tycho.nsa.gov>; Sun, 12 Jan 2014 18:05:20 +0100 (CET)
-Date: Sun, 12 Jan 2014 18:05:20 +0100
+ by gentp.lnet (Postfix) with ESMTP id CDD3B261237
+ for <selinux@tycho.nsa.gov>; Sun, 12 Jan 2014 20:52:12 +0100 (CET)
+Date: Sun, 12 Jan 2014 20:52:00 +0100
 From: Luis Ressel <aranea@aixah.de>
 To: selinux@tycho.nsa.gov
-Subject: Re: Web Application access to files in /mnt/
-Message-ID: <20140112180520.32098337@gentp.lnet>
-In-Reply-To: <1389390257.20258.71.camel@x220.localdomain>
-References: <52D0613F.3030805@kensnet.org>
- <1389390257.20258.71.camel@x220.localdomain>
+Subject: Re: Create new NetFilter table
+Message-ID: <20140112205200.0a066042@gentp.lnet>
+In-Reply-To: <1171389381947@web15m.yandex.ru>
+References: <1171389381947@web15m.yandex.ru>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_/k6hMLQUbxKNdNVA6uxJ7dIn"; protocol="application/pgp-signature"
+ boundary="Sig_/3JCym3ZNwxr.C1xAjW1REYm"; protocol="application/pgp-signature"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---Sig_/k6hMLQUbxKNdNVA6uxJ7dIn
+--Sig_/3JCym3ZNwxr.C1xAjW1REYm
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-Additionally, I'd mount /mnt/store0 with the mount option
-context=3Dsystem_u:object_r:my_app_content_t and only grant your
-application access on that, instead of file_t.
+On Fri, 10 Jan 2014 21:25:47 +0200
+Victor Porton <porton@narod.ru> wrote:
 
-If you don't need the separation proposed by Dominick Grift (e.g.
-because the video files are public anyway), you could even just do a
-"mount -o context=3Dsystem_u:object_r:httpd_sys_content_t ?? /mnt/store0"
-without having to create a custom policy.
+> I propose to create a new NetFilter table dedicated to rules created
+> programmatically (not by explicit admin's iptables command).
+>=20
+> Otherwise an admin could be tempted to say `iptables -F security`
+> which would probably break rules created for example by sandboxing
+> software (which may follow same-origin policy to restrict one
+> particular program to certain domain and port only). Note that in
+> this case `iptables -F security` is a security risk (sandbox
+> breaking)?
+>=20
+> New table could be possibly be called:
+>=20
+> - temp
+> - temporary
+> - auto
+> - automatic
+> - volatile
+> - daemon
+> - system
+> - sys
+>=20
+> In iptables docs it should be said that this table should not be
+> manipulated manually.
+>=20
 
+Just like the last thread, this one is also completely unrelated to
+SELinux. And it doesn't make sense anyway. Only the admin can
+manipulate netfilter rules, so he'll know if the can flush them or not.
+If you want to separate automatically-created rules (which is a good
+idea), just put them in a separate *chain*, not a separate *table*.
+Side note: Even assuming creating such a table would make any sense,
+one wouldn't suffice, you'd have to create five of them.
 
-Regards,
-Luis Ressel
+And if you're still prefer to create new kernel interfaces for your
+specific requirements instead of using the well thought-out and much
+more flexible preexisting ones -- nobody keeps you from patching your
+kernel, just don't try to upstream them.
 
 
 --=20
 Luis Ressel <aranea@aixah.de>
 GPG fpr: F08D 2AF6 655E 25DE 52BC  E53D 08F5 7F90 3029 B5BD
 
---Sig_/k6hMLQUbxKNdNVA6uxJ7dIn
+--Sig_/3JCym3ZNwxr.C1xAjW1REYm
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Disposition: attachment; filename=signature.asc
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQJ8BAEBCgBmBQJS0stQXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
+iQJ8BAEBCgBmBQJS0vJsXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
 ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXRBMjU3MDBFQTc5QkYzMkY4NEQzMTFGNDlD
-NzE4OTFBNkEwRUZCN0U5AAoJEMcYkaag77fpb7cP/339Vf6+syHOQLbhwRvT9QEQ
-+vN2AvZ1L0CN36In3+Bs+djkMAyWbkJnbOlT6e1mjQq43TgP0j6VHOqOXGcPwp3E
-RopBUVuZJbTDdY+9cExlhMw6kSTNJNUhGy/wjsunCqgZObIlt4tYvXVW6OiUnHoc
-sXRuZdAOBKeUDLty4JI7HNyx9Mz/gcFe//07QDVGvQfIrxDvyCpBdc7N313kBtYr
-lvSXdgI3oxr5Vqe9blTri9ypqCLg68JIwXOn/7KuZz0keSKMZee+X8AeFQKJe4z4
-Ea02bKioGG0SIIhH46P6O8xEGJ3hR4SwalISeU2QViJzGcQjtFK7K/4d/6ZkZzEW
-ALJOvstfP31Yb7LzrXvbi4cw0D7iePFGXCOHCqzni7eI1497ftN5zurI1lIoRfjy
-Atm2poXLioZ+rLRbccGPsoKIr9RxG1HOO3xg+StXtd6KttUiGjdp6pg0TIxWEAwb
-4tTGYd7dx6rCJ7QtR1KoTLQweNqfMlzmbEwdUV9XFyqMaKJzvjYMnbwqMLZ2zeJD
-zGO9LbMff+y9ObYagoYhZ5N9/j9wtH96eiY7H1ZrjAjzzw2Q/2EV9bgUuV5Byw7I
-T5qoFzZd/nbg9mPu+3OGh9fA2qfVU2NCaKMITkPf+dBLL4+kPoHZ62YMx5tKhGbB
-0i4W7QYU16CAIpdYVa2M
-=SPXe
+NzE4OTFBNkEwRUZCN0U5AAoJEMcYkaag77fpoogP/RFyO56IyNyI2Qbd8G3KkRC0
+59zwDhTlRD2iO2FV6J7fRfZOtBWkUy3tvCDDUVwzAK2kDBMwX9CEgR06nRehF16l
+J28h2pjzQbv7dXnDz5gi15kby50/MIRBifpzUpcxnjsUY0W1BlRDc3kV6si+Q0JO
+Mtydf2uK1TxXl68ph3GjVO5SaLm0gfcbXkENCcYcpNXCe6qbVWo3GzzHOQwEki9j
+JzS6tPdlSvVQO/IOSE6uQBreyVxx1vKymqY8xkfHW4HjDbXFM9qcOTmmZzOlr/BG
+NZuzcJtqiXQ0/t/ZGAqPwRHRXlqn7uUON9VoPH1yoZvVTkKeQy4Jws++mo5HGIFh
+VyNf62ulMyslKbBwwzRWqj9mgU84ilPPh+1WV7bHJZ2JS8zO1h+jF7jBQMnOZN6i
+gr+EUBKUSj6wtTVwYBBOpqZDHtlnfh2pEt/l9zCxlULZdKI8JeFDCaftD8PJrrTy
++q1Ck7c3AQPatNPRy0q5GSdVMjpBdeX0PKKXq/QL3QHimTeQ1YawFep0hjZgkFCX
+VpDncPJAiCEQG+fGsXPgi9FtgrLcVoVmHL9rk4PoPvm/wGa9m2+h8HYywJFfCPE2
+9HE3a0EQAjofu70w1nLCz9ekk7tuMSpnP70WuUg8T+mM5Vja9H42WeAaFjjZtnqi
++9UTW9jj8XWhS+XlJnvq
+=AZzv
 -----END PGP SIGNATURE-----
 
---Sig_/k6hMLQUbxKNdNVA6uxJ7dIn--
+--Sig_/3JCym3ZNwxr.C1xAjW1REYm--
