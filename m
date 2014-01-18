@@ -1,30 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0M6u44U002916
- for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2014 01:56:05 -0500
-Received: from athena.localnet (unknown [10.10.10.1])
- by smtp.sws.net.au (Postfix) with ESMTP id B819420818
- for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2014 17:55:58 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: runcon and setsid()
-Date: Wed, 22 Jan 2014 17:55:57 +1100
-Message-ID: <3472773.GEUBITOd3I@russell.coker.com.au>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0I77P0Q002938
+ for <selinux@tycho.nsa.gov>; Sat, 18 Jan 2014 02:07:26 -0500
+Received: by mail-qc0-f169.google.com with SMTP id w7so4510543qcr.14
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jan 2014 23:07:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Reply-To: russell@coker.com.au
+In-Reply-To: <CAAGUhVquWFnV=dw-2Y6xi31TdiiNp49UrV8zKNEd=EBPqOSmdw@mail.gmail.com>
+References: <CAAGUhVquWFnV=dw-2Y6xi31TdiiNp49UrV8zKNEd=EBPqOSmdw@mail.gmail.com>
+Date: Sat, 18 Jan 2014 12:37:15 +0530
+Message-ID: <CAAGUhVrEoR9CHc0fL1VGsrORJ5zAtgyc6iNsgyYhkakjWF_PBQ@mail.gmail.com>
+Subject: Fwd: Research Topics in Operating System Security
+From: Nainesh Patel <nainesh@ddu.ac.in>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a11c3e488ff8e3d04f0394e3b
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-https://lists.debian.org/debian-devel/2014/01/msg00164.html
+--001a11c3e488ff8e3d04f0394e3b
+Content-Type: text/plain; charset=ISO-8859-1
 
-Above is the URL for a post to debian-devel about su and exploits involving 
-TIOCSTI ioctl.  They mention runcon, should we be calling setsid() in there?
+Dear Sir,
 
-I haven't inspected the runcon source recently, but a quick strace run on 
-Debian/Unstable shows that setsid() isn't being called.
+I am about to start my Ph.D. work, i am searching for the topic related to
+operating system security.
+
+Its one of my topic of interest, having experience in operating system
+security of 3-4 years along with networking.
+
+I would be much obliged to have suggestion from you about the exact areas
+in which research required that makes operating systems more secure.
+
+It would  be my  privilege  to contribute something to Open Source
+Community and very keen to do some dedicated work for  the community.
+
+Thanks.
+
+
 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Nainesh Patel
+Department of Computer Engineering
+
+--001a11c3e488ff8e3d04f0394e3b
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_quote"><div dir=3D"ltr">Dear Sir,<div>=
+<br></div><div>I am about to start my Ph.D. work, i am searching for the to=
+pic related to operating system security.</div><div><br></div><div>Its one =
+of my topic of interest, having experience in operating system security of =
+3-4 years along with networking.<br clear=3D"all">
+
+<div><br></div><div>I would be much obliged to have suggestion from you abo=
+ut the exact areas in which research required that makes operating systems =
+more secure.</div><div><br></div><div>It would =A0be my =A0privilege =A0to =
+contribute something to Open Source Community and very keen to do some dedi=
+cated work for =A0the community.</div>
+
+<div><br></div><div>Thanks.<br></div><div style=3D"font-family:courier new,=
+monospace"></div>
+</div></div>
+</div><br><br clear=3D"all"><br>-- <br><span style=3D"font-family:courier n=
+ew,monospace"><font size=3D"1">Nainesh Patel<br>Department of Computer Engi=
+neering<br><br></font></span><div style=3D"font-family:courier new,monospac=
+e">
+</div>
+</div>
+
+--001a11c3e488ff8e3d04f0394e3b--
