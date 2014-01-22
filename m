@@ -1,26 +1,32 @@
-Message-ID: <52E03267.7040501@tycho.nsa.gov>
-Date: Wed, 22 Jan 2014 16:04:39 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0ML68vV010766
+ for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2014 16:06:08 -0500
+Received: by mail-qc0-f181.google.com with SMTP id e9so1293691qcy.40
+ for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2014 13:06:07 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: SELinux linux-next tree changes
+Date: Wed, 22 Jan 2014 16:06:04 -0500
+Message-ID: <53482168.WA5pJRbF6o@sifl>
 MIME-Version: 1.0
-To: russell@coker.com.au, selinux@tycho.nsa.gov
-Subject: Re: runcon and setsid()
-References: <3472773.GEUBITOd3I@russell.coker.com.au>
-In-Reply-To: <3472773.GEUBITOd3I@russell.coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-next@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/22/2014 01:55 AM, Russell Coker wrote:
-> https://lists.debian.org/debian-devel/2014/01/msg00164.html
-> 
-> Above is the URL for a post to debian-devel about su and exploits involving 
-> TIOCSTI ioctl.  They mention runcon, should we be calling setsid() in there?
-> 
-> I haven't inspected the runcon source recently, but a quick strace run on 
-> Debian/Unstable shows that setsid() isn't being called.
+Hi Stephen,
 
-SELinux revalidates access to the controlling tty on a context
-transition and will drop the controlling tty if it is not allowed.  So
-at present that is controlled by policy.
+I just changed the location of the SELinux tree for linux-next; while the 
+repository is in the same place, all of the linux-next patches are now going 
+into the next branch.
+
+ git://git.infradead.org/users/pcmoore/selinux next
+
+Thanks,
+-Paul
+
+-- 
+paul moore
+www.paul-moore.com
