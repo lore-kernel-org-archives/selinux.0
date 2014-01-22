@@ -1,40 +1,26 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0MKpiRq009776
- for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2014 15:51:44 -0500
-Received: by mail-qa0-f54.google.com with SMTP id i13so1144673qae.13
- for <selinux@tycho.nsa.gov>; Wed, 22 Jan 2014 12:51:43 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@tycho.nsa.gov
-Subject: SELinux tree changes
-Date: Wed, 22 Jan 2014 15:51:39 -0500
-Message-ID: <4717594.Pj3N9d8KHF@sifl>
+Message-ID: <52E03267.7040501@tycho.nsa.gov>
+Date: Wed, 22 Jan 2014 16:04:39 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org
+To: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: runcon and setsid()
+References: <3472773.GEUBITOd3I@russell.coker.com.au>
+In-Reply-To: <3472773.GEUBITOd3I@russell.coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello All,
+On 01/22/2014 01:55 AM, Russell Coker wrote:
+> https://lists.debian.org/debian-devel/2014/01/msg00164.html
+> 
+> Above is the URL for a post to debian-devel about su and exploits involving 
+> TIOCSTI ioctl.  They mention runcon, should we be calling setsid() in there?
+> 
+> I haven't inspected the runcon source recently, but a quick strace run on 
+> Debian/Unstable shows that setsid() isn't being called.
 
-I do apologize, but I've had to make some minor changes to the SELinux tree in 
-an effort to preserve my sanity, and disk space, in the face of different 
-development streams, linux-next, and all the various stable backport trees.  
-While the tree will still be at the same location, things will be much more 
-branch based:
-
- -> git://git.infradead.org/users/pcmoore/selinux
-    #next        - patches currently in linux-next
-    #stable-X.XX - patches targeting the associated stable tree
-
-If you currently have a private tree backed against the SELinux tree you 
-should now be tracking the next branch.  Once again, I apologize for any 
-problems this may cause, but my initial approach to the SELinux tree was too 
-simplistic to be useful in the long term.
-
--Paul
-
--- 
-paul moore
-www.paul-moore.com
+SELinux revalidates access to the controlling tty on a context
+transition and will drop the controlling tty if it is not allowed.  So
+at present that is controlled by policy.
