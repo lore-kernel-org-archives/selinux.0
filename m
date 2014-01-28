@@ -1,59 +1,68 @@
-Message-ID: <52E7E74E.7020901@tycho.nsa.gov>
-Date: Tue, 28 Jan 2014 12:22:22 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0SJm46x030538
+ for <selinux@tycho.nsa.gov>; Tue, 28 Jan 2014 14:48:04 -0500
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com
+ (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s0SJm17S012079
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+ for <selinux@tycho.nsa.gov>; Tue, 28 Jan 2014 14:48:01 -0500
+Subject: [PATCH] selinux: add SOCK_DIAG_BY_FAMILY to the list of netlink
+ message types
+To: selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Date: Tue, 28 Jan 2014 14:48:00 -0500
+Message-ID: <20140128194800.7886.29754.stgit@localhost>
 MIME-Version: 1.0
-To: Ole Kliemann <ole@plastictree.net>
-Subject: Re: Strange context on unix_stream_socket
-References: <20140125205944.GB2542@telmora.telvanni>
- <20140126122922.GA2837@telmora.telvanni>
- <20140126224640.GE2837@telmora.telvanni> <52E68747.5020006@tycho.nsa.gov>
- <20140128171259.GC2501@telmora.telvanni>
-In-Reply-To: <20140128171259.GC2501@telmora.telvanni>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/28/2014 12:12 PM, Ole Kliemann wrote:
-> On Mon, Jan 27, 2014 at 11:20:23AM -0500, Stephen Smalley wrote:
->> On 01/26/2014 05:46 PM, Ole Kliemann wrote:
->>> I have written my own little socket test program. Process P1 with 
->>> context TYPE1:RANGE1 creates a socket and listens on it. P2 with 
->>> context TYPE2:RANGE2 connects to this socket.
->>>
->>> Process P1 accepts the connection. The socket created throught 
->>> accept() in P1 has actually the context TYPE1:RANGE2.
->>>
->>> Is this expected behavior? 
->>
->> Yes.  That was the behavior desired by the MLS/LSPP community, as they
->> want the socket to mirror the client level for multi-level servers, and
->> in the single-level server case, you are only allowed to connect at the
->> same level.
-> 
-> Thank you for the clarification.
-> 
-> Is there no way to control this? To state more precisly: I can 
-> very well _connect_ to everything the policy allows me to, I then 
-> just cannot use this connection. That's a bit weird.
-> 
-> Although I admit, the problems arise from my specific situation 
-> where I have one realm the consist of only one type but is 
-> separated by MLS and another realm that is MLS-ignorant and uses 
-> TE. All vectors running between the two realms are also only 
-> controll by TE. When I now use sockets between the MLS and 
-> non-MLS realm these connections should only be controlled by TE,
-> but as a result of above mentioned labeling behavior, MLS 
-> suddenly gets in the way.
-> 
-> I can imagine, in an MLS-only environment this behavior makes 
-> more sense; specificly in the case of multi-level servers. All 
-> the more desirable it would be if the policy was to make such 
-> labeling decisions at the discretion of the policy writer.
+The SELinux AF_NETLINK/NETLINK_SOCK_DIAG socket class was missing the
+SOCK_DIAG_BY_FAMILY definition which caused SELINUX_ERR messages when
+the ss tool was run.
 
-Yes, in prior implementations we allowed it to be configurable as a
-transition on the listening socket security context and the incoming
-packet security context.  That would be preferable IMHO, but is not
-possible today without kernel code changes.
+ # ss
+ Netid  State  Recv-Q Send-Q  Local Address:Port   Peer Address:Port
+ u_str  ESTAB  0      0                  * 14189             * 14190
+ u_str  ESTAB  0      0                  * 14145             * 14144
+ u_str  ESTAB  0      0                  * 14151             * 14150
+ {...}
+ # ausearch -m SELINUX_ERR
+ ----
+ time->Thu Jan 23 11:11:16 2014
+ type=SYSCALL msg=audit(1390493476.445:374):
+  arch=c000003e syscall=44 success=yes exit=40
+  a0=3 a1=7fff03aa11f0 a2=28 a3=0 items=0 ppid=1852 pid=1895
+  auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0
+  tty=pts0 ses=1 comm="ss" exe="/usr/sbin/ss"
+  subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null)
+ type=SELINUX_ERR msg=audit(1390493476.445:374):
+  SELinux:  unrecognized netlink message type=20 for sclass=32
+
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/nlmsgtab.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
+index 332ac8a..2df7b90 100644
+--- a/security/selinux/nlmsgtab.c
++++ b/security/selinux/nlmsgtab.c
+@@ -17,6 +17,7 @@
+ #include <linux/inet_diag.h>
+ #include <linux/xfrm.h>
+ #include <linux/audit.h>
++#include <linux/sock_diag.h>
+ 
+ #include "flask.h"
+ #include "av_permissions.h"
+@@ -78,6 +79,7 @@ static struct nlmsg_perm nlmsg_tcpdiag_perms[] =
+ {
+ 	{ TCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+ 	{ DCCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ SOCK_DIAG_BY_FAMILY,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+ };
+ 
+ static struct nlmsg_perm nlmsg_xfrm_perms[] =
