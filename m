@@ -1,138 +1,85 @@
-Content-Type: text/plain; charset=windows-1252
-Mime-Version: 1.0 (Mac OS X Mail 7.1 \(1827\))
-Subject: Re: file access causes a kernel bug
-From: Richard Yao <ryao@gentoo.org>
-In-Reply-To: <52E98240.5020901@llnl.gov>
-Date: Wed, 29 Jan 2014 17:39:12 -0500
-Message-Id: <F90298CB-DC5B-4DC9-BA64-E5C31461815D@gentoo.org>
-References: <52E8B5F8.2070005@mthode.org> <52E8B7C1.1000101@mthode.org>
- <1621615.vHn06J0duj@sifl> <52E90B32.5010404@tycho.nsa.gov>
- <52E90D65.9030200@tycho.nsa.gov> <52E9331B.407@mthode.org>
- <52E97454.5060403@tycho.nsa.gov> <52E98240.5020901@llnl.gov>
-To: Brian Behlendorf <behlendorf1@llnl.gov>
-Cc: behlendorf@llnl.gov, Stephen Smalley <sds@tycho.nsa.gov>,
- selinux@tycho.nsa.gov
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s0UFDCE2026419
+ for <selinux@tycho.nsa.gov>; Thu, 30 Jan 2014 10:13:12 -0500
+References: <20140125205944.GB2542@telmora.telvanni>
+ <20140126122922.GA2837@telmora.telvanni>
+ <20140126224640.GE2837@telmora.telvanni> <52E68747.5020006@tycho.nsa.gov>
+ <20140128171259.GC2501@telmora.telvanni> <52E7E74E.7020901@tycho.nsa.gov>
+Message-ID: <1391094621.17775.YahooMailNeo@web87901.mail.ir2.yahoo.com>
+Date: Thu, 30 Jan 2014 15:10:21 +0000 (GMT)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: Strange context on unix_stream_socket
+To: Stephen Smalley <sds@tycho.nsa.gov>, Ole Kliemann <ole@plastictree.net>
+In-Reply-To: <52E7E74E.7020901@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Gentoo systems have custom kernels made by their users. I can run through Matthew’s kernel config with him to make sure that all of the right options are checked this evening. If any changes are necessary, he can recompile.
+Out of idle curiosity would a range_transition rule resolve this problem ?
 
-On Jan 29, 2014, at 5:35 PM, Brian Behlendorf <behlendorf1@llnl.gov> wrote:
+range_transition source target : unix_stream_socket s0;
 
-> On 01/29/14 13:36, Stephen Smalley wrote:
->> On 01/29/2014 11:58 AM, Matthew Thode wrote:
->>> On 01/29/2014 08:17 AM, Stephen Smalley wrote:
->>>> On 01/29/2014 09:07 AM, Stephen Smalley wrote:
->>>>> On 01/29/2014 08:55 AM, Paul Moore wrote:
->>>>>> On Wednesday, January 29, 2014 02:11:45 AM Matthew Thode wrote:
->>>>>>> On 01/29/2014 02:04 AM, Matthew Thode wrote:
->>>>>>>> This happens consistantly, just ls a particular dir and wheeeeee.
->>>>>>>> 
->>>>>>>> [  473.893141] ------------[ cut here ]------------
->>>>>>>> [  473.962110] kernel BUG at security/selinux/ss/services.c:654!
->>>>>>>> [  473.995314] invalid opcode: 0000 [#6] SMP
->>>>>>>> [  474.027196] Modules linked in:
->>>>>>>> [  474.058118] CPU: 0 PID: 8138 Comm: ls Tainted: G      D   I
->>>>>>>> 3.13.0-grsec #1
->>>>>>>> [  474.116637] Hardware name: Supermicro X8ST3/X8ST3, BIOS 2.0
->>>>>>>> 07/29/10
->>>>>>>> [  474.149768] task: ffff8805f50cd010 ti: ffff8805f50cd488 task.ti:
->>>>>>>> ffff8805f50cd488
->>>>>>>> [  474.183707] RIP: 0010:[<ffffffff814681c7>]  [<ffffffff814681c7>]
->>>>>>>> context_struct_compute_av+0xce/0x308
->>>>>>>> [  474.219954] RSP: 0018:ffff8805c0ac3c38  EFLAGS: 00010246
->>>>>>>> [  474.252253] RAX: 0000000000000000 RBX: ffff8805c0ac3d94 RCX:
->>>>>>>> 0000000000000100
->>>>>>>> [  474.287018] RDX: ffff8805e8aac000 RSI: 00000000ffffffff RDI:
->>>>>>>> ffff8805e8aaa000
->>>>>>>> [  474.321199] RBP: ffff8805c0ac3cb8 R08: 0000000000000010 R09:
->>>>>>>> 0000000000000006
->>>>>>>> [  474.357446] R10: 0000000000000000 R11: ffff8805c567a000 R12:
->>>>>>>> 0000000000000006
->>>>>>>> [  474.419191] R13: ffff8805c2b74e88 R14: 00000000000001da R15:
->>>>>>>> 0000000000000000
->>>>>>>> [  474.453816] FS:  00007f2e75220800(0000) GS:ffff88061fc00000(0000)
->>>>>>>> knlGS:0000000000000000
->>>>>>>> [  474.489254] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>>>>>>> [  474.522215] CR2: 00007f2e74716090 CR3: 00000005c085e000 CR4:
->>>>>>>> 00000000000207f0
->>>>>>>> [  474.556058] Stack:
->>>>>>>> [  474.584325]  ffff8805c0ac3c98 ffffffff811b549b ffff8805c0ac3c98
->>>>>>>> ffff8805f1190a40
->>>>>>>> [  474.618913]  ffff8805a6202f08 ffff8805c2b74e88 00068800d0464990
->>>>>>>> ffff8805e8aac860
->>>>>>>> [  474.653955]  ffff8805c0ac3cb8 000700068113833a ffff880606c75060
->>>>>>>> ffff8805c0ac3d94
->>>>>>>> [  474.690461] Call Trace:
->>>>>>>> [  474.723779]  [<ffffffff811b549b>] ? lookup_fast+0x1cd/0x22a
->>>>>>>> [  474.778049]  [<ffffffff81468824>] security_compute_av+0xf4/0x20b
->>>>>>>> [  474.811398]  [<ffffffff8196f419>] avc_compute_av+0x2a/0x179
->>>>>>>> [  474.843813]  [<ffffffff8145727b>] avc_has_perm+0x45/0xf4
->>>>>>>> [  474.875694]  [<ffffffff81457d0e>] inode_has_perm+0x2a/0x31
->>>>>>>> [  474.907370]  [<ffffffff81457e76>] selinux_inode_getattr+0x3c/0x3e
->>>>>>>> [  474.938726]  [<ffffffff81455cf6>] security_inode_getattr+0x1b/0x22
->>>>>>>> [  474.970036]  [<ffffffff811b057d>] vfs_getattr+0x19/0x2d
->>>>>>>> [  475.000618]  [<ffffffff811b05e5>] vfs_fstatat+0x54/0x91
->>>>>>>> [  475.030402]  [<ffffffff811b063b>] vfs_lstat+0x19/0x1b
->>>>>>>> [  475.061097]  [<ffffffff811b077e>] SyS_newlstat+0x15/0x30
->>>>>>>> [  475.094595]  [<ffffffff8113c5c1>] ? __audit_syscall_entry+0xa1/0xc3
->>>>>>>> [  475.148405]  [<ffffffff8197791e>] system_call_fastpath+0x16/0x1b
->>>>>>>> [  475.179201] Code: 00 48 85 c0 48 89 45 b8 75 02 0f 0b 48 8b 45 a0 48
->>>>>>>> 8b 3d 45 d0 b6 00 8b 40 08 89 c6 ff ce e8 d1 b0 06 00 48 85 c0 49 89 c7
->>>>>>>> 75 02 <0f> 0b 48 8b 45 b8 4c 8b 28 eb 1e 49 8d 7d 08 be 80 01 00 00 e8
->>>>>>>> [  475.255884] RIP  [<ffffffff814681c7>]
->>>>>>>> context_struct_compute_av+0xce/0x308
->>>>>>>> [  475.296120]  RSP <ffff8805c0ac3c38>
->>>>>>>> [  475.328734] ---[ end trace f076482e9d754adc ]---
->>>>>>>> 
->>>>>>> 
->>>>>>> sorry, forgot to add, this is for 3.13.0 as well.
->>>>>>> 
->>>>>>> ls ./.config/ipython/profile_default/
->>>>>>> Segmentation fault
->>>>>> 
->>>>>> Thanks for passing this along, but can you elaborate a bit more on this?
->>>>>> Distribution?  Kernel package?  SELinux policy?  Any unusual configuration?
->>>>>> etc.
->>>>>> 
->>>>>> I ask because I'm not seeing this problem on my system and it seems like a
->>>>>> fairly basic thing to be broken; if there was an issue with 'ls' on 3.13 I
->>>>>> expect we would be flooded with angry users right now ...
->>>>> 
->>>>> Does it happen on any filesystem other than ZFS?
->>>>> 
->>>>> Do you have any prior SELinux output leading up to this bug?
+
+
+----- Original Message -----
+> From: Stephen Smalley <sds@tycho.nsa.gov>
+> To: Ole Kliemann <ole@plastictree.net>
+> Cc: selinux@tycho.nsa.gov
+> Sent: Tuesday, 28 January 2014, 17:22
+> Subject: Re: Strange context on unix_stream_socket
+> 
+> On 01/28/2014 12:12 PM, Ole Kliemann wrote:
+>>  On Mon, Jan 27, 2014 at 11:20:23AM -0500, Stephen Smalley wrote:
+>>>  On 01/26/2014 05:46 PM, Ole Kliemann wrote:
+>>>>  I have written my own little socket test program. Process P1 with 
+>>>>  context TYPE1:RANGE1 creates a socket and listens on it. P2 with 
+>>>>  context TYPE2:RANGE2 connects to this socket.
 >>>> 
->>>> Also, what policy are you using and what is the security context on that
->>>> file?
+>>>>  Process P1 accepts the connection. The socket created throught 
+>>>>  accept() in P1 has actually the context TYPE1:RANGE2.
 >>>> 
->>> Ok, one at a time :D
+>>>>  Is this expected behavior? 
 >>> 
->>> I'm on gentoo using the strict policy (in permissive for now...)
->>> 
->>> Kernel is 3.13 (zfs is built from git head as of 2014-01-26 (selinux
->>> patches went in :D))
->>> 
->>> using basepol 2.20130424
->>> 
->>> No unusual config that I can think of.  I've found multiple files that
->>> this happens with).
->>> 
->>> Only on zfs that I can see
->>> 
->>> Dunno what you mean by prior selinux output, just some random selinux
->>> denials because restorecon -RF fails because of this.
->>> 
->>> I can't see either the file name or the context of that file.  As soon
->>> as anything tries to access anything about the file I get that backtrace.
+>>>  Yes.  That was the behavior desired by the MLS/LSPP community, as they
+>>>  want the socket to mirror the client level for multi-level servers, and
+>>>  in the single-level server case, you are only allowed to connect at the
+>>>  same level.
 >> 
->> Looking at the code in question, I don't see any way to reach that BUG
->> without memory corruption in the kernel.  Which could just as easily be
->> in ZFS as anything else...
+>>  Thank you for the clarification.
+>> 
+>>  Is there no way to control this? To state more precisly: I can 
+>>  very well _connect_ to everything the policy allows me to, I then 
+>>  just cannot use this connection. That's a bit weird.
+>> 
+>>  Although I admit, the problems arise from my specific situation 
+>>  where I have one realm the consist of only one type but is 
+>>  separated by MLS and another realm that is MLS-ignorant and uses 
+>>  TE. All vectors running between the two realms are also only 
+>>  controll by TE. When I now use sockets between the MLS and 
+>>  non-MLS realm these connections should only be controlled by TE,
+>>  but as a result of above mentioned labeling behavior, MLS 
+>>  suddenly gets in the way.
+>> 
+>>  I can imagine, in an MLS-only environment this behavior makes 
+>>  more sense; specificly in the case of multi-level servers. All 
+>>  the more desirable it would be if the policy was to make such 
+>>  labeling decisions at the discretion of the policy writer.
 > 
-> Memory corruption is possible but we haven't seen any other evidence of that in ZFS.  If Gentoo has a kernel-debug package similar to Fedora/RHELs that may be worth a try.  The additional debugging may catch something non-obvious.
+> Yes, in prior implementations we allowed it to be configurable as a
+> transition on the listening socket security context and the incoming
+> packet security context.  That would be preferable IMHO, but is not
+> possible today without kernel code changes.
 > 
-> Thanks,
-> Brian
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to 
+> Selinux-request@tycho.nsa.gov.
+> 
