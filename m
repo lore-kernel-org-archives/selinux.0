@@ -1,68 +1,44 @@
-Message-ID: <52F271AF.6080902@mthode.org>
-Date: Wed, 05 Feb 2014 11:15:27 -0600
-From: Matthew Thode <mthode@mthode.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s15HIS1F020636
+ for <selinux@tycho.nsa.gov>; Wed, 5 Feb 2014 12:18:28 -0500
+Received: by mail-pd0-f171.google.com with SMTP id g10so604645pdj.30
+ for <selinux@tycho.nsa.gov>; Wed, 05 Feb 2014 09:18:25 -0800 (PST)
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: file access causes a kernel bug
+In-Reply-To: <52F271AF.6080902@mthode.org>
 References: <52E8B5F8.2070005@mthode.org> <52EA80AC.2070802@tycho.nsa.gov>
  <52EA86D2.104@mthode.org> <2218414.0HDc6YTzKt@sifl>
-In-Reply-To: <2218414.0HDc6YTzKt@sifl>
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="RnfCQwjBd8RJLfDWr4bPQEAHwxNppstcg"
-Cc: behlendorf@llnl.gov, Richard Yao <ryao@gentoo.org>,
- Brian Behlendorf <behlendorf1@llnl.gov>, selinux@tycho.nsa.gov
-Reply-To: mthode@mthode.org
+ <52F271AF.6080902@mthode.org>
+Date: Wed, 5 Feb 2014 12:18:25 -0500
+Message-ID: <CAHC9VhReAdqxhQ2NCydFpzQMnO5x0jG3Cy_wteEMiu9jYYg4iw@mail.gmail.com>
+Subject: Re: file access causes a kernel bug
+From: Paul Moore <paul@paul-moore.com>
+To: mthode@mthode.org
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: Richard Yao <ryao@gentoo.org>, selinux@tycho.nsa.gov, behlendorf@llnl.gov,
+ Brian Behlendorf <behlendorf1@llnl.gov>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---RnfCQwjBd8RJLfDWr4bPQEAHwxNppstcg
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On 01/30/2014 11:19 AM, Paul Moore wrote:
-> On Thursday, January 30, 2014 11:07:30 AM Matthew Thode wrote:
->> On 01/30/2014 10:41 AM, Stephen Smalley wrote:
->>> Try the attached patch.
+On Wed, Feb 5, 2014 at 12:15 PM, Matthew Thode <mthode@mthode.org> wrote:
+> On 01/30/2014 11:19 AM, Paul Moore wrote:
+>> On Thursday, January 30, 2014 11:07:30 AM Matthew Thode wrote:
+>>> On 01/30/2014 10:41 AM, Stephen Smalley wrote:
+>>>> Try the attached patch.
+>>>
+>>> Confirmed that this fixes it :D thanks a ton for this.
 >>
->> Confirmed that this fixes it :D thanks a ton for this.
->=20
-> Queued up in my stable branch, I'll send a pull request to James once -=
-rc1 is=20
-> released.
->=20
-> Thanks guys.
->=20
-Mind letting me know when this has been upstreamed?
+>> Queued up in my stable branch, I'll send a pull request to James once -rc1 is
+>> released.
+>>
+>> Thanks guys.
+>>
+> Mind letting me know when this has been upstreamed?
 
---=20
--- Matthew Thode
+I've been away for a bit and unable to push patches, but you should
+see it this week.
 
-
---RnfCQwjBd8RJLfDWr4bPQEAHwxNppstcg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJS8nHLAAoJECRx6z5ArFrDHSEQAKC+2nRT3Iw9EI2KNT3mR6FX
-M0srumE/sLMBSfwMDYqly9mmsmgDySfvarxdbcmJCLbOA2e1jWnrveAWh9aO+S+p
-fsjz+gFeVJAS1FolnHdXUKjoBgplgg/+83Tw59z+BH4TMqHnFCPjibwIi+JyAfPD
-pqwgFJKsOPUqThs9Zs+4WvLUQmJ+Ikni0oJsEvYIlkYJD7aas/xnntJg8gVsFpOh
-KWQbn8/bOvf7+3uj7d+D2RJZ+MyR2FbpiiaeS5RdTlNJV5mKGc7Lj6GsbW4/s+qn
-Dgn48BnM/SITSPX/Qu+5/IOlePXdWAAiZmGuLuCwnRqIpLlKFGkHzB1HBxAashdZ
-Bap720vTGBewqueqtBoENaYzLL6Hcv3UUWWw+L7N+9dx05q9IqMU+H+WjeQLLIvp
-ER+gXr1QnM69Ujw86BmA2DSvzyBbbI4KPxgUfK8ntYfqwElJmDfnFYk7Pu4jVHRV
-u0WOYmvkLurABI9KUMZDQJsl3TwqIWgedzC7a+SBmVhjnOr+ENJSapHMlGOkpk14
-JS01Rzy+xPcFQMZuirRf6Ps2SLYjaKKChqMAOSu1ICJSrUshLhGYjN3FIX6RtGs9
-bGYG8WcvhXKHt96PKmNrCzYqZwIVQxxBqc2kMQe13TF/oid112olCgGpp0TLPNOw
-f0jMrYCpJ+bd6D3ycTWk
-=KroJ
------END PGP SIGNATURE-----
-
---RnfCQwjBd8RJLfDWr4bPQEAHwxNppstcg--
+-- 
+paul moore
+www.paul-moore.com
