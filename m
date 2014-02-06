@@ -1,54 +1,55 @@
-Subject: [PATCH] selinux: fix the output of ./scripts/get_maintainer.pl for
- SELinux
-To: selinux@tycho.nsa.gov
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s16Dkcsj015150
+ for <selinux@tycho.nsa.gov>; Thu, 6 Feb 2014 08:46:38 -0500
 From: Paul Moore <pmoore@redhat.com>
-Date: Thu, 06 Feb 2014 07:51:54 -0500
-Message-ID: <20140206125154.20528.84437.stgit@localhost>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux fixes for 3.14-rc1
+Date: Thu, 06 Feb 2014 08:46:31 -0500
+Message-ID: <4721677.KRkL7WUpch@sifl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- James Morris <james.l.morris@oracle.com>
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Correctly tag the SELinux mailing list as moderated for non-subscribers
-and do some shuffling of the SELinux maintainers to try and make things
-more clear when the scripts/get_maintainer.pl script is used.
+Hi James,
 
- # ./scripts/get_maintainer.pl -f security/selinux
- Paul Moore <paul@paul-moore.com> (supporter:SELINUX SECURITY...)
- Stephen Smalley <sds@tycho.nsa.gov> (supporter:SELINUX SECURITY...)
- Eric Paris <eparis@parisplace.org> (supporter:SELINUX SECURITY...)
- James Morris <james.l.morris@oracle.com> (supporter:SECURITY SUBSYSTEM)
- selinux@tycho.nsa.gov (moderated list:SELINUX SECURITY...)
- linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM)
- linux-kernel@vger.kernel.org (open list)
+Two small fixes for 3.14-rc1: a patch to check for setting empty security 
+contexts, and a patch to add a SELinux netlink definition for the 
+SOCK_DIAG_BY_FAMILY message.  Both patches pass the SELinux testsuite and are 
+very trivial.  I don't expect any merge problems.
 
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@parisplace.org>
-Cc: James Morris <james.l.morris@oracle.com>
-Signed-off-by: Paul Moore <pmoore@redhat.com>
+Enjoy,
+-Paul
+
 ---
- MAINTAINERS |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 6a6e4ac..bfe8da4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7583,11 +7583,10 @@ M:	Security Officers <security@kernel.org>
- S:	Supported
- 
- SELINUX SECURITY MODULE
-+M:	Paul Moore <paul@paul-moore.com>
- M:	Stephen Smalley <sds@tycho.nsa.gov>
--M:	James Morris <james.l.morris@oracle.com>
- M:	Eric Paris <eparis@parisplace.org>
--M:	Paul Moore <paul@paul-moore.com>
--L:	selinux@tycho.nsa.gov (subscribers-only, general discussion)
-+L:	selinux@tycho.nsa.gov (moderated for non-subscribers)
- W:	http://selinuxproject.org
- T:	git git://git.infradead.org/users/pcmoore/selinux
- S:	Supported
+The following changes since commit 825e587af2e90e9b953849f3347a01d8f383d577:
+
+  Merge tag 'v3.13' into stable-3.14 (2014-02-05 10:39:48 -0500)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-3.14
+
+for you to fetch changes up to 2172fa709ab32ca60e86179dc67d0857be8e2c98:
+
+  SELinux:  Fix kernel BUG on empty security contexts. (2014-02-05 12:20:51 
+-0500)
+
+----------------------------------------------------------------
+Paul Moore (1):
+      selinux: add SOCK_DIAG_BY_FAMILY to the list of netlink message types
+
+Stephen Smalley (1):
+      SELinux:  Fix kernel BUG on empty security contexts.
+
+ security/selinux/nlmsgtab.c    | 2 ++
+ security/selinux/ss/services.c | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+-- 
+paul moore
+security and virtualization @ redhat
