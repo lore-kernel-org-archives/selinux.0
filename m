@@ -1,340 +1,289 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s17GPUKZ032547
- for <selinux@tycho.nsa.gov>; Fri, 7 Feb 2014 11:25:34 -0500
-Message-ID: <1391790157.3514.YahooMailNeo@web87902.mail.ir2.yahoo.com>
-Date: Fri, 7 Feb 2014 16:22:37 +0000 (GMT)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: RFC - Display context information using iproute2 ss utility
-To: selinux list <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s17H3fvV002869
+ for <selinux@tycho.nsa.gov>; Fri, 7 Feb 2014 12:03:41 -0500
+Received: from localhost ([31.16.147.91]) by mail.gmx.com (mrgmx001) with
+ ESMTPSA (Nemesis) id 0M4GRv-1VLVIa2aHb-00rrQr for <selinux@tycho.nsa.gov>;
+ Fri, 07 Feb 2014 18:03:36 +0100
+Date: Fri, 7 Feb 2014 18:03:25 +0100
+From: Ole Kliemann <ole@plastictree.net>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: RFC - Display context information using iproute2 ss utility
+Message-ID: <20140207170325.GA10040@telmora.telvanni>
+References: <1391790157.3514.YahooMailNeo@web87902.mail.ir2.yahoo.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="-153594417-870842228-1391790157=:3514"
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+In-Reply-To: <1391790157.3514.YahooMailNeo@web87902.mail.ir2.yahoo.com>
+Sender: telvanni@gmx.net
+Cc: selinux list <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
----153594417-870842228-1391790157=:3514
-Content-Type: text/plain; charset=utf-8
+
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-I've been patching the iproute2 "ss" utility to display the SELinux=0Asecur=
-ity contexts for process and sockets, however I'm not sure=0Awhether the so=
-cket contexts are correct (I expected most to show=0Asystem_u:object_r:....=
-). =0A=0AI'm taking the socket contexts from /proc/PID/fd as was mentioned =
-in=0Aa previous email regarding socket contexts - is this correct ??=0A=0AI=
-'ve attached the patch that is built against:=0A=0Agit clone git://git.kern=
-el.org/pub/scm/linux/kernel/git/shemminger/iproute2.git=0A=0AAlso is it pos=
-sible to obtain a sockets peer context from userspace=0Ausing the /proc/PID=
-/fd information as it would be useful to show this.=0A=0ARichard
----153594417-870842228-1391790157=:3514
-Content-Type: text/x-patch; name="0001-ss-Add-support-for-retrieving-SELinux-contexts.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="0001-ss-Add-support-for-retrieving-SELinux-contexts.patch"
+On Fri, Feb 07, 2014 at 04:22:37PM +0000, Richard Haines wrote:
+> I've been patching the iproute2 "ss" utility to display the SELinux
+> security contexts for process and sockets, however I'm not sure
+> whether the socket contexts are correct (I expected most to show
+> system_u:object_r:....).=20
+>=20
+> I'm taking the socket contexts from /proc/PID/fd as was mentioned in
+> a previous email regarding socket contexts - is this correct ??
 
-RnJvbSA3ZDYxYjlmOWU1MDk4YTU5NDMwNTM2NGUxMzgwYzQ5MmVlZjUyMDkx
-IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBSaWNoYXJkIEhhaW5l
-cyA8cmljaGFyZF9jX2hhaW5lc0BidGludGVybmV0LmNvbT4KRGF0ZTogRnJp
-LCA3IEZlYiAyMDE0IDE1OjAyOjUzICswMDAwClN1YmplY3Q6IFtQQVRDSF0g
-c3M6IEFkZCBzdXBwb3J0IGZvciByZXRyaWV2aW5nIFNFTGludXggY29udGV4
-dHMKClRoZSBTRUxpbnV4IGNvbnRleHRzIGNhbiBiZSBhZGRlZCB0byB0aGUg
-b3V0cHV0IHVzaW5nIHRoZSAtWiBvcHRpb24uClRoZSBwcm9jZXNzIGFuZCBz
-b2NrZXQgY29udGV4dHMgYXJlIHJldHJpZXZlZCBidXQgZm9yIG5ldGxpbmsg
-c29ja2V0czoKaWYgdmFsaWQgcHJvY2VzcyBzaG93IHByb2Nlc3MgY29udGV4
-dCwgaWYgcGlkID0gMCBzaG93IGtlcm5lbCBpbml0aWFsCmNvbnRleHQsIGlm
-IHVua25vd24gc2hvdyAibm90IGF2YWlsYWJsZSIuCgpTaWduZWQtb2ZmLWJ5
-OiBSaWNoYXJkIEhhaW5lcyA8cmljaGFyZF9jX2hhaW5lc0BidGludGVybmV0
-LmNvbT4KLS0tCiBjb25maWd1cmUgICAgIHwgIDE2ICsrKysrCiBtYW4vbWFu
-OC9zcy44IHwgIDE5ICsrKysrKwogbWlzYy9NYWtlZmlsZSB8ICAxMiArKysr
-CiBtaXNjL3NzLmMgICAgIHwgMjA5ICsrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0KIDQgZmlsZXMg
-Y2hhbmdlZCwgMjM1IGluc2VydGlvbnMoKyksIDIxIGRlbGV0aW9ucygtKQoK
-ZGlmZiAtLWdpdCBhL2NvbmZpZ3VyZSBiL2NvbmZpZ3VyZQppbmRleCBkYTAx
-YzE5Li44NTQ4MzdlIDEwMDc1NQotLS0gYS9jb25maWd1cmUKKysrIGIvY29u
-ZmlndXJlCkBAIC0yMzEsNiArMjMxLDE5IEBAIEVPRgogICAgIHJtIC1mICRU
-TVBESVIvaXBzZXR0ZXN0LmMgJFRNUERJUi9pcHNldHRlc3QKIH0KIAorY2hl
-Y2tfc2VsaW51eCgpCisjIFNFTGludXggaXMgYSBjb21waWxlIHRpbWUgb3B0
-aW9uIGluIHRoZSBzcyB1dGlsaXR5Cit7CisJU0VMSU5VWF9MSUI9JCgke1BL
-R19DT05GSUd9IC0tc2lsZW5jZS1lcnJvcnMgbGlic2VsaW51eCAtLWxpYnMp
-CisJaWYgWyAtbiAiJFNFTElOVVhfTElCIiBdCisJdGhlbgorCWVjaG8gIkhB
-VkVfU0VMSU5VWDo9eSIgPj5Db25maWcKKwllY2hvICJ5ZXMiCisgICAgZWxz
-ZQorCWVjaG8gIm5vIgorCWZpCit9CisKIGVjaG8gIiMgR2VuZXJhdGVkIGNv
-bmZpZyBiYXNlZCBvbiIgJElOQ0xVREUgPkNvbmZpZwogY2hlY2tfdG9vbGNo
-YWluCiAKQEAgLTI1MywzICsyNjYsNiBAQCBjaGVja19pcHRfbGliX2Rpcgog
-CiBlY2hvIC1uICJsaWJjIGhhcyBzZXRuczogIgogY2hlY2tfc2V0bnMKKwor
-ZWNobyAtbiAiU0VMaW51eCBzdXBwb3J0OiAiCitjaGVja19zZWxpbnV4CmRp
-ZmYgLS1naXQgYS9tYW4vbWFuOC9zcy44IGIvbWFuL21hbjgvc3MuOAppbmRl
-eCA4MDdkOWRjLi4yZmJlZDM2IDEwMDY0NAotLS0gYS9tYW4vbWFuOC9zcy44
-CisrKyBiL21hbi9tYW44L3NzLjgKQEAgLTUzLDYgKzUzLDIyIEBAIFByaW50
-IHN1bW1hcnkgc3RhdGlzdGljcy4gVGhpcyBvcHRpb24gZG9lcyBub3QgcGFy
-c2Ugc29ja2V0IGxpc3RzIG9idGFpbmluZwogc3VtbWFyeSBmcm9tIHZhcmlv
-dXMgc291cmNlcy4gSXQgaXMgdXNlZnVsIHdoZW4gYW1vdW50IG9mIHNvY2tl
-dHMgaXMgc28gaHVnZQogdGhhdCBwYXJzaW5nIC9wcm9jL25ldC90Y3AgaXMg
-cGFpbmZ1bC4KIC5UUAorLkIgXC1aLCBcLVwtY29udGV4dAorU2hvdyBTRUxp
-bnV4IHNlY3VyaXR5IGNvbnRleHRzLiBCb3RoIHRoZSBwcm9jZXNzIGFuZCBz
-b2NrZXQgY29udGV4dHMgd2lsbAorYmUgZGlzcGxheWVkIChmb3IgdGhvc2Ug
-d2l0aCBzb2NrZXQgZmlsZSBkZXNjcmlwdG9ycykuIEZvciAKKy5CUiBuZXRs
-aW5rICg3KQorc29ja2V0cywgdGhlIGNvbnRleHQgZGlzcGxheWVkIGlzIGFz
-IGZvbGxvd3M6CisuUlMKKy5SUworLklQICIxLiIgNAorSWYgYSB2YWxpZCBw
-cm9jZXNzIHNob3cgcGlkIGNvbnRleHQuCisuSVAgIjIuIiA0CitJZiBkZXN0
-aW5hdGlvbiBpcyBrZXJuZWwgKHBpZCA9IDApIHNob3cga2VybmVsIGluaXRp
-YWwgY29udGV4dC4KKy5JUCAiMy4iIDQKK0lmIGFsbG9jYXRlZCBieSB0aGUg
-a2VybmVsIG9yIG5ldGxpbmsgdXNlciBzaG93IGNvbnRleHQgYXMgIm5vdCBh
-dmFpbGFibGUiLgorLlJFCisuUkUKKy5UUAogLkIgXC1iLCBcLVwtYnBmCiBT
-aG93IHNvY2tldCBCUEYgZmlsdGVycyAob25seSBhZG1pbmlzdHJhdG9ycyBh
-cmUgYWxsb3dlZCB0byBnZXQgdGhlc2UgaW5mb3JtYXRpb24pLgogLlRQCkBA
-IC0xMDMsNiArMTE5LDkgQEAgUGxlYXNlIHRha2UgYSBsb29rIGF0IHRoZSBv
-ZmZpY2lhbCBkb2N1bWVudGF0aW9uIChEZWJpYW4gcGFja2FnZSBpcHJvdXRl
-LWRvYykgZm8KIC5CIHNzIC10IC1hCiBEaXNwbGF5IGFsbCBUQ1Agc29ja2V0
-cy4KIC5UUAorLkIgc3MgLXQgLWEgLVoKK0Rpc3BsYXkgYWxsIFRDUCBzb2Nr
-ZXRzIHdpdGggcHJvY2VzcyBhbmQgc29ja2V0IFNFTGludXggc2VjdXJpdHkg
-Y29udGV4dHMuCisuVFAKIC5CIHNzIC11IC1hCiBEaXNwbGF5IGFsbCBVRFAg
-c29ja2V0cy4KIC5UUApkaWZmIC0tZ2l0IGEvbWlzYy9NYWtlZmlsZSBiL21p
-c2MvTWFrZWZpbGUKaW5kZXggYTU5ZmY4Ny4uYTk0NmE4NSAxMDA2NDQKLS0t
-IGEvbWlzYy9NYWtlZmlsZQorKysgYi9taXNjL01ha2VmaWxlCkBAIC04LDYg
-KzgsMTggQEAgaW5jbHVkZSAuLi9Db25maWcKIGFsbDogJChUQVJHRVRTKQog
-CiBzczogJChTU09CSikKK2lmZXEgKCQoSEFWRV9TRUxJTlVYKSx5KQorCSQo
-Q0MpICQoQ0ZMQUdTKSAkKExERkxBR1MpIC1vICRAICQoU1NPQkopICQoTERM
-SUJTKSAtbHNlbGludXgKK2Vsc2UKKwkkKENDKSAkKENGTEFHUykgJChMREZM
-QUdTKSAtbyAkQCAkKFNTT0JKKSAkKExETElCUykKK2VuZGlmCisKK3NzLm86
-IHNzLmMKK2lmZXEgKCQoSEFWRV9TRUxJTlVYKSx5KQorCSQoQ0MpICQoQ0ZM
-QUdTKSAtREhBVkVfU0VMSU5VWCAtYyAkKworZWxzZQorCSQoQ0MpICQoQ0ZM
-QUdTKSAtYyAkKworZW5kaWYKIAogbnN0YXQ6IG5zdGF0LmMKIAkkKENDKSAk
-KENGTEFHUykgJChMREZMQUdTKSAtbyBuc3RhdCBuc3RhdC5jIC1sbQpkaWZm
-IC0tZ2l0IGEvbWlzYy9zcy5jIGIvbWlzYy9zcy5jCmluZGV4IDc2NGZmZTIu
-LjFlMWQzZmIgMTAwNjQ0Ci0tLSBhL21pc2Mvc3MuYworKysgYi9taXNjL3Nz
-LmMKQEAgLTQwLDYgKzQwLDkgQEAKICNpbmNsdWRlIDxsaW51eC9maWx0ZXIu
-aD4KICNpbmNsdWRlIDxsaW51eC9wYWNrZXRfZGlhZy5oPgogI2luY2x1ZGUg
-PGxpbnV4L25ldGxpbmtfZGlhZy5oPgorI2lmIEhBVkVfU0VMSU5VWAorI2lu
-Y2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPgorI2VuZGlmCiAKIGludCByZXNv
-bHZlX2hvc3RzID0gMDsKIGludCByZXNvbHZlX3NlcnZpY2VzID0gMTsKQEAg
-LTUwLDYgKzUzLDExIEBAIGludCBzaG93X3VzZXJzID0gMDsKIGludCBzaG93
-X21lbSA9IDA7CiBpbnQgc2hvd190Y3BpbmZvID0gMDsKIGludCBzaG93X2Jw
-ZiA9IDA7CisjaWYgSEFWRV9TRUxJTlVYCitpbnQgc2hvd19jb250ZXh0ID0g
-MDsKKy8qIElmIHNob3dfdXNlcnMgJiBzaG93X2NvbnRleHQgb25seSBkbyB1
-c2VyX2VudF9oYXNoX2J1aWxkKCkgb25jZSAqLworaW50IHVzZXJfZW50X2hh
-c2hfYnVpbGRfaW5pdCA9IDA7CisjZW5kaWYKIAogaW50IG5ldGlkX3dpZHRo
-OwogaW50IHN0YXRlX3dpZHRoOwpAQCAtMjA3LDcgKzIxNSwxMSBAQCBzdHJ1
-Y3QgdXNlcl9lbnQgewogCXVuc2lnbmVkIGludAlpbm87CiAJaW50CQlwaWQ7
-CiAJaW50CQlmZDsKLQljaGFyCQlwcm9jZXNzWzBdOworCWNoYXIJKnByb2Nl
-c3M7CisjaWYgSEFWRV9TRUxJTlVYCisJc2VjdXJpdHlfY29udGV4dF90CXBy
-b2Nlc3NfY3R4OworCXNlY3VyaXR5X2NvbnRleHRfdAlzb2NrZXRfY3R4Owor
-I2VuZGlmCiB9OwogCiAjZGVmaW5lIFVTRVJfRU5UX0hBU0hfU0laRQkyNTYK
-QEAgLTIyMCwyMCArMjMyLDI5IEBAIHN0YXRpYyBpbnQgdXNlcl9lbnRfaGFz
-aGZuKHVuc2lnbmVkIGludCBpbm8pCiAJcmV0dXJuIHZhbCAmIChVU0VSX0VO
-VF9IQVNIX1NJWkUgLSAxKTsKIH0KIAotc3RhdGljIHZvaWQgdXNlcl9lbnRf
-YWRkKHVuc2lnbmVkIGludCBpbm8sIGNvbnN0IGNoYXIgKnByb2Nlc3MsIGlu
-dCBwaWQsIGludCBmZCkKKyNpZiBIQVZFX1NFTElOVVgKK3N0YXRpYyB2b2lk
-IHVzZXJfZW50X2FkZCh1bnNpZ25lZCBpbnQgaW5vLCBjaGFyICpwcm9jZXNz
-LAorCQkJCQkJCWludCBwaWQsIGludCBmZCwKKwkJCQkJCQlzZWN1cml0eV9j
-b250ZXh0X3QgcHJvY19jdHgsCisJCQkJCQkJc2VjdXJpdHlfY29udGV4dF90
-IHNvY2tfY3R4KQorI2Vsc2UKK3N0YXRpYyB2b2lkIHVzZXJfZW50X2FkZCh1
-bnNpZ25lZCBpbnQgaW5vLCBjaGFyICpwcm9jZXNzLCBpbnQgcGlkLCBpbnQg
-ZmQpCisjZW5kaWYKIHsKIAlzdHJ1Y3QgdXNlcl9lbnQgKnAsICoqcHA7Ci0J
-aW50IHN0cl9sZW47CiAKLQlzdHJfbGVuID0gc3RybGVuKHByb2Nlc3MpICsg
-MTsKLQlwID0gbWFsbG9jKHNpemVvZihzdHJ1Y3QgdXNlcl9lbnQpICsgc3Ry
-X2xlbik7CisJcCA9IG1hbGxvYyhzaXplb2Yoc3RydWN0IHVzZXJfZW50KSk7
-CiAJaWYgKCFwKQogCQlhYm9ydCgpOwogCXAtPm5leHQgPSBOVUxMOwogCXAt
-PmlubyA9IGlubzsKIAlwLT5waWQgPSBwaWQ7CiAJcC0+ZmQgPSBmZDsKLQlz
-dHJjcHkocC0+cHJvY2VzcywgcHJvY2Vzcyk7CisJcC0+cHJvY2VzcyA9IHN0
-cmR1cChwcm9jZXNzKTsKKyNpZiBIQVZFX1NFTElOVVgKKwlwLT5wcm9jZXNz
-X2N0eCA9IHN0cmR1cChwcm9jX2N0eCk7CisJcC0+c29ja2V0X2N0eCA9IHN0
-cmR1cChzb2NrX2N0eCk7CisjZW5kaWYKIAogCXBwID0gJnVzZXJfZW50X2hh
-c2hbdXNlcl9lbnRfaGFzaGZuKGlubyldOwogCXAtPm5leHQgPSAqcHA7CkBA
-IC0yNDcsNiArMjY4LDE3IEBAIHN0YXRpYyB2b2lkIHVzZXJfZW50X2hhc2hf
-YnVpbGQodm9pZCkKIAljaGFyIG5hbWVbMTAyNF07CiAJaW50IG5hbWVvZmY7
-CiAJRElSICpkaXI7CisjaWYgSEFWRV9TRUxJTlVYCisgICAgc2VjdXJpdHlf
-Y29udGV4dF90IHBpZF9jb250ZXh0OworICAgIHNlY3VyaXR5X2NvbnRleHRf
-dCBzb2NrX2NvbnRleHQ7CisJc2VjdXJpdHlfY29udGV4dF90IG5vX2N0eCA9
-ICJub3QgYXZhaWxhYmxlIjsKKworCS8qIElmIHNob3dfdXNlcnMgJiBzaG93
-X2NvbnRleHQgb25seSBkbyB0aGlzIG9uY2UgKi8KKwlpZiAodXNlcl9lbnRf
-aGFzaF9idWlsZF9pbml0ICE9IDApCisJCXJldHVybjsKKworCXVzZXJfZW50
-X2hhc2hfYnVpbGRfaW5pdCA9IDE7CisjZW5kaWYKIAogCXN0cmNweShuYW1l
-LCByb290KTsKIAlpZiAoc3RybGVuKG5hbWUpID09IDAgfHwgbmFtZVtzdHJs
-ZW4obmFtZSktMV0gIT0gJy8nKQpAQCAtMjYxLDE5ICsyOTMsMjQgQEAgc3Rh
-dGljIHZvaWQgdXNlcl9lbnRfaGFzaF9idWlsZCh2b2lkKQogCXdoaWxlICgo
-ZCA9IHJlYWRkaXIoZGlyKSkgIT0gTlVMTCkgewogCQlzdHJ1Y3QgZGlyZW50
-ICpkMTsKIAkJY2hhciBwcm9jZXNzWzE2XTsKKwkJY2hhciAqcDsKIAkJaW50
-IHBpZCwgcG9zOwogCQlESVIgKmRpcjE7CiAJCWNoYXIgY3JhcDsKIAogCQlp
-ZiAoc3NjYW5mKGQtPmRfbmFtZSwgIiVkJWMiLCAmcGlkLCAmY3JhcCkgIT0g
-MSkKIAkJCWNvbnRpbnVlOwotCisjaWYgSEFWRV9TRUxJTlVYCisJCWlmIChn
-ZXRwaWRjb24ocGlkLCAmcGlkX2NvbnRleHQpICE9IDApCisJCQlwaWRfY29u
-dGV4dCA9IHN0cmR1cChub19jdHgpOworI2VuZGlmCiAJCXNwcmludGYobmFt
-ZSArIG5hbWVvZmYsICIlZC9mZC8iLCBwaWQpOwogCQlwb3MgPSBzdHJsZW4o
-bmFtZSk7CiAJCWlmICgoZGlyMSA9IG9wZW5kaXIobmFtZSkpID09IE5VTEwp
-CiAJCQljb250aW51ZTsKIAogCQlwcm9jZXNzWzBdID0gJ1wwJzsKKwkJcCA9
-IHByb2Nlc3M7CiAKIAkJd2hpbGUgKChkMSA9IHJlYWRkaXIoZGlyMSkpICE9
-IE5VTEwpIHsKIAkJCWNvbnN0IGNoYXIgKnBhdHRlcm4gPSAic29ja2V0Olsi
-OwpAQCAtMjgxLDYgKzMxOCw3IEBAIHN0YXRpYyB2b2lkIHVzZXJfZW50X2hh
-c2hfYnVpbGQodm9pZCkKIAkJCWNoYXIgbG5rWzY0XTsKIAkJCWludCBmZDsK
-IAkJCXNzaXplX3QgbGlua19sZW47CisJCQljaGFyIHRtcFsxMDI0XTsKIAog
-CQkJaWYgKHNzY2FuZihkMS0+ZF9uYW1lLCAiJWQlYyIsICZmZCwgJmNyYXAp
-ICE9IDEpCiAJCQkJY29udGludWU7CkBAIC0yOTYsMjEgKzMzNCwzMyBAQCBz
-dGF0aWMgdm9pZCB1c2VyX2VudF9oYXNoX2J1aWxkKHZvaWQpCiAJCQkJY29u
-dGludWU7CiAKIAkJCXNzY2FuZihsbmssICJzb2NrZXQ6WyV1XSIsICZpbm8p
-OwotCi0JCQlpZiAocHJvY2Vzc1swXSA9PSAnXDAnKSB7Ci0JCQkJY2hhciB0
-bXBbMTAyNF07CisjaWYgSEFWRV9TRUxJTlVYCisJCQlzbnByaW50Zih0bXAs
-IHNpemVvZih0bXApLCAiJXMvJWQvZmQvJXMiLAorCQkJCQlyb290LCBwaWQs
-IGQxLT5kX25hbWUpOworCisJCQlpZiAoZ2V0ZmlsZWNvbih0bXAsICZzb2Nr
-X2NvbnRleHQpIDwgMCkKKwkJCQlzb2NrX2NvbnRleHQgPSBzdHJkdXAobm9f
-Y3R4KTsKKyNlbmRpZgorCQkJaWYgKCpwID09ICdcMCcpIHsKIAkJCQlGSUxF
-ICpmcDsKIAogCQkJCXNucHJpbnRmKHRtcCwgc2l6ZW9mKHRtcCksICIlcy8l
-ZC9zdGF0Iiwgcm9vdCwgcGlkKTsKIAkJCQlpZiAoKGZwID0gZm9wZW4odG1w
-LCAiciIpKSAhPSBOVUxMKSB7Ci0JCQkJCWZzY2FuZihmcCwgIiUqZCAoJVte
-KV0pIiwgcHJvY2Vzcyk7CisJCQkJCWZzY2FuZihmcCwgIiUqZCAoJVteKV0p
-IiwgcCk7CiAJCQkJCWZjbG9zZShmcCk7CiAJCQkJfQogCQkJfQotCi0JCQl1
-c2VyX2VudF9hZGQoaW5vLCBwcm9jZXNzLCBwaWQsIGZkKTsKKyNpZiBIQVZF
-X1NFTElOVVgKKwkJCXVzZXJfZW50X2FkZChpbm8sIHAsIHBpZCwgZmQsIHBp
-ZF9jb250ZXh0LCBzb2NrX2NvbnRleHQpOworCQkJZnJlZWNvbihzb2NrX2Nv
-bnRleHQpOworCQl9CisJCWZyZWVjb24ocGlkX2NvbnRleHQpOworCQljbG9z
-ZWRpcihkaXIxKTsKKyNlbHNlCisJCQl1c2VyX2VudF9hZGQoaW5vLCBwLCBw
-aWQsIGZkKTsKIAkJfQogCQljbG9zZWRpcihkaXIxKTsKKyNlbmRpZgogCX0K
-IAljbG9zZWRpcihkaXIpOwogfQpAQCAtMzQ5LDYgKzM5OSw0MyBAQCBzdGF0
-aWMgaW50IGZpbmRfdXNlcnModW5zaWduZWQgaW5vLCBjaGFyICpidWYsIGlu
-dCBidWZsZW4pCiAJcmV0dXJuIGNudDsKIH0KIAorI2lmIEhBVkVfU0VMSU5V
-WAorc3RhdGljIGludCBmaW5kX2NvbnRleHQodW5zaWduZWQgaW5vLCBjaGFy
-ICpidWYsIGludCBidWZsZW4pCit7CisJc3RydWN0IHVzZXJfZW50ICpwOwor
-CWludCBjbnQgPSAwOworCWNoYXIgKnB0cjsKKworCWlmICghaW5vKQorCQly
-ZXR1cm4gMDsKKworCXAgPSB1c2VyX2VudF9oYXNoW3VzZXJfZW50X2hhc2hm
-bihpbm8pXTsKKwlwdHIgPSBidWY7CisJd2hpbGUgKHApIHsKKwkJaWYgKHAt
-PmlubyAhPSBpbm8pCisJCQlnb3RvIG5leHQ7CisKKwkJaWYgKHB0ciAtIGJ1
-ZiA+PSBidWZsZW4gLSAxKQorCQkJYnJlYWs7CisKKwkJc25wcmludGYocHRy
-LCBidWZsZW4gLSAocHRyIC0gYnVmKSwKKwkJCQkicHJvY19jdHg9JXMgc29j
-a19jdHg9JXMgIiwKKwkJCQlwLT5wcm9jZXNzX2N0eCwgcC0+c29ja2V0X2N0
-eCk7CisKKwkJcHRyICs9IHN0cmxlbihwdHIpOworCQljbnQrKzsKKworCW5l
-eHQ6CisJCXAgPSBwLT5uZXh0OworCX0KKworCWlmIChwdHIgIT0gYnVmKQor
-CQlwdHJbLTFdID0gJ1wwJzsKKworCXJldHVybiBjbnQ7Cit9CisjZW5kaWYK
-KwogLyogR2V0IHN0YXRzIGZyb20gc2xhYiAqLwogCiBzdHJ1Y3Qgc2xhYnN0
-YXQKQEAgLTEyODIsMTEgKzEzNjksMTcgQEAgc3RhdGljIGludCB0Y3Bfc2hv
-d19saW5lKGNoYXIgKmxpbmUsIGNvbnN0IHN0cnVjdCBmaWx0ZXIgKmYsIGlu
-dCBmYW1pbHkpCiAJCWlmIChzLnFhY2smMSkKIAkJCXByaW50ZigiIGJpZGly
-Iik7CiAJfQorCWNoYXIgdWJ1Zls0MDk2XTsKIAlpZiAoc2hvd191c2Vycykg
-ewotCQljaGFyIHVidWZbNDA5Nl07CiAJCWlmIChmaW5kX3VzZXJzKHMuaW5v
-LCB1YnVmLCBzaXplb2YodWJ1ZikpID4gMCkKIAkJCXByaW50ZigiIHVzZXJz
-OiglcykiLCB1YnVmKTsKIAl9CisjaWYgSEFWRV9TRUxJTlVYCisJaWYgKHNo
-b3dfY29udGV4dCkgeworCQlpZiAoZmluZF9jb250ZXh0KHMuaW5vLCB1YnVm
-LCBzaXplb2YodWJ1ZikpID4gMCkKKwkJCXByaW50ZigiICVzIiwgdWJ1Zik7
-CisJfQorI2VuZGlmCiAJaWYgKHNob3dfZGV0YWlscykgewogCQlpZiAocy51
-aWQpCiAJCQlwcmludGYoIiB1aWQ6JXUiLCAodW5zaWduZWQpcy51aWQpOwpA
-QCAtMTUwNiwxMSArMTU5OSwxNyBAQCBzdGF0aWMgaW50IGluZXRfc2hvd19z
-b2NrKHN0cnVjdCBubG1zZ2hkciAqbmxoLCBzdHJ1Y3QgZmlsdGVyICpmKQog
-CQkJICAgICAgIHItPmlkaWFnX3JldHJhbnMpOwogCQl9CiAJfQorCWNoYXIg
-dWJ1Zls0MDk2XTsKIAlpZiAoc2hvd191c2VycykgewotCQljaGFyIHVidWZb
-NDA5Nl07CiAJCWlmIChmaW5kX3VzZXJzKHItPmlkaWFnX2lub2RlLCB1YnVm
-LCBzaXplb2YodWJ1ZikpID4gMCkKIAkJCXByaW50ZigiIHVzZXJzOiglcyki
-LCB1YnVmKTsKIAl9CisjaWYgSEFWRV9TRUxJTlVYCisJaWYgKHNob3dfY29u
-dGV4dCkgeworCQlpZiAoZmluZF9jb250ZXh0KHItPmlkaWFnX2lub2RlLCB1
-YnVmLCBzaXplb2YodWJ1ZikpID4gMCkKKwkJCXByaW50ZigiICVzIiwgdWJ1
-Zik7CisJfQorI2VuZGlmCiAJaWYgKHNob3dfZGV0YWlscykgewogCQlpZiAo
-ci0+aWRpYWdfdWlkKQogCQkJcHJpbnRmKCIgdWlkOiV1IiwgKHVuc2lnbmVk
-KXItPmlkaWFnX3VpZCk7CkBAIC0xOTk1LDExICsyMDk0LDE3IEBAIHN0YXRp
-YyBpbnQgZGdyYW1fc2hvd19saW5lKGNoYXIgKmxpbmUsIGNvbnN0IHN0cnVj
-dCBmaWx0ZXIgKmYsIGludCBmYW1pbHkpCiAJZm9ybWF0dGVkX3ByaW50KCZz
-LmxvY2FsLCBzLmxwb3J0KTsKIAlmb3JtYXR0ZWRfcHJpbnQoJnMucmVtb3Rl
-LCBzLnJwb3J0KTsKIAorCWNoYXIgdWJ1Zls0MDk2XTsKIAlpZiAoc2hvd191
-c2VycykgewotCQljaGFyIHVidWZbNDA5Nl07CiAJCWlmIChmaW5kX3VzZXJz
-KHMuaW5vLCB1YnVmLCBzaXplb2YodWJ1ZikpID4gMCkKIAkJCXByaW50Zigi
-IHVzZXJzOiglcykiLCB1YnVmKTsKIAl9CisjaWYgSEFWRV9TRUxJTlVYCisJ
-aWYgKHNob3dfY29udGV4dCkgeworCQlpZiAoZmluZF9jb250ZXh0KHMuaW5v
-LCB1YnVmLCBzaXplb2YodWJ1ZikpID4gMCkKKwkJCXByaW50ZigiICVzIiwg
-dWJ1Zik7CisJfQorI2VuZGlmCiAKIAlpZiAoc2hvd19kZXRhaWxzKSB7CiAJ
-CWlmIChzLnVpZCkKQEAgLTIxODUsMTEgKzIyOTAsMTcgQEAgc3RhdGljIHZv
-aWQgdW5peF9saXN0X3ByaW50KHN0cnVjdCB1bml4c3RhdCAqbGlzdCwgc3Ry
-dWN0IGZpbHRlciAqZikKIAkJcHJpbnRmKCIlKnMgJS0qZCAlKnMgJS0qZCIs
-CiAJCSAgICAgICBhZGRyX3dpZHRoLCBzLT5uYW1lID8gOiAiKiIsIHNlcnZf
-d2lkdGgsIHMtPmlubywKIAkJICAgICAgIGFkZHJfd2lkdGgsIHBlZXIsIHNl
-cnZfd2lkdGgsIHMtPnBlZXIpOworCQljaGFyIHVidWZbNDA5Nl07CiAJCWlm
-IChzaG93X3VzZXJzKSB7Ci0JCQljaGFyIHVidWZbNDA5Nl07CiAJCQlpZiAo
-ZmluZF91c2VycyhzLT5pbm8sIHVidWYsIHNpemVvZih1YnVmKSkgPiAwKQog
-CQkJCXByaW50ZigiIHVzZXJzOiglcykiLCB1YnVmKTsKIAkJfQorI2lmIEhB
-VkVfU0VMSU5VWAorCQlpZiAoc2hvd19jb250ZXh0KSB7CisJCQlpZiAoZmlu
-ZF9jb250ZXh0KHMtPmlubywgdWJ1Ziwgc2l6ZW9mKHVidWYpKSA+IDApCisJ
-CQkJcHJpbnRmKCIgJXMiLCB1YnVmKTsKKwkJfQorI2VuZGlmCiAJCXByaW50
-ZigiXG4iKTsKIAl9CiB9CkBAIC0yMjUwLDExICsyMzYxLDE3IEBAIHN0YXRp
-YyBpbnQgdW5peF9zaG93X3NvY2soc3RydWN0IG5sbXNnaGRyICpubGgsIHN0
-cnVjdCBmaWx0ZXIgKmYpCiAJCQlhZGRyX3dpZHRoLCAiKiIsIC8qIEZJWE1F
-ICovCiAJCQlzZXJ2X3dpZHRoLCBwZWVyX2lubyk7CiAKKwljaGFyIHVidWZb
-NDA5Nl07CiAJaWYgKHNob3dfdXNlcnMpIHsKLQkJY2hhciB1YnVmWzQwOTZd
-OwogCQlpZiAoZmluZF91c2VycyhyLT51ZGlhZ19pbm8sIHVidWYsIHNpemVv
-Zih1YnVmKSkgPiAwKQogCQkJcHJpbnRmKCIgdXNlcnM6KCVzKSIsIHVidWYp
-OwogCX0KKyNpZiBIQVZFX1NFTElOVVgKKwlpZiAoc2hvd19jb250ZXh0KSB7
-CisJCWlmIChmaW5kX2NvbnRleHQoci0+dWRpYWdfaW5vLCB1YnVmLCBzaXpl
-b2YodWJ1ZikpID4gMCkKKwkJCXByaW50ZigiICVzIiwgdWJ1Zik7CisJfQor
-I2VuZGlmCiAKIAlpZiAoc2hvd19tZW0pIHsKIAkJcHJpbnRmKCJcblx0Iik7
-CkBAIC0yNTExLDExICsyNjI4LDE3IEBAIHN0YXRpYyBpbnQgcGFja2V0X3No
-b3dfc29jayhzdHJ1Y3Qgbmxtc2doZHIgKm5saCwgc3RydWN0IGZpbHRlciAq
-ZikKIAlwcmludGYoIiUqcyolLSpzIiwKIAkgICAgICAgYWRkcl93aWR0aCwg
-IiIsIHNlcnZfd2lkdGgsICIiKTsKIAorCWNoYXIgdWJ1Zls0MDk2XTsKIAlp
-ZiAoc2hvd191c2VycykgewotCQljaGFyIHVidWZbNDA5Nl07CiAJCWlmIChm
-aW5kX3VzZXJzKHItPnBkaWFnX2lubywgdWJ1Ziwgc2l6ZW9mKHVidWYpKSA+
-IDApCiAJCQlwcmludGYoIiB1c2VyczooJXMpIiwgdWJ1Zik7CiAJfQorI2lm
-IEhBVkVfU0VMSU5VWAorCWlmIChzaG93X2NvbnRleHQpIHsKKwkJaWYgKGZp
-bmRfY29udGV4dChyLT5wZGlhZ19pbm8sIHVidWYsIHNpemVvZih1YnVmKSkg
-PiAwKQorCQkJcHJpbnRmKCIgJXMiLCB1YnVmKTsKKwl9CisjZW5kaWYKIAlp
-ZiAoc2hvd19kZXRhaWxzKSB7CiAJCV9fdTMyIHVpZCA9IDA7CiAKQEAgLTI3
-MDYsMTEgKzI4MjksMTcgQEAgc3RhdGljIGludCBwYWNrZXRfc2hvdyhzdHJ1
-Y3QgZmlsdGVyICpmKQogCQlwcmludGYoIiUqcyolLSpzIiwKIAkJICAgICAg
-IGFkZHJfd2lkdGgsICIiLCBzZXJ2X3dpZHRoLCAiIik7CiAKKwkJY2hhciB1
-YnVmWzQwOTZdOwogCQlpZiAoc2hvd191c2VycykgewotCQkJY2hhciB1YnVm
-WzQwOTZdOwogCQkJaWYgKGZpbmRfdXNlcnMoaW5vLCB1YnVmLCBzaXplb2Yo
-dWJ1ZikpID4gMCkKIAkJCQlwcmludGYoIiB1c2VyczooJXMpIiwgdWJ1Zik7
-CiAJCX0KKyNpZiBIQVZFX1NFTElOVVgKKwkJaWYgKHNob3dfY29udGV4dCkg
-eworCQkJaWYgKGZpbmRfY29udGV4dChpbm8sIHVidWYsIHNpemVvZih1YnVm
-KSkgPiAwKQorCQkJCXByaW50ZigiICVzIiwgdWJ1Zik7CisJCX0KKyNlbmRp
-ZgogCQlpZiAoc2hvd19kZXRhaWxzKSB7CiAJCQlwcmludGYoIiBpbm89JXUg
-dWlkPSV1IHNrPSVsbHgiLCBpbm8sIHVpZCwgc2spOwogCQl9CkBAIC0yNzg1
-LDYgKzI5MTQsMjkgQEAgc3RhdGljIHZvaWQgbmV0bGlua19zaG93X29uZShz
-dHJ1Y3QgZmlsdGVyICpmLAogCQlwcmludGYoIiUqcyolLSpzIiwKIAkJICAg
-ICAgIGFkZHJfd2lkdGgsICIiLCBzZXJ2X3dpZHRoLCAiIik7CiAJfQorI2lm
-IEhBVkVfU0VMSU5VWAorICAgIHNlY3VyaXR5X2NvbnRleHRfdCBwaWRfY29u
-dGV4dCA9IE5VTEw7CisKKwlpZiAoc2hvd19jb250ZXh0KSB7CisJCS8qIFRo
-ZSBwaWQgdmFsdWUgd2lsbCBlaXRoZXIgYmU6CisJCSAqCQkwIGlmIGRlc3Rp
-bmF0aW9uIGlzIGtlcm5lbCAtIHNob3cga2VybmVsIGluaXRpYWwgY29udGV4
-dC4KKwkJICoJCUEgdmFsaWQgcHJvY2VzcyBwaWQgLSB1c2UgZ2V0cGlkY29u
-LgorCQkgKgkJQSB1bmlxdWUgdmFsdWUgYWxsb2NhdGVkIGJ5IHRoZSBrZXJu
-ZWwgb3IgbmV0bGluayB1c2VyCisJCSAqCQl0byB0aGUgcHJvY2VzcyAtIHNo
-b3cgY29udGV4dCBhcyAibm90IGF2YWlsYWJsZSIuCisJCSAqLworCQlpZiAo
-IXBpZCkgeworCQkJc2VjdXJpdHlfZ2V0X2luaXRpYWxfY29udGV4dCgia2Vy
-bmVsIiwgJnBpZF9jb250ZXh0KTsKKwkJfSBlbHNlIGlmIChwaWQgPiAwKSB7
-CisJCQlnZXRwaWRjb24ocGlkLCAmcGlkX2NvbnRleHQpOworCQl9CisJCWlm
-IChwaWRfY29udGV4dCAhPSBOVUxMKSB7CisJCQlwcmludGYoInByb2NfY3R4
-PSUtKnMgIiwgc2Vydl93aWR0aCwgcGlkX2NvbnRleHQpOworCQkJZnJlZWNv
-biAocGlkX2NvbnRleHQpOworCQl9IGVsc2UgeworCQkJcHJpbnRmKCJwcm9j
-X2N0eD0lLSpzICIsIHNlcnZfd2lkdGgsICJub3QgYXZhaWxhYmxlIik7CisJ
-CX0KKwl9CisjIGVuZGlmCiAKIAlpZiAoc2hvd19kZXRhaWxzKSB7CiAJCXBy
-aW50ZigiIHNrPSVsbHggY2I9JWxseCBncm91cHM9MHglMDh4Iiwgc2ssIGNi
-LCBncm91cHMpOwpAQCAtMzA2MCw2ICszMjEyLDcgQEAgc3RhdGljIHZvaWQg
-X3VzYWdlKEZJTEUgKmRlc3QpCiAiICAgLWksIC0taW5mbwkJc2hvdyBpbnRl
-cm5hbCBUQ1AgaW5mb3JtYXRpb25cbiIKICIgICAtcywgLS1zdW1tYXJ5CXNo
-b3cgc29ja2V0IHVzYWdlIHN1bW1hcnlcbiIKICIgICAtYiwgLS1icGYgICAg
-ICAgICAgIHNob3cgYnBmIGZpbHRlciBzb2NrZXQgaW5mb3JtYXRpb25cbiIK
-KyIgICAtWiwgLS1jb250ZXh0CWRpc3BsYXkgU0VMaW51eCBzZWN1cml0eSBj
-b250ZXh0cyBmb3IgcHJvY2VzcyBhbmQgc29ja2V0XG4iCiAiXG4iCiAiICAg
-LTQsIC0taXB2NCAgICAgICAgICBkaXNwbGF5IG9ubHkgSVAgdmVyc2lvbiA0
-IHNvY2tldHNcbiIKICIgICAtNiwgLS1pcHY2ICAgICAgICAgIGRpc3BsYXkg
-b25seSBJUCB2ZXJzaW9uIDYgc29ja2V0c1xuIgpAQCAtMzE0OSw2ICszMzAy
-LDcgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBvcHRpb24gbG9uZ19vcHRzW10g
-PSB7CiAJeyAiZmlsdGVyIiwgMSwgMCwgJ0YnIH0sCiAJeyAidmVyc2lvbiIs
-IDAsIDAsICdWJyB9LAogCXsgImhlbHAiLCAwLCAwLCAnaCcgfSwKKwl7ICJj
-b250ZXh0IiwgMCwgMCwgJ1onIH0sCiAJeyAwIH0KIAogfTsKQEAgLTMxNjcs
-NyArMzMyMSw3IEBAIGludCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10p
-CiAKIAljdXJyZW50X2ZpbHRlci5zdGF0ZXMgPSBkZWZhdWx0X2ZpbHRlci5z
-dGF0ZXM7CiAKLQl3aGlsZSAoKGNoID0gZ2V0b3B0X2xvbmcoYXJnYywgYXJn
-diwgImRoYWxldHV3eG5ybzQ2MHNwYmY6bWlBOkQ6Rjp2ViIsCisJd2hpbGUg
-KChjaCA9IGdldG9wdF9sb25nKGFyZ2MsIGFyZ3YsICJkaGFsZXR1d3hucm80
-NjBzcGJmOm1pQTpEOkY6dlY6WiIsCiAJCQkJIGxvbmdfb3B0cywgTlVMTCkp
-ICE9IEVPRikgewogCQlzd2l0Y2goY2gpIHsKIAkJY2FzZSAnbic6CkBAIC0z
-MzI3LDYgKzM0ODEsMTkgQEAgaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKmFy
-Z3ZbXSkKIAkJY2FzZSAnVic6CiAJCQlwcmludGYoInNzIHV0aWxpdHksIGlw
-cm91dGUyLXNzJXNcbiIsIFNOQVBTSE9UKTsKIAkJCWV4aXQoMCk7CisJCWNh
-c2UgJ1onOgorI2lmIEhBVkVfU0VMSU5VWAorCSAgICAJaWYgKGlzX3NlbGlu
-dXhfZW5hYmxlZCgpIDw9IDApIHsKKwkJCQlmcHJpbnRmKHN0ZGVyciwgInNz
-OiBTRUxpbnV4IGlzIG5vdCBlbmFibGVkLlxuIik7CisJCQkJZXhpdCgxKTsK
-KwkgICAgCX0KKwkgICAgCXNob3dfY29udGV4dCsrOworCQkJdXNlcl9lbnRf
-aGFzaF9idWlsZCgpOworI2Vsc2UKKyAgICAgICAgICAgIGZwcmludGYoc3Rk
-ZXJyLCAic3M6IHZlcnNpb24gZG9lcyBub3Qgc3VwcG9ydCBTRUxpbnV4Llxu
-Iik7CisJICAgIAlleGl0KDEpOworI2VuZGlmCisJCQlicmVhazsKIAkJY2Fz
-ZSAnaCc6CiAJCWNhc2UgJz8nOgogCQkJaGVscCgpOwotLSAKMS44LjUuMwoK
+I was doing it that way and it seemed to work, I could even=20
+change the context using 'chcon /proc/PID/fd'.
 
+But I have no idea whether it is supposed to be a reliable way or=20
+any other methods exist. The whole sockfs thing kept me rather=20
+wondering...
 
----153594417-870842228-1391790157=:3514--
+>=20
+> I've attached the patch that is built against:
+>=20
+> git clone git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iprout=
+e2.git
+>=20
+> Also is it possible to obtain a sockets peer context from userspace
+> using the /proc/PID/fd information as it would be useful to show this.
+>=20
+> Richard
+
+> From 7d61b9f9e5098a594305364e1380c492eef52091 Mon Sep 17 00:00:00 2001
+> From: Richard Haines <richard_c_haines@btinternet.com>
+> Date: Fri, 7 Feb 2014 15:02:53 +0000
+> Subject: [PATCH] ss: Add support for retrieving SELinux contexts
+>=20
+> The SELinux contexts can be added to the output using the -Z option.
+> The process and socket contexts are retrieved but for netlink sockets:
+> if valid process show process context, if pid =3D 0 show kernel initial
+> context, if unknown show "not available".
+>=20
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  configure     |  16 +++++
+>  man/man8/ss.8 |  19 ++++++
+>  misc/Makefile |  12 ++++
+>  misc/ss.c     | 209 ++++++++++++++++++++++++++++++++++++++++++++++++++++=
+------
+>  4 files changed, 235 insertions(+), 21 deletions(-)
+>=20
+> diff --git a/configure b/configure
+> index da01c19..854837e 100755
+> --- a/configure
+> +++ b/configure
+> @@ -231,6 +231,19 @@ EOF
+>      rm -f $TMPDIR/ipsettest.c $TMPDIR/ipsettest
+>  }
+> =20
+> +check_selinux()
+> +# SELinux is a compile time option in the ss utility
+> +{
+> +	SELINUX_LIB=3D$(${PKG_CONFIG} --silence-errors libselinux --libs)
+> +	if [ -n "$SELINUX_LIB" ]
+> +	then
+> +	echo "HAVE_SELINUX:=3Dy" >>Config
+> +	echo "yes"
+> +    else
+> +	echo "no"
+> +	fi
+> +}
+> +
+>  echo "# Generated config based on" $INCLUDE >Config
+>  check_toolchain
+> =20
+> @@ -253,3 +266,6 @@ check_ipt_lib_dir
+> =20
+>  echo -n "libc has setns: "
+>  check_setns
+> +
+> +echo -n "SELinux support: "
+> +check_selinux
+> diff --git a/man/man8/ss.8 b/man/man8/ss.8
+> index 807d9dc..2fbed36 100644
+> --- a/man/man8/ss.8
+> +++ b/man/man8/ss.8
+> @@ -53,6 +53,22 @@ Print summary statistics. This option does not parse s=
+ocket lists obtaining
+>  summary from various sources. It is useful when amount of sockets is so =
+huge
+>  that parsing /proc/net/tcp is painful.
+>  .TP
+> +.B \-Z, \-\-context
+> +Show SELinux security contexts. Both the process and socket contexts will
+> +be displayed (for those with socket file descriptors). For=20
+> +.BR netlink (7)
+> +sockets, the context displayed is as follows:
+> +.RS
+> +.RS
+> +.IP "1." 4
+> +If a valid process show pid context.
+> +.IP "2." 4
+> +If destination is kernel (pid =3D 0) show kernel initial context.
+> +.IP "3." 4
+> +If allocated by the kernel or netlink user show context as "not availabl=
+e".
+> +.RE
+> +.RE
+> +.TP
+>  .B \-b, \-\-bpf
+>  Show socket BPF filters (only administrators are allowed to get these in=
+formation).
+>  .TP
+> @@ -103,6 +119,9 @@ Please take a look at the official documentation (Deb=
+ian package iproute-doc) fo
+>  .B ss -t -a
+>  Display all TCP sockets.
+>  .TP
+> +.B ss -t -a -Z
+> +Display all TCP sockets with process and socket SELinux security context=
+s.
+> +.TP
+>  .B ss -u -a
+>  Display all UDP sockets.
+>  .TP
+> diff --git a/misc/Makefile b/misc/Makefile
+> index a59ff87..a946a85 100644
+> --- a/misc/Makefile
+> +++ b/misc/Makefile
+> @@ -8,6 +8,18 @@ include ../Config
+>  all: $(TARGETS)
+> =20
+>  ss: $(SSOBJ)
+> +ifeq ($(HAVE_SELINUX),y)
+> +	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SSOBJ) $(LDLIBS) -lselinux
+> +else
+> +	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SSOBJ) $(LDLIBS)
+> +endif
+> +
+> +ss.o: ss.c
+> +ifeq ($(HAVE_SELINUX),y)
+> +	$(CC) $(CFLAGS) -DHAVE_SELINUX -c $+
+> +else
+> +	$(CC) $(CFLAGS) -c $+
+> +endif
+> =20
+>  nstat: nstat.c
+>  	$(CC) $(CFLAGS) $(LDFLAGS) -o nstat nstat.c -lm
+> diff --git a/misc/ss.c b/misc/ss.c
+> index 764ffe2..1e1d3fb 100644
+> --- a/misc/ss.c
+> +++ b/misc/ss.c
+> @@ -40,6 +40,9 @@
+>  #include <linux/filter.h>
+>  #include <linux/packet_diag.h>
+>  #include <linux/netlink_diag.h>
+> +#if HAVE_SELINUX
+> +#include <selinux/selinux.h>
+> +#endif
+> =20
+>  int resolve_hosts =3D 0;
+>  int resolve_services =3D 1;
+> @@ -50,6 +53,11 @@ int show_users =3D 0;
+>  int show_mem =3D 0;
+>  int show_tcpinfo =3D 0;
+>  int show_bpf =3D 0;
+> +#if HAVE_SELINUX
+> +int show_context =3D 0;
+> +/* If show_users & show_context only do user_ent_hash_build() once */
+> +int user_ent_hash_build_init =3D 0;
+> +#endif
+> =20
+>  int netid_width;
+>  int state_width;
+> @@ -207,7 +215,11 @@ struct user_ent {
+>  	unsigned int	ino;
+>  	int		pid;
+>  	int		fd;
+> -	char		process[0];
+> +	char	*process;
+> +#if HAVE_SELINUX
+> +	security_context_t	process_ctx;
+> +	security_context_t	socket_ctx;
+> +#endif
+>  };
+> =20
+>  #define USER_ENT_HASH_SIZE	256
+> @@ -220,20 +232,29 @@ static int user_ent_hashfn(unsigned int ino)
+>  	return val & (USER_ENT_HASH_SIZE - 1);
+>  }
+> =20
+> -static void user_ent_add(unsigned int ino, const char *process, int pid,=
+ int fd)
+> +#if HAVE_SELINUX
+> +static void user_ent_add(unsigned int ino, char *process,
+> +							int pid, int fd,
+> +							security_context_t proc_ctx,
+> +							security_context_t sock_ctx)
+> +#else
+> +static void user_ent_add(unsigned int ino, char *process, int pid, int f=
+d)
+> +#endif
+>  {
+>  	struct user_ent *p, **pp;
+> -	int str_len;
+> =20
+> -	str_len =3D strlen(process) + 1;
+> -	p =3D malloc(sizeof(struct user_ent) + str_len);
+> +	p =3D malloc(sizeof(struct user_ent));
+>  	if (!p)
+>  		abort();
+>  	p->next =3D NULL;
+>  	p->ino =3D ino;
+>  	p->pid =3D pid;
+>  	p->fd =3D fd;
+> -	strcpy(p->process, process);
+> +	p->process =3D strdup(process);
+> +#if HAVE_SELINUX
+> +	p->process_ctx =3D strdup(proc_ctx);
+> +	p->socket_ctx =3D strdup(sock_ctx);
+> +#endif
+> =20
+>  	pp =3D &user_ent_hash[user_ent_hashfn(ino)];
+>  	p->next =3D *pp;
+> @@ -247,6 +268,17 @@ static void user_ent_hash_build(void)
+>  	char name[1024];
+>  	int nameoff;
+>  	DIR *dir;
+> +#if HAVE_SELINUX
+> +    security_context_t pid_context;
+> +    security_context_t sock_context;
+> +	security_context_t no_ctx =3D "not available";
+> +
+> +	/* If show_users & show_context only do this once */
+> +	if (user_ent_hash_build_init !=3D 0)
+> +		return;
+> +
+> +	user_ent_hash_build_init =3D 1;
+> +#endif
+> =20
+>  	strcpy(name, root);
+>  	if (strlen(name) =3D=3D 0 || name[strlen(name)-1] !=3D '/')
+> @@ -261,19 +293,24 @@ static void user_ent_hash_build(void)
+>  	while ((d =3D readdir(dir)) !=3D NULL) {
+>  		struct dirent *d1;
+>  		char process[16];
+> +		char *p;
+>  		int pid, pos;
+>  		DIR *dir1;
+>  		char crap;
+> =20
+>  		if (sscanf(d->d_name, "%d%c", &pid, &crap) !=3D 1)
+>  			continue;
+> -
+> +#if HAVE_SELINUX
+> +		if (getpidcon(pid, &pid_context) !=3D 0)
+> +			pid_context =3D strdup(no_ctx);
+> +#endif
+>  		sprintf(name + nameoff, "%d/fd/", pid);
+>  		pos =3D strlen(name);
+>  		if ((dir1 =3D opendir(name)) =3D=3D NULL)
+>  			continue;
+> =20
+>  		process[0] =3D '
+--6TrnltStXW4iwmi0--
