@@ -1,63 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1B1HpvG014390
- for <selinux@tycho.nsa.gov>; Mon, 10 Feb 2014 20:17:51 -0500
-Message-ID: <52F97A62.2090500@windriver.com>
-Date: Tue, 11 Feb 2014 09:18:26 +0800
-From: Rongqing Li <rongqing.li@windriver.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1BE7CTC011970
+ for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 09:07:13 -0500
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com
+ (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s1BE79E9003416
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+ for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 09:07:10 -0500
+Received: from redsox.boston.devel.redhat.com (redsox.boston.devel.redhat.com
+ [10.19.60.53])
+ by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ s1BE77fX004808
+ for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 09:07:08 -0500
+Message-ID: <52FA2E8A.9040904@redhat.com>
+Date: Tue, 11 Feb 2014 15:07:06 +0100
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: bigclouds <bigclouds@163.com>
-Subject: Re: how to change the context of running process
-References: <7a7a5f0f.8499.1441971524d.Coremail.bigclouds@163.com>
-In-Reply-To: <7a7a5f0f.8499.1441971524d.Coremail.bigclouds@163.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Cc: selinux <selinux@tycho.nsa.gov>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: This past week I was doing a demo of how to build an Userspace Object
+ Manager for firewalld
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+I had a problem where I wanted to allow a cupsd_t to be able to open a
+particular port at the firewall, say the ipp_port_t port.
+
+sepolicy network -t ipp_port_t
+ipp_port_t: tcp: 631,8610-8614
+ipp_port_t: udp: 631,8610-8614
 
 
-On 02/10/2014 09:37 AM, bigclouds wrote:
-> hi,all
-> 1.
-> how to change the context of running process.
-> 2.
-> in my case, libvirtd is initrc_t, how to find  where and which file defines this rule?
-> libvirtd should be virtd_t, i want to correct it.
+The problem, cups is sending across and open tcp/631 and I need firewalld to
+check something like
 
-The scontext should be virtd_exec_t, and the process
-context should be virtd_t, it is defined in virt.fc.
+allow cupsd_t ipp_port_t:tcp_netfilter open;
 
-./policy/modules/contrib/virt.fc:/usr/sbin/libvirtd	-- 
-gen_context(system_u:object_r:virtd_exec_t,s0)
+The only way for firewalld to figure out what type port tcp/361 is assigned
+to, was to load the sepolicy framework and read in the currently loaded policy.
 
+I think we should add an interface to the /sys/fs/selinux that would take a
+port number and a protocol and return a process_type.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-Please make sure the libvirtd is installed into correct path.
-
-> 3.audot2allow outputs a rule ,'allow initrc_t svirt_t:process transition'
-> is there a comamnd line tool can finish this request?  not to install .pp module?
-
-the correct transition rule should be
-
-./virt.tmp:	allow initrc_t virtd_t:process transition;
-./virt.tmp:	type_transition initrc_t virtd_exec_t:process virtd_t;
-
--Roy
-
->
-> thanks
->
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
-
--- 
-Best Reagrds,
-Roy | RongQing Li
+iEYEARECAAYFAlL6LooACgkQrlYvE4MpobObLgCcCVn7A5N1oR1FzkWu4nxwsRB3
+p/YAoKHmGISKqsJQySGZVsdPSm+lEF+Z
+=jwBl
+-----END PGP SIGNATURE-----
