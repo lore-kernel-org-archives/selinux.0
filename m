@@ -1,67 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1BNHknu013897
- for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 18:17:46 -0500
-Received: by mail-qg0-f45.google.com with SMTP id j5so193958qga.4
- for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 15:17:44 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: RFC - Display context information using iproute2 ss utility
-Date: Tue, 11 Feb 2014 18:17:42 -0500
-Message-ID: <7783228.bfKoxQqi1y@sifl>
-In-Reply-To: <1391963266.11620.YahooMailNeo@web87906.mail.ir2.yahoo.com>
-References: <1391790157.3514.YahooMailNeo@web87902.mail.ir2.yahoo.com>
- <4844959.FlXfI971DN@sifl>
- <1391963266.11620.YahooMailNeo@web87906.mail.ir2.yahoo.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1C2OTnT021458
+ for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 21:24:30 -0500
+Received: by mail-ob0-f194.google.com with SMTP id wp4so3072149obc.9
+ for <selinux@tycho.nsa.gov>; Tue, 11 Feb 2014 18:24:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Wed, 12 Feb 2014 09:24:28 +0700
+Message-ID: <CACBeRbb2fZCWgH93aJ61nfkCCZoJSG3aeaW=9ODSccVXzRQ9xg@mail.gmail.com>
+Subject: Detail description of some projects in TO DO list page
+From: nguyen thai <thai.bkset@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=089e01293f0eaa540f04f22c452f
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sunday, February 09, 2014 04:27:46 PM Richard Haines wrote:
-> Thanks for clarifying the socket fd context.
-> 
-> For the iproute ss utility I was thinking of altering the man page to
-> reflect your comments (added below) and some testing I've done using
-> policy role/type and range transition statements.
-> 
-> Overall do you think it is worth adding the socket contexts to the ss
-> utility.
+--089e01293f0eaa540f04f22c452f
+Content-Type: text/plain; charset=ISO-8859-1
 
-I'm pretty conflicted on this ... at best I wonder how useful the information 
-will be to users/developers and at worst I fear it could end up being 
-misleading.
+Hi everyone,
 
-> -Z, --context
->     Show SELinux security contexts. The context of the process using
->     the socket and the sockets context will be displayed. The socket
->     context is taken from the file descriptors inode and is not the
+I have started my study in SELinux recently. I found some projects in TO DO
+list page were really interesting. Can anyone give me more details (what's
+problem now? it's effects or drawbacks) of one of following projects or any
+other projects that i can start to work on?
+ - Investigate security policy for cgroups
+ - CIFS support for single-context clients
+ - Real device labeling and access control
 
-I might say that the socket context is taken from the "associated inode" and 
-leave the file descriptor out of it, but that is just me.  After all, there is 
-a reason I'm not a writer :)
+Thank you very much.
 
->     actual socket context held by the kernel. Sockets are typically
->     labeled with the context of the creating process, however the
->     context shown will reflect any policy role, type and/or range
->     transition rules applied, and is therefore a useful reference.
->
->     For netlink(7) sockets the initiating process context is displayed
->     as follows:
-> 
->       1. If valid pid show the process context.
-> 
->       2. If destination is kernel (pid = 0) show kernel initial context.
-> 
->       3. If a unique identifier has been allocated by the kernel or
->          netlink user, show context as "not available".
->          This will generally indicate that a process has more
->          than one netlink socket active.
-> 
-> Richard
+--089e01293f0eaa540f04f22c452f
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-paul moore
-www.paul-moore.com
+<div dir=3D"ltr">Hi everyone,<div><br></div><div>I have started my study in=
+ SELinux recently. I found some projects in TO DO list page were really int=
+eresting. Can anyone give me more details (what&#39;s problem now? it&#39;s=
+ effects or drawbacks) of one of following projects or any other projects t=
+hat i can start to work on?</div>
+<div>=A0-=A0<span style=3D"color:rgb(0,0,0);font-family:sans-serif;font-siz=
+e:12.800000190734863px;line-height:19.049999237060547px">Investigate securi=
+ty policy for cgroups</span></div><div><span style=3D"color:rgb(0,0,0);font=
+-family:sans-serif;font-size:12.800000190734863px;line-height:19.0499992370=
+60547px">=A0- CIFS support for single-context clients</span><br>
+</div><div>=A0-=A0<span style=3D"color:rgb(0,0,0);font-family:sans-serif;fo=
+nt-size:12.800000190734863px;line-height:19.049999237060547px">Real device =
+labeling and access control</span></div><div><span style=3D"color:rgb(0,0,0=
+);font-family:sans-serif;font-size:12.800000190734863px;line-height:19.0499=
+99237060547px"><br>
+</span></div><div><span style=3D"color:rgb(0,0,0);font-family:sans-serif;fo=
+nt-size:12.800000190734863px;line-height:19.049999237060547px">Thank you ve=
+ry much.</span></div></div>
+
+--089e01293f0eaa540f04f22c452f--
