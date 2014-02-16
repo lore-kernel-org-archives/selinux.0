@@ -1,72 +1,121 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1HLcOeM022221
- for <selinux@tycho.nsa.gov>; Mon, 17 Feb 2014 16:38:27 -0500
-Received: by mail-qa0-f44.google.com with SMTP id w5so22761153qac.31
- for <selinux@tycho.nsa.gov>; Mon, 17 Feb 2014 13:38:26 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Ole Kliemann <ole@plastictree.net>
-Subject: Re: RFC - Display context information using iproute2 ss utility
-Date: Mon, 17 Feb 2014 16:38:23 -0500
-Message-ID: <3213184.Z7JC3Pg3ZO@sifl>
-In-Reply-To: <20140217201021.GA2741@telmora.telvanni>
-References: <1391790157.3514.YahooMailNeo@web87902.mail.ir2.yahoo.com>
- <4844959.FlXfI971DN@sifl> <20140217201021.GA2741@telmora.telvanni>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1GDIMnV007732
+ for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2014 08:18:22 -0500
+Message-ID: <1392556690.15615.97.camel@deadeye.wl.decadent.org.uk>
+Subject: Re: [PATCH] ss: Add support for retrieving SELinux contexts
+From: Ben Hutchings <ben@decadent.org.uk>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Date: Sun, 16 Feb 2014 13:18:10 +0000
+In-Reply-To: <1392391214-14547-1-git-send-email-richard_c_haines@btinternet.com>
+References: <1392391214-14547-1-git-send-email-richard_c_haines@btinternet.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+ protocol="application/pgp-signature"; boundary="=-YcR0awmDqCDHO6bXVpEz"
+Mime-Version: 1.0
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Monday, February 17, 2014 09:10:21 PM Ole Kliemann wrote:
-> On Fri, Feb 07, 2014 at 04:50:22PM -0500, Paul Moore wrote:
-> > On Friday, February 07, 2014 06:03:25 PM Ole Kliemann wrote:
-> > > On Fri, Feb 07, 2014 at 04:22:37PM +0000, Richard Haines wrote:
-> > > > I've been patching the iproute2 "ss" utility to display the SELinux
-> > > > security contexts for process and sockets, however I'm not sure
-> > > > whether the socket contexts are correct (I expected most to show
-> > > > system_u:object_r:....).
-> > > > 
-> > > > I'm taking the socket contexts from /proc/PID/fd as was mentioned in
-> > > > a previous email regarding socket contexts - is this correct ??
-> > > 
-> > > I was doing it that way and it seemed to work ...
-> > 
-> > What you will see is the label of the socket's associated inode, not the
-> > actual socket label.
-> > 
-> > > ... I could even change the context using 'chcon /proc/PID/fd'.
-> > 
-> > Yes, you really shouldn't do that.  I've actually got a patch kicking
-> > around that I haven't had the time to test which will actually prevent
-> > you from changing a socket's inode label.
-> > 
-> > > But I have no idea whether it is supposed to be a reliable way or
-> > > any other methods exist. The whole sockfs thing kept me rather
-> > > wondering...
-> > 
-> > It works as far as I know, it just turns out that it isn't quite what you
-> > think it is :)
-> 
-> Thanks for clarification.
-> 
-> On a related question: Is it the same with pipes? I just
-> realized, in one of my programs I am actually using setfilecon on
-> /proc/self/fd/some_pipe to change the context of a pipe.
-> 
-> Do I have to expect this to break in a later kernel patch?
-> 
-> If yes, what would be the correct way? Do I have to use explicit
-> FIFO files to be able to do this?
 
-As you've probably figured out by now, sockets are just a little bit odd from 
-a SELinux point of view.  The good news, in relation to your question, is that 
-pipes are entirely different from sockets from a SELinux perspective.  Pipes 
-should behave like normal fds with no hidden labels/properties.
+--=-YcR0awmDqCDHO6bXVpEz
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
--Paul
+On Fri, 2014-02-14 at 15:20 +0000, Richard Haines wrote:
+> The process SELinux contexts can be added to the output using the -Z
+> option. Using the -z option will show the process and socket contexts (se=
+e
+> the man page for details).
+> For netlink sockets: if valid process show process context, if pid =3D 0
+> show kernel initial context, if unknown show "not available".
+>=20
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  configure     |  16 +++
+>  man/man8/ss.8 |  34 ++++++
+>  misc/Makefile |  12 ++
+>  misc/ss.c     | 375 ++++++++++++++++++++++++++++++++++++++++++++++++++--=
+------
+>  4 files changed, 387 insertions(+), 50 deletions(-)
+>=20
+> diff --git a/configure b/configure
+> index da01c19..854837e 100755
+> --- a/configure
+> +++ b/configure
+> @@ -231,6 +231,19 @@ EOF
+>      rm -f $TMPDIR/ipsettest.c $TMPDIR/ipsettest
+>  }
+> =20
+> +check_selinux()
+> +# SELinux is a compile time option in the ss utility
+> +{
+> +	SELINUX_LIB=3D$(${PKG_CONFIG} --silence-errors libselinux --libs)
+> +	if [ -n "$SELINUX_LIB" ]
 
--- 
-paul moore
-www.paul-moore.com
+This should be just:
+	if pkg-config libselinux --exists
+
+> +	then
+> +	echo "HAVE_SELINUX:=3Dy" >>Config
+> +	echo "yes"
+> +    else
+> +	echo "no"
+> +	fi
+> +}
+[...]
+> --- a/misc/Makefile
+> +++ b/misc/Makefile
+> @@ -8,6 +8,18 @@ include ../Config
+>  all: $(TARGETS)
+> =20
+>  ss: $(SSOBJ)
+> +ifeq ($(HAVE_SELINUX),y)
+> +	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SSOBJ) $(LDLIBS) -lselinux
+
+This should use the output of 'pkg-config libselinux --libs'.
+
+> +else
+> +	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SSOBJ) $(LDLIBS)
+> +endif
+> +
+> +ss.o: ss.c
+> +ifeq ($(HAVE_SELINUX),y)
+> +	$(CC) $(CFLAGS) -DHAVE_SELINUX -c $+
+
+This should use the output of 'pkg-config libselinux --cflags'.
+
+> +else
+> +	$(CC) $(CFLAGS) -c $+
+> +endif
+[...]
+
+Ben.
+
+--=20
+Ben Hutchings
+Any sufficiently advanced bug is indistinguishable from a feature.
+
+--=-YcR0awmDqCDHO6bXVpEz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iQIVAwUAUwC6kue/yOyVhhEJAQrQxQ/+K85gJR4yLa2gZ9JsDsizWOHY8XSB1zq0
+jaYICqhjN0XXyUPRQtfTDTKqXLgURZIQSFk4LmOqpIfaTENxqSPntloW7ORCG92L
+Fr0215p3almKuPWcJ6KnI9F/EdlXVUMoUIZ4fdyg+yygZyVG+ZK47PLyS1KJLVSg
+P+wxpGPMrYtJxdYFflyxjkf7f7CIpSkITQl3JkrkRD6jtlJ6hldRoyQy8cIWaR75
+lc9aHB7GNAiMrCR+WhbdFEwndDFnaA+7Ls7SJ3I8IRPKupGluHV2nZphxR2c0fRE
+Zo9ylqbwzlERV7P3cjpjEHkYL+Wv2MldhdLzUxBSrI1KCxIIoBg+YVYIMAxRmZIG
+uGE6xW110CvyI5K2nQY8IQP96xYUDxnZ6N78HZMihlQAWqvoMXSEvffsYUlhbTs8
+/nD1tb11vr/TnYGkVmA9GtQFrPm0T43OsJAcQ52kg3xquQ7BGj+7ihK292h6nY9W
+QgYNNiND6lLabUNgeFBbXl5q2on6lWZwmUvspxlpkzIzLBlU6/4gcG8NcFNpyhU3
+yyeVLHXQAWkK9sEHEOteHZerm83suzRdL/Y+/A9WEQfj38UBZGHAmuFI/lC7gRD/
+SlhIsXgVf0vCiKsX9ag+rPCzpSDaOSKSmgP+lhnuSqQhsKmBL+WynqHcbi0BN/ZB
+LkyHDO++F1o=
+=Fe/D
+-----END PGP SIGNATURE-----
+
+--=-YcR0awmDqCDHO6bXVpEz--
