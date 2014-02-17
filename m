@@ -1,71 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1FI9sUv030179
- for <selinux@tycho.nsa.gov>; Sat, 15 Feb 2014 13:09:54 -0500
-Received: from gentp.lnet (gentp.lnet [IPv6:::1])
- by gentp.lnet (Postfix) with ESMTP id 809AB260031
- for <selinux@tycho.nsa.gov>; Sat, 15 Feb 2014 19:09:50 +0100 (CET)
-Date: Sat, 15 Feb 2014 19:09:41 +0100
-From: Luis Ressel <aranea@aixah.de>
-To: selinux@tycho.nsa.gov
-Subject: Using genfscon's partial_path for other filesystems than proc
-Message-ID: <20140215190941.1bac965b@gentp.lnet>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1HKAmOK019018
+ for <selinux@tycho.nsa.gov>; Mon, 17 Feb 2014 15:10:48 -0500
+Received: from localhost ([31.16.177.238]) by mail.gmx.com (mrgmx001) with
+ ESMTPSA (Nemesis) id 0McmFl-1WXIUX1mQz-00HyPo for <selinux@tycho.nsa.gov>;
+ Mon, 17 Feb 2014 21:10:44 +0100
+Date: Mon, 17 Feb 2014 21:10:21 +0100
+From: Ole Kliemann <ole@plastictree.net>
+To: Paul Moore <paul@paul-moore.com>
+Subject: Re: RFC - Display context information using iproute2 ss utility
+Message-ID: <20140217201021.GA2741@telmora.telvanni>
+References: <1391790157.3514.YahooMailNeo@web87902.mail.ir2.yahoo.com>
+ <20140207170325.GA10040@telmora.telvanni> <4844959.FlXfI971DN@sifl>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_/KlemWgO23u/LBwrgfb7CqEb"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
+In-Reply-To: <4844959.FlXfI971DN@sifl>
+Sender: telvanni@gmx.net
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---Sig_/KlemWgO23u/LBwrgfb7CqEb
-Content-Type: text/plain; charset=US-ASCII
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Fri, Feb 07, 2014 at 04:50:22PM -0500, Paul Moore wrote:
+> On Friday, February 07, 2014 06:03:25 PM Ole Kliemann wrote:
+> > On Fri, Feb 07, 2014 at 04:22:37PM +0000, Richard Haines wrote:
+> > > I've been patching the iproute2 "ss" utility to display the SELinux
+> > > security contexts for process and sockets, however I'm not sure
+> > > whether the socket contexts are correct (I expected most to show
+> > > system_u:object_r:....).
+> > >=20
+> > > I'm taking the socket contexts from /proc/PID/fd as was mentioned in
+> > > a previous email regarding socket contexts - is this correct ??
+> >=20
+> > I was doing it that way and it seemed to work ...
+>=20
+> What you will see is the label of the socket's associated inode, not the=
+=20
+> actual socket label.
+>=20
+> > ... I could even change the context using 'chcon /proc/PID/fd'.
+>=20
+> Yes, you really shouldn't do that.  I've actually got a patch kicking aro=
+und=20
+> that I haven't had the time to test which will actually prevent you from=
+=20
+> changing a socket's inode label.=20
+>=20
+> > But I have no idea whether it is supposed to be a reliable way or
+> > any other methods exist. The whole sockfs thing kept me rather
+> > wondering...
+>=20
+> It works as far as I know, it just turns out that it isn't quite what you=
+=20
+> think it is :)
 
+Thanks for clarification.=20
 
-The genfscon policy statement has an argument "partial_path" which can
-be used to use specialized contexts for subpaths inside a file system.
-However, the documentation mentions that this can only be used for the
-proc filesystem. Is this really the case, and if yes, why? I'd like to
-use it for the sysfs.
+On a related question: Is it the same with pipes? I just=20
+realized, in one of my programs I am actually using setfilecon on=20
+/proc/self/fd/some_pipe to change the context of a pipe.
 
-The motivation for this is that both the Fedora and the Gentoo policy
-have cpu_online_t for /sys/devices/system/cpu/online, as this file is
-accessed by all applications linked to a recent glibc and therefore
-needs wider access permissions than the normal sysfs_t. Currently, the
-context is changed at startup via an init script, which is a bit of a
-hack. It would be neat if a genfscon statement could be used for that.
+Do I have to expect this to break in a later kernel patch?
 
-Is this currently possible or would it require changes to the kernel
-and/or the selinux libraries?
+If yes, what would be the correct way? Do I have to use explicit=20
+FIFO files to be able to do this?
 
+Ole
 
-Regards,
-Luis Ressel
-
---Sig_/KlemWgO23u/LBwrgfb7CqEb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-iQJ8BAEBCgBmBQJS/61mXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
-ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXRBMjU3MDBFQTc5QkYzMkY4NEQzMTFGNDlD
-NzE4OTFBNkEwRUZCN0U5AAoJEMcYkaag77fpPKgQAKE88OenIQoElVQmn+Y/IAiu
-POYvudERpROh2DjTgYOuhv4GUNx5OvSiACZGO5OrXln8s+ZUZxCK7JxCsiTQHIYs
-d1UWldFxcNMBova9J7Gq7xHV79w9Bw/s+SC0/1KLW+vzOl6g8As9mRfGqQ229e6V
-HD3Yv6M+NVWutKsjJxKf2JWNrLrMVm+FfFngDd7xWnekEfnBdfQR/rxLeZw++pI0
-8txGg3GXtoDmXd8RkhfDoqVxmlJllPgLfDPgCvXyrKvMzYm7VsplcY1YQTj2o8GE
-PLCq9VpCJ7qI5PyPNIn815Nu9TfWicyWagdeH2VSSpXwU7TE+CJMrk1Da/IsQVn5
-SgpOvPhKp1Yt7SJaqbS0gFd/G5EJHKgj/guUWGD5iEi8FJPY3BZFCxPYEuJjJvec
-VBPyfzHGKRY9OKCqQUs+a8WQbRY8mrd2Z/75d6fnKNqs+Drk22MjzEUXyxyHKvn8
-MBUTWeivsmdW4XR4Vmb8egpNOa5pxqJnHU7GNjV72kQHGewLerEXnw8UxcCoUiaf
-WZF1gTVHkiAralXK1/q4oUgUx/MBKblDp+Y9mk1M2Gntp3P7r6hBb2jUgIK2Mf7q
-TDqdod+T3NVIbGhwhArr/WBVBY0SGfV0stEfyGeSiDoRclQk4/ViJ1WQcDQozNc+
-HwTpOoySRyMnhN78js9a
-=CAkI
+iEYEARECAAYFAlMCbK0ACgkQS1FjE303ERxVNACeL6oA6IHtjcRkYmpjJx0O6mnK
+7qkAn3HyOpGAyUQ9KjmeEdlK5vS7Adwq
+=E7I/
 -----END PGP SIGNATURE-----
 
---Sig_/KlemWgO23u/LBwrgfb7CqEb--
+--ZGiS0Q5IWpPtfppv--
