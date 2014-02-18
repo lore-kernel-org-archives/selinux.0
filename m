@@ -1,76 +1,84 @@
-Message-ID: <53038F29.2000505@redhat.com>
-Date: Tue, 18 Feb 2014 11:49:45 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1ILNMe8030029
+ for <selinux@tycho.nsa.gov>; Tue, 18 Feb 2014 16:23:23 -0500
+Received: from compute3.internal (compute3.nyi.mail.srv.osa [10.202.2.43])
+ by gateway1.nyi.mail.srv.osa (Postfix) with ESMTP id 9E7D520EF5
+ for <selinux@tycho.nsa.gov>; Tue, 18 Feb 2014 16:23:18 -0500 (EST)
+Received: from [192.168.1.5] (unknown [66.31.18.51])
+ by mail.messagingengine.com (Postfix) with ESMTPA id 361DD680123
+ for <selinux@tycho.nsa.gov>; Tue, 18 Feb 2014 16:23:18 -0500 (EST)
+Date: Tue, 18 Feb 2014 21:18:17 +0000
+From: Colin Walters <walters@verbum.org>
+Subject: cross-labeling vs precompiled PCRE
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Luis Ressel <aranea@aixah.de>,
- selinux@tycho.nsa.gov
-Subject: Re: Using genfscon's partial_path for other filesystems than proc
-References: <20140215190941.1bac965b@gentp.lnet>
- <53037645.7060909@tycho.nsa.gov>
-In-Reply-To: <53037645.7060909@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/alternative; boundary="=-2y+hbG+HUj5XDFZAkhFW"
+Message-Id: <20140218212318.361DD680123@frontend2.nyi.mail.srv.osa>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--=-2y+hbG+HUj5XDFZAkhFW
+Content-Type: text/plain; charset=utf-8; format=flowed
 
-On 02/18/2014 10:03 AM, Stephen Smalley wrote:
-> On 02/15/2014 01:09 PM, Luis Ressel wrote:
->> Hello,
->> 
->> 
->> The genfscon policy statement has an argument "partial_path" which can be
->> used to use specialized contexts for subpaths inside a file system. 
->> However, the documentation mentions that this can only be used for the 
->> proc filesystem. Is this really the case, and if yes, why? I'd like to 
->> use it for the sysfs.
->> 
->> The motivation for this is that both the Fedora and the Gentoo policy 
->> have cpu_online_t for /sys/devices/system/cpu/online, as this file is 
->> accessed by all applications linked to a recent glibc and therefore needs
->> wider access permissions than the normal sysfs_t. Currently, the context
->> is changed at startup via an init script, which is a bit of a hack. It
->> would be neat if a genfscon statement could be used for that.
->> 
->> Is this currently possible or would it require changes to the kernel 
->> and/or the selinux libraries?
-> 
-> Setting from userspace is preferable when possible, so just do that.  In 
-> Android, there is a recursive restorecon (equivalent of restorecon -R) 
-> applied to /sys on boot to set up the labels of all sysfs files based on 
-> file_contexts entries and their udev equivalent (ueventd) fixes up the 
-> labels on any sysfs files created subsequently.
-> 
-> genfs_contexts path prefix matching support for a given filesystem requires
-> kernel code changes, and we try to avoid it.  For /proc it makes sense
-> since the entire proc tree is kernel generated and immutable by userspace
-> and since proc does not provide xattr handlers.  For sysfs we explored use
-> of genfs_contexts but preferred a userspace solution and that is now
-> supported by modern kernels.
-> 
-> 
-> _______________________________________________ Selinux mailing list 
-> Selinux@tycho.nsa.gov To unsubscribe, send email to
-> Selinux-leave@tycho.nsa.gov. To get help, send an email containing "help"
-> to Selinux-request@tycho.nsa.gov.
-> 
-> 
+Hi,
 
+So my rpm-ostree system is doing "cross labeling" - in my case, the 
+build host is RHEL7, and the target system is Fedora rawhide.
 
-We are using systemd-tmpfiles.d for this in Fedora/RHEL7.
- cat /lib/tmpfiles.d/selinux-policy.conf
-z /sys/devices/system/cpu/online - - -
-Z /sys/class/net - - -
-z /sys/kernel/uevent_helper - - -
-w /sys/fs/selinux/checkreqprot - - - - 1
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
+Concretely, I'm using selinux_set_policy_root() to load the policy from 
+a chroot, then selabel_open (SELABEL_CTX_FILE).
 
-iEYEARECAAYFAlMDjykACgkQrlYvE4MpobMl8ACeN76KeLPtcIMvJQGs6qpAaiLg
-/d4An19amZ4NkgAsefadevP208Mnls6O
-=aZ21
------END PGP SIGNATURE-----
+I know this might eventually break if Fedora's SELinux policy format 
+breaks from what RHEL7 can understand...but I'm hoping to avoid that 
+(or alternatively, update the RHEL7 SELinux libraries to understand 
+newer formats).
+
+The advantage of doing it this way is I don't need to run through 
+Anaconda (or more generally, execute any *code* from the OS I'm 
+building).  Which in turn makes the system reliable and fast.
+
+There is one problem though - the PCRE precompiled regexps in e.g. 
+"file_contexts.bin".  It turns out that the RHEL7 pcre silently fails 
+to match the ones from rawhide =/
+
+I work around this by temporarily moving the .bin out of the way.
+
+But how about extending the file format to include e.g. the result of 
+pcre_version(), and having the label code only use the mmap cache if 
+the saved PCRE version exactly matches that on the system?
+
+This would cause labeling slowdowns when the pcre RPM is rebuilt until 
+the selinux-policy RPM is later rebuilt, but that seems better than 
+potentially silent failures.
+
+Thoughts?
+
+--=-2y+hbG+HUj5XDFZAkhFW
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi,<div><br></div><div>So my rpm-ostree system is doing "cross labeling" - =
+in my case, the build host is RHEL7, and the target system is Fedora rawhid=
+e.</div><div><br></div><div>Concretely, I'm using selinux_set_policy_root()=
+ to load the policy from a chroot, then selabel_open (SELABEL_CTX_FILE).</d=
+iv><div><br></div><div>I know this might eventually break if Fedora's SELin=
+ux policy format breaks from what RHEL7 can understand...but I'm hoping to =
+avoid that (or alternatively, update the RHEL7 SELinux libraries to underst=
+and newer formats).</div><div><br></div><div>The advantage of doing it this=
+ way is I don't need to run through Anaconda (or more generally, execute an=
+y *code* from the OS I'm building). &nbsp;Which in turn makes the system re=
+liable and fast.</div><div><br></div><div>There is one problem though - the=
+ PCRE precompiled regexps in e.g. "file_contexts.bin". &nbsp;It turns out t=
+hat the RHEL7 pcre silently fails to match the ones from rawhide =3D/</div>=
+<div><br></div><div>I work around this by temporarily moving the .bin out o=
+f the way.</div><div><br></div><div>But how about extending the file format=
+ to include e.g. the result of pcre_version(), and having the label code on=
+ly use the mmap cache if the saved PCRE version exactly matches that on the=
+ system?</div><div><br></div><div>This would cause labeling slowdowns when =
+the pcre RPM is rebuilt until the selinux-policy RPM is later rebuilt, but =
+that seems better than potentially silent failures.</div><div><br></div><di=
+v>Thoughts?</div>=
+
+--=-2y+hbG+HUj5XDFZAkhFW--
