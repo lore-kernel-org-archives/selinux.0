@@ -1,121 +1,46 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1GDIMnV007732
- for <selinux@tycho.nsa.gov>; Sun, 16 Feb 2014 08:18:22 -0500
-Message-ID: <1392556690.15615.97.camel@deadeye.wl.decadent.org.uk>
-Subject: Re: [PATCH] ss: Add support for retrieving SELinux contexts
-From: Ben Hutchings <ben@decadent.org.uk>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Date: Sun, 16 Feb 2014 13:18:10 +0000
-In-Reply-To: <1392391214-14547-1-git-send-email-richard_c_haines@btinternet.com>
-References: <1392391214-14547-1-git-send-email-richard_c_haines@btinternet.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
- protocol="application/pgp-signature"; boundary="=-YcR0awmDqCDHO6bXVpEz"
-Mime-Version: 1.0
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Message-ID: <53037645.7060909@tycho.nsa.gov>
+Date: Tue, 18 Feb 2014 10:03:33 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Luis Ressel <aranea@aixah.de>, selinux@tycho.nsa.gov
+Subject: Re: Using genfscon's partial_path for other filesystems than proc
+References: <20140215190941.1bac965b@gentp.lnet>
+In-Reply-To: <20140215190941.1bac965b@gentp.lnet>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 02/15/2014 01:09 PM, Luis Ressel wrote:
+> Hello,
+> 
+> 
+> The genfscon policy statement has an argument "partial_path" which can
+> be used to use specialized contexts for subpaths inside a file system.
+> However, the documentation mentions that this can only be used for the
+> proc filesystem. Is this really the case, and if yes, why? I'd like to
+> use it for the sysfs.
+> 
+> The motivation for this is that both the Fedora and the Gentoo policy
+> have cpu_online_t for /sys/devices/system/cpu/online, as this file is
+> accessed by all applications linked to a recent glibc and therefore
+> needs wider access permissions than the normal sysfs_t. Currently, the
+> context is changed at startup via an init script, which is a bit of a
+> hack. It would be neat if a genfscon statement could be used for that.
+> 
+> Is this currently possible or would it require changes to the kernel
+> and/or the selinux libraries?
 
---=-YcR0awmDqCDHO6bXVpEz
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Setting from userspace is preferable when possible, so just do that.  In
+Android, there is a recursive restorecon (equivalent of restorecon -R)
+applied to /sys on boot to set up the labels of all sysfs files based on
+file_contexts entries and their udev equivalent (ueventd) fixes up the
+labels on any sysfs files created subsequently.
 
-On Fri, 2014-02-14 at 15:20 +0000, Richard Haines wrote:
-> The process SELinux contexts can be added to the output using the -Z
-> option. Using the -z option will show the process and socket contexts (se=
-e
-> the man page for details).
-> For netlink sockets: if valid process show process context, if pid =3D 0
-> show kernel initial context, if unknown show "not available".
->=20
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  configure     |  16 +++
->  man/man8/ss.8 |  34 ++++++
->  misc/Makefile |  12 ++
->  misc/ss.c     | 375 ++++++++++++++++++++++++++++++++++++++++++++++++++--=
-------
->  4 files changed, 387 insertions(+), 50 deletions(-)
->=20
-> diff --git a/configure b/configure
-> index da01c19..854837e 100755
-> --- a/configure
-> +++ b/configure
-> @@ -231,6 +231,19 @@ EOF
->      rm -f $TMPDIR/ipsettest.c $TMPDIR/ipsettest
->  }
-> =20
-> +check_selinux()
-> +# SELinux is a compile time option in the ss utility
-> +{
-> +	SELINUX_LIB=3D$(${PKG_CONFIG} --silence-errors libselinux --libs)
-> +	if [ -n "$SELINUX_LIB" ]
-
-This should be just:
-	if pkg-config libselinux --exists
-
-> +	then
-> +	echo "HAVE_SELINUX:=3Dy" >>Config
-> +	echo "yes"
-> +    else
-> +	echo "no"
-> +	fi
-> +}
-[...]
-> --- a/misc/Makefile
-> +++ b/misc/Makefile
-> @@ -8,6 +8,18 @@ include ../Config
->  all: $(TARGETS)
-> =20
->  ss: $(SSOBJ)
-> +ifeq ($(HAVE_SELINUX),y)
-> +	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SSOBJ) $(LDLIBS) -lselinux
-
-This should use the output of 'pkg-config libselinux --libs'.
-
-> +else
-> +	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SSOBJ) $(LDLIBS)
-> +endif
-> +
-> +ss.o: ss.c
-> +ifeq ($(HAVE_SELINUX),y)
-> +	$(CC) $(CFLAGS) -DHAVE_SELINUX -c $+
-
-This should use the output of 'pkg-config libselinux --cflags'.
-
-> +else
-> +	$(CC) $(CFLAGS) -c $+
-> +endif
-[...]
-
-Ben.
-
---=20
-Ben Hutchings
-Any sufficiently advanced bug is indistinguishable from a feature.
-
---=-YcR0awmDqCDHO6bXVpEz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIVAwUAUwC6kue/yOyVhhEJAQrQxQ/+K85gJR4yLa2gZ9JsDsizWOHY8XSB1zq0
-jaYICqhjN0XXyUPRQtfTDTKqXLgURZIQSFk4LmOqpIfaTENxqSPntloW7ORCG92L
-Fr0215p3almKuPWcJ6KnI9F/EdlXVUMoUIZ4fdyg+yygZyVG+ZK47PLyS1KJLVSg
-P+wxpGPMrYtJxdYFflyxjkf7f7CIpSkITQl3JkrkRD6jtlJ6hldRoyQy8cIWaR75
-lc9aHB7GNAiMrCR+WhbdFEwndDFnaA+7Ls7SJ3I8IRPKupGluHV2nZphxR2c0fRE
-Zo9ylqbwzlERV7P3cjpjEHkYL+Wv2MldhdLzUxBSrI1KCxIIoBg+YVYIMAxRmZIG
-uGE6xW110CvyI5K2nQY8IQP96xYUDxnZ6N78HZMihlQAWqvoMXSEvffsYUlhbTs8
-/nD1tb11vr/TnYGkVmA9GtQFrPm0T43OsJAcQ52kg3xquQ7BGj+7ihK292h6nY9W
-QgYNNiND6lLabUNgeFBbXl5q2on6lWZwmUvspxlpkzIzLBlU6/4gcG8NcFNpyhU3
-yyeVLHXQAWkK9sEHEOteHZerm83suzRdL/Y+/A9WEQfj38UBZGHAmuFI/lC7gRD/
-SlhIsXgVf0vCiKsX9ag+rPCzpSDaOSKSmgP+lhnuSqQhsKmBL+WynqHcbi0BN/ZB
-LkyHDO++F1o=
-=Fe/D
------END PGP SIGNATURE-----
-
---=-YcR0awmDqCDHO6bXVpEz--
+genfs_contexts path prefix matching support for a given filesystem
+requires kernel code changes, and we try to avoid it.  For /proc it
+makes sense since the entire proc tree is kernel generated and immutable
+by userspace and since proc does not provide xattr handlers.  For sysfs
+we explored use of genfs_contexts but preferred a userspace solution and
+that is now supported by modern kernels.
