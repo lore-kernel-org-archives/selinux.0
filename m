@@ -1,64 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1ILjp9r031293
- for <selinux@tycho.nsa.gov>; Tue, 18 Feb 2014 16:45:51 -0500
-Received: by mail-la0-f54.google.com with SMTP id y1so12991536lam.27
- for <selinux@tycho.nsa.gov>; Tue, 18 Feb 2014 13:45:48 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20140218212318.361DD680123@frontend2.nyi.mail.srv.osa>
-References: <20140218212318.361DD680123@frontend2.nyi.mail.srv.osa>
-Date: Tue, 18 Feb 2014 16:45:47 -0500
-Message-ID: <CACLa4pu0iRVpJuWe+B01H-5CEghcWdoYsGdeSO5=V8CzrLQ01w@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1J0Xqt3007103
+ for <selinux@tycho.nsa.gov>; Tue, 18 Feb 2014 19:33:53 -0500
+Date: Wed, 19 Feb 2014 00:28:50 +0000
+From: Colin Walters <walters@verbum.org>
 Subject: Re: cross-labeling vs precompiled PCRE
-From: Eric Paris <eparis@parisplace.org>
-To: Colin Walters <walters@verbum.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Eric Paris <eparis@parisplace.org>
+In-Reply-To: <CACLa4pu0iRVpJuWe+B01H-5CEghcWdoYsGdeSO5=V8CzrLQ01w@mail.gmail.com>
+References: <20140218212318.361DD680123@frontend2.nyi.mail.srv.osa>
+ <CACLa4pu0iRVpJuWe+B01H-5CEghcWdoYsGdeSO5=V8CzrLQ01w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="=-VbytpuBtIitj2gwi8ACo"
+Message-Id: <20140219003351.33C4A680126@frontend2.nyi.mail.srv.osa>
 Cc: SE-Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-agreed completely that a version check makes sense, but i'm pretty
-sure I'll forget about it before I have time to look at it   :-(
+--=-VbytpuBtIitj2gwi8ACo
+Content-Type: text/plain; charset=utf-8; format=flowed
 
-On Tue, Feb 18, 2014 at 4:18 PM, Colin Walters <walters@verbum.org> wrote:
-> Hi,
->
-> So my rpm-ostree system is doing "cross labeling" - in my case, the build
-> host is RHEL7, and the target system is Fedora rawhide.
->
-> Concretely, I'm using selinux_set_policy_root() to load the policy from a
-> chroot, then selabel_open (SELABEL_CTX_FILE).
->
-> I know this might eventually break if Fedora's SELinux policy format breaks
-> from what RHEL7 can understand...but I'm hoping to avoid that (or
-> alternatively, update the RHEL7 SELinux libraries to understand newer
-> formats).
->
-> The advantage of doing it this way is I don't need to run through Anaconda
-> (or more generally, execute any *code* from the OS I'm building).  Which in
-> turn makes the system reliable and fast.
->
-> There is one problem though - the PCRE precompiled regexps in e.g.
-> "file_contexts.bin".  It turns out that the RHEL7 pcre silently fails to
-> match the ones from rawhide =/
->
-> I work around this by temporarily moving the .bin out of the way.
->
-> But how about extending the file format to include e.g. the result of
-> pcre_version(), and having the label code only use the mmap cache if the
-> saved PCRE version exactly matches that on the system?
->
-> This would cause labeling slowdowns when the pcre RPM is rebuilt until the
-> selinux-policy RPM is later rebuilt, but that seems better than potentially
-> silent failures.
->
-> Thoughts?
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
->
+On Tue, Feb 18, 2014 at 4:45 PM, Eric Paris <eparis@parisplace.org> 
+wrote:
+> agreed completely that a version check makes sense, but i'm pretty
+> sure I'll forget about it before I have time to look at it   :-(
+> 
+I'm happy to do some implementation work here myself as well.  The 
+obvious thing to do is just to stick the output of pcre_version() into 
+the file - except there's no space.  So we'd need to bump the format 
+version.
+
+Now I can do that, but I think it's the kind of thing that needs a bit 
+of discussion beforehand.  Any objections or further thoughts?
+
+In the meantime though, I'm going to have to hack up my copy of 
+libselinux from RHEL7 to just ignore the .bin files unconditionally.
+
+
+
+--=-VbytpuBtIitj2gwi8ACo
+Content-Type: text/html; charset=utf-8
+
+On Tue, Feb 18, 2014 at 4:45 PM, Eric Paris &lt;eparis@parisplace.org&gt; wrote:<br>
+<blockquote type="cite"><div class="plaintext" style="white-space: pre-wrap;">agreed completely that a version check makes sense, but i'm pretty
+sure I'll forget about it before I have time to look at it   :-(</div></blockquote><br><div>I'm happy to do some implementation work here myself as well. &nbsp;The obvious thing to do is just to stick the output of pcre_version() into the file - except there's no space. &nbsp;So we'd need to bump the format version.</div><div><br></div><div>Now I can do that, but I think it's the kind of thing that needs a bit of discussion beforehand. &nbsp;Any objections or further thoughts?</div><div><br></div><div>In the meantime though, I'm going to have to hack up my copy of libselinux from RHEL7 to just ignore the .bin files unconditionally.</div><div><br></div>
+--=-VbytpuBtIitj2gwi8ACo--
