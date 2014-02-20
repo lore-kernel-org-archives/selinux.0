@@ -1,45 +1,61 @@
-Message-ID: <53064E9A.2040008@tycho.nsa.gov>
-Date: Thu, 20 Feb 2014 13:51:06 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>
-Subject: Re: [PATCH] selinux: Only attempt to load policy exactly once, in
- the real root
-References: <20140220154726.19E25680237@frontend2.nyi.mail.srv.osa>	<5306441F.8050207@tycho.nsa.gov>
+Date: Thu, 20 Feb 2014 18:47:49 +0000
+From: Colin Walters <walters@verbum.org>
+Subject: Re: [systemd-devel] [PATCH] selinux: Only attempt to load policy
+ exactly once, in the real root
+To: Lennart Poettering <lennart@poettering.net>
+In-Reply-To: <20140220183643.GB24876@tango.0pointer.de>
+References: <20140220154726.19E25680237@frontend2.nyi.mail.srv.osa>
+ <5306441F.8050207@tycho.nsa.gov>
  <20140220182215.4613AC00005@frontend1.nyi.mail.srv.osa>
-In-Reply-To: <20140220182215.4613AC00005@frontend1.nyi.mail.srv.osa>
-Content-Type: text/plain; charset=UTF-8
+ <20140220183643.GB24876@tango.0pointer.de>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="=-wtrdSIVbGiyKy2wUk/Vp"
+Message-Id: <20140220185250.6F0E0680112@frontend2.nyi.mail.srv.osa>
 Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>,
- SELinux-NSA <SELinux@tycho.nsa.gov>
+ Stephen Smalley <sds@tycho.nsa.gov>, SELinux-NSA <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/20/2014 01:17 PM, Colin Walters wrote:
-> On Thu, Feb 20, 2014 at 1:06 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>
->> Wouldn't it be better (and more correct) to probe both the initramfs and
->> the real root, and if neither one can load policy successfully and
->> enforcing=1, then halt?
->>
-> So you're saying we should handle -ENOENT specially in the initramfs? 
-> Something like being sure we preserve errno and returning it to the
-> caller of selinux_init_load_policy()?  That would introduce a subtle
-> version dependency.
-> 
-> Or alternatively, just try in the initramfs, ignore any errors, and only
-> abort if we also fail to load in the real root?
-> 
-> I think both of these (particularly the second) are worse than my patch
-> - we don't (to my knowledge) support putting policy in the initramfs now
-> with Fedora or Red Hat Enterprise Linux, so attempting to find it there
-> by default on every bootup is wrong. 
-> To turn it around, what is the possible value in also probing the
-> initramfs?  Does anyone out there load policy from it with systemd?
+--=-wtrdSIVbGiyKy2wUk/Vp
+Content-Type: text/plain; charset=utf-8; format=flowed
 
-Ok, I guess when you put it that way...
+On Thu, Feb 20, 2014 at 1:36 PM, Lennart Poettering 
+<lennart@poettering.net> wrote:
+> On Thu, 20.02.14 18:17, Colin Walters (walters@verbum.org) wrote:
+> 
+> Hmm, maybe a simple check access("/etc/selinux/", F_OK) would be 
+> enough?
+> There's no point in trying to initialized SELinux if that dir does not
+> exist, right? Then we could simply bypass the whole thing...
+> 
 
-The only cases I know of where policy is loaded from initramfs are
-embedded Linux and Android, neither of which are using systemd to my
-knowledge, and both of which have custom policy loading logic anyway.
+Beyond what Eric said, I also think that libselinux should continue to 
+contain all of the key logic for whether or not SELinux is enabled and 
+how to behave.
+
+The current *API* seems OK in having the two return values of an error 
+code and an enforcing flag.
+
+The only thing libselinux can't know is:
+1) Whether we're inside an initramfs right now
+2) Whether or not the OS vendor expects policy to be found in the real 
+root or the initramfs
+
+So those bits of logic make sense to me in systemd, although there is 
+an argument for #2 living in libselinux.
+
+
+
+
+--=-wtrdSIVbGiyKy2wUk/Vp
+Content-Type: text/html; charset=utf-8
+
+On Thu, Feb 20, 2014 at 1:36 PM, Lennart Poettering &lt;lennart@poettering.net&gt; wrote:<br>
+<blockquote type="cite"><div class="plaintext" style="white-space: pre-wrap;">On Thu, 20.02.14 18:17, Colin Walters (walters@verbum.org) wrote:
+
+Hmm, maybe a simple check access("/etc/selinux/", F_OK) would be enough?
+There's no point in trying to initialized SELinux if that dir does not
+exist, right? Then we could simply bypass the whole thing...</div></blockquote><div><br></div><div>Beyond what Eric said, I also think that libselinux should continue to contain all of the key logic for whether or not SELinux is enabled and how to behave.</div><div><br></div><div>The current *API* seems OK in having the two return values of an error code and an enforcing flag.</div><div><br></div><div>The only thing libselinux can't know is:</div><div>1) Whether we're inside an initramfs right now</div><div>2) Whether or not the OS vendor expects policy to be found in the real root or the initramfs</div><div><br></div><div>So those bits of logic make sense to me in systemd, although there is an argument for #2 living in libselinux.</div><div><br></div><div><br></div>
+--=-wtrdSIVbGiyKy2wUk/Vp--
