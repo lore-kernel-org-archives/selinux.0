@@ -1,61 +1,39 @@
-Date: Thu, 20 Feb 2014 18:47:49 +0000
-From: Colin Walters <walters@verbum.org>
-Subject: Re: [systemd-devel] [PATCH] selinux: Only attempt to load policy
- exactly once, in the real root
-To: Lennart Poettering <lennart@poettering.net>
-In-Reply-To: <20140220183643.GB24876@tango.0pointer.de>
+MIME-Version: 1.0
+In-Reply-To: <20140220192644.GA28064@tango.0pointer.de>
 References: <20140220154726.19E25680237@frontend2.nyi.mail.srv.osa>
  <5306441F.8050207@tycho.nsa.gov>
  <20140220182215.4613AC00005@frontend1.nyi.mail.srv.osa>
  <20140220183643.GB24876@tango.0pointer.de>
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="=-wtrdSIVbGiyKy2wUk/Vp"
-Message-Id: <20140220185250.6F0E0680112@frontend2.nyi.mail.srv.osa>
-Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, SELinux-NSA <SELinux@tycho.nsa.gov>
+ <CACLa4ps3J9i8sSqxgrn6X=X08__rv4DWUPwYpeTPC-VcYBpjAQ@mail.gmail.com>
+ <20140220192644.GA28064@tango.0pointer.de>
+Date: Thu, 20 Feb 2014 14:27:19 -0500
+Message-ID: <CACLa4puwTAN5Qjkp1AW__v9w2vyupG-BxmtfBsZ8cyXNWD-Ppg@mail.gmail.com>
+Subject: Re: [systemd-devel] [PATCH] selinux: Only attempt to load policy
+ exactly once, in the real root
+From: Eric Paris <eparis@parisplace.org>
+To: Lennart Poettering <lennart@poettering.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ systemd Mailing List <systemd-devel@lists.freedesktop.org>,
+ SELinux-NSA <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---=-wtrdSIVbGiyKy2wUk/Vp
-Content-Type: text/plain; charset=utf-8; format=flowed
+I like it, if it's reasonable/possible
 
-On Thu, Feb 20, 2014 at 1:36 PM, Lennart Poettering 
+On Thu, Feb 20, 2014 at 2:26 PM, Lennart Poettering
 <lennart@poettering.net> wrote:
-> On Thu, 20.02.14 18:17, Colin Walters (walters@verbum.org) wrote:
-> 
-> Hmm, maybe a simple check access("/etc/selinux/", F_OK) would be 
-> enough?
-> There's no point in trying to initialized SELinux if that dir does not
-> exist, right? Then we could simply bypass the whole thing...
-> 
-
-Beyond what Eric said, I also think that libselinux should continue to 
-contain all of the key logic for whether or not SELinux is enabled and 
-how to behave.
-
-The current *API* seems OK in having the two return values of an error 
-code and an enforcing flag.
-
-The only thing libselinux can't know is:
-1) Whether we're inside an initramfs right now
-2) Whether or not the OS vendor expects policy to be found in the real 
-root or the initramfs
-
-So those bits of logic make sense to me in systemd, although there is 
-an argument for #2 living in libselinux.
-
-
-
-
---=-wtrdSIVbGiyKy2wUk/Vp
-Content-Type: text/html; charset=utf-8
-
-On Thu, Feb 20, 2014 at 1:36 PM, Lennart Poettering &lt;lennart@poettering.net&gt; wrote:<br>
-<blockquote type="cite"><div class="plaintext" style="white-space: pre-wrap;">On Thu, 20.02.14 18:17, Colin Walters (walters@verbum.org) wrote:
-
-Hmm, maybe a simple check access("/etc/selinux/", F_OK) would be enough?
-There's no point in trying to initialized SELinux if that dir does not
-exist, right? Then we could simply bypass the whole thing...</div></blockquote><div><br></div><div>Beyond what Eric said, I also think that libselinux should continue to contain all of the key logic for whether or not SELinux is enabled and how to behave.</div><div><br></div><div>The current *API* seems OK in having the two return values of an error code and an enforcing flag.</div><div><br></div><div>The only thing libselinux can't know is:</div><div>1) Whether we're inside an initramfs right now</div><div>2) Whether or not the OS vendor expects policy to be found in the real root or the initramfs</div><div><br></div><div>So those bits of logic make sense to me in systemd, although there is an argument for #2 living in libselinux.</div><div><br></div><div><br></div>
---=-wtrdSIVbGiyKy2wUk/Vp--
+> On Thu, 20.02.14 13:50, Eric Paris (eparis@parisplace.org) wrote:
+>
+>> Not really.  If it doesn't exist on the final root fs and I put
+>> enforcing=1 on the command line, I expect the box to
+>> panic/fail/die/whatever....
+>
+> OK, then maybe check "!in_initrd() || access("/etc/selinux/", F_OK) >= 0"?
+>
+> Lennart
+>
+> --
+> Lennart Poettering, Red Hat
