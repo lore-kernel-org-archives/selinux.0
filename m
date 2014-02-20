@@ -1,52 +1,52 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1KFvGQ8005207
- for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2014 10:57:16 -0500
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com
- (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s1KFuw9w012305
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
- for <selinux@tycho.nsa.gov>; Thu, 20 Feb 2014 10:56:59 -0500
-From: Eric Paris <eparis@redhat.com>
-To: pmoore@redhat.com
-Subject: [PATCH] SELinux: bigendian problems with filename trans rules
-Date: Thu, 20 Feb 2014 10:56:45 -0500
-Message-Id: <1392911805-8186-1-git-send-email-eparis@redhat.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Message-ID: <5306441F.8050207@tycho.nsa.gov>
+Date: Thu, 20 Feb 2014 13:06:23 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Colin Walters <walters@verbum.org>, SELinux-NSA <SELinux@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: Only attempt to load policy exactly once, in
+ the real root
+References: <20140220154726.19E25680237@frontend2.nyi.mail.srv.osa>
+In-Reply-To: <20140220154726.19E25680237@frontend2.nyi.mail.srv.osa>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: systemd Mailing List <systemd-devel@lists.freedesktop.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When writing policy via /sys/fs/selinux/policy I wrote the type and class
-of filename trans rules in CPU endian instead of little endian.  On
-x86_64 this works just fine, but it means that on big endian arch's like
-ppc64 and s390 userspace reads the policy and converts it from
-le32_to_cpu.  So the values are all screwed up.  Write the values in le
-format like it should have been to start.
+On 02/20/2014 10:42 AM, Colin Walters wrote:
+> Currently on at least Fedora, SELinux policy does not come in
+> the initramfs. systemd will attempt to load *both* in the
+> initramfs and in the real root.
+> 
+> Now, the selinux_init_load_policy() API has a regular error return
+> value, as well as an "enforcing" boolean. To determine enforcing
+> state, it looks for /etc/selinux/config as well as the presence
+> of "enforcing=" on the kernel command line.
+> 
+> Ordinarily, neither of those exist in the initramfs, so it will return
+> "unknown" for enforcing, and systemd will simply ignore the failure to
+> load policy.
+> 
+> Then later after we switch to the real root, we have the config file,
+> and all will work properly.
+> 
+> Except...this all blows up if someone explicitly specifies enforcing=1
+> on the kernel command line. Then systemd will fail to load the
+> nonexistent policy in the initramfs and freeze.
+> 
+> What this patch does is quite simple - we add an internal API that
+> says where we expect to find policy, and attempt to load it exactly
+> from there. Right now since I'm not aware of anyone who does
+> policy-in-initramfs, this function is hardcoded to return false.
+> 
+> Lots-of-very-painful-debugging-by: Colin Walters <walters@verbum.org>
+> ---
+> src/core/main.c | 6 ++++--
+> src/core/selinux-setup.c | 10 ++++++++++
+> src/core/selinux-setup.h | 2 ++
+> 3 files changed, 16 insertions(+), 2 deletions(-)
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
----
- security/selinux/ss/policydb.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index c0f4988..9c5cdc2 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -3338,10 +3338,10 @@ static int filename_write_helper(void *key, void *data, void *ptr)
- 	if (rc)
- 		return rc;
- 
--	buf[0] = ft->stype;
--	buf[1] = ft->ttype;
--	buf[2] = ft->tclass;
--	buf[3] = otype->otype;
-+	buf[0] = cpu_to_le32(ft->stype);
-+	buf[1] = cpu_to_le32(ft->ttype);
-+	buf[2] = cpu_to_le32(ft->tclass);
-+	buf[3] = cpu_to_le32(otype->otype);
- 
- 	rc = put_entry(buf, sizeof(u32), 4, fp);
- 	if (rc)
--- 
-1.8.5.3
+Wouldn't it be better (and more correct) to probe both the initramfs and
+the real root, and if neither one can load policy successfully and
+enforcing=1, then halt?
