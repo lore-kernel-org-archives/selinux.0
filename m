@@ -1,44 +1,50 @@
-Message-ID: <53064577.9040308@tycho.nsa.gov>
-Date: Thu, 20 Feb 2014 13:12:07 -0500
+Message-ID: <53064615.2010503@tycho.nsa.gov>
+Date: Thu, 20 Feb 2014 13:14:45 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Colin Walters <walters@verbum.org>, SELinux-NSA <SELinux@tycho.nsa.gov>
-Subject: Re: [RFC] [PATCH] load_policy: Log errors using selinux_log
-References: <20140220135440.C93E9680220@frontend2.nyi.mail.srv.osa>
-In-Reply-To: <20140220135440.C93E9680220@frontend2.nyi.mail.srv.osa>
+To: Eric Paris <eparis@redhat.com>, pmoore@redhat.com
+Subject: Re: [PATCH] SELinux: bigendian problems with filename trans rules
+References: <1392911805-8186-1-git-send-email-eparis@redhat.com>
+In-Reply-To: <1392911805-8186-1-git-send-email-eparis@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/20/2014 08:49 AM, Colin Walters wrote:
-> This libselinux patch won't actually apply to git master of selinux, as
-> it's really on top of the Fedora libselinux package which is carrying a
-> patch to use LZMA compression.
+On 02/20/2014 10:56 AM, Eric Paris wrote:
+> When writing policy via /sys/fs/selinux/policy I wrote the type and class
+> of filename trans rules in CPU endian instead of little endian.  On
+> x86_64 this works just fine, but it means that on big endian arch's like
+> ppc64 and s390 userspace reads the policy and converts it from
+> le32_to_cpu.  So the values are all screwed up.  Write the values in le
+> format like it should have been to start.
 > 
-> This is more of a RFC - I wrote these patches to debug a problem which
-> I've now (mostly) solved, but they may help someone else in the future...
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
+>  security/selinux/ss/policydb.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index c0f4988..9c5cdc2 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -3338,10 +3338,10 @@ static int filename_write_helper(void *key, void *data, void *ptr)
+>  	if (rc)
+>  		return rc;
+>  
+> -	buf[0] = ft->stype;
+> -	buf[1] = ft->ttype;
+> -	buf[2] = ft->tclass;
+> -	buf[3] = otype->otype;
+> +	buf[0] = cpu_to_le32(ft->stype);
+> +	buf[1] = cpu_to_le32(ft->ttype);
+> +	buf[2] = cpu_to_le32(ft->tclass);
+> +	buf[3] = cpu_to_le32(otype->otype);
+>  
+>  	rc = put_entry(buf, sizeof(u32), 4, fp);
+>  	if (rc)
+> 
 
-Agreed, we did the same in the corresponding function for Android policy
-loading.
-
-> One question - systemd git has this comment:
-> 
-> /* Make sure we have no fds open while loading the policy and
-> * transitioning */
-> log_close();
-> 
-> Introduced by this commit:
-> http://cgit.freedesktop.org/systemd/systemd/commit/?id=0b3325e7
-> 
-> Is that really necessary?  Something relating to the labels of the fds?
-> If so, is there something we can do to allow logging?  I could probably
-> change the systemd log handler to write to a memory buffer or something
-> if it's necessary.
-> 
-> For reference I'm attaching my (currently somewhat unclean) systemd
-> patch as well.
-
-Probably just to avoid needing to allow the new context to use fds with
-the old context in policy, but likely not critical.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
