@@ -1,78 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1OC76D6017205
- for <selinux@tycho.nsa.gov>; Mon, 24 Feb 2014 07:07:06 -0500
-Received: from mail by f81.i.mail.ru with local (envelope-from
- <work3231@mail.ru>) id 1WHuJK-0003rW-4A
- for selinux@tycho.nsa.gov; Mon, 24 Feb 2014 16:07:02 +0400
-From: =?UTF-8?B?d29yazMyMzEgd29yazMyMzE=?= <work3231@mail.ru>
-To: selinux@tycho.nsa.gov
-Subject: =?UTF-8?B?ZG9lc250IHdvcmsgTUxTIGluIHNzaCBYLWZvcndhcmRpbmcgb24gdGhlIGNs?=
- =?UTF-8?B?aWVudCdzIFggd2luZG93cw==?=
-Mime-Version: 1.0
-Date: Mon, 24 Feb 2014 16:07:02 +0400
-Message-ID: <1393243622.357229894@f81.i.mail.ru>
-Content-Type: multipart/alternative;
-	boundary="--ALT--e8L5zhn01393243622"
-Reply-To: =?UTF-8?B?d29yazMyMzEgd29yazMyMzE=?= <work3231@mail.ru>
+Message-ID: <530B4C2B.3060902@tycho.nsa.gov>
+Date: Mon, 24 Feb 2014 08:42:03 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: work3231 work3231 <work3231@mail.ru>, selinux@tycho.nsa.gov
+Subject: Re: doesnt work MLS in ssh X-forwarding on the client's X windows
+References: <1393243622.357229894@f81.i.mail.ru>
+In-Reply-To: <1393243622.357229894@f81.i.mail.ru>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 02/24/2014 07:07 AM, work3231 work3231 wrote:
+>  Hello!
+> 
+> I'm working on enhancing SELinux for thin clients (booting from the netcard)
+> The problem: during the connection to the "server" from "client" by ssh with parameter -X I dont see correct context of window properties (X_PROP for ex.), it is NNN:s0, but not NNN:s1
+> 
+> More detally algorythm:  
+> 
+> xinit /usr/bin/terminal -- :1  ------ new X
+> ssh user@IP -X
+> xfce-session &
+> xauth list    ------ to repair DISPLAY in the new security level
+> newrole -l s1
+> xauth add DISPLAY   ------ repair it
+> leafpad&
+> -------------------
+> 
+> in xorg-server-1.12.0/Xext/xselinux_hooks.c      inserted logs on X_PROP right after rc=SELinuxDoCheck()  just input some text in "leafpad" and look to the /var/log/Xorg.1.log)
+> On the other hand int /proc we have correct context of tested application (leafpad), but internally not.
+> Resulting context of obj(PROP): user_u:object_t:xproperty_t:s0   but it must be NNN:s1   like on local X-session on the server or on the client.
+> 
+> Files /etc/ssh/sshd_config and ssh_config set up correctly: ForwardX11Trusted=yes
+> 
+> 
+> 
+> How to do it working, or there is not such fuctnionality in SELinux?
 
-----ALT--e8L5zhn01393243622
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
-
-IEhlbGxvIQoKSSdtIHdvcmtpbmcgb24gZW5oYW5jaW5nIFNFTGludXggZm9yIHRoaW4gY2xpZW50
-cyAoYm9vdGluZyBmcm9tIHRoZSBuZXRjYXJkKQpUaGUgcHJvYmxlbTogZHVyaW5nIHRoZSBjb25u
-ZWN0aW9uIHRvIHRoZSAic2VydmVyIiBmcm9tICJjbGllbnQiIGJ5IHNzaCB3aXRoIHBhcmFtZXRl
-ciAtWCBJIGRvbnQgc2VlIGNvcnJlY3QgY29udGV4dCBvZiB3aW5kb3cgcHJvcGVydGllcyAoWF9Q
-Uk9QIGZvciBleC4pLCBpdCBpcyBOTk46czAsIGJ1dCBub3QgTk5OOnMxCgpNb3JlIGRldGFsbHkg
-YWxnb3J5dGhtOsKgIAoKeGluaXQgL3Vzci9iaW4vdGVybWluYWwgLS0gOjHCoCAtLS0tLS0gbmV3
-IFgKc3NoIHVzZXJASVAgLVgKeGZjZS1zZXNzaW9uICYKeGF1dGggbGlzdMKgwqDCoCAtLS0tLS0g
-dG8gcmVwYWlyIERJU1BMQVkgaW4gdGhlIG5ldyBzZWN1cml0eSBsZXZlbApuZXdyb2xlIC1sIHMx
-CnhhdXRoIGFkZCBESVNQTEFZwqDCoCAtLS0tLS0gcmVwYWlyIGl0CmxlYWZwYWQmCi0tLS0tLS0t
-LS0tLS0tLS0tLS0KCmluIHhvcmctc2VydmVyLTEuMTIuMC9YZXh0L3hzZWxpbnV4X2hvb2tzLmPC
-oMKgwqDCoMKgIGluc2VydGVkIGxvZ3Mgb24gWF9QUk9QIHJpZ2h0IGFmdGVyIHJjPVNFTGludXhE
-b0NoZWNrKCnCoCBqdXN0IGlucHV0IHNvbWUgdGV4dCBpbiAibGVhZnBhZCIgYW5kIGxvb2sgdG8g
-dGhlIC92YXIvbG9nL1hvcmcuMS5sb2cpCk9uIHRoZSBvdGhlciBoYW5kIGludCAvcHJvYyB3ZSBo
-YXZlIGNvcnJlY3QgY29udGV4dCBvZiB0ZXN0ZWQgYXBwbGljYXRpb24gKGxlYWZwYWQpLCBidXQg
-aW50ZXJuYWxseSBub3QuClJlc3VsdGluZyBjb250ZXh0IG9mIG9iaihQUk9QKTogdXNlcl91Om9i
-amVjdF90Onhwcm9wZXJ0eV90OnMwwqDCoCBidXQgaXQgbXVzdCBiZSBOTk46czHCoMKgIGxpa2Ug
-b24gbG9jYWwgWC1zZXNzaW9uIG9uIHRoZSBzZXJ2ZXIgb3Igb24gdGhlIGNsaWVudC4KCkZpbGVz
-IC9ldGMvc3NoL3NzaGRfY29uZmlnIGFuZCBzc2hfY29uZmlnIHNldCB1cCBjb3JyZWN0bHk6IEZv
-cndhcmRYMTFUcnVzdGVkPXllcwoKCgpIb3cgdG8gZG8gaXQgd29ya2luZywgb3IgdGhlcmUgaXMg
-bm90IHN1Y2ggZnVjdG5pb25hbGl0eSBpbiBTRUxpbnV4PwoKCgpUaGFua3MsCkFsZXhhbmRlcgoK
-Ci0tIAp3b3JrMzIzMSB3b3JrMzIzMQ==
-
-----ALT--e8L5zhn01393243622
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: base64
-
-CjxIVE1MPjxCT0RZPkhlbGxvITxicj48YnI+SSdtIHdvcmtpbmcgb24gZW5oYW5jaW5nIFNFTGlu
-dXggZm9yIHRoaW4gY2xpZW50cyAoYm9vdGluZyBmcm9tIHRoZSBuZXRjYXJkKTxicj5UaGUgcHJv
-YmxlbTogZHVyaW5nIHRoZSBjb25uZWN0aW9uIHRvIHRoZSAic2VydmVyIiBmcm9tICJjbGllbnQi
-IGJ5IHNzaCB3aXRoIHBhcmFtZXRlciAtWCBJIGRvbnQgc2VlIGNvcnJlY3QgY29udGV4dCBvZiB3
-aW5kb3cgcHJvcGVydGllcyAoWF9QUk9QIGZvciBleC4pLCBpdCBpcyBOTk46czAsIGJ1dCBub3Qg
-Tk5OOnMxPGJyPjxicj5Nb3JlIGRldGFsbHkgYWxnb3J5dGhtOiZuYnNwOyA8YnI+PGJyPnhpbml0
-IC91c3IvYmluL3Rlcm1pbmFsIC0tIDoxJm5ic3A7IC0tLS0tLSBuZXcgWDxicj5zc2ggdXNlckBJ
-UCAtWDxicj54ZmNlLXNlc3Npb24gJmFtcDs8YnI+eGF1dGggbGlzdCZuYnNwOyZuYnNwOyZuYnNw
-OyAtLS0tLS0gdG8gcmVwYWlyIERJU1BMQVkgaW4gdGhlIG5ldyBzZWN1cml0eSBsZXZlbDxicj5u
-ZXdyb2xlIC1sIHMxPGJyPnhhdXRoIGFkZCBESVNQTEFZJm5ic3A7Jm5ic3A7IC0tLS0tLSByZXBh
-aXIgaXQ8YnI+bGVhZnBhZCZhbXA7PGJyPi0tLS0tLS0tLS0tLS0tLS0tLS08YnI+PGJyPmluIHhv
-cmctc2VydmVyLTEuMTIuMC9YZXh0L3hzZWxpbnV4X2hvb2tzLmMmbmJzcDsmbmJzcDsmbmJzcDsm
-bmJzcDsmbmJzcDsgaW5zZXJ0ZWQgbG9ncyBvbiBYX1BST1AgcmlnaHQgYWZ0ZXIgcmM9U0VMaW51
-eERvQ2hlY2soKSZuYnNwOyBqdXN0IGlucHV0IHNvbWUgdGV4dCBpbiAibGVhZnBhZCIgYW5kIGxv
-b2sgdG8gdGhlIC92YXIvbG9nL1hvcmcuMS5sb2cpPGJyPk9uIHRoZSBvdGhlciBoYW5kIGludCAv
-cHJvYyB3ZSBoYXZlIGNvcnJlY3QgY29udGV4dCBvZiB0ZXN0ZWQgYXBwbGljYXRpb24gKGxlYWZw
-YWQpLCBidXQgaW50ZXJuYWxseSBub3QuPGJyPlJlc3VsdGluZyBjb250ZXh0IG9mIG9iaihQUk9Q
-KTogdXNlcl91Om9iamVjdF90Onhwcm9wZXJ0eV90OnMwJm5ic3A7Jm5ic3A7IGJ1dCBpdCBtdXN0
-IGJlIE5OTjpzMSZuYnNwOyZuYnNwOyBsaWtlIG9uIGxvY2FsIFgtc2Vzc2lvbiBvbiB0aGUgc2Vy
-dmVyIG9yIG9uIHRoZSBjbGllbnQuPGJyPjxicj5GaWxlcyAvZXRjL3NzaC9zc2hkX2NvbmZpZyBh
-bmQgc3NoX2NvbmZpZyBzZXQgdXAgY29ycmVjdGx5OiBGb3J3YXJkWDExVHJ1c3RlZD15ZXM8YnI+
-PGJyPjxicj48YnI+SG93IHRvIGRvIGl0IHdvcmtpbmcsIG9yIHRoZXJlIGlzIG5vdCBzdWNoIGZ1
-Y3RuaW9uYWxpdHkgaW4gU0VMaW51eD88YnI+PGJyPjxicj48YnI+VGhhbmtzLDxicj5BbGV4YW5k
-ZXI8YnI+PGJyPjxicj4tLSA8YnI+d29yazMyMzEgd29yazMyMzE8L0JPRFk+PC9IVE1MPgo=
-
-----ALT--e8L5zhn01393243622--
+Is the property labeled as a poly_property in your x_contexts configuration?
