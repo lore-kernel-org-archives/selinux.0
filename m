@@ -1,65 +1,101 @@
-Message-ID: <1393359634.8716.40.camel@joe-AO722>
-Subject: Re: [PATCH 5/8] security: selinux: Use a more current logging style
-From: Joe Perches <joe@perches.com>
-To: Paul Moore <paul@paul-moore.com>
-Date: Tue, 25 Feb 2014 12:20:34 -0800
-In-Reply-To: <2895078.vC4M4VjvUd@sifl>
-References: <cover.1393279025.git.joe@perches.com>
- <637b2f31e31f2b0d7a67131f1db125cc0b2bb829.1393279025.git.joe@perches.com>
- <2895078.vC4M4VjvUd@sifl>
-Content-Type: text/plain; charset="ISO-8859-1"
-Mime-Version: 1.0
-Cc: James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s1REUo2f032217
+ for <selinux@tycho.nsa.gov>; Thu, 27 Feb 2014 09:30:50 -0500
+Subject: [PATCH] selinux: put the mmap() DAC controls before the MAC controls
+To: selinux@tycho.nsa.gov
+From: Paul Moore <pmoore@redhat.com>
+Date: Thu, 27 Feb 2014 09:30:45 -0500
+Message-ID: <20140227143045.14242.66994.stgit@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Cc: casey.schaufler@intel.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2014-02-25 at 15:05 -0500, Paul Moore wrote:
-> On Monday, February 24, 2014 01:59:58 PM Joe Perches wrote:
-> > Convert printk to pr_<level>.
-> > Add pr_fmt.
-> > Coalesce formats, add missing space where appropriate.
-> > Standardize on one space after "SELinux: " prefix.
-> > 
-> > Signed-off-by: Joe Perches <joe@perches.com>
-> 
-> A few minor comments inline ...
-> 
-> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-[]
-> > @@ -13,6 +13,9 @@
-> >   *	it under the terms of the GNU General Public License version 2,
-> >   *	as published by the Free Software Foundation.
-> >   */
-> > +
-> > +#define pr_fmt(fmt) "SELinux: " KBUILD_MODNAME ": " fmt
-> > +
-> 
-> Wouldn't this result in "SELinux: selinux: ..."?  If not great, if so, let's 
-> just specify "avc" the old fashioned way.
+It turns out that doing the SELinux MAC checks for mmap() before the
+DAC checks was causing users and the SELinux policy folks headaches
+as users were seeing a lot of SELinux AVC denials for the
+memprotect:mmap_zero permission that would have also been denied by
+the normal DAC capability checks (CAP_SYS_RAWIO).
 
-Yup, you're right.  Thanks.  I stuffed that one up.
+Example:
 
-$ strings security/selinux/avc.o | grep "^[0-6]"
-4SELinux: selinux: seqno %d < latest_notif %d
+ # cat mmap_test.c
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <errno.h>
+  #include <sys/mman.h>
 
-I'll send a v2.
+  int main(int argc, char *argv[])
+  {
+        int rc;
+        void *mem;
 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-[]
-> > @@ -5976,9 +5958,9 @@ static __init int selinux_init(void)
-> >  		panic("SELinux: Unable to register with kernel.\n");
-> > 
-> >  	if (selinux_enforcing)
-> > -		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
-> > +		printk(KERN_DEBUG "SELinux: Starting in enforcing mode\n");
-> >  	else
-> > -		printk(KERN_DEBUG "SELinux:  Starting in permissive mode\n");
-> > +		printk(KERN_DEBUG "SELinux: Starting in permissive mode\n");
+        mem = mmap(0x0, 4096,
+                   PROT_READ | PROT_WRITE,
+                   MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+        if (mem == MAP_FAILED)
+                return errno;
+        printf("mem = %p\n", mem);
+        munmap(mem, 4096);
 
-These printks should/will be converted to pr_debug in a
-separate patch.  I didn't want to mix these conversions
-with the other pr_<level> ones.
+        return 0;
+  }
+ # gcc -g -O0 -o mmap_test mmap_test.c
+ # ./mmap_test
+ mem = (nil)
+ # ausearch -m AVC | grep mmap_zero
+ type=AVC msg=audit(...): avc:  denied  { mmap_zero }
+   for pid=1025 comm="mmap_test"
+   scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+   tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+   tclass=memprotect
+
+This patch corrects things so that when the above example is run by a
+user without CAP_SYS_RAWIO the SELinux AVC is no longer generated as
+the DAC capability check fails before the SELinux permission check.
+
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/hooks.c |   20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 57b0b49..e3664ae 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3205,24 +3205,20 @@ error:
+ 
+ static int selinux_mmap_addr(unsigned long addr)
+ {
+-	int rc = 0;
+-	u32 sid = current_sid();
++	int rc;
++
++	/* do DAC check on address space usage */
++	rc = cap_mmap_addr(addr);
++	if (rc)
++		return rc;
+ 
+-	/*
+-	 * notice that we are intentionally putting the SELinux check before
+-	 * the secondary cap_file_mmap check.  This is such a likely attempt
+-	 * at bad behaviour/exploit that we always want to get the AVC, even
+-	 * if DAC would have also denied the operation.
+-	 */
+ 	if (addr < CONFIG_LSM_MMAP_MIN_ADDR) {
++		u32 sid = current_sid();
+ 		rc = avc_has_perm(sid, sid, SECCLASS_MEMPROTECT,
+ 				  MEMPROTECT__MMAP_ZERO, NULL);
+-		if (rc)
+-			return rc;
+ 	}
+ 
+-	/* do DAC check on address space usage */
+-	return cap_mmap_addr(addr);
++	return rc;
+ }
+ 
+ static int selinux_mmap_file(struct file *file, unsigned long reqprot,
