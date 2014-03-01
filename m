@@ -1,37 +1,32 @@
-MIME-Version: 1.0
-Date: Sat, 1 Mar 2014 12:23:45 +0100
-Message-ID: <CAOFt0CQYn+Sku39NOHn4ggX1_8O3y6uvZLtfS1_TQJhirANfNQ@mail.gmail.com>
-Subject: What is Type Enforcement Model in SELinux?
-From: Kernel freak <kernelfreak@gmail.com>
+From: Bryan Harris <bryanlharris@me.com>
+Content-type: text/plain; charset=us-ascii
+MIME-version: 1.0 (1.0)
+Subject: Re: What is Type Enforcement Model in SELinux?
+Message-id: <98847C58-0B26-40AC-A59D-837794A6C957@me.com>
+Date: Sat, 01 Mar 2014 08:14:03 -0500
+References: <CAOFt0CQYn+Sku39NOHn4ggX1_8O3y6uvZLtfS1_TQJhirANfNQ@mail.gmail.com>
+In-reply-to: <CAOFt0CQYn+Sku39NOHn4ggX1_8O3y6uvZLtfS1_TQJhirANfNQ@mail.gmail.com>
 To: "selinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=089e013d0f489cd86204f389c9c0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e013d0f489cd86204f389c9c0
-Content-Type: text/plain; charset=ISO-8859-1
+I am also new to selinux but I believe what you're looking for is MAC mandatory access control.
 
-Hello Friends,
-                     I am writing a report and I need to write about TE
-model in SELinux. I searched around the net, but all the articles I read
-beat around the bush and never say like ok, this is TE model for SELinux.
-Can anyone be so kind and please point me out to some links which say about
-TE model in SELinux and if possible an appropriate model. Thank you for
-your time and patience.
+http://en.m.wikipedia.org/wiki/SELinux
 
---089e013d0f489cd86204f389c9c0
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hope this helps and doesn't make things worse for you. (-:
 
-<div dir=3D"ltr"><div><div>Hello Friends,<br></div>=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 I am writing a report and I need to wr=
-ite about TE model in SELinux. I searched around the net, but all the artic=
-les I read beat around the bush and never say like ok, this is TE model for=
- SELinux. <br>
-</div>Can anyone be so kind and please point me out to some links which say=
- about TE model in SELinux and if possible an appropriate model. Thank you =
-for your time and patience.<br></div>
+Bryan
 
---089e013d0f489cd86204f389c9c0--
+> On Mar 1, 2014, at 6:23 AM, Kernel freak <kernelfreak@gmail.com> wrote:
+> 
+> Hello Friends,
+>                      I am writing a report and I need to write about TE model in SELinux. I searched around the net, but all the articles I read beat around the bush and never say like ok, this is TE model for SELinux. 
+> Can anyone be so kind and please point me out to some links which say about TE model in SELinux and if possible an appropriate model. Thank you for your time and patience.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
