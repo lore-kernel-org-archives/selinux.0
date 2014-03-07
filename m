@@ -1,61 +1,110 @@
-From: Paul Moore <pmoore@redhat.com>
-To: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: correctly label /proc inodes in use before the
- policy is loaded
-Date: Wed, 05 Mar 2014 14:26:34 -0500
-Message-ID: <1821968.ne38jZ0Fly@sifl>
-In-Reply-To: <1394044822.4862.1.camel@flatline.rdu.redhat.com>
-References: <20140305164407.16288.91349.stgit@localhost>
- <53175F8B.7010704@tycho.nsa.gov>
- <1394044822.4862.1.camel@flatline.rdu.redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s273M6Aw007261
+ for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2014 22:22:07 -0500
+Received: by mail-qg0-f44.google.com with SMTP id a108so9933729qge.3
+ for <selinux@tycho.nsa.gov>; Thu, 06 Mar 2014 19:22:05 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Nikolay Aleksandrov <nikolay@redhat.com>
+Subject: Re: [PATCH 2/2] selinux: add gfp argument to
+ security_xfrm_policy_alloc and fix callers
+Date: Thu, 06 Mar 2014 22:22:02 -0500
+Message-ID: <3932171.ispFyGS1cS@sifl>
+In-Reply-To: <1393935984-8733-3-git-send-email-nikolay@redhat.com>
+References: <20140227151954.GA30946@redhat.com>
+ <1393935984-8733-1-git-send-email-nikolay@redhat.com>
+ <1393935984-8733-3-git-send-email-nikolay@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: selinux@tycho.nsa.gov
+Cc: netdev@vger.kernel.org, LSM list <linux-security-module@vger.kernel.org>,
+ selinux@tycho.nsa.gov, Fan Du <fan.du@windriver.com>,
+ Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, March 05, 2014 01:40:22 PM Eric Paris wrote:
-> On Wed, 2014-03-05 at 12:31 -0500, Stephen Smalley wrote:
-> > On 03/05/2014 11:44 AM, Paul Moore wrote:
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 57b0b49..d554e7e 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -1419,15 +1419,32 @@ static int inode_doinit_with_dentry(struct inode
-> > > *inode, struct dentry *opt_dent> > 
-> > >  		isec->sid = sbsec->sid;
-> > >  		
-> > >  		if ((sbsec->flags & SE_SBPROC) && !S_ISLNK(inode->i_mode)) {
-> > > 
-> > > -			if (opt_dentry) {
-> > > -				isec->sclass = inode_mode_to_security_class(inode-
->i_mode);
-> > > -				rc = selinux_proc_get_sid(opt_dentry,
-> > > -							  isec->sclass,
-> > > -							  &sid);
-> > > -				if (rc)
-> > > -					goto out_unlock;
-> > > -				isec->sid = sid;
-> > > -			}
-> > > +			/* Need a dentry, since the procfs API requires one. */
-> > 
-> > Comment isn't accurate; unlike the xattr case where the dentry
-> > requirement originates from the ->getxattr API, here we need a dentry
-> > for our own internal selinux_proc_get_sid() helper.  Otherwise, looks
-> > fine.
+On Tuesday, March 04, 2014 01:26:24 PM Nikolay Aleksandrov wrote:
+> security_xfrm_policy_alloc can be called in atomic context so the
+> allocation should be done with GFP_ATOMIC. Add an argument to let the
+> callers choose the appropriate way. In order to do so a gfp argument
+> needs to be added to the method xfrm_policy_alloc_security in struct
+> security_operations and to the internal function
+> selinux_xfrm_alloc_user. After that switch to GFP_ATOMIC in the atomic
+> callers and leave GFP_KERNEL as before for the rest.
+> The path that needed the gfp argument addition is:
+> security_xfrm_policy_alloc -> security_ops.xfrm_policy_alloc_security ->
+> all users of xfrm_policy_alloc_security (e.g. selinux_xfrm_policy_alloc) ->
+> selinux_xfrm_alloc_user (here the allocation used to be GFP_KERNEL only)
 > 
-> I guess I could have written that comment better...
+> CC: Paul Moore <paul@paul-moore.com>
+> CC: Dave Jones <davej@redhat.com>
+> CC: Steffen Klassert <steffen.klassert@secunet.com>
+> CC: Fan Du <fan.du@windriver.com>
+> CC: David S. Miller <davem@davemloft.net>
+> CC: LSM list <linux-security-module@vger.kernel.org>
 > 
-> /* We must have a dentry to determine the label on procfs inodes */
-> 
-> With a comment change like that
-> 
-> Acked-by: Eric Paris <eparis@redhat.com>
+> Signed-off-by: Nikolay Aleksandrov <nikolay@redhat.com>
 
-Updated.  I'll push it to next later today.
+[NOTE: added the SELinux list to the CC list above]
+
+In general, the patch is pretty simple with the obvious necessary changes, 
+just one gotcha, see below.
+
+> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+> index 0462cb3ff0a7..7ae773f4fe38 100644
+> --- a/security/selinux/xfrm.c
+> +++ b/security/selinux/xfrm.c
+> @@ -78,7 +78,8 @@ static inline int selinux_authorizable_xfrm(struct
+> xfrm_state *x) * xfrm_user_sec_ctx context.
+>   */
+>  static int selinux_xfrm_alloc_user(struct xfrm_sec_ctx **ctxp,
+> -				   struct xfrm_user_sec_ctx *uctx)
+> +				   struct xfrm_user_sec_ctx *uctx,
+> +				   gfp_t gfp)
+>  {
+>  	int rc;
+>  	const struct task_security_struct *tsec = current_security();
+> @@ -94,7 +95,7 @@ static int selinux_xfrm_alloc_user(struct xfrm_sec_ctx
+> **ctxp, if (str_len >= PAGE_SIZE)
+>  		return -ENOMEM;
+> 
+> -	ctx = kmalloc(sizeof(*ctx) + str_len + 1, GFP_KERNEL);
+> +	ctx = kmalloc(sizeof(*ctx) + str_len + 1, gfp);
+>  	if (!ctx)
+>  		return -ENOMEM;
+
+Also located in selinux_xfrm_alloc_user() is a call to 
+security_context_to_sid() which calls security_context_to_sid_core() which in 
+some cases does allocate memory.  The good news is that to_sid_core() does 
+accept a gfp_t flag, the bad news is that to_sid() always passes GFP_KERNEL.
+
+It looks like we need to extend this patch a bit, or add another.  Sorry about 
+that.  If you're getting tired of playing with the LSM/SELinux code let me 
+know :)
+
+> @@ -282,9 +283,10 @@ int selinux_xfrm_skb_sid(struct sk_buff *skb, u32 *sid)
+> * LSM hook implementation that allocs and transfers uctx spec to
+> xfrm_policy. */
+>  int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
+> -			      struct xfrm_user_sec_ctx *uctx)
+> +			      struct xfrm_user_sec_ctx *uctx,
+> +			      gfp_t gfp)
+>  {
+> -	return selinux_xfrm_alloc_user(ctxp, uctx);
+> +	return selinux_xfrm_alloc_user(ctxp, uctx, gfp);
+>  }
+> 
+>  /*
+> @@ -332,7 +334,7 @@ int selinux_xfrm_policy_delete(struct xfrm_sec_ctx *ctx)
+> int selinux_xfrm_state_alloc(struct xfrm_state *x,
+>  			     struct xfrm_user_sec_ctx *uctx)
+>  {
+> -	return selinux_xfrm_alloc_user(&x->security, uctx);
+> +	return selinux_xfrm_alloc_user(&x->security, uctx, GFP_KERNEL);
+>  }
+> 
+>  /*
 
 -- 
 paul moore
-security and virtualization @ redhat
+www.paul-moore.com
