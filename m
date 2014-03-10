@@ -1,84 +1,62 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s2ACqLkP010843
+ for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2014 08:52:21 -0400
+Date: Mon, 10 Mar 2014 13:52:03 +0100
+From: Steffen Klassert <steffen.klassert@secunet.com>
+To: Paul Moore <paul@paul-moore.com>
+Subject: Re: [PATCHv2 2/2] selinux: add gfp argument to
+ security_xfrm_policy_alloc and fix callers
+Message-ID: <20140310125203.GZ32371@secunet.com>
+References: <20140227151954.GA30946@redhat.com>
+ <1394192659-10764-1-git-send-email-nikolay@redhat.com>
+ <1394192659-10764-3-git-send-email-nikolay@redhat.com>
+ <2297449.8Lk5u4VomY@sifl>
 MIME-Version: 1.0
-In-Reply-To: <52FB8288.1080004@tycho.nsa.gov>
-References: <CACBeRbb2fZCWgH93aJ61nfkCCZoJSG3aeaW=9ODSccVXzRQ9xg@mail.gmail.com>
- <52FB8288.1080004@tycho.nsa.gov>
-Date: Mon, 10 Mar 2014 14:31:29 +0700
-Message-ID: <CACBeRbY32sYaN8LWKxQ5f=6kyV6_dNgdhVkesTV07i-DRwkKrA@mail.gmail.com>
-Subject: Re: Detail description of some projects in TO DO list page
-From: nguyen thai <thai.bkset@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- selinux maillist <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <2297449.8Lk5u4VomY@sifl>
+Cc: netdev@vger.kernel.org, LSM list <linux-security-module@vger.kernel.org>,
+ SELinux list <selinux@tycho.nsa.gov>, Fan Du <fan.du@windriver.com>,
+ Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 12, 2014 at 9:17 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 02/11/2014 09:24 PM, nguyen thai wrote:
->> Hi everyone,
->>
->> I have started my study in SELinux recently. I found some projects in TO DO
->> list page were really interesting. Can anyone give me more details (what's
->> problem now? it's effects or drawbacks) of one of following projects or any
->> other projects that i can start to work on?
->>  - Investigate security policy for cgroups
->>  - CIFS support for single-context clients
->>  - Real device labeling and access control
->>
->> Thank you very much.
->
-> That TODO list is old and not actively maintained, so it may be better
-> to look at recent mailing list archives to see areas where you can
-> contribute most effectively.  Also look for recent discussions of
-> selinux in the linux-security-module and linux-kernel mailing list archives.
->
-> On the cgroup item, it should be possible to support finer-grained
-> labeling of cgroup files now that cgroup supports xattrs, but it will
-> require a small kernel change (similar to the changes previously made
-> for sysfs and rootfs; need to generalize that), and thereby enabling
-> policy control over specific cgroup files.  There may also be work
-> required inside the cgroup code to add security hooks and permission
-> checks for MAC; that would require analysis of the cgroup
-> implementation, existing DAC checks, ways in which they can permit
-> different security labels to interact/interfere with each other, etc.
->
->
->
+On Fri, Mar 07, 2014 at 05:27:17PM -0500, Paul Moore wrote:
+> On Friday, March 07, 2014 12:44:19 PM Nikolay Aleksandrov wrote:
+> > security_xfrm_policy_alloc can be called in atomic context so the
+> > allocation should be done with GFP_ATOMIC. Add an argument to let the
+> > callers choose the appropriate way. In order to do so a gfp argument
+> > needs to be added to the method xfrm_policy_alloc_security in struct
+> > security_operations and to the internal function
+> > selinux_xfrm_alloc_user. After that switch to GFP_ATOMIC in the atomic
+> > callers and leave GFP_KERNEL as before for the rest.
+> > The path that needed the gfp argument addition is:
+> > security_xfrm_policy_alloc -> security_ops.xfrm_policy_alloc_security ->
+> > all users of xfrm_policy_alloc_security (e.g. selinux_xfrm_policy_alloc) ->
+> > selinux_xfrm_alloc_user (here the allocation used to be GFP_KERNEL only)
+> > 
+> > Now adding a gfp argument to selinux_xfrm_alloc_user requires us to also
+> > add it to security_context_to_sid which is used inside and prior to this
+> > patch did only GFP_KERNEL allocation. So add gfp argument to
+> > security_context_to_sid and adjust all of its callers as well.
+> > 
+> > CC: Paul Moore <paul@paul-moore.com>
+> > CC: Dave Jones <davej@redhat.com>
+> > CC: Steffen Klassert <steffen.klassert@secunet.com>
+> > CC: Fan Du <fan.du@windriver.com>
+> > CC: David S. Miller <davem@davemloft.net>
+> > CC: LSM list <linux-security-module@vger.kernel.org>
+> > CC: SELinux list <selinux@tycho.nsa.gov>
+> > 
+> > Signed-off-by: Nikolay Aleksandrov <nikolay@redhat.com>
+> 
+> This looks good to me, thanks for finding this and following through with a 
+> patch.
+> 
+> Acked-by: Paul Moore <paul@paul-moore.com>
+> 
 
-Hi,
-I have spent several weeks on digging into cgroup code and its problems.
-As i understand, there are several reasons why you want to enable MAC
-checks over specific cgroup file:
+Both patches applied to the ipsec tree.
 
-+ The cgroup interface is filesystem, means that users can change
-permissions on subdirectories and
-   give access to a non-privileged security domain, ie non-root users.
-Leading to an individual application
-   can interact directly with the cgroup filesystem. It ends up
-exposing control knobs which are tightly
-   coupled to kernel implementation details right into lay binaries
-and scripts directly used by end users.
-
-+ The cgroups trees are a shared resource. Many applications can use
-it simultaneously. So they can
-   conflicts with others. Ex, move tasks, delete or move the cgroups
-that belong to  other applications.
-
-MAC check can improve some of the cgroup problems. But I've heard that
-cgroup and systemd developers have
-been making really big changes to fix these cgroup problems. As they
-described here
-http://lists.freedesktop.org/archives/systemd-devel/2013-June/011521.html
-or http://www.freedesktop.org/wiki/Software/systemd/ControlGroupInterface/
-They are creating a centralized userland authority which takes full
-ownership of the cgroup filesystem
-interface, and makes policy decisions based on configuration and
-requests. This may solve above problems.
-
-So does implementing MAC checks on cgroup can is needed anymore? Can
-it help improving some other problems?
-I'm getting stuck finding something to do here.
-
-Thanks,
-Thai
+Thanks everyone!
