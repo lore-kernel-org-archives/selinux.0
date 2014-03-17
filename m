@@ -1,67 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s2HLSDkW021222
- for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2014 17:28:13 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
-Subject: Re: [GIT PULL] SELinux patches for 3.15
-Date: Mon, 17 Mar 2014 17:28:04 -0400
-Message-ID: <1685091.iJm6M33sra@sifl>
-In-Reply-To: <CACLa4pukOH8TLmRorra4Wh0962y-QF4D2eFzgvr7KSSJnSLKZw@mail.gmail.com>
-References: <2794067.Wx0yCIiBrQ@sifl>
- <alpine.LRH.2.02.1403171445570.2002@tundra.namei.org>
- <CACLa4pukOH8TLmRorra4Wh0962y-QF4D2eFzgvr7KSSJnSLKZw@mail.gmail.com>
-MIME-Version: 1.0
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s2HN9Xj2027821
+ for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2014 19:09:33 -0400
+From: "Langland, Blake" <blangland@integrity-apps.com>
+To: Joe Nall <joe@nall.com>
+Subject: RE: SELinux design and Domain Name resolution
+Date: Mon, 17 Mar 2014 23:09:20 +0000
+Message-ID: <DA8D339A60101247B36E202899B1C93AB4E6EC@CHUNEX01.integrity-apps.com>
+References: <DA8D339A60101247B36E202899B1C93AB4E642@CHUNEX01.integrity-apps.com>
+ <119BEE8C-D8D7-4761-8D05-89C11215FD81@nall.com>
+In-Reply-To: <119BEE8C-D8D7-4761-8D05-89C11215FD81@nall.com>
 Content-Type: text/plain; charset="us-ascii"
-Cc: LSM List <linux-security-module@vger.kernel.org>,
- SE-Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Monday, March 17, 2014 07:21:59 AM Eric Paris wrote:
-> You think a security tree based on 3.13-rc7 is good and Paul, who
-> tested on the actual release of 3.13 is bad?
-> 
-> I know you got yelled at for randomly picking fast forward-ish merge
-> points, but now you've got a crappy merge point.  Apparently, it was
-> needed it for the Xen/TPM work (not sure why YOU merged it instead of
-> the TPM people, but that's beside the point).
-> 
-> But the problem stands.  You are based on a crummy location.  When are
-> you going to pick up 3.13?  After 3.14 is out?
-> 
-> Seems like Paul's move to include 3.13 made a lot of sense...
+So you are running multiple servers at single levels? Or a single server at multiple levels with multiple interfaces?
 
-This issue with the linux-security tree keeps coming up and I stand by my 
-earlier statements that I would much prefer if the linux-security is based off 
-the latest kernel release, e.g. 3.13 as of today.  This seems to be in keeping 
-with Linus' comments, fits with what Eric was doing back when he managed the 
-SELinux tree, and strikes a nice balance between stability and "newness".  I 
-plan on continuing with this approach for the SELinux tree.
+How does the http redirector determine what level the communication is at so that it can redirect it to the correct interface?
 
-However, I don't want the 3.15 patches to get lost due to these stupid 
-differences so I've created a new branch that has the SELinux 3.15 patches 
-applied on top of linux-security#next.
+-----Original Message-----
+From: Joe Nall [mailto:joe@nall.com] 
+Sent: Monday, March 17, 2014 10:50 AM
+To: Langland, Blake
+Cc: selinux@tycho.nsa.gov
+Subject: Re: SELinux design and Domain Name resolution
 
- * git://git.infradead.org/users/pcmoore/selinux next
- 
-> On Sun, Mar 16, 2014 at 11:51 PM, James Morris <jmorris@namei.org> wrote:
-> > On Fri, 14 Mar 2014, Paul Moore wrote:
-> >> Hi James,
-> >> 
-> >> Here are the SELinux patches for 3.15.  There are three patches here, the
-> >> first and last are obvious fixes and the middle patch is a
-> >> straightforward
-> >> DAC-before-MAC fix.  They should merge into the linux-security tree
-> >> without
-> >> problem.
-> >> 
-> >> Enjoy,
-> >> -Paul
-> > 
-> > Your tree is ahead of mine wrt Linus.  It doesn't apply.
+You could write a level based http redirector. This is much simpler than a dns fix. It could be as simple as a xinetd launched python/bash/perl script, where xinetd does the mls network listening and the script issues a 302 redirect to the real server.
 
--- 
-paul moore
-security and virtualization @ redhat
+We use a lightly hacked Apache 1.3.42 launched out of xinetd and it is more than capable of keeping up with the transaction rate (~100/second) we need.
+
+joe
+
+On Mar 17, 2014, at 5:01 PM, Langland, Blake <blangland@integrity-apps.com> wrote:
+
+> Hello,
+>  
+> I have a couple general design questions in relation to SELinux but I need to explain my whole situation for them to make sense, so here it goes...
+>  
+> I am working on implementing a MLS SOA architecture and we are trying to use SELinux. I would like to explain our current plan and hopefully get some feedback from people who have done similar work. Basically, our team is tasked with taking an existing SOA and turning it into a MLS SOA. The existing SOA Architecture is fairly typical with things like a machine running Apache web server which proxies requests to a machine running Tomcat; Let's focus on these machines and two security domains.
+>  
+> In order to create two domains, we would need a web server and Tomcat at each level, so we have two installations of Apache on VM A and two installations of Tomcat on VM B. Since clients expect Apache to bind on standard ports (80 & 443) it made sense to have each installation bind on a different network interface, so each VM has two network interfaces, one for each domain. Is this a typical way to achieve the separation we want? Should we have each Apache and Tomcat instance bind on the same interface but use different ports? Does it even make sense to have two web servers, or two Tomcat instances running on the same machine (as opposed to using two VMs for each level)?
+>  
+> The problem that we have run into with our current approach (1 VM, 2 installations, and 2 Network interfaces) is domain name resolution. We are essentially given these applications (Apache, Tomcat, among many other) as black boxes that we plug into our environment. For example, if the Apache we are given knows the Tomcat VM as "tomcat", we would need to modify each Apache instance to then proxy to the appropriate Tomcat VM interface, such as "tomcat_a" and "tomcat_b." This is further complicated on the Tomcat VM as it is running OWF with also expects other web applications to exist at "tomcat." Since we are given these as "black boxes," we can't really go find all configurations that reference "tomcat" and change it to either "tomcat_a" or "tomcat_b."
+>  
+> Any comments or previous experiences would be greatly appreciated.
+>  
+> Thanks,
+> Blake Langland
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
