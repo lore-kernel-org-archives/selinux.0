@@ -1,100 +1,25 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s2LDNTqu025071
- for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2014 09:23:29 -0400
-Received: from ferret (fw5540.nrl.navy.mil [132.250.196.100])
- by ccs.nrl.navy.mil (8.14.4/8.14.4) with ESMTP id s2LDNT97023503
- for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2014 09:23:29 -0400
-From: "Kim Lawson-Jenkins" <kim.lawson-jenkins@nrl.navy.mil>
-To: <selinux@tycho.nsa.gov>
-Subject: How to restore a policy module
-Date: Fri, 21 Mar 2014 09:29:34 -0400
-Message-ID: <01e101cf4509$9942ae60$cbc80b20$@nrl.navy.mil>
+Message-ID: <532C3F5F.1040602@tycho.nsa.gov>
+Date: Fri, 21 Mar 2014 09:32:15 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="----=_NextPart_000_01E2_01CF44E8.12310E60"
-Reply-To: kim.lawson-jenkins@nrl.navy.mil
+To: kim.lawson-jenkins@nrl.navy.mil, selinux@tycho.nsa.gov
+Subject: Re: How to restore a policy module
+References: <01e101cf4509$9942ae60$cbc80b20$@nrl.navy.mil>
+In-Reply-To: <01e101cf4509$9942ae60$cbc80b20$@nrl.navy.mil>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multipart message in MIME format.
+On 03/21/2014 09:29 AM, Kim Lawson-Jenkins wrote:
+> In an attempt to lockdown a system I removed the remotelogin policy
+> module using semodule –r.  I’m using the targeted policy on RHEL6.  How
+> do I add this file back to my current configuration?
 
-------=_NextPart_000_01E2_01CF44E8.12310E60
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-In an attempt to lockdown a system I removed the remotelogin policy module
-using semodule -r.  I'm using the targeted policy on RHEL6.  How do I add
-this file back to my current configuration?
-
- 
-
- 
-
- 
-
- 
-
-
-------=_NextPart_000_01E2_01CF44E8.12310E60
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 14 (filtered =
-medium)"><style><!--
-/* Font Definitions */
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri","sans-serif";}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal>In an =
-attempt to lockdown a system I removed the remotelogin policy module =
-using semodule &#8211;r.&nbsp; I&#8217;m using the targeted policy on =
-RHEL6.&nbsp; How do I add this file back to my current =
-configuration?<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></body></html>
-------=_NextPart_000_01E2_01CF44E8.12310E60--
+You can always do a yum reinstall selinux-policy-targeted to fully
+reinstall the policy, or you could individually install that policy
+module.  Used to be the case that a copy of each module was available
+under /usr/share/selinux/targeted, so you could do a semodule -i
+/usr/share/selinux/targeted/remotelogin.pp if that exists (but it seems
+to have gone away in recent Fedora, likely to save on storage).
