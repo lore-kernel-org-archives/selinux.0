@@ -1,34 +1,29 @@
-Message-ID: <532C400E.8090104@tycho.nsa.gov>
-Date: Fri, 21 Mar 2014 09:35:10 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <532C4176.4060709@tycho.nsa.gov>
+Date: Fri, 21 Mar 2014 09:41:10 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
 To: kim.lawson-jenkins@nrl.navy.mil, selinux@tycho.nsa.gov
 Subject: Re: How to restore a policy module
 References: <01e101cf4509$9942ae60$cbc80b20$@nrl.navy.mil>
- <532C3F5F.1040602@tycho.nsa.gov>
-In-Reply-To: <532C3F5F.1040602@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <01e101cf4509$9942ae60$cbc80b20$@nrl.navy.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/21/2014 09:32 AM, Stephen Smalley wrote:
-> On 03/21/2014 09:29 AM, Kim Lawson-Jenkins wrote:
->> In an attempt to lockdown a system I removed the remotelogin policy
->> module using semodule –r.  I’m using the targeted policy on RHEL6.  How
->> do I add this file back to my current configuration?
-> 
-> You can always do a yum reinstall selinux-policy-targeted to fully
-> reinstall the policy, or you could individually install that policy
-> module.  Used to be the case that a copy of each module was available
-> under /usr/share/selinux/targeted, so you could do a semodule -i
-> /usr/share/selinux/targeted/remotelogin.pp if that exists (but it seems
-> to have gone away in recent Fedora, likely to save on storage).
+On 03/21/2014 09:29 AM, Kim Lawson-Jenkins wrote:
+> In an attempt to lockdown a system I removed the remotelogin policy module
+> using semodule -r.  I'm using the targeted policy on RHEL6.  How do I add
+> this file back to my current configuration?
+>
 
-Also, if you add:
-save-previous = true
-to your /etc/selinux/semanage.conf
-it will keep a copy of your previous policy under
-/etc/selinux/targeted/modules/previous on each transaction, making it
-easier to rollback changes.
+The pp file for the module will still be in /usr/share/selinux/targeted/.
+
+To reinstall the module do:
+semodule -i /usr/share/selinux/remotelogin.pp.bz2
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
