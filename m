@@ -1,46 +1,58 @@
-Message-ID: <5335758D.6020900@tycho.nsa.gov>
-Date: Fri, 28 Mar 2014 09:13:49 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Tim_lee@htc.com, selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
- ivy_lu@htc.com, jon_tsai@htc.com
-Subject: Re: [SELinux] We found that there was bug on at
- /kernel/security/selinux/avc.c:158!
-References: <5ADE3345D51E1E4A932ADBBE125E7CDB0B390A15@TPE-MBX01.HTC.COM.TW>
-In-Reply-To: <5ADE3345D51E1E4A932ADBBE125E7CDB0B390A15@TPE-MBX01.HTC.COM.TW>
-Content-Type: text/plain; charset=Big5
-Cc: nnk@google.com
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s2UChxPh016683
+ for <selinux@tycho.nsa.gov>; Sun, 30 Mar 2014 08:44:04 -0400
+From: Thomas Hurd <thurd@tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsemanage: fix memory leak in semanage_genhomedircon
+Date: Fri, 28 Mar 2014 11:29:32 -0400
+Message-Id: <1396020572-29790-1-git-send-email-thurd@tresys.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/28/2014 05:27 AM, Tim_lee@htc.com wrote:
-> Hello guys,
-> 
->  
-> 
-> I¡¦m Tim Lee from HTC who have mailed to you guys before about SELinux
-> problem.
-> 
-> Now, we found that there was bug on at /kernel/security/selinux/avc.c:158!
-> 
-> Could you please help us to check why SELinux will got this kind of
-> error then trigger bug on? Thanks.
+---
+ libsemanage/src/genhomedircon.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-Note the "SELinux:  Invalid class 119" message just prior to the BUG.
-The BUG is when there is an out-of-range class value passed to the AVC.
-Given the call chain, this suggests you have an inode whose i_security
-pointer is referencing memory containing garbage values.
-
-Previously for a different issue, I suggested that you apply this patch:
-https://android-review.googlesource.com/#/c/79591/
-
-I don't see that in the kernel to which you linked.  Have you applied it?
-
-I also note that you have out-of-tree modules and proprietary modules
-listed in your kernel log, so there is certainly potential for memory
-corruption or lack of proper initialization/handling of
-inode->i_security there.
-
-You don't need to post to both lists; just pick the most relevant one.
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index f3b9b5c..1aea839 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -1070,8 +1070,10 @@ int semanage_genhomedircon(semanage_handle_t * sh,
+ 	s.fallback_user = strdup(FALLBACK_USER);
+ 	s.fallback_user_prefix = strdup(FALLBACK_USER_PREFIX);
+ 	s.fallback_user_level = strdup(FALLBACK_USER_LEVEL);
+-	if (s.fallback_user == NULL || s.fallback_user_prefix == NULL || s.fallback_user_level == NULL)
+-		return STATUS_ERR;
++	if (s.fallback_user == NULL || s.fallback_user_prefix == NULL || s.fallback_user_level == NULL) {
++		retval = STATUS_ERR;
++		goto done;
++	}
+ 
+ 	if (ignoredirs) ignore_setup(ignoredirs);
+ 
+@@ -1082,15 +1084,19 @@ int semanage_genhomedircon(semanage_handle_t * sh,
+ 	if (!(out = fopen(s.fcfilepath, "w"))) {
+ 		/* couldn't open output file */
+ 		ERR(sh, "Could not open the file_context file for writing");
+-		return STATUS_ERR;
++		retval = STATUS_ERR;
++		goto done;
+ 	}
+ 
+ 	retval = write_context_file(&s, out);
+ 
+-	fclose(out);
++done:
++	if (out != NULL)
++		fclose(out);
+ 
+ 	free(s.fallback_user);
+ 	free(s.fallback_user_prefix);
++	free(s.fallback_user_level);
+ 	ignore_free();
+ 
+ 	return retval;
+-- 
+1.8.4.2
