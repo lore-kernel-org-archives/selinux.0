@@ -1,44 +1,42 @@
-Message-ID: <533AB88C.3000900@tycho.nsa.gov>
-Date: Tue, 01 Apr 2014 09:01:00 -0400
+Message-ID: <533AB9DC.9050300@tycho.nsa.gov>
+Date: Tue, 01 Apr 2014 09:06:36 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Tim_lee@htc.com, selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
- ivy_lu@htc.com, jon_tsai@htc.com
-Subject: Re: [SELinux] We found that there was bug on at
- /kernel/security/selinux/avc.c:158!
-References: <5ADE3345D51E1E4A932ADBBE125E7CDB0B390A15@TPE-MBX01.HTC.COM.TW>
- <5335758D.6020900@tycho.nsa.gov>
- <5ADE3345D51E1E4A932ADBBE125E7CDB0B394F01@TPE-MBX01.HTC.COM.TW>
-In-Reply-To: <5ADE3345D51E1E4A932ADBBE125E7CDB0B394F01@TPE-MBX01.HTC.COM.TW>
-Content-Type: text/plain; charset=Big5
+To: Daniel J Walsh <dwalsh@redhat.com>, =?EUC-KR?B?v8C067y6?= <ds.oh@lge.com>,
+ SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Plz ask for help :)
+References: <002301cf4cc0$4138b160$c3aa1420$@oh@lge.com>	<533967A3.70201@redhat.com>
+ <002901cf4d4b$dfb10500$9f130f00$@oh@lge.com> <533AB41A.7000403@redhat.com>
+In-Reply-To: <533AB41A.7000403@redhat.com>
+Content-Type: text/plain; charset=EUC-KR
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/01/2014 04:43 AM, Tim_lee@htc.com wrote:
-> Hi Stephen,
-> Thanks your great support to reply our questions. Check my reply as below:
-> 
-> Previously for a different issue, I suggested that you apply this patch:
-> https://android-review.googlesource.com/#/c/79591/
-> 
-> I don't see that in the kernel to which you linked.  Have you applied it?
-> Tim: We have applied this patch, but the issue device's ROM didn't include this patch.
-> 
-> Now, we have requested new release ROM with this patch then try to repo this issue symptom.
-> And from your reply
->  
-> "I also note that you have out-of-tree modules and proprietary modules listed in your kernel log, so there is certainly potential for memory corruption or lack of proper initialization/handling of
-> inode->i_security there."
-> 
-> You mentioned that  there is certainly potential for memory corruption or lack of proper initialization/handling of
-> inode->i_security there. Did you have any clues from the log to find out the root cause? Thanks your help.
+On 04/01/2014 08:42 AM, Daniel J Walsh wrote:
+>> But, selinux_complete_init function of security/selinux/hook.c is not
+>> called.
+>>
+>> And if i run ¡°ls -Z¡° command, security context is not printed.
+>>
+>> $ ls -Z
+>>
+>> ? apparmor    ? capability.c
+>>
+>>  
+>>
+>> selinux_init function is called. but selinux_complete_init function is
+>> not called and security context is not printed.
+>>
+>>  
+>>
+>> *what should i try ? please help me.*
 
-This is just speculation, but you have two out-of-tree filesystem
-modules listed in your "Modules linked in:" message in the kernel log:
-ecryptfs (O) and texfat(PO).  Wondering if those were built with
-CONFIG_SECURITY enabled (so that their kernel data structures, e.g.
-struct inode, properly include the security field) and if they do
-anything that might lead to an inode with an uninitialized or corrupted
-security pointer.
+You need to load a policy into the kernel.   Normally this is done by
+the init program.
+
+Was your init program built with SELinux support enabled?  And do you
+have a policy file in the expected location?
+
+Look for output from init as well to help debug.
