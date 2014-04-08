@@ -1,122 +1,630 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s38ErbOi031990
- for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2014 10:53:37 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s38EtTuq032101
+ for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2014 10:55:30 -0400
 From: Richard Haines <richard_c_haines@btinternet.com>
 To: selinux@tycho.nsa.gov, setools-bugs@tresys.com
-Subject: [PATCH 0/4] APOL Enhancements to support additional policy features
-Date: Tue,  8 Apr 2014 15:52:58 +0100
-Message-Id: <1396968778-19260-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: [PATCH 2/4] setools: APOL Add support for permissive types, polcaps,
+ handle_unknown
+Date: Tue,  8 Apr 2014 15:55:23 +0100
+Message-Id: <1396968923-19352-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-These four patches will update setools-3.3.8.tar.bz2 available from
-http://oss.tresys.com/projects/setools/wiki/download
+Added search for permissive types on Types tab.
+Added new tab for policy capabilities (no search as small number).
+Added handle_unknown flag in policy summary window.
 
-I know this is not being fully supported but as I use APOL frequently
-I thought I would update it to support the latest policy version 29 (I
-could be the only user!!!). Tested on latest Fedora 20 x86_64
-
-The enhancements and bug fixes are listed below. All patches should be
-applied to setools-3.3.8 and then built as follows:
-
-  autoreconf -i -s
-  ./configure
-  make
-  make install
-
-This will put the binaries in /usr/local/bin, data files in
-/usr/local/share/setool-3.3, and libraries in /usr/local/lib.
-Assuming that /usr/local/bin is in your $PATH and /usr/local/lib in
-$LD_LIBRARY_PATH everything should now work.
-
-PATH=/usr/local/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/lib
-
-APOL enhancements and bug fixes
--------------------------------
-* Add permissive type and typebound support to Types tab.
-* Add new Constraints tab to search all constraint statements.
-* Add new Bounds tab to search for userbound, rolebound and
-  typebound statements.
-* Add new policy capabilities tab.
-* Add filename type_transition support on TE Rules tab.
-* Add new Default Object tab to support defaultuser, defaultrole,
-  defaulttype and defaultrange rules.
-* Add new Namespaces tab to list CIL namespaces. This will also
-  show any users, roles, types, classes, booleans, sensitivities
-  and categories declared in each namespace. A global namespace is
-  automatically generated (GLOBAL-NS).
-* Update Query/Policy Summary page to show the number of new
-  rules added plus the policy handle_unknown flag.
-* Fixed File Contexts tab to stop hang when building the fc
-  index when broken links/files found (libsefs). Also fixes indexcon util.
-* Fixed Booleans tab to display CIL namespace booleans.
-* Updated apol_help.txt to reflect the changes made plus how to
-  load the running policy.
-
-Richard Haines (4):
-  setools: APOL Add constraints and filename transition support
-  setools: APOL Add support for permissive types, polcaps, handle_unknown
-  setools: APOL Add type, user, role bounds support
-  setools: APOL Add default_objects and CIL policy namespaces tabs
-
- ChangeLog                                   |   26 +
- apol/Makefile.am                            |    5 +
- apol/apol_help.txt                          |   90 +-
- apol/bounds_tab.tcl                         |  433 ++++++++
- apol/cond_bools_tab.tcl                     |   12 +-
- apol/constraints_tab.tcl                    | 1589 +++++++++++++++++++++++++++
- apol/default_objects_tab.tcl                |  370 +++++++
- apol/initial_sids_tab.tcl                   |    2 +-
- apol/namespaces_tab.tcl                     |  206 ++++
- apol/polcap_tab.tcl                         |   73 ++
- apol/terules_tab.tcl                        |  201 +++-
- apol/top.tcl                                |  213 +++-
- apol/types_tab.tcl                          |   77 +-
- libapol/include/apol/Makefile.am            |    2 +
- libapol/include/apol/bounds-query.h         |  177 +++
- libapol/include/apol/default-object-query.h |   78 ++
- libapol/include/apol/ftrule-query.h         |   14 +-
- libapol/include/apol/policy-query.h         |    2 +
- libapol/include/apol/policy.h               |    9 +
- libapol/src/Makefile.am                     |    2 +
- libapol/src/bounds-query.c                  |  216 ++++
- libapol/src/default-object-query.c          |   87 ++
- libapol/src/ftrule-query.c                  |    4 +-
- libapol/src/libapol.map                     |    4 +
- libapol/src/policy-query-internal.h         |   19 +
- libapol/src/policy-query.c                  |   23 +
- libapol/src/policy.c                        |    9 +
- libapol/swig/apol.i                         |  311 ++++++
- libqpol/include/qpol/Makefile.am            |    2 +
- libqpol/include/qpol/bounds_query.h         |  162 +++
- libqpol/include/qpol/default_object_query.h |  113 ++
- libqpol/include/qpol/policy.h               |   24 +-
- libqpol/src/Makefile.am                     |    2 +
- libqpol/src/bounds_query.c                  |  332 ++++++
- libqpol/src/constraint_query.c              |    9 +-
- libqpol/src/default_object_query.c          |  290 +++++
- libqpol/src/libqpol.map                     |    5 +
- libqpol/src/policy.c                        |   68 ++
- libqpol/swig/qpol.i                         |  372 ++++++-
- libsefs/src/db.cc                           |    9 +-
- libsefs/src/new_ftw.c                       |    6 +-
- 41 files changed, 5620 insertions(+), 28 deletions(-)
- create mode 100644 apol/bounds_tab.tcl
- create mode 100644 apol/constraints_tab.tcl
- create mode 100644 apol/default_objects_tab.tcl
- create mode 100644 apol/namespaces_tab.tcl
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ apol/Makefile.am              |  1 +
+ apol/polcap_tab.tcl           | 73 +++++++++++++++++++++++++++++++++
+ apol/top.tcl                  | 33 +++++++++++++--
+ apol/types_tab.tcl            | 43 ++++++++++++++++++--
+ libapol/include/apol/policy.h |  9 +++++
+ libapol/src/policy.c          |  9 +++++
+ libapol/swig/apol.i           | 94 +++++++++++++++++++++++++++++++++++++++++++
+ libqpol/src/policy.c          | 19 +++++++++
+ libqpol/swig/qpol.i           | 62 ++++++++++++++++++++++++++++
+ 9 files changed, 336 insertions(+), 7 deletions(-)
  create mode 100644 apol/polcap_tab.tcl
- create mode 100644 libapol/include/apol/bounds-query.h
- create mode 100644 libapol/include/apol/default-object-query.h
- create mode 100644 libapol/src/bounds-query.c
- create mode 100644 libapol/src/default-object-query.c
- create mode 100644 libqpol/include/qpol/bounds_query.h
- create mode 100644 libqpol/include/qpol/default_object_query.h
- create mode 100644 libqpol/src/bounds_query.c
- create mode 100644 libqpol/src/default_object_query.c
 
+diff --git a/apol/Makefile.am b/apol/Makefile.am
+index 4ea51b0..71402d7 100644
+--- a/apol/Makefile.am
++++ b/apol/Makefile.am
+@@ -47,6 +47,7 @@ EXTRA_DIST = \
+ 	netcontexts_tab.tcl \
+ 	open_policy_dialog.tcl \
+ 	perms_map.tcl \
++	polcap_tab.tcl \
+ 	policyconf.tcl \
+ 	progress_dialog.tcl \
+ 	range_dialog.tcl \
+diff --git a/apol/polcap_tab.tcl b/apol/polcap_tab.tcl
+new file mode 100644
+index 0000000..dfeade4
+--- /dev/null
++++ b/apol/polcap_tab.tcl
+@@ -0,0 +1,73 @@
++# Copyright (C) 2001-2007 Tresys Technology, LLC
++#  This program is free software; you can redistribute it and/or modify
++#  it under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++#
++#  This program is distributed in the hope that it will be useful,
++#  but WITHOUT ANY WARRANTY; without even the implied warranty of
++#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++#  GNU General Public License for more details.
++#
++#  You should have received a copy of the GNU General Public License
++#  along with this program; if not, write to the Free Software
++#  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++
++namespace eval Apol_Polcaps {
++    variable widgets
++    variable polcap_list {}
++}
++
++proc Apol_Polcaps::create {tab_name nb} {
++    variable widgets
++
++    set frame [$nb insert end $tab_name -text "Policy Capabilities"]
++    set pw [PanedWindow $frame.pw -side top]
++    set leftf [$pw add -weight 0]
++    set rightf [$pw add -weight 1]
++    pack $pw -fill both -expand yes
++
++    set polcap_box [TitleFrame $leftf.polcap_box -text "Policy Capabilities"]
++    pack $polcap_box -fill both -expand yes
++
++    set rlistbox [Apol_Widget::makeScrolledListbox [$polcap_box getframe].lb \
++                      -width 60 -listvar Apol_Polcaps::polcap_list]
++    pack $rlistbox -fill both -expand yes
++
++    return $frame
++}
++
++proc Apol_Polcaps::open {ppath} {
++    variable polcap_list
++
++    set polcapnames {}
++    set q [new_apol_polcap_query_t]
++    # This reads in the polcap info
++    set v [$q run $::ApolTop::policy]
++    $q -acquire
++    $q -delete
++    # This loop will process polcap name in the policy
++    for {set i 0} {$v != "NULL" && $i < [$v get_size]} {incr i} {
++        for {set i 0} {$v != "NULL" && $i < [$v get_size]} {incr i} {
++            set q [qpol_polcap_from_void [$v get_element $i]]
++            append polcapnames [$q get_name $::ApolTop::qpolicy]
++            append polcapnames "\n"
++        }
++    }
++
++    set polcap_list $polcapnames
++}
++
++proc Apol_Polcaps::close {} {
++    variable widgets
++    variable polcap_list {}
++}
++
++proc Apol_Polcaps::getTextWidget {} {
++    variable widgets
++}
++
++#### private functions below ####
++
++
++
+diff --git a/apol/top.tcl b/apol/top.tcl
+index b4460ad..3d51e22 100644
+--- a/apol/top.tcl
++++ b/apol/top.tcl
+@@ -18,8 +18,9 @@ set COPYRIGHT_INFO "Copyright (C) 2001-2008 Tresys Technology, LLC"
+ namespace eval ApolTop {
+     variable policy {} ;# handle to an apol_policy, or {} if none opened
+     variable qpolicy {} ;# handle to policy's qpol_policy_t, or {} if none opened
+-    # these three are shown on the status line of the toplevel window
++    # these four are shown on the status line of the toplevel window
+     variable policy_version_string {}
++    variable policy_handle_unknown_string {}
+     variable policy_source_linenum {}
+     variable policy_stats_summary {}
+     variable policy_stats  ;# array of statistics for the current policy
+@@ -68,6 +69,7 @@ namespace eval ApolTop {
+         {Apol_Initial_SIDS components {}}
+         {Apol_NetContexts components {}}
+         {Apol_FSContexts components {}}
++        {Apol_Polcaps components {}}
+         {Apol_TE rules {tag_query_saveable}}
+         {Apol_Cond_Rules rules {tag_conditionals}}
+         {Apol_Constraint rules {tag_query_saveable}}
+@@ -377,6 +379,23 @@ proc ApolTop::_toplevel_policy_open {ppath} {
+ 
+     _toplevel_update_stats
+     variable policy_version_string [$::ApolTop::policy get_version_type_mls_str]
++# Set how to handle unknown class/perms.
++#define SEPOL_DENY_UNKNOWN	    0
++#define SEPOL_REJECT_UNKNOWN	    2
++#define SEPOL_ALLOW_UNKNOWN	    4
++    variable policy_handle_unknown_string
++    set policy_handle_unknown -1
++    set policy_handle_unknown [$::ApolTop::policy get_policy_handle_unknown]
++
++    if {$policy_handle_unknown == 0} {
++        set policy_handle_unknown_string "deny"
++    } elseif {$policy_handle_unknown == 2} {
++        set policy_handle_unknown_string "reject"
++    } elseif {$policy_handle_unknown == 4} {
++        set policy_handle_unknown_string "allow"
++    } else {
++        set policy_handle_unknown_string "unknown"
++    }
+ 
+     set primary_file [$ppath get_primary]
+     wm title . "SELinux Policy Analysis - $primary_file"
+@@ -468,6 +487,8 @@ proc ApolTop::_toplevel_update_stats {} {
+         "nodecons" get_nodecon_iter
+         "genfscons" get_genfscon_iter
+         "fs_uses" get_fs_use_iter
++        "permissive" get_permissive_iter
++        "polcap" get_polcap_iter
+     }
+     foreach {key func} $iter_funcs {
+         set i [$::ApolTop::qpolicy $func]
+@@ -570,6 +591,7 @@ proc ApolTop::_user_close_policy {} {
+ 
+ proc ApolTop::_close_policy {} {
+     variable policy_version_string {}
++    variable policy_handle_unknown {}
+     variable policy_stats_summary {}
+ 
+     wm title . "SELinux Policy Analysis"
+@@ -697,6 +719,7 @@ proc ApolTop::_save_query_file {} {
+ 
+ proc ApolTop::_show_policy_summary {} {
+     variable policy_version_string
++    variable policy_handle_unknown_string
+     variable policy_stats
+ 
+     if {![regexp -- {^([^\(]+) \(([^,]+), ([^\)]+)} $ApolTop::policy_version_string -> policy_version policy_type policy_mls_type]} {
+@@ -715,8 +738,8 @@ proc ApolTop::_show_policy_summary {} {
+ 
+     label $w.title -text "Policy Summary Statistics"
+     set f [frame $w.summary]
+-    label $f.l -justify left -text "    Policy Version:\n    Policy Type:\n    MLS Status:"
+-    label $f.r -justify left -text "$policy_version\n$policy_type\n$policy_mls_type"
++    label $f.l -justify left -text "    Policy Version:\n    Policy Type:\n    MLS Status:\n    Handle unknown Class/Perms:"
++    label $f.r -justify left -text "$policy_version\n$policy_type\n$policy_mls_type\n$policy_handle_unknown_string"
+     grid $f.l $f.r -sticky w
+     grid configure $f.r -padx 30
+     grid $w.title - -sticky w -padx 8
+@@ -733,6 +756,7 @@ proc ApolTop::_show_policy_summary {} {
+         }
+         "Number of Types and Attributes" {
+             "Types" types
++            "   that includes permissive types" permissive
+             "Attributes" attribs
+         }
+         "Number of Type Enforcement Rules" {
+@@ -801,6 +825,9 @@ proc ApolTop::_show_policy_summary {} {
+             "GenFSCons" genfscons
+             "fs_use statements" fs_uses
+         }
++        "Number of Policy Capabilities" {
++            "polcap" polcap
++        }
+     } {
+         set ltext "$title:"
+         set rtext {}
+diff --git a/apol/types_tab.tcl b/apol/types_tab.tcl
+index 26def34..80f416b 100644
+--- a/apol/types_tab.tcl
++++ b/apol/types_tab.tcl
+@@ -15,6 +15,7 @@
+ 
+ namespace eval Apol_Types {
+     variable typelist {}
++    variable permissivelist {}
+     variable attriblist {}
+     variable opts
+     variable widgets
+@@ -60,7 +61,8 @@ proc Apol_Types::create {tab_name nb} {
+     set ofm [$obox getframe]
+     set fm_types_select [frame $ofm.to]
+     set fm_attribs_select [frame $ofm.ao]
+-    pack $fm_types_select $fm_attribs_select -side left -padx 4 -pady 2 -anchor nw
++    set fm_permissive_select [frame $ofm.po]
++    pack $fm_types_select $fm_attribs_select $fm_permissive_select -side left -padx 4 -pady 2 -anchor nw
+ 
+     set types_select [checkbutton $fm_types_select.type -text "Show types" -variable Apol_Types::opts(types)]
+     set typeattribs [checkbutton $fm_types_select.typeattribs -text "Include attributes" \
+@@ -81,6 +83,12 @@ proc Apol_Types::create {tab_name nb} {
+     trace add variable Apol_Types::opts(attribs) write \
+         [list Apol_Types::_toggleCheckbuttons [list $a_typeattribs $a_types]]
+ 
++    set permissive_select [checkbutton $fm_permissive_select.type -text "Show permissive types" \
++        -variable Apol_Types::opts(permissive)]
++    pack $permissive_select -anchor w
++    trace add variable Apol_Types::opts(permissive:show_names) write \
++        [list Apol_Types::_toggleCheckbuttons $permissive_select]
++
+     set widgets(regexp) [Apol_Widget::makeRegexpEntry $ofm.regexpf]
+     Apol_Widget::setRegexpEntryState $widgets(regexp) 1
+ 
+@@ -118,6 +126,7 @@ proc Apol_Types::close {} {
+ 
+     _initializeVars
+     set Apol_Types::typelist {}
++    set Apol_Types::permissivelist {}
+     set Apol_Types::attriblist {}
+     Apol_Widget::clearSearchResults $widgets(results)
+ }
+@@ -164,6 +173,9 @@ proc Apol_Types::isAttributeInPolicy {attrib} {
+ proc Apol_Types::getTypes {} {
+     variable typelist
+     set typelist
++
++    variable permissivelist
++    set permissivelist
+ }
+ 
+ # Return a list of all attribute names within the current policy.  If
+@@ -180,12 +192,14 @@ proc Apol_Types::_initializeVars {} {
+     array set opts {
+         types 1    types:show_attribs 1  types:show_aliases 1
+         attribs 0  attribs:show_types 1  attribs:show_attribs 1
++        permissive 1  permissive:show_names 1  permissive:show_names 1
+     }
+ }
+ 
+ proc Apol_Types::_toggleCheckbuttons {w name1 name2 op} {
+     variable opts
+     variable widgets
++
+     if {$opts($name2)} {
+         foreach x $w {
+             $x configure -state normal
+@@ -195,7 +209,7 @@ proc Apol_Types::_toggleCheckbuttons {w name1 name2 op} {
+             $x configure -state disabled
+         }
+     }
+-    if {!$opts(types) && !$opts(attribs)} {
++    if {!$opts(types) && !$opts(attribs) && !$opts(permissive)} {
+         Apol_Widget::setRegexpEntryState $widgets(regexp) 0
+     } else {
+         Apol_Widget::setRegexpEntryState $widgets(regexp) 1
+@@ -210,7 +224,7 @@ proc Apol_Types::_popupTypeInfo {which ta} {
+         set entry_vector {}
+         set index_file_loaded 0
+     }
+-
++puts "AT POPUP"
+     if {$which == "type"} {
+         set info_ta [_renderType $ta 1 1]
+     } else {
+@@ -283,7 +297,7 @@ proc Apol_Types::_searchTypes {} {
+         tk_messageBox -icon error -type ok -title "Error" -message "No current policy file is opened."
+         return
+     }
+-    if {$opts(types) == 0 && $opts(attribs) == 0} {
++    if {$opts(types) == 0 && $opts(attribs) == 0 && $opts(permissive) == 0} {
+         tk_messageBox -icon error -type ok -title "Error" -message "No search options provided."
+         return
+     }
+@@ -332,6 +346,24 @@ proc Apol_Types::_searchTypes {} {
+             append results "[_renderAttrib $a $opts(attribs:show_types) $opts(attribs:show_attribs)]\n"
+         }
+     }
++    if {$opts(permissive)} {
++        set q [new_apol_permissive_query_t]
++        $q set_name $::ApolTop::policy $regexp
++        $q set_regex $::ApolTop::policy $use_regexp
++        set v [$q run $::ApolTop::policy]
++        $q -acquire
++        $q -delete
++        set permissive_data [type_vector_to_list $v]
++        $v -acquire
++        $v -delete
++        if {$opts(types) || $opts(attribs)} {
++            append results "\n\n"
++        }
++        append results "PERMISSIVE TYPES ([llength $permissive_data]):\n\n"
++        foreach p [lsort $permissive_data] {
++            append results "[_renderType $p 0 0]\n"
++        }
++    }
+     Apol_Widget::appendSearchResultText $widgets(results) $results
+ }
+ 
+@@ -369,6 +401,9 @@ proc Apol_Types::_renderType {type_name show_attribs show_aliases} {
+ }
+ 
+ proc Apol_Types::_renderAttrib {attrib_name show_types show_attribs} {
++
++    set permissive {}
++
+     set qpol_type_datum [new_qpol_type_t $::ApolTop::qpolicy $attrib_name]
+ 
+     set text "$attrib_name"
+diff --git a/libapol/include/apol/policy.h b/libapol/include/apol/policy.h
+index 7b26af8..143153d 100644
+--- a/libapol/include/apol/policy.h
++++ b/libapol/include/apol/policy.h
+@@ -91,6 +91,15 @@ extern "C"
+ 	extern int apol_policy_get_policy_type(const apol_policy_t * policy);
+ 
+ /**
++ * Given a policy, return the handle_unknown flag. 
++ *
++ * @param policy Policy to check.
++ *
++ * @return The policy handle_unknown flag, or < 0 upon error.
++ */
++	extern int apol_policy_get_policy_handle_unknown(const apol_policy_t * policy);
++
++/**
+  * Given a policy, return a pointer to the underlying qpol_policy.
+  * This is needed, for example, to access details of particulary qpol
+  * components.
+diff --git a/libapol/src/policy.c b/libapol/src/policy.c
+index 95ab7cd..f253db9 100644
+--- a/libapol/src/policy.c
++++ b/libapol/src/policy.c
+@@ -155,6 +155,15 @@ int apol_policy_get_policy_type(const apol_policy_t * policy)
+ 	return policy->policy_type;
+ }
+ 
++int apol_policy_get_policy_handle_unknown(const apol_policy_t * p)
++{
++	unsigned int handle_unknown;
++	if (qpol_policy_get_policy_handle_unknown(p->p, &handle_unknown) < 0) {
++		return -1;
++	}
++	return handle_unknown;
++}
++
+ qpol_policy_t *apol_policy_get_qpol(const apol_policy_t * policy)
+ {
+ 	if (policy == NULL) {
+diff --git a/libapol/swig/apol.i b/libapol/swig/apol.i
+index b2445d0..e440d53 100644
+--- a/libapol/swig/apol.i
++++ b/libapol/swig/apol.i
+@@ -570,6 +570,11 @@ typedef struct apol_policy {} apol_policy_t;
+ 	int get_policy_type() {
+ 		return apol_policy_get_policy_type(self);
+ 	};
++
++	int get_policy_handle_unknown() {
++		return apol_policy_get_policy_handle_unknown(self);
++	};
++
+ 	qpol_policy_t *get_qpol() {
+ 		return apol_policy_get_qpol(self);
+ 	};
+@@ -2609,6 +2614,95 @@ typedef struct apol_filename_trans_query {} apol_filename_trans_query_t;
+ %newobject apol_filename_trans_render(apol_policy_t*, qpol_filename_trans_t*);
+ char *apol_filename_trans_render(apol_policy_t * policy, qpol_filename_trans_t * rule);
+ 
++/* apol permissive query */
++typedef struct apol_permissive_query {} apol_permissive_query_t;
++%extend apol_permissive_query_t {
++	apol_permissive_query() {
++		apol_permissive_query_t *arq;
++		BEGIN_EXCEPTION
++		arq = apol_permissive_query_create();
++		if (!arq) {
++			SWIG_exception(SWIG_MemoryError, "Out of memory");
++		}
++		END_EXCEPTION
++	fail:
++		return arq;
++	};
++	~apol_permissive_query() {
++		apol_permissive_query_destroy(&self);
++	};
++	%newobject run(apol_policy_t*);
++	apol_vector_t *run(apol_policy_t *p) {
++		apol_vector_t *v;
++		BEGIN_EXCEPTION
++		if (apol_permissive_get_by_query(p, self, &v)) {
++			SWIG_exception(SWIG_RuntimeError, "Could not run permissive query");
++		}
++		END_EXCEPTION
++	fail:
++		return v;
++	};
++
++	void set_name(apol_policy_t *p, char *name) {
++		BEGIN_EXCEPTION
++		if (apol_permissive_query_set_name(p, self, name)) {
++			SWIG_exception(SWIG_MemoryError, "Out of memory");
++		}
++		END_EXCEPTION
++	fail:
++		return;
++	};
++
++	void set_regex(apol_policy_t *p, int regex) {
++		apol_permissive_query_set_regex(p, self, regex);
++	};
++};
++
++/* apol polcap query */
++typedef struct apol_polcap_query {} apol_polcap_query_t;
++%extend apol_polcap_query_t {
++	apol_polcap_query() {
++		apol_polcap_query_t *arq;
++		BEGIN_EXCEPTION
++		arq = apol_polcap_query_create();
++		if (!arq) {
++			SWIG_exception(SWIG_MemoryError, "Out of memory");
++		}
++		END_EXCEPTION
++	fail:
++		return arq;
++	};
++	~apol_polcap_query() {
++		apol_polcap_query_destroy(&self);
++	};
++	%newobject run(apol_policy_t*);
++	apol_vector_t *run(apol_policy_t *p) {
++		apol_vector_t *v;
++		BEGIN_EXCEPTION
++		if (apol_polcap_get_by_query(p, self, &v)) {
++			SWIG_exception(SWIG_RuntimeError, "Could not run polcap query");
++		}
++		END_EXCEPTION
++	fail:
++		return v;
++	};
++
++	void set_name(apol_policy_t *p, char *name) {
++		BEGIN_EXCEPTION
++		if (apol_polcap_query_set_name(p, self, name)) {
++			SWIG_exception(SWIG_MemoryError, "Out of memory");
++		}
++		END_EXCEPTION
++	fail:
++		return;
++	};
++
++	void set_regex(apol_policy_t *p, int regex) {
++		apol_polcap_query_set_regex(p, self, regex);
++	};
++};
++
++
+ /* domain transition analysis */
+ #define APOL_DOMAIN_TRANS_DIRECTION_FORWARD 0x01
+ #define APOL_DOMAIN_TRANS_DIRECTION_REVERSE 0x02
+diff --git a/libqpol/src/policy.c b/libqpol/src/policy.c
+index 7180556..2bf7fba 100644
+--- a/libqpol/src/policy.c
++++ b/libqpol/src/policy.c
+@@ -1466,6 +1466,25 @@ int qpol_policy_get_policy_version(const qpol_policy_t * policy, unsigned int *v
+ 	return STATUS_SUCCESS;
+ }
+ 
++int qpol_policy_get_policy_handle_unknown(const qpol_policy_t * policy, unsigned int *handle_unknown)
++{
++	policydb_t *db;
++
++	if (handle_unknown != NULL)
++		*handle_unknown = 0;
++
++	if (policy == NULL || handle_unknown == NULL) {
++		ERR(policy, "%s", strerror(EINVAL));
++		errno = EINVAL;
++		return STATUS_ERR;
++	}
++
++	db = &policy->p->p;
++	*handle_unknown = db->handle_unknown;
++
++	return STATUS_SUCCESS;
++}
++
+ int qpol_policy_get_type(const qpol_policy_t * policy, int *type)
+ {
+ 	if (!policy || !type) {
+diff --git a/libqpol/swig/qpol.i b/libqpol/swig/qpol.i
+index 2faebbb..4f14d2c 100644
+--- a/libqpol/swig/qpol.i
++++ b/libqpol/swig/qpol.i
+@@ -376,6 +376,13 @@ typedef enum qpol_capability
+ 		(void)qpol_policy_get_policy_version(self, &v); /* only error is on null parameters neither can be here */
+ 		return (int) v;
+ 	};
++
++	int get_handle_unknown () {
++		unsigned int h;
++		(void)qpol_policy_get_policy_handle_unknown(self, &h);
++		return (int) h;
++	};
++
+ 	int get_type () {
+ 		int t;
+ 		(void)qpol_policy_get_type(self, &t); /* only error is on null parameters neither can be here */
+@@ -705,6 +712,18 @@ typedef enum qpol_capability
+ 	fail:
+ 		return NULL;
+ 	};
++	%newobject get_polcap_iter();
++	qpol_iterator_t *get_polcap_iter() {
++		BEGIN_EXCEPTION
++		qpol_iterator_t *iter;
++		if (qpol_policy_get_polcap_iter(self, &iter)) {
++			SWIG_exception(SWIG_MemoryError, "Out of Memory");
++	}
++		return iter;
++		END_EXCEPTION
++	fail:
++		return NULL;
++	};
+ };
+ 
+ /* qpol iterator */
+@@ -865,6 +884,17 @@ typedef struct qpol_type {} qpol_type_t;
+ 	fail:
+ 		return iter;
+ 	};
++	const char *get_name(qpol_policy_t *p) {
++		BEGIN_EXCEPTION
++		const char *name;
++		if (qpol_permissive_get_name(p, self, &name)) {
++			SWIG_exception(SWIG_ValueError, "Could not get permissive type name");
++		}
++		return name;
++		END_EXCEPTION
++	fail:
++		return NULL;
++	};
+  };
+ %inline %{
+ 	qpol_type_t *qpol_type_from_void(void *x) {
+@@ -2970,4 +3000,36 @@ typedef struct qpol_filename_trans {} qpol_filename_trans_t;
+ 		return (qpol_filename_trans_t*)x;
+ 	};
+ %}
++
++/* qpol polcap */
++typedef struct qpol_polcap {} qpol_polcap_t;
++%extend qpol_polcap_t {
++	qpol_polcap() {
++		BEGIN_EXCEPTION
++		SWIG_exception(SWIG_RuntimeError, "Cannot directly create qpol_polcap_t objects");
++		END_EXCEPTION
++	fail:
++		return NULL;
++	};
++	~qpol_polcap() {
++		/* no op */
++		return;
++	};
++	const char *get_name(qpol_policy_t *p) {
++		const char *name;
++		BEGIN_EXCEPTION
++		if (qpol_polcap_get_name(p, self, &name)) {
++			SWIG_exception(SWIG_ValueError, "Could not get polcap name rule");
++		}
++		END_EXCEPTION
++	fail:
++		return name;
++	};
++
++};
++%inline %{
++	qpol_polcap_t *qpol_polcap_from_void(void *x) {
++		return (qpol_polcap_t*)x;
++	};
++%}
+ // vim:ft=c noexpandtab
 -- 
 1.9.0
