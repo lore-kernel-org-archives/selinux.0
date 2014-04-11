@@ -1,59 +1,30 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3AD9cv1029715
- for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2014 09:09:38 -0400
-References: <1396968778-19260-1-git-send-email-richard_c_haines@btinternet.com>
- <53441804.9060408@tresys.com>
-Message-ID: <1397134967.53344.YahooMailNeo@web87901.mail.ir2.yahoo.com>
-Date: Thu, 10 Apr 2014 14:02:47 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: [PATCH 0/4] APOL Enhancements to support additional policy
- features
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <53441804.9060408@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3B6lvxI004748
+ for <selinux@tycho.nsa.gov>; Fri, 11 Apr 2014 02:47:57 -0400
+Received: by mail-pa0-f54.google.com with SMTP id lf10so5033761pab.27
+ for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2014 23:47:42 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.94.237])
+ by mx.google.com with ESMTPSA id y4sm13372908pbk.76.2014.04.10.23.47.40
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Thu, 10 Apr 2014 23:47:41 -0700 (PDT)
+Message-ID: <53478F76.7040700@gmail.com>
+Date: Fri, 11 Apr 2014 12:15:10 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Cc: "setools-bugs@tresys.com" <setools-bugs@tresys.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Subject: Security server responses always based on class?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks for the update. I look forward to SETools version 4
+Does the object manager always queries the security server based on 
+classes? And does the security server always respond with an access vector?
 
-Richard
+OR
 
-
-
------ Original Message -----
-From: Christopher J. PeBenito <cpebenito@tresys.com>
-To: Richard Haines <richard_c_haines@btinternet.com>; selinux@tycho.nsa.gov; setools-bugs@tresys.com
-Cc: 
-Sent: Tuesday, 8 April 2014, 16:38
-Subject: Re: [PATCH 0/4] APOL Enhancements to support additional policy features
-
-On 04/08/2014 10:52 AM, Richard Haines wrote:
-> These four patches will update setools-3.3.8.tar.bz2 available from
-> http://oss.tresys.com/projects/setools/wiki/download
-> 
-> I know this is not being fully supported but as I use APOL frequently
-> I thought I would update it to support the latest policy version 29 (I
-> could be the only user!!!). Tested on latest Fedora 20 x86_64
-
-Thanks, we'll take a look at these.  You're not the only user, as we use it internally at Tresys a lot.  Actually, we're in the process of prototyping SETools 4.  There are a few things that have been a challenge for maintaining SETools over the years:
-
-* Libsepol is only designed for building the policy, not analyzing the policy:  It doesn't have an API that's conducive to querying the policy (it didn't even exist when SETools started).  SETools' source policy parsers have to be copied from checkpolicy/checkmodule.
-* It's over 10 years old and has been very evolutionary in its development (hence tk and gtk toolkits, for example)
-* A (nearly) full C implementation is fast, but we have our own implementations of functions/structures come built-in on OO languages.
-
-So we're looking at the possibility of reimplementing SETools in Python.  That brings in a huge amount of capability.  For example, libapol has it's own vector implementation, which can be replaced with Python lists (or sets) and all their functions.  Similarly, we're evaluating the NetworkX graph library as a basis for the information flow and domain transition analyses.
-
-Additionally, we'd like to see if some form of the libqpol API (or something similar) could be upstreamed into libsepol (or be a new upstream library).  It was discussed before at some point after the SETools dependency in audit2allow got upstreamed, but didn't really end in any implementation.
-
-We're not quite ready for shifting to public development (we're not even set on Python yet, though it's very likely), but we'll let the list know when that happens.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Can the object manager query the security server on specific permissions 
+(which make up a class) without querying for a response for the whole 
+security class?
