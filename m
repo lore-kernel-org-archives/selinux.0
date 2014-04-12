@@ -1,66 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3C4PuM2024964
- for <selinux@tycho.nsa.gov>; Sat, 12 Apr 2014 00:25:56 -0400
-Received: by mail-pb0-f50.google.com with SMTP id md12so6214468pbc.9
- for <selinux@tycho.nsa.gov>; Fri, 11 Apr 2014 21:25:42 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.85.223])
- by mx.google.com with ESMTPSA id iq10sm19114414pbc.14.2014.04.11.21.25.41
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Fri, 11 Apr 2014 21:25:42 -0700 (PDT)
-Message-ID: <5348BFAF.3010403@gmail.com>
-Date: Sat, 12 Apr 2014 09:53:11 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3C9gtSp010692
+ for <selinux@tycho.nsa.gov>; Sat, 12 Apr 2014 05:42:55 -0400
+References: <1396968778-19260-1-git-send-email-richard_c_haines@btinternet.com>
+ <534580B3.8040704@quarksecurity.com>
+Message-ID: <1397295773.56559.YahooMailNeo@web87902.mail.ir2.yahoo.com>
+Date: Sat, 12 Apr 2014 10:42:53 +0100 (BST)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: [PATCH 0/4] APOL Enhancements to support additional policy
+ features
+To: Joshua Brindle <brindle@quarksecurity.com>
+In-Reply-To: <534580B3.8040704@quarksecurity.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Security server responses always based on class?
-References: <53478F76.7040700@gmail.com> <5347DD46.9060705@tycho.nsa.gov>
- <5347DEAC.6070407@tycho.nsa.gov>
-In-Reply-To: <5347DEAC.6070407@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
+Cc: "setools-bugs@tresys.com" <setools-bugs@tresys.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/11/14 17:53, Stephen Smalley wrote:
-> On 04/11/2014 08:17 AM, Stephen Smalley wrote:
->> On 04/11/2014 02:45 AM, dE wrote:
->>> Does the object manager always queries the security server based on
->>> classes? And does the security server always respond with an access vector?
->>>
->>> OR
->>>
->>> Can the object manager query the security server on specific permissions
->>> (which make up a class) without querying for a response for the whole
->>> security class?
->> The security server interface is security_compute_av(), which always
->> computes the entire access vector for the class.
->>
->> Object managers however will typically call the Access Vector Cache
->> (AVC) interface avc_has_perm(), which checks particular permissions.
->> Internally, the AVC calls security_compute_av() if the access vector is
->> not already cached for the (source context, target context, target
->> class) triple and caches the result.
->>
->> More recent work on userspace object managers has introduced a higher
->> level API, selinux_check_access(), which internally handles the mapping
->> of contexts to SIDs and the mapping of class and permission strings to
->> values and calls avc_has_perm().
->>
->> All of these APIs are provided by libselinux and have corresponding man
->> pages.
-> I forgot to mention:  the security_compute_av() API takes a requested
-> permission argument to indicate the permissions being checked by the
-> caller, and the returned av_decision structure includes a decided access
-> vector to indicate which permissions were actually computed in the
-> allowed/auditallow/auditdeny vectors.  That allowed the security server
-> to optionally only compute the subset of permissions directly requested
-> by the caller and force the object manager to call again if any other
-> permissions are later requested.  However, this was optimized away from
-> the kernel a while back as it was unused by our security server so the
-> kernel always returns a decided vector with all-bits-set now.
+Hope the patches are useful. I'm now attempting to produce a patch to support the
+APOL source policy tab to version 29 - but I may be some time.
 
-Ok, so it has the ability to decide on certain permissions.
 
-Thanks for explaining that!
+
+
+----- Original Message -----
+From: Joshua Brindle <brindle@quarksecurity.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov; setools-bugs@tresys.com
+Sent: Wednesday, 9 April 2014, 18:17
+Subject: Re: [PATCH 0/4] APOL Enhancements to support additional policy features
+
+Richard Haines wrote:
+> These four patches will update setools-3.3.8.tar.bz2 available from
+> http://oss.tresys.com/projects/setools/wiki/download
+> 
+> I know this is not being fully supported but as I use APOL frequently
+> I thought I would update it to support the latest policy version 29 (I
+> could be the only user!!!). Tested on latest Fedora 20 x86_64
+> 
+
+We use it quite a bit too so thank you very much.
+
+Since we wanted to try out the patches, and because of my disdain for subversion I put up an (unofficial) git mirror that includes your patches on github at:
+
+https://github.com/QuarkSecurity/setools
+
+And to make it easier for others to try them out we posted some rpms:
+
+https://quarksecurity.com/files/RPMS/
+
+Oh, your ChangeLog change had to be rebased, as SVN trunk had an additional comment. I also fixed it to be tabs since that is the standard for that file.
+
+Thanks!
