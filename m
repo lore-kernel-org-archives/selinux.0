@@ -1,190 +1,197 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3D2ll9S001757
- for <selinux@tycho.nsa.gov>; Sat, 12 Apr 2014 22:47:48 -0400
-Date: Sun, 13 Apr 2014 10:47:40 +0800 (CST)
-From: ge <geshifei@126.com>
-To: selinux@tycho.nsa.gov
-Subject: =?UTF-8?Q?/data_used_as_two_filesystem_mountpoint=EF=BC=8Ct?=
- =?UTF-8?Q?hen_seandroid_how_to_lable_file_secontext=3F?=
-Content-Type: multipart/alternative;
- boundary="----=_Part_17839_1602496092.1397357260876"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3D4X0TO008540
+ for <selinux@tycho.nsa.gov>; Sun, 13 Apr 2014 00:33:00 -0400
+Received: by mail-wg0-f45.google.com with SMTP id l18so6832247wgh.28
+ for <selinux@tycho.nsa.gov>; Sat, 12 Apr 2014 21:32:59 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <39915653.12e6.14558fbb04d.Coremail.geshifei@126.com>
+In-Reply-To: <39915653.12e6.14558fbb04d.Coremail.geshifei@126.com>
+References: <39915653.12e6.14558fbb04d.Coremail.geshifei@126.com>
+Date: Sat, 12 Apr 2014 21:32:58 -0700
+Message-ID: <CAFftDdp62ODXRM114tCppwterddQqRJeE_ASPeNc4+7A-uqjzg@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_=2Fdata_used_as_two_filesystem_mountpoint=EF=BC=8Cthen_s?=
+ =?UTF-8?Q?eandroid_how_to_lable_file_secontext=3F?=
+From: William Roberts <bill.c.roberts@gmail.com>
+To: ge <geshifei@126.com>
+Content-Type: multipart/alternative; boundary=f46d043894cfbce93f04f6e50f51
+Cc: "selinux@tycho nsa. gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-------=_Part_17839_1602496092.1397357260876
+--f46d043894cfbce93f04f6e50f51
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 
-77u/aGnvvIxldmVyeW9uZS4KCkkgbWVldCB3aXRoIGEgcHJvYmxlbShzZWFuZHJvaWQgNC40Ke+8
-mkFzIHdlIGtub3csL2RhdGEgd2FzIG1vdW50ZWQgCmFzIGV4dDQgcGFydGl0aW9uIGluIG9yaWdp
-bmFsIHZlcnNpb24uIEFkZGl0aW9uYWwgSSBtb3VudCAvZGF0YSBhcyBhIApwc3VlZG8gZmlsZXN5
-c3RtZS4gCgoKdGhlIHNlcG9saWN5IG9mICBleHRlcm5hbC9zZXBvbGljeS9mc191c2UgaXMgY2hh
-bmdlZCBhcyBmb2xsb3c6Ci4uLgpmc191c2VfeGF0dHIgZXh0NCB1Om9iamVjdF9yOmxhYmVsZWRm
-czpzMDsKLi4uCmZzX3VzZV90cmFucyBwc3VlZG9zeXN0ZW0gdTpvYmplY3Rfcjpwc3VlZG9zeXN0
-ZW0gOnMwCgoKSSBmb3VuZCB0aGF0IGFmdGVyIHBvd2VyIG9uIG1vYmlsZSBwaG9uZSxldmVyeSBh
-cHAgaXMgcnVubmluZyBvayxhbmQgIApzZWNvbnRleHQgb2YgZmlsZXMgaW4gL2RhdGEocHN1ZWRv
-IGZpbGVzeXN0ZW0gbGF5ZXIpIGlzIAoidTpvYmplY3RfcjogcHN1ZWRvc3lzdGVtIDpzMCIgLCBh
-bmQgIHNlY29udGV4dCBvZiBmaWxlcwogaW4gL2RhdGEoZXh0NCBsYXllcikgaXMgY29ycmVjdCB3
-aXRoIHNlcG9saWN5LHN1Y2ggYXMKICJ1Om9iamVjdF9yOmFwcF9kYXRhX2ZpbGU6czAiLgoKCmJ1
-dCB3aGVuIEkgaW5zdGFsbCBhIG5ldyBhcHAsdGhlIHNlY29udGV4dCBvZiBhcHAncyBkaXJzIGFu
-ZCBmaWxlcyBpbiBleHQ0IApwYXJ0aXRpb24gaXMgaW5oZXJpdGVkIGZyb20gYXBwIGluc3RhbGxl
-ZCBkaXIgL2RhdGEvZGF0YSxzb3NlY29udGV4dCBpcwogInU6b2JqZWN0X3I6c3lzdGVtX2RhdGFf
-ZmlsZTpzMCIsdGhlIHJpZ2h0IHNob3VsZCBiZSAidTpvYmplY3RfcjphcHBfZGF0YV9maWxlOnMw
-Ii4KCgpJIHRoaW5rIHRoaXMgcHJvYmxlbSBtYXliZSBjYXVzZWQgYnkgOndoZW4gbW91bnQgL2Rh
-dGEgb24gcHN1ZWRvIGZpbGVzeXN0ZW0sdGhlCi9kYXRhIHJlcHJlc2VudCBleHQ0IGZpbGVzeXN0
-ZW0gaXMgaGlkZS5TbyBzZXQgc2VsaW51eCB4YXR0cixrZXJuZWwgb25seSBjYW4gb3BlcmF0ZSAK
-cHN1ZWRvIGZpbGVzeXN0ZW0gZmlsZS4KCgpjb3VsZCBzb21lb25lIHRlbGwgbWUgd2hlbiBpbnN0
-YWxsIGEgbmV3IHBhY2thZ2UgLGhvdyBzZWFuZHJvaWQgbGFiZWwgcGFja2FnZSBkaXIgCmFuZCBm
-aWxlcyB3aXRoIGV4dGVybmFsL3NlcG9saWN5L2ZzX3VzZSBhYm92ZT8gSWYgc2VhbmRyb2lkIGNh
-bGwgc3lzdGVtY2FsbCAic2V0eGF0dHIiIHRvIHNldApzZWxpbnV4IGNvbnRleHQsIGkgd2lsbCBt
-b2RpZnkgdGhlIHBzdWVkbyBmaWxlIHN5c3RlbSBub3Qgb3BlcmF0ZSBwc3VlZG8gZmlsZXN5c3Rl
-bSBmaWxlIApidXQgbG93ZXIgZXh0NCBmaWxlIGluIC9kYXRhLgoKCnRoYW5rcyBmb3IgeW91ciBo
-ZWxwLg==
-------=_Part_17839_1602496092.1397357260876
+Context option on mount can be used...or via genfscon statements if
+applicable
+On Apr 12, 2014 7:53 PM, "ge" <geshifei@126.com> wrote:
+
+> =EF=BB=BFhi=EF=BC=8Ceveryone.
+> I meet with a problem(seandroid 4.4)=EF=BC=9AAs we know,/data was mounted
+> as ext4 partition in original version. Additional I mount /data as a
+> psuedo filesystme.
+>
+> the sepolicy of  external/sepolicy/fs_use is changed as follow:
+> ...
+> *fs_use_xattr ext4 u:object_r:labeledfs:s0;*
+> ...
+> *fs_use_trans psuedosystem u:object_r:* *psuedosystem* *:s0*
+>
+> I found that after power on mobile phone,every app is running ok,and
+> secontext of files in /data(psuedo filesystem layer) is
+> "*u:object_r:* *psuedosystem* *:s0*" , and  secontext of files
+>  in /data(ext4 layer) is correct with sepolicy,such as
+>  "u:object_r:app_data_file:s0".
+>
+> but when I install a new app,the secontext of app's dirs and files in
+> ext4
+> partition is inherited from app installed dir /data/data,sosecontext is
+>  "u:object_r:system_data_file:s0",the right should be
+> "u:object_r:app_data_file:s0".
+>
+> I think this problem maybe caused by :when mount /data on psuedo
+> filesystem,the
+> /data represent ext4 filesystem is hide.So set selinux xattr,kernel only
+> can operate
+> psuedo filesystem file.
+>
+> could someone tell me when install a new package ,how seandroid label
+> package dir
+> and files with external/sepolicy/fs_use above? If seandroid call
+> systemcall "setxattr" to set
+> selinux context, i will modify the psuedo file system not operate psuedo
+> filesystem file
+> but lower ext4 file in /data.
+>
+> thanks for your help.
+>
+>
+>
+
+--f46d043894cfbce93f04f6e50f51
 Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
 
-PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
-Zm9udC1mYW1pbHk6YXJpYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6IDE4cHg7ICI+77u/aGnv
-vIxldmVyeW9uZS48L3NwYW4+PGJyPjxkaXY+PGZvbnQgc2l6ZT0iNCI+PHNwYW4gc3R5bGU9Imxp
-bmUtaGVpZ2h0OiAzMHB4OyI+SSBtZWV0IHdpdGggYSBwcm9ibGVtKDwvc3Bhbj48L2ZvbnQ+PHNw
-YW4gc3R5bGU9ImZvbnQtc2l6ZTogbGFyZ2U7IGxpbmUtaGVpZ2h0OiAzMHB4OyAiPnNlYW5kcm9p
-ZCA0LjQ8L3NwYW4+PGZvbnQgc2l6ZT0iNCI+Ke+8mkE8L2ZvbnQ+PHNwYW4gc3R5bGU9ImZvbnQt
-c2l6ZTogbGFyZ2U7IGxpbmUtaGVpZ2h0OiAzMHB4OyAiPnMgd2Uga25vdywvZGF0YSB3YXMgbW91
-bnRlZCZuYnNwOzwvc3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJmb250LXNpemU6IGxhcmdl
-OyBsaW5lLWhlaWdodDogMzBweDsgIj5hcyZuYnNwOzwvc3Bhbj48c3BhbiBzdHlsZT0iZm9udC1z
-aXplOiBsYXJnZTsgbGluZS1oZWlnaHQ6IDMwcHg7ICI+ZXh0NCBwYXJ0aXRpb24gaW4gb3JpZ2lu
-YWwgdmVyc2lvbi4gQWRkaXRpb25hbCZuYnNwOzwvc3Bhbj48c3BhbiBzdHlsZT0ibGluZS1oZWln
-aHQ6IDMwcHg7IGZvbnQtc2l6ZTogbGFyZ2U7ICI+SSBtb3VudCAvZGF0YSBhcyBhJm5ic3A7PC9z
-cGFuPjwvZGl2PjxkaXY+PHNwYW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAzMHB4OyBmb250LXNpemU6
-IGxhcmdlOyAiPnBzdWVkbyBmaWxlc3lzdG1lLiZuYnNwOzwvc3Bhbj48L2Rpdj48ZGl2Pjxicj48
-L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogJ1RpbWVzIE5ldyBSb21hbic7IGZv
-bnQtc2l6ZTogMThweDsgbGluZS1oZWlnaHQ6IDI2cHg7ICI+dGhlIHNlcG9saWN5IG9mICZuYnNw
-O2V4dGVybmFsL3NlcG9saWN5L2ZzX3VzZSBpcyBjaGFuZ2VkIGFzIGZvbGxvdzo8L3NwYW4+PC9k
-aXY+PGRpdj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6ICdUaW1lcyBOZXcgUm9tYW4nOyBmb250
-LXNpemU6IDE4cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPi4uLjwvc3Bhbj48L2Rpdj48ZGl2Pjxz
-cGFuIHN0eWxlPSJjb2xvcjogcmdiKDUxLCA1MSwgNTEpOyBmb250LWZhbWlseTogQXJpYWw7IGxp
-bmUtaGVpZ2h0OiAyNnB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMjQwLCAyNDcsIDI1NCk7ICI+
-PGI+ZnNfdXNlX3hhdHRyIGV4dDQgdTpvYmplY3RfcjpsYWJlbGVkZnM6czA7PC9iPjwvc3Bhbj4K
-PC9kaXY+PGRpdj48c3BhbiBzdHlsZT0iZm9udC1mYW1pbHk6ICdUaW1lcyBOZXcgUm9tYW4nOyBm
-b250LXNpemU6IDE4cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPi4uLjwvc3Bhbj4KPC9kaXY+PGRp
-dj48c3Ryb25nIHN0eWxlPSJjb2xvcjogcmdiKDUxLCA1MSwgNTEpOyBmb250LWZhbWlseTogQXJp
-YWw7IGxpbmUtaGVpZ2h0OiAyNnB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMjQwLCAyNDcsIDI1
-NCk7ICI+ZnNfdXNlX3RyYW5zIHBzdWVkb3N5c3RlbSB1Om9iamVjdF9yOjwvc3Ryb25nPgo8c3Ry
-b25nIHN0eWxlPSJjb2xvcjogcmdiKDUxLCA1MSwgNTEpOyBmb250LWZhbWlseTogQXJpYWw7IGxp
-bmUtaGVpZ2h0OiAyNnB4OyBiYWNrZ3JvdW5kLWNvbG9yOiByZ2IoMjQwLCAyNDcsIDI1NCk7ICI+
-cHN1ZWRvc3lzdGVtPC9zdHJvbmc+Jm5ic3A7PHN0cm9uZyBzdHlsZT0iY29sb3I6IHJnYig1MSwg
-NTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBsaW5lLWhlaWdodDogMjZweDsgYmFja2dyb3Vu
-ZC1jb2xvcjogcmdiKDI0MCwgMjQ3LCAyNTQpOyAiPjpzMDwvc3Ryb25nPgo8L2Rpdj48ZGl2Pjxz
-dHJvbmcgc3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsg
-bGluZS1oZWlnaHQ6IDI2cHg7IGJhY2tncm91bmQtY29sb3I6IHJnYigyNDAsIDI0NywgMjU0KTsg
-Ij48YnI+PC9zdHJvbmc+PC9kaXY+PGRpdj48Zm9udCBjb2xvcj0iIzMzMzMzMyIgZmFjZT0iQXJp
-YWwiPjxzcGFuIHN0eWxlPSJsaW5lLWhlaWdodDogMjZweDsgZm9udC1zaXplOiAxNnB4OyAiPkkg
-Zm91bmQgdGhhdCBhZnRlciBwb3dlciBvbiBtb2JpbGUgcGhvbmUsZXZlcnkgYXBwIGlzIHJ1bm5p
-bmcgb2ssYW5kICZuYnNwOzwvc3Bhbj48L2ZvbnQ+PC9kaXY+PGRpdj48Zm9udCBjb2xvcj0iIzMz
-MzMzMyIgZmFjZT0iQXJpYWwiPjxzcGFuIHN0eWxlPSJsaW5lLWhlaWdodDogMjZweDsgZm9udC1z
-aXplOiAxNnB4OyAiPnNlY29udGV4dCZuYnNwOzwvc3Bhbj48L2ZvbnQ+PGZvbnQgY29sb3I9IiMz
-MzMzMzMiIGZhY2U9IkFyaWFsIj48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7IGZvbnQt
-c2l6ZTogMTZweDsgIj5vZiBmaWxlcyZuYnNwOzwvc3Bhbj48L2ZvbnQ+PGZvbnQgY29sb3I9IiMz
-MzMzMzMiIGZhY2U9IkFyaWFsIj48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7IGZvbnQt
-c2l6ZTogMTZweDsgIj5pbiAvZGF0YShwc3VlZG8gZmlsZXN5c3RlbTwvc3Bhbj48L2ZvbnQ+PHNw
-YW4gc3R5bGU9ImZvbnQtc2l6ZTogMTZweDsgbGluZS1oZWlnaHQ6IDI2cHg7IGNvbG9yOiByZ2Io
-NTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsgIj4mbmJzcDtsYXllcikgaXMmbmJzcDs8
-L3NwYW4+PC9kaXY+PGRpdj48c3BhbiBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBsaW5lLWhlaWdo
-dDogMjZweDsgY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyAiPiI8
-L3NwYW4+PHN0cm9uZyBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6
-IEFyaWFsOyBsaW5lLWhlaWdodDogMjZweDsgYmFja2dyb3VuZC1jb2xvcjogcmdiKDI0MCwgMjQ3
-LCAyNTQpOyAiPnU6b2JqZWN0X3I6PC9zdHJvbmc+Jm5ic3A7PHN0cm9uZyBzdHlsZT0iY29sb3I6
-IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBsaW5lLWhlaWdodDogMjZweDsg
-YmFja2dyb3VuZC1jb2xvcjogcmdiKDI0MCwgMjQ3LCAyNTQpOyAiPnBzdWVkb3N5c3RlbTwvc3Ry
-b25nPiZuYnNwOzxzdHJvbmcgc3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFt
-aWx5OiBBcmlhbDsgbGluZS1oZWlnaHQ6IDI2cHg7IGJhY2tncm91bmQtY29sb3I6IHJnYigyNDAs
-IDI0NywgMjU0KTsgIj46czA8L3N0cm9uZz48c3BhbiBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEs
-IDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAy
-NnB4OyAiPiIgLCZuYnNwOzwvc3Bhbj48c3BhbiBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEsIDUx
-KTsgZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAyNnB4
-OyAiPmFuZCAmbmJzcDs8L3NwYW4+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTZweDsgbGluZS1o
-ZWlnaHQ6IDI2cHg7IGNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsg
-Ij5zZWNvbnRleHQmbmJzcDs8L3NwYW4+PGZvbnQgY29sb3I9IiMzMzMzMzMiIGZhY2U9IkFyaWFs
-Ij48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7IGZvbnQtc2l6ZTogMTZweDsgIj5vZiBm
-aWxlczwvc3Bhbj48L2ZvbnQ+PC9kaXY+PGRpdj48Zm9udCBjb2xvcj0iIzMzMzMzMyIgZmFjZT0i
-QXJpYWwiPjxzcGFuIHN0eWxlPSJsaW5lLWhlaWdodDogMjZweDsgZm9udC1zaXplOiAxNnB4OyAi
-PiZuYnNwOzwvc3Bhbj48L2ZvbnQ+PGZvbnQgY29sb3I9IiMzMzMzMzMiIGZhY2U9IkFyaWFsIj48
-c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7IGZvbnQtc2l6ZTogMTZweDsgIj5pbiAvZGF0
-YShleHQ0IGxheWVyPC9zcGFuPjwvZm9udD48c3BhbiBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBs
-aW5lLWhlaWdodDogMjZweDsgY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFy
-aWFsOyAiPikgaXMgY29ycmVjdCB3aXRoIHNlcG9saWN5LDwvc3Bhbj48c3BhbiBzdHlsZT0iY29s
-b3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE2cHg7
-IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPnN1Y2ggYXM8L3NwYW4+PC9kaXY+PGRpdj48c3BhbiBzdHls
-ZT0iY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6
-IDE2cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPiZuYnNwOyJ1Om9iamVjdF9yOmFwcF9kYXRhX2Zp
-bGU6czAiLjwvc3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJmb250LXNpemU6IDE2cHg7IGxp
-bmUtaGVpZ2h0OiAyNnB4OyBjb2xvcjogcmdiKDUxLCA1MSwgNTEpOyBmb250LWZhbWlseTogQXJp
-YWw7ICI+PGJyPjwvc3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJmb250LXNpemU6IDE2cHg7
-IGxpbmUtaGVpZ2h0OiAyNnB4OyBjb2xvcjogcmdiKDUxLCA1MSwgNTEpOyBmb250LWZhbWlseTog
-QXJpYWw7ICI+YnV0IHdoZW4gSSBpbnN0YWxsIGEgbmV3IGFwcCx0aGUmbmJzcDs8L3NwYW4+PHNw
-YW4gc3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsgZm9u
-dC1zaXplOiAxNnB4OyBsaW5lLWhlaWdodDogMjZweDsgIj5zZWNvbnRleHQgb2Y8L3NwYW4+PHNw
-YW4gc3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsgZm9u
-dC1zaXplOiAxNnB4OyBsaW5lLWhlaWdodDogMjZweDsgIj4mbmJzcDs8L3NwYW4+PHNwYW4gc3R5
-bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXpl
-OiAxNnB4OyBsaW5lLWhlaWdodDogMjZweDsgIj5hcHAncyBkaXJzIGFuZCBmaWxlcyBpbiZuYnNw
-Ozwvc3Bhbj48c3BhbiBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6
-IEFyaWFsOyBmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPmV4dDQmbmJzcDs8
-L3NwYW4+PC9kaXY+PGRpdj48c3BhbiBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9u
-dC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPnBh
-cnRpdGlvbjwvc3Bhbj48c3BhbiBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1m
-YW1pbHk6IEFyaWFsOyBmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPiZuYnNw
-Ozwvc3Bhbj48c3BhbiBzdHlsZT0iY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6
-IEFyaWFsOyBmb250LXNpemU6IDE2cHg7IGxpbmUtaGVpZ2h0OiAyNnB4OyAiPmlzJm5ic3A7PC9z
-cGFuPjxzcGFuIHN0eWxlPSJjb2xvcjogcmdiKDUxLCA1MSwgNTEpOyBsaW5lLWhlaWdodDogMjJw
-eDsgIj5pbmhlcml0ZWQmbmJzcDs8L3NwYW4+PHNwYW4gc3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUx
-LCA1MSk7IGxpbmUtaGVpZ2h0OiAyMnB4OyAiPmZyb20gYXBwIGluc3RhbGxlZCBkaXIgL2RhdGEv
-ZGF0YSxzb3NlY29udGV4dCBpczwvc3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJjb2xvcjog
-cmdiKDUxLCA1MSwgNTEpOyBsaW5lLWhlaWdodDogMjJweDsgIj4mbmJzcDs8L3NwYW4+PHNwYW4g
-c3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1z
-aXplOiAxNnB4OyBsaW5lLWhlaWdodDogMjZweDsgIj4idTpvYmplY3RfcjpzeXN0ZW1fZGF0YV9m
-aWxlOnMwIix0aGUgcmlnaHQgc2hvdWxkIGJlJm5ic3A7PC9zcGFuPjxzcGFuIHN0eWxlPSJjb2xv
-cjogcmdiKDUxLCA1MSwgNTEpOyBmb250LWZhbWlseTogQXJpYWw7IGZvbnQtc2l6ZTogMTZweDsg
-bGluZS1oZWlnaHQ6IDI2cHg7ICI+InU6b2JqZWN0X3I6YXBwX2RhdGFfZmlsZTpzMCIuPC9zcGFu
-PjwvZGl2PjxkaXY+PHNwYW4gc3R5bGU9ImNvbG9yOiByZ2IoNTEsIDUxLCA1MSk7IGZvbnQtZmFt
-aWx5OiBBcmlhbDsgZm9udC1zaXplOiAxNnB4OyBsaW5lLWhlaWdodDogMjZweDsgIj48YnI+PC9z
-cGFuPjwvZGl2PjxkaXY+PGZvbnQgY29sb3I9IiMzMzMzMzMiIGZhY2U9IkFyaWFsIiBzaXplPSIz
-Ij48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7Ij5JIHRoaW5rIHRoaXMgcHJvYmxlbSBt
-YXliZSBjYXVzZWQgYnkgOndoZW4gbW91bnQgL2RhdGEgb24gcHN1ZWRvIGZpbGVzeXN0ZW0sdGhl
-PC9zcGFuPjwvZm9udD48L2Rpdj48ZGl2Pjxmb250IGNvbG9yPSIjMzMzMzMzIiBmYWNlPSJBcmlh
-bCIgc2l6ZT0iMyI+PHNwYW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAyNnB4OyI+L2RhdGEgcmVwcmVz
-ZW50IGV4dDQgZmlsZXN5c3RlbSBpcyBoaWRlLlNvIHNldCBzZWxpbnV4IHhhdHRyLGtlcm5lbCBv
-bmx5IGNhbiBvcGVyYXRlJm5ic3A7PC9zcGFuPjwvZm9udD48L2Rpdj48ZGl2Pjxmb250IGNvbG9y
-PSIjMzMzMzMzIiBmYWNlPSJBcmlhbCIgc2l6ZT0iMyI+PHNwYW4gc3R5bGU9ImxpbmUtaGVpZ2h0
-OiAyNnB4OyI+cHN1ZWRvIGZpbGVzeXN0ZW0gZmlsZS48L3NwYW4+PC9mb250PjwvZGl2PjxkaXY+
-PGZvbnQgY29sb3I9IiMzMzMzMzMiIGZhY2U9IkFyaWFsIiBzaXplPSIzIj48c3BhbiBzdHlsZT0i
-bGluZS1oZWlnaHQ6IDI2cHg7Ij48YnI+PC9zcGFuPjwvZm9udD48L2Rpdj48ZGl2Pjxmb250IGNv
-bG9yPSIjMzMzMzMzIiBmYWNlPSJBcmlhbCIgc2l6ZT0iMyI+PHNwYW4gc3R5bGU9ImxpbmUtaGVp
-Z2h0OiAyNnB4OyI+Y291bGQgc29tZW9uZSB0ZWxsIG1lIHdoZW4gaW5zdGFsbCBhIG5ldyBwYWNr
-YWdlICxob3cgc2VhbmRyb2lkIGxhYmVsIHBhY2thZ2UgZGlyJm5ic3A7PC9zcGFuPjwvZm9udD48
-L2Rpdj48ZGl2Pjxmb250IGNvbG9yPSIjMzMzMzMzIiBmYWNlPSJBcmlhbCIgc2l6ZT0iMyI+PHNw
-YW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAyNnB4OyI+YW5kIGZpbGVzIHdpdGgmbmJzcDs8L3NwYW4+
-PC9mb250PjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTogJ1RpbWVzIE5ldyBSb21hbic7IGZvbnQt
-c2l6ZTogMThweDsgbGluZS1oZWlnaHQ6IDI2cHg7ICI+ZXh0ZXJuYWwvc2Vwb2xpY3kvZnNfdXNl
-IGFib3ZlPC9zcGFuPjxzcGFuIHN0eWxlPSJsaW5lLWhlaWdodDogMjZweDsgY29sb3I6IHJnYig1
-MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IG1lZGl1bTsgIj4/IElm
-IHNlYW5kcm9pZCBjYWxsIHN5c3RlbWNhbGwgInNldHhhdHRyIiB0byBzZXQ8L3NwYW4+PC9kaXY+
-PGRpdj48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7IGNvbG9yOiByZ2IoNTEsIDUxLCA1
-MSk7IGZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOiBtZWRpdW07ICI+c2VsaW51eCBjb250
-ZXh0LCBpIHdpbGwgbW9kaWZ5IHRoZSBwc3VlZG8gZmlsZSBzeXN0ZW0gbm90IG9wZXJhdGUgcHN1
-ZWRvIGZpbGVzeXN0ZW0gZmlsZSZuYnNwOzwvc3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJs
-aW5lLWhlaWdodDogMjZweDsgY29sb3I6IHJnYig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFy
-aWFsOyBmb250LXNpemU6IG1lZGl1bTsgIj5idXQgbG93ZXIgZXh0NCBmaWxlIGluIC9kYXRhLjwv
-c3Bhbj48L2Rpdj48ZGl2PjxzcGFuIHN0eWxlPSJsaW5lLWhlaWdodDogMjZweDsgY29sb3I6IHJn
-Yig1MSwgNTEsIDUxKTsgZm9udC1mYW1pbHk6IEFyaWFsOyBmb250LXNpemU6IG1lZGl1bTsgIj48
-YnI+PC9zcGFuPjwvZGl2PjxkaXY+PGZvbnQgY29sb3I9IiMzMzMzMzMiIGZhY2U9IkFyaWFsIiBz
-aXplPSIzIj48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDI2cHg7Ij50aGFua3MgZm9yIHlvdXIg
-aGVscC48L3NwYW4+PC9mb250PjwvZGl2PjwvZGl2Pjxicj48YnI+PHNwYW4gdGl0bGU9Im5ldGVh
-c2Vmb290ZXIiPjxzcGFuIGlkPSJuZXRlYXNlX21haWxfZm9vdGVyIj48L3NwYW4+PC9zcGFuPg==
+<p dir=3D"ltr">Context option on mount can be used...or via genfscon statem=
+ents if applicable</p>
+<div class=3D"gmail_quote">On Apr 12, 2014 7:53 PM, &quot;ge&quot; &lt;<a h=
+ref=3D"mailto:geshifei@126.com">geshifei@126.com</a>&gt; wrote:<br type=3D"=
+attribution"><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;b=
+order-left:1px #ccc solid;padding-left:1ex">
+<div style=3D"line-height:1.7;font-size:14px;font-family:arial"><span style=
+=3D"font-size:18px">=EF=BB=BFhi=EF=BC=8Ceveryone.</span><br><div><font size=
+=3D"4"><span style=3D"line-height:30px">I meet with a problem(</span></font=
+><span style=3D"font-size:large;line-height:30px">seandroid 4.4</span><font=
+ size=3D"4">)=EF=BC=9AA</font><span style=3D"font-size:large;line-height:30=
+px">s we know,/data was mounted=C2=A0</span></div>
+<div><span style=3D"font-size:large;line-height:30px">as=C2=A0</span><span =
+style=3D"font-size:large;line-height:30px">ext4 partition in original versi=
+on. Additional=C2=A0</span><span style=3D"line-height:30px;font-size:large"=
+>I mount /data as a=C2=A0</span></div>
+<div><span style=3D"line-height:30px;font-size:large">psuedo filesystme.=C2=
+=A0</span></div><div><br></div><div><span style=3D"font-family:&#39;Times N=
+ew Roman&#39;;font-size:18px;line-height:26px">the sepolicy of =C2=A0extern=
+al/sepolicy/fs_use is changed as follow:</span></div>
+<div><span style=3D"font-family:&#39;Times New Roman&#39;;font-size:18px;li=
+ne-height:26px">...</span></div><div><span style=3D"color:rgb(51,51,51);fon=
+t-family:Arial;line-height:26px;background-color:rgb(240,247,254)"><b>fs_us=
+e_xattr ext4 u:object_r:labeledfs:s0;</b></span>
+</div><div><span style=3D"font-family:&#39;Times New Roman&#39;;font-size:1=
+8px;line-height:26px">...</span>
+</div><div><strong style=3D"color:rgb(51,51,51);font-family:Arial;line-heig=
+ht:26px;background-color:rgb(240,247,254)">fs_use_trans psuedosystem u:obje=
+ct_r:</strong>
+<strong style=3D"color:rgb(51,51,51);font-family:Arial;line-height:26px;bac=
+kground-color:rgb(240,247,254)">psuedosystem</strong>=C2=A0<strong style=3D=
+"color:rgb(51,51,51);font-family:Arial;line-height:26px;background-color:rg=
+b(240,247,254)">:s0</strong>
+</div><div><strong style=3D"color:rgb(51,51,51);font-family:Arial;line-heig=
+ht:26px;background-color:rgb(240,247,254)"><br></strong></div><div><font co=
+lor=3D"#333333" face=3D"Arial"><span style=3D"line-height:26px;font-size:16=
+px">I found that after power on mobile phone,every app is running ok,and =
+=C2=A0</span></font></div>
+<div><font color=3D"#333333" face=3D"Arial"><span style=3D"line-height:26px=
+;font-size:16px">secontext=C2=A0</span></font><font color=3D"#333333" face=
+=3D"Arial"><span style=3D"line-height:26px;font-size:16px">of files=C2=A0</=
+span></font><font color=3D"#333333" face=3D"Arial"><span style=3D"line-heig=
+ht:26px;font-size:16px">in /data(psuedo filesystem</span></font><span style=
+=3D"font-size:16px;line-height:26px;color:rgb(51,51,51);font-family:Arial">=
+=C2=A0layer) is=C2=A0</span></div>
+<div><span style=3D"font-size:16px;line-height:26px;color:rgb(51,51,51);fon=
+t-family:Arial">&quot;</span><strong style=3D"color:rgb(51,51,51);font-fami=
+ly:Arial;line-height:26px;background-color:rgb(240,247,254)">u:object_r:</s=
+trong>=C2=A0<strong style=3D"color:rgb(51,51,51);font-family:Arial;line-hei=
+ght:26px;background-color:rgb(240,247,254)">psuedosystem</strong>=C2=A0<str=
+ong style=3D"color:rgb(51,51,51);font-family:Arial;line-height:26px;backgro=
+und-color:rgb(240,247,254)">:s0</strong><span style=3D"color:rgb(51,51,51);=
+font-family:Arial;font-size:16px;line-height:26px">&quot; ,=C2=A0</span><sp=
+an style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;line-heigh=
+t:26px">and =C2=A0</span><span style=3D"font-size:16px;line-height:26px;col=
+or:rgb(51,51,51);font-family:Arial">secontext=C2=A0</span><font color=3D"#3=
+33333" face=3D"Arial"><span style=3D"line-height:26px;font-size:16px">of fi=
+les</span></font></div>
+<div><font color=3D"#333333" face=3D"Arial"><span style=3D"line-height:26px=
+;font-size:16px">=C2=A0</span></font><font color=3D"#333333" face=3D"Arial"=
+><span style=3D"line-height:26px;font-size:16px">in /data(ext4 layer</span>=
+</font><span style=3D"font-size:16px;line-height:26px;color:rgb(51,51,51);f=
+ont-family:Arial">) is correct with sepolicy,</span><span style=3D"color:rg=
+b(51,51,51);font-family:Arial;font-size:16px;line-height:26px">such as</spa=
+n></div>
+<div><span style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;li=
+ne-height:26px">=C2=A0&quot;u:object_r:app_data_file:s0&quot;.</span></div>=
+<div><span style=3D"font-size:16px;line-height:26px;color:rgb(51,51,51);fon=
+t-family:Arial"><br>
+</span></div><div><span style=3D"font-size:16px;line-height:26px;color:rgb(=
+51,51,51);font-family:Arial">but when I install a new app,the=C2=A0</span><=
+span style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;line-hei=
+ght:26px">secontext of</span><span style=3D"color:rgb(51,51,51);font-family=
+:Arial;font-size:16px;line-height:26px">=C2=A0</span><span style=3D"color:r=
+gb(51,51,51);font-family:Arial;font-size:16px;line-height:26px">app&#39;s d=
+irs and files in=C2=A0</span><span style=3D"color:rgb(51,51,51);font-family=
+:Arial;font-size:16px;line-height:26px">ext4=C2=A0</span></div>
+<div><span style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;li=
+ne-height:26px">partition</span><span style=3D"color:rgb(51,51,51);font-fam=
+ily:Arial;font-size:16px;line-height:26px">=C2=A0</span><span style=3D"colo=
+r:rgb(51,51,51);font-family:Arial;font-size:16px;line-height:26px">is=C2=A0=
+</span><span style=3D"color:rgb(51,51,51);line-height:22px">inherited=C2=A0=
+</span><span style=3D"color:rgb(51,51,51);line-height:22px">from app instal=
+led dir /data/data,sosecontext is</span></div>
+<div><span style=3D"color:rgb(51,51,51);line-height:22px">=C2=A0</span><spa=
+n style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;line-height=
+:26px">&quot;u:object_r:system_data_file:s0&quot;,the right should be=C2=A0=
+</span><span style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;=
+line-height:26px">&quot;u:object_r:app_data_file:s0&quot;.</span></div>
+<div><span style=3D"color:rgb(51,51,51);font-family:Arial;font-size:16px;li=
+ne-height:26px"><br></span></div><div><font color=3D"#333333" face=3D"Arial=
+" size=3D"3"><span style=3D"line-height:26px">I think this problem maybe ca=
+used by :when mount /data on psuedo filesystem,the</span></font></div>
+<div><font color=3D"#333333" face=3D"Arial" size=3D"3"><span style=3D"line-=
+height:26px">/data represent ext4 filesystem is hide.So set selinux xattr,k=
+ernel only can operate=C2=A0</span></font></div><div><font color=3D"#333333=
+" face=3D"Arial" size=3D"3"><span style=3D"line-height:26px">psuedo filesys=
+tem file.</span></font></div>
+<div><font color=3D"#333333" face=3D"Arial" size=3D"3"><span style=3D"line-=
+height:26px"><br></span></font></div><div><font color=3D"#333333" face=3D"A=
+rial" size=3D"3"><span style=3D"line-height:26px">could someone tell me whe=
+n install a new package ,how seandroid label package dir=C2=A0</span></font=
+></div>
+<div><font color=3D"#333333" face=3D"Arial" size=3D"3"><span style=3D"line-=
+height:26px">and files with=C2=A0</span></font><span style=3D"font-family:&=
+#39;Times New Roman&#39;;font-size:18px;line-height:26px">external/sepolicy=
+/fs_use above</span><span style=3D"line-height:26px;color:rgb(51,51,51);fon=
+t-family:Arial;font-size:medium">? If seandroid call systemcall &quot;setxa=
+ttr&quot; to set</span></div>
+<div><span style=3D"line-height:26px;color:rgb(51,51,51);font-family:Arial;=
+font-size:medium">selinux context, i will modify the psuedo file system not=
+ operate psuedo filesystem file=C2=A0</span></div><div><span style=3D"line-=
+height:26px;color:rgb(51,51,51);font-family:Arial;font-size:medium">but low=
+er ext4 file in /data.</span></div>
+<div><span style=3D"line-height:26px;color:rgb(51,51,51);font-family:Arial;=
+font-size:medium"><br></span></div><div><font color=3D"#333333" face=3D"Ari=
+al" size=3D"3"><span style=3D"line-height:26px">thanks for your help.</span=
+></font></div>
+</div><br><br><span title=3D"neteasefooter"><span></span></span></blockquot=
+e></div>
 
-------=_Part_17839_1602496092.1397357260876--
+--f46d043894cfbce93f04f6e50f51--
