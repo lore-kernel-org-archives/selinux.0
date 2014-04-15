@@ -1,22 +1,13 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3FJIwWe029875
- for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2014 15:18:58 -0400
-Received: by mail-lb0-f181.google.com with SMTP id c11so7202172lbj.26
- for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2014 12:18:56 -0700 (PDT)
+Message-ID: <534D865F.1080409@tycho.nsa.gov>
+Date: Tue, 15 Apr 2014 15:19:59 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <534D8385.9010908@tycho.nsa.gov>
-References: <1397579252-1378-1-git-send-email-richard_c_haines@btinternet.com>
- <534D6117.4020506@tycho.nsa.gov> <534D78B6.9070208@tycho.nsa.gov>
- <1397586465.2471.2.camel@flatline.rdu.redhat.com>
- <534D7BA4.2040705@tycho.nsa.gov>
- <1397587423.2471.4.camel@flatline.rdu.redhat.com>
- <534D8385.9010908@tycho.nsa.gov>
-Date: Tue, 15 Apr 2014 15:18:56 -0400
-Message-ID: <CACLa4pu49Qhpyf8j_c3PE=fHySN_Tsf9PTaoZfR-TjiGB1nYKw@mail.gmail.com>
+To: Eric Paris <eparis@parisplace.org>
 Subject: Re: [PATCH] libsepol: Skip duplicate filename_trans rules in
  state->out policy.
-From: Eric Paris <eparis@parisplace.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+References: <1397579252-1378-1-git-send-email-richard_c_haines@btinternet.com>	<534D6117.4020506@tycho.nsa.gov>	<534D78B6.9070208@tycho.nsa.gov>	<1397586465.2471.2.camel@flatline.rdu.redhat.com>	<534D7BA4.2040705@tycho.nsa.gov>	<1397587423.2471.4.camel@flatline.rdu.redhat.com>	<534D8385.9010908@tycho.nsa.gov>
+ <CACLa4pu49Qhpyf8j_c3PE=fHySN_Tsf9PTaoZfR-TjiGB1nYKw@mail.gmail.com>
+In-Reply-To: <CACLa4pu49Qhpyf8j_c3PE=fHySN_Tsf9PTaoZfR-TjiGB1nYKw@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Cc: SE-Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -24,102 +15,115 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Why didn't it fail in the kernel on policy load?
+On 04/15/2014 03:18 PM, Eric Paris wrote:
+> Why didn't it fail in the kernel on policy load?
 
-On Tue, Apr 15, 2014 at 3:07 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 04/15/2014 02:43 PM, Eric Paris wrote:
->> On Tue, 2014-04-15 at 14:34 -0400, Stephen Smalley wrote:
->>> On 04/15/2014 02:27 PM, Eric Paris wrote:
->>>> On Tue, 2014-04-15 at 14:21 -0400, Stephen Smalley wrote:
->>>>> On 04/15/2014 12:40 PM, Stephen Smalley wrote:
->>>>>> On 04/15/2014 12:27 PM, Richard Haines wrote:
->>>>>>> The current detection of duplicate rules does not cover the state->out
->>>>>>> policy and therefore will duplicate filename transition rules if already
->>>>>>> present.
+AFAICS you aren't checking for conflicts (and are ignoring duplicates)
+in your kernel side code that loads the entries.
+
+Anyway, the bug is definitely in the policy sources:
++filetrans_pattern(gkeyringd_domain, gnome_home_t,
+gkeyringd_gnome_home_t, dir, "keyrings")
++filetrans_pattern(gkeyringd_domain, data_home_t,
+gkeyringd_gnome_home_t, dir, "keyrings")
++filetrans_pattern(gkeyringd_domain, gnome_home_t, data_home_t, dir,
+"keyrings")
+
+> 
+> On Tue, Apr 15, 2014 at 3:07 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 04/15/2014 02:43 PM, Eric Paris wrote:
+>>> On Tue, 2014-04-15 at 14:34 -0400, Stephen Smalley wrote:
+>>>> On 04/15/2014 02:27 PM, Eric Paris wrote:
+>>>>> On Tue, 2014-04-15 at 14:21 -0400, Stephen Smalley wrote:
+>>>>>> On 04/15/2014 12:40 PM, Stephen Smalley wrote:
+>>>>>>> On 04/15/2014 12:27 PM, Richard Haines wrote:
+>>>>>>>> The current detection of duplicate rules does not cover the state->out
+>>>>>>>> policy and therefore will duplicate filename transition rules if already
+>>>>>>>> present.
+>>>>>>>>
+>>>>>>>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>>>>>>>> ---
+>>>>>>>>  libsepol/src/expand.c | 14 ++++++++++++++
+>>>>>>>>  1 file changed, 14 insertions(+)
+>>>>>>>>
+>>>>>>>> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+>>>>>>>> index acb6906..e908fdb 100644
+>>>>>>>> --- a/libsepol/src/expand.c
+>>>>>>>> +++ b/libsepol/src/expand.c
+>>>>>>>> @@ -1534,6 +1534,20 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
+>>>>>>>>                                  if (cur_trans)
+>>>>>>>>                                          continue;
+>>>>>>>>
+>>>>>>>> +                                /* Now check if duplicate rule in state->out policy */
+>>>>>>>> +                                cur_trans = state->out->filename_trans;
+>>>>>>>> +
+>>>>>>>> +                                while (cur_trans) {
+>>>>>>>> +                                        if (cur_trans->stype == (i + 1) &&
+>>>>>>>> +                                            cur_trans->ttype == (j + 1) &&
+>>>>>>>> +                                            cur_trans->tclass == cur_rule->tclass &&
+>>>>>>>> +                                            !strcmp(cur_trans->name, cur_rule->name))
+>>>>>>>> +                                                break;
+>>>>>>>> +                                        cur_trans = cur_trans->next;
+>>>>>>>> +                                }
+>>>>>>>> +                                if (cur_trans)
+>>>>>>>> +                                        continue;
+>>>>>>>> +
+>>>>>>>>                                  new_trans = malloc(sizeof(*new_trans));
+>>>>>>>>                                  if (!new_trans) {
+>>>>>>>>                                          ERR(state->handle, "Out of memory!");
 >>>>>>>
->>>>>>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->>>>>>> ---
->>>>>>>  libsepol/src/expand.c | 14 ++++++++++++++
->>>>>>>  1 file changed, 14 insertions(+)
+>>>>>>> Isn't this effectively a revert of:
 >>>>>>>
->>>>>>> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
->>>>>>> index acb6906..e908fdb 100644
->>>>>>> --- a/libsepol/src/expand.c
->>>>>>> +++ b/libsepol/src/expand.c
->>>>>>> @@ -1534,6 +1534,20 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
->>>>>>>                                  if (cur_trans)
->>>>>>>                                          continue;
+>>>>>>> commit a29f6820c52b60b9028298cde9962dd140bbf9ea
+>>>>>>> Author: Adam Tkac <atkac@redhat.com>
+>>>>>>> Date:   Fri May 25 17:55:08 2012 +0200
 >>>>>>>
->>>>>>> +                                /* Now check if duplicate rule in state->out policy */
->>>>>>> +                                cur_trans = state->out->filename_trans;
->>>>>>> +
->>>>>>> +                                while (cur_trans) {
->>>>>>> +                                        if (cur_trans->stype == (i + 1) &&
->>>>>>> +                                            cur_trans->ttype == (j + 1) &&
->>>>>>> +                                            cur_trans->tclass == cur_rule->tclass &&
->>>>>>> +                                            !strcmp(cur_trans->name, cur_rule->name))
->>>>>>> +                                                break;
->>>>>>> +                                        cur_trans = cur_trans->next;
->>>>>>> +                                }
->>>>>>> +                                if (cur_trans)
->>>>>>> +                                        continue;
->>>>>>> +
->>>>>>>                                  new_trans = malloc(sizeof(*new_trans));
->>>>>>>                                  if (!new_trans) {
->>>>>>>                                          ERR(state->handle, "Out of memory!");
+>>>>>>>     libsepol: filename_trans: use some better sorting to compare and merge
+>>>>>>>
+>>>>>>> The kernel switched to using a hashtab for filename_trans rules in
+>>>>>>> commit 2463c26d50adc282d19317013ba0ff473823ca47
+>>>>>>> Author: Eric Paris <eparis@redhat.com>
+>>>>>>> Date:   Thu Apr 28 15:11:21 2011 -0400
+>>>>>>>
+>>>>>>>     SELinux: put name based create rules in a hashtable
+>>>>>>>
+>>>>>>> Is there a reason we don't do this in libsepol too?
 >>>>>>
->>>>>> Isn't this effectively a revert of:
->>>>>>
->>>>>> commit a29f6820c52b60b9028298cde9962dd140bbf9ea
->>>>>> Author: Adam Tkac <atkac@redhat.com>
->>>>>> Date:   Fri May 25 17:55:08 2012 +0200
->>>>>>
->>>>>>     libsepol: filename_trans: use some better sorting to compare and merge
->>>>>>
->>>>>> The kernel switched to using a hashtab for filename_trans rules in
->>>>>> commit 2463c26d50adc282d19317013ba0ff473823ca47
->>>>>> Author: Eric Paris <eparis@redhat.com>
->>>>>> Date:   Thu Apr 28 15:11:21 2011 -0400
->>>>>>
->>>>>>     SELinux: put name based create rules in a hashtable
->>>>>>
->>>>>> Is there a reason we don't do this in libsepol too?
+>>>>>> So if I am reading a29f68 correctly, it is completely wrong and should
+>>>>>> just be reverted.  That will fix the duplicate filename transition rules
+>>>>>> if I am not mistaken.  Then separately, we can look at bringing over the
+>>>>>> switch to using a hashtab that was already done in the kernel and use
+>>>>>> that to speed up this checking?  Comments?
 >>>>>
->>>>> So if I am reading a29f68 correctly, it is completely wrong and should
->>>>> just be reverted.  That will fix the duplicate filename transition rules
->>>>> if I am not mistaken.  Then separately, we can look at bringing over the
->>>>> switch to using a hashtab that was already done in the kernel and use
->>>>> that to speed up this checking?  Comments?
+>>>>> I think that's a good idea.  The kernel hashtab and this 'fix' were done
+>>>>> about the same time.  I intended to bring the kernel hashtab over and
+>>>>> got distracted and then forgot about it...
+>>>>>
+>>>>> Shouldn't be a hard thing, and I believe should get us back to having
+>>>>> bitwise the same policy in /sys/fs/selinux/policy as we have on disk...
 >>>>
->>>> I think that's a good idea.  The kernel hashtab and this 'fix' were done
->>>> about the same time.  I intended to bring the kernel hashtab over and
->>>> got distracted and then forgot about it...
+>>>> Looks like we have some other areas of divergence, e.g. range_tr hashtab
+>>>> conversion, ebitmap optimizations, possibly others.  The latter would
+>>>> require a policy binary format change (new version) to make it fully
+>>>> identical.
 >>>>
->>>> Shouldn't be a hard thing, and I believe should get us back to having
->>>> bitwise the same policy in /sys/fs/selinux/policy as we have on disk...
+>>>> Not sure how well even the hashtab is doing at this point as Fedora has
+>>>>> 150,000 file name transition rules in its policy per sedispol output?
+>>>>  That seems a bit excessive.
 >>>
->>> Looks like we have some other areas of divergence, e.g. range_tr hashtab
->>> conversion, ebitmap optimizations, possibly others.  The latter would
->>> require a policy binary format change (new version) to make it fully
->>> identical.
->>>
->>> Not sure how well even the hashtab is doing at this point as Fedora has
->>>> 150,000 file name transition rules in its policy per sedispol output?
->>>  That seems a bit excessive.
+>>> My understanding is that MANY of these are because of the expansion of
+>>> attributes in the source and the parent object.  If we could leave these
+>>> as attributes it would shrink things and incredible amount...
 >>
->> My understanding is that MANY of these are because of the expansion of
->> attributes in the source and the parent object.  If we could leave these
->> as attributes it would shrink things and incredible amount...
->
-> Hmmm...Fedora policy doesn't build with that change reverted, since it
-> was failing to check all filename transition rules for conflicts:
-> # semodule -B
-> libsepol.expand_filename_trans: Conflicting filename trans rules
-> keyrings staff_gkeyringd_t gnome_home_t : dir otype1:data_home_t
-> otype2:gkeyringd_gnome_home_t
-> libsepol.expand_module: Error during expand
-> libsemanage.semanage_expand_sandbox: Expand module failed
-> semodule:  Failed!
->
-> That's a bug in policy not in libsepol; it was just hidden by the bug in
-> libsepol.
+>> Hmmm...Fedora policy doesn't build with that change reverted, since it
+>> was failing to check all filename transition rules for conflicts:
+>> # semodule -B
+>> libsepol.expand_filename_trans: Conflicting filename trans rules
+>> keyrings staff_gkeyringd_t gnome_home_t : dir otype1:data_home_t
+>> otype2:gkeyringd_gnome_home_t
+>> libsepol.expand_module: Error during expand
+>> libsemanage.semanage_expand_sandbox: Expand module failed
+>> semodule:  Failed!
+>>
+>> That's a bug in policy not in libsepol; it was just hidden by the bug in
+>> libsepol.
