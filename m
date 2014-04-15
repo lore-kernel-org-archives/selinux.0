@@ -1,13 +1,13 @@
-Message-ID: <534D7E9C.2020207@tycho.nsa.gov>
-Date: Tue, 15 Apr 2014 14:46:52 -0400
+Message-ID: <534D8385.9010908@tycho.nsa.gov>
+Date: Tue, 15 Apr 2014 15:07:49 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Eric Paris <eparis@redhat.com>
 Subject: Re: [PATCH] libsepol: Skip duplicate filename_trans rules in
  state->out policy.
-References: <1397579252-1378-1-git-send-email-richard_c_haines@btinternet.com>		
- <534D6117.4020506@tycho.nsa.gov> <534D78B6.9070208@tycho.nsa.gov>	
- <1397586465.2471.2.camel@flatline.rdu.redhat.com>	
+References: <1397579252-1378-1-git-send-email-richard_c_haines@btinternet.com>
+ <534D6117.4020506@tycho.nsa.gov> <534D78B6.9070208@tycho.nsa.gov>
+ <1397586465.2471.2.camel@flatline.rdu.redhat.com>
  <534D7BA4.2040705@tycho.nsa.gov>
  <1397587423.2471.4.camel@flatline.rdu.redhat.com>
 In-Reply-To: <1397587423.2471.4.camel@flatline.rdu.redhat.com>
@@ -102,9 +102,15 @@ On 04/15/2014 02:43 PM, Eric Paris wrote:
 > attributes in the source and the parent object.  If we could leave these
 > as attributes it would shrink things and incredible amount...
 
-I have to question how many of those rules are truly needed.  But with
-regard to enabling attribute usage in file name transition rules, I'd
-think we'd first need to introduce an avc_transition_sid() interface and
-cache security_transition_sid() results in the AVC since
-security_transition_sid() will become more costly.  We already do that
-in the userspace AVC, see avc_compute_create().
+Hmmm...Fedora policy doesn't build with that change reverted, since it
+was failing to check all filename transition rules for conflicts:
+# semodule -B
+libsepol.expand_filename_trans: Conflicting filename trans rules
+keyrings staff_gkeyringd_t gnome_home_t : dir otype1:data_home_t
+otype2:gkeyringd_gnome_home_t
+libsepol.expand_module: Error during expand
+libsemanage.semanage_expand_sandbox: Expand module failed
+semodule:  Failed!
+
+That's a bug in policy not in libsepol; it was just hidden by the bug in
+libsepol.
