@@ -1,67 +1,65 @@
-Message-ID: <53500353.4080309@tycho.nsa.gov>
-Date: Thu, 17 Apr 2014 12:37:39 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Kernel Geek <kernelfreak@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Regarding call security_compute_av()
+In-Reply-To: <53500A89.5050904@tycho.nsa.gov>
 References: <1397793520.8610.3.camel@akshay-desktop>
  <535000D4.9060001@tycho.nsa.gov>
-In-Reply-To: <535000D4.9060001@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+ <1397796655.8610.10.camel@akshay-desktop>
+ <53500A89.5050904@tycho.nsa.gov>
+Date: Thu, 17 Apr 2014 19:21:18 +0200
+Message-ID: <CAOFt0CRZtv4-UfDMZG-hVhQVwnWgjr0cHEzO4RPPBbpxcz-FEQ@mail.gmail.com>
+Subject: Re: Regarding call security_compute_av()
+From: Kernel freak <kernelfreak@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a11c289bee0b18a04f74042ac
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/17/2014 12:27 PM, Stephen Smalley wrote:
-> On 04/17/2014 11:58 PM, Kernel Geek wrote:
->>
->> Hello friends,
->>              I just had a few questions about the above mentioned call
->> which is located in selinux/ss/services.c. Questions as follows :
->>
->> 1) As the calls documentation reads, it is responsible for computing
->> access decisions for source and target security contexts. Does that
->> means if the call is always returns 0 then access would be permitted? Is
->> that a valid logic? I believe value of rc says if access is allowed or not?
-> 
-> No.  security_compute_av computes a complete allowed access vector
-> (along with other access vectors for auditingthat can then be checked by
-> the caller to see if access would be permitted.  Typically one does not
-> directly call security_compute_av but rather avc_has_perm(), which will
-> return an error if access is denied.  In fact, in modern kernels,
-> security_compute_av() is a void function because all error paths are
-> handled by returning an allowed access vector with all bits cleared so
-> that it will be handled by the AVC as a normal denial.  In older kernel
-> versions, security_compute_av could return an error on certain error
-> conditions in which case the AVC would still treat it as a denial and
-> audit it.
-> 
->> 2) I noticed it calls context_struct_compute_av() which initializes AVC
->> defaults, does preliminary checks and returns value of rc. Is my reasoning 
->> correct?
-> 
-> In a current kernel, both security_compute_av and
-> context_struct_compute_av() are void functions.  Even in older kernels,
-> it was never the case that an error return code was used for a normal
-> denial, only for an internal error on e.g. SID lookup or some other
-> condition that prevented the normal computation from proceeding.
-> 
->> 3) Who calls security_compute_av() ? 
-> 
-> The Access Vector Cache (AVC), security/selinux/avc.c in the kernel.
-> 
-> The specifics have changed over time but the general architecture and
-> many of the interfaces were described in various background papers and
-> technical reports available from our site,
-> http://www.nsa.gov/research/selinux/background.shtml
-> http://www.nsa.gov/research/selinux/docs.shtml
+--001a11c289bee0b18a04f74042ac
+Content-Type: text/plain; charset=UTF-8
 
-Also, FWIW, there are man pages for security_compute_av, avc_has_perm,
-and other interfaces provided by libselinux that mirror those of the
-kernel for use by userspace policy enforcers.  They are not always
-identical as both have undergone changes over time independently, but
-you may find it helpful.  These days, as I said in another recent thread
-on this topic, selinux_check_access() is the preferred interface for
-userspace policy enforcers / object managers.
+Hi,
+    I went off-list by mistake. I have read the book selinux by example. A
+really good book. I don't want to use permissive mode as I would like to
+further make some modifications in the SELinux code.
+
+
+
+On Thu, Apr 17, 2014 at 7:08 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> Also, have you looked at the SELinux Notebook,
+> http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
+>
+> and/or the SELinux by Example (paper) book?
+>
+> Not sure if they cover what you want but they are good resources.
+>
+>
+
+--001a11c289bee0b18a04f74042ac
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hi,<br></div>=C2=A0=C2=A0=C2=A0 I went off-list by mi=
+stake. I have read the book selinux by example. A really good book. I don&#=
+39;t want to use permissive mode as I would like to further make some modif=
+ications in the SELinux code. <br>
+<div>=C2=A0=C2=A0=C2=A0 <br></div></div><div class=3D"gmail_extra"><br><br>=
+<div class=3D"gmail_quote">On Thu, Apr 17, 2014 at 7:08 PM, Stephen Smalley=
+ <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blan=
+k">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">Also, have you looked at the SELinux Noteboo=
+k,<br>
+<a href=3D"http://www.freetechbooks.com/the-selinux-notebook-the-foundation=
+s-t785.html" target=3D"_blank">http://www.freetechbooks.com/the-selinux-not=
+ebook-the-foundations-t785.html</a><br>
+<br>
+and/or the SELinux by Example (paper) book?<br>
+<br>
+Not sure if they cover what you want but they are good resources.<br>
+<br>
+</blockquote></div><br></div>
+
+--001a11c289bee0b18a04f74042ac--
