@@ -1,178 +1,101 @@
-Message-ID: <BAY179-W39F0B4917B0C8CE15AE57FCB520@phx.gbl>
-Content-Type: multipart/alternative;
- boundary="_dde2aaed-4020-43e1-a14e-7a21e4d6f93d_"
-From: Bo Chen <bochen7e7@live.com>
-To: Kernel freak <kernelfreak@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: RE: Regarding call security_compute_av()
-Date: Thu, 17 Apr 2014 12:38:53 -0500
-In-Reply-To: <CAOFt0CRZtv4-UfDMZG-hVhQVwnWgjr0cHEzO4RPPBbpxcz-FEQ@mail.gmail.com>
-References: <1397793520.8610.3.camel@akshay-desktop>,
- <535000D4.9060001@tycho.nsa.gov>, <1397796655.8610.10.camel@akshay-desktop>,
- <53500A89.5050904@tycho.nsa.gov>,
- <CAOFt0CRZtv4-UfDMZG-hVhQVwnWgjr0cHEzO4RPPBbpxcz-FEQ@mail.gmail.com>
-MIME-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3HLdCil013242
+ for <selinux@tycho.nsa.gov>; Thu, 17 Apr 2014 17:39:12 -0400
+Message-ID: <1397770748.3305.386.camel@metroid.usersys.redhat.com>
+Subject: selinux_init_load_policy() and systemd switch-root
+From: Will Woods <wwoods@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 17 Apr 2014 17:39:08 -0400
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_dde2aaed-4020-43e1-a14e-7a21e4d6f93d_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Hey all. I have a few questions for you! 
 
-http://www.scribd.com/doc/218693428/Innocent-Beyond-a-Reasonable-Doubt http=
-://www.scribd.com/doc/218630597/Rickey-Rick-Watson-Prosecutorial-misconduct=
--conspiracy-extortion-fraud-deceit-anti-Chinese-racism https://soundcloud.c=
-om/rick_watson_misconduct=20
-=0A=
-=0A=
--Bo=0A=
-Chen=0A=
-=0A=
+* Is it OK to load policy more than once? (e.g. load new policy after 
+  chroot/switch-root to new system)
 
+* If so (and I'm pretty sure that's OK), are we supposed to call
+  selinux_init_load_policy for each switch-root, or is
+  selinux_mkload_policy supposed to be sufficient?
 
+* What should happen if we switch-root from a system with SELinux
+  enabled/permissive to one that has SELINUX=disabled? 
 
-
-Date: Thu=2C 17 Apr 2014 19:21:18 +0200
-Subject: Re: Regarding call security_compute_av()
-From: kernelfreak@gmail.com
-To: sds@tycho.nsa.gov=3B selinux@tycho.nsa.gov
-
-Hi=2C
-    I went off-list by mistake. I have read the book selinux by example. A =
-really good book. I don't want to use permissive mode as I would like to fu=
-rther make some modifications in the SELinux code.=20
-=0A=
-   =20
+Background on the problem follows. It's optional reading; sorry there's
+so much of it.
 
 
-On Thu=2C Apr 17=2C 2014 at 7:08 PM=2C Stephen Smalley <sds@tycho.nsa.gov> =
-wrote:
-=0A=
-Also=2C have you looked at the SELinux Notebook=2C
-=0A=
-http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
-=0A=
+So, I'm working on major-version upgrades in Fedora/RHEL (and, broadly,
+anything that uses systemd + SELinux).
 
-=0A=
-and/or the SELinux by Example (paper) book?
-=0A=
+The important (and unusual) thing about upgrades is that they involve
+*two* switch-roots - the normal one from initramfs to real root, and a
+second one to go from real root to "upgrade.img"[1], which does the
+upgrade itself.
 
-=0A=
-Not sure if they cover what you want but they are good resources.
-=0A=
+So upgrades have *three* roots: initramfs, real root, and upgrade.img.
+And initramfs/upgrade.img contain the new release's tools/policy/etc.
 
-=0A=
+The problem: Currently, we try to load policy during initramfs. This
+turns out to be a bad idea: nothing in initramfs is labeled, every
+process ends up with kernel_t, and so files created in /run or /dev may
+have the wrong labels.
 
-=0A=
+Also, on systems where the admin has chosen to remove SELinux, systemd
+freezes when it switches to the real root, because a) enforcing is on,
+but b) policy can't be loaded.
 
-_______________________________________________=0A=
-Selinux mailing list=0A=
-Selinux@tycho.nsa.gov=0A=
-To unsubscribe=2C send email to Selinux-leave@tycho.nsa.gov.=0A=
-To get help=2C send an email containing "help" to Selinux-request@tycho.nsa=
-.gov. 		 	   		  =
+So a saner plan would seem to be to let the system load policy as normal
+(i.e.: do nothing during initramfs, load policy when entering real
+root), then load the *new* policy when switching to upgrade.img.
 
---_dde2aaed-4020-43e1-a14e-7a21e4d6f93d_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+But: systemd refuses to load policy more than once, for reasons that
+seem unrelated to loading policy itself[2].
 
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px=3B
-padding:0px
-}
-body.hmmessage
-{
-font-size: 12pt=3B
-font-family:Calibri
-}
---></style></head>
-<body class=3D'hmmessage'><div dir=3D'ltr'><div style=3D"line-height: 22.71=
-9999313354492px=3B color: rgb(68=2C 68=2C 68)=3B font-family: Calibri=3B ba=
-ckground-color: white=3B"><font color=3D"#444444" style=3D"line-height: nor=
-mal=3B"><span style=3D"line-height: 22.719999313354492px=3B"><a href=3D"htt=
-p://www.scribd.com/doc/218693428/Innocent-Beyond-a-Reasonable-Doubt" target=
-=3D"_blank" style=3D"font-weight: inherit=3B color: rgb(0=2C 104=2C 207)=3B=
- cursor: pointer=3B"><font color=3D"#0068CF" style=3D"line-height: normal=
-=3B"><font face=3D"Calibri=2Csans-serif">http://www.scribd.com/doc/21869342=
-8/Innocent-Beyond-a-Reasonable-Doubt</font></font></a></span></font></div><=
-div style=3D"line-height: 22.719999313354492px=3B color: rgb(68=2C 68=2C 68=
-)=3B font-family: Calibri=3B background-color: white=3B"><font color=3D"#44=
-4444" style=3D"line-height: normal=3B"><span style=3D"line-height: 22.71999=
-9313354492px=3B"><font face=3D"Calibri=2Csans-serif" style=3D"line-height: =
-normal=3B">&nbsp=3B</font></span></font></div><div style=3D"line-height: 22=
-.719999313354492px=3B color: rgb(68=2C 68=2C 68)=3B font-family: Calibri=3B=
- background-color: white=3B"><font color=3D"#444444" style=3D"line-height: =
-normal=3B"><span style=3D"line-height: 22.719999313354492px=3B"><a href=3D"=
-http://www.scribd.com/doc/218630597/Rickey-Rick-Watson-Prosecutorial-miscon=
-duct-conspiracy-extortion-fraud-deceit-anti-Chinese-racism" target=3D"_blan=
-k" style=3D"font-weight: inherit=3B color: rgb(0=2C 104=2C 207)=3B cursor: =
-pointer=3B"><font color=3D"#0068CF" style=3D"line-height: normal=3B"><font =
-face=3D"Calibri=2Csans-serif">http://www.scribd.com/doc/218630597/Rickey-Ri=
-ck-Watson-Prosecutorial-misconduct-conspiracy-extortion-fraud-deceit-anti-C=
-hinese-racism</font></font></a></span></font></div><div style=3D"line-heigh=
-t: 22.719999313354492px=3B color: rgb(68=2C 68=2C 68)=3B font-family: Calib=
-ri=3B background-color: white=3B"><font color=3D"#444444" style=3D"line-hei=
-ght: normal=3B"><span style=3D"line-height: 22.719999313354492px=3B"><font =
-face=3D"Calibri=2Csans-serif" style=3D"line-height: normal=3B">&nbsp=3B</fo=
-nt></span></font></div><div style=3D"line-height: 22.719999313354492px=3B c=
-olor: rgb(68=2C 68=2C 68)=3B font-family: Calibri=3B background-color: whit=
-e=3B"><font color=3D"#444444" style=3D"line-height: normal=3B"><span style=
-=3D"line-height: 22.719999313354492px=3B"><a href=3D"https://soundcloud.com=
-/rick_watson_misconduct" target=3D"_blank" style=3D"font-weight: inherit=3B=
- color: rgb(0=2C 104=2C 207)=3B cursor: pointer=3B"><font color=3D"#0068CF"=
- style=3D"line-height: normal=3B"><font face=3D"Calibri=2Csans-serif">https=
-://soundcloud.com/rick_watson_misconduct</font></font></a></span></font></d=
-iv><div style=3D"line-height: 22.719999313354492px=3B color: rgb(68=2C 68=
-=2C 68)=3B font-family: Calibri=3B background-color: white=3B"><font color=
-=3D"#444444" style=3D"line-height: normal=3B"><span style=3D"line-height: 2=
-2.719999313354492px=3B"><font face=3D"Calibri=2Csans-serif" style=3D"line-h=
-eight: normal=3B">&nbsp=3B</font></span></font></div><br><a href=3D"http://=
-pgp.mit.edu:11371/pks/lookup?op=3Dget&amp=3Bsearch=3D0x99BD200C0C298224" ta=
-rget=3D"_blank"></a><a href=3D"http://pgp.mit.edu:11371/pks/lookup?op=3Dget=
-&amp=3Bsearch=3D0x99BD200C0C298224" target=3D"_blank">=0A=
-=0A=
-</a><p class=3D"ecxMsoNormal"><a href=3D"http://pgp.mit.edu:11371/pks/looku=
-p?op=3Dget&amp=3Bsearch=3D0x99BD200C0C298224" target=3D"_blank"><span style=
-=3D"font-family:&quot=3BArial&quot=3B=2C&quot=3Bsans-serif&quot=3B=3B">-</s=
-pan></a><a href=3D"http://pgp.mit.edu:11371/pks/lookup?op=3Dget&amp=3Bsearc=
-h=3D0x99BD200C0C298224" target=3D"_blank">Bo=0A=
-Chen</a></p>=0A=
-=0A=
-<br><br><br><br><div><hr id=3D"stopSpelling">Date: Thu=2C 17 Apr 2014 19:21=
-:18 +0200<br>Subject: Re: Regarding call security_compute_av()<br>From: ker=
-nelfreak@gmail.com<br>To: sds@tycho.nsa.gov=3B selinux@tycho.nsa.gov<br><br=
-><div dir=3D"ltr"><div>Hi=2C<br></div>&nbsp=3B&nbsp=3B&nbsp=3B I went off-l=
-ist by mistake. I have read the book selinux by example. A really good book=
-. I don't want to use permissive mode as I would like to further make some =
-modifications in the SELinux code. <br>=0A=
-<div>&nbsp=3B&nbsp=3B&nbsp=3B <br></div></div><div class=3D"ecxgmail_extra"=
-><br><br><div class=3D"ecxgmail_quote">On Thu=2C Apr 17=2C 2014 at 7:08 PM=
-=2C Stephen Smalley <span dir=3D"ltr">&lt=3B<a href=3D"mailto:sds@tycho.nsa=
-.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt=3B</span> wrote:<br>=0A=
-<blockquote class=3D"ecxgmail_quote" style=3D"border-left:1px #ccc solid=3B=
-padding-left:1ex=3B">Also=2C have you looked at the SELinux Notebook=2C<br>=
-=0A=
-<a href=3D"http://www.freetechbooks.com/the-selinux-notebook-the-foundation=
-s-t785.html" target=3D"_blank">http://www.freetechbooks.com/the-selinux-not=
-ebook-the-foundations-t785.html</a><br>=0A=
-<br>=0A=
-and/or the SELinux by Example (paper) book?<br>=0A=
-<br>=0A=
-Not sure if they cover what you want but they are good resources.<br>=0A=
-<br>=0A=
-</blockquote></div><br></div>=0A=
-<br>_______________________________________________=0A=
-Selinux mailing list=0A=
-Selinux@tycho.nsa.gov=0A=
-To unsubscribe=2C send email to Selinux-leave@tycho.nsa.gov.=0A=
-To get help=2C send an email containing "help" to Selinux-request@tycho.nsa=
-.gov.</div> 		 	   		  </div></body>
-</html>=
+So: maybe it would make sense to have call selinux_init_load_policy()
+after *every* switch-root?
 
---_dde2aaed-4020-43e1-a14e-7a21e4d6f93d_--
+We can't just use selinux_mkload_policy() because (as the comment in
+selinux_init_load_policy() points out) we need to do things like reset
+the config and re-mount selinuxfs after a chroot.
+
+But it also seems like selinux_init_load_policy() assumes it will only
+be called once; a later comment says:
+
+        /*
+         * If we failed to disable, SELinux will still be 
+         * effectively permissive, because no policy is loaded. 
+         * No need to call security_setenforce(0) here.
+         */
+
+Except: if we were enforcing in the previous root, and the new root
+requests SELINUX=disabled.. then policy *is* loaded, and we *do* need
+security_setenforce(0).
+
+So: is that just a bug, or is selinux_init_load_policy() really not
+intended to be called more than once? And if that's the case, how should
+I re-load config/policy/etc. after a switch-root?
+
+Any help / suggestions / comments / questions / expert guidance is very
+welcome here. 
+
+Thanks in advance,
+
+-w
+
+[1] initramfs and upgrade.img are actually the same image in the current
+implementation, but that's not really important here.
+
+[2] The original code[3] seems to be avoiding an infinite loop:
+  * when systemd v12 starts, it tries to load policy
+  * if policy loads OK, systemd restarts
+So in *that* case, yes, systemd needed to load policy *only* once.
+But these days, selinux_setup() is only called at system startup and
+after each switch-root, and it doesn't restart systemd. So that's not a
+problem.
+
+[3] http://cgit.freedesktop.org/systemd/systemd/commit?id=c4dcdb9
