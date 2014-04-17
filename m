@@ -1,33 +1,46 @@
-Message-ID: <1397590666.2471.5.camel@flatline.rdu.redhat.com>
-Subject: Re: [PATCH] libsepol: Skip duplicate filename_trans rules in
- state->out policy.
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Tue, 15 Apr 2014 15:37:46 -0400
-In-Reply-To: <534D865F.1080409@tycho.nsa.gov>
-References: <1397579252-1378-1-git-send-email-richard_c_haines@btinternet.com>
- <534D6117.4020506@tycho.nsa.gov>	<534D78B6.9070208@tycho.nsa.gov>
- <1397586465.2471.2.camel@flatline.rdu.redhat.com>
- <534D7BA4.2040705@tycho.nsa.gov>
- <1397587423.2471.4.camel@flatline.rdu.redhat.com>
- <534D8385.9010908@tycho.nsa.gov>
- <CACLa4pu49Qhpyf8j_c3PE=fHySN_Tsf9PTaoZfR-TjiGB1nYKw@mail.gmail.com>
- <534D865F.1080409@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3H2i9hn027903
+ for <selinux@tycho.nsa.gov>; Wed, 16 Apr 2014 22:44:09 -0400
+From: Masahiro Yamada <yamada.m@jp.panasonic.com>
+To: linux-kbuild@vger.kernel.org
+Subject: [PATCH] selinux,
+ kbuild: remove unnecessary $(hostprogs-y) from clean-files
+Date: Thu, 17 Apr 2014 11:42:26 +0900
+Message-Id: <1397702546-25349-1-git-send-email-yamada.m@jp.panasonic.com>
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2014-04-15 at 15:19 -0400, Stephen Smalley wrote:
-> On 04/15/2014 03:18 PM, Eric Paris wrote:
-> > Why didn't it fail in the kernel on policy load?
-> 
-> AFAICS you aren't checking for conflicts (and are ignoring duplicates)
-> in your kernel side code that loads the entries.
+Files added to hostprogs-y are cleaned. (See scripts/Makefile.clean)
+Adding them to clean-files is redundant.
 
-Oh right, that whole 'system wasn't booting' thing.  Which pointed out
-this bug, and then I never fixed it.  Perfect.  Glad I've been
-reminded...
+Signed-off-by: Masahiro Yamada <yamada.m@jp.panasonic.com>
+---
+
+ scripts/selinux/genheaders/Makefile | 1 -
+ scripts/selinux/mdp/Makefile        | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/scripts/selinux/genheaders/Makefile b/scripts/selinux/genheaders/Makefile
+index 417b165..1d1ac51 100644
+--- a/scripts/selinux/genheaders/Makefile
++++ b/scripts/selinux/genheaders/Makefile
+@@ -2,4 +2,3 @@ hostprogs-y	:= genheaders
+ HOST_EXTRACFLAGS += -Isecurity/selinux/include
+ 
+ always		:= $(hostprogs-y)
+-clean-files	:= $(hostprogs-y)
+diff --git a/scripts/selinux/mdp/Makefile b/scripts/selinux/mdp/Makefile
+index eb365b3..dba7eff 100644
+--- a/scripts/selinux/mdp/Makefile
++++ b/scripts/selinux/mdp/Makefile
+@@ -2,4 +2,4 @@ hostprogs-y	:= mdp
+ HOST_EXTRACFLAGS += -Isecurity/selinux/include
+ 
+ always		:= $(hostprogs-y)
+-clean-files	:= $(hostprogs-y) policy.* file_contexts
++clean-files	:= policy.* file_contexts
+-- 
+1.8.3.2
