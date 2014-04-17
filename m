@@ -1,65 +1,41 @@
+Message-ID: <53500ECB.8090702@tycho.nsa.gov>
+Date: Thu, 17 Apr 2014 13:26:35 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <53500A89.5050904@tycho.nsa.gov>
-References: <1397793520.8610.3.camel@akshay-desktop>
- <535000D4.9060001@tycho.nsa.gov>
- <1397796655.8610.10.camel@akshay-desktop>
- <53500A89.5050904@tycho.nsa.gov>
-Date: Thu, 17 Apr 2014 19:21:18 +0200
-Message-ID: <CAOFt0CRZtv4-UfDMZG-hVhQVwnWgjr0cHEzO4RPPBbpxcz-FEQ@mail.gmail.com>
+To: SELinux-NSA <SELinux@tycho.nsa.gov>
 Subject: Re: Regarding call security_compute_av()
-From: Kernel freak <kernelfreak@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a11c289bee0b18a04f74042ac
+References: <5350090C.6020503@tycho.nsa.gov>
+In-Reply-To: <5350090C.6020503@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c289bee0b18a04f74042ac
-Content-Type: text/plain; charset=UTF-8
+On 04/18/2014 12:50 AM, Kernel Geek wrote:
+> You are correct, I almost forgot about AVC part where access is first
+> checked in cache  before checking in policy database. Lets take a
+> hypothetical scenario. If i modify avc_has_perm() and just set rc=0 and
+> return it every-time, will access be allowed every-time? I just want to
+> test some things, one of which includes allowing all access. 
+> Secondly, I am still not clear how SELinux policy database works, how it
+> works in conjunction with SELinux. I cannot find any good papers or
+> anything which target it. Do you know some? Please let me know. Thank
+> you once again stephen.
 
-Hi,
-    I went off-list by mistake. I have read the book selinux by example. A
-really good book. I don't want to use permissive mode as I would like to
-further make some modifications in the SELinux code.
+You don't even need to modify avc_has_perm(), just keep your system in
+permissive mode and you'll be doing exactly that.  See
+security/selinux/avc.c:avc_denied() in the current kernel for the logic
+that handles permissive mode differently and turns all such "denials"
+into grantings.
 
+Not sure exactly what you are looking for, but the original technical
+report is likely the best walkthrough of the entire code path even
+though it is obviously out of date,
+http://www.nsa.gov/research/_files/selinux/papers/slinux-abs.shtml
 
+Or you can just walk through the current code.
 
-On Thu, Apr 17, 2014 at 7:08 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> Also, have you looked at the SELinux Notebook,
-> http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
->
-> and/or the SELinux by Example (paper) book?
->
-> Not sure if they cover what you want but they are good resources.
->
->
-
---001a11c289bee0b18a04f74042ac
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>Hi,<br></div>=C2=A0=C2=A0=C2=A0 I went off-list by mi=
-stake. I have read the book selinux by example. A really good book. I don&#=
-39;t want to use permissive mode as I would like to further make some modif=
-ications in the SELinux code. <br>
-<div>=C2=A0=C2=A0=C2=A0 <br></div></div><div class=3D"gmail_extra"><br><br>=
-<div class=3D"gmail_quote">On Thu, Apr 17, 2014 at 7:08 PM, Stephen Smalley=
- <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blan=
-k">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">Also, have you looked at the SELinux Noteboo=
-k,<br>
-<a href=3D"http://www.freetechbooks.com/the-selinux-notebook-the-foundation=
-s-t785.html" target=3D"_blank">http://www.freetechbooks.com/the-selinux-not=
-ebook-the-foundations-t785.html</a><br>
-<br>
-and/or the SELinux by Example (paper) book?<br>
-<br>
-Not sure if they cover what you want but they are good resources.<br>
-<br>
-</blockquote></div><br></div>
-
---001a11c289bee0b18a04f74042ac--
+Adam Langley of Google did a nice job of walking through the code at one
+point, see
+https://www.imperialviolet.org/2009/07/14/selinux.html
