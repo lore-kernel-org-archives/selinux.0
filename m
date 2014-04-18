@@ -1,75 +1,51 @@
-Message-ID: <53512680.8060303@tycho.nsa.gov>
-Date: Fri, 18 Apr 2014 09:20:00 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: =?UTF-8?B?dG9hzIluIGN1zIA=?= <xuantoanbkfet@gmail.com>,
- selinux@tycho.nsa.gov
-Subject: Re: Transition domain in SELinux
-References: <CANh19KA2NX8RNt4u757_SY05Z84z9BsTfKhu3k+-rVzqfSAsMg@mail.gmail.com>
- <5351247F.2050504@tycho.nsa.gov>
-In-Reply-To: <5351247F.2050504@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3IHZC2d023520
+ for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 13:35:12 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: linux-audit@redhat.com, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Subject: [PATCH 1/6] netlink: simplify nfnetlink_bind
+Date: Fri, 18 Apr 2014 13:34:05 -0400
+Message-Id: <8ae3bd558cb6619428cc40e467d1643f9d382a0a.1397831970.git.rgb@redhat.com>
+In-Reply-To: <20140324183406.GE28666@madcap2.tricolour.ca>
+References: <20140324183406.GE28666@madcap2.tricolour.ca>
+In-Reply-To: <cover.1397831970.git.rgb@redhat.com>
+References: <cover.1397831970.git.rgb@redhat.com>
+Cc: hadi@mojatatu.com, eparis@redhat.com, netfilter-devel@vger.kernel.org,
+ sgrubb@redhat.com, davem@davemloft.net
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/18/2014 09:11 AM, Stephen Smalley wrote:
-> On 04/18/2014 05:59 AM, toản cù wrote:
->> Hi all !
->> I just researching policy in selinux, and I am facing an issue when
->> transition domain. I want change domain from unconfined_t to staff_t
->> domain.(when process of type unconfined_t execute file of type
->> xuantoan_t :/type_transition unconfined_t xuantoan_t : process
->> staff_t;/). since process of type unconfined_t can access file of type
->> toanxt_t through staff_t domain.
->>
->> /policy_module(toanxt, 1.0.0);/
->> /require{/
->> /type unconfined_t;/
->> /type starr_t;/
->> /class process transition;/
->> /}/
->> /type toanxt_t;/
->> /type xuantoan_t;/
->> /type toanxt_exec_t;/
->> /
->> /
->> /allow staff_t  toanxt_exec_t : file { excute_no_trans   excute  open
->>  write getattr read}; /
->> /allow staff_t  toanxt_t : file { excute_no_trans   excute  open  write
->> getattr read};
->> /
->> /
->> /
->> /type_transition unconfined_t xuantoan_t : process staff_t;/
->> /allow unconfined_t xuantoan_t : file { execute };/
->> /allow staff_t xuantoan_t : file entrypoint;/
->> /allow unconfined_t staff_t : process transition;/
->> /
->> /
->> but after compile and insert, process of type unconfined_t not access
->> file of type toanxt_t. I don't know why, look forward your help!
-> 
-> I'm not sure what your goal is, but unconfined by its nature shouldn't
-> need to transition to another domain to access some resource.  If you
-> truly want to limit the user, then map the Linux user to staff_u via
-> semanage login so that when they login, they run in
-> staff_u:staff_r:staff_t and then set up transitions as appropriate from
-> staff_t for accessing the content via your program.
-> 
-> unconfined -> staff would not merely be a domain transition but also a
-> user and role transition.  But you really don't want that.
-> 
-> Also, try to use refpolicy interfaces (macros) rather than directly
-> writing the raw allow and type_transition rules; they will help you
-> ensure that you cover all the required accesses.  If using audit2allow,
-> then audit2allow -R will try to match the denials against the closest
-> refpolicy interface and generate corresponding macro calls for you.
+Remove duplicity and simplify code flow by moving the rcu_read_unlock() above
+the condition and let the flow control exit naturally at the end of the
+function.
 
-For example, for your rules above, you should be using
-domain_auto_trans() aka domain_auto_transition_pattern() for the domain
-transition and can_exec() or exec_file_perms for executing the program
-by staff_t if you want it to stay in-domain.  But as I noted above, this
-won't help with the user and role issue and isn't really what you want
-to do.
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+---
+ net/netfilter/nfnetlink.c |    7 ++-----
+ 1 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index e8138da..0df800a 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -407,12 +407,9 @@ static void nfnetlink_bind(int group)
+ 
+ 	rcu_read_lock();
+ 	ss = nfnetlink_get_subsys(type);
+-	if (!ss) {
+-		rcu_read_unlock();
+-		request_module("nfnetlink-subsys-%d", type);
+-		return;
+-	}
+ 	rcu_read_unlock();
++	if (!ss)
++		request_module("nfnetlink-subsys-%d", type);
+ }
+ #endif
+ 
+-- 
+1.7.1
