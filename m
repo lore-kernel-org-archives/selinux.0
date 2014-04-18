@@ -1,117 +1,123 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3I9x6RE023568
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 05:59:06 -0400
-Received: by mail-ve0-f171.google.com with SMTP id jy13so2465113veb.2
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 02:59:07 -0700 (PDT)
+Message-ID: <5351203D.7060303@tycho.nsa.gov>
+Date: Fri, 18 Apr 2014 08:53:17 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Date: Fri, 18 Apr 2014 16:59:07 +0700
-Message-ID: <CANh19KA2NX8RNt4u757_SY05Z84z9BsTfKhu3k+-rVzqfSAsMg@mail.gmail.com>
-Subject: Transition domain in SELinux
-From: =?UTF-8?B?dG9hzIluIGN1zIA=?= <xuantoanbkfet@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=089e0122f332500c2004f74e333c
+To: Will Woods <wwoods@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: selinux_init_load_policy() and systemd switch-root
+References: <1397770748.3305.386.camel@metroid.usersys.redhat.com>
+In-Reply-To: <1397770748.3305.386.camel@metroid.usersys.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e0122f332500c2004f74e333c
-Content-Type: text/plain; charset=UTF-8
+On 04/17/2014 05:39 PM, Will Woods wrote:
+> Hey all. I have a few questions for you! 
+> 
+> * Is it OK to load policy more than once? (e.g. load new policy after 
+>   chroot/switch-root to new system)
 
-Hi all !
-I just researching policy in selinux, and I am facing an issue when
-transition domain. I want change domain from unconfined_t to staff_t
-domain.(when process of type unconfined_t execute file of type
-xuantoan_t : *type_transition
-unconfined_t xuantoan_t : process staff_t;*). since process of type
-unconfined_t can access file of type toanxt_t through staff_t domain.
+It is certainly ok to load policy any number of times.
 
-*policy_module(toanxt, 1.0.0);*
-*require{*
-*type unconfined_t;*
-*type starr_t;*
-*class process transition;*
-*}*
-*type toanxt_t;*
-*type xuantoan_t;*
-*type toanxt_exec_t;*
+> * If so (and I'm pretty sure that's OK), are we supposed to call
+>   selinux_init_load_policy for each switch-root, or is
+>   selinux_mkload_policy supposed to be sufficient?
 
-*allow staff_t  toanxt_exec_t : file { excute_no_trans   excute  open
- write getattr read}; *
+As you note below, only selinux_init_load_policy() does all of the
+(re-)initialization required for reloading policy from a new root;
+selinux_mkload_policy() is only for reloading policy afterward.
 
-*allow staff_t  toanxt_t : file { excute_no_trans   excute  open  write
-getattr read};*
+> * What should happen if we switch-root from a system with SELinux
+>   enabled/permissive to one that has SELINUX=disabled? 
 
-*type_transition unconfined_t xuantoan_t : process staff_t;*
-*allow unconfined_t xuantoan_t : file { execute };*
-*allow staff_t xuantoan_t : file entrypoint;*
-*allow unconfined_t staff_t : process transition;*
+That's not a scenario we've ever considered/supported.  It is not
+possible to disable SELinux at runtime (via /sys/fs/selinux/disable)
+after policy has been loaded; that's a security feature.
 
-but after compile and insert, process of type unconfined_t not access file
-of type toanxt_t. I don't know why, look forward your help!
+> The problem: Currently, we try to load policy during initramfs. This
+> turns out to be a bad idea: nothing in initramfs is labeled, every
+> process ends up with kernel_t, and so files created in /run or /dev may
+> have the wrong labels.
 
-Thanks !
+Yes, this can only truly work if you put the policy in the initramfs (as
+in Android).
 
+> So a saner plan would seem to be to let the system load policy as normal
+> (i.e.: do nothing during initramfs, load policy when entering real
+> root), then load the *new* policy when switching to upgrade.img.
 
--- 
-Mr.Toan-Cu Xuan
+Where does upgrade.img live?  Are you switching to the real root to get
+access to it initially, mounting it, and then switching to it?
 
-School of Electronics and Telecommunications
+> But: systemd refuses to load policy more than once, for reasons that
+> seem unrelated to loading policy itself[2].
 
-Hanoi University of Science and Technology
+Yes, we only ever considered/supported the scenario of one "initial"
+policy load followed by subsequent reloads with an already established
+root.  selinux_init_load_policy is actually what used to be directly in
+the init program code, ripped out of it and taken to libselinux.
 
-1 Dai Co Viet, Ha noi, Viet nam.
+> So: maybe it would make sense to have call selinux_init_load_policy()
+> after *every* switch-root?
 
-Phone: 01656228762
+Possibly, although obviously that hasn't been tested.
 
-Email:xuantoanbkfet@gmail.com
+> We can't just use selinux_mkload_policy() because (as the comment in
+> selinux_init_load_policy() points out) we need to do things like reset
+> the config and re-mount selinuxfs after a chroot.
 
---089e0122f332500c2004f74e333c
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Agreed.
 
-<div dir=3D"ltr"><div>Hi all !</div><div>I just researching policy in selin=
-ux, and I am facing an issue when transition domain. I want change domain f=
-rom unconfined_t to staff_t domain.(when process of type unconfined_t execu=
-te file of type xuantoan_t :<font color=3D"#0000ff"> <i>type_transition unc=
-onfined_t xuantoan_t : process staff_t;</i></font>). since process of type =
-unconfined_t can access file of type toanxt_t through staff_t domain.</div>
-<div><br></div><div><i><font color=3D"#0000ff">policy_module(toanxt, 1.0.0)=
-;</font></i></div><div><i><font color=3D"#0000ff">require{</font></i></div>=
-<div><i><font color=3D"#0000ff">type unconfined_t;</font></i></div><div><i>=
-<font color=3D"#0000ff">type starr_t;</font></i></div>
-<div><i><font color=3D"#0000ff">class process transition;</font></i></div><=
-div><i><font color=3D"#0000ff">}</font></i></div><div><i><font color=3D"#00=
-00ff">type toanxt_t;</font></i></div><div><i><font color=3D"#0000ff">type x=
-uantoan_t;</font></i></div>
-<div><i><font color=3D"#0000ff">type toanxt_exec_t;</font></i></div><div><i=
-><font color=3D"#0000ff"><br></font></i></div><div><i><font color=3D"#0000f=
-f">allow staff_t =C2=A0toanxt_exec_t : file { excute_no_trans =C2=A0 excute=
- =C2=A0open =C2=A0write getattr read};=C2=A0</font></i></div>
-<div><i><font color=3D"#0000ff">allow staff_t =C2=A0toanxt_t : file { excut=
-e_no_trans =C2=A0 excute =C2=A0open =C2=A0write getattr read};<br></font></=
-i></div><div><i><font color=3D"#0000ff"><br></font></i></div><div><i><font =
-color=3D"#0000ff">type_transition unconfined_t xuantoan_t : process staff_t=
-;</font></i></div>
-<div><i><font color=3D"#0000ff">allow unconfined_t xuantoan_t : file { exec=
-ute };</font></i></div><div><i><font color=3D"#0000ff">allow staff_t xuanto=
-an_t : file entrypoint;</font></i></div><div><i><font color=3D"#0000ff">all=
-ow unconfined_t staff_t : process transition;</font></i></div>
-<div><i><font color=3D"#0000ff"><br></font></i></div><div>but=C2=A0after co=
-mpile and=C2=A0insert, process of type unconfined_t not access file of type=
- toanxt_t. I don&#39;t know why,=C2=A0look forward your help!</div><div><br=
-></div><div>Thanks !=C2=A0</div>
-<div><br></div><div><br></div>-- <br>Mr.Toan-Cu Xuan<div><p style=3D"font-f=
-amily:arial,sans-serif;font-size:13px;background-color:rgb(255,255,255)">Sc=
-hool of Electronics and Telecommunications</p><p style=3D"font-family:arial=
-,sans-serif;font-size:13px;background-color:rgb(255,255,255)">
-Hanoi University of Science and Technology</p><p style=3D"font-family:arial=
-,sans-serif;font-size:13px;background-color:rgb(255,255,255)">1 Dai Co Viet=
-, Ha noi, Viet nam.</p><p style=3D"font-family:arial,sans-serif;font-size:1=
-3px;background-color:rgb(255,255,255)">
-Phone: 01656228762</p><p style=3D"font-family:arial,sans-serif;font-size:13=
-px;background-color:rgb(255,255,255)"><a href=3D"mailto:Email%3Axuantoanbkf=
-et@gmail.com" target=3D"_blank">Email:xuantoanbkfet@gmail.com</a></p></div>
-</div>
+> But it also seems like selinux_init_load_policy() assumes it will only
+> be called once; a later comment says:
+> 
+>         /*
+>          * If we failed to disable, SELinux will still be 
+>          * effectively permissive, because no policy is loaded. 
+>          * No need to call security_setenforce(0) here.
+>          */
+> 
+> Except: if we were enforcing in the previous root, and the new root
+> requests SELINUX=disabled.. then policy *is* loaded, and we *do* need
+> security_setenforce(0).
+> 
+> So: is that just a bug, or is selinux_init_load_policy() really not
+> intended to be called more than once? And if that's the case, how should
+> I re-load config/policy/etc. after a switch-root?
 
---089e0122f332500c2004f74e333c--
+I guess it is a bug, but note that you cannot truly disable SELinux at
+this point.  So while we could trivially add a security_setenforce(0)
+call here, and that seems harmless, SELinux won't be disabled at that
+point, just permissive and operating under the real root policy?  In
+which case newly created files will be labeled in accordance with that
+policy, and non-permission-related SELinux failures can still occur.
+
+> Any help / suggestions / comments / questions / expert guidance is very
+> welcome here. 
+> 
+> Thanks in advance,
+> 
+> -w
+> 
+> [1] initramfs and upgrade.img are actually the same image in the current
+> implementation, but that's not really important here.
+
+Oh, in that case, why do we need to switch to the real root before
+switching to upgrade.img?  Why can't we just switch to upgrade.img directly?
+
+> [2] The original code[3] seems to be avoiding an infinite loop:
+>   * when systemd v12 starts, it tries to load policy
+>   * if policy loads OK, systemd restarts
+> So in *that* case, yes, systemd needed to load policy *only* once.
+> But these days, selinux_setup() is only called at system startup and
+> after each switch-root, and it doesn't restart systemd. So that's not a
+> problem.
+> 
+> [3] http://cgit.freedesktop.org/systemd/systemd/commit?id=c4dcdb9
+
+The original init model was to load policy and then re-exec so that init
+would transition into the correct domain, but I think systemd (and
+definitely Android init) now use setcon() to switch into the correct
+security context directly and do not re-exec.  So, yes, we likely do not
+need to restart systemd after policy load.
