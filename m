@@ -1,86 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3IK73Iq001834
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 16:07:03 -0400
-To: selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3IKmw5W004439
+ for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 16:48:58 -0400
+Received: by mail-pb0-f47.google.com with SMTP id up15so1791315pbc.34
+ for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 13:48:41 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Unreadable or missing xattr security.selinux on jffs2
-From: jkmeinde@rockwellcollins.com
-Message-ID: <OFBD9B9F38.B7665B76-ON86257CBE.006D959B-86257CBE.006E7F32@rockwellcollins.com>
-Date: Fri, 18 Apr 2014 15:06:54 -0500
-Content-Type: multipart/alternative;
- boundary="=_alternative 006E7ECF86257CBE_="
+Date: Fri, 18 Apr 2014 22:48:41 +0200
+Message-ID: <CAHjP7BFiN5GjUwDfceL9uJdOMwBFQz68ra7=M8yyRGBsKHLxsw@mail.gmail.com>
+Subject: LIbselinux: Correctness of context decision, how its made?
+From: Rastislav Hepner <rastislav.hepner@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=047d7bd75d7c57ec5404f75746a7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multipart message in MIME format.
---=_alternative 006E7ECF86257CBE_=
-Content-Type: text/plain; charset="US-ASCII"
+--047d7bd75d7c57ec5404f75746a7
+Content-Type: text/plain; charset=UTF-8
 
-Hello fellow selinux users:
-I apologize if this is a duplicate email, the first one I sent was from an 
-address that I think is not on the list.
+Hello guys,
 
-I am currently working on a system that uses embedded linux with a few 
-jffs2 file systems on NAND flash.  Each time my device boots, several 
-flash partitions are mounted to various mount points throughout my root 
-fs.  Some are readonly, a couple are rw.
+I'm doing research regarding testing of some libselinux functions via
+python bindings.
+I just got stucked on logic, which is behind exception:
 
-What I am seeing is that sometimes, when the mount happens on a rw 
-partition, the label that shows for the mount point is "file_t".  This is 
-not the label that was contained in the xattr on the last boot.  My 
-selinux policy is set up to mark file systems which are missing the 
-security.selinux attrs as file_t.  In each subsequent boot/mount, the root 
-directory of the mounted filesystem remains "file_t" until I manually 
-chcon or restorecon (in premissive)
+OSError: [Errno 22] Invalid argument
 
-Furthermore, there are no domains in the selinux policy that have 
-permissions to relabel directories of the type that I am mounting.  So my 
-first question is, does anyone have any idea as to how the label could 
-disappear?  Has anyone ever seen behavior like this on JFFS2?
+after I'm calling it setfscreatecon_raw("wrongContext").
+I've tried to check setfscreatecon.c but i dont see anything related to it.
+and now im out of ideas where to find it.
 
-Is this more of a jffs2 question?  Other attrs like date modified, and DAC 
-permissions remain intact.
+Could you please direct me to this logic in some source file
+ or explain how the decision (whether context is right or not) is made?
 
-I thank anyone for the consideration.
+*Rastislav Hepner*
 
-Judd
+--047d7bd75d7c57ec5404f75746a7
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
---=_alternative 006E7ECF86257CBE_=
-Content-Type: text/html; charset="US-ASCII"
+<div dir=3D"ltr">Hello guys,<div><br></div><div>I&#39;m doing research rega=
+rding testing of some libselinux functions via python bindings.<br></div><d=
+iv>I just got stucked on logic, which is behind exception:</div><div><br></=
+div>
+<div>OSError: [Errno 22] Invalid argument</div><div><br></div><div>after I&=
+#39;m calling it setfscreatecon_raw(&quot;wrongContext&quot;).</div><div>I&=
+#39;ve tried to check setfscreatecon.c but i dont see anything related to i=
+t.</div>
+<div>and now im out of ideas where to find it.</div><div><br></div><div>Cou=
+ld you please direct me to this logic in some source file</div><div>=C2=A0o=
+r explain how the decision (whether context is right or not) is made?</div>=
+<div>
+<br></div><div><i style=3D"font-family:tahoma,sans-serif;background-color:r=
+gb(255,102,102)"><span></span><span><span style=3D"background-color:rgb(255=
+,255,255)"><span style=3D"background-color:rgb(0,0,0)"><span style=3D"backg=
+round-color:rgb(255,255,255)">Rastislav Hepner</span></span></span></span><=
+/i><br>
 
-<font size=2 color=#2f2f2f face="Arial">Hello fellow selinux users:</font>
-<br><font size=2 color=#2f2f2f face="Arial">I apologize if this is a duplicate
-email, the first one I sent was from an address that I think is not on
-the list.</font>
-<br>
-<br><font size=2 color=#2f2f2f face="Arial">I am currently working on a
-system that uses embedded linux with a few jffs2 file systems on NAND flash.
-&nbsp;Each time my device boots, several flash partitions are mounted to
-various mount points throughout my root fs. &nbsp;Some are readonly, a
-couple are rw.</font>
-<br>
-<br><font size=2 color=#2f2f2f face="Arial">What I am seeing is that sometimes,
-when the mount happens on a rw partition, the label that shows for the
-mount point is &quot;file_t&quot;. &nbsp;This is not the label that was
-contained in the xattr on the last boot. &nbsp;My selinux policy is set
-up to mark file systems which are missing the security.selinux attrs as
-file_t. &nbsp;In each subsequent boot/mount, the root directory of the
-mounted filesystem remains &quot;file_t&quot; until I manually chcon or
-restorecon (in premissive)</font>
-<br>
-<br><font size=2 color=#2f2f2f face="Arial">Furthermore, there are no domains
-in the selinux policy that have permissions to relabel directories of the
-type that I am mounting. &nbsp;So my first question is, does anyone have
-any idea as to how the label could disappear? &nbsp;Has anyone ever seen
-behavior like this on JFFS2?</font>
-<br>
-<br><font size=2 color=#2f2f2f face="Arial">Is this more of a jffs2 question?
-&nbsp;Other attrs like date modified, and DAC permissions remain intact.</font>
-<br>
-<br><font size=2 color=#2f2f2f face="Arial">I thank anyone for the consideration.</font>
-<br>
-<br><font size=2 color=#2f2f2f face="Arial">Judd</font><font size=2 face="sans-serif"><br>
-</font>
---=_alternative 006E7ECF86257CBE_=--
+</div></div>
+
+--047d7bd75d7c57ec5404f75746a7--
