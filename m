@@ -1,62 +1,114 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3IKmw5W004439
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 16:48:58 -0400
-Received: by mail-pb0-f47.google.com with SMTP id up15so1791315pbc.34
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 13:48:41 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 18 Apr 2014 22:48:41 +0200
-Message-ID: <CAHjP7BFiN5GjUwDfceL9uJdOMwBFQz68ra7=M8yyRGBsKHLxsw@mail.gmail.com>
-Subject: LIbselinux: Correctness of context decision, how its made?
-From: Rastislav Hepner <rastislav.hepner@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7bd75d7c57ec5404f75746a7
+Message-ID: <1397856660.3305.444.camel@metroid.usersys.redhat.com>
+Subject: Re: selinux_init_load_policy() and systemd switch-root
+From: Will Woods <wwoods@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Fri, 18 Apr 2014 17:31:00 -0400
+In-Reply-To: <5351203D.7060303@tycho.nsa.gov>
+References: <1397770748.3305.386.camel@metroid.usersys.redhat.com>
+ <5351203D.7060303@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7bd75d7c57ec5404f75746a7
-Content-Type: text/plain; charset=UTF-8
+On Fri, 2014-04-18 at 08:53 -0400, Stephen Smalley wrote:
+> On 04/17/2014 05:39 PM, Will Woods wrote:
+> > * What should happen if we switch-root from a system with SELinux
+> >   enabled/permissive to one that has SELINUX=disabled? 
+> 
+> That's not a scenario we've ever considered/supported.  It is not
+> possible to disable SELinux at runtime (via /sys/fs/selinux/disable)
+> after policy has been loaded; that's a security feature.
 
-Hello guys,
+Indeed. I feel like "We can't disable SELinux, so just log a warning and
+security_setenforce(0)" is a sensible way to handle that error, but I
+wanted to see if the Collected Wisdom Of The List would agree with that.
 
-I'm doing research regarding testing of some libselinux functions via
-python bindings.
-I just got stucked on logic, which is behind exception:
+> > The problem: Currently, we try to load policy during initramfs. This
+> > turns out to be a bad idea: nothing in initramfs is labeled, every
+> > process ends up with kernel_t, and so files created in /run or /dev may
+> > have the wrong labels.
+> 
+> Yes, this can only truly work if you put the policy in the initramfs (as
+> in Android).
 
-OSError: [Errno 22] Invalid argument
+Tangential, but: I assume you would have to relabel your initramfs after
+policy is loaded? Or use an initrd[1], and a filesystem that supports
+labels?
 
-after I'm calling it setfscreatecon_raw("wrongContext").
-I've tried to check setfscreatecon.c but i dont see anything related to it.
-and now im out of ideas where to find it.
+> > Except: if we were enforcing in the previous root, and the new root
+> > requests SELINUX=disabled.. then policy *is* loaded, and we *do* need
+> > security_setenforce(0).
+> > 
+> > So: is that just a bug, or is selinux_init_load_policy() really not
+> > intended to be called more than once? And if that's the case, how should
+> > I re-load config/policy/etc. after a switch-root?
+> 
+> I guess it is a bug, but note that you cannot truly disable SELinux at
+> this point.  
 
-Could you please direct me to this logic in some source file
- or explain how the decision (whether context is right or not) is made?
+Right, that's what the (quite thorough!) docs told me as well.
 
-*Rastislav Hepner*
+> So while we could trivially add a security_setenforce(0)
+> call here, and that seems harmless, SELinux won't be disabled at that
+> point, just permissive and operating under the real root policy?
 
---047d7bd75d7c57ec5404f75746a7
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+As above, this seems like a reasonable course of action in this case.
 
-<div dir=3D"ltr">Hello guys,<div><br></div><div>I&#39;m doing research rega=
-rding testing of some libselinux functions via python bindings.<br></div><d=
-iv>I just got stucked on logic, which is behind exception:</div><div><br></=
-div>
-<div>OSError: [Errno 22] Invalid argument</div><div><br></div><div>after I&=
-#39;m calling it setfscreatecon_raw(&quot;wrongContext&quot;).</div><div>I&=
-#39;ve tried to check setfscreatecon.c but i dont see anything related to i=
-t.</div>
-<div>and now im out of ideas where to find it.</div><div><br></div><div>Cou=
-ld you please direct me to this logic in some source file</div><div>=C2=A0o=
-r explain how the decision (whether context is right or not) is made?</div>=
-<div>
-<br></div><div><i style=3D"font-family:tahoma,sans-serif;background-color:r=
-gb(255,102,102)"><span></span><span><span style=3D"background-color:rgb(255=
-,255,255)"><span style=3D"background-color:rgb(0,0,0)"><span style=3D"backg=
-round-color:rgb(255,255,255)">Rastislav Hepner</span></span></span></span><=
-/i><br>
+> In which case newly created files will be labeled in accordance with
+> that policy, and non-permission-related SELinux failures can still
+> occur.
 
-</div></div>
+True, but I'm guessing this should amount mostly to noise; hopefully
+anything that's checking to see if SELinux is *permanently* disabled is
+using selinux_getenforcemode() or checking for the presence of policy or
+something.
 
---047d7bd75d7c57ec5404f75746a7--
+(And, in my inexpert opinion, people who disable SELinux deserve a
+little noise now and then anyway. Heh.)
+
+> > [1] initramfs and upgrade.img are actually the same image in the current
+> > implementation, but that's not really important here.
+> 
+> Oh, in that case, why do we need to switch to the real root before
+> switching to upgrade.img?  Why can't we just switch to upgrade.img directly?
+
+Because we want the existing system to mount its disks for us. It turns
+out to be very hard to examine a system from the outside and *correctly
+and reliably* determine how it would mount its disks[2].
+
+But obviously the system already knows how to mount its disks. So why
+not let the system do that for us?
+
+And indeed, in practice it's been much simpler[3] and more reliable to
+just let the system do its initial setup as normal (i.e. sysinit.target
+or /etc/rc.d/rc.sysinit) and then switch out to the upgrade.img.
+
+Anyway - I may have a patch for selinux_init_load_policy() shortly, to
+make sure it tries to do security_setenforce(0) if security_disable()
+fails.
+
+Thanks for the info,
+
+-w
+
+[1] reminder that initrd and initramfs are different things:
+initramfs: cpio archive loaded into tmpfs (dynamic size, swappable)
+initrd: filesystem image loaded into a ramdisk (fixed size, no swap)
+
+[2] it's true that you could get it *mostly* right *some* of the time by
+just parsing /etc/fstab. But what about systemd .mount units? What about
+fancy RAID setups (e.g. for /var) that require mdadm.conf? What about
+fancy LVM setups that require lvm.conf? What about multipath? What about
+cryptsetup? &c. &c. Trust me, it's kind of a nightmare.
+
+[3] Aside from the weird intricacies of the double-switch-root, which
+are admittedly weird and tricky but far less complicated than dealing
+with All The Storage Mechanisms That Ever Were Or Shall Be.
+
+If someone wanted to design and enforce the use of some kind of
+statically-analyzable storage configuration I'd be *delighted* to drop
+the double switch-root. Until then, though...
