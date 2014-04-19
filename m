@@ -1,127 +1,175 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3JI7DTQ010548
- for <selinux@tycho.nsa.gov>; Sat, 19 Apr 2014 14:07:13 -0400
-Received: by mail-wg0-f42.google.com with SMTP id y10so1453220wgg.13
- for <selinux@tycho.nsa.gov>; Sat, 19 Apr 2014 11:06:53 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3JIIjgU011175
+ for <selinux@tycho.nsa.gov>; Sat, 19 Apr 2014 14:18:45 -0400
+Received: by mail-we0-f175.google.com with SMTP id q58so2502184wes.20
+ for <selinux@tycho.nsa.gov>; Sat, 19 Apr 2014 11:18:44 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <53501640.7070809@tycho.nsa.gov>
+In-Reply-To: <CAOFt0CSMUc6EOAnCR6EQgj0884iAgaMaa8M1QC81+Gc1n7-iQA@mail.gmail.com>
 References: <1397793520.8610.3.camel@akshay-desktop>
  <53501640.7070809@tycho.nsa.gov>
-Date: Sat, 19 Apr 2014 20:06:53 +0200
-Message-ID: <CAOFt0CSMUc6EOAnCR6EQgj0884iAgaMaa8M1QC81+Gc1n7-iQA@mail.gmail.com>
+ <CAOFt0CSMUc6EOAnCR6EQgj0884iAgaMaa8M1QC81+Gc1n7-iQA@mail.gmail.com>
+Date: Sat, 19 Apr 2014 20:18:43 +0200
+Message-ID: <CAOFt0CSj9SXXvSurtLNm2wgFfJ-L=DCChXVRdzACeQN5j-HWQA@mail.gmail.com>
 Subject: Re: Regarding call security_compute_av()
 From: Kernel freak <kernelfreak@gmail.com>
 To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/mixed; boundary=047d7ba972da90699404f769216b
+Content-Type: multipart/alternative; boundary=f46d04428c98e71bba04f7694bc0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7ba972da90699404f769216b
-Content-Type: multipart/alternative; boundary=047d7ba972da90699104f7692169
-
---047d7ba972da90699104f7692169
+--f46d04428c98e71bba04f7694bc0
 Content-Type: text/plain; charset=UTF-8
 
 Hello,
-        As discussed in the thread before, avc_has_perm() and its variants
-are responsible to check if access is there in cache. If missing, then the
-policy is queried. What I did in the avc.c file(file is attached), I
-returned rc=0 all the time. Still there are AVC denials. Can anyone tell me
-how it is possible and where the denials are coming from. I am pasting some
-log also below. Please check out. Thank you for your time.
+       I have also modified one more function, test is underway. Please
+find the code attached. It is taking a bit more time to compile. Thank you
+for your patience.
 
-AVC log :
-type=SYSCALL msg=audit(1397930313.086:269925): arch=c000003e syscall=2
-success=yes exit=12 a0=8918e0 a1=0 a2=1b6 a3=7f9450d02ed0 items=0 ppid=1390
-pid=1556 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000
-egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none)
-comm="unity-panel-ser" exe="/usr/lib/unity/unity-panel-service"
-subj=system_u:system_r:initrc_t:s0 key=(null)
-type=AVC msg=audit(1397930313.086:269925): avc:  denied  { read } for
-pid=1556 comm="unity-panel-ser" name="network-transmit-receive.svg"
-dev="sdb1" ino=4860464 scontext=system_u:system_r:initrc_t:s0
-tcontext=system_u:object_r:usr_t:s0 tclass=file
-----
-time->Sat Apr 19 19:58:33 2014
-type=SYSCALL msg=audit(1397930313.086:269926): arch=c000003e syscall=21
-success=no exit=-2 a0=15bbe1c a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
-auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
-sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
-exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
-subj=system_u:system_r:initrc_t:s0 key=(null)
-type=AVC msg=audit(1397930313.086:269926): avc:  denied  { search } for
-pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-type=AVC msg=audit(1397930313.086:269926): avc:  denied  { search } for
-pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-----
-time->Sat Apr 19 19:58:33 2014
-type=SYSCALL msg=audit(1397930313.086:269927): arch=c000003e syscall=21
-success=no exit=-2 a0=15bbe5f a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
-auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
-sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
-exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
-subj=system_u:system_r:initrc_t:s0 key=(null)
-type=AVC msg=audit(1397930313.086:269927): avc:  denied  { search } for
-pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-type=AVC msg=audit(1397930313.086:269927): avc:  denied  { search } for
-pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-----
-time->Sat Apr 19 19:58:33 2014
-type=SYSCALL msg=audit(1397930313.086:269928): arch=c000003e syscall=21
-success=no exit=-2 a0=15bbe1c a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
-auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
-sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
-exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
-subj=system_u:system_r:initrc_t:s0 key=(null)
-type=AVC msg=audit(1397930313.086:269928): avc:  denied  { search } for
-pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-type=AVC msg=audit(1397930313.086:269928): avc:  denied  { search } for
-pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-----
-time->Sat Apr 19 19:58:33 2014
-type=SYSCALL msg=audit(1397930313.086:269929): arch=c000003e syscall=21
-success=no exit=-2 a0=15bbe5f a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
-auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
-sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
-exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
-subj=system_u:system_r:initrc_t:s0 key=(null)
-type=AVC msg=audit(1397930313.086:269929): avc:  denied  { search } for
-pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
-type=AVC msg=audit(1397930313.086:269929): avc:  denied  { search } for
-pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
-scontext=system_u:system_r:initrc_t:s0
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+static noinline int avc_denied(u32 ssid, u32 tsid,
+             u16 tclass, u32 requested,
+             unsigned flags,
+             struct av_decision *avd)
+{
+    if (flags & AVC_STRICT)
+        return 0;
+        //return -EACCES;
+
+    if (selinux_enforcing && !(avd->flags & AVD_FLAGS_PERMISSIVE))
+        return 0;
+        //return -EACCES;
+
+    avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
+                tsid, tclass, avd->seqno);
+    return 0;
+}
 
 
+On Sat, Apr 19, 2014 at 8:06 PM, Kernel freak <kernelfreak@gmail.com> wrote:
 
-On Thu, Apr 17, 2014 at 7:58 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> FWIW, I unsubscribed and banned bochen from the list for that completely
-> off-topic reply to this thread.  Don't respond to it, please.
+> Hello,
+>         As discussed in the thread before, avc_has_perm() and its variants
+> are responsible to check if access is there in cache. If missing, then the
+> policy is queried. What I did in the avc.c file(file is attached), I
+> returned rc=0 all the time. Still there are AVC denials. Can anyone tell me
+> how it is possible and where the denials are coming from. I am pasting some
+> log also below. Please check out. Thank you for your time.
+>
+> AVC log :
+> type=SYSCALL msg=audit(1397930313.086:269925): arch=c000003e syscall=2
+> success=yes exit=12 a0=8918e0 a1=0 a2=1b6 a3=7f9450d02ed0 items=0 ppid=1390
+> pid=1556 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000
+> egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none)
+> comm="unity-panel-ser" exe="/usr/lib/unity/unity-panel-service"
+> subj=system_u:system_r:initrc_t:s0 key=(null)
+> type=AVC msg=audit(1397930313.086:269925): avc:  denied  { read } for
+> pid=1556 comm="unity-panel-ser" name="network-transmit-receive.svg"
+> dev="sdb1" ino=4860464 scontext=system_u:system_r:initrc_t:s0
+> tcontext=system_u:object_r:usr_t:s0 tclass=file
+> ----
+> time->Sat Apr 19 19:58:33 2014
+> type=SYSCALL msg=audit(1397930313.086:269926): arch=c000003e syscall=21
+> success=no exit=-2 a0=15bbe1c a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
+> auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
+> sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
+> exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
+> subj=system_u:system_r:initrc_t:s0 key=(null)
+> type=AVC msg=audit(1397930313.086:269926): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> type=AVC msg=audit(1397930313.086:269926): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> ----
+> time->Sat Apr 19 19:58:33 2014
+> type=SYSCALL msg=audit(1397930313.086:269927): arch=c000003e syscall=21
+> success=no exit=-2 a0=15bbe5f a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
+> auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
+> sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
+> exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
+> subj=system_u:system_r:initrc_t:s0 key=(null)
+> type=AVC msg=audit(1397930313.086:269927): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> type=AVC msg=audit(1397930313.086:269927): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> ----
+> time->Sat Apr 19 19:58:33 2014
+> type=SYSCALL msg=audit(1397930313.086:269928): arch=c000003e syscall=21
+> success=no exit=-2 a0=15bbe1c a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
+> auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
+> sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
+> exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
+> subj=system_u:system_r:initrc_t:s0 key=(null)
+> type=AVC msg=audit(1397930313.086:269928): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> type=AVC msg=audit(1397930313.086:269928): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> ----
+> time->Sat Apr 19 19:58:33 2014
+> type=SYSCALL msg=audit(1397930313.086:269929): arch=c000003e syscall=21
+> success=no exit=-2 a0=15bbe5f a1=0 a2=0 a3=0 items=0 ppid=1390 pid=1545
+> auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000
+> sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="hud-service"
+> exe="/usr/lib/x86_64-linux-gnu/hud/hud-service"
+> subj=system_u:system_r:initrc_t:s0 key=(null)
+> type=AVC msg=audit(1397930313.086:269929): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name="indicator-appmenu" dev="sdb1" ino=393355
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
+> type=AVC msg=audit(1397930313.086:269929): avc:  denied  { search } for
+> pid=1545 comm="hud-service" name=".cache" dev="sdb1" ino=393223
+> scontext=system_u:system_r:initrc_t:s0
+> tcontext=unconfined_u:object_r:user_home_t:s0 tclass=dir
 >
 >
 >
+> On Thu, Apr 17, 2014 at 7:58 PM, Stephen Smalley <sds@tycho.nsa.gov>wrote:
+>
+>> FWIW, I unsubscribed and banned bochen from the list for that completely
+>> off-topic reply to this thread.  Don't respond to it, please.
+>>
+>>
+>>
+>
 
---047d7ba972da90699104f7692169
+--f46d04428c98e71bba04f7694bc0
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
+<div dir=3D"ltr"><div>Hello,<br></div>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =
+I have also modified one more function, test is underway. Please find the c=
+ode attached. It is taking a bit more time to compile. Thank you for your p=
+atience.<br><br>static noinline int avc_denied(u32 ssid, u32 tsid,<br>
+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0u16 tclass, =
+u32 requested,<br>=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
+=C2=A0unsigned flags,<br>=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=
+=C2=A0 =C2=A0struct av_decision *avd)<br>{<br>=C2=A0=C2=A0=C2=A0 if (flags =
+&amp; AVC_STRICT)<br>=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return 0;<br>=C2=
+=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 //return -EACCES;<br><br>=C2=A0=C2=A0=C2=
+=A0 if (selinux_enforcing &amp;&amp; !(avd-&gt;flags &amp; AVD_FLAGS_PERMIS=
+SIVE))<br>
+=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 return 0;<br>=C2=A0=C2=A0=C2=A0 =C2=
+=A0=C2=A0=C2=A0 //return -EACCES;<br><br>=C2=A0=C2=A0=C2=A0 avc_update_node=
+(AVC_CALLBACK_GRANT, requested, ssid,<br>=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
+=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 tsid, tclass, avd-&gt;seqno);<br>=
+=C2=A0=C2=A0=C2=A0 return 0;<br>}<br></div><div class=3D"gmail_extra"><br><=
+br>
+<div class=3D"gmail_quote">On Sat, Apr 19, 2014 at 8:06 PM, Kernel freak <s=
+pan dir=3D"ltr">&lt;<a href=3D"mailto:kernelfreak@gmail.com" target=3D"_bla=
+nk">kernelfreak@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gma=
+il_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-lef=
+t:1ex">
 <div dir=3D"ltr"><div><div>Hello,<br></div>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
 =C2=A0=C2=A0 As discussed in the thread before, avc_has_perm() and its vari=
 ants are responsible to check if access is there in cache. If missing, then=
@@ -129,6 +177,7 @@ ants are responsible to check if access is there in cache. If missing, then=
 eturned rc=3D0 all the time. Still there are AVC denials. Can anyone tell m=
 e how it is possible and where the denials are coming from. I am pasting so=
 me log also below. Please check out. Thank you for your time.<br>
+
 <br></div>AVC log :<br>type=3DSYSCALL msg=3Daudit(1397930313.086:269925): a=
 rch=3Dc000003e syscall=3D2 success=3Dyes exit=3D12 a0=3D8918e0 a1=3D0 a2=3D=
 1b6 a3=3D7f9450d02ed0 items=3D0 ppid=3D1390 pid=3D1556 auid=3D4294967295 ui=
@@ -136,11 +185,13 @@ d=3D1000 gid=3D1000 euid=3D1000 suid=3D1000 fsuid=3D1000 egid=3D1000 sgid=
 =3D1000 fsgid=3D1000 ses=3D4294967295 tty=3D(none) comm=3D&quot;unity-panel=
 -ser&quot; exe=3D&quot;/usr/lib/unity/unity-panel-service&quot; subj=3Dsyst=
 em_u:system_r:initrc_t:s0 key=3D(null)<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269925): avc:=C2=A0 denied=C2=A0 { re=
 ad } for=C2=A0 pid=3D1556 comm=3D&quot;unity-panel-ser&quot; name=3D&quot;n=
 etwork-transmit-receive.svg&quot; dev=3D&quot;sdb1&quot; ino=3D4860464 scon=
 text=3Dsystem_u:system_r:initrc_t:s0 tcontext=3Dsystem_u:object_r:usr_t:s0 =
 tclass=3Dfile<br>
+
 ----<br>time-&gt;Sat Apr 19 19:58:33 2014<br>type=3DSYSCALL msg=3Daudit(139=
 7930313.086:269926): arch=3Dc000003e syscall=3D21 success=3Dno exit=3D-2 a0=
 =3D15bbe1c a1=3D0 a2=3D0 a3=3D0 items=3D0 ppid=3D1390 pid=3D1545 auid=3D429=
@@ -148,16 +199,19 @@ tclass=3Dfile<br>
 000 sgid=3D1000 fsgid=3D1000 ses=3D4294967295 tty=3D(none) comm=3D&quot;hud=
 -service&quot; exe=3D&quot;/usr/lib/x86_64-linux-gnu/hud/hud-service&quot; =
 subj=3Dsystem_u:system_r:initrc_t:s0 key=3D(null)<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269926): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;ind=
 icator-appmenu&quot; dev=3D&quot;sdb1&quot; ino=3D393355 scontext=3Dsystem_=
 u:system_r:initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tcla=
 ss=3Ddir<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269926): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;.ca=
 che&quot; dev=3D&quot;sdb1&quot; ino=3D393223 scontext=3Dsystem_u:system_r:=
 initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 >
+
 ----<br>time-&gt;Sat Apr 19 19:58:33 2014<br>type=3DSYSCALL msg=3Daudit(139=
 7930313.086:269927): arch=3Dc000003e syscall=3D21 success=3Dno exit=3D-2 a0=
 =3D15bbe5f a1=3D0 a2=3D0 a3=3D0 items=3D0 ppid=3D1390 pid=3D1545 auid=3D429=
@@ -165,16 +219,19 @@ initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 000 sgid=3D1000 fsgid=3D1000 ses=3D4294967295 tty=3D(none) comm=3D&quot;hud=
 -service&quot; exe=3D&quot;/usr/lib/x86_64-linux-gnu/hud/hud-service&quot; =
 subj=3Dsystem_u:system_r:initrc_t:s0 key=3D(null)<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269927): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;ind=
 icator-appmenu&quot; dev=3D&quot;sdb1&quot; ino=3D393355 scontext=3Dsystem_=
 u:system_r:initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tcla=
 ss=3Ddir<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269927): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;.ca=
 che&quot; dev=3D&quot;sdb1&quot; ino=3D393223 scontext=3Dsystem_u:system_r:=
 initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 >
+
 ----<br>time-&gt;Sat Apr 19 19:58:33 2014<br>type=3DSYSCALL msg=3Daudit(139=
 7930313.086:269928): arch=3Dc000003e syscall=3D21 success=3Dno exit=3D-2 a0=
 =3D15bbe1c a1=3D0 a2=3D0 a3=3D0 items=3D0 ppid=3D1390 pid=3D1545 auid=3D429=
@@ -182,16 +239,19 @@ initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 000 sgid=3D1000 fsgid=3D1000 ses=3D4294967295 tty=3D(none) comm=3D&quot;hud=
 -service&quot; exe=3D&quot;/usr/lib/x86_64-linux-gnu/hud/hud-service&quot; =
 subj=3Dsystem_u:system_r:initrc_t:s0 key=3D(null)<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269928): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;ind=
 icator-appmenu&quot; dev=3D&quot;sdb1&quot; ino=3D393355 scontext=3Dsystem_=
 u:system_r:initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tcla=
 ss=3Ddir<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269928): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;.ca=
 che&quot; dev=3D&quot;sdb1&quot; ino=3D393223 scontext=3Dsystem_u:system_r:=
 initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 >
+
 ----<br>time-&gt;Sat Apr 19 19:58:33 2014<br>type=3DSYSCALL msg=3Daudit(139=
 7930313.086:269929): arch=3Dc000003e syscall=3D21 success=3Dno exit=3D-2 a0=
 =3D15bbe5f a1=3D0 a2=3D0 a3=3D0 items=3D0 ppid=3D1390 pid=3D1545 auid=3D429=
@@ -199,20 +259,24 @@ initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 000 sgid=3D1000 fsgid=3D1000 ses=3D4294967295 tty=3D(none) comm=3D&quot;hud=
 -service&quot; exe=3D&quot;/usr/lib/x86_64-linux-gnu/hud/hud-service&quot; =
 subj=3Dsystem_u:system_r:initrc_t:s0 key=3D(null)<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269929): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;ind=
 icator-appmenu&quot; dev=3D&quot;sdb1&quot; ino=3D393355 scontext=3Dsystem_=
 u:system_r:initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tcla=
 ss=3Ddir<br>
+
 type=3DAVC msg=3Daudit(1397930313.086:269929): avc:=C2=A0 denied=C2=A0 { se=
 arch } for=C2=A0 pid=3D1545 comm=3D&quot;hud-service&quot; name=3D&quot;.ca=
 che&quot; dev=3D&quot;sdb1&quot; ino=3D393223 scontext=3Dsystem_u:system_r:=
 initrc_t:s0 tcontext=3Dunconfined_u:object_r:user_home_t:s0 tclass=3Ddir<br=
 >
-<br></div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On =
-Thu, Apr 17, 2014 at 7:58 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</=
-span> wrote:<br>
+
+<br></div><div class=3D"HOEnZb"><div class=3D"h5"><div class=3D"gmail_extra=
+"><br><br><div class=3D"gmail_quote">On Thu, Apr 17, 2014 at 7:58 PM, Steph=
+en Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" targe=
+t=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br>
+
 <blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
 x #ccc solid;padding-left:1ex">FWIW, I unsubscribed and banned bochen from =
 the list for that completely<br>
@@ -220,369 +284,6 @@ off-topic reply to this thread. =C2=A0Don&#39;t respond to it, please.<br>
 <br>
 <br>
 </blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
 
---047d7ba972da90699104f7692169--
-
---047d7ba972da90699404f769216b
-Content-Type: text/x-csrc; charset=US-ASCII; name="avc.c"
-Content-Disposition: attachment; filename="avc.c"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hu77tq660
-
-LyoKICogSW1wbGVtZW50YXRpb24gb2YgdGhlIGtlcm5lbCBhY2Nlc3MgdmVjdG9yIGNhY2hlIChB
-VkMpLgogKgogKiBBdXRob3JzOiAgU3RlcGhlbiBTbWFsbGV5LCA8c2RzQGVwb2NoLm5jc2MubWls
-PgogKgkgICAgIEphbWVzIE1vcnJpcyA8am1vcnJpc0ByZWRoYXQuY29tPgogKgogKiBVcGRhdGU6
-ICAgS2FpR2FpLCBLb2hlaSA8a2FpZ2FpQGFrLmpwLm5lYy5jb20+CiAqCVJlcGxhY2VkIHRoZSBh
-dmNfbG9jayBzcGlubG9jayBieSBSQ1UuCiAqCiAqIENvcHlyaWdodCAoQykgMjAwMyBSZWQgSGF0
-LCBJbmMuLCBKYW1lcyBNb3JyaXMgPGptb3JyaXNAcmVkaGF0LmNvbT4KICoKICoJVGhpcyBwcm9n
-cmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVkaXN0cmlidXRlIGl0IGFuZC9vciBtb2Rp
-ZnkKICoJaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5z
-ZSB2ZXJzaW9uIDIsCiAqCWFzIHB1Ymxpc2hlZCBieSB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0
-aW9uLgogKi8KI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+CiNpbmNsdWRlIDxsaW51eC9zdGRkZWYu
-aD4KI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgojaW5jbHVkZSA8bGludXgvc2xhYi5oPgojaW5j
-bHVkZSA8bGludXgvZnMuaD4KI2luY2x1ZGUgPGxpbnV4L2RjYWNoZS5oPgojaW5jbHVkZSA8bGlu
-dXgvaW5pdC5oPgojaW5jbHVkZSA8bGludXgvc2tidWZmLmg+CiNpbmNsdWRlIDxsaW51eC9wZXJj
-cHUuaD4KI2luY2x1ZGUgPG5ldC9zb2NrLmg+CiNpbmNsdWRlIDxsaW51eC91bi5oPgojaW5jbHVk
-ZSA8bmV0L2FmX3VuaXguaD4KI2luY2x1ZGUgPGxpbnV4L2lwLmg+CiNpbmNsdWRlIDxsaW51eC9h
-dWRpdC5oPgojaW5jbHVkZSA8bGludXgvaXB2Ni5oPgojaW5jbHVkZSA8bmV0L2lwdjYuaD4KI2lu
-Y2x1ZGUgImF2Yy5oIgojaW5jbHVkZSAiYXZjX3NzLmgiCiNpbmNsdWRlICJjbGFzc21hcC5oIgoK
-I2RlZmluZSBBVkNfQ0FDSEVfU0xPVFMJCQk1MTIKI2RlZmluZSBBVkNfREVGX0NBQ0hFX1RIUkVT
-SE9MRAkJNTEyCiNkZWZpbmUgQVZDX0NBQ0hFX1JFQ0xBSU0JCTE2CgojaWZkZWYgQ09ORklHX1NF
-Q1VSSVRZX1NFTElOVVhfQVZDX1NUQVRTCiNkZWZpbmUgYXZjX2NhY2hlX3N0YXRzX2luY3IoZmll
-bGQpCXRoaXNfY3B1X2luYyhhdmNfY2FjaGVfc3RhdHMuZmllbGQpCiNlbHNlCiNkZWZpbmUgYXZj
-X2NhY2hlX3N0YXRzX2luY3IoZmllbGQpCWRvIHt9IHdoaWxlICgwKQojZW5kaWYKCnN0cnVjdCBh
-dmNfZW50cnkgewoJdTMyCQkJc3NpZDsKCXUzMgkJCXRzaWQ7Cgl1MTYJCQl0Y2xhc3M7CglzdHJ1
-Y3QgYXZfZGVjaXNpb24JYXZkOwp9OwoKc3RydWN0IGF2Y19ub2RlIHsKCXN0cnVjdCBhdmNfZW50
-cnkJYWU7CglzdHJ1Y3QgaGxpc3Rfbm9kZQlsaXN0OyAvKiBhbmNob3JlZCBpbiBhdmNfY2FjaGUt
-PnNsb3RzW2ldICovCglzdHJ1Y3QgcmN1X2hlYWQJCXJoZWFkOwp9OwoKc3RydWN0IGF2Y19jYWNo
-ZSB7CglzdHJ1Y3QgaGxpc3RfaGVhZAlzbG90c1tBVkNfQ0FDSEVfU0xPVFNdOyAvKiBoZWFkIGZv
-ciBhdmNfbm9kZS0+bGlzdCAqLwoJc3BpbmxvY2tfdAkJc2xvdHNfbG9ja1tBVkNfQ0FDSEVfU0xP
-VFNdOyAvKiBsb2NrIGZvciB3cml0ZXMgKi8KCWF0b21pY190CQlscnVfaGludDsJLyogTFJVIGhp
-bnQgZm9yIHJlY2xhaW0gc2NhbiAqLwoJYXRvbWljX3QJCWFjdGl2ZV9ub2RlczsKCXUzMgkJCWxh
-dGVzdF9ub3RpZjsJLyogbGF0ZXN0IHJldm9jYXRpb24gbm90aWZpY2F0aW9uICovCn07CgpzdHJ1
-Y3QgYXZjX2NhbGxiYWNrX25vZGUgewoJaW50ICgqY2FsbGJhY2spICh1MzIgZXZlbnQpOwoJdTMy
-IGV2ZW50czsKCXN0cnVjdCBhdmNfY2FsbGJhY2tfbm9kZSAqbmV4dDsKfTsKCi8qIEV4cG9ydGVk
-IHZpYSBzZWxpbnVmcyAqLwp1bnNpZ25lZCBpbnQgYXZjX2NhY2hlX3RocmVzaG9sZCA9IEFWQ19E
-RUZfQ0FDSEVfVEhSRVNIT0xEOwoKI2lmZGVmIENPTkZJR19TRUNVUklUWV9TRUxJTlVYX0FWQ19T
-VEFUUwpERUZJTkVfUEVSX0NQVShzdHJ1Y3QgYXZjX2NhY2hlX3N0YXRzLCBhdmNfY2FjaGVfc3Rh
-dHMpID0geyAwIH07CiNlbmRpZgoKc3RhdGljIHN0cnVjdCBhdmNfY2FjaGUgYXZjX2NhY2hlOwpz
-dGF0aWMgc3RydWN0IGF2Y19jYWxsYmFja19ub2RlICphdmNfY2FsbGJhY2tzOwpzdGF0aWMgc3Ry
-dWN0IGttZW1fY2FjaGUgKmF2Y19ub2RlX2NhY2hlcDsKCnN0YXRpYyBpbmxpbmUgaW50IGF2Y19o
-YXNoKHUzMiBzc2lkLCB1MzIgdHNpZCwgdTE2IHRjbGFzcykKewoJcmV0dXJuIChzc2lkIF4gKHRz
-aWQ8PDIpIF4gKHRjbGFzczw8NCkpICYgKEFWQ19DQUNIRV9TTE9UUyAtIDEpOwp9CgovKioKICog
-YXZjX2R1bXBfYXYgLSBEaXNwbGF5IGFuIGFjY2VzcyB2ZWN0b3IgaW4gaHVtYW4tcmVhZGFibGUg
-Zm9ybS4KICogQHRjbGFzczogdGFyZ2V0IHNlY3VyaXR5IGNsYXNzCiAqIEBhdjogYWNjZXNzIHZl
-Y3RvcgogKi8Kc3RhdGljIHZvaWQgYXZjX2R1bXBfYXYoc3RydWN0IGF1ZGl0X2J1ZmZlciAqYWIs
-IHUxNiB0Y2xhc3MsIHUzMiBhdikKewoJY29uc3QgY2hhciAqKnBlcm1zOwoJaW50IGksIHBlcm07
-CgoJaWYgKGF2ID09IDApIHsKCQlhdWRpdF9sb2dfZm9ybWF0KGFiLCAiIG51bGwiKTsKCQlyZXR1
-cm47Cgl9CgoJcGVybXMgPSBzZWNjbGFzc19tYXBbdGNsYXNzLTFdLnBlcm1zOwoKCWF1ZGl0X2xv
-Z19mb3JtYXQoYWIsICIgeyIpOwoJaSA9IDA7CglwZXJtID0gMTsKCXdoaWxlIChpIDwgKHNpemVv
-ZihhdikgKiA4KSkgewoJCWlmICgocGVybSAmIGF2KSAmJiBwZXJtc1tpXSkgewoJCQlhdWRpdF9s
-b2dfZm9ybWF0KGFiLCAiICVzIiwgcGVybXNbaV0pOwoJCQlhdiAmPSB+cGVybTsKCQl9CgkJaSsr
-OwoJCXBlcm0gPDw9IDE7Cgl9CgoJaWYgKGF2KQoJCWF1ZGl0X2xvZ19mb3JtYXQoYWIsICIgMHgl
-eCIsIGF2KTsKCglhdWRpdF9sb2dfZm9ybWF0KGFiLCAiIH0iKTsKfQoKLyoqCiAqIGF2Y19kdW1w
-X3F1ZXJ5IC0gRGlzcGxheSBhIFNJRCBwYWlyIGFuZCBhIGNsYXNzIGluIGh1bWFuLXJlYWRhYmxl
-IGZvcm0uCiAqIEBzc2lkOiBzb3VyY2Ugc2VjdXJpdHkgaWRlbnRpZmllcgogKiBAdHNpZDogdGFy
-Z2V0IHNlY3VyaXR5IGlkZW50aWZpZXIKICogQHRjbGFzczogdGFyZ2V0IHNlY3VyaXR5IGNsYXNz
-CiAqLwpzdGF0aWMgdm9pZCBhdmNfZHVtcF9xdWVyeShzdHJ1Y3QgYXVkaXRfYnVmZmVyICphYiwg
-dTMyIHNzaWQsIHUzMiB0c2lkLCB1MTYgdGNsYXNzKQp7CglpbnQgcmM7CgljaGFyICpzY29udGV4
-dDsKCXUzMiBzY29udGV4dF9sZW47CgoJcmMgPSBzZWN1cml0eV9zaWRfdG9fY29udGV4dChzc2lk
-LCAmc2NvbnRleHQsICZzY29udGV4dF9sZW4pOwoJaWYgKHJjKQoJCWF1ZGl0X2xvZ19mb3JtYXQo
-YWIsICJzc2lkPSVkIiwgc3NpZCk7CgllbHNlIHsKCQlhdWRpdF9sb2dfZm9ybWF0KGFiLCAic2Nv
-bnRleHQ9JXMiLCBzY29udGV4dCk7CgkJa2ZyZWUoc2NvbnRleHQpOwoJfQoKCXJjID0gc2VjdXJp
-dHlfc2lkX3RvX2NvbnRleHQodHNpZCwgJnNjb250ZXh0LCAmc2NvbnRleHRfbGVuKTsKCWlmIChy
-YykKCQlhdWRpdF9sb2dfZm9ybWF0KGFiLCAiIHRzaWQ9JWQiLCB0c2lkKTsKCWVsc2UgewoJCWF1
-ZGl0X2xvZ19mb3JtYXQoYWIsICIgdGNvbnRleHQ9JXMiLCBzY29udGV4dCk7CgkJa2ZyZWUoc2Nv
-bnRleHQpOwoJfQoKCUJVR19PTih0Y2xhc3MgPj0gQVJSQVlfU0laRShzZWNjbGFzc19tYXApKTsK
-CWF1ZGl0X2xvZ19mb3JtYXQoYWIsICIgdGNsYXNzPSVzIiwgc2VjY2xhc3NfbWFwW3RjbGFzcy0x
-XS5uYW1lKTsKfQoKLyoqCiAqIGF2Y19pbml0IC0gSW5pdGlhbGl6ZSB0aGUgQVZDLgogKgogKiBJ
-bml0aWFsaXplIHRoZSBhY2Nlc3MgdmVjdG9yIGNhY2hlLgogKi8Kdm9pZCBfX2luaXQgYXZjX2lu
-aXQodm9pZCkKewoJaW50IGk7CgoJZm9yIChpID0gMDsgaSA8IEFWQ19DQUNIRV9TTE9UUzsgaSsr
-KSB7CgkJSU5JVF9ITElTVF9IRUFEKCZhdmNfY2FjaGUuc2xvdHNbaV0pOwoJCXNwaW5fbG9ja19p
-bml0KCZhdmNfY2FjaGUuc2xvdHNfbG9ja1tpXSk7Cgl9CglhdG9taWNfc2V0KCZhdmNfY2FjaGUu
-YWN0aXZlX25vZGVzLCAwKTsKCWF0b21pY19zZXQoJmF2Y19jYWNoZS5scnVfaGludCwgMCk7CgoJ
-YXZjX25vZGVfY2FjaGVwID0ga21lbV9jYWNoZV9jcmVhdGUoImF2Y19ub2RlIiwgc2l6ZW9mKHN0
-cnVjdCBhdmNfbm9kZSksCgkJCQkJICAgICAwLCBTTEFCX1BBTklDLCBOVUxMKTsKCglhdWRpdF9s
-b2coY3VycmVudC0+YXVkaXRfY29udGV4dCwgR0ZQX0tFUk5FTCwgQVVESVRfS0VSTkVMLCAiQVZD
-IElOSVRJQUxJWkVEXG4iKTsKfQoKaW50IGF2Y19nZXRfaGFzaF9zdGF0cyhjaGFyICpwYWdlKQp7
-CglpbnQgaSwgY2hhaW5fbGVuLCBtYXhfY2hhaW5fbGVuLCBzbG90c191c2VkOwoJc3RydWN0IGF2
-Y19ub2RlICpub2RlOwoJc3RydWN0IGhsaXN0X2hlYWQgKmhlYWQ7CgoJcmN1X3JlYWRfbG9jaygp
-OwoKCXNsb3RzX3VzZWQgPSAwOwoJbWF4X2NoYWluX2xlbiA9IDA7Cglmb3IgKGkgPSAwOyBpIDwg
-QVZDX0NBQ0hFX1NMT1RTOyBpKyspIHsKCQloZWFkID0gJmF2Y19jYWNoZS5zbG90c1tpXTsKCQlp
-ZiAoIWhsaXN0X2VtcHR5KGhlYWQpKSB7CgkJCXNsb3RzX3VzZWQrKzsKCQkJY2hhaW5fbGVuID0g
-MDsKCQkJaGxpc3RfZm9yX2VhY2hfZW50cnlfcmN1KG5vZGUsIGhlYWQsIGxpc3QpCgkJCQljaGFp
-bl9sZW4rKzsKCQkJaWYgKGNoYWluX2xlbiA+IG1heF9jaGFpbl9sZW4pCgkJCQltYXhfY2hhaW5f
-bGVuID0gY2hhaW5fbGVuOwoJCX0KCX0KCglyY3VfcmVhZF91bmxvY2soKTsKCglyZXR1cm4gc2Nu
-cHJpbnRmKHBhZ2UsIFBBR0VfU0laRSwgImVudHJpZXM6ICVkXG5idWNrZXRzIHVzZWQ6ICVkLyVk
-XG4iCgkJCSAibG9uZ2VzdCBjaGFpbjogJWRcbiIsCgkJCSBhdG9taWNfcmVhZCgmYXZjX2NhY2hl
-LmFjdGl2ZV9ub2RlcyksCgkJCSBzbG90c191c2VkLCBBVkNfQ0FDSEVfU0xPVFMsIG1heF9jaGFp
-bl9sZW4pOwp9CgpzdGF0aWMgdm9pZCBhdmNfbm9kZV9mcmVlKHN0cnVjdCByY3VfaGVhZCAqcmhl
-YWQpCnsKCXN0cnVjdCBhdmNfbm9kZSAqbm9kZSA9IGNvbnRhaW5lcl9vZihyaGVhZCwgc3RydWN0
-IGF2Y19ub2RlLCByaGVhZCk7CglrbWVtX2NhY2hlX2ZyZWUoYXZjX25vZGVfY2FjaGVwLCBub2Rl
-KTsKCWF2Y19jYWNoZV9zdGF0c19pbmNyKGZyZWVzKTsKfQoKc3RhdGljIHZvaWQgYXZjX25vZGVf
-ZGVsZXRlKHN0cnVjdCBhdmNfbm9kZSAqbm9kZSkKewoJaGxpc3RfZGVsX3JjdSgmbm9kZS0+bGlz
-dCk7CgljYWxsX3JjdSgmbm9kZS0+cmhlYWQsIGF2Y19ub2RlX2ZyZWUpOwoJYXRvbWljX2RlYygm
-YXZjX2NhY2hlLmFjdGl2ZV9ub2Rlcyk7Cn0KCnN0YXRpYyB2b2lkIGF2Y19ub2RlX2tpbGwoc3Ry
-dWN0IGF2Y19ub2RlICpub2RlKQp7CglrbWVtX2NhY2hlX2ZyZWUoYXZjX25vZGVfY2FjaGVwLCBu
-b2RlKTsKCWF2Y19jYWNoZV9zdGF0c19pbmNyKGZyZWVzKTsKCWF0b21pY19kZWMoJmF2Y19jYWNo
-ZS5hY3RpdmVfbm9kZXMpOwp9CgpzdGF0aWMgdm9pZCBhdmNfbm9kZV9yZXBsYWNlKHN0cnVjdCBh
-dmNfbm9kZSAqbmV3LCBzdHJ1Y3QgYXZjX25vZGUgKm9sZCkKewoJaGxpc3RfcmVwbGFjZV9yY3Uo
-Jm9sZC0+bGlzdCwgJm5ldy0+bGlzdCk7CgljYWxsX3JjdSgmb2xkLT5yaGVhZCwgYXZjX25vZGVf
-ZnJlZSk7CglhdG9taWNfZGVjKCZhdmNfY2FjaGUuYWN0aXZlX25vZGVzKTsKfQoKc3RhdGljIGlu
-bGluZSBpbnQgYXZjX3JlY2xhaW1fbm9kZSh2b2lkKQp7CglzdHJ1Y3QgYXZjX25vZGUgKm5vZGU7
-CglpbnQgaHZhbHVlLCB0cnksIGVjeDsKCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CglzdHJ1Y3QgaGxp
-c3RfaGVhZCAqaGVhZDsKCXNwaW5sb2NrX3QgKmxvY2s7CgoJZm9yICh0cnkgPSAwLCBlY3ggPSAw
-OyB0cnkgPCBBVkNfQ0FDSEVfU0xPVFM7IHRyeSsrKSB7CgkJaHZhbHVlID0gYXRvbWljX2luY19y
-ZXR1cm4oJmF2Y19jYWNoZS5scnVfaGludCkgJiAoQVZDX0NBQ0hFX1NMT1RTIC0gMSk7CgkJaGVh
-ZCA9ICZhdmNfY2FjaGUuc2xvdHNbaHZhbHVlXTsKCQlsb2NrID0gJmF2Y19jYWNoZS5zbG90c19s
-b2NrW2h2YWx1ZV07CgoJCWlmICghc3Bpbl90cnlsb2NrX2lycXNhdmUobG9jaywgZmxhZ3MpKQoJ
-CQljb250aW51ZTsKCgkJcmN1X3JlYWRfbG9jaygpOwoJCWhsaXN0X2Zvcl9lYWNoX2VudHJ5KG5v
-ZGUsIGhlYWQsIGxpc3QpIHsKCQkJYXZjX25vZGVfZGVsZXRlKG5vZGUpOwoJCQlhdmNfY2FjaGVf
-c3RhdHNfaW5jcihyZWNsYWltcyk7CgkJCWVjeCsrOwoJCQlpZiAoZWN4ID49IEFWQ19DQUNIRV9S
-RUNMQUlNKSB7CgkJCQlyY3VfcmVhZF91bmxvY2soKTsKCQkJCXNwaW5fdW5sb2NrX2lycXJlc3Rv
-cmUobG9jaywgZmxhZ3MpOwoJCQkJZ290byBvdXQ7CgkJCX0KCQl9CgkJcmN1X3JlYWRfdW5sb2Nr
-KCk7CgkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZShsb2NrLCBmbGFncyk7Cgl9Cm91dDoKCXJldHVy
-biBlY3g7Cn0KCnN0YXRpYyBzdHJ1Y3QgYXZjX25vZGUgKmF2Y19hbGxvY19ub2RlKHZvaWQpCnsK
-CXN0cnVjdCBhdmNfbm9kZSAqbm9kZTsKCglub2RlID0ga21lbV9jYWNoZV96YWxsb2MoYXZjX25v
-ZGVfY2FjaGVwLCBHRlBfQVRPTUlDfF9fR0ZQX05PTUVNQUxMT0MpOwoJaWYgKCFub2RlKQoJCWdv
-dG8gb3V0OwoKCUlOSVRfSExJU1RfTk9ERSgmbm9kZS0+bGlzdCk7CglhdmNfY2FjaGVfc3RhdHNf
-aW5jcihhbGxvY2F0aW9ucyk7CgoJaWYgKGF0b21pY19pbmNfcmV0dXJuKCZhdmNfY2FjaGUuYWN0
-aXZlX25vZGVzKSA+IGF2Y19jYWNoZV90aHJlc2hvbGQpCgkJYXZjX3JlY2xhaW1fbm9kZSgpOwoK
-b3V0OgoJcmV0dXJuIG5vZGU7Cn0KCnN0YXRpYyB2b2lkIGF2Y19ub2RlX3BvcHVsYXRlKHN0cnVj
-dCBhdmNfbm9kZSAqbm9kZSwgdTMyIHNzaWQsIHUzMiB0c2lkLCB1MTYgdGNsYXNzLCBzdHJ1Y3Qg
-YXZfZGVjaXNpb24gKmF2ZCkKewoJbm9kZS0+YWUuc3NpZCA9IHNzaWQ7Cglub2RlLT5hZS50c2lk
-ID0gdHNpZDsKCW5vZGUtPmFlLnRjbGFzcyA9IHRjbGFzczsKCW1lbWNweSgmbm9kZS0+YWUuYXZk
-LCBhdmQsIHNpemVvZihub2RlLT5hZS5hdmQpKTsKfQoKc3RhdGljIGlubGluZSBzdHJ1Y3QgYXZj
-X25vZGUgKmF2Y19zZWFyY2hfbm9kZSh1MzIgc3NpZCwgdTMyIHRzaWQsIHUxNiB0Y2xhc3MpCnsK
-CXN0cnVjdCBhdmNfbm9kZSAqbm9kZSwgKnJldCA9IE5VTEw7CglpbnQgaHZhbHVlOwoJc3RydWN0
-IGhsaXN0X2hlYWQgKmhlYWQ7CgoJaHZhbHVlID0gYXZjX2hhc2goc3NpZCwgdHNpZCwgdGNsYXNz
-KTsKCWhlYWQgPSAmYXZjX2NhY2hlLnNsb3RzW2h2YWx1ZV07CglobGlzdF9mb3JfZWFjaF9lbnRy
-eV9yY3Uobm9kZSwgaGVhZCwgbGlzdCkgewoJCWlmIChzc2lkID09IG5vZGUtPmFlLnNzaWQgJiYK
-CQkgICAgdGNsYXNzID09IG5vZGUtPmFlLnRjbGFzcyAmJgoJCSAgICB0c2lkID09IG5vZGUtPmFl
-LnRzaWQpIHsKCQkJcmV0ID0gbm9kZTsKCQkJYnJlYWs7CgkJfQoJfQoKCXJldHVybiByZXQ7Cn0K
-Ci8qKgogKiBhdmNfbG9va3VwIC0gTG9vayB1cCBhbiBBVkMgZW50cnkuCiAqIEBzc2lkOiBzb3Vy
-Y2Ugc2VjdXJpdHkgaWRlbnRpZmllcgogKiBAdHNpZDogdGFyZ2V0IHNlY3VyaXR5IGlkZW50aWZp
-ZXIKICogQHRjbGFzczogdGFyZ2V0IHNlY3VyaXR5IGNsYXNzCiAqCiAqIExvb2sgdXAgYW4gQVZD
-IGVudHJ5IHRoYXQgaXMgdmFsaWQgZm9yIHRoZQogKiAoQHNzaWQsIEB0c2lkKSwgaW50ZXJwcmV0
-aW5nIHRoZSBwZXJtaXNzaW9ucwogKiBiYXNlZCBvbiBAdGNsYXNzLiAgSWYgYSB2YWxpZCBBVkMg
-ZW50cnkgZXhpc3RzLAogKiB0aGVuIHRoaXMgZnVuY3Rpb24gcmV0dXJucyB0aGUgYXZjX25vZGUu
-CiAqIE90aGVyd2lzZSwgdGhpcyBmdW5jdGlvbiByZXR1cm5zIE5VTEwuCiAqLwpzdGF0aWMgc3Ry
-dWN0IGF2Y19ub2RlICphdmNfbG9va3VwKHUzMiBzc2lkLCB1MzIgdHNpZCwgdTE2IHRjbGFzcykK
-ewoJc3RydWN0IGF2Y19ub2RlICpub2RlOwoKCWF2Y19jYWNoZV9zdGF0c19pbmNyKGxvb2t1cHMp
-OwoJbm9kZSA9IGF2Y19zZWFyY2hfbm9kZShzc2lkLCB0c2lkLCB0Y2xhc3MpOwoKCWlmIChub2Rl
-KQoJCXJldHVybiBub2RlOwoKCWF2Y19jYWNoZV9zdGF0c19pbmNyKG1pc3Nlcyk7CglyZXR1cm4g
-TlVMTDsKfQoKc3RhdGljIGludCBhdmNfbGF0ZXN0X25vdGlmX3VwZGF0ZShpbnQgc2Vxbm8sIGlu
-dCBpc19pbnNlcnQpCnsKCWludCByZXQgPSAwOwoJc3RhdGljIERFRklORV9TUElOTE9DSyhub3Rp
-Zl9sb2NrKTsKCXVuc2lnbmVkIGxvbmcgZmxhZzsKCglzcGluX2xvY2tfaXJxc2F2ZSgmbm90aWZf
-bG9jaywgZmxhZyk7CglpZiAoaXNfaW5zZXJ0KSB7CgkJaWYgKHNlcW5vIDwgYXZjX2NhY2hlLmxh
-dGVzdF9ub3RpZikgewoJCQlwcmludGsoS0VSTl9XQVJOSU5HICJTRUxpbnV4OiBhdmM6ICBzZXFu
-byAlZCA8IGxhdGVzdF9ub3RpZiAlZFxuIiwKCQkJICAgICAgIHNlcW5vLCBhdmNfY2FjaGUubGF0
-ZXN0X25vdGlmKTsKCQkJcmV0ID0gLUVBR0FJTjsKCQl9Cgl9IGVsc2UgewoJCWlmIChzZXFubyA+
-IGF2Y19jYWNoZS5sYXRlc3Rfbm90aWYpCgkJCWF2Y19jYWNoZS5sYXRlc3Rfbm90aWYgPSBzZXFu
-bzsKCX0KCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJm5vdGlmX2xvY2ssIGZsYWcpOwoKCXJldHVy
-biByZXQ7Cn0KCi8qKgogKiBhdmNfaW5zZXJ0IC0gSW5zZXJ0IGFuIEFWQyBlbnRyeS4KICogQHNz
-aWQ6IHNvdXJjZSBzZWN1cml0eSBpZGVudGlmaWVyCiAqIEB0c2lkOiB0YXJnZXQgc2VjdXJpdHkg
-aWRlbnRpZmllcgogKiBAdGNsYXNzOiB0YXJnZXQgc2VjdXJpdHkgY2xhc3MKICogQGF2ZDogcmVz
-dWx0aW5nIGF2IGRlY2lzaW9uCiAqCiAqIEluc2VydCBhbiBBVkMgZW50cnkgZm9yIHRoZSBTSUQg
-cGFpcgogKiAoQHNzaWQsIEB0c2lkKSBhbmQgY2xhc3MgQHRjbGFzcy4KICogVGhlIGFjY2VzcyB2
-ZWN0b3JzIGFuZCB0aGUgc2VxdWVuY2UgbnVtYmVyIGFyZQogKiBub3JtYWxseSBwcm92aWRlZCBi
-eSB0aGUgc2VjdXJpdHkgc2VydmVyIGluCiAqIHJlc3BvbnNlIHRvIGEgc2VjdXJpdHlfY29tcHV0
-ZV9hdigpIGNhbGwuICBJZiB0aGUKICogc2VxdWVuY2UgbnVtYmVyIEBhdmQtPnNlcW5vIGlzIG5v
-dCBsZXNzIHRoYW4gdGhlIGxhdGVzdAogKiByZXZvY2F0aW9uIG5vdGlmaWNhdGlvbiwgdGhlbiB0
-aGUgZnVuY3Rpb24gY29waWVzCiAqIHRoZSBhY2Nlc3MgdmVjdG9ycyBpbnRvIGEgY2FjaGUgZW50
-cnksIHJldHVybnMKICogYXZjX25vZGUgaW5zZXJ0ZWQuIE90aGVyd2lzZSwgdGhpcyBmdW5jdGlv
-biByZXR1cm5zIE5VTEwuCiAqLwpzdGF0aWMgc3RydWN0IGF2Y19ub2RlICphdmNfaW5zZXJ0KHUz
-MiBzc2lkLCB1MzIgdHNpZCwgdTE2IHRjbGFzcywgc3RydWN0IGF2X2RlY2lzaW9uICphdmQpCnsK
-CXN0cnVjdCBhdmNfbm9kZSAqcG9zLCAqbm9kZSA9IE5VTEw7CglpbnQgaHZhbHVlOwoJdW5zaWdu
-ZWQgbG9uZyBmbGFnOwoKCWlmIChhdmNfbGF0ZXN0X25vdGlmX3VwZGF0ZShhdmQtPnNlcW5vLCAx
-KSkKCQlnb3RvIG91dDsKCglub2RlID0gYXZjX2FsbG9jX25vZGUoKTsKCWlmIChub2RlKSB7CgkJ
-c3RydWN0IGhsaXN0X2hlYWQgKmhlYWQ7CgkJc3BpbmxvY2tfdCAqbG9jazsKCgkJaHZhbHVlID0g
-YXZjX2hhc2goc3NpZCwgdHNpZCwgdGNsYXNzKTsKCQlhdmNfbm9kZV9wb3B1bGF0ZShub2RlLCBz
-c2lkLCB0c2lkLCB0Y2xhc3MsIGF2ZCk7CgoJCWhlYWQgPSAmYXZjX2NhY2hlLnNsb3RzW2h2YWx1
-ZV07CgkJbG9jayA9ICZhdmNfY2FjaGUuc2xvdHNfbG9ja1todmFsdWVdOwoKCQlzcGluX2xvY2tf
-aXJxc2F2ZShsb2NrLCBmbGFnKTsKCQlobGlzdF9mb3JfZWFjaF9lbnRyeShwb3MsIGhlYWQsIGxp
-c3QpIHsKCQkJaWYgKHBvcy0+YWUuc3NpZCA9PSBzc2lkICYmCgkJCSAgICBwb3MtPmFlLnRzaWQg
-PT0gdHNpZCAmJgoJCQkgICAgcG9zLT5hZS50Y2xhc3MgPT0gdGNsYXNzKSB7CgkJCQlhdmNfbm9k
-ZV9yZXBsYWNlKG5vZGUsIHBvcyk7CgkJCQlnb3RvIGZvdW5kOwoJCQl9CgkJfQoJCWhsaXN0X2Fk
-ZF9oZWFkX3JjdSgmbm9kZS0+bGlzdCwgaGVhZCk7CmZvdW5kOgoJCXNwaW5fdW5sb2NrX2lycXJl
-c3RvcmUobG9jaywgZmxhZyk7Cgl9Cm91dDoKCXJldHVybiBub2RlOwp9CgovKioKICogYXZjX2F1
-ZGl0X3ByZV9jYWxsYmFjayAtIFNFTGludXggc3BlY2lmaWMgaW5mb3JtYXRpb24KICogd2lsbCBi
-ZSBjYWxsZWQgYnkgZ2VuZXJpYyBhdWRpdCBjb2RlCiAqIEBhYjogdGhlIGF1ZGl0IGJ1ZmZlcgog
-KiBAYTogYXVkaXRfZGF0YQogKi8Kc3RhdGljIHZvaWQgYXZjX2F1ZGl0X3ByZV9jYWxsYmFjayhz
-dHJ1Y3QgYXVkaXRfYnVmZmVyICphYiwgdm9pZCAqYSkKewoJc3RydWN0IGNvbW1vbl9hdWRpdF9k
-YXRhICphZCA9IGE7CglhdWRpdF9sb2dfZm9ybWF0KGFiLCAiYXZjOiAgJXMgIiwKCQkJIGFkLT5z
-ZWxpbnV4X2F1ZGl0X2RhdGEtPmRlbmllZCA/ICJkZW5pZWQiIDogImdyYW50ZWQiKTsKCWF2Y19k
-dW1wX2F2KGFiLCBhZC0+c2VsaW51eF9hdWRpdF9kYXRhLT50Y2xhc3MsCgkJCWFkLT5zZWxpbnV4
-X2F1ZGl0X2RhdGEtPmF1ZGl0ZWQpOwoJYXVkaXRfbG9nX2Zvcm1hdChhYiwgIiBmb3IgIik7Cn0K
-Ci8qKgogKiBhdmNfYXVkaXRfcG9zdF9jYWxsYmFjayAtIFNFTGludXggc3BlY2lmaWMgaW5mb3Jt
-YXRpb24KICogd2lsbCBiZSBjYWxsZWQgYnkgZ2VuZXJpYyBhdWRpdCBjb2RlCiAqIEBhYjogdGhl
-IGF1ZGl0IGJ1ZmZlcgogKiBAYTogYXVkaXRfZGF0YQogKi8Kc3RhdGljIHZvaWQgYXZjX2F1ZGl0
-X3Bvc3RfY2FsbGJhY2soc3RydWN0IGF1ZGl0X2J1ZmZlciAqYWIsIHZvaWQgKmEpCnsKCXN0cnVj
-dCBjb21tb25fYXVkaXRfZGF0YSAqYWQgPSBhOwoJYXVkaXRfbG9nX2Zvcm1hdChhYiwgIiAiKTsK
-CWF2Y19kdW1wX3F1ZXJ5KGFiLCBhZC0+c2VsaW51eF9hdWRpdF9kYXRhLT5zc2lkLAoJCQkgICBh
-ZC0+c2VsaW51eF9hdWRpdF9kYXRhLT50c2lkLAoJCQkgICBhZC0+c2VsaW51eF9hdWRpdF9kYXRh
-LT50Y2xhc3MpOwp9CgovKiBUaGlzIGlzIHRoZSBzbG93IHBhcnQgb2YgYXZjIGF1ZGl0IHdpdGgg
-YmlnIHN0YWNrIGZvb3RwcmludCAqLwpub2lubGluZSBpbnQgc2xvd19hdmNfYXVkaXQodTMyIHNz
-aWQsIHUzMiB0c2lkLCB1MTYgdGNsYXNzLAoJCXUzMiByZXF1ZXN0ZWQsIHUzMiBhdWRpdGVkLCB1
-MzIgZGVuaWVkLAoJCXN0cnVjdCBjb21tb25fYXVkaXRfZGF0YSAqYSwKCQl1bnNpZ25lZCBmbGFn
-cykKewoJc3RydWN0IGNvbW1vbl9hdWRpdF9kYXRhIHN0YWNrX2RhdGE7CglzdHJ1Y3Qgc2VsaW51
-eF9hdWRpdF9kYXRhIHNhZDsKCglpZiAoIWEpIHsKCQlhID0gJnN0YWNrX2RhdGE7CgkJYS0+dHlw
-ZSA9IExTTV9BVURJVF9EQVRBX05PTkU7Cgl9CgoJLyoKCSAqIFdoZW4gaW4gYSBSQ1Ugd2FsayBk
-byB0aGUgYXVkaXQgb24gdGhlIFJDVSByZXRyeS4gIFRoaXMgaXMgYmVjYXVzZQoJICogdGhlIGNv
-bGxlY3Rpb24gb2YgdGhlIGRuYW1lIGluIGFuIGlub2RlIGF1ZGl0IG1lc3NhZ2UgaXMgbm90IFJD
-VQoJICogc2FmZS4gIE5vdGUgdGhpcyBtYXkgZHJvcCBzb21lIGF1ZGl0cyB3aGVuIHRoZSBzaXR1
-YXRpb24gY2hhbmdlcwoJICogZHVyaW5nIHJldHJ5LiBIb3dldmVyIHRoaXMgaXMgbG9naWNhbGx5
-IGp1c3QgYXMgaWYgdGhlIG9wZXJhdGlvbgoJICogaGFwcGVuZWQgYSBsaXR0bGUgbGF0ZXIuCgkg
-Ki8KCWlmICgoYS0+dHlwZSA9PSBMU01fQVVESVRfREFUQV9JTk9ERSkgJiYKCSAgICAoZmxhZ3Mg
-JiBNQVlfTk9UX0JMT0NLKSkKCQlyZXR1cm4gLUVDSElMRDsKCglzYWQudGNsYXNzID0gdGNsYXNz
-OwoJc2FkLnJlcXVlc3RlZCA9IHJlcXVlc3RlZDsKCXNhZC5zc2lkID0gc3NpZDsKCXNhZC50c2lk
-ID0gdHNpZDsKCXNhZC5hdWRpdGVkID0gYXVkaXRlZDsKCXNhZC5kZW5pZWQgPSBkZW5pZWQ7CgoJ
-YS0+c2VsaW51eF9hdWRpdF9kYXRhID0gJnNhZDsKCgljb21tb25fbHNtX2F1ZGl0KGEsIGF2Y19h
-dWRpdF9wcmVfY2FsbGJhY2ssIGF2Y19hdWRpdF9wb3N0X2NhbGxiYWNrKTsKCXJldHVybiAwOwp9
-CgovKioKICogYXZjX2FkZF9jYWxsYmFjayAtIFJlZ2lzdGVyIGEgY2FsbGJhY2sgZm9yIHNlY3Vy
-aXR5IGV2ZW50cy4KICogQGNhbGxiYWNrOiBjYWxsYmFjayBmdW5jdGlvbgogKiBAZXZlbnRzOiBz
-ZWN1cml0eSBldmVudHMKICoKICogUmVnaXN0ZXIgYSBjYWxsYmFjayBmdW5jdGlvbiBmb3IgZXZl
-bnRzIGluIHRoZSBzZXQgQGV2ZW50cy4KICogUmV0dXJucyAlMCBvbiBzdWNjZXNzIG9yIC0lRU5P
-TUVNIGlmIGluc3VmZmljaWVudCBtZW1vcnkKICogZXhpc3RzIHRvIGFkZCB0aGUgY2FsbGJhY2su
-CiAqLwppbnQgX19pbml0IGF2Y19hZGRfY2FsbGJhY2soaW50ICgqY2FsbGJhY2spKHUzMiBldmVu
-dCksIHUzMiBldmVudHMpCnsKCXN0cnVjdCBhdmNfY2FsbGJhY2tfbm9kZSAqYzsKCWludCByYyA9
-IDA7CgoJYyA9IGttYWxsb2Moc2l6ZW9mKCpjKSwgR0ZQX0tFUk5FTCk7CglpZiAoIWMpIHsKCQly
-YyA9IC1FTk9NRU07CgkJZ290byBvdXQ7Cgl9CgoJYy0+Y2FsbGJhY2sgPSBjYWxsYmFjazsKCWMt
-PmV2ZW50cyA9IGV2ZW50czsKCWMtPm5leHQgPSBhdmNfY2FsbGJhY2tzOwoJYXZjX2NhbGxiYWNr
-cyA9IGM7Cm91dDoKCXJldHVybiByYzsKfQoKc3RhdGljIGlubGluZSBpbnQgYXZjX3NpZGNtcCh1
-MzIgeCwgdTMyIHkpCnsKCXJldHVybiAoeCA9PSB5IHx8IHggPT0gU0VDU0lEX1dJTEQgfHwgeSA9
-PSBTRUNTSURfV0lMRCk7Cn0KCi8qKgogKiBhdmNfdXBkYXRlX25vZGUgVXBkYXRlIGFuIEFWQyBl
-bnRyeQogKiBAZXZlbnQgOiBVcGRhdGluZyBldmVudAogKiBAcGVybXMgOiBQZXJtaXNzaW9uIG1h
-c2sgYml0cwogKiBAc3NpZCxAdHNpZCxAdGNsYXNzIDogaWRlbnRpZmllciBvZiBhbiBBVkMgZW50
-cnkKICogQHNlcW5vIDogc2VxdWVuY2UgbnVtYmVyIHdoZW4gZGVjaXNpb24gd2FzIG1hZGUKICoK
-ICogaWYgYSB2YWxpZCBBVkMgZW50cnkgZG9lc24ndCBleGlzdCx0aGlzIGZ1bmN0aW9uIHJldHVy
-bnMgLUVOT0VOVC4KICogaWYga21hbGxvYygpIGNhbGxlZCBpbnRlcm5hbCByZXR1cm5zIE5VTEws
-IHRoaXMgZnVuY3Rpb24gcmV0dXJucyAtRU5PTUVNLgogKiBvdGhlcndpc2UsIHRoaXMgZnVuY3Rp
-b24gdXBkYXRlcyB0aGUgQVZDIGVudHJ5LiBUaGUgb3JpZ2luYWwgQVZDLWVudHJ5IG9iamVjdAog
-KiB3aWxsIHJlbGVhc2UgbGF0ZXIgYnkgUkNVLgogKi8Kc3RhdGljIGludCBhdmNfdXBkYXRlX25v
-ZGUodTMyIGV2ZW50LCB1MzIgcGVybXMsIHUzMiBzc2lkLCB1MzIgdHNpZCwgdTE2IHRjbGFzcywK
-CQkJICAgdTMyIHNlcW5vKQp7CglpbnQgaHZhbHVlLCByYyA9IDA7Cgl1bnNpZ25lZCBsb25nIGZs
-YWc7CglzdHJ1Y3QgYXZjX25vZGUgKnBvcywgKm5vZGUsICpvcmlnID0gTlVMTDsKCXN0cnVjdCBo
-bGlzdF9oZWFkICpoZWFkOwoJc3BpbmxvY2tfdCAqbG9jazsKCglub2RlID0gYXZjX2FsbG9jX25v
-ZGUoKTsKCWlmICghbm9kZSkgewoJCXJjID0gLUVOT01FTTsKCQlnb3RvIG91dDsKCX0KCgkvKiBM
-b2NrIHRoZSB0YXJnZXQgc2xvdCAqLwoJaHZhbHVlID0gYXZjX2hhc2goc3NpZCwgdHNpZCwgdGNs
-YXNzKTsKCgloZWFkID0gJmF2Y19jYWNoZS5zbG90c1todmFsdWVdOwoJbG9jayA9ICZhdmNfY2Fj
-aGUuc2xvdHNfbG9ja1todmFsdWVdOwoKCXNwaW5fbG9ja19pcnFzYXZlKGxvY2ssIGZsYWcpOwoK
-CWhsaXN0X2Zvcl9lYWNoX2VudHJ5KHBvcywgaGVhZCwgbGlzdCkgewoJCWlmIChzc2lkID09IHBv
-cy0+YWUuc3NpZCAmJgoJCSAgICB0c2lkID09IHBvcy0+YWUudHNpZCAmJgoJCSAgICB0Y2xhc3Mg
-PT0gcG9zLT5hZS50Y2xhc3MgJiYKCQkgICAgc2Vxbm8gPT0gcG9zLT5hZS5hdmQuc2Vxbm8pewoJ
-CQlvcmlnID0gcG9zOwoJCQlicmVhazsKCQl9Cgl9CgoJaWYgKCFvcmlnKSB7CgkJcmMgPSAtRU5P
-RU5UOwoJCWF2Y19ub2RlX2tpbGwobm9kZSk7CgkJZ290byBvdXRfdW5sb2NrOwoJfQoKCS8qCgkg
-KiBDb3B5IGFuZCByZXBsYWNlIG9yaWdpbmFsIG5vZGUuCgkgKi8KCglhdmNfbm9kZV9wb3B1bGF0
-ZShub2RlLCBzc2lkLCB0c2lkLCB0Y2xhc3MsICZvcmlnLT5hZS5hdmQpOwoKCXN3aXRjaCAoZXZl
-bnQpIHsKCWNhc2UgQVZDX0NBTExCQUNLX0dSQU5UOgoJCW5vZGUtPmFlLmF2ZC5hbGxvd2VkIHw9
-IHBlcm1zOwoJCWJyZWFrOwoJY2FzZSBBVkNfQ0FMTEJBQ0tfVFJZX1JFVk9LRToKCWNhc2UgQVZD
-X0NBTExCQUNLX1JFVk9LRToKCQlub2RlLT5hZS5hdmQuYWxsb3dlZCAmPSB+cGVybXM7CgkJYnJl
-YWs7CgljYXNlIEFWQ19DQUxMQkFDS19BVURJVEFMTE9XX0VOQUJMRToKCQlub2RlLT5hZS5hdmQu
-YXVkaXRhbGxvdyB8PSBwZXJtczsKCQlicmVhazsKCWNhc2UgQVZDX0NBTExCQUNLX0FVRElUQUxM
-T1dfRElTQUJMRToKCQlub2RlLT5hZS5hdmQuYXVkaXRhbGxvdyAmPSB+cGVybXM7CgkJYnJlYWs7
-CgljYXNlIEFWQ19DQUxMQkFDS19BVURJVERFTllfRU5BQkxFOgoJCW5vZGUtPmFlLmF2ZC5hdWRp
-dGRlbnkgfD0gcGVybXM7CgkJYnJlYWs7CgljYXNlIEFWQ19DQUxMQkFDS19BVURJVERFTllfRElT
-QUJMRToKCQlub2RlLT5hZS5hdmQuYXVkaXRkZW55ICY9IH5wZXJtczsKCQlicmVhazsKCX0KCWF2
-Y19ub2RlX3JlcGxhY2Uobm9kZSwgb3JpZyk7Cm91dF91bmxvY2s6CglzcGluX3VubG9ja19pcnFy
-ZXN0b3JlKGxvY2ssIGZsYWcpOwpvdXQ6CglyZXR1cm4gcmM7Cn0KCi8qKgogKiBhdmNfZmx1c2gg
-LSBGbHVzaCB0aGUgY2FjaGUKICovCnN0YXRpYyB2b2lkIGF2Y19mbHVzaCh2b2lkKQp7CglzdHJ1
-Y3QgaGxpc3RfaGVhZCAqaGVhZDsKCXN0cnVjdCBhdmNfbm9kZSAqbm9kZTsKCXNwaW5sb2NrX3Qg
-KmxvY2s7Cgl1bnNpZ25lZCBsb25nIGZsYWc7CglpbnQgaTsKCglmb3IgKGkgPSAwOyBpIDwgQVZD
-X0NBQ0hFX1NMT1RTOyBpKyspIHsKCQloZWFkID0gJmF2Y19jYWNoZS5zbG90c1tpXTsKCQlsb2Nr
-ID0gJmF2Y19jYWNoZS5zbG90c19sb2NrW2ldOwoKCQlzcGluX2xvY2tfaXJxc2F2ZShsb2NrLCBm
-bGFnKTsKCQkvKgoJCSAqIFdpdGggcHJlZW1wdGFibGUgUkNVLCB0aGUgb3V0ZXIgc3BpbmxvY2sg
-ZG9lcyBub3QKCQkgKiBwcmV2ZW50IFJDVSBncmFjZSBwZXJpb2RzIGZyb20gZW5kaW5nLgoJCSAq
-LwoJCXJjdV9yZWFkX2xvY2soKTsKCQlobGlzdF9mb3JfZWFjaF9lbnRyeShub2RlLCBoZWFkLCBs
-aXN0KQoJCQlhdmNfbm9kZV9kZWxldGUobm9kZSk7CgkJcmN1X3JlYWRfdW5sb2NrKCk7CgkJc3Bp
-bl91bmxvY2tfaXJxcmVzdG9yZShsb2NrLCBmbGFnKTsKCX0KfQoKLyoqCiAqIGF2Y19zc19yZXNl
-dCAtIEZsdXNoIHRoZSBjYWNoZSBhbmQgcmV2YWxpZGF0ZSBtaWdyYXRlZCBwZXJtaXNzaW9ucy4K
-ICogQHNlcW5vOiBwb2xpY3kgc2VxdWVuY2UgbnVtYmVyCiAqLwppbnQgYXZjX3NzX3Jlc2V0KHUz
-MiBzZXFubykKewoJc3RydWN0IGF2Y19jYWxsYmFja19ub2RlICpjOwoJaW50IHJjID0gMCwgdG1w
-cmM7CgoJYXZjX2ZsdXNoKCk7CgoJZm9yIChjID0gYXZjX2NhbGxiYWNrczsgYzsgYyA9IGMtPm5l
-eHQpIHsKCQlpZiAoYy0+ZXZlbnRzICYgQVZDX0NBTExCQUNLX1JFU0VUKSB7CgkJCXRtcHJjID0g
-Yy0+Y2FsbGJhY2soQVZDX0NBTExCQUNLX1JFU0VUKTsKCQkJLyogc2F2ZSB0aGUgZmlyc3QgZXJy
-b3IgZW5jb3VudGVyZWQgZm9yIHRoZSByZXR1cm4KCQkJICAgdmFsdWUgYW5kIGNvbnRpbnVlIHBy
-b2Nlc3NpbmcgdGhlIGNhbGxiYWNrcyAqLwoJCQlpZiAoIXJjKQoJCQkJcmMgPSB0bXByYzsKCQl9
-Cgl9CgoJYXZjX2xhdGVzdF9ub3RpZl91cGRhdGUoc2Vxbm8sIDApOwoJcmV0dXJuIHJjOwp9Cgov
-KgogKiBTbG93LXBhdGggaGVscGVyIGZ1bmN0aW9uIGZvciBhdmNfaGFzX3Blcm1fbm9hdWRpdCwK
-ICogd2hlbiB0aGUgYXZjX25vZGUgbG9va3VwIGZhaWxzLiBXZSBnZXQgY2FsbGVkIHdpdGgKICog
-dGhlIFJDVSByZWFkIGxvY2sgaGVsZCwgYW5kIG5lZWQgdG8gcmV0dXJuIHdpdGggaXQKICogc3Rp
-bGwgaGVsZCwgYnV0IGRyb3AgaWYgZm9yIHRoZSBzZWN1cml0eSBjb21wdXRlLgogKgogKiBEb24n
-dCBpbmxpbmUgdGhpcywgc2luY2UgaXQncyB0aGUgc2xvdy1wYXRoIGFuZCBqdXN0CiAqIHJlc3Vs
-dHMgaW4gYSBiaWdnZXIgc3RhY2sgZnJhbWUuCiAqLwpzdGF0aWMgbm9pbmxpbmUgc3RydWN0IGF2
-Y19ub2RlICphdmNfY29tcHV0ZV9hdih1MzIgc3NpZCwgdTMyIHRzaWQsCgkJCSB1MTYgdGNsYXNz
-LCBzdHJ1Y3QgYXZfZGVjaXNpb24gKmF2ZCkKewoJcmN1X3JlYWRfdW5sb2NrKCk7CglzZWN1cml0
-eV9jb21wdXRlX2F2KHNzaWQsIHRzaWQsIHRjbGFzcywgYXZkKTsKCXJjdV9yZWFkX2xvY2soKTsK
-CXJldHVybiBhdmNfaW5zZXJ0KHNzaWQsIHRzaWQsIHRjbGFzcywgYXZkKTsKfQoKc3RhdGljIG5v
-aW5saW5lIGludCBhdmNfZGVuaWVkKHUzMiBzc2lkLCB1MzIgdHNpZCwKCQkJIHUxNiB0Y2xhc3Ms
-IHUzMiByZXF1ZXN0ZWQsCgkJCSB1bnNpZ25lZCBmbGFncywKCQkJIHN0cnVjdCBhdl9kZWNpc2lv
-biAqYXZkKQp7CglpZiAoZmxhZ3MgJiBBVkNfU1RSSUNUKQoJCXJldHVybiAtRUFDQ0VTOwoKCWlm
-IChzZWxpbnV4X2VuZm9yY2luZyAmJiAhKGF2ZC0+ZmxhZ3MgJiBBVkRfRkxBR1NfUEVSTUlTU0lW
-RSkpCgkJcmV0dXJuIC1FQUNDRVM7CgoJYXZjX3VwZGF0ZV9ub2RlKEFWQ19DQUxMQkFDS19HUkFO
-VCwgcmVxdWVzdGVkLCBzc2lkLAoJCQkJdHNpZCwgdGNsYXNzLCBhdmQtPnNlcW5vKTsKCXJldHVy
-biAwOwp9CgoKLyoqCiAqIGF2Y19oYXNfcGVybV9ub2F1ZGl0IC0gQ2hlY2sgcGVybWlzc2lvbnMg
-YnV0IHBlcmZvcm0gbm8gYXVkaXRpbmcuCiAqIEBzc2lkOiBzb3VyY2Ugc2VjdXJpdHkgaWRlbnRp
-ZmllcgogKiBAdHNpZDogdGFyZ2V0IHNlY3VyaXR5IGlkZW50aWZpZXIKICogQHRjbGFzczogdGFy
-Z2V0IHNlY3VyaXR5IGNsYXNzCiAqIEByZXF1ZXN0ZWQ6IHJlcXVlc3RlZCBwZXJtaXNzaW9ucywg
-aW50ZXJwcmV0ZWQgYmFzZWQgb24gQHRjbGFzcwogKiBAZmxhZ3M6ICBBVkNfU1RSSUNUIG9yIDAK
-ICogQGF2ZDogYWNjZXNzIHZlY3RvciBkZWNpc2lvbnMKICoKICogQ2hlY2sgdGhlIEFWQyB0byBk
-ZXRlcm1pbmUgd2hldGhlciB0aGUgQHJlcXVlc3RlZCBwZXJtaXNzaW9ucyBhcmUgZ3JhbnRlZAog
-KiBmb3IgdGhlIFNJRCBwYWlyIChAc3NpZCwgQHRzaWQpLCBpbnRlcnByZXRpbmcgdGhlIHBlcm1p
-c3Npb25zCiAqIGJhc2VkIG9uIEB0Y2xhc3MsIGFuZCBjYWxsIHRoZSBzZWN1cml0eSBzZXJ2ZXIg
-b24gYSBjYWNoZSBtaXNzIHRvIG9idGFpbgogKiBhIG5ldyBkZWNpc2lvbiBhbmQgYWRkIGl0IHRv
-IHRoZSBjYWNoZS4gIFJldHVybiBhIGNvcHkgb2YgdGhlIGRlY2lzaW9ucwogKiBpbiBAYXZkLiAg
-UmV0dXJuICUwIGlmIGFsbCBAcmVxdWVzdGVkIHBlcm1pc3Npb25zIGFyZSBncmFudGVkLAogKiAt
-JUVBQ0NFUyBpZiBhbnkgcGVybWlzc2lvbnMgYXJlIGRlbmllZCwgb3IgYW5vdGhlciAtZXJybm8g
-dXBvbgogKiBvdGhlciBlcnJvcnMuICBUaGlzIGZ1bmN0aW9uIGlzIHR5cGljYWxseSBjYWxsZWQg
-YnkgYXZjX2hhc19wZXJtKCksCiAqIGJ1dCBtYXkgYWxzbyBiZSBjYWxsZWQgZGlyZWN0bHkgdG8g
-c2VwYXJhdGUgcGVybWlzc2lvbiBjaGVja2luZyBmcm9tCiAqIGF1ZGl0aW5nLCBlLmcuIGluIGNh
-c2VzIHdoZXJlIGEgbG9jayBtdXN0IGJlIGhlbGQgZm9yIHRoZSBjaGVjayBidXQKICogc2hvdWxk
-IGJlIHJlbGVhc2VkIGZvciB0aGUgYXVkaXRpbmcuCiAqLwppbmxpbmUgaW50IGF2Y19oYXNfcGVy
-bV9ub2F1ZGl0KHUzMiBzc2lkLCB1MzIgdHNpZCwKCQkJIHUxNiB0Y2xhc3MsIHUzMiByZXF1ZXN0
-ZWQsCgkJCSB1bnNpZ25lZCBmbGFncywKCQkJIHN0cnVjdCBhdl9kZWNpc2lvbiAqYXZkKQp7Cglz
-dHJ1Y3QgYXZjX25vZGUgKm5vZGU7CglpbnQgcmMgPSAwOwoJLyp1MzIgZGVuaWVkOwoKCUJVR19P
-TighcmVxdWVzdGVkKTsKCglyY3VfcmVhZF9sb2NrKCk7CgoJbm9kZSA9IGF2Y19sb29rdXAoc3Np
-ZCwgdHNpZCwgdGNsYXNzKTsKCWlmICh1bmxpa2VseSghbm9kZSkpIHsKCQlub2RlID0gYXZjX2Nv
-bXB1dGVfYXYoc3NpZCwgdHNpZCwgdGNsYXNzLCBhdmQpOwoJfSBlbHNlIHsKCQltZW1jcHkoYXZk
-LCAmbm9kZS0+YWUuYXZkLCBzaXplb2YoKmF2ZCkpOwoJCWF2ZCA9ICZub2RlLT5hZS5hdmQ7Cgl9
-CgoJZGVuaWVkID0gcmVxdWVzdGVkICYgfihhdmQtPmFsbG93ZWQpOwoJaWYgKHVubGlrZWx5KGRl
-bmllZCkpCgkJcmMgPSBhdmNfZGVuaWVkKHNzaWQsIHRzaWQsIHRjbGFzcywgcmVxdWVzdGVkLCBm
-bGFncywgYXZkKTsKCglyY3VfcmVhZF91bmxvY2soKTsqLwoJcmV0dXJuIHJjOwp9CgovKioKICog
-YXZjX2hhc19wZXJtIC0gQ2hlY2sgcGVybWlzc2lvbnMgYW5kIHBlcmZvcm0gYW55IGFwcHJvcHJp
-YXRlIGF1ZGl0aW5nLgogKiBAc3NpZDogc291cmNlIHNlY3VyaXR5IGlkZW50aWZpZXIKICogQHRz
-aWQ6IHRhcmdldCBzZWN1cml0eSBpZGVudGlmaWVyCiAqIEB0Y2xhc3M6IHRhcmdldCBzZWN1cml0
-eSBjbGFzcwogKiBAcmVxdWVzdGVkOiByZXF1ZXN0ZWQgcGVybWlzc2lvbnMsIGludGVycHJldGVk
-IGJhc2VkIG9uIEB0Y2xhc3MKICogQGF1ZGl0ZGF0YTogYXV4aWxpYXJ5IGF1ZGl0IGRhdGEKICog
-QGZsYWdzOiBWRlMgd2FsayBmbGFncwogKgogKiBDaGVjayB0aGUgQVZDIHRvIGRldGVybWluZSB3
-aGV0aGVyIHRoZSBAcmVxdWVzdGVkIHBlcm1pc3Npb25zIGFyZSBncmFudGVkCiAqIGZvciB0aGUg
-U0lEIHBhaXIgKEBzc2lkLCBAdHNpZCksIGludGVycHJldGluZyB0aGUgcGVybWlzc2lvbnMKICog
-YmFzZWQgb24gQHRjbGFzcywgYW5kIGNhbGwgdGhlIHNlY3VyaXR5IHNlcnZlciBvbiBhIGNhY2hl
-IG1pc3MgdG8gb2J0YWluCiAqIGEgbmV3IGRlY2lzaW9uIGFuZCBhZGQgaXQgdG8gdGhlIGNhY2hl
-LiAgQXVkaXQgdGhlIGdyYW50aW5nIG9yIGRlbmlhbCBvZgogKiBwZXJtaXNzaW9ucyBpbiBhY2Nv
-cmRhbmNlIHdpdGggdGhlIHBvbGljeS4gIFJldHVybiAlMCBpZiBhbGwgQHJlcXVlc3RlZAogKiBw
-ZXJtaXNzaW9ucyBhcmUgZ3JhbnRlZCwgLSVFQUNDRVMgaWYgYW55IHBlcm1pc3Npb25zIGFyZSBk
-ZW5pZWQsIG9yCiAqIGFub3RoZXIgLWVycm5vIHVwb24gb3RoZXIgZXJyb3JzLgogKi8KaW50IGF2
-Y19oYXNfcGVybV9mbGFncyh1MzIgc3NpZCwgdTMyIHRzaWQsIHUxNiB0Y2xhc3MsCgkJICAgICAg
-IHUzMiByZXF1ZXN0ZWQsIHN0cnVjdCBjb21tb25fYXVkaXRfZGF0YSAqYXVkaXRkYXRhLAoJCSAg
-ICAgICB1bnNpZ25lZCBmbGFncykKewoJc3RydWN0IGF2X2RlY2lzaW9uIGF2ZDsKCWludCByYz0w
-OwoJLy9wcmludGsoS0VSTkVMX0RFQlVHIlRoaXMgaXMgdG8gY2hlY2sgc2VsaW51eCBzc2lkIGFu
-ZCB0c2lkIVxuIik7CiAgICAgICAgLy9pbnQgcmMyPTA7CgoJLypyYyA9IGF2Y19oYXNfcGVybV9u
-b2F1ZGl0KHNzaWQsIHRzaWQsIHRjbGFzcywgcmVxdWVzdGVkLCAwLCAmYXZkKTsKCglyYzIgPSBh
-dmNfYXVkaXQoc3NpZCwgdHNpZCwgdGNsYXNzLCByZXF1ZXN0ZWQsICZhdmQsIHJjLCBhdWRpdGRh
-dGEsCgkJCWZsYWdzKTsKCWlmIChyYzIpCgkJcmV0dXJuIHJjMjsqLwoJcmV0dXJuIHJjOwp9Cgp1
-MzIgYXZjX3BvbGljeV9zZXFubyh2b2lkKQp7CglyZXR1cm4gYXZjX2NhY2hlLmxhdGVzdF9ub3Rp
-ZjsKfQoKdm9pZCBhdmNfZGlzYWJsZSh2b2lkKQp7CgkvKgoJICogSWYgeW91IGFyZSBsb29raW5n
-IGF0IHRoaXMgYmVjYXVzZSB5b3UgaGF2ZSByZWFsaXplZCB0aGF0IHdlIGFyZQoJICogbm90IGRl
-c3Ryb3lpbmcgdGhlIGF2Y19ub2RlX2NhY2hlcCBpdCBtaWdodCBiZSBlYXN5IHRvIGZpeCwgYnV0
-CgkgKiBJIGRvbid0IGtub3cgdGhlIG1lbW9yeSBiYXJyaWVyIHNlbWFudGljcyB3ZWxsIGVub3Vn
-aCB0byBrbm93LiAgSXQncwoJICogcG9zc2libGUgdGhhdCBzb21lIG90aGVyIHRhc2sgZGVyZWZl
-cmVuY2VkIHNlY3VyaXR5X29wcyB3aGVuCgkgKiBpdCBzdGlsbCBwb2ludGVkIHRvIHNlbGludXgg
-b3BlcmF0aW9ucy4gIElmIHRoYXQgaXMgdGhlIGNhc2UgaXQncwoJICogcG9zc2libGUgdGhhdCBp
-dCBpcyBhYm91dCB0byB1c2UgdGhlIGF2YyBhbmQgaXMgYWJvdXQgdG8gbmVlZCB0aGUKCSAqIGF2
-Y19ub2RlX2NhY2hlcC4gIEkga25vdyBJIGNvdWxkIHdyYXAgdGhlIHNlY3VyaXR5LmMgc2VjdXJp
-dHlfb3BzIGNhbGwKCSAqIGluIGFuIHJjdV9sb2NrLCBidXQgc2VyaW91c2x5LCBpdCdzIG5vdCB3
-b3J0aCBpdC4gIEluc3RlYWQgSSBqdXN0IGZsdXNoCgkgKiB0aGUgY2FjaGUgYW5kIGdldCB0aGF0
-IG1lbW9yeSBiYWNrLgoJICovCglpZiAoYXZjX25vZGVfY2FjaGVwKSB7CgkJYXZjX2ZsdXNoKCk7
-CgkJLyoga21lbV9jYWNoZV9kZXN0cm95KGF2Y19ub2RlX2NhY2hlcCk7ICovCgl9Cn0K
---047d7ba972da90699404f769216b--
+--f46d04428c98e71bba04f7694bc0--
