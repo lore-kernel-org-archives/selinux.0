@@ -1,55 +1,31 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3JJrpas016422
- for <selinux@tycho.nsa.gov>; Sat, 19 Apr 2014 15:53:51 -0400
-Received: by mail-wg0-f50.google.com with SMTP id x13so1498733wgg.21
- for <selinux@tycho.nsa.gov>; Sat, 19 Apr 2014 12:53:52 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3KCPosN005599
+ for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2014 08:25:50 -0400
+Received: by mail-pd0-f171.google.com with SMTP id r10so2834641pdi.30
+ for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2014 05:25:50 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.83.108])
+ by mx.google.com with ESMTPSA id ov4sm66966386pbc.46.2014.04.20.05.25.48
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Sun, 20 Apr 2014 05:25:49 -0700 (PDT)
+Message-ID: <5353BC31.3070404@gmail.com>
+Date: Sun, 20 Apr 2014 17:53:13 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Date: Sat, 19 Apr 2014 21:53:51 +0200
-Message-ID: <CAOFt0CQHwubzwGSTsw5ig-1tTG9QJe16X5HFoxgjwvV6_StoaA@mail.gmail.com>
-Subject: Allowing access other then permissive mode.
-From: Kernel freak <kernelfreak@gmail.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=047d7bb03ddc2135c604f76aa0dd
+To: selinux@tycho.nsa.gov
+Subject: Why is SELINUXTYPE policy specific?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7bb03ddc2135c604f76aa0dd
-Content-Type: text/plain; charset=UTF-8
+There are 3 security models in which SELinux can work -- TE, RBAC and MLS.
 
-Hello friends,
-                    I am starting a new thread to achieve the objective. I
-want to attach my own piece of code wherever SELinux takes access decision
-or Policy decision point. So for example, whenever it queries the database
-to check the rule, I want to return "allowed" everytime through code and
-not by using Permissive mode. It is very important I don't use permissive
-mode.
+And there are 6 types of SELinux policies --
 
-My point of confusion is which part of code I should look to see where
-there is a policy decision point where database is queried. As far as I
-understand, a return of '0' means access is allowed. I tried hardcoding
-rc=0 in many situations, but there are a lot of denials I am getting.
+targeted, mls, mcs, standard, strict or minimum.
 
-Kindly let me know. Thank you for your time.
-
---047d7bb03ddc2135c604f76aa0dd
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div><div>Hello friends,<br></div>=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 I am starting a new thread to achieve the objective. =
-I want to attach my own piece of code wherever SELinux takes access decisio=
-n or Policy decision point. So for example, whenever it queries the databas=
-e to check the rule, I want to return &quot;allowed&quot; everytime through=
- code and not by using Permissive mode. It is very important I don&#39;t us=
-e permissive mode. <br>
-<br></div>My point of confusion is which part of code I should look to see =
-where there is a policy decision point where database is queried. As far as=
- I understand, a return of &#39;0&#39; means access is allowed. I tried har=
-dcoding rc=3D0 in many situations, but there are a lot of denials I am gett=
-ing. <br>
-<br></div>Kindly let me know. Thank you for your time.<br></div>
-
---047d7bb03ddc2135c604f76aa0dd--
+Each security model requires it's own set of policies and the policies 
+can be 1 of the 6 types. So can all the 3 security modles and 6 types be 
+intermixed? Won't there be conflicts like with MLS and RBAC?
