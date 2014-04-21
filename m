@@ -1,74 +1,57 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3IJr46J000721
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 15:53:04 -0400
-Received: by mail-ve0-f182.google.com with SMTP id jw12so3692453veb.27
- for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2014 12:53:03 -0700 (PDT)
+Message-ID: <535513D3.7000702@tycho.nsa.gov>
+Date: Mon, 21 Apr 2014 08:49:23 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Date: Fri, 18 Apr 2014 14:53:03 -0500
-Message-ID: <CAGReGbRtk7pAZ+vz4W4cfXggo1zO5xuJOGWNxdi2xEHt=QOfZQ@mail.gmail.com>
-Subject: Unreadable or missing xattr security.selinux on jffs2
-From: Judd Meinders <judd.meinders@rockwellcollins.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7b339db160557e04f7567f6b
+To: jkmeinde@rockwellcollins.com, selinux@tycho.nsa.gov
+Subject: Re: Unreadable or missing xattr security.selinux on jffs2
+References: <OFBD9B9F38.B7665B76-ON86257CBE.006D959B-86257CBE.006E7F32@rockwellcollins.com>
+In-Reply-To: <OFBD9B9F38.B7665B76-ON86257CBE.006D959B-86257CBE.006E7F32@rockwellcollins.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7b339db160557e04f7567f6b
-Content-Type: text/plain; charset=ISO-8859-1
+On 04/18/2014 04:06 PM, jkmeinde@rockwellcollins.com wrote:
+> Hello fellow selinux users:
+> I apologize if this is a duplicate email, the first one I sent was from
+> an address that I think is not on the list.
+> 
+> I am currently working on a system that uses embedded linux with a few
+> jffs2 file systems on NAND flash.  Each time my device boots, several
+> flash partitions are mounted to various mount points throughout my root
+> fs.  Some are readonly, a couple are rw.
+> 
+> What I am seeing is that sometimes, when the mount happens on a rw
+> partition, the label that shows for the mount point is "file_t".  This
+> is not the label that was contained in the xattr on the last boot.  My
+> selinux policy is set up to mark file systems which are missing the
+> security.selinux attrs as file_t.  In each subsequent boot/mount, the
+> root directory of the mounted filesystem remains "file_t" until I
+> manually chcon or restorecon (in premissive)
+> 
+> Furthermore, there are no domains in the selinux policy that have
+> permissions to relabel directories of the type that I am mounting.  So
+> my first question is, does anyone have any idea as to how the label
+> could disappear?  Has anyone ever seen behavior like this on JFFS2?
+> 
+> Is this more of a jffs2 question?  Other attrs like date modified, and
+> DAC permissions remain intact.
+> 
+> I thank anyone for the consideration.
 
-Hello fellow selinux users:
+You said it happens sometimes.  Any distinguishing characteristics of
+when it happens versus when it does not?  And how often does it occur?
+When it does happen, are there any messages with SELinux: in dmesg that
+appear?
 
-I am currently working on a system that uses embedded linux with a few
-jffs2 file systems on NAND flash.  Each time my device boots, several flash
-partitions are mounted to various mount points throughout my root fs.  Some
-are readonly, a couple are rw.
+If you boot with SELinux disabled (selinux=0 on kernel command line) and
+manually inspect the xattr via getfattr -n security.selinux
+/path/to/root, does it report the correct value?
 
-What I am seeing is that sometimes, when the mount happens on a rw
-partition, the label that shows for the mount point is "file_t".  This is
-not the label that was contained in the xattr on the last boot.  My selinux
-policy is set up to mark file systems which are missing the
-security.selinux attrs as file_t.  In each subsequent boot/mount, the root
-directory of the mounted filesystem remains "file_t" until I manually chcon
-or restorecon (in premissive)
+Can you set any other xattrs on the root directory of the filesystem
+(e.g. a user.* attribute, a trusted.* attribute, a POSIX acl) and have
+them preserved across reboot?
 
-Furthermore, there are no domains in the selinux policy that have
-permissions to relabel directories of the type that I am mounting.  So my
-first question is, does anyone have any idea as to how the label could
-disappear?  Has anyone ever seen behavior like this on JFFS2?
-
-Is this more of a jffs2 question?  Other attrs like date modified, and DAC
-permissions remain intact.
-
-I thank anyone for the consideration.
-
-Judd
-
---047d7b339db160557e04f7567f6b
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hello fellow selinux users:<div><br></div><div>I am curren=
-tly working on a system that uses embedded linux with a few jffs2 file syst=
-ems on NAND flash. =A0Each time my device boots, several flash partitions a=
-re mounted to various mount points throughout my root fs. =A0Some are reado=
-nly, a couple are rw.
-</div><div><br></div><div>What I am seeing is that sometimes, when the moun=
-t happens on a rw partition, the label that shows for the mount point is &q=
-uot;file_t&quot;. =A0This is not the label that was contained in the xattr =
-on the last boot. =A0My selinux policy is set up to mark file systems which=
- are missing the security.selinux attrs as file_t. =A0In each subsequent bo=
-ot/mount, the root directory of the mounted filesystem remains &quot;file_t=
-&quot; until I manually chcon or restorecon (in premissive)</div>
-<div><br></div><div>Furthermore, there are no domains in the selinux policy=
- that have permissions to relabel directories of the type that I am mountin=
-g. =A0So my first question is, does anyone have any idea as to how the labe=
-l could disappear? =A0Has anyone ever seen behavior like this on JFFS2?</di=
-v>
-<div><br></div><div>Is this more of a jffs2 question? =A0Other attrs like d=
-ate modified, and DAC permissions remain intact.</div><div><br></div><div>I=
- thank anyone for the consideration.</div><div><br></div><div>Judd</div></d=
-iv>
-
---047d7b339db160557e04f7567f6b--
+I haven't heard of this behavior but I'm not sure how many people use
+jffs2 with SELinux (I have not).
