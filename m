@@ -1,31 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3KCPosN005599
- for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2014 08:25:50 -0400
-Received: by mail-pd0-f171.google.com with SMTP id r10so2834641pdi.30
- for <selinux@tycho.nsa.gov>; Sun, 20 Apr 2014 05:25:50 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.83.108])
- by mx.google.com with ESMTPSA id ov4sm66966386pbc.46.2014.04.20.05.25.48
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Sun, 20 Apr 2014 05:25:49 -0700 (PDT)
-Message-ID: <5353BC31.3070404@gmail.com>
-Date: Sun, 20 Apr 2014 17:53:13 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3L81A4n004541
+ for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2014 04:01:10 -0400
+Received: by mail-yh0-f43.google.com with SMTP id b6so3302613yha.30
+ for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2014 01:01:08 -0700 (PDT)
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Why is SELINUXTYPE policy specific?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Sender: sven.j.vermeulen@gmail.com
+In-Reply-To: <5353BC31.3070404@gmail.com>
+References: <5353BC31.3070404@gmail.com>
+Date: Mon, 21 Apr 2014 10:01:08 +0200
+Message-ID: <CAPzO=Nzkn13La7VDcFjCah8CGmhW7R6Vm+zoMFR80DhPNgD3wg@mail.gmail.com>
+Subject: Re: Why is SELINUXTYPE policy specific?
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: dE <de.techno@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: SELinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-There are 3 security models in which SELinux can work -- TE, RBAC and MLS.
+On Sun, Apr 20, 2014 at 2:23 PM, dE <de.techno@gmail.com> wrote:
+> There are 3 security models in which SELinux can work -- TE, RBAC and MLS.
+>
+> And there are 6 types of SELinux policies --
+>
+> targeted, mls, mcs, standard, strict or minimum.
+>
+> Each security model requires it's own set of policies and the policies can
+> be 1 of the 6 types. So can all the 3 security modles and 6 types be
+> intermixed? Won't there be conflicts like with MLS and RBAC?
 
-And there are 6 types of SELinux policies --
+The SELINUXTYPE value should be seen as the name given to a policy
+store. The contents (the actual policy, the features it supports, the
+fact that it is MLS-enabled or not) have nothing to do with the name
+of the store per se. It is just a matter of convenience that policy
+stores are named in a particular way so that, cross-distributions,
+security administrators can deduce the type and features of the policy
+based on the name.
 
-targeted, mls, mcs, standard, strict or minimum.
+For instance, on RHEL6, "targeted" is the name given to the policy
+store that contains an MCS policy with support for unconfined domains.
+On Gentoo, this name is rather used for non-MCS policy with support
+for unconfined domains.
 
-Each security model requires it's own set of policies and the policies 
-can be 1 of the 6 types. So can all the 3 security modles and 6 types be 
-intermixed? Won't there be conflicts like with MLS and RBAC?
+Afaik, there is no conflict between RBAC and MLS. With MLS, the
+SELinux subsystem allows or denies access based on the dominance rules
+between the domains' security clearance and the resource sensitivity
+level. RBAC instead allows or denies a SELinux role to be associated
+with a particular domain.
+
+Wkr,
+  Sven Vermeulen
