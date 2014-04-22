@@ -1,52 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3N6JhiI006144
- for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2014 02:19:43 -0400
-Received: by mail-ee0-f47.google.com with SMTP id b15so338485eek.6
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 23:19:43 -0700 (PDT)
-Message-ID: <1398233981.16991.19.camel@x220.localdomain>
-Subject: Re: [secilc] typeattributeset with "and" expression does not work
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Date: Wed, 23 Apr 2014 08:19:41 +0200
-In-Reply-To: <1398199459.16991.17.camel@x220.localdomain>
-References: <1398189362.16991.6.camel@x220.localdomain>
- <5356BD03.40501@tresys.com> <1398195193.16991.12.camel@x220.localdomain>
- <5356C6AA.5030009@tresys.com> <1398199159.16991.14.camel@x220.localdomain>
- <1398199459.16991.17.camel@x220.localdomain>
-Content-Type: text/plain; charset="UTF-8"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3MKJ8UT032754
+ for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 16:19:08 -0400
+Date: Tue, 22 Apr 2014 16:19:04 -0400 (EDT)
+Message-Id: <20140422.161904.1187535812839850973.davem@davemloft.net>
+To: rgb@redhat.com
+Subject: Re: [PATCH 2/6] netlink: have netlink per-protocol bind function
+ return an error code.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <c9a8a0879bc9f375bb3484f8e86189a8af5aa142.1397831970.git.rgb@redhat.com>
+References: <20140324183406.GE28666@madcap2.tricolour.ca>
+ <cover.1397831970.git.rgb@redhat.com>
+ <c9a8a0879bc9f375bb3484f8e86189a8af5aa142.1397831970.git.rgb@redhat.com>
 Mime-Version: 1.0
-Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: Text/Plain; charset=us-ascii
+Cc: hadi@mojatatu.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ eparis@redhat.com, linux-security-module@vger.kernel.org,
+ linux-audit@redhat.com, netfilter-devel@vger.kernel.org, selinux@tycho.nsa.gov,
+ sgrubb@redhat.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2014-04-22 at 22:44 +0200, Dominick Grift wrote:
-> On Tue, 2014-04-22 at 22:39 +0200, Dominick Grift wrote:
-> > On Tue, 2014-04-22 at 15:44 -0400, Steve Lawrence wrote:
-> > 
-> > > >>> Also, i still have that weird boolean issue where, even though sesearch
-> > > >>> shows the rules are loaded and enabled, SELinux still blocks the access
-> > > >>
-> > > >> I think we actually fixed this about an hour ago. Give it a shot, let us
-> > > >> know if it's actually fixed.
-> > > > 
-> > > > Nice, i will try with up-to-date secilc tomorrow
-> > 
-> > Current head does not fix the boolean issue, i just verified and the
-> > issue is still there
-> 
-> Actually it partly works (but it did before as well)
-> 
-> Its the conditional capability permissions that do not work
-> 
-> i have for example a set of consitional rules:
-> 
-> (allow ARG1 security_t (security load_policy))
-> (allow ARG1 security_t (file (write)))
-> 
-> The file write works but the security load_policy does not work
-> 
+From: Richard Guy Briggs <rgb@redhat.com>
+Date: Fri, 18 Apr 2014 13:34:06 -0400
 
-The latest commit seems to have fixed the conditional issue at long
-last, thaanks!!
+> @@ -1449,6 +1453,26 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
+>  	if (!nladdr->nl_groups && (nlk->groups == NULL || !(u32)nlk->groups[0]))
+>  		return 0;
+>  
+> +	if (nlk->netlink_bind && nladdr->nl_groups) {
+> +		int i;
+> +
+> +		for (i = 0; i < nlk->ngroups; i++) {
+> +			int undo;
+> +
+> +			if (!test_bit(i, (long unsigned int *)&nladdr->nl_groups))
+> +				continue;
+> +			err = nlk->netlink_bind(i);
+> +			if (!err)
+> +				continue;
+> +			if (!nlk->portid)
+> +				netlink_remove(sk);
+> +			for (undo = 0; undo < i; undo++)
+> +				if (nlk->netlink_unbind)
+> +					nlk->netlink_unbind(undo);
+> +			return err;
+> +		}
+> +	}
+> +
+
+It took me a while to figure out why you need to do the netlink_remove() in
+the error path.
+
+I think it's really asking for trouble to allow the socket to have temporary
+visibility if we end up signalling an error.
+
+It seems safest if we only do the autobind/insert once we are absolutely
+certain that the bind() will fully succeed.  This means that you have to
+do this bind validation loop before autobind/insert.
+
+Please make this change and resubmit this series, thanks.
