@@ -1,25 +1,67 @@
-Message-ID: <53554FB9.7080502@tycho.nsa.gov>
-Date: Mon, 21 Apr 2014 13:04:57 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3M51pI3026420
+ for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 01:01:51 -0400
+Received: by mail-pa0-f46.google.com with SMTP id kp14so533612pab.19
+ for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2014 22:01:50 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.93.83])
+ by mx.google.com with ESMTPSA id yv7sm195841773pac.33.2014.04.21.22.01.48
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Mon, 21 Apr 2014 22:01:49 -0700 (PDT)
+Message-ID: <5355F720.7010605@gmail.com>
+Date: Tue, 22 Apr 2014 10:29:12 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-To: Kernel freak <kernelfreak@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Allowing access other then permissive mode.
-References: <CAOFt0CQHwubzwGSTsw5ig-1tTG9QJe16X5HFoxgjwvV6_StoaA@mail.gmail.com>
- <535516B6.4090705@tycho.nsa.gov>
- <CAOFt0CT+i=A+pvAx+Di2rsTfWBY27A3u-9HR-fxY03jWDYzmLA@mail.gmail.com>
-In-Reply-To: <CAOFt0CT+i=A+pvAx+Di2rsTfWBY27A3u-9HR-fxY03jWDYzmLA@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+Subject: Re: Why is SELINUXTYPE policy specific?
+References: <5353BC31.3070404@gmail.com>
+ <CAPzO=Nzkn13La7VDcFjCah8CGmhW7R6Vm+zoMFR80DhPNgD3wg@mail.gmail.com>
+In-Reply-To: <CAPzO=Nzkn13La7VDcFjCah8CGmhW7R6Vm+zoMFR80DhPNgD3wg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/21/2014 12:19 PM, Kernel freak wrote:
-> Thank you stephen. But you had also mentioned that security_compute_av()
-> are void functions from kernel 3.0, then how is it responsible if access
-> is allowed or not. Kindly clarify. Thank you for your time.
+On 04/21/14 13:31, Sven Vermeulen wrote:
+> On Sun, Apr 20, 2014 at 2:23 PM, dE <de.techno@gmail.com> wrote:
+>> There are 3 security models in which SELinux can work -- TE, RBAC and MLS.
+>>
+>> And there are 6 types of SELinux policies --
+>>
+>> targeted, mls, mcs, standard, strict or minimum.
+>>
+>> Each security model requires it's own set of policies and the policies can
+>> be 1 of the 6 types. So can all the 3 security modles and 6 types be
+>> intermixed? Won't there be conflicts like with MLS and RBAC?
+> The SELINUXTYPE value should be seen as the name given to a policy
+> store. The contents (the actual policy, the features it supports, the
+> fact that it is MLS-enabled or not) have nothing to do with the name
+> of the store per se. It is just a matter of convenience that policy
+> stores are named in a particular way so that, cross-distributions,
+> security administrators can deduce the type and features of the policy
+> based on the name.
+>
+> For instance, on RHEL6, "targeted" is the name given to the policy
+> store that contains an MCS policy with support for unconfined domains.
+> On Gentoo, this name is rather used for non-MCS policy with support
+> for unconfined domains.
+>
+> Afaik, there is no conflict between RBAC and MLS. With MLS, the
+> SELinux subsystem allows or denies access based on the dominance rules
+> between the domains' security clearance and the resource sensitivity
+> level. RBAC instead allows or denies a SELinux role to be associated
+> with a particular domain.
+>
+> Wkr,
+>    Sven Vermeulen
 
-Because the caller checks whether the requested permissions are included
-in avd->allowed.  The avd structure contains the result of the
-security_compute_av() call.
+So can policies which support RBAC can be made to have a different 
+SELINUXTYPE?
+
+Can targeted, mls, mcs, standard, strict or minimum also be considered 
+as different security models? Since all these are made based on the TE 
+model, can we make a custom security model based on TE and give it a 
+different SELINUXTYPE.
+
+Thanks for the response.
