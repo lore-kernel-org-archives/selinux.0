@@ -1,67 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3M51pI3026420
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 01:01:51 -0400
-Received: by mail-pa0-f46.google.com with SMTP id kp14so533612pab.19
- for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2014 22:01:50 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3M5655R026568
+ for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 01:06:05 -0400
+Received: by mail-pb0-f51.google.com with SMTP id uo5so4474535pbc.24
+ for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2014 22:06:04 -0700 (PDT)
 Received: from [192.168.1.2] ([117.201.93.83])
- by mx.google.com with ESMTPSA id yv7sm195841773pac.33.2014.04.21.22.01.48
+ by mx.google.com with ESMTPSA id gy1sm27518444pbd.20.2014.04.21.22.06.02
  for <selinux@tycho.nsa.gov>
  (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Mon, 21 Apr 2014 22:01:49 -0700 (PDT)
-Message-ID: <5355F720.7010605@gmail.com>
-Date: Tue, 22 Apr 2014 10:29:12 +0530
+ Mon, 21 Apr 2014 22:06:03 -0700 (PDT)
+Message-ID: <5355F81D.5010402@gmail.com>
+Date: Tue, 22 Apr 2014 10:33:25 +0530
 From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
 Subject: Re: Why is SELINUXTYPE policy specific?
-References: <5353BC31.3070404@gmail.com>
- <CAPzO=Nzkn13La7VDcFjCah8CGmhW7R6Vm+zoMFR80DhPNgD3wg@mail.gmail.com>
-In-Reply-To: <CAPzO=Nzkn13La7VDcFjCah8CGmhW7R6Vm+zoMFR80DhPNgD3wg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <5353BC31.3070404@gmail.com> <535530EB.6010909@tycho.nsa.gov>
+In-Reply-To: <535530EB.6010909@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/21/14 13:31, Sven Vermeulen wrote:
-> On Sun, Apr 20, 2014 at 2:23 PM, dE <de.techno@gmail.com> wrote:
+On 04/21/14 20:23, Stephen Smalley wrote:
+> On 04/20/2014 08:23 AM, dE wrote:
 >> There are 3 security models in which SELinux can work -- TE, RBAC and MLS.
 >>
 >> And there are 6 types of SELinux policies --
 >>
 >> targeted, mls, mcs, standard, strict or minimum.
 >>
->> Each security model requires it's own set of policies and the policies can
->> be 1 of the 6 types. So can all the 3 security modles and 6 types be
+>> Each security model requires it's own set of policies and the policies
+>> can be 1 of the 6 types. So can all the 3 security modles and 6 types be
 >> intermixed? Won't there be conflicts like with MLS and RBAC?
-> The SELINUXTYPE value should be seen as the name given to a policy
-> store. The contents (the actual policy, the features it supports, the
-> fact that it is MLS-enabled or not) have nothing to do with the name
-> of the store per se. It is just a matter of convenience that policy
-> stores are named in a particular way so that, cross-distributions,
-> security administrators can deduce the type and features of the policy
-> based on the name.
+> The SELinux security server implements a hybrid RBAC/TE model (not
+> optional, always present) and an optional MLS model (can be enabled
+> alongside the RBAC/TE model, not as a substitute for it).  The MLS model
+> in fact relies upon the RBAC/TE model to serve certain functions such as
+> identifying, protecting, and limiting MLS trusted subjects (based on
+> their domain).
 >
-> For instance, on RHEL6, "targeted" is the name given to the policy
-> store that contains an MCS policy with support for unconfined domains.
-> On Gentoo, this name is rather used for non-MCS policy with support
-> for unconfined domains.
+> SELINUXTYPE in /etc/selinux/config is just a means of specifying the
+> name/location of the policy to be loaded.  It was originally for Red Hat
+> to allow them to support selection among multiple policy packages that
+> could all potentially be installed on the filesystem.  An alternate
+> implementation could have just used a symlink or just make the policy
+> packages conflict with each other so that only one could be installed at
+> a time.  The name conventionally suggests the kind of policy but there
+> is no intrinsic meaning to it.
 >
-> Afaik, there is no conflict between RBAC and MLS. With MLS, the
-> SELinux subsystem allows or denies access based on the dominance rules
-> between the domains' security clearance and the resource sensitivity
-> level. RBAC instead allows or denies a SELinux role to be associated
-> with a particular domain.
+> Modern refpolicy build.conf has a TYPE that selects the kind of policy
+> to be built (standard == RBAC/TE only, mls == enable MLS and use the MLS
+> configuration, mcs == enable MLS and use the MCS configuration), and a
+> NAME that names the install location for the policy (which can be
+> anything and corresponds to the SELINUXTYPE of /etc/selinux/config).
 >
-> Wkr,
->    Sven Vermeulen
+> The optional MLS model in the security server is in fact enabled in all
+> of the policy types in Fedora (any supported version) and RHEL 5 or
+> later, but used to implement Red Hat's MCS model in the targeted policy
+> (or any other policy type other than the mls one).  So targeted policy
+> in Fedora or RHEL corresponds to TYPE=mcs NAME=targeted in refpolicy
+> build.conf, while mls policy in Fedora or RHEL corresponds to TYPE=mls
+> NAME=mls in refpolicy build.conf.  standard is not used in Fedora or
+> RHEL AFAIK.  strict is no longer a separate policy in modern Fedora or
+> RHEL (>= 6?) because targeted and strict policies converged together and
+> strict policy can be achieved by mapping users to confined roles via
+> semanage on targeted policy and optionally by removing unconfined
+> entirely.  minimum is TYPE=mcs NAME=minimum and just differs in that it
+> has a different set of policy modules included in it.
 
-So can policies which support RBAC can be made to have a different 
-SELINUXTYPE?
-
-Can targeted, mls, mcs, standard, strict or minimum also be considered 
-as different security models? Since all these are made based on the TE 
-model, can we make a custom security model based on TE and give it a 
-different SELINUXTYPE.
-
-Thanks for the response.
+So in most distros, SELINUXTYPE specifies the security model.
