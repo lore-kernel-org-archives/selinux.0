@@ -1,28 +1,70 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3M625SD029996
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 02:02:05 -0400
-Received: by mail-pb0-f50.google.com with SMTP id md12so4552754pbc.37
- for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2014 23:02:04 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.93.83])
- by mx.google.com with ESMTPSA id te2sm196647048pac.25.2014.04.21.23.02.02
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Mon, 21 Apr 2014 23:02:03 -0700 (PDT)
-Message-ID: <5356053E.9080302@gmail.com>
-Date: Tue, 22 Apr 2014 11:29:26 +0530
-From: dE <de.techno@gmail.com>
+Message-ID: <53566190.7090807@tycho.nsa.gov>
+Date: Tue, 22 Apr 2014 08:33:20 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Cannot enable selinux.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: Why is SELINUXTYPE policy specific?
+References: <5353BC31.3070404@gmail.com> <535530EB.6010909@tycho.nsa.gov>
+ <5355F81D.5010402@gmail.com>
+In-Reply-To: <5355F81D.5010402@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I've SECURITY_SELINUX enabled on my custom kernel, however on mounting 
-with selinuxfs --
+On 04/22/2014 01:03 AM, dE wrote:
+> On 04/21/14 20:23, Stephen Smalley wrote:
+>> On 04/20/2014 08:23 AM, dE wrote:
+>>> There are 3 security models in which SELinux can work -- TE, RBAC and
+>>> MLS.
+>>>
+>>> And there are 6 types of SELinux policies --
+>>>
+>>> targeted, mls, mcs, standard, strict or minimum.
+>>>
+>>> Each security model requires it's own set of policies and the policies
+>>> can be 1 of the 6 types. So can all the 3 security modles and 6 types be
+>>> intermixed? Won't there be conflicts like with MLS and RBAC?
+>> The SELinux security server implements a hybrid RBAC/TE model (not
+>> optional, always present) and an optional MLS model (can be enabled
+>> alongside the RBAC/TE model, not as a substitute for it).  The MLS model
+>> in fact relies upon the RBAC/TE model to serve certain functions such as
+>> identifying, protecting, and limiting MLS trusted subjects (based on
+>> their domain).
+>>
+>> SELINUXTYPE in /etc/selinux/config is just a means of specifying the
+>> name/location of the policy to be loaded.  It was originally for Red Hat
+>> to allow them to support selection among multiple policy packages that
+>> could all potentially be installed on the filesystem.  An alternate
+>> implementation could have just used a symlink or just make the policy
+>> packages conflict with each other so that only one could be installed at
+>> a time.  The name conventionally suggests the kind of policy but there
+>> is no intrinsic meaning to it.
+>>
+>> Modern refpolicy build.conf has a TYPE that selects the kind of policy
+>> to be built (standard == RBAC/TE only, mls == enable MLS and use the MLS
+>> configuration, mcs == enable MLS and use the MCS configuration), and a
+>> NAME that names the install location for the policy (which can be
+>> anything and corresponds to the SELINUXTYPE of /etc/selinux/config).
+>>
+>> The optional MLS model in the security server is in fact enabled in all
+>> of the policy types in Fedora (any supported version) and RHEL 5 or
+>> later, but used to implement Red Hat's MCS model in the targeted policy
+>> (or any other policy type other than the mls one).  So targeted policy
+>> in Fedora or RHEL corresponds to TYPE=mcs NAME=targeted in refpolicy
+>> build.conf, while mls policy in Fedora or RHEL corresponds to TYPE=mls
+>> NAME=mls in refpolicy build.conf.  standard is not used in Fedora or
+>> RHEL AFAIK.  strict is no longer a separate policy in modern Fedora or
+>> RHEL (>= 6?) because targeted and strict policies converged together and
+>> strict policy can be achieved by mapping users to confined roles via
+>> semanage on targeted policy and optionally by removing unconfined
+>> entirely.  minimum is TYPE=mcs NAME=minimum and just differs in that it
+>> has a different set of policy modules included in it.
+> 
+> So in most distros, SELINUXTYPE specifies the security model.
 
-mount: unknown filesystem type 'selinuxfs'
-
-As a result, I cant get sestatus enabled.
+Not really, no.  The model (i.e. RBAC/TE + MLS) is in fact the same for
+all values of SELINUXTYPE in Fedora and RHEL; only the configuration
+differs.  SELINUXTYPE is just a name for the policy (hence refpolicy's
+use of NAME=).
