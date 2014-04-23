@@ -1,45 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3N3vwMJ030129
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 23:57:58 -0400
-Message-ID: <1398225475.750.7.camel@localhost>
-Subject: Re: [PATCH 0/6][v2] audit: implement multicast socket for journald
-From: Eric Paris <eparis@redhat.com>
-To: Steve Grubb <sgrubb@redhat.com>
-Date: Tue, 22 Apr 2014 23:57:55 -0400
-In-Reply-To: <26389161.vp9iWSVLPX@x2>
-References: <20140422.161904.1187535812839850973.davem@davemloft.net>
- <cover.1398215388.git.rgb@redhat.com> <26389161.vp9iWSVLPX@x2>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3N6JhiI006144
+ for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2014 02:19:43 -0400
+Received: by mail-ee0-f47.google.com with SMTP id b15so338485eek.6
+ for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 23:19:43 -0700 (PDT)
+Message-ID: <1398233981.16991.19.camel@x220.localdomain>
+Subject: Re: [secilc] typeattributeset with "and" expression does not work
+From: Dominick Grift <dominick.grift@gmail.com>
+To: Steve Lawrence <slawrence@tresys.com>
+Date: Wed, 23 Apr 2014 08:19:41 +0200
+In-Reply-To: <1398199459.16991.17.camel@x220.localdomain>
+References: <1398189362.16991.6.camel@x220.localdomain>
+ <5356BD03.40501@tresys.com> <1398195193.16991.12.camel@x220.localdomain>
+ <5356C6AA.5030009@tresys.com> <1398199159.16991.14.camel@x220.localdomain>
+ <1398199459.16991.17.camel@x220.localdomain>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-audit@redhat.com,
- selinux@tycho.nsa.gov, jamal@mojatatu.com, davem@davemloft.net
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2014-04-22 at 22:25 -0400, Steve Grubb wrote:
-> On Tuesday, April 22, 2014 09:31:52 PM Richard Guy Briggs wrote:
-> > This is a patch set Eric Paris and I have been working on to add a
-> > restricted capability read-only netlink multicast socket to kernel audit to
-> > enable userspace clients such as systemd/journald to receive audit logs, in
-> > addition to the bidirectional auditd userspace client.
+On Tue, 2014-04-22 at 22:44 +0200, Dominick Grift wrote:
+> On Tue, 2014-04-22 at 22:39 +0200, Dominick Grift wrote:
+> > On Tue, 2014-04-22 at 15:44 -0400, Steve Lawrence wrote:
+> > 
+> > > >>> Also, i still have that weird boolean issue where, even though sesearch
+> > > >>> shows the rules are loaded and enabled, SELinux still blocks the access
+> > > >>
+> > > >> I think we actually fixed this about an hour ago. Give it a shot, let us
+> > > >> know if it's actually fixed.
+> > > > 
+> > > > Nice, i will try with up-to-date secilc tomorrow
+> > 
+> > Current head does not fix the boolean issue, i just verified and the
+> > issue is still there
 > 
-> Do have the ability to separate of secadm_r and sysadm_r? By allowing this, we 
-> will leak to a sysadmin that he is being audited by the security officer. In a 
-> lot of cases, they are one in the same person. But for others, they are not. I 
-> have a feeling this will cause problems for MLS systems.
+> Actually it partly works (but it did before as well)
+> 
+> Its the conditional capability permissions that do not work
+> 
+> i have for example a set of consitional rules:
+> 
+> (allow ARG1 security_t (security load_policy))
+> (allow ARG1 security_t (file (write)))
+> 
+> The file write works but the security load_policy does not work
+> 
 
-Why?  This requires CAP_AUDIT_READ.  Just don't give CAP_AUDIT_READ to
-places you don't want to have read permission.  Exactly the same as you
-don't give CAP_AUDIT_CONTROL to sysadm_r.  (If we are giving
-CAP_AUDIT_CONTROL to sysadm_r and you think that any file protections
-on /var/log/audit/audit.log are adequate we are fooling ourselves!)
-
-> Also, shouldn't we have an audit event for every attempt to connect to this 
-> socket? We really need to know where this information is getting leaked to.
-
-We certainly can.  What would you like to see in that event?
-
--Eric
+The latest commit seems to have fixed the conditional issue at long
+last, thaanks!!
