@@ -1,63 +1,97 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3MKJ8UT032754
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 16:19:08 -0400
-Date: Tue, 22 Apr 2014 16:19:04 -0400 (EDT)
-Message-Id: <20140422.161904.1187535812839850973.davem@davemloft.net>
-To: rgb@redhat.com
-Subject: Re: [PATCH 2/6] netlink: have netlink per-protocol bind function
- return an error code.
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <c9a8a0879bc9f375bb3484f8e86189a8af5aa142.1397831970.git.rgb@redhat.com>
-References: <20140324183406.GE28666@madcap2.tricolour.ca>
- <cover.1397831970.git.rgb@redhat.com>
- <c9a8a0879bc9f375bb3484f8e86189a8af5aa142.1397831970.git.rgb@redhat.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Cc: hadi@mojatatu.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- eparis@redhat.com, linux-security-module@vger.kernel.org,
- linux-audit@redhat.com, netfilter-devel@vger.kernel.org, selinux@tycho.nsa.gov,
- sgrubb@redhat.com
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3N1Wa9d021067
+ for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 21:32:36 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: linux-audit@redhat.com, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Subject: [PATCH 0/6][v2] audit: implement multicast socket for journald
+Date: Tue, 22 Apr 2014 21:31:52 -0400
+Message-Id: <cover.1398215388.git.rgb@redhat.com>
+In-Reply-To: <20140422.161904.1187535812839850973.davem@davemloft.net>
+References: <20140422.161904.1187535812839850973.davem@davemloft.net>
+Cc: jamal@mojatatu.com, sgrubb@redhat.com, davem@davemloft.net,
+ eparis@redhat.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Richard Guy Briggs <rgb@redhat.com>
-Date: Fri, 18 Apr 2014 13:34:06 -0400
+This is a patch set Eric Paris and I have been working on to add a restricted
+capability read-only netlink multicast socket to kernel audit to enable
+userspace clients such as systemd/journald to receive audit logs, in addition
+to the bidirectional auditd userspace client.
 
-> @@ -1449,6 +1453,26 @@ static int netlink_bind(struct socket *sock, struct sockaddr *addr,
->  	if (!nladdr->nl_groups && (nlk->groups == NULL || !(u32)nlk->groups[0]))
->  		return 0;
->  
-> +	if (nlk->netlink_bind && nladdr->nl_groups) {
-> +		int i;
-> +
-> +		for (i = 0; i < nlk->ngroups; i++) {
-> +			int undo;
-> +
-> +			if (!test_bit(i, (long unsigned int *)&nladdr->nl_groups))
-> +				continue;
-> +			err = nlk->netlink_bind(i);
-> +			if (!err)
-> +				continue;
-> +			if (!nlk->portid)
-> +				netlink_remove(sk);
-> +			for (undo = 0; undo < i; undo++)
-> +				if (nlk->netlink_unbind)
-> +					nlk->netlink_unbind(undo);
-> +			return err;
-> +		}
-> +	}
-> +
+Currently, auditd has the CAP_AUDIT_CONTROL and CAP_AUDIT_WRITE capabilities
+(but uses CAP_NET_ADMIN).  The CAP_AUDIT_READ capability will be added for use
+by read-only AUDIT_NLGRP_READLOG multicast group clients to the kaudit
+subsystem.  This will remove the dependence on CAP_NET_ADMIN for the multicast
+read-only socket.
 
-It took me a while to figure out why you need to do the netlink_remove() in
-the error path.
 
-I think it's really asking for trouble to allow the socket to have temporary
-visibility if we end up signalling an error.
+Patches 1-3 provide a way for per-protocol bind functions to
+signal an error and to be able to clean up after themselves.
 
-It seems safest if we only do the autobind/insert once we are absolutely
-certain that the bind() will fully succeed.  This means that you have to
-do this bind validation loop before autobind/insert.
+The first netfilter cleanup patch has already been accepted by a netfilter
+maintainer, though I don't see it upstream yet, so it is included for
+completeness.
 
-Please make this change and resubmit this series, thanks.
+The second patch adds the per-protocol bind function return code to signal to
+the netlink code that no further processing should be done and to undo the work
+already done.
+V1: This rev fixes a bug introduced by flattening the code in the last posting.
+*V2: This rev moves the per-protocol bind call above the socket exposure call
+and refactors out the unbind procedure.
+
+The third provides a way per protocol to undo bind actions on DROP.
+
+
+Patches 4-6 implement the audit multicast socket with capability checking.
+
+The fourth patch adds the bind function capability check to multicast join
+requests for audit.
+
+The fifth patch adds the audit log read multicast group.  An assumption has
+been made that systemd/journald reside in the initial network namespace.  This
+could be changed to check the actual network namespace of systemd/journald
+should this assumption no longer be true since audit now supports all network
+namespaces.  This version of the patch now directly sends the broadcast when
+the packet is ready rather than waiting until it passes the queue.
+
+The sixth checks if any clients actually exist before sending.
+
+
+Since the net tree is busier than the audit tree, conflicts are more likely and
+the audit patches depend on the net patches, it is proposed to have the net
+tree carry this entire patchset for 3.16.  Are the net maintainers ok with this?
+
+
+https://bugzilla.redhat.com/show_bug.cgi?id=887992 
+
+First posted:   https://www.redhat.com/archives/linux-audit/2013-January/msg00008.html
+                https://lkml.org/lkml/2013/1/27/279
+
+Please find source for a test program at: 
+	http://people.redhat.com/rbriggs/audit-multicast-listen/
+
+
+Richard Guy Briggs (6):
+  netlink: simplify nfnetlink_bind
+  netlink: have netlink per-protocol bind function return an error
+    code.
+  netlink: implement unbind to netlink_setsockopt
+    NETLINK_DROP_MEMBERSHIP
+  audit: add netlink audit protocol bind to check capabilities on
+    multicast join
+  audit: add netlink multicast group for log read
+  audit: send multicast messages only if there are listeners
+
+ include/linux/netlink.h             |    3 +-
+ include/uapi/linux/audit.h          |    8 ++++
+ include/uapi/linux/capability.h     |    7 +++-
+ kernel/audit.c                      |   64 ++++++++++++++++++++++++++++++--
+ net/netfilter/nfnetlink.c           |   10 ++---
+ net/netlink/af_netlink.c            |   70 +++++++++++++++++++++++++----------
+ net/netlink/af_netlink.h            |    6 ++-
+ security/selinux/include/classmap.h |    2 +-
+ 8 files changed, 135 insertions(+), 35 deletions(-)
