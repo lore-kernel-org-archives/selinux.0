@@ -1,46 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3MKiLpk002341
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 16:44:21 -0400
-Received: by mail-ee0-f47.google.com with SMTP id b15so108086eek.20
- for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 13:44:21 -0700 (PDT)
-Message-ID: <1398199459.16991.17.camel@x220.localdomain>
-Subject: Re: [secilc] typeattributeset with "and" expression does not work
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Date: Tue, 22 Apr 2014 22:44:19 +0200
-In-Reply-To: <1398199159.16991.14.camel@x220.localdomain>
-References: <1398189362.16991.6.camel@x220.localdomain>
- <5356BD03.40501@tresys.com> <1398195193.16991.12.camel@x220.localdomain>
- <5356C6AA.5030009@tresys.com> <1398199159.16991.14.camel@x220.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: selinux <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3N1nZfL022022
+ for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2014 21:49:35 -0400
+Date: Tue, 22 Apr 2014 21:49:29 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: David Miller <davem@davemloft.net>, linux-audit@redhat.com,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 0/6][v2] audit: implement multicast socket for journald
+Message-ID: <20140423014929.GL20182@madcap2.tricolour.ca>
+References: <20140422.161904.1187535812839850973.davem@davemloft.net>
+ <cover.1398215388.git.rgb@redhat.com>
+ <20140422.214300.171999077259349189.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20140422.214300.171999077259349189.davem@davemloft.net>
+Cc: linux-security-module@vger.kernel.org, sgrubb@redhat.com, eparis@redhat.com,
+ selinux@tycho.nsa.gov, hadi@mojatatu.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2014-04-22 at 22:39 +0200, Dominick Grift wrote:
-> On Tue, 2014-04-22 at 15:44 -0400, Steve Lawrence wrote:
+On 14/04/22, David Miller wrote:
+> From: Richard Guy Briggs <rgb@redhat.com>
+> Date: Tue, 22 Apr 2014 21:31:52 -0400
 > 
-> > >>> Also, i still have that weird boolean issue where, even though sesearch
-> > >>> shows the rules are loaded and enabled, SELinux still blocks the access
-> > >>
-> > >> I think we actually fixed this about an hour ago. Give it a shot, let us
-> > >> know if it's actually fixed.
-> > > 
-> > > Nice, i will try with up-to-date secilc tomorrow
+> > This is a patch set Eric Paris and I have been working on to add a restricted
+> > capability read-only netlink multicast socket to kernel audit to enable
+> > userspace clients such as systemd/journald to receive audit logs, in addition
+> > to the bidirectional auditd userspace client.
 > 
-> Current head does not fix the boolean issue, i just verified and the
-> issue is still there
+> Series applied, thanks Richard.
 
-Actually it partly works (but it did before as well)
+Thanks for your patience, David.  Can I assume you adopted the 3 audit
+patches too, becuase of the dependence?
 
-Its the conditional capability permissions that do not work
+- RGB
 
-i have for example a set of consitional rules:
-
-(allow ARG1 security_t (security load_policy))
-(allow ARG1 security_t (file (write)))
-
-The file write works but the security load_policy does not work
+--
+Richard Guy Briggs <rbriggs@redhat.com>
+Senior Software Engineer, Kernel Security, AMER ENG Base Operating Systems, Red Hat
+Remote, Ottawa, Canada
+Voice: +1.647.777.2635, Internal: (81) 32635, Alt: +1.613.693.0684x3545
