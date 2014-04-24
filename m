@@ -1,67 +1,85 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3NFqOFV021365
- for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2014 11:52:24 -0400
-Message-ID: <5357E1B4.2030705@redhat.com>
-Date: Wed, 23 Apr 2014 11:52:20 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3ODMh57013260
+ for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2014 09:22:43 -0400
+Received: by mail-lb0-f170.google.com with SMTP id s7so2021355lbd.1
+ for <selinux@tycho.nsa.gov>; Thu, 24 Apr 2014 06:22:27 -0700 (PDT)
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH 0/6][v2] audit: implement multicast socket for journald
+In-Reply-To: <5357E1B4.2030705@redhat.com>
 References: <20140422.161904.1187535812839850973.davem@davemloft.net>
  <cover.1398215388.git.rgb@redhat.com> <26389161.vp9iWSVLPX@x2>
  <1398225475.750.7.camel@localhost> <5357C2D2.5060700@redhat.com>
  <1398264152.2596.25.camel@flatline.rdu.redhat.com>
  <5357DE12.7040905@redhat.com>
  <1398267458.2562.0.camel@flatline.rdu.redhat.com>
-In-Reply-To: <1398267458.2562.0.camel@flatline.rdu.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-audit@redhat.com,
- selinux@tycho.nsa.gov, jamal@mojatatu.com, Steve Grubb <sgrubb@redhat.com>,
- davem@davemloft.net
+ <5357E1B4.2030705@redhat.com>
+Date: Thu, 24 Apr 2014 09:22:27 -0400
+Message-ID: <CACLa4psQyoaZTE7R0qiog_biMKXyeGtLc1AQUuEPtemMYcDCSQ@mail.gmail.com>
+Subject: Re: [PATCH 0/6][v2] audit: implement multicast socket for journald
+From: Eric Paris <eparis@parisplace.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: Linux Netdev List <netdev@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Eric Paris <eparis@redhat.com>,
+ LSM List <linux-security-module@vger.kernel.org>, linux-audit@redhat.com,
+ SE-Linux <selinux@tycho.nsa.gov>, jamal@mojatatu.com,
+ Steve Grubb <sgrubb@redhat.com>, David Miller <davem@davemloft.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Meaning looking at the journal would be equivalent to looking at
-/var/log/audit/audit.log.
+They would be equivalent if and only if journald had CAP_AUDIT_READ.
 
+I suggest you take CAP_AUDIT_READ away from journald on systems which
+need the secadm/sysadmin split (which is a ridiculously stupid split
+anyway, but who am I to complain?)
 
-On 04/23/2014 11:37 AM, Eric Paris wrote:
-> On Wed, 2014-04-23 at 11:36 -0400, Daniel J Walsh wrote:
->> I guess the problem would be that the sysadm_t would be able to look at
->> the journal which would now contain the audit content.
-> right.  so include it in the sysadm_secadm bool
+On Wed, Apr 23, 2014 at 11:52 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Meaning looking at the journal would be equivalent to looking at
+> /var/log/audit/audit.log.
 >
->> On 04/23/2014 10:42 AM, Eric Paris wrote:
->>> On Wed, 2014-04-23 at 09:40 -0400, Daniel J Walsh wrote:
->>>> Here are the capabilities we currently give to sysadm_t with
->>>> sysadm_secadm    1.0.0    Disabled
+>
+> On 04/23/2014 11:37 AM, Eric Paris wrote:
+>> On Wed, 2014-04-23 at 11:36 -0400, Daniel J Walsh wrote:
+>>> I guess the problem would be that the sysadm_t would be able to look at
+>>> the journal which would now contain the audit content.
+>> right.  so include it in the sysadm_secadm bool
+>>
+>>> On 04/23/2014 10:42 AM, Eric Paris wrote:
+>>>> On Wed, 2014-04-23 at 09:40 -0400, Daniel J Walsh wrote:
+>>>>> Here are the capabilities we currently give to sysadm_t with
+>>>>> sysadm_secadm    1.0.0    Disabled
+>>>>>
+>>>>>    allow sysadm_t sysadm_t : capability { chown dac_override
+>>>>> dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable
+>>>>> net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner
+>>>>> sys_rawio sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice
+>>>>> sys_resource sys_time sys_tty_config mknod lease audit_write setfcap } ;
+>>>>>    allow sysadm_t sysadm_t : capability { setgid setuid sys_chroot }
+>>>>>
+>>>>>    allow sysadm_t sysadm_t : capability2 { syslog block_suspend } ;
+>>>>>
+>>>>> cap_audit_write might be a problem?
+>>>> cap_audit_write is fine.
 >>>>
->>>>    allow sysadm_t sysadm_t : capability { chown dac_override
->>>> dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable
->>>> net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner
->>>> sys_rawio sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice
->>>> sys_resource sys_time sys_tty_config mknod lease audit_write setfcap } ;
->>>>    allow sysadm_t sysadm_t : capability { setgid setuid sys_chroot }
+>>>> syslogd_t (aka journal) is going to need the new permission
+>>>> cap_audit_read.  Also, as steve pointed out, someone may be likely to
+>>>> want to be able to disable that permission easily.
 >>>>
->>>>    allow sysadm_t sysadm_t : capability2 { syslog block_suspend } ;
+>>>> -Eric
 >>>>
->>>> cap_audit_write might be a problem?
->>> cap_audit_write is fine.
->>>
->>> syslogd_t (aka journal) is going to need the new permission
->>> cap_audit_read.  Also, as steve pointed out, someone may be likely to
->>> want to be able to disable that permission easily.
->>>
->>> -Eric
->>>
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
+>>
 >
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
