@@ -1,82 +1,31 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3Q7917K023993
- for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2014 03:09:01 -0400
-Received: by mail-pd0-f179.google.com with SMTP id g10so3911223pdj.38
- for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2014 00:09:00 -0700 (PDT)
-Received: from [192.168.1.2] ([117.214.175.158])
- by mx.google.com with ESMTPSA id oa3sm20545045pbb.15.2014.04.26.00.08.58
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Sat, 26 Apr 2014 00:09:00 -0700 (PDT)
-Message-ID: <535B5AEE.2020806@gmail.com>
-Date: Sat, 26 Apr 2014 12:36:22 +0530
-From: dE <de.techno@gmail.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3QEHtw4015778
+ for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2014 10:17:55 -0400
+Received: by mail-ee0-f48.google.com with SMTP id b57so3495867eek.21
+ for <selinux@tycho.nsa.gov>; Sat, 26 Apr 2014 07:17:54 -0700 (PDT)
+Message-ID: <1398521872.16991.22.camel@x220.localdomain>
 Subject: Re: Why is SELINUXTYPE policy specific?
+From: Dominick Grift <dominick.grift@gmail.com>
+To: dE <de.techno@gmail.com>
+Date: Sat, 26 Apr 2014 16:17:52 +0200
+In-Reply-To: <535B5AEE.2020806@gmail.com>
 References: <5353BC31.3070404@gmail.com>
  <CAPzO=Nzkn13La7VDcFjCah8CGmhW7R6Vm+zoMFR80DhPNgD3wg@mail.gmail.com>
  <5355F720.7010605@gmail.com> <5356664E.7050309@tycho.nsa.gov>
-In-Reply-To: <5356664E.7050309@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+ <535B5AEE.2020806@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/22/14 18:23, Stephen Smalley wrote:
-> On 04/22/2014 12:59 AM, dE wrote:
->> On 04/21/14 13:31, Sven Vermeulen wrote:
->>> On Sun, Apr 20, 2014 at 2:23 PM, dE <de.techno@gmail.com> wrote:
->>>> There are 3 security models in which SELinux can work -- TE, RBAC and
->>>> MLS.
->>>>
->>>> And there are 6 types of SELinux policies --
->>>>
->>>> targeted, mls, mcs, standard, strict or minimum.
->>>>
->>>> Each security model requires it's own set of policies and the
->>>> policies can
->>>> be 1 of the 6 types. So can all the 3 security modles and 6 types be
->>>> intermixed? Won't there be conflicts like with MLS and RBAC?
->>> The SELINUXTYPE value should be seen as the name given to a policy
->>> store. The contents (the actual policy, the features it supports, the
->>> fact that it is MLS-enabled or not) have nothing to do with the name
->>> of the store per se. It is just a matter of convenience that policy
->>> stores are named in a particular way so that, cross-distributions,
->>> security administrators can deduce the type and features of the policy
->>> based on the name.
->>>
->>> For instance, on RHEL6, "targeted" is the name given to the policy
->>> store that contains an MCS policy with support for unconfined domains.
->>> On Gentoo, this name is rather used for non-MCS policy with support
->>> for unconfined domains.
->>>
->>> Afaik, there is no conflict between RBAC and MLS. With MLS, the
->>> SELinux subsystem allows or denies access based on the dominance rules
->>> between the domains' security clearance and the resource sensitivity
->>> level. RBAC instead allows or denies a SELinux role to be associated
->>> with a particular domain.
->>>
->>> Wkr,
->>>     Sven Vermeulen
->> So can policies which support RBAC can be made to have a different
->> SELINUXTYPE?
-> You can use any SELINUXTYPE value you want; it is just an arbitrary name
-> for the policy.  No inherent relationship to the underlying model or
-> configuration.
->
->> Can targeted, mls, mcs, standard, strict or minimum also be considered
->> as different security models? Since all these are made based on the TE
->> model, can we make a custom security model based on TE and give it a
->> different SELINUXTYPE.
-> No, they are not different security models, just different
-> configurations of the same model, and you are mixing the notions of
-> SELINUXTYPE, TYPE and NAME.  At most, you might say that mcs and mls are
-> different "models" since they use different sets of constraint
-> definitions but that's all just configuration data for SELinux...
+On Sat, 2014-04-26 at 12:36 +0530, dE wrote:
 
-Sorry for the late response -- I was really busy setting up that 
-graphics card.
+> 
+> So I dont understand the purpose of SELINUXTYPE. Can someone please explain?
 
-So I dont understand the purpose of SELINUXTYPE. Can someone please explain?
+It allows one to have more than a single policy installed at any given
+time, which in turn enables one to relatively easily switch between
+policies.
