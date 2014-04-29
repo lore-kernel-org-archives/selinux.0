@@ -1,66 +1,52 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3TGFx5I008461
+ for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 12:15:59 -0400
+Received: from int-mx02.intmail.prod.int.phx2.redhat.com
+ (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s3TGFj7o004310
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+ for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 12:15:46 -0400
+Received: from [10.13.137.74] (dhcp137-74.rdu.redhat.com [10.13.137.74])
+ by int-mx02.intmail.prod.int.phx2.redhat.com (8.13.8/8.13.8) with ESMTP id
+ s3TGFjlK012726
+ for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 12:15:45 -0400
+Message-ID: <1398788145.3576.70.camel@metroid.usersys.redhat.com>
+Subject: SELINUX=disabled vs. "enforce=1"
 From: Will Woods <wwoods@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux_init_load_policy: setenforce(0) if security_disable()
- fails
-Date: Tue, 29 Apr 2014 11:59:34 -0400
-Message-Id: <1398787174-20523-1-git-send-email-wwoods@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Tue, 29 Apr 2014 12:15:45 -0400
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If you run selinux_init_load_policy() after a chroot/switch-root, it's
-possible that your *previous* root loaded policy, but your *new* root
-wants SELinux disabled.
+So in libselinux/src/load_policy.c:selinux_init_load_policy(), it says:
+        /* 
+         * Determine the final desired mode.
+         * Command line argument takes precedence, then config file. 
+         */
+        if (secmdline >= 0)
+                *enforce = secmdline;
+        else if (seconfig >= 0)
+                *enforce = seconfig;
+        else
+                *enforce = 0;   /* unspecified or disabled */
 
-We can't disable SELinux in this case, but we *do* need to make sure
-it's permissive. Otherwise we may continue to enforce the old policy.
+But then a few lines later, we have:
+        if (seconfig == -1) {
+                /* Runtime disable of SELinux. */
+                rc = security_disable();
+                [etc.]
 
-So, if seconfig = -1, but security_disable() fails, we set *enforce=0,
-and then let the existing code handle the security_{get,set}enforce
-stuff.
+...so if the config file says "disabled", SELinux is disabled
+*regardless* of the command line argument. 
 
-Once that's handled, exit with failure via "goto noload", as before.
----
- libselinux/src/load_policy.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+Is that intentional, or is that a bug? Maybe that test should read:
 
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index e419f1a..21ee58b 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -417,13 +417,15 @@ int selinux_init_load_policy(int *enforce)
- 			/* Successfully disabled, so umount selinuxfs too. */
- 			umount(selinux_mnt);
- 			fini_selinuxmnt();
-+			goto noload;
-+		} else {
-+			/*
-+			 * It's possible that this failed because policy has
-+			 * already been loaded. We can't disable SELinux now,
-+			 * so the best we can do is force it to be permissive.
-+			 */
-+			*enforce = 0;
- 		}
--		/*
--		 * If we failed to disable, SELinux will still be 
--		 * effectively permissive, because no policy is loaded. 
--		 * No need to call security_setenforce(0) here.
--		 */
--		goto noload;
- 	}
- 
- 	/*
-@@ -442,6 +444,9 @@ int selinux_init_load_policy(int *enforce)
- 		}
- 	}
- 
-+	if (seconfig == -1)
-+		goto noload;
-+
- 	/* Load the policy. */
- 	return selinux_mkload_policy(0);
- 
--- 
-1.9.0
+        if ((seconfig == -1) && (secmdline <= -1)) {
+
+Any ideas?
+
+-w
