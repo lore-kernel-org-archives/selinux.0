@@ -1,97 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3TNs07m009008
- for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 19:54:01 -0400
-Received: by mail-qg0-f41.google.com with SMTP id j107so1083504qga.0
- for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 16:54:01 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3U02GPt009797
+ for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 20:02:16 -0400
+Received: by mail-qa0-f47.google.com with SMTP id j7so947688qaq.20
+ for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2014 17:02:17 -0700 (PDT)
 MIME-Version: 1.0
-Date: Tue, 29 Apr 2014 16:54:00 -0700
-Message-ID: <CAB9W1A3BxZ=U=+t4o3q+EomuxK256Ou1EAqyHXrLm59PB=p7kA@mail.gmail.com>
-Subject: [RFC][PATCH] selinux: Report result in avc messages
+In-Reply-To: <CACLa4pvP9mjjGvQ+SkyoorYZAAdxAHMy3maK8rmkbJRMa6JQPA@mail.gmail.com>
+References: <CACLa4pvP9mjjGvQ+SkyoorYZAAdxAHMy3maK8rmkbJRMa6JQPA@mail.gmail.com>
+Date: Tue, 29 Apr 2014 17:02:17 -0700
+Message-ID: <CAB9W1A0RHSS3VJcbvCtMDULm6zi3xiuN9eBpS49cR6CEoBw0jQ@mail.gmail.com>
+Subject: Re: selinux_check_access() and unknown classes/perms
 From: Stephen Smalley <stephen.smalley@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- Paul Moore <paul@paul-moore.com>
-Content-Type: multipart/mixed; boundary=001a11c1313264b67a04f8372579
+To: Eric Paris <eparis@parisplace.org>
+Content-Type: text/plain; charset=UTF-8
+Cc: SE-Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c1313264b67a04f8372579
-Content-Type: text/plain; charset=UTF-8
+Well, you could use a static variable ala printk_once in the kernel;
+would only happen once per program rather than once per unique denial,
+but there is no real way to do that short of introducing an AVC entry
+for an undefined class...
 
-Requested for Android in order to distinguish denials that are not in
-fact breaking anything yet due to permissive domains versus denials
-that are being enforced, but seems generally useful.  result field was
-already in the selinux audit data structure and was being passed to
-avc_audit() but wasn't being used.  Seems to cause no harm to ausearch
-or audit2allow to add it as a field.  Comments?
-
---001a11c1313264b67a04f8372579
-Content-Type: text/x-patch; charset=US-ASCII;
-	name="0001-selinux-Report-result-in-avc-messages.patch"
-Content-Disposition: attachment;
-	filename="0001-selinux-Report-result-in-avc-messages.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_hululocg0
-
-RnJvbSA2NTEwMDgzNzFmM2JmOGViMDBlZWVhMGU4NGVjYTRiYTczODM4NjBjIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBTdGVwaGVuIFNtYWxsZXkgPHNkc0B0eWNoby5uc2EuZ292PgpE
-YXRlOiBUdWUsIDI5IEFwciAyMDE0IDExOjI5OjA0IC0wNzAwClN1YmplY3Q6IFtQQVRDSF0gc2Vs
-aW51eDogIFJlcG9ydCByZXN1bHQgaW4gYXZjIG1lc3NhZ2VzLgoKV2UgY2Fubm90IHByZXNlbnRs
-eSB0ZWxsIGZyb20gYW4gYXZjIG1lc3NhZ2Ugd2hldGhlciBhY2Nlc3Mgd2FzIGluCmZhY3QgZGVu
-aWVkIG9yIHdhcyBhbGxvd2VkIGR1ZSB0byBnbG9iYWwgb3IgcGVyLWRvbWFpbiBwZXJtaXNzaXZl
-IG1vZGUuCkFkZCBhIHJlc3VsdD0gZmllbGQgdG8gdGhlIGF2YyBtZXNzYWdlIHRvIHJlZmxlY3Qg
-dGhpcyBpbmZvcm1hdGlvbi4KClNpZ25lZC1vZmYtYnk6IFN0ZXBoZW4gU21hbGxleSA8c2RzQHR5
-Y2hvLm5zYS5nb3Y+Ci0tLQogc2VjdXJpdHkvc2VsaW51eC9hdmMuYyAgICAgICAgIHwgNSArKysr
-LQogc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jICAgICAgIHwgNSArKystLQogc2VjdXJpdHkvc2Vs
-aW51eC9pbmNsdWRlL2F2Yy5oIHwgNCArKy0tCiAzIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9u
-cygrKSwgNSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9zZWN1cml0eS9zZWxpbnV4L2F2Yy5j
-IGIvc2VjdXJpdHkvc2VsaW51eC9hdmMuYwppbmRleCBmYzNlNjYyLi45MTZiODEwIDEwMDY0NAot
-LS0gYS9zZWN1cml0eS9zZWxpbnV4L2F2Yy5jCisrKyBiL3NlY3VyaXR5L3NlbGludXgvYXZjLmMK
-QEAgLTQ0NCwxMSArNDQ0LDEzIEBAIHN0YXRpYyB2b2lkIGF2Y19hdWRpdF9wb3N0X2NhbGxiYWNr
-KHN0cnVjdCBhdWRpdF9idWZmZXIgKmFiLCB2b2lkICphKQogCWF2Y19kdW1wX3F1ZXJ5KGFiLCBh
-ZC0+c2VsaW51eF9hdWRpdF9kYXRhLT5zc2lkLAogCQkJICAgYWQtPnNlbGludXhfYXVkaXRfZGF0
-YS0+dHNpZCwKIAkJCSAgIGFkLT5zZWxpbnV4X2F1ZGl0X2RhdGEtPnRjbGFzcyk7CisJYXVkaXRf
-bG9nX2Zvcm1hdChhYiwgIiByZXN1bHQ9JXMiLAorCQkJIGFkLT5zZWxpbnV4X2F1ZGl0X2RhdGEt
-PnJlc3VsdCA/ICJkZW5pZWQiIDogImFsbG93ZWQiKTsKIH0KIAogLyogVGhpcyBpcyB0aGUgc2xv
-dyBwYXJ0IG9mIGF2YyBhdWRpdCB3aXRoIGJpZyBzdGFjayBmb290cHJpbnQgKi8KIG5vaW5saW5l
-IGludCBzbG93X2F2Y19hdWRpdCh1MzIgc3NpZCwgdTMyIHRzaWQsIHUxNiB0Y2xhc3MsCi0JCXUz
-MiByZXF1ZXN0ZWQsIHUzMiBhdWRpdGVkLCB1MzIgZGVuaWVkLAorCQl1MzIgcmVxdWVzdGVkLCB1
-MzIgYXVkaXRlZCwgdTMyIGRlbmllZCwgaW50IHJlc3VsdCwKIAkJc3RydWN0IGNvbW1vbl9hdWRp
-dF9kYXRhICphLAogCQl1bnNpZ25lZCBmbGFncykKIHsKQEAgLTQ3Nyw2ICs0NzksNyBAQCBub2lu
-bGluZSBpbnQgc2xvd19hdmNfYXVkaXQodTMyIHNzaWQsIHUzMiB0c2lkLCB1MTYgdGNsYXNzLAog
-CXNhZC50c2lkID0gdHNpZDsKIAlzYWQuYXVkaXRlZCA9IGF1ZGl0ZWQ7CiAJc2FkLmRlbmllZCA9
-IGRlbmllZDsKKwlzYWQucmVzdWx0ID0gcmVzdWx0OwogCiAJYS0+c2VsaW51eF9hdWRpdF9kYXRh
-ID0gJnNhZDsKIApkaWZmIC0tZ2l0IGEvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jIGIvc2VjdXJp
-dHkvc2VsaW51eC9ob29rcy5jCmluZGV4IGI0YmViNzcuLmUxNTZiNWYgMTAwNjQ0Ci0tLSBhL3Nl
-Y3VyaXR5L3NlbGludXgvaG9va3MuYworKysgYi9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKQEAg
-LTI3NzAsNiArMjc3MCw3IEBAIHN0YXRpYyBpbnQgc2VsaW51eF9pbm9kZV9mb2xsb3dfbGluayhz
-dHJ1Y3QgZGVudHJ5ICpkZW50cnksIHN0cnVjdCBuYW1laWRhdGEgKm5hCiAKIHN0YXRpYyBub2lu
-bGluZSBpbnQgYXVkaXRfaW5vZGVfcGVybWlzc2lvbihzdHJ1Y3QgaW5vZGUgKmlub2RlLAogCQkJ
-CQkgICB1MzIgcGVybXMsIHUzMiBhdWRpdGVkLCB1MzIgZGVuaWVkLAorCQkJCQkgICBpbnQgcmVz
-dWx0LAogCQkJCQkgICB1bnNpZ25lZCBmbGFncykKIHsKIAlzdHJ1Y3QgY29tbW9uX2F1ZGl0X2Rh
-dGEgYWQ7CkBAIC0yNzgwLDcgKzI3ODEsNyBAQCBzdGF0aWMgbm9pbmxpbmUgaW50IGF1ZGl0X2lu
-b2RlX3Blcm1pc3Npb24oc3RydWN0IGlub2RlICppbm9kZSwKIAlhZC51Lmlub2RlID0gaW5vZGU7
-CiAKIAlyYyA9IHNsb3dfYXZjX2F1ZGl0KGN1cnJlbnRfc2lkKCksIGlzZWMtPnNpZCwgaXNlYy0+
-c2NsYXNzLCBwZXJtcywKLQkJCSAgICBhdWRpdGVkLCBkZW5pZWQsICZhZCwgZmxhZ3MpOworCQkJ
-ICAgIGF1ZGl0ZWQsIGRlbmllZCwgcmVzdWx0LCAmYWQsIGZsYWdzKTsKIAlpZiAocmMpCiAJCXJl
-dHVybiByYzsKIAlyZXR1cm4gMDsKQEAgLTI4MjIsNyArMjgyMyw3IEBAIHN0YXRpYyBpbnQgc2Vs
-aW51eF9pbm9kZV9wZXJtaXNzaW9uKHN0cnVjdCBpbm9kZSAqaW5vZGUsIGludCBtYXNrKQogCWlm
-IChsaWtlbHkoIWF1ZGl0ZWQpKQogCQlyZXR1cm4gcmM7CiAKLQlyYzIgPSBhdWRpdF9pbm9kZV9w
-ZXJtaXNzaW9uKGlub2RlLCBwZXJtcywgYXVkaXRlZCwgZGVuaWVkLCBmbGFncyk7CisJcmMyID0g
-YXVkaXRfaW5vZGVfcGVybWlzc2lvbihpbm9kZSwgcGVybXMsIGF1ZGl0ZWQsIGRlbmllZCwgcmMs
-IGZsYWdzKTsKIAlpZiAocmMyKQogCQlyZXR1cm4gcmMyOwogCXJldHVybiByYzsKZGlmZiAtLWdp
-dCBhL3NlY3VyaXR5L3NlbGludXgvaW5jbHVkZS9hdmMuaCBiL3NlY3VyaXR5L3NlbGludXgvaW5j
-bHVkZS9hdmMuaAppbmRleCBmNTNlZTNjLi5kZGY4ZWVjIDEwMDY0NAotLS0gYS9zZWN1cml0eS9z
-ZWxpbnV4L2luY2x1ZGUvYXZjLmgKKysrIGIvc2VjdXJpdHkvc2VsaW51eC9pbmNsdWRlL2F2Yy5o
-CkBAIC0xMDIsNyArMTAyLDcgQEAgc3RhdGljIGlubGluZSB1MzIgYXZjX2F1ZGl0X3JlcXVpcmVk
-KHUzMiByZXF1ZXN0ZWQsCiB9CiAKIGludCBzbG93X2F2Y19hdWRpdCh1MzIgc3NpZCwgdTMyIHRz
-aWQsIHUxNiB0Y2xhc3MsCi0JCSAgIHUzMiByZXF1ZXN0ZWQsIHUzMiBhdWRpdGVkLCB1MzIgZGVu
-aWVkLAorCQkgICB1MzIgcmVxdWVzdGVkLCB1MzIgYXVkaXRlZCwgdTMyIGRlbmllZCwgaW50IHJl
-c3VsdCwKIAkJICAgc3RydWN0IGNvbW1vbl9hdWRpdF9kYXRhICphLAogCQkgICB1bnNpZ25lZCBm
-bGFncyk7CiAKQEAgLTEzNyw3ICsxMzcsNyBAQCBzdGF0aWMgaW5saW5lIGludCBhdmNfYXVkaXQo
-dTMyIHNzaWQsIHUzMiB0c2lkLAogCWlmIChsaWtlbHkoIWF1ZGl0ZWQpKQogCQlyZXR1cm4gMDsK
-IAlyZXR1cm4gc2xvd19hdmNfYXVkaXQoc3NpZCwgdHNpZCwgdGNsYXNzLAotCQkJICAgICAgcmVx
-dWVzdGVkLCBhdWRpdGVkLCBkZW5pZWQsCisJCQkgICAgICByZXF1ZXN0ZWQsIGF1ZGl0ZWQsIGRl
-bmllZCwgcmVzdWx0LAogCQkJICAgICAgYSwgMCk7CiB9CiAKLS0gCjEuOC4zLjEKCg==
---001a11c1313264b67a04f8372579--
+On Tue, Apr 29, 2014 at 2:14 PM, Eric Paris <eparis@parisplace.org> wrote:
+> selinux_check_access() has code like this:
+>
+>        sclass = string_to_security_class(class);
+>        if (sclass == 0) {
+>                rc = errno;
+>                if (security_deny_unknown() == 0)
+>                        return 0;
+>                errno = rc;
+>                return -1;
+>        }
+>
+> My problem with the code is that we have no logging of any kind why we
+> just returned -1;  The reason this was found is because Dominick is
+> writing custom policy that doesn't define all of the classes/perms
+> used by systemd and has security_deny_unknown() == 1.  systemd calls
+> selinux_check_access() gets -EINVAL, prints that it denied, but no
+> where do we have a good reason why it was denied.  systemd doesn't
+> know, it's hidden in this library...
+>
+> A good first step would be to call avc_log(SELINUX_ERR, ...) in the
+> case where we return an error.  But what do we do in the
+> security_deny_unknown() == 0 case?  I'd still like to call avc_log,
+> but only do it once rather than flood our logs.  Any suggestions how
+> to pull that off?
+>
+> -Eric
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
