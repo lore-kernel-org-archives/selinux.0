@@ -1,66 +1,110 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3UCwfJO021862
- for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2014 08:58:41 -0400
-Message-ID: <5360F37F.2050908@redhat.com>
-Date: Wed, 30 Apr 2014 08:58:39 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s3UCxpQN021925
+ for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2014 08:59:51 -0400
+Message-ID: <5360F3C6.4090501@redhat.com>
+Date: Wed, 30 Apr 2014 08:59:50 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <stephen.smalley@gmail.com>,
- Eric Paris <eparis@parisplace.org>
-Subject: Re: selinux_check_access() and unknown classes/perms
-References: <CACLa4pvP9mjjGvQ+SkyoorYZAAdxAHMy3maK8rmkbJRMa6JQPA@mail.gmail.com>
- <CAB9W1A0RHSS3VJcbvCtMDULm6zi3xiuN9eBpS49cR6CEoBw0jQ@mail.gmail.com>
-In-Reply-To: <CAB9W1A0RHSS3VJcbvCtMDULm6zi3xiuN9eBpS49cR6CEoBw0jQ@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>, Stephen Smalley <stephen.smalley@gmail.com>
+Subject: Re: [RFC][PATCH] selinux: Report result in avc messages
+References: <CAB9W1A3BxZ=U=+t4o3q+EomuxK256Ou1EAqyHXrLm59PB=p7kA@mail.gmail.com>
+ <1398826782.10979.9.camel@localhost>
+In-Reply-To: <1398826782.10979.9.camel@localhost>
+Content-Type: multipart/alternative;
+ boundary="------------000803020305090000000509"
+Cc: linux-audit@redhat.com, selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I would think an AVC entry for an undefined class would be a good idea.
-On 04/29/2014 08:02 PM, Stephen Smalley wrote:
-> Well, you could use a static variable ala printk_once in the kernel;
-> would only happen once per program rather than once per unique denial,
-> but there is no real way to do that short of introducing an AVC entry
-> for an undefined class...
+This is a multi-part message in MIME format.
+--------------000803020305090000000509
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+How about permitted rather then allowed.
+
+On 04/29/2014 10:59 PM, Eric Paris wrote:
+> On Tue, 2014-04-29 at 16:54 -0700, Stephen Smalley wrote:
+>> Requested for Android in order to distinguish denials that are not in
+>> fact breaking anything yet due to permissive domains versus denials
+>> that are being enforced, but seems generally useful.  result field was
+>> already in the selinux audit data structure and was being passed to
+>> avc_audit() but wasn't being used.  Seems to cause no harm to ausearch
+>> or audit2allow to add it as a field.  Comments?
+> I think it's a great idea, but I'm worried that Steve is going to get
+> grumpy because an AVC record is going to have a result= field which is
+> similar, but not necessarily related to the res= field of a SYSCALL
+> record.  Seems easily confused (although probably 9999 times out of
+> 10000 they will be the same)
 >
-> On Tue, Apr 29, 2014 at 2:14 PM, Eric Paris <eparis@parisplace.org> wrote:
->> selinux_check_access() has code like this:
->>
->>        sclass = string_to_security_class(class);
->>        if (sclass == 0) {
->>                rc = errno;
->>                if (security_deny_unknown() == 0)
->>                        return 0;
->>                errno = rc;
->>                return -1;
->>        }
->>
->> My problem with the code is that we have no logging of any kind why we
->> just returned -1;  The reason this was found is because Dominick is
->> writing custom policy that doesn't define all of the classes/perms
->> used by systemd and has security_deny_unknown() == 1.  systemd calls
->> selinux_check_access() gets -EINVAL, prints that it denied, but no
->> where do we have a good reason why it was denied.  systemd doesn't
->> know, it's hidden in this library...
->>
->> A good first step would be to call avc_log(SELINUX_ERR, ...) in the
->> case where we return an error.  But what do we do in the
->> security_deny_unknown() == 0 case?  I'd still like to call avc_log,
->> but only do it once rather than flood our logs.  Any suggestions how
->> to pull that off?
->>
->> -Eric
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> So while I wholeheartedly think we should take the idea, I wonder if
+> someone can dream up a name that isn't confusingly similar...
+>
+> I can't think of anything...
+>
+> -Eric
 >
 >
+> --
+> Linux-audit mailing list
+> Linux-audit@redhat.com
+> https://www.redhat.com/mailman/listinfo/linux-audit
+
+
+--------------000803020305090000000509
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta content="text/html; charset=ISO-8859-1"
+      http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    How about permitted rather then allowed.<br>
+    <br>
+    <div class="moz-cite-prefix">On 04/29/2014 10:59 PM, Eric Paris
+      wrote:<br>
+    </div>
+    <blockquote cite="mid:1398826782.10979.9.camel@localhost"
+      type="cite">
+      <pre wrap="">On Tue, 2014-04-29 at 16:54 -0700, Stephen Smalley wrote:
+</pre>
+      <blockquote type="cite">
+        <pre wrap="">Requested for Android in order to distinguish denials that are not in
+fact breaking anything yet due to permissive domains versus denials
+that are being enforced, but seems generally useful.  result field was
+already in the selinux audit data structure and was being passed to
+avc_audit() but wasn't being used.  Seems to cause no harm to ausearch
+or audit2allow to add it as a field.  Comments?
+</pre>
+      </blockquote>
+      <pre wrap="">
+I think it's a great idea, but I'm worried that Steve is going to get
+grumpy because an AVC record is going to have a result= field which is
+similar, but not necessarily related to the res= field of a SYSCALL
+record.  Seems easily confused (although probably 9999 times out of
+10000 they will be the same)
+
+So while I wholeheartedly think we should take the idea, I wonder if
+someone can dream up a name that isn't confusingly similar...
+
+I can't think of anything...
+
+-Eric
+</pre>
+      <br>
+      <fieldset class="mimeAttachmentHeader"></fieldset>
+      <br>
+      <pre wrap="">--
+Linux-audit mailing list
+<a class="moz-txt-link-abbreviated" href="mailto:Linux-audit@redhat.com">Linux-audit@redhat.com</a>
+<a class="moz-txt-link-freetext" href="https://www.redhat.com/mailman/listinfo/linux-audit">https://www.redhat.com/mailman/listinfo/linux-audit</a></pre>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------000803020305090000000509--
