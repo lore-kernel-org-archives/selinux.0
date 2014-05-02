@@ -1,41 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s41KBvoe029444
- for <selinux@tycho.nsa.gov>; Thu, 1 May 2014 16:11:57 -0400
-Received: by mail-qc0-f182.google.com with SMTP id e16so1281793qcx.27
- for <selinux@tycho.nsa.gov>; Thu, 01 May 2014 13:11:57 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s426QiKr002773
+ for <selinux@tycho.nsa.gov>; Fri, 2 May 2014 02:26:44 -0400
+Received: by mail-oa0-f41.google.com with SMTP id m1so2189420oag.28
+ for <selinux@tycho.nsa.gov>; Thu, 01 May 2014 23:26:45 -0700 (PDT)
+Received: from [192.168.1.2] ([59.89.16.173])
+ by mx.google.com with ESMTPSA id j9sm64686888obh.23.2014.05.01.23.26.43
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Thu, 01 May 2014 23:26:44 -0700 (PDT)
+Message-ID: <53633A05.2050808@gmail.com>
+Date: Fri, 02 May 2014 11:54:05 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <4012781.FYeZg7nLGc@sifl>
-References: <CAB9W1A3BxZ=U=+t4o3q+EomuxK256Ou1EAqyHXrLm59PB=p7kA@mail.gmail.com>
- <32537239.2TmFnM48BI@x2>
- <CAB9W1A3-juzF1Ze3uDhtnMdOtMQtOgaG3+z_3vWYQ3TmcJK0=A@mail.gmail.com>
- <4012781.FYeZg7nLGc@sifl>
-Date: Thu, 1 May 2014 13:11:57 -0700
-Message-ID: <CAB9W1A1FrGKHO8g7JrgZYO-ZYpr61A8ScgHr0tWgt0uA1_j3rA@mail.gmail.com>
-Subject: Re: [RFC][PATCH] selinux: Report result in avc messages
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: Steve Grubb <sgrubb@redhat.com>, selinux <selinux@tycho.nsa.gov>,
- linux-audit@redhat.com
+To: selinux@tycho.nsa.gov
+Subject: Re: What's a policy configuration file?
+References: <53627C9F.9020109@gmail.com>	<CAB9W1A1+Rh0hDW+dNzehTbo0p4r-vaGWdugks9UnfNoZ5xuinQ@mail.gmail.com>	<53628456.8020407@gmail.com>
+ <CAB9W1A0-BR_Nu2M2RjQxh9KTye-=x9thiBQbBKaGg+zSQA1Y-w@mail.gmail.com>
+In-Reply-To: <CAB9W1A0-BR_Nu2M2RjQxh9KTye-=x9thiBQbBKaGg+zSQA1Y-w@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I'm fine with it as is.
+On 05/01/14 23:15, Stephen Smalley wrote:
+> First reference is talking about source configuration files, and the
+> next section of that report describes how policy.conf is created and
+> then compiled into the binary policy file.
+> Second reference is talking about the configuration files installed on
+> the system for use at runtime, which includes both the kernel binary
+> policy file and various text configuration files used by userspace
+> programs.  The term could apply to either.
+>
+> On Thu, May 1, 2014 at 10:28 AM, dE <de.techno@gmail.com> wrote:
+>> On 05/01/14 22:41, Stephen Smalley wrote:
+>>> Typically, but you didn't provide any context or cite the source of
+>>> the reference.
+>>> One might use the term for an individual source file, the policy.conf
+>>> file generated from all of the source files, or the final kernel
+>>> binary policy file, although the latter is less likely.
+>>>
+>>> On Thu, May 1, 2014 at 9:55 AM, dE <de.techno@gmail.com> wrote:
+>>>> Is this another name for policy source?
+>>>> _______________________________________________
+>>>> Selinux mailing list
+>>>> Selinux@tycho.nsa.gov
+>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>> To get help, send an email containing "help" to
+>>>> Selinux-request@tycho.nsa.gov.
+>>
+>> http://www.nsa.gov/research/_files/selinux/papers/policy2/x109.shtml
+>>
+>> http://selinuxproject.org/page/ConfigurationFiles#Policy_Configuration_Files
+>>
+>> I would like to know what the official website means -- it's definitely the
+>> sources. I hope I'll read about policy.conf in the NSA reference.
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to
+>> Selinux-request@tycho.nsa.gov.
 
-On Thu, May 1, 2014 at 12:09 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Wednesday, April 30, 2014 09:08:28 AM Stephen Smalley wrote:
->> The revised patch switched from result=allowed|denied to
->> permissive=0|1 in the avc message.  I think Bill's point was with
->> respect to the code, which still internally is passing around the
->> result of the decision and inferring the permissive state from it,
->> rather than the output string itself.
->
-> I'm fine with this patch, but before I merge it for next I just wanted to make
-> sure there isn't another revision coming?
->
-> --
-> paul moore
-> www.paul-moore.com
->
+The policy.conf is used during build time to make small time changes in 
+the resulting binary right?
