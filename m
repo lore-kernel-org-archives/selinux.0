@@ -1,46 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s42JlD0h032347
- for <selinux@tycho.nsa.gov>; Fri, 2 May 2014 15:47:13 -0400
-Received: by mail-qa0-f52.google.com with SMTP id cm18so3739346qab.11
- for <selinux@tycho.nsa.gov>; Fri, 02 May 2014 12:47:14 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley@gmail.com>
-Subject: Re: [RFC][PATCH] selinux: Report result in avc messages
-Date: Fri, 02 May 2014 15:47:12 -0400
-Message-ID: <3643773.YnIcfvMkr3@sifl>
-In-Reply-To: <CAB9W1A1FrGKHO8g7JrgZYO-ZYpr61A8ScgHr0tWgt0uA1_j3rA@mail.gmail.com>
-References: <CAB9W1A3BxZ=U=+t4o3q+EomuxK256Ou1EAqyHXrLm59PB=p7kA@mail.gmail.com>
- <4012781.FYeZg7nLGc@sifl>
- <CAB9W1A1FrGKHO8g7JrgZYO-ZYpr61A8ScgHr0tWgt0uA1_j3rA@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s445Q6Qf031219
+ for <selinux@tycho.nsa.gov>; Sun, 4 May 2014 01:26:06 -0400
+Received: by mail-pd0-f174.google.com with SMTP id w10so5560895pde.5
+ for <selinux@tycho.nsa.gov>; Sat, 03 May 2014 22:26:06 -0700 (PDT)
+Received: from [192.168.1.2] ([59.89.22.24])
+ by mx.google.com with ESMTPSA id f5sm35713165pat.11.2014.05.03.22.26.04
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Sat, 03 May 2014 22:26:05 -0700 (PDT)
+Message-ID: <5365CECF.5010808@gmail.com>
+Date: Sun, 04 May 2014 10:53:27 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: Steve Grubb <sgrubb@redhat.com>, selinux <selinux@tycho.nsa.gov>,
- linux-audit@redhat.com
+To: selinux@tycho.nsa.gov
+Subject: How does policy loading work at bootup?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, May 01, 2014 01:11:57 PM Stephen Smalley wrote:
-> I'm fine with it as is.
-
-Okay, it's applied to the next branch.
-
-> On Thu, May 1, 2014 at 12:09 PM, Paul Moore <paul@paul-moore.com> wrote:
-> > On Wednesday, April 30, 2014 09:08:28 AM Stephen Smalley wrote:
-> >> The revised patch switched from result=allowed|denied to
-> >> permissive=0|1 in the avc message.  I think Bill's point was with
-> >> respect to the code, which still internally is passing around the
-> >> result of the decision and inferring the permissive state from it,
-> >> rather than the output string itself.
-> > 
-> > I'm fine with this patch, but before I merge it for next I just wanted to
-> > make sure there isn't another revision coming?
-> > 
-> > --
-> > paul moore
-> > www.paul-moore.com
-
--- 
-paul moore
-www.paul-moore.com
+Does the kernel automatically searches for and reads the policies in 
+hard coded locations or does some userspace tool does that at startup 
+via init/systemd scripts/units?
