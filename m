@@ -1,29 +1,30 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s44FWqRC026331
- for <selinux@tycho.nsa.gov>; Sun, 4 May 2014 11:32:52 -0400
-Received: by mail-pa0-f46.google.com with SMTP id kx10so5264721pab.5
- for <selinux@tycho.nsa.gov>; Sun, 04 May 2014 08:32:52 -0700 (PDT)
-Received: from [192.168.1.2] ([59.89.22.24])
- by mx.google.com with ESMTPSA id yo9sm47790369pab.16.2014.05.04.08.32.50
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Sun, 04 May 2014 08:32:51 -0700 (PDT)
-Message-ID: <53665D05.6070403@gmail.com>
-Date: Sun, 04 May 2014 21:00:13 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s45BshLB020418
+ for <selinux@tycho.nsa.gov>; Mon, 5 May 2014 07:54:43 -0400
+Message-ID: <53677C2F.7020800@tresys.com>
+Date: Mon, 5 May 2014 07:55:27 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: What's a module exactly?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: dE <de.techno@gmail.com>, <selinux@tycho.nsa.gov>
+Subject: Re: What's a module exactly?
+References: <53665D05.6070403@gmail.com>
+In-Reply-To: <53665D05.6070403@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I'm trying to verify what I think cause I've not read about this yet --
+On 05/04/2014 11:30 AM, dE wrote:
+> I'm trying to verify what I think cause I've not read about this yet --
+> 
+> A SELinux 'module' is like a C object file; each module has a purpose of defining policies for a certain program.
+> 
+> Each module may be made a separate policy or many modules can be integrated into one policy file (like what Fedora has done).
 
-A SELinux 'module' is like a C object file; each module has a purpose of 
-defining policies for a certain program.
+If you're talking about modules as in .pp files, then yes, they're a similar concept to C object code.  Each module has a chunk of policy, and then all the modules are linked together to create the final policy.2x.  There has to be at least one module in the policy, the base module.  It is special in that all of the unconditional (not optional) dependencies must be met.  There are also statements that only can exist the base module, such as portcon, genfscon, and others.  Otherwise, what is actually contained in each module is up to the policy writer.  The modules tend to correspond to software packages.  For example, in Reference Policy, there is an apache module which should constrain apache, a samba module for samba, etc.
 
-Each module may be made a separate policy or many modules can be 
-integrated into one policy file (like what Fedora has done).
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
