@@ -1,96 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s455nahx000385
- for <selinux@tycho.nsa.gov>; Mon, 5 May 2014 01:49:36 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s45G6m4I006608
+ for <selinux@tycho.nsa.gov>; Mon, 5 May 2014 12:06:48 -0400
+Received: by mail-ig0-f176.google.com with SMTP id hl10so4928025igb.15
+ for <selinux@tycho.nsa.gov>; Mon, 05 May 2014 09:06:48 -0700 (PDT)
+MIME-Version: 1.0
+Date: Mon, 5 May 2014 12:06:47 -0400
+Message-ID: <CANnpg5Q8Uf23hKB1s3OtOQiXJSuUh5hyB08wkecWQ6U7oMusBA@mail.gmail.com>
+Subject: staff_u permission
+From: Steve Huston <huston@astro.princeton.edu>
 To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH (for 3.15) 0/5] Fix cross rename race window for LSM.
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <53523D16.9020101@gmail.com>
- <201404192108.JGJ78110.MFOFFHJOOVtLQS@I-love.SAKURA.ne.jp>
- <CAJfpeguus=9GuvEKua4U-VF=nonzLgU5VFHqt8xRTTYU7RL-zQ@mail.gmail.com>
- <201404242020.FJD18726.LOOJtOQMFVFFSH@I-love.SAKURA.ne.jp>
- <201405012058.JEG30273.LJFHOOFMtOFQVS@I-love.SAKURA.ne.jp>
-In-Reply-To: <201405012058.JEG30273.LJFHOOFMtOFQVS@I-love.SAKURA.ne.jp>
-Message-Id: <201405051449.GAE81222.LOOFtFJMQFOSVH@I-love.SAKURA.ne.jp>
-Date: Mon, 5 May 2014 14:49:26 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello SELinux people, may I have your response?
+Apologies if this subject doesn't make sense, I'm not only fairly new
+to selinux but also on Sudafed :>
 
-Miklos Szeredi posted v3 of cross rename patchset at
-http://marc.info/?l=linux-fsdevel&m=138921924707564&w=4 . In that thread,
-I questioned him whether he already explained this proposal to LSM people.
-He answered no and explained me what renameat2() does. I asked him to get
-confirmation from LSM people before he merges this change to linux-next.git
-tree, and he answered that patch 07/11 already does what LSM people need. But
-I commented that TOMOYO wants to avoid re-calculation of pathnames and posted
-a patch at http://marc.info/?l=linux-security-module&m=138970469226106&w=4 and
-John Johansen commented that the changes in AppArmor directory looks OK and
-John would re-factor AppArmor to avoid re-calculation in the future. Therefore,
-I posted a patch for SELinux/SMACK/Capability at
-http://marc.info/?l=linux-fsdevel&m=138973289404450&w=4 but Miklos responded
-that he doesn't want to include my patch which temporarily breaks TOMOYO and
-AppArmor. Instead, he asked me to post a complete patch right after his cross
-rename patchset goes in. Thus, I was waiting for his cross rename patchset to
-arrive at linux-next.git tree.
+I'm setting up a Puppet server, and will have a Mercurial repository
+behind it; as a post-push hook I will have hg do a checkout of the
+repo to /etc/puppet (after having done some sanity checks on the
+changeset).  Right now, all the files in /etc/puppet are owned by root
+with a group that I and another can access, and have the context
+system_u:object_r:puppet_etc_t.
 
-By the day Linux 3.14 was released, Miklos's cross rename patchset did not
-arrive at linux-next.git tree. Therefore, I assumed that the cross rename
-patchset will not go to Linux 3.15-rc1. However, the patchset committed after
-Linux 3.14 release (commit da1ce067 "vfs: add cross-rename") directly went to
-linux.git tree without letting it known to LSM people and the merge window for
-Linux 3.15 was closed. Then, I noticed that renameat2() will be in 3.15 at
-http://marc.info/?l=linux-fsdevel&m=139789855823422&w=2 .
+My user account is part of the staff_u context, and I would like to
+tell selinux on this machine that anyone in that context should be
+allowed to edit those files.  Looking through with "sesearch -A -t
+puppet_etc_t -c file -p write" I see the puppet_t context allows such.
+ What I do not know is how to configure a transition or what else I
+could/should do to allow staff_u to write to just those files.  While
+I'm sure I could use a larger hammer, I would like to be in the
+practice of only allowing what should be allowed by default, and not a
+larger amount of permission just because it's easier.
 
-At first, I assumed that renameat2() is not callable as of 3.15 because I
-couldn't find "#define __NR_renameat2" line. But Miklos told me that
-renameat2() will be callable as of 3.15 because x86 automatically generates
-__NR_renameat2 entries. I realized that TOMOYO and AppArmor now have a race
-window (a kind of regression) introduced by the cross rename functionality, and
-I re-posted my patch as a patchset in this thread. I can approve the changes in
-TOMOYO directory and John Johansen already gave me a sort of Reviewed-by:
-response to the changes in AppArmor directory in January's thread. In this
-thread, Casey Schaufler gave me an Acked-by: response to the changes in SMACK
-directory, but so far I have gotten no response from SELinux people.
+Can someone point me to the proper documentation for this?  If you
+want to spell out the answer that's great too, provided you tell me
+how you got it :>
 
-Would somebody in SELinux community please respond to the changes in SELinux
-directory so that we can merge this race window fix patchset before 3.15-final?
-
-Regards.
-
-Tetsuo Handa wrote:
-> James, would you send this patchset to Linus?
-> This patchset is expected to go to 3.15 because this is a kind of regression fix.
-> 
-> Tetsuo Handa wrote:
-> > Miklos Szeredi wrote:
-> > > On Sat, Apr 19, 2014 at 2:08 PM, Tetsuo Handa
-> > > <penguin-kernel@i-love.sakura.ne.jp> wrote:
-> > > > Michael Kerrisk (man-pages) wrote:
-> > > >> Now that renameat2() is in 3.15, I've taken these changes.
-> > > >
-> > > > What!? I didn't know renameat2() goes to 3.15.
-> > > >
-> > > > But I assume that renameat2() is not accessible in 3.15, for I can see
-> > > > "asmlinkage long sys_renameat2(" but don't see "#define __NR_renameat2".
-> > > 
-> > > x86 automatically generates __NR_foo entries and syscall tables from
-> > > arch/x86/syscalls/syscall_*.tbl, which is why you don't find an
-> > > explicit definition in the git tree.
-> > > 
-> > > Thanks,
-> > > Miklos
-> > > 
-> > 
-> > Oh, I see. Then, I must submit patches for fixing a race window
-> > caused by commit da1ce067 "vfs: add cross-rename".
-> > 
-> > Regards.
-> > 
-> 
+-- 
+Steve Huston - W2SRH - Unix Sysadmin, PICSciE/CSES & Astrophysical Sci
+  Princeton University  |    ICBM Address: 40.346344   -74.652242
+    345 Lewis Library   |"On my ship, the Rocinante, wheeling through
+  Princeton, NJ   08544 | the galaxies; headed for the heart of Cygnus,
+    (267) 793-0852      | headlong into mystery."  -Rush, 'Cygnus X-1'
