@@ -1,118 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s46E2uiO030776
- for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 10:02:56 -0400
-Received: from ferret (fw5540.nrl.navy.mil [132.250.196.100])
- by ccs.nrl.navy.mil (8.14.4/8.14.4) with ESMTP id s46E2v2X032480
- for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 10:02:57 -0400
-From: "Kim Lawson-Jenkins" <kim.lawson-jenkins@nrl.navy.mil>
-To: <selinux@tycho.nsa.gov>
-Subject: No AVCs written to /var/log/messages
-Date: Tue, 6 May 2014 10:04:36 -0400
-Message-ID: <006701cf6934$1d4c4fb0$57e4ef10$@nrl.navy.mil>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s46ECMka032090
+ for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 10:12:22 -0400
+Received: by mail-lb0-f176.google.com with SMTP id p9so2466534lbv.7
+ for <selinux@tycho.nsa.gov>; Tue, 06 May 2014 07:12:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="----=_NextPart_000_0068_01CF6912.963AAFB0"
-Reply-To: kim.lawson-jenkins@nrl.navy.mil
+In-Reply-To: <006701cf6934$1d4c4fb0$57e4ef10$@nrl.navy.mil>
+References: <006701cf6934$1d4c4fb0$57e4ef10$@nrl.navy.mil>
+Date: Tue, 6 May 2014 10:12:21 -0400
+Message-ID: <CACLa4psgYGHRjy-NsnmCuo+Naq45a+4tVvbtanQ7zipX=6cWWQ@mail.gmail.com>
+Subject: Re: No AVCs written to /var/log/messages
+From: Eric Paris <eparis@parisplace.org>
+To: kim.lawson-jenkins@nrl.navy.mil
+Content-Type: text/plain; charset=UTF-8
+Cc: SE-Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multipart message in MIME format.
+Two possible things.
 
-------=_NextPart_000_0068_01CF6912.963AAFB0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+1) in permissive you only get the same denial one time.  So if you
+launch a program and it causes some denials, the second time you
+launch it there will be no denials.
 
-Hi,
+2) If they are early in boot, before syslog starts, they might be
+lost, or in old machines there was a /var/log/dmesg...
 
- 
+Do you see the denials when you run the dmesg command?
 
-I'm working on an embedded system using SELinux.  The audit daemon is not
-running so AVC errors should be written to /var/log/messages.  SELinux is
-running in permissive mode and during a system reboot I see a few AVC errors
-written to a console.  However when I look in /var/log/messages there are no
-AVC errors.  I haven't seen a similar problem reported in the past.  Does
-anyone have any ideas why AVC errors would not be written to
-/var/log/messages if the audit daemon is not running?  I've checked
-syslog.conf and all messages with a priority of warning and above should be
-written to /var/log/messages.
-
- 
-
-Kim
-
- 
-
- 
-
-
-------=_NextPart_000_0068_01CF6912.963AAFB0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 14 (filtered =
-medium)"><style><!--
-/* Font Definitions */
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri","sans-serif";}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p =
-class=3DMsoNormal>Hi,<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>I&#8217;m =
-working on an embedded system using SELinux.&nbsp; The audit daemon is =
-not running so AVC errors should be written to /var/log/messages.&nbsp; =
-SELinux is running in permissive mode and during a system reboot I see a =
-few AVC errors written to a console.&nbsp; However when I look in =
-/var/log/messages there are no AVC errors.&nbsp; I haven&#8217;t seen a =
-similar problem reported in the past.&nbsp; Does anyone have any ideas =
-why AVC errors would not be written to /var/log/messages if the audit =
-daemon is not running?&nbsp; I&#8217;ve checked syslog.conf and all =
-messages with a priority of warning and above should be written to =
-/var/log/messages.<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal>Kim<o:p></o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></body></html>
-------=_NextPart_000_0068_01CF6912.963AAFB0--
+On Tue, May 6, 2014 at 10:04 AM, Kim Lawson-Jenkins
+<kim.lawson-jenkins@nrl.navy.mil> wrote:
+> Hi,
+>
+>
+>
+> I’m working on an embedded system using SELinux.  The audit daemon is not
+> running so AVC errors should be written to /var/log/messages.  SELinux is
+> running in permissive mode and during a system reboot I see a few AVC errors
+> written to a console.  However when I look in /var/log/messages there are no
+> AVC errors.  I haven’t seen a similar problem reported in the past.  Does
+> anyone have any ideas why AVC errors would not be written to
+> /var/log/messages if the audit daemon is not running?  I’ve checked
+> syslog.conf and all messages with a priority of warning and above should be
+> written to /var/log/messages.
+>
+>
+>
+> Kim
+>
+>
+>
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
