@@ -1,81 +1,118 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s466puV4030595
- for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 02:51:56 -0400
-Received: by mail-ig0-f170.google.com with SMTP id r10so5429929igi.1
- for <selinux@tycho.nsa.gov>; Mon, 05 May 2014 23:51:57 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.87.30])
- by mx.google.com with ESMTPSA id m1sm35649894igx.13.2014.05.05.23.51.55
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Mon, 05 May 2014 23:51:56 -0700 (PDT)
-Message-ID: <536885EE.7020903@gmail.com>
-Date: Tue, 06 May 2014 12:19:18 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s46E2uiO030776
+ for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 10:02:56 -0400
+Received: from ferret (fw5540.nrl.navy.mil [132.250.196.100])
+ by ccs.nrl.navy.mil (8.14.4/8.14.4) with ESMTP id s46E2v2X032480
+ for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 10:02:57 -0400
+From: "Kim Lawson-Jenkins" <kim.lawson-jenkins@nrl.navy.mil>
+To: <selinux@tycho.nsa.gov>
+Subject: No AVCs written to /var/log/messages
+Date: Tue, 6 May 2014 10:04:36 -0400
+Message-ID: <006701cf6934$1d4c4fb0$57e4ef10$@nrl.navy.mil>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: How does policy loading work at bootup?
-References: <5365CECF.5010808@gmail.com> <53677D27.9040802@tresys.com>
-In-Reply-To: <53677D27.9040802@tresys.com>
 Content-Type: multipart/alternative;
- boundary="------------020901040004060504040306"
+ boundary="----=_NextPart_000_0068_01CF6912.963AAFB0"
+Reply-To: kim.lawson-jenkins@nrl.navy.mil
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------020901040004060504040306
-Content-Type: text/plain; charset=UTF-8; format=flowed
+This is a multipart message in MIME format.
+
+------=_NextPart_000_0068_01CF6912.963AAFB0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-On 05/05/14 17:29, Christopher J. PeBenito wrote:
-> On 05/04/2014 01:23 AM, dE wrote:
->> Does the kernel automatically searches for and reads the policies in hard coded locations or does some userspace tool does that at startup via init/systemd scripts/units?
-> A long long time ago (before SELinux was accepted into Linus's tree), the kernel used to read the policy itself.  Now it is loaded by userspace, typically either by the init program, or by the initramfs.
->
+Hi,
 
-Got it. It's load_policy.
+ 
 
-Thanks for the assistance.
+I'm working on an embedded system using SELinux.  The audit daemon is not
+running so AVC errors should be written to /var/log/messages.  SELinux is
+running in permissive mode and during a system reboot I see a few AVC errors
+written to a console.  However when I look in /var/log/messages there are no
+AVC errors.  I haven't seen a similar problem reported in the past.  Does
+anyone have any ideas why AVC errors would not be written to
+/var/log/messages if the audit daemon is not running?  I've checked
+syslog.conf and all messages with a priority of warning and above should be
+written to /var/log/messages.
 
---------------020901040004060504040306
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+ 
 
-<html>
-  <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <div class="moz-cite-prefix">On 05/05/14 17:29, Christopher J.
-      PeBenito wrote:<br>
-    </div>
-    <blockquote cite="mid:53677D27.9040802@tresys.com" type="cite">
-      <pre wrap="">On 05/04/2014 01:23 AM, dE wrote:
-</pre>
-      <blockquote type="cite">
-        <pre wrap="">Does the kernel automatically searches for and reads the policies in hard coded locations or does some userspace tool does that at startup via init/systemd scripts/units?
-</pre>
-      </blockquote>
-      <pre wrap="">
-A long long time ago (before SELinux was accepted into Linus's tree), the kernel used to read the policy itself.  Now it is loaded by userspace, typically either by the init program, or by the initramfs.
+Kim
 
-</pre>
-    </blockquote>
-    <br>
-    Got it. It's load_policy.<br>
-    <br>
-    Thanks for the assistance.
-    <title></title>
-    <meta name="GENERATOR" content="LibreOffice 4.1.4.2 (Linux)">
-    <style type="text/css">
-	<!--
-		@page { margin: 0.79in }
-		P { margin-bottom: 0.12in }
-		P.western { font-family: "Calibri", sans-serif; font-size: 14pt }
-	-->
-	</style>
-  </body>
-</html>
+ 
 
---------------020901040004060504040306--
+ 
+
+
+------=_NextPart_000_0068_01CF6912.963AAFB0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 14 (filtered =
+medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DEN-US link=3Dblue =
+vlink=3Dpurple><div class=3DWordSection1><p =
+class=3DMsoNormal>Hi,<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p class=3DMsoNormal>I&#8217;m =
+working on an embedded system using SELinux.&nbsp; The audit daemon is =
+not running so AVC errors should be written to /var/log/messages.&nbsp; =
+SELinux is running in permissive mode and during a system reboot I see a =
+few AVC errors written to a console.&nbsp; However when I look in =
+/var/log/messages there are no AVC errors.&nbsp; I haven&#8217;t seen a =
+similar problem reported in the past.&nbsp; Does anyone have any ideas =
+why AVC errors would not be written to /var/log/messages if the audit =
+daemon is not running?&nbsp; I&#8217;ve checked syslog.conf and all =
+messages with a priority of warning and above should be written to =
+/var/log/messages.<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal>Kim<o:p></o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
+class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></body></html>
+------=_NextPart_000_0068_01CF6912.963AAFB0--
