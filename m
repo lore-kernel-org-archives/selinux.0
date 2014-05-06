@@ -1,35 +1,31 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s465mVNg026809
- for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 01:48:31 -0400
-Received: by mail-ie0-f176.google.com with SMTP id rd18so9255497iec.21
- for <selinux@tycho.nsa.gov>; Mon, 05 May 2014 22:48:30 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s465nRBv026832
+ for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 01:49:27 -0400
+Received: by mail-ie0-f177.google.com with SMTP id rp18so9296577iec.36
+ for <selinux@tycho.nsa.gov>; Mon, 05 May 2014 22:49:28 -0700 (PDT)
 Received: from [192.168.1.2] ([117.201.87.30])
- by mx.google.com with ESMTPSA id vm7sm35205221igb.1.2014.05.05.22.48.28
+ by mx.google.com with ESMTPSA id m1sm35085328igx.13.2014.05.05.22.49.26
  for <selinux@tycho.nsa.gov>
  (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Mon, 05 May 2014 22:48:29 -0700 (PDT)
-Message-ID: <5368770F.6080104@gmail.com>
-Date: Tue, 06 May 2014 11:15:51 +0530
+ Mon, 05 May 2014 22:49:27 -0700 (PDT)
+Message-ID: <53687749.1070709@gmail.com>
+Date: Tue, 06 May 2014 11:16:49 +0530
 From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: Re: What's a module exactly?
-References: <53665D05.6070403@gmail.com> <53677C2F.7020800@tresys.com>
-In-Reply-To: <53677C2F.7020800@tresys.com>
+Subject: Re: How does policy loading work at bootup?
+References: <5365CECF.5010808@gmail.com> <53677D27.9040802@tresys.com>
+In-Reply-To: <53677D27.9040802@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/05/14 17:25, Christopher J. PeBenito wrote:
-> On 05/04/2014 11:30 AM, dE wrote:
->> I'm trying to verify what I think cause I've not read about this yet --
->>
->> A SELinux 'module' is like a C object file; each module has a purpose of defining policies for a certain program.
->>
->> Each module may be made a separate policy or many modules can be integrated into one policy file (like what Fedora has done).
-> If you're talking about modules as in .pp files, then yes, they're a similar concept to C object code.  Each module has a chunk of policy, and then all the modules are linked together to create the final policy.2x.  There has to be at least one module in the policy, the base module.  It is special in that all of the unconditional (not optional) dependencies must be met.  There are also statements that only can exist the base module, such as portcon, genfscon, and others.  Otherwise, what is actually contained in each module is up to the policy writer.  The modules tend to correspond to software packages.  For example, in Reference Policy, there is an apache module which should constrain apache, a samba module for samba, etc.
+On 05/05/14 17:29, Christopher J. PeBenito wrote:
+> On 05/04/2014 01:23 AM, dE wrote:
+>> Does the kernel automatically searches for and reads the policies in hard coded locations or does some userspace tool does that at startup via init/systemd scripts/units?
+> A long long time ago (before SELinux was accepted into Linus's tree), the kernel used to read the policy itself.  Now it is loaded by userspace, typically either by the init program, or by the initramfs.
 >
 
-Thanks for clarifying that!
+Is it the semodule utility?
