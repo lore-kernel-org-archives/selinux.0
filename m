@@ -1,50 +1,40 @@
-From: "Kim Lawson-Jenkins" <kim.lawson-jenkins@nrl.navy.mil>
-To: "'Stephen Smalley'" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>,
- "'Eric Paris'" <eparis@parisplace.org>
-References: <006701cf6934$1d4c4fb0$57e4ef10$@nrl.navy.mil>
- <5368ED86.8010508@tycho.nsa.gov>
-In-Reply-To: <5368ED86.8010508@tycho.nsa.gov>
-Subject: RE: No AVCs written to /var/log/messages
-Date: Tue, 6 May 2014 10:54:16 -0400
-Message-ID: <006f01cf693b$0d9c5590$28d500b0$@nrl.navy.mil>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s46Hl0jA018339
+ for <selinux@tycho.nsa.gov>; Tue, 6 May 2014 13:47:00 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id DDA951A071
+ for <selinux@tycho.nsa.gov>; Tue,  6 May 2014 19:46:56 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id EknSctT1hPbC for <selinux@tycho.nsa.gov>;
+ Tue,  6 May 2014 19:46:54 +0200 (CEST)
+Received: from soldur.bigon.be (ip-83-134-183-90.dsl.scarlet.be
+ [83.134.183.90])
+ (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id A88B51A052
+ for <selinux@tycho.nsa.gov>; Tue,  6 May 2014 19:46:54 +0200 (CEST)
+Date: Tue, 6 May 2014 19:46:49 +0200
+From: Laurent Bigonville <bigon@debian.org>
+To: <selinux@tycho.nsa.gov>
+Subject: PAM modules ordering
+Message-ID: <20140506194649.2f3aa358@soldur.bigon.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Reply-To: kim.lawson-jenkins@nrl.navy.mil
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I just used the command
+Hello,
 
-dmesg | grep -i avc
+I was wondering, is there a list of pam modules that need to be called
+between pam_selinux close/open?
 
-There were 2 errors generated when I used the command; these AVC errors were
-written to the console and in the dmesg output.  These were the only AVCs
-recorded in the dmesg output.  The few errors that I would see during system
-initialization are not in the dmesg output.
+On Fedora I see pam_loginuid, but are there other modules that must be
+in between, or can all the other modules be after the "pam_selinux
+open" one?
 
+Cheers,
 
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Tuesday, May 06, 2014 10:11 AM
-To: kim.lawson-jenkins@nrl.navy.mil; selinux@tycho.nsa.gov
-Subject: Re: No AVCs written to /var/log/messages
-
-On 05/06/2014 10:04 AM, Kim Lawson-Jenkins wrote:
-> Hi,
-> 
->  
-> 
-> I'm working on an embedded system using SELinux.  The audit daemon is 
-> not running so AVC errors should be written to /var/log/messages.
-> SELinux is running in permissive mode and during a system reboot I see 
-> a few AVC errors written to a console.  However when I look in 
-> /var/log/messages there are no AVC errors.  I haven't seen a similar 
-> problem reported in the past.  Does anyone have any ideas why AVC 
-> errors would not be written to /var/log/messages if the audit daemon 
-> is not running?  I've checked syslog.conf and all messages with a 
-> priority of warning and above should be written to /var/log/messages.
-
-Do they show up in dmesg output (or if you cat /proc/kmsg)?
+Laurent Bigonville
