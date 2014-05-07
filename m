@@ -1,56 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s47CmwFD023032
- for <selinux@tycho.nsa.gov>; Wed, 7 May 2014 08:48:58 -0400
-Received: by mail-ig0-f171.google.com with SMTP id c1so7614751igq.10
- for <selinux@tycho.nsa.gov>; Wed, 07 May 2014 05:48:59 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s47FZ3Nn005544
+ for <selinux@tycho.nsa.gov>; Wed, 7 May 2014 11:35:03 -0400
+Received: by mail-pd0-f170.google.com with SMTP id v10so1195014pde.1
+ for <selinux@tycho.nsa.gov>; Wed, 07 May 2014 08:34:54 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.183.88])
+ by mx.google.com with ESMTPSA id sm8sm3796739pbc.92.2014.05.07.08.34.51
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Wed, 07 May 2014 08:34:52 -0700 (PDT)
+Message-ID: <536A51FE.1050506@gmail.com>
+Date: Wed, 07 May 2014 21:02:14 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <5367C08F.1010804@redhat.com>
-References: <CANnpg5Q8Uf23hKB1s3OtOQiXJSuUh5hyB08wkecWQ6U7oMusBA@mail.gmail.com>
- <5367C08F.1010804@redhat.com>
-Date: Wed, 7 May 2014 08:48:58 -0400
-Message-ID: <CANnpg5TkzegeatevCXdEfck1pC6oOJYrUXrtauWp6qCw5nsM_g@mail.gmail.com>
-Subject: Re: staff_u permission
-From: Steve Huston <huston@astro.princeton.edu>
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Subject: sshd and default security context.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, May 5, 2014 at 12:47 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> First off, I hope you realize that you still need to allow DAC
-> permissions, meaning if users on the system were not allowed to edit
-> these files with SELinux in permissive mode or disabled, they still
-> would not be allowed to edit the files with SELinux in enforcing, no
-> matter the label.  You could add a group permissions to the /etc/puppet
-> directory and allow users in that group to write.  Another option would
-> be to allow the users to use sudo to get access to this directory.
+I was tying out default_contexts which has the following lines  --
 
-I probably wasn't clear in my initial description; using standard Unix
-groups is what I'd already done, so the next step was how to get
-SELinux to know what I was doing is OK :>
+cat default_contexts | grep sshd
+system_r:sshd_t:s0              user_r:user_t:s0
 
-> If we want to leave the files labeled as puppet_etc_t, then simply
-> adding a custom policy like
->
-> # cat mystaff.te
-> policy_module(mystaff,1.0)
-> gen_require(`
-> type staff_t, puppet_etc_t;
-> ')
-> manage_dirs_pattern(staff_t, puppet_etc_t, puppet_etc_t)
-> manage_files_pattern(staff_t, puppet_etc_t, puppet_etc_t)
-> manage_lnk_files_pattern(staff_t, puppet_etc_t, puppet_etc_t)
->
-> # make -f /usr/share/selinux/devel/Makefile
-> # semodule -i mystaff.pp
+And sshd does run with that type --
 
-Worked perfectly, thanks!
+ps auxZ | grep sshd
+system_u:system_r:sshd_t:s0-s0:c0.c1023 root 279 0.0  0.6 80636 3392 
+?        Ss   09:20   0:00 /usr/sbin/sshd -D
+system_u:system_r:sshd_t:s0-s0:c0.c1023 root 458 0.0  0.9 131280 4652 
+?        Ss   09:22   0:00 sshd: de [priv]
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 468 0.0 0.4 
+131280 2144 ? S 09:22   0:00 sshd: de@pts/0
+system_u:system_r:sshd_t:s0-s0:c0.c1023 root 5115 1.1  0.9 131280 4624 
+?       Ss   20:22   0:00 sshd: de [priv]
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 5121 0.0 0.4 
+131280 2124 ? S 20:22   0:00 sshd: de@notty
 
--- 
-Steve Huston - W2SRH - Unix Sysadmin, PICSciE/CSES & Astrophysical Sci
-  Princeton University  |    ICBM Address: 40.346344   -74.652242
-    345 Lewis Library   |"On my ship, the Rocinante, wheeling through
-  Princeton, NJ   08544 | the galaxies; headed for the heart of Cygnus,
-    (267) 793-0852      | headlong into mystery."  -Rush, 'Cygnus X-1'
+But the processes spawned by sshd do not have type user_t --
+
+ps auxZ | grep user_t
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 5183 0.0 0.1 
+112632 884 pts/0 S+ 20:25   0:00 grep --color=auto user_t
+
+I'm running the sleep command over SSH for e.g. but --
+
+ps auxZ | grep sleep
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 5126 0.0 0.1 
+107888 504 ? Ss 20:22   0:00 sleep 10m
+
+ps f -Ao args,label
+
+COMMAND                     LABEL
+/usr/sbin/sshd -D           system_u:system_r:sshd_t:s0-s0:c0.c1023
+  \_ sshd: de [priv]         system_u:system_r:sshd_t:s0-s0:c0.c1023
+  |   \_ sshd: de@pts/0 
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  |       \_ -bash unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  |           \_ ps f -Ao ar 
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+  \_ sshd: de [priv]         system_u:system_r:sshd_t:s0-s0:c0.c1023
+      \_ sshd: de@notty 
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+          \_ sleep 10m unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+
+I'm aware of the possibility that ssh devs may have intended to use 
+libselinux for a different purpose, but it's kind of pointless otherwise.
+
+ldd $(which sshd) | grep selinux
+         libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f4cf93f6000)
