@@ -1,187 +1,91 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s47ILWDI029219
- for <selinux@tycho.nsa.gov>; Wed, 7 May 2014 14:21:33 -0400
-From: Petre Rodan <petre.rodan@simplex.ro>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] add module for the entropy key daemon
-Date: Wed,  7 May 2014 21:21:19 +0300
-Message-Id: <1399486880-12744-1-git-send-email-petre.rodan@simplex.ro>
+Message-ID: <536A7F1B.1040008@tycho.nsa.gov>
+Date: Wed, 07 May 2014 14:44:43 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: sshd and default security context.
+References: <536A51FE.1050506@gmail.com>
+In-Reply-To: <536A51FE.1050506@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Petre Rodan <petre.rodan@simplex.ro>
----
+On 05/07/2014 11:32 AM, dE wrote:
+> I was tying out default_contexts which has the following lines  --
+> 
+> cat default_contexts | grep sshd
+> system_r:sshd_t:s0              user_r:user_t:s0
+> 
+> And sshd does run with that type --
+> 
+> ps auxZ | grep sshd
+> system_u:system_r:sshd_t:s0-s0:c0.c1023 root 279 0.0  0.6 80636 3392
+> ?        Ss   09:20   0:00 /usr/sbin/sshd -D
+> system_u:system_r:sshd_t:s0-s0:c0.c1023 root 458 0.0  0.9 131280 4652
+> ?        Ss   09:22   0:00 sshd: de [priv]
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 468 0.0 0.4
+> 131280 2144 ? S 09:22   0:00 sshd: de@pts/0
+> system_u:system_r:sshd_t:s0-s0:c0.c1023 root 5115 1.1  0.9 131280 4624
+> ?       Ss   20:22   0:00 sshd: de [priv]
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 5121 0.0 0.4
+> 131280 2124 ? S 20:22   0:00 sshd: de@notty
+> 
+> But the processes spawned by sshd do not have type user_t --
+> 
+> ps auxZ | grep user_t
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 de 5183 0.0 0.1
+> 112632 884 pts/0 S+ 20:25   0:00 grep --color=auto user_t
 
-policy module for http://www.entropykey.co.uk/download/
-gentoo package name: app-crypt/ekeyd
+The Linux user is mapped to a SELinux user based on the seusers mapping;
+you can run semanage login -l to see the mapping.  The __default__ entry
+is used when there is no other match, so under targeted policy, users
+default to being mapped to unconfined_u.  If you want them to run in a
+confined role, you can use semanage login -a to map their Linux username
+to a confined SELinux user like user_u or staff_u.
 
+libselinux asks the kernel for the set of security contexts for the
+SELinux user reachable from the current context, which in this case is
+system_u:system_r:sshd_t.  This is done via security_compute_user()
+which internally writes a query to /sys/fs/selinux/user and reads back a
+list of contexts.  The kernel computes this list from policy based on
+the user-role relation, the user-level relation, the role-type relation,
+and whether or not process transition permission is granted from the
+current context (i.e. sshd's context) to the context in policy.
 
- ekeyd.fc | 12 ++++++++++
- ekeyd.if | 45 +++++++++++++++++++++++++++++++++++
- ekeyd.te | 82 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 139 insertions(+)
- create mode 100644 ekeyd.fc
- create mode 100644 ekeyd.if
- create mode 100644 ekeyd.te
+Then, libselinux looks to see if there is an
+/etc/selinux/$SELINUXTYPE/contexts/users/<selinux-user> file, e.g.
+/etc/selinux/targeted/contexts/unconfined_u, and if so, uses it to
+determine the most preferred context(s) to use.
 
-diff --git a/ekeyd.fc b/ekeyd.fc
-new file mode 100644
-index 0000000..0e166af
---- /dev/null
-+++ b/ekeyd.fc
-@@ -0,0 +1,12 @@
-+
-+/etc/entropykey(/.*)?       gen_context(system_u:object_r:ekey_etc_t,s0)
-+
-+/usr/libexec/ekeyd      --  gen_context(system_u:object_r:ekeyd_exec_t,s0)
-+/usr/libexec/ekey-egd-linux     --  gen_context(system_u:object_r:ekey_egd_exec_t,s0)
-+
-+/usr/sbin/ekey-setkey   --  gen_context(system_u:object_r:ekey_tool_exec_t,s0)
-+/usr/sbin/ekey-rekey    --  gen_context(system_u:object_r:ekey_tool_exec_t,s0)
-+/usr/sbin/ekeydctl      --  gen_context(system_u:object_r:ekey_tool_exec_t,s0)
-+
-+/var/run/ekeyd.sock		-s	gen_context(system_u:object_r:ekey_var_run_t,s0)
-+
-diff --git a/ekeyd.if b/ekeyd.if
-new file mode 100644
-index 0000000..4c004d4
---- /dev/null
-+++ b/ekeyd.if
-@@ -0,0 +1,45 @@
-+## <summary>Entropy Key daemon</summary>
-+
-+########################################
-+## <summary>
-+##	Execute entropy key tools in the ekey_tool domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed to transition.
-+##	</summary>
-+## </param>
-+#
-+interface(`ekey_tool_domtrans',`
-+	gen_require(`
-+		type ekey_tool_t, ekey_tool_exec_t;
-+	')
-+
-+	corecmd_search_bin($1)
-+	domtrans_pattern($1, ekey_tool_exec_t, ekey_tool_t)
-+')
-+
-+############################################################
-+## <summary>
-+##	Role access for the entropy key tools.
-+## </summary>
-+## <param name="role">
-+##	<summary>
-+##	Role allowed access.
-+##	</summary>
-+## </param>
-+## <param name="domain">
-+##	<summary>
-+##	User domain for the role.
-+##	</summary>
-+## </param>
-+#
-+interface(`ekey_tool_run',`
-+	gen_require(`
-+		type ekey_tool_t;
-+	')
-+
-+	ekey_tool_domtrans($1)
-+	role $2 types ekey_tool_t;
-+')
-+
-diff --git a/ekeyd.te b/ekeyd.te
-new file mode 100644
-index 0000000..d2efb55
---- /dev/null
-+++ b/ekeyd.te
-@@ -0,0 +1,82 @@
-+policy_module(ekeyd, 1.0.0)
-+
-+########################################
-+#
-+# Declarations
-+#
-+
-+type ekeyd_t;
-+type ekeyd_exec_t;
-+init_daemon_domain(ekeyd_t, ekeyd_exec_t)
-+
-+type ekey_egd_t;
-+type ekey_egd_exec_t;
-+init_daemon_domain(ekey_egd_t, ekey_egd_exec_t)
-+
-+type ekey_tool_t;
-+type ekey_tool_exec_t;
-+init_system_domain(ekey_tool_t, ekey_tool_exec_t)
-+
-+type ekey_etc_t;
-+files_config_file(ekey_etc_t)
-+
-+type ekey_var_run_t;
-+files_pid_file(ekey_var_run_t)
-+
-+require {
-+	type unreserved_port_t;
-+}
-+
-+########################################
-+#
-+# Local policy
-+#
-+
-+# ekeyd - the Entropy Key Daemon
-+
-+allow ekeyd_t self:tcp_socket create_stream_socket_perms;
-+allow ekeyd_t self:unix_dgram_socket create_socket_perms;
-+allow ekeyd_t unreserved_port_t:tcp_socket name_connect;
-+
-+read_files_pattern(ekeyd_t, ekey_etc_t, ekey_etc_t)
-+manage_sock_files_pattern(ekeyd_t, ekey_var_run_t, ekey_var_run_t)
-+corenet_tcp_bind_generic_node(ekeyd_t)
-+term_use_unallocated_ttys(ekeyd_t)
-+logging_send_syslog_msg(ekeyd_t)
-+miscfiles_read_localization(ekeyd_t)
-+files_read_usr_files(ekeyd_t)
-+files_pid_filetrans(ekeyd_t, ekey_var_run_t, sock_file)
-+
-+# tools
-+allow ekey_tool_t self:fifo_file rw_fifo_file_perms;
-+allow ekey_tool_t ekeyd_t:unix_stream_socket connectto;
-+
-+manage_files_pattern(ekey_tool_t, ekey_etc_t, ekey_etc_t)
-+manage_sock_files_pattern(ekey_tool_t, ekey_var_run_t, ekey_var_run_t)
-+corecmd_exec_shell(ekey_tool_t)
-+can_exec(ekey_tool_t, ekey_tool_exec_t)
-+corecmd_exec_bin(ekey_tool_t)
-+userdom_use_user_terminals(ekey_tool_t)
-+miscfiles_read_localization(ekey_tool_t)
-+seutil_use_newrole_fds(ekey_tool_t)
-+files_read_usr_files(ekey_tool_t)
-+kernel_read_system_state(ekey_tool_t)
-+dev_read_sysfs(ekey_tool_t)
-+term_use_unallocated_ttys(ekey_tool_t)
-+
-+# ekey-egd-linux - the EGD Entropy Daemon
-+
-+allow ekey_egd_t self:netlink_route_socket create_netlink_socket_perms;
-+allow ekey_egd_t self:tcp_socket create_socket_perms;
-+allow ekey_egd_t self:unix_dgram_socket create_socket_perms;
-+allow ekey_egd_t unreserved_port_t:tcp_socket name_connect;
-+
-+dev_write_rand(ekey_egd_t)
-+miscfiles_read_localization(ekey_egd_t)
-+logging_send_syslog_msg(ekey_egd_t)
-+
-+optional_policy(`
-+	daemontools_service_domain(ekeyd_t, ekeyd_exec_t)
-+	daemontools_service_domain(ekey_egd_t, ekey_egd_exec_t)
-+')
-+
--- 
-1.8.5.5
+Then, libselinux looks to see if there is an
+/etc/selinux/$SELINUXTYPE/contexts/default_contexts file, and if so,
+uses it to determine the next most preferred context(s) to use.
+
+libselinux orders the list of contexts based on these two configuration
+files and then returns the result to the caller for selection.  Most
+current callers just use the most preferred context, but the design was
+to allow user selection via some interfaces, e.g. some people have
+implemented gdm extensions or the like that offered the user a choice of
+contexts at login time.
+
+If something goes wrong and it cannot obtain any valid contexts in this
+way, libselinux falls back to trying to use a context based on
+/etc/selinux/$SELINUXTYPE/contexts/failsafe_context.  This was to permit
+e.g. root login for emergency recovery.  If the user in question isn't
+authorized for that context however, this will fail, so it can only work
+if the user is authorized for that role.
+
+The mechanism is overly complex and can be fragile, which has led to
+some changes over time to try to reduce fragility at a cost in the
+original expressiveness/generality of the mechanism.  I'd prefer to
+rework it to avoid the kernel interaction altogether, but this would
+require some exporting some of the kernel policy information to
+userspace (either via other /sys/fs/selinux nodes or by extracting the
+information during policy build and placing it in configuration files
+made available to userspace) and reworking the userspace logic.
+
+There is a fair bit of complexity as well in the pam_selinux logic even
+before you reach libselinux that would benefit from streamlining and
+possibly taking to libselinux.
