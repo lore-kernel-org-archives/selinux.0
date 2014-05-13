@@ -1,76 +1,29 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4CDPsNA021104
- for <selinux@tycho.nsa.gov>; Mon, 12 May 2014 09:25:59 -0400
-To: miklos@szeredi.hu, jmorris@namei.org, john.johansen@canonical.com,
- selinux@tycho.nsa.gov
-Subject: [PATCH (for 3.15) 5/5] LSM: Remove duplicated rename handling.
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <201404242020.FJD18726.LOOJtOQMFVFFSH@I-love.SAKURA.ne.jp>
- <201405012058.JEG30273.LJFHOOFMtOFQVS@I-love.SAKURA.ne.jp>
- <201405051449.GAE81222.LOOFtFJMQFOSVH@I-love.SAKURA.ne.jp>
- <201405120053.HJG95368.HFLQSFMOOtOVJF@I-love.SAKURA.ne.jp>
- <201405122221.DBG43278.LOQtJSOFVFFOHM@I-love.SAKURA.ne.jp>
-In-Reply-To: <201405122221.DBG43278.LOQtJSOFVFFOHM@I-love.SAKURA.ne.jp>
-Message-Id: <201405122225.CIE09825.MFHOtOOSQVFFLJ@I-love.SAKURA.ne.jp>
-Date: Mon, 12 May 2014 22:25:54 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4D9oibq031976
+ for <selinux@tycho.nsa.gov>; Tue, 13 May 2014 05:50:44 -0400
+Received: by mail-pa0-f51.google.com with SMTP id kq14so85032pab.38
+ for <selinux@tycho.nsa.gov>; Tue, 13 May 2014 02:50:44 -0700 (PDT)
+Received: from [192.168.1.2] ([117.214.171.24])
+ by mx.google.com with ESMTPSA id gg3sm27311009pbc.34.2014.05.13.02.50.42
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Tue, 13 May 2014 02:50:43 -0700 (PDT)
+Message-ID: <5371EA55.703@gmail.com>
+Date: Tue, 13 May 2014 15:18:05 +0530
+From: dE <de.techno@gmail.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Presidency of user/role/type permissions.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
->From 479d305929c4ef600de99948f42ed633b24458b0 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 12 May 2014 22:02:30 +0900
-Subject: [PATCH (for 3.15) 5/5] LSM: Remove duplicated rename handling.
+For a process's security context (user, role, type), there maybe a 
+conflict in the policy. for e.g. for user user_u, access to the kernel's 
+ring buffer may not be allowed, but for role role_r, it may be allowed. 
+The same process will have user_u and role_r.
 
-Since all LSM modules are now ready to handle the rename flags,
-security_inode_rename() and security_path_rename() no longer need to
-call each LSM module with reversed arguments.
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
----
- security/security.c |   18 ------------------
- 1 files changed, 0 insertions(+), 18 deletions(-)
-
-diff --git a/security/security.c b/security/security.c
-index 81d7ffe..fbc4968 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -439,15 +439,6 @@ int security_path_rename(struct path *old_dir, struct dentry *old_dentry,
- 	if (unlikely(IS_PRIVATE(old_dentry->d_inode) ||
- 		     (new_dentry->d_inode && IS_PRIVATE(new_dentry->d_inode))))
- 		return 0;
--
--	if (flags & RENAME_EXCHANGE) {
--		int err = security_ops->path_rename(new_dir, new_dentry,
--						    old_dir, old_dentry,
--						    flags);
--		if (err)
--			return err;
--	}
--
- 	return security_ops->path_rename(old_dir, old_dentry, new_dir,
- 					 new_dentry, flags);
- }
-@@ -540,15 +531,6 @@ int security_inode_rename(struct inode *old_dir, struct dentry *old_dentry,
-         if (unlikely(IS_PRIVATE(old_dentry->d_inode) ||
-             (new_dentry->d_inode && IS_PRIVATE(new_dentry->d_inode))))
- 		return 0;
--
--	if (flags & RENAME_EXCHANGE) {
--		int err = security_ops->inode_rename(new_dir, new_dentry,
--						     old_dir, old_dentry,
--						     flags);
--		if (err)
--			return err;
--	}
--
- 	return security_ops->inode_rename(old_dir, old_dentry,
- 					  new_dir, new_dentry, flags);
- }
--- 
-1.7.1
+So in case of conflicting permissions between user, role and type who's 
+permission will the security server respect -- user's, role's or type's?
