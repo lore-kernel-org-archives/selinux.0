@@ -1,42 +1,60 @@
-Message-ID: <53739A7F.6090902@tycho.nsa.gov>
-Date: Wed, 14 May 2014 12:31:59 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4EGmoTQ023606
+ for <selinux@tycho.nsa.gov>; Wed, 14 May 2014 12:48:52 -0400
+Received: by mail-vc0-f176.google.com with SMTP id lg15so2766169vcb.7
+ for <selinux@tycho.nsa.gov>; Wed, 14 May 2014 09:48:51 -0700 (PDT)
 MIME-Version: 1.0
-To: Mladen Sekara <dev@emefes.com>, selinux@tycho.nsa.gov
-Subject: Re: Single init script for multiple daemons
-References: <1400083486.3010.21.camel@vaio-emefes-com>
-In-Reply-To: <1400083486.3010.21.camel@vaio-emefes-com>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <53739880.6070006@tycho.nsa.gov>
+References: <20140514155807.32072.32113.stgit@localhost>
+ <CALCETrW7eED6sXcGOreRdTowSPWFAw3X2i0yz+uCkqoMH_rk3g@mail.gmail.com>
+ <53739880.6070006@tycho.nsa.gov>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Wed, 14 May 2014 09:48:30 -0700
+Message-ID: <CALCETrWtM8q1Py8p3youVqaf2+XTWGWfiFyuO6DA3aCTLi4oQQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: prevent setting a security label on
+ MNT_NOSUID applications
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/14/2014 12:04 PM, Mladen Sekara wrote:
-> What would be the best approach to attack this:
-> 
-> One application, multiple components/daemons.
-> Some files are specific to a daemon, some are shared between them (eg.
-> log files are unique, some config files, keystores... are shared etc.)
-> 
-> All daemons start from a single init script and I am not allowed to
-> change it.
-> 
-> Options:
-> 
-> 1. Create policy for each component and then domain transition between
-> them (what about shared files???)
-> 2. Create a single policy for multiple daemons?
-> 
-> Any advice...
+On Wed, May 14, 2014 at 9:23 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 05/14/2014 12:16 PM, Andy Lutomirski wrote:
+>> On Wed, May 14, 2014 at 8:58 AM, Paul Moore <pmoore@redhat.com> wrote:
+>>> We presently prevent processes from explicitly setting an arbitrary
+>>> security label on new processes when NO_NEW_PRIVS is enabled; in an
+>>> attempt for more consistency, this patch extends this to prevent
+>>> setting an arbitrary label when the new application lives on a
+>>> filesystem mounted with MNT_NOSUID.
+>>>
+>>> Signed-off-by: Paul Moore <pmoore@redhat.com>
+>>> CC: Andy Lutomirski <luto@amacapital.net>
+>>> CC: Stephen Smalley <sds@tycho.nsa.gov>
+>>> ---
+>>
+>> Acked-by: Andy Lutomirski <luto@amacapital.net>
+>>
+>> However: would it pay to move the check above this:
+>>
+>>                 /* Reset exec SID on execve. */
+>>                 new_tsec->exec_sid = 0;
+>>
+>> I suppose that this shouldn't matter: any correct application already
+>> needs to redo setexeccon if it gets an error from execve.  Fixing this
+>> for real would probably involve moving that line of code into
+>> selinux_bprm_committed_creds.
+>
+> Shouldn't matter as that is a change to new_tsec (i.e.
+> bprm->cred->security), which will only be applied to the process if we
+> reach install_exec_creds(); otherwise it will just be discarded.
+>
+>
 
-Given that there are some resources private to each daemon and the
-daemons may have different permission requirements, I'd suggest creating
-a separate domain per daemon and just defining a set of shared types for
-the shared resources.  You can define them all in a single policy
-module; there is no requirement that there only be a single domain in
-each policy module.
+Indeed.  Sorry for the early-morning failure to read the code.
 
-If you then find that some of the domains are almost identical, you can
-coalesce them.  But you likely won't know that a priori and it is easier
-to coalesce domains/types than to split them.
+-- 
+Andy Lutomirski
+AMA Capital Management, LLC
