@@ -1,79 +1,50 @@
-From: Paul Moore <pmoore@redhat.com>
-To: Andy Lutomirski <luto@amacapital.net>
-Subject: Re: [RFC PATCH] selinux: prevent setting a security label on
- MNT_NOSUID applications
-Date: Thu, 15 May 2014 11:14:19 -0400
-Message-ID: <3937310.71HJKD7fOT@sifl>
-In-Reply-To: <CALCETrW9WNVQoRFxy+T5Gs9Ct+1L-_bycTukWQdEgDgkZQKh1g@mail.gmail.com>
-References: <20140514155807.32072.32113.stgit@localhost>
- <1904410.NyD4ciNI6n@sifl>
- <CALCETrW9WNVQoRFxy+T5Gs9Ct+1L-_bycTukWQdEgDgkZQKh1g@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4FHh7AE018627
+ for <selinux@tycho.nsa.gov>; Thu, 15 May 2014 13:43:07 -0400
+Received: by mail-pa0-f44.google.com with SMTP id ld10so1359623pab.17
+ for <selinux@tycho.nsa.gov>; Thu, 15 May 2014 10:43:07 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.86.137])
+ by mx.google.com with ESMTPSA id sh5sm10175028pbc.21.2014.05.15.10.43.05
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Thu, 15 May 2014 10:43:06 -0700 (PDT)
+Message-ID: <5374FC0B.1080804@gmail.com>
+Date: Thu, 15 May 2014 23:10:27 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+To: selinux@tycho.nsa.gov
+Subject: Re: Presidency of user/role/type permissions.
+References: <5371EA55.703@gmail.com> <53720F8C.8000205@tresys.com>
+ <5372239D.3010007@redhat.com> <53730743.1050900@gmail.com>
+ <537308E1.4050705@gmail.com> <53736433.1030107@redhat.com>
+In-Reply-To: <53736433.1030107@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, May 14, 2014 02:26:59 PM Andy Lutomirski wrote:
-> On Wed, May 14, 2014 at 2:00 PM, Paul Moore <pmoore@redhat.com> wrote:
-> > On Wednesday, May 14, 2014 09:18:35 AM Andy Lutomirski wrote:
-> >> > On Wed, May 14, 2014 at 8:58 AM, Paul Moore <pmoore@redhat.com> wrote:
-> >> >> We presently prevent processes from explicitly setting an arbitrary
-> >> >> security label on new processes when NO_NEW_PRIVS is enabled; in an
-> >> >> attempt for more consistency, this patch extends this to prevent
-> >> >> setting an arbitrary label when the new application lives on a
-> >> >> filesystem mounted with MNT_NOSUID.
-> >> >> 
-> >> >> Signed-off-by: Paul Moore <pmoore@redhat.com>
-> >> >> CC: Andy Lutomirski <luto@amacapital.net>
-> >> >> CC: Stephen Smalley <sds@tycho.nsa.gov>
-> >> >> ---
-> >> 
-> >> Acked-by: Andy Lutomirski <luto@amacapital.net>
-> >> 
-> >> I'm also unconvinced by the subject line -- would "selinux: return an
-> >> error when rejecting settexeccon on MNT_NOSUID applications" be
-> >> better?
-> > 
-> > ...
-> > 
-> > On Wednesday, May 14, 2014 12:28:24 PM Stephen Smalley wrote:
-> >> On 05/14/2014 11:58 AM, Paul Moore wrote:
-> >> > We presently prevent processes from explicitly setting an arbitrary
-> >> > security label on new processes when NO_NEW_PRIVS is enabled; in an
-> >> > attempt for more consistency, this patch extends this to prevent
-> >> > setting an arbitrary label when the new application lives on a
-> >> > filesystem mounted with MNT_NOSUID.
-> >> 
-> >> It is never arbitrary (the new value is always controlled by policy),
-> >> and it isn't set on "new processes" per se but rather transitioned to
-> >> upon an exec.  Anyway, the point of the change is to return an error
-> >> rather than silently ignore any /proc/self/attr/exec value when
-> >> executing from a nosuid mount.
-> >> 
-> >> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > 
-> > I had a feeling while writing the patch description yesterday that someone
-> > was not going to be happy with the text ... does the subject/description
-> > below sound better to you guys?
-> > 
-> > ***
-> > selinux: reject setexeccon() on MNT_NOSUID applications with -EACCES
-> > 
-> > We presently prevent processes from using setexecon() to set the security
-> > label of exec()'d processes when NO_NEW_PRIVS is enabled by returning an
-> > error; however, we silently ignore setexeccon() when exec()'ing from a
-> > nosuid mounted filesystem.  This patch makes things a bit more consistent
-> > by returning an error in the setexeccon()/nosuid case.
-> > ***
-> 
-> Looks good to me.
+On 05/14/14 18:10, Daniel J Walsh wrote:
+> As far as roles/type combinations, most system roles get assigned the
+> system_r role.  This is the vast majority of role/type combination.
+>   seinfo -rsystem_r -x | wc -l
+> 776
+>
+> User roles are assigned based on the _run interfaces, and are built into
+> higher level interfaces to get assigned automatically when you define a
+> new user_r as a user.
+>
+> seinfo -ruser_r -x | wc -l
+> 175
+> seinfo -rguest_r -x | wc -l
+> 95
 
-Okay, I expect if Stephen had a strong objection to the new text he would have 
-commented by now.  I'm going to toss this into #next with the new text now.
+Since the role has a set of allowed type it acts as an abstraction 
+between a new user and the types; simply assigning a user a certain role 
+is enough to define the allowed types a process can have under the user.
 
--- 
-paul moore
-security and virtualization @ redhat
+Since I don't know M4 macros, I would request you to clarify 1 more 
+question -- when a new type is defined, the macros are used to define 
+which roles will this new type be allowed in? Or is it the other way 
+around -- the definition of one of the role is modified so as to include 
+this new type?
