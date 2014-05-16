@@ -1,69 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4FJ8ULO024079
- for <selinux@tycho.nsa.gov>; Thu, 15 May 2014 15:08:30 -0400
-Message-ID: <537510AB.7050601@redhat.com>
-Date: Thu, 15 May 2014 15:08:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Presidency of user/role/type permissions.
-References: <5371EA55.703@gmail.com> <53720F8C.8000205@tresys.com>
- <5372239D.3010007@redhat.com> <53730743.1050900@gmail.com>
- <537308E1.4050705@gmail.com> <53736433.1030107@redhat.com>
- <5374FC0B.1080804@gmail.com>
-In-Reply-To: <5374FC0B.1080804@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4GCE4u8016586
+ for <selinux@tycho.nsa.gov>; Fri, 16 May 2014 08:14:04 -0400
+Received: by mail-ee0-f53.google.com with SMTP id c13so1510780eek.12
+ for <selinux@tycho.nsa.gov>; Fri, 16 May 2014 05:14:04 -0700 (PDT)
+Received: from [192.168.1.100] ([84.245.1.4])
+ by mx.google.com with ESMTPSA id a4sm19669007eep.12.2014.05.16.05.14.03
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=RC4-SHA bits=128/128);
+ Fri, 16 May 2014 05:14:03 -0700 (PDT)
+Message-ID: <1400242442.444.9.camel@x220.localdomain>
+Subject: secilc: classmappings do not work
+From: Dominick Grift <dominick.grift@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Date: Fri, 16 May 2014 14:14:02 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+I wanted to try out some of the less common features of cil after
+studying the cil reference guide but its been a bumpy ride.
 
-On 05/15/2014 01:40 PM, dE wrote:
-> On 05/14/14 18:10, Daniel J Walsh wrote:
->> As far as roles/type combinations, most system roles get assigned the
->> system_r role.  This is the vast majority of role/type combination.
->>   seinfo -rsystem_r -x | wc -l
->> 776
->>
->> User roles are assigned based on the _run interfaces, and are built into
->> higher level interfaces to get assigned automatically when you define a
->> new user_r as a user.
->>
->> seinfo -ruser_r -x | wc -l
->> 175
->> seinfo -rguest_r -x | wc -l
->> 95
->
-> Since the role has a set of allowed type it acts as an abstraction
-> between a new user and the types; simply assigning a user a certain
-> role is enough to define the allowed types a process can have under
-> the user.
->
-> Since I don't know M4 macros, I would request you to clarify 1 more
-> question -- when a new type is defined, the macros are used to define
-> which roles will this new type be allowed in? Or is it the other way
-> around -- the definition of one of the role is modified so as to
-> include this new type?
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
-The other way around.  You allow a type to be reached within a role.
+Anyhow classmappings do not work
 
-role myrole_r types newtype_t;
+I have for example this one
 
-BTW This is for process types (domains).
+(clasmap dirs (list))
 
-Usually we add
-role system_r types mytype_t;
+(classmapping dirs list
+    read_lnk_file_perms
+    list_dir_perms
+)
 
-And then have an interface (m4 function call like:
+The read_lnk_file_perms and list_dir_perms are classpermissionsets
+(which work nicely)
 
-mytype_run(user_t, user_r)
+Only the first entry works (in this example read_lnk_file_perms)
+The other entries (like in this example list_dir_perms) do not make it
+to the resulting policy
 
-Then this interface would add a rule like
-
-role user_r types mytype_t;
+I have also tried this with straight rules instead of
+classpermissionsets (same result)
