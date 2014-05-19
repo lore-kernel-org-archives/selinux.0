@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4JCSRip004153
- for <selinux@tycho.nsa.gov>; Mon, 19 May 2014 08:28:27 -0400
-Message-ID: <5379F8E5.2070802@canonical.com>
-Date: Mon, 19 May 2014 05:28:21 -0700
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4JCYJGP004677
+ for <selinux@tycho.nsa.gov>; Mon, 19 May 2014 08:34:19 -0400
+Message-ID: <5379FA44.90107@canonical.com>
+Date: Mon, 19 May 2014 05:34:12 -0700
 From: John Johansen <john.johansen@canonical.com>
 MIME-Version: 1.0
 To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, miklos@szeredi.hu,
  jmorris@namei.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH (for 3.15) 3/5] AppArmor: Handle the rename flags.
+Subject: Re: [PATCH (for 3.15) 5/5] LSM: Remove duplicated rename handling.
 References: <201404242020.FJD18726.LOOJtOQMFVFFSH@I-love.SAKURA.ne.jp>	<201405012058.JEG30273.LJFHOOFMtOFQVS@I-love.SAKURA.ne.jp>	<201405051449.GAE81222.LOOFtFJMQFOSVH@I-love.SAKURA.ne.jp>	<201405120053.HJG95368.HFLQSFMOOtOVJF@I-love.SAKURA.ne.jp>	<201405122221.DBG43278.LOQtJSOFVFFOHM@I-love.SAKURA.ne.jp>
- <201405122224.BJB51546.VJOtMSQOLOFFHF@I-love.SAKURA.ne.jp>
-In-Reply-To: <201405122224.BJB51546.VJOtMSQOLOFFHF@I-love.SAKURA.ne.jp>
+ <201405122225.CIE09825.MFHOtOOSQVFFLJ@I-love.SAKURA.ne.jp>
+In-Reply-To: <201405122225.CIE09825.MFHOtOOSQVFFLJ@I-love.SAKURA.ne.jp>
 Content-Type: text/plain; charset=ISO-8859-1
 Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
  torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
@@ -19,116 +19,57 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/12/2014 06:24 AM, Tetsuo Handa wrote:
->>From 819e94ae3a6d9235196d137a39afa4e0bbd79770 Mon Sep 17 00:00:00 2001
+On 05/12/2014 06:25 AM, Tetsuo Handa wrote:
+>>From 479d305929c4ef600de99948f42ed633b24458b0 Mon Sep 17 00:00:00 2001
 > From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> Date: Mon, 12 May 2014 21:54:05 +0900
-> Subject: [PATCH (for 3.15) 3/5] AppArmor: Handle the rename flags.
+> Date: Mon, 12 May 2014 22:02:30 +0900
+> Subject: [PATCH (for 3.15) 5/5] LSM: Remove duplicated rename handling.
 > 
-> For AppArmor, the RENAME_EXCHANGE flag means "check permissions with
-> reversed arguments" and "distinguish condition of source and target".
-> Future patches will stop re-calculating pathnames.
+> Since all LSM modules are now ready to handle the rename flags,
+> security_inode_rename() and security_path_rename() no longer need to
+> call each LSM module with reversed arguments.
 > 
 > Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-
-This isn't quite right. For apparmor at this point these paths need to
-be still treated like they are separate. The second aa_path_perm, is
-checking the permission to move old_inode to new_path.
-
-see below
-
-I've added an updated patch below
+Acked-by: John Johansen <john.johansen@canonical.com>
 
 > ---
->  security/apparmor/lsm.c |   22 ++++++++++++++++++++--
->  1 files changed, 20 insertions(+), 2 deletions(-)
+>  security/security.c |   18 ------------------
+>  1 files changed, 0 insertions(+), 18 deletions(-)
 > 
-> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-> index c0b4366..9f21296 100644
-> --- a/security/apparmor/lsm.c
-> +++ b/security/apparmor/lsm.c
-> @@ -331,7 +331,14 @@ static int apparmor_path_rename(struct path *old_dir, struct dentry *old_dentry,
->  		struct path_cond cond = { old_dentry->d_inode->i_uid,
->  					  old_dentry->d_inode->i_mode
->  		};
-> +		struct path_cond new_cond = cond;
->  
-> +		if (flags & RENAME_EXCHANGE) {
-> +			/* Cross rename requires both inodes to exist. */
-> +			new_cond.uid = new_dentry->d_inode->i_uid;
-> +			new_cond.mode = new_dentry->d_inode->i_mode;
-> +		}
-> +retry:
->  		error = aa_path_perm(OP_RENAME_SRC, profile, &old_path, 0,
->  				     MAY_READ | AA_MAY_META_READ | MAY_WRITE |
->  				     AA_MAY_META_WRITE | AA_MAY_DELETE,
-> @@ -339,7 +346,18 @@ static int apparmor_path_rename(struct path *old_dir, struct dentry *old_dentry,
->  		if (!error)
->  			error = aa_path_perm(OP_RENAME_DEST, profile, &new_path,
->  					     0, MAY_WRITE | AA_MAY_META_WRITE |
-> -					     AA_MAY_CREATE, &cond);
-> +					     AA_MAY_CREATE, &new_cond);
-This isn't new_cond because its the permission to move old_inode to new_path
-
-> +		if (!error && (flags & RENAME_EXCHANGE)) {
-> +			struct path tmp_path = new_path;
-> +			struct path_cond tmp_cond = new_cond;
-> +
-> +			new_path = old_path;
-> +			old_path = tmp_path;
-> +			new_cond = cond;
-> +			cond = tmp_cond;
-> +			flags = 0;
-> +			goto retry;
-> +		}
->  
->  	}
->  	return error;
+> diff --git a/security/security.c b/security/security.c
+> index 81d7ffe..fbc4968 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -439,15 +439,6 @@ int security_path_rename(struct path *old_dir, struct dentry *old_dentry,
+>  	if (unlikely(IS_PRIVATE(old_dentry->d_inode) ||
+>  		     (new_dentry->d_inode && IS_PRIVATE(new_dentry->d_inode))))
+>  		return 0;
+> -
+> -	if (flags & RENAME_EXCHANGE) {
+> -		int err = security_ops->path_rename(new_dir, new_dentry,
+> -						    old_dir, old_dentry,
+> -						    flags);
+> -		if (err)
+> -			return err;
+> -	}
+> -
+>  	return security_ops->path_rename(old_dir, old_dentry, new_dir,
+>  					 new_dentry, flags);
+>  }
+> @@ -540,15 +531,6 @@ int security_inode_rename(struct inode *old_dir, struct dentry *old_dentry,
+>          if (unlikely(IS_PRIVATE(old_dentry->d_inode) ||
+>              (new_dentry->d_inode && IS_PRIVATE(new_dentry->d_inode))))
+>  		return 0;
+> -
+> -	if (flags & RENAME_EXCHANGE) {
+> -		int err = security_ops->inode_rename(new_dir, new_dentry,
+> -						     old_dir, old_dentry,
+> -						     flags);
+> -		if (err)
+> -			return err;
+> -	}
+> -
+>  	return security_ops->inode_rename(old_dir, old_dentry,
+>  					  new_dir, new_dentry, flags);
+>  }
 > 
-
->From c07677ce007bbb5689b82bce0fab15a159f59874 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 12 May 2014 21:54:05 +0900
-Subject: [PATCH] AppArmor: Handle the rename flags.
-
-For AppArmor, the RENAME_EXCHANGE flag means "check permissions with
-reversed arguments" and "distinguish condition of source and target".
-Future patches will stop re-calculating pathnames.
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
----
- security/apparmor/lsm.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index c0b4366..d7d92ad 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -332,6 +332,7 @@ static int apparmor_path_rename(struct path *old_dir, struct dentry *old_dentry,
- 					  old_dentry->d_inode->i_mode
- 		};
- 
-+retry:
- 		error = aa_path_perm(OP_RENAME_SRC, profile, &old_path, 0,
- 				     MAY_READ | AA_MAY_META_READ | MAY_WRITE |
- 				     AA_MAY_META_WRITE | AA_MAY_DELETE,
-@@ -340,6 +341,16 @@ static int apparmor_path_rename(struct path *old_dir, struct dentry *old_dentry,
- 			error = aa_path_perm(OP_RENAME_DEST, profile, &new_path,
- 					     0, MAY_WRITE | AA_MAY_META_WRITE |
- 					     AA_MAY_CREATE, &cond);
-+		if (!error && (flags & RENAME_EXCHANGE)) {
-+			struct path tmp_path = new_path;
-+			new_path = old_path;
-+			old_path = tmp_path;
-+			/* Cross rename requires both inodes to exist. */
-+			cond.uid = new_dentry->d_inode->i_uid;
-+			cond.mode = new_dentry->d_inode->i_mode;
-+			flags = 0;
-+			goto retry;
-+		}
- 
- 	}
- 	return error;
--- 
-2.0.0.rc0
