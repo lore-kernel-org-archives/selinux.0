@@ -1,75 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4JCYJGP004677
- for <selinux@tycho.nsa.gov>; Mon, 19 May 2014 08:34:19 -0400
-Message-ID: <5379FA44.90107@canonical.com>
-Date: Mon, 19 May 2014 05:34:12 -0700
-From: John Johansen <john.johansen@canonical.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4JGphDk024982
+ for <selinux@tycho.nsa.gov>; Mon, 19 May 2014 12:51:43 -0400
+Received: by mail-pa0-f53.google.com with SMTP id kp14so6003860pab.40
+ for <selinux@tycho.nsa.gov>; Mon, 19 May 2014 09:51:43 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.88.8])
+ by mx.google.com with ESMTPSA id wn6sm13571525pab.18.2014.05.19.09.51.41
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Mon, 19 May 2014 09:51:42 -0700 (PDT)
+Message-ID: <537A3600.7050006@gmail.com>
+Date: Mon, 19 May 2014 22:19:04 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, miklos@szeredi.hu,
- jmorris@namei.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH (for 3.15) 5/5] LSM: Remove duplicated rename handling.
-References: <201404242020.FJD18726.LOOJtOQMFVFFSH@I-love.SAKURA.ne.jp>	<201405012058.JEG30273.LJFHOOFMtOFQVS@I-love.SAKURA.ne.jp>	<201405051449.GAE81222.LOOFtFJMQFOSVH@I-love.SAKURA.ne.jp>	<201405120053.HJG95368.HFLQSFMOOtOVJF@I-love.SAKURA.ne.jp>	<201405122221.DBG43278.LOQtJSOFVFFOHM@I-love.SAKURA.ne.jp>
- <201405122225.CIE09825.MFHOtOOSQVFFLJ@I-love.SAKURA.ne.jp>
-In-Reply-To: <201405122225.CIE09825.MFHOtOOSQVFFLJ@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
+To: selinux@tycho.nsa.gov
+Subject: system_u process does not have system_r
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/12/2014 06:25 AM, Tetsuo Handa wrote:
->>From 479d305929c4ef600de99948f42ed633b24458b0 Mon Sep 17 00:00:00 2001
-> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> Date: Mon, 12 May 2014 22:02:30 +0900
-> Subject: [PATCH (for 3.15) 5/5] LSM: Remove duplicated rename handling.
-> 
-> Since all LSM modules are now ready to handle the rename flags,
-> security_inode_rename() and security_path_rename() no longer need to
-> call each LSM module with reversed arguments.
-> 
-> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: John Johansen <john.johansen@canonical.com>
+I've mapped user 'de' to system_u --
 
-> ---
->  security/security.c |   18 ------------------
->  1 files changed, 0 insertions(+), 18 deletions(-)
-> 
-> diff --git a/security/security.c b/security/security.c
-> index 81d7ffe..fbc4968 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -439,15 +439,6 @@ int security_path_rename(struct path *old_dir, struct dentry *old_dentry,
->  	if (unlikely(IS_PRIVATE(old_dentry->d_inode) ||
->  		     (new_dentry->d_inode && IS_PRIVATE(new_dentry->d_inode))))
->  		return 0;
-> -
-> -	if (flags & RENAME_EXCHANGE) {
-> -		int err = security_ops->path_rename(new_dir, new_dentry,
-> -						    old_dir, old_dentry,
-> -						    flags);
-> -		if (err)
-> -			return err;
-> -	}
-> -
->  	return security_ops->path_rename(old_dir, old_dentry, new_dir,
->  					 new_dentry, flags);
->  }
-> @@ -540,15 +531,6 @@ int security_inode_rename(struct inode *old_dir, struct dentry *old_dentry,
->          if (unlikely(IS_PRIVATE(old_dentry->d_inode) ||
->              (new_dentry->d_inode && IS_PRIVATE(new_dentry->d_inode))))
->  		return 0;
-> -
-> -	if (flags & RENAME_EXCHANGE) {
-> -		int err = security_ops->inode_rename(new_dir, new_dentry,
-> -						     old_dir, old_dentry,
-> -						     flags);
-> -		if (err)
-> -			return err;
-> -	}
-> -
->  	return security_ops->inode_rename(old_dir, old_dentry,
->  					  new_dir, new_dentry, flags);
->  }
-> 
+semanage login -l
+
+Login Name           SELinux User         MLS/MCS Range Service
+
+__default__          unconfined_u         s0-s0:c0.c1023       *
+de                   system_u             s0-s0:c0.c1023       *
+root                 unconfined_u         s0-s0:c0.c1023       *
+system_u             system_u             s0-s0:c0.c1023       *
+
+However the processes do not have system_r role, as a result the type 
+value of many context fail to set cause unconfined_r is not allowed to 
+have that type.
+
+ps auxZ | grep nano
+system_u:unconfined_r:unconfined_t:s0 de   544  0.0  0.3 115024 1568 
+pts/1    S+   22:11   0:00 nano
+system_u:unconfined_r:unconfined_t:s0 root 611  0.0  0.1 112632 888 
+pts/0    S+   22:14   0:00 grep --color=auto nano
+
+Actually unconfined_r role is not allowed for the user --
+
+seinfo -uuser_u -x
+    user_u
+       default level: s0
+       range: s0
+       roles:
+          object_r
+          user_r
