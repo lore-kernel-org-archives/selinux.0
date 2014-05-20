@@ -1,47 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4KDfXps000655
- for <selinux@tycho.nsa.gov>; Tue, 20 May 2014 09:41:33 -0400
-Message-ID: <537B5BD3.4090507@tresys.com>
-Date: Tue, 20 May 2014 09:42:43 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4KEtAWZ006557
+ for <selinux@tycho.nsa.gov>; Tue, 20 May 2014 10:55:11 -0400
+Received: by mail-qg0-f45.google.com with SMTP id z60so906136qgd.32
+ for <selinux@tycho.nsa.gov>; Tue, 20 May 2014 07:55:11 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: zhangdianfang <zhangdianfang@huawei.com>
+Subject: Re: [PATCH] =?UTF-8?B?c2VsaW51eO+8mmNsZWFudXA=?= redundant code in
+ selinux_init()
+Date: Tue, 20 May 2014 10:55:10 -0400
+Message-ID: <10080497.EqJdIIVPn4@sifl>
+In-Reply-To: <537B42A4.4070301@huawei.com>
+References: <537B42A4.4070301@huawei.com>
 MIME-Version: 1.0
-To: dE <de.techno@gmail.com>, <selinux@tycho.nsa.gov>
-Subject: Re: Significance of SELinux user and roles on objects.
-References: <537AE191.7070403@gmail.com>
-In-Reply-To: <537AE191.7070403@gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, SELinux list <selinux@tycho.nsa.gov>,
+ James Morris <james.l.morris@oracle.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/20/2014 01:01 AM, dE wrote:
-> I've read that the roles on objects (like files) are in reality of no use and are filled up just for the sake of filling. That's why every file has role object_r.
+On Tuesday, May 20, 2014 07:55:16 PM zhangdianfang wrote:
+> Delete redundant if-condition code.
 > 
-> Which prompts me a question -- do the user and role of objects (like files) have any significance? Or can access be allowed/denied based on the object's role and user?
+> Signed-off-by: Zhang Dianfang <zhangdianfang@huawei.com>
+> ---
+>  security/selinux/hooks.c |    4 ----
+>  1 files changed, 0 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 2c7341d..70afb3a 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5967,10 +5967,6 @@ static __init int selinux_init(void)
+>  {
+>  	if (!security_module_enable(&selinux_ops)) {
+>  		selinux_enabled = 0;
+> -		return 0;
+> -	}
+> -
+> -	if (!selinux_enabled) {
+>  		printk(KERN_INFO "SELinux:  Disabled at boot.\n");
+>  		return 0;
+>  	}
 
-Roles on objects typically don't have any use.  The kernel will create files with object_r regardless, so putting a role on a file can't easily be made useful right now.  For example, I added user_tmp_t to the user_r so I could label a directory:
+NACK
 
-$ chcon user_u:user_r:user_tmp_t .
-$ ls -laZ
-total 12K
-drwxr-xr-x.   2 pebenito users user_u:user_r:user_tmp_t    6 May 20 09:25 .
-drwxrwxrwt. 127 root     root  system_u:object_r:tmp_t  8.0K May 20 09:25 ..
-
-And then I touch a file:
-
-$ touch test
-$ ls -laZ
-total 12K
-drwxr-xr-x.   2 pebenito users user_u:user_r:user_tmp_t     17 May 20 09:27 .
-drwxrwxrwt. 127 root     root  system_u:object_r:tmp_t    8.0K May 20 09:25 ..
--rw-r--r--.   1 pebenito users user_u:object_r:user_tmp_t    0 May 20 09:27 test
-
-So the new file still gets object_r instead of user_r.  If you do have a role on an object, you can write constraints in the policy based on the role of the object.  If the role was correctly set on objects, I would use the role on objects to enforce role separations in refpolicy.
-
-The user is useful on some objects, as the basic constraints in refpolicy will deny creating or relabeling a file if the user of the process doesn't match the user of the file.  If you have UBAC turned on in refpolicy, then the user separations will be enforced across all relevant object classes.
+We still need to check selinux_enabled if security_module_enable() returns 
+true.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+paul moore
+www.paul-moore.com
