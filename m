@@ -1,43 +1,38 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4KGqAuv016264
- for <selinux@tycho.nsa.gov>; Tue, 20 May 2014 12:52:10 -0400
-References: <1400242442.444.9.camel@x220.localdomain>
- <53761EB7.5060906@tycho.nsa.gov> <1400252744.444.12.camel@x220.localdomain>
-Message-ID: <1400602950.86381.YahooMailNeo@web87901.mail.ir2.yahoo.com>
-Date: Tue, 20 May 2014 17:22:30 +0100 (BST)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: secilc: classmappings do not work
-To: Dominick Grift <dominick.grift@gmail.com>, selinux <selinux@tycho.nsa.gov>,
- James Carter <jwcart2@tycho.nsa.gov>
-In-Reply-To: <1400252744.444.12.camel@x220.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4LGUJd5003751
+ for <selinux@tycho.nsa.gov>; Wed, 21 May 2014 12:30:19 -0400
+Received: by mail-ee0-f42.google.com with SMTP id d49so1841010eek.1
+ for <selinux@tycho.nsa.gov>; Wed, 21 May 2014 09:30:04 -0700 (PDT)
+Received: from [192.168.1.100] ([84.245.1.4])
+ by mx.google.com with ESMTPSA id i2sm13058761eem.11.2014.05.21.09.30.03
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=RC4-SHA bits=128/128);
+ Wed, 21 May 2014 09:30:03 -0700 (PDT)
+Message-ID: <1400689802.5957.5.camel@x220.localdomain>
+Subject: secilc: in statement ordering limitations
+From: Dominick Grift <dominick.grift@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Date: Wed, 21 May 2014 18:30:02 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+I got a little carried away with block and in statements (to say the
+least)
 
+I hit a limitation were ordering of modules matters (e.g. ordering of
+entries in LISTING or entries fed into secilc)
 
->> 
->>  Would this new syntax make more sense to you?
-> 
-> Yes i suppose it would as i actually wanted to try that (eventually i
-> did not bother to try it though since i just trusted the cil reference
-> guide which made no mention of it.
+I order my modules in alphabetical order so for example
+policy/modules/systemd/systemd.cil comes after
+policy/modules/system/dbus for example.
 
-Please be aware that the CIL Reference Guide is first draft and there
-are some errors in it. These are the known ones:
-1) The 2nd defaultuser title should be 'defaulttype'.
-2) Optionals do support the filename typetransition statement.
-3) Need to rewrite the classmap/classmapping sections and state format
-    will be changing.
-4) Anonymous classpermissionsets now allow expressions.
-5) classmap can now be used in defaultuser etc. statements as
-   mentioned in previous email (although just reported a small problem).
+If i, in the dbus.cil file now want to insert some declarations in a
+systemd block i hit issues due to that ordering issue
 
-If anyone finds errors or the examples need expanding then please let me
-know as I plan to keep it updated as the compiler progresses
-
-Richard
+If i move the systemd.cil up the stack then i can work around the
+ordering issue but it is a dead-end. Ordering issues suck (/me points to
+sidorder statement)
