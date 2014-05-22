@@ -1,71 +1,31 @@
-Message-ID: <537CFAF8.9090609@tycho.nsa.gov>
-Date: Wed, 21 May 2014 15:14:00 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4M6vlhd018559
+ for <selinux@tycho.nsa.gov>; Thu, 22 May 2014 02:57:47 -0400
+Received: by mail-pb0-f41.google.com with SMTP id uo5so2216862pbc.14
+ for <selinux@tycho.nsa.gov>; Wed, 21 May 2014 23:57:47 -0700 (PDT)
+Received: from [192.168.1.2] ([117.214.175.86])
+ by mx.google.com with ESMTPSA id pl10sm11361040pbb.56.2014.05.21.23.57.45
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Wed, 21 May 2014 23:57:46 -0700 (PDT)
+Message-ID: <537D9F47.7020704@gmail.com>
+Date: Thu, 22 May 2014 12:25:03 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>,
- Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: secilc: classmappings do not work
-References: <1400242442.444.9.camel@x220.localdomain>
- <53761EB7.5060906@tycho.nsa.gov> <537622CB.4060504@tycho.nsa.gov>
- <1400601440.95536.YahooMailNeo@web87905.mail.ir2.yahoo.com>
- <537CF233.6050000@tycho.nsa.gov> <537CF7FF.3050204@tresys.com>
-In-Reply-To: <537CF7FF.3050204@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Cc: selinux <selinux@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: Re: Significance of SELinux user and roles on objects.
+References: <537AE191.7070403@gmail.com> <537B5BD3.4090507@tresys.com>
+In-Reply-To: <537B5BD3.4090507@tresys.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/21/2014 03:01 PM, Steve Lawrence wrote:
-> On 05/21/2014 02:36 PM, James Carter wrote:
->> On 05/20/2014 11:57 AM, Richard Haines wrote:
->>> Just been testing the latest fix for expanding classmapping and found
->>> that if the
->>> classes are unique, then it works okay. If there are repeated classes
->>> then I get
->>> this error in the example below when the binary is being generated:
->>> "Type default labeling for class binder already specified"
->>>
->>>
->>
->> OK. This has been fixed and pushed to bitbucket.
->>
->> I have also pushed the new syntax for classpermissionsets and
->> classmappings.
->>
->> Class-permission sets are now declared with a classpermission statement
->> and the set is defined with one or more classpermissionset statements.
->>
->> Example:
->>      (classpermission foo)
->>      (classpermissionset foo (file (not execute)))
->>      (classpermissionset foo (char (read write)))
->>
->>
->> One or more classmapping statements are now used to define a class map
->> instead of a list of class and permissions.
->>
->> Example:
->>      (classmap bar baz)
->
-> One minor correction. I think the syntax for classmap is:
->
->    (classmap bar (baz))
->
-> which allows you to define multiple classmap permissions, e.g.
->
->    (classmap bar (baz qaz raz))
->
->>      (classmapping bar baz (file (not execute)))
->>      (classmapping bar baz (char (read write)))
->>
->>
+On 05/20/14 19:12, Christopher J. PeBenito wrote:
+> The kernel will create files with object_r regardless
 
-Yes, you're right.
+Is this defined in the policy or is hard coded in the kernel?
 
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+If it's defined in the policy, can't the role on a newly created file be 
+defined such that it's value depends on the SELinux user creating the file?
