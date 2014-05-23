@@ -1,84 +1,27 @@
-Message-ID: <537F4A07.70403@tycho.nsa.gov>
-Date: Fri, 23 May 2014 09:15:51 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <537F5039.5070806@tycho.nsa.gov>
+Date: Fri, 23 May 2014 09:42:17 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Dominick Grift <dominick.grift@gmail.com>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: secilc: in statement ordering limitations
-References: <1400689802.5957.5.camel@x220.localdomain>
-In-Reply-To: <1400689802.5957.5.camel@x220.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dominick Grift <dominick.grift@gmail.com>, dE <de.techno@gmail.com>
+Subject: Re: Significance of SELinux user and roles on objects.
+References: <537AE191.7070403@gmail.com> <537B5BD3.4090507@tresys.com>
+ <537D9F47.7020704@gmail.com> <1400743958.10370.0.camel@x220.localdomain>
+In-Reply-To: <1400743958.10370.0.camel@x220.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/21/2014 12:30 PM, Dominick Grift wrote:
-> I got a little carried away with block and in statements (to say the
-> least)
->
-> I hit a limitation were ordering of modules matters (e.g. ordering of
-> entries in LISTING or entries fed into secilc)
->
-> I order my modules in alphabetical order so for example
-> policy/modules/systemd/systemd.cil comes after
-> policy/modules/system/dbus for example.
->
-> If i, in the dbus.cil file now want to insert some declarations in a
-> systemd block i hit issues due to that ordering issue
->
+On 05/22/2014 03:32 AM, Dominick Grift wrote:
+> On Thu, 2014-05-22 at 12:25 +0530, dE wrote:
+>> On 05/20/14 19:12, Christopher J. PeBenito wrote:
+>>> The kernel will create files with object_r regardless
+>>
+>> Is this defined in the policy or is hard coded in the kernel?
+> 
+> Hard coded into the kernel
 
-I am having problems reproducing the problem.
-
-In one file, I have:
-
-(block bb
-	(type t1)
-	(type t2)
-	(boolean b1 false)
-	(tunable tun1 true)
-	(macro m ((boolean b))
-		(tunableif tun1
-			(true
-				(allow t1 t2 (policy.file (write))))
-			(false
-				(allow t1 t2 (policy.file (execute)))))
-		(booleanif b
-			(true
-				(allow t1 t2 (policy.file (read))))))
-
-	(call m (b1))
-)
-
-and in another, I have:
-
-(in bb
-	(tunableif bb.tun1
-		(true
-			(allow t2 t1 (policy.file (read write execute)))))
-	(type t3))
-
-The order that I send the files to secilc doesn't seem to matter.
-
-Could you give me a little bit more information on what you are doing?
-
-Thanks,
-Jim
-
-> If i move the systemd.cil up the stack then i can work around the
-> ordering issue but it is a dead-end. Ordering issues suck (/me points to
-> sidorder statement)
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+Unless the policy specifies to default from source or target for the
+file class...
