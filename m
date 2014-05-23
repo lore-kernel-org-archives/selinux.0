@@ -1,43 +1,84 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4N5pJPf002814
- for <selinux@tycho.nsa.gov>; Fri, 23 May 2014 01:51:22 -0400
-Received: by mail-pb0-f48.google.com with SMTP id rr13so3617127pbb.7
- for <selinux@tycho.nsa.gov>; Thu, 22 May 2014 22:51:22 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.86.27])
- by mx.google.com with ESMTPSA id fk4sm9100606pab.23.2014.05.22.22.51.21
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Thu, 22 May 2014 22:51:22 -0700 (PDT)
-Message-ID: <537EE13B.7090603@gmail.com>
-Date: Fri, 23 May 2014 11:18:43 +0530
-From: dE <de.techno@gmail.com>
+Message-ID: <537F4A07.70403@tycho.nsa.gov>
+Date: Fri, 23 May 2014 09:15:51 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: user_t more restrictive than sshd_t (e.g.)?
+To: Dominick Grift <dominick.grift@gmail.com>, selinux <selinux@tycho.nsa.gov>
+Subject: Re: secilc: in statement ordering limitations
+References: <1400689802.5957.5.camel@x220.localdomain>
+In-Reply-To: <1400689802.5957.5.camel@x220.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As we know, the user_r does not allow many processes to have high 
-privilege types (system_t for e.g. which's tailored for a single program 
-named X), if such a process is executed, it'll have a type of user_t.
+On 05/21/2014 12:30 PM, Dominick Grift wrote:
+> I got a little carried away with block and in statements (to say the
+> least)
+>
+> I hit a limitation were ordering of modules matters (e.g. ordering of
+> entries in LISTING or entries fed into secilc)
+>
+> I order my modules in alphabetical order so for example
+> policy/modules/systemd/systemd.cil comes after
+> policy/modules/system/dbus for example.
+>
+> If i, in the dbus.cil file now want to insert some declarations in a
+> systemd block i hit issues due to that ordering issue
+>
 
-However system_t specifies restrictions on the program exactly as per 
-X's specifications -- it wont allow the program to do anything outside 
-what's it supposed to do.
+I am having problems reproducing the problem.
 
-But that's not the same for user_t -- this type is generic and there are 
-many things that user_t allows which system_t does not.
+In one file, I have:
 
-This may form a security vector; a vulnerable program which should run 
-as system_t but is not run cause user_r does not allow that type, this 
-allows the program to do many things which it's not designed to do; so 
-basically this bypasses SELinux restrictions as put on by system_t.
+(block bb
+	(type t1)
+	(type t2)
+	(boolean b1 false)
+	(tunable tun1 true)
+	(macro m ((boolean b))
+		(tunableif tun1
+			(true
+				(allow t1 t2 (policy.file (write))))
+			(false
+				(allow t1 t2 (policy.file (execute)))))
+		(booleanif b
+			(true
+				(allow t1 t2 (policy.file (read))))))
 
-So, is there any way to prevent this form happening -- or can we specify 
-in the policy what type to run the program as when it's run by a user 
-with role user_r or any other user which is not allowed system_t?
+	(call m (b1))
+)
 
-As an e.g. we may see systemctl.
+and in another, I have:
+
+(in bb
+	(tunableif bb.tun1
+		(true
+			(allow t2 t1 (policy.file (read write execute)))))
+	(type t3))
+
+The order that I send the files to secilc doesn't seem to matter.
+
+Could you give me a little bit more information on what you are doing?
+
+Thanks,
+Jim
+
+> If i move the systemd.cil up the stack then i can work around the
+> ordering issue but it is a dead-end. Ordering issues suck (/me points to
+> sidorder statement)
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
