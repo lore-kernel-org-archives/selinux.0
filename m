@@ -1,27 +1,28 @@
-Message-ID: <537F5039.5070806@tycho.nsa.gov>
-Date: Fri, 23 May 2014 09:42:17 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Dominick Grift <dominick.grift@gmail.com>, dE <de.techno@gmail.com>
-Subject: Re: Significance of SELinux user and roles on objects.
-References: <537AE191.7070403@gmail.com> <537B5BD3.4090507@tresys.com>
- <537D9F47.7020704@gmail.com> <1400743958.10370.0.camel@x220.localdomain>
-In-Reply-To: <1400743958.10370.0.camel@x220.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: selinux@tycho.nsa.gov
+Message-ID: <1400855557.10370.4.camel@x220.localdomain>
+Subject: Re: secilc: in statement ordering limitations
+From: Dominick Grift <dominick.grift@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Date: Fri, 23 May 2014 16:32:37 +0200
+In-Reply-To: <537F4A07.70403@tycho.nsa.gov>
+References: <1400689802.5957.5.camel@x220.localdomain>
+ <537F4A07.70403@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/22/2014 03:32 AM, Dominick Grift wrote:
-> On Thu, 2014-05-22 at 12:25 +0530, dE wrote:
->> On 05/20/14 19:12, Christopher J. PeBenito wrote:
->>> The kernel will create files with object_r regardless
->>
->> Is this defined in the policy or is hard coded in the kernel?
-> 
-> Hard coded into the kernel
+On Fri, 2014-05-23 at 09:15 -0400, James Carter wrote:
 
-Unless the policy specifies to default from source or target for the
-file class...
+> Could you give me a little bit more information on what you are doing?
+
+Strange.. It is kind of hard for me to put it any other way.
+
+I have a short 5 minute video that demo's the issue:
+
+https://www.youtube.com/watch?v=hU_yVZJpAyM
+
+If you are not able to view the demo then i guess i will have to find
+another way to explain it
