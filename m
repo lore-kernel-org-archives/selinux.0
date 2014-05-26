@@ -1,29 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4Q6L54A013608
- for <selinux@tycho.nsa.gov>; Mon, 26 May 2014 02:21:05 -0400
-Received: by mail-pa0-f48.google.com with SMTP id rd3so7131683pab.35
- for <selinux@tycho.nsa.gov>; Sun, 25 May 2014 23:21:05 -0700 (PDT)
-Received: from [192.168.1.2] ([59.89.21.101])
- by mx.google.com with ESMTPSA id fk4sm53455738pab.23.2014.05.25.23.21.03
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Sun, 25 May 2014 23:21:04 -0700 (PDT)
-Message-ID: <5382DCB2.3010400@gmail.com>
-Date: Mon, 26 May 2014 11:48:26 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4QCc2bG000561
+ for <selinux@tycho.nsa.gov>; Mon, 26 May 2014 08:38:02 -0400
+Date: Mon, 26 May 2014 22:38:27 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+Subject: Re: [GIT PULL] SELinux patches for 3.16
+In-Reply-To: <5872296.eRu4qP8SMB@sifl>
+Message-ID: <alpine.LRH.2.02.1405262238150.24604@tundra.namei.org>
+References: <5872296.eRu4qP8SMB@sifl>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: The use of fscontext(iso9660_t)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The obvious point of a type value for a certain FS is to restrict 
-programs from doing things which are not allowed on that FS.
+On Thu, 22 May 2014, Paul Moore wrote:
 
-iso9660/UDF etc... is a RO FS. So writing on it should not be allowed. 
-But I can write to files having this security context.
+> Hi James,
+> 
+> Here are the SELinux patches for 3.16.  A total of four patches: two to fix a 
+> problem when loading policy on slow machines, one to make it easier to 
+> determine permissive mode in the AVC audit messages, and one to block cause 
+> setexeccon() to fail on filesystems mounted with nosuid.  None of the patches 
+> are very substantial (see the diffstat below), all pass the SELinux testsuite, 
+> and the branch applied cleanly on top of your current #next.
+> 
+> Enjoy,
+> -Paul
+> 
+> ---
+> The following changes since commit 6d32c850621b0be75777b9102b14f6268bbd9f0f:
+> 
+>   Merge tag 'v3.14' into next (2014-03-31 09:49:07 -0400)
+> 
+> are available in the git repository at:
+> 
+>   git://git.infradead.org/users/pcmoore/selinux next
 
-So what's the utility of, atleast iso9660_t?
+Thanks, pulled.
+
+
+-- 
+James Morris
+<jmorris@namei.org>
