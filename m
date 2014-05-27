@@ -1,47 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4QCc2bG000561
- for <selinux@tycho.nsa.gov>; Mon, 26 May 2014 08:38:02 -0400
-Date: Mon, 26 May 2014 22:38:27 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-Subject: Re: [GIT PULL] SELinux patches for 3.16
-In-Reply-To: <5872296.eRu4qP8SMB@sifl>
-Message-ID: <alpine.LRH.2.02.1405262238150.24604@tundra.namei.org>
-References: <5872296.eRu4qP8SMB@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4R7jPbC021025
+ for <selinux@tycho.nsa.gov>; Tue, 27 May 2014 03:45:25 -0400
+Received: by mail-pb0-f47.google.com with SMTP id rp16so8835485pbb.34
+ for <selinux@tycho.nsa.gov>; Tue, 27 May 2014 00:45:25 -0700 (PDT)
+Received: from [192.168.1.2] ([59.89.19.217])
+ by mx.google.com with ESMTPSA id yl9sm69583265pac.25.2014.05.27.00.45.23
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Tue, 27 May 2014 00:45:24 -0700 (PDT)
+Message-ID: <538441F4.3010104@gmail.com>
+Date: Tue, 27 May 2014 13:12:44 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+To: selinux@tycho.nsa.gov
+Subject: Re: user_t more restrictive than sshd_t (e.g.)?
+References: <537EE13B.7090603@gmail.com>
+In-Reply-To: <537EE13B.7090603@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 22 May 2014, Paul Moore wrote:
+On 05/23/14 11:18, dE wrote:
+> As we know, the user_r does not allow many processes to have high 
+> privilege types (system_t for e.g. which's tailored for a single 
+> program named X), if such a process is executed, it'll have a type of 
+> user_t.
+>
+> However system_t specifies restrictions on the program exactly as per 
+> X's specifications -- it wont allow the program to do anything outside 
+> what's it supposed to do.
+>
+> But that's not the same for user_t -- this type is generic and there 
+> are many things that user_t allows which system_t does not.
+>
+> This may form a security vector; a vulnerable program which should run 
+> as system_t but is not run cause user_r does not allow that type, this 
+> allows the program to do many things which it's not designed to do; so 
+> basically this bypasses SELinux restrictions as put on by system_t.
+>
+> So, is there any way to prevent this form happening -- or can we 
+> specify in the policy what type to run the program as when it's run by 
+> a user with role user_r or any other user which is not allowed system_t?
+>
+> As an e.g. we may see systemctl.
 
-> Hi James,
-> 
-> Here are the SELinux patches for 3.16.  A total of four patches: two to fix a 
-> problem when loading policy on slow machines, one to make it easier to 
-> determine permissive mode in the AVC audit messages, and one to block cause 
-> setexeccon() to fail on filesystems mounted with nosuid.  None of the patches 
-> are very substantial (see the diffstat below), all pass the SELinux testsuite, 
-> and the branch applied cleanly on top of your current #next.
-> 
-> Enjoy,
-> -Paul
-> 
-> ---
-> The following changes since commit 6d32c850621b0be75777b9102b14f6268bbd9f0f:
-> 
->   Merge tag 'v3.14' into next (2014-03-31 09:49:07 -0400)
-> 
-> are available in the git repository at:
-> 
->   git://git.infradead.org/users/pcmoore/selinux next
-
-Thanks, pulled.
-
-
--- 
-James Morris
-<jmorris@namei.org>
+Is this concern real?
