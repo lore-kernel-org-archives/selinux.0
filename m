@@ -1,41 +1,40 @@
-Message-ID: <53848A47.4000706@tycho.nsa.gov>
-Date: Tue, 27 May 2014 08:51:19 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4RDUYXY009884
+ for <selinux@tycho.nsa.gov>; Tue, 27 May 2014 09:30:34 -0400
+Message-ID: <538493D3.6010305@tresys.com>
+Date: Tue, 27 May 2014 09:32:03 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
- Dominick Grift <dominick.grift@gmail.com>, dE <de.techno@gmail.com>
-Subject: Re: Significance of SELinux user and roles on objects.
-References: <537AE191.7070403@gmail.com> <537B5BD3.4090507@tresys.com>
- <537D9F47.7020704@gmail.com> <1400743958.10370.0.camel@x220.localdomain>
- <537F5039.5070806@tycho.nsa.gov> <538486E0.4030506@tresys.com>
-In-Reply-To: <538486E0.4030506@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: selinux@tycho.nsa.gov
+To: dE <de.techno@gmail.com>, <selinux@tycho.nsa.gov>, Refpolicy Mail List
+ <refpolicy@oss1.tresys.com>
+Subject: Re: user_t more restrictive than sshd_t (e.g.)?
+References: <537EE13B.7090603@gmail.com> <538441F4.3010104@gmail.com>
+In-Reply-To: <538441F4.3010104@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/27/2014 08:36 AM, Christopher J. PeBenito wrote:
-> On 05/23/2014 09:42 AM, Stephen Smalley wrote:
->> On 05/22/2014 03:32 AM, Dominick Grift wrote:
->>> On Thu, 2014-05-22 at 12:25 +0530, dE wrote:
->>>> On 05/20/14 19:12, Christopher J. PeBenito wrote:
->>>>> The kernel will create files with object_r regardless
->>>>
->>>> Is this defined in the policy or is hard coded in the kernel?
->>>
->>> Hard coded into the kernel
+On 05/27/2014 03:42 AM, dE wrote:
+> On 05/23/14 11:18, dE wrote:
+>> As we know, the user_r does not allow many processes to have high privilege types (system_t for e.g. which's tailored for a single program named X), if such a process is executed, it'll have a type of user_t.
 >>
->> Unless the policy specifies to default from source or target for the
->> file class...
+>> However system_t specifies restrictions on the program exactly as per X's specifications -- it wont allow the program to do anything outside what's it supposed to do.
+>>
+>> But that's not the same for user_t -- this type is generic and there are many things that user_t allows which system_t does not.
+>>
+>> This may form a security vector; a vulnerable program which should run as system_t but is not run cause user_r does not allow that type, this allows the program to do many things which it's not designed to do; so basically this bypasses SELinux restrictions as put on by system_t.
+>>
+>> So, is there any way to prevent this form happening -- or can we specify in the policy what type to run the program as when it's run by a user with role user_r or any other user which is not allowed system_t?
+>>
+>> As an e.g. we may see systemctl.
 > 
-> So if I explicitly put default_role from target it will start inheriting the directory's role?  If so, did that change also fix role_transition to work on file creation? i.e. can I write a rule like:
-> 
-> role_transition user_r tmp_t:file user_r;
-> 
-> So I can get the default_role from source-like behavior on certain types (I'd like to bring back role separations in refpolicy)?
+> Is this concern real?
 
-policy.26 added support for role transitions on object classes.
-policy.27 added support for default rules for user/role/range
-inheritance (and policy.28 did the same for type inheritance).
+Moving thread to refpolicy mail list.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
