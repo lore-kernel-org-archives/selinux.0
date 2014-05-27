@@ -1,39 +1,30 @@
-Message-ID: <538486E0.4030506@tresys.com>
-Date: Tue, 27 May 2014 08:36:48 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4RClFlF005892
+ for <selinux@tycho.nsa.gov>; Tue, 27 May 2014 08:47:15 -0400
+Message-ID: <538489AD.9090205@tresys.com>
+Date: Tue, 27 May 2014 08:48:45 -0400
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Dominick Grift
- <dominick.grift@gmail.com>, dE <de.techno@gmail.com>
-Subject: Re: Significance of SELinux user and roles on objects.
-References: <537AE191.7070403@gmail.com> <537B5BD3.4090507@tresys.com>
- <537D9F47.7020704@gmail.com> <1400743958.10370.0.camel@x220.localdomain>
- <537F5039.5070806@tycho.nsa.gov>
-In-Reply-To: <537F5039.5070806@tycho.nsa.gov>
+To: dE <de.techno@gmail.com>, <selinux@tycho.nsa.gov>
+Subject: Re: The use of fscontext(iso9660_t)
+References: <5382DCB2.3010400@gmail.com>
+In-Reply-To: <5382DCB2.3010400@gmail.com>
 Content-Type: text/plain; charset="ISO-8859-1"
-Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/23/2014 09:42 AM, Stephen Smalley wrote:
-> On 05/22/2014 03:32 AM, Dominick Grift wrote:
->> On Thu, 2014-05-22 at 12:25 +0530, dE wrote:
->>> On 05/20/14 19:12, Christopher J. PeBenito wrote:
->>>> The kernel will create files with object_r regardless
->>>
->>> Is this defined in the policy or is hard coded in the kernel?
->>
->> Hard coded into the kernel
+On 05/26/2014 02:18 AM, dE wrote:
+> The obvious point of a type value for a certain FS is to restrict programs from doing things which are not allowed on that FS.
 > 
-> Unless the policy specifies to default from source or target for the
-> file class...
+> iso9660/UDF etc... is a RO FS. So writing on it should not be allowed. But I can write to files having this security context.
+> 
+> So what's the utility of, atleast iso9660_t?
 
-So if I explicitly put default_role from target it will start inheriting the directory's role?  If so, did that change also fix role_transition to work on file creation? i.e. can I write a rule like:
+Questions about Reference Policy should be asked on its list.
 
-role_transition user_r tmp_t:file user_r;
-
-So I can get the default_role from source-like behavior on certain types (I'd like to bring back role separations in refpolicy)?
+The purpose of iso9660_t is to provide a separate type for that media, not to reinforce the fact that the disks are read-only by policy.  By being a file type, certain domains can write to it since they can write to all file types.
 
 -- 
 Chris PeBenito
