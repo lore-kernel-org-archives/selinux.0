@@ -1,46 +1,34 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s4V5SNKv022075
- for <selinux@tycho.nsa.gov>; Sat, 31 May 2014 01:28:23 -0400
-Received: by mail-pa0-f41.google.com with SMTP id kx10so2422433pab.0
- for <selinux@tycho.nsa.gov>; Fri, 30 May 2014 22:28:24 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.83.132])
- by mx.google.com with ESMTPSA id tl3sm28531766pac.41.2014.05.30.22.28.22
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s51FMGYp019968
+ for <selinux@tycho.nsa.gov>; Sun, 1 Jun 2014 11:22:16 -0400
+Received: by mail-pb0-f52.google.com with SMTP id rr13so3389975pbb.11
+ for <selinux@tycho.nsa.gov>; Sun, 01 Jun 2014 08:22:17 -0700 (PDT)
+Received: from [192.168.1.2] ([117.214.168.104])
+ by mx.google.com with ESMTPSA id wi14sm18505529pac.22.2014.06.01.08.22.15
  for <selinux@tycho.nsa.gov>
  (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Fri, 30 May 2014 22:28:23 -0700 (PDT)
-Message-ID: <538967D5.4060001@gmail.com>
-Date: Sat, 31 May 2014 10:55:41 +0530
+ Sun, 01 Jun 2014 08:22:16 -0700 (PDT)
+Message-ID: <538B4487.8050807@gmail.com>
+Date: Sun, 01 Jun 2014 20:49:35 +0530
 From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: Re: [refpolicy] user_t more restrictive than sshd_t (e.g.)?
-References: <537EE13B.7090603@gmail.com> <538441F4.3010104@gmail.com>
- <538493D3.6010305@tresys.com> <538494B3.2030700@tresys.com>
-In-Reply-To: <538494B3.2030700@tresys.com>
+Subject: How does matchpathcon/setfiles work?
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/27/14 19:05, Christopher J. PeBenito wrote:
-> On 05/27/2014 09:32 AM, Christopher J. PeBenito wrote:
->> On 05/27/2014 03:42 AM, dE wrote:
->>> On 05/23/14 11:18, dE wrote:
->>>> As we know, the user_r does not allow many processes to have high privilege types (system_t for e.g. which's tailored for a single program named X), if such a process is executed, it'll have a type of user_t.
->>>>
->>>> However system_t specifies restrictions on the program exactly as per X's specifications -- it wont allow the program to do anything outside what's it supposed to do.
->>>>
->>>> But that's not the same for user_t -- this type is generic and there are many things that user_t allows which system_t does not.
->>>>
->>>> This may form a security vector; a vulnerable program which should run as system_t but is not run cause user_r does not allow that type, this allows the program to do many things which it's not designed to do; so basically this bypasses SELinux restrictions as put on by system_t.
->>>>
->>>> So, is there any way to prevent this form happening -- or can we specify in the policy what type to run the program as when it's run by a user with role user_r or any other user which is not allowed system_t?
-> If there is an exec() that causes a domain/role transition to an invalid context, the exec() will fail.  The program won't run.
->
->
+As we know, policies don't contain paths. So the working of 
+matchpathcon/setfiles must be based on common sense.
 
-Thanks for forwarding the response.
+It looks like it knows certain special folders and it's appropriate 
+security context, for e.g. home folder contents should have files with 
+user_home_t and suggests the correct SELinux user for the 
+files/directories based on which user's home folder is it.
 
-Unfortunately I've been going thorough more related confusion, so I'm 
-sorting them out.
+Other directories/files should have the same security context as the 
+parent directory, like with /opt.
+
+Is this correct?
