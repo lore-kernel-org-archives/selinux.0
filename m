@@ -1,73 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s55KULUJ018425
- for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2014 16:30:22 -0400
-Received: by mail-qa0-f45.google.com with SMTP id hw13so2202506qab.18
- for <selinux@tycho.nsa.gov>; Thu, 05 Jun 2014 13:30:23 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Masahiro Yamada <yamada.m@jp.panasonic.com>
-Subject: Re: [PATCH] selinux,
- kbuild: remove unnecessary $(hostprogs-y) from clean-files
-Date: Thu, 05 Jun 2014 16:30:20 -0400
-Message-ID: <1539785.Vu4DnvQCIK@sifl>
-In-Reply-To: <20140605161823.9579.AA925319@jp.panasonic.com>
-References: <20140603144739.321C.AA925319@jp.panasonic.com>
- <5995003.J2pCs3i8WU@sifl> <20140605161823.9579.AA925319@jp.panasonic.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s56CbJuI003476
+ for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2014 08:37:19 -0400
+Received: by mail-pd0-f180.google.com with SMTP id y13so2371495pdi.25
+ for <selinux@tycho.nsa.gov>; Fri, 06 Jun 2014 05:37:20 -0700 (PDT)
+Received: from [192.168.1.2] ([117.214.173.6])
+ by mx.google.com with ESMTPSA id hk5sm35404258pbb.86.2014.06.06.05.37.17
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Fri, 06 Jun 2014 05:37:20 -0700 (PDT)
+Message-ID: <5391B555.4080100@gmail.com>
+Date: Fri, 06 Jun 2014 18:04:29 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: Michal Marek <mmarek@suse.cz>, selinux@tycho.nsa.gov,
- linux-kbuild@vger.kernel.org
+To: selinux@tycho.nsa.gov
+Subject: RBAC along with MLS?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, June 05, 2014 04:18:23 PM Masahiro Yamada wrote:
-> Hi Paul, Michal,
-> 
-> On Tue, 03 Jun 2014 18:27:41 -0400
-> 
-> Paul Moore <paul@paul-moore.com> wrote:
-> > On Tuesday, June 03, 2014 02:47:39 PM Masahiro Yamada wrote:
-> > > Hi Paul Moore,
-> > 
-> > Hello.
-> > 
-> > > On Thu, 17 Apr 2014 21:41:53 -0400 Paul Moore wrote:
-> > > > On Thursday, April 17, 2014 11:42:26 AM Masahiro Yamada wrote:
-> > > > > Files added to hostprogs-y are cleaned. (See scripts/Makefile.clean)
-> > > > > Adding them to clean-files is redundant.
-> > > > > 
-> > > > > Signed-off-by: Masahiro Yamada <yamada.m@jp.panasonic.com>
-> > > > > ---
-> > > > > 
-> > > > >  scripts/selinux/genheaders/Makefile | 1 -
-> > > > >  scripts/selinux/mdp/Makefile        | 2 +-
-> > > > >  2 files changed, 1 insertion(+), 2 deletions(-)
-> > > > 
-> > > > Acked-by: Paul Moore <paul@paul-moore.com>
-> > > 
-> > > It looks like this patch was not included into
-> > > GIT-PULL of "SELinux patches for 3.16".
-> > > 
-> > > Is it possible to apply this and send another pull request?
-> > 
-> > My apologies, I thought the kbuild people were going to merge this patch;
-> > this is why I sent my Acked-by instead of a note that I've merged the
-> > patch. Considering that this patch doesn't actually fix any runtime
-> > problems and it hasn't been in any of the different "next" trees, I think
-> > it is best to wait until 3.17 for this patch.
-> > 
-> > I've added this patch to my queue of patches to be added to the SELinux
-> > #next branch after the 3.16 merge window closes.
-> > 
-> > Thanks again for the patch, I'm sorry that we didn't get it merged sooner.
-> 
-> No worries.
-> 
-> Michal, could you apply this patch to kbuild.git#kbuild, please?
+I'm learning SELinux on Fedora, here if you need to use MLS, you need to 
+remove TE model cause the MLS is implemented in a completely different 
+policy.
 
-As I said, it is not a problem for me to carry the patch in the SELinux tree.
-
--- 
-paul moore
-www.paul-moore.com
+Is it possible to create a policy which supports both RABC/TE with MLS?
