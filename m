@@ -1,35 +1,33 @@
-Message-ID: <5395B7E9.90304@tycho.nsa.gov>
-Date: Mon, 09 Jun 2014 09:34:33 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s59EqqT9032255
+ for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2014 10:52:53 -0400
+Message-ID: <5395CAA0.4010900@tresys.com>
+Date: Mon, 9 Jun 2014 10:54:24 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Default context with context mount option.
-References: <539477AF.20408@gmail.com>
-In-Reply-To: <539477AF.20408@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Refpolicy Mail List <refpolicy@oss1.tresys.com>, SELinux Mail List
+ <selinux@tycho.nsa.gov>
+Subject: ANN: Reference Policy moved to GitHub
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/08/2014 10:48 AM, dE wrote:
-> When a new file is created on a FS which supports security namespace but
-> the FS is mounted using context= option, then what will be the context
-> of the newly created file on the FS?
-> 
-> I did exactly this, and next, umount and then mount the FS readonly to
-> get the getfattr dump to realize the security namespace is not empty
-> (this came as a surprise).
-> 
-> So, can someone explain what exactly happens in this case?
+Since open source development workflows have moved towards services like GitHub and Bitbucket, we have decided to move Reference Policy's repositories to GitHub.  The project wiki is now available here:
 
-The kernel lies to you ;)
+https://github.com/TresysTechnology/refpolicy/wiki
 
-If SELinux (or another security module that implements the
-inode_getsecurity and inode_listsecurity hooks) is enabled, then the
-security module gets to report its view of the security.* attributes to
-userspace instead of whatever may or may not be stored by the
-filesystem.  That allows SELinux to handle such requests even for
-filesystems that do not natively support the security.* namespace as
-well as remap attribute values as needed to deal with removed types or
-conversion from non-MLS to MLS policies or various other situations.
+The repository can be checked out using the following:
+
+$ git clone https://github.com/TresysTechnology/refpolicy.git
+$ cd refpolicy
+$ git submodule init
+$ git submodule update
+
+Alternatively, use GitHub's forking features to clone the repositories to your own GitHub account.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
