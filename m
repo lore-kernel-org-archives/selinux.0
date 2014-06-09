@@ -1,27 +1,35 @@
-Message-ID: <5395B66D.5010909@tycho.nsa.gov>
-Date: Mon, 09 Jun 2014 09:28:13 -0400
+Message-ID: <5395B7E9.90304@tycho.nsa.gov>
+Date: Mon, 09 Jun 2014 09:34:33 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: RBAC along with MLS?
-References: <5391B555.4080100@gmail.com>
-In-Reply-To: <5391B555.4080100@gmail.com>
+Subject: Re: Default context with context mount option.
+References: <539477AF.20408@gmail.com>
+In-Reply-To: <539477AF.20408@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/06/2014 08:34 AM, dE wrote:
-> I'm learning SELinux on Fedora, here if you need to use MLS, you need to
-> remove TE model cause the MLS is implemented in a completely different
-> policy.
+On 06/08/2014 10:48 AM, dE wrote:
+> When a new file is created on a FS which supports security namespace but
+> the FS is mounted using context= option, then what will be the context
+> of the newly created file on the FS?
 > 
-> Is it possible to create a policy which supports both RABC/TE with MLS?
+> I did exactly this, and next, umount and then mount the FS readonly to
+> get the getfattr dump to realize the security namespace is not empty
+> (this came as a surprise).
+> 
+> So, can someone explain what exactly happens in this case?
 
-I've explained this previously, but to repeat it:  RBAC/TE is always
-enabled in the SELinux security server (and in the policy), only MLS is
-optional. So in Fedora, the -mls policy is in truth a RBAC/TE/MLS
-policy.  And in Fedora, the -targeted policy is in truth a RBAC/TE/MCS
-policy.  They both enable the MLS engine in the security server; they
-only differ in the configuration (policy/mls versus policy/mcs).
+The kernel lies to you ;)
+
+If SELinux (or another security module that implements the
+inode_getsecurity and inode_listsecurity hooks) is enabled, then the
+security module gets to report its view of the security.* attributes to
+userspace instead of whatever may or may not be stored by the
+filesystem.  That allows SELinux to handle such requests even for
+filesystems that do not natively support the security.* namespace as
+well as remap attribute values as needed to deal with removed types or
+conversion from non-MLS to MLS policies or various other situations.
