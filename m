@@ -1,51 +1,56 @@
-From: Russell Coker <russell@coker.com.au>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Deprecating policy capabilities
-Date: Tue, 10 Jun 2014 10:54:21 +1000
-Message-ID: <1583671.gXuL95A5XS@xev>
-In-Reply-To: <51BB7C50.6000601@tycho.nsa.gov>
-References: <5219244.VNyImXJjQb@sifl>
- <CADjGSjjz0TX_H7LyLmR1WS_2kpVP8Xau3eRZkAkO4h0yna5Y=Q@mail.gmail.com>
- <51BB7C50.6000601@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: SELinux <selinux@tycho.nsa.gov>
-Reply-To: russell@coker.com.au
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5A1LihG001063
+ for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2014 21:21:44 -0400
+Message-ID: <53965DC4.1090802@tresys.com>
+Date: Mon, 9 Jun 2014 21:22:12 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+To: Sven Vermeulen <sven.vermeulen@siphos.be>, <selinux@tycho.nsa.gov>
+Subject: Re: SETools patch for libselinux-2.3
+References: <20140528170411.GA13025@siphos.be>
+In-Reply-To: <20140528170411.GA13025@siphos.be>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 14 Jun 2013 16:25:52 Stephen Smalley wrote:
-> > Oh right, I forgot that there are people that boot new kernels on
-> > ancient distros. How far back does the backward support have to go?
+On 5/28/2014 1:04 PM, Sven Vermeulen wrote:
+> In libselinux-2.3, the interface of the lsetfilecon_raw function has been
+> changed:
 > 
-> I think the view of the kernel developers was forever; new kernel is 
-> never supposed to break old userspace.  Of course there have been a few 
-> examples of that being broken by others in other subsystems, but that is 
-> frowned upon.
+> -extern int lsetfilecon_raw(const char *path, security_context_t con);
+> +extern int lsetfilecon_raw(const char *path, const char * con);
 > 
-> Even if we were to limit it to currently-supported enterprise 
-> distributions, I think we'd have to wait until RHEL-5 (policy.20?) is 
-> EOL'd.  Don't know about Debian or Ubuntu LTS.   Might as well be 
-> forever as we likely won't remember this conversation then.
+> The call to lsetfilecon_raw in setools' secmds/replcon.cc needs to be
+> updated accordingly, as it otherwise fails during build:
+> 
+> replcon.cc: In function ‘int replcon_lsetfilecon(const char*, security_context_t)’:
+> replcon.cc:73:25: warning: NULL used in arithmetic [-Wpointer-arith]
+> replcon.cc:73:25: error: invalid operands of types ‘<unresolved overloaded function type>’ and ‘long int’ to binary ‘operator!=’
+> 
+> The below patch fixes this (but makes the setools version depend on
+> libselinux-2.3 now).
+> 
+> With thanks to Arfrever Frehtes Taifersar Arahesis for the patch (I worked
+> around it first by just calling lsetfilecon_raw directly). Something about
+> weakly linked functions...
+> 
+> 
+> Index: secmds/replcon.cc
+> ===================================================================
+> --- secmds/replcon.cc	(revision 4973)
+> +++ secmds/replcon.cc	(working copy)
+> @@ -60,7 +60,7 @@
+>  	{NULL, 0, NULL, 0}
+>  };
+>  
+> -extern int lsetfilecon_raw(const char *, security_context_t) __attribute__ ((weak));
+> +extern int lsetfilecon_raw(const char *, const char *) __attribute__ ((weak));
 
-Sorry for the late reply, but this is an important an ongoing issue.
-
-In Debian we don't aim to have any support for a kernel that is more than one 
-version of Debian before or after the current version.
-
-Debian/Wheezy works with a Squeeze kernel and I'll include an update to Wheezy 
-to make it work better with a Jessie kernel when Jessie is released.
-
-I will not accept bug reports about problems mixing Jessie and Squeeze parts.  
-So the current userspace can entirely drop support for kernel 2.6.32 and the 
-current kernel code can drop support for policy 20100524 and libselinux 2.0.96 
-without doing anything that I'll accept as a Debian bug report.
-
-What amount of mixing and matching kernel and userspace versions does Red Hat 
-support?
+Unfortunately, this breaks it in the same way if you compile with libselinux < 2.3 with this patch.  The preference would be a patch that allows it to compile with any recent libselinux, rather than requiring libselinux 2.3.
 
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
