@@ -1,56 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5A1LihG001063
- for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2014 21:21:44 -0400
-Message-ID: <53965DC4.1090802@tresys.com>
-Date: Mon, 9 Jun 2014 21:22:12 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, <selinux@tycho.nsa.gov>
-Subject: Re: SETools patch for libselinux-2.3
-References: <20140528170411.GA13025@siphos.be>
-In-Reply-To: <20140528170411.GA13025@siphos.be>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5A8IonW017530
+ for <selinux@tycho.nsa.gov>; Tue, 10 Jun 2014 04:18:50 -0400
+Received: by mail-pb0-f47.google.com with SMTP id un15so595456pbc.6
+ for <selinux@tycho.nsa.gov>; Tue, 10 Jun 2014 01:18:51 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.95.104])
+ by mx.google.com with ESMTPSA id oa3sm68092842pbb.15.2014.06.10.01.18.48
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Tue, 10 Jun 2014 01:18:50 -0700 (PDT)
+Message-ID: <5396BEC4.3000801@gmail.com>
+Date: Tue, 10 Jun 2014 13:46:04 +0530
+From: dE <de.techno@gmail.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Re: Default context with context mount option.
+References: <539477AF.20408@gmail.com> <5395B7E9.90304@tycho.nsa.gov>
+In-Reply-To: <5395B7E9.90304@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 5/28/2014 1:04 PM, Sven Vermeulen wrote:
-> In libselinux-2.3, the interface of the lsetfilecon_raw function has been
-> changed:
-> 
-> -extern int lsetfilecon_raw(const char *path, security_context_t con);
-> +extern int lsetfilecon_raw(const char *path, const char * con);
-> 
-> The call to lsetfilecon_raw in setools' secmds/replcon.cc needs to be
-> updated accordingly, as it otherwise fails during build:
-> 
-> replcon.cc: In function ‘int replcon_lsetfilecon(const char*, security_context_t)’:
-> replcon.cc:73:25: warning: NULL used in arithmetic [-Wpointer-arith]
-> replcon.cc:73:25: error: invalid operands of types ‘<unresolved overloaded function type>’ and ‘long int’ to binary ‘operator!=’
-> 
-> The below patch fixes this (but makes the setools version depend on
-> libselinux-2.3 now).
-> 
-> With thanks to Arfrever Frehtes Taifersar Arahesis for the patch (I worked
-> around it first by just calling lsetfilecon_raw directly). Something about
-> weakly linked functions...
-> 
-> 
-> Index: secmds/replcon.cc
-> ===================================================================
-> --- secmds/replcon.cc	(revision 4973)
-> +++ secmds/replcon.cc	(working copy)
-> @@ -60,7 +60,7 @@
->  	{NULL, 0, NULL, 0}
->  };
->  
-> -extern int lsetfilecon_raw(const char *, security_context_t) __attribute__ ((weak));
-> +extern int lsetfilecon_raw(const char *, const char *) __attribute__ ((weak));
+On 06/09/14 19:04, Stephen Smalley wrote:
+> On 06/08/2014 10:48 AM, dE wrote:
+>> When a new file is created on a FS which supports security namespace but
+>> the FS is mounted using context= option, then what will be the context
+>> of the newly created file on the FS?
+>>
+>> I did exactly this, and next, umount and then mount the FS readonly to
+>> get the getfattr dump to realize the security namespace is not empty
+>> (this came as a surprise).
+>>
+>> So, can someone explain what exactly happens in this case?
+> The kernel lies to you ;)
+>
+> If SELinux (or another security module that implements the
+> inode_getsecurity and inode_listsecurity hooks) is enabled, then the
+> security module gets to report its view of the security.* attributes to
+> userspace instead of whatever may or may not be stored by the
+> filesystem.  That allows SELinux to handle such requests even for
+> filesystems that do not natively support the security.* namespace as
+> well as remap attribute values as needed to deal with removed types or
+> conversion from non-MLS to MLS policies or various other situations.
 
-Unfortunately, this breaks it in the same way if you compile with libselinux < 2.3 with this patch.  The preference would be a patch that allows it to compile with any recent libselinux, rather than requiring libselinux 2.3.
+Yes, if I mount vfat for e.g. check the xattr using getfattr, there does 
+exist a security attribute. But these FSs are defined by genfscon.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+But about FSs which do support the security namespace (like XFS), and so 
+do not have a genfscon statement associated to them they but still have 
+a security namespace value (as reported by the kernel, which lies to 
+userspace).
+
+Question is -- are these values actually written to the FS or are they 
+just empty? Things get more confusing cause I get permission denied when 
+trying to delete the security namespace values.
