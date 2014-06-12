@@ -1,57 +1,137 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5CFfCwe004920
- for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2014 11:41:12 -0400
-Message-ID: <5399CA69.7070901@tresys.com>
-Date: Thu, 12 Jun 2014 11:42:33 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <5399FD14.60101@tycho.nsa.gov>
+Date: Thu, 12 Jun 2014 15:18:44 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, Sven Vermeulen
- <sven.vermeulen@siphos.be>, selinux <selinux@tycho.nsa.gov>
-Subject: Re: SETools patch for libselinux-2.3
-References: <20140528170411.GA13025@siphos.be>	<53965DC4.1090802@tresys.com>
- <CAJfZ7==jjeVo-g82L9=VOv92QF6=akK+5e+-VVmsf+wdvWR-yQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7==jjeVo-g82L9=VOv92QF6=akK+5e+-VVmsf+wdvWR-yQ@mail.gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+To: SELinux-NSA <SELinux@tycho.nsa.gov>
+Subject: [PATCH] selinux:  Permit transitions under NO_NEW_PRIVS or NOSUID
+ under certain, circumstances.
+Content-Type: multipart/mixed; boundary="------------030902000800040906050305"
+Cc: Andy Lutomirski <luto@amacapital.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/11/2014 06:26 PM, Nicolas Iooss wrote:
-> 2014-06-10 3:22 GMT+02:00 Christopher J. PeBenito <cpebenito@tresys.com>:
->> On 5/28/2014 1:04 PM, Sven Vermeulen wrote:
->>> Index: secmds/replcon.cc
->>> ===================================================================
->>> --- secmds/replcon.cc (revision 4973)
->>> +++ secmds/replcon.cc (working copy)
->>> @@ -60,7 +60,7 @@
->>>       {NULL, 0, NULL, 0}
->>>  };
->>>
->>> -extern int lsetfilecon_raw(const char *, security_context_t) __attribute__ ((weak));
->>> +extern int lsetfilecon_raw(const char *, const char *) __attribute__ ((weak));
->>
->> Unfortunately, this breaks it in the same way if you compile with libselinux < 2.3 with this patch.  The preference would be a patch that allows it to compile with any recent libselinux, rather than requiring libselinux 2.3.
-> 
-> When compiling SETools on ArchLinux I got this error message from gcc
-> (version 4.9.0):
-> 
-> replcon.cc:73:25: error: invalid operands of types '<unresolved
-> overloaded function type>' and 'long int' to binary 'operator!='
->     if (lsetfilecon_raw != NULL)
-> 
-> I've never used weak functions in C libraries so I don't know the
-> proper fix to support libselinux versions which don't provide
-> lsetfilecon_raw, but as in ArchLinux only the most recent stable
-> version of packages is supported, I simply removed all the code
-> related to the "weak function trick" to make it works [1]. According
-> to git log, lsetfilecon_raw existed in 2008 [2]. Is it possible to
-> replace replcon_lsetfilecon with lsetfilecon_raw in SETools or are
-> there still supported versions of libselinux without lsetfilecon_raw?
+This is a multi-part message in MIME format.
+--------------030902000800040906050305
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Well a weak function just means that the program won't fail to link if lsetfilecon_raw() isn't found.  It's the method we used to support older libselinuxes when the _raw() functions appeared.  I'm not sure if there is a proper C/C++ way to handle the apparent parameter change, otherwise preprocessor #ifdef/#else would be the way.  So if you do #ifdef SECURITY_CONTEXT_T it uses the old version #else it uses the new version, then autoconf would determine if SECURITY_CONTEXT_T needs to be set.  Alternatively it might work to conditionally re-add the security_context_t typedef inside this file.
 
+--------------030902000800040906050305
+Content-Type: text/x-patch;
+ name="0001-Permit-transitions-under-NO_NEW_PRIVS-or-NOSUID-unde.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Permit-transitions-under-NO_NEW_PRIVS-or-NOSUID-unde.pa";
+ filename*1="tch"
+
+>From 731c593d0813128eb6d3a62658038681b6e1cf9a Mon Sep 17 00:00:00 2001
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu, 12 Jun 2014 08:17:48 -0400
+Subject: [PATCH] Permit transitions under NO_NEW_PRIVS or NOSUID under certain
+ circumstances.
+
+If the caller SID is bounded by the callee SID or if the caller SID is allowed
+to perform a dynamic transition (setcon) to the callee SID, then allowing
+the transition to occur poses no risk of privilege escalation and we can
+therefore safely allow the transition to occur.  Add these two exemptions
+for both the case where a transition was explicitly requested by the
+application and the case where an automatic transition is defined in
+policy.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by: Andy Lutomirski <luto@amacapital.net>
+---
+ security/selinux/hooks.c | 54 +++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 42 insertions(+), 12 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 83d06db..d5e8dc5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2086,6 +2086,36 @@ static int selinux_vm_enough_memory(struct mm_struct *mm, long pages)
+ 
+ /* binprm security operations */
+ 
++static int check_nnp_nosuid(const struct linux_binprm *bprm,
++			    const struct task_security_struct *old_tsec,
++			    const struct task_security_struct *new_tsec)
++{
++	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
++	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
++	int rc;
++
++	if (!nnp && !nosuid)
++		return 0; /* neither NNP nor nosuid */
++
++	if (new_tsec->sid == old_tsec->sid)
++		return 0; /* No change in credentials */
++
++	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
++	if (rc == 0)
++		return 0; /* allowed via bounded transition */
++
++	/* Only allow if dyntransition permission aka setcon() is allowed. */
++	rc = avc_has_perm(old_tsec->sid, new_tsec->sid, SECCLASS_PROCESS,
++			  PROCESS__DYNTRANSITION, NULL);
++	if (rc) {
++		if (nnp)
++			return -EPERM;
++		else
++			return -EACCES;
++	}
++	return 0;
++}
++
+ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ {
+ 	const struct task_security_struct *old_tsec;
+@@ -2122,14 +2152,10 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 		/* Reset exec SID on execve. */
+ 		new_tsec->exec_sid = 0;
+ 
+-		/*
+-		 * Minimize confusion: if no_new_privs or nosuid and a
+-		 * transition is explicitly requested, then fail the exec.
+-		 */
+-		if (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)
+-			return -EPERM;
+-		if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+-			return -EACCES;
++		/* Fail on NNP or nosuid if not an allowed transition. */
++		rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);
++		if (rc)
++			return rc;
+ 	} else {
+ 		/* Check for a default transition on this program. */
+ 		rc = security_transition_sid(old_tsec->sid, isec->sid,
+@@ -2137,15 +2163,19 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 					     &new_tsec->sid);
+ 		if (rc)
+ 			return rc;
++
++		/*
++		 * Fallback to old SID on NNP or nosuid if not an allowed
++		 * transition.
++		 */
++		rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);
++		if (rc)
++			new_tsec->sid = old_tsec->sid;
+ 	}
+ 
+ 	ad.type = LSM_AUDIT_DATA_PATH;
+ 	ad.u.path = bprm->file->f_path;
+ 
+-	if ((bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID) ||
+-	    (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS))
+-		new_tsec->sid = old_tsec->sid;
+-
+ 	if (new_tsec->sid == old_tsec->sid) {
+ 		rc = avc_has_perm(old_tsec->sid, isec->sid,
+ 				  SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, &ad);
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+1.9.3
+
+
+--------------030902000800040906050305--
