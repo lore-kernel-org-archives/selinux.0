@@ -1,137 +1,30 @@
-Message-ID: <5399FD14.60101@tycho.nsa.gov>
-Date: Thu, 12 Jun 2014 15:18:44 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SELinux-NSA <SELinux@tycho.nsa.gov>
-Subject: [PATCH] selinux:  Permit transitions under NO_NEW_PRIVS or NOSUID
+In-Reply-To: <5399FD14.60101@tycho.nsa.gov>
+References: <5399FD14.60101@tycho.nsa.gov>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Thu, 12 Jun 2014 12:28:12 -0700
+Message-ID: <CALCETrVbD3NxxhJsjiAGcEE-5yjH34+BijTHrOFiefwotu6krA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Permit transitions under NO_NEW_PRIVS or NOSUID
  under certain, circumstances.
-Content-Type: multipart/mixed; boundary="------------030902000800040906050305"
-Cc: Andy Lutomirski <luto@amacapital.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
+Cc: SELinux-NSA <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------030902000800040906050305
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, Jun 12, 2014 at 12:18 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+
+One more minor nit:
+
+"If the caller SID is bounded by the callee SID"
+
+Is that backwards?  I think the code is correct, but I'm less
+convinced by the changelog.
 
 
---------------030902000800040906050305
-Content-Type: text/x-patch;
- name="0001-Permit-transitions-under-NO_NEW_PRIVS-or-NOSUID-unde.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-Permit-transitions-under-NO_NEW_PRIVS-or-NOSUID-unde.pa";
- filename*1="tch"
-
->From 731c593d0813128eb6d3a62658038681b6e1cf9a Mon Sep 17 00:00:00 2001
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu, 12 Jun 2014 08:17:48 -0400
-Subject: [PATCH] Permit transitions under NO_NEW_PRIVS or NOSUID under certain
- circumstances.
-
-If the caller SID is bounded by the callee SID or if the caller SID is allowed
-to perform a dynamic transition (setcon) to the callee SID, then allowing
-the transition to occur poses no risk of privilege escalation and we can
-therefore safely allow the transition to occur.  Add these two exemptions
-for both the case where a transition was explicitly requested by the
-application and the case where an automatic transition is defined in
-policy.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Andy Lutomirski <luto@amacapital.net>
----
- security/selinux/hooks.c | 54 +++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 83d06db..d5e8dc5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2086,6 +2086,36 @@ static int selinux_vm_enough_memory(struct mm_struct *mm, long pages)
- 
- /* binprm security operations */
- 
-+static int check_nnp_nosuid(const struct linux_binprm *bprm,
-+			    const struct task_security_struct *old_tsec,
-+			    const struct task_security_struct *new_tsec)
-+{
-+	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
-+	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
-+	int rc;
-+
-+	if (!nnp && !nosuid)
-+		return 0; /* neither NNP nor nosuid */
-+
-+	if (new_tsec->sid == old_tsec->sid)
-+		return 0; /* No change in credentials */
-+
-+	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
-+	if (rc == 0)
-+		return 0; /* allowed via bounded transition */
-+
-+	/* Only allow if dyntransition permission aka setcon() is allowed. */
-+	rc = avc_has_perm(old_tsec->sid, new_tsec->sid, SECCLASS_PROCESS,
-+			  PROCESS__DYNTRANSITION, NULL);
-+	if (rc) {
-+		if (nnp)
-+			return -EPERM;
-+		else
-+			return -EACCES;
-+	}
-+	return 0;
-+}
-+
- static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- {
- 	const struct task_security_struct *old_tsec;
-@@ -2122,14 +2152,10 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- 		/* Reset exec SID on execve. */
- 		new_tsec->exec_sid = 0;
- 
--		/*
--		 * Minimize confusion: if no_new_privs or nosuid and a
--		 * transition is explicitly requested, then fail the exec.
--		 */
--		if (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)
--			return -EPERM;
--		if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
--			return -EACCES;
-+		/* Fail on NNP or nosuid if not an allowed transition. */
-+		rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);
-+		if (rc)
-+			return rc;
- 	} else {
- 		/* Check for a default transition on this program. */
- 		rc = security_transition_sid(old_tsec->sid, isec->sid,
-@@ -2137,15 +2163,19 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- 					     &new_tsec->sid);
- 		if (rc)
- 			return rc;
-+
-+		/*
-+		 * Fallback to old SID on NNP or nosuid if not an allowed
-+		 * transition.
-+		 */
-+		rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);
-+		if (rc)
-+			new_tsec->sid = old_tsec->sid;
- 	}
- 
- 	ad.type = LSM_AUDIT_DATA_PATH;
- 	ad.u.path = bprm->file->f_path;
- 
--	if ((bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID) ||
--	    (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS))
--		new_tsec->sid = old_tsec->sid;
--
- 	if (new_tsec->sid == old_tsec->sid) {
- 		rc = avc_has_perm(old_tsec->sid, isec->sid,
- 				  SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, &ad);
 -- 
-1.9.3
-
-
---------------030902000800040906050305--
+Andy Lutomirski
+AMA Capital Management, LLC
