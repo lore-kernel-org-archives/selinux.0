@@ -1,15 +1,17 @@
-Message-ID: <53999C9E.4050706@tycho.nsa.gov>
-Date: Thu, 12 Jun 2014 08:27:10 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5CFfCwe004920
+ for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2014 11:41:12 -0400
+Message-ID: <5399CA69.7070901@tresys.com>
+Date: Thu, 12 Jun 2014 11:42:33 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Nicolas Iooss <nicolas.iooss@m4x.org>,
- "Christopher J. PeBenito" <cpebenito@tresys.com>,
- Sven Vermeulen <sven.vermeulen@siphos.be>, selinux <selinux@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, Sven Vermeulen
+ <sven.vermeulen@siphos.be>, selinux <selinux@tycho.nsa.gov>
 Subject: Re: SETools patch for libselinux-2.3
 References: <20140528170411.GA13025@siphos.be>	<53965DC4.1090802@tresys.com>
  <CAJfZ7==jjeVo-g82L9=VOv92QF6=akK+5e+-VVmsf+wdvWR-yQ@mail.gmail.com>
 In-Reply-To: <CAJfZ7==jjeVo-g82L9=VOv92QF6=akK+5e+-VVmsf+wdvWR-yQ@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -46,18 +48,10 @@ On 06/11/2014 06:26 PM, Nicolas Iooss wrote:
 > to git log, lsetfilecon_raw existed in 2008 [2]. Is it possible to
 > replace replcon_lsetfilecon with lsetfilecon_raw in SETools or are
 > there still supported versions of libselinux without lsetfilecon_raw?
-> 
-> By the way, while speaking about patches, a few days ago I wrote an
-> amazing bugfix for libsemanage [3]. Where should I send this patch? As
-> selinux@tycho.nsa.gov has been silent about my latest patch [4] I'm
-> wondering whether it is the right ML to send patches to.
-> 
-> Nicolas
-> 
-> [1] https://github.com/archlinuxhardened/selinux/blob/master/setools/0001-fix-compile-error.patch
-> [2] https://github.com/fishilico/selinux/blob/13cd4c8960688af11ad23b4c946149015c80d549/libselinux/src/lsetfilecon.c
-> [3] https://github.com/fishilico/selinux/commit/b9688372828d8f2609afb68160b100bdffd9ead0
-> [4] http://marc.info/?l=selinux&m=140086882622086&w=2
 
-Yes, it is the right list.  Sorry, applied your libselinux patch to the
-#next branch.
+Well a weak function just means that the program won't fail to link if lsetfilecon_raw() isn't found.  It's the method we used to support older libselinuxes when the _raw() functions appeared.  I'm not sure if there is a proper C/C++ way to handle the apparent parameter change, otherwise preprocessor #ifdef/#else would be the way.  So if you do #ifdef SECURITY_CONTEXT_T it uses the old version #else it uses the new version, then autoconf would determine if SECURITY_CONTEXT_T needs to be set.  Alternatively it might work to conditionally re-add the security_context_t typedef inside this file.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
