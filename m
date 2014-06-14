@@ -1,142 +1,31 @@
-Message-ID: <5399FF80.604@tycho.nsa.gov>
-Date: Thu, 12 Jun 2014 15:29:04 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5E1klMb012373
+ for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2014 21:46:48 -0400
+From: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: Re: ANN: Reference Policy moved to GitHub
+Date: Sat, 14 Jun 2014 11:46:43 +1000
+Message-ID: <1766633.zdlLJ7D5UV@xev>
+In-Reply-To: <5395CAA0.4010900@tresys.com>
+References: <5395CAA0.4010900@tresys.com>
 MIME-Version: 1.0
-To: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v2] selinux: Permit exec transitions under NO_NEW_PRIVS or
- NOSUID under certain circumstances.
-References: <5399FD14.60101@tycho.nsa.gov>
- <CALCETrVbD3NxxhJsjiAGcEE-5yjH34+BijTHrOFiefwotu6krA@mail.gmail.com>
-In-Reply-To: <CALCETrVbD3NxxhJsjiAGcEE-5yjH34+BijTHrOFiefwotu6krA@mail.gmail.com>
-Content-Type: multipart/mixed; boundary="------------030809030104040500010308"
-Cc: SELinux-NSA <SELinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
+Cc: Refpolicy Mail List <refpolicy@oss1.tresys.com>
+Reply-To: russell@coker.com.au
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------030809030104040500010308
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Mon, 9 Jun 2014 10:54:24 Christopher J. PeBenito wrote:
+> Since open source development workflows have moved towards services like
+> GitHub and Bitbucket, we have decided to move Reference Policy's
+> repositories to GitHub.  The project wiki is now available here:
 
-v2 - fix patch description to match the code.
+http://www.cultureoffset.org/
 
+Are you sure that GitHub is a good choice?
 
---------------030809030104040500010308
-Content-Type: text/x-patch;
- name="0001-selinux-Permit-exec-transitions-under-NO_NEW_PRIVS-o.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-selinux-Permit-exec-transitions-under-NO_NEW_PRIVS-o.pa";
- filename*1="tch"
-
->From c1fa21950c5c3eb0dd97ae5145fa3d3f04adc5c4 Mon Sep 17 00:00:00 2001
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu, 12 Jun 2014 08:17:48 -0400
-Subject: [PATCH] selinux:  Permit exec transitions under NO_NEW_PRIVS or
- NOSUID under certain circumstances.
-
-If the callee SID is bounded by the caller SID or if the caller SID is allowed
-to perform a dynamic transition (setcon) to the callee SID, then allowing
-the transition to occur poses no risk of privilege escalation and we can
-therefore safely allow the transition to occur.  Add these two exemptions
-for both the case where a transition was explicitly requested by the
-application and the case where an automatic transition is defined in
-policy.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Andy Lutomirski <luto@amacapital.net>
----
- security/selinux/hooks.c | 54 +++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 83d06db..d5e8dc5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2086,6 +2086,36 @@ static int selinux_vm_enough_memory(struct mm_struct *mm, long pages)
- 
- /* binprm security operations */
- 
-+static int check_nnp_nosuid(const struct linux_binprm *bprm,
-+			    const struct task_security_struct *old_tsec,
-+			    const struct task_security_struct *new_tsec)
-+{
-+	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
-+	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
-+	int rc;
-+
-+	if (!nnp && !nosuid)
-+		return 0; /* neither NNP nor nosuid */
-+
-+	if (new_tsec->sid == old_tsec->sid)
-+		return 0; /* No change in credentials */
-+
-+	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
-+	if (rc == 0)
-+		return 0; /* allowed via bounded transition */
-+
-+	/* Only allow if dyntransition permission aka setcon() is allowed. */
-+	rc = avc_has_perm(old_tsec->sid, new_tsec->sid, SECCLASS_PROCESS,
-+			  PROCESS__DYNTRANSITION, NULL);
-+	if (rc) {
-+		if (nnp)
-+			return -EPERM;
-+		else
-+			return -EACCES;
-+	}
-+	return 0;
-+}
-+
- static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- {
- 	const struct task_security_struct *old_tsec;
-@@ -2122,14 +2152,10 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- 		/* Reset exec SID on execve. */
- 		new_tsec->exec_sid = 0;
- 
--		/*
--		 * Minimize confusion: if no_new_privs or nosuid and a
--		 * transition is explicitly requested, then fail the exec.
--		 */
--		if (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)
--			return -EPERM;
--		if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
--			return -EACCES;
-+		/* Fail on NNP or nosuid if not an allowed transition. */
-+		rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);
-+		if (rc)
-+			return rc;
- 	} else {
- 		/* Check for a default transition on this program. */
- 		rc = security_transition_sid(old_tsec->sid, isec->sid,
-@@ -2137,15 +2163,19 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- 					     &new_tsec->sid);
- 		if (rc)
- 			return rc;
-+
-+		/*
-+		 * Fallback to old SID on NNP or nosuid if not an allowed
-+		 * transition.
-+		 */
-+		rc = check_nnp_nosuid(bprm, old_tsec, new_tsec);
-+		if (rc)
-+			new_tsec->sid = old_tsec->sid;
- 	}
- 
- 	ad.type = LSM_AUDIT_DATA_PATH;
- 	ad.u.path = bprm->file->f_path;
- 
--	if ((bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID) ||
--	    (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS))
--		new_tsec->sid = old_tsec->sid;
--
- 	if (new_tsec->sid == old_tsec->sid) {
- 		rc = avc_has_perm(old_tsec->sid, isec->sid,
- 				  SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, &ad);
 -- 
-1.8.3.1
-
-
---------------030809030104040500010308--
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
