@@ -1,55 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5EGwgxZ015329
- for <selinux@tycho.nsa.gov>; Sat, 14 Jun 2014 12:58:45 -0400
-Received: by mail-wg0-f45.google.com with SMTP id l18so4003525wgh.16
- for <selinux@tycho.nsa.gov>; Sat, 14 Jun 2014 09:58:46 -0700 (PDT)
-Received: from eversmanni.localdomain (183.222.74.86.rev.sfr.net.
- [86.74.222.183])
- by mx.google.com with ESMTPSA id r9sm3687567wia.17.2014.06.14.09.58.45
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
- Sat, 14 Jun 2014 09:58:45 -0700 (PDT)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] libsemanage: use semanage_bool_get_value to print a
- boolean
-Date: Sat, 14 Jun 2014 18:58:26 +0200
-Message-Id: <1402765106-7397-3-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1402765106-7397-1-git-send-email-nicolas.iooss@m4x.org>
-References: <1402765106-7397-1-git-send-email-nicolas.iooss@m4x.org>
+Sender: Namhyung Kim <namhyung@gmail.com>
+From: Namhyung Kim <namhyung@kernel.org>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>
+Subject: [PATCH 1/2] selinux: simple cleanup for cond_read_node()
+Date: Sun, 15 Jun 2014 01:19:01 +0900
+Message-Id: <1402762742-2808-1-git-send-email-namhyung@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-... and not semanage_bool_set_value.
+The node->cur_state and len can be read in a single call of next_entry().
+And setting len before reading is a dead write so can be eliminated.
 
-This fixes "python2 pywrap-test.py -v -B -C"
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
 ---
- libsemanage/src/pywrap-test.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/selinux/ss/conditional.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/libsemanage/src/pywrap-test.py b/libsemanage/src/pywrap-test.py
-index 5d8aad1..c00d2c7 100644
---- a/libsemanage/src/pywrap-test.py
-+++ b/libsemanage/src/pywrap-test.py
-@@ -829,7 +829,7 @@ class Tests:
- 		if self.verbose: print "SEBool name set: ", semanage.semanage_bool_get_name(pbool)
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 377d148e7157..4766a38fae9a 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -402,19 +402,14 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
+ 	int rc;
+ 	struct cond_expr *expr = NULL, *last = NULL;
  
- 		semanage.semanage_bool_set_value(pbool, 0)
--		if self.verbose: print "SEbool value set: ", semanage.semanage_bool_set_value(pbool)
-+		if self.verbose: print "SEbool value set: ", semanage.semanage_bool_get_value(pbool)
+-	rc = next_entry(buf, fp, sizeof(u32));
++	rc = next_entry(buf, fp, sizeof(buf));
+ 	if (rc)
+ 		return rc;
  
- 		(status,key) = semanage.semanage_bool_key_extract(sh, pbool)
- 		if status < 0:
-@@ -912,7 +912,7 @@ class Tests:
- 		if self.verbose: print "SEBool name set: ", semanage.semanage_bool_get_name(abool)
+ 	node->cur_state = le32_to_cpu(buf[0]);
  
- 		semanage.semanage_bool_set_value(abool, 0)
--		if self.verbose: print "SEbool value set: ", semanage.semanage_bool_set_value(abool)
-+		if self.verbose: print "SEbool value set: ", semanage.semanage_bool_get_value(abool)
+-	len = 0;
+-	rc = next_entry(buf, fp, sizeof(u32));
+-	if (rc)
+-		return rc;
+-
+ 	/* expr */
+-	len = le32_to_cpu(buf[0]);
++	len = le32_to_cpu(buf[1]);
  
- 		print "Starting transaction..."
- 		status = semanage.semanage_begin_transaction(sh)
+ 	for (i = 0; i < len; i++) {
+ 		rc = next_entry(buf, fp, sizeof(u32) * 2);
 -- 
 2.0.0
