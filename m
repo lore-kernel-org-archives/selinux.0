@@ -1,292 +1,292 @@
-Sender: Namhyung Kim <namhyung@gmail.com>
-From: Namhyung Kim <namhyung@kernel.org>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>
-Subject: [PATCH] selinux: introduce str_read() helper
-Date: Sun, 15 Jun 2014 23:02:51 +0900
-Message-Id: <1402840971-24226-1-git-send-email-namhyung@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov
+Message-ID: <539F0C7E.6090702@tycho.nsa.gov>
+Date: Mon, 16 Jun 2014 11:25:50 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Andy Lutomirski <luto@amacapital.net>
+Subject: [PATCH] selinux-testsuite:  Add tests for exec transitions under
+ NO_NEW_PRIVS
+References: <5399FD14.60101@tycho.nsa.gov>
+ <CALCETrVbD3NxxhJsjiAGcEE-5yjH34+BijTHrOFiefwotu6krA@mail.gmail.com>
+ <5399FF80.604@tycho.nsa.gov>
+In-Reply-To: <5399FF80.604@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="------------070801070308010507020103"
+Cc: SELinux-NSA <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-There're some code duplication for reading a string value during
-policydb_read().  Add str_read() helper to fix it.
+This is a multi-part message in MIME format.
+--------------070801070308010507020103
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Tests 1-4 will fail on existing kernels without the patch entitled
+"selinux: Permit exec transitions under NO_NEW_PRIVS or NOSUID under
+certain circumstances.".  Tests 5-6 should always pass.
+
+We shouldn't apply it to the selinux-testsuite until after the kernel
+change is merged, and then we should make it dependent on the first
+kernel version that will include the change.
+
+--------------070801070308010507020103
+Content-Type: text/x-patch;
+ name="0001-Add-tests-for-exec-transitions-under-NO_NEW_PRIVS.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Add-tests-for-exec-transitions-under-NO_NEW_PRIVS.patch"
+
+>From 66e8681c88a4cb0e3d84ed92f59e9812ba4a3003 Mon Sep 17 00:00:00 2001
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Fri, 13 Jun 2014 12:40:16 -0400
+Subject: [PATCH] Add tests for exec transitions under NO_NEW_PRIVS.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/ss/policydb.c | 133 ++++++++++++-----------------------------
- 1 file changed, 37 insertions(+), 96 deletions(-)
+ policy/Makefile      |  2 +-
+ policy/test_nnp.te   | 48 +++++++++++++++++++++++++++++++++++++++++++++++
+ tests/Makefile       |  2 +-
+ tests/nnp/Makefile   |  7 +++++++
+ tests/nnp/checkcon.c | 40 +++++++++++++++++++++++++++++++++++++++
+ tests/nnp/execnnp.c  | 25 +++++++++++++++++++++++++
+ tests/nnp/test       | 53 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 175 insertions(+), 2 deletions(-)
+ create mode 100644 policy/test_nnp.te
+ create mode 100644 tests/nnp/Makefile
+ create mode 100644 tests/nnp/checkcon.c
+ create mode 100644 tests/nnp/execnnp.c
+ create mode 100755 tests/nnp/test
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 9c5cdc2caaef..26a8ea7773b7 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1080,6 +1080,26 @@ out:
-  * binary representation file.
-  */
+diff --git a/policy/Makefile b/policy/Makefile
+index a0a6c88..683f454 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -14,7 +14,7 @@ TARGETS = \
+ 	test_entrypoint.te test_execshare.te test_exectrace.te \
+ 	test_execute_no_trans.te test_fdreceive.te test_file.te \
+ 	test_inherit.te test_ioctl.te test_ipc.te test_link.te test_mkdir.te \
+-	test_open.te test_ptrace.te test_readlink.te \
++	test_nnp.te test_open.te test_ptrace.te test_readlink.te \
+ 	test_relabel.te test_rename.te test_rxdir.te test_setattr.te \
+ 	test_setnice.te test_sigkill.te test_stat.te test_sysctl.te \
+ 	test_task_create.te test_task_getpgid.te test_task_getsched.te \
+diff --git a/policy/test_nnp.te b/policy/test_nnp.te
+new file mode 100644
+index 0000000..8ab798f
+--- /dev/null
++++ b/policy/test_nnp.te
+@@ -0,0 +1,48 @@
++#################################
++#
++# Policy for testing NO_NEW_PRIVS transitions.
++#
++
++# A domain bounded by the unconfined domain.
++type test_nnp_bounded_t;
++domain_type(test_nnp_bounded_t)
++typeattribute test_nnp_bounded_t testdomain;
++typebounds unconfined_t test_nnp_bounded_t;
++
++# The entrypoint type for this domain.
++type test_nnp_bounded_exec_t;
++files_type(test_nnp_bounded_exec_t)
++domain_entry_file(test_nnp_bounded_t, test_nnp_bounded_exec_t)
++
++# Run it!  This should succeed on patched kernels, fail on old ones.
++unconfined_runs_test(test_nnp_bounded_t)
++unconfined_run_to(test_nnp_bounded_t, test_nnp_bounded_exec_t)
++
++# A domain that can be reached via setcon by the start domain.
++type test_nnp_dyntransition_t;
++domain_type(test_nnp_dyntransition_t)
++typeattribute test_nnp_dyntransition_t testdomain;
++allow unconfined_t test_nnp_dyntransition_t:process dyntransition;
++
++# The entrypoint type for this domain.
++type test_nnp_dyntransition_exec_t;
++files_type(test_nnp_dyntransition_exec_t)
++domain_entry_file(test_nnp_dyntransition_t, test_nnp_dyntransition_exec_t)
++
++# Run it!  This should succeed on patched kernels, fail on old ones.
++unconfined_runs_test(test_nnp_dyntransition_t)
++unconfined_run_to(test_nnp_dyntransition_t, test_nnp_dyntransition_exec_t)
++
++# A domain that is neither bounded nor reachable via setcon from the start domain.
++type test_nnp_neither_t;
++domain_type(test_nnp_neither_t)
++typeattribute test_nnp_neither_t testdomain;
++
++# The entrypoint type for this domain.
++type test_nnp_neither_exec_t;
++files_type(test_nnp_neither_exec_t)
++domain_entry_file(test_nnp_neither_t, test_nnp_neither_exec_t)
++
++# Run it!  This should fail always.
++unconfined_runs_test(test_nnp_neither_t)
++unconfined_run_to(test_nnp_neither_t, test_nnp_neither_exec_t)
+diff --git a/tests/Makefile b/tests/Makefile
+index 5886403..4cfecdf 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -1,6 +1,6 @@
+ REDHAT_RELEASE=$(shell rpm -q redhat-release)
  
-+static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
+-SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrans dyntrace bounds
++SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg nnp open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrans dyntrace bounds
+ #SUBDIRS=socket unix_socket unix_secure
+ 
+ ifeq (redhat-release-4, $(findstring redhat-release-4, $(REDHAT_RELEASE)))
+diff --git a/tests/nnp/Makefile b/tests/nnp/Makefile
+new file mode 100644
+index 0000000..4e8e400
+--- /dev/null
++++ b/tests/nnp/Makefile
+@@ -0,0 +1,7 @@
++TARGETS=execnnp checkcon
++
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/nnp/checkcon.c b/tests/nnp/checkcon.c
+new file mode 100644
+index 0000000..5d992ca
+--- /dev/null
++++ b/tests/nnp/checkcon.c
+@@ -0,0 +1,40 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <selinux/selinux.h>
++#include <selinux/context.h>
++
++int main(int argc, char **argv)
 +{
-+	int rc;
-+	char *str;
++    char *con = NULL;
++    context_t c;
++    const char *type;
++    int rc;
 +
-+	str = kmalloc(len + 1, flags);
-+	if (!str)
-+		return -ENOMEM;
++    if (argc != 2) {
++        fprintf(stderr, "usage:  %s expected-type\n", argv[0]);
++        exit(-1);
++    }
 +
-+	/* it's expected the caller should free the str */
-+	*strp = str;
++    if (getcon(&con) < 0) {
++        perror("getcon");
++        exit(-1);
++    }
++      
++    c = context_new(con);
++    if (!c) {
++        perror("context_new");
++        exit(-1);
++    }
++    
++    type = context_type_get(c);
++    if (!type) {
++        perror("context_type_get");
++        exit(-1);
 +
-+	rc = next_entry(str, fp, len);
-+	if (rc)
-+		return rc;
-+
-+	str[len] = '\0';
-+	return 0;
++    }
++    
++    rc = strcmp(type, argv[1]);
++    exit(rc);
 +}
+diff --git a/tests/nnp/execnnp.c b/tests/nnp/execnnp.c
+new file mode 100644
+index 0000000..9de5967
+--- /dev/null
++++ b/tests/nnp/execnnp.c
+@@ -0,0 +1,25 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/prctl.h>
 +
- static int perm_read(struct policydb *p, struct hashtab *h, void *fp)
- {
- 	char *key = NULL;
-@@ -1100,15 +1120,9 @@ static int perm_read(struct policydb *p, struct hashtab *h, void *fp)
- 	len = le32_to_cpu(buf[0]);
- 	perdatum->value = le32_to_cpu(buf[1]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_KERNEL);
--	if (!key)
--		goto bad;
--
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	rc = hashtab_insert(h, key, perdatum);
- 	if (rc)
-@@ -1146,15 +1160,9 @@ static int common_read(struct policydb *p, struct hashtab *h, void *fp)
- 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
- 	nel = le32_to_cpu(buf[3]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_KERNEL);
--	if (!key)
--		goto bad;
--
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	for (i = 0; i < nel; i++) {
- 		rc = perm_read(p, comdatum->permissions.table, fp);
-@@ -1321,25 +1329,14 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
- 
- 	ncons = le32_to_cpu(buf[5]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_KERNEL);
--	if (!key)
--		goto bad;
--
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	if (len2) {
--		rc = -ENOMEM;
--		cladatum->comkey = kmalloc(len2 + 1, GFP_KERNEL);
--		if (!cladatum->comkey)
--			goto bad;
--		rc = next_entry(cladatum->comkey, fp, len2);
-+		rc = str_read(&cladatum->comkey, GFP_KERNEL, fp, len2);
- 		if (rc)
- 			goto bad;
--		cladatum->comkey[len2] = '\0';
- 
- 		rc = -EINVAL;
- 		cladatum->comdatum = hashtab_search(p->p_commons.table, cladatum->comkey);
-@@ -1422,15 +1419,9 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
- 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
- 		role->bounds = le32_to_cpu(buf[2]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_KERNEL);
--	if (!key)
--		goto bad;
--
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	rc = ebitmap_read(&role->dominates, fp);
- 	if (rc)
-@@ -1495,14 +1486,9 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
- 		typdatum->primary = le32_to_cpu(buf[2]);
- 	}
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_KERNEL);
--	if (!key)
--		goto bad;
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	rc = hashtab_insert(h, key, typdatum);
- 	if (rc)
-@@ -1565,14 +1551,9 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
- 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
- 		usrdatum->bounds = le32_to_cpu(buf[2]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_KERNEL);
--	if (!key)
--		goto bad;
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	rc = ebitmap_read(&usrdatum->roles, fp);
- 	if (rc)
-@@ -1616,14 +1597,9 @@ static int sens_read(struct policydb *p, struct hashtab *h, void *fp)
- 	len = le32_to_cpu(buf[0]);
- 	levdatum->isalias = le32_to_cpu(buf[1]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_ATOMIC);
--	if (!key)
--		goto bad;
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_ATOMIC, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	rc = -ENOMEM;
- 	levdatum->level = kmalloc(sizeof(struct mls_level), GFP_ATOMIC);
-@@ -1664,14 +1640,9 @@ static int cat_read(struct policydb *p, struct hashtab *h, void *fp)
- 	catdatum->value = le32_to_cpu(buf[1]);
- 	catdatum->isalias = le32_to_cpu(buf[2]);
- 
--	rc = -ENOMEM;
--	key = kmalloc(len + 1, GFP_ATOMIC);
--	if (!key)
--		goto bad;
--	rc = next_entry(key, fp, len);
-+	rc = str_read(&key, GFP_ATOMIC, fp, len);
- 	if (rc)
- 		goto bad;
--	key[len] = '\0';
- 
- 	rc = hashtab_insert(h, key, catdatum);
- 	if (rc)
-@@ -1968,18 +1939,12 @@ static int filename_trans_read(struct policydb *p, void *fp)
- 			goto out;
- 		len = le32_to_cpu(buf[0]);
- 
--		rc = -ENOMEM;
--		name = kmalloc(len + 1, GFP_KERNEL);
--		if (!name)
--			goto out;
--
--		ft->name = name;
--
- 		/* path component string */
--		rc = next_entry(name, fp, len);
-+		rc = str_read(&name, GFP_KERNEL, fp, len);
- 		if (rc)
- 			goto out;
--		name[len] = 0;
++int main(int argc, char **argv)
++{
++    int rc;
 +
-+		ft->name = name;
- 
- 		rc = next_entry(buf, fp, sizeof(u32) * 4);
- 		if (rc)
-@@ -2045,17 +2010,10 @@ static int genfs_read(struct policydb *p, void *fp)
- 		if (!newgenfs)
- 			goto out;
- 
--		rc = -ENOMEM;
--		newgenfs->fstype = kmalloc(len + 1, GFP_KERNEL);
--		if (!newgenfs->fstype)
--			goto out;
--
--		rc = next_entry(newgenfs->fstype, fp, len);
-+		rc = str_read(&newgenfs->fstype, GFP_KERNEL, fp, len);
- 		if (rc)
- 			goto out;
- 
--		newgenfs->fstype[len] = 0;
--
- 		for (genfs_p = NULL, genfs = p->genfs; genfs;
- 		     genfs_p = genfs, genfs = genfs->next) {
- 			rc = -EINVAL;
-@@ -2091,15 +2049,9 @@ static int genfs_read(struct policydb *p, void *fp)
- 			if (!newc)
- 				goto out;
- 
--			rc = -ENOMEM;
--			newc->u.name = kmalloc(len + 1, GFP_KERNEL);
--			if (!newc->u.name)
--				goto out;
--
--			rc = next_entry(newc->u.name, fp, len);
-+			rc = str_read(&newc->u.name, GFP_KERNEL, fp, len);
- 			if (rc)
- 				goto out;
--			newc->u.name[len] = 0;
- 
- 			rc = next_entry(buf, fp, sizeof(u32));
- 			if (rc)
-@@ -2189,16 +2141,10 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 					goto out;
- 				len = le32_to_cpu(buf[0]);
- 
--				rc = -ENOMEM;
--				c->u.name = kmalloc(len + 1, GFP_KERNEL);
--				if (!c->u.name)
--					goto out;
--
--				rc = next_entry(c->u.name, fp, len);
-+				rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
- 				if (rc)
- 					goto out;
- 
--				c->u.name[len] = 0;
- 				rc = context_read_and_validate(&c->context[0], p, fp);
- 				if (rc)
- 					goto out;
-@@ -2240,16 +2186,11 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				if (c->v.behavior > SECURITY_FS_USE_MAX)
- 					goto out;
- 
--				rc = -ENOMEM;
- 				len = le32_to_cpu(buf[1]);
--				c->u.name = kmalloc(len + 1, GFP_KERNEL);
--				if (!c->u.name)
--					goto out;
--
--				rc = next_entry(c->u.name, fp, len);
-+				rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
- 				if (rc)
- 					goto out;
--				c->u.name[len] = 0;
++    if (argc < 2) {
++	fprintf(stderr, "usage:  %s command [args...]\n", argv[0]);
++	exit(-1);
++    }
 +
- 				rc = context_read_and_validate(&c->context[0], p, fp);
- 				if (rc)
- 					goto out;
++    rc = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
++    if (rc < 0) {
++        perror("prctl PR_SET_NO_NEW_PRIVS");
++        exit(-1);
++    }
++
++    execvp(argv[1], &argv[1]);
++    perror(argv[1]);
++    exit(1);
++}
+diff --git a/tests/nnp/test b/tests/nnp/test
+new file mode 100755
+index 0000000..eb2c522
+--- /dev/null
++++ b/tests/nnp/test
+@@ -0,0 +1,53 @@
++#!/usr/bin/perl
++
++# Depends on kernel patch with the following subject line:
++# selinux:  Permit exec transitions under NO_NEW_PRIVS or NOSUID under certain circumstances.
++
++use Test;
++BEGIN { plan tests => 6}
++
++$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
++
++# Remove any leftover programs from prior failed runs.
++system("rm -f $basedir/true");
++
++# Set entrypoint type for bounded domain.
++system("chcon -t test_nnp_bounded_exec_t $basedir/checkcon");
++
++# Transition to bounded type via setexec.
++$result = system("$basedir/execnnp runcon -t test_nnp_bounded_t $basedir/checkcon test_nnp_bounded_t 2>&1");
++ok($result,0); #this should pass
++
++# Automatic transition to bounded domain via exec.
++$result = system("$basedir/execnnp $basedir/checkcon test_nnp_bounded_t 2>&1");
++ok($result,0); #this should pass
++
++# Set entrypoint type for dyntransition domain.
++system("chcon -t test_nnp_dyntransition_exec_t $basedir/checkcon");
++
++# Transition to dyntransition domain via setexec.
++$result = system("$basedir/execnnp runcon -t test_nnp_dyntransition_t $basedir/checkcon test_nnp_dyntransition_t 2>&1");
++ok($result,0); #this should pass
++
++# Automatic transition to dyntransition domain via exec.
++$result = system("$basedir/execnnp $basedir/checkcon test_nnp_dyntransition_t 2>&1");
++ok($result,0); #this should pass
++
++# Use true as an entrypoint program to test ability to exec at all.
++system("cp /bin/true $basedir/true");
++
++# Set entrypoint type for neither bounded nor dyntransition domain.
++system("chcon -t test_nnp_neither_exec_t $basedir/checkcon $basedir/true");
++
++# Transition to neither domain via setexec.
++$result = system("$basedir/execnnp runcon -t test_nnp_neither_t $basedir/true 2>&1");
++ok($result); #this should fail
++
++# Automatic transition to neither domain via exec.
++$result = system("$basedir/execnnp $basedir/checkcon test_nnp_neither_t 2>&1");
++ok($result); #this should fail
++
++# Cleanup.
++system("rm -f $basedir/true");
++
++exit;
 -- 
-2.0.0
+1.9.3
+
+
+--------------070801070308010507020103--
