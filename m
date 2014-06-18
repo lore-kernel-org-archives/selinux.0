@@ -1,88 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5HLeRLs022969
- for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2014 17:40:27 -0400
-Received: by mail-qc0-f182.google.com with SMTP id m20so10475535qcx.41
- for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2014 14:40:21 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5IIbm0D004479
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2014 14:37:49 -0400
+Received: by mail-qc0-f171.google.com with SMTP id w7so1177175qcr.2
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2014 11:37:50 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
-To: Himangi Saraogi <himangi774@gmail.com>
-Subject: Re: [PATCH] SELinux: use ARRAY_SIZE
-Date: Tue, 17 Jun 2014 17:40:17 -0400
-Message-ID: <8937190.oVYW8tRbo1@sifl>
-In-Reply-To: <20140616201104.GA18288@himangi-Dell>
-References: <20140616201104.GA18288@himangi-Dell>
+To: selinux@tycho.nsa.gov, russell@coker.com.au
+Subject: Re: Deprecating policy capabilities
+Date: Wed, 18 Jun 2014 14:37:47 -0400
+Message-ID: <8580649.HKzoOIrl2x@sifl>
+In-Reply-To: <1583671.gXuL95A5XS@xev>
+References: <5219244.VNyImXJjQb@sifl> <51BB7C50.6000601@tycho.nsa.gov>
+ <1583671.gXuL95A5XS@xev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
- julia.lawall@lip6.fr, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tuesday, June 17, 2014 01:41:05 AM Himangi Saraogi wrote:
-> ARRAY_SIZE is more concise to use when the size of an array is divided
-> by the size of its type or the size of its first element.
+On Tuesday, June 10, 2014 10:54:21 AM Russell Coker wrote:
+> On Fri, 14 Jun 2013 16:25:52 Stephen Smalley wrote:
+> > > Oh right, I forgot that there are people that boot new kernels on
+> > > ancient distros. How far back does the backward support have to go?
+> > 
+> > I think the view of the kernel developers was forever; new kernel is
+> > never supposed to break old userspace.  Of course there have been a few
+> > examples of that being broken by others in other subsystems, but that is
+> > frowned upon.
+> > 
+> > Even if we were to limit it to currently-supported enterprise
+> > distributions, I think we'd have to wait until RHEL-5 (policy.20?) is
+> > EOL'd.  Don't know about Debian or Ubuntu LTS.   Might as well be
+> > forever as we likely won't remember this conversation then.
 > 
-> The Coccinelle semantic patch that makes this change is as follows:
+> Sorry for the late reply, but this is an important an ongoing issue.
 > 
-> // <smpl>
-> @@
-> type T;
-> T[] E;
-> @@
+> In Debian we don't aim to have any support for a kernel that is more than
+> one version of Debian before or after the current version.
 > 
-> - (sizeof(E)/sizeof(E[...]))
-> + ARRAY_SIZE(E)
-> // </smpl>
+> Debian/Wheezy works with a Squeeze kernel and I'll include an update to
+> Wheezy to make it work better with a Jessie kernel when Jessie is released.
 > 
-> Signed-off-by: Himangi Saraogi <himangi774@gmail.com>
-> ---
->  security/selinux/ss/policydb.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+> I will not accept bug reports about problems mixing Jessie and Squeeze
+> parts. So the current userspace can entirely drop support for kernel 2.6.32
+> and the current kernel code can drop support for policy 20100524 and
+> libselinux 2.0.96 without doing anything that I'll accept as a Debian bug
+> report.
+> 
+> What amount of mixing and matching kernel and userspace versions does Red
+> Hat support?
 
-Applied, thanks.
+What an individual distribution supports isn't the critical point here as far 
+as I'm concerned, the issue is that dropping support for older policies, 
+regardless of use, is frowned upon and will likely cause a lot of shouting 
+that I'd just assume avoid.
 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 9c5cdc2..56eb65f 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -2608,7 +2608,7 @@ static int mls_write_range_helper(struct mls_range *r,
-> void *fp) if (!eq)
->  		buf[2] = cpu_to_le32(r->level[1].sens);
-> 
-> -	BUG_ON(items > (sizeof(buf)/sizeof(buf[0])));
-> +	BUG_ON(items > ARRAY_SIZE(buf));
-> 
->  	rc = put_entry(buf, sizeof(u32), items, fp);
->  	if (rc)
-> @@ -2990,7 +2990,7 @@ static int role_write(void *vkey, void *datum, void
-> *ptr) if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
->  		buf[items++] = cpu_to_le32(role->bounds);
-> 
-> -	BUG_ON(items > (sizeof(buf)/sizeof(buf[0])));
-> +	BUG_ON(items > ARRAY_SIZE(buf));
-> 
->  	rc = put_entry(buf, sizeof(u32), items, fp);
->  	if (rc)
-> @@ -3040,7 +3040,7 @@ static int type_write(void *vkey, void *datum, void
-> *ptr) } else {
->  		buf[items++] = cpu_to_le32(typdatum->primary);
->  	}
-> -	BUG_ON(items > (sizeof(buf) / sizeof(buf[0])));
-> +	BUG_ON(items > ARRAY_SIZE(buf));
->  	rc = put_entry(buf, sizeof(u32), items, fp);
->  	if (rc)
->  		return rc;
-> @@ -3069,7 +3069,7 @@ static int user_write(void *vkey, void *datum, void
-> *ptr) buf[items++] = cpu_to_le32(usrdatum->value);
->  	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
->  		buf[items++] = cpu_to_le32(usrdatum->bounds);
-> -	BUG_ON(items > (sizeof(buf) / sizeof(buf[0])));
-> +	BUG_ON(items > ARRAY_SIZE(buf));
->  	rc = put_entry(buf, sizeof(u32), items, fp);
->  	if (rc)
->  		return rc;
+The only real exception to this that I can see is that if we prove that a 
+older policies no longer work correctly and fixing it in the kernel is non-
+trivial.  Also, when I say "older policies", I'm thinking that the policy has 
+to be out of use from any major distribution for quite some time; anything new 
+we just need to fix.
 
 -- 
 paul moore
