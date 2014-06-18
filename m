@@ -1,66 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5IIbm0D004479
- for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2014 14:37:49 -0400
-Received: by mail-qc0-f171.google.com with SMTP id w7so1177175qcr.2
- for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2014 11:37:50 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5IJaOEh008831
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2014 15:36:25 -0400
+Received: by mail-qg0-f46.google.com with SMTP id q107so1197447qgd.19
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2014 12:36:27 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
-To: selinux@tycho.nsa.gov, russell@coker.com.au
-Subject: Re: Deprecating policy capabilities
-Date: Wed, 18 Jun 2014 14:37:47 -0400
-Message-ID: <8580649.HKzoOIrl2x@sifl>
-In-Reply-To: <1583671.gXuL95A5XS@xev>
-References: <5219244.VNyImXJjQb@sifl> <51BB7C50.6000601@tycho.nsa.gov>
- <1583671.gXuL95A5XS@xev>
+To: Namhyung Kim <namhyung@kernel.org>
+Subject: Re: [PATCH 1/2] selinux: simple cleanup for cond_read_node()
+Date: Wed, 18 Jun 2014 15:36:22 -0400
+Message-ID: <1719649.5PAcuqR8Pm@sifl>
+In-Reply-To: <1402762742-2808-1-git-send-email-namhyung@kernel.org>
+References: <1402762742-2808-1-git-send-email-namhyung@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, LKML <linux-kernel@vger.kernel.org>,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tuesday, June 10, 2014 10:54:21 AM Russell Coker wrote:
-> On Fri, 14 Jun 2013 16:25:52 Stephen Smalley wrote:
-> > > Oh right, I forgot that there are people that boot new kernels on
-> > > ancient distros. How far back does the backward support have to go?
-> > 
-> > I think the view of the kernel developers was forever; new kernel is
-> > never supposed to break old userspace.  Of course there have been a few
-> > examples of that being broken by others in other subsystems, but that is
-> > frowned upon.
-> > 
-> > Even if we were to limit it to currently-supported enterprise
-> > distributions, I think we'd have to wait until RHEL-5 (policy.20?) is
-> > EOL'd.  Don't know about Debian or Ubuntu LTS.   Might as well be
-> > forever as we likely won't remember this conversation then.
+On Sunday, June 15, 2014 01:19:01 AM Namhyung Kim wrote:
+> The node->cur_state and len can be read in a single call of next_entry().
+> And setting len before reading is a dead write so can be eliminated.
 > 
-> Sorry for the late reply, but this is an important an ongoing issue.
+> Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+> ---
+>  security/selinux/ss/conditional.c | 9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
 > 
-> In Debian we don't aim to have any support for a kernel that is more than
-> one version of Debian before or after the current version.
+> diff --git a/security/selinux/ss/conditional.c
+> b/security/selinux/ss/conditional.c index 377d148e7157..4766a38fae9a 100644
+> --- a/security/selinux/ss/conditional.c
+> +++ b/security/selinux/ss/conditional.c
+> @@ -402,19 +402,14 @@ static int cond_read_node(struct policydb *p, struct
+> cond_node *node, void *fp) int rc;
+>  	struct cond_expr *expr = NULL, *last = NULL;
 > 
-> Debian/Wheezy works with a Squeeze kernel and I'll include an update to
-> Wheezy to make it work better with a Jessie kernel when Jessie is released.
-> 
-> I will not accept bug reports about problems mixing Jessie and Squeeze
-> parts. So the current userspace can entirely drop support for kernel 2.6.32
-> and the current kernel code can drop support for policy 20100524 and
-> libselinux 2.0.96 without doing anything that I'll accept as a Debian bug
-> report.
-> 
-> What amount of mixing and matching kernel and userspace versions does Red
-> Hat support?
+> -	rc = next_entry(buf, fp, sizeof(u32));
+> +	rc = next_entry(buf, fp, sizeof(buf));
 
-What an individual distribution supports isn't the critical point here as far 
-as I'm concerned, the issue is that dropping support for older policies, 
-regardless of use, is frowned upon and will likely cause a lot of shouting 
-that I'd just assume avoid.
+This is a bit nit-picky, but how about using "sizeof(u32) * 2"?  It is more 
+consistent with the rest of the function and helps underscore that we are 
+reading two 32-bit values.
 
-The only real exception to this that I can see is that if we prove that a 
-older policies no longer work correctly and fixing it in the kernel is non-
-trivial.  Also, when I say "older policies", I'm thinking that the policy has 
-to be out of use from any major distribution for quite some time; anything new 
-we just need to fix.
+Assuming you're okay with the change I can fix it up when I apply the patch.
+
+>  	if (rc)
+>  		return rc;
+> 
+>  	node->cur_state = le32_to_cpu(buf[0]);
+> 
+> -	len = 0;
+> -	rc = next_entry(buf, fp, sizeof(u32));
+> -	if (rc)
+> -		return rc;
+> -
+>  	/* expr */
+> -	len = le32_to_cpu(buf[0]);
+> +	len = le32_to_cpu(buf[1]);
+> 
+>  	for (i = 0; i < len; i++) {
+>  		rc = next_entry(buf, fp, sizeof(u32) * 2);
 
 -- 
 paul moore
