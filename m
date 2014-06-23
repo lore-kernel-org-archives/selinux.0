@@ -1,95 +1,123 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5MBZ3bi017765
- for <selinux@tycho.nsa.gov>; Sun, 22 Jun 2014 07:35:03 -0400
-Received: by mail-we0-f176.google.com with SMTP id u56so5519374wes.7
- for <selinux@tycho.nsa.gov>; Sun, 22 Jun 2014 04:35:02 -0700 (PDT)
-Sender: Sven Vermeulen <sven.j.vermeulen@gmail.com>
-Date: Sun, 22 Jun 2014 13:34:15 +0200
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: Krzysztof Katowicz-Kowalewski <vnd@vndh.net>
-Subject: Re: Different authentication with different user roles
-Message-ID: <20140622113415.GA21445@siphos.be>
-References: <26977C05-E366-4E64-974E-3D3605373FDA@vndh.net>
+Message-ID: <53A86289.1080207@tycho.nsa.gov>
+Date: Mon, 23 Jun 2014 13:23:21 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <26977C05-E366-4E64-974E-3D3605373FDA@vndh.net>
-Cc: selinux@tycho.nsa.gov
+To: Paul Moore <paul@paul-moore.com>, Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH v2] selinux: Permit exec transitions under NO_NEW_PRIVS
+ or NOSUID under certain circumstances.
+References: <5399FD14.60101@tycho.nsa.gov> <5399FF80.604@tycho.nsa.gov>
+ <2612411.5tyaPs4jv0@sifl> <2193314.0u2ajp0mRJ@sifl>
+In-Reply-To: <2193314.0u2ajp0mRJ@sifl>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: SELinux-NSA <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jun 20, 2014 at 10:16:28PM +0200, Krzysztof Katowicz-Kowalewski wrote:
-> I’m watching SELinux mailing list since a few months and it’s my first
-> time here to ask a question. I haven’t found the answer for this one
-> anywhere, so maybe you guys would help me, or maybe there’s no such thing
-> I’ve imagined. But let’s move to the main part, I have two questions are
-> related examples…
+On 06/19/2014 04:51 PM, Paul Moore wrote:
+> On Thursday, June 19, 2014 04:04:18 PM Paul Moore wrote:
+>> On Thursday, June 12, 2014 03:29:04 PM Stephen Smalley wrote:
+>>> v2 - fix patch description to match the code.
+>>
+>> Okay Stephen, I suppose you should get some special consideration, but is
+>> posting your patches inline really that hard :)
+>>
+>> ---
+>> From c1fa21950c5c3eb0dd97ae5145fa3d3f04adc5c4 Mon Sep 17 00:00:00 2001
+>> From: Stephen Smalley <sds@tycho.nsa.gov>
+>> Date: Thu, 12 Jun 2014 08:17:48 -0400
+>> Subject: [PATCH] selinux:  Permit exec transitions under NO_NEW_PRIVS or
+>>  NOSUID under certain circumstances.
+>>
+>> If the callee SID is bounded by the caller SID or if the caller SID is
+>> allowed to perform a dynamic transition (setcon) to the callee SID, then
+>> allowing the transition to occur poses no risk of privilege escalation and
+>> we can therefore safely allow the transition to occur.  Add these two
+>> exemptions for both the case where a transition was explicitly requested by
+>> the application and the case where an automatic transition is defined in
+>> policy.
+>>
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> Acked-by: Andy Lutomirski <luto@amacapital.net>
 > 
-> 1) It is possible to authenticate user in different way for each of the
-> roles he’s in?
+> Comments below ...
 > 
-> When the user is logged in and had the role of staff_r, he would type
-> newrole command and depending on the new role given as an argument he
-> would be asked about different passwords in each case. The default
-> password for the account would not allow him to be authenticated and gain
-> higher privileges in the system.
-
-There's no immediate support for that, but it is technically possible. The
-newrole application can be built with PAM support (and that is probably the
-case for the majority of Linux distributions that support SELinux), so you
-can create a PAM module that authenticates the user based on different
-passwords.
-
-> 2) Could the method of authentication and source of authentication request
-> be used to determine the role a user should be in by default?
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 83d06db..d5e8dc5 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -2086,6 +2086,36 @@ static int selinux_vm_enough_memory(struct mm_struct
+>> *mm, long pages)
+>>
+>>  /* binprm security operations */
+>>
+>> +static int check_nnp_nosuid(const struct linux_binprm *bprm,
+>> +			    const struct task_security_struct *old_tsec,
+>> +			    const struct task_security_struct *new_tsec)
+>> +{
+>> +	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+>> +	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
+>> +	int rc;
+>> +
+>> +	if (!nnp && !nosuid)
+>> +		return 0; /* neither NNP nor nosuid */
+>> +
+>> +	if (new_tsec->sid == old_tsec->sid)
+>> +		return 0; /* No change in credentials */
+>> +
+>> +	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
+>> +	if (rc == 0)
+>> +		return 0; /* allowed via bounded transition */
 > 
-> And in this case I've imagined it in the following way. We can also assume
-> that the primary role for the user is staff_r.  a) If the user is logged
-> in locally (using tty, not pty as in case of sshd remote access) he could
-> be authorized as sysadm_r without further authentication.  b) If the user
-> is logged in using ssh from trusted source (trusted IP address, trusted
-> subnetwork) then he could be authorized as sysadm_r without further
-> authentication.  c) If the user is logged in using ssh but he had used his
-> private key rather than a passphrase for authentication then he could be
-> authorized as sysadm_r without further authentication.
+> I think there might be an audit issue here; security_bounded_transition() will 
+> generate an audit record on failure which probably isn't what we want in this 
+> case.
 > 
-> Once more, these are just examples.
+> Other than that, this seems reasonable, even in the face of NNP, and as others 
+> point out, standard DAC capabilities do something similar.
+> 
+>> +	/* Only allow if dyntransition permission aka setcon() is allowed. */
+>> +	rc = avc_has_perm(old_tsec->sid, new_tsec->sid, SECCLASS_PROCESS,
+>> +			  PROCESS__DYNTRANSITION, NULL);
+>> +	if (rc) {
+>> +		if (nnp)
+>> +			return -EPERM;
+>> +		else
+>> +			return -EACCES;
+>> +	}
+>> +	return 0;
+> 
+> I know this dyntransition/NNP/NOSUID interaction has been discussed quite a 
+> bit off-list (mostly while I was away, my apologies), but I haven't seen a lot 
+> on-list and while the descriptions hints at it the code itself doesn't 
+> elaborate on why this is "OK".  I'd like to see some comments about why it is 
+> okay to allow the transition, regardless of NNP/NOSUID, if the dyntransition 
+> is allowed.  I'd also like to see a quick comment about why we return -EPERM/-
+> EACCES.
+> 
+> There was a lot of discussion around these points and I want to make sure the 
+> ideas aren't lost.
 
-Partially, yes.
+The claim was that dyntransition is sufficient since it would allow the
+caller to setcon() to the new domain directly and therefore perform any
+action in that domain.  Thus, allowing it to transition to that domain
+upon exec under NNP or on a file in a nosuid mount does not enable it to
+do anything it could not already do directly.
 
-You can have users be "logged in" in a different context based on the
-security context of the process through which the user is logging in. This
-is defined in the default_contexts file (or the SELinux user specific files
-in the users/ subdirectory) which is located inside
-/etc/selinux/mcs/contexts (substitute "mcs" with the name of your policy
-store).
+However, this presumes that the policy writer does not merely add
+dyntransition to the caller domain upon encountering the avc denial in
+this situation without thinking about the implications and deciding
+whether to truly trust the caller domain in this way.  Which is likely a
+dangerous assumption, especially for people who write policy via
+audit2allow.
 
-For instance, if you don't want logins through sshd_t to be in the sysadm_r
-role immediately, remove it from the list:
+At least with the bounded transition, you have to explicitly declare
+that the new domain is bounded by the caller domain and the kernel will
+then enforce the restriction that the new domain is not granted any
+permission not allowed to the caller domain.
 
-system_r:sshd_t		user_r:user_t staff_r:staff_t
+I'm also unclear as to whether this in fact solves the actual problem
+for sandbox -X.
 
-Users that login through SSH will have their "allowed" role list checked,
-and the first role in their allowed role list that is also part of the
-default_contexts listing will be used. So an administrator that is mapped to
-the staff_u user (and thus has "staff_r sysadm_r" as allowed roles) would be
-logged in as staff_r:staff_t and not sysadm_r:sysadm_t.
-
-Direct logins are handled through the local_login_t, which can then support
-sysadm_r direct logins if you want:
-
-system_r:local_login_t	user_r:user_t sysadm_r:sysadm_t staff_r:staff_t
-
-This is also where the "partially" comes from. There is no method for
-changing this based on the authentication used (such as password-based or
-SSH key based). You can work around it if you like, for instance by having
-SSH listen on two ports (or two addresses) with a different context (sshd_t
-versus sshd_keyauth_t) but that is a bit hackish and requires you to
-duplicate the SSH domains.
-
-It might be a nice idea to support sensitivity based decisions, but afaik
-that isn't the case right now.
-
-Wkr,
-	Sven Vermeulen
+So I'd drop this patch for now at least.
