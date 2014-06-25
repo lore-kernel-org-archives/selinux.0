@@ -1,43 +1,49 @@
-Message-ID: <53A9D819.30806@tycho.nsa.gov>
-Date: Tue, 24 Jun 2014 15:57:13 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5P5b84i021144
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2014 01:37:09 -0400
+Received: from athena.localnet (unknown [10.10.10.1])
+ by smtp.sws.net.au (Postfix) with ESMTP id ACEC020D38
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2014 15:37:06 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: strange AVC message
+Date: Wed, 25 Jun 2014 15:37:05 +1000
+Message-ID: <1819763.ezDbQfm0U1@russell.coker.com.au>
 MIME-Version: 1.0
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov,
- Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH 0/2] Bug fixes for libsemanage/src/pywrap-test.py
-References: <1402765106-7397-1-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1402765106-7397-1-git-send-email-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Reply-To: russell@coker.com.au
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/14/2014 12:58 PM, Nicolas Iooss wrote:
-> Hello,
-> 
-> While working on porting to Python scripts in sepolgen and
-> policycoreutils to Python 3, I found libsemanage/src/pywrap-test.py.
-> As this script is written in Python 2, I tried to make it compatible
-> with Python 3 too.  However there are at least two problems:
-> 
-> * The current script bugs when asked to perform all tests in verbose
-> mode. Here are two patches to fix the script.  Can you review and
-> apply them?
+[  224.130031] audit: type=1400 audit(1403673275.109:5): avc:  denied  { 
+0x800000 } for  pid=2112 comm="systemd-udevd" name="cpufreq" dev="dm-0" 
+ino=3357 scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 
+tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
 
-Thanks, applied on #next.
+I'm occasionally seeing messages like the above after booting the Debian 
+kernel 3.14.7 with BTRFS for the root filesystem.  By "like the above" I mean 
+it refers to a (somewhat random) directory under /lib/modules with a tcontext 
+of unlabeled_t being accessed by systemd-udevd.
 
-> * The file indentation mixes tabs and spaces.  Python 2 understands
-> such a thing but Python 3 only supports indenting with tabs or spaces
-> but not both.  How should the scripts be indented?
+/backup/2014-06-23/lib/modules/3.14-1-amd64/kernel/drivers/cpufreq
+/lib/modules/3.14-1-amd64/kernel/drivers/cpufreq
 
-I would say spaces as per PEP-8 but I don't really care either way.
+The inum 3357 matches the above two files where /backup/2014-06-23 is a 
+subvolume that is a snapshot of / .  The latter file name has the correct 
+context while the former is unlabeled_t.
 
-> 
-> Nicolas Iooss (2):
->   libsemanage: fix src/pywrap-test.py -v -F
->   libsemanage: use semanage_bool_get_value to print a boolean
-> 
->  libsemanage/src/pywrap-test.py | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
-> 
+[  197.649359] audit: type=1400 audit(1403674422.633:4): avc:  denied  { 
+0x800000 } for  pid=2101 comm="systemd-udevd" name="pci" dev="dm-0" ino=3387 
+scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 
+tcontext=system_u:object_r:unlabeled_t:s0 tclass=file
+
+As a test I deleted all snapshots and rebooted a couple of times, then I saw 
+the above message.
+
+Note that I can't rule out the possibility of a BTRFS bug.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
