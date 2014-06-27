@@ -1,68 +1,227 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5RDB9xf010035
- for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2014 09:11:09 -0400
-Received: by mail-qg0-f42.google.com with SMTP id e89so4423221qgf.29
- for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2014 06:11:11 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Fwd: Booting time is increased after applying kernel 3.10
-Date: Fri, 27 Jun 2014 09:11:08 -0400
-Message-ID: <28082020.dkL42PyBCo@sifl>
-In-Reply-To: <53AD6918.8090902@tycho.nsa.gov>
-References: <CAEFn6A4mzF208e1s_OHEzJ-1Kq-DUGgzVNbQXrW6NbB0e8DSpQ@mail.gmail.com>
- <53AD6072.6070608@tycho.nsa.gov> <53AD6918.8090902@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s5RKfj0I006539
+ for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2014 16:41:46 -0400
+Subject: [RFC PATCH] selinux: reduce the number of calls to
+ synchronize_net() when flushing caches
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Fri, 27 Jun 2014 16:41:42 -0400
+Message-ID: <20140627204142.4730.96332.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: Jaejyn Shin <flagon22bass@gmail.com>, selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="utf-8"
+Cc: Jaejyn Shin <flagon22bass@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, June 27, 2014 08:52:40 AM Stephen Smalley wrote:
-> On 06/27/2014 08:15 AM, Stephen Smalley wrote:
-> >
-> > Did you confirm that we need the synchronize_net() call at all?
+When flushing the AVC, such as during a policy load, the various
+network caches are also flushed, with each making a call to
+synchronize_net() which has shown to be expensive in some cases.
+This patch consolidates the network cache flushes into a single AVC
+callback which only calls synchronize_net() once for each AVC cache
+flush.
 
-I looked into a little more yesterday and it probably isn't needed for the 
-netport cache as that is only ever really used at the socket level so there is 
-no need to wait on any packet processing.  We might be able to get away with 
-removing for the netif and netnode caches as well since we only check those 
-caches once for each packet so I don't believe there is a real worry about 
-consistency.  However, I'm inclined to leave it in for now and just 
-consolidate the callbacks so we only call synchronize_net() once; it's still a 
-performance win and we preserve any safety benefits that may be there.
+Reported-by: Jaejyn Shin <flagon22bass@gmail.com>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/hooks.c           |   14 ++++++++++++++
+ security/selinux/include/netif.h   |    2 ++
+ security/selinux/include/netnode.h |    2 ++
+ security/selinux/include/netport.h |    2 ++
+ security/selinux/netif.c           |   15 +--------------
+ security/selinux/netnode.c         |   15 +--------------
+ security/selinux/netport.c         |   15 +--------------
+ 7 files changed, 23 insertions(+), 42 deletions(-)
 
-Also, in the interest of full disclosure, I've never been one of those folks 
-who are militant about reducing boot times, a few milliseconds here are there 
-aren't a big deal to me.  At some point I may change my opinion on boot times, 
-but right now that's my thinking.
-
-> Let me phrase this differently:
-> 
-> 1) Does the synchronize_net() call guarantee that after the policy load
-> completes (or more specifically, after the avc_ss_reset completes), all
-> subsequent network permission checks will be based on the
-> netif/node/port contexts defined by the new policy and not based on the
-> old ones?
-
-Essentially the synchronize_net() call is just a synchronize_rcu() call with a 
-little extra work if the routing table lock is taken, so no magic 
-synchronization here.  Basically as soon as the network object cache is 
-flushed new lookups to the cache will start querying the policy again, the 
-synchronize_net() call really just ensures that existing RCU critical sections 
-will finish up before the callback complete.
-
-> -and-
-> 
-> 2) Does anyone currently rely on this behavior, i.e. they make a change
-> to the netif/node/port contexts in policy, load the new policy, and need
-> to know that the new context assignments are being applied on every
-> network operation before they can proceed safely?
-
-I don't believe so, at least I would advise against it as there are little 
-guarantees when it comes to network I/O.
-
--- 
-paul moore
-www.paul-moore.com
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 336f0a0..39bc8c9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -161,6 +161,17 @@ static int selinux_peerlbl_enabled(void)
+ 	return (selinux_policycap_alwaysnetwork || netlbl_enabled() || selinux_xfrm_enabled());
+ }
+ 
++static int selinux_netcache_avc_callback(u32 event)
++{
++	if (event == AVC_CALLBACK_RESET) {
++		sel_netif_flush();
++		sel_netnode_flush();
++		sel_netport_flush();
++		synchronize_net();
++	}
++	return 0;
++}
++
+ /*
+  * initialise the security for the init task
+  */
+@@ -5993,6 +6004,9 @@ static __init int selinux_init(void)
+ 	if (register_security(&selinux_ops))
+ 		panic("SELinux: Unable to register with kernel.\n");
+ 
++	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
++		panic("SELinux: Unable to register AVC netcache callback\n");
++
+ 	if (selinux_enforcing)
+ 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	else
+diff --git a/security/selinux/include/netif.h b/security/selinux/include/netif.h
+index 43d5072..57c6eae 100644
+--- a/security/selinux/include/netif.h
++++ b/security/selinux/include/netif.h
+@@ -17,6 +17,8 @@
+ #ifndef _SELINUX_NETIF_H_
+ #define _SELINUX_NETIF_H_
+ 
++void sel_netif_flush(void);
++
+ int sel_netif_sid(int ifindex, u32 *sid);
+ 
+ #endif	/* _SELINUX_NETIF_H_ */
+diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
+index df7a5ed..937668d 100644
+--- a/security/selinux/include/netnode.h
++++ b/security/selinux/include/netnode.h
+@@ -27,6 +27,8 @@
+ #ifndef _SELINUX_NETNODE_H
+ #define _SELINUX_NETNODE_H
+ 
++void sel_netnode_flush(void);
++
+ int sel_netnode_sid(void *addr, u16 family, u32 *sid);
+ 
+ #endif
+diff --git a/security/selinux/include/netport.h b/security/selinux/include/netport.h
+index 4d965b8..d1ce896 100644
+--- a/security/selinux/include/netport.h
++++ b/security/selinux/include/netport.h
+@@ -26,6 +26,8 @@
+ #ifndef _SELINUX_NETPORT_H
+ #define _SELINUX_NETPORT_H
+ 
++void sel_netport_flush(void);
++
+ int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid);
+ 
+ #endif
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index 694e9e4..3c3de4c 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -240,7 +240,7 @@ static void sel_netif_kill(int ifindex)
+  * Remove all entries from the network interface table.
+  *
+  */
+-static void sel_netif_flush(void)
++void sel_netif_flush(void)
+ {
+ 	int idx;
+ 	struct sel_netif *netif;
+@@ -252,15 +252,6 @@ static void sel_netif_flush(void)
+ 	spin_unlock_bh(&sel_netif_lock);
+ }
+ 
+-static int sel_netif_avc_callback(u32 event)
+-{
+-	if (event == AVC_CALLBACK_RESET) {
+-		sel_netif_flush();
+-		synchronize_net();
+-	}
+-	return 0;
+-}
+-
+ static int sel_netif_netdev_notifier_handler(struct notifier_block *this,
+ 					     unsigned long event, void *ptr)
+ {
+@@ -291,10 +282,6 @@ static __init int sel_netif_init(void)
+ 
+ 	register_netdevice_notifier(&sel_netif_netdev_notifier);
+ 
+-	err = avc_add_callback(sel_netif_avc_callback, AVC_CALLBACK_RESET);
+-	if (err)
+-		panic("avc_add_callback() failed, error %d\n", err);
+-
+ 	return err;
+ }
+ 
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index 03a72c3..ddf3152 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -283,7 +283,7 @@ int sel_netnode_sid(void *addr, u16 family, u32 *sid)
+  * Remove all entries from the network address table.
+  *
+  */
+-static void sel_netnode_flush(void)
++void sel_netnode_flush(void)
+ {
+ 	unsigned int idx;
+ 	struct sel_netnode *node, *node_tmp;
+@@ -300,15 +300,6 @@ static void sel_netnode_flush(void)
+ 	spin_unlock_bh(&sel_netnode_lock);
+ }
+ 
+-static int sel_netnode_avc_callback(u32 event)
+-{
+-	if (event == AVC_CALLBACK_RESET) {
+-		sel_netnode_flush();
+-		synchronize_net();
+-	}
+-	return 0;
+-}
+-
+ static __init int sel_netnode_init(void)
+ {
+ 	int iter;
+@@ -322,10 +313,6 @@ static __init int sel_netnode_init(void)
+ 		sel_netnode_hash[iter].size = 0;
+ 	}
+ 
+-	ret = avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET);
+-	if (ret != 0)
+-		panic("avc_add_callback() failed, error %d\n", ret);
+-
+ 	return ret;
+ }
+ 
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index d353797..73ac678 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -217,7 +217,7 @@ int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid)
+  * Remove all entries from the network address table.
+  *
+  */
+-static void sel_netport_flush(void)
++void sel_netport_flush(void)
+ {
+ 	unsigned int idx;
+ 	struct sel_netport *port, *port_tmp;
+@@ -234,15 +234,6 @@ static void sel_netport_flush(void)
+ 	spin_unlock_bh(&sel_netport_lock);
+ }
+ 
+-static int sel_netport_avc_callback(u32 event)
+-{
+-	if (event == AVC_CALLBACK_RESET) {
+-		sel_netport_flush();
+-		synchronize_net();
+-	}
+-	return 0;
+-}
+-
+ static __init int sel_netport_init(void)
+ {
+ 	int iter;
+@@ -256,10 +247,6 @@ static __init int sel_netport_init(void)
+ 		sel_netport_hash[iter].size = 0;
+ 	}
+ 
+-	ret = avc_add_callback(sel_netport_avc_callback, AVC_CALLBACK_RESET);
+-	if (ret != 0)
+-		panic("avc_add_callback() failed, error %d\n", ret);
+-
+ 	return ret;
+ }
+ 
