@@ -1,58 +1,29 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s61JHDqF022709
- for <selinux@tycho.nsa.gov>; Tue, 1 Jul 2014 15:17:13 -0400
-Received: by mail-we0-f179.google.com with SMTP id w62so10242916wes.38
- for <selinux@tycho.nsa.gov>; Tue, 01 Jul 2014 12:17:14 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s61MgKEn001191
+ for <selinux@tycho.nsa.gov>; Tue, 1 Jul 2014 18:42:20 -0400
+Message-ID: <1404254542.75666.YahooMailNeo@web120704.mail.ne1.yahoo.com>
+Date: Tue, 1 Jul 2014 15:42:22 -0700
+From: Andy Ruch <adruch2002@yahoo.com>
+Subject: semanage commit forces CPU to 100%
+To: SELinux ML <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-Date: Tue, 1 Jul 2014 22:17:14 +0300
-Message-ID: <CAMRSN0D+wGvMAxTxVQKYYTaWqO0Z5=1+s12vdTGWyRFcmzsa1g@mail.gmail.com>
-Subject: libselinux-2.0.94-2.el6.i686 issue
-From: Sebastian Brestin <sebastianbrestin@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=047d7ba97f3a94945304fd269fda
+Content-Type: text/plain; charset=utf-8
+Reply-To: Andy Ruch <adruch2002@yahoo.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7ba97f3a94945304fd269fda
-Content-Type: text/plain; charset=UTF-8
+﻿Hello,
 
-Hi.
+I'm experiencing a pretty serious issue when making changes with semanage. I'm running RHEL 6.5 with a custom SELinux policy. The semanage process will lockup and use 100% of the CPU. The only way to stop it is to hard reset the system. When I reset the system, the SELinux policy will sometimes become corrupt, forcing me to re-install the policy. This issue will occur roughly one third of the time I run semanage. I have seen this happen when performing several different actions, including doing an SELinux policy RPM update. For testing, however, I repeatedly run:
 
-I am trying to figure out why is this happening. I have a program that
-uses pam_open_session.
+semanage user -a -R sysadm_r -R staff_r -r s0-s0:c0.c1023 myuser_u
 
-If selinux is set on enforcing the following error occurs when running the
-program.
 
-PAM pam_open_session failed with error: [7] Authentication failure
+I was able to trace it through the python code to where commit() is being called, but I haven't dug into the C code yet. Has anyone seen anything like this before? It could be a problem with my policy, but why doesn't it happen every time? Any thoughts on where to look in the C code?
 
-if I update the libselinux from 2.0.94-2 to 2.0.94-5.3 the error disappears.
 
-Also during the update libselinux-util updates since it is an dependency.
-The versions for the util lib are the same as the selinux ones.
 
-Any ideas why the first versions fails?
-
--sgb
-
---047d7ba97f3a94945304fd269fda
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi.<div><br></div><div>I am trying to figure out why is th=
-is happening. I have a program that uses=C2=A0pam_open_session.</div><div><=
-br></div><div>If selinux is set on enforcing the following error occurs whe=
-n running the program.</div>
-<div><br></div><div><div>PAM pam_open_session failed with error: [7] Authen=
-tication failure</div></div><div><br></div><div>if I update the libselinux =
-from=C2=A02.0.94-2 to=C2=A02.0.94-5.3 the error disappears.</div><div><br><=
-/div><div>
-Also during the update libselinux-util updates since it is an dependency. T=
-he versions for the util lib are the same as the selinux ones.</div><div><b=
-r></div><div>Any ideas why the first versions fails?</div><div><br></div>
-<div>-sgb</div><div><br></div><div><br></div><div><br></div><div><br></div>=
-</div>
-
---047d7ba97f3a94945304fd269fda--
+Thanks,
+Andy Ruch
