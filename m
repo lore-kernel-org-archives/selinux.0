@@ -1,43 +1,29 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s625A8CW017913
- for <selinux@tycho.nsa.gov>; Wed, 2 Jul 2014 01:10:09 -0400
-Received: by mail-pa0-f45.google.com with SMTP id rd3so11824414pab.4
- for <selinux@tycho.nsa.gov>; Tue, 01 Jul 2014 22:10:11 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.90.202])
- by mx.google.com with ESMTPSA id xk3sm35161286pbb.65.2014.07.01.22.10.09
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Tue, 01 Jul 2014 22:10:10 -0700 (PDT)
-Message-ID: <53B39378.1090003@gmail.com>
-Date: Wed, 02 Jul 2014 10:37:04 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s62D5Gn8012146
+ for <selinux@tycho.nsa.gov>; Wed, 2 Jul 2014 09:05:16 -0400
+Message-ID: <1404306318.6656.YahooMailNeo@web120703.mail.ne1.yahoo.com>
+Date: Wed, 2 Jul 2014 06:05:18 -0700
+From: Andy Ruch <adruch2002@yahoo.com>
+Subject: semanage commit forces CPU to 100%
+To: SELinux ML <selinux@tycho.nsa.gov>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Listing restrictions on roles.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Reply-To: Andy Ruch <adruch2002@yahoo.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-There seem to exist additional non-transition restrictions on roles 
-which define when will a process be able to execute as a certain role.
+Hello,
 
-For e.g. a process which runs from a login shell cannot have system_r 
-role. How do I list such rules?
+I'm experiencing a pretty serious issue when making changes with semanage. I'm running RHEL 6.5 with a custom SELinux policy. The semanage process will lockup and use 100% of the CPU. The only way to stop it is to hard reset the system. When I reset the system, the SELinux policy will sometimes become corrupt, forcing me to re-install the policy. This issue will occur roughly one third of the time I run semanage. I have seen this happen when performing several different actions, including doing an SELinux policy RPM update. For testing, however, I repeatedly run:
 
-Looking at role transition rules, a transition to system_r should be 
-allowed --
+semanage user -a -R sysadm_r -R staff_r -r s0-s0:c0.c1023 myuser_u
 
-sesearch --role_allow | grep system_r\;
-...
-allow unconfined_r system_r;
-...
 
-And the sudo process runs as unconfined_r --
+I was able to trace it through the python code to where commit() is being called, but I haven't dug into the C code yet. Has anyone seen anything like this before? It could be a problem with my policy, but why doesn't it happen every time? Any thoughts on where to look in the C code?
 
-ps auxZ | grep sudo
-system_u:unconfined_r:unconfined_t:s0 root 669  0.0  0.4 206860 3356 
-pts/1    S+   10:28   0:00 sudo -r unconfined_r nano
 
-But sudo -r system_r nano fails.
+
+Thanks,
+Andy Ruch
