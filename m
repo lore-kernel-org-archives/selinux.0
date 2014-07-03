@@ -1,67 +1,29 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s62G7Wm4026993
- for <selinux@tycho.nsa.gov>; Wed, 2 Jul 2014 12:07:33 -0400
-References: <1404306318.6656.YahooMailNeo@web120703.mail.ne1.yahoo.com>
- <53B40C9D.90607@tycho.nsa.gov>
-Message-ID: <1404317250.56434.YahooMailNeo@web120705.mail.ne1.yahoo.com>
-Date: Wed, 2 Jul 2014 09:07:30 -0700
-From: Andy Ruch <adruch2002@yahoo.com>
-Subject: Re: semanage commit forces CPU to 100%
-To: James Carter <jwcart2@tycho.nsa.gov>, SELinux ML <selinux@tycho.nsa.gov>
-In-Reply-To: <53B40C9D.90607@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s635TTv8003679
+ for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2014 01:29:29 -0400
+Received: by mail-pd0-f182.google.com with SMTP id y13so13125313pdi.41
+ for <selinux@tycho.nsa.gov>; Wed, 02 Jul 2014 22:29:29 -0700 (PDT)
+Received: from [192.168.1.2] ([59.89.17.125])
+ by mx.google.com with ESMTPSA id pz10sm39433153pbb.33.2014.07.02.22.29.27
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Wed, 02 Jul 2014 22:29:29 -0700 (PDT)
+Message-ID: <53B4E97D.20401@gmail.com>
+Date: Thu, 03 Jul 2014 10:56:21 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Reply-To: Andy Ruch <adruch2002@yahoo.com>
+To: selinux@tycho.nsa.gov
+Subject: Enforcing default_user, default_role, default_type, default_range
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+These rules are not enforced by the object manager, but does restorecon 
+read these?
 
+Also what's the effect of these statements on SELinux aware applications?
 
-
-
-
-
-
-
-
-> On Wednesday, July 2, 2014 7:42 AM, James Carter <jwcart2@tycho.nsa.gov> wrote:
-> > On 07/02/2014 09:05 AM, Andy Ruch wrote:
-> 
->>  Hello,
->> 
->>  I'm experiencing a pretty serious issue when making changes with 
-> semanage. I'm running RHEL 6.5 with a custom SELinux policy. The semanage 
-> process will lockup and use 100% of the CPU. The only way to stop it is to hard 
-> reset the system. When I reset the system, the SELinux policy will sometimes 
-> become corrupt, forcing me to re-install the policy. This issue will occur 
-> roughly one third of the time I run semanage. I have seen this happen when 
-> performing several different actions, including doing an SELinux policy RPM 
-> update. For testing, however, I repeatedly run:
->> 
->>  semanage user -a -R sysadm_r -R staff_r -r s0-s0:c0.c1023 myuser_u
->> 
->> 
->>  I was able to trace it through the python code to where commit() is being 
-> called, but I haven't dug into the C code yet. Has anyone seen anything like 
-> this before? It could be a problem with my policy, but why doesn't it happen 
-> every time? Any thoughts on where to look in the C code?
->> 
->> 
-> 
-> How long is the semanage process at 100% before you do a hard reset? Some 
-> operations do take a while.
-> 
-> Can you reproduce the issue without your custom policy?
-> 
-> -- 
-> James Carter <jwcart2@tycho.nsa.gov>
-> National Security Agency
->
-
-
-
-When the command works, it will take a few seconds. When it fails, I've waited up to 10 minutes and it still never returns.
-
-Unfortunately, my system is pretty customized so I can't run the targeted policy on there. When I do a straight RHEL install, I can't get it to fail (in the limited testing that I did). That's why I suspect it's my policy, but I'm not sure why it would only fail some of the time.
+Are there tools to list these statements? I didn't find anything in 
+sesearch man page, and seinfo is silent on this.
