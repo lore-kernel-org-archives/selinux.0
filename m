@@ -1,102 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s63EMwiZ001969
- for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2014 10:22:58 -0400
-References: <53B4E97D.20401@gmail.com> <53B52610.30401@redhat.com>
- <1404386386.31757.YahooMailNeo@web87906.mail.ir2.yahoo.com>
-Message-ID: <1404397212.55445.YahooMailNeo@web87902.mail.ir2.yahoo.com>
-Date: Thu, 3 Jul 2014 15:20:12 +0100
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: Enforcing default_user, default_role, default_type, default_range
-To: dE <de.techno@gmail.com>
-In-Reply-To: <1404386386.31757.YahooMailNeo@web87906.mail.ir2.yahoo.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s65Ak019023947
+ for <selinux@tycho.nsa.gov>; Sat, 5 Jul 2014 06:46:00 -0400
+Received: by mail-pa0-f44.google.com with SMTP id rd3so3011812pab.17
+ for <selinux@tycho.nsa.gov>; Sat, 05 Jul 2014 03:46:02 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.84.243])
+ by mx.google.com with ESMTPSA id su8sm46740385pbc.72.2014.07.05.03.46.00
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Sat, 05 Jul 2014 03:46:02 -0700 (PDT)
+Message-ID: <53B7D6AD.8020905@gmail.com>
+Date: Sat, 05 Jul 2014 16:12:53 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: Enforcing default_user, default_role, default_type, default_range
+References: <53B4E97D.20401@gmail.com> <53B52610.30401@redhat.com>
+In-Reply-To: <53B52610.30401@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 07/03/14 15:14, Daniel J Walsh wrote:
+> On 07/03/2014 01:26 AM, dE wrote:
+>> These rules are not enforced by the object manager, but does
+>> restorecon read these?
+> No.  restorecon and other labeling tools just read the fcontext files.
+>> Also what's the effect of these statements on SELinux aware applications?
+>>
+> Most likely nothing.
+>> Are there tools to list these statements? I didn't find anything in
+>> sesearch man page, and seinfo is silent on this.
+>> ________________
+> Probably not.  seinfo/sesearch have not been updated to handle them
+>> _______________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to
+>> Selinux-request@tycho.nsa.gov.
 
-
-
-
------ Original Message -----
-> From: Richard Haines <richard_c_haines@btinternet.com>
-> To: Daniel J Walsh <dwalsh@redhat.com>; dE <de.techno@gmail.com>
-> Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-> Sent: Thursday, 3 July 2014, 12:19
-> Subject: Re: Enforcing default_user, default_role, default_type, default_range
-> 
-> 
-> 
-> ----- Original Message -----
->>  From: Daniel J Walsh <dwalsh@redhat.com>
->>  To: dE <de.techno@gmail.com>; selinux@tycho.nsa.gov
->>  Cc: 
->>  Sent: Thursday, 3 July 2014, 10:44
->>  Subject: Re: Enforcing default_user, default_role, default_type, 
-> default_range
->> 
->> 
->>  On 07/03/2014 01:26 AM, dE wrote:
->>>   These rules are not enforced by the object manager, but does
->>>   restorecon read these?
->>  No.  restorecon and other labeling tools just read the fcontext files.
->>> 
->>>   Also what's the effect of these statements on SELinux aware 
->>  applications?
->>> 
-
-The SELinux Notebook section 2.10 - Computing Security Contexts attemps to
-explain labeling using these and other rules for SELinux-aware apps.
-For the next edition I've a few minor corrections - the CIL statement names
-have changed and security_compute_member always defaults to using the
-tcon user.
-
-The book is available from:
-http://www.freetechbooks.com/the-selinux-notebook-the-foundations-t785.html
-If you find any errors or want any clarifications let me know as I'm working
-on the next version (for release one day - but not sure when).
-
->>  Most likely nothing.
->>>   Are there tools to list these statements? I didn't find anything 
-> in
->>>   sesearch man page, and seinfo is silent on this.
->>>   ________________
->>  Probably not.  seinfo/sesearch have not been updated to handle them
-> 
-> There is an updated version of APOL that will show these plus all other rules to
-> policy version 29. 
-> You can either built it from:
-> https://github.com/TresysTechnology/setools3.git
-> or:
-> https://github.com/QuarkSecurity/setools
-> 
-> Or download the rpms from:
-> https://quarksecurity.com/files/RPMS/
-> 
->>>   _______________________________
->>>   Selinux mailing list
->>>   Selinux@tycho.nsa.gov
->>>   To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>   To get help, send an email containing "help" to
->>>   Selinux-request@tycho.nsa.gov.
->> 
->> 
->>  _______________________________________________
->>  Selinux mailing list
->>  Selinux@tycho.nsa.gov
->>  To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>  To get help, send an email containing "help" to 
->>  Selinux-request@tycho.nsa.gov.
->> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to 
-> Selinux-request@tycho.nsa.gov.
-> 
+Thanks for clarifying.
