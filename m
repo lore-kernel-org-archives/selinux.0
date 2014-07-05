@@ -1,72 +1,33 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s65AkS89023980
- for <selinux@tycho.nsa.gov>; Sat, 5 Jul 2014 06:46:28 -0400
-Received: by mail-pa0-f52.google.com with SMTP id eu11so2984537pac.25
- for <selinux@tycho.nsa.gov>; Sat, 05 Jul 2014 03:46:31 -0700 (PDT)
-Received: from [192.168.1.2] ([117.201.84.243])
- by mx.google.com with ESMTPSA id fy11sm12334469pdb.80.2014.07.05.03.46.29
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Sat, 05 Jul 2014 03:46:30 -0700 (PDT)
-Message-ID: <53B7D6C9.50304@gmail.com>
-Date: Sat, 05 Jul 2014 16:13:21 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s65C9DUl027690
+ for <selinux@tycho.nsa.gov>; Sat, 5 Jul 2014 08:09:13 -0400
+Date: Sat, 5 Jul 2014 14:08:39 +0200
+From: Laurent Bigonville <bigon@debian.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: selinux_check_access() and unknown classes/perms
+Message-ID: <20140705140839.721e7abd@fornost.bigon.be>
+In-Reply-To: <5360F37F.2050908@redhat.com>
+References: <CACLa4pvP9mjjGvQ+SkyoorYZAAdxAHMy3maK8rmkbJRMa6JQPA@mail.gmail.com>
+ <CAB9W1A0RHSS3VJcbvCtMDULm6zi3xiuN9eBpS49cR6CEoBw0jQ@mail.gmail.com>
+ <5360F37F.2050908@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: Enforcing default_user, default_role, default_type, default_range
-References: <53B4E97D.20401@gmail.com> <53B52610.30401@redhat.com>
- <1404386386.31757.YahooMailNeo@web87906.mail.ir2.yahoo.com>
-In-Reply-To: <1404386386.31757.YahooMailNeo@web87906.mail.ir2.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
+Cc: SE-Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/03/14 16:49, Richard Haines wrote:
->
-> ----- Original Message -----
->> From: Daniel J Walsh <dwalsh@redhat.com>
->> To: dE <de.techno@gmail.com>; selinux@tycho.nsa.gov
->> Cc:
->> Sent: Thursday, 3 July 2014, 10:44
->> Subject: Re: Enforcing default_user, default_role, default_type, default_range
->>
->>
->> On 07/03/2014 01:26 AM, dE wrote:
->>>   These rules are not enforced by the object manager, but does
->>>   restorecon read these?
->> No.  restorecon and other labeling tools just read the fcontext files.
->>>   Also what's the effect of these statements on SELinux aware
->> applications?
->> Most likely nothing.
->>>   Are there tools to list these statements? I didn't find anything in
->>>   sesearch man page, and seinfo is silent on this.
->>>   ________________
->> Probably not.  seinfo/sesearch have not been updated to handle them
-> There is an updated version of APOL that will show these plus all other rules to
-> policy version 29.
-> You can either built it from:
-> https://github.com/TresysTechnology/setools3.git
-> or:
-> https://github.com/QuarkSecurity/setools
->
-> Or download the rpms from:
-> https://quarksecurity.com/files/RPMS/
->
->>>   _______________________________
->>>   Selinux mailing list
->>>   Selinux@tycho.nsa.gov
->>>   To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>   To get help, send an email containing "help" to
->>>   Selinux-request@tycho.nsa.gov.
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to
->> Selinux-request@tycho.nsa.gov.
->>
+Le Wed, 30 Apr 2014 08:58:39 -0400,
+Daniel J Walsh <dwalsh@redhat.com> a écrit :
 
-Graphical tools only?
+> I would think an AVC entry for an undefined class would be a good
+> idea.
+
+I would also be happy to see a such thing.
+
+Does anybody know which steps should be done to achieve this?
+
+Cheers,
+
+Laurent Bigonville
