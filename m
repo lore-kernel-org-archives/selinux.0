@@ -1,82 +1,319 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s67FNTjI031279
- for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2014 11:23:30 -0400
-Message-ID: <53BABB6E.4060207@redhat.com>
-Date: Mon, 07 Jul 2014 11:23:26 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s67JbdrZ014916
+ for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2014 15:37:39 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: Jaejyn Shin <flagon22bass@gmail.com>
+Subject: Re: [RFC PATCH] selinux: reduce the number of calls to
+ synchronize_net() when flushing caches
+Date: Mon, 07 Jul 2014 15:37:34 -0400
+Message-ID: <2859402.hFCjl3bryk@sifl>
+In-Reply-To: <CAEFn6A7X5Gfjb=Kf8gHZmraVJCx+gzKKx0akXe90k6dFkaONNw@mail.gmail.com>
+References: <20140627204142.4730.96332.stgit@localhost>
+ <CAEFn6A7X5Gfjb=Kf8gHZmraVJCx+gzKKx0akXe90k6dFkaONNw@mail.gmail.com>
 MIME-Version: 1.0
-To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Listing restrictions on roles.
-References: <53B39378.1090003@gmail.com> <53B524B5.3000109@redhat.com>
- <53B82AB0.3070302@gmail.com>
-In-Reply-To: <53B82AB0.3070302@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Thursday, July 03, 2014 10:57:23 AM Jaejyn Shin wrote:
+> Thank you for your effort !!
+> 
+> The booting time might not be a problem for other people, but it was a
+> serious problem for me.
 
-On 07/05/2014 12:41 PM, dE wrote:
-> On 07/03/14 15:09, Daniel J Walsh wrote:
->> On 07/02/2014 01:07 AM, dE wrote:
->>> There seem to exist additional non-transition restrictions on roles
->>> which define when will a process be able to execute as a certain role.
->>>
->>> For e.g. a process which runs from a login shell cannot have system_r
->>> role. How do I list such rules?
->>>
->>> Looking at role transition rules, a transition to system_r should be
->>> allowed --
->>>
->>> sesearch --role_allow | grep system_r\;
->>> ...
->>> allow unconfined_r system_r;
->>> ...
->>>
->>> And the sudo process runs as unconfined_r --
->>>
->>> ps auxZ | grep sudo
->>> system_u:unconfined_r:unconfined_t:s0 root 669  0.0  0.4 206860 3356
->>> pts/1    S+   10:28   0:00 sudo -r unconfined_r nano
->>>
->>> But sudo -r system_r nano fails.
->>> _______________________________________________
->>> Selinux mailing list
->>> Selinux@tycho.nsa.gov
->>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>> To get help, send an email containing "help" to
->>> Selinux-request@tycho.nsa.gov.
->> The type has to be available to the role.  In the case of sudo -r
->> system_r nano, if the type to be run is unconfined_t, then SELinux would
->> end up with a label like
->>
->> sytem_u:system_r:unconfined_t:s0
->>
->> But I don't believe unconfined_t can run in the system_r role.
->>
->> seinfo -rsystem_r -x | grep unconfined_t
->>
->> To make your sudo command run, you would also need to select the type.
->>
->> sudo -r sysadm_r -t nano_t nano ...
->>
->> Or something like that where nano_t is available to the system_r role.
->
-> Actually it is allowed
->
-> seinfo -rsystem_r -x | grep unconfined_t
->          virt_qemu_ga_unconfined_t
->          certmonger_unconfined_t
->          pegasus_openlmi_unconfined_t
->          xdm_unconfined_t
->          unconfined_t
->
-> I'm running Fedora 19.
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
-Ok, I have the unoconfined.pp module disabled.
+I haven't heard any comments so I'm going to go ahead and move this into 
+SELinux #next.
+
+> 2014-06-28 5:41 GMT+09:00 Paul Moore <pmoore@redhat.com>:
+> > When flushing the AVC, such as during a policy load, the various
+> > network caches are also flushed, with each making a call to
+> > synchronize_net() which has shown to be expensive in some cases.
+> > This patch consolidates the network cache flushes into a single AVC
+> > callback which only calls synchronize_net() once for each AVC cache
+> > flush.
+> > 
+> > Reported-by: Jaejyn Shin <flagon22bass@gmail.com>
+> > Signed-off-by: Paul Moore <pmoore@redhat.com>
+> > ---
+> > 
+> >  security/selinux/hooks.c           |   14 ++++++++++++++
+> >  security/selinux/include/netif.h   |    2 ++
+> >  security/selinux/include/netnode.h |    2 ++
+> >  security/selinux/include/netport.h |    2 ++
+> >  security/selinux/netif.c           |   15 +--------------
+> >  security/selinux/netnode.c         |   15 +--------------
+> >  security/selinux/netport.c         |   15 +--------------
+> >  7 files changed, 23 insertions(+), 42 deletions(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 336f0a0..39bc8c9 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -161,6 +161,17 @@ static int selinux_peerlbl_enabled(void)
+> > 
+> >         return (selinux_policycap_alwaysnetwork || netlbl_enabled() ||
+> > 
+> > selinux_xfrm_enabled());
+> > 
+> >  }
+> > 
+> > +static int selinux_netcache_avc_callback(u32 event)
+> > +{
+> > +       if (event == AVC_CALLBACK_RESET) {
+> > +               sel_netif_flush();
+> > +               sel_netnode_flush();
+> > +               sel_netport_flush();
+> > +               synchronize_net();
+> > +       }
+> > +       return 0;
+> > +}
+> > +
+> > 
+> >  /*
+> >  
+> >   * initialise the security for the init task
+> >   */
+> > 
+> > @@ -5993,6 +6004,9 @@ static __init int selinux_init(void)
+> > 
+> >         if (register_security(&selinux_ops))
+> >         
+> >                 panic("SELinux: Unable to register with kernel.\n");
+> > 
+> > +       if (avc_add_callback(selinux_netcache_avc_callback,
+> > AVC_CALLBACK_RESET))
+> > +               panic("SELinux: Unable to register AVC netcache
+> > callback\n");
+> > +
+> > 
+> >         if (selinux_enforcing)
+> >         
+> >                 printk(KERN_DEBUG "SELinux:  Starting in enforcing
+> > 
+> > mode\n");
+> > 
+> >         else
+> > 
+> > diff --git a/security/selinux/include/netif.h
+> > b/security/selinux/include/netif.h
+> > index 43d5072..57c6eae 100644
+> > --- a/security/selinux/include/netif.h
+> > +++ b/security/selinux/include/netif.h
+> > @@ -17,6 +17,8 @@
+> > 
+> >  #ifndef _SELINUX_NETIF_H_
+> >  #define _SELINUX_NETIF_H_
+> > 
+> > +void sel_netif_flush(void);
+> > +
+> > 
+> >  int sel_netif_sid(int ifindex, u32 *sid);
+> >  
+> >  #endif /* _SELINUX_NETIF_H_ */
+> > 
+> > diff --git a/security/selinux/include/netnode.h
+> > b/security/selinux/include/netnode.h
+> > index df7a5ed..937668d 100644
+> > --- a/security/selinux/include/netnode.h
+> > +++ b/security/selinux/include/netnode.h
+> > @@ -27,6 +27,8 @@
+> > 
+> >  #ifndef _SELINUX_NETNODE_H
+> >  #define _SELINUX_NETNODE_H
+> > 
+> > +void sel_netnode_flush(void);
+> > +
+> > 
+> >  int sel_netnode_sid(void *addr, u16 family, u32 *sid);
+> >  
+> >  #endif
+> > 
+> > diff --git a/security/selinux/include/netport.h
+> > b/security/selinux/include/netport.h
+> > index 4d965b8..d1ce896 100644
+> > --- a/security/selinux/include/netport.h
+> > +++ b/security/selinux/include/netport.h
+> > @@ -26,6 +26,8 @@
+> > 
+> >  #ifndef _SELINUX_NETPORT_H
+> >  #define _SELINUX_NETPORT_H
+> > 
+> > +void sel_netport_flush(void);
+> > +
+> > 
+> >  int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid);
+> >  
+> >  #endif
+> > 
+> > diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+> > index 694e9e4..3c3de4c 100644
+> > --- a/security/selinux/netif.c
+> > +++ b/security/selinux/netif.c
+> > @@ -240,7 +240,7 @@ static void sel_netif_kill(int ifindex)
+> > 
+> >   * Remove all entries from the network interface table.
+> >   *
+> >   */
+> > 
+> > -static void sel_netif_flush(void)
+> > +void sel_netif_flush(void)
+> > 
+> >  {
+> >  
+> >         int idx;
+> >         struct sel_netif *netif;
+> > 
+> > @@ -252,15 +252,6 @@ static void sel_netif_flush(void)
+> > 
+> >         spin_unlock_bh(&sel_netif_lock);
+> >  
+> >  }
+> > 
+> > -static int sel_netif_avc_callback(u32 event)
+> > -{
+> > -       if (event == AVC_CALLBACK_RESET) {
+> > -               sel_netif_flush();
+> > -               synchronize_net();
+> > -       }
+> > -       return 0;
+> > -}
+> > -
+> > 
+> >  static int sel_netif_netdev_notifier_handler(struct notifier_block *this,
+> >  
+> >                                              unsigned long event, void
+> > 
+> > *ptr)
+> > 
+> >  {
+> > 
+> > @@ -291,10 +282,6 @@ static __init int sel_netif_init(void)
+> > 
+> >         register_netdevice_notifier(&sel_netif_netdev_notifier);
+> > 
+> > -       err = avc_add_callback(sel_netif_avc_callback,
+> > AVC_CALLBACK_RESET);
+> > -       if (err)
+> > -               panic("avc_add_callback() failed, error %d\n", err);
+> > -
+> > 
+> >         return err;
+> >  
+> >  }
+> > 
+> > diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+> > index 03a72c3..ddf3152 100644
+> > --- a/security/selinux/netnode.c
+> > +++ b/security/selinux/netnode.c
+> > @@ -283,7 +283,7 @@ int sel_netnode_sid(void *addr, u16 family, u32 *sid)
+> > 
+> >   * Remove all entries from the network address table.
+> >   *
+> >   */
+> > 
+> > -static void sel_netnode_flush(void)
+> > +void sel_netnode_flush(void)
+> > 
+> >  {
+> >  
+> >         unsigned int idx;
+> >         struct sel_netnode *node, *node_tmp;
+> > 
+> > @@ -300,15 +300,6 @@ static void sel_netnode_flush(void)
+> > 
+> >         spin_unlock_bh(&sel_netnode_lock);
+> >  
+> >  }
+> > 
+> > -static int sel_netnode_avc_callback(u32 event)
+> > -{
+> > -       if (event == AVC_CALLBACK_RESET) {
+> > -               sel_netnode_flush();
+> > -               synchronize_net();
+> > -       }
+> > -       return 0;
+> > -}
+> > -
+> > 
+> >  static __init int sel_netnode_init(void)
+> >  {
+> >  
+> >         int iter;
+> > 
+> > @@ -322,10 +313,6 @@ static __init int sel_netnode_init(void)
+> > 
+> >                 sel_netnode_hash[iter].size = 0;
+> >         
+> >         }
+> > 
+> > -       ret = avc_add_callback(sel_netnode_avc_callback,
+> > AVC_CALLBACK_RESET);
+> > -       if (ret != 0)
+> > -               panic("avc_add_callback() failed, error %d\n", ret);
+> > -
+> > 
+> >         return ret;
+> >  
+> >  }
+> > 
+> > diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+> > index d353797..73ac678 100644
+> > --- a/security/selinux/netport.c
+> > +++ b/security/selinux/netport.c
+> > @@ -217,7 +217,7 @@ int sel_netport_sid(u8 protocol, u16 pnum, u32 *sid)
+> > 
+> >   * Remove all entries from the network address table.
+> >   *
+> >   */
+> > 
+> > -static void sel_netport_flush(void)
+> > +void sel_netport_flush(void)
+> > 
+> >  {
+> >  
+> >         unsigned int idx;
+> >         struct sel_netport *port, *port_tmp;
+> > 
+> > @@ -234,15 +234,6 @@ static void sel_netport_flush(void)
+> > 
+> >         spin_unlock_bh(&sel_netport_lock);
+> >  
+> >  }
+> > 
+> > -static int sel_netport_avc_callback(u32 event)
+> > -{
+> > -       if (event == AVC_CALLBACK_RESET) {
+> > -               sel_netport_flush();
+> > -               synchronize_net();
+> > -       }
+> > -       return 0;
+> > -}
+> > -
+> > 
+> >  static __init int sel_netport_init(void)
+> >  {
+> >  
+> >         int iter;
+> > 
+> > @@ -256,10 +247,6 @@ static __init int sel_netport_init(void)
+> > 
+> >                 sel_netport_hash[iter].size = 0;
+> >         
+> >         }
+> > 
+> > -       ret = avc_add_callback(sel_netport_avc_callback,
+> > AVC_CALLBACK_RESET);
+> > -       if (ret != 0)
+> > -               panic("avc_add_callback() failed, error %d\n", ret);
+> > -
+> > 
+> >         return ret;
+> >  
+> >  }
+
+-- 
+paul moore
+security and virtualization @ redhat
