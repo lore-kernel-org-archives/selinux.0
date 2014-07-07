@@ -1,52 +1,82 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s67EpLCI028862
- for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2014 10:51:21 -0400
-Received: by mail-we0-f174.google.com with SMTP id u57so4543447wes.33
- for <selinux@tycho.nsa.gov>; Mon, 07 Jul 2014 07:51:24 -0700 (PDT)
-Message-ID: <1404744312.9852.55.camel@x220.localdomain>
-Subject: Re: secilc: is anyone able to confirm that type_change ...
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Steve Lawrence <slawrence@tresys.com>
-Date: Mon, 07 Jul 2014 16:45:12 +0200
-In-Reply-To: <1404743060.9852.50.camel@x220.localdomain>
-References: <1404563967.9852.42.camel@x220.localdomain>
- <1404652323.9852.49.camel@x220.localdomain> <53BAA801.8070308@tresys.com>
- <1404743060.9852.50.camel@x220.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s67FNTjI031279
+ for <selinux@tycho.nsa.gov>; Mon, 7 Jul 2014 11:23:30 -0400
+Message-ID: <53BABB6E.4060207@redhat.com>
+Date: Mon, 07 Jul 2014 11:23:26 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: Listing restrictions on roles.
+References: <53B39378.1090003@gmail.com> <53B524B5.3000109@redhat.com>
+ <53B82AB0.3070302@gmail.com>
+In-Reply-To: <53B82AB0.3070302@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2014-07-07 at 16:24 +0200, Dominick Grift wrote:
-> On Mon, 2014-07-07 at 10:00 -0400, Steve Lawrence wrote:
-> 
-> > I can't reproduce the problem with my test policies. The typechange
-> > statements look like they are correctly inserted into the binary and I
-> > am seeing the expected type changes at runtime.
-> > 
-> > Is this with your monogam policy?
-> > 
-> 
-> No, that one is no longer maintained.
-> 
-> It is this very small base policy:
-> 
-> https://github.com/doverride/e145
-> 
 
-Note though, with that version, that there is no type_change rule from
-devpts_t to device_session_pts_t currently (so if you were to test this
-with sshd then it would be lacking the type change rule)
-
-Either insert that type_change rule manually or test it with the (local)
-login program since there is a type_change session_t
-device_tty_t:chr_file device_session_tty_t rule present.
-
-There is also a conditional type change rule for console_device_t to
-device_session_tty_t.
-
-I cannot imagine me having overlooked anything. Since there are only two
-domains (system_t and session_t), and both are virtually unconfined.
+On 07/05/2014 12:41 PM, dE wrote:
+> On 07/03/14 15:09, Daniel J Walsh wrote:
+>> On 07/02/2014 01:07 AM, dE wrote:
+>>> There seem to exist additional non-transition restrictions on roles
+>>> which define when will a process be able to execute as a certain role.
+>>>
+>>> For e.g. a process which runs from a login shell cannot have system_r
+>>> role. How do I list such rules?
+>>>
+>>> Looking at role transition rules, a transition to system_r should be
+>>> allowed --
+>>>
+>>> sesearch --role_allow | grep system_r\;
+>>> ...
+>>> allow unconfined_r system_r;
+>>> ...
+>>>
+>>> And the sudo process runs as unconfined_r --
+>>>
+>>> ps auxZ | grep sudo
+>>> system_u:unconfined_r:unconfined_t:s0 root 669  0.0  0.4 206860 3356
+>>> pts/1    S+   10:28   0:00 sudo -r unconfined_r nano
+>>>
+>>> But sudo -r system_r nano fails.
+>>> _______________________________________________
+>>> Selinux mailing list
+>>> Selinux@tycho.nsa.gov
+>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>> To get help, send an email containing "help" to
+>>> Selinux-request@tycho.nsa.gov.
+>> The type has to be available to the role.  In the case of sudo -r
+>> system_r nano, if the type to be run is unconfined_t, then SELinux would
+>> end up with a label like
+>>
+>> sytem_u:system_r:unconfined_t:s0
+>>
+>> But I don't believe unconfined_t can run in the system_r role.
+>>
+>> seinfo -rsystem_r -x | grep unconfined_t
+>>
+>> To make your sudo command run, you would also need to select the type.
+>>
+>> sudo -r sysadm_r -t nano_t nano ...
+>>
+>> Or something like that where nano_t is available to the system_r role.
+>
+> Actually it is allowed
+>
+> seinfo -rsystem_r -x | grep unconfined_t
+>          virt_qemu_ga_unconfined_t
+>          certmonger_unconfined_t
+>          pegasus_openlmi_unconfined_t
+>          xdm_unconfined_t
+>          unconfined_t
+>
+> I'm running Fedora 19.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+Ok, I have the unoconfined.pp module disabled.
