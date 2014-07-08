@@ -1,24 +1,31 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s684rAVm010110
- for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2014 00:53:10 -0400
-Received: by mail-pa0-f54.google.com with SMTP id et14so6583930pad.41
- for <selinux@tycho.nsa.gov>; Mon, 07 Jul 2014 21:53:11 -0700 (PDT)
-Received: from [192.168.1.2] ([117.214.169.231])
- by mx.google.com with ESMTPSA id iq10sm54344906pbc.14.2014.07.07.21.53.09
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Mon, 07 Jul 2014 21:53:10 -0700 (PDT)
-Message-ID: <53BB794B.7070206@gmail.com>
-Date: Tue, 08 Jul 2014 10:23:31 +0530
-From: dE <de.techno@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s68CNug2032477
+ for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2014 08:23:56 -0400
+Message-ID: <53BBE2CB.4000903@tresys.com>
+Date: Tue, 8 Jul 2014 08:23:39 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: What's a 'permission map'?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: dE <de.techno@gmail.com>, <selinux@tycho.nsa.gov>
+Subject: Re: What's a 'permission map'?
+References: <53BB794B.7070206@gmail.com>
+In-Reply-To: <53BB794B.7070206@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This seems to be required by apol sometimes. Loading the default policy 
-as the permission map works, but what is permission map?
+On 7/8/2014 12:53 AM, dE wrote:
+> This seems to be required by apol sometimes. Loading the default policy
+> as the permission map works, but what is permission map?
+
+In apol, it is required by an information flow analysis.  A permission
+map describes each permission in the policy as an abstract "read",
+"write", "both", or "none" information flow permission used in the
+analysis.  The apol help text has a full description of information flow
+analysis and the permission map (Help->Information Flow Analysis).
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
