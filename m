@@ -1,94 +1,49 @@
-Message-ID: <53BD612B.4000200@tycho.nsa.gov>
-Date: Wed, 09 Jul 2014 11:35:07 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Sender: Sven Vermeulen <sven.j.vermeulen@gmail.com>
+Date: Wed, 9 Jul 2014 17:36:58 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: pcre compiled context files invalid with pcre updates?
+Message-ID: <20140709153657.GA8570@siphos.be>
+References: <20140709151216.GA8142@siphos.be> <53BD5F61.1040405@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, Steve Lawrence <slawrence@tresys.com>,
- Dominick Grift <dominick.grift@gmail.com>
-Subject: Re: secilc: is anyone able to confirm that type_change ...
-References: <1404563967.9852.42.camel@x220.localdomain>	
- <1404652323.9852.49.camel@x220.localdomain> <53BAA801.8070308@tresys.com>	
- <1404743060.9852.50.camel@x220.localdomain>
- <1404744312.9852.55.camel@x220.localdomain> <53BC44BB.6000708@tresys.com>
- <53BC47F4.5030205@tycho.nsa.gov> <53BD5B4A.5070405@redhat.com>
- <53BD5D63.5090908@tycho.nsa.gov>
-In-Reply-To: <53BD5D63.5090908@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <53BD5F61.1040405@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/09/2014 11:18 AM, Stephen Smalley wrote:
-> On 07/09/2014 11:10 AM, Daniel J Walsh wrote:
->>
->> On 07/08/2014 03:35 PM, Stephen Smalley wrote:
->>> On 07/08/2014 03:21 PM, Steve Lawrence wrote:
->>>> On 07/07/2014 10:45 AM, Dominick Grift wrote:
->>>>> On Mon, 2014-07-07 at 16:24 +0200, Dominick Grift wrote:
->>>>>> On Mon, 2014-07-07 at 10:00 -0400, Steve Lawrence wrote:
->>>>>>
->>>>>>> I can't reproduce the problem with my test policies. The typechange
->>>>>>> statements look like they are correctly inserted into the binary and I
->>>>>>> am seeing the expected type changes at runtime.
->>>>>>>
->>>>>>> Is this with your monogam policy?
->>>>>>>
->>>>>> No, that one is no longer maintained.
->>>>>>
->>>>>> It is this very small base policy:
->>>>>>
->>>>>> https://github.com/doverride/e145
->>>>>>
->>>>> Note though, with that version, that there is no type_change rule from
->>>>> devpts_t to device_session_pts_t currently (so if you were to test this
->>>>> with sshd then it would be lacking the type change rule)
->>>>>
->>>>> Either insert that type_change rule manually or test it with the (local)
->>>>> login program since there is a type_change session_t
->>>>> device_tty_t:chr_file device_session_tty_t rule present.
->>>>>
->>>>> There is also a conditional type change rule for console_device_t to
->>>>> device_session_tty_t.
->>>>>
->>>>> I cannot imagine me having overlooked anything. Since there are only two
->>>>> domains (system_t and session_t), and both are virtually unconfined.
->>>>>
->>>>>
->>>> Ok, finally managed to track down this issue. Turns out to be an
->>>> ordering problem. You have your classes listed in alphabetical order.
->>>> Order shouldn't matter with CIL and everything should work correctly,
->>>> and in most cases is does. However, we assign integer values to each
->>>> class based on the order we see them. So the first one we see gets value
->>>> 1, second gets 2, etc. If these values don't match up with what
->>>> userspace and the kernel expect them to be, things break.
->>> Kernel and newer userspace code performs dynamic lookup of class/perm
->>> values from strings and handles mapping their own internal indices to
->>> the policy-defined values.  So this points to a need to update
->>> pam_selinux and other older code to map via string_to_security_class().
->> Lets open a bugzilla on this.
+On Wed, Jul 09, 2014 at 11:27:29AM -0400, Stephen Smalley wrote:
+> > Do you think the above analysis makes sense? The bug linked earlier on has a
+> > gdb backtrace for those interested. Any other pointers that might help us
+> > troubleshoot this would be appreciated.
 > 
-> Probably need to crawl the fedora source tree and look for any #include
-> <selinux/flask.h> or #include <selinux/av_permissions.h> references to
-> identify all packages that need to be updated.
+> When this came up in:
+> http://marc.info/?t=137192124100002&r=1&w=2
+> the solution was to add a trigger to the selinux-policy package to
+> always rebuild the policy (which includes regenerating the .bin file) on
+> pcre upgrades.
+> 
+> Are you not doing that in Gentoo?
 
-Or we could be evil and delete those two header files altogether, or be
-a bit nicer and put #warning or #error in them.
+Not yet, we're exploring our options.
 
-I see we also wrongly use a hardcoded class in
-libselinux/src/setexecfilecon.c; should fix that one too.
+I was hoping the previous time was a one-off, but apparently it's not.
 
-  For permission checks,
-> can just switch over to using selinux_check_access() in most cases and
-> then all the string lookups are handled for you as well as all of the
-> ugliness of dealing with the AVC.  May want new wrapper functions for
-> security_compute_* that take the class as a string and internally call
-> string_to_security_class() that can be used instead.
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+> The issue came up again in the context of cross-compiling in:
+> http://marc.info/?t=139275881100002&r=1&w=2
+> and there was a willingness to add a version but I don't think anyone
+> proposed a patch to do so.  But even with the version, using the PCRE
+> version effectively just means that you'll need to regenerate on each
+> new library version anyway, right?  So what do we gain versus the
+> current approach of regenerating on pcre updates?
+
+There's a small period between the pcre upgrade and the selinux-policy
+update in which we'll get these failures again (and in Gentoo, the
+installation of selinux-policy will fail because a relabeling operation on
+the files would occur which will segfault - but that's something we need to
+tackle in Gentoo).
+
+Wkr,
+	Sven Vermeulen
