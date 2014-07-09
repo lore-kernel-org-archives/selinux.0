@@ -1,106 +1,150 @@
-Message-ID: <1404922440.19090.15.camel@x220.localdomain>
-Subject: Re: secilc: is anyone able to confirm that type_change ...
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Wed, 09 Jul 2014 18:14:00 +0200
-In-Reply-To: <53BD675E.2090407@tycho.nsa.gov>
-References: <1404563967.9852.42.camel@x220.localdomain>
- <1404652323.9852.49.camel@x220.localdomain> <53BAA801.8070308@tresys.com>
- <1404743060.9852.50.camel@x220.localdomain>
- <1404744312.9852.55.camel@x220.localdomain> <53BC44BB.6000708@tresys.com>
- <1404920279.19090.12.camel@x220.localdomain>
- <53BD675E.2090407@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: selinux@tycho.nsa.gov
+Message-ID: <53BD7645.8060407@tycho.nsa.gov>
+Date: Wed, 09 Jul 2014 13:05:09 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Subject: Re: pcre compiled context files invalid with pcre updates?
+References: <20140709151216.GA8142@siphos.be> <53BD5F61.1040405@tycho.nsa.gov>
+ <20140709153657.GA8570@siphos.be>
+In-Reply-To: <20140709153657.GA8570@siphos.be>
+Content-Type: multipart/mixed; boundary="------------030303010903070303010509"
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2014-07-09 at 12:01 -0400, Stephen Smalley wrote:
-> On 07/09/2014 11:37 AM, Dominick Grift wrote:
-> > On Tue, 2014-07-08 at 15:21 -0400, Steve Lawrence wrote:
-> >> On 07/07/2014 10:45 AM, Dominick Grift wrote:
-> >>> On Mon, 2014-07-07 at 16:24 +0200, Dominick Grift wrote:
-> >>>> On Mon, 2014-07-07 at 10:00 -0400, Steve Lawrence wrote:
-> >>>>
-> >>>>> I can't reproduce the problem with my test policies. The typechange
-> >>>>> statements look like they are correctly inserted into the binary and I
-> >>>>> am seeing the expected type changes at runtime.
-> >>>>>
-> >>>>> Is this with your monogam policy?
-> >>>>>
-> >>>>
-> >>>> No, that one is no longer maintained.
-> >>>>
-> >>>> It is this very small base policy:
-> >>>>
-> >>>> https://github.com/doverride/e145
-> >>>>
-> >>>
-> >>> Note though, with that version, that there is no type_change rule from
-> >>> devpts_t to device_session_pts_t currently (so if you were to test this
-> >>> with sshd then it would be lacking the type change rule)
-> >>>
-> >>> Either insert that type_change rule manually or test it with the (local)
-> >>> login program since there is a type_change session_t
-> >>> device_tty_t:chr_file device_session_tty_t rule present.
-> >>>
-> >>> There is also a conditional type change rule for console_device_t to
-> >>> device_session_tty_t.
-> >>>
-> >>> I cannot imagine me having overlooked anything. Since there are only two
-> >>> domains (system_t and session_t), and both are virtually unconfined.
-> >>>
-> >>>
-> >>
-> >> Ok, finally managed to track down this issue. Turns out to be an
-> >> ordering problem. You have your classes listed in alphabetical order.
-> >> Order shouldn't matter with CIL and everything should work correctly,
-> >> and in most cases is does. However, we assign integer values to each
-> >> class based on the order we see them. So the first one we see gets value
-> >> 1, second gets 2, etc. If these values don't match up with what
-> >> userspace and the kernel expect them to be, things break.
-> >>
-> >> So the temporary solution is to reorder your class statements so that
-> >> they are in the order defined in flask.h [1] so they get the right values.
-> >>
-> >> The long term solution is to add a new statement to CIL (classorder,
-> >> similar to sidorder) that defines this order, allowing the class
-> >> definitions to appear in any order.
-> >>
-> >> Thanks,
-> >> - Steve
-> >>
-> >> [1]
-> >> https://github.com/SELinuxProject/selinux/blob/master/libselinux/include/selinux/flask.h
-> >>
-> >>
-> >>
-> > 
-> > That flask.h file in your url seems to be missing the kernel_service
-> > class? (is it outdated?)
-> > 
-> > I suspect that today's cilpolicy commit is also based on that
-> > (outdated?) flask.h file, so cilpolicy may fail to build due to missing
-> > kernel_service from classorder statement
-> 
-> We stopped updating flask.h and av_permissions.h in libselinux once the
-> dynamic class/perm mapping support was merged, only leaving the old
-> definitions intact for legacy code.
-> 
-> The kernel no longer cares about fixed values for the classes/perms; it
-> looks them up by name on policy load.
-> 
-> 
+This is a multi-part message in MIME format.
+--------------030303010903070303010509
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Yes, Okay thanks. This is basically a heads-up to the cilpolicy
-maintainer. Just to let him know that cilpolicy *may* fail to build
-currently due to this issue (there are more AV's missing in that flask.h
-BTW)
+On 07/09/2014 11:36 AM, Sven Vermeulen wrote:
+> On Wed, Jul 09, 2014 at 11:27:29AM -0400, Stephen Smalley wrote:
+>>> Do you think the above analysis makes sense? The bug linked earlier on has a
+>>> gdb backtrace for those interested. Any other pointers that might help us
+>>> troubleshoot this would be appreciated.
+>>
+>> When this came up in:
+>> http://marc.info/?t=137192124100002&r=1&w=2
+>> the solution was to add a trigger to the selinux-policy package to
+>> always rebuild the policy (which includes regenerating the .bin file) on
+>> pcre upgrades.
+>>
+>> Are you not doing that in Gentoo?
+> 
+> Not yet, we're exploring our options.
+> 
+> I was hoping the previous time was a one-off, but apparently it's not.
+> 
+>> The issue came up again in the context of cross-compiling in:
+>> http://marc.info/?t=139275881100002&r=1&w=2
+>> and there was a willingness to add a version but I don't think anyone
+>> proposed a patch to do so.  But even with the version, using the PCRE
+>> version effectively just means that you'll need to regenerate on each
+>> new library version anyway, right?  So what do we gain versus the
+>> current approach of regenerating on pcre updates?
+> 
+> There's a small period between the pcre upgrade and the selinux-policy
+> update in which we'll get these failures again (and in Gentoo, the
+> installation of selinux-policy will fail because a relabeling operation on
+> the files would occur which will segfault - but that's something we need to
+> tackle in Gentoo).
 
-Maybe better to get rid of that file if possible. It is pretty
-confusing. I did a find /usr/lib -name flask.h and it returned two
-entries both outdated and also both different with one even older than
-the other.
+I see.  How about the attached patch then?
+
+
+
+--------------030303010903070303010509
+Content-Type: text/x-patch;
+ name="0001-Add-pcre-version-string-to-the-compiled-file_context.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Add-pcre-version-string-to-the-compiled-file_context.pa";
+ filename*1="tch"
+
+>From ac33098a807671204720aae97d6bcf6429d3fa92 Mon Sep 17 00:00:00 2001
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Wed, 9 Jul 2014 13:02:46 -0400
+Subject: [PATCH] Add pcre version string to the compiled file_contexts format.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/label_file.c           | 13 +++++++++++++
+ libselinux/src/label_file.h           |  4 +++-
+ libselinux/utils/sefcontext_compile.c | 11 +++++++++++
+ 3 files changed, 27 insertions(+), 1 deletion(-)
+
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 615aea9..7879e2f 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -314,6 +314,19 @@ static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *
+ 		return -1;
+ 	addr += sizeof(uint32_t);
+ 
++	if (*section_len >= SELINUX_COMPILED_FCONTEXT_PCRE_VERS) {
++		len = strlen(pcre_version());
++		plen = (uint32_t *)addr;
++		if (*plen > mmap_area->len)
++			return -1; /* runs off the end of the map */
++		if (len != *plen)
++			return -1; /* pcre version length mismatch */
++		addr += sizeof(uint32_t);
++		if (memcmp((char *)addr, pcre_version(), len))
++			return -1; /* pcre version content mismatch */
++		addr += *plen;
++	}
++
+ 	/* allocate the stems_data array */
+ 	section_len = (uint32_t *)addr;
+ 	addr += sizeof(uint32_t);
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 0aad3e7..2c6b897 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -6,7 +6,9 @@
+ #include "label_internal.h"
+ 
+ #define SELINUX_MAGIC_COMPILED_FCONTEXT	0xf97cff8a
+-#define SELINUX_COMPILED_FCONTEXT_MAX_VERS	1
++#define SELINUX_COMPILED_FCONTEXT_NOPCRE_VERS	1
++#define SELINUX_COMPILED_FCONTEXT_PCRE_VERS	2
++#define SELINUX_COMPILED_FCONTEXT_MAX_VERS	2
+ 
+ /* Prior to verison 8.20, libpcre did not have pcre_free_study() */
+ #if (PCRE_MAJOR < 8 || (PCRE_MAJOR == 8 && PCRE_MINOR < 20))
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index 0adc968..b414b50 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -127,6 +127,8 @@ static int process_file(struct saved_data *data, const char *filename)
+  *
+  * u32 - magic number
+  * u32 - version
++ * u32 - length of pcre version EXCLUDING nul
++ * char - pcre version string EXCLUDING nul
+  * u32 - number of stems
+  * ** Stems
+  * 	u32  - length of stem EXCLUDING nul
+@@ -172,6 +174,15 @@ static int write_binary_file(struct saved_data *data, int fd)
+ 	if (len != 1)
+ 		goto err;
+ 
++	/* write the pcre version */
++	section_len = strlen(pcre_version());
++	len = fwrite(&section_len, sizeof(uint32_t), 1, bin_file);
++	if (len != 1)
++		goto err;
++	len = fwrite(pcre_version(), sizeof(char), section_len, bin_file);
++	if (len != section_len)
++		goto err;
++
+ 	/* write the number of stems coming */
+ 	section_len = data->num_stems;
+ 	len = fwrite(&section_len, sizeof(uint32_t), 1, bin_file);
+-- 
+1.8.3.1
+
+
+--------------030303010903070303010509--
