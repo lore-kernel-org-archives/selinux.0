@@ -1,6 +1,6 @@
-Message-ID: <53BD675E.2090407@tycho.nsa.gov>
-Date: Wed, 09 Jul 2014 12:01:34 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <53BD6AA7.1050104@tycho.nsa.gov>
+Date: Wed, 09 Jul 2014 12:15:35 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Dominick Grift <dominick.grift@gmail.com>,
  Steve Lawrence <slawrence@tresys.com>
@@ -11,7 +11,7 @@ References: <1404563967.9852.42.camel@x220.localdomain>
  <1404744312.9852.55.camel@x220.localdomain> <53BC44BB.6000708@tresys.com>
  <1404920279.19090.12.camel@x220.localdomain>
 In-Reply-To: <1404920279.19090.12.camel@x220.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -77,17 +77,20 @@ On 07/09/2014 11:37 AM, Dominick Grift wrote:
 >>
 >>
 >>
-> 
+>
 > That flask.h file in your url seems to be missing the kernel_service
 > class? (is it outdated?)
-> 
+>
 > I suspect that today's cilpolicy commit is also based on that
 > (outdated?) flask.h file, so cilpolicy may fail to build due to missing
 > kernel_service from classorder statement
+>
 
-We stopped updating flask.h and av_permissions.h in libselinux once the
-dynamic class/perm mapping support was merged, only leaving the old
-definitions intact for legacy code.
+It is actually just based on an older version of Refpolicy and I should update it.
 
-The kernel no longer cares about fixed values for the classes/perms; it
-looks them up by name on policy load.
+Jim
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
