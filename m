@@ -1,144 +1,101 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s69JLvh0014178
- for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2014 15:21:57 -0400
-Message-ID: <53BD9646.6030303@tresys.com>
-Date: Wed, 9 Jul 2014 15:21:42 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <53BDB5FD.6060207@redhat.com>
+Date: Wed, 09 Jul 2014 17:37:01 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [RFC] Source Policy, CIL, and High Level Languages
-Content-Type: text/plain; charset="ISO-8859-1"
+To: Stephen Smalley <sds@tycho.nsa.gov>, Steve Lawrence <slawrence@tresys.com>,
+ Dominick Grift <dominick.grift@gmail.com>
+Subject: Re: secilc: is anyone able to confirm that type_change ...
+References: <1404563967.9852.42.camel@x220.localdomain>	
+ <1404652323.9852.49.camel@x220.localdomain> <53BAA801.8070308@tresys.com>	
+ <1404743060.9852.50.camel@x220.localdomain>
+ <1404744312.9852.55.camel@x220.localdomain> <53BC44BB.6000708@tresys.com>
+ <53BC47F4.5030205@tycho.nsa.gov> <53BD5B4A.5070405@redhat.com>
+ <53BD5D63.5090908@tycho.nsa.gov> <53BD612B.4000200@tycho.nsa.gov>
+In-Reply-To: <53BD612B.4000200@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In January, we sent an RFC [1] to update userspace to integrate CIL
-[2] and source policy. And in April, we sent an updated RFC [3] which
-added support for high level languages and a tool to convert policy
-package (pp) files to CIL. After getting some good feedback, we have
-made some more changes, mostly to maintain ABI compatibility. The
-major changes made since the last patchset are:
 
-- Change how semanage_set_root was re-added to use the source policy
-  infrastructure. Fixes were made so that semanage.conf was looked for
-  inside the root. Also adds an semanage_root() function to get the
-  current root.
-- In previous patchsets, the semanage_module_upgrade* and
-  semanage_module_install_base* functions were removed from the API,
-  and semanage_module_install* had modified parameters. However, these
-  changes broke the API and ABI. To maintain ABI compatibility, we've
-  now added symbolic versioning to support the old version of the
-  functions, which now just call the new install functions. semodule
-  is updated to support --base and --upgrade, but with the addition of
-  a deprecation message. API compatability is not maintained.
-- Likewise, symbolic versioning was added to support the old module
-  enable/disable functions, which call the new enable/disable
-  functions.
-- Modify the libsepol Makefile to now make including CIL optional via
-  the DISABLE_CIL build flag. This only affects libsepol (not
-  libsemanage), primarily so that SE for Android does not need to
-  include unused CIL cruft.
-
-With these changes, ABI compatibility is maintained. Additionally, we
-have tested these changes with the userspace tests and against the
-kernel test suite, and no new failures were discovered. We have
-also tested this patchset with both Fedora 20 policy and with reference
-policy and found no errors.
-
-Because of the size of the patchset (67 file changes, ~8300
-insertions, ~1800 deletions), all the changes have been pushed to the
-selinux git repository to the 'integration' branch for
-comments/review. Unlike the previous RFCs, for simplicity there is now
-only a single branch, containing three types of changes:
-
-Reverts
-   Reverts changes made to master that conflict with the new source
-   policy infrastructure (e.g. how paths are handled,
-   enabled/disable modules). Rather than dealing with a large amount
-   of conflicts with the source policy work, it was easier to just
-   remove the commits that added conflicting features, rebase the old
-   source policy work on top of that, and add back any features in a
-   manner consistent with source policy. The only conflicts were
-   related to enabling/disabling of modules, and semanage_set_root.
-
-Source Policy
-   This is a rebase of the old src-policy branch on top of the
-   reverted commits.  The goal of these changes is to improve the API
-   for module handling, add support for source policies, module
-   priorities, enabling/disabling of modules, and moving the policy
-   store from /etc/selinux/<store>/ to /var/lib/selinux/<store>/.
-
-CIL Integration
-   These changes build CIL into libsepol, and updates libsepol,
-   libsemanage, semodule, and semanage to work with and understand CIL
-   files and manage /var/lib/selinux and /etc/selinux. Switching to
-   CIL has a few side effects, such as removing base modules,
-   versions, and upgrades.
-
-   This also adds a new tool (installed to
-   /usr/libexec/selinux/hll/pp), which is an HLL compiler that
-   converts binary pp modules to CIL. The infrastructure to use this
-   compiler (or any other HLL compiler) was added to compile HLL
-   modules to CIL, which is accomplished by writing the HLL data to
-   the stdin of the compiler and reading the equivilent CIL from
-   stdout. The resulting CIL is then cached in the policy store so
-   this compilation does not need to take place during future store
-   updates. Cached CIL modules can be ignored using a new semodule
-   flag (-C/--ignore-cache) or a new configuration option in
-   semanage.conf (ignore-cache). Other configuration options were
-   added to semanage.conf to manage the path to HLL compilers
-   (compiler-directory) and the policy store (store-root). Semodule
-   was also modified to support changing the policy store with the
-   -S/--store-root option.
-
-   Lastly, the CIL integration changes required changes to the API,
-   but symbolic versioning was used to maintain ABI compatibility.
-   Because of this, the .so version is no longer incremented like in
-   the previous version of this RFC.
-
-With these changes, it is possible to build and manage SELinux
-policy using pp and CIL modules and the familiar semodule/semanage
-tools.
-
-To make this easier to experiment with and test, below are the steps
-needed to install the updated userspace and migrate a minimal Fedora 20
-installation to the new policy store.
-
-Thanks, and we look forward to any questions/comments.
-
-- Steve
-
-[1] http://marc.info/?l=selinux&m=138921403805934&w=2
-[2] https://github.com/SELinuxProject/cil/wiki
-[3] http://marc.info/?l=selinux&m=139878606630921&w=2
-
-
-Steps to Install SELinux Userspace with source policy, CIL, and HLL
-
-# Start with a fresh Fedora 20-x86_64 Mimimal Installation
-
-# Install SELinux userspace dependencies
-$ yum install audit-libs-devel bison bzip2-devel dbus-devel
-dbus-glib-devel flex flex-static gcc git glib2-devel libcap-ng-devel
-libcgroup-devel libsepol-static pcre-devel python-devel python-IPy
-setools-devel swig ustr-devel
-
-# Update to the latest targeted policy
-$ yum update selinux-policy-targeted
-
-# Clone the repos and checkout branches
-$ git clone -b integration https://github.com/SELinuxProject/selinux.git
-$ git clone -b master https://github.com/SELinuxProject/cil.git
-
-# Create a symlink to the cil repo so CIL can be built into libsepol
-$ ln -s ~/cil/ selinux/libsepol/cil
-
-# Install SELinux userspace with CIL integration and HLL support
-$ make -C selinux LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap
-
-# Migrate to the new source policy infrastructure
-$ ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
-
-# List the installed modules, showing priority and HLL
-$ semodule --list=full
+On 07/09/2014 11:35 AM, Stephen Smalley wrote:
+> On 07/09/2014 11:18 AM, Stephen Smalley wrote:
+>> On 07/09/2014 11:10 AM, Daniel J Walsh wrote:
+>>> On 07/08/2014 03:35 PM, Stephen Smalley wrote:
+>>>> On 07/08/2014 03:21 PM, Steve Lawrence wrote:
+>>>>> On 07/07/2014 10:45 AM, Dominick Grift wrote:
+>>>>>> On Mon, 2014-07-07 at 16:24 +0200, Dominick Grift wrote:
+>>>>>>> On Mon, 2014-07-07 at 10:00 -0400, Steve Lawrence wrote:
+>>>>>>>
+>>>>>>>> I can't reproduce the problem with my test policies. The typechange
+>>>>>>>> statements look like they are correctly inserted into the binary and I
+>>>>>>>> am seeing the expected type changes at runtime.
+>>>>>>>>
+>>>>>>>> Is this with your monogam policy?
+>>>>>>>>
+>>>>>>> No, that one is no longer maintained.
+>>>>>>>
+>>>>>>> It is this very small base policy:
+>>>>>>>
+>>>>>>> https://github.com/doverride/e145
+>>>>>>>
+>>>>>> Note though, with that version, that there is no type_change rule from
+>>>>>> devpts_t to device_session_pts_t currently (so if you were to test this
+>>>>>> with sshd then it would be lacking the type change rule)
+>>>>>>
+>>>>>> Either insert that type_change rule manually or test it with the (local)
+>>>>>> login program since there is a type_change session_t
+>>>>>> device_tty_t:chr_file device_session_tty_t rule present.
+>>>>>>
+>>>>>> There is also a conditional type change rule for console_device_t to
+>>>>>> device_session_tty_t.
+>>>>>>
+>>>>>> I cannot imagine me having overlooked anything. Since there are only two
+>>>>>> domains (system_t and session_t), and both are virtually unconfined.
+>>>>>>
+>>>>>>
+>>>>> Ok, finally managed to track down this issue. Turns out to be an
+>>>>> ordering problem. You have your classes listed in alphabetical order.
+>>>>> Order shouldn't matter with CIL and everything should work correctly,
+>>>>> and in most cases is does. However, we assign integer values to each
+>>>>> class based on the order we see them. So the first one we see gets value
+>>>>> 1, second gets 2, etc. If these values don't match up with what
+>>>>> userspace and the kernel expect them to be, things break.
+>>>> Kernel and newer userspace code performs dynamic lookup of class/perm
+>>>> values from strings and handles mapping their own internal indices to
+>>>> the policy-defined values.  So this points to a need to update
+>>>> pam_selinux and other older code to map via string_to_security_class().
+>>> Lets open a bugzilla on this.
+>> Probably need to crawl the fedora source tree and look for any #include
+>> <selinux/flask.h> or #include <selinux/av_permissions.h> references to
+>> identify all packages that need to be updated.
+> Or we could be evil and delete those two header files altogether, or be
+> a bit nicer and put #warning or #error in them.
+I like this idea.  This would catch places that we have missed.  Could
+be done in Rawhide.
+> I see we also wrongly use a hardcoded class in
+> libselinux/src/setexecfilecon.c; should fix that one too.
+>
+>   For permission checks,
+>> can just switch over to using selinux_check_access() in most cases and
+>> then all the string lookups are handled for you as well as all of the
+>> ugliness of dealing with the AVC.  May want new wrapper functions for
+>> security_compute_* that take the class as a string and internally call
+>> string_to_security_class() that can be used instead.
+>>
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
