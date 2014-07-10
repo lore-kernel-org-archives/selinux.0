@@ -1,80 +1,149 @@
-Message-ID: <1404999908.661.11.camel@x220.localdomain>
+Message-ID: <53BE9AAF.9050701@tycho.nsa.gov>
+Date: Thu, 10 Jul 2014 09:52:47 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
 Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu, 10 Jul 2014 15:45:08 +0200
-In-Reply-To: <53BE9771.3000708@tycho.nsa.gov>
 References: <53BD9646.6030303@tresys.com>
- <1404975079.31209.11.camel@x220.localdomain>
- <53BE889C.9050909@tycho.nsa.gov> <1404996778.661.4.camel@x220.localdomain>
- <1404997743.661.7.camel@x220.localdomain> <53BE9148.3090907@tycho.nsa.gov>
- <1404998783.661.10.camel@x220.localdomain> <53BE9771.3000708@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <53BD9646.6030303@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2014-07-10 at 09:38 -0400, Stephen Smalley wrote:
-> On 07/10/2014 09:26 AM, Dominick Grift wrote:
-> > On Thu, 2014-07-10 at 09:12 -0400, Stephen Smalley wrote:
-> >> On 07/10/2014 09:09 AM, Dominick Grift wrote:
-> >>> On Thu, 2014-07-10 at 14:52 +0200, Dominick Grift wrote:
-> >>>> On Thu, 2014-07-10 at 08:35 -0400, Stephen Smalley wrote:
-> >>>>
-> >>>> <snip>
-> >>>>
-> >>>>> Thanks for testing it.  How did it look from a performance POV, wrt
-> >>>>> memory use and runtime?
-> >>>>>
-> >>>>
-> >>>> I have not (yet) really focused on that but i suppose there was no real
-> >>>> noticeable slow down or speed up.
-> >>>>
-> >>>> Any tips on how i could provide useful benchmarks?
-> >>>>
-> >>>> I suppose i could enable the neverallow check
-> >>>> in /etc/selinux/semanage.conf and i would bet it is now much faster than
-> >>>> it used to be (in fact ill try that)
-> >>>>
-> >>>>
-> >>>
-> >>> I suspect i was lying.
-> >>>
-> >>> I am installing a guest with similar specs now and same software except
-> >>> the cil mods and then do some comparison.
-> >>>
-> >>> i suppose stuff like time semodule -B
-> >>> and looking at top
-> >>>
-> >>> I did do a semodule -B with checking for neverallow rules but that found
-> >>> a violation really fast (thanks fedora). So although i cant really say
-> >>> how much faster that is , it is pretty safe to assume its much faster
-> >>> now
-> >>
-> >> /usr/bin/time setsebool -P httpd_can_network_connect=1
-> >> valgrind --tool=massif setsebool -P httpd_can_network_connect=1
-> >> ms_print massif.out.<pid>
-> >>
-> >>
-> >>
-> > 
-> > Will do that next.
-> > 
-> > I did a time semodule -B on similar configs (2 cores/2GB ram):
-> > 
-> > Result: cil seems faster but seems to take more memory:
-> > 
-> > CIL: real 0m13.XXXs (23% mem (of 2 GB)
-> > REGULAR: real 0m21.XXXs (15% mem (of 2 GB)
+On 07/09/2014 03:21 PM, Steve Lawrence wrote:
+> In January, we sent an RFC [1] to update userspace to integrate CIL
+> [2] and source policy. And in April, we sent an updated RFC [3] which
+> added support for high level languages and a tool to convert policy
+> package (pp) files to CIL. After getting some good feedback, we have
+> made some more changes, mostly to maintain ABI compatibility. The
+> major changes made since the last patchset are:
 > 
-> So, that's a concern, as we already have various bug reports on semodule
-> and setsebool being killed by the OOM killer, e.g.
-> https://bugzilla.redhat.com/show_bug.cgi?id=1098446
+> - Change how semanage_set_root was re-added to use the source policy
+>   infrastructure. Fixes were made so that semanage.conf was looked for
+>   inside the root. Also adds an semanage_root() function to get the
+>   current root.
+> - In previous patchsets, the semanage_module_upgrade* and
+>   semanage_module_install_base* functions were removed from the API,
+>   and semanage_module_install* had modified parameters. However, these
+>   changes broke the API and ABI. To maintain ABI compatibility, we've
+>   now added symbolic versioning to support the old version of the
+>   functions, which now just call the new install functions. semodule
+>   is updated to support --base and --upgrade, but with the addition of
+>   a deprecation message. API compatability is not maintained.
+> - Likewise, symbolic versioning was added to support the old module
+>   enable/disable functions, which call the new enable/disable
+>   functions.
+> - Modify the libsepol Makefile to now make including CIL optional via
+>   the DISABLE_CIL build flag. This only affects libsepol (not
+>   libsemanage), primarily so that SE for Android does not need to
+>   include unused CIL cruft.
+> 
+> With these changes, ABI compatibility is maintained. Additionally, we
+> have tested these changes with the userspace tests and against the
+> kernel test suite, and no new failures were discovered. We have
+> also tested this patchset with both Fedora 20 policy and with reference
+> policy and found no errors.
+> 
+> Because of the size of the patchset (67 file changes, ~8300
+> insertions, ~1800 deletions), all the changes have been pushed to the
+> selinux git repository to the 'integration' branch for
+> comments/review. Unlike the previous RFCs, for simplicity there is now
+> only a single branch, containing three types of changes:
+> 
+> Reverts
+>    Reverts changes made to master that conflict with the new source
+>    policy infrastructure (e.g. how paths are handled,
+>    enabled/disable modules). Rather than dealing with a large amount
+>    of conflicts with the source policy work, it was easier to just
+>    remove the commits that added conflicting features, rebase the old
+>    source policy work on top of that, and add back any features in a
+>    manner consistent with source policy. The only conflicts were
+>    related to enabling/disabling of modules, and semanage_set_root.
+> 
+> Source Policy
+>    This is a rebase of the old src-policy branch on top of the
+>    reverted commits.  The goal of these changes is to improve the API
+>    for module handling, add support for source policies, module
+>    priorities, enabling/disabling of modules, and moving the policy
+>    store from /etc/selinux/<store>/ to /var/lib/selinux/<store>/.
+> 
+> CIL Integration
+>    These changes build CIL into libsepol, and updates libsepol,
+>    libsemanage, semodule, and semanage to work with and understand CIL
+>    files and manage /var/lib/selinux and /etc/selinux. Switching to
+>    CIL has a few side effects, such as removing base modules,
+>    versions, and upgrades.
+> 
+>    This also adds a new tool (installed to
+>    /usr/libexec/selinux/hll/pp), which is an HLL compiler that
+>    converts binary pp modules to CIL. The infrastructure to use this
+>    compiler (or any other HLL compiler) was added to compile HLL
+>    modules to CIL, which is accomplished by writing the HLL data to
+>    the stdin of the compiler and reading the equivilent CIL from
+>    stdout. The resulting CIL is then cached in the policy store so
+>    this compilation does not need to take place during future store
+>    updates. Cached CIL modules can be ignored using a new semodule
+>    flag (-C/--ignore-cache) or a new configuration option in
+>    semanage.conf (ignore-cache). Other configuration options were
+>    added to semanage.conf to manage the path to HLL compilers
+>    (compiler-directory) and the policy store (store-root). Semodule
+>    was also modified to support changing the policy store with the
+>    -S/--store-root option.
+> 
+>    Lastly, the CIL integration changes required changes to the API,
+>    but symbolic versioning was used to maintain ABI compatibility.
+>    Because of this, the .so version is no longer incremented like in
+>    the previous version of this RFC.
+> 
+> With these changes, it is possible to build and manage SELinux
+> policy using pp and CIL modules and the familiar semodule/semanage
+> tools.
+> 
+> To make this easier to experiment with and test, below are the steps
+> needed to install the updated userspace and migrate a minimal Fedora 20
+> installation to the new policy store.
+> 
+> Thanks, and we look forward to any questions/comments.
+> 
+> - Steve
+> 
+> [1] http://marc.info/?l=selinux&m=138921403805934&w=2
+> [2] https://github.com/SELinuxProject/cil/wiki
+> [3] http://marc.info/?l=selinux&m=139878606630921&w=2
 > 
 > 
-valgrind output:
+> Steps to Install SELinux Userspace with source policy, CIL, and HLL
+> 
+> # Start with a fresh Fedora 20-x86_64 Mimimal Installation
+> 
+> # Install SELinux userspace dependencies
+> $ yum install audit-libs-devel bison bzip2-devel dbus-devel
+> dbus-glib-devel flex flex-static gcc git glib2-devel libcap-ng-devel
+> libcgroup-devel libsepol-static pcre-devel python-devel python-IPy
+> setools-devel swig ustr-devel
+> 
+> # Update to the latest targeted policy
+> $ yum update selinux-policy-targeted
+> 
+> # Clone the repos and checkout branches
+> $ git clone -b integration https://github.com/SELinuxProject/selinux.git
+> $ git clone -b master https://github.com/SELinuxProject/cil.git
+> 
+> # Create a symlink to the cil repo so CIL can be built into libsepol
+> $ ln -s ~/cil/ selinux/libsepol/cil
+> 
+> # Install SELinux userspace with CIL integration and HLL support
+> $ make -C selinux LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap
+> 
+> # Migrate to the new source policy infrastructure
+> $ ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
 
-http://paste.fedoraproject.org/116966/4999755/
+Is this expected:
+# ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
+Migrating from /etc/selinux/targeted/modules/active to
+/var/lib/selinux/targeted/active
+Attempting to rebuild policy from /var/lib/selinux
+sysnetwork: Warning: 'else' blocks in optional statements are
+unsupported in CIL. Dropping from output.
