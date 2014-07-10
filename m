@@ -1,38 +1,41 @@
-Message-ID: <1405003843.661.27.camel@x220.localdomain>
+Message-ID: <53BEA900.2030009@tresys.com>
+Date: Thu, 10 Jul 2014 10:53:52 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
 Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
-From: Dominick Grift <dominick.grift@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu, 10 Jul 2014 16:50:43 +0200
-In-Reply-To: <53BEA459.8060305@tycho.nsa.gov>
-References: <53BD9646.6030303@tresys.com> <53BE9F2A.9050906@tycho.nsa.gov>
- <1405002183.661.17.camel@x220.localdomain> <53BEA25D.8090501@tycho.nsa.gov>
- <53BEA459.8060305@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: SELinux List <selinux@tycho.nsa.gov>
+References: <53BD9646.6030303@tresys.com> <53BE9C53.8020509@tycho.nsa.gov>
+In-Reply-To: <53BE9C53.8020509@tycho.nsa.gov>
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2014-07-10 at 10:34 -0400, Stephen Smalley wrote:
-\
+On 07/10/2014 09:59 AM, Stephen Smalley wrote:
 > 
-> Hmmm...but rebooting "cleared" it and now I can su without delay and no
-> systemd error message.
+> valgrind memcheck reports some issues:
+> # valgrind --leak-check=full setsebool -P httpd_can_network_connect=1
+> ==10089== Memcheck, a memory error detector
+> ==10089== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+> ==10089== Using Valgrind-3.9.0 and LibVEX; rerun with -h for copyright info
+> ==10089== Command: setsebool -P httpd_can_network_connect=1
+> ==10089==
+> ==10089== Conditional jump or move depends on uninitialised value(s)
+> ==10089==    at 0x511F50A: semanage_compile_hll (direct_api.c:937)
+> ==10089==    by 0x511FD97: semanage_direct_commit (direct_api.c:1071)
+> ==10089==    by 0x512DF59: semanage_commit (handle.c:426)
+> ==10089==    by 0x4019C2: semanage_set_boolean_list (setsebool.c:206)
+> ==10089==    by 0x401C48: setbool (setsebool.c:271)
+> ==10089==    by 0x40161A: main (setsebool.c:94)
+> ==10089==
+> (still running, may be more...)
 > 
 
-Yes , sound like the issue i hit yesterday (when i updated my e145
-policy)
+This issue has been fixed and squashed/pushed into the integration
+branch. We were missing a variable initiation, which affected cases
+where no HLL modules needed to be compiled (i.e. all modules had been
+previously compiled and cached).
 
-basically i loaded the updated policy, rebooted (system was hanging),
-hard reset, looking at avc denials, system_t self:dbus send_msg was
-denied. (even though i had that rule both before and after i updated my
-policy. was not able to reproduce it after that, but looks like we will
-be seeing more from this issue soon.
-
-> Merged #next to #integration locally to try to pick up the improved
-> error reporting on unknown class/perms but can't reproduce it now...
-> 
-> 
-> 
+Thanks,
+- Steve
