@@ -1,5 +1,5 @@
-Message-ID: <53BE9AAF.9050701@tycho.nsa.gov>
-Date: Thu, 10 Jul 2014 09:52:47 -0400
+Message-ID: <53BE9C53.8020509@tycho.nsa.gov>
+Date: Thu, 10 Jul 2014 09:59:47 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
@@ -139,11 +139,23 @@ On 07/09/2014 03:21 PM, Steve Lawrence wrote:
 > 
 > # Migrate to the new source policy infrastructure
 > $ ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
+> 
+> # List the installed modules, showing priority and HLL
+> $ semodule --list=full
 
-Is this expected:
-# ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
-Migrating from /etc/selinux/targeted/modules/active to
-/var/lib/selinux/targeted/active
-Attempting to rebuild policy from /var/lib/selinux
-sysnetwork: Warning: 'else' blocks in optional statements are
-unsupported in CIL. Dropping from output.
+valgrind memcheck reports some issues:
+# valgrind --leak-check=full setsebool -P httpd_can_network_connect=1
+==10089== Memcheck, a memory error detector
+==10089== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==10089== Using Valgrind-3.9.0 and LibVEX; rerun with -h for copyright info
+==10089== Command: setsebool -P httpd_can_network_connect=1
+==10089==
+==10089== Conditional jump or move depends on uninitialised value(s)
+==10089==    at 0x511F50A: semanage_compile_hll (direct_api.c:937)
+==10089==    by 0x511FD97: semanage_direct_commit (direct_api.c:1071)
+==10089==    by 0x512DF59: semanage_commit (handle.c:426)
+==10089==    by 0x4019C2: semanage_set_boolean_list (setsebool.c:206)
+==10089==    by 0x401C48: setbool (setsebool.c:271)
+==10089==    by 0x40161A: main (setsebool.c:94)
+==10089==
+(still running, may be more...)
