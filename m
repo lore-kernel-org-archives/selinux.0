@@ -1,63 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6A3nSAb008384
- for <selinux@tycho.nsa.gov>; Wed, 9 Jul 2014 23:49:28 -0400
-Message-ID: <COL127-W52E861850BDAE28BD2F10FB10E0@phx.gbl>
-Content-Type: multipart/alternative;
- boundary="_ffd516a5-6221-42cb-9f2a-cd2ffa241bd7_"
-From: Avijit Das <avijitnsec@live.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Suppress avc denial logs
-Date: Wed, 9 Jul 2014 20:49:30 -0700
-MIME-Version: 1.0
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6A6pNC9016856
+ for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2014 02:51:23 -0400
+Received: by mail-wg0-f46.google.com with SMTP id m15so3087026wgh.29
+ for <selinux@tycho.nsa.gov>; Wed, 09 Jul 2014 23:51:22 -0700 (PDT)
+Message-ID: <1404975079.31209.11.camel@x220.localdomain>
+Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
+From: Dominick Grift <dominick.grift@gmail.com>
+To: Steve Lawrence <slawrence@tresys.com>
+Date: Thu, 10 Jul 2014 08:51:19 +0200
+In-Reply-To: <53BD9646.6030303@tresys.com>
+References: <53BD9646.6030303@tresys.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_ffd516a5-6221-42cb-9f2a-cd2ffa241bd7_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2014-07-09 at 15:21 -0400, Steve Lawrence wrote:
+> In January, we sent an RFC [1] to update userspace to integrate CIL
+> [2] and source policy. And in April, we sent an updated RFC [3] which
+> added support for high level languages and a tool to convert policy
+> package (pp) files to CIL. After getting some good feedback, we have
+> made some more changes, mostly to maintain ABI compatibility. The
+> major changes made since the last patchset are:
 
-Hello=2C=20
-Do we have any mechanism to silent those denial logs? There are many cases =
-were we are observing denial logs but we cannot grant access for those deni=
-al logs. In those cases can we suppress those logs from dmesg ?
-Thanks=2C
-Avijit  		 	   		  =
+<snip>
 
---_ffd516a5-6221-42cb-9f2a-cd2ffa241bd7_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+I just spent a few hours playing with this and i am impressed.
 
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px=3B
-padding:0px
-}
-body.hmmessage
-{
-font-size: 12pt=3B
-font-family:Calibri
-}
---></style></head>
-<body class=3D'hmmessage'><div dir=3D'ltr'><span style=3D"color: rgb(68=2C =
-68=2C 68)=3B font-size: 15px=3B line-height: 21.299999237060547px=3B backgr=
-ound-color: rgb(255=2C 255=2C 255)=3B">Hello=2C&nbsp=3B</span><div style=3D=
-"line-height: 21.299999237060547px=3B color: rgb(68=2C 68=2C 68)=3B font-si=
-ze: 15px=3B background-color: rgb(255=2C 255=2C 255)=3B"><br></div><div sty=
-le=3D"line-height: 21.299999237060547px=3B color: rgb(68=2C 68=2C 68)=3B fo=
-nt-size: 15px=3B background-color: rgb(255=2C 255=2C 255)=3B">Do we have an=
-y mechanism to silent those denial logs? There are many cases were we are o=
-bserving denial logs but we cannot grant access for those denial logs. In t=
-hose cases can we suppress those logs from dmesg ?</div><div style=3D"line-=
-height: 21.299999237060547px=3B color: rgb(68=2C 68=2C 68)=3B font-size: 15=
-px=3B background-color: rgb(255=2C 255=2C 255)=3B"><br></div><div style=3D"=
-line-height: 21.299999237060547px=3B color: rgb(68=2C 68=2C 68)=3B font-siz=
-e: 15px=3B background-color: rgb(255=2C 255=2C 255)=3B">Thanks=2C<br>Avijit=
-&nbsp=3B</div> 		 	   		  </div></body>
-</html>=
+Everything i tested just works.
 
---_ffd516a5-6221-42cb-9f2a-cd2ffa241bd7_--
+What did i test?
+
+1. disabling/enabling existing modules
+2. toggling booleans with semanage
+3. adding and removing port and file contexts with semanage
+4. adding/removing a policy module with semodule, checkmodule,
+semodule_package
+5. adding/removing a (cil) policy module with semodule
+6. associating a (new) user with staff_t identity
+
+Comments?
+
+if i do restorecon -R -v -F /home it resets contexts *every* time (from
+s0 to s0-s0). No noticable side effects because of this
+
+After associating user john with staff_u, johns home directory is
+properly labeled (staff_u associated with /home/john). However, what is
+strange here is that i cannot see staff_u home dir context specs
+in /var/lib/selinux/targeted/active/modules/file_contexts.homedirs
+
+Am i looking in the wrong place? How does SELinux know that staff_u
+needs to be associated with /home/john
+
+When you remove a custom module (semodule -r mycustmodule) semodule is a
+little verbose. (one line gets printed)
+
+Other than that it looks flawless. Ofcourse i only tested it for a few
+hours but on the surface everything looks ok
+
+I recorded the whole testing session for reference and submitted the
+video to youtube under the name of cil testday
+
+Thanks
