@@ -1,170 +1,62 @@
-Message-ID: <53BEAC60.4040702@tycho.nsa.gov>
-Date: Thu, 10 Jul 2014 11:08:16 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6AFbTgU020028
+ for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2014 11:37:29 -0400
+Subject: [PATCH] selinux: fix the default socket labeling in sock_graft()
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 10 Jul 2014 11:37:28 -0400
+Message-ID: <20140710153728.21266.78354.stgit@localhost>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
-References: <53BD9646.6030303@tresys.com> <53BEA36E.5080101@tycho.nsa.gov>
- <53BEA81B.6050800@tycho.nsa.gov> <53BEAB9C.2070705@tresys.com>
-In-Reply-To: <53BEAB9C.2070705@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
+Cc: Milan Broz <gmazyland@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/10/2014 11:05 AM, Steve Lawrence wrote:
-> On 07/10/2014 10:50 AM, Stephen Smalley wrote:
->> On 07/10/2014 10:30 AM, Stephen Smalley wrote:
->>> On 07/09/2014 03:21 PM, Steve Lawrence wrote:
->>>> In January, we sent an RFC [1] to update userspace to integrate CIL
->>>> [2] and source policy. And in April, we sent an updated RFC [3] which
->>>> added support for high level languages and a tool to convert policy
->>>> package (pp) files to CIL. After getting some good feedback, we have
->>>> made some more changes, mostly to maintain ABI compatibility. The
->>>> major changes made since the last patchset are:
->>>>
->>>> - Change how semanage_set_root was re-added to use the source policy
->>>>   infrastructure. Fixes were made so that semanage.conf was looked for
->>>>   inside the root. Also adds an semanage_root() function to get the
->>>>   current root.
->>>> - In previous patchsets, the semanage_module_upgrade* and
->>>>   semanage_module_install_base* functions were removed from the API,
->>>>   and semanage_module_install* had modified parameters. However, these
->>>>   changes broke the API and ABI. To maintain ABI compatibility, we've
->>>>   now added symbolic versioning to support the old version of the
->>>>   functions, which now just call the new install functions. semodule
->>>>   is updated to support --base and --upgrade, but with the addition of
->>>>   a deprecation message. API compatability is not maintained.
->>>> - Likewise, symbolic versioning was added to support the old module
->>>>   enable/disable functions, which call the new enable/disable
->>>>   functions.
->>>> - Modify the libsepol Makefile to now make including CIL optional via
->>>>   the DISABLE_CIL build flag. This only affects libsepol (not
->>>>   libsemanage), primarily so that SE for Android does not need to
->>>>   include unused CIL cruft.
->>>>
->>>> With these changes, ABI compatibility is maintained. Additionally, we
->>>> have tested these changes with the userspace tests and against the
->>>> kernel test suite, and no new failures were discovered. We have
->>>> also tested this patchset with both Fedora 20 policy and with reference
->>>> policy and found no errors.
->>>>
->>>> Because of the size of the patchset (67 file changes, ~8300
->>>> insertions, ~1800 deletions), all the changes have been pushed to the
->>>> selinux git repository to the 'integration' branch for
->>>> comments/review. Unlike the previous RFCs, for simplicity there is now
->>>> only a single branch, containing three types of changes:
->>>>
->>>> Reverts
->>>>    Reverts changes made to master that conflict with the new source
->>>>    policy infrastructure (e.g. how paths are handled,
->>>>    enabled/disable modules). Rather than dealing with a large amount
->>>>    of conflicts with the source policy work, it was easier to just
->>>>    remove the commits that added conflicting features, rebase the old
->>>>    source policy work on top of that, and add back any features in a
->>>>    manner consistent with source policy. The only conflicts were
->>>>    related to enabling/disabling of modules, and semanage_set_root.
->>>>
->>>> Source Policy
->>>>    This is a rebase of the old src-policy branch on top of the
->>>>    reverted commits.  The goal of these changes is to improve the API
->>>>    for module handling, add support for source policies, module
->>>>    priorities, enabling/disabling of modules, and moving the policy
->>>>    store from /etc/selinux/<store>/ to /var/lib/selinux/<store>/.
->>>>
->>>> CIL Integration
->>>>    These changes build CIL into libsepol, and updates libsepol,
->>>>    libsemanage, semodule, and semanage to work with and understand CIL
->>>>    files and manage /var/lib/selinux and /etc/selinux. Switching to
->>>>    CIL has a few side effects, such as removing base modules,
->>>>    versions, and upgrades.
->>>>
->>>>    This also adds a new tool (installed to
->>>>    /usr/libexec/selinux/hll/pp), which is an HLL compiler that
->>>>    converts binary pp modules to CIL. The infrastructure to use this
->>>>    compiler (or any other HLL compiler) was added to compile HLL
->>>>    modules to CIL, which is accomplished by writing the HLL data to
->>>>    the stdin of the compiler and reading the equivilent CIL from
->>>>    stdout. The resulting CIL is then cached in the policy store so
->>>>    this compilation does not need to take place during future store
->>>>    updates. Cached CIL modules can be ignored using a new semodule
->>>>    flag (-C/--ignore-cache) or a new configuration option in
->>>>    semanage.conf (ignore-cache). Other configuration options were
->>>>    added to semanage.conf to manage the path to HLL compilers
->>>>    (compiler-directory) and the policy store (store-root). Semodule
->>>>    was also modified to support changing the policy store with the
->>>>    -S/--store-root option.
->>>>
->>>>    Lastly, the CIL integration changes required changes to the API,
->>>>    but symbolic versioning was used to maintain ABI compatibility.
->>>>    Because of this, the .so version is no longer incremented like in
->>>>    the previous version of this RFC.
->>>>
->>>> With these changes, it is possible to build and manage SELinux
->>>> policy using pp and CIL modules and the familiar semodule/semanage
->>>> tools.
->>>>
->>>> To make this easier to experiment with and test, below are the steps
->>>> needed to install the updated userspace and migrate a minimal Fedora 20
->>>> installation to the new policy store.
->>>>
->>>> Thanks, and we look forward to any questions/comments.
->>>>
->>>> - Steve
->>>>
->>>> [1] http://marc.info/?l=selinux&m=138921403805934&w=2
->>>> [2] https://github.com/SELinuxProject/cil/wiki
->>>> [3] http://marc.info/?l=selinux&m=139878606630921&w=2
->>>>
->>>>
->>>> Steps to Install SELinux Userspace with source policy, CIL, and HLL
->>>>
->>>> # Start with a fresh Fedora 20-x86_64 Mimimal Installation
->>>>
->>>> # Install SELinux userspace dependencies
->>>> $ yum install audit-libs-devel bison bzip2-devel dbus-devel
->>>> dbus-glib-devel flex flex-static gcc git glib2-devel libcap-ng-devel
->>>> libcgroup-devel libsepol-static pcre-devel python-devel python-IPy
->>>> setools-devel swig ustr-devel
->>>>
->>>> # Update to the latest targeted policy
->>>> $ yum update selinux-policy-targeted
->>>>
->>>> # Clone the repos and checkout branches
->>>> $ git clone -b integration https://github.com/SELinuxProject/selinux.git
->>>> $ git clone -b master https://github.com/SELinuxProject/cil.git
->>>>
->>>> # Create a symlink to the cil repo so CIL can be built into libsepol
->>>> $ ln -s ~/cil/ selinux/libsepol/cil
->>>>
->>>> # Install SELinux userspace with CIL integration and HLL support
->>>> $ make -C selinux LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap
->>>
->>> There is something weird about your build system with cil; you can't
->>> build twice without first doing a complete clean.
->>
->> So, to be precise, it is some sequence where I build, do a git clean
->> -fdx in selinux, try to rebuild, fails due to missing cil symlink (why
->> doesn't it test for its existence explicitly?), re-create the symlink,
->> and try to build again.  Ends up with duplicated symbols in cil.  Have
->> to clean the cil directory to get it to build again.
-> 
-> Thanks for the detailed steps to reproduce. Looking into this now.
-> 
->> Also, what's the plan for actual merging of cil into libsepol?  If
->> libsepol depends on cil for building, then you can't really keep it
->> separate and require cloning two projects and setting up a symlink by
->> hand like this in the long term.
-> 
-> I'm all open for other ideas, but I had always assumed that the CIL repo
-> would would be merged (via git subtree merge) into the SELinux userspace
-> repo right where the symlink goes, and it just becomes part of libsepol.
-> 
-> Licensing might be a problem, since CIL is currently BSD 2-Clause and
-> libsepol is LGPLv2. Not sure exactly how that works, or if relicensing
-> is in order. Relicesning CIL shouldn't be a problem if necessary.
+The sock_graft() hook has special handling for AF_INET, AF_INET, and
+AF_UNIX sockets as those address families have special hooks which
+label the sock before it is attached its associated socket.
+Unfortunately, the sock_graft() hook was missing a default approach
+to labeling sockets which meant that any other address family which
+made use of connections or the accept() syscall would find the
+returned socket to be in an "unlabeled" state.  This was recently
+demonstrated by the kcrypto/AF_ALG subsystem and the newly released
+cryptsetup package (cryptsetup v1.6.5 and later).
 
-I don't think re-licensing is required there (i.e. BSD 2-clause is
-compatible with GPL/LGPL, and inclusion of BSD code within a LGPL
-library shouldn't be a problem).
+This patch preserves the special handling in selinux_sock_graft(),
+but adds a default behavior - setting the sock's label equal to the
+associated socket - which resolves the problem with AF_ALG and
+presumably any other address family which makes use of accept().
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+Tested-by: Milan Broz <gmazyland@gmail.com>
+---
+ security/selinux/hooks.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 336f0a0..39f16d0 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4499,9 +4499,17 @@ static void selinux_sock_graft(struct sock *sk, struct socket *parent)
+ 	struct inode_security_struct *isec = SOCK_INODE(parent)->i_security;
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	if (sk->sk_family == PF_INET || sk->sk_family == PF_INET6 ||
+-	    sk->sk_family == PF_UNIX)
++	switch (sk->sk_family) {
++	case PF_INET:
++	case PF_INET6:
++	case PF_UNIX:
+ 		isec->sid = sksec->sid;
++		break;
++	default:
++		/* by default there is no special labeling mechanism for the
++		 * sock label so inherit the label from the parent socket */
++		sksec->sid = isec->sid;
++	}
+ 	sksec->sclass = isec->sclass;
+ }
+ 
