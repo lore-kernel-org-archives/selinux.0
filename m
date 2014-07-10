@@ -1,12 +1,12 @@
-Message-ID: <53BE9F99.4000505@tycho.nsa.gov>
-Date: Thu, 10 Jul 2014 10:13:45 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <53BEA077.5070503@tresys.com>
+Date: Thu, 10 Jul 2014 10:17:27 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
 Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
 References: <53BD9646.6030303@tresys.com> <53BE9F2A.9050906@tycho.nsa.gov>
 In-Reply-To: <53BE9F2A.9050906@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="ISO-8859-1"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -148,5 +148,12 @@ On 07/10/2014 10:11 AM, Stephen Smalley wrote:
 > $ su <hangs forever>
 > $ dmesg
 >  systemd[1]: SELinux policy denies access.
+> 
+> 
 
-Ok, not forever - but it does take a while to timeout.
+The classorder bug has been fixed with the latest cil & integration
+branch, and shouldn't have been a problem with fedora's policy since the
+pp2cil tool should have output the classes in the correct order.
+
+I'm not able to reproduce this problem. su works correctly and
+immediately for me. What commands did you run before this?
