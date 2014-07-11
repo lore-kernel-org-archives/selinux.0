@@ -1,50 +1,95 @@
-From: Paul Moore <pmoore@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: fix the default socket labeling in sock_graft()
-Date: Thu, 10 Jul 2014 16:57:10 -0400
-Message-ID: <1897757.g23DVqLUrV@sifl>
-In-Reply-To: <53BEF01B.9050504@tycho.nsa.gov>
-References: <20140710153728.21266.78354.stgit@localhost>
- <1828895.6E1loEUEHn@sifl> <53BEF01B.9050504@tycho.nsa.gov>
+Message-ID: <53BFFC89.3060408@tresys.com>
+Date: Fri, 11 Jul 2014 11:02:33 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: Milan Broz <gmazyland@gmail.com>, selinux@tycho.nsa.gov
+To: Dominick Grift <dominick.grift@gmail.com>, Stephen Smalley
+ <sds@tycho.nsa.gov>
+Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
+References: <53BD9646.6030303@tresys.com>
+ <1404975079.31209.11.camel@x220.localdomain> <53BE889C.9050909@tycho.nsa.gov>
+ <1404996778.661.4.camel@x220.localdomain>
+ <1404997743.661.7.camel@x220.localdomain> <53BE9148.3090907@tycho.nsa.gov>
+ <1404998783.661.10.camel@x220.localdomain> <53BE9771.3000708@tycho.nsa.gov>
+ <1404999908.661.11.camel@x220.localdomain>
+In-Reply-To: <1404999908.661.11.camel@x220.localdomain>
+Content-Type: text/plain; charset="ISO-8859-1"
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, July 10, 2014 03:57:15 PM Stephen Smalley wrote:
-> On 07/10/2014 03:47 PM, Paul Moore wrote:
-> > On Thursday, July 10, 2014 01:45:55 PM Stephen Smalley wrote:
-> >> It seems a bit fragile though and certainly doesn't align with the
-> >> sock_graft hook documentation anymore.  Wondering if we should assert
-> >> that sksec->sid is not SECINITSID_UNLABELED in the inet/inet6/unix case
-> >> (i.e. that sksec->sid has been set prior to copying it to isec->sid) ...
-> > 
-> > Now that I'm changing the code I'm wondering if we could ever arrive at a
-> > situation where sksec->sid would legitimately end up as
-> > SECINITSID_UNLABELED in selinux_sock_graft().  In the normal case of no
-> > labeled networking, the sksec->sid label should end up as SECSID_NULL so
-> > I'm not to worried about that, but if would you get the
-> > SECINITSID_UNLABELED SID if you fed "...:unlabeled_t:..." into
-> > security_secctx_to_secid()?  I'm pretty sure the answer is "no", but I
-> > haven't looked at that code in a while.
+On 07/10/2014 09:45 AM, Dominick Grift wrote:
+> On Thu, 2014-07-10 at 09:38 -0400, Stephen Smalley wrote:
+>> On 07/10/2014 09:26 AM, Dominick Grift wrote:
+>>> On Thu, 2014-07-10 at 09:12 -0400, Stephen Smalley wrote:
+>>>> On 07/10/2014 09:09 AM, Dominick Grift wrote:
+>>>>> On Thu, 2014-07-10 at 14:52 +0200, Dominick Grift wrote:
+>>>>>> On Thu, 2014-07-10 at 08:35 -0400, Stephen Smalley wrote:
+>>>>>>
+>>>>>> <snip>
+>>>>>>
+>>>>>>> Thanks for testing it.  How did it look from a performance POV, wrt
+>>>>>>> memory use and runtime?
+>>>>>>>
+>>>>>>
+>>>>>> I have not (yet) really focused on that but i suppose there was no real
+>>>>>> noticeable slow down or speed up.
+>>>>>>
+>>>>>> Any tips on how i could provide useful benchmarks?
+>>>>>>
+>>>>>> I suppose i could enable the neverallow check
+>>>>>> in /etc/selinux/semanage.conf and i would bet it is now much faster than
+>>>>>> it used to be (in fact ill try that)
+>>>>>>
+>>>>>>
+>>>>>
+>>>>> I suspect i was lying.
+>>>>>
+>>>>> I am installing a guest with similar specs now and same software except
+>>>>> the cil mods and then do some comparison.
+>>>>>
+>>>>> i suppose stuff like time semodule -B
+>>>>> and looking at top
+>>>>>
+>>>>> I did do a semodule -B with checking for neverallow rules but that found
+>>>>> a violation really fast (thanks fedora). So although i cant really say
+>>>>> how much faster that is , it is pretty safe to assume its much faster
+>>>>> now
+>>>>
+>>>> /usr/bin/time setsebool -P httpd_can_network_connect=1
+>>>> valgrind --tool=massif setsebool -P httpd_can_network_connect=1
+>>>> ms_print massif.out.<pid>
+>>>>
+>>>>
+>>>>
+>>>
+>>> Will do that next.
+>>>
+>>> I did a time semodule -B on similar configs (2 cores/2GB ram):
+>>>
+>>> Result: cil seems faster but seems to take more memory:
+>>>
+>>> CIL: real 0m13.XXXs (23% mem (of 2 GB)
+>>> REGULAR: real 0m21.XXXs (15% mem (of 2 GB)
+>>
+>> So, that's a concern, as we already have various bug reports on semodule
+>> and setsebool being killed by the OOM killer, e.g.
+>> https://bugzilla.redhat.com/show_bug.cgi?id=1098446
+>>
+>>
+> valgrind output:
 > 
-> Yes, you can get back an initial SID from security_secctx_to_secid() if
-> the context string matches.  In what scenario would sksec->sid be set to
-> the result of security_secctx_to_secid() on a context string though, and
-> from where would that context string originate?  At most we only copy
-> the MLS attributes of the peer label, right?
+> http://paste.fedoraproject.org/116966/4999755/
+> 
 
-Yes, my apologies, I wasn't think through the full process to the MLS 
-attribute copy.
+We just pushed a commit to CIL that greatly reduces peak memory usage.
+Some quick testing brings the peak memory usage of compiling Fedora's
+policy from around 460MB down to around 260MB. So I think its now about
+on par with current userspace. We're also working on some other changes,
+but those require a bit more work and so might take a little longer. But
+I don't think those changes will get memory usage down significantly
+more (maybe down another 10-20MB), so I doubt this will do a whole lot
+in solving the OOM killer issue.
 
-Regardless, I suppose I'm still a bit leery of adding the assertion in the 
-AF_INET/AF_INET6/AF_UNIX case, especially since that code has been there for 
-years now without problem (I know, famous last words).  I don't have a problem 
-adding an assertion in the other, default case.
-
--- 
-paul moore
-security and virtualization @ redhat
+- Steve
