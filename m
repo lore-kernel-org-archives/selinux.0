@@ -1,20 +1,28 @@
-Message-ID: <53C3D442.30509@tycho.nsa.gov>
-Date: Mon, 14 Jul 2014 08:59:46 -0400
+Message-ID: <53C3D938.20307@tycho.nsa.gov>
+Date: Mon, 14 Jul 2014 09:20:56 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Dave Quigley <selinux@davequigley.com>, selinux@tycho.nsa.gov
-Subject: Re: Audit support on ARM
-References: <53C383ED.4020606@davequigley.com>
-In-Reply-To: <53C383ED.4020606@davequigley.com>
+To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: Where does semanage store changes?
+References: <53C2376F.7040805@gmail.com>
+In-Reply-To: <53C2376F.7040805@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/14/2014 03:17 AM, Dave Quigley wrote:
-> I am going through my older slide decks to build up slides for my
-> tutorial and I have marked down that audit support may not work for ARM
-> processors. Has this changed? Is there audit support for ARM now?
+On 07/13/2014 03:38 AM, dE wrote:
+> Except when deleting and adding modules (when the main policy binary
+> changes; did a checksum to verify that), where are other changes which
+> semanage makes (like change boolean values, users, port, interface,
+> node) stored?
 
-Yes, audit is supported on ARM.
+Ultimately all of the changes you listed have to be stored in the kernel
+policy binary since they are part of the kernel policy (unlike, for
+example, semanage fcontext or login mappings).  However, they are also
+kept in separate configuration files under
+/etc/selinux/$SELINUXTYPE/modules/active and merged into the generated
+kernel policy after linking and expanding the policy modules together.
+Non-kernel configurations such as fcontext or login mappings are stored
+in their own respective files, e.g. file_contexts.local and seusers.
