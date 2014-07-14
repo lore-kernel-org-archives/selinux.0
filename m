@@ -1,73 +1,70 @@
-Message-ID: <53C41818.5000906@tycho.nsa.gov>
-Date: Mon, 14 Jul 2014 13:49:12 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6EJsndP029948
+ for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2014 15:54:49 -0400
+Message-ID: <53C43598.70000@schaufler-ca.com>
+Date: Mon, 14 Jul 2014 12:55:04 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>,
- Dominick Grift <dominick.grift@gmail.com>
-Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
-References: <53BD9646.6030303@tresys.com>
- <1404975079.31209.11.camel@x220.localdomain> <53C01CDD.80407@tresys.com>
- <53C409C3.3010602@tycho.nsa.gov> <53C40B13.9030907@tycho.nsa.gov>
- <53C40E8D.8070006@tycho.nsa.gov> <53C40F73.3030204@tresys.com>
-In-Reply-To: <53C40F73.3030204@tresys.com>
+To: russell@coker.com.au, selinux@tycho.nsa.gov
+Subject: Re: Fwd: [lca-announce] LCA CFP extended until Sunday 20th July 2014
+References: <1999886.ua8UyqE5JC@xev>
+In-Reply-To: <1999886.ua8UyqE5JC@xev>
 Content-Type: text/plain; charset=ISO-8859-1
-Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/14/2014 01:12 PM, Steve Lawrence wrote:
-> Ah, interesting. We saw that problem a long time ago, but couldn't
-> reproduce it and it disappeared. Though I'm still unable to reproduce it
-> following your steps. I can still login and seusers is labeled
-> selinux_config_t. I'll keep looking into this.
-> 
-> I've also rebased/pushed #integration onto #next.
 
-# Revert to stock F20 SELinux userspace and policy.
-yum reinstall checkpolicy* libsepol* libsemanage* libselinux*
-policycoreutils* selinux-policy-targeted
+I have been asked to, but haven't done so yet. Two years ago
+I ran a security mini-conf and got surprising little interest.
+I may have trouble getting funding as well. If you want to make
+the proposal I will back you 100%. If not, I may go ahead and
+do so.
 
-# Clear prior source/CIL policy store.
-rm -rf /var/lib/selinux
 
-# Reboot to ensure systemd and friends are using the new policy.
-reboot
-
-# Reset selinux and cil to latest sources
-cd selinux
-git clean -fdx
-git fetch origin
-git reset --hard origin/integration
-cd ../cil
-git clean -fdx
-git fetch origin
-git reset --hard origin/master
-
-# Build and install new userspace
-cd ..
-ln -sf ../../cil selinux/libsepol/cil
-make -C selinux LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap
-relabel
-
-# Convert
- ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
-
-Try to login on console or via ssh:  Unable to get valid context for sds.
-
-dmesg | grep systemd
-[  343.739985] systemd[1]: SELinux policy denies access.
-[  348.256030] systemd[1]: SELinux policy denies access.
-[  376.335248] systemd[1]: SELinux policy denies access.
-[  376.515343] systemd[1]: SELinux policy denies access.
-
-restorecon -R /etc/selinux/targeted
-
-Try to login again, hangs for a long time before finally succeeding.
-
-reboot
-
-Everything is happy.
-
-100% reproducible, every time.
+On 7/14/2014 3:33 AM, Russell Coker wrote:
+> Has anyone proposed a security miniconf?
+>
+> ----------  Forwarded Message  ----------
+>
+> Subject: [lca-announce] LCA CFP extended until Sunday 20th July 2014
+> Date: Mon, 14 Jul 2014, 17:27:59
+> From: linux.conf.au Announcements <lca-announce@lists.linux.org.au>
+> To: lca-announce@linux.org.au
+>
+> The Call for Proposals (CFP) opened on the 9th July, and the quality of
+> submissions so far has been fantastic. There has been some requests for
+> extension from potential speakers, and we want to make sure that everyone
+> has a chance to have their proposal considered! Originally scheduled to be
+> closed on Sunday 13th July, the papers committee has agreed to extend the
+> deadline until midnight Sunday 20th July as we know there are more stories
+> out there that deserve attention.
+>
+> For those of you still considering submitting a proposal, there is only one
+> rule:
+>
+> Your proposal must be related to open source
+>
+> This year the papers committee is going to be focused on open source in
+> education as well as our usual focus on deep technical content.
+>
+> If you have been working on something interesting, now is the time to tell
+> the world! Visit linux.conf.au/cfp to register and for more information,
+> including some very useful tips and tricks for submitting a proposal.
+>
+> Important Dates:
+>
+> * Call for proposals now closes: 21 July 2014
+>
+> * Email notifications from conference organisers: September 2014
+>
+> * Early Bird registrations open: 23 September 2014
+>
+> * Conference dates: Monday 12 - Friday 16 January 2014
+>
+>
+> Go forth and submit!
+>
+> The LCA2015 team
+> -----------------------------------------
