@@ -1,87 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6F9P5Um003588
- for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2014 05:25:06 -0400
-Date: Tue, 15 Jul 2014 13:25:07 +0400
-From: Christian Evans <frodox@zoho.com>
-To: <linux-security-module@vger.kernel.org>, <selinux@tycho.nsa.gov>
-Message-ID: <147394c7bdf.1664242132703898203.-4933980174869987134@zoho.com>
-Subject: NetLabel lead to kernel panic with some SELinux levels
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6F4ULOt022085
+ for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2014 00:30:23 -0400
+Received: by mail-we0-f180.google.com with SMTP id k48so4102440wev.25
+ for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2014 21:30:22 -0700 (PDT)
+Message-ID: <53C4AE5B.9070906@gmail.com>
+Date: Tue, 15 Jul 2014 06:30:19 +0200
+From: Milan Broz <gmazyland@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+To: Paul Moore <pmoore@redhat.com>, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: Re: [PATCH v2] selinux: fix the default socket labeling in
+ sock_graft()
+References: <20140714133613.12269.69088.stgit@localhost>
+In-Reply-To: <20140714133613.12269.69088.stgit@localhost>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-While using network with configured NetLabel it lead to kernel panic on some SELinux levels.
+On 07/14/2014 03:36 PM, Paul Moore wrote:
+> The sock_graft() hook has special handling for AF_INET, AF_INET, and
+> AF_UNIX sockets as those address families have special hooks which
+> label the sock before it is attached its associated socket.
+> Unfortunately, the sock_graft() hook was missing a default approach
+> to labeling sockets which meant that any other address family which
+> made use of connections or the accept() syscall would find the
+> returned socket to be in an "unlabeled" state.  This was recently
+> demonstrated by the kcrypto/AF_ALG subsystem and the newly released
+> cryptsetup package (cryptsetup v1.6.5 and later).
+> 
+> This patch preserves the special handling in selinux_sock_graft(),
+> but adds a default behavior - setting the sock's label equal to the
+> associated socket - which resolves the problem with AF_ALG and
+> presumably any other address family which makes use of accept().
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Paul Moore <pmoore@redhat.com>
 
-I used netlabel_tools-0.19-7.el6.x86_64.rpm and kernel rhel7 3.10.0-123.el7.x86_64.
-Also I reproduced it on RHEL 6.3/7.0, CentOs 6.5/7.0, Fedora 20. That is what I have been tested. I think it can be reproduced on older versions/kernels too.
+I tested v2 patch for the cryptsetup use case (ALG_IF crypto subsystem)
+and it fixes the problem in enforcing mode.
 
-# Steps to Reproduce:
+So, if you wish, add
+Tested-by: Milan Broz <gmazyland@gmail.com>
 
-1. Setup NetLabel. [Assume that 192.168.56.* --- local network (VBox HostOnly, for example) ]
-
-# netlabelctl cipsov4 add pass doi:1 tags:5
-# netlabelctl map del default
-# netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-# netlabelctl map add default address:192.168.56.101/16 protocol:cipsov4,1
-
-2. Give some user selinux range s0-s0:c0.c1023
-
-... (this line depend on a distro, but idea the same)
-# semanage login -mr s0-s0:c0.c1023 myuser1
-
-# setenforce 1 (just in case)
-
-3. Login with `myuser1`, change selinux level and ping someone in your local network 
-
-login: myuser1
-password: ...
-
-$ newrole -l s0:c255,c800
-Password ...
-
-$ ping 192.168.56.1 (some another PC)
-
-
-# Actual results:
-
-It will lead to kernel panic.
-If not, exit and try with another level (see Additional info).
-
-
-# Expected results:
-
-Receive ping reply (marked one, due to NetLabel configured).
-
-
-# Additional info:
-
-RHEL fails with all of this levels:
-1. s0:c255,c800
-2. s0:c350,c800
-3. s0:c500,c800
-4. s0:c255,c513
-5. s0:c500,c513
-6. s0:c511,c513
-7. s0:c510,c512
-8. ... (I think, there are more of them)
-
-CentOs and Fedora sometimes fails not with first, but with second or third one.
-
----
-
-I used kdump to debug this crash and it looks like there are problems in netlbl_secattr_catmap_setrng() and netlbl_secattr_catmap_setbit() function, because of
-"BUG: unablle to handle kernel paging request at ... from netlbl_secattr_catmap_setbit" (from logs).
-
-I think, there are problem while parsing received packet, because another interesting case:
-* setup client and server PC with same config (netlabel and user levels)
-* start, for example, nc -l 5555 on server
-* start nc 192.168.56.1 (server ip) 5555 from client. It will lead to server panic :)
-
-Looks like I found some issues in logic, but my patch didn't work yet, so ...
-
----
-Regards,
-Christian.
+Thanks!
+Milan
