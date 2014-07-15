@@ -1,16 +1,17 @@
-Message-ID: <53C5875E.3050600@tresys.com>
-Date: Tue, 15 Jul 2014 15:56:14 -0400
+Message-ID: <53C58AE7.7070404@tresys.com>
+Date: Tue, 15 Jul 2014 16:11:19 -0400
 From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Dominick Grift
- <dominick.grift@gmail.com>
+To: Dominick Grift <dominick.grift@gmail.com>, Stephen Smalley
+ <sds@tycho.nsa.gov>
 Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
 References: <53BD9646.6030303@tresys.com>
- <1404975079.31209.11.camel@x220.localdomain> <53C01CDD.80407@tresys.com>
- <53C409C3.3010602@tycho.nsa.gov> <53C40B13.9030907@tycho.nsa.gov>
- <53C40E8D.8070006@tycho.nsa.gov> <53C40F73.3030204@tresys.com>
- <53C41818.5000906@tycho.nsa.gov>
-In-Reply-To: <53C41818.5000906@tycho.nsa.gov>
+ <1404975079.31209.11.camel@x220.localdomain> <53BE889C.9050909@tycho.nsa.gov>
+ <1404996778.661.4.camel@x220.localdomain>
+ <1404997743.661.7.camel@x220.localdomain> <53BE9148.3090907@tycho.nsa.gov>
+ <1404998783.661.10.camel@x220.localdomain> <53BE9771.3000708@tycho.nsa.gov>
+ <1404999908.661.11.camel@x220.localdomain> <53BFFC89.3060408@tresys.com>
+In-Reply-To: <53BFFC89.3060408@tresys.com>
 Content-Type: text/plain; charset="ISO-8859-1"
 Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,71 +19,82 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/14/2014 01:49 PM, Stephen Smalley wrote:
-> On 07/14/2014 01:12 PM, Steve Lawrence wrote:
->> Ah, interesting. We saw that problem a long time ago, but couldn't
->> reproduce it and it disappeared. Though I'm still unable to reproduce it
->> following your steps. I can still login and seusers is labeled
->> selinux_config_t. I'll keep looking into this.
+On 07/11/2014 11:02 AM, Steve Lawrence wrote:
+> On 07/10/2014 09:45 AM, Dominick Grift wrote:
+>> On Thu, 2014-07-10 at 09:38 -0400, Stephen Smalley wrote:
+>>> On 07/10/2014 09:26 AM, Dominick Grift wrote:
+>>>> On Thu, 2014-07-10 at 09:12 -0400, Stephen Smalley wrote:
+>>>>> On 07/10/2014 09:09 AM, Dominick Grift wrote:
+>>>>>> On Thu, 2014-07-10 at 14:52 +0200, Dominick Grift wrote:
+>>>>>>> On Thu, 2014-07-10 at 08:35 -0400, Stephen Smalley wrote:
+>>>>>>>
+>>>>>>> <snip>
+>>>>>>>
+>>>>>>>> Thanks for testing it.  How did it look from a performance POV, wrt
+>>>>>>>> memory use and runtime?
+>>>>>>>>
+>>>>>>>
+>>>>>>> I have not (yet) really focused on that but i suppose there was no real
+>>>>>>> noticeable slow down or speed up.
+>>>>>>>
+>>>>>>> Any tips on how i could provide useful benchmarks?
+>>>>>>>
+>>>>>>> I suppose i could enable the neverallow check
+>>>>>>> in /etc/selinux/semanage.conf and i would bet it is now much faster than
+>>>>>>> it used to be (in fact ill try that)
+>>>>>>>
+>>>>>>>
+>>>>>>
+>>>>>> I suspect i was lying.
+>>>>>>
+>>>>>> I am installing a guest with similar specs now and same software except
+>>>>>> the cil mods and then do some comparison.
+>>>>>>
+>>>>>> i suppose stuff like time semodule -B
+>>>>>> and looking at top
+>>>>>>
+>>>>>> I did do a semodule -B with checking for neverallow rules but that found
+>>>>>> a violation really fast (thanks fedora). So although i cant really say
+>>>>>> how much faster that is , it is pretty safe to assume its much faster
+>>>>>> now
+>>>>>
+>>>>> /usr/bin/time setsebool -P httpd_can_network_connect=1
+>>>>> valgrind --tool=massif setsebool -P httpd_can_network_connect=1
+>>>>> ms_print massif.out.<pid>
+>>>>>
+>>>>>
+>>>>>
+>>>>
+>>>> Will do that next.
+>>>>
+>>>> I did a time semodule -B on similar configs (2 cores/2GB ram):
+>>>>
+>>>> Result: cil seems faster but seems to take more memory:
+>>>>
+>>>> CIL: real 0m13.XXXs (23% mem (of 2 GB)
+>>>> REGULAR: real 0m21.XXXs (15% mem (of 2 GB)
+>>>
+>>> So, that's a concern, as we already have various bug reports on semodule
+>>> and setsebool being killed by the OOM killer, e.g.
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=1098446
+>>>
+>>>
+>> valgrind output:
 >>
->> I've also rebased/pushed #integration onto #next.
+>> http://paste.fedoraproject.org/116966/4999755/
+>>
 > 
-> # Revert to stock F20 SELinux userspace and policy.
-> yum reinstall checkpolicy* libsepol* libsemanage* libselinux*
-> policycoreutils* selinux-policy-targeted
-> 
-> # Clear prior source/CIL policy store.
-> rm -rf /var/lib/selinux
-> 
-> # Reboot to ensure systemd and friends are using the new policy.
-> reboot
-> 
-> # Reset selinux and cil to latest sources
-> cd selinux
-> git clean -fdx
-> git fetch origin
-> git reset --hard origin/integration
-> cd ../cil
-> git clean -fdx
-> git fetch origin
-> git reset --hard origin/master
-> 
-> # Build and install new userspace
-> cd ..
-> ln -sf ../../cil selinux/libsepol/cil
-> make -C selinux LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap
-> relabel
-> 
-> # Convert
->  ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
-> 
-> Try to login on console or via ssh:  Unable to get valid context for sds.
-> 
-> dmesg | grep systemd
-> [  343.739985] systemd[1]: SELinux policy denies access.
-> [  348.256030] systemd[1]: SELinux policy denies access.
-> [  376.335248] systemd[1]: SELinux policy denies access.
-> [  376.515343] systemd[1]: SELinux policy denies access.
-> 
-> restorecon -R /etc/selinux/targeted
-> 
-> Try to login again, hangs for a long time before finally succeeding.
-> 
-> reboot
-> 
-> Everything is happy.
-> 
-> 100% reproducible, every time.
-> 
+> We just pushed a commit to CIL that greatly reduces peak memory usage.
+> Some quick testing brings the peak memory usage of compiling Fedora's
+> policy from around 460MB down to around 260MB. So I think its now about
+> on par with current userspace. We're also working on some other changes,
+> but those require a bit more work and so might take a little longer. But
+> I don't think those changes will get memory usage down significantly
+> more (maybe down another 10-20MB), so I doubt this will do a whole lot
+> in solving the OOM killer issue.
 > 
 
-Thanks for the steps. I think I found what causes the labeling problem,
-but I'm not yet sure why. It looks like it has something to do with how
-the migration script rebuilds policy. If you run the migration script
-with the --norebuild flag, and then run semodule -B, everything is
-rebuilt and the files in /etc/selinux are labeled correctly.
-
-I'm not yet convinced this is the same problem as the systemd issue (I
-do get "unable to get valid context", but I still don't get "SELinux
-policy denies access"). Let me know if you still see that after using
---norebuild/semodule -B.
+We recently pushed the second group of changes to reduce peak memory
+usage, and reduced it much more than we thought it would, reducing about
+50MB. It now takes about 210MB to build current fedora policy, which is
+quite a bit less than the 15% of 2GB (~300MB) that Dominick saw.
