@@ -1,15 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6G2MoZd030076
- for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2014 22:22:50 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6G2csnU030678
+ for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2014 22:38:55 -0400
 From: Paul Moore <pmoore@redhat.com>
-To: Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH v2] selinux: fix the default socket labeling in
- sock_graft()
-Date: Tue, 15 Jul 2014 22:22:48 -0400
-Message-ID: <2249358.85v8CiTYWS@sifl>
-In-Reply-To: <53C4AE5B.9070906@gmail.com>
-References: <20140714133613.12269.69088.stgit@localhost>
- <53C4AE5B.9070906@gmail.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux fix for 3.16-rcX
+Date: Tue, 15 Jul 2014 22:38:19 -0400
+Message-ID: <2092564.8lACVUTXtn@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
@@ -18,34 +14,40 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tuesday, July 15, 2014 06:30:19 AM Milan Broz wrote:
-> On 07/14/2014 03:36 PM, Paul Moore wrote:
-> > The sock_graft() hook has special handling for AF_INET, AF_INET, and
-> > AF_UNIX sockets as those address families have special hooks which
-> > label the sock before it is attached its associated socket.
-> > Unfortunately, the sock_graft() hook was missing a default approach
-> > to labeling sockets which meant that any other address family which
-> > made use of connections or the accept() syscall would find the
-> > returned socket to be in an "unlabeled" state.  This was recently
-> > demonstrated by the kcrypto/AF_ALG subsystem and the newly released
-> > cryptsetup package (cryptsetup v1.6.5 and later).
-> > 
-> > This patch preserves the special handling in selinux_sock_graft(),
-> > but adds a default behavior - setting the sock's label equal to the
-> > associated socket - which resolves the problem with AF_ALG and
-> > presumably any other address family which makes use of accept().
-> > 
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Paul Moore <pmoore@redhat.com>
-> 
-> I tested v2 patch for the cryptsetup use case (ALG_IF crypto subsystem)
-> and it fixes the problem in enforcing mode.
-> 
-> So, if you wish, add
-> Tested-by: Milan Broz <gmazyland@gmail.com>
+Hi James,
 
-Thanks for your help, since there have been no further comments I'll add your 
-"Tested-by" and push this upstream.
+A single fix for the upcoming 3.16 release.  This patch is worth pushing up 
+for 3.16, despite the late stage of the release, because without this patch 
+SELinux systems with the latest version of cryptsetup may not be able to 
+access their encrypted volumes (more details in the patch description) which 
+could prevent the system from booting properly, users accessing their home 
+directories, etc.
+
+The patch is fairly minor and passes the SELinux testsuite.
+
+-Paul
+
+---
+The following changes since commit 170b5910d9fbea79de1bb40df22eda5f98250c0c:
+
+  Merge tag 'v3.15' into next (2014-06-17 17:30:23 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-3.16
+
+for you to fetch changes up to 4da6daf4d3df5a977e4623963f141a627fd2efce:
+
+  selinux: fix the default socket labeling in sock_graft()
+           (2014-07-10 10:17:48 -0400)
+
+----------------------------------------------------------------
+Paul Moore (1):
+      selinux: fix the default socket labeling in sock_graft()
+
+ include/linux/security.h |  5 ++++-
+ security/selinux/hooks.c | 13 +++++++++++--
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
 -- 
 paul moore
