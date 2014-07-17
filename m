@@ -1,5 +1,5 @@
-Message-ID: <53C8370D.5030506@redhat.com>
-Date: Thu, 17 Jul 2014 16:50:21 -0400
+Message-ID: <53C8378E.7030408@redhat.com>
+Date: Thu, 17 Jul 2014 16:52:30 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>, Steve Lawrence <slawrence@tresys.com>,
@@ -119,8 +119,9 @@ On 07/17/2014 04:37 PM, Stephen Smalley wrote:
 > To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 >
 >
-I would also like to see the policy file itself compressed. I have some
-patches I have played with to
-compress the kernel.  The current libselinux on Fedora/Rawhide supports
-readding a compressed policy
-file.
+BTW Moving the policy out of /etc is also great.  I would like to see
+policy loaded from
+/var/lib/selinux/ if it exists and then look in /usr/lib/selinux/ if it
+does not.  Then distributions could
+ship their own policies, and if a user wanted to get back to Factory
+install he could just rm -rf /var/lib/selinux
