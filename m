@@ -1,5 +1,5 @@
-Message-ID: <53C7D769.8030801@tycho.nsa.gov>
-Date: Thu, 17 Jul 2014 10:02:17 -0400
+Message-ID: <53C80FA5.3050705@tycho.nsa.gov>
+Date: Thu, 17 Jul 2014 14:02:13 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Steve Lawrence <slawrence@tresys.com>,
@@ -93,22 +93,18 @@ On 07/17/2014 09:49 AM, Steve Lawrence wrote:
 > different. I guess the kernel doesn't like when permission values change
 > when loading a new policy. And this explains why things work following a
 > reboot.
-
-I think the kernel is fine with it, but not all userspace object
-managers will be.  Legacy userspace object managers may still be using
-fixed permission values from selinux/av_permissions.h, and even modern
-ones may be only mapping classes/permissions once at startup (via
-selinux_set_mapping) and then assuming that this mapping is stable at
-runtime.  Even for userspace object managers that are using
-selinux_check_access(), libselinux/src/stringrep.c currently caches the
-class/perm values on first lookup and does not flush this cache from
-avc_reset upon policy reload notification - that's likely a bug that
-should be fixed.  But even if we fix it there, there is no current
-atomicity provided within selinux_check_access() around the class/perm
-lookup and the AVC lookup so they could end up being inconsistent.  In
-short, we don't currently guarantee that changing class/perm values at
-runtime without a reboot will work.
-
+> 
 > We've updated the pp2cil compiler to sort the permissions and output
 > them in the correct order. This change has been rebased and pushed to
 > the integration branch on github.
+
+Ok, so I think this resolves the issues I noticed.
+
+What other known issues remain unresolved?  Is there any functionality
+known to be missing that was supported by the old policy toolchain?
+
+What new functionality is included here that was not previously
+supported by the old policy toolchain?
+
+Any chance of getting a hll compiler for refpolicy source modules, i.e.
+in .if/.te/.fc form?
