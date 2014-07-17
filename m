@@ -1,9 +1,9 @@
-Message-ID: <53C81CDC.8080803@tresys.com>
-Date: Thu, 17 Jul 2014 14:58:36 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <53C81FA0.1020109@tycho.nsa.gov>
+Date: Thu, 17 Jul 2014 15:10:24 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Dominick Grift
- <dominick.grift@gmail.com>
+To: Steve Lawrence <slawrence@tresys.com>,
+ Dominick Grift <dominick.grift@gmail.com>
 Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
 References: <53BD9646.6030303@tresys.com>
  <1404975079.31209.11.camel@x220.localdomain> <53C01CDD.80407@tresys.com>
@@ -14,138 +14,69 @@ References: <53BD9646.6030303@tresys.com>
  <53C68BAE.4000303@tycho.nsa.gov> <53C68D40.8020700@tycho.nsa.gov>
  <53C69616.3040808@tresys.com> <1405526012.12577.9.camel@x220.localdomain>
  <53C6CBD8.2050509@tycho.nsa.gov> <53C7D452.3030206@tresys.com>
- <53C80FA5.3050705@tycho.nsa.gov>
-In-Reply-To: <53C80FA5.3050705@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"
+ <53C80FA5.3050705@tycho.nsa.gov> <53C81CDC.8080803@tresys.com>
+In-Reply-To: <53C81CDC.8080803@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/17/2014 02:02 PM, Stephen Smalley wrote:
-> On 07/17/2014 09:49 AM, Steve Lawrence wrote:
->> On 07/16/2014 03:00 PM, Stephen Smalley wrote:
->>> On 07/16/2014 11:53 AM, Dominick Grift wrote:
->>>> On Wed, 2014-07-16 at 11:11 -0400, Steve Lawrence wrote:
->>>> <snip>
->>>>> Hmm. I still can't get this error. The only thing I get with ausearch is
->>>>>
->>>>> type=USER_AVC msg=audit(1405522202.264:463): pid=1 uid=0 auid=4294967295
->>>>> ses=4294967295  subj=system_u:system_r:init_t:s0 msg='Unknown permission
->>>>> start for class system exe="/usr/lib/systemd/systemd" sauid=0 hostname=?
->>>>> addr=? terminal=?'
->>>>>
->>>>> Which looks correct. Fedora's latest policy does not include start in
->>>>> the system class:
->>>>>
->>>>> $ seinfo -csystem -x
->>>>>    system
->>>>>       status
->>>>>       module_request
->>>>>       reboot
->>>>>       disable
->>>>>       enable
->>>>>       undefined
->>>>>       ipc_info
->>>>>       syslog_read
->>>>>       halt
->>>>>       reload
->>>>>       syslog_console
->>>>>       syslog_mod
->>>>>
->>>>> Also, the policy built with CIL on my machine allows the USER_AVC you're
->>>>> seeing:
->>>>>
->>>>> $ sesearch -A -s systemd_logind_t -t init_t -c service
->>>>> Found 2 semantic av rules:
->>>>>    allow systemd_domain init_t : service { stop status reload start } ;
->>>>>    allow systemd_logind_t init_t : service status ;
->>>>>
->>>>>
->>>>>
->>>>> Not sure if this would help, but it looks like you can set the boot
->>>>> parameter systemd.log_level=debug, and it should print all the selinux
->>>>> access checks, including which ones cause the "SELinux policy denies
->>>>> access" message. Unfortunately, I think the extra debug messages
->>>>> prevents my VM from booting, but you might have better luck.
->>>>>
->>>>
->>>> The same symptoms as with the classorder issue except that this time it
->>>> only happens once after the upgrade. Rebooting fixes the issue (?)
->>>>
->>>> That was not the case with the classorder issue.
->>>
->>> $ yum reinstall checkpolicy* libsepol* libsemanage* libselinux*
->>> policycoreutils* selinux-policy-targeted
->>> $ cp -a /sys/fs/selinux/class class.orig
->>> $ make -C selinux LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install
->>> install-pywrap relabel
->>> $ ./selinux/libsemanage/utils/semanage_migrate_etc_to_var.py
->>> $ cp -a /sys/fs/selinux/class class.new
->>> $ diff -ru class.orig class.new
->>>
->>> Lots of differences in permission values.
->>>
->>
->> Nice find! This looks like it's the problem. When we convert the base pp
->> to CIL, the permissions are output to CIL in the order that hashtab_map
->> receives them, which is is not in any particular order. So the
->> permission orders are all wrong, causing the values in the binary to be
->> different. I guess the kernel doesn't like when permission values change
->> when loading a new policy. And this explains why things work following a
->> reboot.
->>
->> We've updated the pp2cil compiler to sort the permissions and output
->> them in the correct order. This change has been rebased and pushed to
->> the integration branch on github.
+On 07/17/2014 02:58 PM, Steve Lawrence wrote:
+> I think the only remaining issue is the one Dominick mentioned in his
+> first email regarding file_contexts.homedirs. I don't think this is an
+> actual bug, just the migration script migrating things that don't need
+> to be migrated. Still investigating it. We should have an update
+> sometime tomorrow.
+
+So everything you reverted you restored in equivalent form?
+
+>> What new functionality is included here that was not previously
+>> supported by the old policy toolchain?
 > 
-> Ok, so I think this resolves the issues I noticed.
+> In terms a user would see, the most visible change is support for CIL
+> policies and HLLs, of which there's only one right now (pp2cil). There
+> are also some new semanage.conf options (target-platform, compiler-dir,
+> ignore-module-cache, store-root) but I imagine the vast majority of
+> people could just use the defaults. Similarly, we've added
+> --ignore-module-cache and --store-root to the semodule command. We've
+> also moved the store to /var/lib/selinux, but this is more behind the
+> scenes and should really only affect distributions.
 
-Great!
+What about new features/options of the user-facing commands?  I know
+some features were copied from earlier source/CIL releases into the main
+selinux userspace (e.g. enabled/disabled modules), but aren't some
+things like module priorities new?
 
-> What other known issues remain unresolved?  Is there any functionality
-> known to be missing that was supported by the old policy toolchain?
+> Though, there are two things we just realized have a different behavior.
+> 
+> 1) verify_modules is now performed on the CIL modules, rather than pp
+> (or HLL) modules. So if someone is using verify_modules, things will
+> probably break. I'm not sure if anyone uses this feature or how
+> important it is that we maintain backwards compatibility.
+> 
+> 2) verify_linked is no longer called, since there isn't any concept of a
+> linked base module with CIL
+> 
+> Aside from that, I think all functionality should remain the same.
 
-I think the only remaining issue is the one Dominick mentioned in his
-first email regarding file_contexts.homedirs. I don't think this is an
-actual bug, just the migration script migrating things that don't need
-to be migrated. Still investigating it. We should have an update
-sometime tomorrow.
+I'm not aware of anyone using anything other than verify kernel.
 
-> What new functionality is included here that was not previously
-> supported by the old policy toolchain?
+>> Any chance of getting a hll compiler for refpolicy source modules, i.e.
+>> in .if/.te/.fc form?
+> 
+> That's in the plan. Jim has a tool that will compile .if/.te/.fc to CIL,
+> but the current HLL infrastructure may need some changes before that can
+> be supported. I think the main problem is that Jim's tool needs
+> knowledge of all modules to be able to convert them to CIL, but the
+> current HLL infrastructure compiles each module separately. We have
+> various ideas on how we can update the HLL infrastructure to support
+> this, but we've primarily been focused on getting the core CIL/HLL
+> functionality complete and upstreamed before focusing on the more
+> complicated HLL patterns.
 
-In terms a user would see, the most visible change is support for CIL
-policies and HLLs, of which there's only one right now (pp2cil). There
-are also some new semanage.conf options (target-platform, compiler-dir,
-ignore-module-cache, store-root) but I imagine the vast majority of
-people could just use the defaults. Similarly, we've added
---ignore-module-cache and --store-root to the semodule command. We've
-also moved the store to /var/lib/selinux, but this is more behind the
-scenes and should really only affect distributions.
-
-Though, there are two things we just realized have a different behavior.
-
-1) verify_modules is now performed on the CIL modules, rather than pp
-(or HLL) modules. So if someone is using verify_modules, things will
-probably break. I'm not sure if anyone uses this feature or how
-important it is that we maintain backwards compatibility.
-
-2) verify_linked is no longer called, since there isn't any concept of a
-linked base module with CIL
-
-Aside from that, I think all functionality should remain the same.
-
-> Any chance of getting a hll compiler for refpolicy source modules, i.e.
-> in .if/.te/.fc form?
-
-That's in the plan. Jim has a tool that will compile .if/.te/.fc to CIL,
-but the current HLL infrastructure may need some changes before that can
-be supported. I think the main problem is that Jim's tool needs
-knowledge of all modules to be able to convert them to CIL, but the
-current HLL infrastructure compiles each module separately. We have
-various ideas on how we can update the HLL infrastructure to support
-this, but we've primarily been focused on getting the core CIL/HLL
-functionality complete and upstreamed before focusing on the more
-complicated HLL patterns.
+Ok.  Ultimately audit2allow -M i.e. sepolgen module compiler should be
+re-tooled to generate source modules, and we'll essentially need a
+workflow that replaces the old make -f /usr/share/selinux/devel/Makefile
+mymodule.pp; semodule -i mymodule.pp.
