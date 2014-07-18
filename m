@@ -1,139 +1,67 @@
-Message-ID: <53C954A8.6020300@tycho.nsa.gov>
-Date: Fri, 18 Jul 2014 13:08:56 -0400
+Message-ID: <53C96305.60109@tycho.nsa.gov>
+Date: Fri, 18 Jul 2014 14:10:13 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Andy Ruch <adruch2002@yahoo.com>, SELinux ML <selinux@tycho.nsa.gov>,
- Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: why does kernel call setenforce
-References: <1405643284.28501.YahooMailNeo@web120705.mail.ne1.yahoo.com>
- <53C91F83.10603@tycho.nsa.gov>
- <1405693718.71577.YahooMailNeo@web120701.mail.ne1.yahoo.com>
- <53C93D9A.2060902@tycho.nsa.gov>
- <1405701306.14070.YahooMailNeo@web120705.mail.ne1.yahoo.com>
-In-Reply-To: <1405701306.14070.YahooMailNeo@web120705.mail.ne1.yahoo.com>
+To: Steve Lawrence <slawrence@tresys.com>,
+ Dominick Grift <dominick.grift@gmail.com>
+Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
+References: <53BD9646.6030303@tresys.com>
+ <1404975079.31209.11.camel@x220.localdomain> <53C944AC.4080605@tresys.com>
+In-Reply-To: <53C944AC.4080605@tresys.com>
 Content-Type: text/plain; charset=ISO-8859-1
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/18/2014 12:35 PM, Andy Ruch wrote:
-> 
-> 
->> On Friday, July 18, 2014 9:31 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> On 07/18/2014 10:28 AM, Andy Ruch wrote:
->>>  Thank you for the information. I see MAC_STATUS audits after a user calls 
->> setenforce but not during the boot process.
+On 07/18/2014 12:00 PM, Steve Lawrence wrote:
+> On 07/10/2014 02:51 AM, Dominick Grift wrote:
+>> On Wed, 2014-07-09 at 15:21 -0400, Steve Lawrence wrote:
+>>> In January, we sent an RFC [1] to update userspace to integrate CIL
+>>> [2] and source policy. And in April, we sent an updated RFC [3] which
+>>> added support for high level languages and a tool to convert policy
+>>> package (pp) files to CIL. After getting some good feedback, we have
+>>> made some more changes, mostly to maintain ABI compatibility. The
+>>> major changes made since the last patchset are:
 >>
->> That would be consistent with a denial in enforcing mode; in that case,
->> the operation bails with EACCES and you will not generate the MAC_STATUS
->> audit message since no status change occurred.
->>
->>>  Here's a few more details. I install my custom policy during the post 
->> phase of the kickstart. After this, every time I boot I get the following 
->> audits:
->>>
->>>
->>>  type=KERNEL msg=audit(1405633146.496:1): initialized
->>>  type=MAC_POLICY_LOAD msg=audit(1405633148.645:2): policy loaded 
->> auid=4294967295 ses=4294967295
->>>  type=SYSCALL msg=audit(1405633148.645:2): arch=c000003e syscall=1 
->> success=yes exit=532798 a0=4 a1=7fa844c72000 a2=8213e a3=7fff6fce66d0 items=0 
->> ppid=1 pid=771 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 
->> fsgid=0 tty=(none) ses=4294967295 comm="load_policy" 
->> exe="/sbin/load_policy" subj=system_u:system_r:kernel_t:s0 key=(null)
->>>
->>>
->>>  I will then update my policy using "rpm -Uvh". When I boot after 
->> that, I get:
->>>
->>>  type=KERNEL msg=audit(1405633594.481:1): initialized
->>>  type=MAC_POLICY_LOAD msg=audit(1405633596.598:2): policy loaded 
->> auid=4294967295 ses=4294967295
->>>  type=SYSCALL msg=audit(1405633596.598:2): arch=c000003e syscall=1 
->> success=yes exit=532798 a0=4 a1=7f58faf11000 a2=8213e a3=7fffaee3b2f0 items=0 
->> ppid=1 pid=731 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 
->> fsgid=0 tty=(none) ses=4294967295 comm="load_policy" 
->> exe="/sbin/load_policy" subj=system_u:system_r:kernel_t:s0 key=(null)
->>
->> So policy was loaded by /sbin/load_policy, presumbly invoked by a script
->> from the initramfs with the -i option.  This is specific to the way in
->> which RHEL 6 loads policy, which differs from RHEL 5 (or RHEL 7) as each
->> one had its own init system (SysVinit -> upstart -> systemd) and RHEL 6
->> chose to do it from the initramfs rather than from upstart IIRC.
->>
->>>  type=AVC msg=audit(1405633596.632:3): avc:  denied  { setenforce } 
->> for  pid=772 comm="init" scontext=system_u:system_r:kernel_t:s0 
->> tcontext=system_u:object_r:security_t:s0 tclass=security
->>>  type=SYSCALL msg=audit(1405633596.632:3): arch=c000003e syscall=1 
->> success=no exit=-13 a0=1 a1=19d1b80 a2=2 a3=0 items=0 ppid=1 pid=772 
->> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 
->> tty=(none) ses=4294967295 comm="init" exe="/bin/dash" 
->> subj=system_u:system_r:kernel_t:s0 key=(null)
->>
->> That's an odd one; normally enforcing mode would already have been set
->> by load_policy -i so I do not know why dash is trying to set it here.
->> And I assume it must be trying to set it to permissive while it is
->> already enforcing, since a) we only check setenforce permission if the
->> new value differs from the old, and b) the system call would only fail
->> if we were already enforcing.  I don't know if dash is trying to set
->> permissive to match your /etc/selinux/config (is it permissive or
->> enforcing?) or because it is trying to bail into some emergency shell or
->> what.  I downloaded the CentOS 6.5 dash src rpm but I do not see that it
->> even calls setenforce anywhere.  What's your dash and dracut version?
+>> <snip>
 >>
 >>
->>>  This is when I boot into enforcing mode. When I change to boot into 
->> permissive, I don't see the AVC anymore. I would have expected to see the 
->> AVC but have it still allowed like normal permissive-mode behavior. Could this 
->> be related to having "selinux=1 enforcing=1" in the grub boot 
->> arguments? But why doesn't it happen when I initially install the system?
->>
->> So if you boot with enforcing=1, then the kernel starts in enforcing
->> mode and load_policy -i should not try to change the enforcing mode at
->> all even if /etc/selinux/config says SELINUX=permissive.  So any
->> subsequent attempt to switch to permissive by any of the initramfs
->> scripts will trigger a setenforce check and will fail if you have not
->> allowed kernel_t to do this.
->>
->> If you boot without enforcing=1, then the kernel starts in permissive
->> mode, load_policy -i should set the enforcing mode to match
->> /etc/selinux/config.  If /etc/selinux/config says permissive, then
->> you'll stay permissive and any subsequent setenforce 0 will be a no-op
->> and will not trigger a setenforce check at all.  If /etc/selinux/config
->> says enforcing, then you should see the same behavior as with
->> enforcing=1 if an initramfs script tries to setenforce 0.
+>> After associating user john with staff_u, johns home directory is
+>> properly labeled (staff_u associated with /home/john). However, what is
+>> strange here is that i cannot see staff_u home dir context specs
+>> in /var/lib/selinux/targeted/active/modules/file_contexts.homedirs
+>>  
+>> Am i looking in the wrong place? How does SELinux know that staff_u
+>> needs to be associated with /home/john
 >>
 > 
-> I always keep the boot parameter and /etc/selinux/config in sync, i.e. both permissive or both enforcing.
+> In the current upatream, file_contexts.homedirs is autogenerated and
+> created in /etc/selinux/targeted/modules/active/ before it is copied to
+> /etc/selinux/targeted/contexts/files. This file is not removed from the
+> store, so it actually exists in two places.
 > 
-> Package versions:
+> However, with the new source policy work, file_contexts.homedirs is
+> generated in a temporary sandbox (not the policy store). The contents of
+> the sandbox are copied to /etc/selinux, and then deleted at the end of
+> the transaction. So the new source policy infrastructure no longer
+> stores intermediate/final build files in the policy store.
 > 
-> dash-0.5.5.1-4.el6.x86_64
-> dracut-004-336.el6_5.2.noarch
-> dracut-kernel-004-336.el6_5.2.noarch
-> dracut-fips-004-336.el6_5.2.noarch
-> 
-> 
-> As for the system, everything seems to work fine even with denying setenforce. The new policy gets loaded correctly. That's why I called this more of an educational question. I was just curious why setenforce was being called only after a policy RPM update.
+> However, the migration script copies all the files from the old store to
+> the new store, even including autogenerated files that the new source
+> policy infrastructure will never look at or touch. This is just a bug in
+> the migration script. We've updated the migration script to only migrate
+> the files that actually need to be migrated (mostly *.local files). This
+> has been rebased/pushed to github #integration branch.
 
-Ok, if you look at
-/usr/lib/dracut/modules.d/99base/selinux-loadpolicy.sh, you'll see the
-logic used to initialize SELinux from the initramfs.
-
-The following line from that script attempt to directly make SELinux
-permissive if a relabel is required (which might only be set on a policy
-update):
-            # If machine requires a relabel, force to permissive mode
-            [ -e "$NEWROOT"/.autorelabel ] && ( echo 0 >
-"$NEWROOT"/selinux/enforce )
-
-Since it is done by echoing 0 to /selinux/enforce, it would show up as a
-denial from dash, the interpreter for the script.  So this is consistent
-with the avc you are getting.
-
-And you'll only see it if you boot enforcing, as otherwise echo 0 >
-/selinux/enforce is a no-op since it is already permissive and we only
-apply the check if trying to change the enforcing mode.
-
-So I think it all makes sense at this point.
+If I run semanage_migrate_etc_to_var.py -n on a clean (no
+/var/lib/selinux at all) system, the /var/lib/selinux/targeted/active
+directory contains a homedir_template and a netfilter_contexts file in
+addition to the modules (and commit_num).  The first file is
+automatically extracted from all of the file contexts during build and
+the second is unused these days.  If I then run semodule -B (or omit the
+-n option on migration), I further have file_contexts.template and
+users_extra files under active, both of which are also generated.  I can
+delete all four files and regenerate all but netfilter_contexts via
+semodule -B.
