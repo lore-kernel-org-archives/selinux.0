@@ -1,57 +1,99 @@
-Message-ID: <53C92B90.4040308@tresys.com>
-Date: Fri, 18 Jul 2014 10:13:36 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6IESZvE012290
+ for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2014 10:28:35 -0400
+References: <1405643284.28501.YahooMailNeo@web120705.mail.ne1.yahoo.com>
+ <53C91F83.10603@tycho.nsa.gov>
+Message-ID: <1405693718.71577.YahooMailNeo@web120701.mail.ne1.yahoo.com>
+Date: Fri, 18 Jul 2014 07:28:38 -0700
+From: Andy Ruch <adruch2002@yahoo.com>
+Subject: Re: why does kernel call setenforce
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux ML <selinux@tycho.nsa.gov>,
+ Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <53C91F83.10603@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Steve Lawrence <slawrence@tresys.com>,
- Dominick Grift <dominick.grift@gmail.com>
-Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
-References: <53BD9646.6030303@tresys.com>
- <1404975079.31209.11.camel@x220.localdomain> <53C01CDD.80407@tresys.com>
- <53C409C3.3010602@tycho.nsa.gov> <53C40B13.9030907@tycho.nsa.gov>
- <53C40E8D.8070006@tycho.nsa.gov> <53C40F73.3030204@tresys.com>
- <53C41818.5000906@tycho.nsa.gov> <53C5875E.3050600@tresys.com>
- <53C68950.3050805@tycho.nsa.gov> <53C68A6D.80500@tycho.nsa.gov>
- <53C68BAE.4000303@tycho.nsa.gov> <53C68D40.8020700@tycho.nsa.gov>
- <53C69616.3040808@tresys.com> <1405526012.12577.9.camel@x220.localdomain>
- <53C6CBD8.2050509@tycho.nsa.gov> <53C7D452.3030206@tresys.com>
- <53C80FA5.3050705@tycho.nsa.gov> <53C81CDC.8080803@tresys.com>
- <53C81FA0.1020109@tycho.nsa.gov> <53C828A7.60909@tycho.nsa.gov>
- <53C82C6B.4090004@tresys.com> <53C8341D.4080300@tycho.nsa.gov>
-In-Reply-To: <53C8341D.4080300@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"
-Cc: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=iso-8859-1
+Reply-To: Andy Ruch <adruch2002@yahoo.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 7/17/2014 4:37 PM, Stephen Smalley wrote:
-> On 07/17/2014 04:04 PM, Steve Lawrence wrote:
->> On 07/17/2014 03:48 PM, Stephen Smalley wrote:
->>> On 07/17/2014 03:10 PM, Stephen Smalley wrote:
 
->> Yep, we store both HLL and CIL. They are both compressed and CIL
->> compresses decently since it's just text, but it's still a lot of text.
->>
->>> Is there an option to discard the .pp files altogether and only retain
->>> the cil files?
->>
->> Not at the moment, but it wouldn't be hard to accomplish. Just need to
->> delete all the hll files and change the contents of lang_ext to 'cil'.
->> Something we could add if storage is an issue.
-[...]
-> Not sure what benefit there is in retaining the pp files, since they
-> carry no additional information AFAIK and they aren't human viewable or
-> editable.  Is there even an option for exporting modules from the policy
-> store currently that would allow extracting them except via direct file
-> access to the policy store?
 
-If we eventually have an upstream policy query library, then it could be
-useful to export modules from the store for analysis tools.  Then you
-could analyze the policy.29 but potentially have backtracing to the HLL
-policy file and ideally source line where possible (obviously not for .pp).
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+> On Friday, July 18, 2014 7:23 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 07/17/2014 08:28 PM, Andy Ruch wrote:
+> 
+>>  Hello,
+>> 
+>>  This is more of an educational question. I'm running a custom policy on 
+> RHEL 6.5.
+>> 
+>> 
+>>  Why does the kernel call setenforce only after the selinux policy RPM has 
+> been updated? Out of the box, I don't see any AVCs. Once I update the 
+> policy, I see an AVC for "kernel_t security_t:security setenforce". Is 
+> the kernel setting SELinux to permissive or enforcing during those calls? 
+> 
+> By "after the selinux policy RPM has been updated", do you mean after
+> you have installed your own policy?  Do you mean that this happens when
+> you install your policy and reload or when you reboot after installing
+> your policy?
+> 
+> The kernel does not call setenforce; your init program or dracut
+> initramfs script does that, but it would show up in the kernel_t domain
+> because it happens before switching or transitioning (depending on your
+> particular init program and whether it implements the transition via
+> setcon or re-exec) to the init_t domain.  Since init loads the policy
+> originally, it starts in the kernel_t domain and can only
+> switch/transition to the init_t domain after loading policy.
+> 
+> Normally this occurs upon invoking
+> libselinux/src/load_policy.c:selinux_init_load_policy() from your init
+> program (I think in RHEL6 a dracut selinux-loadpolicy.sh script was
+> invoking load_policy -i which calls the same function).  That sets
+> enforcing mode and loads policy as per your /etc/selinux/config
+> settings, optionally overridden by any selinux=0 or enforcing=0
+> parameters on the kernel command-line.
+> 
+> If your kernel was configured with CONFIG_SECURITY_SELINUX_DEVELOP=y
+> (the default), then it always starts in permissive mode and must be
+> switched to enforcing mode by init.  If not, then the kernel is always
+> enforcing and there is no support for permissive mode at all.  However,
+> regardless, until a policy is first loaded, the kernel will allow any
+> requested permission.
+> 
+> setenforce permission is checked whenever there is a change to the
+> current enforcing status, so it can show up for permissive -> enforcing
+> (although that will be allowed regardless since it will be permissive at
+> the point of the check) or for enforcing -> permissive (where a denial
+> would prevent switching).  There should be a separate MAC_STATUS audit
+> message generated upon setenforce changes that will show you the
+> enforcing= and old_enforcing= values.
+> 
+> All that said, I'm a bit puzzled by your statement that you are seeing
+> an avc message at all, as selinux_init_load_policy() calls
+> security_setenforce() before loading policy, so at that point nothing
+> would ever be denied since there is no policy yet.
+>
+
+Thank you for the information. I see MAC_STATUS audits after a user calls setenforce but not during the boot process. 
+
+Here's a few more details. I install my custom policy during the post phase of the kickstart. After this, every time I boot I get the following audits:
+
+
+type=KERNEL msg=audit(1405633146.496:1): initialized
+type=MAC_POLICY_LOAD msg=audit(1405633148.645:2): policy loaded auid=4294967295 ses=4294967295
+type=SYSCALL msg=audit(1405633148.645:2): arch=c000003e syscall=1 success=yes exit=532798 a0=4 a1=7fa844c72000 a2=8213e a3=7fff6fce66d0 items=0 ppid=1 pid=771 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="load_policy" exe="/sbin/load_policy" subj=system_u:system_r:kernel_t:s0 key=(null)
+
+
+I will then update my policy using "rpm -Uvh". When I boot after that, I get:
+
+type=KERNEL msg=audit(1405633594.481:1): initialized
+type=MAC_POLICY_LOAD msg=audit(1405633596.598:2): policy loaded auid=4294967295 ses=4294967295
+type=SYSCALL msg=audit(1405633596.598:2): arch=c000003e syscall=1 success=yes exit=532798 a0=4 a1=7f58faf11000 a2=8213e a3=7fffaee3b2f0 items=0 ppid=1 pid=731 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="load_policy" exe="/sbin/load_policy" subj=system_u:system_r:kernel_t:s0 key=(null)
+type=AVC msg=audit(1405633596.632:3): avc:  denied  { setenforce } for  pid=772 comm="init" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:security_t:s0 tclass=security
+type=SYSCALL msg=audit(1405633596.632:3): arch=c000003e syscall=1 success=no exit=-13 a0=1 a1=19d1b80 a2=2 a3=0 items=0 ppid=1 pid=772 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="init" exe="/bin/dash" subj=system_u:system_r:kernel_t:s0 key=(null)
+
+
+This is when I boot into enforcing mode. When I change to boot into permissive, I don't see the AVC anymore. I would have expected to see the AVC but have it still allowed like normal permissive-mode behavior. Could this be related to having "selinux=1 enforcing=1" in the grub boot arguments? But why doesn't it happen when I initially install the system?
