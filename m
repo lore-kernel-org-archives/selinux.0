@@ -1,74 +1,101 @@
-Message-ID: <53C93D9A.2060902@tycho.nsa.gov>
-Date: Fri, 18 Jul 2014 11:30:34 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <53C94404.3030104@tresys.com>
+Date: Fri, 18 Jul 2014 11:57:56 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Andy Ruch <adruch2002@yahoo.com>, SELinux ML <selinux@tycho.nsa.gov>,
- Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: why does kernel call setenforce
-References: <1405643284.28501.YahooMailNeo@web120705.mail.ne1.yahoo.com>
- <53C91F83.10603@tycho.nsa.gov>
- <1405693718.71577.YahooMailNeo@web120701.mail.ne1.yahoo.com>
-In-Reply-To: <1405693718.71577.YahooMailNeo@web120701.mail.ne1.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Stephen Smalley <sds@tycho.nsa.gov>, Dominick Grift
+ <dominick.grift@gmail.com>
+Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
+References: <53BD9646.6030303@tresys.com>
+ <1404975079.31209.11.camel@x220.localdomain> <53C01CDD.80407@tresys.com>
+ <53C409C3.3010602@tycho.nsa.gov> <53C40B13.9030907@tycho.nsa.gov>
+ <53C40E8D.8070006@tycho.nsa.gov> <53C40F73.3030204@tresys.com>
+ <53C41818.5000906@tycho.nsa.gov> <53C5875E.3050600@tresys.com>
+ <53C68950.3050805@tycho.nsa.gov> <53C68A6D.80500@tycho.nsa.gov>
+ <53C68BAE.4000303@tycho.nsa.gov> <53C68D40.8020700@tycho.nsa.gov>
+ <53C69616.3040808@tresys.com> <1405526012.12577.9.camel@x220.localdomain>
+ <53C6CBD8.2050509@tycho.nsa.gov> <53C7D452.3030206@tresys.com>
+ <53C80FA5.3050705@tycho.nsa.gov> <53C81CDC.8080803@tresys.com>
+ <53C81FA0.1020109@tycho.nsa.gov> <53C828A7.60909@tycho.nsa.gov>
+ <53C82C6B.4090004@tresys.com> <53C8341D.4080300@tycho.nsa.gov>
+ <53C91A48.7040704@tresys.com> <53C92F92.6070607@tycho.nsa.gov>
+In-Reply-To: <53C92F92.6070607@tycho.nsa.gov>
+Content-Type: text/plain; charset="ISO-8859-1"
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/18/2014 10:28 AM, Andy Ruch wrote:
-> Thank you for the information. I see MAC_STATUS audits after a user calls setenforce but not during the boot process.
-
-That would be consistent with a denial in enforcing mode; in that case,
-the operation bails with EACCES and you will not generate the MAC_STATUS
-audit message since no status change occurred.
-
-> Here's a few more details. I install my custom policy during the post phase of the kickstart. After this, every time I boot I get the following audits:
+On 07/18/2014 10:30 AM, Stephen Smalley wrote:
+> On 07/18/2014 08:59 AM, Steve Lawrence wrote:
+>> There isn't currently a way to extract policy from the store, but that
+>> has been a use case that has been discussed in the past. Something like
+>> the following could be useful:
+>>
+>> semodule --priority 400 --extract foo # outputs to foo.<hll>
+>> edit foo.<hll>
+>> semodule --priority 500 --install foo.<hll>
+>>
+>> So there could be cases in the future where it could be convenient to
+>> keep the HLL files around.
 > 
+> Sure, for source modules.  For pp files, though?
 > 
-> type=KERNEL msg=audit(1405633146.496:1): initialized
-> type=MAC_POLICY_LOAD msg=audit(1405633148.645:2): policy loaded auid=4294967295 ses=4294967295
-> type=SYSCALL msg=audit(1405633148.645:2): arch=c000003e syscall=1 success=yes exit=532798 a0=4 a1=7fa844c72000 a2=8213e a3=7fff6fce66d0 items=0 ppid=1 pid=771 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="load_policy" exe="/sbin/load_policy" subj=system_u:system_r:kernel_t:s0 key=(null)
+
+Yeah, not useful for pp files. But I'd like to see pp files eventually
+go away, with the source policies (which are likely much smaller) to be
+the primary HLL.
+
+Though, as Chris pointed out, extracting policies from the store could
+potentially be useful for analysis.
+
+>> Another option to reduce disk usage could be to disable caching of the
+>> CIL files (right now, we only have an option to ignore the cached
+>> files). This way, the user could still do the above and edit hll files
+>> without having to rely on them being accessible from somewhere else.
+>> Though, this would incur a penalty of having to recompile HLL files for
+>> every change (which in my tests, about doubles compilation time).
 > 
+> Seems less useful than being able to disable storage of the HLL files.
+> No penalty incurred, you just have to know that you won't need them
+> again or that they will remain available externally.
+
+Agreed, just throwing it out as another option.
+
+>>> More generally, if the user knows that the hll module is going to be
+>>> saved elsewhere, then there is no reason to retain a copy in the policy
+>>> store, so having the option of dropping the hll version, either for all
+>>> modules or for specific modules, seems useful.
+>>
+>> Do you see this feature as necessary for this patchset to be upstreamed,
+>> or is this something we could add as a later update?
 > 
-> I will then update my policy using "rpm -Uvh". When I boot after that, I get:
->
-> type=KERNEL msg=audit(1405633594.481:1): initialized
-> type=MAC_POLICY_LOAD msg=audit(1405633596.598:2): policy loaded auid=4294967295 ses=4294967295
-> type=SYSCALL msg=audit(1405633596.598:2): arch=c000003e syscall=1 success=yes exit=532798 a0=4 a1=7f58faf11000 a2=8213e a3=7fffaee3b2f0 items=0 ppid=1 pid=731 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="load_policy" exe="/sbin/load_policy" subj=system_u:system_r:kernel_t:s0 key=(null)
+> Not absolutely required, just wondering if we might encounter issues
+> with migration on some systems due to insufficient space.  We'll
+> actually have 3 copies of each module, 2 pp files (one still in
+> /etc/selinux/targeted/modules, not deleted by the migration script) and
+> 1 cil file.  Plus all of the copying that occurs during the transaction
+> and installation of the files (-> /var/lib/selinux/targeted/tmp, ->
+> /var/lib/selinux/tmp/targeted?, -> /etc/selinux/targeted).  Any idea
+> what the max storage requirement for successful migration relative to
+> the original size of the policy store?
 
-So policy was loaded by /sbin/load_policy, presumbly invoked by a script
-from the initramfs with the -i option.  This is specific to the way in
-which RHEL 6 loads policy, which differs from RHEL 5 (or RHEL 7) as each
-one had its own init system (SysVinit -> upstart -> systemd) and RHEL 6
-chose to do it from the initramfs rather than from upstart IIRC.
+We could delete the old store post migration but pre-rebuild. So we'd
+only ever have two copies of the modules. We held off on doing this in
+case something went wrong. Maybe after the migration script is run
+through its paces we could be more confident and not require a backup.
+Or we could delete the old store after a successful migration, so you
+only take the extra storage hit on migration.
 
-> type=AVC msg=audit(1405633596.632:3): avc:  denied  { setenforce } for  pid=772 comm="init" scontext=system_u:system_r:kernel_t:s0 tcontext=system_u:object_r:security_t:s0 tclass=security
-> type=SYSCALL msg=audit(1405633596.632:3): arch=c000003e syscall=1 success=no exit=-13 a0=1 a1=19d1b80 a2=2 a3=0 items=0 ppid=1 pid=772 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="init" exe="/bin/dash" subj=system_u:system_r:kernel_t:s0 key=(null)
+As far as max storage requirement, the current policy store is about
+5MB. The CIL versions also required about 5MB total. So /var/lib/selinux
+needs about 10MB to store all the policies (CIL + pp), and grows to
+about 25MB during building. Makes sense since it makes a copy of the
+active store (doubling from 10MB to 20MB), then builds into the sandbox
+(~5MB). Then it deletes the sandbox and the old module store.
 
-That's an odd one; normally enforcing mode would already have been set
-by load_policy -i so I do not know why dash is trying to set it here.
-And I assume it must be trying to set it to permissive while it is
-already enforcing, since a) we only check setenforce permission if the
-new value differs from the old, and b) the system call would only fail
-if we were already enforcing.  I don't know if dash is trying to set
-permissive to match your /etc/selinux/config (is it permissive or
-enforcing?) or because it is trying to bail into some emergency shell or
-what.  I downloaded the CentOS 6.5 dash src rpm but I do not see that it
-even calls setenforce anywhere.  What's your dash and dracut version?
+So you need about 5x the current policy to successfully migrate.
 
-> This is when I boot into enforcing mode. When I change to boot into permissive, I don't see the AVC anymore. I would have expected to see the AVC but have it still allowed like normal permissive-mode behavior. Could this be related to having "selinux=1 enforcing=1" in the grub boot arguments? But why doesn't it happen when I initially install the system?
-
-So if you boot with enforcing=1, then the kernel starts in enforcing
-mode and load_policy -i should not try to change the enforcing mode at
-all even if /etc/selinux/config says SELINUX=permissive.  So any
-subsequent attempt to switch to permissive by any of the initramfs
-scripts will trigger a setenforce check and will fail if you have not
-allowed kernel_t to do this.
-
-If you boot without enforcing=1, then the kernel starts in permissive
-mode, load_policy -i should set the enforcing mode to match
-/etc/selinux/config.  If /etc/selinux/config says permissive, then
-you'll stay permissive and any subsequent setenforce 0 will be a no-op
-and will not trigger a setenforce check at all.  If /etc/selinux/config
-says enforcing, then you should see the same behavior as with
-enforcing=1 if an initramfs script tries to setenforce 0.
+So we could probably save about 5MB if we deleted the old store after
+migration, and save another 10MB during the build process if pp modules
+were deleted after converted to CIL.
