@@ -1,43 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6MCChG8027063
- for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2014 08:12:43 -0400
-Message-ID: <53CE5531.4020306@tresys.com>
-Date: Tue, 22 Jul 2014 08:12:33 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6MCIdRN027438
+ for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2014 08:18:39 -0400
+Message-ID: <53CE5685.9060307@tresys.com>
+Date: Tue, 22 Jul 2014 08:18:13 -0400
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: Avijit Das <avijitnsec@live.com>, "selinux@tycho.nsa.gov"
+To: kuangjiou <kuangjiou@huawei.com>, "selinux@tycho.nsa.gov"
  <selinux@tycho.nsa.gov>
-Subject: Re: File-system is not mounting when I am enabling selinux
-References: <COL127-W260C753E546A18A707547AB1F00@phx.gbl>
-In-Reply-To: <COL127-W260C753E546A18A707547AB1F00@phx.gbl>
-Content-Type: text/plain; charset="ISO-8859-1"
+Subject: Re: How to build a simplified refpolicy?
+References: <60ABE64B4BE4AC45964F1A967BA76CB2BB42D9@SZXEML507-MBX.china.huawei.com>
+In-Reply-To: <60ABE64B4BE4AC45964F1A967BA76CB2BB42D9@SZXEML507-MBX.china.huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 7/21/2014 7:03 PM, Avijit Das wrote:
-> Hi,
-> 
-> I am trying to enable SELinux in Android platform. I am getting the
-> following error message:
+On 7/22/2014 5:16 AM, kuangjiou wrote:
+> Hello,everyone!
+> I am learnig SELinux recently and trying to enable the SELinux in
+> Embedded Linux. As we know, the refpolicy has too much rules to use in
+> the embedded devices and i also do not need so much rules in my policy.
+> I just want to control the accesses to some targeted files and allow the
+> accesses to the rest files. So is that possible to(and how can i) built
+> my own simpolified policy to achieve this goal?   
+> Could anybody give me some suggestions to resolve this problem? I am
+>  looking  forward to your replies! Thank you very much!
 
-> [   17.767028] SELinux: (dev mmcblk0p24, type ext4) has no security
-> xattr handler
-> [   17.830819] SELinux: (dev mmcblk0p29, type ext4) has no security
-> xattr handler
-> [   17.865028] EXT4-fs (mmcblk0p29): mounted filesystem with ordered
-> data mode. Opts: barrier=1,noauto_da_alloc
-> [   17.873877] SELinux: (dev mmcblk0p29, type ext4) has no security
-> xattr handler
-> [   17.934144] SELinux: (dev mmcblk0p25, type ext4) has no security
-> xattr handler
-> [   17.955632] SELinux: (dev mmcblk0p26, type ext4) has no security
-> xattr handler
+You should be able to compile refpolicy with just the kernel layer
+modules.  Then the only domain you'd have is kernel_t plus types for
+handling devices and base files.
 
-Your ext4 is missing security labels (note no security xattr handler
-error), you need to turn on CONFIG_EXT4_FS_SECURITY.
-
+Note: this discussion is best for the refpolicy mail list instead.
 
 -- 
 Chris PeBenito
