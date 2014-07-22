@@ -1,58 +1,34 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6MCRBtr027949
- for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2014 08:27:11 -0400
-Message-ID: <53CE589C.4030408@tresys.com>
-Date: Tue, 22 Jul 2014 08:27:08 -0400
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <53CE586C.5080403@tycho.nsa.gov>
+Date: Tue, 22 Jul 2014 08:26:20 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: dE <de.techno@gmail.com>, <selinux@tycho.nsa.gov>
-Subject: Re: What's a policy capability?
-References: <53CA2650.2050608@gmail.com> <53CD0CCB.5080300@tycho.nsa.gov>
- <53CDF09D.4050304@gmail.com>
-In-Reply-To: <53CDF09D.4050304@gmail.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+To: Avijit Das <avijitnsec@live.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: File-system is not mounting when I am enabling selinux
+References: <COL127-W260C753E546A18A707547AB1F00@phx.gbl>
+In-Reply-To: <COL127-W260C753E546A18A707547AB1F00@phx.gbl>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 7/22/2014 1:03 AM, dE wrote:
-> On 07/21/14 18:21, Stephen Smalley wrote:
->> On 07/19/2014 04:03 AM, dE wrote:
->>> I came cross this term and couldn't find much reference to it.
->> A mechanism for telling the kernel that your policy supports some new
->> feature/capability and therefore it is safe for the kernel to enable the
->> corresponding check/logic.  Used as a way of supporting new
->> checks/features in a backward-compatible manner:  old policies will not
->> have defined the policy capability for the new feature and therefore
->> will not enable the new check/logic by default, while new policies can
->> opt into or out of the new check/logic at their discretion.
->>
+On 07/21/2014 07:03 PM, Avijit Das wrote:
+> Hi,
 > 
-> Ok, thanks for clarifying.
+> I am trying to enable SELinux in Android platform. I am getting the
+> following error message:
 > 
-> But just curious -- these new checks may not be not be backwards
-> compatible? I mean if the kernel has enabled a policy feature, but the
-> loaded policy does not have any such capability, then can it cause any
-> problems?
+> [   16.331402] init: invalid uid 'fm_radio'
+> [   17.759590] EXT4-fs (mmcblk0p24): mounted filesystem with ordered
+> data mode. Opts: barrier=1
+> [   17.767028] SELinux: (dev mmcblk0p24, type ext4) has no security
+> xattr handler
 
-Yes.  One example is the open permission on file classes.  When that was
-added in the kernel, if you didn't have a policy that had open
-permissions in it, then your system wouldn't work at all; no domain
-would be allowed to open any file.  To fix that, we added the open_perms
-capability, so you could specify that your policy was updated for the
-open permission.
+As Chris said, this indicates that your kernel configuration is missing
+an option required for SELinux, CONFIG_EXT4_FS_SECURITY=y, and therefore
+does not include the security xattr handlers.
 
-> Also the policy has a version, using that it's capabilities can be known
-> to the kernel and it may enable disable the features based on that. So
-> in this case, why is policy capability required?
-
-That versions the policy database structure itself, not which object
-classes or permissions are included.  For example, when default_*
-statements were added, the policy structure had to be changed, so the
-policy version was incremented.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Also, questions regarding the Android SELinux support are best directed
+to the seandroid-list, subscribe by sending email to
+seandroid-list-join@tycho.nsa.gov.
