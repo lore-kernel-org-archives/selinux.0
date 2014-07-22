@@ -1,72 +1,54 @@
-Message-ID: <53CE5CDA.50901@tycho.nsa.gov>
-Date: Tue, 22 Jul 2014 08:45:14 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <53CE7968.4000608@tycho.nsa.gov>
+Date: Tue, 22 Jul 2014 10:47:04 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: dE <de.techno@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: What's a policy capability?
-References: <53CA2650.2050608@gmail.com> <53CD0CCB.5080300@tycho.nsa.gov>
- <53CDF09D.4050304@gmail.com>
-In-Reply-To: <53CDF09D.4050304@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Steve Lawrence <slawrence@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Dominick Grift <dominick.grift@gmail.com>
+Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
+References: <53BD9646.6030303@tresys.com>
+ <1404975079.31209.11.camel@x220.localdomain> <53C01CDD.80407@tresys.com>
+ <53C409C3.3010602@tycho.nsa.gov> <53C40B13.9030907@tycho.nsa.gov>
+ <53C40E8D.8070006@tycho.nsa.gov> <53C40F73.3030204@tresys.com>
+ <53C41818.5000906@tycho.nsa.gov> <53C5875E.3050600@tresys.com>
+ <53C68950.3050805@tycho.nsa.gov> <53C68A6D.80500@tycho.nsa.gov>
+ <53C68BAE.4000303@tycho.nsa.gov> <53C68D40.8020700@tycho.nsa.gov>
+ <53C69616.3040808@tresys.com> <1405526012.12577.9.camel@x220.localdomain>
+ <53C6CBD8.2050509@tycho.nsa.gov> <53C7D452.3030206@tresys.com>
+ <53C80FA5.3050705@tycho.nsa.gov> <53C81CDC.8080803@tresys.com>
+In-Reply-To: <53C81CDC.8080803@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/22/2014 01:03 AM, dE wrote:
-> On 07/21/14 18:21, Stephen Smalley wrote:
->> On 07/19/2014 04:03 AM, dE wrote:
->>> I came cross this term and couldn't find much reference to it.
->> A mechanism for telling the kernel that your policy supports some new
->> feature/capability and therefore it is safe for the kernel to enable the
->> corresponding check/logic.  Used as a way of supporting new
->> checks/features in a backward-compatible manner:  old policies will not
->> have defined the policy capability for the new feature and therefore
->> will not enable the new check/logic by default, while new policies can
->> opt into or out of the new check/logic at their discretion.
->>
->> ls /sys/fs/selinux/policy_capabilities will show the list of policy
->> capabilities known to your kernel, while cat
->> /sys/fs/selinux/policy_capabilities/<capability_name> will show whether
->> that capability was enabled (1) or disabled (0) in the currently loaded
->> policy.
->>
->> seinfo --polcap will list enabled policy capabilities in the current or
->> specified policy.
->>
->> The set of policy capabilities to be enabled in the policy is declared
->> in refpolicy/policy/policy_capabilities in the refpolicy source.
->>
->> The kernel uses the value of specific policy capabilities to decide
->> whether to enable corresponding checks/logic in security/selinux/hooks.c
->> in the kernel source; look for tests of selinux_policycap_*.
->> These variables are set upon policy load by security_load_policycaps(),
->> loaded from a bitmap read from the policy file.
-> 
-> Ok, thanks for clarifying.
-> 
-> But just curious -- these new checks may not be not be backwards
-> compatible? I mean if the kernel has enabled a policy feature, but the
-> loaded policy does not have any such capability, then can it cause any
-> problems?
+On 07/17/2014 02:58 PM, Steve Lawrence wrote:
+> On 07/17/2014 02:02 PM, Stephen Smalley wrote:
+>> On 07/17/2014 09:49 AM, Steve Lawrence wrote:
+>>> On 07/16/2014 03:00 PM, Stephen Smalley wrote:
+>>>> On 07/16/2014 11:53 AM, Dominick Grift wrote:
+>>>>> On Wed, 2014-07-16 at 11:11 -0400, Steve Lawrence wrote:
+>>>>> <snip>
 
-Just to add to what Chris said:  while the handle_unknown=allow
-mechanism could already address the simple case of adding an entirely
-new permission to the kernel in a compatible manner, it could not
-address changes to the semantics of an already defined permission or
-replacing an older set of permission checks with new logic.  And with
-handle_unknown=allow, you could not distinguish on a per-feature basis;
-it was all allowed or none allowed for unknown classes/permissions.
-Thus, policy capabilities were introduced as a more general mechanism.
+>
+>> Any chance of getting a hll compiler for refpolicy source modules, i.e.
+>> in .if/.te/.fc form?
+>
+> That's in the plan. Jim has a tool that will compile .if/.te/.fc to CIL,
+> but the current HLL infrastructure may need some changes before that can
+> be supported. I think the main problem is that Jim's tool needs
+> knowledge of all modules to be able to convert them to CIL, but the
+> current HLL infrastructure compiles each module separately. We have
+> various ideas on how we can update the HLL infrastructure to support
+> this, but we've primarily been focused on getting the core CIL/HLL
+> functionality complete and upstreamed before focusing on the more
+> complicated HLL patterns.
 
-> Also the policy has a version, using that it's capabilities can be known
-> to the kernel and it may enable disable the features based on that. So
-> in this case, why is policy capability required?
+My tool currently does need to have knowledge of all modules, but I think that I 
+can get it to work with the information in /usr/share/selinux/devel/include. At 
+least as long as the module is not doing anything crazy with m4.
 
-We actually used the policy version that way when we first introduced
-finer-grained netlink socket classes, so that older policies would still
-use a single netlink socket class but newer policies could leverage the
-finer-grained classes.  However, as Chris pointed out, that version is
-intended to represent changes to the binary policy format, and this was
-a misuse of it.  Similarly to handle_unknown, you could also only use it
-to enable all or none of the newer features, not on a per-feature basis.
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
