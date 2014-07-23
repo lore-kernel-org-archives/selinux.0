@@ -1,106 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6N1e0dW012971
- for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2014 21:40:00 -0400
-Message-ID: <COL127-W43DF20D535D54DC6DCE37DB1FE0@phx.gbl>
-Content-Type: multipart/alternative;
- boundary="_1aa00442-8794-49bf-bea3-0733aa9e254d_"
-From: Avijit Das <avijitnsec@live.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: RE: File-system is not mounting when I am enabling selinux
-Date: Tue, 22 Jul 2014 18:40:03 -0700
-In-Reply-To: <53CE5531.4020306@tresys.com>
-References: <COL127-W260C753E546A18A707547AB1F00@phx.gbl>,
- <53CE5531.4020306@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6N66Y1E025423
+ for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2014 02:06:34 -0400
+Received: by mail-pa0-f51.google.com with SMTP id ey11so1049530pad.24
+ for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2014 23:06:21 -0700 (PDT)
+Received: from [192.168.1.2] ([117.201.83.48])
+ by mx.google.com with ESMTPSA id ce13sm1584592pdb.76.2014.07.22.23.06.19
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Tue, 22 Jul 2014 23:06:20 -0700 (PDT)
+Message-ID: <53CF50D9.5000205@gmail.com>
+Date: Wed, 23 Jul 2014 11:36:17 +0530
+From: dE <de.techno@gmail.com>
 MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Re: What's a policy capability?
+References: <53CA2650.2050608@gmail.com> <53CD0CCB.5080300@tycho.nsa.gov>
+ <53CDF09D.4050304@gmail.com> <53CE5CDA.50901@tycho.nsa.gov>
+In-Reply-To: <53CE5CDA.50901@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_1aa00442-8794-49bf-bea3-0733aa9e254d_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On 07/22/14 18:15, Stephen Smalley wrote:
+> On 07/22/2014 01:03 AM, dE wrote:
+>> On 07/21/14 18:21, Stephen Smalley wrote:
+>>> On 07/19/2014 04:03 AM, dE wrote:
+>>>> I came cross this term and couldn't find much reference to it.
+>>> A mechanism for telling the kernel that your policy supports some new
+>>> feature/capability and therefore it is safe for the kernel to enable the
+>>> corresponding check/logic.  Used as a way of supporting new
+>>> checks/features in a backward-compatible manner:  old policies will not
+>>> have defined the policy capability for the new feature and therefore
+>>> will not enable the new check/logic by default, while new policies can
+>>> opt into or out of the new check/logic at their discretion.
+>>>
+>>> ls /sys/fs/selinux/policy_capabilities will show the list of policy
+>>> capabilities known to your kernel, while cat
+>>> /sys/fs/selinux/policy_capabilities/<capability_name> will show whether
+>>> that capability was enabled (1) or disabled (0) in the currently loaded
+>>> policy.
+>>>
+>>> seinfo --polcap will list enabled policy capabilities in the current or
+>>> specified policy.
+>>>
+>>> The set of policy capabilities to be enabled in the policy is declared
+>>> in refpolicy/policy/policy_capabilities in the refpolicy source.
+>>>
+>>> The kernel uses the value of specific policy capabilities to decide
+>>> whether to enable corresponding checks/logic in security/selinux/hooks.c
+>>> in the kernel source; look for tests of selinux_policycap_*.
+>>> These variables are set upon policy load by security_load_policycaps(),
+>>> loaded from a bitmap read from the policy file.
+>> Ok, thanks for clarifying.
+>>
+>> But just curious -- these new checks may not be not be backwards
+>> compatible? I mean if the kernel has enabled a policy feature, but the
+>> loaded policy does not have any such capability, then can it cause any
+>> problems?
+> Just to add to what Chris said:  while the handle_unknown=allow
+> mechanism could already address the simple case of adding an entirely
+> new permission to the kernel in a compatible manner, it could not
+> address changes to the semantics of an already defined permission or
+> replacing an older set of permission checks with new logic.  And with
+> handle_unknown=allow, you could not distinguish on a per-feature basis;
+> it was all allowed or none allowed for unknown classes/permissions.
+> Thus, policy capabilities were introduced as a more general mechanism.
+>
+>> Also the policy has a version, using that it's capabilities can be known
+>> to the kernel and it may enable disable the features based on that. So
+>> in this case, why is policy capability required?
+> We actually used the policy version that way when we first introduced
+> finer-grained netlink socket classes, so that older policies would still
+> use a single netlink socket class but newer policies could leverage the
+> finer-grained classes.  However, as Chris pointed out, that version is
+> intended to represent changes to the binary policy format, and this was
+> a misuse of it.  Similarly to handle_unknown, you could also only use it
+> to enable all or none of the newer features, not on a per-feature basis.
+>
 
-Thanks a lot !!
-It resolved my purpose.
-Thanks=2CAvijit
-
-> Date: Tue=2C 22 Jul 2014 08:12:33 -0400
-> From: cpebenito@tresys.com
-> To: avijitnsec@live.com=3B selinux@tycho.nsa.gov
-> Subject: Re: File-system is not mounting when I am enabling selinux
->=20
-> On 7/21/2014 7:03 PM=2C Avijit Das wrote:
-> > Hi=2C
-> >=20
-> > I am trying to enable SELinux in Android platform. I am getting the
-> > following error message:
->=20
-> > [   17.767028] SELinux: (dev mmcblk0p24=2C type ext4) has no security
-> > xattr handler
-> > [   17.830819] SELinux: (dev mmcblk0p29=2C type ext4) has no security
-> > xattr handler
-> > [   17.865028] EXT4-fs (mmcblk0p29): mounted filesystem with ordered
-> > data mode. Opts: barrier=3D1=2Cnoauto_da_alloc
-> > [   17.873877] SELinux: (dev mmcblk0p29=2C type ext4) has no security
-> > xattr handler
-> > [   17.934144] SELinux: (dev mmcblk0p25=2C type ext4) has no security
-> > xattr handler
-> > [   17.955632] SELinux: (dev mmcblk0p26=2C type ext4) has no security
-> > xattr handler
->=20
-> Your ext4 is missing security labels (note no security xattr handler
-> error)=2C you need to turn on CONFIG_EXT4_FS_SECURITY.
->=20
->=20
-> --=20
-> Chris PeBenito
-> Tresys Technology=2C LLC
-> www.tresys.com | oss.tresys.com
- 		 	   		  =
-
---_1aa00442-8794-49bf-bea3-0733aa9e254d_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<style><!--
-.hmmessage P
-{
-margin:0px=3B
-padding:0px
-}
-body.hmmessage
-{
-font-size: 12pt=3B
-font-family:Calibri
-}
---></style></head>
-<body class=3D'hmmessage'><div dir=3D'ltr'>Thanks a lot !!<div><br></div><d=
-iv>It resolved my purpose.</div><div><br></div><div>Thanks=2C</div><div>Avi=
-jit<br><br><div>&gt=3B Date: Tue=2C 22 Jul 2014 08:12:33 -0400<br>&gt=3B Fr=
-om: cpebenito@tresys.com<br>&gt=3B To: avijitnsec@live.com=3B selinux@tycho=
-.nsa.gov<br>&gt=3B Subject: Re: File-system is not mounting when I am enabl=
-ing selinux<br>&gt=3B <br>&gt=3B On 7/21/2014 7:03 PM=2C Avijit Das wrote:<=
-br>&gt=3B &gt=3B Hi=2C<br>&gt=3B &gt=3B <br>&gt=3B &gt=3B I am trying to en=
-able SELinux in Android platform. I am getting the<br>&gt=3B &gt=3B followi=
-ng error message:<br>&gt=3B <br>&gt=3B &gt=3B [   17.767028] SELinux: (dev =
-mmcblk0p24=2C type ext4) has no security<br>&gt=3B &gt=3B xattr handler<br>=
-&gt=3B &gt=3B [   17.830819] SELinux: (dev mmcblk0p29=2C type ext4) has no =
-security<br>&gt=3B &gt=3B xattr handler<br>&gt=3B &gt=3B [   17.865028] EXT=
-4-fs (mmcblk0p29): mounted filesystem with ordered<br>&gt=3B &gt=3B data mo=
-de. Opts: barrier=3D1=2Cnoauto_da_alloc<br>&gt=3B &gt=3B [   17.873877] SEL=
-inux: (dev mmcblk0p29=2C type ext4) has no security<br>&gt=3B &gt=3B xattr =
-handler<br>&gt=3B &gt=3B [   17.934144] SELinux: (dev mmcblk0p25=2C type ex=
-t4) has no security<br>&gt=3B &gt=3B xattr handler<br>&gt=3B &gt=3B [   17.=
-955632] SELinux: (dev mmcblk0p26=2C type ext4) has no security<br>&gt=3B &g=
-t=3B xattr handler<br>&gt=3B <br>&gt=3B Your ext4 is missing security label=
-s (note no security xattr handler<br>&gt=3B error)=2C you need to turn on C=
-ONFIG_EXT4_FS_SECURITY.<br>&gt=3B <br>&gt=3B <br>&gt=3B -- <br>&gt=3B Chris=
- PeBenito<br>&gt=3B Tresys Technology=2C LLC<br>&gt=3B www.tresys.com | oss=
-.tresys.com<br></div></div> 		 	   		  </div></body>
-</html>=
-
---_1aa00442-8794-49bf-bea3-0733aa9e254d_--
+Thanks for clarifying everyone.
