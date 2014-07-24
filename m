@@ -1,8 +1,8 @@
-Message-ID: <53D00BD5.9070609@tycho.nsa.gov>
-Date: Wed, 23 Jul 2014 15:24:05 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <53D1008A.8010900@redhat.com>
+Date: Thu, 24 Jul 2014 08:48:10 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, Steve Lawrence <slawrence@tresys.com>,
+To: Stephen Smalley <sds@tycho.nsa.gov>, Steve Lawrence <slawrence@tresys.com>,
  Dominick Grift <dominick.grift@gmail.com>
 Subject: Re: [RFC] Source Policy, CIL, and High Level Languages
 References: <53BD9646.6030303@tresys.com>
@@ -17,8 +17,8 @@ References: <53BD9646.6030303@tresys.com>
  <53C80FA5.3050705@tycho.nsa.gov> <53C81CDC.8080803@tresys.com>
  <53C81FA0.1020109@tycho.nsa.gov> <53C828A7.60909@tycho.nsa.gov>
  <53C82C6B.4090004@tresys.com> <53C8341D.4080300@tycho.nsa.gov>
- <53C8378E.7030408@redhat.com>
-In-Reply-To: <53C8378E.7030408@redhat.com>
+ <53C8378E.7030408@redhat.com> <53D00BD5.9070609@tycho.nsa.gov>
+In-Reply-To: <53D00BD5.9070609@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,121 +26,136 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/17/2014 04:52 PM, Daniel J Walsh wrote:
-> 
-> On 07/17/2014 04:37 PM, Stephen Smalley wrote:
->> On 07/17/2014 04:04 PM, Steve Lawrence wrote:
->>> On 07/17/2014 03:48 PM, Stephen Smalley wrote:
->>>> On 07/17/2014 03:10 PM, Stephen Smalley wrote:
->>>>> On 07/17/2014 02:58 PM, Steve Lawrence wrote:
->>>>>> I think the only remaining issue is the one Dominick mentioned in his
->>>>>> first email regarding file_contexts.homedirs. I don't think this is an
->>>>>> actual bug, just the migration script migrating things that don't need
->>>>>> to be migrated. Still investigating it. We should have an update
->>>>>> sometime tomorrow.
->>>>> So everything you reverted you restored in equivalent form?
->>>>>
->>>>>>> What new functionality is included here that was not previously
->>>>>>> supported by the old policy toolchain?
->>>>>> In terms a user would see, the most visible change is support for CIL
->>>>>> policies and HLLs, of which there's only one right now (pp2cil). There
->>>>>> are also some new semanage.conf options (target-platform, compiler-dir,
->>>>>> ignore-module-cache, store-root) but I imagine the vast majority of
->>>>>> people could just use the defaults. Similarly, we've added
->>>>>> --ignore-module-cache and --store-root to the semodule command. We've
->>>>>> also moved the store to /var/lib/selinux, but this is more behind the
->>>>>> scenes and should really only affect distributions.
->>>>> What about new features/options of the user-facing commands?  I know
->>>>> some features were copied from earlier source/CIL releases into the main
->>>>> selinux userspace (e.g. enabled/disabled modules), but aren't some
->>>>> things like module priorities new?
->>>>>
->>>>>> Though, there are two things we just realized have a different behavior.
+
+On 07/23/2014 03:24 PM, Stephen Smalley wrote:
+> On 07/17/2014 04:52 PM, Daniel J Walsh wrote:
+>> On 07/17/2014 04:37 PM, Stephen Smalley wrote:
+>>> On 07/17/2014 04:04 PM, Steve Lawrence wrote:
+>>>> On 07/17/2014 03:48 PM, Stephen Smalley wrote:
+>>>>> On 07/17/2014 03:10 PM, Stephen Smalley wrote:
+>>>>>> On 07/17/2014 02:58 PM, Steve Lawrence wrote:
+>>>>>>> I think the only remaining issue is the one Dominick mentioned in his
+>>>>>>> first email regarding file_contexts.homedirs. I don't think this is an
+>>>>>>> actual bug, just the migration script migrating things that don't need
+>>>>>>> to be migrated. Still investigating it. We should have an update
+>>>>>>> sometime tomorrow.
+>>>>>> So everything you reverted you restored in equivalent form?
 >>>>>>
->>>>>> 1) verify_modules is now performed on the CIL modules, rather than pp
->>>>>> (or HLL) modules. So if someone is using verify_modules, things will
->>>>>> probably break. I'm not sure if anyone uses this feature or how
->>>>>> important it is that we maintain backwards compatibility.
+>>>>>>>> What new functionality is included here that was not previously
+>>>>>>>> supported by the old policy toolchain?
+>>>>>>> In terms a user would see, the most visible change is support for CIL
+>>>>>>> policies and HLLs, of which there's only one right now (pp2cil). There
+>>>>>>> are also some new semanage.conf options (target-platform, compiler-dir,
+>>>>>>> ignore-module-cache, store-root) but I imagine the vast majority of
+>>>>>>> people could just use the defaults. Similarly, we've added
+>>>>>>> --ignore-module-cache and --store-root to the semodule command. We've
+>>>>>>> also moved the store to /var/lib/selinux, but this is more behind the
+>>>>>>> scenes and should really only affect distributions.
+>>>>>> What about new features/options of the user-facing commands?  I know
+>>>>>> some features were copied from earlier source/CIL releases into the main
+>>>>>> selinux userspace (e.g. enabled/disabled modules), but aren't some
+>>>>>> things like module priorities new?
 >>>>>>
->>>>>> 2) verify_linked is no longer called, since there isn't any concept of a
->>>>>> linked base module with CIL
+>>>>>>> Though, there are two things we just realized have a different behavior.
+>>>>>>>
+>>>>>>> 1) verify_modules is now performed on the CIL modules, rather than pp
+>>>>>>> (or HLL) modules. So if someone is using verify_modules, things will
+>>>>>>> probably break. I'm not sure if anyone uses this feature or how
+>>>>>>> important it is that we maintain backwards compatibility.
+>>>>>>>
+>>>>>>> 2) verify_linked is no longer called, since there isn't any concept of a
+>>>>>>> linked base module with CIL
+>>>>>>>
+>>>>>>> Aside from that, I think all functionality should remain the same.
+>>>>>> I'm not aware of anyone using anything other than verify kernel.
 >>>>>>
->>>>>> Aside from that, I think all functionality should remain the same.
->>>>> I'm not aware of anyone using anything other than verify kernel.
+>>>>>>>> Any chance of getting a hll compiler for refpolicy source modules, i.e.
+>>>>>>>> in .if/.te/.fc form?
+>>>>>>> That's in the plan. Jim has a tool that will compile .if/.te/.fc to CIL,
+>>>>>>> but the current HLL infrastructure may need some changes before that can
+>>>>>>> be supported. I think the main problem is that Jim's tool needs
+>>>>>>> knowledge of all modules to be able to convert them to CIL, but the
+>>>>>>> current HLL infrastructure compiles each module separately. We have
+>>>>>>> various ideas on how we can update the HLL infrastructure to support
+>>>>>>> this, but we've primarily been focused on getting the core CIL/HLL
+>>>>>>> functionality complete and upstreamed before focusing on the more
+>>>>>>> complicated HLL patterns.
+>>>>>> Ok.  Ultimately audit2allow -M i.e. sepolgen module compiler should be
+>>>>>> re-tooled to generate source modules, and we'll essentially need a
+>>>>>> workflow that replaces the old make -f /usr/share/selinux/devel/Makefile
+>>>>>> mymodule.pp; semodule -i mymodule.pp.
+>>>>> I guess one other possible concern might be storage:
 >>>>>
->>>>>>> Any chance of getting a hll compiler for refpolicy source modules, i.e.
->>>>>>> in .if/.te/.fc form?
->>>>>> That's in the plan. Jim has a tool that will compile .if/.te/.fc to CIL,
->>>>>> but the current HLL infrastructure may need some changes before that can
->>>>>> be supported. I think the main problem is that Jim's tool needs
->>>>>> knowledge of all modules to be able to convert them to CIL, but the
->>>>>> current HLL infrastructure compiles each module separately. We have
->>>>>> various ideas on how we can update the HLL infrastructure to support
->>>>>> this, but we've primarily been focused on getting the core CIL/HLL
->>>>>> functionality complete and upstreamed before focusing on the more
->>>>>> complicated HLL patterns.
->>>>> Ok.  Ultimately audit2allow -M i.e. sepolgen module compiler should be
->>>>> re-tooled to generate source modules, and we'll essentially need a
->>>>> workflow that replaces the old make -f /usr/share/selinux/devel/Makefile
->>>>> mymodule.pp; semodule -i mymodule.pp.
->>>> I guess one other possible concern might be storage:
+>>>>> $ du -sh /etc/selinux/targeted/modules /var/lib/selinux/
+>>>>> 5.4M	/etc/selinux/targeted/modules
+>>>>> 11M	/var/lib/selinux/
+>>>>>
+>>>>> I'm guessing that is just the cost of storing each module in both binary
+>>>>> and cil form?
+>>>> Yep, we store both HLL and CIL. They are both compressed and CIL
+>>>> compresses decently since it's just text, but it's still a lot of text.
 >>>>
->>>> $ du -sh /etc/selinux/targeted/modules /var/lib/selinux/
->>>> 5.4M	/etc/selinux/targeted/modules
->>>> 11M	/var/lib/selinux/
->>>>
->>>> I'm guessing that is just the cost of storing each module in both binary
->>>> and cil form?
->>> Yep, we store both HLL and CIL. They are both compressed and CIL
->>> compresses decently since it's just text, but it's still a lot of text.
+>>>>> Is there an option to discard the .pp files altogether and only retain
+>>>>> the cil files?
+>>>> Not at the moment, but it wouldn't be hard to accomplish. Just need to
+>>>> delete all the hll files and change the contents of lang_ext to 'cil'.
+>>>> Something we could add if storage is an issue.
+>>> That worked, albeit I had to learn that lang_ext must not include a
+>>> newline or libsemanage won't accept it.  Took it down to 5.8M.  I
+>>> suspect we could also stop retaining a copy of certain generated files
+>>> like file_contexts although that is no different than the current code.
 >>>
->>>> Is there an option to discard the .pp files altogether and only retain
->>>> the cil files?
->>> Not at the moment, but it wouldn't be hard to accomplish. Just need to
->>> delete all the hll files and change the contents of lang_ext to 'cil'.
->>> Something we could add if storage is an issue.
->> That worked, albeit I had to learn that lang_ext must not include a
->> newline or libsemanage won't accept it.  Took it down to 5.8M.  I
->> suspect we could also stop retaining a copy of certain generated files
->> like file_contexts although that is no different than the current code.
->>
->> Not sure what benefit there is in retaining the pp files, since they
->> carry no additional information AFAIK and they aren't human viewable or
->> editable.  Is there even an option for exporting modules from the policy
->> store currently that would allow extracting them except via direct file
->> access to the policy store?
->>
->> More generally, if the user knows that the hll module is going to be
->> saved elsewhere, then there is no reason to retain a copy in the policy
->> store, so having the option of dropping the hll version, either for all
->> modules or for specific modules, seems useful.
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->>
->>
-> BTW Moving the policy out of /etc is also great.  I would like to see
-> policy loaded from
-> /var/lib/selinux/ if it exists and then look in /usr/lib/selinux/ if it
-> does not.  Then distributions could
-> ship their own policies, and if a user wanted to get back to Factory
-> install he could just rm -rf /var/lib/selinux
+>>> Not sure what benefit there is in retaining the pp files, since they
+>>> carry no additional information AFAIK and they aren't human viewable or
+>>> editable.  Is there even an option for exporting modules from the policy
+>>> store currently that would allow extracting them except via direct file
+>>> access to the policy store?
+>>>
+>>> More generally, if the user knows that the hll module is going to be
+>>> saved elsewhere, then there is no reason to retain a copy in the policy
+>>> store, so having the option of dropping the hll version, either for all
+>>> modules or for specific modules, seems useful.
+>>> _______________________________________________
+>>> Selinux mailing list
+>>> Selinux@tycho.nsa.gov
+>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>>
+>>>
+>> BTW Moving the policy out of /etc is also great.  I would like to see
+>> policy loaded from
+>> /var/lib/selinux/ if it exists and then look in /usr/lib/selinux/ if it
+>> does not.  Then distributions could
+>> ship their own policies, and if a user wanted to get back to Factory
+>> install he could just rm -rf /var/lib/selinux
+> At present, they still install the final policy files to
+> /etc/selinux/targeted since that is where libselinux expects to find
+> them for loading; only the policy module store managed by libsemanage is
+> moved from /etc/selinux/targeted/modules to /var/lib/selinux/targeted.
+> If you wanted to relocate even the final policy files, we'd have to
+> update libselinux to also look under /var/lib/selinux.  Also, there
+> might be a problem with relocating to /var for the final policy files
+> since it can be a separate partition and might not always be mounted
+> when systemd tries to load policy.
+>
+> In the case of Android, we have the initial set of policy files in /
+> (part of the rootfs from the initramfs), and optionally you can place
+> your own policy under /data/security.  init always loads first from the
+> policy files in the rootfs and then later reloads from the
+> /data/security policy files if present after mounting /data.  Factory
+> reset wipes /data and restores to the original rootfs policy.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
+Ok lets stick with /etc and /usr/lib/selinux.  Distributions could ship
+policy and config in /usr/lib/selinux and then any customization of 
+policy should continue to go into /etc/selinux.  Then libselinux should
+look in /etc/selinux/ first and fail over to /usr/lib/selinux.
 
-At present, they still install the final policy files to
-/etc/selinux/targeted since that is where libselinux expects to find
-them for loading; only the policy module store managed by libsemanage is
-moved from /etc/selinux/targeted/modules to /var/lib/selinux/targeted.
-If you wanted to relocate even the final policy files, we'd have to
-update libselinux to also look under /var/lib/selinux.  Also, there
-might be a problem with relocating to /var for the final policy files
-since it can be a separate partition and might not always be mounted
-when systemd tries to load policy.
-
-In the case of Android, we have the initial set of policy files in /
-(part of the rootfs from the initramfs), and optionally you can place
-your own policy under /data/security.  init always loads first from the
-policy files in the rootfs and then later reloads from the
-/data/security policy files if present after mounting /data.  Factory
-reset wipes /data and restores to the original rootfs policy.
+One of the things the systemd guys are working on is a "Reset" button
+where a  user could remove /var and /etc and still boot with system
+defaults.
