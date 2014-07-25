@@ -1,90 +1,147 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6P2C3mP019245
- for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2014 22:12:03 -0400
-Message-ID: <53D1BCF0.1020806@windriver.com>
-Date: Fri, 25 Jul 2014 10:12:00 +0800
-From: wenzong fan <wenzong.fan@windriver.com>
+Message-ID: <53D28DBB.8000905@tycho.nsa.gov>
+Date: Fri, 25 Jul 2014 13:02:51 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-Subject: Re: [mcstransd] Fails after Reload Translations
-References: <53C766F5.4090905@windriver.com>
- <7E820C6F-E375-4E61-8DDF-77E8BE2D1BD2@nall.com>
-In-Reply-To: <7E820C6F-E375-4E61-8DDF-77E8BE2D1BD2@nall.com>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Cc: selinux@tycho.nsa.gov
+To: SELinux-NSA <SELinux@tycho.nsa.gov>,
+ Joshua Brindle <brindle@quarksecurity.com>,
+ Steve Lawrence <slawrence@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
+Subject: [RFC] [PATCH] libsemanage: Skip policy module re-link when only
+ setting booleans.
+Content-Type: multipart/mixed; boundary="------------000209030208020403080902"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/17/2014 09:15 PM, Joe Nall wrote:
->
-> On Jul 17, 2014, at 1:02 AM, wenzong fan <wenzong.fan@windriver.com> wrote:
->
->> Hello,
->>
->> Generally the mcstransd works well on mls enabled system, but if "restart daemon" triggered, it will fail to trans the mls levels.
->
-> domain does seems to be scoped improperly for a reload. I'll take a look and get back in a couple of days.
+This is a multi-part message in MIME format.
+--------------000209030208020403080902
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Thanks for taking care of this but may I have your patches to replace my 
-workaround?
+Motivated by:
+https://bugzilla.redhat.com/show_bug.cgi?id=1098446
 
-Wenzong
+I believe this is always safe for booleans because we only set their
+value; we are never adding new ones via semanage, unlike for example
+users, ports, nodes, and interfaces.  For the rest, I was wondering why
+we don't save the linked file and just reuse it on those changes rather
+than re-linking each time - that seems like it would be straightforward
+to do in libsemanage and make those operations significantly faster and
+less memory intensive.
 
->
-> joe
->
->>
->> * To reproduce the issue:
->> 1) apply attached patch: force-to-reload-translations.patch
->> 2) build mcstransd and replace the one: "/sbin/mcstransd"
->> 3) start the daemon and check results:
->>
->>   $ run_init /etc/init.d/mcstrans start
->>   $ id -Z
->>   staff_u:lspp_test_r:lspp_harness_t:s0-s15:c0.c1023
->>
->>   $ ps aux|grep mcs
->>   root      3004  0.0  0.0  14884   668 ?        Ss   09:37   0:00 mcstransd
->>   root      3116  0.0  0.0 103252   832 pts/1    S+   10:39   0:00 grep mcs
->>
->>   $ grep mcs /var/log/messages
->>   Jul 17 09:37:05 localhost mcstransd: mcstransd starting
->>   Jul 17 09:37:05 localhost mcstransd: Failed to initialize color translations
->>   Jul 17 09:37:05 localhost mcstransd: No color information will be available
->>   Jul 17 09:37:05 localhost mcstransd: mcstransd initialized
->>   Jul 17 09:37:05 localhost mcstransd: Reload Translations
->>   Jul 17 09:37:05 localhost mcstransd: cache sizes: tr = 26, rt = 26
->>   Jul 17 09:37:05 localhost mcstransd: Failed to initialize color translations
->>   Jul 17 09:37:05 localhost mcstransd: No color information will be available
->>
->> I tested this on CentOS 6.5 with mls policy enabled.
->>
->> * Why does it fail?
->>
->> Check process_trans() in mcstrans.c:
->>
->> 723 process_trans(char *buffer) {
->> 724         static domain_t *domain;
->> [snip] ...
->> 784         if (!domain) {
->> 785                 domain = create_domain("Default");
->> 786                 if (!domain)
->> 787                         return -1;
->> 788                 group = NULL;
->> 789         }
->>
->> As I think, the static pointer "domain" will be initialized when the daemon is starting, it will work well if that's all; But if "restart daemon" triggered after that, the point "domain" will have an old value but not NULL, this will prevent the create_domain() from running. In this case, an empty "domains" causes the translation failed.
->>
->> I have a workaround to get it works: workaround-for-mcstransd.patch, but it's a bit ugly, I hope someone could give a better fix for it:)
->>
->> Thanks
->> Wenzong
->> <force-to-reload-translations.patch><workaround-for-mcstransd.patch>_______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
+--------------000209030208020403080902
+Content-Type: text/x-patch;
+ name="0001-Skip-policy-module-re-link-when-only-setting-boolean.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Skip-policy-module-re-link-when-only-setting-boolean.pa";
+ filename*1="tch"
+
+>From 11f35253194036bde941042fa6a2665297853017 Mon Sep 17 00:00:00 2001
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Fri, 25 Jul 2014 12:05:43 -0400
+Subject: [PATCH] Skip policy module re-link when only setting booleans.
+
+Since booleans are only set, not added/removed, we do not need to re-link
+modules when setting them.  We can instead just take the existing binary
+policy and mutate it for the new values.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsemanage/src/direct_api.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 64dc7d9..5b94725 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -690,7 +690,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	/* Declare some variables */
+ 	int modified = 0, fcontexts_modified, ports_modified,
+ 	    seusers_modified, users_extra_modified, dontaudit_modified,
+-	    preserve_tunables_modified;
++	    preserve_tunables_modified, bools_modified;
+ 	dbase_config_t *users = semanage_user_dbase_local(sh);
+ 	dbase_config_t *users_base = semanage_user_base_dbase_local(sh);
+ 	dbase_config_t *pusers_base = semanage_user_base_dbase_policy(sh);
+@@ -771,11 +771,11 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	users_extra_modified =
+ 	    users_extra->dtable->is_modified(users_extra->dbase);
+ 	ports_modified = ports->dtable->is_modified(ports->dbase);
++	bools_modified = bools->dtable->is_modified(bools->dbase);
+ 
+ 	modified = sh->modules_modified;
+ 	modified |= ports_modified;
+ 	modified |= users->dtable->is_modified(users_base->dbase);
+-	modified |= bools->dtable->is_modified(bools->dbase);
+ 	modified |= ifaces->dtable->is_modified(ifaces->dbase);
+ 	modified |= nodes->dtable->is_modified(nodes->dbase);
+ 	modified |= dontaudit_modified;
+@@ -891,15 +891,26 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 
+ 		/* ==================== Policydb-backed ================ */
+ 
+-		/* Create new policy object, then attach to policy databases
+-		 * that work with a policydb */
++		/* Create new policy object */
+ 		retval = semanage_expand_sandbox(sh, base, &out);
+ 		if (retval < 0)
+ 			goto cleanup;
+ 	
+ 		sepol_module_package_free(base);
+ 		base = NULL;
++	} else {
++		/* Load already linked policy */
++		retval = sepol_policydb_create(&out);
++		if (retval < 0)
++			goto cleanup;
++
++		retval = semanage_read_policydb(sh, out);
++		if (retval < 0)
++			goto cleanup;
++	}
+ 
++	if (sh->do_rebuild || modified || bools_modified) {
++		/* Attach to policy databases that work with a policydb. */
+ 		dbase_policydb_attach((dbase_policydb_t *) pusers_base->dbase,
+ 				      out);
+ 		dbase_policydb_attach((dbase_policydb_t *) pports->dbase, out);
+@@ -921,14 +932,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 		if (retval < 0)
+ 			goto cleanup;
+ 	} else {
+-		retval = sepol_policydb_create(&out);
+-		if (retval < 0)
+-			goto cleanup;
+-
+-		retval = semanage_read_policydb(sh, out);
+-		if (retval < 0)
+-			goto cleanup;
+-		
++		/* Changes to non-kernel policy configurations only. */
+ 		if (seusers_modified || users_extra_modified) {
+ 			retval = semanage_link_base(sh, &base);
+ 			if (retval < 0)
+@@ -1007,7 +1011,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	sepol_policydb_free(out);
+ 	out = NULL;
+ 
+-	if (sh->do_rebuild || modified || 
++	if (sh->do_rebuild || modified || bools_modified ||
+ 	    seusers_modified || fcontexts_modified || users_extra_modified) {
+ 		retval = semanage_install_sandbox(sh);
+ 	}
+@@ -1017,7 +1021,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 		free(mod_filenames[i]);
+ 	}
+ 
+-	if (modified) {
++	if (modified || bools_modified) {
+ 		/* Detach from policydb, so it can be freed */
+ 		dbase_policydb_detach((dbase_policydb_t *) pusers_base->dbase);
+ 		dbase_policydb_detach((dbase_policydb_t *) pports->dbase);
+-- 
+1.9.3
+
+
+--------------000209030208020403080902--
