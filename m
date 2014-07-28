@@ -1,61 +1,64 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6SFGZaP012928
- for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2014 11:16:35 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [GIT PULL] SELinux fix for 3.16-rcX
-Date: Mon, 28 Jul 2014 11:16:33 -0400
-Message-ID: <1696874.XicgDe8Om8@sifl>
-In-Reply-To: <2092564.8lACVUTXtn@sifl>
-References: <2092564.8lACVUTXtn@sifl>
+Message-ID: <53D69C82.2070300@redhat.com>
+Date: Mon, 28 Jul 2014 14:54:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ Joshua Brindle <brindle@quarksecurity.com>
+Subject: Re: [RFC] [PATCH] libsemanage: Skip policy module re-link when only
+ setting booleans.
+References: <53D28DBB.8000905@tycho.nsa.gov>
+ <53D2B3ED.2070102@quarksecurity.com> <53D2B4DA.7090504@redhat.com>
+ <53D2B64F.5020004@tycho.nsa.gov>
+In-Reply-To: <53D2B64F.5020004@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: SELinux-NSA <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tuesday, July 15, 2014 10:38:19 PM Paul Moore wrote:
-> Hi James,
-> 
-> A single fix for the upcoming 3.16 release.  This patch is worth pushing up
-> for 3.16, despite the late stage of the release, because without this patch
-> SELinux systems with the latest version of cryptsetup may not be able to
-> access their encrypted volumes (more details in the patch description) which
-> could prevent the system from booting properly, users accessing their home
-> directories, etc.
-> 
-> The patch is fairly minor and passes the SELinux testsuite.
+Sounds like a reasonable compromise to me.
 
-Hello again,
-
-Below is a revert for the patch above, while it fixed AF_ALG, it killed 
-Bluetooth so we need to revert it.  I'll fix AF_ALG in a future patch.
-
----
-The following changes since commit 4da6daf4d3df5a977e4623963f141a627fd2efce:
-
-  selinux: fix the default socket labeling in sock_graft() (2014-07-10  
-           10:17:48 -0400)
-
-are available in the git repository at:
-
-  git://git.infradead.org/users/pcmoore/selinux stable-3.16
-
-for you to fetch changes up to 2873ead7e46694910ac49c3a8ee0f54956f96e0c:
-
-  Revert "selinux: fix the default socket labeling in sock_graft()"     
-          (2014-07-28 10:46:07 -0400)
-
-----------------------------------------------------------------
-Paul Moore (1):
-      Revert "selinux: fix the default socket labeling in sock_graft()"
-
- include/linux/security.h |  5 +----
- security/selinux/hooks.c | 13 ++-----------
- 2 files changed, 3 insertions(+), 15 deletions(-)
-
--- 
-paul moore
-security and virtualization @ redhat
+On 07/25/2014 03:55 PM, Stephen Smalley wrote:
+> Effectively it would be another copy of the kernel policy file, just one
+> that is generated before merging local customizations (booleans, users,
+> ports, nodes, interface), so that we can take that kernel policy, read
+> it into a policydb, and mutate it rather than having to re-link the
+> modules to generate another one.  Would allow us to avoid module
+> re-linking on all non-module semanage changes IIUC.  Could be
+> compressed; just means you have to pay the cost of uncompressing it
+> before using it in libsemanage.
+>
+> On 07/25/2014 03:49 PM, Daniel J Walsh wrote:
+>> How large is it?  Does it matter if it is compressed?
+>>
+>> On 07/25/2014 03:45 PM, Joshua Brindle wrote:
+>>> Stephen Smalley wrote:
+>>>> Motivated by:
+>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1098446
+>>>>
+>>>> I believe this is always safe for booleans because we only set their
+>>>> value; we are never adding new ones via semanage, unlike for example
+>>>> users, ports, nodes, and interfaces.  For the rest, I was wondering why
+>>>> we don't save the linked file and just reuse it on those changes rather
+>>>> than re-linking each time - that seems like it would be straightforward
+>>> We originally kept the linked copy around and had intended to do what
+>>> you are saying above but removed it when the minimal Red Hat guys
+>>> complained about the size of it.
+>>>
+>>>> to do in libsemanage and make those operations significantly faster and
+>>>> less memory intensive.
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
+>>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
