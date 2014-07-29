@@ -1,53 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6TFIqeo032260
- for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2014 11:18:55 -0400
-Date: Wed, 30 Jul 2014 01:18:56 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-Subject: Re: [GIT PULL] SELinux fix for 3.16-rcX
-In-Reply-To: <1696874.XicgDe8Om8@sifl>
-Message-ID: <alpine.LRH.2.11.1407300118410.18973@namei.org>
-References: <2092564.8lACVUTXtn@sifl> <1696874.XicgDe8Om8@sifl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6TIfgK5013969
+ for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2014 14:41:42 -0400
+Received: by mail-we0-f174.google.com with SMTP id x48so68382wes.33
+ for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2014 11:41:46 -0700 (PDT)
+From: Milan Broz <gmazyland@gmail.com>
+To: linux-crypto@vger.kernel.org
+Subject: [PATCH] crypto: properly label AF_ALG socket
+Date: Tue, 29 Jul 2014 20:41:09 +0200
+Message-Id: <1406659269-8346-1-git-send-email-gmazyland@gmail.com>
+In-Reply-To: <20140728150958.23156.75132.stgit@localhost>
+References: <20140728150958.23156.75132.stgit@localhost>
+Cc: stable@vger.kernel.org, Milan Broz <gmazyland@gmail.com>,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 28 Jul 2014, Paul Moore wrote:
+Th AF_ALG socket was missing a security label (e.g. SELinux)
+which means that socket was in "unlabeled" state.
 
-> On Tuesday, July 15, 2014 10:38:19 PM Paul Moore wrote:
-> > Hi James,
-> > 
-> > A single fix for the upcoming 3.16 release.  This patch is worth pushing up
-> > for 3.16, despite the late stage of the release, because without this patch
-> > SELinux systems with the latest version of cryptsetup may not be able to
-> > access their encrypted volumes (more details in the patch description) which
-> > could prevent the system from booting properly, users accessing their home
-> > directories, etc.
-> > 
-> > The patch is fairly minor and passes the SELinux testsuite.
-> 
-> Hello again,
-> 
-> Below is a revert for the patch above, while it fixed AF_ALG, it killed 
-> Bluetooth so we need to revert it.  I'll fix AF_ALG in a future patch.
-> 
-> ---
-> The following changes since commit 4da6daf4d3df5a977e4623963f141a627fd2efce:
-> 
->   selinux: fix the default socket labeling in sock_graft() (2014-07-10  
->            10:17:48 -0400)
-> 
-> are available in the git repository at:
-> 
->   git://git.infradead.org/users/pcmoore/selinux stable-3.16
-> 
+This was recently demonstrated in the cryptsetup package
+(cryptsetup v1.6.5 and later.)
+See https://bugzilla.redhat.com/show_bug.cgi?id=1115120
 
-Pulled, thanks.
+This patch clones the sock's label from the parent sock
+and resolves the issue (similar to AF_BLUETOOTH protocol family).
 
+Cc: stable@vger.kernel.org
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+---
+ crypto/af_alg.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/crypto/af_alg.c b/crypto/af_alg.c
+index 966f893..6a3ad80 100644
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -21,6 +21,7 @@
+ #include <linux/module.h>
+ #include <linux/net.h>
+ #include <linux/rwsem.h>
++#include <linux/security.h>
+ 
+ struct alg_type_list {
+ 	const struct af_alg_type *type;
+@@ -243,6 +244,7 @@ int af_alg_accept(struct sock *sk, struct socket *newsock)
+ 
+ 	sock_init_data(newsock, sk2);
+ 	sock_graft(sk2, newsock);
++	security_sk_clone(sk, sk2);
+ 
+ 	err = type->accept(ask->private, sk2);
+ 	if (err) {
 -- 
-James Morris
-<jmorris@namei.org>
+2.0.1
