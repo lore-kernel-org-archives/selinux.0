@@ -1,51 +1,53 @@
-Message-ID: <53D79E6D.8000202@tresys.com>
-Date: Tue, 29 Jul 2014 09:15:25 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6TFIqeo032260
+ for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2014 11:18:55 -0400
+Date: Wed, 30 Jul 2014 01:18:56 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+Subject: Re: [GIT PULL] SELinux fix for 3.16-rcX
+In-Reply-To: <1696874.XicgDe8Om8@sifl>
+Message-ID: <alpine.LRH.2.11.1407300118410.18973@namei.org>
+References: <2092564.8lACVUTXtn@sifl> <1696874.XicgDe8Om8@sifl>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, Joshua Brindle
- <brindle@quarksecurity.com>
-Subject: Re: [RFC] [PATCH] libsemanage: Skip policy module re-link when only
- setting booleans.
-References: <53D28DBB.8000905@tycho.nsa.gov>
- <53D2B3ED.2070102@quarksecurity.com> <53D2B4DA.7090504@redhat.com>
- <53D2B64F.5020004@tycho.nsa.gov> <53D2B83A.3010302@quarksecurity.com>
- <53D2BA1F.3010608@tycho.nsa.gov>
-In-Reply-To: <53D2BA1F.3010608@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"
-Cc: SELinux-NSA <SELinux@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/25/2014 04:12 PM, Stephen Smalley wrote:
-> On 07/25/2014 04:04 PM, Joshua Brindle wrote:
->> Stephen Smalley wrote:
->>> Effectively it would be another copy of the kernel policy file, just one
->>> that is generated before merging local customizations (booleans, users,
->>> ports, nodes, interface), so that we can take that kernel policy, read
->>> it into a policydb, and mutate it rather than having to re-link the
->>> modules to generate another one.  Would allow us to avoid module
->>> re-linking on all non-module semanage changes IIUC.  Could be
->>> compressed; just means you have to pay the cost of uncompressing it
->>> before using it in libsemanage.
->>>
->>
->> On my Fedora 20 system a linked policy is 32 meg, bzip2 linked policy is
->> 768k.
+On Mon, 28 Jul 2014, Paul Moore wrote:
+
+> On Tuesday, July 15, 2014 10:38:19 PM Paul Moore wrote:
+> > Hi James,
+> > 
+> > A single fix for the upcoming 3.16 release.  This patch is worth pushing up
+> > for 3.16, despite the late stage of the release, because without this patch
+> > SELinux systems with the latest version of cryptsetup may not be able to
+> > access their encrypted volumes (more details in the patch description) which
+> > could prevent the system from booting properly, users accessing their home
+> > directories, etc.
+> > 
+> > The patch is fairly minor and passes the SELinux testsuite.
 > 
-> I wasn't going to bother with saving the current linked policy, just a
-> copy of the kernel policy before merging local customizations.  There is
-> no linked policy in cil (on #integration) so basing anything on it is
-> likely not a good idea, and by writing out the kernel policy before
-> merging, we end up with something that is smaller and more readily
-> usable on the next transaction.
+> Hello again,
+> 
+> Below is a revert for the patch above, while it fixed AF_ALG, it killed 
+> Bluetooth so we need to revert it.  I'll fix AF_ALG in a future patch.
+> 
+> ---
+> The following changes since commit 4da6daf4d3df5a977e4623963f141a627fd2efce:
+> 
+>   selinux: fix the default socket labeling in sock_graft() (2014-07-10  
+>            10:17:48 -0400)
+> 
+> are available in the git repository at:
+> 
+>   git://git.infradead.org/users/pcmoore/selinux stable-3.16
 > 
 
-This is correct. CIL does not generate a linked policy, so in order for
-this change to be compatible with the CIL integration we would have to
-store the kernel policy.
+Pulled, thanks.
 
-Also, this patch looks good to me.
-
-- Steve
+-- 
+James Morris
+<jmorris@namei.org>
