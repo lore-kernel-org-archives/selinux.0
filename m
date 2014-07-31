@@ -1,38 +1,68 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6VDu6jV003831
- for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2014 09:56:06 -0400
-Date: Thu, 31 Jul 2014 21:55:59 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Milan Broz <gmazyland@gmail.com>
-Subject: Re: [PATCH] crypto: properly label AF_ALG socket
-Message-ID: <20140731135559.GA5777@gondor.apana.org.au>
-References: <20140728150958.23156.75132.stgit@localhost>
- <1406659269-8346-1-git-send-email-gmazyland@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6VLiLE2002787
+ for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2014 17:44:21 -0400
+Subject: [PATCH 0/4] Fix the NetLabel LSM category mappings
+From: Paul Moore <pmoore@redhat.com>
+To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Date: Thu, 31 Jul 2014 17:44:19 -0400
+Message-ID: <20140731212856.4991.49396.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1406659269-8346-1-git-send-email-gmazyland@gmail.com>
-Cc: stable@vger.kernel.org, linux-crypto@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jul 29, 2014 at 06:41:09PM +0000, Milan Broz wrote:
-> Th AF_ALG socket was missing a security label (e.g. SELinux)
-> which means that socket was in "unlabeled" state.
-> 
-> This was recently demonstrated in the cryptsetup package
-> (cryptsetup v1.6.5 and later.)
-> See https://bugzilla.redhat.com/show_bug.cgi?id=1115120
-> 
-> This patch clones the sock's label from the parent sock
-> and resolves the issue (similar to AF_BLUETOOTH protocol family).
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Milan Broz <gmazyland@gmail.com>
+As you will see in the patch descriptions below, the NetLabel LSM
+category mappings are very badly broken.  This patchset should repair
+things and make life better in the future.  The first three patches
+are straight-up bug fixes; the fourth patch doesn't actually fix any
+faulty logic in the code, but rather shortens some stupidly long
+function and structure names relating to the NetLabel category
+mappings.  I should probably do something similar with a lot of other
+NetLabel APIs, but that is for another time.
 
-Applied to crypto.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Thanks to Christian Evans for pointing out one of the original
+problems.  I don't think he realized how many problems there really
+were, but I still owe him one for getting me to revisit this ugly,
+nasty code.  I apologize it took so long to get a fix out and that
+things were broken this badly in the first place.
+
+Casey, I'm CC'ing you here because this patchset does touch some of
+the Smack code, but as you can see the changes are trivial.  I will
+be very surprised if you find anything objectionable in there.
+However, if you do, let me know and I'll fix it.
+
+DaveM/netdev folks, you guys are included here for the obvious reason
+that a good chunk of the code changes live in net/*.  However, the
+net/* related changes are all within the NetLabel code and not in the
+core networking stack so I doubt this is something you'll care too
+much about.  I'm going to guess that as far as you're concerned, this
+is just another bugfix to a subsystem you don't really care about.
+
+DaveM, unless you have any objections, I'm planning on pushing this
+via the SELinux tree up through James' LSM tree since that seems to
+make the most sense to me.  If you would rather push it via the netdev
+tree please let me know.
+
+-Paul
+
+---
+
+Paul Moore (4):
+      netlabel: fix a problem when setting bits below the previously lowest bit
+      netlabel: fix the horribly broken catmap functions
+      netlabel: fix the catmap walking functions
+      netlabel: shorter names for the NetLabel catmap funcs/structs
+
+
+ include/net/netlabel.h        |   94 +++++++-----
+ net/ipv4/cipso_ipv4.c         |   47 ++----
+ net/netlabel/netlabel_kapi.c  |  327 ++++++++++++++++++++++++++++-------------
+ security/selinux/ss/ebitmap.c |  133 +++++++----------
+ security/selinux/ss/ebitmap.h |    8 +
+ security/smack/smack_access.c |   11 +
+ security/smack/smack_lsm.c    |    6 -
+ security/smack/smackfs.c      |   14 +-
+ 8 files changed, 366 insertions(+), 274 deletions(-)
