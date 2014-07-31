@@ -1,38 +1,38 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6V1m2VE030465
- for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2014 21:48:03 -0400
-Received: by mail-qa0-f51.google.com with SMTP id k15so1810083qaq.24
- for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2014 18:48:06 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Toralf =?ISO-8859-1?Q?F=F6rster?= <toralf.foerster@gmx.de>
-Subject: Re: %u in format string (no. 1) requires 'unsigned int *' but the
- argument type is 'int *'.
-Date: Wed, 30 Jul 2014 21:48:03 -0400
-Message-ID: <1743130.T4GcnmSVhv@sifl>
-In-Reply-To: <53D94CCC.8000307@gmx.de>
-References: <53D94CCC.8000307@gmx.de>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s6VDu6jV003831
+ for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2014 09:56:06 -0400
+Date: Thu, 31 Jul 2014 21:55:59 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Milan Broz <gmazyland@gmail.com>
+Subject: Re: [PATCH] crypto: properly label AF_ALG socket
+Message-ID: <20140731135559.GA5777@gondor.apana.org.au>
+References: <20140728150958.23156.75132.stgit@localhost>
+ <1406659269-8346-1-git-send-email-gmazyland@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1406659269-8346-1-git-send-email-gmazyland@gmail.com>
+Cc: stable@vger.kernel.org, linux-crypto@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, July 30, 2014 09:51:40 PM Toralf Förster wrote:
-> /me wonders if this issue (found by cppcheck) :
+On Tue, Jul 29, 2014 at 06:41:09PM +0000, Milan Broz wrote:
+> Th AF_ALG socket was missing a security label (e.g. SELinux)
+> which means that socket was in "unlabeled" state.
 > 
->         ret = -EINVAL;
->         if (sscanf(page, "%u", &new_value) != 1)<--- %u in format string
-> (no. 1) requires 'unsigned int *' but the argument type is 'int *'. goto
-> out;
+> This was recently demonstrated in the cryptsetup package
+> (cryptsetup v1.6.5 and later.)
+> See https://bugzilla.redhat.com/show_bug.cgi?id=1115120
 > 
-> is already in one's trivial patch queue ?
+> This patch clones the sock's label from the parent sock
+> and resolves the issue (similar to AF_BLUETOOTH protocol family).
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Milan Broz <gmazyland@gmail.com>
 
-Is this in sel_write_avc_cache_threshold()?  If so, no, we don't currently 
-have a patch queued for this, it would be great if you wanted to submit a 
-patch to turn new_value into an unsigned int.
-
+Applied to crypto.  Thanks.
 -- 
-paul moore
-www.paul-moore.com
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
