@@ -1,74 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s71FSenZ030376
- for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2014 11:28:40 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s71FiEw9031670
+ for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2014 11:44:14 -0400
 From: Paul Moore <pmoore@redhat.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [GIT PULL] SELinux patches for 3.17
-Date: Fri, 01 Aug 2014 11:28:36 -0400
-Message-ID: <25128076.T1yg0xqlTP@sifl>
-In-Reply-To: <3135081.Nfbulyq9MG@sifl>
-References: <3135081.Nfbulyq9MG@sifl>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 0/4] Fix the NetLabel LSM category mappings
+Date: Fri, 01 Aug 2014 11:43:53 -0400
+Message-ID: <2162573.KyEhY0bOD3@sifl>
+In-Reply-To: <53DAC781.3010502@schaufler-ca.com>
+References: <20140731212856.4991.49396.stgit@localhost>
+ <53DAC781.3010502@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, July 18, 2014 03:37:19 PM Paul Moore wrote:
-> Hi James,
+On Thursday, July 31, 2014 03:47:29 PM Casey Schaufler wrote:
+> On 7/31/2014 2:44 PM, Paul Moore wrote:
+> > As you will see in the patch descriptions below, the NetLabel LSM
+> > category mappings are very badly broken.  This patchset should repair
+> > things and make life better in the future.  The first three patches
+> > are straight-up bug fixes; the fourth patch doesn't actually fix any
+> > faulty logic in the code, but rather shortens some stupidly long
+> > function and structure names relating to the NetLabel category
+> > mappings.  I should probably do something similar with a lot of other
+> > NetLabel APIs, but that is for another time.
+> > 
+> > Thanks to Christian Evans for pointing out one of the original
+> > problems.  I don't think he realized how many problems there really
+> > were, but I still owe him one for getting me to revisit this ugly,
+> > nasty code.  I apologize it took so long to get a fix out and that
+> > things were broken this badly in the first place.
+> > 
+> > Casey, I'm CC'ing you here because this patchset does touch some of
+> > the Smack code, but as you can see the changes are trivial.  I will
+> > be very surprised if you find anything objectionable in there.
+> > However, if you do, let me know and I'll fix it.
 > 
-> Here are the SELinux patches for 3.17.  A total of eight patches, none
-> particularly controversial: a few cleanups, a few bug fixes, and a minor
-> tweak to reduce the SELinux overhead during boot...
+> The code passes my tests. I'll mark the patches "Tested-by:".
 
-Hi James,
-
-A late addition to the SELinux patches for 3.17.  Normally I would just wait 
-for the next release, but these patches are pretty significant (marked for 
-stable as well) so I think they merit the late add.  I just posted the patches 
-yesterday with an explanation so I won't bother repeating myself here since 
-they are still likely fresh in your inbox.
-
-I did a quick test pull and everything applies cleanly on top of the linux-
-security #next tree.
-
-Thanks,
--Paul
-
----
-The following changes since commit 615e51fdda6f274e94b1e905fcaf6111e0d9aa20:
-
-  selinux: reduce the number of calls to synchronize_net() when flushing
-           caches (2014-06-26 14:33:56 -0400)
-
-are available in the git repository at:
-
-  git://git.infradead.org/users/pcmoore/selinux next
-
-for you to fetch changes up to 4fbe63d1c773cceef3fe1f6ed0c9c268f4f24760:
-
-  netlabel: shorter names for the NetLabel catmap funcs/structs
-            (2014-08-01 11:17:37 -0400)
-
-----------------------------------------------------------------
-Paul Moore (4):
-      netlabel: fix a problem when setting bits below the previously
-                lowest bit
-      netlabel: fix the horribly broken catmap functions
-      netlabel: fix the catmap walking functions
-      netlabel: shorter names for the NetLabel catmap funcs/structs
-
- include/net/netlabel.h        |  94 ++++++------
- net/ipv4/cipso_ipv4.c         |  47 +++---
- net/netlabel/netlabel_kapi.c  | 327 +++++++++++++++++++++++++++-----------
- security/selinux/ss/ebitmap.c | 133 +++++++----------
- security/selinux/ss/ebitmap.h |   8 +-
- security/smack/smack_access.c |  11 +-
- security/smack/smack_lsm.c    |   6 +-
- security/smack/smackfs.c      |  14 +-
- 8 files changed, 366 insertions(+), 274 deletions(-)
+Great, thanks for testing.
 
 -- 
 paul moore
