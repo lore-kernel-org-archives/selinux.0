@@ -1,17 +1,16 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux: Permit bounded transitions under NO_NEW_PRIVS or
+Subject: [PATCH v2] selinux: Permit bounded transitions under NO_NEW_PRIVS or
  NOSUID.
-Date: Mon,  4 Aug 2014 13:20:40 -0400
-Message-Id: <1407172840-3145-1-git-send-email-sds@tycho.nsa.gov>
+Date: Mon,  4 Aug 2014 13:36:49 -0400
+Message-Id: <1407173809-3477-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, luto@amacapital.net
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If the callee SID is bounded by the caller SID or if the caller SID is allowed
-to perform a dynamic transition (setcon) to the callee SID, then allowing
+If the callee SID is bounded by the caller SID, then allowing
 the transition to occur poses no risk of privilege escalation and we can
 therefore safely allow the transition to occur.  Add this exemption
 for both the case where a transition was explicitly requested by the
@@ -19,8 +18,6 @@ application and the case where an automatic transition is defined in
 policy.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: luto@amacapital.net
-Cc: paul@paul-moore.com
 ---
  security/selinux/hooks.c | 59 ++++++++++++++++++++++++++++++++++++++----------
  1 file changed, 47 insertions(+), 12 deletions(-)
