@@ -1,31 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s75KMWgt018892
- for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2014 16:22:32 -0400
-Subject: [PATCH] selinux: remove unused variabled in the netport, netnode,
- and netif caches
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue, 05 Aug 2014 16:22:33 -0400
-Message-ID: <20140805202233.23695.56312.stgit@localhost>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s781F7r6031925
+ for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2014 21:15:08 -0400
+Received: by mail-qg0-f52.google.com with SMTP id f51so5241538qge.25
+ for <selinux@tycho.nsa.gov>; Thu, 07 Aug 2014 18:15:12 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: linux-kernel@vger.kernel.org
+Subject: [GIT PULL] SELinux/NetLabel fixes for 3.17
+Date: Thu, 07 Aug 2014 21:15:09 -0400
+Message-ID: <3757283.5i2HgyZGYY@sifl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Cc: fengguang.wu@intel.com
+Content-Type: text/plain; charset="us-ascii"
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This patch removes the unused return code variable in the netport,
-netnode, and netif initialization functions.
+Hello All,
 
-Reported-by: fengguang.wu@intel.com
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/netif.c   |    4 ++--
- security/selinux/netnode.c |    3 +--
- security/selinux/netport.c |    3 +--
- 3 files changed, 4 insertions(+), 6 deletions(-)
+Two small patches to fix a couple of build warnings in SELinux and NetLabel.  
+The patches are obvious enough that I don't think any additional explanation 
+is necessary, but it basically boils down to the usual: I was stupid, and 
+these patches fix some of the stupid.
 
+Both patches were posted earlier this week to the SELinux list, and that is 
+where they sat as I didn't think there were noteworthy enough to go upstream 
+at this point in time, but DaveM would rather see them upstream now so who am 
+I to argue.  As the patches are both very small, I'm including the combines 
+changes with this pull request in case anyone wants to scrutinize them any 
+further.
+
+Enjoy,
+-Paul
+
+--
+The following changes since commit 4fbe63d1c773cceef3fe1f6ed0c9c268f4f24760:
+
+  netlabel: shorter names for the NetLabel catmap funcs/structs
+            (2014-08-01 11:17:37 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-3.17
+
+for you to fetch changes up to 942ba3646543aeb3e5729c35d10ac43424bf0b68:
+
+  selinux: remove unused variabled in the netport, netnode, and netif
+           caches (2014-08-07 20:55:30 -0400)
+
+----------------------------------------------------------------
+Paul Moore (2):
+      netlabel: fix the netlbl_catmap_setlong() dummy function
+      selinux: remove unused variabled in the netport, netnode, and netif
+               caches
+
+ include/net/netlabel.h     | 8 ++++----
+ security/selinux/netif.c   | 4 ++--
+ security/selinux/netnode.c | 3 +--
+ security/selinux/netport.c | 3 +--
+ 4 files changed, 8 insertions(+), 10 deletions(-)
+
+diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+index a4fc39b..7b5a300 100644
+--- a/include/net/netlabel.h
++++ b/include/net/netlabel.h
+@@ -524,10 +524,10 @@ static inline int netlbl_catmap_setrng(struct 
+netlbl_lsm_catmap **catmap,
+ {
+ 	return 0;
+ }
+-static int netlbl_catmap_setlong(struct netlbl_lsm_catmap **catmap,
+-				 u32 offset,
+-				 unsigned long bitmap,
+-				 gfp_t flags)
++static inline int netlbl_catmap_setlong(struct netlbl_lsm_catmap **catmap,
++					u32 offset,
++					unsigned long bitmap,
++					gfp_t flags)
+ {
+ 	return 0;
+ }
 diff --git a/security/selinux/netif.c b/security/selinux/netif.c
 index 3c3de4c..50ce177 100644
 --- a/security/selinux/netif.c
@@ -90,3 +145,7 @@ index 73ac678..3311cc3 100644
  }
  
  __initcall(sel_netport_init);
+
+-- 
+paul moore
+security and virtualization @ redhat
