@@ -1,39 +1,41 @@
-Message-ID: <53FB545C.3080106@tycho.nsa.gov>
-Date: Mon, 25 Aug 2014 11:21:00 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <53FB5A59.5020805@tresys.com>
+Date: Mon, 25 Aug 2014 11:46:33 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 MIME-Version: 1.0
-To: "Stepan G. Fedorov" <stfedorov@gmail.com>, Paul Moore <paul@paul-moore.com>
+To: "Stepan G. Fedorov" <stfedorov@gmail.com>, Stephen Smalley
+ <sds@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>
 Subject: Re: semanage interface has no effect
-References: <53FB19C7.1040500@gmail.com>	<53FB35D2.3030307@tycho.nsa.gov>	<53FB4192.8090203@gmail.com>
+References: <53FB19C7.1040500@gmail.com> <53FB35D2.3030307@tycho.nsa.gov>
+ <53FB4192.8090203@gmail.com>
  <CAHC9VhSwgERb2NoY8vK3nT=wxBh7fyaD7ECGoxcRij5P6u1XKQ@mail.gmail.com>
- <53FB4C5A.2030503@gmail.com>
-In-Reply-To: <53FB4C5A.2030503@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+ <53FB49D4.8050802@tycho.nsa.gov> <53FB4EC9.4090605@gmail.com>
+In-Reply-To: <53FB4EC9.4090605@gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
 Cc: Selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/25/2014 10:46 AM, Stepan G. Fedorov wrote:
->> In this case the incoming packets would be labeled "unlabeled_t", just
->> like any other unlabeled data on the system. 
+On 8/25/2014 10:57 AM, Stepan G. Fedorov wrote:
 > 
-> Can you, please tell where exactly I can see this in the linux source
-> code for better understanding?
+>> ...but the new network permission checks will not be applied
+>> until/unless you configure secmark or labeled networking.  Or set the
+>> always_check_network policy capability to 1 for secmark, if your kernel
+>> supports that.
 > 
+> Seems I have no such capability. My /sys/fs/selinux/policy_capabilities/
+> contains only two files:
+> network_peer_controls
+> open_perms
 
-secmark or peer label?
+That directory only lists the capabilities that are enabled in the
+loaded policy.  You need at least a 3.13 kernel and the capability
+declared in the policy (in the base module, base.pp).  Distributions
+will likely never ship with that capability enabled, as it requires
+packet (SECMARK) and peer rules throughout the policy.
 
-secmark label:  Unless set by net/netfilter/xt_*SECMARK.c, secmark
-should just be zero (cleared upon skb allocation) and thus will be
-remapped by security/selinux/ss/sidtab.c:sidtab_search_core() to the
-UNLABELED initial SID.
-
-peer label:  security/selinux/hooks.c:selinux_skb_peerlbl_sid() asks the
-xfrm (ipsec) and netlabel (cipso) subsystems for any labeling
-information for the packet and then calls
-security/selinux/ss/services.c:security_net_peersid_resolve() to make
-the final determination.  In the absence of any labeling information,
-we'll also end up with SECSID_NULL i.e. 0 and then the sidtab will again
-remap it to the UNLABELED initial SID.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
