@@ -1,61 +1,246 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s7RGAGeV026494
- for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2014 12:10:16 -0400
-Message-ID: <53FE02E5.6080506@tresys.com>
-Date: Wed, 27 Aug 2014 12:10:13 -0400
-From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, SELinux List
- <selinux@tycho.nsa.gov>
-Subject: Re: SELinux Userspace Release: 20140826-rc1
-References: <53FCA845.1030001@tresys.com> <20140827150608.GA6701@siphos.be>
-In-Reply-To: <20140827150608.GA6701@siphos.be>
-Content-Type: text/plain; charset="ISO-8859-1"
+In-Reply-To: <53E0D7A5.9080005@tycho.nsa.gov>
+References: <20140802191904.GA7856@siphos.be> <53DFBDDC.4090508@tycho.nsa.gov>
+ <53DFFEB8.1040403@redhat.com> <53E0D7A5.9080005@tycho.nsa.gov>
+Date: Wed, 27 Aug 2014 13:20:53 -0400
+Message-ID: <CANjvhbNS3ptSRM22WKt_bZeafk=5FjhMD=+D89L-dcnmhDyySQ@mail.gmail.com>
+Subject: Re: Debugging sepolgen-ifgen?
+From: Karl MacMillan <karlwmacmillan@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=089e013cb8b06d01db05019fa496
+Cc: SE Linux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/27/2014 11:06 AM, Sven Vermeulen wrote:
-> On Tue, Aug 26, 2014 at 11:31:17AM -0400, Steve Lawrence wrote:
->> A release candidate for the next release of SELinux userspace is
->> available on GitHub's releases page [1]. This release contains a handful
->> of bug fixes and the new source policy/CIL work. Please let us know if
->> you find any problems.
->>
->> - Steve
->>
->> [1] https://github.com/SELinuxProject/selinux/releases/tag/20140826-rc1
-> 
-> Hi Steve
-> 
-> Are you planning on creating tarballs for this release candidate?
-> 
-> Also, is this a release that requires any actions to be taken as part of an
-> upgrade (the move of /etc/selinux -> /var/lib/selinux)?
-> 
-> Wkr,
-> 	Sven Vermeulen
+--089e013cb8b06d01db05019fa496
+Content-Type: text/plain; charset=UTF-8
 
-We just pushed a second release candidate, 20140826-rc2, which just has
-some minor fixes to the ChangeLogs and uses the scripts/release method
-to make an actual release consistent with how they've been done in the
-past. The tarballs for the individual components of userspace for rc2
-are now available on the GitHub "Releases" wiki page [1].
+FWIW, most of the shift / reduce conflicts are because the grammar really
+is ambiguous (since we are trying to parse both the selinux policy language
+and the m4 additions on top of that). While in an ideal world those would
+be cleaned up so that we would at least choose what to do in the ambiguous
+cases it just never seemed worthwhile to me.
 
-The only action that should be required post upgrade is migration from
-/etc/selinux to /var/lib/selinux. There is detailed information about
-this process on the GitHub "Policy Store Migration" wiki page [2], but
-the jist of it is after upgrading, execute the the
-semanage_migrate_store script installed by default to
-/usr/libexec/selinux. The script has additional options that can be used
-to do things like remove the old store or prevent rebuilding the policy.
-Run the script with --help for a description of the options.
+Karl
 
-Please let us know if there are any questions/issues.
 
-Thanks,
-- Steve
+On Tue, Aug 5, 2014 at 9:09 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-[1] https://github.com/SELinuxProject/selinux/wiki/Releases
-[2] https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration
+> On 08/04/2014 05:44 PM, Daniel J Walsh wrote:
+> >
+> > On 08/04/2014 01:07 PM, Stephen Smalley wrote:
+> >> On 08/02/2014 03:19 PM, Sven Vermeulen wrote:
+> >>> Hi all
+> >>>
+> >>> I've noticed that on my system, for some interfaces, the results in
+> >>> /var/lib/sepolgen/interface_info are missing file-specific feedback.
+> >>>
+> >>> For instance, consider the kernel_rw_kernel_sysctl() interface, which
+> is
+> >>> coded as follows:
+> >>>
+> >>> interface(`kernel_rw_kernel_sysctl',`
+> >>>         gen_require(`
+> >>>                 type proc_t, sysctl_t, sysctl_kernel_t;
+> >>>         ')
+> >>>
+> >>>         rw_files_pattern($1, { proc_t sysctl_t sysctl_kernel_t },
+> sysctl_kernel_t)
+> >>>
+> >>>         list_dirs_pattern($1, { proc_t sysctl_t }, sysctl_kernel_t)
+> >>> ')
+> >>>
+> >>> In the interface_info file, I only find the following metadata about
+> this
+> >>> interface:
+> >>>
+> >>> [InterfaceVector kernel_rw_kernel_sysctl $1:source ]
+> >>> $1,sysctl_t,dir,getattr,open,search
+> >>> $1,sysctl_kernel_t,dir,getattr,open,search
+> >>> $1,proc_t,dir,getattr,open,search
+> >>>
+> >>> Shouldn't this at least contain something like this?
+> >>>
+> >>> $1,sysctl_kernel_t,file,write,getattr,lock,open,ioctl,append
+> >>>
+> >>> Although not critical, it does result in audit2allow -R to not use
+> >>> refpolicy-style interfaces when possible...
+> >>>
+> >>> How can I debug this? I know the file is generated by sepolgen-ifgen,
+> but
+> >>> rerunning doesn't add in any file-related metadata and I'm totally
+> oblivious
+> >>> on how the parsing is done...
+> >> Not sure about that beyond the -d -v options.
+> >> However, this appears to be a regression; despite encountering some
+> syntax errors during parsing,
+> >> sepolgen-ifgen from 21030423 generates a more accurate vector:
+> >>
+> >> [InterfaceVector kernel_rw_kernel_sysctl $1:source ]
+> >> $1,sysctl_t,dir,getattr,open,search
+> >> $1,sysctl_kernel_t,file,write,getattr,read,lock,open,ioctl,append
+> >> $1,sysctl_kernel_t,dir,search,read,lock,ioctl,getattr,open
+> >> $1,proc_t,dir,getattr,open,search
+> >>
+> >> while sepolgen-ifgen from 20131030_4 generates the reduced set you have
+> above.
+> >>
+> >> Seems to have been broken by:
+> >>
+> >> commit 17cc87e56b0241688c119f774f103622b002e0ae
+> >> Author: Dan Walsh <dwalsh@redhat.com>
+> >> Date:   Wed Oct 9 17:01:35 2013 -0400
+> >>
+> >>     sepolgen did not work with filename transitions.
+> >>
+> >>     This patch adds support for it.
+> >>
+> >>
+> >>
+> >>
+> >> _______________________________________________
+> >> Selinux mailing list
+> >> Selinux@tycho.nsa.gov
+> >> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> >> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+> >>
+> >>
+> > I don't see anything obviously wrong with that patch?
+>
+> If I revert that one patch, it works.  I don't know offhand what the
+> underlying issue is, but I'd guess you are introducing an ambiguity into
+> the grammar.  I do notice that the definitions of IDENTIFIER and
+> FILENAME do not match the ones in checkpolicy policy_scan.l; I do not
+> know why that is.  I also notice that whereas bison reports no warnings
+> on the checkpolicy policy_parse.y grammar, sepolgen-ifgen -d reports 669
+> shift/reduce conflicts before your patch and 671 shift/reduce conflicts
+> afterward; neither seems very good...
+>
+
+--089e013cb8b06d01db05019fa496
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">FWIW, most of the shift / reduce conflicts are because the=
+ grammar really is ambiguous (since we are trying to parse both the selinux=
+ policy language and the m4 additions on top of that). While in an ideal wo=
+rld those would be cleaned up so that we would at least choose what to do i=
+n the ambiguous cases it just never seemed worthwhile to me.<div>
+<br></div><div>Karl</div></div><div class=3D"gmail_extra"><br><br><div clas=
+s=3D"gmail_quote">On Tue, Aug 5, 2014 at 9:09 AM, Stephen Smalley <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tyc=
+ho.nsa.gov</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On 0=
+8/04/2014 05:44 PM, Daniel J Walsh wrote:<br>
+&gt;<br>
+&gt; On 08/04/2014 01:07 PM, Stephen Smalley wrote:<br>
+&gt;&gt; On 08/02/2014 03:19 PM, Sven Vermeulen wrote:<br>
+&gt;&gt;&gt; Hi all<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; I&#39;ve noticed that on my system, for some interfaces, the r=
+esults in<br>
+&gt;&gt;&gt; /var/lib/sepolgen/interface_info are missing file-specific fee=
+dback.<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; For instance, consider the kernel_rw_kernel_sysctl() interface=
+, which is<br>
+&gt;&gt;&gt; coded as follows:<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; interface(`kernel_rw_kernel_sysctl&#39;,`<br>
+&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0gen_require(`<br>
+&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0t=
+ype proc_t, sysctl_t, sysctl_kernel_t;<br>
+&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0&#39;)<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0rw_files_pattern($1, { proc_t=
+ sysctl_t sysctl_kernel_t }, sysctl_kernel_t)<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0list_dirs_pattern($1, { proc_=
+t sysctl_t }, sysctl_kernel_t)<br>
+&gt;&gt;&gt; &#39;)<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; In the interface_info file, I only find the following metadata=
+ about this<br>
+&gt;&gt;&gt; interface:<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; [InterfaceVector kernel_rw_kernel_sysctl $1:source ]<br>
+&gt;&gt;&gt; $1,sysctl_t,dir,getattr,open,search<br>
+&gt;&gt;&gt; $1,sysctl_kernel_t,dir,getattr,open,search<br>
+&gt;&gt;&gt; $1,proc_t,dir,getattr,open,search<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; Shouldn&#39;t this at least contain something like this?<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; $1,sysctl_kernel_t,file,write,getattr,lock,open,ioctl,append<b=
+r>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; Although not critical, it does result in audit2allow -R to not=
+ use<br>
+&gt;&gt;&gt; refpolicy-style interfaces when possible...<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; How can I debug this? I know the file is generated by sepolgen=
+-ifgen, but<br>
+&gt;&gt;&gt; rerunning doesn&#39;t add in any file-related metadata and I&#=
+39;m totally oblivious<br>
+&gt;&gt;&gt; on how the parsing is done...<br>
+&gt;&gt; Not sure about that beyond the -d -v options.<br>
+&gt;&gt; However, this appears to be a regression; despite encountering som=
+e syntax errors during parsing,<br>
+&gt;&gt; sepolgen-ifgen from 21030423 generates a more accurate vector:<br>
+&gt;&gt;<br>
+&gt;&gt; [InterfaceVector kernel_rw_kernel_sysctl $1:source ]<br>
+&gt;&gt; $1,sysctl_t,dir,getattr,open,search<br>
+&gt;&gt; $1,sysctl_kernel_t,file,write,getattr,read,lock,open,ioctl,append<=
+br>
+&gt;&gt; $1,sysctl_kernel_t,dir,search,read,lock,ioctl,getattr,open<br>
+&gt;&gt; $1,proc_t,dir,getattr,open,search<br>
+&gt;&gt;<br>
+&gt;&gt; while sepolgen-ifgen from 20131030_4 generates the reduced set you=
+ have above.<br>
+&gt;&gt;<br>
+&gt;&gt; Seems to have been broken by:<br>
+&gt;&gt;<br>
+&gt;&gt; commit 17cc87e56b0241688c119f774f103622b002e0ae<br>
+&gt;&gt; Author: Dan Walsh &lt;<a href=3D"mailto:dwalsh@redhat.com">dwalsh@=
+redhat.com</a>&gt;<br>
+&gt;&gt; Date:=C2=A0 =C2=A0Wed Oct 9 17:01:35 2013 -0400<br>
+&gt;&gt;<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0sepolgen did not work with filename transitions=
+.<br>
+&gt;&gt;<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0This patch adds support for it.<br>
+&gt;&gt;<br>
+&gt;&gt;<br>
+&gt;&gt;<br>
+&gt;&gt;<br>
+&gt;&gt; _______________________________________________<br>
+&gt;&gt; Selinux mailing list<br>
+&gt;&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a>=
+<br>
+&gt;&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tych=
+o.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
+&gt;&gt; To get help, send an email containing &quot;help&quot; to <a href=
+=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>=
+.<br>
+&gt;&gt;<br>
+&gt;&gt;<br>
+&gt; I don&#39;t see anything obviously wrong with that patch?<br>
+<br>
+</div></div>If I revert that one patch, it works.=C2=A0 I don&#39;t know of=
+fhand what the<br>
+underlying issue is, but I&#39;d guess you are introducing an ambiguity int=
+o<br>
+the grammar.=C2=A0 I do notice that the definitions of IDENTIFIER and<br>
+FILENAME do not match the ones in checkpolicy policy_scan.l; I do not<br>
+know why that is.=C2=A0 I also notice that whereas bison reports no warning=
+s<br>
+on the checkpolicy policy_parse.y grammar, sepolgen-ifgen -d reports 669<br=
+>
+shift/reduce conflicts before your patch and 671 shift/reduce conflicts<br>
+afterward; neither seems very good...<br>
+</blockquote></div><br></div>
+
+--089e013cb8b06d01db05019fa496--
