@@ -1,45 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s7SKlZMA017092
- for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2014 16:47:35 -0400
-Subject: [PATCH] file: replace 'ls -Z' with 'ls -lZ' for consistent results
-From: Paul Moore <pmoore@redhat.com>
-To: Serge Hallyn <serge.hallyn@ubuntu.com>, selinux@tycho.nsa.gov
-Date: Thu, 28 Aug 2014 16:47:38 -0400
-Message-ID: <20140828204738.10801.34505.stgit@localhost>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s7SKqVla017490
+ for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2014 16:52:31 -0400
+Received: by mail-ob0-f175.google.com with SMTP id wp4so1111488obc.34
+ for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2014 13:52:37 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Sender: sven.j.vermeulen@gmail.com
+In-Reply-To: <53FF8DE9.6070302@tycho.nsa.gov>
+References: <53FCA845.1030001@tresys.com> <20140827150608.GA6701@siphos.be>
+ <53FE02E5.6080506@tresys.com>
+ <CAPzO=NyyP-m8jPBujd-vnG9XHo2FymskgQBH3fKPt448NznZdA@mail.gmail.com>
+ <53FF8DE9.6070302@tycho.nsa.gov>
+Date: Thu, 28 Aug 2014 22:52:37 +0200
+Message-ID: <CAPzO=Nwwbn8ihZmuj-JGKPUonZwjS69Zjg=1ix1EDbR=QQ56oQ@mail.gmail.com>
+Subject: Re: SELinux Userspace Release: 20140826-rc1
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I'm not sure the exact date of the change, but 'ls -Z' on Rawhide is
-a bit different than in the past; the output now looks like this:
+On Thu, Aug 28, 2014 at 10:15 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> When running the semanage_migrate_script I get the following problem:
+>>
+>> Migrating from /etc/selinux/mcs/modules/active to /var/lib/selinux/mcs/active
+>> Attempting to rebuild policy from /var/lib/selinux
+>> sysnetwork: Warning: 'else' blocks in optional statements are
+>> unsupported in CIL. Dropping from output.
+>> Segmentation fault
+[...]
+> Can you provide a copy of your original policy prior to conversion?
 
-  # /bin/ls -Z test
-  system_u:object_r:test_file_t:s0 test
+If you mean the policy.29 file, certainly. You can wget it from
+http://dev.gentoo.org/~swift/tmp/20140828-policy.29
 
-This patch converts the testsuite to use 'ls -lZ' which appears to be
-consistent.
-
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- tests/file/test |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/tests/file/test b/tests/file/test
-index e6ed44d..1c8485a 100755
---- a/tests/file/test
-+++ b/tests/file/test
-@@ -45,9 +45,9 @@ system "chcon -t fileop_exec_t $basedir/wait_io 2>&1 > /dev/null";
- #
- # Get the SID of the good file.
- #
--$output = `ls -Z $basedir/temp_file`;
-+$output = `ls -lZ $basedir/temp_file`;
- @arr = split(' ', $output);
--$good_file_sid = $arr[3];
-+$good_file_sid = $arr[4];
- 
- #
- # Attempt to access a restricted file as the 'good' domain.  The first test
+Wkr,
+  Sven Vermeulen
