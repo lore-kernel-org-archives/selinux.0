@@ -1,86 +1,44 @@
-Message-ID: <54008135.1000605@tycho.nsa.gov>
-Date: Fri, 29 Aug 2014 09:33:41 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>,
- SELinux List <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] policycoreutils: mcstrans: use string_to_av_perm() to
- calculate permission access vector
-References: <1409258823-19823-1-git-send-email-slawrence@tresys.com>
- <54007CC1.70302@tycho.nsa.gov> <54007DC3.7090505@tresys.com>
-In-Reply-To: <54007DC3.7090505@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Sender: sven.j.vermeulen@gmail.com
+In-Reply-To: <54007889.90706@tresys.com>
+References: <53FCA845.1030001@tresys.com> <20140827150608.GA6701@siphos.be>
+ <53FE02E5.6080506@tresys.com>
+ <CAPzO=NyyP-m8jPBujd-vnG9XHo2FymskgQBH3fKPt448NznZdA@mail.gmail.com>
+ <53FF8DE9.6070302@tycho.nsa.gov>
+ <CAPzO=Nwwbn8ihZmuj-JGKPUonZwjS69Zjg=1ix1EDbR=QQ56oQ@mail.gmail.com>
+ <54006DD4.6040706@tycho.nsa.gov> <54007889.90706@tresys.com>
+Date: Fri, 29 Aug 2014 16:00:23 +0200
+Message-ID: <CAPzO=Nwppvd+Q=J4SXk5Q38FVAUpqCeb8vjXhxfMBkbFRYpjsw@mail.gmail.com>
+Subject: Re: SELinux Userspace Release: 20140826-rc1
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Steve Lawrence <slawrence@tresys.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/29/2014 09:18 AM, Steve Lawrence wrote:
-> On 08/29/2014 09:14 AM, Stephen Smalley wrote:
->> On 08/28/2014 04:47 PM, Steve Lawrence wrote:
->>> mcstrans still uses CONTEXT__CONTAINS from av_permissions.h to calculate
->>> a permission access vector. However, av_permissions.h was deprecated, so
->>> it does not have access to the constant. This updates mcstrans to use
->>> string_to_av_perm() to get the value for context contains.
+On Fri, Aug 29, 2014 at 2:56 PM, Steve Lawrence <slawrence@tresys.com> wrote:
+>>>>> Segmentation fault
+>>> [...]
+>>>> Can you provide a copy of your original policy prior to conversion?
 >>>
->>> Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
->>> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+>>> If you mean the policy.29 file, certainly. You can wget it from
+>>> http://dev.gentoo.org/~swift/tmp/20140828-policy.29
 >>
->> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+>> No, the contents of /etc/selinux/mcs.  The migration script converts the
+>> old policy module store, not the final kernel policy file.
 >>
->> I guess we don't build mcstrans by default and thus this wasn't noticed
->> earlier?
->>
-> 
-> Yep. Any reason not to include it by default?
+>
+> Hmm, I'm unable to reproduce this. I think the policy store that Stephen
+> mentions will be help to reproduce it.
+>
 
-Not that I know of.  Possibly just historical since it was originally
-separate from policycoreutils and Fedora packages it separately?
+Certainly.
 
-> 
->>> ---
->>>  policycoreutils/mcstrans/src/mcscolor.c | 7 ++++---
->>>  1 file changed, 4 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/policycoreutils/mcstrans/src/mcscolor.c b/policycoreutils/mcstrans/src/mcscolor.c
->>> index fdb7048..66f99d2 100644
->>> --- a/policycoreutils/mcstrans/src/mcscolor.c
->>> +++ b/policycoreutils/mcstrans/src/mcscolor.c
->>> @@ -78,11 +78,12 @@ void finish_context_colors(void) {
->>>  static int check_dominance(const char *pattern, const char *raw) {
->>>  	security_context_t ctx;
->>>  	context_t con;
->>> -	unsigned int bit = CONTEXT__CONTAINS;
->>>  	struct av_decision avd;
->>>  	int rc = -1;
->>>  	context_t my_tmp;
->>>  	const char *raw_range;
->>> +	security_class_t context_class = string_to_security_class("context");
->>> +	access_vector_t context_contains_perm = string_to_av_perm(context_class, "contains");
->>>  
->>>  	con = context_new(raw);
->>>  	if (!con)
->>> @@ -108,11 +109,11 @@ static int check_dominance(const char *pattern, const char *raw) {
->>>  	if (!raw)
->>>  		goto out;
->>>  
->>> -	rc = security_compute_av_raw(ctx, (security_context_t)raw, string_to_security_class("context"), bit, &avd);
->>> +	rc = security_compute_av_raw(ctx, (security_context_t)raw, context_class, context_contains_perm, &avd);
->>>  	if (rc)
->>>  		goto out;
->>>  
->>> -	rc = (bit & avd.allowed) != bit;
->>> +	rc = (context_contains_perm & avd.allowed) != context_contains_perm;
->>>  out:
->>>  	free(ctx);
->>>  	context_free(my_tmp);
->>>
->>
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
-> 
+The policy store can be found at
+http://dev.gentoo.org/~swift/tmp/20140829-etc-selinux-mcs.tar.gz
+
+Wkr,
+  Sven Vermeulen
