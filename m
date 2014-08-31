@@ -1,36 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s7TIKfZv016426
- for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2014 14:20:41 -0400
-Received: by mail-qg0-f50.google.com with SMTP id q108so2687829qgd.9
- for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2014 11:20:45 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH v2] selinux: Permit bounded transitions under NO_NEW_PRIVS
- or NOSUID.
-Date: Fri, 29 Aug 2014 14:20:41 -0400
-Message-ID: <2638663.9d9W5DIUs4@sifl>
-In-Reply-To: <54007C2A.1040504@tycho.nsa.gov>
-References: <1407173809-3477-1-git-send-email-sds@tycho.nsa.gov>
- <35237187.pLesj1POuT@sifl> <54007C2A.1040504@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: SELinux-NSA <selinux@tycho.nsa.gov>, Andy Lutomirski <luto@amacapital.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s7VHI1gW026239
+ for <selinux@tycho.nsa.gov>; Sun, 31 Aug 2014 13:18:01 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 972671A05A
+ for <selinux@tycho.nsa.gov>; Sun, 31 Aug 2014 19:18:03 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id c_DPHwt-vmZV for <selinux@tycho.nsa.gov>;
+ Sun, 31 Aug 2014 19:18:01 +0200 (CEST)
+Received: from fornost.bigon.be (unknown
+ [IPv6:2a02:578:85fc:1:226:18ff:fe08:6073])
+ (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 5EC121A052
+ for <selinux@tycho.nsa.gov>; Sun, 31 Aug 2014 19:18:01 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: man: Add missing manpage links to
+ security_load_policy.3
+Date: Sun, 31 Aug 2014 19:17:59 +0200
+Message-Id: <1409505479-4875-1-git-send-email-bigon@debian.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, August 29, 2014 09:12:10 AM Stephen Smalley wrote:
-> It runs fine on Fedora 20.  I am guessing you are running on rawhide /
-> Fedora 21, and that this is a difference in your base policy.
+From: Laurent Bigonville <bigon@bigon.be>
 
-Yep.  In general I test the SELinux next patches against Fedora Rawhide.
+Add the missing manpage link for selinux_init_load_policy(3) and
+selinux_mkload_policy(3) to security_load_policy(3)
 
-> Try this patch for selinux-testsuite on top of the current one.
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=753803
+---
+ libselinux/man/man3/selinux_init_load_policy.3 | 1 +
+ libselinux/man/man3/selinux_mkload_policy.3    | 1 +
+ 2 files changed, 2 insertions(+)
+ create mode 100644 libselinux/man/man3/selinux_init_load_policy.3
+ create mode 100644 libselinux/man/man3/selinux_mkload_policy.3
 
-That solved it, thanks.  The kernel patch is now merged upstream and in should 
-be in the next linux-next tree.
-
+diff --git a/libselinux/man/man3/selinux_init_load_policy.3 b/libselinux/man/man3/selinux_init_load_policy.3
+new file mode 100644
+index 0000000..94e8117
+--- /dev/null
++++ b/libselinux/man/man3/selinux_init_load_policy.3
+@@ -0,0 +1 @@
++.so man3/security_load_policy.3
+diff --git a/libselinux/man/man3/selinux_mkload_policy.3 b/libselinux/man/man3/selinux_mkload_policy.3
+new file mode 100644
+index 0000000..94e8117
+--- /dev/null
++++ b/libselinux/man/man3/selinux_mkload_policy.3
+@@ -0,0 +1 @@
++.so man3/security_load_policy.3
 -- 
-paul moore
-www.paul-moore.com
+2.1.0
