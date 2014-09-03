@@ -1,105 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s83FgFis019175
- for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2014 11:42:16 -0400
-Received: by mail-we0-f178.google.com with SMTP id u57so8855211wes.9
- for <selinux@tycho.nsa.gov>; Wed, 03 Sep 2014 08:42:18 -0700 (PDT)
-From: Jiri Pirko <jiri@resnulli.us>
-To: linux-security-module@vger.kernel.org
-Subject: [patch] selinux: register nf hooks with single nf_register_hooks call
-Date: Wed,  3 Sep 2014 17:42:13 +0200
-Message-Id: <1409758933-16882-1-git-send-email-jiri@resnulli.us>
-Cc: james.l.morris@oracle.com, selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s83Hwqwm028102
+ for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2014 13:58:52 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s83HwsIu030933
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+ for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2014 13:58:54 -0400
+Subject: [PATCH] selinux: fix a problem with IPv6 traffic denials in
+ selinux_ip_postroute()
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Wed, 03 Sep 2014 13:58:52 -0400
+Message-ID: <20140903175852.10236.79433.stgit@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Cc: Florian Westphal <fwestpha@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Push ipv4 and ipv6 nf hooks into single array and register/unregister
-them via single call.
+A previous commit c0828e50485932b7e019df377a6b0a8d1ebd3080 ("selinux:
+process labeled IPsec TCP SYN-ACK packets properly in
+selinux_ip_postroute()") mistakenly left out a 'break' from a switch
+statement which caused problems with IPv6 traffic.
 
-Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+Thanks to Florian Westphal for reporting and debugging the issue.
+
+Reported-by: Florian Westphal <fwestpha@redhat.com>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- security/selinux/hooks.c | 35 ++++++++++-------------------------
- 1 file changed, 10 insertions(+), 25 deletions(-)
+ security/selinux/hooks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b0e9404..ed73809 100644
+index 6c90d49..e1e0827 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6035,7 +6035,7 @@ security_initcall(selinux_init);
- 
- #if defined(CONFIG_NETFILTER)
- 
--static struct nf_hook_ops selinux_ipv4_ops[] = {
-+static struct nf_hook_ops selinux_nf_ops[] = {
- 	{
- 		.hook =		selinux_ipv4_postroute,
- 		.owner =	THIS_MODULE,
-@@ -6056,12 +6056,8 @@ static struct nf_hook_ops selinux_ipv4_ops[] = {
- 		.pf =		NFPROTO_IPV4,
- 		.hooknum =	NF_INET_LOCAL_OUT,
- 		.priority =	NF_IP_PRI_SELINUX_FIRST,
--	}
--};
--
-+	},
- #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
--
--static struct nf_hook_ops selinux_ipv6_ops[] = {
- 	{
- 		.hook =		selinux_ipv6_postroute,
- 		.owner =	THIS_MODULE,
-@@ -6075,32 +6071,24 @@ static struct nf_hook_ops selinux_ipv6_ops[] = {
- 		.pf =		NFPROTO_IPV6,
- 		.hooknum =	NF_INET_FORWARD,
- 		.priority =	NF_IP6_PRI_SELINUX_FIRST,
--	}
--};
--
-+	},
- #endif	/* IPV6 */
-+};
- 
- static int __init selinux_nf_ip_init(void)
- {
--	int err = 0;
-+	int err;
- 
- 	if (!selinux_enabled)
--		goto out;
-+		return 0;
- 
- 	printk(KERN_DEBUG "SELinux:  Registering netfilter hooks\n");
- 
--	err = nf_register_hooks(selinux_ipv4_ops, ARRAY_SIZE(selinux_ipv4_ops));
--	if (err)
--		panic("SELinux: nf_register_hooks for IPv4: error %d\n", err);
--
--#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
--	err = nf_register_hooks(selinux_ipv6_ops, ARRAY_SIZE(selinux_ipv6_ops));
-+	err = nf_register_hooks(selinux_nf_ops, ARRAY_SIZE(selinux_nf_ops));
- 	if (err)
--		panic("SELinux: nf_register_hooks for IPv6: error %d\n", err);
--#endif	/* IPV6 */
-+		panic("SELinux: nf_register_hooks: error %d\n", err);
- 
--out:
--	return err;
-+	return 0;
- }
- 
- __initcall(selinux_nf_ip_init);
-@@ -6110,10 +6098,7 @@ static void selinux_nf_ip_exit(void)
- {
- 	printk(KERN_DEBUG "SELinux:  Unregistering netfilter hooks\n");
- 
--	nf_unregister_hooks(selinux_ipv4_ops, ARRAY_SIZE(selinux_ipv4_ops));
--#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
--	nf_unregister_hooks(selinux_ipv6_ops, ARRAY_SIZE(selinux_ipv6_ops));
--#endif	/* IPV6 */
-+	nf_unregister_hooks(selinux_nf_ops, ARRAY_SIZE(selinux_nf_ops));
- }
- #endif
- 
--- 
-1.9.3
+@@ -4993,6 +4993,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 			case PF_INET6:
+ 				if (IP6CB(skb)->flags & IP6SKB_XFRM_TRANSFORMED)
+ 					return NF_ACCEPT;
++				break;
+ 			default:
+ 				return NF_DROP_ERR(-ECONNREFUSED);
+ 			}
