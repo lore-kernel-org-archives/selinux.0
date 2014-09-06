@@ -1,89 +1,76 @@
-Message-ID: <540877F6.9050000@tycho.nsa.gov>
-Date: Thu, 04 Sep 2014 10:32:22 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>,
- Richard Haines <richard_c_haines@btinternet.com>,
- selinux list <selinux@tycho.nsa.gov>
-Subject: Re: SELinux Userspace Release 2014-08-26-rc2 HLL/CIL query
-References: <1409836477.67254.YahooMailNeo@web87902.mail.ir2.yahoo.com>
- <54086CBA.2020602@tresys.com>
-In-Reply-To: <54086CBA.2020602@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s86GdxG7003936
+ for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2014 12:40:02 -0400
+Received: from [192.168.0.11] (193.147.102.84.rev.sfr.net [84.102.147.193])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 0714F140C5703
+ for <selinux@tycho.nsa.gov>; Sat,  6 Sep 2014 18:39:47 +0200 (CEST)
+Message-ID: <540B38CA.5060200@m4x.org>
+Date: Sat, 06 Sep 2014 18:39:38 +0200
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+To: selinux <selinux@tycho.nsa.gov>
+Subject: SELinux Userspace Release 2014-08-26-rc2 feedback on Arch
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/04/2014 09:44 AM, Steve Lawrence wrote:
-> On 09/04/2014 09:14 AM, Richard Haines wrote:
->> I've been attempting to convert a monolithic policy (really a modular base policy with
->> no modules) to CIL, however it fails with:
->>
->> Failed to resolve roletype statement at XX of /var/lib/selinux/modular-test/tmp/modules/400/base/cil
->>
->> when running: semodule -s modular-test -i base.pp
->>
->>
->> The cause of this appears to be the following in policycoreutils/hll/pp/pp.c where the role
->> statement is ignored for the base policy:
->>
->>
->>      case ROLE_ROLE:
->>          if (scope == SCOPE_DECL) {
->>              if (pdb->policy_type == SEPOL_POLICY_MOD) {
->>                  // roles are defined twice, once in a module and once in base.
->>                  // CIL doesn't allow duplicate declarations, so only take the
->>                  // roles defined in the modules
->>                  cil_println(indent, "(role %s)", key);
->>
->> Question: Should these type of policies be supported, if so should the CIL compiler
->> cope with duplicate role statements or the conversion service modified to remove duplicates.
->> Also there is a bug in that the CIL module is deleted from the tmp directory so you cannot
->> view the failed conversion.
->>
->> I built the CIL module using pp directly  (cat base.pp | ./pp > base.cil), then added the
->> (role ...) statement, this compiled okay using secilc.
->>
->
-> When working on a bug reported by Sven, we actually came across some
-> problems with how roles and roletypes are converted from pp to CIL.
-> We're working on those fixes now.
->
-> Regarding the duplicate role definition issue, it's kindof tricky. The
-> current pp2cil conversion doesn't know anything about other modules, so
-> it isn't capable of determining if two separate modules have a duplicate
-> role definition. So we either have to 1) allow duplicate role
-> definitions in CIL (though, we don't currently allow any duplicate
-> definitions of anything) or 2) consider policies that have duplicate
-> roles invalid. I don't really like either solution, need to think about
-> this some more...
->
+Hi,
 
-I don't want to allow duplicate declarations as a normal part of CIL, but maybe 
-there could be a command line option that would just display a warning and 
-ignore a duplicate declaration. I will have to think about the ramifications of 
-this. I am worried that there will be corner cases were the generated kernel 
-policy will be different depending on which duplicate is ignored.
+I've successfully built and installed components of the SELinux
+Userspace Release 2014-08-26-rc2 on my Arch Linux system.  I had some
+minor issues because:
 
-> As far as how to get better information for why a CIL module failed,
-> this is something we've thought about, and may be something we can
-> improve in the future. Right now you have to extract the HLL module from
-> the store and compile it your self. We're aware that's not particularly
-> user friendly.
->
-> - Steve
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
+* "flex" was not up to date on my system.  This was easy to fix.
+* Some Makefiles use "python" instead of "$(PYTHON)" with Python2 code.
+  Doing some "sed" commands in the PKGBUILD script worked around this.
+* I used LIBEXECDIR="${pkgdir}/usr/lib" but libsemanage still wanted to
+  use /usr/libexec/selinux/hll/pp.  Setting compiler-directory variable
+  in /etc/selinux/semanage.conf solved this issue.
 
+Now I would like to migrate my policy to the new store.  The helper
+script fails with this message:
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+  # /usr/lib/selinux/semanage_migrate_store
+  Migrating from /etc/selinux/refpolicy-patched/modules/active to
+  /var/lib/selinux/refpolicy-patched/active
+  Attempting to rebuild policy from /var/lib/selinux
+  sysnetwork: Warning: 'else' blocks in optional statements are
+  unsupported in CIL. Dropping from output.
+  Failed to resolve roletype statement at 14 of
+  /var/lib/selinux/refpolicy-patched/tmp/modules/100/accountsd/cil
+  Failed to resolve ast
+  Traceback (most recent call last):
+    File "/usr/lib/selinux/semanage_migrate_store", line 313, in
+  <module>
+      rebuild_policy()
+    File "/usr/lib/selinux/semanage_migrate_store", line 212, in
+  rebuild_policy
+    rc = semanage.semanage_commit(handle)
+  OSError: [Errno 0] Error
+
+Moreover doing "semodule -i whatever_module.pp" gives the same error
+messages.  After some investigation I've found that line 14 of the
+reported file is:
+
+  (roletype system_r accountsd_t)
+
+... and that system_r is defined as a role in refpolicy in
+modules/kernel/kernel.te, which is included in base.pp.  This role
+definition is eaten by the pp compiler (as expected, according to a
+thread in this ML two days ago).  As system_r is not defined in any
+module, semanage fails.
+
+A quick-and-dirty fix consists in building a new module with only "role
+system_r;".  Then I've been able to successfully build the policy in its
+new store, but this looks dirty.  Is there a better way to solve this
+issue or does system_r definition needs to be moved in a real module?
+
+By the way, "OSError: [Errno 0] Error" is quite strange...
+
+Best,
+
+Nicolas
