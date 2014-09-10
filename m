@@ -1,151 +1,388 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s8AJ2G32015066
- for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2014 15:02:17 -0400
-Received: by mail-wi0-f180.google.com with SMTP id ex7so1022010wid.1
- for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2014 12:02:20 -0700 (PDT)
-Received: from eversmanni.localdomain (193.147.102.84.rev.sfr.net.
- [84.102.147.193])
- by mx.google.com with ESMTPSA id lq8sm19551448wjb.49.2014.09.10.12.02.17
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
- Wed, 10 Sep 2014 12:02:19 -0700 (PDT)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s8ALDNoI022645
+ for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2014 17:13:23 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com
+ (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s8ALDRrr011037
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+ for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2014 17:13:28 -0400
+Subject: [PATCH] selinux: make the netif cache namespace aware
+From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] Use $(PYTHON) instead of "python" in every Makefile
-Date: Wed, 10 Sep 2014 21:01:28 +0200
-Message-Id: <1410375688-13335-1-git-send-email-nicolas.iooss@m4x.org>
+Date: Wed, 10 Sep 2014 17:13:26 -0400
+Message-ID: <20140910211326.16569.42922.stgit@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Cc: Jiri Jaburek <jjaburek@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This fixes the build with "make PYTHON=python2" on systems where python
-is python3.
+While SELinux largely ignores namespaces, for good reason, there are
+some places where it needs to at least be aware of namespaces in order
+to function correctly.  Network namespaces are one example.  Basic
+awareness of network namespaces are necessary in order to match a
+network interface's index number to an actual network device.
 
-For PYLIBVER and PYTHONLIBDIR definitions, I tested Python 2.5, 2.6, 2.7,
-3.3 and 3.4.  For each of them, these commands print the expected result:
+This patch corrects a problem with network interfaces added to a
+non-init namespace, and can be reproduced with the following commands:
 
-    python -c 'import sys;print("python%d.%d" % sys.version_info[0:2])'"
-    python -c "from distutils.sysconfig import *;print(get_python_lib(1))"
+ [NOTE: the NetLabel configuration is here only to active the dynamic
+        networking controls ]
+
+ # netlabelctl unlbl add default address:0.0.0.0/0 \
+   label:system_u:object_r:unlabeled_t:s0
+ # netlabelctl unlbl add default address:::/0 \
+   label:system_u:object_r:unlabeled_t:s0
+ # netlabelctl cipsov4 add pass doi:100 tags:1
+ # netlabelctl map add domain:lspp_test_netlabel_t \
+   protocol:cipsov4,100
+
+ # ip link add type veth
+ # ip netns add myns
+ # ip link set veth1 netns myns
+ # ip a add dev veth0 10.250.13.100/24
+ # ip netns exec myns ip a add dev veth1 10.250.13.101/24
+ # ip l set veth0 up
+ # ip netns exec myns ip l set veth1 up
+
+ # ping -c 1 10.250.13.101
+ # ip netns exec myns ping -c 1 10.250.13.100
+
+Reported-by: Jiri Jaburek <jjaburek@redhat.com>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- policycoreutils/audit2allow/Makefile | 3 ++-
- policycoreutils/sandbox/Makefile     | 2 +-
- policycoreutils/semanage/Makefile    | 6 ++++--
- policycoreutils/sepolicy/Makefile    | 5 +++--
- sepolgen/src/sepolgen/Makefile       | 3 ++-
- sepolgen/tests/Makefile              | 4 +++-
- 6 files changed, 15 insertions(+), 8 deletions(-)
+ security/selinux/hooks.c          |   33 +++++++++++++++-------------
+ security/selinux/include/netif.h  |    4 +++
+ security/selinux/include/objsec.h |    2 ++
+ security/selinux/netif.c          |   43 ++++++++++++++++++++-----------------
+ 4 files changed, 46 insertions(+), 36 deletions(-)
 
-diff --git a/policycoreutils/audit2allow/Makefile b/policycoreutils/audit2allow/Makefile
-index f838b13ef8f7..87d25029dc5f 100644
---- a/policycoreutils/audit2allow/Makefile
-+++ b/policycoreutils/audit2allow/Makefile
-@@ -1,10 +1,11 @@
-+PYTHON ?= python
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 50978d3..5eb512b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4307,15 +4307,15 @@ static int selinux_socket_unix_may_send(struct socket *sock,
+ 			    &ad);
+ }
+ 
+-static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16 family,
+-				    u32 peer_sid,
++static int selinux_inet_sys_rcv_skb(struct net *ns, int ifindex,
++				    char *addrp, u16 family, u32 peer_sid,
+ 				    struct common_audit_data *ad)
+ {
+ 	int err;
+ 	u32 if_sid;
+ 	u32 node_sid;
+ 
+-	err = sel_netif_sid(ifindex, &if_sid);
++	err = sel_netif_sid(ns, ifindex, &if_sid);
+ 	if (err)
+ 		return err;
+ 	err = avc_has_perm(peer_sid, if_sid,
+@@ -4408,8 +4408,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
+ 		if (err)
+ 			return err;
+-		err = selinux_inet_sys_rcv_skb(skb->skb_iif, addrp, family,
+-					       peer_sid, &ad);
++		err = selinux_inet_sys_rcv_skb(sock_net(sk), skb->skb_iif,
++					       addrp, family, peer_sid, &ad);
+ 		if (err) {
+ 			selinux_netlbl_err(skb, err, 0);
+ 			return err;
+@@ -4748,7 +4748,8 @@ out:
+ 
+ #ifdef CONFIG_NETFILTER
+ 
+-static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
++static unsigned int selinux_ip_forward(struct sk_buff *skb,
++				       const struct net_device *indev,
+ 				       u16 family)
+ {
+ 	int err;
+@@ -4774,14 +4775,14 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 
+ 	ad.type = LSM_AUDIT_DATA_NET;
+ 	ad.u.net = &net;
+-	ad.u.net->netif = ifindex;
++	ad.u.net->netif = indev->ifindex;
+ 	ad.u.net->family = family;
+ 	if (selinux_parse_skb(skb, &ad, &addrp, 1, NULL) != 0)
+ 		return NF_DROP;
+ 
+ 	if (peerlbl_active) {
+-		err = selinux_inet_sys_rcv_skb(ifindex, addrp, family,
+-					       peer_sid, &ad);
++		err = selinux_inet_sys_rcv_skb(dev_net(indev), indev->ifindex,
++					       addrp, family, peer_sid, &ad);
+ 		if (err) {
+ 			selinux_netlbl_err(skb, err, 1);
+ 			return NF_DROP;
+@@ -4810,7 +4811,7 @@ static unsigned int selinux_ipv4_forward(const struct nf_hook_ops *ops,
+ 					 const struct net_device *out,
+ 					 int (*okfn)(struct sk_buff *))
+ {
+-	return selinux_ip_forward(skb, in->ifindex, PF_INET);
++	return selinux_ip_forward(skb, in, PF_INET);
+ }
+ 
+ #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+@@ -4820,7 +4821,7 @@ static unsigned int selinux_ipv6_forward(const struct nf_hook_ops *ops,
+ 					 const struct net_device *out,
+ 					 int (*okfn)(struct sk_buff *))
+ {
+-	return selinux_ip_forward(skb, in->ifindex, PF_INET6);
++	return selinux_ip_forward(skb, in, PF_INET6);
+ }
+ #endif	/* IPV6 */
+ 
+@@ -4908,11 +4909,13 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 	return NF_ACCEPT;
+ }
+ 
+-static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
++static unsigned int selinux_ip_postroute(struct sk_buff *skb,
++					 const struct net_device *outdev,
+ 					 u16 family)
+ {
+ 	u32 secmark_perm;
+ 	u32 peer_sid;
++	int ifindex = outdev->ifindex;
+ 	struct sock *sk;
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+@@ -5025,7 +5028,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 		u32 if_sid;
+ 		u32 node_sid;
+ 
+-		if (sel_netif_sid(ifindex, &if_sid))
++		if (sel_netif_sid(dev_net(outdev), ifindex, &if_sid))
+ 			return NF_DROP;
+ 		if (avc_has_perm(peer_sid, if_sid,
+ 				 SECCLASS_NETIF, NETIF__EGRESS, &ad))
+@@ -5047,7 +5050,7 @@ static unsigned int selinux_ipv4_postroute(const struct nf_hook_ops *ops,
+ 					   const struct net_device *out,
+ 					   int (*okfn)(struct sk_buff *))
+ {
+-	return selinux_ip_postroute(skb, out->ifindex, PF_INET);
++	return selinux_ip_postroute(skb, out, PF_INET);
+ }
+ 
+ #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+@@ -5057,7 +5060,7 @@ static unsigned int selinux_ipv6_postroute(const struct nf_hook_ops *ops,
+ 					   const struct net_device *out,
+ 					   int (*okfn)(struct sk_buff *))
+ {
+-	return selinux_ip_postroute(skb, out->ifindex, PF_INET6);
++	return selinux_ip_postroute(skb, out, PF_INET6);
+ }
+ #endif	/* IPV6 */
+ 
+diff --git a/security/selinux/include/netif.h b/security/selinux/include/netif.h
+index 57c6eae..c721454 100644
+--- a/security/selinux/include/netif.h
++++ b/security/selinux/include/netif.h
+@@ -17,9 +17,11 @@
+ #ifndef _SELINUX_NETIF_H_
+ #define _SELINUX_NETIF_H_
+ 
++#include <net/net_namespace.h>
 +
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- BINDIR ?= $(PREFIX)/bin
- LIBDIR ?= $(PREFIX)/lib
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
--PYTHON ?= /usr/bin/python
+ void sel_netif_flush(void);
  
- all: audit2why
+-int sel_netif_sid(int ifindex, u32 *sid);
++int sel_netif_sid(struct net *ns, int ifindex, u32 *sid);
  
-diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
-index 567117038d4e..a6fb3435feb6 100644
---- a/policycoreutils/sandbox/Makefile
-+++ b/policycoreutils/sandbox/Makefile
-@@ -32,7 +32,7 @@ install: all
- 	install -m 644 sandbox.conf $(SYSCONFDIR)/sandbox
+ #endif	/* _SELINUX_NETIF_H_ */
  
- test:
--	@python test_sandbox.py -v
-+	@$(PYTHON) test_sandbox.py -v
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 078e553..81fa718 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -24,6 +24,7 @@
+ #include <linux/binfmts.h>
+ #include <linux/in.h>
+ #include <linux/spinlock.h>
++#include <net/net_namespace.h>
+ #include "flask.h"
+ #include "avc.h"
  
- clean:
- 	-rm -f seunshare *.o *~
-diff --git a/policycoreutils/semanage/Makefile b/policycoreutils/semanage/Makefile
-index 8fc8e0b15240..60c36a3a1096 100644
---- a/policycoreutils/semanage/Makefile
-+++ b/policycoreutils/semanage/Makefile
-@@ -1,9 +1,11 @@
-+PYTHON ?= python
-+
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- LIBDIR ?= $(PREFIX)/lib
- SBINDIR ?= $(PREFIX)/sbin
- MANDIR = $(PREFIX)/share/man
--PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
-+PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
- PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
- BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
+@@ -78,6 +79,7 @@ struct ipc_security_struct {
+ };
  
-@@ -24,7 +26,7 @@ install: all
- 	install -m 644 $(BASHCOMPLETIONS) $(BASHCOMPLETIONDIR)/semanage
+ struct netif_security_struct {
++	struct net *ns;			/* network namespace */
+ 	int ifindex;			/* device index */
+ 	u32 sid;			/* SID for this interface */
+ };
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index 3c3de4c..485524c 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -45,6 +45,7 @@ static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
  
- test:
--	@python test-semanage.py -a
-+	@$(PYTHON) test-semanage.py -a
- clean:
+ /**
+  * sel_netif_hashfn - Hashing function for the interface table
++ * @ns: the network namespace
+  * @ifindex: the network interface
+  *
+  * Description:
+@@ -52,13 +53,14 @@ static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
+  * bucket number for the given interface.
+  *
+  */
+-static inline u32 sel_netif_hashfn(int ifindex)
++static inline u32 sel_netif_hashfn(const struct net *ns, int ifindex)
+ {
+-	return (ifindex & (SEL_NETIF_HASH_SIZE - 1));
++	return (((uintptr_t)ns + ifindex) & (SEL_NETIF_HASH_SIZE - 1));
+ }
  
- indent:
-diff --git a/policycoreutils/sepolicy/Makefile b/policycoreutils/sepolicy/Makefile
-index 90f88a514ee4..45edb0c2a499 100644
---- a/policycoreutils/sepolicy/Makefile
-+++ b/policycoreutils/sepolicy/Makefile
-@@ -1,3 +1,5 @@
-+PYTHON ?= python
-+
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- SYSCONFDIR ?= $(DESTDIR)/etc/sysconfig
-@@ -7,7 +9,6 @@ SBINDIR ?= $(PREFIX)/sbin
- DATADIR ?= $(PREFIX)/share
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
--PYTHON ?= /usr/bin/python
- BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
- SHAREDIR ?= $(PREFIX)/share/sandbox
- override CFLAGS = -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
-@@ -27,7 +28,7 @@ sepolgen:
- 	ln -sf sepolicy sepolgen
+ /**
+  * sel_netif_find - Search for an interface record
++ * @ns: the network namespace
+  * @ifindex: the network interface
+  *
+  * Description:
+@@ -66,15 +68,15 @@ static inline u32 sel_netif_hashfn(int ifindex)
+  * If an entry can not be found in the table return NULL.
+  *
+  */
+-static inline struct sel_netif *sel_netif_find(int ifindex)
++static inline struct sel_netif *sel_netif_find(const struct net *ns,
++					       int ifindex)
+ {
+-	int idx = sel_netif_hashfn(ifindex);
++	int idx = sel_netif_hashfn(ns, ifindex);
+ 	struct sel_netif *netif;
  
- test:
--	@python test_sepolicy.py -v
-+	@$(PYTHON) test_sepolicy.py -v
+ 	list_for_each_entry_rcu(netif, &sel_netif_hash[idx], list)
+-		/* all of the devices should normally fit in the hash, so we
+-		 * optimize for that case */
+-		if (likely(netif->nsec.ifindex == ifindex))
++		if (net_eq(netif->nsec.ns, ns) &&
++		    netif->nsec.ifindex == ifindex)
+ 			return netif;
  
- install:
- 	$(PYTHON) setup.py install `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
-diff --git a/sepolgen/src/sepolgen/Makefile b/sepolgen/src/sepolgen/Makefile
-index eadc0aa5afec..9ac765151478 100644
---- a/sepolgen/src/sepolgen/Makefile
-+++ b/sepolgen/src/sepolgen/Makefile
-@@ -1,4 +1,5 @@
--PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
-+PYTHON ?= python
-+PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(1))")
- PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
+ 	return NULL;
+@@ -96,7 +98,7 @@ static int sel_netif_insert(struct sel_netif *netif)
+ 	if (sel_netif_total >= SEL_NETIF_HASH_MAX)
+ 		return -ENOSPC;
  
- all:
-diff --git a/sepolgen/tests/Makefile b/sepolgen/tests/Makefile
-index 56e9a5f77a38..924a9bed6bcd 100644
---- a/sepolgen/tests/Makefile
-+++ b/sepolgen/tests/Makefile
-@@ -1,3 +1,5 @@
-+PYTHON ?= python
-+
- clean:
- 	rm -f *~ *.pyc
- 	rm -f parser.out parsetab.py
-@@ -6,4 +8,4 @@ clean:
- 	rm -f output
+-	idx = sel_netif_hashfn(netif->nsec.ifindex);
++	idx = sel_netif_hashfn(netif->nsec.ns, netif->nsec.ifindex);
+ 	list_add_rcu(&netif->list, &sel_netif_hash[idx]);
+ 	sel_netif_total++;
  
- test:
--	python run-tests.py
-\ No newline at end of file
-+	$(PYTHON) run-tests.py
--- 
-2.1.0
+@@ -120,6 +122,7 @@ static void sel_netif_destroy(struct sel_netif *netif)
+ 
+ /**
+  * sel_netif_sid_slow - Lookup the SID of a network interface using the policy
++ * @ns: the network namespace
+  * @ifindex: the network interface
+  * @sid: interface SID
+  *
+@@ -130,7 +133,7 @@ static void sel_netif_destroy(struct sel_netif *netif)
+  * failure.
+  *
+  */
+-static int sel_netif_sid_slow(int ifindex, u32 *sid)
++static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
+ {
+ 	int ret;
+ 	struct sel_netif *netif;
+@@ -140,7 +143,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
+ 	/* NOTE: we always use init's network namespace since we don't
+ 	 * currently support containers */
+ 
+-	dev = dev_get_by_index(&init_net, ifindex);
++	dev = dev_get_by_index(ns, ifindex);
+ 	if (unlikely(dev == NULL)) {
+ 		printk(KERN_WARNING
+ 		       "SELinux: failure in sel_netif_sid_slow(),"
+@@ -149,7 +152,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
+ 	}
+ 
+ 	spin_lock_bh(&sel_netif_lock);
+-	netif = sel_netif_find(ifindex);
++	netif = sel_netif_find(ns, ifindex);
+ 	if (netif != NULL) {
+ 		*sid = netif->nsec.sid;
+ 		ret = 0;
+@@ -163,6 +166,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
+ 	ret = security_netif_sid(dev->name, &new->nsec.sid);
+ 	if (ret != 0)
+ 		goto out;
++	new->nsec.ns = ns;
+ 	new->nsec.ifindex = ifindex;
+ 	ret = sel_netif_insert(new);
+ 	if (ret != 0)
+@@ -184,6 +188,7 @@ out:
+ 
+ /**
+  * sel_netif_sid - Lookup the SID of a network interface
++ * @ns: the network namespace
+  * @ifindex: the network interface
+  * @sid: interface SID
+  *
+@@ -195,12 +200,12 @@ out:
+  * on failure.
+  *
+  */
+-int sel_netif_sid(int ifindex, u32 *sid)
++int sel_netif_sid(struct net *ns, int ifindex, u32 *sid)
+ {
+ 	struct sel_netif *netif;
+ 
+ 	rcu_read_lock();
+-	netif = sel_netif_find(ifindex);
++	netif = sel_netif_find(ns, ifindex);
+ 	if (likely(netif != NULL)) {
+ 		*sid = netif->nsec.sid;
+ 		rcu_read_unlock();
+@@ -208,11 +213,12 @@ int sel_netif_sid(int ifindex, u32 *sid)
+ 	}
+ 	rcu_read_unlock();
+ 
+-	return sel_netif_sid_slow(ifindex, sid);
++	return sel_netif_sid_slow(ns, ifindex, sid);
+ }
+ 
+ /**
+  * sel_netif_kill - Remove an entry from the network interface table
++ * @ns: the network namespace
+  * @ifindex: the network interface
+  *
+  * Description:
+@@ -220,13 +226,13 @@ int sel_netif_sid(int ifindex, u32 *sid)
+  * table if it exists.
+  *
+  */
+-static void sel_netif_kill(int ifindex)
++static void sel_netif_kill(const struct net *ns, int ifindex)
+ {
+ 	struct sel_netif *netif;
+ 
+ 	rcu_read_lock();
+ 	spin_lock_bh(&sel_netif_lock);
+-	netif = sel_netif_find(ifindex);
++	netif = sel_netif_find(ns, ifindex);
+ 	if (netif)
+ 		sel_netif_destroy(netif);
+ 	spin_unlock_bh(&sel_netif_lock);
+@@ -257,11 +263,8 @@ static int sel_netif_netdev_notifier_handler(struct notifier_block *this,
+ {
+ 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
+ 
+-	if (dev_net(dev) != &init_net)
+-		return NOTIFY_DONE;
+-
+ 	if (event == NETDEV_DOWN)
+-		sel_netif_kill(dev->ifindex);
++		sel_netif_kill(dev_net(dev), dev->ifindex);
+ 
+ 	return NOTIFY_DONE;
+ }
