@@ -1,388 +1,121 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s8ALDNoI022645
- for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2014 17:13:23 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id s8ALDRrr011037
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2014 17:13:28 -0400
-Subject: [PATCH] selinux: make the netif cache namespace aware
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Wed, 10 Sep 2014 17:13:26 -0400
-Message-ID: <20140910211326.16569.42922.stgit@localhost>
+From: "Chengfei (Fixed Network R&D Mgmt Dept)" <chengfei999@huawei.com>
+To: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+CC: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Subject: Does selinuxfs support ACL?
+Date: Thu, 11 Sep 2014 03:21:51 +0000
+Message-ID: <C4B033C531077E4AA42DB0AE4AE06B581C5A3BEC@szxeml511-mbx.china.huawei.com>
+Content-Type: multipart/alternative;
+ boundary="_000_C4B033C531077E4AA42DB0AE4AE06B581C5A3BECszxeml511mbxchi_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Cc: Jiri Jaburek <jjaburek@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-While SELinux largely ignores namespaces, for good reason, there are
-some places where it needs to at least be aware of namespaces in order
-to function correctly.  Network namespaces are one example.  Basic
-awareness of network namespaces are necessary in order to match a
-network interface's index number to an actual network device.
+--_000_C4B033C531077E4AA42DB0AE4AE06B581C5A3BECszxeml511mbxchi_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-This patch corrects a problem with network interfaces added to a
-non-init namespace, and can be reproduced with the following commands:
+Hello everyone,
+Recently, I want to make other user use some selinux commands( i.e. setenfo=
+rce)without using sudo.But , I find the file that /selinux/enforce 's dac-l=
+ist is -rw-r- -r- - root root which means only root(or set-user-id-root) ca=
+n use "setenforce 0".So I started to think about apply acl on /selinux/**.
+I used acl like this:
+Mount -t selinuxfs -o remount,acl,rw none /selinux;
+Cat /etc/mtab | grep selinux;//result:seccuss
+So,then:
+Setfacl -m u:newuser:rw /selinux/enforce;//result:failed
+I want to figure out where failed, thanks!:)
 
- [NOTE: the NetLabel configuration is here only to active the dynamic
-        networking controls ]
+--_000_C4B033C531077E4AA42DB0AE4AE06B581C5A3BECszxeml511mbxchi_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
- # netlabelctl unlbl add default address:0.0.0.0/0 \
-   label:system_u:object_r:unlabeled_t:s0
- # netlabelctl unlbl add default address:::/0 \
-   label:system_u:object_r:unlabeled_t:s0
- # netlabelctl cipsov4 add pass doi:100 tags:1
- # netlabelctl map add domain:lspp_test_netlabel_t \
-   protocol:cipsov4,100
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 12 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	font-size:10.5pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;}
+/* Page Definitions */
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"ZH-CN" link=3D"blue" vlink=3D"purple" style=3D"text-justify-t=
+rim:punctuation">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span lang=3D"EN-US">Hello everyone, <o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">Re=
+cently, I want to make other user use some selinux commands( i.e. setenforc=
+e)without using sudo.But , I find the file that /selinux/enforce &#8216;s d=
+ac-list is &#8211;rw-r- -r- - root root which means
+ only root(or set-user-id-root) can use &#8220;setenforce 0&#8221;.So I sta=
+rted to think about apply acl on /selinux/**.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">I =
+used acl like this:<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">Mo=
+unt &#8211;t selinuxfs &#8211;o remount,acl,rw none /selinux;<o:p></o:p></s=
+pan></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">Ca=
+t /etc/mtab | grep selinux;//result:seccuss<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">So=
+,then:<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">Se=
+tfacl &#8211;m u:newuser:rw /selinux/enforce;//result:failed<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"text-indent:21.0pt"><span lang=3D"EN-US">I =
+want to figure out where failed, thanks!:)<o:p></o:p></span></p>
+</div>
+</body>
+</html>
 
- # ip link add type veth
- # ip netns add myns
- # ip link set veth1 netns myns
- # ip a add dev veth0 10.250.13.100/24
- # ip netns exec myns ip a add dev veth1 10.250.13.101/24
- # ip l set veth0 up
- # ip netns exec myns ip l set veth1 up
-
- # ping -c 1 10.250.13.101
- # ip netns exec myns ping -c 1 10.250.13.100
-
-Reported-by: Jiri Jaburek <jjaburek@redhat.com>
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/hooks.c          |   33 +++++++++++++++-------------
- security/selinux/include/netif.h  |    4 +++
- security/selinux/include/objsec.h |    2 ++
- security/selinux/netif.c          |   43 ++++++++++++++++++++-----------------
- 4 files changed, 46 insertions(+), 36 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 50978d3..5eb512b 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4307,15 +4307,15 @@ static int selinux_socket_unix_may_send(struct socket *sock,
- 			    &ad);
- }
- 
--static int selinux_inet_sys_rcv_skb(int ifindex, char *addrp, u16 family,
--				    u32 peer_sid,
-+static int selinux_inet_sys_rcv_skb(struct net *ns, int ifindex,
-+				    char *addrp, u16 family, u32 peer_sid,
- 				    struct common_audit_data *ad)
- {
- 	int err;
- 	u32 if_sid;
- 	u32 node_sid;
- 
--	err = sel_netif_sid(ifindex, &if_sid);
-+	err = sel_netif_sid(ns, ifindex, &if_sid);
- 	if (err)
- 		return err;
- 	err = avc_has_perm(peer_sid, if_sid,
-@@ -4408,8 +4408,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
- 		if (err)
- 			return err;
--		err = selinux_inet_sys_rcv_skb(skb->skb_iif, addrp, family,
--					       peer_sid, &ad);
-+		err = selinux_inet_sys_rcv_skb(sock_net(sk), skb->skb_iif,
-+					       addrp, family, peer_sid, &ad);
- 		if (err) {
- 			selinux_netlbl_err(skb, err, 0);
- 			return err;
-@@ -4748,7 +4748,8 @@ out:
- 
- #ifdef CONFIG_NETFILTER
- 
--static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
-+static unsigned int selinux_ip_forward(struct sk_buff *skb,
-+				       const struct net_device *indev,
- 				       u16 family)
- {
- 	int err;
-@@ -4774,14 +4775,14 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
- 
- 	ad.type = LSM_AUDIT_DATA_NET;
- 	ad.u.net = &net;
--	ad.u.net->netif = ifindex;
-+	ad.u.net->netif = indev->ifindex;
- 	ad.u.net->family = family;
- 	if (selinux_parse_skb(skb, &ad, &addrp, 1, NULL) != 0)
- 		return NF_DROP;
- 
- 	if (peerlbl_active) {
--		err = selinux_inet_sys_rcv_skb(ifindex, addrp, family,
--					       peer_sid, &ad);
-+		err = selinux_inet_sys_rcv_skb(dev_net(indev), indev->ifindex,
-+					       addrp, family, peer_sid, &ad);
- 		if (err) {
- 			selinux_netlbl_err(skb, err, 1);
- 			return NF_DROP;
-@@ -4810,7 +4811,7 @@ static unsigned int selinux_ipv4_forward(const struct nf_hook_ops *ops,
- 					 const struct net_device *out,
- 					 int (*okfn)(struct sk_buff *))
- {
--	return selinux_ip_forward(skb, in->ifindex, PF_INET);
-+	return selinux_ip_forward(skb, in, PF_INET);
- }
- 
- #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-@@ -4820,7 +4821,7 @@ static unsigned int selinux_ipv6_forward(const struct nf_hook_ops *ops,
- 					 const struct net_device *out,
- 					 int (*okfn)(struct sk_buff *))
- {
--	return selinux_ip_forward(skb, in->ifindex, PF_INET6);
-+	return selinux_ip_forward(skb, in, PF_INET6);
- }
- #endif	/* IPV6 */
- 
-@@ -4908,11 +4909,13 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 	return NF_ACCEPT;
- }
- 
--static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
-+static unsigned int selinux_ip_postroute(struct sk_buff *skb,
-+					 const struct net_device *outdev,
- 					 u16 family)
- {
- 	u32 secmark_perm;
- 	u32 peer_sid;
-+	int ifindex = outdev->ifindex;
- 	struct sock *sk;
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net = {0,};
-@@ -5025,7 +5028,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 		u32 if_sid;
- 		u32 node_sid;
- 
--		if (sel_netif_sid(ifindex, &if_sid))
-+		if (sel_netif_sid(dev_net(outdev), ifindex, &if_sid))
- 			return NF_DROP;
- 		if (avc_has_perm(peer_sid, if_sid,
- 				 SECCLASS_NETIF, NETIF__EGRESS, &ad))
-@@ -5047,7 +5050,7 @@ static unsigned int selinux_ipv4_postroute(const struct nf_hook_ops *ops,
- 					   const struct net_device *out,
- 					   int (*okfn)(struct sk_buff *))
- {
--	return selinux_ip_postroute(skb, out->ifindex, PF_INET);
-+	return selinux_ip_postroute(skb, out, PF_INET);
- }
- 
- #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-@@ -5057,7 +5060,7 @@ static unsigned int selinux_ipv6_postroute(const struct nf_hook_ops *ops,
- 					   const struct net_device *out,
- 					   int (*okfn)(struct sk_buff *))
- {
--	return selinux_ip_postroute(skb, out->ifindex, PF_INET6);
-+	return selinux_ip_postroute(skb, out, PF_INET6);
- }
- #endif	/* IPV6 */
- 
-diff --git a/security/selinux/include/netif.h b/security/selinux/include/netif.h
-index 57c6eae..c721454 100644
---- a/security/selinux/include/netif.h
-+++ b/security/selinux/include/netif.h
-@@ -17,9 +17,11 @@
- #ifndef _SELINUX_NETIF_H_
- #define _SELINUX_NETIF_H_
- 
-+#include <net/net_namespace.h>
-+
- void sel_netif_flush(void);
- 
--int sel_netif_sid(int ifindex, u32 *sid);
-+int sel_netif_sid(struct net *ns, int ifindex, u32 *sid);
- 
- #endif	/* _SELINUX_NETIF_H_ */
- 
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 078e553..81fa718 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -24,6 +24,7 @@
- #include <linux/binfmts.h>
- #include <linux/in.h>
- #include <linux/spinlock.h>
-+#include <net/net_namespace.h>
- #include "flask.h"
- #include "avc.h"
- 
-@@ -78,6 +79,7 @@ struct ipc_security_struct {
- };
- 
- struct netif_security_struct {
-+	struct net *ns;			/* network namespace */
- 	int ifindex;			/* device index */
- 	u32 sid;			/* SID for this interface */
- };
-diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-index 3c3de4c..485524c 100644
---- a/security/selinux/netif.c
-+++ b/security/selinux/netif.c
-@@ -45,6 +45,7 @@ static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
- 
- /**
-  * sel_netif_hashfn - Hashing function for the interface table
-+ * @ns: the network namespace
-  * @ifindex: the network interface
-  *
-  * Description:
-@@ -52,13 +53,14 @@ static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
-  * bucket number for the given interface.
-  *
-  */
--static inline u32 sel_netif_hashfn(int ifindex)
-+static inline u32 sel_netif_hashfn(const struct net *ns, int ifindex)
- {
--	return (ifindex & (SEL_NETIF_HASH_SIZE - 1));
-+	return (((uintptr_t)ns + ifindex) & (SEL_NETIF_HASH_SIZE - 1));
- }
- 
- /**
-  * sel_netif_find - Search for an interface record
-+ * @ns: the network namespace
-  * @ifindex: the network interface
-  *
-  * Description:
-@@ -66,15 +68,15 @@ static inline u32 sel_netif_hashfn(int ifindex)
-  * If an entry can not be found in the table return NULL.
-  *
-  */
--static inline struct sel_netif *sel_netif_find(int ifindex)
-+static inline struct sel_netif *sel_netif_find(const struct net *ns,
-+					       int ifindex)
- {
--	int idx = sel_netif_hashfn(ifindex);
-+	int idx = sel_netif_hashfn(ns, ifindex);
- 	struct sel_netif *netif;
- 
- 	list_for_each_entry_rcu(netif, &sel_netif_hash[idx], list)
--		/* all of the devices should normally fit in the hash, so we
--		 * optimize for that case */
--		if (likely(netif->nsec.ifindex == ifindex))
-+		if (net_eq(netif->nsec.ns, ns) &&
-+		    netif->nsec.ifindex == ifindex)
- 			return netif;
- 
- 	return NULL;
-@@ -96,7 +98,7 @@ static int sel_netif_insert(struct sel_netif *netif)
- 	if (sel_netif_total >= SEL_NETIF_HASH_MAX)
- 		return -ENOSPC;
- 
--	idx = sel_netif_hashfn(netif->nsec.ifindex);
-+	idx = sel_netif_hashfn(netif->nsec.ns, netif->nsec.ifindex);
- 	list_add_rcu(&netif->list, &sel_netif_hash[idx]);
- 	sel_netif_total++;
- 
-@@ -120,6 +122,7 @@ static void sel_netif_destroy(struct sel_netif *netif)
- 
- /**
-  * sel_netif_sid_slow - Lookup the SID of a network interface using the policy
-+ * @ns: the network namespace
-  * @ifindex: the network interface
-  * @sid: interface SID
-  *
-@@ -130,7 +133,7 @@ static void sel_netif_destroy(struct sel_netif *netif)
-  * failure.
-  *
-  */
--static int sel_netif_sid_slow(int ifindex, u32 *sid)
-+static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
- {
- 	int ret;
- 	struct sel_netif *netif;
-@@ -140,7 +143,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
- 	/* NOTE: we always use init's network namespace since we don't
- 	 * currently support containers */
- 
--	dev = dev_get_by_index(&init_net, ifindex);
-+	dev = dev_get_by_index(ns, ifindex);
- 	if (unlikely(dev == NULL)) {
- 		printk(KERN_WARNING
- 		       "SELinux: failure in sel_netif_sid_slow(),"
-@@ -149,7 +152,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
- 	}
- 
- 	spin_lock_bh(&sel_netif_lock);
--	netif = sel_netif_find(ifindex);
-+	netif = sel_netif_find(ns, ifindex);
- 	if (netif != NULL) {
- 		*sid = netif->nsec.sid;
- 		ret = 0;
-@@ -163,6 +166,7 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
- 	ret = security_netif_sid(dev->name, &new->nsec.sid);
- 	if (ret != 0)
- 		goto out;
-+	new->nsec.ns = ns;
- 	new->nsec.ifindex = ifindex;
- 	ret = sel_netif_insert(new);
- 	if (ret != 0)
-@@ -184,6 +188,7 @@ out:
- 
- /**
-  * sel_netif_sid - Lookup the SID of a network interface
-+ * @ns: the network namespace
-  * @ifindex: the network interface
-  * @sid: interface SID
-  *
-@@ -195,12 +200,12 @@ out:
-  * on failure.
-  *
-  */
--int sel_netif_sid(int ifindex, u32 *sid)
-+int sel_netif_sid(struct net *ns, int ifindex, u32 *sid)
- {
- 	struct sel_netif *netif;
- 
- 	rcu_read_lock();
--	netif = sel_netif_find(ifindex);
-+	netif = sel_netif_find(ns, ifindex);
- 	if (likely(netif != NULL)) {
- 		*sid = netif->nsec.sid;
- 		rcu_read_unlock();
-@@ -208,11 +213,12 @@ int sel_netif_sid(int ifindex, u32 *sid)
- 	}
- 	rcu_read_unlock();
- 
--	return sel_netif_sid_slow(ifindex, sid);
-+	return sel_netif_sid_slow(ns, ifindex, sid);
- }
- 
- /**
-  * sel_netif_kill - Remove an entry from the network interface table
-+ * @ns: the network namespace
-  * @ifindex: the network interface
-  *
-  * Description:
-@@ -220,13 +226,13 @@ int sel_netif_sid(int ifindex, u32 *sid)
-  * table if it exists.
-  *
-  */
--static void sel_netif_kill(int ifindex)
-+static void sel_netif_kill(const struct net *ns, int ifindex)
- {
- 	struct sel_netif *netif;
- 
- 	rcu_read_lock();
- 	spin_lock_bh(&sel_netif_lock);
--	netif = sel_netif_find(ifindex);
-+	netif = sel_netif_find(ns, ifindex);
- 	if (netif)
- 		sel_netif_destroy(netif);
- 	spin_unlock_bh(&sel_netif_lock);
-@@ -257,11 +263,8 @@ static int sel_netif_netdev_notifier_handler(struct notifier_block *this,
- {
- 	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
- 
--	if (dev_net(dev) != &init_net)
--		return NOTIFY_DONE;
--
- 	if (event == NETDEV_DOWN)
--		sel_netif_kill(dev->ifindex);
-+		sel_netif_kill(dev_net(dev), dev->ifindex);
- 
- 	return NOTIFY_DONE;
- }
+--_000_C4B033C531077E4AA42DB0AE4AE06B581C5A3BECszxeml511mbxchi_--
