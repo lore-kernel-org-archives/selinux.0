@@ -1,47 +1,70 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s8ELgsEQ009324
- for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2014 17:42:55 -0400
-Received: by mail-we0-f180.google.com with SMTP id t60so3056462wes.39
- for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2014 14:42:40 -0700 (PDT)
-Received: from eversmanni.localdomain (193.147.102.84.rev.sfr.net.
- [84.102.147.193])
- by mx.google.com with ESMTPSA id bj7sm12547688wjc.33.2014.09.14.14.42.39
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
- Sun, 14 Sep 2014 14:42:39 -0700 (PDT)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 20/20] libsepol/tests: fix gcc -Warray-bounds warning
-Date: Sun, 14 Sep 2014 23:41:51 +0200
-Message-Id: <1410730911-14512-21-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1410730911-14512-1-git-send-email-nicolas.iooss@m4x.org>
-References: <1410730911-14512-1-git-send-email-nicolas.iooss@m4x.org>
+Message-ID: <5416D791.7090902@tresys.com>
+Date: Mon, 15 Sep 2014 08:12:01 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+MIME-Version: 1.0
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Subject: Re: SELinux Userspace Release: 20140826-rc1
+References: <53FCA845.1030001@tresys.com>	<20140827150608.GA6701@siphos.be>	<53FE02E5.6080506@tresys.com>	<CAPzO=NyyP-m8jPBujd-vnG9XHo2FymskgQBH3fKPt448NznZdA@mail.gmail.com>	<53FF8DE9.6070302@tycho.nsa.gov>	<CAPzO=Nwwbn8ihZmuj-JGKPUonZwjS69Zjg=1ix1EDbR=QQ56oQ@mail.gmail.com>	<54006DD4.6040706@tycho.nsa.gov>	<54007889.90706@tresys.com>	<CAPzO=Nwppvd+Q=J4SXk5Q38FVAUpqCeb8vjXhxfMBkbFRYpjsw@mail.gmail.com>	<54008AC4.6080600@tycho.nsa.gov>	<54008C93.5060300@tresys.com>
+ <CAPzO=NzfSr6zk+AhZUSnwF-aB8o225m_6VX5mTjLV=L1m_iimw@mail.gmail.com>
+In-Reply-To: <CAPzO=NzfSr6zk+AhZUSnwF-aB8o225m_6VX5mTjLV=L1m_iimw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-  test-linker-roles.c: In function 'module_role_tests':
-  test-linker-roles.c:147:7: error: array subscript is above array bounds
-  [-Werror=array-bounds]
-    decls[2] = (test_find_decl_by_sym(base, SYM_TYPES,"tag_g_m2"))->decl_id;
-         ^
----
- libsepol/tests/test-linker-roles.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We will definitely push out an rc3. We have some fixes in the CIL and
+userspace repos that we just need to finalize and clean up. We should
+have an rc3 out this week.
 
-diff --git a/libsepol/tests/test-linker-roles.c b/libsepol/tests/test-linker-roles.c
-index 42f92d30f7f9..2c4a804704d6 100644
---- a/libsepol/tests/test-linker-roles.c
-+++ b/libsepol/tests/test-linker-roles.c
-@@ -101,7 +101,7 @@ void module_role_tests(policydb_t * base)
- {
- 	role_datum_t *role;
- 	avrule_decl_t *decl;
--	unsigned int decls[2];
-+	unsigned int decls[3];
- 	char *types[3];
- 
- 	/* These tests are run when the base is linked with 2 modules,
--- 
-2.1.0
+Thanks,
+- Steve
+
+On 09/14/2014 05:31 AM, Sven Vermeulen wrote:
+> Hi Steve & co
+> 
+> Will you be pushing out an rc3 release? If not, can I get the fix for
+> this particular situation so I can continue testing?
+> 
+> Wkr,
+>   Sven Vermeulen
+> 
+> On Fri, Aug 29, 2014 at 4:22 PM, Steve Lawrence <slawrence@tresys.com> wrote:
+>> On 08/29/2014 10:14 AM, Stephen Smalley wrote:
+>>> On 08/29/2014 10:00 AM, Sven Vermeulen wrote:
+>>>> On Fri, Aug 29, 2014 at 2:56 PM, Steve Lawrence <slawrence@tresys.com> wrote:
+>>>>>>>>> Segmentation fault
+>>>>>>> [...]
+>>>>>>>> Can you provide a copy of your original policy prior to conversion?
+>>>>>>>
+>>>>>>> If you mean the policy.29 file, certainly. You can wget it from
+>>>>>>> http://dev.gentoo.org/~swift/tmp/20140828-policy.29
+>>>>>>
+>>>>>> No, the contents of /etc/selinux/mcs.  The migration script converts the
+>>>>>> old policy module store, not the final kernel policy file.
+>>>>>>
+>>>>>
+>>>>> Hmm, I'm unable to reproduce this. I think the policy store that Stephen
+>>>>> mentions will be help to reproduce it.
+>>>>>
+>>>>
+>>>> Certainly.
+>>>>
+>>>> The policy store can be found at
+>>>> http://dev.gentoo.org/~swift/tmp/20140829-etc-selinux-mcs.tar.gz
+>>>
+>>> Hmm...semanage_migrate_store worked for me on that policy store.
+>>>
+>>> Can you reproduce the fault?  If so, can you get debug info?
+>>> Build with debug flags and run semanage_migrate_store under valgrind,
+>>> perhaps?
+>>>
+>>
+>> We are able to get the segfault and have gotten a backtrace. It looks
+>> like it has to do with how optionals are handled and how we reset state
+>> when an optional is disabled. The fix in this particular case is pretty
+>> simple, but I think we need to go through the rest of the reset state
+>> code and ensure we aren't making similar mistakes. Might take a little
+>> bit of time.
+>>
