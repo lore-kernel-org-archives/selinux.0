@@ -1,33 +1,71 @@
-Message-ID: <5418300A.4060802@tycho.nsa.gov>
-Date: Tue, 16 Sep 2014 08:41:46 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Avijit Das <avijitnsec@live.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Few issues we are facing when we are enabling selinux
-References: <COL127-W2961A74296F76BECD4CC63B1C90@phx.gbl>
-In-Reply-To: <COL127-W2961A74296F76BECD4CC63B1C90@phx.gbl>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s8J0n1NR009411
+ for <selinux@tycho.nsa.gov>; Thu, 18 Sep 2014 20:49:01 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-audit@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: services: cleanup orphan keywords in audit log text
+Date: Thu, 18 Sep 2014 20:47:48 -0400
+Message-Id: <516208b0d38331b8a3318918814e4e321c5117d9.1411086286.git.rgb@redhat.com>
+Cc: sgrubb@redhat.com, eparis@redhat.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/15/2014 10:53 PM, Avijit Das wrote:
-> Hi,
-> We are facing couple of issues when we are enabling selinux. We are trying to enabling it in android device.
-> 1. If we trying to set some context to any symblink, it is not able to set the context. Earlier we are able to set context in symblink. Is there any new change which made it disable.2. Also if enabled seandoid in permissive mode, we are observing some of the permissions are getting denied. We are witnessing few processes are getting killed because of lack of permission.
-> Is there any new changes which is causing this issues?
-> Thanks,Avijit 		 	   		  
+Restructure to keyword=value pairs without spaces.  Drop superfluous words in
+text.  Make invalid_context a keyword.  Change result= keyword to seresult=.
 
-SE for Android-specific questions should go to seandroid-list after
-subscribing (send mail to seandroid-list-join@tycho.nsa.gov and follow
-the instructions in the confirmation email).  See
-http://seandroid.bitbucket.org for information about SE for Android.
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+---
+ security/selinux/ss/services.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-You didn't say how you were trying to set the context of a symlink, or
-what error you were getting if any.
-
-You didn't indicate what version you are using.
-
-You didn't show the particular denials.
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 4bca494..e822910 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -728,7 +728,7 @@ static int security_validtrans_handle_fail(struct context *ocontext,
+ 	if (context_struct_to_string(tcontext, &t, &tlen))
+ 		goto out;
+ 	audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
+-		  "security_validate_transition:  denied for"
++		  "op=security_validate_transition seresult=denied"
+ 		  " oldcontext=%s newcontext=%s taskcontext=%s tclass=%s",
+ 		  o, n, t, sym_name(&policydb, SYM_CLASSES, tclass-1));
+ out:
+@@ -877,7 +877,7 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
+ 			audit_log(current->audit_context,
+ 				  GFP_ATOMIC, AUDIT_SELINUX_ERR,
+ 				  "op=security_bounded_transition "
+-				  "result=denied "
++				  "seresult=denied "
+ 				  "oldcontext=%s newcontext=%s",
+ 				  old_name, new_name);
+ 		}
+@@ -1351,8 +1351,8 @@ static int compute_sid_handle_invalid_context(
+ 	if (context_struct_to_string(newcontext, &n, &nlen))
+ 		goto out;
+ 	audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
+-		  "security_compute_sid:  invalid context %s"
+-		  " for scontext=%s"
++		  "op=security_compute_sid invalid_context=%s"
++		  " scontext=%s"
+ 		  " tcontext=%s"
+ 		  " tclass=%s",
+ 		  n, s, t, sym_name(&policydb, SYM_CLASSES, tclass-1));
+@@ -2584,8 +2584,10 @@ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid)
+ 		rc = convert_context_handle_invalid_context(&newcon);
+ 		if (rc) {
+ 			if (!context_struct_to_string(&newcon, &s, &len)) {
+-				audit_log(current->audit_context, GFP_ATOMIC, AUDIT_SELINUX_ERR,
+-					  "security_sid_mls_copy: invalid context %s", s);
++				audit_log(current->audit_context,
++					  GFP_ATOMIC, AUDIT_SELINUX_ERR,
++					  "op=security_sid_mls_copy "
++					  "invalid_context=%s", s);
+ 				kfree(s);
+ 			}
+ 			goto out_unlock;
+-- 
+1.7.1
