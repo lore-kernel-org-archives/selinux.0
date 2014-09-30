@@ -1,37 +1,33 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s8UEWWiG010627
- for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2014 10:32:32 -0400
-Date: Wed, 1 Oct 2014 00:32:26 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-Subject: Re: [GIT PULL] SELinux patches for 3.18
-In-Reply-To: <6423750.9WFoIKOal0@sifl>
-Message-ID: <alpine.LRH.2.11.1410010031540.17649@namei.org>
-References: <6423750.9WFoIKOal0@sifl>
+Message-ID: <542ADCAA.30001@tycho.nsa.gov>
+Date: Tue, 30 Sep 2014 12:39:06 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+To: Tobias Bengfort <tobias.bengfort@posteo.de>, SELinux@tycho.nsa.gov
+Subject: Re: UPower dbus interface unavailable with enforcing SELinux
+References: <m08v7l$tpj$1@ger.gmane.org>
+In-Reply-To: <m08v7l$tpj$1@ger.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 26 Sep 2014, Paul Moore wrote:
-
-> Hi James,
+On 09/28/2014 08:33 AM, Tobias Bengfort wrote:
+> Hi,
 > 
-> I haven't seen a response to my mail yesterday about the linux-security tree 
-> and v3.16, but considering where we are at in relation to the v3.18 merge 
-> window I figured it best to send the SELinux pull request now.
+> I am running SELinux on my debian wheezy laptop. I would like to be able
+> to suspend in a defined amount of time, say 2h. This is useful e.g. when
+> watching a movie and falling asleep.
 > 
-> As should be obvious, and in keeping with recent history, the SELinux next 
-> branch is based on v3.16 so it doesn't apply cleanly on top of the current 
-> linux-security next branch.  I fully expect that bringing the linux-security 
-> branch up to v3.16 should result in a clean merge.
+> Unfortunately, SELinux blocks access to UPower's dbus interface. I guess
+> this is because programmatic access to power control is considered
+> dangerous.
 > 
+> My current workaround is to disable SElinux whenever I want to use the
+> described feature. This of course is not a desirable solution.
+> 
+> Is what I am trying to do possible or should I just start reading books
+> instead of watching movies?
 
-Ok, I synced to v3.16 and pulled your branch.
-
--- 
-James Morris
-<jmorris@namei.org>
+Please post the actual denials that you see in /var/log/messages or
+/var/log/audit/audit.log.
