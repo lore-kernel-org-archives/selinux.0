@@ -1,152 +1,190 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s91IXs18006778
- for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2014 14:34:04 -0400
-Message-ID: <542C490C.40506@tresys.com>
-Date: Wed, 1 Oct 2014 14:33:48 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s91J0nPi008616
+ for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2014 15:00:49 -0400
+Message-ID: <542C4F59.2050408@tresys.com>
+Date: Wed, 1 Oct 2014 15:00:41 -0400
 From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Use $(PYTHON) instead of "python" in every Makefile
-References: <1410375688-13335-1-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1410375688-13335-1-git-send-email-nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 00/20] Compiling userland lib & tools with hardened gcc
+ flags
+References: <1410730911-14512-1-git-send-email-nicolas.iooss@m4x.org>
+In-Reply-To: <1410730911-14512-1-git-send-email-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/10/2014 03:01 PM, Nicolas Iooss wrote:
-> This fixes the build with "make PYTHON=python2" on systems where python
-> is python3.
+On 09/14/2014 05:41 PM, Nicolas Iooss wrote:
+> Hi,
 > 
-> For PYLIBVER and PYTHONLIBDIR definitions, I tested Python 2.5, 2.6, 2.7,
-> 3.3 and 3.4.  For each of them, these commands print the expected result:
+> After I discovered libsepol/cil happened to use "%n" in printf format
+> string, I decided to compile SELinux userland libraries and tools with
+> more compilation flags.  I used:
 > 
->     python -c 'import sys;print("python%d.%d" % sys.version_info[0:2])'"
->     python -c "from distutils.sysconfig import *;print(get_python_lib(1))"
-> ---
->  policycoreutils/audit2allow/Makefile | 3 ++-
->  policycoreutils/sandbox/Makefile     | 2 +-
->  policycoreutils/semanage/Makefile    | 6 ++++--
->  policycoreutils/sepolicy/Makefile    | 5 +++--
->  sepolgen/src/sepolgen/Makefile       | 3 ++-
->  sepolgen/tests/Makefile              | 4 +++-
->  6 files changed, 15 insertions(+), 8 deletions(-)
+>     CFLAGS = -O2 -pipe -Wall -Wextra -Werror \
+>         -D_FORTIFY_SOURCE=2 \
+>         -Wfloat-equal \
+>         -Wformat -Wformat-security \
+>         -Winit-self \
+>         -Wmissing-declarations \
+>         -Wpointer-arith \
+>         -Wshadow \
+>         -Wsign-compare \
+>         -Wstrict-prototypes \
+>         -Wwrite-strings \
+>         -Wno-unused-result \
+>         -fno-exceptions \
+>         -fstack-protector --param=ssp-buffer-size=4
+>     LDFLAGS = -Wl,-as-needed,-no-undefined,-z,relro,-z,now \
+>          -fstack-protector
 > 
-> diff --git a/policycoreutils/audit2allow/Makefile b/policycoreutils/audit2allow/Makefile
-> index f838b13ef8f7..87d25029dc5f 100644
-> --- a/policycoreutils/audit2allow/Makefile
-> +++ b/policycoreutils/audit2allow/Makefile
-> @@ -1,10 +1,11 @@
-> +PYTHON ?= python
-> +
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
->  BINDIR ?= $(PREFIX)/bin
->  LIBDIR ?= $(PREFIX)/lib
->  MANDIR ?= $(PREFIX)/share/man
->  LOCALEDIR ?= /usr/share/locale
-> -PYTHON ?= /usr/bin/python
->  
->  all: audit2why
->  
-> diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
-> index 567117038d4e..a6fb3435feb6 100644
-> --- a/policycoreutils/sandbox/Makefile
-> +++ b/policycoreutils/sandbox/Makefile
+> These warning flags are described in
+> https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html.
+> 
+> The build is broken when using all of these flags and this patchset is
+> an attempt to fix some warnings/errors.  Here is what I found:
+> 
+> * Combining "-O2 -Wall -Werror" made the build fail because of use of
+>   unitialized variables.  Patches 1, 2 and 3 fix this.
+> * -Wshadow is already enabled when doing "make DEBUG=1" but this did not
+>   prevent some programs from shadowing global variables.  Patches 4 and
+>   5 fix this.
+> * To make "-Wformat -Wformat-security" useful, a format attribute should
+>   be added to logging functions.  When doing such a thing, gcc warns
+>   about some format string.  Patches 6 and 7 add the attribute and fixes
+>   some new warnings.
+> * While at it, checkpolicy logging function used "char *message" instead
+>   of "const char *message".  Patch 8 modifies this.
+> * -Wsign-compare makes gcc complains on some implicit casts.  Patches 9,
+>   10 and 11 fix the generated warnings.
+> * -Wwrite-strings makes gcc complains when using code like:
+> 
+>     char *s = "text"
+> 
+>   Here, s is a pointer to a read-only location and should be made
+>   "const char*".  Patches 12 to 17 fix most of these warnings.  Some of
+>   them cannot be fixed without changing the API defined in
+>   /usr/include/sepol/policydb/hashtab.h (in short: replacing "const
+>   hashtab_key_t k" with "const char *k").  As this patchset focuses on
+>   fixing internal things, this API has not been changed.
+> * -Wstrict-prototypes complained about some functions defined with an
+>   empty argument list instead of (void).  Patch 18 adds the missing
+>   arguments and marks them with __attribute__ ((unused)) when
+>   applicable.
+> * -Wunused-variable (from -Wall) made gcc complain about unused
+>   parameters in checkpolicy/.  Patch 19 adds some __attribute__
+>   ((unused)).
+> * -Wmissing-declarations helps finding missing "static" keyword when
+>   defining functions and missing headers when the function is willingly
+>   non-static.  There are too many warnings caused by this flag to make
+>   it useful.
+> * Last but not the least, when testing with "make test", gcc complained
+>   with -Warray-bounds warning because libsepol/tests/test-linker-roles.c
+>   had:
+> 
+>     unsigned int decls[2]
+>     /* ... */
+>     decls[2] = ...
+> 
+>   ... Patch 20 replaces the first "2" by "3" to fix this bug.
+> 
+> With this patchset, the build succeeds when using the given CFLAGS
+> configuration without -Wwrite-strings and -Wmissing-declarations.
+> 
+> The linker_roles test from libsepol fails because CIL changed the way
+> roles in base policy are managed:
+> 
+>     Suite: linker
+>       Test: linker_indexes ...passed
+>       Test: linker_types ...passed
+>       Test: linker_roles ...
+>     role o1_b_role_1 has 0 types, 1 expected
+>     [[SNIP]]
+>     FAILED
+> 
+> This failure has not been introduced by this patchset and this patchset
+> does not fix the test nor introduces new failures.
+> 
+> Cheers
+> 
+> 
+> Nicolas Iooss (20):
+>   libsepol: fix potential free of uninitialized pointer
+>   libsemanage: Fix use of unitialized variable
+>   policycoreutils/hll/pp: fix potential use of uninitialized variable
+>   policycoreutils/sandbox: fix debug build
+>   policycoreutils/semodule_package: fix debug build
+>   policycoreutils/hll/pp: add printf format attribute to relevant
+>     functions
+>   checkpolicy: add printf format attribute to relevant functions
+>   checkpolicy: constify the message written by yyerror and yywarn
+>   libselinux: fix gcc -Wsign-compare warnings
+>   checkpolicy: fix gcc -Wsign-compare warnings
+>   libsepol: fix most gcc -Wwrite-strings warnings
+>   libsemanage: constify name and ext_lang parameters of
+>     semanage_module_install_hll
+>   libsepol/cil: fix gcc -Wwrite-strings warnings
+>   libsemanage: fix gcc -Wwrite-strings warnings
+>   checkpolicy: fix most gcc -Wwrite-strings warnings
+>   policycoreutils/hll/pp: fix gcc -Wwrite-strings warnings
+>   policycoreutils: fix most gcc -Wwrite-strings warnings
+>   Fix gcc -Wstrict-prototypes warnings
+>   checkpolicy: fix gcc -Wunused-variable warnings
+>   libsepol/tests: fix gcc -Warray-bounds warning
+> 
+>  checkpolicy/checkmodule.c                          | 10 ++--
+>  checkpolicy/checkpolicy.c                          | 15 +++---
+>  checkpolicy/module_compiler.c                      | 13 ++---
+>  checkpolicy/policy_define.c                        | 33 ++++++------
+>  checkpolicy/policy_define.h                        |  2 +-
+>  checkpolicy/policy_parse.y                         |  6 +--
+>  checkpolicy/policy_scan.l                          |  8 +--
+>  checkpolicy/test/dismod.c                          |  6 +--
+>  checkpolicy/test/dispol.c                          |  8 +--
+>  libselinux/src/label_file.c                        |  9 ++--
+>  libselinux/src/label_file.h                        |  2 +-
+>  libselinux/utils/sefcontext_compile.c              |  4 +-
+>  libsemanage/src/conf-parse.y                       |  6 +--
+>  libsemanage/src/direct_api.c                       |  4 +-
+>  libsemanage/src/modules.c                          |  2 +-
+>  libsemanage/src/modules.h                          |  2 +-
+>  libsemanage/src/policy.h                           |  2 +-
+>  libsemanage/src/seusers_local.c                    |  3 +-
+>  libsemanage/src/utilities.c                        |  6 +--
+>  libsemanage/src/utilities.h                        |  6 +--
+>  libsepol/cil/src/cil.c                             |  2 +-
+>  libsepol/cil/src/cil_mem.c                         |  2 +-
+>  libsepol/cil/src/cil_mem.h                         |  2 +-
+>  libsepol/cil/src/cil_policy.c                      | 10 ++--
+>  libsepol/cil/src/cil_strpool.c                     |  2 +-
+>  libsepol/cil/src/cil_strpool.h                     |  2 +-
+>  libsepol/include/sepol/policydb/services.h         |  2 +-
+>  libsepol/src/link.c                                |  6 +--
+>  libsepol/src/policydb.c                            |  2 +-
+>  libsepol/src/policydb_internal.h                   |  2 +-
+>  libsepol/src/services.c                            | 22 ++++----
+>  libsepol/src/write.c                               |  2 +-
+>  libsepol/tests/test-linker-roles.c                 |  2 +-
+>  policycoreutils/hll/pp/pp.c                        | 61 ++++++++++++----------
+>  policycoreutils/newrole/newrole.c                  |  6 +--
+>  policycoreutils/restorecond/restorecond.c          |  8 +--
+>  policycoreutils/restorecond/restorecond.h          |  2 +-
+>  policycoreutils/restorecond/user.c                 |  2 +-
+>  policycoreutils/restorecond/utmpwatcher.c          |  2 +-
+>  policycoreutils/restorecond/watch.c                |  2 +-
+>  policycoreutils/run_init/run_init.c                |  2 +-
+>  policycoreutils/sandbox/seunshare.c                | 12 ++---
+>  .../semodule_package/semodule_package.c            |  6 +--
+>  .../semodule_package/semodule_unpackage.c          |  6 +--
+>  policycoreutils/setfiles/restore.h                 |  4 +-
+>  policycoreutils/setfiles/setfiles.c                |  6 +--
+>  46 files changed, 169 insertions(+), 155 deletions(-)
+> 
 
-I believe this file needs a "PYTHON ?= python" statement, right?
+ACK'ed. All patches will be applied as part of rc3. Note that the CIL
+patch will be applied separately to the CIL repo and merged in.
 
-Otherwise, this patch looks good to me.
-
-> @@ -32,7 +32,7 @@ install: all
->  	install -m 644 sandbox.conf $(SYSCONFDIR)/sandbox
->  
->  test:
-> -	@python test_sandbox.py -v
-> +	@$(PYTHON) test_sandbox.py -v
->  
->  clean:
->  	-rm -f seunshare *.o *~
-> diff --git a/policycoreutils/semanage/Makefile b/policycoreutils/semanage/Makefile
-> index 8fc8e0b15240..60c36a3a1096 100644
-> --- a/policycoreutils/semanage/Makefile
-> +++ b/policycoreutils/semanage/Makefile
-> @@ -1,9 +1,11 @@
-> +PYTHON ?= python
-> +
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
->  LIBDIR ?= $(PREFIX)/lib
->  SBINDIR ?= $(PREFIX)/sbin
->  MANDIR = $(PREFIX)/share/man
-> -PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
-> +PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
->  PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
->  BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
->  
-> @@ -24,7 +26,7 @@ install: all
->  	install -m 644 $(BASHCOMPLETIONS) $(BASHCOMPLETIONDIR)/semanage
->  
->  test:
-> -	@python test-semanage.py -a
-> +	@$(PYTHON) test-semanage.py -a
->  clean:
->  
->  indent:
-> diff --git a/policycoreutils/sepolicy/Makefile b/policycoreutils/sepolicy/Makefile
-> index 90f88a514ee4..45edb0c2a499 100644
-> --- a/policycoreutils/sepolicy/Makefile
-> +++ b/policycoreutils/sepolicy/Makefile
-> @@ -1,3 +1,5 @@
-> +PYTHON ?= python
-> +
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
->  SYSCONFDIR ?= $(DESTDIR)/etc/sysconfig
-> @@ -7,7 +9,6 @@ SBINDIR ?= $(PREFIX)/sbin
->  DATADIR ?= $(PREFIX)/share
->  MANDIR ?= $(PREFIX)/share/man
->  LOCALEDIR ?= /usr/share/locale
-> -PYTHON ?= /usr/bin/python
->  BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
->  SHAREDIR ?= $(PREFIX)/share/sandbox
->  override CFLAGS = -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
-> @@ -27,7 +28,7 @@ sepolgen:
->  	ln -sf sepolicy sepolgen
->  
->  test:
-> -	@python test_sepolicy.py -v
-> +	@$(PYTHON) test_sepolicy.py -v
->  
->  install:
->  	$(PYTHON) setup.py install `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
-> diff --git a/sepolgen/src/sepolgen/Makefile b/sepolgen/src/sepolgen/Makefile
-> index eadc0aa5afec..9ac765151478 100644
-> --- a/sepolgen/src/sepolgen/Makefile
-> +++ b/sepolgen/src/sepolgen/Makefile
-> @@ -1,4 +1,5 @@
-> -PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
-> +PYTHON ?= python
-> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(1))")
->  PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
->  
->  all:
-> diff --git a/sepolgen/tests/Makefile b/sepolgen/tests/Makefile
-> index 56e9a5f77a38..924a9bed6bcd 100644
-> --- a/sepolgen/tests/Makefile
-> +++ b/sepolgen/tests/Makefile
-> @@ -1,3 +1,5 @@
-> +PYTHON ?= python
-> +
->  clean:
->  	rm -f *~ *.pyc
->  	rm -f parser.out parsetab.py
-> @@ -6,4 +8,4 @@ clean:
->  	rm -f output
->  
->  test:
-> -	python run-tests.py
-> \ No newline at end of file
-> +	$(PYTHON) run-tests.py
-> 
+Thanks!
+- Steve
