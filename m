@@ -1,33 +1,152 @@
-Message-ID: <542ADCAA.30001@tycho.nsa.gov>
-Date: Tue, 30 Sep 2014 12:39:06 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s91IXs18006778
+ for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2014 14:34:04 -0400
+Message-ID: <542C490C.40506@tresys.com>
+Date: Wed, 1 Oct 2014 14:33:48 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Tobias Bengfort <tobias.bengfort@posteo.de>, SELinux@tycho.nsa.gov
-Subject: Re: UPower dbus interface unavailable with enforcing SELinux
-References: <m08v7l$tpj$1@ger.gmane.org>
-In-Reply-To: <m08v7l$tpj$1@ger.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Use $(PYTHON) instead of "python" in every Makefile
+References: <1410375688-13335-1-git-send-email-nicolas.iooss@m4x.org>
+In-Reply-To: <1410375688-13335-1-git-send-email-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/28/2014 08:33 AM, Tobias Bengfort wrote:
-> Hi,
+On 09/10/2014 03:01 PM, Nicolas Iooss wrote:
+> This fixes the build with "make PYTHON=python2" on systems where python
+> is python3.
 > 
-> I am running SELinux on my debian wheezy laptop. I would like to be able
-> to suspend in a defined amount of time, say 2h. This is useful e.g. when
-> watching a movie and falling asleep.
+> For PYLIBVER and PYTHONLIBDIR definitions, I tested Python 2.5, 2.6, 2.7,
+> 3.3 and 3.4.  For each of them, these commands print the expected result:
 > 
-> Unfortunately, SELinux blocks access to UPower's dbus interface. I guess
-> this is because programmatic access to power control is considered
-> dangerous.
+>     python -c 'import sys;print("python%d.%d" % sys.version_info[0:2])'"
+>     python -c "from distutils.sysconfig import *;print(get_python_lib(1))"
+> ---
+>  policycoreutils/audit2allow/Makefile | 3 ++-
+>  policycoreutils/sandbox/Makefile     | 2 +-
+>  policycoreutils/semanage/Makefile    | 6 ++++--
+>  policycoreutils/sepolicy/Makefile    | 5 +++--
+>  sepolgen/src/sepolgen/Makefile       | 3 ++-
+>  sepolgen/tests/Makefile              | 4 +++-
+>  6 files changed, 15 insertions(+), 8 deletions(-)
 > 
-> My current workaround is to disable SElinux whenever I want to use the
-> described feature. This of course is not a desirable solution.
-> 
-> Is what I am trying to do possible or should I just start reading books
-> instead of watching movies?
+> diff --git a/policycoreutils/audit2allow/Makefile b/policycoreutils/audit2allow/Makefile
+> index f838b13ef8f7..87d25029dc5f 100644
+> --- a/policycoreutils/audit2allow/Makefile
+> +++ b/policycoreutils/audit2allow/Makefile
+> @@ -1,10 +1,11 @@
+> +PYTHON ?= python
+> +
+>  # Installation directories.
+>  PREFIX ?= $(DESTDIR)/usr
+>  BINDIR ?= $(PREFIX)/bin
+>  LIBDIR ?= $(PREFIX)/lib
+>  MANDIR ?= $(PREFIX)/share/man
+>  LOCALEDIR ?= /usr/share/locale
+> -PYTHON ?= /usr/bin/python
+>  
+>  all: audit2why
+>  
+> diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+> index 567117038d4e..a6fb3435feb6 100644
+> --- a/policycoreutils/sandbox/Makefile
+> +++ b/policycoreutils/sandbox/Makefile
 
-Please post the actual denials that you see in /var/log/messages or
-/var/log/audit/audit.log.
+I believe this file needs a "PYTHON ?= python" statement, right?
+
+Otherwise, this patch looks good to me.
+
+> @@ -32,7 +32,7 @@ install: all
+>  	install -m 644 sandbox.conf $(SYSCONFDIR)/sandbox
+>  
+>  test:
+> -	@python test_sandbox.py -v
+> +	@$(PYTHON) test_sandbox.py -v
+>  
+>  clean:
+>  	-rm -f seunshare *.o *~
+> diff --git a/policycoreutils/semanage/Makefile b/policycoreutils/semanage/Makefile
+> index 8fc8e0b15240..60c36a3a1096 100644
+> --- a/policycoreutils/semanage/Makefile
+> +++ b/policycoreutils/semanage/Makefile
+> @@ -1,9 +1,11 @@
+> +PYTHON ?= python
+> +
+>  # Installation directories.
+>  PREFIX ?= $(DESTDIR)/usr
+>  LIBDIR ?= $(PREFIX)/lib
+>  SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR = $(PREFIX)/share/man
+> -PYLIBVER ?= $(shell python -c 'import sys;print "python%d.%d" % sys.version_info[0:2]')
+> +PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
+>  PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+>  BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
+>  
+> @@ -24,7 +26,7 @@ install: all
+>  	install -m 644 $(BASHCOMPLETIONS) $(BASHCOMPLETIONDIR)/semanage
+>  
+>  test:
+> -	@python test-semanage.py -a
+> +	@$(PYTHON) test-semanage.py -a
+>  clean:
+>  
+>  indent:
+> diff --git a/policycoreutils/sepolicy/Makefile b/policycoreutils/sepolicy/Makefile
+> index 90f88a514ee4..45edb0c2a499 100644
+> --- a/policycoreutils/sepolicy/Makefile
+> +++ b/policycoreutils/sepolicy/Makefile
+> @@ -1,3 +1,5 @@
+> +PYTHON ?= python
+> +
+>  # Installation directories.
+>  PREFIX ?= $(DESTDIR)/usr
+>  SYSCONFDIR ?= $(DESTDIR)/etc/sysconfig
+> @@ -7,7 +9,6 @@ SBINDIR ?= $(PREFIX)/sbin
+>  DATADIR ?= $(PREFIX)/share
+>  MANDIR ?= $(PREFIX)/share/man
+>  LOCALEDIR ?= /usr/share/locale
+> -PYTHON ?= /usr/bin/python
+>  BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
+>  SHAREDIR ?= $(PREFIX)/share/sandbox
+>  override CFLAGS = -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
+> @@ -27,7 +28,7 @@ sepolgen:
+>  	ln -sf sepolicy sepolgen
+>  
+>  test:
+> -	@python test_sepolicy.py -v
+> +	@$(PYTHON) test_sepolicy.py -v
+>  
+>  install:
+>  	$(PYTHON) setup.py install `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
+> diff --git a/sepolgen/src/sepolgen/Makefile b/sepolgen/src/sepolgen/Makefile
+> index eadc0aa5afec..9ac765151478 100644
+> --- a/sepolgen/src/sepolgen/Makefile
+> +++ b/sepolgen/src/sepolgen/Makefile
+> @@ -1,4 +1,5 @@
+> -PYTHONLIBDIR ?= $(shell  python -c "from distutils.sysconfig import *; print get_python_lib(1)")
+> +PYTHON ?= python
+> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(1))")
+>  PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
+>  
+>  all:
+> diff --git a/sepolgen/tests/Makefile b/sepolgen/tests/Makefile
+> index 56e9a5f77a38..924a9bed6bcd 100644
+> --- a/sepolgen/tests/Makefile
+> +++ b/sepolgen/tests/Makefile
+> @@ -1,3 +1,5 @@
+> +PYTHON ?= python
+> +
+>  clean:
+>  	rm -f *~ *.pyc
+>  	rm -f parser.out parsetab.py
+> @@ -6,4 +8,4 @@ clean:
+>  	rm -f output
+>  
+>  test:
+> -	python run-tests.py
+> \ No newline at end of file
+> +	$(PYTHON) run-tests.py
+> 
