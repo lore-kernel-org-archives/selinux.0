@@ -1,71 +1,115 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s92GBUKE011989
- for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2014 12:11:30 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] policycoreutils/hll/pp: only print certain roles when
- declared in base modules
-Date: Thu, 2 Oct 2014 12:11:11 -0400
-Message-ID: <1412266271-20158-1-git-send-email-slawrence@tresys.com>
-In-Reply-To: <542D6E4E.1070602@tresys.com>
-References: <542D6E4E.1070602@tresys.com>
+Message-ID: <542D7C43.8090301@tycho.nsa.gov>
+Date: Thu, 02 Oct 2014 12:24:35 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Steve Lawrence <slawrence@tresys.com>,
+ Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>,
+ SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 0/3] pp2cil fixes based on feedback
+References: <1412255410-15537-1-git-send-email-ykhodorkovskiy@tresys.com>
+ <542D64CF.809@tycho.nsa.gov> <542D6821.2000609@tresys.com>
+ <542D6A5F.5090708@tycho.nsa.gov> <542D6E4E.1070602@tresys.com>
+In-Reply-To: <542D6E4E.1070602@tresys.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Some roles (i.e. user_r, staff_r, sysadm_r, system_r, unconfined_r) are
-declared in the base module, and sometimes in non-base modules. This
-could result in duplicate declarations of roles, which isn't allowed in
-CIL. So for these roles, only generate their declarations if they appear
-in a base module, otherwise ignore their declarations. All other roles
-are printed regardlss of their declaration location.
+On 10/02/2014 11:25 AM, Steve Lawrence wrote:
+> On 10/02/2014 11:08 AM, James Carter wrote:
+>> On 10/02/2014 10:58 AM, Steve Lawrence wrote:
+>>> On 10/02/2014 10:44 AM, James Carter wrote:
+>>>> On 10/02/2014 09:10 AM, Yuli Khodorkovskiy wrote:
+>>>>> This patchset provides fixes to the pp2cil tool based on feedback for
+>>>>> 2014-08-26-rc1.
+>>>>>
+>>>>> An issue was encountered in 2014-08-26-rc1 with missing roles [1].
+>>>>> Role declarations will now be printed in base and modules, where
+>>>>> before only module role declarations were printed. Also, roletype
+>>>>> statements will only be created when a role or a type are in the
+>>>>> correct scope. As a result of these changes, policies that declare
+>>>>> roles mulitple times in different modules will result in pp2cil
+>>>>> generating duplicate roles. Since CIL does not allow identical role
+>>>>> delcarations in different modules, current policies must be rebuilt
+>>>>> with a refpolicy patch that removes duplicate role declarations [2].
+>>>>>
+>>>>
+>>>> What about current policies? How does this effect backwards
+>>>> compatibility?
+>>>>
+>>>
+>>> Unfortunately, this solution is not very backwards compatible. In order
+>>> to update to the latest userspace, it would require distributions to
+>>> update to the latest refpolicy or to pull in the refpolicy patch
+>>> referenced below. However, we have already found issues in distribution
+>>> policies that caused breakage that require distributions to update their
+>>> policies (e.g. bad filecon statements in fedora), so this isn't a
+>>> particularly new. It does potentially affect all policies though, and
+>>> not just a single distros version of policy, so it's a bit bigger.
+>>>
+>>> I wouldn't expect this would affect custom policy modules that aren't
+>>> part of refpolicy, since most of those either don't contain role
+>>> declarations, or if they do, I'd guess they are custom roles that
+>>> wouldn't be duplicated eleswhere.  So if the distro updated their
+>>> policy, then custom user modules shouldn't have any problems. This is
+>>> just an assumption though. It may be wrong.
+>>>
+>>> We could provide a backwards compatibility mode in CIL that allows
+>>> duplicate roles, and eventually work to phase it out. Though, I'd really
+>>> like to avoid that.
+>>>
+>>
+>> I really don't want that.
+>>
+>> But we know which roles are declared in the base module. So can't we
+>> just not write those role declarations if they occur in a module? It is
+>> a horrible and ugly hack, but it should work.
+>>
+>
+> So make it so that staff_r, user_r, sysadm_r, system_r, and unconfined_r
+> are hardcoded into pp2cil and always generated from base? And all other
+> roles are generated from modules? Hacky, but I think it would work, at
+> least for Fedora, Gentoo, and refpolicy, which appear to be consistent
+> with the roles that are in the base module.
+>
 
-Note that this means that if a policy author does not include one of the
-roles in the base module then they will not be included in the resulting
-policy, likely causing a compliation error in CIL.
+Yes. That should work.
 
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
----
- policycoreutils/hll/pp/pp.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+If you want, you could make an option that would disable that behavior.
 
-diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
-index ee6a12c..1a18888 100644
---- a/policycoreutils/hll/pp/pp.c
-+++ b/policycoreutils/hll/pp/pp.c
-@@ -1889,7 +1889,29 @@ static int role_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 	switch (role->flavor) {
- 	case ROLE_ROLE:
- 		if (scope == SCOPE_DECL) {
--			cil_println(indent, "(role %s)", key);
-+			// Only declare certain roles if we are reading a base module.
-+			// These roles are defined in the base module and sometimes in
-+			// other non-base modules. If we generated the roles regardless of
-+			// the policy type, it would result in duplicate declarations,
-+			// which isn't allowed in CIL. Patches have been made to refpolicy
-+			// to remove these duplicate role declarations, but we need to be
-+			// backwards compatable and support older policies. Since we know
-+			// these roles are always declared in base, only print them when we
-+			// see them in the base module. If the declarations appear in a
-+			// non-base module, ignore their declarations.
-+			//
-+			// Note that this is a hack, and if a policy author does not define
-+			// one of these roles in base, the declaration will not appeaer in
-+			// the resulting policy, likely resulting in a compilation error in
-+			// CIL.
-+			int is_base_role = (!strcmp(key, "user_r") ||
-+			                    !strcmp(key, "staff_r") ||
-+			                    !strcmp(key, "sysadm_r") ||
-+			                    !strcmp(key, "system_r") ||
-+			                    !strcmp(key, "unconfined_r"));
-+			if ((is_base_role && pdb->policy_type == SEPOL_POLICY_BASE) || !is_base_role) {
-+				cil_println(indent, "(role %s)", key);
-+			}
- 		}
- 
- 		if (ebitmap_cardinality(&role->dominates) > 1) {
+
+>>>>> A bug in creating filecon statements was also fixed where a missing
+>>>>> trailing newline in .fc files would cause parsing issues.
+>>>>>
+>>>>> Finally, generated typeattribute/sets will now be printed immediately
+>>>>> unless they are in avrule conditionals/blocks. The special case will
+>>>>> have generated typeattributes/sets to be printed after the
+>>>>> conditionals/blocks are printed.
+>>>>>
+>>>>> [1] http://marc.info/?l=selinux&m=140983712508791&w=2
+>>>>> [2]
+>>>>> https://github.com/TresysTechnology/refpolicy/commit/330b0fc3331d3b836691464734c96f3da3044490
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>> Yuli Khodorkovskiy (3):
+>>>>>      policycoreutils/hll/pp: Fix role/roletype scoping
+>>>>>      policycoreutils/hll/pp: fix '\n' parsing in filecon statements
+>>>>>      policycoreutils/hll/pp: change printing behavior of
+>>>>> typeattribute/sets
+>>>>>
+>>>>>     policycoreutils/hll/pp/pp.c | 763
+>>>>> ++++++++++++++++++++++++++++++--------------
+>>>>>     1 file changed, 529 insertions(+), 234 deletions(-)
+>>>>>
+>>>>
+>>>>
+>>
+>>
+
+
 -- 
-1.9.3
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
