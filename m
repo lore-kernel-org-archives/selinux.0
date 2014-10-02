@@ -1,127 +1,62 @@
-Message-ID: <542D7EDD.8050602@tresys.com>
-Date: Thu, 2 Oct 2014 12:35:41 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>, Yuli Khodorkovskiy
- <ykhodorkovskiy@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 0/3] pp2cil fixes based on feedback
-References: <1412255410-15537-1-git-send-email-ykhodorkovskiy@tresys.com>
- <542D64CF.809@tycho.nsa.gov> <542D6821.2000609@tresys.com>
- <542D6A5F.5090708@tycho.nsa.gov> <542D6E4E.1070602@tresys.com>
- <542D7C43.8090301@tycho.nsa.gov>
-In-Reply-To: <542D7C43.8090301@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] selinux: fix inode security list corruption
+Date: Thu,  2 Oct 2014 13:00:25 -0400
+Message-Id: <1412269225-3858-1-git-send-email-sds@tycho.nsa.gov>
+Cc: shivnandan.k@samsung.com, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/02/2014 12:24 PM, James Carter wrote:
-> On 10/02/2014 11:25 AM, Steve Lawrence wrote:
->> On 10/02/2014 11:08 AM, James Carter wrote:
->>> On 10/02/2014 10:58 AM, Steve Lawrence wrote:
->>>> On 10/02/2014 10:44 AM, James Carter wrote:
->>>>> On 10/02/2014 09:10 AM, Yuli Khodorkovskiy wrote:
->>>>>> This patchset provides fixes to the pp2cil tool based on feedback for
->>>>>> 2014-08-26-rc1.
->>>>>>
->>>>>> An issue was encountered in 2014-08-26-rc1 with missing roles [1].
->>>>>> Role declarations will now be printed in base and modules, where
->>>>>> before only module role declarations were printed. Also, roletype
->>>>>> statements will only be created when a role or a type are in the
->>>>>> correct scope. As a result of these changes, policies that declare
->>>>>> roles mulitple times in different modules will result in pp2cil
->>>>>> generating duplicate roles. Since CIL does not allow identical role
->>>>>> delcarations in different modules, current policies must be rebuilt
->>>>>> with a refpolicy patch that removes duplicate role declarations [2].
->>>>>>
->>>>>
->>>>> What about current policies? How does this effect backwards
->>>>> compatibility?
->>>>>
->>>>
->>>> Unfortunately, this solution is not very backwards compatible. In order
->>>> to update to the latest userspace, it would require distributions to
->>>> update to the latest refpolicy or to pull in the refpolicy patch
->>>> referenced below. However, we have already found issues in distribution
->>>> policies that caused breakage that require distributions to update
->>>> their
->>>> policies (e.g. bad filecon statements in fedora), so this isn't a
->>>> particularly new. It does potentially affect all policies though, and
->>>> not just a single distros version of policy, so it's a bit bigger.
->>>>
->>>> I wouldn't expect this would affect custom policy modules that aren't
->>>> part of refpolicy, since most of those either don't contain role
->>>> declarations, or if they do, I'd guess they are custom roles that
->>>> wouldn't be duplicated eleswhere.  So if the distro updated their
->>>> policy, then custom user modules shouldn't have any problems. This is
->>>> just an assumption though. It may be wrong.
->>>>
->>>> We could provide a backwards compatibility mode in CIL that allows
->>>> duplicate roles, and eventually work to phase it out. Though, I'd
->>>> really
->>>> like to avoid that.
->>>>
->>>
->>> I really don't want that.
->>>
->>> But we know which roles are declared in the base module. So can't we
->>> just not write those role declarations if they occur in a module? It is
->>> a horrible and ugly hack, but it should work.
->>>
->>
->> So make it so that staff_r, user_r, sysadm_r, system_r, and unconfined_r
->> are hardcoded into pp2cil and always generated from base? And all other
->> roles are generated from modules? Hacky, but I think it would work, at
->> least for Fedora, Gentoo, and refpolicy, which appear to be consistent
->> with the roles that are in the base module.
->>
-> 
-> Yes. That should work.
-> 
-> If you want, you could make an option that would disable that behavior.
-> 
-> 
+sb_finish_set_opts() can race with inode_free_security()
+when initializing inode security structures for inodes
+created prior to initial policy load or by the filesystem
+during ->mount().   This appears to have always been
+a possible race, but commit 3dc91d4 ("SELinux:  Fix possible
+NULL pointer dereference in selinux_inode_permission()")
+made it more evident by immediately reusing the unioned
+list/rcu element  of the inode security structure for call_rcu()
+upon an inode_free_security().  But the underlying issue
+was already present before that commit as a possible use-after-free
+of isec.
 
-Just sent a patch that has this behavior. I've tested it on fedora and
-refpolicy (one has the dupe role refpolicy patch, one doesn't) and both
-build correctly.
+Shivnandan Kumar reported the list corruption and proposed
+a patch to split the list and rcu elements out of the union
+as separate fields of the inode_security_struct so that setting
+the rcu element would not affect the list element.  However,
+this would merely hide the issue and not truly fix the code.
 
-I'm not sure an option is worth the effort. Because of the way refpolicy
-works, I think these roles can't easily be moved out of base.pp, so this
-check will always need to be done for pp modules.
+This patch instead moves up the deletion of the list entry
+prior to dropping the sbsec->isec_lock initially.  Then,
+if the inode is dropped subsequently, there will be no further
+references to the isec.
 
-- Steve
+Reported-by: Shivnandan Kumar <shivnandan.k@samsung.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->>>>>> A bug in creating filecon statements was also fixed where a missing
->>>>>> trailing newline in .fc files would cause parsing issues.
->>>>>>
->>>>>> Finally, generated typeattribute/sets will now be printed immediately
->>>>>> unless they are in avrule conditionals/blocks. The special case will
->>>>>> have generated typeattributes/sets to be printed after the
->>>>>> conditionals/blocks are printed.
->>>>>>
->>>>>> [1] http://marc.info/?l=selinux&m=140983712508791&w=2
->>>>>> [2]
->>>>>> https://github.com/TresysTechnology/refpolicy/commit/330b0fc3331d3b836691464734c96f3da3044490
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>> Yuli Khodorkovskiy (3):
->>>>>>      policycoreutils/hll/pp: Fix role/roletype scoping
->>>>>>      policycoreutils/hll/pp: fix '\n' parsing in filecon statements
->>>>>>      policycoreutils/hll/pp: change printing behavior of
->>>>>> typeattribute/sets
->>>>>>
->>>>>>     policycoreutils/hll/pp/pp.c | 763
->>>>>> ++++++++++++++++++++++++++++++--------------
->>>>>>     1 file changed, 529 insertions(+), 234 deletions(-)
->>>>>>
->>>>>
->>>>>
->>>
->>>
-> 
-> 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b0e9404..e03bad5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -481,6 +481,7 @@ next_inode:
+ 				list_entry(sbsec->isec_head.next,
+ 					   struct inode_security_struct, list);
+ 		struct inode *inode = isec->inode;
++		list_del_init(&isec->list);
+ 		spin_unlock(&sbsec->isec_lock);
+ 		inode = igrab(inode);
+ 		if (inode) {
+@@ -489,7 +490,6 @@ next_inode:
+ 			iput(inode);
+ 		}
+ 		spin_lock(&sbsec->isec_lock);
+-		list_del_init(&isec->list);
+ 		goto next_inode;
+ 	}
+ 	spin_unlock(&sbsec->isec_lock);
+-- 
+1.8.3.1
