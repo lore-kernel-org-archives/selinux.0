@@ -1,62 +1,43 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux: fix inode security list corruption
-Date: Thu,  2 Oct 2014 13:00:25 -0400
-Message-Id: <1412269225-3858-1-git-send-email-sds@tycho.nsa.gov>
-Cc: shivnandan.k@samsung.com, Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s93Irn2T000400
+ for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2014 14:53:49 -0400
+Received: from mail-qg0-f46.google.com (mail-qg0-f46.google.com
+ [209.85.192.46])
+ (using TLSv1 with cipher ECDHE-RSA-RC4-SHA (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 3A6101408EEE4
+ for <selinux@tycho.nsa.gov>; Fri,  3 Oct 2014 20:53:53 +0200 (CEST)
+Received: by mail-qg0-f46.google.com with SMTP id z60so1372202qgd.5
+ for <selinux@tycho.nsa.gov>; Fri, 03 Oct 2014 11:53:52 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <542C490C.40506@tresys.com>
+References: <1410375688-13335-1-git-send-email-nicolas.iooss@m4x.org>
+ <542C490C.40506@tresys.com>
+Date: Fri, 3 Oct 2014 20:53:51 +0200
+Message-ID: <CAJfZ7=kgvSy3E_u3u=W=hihZstn2bYaOdz20mFzp4Zexof5fxw@mail.gmail.com>
+Subject: Re: [PATCH] Use $(PYTHON) instead of "python" in every Makefile
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: Steve Lawrence <slawrence@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-sb_finish_set_opts() can race with inode_free_security()
-when initializing inode security structures for inodes
-created prior to initial policy load or by the filesystem
-during ->mount().   This appears to have always been
-a possible race, but commit 3dc91d4 ("SELinux:  Fix possible
-NULL pointer dereference in selinux_inode_permission()")
-made it more evident by immediately reusing the unioned
-list/rcu element  of the inode security structure for call_rcu()
-upon an inode_free_security().  But the underlying issue
-was already present before that commit as a possible use-after-free
-of isec.
+2014-10-01 20:33 GMT+02:00 Steve Lawrence <slawrence@tresys.com>:
+> On 09/10/2014 03:01 PM, Nicolas Iooss wrote:
+>> diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+>> index 567117038d4e..a6fb3435feb6 100644
+>> --- a/policycoreutils/sandbox/Makefile
+>> +++ b/policycoreutils/sandbox/Makefile
+>
+> I believe this file needs a "PYTHON ?= python" statement, right?
+>
+> Otherwise, this patch looks good to me.
 
-Shivnandan Kumar reported the list corruption and proposed
-a patch to split the list and rcu elements out of the union
-as separate fields of the inode_security_struct so that setting
-the rcu element would not affect the list element.  However,
-this would merely hide the issue and not truly fix the code.
+You're right, I forgot to add this statement when I modified this file.
 
-This patch instead moves up the deletion of the list entry
-prior to dropping the sbsec->isec_lock initially.  Then,
-if the inode is dropped subsequently, there will be no further
-references to the isec.
+Thanks for having applied my patches
 
-Reported-by: Shivnandan Kumar <shivnandan.k@samsung.com>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b0e9404..e03bad5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -481,6 +481,7 @@ next_inode:
- 				list_entry(sbsec->isec_head.next,
- 					   struct inode_security_struct, list);
- 		struct inode *inode = isec->inode;
-+		list_del_init(&isec->list);
- 		spin_unlock(&sbsec->isec_lock);
- 		inode = igrab(inode);
- 		if (inode) {
-@@ -489,7 +490,6 @@ next_inode:
- 			iput(inode);
- 		}
- 		spin_lock(&sbsec->isec_lock);
--		list_del_init(&isec->list);
- 		goto next_inode;
- 	}
- 	spin_unlock(&sbsec->isec_lock);
--- 
-1.8.3.1
+Nicolas
