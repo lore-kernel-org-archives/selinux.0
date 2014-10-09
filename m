@@ -1,44 +1,131 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s98CPJ1X000937
- for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2014 08:25:20 -0400
-Message-ID: <54352D2A.1080300@tresys.com>
-Date: Wed, 8 Oct 2014 08:25:14 -0400
-From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux Userspace Release: 20140826-rc4
-References: <5433E840.8060605@tresys.com>
- <CAPzO=NyrMVFT8tR4t_Xt6rP_i0aw5za7havPUJzR7j1PPeGXSg@mail.gmail.com>
-In-Reply-To: <CAPzO=NyrMVFT8tR4t_Xt6rP_i0aw5za7havPUJzR7j1PPeGXSg@mail.gmail.com>
-Content-Type: text/plain; charset="windows-1252"
+Date: Wed, 8 Oct 2014 17:41:42 -0700
+Message-ID: <CABXk95B697exgYtCQOF=+P4=xW-M5THjBmZM9byLZERGpi75Gg@mail.gmail.com>
+Subject: [PATCH] selinux: hooks: Add permission for network MAC address
+From: Jeffrey Vander Stoep <jeffv@google.com>
+To: Selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a1135e3ba4048950504f2b2a4
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/07/2014 02:57 PM, Sven Vermeulen wrote:
-> On Tue, Oct 7, 2014 at 3:18 PM, Steve Lawrence <slawrence@tresys.com> wrote:
->> The fourth release candidate for the next release of SELinux Userspace
->> [1] is now available. The tarballs have been built and can be downloaded
->> from the Releases wiki page [2]. Changes since rc2 include:
-> [...]
->> Please give this a test and let us know if you find any problems.
-> 
-> The migration now finished with returncode 0. I did have a warning
-> during the migration but if I recall correctly it was already
-> mentioned on the list:
-> 
-> Attempting to rebuild policy from /var/lib/selinux
-> sysnetwork: Warning: 'else' blocks in optional statements are
-> unsupported in CIL. Dropping from output.
-> 
-> Things seem to work well. I removed the /etc/selinux/mcs/modules
-> location to be certain. I'll do some more intensified testing later
-> and get back to you guys (just wanted to confirm that the previously
-> reported error was fixed).
-> 
+--001a1135e3ba4048950504f2b2a4
+Content-Type: text/plain; charset=UTF-8
 
-Good to hear! And you are correct, the warning message is expected.
+First time poster to the list. I would appreciate feedback/suggestions
+regarding the following patch.
+
+This patch which provides SELinux control over network interface MAC
+addresses. This patch allows access to the MAC address to be controlled by
+policy. Network MAC addresses are a long lived unique device identifier,
+and a security policy may wish to control access to the identifier without
+further limiting network use, perhaps for privacy reasons.
+
+The existing SE Linux permissions are too coarse in that they only allow
+blanket read/no-read access to this socket ioctl. We would like to consider
+both the read/no-read permission as well as an additional permission that
+checks the ioctl cmd argument. This allows applications to continue
+accessing the IP address, netmask, etc, while being denied access to the
+MAC address.
 
 Thanks,
-- Steve
+Jeff Vander Stoep
+
+---
+ security/selinux/hooks.c            | 7 +++++++
+ security/selinux/include/classmap.h | 2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 1e1266b..cb65fd9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3142,6 +3142,13 @@ static int selinux_file_ioctl(struct file *file,
+unsigned int cmd,
+     SECURITY_CAP_AUDIT);
+  break;
+
++    case SIOCGIFHWADDR:
++        error = file_has_perm(cred, file, FILE__IOCTL);
++        if (error)
++            break;
++        error = file_has_perm(cred, file, SOCKET__GET_HWADDR);
++        break;
++
+  /* default case assumes that the command will go
+  * to the file's ioctl() function.
+  */
+diff --git a/security/selinux/include/classmap.h
+b/security/selinux/include/classmap.h
+index c32ff7b..306f0d2 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -7,7 +7,7 @@
+
+ #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+     "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+-    "sendto", "recv_msg", "send_msg", "name_bind"
++    "sendto", "recv_msg", "send_msg", "name_bind", "get_hwaddr"
+
+ #define COMMON_IPC_PERMS "create", "destroy", "getattr", "setattr",
+"read", \
+     "write", "associate", "unix_read", "unix_write"
+-- 
+2.1.0.rc2.206.gedb03e5
+
+--001a1135e3ba4048950504f2b2a4
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>First time poster to the list. I would appreciate fee=
+dback/suggestions regarding the following patch.</div><div><br></div><div>T=
+his patch which provides SELinux control over network interface MAC address=
+es. This patch allows access to the MAC address to be controlled by policy.=
+ Network MAC addresses are a long lived unique device identifier, and a sec=
+urity policy may wish to control access to the identifier without further l=
+imiting network use, perhaps for privacy reasons.</div><div><br></div><div>=
+The existing SE Linux permissions are too coarse in that they only allow bl=
+anket read/no-read access to this socket ioctl. We would like to consider b=
+oth the read/no-read permission as well as an additional permission that ch=
+ecks the ioctl cmd argument. This allows applications to continue accessing=
+ the IP address, netmask, etc, while being denied access to the MAC address=
+.</div><div><br></div><div>Thanks,</div><div>Jeff Vander Stoep</div><div><b=
+r></div><div><div>---</div><div>=C2=A0security/selinux/hooks.c =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0| 7 +++++++</div><div>=C2=A0security/selinux=
+/include/classmap.h | 2 +-</div><div>=C2=A02 files changed, 8 insertions(+)=
+, 1 deletion(-)</div><div><br></div><div>diff --git a/security/selinux/hook=
+s.c b/security/selinux/hooks.c</div><div>index 1e1266b..cb65fd9 100644</div=
+><div>--- a/security/selinux/hooks.c</div><div>+++ b/security/selinux/hooks=
+.c</div><div>@@ -3142,6 +3142,13 @@ static int selinux_file_ioctl(struct fi=
+le *file, unsigned int cmd,</div><div>=C2=A0<span class=3D"" style=3D"white=
+-space:pre">					</span> =C2=A0 =C2=A0SECURITY_CAP_AUDIT);</div><div>=C2=A0=
+<span class=3D"" style=3D"white-space:pre">		</span>break;</div><div>=C2=A0=
+</div><div>+ =C2=A0 =C2=A0case SIOCGIFHWADDR:</div><div>+ =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0error =3D file_has_perm(cred, file, FILE__IOCTL);</div><div>+ =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0if (error)</div><div>+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0break;</div><div>+ =C2=A0 =C2=A0 =C2=A0 =C2=A0error =3D file_h=
+as_perm(cred, file, SOCKET__GET_HWADDR);</div><div>+ =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0break;</div><div>+</div><div>=C2=A0<span class=3D"" style=3D"white-sp=
+ace:pre">	</span>/* default case assumes that the command will go</div><div=
+>=C2=A0<span class=3D"" style=3D"white-space:pre">	</span> * to the file&#3=
+9;s ioctl() function.</div><div>=C2=A0<span class=3D"" style=3D"white-space=
+:pre">	</span> */</div><div>diff --git a/security/selinux/include/classmap.=
+h b/security/selinux/include/classmap.h</div><div>index c32ff7b..306f0d2 10=
+0644</div><div>--- a/security/selinux/include/classmap.h</div><div>+++ b/se=
+curity/selinux/include/classmap.h</div><div>@@ -7,7 +7,7 @@</div><div>=C2=
+=A0</div><div>=C2=A0#define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, &quot=
+;bind&quot;, &quot;connect&quot;, \</div><div>=C2=A0 =C2=A0 =C2=A0&quot;lis=
+ten&quot;, &quot;accept&quot;, &quot;getopt&quot;, &quot;setopt&quot;, &quo=
+t;shutdown&quot;, &quot;recvfrom&quot;, =C2=A0\</div><div>- =C2=A0 =C2=A0&q=
+uot;sendto&quot;, &quot;recv_msg&quot;, &quot;send_msg&quot;, &quot;name_bi=
+nd&quot;</div><div>+ =C2=A0 =C2=A0&quot;sendto&quot;, &quot;recv_msg&quot;,=
+ &quot;send_msg&quot;, &quot;name_bind&quot;, &quot;get_hwaddr&quot;</div><=
+div>=C2=A0</div><div>=C2=A0#define COMMON_IPC_PERMS &quot;create&quot;, &qu=
+ot;destroy&quot;, &quot;getattr&quot;, &quot;setattr&quot;, &quot;read&quot=
+;, \</div><div>=C2=A0<span class=3D"" style=3D"white-space:pre">	</span> =
+=C2=A0 =C2=A0&quot;write&quot;, &quot;associate&quot;, &quot;unix_read&quot=
+;, &quot;unix_write&quot;</div><div>--=C2=A0</div><div>2.1.0.rc2.206.gedb03=
+e5</div></div><div><br></div></div>
+
+--001a1135e3ba4048950504f2b2a4--
