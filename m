@@ -1,137 +1,59 @@
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Jeffrey Vander Stoep <jeffv@google.com>
-Subject: Re: [PATCH] selinux: hooks: Add permission for network MAC address
-Date: Sat, 11 Oct 2014 17:53:33 -0400
-Message-ID: <1897784.jmZKntLxZK@sifl>
-In-Reply-To: <543823FB.7060706@tycho.nsa.gov>
-References: <CABXk95B697exgYtCQOF=+P4=xW-M5THjBmZM9byLZERGpi75Gg@mail.gmail.com>
- <CABXk95C2XumO3C9Hb21QgxrQXv3By=kr5QSpOmg6x_unYWmHdA@mail.gmail.com>
- <543823FB.7060706@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9DFvju9005105
+ for <selinux@tycho.nsa.gov>; Mon, 13 Oct 2014 11:57:46 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux patches for 3.18 #2
+Date: Mon, 13 Oct 2014 11:57:24 -0400
+Message-ID: <64243365.FIno1OMc7X@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: Selinux@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, October 10, 2014 02:22:51 PM Stephen Smalley wrote:
-> On 10/09/2014 02:48 PM, Jeffrey Vander Stoep wrote:
-> > Thank you for catching that. Here is the patch updated with your
-> > recommendations:
-> > 
-> > ---
-> > 
-> >  security/selinux/hooks.c            | 14 ++++++++++++++
-> >  security/selinux/include/classmap.h |  2 +-
-> >  2 files changed, 15 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 1e1266b..5105341 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -3104,10 +3104,14 @@ static void selinux_file_free_security(struct file
-> > *file)
-> > 
-> >   file_free_security(file);
-> >  
-> >  }
-> > 
-> > +static int sock_has_perm(struct task_struct *task, struct sock *sk, u32
-> > perms);
-> 
-> Don't know if Paul agrees, but I'd tend to just move the entire
-> sock_has_perm() function up to before the beginning of any of the hook
-> functions (i.e. before the /* Hook functions begin here. */ comment)
-> rather than having a separate function prototype.  That's what we've
-> done for other helper functions that get called from various hooks.
+Hi James,
 
-I agree with Stephen.  In my opinion separate function prototypes tend to be 
-forgotten and diverge from the implementation, causing problems.
+One more small SELinux fix that should go into 3.18, if not during the merge 
+window then during the -rc period.  Stephen wrote a nice patch description 
+which describes the problem, but it basically boils down to a race condition 
+that could result in a corrupted SELinux inode security blob/list.  It is a 
+pretty difficult thing to reproduce, but the fix is obviously correct and 
+rather straightforward.
 
-We could probably organize everything under security/selinux a bit better than 
-what we have now, but that is another issue entirely and also a low priority 
-one.
+While I wouldn't expect any problems, for the sake of completeness I ran the 
+patch through the SELinux testsuite and it passed with flying colors.
 
-> Paul: Also wondering if sock_has_perm() ought to take a cred instead of
-> a task pointer these days (noticing the discrepancy between
-> file_has_perm and sock_has_perm below). And whether it even needs to
-> take the task/cred argument at all or could just use current_sid()
-> always given that all of its callers appear to pass current to it,
-> although I suppose it is more general/parallel to leave it.
+Thanks,
+-Paul
 
-Good point.  I think I'd just assume remove the parameter entirely; if it 
-wasn't for flush_unauthorized_files() we could do the same for 
-file_has_perm().
+P.S. Somewhat related, as should be obvious from the weekend's exchange with 
+Linus, I'm not going to be updating/merging the SELinux next branch beyond 
+v3.16 unless I start to see problems accepting new patches (either through 
+interface or logic changes).
 
-I just put together a quick patch for this, as soon as it finishes building 
-I'll post it.
+---
+The following changes since commit e7387395a07d788f80d011baa8ec6beba2bc747c:
 
-> Otherwise, I think the code is ok.  The patch was whitespace-damaged /
-> mangled by your mail client, so you'll want to fix that and disable html
-> mail when posting a final version (after addressing Paul's question
-> about any other hardware identifiers that might need similar controls).
-> 
-> > +
-> > 
-> >  static int selinux_file_ioctl(struct file *file, unsigned int cmd,
-> >  
-> >        unsigned long arg)
-> >  
-> >  {
-> >  
-> >   const struct cred *cred = current_cred();
-> > 
-> > +    struct inode *inode = file->f_path.dentry->d_inode;
-> > +    struct socket *socket;
-> > 
-> >   int error = 0;
-> >   
-> >   switch (cmd) {
-> > 
-> > @@ -3142,6 +3146,16 @@ static int selinux_file_ioctl(struct file *file,
-> > unsigned int cmd,
-> > 
-> >      SECURITY_CAP_AUDIT);
-> >   
-> >   break;
-> > 
-> > +    case SIOCGIFHWADDR:
-> > +        error = file_has_perm(cred, file, FILE__IOCTL);
-> > +        if (error)
-> > +            break;
-> > +        if (inode->i_sb->s_magic != SOCKFS_MAGIC)
-> > +            break;
-> > +        socket = SOCKET_I(inode);
-> > +        error = sock_has_perm(current, socket->sk, SOCKET__GET_HWADDR);
-> > +        break;
-> > +
-> > 
-> >   /* default case assumes that the command will go
-> >   * to the file's ioctl() function.
-> >   */
-> > 
-> > diff --git a/security/selinux/include/classmap.h
-> > b/security/selinux/include/classmap.h
-> > index c32ff7b..306f0d2 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -7,7 +7,7 @@
-> > 
-> >  #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
-> >  
-> >      "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
-> > 
-> > -    "sendto", "recv_msg", "send_msg", "name_bind"
-> > +    "sendto", "recv_msg", "send_msg", "name_bind", "get_hwaddr"
-> > 
-> >  #define COMMON_IPC_PERMS "create", "destroy", "getattr", "setattr",
-> > 
-> > "read", \
-> > 
-> >      "write", "associate", "unix_read", "unix_write"
+  selinux: normalize audit log formatting (2014-10-06 11:57:25 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-3.18
+
+for you to fetch changes up to 7c66bdc72bc3d792886c42bbab4b214c1fe536e0:
+
+  selinux: fix inode security list corruption (2014-10-06 16:32:52 -0400)
+
+----------------------------------------------------------------
+Stephen Smalley (1):
+      selinux: fix inode security list corruption
+
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 -- 
 paul moore
-www.paul-moore.com
+security and virtualization @ redhat
