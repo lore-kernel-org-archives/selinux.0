@@ -1,177 +1,100 @@
-Message-ID: <543FFE2A.1040705@tresys.com>
-Date: Thu, 16 Oct 2014 13:19:38 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9HDFtsb017181
+ for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2014 09:15:55 -0400
+Received: by mail-wg0-f51.google.com with SMTP id b13so896057wgh.10
+ for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2014 06:15:52 -0700 (PDT)
+Received: from e145.network2 ([84.245.1.4])
+ by mx.google.com with ESMTPSA id fx2sm1653869wjb.37.2014.10.17.06.15.51
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Fri, 17 Oct 2014 06:15:51 -0700 (PDT)
+Date: Fri, 17 Oct 2014 15:15:49 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: cilc: name space inconsistency
+Message-ID: <20141017131548.GA1524@e145.network2>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] libsepol:  Report all neverallow violations.
-References: <1413309085-19729-1-git-send-email-sds@tycho.nsa.gov>
-In-Reply-To: <1413309085-19729-1-git-send-email-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/14/2014 01:51 PM, Stephen Smalley wrote:
-> Switch libsepol check_assertions() from only reporting the first violation
-> to reporting them all.
-> 
-> Change-Id: I45b3502ff96b1d093574e1fecff93a582f8d00bd
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Acked-by: Steve Lawrence <slawrence@tresys.com>
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  libsepol/src/assertion.c | 99 +++++++++++++++++++++++++-----------------------
->  1 file changed, 52 insertions(+), 47 deletions(-)
-> 
-> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-> index ebc011b..5e4c4e8 100644
-> --- a/libsepol/src/assertion.c
-> +++ b/libsepol/src/assertion.c
-> @@ -27,38 +27,12 @@
->  
->  #include "debug.h"
->  
-> -static int check_assertion_helper(sepol_handle_t * handle,
-> -				  policydb_t * p,
-> -				  avtab_t * te_avtab, avtab_t * te_cond_avtab,
-> -				  unsigned int stype, unsigned int ttype,
-> -				  avrule_t * avrule)
-> +static void report_failure(sepol_handle_t *handle, policydb_t *p,
-> +			   const avrule_t * avrule,
-> +			   unsigned int stype, unsigned int ttype,
-> +			   const class_perm_node_t *curperm,
-> +			   const avtab_ptr_t node)
->  {
-> -	avtab_key_t avkey;
-> -	avtab_ptr_t node;
-> -	class_perm_node_t *curperm;
-> -
-> -	for (curperm = avrule->perms; curperm != NULL; curperm = curperm->next) {
-> -		avkey.source_type = stype + 1;
-> -		avkey.target_type = ttype + 1;
-> -		avkey.target_class = curperm->class;
-> -		avkey.specified = AVTAB_ALLOWED;
-> -		for (node = avtab_search_node(te_avtab, &avkey);
-> -		     node != NULL;
-> -		     node = avtab_search_node_next(node, avkey.specified)) {
-> -			if (node->datum.data & curperm->data)
-> -				goto err;
-> -		}
-> -		for (node = avtab_search_node(te_cond_avtab, &avkey);
-> -		     node != NULL;
-> -		     node = avtab_search_node_next(node, avkey.specified)) {
-> -			if (node->datum.data & curperm->data)
-> -				goto err;
-> -		}
-> -	}
-> -
-> -	return 0;
-> -
-> -      err:
->  	if (avrule->source_filename) {
->  		ERR(handle, "neverallow on line %lu of %s (or line %lu of policy.conf) violated by allow %s %s:%s {%s };",
->  		    avrule->source_line, avrule->source_filename, avrule->line,
-> @@ -76,13 +50,49 @@ static int check_assertion_helper(sepol_handle_t * handle,
->  				       node->datum.data & curperm->data));
->  	} else {
->  		ERR(handle, "neverallow violated by allow %s %s:%s {%s };",
-> -		    p->p_type_val_to_name[stype], 
-> +		    p->p_type_val_to_name[stype],
->  		    p->p_type_val_to_name[ttype],
->  		    p->p_class_val_to_name[curperm->class - 1],
->  		    sepol_av_to_string(p, curperm->class,
->  				       node->datum.data & curperm->data));
->  	}
-> -	return -1;
-> +}
-> +
-> +static unsigned long check_assertion_helper(sepol_handle_t * handle,
-> +				  policydb_t * p,
-> +				  avtab_t * te_avtab, avtab_t * te_cond_avtab,
-> +				  unsigned int stype, unsigned int ttype,
-> +				  const avrule_t * avrule)
-> +{
-> +	avtab_key_t avkey;
-> +	avtab_ptr_t node;
-> +	class_perm_node_t *curperm;
-> +	unsigned long errors = 0;
-> +
-> +	for (curperm = avrule->perms; curperm != NULL; curperm = curperm->next) {
-> +		avkey.source_type = stype + 1;
-> +		avkey.target_type = ttype + 1;
-> +		avkey.target_class = curperm->class;
-> +		avkey.specified = AVTAB_ALLOWED;
-> +		for (node = avtab_search_node(te_avtab, &avkey);
-> +		     node != NULL;
-> +		     node = avtab_search_node_next(node, avkey.specified)) {
-> +			if (node->datum.data & curperm->data) {
-> +				report_failure(handle, p, avrule, stype, ttype, curperm, node);
-> +				errors++;
-> +			}
-> +		}
-> +		for (node = avtab_search_node(te_cond_avtab, &avkey);
-> +		     node != NULL;
-> +		     node = avtab_search_node_next(node, avkey.specified)) {
-> +			if (node->datum.data & curperm->data) {
-> +				report_failure(handle, p, avrule, stype, ttype, curperm, node);
-> +				errors++;
-> +			}
-> +		}
-> +	}
-> +
-> +	return errors;
->  }
->  
->  int check_assertions(sepol_handle_t * handle, policydb_t * p,
-> @@ -92,7 +102,7 @@ int check_assertions(sepol_handle_t * handle, policydb_t * p,
->  	avtab_t te_avtab, te_cond_avtab;
->  	ebitmap_node_t *snode, *tnode;
->  	unsigned int i, j;
-> -	int rc;
-> +	unsigned long errors = 0;
->  
->  	if (!avrules) {
->  		/* Since assertions are stored in avrules, if it is NULL
-> @@ -127,31 +137,26 @@ int check_assertions(sepol_handle_t * handle, policydb_t * p,
->  			if (!ebitmap_node_get_bit(snode, i))
->  				continue;
->  			if (a->flags & RULE_SELF) {
-> -				if (check_assertion_helper
-> +				errors += check_assertion_helper
->  				    (handle, p, &te_avtab, &te_cond_avtab, i, i,
-> -				     a)) {
-> -					rc = -1;
-> -					goto out;
-> -				}
-> +				     a);
->  			}
->  			ebitmap_for_each_bit(ttypes, tnode, j) {
->  				if (!ebitmap_node_get_bit(tnode, j))
->  					continue;
-> -				if (check_assertion_helper
-> +				errors += check_assertion_helper
->  				    (handle, p, &te_avtab, &te_cond_avtab, i, j,
-> -				     a)) {
-> -					rc = -1;
-> -					goto out;
-> -				}
-> +				     a);
->  			}
->  		}
->  	}
->  
-> -	rc = 0;
-> -out:
-> +	if (errors)
-> +		ERR(handle, "%lu neverallow failures occurred", errors);
-> +
->  	avtab_destroy(&te_avtab);
->  	avtab_destroy(&te_cond_avtab);
-> -	return rc;
-> +	return errors ? -1 : 0;
->  
->        oom:
->  	ERR(handle, "Out of memory - unable to check neverallows");
-> 
+I started rewriting my policy using name spaces again. I was assuming the t=
+he name space issues were fixed.
+
+However I am encountering, what i believe, is an inconsistency.
+
+The block statement is used to declare a name space
+
+in module a i declare the a (root) name space
+
+    (block a
+        ...
+    )
+
+in module b i declare the b name space in the existing a (root) name space
+
+    (in a
+        (block b
+            ...
+        )
+    )
+
+All is well so far... However if i now want to declare the c name space in =
+the existing a.b name space then cilc is unable to resolve the a.b name spa=
+ce
+
+    (in a.b
+        (block c
+            ...
+        )
+    )
+
+    "Unable to resolve a.b in in statement..."
+
+The a.b name space exists
+
+The workaround to this inconsistency is to create duplicate declarations:
+
+    (in a
+        (block b
+            (block c
+                ...
+            )
+        )
+    )
+
+Now the b name space is declared two times, but it works around the issue
+
+Why can it not resolve the existing a.b name space?
+
+--=20
+Dominick Grift
+
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJUQRaAAAoJENAR6kfG5xmcgL0MAJJDeYcDfxI7vv24IwMladIU
+nOOEQ6RS+TIKmEqNt8lRbq4/ZjjlPyh/6y+sr1tudtL5Zt7i1kJs6//diGQe6sbT
+/mvyW6J80ingxqRO9Jq0IhbzX6rM/3IKwXydd8uMEZSoIFQxQqGt4h/diGHXyfAY
+8AGiM3fNJKV5UjQ9bVKyAgGyklJwPl+e6pBBVO7rq2hqkY7NzSXLSjgJ15mMJFw/
+x4jBQ5Fv2ccoRJp0Weo3/q9miuNY6oiAJP+b2abx2w0nxnUFG4OO1Dg6XSHCMsxG
+EBoYPtMHrlmDg+tRThMXfpvpR1THQvjuNvvlcBgTeSfxUrACYi3WpI+NSraDKkhz
+9wbaQnIX1094jc0Q40P+nw9QtrtMqMdhAZ1a3oE/ToGYT8P/VU+yf5dkQoZ4oR2Y
+fqhmXOWcssdlt8oWFlAfezyAAP5U6sj+RdLhPBxycd+x3E5C0m76MO0SXF0Y9o/p
+r1+kolSHRJtCXyvs/MT0Z96ESvsMBnM9AQL4pjbcDg==
+=JEqE
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--
