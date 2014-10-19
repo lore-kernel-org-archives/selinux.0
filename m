@@ -1,100 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9HDFtsb017181
- for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2014 09:15:55 -0400
-Received: by mail-wg0-f51.google.com with SMTP id b13so896057wgh.10
- for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2014 06:15:52 -0700 (PDT)
-Received: from e145.network2 ([84.245.1.4])
- by mx.google.com with ESMTPSA id fx2sm1653869wjb.37.2014.10.17.06.15.51
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Fri, 17 Oct 2014 06:15:51 -0700 (PDT)
-Date: Fri, 17 Oct 2014 15:15:49 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: cilc: name space inconsistency
-Message-ID: <20141017131548.GA1524@e145.network2>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9JDe9a2016657
+ for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2014 09:40:09 -0400
+Received: from mail-qg0-f49.google.com (mail-qg0-f49.google.com
+ [209.85.192.49])
+ (using TLSv1 with cipher ECDHE-RSA-RC4-SHA (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 23960140E1669
+ for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2014 15:40:03 +0200 (CEST)
+Received: by mail-qg0-f49.google.com with SMTP id e89so2388507qgf.22
+ for <selinux@tycho.nsa.gov>; Sun, 19 Oct 2014 06:40:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
+Date: Sun, 19 Oct 2014 15:40:02 +0200
+Message-ID: <CAJfZ7=nCcaCZSu=dXqZ8Jfpm15nqED9FOK14U7F25LcW=+kf0A@mail.gmail.com>
+Subject: libselinux packaging
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Hello,
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Before the next libselinux release I've looked how libselinux 2.3 have
+been packaged by several distros and it is quite disturbing. Here are
+the strange things I've seen so far, related to the build and
+installation.
 
-I started rewriting my policy using name spaces again. I was assuming the t=
-he name space issues were fixed.
+* Fedora deletes a bunch of binaries installed from libselinux/utils/
+and renames some [1]. Arch Linux does this too since the previous
+maintainer tried to follow Fedora as much as possible [2]. Neither
+Debian nor Gentoo delete these binaries, even if they raise Lintian
+warnings for Debian because their man pages don't exist [3]. Moreover,
+as "policyvers" is removed on some distros, refpolicy reimplemented it
+in python [4]. Why are these binaries removed in Fedora?
 
-However I am encountering, what i believe, is an inconsistency.
+* For recent versions of ruby, "pkg-config --cflags ruby" no longer
+works as has to be replaced with "pkg-config --cflags ruby-2.1" (for
+example). Gentoo has a patch for this [5] and Arch is using a
+less-generic sed command to patch this [6]. Debian is doing some magic
+to make things build, with a comment about SELinux build process [7].
+I don't know whether applying the Gentoo patch upstream is fine
+because Fedora is still using "ruby" [8].
 
-The block statement is used to declare a name space
+* libselinux forces "-I$(INCLUDEDIR)" into the CFLAGS [9], which
+breaks cross-compilation on Debian [10]. This is also modified on
+Gentoo, which also removes -L$(LIBDIR) and puts $(LDFLAGS) before
+object files [11].
 
-in module a i declare the a (root) name space
+* There is also a bug about creating /usr/lib/libselinux.so symlink to
+a non-existing file on systems where SHLIBDIR and LIBDIR are both
+/usr/lib. I've already reported this issue on GitHub [12].
 
-    (block a
-        ...
-    )
+Cheers,
 
-in module b i declare the b name space in the existing a (root) name space
+Nicolas
+Maintainer of SELinux-related packages on Arch Linux since yesterday.
 
-    (in a
-        (block b
-            ...
-        )
-    )
-
-All is well so far... However if i now want to declare the c name space in =
-the existing a.b name space then cilc is unable to resolve the a.b name spa=
-ce
-
-    (in a.b
-        (block c
-            ...
-        )
-    )
-
-    "Unable to resolve a.b in in statement..."
-
-The a.b name space exists
-
-The workaround to this inconsistency is to create duplicate declarations:
-
-    (in a
-        (block b
-            (block c
-                ...
-            )
-        )
-    )
-
-Now the b name space is declared two times, but it works around the issue
-
-Why can it not resolve the existing a.b name space?
-
---=20
-Dominick Grift
-
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJUQRaAAAoJENAR6kfG5xmcgL0MAJJDeYcDfxI7vv24IwMladIU
-nOOEQ6RS+TIKmEqNt8lRbq4/ZjjlPyh/6y+sr1tudtL5Zt7i1kJs6//diGQe6sbT
-/mvyW6J80ingxqRO9Jq0IhbzX6rM/3IKwXydd8uMEZSoIFQxQqGt4h/diGHXyfAY
-8AGiM3fNJKV5UjQ9bVKyAgGyklJwPl+e6pBBVO7rq2hqkY7NzSXLSjgJ15mMJFw/
-x4jBQ5Fv2ccoRJp0Weo3/q9miuNY6oiAJP+b2abx2w0nxnUFG4OO1Dg6XSHCMsxG
-EBoYPtMHrlmDg+tRThMXfpvpR1THQvjuNvvlcBgTeSfxUrACYi3WpI+NSraDKkhz
-9wbaQnIX1094jc0Q40P+nw9QtrtMqMdhAZ1a3oE/ToGYT8P/VU+yf5dkQoZ4oR2Y
-fqhmXOWcssdlt8oWFlAfezyAAP5U6sj+RdLhPBxycd+x3E5C0m76MO0SXF0Y9o/p
-r1+kolSHRJtCXyvs/MT0Z96ESvsMBnM9AQL4pjbcDg==
-=JEqE
------END PGP SIGNATURE-----
-
---45Z9DzgjV8m4Oswq--
+[1] http://pkgs.fedoraproject.org/cgit/libselinux.git/tree/libselinux.spec?id=a139be8c7e0cae589591684018775aae1fed71f2#n162
+[2] https://github.com/archlinuxhardened/selinux/commit/a0c3da5b88d622c31f429d003aad16334e16919f#diff-7cdd8d38b65e2926b6f547b0786e9128R64
+[3] https://lintian.debian.org/maintainer/selinux-devel@lists.alioth.debian.org.html#libselinux
+(package selinux-utils)
+[4] https://github.com/TresysTechnology/refpolicy/blob/master/support/policyvers.py
+[5] http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/sys-libs/libselinux/files/0005-use-ruby-include-with-rubylibver.patch?revision=1.1&view=markup
+[6] https://github.com/archlinuxhardened/selinux/blob/63e6c3ddbc159775d5d1bfeaa81166e9d429d424/libselinux/PKGBUILD#L34
+[7] http://anonscm.debian.org/cgit/selinux/libselinux.git/tree/debian/ruby.mk?id=ac18cbf00199db539c888eb81df03d2584bcbb8e#n17
+[8] http://pkgs.fedoraproject.org/cgit/libselinux.git/tree/libselinux.spec?id=a139be8c7e0cae589591684018775aae1fed71f2#n5
+[9] https://github.com/SELinuxProject/selinux/blob/libselinux-2.4-rc3/libselinux/src/Makefile#L75
+[10] http://anonscm.debian.org/cgit/selinux/libselinux.git/tree/debian/patches/fix-cross-compile.patch?id=938d7da9097de458a70b0f4f8bc24dcefcd0b26b
+[11] http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/sys-libs/libselinux/files/0006-build-related-fixes-bug-500674.patch?revision=1.1&view=markup
+[12] https://github.com/SELinuxProject/selinux/issues/2
