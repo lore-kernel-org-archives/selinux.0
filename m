@@ -1,38 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9TFZ5FF031047
- for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2014 11:35:07 -0400
-Message-ID: <5451090B.2080107@tresys.com>
-Date: Wed, 29 Oct 2014 11:34:35 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9TJhm1P015841
+ for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2014 15:43:49 -0400
+Message-ID: <5451435A.50809@tresys.com>
+Date: Wed, 29 Oct 2014 15:43:22 -0400
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 To: SELinux List <selinux@tycho.nsa.gov>
-Subject: SELinux Userspace Release: 20140826-rc5
+Subject: ANN: SETools 4.0.0-alpha1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The fifth release candidate for the next release of SELinux Userspace
-[1] is now available. The tarballs have been built and can be downloaded
-from the Releases wiki page [2]. Changes since rc4 include:
+Tresys has released SETools 4.0.0-alpha1:
 
-- fixes to libsemanage build system to allow specifying different LIBDIR
-and SHLIBDIR directories
-- fixes to libselinux and libsepol build system to not assume SHLIBDIR
-is ../../ relative to LIBDIR (e.g. now allows LIBIDR == SHLIBDIR)
+https://github.com/TresysTechnology/setools/releases/tag/4.0.0-alpha1
 
-As with the previous rc, action after installing the release candidate
-is required to migrate the policy store from /etc/selinux to
-/var/lib/selinux if it has not already been migrated. Detailed
-information about this process can be found on the Policy Store
-Migration wiki page [3].
+The dependence on SETools 3 has been removed.  It is tested on Python
+2.7, but development will likely be transitioning to Python 3.3, as the
+barriers blocking 3.3 have been addressed.
 
-Please give this a test and let us know if you find any problems.
+While this is still alpha code, the existing code is fairly well tested,
+with 73% coverage from unit tests[1].  The core CLI tools, with the
+exception of seinfo, are nearly complete.  The GUI tools have not been
+started yet.
 
-Thanks,
-- Steve
+Warning: If you replace the SETools 3.x on your system, it will break
+the couple of tools from sepolgen/policycoreutils that depend on SETools
+(e.g. sepolicy) since the API has changed.
 
-[1] https://github.com/SELinuxProject/selinux
-[2] https://github.com/SELinuxProject/selinux/wiki/Releases
-[3] https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration
+If you are interested in contributing, GitHub's pull request feature is
+preferred for submitting patches.  Please include unit tests.
+
+To use SETools 4, the following packages are required:
+* Python 2.7
+* NetworkX
+* setuptools
+* libselinux
+* libsepol
+* libbz2
+
+To build SETools 4, the following packages are required:
+* Python 2.7
+* setuptools
+* libselinux
+* libsepol
+* libbz2
+* gcc
+* SWIG (tested on 2.0)
+* bison
+* flex
+
+[1] as reported by coverage.py, for the Python portion of SETools
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
