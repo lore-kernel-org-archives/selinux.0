@@ -1,33 +1,89 @@
-Message-ID: <544C3FB2.2010308@schaufler-ca.com>
-Date: Sat, 25 Oct 2014 17:26:26 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-Subject: Re: Functions prefixed with security_ in SELinux
-References: <5436CC14.2040906@schaufler-ca.com>	<CAHC9VhQ-0biopRvb8f-ssZ0dfGhAd5Jvh8ozgjA=gfASA=3czg@mail.gmail.com>	<544AC5A6.6080200@schaufler-ca.com>
- <CAHC9VhQ37HsMqyxGSgtPN07QUn6J2mJXBQy6RQZD1FnbzunV9Q@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ37HsMqyxGSgtPN07QUn6J2mJXBQy6RQZD1FnbzunV9Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: LSM <linux-security-module@vger.kernel.org>,
- SELinux <Selinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id s9TEpS24027896
+ for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2014 10:51:28 -0400
+Message-ID: <5450FED1.8030405@tresys.com>
+Date: Wed, 29 Oct 2014 10:50:57 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux <selinux@tycho.nsa.gov>
+Subject: Re: libselinux packaging
+References: <CAJfZ7=nCcaCZSu=dXqZ8Jfpm15nqED9FOK14U7F25LcW=+kf0A@mail.gmail.com>
+In-Reply-To: <CAJfZ7=nCcaCZSu=dXqZ8Jfpm15nqED9FOK14U7F25LcW=+kf0A@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/25/2014 9:45 AM, Paul Moore wrote:
-> On Fri, Oct 24, 2014 at 5:33 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
->> Would you consider patches that address this as part of the Multiple
->> LSM work? I wouldn't be doing the security server integration as that
->> would be outside the scope of the effort, but I consider the namespace
->> issue to be in scope. I won't bother if you aren't open to it.
-> No, sadly I think a rename patch would need to be part of a larger
-> cleanup/integration effort; otherwise it just looks like a lot of
-> churn for minimal benefit.  I understand that is probably looks
-> significant within the work you are doing to stack LSMs, but
-> considering how rare/unique that work is, I don't think this is
-> problem many people are likely to run into on a regular basis.
+On 10/19/2014 09:40 AM, Nicolas Iooss wrote:
+> Hello,
+> 
+> Before the next libselinux release I've looked how libselinux 2.3 have
+> been packaged by several distros and it is quite disturbing. Here are
+> the strange things I've seen so far, related to the build and
+> installation.
+> 
+> * Fedora deletes a bunch of binaries installed from libselinux/utils/
+> and renames some [1]. Arch Linux does this too since the previous
+> maintainer tried to follow Fedora as much as possible [2]. Neither
+> Debian nor Gentoo delete these binaries, even if they raise Lintian
+> warnings for Debian because their man pages don't exist [3]. Moreover,
+> as "policyvers" is removed on some distros, refpolicy reimplemented it
+> in python [4]. Why are these binaries removed in Fedora?
+> 
+> * For recent versions of ruby, "pkg-config --cflags ruby" no longer
+> works as has to be replaced with "pkg-config --cflags ruby-2.1" (for
+> example). Gentoo has a patch for this [5] and Arch is using a
+> less-generic sed command to patch this [6]. Debian is doing some magic
+> to make things build, with a comment about SELinux build process [7].
+> I don't know whether applying the Gentoo patch upstream is fine
+> because Fedora is still using "ruby" [8].
+> 
+> * libselinux forces "-I$(INCLUDEDIR)" into the CFLAGS [9], which
+> breaks cross-compilation on Debian [10]. This is also modified on
+> Gentoo, which also removes -L$(LIBDIR) and puts $(LDFLAGS) before
+> object files [11].
 
-OK, I shan't worry about it. I suspect that I'm the only person
-on the planet likely to be bothered especially much by it, and I
-do have enough other kittens to fry.
+This is required so that we can do things like
+
+  make DESTDIR=~/tmp install
+
+>From the top level and everything still works. Not ideal, but our build
+system isn't quite sophisticated enough to be able to get rid of that.
+Attempts have been made to improve it, but none of them really stuck.
+
+> * There is also a bug about creating /usr/lib/libselinux.so symlink to
+> a non-existing file on systems where SHLIBDIR and LIBDIR are both
+> /usr/lib. I've already reported this issue on GitHub [12].
+
+I'll cut a new (and hopefully last) release candidate shortly that has
+this fix issue.
+
+Thanks,
+- Steve
+
+> Cheers,
+> 
+> Nicolas
+> Maintainer of SELinux-related packages on Arch Linux since yesterday.
+> 
+> [1] http://pkgs.fedoraproject.org/cgit/libselinux.git/tree/libselinux.spec?id=a139be8c7e0cae589591684018775aae1fed71f2#n162
+> [2] https://github.com/archlinuxhardened/selinux/commit/a0c3da5b88d622c31f429d003aad16334e16919f#diff-7cdd8d38b65e2926b6f547b0786e9128R64
+> [3] https://lintian.debian.org/maintainer/selinux-devel@lists.alioth.debian.org.html#libselinux
+> (package selinux-utils)
+> [4] https://github.com/TresysTechnology/refpolicy/blob/master/support/policyvers.py
+> [5] http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/sys-libs/libselinux/files/0005-use-ruby-include-with-rubylibver.patch?revision=1.1&view=markup
+> [6] https://github.com/archlinuxhardened/selinux/blob/63e6c3ddbc159775d5d1bfeaa81166e9d429d424/libselinux/PKGBUILD#L34
+> [7] http://anonscm.debian.org/cgit/selinux/libselinux.git/tree/debian/ruby.mk?id=ac18cbf00199db539c888eb81df03d2584bcbb8e#n17
+> [8] http://pkgs.fedoraproject.org/cgit/libselinux.git/tree/libselinux.spec?id=a139be8c7e0cae589591684018775aae1fed71f2#n5
+> [9] https://github.com/SELinuxProject/selinux/blob/libselinux-2.4-rc3/libselinux/src/Makefile#L75
+> [10] http://anonscm.debian.org/cgit/selinux/libselinux.git/tree/debian/patches/fix-cross-compile.patch?id=938d7da9097de458a70b0f4f8bc24dcefcd0b26b
+> [11] http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/sys-libs/libselinux/files/0006-build-related-fixes-bug-500674.patch?revision=1.1&view=markup
+> [12] https://github.com/SELinuxProject/selinux/issues/2
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
