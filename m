@@ -1,37 +1,45 @@
-Message-ID: <5452702C.2000704@tycho.nsa.gov>
-Date: Thu, 30 Oct 2014 13:06:52 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA2FHHlo006105
+ for <selinux@tycho.nsa.gov>; Sun, 2 Nov 2014 10:17:17 -0500
+Received: by mail-oi0-f43.google.com with SMTP id e131so7721220oig.16
+ for <selinux@tycho.nsa.gov>; Sun, 02 Nov 2014 07:17:15 -0800 (PST)
 MIME-Version: 1.0
-To: peter enderborg <peter.enderborg@sonymobile.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Missing security labels for socket objects?
-References: <54526941.3090208@sonymobile.com>
-In-Reply-To: <54526941.3090208@sonymobile.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Sender: sven.j.vermeulen@gmail.com
+In-Reply-To: <5451090B.2080107@tresys.com>
+References: <5451090B.2080107@tresys.com>
+Date: Sun, 2 Nov 2014 16:17:14 +0100
+Message-ID: <CAPzO=NyRKK=jJ151W6xk_cs7dHKJQCwCxoJc2jZmTLZ_DaXPUA@mail.gmail.com>
+Subject: Re: SELinux Userspace Release: 20140826-rc5
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Steve Lawrence <slawrence@tresys.com>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/30/2014 12:37 PM, peter enderborg wrote:
-> Hi! Im trying to see where the access control for some socket objects
-> occurs.
-> And it seems not to be very detailed resolution for sockets. For some
-> protocols there is NOTHING. I did a test. I created a own protocol.
-> AF_PEG_IPC.
-> This can be accessed without specific type definition or contexts. It
-> need socket access. In my system there is about 20 different protocols.
-> They are "all or nothing".
-> 
-> The question is how do I select which root task that can access
-> AF_PEG_IPC and who can not.  In selinux root is supposed to be
-> in locked container.
+On Wed, Oct 29, 2014 at 4:34 PM, Steve Lawrence <slawrence@tresys.com> wrote:
+> The fifth release candidate for the next release of SELinux Userspace
+> [1] is now available. The tarballs have been built and can be downloaded
+> from the Releases wiki page [2]. Changes since rc4 include:
+[...]
+> Please give this a test and let us know if you find any problems.
 
-SELinux applies a set of general socket permission checks (e.g. create,
-bind, connect, ...) for all sockets, but it can only distinguish among
-types of sockets for which security classes have been defined.  All
-other socket address families are lumped together into the generic
-socket security class.  If you want to be able to control this
-AF_PEG_IPC separately, you need to introduce a security class for it.
-See this similar answer on the seandroid-list,
-http://marc.info/?l=seandroid-list&m=139056956927985&w=2
+Hi Steve
+
+I notice a regression that I can't quite place yet.
+
+I am running with a policy that does not have the unconfined module
+loaded (so a strict environment). In the past (same policy, 2.3
+utilities) that also prevented those "unconfined domains" to get their
+privileges. For instance, initrc_t does not have the
+files_unconfined_type assigned to it.
+
+With the 2.4 series, this attribute is assigned to the domain. I
+*think* that it is ignoring the gen_require(`type unconfined_t') that
+is in unconfined_domain_noaudit() in the sense that the rules that do
+not use unconfined_t are now loaded as well. In the past, this would
+ignore the entire block.
+
+Wkr,
+  Sven Vermeulen
