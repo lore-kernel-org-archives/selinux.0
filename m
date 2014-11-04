@@ -1,51 +1,36 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA4EC6Vs022096
- for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2014 09:12:07 -0500
-In-Reply-To: <CAPzO=NxBnkkQgJSS_mtdGqW0G6Pb9rVZ8yafG5-qSmjVZjEAPg@mail.gmail.com>
-References: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
- <CAPzO=NxBnkkQgJSS_mtdGqW0G6Pb9rVZ8yafG5-qSmjVZjEAPg@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA4ESeQe023546
+ for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2014 09:28:40 -0500
+Message-ID: <5458E295.7020506@sonymobile.com>
+Date: Tue, 4 Nov 2014 15:28:37 +0100
+From: peter enderborg <peter.enderborg@sonymobile.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: user_r/sysadm_r/staff_r/unconfined_r
-From: Russell Coker <russell@coker.com.au>
-Date: Wed, 05 Nov 2014 01:11:57 +1100
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, SELinux <selinux@tycho.nsa.gov>
-Message-ID: <9B0301A1-299E-40E8-814E-F69E84D3D861@coker.com.au>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Missing security labels for socket objects?
+References: <54526941.3090208@sonymobile.com> <5452702C.2000704@tycho.nsa.gov>
+ <54588F41.9050507@sonymobile.com> <5458DC37.50903@tycho.nsa.gov>
+In-Reply-To: <5458DC37.50903@tycho.nsa.gov>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-We could use the seuser and/or MCS fields to restrict running the programs that enter the domains in question. 
+A sysfs tree with both dac and mac control would be nice.
 
-Also now it's an issue of systemd access which changes things a bit, I haven't looked into this yet.
-
-On November 5, 2014 12:31:48 AM GMT+11:00, Sven Vermeulen <sven.vermeulen@siphos.be> wrote:
->On Nov 4, 2014 12:46 PM, "Russell Coker" <russell@coker.com.au> wrote:
->>
->> The role separation seems to give no benefit apart from
->sysadm_r/unconfined_r given that we have seuser based constraints and
->MCS
->labels to separate users and that they all use the same types.
+On 11/04/2014 03:01 PM, Stephen Smalley wrote:
+> On 11/04/2014 03:33 AM, peter enderborg wrote:
+>> Is there any work going on the make it more granular? I did not see
+>> it in the "Remaning Work" backlog. It is a generic problem and should
+>> have a generic solution.
 >
->I disagree. Roles allow for restricting the domains that users can
->transition into. I use them often for granting users "limited root".
->For
->instance dbadm_r for DBAs versus webadm_r for web app server admins.
+> It is on the new kernel to-do list, at the bottom of new items on:
+> https://github.com/SELinuxProject/selinux/wiki/Kernel-Todo
 >
->Wkr,
->  Sven Vermeulen
+> However, I'm not sure what the general solution would look like.  I
+> don't think we want to write policies on socket (domain, type, protocol)
+> triples or introduce unique security classes for every such triple.  The
+> security class abstraction in SELinux (and its underlying Flask
+> architecture) is intended to provide a higher level abstraction for
+> security policy writers.
 >
->
->------------------------------------------------------------------------
->
->_______________________________________________
->Selinux mailing list
->Selinux@tycho.nsa.gov
->To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->To get help, send an email containing "help" to
->Selinux-request@tycho.nsa.gov.
-
--- 
-Sent from my Samsung Galaxy Note 3 with K-9 Mail.
