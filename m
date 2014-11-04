@@ -1,36 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA4ESeQe023546
- for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2014 09:28:40 -0500
-Message-ID: <5458E295.7020506@sonymobile.com>
-Date: Tue, 4 Nov 2014 15:28:37 +0100
-From: peter enderborg <peter.enderborg@sonymobile.com>
-MIME-Version: 1.0
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Missing security labels for socket objects?
-References: <54526941.3090208@sonymobile.com> <5452702C.2000704@tycho.nsa.gov>
- <54588F41.9050507@sonymobile.com> <5458DC37.50903@tycho.nsa.gov>
-In-Reply-To: <5458DC37.50903@tycho.nsa.gov>
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA4Ectw7024316
+ for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2014 09:38:55 -0500
+Received: by mail-wi0-f182.google.com with SMTP id d1so9454968wiv.9
+ for <selinux@tycho.nsa.gov>; Tue, 04 Nov 2014 06:38:53 -0800 (PST)
+Message-ID: <1415111931.22097.11.camel@joe.localdomain>
+Subject: Re: user_r/sysadm_r/staff_r/unconfined_r
+From: Dominick Grift <dac.override@gmail.com>
+To: Russell Coker <russell@coker.com.au>
+Date: Tue, 04 Nov 2014 15:38:51 +0100
+In-Reply-To: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
+References: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A sysfs tree with both dac and mac control would be nice.
+On Tue, 2014-11-04 at 22:37 +1100, Russell Coker wrote:
+> The role separation seems to give no benefit apart from sysadm_r/unconfined_r given that we have seuser based constraints and MCS labels to separate users and that they all use the same types.
+> 
+> The current policy doesn't support even logging in with a user other than unconfined_r on Debian/Unstable without significant changes.
+> 
+> Is there any reason for not ripping out all but 2 roles, one for root (and other sysadmin accounts but not GNOME/KDE sessions) and the other for regukar users?
+> 
+> Doing that will make the policy smaller and simpler (for us and users) while not losing any functionality for most users. Where most users probably means everyone who doesn't develop their own policy. The people who do develop their own policy which depends on multiple roles probably have to do plenty of work on systems with the current policy anyway.
+> 
+> I think that sysadm_r/unconfined_r should not transition for programs like gpg.
+> 
+> NB staff_r is my invention. Before that we only had sysadm_r and user_r. I invented staff_r before MCS and the seuser constraints were developed. 
 
-On 11/04/2014 03:01 PM, Stephen Smalley wrote:
-> On 11/04/2014 03:33 AM, peter enderborg wrote:
->> Is there any work going on the make it more granular? I did not see
->> it in the "Remaning Work" backlog. It is a generic problem and should
->> have a generic solution.
->
-> It is on the new kernel to-do list, at the bottom of new items on:
-> https://github.com/SELinuxProject/selinux/wiki/Kernel-Todo
->
-> However, I'm not sure what the general solution would look like.  I
-> don't think we want to write policies on socket (domain, type, protocol)
-> triples or introduce unique security classes for every such triple.  The
-> security class abstraction in SELinux (and its underlying Flask
-> architecture) is intended to provide a higher level abstraction for
-> security policy writers.
->
+Wrong list.
+
+Should refpolicy have user domains at all? Should it have more than a
+single domain? As soon as one starts defining a domain one starts
+assuming.
+
+In my view plain refpolicy should be nothing more that what is currently
+in the kernel layer plus unconfined module and maybe the libraries
+module. Maybe constraints.
+
+For sure not an init, authlogin modules etc.
+
+the sole domain kernel_t should in my view ship unconfined, and if for
+some reason one really want a user domain then add a unconfined user
+
+Ref policies job would be to maintain core objects like devices, top
+level file partitioning, network objects. That is it.
+
+It would be very small and it would be base for all, because there are
+almost no decisions made for who ever builds on it
+
+Then on the side there could be a repository with individual add-on
+scenario's
+
+It kind of like base and contrib now, but taken further
