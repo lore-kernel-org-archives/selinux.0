@@ -1,55 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA4DVpxT018645
- for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2014 08:31:51 -0500
-Received: by mail-oi0-f41.google.com with SMTP id e131so10478491oig.0
- for <selinux@tycho.nsa.gov>; Tue, 04 Nov 2014 05:31:48 -0800 (PST)
+Message-ID: <5458DAA4.80708@tycho.nsa.gov>
+Date: Tue, 04 Nov 2014 08:54:44 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Sender: sven.j.vermeulen@gmail.com
-In-Reply-To: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
-References: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
-Date: Tue, 4 Nov 2014 14:31:48 +0100
-Message-ID: <CAPzO=NxBnkkQgJSS_mtdGqW0G6Pb9rVZ8yafG5-qSmjVZjEAPg@mail.gmail.com>
-Subject: Re: user_r/sysadm_r/staff_r/unconfined_r
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a1137dd48375b8e0507087c63
+To: Josh_Pennell@dell.com, selinux@tycho.nsa.gov
+Subject: Re: squashfs files showing as unlabeled_t
+References: <83DE8B501DA82042847858927365655402BC59B7E7@AUSX7MCPC102.AMER.DELL.COM>
+In-Reply-To: <83DE8B501DA82042847858927365655402BC59B7E7@AUSX7MCPC102.AMER.DELL.COM>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1137dd48375b8e0507087c63
-Content-Type: text/plain; charset=UTF-8
+On 11/03/2014 09:54 PM, Josh_Pennell@dell.com wrote:
+> Hello,
+> 
+> I'm working on a project using a selinux reference policy on an embedded system.  The device uses a squashfs file system that is labeled during build time.  During the build, policy file labels are applied using Pseudo and setfiles with an alternate root path specified.
+> 
+> Using a Fedora system it is possible to mount the squashfs file and confirm the file labels are correct.  When checked on target system the squashfs files are incorrect, but ram disk files are correct.  All squashfs files are system_u:object_r:unlabeled_t
+> 
+> The kernel .config values for squsahfs and selinux here here
+> 
+> CONFIG_SQUASHFS=y
+> CONFIG_SQUASHFS_XATTR=y
+> CONFIG_SQUASHFS_ZLIB=y
+> CONFIG_SQUASHFS_LZO=y
+> CONFIG_SQUASHFS_XZ=y
+> # CONFIG_SQUASHFS_4K_DEVBLK_SIZE is not set
+> CONFIG_SQUASHFS_EMBEDDED=y
+> CONFIG_SQUASHFS_FRAGMENT_CACHE_SIZE=10
+> 
+> CONFIG_SECURITY_SELINUX=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+> CONFIG_SECURITY_SELINUX_DISABLE=y
+> CONFIG_SECURITY_SELINUX_DEVELOP=y
+> CONFIG_SECURITY_SELINUX_AVC_STATS=y
+> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
+> CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX=n
+> # CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX is not set
+> 
+> Has anyone else run into this problem?  Any suggestions on what may be wrong?
 
-On Nov 4, 2014 12:46 PM, "Russell Coker" <russell@coker.com.au> wrote:
->
-> The role separation seems to give no benefit apart from
-sysadm_r/unconfined_r given that we have seuser based constraints and MCS
-labels to separate users and that they all use the same types.
+What type of policy are you building for the target system (i.e. TYPE=
+in your build.conf or on the make command-line when building refpolicy)?
+ Fedora uses TYPE=mcs by default, so if you set a label on a Fedora
+system with SELinux enabled, the on-disk xattr will include a level
+field.  If you are building a TYPE=standard policy, then that on-disk
+xattr won't be valid on the target and will be remapped to the unlabeled
+context.  Likewise if the user, role, or type set on the Fedora side is
+not defined in the policy for the target.
 
-I disagree. Roles allow for restricting the domains that users can
-transition into. I use them often for granting users "limited root". For
-instance dbadm_r for DBAs versus webadm_r for web app server admins.
-
-Wkr,
-  Sven Vermeulen
-
---001a1137dd48375b8e0507087c63
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"><br>
-On Nov 4, 2014 12:46 PM, &quot;Russell Coker&quot; &lt;<a href=3D"mailto:ru=
-ssell@coker.com.au">russell@coker.com.au</a>&gt; wrote:<br>
-&gt;<br>
-&gt; The role separation seems to give no benefit apart from sysadm_r/uncon=
-fined_r given that we have seuser based constraints and MCS labels to separ=
-ate users and that they all use the same types.</p>
-<p dir=3D"ltr">I disagree. Roles allow for restricting the domains that use=
-rs can transition into. I use them often for granting users &quot;limited r=
-oot&quot;. For instance dbadm_r for DBAs versus webadm_r for web app server=
- admins.</p>
-<p dir=3D"ltr">Wkr,<br>
-=C2=A0 Sven Vermeulen</p>
-
---001a1137dd48375b8e0507087c63--
+Were there any relevant messages in dmesg output on the target, e.g.
+regarding an invalid or unmapped context?
