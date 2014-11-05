@@ -1,107 +1,151 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA5G1Os3016188
- for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2014 11:01:25 -0500
-Received: by mail-wi0-f180.google.com with SMTP id hi2so2475807wib.1
- for <selinux@tycho.nsa.gov>; Wed, 05 Nov 2014 08:00:57 -0800 (PST)
-Received: from e145.network2 ([84.245.1.4])
- by mx.google.com with ESMTPSA id 10sm4538813wjs.21.2014.11.05.08.00.55
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Wed, 05 Nov 2014 08:00:56 -0800 (PST)
-Date: Wed, 5 Nov 2014 17:00:54 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: user_r/sysadm_r/staff_r/unconfined_r
-Message-ID: <20141105160051.GA25500@e145.network2>
-References: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
+Message-ID: <545A51CB.6070107@tycho.nsa.gov>
+Date: Wed, 05 Nov 2014 11:35:23 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
-In-Reply-To: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
+To: David Howells <dhowells@redhat.com>, linux-unionfs@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
+References: <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+ <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 11/05/2014 10:43 AM, David Howells wrote:
+> Handle the opening of a unioned file by trying to derive the label that would
+> be attached to the union-layer inode if it doesn't exist.
+> 
+> If the union-layer inode does exist (as it necessarily does in overlayfs, but
+> not in unionmount), we assume that it has the right label and use that.
+> Otherwise we try to get it from the superblock.
+> 
+> If the superblock has a globally-applied label, we use that, otherwise we try
+> to transition to an appropriate label.  This union label is then stored in the
+> file_security_struct.
+> 
+> We then perform an additional check to make sure that the calling task is
+> granted permission by the union-layer inode label to open the file in addition
+> to a check to make sure that the task is granted permission to open the lower
+> file with the lower inode label.
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> ---
+> 
+>  security/selinux/hooks.c          |   56 +++++++++++++++++++++++++++++++++++++
+>  security/selinux/include/objsec.h |    1 +
+>  2 files changed, 57 insertions(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 6fd8090cc7a5..f43f07fdc028 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3431,6 +3431,58 @@ static int selinux_file_receive(struct file *file)
+>  	return file_has_perm(cred, file, file_to_av(file));
+>  }
+>  
+> +/*
+> + * We have a file opened on a unioned file system that falls through to a file
+> + * on a lower layer.  If there is a union inode, we try to get the label from
+> + * that, otherwise we need to get it from the superblock.
+> + */
+> +static int selinux_file_open_union(struct file *file,
+> +				   const struct path *union_path,
+> +				   struct file_security_struct *fsec,
+> +				   const struct cred *cred)
+> +{
+> +	const struct superblock_security_struct *sbsec;
+> +	const struct inode_security_struct *isec, *dsec;
+> +	const struct task_security_struct *tsec = current_security();
+> +	struct common_audit_data ad;
+> +	const struct inode *inode = union_path->dentry->d_inode;
+> +	struct dentry *dir;
+> +	int rc;
+> +
+> +	sbsec = union_path->dentry->d_sb->s_security;
+> +
+> +	if (inode) {
+> +		isec = inode->i_security;
+> +		fsec->union_isid = isec->sid;
+> +	} else if ((sbsec->flags & SE_SBINITIALIZED) &&
+> +		   (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
+> +		fsec->union_isid = sbsec->mntpoint_sid;
+> +	} else {
+> +		dir = dget_parent(union_path->dentry);
+> +		dsec = dir->d_inode->i_security;
+> +
+> +		rc = security_transition_sid(
+> +			tsec->sid, dsec->sid,
+> +			inode_mode_to_security_class(file_inode(file)->i_mode),
+> +			&union_path->dentry->d_name,
+> +			&fsec->union_isid);
+> +		dput(dir);
+> +		if (rc) {
+> +			printk(KERN_WARNING "%s:  "
+> +			       "security_transition_sid failed, rc=%d (name=%pD)\n",
+> +			       __func__, -rc, file);
+> +			return rc;
+> +		}
+> +	}
 
---5mCyUwZo2JvN/JJP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How do we know that this union_isid will bear any relation to the actual
+SID assigned to the union inode when it is created?  If the union inode
+does not already exist, when/where does it get created?
 
-On Tue, Nov 04, 2014 at 10:37:18PM +1100, Russell Coker wrote:
->=20
-> I think that sysadm_r/unconfined_r should not transition for programs lik=
-e gpg.
+Also, would be good to create a common helper for use here, by
+selinux_dentry_init_security(), selinux_inode_init_security(), and
+may_create().  Already some seeming potential for inconsistencies there.
 
-I do not agree, To me the only thing that sets sysadm_t apart from unconfin=
-ed_t is that sysadm_t is a strict domain.
+> +
+> +	/* We need to check that the union file is allowed to be opened as well
+> +	 * as checking that the lower file is allowed to be opened.
+> +	 */
+> +	ad.type = LSM_AUDIT_DATA_PATH;
+> +	ad.u.path = *union_path;
+> +	return inode_has_perm(cred, file_inode(file), fsec->union_isid, &ad);
 
-Meaning where unconfined_t would run some program in the calling unconfined=
-_t domain, sysadm_t would transition to the domain of the program. Unfortun=
-ately this currenlty often is not the case.
+Something is seriously wrong here; you are passing fsec->union_isid
+where we expect a permissions bitmap / access vector.
 
-Walsh once said, and i quote: "sysadm_t is a drunken unconfined_t". He has =
-a point there and it should not be like that. sysadm_t should be a strict d=
-omain whereas unconfined_t is just some semi-exemption domain
+> +}
+> +
+>  static int selinux_file_open(struct file *file, const struct path *union_path,
+>  			     const struct cred *cred)
+>  {
+> @@ -3456,6 +3508,10 @@ static int selinux_file_open(struct file *file, const struct path *union_path,
+>  	 * new inode label or new policy.
+>  	 * This check is not redundant - do not remove.
+>  	 */
+> +
+> +	if (union_path->dentry != file->f_path.dentry)
+> +		selinux_file_open_union(file, union_path, fsec, cred);
 
-unconfined_t runs for example gpg in the unconfined_t domain , and sysadm_t=
- runs it in the gpg_t domain
+Ignored return value.
 
->=20
-> NB staff_r is my invention. Before that we only had sysadm_r and user_r. =
-I invented staff_r before MCS and the seuser constraints were developed.=20
-
-As for using optional security attributes/models to achieve something that =
-is often not optional:
-
-It think that is a bad idea. MCS/MLS is optional and so are the UBAC constr=
-aints. In my view they should remain optional
-
-My stance is that this should all be up to individuals to decide instead of=
- part of refpolicy.
-
-I recently created a policy model called splash and this, kind of, looks li=
-ke how i envision the perfect refpolicy. (although it abuses CIL name space=
-s and it only deals with objects that are present in my system)
-
-https://github.com/doverride/splash
-
-This policy (provided it is fixed/finished and bug free) works on all syste=
-ms. Sure by itself it provides almost no protection but that is not the poi=
-nt of the policy. It is a common base.=20
-
-I am kind of hoping for a refcilpolicy 2.0 with all this applied. Also some=
-thing that does not strictly rely on policycoreutils-semanage (e.g. somethi=
-ng that is just as suitable for embedded systems)
-
->=20
+> +
+>  	return file_path_has_perm(cred, file, open_file_to_av(file));
+>  }
+>  
+> diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+> index 81fa718d5cb3..f088c080aa9e 100644
+> --- a/security/selinux/include/objsec.h
+> +++ b/security/selinux/include/objsec.h
+> @@ -54,6 +54,7 @@ struct file_security_struct {
+>  	u32 sid;		/* SID of open file description */
+>  	u32 fown_sid;		/* SID of file owner (for SIGIO) */
+>  	u32 isid;		/* SID of inode at the time of file open */
+> +	u32 union_isid;		/* SID of would-be inodes in union top (or 0) */
+>  	u32 pseqno;		/* Policy seqno at the time of file open */
+>  };
+>  
+> 
 > _______________________________________________
 > Selinux mailing list
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa=
-=2Egov.
-
---=20
-Dominick Grift
-
---5mCyUwZo2JvN/JJP
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJUWkmuAAoJENAR6kfG5xmcYDcL+wSmODA79P3LYS1EwEQ6d+Ue
-irdGuursvVAfR/z+uURpXQJNK2QjQRN5aOPwx24XjC7S2IzPsdaSctkvZU6bz1zf
-jKdDxxpilGWC7+s2W02qt6IFp1KFn0QfK6KYfB9P0oXfUWk+6Y8s5+sNpDZ0/B0u
-yBEYog+9nLvo3MLH8dHi3k4rNTDJlbGndMGQtasTFDUWmNPDb1s8NjHg3iCe6KMu
-sUfn03XjRBUxKNzuGp7p+15ZczloeQZ9N8lZ7BoE/WkgbNtjn1iV2roF68nnFFAb
-0YV8NDiFlfK5ueg4Sj2tFzViBVynBR5z/fJ8suJfimXWcGysqWCwFIPAMIY+kShj
-LBB3NDqcAReMkvfVLlkYRY6ciEPyeuw1dWm9wblaPNK4V5x+NkUkKKJRMmAwqyna
-GRJGqJtc7z1dXqnh3IjDy4YF0q/b9EbRTfUG9j6LCLkH4DW72q8HJrmFI4twPUEd
-L8sdfroXw95YWSKxp0mLr7lNehrLO26n0UFhL1YLZw==
-=/Le1
------END PGP SIGNATURE-----
-
---5mCyUwZo2JvN/JJP--
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
