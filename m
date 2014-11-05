@@ -1,68 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA5ANaoA026388
- for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2014 05:23:36 -0500
-Message-ID: <5459FA97.2080000@redhat.com>
-Date: Wed, 05 Nov 2014 11:23:19 +0100
-From: Miroslav Grepl <mgrepl@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA5FgRjV014177
+ for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2014 10:42:27 -0500
+Subject: [PATCH 0/7] Security: Provide unioned file support
+From: David Howells <dhowells@redhat.com>
+To: linux-unionfs@vger.kernel.org, selinux@tycho.nsa.gov
+Date: Wed, 05 Nov 2014 15:42:17 +0000
+Message-ID: <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-To: Dominick Grift <dac.override@gmail.com>,
- Russell Coker <russell@coker.com.au>
-Subject: Re: user_r/sysadm_r/staff_r/unconfined_r
-References: <0AFA7D5E-B2E1-43BA-875B-AC941EB36E50@coker.com.au>
- <1415111931.22097.11.camel@joe.localdomain>
-In-Reply-To: <1415111931.22097.11.camel@joe.localdomain>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="utf-8"
+Cc: dhowells@redhat.com, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/04/2014 03:38 PM, Dominick Grift wrote:
-> On Tue, 2014-11-04 at 22:37 +1100, Russell Coker wrote:
->> The role separation seems to give no benefit apart from sysadm_r/unconfined_r given that we have seuser based constraints and MCS labels to separate users and that they all use the same types.
->>
->> The current policy doesn't support even logging in with a user other than unconfined_r on Debian/Unstable without significant changes.
->>
->> Is there any reason for not ripping out all but 2 roles, one for root (and other sysadmin accounts but not GNOME/KDE sessions) and the other for regukar users?
->>
->> Doing that will make the policy smaller and simpler (for us and users) while not losing any functionality for most users. Where most users probably means everyone who doesn't develop their own policy. The people who do develop their own policy which depends on multiple roles probably have to do plenty of work on systems with the current policy anyway.
->>
->> I think that sysadm_r/unconfined_r should not transition for programs like gpg.
->>
->> NB staff_r is my invention. Before that we only had sysadm_r and user_r. I invented staff_r before MCS and the seuser constraints were developed.
-> Wrong list.
->
-> Should refpolicy have user domains at all? Should it have more than a
-> single domain? As soon as one starts defining a domain one starts
-> assuming.
->
-> In my view plain refpolicy should be nothing more that what is currently
-> in the kernel layer plus unconfined module and maybe the libraries
-> module. Maybe constraints.
->
-> For sure not an init, authlogin modules etc.
->
-> the sole domain kernel_t should in my view ship unconfined, and if for
-> some reason one really want a user domain then add a unconfined user
->
-> Ref policies job would be to maintain core objects like devices, top
-> level file partitioning, network objects. That is it.
->
-> It would be very small and it would be base for all, because there are
-> almost no decisions made for who ever builds on it
->
-> Then on the side there could be a repository with individual add-on
-> scenario's
->
-> It kind of like base and contrib now, but taken further
-Yes. I believe this is good for a discussion. Let's move it on the 
-proper list.
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+
+The attached patches provide security support for unioned files where the
+security involves an object-label-based LSM (such as SELinux) rather than a
+path-based LSM.
+
+There are two problems that need addressing:
+
+ (1) The files that the user accesses through the overlayfs filesystem don't
+     really exist there.  Overlayfs passes the accesses directly through to
+     the underlying upper or lower file by means of having the dentry_open
+     inode op redirect where file->f_path and file->f_inode point.
+
+     This means that SELinux (or similar) will see the security label on one
+     lower layer or the other - and not the label on the overlay.  There are
+     three labels and all may be different.
+
+ (2) file->f_path *should* point at the overlay dentry and file->f_inode
+     should point at the lower layer inode.
+
+I'm not addressing (2) in this series of patches, but will leave that to a
+separate patch series.
+
+  
+After some discussion with docker people, the agreed theory of operation will
+be:
+
+ (1) The docker source (ie. the lower layer) will all be under a single label.
+
+ (2) The docker root (ie. the overlay/union layer) will all be under a single,
+     but different label set on the overlay mount (and each docker root may be
+     under its own label).
+
+ (3) Inodes in the overlayfs upper layer will be given the overlay label.
+
+ (4) A security_copy_up() operation will be provided to set the label on the
+     upper inode when it is created.
+
+ (5) A security_copy_up_xattr() operation will be provided to vet (and maybe
+     modify) each xattr as it is copied up.
+
+ (6) An extra label slot will be placed in struct file_security_struct to hold
+     the overlay label.
+
+ (7) security_file_open() will need to be given both the overlay and lower
+     dentries.
+
+     For overlayfs, the way this probably should be done is file->f_path should
+     be set to point to the overlay dentry (thus getting /proc right) and
+     file->f_inode to the lower file and make use of d_fallthru in the overlay
+     dentry in common with unionmount.
+
+ (8) When the lower file is accessed, both the lower and overlay labels should
+     be checked and audited.
+
+ (9) When the upper file is accessed, only the overlay label needs to be
+     checked and audited.
+
+I need someone to examine the SELinux bits and have a look to see whether I
+need to make further checks.
+
+
+The patches can be found here also:
+
+	http://git.kernel.org/cgit/linux/kernel/git/dhowells/linux-fs.git/log/?h=overlayfs
+
+This is based on part of Al Viro's vfs/for-next branch.
+
+David
+---
+David Howells (7):
+      Security: Provide copy-up security hooks for unioned files
+      Overlayfs: Use copy-up security hooks
+      SELinux: Stub in copy-up handling
+      Security: Pass the union-layer file path into security_file_open()
+      SELinux: Handle opening of a unioned file
+      SELinux: The copy-up operation must have read permission on the lower file
+      SELinux: Check against union and lower labels for file ops on lower files
+
+
+ fs/ceph/file.c                    |    3 +
+ fs/ceph/super.h                   |    1 
+ fs/cifs/cifsfs.h                  |    1 
+ fs/cifs/dir.c                     |    3 +
+ fs/namei.c                        |   11 +++--
+ fs/nfs/dir.c                      |    6 ++
+ fs/nfs/nfs4_fs.h                  |    2 -
+ fs/open.c                         |   31 ++++++++-----
+ fs/overlayfs/copy_up.c            |   12 +++++
+ fs/overlayfs/inode.c              |    8 ++-
+ include/linux/fs.h                |   16 +++++--
+ include/linux/security.h          |   43 +++++++++++++++++-
+ security/capability.c             |   17 +++++++
+ security/security.c               |   19 +++++++-
+ security/selinux/hooks.c          |   89 +++++++++++++++++++++++++++++++++++--
+ security/selinux/include/objsec.h |    1 
+ 16 files changed, 228 insertions(+), 35 deletions(-)
