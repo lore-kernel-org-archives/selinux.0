@@ -1,149 +1,71 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA6Cm8F3025636
- for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2014 07:48:08 -0500
-From: kuangjiou <kuangjiou@huawei.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Got  Segmentation fault when use  avc_context_to_sid() funtion!!
- can anyone help me? (there is some mistakes in my last emeil ,sorry! )
-Date: Thu, 6 Nov 2014 12:47:56 +0000
-Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB2BBE012@SZXEML507-MBX.china.huawei.com>
-Content-Type: multipart/alternative;
- boundary="_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_"
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <545A51CB.6070107@tycho.nsa.gov>
+References: <545A51CB.6070107@tycho.nsa.gov>
+ <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+ <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 06 Nov 2014 12:03:33 +0000
+Message-ID: <11463.1415275413@warthog.procyon.org.uk>
+Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dhowells@redhat.com, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Hello,everyone!
-I am learning how to use the selinux userspace apps recent.And I got Segmen=
-tation fault when I use the  avc_context_to_sid() funtion, dose anyone know=
- how to resolve this problem? Thank you very much!
+> How do we know that this union_isid will bear any relation to the actual
+> SID assigned to the union inode when it is created?
 
-The following is my testing code with avc_context_to_sid()  funtion
+Note that overlayfs *will* have a union inode at this point, but will just not
+use it for non-directories - so in this case we just use the first branch of
+the if-statement:
 
-#include <selinux/selinux.h>
-#include <selinux/avc.h>
-#include <stdlib.h>
-#include <stdio.h>
+	+	if (inode) {
+	+		isec = inode->i_security;
+	+		fsec->union_isid = isec->sid;
+	+	} ...
 
-int main()
-{
-         const char *scon =3D "system_u:object_r:unconfined_t";
-         security_id_t sid;
-         avc_context_to_sid(scon, &sid);
+in which case, I think that we can be fairly sure that we will have the right
+label.
 
-         return 0;
-}
+The other two cases are in case there isn't an inode - unionmount, for
+example.  The second case is used (if I understand the flag correctly) if the
+superblock imposes a single label over all its inodes - so no problem there:
 
-Sylar
+	+	} else if ((sbsec->flags & SE_SBINITIALIZED) &&
+	+		   (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
+	+		fsec->union_isid = sbsec->mntpoint_sid;
+	+	} ...
 
---_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The third case is the tricky one because we have to try and derive a label.
+I've copied the code from the inode creation - so unless the policy changes or
+the parent directory inode changes, I would've thought we'd be okay.
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
-//www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<meta name=3D"Generator" content=3D"Microsoft Word 12 (filtered medium)">
-<style><!--
-/* Font Definitions */
-@font-face
-	{font-family:\5B8B\4F53;
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:"\@\5B8B\4F53";
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	text-align:justify;
-	text-justify:inter-ideograph;
-	font-size:10.5pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;}
-/* Page Definitions */
-@page WordSection1
-	{size:612.0pt 792.0pt;
-	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]-->
-</head>
-<body lang=3D"ZH-CN" link=3D"blue" vlink=3D"purple" style=3D"text-justify-t=
-rim:punctuation">
-<div class=3D"WordSection1">
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Hello,everyone!<o:p></o:p></spa=
-n></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">I am learning how to use the se=
-linux userspace apps recent.And I got Segmentation fault when I use the&nbs=
-p; avc_context_to_sid() funtion, dose anyone know how to resolve this probl=
-em? Thank you very much!<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">The following is my testing cod=
-e with avc_context_to_sid() &nbsp;funtion<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;selinux/selinux.h&=
-gt;<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;selinux/avc.h&gt;<=
-o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;stdlib.h&gt;<o:p><=
-/o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;stdio.h&gt;<o:p></=
-o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">int main()<o:p></o:p></span></p=
->
-<p class=3D"MsoNormal"><span lang=3D"EN-US">{<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; const char *scon =3D &quot;system_u:object_r:unconfined_t=
-&quot;;<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; security_id_t sid; <o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; avc_context_to_sid(scon, &amp;sid);<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; <o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; return 0;<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">}<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">Sylar<o:p></o:p></span></p>
-</div>
-</body>
-</html>
+> If the union inode does not already exist, when/where does it get created?
 
---_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_--
+For overlayfs, union inodes *have* to exist because it's a filesystem and are
+created at the normal times and in the normal way.  They need to exist because
+otherwise the dentry at that point in the overlay fs would be negative and the
+VFS wouldn't call into the filesystem.
+
+> Also, would be good to create a common helper for use here, by
+> selinux_dentry_init_security(), selinux_inode_init_security(), and
+> may_create().  Already some seeming potential for inconsistencies there.
+
+Okay, I'll have a look at that.
+
+> > +	return inode_has_perm(cred, file_inode(file), fsec->union_isid, &ad);
+> 
+> Something is seriously wrong here; you are passing fsec->union_isid
+> where we expect a permissions bitmap / access vector.
+
+Good point.  I need to call avc_has_perm() directly.  I don't necessarily have
+an sclass, though, hmmm...
+
+David
