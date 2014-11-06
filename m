@@ -1,29 +1,47 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <11463.1415275413@warthog.procyon.org.uk>
-References: <11463.1415275413@warthog.procyon.org.uk>
- <545A51CB.6070107@tycho.nsa.gov>
- <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
- <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
-Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
+Message-ID: <545B722F.3020401@tycho.nsa.gov>
+Date: Thu, 06 Nov 2014 08:05:51 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 06 Nov 2014 12:27:38 +0000
-Message-ID: <31660.1415276858@warthog.procyon.org.uk>
-Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
- dhowells@redhat.com, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
- Stephen Smalley <sds@tycho.nsa.gov>
+To: kuangjiou <kuangjiou@huawei.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: Got Segmentation fault when use avc_context_to_sid() funtion!!
+ can anyone help me?
+References: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
+In-Reply-To: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
+Content-Type: text/plain; charset=ISO-8859-1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-David Howells <dhowells@redhat.com> wrote:
+On 11/06/2014 07:44 AM, kuangjiou wrote:
+> Hello,everyone!
+> I am learning how to use the selinux userspace apps recent.And I got Segmentation fault when I use the  avc_context_to_sid() funtion, dose anyone know how to resolve this problem? Thank you very much!
+> 
+> The following is my testing code with avc_context_to_sid()  funtion
+> 
+> #include <selinux/selinux.h>
+> #include <selinux/avc.h>
+> #include <stdlib.h>
+> #include <stdio.h>
+> 
+> int main()
+> {
+>          const char *scon = "system_u:object_r:unconfined_t";
+>          security_id_t sid;
+>          sid->ctx = scon;
+>          sid->refcnt = 28;
+> 
+>          avc_context_to_sid(scon, &sid);
+> 
+>          return 0;
+> }
 
-> Good point.  I need to call avc_has_perm() directly.  I don't necessarily have
-> an sclass, though, hmmm...
+Must be preceded by a call to avc_init() or avc_open().  In current
+libselinux, that is asserted on entry to the function.
 
-I do have an sclass on the lower file, however, as pointed to by
-file_inode(file).
-
-David
+However, I'd encourage you to consider using selinux_check_access()
+instead for SELinux userspace object managers; it internally handles
+calling avc_init() and avc_context_to_sid() as well as mapping class and
+permission strings to numbers, making it much easier to use the AVC from
+userspace.  We have been using it in the Android userspace.
