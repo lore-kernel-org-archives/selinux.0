@@ -1,56 +1,33 @@
-Message-ID: <545B76DD.5040506@tycho.nsa.gov>
-Date: Thu, 06 Nov 2014 08:25:49 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <545B73DE.6090101@tycho.nsa.gov>
+References: <545B73DE.6090101@tycho.nsa.gov> <545A51CB.6070107@tycho.nsa.gov>
+ <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+ <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
+ <11463.1415275413@warthog.procyon.org.uk>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
 MIME-Version: 1.0
-To: kuangjiou <kuangjiou@huawei.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Got Segmentation fault when use avc_context_to_sid() funtion!!
- can anyone help me?
-References: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
- <545B722F.3020401@tycho.nsa.gov>
-In-Reply-To: <545B722F.3020401@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Date: Thu, 06 Nov 2014 13:34:28 +0000
+Message-ID: <787.1415280868@warthog.procyon.org.uk>
+Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dhowells@redhat.com, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/06/2014 08:05 AM, Stephen Smalley wrote:
-> On 11/06/2014 07:44 AM, kuangjiou wrote:
->> Hello,everyone!
->> I am learning how to use the selinux userspace apps recent.And I got Segmentation fault when I use the  avc_context_to_sid() funtion, dose anyone know how to resolve this problem? Thank you very much!
->>
->> The following is my testing code with avc_context_to_sid()  funtion
->>
->> #include <selinux/selinux.h>
->> #include <selinux/avc.h>
->> #include <stdlib.h>
->> #include <stdio.h>
->>
->> int main()
->> {
->>          const char *scon = "system_u:object_r:unconfined_t";
->>          security_id_t sid;
->>          sid->ctx = scon;
->>          sid->refcnt = 28;
->>
->>          avc_context_to_sid(scon, &sid);
->>
->>          return 0;
->> }
-> 
-> Must be preceded by a call to avc_init() or avc_open().  In current
-> libselinux, that is asserted on entry to the function.
-> 
-> However, I'd encourage you to consider using selinux_check_access()
-> instead for SELinux userspace object managers; it internally handles
-> calling avc_init() and avc_context_to_sid() as well as mapping class and
-> permission strings to numbers, making it much easier to use the AVC from
-> userspace.  We have been using it in the Android userspace.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Also, for avc_context_to_sid(), the sid is an output argument; you
-aren't supposed to initialize it to anything prior to making the call.
-avc_context_to_sid() looks to see if there is already a SID allocated
-for the context; if so, it sets sid to reference that SID; if not, it
-allocates a new SID and sets sid to reference it.  Any assignment you
-make to sid prior to the call will be ignored and overridden.
+> Not sure what filesystems you have in mind for the unionmount scenario.
+
+Currently any filesystem that can be used for a unionmount top layer has to be
+modified to provide certain things (DT_WHITEOUT and DT_FALLTHRU directory
+entry creation) - and the way this is done precludes a number of filesystems
+from being used (it modifies the on-disk format).
+
+Whiteout creation is being provided by some filesystems for overlayfs - but in
+a different way to unionmount (0,0 chardevs rather than DT_WHITEOUT dirents).
+
+David
