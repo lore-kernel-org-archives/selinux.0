@@ -1,79 +1,156 @@
-Date: Wed, 5 Nov 2014 17:25:37 -0500
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Subject: Re: "selinux_nlmsg_perm: unrecognized netlink message: protocol=0
- nlmsg_type=0 sclass=30" warning on Linux 3.18-rc3
-Message-ID: <20141105222537.GG5902@madcap2.tricolour.ca>
-References: <CAHTgTXVyR3hoZDSp6QRTtJ9+cAuPXsPomfDBw0zisft=7H_7dA@mail.gmail.com>
- <1588252.T4atn8E9DE@sifl> <545A8DE8.1010106@tycho.nsa.gov>
- <18386541.xBZWpSPpcC@sifl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <18386541.xBZWpSPpcC@sifl>
-Cc: James Morris <james.l.morris@oracle.com>,
- Vinson Lee <vlee@twopensource.com>, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, trinity@vger.kernel.org,
- Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA6CiNbF025518
+ for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2014 07:44:24 -0500
+From: kuangjiou <kuangjiou@huawei.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Got  Segmentation fault when use  avc_context_to_sid() funtion!!
+ can anyone help me?
+Date: Thu, 6 Nov 2014 12:44:13 +0000
+Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="=_Boundary-1864-1415277874-0001-2"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 14/11/05, Paul Moore wrote:
-> On Wednesday, November 05, 2014 03:51:52 PM Stephen Smalley wrote:
-> > On 11/05/2014 03:48 PM, Paul Moore wrote:
-> > > On Tuesday, November 04, 2014 12:12:56 PM Vinson Lee wrote:
-> > >> Hi.
-> > >> 
-> > >> trinity triggered this kernel warning in selinux_netlink_send on Linux
-> > >> 3.18-rc3.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-Vinson, have you ever seen an audit message reporting this problem
-previously from trinity?
+--=_Boundary-1864-1415277874-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-> > > It looks like trinity sent a bogus netlink message to the kernel and
-> > > SELinux responded as I would expect it to, with a WARN_ONCE() message. 
-> > > Thank you for your help in testing, but I don't see a problem here that
-> > > needs to be resolved.
-> > 
-> > I guess the only thing new here is that this message used to be directed
-> > to the audit system via audit_log() and was changed to use WARN_ONCE().
-> > Why was that change made (the change description gives no rationale)?
-> 
-> My understanding was that the audit record didn't fit the hoped-for-but-not-
-> really-a-standard name value pair format that the audit folks like.  Richard 
-> wanted to either normalize the audit record or replace it with something else.
+Hello,everyone!
+I am learning how to use the selinux userspace apps recent.And I got Segmen=
+tation fault when I use the  avc_context_to_sid() funtion, dose anyone know=
+ how to resolve this problem? Thank you very much!
 
-I didn't like that it was an audit record because that wasn't really an
-auditable event since it failed, presenting no danger to the system, and
-that it could potentially fill audit logs with useless reports.
+The following is my testing code with avc_context_to_sid()  funtion
 
-I didn't really like that it was a WARN_ONCE, since it seemed a bit too
-alarmist and also made it more difficult to debug.
+#include <selinux/selinux.h>
+#include <selinux/avc.h>
+#include <stdlib.h>
+#include <stdio.h>
 
-The other recent WARN_ONCE conversions were partly influenced by an
-effort to clean up locking in audit, but that is not the case here.
+int main()
+{
+         const char *scon =3D "system_u:object_r:unconfined_t";
+         security_id_t sid;
+         sid->ctx =3D scon;
+         sid->refcnt =3D 28;
 
-> > Is this an appropriate use of WARN_ONCE()?
-> 
-> In retrospect, we could probably do better.  I don't think it should be an 
-> audit record, but I can see the point that a backtrace and scary WARNING! 
-> display are probably a bit too much.
-> 
-> Richard, how about converting this WARN_ONCE() to a printk_once(), or similar?
+         avc_context_to_sid(scon, &sid);
 
-I'd be agreeable to that.  While I was a bit concerned that a
-WARN_ONCE() could be lost in the noise (evidently that's not the case!)
-a printk_once() would more likely get lost in the noise.  Would it make
-sense to make it a bit less infrequent than printk_once() and rate-limit
-it at say, one per 5 seconds or more?
+         return 0;
+}
 
-> paul moore
+--=_Boundary-1864-1415277874-0001-2
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-- RGB
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 12 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:\5B8B\4F53;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@\5B8B\4F53";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	font-size:10.5pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;}
+/* Page Definitions */
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"ZH-CN" link=3D"blue" vlink=3D"purple" style=3D"text-justify-t=
+rim:punctuation">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span lang=3D"EN-US">Hello,everyone!<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">I am learning how to use the se=
+linux userspace apps recent.And I got Segmentation fault when I use the&nbs=
+p; avc_context_to_sid() funtion, dose anyone know how to resolve this probl=
+em? Thank you very much!<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">The following is my testing cod=
+e with avc_context_to_sid() &nbsp;funtion<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;selinux/selinux.h&=
+gt;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;selinux/avc.h&gt;<=
+o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;stdlib.h&gt;<o:p><=
+/o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">#include &lt;stdio.h&gt;<o:p></=
+o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">int main()<o:p></o:p></span></p=
+>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">{<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; const char *scon =3D &quot;system_u:object_r:unconfined_t=
+&quot;;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; security_id_t sid; <o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; sid-&gt;ctx =3D scon;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; sid-&gt;refcnt =3D 28;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; avc_context_to_sid(scon, &amp;sid);<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; <o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp; return 0;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">}<o:p></o:p></span></p>
+</div>
+</body>
+</html>
 
---
-Richard Guy Briggs <rbriggs@redhat.com>
-Senior Software Engineer, Kernel Security, AMER ENG Base Operating Systems, Red Hat
-Remote, Ottawa, Canada
-Voice: +1.647.777.2635, Internal: (81) 32635, Alt: +1.613.693.0684x3545
+--=_Boundary-1864-1415277874-0001-2--
