@@ -1,88 +1,136 @@
-Message-ID: <545B79F4.7030606@tycho.nsa.gov>
-Date: Thu, 06 Nov 2014 08:39:00 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>, linux-unionfs@vger.kernel.org,
- selinux@tycho.nsa.gov
-Subject: Re: [PATCH 6/7] SELinux: The copy-up operation must have read
- permission on the lower file
-References: <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
- <20141105154318.2555.7052.stgit@warthog.procyon.org.uk>
- <545A53A9.4060009@tycho.nsa.gov> <545A6464.5070702@tycho.nsa.gov>
-In-Reply-To: <545A6464.5070702@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
+Message-ID: <545B81E6.60908@tresys.com>
+Date: Thu, 6 Nov 2014 09:12:54 -0500
+From: Steve Lawrence <slawrence@tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+To: James Carter <jwcart2@tycho.nsa.gov>, Sven Vermeulen
+ <sven.vermeulen@siphos.be>
+Subject: Re: SELinux Userspace Release: 20140826-rc5
+References: <5451090B.2080107@tresys.com>
+ <CAPzO=NyRKK=jJ151W6xk_cs7dHKJQCwCxoJc2jZmTLZ_DaXPUA@mail.gmail.com>
+ <545784C2.30203@tresys.com>
+ <CAPzO=Ny_xEYC6hgSb+nWJxqfgX6eYOBeUsf7wh+18h9j6nc0JA@mail.gmail.com>
+ <5459366B.3060106@tycho.nsa.gov>
+In-Reply-To: <5459366B.3060106@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/05/2014 12:54 PM, Stephen Smalley wrote:
-> On 11/05/2014 11:43 AM, Stephen Smalley wrote:
->> On 11/05/2014 10:43 AM, David Howells wrote:
->>> The copy-up operation must have read permission on the lower file for the task
->>> that caused the copy-up.  This helps prevent overlayfs from being used to
->>> access something it shouldn't.
+On 11/04/2014 03:26 PM, James Carter wrote:
+> On 11/04/2014 01:08 PM, Sven Vermeulen wrote:
+>> On Mon, Nov 3, 2014 at 2:36 PM, Steve Lawrence <slawrence@tresys.com>
+>> wrote:
+>>> It looks like you are correct, that unconfined_t is the problem. The
+>>> unconfined_domain_noaudit interface has a gen_require on unconfined_t.
+>>> However, CIL does not have a concept of gen_require. It just tries to
+>>> resolve all statements inside an optional block, and if any of them fail
+>>> then the optional is disabled. So in refpolicy, this interface depends
+>>> on the unconfined_t type, even though it never uses it.
 >>>
->>> Signed-off-by: David Howells <dhowells@redhat.com>
->>> ---
->>>
->>>  security/selinux/hooks.c |    3 ++-
->>>  1 file changed, 2 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>> index f43f07fdc028..57f9c641779f 100644
->>> --- a/security/selinux/hooks.c
->>> +++ b/security/selinux/hooks.c
->>> @@ -3144,7 +3144,8 @@ static void selinux_inode_getsecid(const struct inode *inode, u32 *secid)
->>>  
->>>  static int selinux_inode_copy_up(struct dentry *src, struct dentry *dst)
->>>  {
->>> -	return 0;
->>> +	const struct cred *cred = current_cred();
->>> +	return dentry_has_perm(cred, src, FILE__OPEN | FILE__READ);
->>>  }
+>>> One solution would create a tyepattribute that isn't used in any
+>>> statements (and so won't become part of the final kernel policy) but
+>>> that types that are gen_required are associated with. This should cause
+>>> a failure of the optional without affecting anything alse. Kindof a
+>>> hack, and it only works for types/roles since with have attributes for
+>>> those, but probably the only way to mimic gen_require in CIL.
 >>
->> Won't this get checked anyway when overlayfs calls vfs helpers to open
->> the source and those vfs helpers call the security hooks and apply the
->> usual checks?
+>> Or perhaps inside the optional_policy() block I can define a rule
+>> that, if unconfined was enabled, would be applicable anyway, like so:
 >>
->> Or, if not, where do you check permissions for the destination?
+>> allow unconfined_t self:process signal;
+>>
+>> (assuming that that is a rule that is applied to unconfined_t - can't
+>> verify it at this moment).
+>>
+>> As the unconfined_t isn't defined (unconfined module is not loaded)
+>> then this part blocks as well.
+>>
+>> Of course, it's indeed a hack (similar to the typeattribute one).
+>> Having a simple comment above it to make clear that it is to work
+>> around this situation should make it clear.
+>>
 > 
-> BTW, a quick look at overlayfs suggests further problems with regard to
-> permission checking, e.g. ovl_copy_up_one() does:
->         /*
->          * CAP_SYS_ADMIN for copying up extended attributes
->          * CAP_DAC_OVERRIDE for create
->          * CAP_FOWNER for chmod, timestamp update
->          * CAP_FSETID for chmod
->          * CAP_CHOWN for chown
->          * CAP_MKNOD for mknod
->          */
->         cap_raise(override_cred->cap_effective, CAP_SYS_ADMIN);
->         cap_raise(override_cred->cap_effective, CAP_DAC_OVERRIDE);
->         cap_raise(override_cred->cap_effective, CAP_FOWNER);
->         cap_raise(override_cred->cap_effective, CAP_FSETID);
->         cap_raise(override_cred->cap_effective, CAP_CHOWN);
->         cap_raise(override_cred->cap_effective, CAP_MKNOD);
->         old_cred = override_creds(override_cred);
-> 
-> This means that it expects to trigger those capability checks as part of
-> its subsequent actions.  Raising those capabilities temporarily in its
-> credentials will pass the capability module checks but won't address the
-> corresponding SELinux checks (both capability and file-based), so you'll
-> end up triggering an entire set of checks against the current process'
-> credentials.  This same pattern is repeated elsewhere in overlayfs.
+> Steve, how hard would it be to keep a list of the types that have been
+> declared in the require block and check if they have been used directly?
+> When you reached the end of the block any that have not been used could
+> be placed in a rule like Sven suggests. 
 
-So I guess the question is what, if any, permission checks performed by
-the vfs helpers are appropriate and desired when called by overlayfs,
-and which ones should be always-allowed/skipped.  Normally in this kind
-of situation we'd either switch to a special credential set up to allow
-the desired set of permissions or we'd use vfs helpers that skip the
-usual permission checks.  For the former, we not only need to change
-cap_effective but also the SELinux context/SID in order to both allow
-the desired capabilities and to allow the desired file accesses without
-needing to directly allow them to the current process' context/SID.  At
-which point you would need to replicate in overlayfs whichever checks
-should be performed on the original credentials.
+It probably wouldn't be too difficult to only add statements for types
+that aren't used in the optional block. I just finished writing out
+gen_requires for everything, regardless of if they are used or not, and
+got some interesting numbers. With all the extra gen_require
+typeattribute statements (~46000 of them), compiling CIL generated from
+refpolicy pp's was actually faster (25 seconds vs 18 seconds). However,
+it used about 13MB extra memory (129MB vs 142MB). Not really sure why
+there was such a relatively dramatic decrease in compile time though.
+
+I'll look into only adding symbols that are used in the optional and see
+if there are noticeable differences, but I suspect performance would be
+similar to how it before this change.
+
+> Although, I would suggest "allow
+> > TYPE self: file getattr;" which I know that all domains allow
+
+A typeattribute statement would prevent us from having to worry about
+this kind of stuff. I was thinking something like this:
+
+In the base module, we would also define this:
+
+  (typeattribute cil_gen_require)
+
+And then in optionals, we could have something like thi:
+
+  (option optional_foo
+    (typeattributeset cil_gen_require unconfined_t)
+  )
+
+This doesn't change the policy at all (since cil_gen_require isn't used
+in any statements, it won't be added to the binary), and a similar idea
+can be used for roles as well, though I don't think there are any cases
+were roles need to be 'cil_gen_required' in the converted CIL.
+
+>>> Another option would be to change refpolicy so that the unconfined
+>>> attributes are defined in the unconfined module rather than in
+>>> kernel/domain/fs/etc, but maybe the way unconfined works would make the
+>>> difficult. It's also not backwards compatible, so we'd probably still
+>>> need the pp change anyway.
+>>
+>> This was actually what I was thinking about implementing on Gentoo to
+>> "fix" this, but might take some time.
+>>
+> 
+> We do not need to fix any policy sources. This is an artifact of
+> generating CIL from the pp files and is due to the fact that the
+> interfaces have already been expanded. In a CIL policy that has been
+> generated from the policy source, if the unconfined module is not loaded
+> then the interface unconfined_domain_noaudit() does not exist, optional
+> blocks will be disabled as required, and everything works.
+> 
+> Speaking of require block issues. CIL generated from source policy has a
+> problem that the CIL generated from pp files does not have. There are a
+> handful of cases in the Fedora policy where require blocks in an
+> interface are met because of an alias in another module. So these
+> interfaces are expanded and appear in the policy even if the modules
+> containing those interfaces are disabled. I currently have to manually
+> add these interfaces.
+> 
+> By the way, there is now a fedora branch for the cilpolicy on bitbucket:
+> https://bitbucket.org/jwcarter/cilpolicy
+> 
+>> Do you have an idea how we could find similar cases? I think the
+>> unconfined ones are the only ones that use such a construction
+>> (gen_require without directly using it) but I rather be certain.
+>>
+> 
+> I seem to remember a few instances in the past were there where typos in
+> the require block which caused the block to always be removed. But I
+> don't see that in the current policy.
+> 
+
+Testing this, I actually did notice some optional blocks in refpolicy
+that are always disabled due to non-existent types/typos. I'll report
+those to the refpolicy list.
+
+- Steve
