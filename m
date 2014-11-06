@@ -1,25 +1,22 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA6CiNbF025518
- for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2014 07:44:24 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA6Cm8F3025636
+ for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2014 07:48:08 -0500
 From: kuangjiou <kuangjiou@huawei.com>
 To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 Subject: Got  Segmentation fault when use  avc_context_to_sid() funtion!!
- can anyone help me?
-Date: Thu, 6 Nov 2014 12:44:13 +0000
-Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
-Mime-Version: 1.0
+ can anyone help me? (there is some mistakes in my last emeil ,sorry! )
+Date: Thu, 6 Nov 2014 12:47:56 +0000
+Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB2BBE012@SZXEML507-MBX.china.huawei.com>
 Content-Type: multipart/alternative;
- boundary="=_Boundary-1864-1415277874-0001-2"
+ boundary="_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
-
---=_Boundary-1864-1415277874-0001-2
-Content-Type: text/plain; charset=us-ascii
+--_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 Hello,everyone!
@@ -38,16 +35,15 @@ int main()
 {
          const char *scon =3D "system_u:object_r:unconfined_t";
          security_id_t sid;
-         sid->ctx =3D scon;
-         sid->refcnt =3D 28;
-
          avc_context_to_sid(scon, &sid);
 
          return 0;
 }
 
---=_Boundary-1864-1415277874-0001-2
-Content-Type: text/html; charset=us-ascii
+Sylar
+
+--_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_
+Content-Type: text/html; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 <html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
@@ -138,19 +134,16 @@ nbsp;&nbsp;&nbsp; const char *scon =3D &quot;system_u:object_r:unconfined_t=
 <p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
 nbsp;&nbsp;&nbsp; security_id_t sid; <o:p></o:p></span></p>
 <p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; sid-&gt;ctx =3D scon;<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp; sid-&gt;refcnt =3D 28;<o:p></o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
-<p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
 nbsp;&nbsp;&nbsp; avc_context_to_sid(scon, &amp;sid);<o:p></o:p></span></p>
 <p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
 nbsp;&nbsp;&nbsp; <o:p></o:p></span></p>
 <p class=3D"MsoNormal"><span lang=3D"EN-US">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
 nbsp;&nbsp;&nbsp; return 0;<o:p></o:p></span></p>
 <p class=3D"MsoNormal"><span lang=3D"EN-US">}<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">Sylar<o:p></o:p></span></p>
 </div>
 </body>
 </html>
 
---=_Boundary-1864-1415277874-0001-2--
+--_000_60ABE64B4BE4AC45964F1A967BA76CB2BBE012SZXEML507MBXchina_--
