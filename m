@@ -1,47 +1,91 @@
-Message-ID: <545B722F.3020401@tycho.nsa.gov>
-Date: Thu, 06 Nov 2014 08:05:51 -0500
+Message-ID: <545B73DE.6090101@tycho.nsa.gov>
+Date: Thu, 06 Nov 2014 08:13:02 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: kuangjiou <kuangjiou@huawei.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: Got Segmentation fault when use avc_context_to_sid() funtion!!
- can anyone help me?
-References: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
-In-Reply-To: <60ABE64B4BE4AC45964F1A967BA76CB2BBDFFB@SZXEML507-MBX.china.huawei.com>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
+References: <545A51CB.6070107@tycho.nsa.gov>
+ <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+ <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
+ <11463.1415275413@warthog.procyon.org.uk>
+In-Reply-To: <11463.1415275413@warthog.procyon.org.uk>
 Content-Type: text/plain; charset=ISO-8859-1
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-unionfs@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/06/2014 07:44 AM, kuangjiou wrote:
-> Hello,everyone!
-> I am learning how to use the selinux userspace apps recent.And I got Segmentation fault when I use the  avc_context_to_sid() funtion, dose anyone know how to resolve this problem? Thank you very much!
+On 11/06/2014 07:03 AM, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> The following is my testing code with avc_context_to_sid()  funtion
+>> How do we know that this union_isid will bear any relation to the actual
+>> SID assigned to the union inode when it is created?
 > 
-> #include <selinux/selinux.h>
-> #include <selinux/avc.h>
-> #include <stdlib.h>
-> #include <stdio.h>
+> Note that overlayfs *will* have a union inode at this point, but will just not
+> use it for non-directories - so in this case we just use the first branch of
+> the if-statement:
 > 
-> int main()
-> {
->          const char *scon = "system_u:object_r:unconfined_t";
->          security_id_t sid;
->          sid->ctx = scon;
->          sid->refcnt = 28;
+> 	+	if (inode) {
+> 	+		isec = inode->i_security;
+> 	+		fsec->union_isid = isec->sid;
+> 	+	} ...
 > 
->          avc_context_to_sid(scon, &sid);
-> 
->          return 0;
-> }
+> in which case, I think that we can be fairly sure that we will have the right
+> label.
 
-Must be preceded by a call to avc_init() or avc_open().  In current
-libselinux, that is asserted on entry to the function.
+Yes, that case is fine.
 
-However, I'd encourage you to consider using selinux_check_access()
-instead for SELinux userspace object managers; it internally handles
-calling avc_init() and avc_context_to_sid() as well as mapping class and
-permission strings to numbers, making it much easier to use the AVC from
-userspace.  We have been using it in the Android userspace.
+> The other two cases are in case there isn't an inode - unionmount, for
+> example.  The second case is used (if I understand the flag correctly) if the
+> superblock imposes a single label over all its inodes - so no problem there:
+> 
+> 	+	} else if ((sbsec->flags & SE_SBINITIALIZED) &&
+> 	+		   (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
+> 	+		fsec->union_isid = sbsec->mntpoint_sid;
+> 	+	} ...
+
+Likewise.
+
+> The third case is the tricky one because we have to try and derive a label.
+> I've copied the code from the inode creation - so unless the policy changes or
+> the parent directory inode changes, I would've thought we'd be okay.
+
+Only if the filesystem ultimately calls security_inode_init_security()
+on the new inode.  Originally we had the vfs call post_create() hooks to
+do this, but that was racy and unsafe, so we had to take the
+initialization down into the filesystem code and replicate it in each
+filesystem that supports labeling.  So whether or not that label will in
+fact be assigned to the inode depends on the filesystem in question.
+Currently called by btrfs, ext[234], f2fs, gfs2, hfsplus, jffs2, jfs,
+ocsfs2, xfs.  Not sure what filesystems you have in mind for the
+unionmount scenario.
+
+>> If the union inode does not already exist, when/where does it get created?
+> 
+> For overlayfs, union inodes *have* to exist because it's a filesystem and are
+> created at the normal times and in the normal way.  They need to exist because
+> otherwise the dentry at that point in the overlay fs would be negative and the
+> VFS wouldn't call into the filesystem.
+> 
+>> Also, would be good to create a common helper for use here, by
+>> selinux_dentry_init_security(), selinux_inode_init_security(), and
+>> may_create().  Already some seeming potential for inconsistencies there.
+> 
+> Okay, I'll have a look at that.
+
+Thanks.
+
+>>> +	return inode_has_perm(cred, file_inode(file), fsec->union_isid, &ad);
+>>
+>> Something is seriously wrong here; you are passing fsec->union_isid
+>> where we expect a permissions bitmap / access vector.
+> 
+> Good point.  I need to call avc_has_perm() directly.  I don't necessarily have
+> an sclass, though, hmmm...
+
+Looks like you can get it from the other inode, as long as they are
+guaranteed to have the same class (which in turn will be true as long as
+they have the same file type value from the mode).
