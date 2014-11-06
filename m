@@ -1,104 +1,155 @@
-Message-ID: <545B8372.3000604@tycho.nsa.gov>
-Date: Thu, 06 Nov 2014 09:19:30 -0500
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA6HYdcT016333
+ for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2014 12:34:41 -0500
+Message-ID: <545BB147.4000100@schaufler-ca.com>
+Date: Thu, 06 Nov 2014 09:35:03 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>,
- Sven Vermeulen <sven.vermeulen@siphos.be>
-Subject: Re: SELinux Userspace Release: 20140826-rc5
-References: <5451090B.2080107@tresys.com>
- <CAPzO=NyRKK=jJ151W6xk_cs7dHKJQCwCxoJc2jZmTLZ_DaXPUA@mail.gmail.com>
- <545784C2.30203@tresys.com>
- <CAPzO=Ny_xEYC6hgSb+nWJxqfgX6eYOBeUsf7wh+18h9j6nc0JA@mail.gmail.com>
- <5459366B.3060106@tycho.nsa.gov> <545B81E6.60908@tresys.com>
-In-Reply-To: <545B81E6.60908@tresys.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Cc: SELinux <selinux@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>, linux-unionfs@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: Re: [PATCH 0/7] Security: Provide unioned file support
+References: <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/06/2014 09:12 AM, Steve Lawrence wrote:
-> On 11/04/2014 03:26 PM, James Carter wrote:
->> On 11/04/2014 01:08 PM, Sven Vermeulen wrote:
->>> On Mon, Nov 3, 2014 at 2:36 PM, Steve Lawrence <slawrence@tresys.com>
->>> wrote:
->>>> It looks like you are correct, that unconfined_t is the problem. The
->>>> unconfined_domain_noaudit interface has a gen_require on unconfined_t.
->>>> However, CIL does not have a concept of gen_require. It just tries to
->>>> resolve all statements inside an optional block, and if any of them fail
->>>> then the optional is disabled. So in refpolicy, this interface depends
->>>> on the unconfined_t type, even though it never uses it.
->>>>
->>>> One solution would create a tyepattribute that isn't used in any
->>>> statements (and so won't become part of the final kernel policy) but
->>>> that types that are gen_required are associated with. This should cause
->>>> a failure of the optional without affecting anything alse. Kindof a
->>>> hack, and it only works for types/roles since with have attributes for
->>>> those, but probably the only way to mimic gen_require in CIL.
->>>
->>> Or perhaps inside the optional_policy() block I can define a rule
->>> that, if unconfined was enabled, would be applicable anyway, like so:
->>>
->>> allow unconfined_t self:process signal;
->>>
->>> (assuming that that is a rule that is applied to unconfined_t - can't
->>> verify it at this moment).
->>>
->>> As the unconfined_t isn't defined (unconfined module is not loaded)
->>> then this part blocks as well.
->>>
->>> Of course, it's indeed a hack (similar to the typeattribute one).
->>> Having a simple comment above it to make clear that it is to work
->>> around this situation should make it clear.
->>>
->>
->> Steve, how hard would it be to keep a list of the types that have been
->> declared in the require block and check if they have been used directly?
->> When you reached the end of the block any that have not been used could
->> be placed in a rule like Sven suggests.
->
-> It probably wouldn't be too difficult to only add statements for types
-> that aren't used in the optional block. I just finished writing out
-> gen_requires for everything, regardless of if they are used or not, and
-> got some interesting numbers. With all the extra gen_require
-> typeattribute statements (~46000 of them), compiling CIL generated from
-> refpolicy pp's was actually faster (25 seconds vs 18 seconds). However,
-> it used about 13MB extra memory (129MB vs 142MB). Not really sure why
-> there was such a relatively dramatic decrease in compile time though.
->
-> I'll look into only adding symbols that are used in the optional and see
-> if there are noticeable differences, but I suspect performance would be
-> similar to how it before this change.
->
->> Although, I would suggest "allow
->>> TYPE self: file getattr;" which I know that all domains allow
->
-> A typeattribute statement would prevent us from having to worry about
-> this kind of stuff. I was thinking something like this:
->
-> In the base module, we would also define this:
->
->    (typeattribute cil_gen_require)
->
-> And then in optionals, we could have something like thi:
->
->    (option optional_foo
->      (typeattributeset cil_gen_require unconfined_t)
->    )
->
-> This doesn't change the policy at all (since cil_gen_require isn't used
-> in any statements, it won't be added to the binary), and a similar idea
-> can be used for roles as well, though I don't think there are any cases
-> were roles need to be 'cil_gen_required' in the converted CIL.
->
+On 11/5/2014 7:42 AM, David Howells wrote:
+> The attached patches provide security support for unioned files where the
+> security involves an object-label-based LSM (such as SELinux) rather than a
+> path-based LSM.
 
-You're right. That is the better way of handling this.
+I am going to have to look at this very carefully for the
+Smack implications. I cannot have a review done for several
+days. I do have some immediate comments below.
 
-Jim
+>
+> There are two problems that need addressing:
+>
+>  (1) The files that the user accesses through the overlayfs filesystem don't
+>      really exist there.  Overlayfs passes the accesses directly through to
+>      the underlying upper or lower file by means of having the dentry_open
+>      inode op redirect where file->f_path and file->f_inode point.
+>
+>      This means that SELinux (or similar) will see the security label on one
+>      lower layer or the other - and not the label on the overlay.  There are
+>      three labels and all may be different.
+>
+>  (2) file->f_path *should* point at the overlay dentry and file->f_inode
+>      should point at the lower layer inode.
+>
+> I'm not addressing (2) in this series of patches, but will leave that to a
+> separate patch series.
+>
+>   
+> After some discussion with docker people, the agreed theory of operation will
+> be:
+>
+>  (1) The docker source (ie. the lower layer) will all be under a single label.
+
+What does this mean? Is the "lower layer" the "real" file, or something else?
+What is a "docker source"? What "single label" are you talking about, and
+where does it come from? What about LSMs that have multiple labels on a file?
 
 
+>  (2) The docker root (ie. the overlay/union layer) will all be under a single,
+>      but different label set on the overlay mount (and each docker root may be
+>      under its own label).
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+No. Sorry, but this is the one notion that doesn't work. A layer should
+either be label transparent or restricted by some sort of range concept.
+Giving it a label just makes it necessary to grant everyone access to objects
+with that label.
+
+>
+>  (3) Inodes in the overlayfs upper layer will be given the overlay label.
+
+Could you explain your terminology? I have no idea what the "overlay label"
+might be. Is it the real one on the real filesystem? What about attributes
+other than the access label? Smack has execution labels and a transmute
+attribute as well as the access label.
+
+
+>
+>  (4) A security_copy_up() operation will be provided to set the label on the
+>      upper inode when it is created.
+>
+>  (5) A security_copy_up_xattr() operation will be provided to vet (and maybe
+>      modify) each xattr as it is copied up.
+>
+>  (6) An extra label slot will be placed in struct file_security_struct to hold
+>      the overlay label.
+
+Are you assuming a single overlay layer? 
+
+
+>
+>  (7) security_file_open() will need to be given both the overlay and lower
+>      dentries.
+>
+>      For overlayfs, the way this probably should be done is file->f_path should
+>      be set to point to the overlay dentry (thus getting /proc right) and
+>      file->f_inode to the lower file and make use of d_fallthru in the overlay
+>      dentry in common with unionmount.
+>
+>  (8) When the lower file is accessed, both the lower and overlay labels should
+>      be checked and audited.
+>
+>  (9) When the upper file is accessed, only the overlay label needs to be
+>      checked and audited.
+>
+> I need someone to examine the SELinux bits and have a look to see whether I
+> need to make further checks.
+
+The Smack code, too.
+
+Oh, and I have been lead to believe that upcoming AppArmor enhancements
+could be affected as well.
+
+>
+>
+> The patches can be found here also:
+>
+> 	http://git.kernel.org/cgit/linux/kernel/git/dhowells/linux-fs.git/log/?h=overlayfs
+>
+> This is based on part of Al Viro's vfs/for-next branch.
+>
+> David
+> ---
+> David Howells (7):
+>       Security: Provide copy-up security hooks for unioned files
+>       Overlayfs: Use copy-up security hooks
+>       SELinux: Stub in copy-up handling
+>       Security: Pass the union-layer file path into security_file_open()
+>       SELinux: Handle opening of a unioned file
+>       SELinux: The copy-up operation must have read permission on the lower file
+>       SELinux: Check against union and lower labels for file ops on lower files
+>
+>
+>  fs/ceph/file.c                    |    3 +
+>  fs/ceph/super.h                   |    1 
+>  fs/cifs/cifsfs.h                  |    1 
+>  fs/cifs/dir.c                     |    3 +
+>  fs/namei.c                        |   11 +++--
+>  fs/nfs/dir.c                      |    6 ++
+>  fs/nfs/nfs4_fs.h                  |    2 -
+>  fs/open.c                         |   31 ++++++++-----
+>  fs/overlayfs/copy_up.c            |   12 +++++
+>  fs/overlayfs/inode.c              |    8 ++-
+>  include/linux/fs.h                |   16 +++++--
+>  include/linux/security.h          |   43 +++++++++++++++++-
+>  security/capability.c             |   17 +++++++
+>  security/security.c               |   19 +++++++-
+>  security/selinux/hooks.c          |   89 +++++++++++++++++++++++++++++++++++--
+>  security/selinux/include/objsec.h |    1 
+>  16 files changed, 228 insertions(+), 35 deletions(-)
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
