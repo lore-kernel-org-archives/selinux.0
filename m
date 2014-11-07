@@ -1,58 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7JhRrt015600
- for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 14:43:27 -0500
-Received: by mail-qg0-f54.google.com with SMTP id q108so2846015qgd.41
- for <selinux@tycho.nsa.gov>; Fri, 07 Nov 2014 11:43:25 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7LN2SL022360
+ for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 16:23:02 -0500
+Received: by mail-qc0-f181.google.com with SMTP id w7so3179840qcr.40
+ for <selinux@tycho.nsa.gov>; Fri, 07 Nov 2014 13:23:01 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: [PATCH] selinux: Support SCTP protocol
-Date: Fri, 07 Nov 2014 14:43:22 -0500
-Message-ID: <18388343.NRnGYCgyij@sifl>
-In-Reply-To: <1415379731.36132.YahooMailNeo@web87902.mail.ir2.yahoo.com>
-References: <1415368329-2670-1-git-send-email-richard_c_haines@btinternet.com>
- <2529618.NmhAYzQ15g@sifl>
- <1415379731.36132.YahooMailNeo@web87902.mail.ir2.yahoo.com>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 1/7] Security: Provide copy-up security hooks for unioned
+ files
+Date: Fri, 07 Nov 2014 16:22:58 -0500
+Message-ID: <2455443.WUExuKDC0I@sifl>
+In-Reply-To: <20141105154228.2555.55814.stgit@warthog.procyon.org.uk>
+References: <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+ <20141105154228.2555.55814.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: "vyasevic@redhat.com" <vyasevic@redhat.com>,
- "dborkman@redhat.com" <dborkman@redhat.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-unionfs@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, November 07, 2014 05:02:11 PM Richard Haines wrote:
-> Yes I thought there might be more to this as the orginal to-do list referred
-> to a bug report that pointed to the possible updates required. I then saw
-> the new list that said "Proper support for SCTP". I was not sure what it
-> meant until now.
+On Wednesday, November 05, 2014 03:42:28 PM David Howells wrote:
+> Provide two new security hooks for use with security files that are used
+> when a file is copied up between layers:
+> 
+>  (1) security_inode_copy_up().  This is called so that the security label on
+> the destination file can be set appropriately.
+> 
+>  (2) security_inode_copy_up_xattr().  This is called so that each xattr
+> being copied up can be vetted - including modification and discard.
 
-I wish I could provide you a full list of what would need to be done, but 
-unfortunately I don't have enough knowledge of SCTP to be able to tell you 
-more than I already have.  I expect that in the end you'll be able to educate 
-us all (at least the SELinux folks) a little on SCTP.
+This didn't occur to me earlier, but we may want to pick a different phrase to 
+use instead of "copy_up" as that has a special meaning for some security/MLS 
+folks (although strangely enough, I suspect most of these copy-on-write 
+operations will be "copy up" in the MLS sense of the word).
 
-> Anyway I may carry on and see how far I get.
+How about "security_inode_copy_overlay" or something like that?
 
-Please do, your help would be greatly appreciated.  I'm more than happy to 
-provide whatever help I can and I suspect dborkman would say the same.
+> + * @inode_copy_up_xattr:
+> + *	Filter/modify the xattrs being copied up when a unioned file is 
+> ...copied
+> + *	up from a lower layer to the union/overlay layer.
+> + *	@src indicates the file that is being copied up.
+> + *	@dst indicates the file that has being created by the copy up.
+> + *	@name indicates the name of the xattr.
+> + *	@value, *@size indicate the payload of the xattr.
+> + *	Returns 0 to accept the xattr, 1 to discard the xattr or a negative
+> + *	error code to abort the copy up.  The xattr buffer must be at least
+> + *	XATTR_SIZE_MAX in capacity and the contents may be modified and 
+> ....*@size
+> + *	changed appropriately.
 
-> However what about the "Improve support for the different network address
-> families with more socket classes" that is on the list. Would the type of
-> patch I submitted be suitable for that type of basic support for say
-> Bluetooth or are you really looking for the detailed support as in SCTP.
-
-Like most things, the answer is: "it depends".
-
-If the protocol is fairly simplistic, e.g. UDP, then a patch like what you 
-provided is likely sufficient.  However, if it is more complicated, e.g. TCP, 
-then we need to be a bit more careful to make sure we are handling things 
-correctly.  While I only know enough about SCTP to be dangerous, SCTP does 
-appear to fall under the complex/TCP category.
-
-I don't know enough about Bluetooth to make a judgment either way, but I'm 
-always willing to accept patches if you provide a good explanation.
+Just so I'm clean, if the LSM wanted to modify the xattr it would modify 
+@value/@size and return 0?
 
 -- 
 paul moore
