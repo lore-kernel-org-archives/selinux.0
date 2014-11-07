@@ -1,370 +1,446 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7DqdHx023226
- for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 08:52:40 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7Dv57b023603
+ for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 08:57:05 -0500
+Message-ID: <1415368455.66752.YahooMailNeo@web87903.mail.ir2.yahoo.com>
+Date: Fri, 7 Nov 2014 13:54:15 +0000
 From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov, vyasevic@redhat.com, dborkman@redhat.com
-Subject: [PATCH] selinux: Support SCTP protocol
-Date: Fri,  7 Nov 2014 13:52:09 +0000
-Message-Id: <1415368329-2670-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: Patches to support the SELinux SCTP kernel patch
+To: selinux list <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="2087594563-1197907753-1415368456=:66752"
+Cc: Vlad Yasevich <vyasevic@redhat.com>, Daniel Borkmann <dborkman@redhat.com>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an RFC patch.
+--2087594563-1197907753-1415368456=:66752
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-I thought I would do this piece of SCTP work that was on the original
-to-do list following the of work items listed in:
-http://marc.info/?l=selinux&m=124342862804578&w=2
+Please find attached two patches for testing the SELinux SCTP kernel patch:=
+=0A=0A0001-libsepol-Update-RC5-to-support-SCTP-DCCP-portcon-key.patch=0AThi=
+s updates the https://raw.githubusercontent.com/wiki/SELinuxProject/selinux=
+/files/releases/20140826/libsepol-2.4-rc5.tar.gz=0ARequires the test policy=
+ modules to be built in CIL as it is much=0Aeasier to add new class/permiss=
+ions:=0A=0A;; Use last classorder from refpolicy base - cil module:=0A;(cla=
+ssorder (db_language sctp_socket))=0A;; Use last classorder from Fedora tar=
+geted base - cil module:=0A(classorder (proxy sctp_socket))=0A=0A;; Define =
+class / perms:=0A;; For some reason these work on refpolicy but NOT Fedora =
+targeted:=0A;(classcommon sctp_socket socket)=0A;(class sctp_socket (node_b=
+ind name_connect bindx_add_addr bindx_rem_addr))=0A; But this works for Fed=
+ora:=0A(class sctp_socket (ioctl read write create getattr setattr lock rel=
+abelfrom relabelto append bind connect listen accept getopt setopt shutdown=
+ recvfrom sendto recv_msg send_msg name_bind node_bind name_connect bindx_a=
+dd_addr bindx_rem_addr))=0A=0A=0A0001-lksctp-tools-Add-SELinux-support-to-s=
+ctp_test.patch=0AThis patch calls getpeercon/lgetfilecon to display the var=
+ious contexts.=0AIt is applied to lksctp-tools.=0A=0ARichard
+--2087594563-1197907753-1415368456=:66752
+Content-Type: text/x-patch; name="0001-libsepol-Update-RC5-to-support-SCTP-DCCP-portcon-key.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="0001-libsepol-Update-RC5-to-support-SCTP-DCCP-portcon-key.patch"
 
-I noticed that there have been discussions regarding supporting other
-socket types on the new to-do list and discussions on the email list.
+RnJvbSBhNjhjMjNjMTJlNTU5NDdhY2U3ZGRiNWJhZjQzMmMwYmE4MDE1OTI5
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBSaWNoYXJkIEhhaW5l
+cyA8cmljaGFyZF9jX2hhaW5lc0BidGludGVybmV0LmNvbT4KRGF0ZTogU2F0
+LCAxIE5vdiAyMDE0IDEyOjU4OjE5ICswMDAwClN1YmplY3Q6IFtQQVRDSF0g
+bGlic2Vwb2w6IFVwZGF0ZSBSQzUgdG8gc3VwcG9ydCBTQ1RQL0RDQ1AgcG9y
+dGNvbiBrZXl3b3JkcwoKVGhpcyB3aWxsIGFsbG93IHRoZSBrZXJuZWwgcGF0
+Y2hlcyB0byBiZSB0ZXN0ZWQuCgpTaWduZWQtb2ZmLWJ5OiBSaWNoYXJkIEhh
+aW5lcyA8cmljaGFyZF9jX2hhaW5lc0BidGludGVybmV0LmNvbT4KLS0tCiBs
+aWJzZXBvbC9jaWwvZG9jcy9DSUxfUmVmZXJlbmNlX0d1aWRlLnhtbCAgICAg
+ICAgICAgICB8IDcgKysrLS0tLQogbGlic2Vwb2wvY2lsL2RvY3MvY2lsX25l
+dHdvcmtfbGFiZWxpbmdfc3RhdGVtZW50cy54bWwgfCA4ICsrKysrLS0tCiBs
+aWJzZXBvbC9jaWwvc3JjL2NpbC5jICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICB8IDIgKysKIGxpYnNlcG9sL2NpbC9zcmMvY2lsX2JpbmFyeS5j
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgNiArKysrKysKIGxpYnNlcG9s
+L2NpbC9zcmMvY2lsX2J1aWxkX2FzdC5jICAgICAgICAgICAgICAgICAgICAg
+IHwgNCArKysrCiBsaWJzZXBvbC9jaWwvc3JjL2NpbF9pbnRlcm5hbC5oICAg
+ICAgICAgICAgICAgICAgICAgICB8IDYgKysrKystCiBsaWJzZXBvbC9jaWwv
+c3JjL2NpbF9wb2xpY3kuYyAgICAgICAgICAgICAgICAgICAgICAgICB8IDQg
+KysrKwogbGlic2Vwb2wvY2lsL3NyYy9jaWxfdHJlZS5jICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCA0ICsrKysKIGxpYnNlcG9sL2NpbC90ZXN0L3Bv
+bGljeS5jaWwgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMiArKwogbGli
+c2Vwb2wvaW5jbHVkZS9zZXBvbC9wb2xpY3lkYi9wb2xpY3lkYi5oICAgICAg
+ICAgICAgfCA4ICsrKystLS0tCiBsaWJzZXBvbC9pbmNsdWRlL3NlcG9sL3Bv
+cnRfcmVjb3JkLmggICAgICAgICAgICAgICAgICB8IDIgKysKIGxpYnNlcG9s
+L3NyYy9wb3J0X3JlY29yZC5jICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IHwgNCArKysrCiBsaWJzZXBvbC9zcmMvcG9ydHMuYyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8IDggKysrKysrKysKIDEzIGZpbGVzIGNo
+YW5nZWQsIDUzIGluc2VydGlvbnMoKyksIDEyIGRlbGV0aW9ucygtKQoKZGlm
+ZiAtLWdpdCBhL2xpYnNlcG9sL2NpbC9kb2NzL0NJTF9SZWZlcmVuY2VfR3Vp
+ZGUueG1sIGIvbGlic2Vwb2wvY2lsL2RvY3MvQ0lMX1JlZmVyZW5jZV9HdWlk
+ZS54bWwKaW5kZXggZTkwNTE1Mi4uYjc2MzY1ZSAxMDA2NDQKLS0tIGEvbGli
+c2Vwb2wvY2lsL2RvY3MvQ0lMX1JlZmVyZW5jZV9HdWlkZS54bWwKKysrIGIv
+bGlic2Vwb2wvY2lsL2RvY3MvQ0lMX1JlZmVyZW5jZV9HdWlkZS54bWwKQEAg
+LTI5LDkgKzI5LDkgQEAKICAgICAgIDx0aXRsZT5Db21tb24gSW50ZXJmYWNl
+IExhbmd1YWdlIChDSUwpIFJlZmVyZW5jZSBHdWlkZTwvdGl0bGU+CiAgICAg
+ICA8cmV2aGlzdG9yeT4KICAgICAgICAgIDxyZXZpc2lvbj4KLSAgICAgICAg
+ICAgIDxyZXZudW1iZXI+MC4yPC9yZXZudW1iZXI+Ci0gICAgICAgICAgICA8
+ZGF0ZT4yMm5kIE1heSAnMTQ8L2RhdGU+Ci0gICAgICAgICAgICA8cmV2cmVt
+YXJrPlVwZGF0ZWQgY2xhc3NtYXAvY2xhc3NtYXBwaW5nLCBhZGRlZCBjbGFz
+c21hcCB0byBzdGF0ZW1lbnRzIHRoYXQgdXRpbGlzZSBjbGFzc19pZCdzIChk
+ZWZhdWx0dXNlciwgdHlwZXRyYW5zaXRpb24gZXRjLiksIHVwZGF0ZSB2YXJp
+b3VzIGV4YW1wbGVzIHRvIHNob3cgYW5vbnltb3VzIGNsYXNzcGVybWlzc2lv
+bnNldCdzIHVzaW5nIGV4cHJlc3Npb25zLjwvcmV2cmVtYXJrPgorICAgICAg
+ICAgICAgPHJldm51bWJlcj4wLjM8L3Jldm51bWJlcj4KKyAgICAgICAgICAg
+IDxkYXRlPjFzdCBOb3ZlbWJlciAnMTQ8L2RhdGU+CisgICAgICAgICAgICA8
+cmV2cmVtYXJrPkFkZCBwb3J0Y29uIHN1cHBvcnQgZm9yIERDQ1AgYW5kIFND
+VFAuPC9yZXZyZW1hcms+CiAgICAgICAgICA8L3JldmlzaW9uPgogICAgICAg
+PC9yZXZoaXN0b3J5PgogICAgPC9hcnRpY2xlaW5mbz4KQEAgLTM5LDcgKzM5
+LDYgQEAKICAgIDxzZWN0MT4KICAgICAgIDx0aXRsZT5DSUwgSW5mb3JtYXRp
+b248L3RpdGxlPgogICAgICAgPG9yZGVyZWRsaXN0PgotICAgICAgICAgPGxp
+c3RpdGVtPjxwYXJhPlRoZSBzdGF0ZW1lbnQgZGVmaW5pdGlvbnMgYXJlIHRo
+b3NlIGZvdW5kIGluIHRoZSBzb3VyY2UgZnJvbTogPGxpdGVyYWw+Z2l0IGNs
+b25lIDx1bGluayB1cmw9Imh0dHBzOi8vYml0YnVja2V0Lm9yZy9qd2NhcnRl
+ci9zZWNpbGMuZ2l0Ij48L3VsaW5rPjwvbGl0ZXJhbD4gZGF0ZWQgMjFzdCBN
+YXkgJzE0LjwvcGFyYT48L2xpc3RpdGVtPgogICAgICAgICAgPGxpc3RpdGVt
+PjxwYXJhPk5vdCBhbGwgcG9zc2libGUgYWx0ZXJuYXRlIHN0YXRlbWVudCBw
+ZXJtdXRhdGlvbnMgYXJlIHNob3duLCBob3dldmVyIHRoZXJlIHNob3VsZCBi
+ZSBlbm91Z2ggdmFyaWF0aW9uIHRvIHdvcmsgb3V0IGFueSBvdGhlciB2YWxp
+ZCBmb3JtYXRzLiBUaGVyZSBpcyBhbHNvIGFuIGV4YW1wbGUgPGZpbGVuYW1l
+PnBvbGljeS5jaWw8L2ZpbGVuYW1lPiBmaWxlIHNob3duIGluIHRoZSA8bGlu
+ayBsaW5rZW5kPSJleGFtcGxlX3BvbGljeSI+QXBwZW5kaXg8L2xpbms+Ljwv
+cGFyYT48L2xpc3RpdGVtPgogICAgICAgICAgPGxpc3RpdGVtPjxwYXJhPlRo
+ZSBNTFMgY29tcG9uZW50cyBvbiBjb250ZXh0cyBhbmQgdXNlciBzdGF0ZW1l
+bnRzIG11c3QgYmUgZGVjbGFyZWQgZXZlbiBpZiB0aGUgcG9saWN5IGRvZXMg
+bm90IHN1cHBvcnQgTUNTL01MUy4gPC9wYXJhPjwvbGlzdGl0ZW0+CiAgICAg
+ICAgICA8bGlzdGl0ZW0+PHBhcmE+VGhlIENJTCBjb21waWxlciB3aWxsIG5v
+dCBidWlsZCBhIHBvbGljeSB1bmxlc3MgaXQgYWxzbyBoYXMgYXMgYSBtaW5p
+bXVtOiBvbmUgPGxpdGVyYWw+PGxpbmsgbGlua2VuZD0iYWxsb3ciPmFsbG93
+PC9saW5rPjwvbGl0ZXJhbD4gcnVsZSwgb25lIDxsaXRlcmFsPjxsaW5rIGxp
+bmtlbmQ9InNpZCI+c2lkPC9saW5rPjwvbGl0ZXJhbD4sIDxsaXRlcmFsPjxs
+aW5rIGxpbmtlbmQ9InNpZG9yZGVyIj5zaWRvcmRlcjwvbGluaz48L2xpdGVy
+YWw+IGFuZCA8bGl0ZXJhbD48bGluayBsaW5rZW5kPSJzaWRjb250ZXh0Ij5z
+aWRjb250ZXh0PC9saW5rPjwvbGl0ZXJhbD4gc3RhdGVtZW50LiA8L3BhcmE+
+PC9saXN0aXRlbT4KZGlmZiAtLWdpdCBhL2xpYnNlcG9sL2NpbC9kb2NzL2Np
+bF9uZXR3b3JrX2xhYmVsaW5nX3N0YXRlbWVudHMueG1sIGIvbGlic2Vwb2wv
+Y2lsL2RvY3MvY2lsX25ldHdvcmtfbGFiZWxpbmdfc3RhdGVtZW50cy54bWwK
+aW5kZXggNzg1YjU4My4uNmI3Yzk1NCAxMDA2NDQKLS0tIGEvbGlic2Vwb2wv
+Y2lsL2RvY3MvY2lsX25ldHdvcmtfbGFiZWxpbmdfc3RhdGVtZW50cy54bWwK
+KysrIGIvbGlic2Vwb2wvY2lsL2RvY3MvY2lsX25ldHdvcmtfbGFiZWxpbmdf
+c3RhdGVtZW50cy54bWwKQEAgLTE4NCw3ICsxODQsNyBAQAogCiAgICAgICA8
+c2VjdDIgaWQ9InBvcnRjb24iPgogICAgICAgICAgPHRpdGxlPnBvcnRjb248
+L3RpdGxlPgotICAgICAgICAgPHBhcmE+TGFiZWwgYSB1ZHAgb3IgdGNwIHBv
+cnQuPC9wYXJhPgorICAgICAgICAgPHBhcmE+TGFiZWwgYSB0Y3AsIHVkcCwg
+ZGNjcCBvciBzY3RwIHBvcnQuPC9wYXJhPgogICAgICAgICAgPHBhcmE+PGVt
+cGhhc2lzIHJvbGU9ImJvbGQiPlN0YXRlbWVudCBkZWZpbml0aW9uOjwvZW1w
+aGFzaXM+PC9wYXJhPgogICAgICAgICAgPHByb2dyYW1saXN0aW5nPjwhW0NE
+QVRBWyhwb3J0Y29uIHByb3RvY29sIHBvcnQgY29udGV4dF9pZCldXT48L3By
+b2dyYW1saXN0aW5nPgogICAgICAgICAgPHBhcmE+PGVtcGhhc2lzIHJvbGU9
+ImJvbGQiPldoZXJlOjwvZW1waGFzaXM+PC9wYXJhPgpAQCAtMjA2LDcgKzIw
+Niw3IEBACiAgICAgICAgICAgICAgICAgICAgICA8cGFyYT48bGl0ZXJhbD5w
+cm90b2NvbDwvbGl0ZXJhbD48L3BhcmE+CiAgICAgICAgICAgICAgICAgICA8
+L2VudHJ5PgogICAgICAgICAgICAgICAgICAgPGVudHJ5PgotICAgICAgICAg
+ICAgICAgICAgICAgPHBhcmE+VGhlIHByb3RvY29sIGtleXdvcmQgPGxpdGVy
+YWw+dGNwPC9saXRlcmFsPiBvciA8bGl0ZXJhbD51ZHA8L2xpdGVyYWw+Ljwv
+cGFyYT4KKyAgICAgICAgICAgICAgICAgICAgIDxwYXJhPlRoZSBwcm90b2Nv
+bCBrZXl3b3JkIDxsaXRlcmFsPnRjcDwvbGl0ZXJhbD4sIDxsaXRlcmFsPnVk
+cDwvbGl0ZXJhbD4sIDxsaXRlcmFsPmRjY3A8L2xpdGVyYWw+IG9yIDxsaXRl
+cmFsPnNjdHA8L2xpdGVyYWw+LjwvcGFyYT4KICAgICAgICAgICAgICAgICAg
+IDwvZW50cnk+CiAgICAgICAgICAgICAgICA8L3Jvdz4KICAgICAgICAgICAg
+ICAgIDxyb3c+CkBAIC0yMjcsNyArMjI3LDkgQEAKIChwb3J0Y29uIHRjcCAy
+MjIyICh1bmNvbmZpbmVkLnVzZXIgb2JqZWN0X3IgdW5jb25maW5lZC5vYmpl
+Y3QgbGV2ZWxyYW5nZV8yKSkKIChwb3J0Y29uIHRjcCAzMzMzICh1bmNvbmZp
+bmVkLnVzZXIgb2JqZWN0X3IgdW5jb25maW5lZC5vYmplY3QgbGV2ZWxyYW5n
+ZV8xKSkKIChwb3J0Y29uIHVkcCA0NDQ0ICh1bmNvbmZpbmVkLnVzZXIgb2Jq
+ZWN0X3IgdW5jb25maW5lZC5vYmplY3QgKChzMCkgbGV2ZWxfMikpKQotKHBv
+cnRjb24gdGNwIDU1NTU1ICh1bmNvbmZpbmVkLnVzZXIgb2JqZWN0X3IgdW5j
+b25maW5lZC5vYmplY3QgKHN5c3RlbWxvdyBsZXZlbF8zKSkpXV0+CisocG9y
+dGNvbiB0Y3AgNTU1NTUgKHVuY29uZmluZWQudXNlciBvYmplY3RfciB1bmNv
+bmZpbmVkLm9iamVjdCAoc3lzdGVtbG93IGxldmVsXzMpKSkKKyhwb3J0Y29u
+IHNjdHAgMTkwMDAgKHVuY29uZmluZWQudXNlciBvYmplY3RfciB1bmNvbmZp
+bmVkLm9iamVjdCAoKHMwKSBsZXZlbF8yKSkpCisocG9ydGNvbiBkY2NwIDE5
+MDAxICh1bmNvbmZpbmVkLnVzZXIgb2JqZWN0X3IgdW5jb25maW5lZC5vYmpl
+Y3QgKHN5c3RlbWxvdyBsZXZlbF8zKSkpXV0+CiAgICAgICAgICA8L3Byb2dy
+YW1saXN0aW5nPgogICAgICAgPC9zZWN0Mj4KIApkaWZmIC0tZ2l0IGEvbGli
+c2Vwb2wvY2lsL3NyYy9jaWwuYyBiL2xpYnNlcG9sL2NpbC9zcmMvY2lsLmMK
+aW5kZXggOWU4OGU0NS4uZTYwMmE5NCAxMDA2NDQKLS0tIGEvbGlic2Vwb2wv
+Y2lsL3NyYy9jaWwuYworKysgYi9saWJzZXBvbC9jaWwvc3JjL2NpbC5jCkBA
+IC05MCw2ICs5MCw4IEBAIHN0YXRpYyB2b2lkIGNpbF9pbml0X2tleXModm9p
+ZCkKIAlDSUxfS0VZX1NUQVIgPSBjaWxfc3RycG9vbF9hZGQoIioiKTsKIAlD
+SUxfS0VZX1VEUCA9IGNpbF9zdHJwb29sX2FkZCgidWRwIik7CiAJQ0lMX0tF
+WV9UQ1AgPSBjaWxfc3RycG9vbF9hZGQoInRjcCIpOworCUNJTF9LRVlfREND
+UCA9IGNpbF9zdHJwb29sX2FkZCgiZGNjcCIpOworCUNJTF9LRVlfU0NUUCA9
+IGNpbF9zdHJwb29sX2FkZCgic2N0cCIpOwogCUNJTF9LRVlfQVVESVRBTExP
+VyA9IGNpbF9zdHJwb29sX2FkZCgiYXVkaXRhbGxvdyIpOwogCUNJTF9LRVlf
+VFVOQUJMRUlGID0gY2lsX3N0cnBvb2xfYWRkKCJ0dW5hYmxlaWYiKTsKIAlD
+SUxfS0VZX0FMTE9XID0gY2lsX3N0cnBvb2xfYWRkKCJhbGxvdyIpOwpkaWZm
+IC0tZ2l0IGEvbGlic2Vwb2wvY2lsL3NyYy9jaWxfYmluYXJ5LmMgYi9saWJz
+ZXBvbC9jaWwvc3JjL2NpbF9iaW5hcnkuYwppbmRleCBlZTBkMzJjLi5jODI4
+OGFhIDEwMDY0NAotLS0gYS9saWJzZXBvbC9jaWwvc3JjL2NpbF9iaW5hcnku
+YworKysgYi9saWJzZXBvbC9jaWwvc3JjL2NpbF9iaW5hcnkuYwpAQCAtMjcz
+Miw2ICsyNzMyLDEyIEBAIGludCBjaWxfcG9ydGNvbl90b19wb2xpY3lkYihw
+b2xpY3lkYl90ICpwZGIsIHN0cnVjdCBjaWxfc29ydCAqcG9ydGNvbnMpCiAJ
+CWNhc2UgQ0lMX1BST1RPQ09MX1RDUDoKIAkJCW5ld19vY29uLT51LnBvcnQu
+cHJvdG9jb2wgPSBJUFBST1RPX1RDUDsKIAkJCWJyZWFrOworCQljYXNlIENJ
+TF9QUk9UT0NPTF9EQ0NQOgorCQkJbmV3X29jb24tPnUucG9ydC5wcm90b2Nv
+bCA9IElQUFJPVE9fRENDUDsKKwkJCWJyZWFrOworCQljYXNlIENJTF9QUk9U
+T0NPTF9TQ1RQOgorCQkJbmV3X29jb24tPnUucG9ydC5wcm90b2NvbCA9IElQ
+UFJPVE9fU0NUUDsKKwkJCWJyZWFrOwogCQlkZWZhdWx0OgogCQkJLyogc2hv
+dWxkIG5vdCBnZXQgaGVyZSAqLwogCQkJcmMgPSBTRVBPTF9FUlI7CmRpZmYg
+LS1naXQgYS9saWJzZXBvbC9jaWwvc3JjL2NpbF9idWlsZF9hc3QuYyBiL2xp
+YnNlcG9sL2NpbC9zcmMvY2lsX2J1aWxkX2FzdC5jCmluZGV4IDIwZTlkOGIu
+LjFhMDVjOWEgMTAwNjQ0Ci0tLSBhL2xpYnNlcG9sL2NpbC9zcmMvY2lsX2J1
+aWxkX2FzdC5jCisrKyBiL2xpYnNlcG9sL2NpbC9zcmMvY2lsX2J1aWxkX2Fz
+dC5jCkBAIC0zOTI4LDYgKzM5MjgsMTAgQEAgaW50IGNpbF9nZW5fcG9ydGNv
+bihzdHJ1Y3QgY2lsX2RiICpkYiwgc3RydWN0IGNpbF90cmVlX25vZGUgKnBh
+cnNlX2N1cnJlbnQsIHN0cnUKIAkJcG9ydGNvbi0+cHJvdG8gPSBDSUxfUFJP
+VE9DT0xfVURQOwogCX0gZWxzZSBpZiAocHJvdG8gPT0gQ0lMX0tFWV9UQ1Ap
+IHsKIAkJcG9ydGNvbi0+cHJvdG8gPSBDSUxfUFJPVE9DT0xfVENQOworCX0g
+ZWxzZSBpZiAocHJvdG8gPT0gQ0lMX0tFWV9EQ0NQKSB7CisJCXBvcnRjb24t
+PnByb3RvID0gQ0lMX1BST1RPQ09MX0RDQ1A7CisJfSBlbHNlIGlmIChwcm90
+byA9PSBDSUxfS0VZX1NDVFApIHsKKwkJcG9ydGNvbi0+cHJvdG8gPSBDSUxf
+UFJPVE9DT0xfU0NUUDsKIAl9IGVsc2UgewogCQljaWxfbG9nKENJTF9FUlIs
+ICJJbnZhbGlkIHByb3RvY29sXG4iKTsKIAkJcmMgPSBTRVBPTF9FUlI7CmRp
+ZmYgLS1naXQgYS9saWJzZXBvbC9jaWwvc3JjL2NpbF9pbnRlcm5hbC5oIGIv
+bGlic2Vwb2wvY2lsL3NyYy9jaWxfaW50ZXJuYWwuaAppbmRleCA4NDgxOWZj
+Li45N2JiNmExIDEwMDY0NAotLS0gYS9saWJzZXBvbC9jaWwvc3JjL2NpbF9p
+bnRlcm5hbC5oCisrKyBiL2xpYnNlcG9sL2NpbC9zcmMvY2lsX2ludGVybmFs
+LmgKQEAgLTEwMCw2ICsxMDAsOCBAQCBjaGFyICpDSUxfS0VZX09CSkVDVF9S
+OwogY2hhciAqQ0lMX0tFWV9TVEFSOwogY2hhciAqQ0lMX0tFWV9UQ1A7CiBj
+aGFyICpDSUxfS0VZX1VEUDsKK2NoYXIgKkNJTF9LRVlfRENDUDsKK2NoYXIg
+KkNJTF9LRVlfU0NUUDsKIGNoYXIgKkNJTF9LRVlfQVVESVRBTExPVzsKIGNo
+YXIgKkNJTF9LRVlfVFVOQUJMRUlGOwogY2hhciAqQ0lMX0tFWV9BTExPVzsK
+QEAgLTY1OCw3ICs2NjAsOSBAQCBzdHJ1Y3QgY2lsX2ZpbGVjb24gewogCiBl
+bnVtIGNpbF9wcm90b2NvbCB7CiAJQ0lMX1BST1RPQ09MX1VEUCA9IDEsCi0J
+Q0lMX1BST1RPQ09MX1RDUAkKKwlDSUxfUFJPVE9DT0xfVENQLAorCUNJTF9Q
+Uk9UT0NPTF9EQ0NQLAorCUNJTF9QUk9UT0NPTF9TQ1RQCQogfTsKIAogc3Ry
+dWN0IGNpbF9wb3J0Y29uIHsKZGlmZiAtLWdpdCBhL2xpYnNlcG9sL2NpbC9z
+cmMvY2lsX3BvbGljeS5jIGIvbGlic2Vwb2wvY2lsL3NyYy9jaWxfcG9saWN5
+LmMKaW5kZXggZDE5YWNjYi4uMGYwNGVhYyAxMDA2NDQKLS0tIGEvbGlic2Vw
+b2wvY2lsL3NyYy9jaWxfcG9saWN5LmMKKysrIGIvbGlic2Vwb2wvY2lsL3Ny
+Yy9jaWxfcG9saWN5LmMKQEAgLTEyMiw2ICsxMjIsMTAgQEAgaW50IGNpbF9w
+b3J0Y29uX3RvX3BvbGljeShGSUxFICoqZmlsZV9hcnIsIHN0cnVjdCBjaWxf
+c29ydCAqc29ydCkKIAkJCWZwcmludGYoZmlsZV9hcnJbTkVUSUZDT05TXSwg
+InVkcCAiKTsKIAkJfSBlbHNlIGlmIChwb3J0Y29uLT5wcm90byA9PSBDSUxf
+UFJPVE9DT0xfVENQKSB7CiAJCQlmcHJpbnRmKGZpbGVfYXJyW05FVElGQ09O
+U10sICJ0Y3AgIik7CisJCX0gZWxzZSBpZiAocG9ydGNvbi0+cHJvdG8gPT0g
+Q0lMX1BST1RPQ09MX0RDQ1ApIHsKKwkJCWZwcmludGYoZmlsZV9hcnJbTkVU
+SUZDT05TXSwgImRjY3AgIik7CisJCX0gZWxzZSBpZiAocG9ydGNvbi0+cHJv
+dG8gPT0gQ0lMX1BST1RPQ09MX1NDVFApIHsKKwkJCWZwcmludGYoZmlsZV9h
+cnJbTkVUSUZDT05TXSwgInNjdHAgIik7CiAJCX0KIAkJZnByaW50ZihmaWxl
+X2FycltORVRJRkNPTlNdLCAiJWQgIiwgcG9ydGNvbi0+cG9ydF9sb3cpOwog
+CQlmcHJpbnRmKGZpbGVfYXJyW05FVElGQ09OU10sICIlZCAiLCBwb3J0Y29u
+LT5wb3J0X2hpZ2gpOwpkaWZmIC0tZ2l0IGEvbGlic2Vwb2wvY2lsL3NyYy9j
+aWxfdHJlZS5jIGIvbGlic2Vwb2wvY2lsL3NyYy9jaWxfdHJlZS5jCmluZGV4
+IGU3NGVlY2UuLjYwNjkzZmUgMTAwNjQ0Ci0tLSBhL2xpYnNlcG9sL2NpbC9z
+cmMvY2lsX3RyZWUuYworKysgYi9saWJzZXBvbC9jaWwvc3JjL2NpbF90cmVl
+LmMKQEAgLTEyODksNiArMTI4OSwxMCBAQCB2b2lkIGNpbF90cmVlX3ByaW50
+X25vZGUoc3RydWN0IGNpbF90cmVlX25vZGUgKm5vZGUpCiAJCQkJY2lsX2xv
+ZyhDSUxfSU5GTywgIiB1ZHAiKTsKIAkJCX0gZWxzZSBpZiAocG9ydGNvbi0+
+cHJvdG8gPT0gQ0lMX1BST1RPQ09MX1RDUCkgewogCQkJCWNpbF9sb2coQ0lM
+X0lORk8sICIgdGNwIik7CisJCQl9IGVsc2UgaWYgKHBvcnRjb24tPnByb3Rv
+ID09IENJTF9QUk9UT0NPTF9EQ0NQKSB7CisJCQkJY2lsX2xvZyhDSUxfSU5G
+TywgIiBkY2NwIik7CisJCQl9IGVsc2UgaWYgKHBvcnRjb24tPnByb3RvID09
+IENJTF9QUk9UT0NPTF9TQ1RQKSB7CisJCQkJY2lsX2xvZyhDSUxfSU5GTywg
+IiBzY3RwIik7CiAJCQl9CiAJCQljaWxfbG9nKENJTF9JTkZPLCAiICglZCAl
+ZCkiLCBwb3J0Y29uLT5wb3J0X2xvdywgcG9ydGNvbi0+cG9ydF9oaWdoKTsK
+IApkaWZmIC0tZ2l0IGEvbGlic2Vwb2wvY2lsL3Rlc3QvcG9saWN5LmNpbCBi
+L2xpYnNlcG9sL2NpbC90ZXN0L3BvbGljeS5jaWwKaW5kZXggNjg2YjFhNC4u
+MGIzNjgyNCAxMDA2NDQKLS0tIGEvbGlic2Vwb2wvY2lsL3Rlc3QvcG9saWN5
+LmNpbAorKysgYi9saWJzZXBvbC9jaWwvdGVzdC9wb2xpY3kuY2lsCkBAIC0y
+NDEsNiArMjQxLDggQEAKIAkobm9kZWNvbiBpcF92NiBuZXRtYXNrX3Y2IHN5
+c3RlbV91X2Jpbl90X2wyaCkKIAkocG9ydGNvbiB1ZHAgMjUgc3lzdGVtX3Vf
+YmluX3RfbDJoKQogCShwb3J0Y29uIHRjcCAyMiBzeXN0ZW1fdV9iaW5fdF9s
+MmgpCisJKHBvcnRjb24gc2N0cCAxOTAwMCBzeXN0ZW1fdV9iaW5fdF9sMmgp
+CisJKHBvcnRjb24gZGNjcCAxOTAwMSBzeXN0ZW1fdV9iaW5fdF9sMmgpCiAJ
+KGdlbmZzY29uIC0gIi91c3IvYmluIiBzeXN0ZW1fdV9iaW5fdF9sMmgpCiAJ
+KG5ldGlmY29uIGV0aDAgc3lzdGVtX3VfYmluX3RfbDJoIHN5c3RlbV91X2Jp
+bl90X2wyaCkgO2RpZmZlcmVudCBjb250ZXh0cz8KIAkoZnN1c2UgeGF0dHIg
+ZXh0MyBzeXN0ZW1fdV9iaW5fdF9sMmgpCmRpZmYgLS1naXQgYS9saWJzZXBv
+bC9pbmNsdWRlL3NlcG9sL3BvbGljeWRiL3BvbGljeWRiLmggYi9saWJzZXBv
+bC9pbmNsdWRlL3NlcG9sL3BvbGljeWRiL3BvbGljeWRiLmgKaW5kZXggMjBi
+Zjc1OS4uYWJjNjRiZiAxMDA2NDQKLS0tIGEvbGlic2Vwb2wvaW5jbHVkZS9z
+ZXBvbC9wb2xpY3lkYi9wb2xpY3lkYi5oCisrKyBiL2xpYnNlcG9sL2luY2x1
+ZGUvc2Vwb2wvcG9saWN5ZGIvcG9saWN5ZGIuaApAQCAtMjk5LDcgKzI5OSw3
+IEBAIHR5cGVkZWYgc3RydWN0IHJhbmdlX3RyYW5zX3J1bGUgewogCiAvKgog
+ICogVGhlIGNvbmZpZ3VyYXRpb24gZGF0YSBpbmNsdWRlcyBzZWN1cml0eSBj
+b250ZXh0cyBmb3IgCi0gKiBpbml0aWFsIFNJRHMsIHVubGFiZWxlZCBmaWxl
+IHN5c3RlbXMsIFRDUCBhbmQgVURQIHBvcnQgbnVtYmVycywgCisgKiBpbml0
+aWFsIFNJRHMsIHVubGFiZWxlZCBmaWxlIHN5c3RlbXMsIFRDUCwgVURQLCBE
+Q0NQIGFuZCBTQ1RQIHBvcnQgbnVtYmVycywKICAqIG5ldHdvcmsgaW50ZXJm
+YWNlcywgYW5kIG5vZGVzLiAgVGhpcyBzdHJ1Y3R1cmUgc3RvcmVzIHRoZQog
+ICogcmVsZXZhbnQgZGF0YSBmb3Igb25lIHN1Y2ggZW50cnkuICBFbnRyaWVz
+IG9mIHRoZSBzYW1lIGtpbmQKICAqIChlLmcuIGFsbCBpbml0aWFsIFNJRHMp
+IGFyZSBsaW5rZWQgdG9nZXRoZXIgaW50byBhIGxpc3QuCkBAIC0zMTEsNyAr
+MzExLDcgQEAgdHlwZWRlZiBzdHJ1Y3Qgb2NvbnRleHQgewogCQkJdWludDhf
+dCBwcm90b2NvbDsKIAkJCXVpbnQxNl90IGxvd19wb3J0OwogCQkJdWludDE2
+X3QgaGlnaF9wb3J0OwotCQl9IHBvcnQ7CQkvKiBUQ1Agb3IgVURQIHBvcnQg
+aW5mb3JtYXRpb24gKi8KKwkJfSBwb3J0OwkJLyogVENQLCBVRFAsIERDQ1Ag
+b3IgU0NUUCBwb3J0IGluZm9ybWF0aW9uICovCiAJCXN0cnVjdCB7CiAJCQl1
+aW50MzJfdCBhZGRyOyAvKiBuZXR3b3JrIG9yZGVyICovCiAJCQl1aW50MzJf
+dCBtYXNrOyAvKiBuZXR3b3JrIG9yZGVyICovCkBAIC0zNjAsNyArMzYwLDcg
+QEAgdHlwZWRlZiBzdHJ1Y3QgZ2VuZnMgewogLyogb2JqZWN0IGNvbnRleHQg
+YXJyYXkgaW5kaWNlcyAqLwogI2RlZmluZSBPQ09OX0lTSUQgIDAJCS8qIGlu
+aXRpYWwgU0lEcyAqLwogI2RlZmluZSBPQ09OX0ZTICAgIDEJCS8qIHVubGFi
+ZWxlZCBmaWxlIHN5c3RlbXMgKi8KLSNkZWZpbmUgT0NPTl9QT1JUICAyCQkv
+KiBUQ1AgYW5kIFVEUCBwb3J0IG51bWJlcnMgKi8KKyNkZWZpbmUgT0NPTl9Q
+T1JUICAyCQkvKiBUQ1AsIFVEUCwgRENDUCBhbmQgU0NUUCBwb3J0IG51bWJl
+cnMgKi8KICNkZWZpbmUgT0NPTl9ORVRJRiAzCQkvKiBuZXR3b3JrIGludGVy
+ZmFjZXMgKi8KICNkZWZpbmUgT0NPTl9OT0RFICA0CQkvKiBub2RlcyAqLwog
+I2RlZmluZSBPQ09OX0ZTVVNFIDUJCS8qIGZzX3VzZSAqLwpAQCAtNTM4LDcg
+KzUzOCw3IEBAIHR5cGVkZWYgc3RydWN0IHBvbGljeWRiIHsKIAlyb2xlX2Fs
+bG93X3QgKnJvbGVfYWxsb3c7CiAKIAkvKiBzZWN1cml0eSBjb250ZXh0cyBv
+ZiBpbml0aWFsIFNJRHMsIHVubGFiZWxlZCBmaWxlIHN5c3RlbXMsCi0JICAg
+VENQIG9yIFVEUCBwb3J0IG51bWJlcnMsIG5ldHdvcmsgaW50ZXJmYWNlcyBh
+bmQgbm9kZXMgKi8KKwkgICBUQ1AsIFVEUCwgRENDUCBvciBTQ1RQIHBvcnQg
+bnVtYmVycywgbmV0d29yayBpbnRlcmZhY2VzIGFuZCBub2RlcyAqLwogCW9j
+b250ZXh0X3QgKm9jb250ZXh0c1tPQ09OX05VTV07CiAKIAkvKiBzZWN1cml0
+eSBjb250ZXh0cyBmb3IgZmlsZXMgaW4gZmlsZXN5c3RlbXMgdGhhdCBjYW5u
+b3Qgc3VwcG9ydApkaWZmIC0tZ2l0IGEvbGlic2Vwb2wvaW5jbHVkZS9zZXBv
+bC9wb3J0X3JlY29yZC5oIGIvbGlic2Vwb2wvaW5jbHVkZS9zZXBvbC9wb3J0
+X3JlY29yZC5oCmluZGV4IGIzNDdlMDguLmUyZmY4YjggMTAwNjQ0Ci0tLSBh
+L2xpYnNlcG9sL2luY2x1ZGUvc2Vwb2wvcG9ydF9yZWNvcmQuaAorKysgYi9s
+aWJzZXBvbC9pbmNsdWRlL3NlcG9sL3BvcnRfcmVjb3JkLmgKQEAgLTExLDYg
+KzExLDggQEAgdHlwZWRlZiBzdHJ1Y3Qgc2Vwb2xfcG9ydF9rZXkgc2Vwb2xf
+cG9ydF9rZXlfdDsKIAogI2RlZmluZSBTRVBPTF9QUk9UT19VRFAgMAogI2Rl
+ZmluZSBTRVBPTF9QUk9UT19UQ1AgMQorI2RlZmluZSBTRVBPTF9QUk9UT19E
+Q0NQIDIKKyNkZWZpbmUgU0VQT0xfUFJPVE9fU0NUUCAzCiAKIC8qIEtleSAq
+LwogZXh0ZXJuIGludCBzZXBvbF9wb3J0X2NvbXBhcmUoY29uc3Qgc2Vwb2xf
+cG9ydF90ICogcG9ydCwKZGlmZiAtLWdpdCBhL2xpYnNlcG9sL3NyYy9wb3J0
+X3JlY29yZC5jIGIvbGlic2Vwb2wvc3JjL3BvcnRfcmVjb3JkLmMKaW5kZXgg
+NmEzM2Q5My4uMTVmYjE5OCAxMDA2NDQKLS0tIGEvbGlic2Vwb2wvc3JjL3Bv
+cnRfcmVjb3JkLmMKKysrIGIvbGlic2Vwb2wvc3JjL3BvcnRfcmVjb3JkLmMK
+QEAgLTE4NCw2ICsxODQsMTAgQEAgY29uc3QgY2hhciAqc2Vwb2xfcG9ydF9n
+ZXRfcHJvdG9fc3RyKGludCBwcm90bykKIAkJcmV0dXJuICJ1ZHAiOwogCWNh
+c2UgU0VQT0xfUFJPVE9fVENQOgogCQlyZXR1cm4gInRjcCI7CisJY2FzZSBT
+RVBPTF9QUk9UT19EQ0NQOgorCQlyZXR1cm4gImRjY3AiOworCWNhc2UgU0VQ
+T0xfUFJPVE9fU0NUUDoKKwkJcmV0dXJuICJzY3RwIjsKIAlkZWZhdWx0Ogog
+CQlyZXR1cm4gIj8/PyI7CiAJfQpkaWZmIC0tZ2l0IGEvbGlic2Vwb2wvc3Jj
+L3BvcnRzLmMgYi9saWJzZXBvbC9zcmMvcG9ydHMuYwppbmRleCBjYmYyYTBi
+Li5kNjkzZTBmIDEwMDY0NAotLS0gYS9saWJzZXBvbC9zcmMvcG9ydHMuYwor
+KysgYi9saWJzZXBvbC9zcmMvcG9ydHMuYwpAQCAtMTYsNiArMTYsMTAgQEAg
+c3RhdGljIGlubGluZSBpbnQgc2Vwb2wyaXBwcm90byhzZXBvbF9oYW5kbGVf
+dCAqIGhhbmRsZSwgaW50IHByb3RvKQogCQlyZXR1cm4gSVBQUk9UT19UQ1A7
+CiAJY2FzZSBTRVBPTF9QUk9UT19VRFA6CiAJCXJldHVybiBJUFBST1RPX1VE
+UDsKKwljYXNlIFNFUE9MX1BST1RPX0RDQ1A6CisJCXJldHVybiBJUFBST1RP
+X0RDQ1A7CisJY2FzZSBTRVBPTF9QUk9UT19TQ1RQOgorCQlyZXR1cm4gSVBQ
+Uk9UT19TQ1RQOwogCWRlZmF1bHQ6CiAJCUVSUihoYW5kbGUsICJ1bnN1cHBv
+cnRlZCBwcm90b2NvbCAldSIsIHByb3RvKTsKIAkJcmV0dXJuIFNUQVRVU19F
+UlI7CkBAIC0zMCw2ICszNCwxMCBAQCBzdGF0aWMgaW5saW5lIGludCBpcHBy
+b3RvMnNlcG9sKHNlcG9sX2hhbmRsZV90ICogaGFuZGxlLCBpbnQgcHJvdG8p
+CiAJCXJldHVybiBTRVBPTF9QUk9UT19UQ1A7CiAJY2FzZSBJUFBST1RPX1VE
+UDoKIAkJcmV0dXJuIFNFUE9MX1BST1RPX1VEUDsKKwljYXNlIElQUFJPVE9f
+RENDUDoKKwkJcmV0dXJuIFNFUE9MX1BST1RPX0RDQ1A7CisJY2FzZSBJUFBS
+T1RPX1NDVFA6CisJCXJldHVybiBTRVBPTF9QUk9UT19TQ1RQOwogCWRlZmF1
+bHQ6CiAJCUVSUihoYW5kbGUsICJpbnZhbGlkIHByb3RvY29sICV1ICIgImZv
+dW5kIGluIHBvbGljeSIsIHByb3RvKTsKIAkJcmV0dXJuIFNUQVRVU19FUlI7
+Ci0tIAoxLjkuMwoK
 
-If this patch is a reasonable way to support others such as Bluetooth
-let me know and I'll add them for the final patch.
+--2087594563-1197907753-1415368456=:66752
+Content-Type: text/x-patch; name="0001-lksctp-tools-Add-SELinux-support-to-sctp_test.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="0001-lksctp-tools-Add-SELinux-support-to-sctp_test.patch"
 
-I've tested this on Fedora 20 using kernel kernel-3.16.4-200.fc20.x86_64
+RnJvbSA2OWM3NTdiM2YwZTQyMDQxYzkxN2Q4YThjOTM1NDQ5YTFmMTdkNmQy
+IE1vbiBTZXAgMTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBSaWNoYXJkIEhhaW5l
+cyA8cmljaGFyZF9jX2hhaW5lc0BidGludGVybmV0LmNvbT4KRGF0ZTogVGh1
+LCA2IE5vdiAyMDE0IDE5OjMyOjM5ICswMDAwClN1YmplY3Q6IFtQQVRDSF0g
+bGtzY3RwLXRvb2xzOiBBZGQgU0VMaW51eCBzdXBwb3J0IHRvIHNjdHBfdGVz
+dAoKQWRkIGdldGNvbiwgZ2V0cGVlcmNvbiBhbmQgZmdldGZpbGVjb24gdG8g
+Y2hlY2sgZWFjaCBvZiB0aGUgY29udGV4dHMKZm9yIHNjdHBfdGVzdC5jLiBU
+aGlzIHdpbGwgYWxsb3cgdGVzdGluZyBvZiB0aGUgU0VMaW51eCBrZXJuZWwg
+dXBkYXRlcwp0byBzdXBwb3J0IFNDVFAuCgpTaWduZWQtb2ZmLWJ5OiBSaWNo
+YXJkIEhhaW5lcyA8cmljaGFyZF9jX2hhaW5lc0BidGludGVybmV0LmNvbT4K
+LS0tCiBjb25maWd1cmUuYWMgICAgICAgICB8ICAzICsrKwogc3JjL2FwcHMv
+TWFrZWZpbGUuYW0gfCAgNCArKysrCiBzcmMvYXBwcy9zY3RwX3Rlc3QuYyB8
+IDY1ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrLS0KIDMgZmlsZXMgY2hhbmdlZCwgNzAgaW5zZXJ0aW9ucygr
+KSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9jb25maWd1cmUuYWMg
+Yi9jb25maWd1cmUuYWMKaW5kZXggNzc4ZGFjNS4uYzU2OTA4MyAxMDA2NDQK
+LS0tIGEvY29uZmlndXJlLmFjCisrKyBiL2NvbmZpZ3VyZS5hYwpAQCAtMzgs
+NiArMzgsOSBAQCBBQ19MSUJUT09MX0RMT1BFTgogQUNfUFJPR19MSUJUT09M
+CiBBQ19TVUJTVChMSUJUT09MX0RFUFMpCiAKK0FDX0NIRUNLX0xJQihbc2Vs
+aW51eF0sIFtnZXRjb25dKQorQU1fQ09ORElUSU9OQUwoW1VTRV9TRUxJTlVY
+XSwgW3Rlc3QgJGFjX2N2X2xpYl9zZWxpbnV4X2dldGNvbiA9IHllc10pCisK
+IGRubCBDaGVja3MgZm9yIGhlYWRlciBmaWxlcy4KIEFDX0hFQURFUl9TVERD
+CiBBQ19IRUFERVJfU1lTX1dBSVQKZGlmZiAtLWdpdCBhL3NyYy9hcHBzL01h
+a2VmaWxlLmFtIGIvc3JjL2FwcHMvTWFrZWZpbGUuYW0KaW5kZXggN2UzM2I5
+Yy4uZGEwZjg4OSAxMDA2NDQKLS0tIGEvc3JjL2FwcHMvTWFrZWZpbGUuYW0K
+KysrIGIvc3JjL2FwcHMvTWFrZWZpbGUuYW0KQEAgLTEwLDYgKzEwLDEwIEBA
+IEFNX0NQUEZMQUdTID0gLUkuIC1JJCh0b3Bfc3JjZGlyKS9zcmMvaW5jbHVk
+ZSAtSSQodG9wX3NyY2Rpcikvc3JjL3Rlc3RsaWIgXAogCiBBTV9MREZMQUdT
+ID0gCiAKK2lmIFVTRV9TRUxJTlVYCitBTV9DRkxBR1MgPSAtREhBVkVfU0VM
+SU5VWAorZW5kaWYKKwogTERBREQgPSAkKHRvcF9idWlsZGRpcikvc3JjL3Rl
+c3RsaWIvbGlic2N0cHV0aWwubGEgXAogCSQodG9wX2J1aWxkZGlyKS9zcmMv
+bGliL2xpYnNjdHAubGEKIApkaWZmIC0tZ2l0IGEvc3JjL2FwcHMvc2N0cF90
+ZXN0LmMgYi9zcmMvYXBwcy9zY3RwX3Rlc3QuYwppbmRleCAyYWFmOWQzLi43
+Y2EzYjQ5IDEwMDY0NAotLS0gYS9zcmMvYXBwcy9zY3RwX3Rlc3QuYworKysg
+Yi9zcmMvYXBwcy9zY3RwX3Rlc3QuYwpAQCAtNjAsNiArNjAsMzEgQEAKIAog
+I2luY2x1ZGUgPHN5cy9yZXNvdXJjZS5oPgogCisjaWYgSEFWRV9TRUxJTlVY
+CisjaW5jbHVkZSA8c2VsaW51eC9zZWxpbnV4Lmg+CisjZWxzZQorLyogU3R1
+YnMgZm9yIFNFTGludXggZnVuY3Rpb25zICovCitzdGF0aWMgaW50IGlzX3Nl
+bGludXhfZW5hYmxlZCh2b2lkKQoreworCXJldHVybiAtMTsKK30KK3N0YXRp
+YyBpbnQgZ2V0Y29uKGNoYXIgKipjb250ZXh0KQoreworCSpjb250ZXh0ID0g
+TlVMTDsKKwlyZXR1cm4gLTE7Cit9CitzdGF0aWMgaW50IGdldHBlZXJjb24o
+aW50IGZkLCBjaGFyICoqY29udGV4dCkKK3sKKwkqY29udGV4dCA9IE5VTEw7
+CisJcmV0dXJuIC0xOworfQorCitzdGF0aWMgaW50IGZnZXRmaWxlY29uKGlu
+dCBmZCwgY2hhciAqKmNvbnRleHQpCit7CisJKmNvbnRleHQgPSBOVUxMOwor
+CXJldHVybiAtMTsKK30KKyNlbmRpZgogCiAjZGVmaW5lIFJFQUxMWV9CSUcg
+NjU1MzYKIApAQCAtMTcyLDYgKzE5Nyw5IEBAIHN0cnVjdCBzb2NrYWRkciAq
+Y29ubmVjdHhfYWRkcnMgPSBOVUxMOwogaW50IGNvbm5lY3R4X2NvdW50ID0g
+MDsKIGludCBpZl9pbmRleCA9IDA7CiAKK2NoYXIgKmNvbnRleHQ7Citjb25z
+dCBjaGFyICpub19jdHggPSAidW5hdmFpbGFibGUiOworCiB1bnNpZ25lZCBj
+aGFyIG1zZ1tdID0gIjAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAx
+MjM0NTY3ODkwMTIzNDU2Nzg5MCI7CiAKIHN0YXRpYyBpbnQgbXNnX3NpemVz
+W05DQVNFU11bTVNHX0NOVF0gPQpAQCAtMjY2LDYgKzI5NCwyMiBAQCB2b2lk
+IHVzYWdlKGNoYXIgKmFyZ3YwKQogCiB9IC8qIHVzYWdlKCkgKi8KIAordm9p
+ZCBwcmludF9jb250ZXh0KGludCBmZCwgY2hhciAqdGV4dCkKK3sKKwlpZiAo
+aXNfc2VsaW51eF9lbmFibGVkKCkgPD0gMCkKKwkJcmV0dXJuOworCisJaWYg
+KGdldHBlZXJjb24oZmQsICZjb250ZXh0KSA8IDApCisJCWNvbnRleHQgPSBz
+dHJkdXAobm9fY3R4KTsKKwlERUJVR19QUklOVChERUJVR19NSU4sICJcdCVz
+IHBlZXIgY29udGV4dD0lc1xuIiwgdGV4dCwgY29udGV4dCk7CisJZnJlZShj
+b250ZXh0KTsKKworCWlmIChmZ2V0ZmlsZWNvbihmZCwgJmNvbnRleHQpIDwg
+MCkKKwkJY29udGV4dCA9IHN0cmR1cChub19jdHgpOworCURFQlVHX1BSSU5U
+KERFQlVHX01JTiwgIlx0JXMgZmQgY29udGV4dD0lc1xuIiwgdGV4dCwgY29u
+dGV4dCk7CisJZnJlZShjb250ZXh0KTsKK30KKwogdm9pZCAqCiBidWlsZF9t
+c2coaW50IGxlbikKIHsKQEAgLTYwMiw2ICs2NDYsNyBAQCBpbnQgc29ja2V0
+X3Iodm9pZCkKIAkJfQogCX0KIAlERUJVR19QUklOVChERUJVR19NSU4sICIg
+IC0+ICBzaz0lZFxuIiwgc2spOworCXByaW50X2NvbnRleHQoc2ssICJjcmVh
+dGUgc29jayIpOwogCiAJbWVtc2V0KCZzdWJzY3JpYmUsIDAsIHNpemVvZihz
+dWJzY3JpYmUpKTsKIAlzdWJzY3JpYmUuc2N0cF9kYXRhX2lvX2V2ZW50ID0g
+MTsKQEAgLTY2OCw2ICs3MTMsNyBAQCBpbnQgYmluZF9yKGludCBzaywgc3Ry
+dWN0IHNvY2thZGRyX3N0b3JhZ2UgKnNhZGRyKQogCQl9CiAgICAgICAgIH0g
+d2hpbGUgKGVycm9yIDwgMCAmJiBpIDwgTUFYX0JJTkRfUkVUUllTKTsKIAor
+CXByaW50X2NvbnRleHQoc2ssICJiaW5kIik7CiAJcmV0dXJuIDA7CiAKIH0g
+LyogYmluZF9yKCkgKi8KQEAgLTczMCw3ICs3NzYsOSBAQCBpbnQgbGlzdGVu
+X3IoaW50IHNrLCBpbnQgbGlzdGVuX2NvdW50KQogCQl9CiAJCWVsc2UgcmV0
+dXJuIC0xOwogICAgICAgICB9Ci0gICAgICAgIHJldHVybiAwOworCisJcHJp
+bnRfY29udGV4dChzaywgImxpc3RlbiIpOworCXJldHVybiAwOwogCiB9IC8q
+IGxpc3Rlbl9yKCkgKi8KIApAQCAtNzQ2LDYgKzc5NCw3IEBAIGludCBhY2Nl
+cHRfcihpbnQgc2spewogCQlleGl0KDEpOwogCX0KIAorCXByaW50X2NvbnRl
+eHQoc2ssICJhY2NlcHQiKTsKIAlyZXR1cm4gc3Vic2s7CiB9IC8qIGFjY2Vw
+dF9yKCkgKi8KIApAQCAtNzY1LDYgKzgxNCw4IEBAIGludCBjb25uZWN0X3Io
+aW50IHNrLCBjb25zdCBzdHJ1Y3Qgc29ja2FkZHIgKnNlcnZfYWRkciwgc29j
+a2xlbl90IGFkZHJsZW4pCiAJCX0KIAkJZWxzZSByZXR1cm4gLTE7CiAJfQor
+CisJcHJpbnRfY29udGV4dChzaywgImNvbm5lY3QiKTsKIAlyZXR1cm4gMDsK
+IAogfSAvKiBjb25uZWN0X3IoKSAqLwpAQCAtODY1LDggKzkxNiwxMCBAQCBp
+bnQgcmVjZWl2ZV9yKGludCBzaywgaW50IG9uY2UpCiAJCQlmZmx1c2goc3Rk
+b3V0KTsKIAkJfQogCi0JCWlmIChwcmludF9tZXNzYWdlKHJlY3ZzaywgJmlu
+bWVzc2FnZSwgZXJyb3IpID4gMCkKKwkJaWYgKHByaW50X21lc3NhZ2UocmVj
+dnNrLCAmaW5tZXNzYWdlLCBlcnJvcikgPiAwKSB7CisJCQlwcmludF9jb250
+ZXh0KHJlY3ZzaywgInJlY3Ztc2ciKTsKIAkJCWNvbnRpbnVlOyAvKiBnb3Qg
+YSBub3RpZmljYXRpb24uLi4gKi8KKwkJfQogCiAJCWlubWVzc2FnZS5tc2df
+Y29udHJvbCA9IGluY21zZzsKIAkJaW5tZXNzYWdlLm1zZ19jb250cm9sbGVu
+ID0gc2l6ZW9mKGluY21zZyk7CkBAIC0xMDUxLDYgKzExMDQsOCBAQCBpbnQg
+c2VuZF9yKGludCBzaywgaW50IHN0cmVhbSwgaW50IG9yZGVyLCBpbnQgc2Vu
+ZF9zaXplLCBpbnQgYXNzb2NfaSkKIAkJfQogCX0KIAorCXByaW50X2NvbnRl
+eHQoc2ssICJzZW5kbXNnIik7CisKIAlpZiAoc2VuZF9zaXplID4gMCkgZnJl
+ZShtZXNzYWdlKTsKIAlyZXR1cm4gMDsKIGVycm9yX291dDoKQEAgLTEyNTQs
+NiArMTMwOSw3IEBAIG1peGVkX21vZGVfdGVzdCh2b2lkKQogCiAJCQkJcHJp
+bnRfbWVzc2FnZShwb2xsX3Nrc1tpXS5zaywgJmlubWVzc2FnZSwKIAkJCQkJ
+ZXJyb3IpOworCQkJCXByaW50X2NvbnRleHQocG9sbF9za3NbaV0uc2ssICJy
+ZWN2bXNnIik7CiAKIAkJCQlpbm1lc3NhZ2UubXNnX2NvbnRyb2wgPSBpbmNt
+c2c7CiAJCQkJaW5tZXNzYWdlLm1zZ19jb250cm9sbGVuID0gc2l6ZW9mKGlu
+Y21zZyk7CkBAIC0xMzU5LDYgKzE0MTUsMTEgQEAgdm9pZCBzdGFydF90ZXN0
+KGludCByb2xlKQogCQogCURFQlVHX1BSSU5UKERFQlVHX05PTkUsICJcblN0
+YXJ0aW5nIHRlc3RzLi4uXG4iKTsKIAorCWlmIChnZXRjb24oJmNvbnRleHQp
+IDwgMCkKKwkJY29udGV4dCA9IHN0cmR1cChub19jdHgpOworCURFQlVHX1BS
+SU5UKERFQlVHX01JTiwgIlx0UHJvY2VzcyBzZWN1cml0eSBjb250ZXh0PSVz
+XG4iLCBjb250ZXh0KTsKKwlmcmVlKGNvbnRleHQpOworCiAJcmVwZWF0X2Nv
+dW50ID0gcmVwZWF0OwogCiAKLS0gCjEuOS4zCgo=
 
-Notes:
-1) This patch adds some missing dccp checks but mainly adds support for SCTP
-   to SELinux. The permissions { read write create getattr bind connect
-   listen accept getopt setopt name_bind node_bind name_connect
-   bindx_add_addr bindx_rem_addr } have been tested.
-
-   There are patches for libsepol-2.4-rc5 that I'll send out enabling
-   new "sctp" and "dccp" keywords for portcon statements:
-
-portcon sctp 19000 system_u:object_r:sctp_port_t:s0
-portcon dccp 19001 system_u:object_r:dccp_port_t:s0
-
-   I'll do remaining userspace patches if the kernel patch is accepted as
-   some require extensive updates (all those 100+ *.po files).
-
-2) The context returned using getpeercon(3) before setting a peer label with
-   netlabelctl is "unlabeled_t" (using the targeted policy) for SCTP and
-   DCCP.
-
-   However for SCTP, after running netlabelctl to set a peer context as
-   follows:
-
-netlabelctl unlbl add interface:lo address:127.0.0.1 label:unconfined_u:object_r:netlabel_peer_t:s0
-
-   The test program always returned the process context, not the
-   peer context as do TCP and DCCP test programs when receiving data.
-
-   After some poking around it appears that SCTP does not call
-   inet_conn_request, therefore the peer context is not set for the
-   socket (I think this is what is happening). I've therefore worked
-   around this by setting the peer context in:
-    hooks.c - selinux_socket_sock_rcv_skb for network_peer_controls = 1
-    netlabel.c - selinux_netlbl_sock_rcv_skb for network_peer_controls = 0
-
-   I'm not sure it's the right thing to do but does work.
-
-   For Information: SCTP seems to be UDP based which is why it probably does
-   not use inet_conn_request. If this is so, then it should be possible to
-   obtain the peer context using the 'cmsghdr' struct and setting:
-
-int one = 1;
-setsockopt(fd, SOL_IP, IP_PASSSEC, &one, sizeof(one));
-
-   However there are currently two obstacles to this:
-      a) The code in net/sctp/socket.c - sctp_recvmsg() to process this
-         is commented out with a TODO. I did patch this with:
-		if (inet_sk(sk)->cmsg_flags)
-			ip_cmsg_recv(msg, skb);
-
-         I could then see the peer context via hooks.c 
-         selinux_socket_getpeersec_dgram().
-     b) The current implementation of the SCTP library will not process
-        this, it will require the new rfc6458 sctp_recvv() function that
-        has not been implemented yet.
-
-3) In selinux_socket_bind(), the comment regarding SCTP binding to
-   multiple addresses has been removed. This is because the address stuct
-   passed over for SCTP only has the one address as in any bind. The
-   sctp_bindx call does not come through here, it actually calls a
-   setsockopt feature to add/remove other addresses from an internal list
-   used by SCTP. 
-
-   This adding or deleting of additional addresses with sctp_bindx is
-   controlled by adding two permissions to sctp_socket:
-       bindx_add_addr and bindx_rem_addr.
-
-4) I found that checks using 'TCP_LISTEN' were equivalent to the SCTP
-   and DCCP socket states, for example:
-
-       SCTP_SS_LISTENING and DCCP_LISTEN = TCP_LISTEN
-
-    I've therefore just added a comment indicating this.
-
-5) I did not add any new permissions (such as sctp_sendmsg, sctp_recvmsg)
-   to the node or netif classes as most of the current ones are unused.
-
-6) The main test program used was a modified version of the lksctp-tools
-   sctp_test.c program that printed the process, peer and socket contexts.
-   I'll send the patch in another email.
-
-
-
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- security/selinux/hooks.c            | 94 ++++++++++++++++++++++++++++++++-----
- security/selinux/include/classmap.h |  3 ++
- security/selinux/netlabel.c         | 15 +++++-
- 3 files changed, 99 insertions(+), 13 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 83d06db..700abb8 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -66,6 +66,8 @@
- #include <linux/tcp.h>
- #include <linux/udp.h>
- #include <linux/dccp.h>
-+#include <linux/sctp.h>
-+#include <uapi/linux/sctp.h>	/* For bindx setsocket option checks */
- #include <linux/quota.h>
- #include <linux/un.h>		/* for Unix socket types */
- #include <net/af_unix.h>	/* for Unix socket types */
-@@ -1174,8 +1176,11 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
- 	case PF_INET6:
- 		switch (type) {
- 		case SOCK_STREAM:
-+		case SOCK_SEQPACKET:
- 			if (default_protocol_stream(protocol))
- 				return SECCLASS_TCP_SOCKET;
-+			else if (protocol == IPPROTO_SCTP)
-+				return SECCLASS_SCTP_SOCKET;
- 			else
- 				return SECCLASS_RAWIP_SOCKET;
- 		case SOCK_DGRAM:
-@@ -3715,6 +3720,22 @@ static int selinux_parse_skb_ipv4(struct sk_buff *skb,
- 		break;
- 	}
- 
-+	case IPPROTO_SCTP: {
-+		struct sctphdr _sctph, *sh;
-+
-+		if (ntohs(ih->frag_off) & IP_OFFSET)
-+			break;
-+
-+		offset += ihlen;
-+		sh = skb_header_pointer(skb, offset, sizeof(_sctph), &_sctph);
-+		if (sh == NULL)
-+			break;
-+
-+		ad->u.net->sport = sh->source;
-+		ad->u.net->dport = sh->dest;
-+		break;
-+	}
-+
- 	default:
- 		break;
- 	}
-@@ -3788,6 +3809,18 @@ static int selinux_parse_skb_ipv6(struct sk_buff *skb,
- 		break;
- 	}
- 
-+	case IPPROTO_SCTP: {
-+		struct sctphdr _sctph, *sh;
-+
-+		sh = skb_header_pointer(skb, offset, sizeof(_sctph), &_sctph);
-+		if (sh == NULL)
-+			break;
-+
-+		ad->u.net->sport = sh->source;
-+		ad->u.net->dport = sh->dest;
-+		break;
-+	}
-+
- 	/* includes fragments */
- 	default:
- 		break;
-@@ -3848,7 +3881,7 @@ okay:
-  * Description:
-  * Check the various different forms of network peer labeling and determine
-  * the peer label/SID for the packet; most of the magic actually occurs in
-- * the security server function security_net_peersid_cmp().  The function
-+ * the security server function security_net_peersid_resolve().  The function
-  * returns zero if the value in @sid is valid (although it may be SECSID_NULL)
-  * or -EACCES if @sid is invalid due to inconsistencies with the different
-  * peer labels.
-@@ -3997,11 +4030,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
- 	if (err)
- 		goto out;
- 
--	/*
--	 * If PF_INET or PF_INET6, check name_bind permission for the port.
--	 * Multiple address binding for SCTP is not supported yet: we just
--	 * check the first address now.
--	 */
-+	/* If PF_INET or PF_INET6, check name_bind permission for the port. */
- 	family = sk->sk_family;
- 	if (family == PF_INET || family == PF_INET6) {
- 		char *addrp;
-@@ -4058,6 +4087,10 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
- 			node_perm = DCCP_SOCKET__NODE_BIND;
- 			break;
- 
-+		case SECCLASS_SCTP_SOCKET:
-+			node_perm = SCTP_SOCKET__NODE_BIND;
-+			break;
-+
- 		default:
- 			node_perm = RAWIP_SOCKET__NODE_BIND;
- 			break;
-@@ -4097,10 +4130,12 @@ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address,
- 		return err;
- 
- 	/*
--	 * If a TCP or DCCP socket, check name_connect permission for the port.
-+	 * If a TCP, DCCP or SCTP socket, check name_connect permission
-+	 * for the port.
- 	 */
- 	if (sksec->sclass == SECCLASS_TCP_SOCKET ||
--	    sksec->sclass == SECCLASS_DCCP_SOCKET) {
-+	    sksec->sclass == SECCLASS_DCCP_SOCKET ||
-+	    sksec->sclass == SECCLASS_SCTP_SOCKET) {
- 		struct common_audit_data ad;
- 		struct lsm_network_audit net = {0,};
- 		struct sockaddr_in *addr4 = NULL;
-@@ -4124,8 +4159,12 @@ static int selinux_socket_connect(struct socket *sock, struct sockaddr *address,
- 		if (err)
- 			goto out;
- 
--		perm = (sksec->sclass == SECCLASS_TCP_SOCKET) ?
--		       TCP_SOCKET__NAME_CONNECT : DCCP_SOCKET__NAME_CONNECT;
-+		if (sksec->sclass == SECCLASS_TCP_SOCKET)
-+			perm = TCP_SOCKET__NAME_CONNECT;
-+		else if (sksec->sclass == SECCLASS_DCCP_SOCKET)
-+			perm = DCCP_SOCKET__NAME_CONNECT;
-+		else if (sksec->sclass == SECCLASS_SCTP_SOCKET)
-+			perm = SCTP_SOCKET__NAME_CONNECT;
- 
- 		ad.type = LSM_AUDIT_DATA_NET;
- 		ad.u.net = &net;
-@@ -4197,6 +4236,22 @@ static int selinux_socket_setsockopt(struct socket *sock, int level, int optname
- 	if (err)
- 		return err;
- 
-+	if (level == SOL_SCTP) {
-+		switch (optname) {
-+		case SCTP_SOCKOPT_BINDX_ADD:
-+		case SCTP_SOCKOPT_BINDX_REM:
-+			err = sock_has_perm(current, sock->sk,
-+			    (optname == SCTP_SOCKOPT_BINDX_ADD ?
-+			    SCTP_SOCKET__BINDX_ADD_ADDR :
-+			    SCTP_SOCKET__BINDX_REM_ADDR));
-+			if (err)
-+				return err;
-+			break;
-+
-+		default:
-+			break;
-+		}
-+	}
- 	return selinux_netlbl_socket_setsockopt(sock, level, optname);
- }
- 
-@@ -4374,6 +4429,13 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 			selinux_netlbl_err(skb, err, 0);
- 			return err;
- 		}
-+		/* The peer label has been validated. If SCTP class then
-+		 * update sksec->peer_sid with the new peer_sid so it can be
-+		 * retrieved by getpeercon(3). This is required as the SCTP
-+		 * code is basically UDP. */
-+		if (sksec->sclass == SECCLASS_SCTP_SOCKET &&
-+		    sksec->peer_sid != peer_sid)
-+			sksec->peer_sid = peer_sid;
- 	}
- 
- 	if (secmark_active) {
-@@ -4396,7 +4458,9 @@ static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *op
- 	u32 peer_sid = SECSID_NULL;
- 
- 	if (sksec->sclass == SECCLASS_UNIX_STREAM_SOCKET ||
--	    sksec->sclass == SECCLASS_TCP_SOCKET)
-+	    sksec->sclass == SECCLASS_TCP_SOCKET ||
-+	    sksec->sclass == SECCLASS_DCCP_SOCKET ||
-+	    sksec->sclass == SECCLASS_SCTP_SOCKET)
- 		peer_sid = sksec->peer_sid;
- 	if (peer_sid == SECSID_NULL)
- 		return -ENOPROTOOPT;
-@@ -4794,6 +4858,8 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
- 	if (sk) {
- 		struct sk_security_struct *sksec;
- 
-+		/* Note that TCP_LISTEN equates to SCTP_SS_LISTENING
-+		 * and DCCP_LISTEN socket states */
- 		if (sk->sk_state == TCP_LISTEN)
- 			/* if the socket is the listening state then this
- 			 * packet is a SYN-ACK packet which means it needs to
-@@ -4899,7 +4965,9 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 	 *       TCP listening state we cannot wait until the XFRM processing
- 	 *       is done as we will miss out on the SA label if we do;
- 	 *       unfortunately, this means more work, but it is only once per
--	 *       connection. */
-+	 *       connection.
-+	 * NOTE: that TCP_LISTEN equates to SCTP_SS_LISTENING and DCCP_LISTEN
-+	 * socket states */
- 	if (skb_dst(skb) != NULL && skb_dst(skb)->xfrm != NULL &&
- 	    !(sk != NULL && sk->sk_state == TCP_LISTEN))
- 		return NF_ACCEPT;
-@@ -4918,6 +4986,8 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 			secmark_perm = PACKET__SEND;
- 			peer_sid = SECINITSID_KERNEL;
- 		}
-+	/* Note that TCP_LISTEN equates to SCTP_SS_LISTENING and DCCP_LISTEN
-+	 * socket states */
- 	} else if (sk->sk_state == TCP_LISTEN) {
- 		/* Locally generated packet but the associated socket is in the
- 		 * listening state which means this is a SYN-ACK packet.  In
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index be491a7..eaf3945 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -151,5 +151,8 @@ struct security_class_mapping secclass_map[] = {
- 	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
- 	{ "tun_socket",
- 	  { COMMON_SOCK_PERMS, "attach_queue", NULL } },
-+	{ "sctp_socket",
-+	  { COMMON_SOCK_PERMS, "node_bind", "name_connect",
-+	    "bindx_add_addr", "bindx_rem_addr", NULL } },
- 	{ NULL }
-   };
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 0364120..55c7190 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -396,13 +396,26 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
- 	case SECCLASS_TCP_SOCKET:
- 		perm = TCP_SOCKET__RECVFROM;
- 		break;
-+	case SECCLASS_DCCP_SOCKET:
-+		perm = DCCP_SOCKET__RECVFROM;
-+		break;
-+	case SECCLASS_SCTP_SOCKET:
-+		perm = SCTP_SOCKET__RECVFROM;
-+		break;
- 	default:
- 		perm = RAWIP_SOCKET__RECVFROM;
- 	}
- 
- 	rc = avc_has_perm(sksec->sid, nlbl_sid, sksec->sclass, perm, ad);
--	if (rc == 0)
-+	if (rc == 0) {
-+		/* The peer label has been validated in compat mode.
-+		 * If SCTP class then update sksec->peer_sid with the
-+		 * nlbl_sid so it can be retrieved by getpeercon(3). */
-+		if (sksec->sclass == SECCLASS_SCTP_SOCKET &&
-+		    sksec->peer_sid != nlbl_sid)
-+			sksec->peer_sid = nlbl_sid;
- 		return 0;
-+	}
- 
- 	if (nlbl_sid != SECINITSID_UNLABELED)
- 		netlbl_skbuff_err(skb, rc, 0);
--- 
-1.9.3
+--2087594563-1197907753-1415368456=:66752--
