@@ -1,11 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7FmEg4031804
- for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 10:48:14 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7FmQiP031814
+ for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 10:48:26 -0500
 From: Steve Lawrence <slawrence@tresys.com>
 To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH 1/2] policycoreutils: pp: mimic require block support in CIL
-Date: Fri, 7 Nov 2014 10:47:27 -0500
-Message-ID: <1415375248-29632-2-git-send-email-slawrence@tresys.com>
+Subject: [PATCH 2/2] policycoreutils: pp: define type aliases in the correct
+ scope
+Date: Fri, 7 Nov 2014 10:47:28 -0500
+Message-ID: <1415375248-29632-3-git-send-email-slawrence@tresys.com>
 In-Reply-To: <1415375248-29632-1-git-send-email-slawrence@tresys.com>
 References: <1415375248-29632-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
@@ -15,142 +16,252 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-CIL does not have any concept of require blocks. Instead, CIL relies on
-whether or not all statements inside an optional block resolve to
-determine if an optional block should be enabled/disabled. However, a
-small number of optional statements require a type that is not actually
-used in the optional block. In old style policy, this would cause the
-optional block to be disabled. However, in CIL, because the type is never
-used, the optional block will remain enabled.
+Previously, type aliases were converted to CIL in the global namespace,
+regardless of which scope they were actually defined in. So essentially
+type aliases could never be in optionals. For the most part this worked,
+however, in some small number of cases, a type alias could reference a
+type defined inside an optional. If that optional was disabled, the type
+would be disabled and so the type alias would fail to resolve, causing
+policy to fail to build.
 
-To maintain compatibility, we modify pp2cil to create a new attribute,
-cil_gen_require, and all types/roles/attributes that are required in a
-pp module/optional block are associated with this attribute. Thus, if a
-type is required but not used, it will still fail to resolve in the
-typeattributeset statement, causing the optional to correctly be
-disabled.
-
-Note that when compiling the CIL this generated from compiling refpolicy
-pp modules with pp2cil, the extra CIL statements cause ~12.6MB increase
-in maximum memory usage (129.7 MB to 142.3 MB). Though, compilation time
-decreases by ~35% (26 seconds to 17 seconds).
+Unfortunately, type alises are stored in pp modules different than other
+symbols (e.g. types/roles/etc) so they must be added to scopes
+differently. So this patch gathers up all type aliases in a list and
+keeps track of which scope each type alias is defined in. When we enter
+a new scope, use that list to determine which type alias are defined
+there and print the appropriate CIL statements.
 
 Signed-off-by: Steve Lawrence <slawrence@tresys.com>
 Reviewed-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
-Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
 ---
- policycoreutils/hll/pp/pp.c | 53 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ policycoreutils/hll/pp/pp.c | 166 ++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 130 insertions(+), 36 deletions(-)
 
 diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
-index 99c7b1e..5621161 100644
+index 5621161..8e45c22 100644
 --- a/policycoreutils/hll/pp/pp.c
 +++ b/policycoreutils/hll/pp/pp.c
-@@ -53,6 +53,7 @@ FILE *out_file;
- #define STACK_SIZE 16
- #define DEFAULT_LEVEL "systemlow"
- #define DEFAULT_OBJECT "object_r"
-+#define GEN_REQUIRE_ATTR "cil_gen_require"
- 
- __attribute__ ((format(printf, 1, 2)))
- static void log_err(const char *fmt, ...)
-@@ -1885,6 +1886,15 @@ static int role_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 	uint32_t num_types = 0;
- 	struct role_datum *role = datum;
- 	struct type_set *ts;
-+		
-+	if (scope == SCOPE_REQ) {
-+		// if a role/roleattr is in the REQ scope, then it could cause an
-+		// optional block to fail, even if it is never used. However in CIL,
-+		// symbols must be used in order to cause an optional block to fail. So
-+		// for symbols in the REQ scope, add them to a roleattribute as a way
-+		// to 'use' them in the optional without affecting the resulting policy.
-+		cil_println(indent, "(roleattributeset " GEN_REQUIRE_ATTR " %s)", key);
-+	}
- 
- 	switch (role->flavor) {
- 	case ROLE_ROLE:
-@@ -1982,6 +1992,15 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- {
- 	int rc = -1;
- 	struct type_datum *type = datum;
-+	
-+	if (scope == SCOPE_REQ) {	
-+		// if a type/typeattr is in the REQ scope, then it could cause an
-+		// optional block to fail, even if it is never used. However in CIL,
-+		// symbols must be used in order to cause an optional block to fail. So
-+		// for symbols in the REQ scope, add them to a typeattribute as a way
-+		// to 'use' them in the optional without affecting the resulting policy.
-+		cil_println(indent, "(typeattributeset " GEN_REQUIRE_ATTR " %s)", key);
-+	}
- 
- 	switch(type->flavor) {
- 	case TYPE_TYPE:
-@@ -3158,10 +3177,12 @@ static int required_scopes_to_cil(int indent, struct policydb *pdb, struct avrul
- 	struct ebitmap map;
- 	struct ebitmap_node *node;
- 	unsigned int i;
-+	unsigned int j;
- 	char * key;
- 	int sym;
- 	void *datum;
- 	struct avrule_decl *decl = stack_peek(decl_stack);
-+	struct scope_datum *scope_datum;
- 
- 	for (sym = 0; sym < SYM_NUM; sym++) {
- 		if (func_to_cil[sym] == NULL) {
-@@ -3174,6 +3195,24 @@ static int required_scopes_to_cil(int indent, struct policydb *pdb, struct avrul
- 				continue;
- 			}
- 			key = pdb->sym_val_to_name[sym][i];
-+
-+			scope_datum = hashtab_search(pdb->scope[sym].table, key);
-+			for (j = 0; j < scope_datum->decl_ids_len; j++) {
-+				if (scope_datum->decl_ids[j] == decl->decl_id) {
-+					break;
-+				}
-+			}
-+			if (j >= scope_datum->decl_ids_len) {
-+				// Symbols required in the global scope are also in the
-+				// required scope ebitmap of all avrule decls (i.e. required
-+				// in all optionals). So we need to look at the scopes of each
-+				// symbol in this avrule_decl to determine if it actually is
-+				// required in this decl, or if it's just required in the
-+				// global scope. If we got here, then this symbol is not
-+				// actually required in this scope, so skip it.
-+				continue;
-+			}
-+
- 			datum = hashtab_search(pdb->symtab[sym].table, key);
- 			if (datum == NULL) {
- 				rc = -1;
-@@ -3467,6 +3506,14 @@ static int generate_default_object(void)
- 	return 0;
+@@ -268,6 +268,87 @@ exit:
+ 	return rc;
  }
  
-+static int generate_gen_require_attribute(void)
++// array of lists, where each list contains all the aliases defined in the scope at index i
++static struct list **typealias_lists;
++static uint32_t typealias_lists_len;
++
++static int typealiases_gather_map(char *key, void *data, void *arg)
 +{
-+	cil_println(0, "(typeattribute " GEN_REQUIRE_ATTR ")");
-+	cil_println(0, "(roleattribute " GEN_REQUIRE_ATTR ")");
++	int rc = -1;
++	struct type_datum *type = data;
++	struct policydb *pdb = arg;
++	struct scope_datum *scope;
++	uint32_t i;
++	uint32_t scope_id;
++
++	if (type->primary != 1) {
++		scope = hashtab_search(pdb->scope[SYM_TYPES].table, key);
++		if (scope == NULL) {
++			return -1;
++		}
++
++		for (i = 0; i < scope->decl_ids_len; i++) {
++			scope_id = scope->decl_ids[i];
++			if (typealias_lists[scope_id] == NULL) {
++				rc = list_init(&typealias_lists[scope_id]);
++				if (rc != 0) {
++					goto exit;
++				}
++			}
++			list_prepend(typealias_lists[scope_id], key);
++		}
++	}
 +
 +	return 0;
++
++exit:
++	return rc;
 +}
 +
- static int fix_module_name(struct policydb *pdb)
++static void typealias_list_destroy(void)
++{
++	uint32_t i;
++	for (i = 0; i < typealias_lists_len; i++) {
++		if (typealias_lists[i] != NULL) {
++			list_destroy(&typealias_lists[i]);
++		}
++	}
++	typealias_lists_len = 0;
++	free(typealias_lists);
++	typealias_lists = NULL;
++}
++
++static int typealias_list_create(struct policydb *pdb)
++{
++	uint32_t max_decl_id = 0;
++	struct avrule_decl *decl;
++	struct avrule_block *block;
++	uint32_t rc = -1;
++
++	for (block = pdb->global; block != NULL; block = block->next) {
++		decl = block->branch_list;
++		if (decl->decl_id > max_decl_id) {
++			max_decl_id = decl->decl_id;
++		}
++	}
++
++	typealias_lists = calloc(max_decl_id + 1, sizeof(*typealias_lists));
++	typealias_lists_len = max_decl_id + 1;
++			
++	rc = hashtab_map(pdb->p_types.table, typealiases_gather_map, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	return 0;
++
++exit:
++	typealias_list_destroy();	
++
++	return rc;
++}
++
++
+ static int stack_destroy(struct stack **stack)
  {
- 	char *letter;
-@@ -3544,6 +3591,12 @@ static int module_package_to_cil(struct sepol_module_package *mod_pkg)
- 			goto exit;
+ 	if (stack == NULL || *stack == NULL) {
+@@ -2005,19 +2086,14 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 	switch(type->flavor) {
+ 	case TYPE_TYPE:
+ 		if (scope == SCOPE_DECL) {
+-			if (type->primary == 1) {
+-				cil_println(indent, "(type %s)", key);
+-				// object_r is implicit in checkmodule, but not with CIL,
+-				// create it as part of base
+-				cil_println(indent, "(roletype " DEFAULT_OBJECT " %s)", key);
++			cil_println(indent, "(type %s)", key);
++			// object_r is implicit in checkmodule, but not with CIL,
++			// create it as part of base
++			cil_println(indent, "(roletype " DEFAULT_OBJECT " %s)", key);
+ 
+-				rc = roletype_role_in_ancestor_to_cil(pdb, decl_stack, key, indent);
+-				if (rc != 0) {
+-					goto exit;
+-				}
+-			} else {
+-				cil_println(indent, "(typealias %s)", key);
+-				cil_println(indent, "(typealiasactual %s %s)", key, pdb->p_type_val_to_name[type->s.value - 1]);
++			rc = roletype_role_in_ancestor_to_cil(pdb, decl_stack, key, indent);
++			if (rc != 0) {
++				goto exit;
+ 			}
  		}
  
-+		// default attribute to be used to mimic gen_require in CIL
-+		rc = generate_gen_require_attribute();
+@@ -2218,25 +2294,6 @@ exit:
+ 	return rc;
+ }
+ 
+-static int typealias_to_cil(char *key, void *data, void *arg)
+-{
+-	int rc = -1;
+-	struct type_datum *type = data;
+-	struct map_args *args = arg;
+-
+-	if (type->primary != 1) {
+-		rc = type_to_cil(args->indent, args->pdb, args->block, args->decl_stack, key, data, args->scope);
+-		if (rc != 0) {
+-			goto exit;
+-		}
+-	}
+-
+-	return 0;
+-
+-exit:
+-	return rc;
+-}
+-
+ static int polcaps_to_cil(struct policydb *pdb)
+ {
+ 	int rc = -1;
+@@ -3105,6 +3162,37 @@ static int (*func_to_cil[SYM_NUM])(int indent, struct policydb *pdb, struct avru
+ 	cat_to_cil
+ };
+ 
++static int typealiases_to_cil(int indent, struct policydb *pdb, struct avrule_block *UNUSED(block), struct stack *decl_stack)
++{
++	struct type_datum *alias_datum;
++	char *alias_name;
++	struct list_node *curr;
++	struct avrule_decl *decl = stack_peek(decl_stack);
++	struct list *alias_list = typealias_lists[decl->decl_id];
++	int rc = -1;
++
++	if (alias_list == NULL) {
++		return 0;
++	}
++
++	for (curr = alias_list->head; curr != NULL; curr = curr->next) {
++		alias_name = curr->data;
++		alias_datum = hashtab_search(pdb->p_types.table, alias_name);
++		if (alias_datum == NULL) {
++			rc = -1;
++			goto exit;
++		}
++
++		cil_println(indent, "(typealias %s)", alias_name);
++		cil_println(indent, "(typealiasactual %s %s)", alias_name, pdb->p_type_val_to_name[alias_datum->s.value - 1]);
++	}
++
++	return 0;
++
++exit:
++	return rc;
++}
++
+ static int declared_scopes_to_cil(int indent, struct policydb *pdb, struct avrule_block *block, struct stack *decl_stack)
+ {
+ 	int rc = -1;
+@@ -3376,17 +3464,17 @@ static int blocks_to_cil(struct policydb *pdb)
+ 			args.indent = 0;
+ 			args.scope = SCOPE_DECL;
+ 
+-			rc = hashtab_map(pdb->p_types.table, typealias_to_cil, &args);
+-			if (rc != 0) {
+-				goto exit;
+-			}
+-
+ 			rc = hashtab_map(pdb->p_commons.table, common_to_cil, &args);
+ 			if (rc != 0) {
+ 				goto exit;
+ 			}
+ 		}
+ 
++		rc = typealiases_to_cil(indent, pdb, block, stack);
 +		if (rc != 0) {
 +			goto exit;
 +		}
 +
- 		// handle_unknown is used from only the base module
- 		rc = handle_unknown_to_cil(&pdb->p);
+ 		rc = declared_scopes_to_cil(indent, pdb, block, stack);
  		if (rc != 0) {
+ 			goto exit;
+@@ -3615,6 +3703,11 @@ static int module_package_to_cil(struct sepol_module_package *mod_pkg)
+ 		goto exit;
+ 	}
+ 
++	rc = typealias_list_create(&pdb->p);
++	if (rc != 0) {
++		goto exit;
++	}
++
+ 	rc = polcaps_to_cil(&pdb->p);
+ 	if (rc != 0) {
+ 		goto exit;
+@@ -3660,6 +3753,7 @@ static int module_package_to_cil(struct sepol_module_package *mod_pkg)
+ 
+ exit:
+ 	role_list_destroy();
++	typealias_list_destroy();
+ 
+ 	return rc;
+ }
 -- 
 1.9.3
