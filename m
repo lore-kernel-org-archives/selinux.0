@@ -1,126 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7It5jC012349
- for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 13:55:05 -0500
-Message-ID: <545D1575.2010708@redhat.com>
-Date: Fri, 07 Nov 2014 13:54:45 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sA7JhRrt015600
+ for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2014 14:43:27 -0500
+Received: by mail-qg0-f54.google.com with SMTP id q108so2846015qgd.41
+ for <selinux@tycho.nsa.gov>; Fri, 07 Nov 2014 11:43:25 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: [PATCH] selinux: Support SCTP protocol
+Date: Fri, 07 Nov 2014 14:43:22 -0500
+Message-ID: <18388343.NRnGYCgyij@sifl>
+In-Reply-To: <1415379731.36132.YahooMailNeo@web87902.mail.ir2.yahoo.com>
+References: <1415368329-2670-1-git-send-email-richard_c_haines@btinternet.com>
+ <2529618.NmhAYzQ15g@sifl>
+ <1415379731.36132.YahooMailNeo@web87902.mail.ir2.yahoo.com>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 0/7] Security: Provide unioned file support
-References: <545BC088.6080306@schaufler-ca.com>
- <545BB147.4000100@schaufler-ca.com>
- <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
- <6108.1415296719@warthog.procyon.org.uk>
- <29936.1415373684@warthog.procyon.org.uk>
-In-Reply-To: <29936.1415373684@warthog.procyon.org.uk>
-Content-Type: text/plain; charset=windows-1252
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-unionfs@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Cc: "vyasevic@redhat.com" <vyasevic@redhat.com>,
+ "dborkman@redhat.com" <dborkman@redhat.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Friday, November 07, 2014 05:02:11 PM Richard Haines wrote:
+> Yes I thought there might be more to this as the orginal to-do list referred
+> to a bug report that pointed to the possible updates required. I then saw
+> the new list that said "Proper support for SCTP". I was not sure what it
+> meant until now.
 
-On 11/07/2014 10:21 AM, David Howells wrote:
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
->
->>>> What does this mean?
->>> It has been decided that for the purposes of docker, all files within the
->>> docker root fs will have the same label.  We'd have to provide policy
->>> namespacing otherwise (I think).
->> That's just insane. "It has been decided" by who? Obviously not people
->> who care about security policies. Maybe it's good enough for your
->> particular use case, but labeling of files has to be up to the security
->> module. That's what the modules are for.
-> It has been decided by the docker people that I've dealt with.  I was
-> expecting there to be different labels throughout a docker image, but
-> apparently not...
-We want the equivalent of the mount option
-context="system_u:object_r:svirt_sandbox_file_t:s0:c1,c2"
+I wish I could provide you a full list of what would need to be done, but 
+unfortunately I don't have enough knowledge of SCTP to be able to tell you 
+more than I already have.  I expect that in the end you'll be able to educate 
+us all (at least the SELinux folks) a little on SCTP.
 
-Which would label all of the content in the OVERLAYFS with this label. 
-If we have to have a readonly label for the lower
-level and a RW Label for the context mount then that is fine with us. 
-The lower level can actually just reveal the label of the INODE.
-We can take care of labeling it with a single label.
+> Anyway I may carry on and see how far I get.
 
-If the context="LABEL" (Or its equivalent is not passed), it should get
-some kind of label based on the parent directory I would guess
-or transition rules. 
+Please do, your help would be greatly appreciated.  I'm more than happy to 
+provide whatever help I can and I suspect dborkman would say the same.
 
-With docker we want to treat all contents of a container with a single
-label and then separate containers based on MCS(Svirt) separation.
->>>> What about LSMs that have multiple labels on a file?
->>> Setting policy is something I'll have to leave to the docker people and the
->>> administrators of systems that use docker.
->> What does that mean? If the underlying mechanism can't do the job,
->> how the dickens is the administrator supposed to make it happen?
-> I'm trying to make the kernel able to support a policy on this at all - not
-> actually write the policy itself.  The policy may well vary depending on the
-> installation anyway.
->
->>> But all I'm proposing is a way to give the LSM access to both the file in
->>> the overlay and the file in the lower fs that is leeching through into the
->>> overlay.
->> But your mechanisms are simultaneously incomplete and over specified.
-> Well then, specify better ones!  I'm fairly certain it is incomplete and I'm
-> *trying* to get input on how it may be improved.  I should've marked the
-> patches [RFC] but it didn't occur to me until just after I'd sent them (of
-> course).
->
-> Anyway, there are a number of things one has to take account of:
->
->  (1) There may be multiple 'views' or instances of a file in a union - and
->      each may be labelled differently.
->
->  (2) The lower file may have xattrs attached to it that represent the security
->      policy.
->
->  (3) The union file may have xattrs attached to it that represent the security
->      policy.
->
->  (4) When copying the lower file up, the xattrs representing the security
->      attributes of the lower file must not be written as they may incorrectly
->      overwrite the security attributes of the union file.
->
->  (5) There needs to be a way to set the security attributes on the union file.
->
->  (6) When setting the attributes on the union file, the LSM might need to take
->      account of the attributes of the lower file in their derivation.
->
->  (7) There may be no inode in the union layer on which to hang the attributes
->      for the upper file.
->
->  (8) struct file::f_security should be used to contain the union layer
->      labellage on open files that point to a lower layer.
->
->  (9) Ideally, file->f_path would point to the union layer and file->f_inode to
->      the lower layer when there is no upper file.  However, this is not the
->      case at the moment.  The file struct *only* points to the lower file or
->      the upper file and never both.
->
-> (10) Overlayfs has an extra complication in that there are potentially three
->      files involved in any union.  The lower file that is the source, the
->      upper file that where the copy-up goes and the virtual union file in the
->      overlay fs that redirects to one or the other.
->
->      I've taken the approach that we assume that the upper file (if it exists)
->      has the same labellage as the union file.
->
->> Your proposal is a cop out. It may work in a limited set of cases.
->> It is not a general solution.
-> Actually, I think the actual code interface I've proposed is pretty close to
-> being a general solution.  I've given the LSM the information I have, it can
-> implement a fabulous maze of specially crafted labels if it wants to - and
-> even have multiple labels per inode or per file.  The VFS does not care.
->
-> David
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> However what about the "Improve support for the different network address
+> families with more socket classes" that is on the list. Would the type of
+> patch I submitted be suitable for that type of basic support for say
+> Bluetooth or are you really looking for the detailed support as in SCTP.
+
+Like most things, the answer is: "it depends".
+
+If the protocol is fairly simplistic, e.g. UDP, then a patch like what you 
+provided is likely sufficient.  However, if it is more complicated, e.g. TCP, 
+then we need to be a bit more careful to make sure we are handling things 
+correctly.  While I only know enough about SCTP to be dangerous, SCTP does 
+appear to fall under the complex/TCP category.
+
+I don't know enough about Bluetooth to make a judgment either way, but I'm 
+always willing to accept patches if you provide a good explanation.
+
+-- 
+paul moore
+www.paul-moore.com
