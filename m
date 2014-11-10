@@ -1,58 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAAFm2he021625
- for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2014 10:48:02 -0500
-Received: by mail-qc0-f179.google.com with SMTP id o8so5817497qcw.24
- for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2014 07:48:01 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAAKg39d009545
+ for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2014 15:42:05 -0500
+Received: by mail-qg0-f44.google.com with SMTP id q107so6153123qgd.31
+ for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2014 12:42:01 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 3/7] SELinux: Stub in copy-up handling
-Date: Mon, 10 Nov 2014 10:47:59 -0500
-Message-ID: <3673621.p2j5b7B8ca@sifl>
-In-Reply-To: <3177.1415398128@warthog.procyon.org.uk>
-References: <1791526.rYj1Ea3vWT@sifl>
- <20141105154248.2555.15813.stgit@warthog.procyon.org.uk>
- <3177.1415398128@warthog.procyon.org.uk>
+To: Richard Guy Briggs <rgb@redhat.com>
+Subject: Re: "selinux_nlmsg_perm: unrecognized netlink message: protocol=0
+ nlmsg_type=0 sclass=30" warning on Linux 3.18-rc3
+Date: Mon, 10 Nov 2014 15:41:57 -0500
+Message-ID: <2373486.3IgvVOFVQB@sifl>
+In-Reply-To: <20141105222537.GG5902@madcap2.tricolour.ca>
+References: <CAHTgTXVyR3hoZDSp6QRTtJ9+cAuPXsPomfDBw0zisft=7H_7dA@mail.gmail.com>
+ <18386541.xBZWpSPpcC@sifl> <20141105222537.GG5902@madcap2.tricolour.ca>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-unionfs@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org
+Cc: James Morris <james.l.morris@oracle.com>,
+ Vinson Lee <vlee@twopensource.com>, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, trinity@vger.kernel.org,
+ Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, November 07, 2014 10:08:48 PM David Howells wrote:
-> Paul Moore <paul@paul-moore.com> wrote:
-> > > +static int selinux_inode_copy_up_xattr(struct dentry *src, struct
-> > > dentry
-> > > ...*dst,
-> > > +				       const char *name, void *value, size_t *size)
-> > > +{
-> > > +	if (strcmp(name, XATTR_NAME_SELINUX) == 0)
-> > > +		return 1; /* Discard */
+On Wednesday, November 05, 2014 05:25:37 PM Richard Guy Briggs wrote:
+> On 14/11/05, Paul Moore wrote:
+> > In retrospect, we could probably do better.  I don't think it should be an
+> > audit record, but I can see the point that a backtrace and scary WARNING!
+> > display are probably a bit too much.
 > > 
-> > I understand that this is just a stub, but I we need to discuss this at
-> > some point and I figure better in this patch than elsewhere where it
-> > might get lost.
-> > 
-> > For the docker, context= mount use case (similar to SELinux/sVirt)
-> > dropping
-> > the SELinux xattr is probably an okay behavior.  However, I would expect
-> > that ultimately this is something we would want to control by policy
-> > and/or the presence of a context= label.
-> 
-> The problem is that the label you actually want has already been set and you
-> have to be careful not to overwrite it.
-> 
-> The other hook (->inode_copy_up) is called first to label the destination
-> inode - and that has access to the source file also so it can label the
-> destination with consideration of the attributes on the source.  Normally,
-> the attributes on the source will be in memory attached to the source
-> inode, I would imagine.
+> > Richard, how about converting this WARN_ONCE() to a printk_once(), or
+> > similar?
+>
+> I'd be agreeable to that.  While I was a bit concerned that a
+> WARN_ONCE() could be lost in the noise (evidently that's not the case!)
+> a printk_once() would more likely get lost in the noise.  Would it make
+> sense to make it a bit less infrequent than printk_once() and rate-limit
+> it at say, one per 5 seconds or more?
 
-Hmmm, I guess I need to take a closer look at how overlayfs creates files 
-during a copy on write.
+Let's just go with printk_once() for right now.  We probably need to have a 
+better, more consistent approach to error messages not related to the normal 
+access control stuff, however, I'd like to fix this for the v3.18-rcX releases 
+and that is a bit out of scope for right now.
+
+Ideally I'd like to fix it this week.  Richard, any chance you can submit a 
+patch by the end of the day on Tuesday?  It really should be trivial; if you 
+can't let me know and I'll take care of it.
 
 -- 
 paul moore
