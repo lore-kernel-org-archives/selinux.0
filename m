@@ -1,46 +1,45 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sACDoVP3020198
- for <selinux@tycho.nsa.gov>; Wed, 12 Nov 2014 08:50:32 -0500
-Message-ID: <5463658D.7050702@tresys.com>
-Date: Wed, 12 Nov 2014 08:50:05 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: SELinux Userspace Release: 20140826-rc6
-Content-Type: text/plain; charset="utf-8"
+From: Richard Guy Briggs <rgb@redhat.com>
+To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ trinity@vger.kernel.org
+Subject: [PATCH] selinux: convert WARN_ONCE() to printk_once() in
+ selinux_nlmsg_perm()
+Date: Wed, 12 Nov 2014 14:01:34 -0500
+Message-Id: <49c549f887cd1a0284f79251765606eccacd11e3.1415818605.git.rgb@redhat.com>
+In-Reply-To: <2373486.3IgvVOFVQB@sifl>
+References: <2373486.3IgvVOFVQB@sifl>
+Cc: vlee@twopensource.com, james.l.morris@oracle.com, sds@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The sixth release candidate for the next release of SELinux Userspace
-[1] is now available. The tarballs have been built and can be downloaded
-from the Releases wiki page [2]. Changes since rc5 include:
+Convert WARN_ONCE() to printk_once() in selinux_nlmsg_perm().
 
-- updates to pp2cil compiler to mimic 'requires' in CIL, fixing a bug
-that prevented a small set of optional blocks from being correctly
-disabled [4]
-- updates to pp2cil compiler to correctly scope type aliases, fixing a
-bug that causes errors if a type alias referenced a type in a disabled
-optional block [5]
+After conversion from audit_log() in commit e173fb26, WARN_ONCE() was deemed
+too alarmist, so switch it to printk_once().  If this gets buried in the noise,
+it may be converted to a rate-limited call in the future.
 
-As with the previous rc, action after installing the release candidate
-is required to migrate the policy store from /etc/selinux to
-/var/lib/selinux if it has not already been migrated. Detailed
-information about this process can be found on the Policy Store
-Migration wiki page [3].
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+---
+ security/selinux/hooks.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Also, because the pp2cil compiler has been updated, any cached CIL
-modules must be rebuilt. This can be done with the --ignore-module-cache
-semodule option.
-
-Please give this a test and let us know if you find any problems.
-
-Thanks,
-- Steve
-
-[1] https://github.com/SELinuxProject/selinux
-[2] https://github.com/SELinuxProject/selinux/wiki/Releases
-[3] https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration
-[4] http://marc.info/?l=selinux&m=141537621807753&w=2
-[5] http://marc.info/?l=selinux&m=141537664108369&w=2
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e663141..17d0066 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4725,9 +4725,9 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ 	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
+ 	if (err) {
+ 		if (err == -EINVAL) {
+-			WARN_ONCE(1, "selinux_nlmsg_perm: unrecognized netlink message:"
+-				  " protocol=%hu nlmsg_type=%hu sclass=%hu\n",
+-				  sk->sk_protocol, nlh->nlmsg_type, sksec->sclass);
++			printk_once("selinux_nlmsg_perm: unrecognized netlink message:"
++				    " protocol=%hu nlmsg_type=%hu sclass=%hu\n",
++				    sk->sk_protocol, nlh->nlmsg_type, sksec->sclass);
+ 			if (!selinux_enforcing || security_get_allow_unknown())
+ 				err = 0;
+ 		}
+-- 
+1.7.1
