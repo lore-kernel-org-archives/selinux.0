@@ -1,34 +1,51 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAD41SJa010157
+ for <selinux@tycho.nsa.gov>; Wed, 12 Nov 2014 23:01:28 -0500
 From: Paul Moore <pmoore@redhat.com>
-To: Richard Guy Briggs <rgb@redhat.com>
-Subject: Re: [PATCH] selinux: convert WARN_ONCE() to printk_once() in
- selinux_nlmsg_perm()
-Date: Wed, 12 Nov 2014 16:44:41 -0500
-Message-ID: <1565079.bnAGdRA6Jv@sifl>
-In-Reply-To: <20141112213533.GA11274@madcap2.tricolour.ca>
-References: <2373486.3IgvVOFVQB@sifl> <1709228.3j5ciILylX@sifl>
- <20141112213533.GA11274@madcap2.tricolour.ca>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux patches for 3.18 #3
+Date: Wed, 12 Nov 2014 23:01:21 -0500
+Message-ID: <8435198.rL4hIZhD3f@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: james.l.morris@oracle.com, vlee@twopensource.com,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- trinity@vger.kernel.org, sds@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, November 12, 2014 04:35:33 PM Richard Guy Briggs wrote:
-> On 14/11/12, Paul Moore wrote:
-> > On Wednesday, November 12, 2014 04:25:15 PM Richard Guy Briggs wrote:
-> > > Use pr_warn() instead...
-> > 
-> > Normally, yes, but the rest of the SELinux code uses printk(WARN) and I'm
-> > a stickler for consistency.
-> 
-> And Joe Perches hasn't handed a patch you've accepted yet to convert it
-> all over?
+Hi James,
 
-Maybe I missed it, but I don't recall one ...
+One more small SELinux fix that should go into the next v3.18 release; it's a 
+small patch to convert a WARN_ONCE() into a printk() so we don't end up 
+scaring users with a nasty error message and backtrace whenever an errant 
+netlink message hits the kernel.
+
+It applies cleanly on top of your next branch.
+
+Enjoy,
+-Paul
+
+---
+The following changes since commit 923190d32de4428afbea5e5773be86bea60a9925:
+
+  selinux: fix inode security list corruption (2014-10-15 10:37:02 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-3.18
+
+for you to fetch changes up to d950f84c1c6658faec2ecbf5b09f7e7191953394:
+
+  selinux: convert WARN_ONCE() to printk() in selinux_nlmsg_perm() (2014-11-12 
+16:14:02 -0500)
+
+----------------------------------------------------------------
+Richard Guy Briggs (1):
+      selinux: convert WARN_ONCE() to printk() in selinux_nlmsg_perm()
+
+ security/selinux/hooks.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 -- 
 paul moore
