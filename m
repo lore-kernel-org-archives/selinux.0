@@ -1,103 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAIImXfe025945
- for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2014 13:48:37 -0500
-Message-ID: <546B9470.3090104@tresys.com>
-Date: Tue, 18 Nov 2014 13:48:16 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-To: <mgrepl@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAIJKGM9028314
+ for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2014 14:20:16 -0500
+Received: by mail-wg0-f43.google.com with SMTP id l18so7269408wgh.16
+ for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2014 11:20:14 -0800 (PST)
+Received: from e145.network2 ([84.245.1.4])
+ by mx.google.com with ESMTPSA id fa7sm57002034wjd.27.2014.11.18.11.20.13
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Tue, 18 Nov 2014 11:20:13 -0800 (PST)
+Date: Tue, 18 Nov 2014 20:20:11 +0100
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
 Subject: Re: [RFC] systemd the userspace object manager
+Message-ID: <20141118192010.GA32498@e145.network2>
 References: <546B760D.8070407@tresys.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
 In-Reply-To: <546B760D.8070407@tresys.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/18/2014 11:38 AM, Christopher J. PeBenito wrote:
-> Systemd currently mixes userspace permissions into a kernel class
-> (system).  This came up on the refpolicy list a few months ago[1], but
-> there has been no decision or progress[2][3] that I'm aware of, so I'd
-> like to reach a decision on the direction here.
-> 
-> Based on what was proposed for upstreaming into refpolicy, it looks like
-> all of the service class permissions were duplicated into system, in
-> addition to "halt" and "reboot".  This conflates kernel functions with
-> systemd functions.  With the current systemd implementation, I think a
-> minimum change should be:
-> 
-> class init_system
-> {
->     halt
->     reboot
-> }
-> 
-> class init_service
-> {
->     start
->     stop
->     status
->     reload
->     enable
->     disable
-> }
 
-With some sleuthing help from a few people in the IRC channel, we found
-that reload permission is used in the system class to mediate at least
-the "systemctl daemon-reload", which reloads all unit files.  I'll amend
-my suggestions to add a more specific permission, "reload_all_units", to
-the init_system class above and below for daemon-reload, under the
-assumption that a change to check the reload permission on all units
-would be rejected by systemd maintainers.
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-
-
-> (init_ prefix added for naming convention consistency with other
-> userspace classes in refpolicy)
-> 
-> Since we are discussing the enforcement, I'd like to review all of
-> systemd's enforcement.  Right now there are checks against unit files
-> and processes, both for the service object class.  I think this has
-> problems as it conflates units (as service configurations) with services
-> (the daemon processes).  In an ideal world (I don't know if the systemd
-> code could easily support this), I think the classes should be:
-> 
-> class init_system
-> {
->     halt
->     reboot
-> }
-> 
-> class init_unit
-> {
->     enable
->     disable
->     reload
-> }
-> 
+>=20
 > class init_service
 > {
 >     start
 >     stop
 >     status
 > }
-> 
-> Then init_system checks would always be against systemd's type (i.e.
-> init_t), init_unit would always check against the unit file type, and
-> init_service would always check against the daemon process type (which
-> systemd should be able to calculate since it does that for socket
-> activation).
-> 
-> 
-> [1] http://oss.tresys.com/pipermail/refpolicy/2014-July/007229.html
-> [2] https://bugs.freedesktop.org/show_bug.cgi?id=81105
-> [3] https://bugzilla.redhat.com/show_bug.cgi?id=1132933
-> 
+>=20
 
+I cannot really substantiate but it look like these are also used to start/=
+stop/get status of systemd (session) daemons, so i suppose start_init, stop=
+_init, get_status_init
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+I suspect this is mainly for starting the systemd session daemons. Logind u=
+ses these i believe.
+
+so to start a systemd session daemon: allow ARG init_t:init start_init;  or=
+ something maybe?
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJUa5vlAAoJENAR6kfG5xmcQdEMAMrIi855H4hJ8QscORDXvnMX
+zibcK6WcjivNh8WSog8skdiTUHELrqZ+aQAcdH9tAYu2jHQnX2cd9XEj2ONcYbH9
+wlTQIIzOVDR674kDZT+ej2z7SnenuZiwDcQ2JT9PLAaZbNRdDWk2SjDwJFqvlVL8
+GTaMiBq6gn1P0PujtyM4WwX6Dgjia6ZvgVxxkNz0oYcDhVsIOH8heYT21UF7bIvp
+Jjh5jv1nZz06wXLsbJD8Gkaf260U3phYNMts9lZNrqs24MvYQmHFAYQJV80eE7nV
+TWCD1OYwCdDMIOtkfyIaLNhWEgTkSv2Smetz53n2QV5ScCrJ0O/zX6sLUCafbBeq
+zC9FQgoLfgGgqBDSjTz6+tzZA/JtY490Eslh2fNvEzMxwXSxwq8O06SpzVOPdQ3Y
+iNnE/w5Tgr6USORG+EAU4bnK5oFE1He+ThhwBhdHlkPVLmEGgBwu+oJjhsiCCAa7
+t4pixI98FKOrNHj5Efe0MF35Zb07nw2uSIGBcdWmpQ==
+=5XCv
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
