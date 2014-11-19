@@ -1,69 +1,292 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAJHhRF4012436
- for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2014 12:43:27 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] policycoreutils: pp: add roletype statements for both
- declared and required type/typeattributes
-Date: Wed, 19 Nov 2014 12:43:04 -0500
-Message-ID: <1416418984-18875-1-git-send-email-slawrence@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAJKJSZB022974
+ for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2014 15:19:29 -0500
+Received: by mail-wg0-f45.google.com with SMTP id b13so1786002wgh.32
+ for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2014 12:19:26 -0800 (PST)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] semanage_migrate_store: Python3 support
+Date: Thu, 20 Nov 2014 00:18:59 +0400
+Message-Id: <1416428339-11800-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Currently, roletype statements are only added for types when they are
-declared (not required). This means that in policy like:
+Mainly used the 2to3 conversion tool. Also added in a __future__
+import so that the script continues to work on Python 2.
 
-  require {
-    type foo_t;
-  }
-  type bar_t;
-  role staff_r types foo_t, bar_t;
+Tested on 2.7, 3.3, 3.4. Should work on 2.6 too but untested.
 
-only bar_t is associated with staff_r. This patch moves the code that
-generates roletype statements for types to outside the SCOPE_DECL check
-so that roletype statements are generated for all types, regardless of
-the required/declared scope. It further moves the code outside of the
-type/typeattribute flavor check so that roletype statements are also
-generated for typeattributes.
-
-Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
-Reviewed-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- policycoreutils/hll/pp/pp.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ libsemanage/utils/semanage_migrate_store | 86 +++++++++++++++++---------------
+ 1 file changed, 45 insertions(+), 41 deletions(-)
 
-diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
-index b1ef27f..4b9f310 100644
---- a/policycoreutils/hll/pp/pp.c
-+++ b/policycoreutils/hll/pp/pp.c
-@@ -2083,6 +2083,11 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 		cil_println(indent, "(typeattributeset " GEN_REQUIRE_ATTR " %s)", key);
- 	}
+diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
+index cbc4f31..0371e49 100755
+--- a/libsemanage/utils/semanage_migrate_store
++++ b/libsemanage/utils/semanage_migrate_store
+@@ -1,6 +1,7 @@
+ #!/usr/bin/python -E
  
-+	rc = roletype_role_in_ancestor_to_cil(pdb, decl_stack, key, indent);
-+	if (rc != 0) {
-+		goto exit;
-+	}
+ 
++from __future__ import print_function
+ import os
+ import errno
+ import shutil
+@@ -16,7 +17,7 @@ try:
+ 	import selinux
+ 	import semanage
+ except:
+-	print >> sys.stderr, "You must install libselinux-python and libsemanage-python before running this tool"
++	print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
+ 	exit(1)
+ 
+ 
+@@ -25,100 +26,103 @@ except:
+ # For some reason this function doesn't exist in libselinux :\
+ def copy_with_context(src, dst):
+ 	if DEBUG:
+-		print "copying %s to %s" % (src, dst)
++		print("copying %s to %s" % (src, dst))
+ 	try:
+ 		con = selinux.lgetfilecon_raw(src)[1]
+ 	except:
+-		print >> sys.stderr, "Could not get file context of %s" % src
++		print("Could not get file context of %s" % src, file=sys.stderr)
+ 		exit(1)
+ 
+ 	try:
+ 		selinux.setfscreatecon_raw(con)
+ 	except:
+-		print >> sys.stderr, "Could not set fs create context: %s" %con
++		print("Could not set fs create context: %s" %con, file=sys.stderr)
+ 		exit(1)
+ 
+ 	try:
+ 		shutil.copy2(src, dst)
+-	except OSError as (err, strerr):
+-		print >> sys.stderr, "Could not copy %s to %s, %s" %(src, dst, strerr)
++	except OSError as the_err:
++		(err, strerr) = the_err.args
++		print("Could not copy %s to %s, %s" %(src, dst, strerr), file=sys.stderr)
+ 		exit(1)
+ 
+ 	try:
+ 		selinux.setfscreatecon_raw(None)
+ 	except:
+-		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
++		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
+ 
+ def create_dir_from(src, dst, mode):
+-	if DEBUG: print "Making directory %s" % dst
++	if DEBUG: print("Making directory %s" % dst)
+ 	try:
+ 		con = selinux.lgetfilecon_raw(src)[1]
+ 		selinux.setfscreatecon_raw(con)
+ 		os.makedirs(dst, mode)
+-	except OSError as (err, stderr):
++	except OSError as the_err:
++		(err, stderr) = the_err.args
+ 		if err == errno.EEXIST:
+ 			pass
+ 		else:
+-			print >> sys.stderr, "Error creating %s" % dst
++			print("Error creating %s" % dst, file=sys.stderr)
+ 			exit(1)
+ 
+ 	try:
+ 		selinux.setfscreatecon_raw(None)
+ 	except:
+-		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
++		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
+ 
+ def create_file_from(src, dst):
+-	if DEBUG: print "Making file %s" % dst
++	if DEBUG: print("Making file %s" % dst)
+ 	try:
+ 		con = selinux.lgetfilecon_raw(src)[1]
+ 		selinux.setfscreatecon_raw(con)
+ 		open(dst, 'a').close()
+-	except OSError as (err, stderr):
+-		print >> sys.stderr, "Error creating %s" % dst
++	except OSError as the_err:
++		(err, stderr) = the_err.args
++		print("Error creating %s" % dst, file=sys.stderr)
+ 		exit(1)
+ 
+ 	try:
+ 		selinux.setfscreatecon_raw(None)
+ 	except:
+-		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
++		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
+ 
+ def copy_module(store, name, con, base):
+-	if DEBUG: print "Install module %s" % name	
++	if DEBUG: print("Install module %s" % name)
+ 	(file, ext) = os.path.splitext(name)
+ 	if ext != ".pp":
+ 		# Stray non-pp file in modules directory, skip
+-		print >> sys.stderr, "warning: %s has invalid extension, skipping" % name
++		print("warning: %s has invalid extension, skipping" % name, file=sys.stderr)
+ 		return
+ 	try:
+ 		selinux.setfscreatecon_raw(con)
+-	
 +
- 	switch(type->flavor) {
- 	case TYPE_TYPE:
- 		if (scope == SCOPE_DECL) {
-@@ -2090,11 +2095,6 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 			// object_r is implicit in checkmodule, but not with CIL,
- 			// create it as part of base
- 			cil_println(indent, "(roletype " DEFAULT_OBJECT " %s)", key);
--
--			rc = roletype_role_in_ancestor_to_cil(pdb, decl_stack, key, indent);
--			if (rc != 0) {
--				goto exit;
--			}
- 		}
+ 		if base:
+ 			root = oldstore_path(store)
+ 		else:
+ 			root = oldmodules_path(store)
  
- 		if (type->flags & TYPE_FLAGS_PERMISSIVE) {
+ 		bottomdir = bottomdir_path(store)
+-			
++
+ 		os.mkdir("%s/%s" % (bottomdir, file))
+ 
+ 		copy_with_context(os.path.join(root, name), "%s/%s/hll" % (bottomdir, file))
+ 
+ 		# This is the ext file that will eventually be used to choose a compiler
+-		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0600)
++		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0o600)
+ 		efile.write("pp")
+ 		efile.close()
+ 
+ 	except:
+-		print >> sys.stderr, "Error installing module %s" % name
++		print("Error installing module %s" % name, file=sys.stderr)
+ 		exit(1)
+ 
+ 	try:
+ 		selinux.setfscreatecon_raw(None)
+ 	except:
+-		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
++		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
+ 
+ def disable_module(file, root, name, disabledmodules):
+-	if DEBUG: print "Disabling %s" % name
++	if DEBUG: print("Disabling %s" % name)
+ 	(disabledname, disabledext) = os.path.splitext(file)
+ 	create_file_from(os.path.join(root, name), "%s/%s" % (disabledmodules, disabledname))
+ 
+@@ -131,14 +135,14 @@ def migrate_store(store):
+ 	newmodules = newmodules_path(store);
+ 	bottomdir = bottomdir_path(store);
+ 
+-	print "Migrating from %s to %s" % (oldstore, newstore)
++	print("Migrating from %s to %s" % (oldstore, newstore))
+ 
+ 	# Build up new directory structure
+-	create_dir_from(selinux.selinux_policy_root(), "%s/%s" % (newroot_path(), store), 0755)
+-	create_dir_from(oldmodules, newstore, 0700)
+-	create_dir_from(oldstore, newmodules, 0700)
+-	create_dir_from(oldstore, bottomdir, 0700)
+-	create_dir_from(oldstore, disabledmodules, 0700)
++	create_dir_from(selinux.selinux_policy_root(), "%s/%s" % (newroot_path(), store), 0o755)
++	create_dir_from(oldmodules, newstore, 0o700)
++	create_dir_from(oldstore, newmodules, 0o700)
++	create_dir_from(oldstore, bottomdir, 0o700)
++	create_dir_from(oldstore, disabledmodules, 0o700)
+ 
+ 	# use whatever the file context of bottomdir is for the module directories
+ 	con = selinux.lgetfilecon_raw(bottomdir)[1]
+@@ -149,7 +153,7 @@ def migrate_store(store):
+ 	# Dir structure built, start copying files
+ 	for root, dirs, files in os.walk(oldstore):
+ 		if root == oldstore:
+-			# This is the top level directory, need to move 
++			# This is the top level directory, need to move
+ 			for name in files:
+ 				# Check to see if it is in TOPPATHS and copy if so
+ 				if name in TOPPATHS:
+@@ -164,7 +168,7 @@ def migrate_store(store):
+ 			for name in files:
+ 				(file, ext) = os.path.splitext(name)
+ 				if name == "base.pp":
+-					print >> sys.stderr, "Error installing module %s, name conflicts with base" % name
++					print("Error installing module %s, name conflicts with base" % name, file=sys.stderr)
+ 					exit(1)
+ 				elif ext == ".disabled":
+ 					disable_module(file, root, name, disabledmodules)
+@@ -173,32 +177,32 @@ def migrate_store(store):
+ 
+ def rebuild_policy():
+ 	# Ok, the modules are loaded, lets try to rebuild the policy
+-	print "Attempting to rebuild policy from %s" % newroot_path()
++	print("Attempting to rebuild policy from %s" % newroot_path())
+ 
+ 	curstore = selinux.selinux_getpolicytype()[1]
+ 
+ 	handle = semanage.semanage_handle_create()
+ 	if not handle:
+-		print >> sys.stderr, "Could not create semanage handle"
++		print("Could not create semanage handle", file=sys.stderr)
+ 		exit(1)
+ 
+ 	semanage.semanage_select_store(handle, curstore, semanage.SEMANAGE_CON_DIRECT)
+ 
+ 	if not semanage.semanage_is_managed(handle):
+ 		semanage.semanage_handle_destroy(handle)
+-		print >> sys.stderr, "SELinux policy is not managed or store cannot be accessed."
++		print("SELinux policy is not managed or store cannot be accessed.", file=sys.stderr)
+ 		exit(1)
+ 
+ 	rc = semanage.semanage_access_check(handle)
+ 	if rc < semanage.SEMANAGE_CAN_WRITE:
+ 		semanage.semanage_handle_destroy(handle)
+-		print >> sys.stderr, "Cannot write to policy store."
++		print("Cannot write to policy store.", file=sys.stderr)
+ 		exit(1)
+ 
+ 	rc = semanage.semanage_connect(handle)
+ 	if rc < 0:
+ 		semanage.semanage_handle_destroy(handle)
+-		print >> sys.stderr, "Could not establish semanage connection"
++		print("Could not establish semanage connection", file=sys.stderr)
+ 		exit(1)
+ 
+ 	semanage.semanage_set_rebuild(handle, 1)
+@@ -206,12 +210,12 @@ def rebuild_policy():
+ 	rc = semanage.semanage_begin_transaction(handle)
+ 	if rc < 0:
+ 		semanage.semanage_handle_destroy(handle)
+-		print >> sys.stderr, "Could not begin transaction"
++		print("Could not begin transaction", file=sys.stderr)
+ 		exit(1)
+ 
+ 	rc = semanage.semanage_commit(handle)
+ 	if rc < 0:
+-		print >> sys.stderr, "Could not commit transaction"
++		print("Could not commit transaction", file=sys.stderr)
+ 
+ 	semanage.semanage_handle_destroy(handle)
+ 
+@@ -283,7 +287,7 @@ if __name__ == "__main__":
+ 		"preserve_tunables" ]
+ 
+ 
+-	create_dir_from(oldroot_path(), newroot_path(), 0755)
++	create_dir_from(oldroot_path(), newroot_path(), 0o755)
+ 
+ 	stores = None
+ 	if TYPE is not None:
+@@ -299,14 +303,14 @@ if __name__ == "__main__":
+ 
+ 		if os.path.isdir(newstore_path(store)):
+ 			# store has already been migrated, but old modules dir still exits
+-			print >> sys.stderr, "warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store
++			print("warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store, file=sys.stderr)
+ 			continue
+ 
+ 		migrate_store(store)
+ 
+ 		if CLEAN is True:
+ 			def remove_error(function, path, execinfo):
+-				print >> sys.stderr, "warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store)
++				print("warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store), file=sys.stderr)
+ 			shutil.rmtree(oldmodules_path(store), onerror=remove_error)
+ 
+ 	if NOREBUILD is False:
 -- 
-1.9.3
+2.0.4
