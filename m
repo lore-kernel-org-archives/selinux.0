@@ -1,69 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAIJKGM9028314
- for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2014 14:20:16 -0500
-Received: by mail-wg0-f43.google.com with SMTP id l18so7269408wgh.16
- for <selinux@tycho.nsa.gov>; Tue, 18 Nov 2014 11:20:14 -0800 (PST)
-Received: from e145.network2 ([84.245.1.4])
- by mx.google.com with ESMTPSA id fa7sm57002034wjd.27.2014.11.18.11.20.13
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Tue, 18 Nov 2014 11:20:13 -0800 (PST)
-Date: Tue, 18 Nov 2014 20:20:11 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: [RFC] systemd the userspace object manager
-Message-ID: <20141118192010.GA32498@e145.network2>
-References: <546B760D.8070407@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAJHhRF4012436
+ for <selinux@tycho.nsa.gov>; Wed, 19 Nov 2014 12:43:27 -0500
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] policycoreutils: pp: add roletype statements for both
+ declared and required type/typeattributes
+Date: Wed, 19 Nov 2014 12:43:04 -0500
+Message-ID: <1416418984-18875-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
-In-Reply-To: <546B760D.8070407@tresys.com>
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Currently, roletype statements are only added for types when they are
+declared (not required). This means that in policy like:
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  require {
+    type foo_t;
+  }
+  type bar_t;
+  role staff_r types foo_t, bar_t;
 
->=20
-> class init_service
-> {
->     start
->     stop
->     status
-> }
->=20
+only bar_t is associated with staff_r. This patch moves the code that
+generates roletype statements for types to outside the SCOPE_DECL check
+so that roletype statements are generated for all types, regardless of
+the required/declared scope. It further moves the code outside of the
+type/typeattribute flavor check so that roletype statements are also
+generated for typeattributes.
 
-I cannot really substantiate but it look like these are also used to start/=
-stop/get status of systemd (session) daemons, so i suppose start_init, stop=
-_init, get_status_init
+Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+Reviewed-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+---
+ policycoreutils/hll/pp/pp.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-I suspect this is mainly for starting the systemd session daemons. Logind u=
-ses these i believe.
-
-so to start a systemd session daemon: allow ARG init_t:init start_init;  or=
- something maybe?
-
---bp/iNruPH9dso1Pn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJUa5vlAAoJENAR6kfG5xmcQdEMAMrIi855H4hJ8QscORDXvnMX
-zibcK6WcjivNh8WSog8skdiTUHELrqZ+aQAcdH9tAYu2jHQnX2cd9XEj2ONcYbH9
-wlTQIIzOVDR674kDZT+ej2z7SnenuZiwDcQ2JT9PLAaZbNRdDWk2SjDwJFqvlVL8
-GTaMiBq6gn1P0PujtyM4WwX6Dgjia6ZvgVxxkNz0oYcDhVsIOH8heYT21UF7bIvp
-Jjh5jv1nZz06wXLsbJD8Gkaf260U3phYNMts9lZNrqs24MvYQmHFAYQJV80eE7nV
-TWCD1OYwCdDMIOtkfyIaLNhWEgTkSv2Smetz53n2QV5ScCrJ0O/zX6sLUCafbBeq
-zC9FQgoLfgGgqBDSjTz6+tzZA/JtY490Eslh2fNvEzMxwXSxwq8O06SpzVOPdQ3Y
-iNnE/w5Tgr6USORG+EAU4bnK5oFE1He+ThhwBhdHlkPVLmEGgBwu+oJjhsiCCAa7
-t4pixI98FKOrNHj5Efe0MF35Zb07nw2uSIGBcdWmpQ==
-=5XCv
------END PGP SIGNATURE-----
-
---bp/iNruPH9dso1Pn--
+diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
+index b1ef27f..4b9f310 100644
+--- a/policycoreutils/hll/pp/pp.c
++++ b/policycoreutils/hll/pp/pp.c
+@@ -2083,6 +2083,11 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 		cil_println(indent, "(typeattributeset " GEN_REQUIRE_ATTR " %s)", key);
+ 	}
+ 
++	rc = roletype_role_in_ancestor_to_cil(pdb, decl_stack, key, indent);
++	if (rc != 0) {
++		goto exit;
++	}
++
+ 	switch(type->flavor) {
+ 	case TYPE_TYPE:
+ 		if (scope == SCOPE_DECL) {
+@@ -2090,11 +2095,6 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 			// object_r is implicit in checkmodule, but not with CIL,
+ 			// create it as part of base
+ 			cil_println(indent, "(roletype " DEFAULT_OBJECT " %s)", key);
+-
+-			rc = roletype_role_in_ancestor_to_cil(pdb, decl_stack, key, indent);
+-			if (rc != 0) {
+-				goto exit;
+-			}
+ 		}
+ 
+ 		if (type->flags & TYPE_FLAGS_PERMISSIVE) {
+-- 
+1.9.3
