@@ -1,298 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAKExLwu018835
- for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2014 09:59:21 -0500
-Message-ID: <546E01AE.1030607@tresys.com>
-Date: Thu, 20 Nov 2014 09:58:54 -0500
-From: Steve Lawrence <slawrence@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAKFxhBY023902
+ for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2014 10:59:43 -0500
+Received: by mail-wi0-f175.google.com with SMTP id l15so9211250wiw.8
+ for <selinux@tycho.nsa.gov>; Thu, 20 Nov 2014 07:59:41 -0800 (PST)
+Received: from e145.network2 ([84.245.1.4])
+ by mx.google.com with ESMTPSA id gy4sm4645631wib.11.2014.11.20.07.59.40
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Thu, 20 Nov 2014 07:59:40 -0800 (PST)
+Date: Thu, 20 Nov 2014 16:59:38 +0100
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: [RFC] systemd the userspace object manager
+Message-ID: <20141120155937.GA19689@e145.network2>
+References: <546B760D.8070407@tresys.com>
+ <20141118192010.GA32498@e145.network2>
+ <546DF23A.2000300@tresys.com>
 MIME-Version: 1.0
-To: Jason Zaman <jason@perfinion.com>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] semanage_migrate_store: Python3 support
-References: <1416428339-11800-1-git-send-email-jason@perfinion.com>
-In-Reply-To: <1416428339-11800-1-git-send-email-jason@perfinion.com>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+In-Reply-To: <546DF23A.2000300@tresys.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks for the patch!
 
-Acked-by: Steve Lawrence <slawrence@tresys.com>
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 11/19/2014 03:18 PM, Jason Zaman wrote:
-> Mainly used the 2to3 conversion tool. Also added in a __future__
-> import so that the script continues to work on Python 2.
-> 
-> Tested on 2.7, 3.3, 3.4. Should work on 2.6 too but untested.
-> 
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
-> ---
->  libsemanage/utils/semanage_migrate_store | 86 +++++++++++++++++---------------
->  1 file changed, 45 insertions(+), 41 deletions(-)
-> 
-> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-> index cbc4f31..0371e49 100755
-> --- a/libsemanage/utils/semanage_migrate_store
-> +++ b/libsemanage/utils/semanage_migrate_store
-> @@ -1,6 +1,7 @@
->  #!/usr/bin/python -E
->  
->  
-> +from __future__ import print_function
->  import os
->  import errno
->  import shutil
-> @@ -16,7 +17,7 @@ try:
->  	import selinux
->  	import semanage
->  except:
-> -	print >> sys.stderr, "You must install libselinux-python and libsemanage-python before running this tool"
-> +	print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
->  	exit(1)
->  
->  
-> @@ -25,100 +26,103 @@ except:
->  # For some reason this function doesn't exist in libselinux :\
->  def copy_with_context(src, dst):
->  	if DEBUG:
-> -		print "copying %s to %s" % (src, dst)
-> +		print("copying %s to %s" % (src, dst))
->  	try:
->  		con = selinux.lgetfilecon_raw(src)[1]
->  	except:
-> -		print >> sys.stderr, "Could not get file context of %s" % src
-> +		print("Could not get file context of %s" % src, file=sys.stderr)
->  		exit(1)
->  
->  	try:
->  		selinux.setfscreatecon_raw(con)
->  	except:
-> -		print >> sys.stderr, "Could not set fs create context: %s" %con
-> +		print("Could not set fs create context: %s" %con, file=sys.stderr)
->  		exit(1)
->  
->  	try:
->  		shutil.copy2(src, dst)
-> -	except OSError as (err, strerr):
-> -		print >> sys.stderr, "Could not copy %s to %s, %s" %(src, dst, strerr)
-> +	except OSError as the_err:
-> +		(err, strerr) = the_err.args
-> +		print("Could not copy %s to %s, %s" %(src, dst, strerr), file=sys.stderr)
->  		exit(1)
->  
->  	try:
->  		selinux.setfscreatecon_raw(None)
->  	except:
-> -		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
-> +		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
->  
->  def create_dir_from(src, dst, mode):
-> -	if DEBUG: print "Making directory %s" % dst
-> +	if DEBUG: print("Making directory %s" % dst)
->  	try:
->  		con = selinux.lgetfilecon_raw(src)[1]
->  		selinux.setfscreatecon_raw(con)
->  		os.makedirs(dst, mode)
-> -	except OSError as (err, stderr):
-> +	except OSError as the_err:
-> +		(err, stderr) = the_err.args
->  		if err == errno.EEXIST:
->  			pass
->  		else:
-> -			print >> sys.stderr, "Error creating %s" % dst
-> +			print("Error creating %s" % dst, file=sys.stderr)
->  			exit(1)
->  
->  	try:
->  		selinux.setfscreatecon_raw(None)
->  	except:
-> -		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
-> +		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
->  
->  def create_file_from(src, dst):
-> -	if DEBUG: print "Making file %s" % dst
-> +	if DEBUG: print("Making file %s" % dst)
->  	try:
->  		con = selinux.lgetfilecon_raw(src)[1]
->  		selinux.setfscreatecon_raw(con)
->  		open(dst, 'a').close()
-> -	except OSError as (err, stderr):
-> -		print >> sys.stderr, "Error creating %s" % dst
-> +	except OSError as the_err:
-> +		(err, stderr) = the_err.args
-> +		print("Error creating %s" % dst, file=sys.stderr)
->  		exit(1)
->  
->  	try:
->  		selinux.setfscreatecon_raw(None)
->  	except:
-> -		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
-> +		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
->  
->  def copy_module(store, name, con, base):
-> -	if DEBUG: print "Install module %s" % name	
-> +	if DEBUG: print("Install module %s" % name)
->  	(file, ext) = os.path.splitext(name)
->  	if ext != ".pp":
->  		# Stray non-pp file in modules directory, skip
-> -		print >> sys.stderr, "warning: %s has invalid extension, skipping" % name
-> +		print("warning: %s has invalid extension, skipping" % name, file=sys.stderr)
->  		return
->  	try:
->  		selinux.setfscreatecon_raw(con)
-> -	
-> +
->  		if base:
->  			root = oldstore_path(store)
->  		else:
->  			root = oldmodules_path(store)
->  
->  		bottomdir = bottomdir_path(store)
-> -			
-> +
->  		os.mkdir("%s/%s" % (bottomdir, file))
->  
->  		copy_with_context(os.path.join(root, name), "%s/%s/hll" % (bottomdir, file))
->  
->  		# This is the ext file that will eventually be used to choose a compiler
-> -		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0600)
-> +		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0o600)
->  		efile.write("pp")
->  		efile.close()
->  
->  	except:
-> -		print >> sys.stderr, "Error installing module %s" % name
-> +		print("Error installing module %s" % name, file=sys.stderr)
->  		exit(1)
->  
->  	try:
->  		selinux.setfscreatecon_raw(None)
->  	except:
-> -		print >> sys.stderr, "Could not reset fs create context. May need to relabel system."
-> +		print("Could not reset fs create context. May need to relabel system.", file=sys.stderr)
->  
->  def disable_module(file, root, name, disabledmodules):
-> -	if DEBUG: print "Disabling %s" % name
-> +	if DEBUG: print("Disabling %s" % name)
->  	(disabledname, disabledext) = os.path.splitext(file)
->  	create_file_from(os.path.join(root, name), "%s/%s" % (disabledmodules, disabledname))
->  
-> @@ -131,14 +135,14 @@ def migrate_store(store):
->  	newmodules = newmodules_path(store);
->  	bottomdir = bottomdir_path(store);
->  
-> -	print "Migrating from %s to %s" % (oldstore, newstore)
-> +	print("Migrating from %s to %s" % (oldstore, newstore))
->  
->  	# Build up new directory structure
-> -	create_dir_from(selinux.selinux_policy_root(), "%s/%s" % (newroot_path(), store), 0755)
-> -	create_dir_from(oldmodules, newstore, 0700)
-> -	create_dir_from(oldstore, newmodules, 0700)
-> -	create_dir_from(oldstore, bottomdir, 0700)
-> -	create_dir_from(oldstore, disabledmodules, 0700)
-> +	create_dir_from(selinux.selinux_policy_root(), "%s/%s" % (newroot_path(), store), 0o755)
-> +	create_dir_from(oldmodules, newstore, 0o700)
-> +	create_dir_from(oldstore, newmodules, 0o700)
-> +	create_dir_from(oldstore, bottomdir, 0o700)
-> +	create_dir_from(oldstore, disabledmodules, 0o700)
->  
->  	# use whatever the file context of bottomdir is for the module directories
->  	con = selinux.lgetfilecon_raw(bottomdir)[1]
-> @@ -149,7 +153,7 @@ def migrate_store(store):
->  	# Dir structure built, start copying files
->  	for root, dirs, files in os.walk(oldstore):
->  		if root == oldstore:
-> -			# This is the top level directory, need to move 
-> +			# This is the top level directory, need to move
->  			for name in files:
->  				# Check to see if it is in TOPPATHS and copy if so
->  				if name in TOPPATHS:
-> @@ -164,7 +168,7 @@ def migrate_store(store):
->  			for name in files:
->  				(file, ext) = os.path.splitext(name)
->  				if name == "base.pp":
-> -					print >> sys.stderr, "Error installing module %s, name conflicts with base" % name
-> +					print("Error installing module %s, name conflicts with base" % name, file=sys.stderr)
->  					exit(1)
->  				elif ext == ".disabled":
->  					disable_module(file, root, name, disabledmodules)
-> @@ -173,32 +177,32 @@ def migrate_store(store):
->  
->  def rebuild_policy():
->  	# Ok, the modules are loaded, lets try to rebuild the policy
-> -	print "Attempting to rebuild policy from %s" % newroot_path()
-> +	print("Attempting to rebuild policy from %s" % newroot_path())
->  
->  	curstore = selinux.selinux_getpolicytype()[1]
->  
->  	handle = semanage.semanage_handle_create()
->  	if not handle:
-> -		print >> sys.stderr, "Could not create semanage handle"
-> +		print("Could not create semanage handle", file=sys.stderr)
->  		exit(1)
->  
->  	semanage.semanage_select_store(handle, curstore, semanage.SEMANAGE_CON_DIRECT)
->  
->  	if not semanage.semanage_is_managed(handle):
->  		semanage.semanage_handle_destroy(handle)
-> -		print >> sys.stderr, "SELinux policy is not managed or store cannot be accessed."
-> +		print("SELinux policy is not managed or store cannot be accessed.", file=sys.stderr)
->  		exit(1)
->  
->  	rc = semanage.semanage_access_check(handle)
->  	if rc < semanage.SEMANAGE_CAN_WRITE:
->  		semanage.semanage_handle_destroy(handle)
-> -		print >> sys.stderr, "Cannot write to policy store."
-> +		print("Cannot write to policy store.", file=sys.stderr)
->  		exit(1)
->  
->  	rc = semanage.semanage_connect(handle)
->  	if rc < 0:
->  		semanage.semanage_handle_destroy(handle)
-> -		print >> sys.stderr, "Could not establish semanage connection"
-> +		print("Could not establish semanage connection", file=sys.stderr)
->  		exit(1)
->  
->  	semanage.semanage_set_rebuild(handle, 1)
-> @@ -206,12 +210,12 @@ def rebuild_policy():
->  	rc = semanage.semanage_begin_transaction(handle)
->  	if rc < 0:
->  		semanage.semanage_handle_destroy(handle)
-> -		print >> sys.stderr, "Could not begin transaction"
-> +		print("Could not begin transaction", file=sys.stderr)
->  		exit(1)
->  
->  	rc = semanage.semanage_commit(handle)
->  	if rc < 0:
-> -		print >> sys.stderr, "Could not commit transaction"
-> +		print("Could not commit transaction", file=sys.stderr)
->  
->  	semanage.semanage_handle_destroy(handle)
->  
-> @@ -283,7 +287,7 @@ if __name__ == "__main__":
->  		"preserve_tunables" ]
->  
->  
-> -	create_dir_from(oldroot_path(), newroot_path(), 0755)
-> +	create_dir_from(oldroot_path(), newroot_path(), 0o755)
->  
->  	stores = None
->  	if TYPE is not None:
-> @@ -299,14 +303,14 @@ if __name__ == "__main__":
->  
->  		if os.path.isdir(newstore_path(store)):
->  			# store has already been migrated, but old modules dir still exits
-> -			print >> sys.stderr, "warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store
-> +			print("warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store, file=sys.stderr)
->  			continue
->  
->  		migrate_store(store)
->  
->  		if CLEAN is True:
->  			def remove_error(function, path, execinfo):
-> -				print >> sys.stderr, "warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store)
-> +				print("warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store), file=sys.stderr)
->  			shutil.rmtree(oldmodules_path(store), onerror=remove_error)
->  
->  	if NOREBUILD is False:
-> 
+On Thu, Nov 20, 2014 at 08:52:58AM -0500, Christopher J. PeBenito wrote:
+>=20
+> Why would those daemons need to be treated specially?  In the end
+> they're still services; they may have special system features, but in
+> that case you don't allow just anyone to stop/start them.
+>=20
+
+You're probably right. It looks that way, but i suppose the only way to be =
+determine is to view the code.
+--=20
+Dominick Grift
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJUbg/kAAoJENAR6kfG5xmcXQYMAKaqgf4tCl0oWIqtD0xPxC9v
+iE3+xSvnTB3OjGsEW2BJ4Oybb3XmYTkgWVCJ3swpMDZILvipQ6NU/xOD8A5jDXkS
+09PKsPmZzCeCqblktu0BjjBX4K2OjhGHJUZbt5Lsh0mvAOBkssWXvAQWij8wi7j+
+kT0Pn3Cm6KgIfVOASoLd5xQTkeun2k/8InCeNCmJfsbtpgCj5vmg8j942ov5oftg
+dKVXOgFXKjy4O+U9tJ+8EI4W89GlCttVQ+gP7ROWkPHGrbfXqupclekO1HSzqBtb
+yRD12FWNJBnwqiKgnVeSGPT+J7wOmhYLQK6RdU+emetKO9alFoJRNqEh1CzzgMJO
+vvT3wltD62e29BFiaX1dodwAFCdQ6mmPFknAX/D+OuNJsYL0Lx9g07O/+9rvftkV
+UTaImnuhoFh2RF0KFmdEncCayfMjIKfb04SaWj0kgFKdQoeHeB8nNmkL+8sy82zl
+9qG0edleoRv0QuxtIpPK9T3VWTyv0yzlPaVjQbEn4g==
+=vrYr
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--
