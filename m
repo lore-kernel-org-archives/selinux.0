@@ -1,59 +1,82 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAOGDlRq005717
- for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2014 11:13:49 -0500
+Message-ID: <54735BC4.7050207@tresys.com>
+Date: Mon, 24 Nov 2014 11:24:36 -0500
 From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsemanage: close hll file descriptors
-Date: Mon, 24 Nov 2014 11:13:13 -0500
-Message-ID: <1416845593-2803-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Fix expand logic for policy versions older than 24.
+References: <1416841579-7924-1-git-send-email-sds@tycho.nsa.gov>
+In-Reply-To: <1416841579-7924-1-git-send-email-sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Stops leaking of file descriptors to things like load_policy and
-setfiles.
+Acked-By: Steve Lawrence <slawrence@tresys.com>
 
-Reported-by: Sven Vermeulen <sven.vermeulen@siphos.be>
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
-Reviewed-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
----
- libsemanage/src/direct_api.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index c2ac938..b0ed338 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -837,7 +837,8 @@ static int semanage_compile_hll(semanage_handle_t *sh,
- 	ssize_t hll_data_len = 0;
- 	ssize_t bzip_status;
- 	int status = 0;
--	int i, compressed, in_fd;
-+	int i, compressed;
-+	int in_fd = -1;
- 	size_t cil_data_len;
- 	size_t err_data_len;
- 
-@@ -891,6 +892,9 @@ static int semanage_compile_hll(semanage_handle_t *sh,
- 			goto cleanup;
- 		}
- 
-+		if (in_fd >= 0) close(in_fd);
-+		in_fd = -1;
-+
- 		status = semanage_pipe_data(sh, compiler_path, hll_data, (size_t)hll_data_len, &cil_data, &cil_data_len, &err_data, &err_data_len);
- 		if (err_data_len > 0) {
- 			for (start = end = err_data; end < err_data + err_data_len; end++) {
-@@ -935,6 +939,7 @@ static int semanage_compile_hll(semanage_handle_t *sh,
- 
- cleanup:
- 	if (hll_data_len > 0) munmap(hll_data, hll_data_len);
-+	if (in_fd >= 0) close(in_fd);
- 	free(cil_data);
- 	free(err_data);
- 	free(compiler_path);
--- 
-1.9.3
+On 11/24/2014 10:06 AM, Stephen Smalley wrote:
+> This was broken for older policy versions when we updated to
+> version 24.
+> 
+> Broken by commit 787f2f00f5d8ed6f5f.
+> 
+> Change-Id: I4063334c5c0462ef5c3706611c7dff5c60c612aa
+> Reported-by: William Roberts <bill.c.roberts@gmail.com>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  libsepol/src/expand.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 23eb6ed..57293ae 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -3159,12 +3159,12 @@ static int expand_avtab_node(avtab_key_t * k, avtab_datum_t * d, void *args)
+>  	newkey.target_class = k->target_class;
+>  	newkey.specified = k->specified;
+>  
+> -	if (stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
+> +	if (stype && ttype && stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
+>  		/* Both are individual types, no expansion required. */
+>  		return expand_avtab_insert(expa, k, d);
+>  	}
+>  
+> -	if (stype->flavor != TYPE_ATTRIB) {
+> +	if (stype && stype->flavor != TYPE_ATTRIB) {
+>  		/* Source is an individual type, target is an attribute. */
+>  		newkey.source_type = k->source_type;
+>  		ebitmap_for_each_bit(tattr, tnode, j) {
+> @@ -3178,7 +3178,7 @@ static int expand_avtab_node(avtab_key_t * k, avtab_datum_t * d, void *args)
+>  		return 0;
+>  	}
+>  
+> -	if (ttype->flavor != TYPE_ATTRIB) {
+> +	if (ttype && ttype->flavor != TYPE_ATTRIB) {
+>  		/* Target is an individual type, source is an attribute. */
+>  		newkey.target_type = k->target_type;
+>  		ebitmap_for_each_bit(sattr, snode, i) {
+> @@ -3289,12 +3289,12 @@ int expand_cond_av_node(policydb_t * p,
+>  	newkey.target_class = k->target_class;
+>  	newkey.specified = k->specified;
+>  
+> -	if (stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
+> +	if (stype && ttype && stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
+>  		/* Both are individual types, no expansion required. */
+>  		return expand_cond_insert(newl, expa, k, d);
+>  	}
+>  
+> -	if (stype->flavor != TYPE_ATTRIB) {
+> +	if (stype && stype->flavor != TYPE_ATTRIB) {
+>  		/* Source is an individual type, target is an attribute. */
+>  		newkey.source_type = k->source_type;
+>  		ebitmap_for_each_bit(tattr, tnode, j) {
+> @@ -3308,7 +3308,7 @@ int expand_cond_av_node(policydb_t * p,
+>  		return 0;
+>  	}
+>  
+> -	if (ttype->flavor != TYPE_ATTRIB) {
+> +	if (ttype && ttype->flavor != TYPE_ATTRIB) {
+>  		/* Target is an individual type, source is an attribute. */
+>  		newkey.target_type = k->target_type;
+>  		ebitmap_for_each_bit(sattr, snode, i) {
+> 
