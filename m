@@ -1,47 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAMGkFUl024731
- for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2014 11:46:15 -0500
-Received: by mail-oi0-f44.google.com with SMTP id e131so5041302oig.31
- for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2014 08:46:12 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAOAFiVI013068
+ for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2014 05:15:44 -0500
+Received: by mail-oi0-f47.google.com with SMTP id v63so6340764oia.6
+ for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2014 02:15:42 -0800 (PST)
 MIME-Version: 1.0
 Sender: sven.j.vermeulen@gmail.com
-Date: Sat, 22 Nov 2014 17:46:12 +0100
-Message-ID: <CAPzO=Nx9u_mwAuiPDfpfTOt01t0JLKdgbDQ6-foTr2SZmWPo3g@mail.gmail.com>
-Subject: Permission requirements for semodule?
+In-Reply-To: <5463658D.7050702@tresys.com>
+References: <5463658D.7050702@tresys.com>
+Date: Mon, 24 Nov 2014 11:15:42 +0100
+Message-ID: <CAPzO=NwooMT-tcgLQOCd7gUdy-8eu67=tTVwuWz0pLOpw8eAnA@mail.gmail.com>
+Subject: Re: SELinux Userspace Release: 20140826-rc6
 From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: SELinux <selinux@tycho.nsa.gov>
+To: Steve Lawrence <slawrence@tresys.com>
 Content-Type: text/plain; charset=UTF-8
+Cc: SELinux List <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi all
+On Wed, Nov 12, 2014 at 2:50 PM, Steve Lawrence <slawrence@tresys.com> wrote:
+> The sixth release candidate for the next release of SELinux Userspace
+> [1] is now available.
+[...]
+> Please give this a test and let us know if you find any problems.
 
-I'm working with 2.4_rc6 (with the additional patch that Steve sent to
-the list on November 19th) and noticed that some of the utilities are
-trying to access the HLL files. Currently, our policy disallows that,
-but other than that I see no issues.
+Hi Steve & SELinux folks
 
-For instance, when loading a policy module (pp) using "semodule -i
-/path/to/module.pp":
+With 2.4, I noticed that the user mapping now includes the "object_r" role:
 
-type=AVC msg=audit(1416673390.476:215): avc:  denied  { read } for
-pid=2729 comm="load_policy"
-path="/var/lib/selinux/mcs/active/modules/400/selocal/hll" dev=
-"sdb2" ino=6573925 scontext=staff_u:sysadm_r:load_policy_t:s0
-tcontext=staff_u:object_r:semanage_var_lib_t:s0 tclass=file
+# semanage user -l
 
-type=AVC msg=audit(1416673390.505:217): avc:  denied  { read } for
-pid=2730 comm="setfiles"
-path="/var/lib/selinux/mcs/active/modules/400/selocal/hll" dev="sdb2"
-ino=6573925 scontext=staff_u:sysadm_r:setfiles_t:s0
-tcontext=staff_u:object_r:semanage_var_lib_t:s0 tclass=file
+                Labeling   MLS/       MLS/
+SELinux User    Prefix     MCS Level  MCS Range
+SELinux Roles
 
-The module is loaded and the changes are active, so I'm inclined to
-dontaudit it. But I'd rather ask up front. What are the tools trying
-to do? And, is semanage_var_lib_t the right type for the HLL files? I
-would expect it to need to be semanage_store_t?
+root            user       s0         s0-s0:c0.c1023
+object_r staff_r sysadm_r
+staff_u         user       s0         s0
+staff_r sysadm_r system_r
+sysadm_u        user       s0         s0-s0:c0.c1023
+object_r sysadm_r
+system_u        user       s0         s0-s0:c0.c1023
+object_r system_r
+unconfined_u    user       s0         s0-s0:c0.c1023
+object_r unconfined_r
+user_u          user       s0         s0
+object_r user_r
+
+With 2.3, the "object_r" role was not in the list of allowed roles.
+
+Now, I tried to remove the "object_r" role from one of my test VMs but
+that totally screwed up the image (system froze, and reboot failed).
+I'm not sure if I'm allowed to remove it or not now. If I should, I'll
+investigate it further and see if I can get denials or other
+information from it.
 
 Wkr,
   Sven Vermeulen
