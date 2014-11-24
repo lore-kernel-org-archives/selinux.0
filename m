@@ -1,61 +1,77 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sAODe9Xq025712
- for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2014 08:40:10 -0500
-Message-ID: <54733519.40706@tresys.com>
-Date: Mon, 24 Nov 2014 08:39:37 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Permission requirements for semodule?
-References: <CAPzO=Nx9u_mwAuiPDfpfTOt01t0JLKdgbDQ6-foTr2SZmWPo3g@mail.gmail.com>
-In-Reply-To: <CAPzO=Nx9u_mwAuiPDfpfTOt01t0JLKdgbDQ6-foTr2SZmWPo3g@mail.gmail.com>
-Content-Type: text/plain; charset="windows-1252"
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] Fix expand logic for policy versions older than 24.
+Date: Mon, 24 Nov 2014 10:06:19 -0500
+Message-Id: <1416841579-7924-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/22/2014 11:46 AM, Sven Vermeulen wrote:
-> Hi all
-> 
-> I'm working with 2.4_rc6 (with the additional patch that Steve sent to
-> the list on November 19th) and noticed that some of the utilities are
-> trying to access the HLL files. Currently, our policy disallows that,
-> but other than that I see no issues.
-> 
-> For instance, when loading a policy module (pp) using "semodule -i
-> /path/to/module.pp":
-> 
-> type=AVC msg=audit(1416673390.476:215): avc:  denied  { read } for
-> pid=2729 comm="load_policy"
-> path="/var/lib/selinux/mcs/active/modules/400/selocal/hll" dev=
-> "sdb2" ino=6573925 scontext=staff_u:sysadm_r:load_policy_t:s0
-> tcontext=staff_u:object_r:semanage_var_lib_t:s0 tclass=file
-> 
-> type=AVC msg=audit(1416673390.505:217): avc:  denied  { read } for
-> pid=2730 comm="setfiles"
-> path="/var/lib/selinux/mcs/active/modules/400/selocal/hll" dev="sdb2"
-> ino=6573925 scontext=staff_u:sysadm_r:setfiles_t:s0
-> tcontext=staff_u:object_r:semanage_var_lib_t:s0 tclass=file
-> 
-> The module is loaded and the changes are active, so I'm inclined to
-> dontaudit it. But I'd rather ask up front. What are the tools trying
-> to do? And, is semanage_var_lib_t the right type for the HLL files? I
-> would expect it to need to be semanage_store_t?
-> 
+This was broken for older policy versions when we updated to
+version 24.
 
-Looks like there might be a couple of problems here.
+Broken by commit 787f2f00f5d8ed6f5f.
 
-1) As you expected, files in /var/lib/selinux should be labeled
-semanage_store_t. But we don't have any filecontexts/policy for those.
-The semanage_migrate_store script uses setfscreatecon to set the labels
-correctly, but if you run restorecon/setfiles they're going to reset to
-semanage_var_lib_t. We'll work on a refpolicy patch for that today.
+Change-Id: I4063334c5c0462ef5c3706611c7dff5c60c612aa
+Reported-by: William Roberts <bill.c.roberts@gmail.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/expand.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-2) I'm not entirely sure why load_policy and setfiles want the file:read
-permission on hll files. Those programs should never be reading those
-files. Perhaps semodule is leaking file descriptors or something.
-Looking into it.
-
-Thanks,
-- Steve
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 23eb6ed..57293ae 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -3159,12 +3159,12 @@ static int expand_avtab_node(avtab_key_t * k, avtab_datum_t * d, void *args)
+ 	newkey.target_class = k->target_class;
+ 	newkey.specified = k->specified;
+ 
+-	if (stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
++	if (stype && ttype && stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
+ 		/* Both are individual types, no expansion required. */
+ 		return expand_avtab_insert(expa, k, d);
+ 	}
+ 
+-	if (stype->flavor != TYPE_ATTRIB) {
++	if (stype && stype->flavor != TYPE_ATTRIB) {
+ 		/* Source is an individual type, target is an attribute. */
+ 		newkey.source_type = k->source_type;
+ 		ebitmap_for_each_bit(tattr, tnode, j) {
+@@ -3178,7 +3178,7 @@ static int expand_avtab_node(avtab_key_t * k, avtab_datum_t * d, void *args)
+ 		return 0;
+ 	}
+ 
+-	if (ttype->flavor != TYPE_ATTRIB) {
++	if (ttype && ttype->flavor != TYPE_ATTRIB) {
+ 		/* Target is an individual type, source is an attribute. */
+ 		newkey.target_type = k->target_type;
+ 		ebitmap_for_each_bit(sattr, snode, i) {
+@@ -3289,12 +3289,12 @@ int expand_cond_av_node(policydb_t * p,
+ 	newkey.target_class = k->target_class;
+ 	newkey.specified = k->specified;
+ 
+-	if (stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
++	if (stype && ttype && stype->flavor != TYPE_ATTRIB && ttype->flavor != TYPE_ATTRIB) {
+ 		/* Both are individual types, no expansion required. */
+ 		return expand_cond_insert(newl, expa, k, d);
+ 	}
+ 
+-	if (stype->flavor != TYPE_ATTRIB) {
++	if (stype && stype->flavor != TYPE_ATTRIB) {
+ 		/* Source is an individual type, target is an attribute. */
+ 		newkey.source_type = k->source_type;
+ 		ebitmap_for_each_bit(tattr, tnode, j) {
+@@ -3308,7 +3308,7 @@ int expand_cond_av_node(policydb_t * p,
+ 		return 0;
+ 	}
+ 
+-	if (ttype->flavor != TYPE_ATTRIB) {
++	if (ttype && ttype->flavor != TYPE_ATTRIB) {
+ 		/* Target is an individual type, source is an attribute. */
+ 		newkey.target_type = k->target_type;
+ 		ebitmap_for_each_bit(sattr, snode, i) {
+-- 
+1.8.3.1
