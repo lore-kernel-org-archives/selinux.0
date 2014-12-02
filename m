@@ -1,81 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sB2GX8SL020203
- for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2014 11:33:16 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-To: Refpolicy List <refpolicy@oss1.tresys.com>
-Subject: [PATCH] Update policy for selinux userspace moving the policy store
- to /var/lib/selinux
-Date: Tue, 2 Dec 2014 11:32:44 -0500
-Message-ID: <1417537964-16125-1-git-send-email-slawrence@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sB2HFS4b022955
+ for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2014 12:15:33 -0500
+From: "Minear, Spencer" <Spencer_Minear@mcafee.com>
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley
+ <stephen.smalley@gmail.com>
+Subject: RE: How does device labeling work?
+Date: Tue, 2 Dec 2014 17:14:09 +0000
+Message-ID: <450a42771fe0462d856c2295ab0b742d@DNVEXUSR1N09.corpzone.internalzone.com>
+References: <0f7a4764231e459e98f5771afa64b933@DNVEXUSR1N09.corpzone.internalzone.com>
+ <CAB9W1A0YfE2MP9aidmXzEkQj=2ts+rsH+ggtKPYKKSFH2OBryg@mail.gmail.com>
+ <547CCD23.3040704@redhat.com>
+In-Reply-To: <547CCD23.3040704@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain
-Cc: SELinux List <selinux@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This keeps /var/lib/selinux labeled as semanage_var_lib_t, but all
-directories inside it are now labeled semanage_store_t, except for lock
-files.
+Thank you for the pointers. 
 
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
----
- policy/modules/system/selinuxutil.fc | 6 +++++-
- policy/modules/system/selinuxutil.if | 3 ++-
- policy/modules/system/selinuxutil.te | 1 +
- 3 files changed, 8 insertions(+), 2 deletions(-)
+I was not expecting that this security relevant action  would be delayed until after init starts and get taken care of by running the startup scripts, so I didn't think to look there. 
 
-diff --git a/policy/modules/system/selinuxutil.fc b/policy/modules/system/selinuxutil.fc
-index ec19d63..8f1eb3c 100644
---- a/policy/modules/system/selinuxutil.fc
-+++ b/policy/modules/system/selinuxutil.fc
-@@ -41,11 +41,15 @@
- /usr/sbin/setsebool		--	gen_context(system_u:object_r:semanage_exec_t,s0)
- /usr/sbin/semanage		--	gen_context(system_u:object_r:semanage_exec_t,s0)
- /usr/sbin/semodule		--	gen_context(system_u:object_r:semanage_exec_t,s0)
-+/usr/libexec/selinux/semanage_migrate_store		--	gen_context(system_u:object_r:semanage_exec_t,s0)
+It is clear that the /dev area is covered by the relabel_minimal entry in /etc/init.d/selinux-basics.    I have not yet figured out some of the other labeling questions that come to mind related to other tmp file systems and things that get created early in the boot sequence.  But it is likely that I need to more time studying the details of the likes of restorecond. 
+
+Spence
+
+
+-----Original Message-----
+From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
+Sent: Monday, December 01, 2014 2:19 PM
+To: Stephen Smalley; Minear, Spencer
+Cc: SELinux
+Subject: Re: How does device labeling work?
+
+Well udev has SELinux awareness built in and we also use named file transition rules so devices created by the kernel_t or unconfined_t usually get created correctly.
+
  
- #
- # /var/lib
- #
--/var/lib/selinux(/.*)?			gen_context(system_u:object_r:semanage_var_lib_t,s0)
-+/var/lib/selinux		-d	gen_context(system_u:object_r:semanage_var_lib_t,s0)
-+/var/lib/selinux/.*			gen_context(system_u:object_r:semanage_store_t,s0)
-+/var/lib/selinux/[^/]+/semanage\.read\.LOCK -- gen_context(system_u:object_r:semanage_read_lock_t,s0)
-+/var/lib/selinux/[^/]+/semanage\.trans\.LOCK -- gen_context(system_u:object_r:semanage_trans_lock_t,s0)
- 
- #
- # /var/run
-diff --git a/policy/modules/system/selinuxutil.if b/policy/modules/system/selinuxutil.if
-index bee06f4..ae280bd 100644
---- a/policy/modules/system/selinuxutil.if
-+++ b/policy/modules/system/selinuxutil.if
-@@ -1037,11 +1037,12 @@ interface(`seutil_run_semanage',`
- #
- interface(`seutil_manage_module_store',`
- 	gen_require(`
--		type selinux_config_t, semanage_store_t;
-+		type selinux_config_t, semanage_store_t, semanage_var_lib_t;
- 	')
- 
- 	files_search_etc($1)
- 	manage_dirs_pattern($1, selinux_config_t, semanage_store_t)
-+	manage_dirs_pattern($1, semanage_var_lib_t, semanage_store_t)
- 	manage_files_pattern($1, semanage_store_t, semanage_store_t)
- 	manage_lnk_files_pattern($1, semanage_store_t, semanage_store_t)
- ')
-diff --git a/policy/modules/system/selinuxutil.te b/policy/modules/system/selinuxutil.te
-index c322a6f..a73874c 100644
---- a/policy/modules/system/selinuxutil.te
-+++ b/policy/modules/system/selinuxutil.te
-@@ -454,6 +454,7 @@ allow semanage_t semanage_tmp_t:dir manage_dir_perms;
- allow semanage_t semanage_tmp_t:file manage_file_perms;
- files_tmp_filetrans(semanage_t, semanage_tmp_t, { file dir })
- 
-+filetrans_pattern(semanage_t, semanage_var_lib_t, semanage_store_t, dir)
- manage_dirs_pattern(semanage_t, semanage_var_lib_t, semanage_var_lib_t)
- manage_files_pattern(semanage_t, semanage_var_lib_t, semanage_var_lib_t)
- 
--- 
-1.9.3
+On 12/01/2014 01:39 PM, Stephen Smalley wrote:
+> Not sure if this is still true, but the distros used to invoke 
+> restorecon -R /dev from an init script or dracut script after loading 
+> policy.
+>
+> On Mon, Dec 1, 2014 at 12:17 PM, Minear, Spencer 
+> <Spencer_Minear@mcafee.com> wrote:
+>> I'm working on integrating SELinux to an existing system and find that my system is not setting the label on all of the /dev/ entries correctly.  It appears to me that the issue is related to my missing some required actions during the transition from running with the linuxrc script on the initial RAM file system to using the mounted disk  and running the init process.
+>>
+>> What I see is that a lot of devices, such as the console and tty devices get created while running the init script provided in the bootrd file systems.  /dev is being created as with a mount -t devtmpfs udev /dev command.  After that is done an other actions are run in the initrd script I see the likes of /dev/console, I see entries in the /run/udev/data area for lots of devices including the console device and there is clear evidence that the udevd processes are running.
+>>
+>> At the end of the initrd there are steps taken to move the /dev and other mounts to the newly mounted root file system found on the disk.
+>>
+>> I've seen about 3 or 4 models of actions at the end of the initrd, (all of which are different than my existing baseline code), that should switch to using the mounted root file system on the disk and exec the init program found on that file system.   When the init process starts it sees that the policy exists and it proceeds to load the policy as provided.
+>>
+>> What I find once the policy is loaded is that most of the content of the /dev is labeled per the nominal default rules and all those devices that were created before the policy was loaded, such as /dev/console is never updated to have the label as specified in the policy file.  I can see that some of the devices that are closely related to console and other tty's have the correct label, while others are not correct.
+>>
+>> I think my question boils down to "Can anyone point me some document that defines what the initrd must do to ensure that devices and or objects created before the policy is enabled get processed to have the type as specified in the policy context file?"  Of if said document is does not exist, could someone explain how this is supposed to happen?  It feels like there may have to be some action by udevd to go back and reprocess the devices or the device initialization has to be redone in some way to get the labels to agree with the specification provided in the context file.
+>>
+>> Thanks in advance for any info that you can provide.
+>>
+>> Spencer Minear
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
