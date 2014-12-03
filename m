@@ -1,32 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sB3JVSI8007166
- for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2014 14:31:28 -0500
-Message-ID: <547F6502.30203@tresys.com>
-Date: Wed, 3 Dec 2014 14:31:14 -0500
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-To: "refpolicy@oss.tresys.com" <refpolicy@oss1.tresys.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: ANN: Reference Policy Release
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sB3NYPU3021622
+ for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2014 18:34:25 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux patches for 3.19
+Date: Wed, 03 Dec 2014 18:34:19 -0500
+Message-ID: <1900089.YGF1Ms0ZgW@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A new release of the SELinux Reference Policy is now available on the
-Tresys GitHub site, https://github.com/TresysTechnology/refpolicy.
+Hi James,
 
-The full changelog is too long to include in this email, so here's the
-diffstat instead:
+This pull request is later than usual because quite frankly I was waiting to 
+see if we would get anything substantial in the SELinux next branch.  While we 
+didn't end up with anything big, there is one small fix which removes an old, 
+unused extern declaration.
 
-Core:
-87 files changed, 897 insertions(+), 321 deletions(-)
+It's been a quiet few months in SELinux kernel land.
 
-Contrib:
-104 files changed, 558 insertions(+), 137 deletions(-)
+Enjoy,
+-Paul
+
+---
+The following changes since commit d950f84c1c6658faec2ecbf5b09f7e7191953394:
+
+  selinux: convert WARN_ONCE() to printk() in selinux_nlmsg_perm()
+           (2014-11-12 16:14:02 -0500)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux next
+
+for you to fetch changes up to 00fec2a10b51a071ec92da256ccd30f6b13fc55b:
+
+  selinux: Remove security_ops extern (2014-12-01 16:42:50 -0500)
+
+----------------------------------------------------------------
+Yao Dongdong (1):
+      selinux: Remove security_ops extern
+
+ security/selinux/hooks.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+paul moore
+security and virtualization @ redhat
