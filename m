@@ -1,27 +1,32 @@
-Message-ID: <547F2353.9010501@tycho.nsa.gov>
-Date: Wed, 03 Dec 2014 09:50:59 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] Fix expand logic for policy versions older than 24.
-References: <1416841579-7924-1-git-send-email-sds@tycho.nsa.gov>
- <54735BC4.7050207@tresys.com> <5474D17F.5060008@tycho.nsa.gov>
- <547C8D15.1080807@tresys.com>
-In-Reply-To: <547C8D15.1080807@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sB3JVSI8007166
+ for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2014 14:31:28 -0500
+Message-ID: <547F6502.30203@tresys.com>
+Date: Wed, 3 Dec 2014 14:31:14 -0500
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+To: "refpolicy@oss.tresys.com" <refpolicy@oss1.tresys.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: ANN: Reference Policy Release
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/01/2014 10:45 AM, Steve Lawrence wrote:
-> I'm fine including it in 2.4.
-> 
-> I'm unclear on next versus master as well. Not sure what the original
-> intention was. I feel like there are not really that many incoming
-> patches (aside from the recent CIL changes) to really necessitate a
-> next/master branch split. And there's only one small patch on #next,
-> which I don't have a problem including in 2.4 as well--there's going to
-> be at least one more release candidate.
+A new release of the SELinux Reference Policy is now available on the
+Tresys GitHub site, https://github.com/TresysTechnology/refpolicy.
 
-Ok, both changes cherry-picked onto master; next deleted.
+The full changelog is too long to include in this email, so here's the
+diffstat instead:
+
+Core:
+87 files changed, 897 insertions(+), 321 deletions(-)
+
+Contrib:
+104 files changed, 558 insertions(+), 137 deletions(-)
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
