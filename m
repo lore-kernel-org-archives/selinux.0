@@ -1,128 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBHMj36q029874
- for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2014 17:45:03 -0500
-Date: Wed, 17 Dec 2014 17:44:47 -0500
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Eric Paris <eparis@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBIGjYoF029525
+ for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2014 11:45:34 -0500
+To: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
 Subject: Re: linux-next 20141216 BUG: sleeping function called from invalid
  context at mm/slab.c:2849
-Message-ID: <20141217224447.GA29827@madcap2.tricolour.ca>
+In-Reply-To: Your message of "Tue, 16 Dec 2014 20:09:54 -0500."
+ <2966.1418778594@turing-police.cc.vt.edu>
+From: Valdis.Kletnieks@vt.edu
 References: <2966.1418778594@turing-police.cc.vt.edu>
- <1418779308.3025.1.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1418779308.3025.1.camel@localhost>
-Cc: linux-audit@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1418921116_3517P";
+ micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 18 Dec 2014 11:45:16 -0500
+Message-ID: <5444.1418921116@turing-police.cc.vt.edu>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 14/12/16, Eric Paris wrote:
-> I haven't looked into it, but I'd place my first bet on the audit
-> multicast code...
+--==_Exmh_1418921116_3517P
+Content-Type: text/plain; charset=us-ascii
 
-Any particular reason for the multicast code (other than the obvious
-skb_copy added)?  That stuff went upstream 8 months ago rather than this
-linux-next window of 20141208 to 20141216.  There are people using it
-(as evidenced by a bug report and a patch to fix incorrect size
-reporting has gone upstream).  So I doubt it would be that unless
-something new was interacting with it.
+On Tue, 16 Dec 2014 20:09:54 -0500, Valdis Kletnieks said:
 
-I'd more suspect 9eab339b197a6903043d272295dcb716ff739b21 [ audit: get
-comm using lock to avoid race in string printing ] in which the call to
-get_task_comm() might be more safely be replaced with memcpy() as in
-https://lkml.org/lkml/2014/11/16/184
+> Spotted these two while booting single-user on 20141216.  20141208
+> doesn't throw these, so it's something in the last week or so..
 
-> Richard?
-> 
-> On Tue, 2014-12-16 at 20:09 -0500, Valdis Kletnieks wrote:
-> > Not sure who's to blame here, but I'm tending towards selinux based on
-> > who was holding the locks...
-> > 
-> > Spotted these two while booting single-user on 20141216.  20141208
-> > doesn't throw these, so it's something in the last week or so..
-> > 
-> > Tossed it twice - once for /sbin/sulogin, and then a second time for /bin/bash.
-> > 
-> > [   34.061285] BUG: sleeping function called from invalid context at mm/slab.c:2849
-> > [   34.062863] in_atomic(): 1, irqs_disabled(): 0, pid: 885, name: sulogin
-> > [   34.064416] 2 locks held by sulogin/885:
-> > [   34.064418]  #0:  (&sig->cred_guard_mutex){+.+.+.}, at: [<ffffffff91152e30>] prepare_bprm_creds+0x28/0x8b
-> > [   34.064428]  #1:  (tty_files_lock){+.+.+.}, at: [<ffffffff9123e787>] selinux_bprm_committing_creds+0x55/0x22b
-> > [   34.064438] CPU: 1 PID: 885 Comm: sulogin Not tainted 3.18.0-next-20141216 #30
-> > [   34.064440] Hardware name: Dell Inc. Latitude E6530/07Y85M, BIOS A15 06/20/2014
-> > [   34.064442]  ffff880223744f10 ffff88022410f9b8 ffffffff916ba529 0000000000000375
-> > [   34.064447]  ffff880223744f10 ffff88022410f9e8 ffffffff91063185 0000000000000006
-> > [   34.064452]  0000000000000000 0000000000000000 0000000000000000 ffff88022410fa38
-> > [   34.064457] Call Trace:
-> > [   34.064463]  [<ffffffff916ba529>] dump_stack+0x50/0xa8
-> > [   34.064467]  [<ffffffff91063185>] ___might_sleep+0x1b6/0x1be
-> > [   34.064472]  [<ffffffff910632a6>] __might_sleep+0x119/0x128
-> > [   34.064477]  [<ffffffff91140720>] cache_alloc_debugcheck_before.isra.45+0x1d/0x1f
-> > [   34.064480]  [<ffffffff91141d81>] kmem_cache_alloc+0x43/0x1c9
-> > [   34.064484]  [<ffffffff914e148d>] __alloc_skb+0x42/0x1a3
-> > [   34.064488]  [<ffffffff914e2b62>] skb_copy+0x3e/0xa3
-> > [   34.064492]  [<ffffffff910c263e>] audit_log_end+0x83/0x100
-> > [   34.064496]  [<ffffffff9123b8d3>] ? avc_audit_pre_callback+0x103/0x103
-> > [   34.064500]  [<ffffffff91252a73>] common_lsm_audit+0x441/0x450
-> > [   34.064503]  [<ffffffff9123c163>] slow_avc_audit+0x63/0x67
-> > [   34.064506]  [<ffffffff9123c42c>] avc_has_perm+0xca/0xe3
-> > [   34.064510]  [<ffffffff9123dc2d>] inode_has_perm+0x5a/0x65
-> > [   34.064514]  [<ffffffff9123e7ca>] selinux_bprm_committing_creds+0x98/0x22b
-> > [   34.064519]  [<ffffffff91239e64>] security_bprm_committing_creds+0xe/0x10
-> > [   34.064522]  [<ffffffff911515e6>] install_exec_creds+0xe/0x79
-> > [   34.064527]  [<ffffffff911974cf>] load_elf_binary+0xe36/0x10d7
-> > [   34.064542]  [<ffffffff9115198e>] search_binary_handler+0x81/0x18c
-> > [   34.064545]  [<ffffffff91153376>] do_execveat_common.isra.31+0x4e3/0x7b7
-> > [   34.064548]  [<ffffffff91153669>] do_execve+0x1f/0x21
-> > [   34.064552]  [<ffffffff91153967>] SyS_execve+0x25/0x29
-> > [   34.064557]  [<ffffffff916c61a9>] stub_execve+0x69/0xa0
-> > 
-> > [   48.826654] BUG: sleeping function called from invalid context at mm/slab.c:2849
-> > [   48.829282] in_atomic(): 1, irqs_disabled(): 0, pid: 885, name: bash
-> > [   48.829284] 2 locks held by bash/885:
-> > [   48.829297]  #0:  (&sig->cred_guard_mutex){+.+.+.}, at: [<ffffffff91152e30>] prepare_bprm_creds+0x28/0x8b
-> > [   48.829307]  #1:  (&(&newf->file_lock)->rlock){+.+.+.}, at: [<ffffffff91166b8b>] iterate_fd+0x34/0x11c
-> > [   48.829310] CPU: 3 PID: 885 Comm: bash Not tainted 3.18.0-next-20141216 #30
-> > [   48.829311] Hardware name: Dell Inc. Latitude E6530/07Y85M, BIOS A15 06/20/2014
-> > [   48.829317]  ffff880223744f10 ffff88022410f928 ffffffff916ba529 0000000000000375
-> > [   48.829321]  ffff880223744f10 ffff88022410f958 ffffffff91063185 0000000000000002
-> > [   48.829325]  0000000000000000 0000000000000000 0000000000000000 ffff88022410f9a8
-> > [   48.829327] Call Trace:
-> > [   48.829333]  [<ffffffff916ba529>] dump_stack+0x50/0xa8
-> > [   48.829338]  [<ffffffff91063185>] ___might_sleep+0x1b6/0x1be
-> > [   48.829341]  [<ffffffff910632a6>] __might_sleep+0x119/0x128
-> > [   48.829347]  [<ffffffff91140720>] cache_alloc_debugcheck_before.isra.45+0x1d/0x1f
-> > [   48.829350]  [<ffffffff91141d81>] kmem_cache_alloc+0x43/0x1c9
-> > [   48.829356]  [<ffffffff914e148d>] __alloc_skb+0x42/0x1a3
-> > [   48.829360]  [<ffffffff914e2b62>] skb_copy+0x3e/0xa3
-> > [   48.829367]  [<ffffffff910c263e>] audit_log_end+0x83/0x100
-> > [   48.829372]  [<ffffffff9123b8d3>] ? avc_audit_pre_callback+0x103/0x103
-> > [   48.829377]  [<ffffffff91252a73>] common_lsm_audit+0x441/0x450
-> > [   48.829381]  [<ffffffff9123c163>] slow_avc_audit+0x63/0x67
-> > [   48.829386]  [<ffffffff9123c42c>] avc_has_perm+0xca/0xe3
-> > [   48.829391]  [<ffffffff9123e255>] ? selinux_file_permission+0x9b/0x9b
-> > [   48.829395]  [<ffffffff9123e0b9>] file_has_perm+0x6d/0x7c
-> > [   48.829400]  [<ffffffff9123e283>] match_file+0x2e/0x3b
-> > [   48.829404]  [<ffffffff91166c4b>] iterate_fd+0xf4/0x11c
-> > [   48.829409]  [<ffffffff9123e802>] selinux_bprm_committing_creds+0xd0/0x22b
-> > [   48.829415]  [<ffffffff91239e64>] security_bprm_committing_creds+0xe/0x10
-> > [   48.829419]  [<ffffffff911515e6>] install_exec_creds+0xe/0x79
-> > [   48.829426]  [<ffffffff911974cf>] load_elf_binary+0xe36/0x10d7
-> > [   48.829431]  [<ffffffff9115198e>] search_binary_handler+0x81/0x18c
-> > [   48.829435]  [<ffffffff91153376>] do_execveat_common.isra.31+0x4e3/0x7b7
-> > [   48.829462]  [<ffffffff91153669>] do_execve+0x1f/0x21
-> > [   48.829466]  [<ffffffff91153967>] SyS_execve+0x25/0x29
-> > [   48.829472]  [<ffffffff916c61a9>] stub_execve+0x69/0xa0
-> > 
-> 
-> 
+Gaah!  Turns out that 20141208 *is* susceptible - it had been booting
+just fine for several days, but it went around the bend, apparently due
+to a userspace or initrd change.
 
-- RGB
+egrep 'BUG|Linux vers' from my syslog:
 
---
-Richard Guy Briggs <rbriggs@redhat.com>
-Senior Software Engineer, Kernel Security, AMER ENG Base Operating Systems, Red Hat
-Remote, Ottawa, Canada
-Voice: +1.647.777.2635, Internal: (81) 32635, Alt: +1.613.693.0684x3545
+Dec  9 12:19:53 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec  9 21:19:53 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 10 12:39:45 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 10 20:56:28 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 11 10:46:49 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 11 23:53:10 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 12 11:13:19 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 12 19:26:24 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 12 19:33:32 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 12 19:42:30 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 12 20:00:39 turing-police kernel: [ 1109.635328] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 20:00:43 turing-police kernel: [ 1113.680912] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 20:33:15 turing-police kernel: [ 3062.345461] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 20:37:48 turing-police kernel: [ 3335.788891] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 20:41:57 turing-police kernel: [ 3584.265255] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 20:42:47 turing-police kernel: [ 3633.863552] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 20:51:33 turing-police kernel: [    0.000000] Linux version 3.18.0-next-20141208 (source@turing-police.cc.vt.edu) (gcc version 4.9.2 20141101 (Red Hat 4.9.2-1) (GCC) ) #27 SMP PREEMPT Mon Dec 8 22:20:07 EST 2014
+Dec 12 21:51:04 turing-police kernel: [ 3587.132867] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 22:20:01 turing-police kernel: [ 5322.313024] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 12 23:06:00 turing-police kernel: [ 8077.463289] BUG: sleeping function called from invalid context at mm/slab.c:2849
+Dec 13 00:00:05 turing-police kernel: [11318.405826] BUG: sleeping function called from invalid context at mm/slab.c:2849
+
+I need to figure out what changed around 7:30PM on the 12th.
+
+
+--==_Exmh_1418921116_3517P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Exmh version 2.5 07/13/2001
+
+iQIVAwUBVJMEnAdmEQWDXROgAQKvNxAAor6BZKRb4N1EONZaw9sNm2i8V+AWqxQd
+dxRGVBqBhY/dhWTfwuuePwhewe76Nf1pfgf/OwQBx0S6CrU+pkmPEbpdTbxL9fAo
+svqAQ0Wp0dpvyu0DI6O8ianguOw258u5bysTe1F2p+wv68WzFSC8eBelNywVVvrr
+FiDwOK3Ggfu9O426X6FO1EvL6e41eUXbV7slA/JH7+7oSFdZkWlArucf8uD1l34z
+DAQ7ywtiV477nkhW511/yAK+Nbz3E8remWNfsu2qTY/RM9coNGkOdlhpq2mGoMAB
+HPqJWTujLyS8NzaTB/hzf3mq9jMvDXmfOjizijB/nkykrC0qOJJxWFTAIewWQICz
+t2MQMhymBbokehX1J11UISEhuEj2v0dwxzYFB9C/wmedNg7xFzEAUBEY68IbTPZx
+naSjHVAU8RVi/mHGHec0us6gZVjC3+M5i/U6+GoFTBAD14fRKnx8q2CDXw5RnmV/
+1BLJPuMf4DWK/tvHzO4C09m6dSHilgkeZ1QCxUcpUuKXFTndYfAiUo3AN4Sp7JAk
++80N8ckjA0710BqZ8TVJR1vEg5NuouORKZfAVvreFC+3cL/1D0QQzNRHEo1PTT6/
+86vCklSBN2oLmlzI/HBdjl/VgSt4WIAw3b3ocR+YyDUq0TdPV6ebtpxYcCNJC4Dg
+/MIgKvOya2Q=
+=Tr3z
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1418921116_3517P--
