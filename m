@@ -1,72 +1,74 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBIJ4o38008145
- for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2014 14:04:51 -0500
-Message-ID: <1418929486.5162.22.camel@localhost>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBIJLRmt009683
+ for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2014 14:21:27 -0500
+To: Eric Paris <eparis@redhat.com>
 Subject: Re: linux-next 20141216 BUG: sleeping function called from invalid
  context at mm/slab.c:2849
-From: Eric Paris <eparis@redhat.com>
-To: Richard Guy Briggs <rgb@redhat.com>
-Date: Thu, 18 Dec 2014 14:04:46 -0500
-In-Reply-To: <20141218184420.GF29998@madcap2.tricolour.ca>
+In-Reply-To: Your message of "Thu, 18 Dec 2014 11:50:20 -0500."
+ <1418921420.5162.19.camel@localhost>
+From: Valdis.Kletnieks@vt.edu
 References: <2966.1418778594@turing-police.cc.vt.edu>
  <5444.1418921116@turing-police.cc.vt.edu>
  <1418921420.5162.19.camel@localhost>
- <20141218174629.GB29827@madcap2.tricolour.ca>
- <1418925016.5162.21.camel@localhost>
- <20141218184420.GF29998@madcap2.tricolour.ca>
-Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Cc: linux-audit@redhat.com, linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: multipart/signed; boundary="==_Exmh_1418930473_1952P";
+ micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 18 Dec 2014 14:21:13 -0500
+Message-ID: <8832.1418930473@turing-police.cc.vt.edu>
+Cc: linux-audit@redhat.com, selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2014-12-18 at 13:44 -0500, Richard Guy Briggs wrote:
-> On 14/12/18, Eric Paris wrote:
-> > On Thu, 2014-12-18 at 12:46 -0500, Richard Guy Briggs wrote:
-> > > On 14/12/18, Eric Paris wrote:
-> > > > On Thu, 2014-12-18 at 11:45 -0500, Valdis.Kletnieks@vt.edu wrote:
-> > > > > On Tue, 16 Dec 2014 20:09:54 -0500, Valdis Kletnieks said:
-> > > > > > Spotted these two while booting single-user on 20141216.  20141208
-> > > > > > doesn't throw these, so it's something in the last week or so..
-> > > > > 
-> > > > > Gaah!  Turns out that 20141208 *is* susceptible - it had been booting
-> > > > > just fine for several days, but it went around the bend, apparently due
-> > > > > to a userspace or initrd change.
-> > > > 
-> > > > $5 says you updated systemd?
-> > > > 
-> > > > Richard?
-> > > 
-> > > Ok, so if you are correct, then either we justify dropping the lock (I
-> > > assume the one commone to both BUG reports [sig->cred_guard_mutex] ),
-> > > or we make yet another queue were were hoping to avoid...
-> > > 
-> > > It would also be good to narrow it down to a rule that triggers this.
-> > 
-> > I thought the first message was enough to find the problem, but:
-> > 
-> > static void kauditd_send_multicast_skb(struct sk_buff *skb)
-> > {
-> > ...
-> >         nlmsg_multicast(sock, copy, 0, AUDIT_NLGRP_READLOG, GFP_KERNEL);
-> > ...
-> > }
-> > 
-> > Since kauditd_send_multicast_skb() gets called in audit_log_end(), which
-> > can come from any context (aka even a sleeping context) you can't use
-> > GFP_KERNEL.  The audit_buffer know what context it should use.  So pass
-> > that down and use that.
-> 
-> Ok, that looks more obvious now...  We just need to change the internal
-> interface to kauditd_send_multicast_skb() to accept an audit_buffer
-> instead of just the skb and use the gfp_mask value from there instead of
-> using our own...
-> 
-> Thanks, Eric.
+--==_Exmh_1418930473_1952P
+Content-Type: text/plain; charset=us-ascii
 
-I'd suggest just sending the GFP type, not the who audit_buffer, but
-that's up to you.
+On Thu, 18 Dec 2014 11:50:20 -0500, Eric Paris said:
+> On Thu, 2014-12-18 at 11:45 -0500, Valdis.Kletnieks@vt.edu wrote:
+> > On Tue, 16 Dec 2014 20:09:54 -0500, Valdis Kletnieks said:
+> >
+> > > Spotted these two while booting single-user on 20141216.  20141208
+> > > doesn't throw these, so it's something in the last week or so..
+> >
+> > Gaah!  Turns out that 20141208 *is* susceptible - it had been booting
+> > just fine for several days, but it went around the bend, apparently due
+> > to a userspace or initrd change.
+>
+> $5 says you updated systemd?
 
--Eric
+Actually, yeah.  yum.log says:
+
+Dec 12 14:08:09 Updated: systemd-218-1.fc22.x86_64
+
+and things started going downhill that evening.  Damned if I know what 218
+was doing to cause the issues.  (Other RPM update that looked vaguely
+related was for selinux-policy, but again, damned if I know what a policy
+file could contain that would change the behavior...)
+
+Is it worth backing it to -217, or do we have a handle on the issue and
+systemd is just the messenger?
+
+--==_Exmh_1418930473_1952P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Exmh version 2.5 07/13/2001
+
+iQIVAwUBVJMpKQdmEQWDXROgAQJAsQ/+LRyvRpfXxgslVY/iQMIe9Oe1PIcV7vkj
+4xEvbLwJ8OTyMcb65u/T0eqbknBBeBpufVsD2U2W2NfobL1J7c9k3UjYEI5L0wd/
+6I6KtBmx+OITTkLl0InZmzvAiVUR2/E9QrVxt+LKPySENaHh/+t+vuQ4HanPH8RO
+ljQbyCVCs1hDf0IOZQ3Uo8IoTClHYnMB6B/DIDB7lHfH+Fm/bieWC4yNr5ium+Gz
+/j+9LYC6TCdPmqt5XJDumKaEAmHmi387SXk+/Bt/1RN5kxqaZWYrZq9YO0yBswBT
+n4UaXMMPyYjATa2NJORl/R+XQMdebRXOeaiquGOrNBjjcJhOXCE+bdhU8NWNIuXE
+3zATAQsAe7KPdCy/jzBNh/TdVi1lQU3C5ShF4hMVpq2XpREL+yR6YHgrUTs1d7vV
+uhuh9c8zarAcCQQUxmfb5AuZ/fxbBAyVBLQsTYHK15JzSRxmHI2hw8+hEZbFKZtV
+P0OcnI3HPe0sWatGYhP0wVxLjH3aT0I5lua71oJyySbf77J+JKWsGCBGkF8UHvsO
+Q5kG9hhBkzSIu28Gpt9mpCZnewPDyV+RsM2F/CfSFTRrNzVsyvTiiWVAbUbJihFt
+FSAsdHThIVFLG+kGfQ0Qv3wuxOSU6eFtsujR9d2oTuci3lKh1Ac3AgKiMQyGBPCK
+O+BdHSwKwLo=
+=UwHS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1418930473_1952P--
