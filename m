@@ -1,70 +1,116 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBJM9Sth009605
- for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2014 17:09:30 -0500
-Received: by mail-qa0-f51.google.com with SMTP id k15so1189698qaq.38
- for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2014 14:09:27 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>,
- Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Some of our customers are looking to turn on SELinux but they
- also want to use CSP from Symantec
-Date: Fri, 19 Dec 2014 17:09:24 -0500
-Message-ID: <4832821.yddJfOeLLT@sifl>
-In-Reply-To: <54946769.4030107@schaufler-ca.com>
-References: <54945543.7090706@redhat.com> <54946769.4030107@schaufler-ca.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBJNjfrE015666
+ for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2014 18:45:41 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: Richard Guy Briggs <rgb@redhat.com>
+Subject: Re: [PATCH] audit: use supplied gfp_mask from audit_buffer in
+ kauditd_send_multicast_skb
+Date: Fri, 19 Dec 2014 18:45:34 -0500
+Message-ID: <1730418.jbUzzkIQ2a@sifl>
+In-Reply-To: <d261c547d8018a18f2092e1907b06e190162b088.1418947557.git.rgb@redhat.com>
+References: <d261c547d8018a18f2092e1907b06e190162b088.1418947557.git.rgb@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: LSM <linux-security-module@vger.kernel.org>,
- SELinux <selinux@tycho.nsa.gov>
+Cc: linux-kernel@vger.kernel.org, linux-audit@redhat.com, selinux@tycho.nsa.gov,
+ sgrubb@redhat.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, December 19, 2014 09:59:05 AM Casey Schaufler wrote:
-> On 12/19/2014 8:41 AM, Daniel J Walsh wrote:
-> > Currently Symantec requires SELinux be disabled, claiming there is
-> > conflicts in the kernel modules.
-> > 
-> > http://www.symantec.com/connect/forums/does-scsp-agent-support-selinux
+On Thursday, December 18, 2014 11:09:27 PM Richard Guy Briggs wrote:
+> Eric Paris explains: Since kauditd_send_multicast_skb() gets called in
+> audit_log_end(), which can come from any context (aka even a sleeping
+> context) GFP_KERNEL can't be used.  Since the audit_buffer knows what
+> context it should use, pass that down and use that.
 > 
-> Based on the fact they are also disparaging AppArmor and a couple of
-> out-of-tree security modules, and that SELinux=permissive is not sufficient
-> I'm assuming it's an out-of-tree security module.
-
-I don't ever recall seeing a SCSP patchset.  I also couldn't find much in the 
-way of Linux integration details on their website, mostly just marketing 
-materials.
-
-> > As the customer wants to take advantage of certain SELinux features
-> > like sVirt for VMs and Docker Containers, this conflict is coming to a
-> > head.
-> > 
-> > Is anyone familiar with whether or not this is a real conflict or just
-> > something assumed by Symantec?
-
-Other than Symantec saying you can't have both running at the same time, I 
-don't even know what the conflict is ... I'm sure we can offer some guesses, 
-but that isn't very helpful.
-
-> > The customer like Symantec's ability to do intrusion detection and
-> > remote logging and configuration of CSB.
-> > 
-> > Bottom line the customer wants both.
+> See: https://lkml.org/lkml/2014/12/16/542
 > 
-> It would help if someone from the SELinux community would comment on
-> the v18 concurrent security modules patches. Moving that work forward
-> is your best step toward getting what you need. Of course, v18 doesn't
-> get you all the way, but it gets closer.
+> BUG: sleeping function called from invalid context at mm/slab.c:2849
+> in_atomic(): 1, irqs_disabled(): 0, pid: 885, name: sulogin
+> 2 locks held by sulogin/885:
+>   #0:  (&sig->cred_guard_mutex){+.+.+.}, at: [<ffffffff91152e30>]
+> prepare_bprm_creds+0x28/0x8b #1:  (tty_files_lock){+.+.+.}, at:
+> [<ffffffff9123e787>] selinux_bprm_committing_creds+0x55/0x22b CPU: 1 PID:
+> 885 Comm: sulogin Not tainted 3.18.0-next-20141216 #30 Hardware name: Dell
+> Inc. Latitude E6530/07Y85M, BIOS A15 06/20/2014 ffff880223744f10
+> ffff88022410f9b8 ffffffff916ba529 0000000000000375 ffff880223744f10
+> ffff88022410f9e8 ffffffff91063185 0000000000000006 0000000000000000
+> 0000000000000000 0000000000000000 ffff88022410fa38 Call Trace:
+>   [<ffffffff916ba529>] dump_stack+0x50/0xa8
+>   [<ffffffff91063185>] ___might_sleep+0x1b6/0x1be
+>   [<ffffffff910632a6>] __might_sleep+0x119/0x128
+>   [<ffffffff91140720>] cache_alloc_debugcheck_before.isra.45+0x1d/0x1f
+>   [<ffffffff91141d81>] kmem_cache_alloc+0x43/0x1c9
+>   [<ffffffff914e148d>] __alloc_skb+0x42/0x1a3
+>   [<ffffffff914e2b62>] skb_copy+0x3e/0xa3
+>   [<ffffffff910c263e>] audit_log_end+0x83/0x100
+>   [<ffffffff9123b8d3>] ? avc_audit_pre_callback+0x103/0x103
+>   [<ffffffff91252a73>] common_lsm_audit+0x441/0x450
+>   [<ffffffff9123c163>] slow_avc_audit+0x63/0x67
+>   [<ffffffff9123c42c>] avc_has_perm+0xca/0xe3
+>   [<ffffffff9123dc2d>] inode_has_perm+0x5a/0x65
+>   [<ffffffff9123e7ca>] selinux_bprm_committing_creds+0x98/0x22b
+>   [<ffffffff91239e64>] security_bprm_committing_creds+0xe/0x10
+>   [<ffffffff911515e6>] install_exec_creds+0xe/0x79
+>   [<ffffffff911974cf>] load_elf_binary+0xe36/0x10d7
+>   [<ffffffff9115198e>] search_binary_handler+0x81/0x18c
+>   [<ffffffff91153376>] do_execveat_common.isra.31+0x4e3/0x7b7
+>   [<ffffffff91153669>] do_execve+0x1f/0x21
+>   [<ffffffff91153967>] SyS_execve+0x25/0x29
+>   [<ffffffff916c61a9>] stub_execve+0x69/0xa0
+> 
+> Cc: stable@vger.kernel.org #v3.16-rc1
+> Reported-by: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
+> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> ---
+>  kernel/audit.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
 
-This assumes that the issue is due to LSM hook conflicts; not an unreasonable 
-assumption, but still just a guess.
+Looks good to me, thanks.
 
-As for the LSM stacking patches, it's on my list, along with a mountain of 
-other things (now with more audit, which is horrible in its own special way).  
-I can promise you that I'm not ignoring your patches any worse than I'm 
-ignoring anyone else's patches :)
+I've got this patch (and the PID filter fix) queued up to go to Linus for 
+v3.19; considering that -rc1 is due on Sunday I think I'll hold this until 
+early next week (targeting -rc2) just in case something nasty appears after 
+the merge window closes.
+
+> diff --git a/kernel/audit.c b/kernel/audit.c
+> index 7b83c55..ce484fb 100644
+> --- a/kernel/audit.c
+> +++ b/kernel/audit.c
+> @@ -429,7 +429,7 @@ static void kauditd_send_skb(struct sk_buff *skb)
+>   * This function doesn't consume an skb as might be expected since it has
+> to * copy it anyways.
+>   */
+> -static void kauditd_send_multicast_skb(struct sk_buff *skb)
+> +static void kauditd_send_multicast_skb(struct sk_buff *skb, gfp_t gfp_mask)
+> {
+>  	struct sk_buff		*copy;
+>  	struct audit_net	*aunet = net_generic(&init_net, audit_net_id);
+> @@ -448,11 +448,11 @@ static void kauditd_send_multicast_skb(struct sk_buff
+> *skb) * no reason for new multicast clients to continue with this
+>  	 * non-compliance.
+>  	 */
+> -	copy = skb_copy(skb, GFP_KERNEL);
+> +	copy = skb_copy(skb, gfp_mask);
+>  	if (!copy)
+>  		return;
+> 
+> -	nlmsg_multicast(sock, copy, 0, AUDIT_NLGRP_READLOG, GFP_KERNEL);
+> +	nlmsg_multicast(sock, copy, 0, AUDIT_NLGRP_READLOG, gfp_mask);
+>  }
+> 
+>  /*
+> @@ -1949,7 +1949,7 @@ void audit_log_end(struct audit_buffer *ab)
+>  		struct nlmsghdr *nlh = nlmsg_hdr(ab->skb);
+> 
+>  		nlh->nlmsg_len = ab->skb->len;
+> -		kauditd_send_multicast_skb(ab->skb);
+> +		kauditd_send_multicast_skb(ab->skb, ab->gfp_mask);
+> 
+>  		/*
+>  		 * The original kaudit unicast socket sends up messages with
 
 -- 
 paul moore
-www.paul-moore.com
+security @ redhat
