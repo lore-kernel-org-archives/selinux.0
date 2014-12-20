@@ -1,16 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBJNjfrE015666
- for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2014 18:45:41 -0500
-From: Paul Moore <pmoore@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBK0rLW6019236
+ for <selinux@tycho.nsa.gov>; Fri, 19 Dec 2014 19:53:21 -0500
 To: Richard Guy Briggs <rgb@redhat.com>
 Subject: Re: [PATCH] audit: use supplied gfp_mask from audit_buffer in
  kauditd_send_multicast_skb
-Date: Fri, 19 Dec 2014 18:45:34 -0500
-Message-ID: <1730418.jbUzzkIQ2a@sifl>
-In-Reply-To: <d261c547d8018a18f2092e1907b06e190162b088.1418947557.git.rgb@redhat.com>
+In-Reply-To: Your message of "Thu, 18 Dec 2014 23:09:27 -0500."
+ <d261c547d8018a18f2092e1907b06e190162b088.1418947557.git.rgb@redhat.com>
+From: Valdis.Kletnieks@vt.edu
 References: <d261c547d8018a18f2092e1907b06e190162b088.1418947557.git.rgb@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1419036779_71557P";
+ micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Fri, 19 Dec 2014 19:52:59 -0500
+Message-ID: <74385.1419036779@turing-police.cc.vt.edu>
 Cc: linux-kernel@vger.kernel.org, linux-audit@redhat.com, selinux@tycho.nsa.gov,
  sgrubb@redhat.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,99 +20,51 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, December 18, 2014 11:09:27 PM Richard Guy Briggs wrote:
+--==_Exmh_1419036779_71557P
+Content-Type: text/plain; charset=us-ascii
+
+On Thu, 18 Dec 2014 23:09:27 -0500, Richard Guy Briggs said:
 > Eric Paris explains: Since kauditd_send_multicast_skb() gets called in
-> audit_log_end(), which can come from any context (aka even a sleeping
-> context) GFP_KERNEL can't be used.  Since the audit_buffer knows what
-> context it should use, pass that down and use that.
-> 
+> audit_log_end(), which can come from any context (aka even a sleeping context)
+> GFP_KERNEL can't be used.  Since the audit_buffer knows what context it should
+> use, pass that down and use that.
+>
 > See: https://lkml.org/lkml/2014/12/16/542
-> 
-> BUG: sleeping function called from invalid context at mm/slab.c:2849
-> in_atomic(): 1, irqs_disabled(): 0, pid: 885, name: sulogin
-> 2 locks held by sulogin/885:
->   #0:  (&sig->cred_guard_mutex){+.+.+.}, at: [<ffffffff91152e30>]
-> prepare_bprm_creds+0x28/0x8b #1:  (tty_files_lock){+.+.+.}, at:
-> [<ffffffff9123e787>] selinux_bprm_committing_creds+0x55/0x22b CPU: 1 PID:
-> 885 Comm: sulogin Not tainted 3.18.0-next-20141216 #30 Hardware name: Dell
-> Inc. Latitude E6530/07Y85M, BIOS A15 06/20/2014 ffff880223744f10
-> ffff88022410f9b8 ffffffff916ba529 0000000000000375 ffff880223744f10
-> ffff88022410f9e8 ffffffff91063185 0000000000000006 0000000000000000
-> 0000000000000000 0000000000000000 ffff88022410fa38 Call Trace:
->   [<ffffffff916ba529>] dump_stack+0x50/0xa8
->   [<ffffffff91063185>] ___might_sleep+0x1b6/0x1be
->   [<ffffffff910632a6>] __might_sleep+0x119/0x128
->   [<ffffffff91140720>] cache_alloc_debugcheck_before.isra.45+0x1d/0x1f
->   [<ffffffff91141d81>] kmem_cache_alloc+0x43/0x1c9
->   [<ffffffff914e148d>] __alloc_skb+0x42/0x1a3
->   [<ffffffff914e2b62>] skb_copy+0x3e/0xa3
->   [<ffffffff910c263e>] audit_log_end+0x83/0x100
->   [<ffffffff9123b8d3>] ? avc_audit_pre_callback+0x103/0x103
->   [<ffffffff91252a73>] common_lsm_audit+0x441/0x450
->   [<ffffffff9123c163>] slow_avc_audit+0x63/0x67
->   [<ffffffff9123c42c>] avc_has_perm+0xca/0xe3
->   [<ffffffff9123dc2d>] inode_has_perm+0x5a/0x65
->   [<ffffffff9123e7ca>] selinux_bprm_committing_creds+0x98/0x22b
->   [<ffffffff91239e64>] security_bprm_committing_creds+0xe/0x10
->   [<ffffffff911515e6>] install_exec_creds+0xe/0x79
->   [<ffffffff911974cf>] load_elf_binary+0xe36/0x10d7
->   [<ffffffff9115198e>] search_binary_handler+0x81/0x18c
->   [<ffffffff91153376>] do_execveat_common.isra.31+0x4e3/0x7b7
->   [<ffffffff91153669>] do_execve+0x1f/0x21
->   [<ffffffff91153967>] SyS_execve+0x25/0x29
->   [<ffffffff916c61a9>] stub_execve+0x69/0xa0
-> 
-> Cc: stable@vger.kernel.org #v3.16-rc1
+
 > Reported-by: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
 > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
 > ---
 >  kernel/audit.c |    8 ++++----
 >  1 files changed, 4 insertions(+), 4 deletions(-)
-
-Looks good to me, thanks.
-
-I've got this patch (and the PID filter fix) queued up to go to Linus for 
-v3.19; considering that -rc1 is due on Sunday I think I'll hold this until 
-early next week (targeting -rc2) just in case something nasty appears after 
-the merge window closes.
-
+>
 > diff --git a/kernel/audit.c b/kernel/audit.c
 > index 7b83c55..ce484fb 100644
-> --- a/kernel/audit.c
-> +++ b/kernel/audit.c
-> @@ -429,7 +429,7 @@ static void kauditd_send_skb(struct sk_buff *skb)
->   * This function doesn't consume an skb as might be expected since it has
-> to * copy it anyways.
->   */
-> -static void kauditd_send_multicast_skb(struct sk_buff *skb)
-> +static void kauditd_send_multicast_skb(struct sk_buff *skb, gfp_t gfp_mask)
-> {
->  	struct sk_buff		*copy;
->  	struct audit_net	*aunet = net_generic(&init_net, audit_net_id);
-> @@ -448,11 +448,11 @@ static void kauditd_send_multicast_skb(struct sk_buff
-> *skb) * no reason for new multicast clients to continue with this
->  	 * non-compliance.
->  	 */
-> -	copy = skb_copy(skb, GFP_KERNEL);
-> +	copy = skb_copy(skb, gfp_mask);
->  	if (!copy)
->  		return;
-> 
-> -	nlmsg_multicast(sock, copy, 0, AUDIT_NLGRP_READLOG, GFP_KERNEL);
-> +	nlmsg_multicast(sock, copy, 0, AUDIT_NLGRP_READLOG, gfp_mask);
->  }
-> 
->  /*
-> @@ -1949,7 +1949,7 @@ void audit_log_end(struct audit_buffer *ab)
->  		struct nlmsghdr *nlh = nlmsg_hdr(ab->skb);
-> 
->  		nlh->nlmsg_len = ab->skb->len;
-> -		kauditd_send_multicast_skb(ab->skb);
-> +		kauditd_send_multicast_skb(ab->skb, ab->gfp_mask);
-> 
->  		/*
->  		 * The original kaudit unicast socket sends up messages with
 
--- 
-paul moore
-security @ redhat
+I was reliably triggering 3-4 BUGs an hour, and with this patch applied I've
+gone 9 hours without seeing one.
+
+So feel free to add a Tested-By:  when it goes out.
+
+--==_Exmh_1419036779_71557P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+Comment: Exmh version 2.5 07/13/2001
+
+iQIVAwUBVJTIawdmEQWDXROgAQIDJA/+Pv0vIe0ZSKyOPJQunXcryqefTBW5K/HB
+nS21Vo73VxO2h5Kg7JI9JUQJz0FvFDvKX9sgAlpTnjTSciiUQ9U2aqI/mCGDXHuO
+6+CVRf+cvqPkU68caW8h8pq230R/z0rm+oaozvh8RWQpX/+p2IhVHAXVW1grNB4O
+Uv5JvOmj2fY03o0Z3k3NV+5FMuTXjDJiZE3n6ZF3NboZaeTZ20F+jfcma6+wzTaL
+KSNTOa7BfcCUb/PgtXuYYDrTru1uFSfBffKfHthxSOP7/nYwxZcicSCyxY22Z7h0
+gZoWUX8WTwE/SF+IEbjGMjzXCV1eJYFIP2qreSdeiCLv2nmsgNzuGlaLo96TtuO1
+SkXTWU7DGf2/u87eQqi/xq9YasEudwkzhOOHfEjBH41lbBqv/w7DvDnG98hJVdEg
+HcuewU+dfhyG81lRTR5ojClxlg8PbudtbzvEx24emdtPeu/qTdXf9BGncJ9A3CBt
+UINxjLLH70qrqUHW6ZMS8uOvtci9ahKh/C2PK3ph1jPbO010pwdvfm1Y+KPx/k/z
+JA5nunkwjTWxolUU17GKG5qN/FhM/NM9SSoI3WRvMTBhD+755F8YckvrL4NvwI6v
+q7Q2kh1wDqZ5JGAY87w/1up0ObLMOkc3UeVTgppRcuWYUSnNSUBUEYKeHZx9FCMX
+Of6pTdG9h6M=
+=CK1Y
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1419036779_71557P--
