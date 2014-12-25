@@ -1,52 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBKMUXo4018766
- for <selinux@tycho.nsa.gov>; Sat, 20 Dec 2014 17:30:33 -0500
-Received: by mail-qc0-f172.google.com with SMTP id m20so2123902qcx.31
- for <selinux@tycho.nsa.gov>; Sat, 20 Dec 2014 14:30:31 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] audit: use supplied gfp_mask from audit_buffer in
- kauditd_send_multicast_skb
-Date: Sat, 20 Dec 2014 17:30:29 -0500
-Message-ID: <1707208.eM92rXqJdO@sifl>
-In-Reply-To: <74385.1419036779@turing-police.cc.vt.edu>
-References: <d261c547d8018a18f2092e1907b06e190162b088.1418947557.git.rgb@redhat.com>
- <74385.1419036779@turing-police.cc.vt.edu>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id sBP2fJmu028481
+ for <selinux@tycho.nsa.gov>; Wed, 24 Dec 2014 21:41:19 -0500
+Date: Thu, 25 Dec 2014 10:41:14 +0800 (CST)
+From: jiangdahui <jdh1988@yeah.net>
+To: selinux@tycho.nsa.gov
+Subject: =?UTF-8?Q?could_selinux_satisfy_my_need=EF=BC=9F?=
+Content-Type: multipart/alternative;
+ boundary="----=_Part_51046_798577495.1419475274453"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-kernel@vger.kernel.org, linux-audit@redhat.com, selinux@tycho.nsa.gov,
- sgrubb@redhat.com
+Message-ID: <2d35ff94.2ee0.14a7f51cad5.Coremail.jdh1988@yeah.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, December 19, 2014 07:52:59 PM Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 18 Dec 2014 23:09:27 -0500, Richard Guy Briggs said:
-> > Eric Paris explains: Since kauditd_send_multicast_skb() gets called in
-> > audit_log_end(), which can come from any context (aka even a sleeping
-> > context) GFP_KERNEL can't be used.  Since the audit_buffer knows what
-> > context it should use, pass that down and use that.
-> > 
-> > See: https://lkml.org/lkml/2014/12/16/542
-> > 
-> > Reported-by: Valdis Kletnieks <Valdis.Kletnieks@vt.edu>
-> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> > ---
-> > 
-> >  kernel/audit.c |    8 ++++----
-> >  1 files changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/kernel/audit.c b/kernel/audit.c
-> > index 7b83c55..ce484fb 100644
-> 
-> I was reliably triggering 3-4 BUGs an hour, and with this patch applied I've
-> gone 9 hours without seeing one.
-> 
-> So feel free to add a Tested-By:  when it goes out.
+------=_Part_51046_798577495.1419475274453
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-Added, thanks for your help.
+aGkgYWxsOgogICAgICBJIGhhdmUgYSB0YXNrIHRvIGhhdmUgc29tZSBjb21wb25lbnRzIGluIGtl
+cm5lbCBhbmQgdXNlciBzcGFjZXMgdG8gZ2V0IHRoZSBmb2xsb3cgZ29hbO+8mgogICAgICAxLiBn
+ZXQgYSB1c2VyIHNwYWNlIHByb2dyYW0ncyBpbmZvcm1hdGlvbjsKICAgICAgMi4gY2FsY3VsYXRl
+IGEgdmFsdWUgd2l0aCBhIGFsZ29yaXRobSBsaWtlIEhBU0ggd2l0aCB0aGUgaW5mb3JtYXRpb24g
+YXMgaW5wdXQ7CiAgICAgIDMuIGxvb2sgdXAgYSB3aGl0ZSBsaXN0IHRvIGdldCBhIGV4cGVjdGVk
+IHZhbHVlIGFuZCBjb21wYXJlIGl0IHdpdGggdGhlIGNhbGN1bGF0ZWQgb25lIHRvIHZlcmlmeSB0
+aGUgaW50ZWdyaXR5IG9mIHRoZSBwcm9ncmFtLgogICAgICA0LnRoZXJlIHNob3VsZCBiZSBjb21w
+b25lbnRzIGluIHVzZXIgc3BhY2UgcHJvZ3JhbSB0byBzZXQgdGhlIHdoaXRlIGxpc3QgYW5kIGlu
+Zm9ybSB0aGUgdXNlciB3aGV0aGVyIGEgIHByb2dyYW0gaXMgcGVybWl0dGVkIG9yIG5vdC4KICAg
+ICAgSSBoYXZlIGxlYXJuZWQgdGhhdCBzZUxpbnV4IGhhcyBhY2hpZXZlZCBtb3N0IGhvb2tzIG9m
+IExTTSwgYW5kIEkgdGhpbmsgbXkgbmVlZCBpcyBhIGJhc2ljIG9uZSwgSSBkb24ndCB3YW50IHRv
+IHJlaW52ZW50IHRoZSB3aGVlbCwgc28gY291bGQgYW55IGV4cGVyaWVuY2VkIHVzZXIgb3IgZGV2
+ZWxvcGVyIGdpdmUgbWUgc29tZSBhZHZpY2U/IHRoYW5rcyEKCgpiZXN0IHJlZ2FyZHMh
+------=_Part_51046_798577495.1419475274453
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: base64
 
--- 
-paul moore
-security @ redhat
+PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
+Zm9udC1mYW1pbHk6QXJpYWwiPjxkaXY+aGkgYWxsOjwvZGl2PjxkaXY+Jm5ic3A7ICZuYnNwOyAm
+bmJzcDsgSSBoYXZlIGEgdGFzayB0byBoYXZlIHNvbWUgY29tcG9uZW50cyBpbiBrZXJuZWwgYW5k
+IHVzZXIgc3BhY2VzIHRvIGdldCB0aGUgZm9sbG93IGdvYWzvvJo8L2Rpdj48ZGl2PiZuYnNwOyAm
+bmJzcDsgJm5ic3A7IDEuIGdldCBhIHVzZXIgc3BhY2UgcHJvZ3JhbSdzIGluZm9ybWF0aW9uPHNw
+YW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAxLjc7Ij47PC9zcGFuPjwvZGl2PjxkaXY+PHNwYW4gc3R5
+bGU9ImxpbmUtaGVpZ2h0OiAxLjc7Ij4mbmJzcDsgJm5ic3A7ICZuYnNwOyAyLiBjYWxjdWxhdGUg
+YSB2YWx1ZSB3aXRoIGEgYWxnb3JpdGhtIGxpa2UgSEFTSCB3aXRoIHRoZSZuYnNwOzwvc3Bhbj48
+c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6IDEuNzsiPmluZm9ybWF0aW9uIGFzIGlucHV0PC9zcGFu
+PjxzcGFuIHN0eWxlPSJsaW5lLWhlaWdodDogMS43OyI+Ozwvc3Bhbj48L2Rpdj48ZGl2PjxzcGFu
+IHN0eWxlPSJsaW5lLWhlaWdodDogMS43OyI+Jm5ic3A7ICZuYnNwOyAmbmJzcDsgMy4gbG9vayB1
+cCBhIHdoaXRlIGxpc3QgdG8gZ2V0IGEgZXhwZWN0ZWQgdmFsdWUgYW5kIGNvbXBhcmUgaXQgd2l0
+aCB0aGUgY2FsY3VsYXRlZCBvbmUgdG8gdmVyaWZ5IHRoZSBpbnRlZ3JpdHkgb2YgdGhlIHByb2dy
+YW08L3NwYW4+PHNwYW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAxLjc7Ij4uPC9zcGFuPjwvZGl2Pjxk
+aXY+PHNwYW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAxLjc7Ij4mbmJzcDsgJm5ic3A7ICZuYnNwOyA0
+LnRoZXJlIHNob3VsZCBiZSBjb21wb25lbnRzIGluJm5ic3A7PC9zcGFuPjxzcGFuIHN0eWxlPSJs
+aW5lLWhlaWdodDogMS43OyI+dXNlciBzcGFjZSBwcm9ncmFtIHRvIHNldCB0aGUmbmJzcDs8L3Nw
+YW4+PHNwYW4gc3R5bGU9ImxpbmUtaGVpZ2h0OiAxLjc7Ij53aGl0ZSBsaXN0IGFuZCBpbmZvcm0g
+dGhlIHVzZXIgd2hldGhlciBhICZuYnNwOzwvc3Bhbj48c3BhbiBzdHlsZT0ibGluZS1oZWlnaHQ6
+IDEuNzsiPnByb2dyYW0gaXMgcGVybWl0dGVkIG9yIG5vdC48L3NwYW4+PC9kaXY+PGRpdj48c3Bh
+biBzdHlsZT0ibGluZS1oZWlnaHQ6IDEuNzsiPiZuYnNwOyAmbmJzcDsgJm5ic3A7IEkgaGF2ZSBs
+ZWFybmVkIHRoYXQgc2VMaW51eCBoYXMgYWNoaWV2ZWQgbW9zdCBob29rcyBvZiBMU00sIGFuZCBJ
+IHRoaW5rIG15IG5lZWQgaXMgYSBiYXNpYyBvbmUsIEkgZG9uJ3Qgd2FudCB0byByZWludmVudCB0
+aGUgd2hlZWwsIHNvIGNvdWxkIGFueSBleHBlcmllbmNlZCB1c2VyIG9yIGRldmVsb3BlciBnaXZl
+IG1lIHNvbWUgYWR2aWNlPyB0aGFua3MhPC9zcGFuPjwvZGl2PjxkaXY+PHNwYW4gc3R5bGU9Imxp
+bmUtaGVpZ2h0OiAxLjc7Ij48YnI+PC9zcGFuPjwvZGl2PjxkaXY+PHNwYW4gc3R5bGU9ImxpbmUt
+aGVpZ2h0OiAxLjc7Ij5iZXN0IHJlZ2FyZHMhPC9zcGFuPjwvZGl2PjwvZGl2Pjxicj48YnI+PHNw
+YW4gdGl0bGU9Im5ldGVhc2Vmb290ZXIiPjxzcGFuIGlkPSJuZXRlYXNlX21haWxfZm9vdGVyIj48
+c3BhbiB0aXRsZT0ibmV0ZWFzZWZvb3RlciI+PHNwYW4gaWQ9Im5ldGVhc2VfbWFpbF9mb290ZXIi
+PjxhIGhyZWY9IiMiIHRhcmdldD0iX2JsYW5rIj48L2E+PC9zcGFuPjwvc3Bhbj4NCjwvc3Bhbj48
+L3NwYW4+
+------=_Part_51046_798577495.1419475274453--
