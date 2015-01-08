@@ -1,37 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t07M4B0i012792
- for <selinux@tycho.nsa.gov>; Wed, 7 Jan 2015 17:04:13 -0500
-From: John Brooks <john.brooks@jolla.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/3] Build libsepol with -O2
-Date: Wed,  7 Jan 2015 15:03:39 -0700
-Message-Id: <1420668221-52637-2-git-send-email-john.brooks@jolla.com>
-In-Reply-To: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
-References: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t08Jdp1F001292
+ for <selinux@tycho.nsa.gov>; Thu, 8 Jan 2015 14:39:51 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: noisy selinux messages on tmpfs mount.
+Date: Thu, 08 Jan 2015 14:39:42 -0500
+Message-ID: <2354586.80TRdrKbtf@sifl>
+In-Reply-To: <3227891.DhTeT4XeAv@sifl>
+References: <20150108190822.GB4365@codemonkey.org.uk> <3227891.DhTeT4XeAv@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov, James Morris <james.l.morris@oracle.com>,
+ Stephen Smalley <sds@epoch.ncsc.mil>,
+ Linux Kernel <linux-kernel@vger.kernel.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-libsepol contains performance sensitive code; in particular, compiler
-optimizations save a few minutes off of the optimized policydb hash
-tables.
----
- libsepol/src/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thursday, January 08, 2015 02:34:57 PM Paul Moore wrote:
+> On Thursday, January 08, 2015 02:08:22 PM Dave Jones wrote:
+> > systemd has started mounting a tmpfs in /run/user/<uid> every time a
+> > session begins.  So after ssh'ing into a box a number of times, dmesg
+> > looks like this..
+> > 
+> > [...] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+> > [...] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+> 
+> {snip}
+> 
+> > What's a good solution to stopping this spew ? printk_once doesn't seem
+> > like a good fit, in case someone is doing different labelling behaviours
+> > between mounts.
+> > 
+> > Could we only print it if the mount is being done with non-default
+> > behaviour perhaps?
+> 
+> I'm very curious to hear Stephen's opinion on the issue, but I wonder how
+> much this would honestly impact us if we removed this message in the case
+> where we mount the filesystem with a known labeling behavior.
 
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index 6450d67..059f198 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -22,7 +22,7 @@ OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
- LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
- CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute
- 
--override CFLAGS += -I. -I../include -D_GNU_SOURCE
-+override CFLAGS += -I. -I../include -D_GNU_SOURCE -O2
- 
- ifneq ($(DISABLE_CIL),y)
- OBJS += $(sort $(patsubst %.c,%.o,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
+[NOTE: adding the SELinux list to the CC line.]
+
 -- 
-1.9.3
+paul moore
+security @ redhat
