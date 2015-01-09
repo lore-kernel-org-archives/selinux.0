@@ -1,36 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t09MJKp0010582
- for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2015 17:19:20 -0500
-Received: by mail-we0-f171.google.com with SMTP id u56so10274883wes.2
- for <selinux@tycho.nsa.gov>; Fri, 09 Jan 2015 14:19:14 -0800 (PST)
-Received: from bigboy.network2 (84-245-31-108.dsl.cambrium.nl. [84.245.31.108])
- by mx.google.com with ESMTPSA id fx6sm11552802wjc.39.2015.01.09.14.19.12
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Fri, 09 Jan 2015 14:19:13 -0800 (PST)
-Date: Fri, 9 Jan 2015 23:19:11 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Re: RFC: https://bugzilla.redhat.com/show_bug.cgi?id=1174405
-Message-ID: <20150109221910.GA11417@bigboy.network2>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t09MMoke010954
+ for <selinux@tycho.nsa.gov>; Fri, 9 Jan 2015 17:22:53 -0500
+Received: by mail-la0-f49.google.com with SMTP id hs14so16776648lab.8
+ for <selinux@tycho.nsa.gov>; Fri, 09 Jan 2015 14:22:51 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAB9W1A3Y_+gZv=ZWGTGvuk_z8P_Ys7SVNAUz8wRCS1EDW_dcJg@mail.gmail.com>
 References: <1420837553.31986.2.camel@gmail.com>
  <CAB9W1A3Y_+gZv=ZWGTGvuk_z8P_Ys7SVNAUz8wRCS1EDW_dcJg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-In-Reply-To: <CAB9W1A3Y_+gZv=ZWGTGvuk_z8P_Ys7SVNAUz8wRCS1EDW_dcJg@mail.gmail.com>
+Date: Fri, 9 Jan 2015 16:22:51 -0600
+Message-ID: <CAHZ_AjsxSJ3adY-UeMfik9xzOczk1411hk_ckSRPNbBOFSkwbA@mail.gmail.com>
+Subject: Re: RFC: https://bugzilla.redhat.com/show_bug.cgi?id=1174405
+From: eric gisse <jowr.pi@gmail.com>
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+I disagree.
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've had to have technical discussions justifying my belief that
+certain common things should be available to all domains such as
+/dev/urandom and more recently /proc/sys/vm/overcommit_memory.
 
-On Fri, Jan 09, 2015 at 04:52:18PM -0500, Stephen Smalley wrote:
+Discussions around those reasonable defaults basically rotate around
+the philsophical notion of least privilege.
+
+So seeing there's an entire swath of ports that programs can bind to
+by default is crazytalk and blows that notion out of the water.
+
+Further, it is bad policy.
+
+Consider sshd, or any other daemon that does nothing but bind to a
+port and listen for connections.
+
+It does not need the ability to bind to to anything other than its'
+daemon port, not even epheremal ports. Yet it can, regardless of
+policy considerations. Which is the underlying point here.
+
+If someone gains access to a server through a compromised service,
+they can bind a backdoor to that epheremal range or at least exfil
+data.
+
+This is bad, bad, bad and rather surprising because until it was
+pointed out by this thread I would not have considered it possible due
+to the...vehemence... in which least privilege has been upheld.
+
+
+
+
+On Fri, Jan 9, 2015 at 3:52 PM, Stephen Smalley
+<stephen.smalley@gmail.com> wrote:
 > Ports in the local port range can be auto-assigned by the kernel to
 > unbound sockets on first use.  So it makes no sense to control them,
 > and there isn't even an LSM hook in the place where such auto-port
@@ -38,53 +60,21 @@ On Fri, Jan 09, 2015 at 04:52:18PM -0500, Stephen Smalley wrote:
 > the port number is a "name" (i.e. a well-defined value that is
 > expected to correspond to a specific service), to prevent spoofing of
 > security-relevant services like sshd.
-
-Okay for the sake of argument let's say that makes sense to me. Should SELi=
-nux not somehow communicate this to the user.
-
-First we had the scenario where selinux denies and not logs denials (user s=
-pace object managers) and now we have the scenario where
-selinux allows even if there is no rule to allow it
-
-As a policy writer it gave me confidence to know that "if selinux blocks it=
- logs" and that "selinux denies access by default". Now that those things t=
-urn out to not be true. Its a black box. voodoo.
-
->=20
-> On Fri, Jan 9, 2015 at 4:05 PM, Dominick Grift <dac.override@gmail.com> w=
-rote:
-> > https://bugzilla.redhat.com/show_bug.cgi?id=3D1174405
-> >
-> > This is a inconsistency in SELinux
-> >
-> >
-> >
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
-
---=20
-Dominick Grift
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJUsFPWAAoJENAR6kfG5xmc6U4L/AhFggqmi9bFQj/yog3afUYp
-akG2NtzbdT6tW7zvdXYiDeXtBsm3S1C7GmPjCjXffEVxWXnmyQO/UXPfeqMyJk1p
-S8Hbc2a2M3x3aMuzlRa3zA2kWJnWXF8kC+zB0J2PNhpv7skRY+qEr8So6TlpclkH
-MqzdR0rqLYnN6VvBQE6MKgQwc8lDc8zFROiJDiFWbqaixgkiawvn2zyw41F7yFDW
-0EUY6XvVG0NNMTtm4Vyy2aPqv75vcQBgBEq+wjo21CzFUJYosWoU2d1YjmYumwy5
-CedNyrLrGAUDl6llpetFqyplSRZuGdRgEk9H6KvlmDbl6MqeiBl9mGR3xclnszco
-WqH14pj7TuSUQIdJQgVQM/mNPjzOPmbpTyuThe7xf58V2xOsVcW1QwS+frbiJUFj
-IEEKNMuteY27E7uwMJ2PzbNH8Ukf8V/mLDFAocnWjw/2dK1uyhG49XUnQoLHUz0L
-oNkKg72ps4DG6jrpCWQel82CHb0S0YyjA3E33bp1qQ==
-=UyAs
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--
+>
+> On Fri, Jan 9, 2015 at 4:05 PM, Dominick Grift <dac.override@gmail.com> wrote:
+>> https://bugzilla.redhat.com/show_bug.cgi?id=1174405
+>>
+>> This is a inconsistency in SELinux
+>>
+>>
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
