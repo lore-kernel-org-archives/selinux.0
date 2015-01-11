@@ -1,73 +1,103 @@
-Message-ID: <54B3EDF4.2000801@tycho.nsa.gov>
-Date: Mon, 12 Jan 2015 10:53:24 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
- Dave Jones <davej@codemonkey.org.uk>,
- Stephen Smalley <stephen.smalley@gmail.com>,
- Paul Moore <pmoore@redhat.com>, selinux <selinux@tycho.nsa.gov>,
- James Morris <james.l.morris@oracle.com>,
- Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: noisy selinux messages on tmpfs mount.
-References: <20150108190822.GB4365@codemonkey.org.uk>
- <3227891.DhTeT4XeAv@sifl> <2354586.80TRdrKbtf@sifl>
- <CAB9W1A2nTN2DJ699BXL_r_aXCk-O9-KrTLSi731isQWpPUmkwg@mail.gmail.com>
- <20150109191329.GA19400@codemonkey.org.uk> <54B03E45.8000106@tycho.nsa.gov>
- <54B3DF65.809@tresys.com>
-In-Reply-To: <54B3DF65.809@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0BMfSEj001740
+ for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2015 17:41:28 -0500
+Received: by mail-we0-f174.google.com with SMTP id k48so16260930wev.5
+ for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2015 14:41:24 -0800 (PST)
+From: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: ss: mls: Remove unused function
+Date: Sun, 11 Jan 2015 23:44:30 +0100
+Message-Id: <1421016270-25547-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+Cc: James Morris <james.l.morris@oracle.com>,
+ Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, Dave Jones <davej@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/12/2015 09:51 AM, Christopher J. PeBenito wrote:
-> On 1/9/2015 3:47 PM, Stephen Smalley wrote:
->> On 01/09/2015 02:13 PM, Dave Jones wrote:
->>> On Fri, Jan 09, 2015 at 08:06:49AM -0500, Stephen Smalley wrote:
->>>  
->>>  > On Thu, Jan 8, 2015 at 2:39 PM, Paul Moore <pmoore@redhat.com> wrote:
->>>  > > On Thursday, January 08, 2015 02:34:57 PM Paul Moore wrote:
->>>  > >> On Thursday, January 08, 2015 02:08:22 PM Dave Jones wrote:
->>>  > >> > systemd has started mounting a tmpfs in /run/user/<uid> every time a
->>>  > >> > session begins.  So after ssh'ing into a box a number of times, dmesg
->>>  > >> > looks like this..
->>>  > >> >
->>>  > >> > [...] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
->>>  > >> > [...] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
->>>  > >>
->>>  > >> {snip}
->>>  > >>
->>>  > >> > What's a good solution to stopping this spew ? printk_once doesn't seem
->>>  > >> > like a good fit, in case someone is doing different labelling behaviours
->>>  > >> > between mounts.
->>>  > >> >
->>>  > >> > Could we only print it if the mount is being done with non-default
->>>  > >> > behaviour perhaps?
->>>  > >>
->>>  > >> I'm very curious to hear Stephen's opinion on the issue, but I wonder how
->>>  > >> much this would honestly impact us if we removed this message in the case
->>>  > >> where we mount the filesystem with a known labeling behavior.
->>>  >
->>>  > We already reduced that message to KERN_DEBUG.  Is that not sufficient?
->>>
->>> That doesn't really help with the flooding of dmesg, so no.
->>> I should also note that it's not just logging in that creates a new
->>> session, it also seems to be getting triggered by cron jobs, or
->>> whatever the systemd replacement is.
->>
->> Fair enough.  I think we can likely get rid of it then.
-> 
-> Are you saying completely get rid of the message in all cases?  If so,
-> how is a user supposed to debug situations where they mount a filesystem
-> and labeling doesn't work (i.e. no security label support or policy
-> hasn't been updated for that fs)?  Is there going to be another place to
-> look see what the labeling behavior is for all mounted filesystems?
+Remove the function mls_import_netlbl_cat() that is not used anywhere.
 
-In most cases, they can extract the information directly from the policy
-via seinfo or their favorite policy tool.  For mountpoint labeling, the
-printk in question only tells them that mountpoint labeling was used,
-not the specific option and value, so reading /proc/self/mounts is more
-informative.  /proc/self/mounts will also tell them whether the
-filesystem "supports" labeling via the seclabel option.  So I don't
-believe it offers us any information that isn't available elsewhere.
+This was partially found by using a static code analysis program called cppcheck.
+
+Signed-off-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+---
+ security/selinux/ss/mls.c |   38 --------------------------------------
+ security/selinux/ss/mls.h |    7 -------
+ 2 files changed, 45 deletions(-)
+
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index d307b37..c01c755 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -631,42 +631,4 @@ int mls_export_netlbl_cat(struct context *context,
+ 
+ 	return rc;
+ }
+-
+-/**
+- * mls_import_netlbl_cat - Import the MLS categories from NetLabel
+- * @context: the security context
+- * @secattr: the NetLabel security attributes
+- *
+- * Description:
+- * Copy the NetLabel security attributes into the SELinux context; since the
+- * NetLabel security attribute only contains a single MLS category use it for
+- * both the low and high categories of the context.  Returns zero on success,
+- * negative values on failure.
+- *
+- */
+-int mls_import_netlbl_cat(struct context *context,
+-			  struct netlbl_lsm_secattr *secattr)
+-{
+-	int rc;
+-
+-	if (!policydb.mls_enabled)
+-		return 0;
+-
+-	rc = ebitmap_netlbl_import(&context->range.level[0].cat,
+-				   secattr->attr.mls.cat);
+-	if (rc != 0)
+-		goto import_netlbl_cat_failure;
+-
+-	rc = ebitmap_cpy(&context->range.level[1].cat,
+-			 &context->range.level[0].cat);
+-	if (rc != 0)
+-		goto import_netlbl_cat_failure;
+-
+-	return 0;
+-
+-import_netlbl_cat_failure:
+-	ebitmap_destroy(&context->range.level[0].cat);
+-	ebitmap_destroy(&context->range.level[1].cat);
+-	return rc;
+-}
+ #endif /* CONFIG_NETLABEL */
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index e4369e3..11d3c8f 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -62,8 +62,6 @@ void mls_import_netlbl_lvl(struct context *context,
+ 			   struct netlbl_lsm_secattr *secattr);
+ int mls_export_netlbl_cat(struct context *context,
+ 			  struct netlbl_lsm_secattr *secattr);
+-int mls_import_netlbl_cat(struct context *context,
+-			  struct netlbl_lsm_secattr *secattr);
+ #else
+ static inline void mls_export_netlbl_lvl(struct context *context,
+ 					 struct netlbl_lsm_secattr *secattr)
+@@ -80,11 +78,6 @@ static inline int mls_export_netlbl_cat(struct context *context,
+ {
+ 	return -ENOMEM;
+ }
+-static inline int mls_import_netlbl_cat(struct context *context,
+-					struct netlbl_lsm_secattr *secattr)
+-{
+-	return -ENOMEM;
+-}
+ #endif
+ 
+ #endif	/* _SS_MLS_H */
+-- 
+1.7.10.4
