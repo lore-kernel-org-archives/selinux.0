@@ -1,16 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0AKdtoc018213
- for <selinux@tycho.nsa.gov>; Sat, 10 Jan 2015 15:39:55 -0500
-Received: from fea.lerya.net (fea.lerya.net [10.9.0.2])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx.lerya.net (Postfix) with ESMTPS id DB52220070
- for <selinux@tycho.nsa.gov>; Sat, 10 Jan 2015 21:39:50 +0100 (CET)
-Date: Sat, 10 Jan 2015 21:39:49 +0100
-From: Vincent Brillault <gentoo+selinux@lerya.net>
-To: selinux@tycho.nsa.gov
-Subject: Re: RFC: https://bugzilla.redhat.com/show_bug.cgi?id=1174405
-Message-ID: <20150110203949.GA6331@Fea.lerya.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0BFn7d2012672
+ for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2015 10:49:08 -0500
+Received: by mail-wi0-f178.google.com with SMTP id em10so10322549wid.5
+ for <selinux@tycho.nsa.gov>; Sun, 11 Jan 2015 07:49:03 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20150110191517.GA30004@bigboy.network2>
 References: <1420837553.31986.2.camel@gmail.com>
  <CAB9W1A3Y_+gZv=ZWGTGvuk_z8P_Ys7SVNAUz8wRCS1EDW_dcJg@mail.gmail.com>
  <CAHZ_AjsxSJ3adY-UeMfik9xzOczk1411hk_ckSRPNbBOFSkwbA@mail.gmail.com>
@@ -21,36 +15,44 @@ References: <1420837553.31986.2.camel@gmail.com>
  <20150110174300.GA28262@bigboy.network2>
  <CAB9W1A1rLu_5XnMXqn0kbR0yhD-D39RmBTF12=1Kz320Hv5iEA@mail.gmail.com>
  <20150110191517.GA30004@bigboy.network2>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150110191517.GA30004@bigboy.network2>
+Date: Sun, 11 Jan 2015 10:49:03 -0500
+Message-ID: <CAHC9VhQXUqQJErLXuadhapft2_=o81mmBmbZ0nDKRHBAHE0H+g@mail.gmail.com>
+Subject: Re: RFC: https://bugzilla.redhat.com/show_bug.cgi?id=1174405
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
+On Sat, Jan 10, 2015 at 2:15 PM, Dominick Grift <dac.override@gmail.com> wrote:
+> On Sat, Jan 10, 2015 at 01:54:01PM -0500, Stephen Smalley wrote:
+>> Well, I noted it in the technical reports I wrote originally for
+>> SELinux.  I guess it didn't get carried into documentation written by
+>> others, although it has been discussed on this list and the Fedora
+>> SELinux list various times.  Also, even if we were to implement such a
+>> check, we'd have to dontaudit it in most cases because the kernel
+>> would automatically be scanning the range for an available and allowed
+>> port, and various userspace libraries do exactly the same thing when
+>> trying to bind to an available port.  Which would render it a
+>> mysterious denial on random send/connect and bind calls.
+>
+> You hinted that implementing a check for this could affect performance, and so i am no longer in favor of that solution.
+>
+> however i would like some of the tools to be aware of this issue.
+>
+> for example if i do
+>
+> sesearch -A -s sshd_t -t port_type -c tcp_socket -p name_bind
+>
+> That it returns somehow that this access to ports in the local port range will be allowed. So that auditors see that it is allowed even though there is no rule to allow it.
+> At least then they know there is something going on and can look for documentation about it.
+>
+> The problem is how does one implement that in an informative way without relying on customizable identifiers.
 
-I'm not sure I understand the "performance" impact considerations.
-Indeed, if we were to try to control the binding to 'ephemeral' ports
-individually, the looping that Stephen proposed would definitely have a
-huge impact if all port are denied (as the kernel will have to loop over
-all of them to find out that all bindings are denied).
+Perhaps a mention in the relevant man pages?
 
-However, does considering all these ports individually make sense?
-If we can consider them as a group, not individually, I believe that we
-could control 'ephemeral' bindings with almost no performance hit.
-For example, we could create a permission 'ephemeral_bind' in addition
-to bind and named_bind:
-- bind controls the ability to invoke the bind system calls
-- named_bind controls the ability to bind a given non ephemeral port
-- ephemeral_bind would controls the ability to bind any 'ephemeral' port
-
-Would that make sense?
-
-I'm not a kernel/selinux developper, so I can't judge the amount of work
-needed to implement such a solution, but I don't think that this issue
-can be discarded for 'performance' reasons.
-
-Cheers,
-Vincent Brillault
+-- 
+paul moore
+www.paul-moore.com
