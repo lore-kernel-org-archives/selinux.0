@@ -1,5 +1,5 @@
-Message-ID: <54B40A76.1060708@tycho.nsa.gov>
-Date: Mon, 12 Jan 2015 12:55:02 -0500
+Message-ID: <54B42988.3030705@tycho.nsa.gov>
+Date: Mon, 12 Jan 2015 15:07:36 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: John Brooks <john.brooks@jolla.com>, selinux@tycho.nsa.gov
@@ -95,40 +95,17 @@ On 01/12/2015 12:47 PM, Stephen Smalley wrote:
 > 
 > tweakavtab.txt:rules:  101401 entries and 68460/131072 buckets used,
 > longest chain length 7
-> 
-> Seems like we're wasting a large number of buckets in that scenario.
-> 
-> Also, in the corresponding kernel code (security/selinux/ss/avtab.[hc]),
-> we've actually shrunk the hash bits from 13 to 11,
-> 
-> commit 6c9ff1013b7a21099da838eeef7c3f23ee347957
-> Author: Stephen Smalley <sds@tycho.nsa.gov>
-> Date:   Mon Mar 15 10:42:11 2010 -0400
-> 
->     SELinux: Reduce max avtab size to avoid page allocation failures
-> 
->     Reduce MAX_AVTAB_HASH_BITS so that the avtab allocation is an order 2
->     allocation rather than an order 4 allocation on x86_64.  This
->     addresses reports of page allocation failures:
->     http://marc.info/?l=selinux&m=126757230625867&w=2
->     https://bugzilla.redhat.com/show_bug.cgi?id=570433
-> 
->     Reported-by:  Russell Coker <russell@coker.com.au>
->     Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
->     Acked-by: Eric Paris <eparis@redhat.com>
->     Signed-off-by: James Morris <jmorris@namei.org>
-> 
-> That doesn't necessarily mean we can't increase it in libsepol, but
-> something to be aware of.  Of course the kernel never expands the rules
-> so it doesn't have this issue.
-> 
-> I've also considered reworking the libsepol check_assertions() code to
-> not expand the avtab in order to provide better traceback to the
-> original source allow rule that violated the neverallow.  This would
-> require more work by check_assertion_helper to check each attribute
-> associated with the source and target, just as with
-> context_struct_compute_av.
 
-Might also want to consider taking the ebitmap scanning optimization
-done in the kernel to libsepol.  That would help with the
-ebitmap_for_each_bit() loops.
+Trying this on the Android policy, I get:
+before.txt:rules:  6033 entries and 1811/2048 buckets used, longest
+chain length 25
+
+betterhash.txt:rules:  6033 entries and 1923/2048 buckets used, longest
+chain length 11
+
+tweakavtab.txt:rules:  6033 entries and 4232/8192 buckets used, longest
+chain length 6
+
+Also makes sepolicy-analyze neverallow feasible on Fedora policy;
+previously I could only run it on Android policy and expect it to
+complete in a sane amount of time.
