@@ -1,12 +1,12 @@
-Message-ID: <54B3FDE5.8000802@tycho.nsa.gov>
-Date: Mon, 12 Jan 2015 12:01:25 -0500
+Message-ID: <54B404CC.90908@tycho.nsa.gov>
+Date: Mon, 12 Jan 2015 12:30:52 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: John Brooks <john.brooks@jolla.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] Build libsepol with -O2
+Subject: Re: [PATCH 2/3] Use a better hash function for libsepol's avtab
 References: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
- <1420668221-52637-2-git-send-email-john.brooks@jolla.com>
-In-Reply-To: <1420668221-52637-2-git-send-email-john.brooks@jolla.com>
+ <1420668221-52637-3-git-send-email-john.brooks@jolla.com>
+In-Reply-To: <1420668221-52637-3-git-send-email-john.brooks@jolla.com>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -14,27 +14,87 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 01/07/2015 05:03 PM, John Brooks wrote:
-> libsepol contains performance sensitive code; in particular, compiler
-> optimizations save a few minutes off of the optimized policydb hash
-> tables.
-> ---
->  libsepol/src/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> This function, based on murmurhash3, has much better distribution than
+> the original. Using the current default of 4096 buckets, there are many
+> fewer collisions:
 > 
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index 6450d67..059f198 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -22,7 +22,7 @@ OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
->  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
->  CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute
+> Before:
+> 2893000 entries and 4096/4096 buckets used, longest chain length 1649
+> After:
+> 2732000 entries and 4096/4096 buckets used, longest chain length 764
+> 
+> The difference becomes much more significant when buckets are increased.
+> A naive attempt to expand the current function to larger outputs doesn't
+> yield any significant improvement; so this function is a prerequisite
+> for increasing the bucket size.
+> ---
+>  libsepol/src/avtab.c | 35 ++++++++++++++++++++++++++++++++---
+>  1 file changed, 32 insertions(+), 3 deletions(-)
+> 
+> diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+> index ea947cb..9c01a8d 100644
+> --- a/libsepol/src/avtab.c
+> +++ b/libsepol/src/avtab.c
+> @@ -49,10 +49,39 @@
+>  #include "debug.h"
+>  #include "private.h"
 >  
-> -override CFLAGS += -I. -I../include -D_GNU_SOURCE
-> +override CFLAGS += -I. -I../include -D_GNU_SOURCE -O2
+> -static inline int avtab_hash(struct avtab_key *keyp, uint16_t mask)
+> +/* Based on MurmurHash3, written by Austin Appleby and placed in the
+> + * public domain.
+> + */
+> +static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
+>  {
+> -	return ((keyp->target_class + (keyp->target_type << 2) +
+> -		 (keyp->source_type << 9)) & mask);
+> +	uint32_t h1 = 0;
+> +
+> +	const uint32_t c1 = 0xcc9e2d51;
+> +	const uint32_t c2 = 0x1b873593;
+> +
+> +#define mix(n) { \
+> +	uint32_t k1 = n; \
+> +	k1 *= c1; \
+> +	k1 = (k1 << 15) | (k1 >> (32 - 15)); \
+> +	k1 *= c2; \
+> +	h1 ^= k1; \
+> +	h1 = (h1 << 13) | (h1 >> (32 - 13)); \
+> +	h1 = h1*5+0xe6546b64; \
+> +}
+> +
+> +	mix(keyp->target_class);
+> +	mix(keyp->target_type);
+> +	mix(keyp->source_type);
+> +
+> +#undef mix
+> +
+> +	h1 ^= h1 >> 16;
+> +	h1 *= 0x85ebca6b;
+> +	h1 ^= h1 >> 13;
+> +	h1 *= 0xc2b2ae35;
+> +	h1 ^= h1 >> 16;
+> +
+> +	return h1 & mask;
+>  }
 >  
->  ifneq ($(DISABLE_CIL),y)
->  OBJS += $(sort $(patsubst %.c,%.o,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
+>  static avtab_ptr_t
 > 
 
-Not sure we want this to always be set even if the caller specified
-their own set of CFLAGS on the make command-line.
+Thanks, this looks like a significant improvement for neverallow
+checking.  I'm trying to make sure I understand what if any implications
+it has for other uses of the avtab, since the neverallow checker is
+unusual in that it fully expands all entries.
+
+On Fedora 20 policy, checkpolicy -Mb
+/etc/selinux/targeted/policy/policy.29 before and after this patch (with
+avtabh_hash_eval called) shows:
+
+before.txt:rules:  101401 entries and 8169/8192 buckets used, longest
+chain length 84
+betterhash.txt:rules:  101401 entries and 8192/8192 buckets used,
+longest chain length 27
+
+So that's a definite improvement.
+
+Could you amend your code to define constants for the various magic
+values used above?  Thanks.
