@@ -1,76 +1,43 @@
-Message-ID: <54B524FC.9050908@tycho.nsa.gov>
-Date: Tue, 13 Jan 2015 09:00:28 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0DMqlR0018438
+ for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2015 17:52:48 -0500
+Received: by mail-qa0-f45.google.com with SMTP id n8so4389024qaq.4
+ for <selinux@tycho.nsa.gov>; Tue, 13 Jan 2015 14:52:45 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Subject: Re: [PATCH] selinux: ss: mls: Remove unused function
+Date: Tue, 13 Jan 2015 17:52:42 -0500
+Message-ID: <5063837.NmV2Vq10Vo@sifl>
+In-Reply-To: <CAKXHbyP5nay1XBCk7tkH_o2==Vu16aWQOG949T-xoffXse7Fsw@mail.gmail.com>
+References: <1421016270-25547-1-git-send-email-rickard_strandqvist@spectrumdigital.se>
+ <1737170.75ul4v7eON@sifl>
+ <CAKXHbyP5nay1XBCk7tkH_o2==Vu16aWQOG949T-xoffXse7Fsw@mail.gmail.com>
 MIME-Version: 1.0
-To: John Brooks <john.brooks@jolla.com>
-Subject: Re: [PATCH 3/3] Tweak avtab hash table parameters for better
- performance
-References: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
- <1420668221-52637-4-git-send-email-john.brooks@jolla.com>
- <54B408A9.4020702@tycho.nsa.gov>
- <A906E10A-6726-4208-993B-4D6AB21B202E@jolla.com>
- <54B522A7.2080109@tycho.nsa.gov>
-In-Reply-To: <54B522A7.2080109@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
+Cc: James Morris <james.l.morris@oracle.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Dave Jones <davej@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/13/2015 08:50 AM, Stephen Smalley wrote:
-> On 01/12/2015 08:25 PM, John Brooks wrote:
->> On Jan 12, 2015, at 10:47 AM, Stephen Smalley <sds@tycho.nsa.gov
->> <mailto:sds@tycho.nsa.gov>> wrote:
->>>
->>> On 01/07/2015 05:03 PM, John Brooks wrote:
->>>> @@ -341,8 +341,6 @@ int avtab_alloc(avtab_t *h, uint32_t nrules)
->>>> work  = work >> 1;
->>>> shift++;
->>>> }
->>>> -if (shift > 2)
->>>> -shift = shift - 2;
->>>> nslot = 1 << shift;
->>>> if (nslot > MAX_AVTAB_SIZE)
->>>> nslot = MAX_AVTAB_SIZE;
->>>>
->>>
->>> tweakavtab.txt:rules:  101401 entries and 68460/131072 buckets used,
->>> longest chain length 7
->>>
->>> Seems like we're wasting a large number of buckets in that scenario.
->>
->> Good catch. It looks like this is caused by the segment I highlighted
->> above, removing the shift adjustment.
->>
->> changed-nslot.txt:rules:  100967 entries and 68321/131072 buckets used,
->> longest chain length 8
->> original-nslot.txt:rules:  100967 entries and 31017/32768 buckets used,
->> longest chain length 13
->>
->> So, one bucket is allocated per 2-4 elements. The change I actually
->> wanted to make is to the definition of MAX_AVTAB_SIZE: it should be 2x
->> MAX_AVTAB_HASH_BUCKETS to allow allocating a hash with maximum buckets,
->> and that nslot bounding should use MAX_AVTAB_HASH_BUCKETS.
->>
->>>
->>> Also, in the corresponding kernel code (security/selinux/ss/avtab.[hc]),
->>> we've actually shrunk the hash bits from 13 to 11,
->>
->> Interesting. I wonder what the kernel hash eval looks like - it might
->> benefit from a better hash function as well.
+On Tuesday, January 13, 2015 11:45:09 PM Rickard Strandqvist wrote:
+> Hi Paul
 > 
-> Permission checks in the kernel are usually handled by the AVC (access
-> vector cache), so the looking it up in the avtab is the slow path already.
+> Thank you, yes it would be nice to do something for real :)
 
-That said, it wouldn't hurt to look at improving the hash function there
-as well, and possibly for the AVC too.
+ :)
 
-One thing to note is that we never envisioned such large policies when
-we created SELinux (the original example policy was much smaller).  The
-Fedora policy unfortunately ships with every possible module/domain that
-one could ever use included, and does not attempt to reduce the policy
-to only the subset required for the given system.  Admittedly that is a
-hard problem.  In the Android case, we were careful to keep the policy
-small from the beginning, but there we have a much smaller and more
-constrained userspace environment.
+> But will probably need a little more time than tonight for it, if it's
+> OK to wait until the weekend.
+
+Not a problem, let us know if you get stuck on anything.  Thanks for helping 
+out.
+
+-Paul
+
+-- 
+paul moore
+www.paul-moore.com
