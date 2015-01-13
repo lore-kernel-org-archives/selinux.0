@@ -1,14 +1,16 @@
-Message-ID: <54B52363.9070309@tycho.nsa.gov>
-Date: Tue, 13 Jan 2015 08:53:39 -0500
+Message-ID: <54B524FC.9050908@tycho.nsa.gov>
+Date: Tue, 13 Jan 2015 09:00:28 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: John Brooks <john.brooks@jolla.com>
-Subject: Re: [PATCH 2/3] Use a better hash function for libsepol's avtab
+Subject: Re: [PATCH 3/3] Tweak avtab hash table parameters for better
+ performance
 References: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
- <1420668221-52637-3-git-send-email-john.brooks@jolla.com>
- <54B404CC.90908@tycho.nsa.gov>
- <336D0B16-7046-4AA3-B002-B13877CBF3BC@jolla.com>
-In-Reply-To: <336D0B16-7046-4AA3-B002-B13877CBF3BC@jolla.com>
+ <1420668221-52637-4-git-send-email-john.brooks@jolla.com>
+ <54B408A9.4020702@tycho.nsa.gov>
+ <A906E10A-6726-4208-993B-4D6AB21B202E@jolla.com>
+ <54B522A7.2080109@tycho.nsa.gov>
+In-Reply-To: <54B522A7.2080109@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
 Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -16,39 +18,59 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/12/2015 08:38 PM, John Brooks wrote:
-> On Jan 12, 2015, at 10:30 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On 01/13/2015 08:50 AM, Stephen Smalley wrote:
+> On 01/12/2015 08:25 PM, John Brooks wrote:
+>> On Jan 12, 2015, at 10:47 AM, Stephen Smalley <sds@tycho.nsa.gov
+>> <mailto:sds@tycho.nsa.gov>> wrote:
+>>>
+>>> On 01/07/2015 05:03 PM, John Brooks wrote:
+>>>> @@ -341,8 +341,6 @@ int avtab_alloc(avtab_t *h, uint32_t nrules)
+>>>> work  = work >> 1;
+>>>> shift++;
+>>>> }
+>>>> -if (shift > 2)
+>>>> -shift = shift - 2;
+>>>> nslot = 1 << shift;
+>>>> if (nslot > MAX_AVTAB_SIZE)
+>>>> nslot = MAX_AVTAB_SIZE;
+>>>>
+>>>
+>>> tweakavtab.txt:rules:  101401 entries and 68460/131072 buckets used,
+>>> longest chain length 7
+>>>
+>>> Seems like we're wasting a large number of buckets in that scenario.
 >>
->> On 01/07/2015 05:03 PM, John Brooks wrote:
->>> This function, based on murmurhash3, has much better distribution than
->>> the original. Using the current default of 4096 buckets, there are many
->>> fewer collisions:
+>> Good catch. It looks like this is caused by the segment I highlighted
+>> above, removing the shift adjustment.
 >>
->> Thanks, this looks like a significant improvement for neverallow
->> checking.  I'm trying to make sure I understand what if any implications
->> it has for other uses of the avtab, since the neverallow checker is
->> unusual in that it fully expands all entries.
+>> changed-nslot.txt:rules:  100967 entries and 68321/131072 buckets used,
+>> longest chain length 8
+>> original-nslot.txt:rules:  100967 entries and 31017/32768 buckets used,
+>> longest chain length 13
 >>
->> On Fedora 20 policy, checkpolicy -Mb
->> /etc/selinux/targeted/policy/policy.29 before and after this patch (with
->> avtabh_hash_eval called) shows:
+>> So, one bucket is allocated per 2-4 elements. The change I actually
+>> wanted to make is to the definition of MAX_AVTAB_SIZE: it should be 2x
+>> MAX_AVTAB_HASH_BUCKETS to allow allocating a hash with maximum buckets,
+>> and that nslot bounding should use MAX_AVTAB_HASH_BUCKETS.
 >>
->> before.txt:rules:  101401 entries and 8169/8192 buckets used, longest
->> chain length 84
->> betterhash.txt:rules:  101401 entries and 8192/8192 buckets used,
->> longest chain length 27
+>>>
+>>> Also, in the corresponding kernel code (security/selinux/ss/avtab.[hc]),
+>>> we've actually shrunk the hash bits from 13 to 11,
 >>
->> So that's a definite improvement.
->>
->> Could you amend your code to define constants for the various magic
->> values used above?  Thanks.
+>> Interesting. I wonder what the kernel hash eval looks like - it might
+>> benefit from a better hash function as well.
 > 
-> The magic values are nothing but magic from the original murmurhash3. They don’t have any useful names. I did remove ‘c1’ and ‘c2’ in favor of using their values inline, since each is only used once. Is that enough?
-> 
-> (Also, sorry for my last mail to this list; it was butchered by my mail client. Hopefully this one works.)
+> Permission checks in the kernel are usually handled by the AVC (access
+> vector cache), so the looking it up in the avtab is the slow path already.
 
-Not sure what source you are using for murmurhash3, but the algorithm
-from http://en.wikipedia.org/wiki/MurmurHash seems to define and use
-symbolic names for most of the constants.  They aren't especially
-meaningful but they help with readability, especially for the ones that
-are used more than once in the algorithm.
+That said, it wouldn't hurt to look at improving the hash function there
+as well, and possibly for the AVC too.
+
+One thing to note is that we never envisioned such large policies when
+we created SELinux (the original example policy was much smaller).  The
+Fedora policy unfortunately ships with every possible module/domain that
+one could ever use included, and does not attempt to reduce the policy
+to only the subset required for the given system.  Admittedly that is a
+hard problem.  In the Android case, we were careful to keep the policy
+small from the beginning, but there we have a much smaller and more
+constrained userspace environment.
