@@ -1,82 +1,212 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0EB3og5002721
- for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 06:03:50 -0500
-Received: from relay2.suse.de (charybdis-ext.suse.de [195.135.220.254])
- by mx2.suse.de (Postfix) with ESMTP id 34921AD1A
- for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 11:03:36 +0000 (UTC)
-Date: Wed, 14 Jan 2015 12:03:34 +0100
-From: Johannes Segitz <jsegitz@suse.com>
-To: selinux@tycho.nsa.gov
-Subject: ebitmap: map size does not match my size on s390x
-Message-ID: <20150114110334.GA24984@suse.de>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0EDiddP015787
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 08:44:39 -0500
+Received: by mail-we0-f194.google.com with SMTP id u56so2230696wes.1
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 05:44:18 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
+In-Reply-To: <CAN3nT1QG31X071+n_=S=cdJsvrYdHcMJRM+MRJRO4KShtv3qaA@mail.gmail.com>
+References: <CANDcDy1K5r3PcF7r2ohPuzaQBdpGX2Zkx1bWYT_=aJK4wO1D-g@mail.gmail.com>
+ <54B655A3.500@itechfrontiers.com>
+ <CANDcDy3Z1Zj874rHz77WjPKQwyq1aJRh0-=PokTvm3Ninzmdcg@mail.gmail.com>
+ <CAN3nT1QG31X071+n_=S=cdJsvrYdHcMJRM+MRJRO4KShtv3qaA@mail.gmail.com>
+Date: Wed, 14 Jan 2015 05:44:18 -0800
+Message-ID: <CANDcDy1jZU0foxWwk098hH3DH878x57fSwndNd0EU5yQHKUDNQ@mail.gmail.com>
+Subject: Re: Why SElinux use Racist Employee?
+From: Alireza Keyhani <alireza.keyhanii@gmail.com>
+To: Shahbaz khan <shazalive@gmail.com>
+Content-Type: multipart/alternative; boundary=001a11c38a229f43c3050c9cef58
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+--001a11c38a229f43c3050c9cef58
+Content-Type: text/plain; charset=UTF-8
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Hey Shahbaz khan, They don't have any problem with you because of ISIS and
+Taliban and Alghaeda. They are family for you and you export them to the
+world.
+I guess Mr Smalley Must Kick you and not me. You are a Terrorist here.
+
+On Wed, Jan 14, 2015 at 4:59 AM, Shahbaz khan <shazalive@gmail.com> wrote:
+
+> You should send to mailing list. I am from Pakistan and I have no problems
+> getting help from this mailing list. I will also add that they answered
+> many newbie questions with care.
+>
+> Having ideological differences or National policy differences does not
+> impact our technical collaboration in ways you point out. These are highly
+> professional people and please do not continue such comments. Learn to
+> think positive.
+>
+> Don't point fingers at others. Especially this is not the right forum.
+>
+> Mr. Smalley please kick this person if such emails are sent again.
+>
+> On Wed, Jan 14, 2015 at 5:41 PM, Alireza Keyhani <
+> alireza.keyhanii@gmail.com> wrote:
+>
+>> You Wrong.
+>> I sent many emails to him and I'm sure he is a big racist and don't like
+>> to help anyone. You said "Mr. Walsh is a very respectable person, you can
+>> ask on the list though." and I'm sure you are kidding!!! He is not, He is a
+>> Wolf behind a lamb. Him idea is very like Terrorist and Spies. They Told us
+>> Terrorist but the real terrorist are them. They made ISIS and other
+>> motherfucker groups but they never see themselves into mirror. He worked
+>> for NSA and is not a Security researcher, He is a big Spy and Terrorist and
+>> don't like to share information. I'm sorry for him and redhat for hire him.
+>>
+>> On Wed, Jan 14, 2015 at 3:40 AM, Patrick K., ITF <cto@itechfrontiers.com>
+>> wrote:
+>>
+>>> Alireza,
+>>>
+>>> Inquires from Iran are not answered by responsible companies in the U.S.
+>>> due to obvious legal reasons (mostly as precautionary measure), it is not a
+>>> matter of race or whatever else.
+>>>
+>>> Mr. Walsh is a very respectable person, you can ask on the list though.
+>>>
+>>> Nobody here is responsible to answer any particular person I suppose,
+>>>
+>>> responses are provided voluntarily!
+>>>
+>>>
+>>> The guys behind SELinux have done a great job, kudos
+>>>
+>>>
+>>> Patrick K.
+>>>
+>>>
+>>> On 1/14/2015 3:38 AM, Alireza Keyhani wrote:
+>>>
+>>>> Hello.
+>>>> I contacted to "Daniel J Walsh" but he never reply my personal email :(,
+>>>> It is because of my country and They think I'm a Snooper. I'm sorry for
+>>>> SElinux and Redhat for hire him. He must fight in Syria or Iraq not use
+>>>> Computer.
+>>>> Jut sorry for him.
+>>>>
+>>>>
+>>>> _______________________________________________
+>>>> Selinux mailing list
+>>>> Selinux@tycho.nsa.gov
+>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>> To get help, send an email containing "help" to
+>>>> Selinux-request@tycho.nsa.gov.
+>>>>
+>>>>
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to
+>> Selinux-request@tycho.nsa.gov.
+>>
+>
+>
+>
+> --
+> Shahbaz Khan
+>
+
+--001a11c38a229f43c3050c9cef58
+Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-Hello,
+<div dir=3D"ltr">Hey Shahbaz khan, They don&#39;t have any problem with you=
+ because of ISIS and Taliban and Alghaeda. They are family for you and you =
+export them to the world.<div>I guess Mr Smalley Must Kick you and not me. =
+You are a Terrorist here.</div></div><div class=3D"gmail_extra"><br><div cl=
+ass=3D"gmail_quote">On Wed, Jan 14, 2015 at 4:59 AM, Shahbaz khan <span dir=
+=3D"ltr">&lt;<a href=3D"mailto:shazalive@gmail.com" target=3D"_blank">shaza=
+live@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" s=
+tyle=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div=
+ dir=3D"ltr">You should send to mailing list. I am from Pakistan and I have=
+ no problems getting help from this mailing list. I will also add that they=
+ answered many newbie questions with care.<div><br></div><div>Having ideolo=
+gical differences or National policy differences does not impact our techni=
+cal collaboration in ways you point out. These are highly professional peop=
+le and please do not continue such comments. Learn to think positive.</div>=
+<div><br></div><div>Don&#39;t point fingers at others. Especially this is n=
+ot the right forum.</div><div><br></div><div>Mr. Smalley please kick this p=
+erson if such emails are sent again.</div></div><div class=3D"gmail_extra">=
+<div><div class=3D"h5"><br><div class=3D"gmail_quote">On Wed, Jan 14, 2015 =
+at 5:41 PM, Alireza Keyhani <span dir=3D"ltr">&lt;<a href=3D"mailto:alireza=
+.keyhanii@gmail.com" target=3D"_blank">alireza.keyhanii@gmail.com</a>&gt;</=
+span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8e=
+x;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">You Wrong.<=
+div>I sent many emails to him and I&#39;m sure he is a big racist and don&#=
+39;t like to help anyone. You said &quot;Mr. Walsh is a very respectable pe=
+rson, you can ask on the list though.&quot; and I&#39;m sure you are kiddin=
+g!!! He is not, He is a Wolf behind a lamb. Him idea is very like Terrorist=
+ and Spies. They Told us Terrorist but the real terrorist are them. They ma=
+de ISIS and other motherfucker groups but they never see=C2=A0themselves=C2=
+=A0into mirror. He worked for NSA and is not a Security researcher, He is a=
+ big Spy and Terrorist and don&#39;t like to share information. I&#39;m sor=
+ry for him and redhat for hire him.</div></div><div><div><div class=3D"gmai=
+l_extra"><br><div class=3D"gmail_quote">On Wed, Jan 14, 2015 at 3:40 AM, Pa=
+trick K.,   ITF <span dir=3D"ltr">&lt;<a href=3D"mailto:cto@itechfrontiers.=
+com" target=3D"_blank">cto@itechfrontiers.com</a>&gt;</span> wrote:<br><blo=
+ckquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #c=
+cc solid;padding-left:1ex">Alireza,<br>
+<br>
+Inquires from Iran are not answered by responsible companies in the U.S. du=
+e to obvious legal reasons (mostly as precautionary measure), it is not a m=
+atter of race or whatever else.<br>
+<br>
+Mr. Walsh is a very respectable person, you can ask on the list though.<br>
+<br>
+Nobody here is responsible to answer any particular person I suppose,<br>
+<br>
+responses are provided voluntarily!<br>
+<br>
+<br>
+The guys behind SELinux have done a great job, kudos<span><font color=3D"#8=
+88888"><br>
+<br>
+<br>
+Patrick K.</font></span><div><div><br>
+<br>
+On 1/14/2015 3:38 AM, Alireza Keyhani wrote:<br>
+</div></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
+rder-left:1px #ccc solid;padding-left:1ex"><div><div>
+Hello.<br>
+I contacted to &quot;Daniel J Walsh&quot; but he never reply my personal em=
+ail :(,<br>
+It is because of my country and They think I&#39;m a Snooper. I&#39;m sorry=
+ for<br>
+SElinux and Redhat for hire him. He must fight in Syria or Iraq not use<br>
+Computer.<br>
+Jut sorry for him.<br>
+<br>
+<br></div></div><span>
+______________________________<u></u>_________________<br>
+Selinux mailing list<br>
+<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
+a.gov</a><br>
+To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
+" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
+To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
+:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
+.gov</a>.<br>
+<br>
+</span></blockquote>
+</blockquote></div><br></div>
+</div></div><br>_______________________________________________<br>
+Selinux mailing list<br>
+<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
+a.gov</a><br>
+To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
+" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
+To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
+:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
+.gov</a>.<br></blockquote></div><br><br clear=3D"all"><div><br></div></div>=
+</div><span class=3D"HOEnZb"><font color=3D"#888888">-- <br><div>Shahbaz Kh=
+an<br></div>
+</font></span></div>
+</blockquote></div><br></div>
 
-running sepolgen-ifgen fails on s390x. It fails because calling=20
-# sepolgen-ifgen-attr-helper /sys/fs/selinux/policy /tmp/tmpsSrJj3
-gives:
-libsepol.policydb_index_others: security:  7 users, 47 roles, 3156 types, 2=
-01 bools
-libsepol.policydb_index_others: security: 1 sens, 1024 cats
-libsepol.policydb_index_others: security:  83 classes, 59401 rules, 9799 co=
-nd rules
-security: ebitmap: map size 1400 does not match my size 64 (high bit was 15=
-45)
-error(s) encountered while parsing configuration
-
-I use version 2.3 of the userspace tools on SLE 12 with kernel 3.12.28. The
-policy is based on Fedoras policy with some extension for SUSE
-(f85b52d1c6805e9b0a8bd2a4a4332e66e4b52c00 for the base policy and=20
-627644e1bb9c6f851c2466ab6e0eec7607f472cd for contrib). This combination
-works fine on other architectures, only s390x shows this behavior. I did
-not work on s390x before so I don't know if this ever worked.
-
-The message comes from libsepol/src/ebitmap.c:361. Could this be a
-endianness issue?
-
-Best regards
-Johannes
---
-Johannes Segitz                                        SUSE Security Team
-GPG Key E7C81FA0       EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
-SUSE LINUX GmbH        Maxfeldstra=DFe 5            90409 N=FCrnberg, Germa=
-ny
-GF: Felix Imend=F6rffer, Jane Smithard, Jennifer Guild, Dilip Upmanyu, Grah=
-am Norton, HRB 21284 (AG N=FCrnberg)
-
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCgAGBQJUtk0GAAoJELwn3Z0sxP1m7PsQALdmOyNS3Qli0qCYbuMVzlTW
-faW30Ui+JpP5u0j1zaE7UTTJv3e+MqBzgR5elTtp6vOuX4fxko0c9oIraeKubUMf
-Ib2Ed9gapu9V+QUxgeeVtjXqExEQTDIJe47h1BToBeazoJ7Os5IDHNS6qjaZOjdA
-aKm8HpLvj0WoziERNxyGo/OPGFybMBeRuc2bW6+y2QaSwgIDFClabdzbNKRVUM34
-SkccIQY60s+sWLNk8QanAmkOH8AlxY3uV0Ax5PLDOres4A76gbI2ND89fc3QbyHQ
-mOsSuHNEtKuy4MXWissvV5oCNgz2JG9Nn45Pul0BsYFeIjEpIwlnGcKhmF3kIYwr
-Qth6YH0YIXBk14toyoAFYBfmKYR2vrbqBjvjy+Rn4v8g5qN422jLW0lYDgbZlHc4
-5wsWtW/K1huoWT3g29qM3POwRBXyPmlmgKBacOOFf04odbqpi5am1YSqfGujQY67
-1cptlxxtDpUSG4T+PHwQKUADUlSwRbWgZYMDDBeE5aknbG3otZQRyeNYL/7wMQa3
-yiMSjVes30OXKNEIn61Pl9DwQDF3W/Xb6j+9FsqjMSnKi5NxtKXupb+pqrmMUooG
-wUHJwP5Et2ZtUZDhTfmGBaXoflF5c4hHNoOJtIjzt9E+LPn1UifCQexKtuDhRDl/
-pGXC05uNbzrTLsVL+BTe
-=QEDn
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--
+--001a11c38a229f43c3050c9cef58--
