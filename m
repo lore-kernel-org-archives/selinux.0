@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0EEIWdF020644
- for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 09:18:32 -0500
-Received: by mail-wi0-f173.google.com with SMTP id hi2so5635601wib.0
- for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 06:18:30 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0EEQL4S021454
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 09:26:21 -0500
+Received: by mail-wg0-f44.google.com with SMTP id y19so9204257wgg.3
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 06:26:19 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CANDcDy1K5r3PcF7r2ohPuzaQBdpGX2Zkx1bWYT_=aJK4wO1D-g@mail.gmail.com>
-References: <CANDcDy1K5r3PcF7r2ohPuzaQBdpGX2Zkx1bWYT_=aJK4wO1D-g@mail.gmail.com>
-Date: Wed, 14 Jan 2015 09:18:30 -0500
-Message-ID: <CAB9W1A1gFkoYc9B-P_BGarEq6FHKCdHTO0uFmnxycX2Ye5qH8A@mail.gmail.com>
-Subject: Re: Why SElinux use Racist Employee?
+In-Reply-To: <20150114110334.GA24984@suse.de>
+References: <20150114110334.GA24984@suse.de>
+Date: Wed, 14 Jan 2015 09:26:17 -0500
+Message-ID: <CAB9W1A1bN6aBJi9-6RT+23BoH5dmppTv6WSUWtgVrJ21KOAqDg@mail.gmail.com>
+Subject: Re: ebitmap: map size does not match my size on s390x
 From: Stephen Smalley <stephen.smalley@gmail.com>
-To: Alireza Keyhani <alireza.keyhanii@gmail.com>
+To: Johannes Segitz <jsegitz@suse.com>
 Content-Type: text/plain; charset=UTF-8
 Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,21 +18,42 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If you have a question about SELinux, please post it to the list and
-someone will answer you.  But please do not post off-topic or personal
-attacks on the list.  Thanks!
+There have been a couple of endianness fixes for
+/sys/fs/selinux/policy, e.g. see:
+9085a6422 and b138004
 
-On Wed, Jan 14, 2015 at 3:38 AM, Alireza Keyhani
-<alireza.keyhanii@gmail.com> wrote:
-> Hello.
-> I contacted to "Daniel J Walsh" but he never reply my personal email :(, It
-> is because of my country and They think I'm a Snooper. I'm sorry for SElinux
-> and Redhat for hire him. He must fight in Syria or Iraq not use Computer.
-> Jut sorry for him.
+On Wed, Jan 14, 2015 at 6:03 AM, Johannes Segitz <jsegitz@suse.com> wrote:
+> Hello,
+>
+> running sepolgen-ifgen fails on s390x. It fails because calling
+> # sepolgen-ifgen-attr-helper /sys/fs/selinux/policy /tmp/tmpsSrJj3
+> gives:
+> libsepol.policydb_index_others: security:  7 users, 47 roles, 3156 types, 201 bools
+> libsepol.policydb_index_others: security: 1 sens, 1024 cats
+> libsepol.policydb_index_others: security:  83 classes, 59401 rules, 9799 cond rules
+> security: ebitmap: map size 1400 does not match my size 64 (high bit was 1545)
+> error(s) encountered while parsing configuration
+>
+> I use version 2.3 of the userspace tools on SLE 12 with kernel 3.12.28. The
+> policy is based on Fedoras policy with some extension for SUSE
+> (f85b52d1c6805e9b0a8bd2a4a4332e66e4b52c00 for the base policy and
+> 627644e1bb9c6f851c2466ab6e0eec7607f472cd for contrib). This combination
+> works fine on other architectures, only s390x shows this behavior. I did
+> not work on s390x before so I don't know if this ever worked.
+>
+> The message comes from libsepol/src/ebitmap.c:361. Could this be a
+> endianness issue?
+>
+> Best regards
+> Johannes
+> --
+> Johannes Segitz                                        SUSE Security Team
+> GPG Key E7C81FA0       EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
+> SUSE LINUX GmbH        Maxfeldstraße 5            90409 Nürnberg, Germany
+> GF: Felix Imendörffer, Jane Smithard, Jennifer Guild, Dilip Upmanyu, Graham Norton, HRB 21284 (AG Nürnberg)
 >
 > _______________________________________________
 > Selinux mailing list
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
