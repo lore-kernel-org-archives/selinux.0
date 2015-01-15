@@ -1,91 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0F0Oeic004925
- for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 19:24:47 -0500
-From: John Brooks <john.brooks@jolla.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 3/3] Tweak avtab hash table parameters for better
- performance
-Date: Wed, 14 Jan 2015 17:24:03 -0700
-Message-Id: <1421281443-4905-4-git-send-email-john.brooks@jolla.com>
-In-Reply-To: <1421281443-4905-1-git-send-email-john.brooks@jolla.com>
-References: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
- <1421281443-4905-1-git-send-email-john.brooks@jolla.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0FD2acv020558
+ for <selinux@tycho.nsa.gov>; Thu, 15 Jan 2015 08:02:36 -0500
+Date: Thu, 15 Jan 2015 14:02:28 +0100
+From: Johannes Segitz <jsegitz@suse.com>
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Subject: Re: ebitmap: map size does not match my size on s390x
+Message-ID: <20150115130228.GD24984@suse.de>
+References: <20150114110334.GA24984@suse.de>
+ <CAB9W1A1bN6aBJi9-6RT+23BoH5dmppTv6WSUWtgVrJ21KOAqDg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="lc9FT7cWel8HagAv"
+In-Reply-To: <CAB9W1A1bN6aBJi9-6RT+23BoH5dmppTv6WSUWtgVrJ21KOAqDg@mail.gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Using the Fedora 20 targeted policy, running check_assertions requires
-an avtab with around 22 million elements. With the default limit of 4096
-buckets, performance is abysmal: it takes more than an hour to populate
-the hash. Profiling shows most of that time under avtab_search_node.
 
-This patch increases the hash from 13 to 20 bits and to a maximum of
-1048576 buckets. The time for check_assertions on that policy is reduced
-to about 3 minutes, which is enough to re-enable those checks as part of
-the build process.
+--lc9FT7cWel8HagAv
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-A full size table will allocate 4-8 MB of memory, up from 16-32 KB. In a
-cursory review, these tables are usually short-lived and only 1-3 are
-allocated together. Compared to the cost of entries in this table (up to
-1 GB using the same policy), this isn't a significant increase.
+On Wed, Jan 14, 2015 at 09:26:17AM -0500, Stephen Smalley wrote:
+> There have been a couple of endianness fixes for
+> /sys/fs/selinux/policy, e.g. see:
+> 9085a6422 and b138004
 
-Signed-off-by: John Brooks <john.brooks@jolla.com>
----
- libsepol/include/sepol/policydb/avtab.h | 7 ++++---
- libsepol/src/avtab.c                    | 6 +++---
- 2 files changed, 7 insertions(+), 6 deletions(-)
+Those commits solved the problem. Thank you.
 
-diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
-index 6955ecf..bb6e79f 100644
---- a/libsepol/include/sepol/policydb/avtab.h
-+++ b/libsepol/include/sepol/policydb/avtab.h
-@@ -81,7 +81,7 @@ typedef struct avtab {
- 	avtab_ptr_t *htable;
- 	uint32_t nel;		/* number of elements */
- 	uint32_t nslot;         /* number of hash slots */
--	uint16_t mask;          /* mask to compute hash func */
-+	uint32_t mask;          /* mask to compute hash func */
- } avtab_t;
- 
- extern int avtab_init(avtab_t *);
-@@ -117,10 +117,11 @@ extern avtab_ptr_t avtab_search_node(avtab_t * h, avtab_key_t * key);
- 
- extern avtab_ptr_t avtab_search_node_next(avtab_ptr_t node, int specified);
- 
--#define MAX_AVTAB_HASH_BITS 13
-+#define MAX_AVTAB_HASH_BITS 20
- #define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
- #define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS-1)
--#define MAX_AVTAB_SIZE MAX_AVTAB_HASH_BUCKETS
-+/* avtab_alloc uses one bucket per 2-4 elements, so adjust to get maximum buckets */
-+#define MAX_AVTAB_SIZE (MAX_AVTAB_HASH_BUCKETS << 1)
- 
- #endif				/* _AVTAB_H_ */
- 
-diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index 86e782c..d6041d4 100644
---- a/libsepol/src/avtab.c
-+++ b/libsepol/src/avtab.c
-@@ -333,7 +333,7 @@ int avtab_init(avtab_t * h)
- 
- int avtab_alloc(avtab_t *h, uint32_t nrules)
- {
--	uint16_t mask = 0;
-+	uint32_t mask = 0;
- 	uint32_t shift = 0;
- 	uint32_t work = nrules;
- 	uint32_t nslot = 0;
-@@ -348,8 +348,8 @@ int avtab_alloc(avtab_t *h, uint32_t nrules)
- 	if (shift > 2)
- 		shift = shift - 2;
- 	nslot = 1 << shift;
--	if (nslot > MAX_AVTAB_SIZE)
--		nslot = MAX_AVTAB_SIZE;
-+	if (nslot > MAX_AVTAB_HASH_BUCKETS)
-+		nslot = MAX_AVTAB_HASH_BUCKETS;
- 	mask = nslot - 1;
- 
- 	h->htable = calloc(nslot, sizeof(avtab_ptr_t));
--- 
-1.9.3
+Johannes
+--
+Johannes Segitz                                        SUSE Security Team
+GPG Key E7C81FA0       EE16 6BCE AD56 E034 BFB3  3ADD 7BF7 29D5 E7C8 1FA0
+SUSE LINUX GmbH        Maxfeldstra=DFe 5            90409 N=FCrnberg, Germa=
+ny
+GF: Felix Imend=F6rffer, Jane Smithard, Jennifer Guild, Dilip Upmanyu, Grah=
+am Norton, HRB 21284 (AG N=FCrnberg)
+
+--lc9FT7cWel8HagAv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCgAGBQJUt7pkAAoJELwn3Z0sxP1m1s4QAJWfFbvVWOlghTJCHSv3K28I
+Ecdz4ppWLYChnMnBtD7zp6RskbLgPGgdlHMPjjucYVURkdUlfgJHqpCdwYL+bL/2
+ip09Rh6jEkpfn93L8Mp6gBLTRPYSLMYm1YCy2ycyh9sQ6rOJOVsYlR72cw4OsWXk
+Vqs+5ajtaEd3Vbj9nUuB6OYiLsSzAmNN3rzaHeIO7bkvfrKDW63A0VxEJwBfyG1I
+unOSDxEL6zxIfNXzSHT6txVMQVJI3DS82SLK695KG7r3QpUj9RarKkDeQvGWLb0L
+IXEico0mBdNn4s2dkgn+nXX1ccxSVZ9tZ5sCfurgKKMB7nLNppTjdQknjkUnha7Z
+tMdnlnnPC0nGkUAo1JTi0hOsfuf4hto8BwJCqnxFHu8hulgh/IxXiyCuXHnU60Jc
+4fT3eWX2rv+LccLySkyocH+mZWSskD6QW6rSvITarLEx/N2HcqjGlMFdTg0cPdNW
+didrAiFC8jIRC4cZQHL2B0QJ/+pAUhqbbZ0uhbdO17wEsrXnliGNqw6qHanA0evk
+KUoOOacdZo2URds5EPAOG/6Ig1qLccBeY+vXBXRB3XqO01XEtkdP/ikOerfLZS/g
+/YD1qfPU4RuebCpKftff2ygy8LvoEibFYOn/EWBB9C+HA4dKssvjrHWp0EmASA9G
+kQA7qLn0zZTGTGl9aQ1U
+=MBTP
+-----END PGP SIGNATURE-----
+
+--lc9FT7cWel8HagAv--
