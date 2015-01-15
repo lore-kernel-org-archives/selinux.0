@@ -1,11 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0F0Oeib004925
- for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 19:24:45 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0F0Oeic004925
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2015 19:24:47 -0500
 From: John Brooks <john.brooks@jolla.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 2/3] Use a better hash function for libsepol's avtab
-Date: Wed, 14 Jan 2015 17:24:02 -0700
-Message-Id: <1421281443-4905-3-git-send-email-john.brooks@jolla.com>
+Subject: [PATCH v2 3/3] Tweak avtab hash table parameters for better
+ performance
+Date: Wed, 14 Jan 2015 17:24:03 -0700
+Message-Id: <1421281443-4905-4-git-send-email-john.brooks@jolla.com>
 In-Reply-To: <1421281443-4905-1-git-send-email-john.brooks@jolla.com>
 References: <1420668221-52637-1-git-send-email-john.brooks@jolla.com>
  <1421281443-4905-1-git-send-email-john.brooks@jolla.com>
@@ -14,75 +15,77 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This function, based on murmurhash3, has much better distribution than
-the original. Using the current default of 4096 buckets, there are many
-fewer collisions:
+Using the Fedora 20 targeted policy, running check_assertions requires
+an avtab with around 22 million elements. With the default limit of 4096
+buckets, performance is abysmal: it takes more than an hour to populate
+the hash. Profiling shows most of that time under avtab_search_node.
 
-Before:
-2893000 entries and 4096/4096 buckets used, longest chain length 1649
-After:
-2732000 entries and 4096/4096 buckets used, longest chain length 764
+This patch increases the hash from 13 to 20 bits and to a maximum of
+1048576 buckets. The time for check_assertions on that policy is reduced
+to about 3 minutes, which is enough to re-enable those checks as part of
+the build process.
 
-The difference becomes much more significant when buckets are increased.
-A naive attempt to expand the current function to larger outputs doesn't
-yield any significant improvement; so this function is a prerequisite
-for increasing the bucket size.
+A full size table will allocate 4-8 MB of memory, up from 16-32 KB. In a
+cursory review, these tables are usually short-lived and only 1-3 are
+allocated together. Compared to the cost of entries in this table (up to
+1 GB using the same policy), this isn't a significant increase.
 
 Signed-off-by: John Brooks <john.brooks@jolla.com>
 ---
- libsepol/src/avtab.c | 39 ++++++++++++++++++++++++++++++++++++---
- 1 file changed, 36 insertions(+), 3 deletions(-)
+ libsepol/include/sepol/policydb/avtab.h | 7 ++++---
+ libsepol/src/avtab.c                    | 6 +++---
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
+diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
+index 6955ecf..bb6e79f 100644
+--- a/libsepol/include/sepol/policydb/avtab.h
++++ b/libsepol/include/sepol/policydb/avtab.h
+@@ -81,7 +81,7 @@ typedef struct avtab {
+ 	avtab_ptr_t *htable;
+ 	uint32_t nel;		/* number of elements */
+ 	uint32_t nslot;         /* number of hash slots */
+-	uint16_t mask;          /* mask to compute hash func */
++	uint32_t mask;          /* mask to compute hash func */
+ } avtab_t;
+ 
+ extern int avtab_init(avtab_t *);
+@@ -117,10 +117,11 @@ extern avtab_ptr_t avtab_search_node(avtab_t * h, avtab_key_t * key);
+ 
+ extern avtab_ptr_t avtab_search_node_next(avtab_ptr_t node, int specified);
+ 
+-#define MAX_AVTAB_HASH_BITS 13
++#define MAX_AVTAB_HASH_BITS 20
+ #define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
+ #define MAX_AVTAB_HASH_MASK (MAX_AVTAB_HASH_BUCKETS-1)
+-#define MAX_AVTAB_SIZE MAX_AVTAB_HASH_BUCKETS
++/* avtab_alloc uses one bucket per 2-4 elements, so adjust to get maximum buckets */
++#define MAX_AVTAB_SIZE (MAX_AVTAB_HASH_BUCKETS << 1)
+ 
+ #endif				/* _AVTAB_H_ */
+ 
 diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
-index ea947cb..86e782c 100644
+index 86e782c..d6041d4 100644
 --- a/libsepol/src/avtab.c
 +++ b/libsepol/src/avtab.c
-@@ -49,10 +49,43 @@
- #include "debug.h"
- #include "private.h"
+@@ -333,7 +333,7 @@ int avtab_init(avtab_t * h)
  
--static inline int avtab_hash(struct avtab_key *keyp, uint16_t mask)
-+/* Based on MurmurHash3, written by Austin Appleby and placed in the
-+ * public domain.
-+ */
-+static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
+ int avtab_alloc(avtab_t *h, uint32_t nrules)
  {
--	return ((keyp->target_class + (keyp->target_type << 2) +
--		 (keyp->source_type << 9)) & mask);
-+	static const uint32_t c1 = 0xcc9e2d51;
-+	static const uint32_t c2 = 0x1b873593;
-+	static const uint32_t r1 = 15;
-+	static const uint32_t r2 = 13;
-+	static const uint32_t m  = 5;
-+	static const uint32_t n  = 0xe6546b64;
-+
-+	uint32_t hash = 0;
-+
-+#define mix(input) { \
-+	uint32_t v = input; \
-+	v *= c1; \
-+	v = (v << r1) | (v >> (32 - r1)); \
-+	v *= c2; \
-+	hash ^= v; \
-+	hash = (hash << r2) | (hash >> (32 - r2)); \
-+	hash = hash * m + n; \
-+}
-+
-+	mix(keyp->target_class);
-+	mix(keyp->target_type);
-+	mix(keyp->source_type);
-+
-+#undef mix
-+
-+	hash ^= hash >> 16;
-+	hash *= 0x85ebca6b;
-+	hash ^= hash >> 13;
-+	hash *= 0xc2b2ae35;
-+	hash ^= hash >> 16;
-+
-+	return hash & mask;
- }
+-	uint16_t mask = 0;
++	uint32_t mask = 0;
+ 	uint32_t shift = 0;
+ 	uint32_t work = nrules;
+ 	uint32_t nslot = 0;
+@@ -348,8 +348,8 @@ int avtab_alloc(avtab_t *h, uint32_t nrules)
+ 	if (shift > 2)
+ 		shift = shift - 2;
+ 	nslot = 1 << shift;
+-	if (nslot > MAX_AVTAB_SIZE)
+-		nslot = MAX_AVTAB_SIZE;
++	if (nslot > MAX_AVTAB_HASH_BUCKETS)
++		nslot = MAX_AVTAB_HASH_BUCKETS;
+ 	mask = nslot - 1;
  
- static avtab_ptr_t
+ 	h->htable = calloc(nslot, sizeof(avtab_ptr_t));
 -- 
 1.9.3
