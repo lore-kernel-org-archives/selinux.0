@@ -1,64 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0JELZc2006220
- for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2015 09:21:35 -0500
-Message-ID: <54BD12EE.3060106@itechfrontiers.com>
-Date: Mon, 19 Jan 2015 09:21:34 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0JEYRI7006912
+ for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2015 09:34:27 -0500
+Message-ID: <54BD15F1.1030703@itechfrontiers.com>
+Date: Mon, 19 Jan 2015 09:34:25 -0500
 From: "Patrick K.,   ITF" <cto@itechfrontiers.com>
 MIME-Version: 1.0
-To: Ted Toth <txtoth@gmail.com>
+To: selinux@tycho.nsa.gov, Ted Toth <txtoth@gmail.com>
 Subject: Re: Selinux for Go
 References: <54BCF7BD.7010702@itechfrontiers.com>
  <CAFPpqQEN2ZY9kaDms6VMjYtRKGoKrdGSdj-k4XccNhNqMSQC5w@mail.gmail.com>
-In-Reply-To: <CAFPpqQEN2ZY9kaDms6VMjYtRKGoKrdGSdj-k4XccNhNqMSQC5w@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Cc: SELinux <selinux@tycho.nsa.gov>
+ <54BD12EE.3060106@itechfrontiers.com>
+In-Reply-To: <54BD12EE.3060106@itechfrontiers.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Ted,
 
-That's not available in RHEL 6.6 & 7
+Thank you Ted,
 
-I suppose your OS is Fedora Right?
+Dennis sent me the original repository, for the record here it is:
 
-Plus github.com/selinux/selinux.go  NOT FOUND
-
-I'm Looking For Mr. Daniel Walsh's implementation which was here before:
-
-http://people.fedoraproject.org/~dwalsh/SELinux/
+https://github.com/rhatdan/selinux
 
 
-Best regards,
+Best Regards,
 
 
 -- 
   Patrick K. Kashi
-
-On 1/19/2015 9:08 AM, Ted Toth wrote:
-> rpm -q libselinux-devel -l | grep go
-> /usr/lib64/golang/src/pkg/github.com/selinux
-> /usr/lib64/golang/src/pkg/github.com/selinux/selinux.go
+On 1/19/2015 9:21 AM, Patrick K., ITF wrote:
+> Ted,
+>
+> That's not available in RHEL 6.6 & 7
+>
+> I suppose your OS is Fedora Right?
+>
+> Plus github.com/selinux/selinux.go  NOT FOUND
+>
+> I'm Looking For Mr. Daniel Walsh's implementation which was here before:
+>
+> http://people.fedoraproject.org/~dwalsh/SELinux/
 >
 >
-> On Mon, Jan 19, 2015 at 6:25 AM, Patrick K.,   ITF
-> <cto@itechfrontiers.com> wrote:
->> Hello,
->>
->> I'm looking for lib SELinux binding for Go (Lang)
->>
->>   http://people.fedoraproject.org/~dwalsh/SELinux/
->>
->> Any idea?
->>
->> Best regards,
->>
->>
->>   Patrick K. Kashi
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to
->> Selinux-request@tycho.nsa.gov.
+> Best regards,
+>
+>
