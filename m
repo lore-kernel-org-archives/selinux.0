@@ -1,38 +1,28 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0MHbmaG007454
- for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 12:37:49 -0500
-Received: by mail-oi0-f41.google.com with SMTP id z81so2519189oif.0
- for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 09:37:46 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0MHmnDr008412
+ for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 12:48:49 -0500
+Received: by mail-ob0-f172.google.com with SMTP id wp18so2801253obc.3
+ for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 09:48:48 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <20150122085150.GB1268@kroah.com>
 References: <1421855650-22522-1-git-send-email-sds@tycho.nsa.gov>
  <20150122085150.GB1268@kroah.com>
-Date: Thu, 22 Jan 2015 09:37:46 -0800
-Message-ID: <CABXk95DmC4DVOwKWAEFTqxe9xrbLgCwnOT+qG-Z06WmtGYdeXw@mail.gmail.com>
+Date: Thu, 22 Jan 2015 09:48:47 -0800
+Message-ID: <CAFJ0LnGzSoVxPrVhVhY5dD-zcoT74TquZd0A1WxQCin7LqQyPA@mail.gmail.com>
 Subject: Re: [PATCH] Add security hooks to binder and implement the hooks for
  SELinux.
-From: Jeffrey Vander Stoep <jeffv@google.com>
+From: Nick Kralevich <nnk@google.com>
 To: Greg KH <gregkh@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8
-Cc: linux-security-module@vger.kernel.org, arve@android.com,
- Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
- SELinux <selinux@tycho.nsa.gov>
+Cc: =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+ lkml <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org,
+ SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-ACK.
-
-This has been in the android tree since Nov 2012.
-
-Forward port of commit: 6639e3d91a05bafa2a85c24c211c43fcaa1b17c5
-in https://android.googlesource.com/kernel/common.git
-
-Apologies for the double send. Forgot to disable formatting.
-
-Thanks,
-Jeff
+Acked-By: Nick Kralevich <nnk@google.com>
 
 On Thu, Jan 22, 2015 at 12:51 AM, Greg KH <gregkh@linuxfoundation.org> wrote:
 > On Wed, Jan 21, 2015 at 10:54:10AM -0500, Stephen Smalley wrote:
@@ -58,8 +48,8 @@ On Thu, Jan 22, 2015 at 12:51 AM, Greg KH <gregkh@linuxfoundation.org> wrote:
 > thanks,
 >
 > greg k-h
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+
+
+
+-- 
+Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
