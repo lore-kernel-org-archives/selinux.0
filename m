@@ -1,30 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0MHmnDr008412
- for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 12:48:49 -0500
-Received: by mail-ob0-f172.google.com with SMTP id wp18so2801253obc.3
- for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 09:48:48 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0MI94EP010296
+ for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2015 13:09:05 -0500
+Message-ID: <54C13CBC.3050004@schaufler-ca.com>
+Date: Thu, 22 Jan 2015 10:09:00 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <20150122085150.GB1268@kroah.com>
+To: Greg KH <gregkh@linuxfoundation.org>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] Add security hooks to binder and implement the hooks
+ for SELinux.
 References: <1421855650-22522-1-git-send-email-sds@tycho.nsa.gov>
  <20150122085150.GB1268@kroah.com>
-Date: Thu, 22 Jan 2015 09:48:47 -0800
-Message-ID: <CAFJ0LnGzSoVxPrVhVhY5dD-zcoT74TquZd0A1WxQCin7LqQyPA@mail.gmail.com>
-Subject: Re: [PATCH] Add security hooks to binder and implement the hooks for
- SELinux.
-From: Nick Kralevich <nnk@google.com>
-To: Greg KH <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8
-Cc: =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
- lkml <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org,
- SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <20150122085150.GB1268@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ arve@android.com, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Acked-By: Nick Kralevich <nnk@google.com>
-
-On Thu, Jan 22, 2015 at 12:51 AM, Greg KH <gregkh@linuxfoundation.org> wrote:
+On 1/22/2015 12:51 AM, Greg KH wrote:
 > On Wed, Jan 21, 2015 at 10:54:10AM -0500, Stephen Smalley wrote:
 >> Add security hooks to the binder and implement the hooks for SELinux.
 >> The security hooks enable security modules such as SELinux to implement
@@ -37,19 +32,23 @@ On Thu, Jan 22, 2015 at 12:51 AM, Greg KH <gregkh@linuxfoundation.org> wrote:
 >> of a process to transfer an open file to another process (binder_transfer_file).
 >>
 >> These hooks have been included in the Android kernel trees since Android 4.3.
->
 > Very interesting, I missed the fact that these were added in that tree,
 > thanks for digging it out and submitting it.
 >
 > I'd like some acks from some Android developers before I take these.
 > Or, if it's easier for them to go through the security tree, that's fine
 > with me as well.
+
+My only concern is that we're about to see a set of hooks proposed
+for kdbus as well, and it would be a shame if we had two sets of hooks
+that do roughly the same thing (ok, *very roughly*) introduced back to back.
+
 >
 > thanks,
 >
 > greg k-h
-
-
-
--- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
