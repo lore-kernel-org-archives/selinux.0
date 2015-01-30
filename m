@@ -1,5 +1,5 @@
-Message-ID: <54CBAC62.6030708@tycho.nsa.gov>
-Date: Fri, 30 Jan 2015 11:08:02 -0500
+Message-ID: <54CBAE30.5060402@tycho.nsa.gov>
+Date: Fri, 30 Jan 2015 11:15:44 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Stefano Borini <stefano.borini@quantumwise.com>, selinux@tycho.nsa.gov
@@ -24,6 +24,14 @@ On 01/29/2015 05:14 AM, Stefano Borini wrote:
 > I am not invoking the chcon command directly nor performing the dlopen,
 > a closed-source library does that, apparently to prepare the .so for
 > dlopening.
+
+While this obviously shouldn't hang, it is definitely wrong for this
+library to be invoking chcon on the .so file.  The label should be set
+when the .so file is first installed, preferably by rpm itself by adding
+a file_contexts entry via semanage fcontext -a followed by a restorecon
+call in the %post scriptlet.  Can you bug the author of the
+closed-source library to fix their package?
+
 > 
 > Note that if I try the same operation from the command line, even while
 > the spinlock is in progress, no lock occurs.
@@ -62,5 +70,5 @@ On 01/29/2015 05:14 AM, Stefano Borini wrote:
 > unconfined_u:object_r:user_tmp_t:s0
 > 
 > Thank you for your help.
-
-libselinux version?
+> 
+> 
