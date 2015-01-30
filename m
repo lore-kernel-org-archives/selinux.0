@@ -1,5 +1,5 @@
-Message-ID: <54CBBF4A.10808@tycho.nsa.gov>
-Date: Fri, 30 Jan 2015 12:28:42 -0500
+Message-ID: <54CBBFE3.1030505@tycho.nsa.gov>
+Date: Fri, 30 Jan 2015 12:31:15 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Andrew Holway <andrew.holway@native-instruments.de>, selinux@tycho.nsa.gov
@@ -28,21 +28,9 @@ On 01/30/2015 11:43 AM, Andrew Holway wrote:
 > 
 > Its a bit odd to me that the parent process can be in one domain and the
 > children in another.
-> 
-> Thanks,
-> 
-> Andrew
-> 
->        system_u:system_r:initrc_t:s0 4086
-> /usr/bin/sh -c source /var/lib/myapp/env/bin/activate && gunicorn ...
->        system_u:system_r:myapp_t:s0 4091
-> \_ /var/lib/native-api/env/bin/python /var/lib/myapp/env/bin/gunicorn ...
->        system_u:system_r:myapp_t:s0 4176
-> \_ /var/lib/native-api/env/bin/python
-> /var/lib/native-api/env/bin/gunicorn ...
 
-What's the init.d script look like for this service?  If you can prefix
-the /usr/bin/sh command with runcon -t myapp_t --, then it should also
-run in myapp_t.  But you'll then need to allow myapp_t shell_exec_t:file
-entrypoint in your policy.  Is the only domain transition into myapp_t
-from initrc_t?
+BTW, that's not odd at all - domain transitions normally occur on exec,
+so when a parent process does a fork+exec and you have defined a domain
+transition in policy on the type assigned to the executable, the child
+will run in the new domain, and you'll have parent and child in
+different domains.  That's to be expected.
