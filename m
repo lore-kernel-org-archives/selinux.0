@@ -1,36 +1,53 @@
-Message-ID: <54CBBFE3.1030505@tycho.nsa.gov>
-Date: Fri, 30 Jan 2015 12:31:15 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0ULPEq7008396
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2015 16:25:15 -0500
+Received: from gator3165.hostgator.com (gator3165.hostgator.com
+ [198.57.247.129])
+ by gateway07.websitewelcome.com (Postfix) with ESMTP id 8195827AF3F3A
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2015 15:25:12 -0600 (CST)
+Message-ID: <54CBF6B6.9040002@quantumwise.com>
+Date: Fri, 30 Jan 2015 22:25:10 +0100
+From: Stefano Borini <stefano.borini@quantumwise.com>
 MIME-Version: 1.0
-To: Andrew Holway <andrew.holway@native-instruments.de>, selinux@tycho.nsa.gov
-Subject: Re: virtualenv
-References: <54CBB4CD.6060006@native-instruments.de>
-In-Reply-To: <54CBB4CD.6060006@native-instruments.de>
-Content-Type: text/plain; charset=windows-1252
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: spinlock in centos 6.4 and redhat enterprise 6 using chcon
+References: <54CA07EC.5090403@quantumwise.com> <54CBAE30.5060402@tycho.nsa.gov>
+In-Reply-To: <54CBAE30.5060402@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/30/2015 11:43 AM, Andrew Holway wrote:
-> Hello,
-> 
-> We're using virtualenv so we can use weird and wonderful python
-> libraries. In the process of writing the SELinux policy module we have
-> found that the parent process is in the initrc_t domain rather than the
-> desired myapp_t domain.
-> 
-> It seems the virtualenv parent process is not transitioning to the
-> nativeapi_t domain because the shell command "source" is not a
-> standalone executable therefore we cannot set this with the
-> "nativeapi_exec_t" type label. Is there a way around that would be more
-> elegant than using some kind of wrapper script?
-> 
-> Its a bit odd to me that the parent process can be in one domain and the
-> children in another.
+On 01/30/2015 05:15 PM, Stephen Smalley wrote:
+> While this obviously shouldn't hang, it is definitely wrong for this
+> library to be invoking chcon on the .so file.  The label should be set
+> when the .so file is first installed, preferably by rpm itself by adding
+> a file_contexts entry via semanage fcontext -a followed by a restorecon
+> call in the %post scriptlet.  Can you bug the author of the
+> closed-source library to fix their package?
 
-BTW, that's not odd at all - domain transitions normally occur on exec,
-so when a parent process does a fork+exec and you have defined a domain
-transition in policy on the type assigned to the executable, the child
-will run in the new domain, and you'll have parent and child in
-different domains.  That's to be expected.
+I mailed them and waiting for an answer, but I guess that they are doing 
+so as a workaround because they need to dlopen it and they are unable to 
+do so.
+
+The version of selinux is the default provided by centos6.4. I'll write 
+back the specific detail on Monday. I don't have access to the machine 
+outside of office hours.
+
+I tried to produce some code that simulate what I think it might happen 
+in the closed source library, but I was unable to reproduce the problem. 
+My assumption was that a separate thread was issuing a dlopen and then 
+the chcon, but besides the fact that I don't see how this may lead to 
+chcon hanging, it failed to produce any problem.
+
+I also tried to reproduce the issue on another centos6.4 installation 
+without success. However, we already encountered this hang condition in 
+two unrelated customers, so it's not a random fluke.
+
+
+
+
+-- 
+Stefano Borini
+QuantumWise A/S
