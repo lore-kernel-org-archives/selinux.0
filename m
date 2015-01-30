@@ -1,74 +1,42 @@
-Message-ID: <54CBAE30.5060402@tycho.nsa.gov>
-Date: Fri, 30 Jan 2015 11:15:44 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t0UGi1I4018160
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2015 11:44:01 -0500
+Message-ID: <54CBB4CD.6060006@native-instruments.de>
+Date: Fri, 30 Jan 2015 17:43:57 +0100
+From: Andrew Holway <andrew.holway@native-instruments.de>
 MIME-Version: 1.0
-To: Stefano Borini <stefano.borini@quantumwise.com>, selinux@tycho.nsa.gov
-Subject: Re: spinlock in centos 6.4 and redhat enterprise 6 using chcon
-References: <54CA07EC.5090403@quantumwise.com>
-In-Reply-To: <54CA07EC.5090403@quantumwise.com>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov
+Subject: virtualenv
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/29/2015 05:14 AM, Stefano Borini wrote:
-> Good morning,
-> 
-> I am encountering what seems to be a spinlock with the chcon utility
-> trying the following operation
-> 
-> chcon -t texrel_shlib_t /tmp/subdir/withheldpath
-> 
-> where withheld path is a .so that is going to be accessed with dlopen.
-> I am not invoking the chcon command directly nor performing the dlopen,
-> a closed-source library does that, apparently to prepare the .so for
-> dlopening.
+Hello,
 
-While this obviously shouldn't hang, it is definitely wrong for this
-library to be invoking chcon on the .so file.  The label should be set
-when the .so file is first installed, preferably by rpm itself by adding
-a file_contexts entry via semanage fcontext -a followed by a restorecon
-call in the %post scriptlet.  Can you bug the author of the
-closed-source library to fix their package?
+We're using virtualenv so we can use weird and wonderful python 
+libraries. In the process of writing the SELinux policy module we have 
+found that the parent process is in the initrc_t domain rather than the 
+desired myapp_t domain.
 
-> 
-> Note that if I try the same operation from the command line, even while
-> the spinlock is in progress, no lock occurs.
-> 
-> I am unable to understand the details of what may cause this spinlock.
-> This is the backtrace of chcon, apparently involving some thread local
-> storage
-> 
-> #0  0x0000003e3ea00b64 in rtld_lock_default_lock_recursive () from
-> /lib64/ld-linux-x86-64.so.2
-> #1  0x0000003e3ea11257 in tls_get_addr_tail () from
-> /lib64/ld-linux-x86-64.so.2
-> #2  0x0000003e3ea11660 in __tls_get_addr () from
-> /lib64/ld-linux-x86-64.so.2
-> #3  0x0000003e40a14334 in selinux_raw_to_trans_context () from
-> /lib64/libselinux.so.1
-> #4  0x0000003e40a0ca7a in getfilecon () from /lib64/libselinux.so.1
-> 
-> Checking the tls_get_addr_tail function, it is apparently stuck in the
-> again: loop
-> 
-> http://code.woboq.org/userspace/glibc/elf/dl-tls.c.html#742
-> 
-> I have only access to the centos 6.4 and can run additional
-> non-destructive tests if needed. It's a customer machine so I am unable
-> to say if modifications have been done to it when it comes to security,
-> although I suspect it's a standard centos6.4 installation with selinux
-> enabled.
-> 
-> The current ls -Z of /tmp gives
-> 
-> system_u:object_r:tmp_t:s0
-> 
-> of subdir and of the so file is
-> 
-> unconfined_u:object_r:user_tmp_t:s0
-> 
-> Thank you for your help.
-> 
-> 
+It seems the virtualenv parent process is not transitioning to the 
+nativeapi_t domain because the shell command "source" is not a 
+standalone executable therefore we cannot set this with the 
+"nativeapi_exec_t" type label. Is there a way around that would be more 
+elegant than using some kind of wrapper script?
+
+Its a bit odd to me that the parent process can be in one domain and the 
+children in another.
+
+Thanks,
+
+Andrew
+
+        system_u:system_r:initrc_t:s0 4086
+/usr/bin/sh -c source /var/lib/myapp/env/bin/activate && gunicorn ...
+        system_u:system_r:myapp_t:s0 4091
+\_ /var/lib/native-api/env/bin/python /var/lib/myapp/env/bin/gunicorn ...
+        system_u:system_r:myapp_t:s0 4176
+\_ /var/lib/native-api/env/bin/python 
+/var/lib/native-api/env/bin/gunicorn ...
