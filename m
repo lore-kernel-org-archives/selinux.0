@@ -1,60 +1,59 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] libselinux: Only check SELinux enabled status once in
- selinux_check_access().
-Date: Mon,  2 Feb 2015 15:37:25 -0500
-Message-Id: <1422909446-9142-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 2/2] libselinux:  Adjustments to android property backend.
+Date: Mon,  2 Feb 2015 15:37:26 -0500
+Message-Id: <1422909446-9142-2-git-send-email-sds@tycho.nsa.gov>
+In-Reply-To: <1422909446-9142-1-git-send-email-sds@tycho.nsa.gov>
+References: <1422909446-9142-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Robert Craig <rpcraig@tycho.ncsc.mil>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Move the SELinux enabled check to the once handler so that we do
-not perform this on each call to selinux_check_access().  Reduces
-overhead in both the SELinux-enabled and the SELinux-disabled cases.
+From: Robert Craig <rpcraig@tycho.ncsc.mil>
+
+Allow the android property backend parser to accept the
+SELABEL_OPT_VALIDATE option and to perform a validate
+callback.
 
 Extracted from the Android external/libselinux tree.
 
-Change-Id: I61fe85bc04fe53cbf840ba712c81bdb06e4e0c2f
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Change-Id: If061502c5e2489a1155798fac1d8357dbb8d13ba
+Signed-off-by: Robert Craig <rpcraig@tycho.ncsc.mil>
 ---
- libselinux/src/checkAccess.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ libselinux/src/label_android_property.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
-index ee85ebc..29be16e 100644
---- a/libselinux/src/checkAccess.c
-+++ b/libselinux/src/checkAccess.c
-@@ -8,10 +8,13 @@
- #include "avc_internal.h"
- 
- static pthread_once_t once = PTHREAD_ONCE_INIT;
-+static int selinux_enabled;
- 
- static void avc_init_once(void)
- {
--	avc_open(NULL, 0);
-+	selinux_enabled = is_selinux_enabled();
-+	if (selinux_enabled == 1)
-+		avc_open(NULL, 0);
- }
- 
- int selinux_check_access(const char *scon, const char *tcon, const char *class, const char *perm, void *aux) {
-@@ -21,11 +24,11 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
- 	security_class_t sclass;
- 	access_vector_t av;
- 
--	if (is_selinux_enabled() == 0)
--		return 0;
--
- 	__selinux_once(once, avc_init_once);
- 
-+	if (selinux_enabled != 1)
-+		return 0;
+diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
+index b00eb07..8568784 100644
+--- a/libselinux/src/label_android_property.c
++++ b/libselinux/src/label_android_property.c
+@@ -124,6 +124,14 @@ static int process_line(struct selabel_handle *rec,
+ 				    path, lineno, context);
+ 			return -1;
+ 		}
 +
- 	rc = avc_context_to_sid(scon, &scon_id);
- 	if (rc < 0)
- 		return rc;
++		if (rec->validating) {
++			if (selabel_validate(rec, &spec_arr[nspec].lr) < 0) {
++				selinux_log(SELINUX_WARNING,
++					    "%s:  line %d has invalid context %s\n",
++					    path, lineno, spec_arr[nspec].lr.ctx_raw);
++			}
++		}
+ 	}
+ 
+ 	data->nspec = ++nspec;
+@@ -147,10 +155,6 @@ static int init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 		case SELABEL_OPT_PATH:
+ 			path = opts[n].value;
+ 			break;
+-		default:
+-			selinux_log(SELINUX_WARNING,
+-				    "Argument type (%d) not recognized. Skipping\n", opts[n].type);
+-			break;
+ 		}
+ 
+ 	if (!path) 
 -- 
 1.9.3
