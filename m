@@ -1,38 +1,60 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t12G0OEN025127
- for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2015 11:00:24 -0500
-Message-ID: <54CF9F03.8040604@tresys.com>
-Date: Mon, 2 Feb 2015 11:00:03 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: ANN: SELinux Userspace Release: 20150202
-Content-Type: text/plain; charset="utf-8"
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/2] libselinux: Only check SELinux enabled status once in
+ selinux_check_access().
+Date: Mon,  2 Feb 2015 15:37:25 -0500
+Message-Id: <1422909446-9142-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-We are pleased to announce SELinux Userspace release 20150202. Tarballs
-are available on the Releases wiki page [1]. For git users, it has been
-tagged as 20150202. This release includes numerous bug fixes,
-performance updates, and new features, including CIL [2] and High Level
-Language [3] support. Please see the change logs for a detailed list of
-updates.
+Move the SELinux enabled check to the once handler so that we do
+not perform this on each call to selinux_check_access().  Reduces
+overhead in both the SELinux-enabled and the SELinux-disabled cases.
 
-One change worth pointing out is a change of location of the SELinux
-module store, which now defaults to /var/lib/selinux/. Updating to this
-release requires migrating the old policy store to this new location
-before policy can be managed with tools like semanage and semodule.
-Detailed information about the migration process is available on the
-Policy Store Migration wiki page [4].
+Extracted from the Android external/libselinux tree.
 
-Thanks to all those that have submitted patches,
+Change-Id: I61fe85bc04fe53cbf840ba712c81bdb06e4e0c2f
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/checkAccess.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-- Steve
-
-[1] https://github.com/SELinuxProject/selinux/wiki/Releases
-[2] https://github.com/SELinuxProject/cil/wiki
-[3]
-https://github.com/SELinuxProject/selinux/wiki/High-Level-Language-Infrastructure
-[4] https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration
+diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+index ee85ebc..29be16e 100644
+--- a/libselinux/src/checkAccess.c
++++ b/libselinux/src/checkAccess.c
+@@ -8,10 +8,13 @@
+ #include "avc_internal.h"
+ 
+ static pthread_once_t once = PTHREAD_ONCE_INIT;
++static int selinux_enabled;
+ 
+ static void avc_init_once(void)
+ {
+-	avc_open(NULL, 0);
++	selinux_enabled = is_selinux_enabled();
++	if (selinux_enabled == 1)
++		avc_open(NULL, 0);
+ }
+ 
+ int selinux_check_access(const char *scon, const char *tcon, const char *class, const char *perm, void *aux) {
+@@ -21,11 +24,11 @@ int selinux_check_access(const char *scon, const char *tcon, const char *class,
+ 	security_class_t sclass;
+ 	access_vector_t av;
+ 
+-	if (is_selinux_enabled() == 0)
+-		return 0;
+-
+ 	__selinux_once(once, avc_init_once);
+ 
++	if (selinux_enabled != 1)
++		return 0;
++
+ 	rc = avc_context_to_sid(scon, &scon_id);
+ 	if (rc < 0)
+ 		return rc;
+-- 
+1.9.3
