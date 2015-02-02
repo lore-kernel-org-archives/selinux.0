@@ -1,51 +1,38 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t12B9GDq000785
- for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2015 06:09:17 -0500
-Received: from gator3165.hostgator.com (gator3165.hostgator.com
- [198.57.247.129])
- by gateway09.websitewelcome.com (Postfix) with ESMTP id 1A563CA173BAC
- for <selinux@tycho.nsa.gov>; Mon,  2 Feb 2015 05:09:15 -0600 (CST)
-Received: from [89.233.1.134] (port=53475 helo=[10.103.1.74])
- by gator3165.hostgator.com with esmtpsa (UNKNOWN:DHE-RSA-AES128-SHA:128)
- (Exim 4.82) (envelope-from <stefano.borini@quantumwise.com>)
- id 1YIEsU-0002uq-Hj
- for selinux@tycho.nsa.gov; Mon, 02 Feb 2015 05:09:14 -0600
-Message-ID: <54CF5AD8.6050800@quantumwise.com>
-Date: Mon, 02 Feb 2015 12:09:12 +0100
-From: Stefano Borini <stefano.borini@quantumwise.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t12G0OEN025127
+ for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2015 11:00:24 -0500
+Message-ID: <54CF9F03.8040604@tresys.com>
+Date: Mon, 2 Feb 2015 11:00:03 -0500
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: spinlock in centos 6.4 and redhat enterprise 6 using chcon
-References: <54CA07EC.5090403@quantumwise.com>
- <54CBAE30.5060402@tycho.nsa.gov> <54CBF6B6.9040002@quantumwise.com>
- <54CBF95E.3060109@tycho.nsa.gov> <54CE0B5C.6030509@quantumwise.com>
-In-Reply-To: <54CE0B5C.6030509@quantumwise.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: ANN: SELinux Userspace Release: 20150202
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/01/2015 12:17 PM, Stefano Borini wrote:
->
->> I'm wondering if it might be a bug in glibc in that centos release
->> rather than in libselinux.  I don't see any relevant difference in
->> libselinux/src/setrans_client.c between the .src.rpm for centos 6.4 and
->> current master to explain it, so if it is truly a bug in libselinux, it
->> would seem to still be present.
+We are pleased to announce SELinux Userspace release 20150202. Tarballs
+are available on the Releases wiki page [1]. For git users, it has been
+tagged as 20150202. This release includes numerous bug fixes,
+performance updates, and new features, including CIL [2] and High Level
+Language [3] support. Please see the change logs for a detailed list of
+updates.
 
-I found the source of the problem.
+One change worth pointing out is a change of location of the SELinux
+module store, which now defaults to /var/lib/selinux/. Updating to this
+release requires migrating the old policy store to this new location
+before policy can be managed with tools like semanage and semodule.
+Detailed information about the migration process is available on the
+Policy Store Migration wiki page [4].
 
-Due to other constraints, we are forced to LD_PRELOAD libGL. This in 
-turn preloads libnvidia-tls, which apparently messes up something with 
-the glibc tls support.
+Thanks to all those that have submitted patches,
 
-Removing the libGL preloading fixes the issue, although it introduces 
-another, but I'll figure something out.
+- Steve
 
-Thanks for the help!
-
-
--- 
-Stefano Borini
-QuantumWise A/S
+[1] https://github.com/SELinuxProject/selinux/wiki/Releases
+[2] https://github.com/SELinuxProject/cil/wiki
+[3]
+https://github.com/SELinuxProject/selinux/wiki/High-Level-Language-Infrastructure
+[4] https://github.com/SELinuxProject/selinux/wiki/Policy-Store-Migration
