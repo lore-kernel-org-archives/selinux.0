@@ -1,69 +1,46 @@
-Message-ID: <54D22712.5020104@tycho.nsa.gov>
-Date: Wed, 04 Feb 2015 09:05:06 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t14Ex3eV032519
+ for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2015 09:59:03 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: serge@hallyn.com, selinux@tycho.nsa.gov
+Subject: Re: SELinux Test Suite
+Date: Wed, 04 Feb 2015 09:58:56 -0500
+Message-ID: <1974500.VCpFI6Sne2@sifl>
+In-Reply-To: <351rbf.nj87vi.673y22-qmf@h2.hallyn.com>
+References: <56926575.WZluBafX8n@sifl> <351rbf.nj87vi.673y22-qmf@h2.hallyn.com>
 MIME-Version: 1.0
-To: Andrew Holway <andrew.holway@native-instruments.de>, selinux@tycho.nsa.gov
-Subject: Re: virtualenv
-References: <54CBB4CD.6060006@native-instruments.de>
- <54CBBF4A.10808@tycho.nsa.gov> <54D207CA.20301@native-instruments.de>
-In-Reply-To: <54D207CA.20301@native-instruments.de>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/04/2015 06:51 AM, Andrew Holway wrote:
-> 
->> What's the init.d script look like for this service?  If you can prefix
->> the /usr/bin/sh command with runcon -t myapp_t --, then it should also
->> run in myapp_t.  But you'll then need to allow myapp_t shell_exec_t:file
->> entrypoint in your policy.  Is the only domain transition into myapp_t
->> from initrc_t?
-> 
-> Hi Stephen,
-> 
-> We're using Centos7 and systemd. I guess we can still throw a runcon in
-> there. We used the system-config-selinux tool to generate the base
-> policy module but the rules it creates are a bit opaque to me.
-> 
-> I think this is the interface that allows initd_t(systemd) to transition
-> our app into its domain. I'm a little unsure how I should be making a
-> new entrypoint.
+On Wednesday, February 04, 2015 02:50:00 AM serge@hallyn.com wrote:
+> Nope that seems a good idea.
 
-The refpolicy interface is domain_entry_file() in domain.if.  Add the
-following to your .te file:
-domain_entry_file(myapp_t, shell_exec_t)
+Okay, I created a new repo in the SELinux project and pushed the most current 
+version of the testsuite I could find here:
 
-> 
->        interface(`myapp_domtrans',`
->            gen_require(`
->                 type myapp_t, myapp_exec_t;
->            ')
->            corecmd_search_bin($1)
->                 domtrans_pattern($1, myapp_exec_t, myapp_t)
->        ')
-> 
-> 
-> # /usr/lib/systemd/system/myapp.service
-> 
-> [Unit]
-> Description=MyAPP
-> After=network.target
-> 
-> [Service]
-> User=myapp
-> Group=myapp
-> ExecStart=/usr/bin/sh -c 'source /var/lib/myapp/env/bin/activate &&
-> gunicorn --bind 0.0.0.0:8080 --debug --reload wsgi:app'
+ * https://github.com/SELinuxProject/selinux-testsuite
 
-Insert /usr/bin/runcon -t myapp_t -- before /usr/bin/sh above.  This
-will jump into the myapp_t domain before launching the shell, so the
-shell and all of its descendants will run in your domain.
+If anyone (Serge?) has a newer version of the repository, feel free to let me 
+know where I can find it and I'll update the Github repo.
 
-> ExecReload=/bin/kill -s HUP $MAINPID
-> ExecStop=/bin/kill -s TERM $MAINPID
-> PrivateTmp=true
+Also, Serge, do you want to continue to maintain the testsuite?  If not, let 
+me know and I'll look after it.
+
+-Paul
+
+> On 2/3/15 18:19 Paul Moore wrote:
+> Hi Serge,
 > 
-> [Install]
-> WantedBy=multi-user.target
+> Any objection to moving the SELinux testsuite to Github with the rest of the
+> SELinux userspace?
+> 
+>  * https://github.com/SELinuxProject
+> 
+> -Paul
+
+-- 
+paul moore
+security @ redhat
