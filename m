@@ -1,34 +1,58 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t142oEQN016375
- for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2015 21:50:14 -0500
-In-Reply-To: <56926575.WZluBafX8n@sifl>
-References: <56926575.WZluBafX8n@sifl>
-From: serge@hallyn.com
-Subject: Re: SELinux Test Suite
-To: Paul Moore <pmoore@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Date: Wed, 4 Feb 2015 02:50:00 +0000
-Message-ID: <351rbf.nj87vi.673y22-qmf@h2.hallyn.com>
+Message-ID: <54D207CA.20301@native-instruments.de>
+Date: Wed, 04 Feb 2015 12:51:38 +0100
+From: Andrew Holway <andrew.holway@native-instruments.de>
 MIME-Version: 1.0
-Cc: selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: virtualenv
+References: <54CBB4CD.6060006@native-instruments.de>
+ <54CBBF4A.10808@tycho.nsa.gov>
+In-Reply-To: <54CBBF4A.10808@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Nope that seems a good idea.
 
-Thanks,
-SergeOn 2/3/15 18:19 Paul Moore wrote:
-Hi Serge,
+> What's the init.d script look like for this service?  If you can prefix
+> the /usr/bin/sh command with runcon -t myapp_t --, then it should also
+> run in myapp_t.  But you'll then need to allow myapp_t shell_exec_t:file
+> entrypoint in your policy.  Is the only domain transition into myapp_t
+> from initrc_t?
 
-Any objection to moving the SELinux testsuite to Github with the rest of the 
-SELinux userspace?
+Hi Stephen,
 
- * https://github.com/SELinuxProject
+We're using Centos7 and systemd. I guess we can still throw a runcon in 
+there. We used the system-config-selinux tool to generate the base 
+policy module but the rules it creates are a bit opaque to me.
 
--Paul
+I think this is the interface that allows initd_t(systemd) to transition 
+our app into its domain. I'm a little unsure how I should be making a 
+new entrypoint.
 
--- 
-paul moore
-security @ redhat
+        interface(`myapp_domtrans',`
+            gen_require(`
+                 type myapp_t, myapp_exec_t;
+            ')
+            corecmd_search_bin($1)
+                 domtrans_pattern($1, myapp_exec_t, myapp_t)
+        ')
+
+
+# /usr/lib/systemd/system/myapp.service
+
+[Unit]
+Description=MyAPP
+After=network.target
+
+[Service]
+User=myapp
+Group=myapp
+ExecStart=/usr/bin/sh -c 'source /var/lib/myapp/env/bin/activate && 
+gunicorn --bind 0.0.0.0:8080 --debug --reload wsgi:app'
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
