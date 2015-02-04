@@ -1,36 +1,28 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsepol:  Maybe fix MacOS X build.
-Date: Tue,  3 Feb 2015 13:35:02 -0500
-Message-Id: <1422988502-23727-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t140JlB0007565
+ for <selinux@tycho.nsa.gov>; Tue, 3 Feb 2015 19:19:47 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Subject: SELinux Test Suite
+Date: Tue, 03 Feb 2015 19:19:40 -0500
+Message-ID: <56926575.WZluBafX8n@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-s6_addr32 is not portable; use s6_addr instead.
+Hi Serge,
 
-Change-Id: I21c237588d3e7200cefa3af96065f657dae4b1e7
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/cil/src/cil_binary.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Any objection to moving the SELinux testsuite to Github with the rest of the 
+SELinux userspace?
 
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index e43a7cf..f2b56e8 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -2806,8 +2806,8 @@ int cil_nodecon_to_policydb(policydb_t *pdb, struct cil_sort *nodecons)
- 			new_ocon->u.node.mask = cil_nodecon->mask->ip.v4.s_addr;
- 		} else if (cil_nodecon->addr->family == AF_INET6) {
- 			new_ocon = cil_add_ocontext(&pdb->ocontexts[OCON_NODE6], &tail6);
--			memcpy(new_ocon->u.node6.addr, &cil_nodecon->addr->ip.v6.s6_addr32[0], 16);
--			memcpy(new_ocon->u.node6.mask, &cil_nodecon->mask->ip.v6.s6_addr32[0], 16);
-+			memcpy(new_ocon->u.node6.addr, &cil_nodecon->addr->ip.v6.s6_addr[0], 16);
-+			memcpy(new_ocon->u.node6.mask, &cil_nodecon->mask->ip.v6.s6_addr[0], 16);
- 		} else {
- 			/* should not get here */
- 			rc = SEPOL_ERR;
+ * https://github.com/SELinuxProject
+
+-Paul
+
 -- 
-1.9.3
+paul moore
+security @ redhat
