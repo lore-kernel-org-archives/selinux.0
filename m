@@ -1,9 +1,9 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux-testsuite: Add tests for exec transitions under
+Subject: [PATCH v2] selinux-testsuite: Add tests for exec transitions under
  NO_NEW_PRIVS.
-Date: Thu,  5 Feb 2015 09:31:21 -0500
-Message-Id: <1423146681-26056-1-git-send-email-sds@tycho.nsa.gov>
+Date: Thu,  5 Feb 2015 10:28:41 -0500
+Message-Id: <1423150121-5445-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -14,20 +14,19 @@ commit 7b0d0b40cd78cadb525df760ee4cac151533c2b5 / v3.18 introduced
 support for bounded transitions under NO_NEW_PRIVS.  Add tests to
 confirm that bounded transitions are permitted under NO_NEW_PRIVS
 and that unbounded transitions are denied under NO_NEW_PRIVS.
-The test logic exempts kernels older than v3.18 from the bounded
-transition tests but applies the unbounded transition denial tests
-to all kernels.
+The test logic checks for the correct result on both old (pre-3.18)
+and new (3.18 or later) kernels.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
  policy/Makefile      |  2 +-
- policy/test_nnp.te   | 33 +++++++++++++++++++++++++++++
- tests/Makefile       |  3 ++-
+ policy/test_nnp.te   | 33 +++++++++++++++++++++++++++
+ tests/Makefile       |  2 +-
  tests/nnp/Makefile   |  7 ++++++
- tests/nnp/checkcon.c | 57 +++++++++++++++++++++++++++++++++++++++++++++++++
- tests/nnp/execnnp.c  | 60 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- tests/nnp/test       | 39 ++++++++++++++++++++++++++++++++++
- 7 files changed, 199 insertions(+), 2 deletions(-)
+ tests/nnp/checkcon.c | 60 +++++++++++++++++++++++++++++++++++++++++++++++++
+ tests/nnp/execnnp.c  | 63 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ tests/nnp/test       | 39 ++++++++++++++++++++++++++++++++
+ 7 files changed, 204 insertions(+), 2 deletions(-)
  create mode 100644 policy/test_nnp.te
  create mode 100644 tests/nnp/Makefile
  create mode 100644 tests/nnp/checkcon.c
@@ -87,12 +86,11 @@ index 0000000..69cd714
 +unconfined_runs_test(test_nnp_notbounded_t)
 +unconfined_run_to(test_nnp_notbounded_t, test_nnp_notbounded_exec_t)
 diff --git a/tests/Makefile b/tests/Makefile
-index 5886403..04fadc3 100644
+index 5886403..4cfecdf 100644
 --- a/tests/Makefile
 +++ b/tests/Makefile
-@@ -1,6 +1,7 @@
+@@ -1,6 +1,6 @@
  REDHAT_RELEASE=$(shell rpm -q redhat-release)
-+KERNEL_VERSION=$(shell uname -r)
  
 -SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrans dyntrace bounds
 +SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg nnp open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrans dyntrace bounds
@@ -114,10 +112,10 @@ index 0000000..4e8e400
 +	rm -f $(TARGETS)
 diff --git a/tests/nnp/checkcon.c b/tests/nnp/checkcon.c
 new file mode 100644
-index 0000000..053415c
+index 0000000..21f1265
 --- /dev/null
 +++ b/tests/nnp/checkcon.c
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,60 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <stdbool.h>
@@ -148,11 +146,6 @@ index 0000000..053415c
 +
 +	nobounded = ((strcmp(argv[1], "test_nnp_bounded_t") == 0) &&
 +		     (strverscmp(uts.release, "3.18") < 0));
-+	if (nobounded) {
-+		printf("Kernels < v3.18 do not support bounded transitions on NNP.\n");
-+		/* pass the test */
-+		exit(0);
-+	}
 +
 +	if (getcon(&con) < 0) {
 +		perror("getcon");
@@ -173,14 +166,22 @@ index 0000000..053415c
 +	}
 +
 +	rc = strcmp(type, argv[1]);
++	if (nobounded) {
++		if (rc)
++			exit(-1);
++		printf("Kernels < v3.18 do not support bounded transitions on NNP.\n");
++		/* pass the test */
++		exit(0);
++	}
++
 +	exit(rc);
 +}
 diff --git a/tests/nnp/execnnp.c b/tests/nnp/execnnp.c
 new file mode 100644
-index 0000000..98fb345
+index 0000000..33ed0df
 --- /dev/null
 +++ b/tests/nnp/execnnp.c
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,63 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
@@ -229,12 +230,15 @@ index 0000000..98fb345
 +
 +	pid = wait(&status);
 +	if (WIFEXITED(status)) {
-+		if (!WEXITSTATUS(status))
-+			exit(0);
 +		if (nobounded) {
++			if (!WEXITSTATUS(status))
++				exit(-1);
 +			printf("Kernels < v3.18 do not support bounded transitions under NNP.\n");
++			/* pass the test */
 +			exit(0);
 +		}
++		if (!WEXITSTATUS(status))
++			exit(0);
 +		exit(WEXITSTATUS(status));
 +	}
 +
