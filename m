@@ -1,9 +1,9 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2] selinux-testsuite: Add tests for exec transitions under
+Subject: [PATCH v3] selinux-testsuite: Add tests for exec transitions under
  NO_NEW_PRIVS.
-Date: Thu,  5 Feb 2015 10:28:41 -0500
-Message-Id: <1423150121-5445-1-git-send-email-sds@tycho.nsa.gov>
+Date: Thu,  5 Feb 2015 10:42:50 -0500
+Message-Id: <1423150970-8272-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -20,13 +20,13 @@ and new (3.18 or later) kernels.
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
  policy/Makefile      |  2 +-
- policy/test_nnp.te   | 33 +++++++++++++++++++++++++++
+ policy/test_nnp.te   | 33 ++++++++++++++++++++++++++++
  tests/Makefile       |  2 +-
  tests/nnp/Makefile   |  7 ++++++
- tests/nnp/checkcon.c | 60 +++++++++++++++++++++++++++++++++++++++++++++++++
- tests/nnp/execnnp.c  | 63 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- tests/nnp/test       | 39 ++++++++++++++++++++++++++++++++
- 7 files changed, 204 insertions(+), 2 deletions(-)
+ tests/nnp/checkcon.c | 41 +++++++++++++++++++++++++++++++++++
+ tests/nnp/execnnp.c  | 61 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ tests/nnp/test       | 39 +++++++++++++++++++++++++++++++++
+ 7 files changed, 183 insertions(+), 2 deletions(-)
  create mode 100644 policy/test_nnp.te
  create mode 100644 tests/nnp/Makefile
  create mode 100644 tests/nnp/checkcon.c
@@ -112,23 +112,20 @@ index 0000000..4e8e400
 +	rm -f $(TARGETS)
 diff --git a/tests/nnp/checkcon.c b/tests/nnp/checkcon.c
 new file mode 100644
-index 0000000..21f1265
+index 0000000..d8a1e15
 --- /dev/null
 +++ b/tests/nnp/checkcon.c
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,41 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <stdbool.h>
 +#include <string.h>
 +#include <unistd.h>
-+#include <sys/utsname.h>
 +#include <selinux/selinux.h>
 +#include <selinux/context.h>
 +
 +int main(int argc, char **argv)
 +{
-+	bool nobounded;
-+	struct utsname uts;
 +	char *con = NULL;
 +	context_t c;
 +	const char *type;
@@ -138,14 +135,6 @@ index 0000000..21f1265
 +		fprintf(stderr, "usage:  %s expected-type\n", argv[0]);
 +		exit(-1);
 +	}
-+
-+	if (uname(&uts) < 0) {
-+		perror("uname");
-+		exit(-1);
-+	}
-+
-+	nobounded = ((strcmp(argv[1], "test_nnp_bounded_t") == 0) &&
-+		     (strverscmp(uts.release, "3.18") < 0));
 +
 +	if (getcon(&con) < 0) {
 +		perror("getcon");
@@ -166,22 +155,14 @@ index 0000000..21f1265
 +	}
 +
 +	rc = strcmp(type, argv[1]);
-+	if (nobounded) {
-+		if (rc)
-+			exit(-1);
-+		printf("Kernels < v3.18 do not support bounded transitions on NNP.\n");
-+		/* pass the test */
-+		exit(0);
-+	}
-+
 +	exit(rc);
 +}
 diff --git a/tests/nnp/execnnp.c b/tests/nnp/execnnp.c
 new file mode 100644
-index 0000000..33ed0df
+index 0000000..a5a80cf
 --- /dev/null
 +++ b/tests/nnp/execnnp.c
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,61 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
@@ -233,12 +214,10 @@ index 0000000..33ed0df
 +		if (nobounded) {
 +			if (!WEXITSTATUS(status))
 +				exit(-1);
-+			printf("Kernels < v3.18 do not support bounded transitions under NNP.\n");
++			printf("%s:  Kernels < v3.18 do not support bounded transitions under NNP.\n", argv[0]);
 +			/* pass the test */
 +			exit(0);
 +		}
-+		if (!WEXITSTATUS(status))
-+			exit(0);
 +		exit(WEXITSTATUS(status));
 +	}
 +
