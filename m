@@ -1,8 +1,8 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux-testsuite:  split testcase list for rhel-6.
-Date: Thu,  5 Feb 2015 12:56:48 -0500
-Message-Id: <1423159008-13641-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH v2] selinux-testsuite:  split testcase list for rhel-6.
+Date: Thu,  5 Feb 2015 13:00:21 -0500
+Message-Id: <1423159221-13804-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -20,7 +20,7 @@ Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
  1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/tests/Makefile b/tests/Makefile
-index 4cfecdf..ddbedf7 100644
+index 4cfecdf..3838e14 100644
 --- a/tests/Makefile
 +++ b/tests/Makefile
 @@ -1,14 +1,19 @@
@@ -42,7 +42,7 @@ index 4cfecdf..ddbedf7 100644
 +    SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans
 +endif
 +
-+ifeq (redhat-release-6, $(findstring redhat-release-5, $(REDHAT_RELEASE)))
++ifeq (redhat-release-6, $(findstring redhat-release-6, $(REDHAT_RELEASE)))
 +    SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans bounds
  endif
  
