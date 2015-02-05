@@ -1,51 +1,37 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2] selinux-testsuite:  split testcase list for rhel-6.
-Date: Thu,  5 Feb 2015 13:00:21 -0500
-Message-Id: <1423159221-13804-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: Update URLs for selinux userspace and
+ refpolicy.
+Date: Thu,  5 Feb 2015 13:56:34 -0500
+Message-Id: <1423162594-14964-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The NNP test will not work on rhel-6, so split off a separate
-testcase list for rhel-6 as we have previously done for rhel-5 and 4.
-Simplify maintenance by introducing a SUBDIRS_COMMON variable with
-the list of testcases shared by all.
-
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- tests/Makefile | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ README | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tests/Makefile b/tests/Makefile
-index 4cfecdf..3838e14 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -1,14 +1,19 @@
- REDHAT_RELEASE=$(shell rpm -q redhat-release)
+diff --git a/README b/README
+index 750cac4..6f33278 100644
+--- a/README
++++ b/README
+@@ -87,11 +87,11 @@ base selinux-policy package in Fedora 10 and later.
  
--SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg nnp open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrans dyntrace bounds
--#SUBDIRS=socket unix_socket unix_secure
-+SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
-+
-+SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp
+ If the base distribution does not include the SELinux userland, then
+ the source code for the core SELinux userland packages can be obtained from:
+-http://userspace.selinuxproject.org
++https://github.com/SELinuxProject/selinux/wiki/Releases
  
- ifeq (redhat-release-4, $(findstring redhat-release-4, $(REDHAT_RELEASE)))
--    SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
-+    SUBDIRS:=$(SUBDIRS_COMMON)
- endif
+ If the base distribution does not include a policy configuration, then
+ the reference policy can be obtained from:
+-http://oss.tresys.com/projects/refpolicy
++https://github.com/TresysTechnology/refpolicy/wiki/DownloadRelease
  
- ifeq (redhat-release-5, $(findstring redhat-release-5, $(REDHAT_RELEASE)))
--    SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrace dyntrans
-+    SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans
-+endif
-+
-+ifeq (redhat-release-6, $(findstring redhat-release-6, $(REDHAT_RELEASE)))
-+    SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans bounds
- endif
- 
- .PHONY: all test clean
+ RUNNING THE TESTS
+ -----------------
 -- 
 1.9.3
