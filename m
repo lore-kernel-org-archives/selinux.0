@@ -1,57 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t16MYtDx005897
- for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2015 17:34:55 -0500
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com
- (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t16MYQCB024377
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2015 17:34:26 -0500
-Subject: [PATCH] selinux-testsuite: fix RHEL detection
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Fri, 06 Feb 2015 17:34:24 -0500
-Message-ID: <20150206223424.13392.21940.stgit@localhost>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t16Mp1kg006968
+ for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2015 17:51:02 -0500
+Message-ID: <54D54556.3070702@schaufler-ca.com>
+Date: Fri, 06 Feb 2015 14:51:02 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: Paul Moore <pmoore@redhat.com>, davem@davemloft.net
+Subject: Re: [PATCH] cipso: don't use IPCB() to locate the CIPSO IP option
+References: <20150206195728.28733.12118.stgit@localhost>
+ <79075962.e3G0NVBHuh@sifl>
+In-Reply-To: <79075962.e3G0NVBHuh@sifl>
+Content-Type: text/plain; charset=windows-1252
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The redhat-release package is not consistently named across RHEL
-releases, use the /etc/redhat-release instead to detect the RHEL
-version.
+On 2/6/2015 12:03 PM, Paul Moore wrote:
+> On Friday, February 06, 2015 02:57:28 PM Paul Moore wrote:
+>> Using the IPCB() macro to get the IPv4 options is convenient, but
+>> unfortunately NetLabel often needs to examine the CIPSO option outside
+>> of the scope of the IP layer in the stack.  While historically IPCB()
+>> worked above the IP layer, due to the inclusion of the inet_skb_param
+>> struct at the head of the {tcp,udp}_skb_cb structs, recent commit
+>> 971f10ec ("tcp: better TCP_SKB_CB layout to reduce cache line misses")
+>> reordered the tcp_skb_cb struct and invalidated this IPCB() trick.
+>>
+>> This patch fixes the problem by creating a new function,
+>> cipso_v4_optptr(), which locates the CIPSO option inside the IP header
+>> without calling IPCB().  Unfortunately, this isn't as fast as a simple
+>> lookup so some additional tweaks were made to limit the use of this
+>> new function.
+>>
+>> Cc: <stable@vger.kernel.org> # 3.18
+>> Reported-by: Casey Schaufler <casey@schaufler-ca.com>
+>> Signed-off-by: Paul Moore <pmoore@redhat.com>
 
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- tests/Makefile |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Tested-by: Casey Schaufler <casey@schaufler-ca.com>
+ 
 
-diff --git a/tests/Makefile b/tests/Makefile
-index 3838e14..7c27787 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -1,18 +1,19 @@
--REDHAT_RELEASE=$(shell rpm -q redhat-release)
-+RHEL_VER=$(shell cat /etc/redhat-release)
-+RHEL_VER_PREFIX=Red Hat Enterprise Linux Server release 
- 
- SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
- 
- SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp
- 
--ifeq (redhat-release-4, $(findstring redhat-release-4, $(REDHAT_RELEASE)))
-+ifeq ($(RHEL_VER_PREFIX)4, $(findstring $(RHEL_VER_PREFIX)4, $(RHEL_VER)))
-     SUBDIRS:=$(SUBDIRS_COMMON)
- endif
- 
--ifeq (redhat-release-5, $(findstring redhat-release-5, $(REDHAT_RELEASE)))
-+ifeq ($(RHEL_VER_PREFIX)5, $(findstring $(RHEL_VER_PREFIX)5, $(RHEL_VER)))
-     SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans
- endif
- 
--ifeq (redhat-release-6, $(findstring redhat-release-6, $(REDHAT_RELEASE)))
-+ifeq ($(RHEL_VER_PREFIX)6, $(findstring $(RHEL_VER_PREFIX)6, $(RHEL_VER)))
-     SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans bounds
- endif
- 
+> DaveM, I'd prefer this go upstream via the SELinux/security tree so we don't 
+> have to worry about syncing up with the netdev tree to get this fix.  Any 
+> objections on your part (this patch only touches NetLabel/CIPSO)?
+>
