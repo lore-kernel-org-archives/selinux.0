@@ -1,16 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t19N6W4K025087
- for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:32 -0500
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t19N6UTC001526
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t19N6dNP025089
+ for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:39 -0500
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com
+ (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t19N6aUm005798
  (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:30 -0500
-Subject: [PATCH 1/4] selinux-testsuite: add improved OS detection
+ for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:36 -0500
+Subject: [PATCH 2/4] selinux-testsuite: allow the file test to work with all
+ coreutils versions
 From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Mon, 09 Feb 2015 18:06:29 -0500
-Message-ID: <20150209230629.2579.64390.stgit@localhost>
+Date: Mon, 09 Feb 2015 18:06:35 -0500
+Message-ID: <20150209230635.2579.7110.stgit@localhost>
 In-Reply-To: <20150209230426.2579.84520.stgit@localhost>
 References: <20150209230426.2579.84520.stgit@localhost>
 MIME-Version: 1.0
@@ -20,54 +21,37 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add a script which will handle OS/distribution detection.  The initial
-version of the script is very basic, handling only different RHEL
-versions, but it is easily expanded as needed.
+Prior to coreutils v8.23 the 'ls -Z' output looked like the following:
+
+  # /bin/ls -Z test
+  -rw-r--r--. root root unconfined_u:object_r:user_tmp_t:s0 test
+
+However, with the coreutils v8.23 release the output changed to:
+
+  # /bin/ls -Z test
+  system_u:object_r:test_file_t:s0 test
+
+This patch attempts to detect the version of /bin/ls in use and adjusts
+accordingly.
 
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
  0 files changed
 
-diff --git a/tests/Makefile b/tests/Makefile
-index 7c27787..e9d4646 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -1,19 +1,18 @@
--RHEL_VER=$(shell cat /etc/redhat-release)
--RHEL_VER_PREFIX=Red Hat Enterprise Linux Server release 
-+DISTRO=$(shell ./os_detect)
+diff --git a/tests/file/test b/tests/file/test
+index e6ed44d..e52744f 100755
+--- a/tests/file/test
++++ b/tests/file/test
+@@ -47,7 +47,11 @@ system "chcon -t fileop_exec_t $basedir/wait_io 2>&1 > /dev/null";
+ #
+ $output = `ls -Z $basedir/temp_file`;
+ @arr = split(' ', $output);
+-$good_file_sid = $arr[3];
++if (index($arr[0], ":") != -1) {
++	$good_file_sid = $arr[0]
++} else {
++	$good_file_sid = $arr[3]
++}
  
- SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
- 
- SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp
- 
--ifeq ($(RHEL_VER_PREFIX)4, $(findstring $(RHEL_VER_PREFIX)4, $(RHEL_VER)))
-+ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(SUBDIRS_COMMON)
- endif
- 
--ifeq ($(RHEL_VER_PREFIX)5, $(findstring $(RHEL_VER_PREFIX)5, $(RHEL_VER)))
-+ifeq ($(DISTRO),RHEL5)
-     SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans
- endif
- 
--ifeq ($(RHEL_VER_PREFIX)6, $(findstring $(RHEL_VER_PREFIX)6, $(RHEL_VER)))
-+ifeq ($(DISTRO),RHEL6)
-     SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans bounds
- endif
- 
-diff --git a/tests/os_detect b/tests/os_detect
-new file mode 100755
-index 0000000..cddcb85
---- /dev/null
-+++ b/tests/os_detect
-@@ -0,0 +1,9 @@
-+#!/bin/bash
-+
-+if [[ -r /etc/redhat-release ]]; then
-+	ver=$(cat /etc/redhat-release | sed -ne '/^Red Hat Enterprise Linux/p')
-+	if [[ -n $ver ]]; then
-+		echo "$ver" | \
-+			sed -e 's/Red Hat Enterprise Linux[ \ta-zA-Z]*\([0-9]\+\).*/RHEL\1/'
-+	fi
-+fi
+ #
+ # Attempt to access a restricted file as the 'good' domain.  The first test
