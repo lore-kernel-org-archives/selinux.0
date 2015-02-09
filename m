@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t19N6iD0025091
- for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:44 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t19N6ol5025099
+ for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:50 -0500
 Received: from int-mx09.intmail.prod.int.phx2.redhat.com
  (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t19N6go9001555
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t19N6mGW006216
  (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:42 -0500
-Subject: [PATCH 3/4] selinux-testsuite: enable task_setscheduler to work
- with cgroups
+ for <selinux@tycho.nsa.gov>; Mon, 9 Feb 2015 18:06:48 -0500
+Subject: [PATCH 4/4] selinux-testsuite: allow unconfined_t entrypoint to
+ test_nnp_bounded_exec_t
 From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Mon, 09 Feb 2015 18:06:41 -0500
-Message-ID: <20150209230641.2579.48731.stgit@localhost>
+Date: Mon, 09 Feb 2015 18:06:47 -0500
+Message-ID: <20150209230647.2579.61237.stgit@localhost>
 In-Reply-To: <20150209230426.2579.84520.stgit@localhost>
 References: <20150209230426.2579.84520.stgit@localhost>
 MIME-Version: 1.0
@@ -21,34 +21,26 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On recent systemd based distributions, systemd manages cgroups
-automatically and we may be running in a cgroup by default.
-Unfortunately, this can cause problems when trying to set the
-scheduler policy so we need to move the target process to the root
-cgroup (no scheduler policy restrictions in the root cgroup) before
-we attempt to change the scheduler settings.
+From: Stephen Smalley <sds@tycho.nsa.gov>
 
+A necessary fix for recent systems running the NNP tests from the
+unconfined_t domain.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+[PM: tweaked the subject line and added a brief description]
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
  0 files changed
 
-diff --git a/tests/task_setscheduler/test b/tests/task_setscheduler/test
-index f1b71eb..f63db07 100755
---- a/tests/task_setscheduler/test
-+++ b/tests/task_setscheduler/test
-@@ -12,6 +12,15 @@ if ( ($pid = fork()) == 0 ) {
+diff --git a/policy/test_nnp.te b/policy/test_nnp.te
+index 69cd714..54ebfd3 100644
+--- a/policy/test_nnp.te
++++ b/policy/test_nnp.te
+@@ -13,6 +13,7 @@ typebounds unconfined_t test_nnp_bounded_t;
+ type test_nnp_bounded_exec_t;
+ files_type(test_nnp_bounded_exec_t)
+ domain_entry_file(test_nnp_bounded_t, test_nnp_bounded_exec_t)
++domain_entry_file(unconfined_t, test_nnp_bounded_exec_t)
  
- sleep 1; # Give it a second to start
- 
-+$cgroup_cpu = "/sys/fs/cgroup/cpu/tasks";
-+if ( -w $cgroup_cpu ) {
-+	# We can only set the scheduler policy fo SCHED_{RR,FIFO} in the root
-+	# cgroup so move our target process to the root cgroup.
-+	open(my $fd, ">>", $cgroup_cpu);
-+	print $fd $pid;
-+	close $fd;
-+}
-+
- # Verify that test_setsched_yes_t can change the scheduling.
- # SCHED_OTHER	0	priority must == 0
- # SCHED_FIFO	1	priority 1..99
+ # Run it!  This should succeed on v3.18 or later, fail on older kernels.
+ unconfined_runs_test(test_nnp_bounded_t)
