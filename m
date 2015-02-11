@@ -1,47 +1,71 @@
-Message-ID: <54DB5D87.20405@tresys.com>
-Date: Wed, 11 Feb 2015 08:47:51 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1BFn0Uq019070
+ for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2015 10:49:01 -0500
+Message-ID: <54DB79D3.8@tresys.com>
+Date: Wed, 11 Feb 2015 10:48:35 -0500
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
-To: Colin Powers <Colin.Powers@nexor.com>, "SELinux@tycho.nsa.gov"
- <SELinux@tycho.nsa.gov>
-Subject: Re: keywords in .fc files
-References: <AMSPR03MB632C591E8AF6DBA1219361C9E250@AMSPR03MB632.eurprd03.prod.outlook.com>
-In-Reply-To: <AMSPR03MB632C591E8AF6DBA1219361C9E250@AMSPR03MB632.eurprd03.prod.outlook.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: ANN: SETools 4.0.0-alpha2
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 2/11/2015 5:57 AM, Colin Powers wrote:
-> Hi all,
-> 
-> We are trying in a .fc file to assign a label to a directory path containing the word 'include', e.g.
-> 
-> /opt/mydir/include(/.*)?		-d	gen_context(system_u:object_r:my_context_t,s0)
-> 
-> However it seems 'include(...)' is interpreted as a keyword/macro which causes a compilation error:
-> `/.*': No such file or directory
-> 
-> Is there a way around this, other than by doing something funny with the regex, like wildcarding one of the letters?
+Tresys has released SETools 4.0.0-alpha2:
 
-You can do a "stupid m4 trick", by adding in an empty string
-(backtick-apostraphe) before the open parenthesis:
+https://github.com/TresysTechnology/setools/releases/tag/4.0.0-alpha2
 
-/opt/mydir/include`'(/.*)?
+In this release, SETools has been updated to support Python 3 (tested
+with 3.3 and 3.4) and includes travis-ci testing[1].  Many features are
+complete or nearly complete (full list at the end of the email) and
+available for use via the CLI tools.  The GUI tools have not yet been
+started.
 
+Warning: If you replace the SETools 3.x on your system, it will break
+the couple of tools from sepolgen/policycoreutils that depend on SETools
+(e.g. sepolicy) since libqpol/libapol C libraries and their
+corresponding SWIG wrappers are no longer provided.
 
-For example:
+If you are interested in contributing, GitHub's pull request feature is
+preferred for submitting patches.  Please include unit tests.
 
-$ cat test
-/opt/mydir/include`'(/.*)?
+SETools requires the following development packages for building:
+  Python 2.7 or 3.3+
+  setuptools
+  gcc
+  bison
+  flex
+  libselinux
+  libsepol 2.4+
+  libbz2
+  SWIG 2.0.12+ or 3.0+
 
-$ m4 test
-/opt/mydir/include(/.*)?
+To run SETools, the following packages are required:
+  Python 2.7 or 3.3+
+  NetworkX 1.8+
+  setuptools
+  libselinux
+  libsepol 2.4+
+  libbz2
 
+Completed (and nearly completed) features:
+* TE rule query
+* RBAC rule query
+* MLS rule query (range_transition; except for range criteria)
+* Type query
+* Role query
+* User query (except level/range criteria)
+* Object class query
+* Common query
+* Boolean query
+* Policy capability query
+* All context queries (portcon, genfscon, etc, except range criteria)
+* Information flow analysis
+* Domain transition analysis
 
-Note: Reference Policy questions should be asked on the refpolicy list
-(http://oss.tresys.com/mailman/listinfo/refpolicy)
+[1] https://travis-ci.org/TresysTechnology/setools
 
 -- 
 Chris PeBenito
