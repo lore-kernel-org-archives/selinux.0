@@ -1,56 +1,74 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1HKUWeH005127
+ for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2015 15:30:32 -0500
+Subject: [PATCH] selinux: reconcile security_netlbl_secattr_to_sid() and
+ mls_import_netlbl_cat()
+From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: fix audit2why error handling if SELinux is
- disabled.
-Date: Fri, 13 Feb 2015 10:43:39 -0500
-Message-Id: <1423842219-16327-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Tue, 17 Feb 2015 15:30:23 -0500
+Message-ID: <20150217203023.17101.31816.stgit@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Cc: rickard_strandqvist@spectrumdigital.se
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If SELinux is disabled, then selinux_current_policy_path() returns NULL.
-At present, if you run audit2allow on a SELinux-disabled host without
-the -p option, you get:
-unable to open (null):  Bad address
+Move the NetLabel secattr MLS category import logic into
+mls_import_netlbl_cat() where it belongs, and use the
+mls_import_netlbl_cat() function in security_netlbl_secattr_to_sid().
 
-We haven't seen this because most people running audit2allow are doing
-it on SELinux-enabled hosts and using the host policy.  But for Android,
-the build host OS often has SELinux disabled and we need to pass audit2allow
-the path to the Android policy.  Handle this case and provide a hint to
-the user.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Reported-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
+Signed-off-by: Paul Moore <pmoore@redhat.com>
 ---
- libselinux/src/audit2why.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ security/selinux/ss/mls.c      |   10 +++-------
+ security/selinux/ss/services.c |    6 +-----
+ 2 files changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-index c91b65e..12745b3 100644
---- a/libselinux/src/audit2why.c
-+++ b/libselinux/src/audit2why.c
-@@ -209,11 +209,19 @@ static int __policy_init(const char *init_path)
- 			return 1;
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index d307b37..e108884 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -654,19 +654,15 @@ int mls_import_netlbl_cat(struct context *context,
+ 
+ 	rc = ebitmap_netlbl_import(&context->range.level[0].cat,
+ 				   secattr->attr.mls.cat);
+-	if (rc != 0)
+-		goto import_netlbl_cat_failure;
+-
+-	rc = ebitmap_cpy(&context->range.level[1].cat,
+-			 &context->range.level[0].cat);
+-	if (rc != 0)
++	if (rc)
+ 		goto import_netlbl_cat_failure;
++	memcpy(&context->range.level[1].cat, &context->range.level[0].cat,
++	       sizeof(context->range.level[0].cat));
+ 
+ 	return 0;
+ 
+ import_netlbl_cat_failure:
+ 	ebitmap_destroy(&context->range.level[0].cat);
+-	ebitmap_destroy(&context->range.level[1].cat);
+ 	return rc;
+ }
+ #endif /* CONFIG_NETLABEL */
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index a1d3944..9e2d820 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -3179,13 +3179,9 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
+ 		ctx_new.type = ctx->type;
+ 		mls_import_netlbl_lvl(&ctx_new, secattr);
+ 		if (secattr->flags & NETLBL_SECATTR_MLS_CAT) {
+-			rc = ebitmap_netlbl_import(&ctx_new.range.level[0].cat,
+-						   secattr->attr.mls.cat);
++			rc = mls_import_netlbl_cat(&ctx_new, secattr);
+ 			if (rc)
+ 				goto out;
+-			memcpy(&ctx_new.range.level[1].cat,
+-			       &ctx_new.range.level[0].cat,
+-			       sizeof(ctx_new.range.level[0].cat));
  		}
- 	} else {
--		fp = fopen(selinux_current_policy_path(), "r");
-+		const char *curpolicy = selinux_current_policy_path();
-+		if (!curpolicy) {
-+			/* SELinux disabled, must use -p option. */
-+			snprintf(errormsg, sizeof(errormsg),
-+				 "You must specify the -p option with the path to the policy file.\n");
-+			PyErr_SetString( PyExc_ValueError, errormsg);
-+			return 1;
-+		}
-+		fp = fopen(curpolicy, "r");
- 		if (!fp) {
- 			snprintf(errormsg, sizeof(errormsg), 
- 				 "unable to open %s:  %s\n",
--				 selinux_current_policy_path(),
-+				 curpolicy,
- 				 strerror(errno));
- 			PyErr_SetString( PyExc_ValueError, errormsg);
- 			return 1;
--- 
-1.9.3
+ 		rc = -EIDRM;
+ 		if (!mls_context_isvalid(&policydb, &ctx_new))
