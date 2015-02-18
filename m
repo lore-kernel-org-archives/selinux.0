@@ -1,74 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1HKUWeH005127
- for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2015 15:30:32 -0500
-Subject: [PATCH] selinux: reconcile security_netlbl_secattr_to_sid() and
- mls_import_netlbl_cat()
-From: Paul Moore <pmoore@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1IG0Z9p008040
+ for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2015 11:00:36 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+ by mailout.nyi.internal (Postfix) with ESMTP id 6ABA620870
+ for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2015 11:00:22 -0500 (EST)
+Message-Id: <1424275222.235440.229264653.0B7B44AE@webmail.messagingengine.com>
+From: Colin Walters <walters@verbum.org>
 To: selinux@tycho.nsa.gov
-Date: Tue, 17 Feb 2015 15:30:23 -0500
-Message-ID: <20150217203023.17101.31816.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Cc: rickard_strandqvist@spectrumdigital.se
+Content-Type: text/plain
+In-Reply-To: <1423842219-16327-1-git-send-email-sds@tycho.nsa.gov>
+References: <1423842219-16327-1-git-send-email-sds@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: fix audit2why error handling if SELinux is
+ disabled.
+Date: Wed, 18 Feb 2015 11:00:22 -0500
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Move the NetLabel secattr MLS category import logic into
-mls_import_netlbl_cat() where it belongs, and use the
-mls_import_netlbl_cat() function in security_netlbl_secattr_to_sid().
+On Fri, Feb 13, 2015, at 10:43 AM, Stephen Smalley wrote:
+>
+> +		if (!curpolicy) {
+> +			/* SELinux disabled, must use -p option. */
+> +			snprintf(errormsg, sizeof(errormsg),
+> +				 "You must specify the -p option with the path to the policy file.\n");
+> +			PyErr_SetString( PyExc_ValueError, errormsg);
 
-Reported-by: Rickard Strandqvist <rickard_strandqvist@spectrumdigital.se>
-Signed-off-by: Paul Moore <pmoore@redhat.com>
----
- security/selinux/ss/mls.c      |   10 +++-------
- security/selinux/ss/services.c |    6 +-----
- 2 files changed, 4 insertions(+), 12 deletions(-)
+Personally I try to avoid using printf without any format strings, because
+it's easier to add format string errors later.  Just:
 
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index d307b37..e108884 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -654,19 +654,15 @@ int mls_import_netlbl_cat(struct context *context,
- 
- 	rc = ebitmap_netlbl_import(&context->range.level[0].cat,
- 				   secattr->attr.mls.cat);
--	if (rc != 0)
--		goto import_netlbl_cat_failure;
--
--	rc = ebitmap_cpy(&context->range.level[1].cat,
--			 &context->range.level[0].cat);
--	if (rc != 0)
-+	if (rc)
- 		goto import_netlbl_cat_failure;
-+	memcpy(&context->range.level[1].cat, &context->range.level[0].cat,
-+	       sizeof(context->range.level[0].cat));
- 
- 	return 0;
- 
- import_netlbl_cat_failure:
- 	ebitmap_destroy(&context->range.level[0].cat);
--	ebitmap_destroy(&context->range.level[1].cat);
- 	return rc;
- }
- #endif /* CONFIG_NETLABEL */
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index a1d3944..9e2d820 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3179,13 +3179,9 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 		ctx_new.type = ctx->type;
- 		mls_import_netlbl_lvl(&ctx_new, secattr);
- 		if (secattr->flags & NETLBL_SECATTR_MLS_CAT) {
--			rc = ebitmap_netlbl_import(&ctx_new.range.level[0].cat,
--						   secattr->attr.mls.cat);
-+			rc = mls_import_netlbl_cat(&ctx_new, secattr);
- 			if (rc)
- 				goto out;
--			memcpy(&ctx_new.range.level[1].cat,
--			       &ctx_new.range.level[0].cat,
--			       sizeof(ctx_new.range.level[0].cat));
- 		}
- 		rc = -EIDRM;
- 		if (!mls_context_isvalid(&policydb, &ctx_new))
+PyErr_SetString(PyExc_ValueError, "You must specify the -p option with the path to the policy file.\n");
+
+?
+
+With or without that change though, the patch looks fine to me.
