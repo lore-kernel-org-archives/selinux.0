@@ -1,53 +1,47 @@
-Message-ID: <54E7342B.6040405@tycho.nsa.gov>
-Date: Fri, 20 Feb 2015 08:18:35 -0500
+Message-ID: <54E738EF.8070601@tycho.nsa.gov>
+Date: Fri, 20 Feb 2015 08:38:55 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Mark Lee <markleee50@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Odd occurrence of /sbin/setfiles running
-References: <CAMPpu2Up6bvquf2fXZbFd+jW1KcSSPJZhQEhmgRysgigNDnU7A@mail.gmail.com>
-In-Reply-To: <CAMPpu2Up6bvquf2fXZbFd+jW1KcSSPJZhQEhmgRysgigNDnU7A@mail.gmail.com>
+To: Tracy Reed <treed@ultraviolet.org>, selinux@tycho.nsa.gov
+Subject: Re: MCS error
+References: <20150219014803.GB12937@tracyreed.org>
+ <54E5E3C4.40904@tycho.nsa.gov>
+ <20150219154047.GA11807@linksys-wireless-usb.network2>
+ <20150219193337.GC12937@tracyreed.org>
+ <20150219204841.GA1649@linksys-wireless-usb.network2>
+ <20150220003425.GF12937@tracyreed.org>
+In-Reply-To: <20150220003425.GF12937@tracyreed.org>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/19/2015 12:53 PM, Mark Lee wrote:
-> Hello List,
+On 02/19/2015 07:34 PM, Tracy Reed wrote:
+> but when I try to test that it is being MCS restricted nothing gets denied:
 > 
-> I'm dealing with some strange occurrences in my audit log and was
-> wondering if anyone could shed some light.
+> -bash-4.1$ cd /nodes/p16001/
+> -bash-4.1$ ls 
+> testfile
+> -bash-4.1$ 
+> -bash-4.1$ id -Z
+> p16001_u:user_r:user_t:p16001
+> -bash-4.1$ ls -laZ
+> drwxr-xr-x. p16001 p16001 user_u:object_r:default_t:p16001 .
+> drwxr-xr-x. root   root   system_u:object_r:default_t:SystemLow ..
+> -rw-r--r--. p16001 p16001 user_u:object_r:default_t:p16001 testfile
+> -bash-4.1$ cat testfile 
+> I am 16001
+> -bash-4.1$ cd ../p16002/
+> -bash-4.1$ ls -laZ
+> drwxr-xr-x. p16002 p16002 user_u:object_r:default_t:p16002 .
+> drwxr-xr-x. root   root   system_u:object_r:default_t:SystemLow ..
+> -rw-r--r--. p16002 p16002 user_u:object_r:default_t:p16002 testfile
+> -bash-4.1$ cat testfile 
+> I am 16002
 > 
-> First off "/sbin/setfiles" ran, for no apparent reason,  I didn't run
-> the command, wasn't applying any new selinux policies or in any way
-> interacting with the system.  I looked back through the logs and there
-> was no other occurrences of this happening other then twice yesterday.
-> Example:
-> 
-> linux-audit type=SYSCALL msg=audit(1424298673.524:35003): arch=c000003e
-> syscall=59 success=yes exit=0 a0=23fcc10 a1=2892c10 a2=7fffbfbdac58
-> a3=7473616d5f6e6f69 items=0 ppid=728 pid=757 auid=0 uid=0 gid=0 euid=0
-> suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=3490
-> comm="restorecon" exe="/sbin/setfiles"
-> subj=unconfined_u:system_r:setfiles_t:s0 key=(null)
-> 
-> 
-> Secondly, I have a bunch of selinux denied messages, such as:
-> 
-> 
-> linux-audit type=AVC msg=audit(1424298673.524:35003): avc:  denied  {
-> read write } for  pid=757 comm="restorecon" path="[eventfd]"
-> dev=anon_inodefs ino=3791 scontext=unconfined_u:system_r:setfiles_t:s0
-> tcontext=system_u:object_r:anon_inodefs_t:s0 tclass=file
-> 
-> The inodes for these selinux denied events trace back to:
-> 
-> /sys/devices/virtual/block/ram10/trace/end_lba
-> /sys/devices/virtual/block/ram10/queue/max_segments
-> 
-> I am completely stumped and would appreciate any help.
+> to my understanding user p16001 with only category p16001 should not be able to
+> read this file of category p16002.
 
-Is there anything else in the logs around the same time that would help
-indicate what is running the restorecon?
-
-You didn't say anything about your distribution.
+Can you show the actual constraints on RHEL6?  seinfo --constrain
+output, or grab the .src.rpm and pull out the mcs file.
