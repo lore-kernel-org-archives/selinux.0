@@ -1,43 +1,47 @@
-Message-ID: <54EB3C8B.6050502@tycho.nsa.gov>
-Date: Mon, 23 Feb 2015 09:43:23 -0500
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Tracy Reed <treed@ultraviolet.org>
-Subject: Re: MCS error
-References: <20150219014803.GB12937@tracyreed.org>
- <54E5E3C4.40904@tycho.nsa.gov>
- <20150219154047.GA11807@linksys-wireless-usb.network2>
- <20150219193337.GC12937@tracyreed.org>
- <20150219204841.GA1649@linksys-wireless-usb.network2>
- <20150220003425.GF12937@tracyreed.org> <54E738EF.8070601@tycho.nsa.gov>
- <20150220165628.GI12937@tracyreed.org> <54E769FA.8010801@tycho.nsa.gov>
- <54E76FD5.1080905@tycho.nsa.gov> <20150220221056.GL12937@tracyreed.org>
-In-Reply-To: <20150220221056.GL12937@tracyreed.org>
-Content-Type: text/plain; charset=windows-1252
-Cc: selinux@tycho.nsa.gov
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux:  getcon.3:  Fix setcon description.
+Date: Mon, 23 Feb 2015 10:57:57 -0500
+Message-Id: <1424707077-3266-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/20/2015 05:10 PM, Tracy Reed wrote:
-> On Fri, Feb 20, 2015 at 09:33:09AM PST, Stephen Smalley spake thusly:
->> Also, can you confirm that the system is enforcing?  getenforce?
-> 
-> I should have clarified that the system is in permissive mode but no denials
-> were logged in /var/log/audit/audit.log
-> 
-> [mcstest:/home/users/tracy.reed]# /usr/sbin/sestatus 
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   permissive
-> Mode from config file:          permissive
-> Policy version:                 24
-> Policy from config file:        targeted
+The man page description for setcon() was never updated for the
+introduction of bounded transitions in Linux 2.6.28.  Update it.
 
-Hmm...I would check /var/log/messages as well (where denials will be
-logged if not running auditd), and re-test in enforcing mode just to be
-sure.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/man/man3/getcon.3 | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-Can you send me (not the entire list) your
-/etc/selinux/targeted/policy/policy.24 file?
+diff --git a/libselinux/man/man3/getcon.3 b/libselinux/man/man3/getcon.3
+index fd0e02b..644ee47 100644
+--- a/libselinux/man/man3/getcon.3
++++ b/libselinux/man/man3/getcon.3
+@@ -90,10 +90,18 @@ A multi-threaded application can perform a
+ .BR setcon ()
+ prior to creating
+ any child threads, in which case all of the child threads will inherit
+-the new context.  However,
++the new context.  However, prior to Linux 2.6.28,
+ .BR setcon ()
+-will fail if there are any other
+-threads running in the same process.
++would fail if there are any other
++threads running in the same process since this would yield
++an inconsistency among the security contexts of threads sharing
++the same memory space.  Since Linux 2.6.28,
++.BR setcon()
++is permitted for threads within a multi-threaded process if the
++new security context is bounded by the old security context, where
++the bounded relation is defined through typebounds statements in the
++policy and guarantees that the new security context has a subset of
++the permissions of the old security context.
+ 
+ If the process was being ptraced at the time of the
+ .BR setcon ()
+-- 
+1.9.3
