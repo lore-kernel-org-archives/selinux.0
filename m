@@ -1,49 +1,43 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1NDL3im028652
- for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2015 08:21:03 -0500
-Message-ID: <54EB292D.9010904@tresys.com>
-Date: Mon, 23 Feb 2015 08:20:45 -0500
-From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <54EB3C8B.6050502@tycho.nsa.gov>
+Date: Mon, 23 Feb 2015 09:43:23 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Chris PeBenito <cpebenito@tresys.com>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 1/1] Fix error path in mls_semantic_level_expand().
-References: <1424617943-12541-1-git-send-email-cpebenito@tresys.com>
-In-Reply-To: <1424617943-12541-1-git-send-email-cpebenito@tresys.com>
-Content-Type: text/plain; charset="windows-1252"
+To: Tracy Reed <treed@ultraviolet.org>
+Subject: Re: MCS error
+References: <20150219014803.GB12937@tracyreed.org>
+ <54E5E3C4.40904@tycho.nsa.gov>
+ <20150219154047.GA11807@linksys-wireless-usb.network2>
+ <20150219193337.GC12937@tracyreed.org>
+ <20150219204841.GA1649@linksys-wireless-usb.network2>
+ <20150220003425.GF12937@tracyreed.org> <54E738EF.8070601@tycho.nsa.gov>
+ <20150220165628.GI12937@tracyreed.org> <54E769FA.8010801@tycho.nsa.gov>
+ <54E76FD5.1080905@tycho.nsa.gov> <20150220221056.GL12937@tracyreed.org>
+In-Reply-To: <20150220221056.GL12937@tracyreed.org>
+Content-Type: text/plain; charset=windows-1252
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/22/2015 10:12 AM, Chris PeBenito wrote:
-> If the level contains a category that is not associated with a sensitivity,
-> the code correctly detects the condition, but does not return an error.
+On 02/20/2015 05:10 PM, Tracy Reed wrote:
+> On Fri, Feb 20, 2015 at 09:33:09AM PST, Stephen Smalley spake thusly:
+>> Also, can you confirm that the system is enforcing?  getenforce?
 > 
-> Signed-off-by: Chris PeBenito <cpebenito@tresys.com>
-
-Acked-by: Steve Lawrence <slawrence@tresys.com>
-
-Thanks!
-
-> ---
->  libsepol/src/expand.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> I should have clarified that the system is in permissive mode but no denials
+> were logged in /var/log/audit/audit.log
 > 
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index 467f7a7..3193ef5 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -914,10 +914,11 @@ int mls_semantic_level_expand(mls_semantic_level_t * sl, mls_level_t * l,
->  		}
->  		for (i = cat->low - 1; i < cat->high; i++) {
->  			if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
-> -				ERR(h, "Category %s can not be associate with "
-> +				ERR(h, "Category %s can not be associated with "
->  				    "level %s",
->  				    p->p_cat_val_to_name[i],
->  				    p->p_sens_val_to_name[l->sens - 1]);
-> +				return -1;
->  			}
->  			if (ebitmap_set_bit(&l->cat, i, 1)) {
->  				ERR(h, "Out of memory!");
-> 
+> [mcstest:/home/users/tracy.reed]# /usr/sbin/sestatus 
+> SELinux status:                 enabled
+> SELinuxfs mount:                /selinux
+> Current mode:                   permissive
+> Mode from config file:          permissive
+> Policy version:                 24
+> Policy from config file:        targeted
+
+Hmm...I would check /var/log/messages as well (where denials will be
+logged if not running auditd), and re-test in enforcing mode just to be
+sure.
+
+Can you send me (not the entire list) your
+/etc/selinux/targeted/policy/policy.24 file?
