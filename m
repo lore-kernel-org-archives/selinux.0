@@ -1,54 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1P0eG0j017895
- for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2015 19:40:16 -0500
-Received: by mail-wi0-f170.google.com with SMTP id ex7so8376377wid.1
- for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2015 16:40:13 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t1PDY3Lx029949
+ for <selinux@tycho.nsa.gov>; Wed, 25 Feb 2015 08:34:03 -0500
+Message-ID: <54EDCF31.2080403@tresys.com>
+Date: Wed, 25 Feb 2015 08:33:37 -0500
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Sender: 7andrew@andrewspiers.net
-Date: Wed, 25 Feb 2015 11:40:13 +1100
-Message-ID: <CAFWUrX27ZkBgwUfb8jb5FQgTBhzN4s_bRgNjKr9fdVdRAKfUFA@mail.gmail.com>
-Subject: typo in semanage-port.8 (patch)
-From: Andrew Spiers <andrew@andrewspiers.net>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=001a11c25076dfd2de050fdee036
+To: Andrew Spiers <andrew@andrewspiers.net>, <selinux@tycho.nsa.gov>
+Subject: Re: typo in semanage-port.8 (patch)
+References: <CAFWUrX27ZkBgwUfb8jb5FQgTBhzN4s_bRgNjKr9fdVdRAKfUFA@mail.gmail.com>
+In-Reply-To: <CAFWUrX27ZkBgwUfb8jb5FQgTBhzN4s_bRgNjKr9fdVdRAKfUFA@mail.gmail.com>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c25076dfd2de050fdee036
-Content-Type: text/plain; charset=UTF-8
+On 02/24/2015 07:40 PM, Andrew Spiers wrote:
+> attached
+> 
 
-attached
+Acked-by: Steve Lawrence <slawrence@tresys.com>
 
---001a11c25076dfd2de050fdee036
-Content-Type: text/x-patch; charset=US-ASCII; name="0001-typo-in-semanage-port.8.patch"
-Content-Disposition: attachment;
-	filename="0001-typo-in-semanage-port.8.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_i6jzrpp70
-
-RnJvbSBlNWYxMjBkZGQ4NjdkMjVhYmI5ZDk0YWRjZGJlMDdiOTdlZTRiMGQwIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBBbmRyZXcgU3BpZXJzIDxhbmRyZXdAYW5kcmV3c3BpZXJzLm5l
-dD4KRGF0ZTogV2VkLCAyNSBGZWIgMjAxNSAxMToyMjoxMiArMTEwMApTdWJqZWN0OiBbUEFUQ0hd
-IHR5cG8gaW4gc2VtYW5hZ2UtcG9ydC44CgotLS0KIHBvbGljeWNvcmV1dGlscy9zZW1hbmFnZS9z
-ZW1hbmFnZS1wb3J0LjggfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEg
-ZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9wb2xpY3ljb3JldXRpbHMvc2VtYW5hZ2Uvc2VtYW5h
-Z2UtcG9ydC44IGIvcG9saWN5Y29yZXV0aWxzL3NlbWFuYWdlL3NlbWFuYWdlLXBvcnQuOAppbmRl
-eCA5YWVmZDNiLi4zZjA2N2M1IDEwMDY0NAotLS0gYS9wb2xpY3ljb3JldXRpbHMvc2VtYW5hZ2Uv
-c2VtYW5hZ2UtcG9ydC44CisrKyBiL3BvbGljeWNvcmV1dGlscy9zZW1hbmFnZS9zZW1hbmFnZS1w
-b3J0LjgKQEAgLTUsNyArNSw3IEBACiAuQiBzZW1hbmFnZSBwb3J0IFtcLWhdIFtcLW5dIFtcLU5d
-IFtcLXMgU1RPUkVdIFsgXC1cLWFkZCBcLXQgVFlQRSBcLXAgUFJPVE9DT0wgXC1yIFJBTkdFIHBv
-cnRfbmFtZSB8IHBvcnRfcmFuZ2UgfCBcLVwtZGVsZXRlIFwtcCBQUk9UT0NPTCBwb3J0X25hbWUg
-fCBwb3J0X3JhbmdlIHwgXC1cLWRlbGV0ZWFsbCAgfCBcLVwtZXh0cmFjdCAgfCBcLVwtbGlzdCBb
-XC1DXSB8IFwtXC1tb2RpZnkgXC10IFRZUEUgXC1wIFBST1RPQ09MIFwtciBSQU5HRSBwb3J0X25h
-bWUgfCBwb3J0X3JhbmdlIF0KIAogLlNIICJERVNDUklQVElPTiIKLXNlbWFuYWdlIGlzIHVzZWQg
-dG8gY29uZmlndXJlIGNlcnRhaW4gZWxlbWVudHMgb2YgU0VMaW51eCBwb2xpY3kgd2l0aG91dCBy
-ZXF1aXJpbmcgbW9kaWZpY2F0aW9uIHRvIG9yIHJlY29tcGlsYXRpb24gZnJvbSBwb2xpY3kgc291
-cmNlcy4gIHNlbWFuYWdlIHBvcnQgY29udHJvbHMgdGhlIHBvcnQgbnVtYmVyIHRvIHBvcnQgdHlw
-ZSBkZWZpdGlvbnMuCitzZW1hbmFnZSBpcyB1c2VkIHRvIGNvbmZpZ3VyZSBjZXJ0YWluIGVsZW1l
-bnRzIG9mIFNFTGludXggcG9saWN5IHdpdGhvdXQgcmVxdWlyaW5nIG1vZGlmaWNhdGlvbiB0byBv
-ciByZWNvbXBpbGF0aW9uIGZyb20gcG9saWN5IHNvdXJjZXMuICBzZW1hbmFnZSBwb3J0IGNvbnRy
-b2xzIHRoZSBwb3J0IG51bWJlciB0byBwb3J0IHR5cGUgZGVmaW5pdGlvbnMuCiAKIC5TSCAiT1BU
-SU9OUyIKIC5UUAotLSAKMi4xLjAKCg==
---001a11c25076dfd2de050fdee036--
+Thanks!
