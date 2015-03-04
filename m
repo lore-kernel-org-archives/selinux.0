@@ -1,81 +1,68 @@
-Message-ID: <54F61BCC.80909@tycho.nsa.gov>
-Date: Tue, 03 Mar 2015 15:38:36 -0500
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t24I7UTs028132
+ for <selinux@tycho.nsa.gov>; Wed, 4 Mar 2015 13:07:30 -0500
+Received: by obcuy5 with SMTP id uy5so1418056obc.11
+ for <selinux@tycho.nsa.gov>; Wed, 04 Mar 2015 10:07:27 -0800 (PST)
 MIME-Version: 1.0
-To: Emre Can Kucukoglu <eckucukoglu@gmail.com>, selinux@tycho.nsa.gov
-Subject: Re: Cross-compile for arm architecture
-References: <CA+2y117Qsyy1EVqioo6e1r44mOBK5GiEDRAQczngkhQpRgmD9Q@mail.gmail.com>
- <54EE138A.8010009@tycho.nsa.gov>
- <CA+2y1172GwSBiqY8KZrSY6FV7g5xsSGp726MN_xikgJCSNnXsw@mail.gmail.com>
- <54F614A9.3090800@tycho.nsa.gov>
-In-Reply-To: <54F614A9.3090800@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <54F06DF1.8070605@tycho.nsa.gov>
+References: <1424987742-15120-1-git-send-email-jeffv@google.com>
+ <54F06DF1.8070605@tycho.nsa.gov>
+Date: Wed, 4 Mar 2015 13:07:27 -0500
+Message-ID: <CAHC9VhRwTvimSHLToG9mkk5jiM7N3CJCR6pR2Sa_mJsHcDwtog@mail.gmail.com>
+Subject: Re: [PATCH] avc: remove unnecessary pointer reassignment
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
+Cc: jvanderstoep@gmail.com, James Morris <james.l.morris@oracle.com>,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/03/2015 03:08 PM, Stephen Smalley wrote:
-> On 03/03/2015 10:03 AM, Emre Can Kucukoglu wrote:
->> Now, I'm working with Fedora 21. However another error exists now:
+On Fri, Feb 27, 2015 at 8:15 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 02/26/2015 04:54 PM, Jeff Vander Stoep wrote:
+>> Commit f01e1af445fa ("selinux: don't pass in NULL avd to avc_has_perm_noaudit")
+>> made this pointer reassignment unnecessary. Avd should continue to reference
+>> the stack-based copy.
 >>
->> Toolchain: gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux
->>
->> export
->> PATH=$PATH:/home/ecank/1511/toolchain/gcc-linaro-arm-linux-gnueabihf-4.9-2014.09_linux/bin
->> export CC=arm-linux-gnueabihf-gcc
->> export CROSS_COMPILE=arm-linux-gnueabihf-
->> export CFLAGS=-D__thread= 
->> export EMBEDDED=y
->> export DESTDIR=~/obj
->> make install install-pywrap
->>
->> arm-linux-gnueabihf-gcc: error: unrecognized command line option
->> ‘-mno-tls-direct-seg-refs’
->> Makefile:130: recipe for target 'is_customizable_type.o' failed
->> make[2]: *** [is_customizable_type.o] Error 1
->> make[2]: Leaving directory '/home/ecank/1511/selinux/libselinux/src'
->> Makefile:28: recipe for target 'install' failed
->>
->> all output: http://pastebin.com/U03hhtJJ
->>
->> moreover:
->> $ arm-linux-gnueabihf-gcc --version
->> arm-linux-gnueabihf-gcc (crosstool-NG linaro-1.13.1-4.9-2014.09 - Linaro
->> GCC 4.9-2014.09) 4.9.2 20140904 (prerelease)
->> Copyright (C) 2014 Free Software Foundation, Inc.
->> This is free software; see the source for copying conditions.  There is NO
->> warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
->>
->> Then after deletion of
->> TLSFLAGS += -mno-tls-direct-seg-refs
->> (i deleted that flag, since it was related with x86-64 and i386) 
->> (https://gcc.gnu.org/onlinedocs/gcc-4.9.2/gcc/i386-and-x86-64-Options.html)
->>
->> New error is related with pcre library.
->>
->> arm-linux-gnueabihf-gcc -D__thread= -I../include
->> -I/home/ecank/obj/usr/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
->> -DDISABLE_AVC -DDISABLE_BOOL -DDISABLE_RPM -DDISABLE_SETRANS  -c -o
->> label_file.o label_file.c
->> label_file.c:21:18: fatal error: pcre.h: No such file or directory
->>  #include <pcre.h>
->>                   ^
->> compilation terminated.
->> Makefile:130: recipe for target 'label_file.o' failed
->>
->> all output: http://pastebin.com/9rxKFvLL
->>
->> Really need help about compiling SELinux for an arm.
-> 
-> Looks like you just don't have pcre-devel installed?
-> 
-> There have been various ports of SELinux to ARM in the past, but I think
-> they always involved modifications of some sort.  Most notably the port
-> of SELinux to Android, see:
-> http://seandroid.bitbucket.org/index.html
+>> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+>
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-There is also the meta-selinux layer for the Yocto project,
-That was created by others and does reuse the upstream selinux userspace
-and refpolicy, unlike the port to Android which took a much more
-minimalist, nativized approach.
+
+Thanks everyone for the patch and the review.  I'll merge this next
+week into selinux#next.
+
+>> ---
+>>  security/selinux/avc.c | 6 ++----
+>>  1 file changed, 2 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+>> index afcc0ae..3c17dda 100644
+>> --- a/security/selinux/avc.c
+>> +++ b/security/selinux/avc.c
+>> @@ -724,12 +724,10 @@ inline int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+>>       rcu_read_lock();
+>>
+>>       node = avc_lookup(ssid, tsid, tclass);
+>> -     if (unlikely(!node)) {
+>> +     if (unlikely(!node))
+>>               node = avc_compute_av(ssid, tsid, tclass, avd);
+>> -     } else {
+>> +     else
+>>               memcpy(avd, &node->ae.avd, sizeof(*avd));
+>> -             avd = &node->ae.avd;
+>> -     }
+>>
+>>       denied = requested & ~(avd->allowed);
+>>       if (unlikely(denied))
+>>
+>
+
+
+
+-- 
+paul moore
+www.paul-moore.com
