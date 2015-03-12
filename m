@@ -1,17 +1,12 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2CHYsZ0002667
- for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2015 13:34:54 -0400
-Received: by wesw55 with SMTP id w55so18010796wes.3
- for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2015 10:34:39 -0700 (PDT)
-Message-ID: <5501CE14.5060800@linaro.org>
-Date: Thu, 12 Mar 2015 17:34:12 +0000
-From: Julien Grall <julien.grall@linaro.org>
+Message-ID: <5501D029.7030003@tycho.nsa.gov>
+Date: Thu, 12 Mar 2015 13:43:05 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Daniel De Graaf <dgdegra@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [Xen-devel] [PATCH 1/4] Expand Xen IOMEMCON to 64 bits
+Subject: Re: [PATCH 3/4] checkpolicy: add output for Xen policy version support
 References: <1426180350-16259-1-git-send-email-dgdegra@tycho.nsa.gov>
- <1426180350-16259-2-git-send-email-dgdegra@tycho.nsa.gov>
-In-Reply-To: <1426180350-16259-2-git-send-email-dgdegra@tycho.nsa.gov>
+ <1426180350-16259-4-git-send-email-dgdegra@tycho.nsa.gov>
+In-Reply-To: <1426180350-16259-4-git-send-email-dgdegra@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
 Cc: xen-devel@lists.xenproject.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -19,48 +14,145 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi Daniel,
+On 03/12/2015 01:12 PM, Daniel De Graaf wrote:
+> When invoked as "checkpolicy -t Xen -V", report the range of supported
+> versions for the Xen policy instead of the supported versions for the
+> SELinux policy.
+> 
+> This also changes the default maximum policy version to depend on the
+> policy type, so that running "checkpolicy -t Xen" without -c does not
+> fail due to the Xen policy having a different maximum version number.
 
-On 12/03/15 17:12, Daniel De Graaf wrote:
-> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> index d03dc20..d98a5eb 100644
-> --- a/libsepol/src/write.c
-> +++ b/libsepol/src/write.c
-> @@ -1252,13 +1252,24 @@ static int ocontext_write_xen(struct policydb_compat_info *info, policydb_t *p,
->  					return POLICYDB_ERROR;
+There is a bit of wrinkle here with regard to splitting the Xen and
+SELinux policy version number space that I'm afraid I didn't think about
+earlier.  You'll find that there are various tests of policyvers >= some
+version in the policydb_read code path and the policydb_write code path
+to decide whether or not to read or write the corresponding fields or
+structures, and none of that logic currently checks the target_platform.
+
+Also, certain language features in the source policy language have been
+documented to depend on specific policy version numbers, so reusing the
+same version numbers for Xen and SELinux to mean different things could
+be confusing to users.
+
+So on second thought, I'd suggest that you update Xen to support the
+latest upstream policy version just so you can fully support all of the
+language features and just define a new version for this change (i.e.
+policy 30).  Sorry!
+
+> 
+> Signed-off-by: Daniel De Graaf <dgdegra@tycho.nsa.gov>
+> ---
+>  checkpolicy/checkpolicy.c                  | 59 ++++++++++++++++++++++--------
+>  libsepol/include/sepol/policydb/policydb.h |  9 +++--
+>  2 files changed, 49 insertions(+), 19 deletions(-)
+> 
+> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+> index 61a2e89..e836bcb 100644
+> --- a/checkpolicy/checkpolicy.c
+> +++ b/checkpolicy/checkpolicy.c
+> @@ -99,7 +99,7 @@ static int handle_unknown = SEPOL_DENY_UNKNOWN;
+>  static const char *txtfile = "policy.conf";
+>  static const char *binfile = "policy";
+>  
+> -unsigned int policyvers = POLICYDB_VERSION_MAX;
+> +unsigned int policyvers = 0;
+>  
+>  void usage(char *progname)
+>  {
+> @@ -466,17 +466,7 @@ int main(int argc, char **argv)
+>  					usage(argv[0]);
+>  					exit(1);
+>  				}
+> -				if (n < POLICYDB_VERSION_MIN
+> -				    || n > POLICYDB_VERSION_MAX) {
+> -					fprintf(stderr,
+> -						"policyvers value %ld not in range %d-%d\n",
+> -						n, POLICYDB_VERSION_MIN,
+> -						POLICYDB_VERSION_MAX);
+> -					usage(argv[0]);
+> -					exit(1);
+> -				}
+> -				if (policyvers != n)
+> -					policyvers = n;
+> +				policyvers = n;
 >  				break;
->  			case OCON_XEN_IOMEM:
-> -				buf[0] = c->u.iomem.low_iomem;
-> -				buf[1] = c->u.iomem.high_iomem;
-> -				for (j = 0; j < 2; j++)
-> -					buf[j] = cpu_to_le32(buf[j]);
-> -				items = put_entry(buf, sizeof(uint32_t), 2, fp);
-> -				if (items != 2)
-> -					return POLICYDB_ERROR;
-> +				if (p->policyvers >= POLICYDB_XEN_VERSION_AARCH) {
-> +					uint64_t b64[2];
-> +					b64[0] = c->u.iomem.low_iomem;
-> +					b64[1] = c->u.iomem.high_iomem;
-> +					for (j = 0; j < 2; j++)
-> +						b64[j] = cpu_to_le64(b64[j]);
-> +					items = put_entry(b64, sizeof(uint64_t), 2, fp);
-> +					if (items != 2)
-> +						return POLICYDB_ERROR;
-> +				} else {
-> +					buf[0] = c->u.iomem.low_iomem;
-> +					buf[1] = c->u.iomem.high_iomem;
-> +					for (j = 0; j < 2; j++)
-> +						buf[j] = cpu_to_le32(buf[j]);
-> +					items = put_entry(buf, sizeof(uint32_t), 2, fp);
-> +					if (items != 2)
-> +						return POLICYDB_ERROR;
-
-If low_iomem/high_iomem doesn't fit in an uint32_t it will be truncated
-and therefore we may, by mistake, give access to wrong MMIO region.
-
-Shouldn't we at least add a warning, if not throwing an error?
-
-Regards,
-
--- 
-Julien Grall
+>  			}
+>  		case 'h':
+> @@ -485,10 +475,47 @@ int main(int argc, char **argv)
+>  		}
+>  	}
+>  
+> -	if (show_version) {
+> -		printf("%d (compatibility range %d-%d)\n", policyvers,
+> -		       POLICYDB_VERSION_MAX, POLICYDB_VERSION_MIN);
+> -		exit(0);
+> +	switch (target) {
+> +	case SEPOL_TARGET_SELINUX:
+> +		if (policyvers == 0) {
+> +			policyvers = POLICYDB_VERSION_MAX;
+> +		} else if (policyvers < POLICYDB_VERSION_MIN
+> +				|| policyvers > POLICYDB_VERSION_MAX) {
+> +			fprintf(stderr,
+> +				"policyvers value %d not in range %d-%d\n",
+> +				policyvers, POLICYDB_VERSION_MIN,
+> +				POLICYDB_VERSION_MAX);
+> +				usage(argv[0]);
+> +				exit(1);
+> +		}
+> +		if (show_version) {
+> +			printf("%d (compatibility range %d-%d)\n", policyvers,
+> +				   POLICYDB_VERSION_MAX, POLICYDB_VERSION_MIN);
+> +			exit(0);
+> +		}
+> +		break;
+> +	case SEPOL_TARGET_XEN:
+> +		if (policyvers == 0) {
+> +			policyvers = POLICYDB_XEN_VERSION_MAX;
+> +		} else if (policyvers < POLICYDB_XEN_VERSION_MIN
+> +				|| policyvers > POLICYDB_XEN_VERSION_MAX) {
+> +			fprintf(stderr,
+> +				"policyvers value %d not in range %d-%d\n",
+> +				policyvers, POLICYDB_XEN_VERSION_MIN,
+> +				POLICYDB_XEN_VERSION_MAX);
+> +				usage(argv[0]);
+> +				exit(1);
+> +		}
+> +		if (show_version) {
+> +			printf("Xen policy compatibility range: %d %d\n",
+> +				POLICYDB_XEN_VERSION_MIN,
+> +				POLICYDB_XEN_VERSION_MAX);
+> +			exit(0);
+> +		}
+> +		break;
+> +	default:
+> +		usage(argv[0]);
+> +		exit(1);
+>  	}
+>  
+>  	if (optind != argc) {
+> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+> index d574d4b..8150765 100644
+> --- a/libsepol/include/sepol/policydb/policydb.h
+> +++ b/libsepol/include/sepol/policydb/policydb.h
+> @@ -691,13 +691,16 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+>  #define POLICYDB_VERSION_DEFAULT_TYPE	28
+>  #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
+>  
+> -#define POLICYDB_XEN_VERSION_BASE   24
+> -#define POLICYDB_XEN_VERSION_AARCH  25
+> -
+>  /* Range of policy versions we understand*/
+>  #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+>  #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
+>  
+> +#define POLICYDB_XEN_VERSION_BASE   24
+> +#define POLICYDB_XEN_VERSION_AARCH  25
+> +
+> +#define POLICYDB_XEN_VERSION_MIN	POLICYDB_XEN_VERSION_BASE
+> +#define POLICYDB_XEN_VERSION_MAX	POLICYDB_XEN_VERSION_AARCH
+> +
+>  /* Module versions and specific changes*/
+>  #define MOD_POLICYDB_VERSION_BASE		4
+>  #define MOD_POLICYDB_VERSION_VALIDATETRANS	5
+> 
