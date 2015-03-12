@@ -1,58 +1,48 @@
-From: Daniel De Graaf <dgdegra@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 4/4] checkpolicy: Expand allowed character set in paths
-Date: Thu, 12 Mar 2015 13:12:30 -0400
-Message-Id: <1426180350-16259-5-git-send-email-dgdegra@tycho.nsa.gov>
-In-Reply-To: <1426180350-16259-1-git-send-email-dgdegra@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2CHSB1h002079
+ for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2015 13:28:11 -0400
+Received: by widem10 with SMTP id em10so34900422wid.2
+ for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2015 10:28:06 -0700 (PDT)
+Message-ID: <5501CC8B.2040303@linaro.org>
+Date: Thu, 12 Mar 2015 17:27:39 +0000
+From: Julien Grall <julien.grall@linaro.org>
+MIME-Version: 1.0
+To: Daniel De Graaf <dgdegra@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [Xen-devel] [PATCH 2/4] Add device tree ocontext nodes to Xen
+ policy
 References: <1426180350-16259-1-git-send-email-dgdegra@tycho.nsa.gov>
+ <1426180350-16259-3-git-send-email-dgdegra@tycho.nsa.gov>
+In-Reply-To: <1426180350-16259-3-git-send-email-dgdegra@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 Cc: xen-devel@lists.xenproject.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In order to support paths containing spaces or other characters, allow a
-quoted string with these characters to be parsed as a path in addition
-to the existing unquoted string.
+Hi Daniel,
 
-Signed-off-by: Daniel De Graaf <dgdegra@tycho.nsa.gov>
----
- checkpolicy/policy_parse.y | 3 +++
- checkpolicy/policy_scan.l  | 1 +
- 2 files changed, 4 insertions(+)
+On 12/03/15 17:12, Daniel De Graaf wrote:
+>  		        ;
+> +dtree_context_def	: DEVICETREECON path security_context_def
+> +		        {if (define_devicetree_context()) return -1;}
+> +		        ;
 
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index 889df57..8b81f04 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -83,6 +83,7 @@ typedef int (* require_func_t)(int pass);
- %type <require_func> require_decl_def
- 
- %token PATH
-+%token QPATH
- %token FILENAME
- %token CLONE
- %token COMMON
-@@ -811,6 +812,8 @@ filesystem		: FILESYSTEM
-                         ;
- path     		: PATH
- 			{ if (insert_id(yytext,0)) return -1; }
-+			| QPATH
-+			{ yytext[strlen(yytext) - 1] = '\0'; if (insert_id(yytext + 1,0)) return -1; }
- 			;
- filename		: FILENAME
- 			{ yytext[strlen(yytext) - 1] = '\0'; if (insert_id(yytext + 1,0)) return -1; }
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index d0ba13a..108edbc 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -242,6 +242,7 @@ HIGH				{ return(HIGH); }
- low |
- LOW				{ return(LOW); }
- "/"({alnum}|[_\.\-/])*	        { return(PATH); }
-+\""/"[ !#-~]*\" 		{ return(QPATH); }
- \"({alnum}|[_\.\-\+\~\: ])+\"	{ return(FILENAME); }
- {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
- {digit}+|0x{hexval}+            { return(NUMBER); }
+The regex for matching the device tree path is different from a path.
+
+the pathname convention is:
+
+node-name@unit-address
+
+The characters allowed for node-name/unit-name are:
+	0-9 a-z A-Z , . _ + -
+
+Although the @unit-address may be ommitted.
+
+So the regex should be something like:
+"/"({alnum}|['\._\+\-@])*
+
+Regards,
+
 -- 
-2.1.0
+Julien Grall
