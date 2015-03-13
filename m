@@ -1,47 +1,48 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2DHOjIc028682
- for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2015 13:24:45 -0400
-Message-ID: <55031D59.2040909@native-instruments.de>
-Date: Fri, 13 Mar 2015 18:24:41 +0100
-From: Andrew Holway <andrew.holway@native-instruments.de>
+Message-ID: <55032105.1030903@tycho.nsa.gov>
+Date: Fri, 13 Mar 2015 13:40:21 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Saltstack and ipa-install on Centos7 failing
-Content-Type: text/plain; charset=utf-8
+To: "Higgs, Stephen" <Stephen.Higgs@icfi.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: selinux category relabel (puppet)
+References: <2409d98630af4bc39108524e04557017@VNUCITEX02.ICFI.icfconsulting.com>
+In-Reply-To: <2409d98630af4bc39108524e04557017@VNUCITEX02.ICFI.icfconsulting.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 03/13/2015 09:52 AM, Higgs, Stephen wrote:
+> Hello all,
+> 
+>  
+> 
+> If there is a more appropriate forum for this question please let me know:
+> 
+>  
+> 
+> I have a system that uses confined users by default and some files are
+> managed by a puppet server.  When I run (via run_init) the puppet
+> startup script, I get the following avc log:
+> 
+>  
+> 
+> avc: denied { relabelto } for pid=30707 comm="puppet" name="crl.pem"
+> dev=dm-1 ino=527257 scontext=system_u:system_r:puppet_t:s0
+> tcontext=system_u:object_r:puppet_var_lib_t:s0:c0.c1023 tclass=file
+> 
+> I added "typeattribute puppet_t can_change_object_identity" and
+> appropriate "allow" statements to the puppet_t type after reading the
+> constraints in the targeted policy. However, it was the category
+> “s0:c0.c1023” that was also preventing puppet from relabeling the
+> crl.pem file.
+> 
+> I was able to fix this by manually relabeling the file to "s0" instead
+> of "s0:c0.c1023". My question is, how *should* I handle this so puppet
+> can handle the relabel of the category?
 
-Hallo,
-
-Could someone please lend a hand with this issue?
-
-https://www.redhat.com/archives/freeipa-users/2015-March/msg00345.html
-
-When I run ipa-server-install from Saltstack it is breaking. I imagine
-this is because the script is being run in an unexpected domain
-(init_t rather than unconfined_t).
-
-Thanks,
-
-Andrew
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBAgAGBQJVAx1ZAAoJEMFRZbkg22K+A2QP/3qXIw6EKuklLhDPGh81TWjA
-DuLF3nvvEq/50XFFPNNceUFCs4vST8EUYTX0S968wy6v7R1oAb398wQOQrWUR2LR
-mSxYQEv7Pk1aqxAraBUDk/qxgYn/Mztsz4xh/F+Wsh+EWMN+CN/hueuU9CAAD9VA
-ZJax9FO+9GjwHj688ZidHQPJyBh4QTTU0mIB3dGmBhFZ1rdOraIGgbMD5P9j6ltV
-uX/3p8hr61irBcvWb9caVLS/kBlcFWHHLSQhMYM4wibNxYPgKB9fWYsLexPTPVRm
-DizR098vXahtmVHbCV0Cyaixq9uifSZc5UZfXiphjeooIme9jTEV8R75f2NzSHRv
-ulOJBzok2lCovtnE492BP/7SFdEH3Yttgg71mXG0cW7ozJLwcuKnEm1loWJ/4KXx
-7u3wf7yeeOjakaE51wVrz/a47vtWdlNDbkHe1WFvb3MSmJby13xRc6km+Cd0Nw10
-l1d97/renCRiDjXqNa0xwCiRp76WrxCJ0FLIkm9MD7c0/pKj1YZ0mpRCM9eobutH
-FZOXkiprOCvq6N4L24nYccGQC1pdQM91GIU3bM/bpAIP/v6P/bBaNBo8BGS0faTj
-l1KPeCdU+novZojpCEnQPkq7WIUivKDt/Ni5ORXiF2G10iNzpOMd51AuavkzvtIi
-TMIrEYiVHhMjCeruuGpQ
-=2xyi
------END PGP SIGNATURE-----
+It requires an appropriate attribute for the mcs or mls constraint that
+is blocking access.  Which attribute depends on your policy; MCS in
+particular has changed a lot over time in Fedora and RHEL.  What distro
+& version?
