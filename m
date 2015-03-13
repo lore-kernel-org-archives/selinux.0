@@ -1,104 +1,95 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2DKnWOP012438
- for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2015 16:49:32 -0400
-Message-ID: <55034D57.7040608@redhat.com>
-Date: Fri, 13 Mar 2015 16:49:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="=_Boundary-8852-1426279767-0001-2"
-To: Andrew Holway <andrew.holway@native-instruments.de>, selinux@tycho.nsa.gov
-Subject: Re: Saltstack and ipa-install on Centos7 failing
-References: <55031D59.2040909@native-instruments.de>
-In-Reply-To: <55031D59.2040909@native-instruments.de>
+From: "Higgs, Stephen" <Stephen.Higgs@icfi.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+Subject: RE: selinux category relabel (puppet)
+Date: Fri, 13 Mar 2015 21:17:36 +0000
+Message-ID: <6d80ec39a885492792f446972fb5facc@VNUCITEX02.ICFI.icfconsulting.com>
+References: <2409d98630af4bc39108524e04557017@VNUCITEX02.ICFI.icfconsulting.com>
+ <55032105.1030903@tycho.nsa.gov>
+ <103dc46dd5b34fa5a752edce40d20e01@VNUCITEX02.ICFI.icfconsulting.com>
+ <550326BD.10207@tycho.nsa.gov>
+In-Reply-To: <550326BD.10207@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+> >>> Hello all,
+> >>>
+> >>>
+> >>>
+> >>> If there is a more appropriate forum for this question please let me know:
+> >>>
+> >>>
+> >>>
+> >>> I have a system that uses confined users by default and some files
+> >>> are managed by a puppet server.  When I run (via run_init) the
+> >>> puppet startup script, I get the following avc log:
+> >>>
+> >>>
+> >>>
+> >>> avc: denied { relabelto } for pid=30707 comm="puppet" name="crl.pem"
+> >>> dev=dm-1 ino=527257 scontext=system_u:system_r:puppet_t:s0
+> >>> tcontext=system_u:object_r:puppet_var_lib_t:s0:c0.c1023 tclass=file
+> >>>
+> >>> I added "typeattribute puppet_t can_change_object_identity" and
+> >>> appropriate "allow" statements to the puppet_t type after reading
+> >>> the constraints in the targeted policy. However, it was the category
+> >>> "s0:c0.c1023" that was also preventing puppet from relabeling the
+> >>> crl.pem file.
+> >>>
+> >>> I was able to fix this by manually relabeling the file to "s0"
+> >>> instead of "s0:c0.c1023". My question is, how *should* I handle this
+> >>> so puppet can handle the relabel of the category?
+> >>
+> >> It requires an appropriate attribute for the mcs or mls constraint
+> >> that is blocking access.  Which attribute depends on your policy; MCS
+> >> in particular has changed a lot over time in Fedora and RHEL.  What distro &
+> version?
+> >>
+> >
+> > I'm using CentOS / RedHat 6.6, targeted reference policy 24.
+> 
+> Hmmm...looking at selinux-policy-3.7.19-260.el6.src.rpm,
+> serefpolicy-3.719/policy/mcs has this:
+> 
+> # New filesystem object labels must be dominated by the relabeling subject #
+> clearance, also the objects are single-level.
+> mlsconstrain file { create relabelto }
+>         (( h1 dom h2 ) and ( l2 eq h2 ));
+> 
+> So no attributes are exempted from that constraint; your only option is to run
+> puppet ranged (i.e. as system_u:system_r:puppet_t:s0-s0:c0.c1023)
+> so that its high level dominates any potential file level.
+> 
+> You should be able to do that with a range_transition rule, e.g.
+> range_transition initrc_t puppet_exec_t:process s0 - s0:c0.c0123; (assuming
+> that the puppet entrypoint is labeled with puppet_exec_t).
 
---=_Boundary-8852-1426279767-0001-2
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Thanks Stephen, this makes sense to me, but I can't get that statement to compile in my policy module:
 
-What label is on the script?  unconfined_t is a user type init_t is an
-executable being run from init.
-On 03/13/2015 01:24 PM, Andrew Holway wrote:
-> Hallo,
->
-> Could someone please lend a hand with this issue?
->
-> https://www.redhat.com/archives/freeipa-users/2015-March/msg00345.html
->
-> When I run ipa-server-install from Saltstack it is breaking. I imagine
-> this is because the script is being run in an unexpected domain
-> (init_t rather than unconfined_t).
->
-> Thanks,
->
-> Andrew
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-Selinux-request@tycho.nsa.gov.
->
->
+   Compiling targeted puppet module
+   /usr/bin/checkmodule:  loading policy configuration from tmp/puppet.tmp
+   puppet.te":14:ERROR 'unknown level s0-s0 used in range_transition definition' at token ';' on line 1041:
+   range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
+   #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);
+   /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+   make: *** [tmp/puppet.mod] Error 1
 
+I did try checkmodule as well, and I tried using the init_ranged_daemon_domain macro.  Here is the policy module that I am trying to compile:
 
+   module puppet 1.2;
+   require {
+           type puppet_t;
+           type puppet_exec_t;
+           type initrc_t;
+           attribute can_change_object_identity;
+           class process { transition }; 
+   }
+   typeattribute puppet_t can_change_object_identity;
+   #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023); 
+   range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
 
---=_Boundary-8852-1426279767-0001-2
-Content-Type: text/html; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-X-Mime-Autoconverted: from 8bit to quoted-printable by mime827
-
-<html>
-  <head>
-    <meta content=3D"text/html; charset=3Dwindows-1252"
-      http-equiv=3D"Content-Type">
-  </head>
-  <body bgcolor=3D"#FFFFFF" text=3D"#000000">
-    What label is on the script?=A0 unconfined_t is a user type init_t i=
-s
-    an executable being run from init.<br>
-    On 03/13/2015 01:24 PM, Andrew Holway wrote:<br>
-    <blockquote type=3D"cite">Hallo,<br>
-      <br>
-      Could someone please lend a hand with this issue?<br>
-      <br>
-<a class=3D"moz-txt-link-freetext" href=3D"https://www.redhat.com/archiv=
-es/freeipa-users/2015-March/msg00345.html">https://www.redhat.com/archiv=
-es/freeipa-users/2015-March/msg00345.html</a><br>
-      <br>
-      When I run ipa-server-install from Saltstack it is breaking. I
-      imagine<br>
-      this is because the script is being run in an unexpected domain<br=
->
-      (init_t rather than unconfined_t).<br>
-      <br>
-      Thanks,<br>
-      <br>
-      Andrew<br>
-    </blockquote>
-    <span style=3D"white-space: pre;">&gt;
-      _______________________________________________<br>
-      &gt; Selinux mailing list<br>
-      &gt; <a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@=
-tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-      &gt; To unsubscribe, send email to <a class=3D"moz-txt-link-abbrev=
-iated" href=3D"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.n=
-sa.gov</a>.<br>
-      &gt; To get help, send an email containing "help" to
-      <a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux-reque=
-st@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>
-      &gt;<br>
-      &gt;</span><br>
-    <br>
-    <br>
-  </body>
-</html>
-
---=_Boundary-8852-1426279767-0001-2--
+I feel like I'm close, but perhaps I'm missing how to import  the level definitions?
