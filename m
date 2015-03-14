@@ -1,133 +1,140 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2DLVlbj015529
- for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2015 17:31:47 -0400
-Received: by wghl18 with SMTP id l18so25879945wgh.5
- for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2015 14:31:45 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2E7MwSa015025
+ for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2015 03:22:58 -0400
+Received: by wibg7 with SMTP id g7so2764608wib.1
+ for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2015 00:22:55 -0700 (PDT)
 Received: from linksys-wireless-usb.network2 (84-245-31-108.dsl.cambrium.nl.
  [84.245.31.108])
- by mx.google.com with ESMTPSA id r14sm4410397wiv.13.2015.03.13.14.31.44
+ by mx.google.com with ESMTPSA id j7sm5860153wix.4.2015.03.14.00.22.55
  for <selinux@tycho.nsa.gov>
  (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 13 Mar 2015 14:31:44 -0700 (PDT)
-Date: Fri, 13 Mar 2015 22:31:38 +0100
+ Sat, 14 Mar 2015 00:22:55 -0700 (PDT)
+Date: Sat, 14 Mar 2015 08:22:54 +0100
 From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: selinux category relabel (puppet)
-Message-ID: <20150313213137.GE9437@linksys-wireless-usb.network2>
-References: <2409d98630af4bc39108524e04557017@VNUCITEX02.ICFI.icfconsulting.com>
- <55032105.1030903@tycho.nsa.gov>
- <103dc46dd5b34fa5a752edce40d20e01@VNUCITEX02.ICFI.icfconsulting.com>
- <550326BD.10207@tycho.nsa.gov>
- <6d80ec39a885492792f446972fb5facc@VNUCITEX02.ICFI.icfconsulting.com>
+Subject: Re: Strange behavior: type boundaries
+Message-ID: <20150314072253.GA26393@linksys-wireless-usb.network2>
+References: <20150313181459.GB9437@linksys-wireless-usb.network2>
+ <55032BCD.7090103@tycho.nsa.gov>
+ <20150313184330.GC9437@linksys-wireless-usb.network2>
+ <55033162.8040508@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-In-Reply-To: <6d80ec39a885492792f446972fb5facc@VNUCITEX02.ICFI.icfconsulting.com>
+ protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+In-Reply-To: <55033162.8040508@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
---H+4ONPRPur6+Ovig
+--y0ulUmNC+osPPQO6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 13, 2015 at 09:17:36PM +0000, Higgs, Stephen wrote:
-> > >>> Hello all,
-> > >>>
-> > >>>
-> > >>>
-> > >>> If there is a more appropriate forum for this question please let m=
-e know:
-> > >>>
-> > >>>
-> > >>>
-> > >>> I have a system that uses confined users by default and some files
-> > >>> are managed by a puppet server.  When I run (via run_init) the
-> > >>> puppet startup script, I get the following avc log:
-> > >>>
-> > >>>
-> > >>>
-> > >>> avc: denied { relabelto } for pid=3D30707 comm=3D"puppet" name=3D"c=
-rl.pem"
-> > >>> dev=3Ddm-1 ino=3D527257 scontext=3Dsystem_u:system_r:puppet_t:s0
-> > >>> tcontext=3Dsystem_u:object_r:puppet_var_lib_t:s0:c0.c1023 tclass=3D=
-file
-> > >>>
-> > >>> I added "typeattribute puppet_t can_change_object_identity" and
-> > >>> appropriate "allow" statements to the puppet_t type after reading
-> > >>> the constraints in the targeted policy. However, it was the category
-> > >>> "s0:c0.c1023" that was also preventing puppet from relabeling the
-> > >>> crl.pem file.
-> > >>>
-> > >>> I was able to fix this by manually relabeling the file to "s0"
-> > >>> instead of "s0:c0.c1023". My question is, how *should* I handle this
-> > >>> so puppet can handle the relabel of the category?
-> > >>
-> > >> It requires an appropriate attribute for the mcs or mls constraint
-> > >> that is blocking access.  Which attribute depends on your policy; MCS
-> > >> in particular has changed a lot over time in Fedora and RHEL.  What =
-distro &
-> > version?
-> > >>
-> > >
-> > > I'm using CentOS / RedHat 6.6, targeted reference policy 24.
+On Fri, Mar 13, 2015 at 02:50:10PM -0400, Stephen Smalley wrote:
+> On 03/13/2015 02:43 PM, Dominick Grift wrote:
+> > On Fri, Mar 13, 2015 at 02:26:21PM -0400, Stephen Smalley wrote:
+> >> On 03/13/2015 02:15 PM, Dominick Grift wrote:
+> >>> I was playing with systemd-nspawn/machine, and machinectl allows one =
+to pull in images. I am trying to confine it and i hit issues:
+> >>>
+> >>> systemd runs systemd-importd, and systemd-importd runs systemd-pull
+> >>>
+> >>> It seems as if though its some multithreading going on because i get:
+> >>>
+> >>> type=3DSELINUX_ERR msg=3Daudit(1426268982.258:2559): op=3Dsecurity_bo=
+unded_transition seresult=3Ddenied oldcontext=3Dsystem_u:system_r:systemd_t=
+ newcontext=3Dsystem_u:system_r:importd_t
+> >>>
+> >>> Even though I am in permissive mode, and a transition rule "allow sys=
+temd_t importd_t:process transition;" is present, SELinux does not transiti=
+on.
+> >>>
+> >>> When i add a typebounds statement (typebounds systemd_t importd_t), t=
+hen the scenario changes:
+> >>>
+> >>> type=3DSELINUX_ERR msg=3Daudit(1426268121.044:2414): op=3Dsecurity_co=
+mpute_av reason=3Dbounds scontext=3Dsystem_u:system_r:systemd_t tcontext=3D=
+system_u:system_r:importd_t tclass=3Dprocess perms=3Dtransition
+> >>> ----
+> >>> type=3DAVC msg=3Daudit(1426268121.044:2415): avc:  denied  { transiti=
+on } for  pid=3D9210 comm=3D"(-importd)" path=3D"/usr/lib/systemd/systemd-i=
+mportd" dev=3D"dm-1" ino=3D2232532 scontext=3Dsystem_u:system_r:systemd_t t=
+context=3Dsystem_u:system_r:importd_t tclass=3Dprocess permissive=3D1
+> >>> ----
+> >>> type=3DSELINUX_ERR msg=3Daudit(1426268121.044:2416): op=3Dsecurity_co=
+mpute_av reason=3Dbounds scontext=3Dsystem_u:system_r:importd_t tcontext=3D=
+system_u:object_r:importd_exec_t tclass=3Dfile perms=3Dentrypoint
+> >>> ----
+> >>> type=3DAVC msg=3Daudit(1426268121.044:2417): avc:  denied  { entrypoi=
+nt } for  pid=3D9210 comm=3D"(-importd)" path=3D"/usr/lib/systemd/systemd-i=
+mportd" dev=3D"dm-1" ino=3D2232532 scontext=3Dsystem_u:system_r:importd_t t=
+context=3Dsystem_u:object_r:importd_exec_t tclass=3Dfile permissive=3D1
+> >>> ----
+> >>> type=3DSELINUX_ERR msg=3Daudit(1426268121.046:2418): op=3Dsecurity_co=
+mpute_av reason=3Dbounds scontext=3Dsystem_u:system_r:importd_t tcontext=3D=
+system_u:system_r:systemd_t tclass=3Dfd perms=3Duse
+> >>> ----
+> >>> type=3DAVC msg=3Daudit(1426268121.046:2419): avc:  denied  { use } fo=
+r  pid=3D9210 comm=3D"systemd-importd" path=3D"/dev/null" dev=3D"devtmpfs" =
+ino=3D1028 scontext=3Dsystem_u:system_r:importd_t tcontext=3Dsystem_u:syste=
+m_r:systemd_t tclass=3Dfd permissive=3D1
+> >>>
+> >>> These rules are present in the policy (the transition is obviously ta=
+king place in permissive mode) and so is the typebounds rule, but access lo=
+oks still denied.
+> >>>
+> >>> I do not understand what is going on here.
+> >>>
+> >>> First of all importd_t is bounded to systemd. So why does it appear t=
+o be a problem that systemd operates on importd_t entities?
+> >>>
+> >>> Also why does selinux refuse to type transition without a typebounds,=
+ and why does it give me a permission denied with a typebounds=20
 > >=20
-> > Hmmm...looking at selinux-policy-3.7.19-260.el6.src.rpm,
-> > serefpolicy-3.719/policy/mcs has this:
+> >> NO_NEW_PRIVS?  See http://marc.info/?l=3Dselinux&m=3D140717412324539&w=
+=3D2
+> >> Previously domain transitions on exec were always disabled under
+> >> NO_NEW_PRIVS and nosuid mounts.  This was introduced as a way of
+> >> supporting e.g. the SELinux sandbox or other cases where NNP is being
+> >> used and they want to transition domains on exec.  Typebounds makes th=
+is
+> >> safe, but typebounds requires you to cap the child type's permissions =
+to
+> >> a subset of the parent type's permissions.  This is normally checked by
+> >> checkpolicy or libsemanage at policy build/link time but I'm sure Red
+> >> Hat has disabled it along with neverallow checking, so you probably
+> >> don't see it until the kernel recognizes the discrepancy and dynamical=
+ly
+> >> blocks the access that would violate the bound.
 > >=20
-> > # New filesystem object labels must be dominated by the relabeling subj=
-ect #
-> > clearance, also the objects are single-level.
-> > mlsconstrain file { create relabelto }
-> >         (( h1 dom h2 ) and ( l2 eq h2 ));
+> > Yes that is what i mentioned on #selinux. However i am not using checkp=
+olicy or libsemanage. I am using secilc (and i have it check for neverallow=
+ rule violations). I would have expected it to catch it on compile time.
 > >=20
-> > So no attributes are exempted from that constraint; your only option is=
- to run
-> > puppet ranged (i.e. as system_u:system_r:puppet_t:s0-s0:c0.c1023)
-> > so that its high level dominates any potential file level.
+> > However there is still something strange in that importd_t is bounded t=
+o systemd_t: thus why would: "systemd_t importd_t:process transition;" be d=
+enied?
 > >=20
-> > You should be able to do that with a range_transition rule, e.g.
-> > range_transition initrc_t puppet_exec_t:process s0 - s0:c0.c0123; (assu=
-ming
-> > that the puppet entrypoint is labeled with puppet_exec_t).
+> > systemd_t is the parent and not the bounded child.
+> >=20
+> > A rule "allow systemd_t importd_t:process transition;" is present in th=
+e output of "sesearch -A -s systemd_t -t
+> importd_t". Yet it still prints a denial.
 >=20
-> Thanks Stephen, this makes sense to me, but I can't get that statement to=
- compile in my policy module:
->=20
->    Compiling targeted puppet module
->    /usr/bin/checkmodule:  loading policy configuration from tmp/puppet.tmp
->    puppet.te":14:ERROR 'unknown level s0-s0 used in range_transition defi=
-nition' at token ';' on line 1041:
->    range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
->    #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);
->    /usr/bin/checkmodule:  error(s) encountered while parsing configuration
->    make: *** [tmp/puppet.mod] Error 1
->=20
-> I did try checkmodule as well, and I tried using the init_ranged_daemon_d=
-omain macro.  Here is the policy module that I am trying to compile:
->=20
->    module puppet 1.2;
->    require {
->            type puppet_t;
->            type puppet_exec_t;
->            type initrc_t;
->            attribute can_change_object_identity;
->            class process { transition };=20
->    }
->    typeattribute puppet_t can_change_object_identity;
->    #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);=20
->    range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
+> Typebounds restricts its use both as a source and as a target context.
+> Does systemd_t have transition to self?
 
-Not sure but try spaces here (s0 - s0): range_transition initrc_t puppet_ex=
-ec_t:process s0 - s0:c0.c1023;
+Thanks for the hint. That did it.
 
->=20
-> I feel like I'm close, but perhaps I'm missing how to import  the level d=
-efinitions?
->=20
+It feels wrong/unnatural though because now i have to give the parent more =
+permissions to be able to run the child with less permissions than its pare=
+nt.
+
+But ce'st la vie i suppose. At least i know what the problem was now.
+
 >=20
 > _______________________________________________
 > Selinux mailing list
@@ -142,22 +149,22 @@ efinitions?
 http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
 Dominick Grift
 
---H+4ONPRPur6+Ovig
+--y0ulUmNC+osPPQO6
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJVA1c1AAoJENAR6kfG5xmcEbAMALntR3fjG+Lh8j2ms2nh+gEK
-TtXfPqssseCB3gTj6B2M8rAsdUqBOb34XWeRjlJDWShCzzx0rnvFk4uFayutvN6l
-9w78nRL3u+dtSb3ktn/Itn5Bzp4FW4iJpmYedVBn+qe5zBqzBxzK7zsdCxEyyj6A
-PAT/p1d6tNfBaeNf//1+Ory+xlcSpD3uM5iy08j/OmUoWsGlJKHSusRtJWf7ArQ7
-D2EbdZl8fioVvp6ZCq0fqSZTdda+fYiA8HDOz2giF/5cCW6JWnWXnCIltvW2KKXz
-UazcY6gNxEZsv9q3Pnnej4d4cC30345bV1zQdU7s/AzNlunj0TF/Xzg93G05qBky
-y0iZjmCiia0GJsl3dBobEEjeeW8IGInVgLgARiUQnxyDuMMy/zUWt2BRCaL1a0h6
-9GPH9HtLu/bnw51X+QCBWmuamZoPCKIhskh0OtmbudeB4H+V5Mt92gsx+/V/Uxge
-8oDXxiCU/tXSygfnTPFZqFdawkJOo8cOCIgZCoXTzA==
-=ts/6
+iQGcBAEBCgAGBQJVA+HIAAoJENAR6kfG5xmc0PcL/i84tH1pTbrdgRFixA5fBFhv
+jT/F7la0SlMpj4hovwwvlvOBDX4LvfL0HaCNMWI3P1gPPCGYZgb0Ne3GfoVXQ1UZ
+uFdJNGZIl18SUrbzhafdBeokstVWWrN8SitSBpIE4U5SyMlW/5wC0dbeF4/QfClz
+H+DFxai8RoEfPr0TPFi6+YwerfW9tWS5CNRnwtpO/NjczeIPqmpX1GXyrLwGO43Q
+kwqhsl1Mo3tpCMq4P0clRYqLkaE5fCKCIGxF4CNBQSBGh7Ll8k6U3gO5loiBVm+P
+DTtxKtUMaSKsTqh2u7G4DN4eZ7yJcPCpl5s/gH2yoSrp0WIVFU4V7IoS0THSAiSf
+2kCzeZjTkniQ1GgWOocQNq/L/WYOgmkRI8P6rAC65eCLmNaSZJJ2JeQG59OR6jSI
+wxwJTQ8iUNVbynb6Cga1hfBp66ejgHXncrbjfooeTNdSqSUUyXs3q1AxXf57qzpq
+EYDRyOi2pZKio5D2e+yWZQQ3m+R3be8BxmVi5w0Amg==
+=9ysV
 -----END PGP SIGNATURE-----
 
---H+4ONPRPur6+Ovig--
+--y0ulUmNC+osPPQO6--
