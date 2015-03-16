@@ -1,110 +1,103 @@
-Message-ID: <5506D1BA.6050504@tresys.com>
-Date: Mon, 16 Mar 2015 08:51:06 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <5506D2C7.7040400@tycho.nsa.gov>
+Date: Mon, 16 Mar 2015 08:55:35 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>, "jwcart2 >>
- James Carter" <jwcart2@tycho.nsa.gov>
-Subject: Re: Strange behavior: type boundaries
-References: <20150313181459.GB9437@linksys-wireless-usb.network2>
- <55032BCD.7090103@tycho.nsa.gov>
- <20150313184330.GC9437@linksys-wireless-usb.network2>
- <55033162.8040508@tycho.nsa.gov>
- <20150314072253.GA26393@linksys-wireless-usb.network2>
- <5506CFD9.2030606@tycho.nsa.gov>
-In-Reply-To: <5506CFD9.2030606@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+To: "Higgs, Stephen" <Stephen.Higgs@icfi.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: selinux category relabel (puppet)
+References: <2409d98630af4bc39108524e04557017@VNUCITEX02.ICFI.icfconsulting.com>
+ <55032105.1030903@tycho.nsa.gov>
+ <103dc46dd5b34fa5a752edce40d20e01@VNUCITEX02.ICFI.icfconsulting.com>
+ <550326BD.10207@tycho.nsa.gov>
+ <6d80ec39a885492792f446972fb5facc@VNUCITEX02.ICFI.icfconsulting.com>
+In-Reply-To: <6d80ec39a885492792f446972fb5facc@VNUCITEX02.ICFI.icfconsulting.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/16/2015 08:43 AM, Stephen Smalley wrote:
-> On 03/14/2015 03:22 AM, Dominick Grift wrote:
->> On Fri, Mar 13, 2015 at 02:50:10PM -0400, Stephen Smalley wrote:
->>> On 03/13/2015 02:43 PM, Dominick Grift wrote:
->>>> On Fri, Mar 13, 2015 at 02:26:21PM -0400, Stephen Smalley wrote:
->>>>> On 03/13/2015 02:15 PM, Dominick Grift wrote:
->>>>>> I was playing with systemd-nspawn/machine, and machinectl allows one to pull in images. I am trying to confine it and i hit issues:
->>>>>>
->>>>>> systemd runs systemd-importd, and systemd-importd runs systemd-pull
->>>>>>
->>>>>> It seems as if though its some multithreading going on because i get:
->>>>>>
->>>>>> type=SELINUX_ERR msg=audit(1426268982.258:2559): op=security_bounded_transition seresult=denied oldcontext=system_u:system_r:systemd_t newcontext=system_u:system_r:importd_t
->>>>>>
->>>>>> Even though I am in permissive mode, and a transition rule "allow systemd_t importd_t:process transition;" is present, SELinux does not transition.
->>>>>>
->>>>>> When i add a typebounds statement (typebounds systemd_t importd_t), then the scenario changes:
->>>>>>
->>>>>> type=SELINUX_ERR msg=audit(1426268121.044:2414): op=security_compute_av reason=bounds scontext=system_u:system_r:systemd_t tcontext=system_u:system_r:importd_t tclass=process perms=transition
->>>>>> ----
->>>>>> type=AVC msg=audit(1426268121.044:2415): avc:  denied  { transition } for  pid=9210 comm="(-importd)" path="/usr/lib/systemd/systemd-importd" dev="dm-1" ino=2232532 scontext=system_u:system_r:systemd_t tcontext=system_u:system_r:importd_t tclass=process permissive=1
->>>>>> ----
->>>>>> type=SELINUX_ERR msg=audit(1426268121.044:2416): op=security_compute_av reason=bounds scontext=system_u:system_r:importd_t tcontext=system_u:object_r:importd_exec_t tclass=file perms=entrypoint
->>>>>> ----
->>>>>> type=AVC msg=audit(1426268121.044:2417): avc:  denied  { entrypoint } for  pid=9210 comm="(-importd)" path="/usr/lib/systemd/systemd-importd" dev="dm-1" ino=2232532 scontext=system_u:system_r:importd_t tcontext=system_u:object_r:importd_exec_t tclass=file permissive=1
->>>>>> ----
->>>>>> type=SELINUX_ERR msg=audit(1426268121.046:2418): op=security_compute_av reason=bounds scontext=system_u:system_r:importd_t tcontext=system_u:system_r:systemd_t tclass=fd perms=use
->>>>>> ----
->>>>>> type=AVC msg=audit(1426268121.046:2419): avc:  denied  { use } for  pid=9210 comm="systemd-importd" path="/dev/null" dev="devtmpfs" ino=1028 scontext=system_u:system_r:importd_t tcontext=system_u:system_r:systemd_t tclass=fd permissive=1
->>>>>>
->>>>>> These rules are present in the policy (the transition is obviously taking place in permissive mode) and so is the typebounds rule, but access looks still denied.
->>>>>>
->>>>>> I do not understand what is going on here.
->>>>>>
->>>>>> First of all importd_t is bounded to systemd. So why does it appear to be a problem that systemd operates on importd_t entities?
->>>>>>
->>>>>> Also why does selinux refuse to type transition without a typebounds, and why does it give me a permission denied with a typebounds 
+On 03/13/2015 05:17 PM, Higgs, Stephen wrote:
+>>>>> Hello all,
+>>>>>
+>>>>>
+>>>>>
+>>>>> If there is a more appropriate forum for this question please let me know:
+>>>>>
+>>>>>
+>>>>>
+>>>>> I have a system that uses confined users by default and some files
+>>>>> are managed by a puppet server.  When I run (via run_init) the
+>>>>> puppet startup script, I get the following avc log:
+>>>>>
+>>>>>
+>>>>>
+>>>>> avc: denied { relabelto } for pid=30707 comm="puppet" name="crl.pem"
+>>>>> dev=dm-1 ino=527257 scontext=system_u:system_r:puppet_t:s0
+>>>>> tcontext=system_u:object_r:puppet_var_lib_t:s0:c0.c1023 tclass=file
+>>>>>
+>>>>> I added "typeattribute puppet_t can_change_object_identity" and
+>>>>> appropriate "allow" statements to the puppet_t type after reading
+>>>>> the constraints in the targeted policy. However, it was the category
+>>>>> "s0:c0.c1023" that was also preventing puppet from relabeling the
+>>>>> crl.pem file.
+>>>>>
+>>>>> I was able to fix this by manually relabeling the file to "s0"
+>>>>> instead of "s0:c0.c1023". My question is, how *should* I handle this
+>>>>> so puppet can handle the relabel of the category?
 >>>>
->>>>> NO_NEW_PRIVS?  See http://marc.info/?l=selinux&m=140717412324539&w=2
->>>>> Previously domain transitions on exec were always disabled under
->>>>> NO_NEW_PRIVS and nosuid mounts.  This was introduced as a way of
->>>>> supporting e.g. the SELinux sandbox or other cases where NNP is being
->>>>> used and they want to transition domains on exec.  Typebounds makes this
->>>>> safe, but typebounds requires you to cap the child type's permissions to
->>>>> a subset of the parent type's permissions.  This is normally checked by
->>>>> checkpolicy or libsemanage at policy build/link time but I'm sure Red
->>>>> Hat has disabled it along with neverallow checking, so you probably
->>>>> don't see it until the kernel recognizes the discrepancy and dynamically
->>>>> blocks the access that would violate the bound.
+>>>> It requires an appropriate attribute for the mcs or mls constraint
+>>>> that is blocking access.  Which attribute depends on your policy; MCS
+>>>> in particular has changed a lot over time in Fedora and RHEL.  What distro &
+>> version?
 >>>>
->>>> Yes that is what i mentioned on #selinux. However i am not using checkpolicy or libsemanage. I am using secilc (and i have it check for neverallow rule violations). I would have expected it to catch it on compile time.
->>>>
->>>> However there is still something strange in that importd_t is bounded to systemd_t: thus why would: "systemd_t importd_t:process transition;" be denied?
->>>>
->>>> systemd_t is the parent and not the bounded child.
->>>>
->>>> A rule "allow systemd_t importd_t:process transition;" is present in the output of "sesearch -A -s systemd_t -t
->>> importd_t". Yet it still prints a denial.
 >>>
->>> Typebounds restricts its use both as a source and as a target context.
->>> Does systemd_t have transition to self?
+>>> I'm using CentOS / RedHat 6.6, targeted reference policy 24.
 >>
->> Thanks for the hint. That did it.
+>> Hmmm...looking at selinux-policy-3.7.19-260.el6.src.rpm,
+>> serefpolicy-3.719/policy/mcs has this:
 >>
->> It feels wrong/unnatural though because now i have to give the parent more permissions to be able to run the child with less permissions than its parent.
+>> # New filesystem object labels must be dominated by the relabeling subject #
+>> clearance, also the objects are single-level.
+>> mlsconstrain file { create relabelto }
+>>         (( h1 dom h2 ) and ( l2 eq h2 ));
 >>
->> But ce'st la vie i suppose. At least i know what the problem was now.
+>> So no attributes are exempted from that constraint; your only option is to run
+>> puppet ranged (i.e. as system_u:system_r:puppet_t:s0-s0:c0.c1023)
+>> so that its high level dominates any potential file level.
+>>
+>> You should be able to do that with a range_transition rule, e.g.
+>> range_transition initrc_t puppet_exec_t:process s0 - s0:c0.c0123; (assuming
+>> that the puppet entrypoint is labeled with puppet_exec_t).
 > 
-> I agree that the typebounds logic is somewhat less than optimal presently.
+> Thanks Stephen, this makes sense to me, but I can't get that statement to compile in my policy module:
 > 
-> See prior discussions in http://marc.info/?l=selinux&m=125770868309928&w=2
-> which led to:
-> http://marc.info/?l=selinux&m=126396240001706&w=2
-> http://marc.info/?l=selinux&m=126396240301719&w=2
-> later reverted by:
-> http://marc.info/?l=selinux&m=126636445922501&w=2
+>    Compiling targeted puppet module
+>    /usr/bin/checkmodule:  loading policy configuration from tmp/puppet.tmp
+>    puppet.te":14:ERROR 'unknown level s0-s0 used in range_transition definition' at token ';' on line 1041:
+>    range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
+>    #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);
+>    /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+>    make: *** [tmp/puppet.mod] Error 1
 > 
-> If we could come to consensus on what the right logic is, we could look
-> at changing it.
+> I did try checkmodule as well, and I tried using the init_ranged_daemon_domain macro.  Here is the policy module that I am trying to compile:
 > 
-> There is the separate question of why the libsepol
-> hierarchy_check_constraints() check wasn't being performed when you
-> built your policy.  This is a separate function from check_assertions(),
-> used for neverallow checking, but normally they are both called or
-> neither called by expand_module() based on the check argument.
+>    module puppet 1.2;
+>    require {
+>            type puppet_t;
+>            type puppet_exec_t;
+>            type initrc_t;
+>            attribute can_change_object_identity;
+>            class process { transition }; 
+>    }
+>    typeattribute puppet_t can_change_object_identity;
+>    #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023); 
+>    range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
 > 
+> I feel like I'm close, but perhaps I'm missing how to import  the level definitions?
 
-I suspect Dominick is using secilc to build this, which doesn't use
-expand_module for generating binaries. Looks like we are missing this
-check in CIL.
+As Dominick suggested, whitespace unfortunately matters for the MLS
+range specification - you need whitespace around the - (dash).
+checkpolicy scanner issue introduced when IDENTIFIER was expanded to
+include dash characters to support usage in filesystem type names and
+user names IIRC.  Should probably refactor that.
