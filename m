@@ -1,346 +1,103 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2GChYd6010871
- for <selinux@tycho.nsa.gov>; Mon, 16 Mar 2015 08:43:35 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t2GChUX4026692
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Mon, 16 Mar 2015 08:43:30 -0400
-Received: from dhcp-2-191.brq.redhat.com (dhcp-2-145.brq.redhat.com
- [10.34.2.145])
- by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- t2GChT2F027940
- for <selinux@tycho.nsa.gov>; Mon, 16 Mar 2015 08:43:30 -0400
-Message-ID: <5506CFF0.1040003@redhat.com>
-Date: Mon, 16 Mar 2015 13:43:28 +0100
-From: Miroslav Grepl <mgrepl@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="=_Boundary-2884-1426509815-0001-2"
-To: selinux@tycho.nsa.gov
-Subject: Re: selinux category relabel (puppet)
-References: <2409d98630af4bc39108524e04557017@VNUCITEX02.ICFI.icfconsulting.com>
- <55032105.1030903@tycho.nsa.gov>
- <103dc46dd5b34fa5a752edce40d20e01@VNUCITEX02.ICFI.icfconsulting.com>
- <550326BD.10207@tycho.nsa.gov>
- <6d80ec39a885492792f446972fb5facc@VNUCITEX02.ICFI.icfconsulting.com>
- <20150313213137.GE9437@linksys-wireless-usb.network2>
-In-Reply-To: <20150313213137.GE9437@linksys-wireless-usb.network2>
+Message-ID: <5506CFD9.2030606@tycho.nsa.gov>
+Date: Mon, 16 Mar 2015 08:43:05 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov, Steve Lawrence <slawrence@tresys.com>,
+ "jwcart2 >> James Carter" <jwcart2@tycho.nsa.gov>
+Subject: Re: Strange behavior: type boundaries
+References: <20150313181459.GB9437@linksys-wireless-usb.network2>
+ <55032BCD.7090103@tycho.nsa.gov>
+ <20150313184330.GC9437@linksys-wireless-usb.network2>
+ <55033162.8040508@tycho.nsa.gov>
+ <20150314072253.GA26393@linksys-wireless-usb.network2>
+In-Reply-To: <20150314072253.GA26393@linksys-wireless-usb.network2>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
-
---=_Boundary-2884-1426509815-0001-2
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-
-On 03/13/2015 10:31 PM, Dominick Grift wrote:
-> On Fri, Mar 13, 2015 at 09:17:36PM +0000, Higgs, Stephen wrote:
->>>>>> Hello all,
->>>>>>
->>>>>>
->>>>>>
->>>>>> If there is a more appropriate forum for this question please let me know:
->>>>>>
->>>>>>
->>>>>>
->>>>>> I have a system that uses confined users by default and some files
->>>>>> are managed by a puppet server.  When I run (via run_init) the
->>>>>> puppet startup script, I get the following avc log:
->>>>>>
->>>>>>
->>>>>>
->>>>>> avc: denied { relabelto } for pid=30707 comm="puppet" name="crl.pem"
->>>>>> dev=dm-1 ino=527257 scontext=system_u:system_r:puppet_t:s0
->>>>>> tcontext=system_u:object_r:puppet_var_lib_t:s0:c0.c1023 tclass=file
->>>>>>
->>>>>> I added "typeattribute puppet_t can_change_object_identity" and
->>>>>> appropriate "allow" statements to the puppet_t type after reading
->>>>>> the constraints in the targeted policy. However, it was the category
->>>>>> "s0:c0.c1023" that was also preventing puppet from relabeling the
->>>>>> crl.pem file.
->>>>>>
->>>>>> I was able to fix this by manually relabeling the file to "s0"
->>>>>> instead of "s0:c0.c1023". My question is, how *should* I handle this
->>>>>> so puppet can handle the relabel of the category?
->>>>> It requires an appropriate attribute for the mcs or mls constraint
->>>>> that is blocking access.  Which attribute depends on your policy; MCS
->>>>> in particular has changed a lot over time in Fedora and RHEL.  What distro &
->>> version?
->>>> I'm using CentOS / RedHat 6.6, targeted reference policy 24.
->>> Hmmm...looking at selinux-policy-3.7.19-260.el6.src.rpm,
->>> serefpolicy-3.719/policy/mcs has this:
+On 03/14/2015 03:22 AM, Dominick Grift wrote:
+> On Fri, Mar 13, 2015 at 02:50:10PM -0400, Stephen Smalley wrote:
+>> On 03/13/2015 02:43 PM, Dominick Grift wrote:
+>>> On Fri, Mar 13, 2015 at 02:26:21PM -0400, Stephen Smalley wrote:
+>>>> On 03/13/2015 02:15 PM, Dominick Grift wrote:
+>>>>> I was playing with systemd-nspawn/machine, and machinectl allows one to pull in images. I am trying to confine it and i hit issues:
+>>>>>
+>>>>> systemd runs systemd-importd, and systemd-importd runs systemd-pull
+>>>>>
+>>>>> It seems as if though its some multithreading going on because i get:
+>>>>>
+>>>>> type=SELINUX_ERR msg=audit(1426268982.258:2559): op=security_bounded_transition seresult=denied oldcontext=system_u:system_r:systemd_t newcontext=system_u:system_r:importd_t
+>>>>>
+>>>>> Even though I am in permissive mode, and a transition rule "allow systemd_t importd_t:process transition;" is present, SELinux does not transition.
+>>>>>
+>>>>> When i add a typebounds statement (typebounds systemd_t importd_t), then the scenario changes:
+>>>>>
+>>>>> type=SELINUX_ERR msg=audit(1426268121.044:2414): op=security_compute_av reason=bounds scontext=system_u:system_r:systemd_t tcontext=system_u:system_r:importd_t tclass=process perms=transition
+>>>>> ----
+>>>>> type=AVC msg=audit(1426268121.044:2415): avc:  denied  { transition } for  pid=9210 comm="(-importd)" path="/usr/lib/systemd/systemd-importd" dev="dm-1" ino=2232532 scontext=system_u:system_r:systemd_t tcontext=system_u:system_r:importd_t tclass=process permissive=1
+>>>>> ----
+>>>>> type=SELINUX_ERR msg=audit(1426268121.044:2416): op=security_compute_av reason=bounds scontext=system_u:system_r:importd_t tcontext=system_u:object_r:importd_exec_t tclass=file perms=entrypoint
+>>>>> ----
+>>>>> type=AVC msg=audit(1426268121.044:2417): avc:  denied  { entrypoint } for  pid=9210 comm="(-importd)" path="/usr/lib/systemd/systemd-importd" dev="dm-1" ino=2232532 scontext=system_u:system_r:importd_t tcontext=system_u:object_r:importd_exec_t tclass=file permissive=1
+>>>>> ----
+>>>>> type=SELINUX_ERR msg=audit(1426268121.046:2418): op=security_compute_av reason=bounds scontext=system_u:system_r:importd_t tcontext=system_u:system_r:systemd_t tclass=fd perms=use
+>>>>> ----
+>>>>> type=AVC msg=audit(1426268121.046:2419): avc:  denied  { use } for  pid=9210 comm="systemd-importd" path="/dev/null" dev="devtmpfs" ino=1028 scontext=system_u:system_r:importd_t tcontext=system_u:system_r:systemd_t tclass=fd permissive=1
+>>>>>
+>>>>> These rules are present in the policy (the transition is obviously taking place in permissive mode) and so is the typebounds rule, but access looks still denied.
+>>>>>
+>>>>> I do not understand what is going on here.
+>>>>>
+>>>>> First of all importd_t is bounded to systemd. So why does it appear to be a problem that systemd operates on importd_t entities?
+>>>>>
+>>>>> Also why does selinux refuse to type transition without a typebounds, and why does it give me a permission denied with a typebounds 
 >>>
->>> # New filesystem object labels must be dominated by the relabeling subject #
->>> clearance, also the objects are single-level.
->>> mlsconstrain file { create relabelto }
->>>          (( h1 dom h2 ) and ( l2 eq h2 ));
+>>>> NO_NEW_PRIVS?  See http://marc.info/?l=selinux&m=140717412324539&w=2
+>>>> Previously domain transitions on exec were always disabled under
+>>>> NO_NEW_PRIVS and nosuid mounts.  This was introduced as a way of
+>>>> supporting e.g. the SELinux sandbox or other cases where NNP is being
+>>>> used and they want to transition domains on exec.  Typebounds makes this
+>>>> safe, but typebounds requires you to cap the child type's permissions to
+>>>> a subset of the parent type's permissions.  This is normally checked by
+>>>> checkpolicy or libsemanage at policy build/link time but I'm sure Red
+>>>> Hat has disabled it along with neverallow checking, so you probably
+>>>> don't see it until the kernel recognizes the discrepancy and dynamically
+>>>> blocks the access that would violate the bound.
 >>>
->>> So no attributes are exempted from that constraint; your only option is to run
->>> puppet ranged (i.e. as system_u:system_r:puppet_t:s0-s0:c0.c1023)
->>> so that its high level dominates any potential file level.
-Yes, there is no attribute on RHEL6.
+>>> Yes that is what i mentioned on #selinux. However i am not using checkpolicy or libsemanage. I am using secilc (and i have it check for neverallow rule violations). I would have expected it to catch it on compile time.
 >>>
->>> You should be able to do that with a range_transition rule, e.g.
->>> range_transition initrc_t puppet_exec_t:process s0 - s0:c0.c0123; (assuming
->>> that the puppet entrypoint is labeled with puppet_exec_t).
->> Thanks Stephen, this makes sense to me, but I can't get that statement to compile in my policy module:
+>>> However there is still something strange in that importd_t is bounded to systemd_t: thus why would: "systemd_t importd_t:process transition;" be denied?
+>>>
+>>> systemd_t is the parent and not the bounded child.
+>>>
+>>> A rule "allow systemd_t importd_t:process transition;" is present in the output of "sesearch -A -s systemd_t -t
+>> importd_t". Yet it still prints a denial.
 >>
->>     Compiling targeted puppet module
->>     /usr/bin/checkmodule:  loading policy configuration from tmp/puppet.tmp
->>     puppet.te":14:ERROR 'unknown level s0-s0 used in range_transition definition' at token ';' on line 1041:
->>     range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
->>     #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);
->>     /usr/bin/checkmodule:  error(s) encountered while parsing configuration
->>     make: *** [tmp/puppet.mod] Error 1
->>
->> I did try checkmodule as well, and I tried using the init_ranged_daemon_domain macro.  Here is the policy module that I am trying to compile:
->>
->>     module puppet 1.2;
->>     require {
->>             type puppet_t;
->>             type puppet_exec_t;
->>             type initrc_t;
->>             attribute can_change_object_identity;
->>             class process { transition };
->>     }
->>     typeattribute puppet_t can_change_object_identity;
->>     #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);
->>     range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
-> Not sure but try spaces here (s0 - s0): range_transition initrc_t puppet_exec_t:process s0 - s0:c0.c1023;
->
->> I feel like I'm close, but perhaps I'm missing how to import  the level definitions?
-Try this one
+>> Typebounds restricts its use both as a source and as a target context.
+>> Does systemd_t have transition to self?
+> 
+> Thanks for the hint. That did it.
+> 
+> It feels wrong/unnatural though because now i have to give the parent more permissions to be able to run the child with less permissions than its parent.
+> 
+> But ce'st la vie i suppose. At least i know what the problem was now.
 
-policy_module(mypol,1.0)
+I agree that the typebounds logic is somewhat less than optimal presently.
 
-require{
-  type puppet_t;
-  type puppet_exec_t;
-}
+See prior discussions in http://marc.info/?l=selinux&m=125770868309928&w=2
+which led to:
+http://marc.info/?l=selinux&m=126396240001706&w=2
+http://marc.info/?l=selinux&m=126396240301719&w=2
+later reverted by:
+http://marc.info/?l=selinux&m=126636445922501&w=2
 
-ifdef(`enable_mcs',`
-     init_ranged_daemon_domain(puppet_t, puppet_exec_t, s0 - s0:c0.c1023)
-')
+If we could come to consensus on what the right logic is, we could look
+at changing it.
 
->>
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-
-
---=_Boundary-2884-1426509815-0001-2
-Content-Type: text/html; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-X-Mime-Autoconverted: from 8bit to quoted-printable by mime827
-
-<html>
-  <head>
-    <meta content=3D"text/html; charset=3Dwindows-1252"
-      http-equiv=3D"Content-Type">
-  </head>
-  <body bgcolor=3D"#FFFFFF" text=3D"#000000">
-    <div class=3D"moz-cite-prefix">On 03/13/2015 10:31 PM, Dominick Grif=
-t
-      wrote:<br>
-    </div>
-    <blockquote
-      cite=3D"mid:20150313213137.GE9437@linksys-wireless-usb.network2"
-      type=3D"cite">
-      <pre wrap=3D"">On Fri, Mar 13, 2015 at 09:17:36PM +0000, Higgs, St=
-ephen wrote:
-</pre>
-      <blockquote type=3D"cite">
-        <blockquote type=3D"cite">
-          <blockquote type=3D"cite">
-            <blockquote type=3D"cite">
-              <blockquote type=3D"cite">
-                <pre wrap=3D"">Hello all,
-
-
-
-If there is a more appropriate forum for this question please let me kno=
-w:
-
-
-
-I have a system that uses confined users by default and some files
-are managed by a puppet server.  When I run (via run_init) the
-puppet startup script, I get the following avc log:
-
-
-
-avc: denied { relabelto } for pid=3D30707 comm=3D"puppet" name=3D"crl.pe=
-m"
-dev=3Ddm-1 ino=3D527257 scontext=3Dsystem_u:system_r:puppet_t:s0
-tcontext=3Dsystem_u:object_r:puppet_var_lib_t:s0:c0.c1023 tclass=3Dfile
-
-I added "typeattribute puppet_t can_change_object_identity" and
-appropriate "allow" statements to the puppet_t type after reading
-the constraints in the targeted policy. However, it was the category
-"s0:c0.c1023" that was also preventing puppet from relabeling the
-crl.pem file.
-
-I was able to fix this by manually relabeling the file to "s0"
-instead of "s0:c0.c1023". My question is, how *should* I handle this
-so puppet can handle the relabel of the category?
-</pre>
-              </blockquote>
-              <pre wrap=3D"">
-It requires an appropriate attribute for the mcs or mls constraint
-that is blocking access.  Which attribute depends on your policy; MCS
-in particular has changed a lot over time in Fedora and RHEL.  What dist=
-ro &amp;
-</pre>
-            </blockquote>
-          </blockquote>
-          <pre wrap=3D"">version?
-</pre>
-          <blockquote type=3D"cite">
-            <blockquote type=3D"cite">
-              <pre wrap=3D"">
-</pre>
-            </blockquote>
-            <pre wrap=3D"">
-I'm using CentOS / RedHat 6.6, targeted reference policy 24.
-</pre>
-          </blockquote>
-          <pre wrap=3D"">
-Hmmm...looking at selinux-policy-3.7.19-260.el6.src.rpm,
-serefpolicy-3.719/policy/mcs has this:
-
-# New filesystem object labels must be dominated by the relabeling subje=
-ct #
-clearance, also the objects are single-level.
-mlsconstrain file { create relabelto }
-        (( h1 dom h2 ) and ( l2 eq h2 ));
-
-So no attributes are exempted from that constraint; your only option is =
-to run
-puppet ranged (i.e. as system_u:system_r:puppet_t:s0-s0:c0.c1023)
-so that its high level dominates any potential file level.</pre>
-        </blockquote>
-      </blockquote>
-    </blockquote>
-    Yes, there is no attribute on RHEL6. <br>
-    <blockquote
-      cite=3D"mid:20150313213137.GE9437@linksys-wireless-usb.network2"
-      type=3D"cite">
-      <blockquote type=3D"cite">
-        <blockquote type=3D"cite">
-          <pre wrap=3D"">
-
-You should be able to do that with a range_transition rule, e.g.
-range_transition initrc_t puppet_exec_t:process s0 - s0:c0.c0123; (assum=
-ing
-that the puppet entrypoint is labeled with puppet_exec_t).
-</pre>
-        </blockquote>
-        <pre wrap=3D"">
-Thanks Stephen, this makes sense to me, but I can't get that statement t=
-o compile in my policy module:
-
-   Compiling targeted puppet module
-   /usr/bin/checkmodule:  loading policy configuration from tmp/puppet.t=
-mp
-   puppet.te":14:ERROR 'unknown level s0-s0 used in range_transition def=
-inition' at token ';' on line 1041:
-   range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
-   #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023);
-   /usr/bin/checkmodule:  error(s) encountered while parsing configurati=
-on
-   make: *** [tmp/puppet.mod] Error 1
-
-I did try checkmodule as well, and I tried using the init_ranged_daemon_=
-domain macro.  Here is the policy module that I am trying to compile:
-
-   module puppet 1.2;
-   require {
-           type puppet_t;
-           type puppet_exec_t;
-           type initrc_t;
-           attribute can_change_object_identity;
-           class process { transition }; 
-   }
-   typeattribute puppet_t can_change_object_identity;
-   #init_ranged_daemon_domain(puppet_t,puppet_exec_t,s0-s0:c0.c1023); 
-   range_transition initrc_t puppet_exec_t:process s0-s0:c0.c1023;
-</pre>
-      </blockquote>
-      <pre wrap=3D"">
-Not sure but try spaces here (s0 - s0): range_transition initrc_t puppet=
-_exec_t:process s0 - s0:c0.c1023;
-
-</pre>
-      <blockquote type=3D"cite">
-        <pre wrap=3D"">
-I feel like I'm close, but perhaps I'm missing how to import  the level =
-definitions?</pre>
-      </blockquote>
-    </blockquote>
-    Try this one<br>
-    <br>
-    policy_module(mypol,1.0)<br>
-    <br>
-    require{<br>
-    =A0type puppet_t;<br>
-    =A0type puppet_exec_t;<br>
-    }<br>
-    <br>
-    ifdef(`enable_mcs',`<br>
-    =A0=A0=A0 init_ranged_daemon_domain(puppet_t, puppet_exec_t, s0 -
-    s0:c0.c1023)<br>
-    ')<br>
-    =A0=A0=A0 <br>
-    <blockquote
-      cite=3D"mid:20150313213137.GE9437@linksys-wireless-usb.network2"
-      type=3D"cite">
-      <blockquote type=3D"cite">
-        <pre wrap=3D"">
-
-
-_______________________________________________
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.g=
-ov">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=
-=3D"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to <a class=3D"moz-txt-link=
--abbreviated" href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-requ=
-est@tycho.nsa.gov</a>.
-</pre>
-      </blockquote>
-      <pre wrap=3D"">
-</pre>
-      <br>
-      <fieldset class=3D"mimeAttachmentHeader"></fieldset>
-      <br>
-      <pre wrap=3D"">_______________________________________________
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.g=
-ov">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=
-=3D"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to <a class=3D"moz-txt-link=
--abbreviated" href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-requ=
-est@tycho.nsa.gov</a>.</pre>
-    </blockquote>
-    <br>
-  </body>
-</html>
-
---=_Boundary-2884-1426509815-0001-2--
+There is the separate question of why the libsepol
+hierarchy_check_constraints() check wasn't being performed when you
+built your policy.  This is a separate function from check_assertions(),
+used for neverallow checking, but normally they are both called or
+neither called by expand_module() based on the check argument.
