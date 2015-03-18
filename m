@@ -1,10 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2I8wCxI027745
- for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2015 04:58:12 -0400
-Date: Wed, 18 Mar 2015 04:58:03 -0400 (EDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2I95Vt3028473
+ for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2015 05:05:31 -0400
+Date: Wed, 18 Mar 2015 05:05:08 -0400 (EDT)
 From: Milos Malik <mmalik@redhat.com>
 To: kuangjiou <kuangjiou@huawei.com>
-Message-ID: <256691654.32016006.1426669083167.JavaMail.zimbra@redhat.com>
+Message-ID: <568659679.32020739.1426669508944.JavaMail.zimbra@redhat.com>
 In-Reply-To: <60ABE64B4BE4AC45964F1A967BA76CB201569BC3@szxeml522-mbx.china.huawei.com>
 References: <60ABE64B4BE4AC45964F1A967BA76CB201569BC3@szxeml522-mbx.china.huawei.com>
 Subject: Re: Got some problem when using the type_transition, look for some
@@ -19,9 +19,34 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Hi Sylar,
 
-the filename must be surrounded by quotes:
+I forgot to mention that filename transition rules are not supported on RHEL-6.x. Based on the kernel version you provided I guess that you are not running RHEL-7.x, where the filename transition rules are supported.
+
+# uname -srv
+Linux 2.6.32-504.12.2.el6.i686 #1 SMP Sun Feb 1 12:14:25 EST 2015
+# cat mypolicy.te 
+policy_module(mypolicy,1.0)
+
+require {
+  type unconfined_t;
+  type dentry_t;
+  type file_t;
+  class file { create };
+}
 
 type_transition unconfined_t dentry_t:file file_t "myfile";
+
+# make -f /usr/share/selinux/devel/Makefile 
+Compiling targeted mypolicy module
+/usr/bin/checkmodule:  loading policy configuration from tmp/mypolicy.tmp
+mypolicy.te":10:WARNING 'unrecognized character' at token '"' on line 3220:
+type_transition unconfined_t dentry_t:file file_t "myfile";
+
+mypolicy.te":10:ERROR 'syntax error' at token 'myfile' on line 3220:
+type_transition unconfined_t dentry_t:file file_t "myfile";
+
+/usr/bin/checkmodule:  error(s) encountered while parsing configuration
+make: *** [tmp/mypolicy.mod] Error 1
+#
 
 Milos Malik
 SELinux QE person
