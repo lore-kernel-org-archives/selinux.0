@@ -1,416 +1,150 @@
-From: Daniel De Graaf <dgdegra@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] libsepol, checkpolicy: widen Xen IOMEM ocontext entries
-Date: Tue, 17 Mar 2015 16:43:23 -0400
-Message-Id: <1426625004-7152-3-git-send-email-dgdegra@tycho.nsa.gov>
-In-Reply-To: <1426625004-7152-1-git-send-email-dgdegra@tycho.nsa.gov>
-References: <1426625004-7152-1-git-send-email-dgdegra@tycho.nsa.gov>
-Cc: xen-devel@lists.xenproject.org
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2I2UPb7029716
+ for <selinux@tycho.nsa.gov>; Tue, 17 Mar 2015 22:30:25 -0400
+From: kuangjiou <kuangjiou@huawei.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Got some problem when using the type_transition, look for some
+ helps! thank you!
+Date: Wed, 18 Mar 2015 02:22:44 +0000
+Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB201569BC3@szxeml522-mbx.china.huawei.com>
+Content-Type: multipart/alternative;
+ boundary="_000_60ABE64B4BE4AC45964F1A967BA76CB201569BC3szxeml522mbxchi_"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This expands IOMEMCON device context entries to 64 bits.  This change is
-required to support static I/O memory range labeling for systems with
-over 16TB of physical address space.  The policy version number change
-is shared with the next patch.
+--_000_60ABE64B4BE4AC45964F1A967BA76CB201569BC3szxeml522mbxchi_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-While this makes no changes to SELinux policy, a new SELinux policy
-compatibility entry was added in order to avoid breaking compilation of
-an SELinux policy without explicitly specifying the policy version.
+Hello,everyone!
 
-Signed-off-by: Daniel De Graaf <dgdegra@tycho.nsa.gov>
----
- checkpolicy/policy_define.c                | 11 +++++-----
- checkpolicy/policy_define.h                |  2 +-
- checkpolicy/policy_parse.y                 |  9 ++++++--
- libsepol/cil/src/cil_build_ast.c           | 32 ++++++++++++++++++++++++++---
- libsepol/cil/src/cil_build_ast.h           |  1 +
- libsepol/cil/src/cil_internal.h            |  4 ++--
- libsepol/cil/src/cil_policy.c              |  3 ++-
- libsepol/cil/src/cil_tree.c                |  3 ++-
- libsepol/include/sepol/policydb/policydb.h |  7 ++++---
- libsepol/src/policydb.c                    | 33 +++++++++++++++++++++++++-----
- libsepol/src/write.c                       | 32 ++++++++++++++++++++++-------
- policycoreutils/hll/pp/pp.c                |  4 ++--
- 12 files changed, 109 insertions(+), 32 deletions(-)
+I am try to use the new features of the type_transition that can support to=
+ determine the type of the new file by the name of this new file,And when I
+use the type_transisiton in my own policy module like this:
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index a6c5d65..66c1ff2 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -39,6 +39,7 @@
- #include <arpa/inet.h>
- #include <stdlib.h>
- #include <limits.h>
-+#include <inttypes.h>
- 
- #include <sepol/policydb/expand.h>
- #include <sepol/policydb/policydb.h>
-@@ -3932,7 +3933,7 @@ bad:
- 	return -1;
- }
- 
--int define_iomem_context(unsigned long low, unsigned long high)
-+int define_iomem_context(uint64_t low, uint64_t high)
- {
- 	ocontext_t *newc, *c, *l, *head;
- 	char *id;
-@@ -3960,7 +3961,7 @@ int define_iomem_context(unsigned long low, unsigned long high)
- 	newc->u.iomem.high_iomem = high;
- 
- 	if (low > high) {
--		yyerror2("low memory 0x%lx exceeds high memory 0x%lx", low, high);
-+		yyerror2("low memory 0x%"PRIx64" exceeds high memory 0x%"PRIx64"", low, high);
- 		free(newc);
- 		return -1;
- 	}
-@@ -3972,13 +3973,13 @@ int define_iomem_context(unsigned long low, unsigned long high)
- 
- 	head = policydbp->ocontexts[OCON_XEN_IOMEM];
- 	for (l = NULL, c = head; c; l = c, c = c->next) {
--		uint32_t low2, high2;
-+		uint64_t low2, high2;
- 
- 		low2 = c->u.iomem.low_iomem;
- 		high2 = c->u.iomem.high_iomem;
- 		if (low <= high2 && low2 <= high) {
--			yyerror2("iomemcon entry for 0x%lx-0x%lx overlaps with "
--				"earlier entry 0x%x-0x%x", low, high,
-+			yyerror2("iomemcon entry for 0x%"PRIx64"-0x%"PRIx64" overlaps with "
-+				"earlier entry 0x%"PRIx64"-0x%"PRIx64"", low, high,
- 				low2, high2);
- 			goto bad;
- 		}
-diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
-index 4ef0f4f..14d30e1 100644
---- a/checkpolicy/policy_define.h
-+++ b/checkpolicy/policy_define.h
-@@ -46,7 +46,7 @@ int define_permissive(void);
- int define_polcap(void);
- int define_port_context(unsigned int low, unsigned int high);
- int define_pirq_context(unsigned int pirq);
--int define_iomem_context(unsigned long low, unsigned long high);
-+int define_iomem_context(uint64_t low, uint64_t high);
- int define_ioport_context(unsigned long low, unsigned long high);
- int define_pcidevice_context(unsigned long device);
- int define_range_trans(int class_specified);
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index e5210bd..e3899b9 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -67,6 +67,7 @@ typedef int (* require_func_t)(int pass);
- 
- %union {
- 	unsigned int val;
-+	uint64_t val64;
- 	uintptr_t valptr;
- 	void *ptr;
-         require_func_t require_func;
-@@ -78,6 +79,7 @@ typedef int (* require_func_t)(int pass);
- %type <ptr> role_def roles
- %type <valptr> cexpr cexpr_prim op role_mls_op
- %type <val> ipv4_addr_def number
-+%type <val64> number64
- %type <require_func> require_decl_def
- 
- %token PATH
-@@ -647,9 +649,9 @@ dev_context_def		: pirq_context_def |
- pirq_context_def 	: PIRQCON number security_context_def
- 		        {if (define_pirq_context($2)) return -1;}
- 		        ;
--iomem_context_def	: IOMEMCON number security_context_def
-+iomem_context_def	: IOMEMCON number64 security_context_def
- 		        {if (define_iomem_context($2,$2)) return -1;}
--		        | IOMEMCON number '-' number security_context_def
-+		        | IOMEMCON number64 '-' number64 security_context_def
- 		        {if (define_iomem_context($2,$4)) return -1;}
- 		        ;
- ioport_context_def	: IOPORTCON number security_context_def
-@@ -815,6 +817,9 @@ filename		: FILENAME
- number			: NUMBER 
- 			{ $$ = strtoul(yytext,NULL,0); }
- 			;
-+number64		: NUMBER
-+			{ $$ = strtoull(yytext,NULL,0); }
-+			;
- ipv6_addr		: IPV6_ADDR
- 			{ if (insert_id(yytext,0)) return -1; }
- 			;
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 419c20f..1949d2b 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -4319,12 +4319,12 @@ int cil_gen_iomemcon(__attribute__((unused)) struct cil_db *db, struct cil_tree_
- 	if (parse_current->next->cl_head != NULL) {
- 		if (parse_current->next->cl_head->next != NULL &&
- 		    parse_current->next->cl_head->next->next == NULL) {
--			rc = cil_fill_integer(parse_current->next->cl_head, &iomemcon->iomem_low);
-+			rc = cil_fill_integer64(parse_current->next->cl_head, &iomemcon->iomem_low);
- 			if (rc != SEPOL_OK) {
- 				cil_log(CIL_ERR, "Improper iomem specified\n");
- 				goto exit;
- 			}
--			rc = cil_fill_integer(parse_current->next->cl_head->next, &iomemcon->iomem_high);
-+			rc = cil_fill_integer64(parse_current->next->cl_head->next, &iomemcon->iomem_high);
- 			if (rc != SEPOL_OK) {
- 				cil_log(CIL_ERR, "Improper iomem specified\n");
- 				goto exit;
-@@ -4335,7 +4335,7 @@ int cil_gen_iomemcon(__attribute__((unused)) struct cil_db *db, struct cil_tree_
- 			goto exit;
- 		}
- 	} else {
--		rc = cil_fill_integer(parse_current->next, &iomemcon->iomem_low);;
-+		rc = cil_fill_integer64(parse_current->next, &iomemcon->iomem_low);;
- 		if (rc != SEPOL_OK) {
- 			cil_log(CIL_ERR, "Improper iomem specified\n");
- 			goto exit;
-@@ -5054,6 +5054,32 @@ exit:
- 	return rc;
- }
- 
-+int cil_fill_integer64(struct cil_tree_node *int_node, uint64_t *integer)
-+{
-+	int rc = SEPOL_ERR;
-+	char *endptr = NULL;
-+	uint64_t val;
-+
-+	if (int_node == NULL || integer == NULL) {
-+		goto exit;
-+	}
-+
-+	errno = 0;
-+	val = strtoull(int_node->data, &endptr, 10);
-+	if (errno != 0 || endptr == int_node->data || *endptr != '\0') {
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	*integer = val;
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	cil_log(CIL_ERR, "Failed to create integer from string\n");
-+	return rc;
-+}
-+
- int cil_fill_ipaddr(struct cil_tree_node *addr_node, struct cil_ipaddr *addr)
- {
- 	int rc = SEPOL_ERR;
-diff --git a/libsepol/cil/src/cil_build_ast.h b/libsepol/cil/src/cil_build_ast.h
-index 5b07c14..1bd33ce 100644
---- a/libsepol/cil/src/cil_build_ast.h
-+++ b/libsepol/cil/src/cil_build_ast.h
-@@ -211,6 +211,7 @@ int cil_fill_cats(struct cil_tree_node *curr, struct cil_cats **cats);
- void cil_destroy_cats(struct cil_cats *cats);
- int cil_fill_context(struct cil_tree_node *user_node, struct cil_context *context);
- int cil_fill_integer(struct cil_tree_node *int_node, uint32_t *integer);
-+int cil_fill_integer64(struct cil_tree_node *int_node, uint64_t *integer);
- int cil_fill_ipaddr(struct cil_tree_node *addr_node, struct cil_ipaddr *addr);
- int cil_fill_level(struct cil_tree_node *sens, struct cil_level *level);
- 
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index cf0a8b1..11a2085 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -719,8 +719,8 @@ struct cil_pirqcon {
- };
- 
- struct cil_iomemcon {
--	uint32_t iomem_low;
--	uint32_t iomem_high;
-+	uint64_t iomem_low;
-+	uint64_t iomem_high;
- 	char *context_str;
- 	struct cil_context *context;
- };
-diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
-index ec38f69..eefcbc1 100644
---- a/libsepol/cil/src/cil_policy.c
-+++ b/libsepol/cil/src/cil_policy.c
-@@ -32,6 +32,7 @@
- #include <string.h>
- #include <stdint.h>
- #include <unistd.h>
-+#include <inttypes.h>
- 
- #include <sepol/policydb/conditional.h>
- #include <sepol/errcodes.h>
-@@ -236,7 +237,7 @@ int cil_iomemcon_to_policy(FILE **file_arr, struct cil_sort *sort)
- 
- 	for (i = 0; i < sort->count; i++) {
- 		struct cil_iomemcon *iomemcon = (struct cil_iomemcon*)sort->array[i];
--		fprintf(file_arr[NETIFCONS], "iomemcon %d-%d ", iomemcon->iomem_low, iomemcon->iomem_high);
-+		fprintf(file_arr[NETIFCONS], "iomemcon %"PRId64"-%"PRId64" ", iomemcon->iomem_low, iomemcon->iomem_high);
- 		cil_context_to_policy(file_arr, NETIFCONS, iomemcon->context);
- 		fprintf(file_arr[NETIFCONS], ";\n");
- 	}
-diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-index 4f9f480..81a1abc 100644
---- a/libsepol/cil/src/cil_tree.c
-+++ b/libsepol/cil/src/cil_tree.c
-@@ -29,6 +29,7 @@
- 
- #include <stdio.h>
- #include <stdarg.h>
-+#include <inttypes.h>
- 
- #include <sepol/policydb/conditional.h>
- 
-@@ -1392,7 +1393,7 @@ void cil_tree_print_node(struct cil_tree_node *node)
- 		case CIL_IOMEMCON: {
- 			struct cil_iomemcon *iomemcon = node->data;
- 
--			cil_log(CIL_INFO, "IOMEMCON ( %d %d )", iomemcon->iomem_low, iomemcon->iomem_high);
-+			cil_log(CIL_INFO, "IOMEMCON ( %"PRId64" %"PRId64" )", iomemcon->iomem_low, iomemcon->iomem_high);
- 			if (iomemcon->context != NULL) {
- 				cil_tree_print_context(iomemcon->context);
- 			} else {
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 6254fef..946cbaf 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -325,8 +325,8 @@ typedef struct ocontext {
- 		uint32_t device;
- 		uint16_t pirq;
- 		struct {
--			uint32_t low_iomem;
--			uint32_t high_iomem;
-+			uint64_t low_iomem;
-+			uint64_t high_iomem;
- 		} iomem;
- 		struct {
- 			uint32_t low_ioport;
-@@ -689,10 +689,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
- #define POLICYDB_VERSION_DEFAULT_TYPE	28
- #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
-+#define POLICYDB_VERSION_XEN_DEVICETREE 30
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_XEN_DEVICETREE
- 
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE		4
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 667e98a..d54eb9e 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -68,6 +68,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 },
- 	{
- 	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_XEN_DEVICETREE,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_XEN_PCIDEVICE + 1,
-+	 .target_platform = SEPOL_TARGET_XEN,
-+	 },
-+	{
-+	 .type = POLICY_KERN,
- 	 .version = POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM - 3,
- 	 .ocon_num = OCON_FSUSE + 1,
-@@ -172,6 +179,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
- 	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_XEN_DEVICETREE,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
-+	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -2514,11 +2528,20 @@ static int ocontext_read_xen(struct policydb_compat_info *info,
- 					return -1;
- 				break;
- 			case OCON_XEN_IOMEM:
--				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
--				if (rc < 0)
--					return -1;
--				c->u.iomem.low_iomem = le32_to_cpu(buf[0]);
--				c->u.iomem.high_iomem = le32_to_cpu(buf[1]);
-+				if (p->policyvers >= POLICYDB_VERSION_XEN_DEVICETREE) {
-+					uint64_t b64[2];
-+					rc = next_entry(b64, fp, sizeof(uint64_t) * 2);
-+					if (rc < 0)
-+						return -1;
-+					c->u.iomem.low_iomem = le64_to_cpu(b64[0]);
-+					c->u.iomem.high_iomem = le64_to_cpu(b64[1]);
-+				} else {
-+					rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
-+					if (rc < 0)
-+						return -1;
-+					c->u.iomem.low_iomem = le32_to_cpu(buf[0]);
-+					c->u.iomem.high_iomem = le32_to_cpu(buf[1]);
-+				}
- 				if (context_read_and_validate
- 				    (&c->context[0], p, fp))
- 					return -1;
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index d03dc20..3452017 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1252,13 +1252,31 @@ static int ocontext_write_xen(struct policydb_compat_info *info, policydb_t *p,
- 					return POLICYDB_ERROR;
- 				break;
- 			case OCON_XEN_IOMEM:
--				buf[0] = c->u.iomem.low_iomem;
--				buf[1] = c->u.iomem.high_iomem;
--				for (j = 0; j < 2; j++)
--					buf[j] = cpu_to_le32(buf[j]);
--				items = put_entry(buf, sizeof(uint32_t), 2, fp);
--				if (items != 2)
--					return POLICYDB_ERROR;
-+				if (p->policyvers >= POLICYDB_VERSION_XEN_DEVICETREE) {
-+					uint64_t b64[2];
-+					b64[0] = c->u.iomem.low_iomem;
-+					b64[1] = c->u.iomem.high_iomem;
-+					for (j = 0; j < 2; j++)
-+						b64[j] = cpu_to_le64(b64[j]);
-+					items = put_entry(b64, sizeof(uint64_t), 2, fp);
-+					if (items != 2)
-+						return POLICYDB_ERROR;
-+				} else {
-+					if (c->u.iomem.high_iomem > 0xFFFFFFFFULL) {
-+						ERR(fp->handle, "policy version %d"
-+							" cannot represent IOMEM addresses over 16TB",
-+							p->policyvers);
-+						return POLICYDB_ERROR;
-+					}
-+
-+					buf[0] = c->u.iomem.low_iomem;
-+					buf[1] = c->u.iomem.high_iomem;
-+					for (j = 0; j < 2; j++)
-+						buf[j] = cpu_to_le32(buf[j]);
-+					items = put_entry(buf, sizeof(uint32_t), 2, fp);
-+					if (items != 2)
-+						return POLICYDB_ERROR;
-+				}
- 				if (context_write(p, &c->context[0], fp))
- 					return POLICYDB_ERROR;
- 				break;
-diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
-index b863346..60c493d 100644
---- a/policycoreutils/hll/pp/pp.c
-+++ b/policycoreutils/hll/pp/pp.c
-@@ -2695,8 +2695,8 @@ static int ocontext_xen_ioport_to_cil(struct policydb *pdb, struct ocontext *iop
- static int ocontext_xen_iomem_to_cil(struct policydb *pdb, struct ocontext *iomems)
- {
- 	struct ocontext *iomem;
--	uint32_t low;
--	uint32_t high;
-+	uint64_t low;
-+	uint64_t high;
- 
- 	for (iomem = iomems; iomem != NULL; iomem = iomem->next) {
- 		low = iomem->u.iomem.low_iomem;
--- 
-2.1.0
+type_transition unconfined_t dentry_t:file file_t myfile;
+
+I got the error: 'syntax error' at token 'myfile' on line 1195:
+
+It seems like didn't support the fifth parameter 'myfile', And I am using t=
+he checkmodule (version 2.3) to compile my policy module, but I am not sure
+the the version of the linux kernel (Linux nkgcinwslx00671 2.6.32.12-0.7-de=
+fault #1 SMP 2010-05-20 11:14:20 +0200 x86_64 x86_64 x86_64 GNU/Linux) is
+new enough to support this features.(I think the compiling should have noth=
+ing to do with the kernel?)
+
+so, could anybody give me some suggestions to resolve this problem? I am  l=
+ooking  forward to your replies! Thank you very much!
+
+
+Sylar
+
+--_000_60ABE64B4BE4AC45964F1A967BA76CB201569BC3szxeml522mbxchi_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 12 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:\5B8B\4F53;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@\5B8B\4F53";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	font-size:10.5pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;}
+/* Page Definitions */
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"ZH-CN" link=3D"blue" vlink=3D"purple" style=3D"text-justify-t=
+rim:punctuation">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span lang=3D"EN-US">Hello,everyone!<o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">I am try to use the new feature=
+s of the type_transition that can support to determine the type of the new =
+file by the name of this new file,And when I
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">use the type_transisiton in my =
+own policy module like this:<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">type_transition unconfined_t de=
+ntry_t:file file_t myfile;<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">I got the error: 'syntax error'=
+ at token 'myfile' on line 1195:<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">It seems like didn't support th=
+e fifth parameter 'myfile', And I am using the checkmodule (version 2.3) to=
+ compile my policy module, but I am not sure
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">the the version of the linux ke=
+rnel (Linux nkgcinwslx00671 2.6.32.12-0.7-default #1 SMP 2010-05-20 11:14:2=
+0 &#43;0200 x86_64 x86_64 x86_64 GNU/Linux) is
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">new enough to support this feat=
+ures.(I think the compiling should have nothing to do with the kernel?)<o:p=
+></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">so, could anybody give me some =
+suggestions to resolve this problem? I am&nbsp; looking&nbsp; forward to yo=
+ur replies! Thank you very much!<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US">Sylar<o:p></o:p></span></p>
+</div>
+</body>
+</html>
+
+--_000_60ABE64B4BE4AC45964F1A967BA76CB201569BC3szxeml522mbxchi_--
