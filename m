@@ -1,44 +1,42 @@
-Message-ID: <550971B7.9080807@tycho.nsa.gov>
-Date: Wed, 18 Mar 2015 08:38:15 -0400
+Message-ID: <550971D8.8070003@tycho.nsa.gov>
+Date: Wed, 18 Mar 2015 08:38:48 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libsemanage: fix fname[] initialization in
- test_utilities.c
-References: <1426501987-12646-1-git-send-email-plautrba@redhat.com>
-In-Reply-To: <1426501987-12646-1-git-send-email-plautrba@redhat.com>
+To: Daniel De Graaf <dgdegra@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH v3 0/3] Xen/FLASK policy updates for device contexts
+References: <1426625004-7152-1-git-send-email-dgdegra@tycho.nsa.gov>
+In-Reply-To: <1426625004-7152-1-git-send-email-dgdegra@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
+Cc: xen-devel@lists.xenproject.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/16/2015 06:33 AM, Petr Lautrbach wrote:
-> There's no guaranty that last item in "char fname[]" will be a null character.
-> Fixes segfault on some systems:
+On 03/17/2015 04:43 PM, Daniel De Graaf wrote:
+> In order to support assigning security lables to ARM device tree nodes
+> in Xen's XSM policy, a new ocontext type is needed in the security
+> policy.
 > 
->   Test: semanage_nc_sort ...passedtest_semanage_findval: : Invalid argument
-> libsemanage-tests: TestRun.c:160: CU_assertImplementation: Assertion `((void *)0) != f_pCurTest' failed.
-> make[1]: *** [test] Aborted (core dumped)
+> In addition to adding the new ocontext, the existing I/O memory range
+> ocontext is expanded to 64 bits in order to support hardware with more
+> than 44 bits of physical address space (32-bit count of 4K pages).
 > 
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> ---
->  libsemanage/tests/test_utilities.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Changes from v2:
+>  - Clean up printf format strings for 32-bit builds
 > 
-> diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
-> index 4d25b07..32cc33c 100644
-> --- a/libsemanage/tests/test_utilities.c
-> +++ b/libsemanage/tests/test_utilities.c
-> @@ -45,7 +45,7 @@ void test_slurp_file_filter(void);
->  
->  char fname[] = {
->  	'T', 'E', 'S', 'T', '_', 'T', 'E', 'M', 'P', '_', 'X', 'X', 'X', 'X',
-> -	'X', 'X'
-> +	'X', 'X', '\0'
->  };
->  int fd;
->  FILE *fptr;
+> Changes from v1:
+>  - Use policy version 30 instead of forking the version numbers for Xen;
+>    this removes the need for v1's patch 3.
+>  - Report an error when attempting to use an I/O memory range that
+>    requires a 64-bit representation with an old policy output version
+>    that cannot support this
+>  - Fix a few incorrect references to PCIDEVICECON
+>  - Reorder patches to clarify the allowed characterset of device tree
+>    paths
 > 
+> [PATCH 1/3] checkpolicy: Expand allowed character set in paths
+> [PATCH 2/3] libsepol, checkpolicy: widen Xen IOMEM ocontext entries
+> [PATCH 3/3] libsepol, checkpolicy: add device tree ocontext nodes to
 
-Thanks, applied.
+Thanks, applied all three.
