@@ -1,104 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2JLsKCD016854
- for <selinux@tycho.nsa.gov>; Thu, 19 Mar 2015 17:54:20 -0400
-Received: by obcxo2 with SMTP id xo2so65163161obc.0
- for <selinux@tycho.nsa.gov>; Thu, 19 Mar 2015 14:54:18 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2JMcQQZ019410
+ for <selinux@tycho.nsa.gov>; Thu, 19 Mar 2015 18:38:27 -0400
+Received: from localhost (localhost [127.0.0.1])
+ by mail.vivaldi.net (Postfix) with ESMTP id 47FFC800BC7
+ for <selinux@tycho.nsa.gov>; Thu, 19 Mar 2015 22:38:24 +0000 (GMT)
+Received: from mail.vivaldi.net ([127.0.0.1])
+ by localhost (wagner.vivaldi.net [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yVOASpNL3CKt for <selinux@tycho.nsa.gov>;
+ Thu, 19 Mar 2015 22:38:23 +0000 (GMT)
+Received: from mail.vivaldi.net (localhost [127.0.0.1])
+ (Authenticated sender: john.chludzinski)
+ by mail.vivaldi.net (Postfix) with ESMTPA id EE70C800B52
+ for <selinux@tycho.nsa.gov>; Thu, 19 Mar 2015 22:38:21 +0000 (GMT)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Date: Thu, 19 Mar 2015 23:38:21 +0100
+From: John Chludzinski <john.chludzinski@vivaldi.net>
+To: selinux@tycho.nsa.gov
+Subject: Re: Trying to update sysadm module in CLIP
 In-Reply-To: <e4247c48f0174b6f77f05c5b28bbcb9e@vivaldi.net>
 References: <e4247c48f0174b6f77f05c5b28bbcb9e@vivaldi.net>
-Date: Thu, 19 Mar 2015 17:54:18 -0400
-Message-ID: <CAGNxgPj8Bqa8xHJ7=YFEC_5WXv290T_+OtgL4zgrL5SxLGgW8g@mail.gmail.com>
-Subject: Re: Trying to update sysadm module in CLIP
-From: Spencer Shimko <spencer@quarksecurity.com>
-To: John Chludzinski <john.chludzinski@vivaldi.net>
-Content-Type: text/plain; charset=UTF-8
-Cc: selinux@tycho.nsa.gov
+Message-ID: <b9a113715934c985dbeec5c2351f06cd@vivaldi.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-It is hard to tell at first glance but these questions are
-CLIP-specific.  Thus, these questions are best suited for the CLIP
-mailing list:
-http://oss.tresys.com/mailman/listinfo/clip
+I ran (when under the role sysadm_r and type sysadm_t):
 
-But my responses are in-line below.
+$ id -Z
 
-On Thu, Mar 19, 2015 at 4:31 PM, John Chludzinski
-<john.chludzinski@vivaldi.net> wrote:
+and got: Xsysadm_u:sysadm_r:sysadm_t:s0
+
+So now I'm assuming the CLIP image is at "s0" sensitivity level.
+
+Then I noticed that the build.conf file states: "The sensitivities will 
+be s0 to s(MLS_SENS-1)".
+
+So I built using:
+
+$ make modules APPS_MODS="sysadm" TYPE="mls" MLS_SENS=1
+
+to get an "s0" sensitivity level.
+
+Tried to install and now I get: "duplicate declaration in module: 
+type/attribute sysadm_userhelper_t".
+(A "Whac-A-Mole" game!)
+
+---John
+
+
+On 2015-03-19 21:31, John Chludzinski wrote:
 > First thing ... I'm a newbie to SELinux.
->
-> I'm trying to update the sysadm module in a CLIP image. I downloaded the
-> SELinux policy code from: https://github.com/QuarkSecurity/CLIP.  I modified
-> the sysadm policy code and built (in
+> 
+> I'm trying to update the sysadm module in a CLIP image. I downloaded
+> the SELinux policy code from: https://github.com/QuarkSecurity/CLIP.
+> I modified the sysadm policy code and built (in
 > ~/clip/packages/clip-selinux-policy/clip-selinux-policy) using:
->
+> 
 > $ make modules APPS_MODS="sysadm"
->
+> 
 > Then I tried to install in the CLIP image using:
->
+> 
 > $ semodule -i /mnt/hdd/SELinix/sysadm.pp
->
-> and got: "tried to link in a non-MLS module with an MLS base". (I assume
-> this means the CLIP image I'm working with is MLS?)
+> 
+> and got: "tried to link in a non-MLS module with an MLS base". (I
+> assume this means the CLIP image I'm working with is MLS?)
 > Next I built using:
->
+> 
 > $ make modules APPS_MODS="sysadm" TYPE="mls"
->
-
-The CLIP default is MCS but it also builds MLS policies.
-
-> Tried to load/install the module and got: "sensitivy s10 not declared by
-> base."
->
+> 
+> Tried to load/install the module and got: "sensitivy s10 not declared 
+> by base."
+> 
 > Next I tried:
->
+> 
 > $ make modules APPS_MODS="auditadm sysadm" TYPE="mls" MLS_SENS=15
->
+> 
 > and !still! got "sensitivy s10 not declared by base".
->
+> 
 > Any suggestions/thoughts?
-
-I'm not sure exactly which version of our repo you're using and things
-might have changed a bit but but I think these steps will work for
-you.
-
-You are building policy without actually rolling it up in an RPM.
-Much like Red Hat's spec file which CLIP's is based on, the RPM spec
-file in CLIP does a lot of configuration work via command-line
-arguments to make etc.  The spec file is
-"packages/clip-selinux-policu/clip-selinux-policy.spec".
-
-As building a policy outside of an RPM will cause unkonwn changes in
-the policy tree, you might want to reset the tree and rebuild via an
-RPM.  If you want to enable a module you can do it in:
-packages/clip-selinux-policy/clip-selinux-policy/policy/modules.conf.
-
-Alternatively, CLIP has support for enabling modules via tthe
-ENABLE_MODULES variable in "packages/clip-selinux-policy/Makefile"
-
-You have two choices here.  The first, and highly recommeended way, is
-using mock.  Go to the top-levedl of the CLIP tree and run "make
-clip-selinux-policy-rpm".  The resulting policy RPMs can be found in
-repos/clip-repo/clip-selinux-policy*.rpm.
-
-Or you can build outside of mock by going into
-packages/clipselinux-policy and running "make rpm".  The RPMs will end
-up in your current directory, packages/clip-selinux-policu/*.rpm.
-
-Thanks,
---Spencer
-
-Spencer Shimko
-Quark Security, Inc
-quarksecurity.com
-
->
+> 
 > ---John
 > _______________________________________________
 > Selinux mailing list
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
+> To get help, send an email containing "help" to 
 > Selinux-request@tycho.nsa.gov.
