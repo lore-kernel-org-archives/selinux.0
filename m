@@ -1,60 +1,42 @@
-Message-ID: <550B015B.3080409@tycho.nsa.gov>
-Date: Thu, 19 Mar 2015 13:03:23 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2JH4OQA024963
+ for <selinux@tycho.nsa.gov>; Thu, 19 Mar 2015 13:04:24 -0400
+From: Thomas Hurd <thurd@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol: bool_copy_callback set state on creation
+Date: Thu, 19 Mar 2015 13:03:49 -0400
+Message-ID: <1426784629-24048-1-git-send-email-thurd@tresys.com>
 MIME-Version: 1.0
-To: Thomas Hurd <thurd@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libsemanage: Fix logic in bunzip for uncompressed pp files
-References: <1426777204-9627-1-git-send-email-thurd@tresys.com>
-In-Reply-To: <1426777204-9627-1-git-send-email-thurd@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/19/2015 11:00 AM, Thomas Hurd wrote:
-> Unconditionally check the magic number before BZ2_bzReadOpen()
-> instead of only when bzip_blocksize=0, since it falls through.
-> That way if the file is not compressed it will return immediately
-> and map_file can mmap it. If the file is compressed then it will
-> go through the BZ2 functions and any errors will be reported correctly.
-> 
-> This fixes 0afd5de5c1edb4de2cc5e0e2e2e89551c90534fc so that a bz2 error
-> isn't reported when a uncompressed pp is installed successfully.
+Boolean states are only written on a declaration.
+If a module is turned off which includes a tunable declaration that
+is required in another module, the state is never set. This patch
+sets the state when the booldatum is created so that an uninitialized
+memory read does not occur in cond_write_bool and write garbage to
+the link binary.  This can cause a failure in cond_read_bool when
+running semodule_expand.
 
-Thanks, applied.
+Signed-off-by: Thomas Hurd <thurd@tresys.com>
+---
+ libsepol/src/link.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> 
-> Signed-off-by: Thomas Hurd <thurd@tresys.com>
-> ---
->  libsemanage/src/direct_api.c | 15 ++++++---------
->  1 file changed, 6 insertions(+), 9 deletions(-)
-> 
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index 5922fcc..e4f168e 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -445,16 +445,13 @@ ssize_t bunzip(semanage_handle_t *sh, FILE *f, char **data)
->  		goto exit;
->  	}
->  
-> -	if (!sh->conf->bzip_blocksize) {
-> -		bzerror = fread(buf, 1, BZ2_MAGICLEN, f);
-> -		rewind(f);
-> -		if ((bzerror != BZ2_MAGICLEN) || memcmp(buf, BZ2_MAGICSTR, BZ2_MAGICLEN)) {
-> -			ERR(sh, "bz2 magic number not found.");
-> -			goto exit;
-> -		}
-> -		/* fall through */
-> +	/* Check if the file is bzipped */
-> +	bzerror = fread(buf, 1, BZ2_MAGICLEN, f);
-> +	rewind(f);
-> +	if ((bzerror != BZ2_MAGICLEN) || memcmp(buf, BZ2_MAGICSTR, BZ2_MAGICLEN)) {
-> +		goto exit;
->  	}
-> -	
-> +
->  	b = BZ2_bzReadOpen ( &bzerror, f, 0, sh->conf->bzip_small, NULL, 0 );
->  	if ( bzerror != BZ_OK ) {
->  		ERR(sh, "Failure opening bz2 archive.");
-> 
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index f98a8d2..f211164 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -630,6 +630,7 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 		state->base->p_bools.nprim++;
+ 		base_bool = new_bool;
+ 		base_bool->flags = booldatum->flags;
++		base_bool->state = booldatum->state;
+ 	} else if ((booldatum->flags & COND_BOOL_FLAGS_TUNABLE) !=
+ 		   (base_bool->flags & COND_BOOL_FLAGS_TUNABLE)) {
+ 			/* A mismatch between boolean/tunable declaration
+-- 
+2.1.0
