@@ -1,31 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2KLusVV016998
- for <selinux@tycho.nsa.gov>; Fri, 20 Mar 2015 17:56:54 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2KMEE85018257
+ for <selinux@tycho.nsa.gov>; Fri, 20 Mar 2015 18:14:14 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
-Date: Fri, 20 Mar 2015 22:56:45 +0100
+Date: Fri, 20 Mar 2015 23:14:02 +0100
 From: John Chludzinski <john.chludzinski@vivaldi.net>
-To: Brandon Whalen <brandon@quarksecurity.com>
+To: Spencer Shimko <spencer@quarksecurity.com>
 Subject: Re: Trying to update sysadm module in CLIP
-In-Reply-To: <CAN4BvJ_b0to61G42OtsV28DFyuv13DhxuGm_tyqeMDStieDd+w@mail.gmail.com>
+In-Reply-To: <CAGNxgPiBThm0SpAo-+1D2UsaFyVNY2AKpj56RFvt+8SrfxL-Jw@mail.gmail.com>
 References: <e4247c48f0174b6f77f05c5b28bbcb9e@vivaldi.net>
  <b9a113715934c985dbeec5c2351f06cd@vivaldi.net>
- <CAN4BvJ_b0to61G42OtsV28DFyuv13DhxuGm_tyqeMDStieDd+w@mail.gmail.com>
-Message-ID: <ecf09a432d1ad30680282c795dcaa3f2@vivaldi.net>
+ <CAGNxgPiBThm0SpAo-+1D2UsaFyVNY2AKpj56RFvt+8SrfxL-Jw@mail.gmail.com>
+Message-ID: <d1147ae9bfd084f0760cb8457e3cf228@vivaldi.net>
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Nope, there is no sysadm module that shows up in the listing from 
-"semodule -l".  I assume it's rolled up in some other module? But which 
-one?
+1) I noticed 
+packages/clip-selinux-policy/clip-selinux-policy/policy/modules.conf 
+defines the the modules that are built into a base.pp:
+
+packages/clip-selinux-policy/clip-selinux-policy/ > make base TYPE="mls" 
+MLS_SENS=1
+
+which includes sysadm. Is this something of any interest?
+
+2) Reading the output from:
+
+packages/clip-selinux-policy/ > make rpm
+
+I noticed it contains: "Compiling clip base module", which compiles all 
+the *.te files.
+
+which, of course, includes sysadm.
+
+The files created are: clip-selinux-policy-6.2.0-1.noarch.rpm, 
+clip-selinux-policy-6.2.0-1.src.rpm, clip-selinux-policy-6.2.0.tar.gz.
+
+Should install clip-selinux-policy-6.2.0-1.noarch.rpm?
+
+3) If I'm making small modifications to one of the canonical CLIP 
+modules (system, role, etc.) is there something less that replacing the 
+policy tree? That's why I build the sysadm.pp.
+
+4) If I'm creating policies unique to this project, should I create a 
+directory under policy/modules/<project> and run: make conf? Use 
+LOCAL_ROOT to point to a policy source tree hanging off the project 
+root? Just trying to come up with some process/strategy that's flexible 
+and defensible. Of course LOCAL_ROOT is defined in the Makefile in 
+packages/clip-selinux-policy/clip-selinux-policy and I'd be building 
+*.pp files? Maybe this is OK for new policy code?
+
 
 ---John
 
-On 2015-03-20 01:23, Brandon Whalen wrote:
+
+
+Been inspecting the "other" make (in packages/clip-selinux-policy v. 
+packages/clip-selinux-policy/clip-selinux-policy).
+
+On 2015-03-20 00:33, Spencer Shimko wrote:
+> Trimmed SELinux mailing list form CCs.
+> 
+> Did you try the the suggestions in my on-list response a little while 
+> ago?
+> 
 > On Thu, Mar 19, 2015 at 6:38 PM, John Chludzinski
 > <john.chludzinski@vivaldi.net> wrote:
 >> I ran (when under the role sysadm_r and type sysadm_t):
@@ -48,16 +90,9 @@ On 2015-03-20 01:23, Brandon Whalen wrote:
 >> 
 >> Tried to install and now I get: "duplicate declaration in module:
 >> type/attribute sysadm_userhelper_t".
-> 
-> It looks like sysadm_userhelper_t is declared in the policy already.
-> Do you already have the sysadm module installed ' semodule -l' will
-> tell you? If not, maybe the sysadm module was included in the base
-> module.
-> 
 >> (A "Whac-A-Mole" game!)
 >> 
 >> ---John
->> 
 >> 
 >> 
 >> On 2015-03-19 21:31, John Chludzinski wrote:
