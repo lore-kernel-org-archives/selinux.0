@@ -1,180 +1,240 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2NEPJqF013432
- for <selinux@tycho.nsa.gov>; Mon, 23 Mar 2015 10:25:19 -0400
-References: <1426625004-7152-1-git-send-email-dgdegra@tycho.nsa.gov>
- <1426870746.22025.YahooMailNeo@web133202.mail.ir2.yahoo.com>
- <55101317.7020502@tresys.com>
-Message-ID: <1427120534.19338.YahooMailNeo@web133204.mail.ir2.yahoo.com>
-Date: Mon, 23 Mar 2015 14:22:14 +0000
-From: Richard Haines <richard_c_haines@btinternet.com>
-Subject: Re: [PATCH v3 0/3] Xen/FLASK policy updates for device contexts
-To: Steve Lawrence <slawrence@tresys.com>,
- Daniel De Graaf <dgdegra@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <55101317.7020502@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2NFGJPI017371
+ for <selinux@tycho.nsa.gov>; Mon, 23 Mar 2015 11:16:20 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Cc: "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Date: Mon, 23 Mar 2015 16:16:08 +0100
+From: John Chludzinski <john.chludzinski@vivaldi.net>
+To: Spencer Shimko <spencer@quarksecurity.com>
+Subject: Re: Trying to update sysadm module in CLIP
+In-Reply-To: <CAGNxgPh1Tq+ipErajh4F7VSW57cMTiNC7ZWJOa+jpWYsyw_HOA@mail.gmail.com>
+References: <e4247c48f0174b6f77f05c5b28bbcb9e@vivaldi.net>
+ <b9a113715934c985dbeec5c2351f06cd@vivaldi.net>
+ <CAGNxgPiBThm0SpAo-+1D2UsaFyVNY2AKpj56RFvt+8SrfxL-Jw@mail.gmail.com>
+ <55d4ced56b5ade45f9635caa3bd622b9@vivaldi.net>
+ <CAGNxgPh1Tq+ipErajh4F7VSW57cMTiNC7ZWJOa+jpWYsyw_HOA@mail.gmail.com>
+Message-ID: <cd05db3d284b292ed49352132248592b@vivaldi.net>
+Cc: Selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Steve,
-I've added comments below (all working now thanks) and also found another problem
+I took the liberty of examining the contents of 
+clip-selinux-policy-6.2.0-1.noarch.rpm:
 
-as the path was not being released. With this patch secilc/valgrind with a good xen
-policy will not show any memory errors:
+$ rpm -qpl clip-selinux-policy-6.2.0-1.noarch.rpm
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index b45b662..d1c0018 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1274,7 +1274,7 @@ void ocontext_xen_free(ocontext_t **ocontexts)
-             c = c->next;
-             context_destroy(&ctmp->context[0]);
-             context_destroy(&ctmp->context[1]);
--            if (i == OCON_ISID)
-+            if (i == OCON_ISID || i == OCON_XEN_DEVICETREE)
-                 free(ctmp->u.name);
-             free(ctmp);
-         }
+$ rpm2cpio clip-selinux-policy-6.2.0-1.noarch.rpm | cpio -idmv
 
+and found the RPM contains nothing but *.if files for the modules + 
+gzipped man pages + a Makefile.
 
+It contains NO *.pp files nor does it include any *.te and *.fc to build 
+*.pp files from.
 
+So installing clip-selinux-policy-6.2.0-1.noarch.rpm is for what?
 
------ Original Message -----
-> From: Steve Lawrence <slawrence@tresys.com>
-> To: Richard Haines <richard_c_haines@btinternet.com>; Daniel De Graaf <dgdegra@tycho.nsa.gov>; "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-> Cc: "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-> Sent: Monday, 23 March 2015, 13:20
-> Subject: Re: [PATCH v3 0/3] Xen/FLASK policy updates for device contexts
-> 
-> I think there may be a typo in the documentation update. It says:
-> 
-> Policy version 30 introduced the <literal><link
-> linkend="devicetreecon">context</link></literal>
-> 
-> Should "context" be "devicetreecon"?
-Yes
+---John
 
-> 
-> Otherwise, this patch looks good to me.
-> 
-> As far as issue 2, I think I've tracked it down to an errant free() in
-> cil_destroy_devicetreecon. CIL uses string interning to reduce the
-> amount of memory used, so strings rarely need to be free'd. And if they
-> are, it results in a double free when the string intern pool is
-> destroyed. 
-
-This patch worked fine - thanks
-> The below patch should fix it. Can you give it a test and
-> make sure it works for you?
-> 
-> - Steve
-> 
-> 
-> diff --git a/libsepol/cil/src/cil_build_ast.c
-> b/libsepol/cil/src/cil_build_ast.c
-> index 973b2d7..92c3e09 100644
-> --- a/libsepol/cil/src/cil_build_ast.cdiff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index b45b662..d1c0018 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1274,7 +1274,7 @@ void ocontext_xen_free(ocontext_t **ocontexts)
-             c = c->next;
-             context_destroy(&ctmp->context[0]);
-             context_destroy(&ctmp->context[1]);
--            if (i == OCON_ISID)
-+            if (i == OCON_ISID || i == OCON_XEN_DEVICETREE)
-                 free(ctmp->u.name);
-             free(ctmp);
-         }
-
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -4583,8 +4583,6 @@ void cil_destroy_devicetreecon(struct
-> cil_devicetreecon *devicetreecon)
->         return;
->     }
-> 
-> -    free(devicetreecon->path);
-> -
->     if (devicetreecon->context_str == NULL && 
-> devicetreecon->context !=
-> NULL) {
->         cil_destroy_context(devicetreecon->context);
->     }
-> 
-> 
-> 
-> On 03/20/2015 12:59 PM, Richard Haines wrote:
->>  I've been testing this and found a few problems:
+On 2015-03-20 23:07, Spencer Shimko wrote:
+> On Fri, Mar 20, 2015 at 5:43 PM, John Chludzinski
+> <john.chludzinski@vivaldi.net> wrote:
+>> 1) I noticed
+>> packages/clip-selinux-policy/clip-selinux-policy/policy/modules.conf 
+>> defines
+>> the the modules that are built into a base.pp:
 >> 
->>  1) I could not read a policy with sedispol (in the checkpolicy/test 
-> directory)
->>      when the devicetreecon statement was included (checkpolicy built ok).
->>      I've attached a patch that fixes this problem and included CIL Ref 
-> Guide
->>     updates for the new features.
+>> packages/clip-selinux-policy/clip-selinux-policy/ > make base 
+>> TYPE="mls"
+>> MLS_SENS=1
 >> 
->>  2) When building policy with the CIL compiler secilc I get core dumps but
->>      only if I include the devicetreecon statement. I think its related to 
-> not releasing
->>      the devicetreepath "path" when sepol_policydb_free is called. 
-> I've been
->>      trying to track it down and failed - any ideas !!!
->>     sedispol will read the generated CIL policy with the above fix applied.
->> 
->> 
->>  Richard
->> 
->> 
->> 
->>  ----- Original Message -----
->>>  From: Daniel De Graaf <dgdegra@tycho.nsa.gov>
->>>  To: selinux@tycho.nsa.gov
->>>  Cc: xen-devel@lists.xenproject.org
->>>  Sent: Tuesday, 17 March 2015, 20:43
->>>  Subject: [PATCH v3 0/3] Xen/FLASK policy updates for device contexts
->>> 
->>>  In order to support assigning security lables to ARM device tree nodes
->>>  in Xen's XSM policy, a new ocontext type is needed in the security
->>>  policy.
->>> 
->>>  In addition to adding the new ocontext, the existing I/O memory range
->>>  ocontext is expanded to 64 bits in order to support hardware with more
->>>  than 44 bits of physical address space (32-bit count of 4K pages).
->>> 
->>>  Changes from v2:
->>>  - Clean up printf format strings for 32-bit builds
->>> 
->>>  Changes from v1:
->>>  - Use policy version 30 instead of forking the version numbers for Xen;
->>>     this removes the need for v1's patch 3.
->>>  - Report an error when attempting to use an I/O memory range that
->>>     requires a 64-bit representation with an old policy output version
->>>     that cannot support this
->>>  - Fix a few incorrect references to PCIDEVICECON
->>>  - Reorder patches to clarify the allowed characterset of device tree
->>>     paths
->>> 
->>>  [PATCH 1/3] checkpolicy: Expand allowed character set in paths
->>>  [PATCH 2/3] libsepol, checkpolicy: widen Xen IOMEM ocontext entries
->>>  [PATCH 3/3] libsepol, checkpolicy: add device tree ocontext nodes to
->>>  _______________________________________________
->>>  Selinux mailing list
->>>  Selinux@tycho.nsa.gov
->>>  To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>  To get help, send an email containing "help" to 
->>>  Selinux-request@tycho.nsa.gov.
+>> which includes sysadm. Is this something of any interest?
 > 
->>> 
->>> 
->>>  _______________________________________________
->>>  Selinux mailing list
->>>  Selinux@tycho.nsa.gov
->>>  To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>  To get help, send an email containing "help" to 
-> Selinux-request@tycho.nsa.gov.
+> As long as modules.conf declares something as base, it will be in
+> base.  This is interesting because you have made made me think about a
+> circumstance that will break something in my tree pending merge into
+> our QSI tree (my #next branch in sshimko on github).  Neither here nor
+> there, yes, it will be in base if it is defined as base in
+> modules.conf.
+>> 
+>> 2) Reading the output from:
+>> 
+>> packages/clip-selinux-policy/ > make rpm
+>> 
+>> I noticed it contains: "Compiling clip base module", which compiles 
+>> all the
+>> *.te files.
 > 
+> Only the .te files corresponding to those set to "base" in
+> modules.conf.  Those listed as "module" will be built at a later step
+> and will not be present in base.pp.
+>> 
+>> which, of course, includes sysadm.
+>> 
+>> The files created are: clip-selinux-policy-6.2.0-1.noarch.rpm,
+>> clip-selinux-policy-6.2.0-1.src.rpm, clip-selinux-policy-6.2.0.tar.gz.
+>> 
+>> Should install clip-selinux-policy-6.2.0-1.noarch.rpm?
+> 
+> Yes the tarball is a side-effect of how things are built.  The RPM is
+> the one you want.  But there should be several files ending in .rpm.
+> Is that not the case?
+>> 
+>> 3) If I'm making small modifications to one of the canonical CLIP 
+>> modules
+>> (system, role, etc.) is there something less that replacing the policy 
+>> tree?
+>> That's why I build the sysadm.pp.
+> 
+> Honestly the easiest way is to just roll the updated RPMs and install
+> them on your system/.  Thus, you will get an updated sysadm policy as
+> well.
+> 
+> Are you just trying to build a policy for a single,
+> previously-deployed system?  If so, there are other ways.  But if
+> you're trying to do reproducible builds for inclusion in a bigger
+> environment using RPMs for updating policies is reommended.
+> 
+> 
+>> 
+>> 4) If I'm creating policies unique to this project, should I create a
+>> directory under policy/modules/<project> and run: make conf? Use 
+>> LOCAL_ROOT
+>> to point to a policy source tree hanging off the project root? Just 
+>> trying
+>> to come up with some process/strategy that's flexible and defensible. 
+>> Of
+>> course LOCAL_ROOT is defined in the Makefile in
+>> packages/clip-selinux-policy/clip-selinux-policy and I'd be building 
+>> *.pp
+>> files? Maybe this is OK for new policy code?
+>> 
+> 
+> Gotcha.  So yes you're taking the right approach by introducing a new
+> policy/modules/<project> directory and adding a metadata.xml file in
+> there to describe that project.  Then run make conf to have that
+> project added to the correct configuration files.
+> 
+> Aside from make conf, I wouldn't use any other make commands in the
+> policy directory as it will lead to problems.  LOCAL_ROOT is a decent
+> option if you're trying to build out of tree policies for, say, a
+> single system.  Actually I think I implemented that feature years
+> ago....
+> 
+> Basically, I would add your project folder, run make conf, then start
+> modifying all of the policy components you need to modify.  For
+> testing and deployment I would suggest replacing the entire set of
+> RPMs by rebuilding the RPMs with make rpm, and reinstalling them (with
+> --force if you didn't bump the release number).
+> 
+> I have some changes in my github tree #next branch that haven't been
+> merged into our main tree yet.  Specifically, we can now roll RPMs for
+> individual policy packages via a SEPRATE_PKGS variable in the
+> Makefile.  This might be useful for you because you can rebuild the
+> RPMs and, by specifying sysadm as a SEPARATE_PKG, you will get that
+> package as a separate, isolated RPM.  But these changes are in QA now
+> and haven't been merged into our main repo so take those with a grain
+> of salt.
+> 
+> Thanks,
+> --Spencer
+>> 
+>> ---John
+>> 
+>> 
+>> 
+>> Been inspecting the "other" make (in packages/clip-selinux-policy v.
+>> packages/clip-selinux-policy/clip-selinux-policy).
+>> 
+>> On 2015-03-20 00:33, Spencer Shimko wrote:
+>>> 
+>>> Trimmed SELinux mailing list form CCs.
+>>> 
+>>> Did you try the the suggestions in my on-list response a little while 
+>>> ago?
+>>> 
+>>> On Thu, Mar 19, 2015 at 6:38 PM, John Chludzinski
+>>> <john.chludzinski@vivaldi.net> wrote:
+>>>> 
+>>>> I ran (when under the role sysadm_r and type sysadm_t):
+>>>> 
+>>>> $ id -Z
+>>>> 
+>>>> and got: Xsysadm_u:sysadm_r:sysadm_t:s0
+>>>> 
+>>>> So now I'm assuming the CLIP image is at "s0" sensitivity level.
+>>>> 
+>>>> Then I noticed that the build.conf file states: "The sensitivities 
+>>>> will
+>>>> be
+>>>> s0 to s(MLS_SENS-1)".
+>>>> 
+>>>> So I built using:
+>>>> 
+>>>> $ make modules APPS_MODS="sysadm" TYPE="mls" MLS_SENS=1
+>>>> 
+>>>> to get an "s0" sensitivity level.
+>>>> 
+>>>> Tried to install and now I get: "duplicate declaration in module:
+>>>> type/attribute sysadm_userhelper_t".
+>>>> (A "Whac-A-Mole" game!)
+>>>> 
+>>>> ---John
+>>>> 
+>>>> 
+>>>> On 2015-03-19 21:31, John Chludzinski wrote:
+>>>>> 
+>>>>> 
+>>>>> First thing ... I'm a newbie to SELinux.
+>>>>> 
+>>>>> I'm trying to update the sysadm module in a CLIP image. I 
+>>>>> downloaded
+>>>>> the SELinux policy code from: 
+>>>>> https://github.com/QuarkSecurity/CLIP.
+>>>>> I modified the sysadm policy code and built (in
+>>>>> ~/clip/packages/clip-selinux-policy/clip-selinux-policy) using:
+>>>>> 
+>>>>> $ make modules APPS_MODS="sysadm"
+>>>>> 
+>>>>> Then I tried to install in the CLIP image using:
+>>>>> 
+>>>>> $ semodule -i /mnt/hdd/SELinix/sysadm.pp
+>>>>> 
+>>>>> and got: "tried to link in a non-MLS module with an MLS base". (I
+>>>>> assume this means the CLIP image I'm working with is MLS?)
+>>>>> Next I built using:
+>>>>> 
+>>>>> $ make modules APPS_MODS="sysadm" TYPE="mls"
+>>>>> 
+>>>>> Tried to load/install the module and got: "sensitivy s10 not 
+>>>>> declared by
+>>>>> base."
+>>>>> 
+>>>>> Next I tried:
+>>>>> 
+>>>>> $ make modules APPS_MODS="auditadm sysadm" TYPE="mls" MLS_SENS=15
+>>>>> 
+>>>>> and !still! got "sensitivy s10 not declared by base".
+>>>>> 
+>>>>> Any suggestions/thoughts?
+>>>>> 
+>>>>> ---John
+>>>>> _______________________________________________
+>>>>> Selinux mailing list
+>>>>> Selinux@tycho.nsa.gov
+>>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>>> To get help, send an email containing "help" to
+>>>>> Selinux-request@tycho.nsa.gov.
+>>>> 
+>>>> 
+>>>> 
+>>>> _______________________________________________
+>>>> Selinux mailing list
+>>>> Selinux@tycho.nsa.gov
+>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>> To get help, send an email containing "help" to
+>>>> Selinux-request@tycho.nsa.gov.
+>> 
+>> 
