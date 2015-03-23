@@ -1,154 +1,297 @@
-Message-ID: <5510457A.1060703@tresys.com>
-Date: Mon, 23 Mar 2015 12:55:22 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2NHbPQV027494
+ for <selinux@tycho.nsa.gov>; Mon, 23 Mar 2015 13:37:26 -0400
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>, <selinux@tycho.nsa.gov>,
- <dgdegra@tycho.nsa.gov>
-Subject: Re: [PATCH] libsepol: Fix building Xen policy with devicetreecon
-References: <1427126312-14010-1-git-send-email-richard_c_haines@btinternet.com>
-In-Reply-To: <1427126312-14010-1-git-send-email-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="windows-1252"
-Cc: xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Date: Mon, 23 Mar 2015 18:36:44 +0100
+From: John Chludzinski <john.chludzinski@vivaldi.net>
+To: Brandon Whalen <brandon@quarksecurity.com>
+Subject: Re: Trying to update sysadm module in CLIP
+In-Reply-To: <CAN4BvJ9itQkooPFA3HmRHk5e=gYFbKH4BSkEdZEM1fEAEwZiSA@mail.gmail.com>
+References: <e4247c48f0174b6f77f05c5b28bbcb9e@vivaldi.net>
+ <b9a113715934c985dbeec5c2351f06cd@vivaldi.net>
+ <CAGNxgPiBThm0SpAo-+1D2UsaFyVNY2AKpj56RFvt+8SrfxL-Jw@mail.gmail.com>
+ <55d4ced56b5ade45f9635caa3bd622b9@vivaldi.net>
+ <CAGNxgPh1Tq+ipErajh4F7VSW57cMTiNC7ZWJOa+jpWYsyw_HOA@mail.gmail.com>
+ <cd05db3d284b292ed49352132248592b@vivaldi.net>
+ <CAN4BvJ9itQkooPFA3HmRHk5e=gYFbKH4BSkEdZEM1fEAEwZiSA@mail.gmail.com>
+Message-ID: <dfd9a48922233f268fac642673f44056@vivaldi.net>
+Cc: Selinux <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/23/2015 11:58 AM, Richard Haines wrote:
-> Problems fixed:
-> 1) Fix core dump when building CIL policy (corrupted double-linked list)
->    by Steve Lawrence <slawrence@tresys.com>
-> 2) Binary policy failed to read with devicetreecon statement.
-> 3) Free path name - With a Xen policy running secilc/valgrind
->    there are no memory errors.
-> 
-> Also added devicetreecon statement to CIL policy.cil and updated the CIL
-> Reference Guide.
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+1st, I don't see an MCS build option in 
+packages/clip-selinux-policy/Makefile. How would I build this?
 
-Acked-by: Steve Lawrence <slawrence@tresys.com>
+2nd, when last I tried to load/install a non-MLS module (e.g., 
+sysadm.pp) into CLIP, it refused saying "trying to load non-MLS module 
+into MLS base".
 
-Thanks!
 
-> ---
->  libsepol/cil/docs/cil_xen_statements.xml | 44 ++++++++++++++++++++++++++++++++
->  libsepol/cil/src/cil_build_ast.c         |  2 --
->  libsepol/cil/test/policy.cil             |  1 +
->  libsepol/src/policydb.c                  |  6 +++--
->  4 files changed, 49 insertions(+), 4 deletions(-)
+---John
+
+
+On 2015-03-23 17:01, Brandon Whalen wrote:
+> On Mon, Mar 23, 2015 at 11:16 AM, John Chludzinski
+> <john.chludzinski@vivaldi.net> wrote:
+>> I took the liberty of examining the contents of
+>> clip-selinux-policy-6.2.0-1.noarch.rpm:
+>> 
+>> $ rpm -qpl clip-selinux-policy-6.2.0-1.noarch.rpm
+>> 
+>> $ rpm2cpio clip-selinux-policy-6.2.0-1.noarch.rpm | cpio -idmv
+>> 
+>> and found the RPM contains nothing but *.if files for the modules + 
+>> gzipped
+>> man pages + a Makefile.
+>> 
+>> It contains NO *.pp files nor does it include any *.te and *.fc to 
+>> build
+>> *.pp files from.
+>> 
+>> So installing clip-selinux-policy-6.2.0-1.noarch.rpm is for what?
 > 
-> diff --git a/libsepol/cil/docs/cil_xen_statements.xml b/libsepol/cil/docs/cil_xen_statements.xml
-> index 1035b68..c72ef6c 100644
-> --- a/libsepol/cil/docs/cil_xen_statements.xml
-> +++ b/libsepol/cil/docs/cil_xen_statements.xml
-> @@ -3,6 +3,7 @@
->  
->     <sect1>
->        <title>Xen Statements</title>
-> +      <para>Policy version 30 introduced the <literal><link linkend="devicetreecon">devicetreecon</link></literal> statement and also expanded the existing I/O memory range to 64 bits in order to support hardware with more than 44 bits of physical address space (32-bit count of 4K pages).</para>
->        <para>See the <ulink url="http://xenbits.xen.org/docs/4.2-testing/misc/xsm-flask.txt">"XSM/FLASK Configuration"</ulink> document for further information (<ulink url="http://xenbits.xen.org/docs/4.2-testing/misc/xsm-flask.txt"></ulink>)</para>
->        <sect2 id="iomemcon">
->           <title>iomemcon</title>
-> @@ -180,4 +181,47 @@
->           <programlisting><![CDATA[(pirqcon 33 (unconfined.user object_r unconfined.object low_low))]]></programlisting>
->        </sect2>
->  
-> +      <sect2 id="devicetreecon">
-> +         <title>devicetreecon</title>
-> +         <para>Label device tree nodes.</para>
-> +         <para><emphasis role="bold">Statement definition:</emphasis></para>
-> +         <programlisting><![CDATA[(devicetreecon path context_id)]]></programlisting>
-> +         <para><emphasis role="bold">Where:</emphasis></para>
-> +         <informaltable frame="all">
-> +            <tgroup cols="2">
-> +            <colspec colwidth="2 *"/>
-> +            <colspec colwidth="6 *"/>
-> +               <tbody>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>devicetreecon</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>The <literal>devicetreecon</literal> keyword.</para>
-> +                  </entry>
-> +               </row>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>path</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>The device tree path. If this contains spaces enclose within <literal>""</literal>.</para>
-> +                  </entry>
-> +               </row>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>context_id</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>A previously declared <literal><link linkend="context">context</link></literal> identifier or an anonymous security context (<literal><link linkend="user">user</link> <link linkend="role">role</link> <link linkend="type">type</link> <link linkend="levelrange">levelrange</link></literal>), the range MUST be defined whether the policy is MLS/MCS enabled or not.</para>
-> +                  </entry>
-> +               </row>
-> +            </tbody></tgroup>
-> +         </informaltable>
-> +
-> +         <para><emphasis role="bold">Example:</emphasis></para>
-> +         <para>An anonymous context for the specified path:</para>
-> +         <programlisting><![CDATA[(devicetreecon "/this is/a/path" (unconfined.user object_r unconfined.object low_low))]]></programlisting>
-> +      </sect2>
-> +
->     </sect1>
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index 973b2d7..92c3e09 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -4583,8 +4583,6 @@ void cil_destroy_devicetreecon(struct cil_devicetreecon *devicetreecon)
->  		return;
->  	}
->  
-> -	free(devicetreecon->path);
-> -
->  	if (devicetreecon->context_str == NULL && devicetreecon->context != NULL) {
->  		cil_destroy_context(devicetreecon->context);
->  	}
-> diff --git a/libsepol/cil/test/policy.cil b/libsepol/cil/test/policy.cil
-> index 9c76cad..25c8545 100644
-> --- a/libsepol/cil/test/policy.cil
-> +++ b/libsepol/cil/test/policy.cil
-> @@ -250,6 +250,7 @@
->  	(iomemcon (0 255) system_u_bin_t_l2h)
->  	(ioportcon (22 22) system_u_bin_t_l2h)
->  	(pcidevicecon 345 system_u_bin_t_l2h)
-> +	(devicetreecon "/this is/a/path" system_u_bin_t_l2h)
->  
->  	(constrain (files (read)) (not (or (and (eq t1 exec_t) (eq t2 bin_t)) (eq r1 r2))))
->  	(constrain char_w (not (or (and (eq t1 exec_t) (eq t2 bin_t)) (eq r1 r2))))
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index b45b662..d1c0018 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1274,7 +1274,7 @@ void ocontext_xen_free(ocontext_t **ocontexts)
->  			c = c->next;
->  			context_destroy(&ctmp->context[0]);
->  			context_destroy(&ctmp->context[1]);
-> -			if (i == OCON_ISID)
-> +			if (i == OCON_ISID || i == OCON_XEN_DEVICETREE)
->  				free(ctmp->u.name);
->  			free(ctmp);
->  		}
-> @@ -2559,11 +2559,13 @@ static int ocontext_read_xen(struct policydb_compat_info *info,
->  				rc = next_entry(buf, fp, sizeof(uint32_t));
->  				if (rc < 0)
->  					return -1;
-> -				len = le32_to_cpu(buf[1]);
-> +				len = le32_to_cpu(buf[0]);
->  				c->u.name = malloc(len + 1);
->  				if (!c->u.name)
->  					return -1;
->  				rc = next_entry(c->u.name, fp, len);
-> +				if (rc < 0)
-> +					return -1;
->  				c->u.name[len] = 0;
->  				if (context_read_and_validate
->  				    (&c->context[0], p, fp))
+> It's basically an RPM that installs header files and man pages. The
+> .if file declares interfaces to other modules, so its very much like
+> header information for SELinux policy. The one with the .pp files
+> should be named clip-selinux-policy-6.2.0-1-mls.noarch.rpm. If you
+> were building mcs it would clip-selinux-policy-6.2.0-1-mcs.noarch.rpm.
 > 
+>> 
+>> ---John
+>> 
+>> On 2015-03-20 23:07, Spencer Shimko wrote:
+>>> 
+>>> On Fri, Mar 20, 2015 at 5:43 PM, John Chludzinski
+>>> <john.chludzinski@vivaldi.net> wrote:
+>>>> 
+>>>> 1) I noticed
+>>>> packages/clip-selinux-policy/clip-selinux-policy/policy/modules.conf
+>>>> defines
+>>>> the the modules that are built into a base.pp:
+>>>> 
+>>>> packages/clip-selinux-policy/clip-selinux-policy/ > make base 
+>>>> TYPE="mls"
+>>>> MLS_SENS=1
+>>>> 
+>>>> which includes sysadm. Is this something of any interest?
+>>> 
+>>> 
+>>> As long as modules.conf declares something as base, it will be in
+>>> base.  This is interesting because you have made made me think about 
+>>> a
+>>> circumstance that will break something in my tree pending merge into
+>>> our QSI tree (my #next branch in sshimko on github).  Neither here 
+>>> nor
+>>> there, yes, it will be in base if it is defined as base in
+>>> modules.conf.
+>>>> 
+>>>> 
+>>>> 2) Reading the output from:
+>>>> 
+>>>> packages/clip-selinux-policy/ > make rpm
+>>>> 
+>>>> I noticed it contains: "Compiling clip base module", which compiles 
+>>>> all
+>>>> the
+>>>> *.te files.
+>>> 
+>>> 
+>>> Only the .te files corresponding to those set to "base" in
+>>> modules.conf.  Those listed as "module" will be built at a later step
+>>> and will not be present in base.pp.
+>>>> 
+>>>> 
+>>>> which, of course, includes sysadm.
+>>>> 
+>>>> The files created are: clip-selinux-policy-6.2.0-1.noarch.rpm,
+>>>> clip-selinux-policy-6.2.0-1.src.rpm, 
+>>>> clip-selinux-policy-6.2.0.tar.gz.
+>>>> 
+>>>> Should install clip-selinux-policy-6.2.0-1.noarch.rpm?
+>>> 
+>>> 
+>>> Yes the tarball is a side-effect of how things are built.  The RPM is
+>>> the one you want.  But there should be several files ending in .rpm.
+>>> Is that not the case?
+>>>> 
+>>>> 
+>>>> 3) If I'm making small modifications to one of the canonical CLIP 
+>>>> modules
+>>>> (system, role, etc.) is there something less that replacing the 
+>>>> policy
+>>>> tree?
+>>>> That's why I build the sysadm.pp.
+>>> 
+>>> 
+>>> Honestly the easiest way is to just roll the updated RPMs and install
+>>> them on your system/.  Thus, you will get an updated sysadm policy as
+>>> well.
+>>> 
+>>> Are you just trying to build a policy for a single,
+>>> previously-deployed system?  If so, there are other ways.  But if
+>>> you're trying to do reproducible builds for inclusion in a bigger
+>>> environment using RPMs for updating policies is reommended.
+>>> 
+>>> 
+>>>> 
+>>>> 4) If I'm creating policies unique to this project, should I create 
+>>>> a
+>>>> directory under policy/modules/<project> and run: make conf? Use
+>>>> LOCAL_ROOT
+>>>> to point to a policy source tree hanging off the project root? Just
+>>>> trying
+>>>> to come up with some process/strategy that's flexible and 
+>>>> defensible. Of
+>>>> course LOCAL_ROOT is defined in the Makefile in
+>>>> packages/clip-selinux-policy/clip-selinux-policy and I'd be building 
+>>>> *.pp
+>>>> files? Maybe this is OK for new policy code?
+>>>> 
+>>> 
+>>> Gotcha.  So yes you're taking the right approach by introducing a new
+>>> policy/modules/<project> directory and adding a metadata.xml file in
+>>> there to describe that project.  Then run make conf to have that
+>>> project added to the correct configuration files.
+>>> 
+>>> Aside from make conf, I wouldn't use any other make commands in the
+>>> policy directory as it will lead to problems.  LOCAL_ROOT is a decent
+>>> option if you're trying to build out of tree policies for, say, a
+>>> single system.  Actually I think I implemented that feature years
+>>> ago....
+>>> 
+>>> Basically, I would add your project folder, run make conf, then start
+>>> modifying all of the policy components you need to modify.  For
+>>> testing and deployment I would suggest replacing the entire set of
+>>> RPMs by rebuilding the RPMs with make rpm, and reinstalling them 
+>>> (with
+>>> --force if you didn't bump the release number).
+>>> 
+>>> I have some changes in my github tree #next branch that haven't been
+>>> merged into our main tree yet.  Specifically, we can now roll RPMs 
+>>> for
+>>> individual policy packages via a SEPRATE_PKGS variable in the
+>>> Makefile.  This might be useful for you because you can rebuild the
+>>> RPMs and, by specifying sysadm as a SEPARATE_PKG, you will get that
+>>> package as a separate, isolated RPM.  But these changes are in QA now
+>>> and haven't been merged into our main repo so take those with a grain
+>>> of salt.
+>>> 
+>>> Thanks,
+>>> --Spencer
+>>>> 
+>>>> 
+>>>> ---John
+>>>> 
+>>>> 
+>>>> 
+>>>> Been inspecting the "other" make (in packages/clip-selinux-policy v.
+>>>> packages/clip-selinux-policy/clip-selinux-policy).
+>>>> 
+>>>> On 2015-03-20 00:33, Spencer Shimko wrote:
+>>>>> 
+>>>>> 
+>>>>> Trimmed SELinux mailing list form CCs.
+>>>>> 
+>>>>> Did you try the the suggestions in my on-list response a little 
+>>>>> while
+>>>>> ago?
+>>>>> 
+>>>>> On Thu, Mar 19, 2015 at 6:38 PM, John Chludzinski
+>>>>> <john.chludzinski@vivaldi.net> wrote:
+>>>>>> 
+>>>>>> 
+>>>>>> I ran (when under the role sysadm_r and type sysadm_t):
+>>>>>> 
+>>>>>> $ id -Z
+>>>>>> 
+>>>>>> and got: Xsysadm_u:sysadm_r:sysadm_t:s0
+>>>>>> 
+>>>>>> So now I'm assuming the CLIP image is at "s0" sensitivity level.
+>>>>>> 
+>>>>>> Then I noticed that the build.conf file states: "The sensitivities 
+>>>>>> will
+>>>>>> be
+>>>>>> s0 to s(MLS_SENS-1)".
+>>>>>> 
+>>>>>> So I built using:
+>>>>>> 
+>>>>>> $ make modules APPS_MODS="sysadm" TYPE="mls" MLS_SENS=1
+>>>>>> 
+>>>>>> to get an "s0" sensitivity level.
+>>>>>> 
+>>>>>> Tried to install and now I get: "duplicate declaration in module:
+>>>>>> type/attribute sysadm_userhelper_t".
+>>>>>> (A "Whac-A-Mole" game!)
+>>>>>> 
+>>>>>> ---John
+>>>>>> 
+>>>>>> 
+>>>>>> On 2015-03-19 21:31, John Chludzinski wrote:
+>>>>>>> 
+>>>>>>> 
+>>>>>>> 
+>>>>>>> First thing ... I'm a newbie to SELinux.
+>>>>>>> 
+>>>>>>> I'm trying to update the sysadm module in a CLIP image. I 
+>>>>>>> downloaded
+>>>>>>> the SELinux policy code from: 
+>>>>>>> https://github.com/QuarkSecurity/CLIP.
+>>>>>>> I modified the sysadm policy code and built (in
+>>>>>>> ~/clip/packages/clip-selinux-policy/clip-selinux-policy) using:
+>>>>>>> 
+>>>>>>> $ make modules APPS_MODS="sysadm"
+>>>>>>> 
+>>>>>>> Then I tried to install in the CLIP image using:
+>>>>>>> 
+>>>>>>> $ semodule -i /mnt/hdd/SELinix/sysadm.pp
+>>>>>>> 
+>>>>>>> and got: "tried to link in a non-MLS module with an MLS base". (I
+>>>>>>> assume this means the CLIP image I'm working with is MLS?)
+>>>>>>> Next I built using:
+>>>>>>> 
+>>>>>>> $ make modules APPS_MODS="sysadm" TYPE="mls"
+>>>>>>> 
+>>>>>>> Tried to load/install the module and got: "sensitivy s10 not 
+>>>>>>> declared
+>>>>>>> by
+>>>>>>> base."
+>>>>>>> 
+>>>>>>> Next I tried:
+>>>>>>> 
+>>>>>>> $ make modules APPS_MODS="auditadm sysadm" TYPE="mls" MLS_SENS=15
+>>>>>>> 
+>>>>>>> and !still! got "sensitivy s10 not declared by base".
+>>>>>>> 
+>>>>>>> Any suggestions/thoughts?
+>>>>>>> 
+>>>>>>> ---John
+>>>>>>> _______________________________________________
+>>>>>>> Selinux mailing list
+>>>>>>> Selinux@tycho.nsa.gov
+>>>>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>>>>> To get help, send an email containing "help" to
+>>>>>>> Selinux-request@tycho.nsa.gov.
+>>>>>> 
+>>>>>> 
+>>>>>> 
+>>>>>> 
+>>>>>> _______________________________________________
+>>>>>> Selinux mailing list
+>>>>>> Selinux@tycho.nsa.gov
+>>>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>>>> To get help, send an email containing "help" to
+>>>>>> Selinux-request@tycho.nsa.gov.
+>>>> 
+>>>> 
+>>>> 
+>> 
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to
+>> Selinux-request@tycho.nsa.gov.
