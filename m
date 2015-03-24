@@ -1,154 +1,113 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/3] selinux: convert avtab hash table to flex_array
-Date: Tue, 24 Mar 2015 16:54:16 -0400
-Message-Id: <1427230458-23667-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH 2/3] selinux: Use a better hash function for avtab
+Date: Tue, 24 Mar 2015 16:54:17 -0400
+Message-Id: <1427230458-23667-2-git-send-email-sds@tycho.nsa.gov>
+In-Reply-To: <1427230458-23667-1-git-send-email-sds@tycho.nsa.gov>
+References: <1427230458-23667-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Previously we shrank the avtab max hash buckets to avoid
-high order memory allocations, but this causes avtab lookups to
-degenerate to very long linear searches for the Fedora policy. Convert to
-using a flex_array instead so that we can increase the buckets
-without such limitations.
+From: John Brooks <john.brooks@jolla.com>
 
-This change does not alter the max hash buckets; that is left to a
-separate follow-on change.
+This function, based on murmurhash3, has much better distribution than
+the original. Using the current default of 2048 buckets, there are many
+fewer collisions:
 
+Before:
+101421 entries and 2048/2048 buckets used, longest chain length 374
+After:
+101421 entries and 2048/2048 buckets used, longest chain length 81
+
+The difference becomes much more significant when buckets are increased.
+A naive attempt to expand the current function to larger outputs doesn't
+yield any significant improvement; so this function is a prerequisite
+for increasing the bucket size.
+
+sds:  Adapted from the original patches for libsepol to the kernel.
+
+Signed-off-by: John Brooks <john.brooks@jolla.com>
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/ss/avtab.c | 31 +++++++++++++++++++------------
- security/selinux/ss/avtab.h |  4 +++-
- 2 files changed, 22 insertions(+), 13 deletions(-)
+ security/selinux/ss/avtab.c | 41 +++++++++++++++++++++++++++++++++++++----
+ security/selinux/ss/avtab.h |  2 +-
+ 2 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index a3dd9fa..3ea0198 100644
+index 3ea0198..b64f277 100644
 --- a/security/selinux/ss/avtab.c
 +++ b/security/selinux/ss/avtab.c
-@@ -46,8 +46,12 @@ avtab_insert_node(struct avtab *h, int hvalue,
- 		newnode->next = prev->next;
- 		prev->next = newnode;
- 	} else {
--		newnode->next = h->htable[hvalue];
--		h->htable[hvalue] = newnode;
-+		newnode->next = flex_array_get_ptr(h->htable, hvalue);
-+		if (flex_array_put_ptr(h->htable, hvalue, newnode,
-+				       GFP_KERNEL|__GFP_ZERO)) {
-+			kmem_cache_free(avtab_node_cachep, newnode);
-+			return NULL;
-+		}
- 	}
+@@ -25,10 +25,43 @@
  
- 	h->nel++;
-@@ -64,7 +68,7 @@ static int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_dat
- 		return -EINVAL;
+ static struct kmem_cache *avtab_node_cachep;
  
- 	hvalue = avtab_hash(key, h->mask);
--	for (prev = NULL, cur = h->htable[hvalue];
-+	for (prev = NULL, cur = flex_array_get_ptr(h->htable, hvalue);
- 	     cur;
- 	     prev = cur, cur = cur->next) {
- 		if (key->source_type == cur->key.source_type &&
-@@ -104,7 +108,7 @@ avtab_insert_nonunique(struct avtab *h, struct avtab_key *key, struct avtab_datu
- 	if (!h || !h->htable)
- 		return NULL;
- 	hvalue = avtab_hash(key, h->mask);
--	for (prev = NULL, cur = h->htable[hvalue];
-+	for (prev = NULL, cur = flex_array_get_ptr(h->htable, hvalue);
- 	     cur;
- 	     prev = cur, cur = cur->next) {
- 		if (key->source_type == cur->key.source_type &&
-@@ -135,7 +139,8 @@ struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *key)
- 		return NULL;
+-static inline int avtab_hash(struct avtab_key *keyp, u16 mask)
++/* Based on MurmurHash3, written by Austin Appleby and placed in the
++ * public domain.
++ */
++static inline int avtab_hash(struct avtab_key *keyp, u32 mask)
+ {
+-	return ((keyp->target_class + (keyp->target_type << 2) +
+-		 (keyp->source_type << 9)) & mask);
++	static const u32 c1 = 0xcc9e2d51;
++	static const u32 c2 = 0x1b873593;
++	static const u32 r1 = 15;
++	static const u32 r2 = 13;
++	static const u32 m  = 5;
++	static const u32 n  = 0xe6546b64;
++
++	u32 hash = 0;
++
++#define mix(input) { \
++	u32 v = input; \
++	v *= c1; \
++	v = (v << r1) | (v >> (32 - r1)); \
++	v *= c2; \
++	hash ^= v; \
++	hash = (hash << r2) | (hash >> (32 - r2)); \
++	hash = hash * m + n; \
++}
++
++	mix(keyp->target_class);
++	mix(keyp->target_type);
++	mix(keyp->source_type);
++
++#undef mix
++
++	hash ^= hash >> 16;
++	hash *= 0x85ebca6b;
++	hash ^= hash >> 13;
++	hash *= 0xc2b2ae35;
++	hash ^= hash >> 16;
++
++	return hash & mask;
+ }
  
- 	hvalue = avtab_hash(key, h->mask);
--	for (cur = h->htable[hvalue]; cur; cur = cur->next) {
-+	for (cur = flex_array_get_ptr(h->htable, hvalue); cur;
-+	     cur = cur->next) {
- 		if (key->source_type == cur->key.source_type &&
- 		    key->target_type == cur->key.target_type &&
- 		    key->target_class == cur->key.target_class &&
-@@ -170,7 +175,8 @@ avtab_search_node(struct avtab *h, struct avtab_key *key)
- 		return NULL;
+ static struct avtab_node*
+@@ -256,7 +289,7 @@ int avtab_init(struct avtab *h)
  
- 	hvalue = avtab_hash(key, h->mask);
--	for (cur = h->htable[hvalue]; cur; cur = cur->next) {
-+	for (cur = flex_array_get_ptr(h->htable, hvalue); cur;
-+	     cur = cur->next) {
- 		if (key->source_type == cur->key.source_type &&
- 		    key->target_type == cur->key.target_type &&
- 		    key->target_class == cur->key.target_class &&
-@@ -228,15 +234,14 @@ void avtab_destroy(struct avtab *h)
- 		return;
- 
- 	for (i = 0; i < h->nslot; i++) {
--		cur = h->htable[i];
-+		cur = flex_array_get_ptr(h->htable, i);
- 		while (cur) {
- 			temp = cur;
- 			cur = cur->next;
- 			kmem_cache_free(avtab_node_cachep, temp);
- 		}
--		h->htable[i] = NULL;
- 	}
--	kfree(h->htable);
-+	flex_array_free(h->htable);
- 	h->htable = NULL;
- 	h->nslot = 0;
- 	h->mask = 0;
-@@ -270,7 +275,8 @@ int avtab_alloc(struct avtab *h, u32 nrules)
- 		nslot = MAX_AVTAB_HASH_BUCKETS;
- 	mask = nslot - 1;
- 
--	h->htable = kcalloc(nslot, sizeof(*(h->htable)), GFP_KERNEL);
-+	h->htable = flex_array_alloc(sizeof(struct avtab_node *), nslot,
-+				     GFP_KERNEL | __GFP_ZERO);
- 	if (!h->htable)
- 		return -ENOMEM;
- 
-@@ -293,7 +299,7 @@ void avtab_hash_eval(struct avtab *h, char *tag)
- 	max_chain_len = 0;
- 	chain2_len_sum = 0;
- 	for (i = 0; i < h->nslot; i++) {
--		cur = h->htable[i];
-+		cur = flex_array_get_ptr(h->htable, i);
- 		if (cur) {
- 			slots_used++;
- 			chain_len = 0;
-@@ -534,7 +540,8 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
- 		return rc;
- 
- 	for (i = 0; i < a->nslot; i++) {
--		for (cur = a->htable[i]; cur; cur = cur->next) {
-+		for (cur = flex_array_get_ptr(a->htable, i); cur;
-+		     cur = cur->next) {
- 			rc = avtab_write_item(p, cur, fp);
- 			if (rc)
- 				return rc;
+ int avtab_alloc(struct avtab *h, u32 nrules)
+ {
+-	u16 mask = 0;
++	u32 mask = 0;
+ 	u32 shift = 0;
+ 	u32 work = nrules;
+ 	u32 nslot = 0;
 diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index 63ce2f9..9318b2b 100644
+index 9318b2b..6d794a2 100644
 --- a/security/selinux/ss/avtab.h
 +++ b/security/selinux/ss/avtab.h
-@@ -23,6 +23,8 @@
- #ifndef _SS_AVTAB_H_
- #define _SS_AVTAB_H_
- 
-+#include <linux/flex_array.h>
-+
- struct avtab_key {
- 	u16 source_type;	/* source type */
- 	u16 target_type;	/* target type */
-@@ -51,7 +53,7 @@ struct avtab_node {
- };
- 
- struct avtab {
--	struct avtab_node **htable;
-+	struct flex_array *htable;
+@@ -56,7 +56,7 @@ struct avtab {
+ 	struct flex_array *htable;
  	u32 nel;	/* number of elements */
  	u32 nslot;      /* number of hash slots */
- 	u16 mask;       /* mask to compute hash func */
+-	u16 mask;       /* mask to compute hash func */
++	u32 mask;       /* mask to compute hash func */
+ 
+ };
+ 
 -- 
 1.9.3
