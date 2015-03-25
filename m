@@ -1,24 +1,18 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2P4tnrs029261
- for <selinux@tycho.nsa.gov>; Wed, 25 Mar 2015 00:55:49 -0400
-Received: by pdbop1 with SMTP id op1so16069092pdb.2
- for <selinux@tycho.nsa.gov>; Tue, 24 Mar 2015 21:55:47 -0700 (PDT)
-Date: Wed, 25 Mar 2015 12:55:43 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Tracy Reed <treed@ultraviolet.org>
-Subject: Re: Is there a macro for this?
-Message-ID: <20150325045543.GA27174@meriadoc.perfinion.com>
-References: <20150325015752.GG32173@tracyreed.org>
+Message-ID: <5512FAC8.8070300@tycho.nsa.gov>
+Date: Wed, 25 Mar 2015 14:13:28 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Tracy Reed <treed@ultraviolet.org>, selinux@tycho.nsa.gov
+Subject: Re: Is there a macro for this?
+References: <20150325015752.GG32173@tracyreed.org>
 In-Reply-To: <20150325015752.GG32173@tracyreed.org>
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Mar 24, 2015 at 06:57:53PM -0700, Tracy Reed wrote:
+On 03/24/2015 09:57 PM, Tracy Reed wrote:
 > I've written my own policy to confine a custom in-house developed
 > service.  I am getting the following denials. I'm pretty sure there is a
 > macro or macros I can use to allow all of these common sorts of things to
@@ -27,19 +21,13 @@ On Tue, Mar 24, 2015 at 06:57:53PM -0700, Tracy Reed wrote:
 > 
 > Thanks!
 
-Swift has some really useful bash functions to help find macros.
-https://github.com/sjvermeu/small.coding/blob/master/selinux-local/localfuncs
-it is documented a bit here:
-https://wiki.gentoo.org/wiki/Project:SELinux/Development#Starting_from_scratch
+Did you try using audit2allow -R?
+Also, your question is more suited to the refpolicy list.
 
 > 
 > #============= initrc_t ==============
 > allow initrc_t myapp_cid_t:dir { getattr search };
 > allow initrc_t myapp_cid_t:file { read getattr open };
-read_files_pattern(initrc_t, myapp_cid_t, myapp_cid_t)
-would cover those two lines above, but its best to find an interface
-that will do part of that for you.
-
 > allow initrc_t myapp_java_t:dir { getattr search };
 > 
 > #============= locate_t ==============
@@ -68,8 +56,6 @@ that will do part of that for you.
 > 
 > #============= logrotate_t ==============
 > allow logrotate_t var_t:file getattr;
-this likely has nothing to do with your app, you can probably remove it
-safely.
 > 
 > #============= rpm_t ==============
 > allow rpm_t myapp_bin_t:dir { getattr search };
@@ -123,17 +109,6 @@ safely.
 > #============= unconfined_t ==============
 > allow unconfined_t myapp_bin_t:dir { search getattr };
 > allow unconfined_t myapp_bin_t:file { read getattr open execute execute_no_trans };
-the execute_no_trans means it will be executing without transitioning
-into another domain, you should probably be making your own myapp_t and
-do something like:
-unconfined_domtrans_to(myapp_t, myapp_exec_t)
-then you'll want to use manage/read_files_pattern and manage/list_dirs_patterns to
-allow myapp_t to manage/readonly its files.
-
-also if you make cronjob_t transition to the myapp_t domain then the
-cronjob section could mostly be replaced with:
-cron_system_entry(myapp_t, myapp_exec_t)
-
 > allow unconfined_t myapp_bin_t:lnk_file { read getattr };
 > allow unconfined_t myapp_include_t:dir search;
 > allow unconfined_t myapp_include_t:file { read getattr open };
@@ -149,13 +124,11 @@ cron_system_entry(myapp_t, myapp_exec_t)
 > # user_home_dir_t, user_tmpfs_t, user_tmp_t, unlabeled_t, proc_type, sandbox_file_t, filesystem_type, user_home_type, sysctl_type, file_type, nfs_t
 > 
 > 
-> -- 
-> Tracy Reed
-
-
-
+> 
+> 
 > _______________________________________________
 > Selinux mailing list
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
 > To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
