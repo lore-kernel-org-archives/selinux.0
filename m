@@ -1,134 +1,49 @@
-Message-ID: <5512FAC8.8070300@tycho.nsa.gov>
-Date: Wed, 25 Mar 2015 14:13:28 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2QA39o6013242
+ for <selinux@tycho.nsa.gov>; Thu, 26 Mar 2015 06:03:09 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux fixes for 3.20 #2
+Date: Thu, 26 Mar 2015 06:02:59 -0400
+Message-ID: <1476299.dB92YccQxo@sifl>
 MIME-Version: 1.0
-To: Tracy Reed <treed@ultraviolet.org>, selinux@tycho.nsa.gov
-Subject: Re: Is there a macro for this?
-References: <20150325015752.GG32173@tracyreed.org>
-In-Reply-To: <20150325015752.GG32173@tracyreed.org>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/24/2015 09:57 PM, Tracy Reed wrote:
-> I've written my own policy to confine a custom in-house developed
-> service.  I am getting the following denials. I'm pretty sure there is a
-> macro or macros I can use to allow all of these common sorts of things to
-> happen as I'm pretty sure I used it a few years ago but I can't recall or
-> find it. Can anyone point me in the right direction?
-> 
-> Thanks!
+Hi James,
 
-Did you try using audit2allow -R?
-Also, your question is more suited to the refpolicy list.
+Just a single small, but important, patch that fixes a long standing bug in 
+SELinux.  Please pull for v3.20.
 
-> 
-> #============= initrc_t ==============
-> allow initrc_t myapp_cid_t:dir { getattr search };
-> allow initrc_t myapp_cid_t:file { read getattr open };
-> allow initrc_t myapp_java_t:dir { getattr search };
-> 
-> #============= locate_t ==============
-> allow locate_t myapp_bin_t:dir getattr;
-> allow locate_t myapp_cid_t:dir { read search open getattr };
-> allow locate_t myapp_include_t:dir { getattr search };
-> allow locate_t myapp_java_t:dir { read getattr open search };
-> allow locate_t myapp_lib64_t:dir { read search open getattr };
-> allow locate_t myapp_lib_t:dir { read getattr open search };
-> allow locate_t myapp_logs_t:dir { read search open getattr };
-> allow locate_t myapp_node_api_t:dir getattr;
-> allow locate_t myapp_node_bin_t:dir getattr;
-> allow locate_t myapp_node_conf_t:dir { getattr search };
-> allow locate_t myapp_node_incoming-dist_t:dir getattr;
-> allow locate_t myapp_node_lib_t:dir { getattr search };
-> allow locate_t myapp_node_logs_t:dir getattr;
-> allow locate_t myapp_node_scripts_t:dir getattr;
-> allow locate_t myapp_node_tomcat_t:dir { read getattr open search };
-> allow locate_t myapp_node_util_t:dir getattr;
-> allow locate_t myapp_node_var_t:dir getattr;
-> allow locate_t myapp_node_webapps_t:dir { read getattr open search };
-> allow locate_t myapp_runbooktmp_t:dir getattr;
-> allow locate_t myapp_share_t:dir { read getattr open search };
-> allow locate_t myapp_snc-provision_t:dir { read getattr open search };
-> allow locate_t myapp_temp_t:dir getattr;
-> 
-> #============= logrotate_t ==============
-> allow logrotate_t var_t:file getattr;
-> 
-> #============= rpm_t ==============
-> allow rpm_t myapp_bin_t:dir { getattr search };
-> allow rpm_t myapp_bin_t:file { read getattr open };
-> allow rpm_t myapp_bin_t:lnk_file { read getattr };
-> allow rpm_t myapp_cid_t:dir { search getattr };
-> allow rpm_t myapp_cid_t:file { read getattr open };
-> allow rpm_t myapp_include_t:dir { getattr search };
-> allow rpm_t myapp_include_t:file { read getattr open };
-> allow rpm_t myapp_java_t:dir { getattr search };
-> allow rpm_t myapp_java_t:file { read getattr open };
-> allow rpm_t myapp_java_t:lnk_file { read getattr };
-> allow rpm_t myapp_lib64_t:dir { getattr search };
-> allow rpm_t myapp_lib64_t:file { read getattr open };
-> allow rpm_t myapp_lib_t:dir { search getattr };
-> allow rpm_t myapp_lib_t:file { read getattr open };
-> allow rpm_t myapp_lib_t:lnk_file { read getattr };
-> allow rpm_t myapp_logs_t:dir getattr;
-> allow rpm_t myapp_runbooktmp_t:dir getattr;
-> allow rpm_t myapp_share_t:dir { getattr search };
-> allow rpm_t myapp_share_t:file { read getattr open };
-> allow rpm_t myapp_temp_t:dir getattr;
-> 
-> #============= system_cronjob_t ==============
-> allow system_cronjob_t myapp_bin_t:dir { search getattr };
-> allow system_cronjob_t myapp_bin_t:file { ioctl execute read open getattr execute_no_trans };
-> allow system_cronjob_t myapp_bin_t:lnk_file { read getattr };
-> allow system_cronjob_t myapp_include_t:dir search;
-> allow system_cronjob_t myapp_include_t:file { read getattr open };
-> allow system_cronjob_t myapp_lib64_t:dir { read search open getattr };
-> allow system_cronjob_t myapp_lib64_t:file { read getattr open execute };
-> allow system_cronjob_t myapp_lib_t:dir { read search open getattr };
-> allow system_cronjob_t myapp_lib_t:file { read getattr open execute };
-> allow system_cronjob_t myapp_logs_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_logs_t:lnk_file read;
-> allow system_cronjob_t myapp_node_api_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_bin_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_conf_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_conf_t:file { read ioctl open getattr };
-> allow system_cronjob_t myapp_node_myapp-release_t:file { read getattr open };
-> allow system_cronjob_t myapp_node_incoming-dist_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_lib_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_logs_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_logs_t:file getattr;
-> allow system_cronjob_t myapp_node_scripts_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_tomcat_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_util_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_var_t:dir { read getattr open search };
-> allow system_cronjob_t myapp_node_webapps_t:dir { read getattr open search };
-> 
-> #============= unconfined_t ==============
-> allow unconfined_t myapp_bin_t:dir { search getattr };
-> allow unconfined_t myapp_bin_t:file { read getattr open execute execute_no_trans };
-> allow unconfined_t myapp_bin_t:lnk_file { read getattr };
-> allow unconfined_t myapp_include_t:dir search;
-> allow unconfined_t myapp_include_t:file { read getattr open };
-> allow unconfined_t myapp_lib64_t:dir { read search open getattr };
-> allow unconfined_t myapp_lib64_t:file { read getattr open execute };
-> allow unconfined_t myapp_lib_t:dir { read search open getattr };
-> allow unconfined_t myapp_lib_t:file { read getattr open execute };
-> allow unconfined_t myapp_node_bin_t:file getattr;
-> allow unconfined_t myapp_node_conf_t:dir search;
-> allow unconfined_t myapp_node_conf_t:file { read getattr open };
-> allow unconfined_t myapp_node_webapps_t:dir search;
-> #!!!! The source type 'unconfined_t' can write to a 'dir' of the following types:
-> # user_home_dir_t, user_tmpfs_t, user_tmp_t, unlabeled_t, proc_type, sandbox_file_t, filesystem_type, user_home_type, sysctl_type, file_type, nfs_t
-> 
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+Thanks,
+-Paul
+
+---
+The following changes since commit 04f81f0154e4bf002be6f4d85668ce1257efa4d9:    
+                                                                                
+  cipso: don't use IPCB() to locate the CIPSO IP option
+         (2015-02-11 14:46:37 -0500)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux upstream
+
+for you to fetch changes up to 6436a123a147db51a0b06024a8350f4c230e73ff:
+
+  selinux: fix sel_write_enforce broken return value
+           (2015-03-25 16:55:06 -0400)
+
+----------------------------------------------------------------
+Joe Perches (1):
+      selinux: fix sel_write_enforce broken return value
+
+ security/selinux/selinuxfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+-- 
+paul moore
+security @ redhat
