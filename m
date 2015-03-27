@@ -1,52 +1,30 @@
-Message-ID: <55154BA4.3020202@tycho.nsa.gov>
-Date: Fri, 27 Mar 2015 08:23:00 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2RFGQvf031278
+ for <selinux@tycho.nsa.gov>; Fri, 27 Mar 2015 11:16:26 -0400
+Message-ID: <551574CF.5020201@tycho.nsa.gov>
+Date: Fri, 27 Mar 2015 11:18:39 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Nick Kralevich <nnk@google.com>
-Subject: Re: [PATCH] libsepol: Move secilc out of libsepol
-References: <1427398242-13577-1-git-send-email-ykhodorkovskiy@tresys.com>
- <55146AEF.3030909@tycho.nsa.gov>
- <CAFJ0LnHmVoKUMq417A1drJpDDM4+Jk3Jy_4Rkp6nT8GF4eHnqA@mail.gmail.com>
-In-Reply-To: <CAFJ0LnHmVoKUMq417A1drJpDDM4+Jk3Jy_4Rkp6nT8GF4eHnqA@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252
-Cc: SELinux <selinux@tycho.nsa.gov>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH 0/3] libsepol, policycoreutils, and checkpolicy: Add support
+ for generating CIL to libsepol and checkpolicy
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/26/2015 07:40 PM, Nick Kralevich wrote:
-> On Thu, Mar 26, 2015 at 1:24 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>
->> On 03/26/2015 03:30 PM, Yuli Khodorkovskiy wrote:
->>> Since the secilc compiler is independent of libsepol, move secilc out of
->>> libsepol. Linke secilc dynamically rather than statically with libsepol.
->>>
->>> - Move secilc source, test policies, docs, and secilc manpage to secilc
->>>   directory.
->>> - Remove unneeded Makefile from libsepol/cil. To build secilc, run make
->>>   in the secilc directory.
->>> - Add target to install the secilc binary to /usr/bin/.
->>> - Create an Android makefile for secilc and move secilc out of libsepol
->>>   Android makefile.
->>> - Add cil_set_mls to libsepol public API as it is needed by secilc.
->>> - Remove policy.conf from testing since it is no longer used.
->>>
->>> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
->>
->> Hmmm...will have to think about how we want to handle this in future
->> releases and in Android.  Presently we generate separate tar releases
->> for each component, not the entire tree, so it introduces a new
->> component that distributions will need to add, and Android would have to
->> introduce an external/secilc project or just keep stuffing it under
->> libsepol for convenience.
-> 
-> For Android, we could create a new external/selinux project for
-> storing a mirror of https://github.com/SELinuxProject/selinux . Having
-> separate repositories for libselinux and libsepol has always struck me
-> as odd.
+This patch set moves the code to generate CIL from pp.c in 
+policycoreutils/hll/pp to libsepol, adds a new function to generate CIL from a 
+module policydb, and modifies checkpolicy and checkmodule to support generating 
+CIL as their output.
 
-Yes, that would likely be helpful for the components that we use
-unmodified (libsepol, checkpolicy) and to ease future use of other
-components like secilc and audit2allow.  libselinux however is truly a
-fork with significant modifications.
+The primary motivation of this work is to allow SE for Android to use the CIl 
+compiler. Converting the policy.conf to CIL and then compiling to the kernel 
+binary policy results in a policy that is about 20% smaller. The smaller size is 
+because type expressions with negations are converted to type attribute sets in 
+CIL instead of being expanded.
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
