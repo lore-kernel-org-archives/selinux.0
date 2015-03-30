@@ -1,66 +1,39 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2UE64lE021566
- for <selinux@tycho.nsa.gov>; Mon, 30 Mar 2015 10:06:04 -0400
-Message-ID: <5519583D.7050803@tresys.com>
-Date: Mon, 30 Mar 2015 10:05:49 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <55196496.5030107@tycho.nsa.gov>
+Date: Mon, 30 Mar 2015 10:58:30 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: <selinux@tycho.nsa.gov>
-Subject: Re: Policy Constraints
-References: <1427230458-23667-1-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhSLgS4pDE3488A7Xm1eqDXnX0R3wFsVSjfxB04ynQzEVA@mail.gmail.com>
- <20150330123706.GA9321@localhost.localdomain>
-In-Reply-To: <20150330123706.GA9321@localhost.localdomain>
-Content-Type: text/plain; charset="windows-1252"
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] run_init: fix open_init_pty avaibility check
+References: <1419980453-10431-1-git-send-email-nicolas.iooss@m4x.org>
+In-Reply-To: <1419980453-10431-1-git-send-email-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/30/2015 08:37 AM, Dominick Grift wrote:
-> I vaguely recall me touching on the following before. I forgot what, if any, outcome there was. Consider the following:
+On 12/30/2014 06:00 PM, Nicolas Iooss wrote:
+> If /usr/sbin/open_init_pty is not found or is not executable,
+> access("/usr/sbin/open_init_pty", X_OK) returns -1, not zero.
 > 
-> I have a constraint like this:
+> Use "!= 0" like in other places in SELinux userland libraries and tools.
+> ---
+>  policycoreutils/run_init/run_init.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->         (constrain (process (sigchld sigkill sigstop signull signal ptrace
->             getsched setsched getsession getpgid setpgid getcap setcap
->             share getattr setrlimit))
->             (or (or (or (or (or (eq u1 u2)
->                 (eq u1 system_u))
->                 (eq u1 staff_u))
->                 (eq u1 sysadm_u))
->                 (eq u2 system_u))
->                 (neq t1 ubac_constrained_subject_type)))
-> 
-> The sysadm_u and staff_u identities are supposed to be optional and so I change the above to this:
-> 
->         (constrain (process (sigchld sigkill sigstop signull signal ptrace
->             getsched setsched getsession getpgid setpgid getcap setcap
->             share getattr setrlimit))
->             (or (or (or (eq u1 u2)
->                 (eq u1 system_u))
->                 (eq u2 system_u))
->                 (neq t1 ubac_constrained_subject_type)))
-> 
->         (optional staff
->             (constrain (process (sigchld sigkill sigstop signull signal ptrace
->                 getsched setsched getsession getpgid setpgid getcap setcap
->                 share getattr setrlimit))
->                     (eq u1 staff_u)))
-> 
->         (optional sysadm
->             (constrain (process (sigchld sigkill sigstop signull signal ptrace
->                 getsched setsched getsession getpgid setpgid getcap setcap
->                 share getattr setrlimit))
->                     (eq u1 sysadm_u)))
-> 
-> The above builds and seinfo shows the three blocks, but for some reason it is not honored. Eg. The First example works but the latter does not.
-> 
-> Is this a known issue , or known limitation? Should this work?
-> 
-> We have roleattributes, typeattributes but not identityattributes. Identityattributes would help with this requirement.
+> diff --git a/policycoreutils/run_init/run_init.c b/policycoreutils/run_init/run_init.c
+> index 129db730a9c2..4bc32b1cbdb7 100644
+> --- a/policycoreutils/run_init/run_init.c
+> +++ b/policycoreutils/run_init/run_init.c
+> @@ -406,7 +406,7 @@ int main(int argc, char *argv[])
+>  			new_context);
+>  		exit(-1);
+>  	}
+> -	if (! access("/usr/sbin/open_init_pty", X_OK)) {
+> +	if (access("/usr/sbin/open_init_pty", X_OK) != 0) {
+>  		if (execvp(argv[1], argv + 1)) {
+>  			perror("execvp");
+>  			exit(-1);
 > 
 
-I agree, we would need an identityattribute (or userattribute for
-consistency) rule in CIL to support this. It probably wouldn't be too
-difficult to add since it would be very similar to how roleattributes work.
+Sorry, don't know why/how this one got lost, but applied now.
