@@ -1,39 +1,36 @@
-Message-ID: <55196496.5030107@tycho.nsa.gov>
-Date: Mon, 30 Mar 2015 10:58:30 -0400
+Message-ID: <551964B5.4040400@tycho.nsa.gov>
+Date: Mon, 30 Mar 2015 10:59:01 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] run_init: fix open_init_pty avaibility check
-References: <1419980453-10431-1-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1419980453-10431-1-git-send-email-nicolas.iooss@m4x.org>
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov, bigon@bigon.be
+Subject: Re: [PATCH v2] run_init: Use a ring buffer in open_init_pty
+References: <1427184929-31114-1-git-send-email-jason@perfinion.com>
+In-Reply-To: <1427184929-31114-1-git-send-email-jason@perfinion.com>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/30/2014 06:00 PM, Nicolas Iooss wrote:
-> If /usr/sbin/open_init_pty is not found or is not executable,
-> access("/usr/sbin/open_init_pty", X_OK) returns -1, not zero.
+On 03/24/2015 04:15 AM, Jason Zaman wrote:
+> open_init_pty uses select() to handle all the file descriptors. There is
+> a very high CPU usage due to select() always returning immediately with
+> the fd is available for write. This uses a ring buffer and only calls
+> select on the read/write fds that have data that needs to be
+> read/written which eliminates the high CPU usage.
 > 
-> Use "!= 0" like in other places in SELinux userland libraries and tools.
-> ---
->  policycoreutils/run_init/run_init.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> This also correctly returns the exit code from the child process.
 > 
-> diff --git a/policycoreutils/run_init/run_init.c b/policycoreutils/run_init/run_init.c
-> index 129db730a9c2..4bc32b1cbdb7 100644
-> --- a/policycoreutils/run_init/run_init.c
-> +++ b/policycoreutils/run_init/run_init.c
-> @@ -406,7 +406,7 @@ int main(int argc, char *argv[])
->  			new_context);
->  		exit(-1);
->  	}
-> -	if (! access("/usr/sbin/open_init_pty", X_OK)) {
-> +	if (access("/usr/sbin/open_init_pty", X_OK) != 0) {
->  		if (execvp(argv[1], argv + 1)) {
->  			perror("execvp");
->  			exit(-1);
+> This was originally from debian where they have been carrying it as a
+> patch for a long time. Then we got a bug report in gentoo which this
+> also happens to fix. The original debian patch had the ring buffer
+> written in C++ so I modified the class into a struct and some static
+> methods so it is C-only at the request of Steve Lawrence.
 > 
+> Debian bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474956
+> Gentoo bug: https://bugs.gentoo.org/show_bug.cgi?id=532616
+> 
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
+> Tested-by: Laurent Bigonville <bigon@bigon.be>
 
-Sorry, don't know why/how this one got lost, but applied now.
+Thanks, applied.
