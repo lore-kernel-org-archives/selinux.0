@@ -1,17 +1,17 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2UDHd4C017612
- for <selinux@tycho.nsa.gov>; Mon, 30 Mar 2015 09:17:39 -0400
-Message-ID: <55194CD4.2010308@tycho.nsa.gov>
-Date: Mon, 30 Mar 2015 09:17:08 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2UE64lE021566
+ for <selinux@tycho.nsa.gov>; Mon, 30 Mar 2015 10:06:04 -0400
+Message-ID: <5519583D.7050803@tresys.com>
+Date: Mon, 30 Mar 2015 10:05:49 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
+To: <selinux@tycho.nsa.gov>
 Subject: Re: Policy Constraints
 References: <1427230458-23667-1-git-send-email-sds@tycho.nsa.gov>
  <CAHC9VhSLgS4pDE3488A7Xm1eqDXnX0R3wFsVSjfxB04ynQzEVA@mail.gmail.com>
  <20150330123706.GA9321@localhost.localdomain>
 In-Reply-To: <20150330123706.GA9321@localhost.localdomain>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -59,8 +59,8 @@ On 03/30/2015 08:37 AM, Dominick Grift wrote:
 > Is this a known issue , or known limitation? Should this work?
 > 
 > We have roleattributes, typeattributes but not identityattributes. Identityattributes would help with this requirement.
+> 
 
-I can't speak to the CIL aspects of this, but as far as kernel policy is
-concerned, if you write multiple constraints on a single
-class/permission, then each constraint must evaluate to true in order
-for the permission to be allowed, i.e. they are ANDed, not ORed.
+I agree, we would need an identityattribute (or userattribute for
+consistency) rule in CIL to support this. It probably wouldn't be too
+difficult to add since it would be very similar to how roleattributes work.
