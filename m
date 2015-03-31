@@ -1,12 +1,11 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2VHFejx025987
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t2VHFek0025987
  for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2015 13:15:40 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3 v3] libsepol: add function to generate CIL from a module
- policydb
-Date: Tue, 31 Mar 2015 13:18:00 -0400
-Message-Id: <1427822281-14769-3-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 3/3 v3] checkpolicy: Add support for generating CIL
+Date: Tue, 31 Mar 2015 13:18:01 -0400
+Message-Id: <1427822281-14769-4-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1427822281-14769-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1427822281-14769-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,541 +13,308 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add a new function, sepol_module_policydb_to_cil, that generates
-CIL from a module (not kernel) policydb. Refactor
-sepol_module_package_to_cil() to use the new function.
+Add support to checkpolicy and checkmodule for generating CIL as their
+output.
+
+Add new options "-C" and "--cil" to specify CIL as the output format.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/include/sepol/module_to_cil.h |   2 +
- libsepol/src/module_to_cil.c           | 367 ++++++++++++++++++++++-----------
- 2 files changed, 254 insertions(+), 115 deletions(-)
+ checkpolicy/checkmodule.c | 59 +++++++++++++++++++++--------------
+ checkpolicy/checkpolicy.c | 79 ++++++++++++++++++++++++++++++-----------------
+ 2 files changed, 86 insertions(+), 52 deletions(-)
 
-diff --git a/libsepol/include/sepol/module_to_cil.h b/libsepol/include/sepol/module_to_cil.h
-index 1d0225c..18bb3bf 100644
---- a/libsepol/include/sepol/module_to_cil.h
-+++ b/libsepol/include/sepol/module_to_cil.h
-@@ -1,6 +1,8 @@
- #include <stdlib.h>
+diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+index 0255928..b1be640 100644
+--- a/checkpolicy/checkmodule.c
++++ b/checkpolicy/checkmodule.c
+@@ -20,6 +20,7 @@
+ #include <errno.h>
+ #include <sys/mman.h>
  
- #include <sepol/module.h>
-+#include <sepol/policydb/policydb.h>
- 
-+int sepol_module_policydb_to_cil(FILE *fp, struct policydb *pdb, int linked);
- int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg);
- int sepol_ppfile_to_module_package(FILE *fp, struct sepol_module_package **mod_pkg);
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 8326826..d1d2efe 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -3407,126 +3407,177 @@ exit:
- 	return rc;
++#include <sepol/module_to_cil.h>
+ #include <sepol/policydb/policydb.h>
+ #include <sepol/policydb/services.h>
+ #include <sepol/policydb/conditional.h>
+@@ -108,20 +109,9 @@ static int read_binary_policy(policydb_t * p, const char *file, const char *prog
+ 	return 0;
  }
  
--static int blocks_to_cil(struct policydb *pdb)
-+static int block_to_cil(struct policydb *pdb, struct avrule_block *block, struct stack *stack, int indent)
+-static int write_binary_policy(policydb_t * p, const char *file, char *progname)
++static int write_binary_policy(policydb_t * p, FILE *outfp)
  {
- 	int rc = -1;
--	struct avrule_block *block;
- 	struct avrule_decl *decl;
--	struct avrule_decl *decl_tmp;
--	int indent = 0;
--	struct stack *stack;
- 	struct list *attr_list;
- 
--	rc = stack_init(&stack);
-+	decl = block->branch_list;
-+
-+	rc = list_init(&attr_list);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	for (block = pdb->global; block != NULL; block = block->next) {
--		rc = list_init(&attr_list);
--		if (rc != 0) {
--			goto exit;
--		}
-+	rc = typealiases_to_cil(indent, pdb, block, stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		decl = block->branch_list;
--		if (decl == NULL) {
--			continue;
--		}
-+	rc = declared_scopes_to_cil(indent, pdb, block, stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		if (decl->next != NULL) {
--			log_err("Warning: 'else' blocks in optional statements are unsupported in CIL. Dropping from output.");
--		}
-+	rc = required_scopes_to_cil(indent, pdb, block, stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		if (block->flags & AVRULE_OPTIONAL) {
--			while (stack->pos > 0) {
--				decl_tmp = stack_peek(stack);
--				if (is_scope_superset(&decl->required, &decl_tmp->required)) {
--					break;
--				}
-+	rc = additive_scopes_to_cil(indent, pdb, block, stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--				stack_pop(stack);
--				indent--;
--				cil_println(indent, ")");
--			}
-+	rc = avrule_list_to_cil(indent, pdb, decl->avrules, attr_list);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--			cil_println(indent, "(optional %s_optional_%i", pdb->name, decl->decl_id);
--			indent++;
--		}
-+	rc = role_trans_to_cil(indent, pdb, decl->role_tr_rules);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		stack_push(stack, decl);
-+	rc = role_allows_to_cil(indent, pdb, decl->role_allow_rules);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		if (stack->pos == 0) {
--			// type aliases and commons are only stored in the global symtab.
--			// However, to get scoping correct, we assume they are in the
--			// global block
--			struct map_args args;
--			args.pdb = pdb;
--			args.block = block;
--			args.decl_stack = stack;
--			args.indent = 0;
--			args.scope = SCOPE_DECL;
-+	rc = range_trans_to_cil(indent, pdb, decl->range_tr_rules);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--			rc = hashtab_map(pdb->p_commons.table, common_to_cil, &args);
--			if (rc != 0) {
--				goto exit;
-+	rc = filename_trans_to_cil(indent, pdb, decl->filename_trans_rules);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	rc = cond_list_to_cil(indent, pdb, decl->cond_list);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	rc = cil_print_attr_list(indent, pdb, attr_list);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+exit:
-+	attr_list_destroy(&attr_list);
-+	return rc;
-+}
-+
-+static int module_block_to_cil(struct policydb *pdb, struct avrule_block *block, struct stack *stack, int *indent)
-+{
-+	int rc = 0;
-+	struct avrule_decl *decl;
-+	struct avrule_decl *decl_tmp;
-+
-+	decl = block->branch_list;
-+	if (decl == NULL) {
-+		goto exit;
-+	}
-+
-+	if (decl->next != NULL) {
-+		log_err("Warning: 'else' blocks in optional statements are unsupported in CIL. Dropping from output.");
-+	}
-+
-+	if (block->flags & AVRULE_OPTIONAL) {
-+		while (stack->pos > 0) {
-+			decl_tmp = stack_peek(stack);
-+			if (is_scope_superset(&decl->required, &decl_tmp->required)) {
-+				break;
- 			}
--		}
- 
--		rc = typealiases_to_cil(indent, pdb, block, stack);
--		if (rc != 0) {
--			goto exit;
-+			stack_pop(stack);
-+			(*indent)--;
-+			cil_println(*indent, ")");
- 		}
- 
--		rc = declared_scopes_to_cil(indent, pdb, block, stack);
--		if (rc != 0) {
--			goto exit;
--		}
-+		cil_println(*indent, "(optional %s_optional_%i", pdb->name, decl->decl_id);
-+		(*indent)++;
-+	}
- 
--		rc = required_scopes_to_cil(indent, pdb, block, stack);
--		if (rc != 0) {
--			goto exit;
--		}
-+	stack_push(stack, decl);
- 
--		rc = additive_scopes_to_cil(indent, pdb, block, stack);
--		if (rc != 0) {
--			goto exit;
--		}
-+	rc = block_to_cil(pdb, block, stack, *indent);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		rc = avrule_list_to_cil(indent, pdb, decl->avrules, attr_list);
--		if (rc != 0) {
--			goto exit;
--		}
-+exit:
-+	return rc;
-+}
- 
--		rc = role_trans_to_cil(indent, pdb, decl->role_tr_rules);
--		if (rc != 0) {
--			goto exit;
--		}
-+static int global_block_to_cil(struct policydb *pdb, struct avrule_block *block, struct stack *stack)
-+{
-+	int rc = 0;
-+	struct avrule_decl *decl;
- 
--		rc = role_allows_to_cil(indent, pdb, decl->role_allow_rules);
--		if (rc != 0) {
--			goto exit;
--		}
-+	decl = block->branch_list;
-+	if (decl == NULL) {
-+		goto exit;
-+	}
- 
--		rc = range_trans_to_cil(indent, pdb, decl->range_tr_rules);
--		if (rc != 0) {
--			goto exit;
--		}
-+	if (decl->next != NULL) {
-+		log_err("Warning: 'else' not allowed in global block. Dropping from output.");
-+	}
- 
--		rc = filename_trans_to_cil(indent, pdb, decl->filename_trans_rules);
--		if (rc != 0) {
--			goto exit;
--		}
-+	stack_push(stack, decl);
- 
--		rc = cond_list_to_cil(indent, pdb, decl->cond_list);
--		if (rc != 0) {
--			goto exit;
--		}
-+	// type aliases and commons are only stored in the global symtab.
-+	// However, to get scoping correct, we assume they are in the
-+	// global block
-+	rc = hashtab_map(pdb->p_commons.table, common_to_cil, NULL);
-+	if (rc != 0) {
-+		goto exit;
-+	}
- 
--		rc = cil_print_attr_list(indent, pdb, attr_list);
-+	rc = block_to_cil(pdb, block, stack, 0);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+exit:
-+	return rc;
-+}
-+
-+static int blocks_to_cil(struct policydb *pdb)
-+{
-+	int rc = -1;
-+	struct avrule_block *block;
-+	int indent = 0;
-+	struct stack *stack;
-+
-+	rc = stack_init(&stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	block = pdb->global;
-+	rc = global_block_to_cil(pdb, block, stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	for (block = block->next; block != NULL; block = block->next) {
-+		rc = module_block_to_cil(pdb, block, stack, &indent);
- 		if (rc != 0) {
- 			goto exit;
- 		}
--		attr_list_destroy(&attr_list);
- 	}
- 
- 	while (indent > 0) {
-@@ -3534,11 +3585,71 @@ static int blocks_to_cil(struct policydb *pdb)
- 		cil_println(indent, ")");
- 	}
- 
--	rc = 0;
-+exit:
-+	stack_destroy(&stack);
-+
-+	return rc;
-+}
-+
-+static int linked_block_to_cil(struct policydb *pdb, struct avrule_block *block, struct stack *stack)
-+{
-+	int rc = 0;
-+	struct avrule_decl *decl;
-+
-+	decl = block->branch_list;
-+	if (decl == NULL) {
-+		goto exit;
-+	}
-+
-+	if (!decl->enabled) {
-+		if (decl->next != NULL) {
-+			decl = decl->next;
-+		} else {
-+			goto exit;
-+		}
-+	}
-+
-+	stack_push(stack, decl);
-+
-+	rc = block_to_cil(pdb, block, stack, 0);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	stack_pop(stack);
-+
-+exit:
-+	return rc;
-+}
-+
-+static int linked_blocks_to_cil(struct policydb *pdb)
-+{
-+	// Convert base module that has been linked to CIL
-+	// Since it is linked, all optional blocks have been resolved
-+	int rc = -1;
-+	struct avrule_block *block;
-+	struct stack *stack;
-+
-+	rc = stack_init(&stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	block = pdb->global;
-+	rc = global_block_to_cil(pdb, block, stack);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	for (block = block->next; block != NULL; block = block->next) {
-+		rc = linked_block_to_cil(pdb, block, stack);
-+		if (rc != 0) {
-+			goto exit;
-+		}
-+	}
- 
- exit:
- 	stack_destroy(&stack);
--	attr_list_destroy(&attr_list);
- 
- 	return rc;
- }
-@@ -3638,33 +3749,30 @@ exit:
- 	return rc;
- }
- 
--int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg)
-+int sepol_module_policydb_to_cil(FILE *fp, struct policydb *pdb, int linked)
- {
- 	int rc = -1;
--	struct sepol_policydb *pdb;
- 
- 	out_file = fp;
- 
--	pdb = sepol_module_package_get_policy(mod_pkg);
- 	if (pdb == NULL) {
--		log_err("Failed to get policydb");
--		rc = -1;
-+		rc = 0;
- 		goto exit;
- 	}
- 
--	if (pdb->p.policy_type != SEPOL_POLICY_BASE &&
--		pdb->p.policy_type != SEPOL_POLICY_MOD) {
-+	if (pdb->policy_type != SEPOL_POLICY_BASE &&
-+		pdb->policy_type != SEPOL_POLICY_MOD) {
- 		log_err("Policy pakcage is not a base or module");
- 		rc = -1;
- 		goto exit;
- 	}
- 
--	rc = fix_module_name(&pdb->p);
-+	rc = fix_module_name(pdb);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	if (pdb->p.policy_type == SEPOL_POLICY_BASE && !pdb->p.mls) {
-+	if (pdb->policy_type == SEPOL_POLICY_BASE && !pdb->mls) {
- 		// If this is a base non-mls policy, we need to define a default level
- 		// range that can be used for contexts by other non-mls modules, since
- 		// CIL requires that all contexts have a range, even if they are
-@@ -3675,7 +3783,7 @@ int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg)
- 		}
- 	}
- 
--	if (pdb->p.policy_type == SEPOL_POLICY_BASE) {
-+	if (pdb->policy_type == SEPOL_POLICY_BASE) {
- 		// object_r is implicit in checkmodule, but not with CIL, create it
- 		// as part of base
- 		rc = generate_default_object();
-@@ -3690,65 +3798,97 @@ int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg)
- 		}
- 
- 		// handle_unknown is used from only the base module
--		rc = handle_unknown_to_cil(&pdb->p);
-+		rc = handle_unknown_to_cil(pdb);
- 		if (rc != 0) {
- 			goto exit;
- 		}
- 
- 		// mls is used from only the base module
--		rc = generate_mls(&pdb->p);
-+		rc = generate_mls(pdb);
- 		if (rc != 0) {
- 			goto exit;
- 		}
- 	}
- 
--	rc = role_list_create(pdb->p.p_roles.table);
-+	rc = role_list_create(pdb->p_roles.table);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = typealias_list_create(&pdb->p);
-+	rc = typealias_list_create(pdb);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = polcaps_to_cil(&pdb->p);
-+	rc = polcaps_to_cil(pdb);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = ocontexts_to_cil(&pdb->p);
-+	rc = ocontexts_to_cil(pdb);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = genfscon_to_cil(&pdb->p);
-+	rc = genfscon_to_cil(pdb);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = seusers_to_cil(mod_pkg);
-+	// now print everything that is scoped
-+	if (linked) {
-+		rc = linked_blocks_to_cil(pdb);
-+	} else {
-+		rc = blocks_to_cil(pdb);
-+	}
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = netfilter_contexts_to_cil(mod_pkg);
-+	rc = 0;
-+
-+exit:
-+	role_list_destroy();
-+	typealias_list_destroy();
-+
-+	return rc;
-+}
-+
-+int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg)
-+{
-+	int rc = -1;
-+	struct sepol_policydb *pdb;
-+
-+	out_file = fp;
-+
-+	pdb = sepol_module_package_get_policy(mod_pkg);
-+	if (pdb == NULL) {
-+		log_err("Failed to get policydb");
-+		rc = -1;
-+		goto exit;
-+	}
-+
-+	rc = sepol_module_policydb_to_cil(fp, &pdb->p, 0);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = user_extra_to_cil(mod_pkg);
-+	rc = seusers_to_cil(mod_pkg);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	rc = file_contexts_to_cil(mod_pkg);
-+	rc = netfilter_contexts_to_cil(mod_pkg);
- 	if (rc != 0) {
- 		goto exit;
- 	}
- 
--	// now print everything that is scoped
--	rc = blocks_to_cil(&pdb->p);
-+	rc = user_extra_to_cil(mod_pkg);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	rc = file_contexts_to_cil(mod_pkg);
- 	if (rc != 0) {
- 		goto exit;
- 	}
-@@ -3756,9 +3896,6 @@ int sepol_module_package_to_cil(FILE *fp, struct sepol_module_package *mod_pkg)
- 	rc = 0;
- 
- exit:
--	role_list_destroy();
--	typealias_list_destroy();
+-	FILE *outfp = NULL;
+ 	struct policy_file pf;
+-	int ret;
 -
- 	return rc;
+-	printf("%s:  writing binary representation (version %d) to %s\n",
+-	       progname, policyvers, file);
+-
+-	outfp = fopen(file, "w");
+-	if (!outfp) {
+-		perror(file);
+-		exit(1);
+-	}
+ 
+ 	p->policy_type = policy_type;
+ 	p->policyvers = policyvers;
+@@ -130,13 +120,7 @@ static int write_binary_policy(policydb_t * p, const char *file, char *progname)
+ 	policy_file_init(&pf);
+ 	pf.type = PF_USE_STDIO;
+ 	pf.fp = outfp;
+-	ret = policydb_write(p, &pf);
+-	if (ret) {
+-		fprintf(stderr, "%s:  error writing %s\n", progname, file);
+-		return -1;
+-	}
+-	fclose(outfp);
+-	return 0;
++	return policydb_write(p, &pf);
  }
  
+ static void usage(char *progname)
+@@ -162,7 +146,7 @@ static void usage(char *progname)
+ int main(int argc, char **argv)
+ {
+ 	const char *file = txtfile, *outfile = NULL;
+-	unsigned int binary = 0;
++	unsigned int binary = 0, cil = 0;
+ 	int ch;
+ 	int show_version = 0;
+ 	policydb_t modpolicydb;
+@@ -173,10 +157,11 @@ int main(int argc, char **argv)
+ 		{"version", no_argument, NULL, 'V'},
+ 		{"handle-unknown", required_argument, NULL, 'U'},
+ 		{"mls", no_argument, NULL, 'M'},
++		{"cil", no_argument, NULL, 'C'},
+ 		{NULL, 0, NULL, 0}
+ 	};
+ 
+-	while ((ch = getopt_long(argc, argv, "ho:bVU:mM", long_options, NULL)) != -1) {
++	while ((ch = getopt_long(argc, argv, "ho:bVU:mMC", long_options, NULL)) != -1) {
+ 		switch (ch) {
+ 		case 'h':
+ 			usage(argv[0]);
+@@ -212,6 +197,9 @@ int main(int argc, char **argv)
+ 		case 'M':
+ 			mlspol = 1;
+ 			break;
++		case 'C':
++			cil = 1;
++			break;
+ 		default:
+ 			usage(argv[0]);
+ 		}
+@@ -269,7 +257,7 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
+-	if (modpolicydb.policy_type == POLICY_BASE) {
++	if (modpolicydb.policy_type == POLICY_BASE && !cil) {
+ 		/* Verify that we can successfully expand the base module. */
+ 		policydb_t kernpolicydb;
+ 
+@@ -295,10 +283,33 @@ int main(int argc, char **argv)
+ 
+ 	printf("%s:  policy configuration loaded\n", argv[0]);
+ 
+-	if (outfile &&
+-	    write_binary_policy(&modpolicydb, outfile, argv[0]) == -1) {
++	if (outfile) {
++		FILE *outfp = fopen(outfile, "w");
++
++		if (!outfp) {
++			perror(outfile);
++			exit(1);
++		}
++
++		if (!cil) {
++			printf("%s:  writing binary representation (version %d) to %s\n",
++				   argv[0], policyvers, file);
++
++			if (write_binary_policy(&modpolicydb, outfp) != 0) {
++				fprintf(stderr, "%s:  error writing %s\n", argv[0], outfile);
++				exit(1);
++			}
++		} else {
++			printf("%s:  writing CIL to %s\n",argv[0], outfile);
++			sepol_module_policydb_to_cil(outfp, &modpolicydb, 0);
++		}
++
++		fclose(outfp);
++	} else if (cil) {
++		fprintf(stderr, "%s:  No file to write CIL was specified\n", argv[0]);
+ 		exit(1);
+ 	}
++
+ 	policydb_destroy(&modpolicydb);
+ 
+ 	return 0;
+diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+index 61a2e89..d96399d 100644
+--- a/checkpolicy/checkpolicy.c
++++ b/checkpolicy/checkpolicy.c
+@@ -74,6 +74,7 @@
+ #include <ctype.h>
+ #endif
+ 
++#include <sepol/module_to_cil.h>
+ #include <sepol/policydb/policydb.h>
+ #include <sepol/policydb/services.h>
+ #include <sepol/policydb/conditional.h>
+@@ -376,6 +377,7 @@ static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *arg __att
+ 
+ int main(int argc, char **argv)
+ {
++	policydb_t parse_policy;
+ 	sepol_security_class_t tclass;
+ 	sepol_security_id_t ssid, tsid, *sids, oldsid, newsid, tasksid;
+ 	sepol_security_context_t scontext;
+@@ -386,7 +388,7 @@ int main(int argc, char **argv)
+ 	size_t scontext_len, pathlen;
+ 	unsigned int i;
+ 	unsigned int protocol, port;
+-	unsigned int binary = 0, debug = 0;
++	unsigned int binary = 0, debug = 0, cil = 0;
+ 	struct val_to_name v;
+ 	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
+ 	unsigned int nel, uret;
+@@ -408,11 +410,12 @@ int main(int argc, char **argv)
+ 		{"version", no_argument, NULL, 'V'},
+ 		{"handle-unknown", required_argument, NULL, 'U'},
+ 		{"mls", no_argument, NULL, 'M'},
++		{"cil", no_argument, NULL, 'C'},
+ 		{"help", no_argument, NULL, 'h'},
+ 		{NULL, 0, NULL, 0}
+ 	};
+ 
+-	while ((ch = getopt_long(argc, argv, "o:t:dbU:MVc:h", long_options, NULL)) != -1) {
++	while ((ch = getopt_long(argc, argv, "o:t:dbU:MCVc:h", long_options, NULL)) != -1) {
+ 		switch (ch) {
+ 		case 'o':
+ 			outfile = optarg;
+@@ -455,6 +458,9 @@ int main(int argc, char **argv)
+ 		case 'M':
+ 			mlspol = 1;
+ 			break;
++		case 'C':
++			cil = 1;
++			break;
+ 		case 'c':{
+ 				long int n;
+ 				errno = 0;
+@@ -505,6 +511,11 @@ int main(int argc, char **argv)
+ 	sepol_set_sidtab(&sidtab);
+ 
+ 	if (binary) {
++		if (cil) {
++			fprintf(stderr,	"%s:  Converting kernel policy to CIL is not supported\n",
++				argv[0]);
++			exit(1);
++		}
+ 		fd = open(file, O_RDONLY);
+ 		if (fd < 0) {
+ 			fprintf(stderr, "Can't open '%s':  %s\n",
+@@ -557,8 +568,6 @@ int main(int argc, char **argv)
+ 			}
+ 		}
+ 	} else {
+-		policydb_t parse_policy;
+-
+ 		if (policydb_init(&parse_policy))
+ 			exit(1);
+ 		/* We build this as a base policy first since that is all the parser understands */
+@@ -577,23 +586,24 @@ int main(int argc, char **argv)
+ 		if (hashtab_map(policydbp->p_levels.table, check_level, NULL))
+ 			exit(1);
+ 
+-		if (policydb_init(&policydb)) {
+-			fprintf(stderr, "%s:  policydb_init failed\n", argv[0]);
+-			exit(1);
+-		}
+-
+ 		/* Linking takes care of optional avrule blocks */
+-		if (link_modules(NULL, &parse_policy, NULL, 0, 0)) {
++		if (link_modules(NULL, policydbp, NULL, 0, 0)) {
+ 			fprintf(stderr, "Error while resolving optionals\n");
+ 			exit(1);
+ 		}
+ 
+-		if (expand_module(NULL, &parse_policy, &policydb, 0, 1)) {
+-			fprintf(stderr, "Error while expanding policy\n");
+-			exit(1);
++		if (!cil) {
++			if (policydb_init(&policydb)) {
++				fprintf(stderr, "%s:  policydb_init failed\n", argv[0]);
++				exit(1);
++			}
++			if (expand_module(NULL, policydbp, &policydb, 0, 1)) {
++				fprintf(stderr, "Error while expanding policy\n");
++				exit(1);
++			}
++			policydb_destroy(policydbp);
++			policydbp = &policydb;
+ 		}
+-		policydb_destroy(&parse_policy);
+-		policydbp = &policydb;
+ 	}
+ 
+ 	if (policydb_load_isids(&policydb, &sidtab))
+@@ -602,29 +612,42 @@ int main(int argc, char **argv)
+ 	printf("%s:  policy configuration loaded\n", argv[0]);
+ 
+ 	if (outfile) {
+-		printf
+-		    ("%s:  writing binary representation (version %d) to %s\n",
+-		     argv[0], policyvers, outfile);
+ 		outfp = fopen(outfile, "w");
+ 		if (!outfp) {
+ 			perror(outfile);
+ 			exit(1);
+ 		}
+ 
+-		policydb.policy_type = POLICY_KERN;
+ 		policydb.policyvers = policyvers;
+ 
+-		policy_file_init(&pf);
+-		pf.type = PF_USE_STDIO;
+-		pf.fp = outfp;
+-		ret = policydb_write(&policydb, &pf);
+-		if (ret) {
+-			fprintf(stderr, "%s:  error writing %s\n",
+-				argv[0], outfile);
+-			exit(1);
++		if (!cil) {
++			printf
++				("%s:  writing binary representation (version %d) to %s\n",
++				 argv[0], policyvers, outfile);
++			policydb.policy_type = POLICY_KERN;
++
++			policy_file_init(&pf);
++			pf.type = PF_USE_STDIO;
++			pf.fp = outfp;
++			ret = policydb_write(&policydb, &pf);
++			if (ret) {
++				fprintf(stderr, "%s:  error writing %s\n",
++						argv[0], outfile);
++				exit(1);
++			}
++		} else {
++			printf("%s:  writing CIL to %s\n",argv[0], outfile);
++			sepol_module_policydb_to_cil(outfp, policydbp, 1);
++		}
++
++		if (outfile) {
++			fclose(outfp);
+ 		}
+-		fclose(outfp);
++	} else if (cil) {
++		fprintf(stderr, "%s:  No file to write CIL was specified\n", argv[0]);
++		exit(1);
+ 	}
++
+ 	if (!debug) {
+ 		policydb_destroy(&policydb);
+ 		exit(0);
 -- 
 1.9.3
