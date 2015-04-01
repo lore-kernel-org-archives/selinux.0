@@ -1,47 +1,60 @@
-Message-ID: <551C2AFE.5030604@tresys.com>
-Date: Wed, 1 Apr 2015 13:29:34 -0400
-From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 0/3 v5] libsepol, policycoreutils, and checkpolicy: Add
- support for generating CIL to libsepol and checkpolicy
-References: <1427908281-11224-1-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1427908281-11224-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+Date: Thu, 2 Apr 2015 00:28:42 +0530
+Message-ID: <CACikiw1GMK=8TNiwna22J_TC-S9PBVPvTzpNLCxte5nwEjDzoQ@mail.gmail.com>
+Subject: Re: Fwd: Booting time is increased after applying kernel 3.10
+From: Ravi Kumar <nxp.ravi@gmail.com>
+To: Selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a11c341eec7504b0512ae4d7d
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/01/2015 01:11 PM, James Carter wrote:
-> V5 Update usage functions for checkpolicy and checkmodule.
-> V4 Adds the new command-line options to the checkpolicy and checkmodule man pages, adds error checking and messages to checkpolicy and checkmodule, updates libsepol's Android.mk and libsepol.map.in files as needed, and makes pp linke libsepol dynamically.
-> V3 fixes another whitespace issue.
-> V2 fixes some whitespace issues and make the new libsepol file LGPL instead of GPL.
-> 
-> This patch set moves the code to generate CIL from pp.c in policycoreutils/hll/pp to libsepol, adds a new function to generate CIL from a module policydb, and modifies checkpolicy and checkmodule to support generating CIL as their output.
-> 
-> The primary motivation of this work is to allow SE for Android to use the CIl compiler. Converting the policy.conf to CIL and then compiling to the kernel binary policy results in a policy that is about 20% smaller. The smaller size is because type expressions with negations are converted to type attribute sets in CIL instead of being expanded.
-> 
-> James Carter (3):
->   libsepol, policycoreutils: Move functions to convert a module package
->     to CIL
->   libsepol: add function to generate CIL from a module policydb
->   checkpolicy: Add support for generating CIL
-> 
->  checkpolicy/checkmodule.8              |    5 +-
->  checkpolicy/checkmodule.c              |   66 +-
->  checkpolicy/checkpolicy.8              |    5 +-
->  checkpolicy/checkpolicy.c              |   85 +-
->  libsepol/Android.mk                    |    1 +
->  libsepol/include/sepol/module_to_cil.h |    8 +
->  libsepol/src/libsepol.map.in           |    3 +
->  libsepol/src/module_to_cil.c           | 4010 ++++++++++++++++++++++++++++++++
->  policycoreutils/hll/pp/Makefile        |    2 +-
->  policycoreutils/hll/pp/pp.c            | 3830 +-----------------------------
->  10 files changed, 4131 insertions(+), 3884 deletions(-)
->  create mode 100644 libsepol/include/sepol/module_to_cil.h
->  create mode 100644 libsepol/src/module_to_cil.c
-> 
+--001a11c341eec7504b0512ae4d7d
+Content-Type: text/plain; charset=UTF-8
 
-Acked-by: Steve Lawrence <slawrence@tresys.com>
+Hi Team ,
+In reference to old discussion via the mail thread ,
+http://marc.info/?l=selinux&m=140387478632108&q=raw
+
+This is on the context on removing the synchronize_net() from bootup and
+was concluded with optimization  on reducing the the number of call to
+synchronize_net()  In context to to this what we are seeing is skipping the
+call is saving much time  on android bootup  and based on the discussion
+ at least for android  systems it look like we can still  skip this call as
+suggest in the initial patch  which is much saving on the bootup time .
+But still i dont see any mainline / signed off sort of patch for andriod
+ or any one using this . Did we see any issue or planned different .
+
+At least on KK the bootup time was under control for L code base we are
+trying to see  all the ways of optimization  any input are greatly
+ appreciated.
+
+
+Regards,
+Ravi
+
+--001a11c341eec7504b0512ae4d7d
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hi Team ,=C2=A0</div><div>In reference to old discuss=
+ion via the mail thread ,=C2=A0</div><a href=3D"http://marc.info/?l=3Dselin=
+ux&amp;m=3D140387478632108&amp;q=3Draw">http://marc.info/?l=3Dselinux&amp;m=
+=3D140387478632108&amp;q=3Draw</a><br><div><br></div><div>This is on the co=
+ntext on removing the synchronize_net() from bootup and was concluded with =
+optimization =C2=A0on reducing the the number of call to synchronize_net() =
+=C2=A0In context to to this what we are seeing is skipping the call is savi=
+ng much time =C2=A0on android bootup =C2=A0and based on the discussion =C2=
+=A0at least for android =C2=A0systems it look like we can still =C2=A0skip =
+this call as suggest in the initial patch =C2=A0which is much saving on the=
+ bootup time .=C2=A0 But still i dont see any mainline / signed off sort of=
+ patch for andriod =C2=A0or any one using this . Did we see any issue or pl=
+anned different .</div><div><br></div><div>At least on KK the bootup time w=
+as under control for L code base we are trying to see =C2=A0all the ways of=
+ optimization =C2=A0any input are greatly =C2=A0appreciated. =C2=A0 =C2=A0 =
+=C2=A0=C2=A0</div><div><br></div><div><br></div><div>Regards,<br>Ravi=C2=A0=
+</div><div><pre style=3D"font-family:&#39;courier new&#39;,courier,monospac=
+e;font-size:16px;font-weight:600;color:rgb(0,0,0)"><br></pre></div></div>
+
+--001a11c341eec7504b0512ae4d7d--
