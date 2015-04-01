@@ -1,71 +1,45 @@
-Message-ID: <551BE102.30300@tresys.com>
-Date: Wed, 1 Apr 2015 08:13:54 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/3 v3] libsepol: add function to generate CIL from a
- module policydb
-References: <1427822281-14769-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1427822281-14769-3-git-send-email-jwcart2@tycho.nsa.gov>
- <551AF4CA.5070206@tresys.com> <551AF895.1040100@tycho.nsa.gov>
-In-Reply-To: <551AF895.1040100@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t31Ex6Qi011705
+ for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2015 10:59:06 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/3 v4] libsepol, policycoreutils,
+ and checkpolicy: Add support for generating CIL to libsepol and
+ checkpolicy
+Date: Wed,  1 Apr 2015 11:01:23 -0400
+Message-Id: <1427900486-6560-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/31/2015 03:42 PM, James Carter wrote:
-> On 03/31/2015 03:26 PM, Steve Lawrence wrote:
->> On 03/31/2015 01:18 PM, James Carter wrote:
->>> Add a new function, sepol_module_policydb_to_cil, that generates
->>> CIL from a module (not kernel) policydb. Refactor
->>> sepol_module_package_to_cil() to use the new function.
->>>
->>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->>> ---
->>>   libsepol/include/sepol/module_to_cil.h |   2 +
->>>   libsepol/src/module_to_cil.c           | 367
->>> ++++++++++++++++++++++-----------
->>>   2 files changed, 254 insertions(+), 115 deletions(-)
->>>
->>> diff --git a/libsepol/include/sepol/module_to_cil.h
->>> b/libsepol/include/sepol/module_to_cil.h
->>> index 1d0225c..18bb3bf 100644
->>> --- a/libsepol/include/sepol/module_to_cil.h
->>> +++ b/libsepol/include/sepol/module_to_cil.h
->>> @@ -1,6 +1,8 @@
->>>   #include <stdlib.h>
->>>
->>>   #include <sepol/module.h>
->>> +#include <sepol/policydb/policydb.h>
->>>
->>> +int sepol_module_policydb_to_cil(FILE *fp, struct policydb *pdb, int
->>> linked);
->>>   int sepol_module_package_to_cil(FILE *fp, struct
->>> sepol_module_package *mod_pkg);
->>>   int sepol_ppfile_to_module_package(FILE *fp, struct
->>> sepol_module_package **mod_pkg);
->>
->> One potential issue with these functions is that they aren't thread safe
->> due to the use of globals with role_list and typealias_lists. When pp
->> was a single binary this wasn't a big deal (and greatly simplified the
->> code), but now that it's part of libsepol it could potentially cause
->> issues. Not sure if it's worth the complexity to change it so either
->> they aren't global variables, or make them thread local variables.
->> Alternatively, we could just document the functions as not thread safe.
-> 
-> I was initially going to remove the globals but I wasn't sure if they
-> were a problem and I wanted to minimize the changes to the code to make
-> review easier.
-> 
-> I am willing to convert them. Should I do that as a part of this patch set?
-> Jim
-> 
-> 
+V4 Adds the new command-line options to the checkpolicy and checkmodule man pages, adds error checking and messages to checkpolicy and checkmodule, updates libsepol's Android.mk and libsepol.map.in files as needed, and makes pp linke libsepol dynamically.
+V3 fixes another whitespace issue.
+V2 fixes some whitespace issues and make the new libsepol file LGPL instead of GPL.
 
-I don't think it needs to be done as part of this patchset. The only
-things using these functions are checkpolicy and pp, which aren't
-threaded, so there's no potential for problems at the moment.
+This patch set moves the code to generate CIL from pp.c in policycoreutils/hll/pp to libsepol, adds a new function to generate CIL from a module policydb, and modifies checkpolicy and checkmodule to support generating CIL as their output.
 
-- Steve
+The primary motivation of this work is to allow SE for Android to use the CIl compiler. Converting the policy.conf to CIL and then compiling to the kernel binary policy results in a policy that is about 20% smaller. The smaller size is because type expressions with negations are converted to type attribute sets in CIL instead of being expanded.
+
+James Carter (3):
+  libsepol, policycoreutils: Move functions to convert a module package
+    to CIL
+  libsepol: add function to generate CIL from a module policydb
+  checkpolicy: Add support for generating CIL
+
+ checkpolicy/checkmodule.8              |    5 +-
+ checkpolicy/checkmodule.c              |   63 +-
+ checkpolicy/checkpolicy.8              |    5 +-
+ checkpolicy/checkpolicy.c              |   83 +-
+ libsepol/Android.mk                    |    1 +
+ libsepol/include/sepol/module_to_cil.h |    8 +
+ libsepol/src/libsepol.map.in           |    3 +
+ libsepol/src/module_to_cil.c           | 4010 ++++++++++++++++++++++++++++++++
+ policycoreutils/hll/pp/Makefile        |    2 +-
+ policycoreutils/hll/pp/pp.c            | 3830 +-----------------------------
+ 10 files changed, 4128 insertions(+), 3882 deletions(-)
+ create mode 100644 libsepol/include/sepol/module_to_cil.h
+ create mode 100644 libsepol/src/module_to_cil.c
+
+-- 
+1.9.3
