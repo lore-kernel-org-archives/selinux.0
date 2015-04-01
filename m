@@ -1,60 +1,49 @@
+Message-ID: <551C44E1.8090105@tycho.nsa.gov>
+Date: Wed, 01 Apr 2015 15:20:01 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Date: Thu, 2 Apr 2015 00:28:42 +0530
-Message-ID: <CACikiw1GMK=8TNiwna22J_TC-S9PBVPvTzpNLCxte5nwEjDzoQ@mail.gmail.com>
+To: Ravi Kumar <nxp.ravi@gmail.com>, Selinux@tycho.nsa.gov
 Subject: Re: Fwd: Booting time is increased after applying kernel 3.10
-From: Ravi Kumar <nxp.ravi@gmail.com>
-To: Selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a11c341eec7504b0512ae4d7d
+References: <CACikiw1GMK=8TNiwna22J_TC-S9PBVPvTzpNLCxte5nwEjDzoQ@mail.gmail.com>
+In-Reply-To: <CACikiw1GMK=8TNiwna22J_TC-S9PBVPvTzpNLCxte5nwEjDzoQ@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c341eec7504b0512ae4d7d
-Content-Type: text/plain; charset=UTF-8
+On 04/01/2015 02:58 PM, Ravi Kumar wrote:
+> Hi Team , 
+> In reference to old discussion via the mail thread , 
+> http://marc.info/?l=selinux&m=140387478632108&q=raw
+> 
+> This is on the context on removing the synchronize_net() from bootup and
+> was concluded with optimization  on reducing the the number of call to
+> synchronize_net()  In context to to this what we are seeing is skipping
+> the call is saving much time  on android bootup  and based on the
+> discussion  at least for android  systems it look like we can still
+>  skip this call as suggest in the initial patch  which is much saving on
+> the bootup time .  But still i dont see any mainline / signed off sort
+> of patch for andriod  or any one using this . Did we see any issue or
+> planned different .
+> 
+> At least on KK the bootup time was under control for L code base we are
+> trying to see  all the ways of optimization  any input are greatly
+>  appreciated.       
 
-Hi Team ,
-In reference to old discussion via the mail thread ,
-http://marc.info/?l=selinux&m=140387478632108&q=raw
+commit 615e51fdda6f274e94b1e905fcaf6111e0d9aa20
+Author: Paul Moore <pmoore@redhat.com>
+Date:   Thu Jun 26 14:33:56 2014 -0400
 
-This is on the context on removing the synchronize_net() from bootup and
-was concluded with optimization  on reducing the the number of call to
-synchronize_net()  In context to to this what we are seeing is skipping the
-call is saving much time  on android bootup  and based on the discussion
- at least for android  systems it look like we can still  skip this call as
-suggest in the initial patch  which is much saving on the bootup time .
-But still i dont see any mainline / signed off sort of patch for andriod
- or any one using this . Did we see any issue or planned different .
+    selinux: reduce the number of calls to synchronize_net() when
+flushing cache
 
-At least on KK the bootup time was under control for L code base we are
-trying to see  all the ways of optimization  any input are greatly
- appreciated.
+    When flushing the AVC, such as during a policy load, the various
+    network caches are also flushed, with each making a call to
+    synchronize_net() which has shown to be expensive in some cases.
+    This patch consolidates the network cache flushes into a single AVC
+    callback which only calls synchronize_net() once for each AVC cache
+    flush.
 
-
-Regards,
-Ravi
-
---001a11c341eec7504b0512ae4d7d
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>Hi Team ,=C2=A0</div><div>In reference to old discuss=
-ion via the mail thread ,=C2=A0</div><a href=3D"http://marc.info/?l=3Dselin=
-ux&amp;m=3D140387478632108&amp;q=3Draw">http://marc.info/?l=3Dselinux&amp;m=
-=3D140387478632108&amp;q=3Draw</a><br><div><br></div><div>This is on the co=
-ntext on removing the synchronize_net() from bootup and was concluded with =
-optimization =C2=A0on reducing the the number of call to synchronize_net() =
-=C2=A0In context to to this what we are seeing is skipping the call is savi=
-ng much time =C2=A0on android bootup =C2=A0and based on the discussion =C2=
-=A0at least for android =C2=A0systems it look like we can still =C2=A0skip =
-this call as suggest in the initial patch =C2=A0which is much saving on the=
- bootup time .=C2=A0 But still i dont see any mainline / signed off sort of=
- patch for andriod =C2=A0or any one using this . Did we see any issue or pl=
-anned different .</div><div><br></div><div>At least on KK the bootup time w=
-as under control for L code base we are trying to see =C2=A0all the ways of=
- optimization =C2=A0any input are greatly =C2=A0appreciated. =C2=A0 =C2=A0 =
-=C2=A0=C2=A0</div><div><br></div><div><br></div><div>Regards,<br>Ravi=C2=A0=
-</div><div><pre style=3D"font-family:&#39;courier new&#39;,courier,monospac=
-e;font-size:16px;font-weight:600;color:rgb(0,0,0)"><br></pre></div></div>
-
---001a11c341eec7504b0512ae4d7d--
+    Reported-by: Jaejyn Shin <flagon22bass@gmail.com>
+    Signed-off-by: Paul Moore <pmoore@redhat.com>
