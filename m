@@ -1,87 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t32FnwFn005460
- for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2015 11:49:58 -0400
-Received: by ykcn8 with SMTP id n8so22962950ykc.3
- for <selinux@tycho.nsa.gov>; Thu, 02 Apr 2015 08:49:56 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1427986808-845-1-git-send-email-sds@tycho.nsa.gov>
-References: <1427986808-845-1-git-send-email-sds@tycho.nsa.gov>
-Date: Thu, 2 Apr 2015 08:49:56 -0700
-Message-ID: <CAFJ0LnEauPmq9=McjOdPtBkBq7bQA00_hN39PjP0-vLBwPvEtw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Fix build for Android.
-From: Nick Kralevich <nnk@google.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
-Cc: SELinux <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t32FwJLs005963
+ for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2015 11:58:19 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t32FwGVN021085
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+ for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2015 11:58:16 -0400
+From: Marek Milkovic <mmilkovi@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] selinux: Print 'sclass' as string when unrecognized netlink
+ message occurs
+Date: Thu,  2 Apr 2015 17:58:14 +0200
+Message-Id: <1427990294-19573-1-git-send-email-mmilkovi@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Apr 2, 2015 at 8:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> The Android build does not like the symbol versioning introduced
-> by commit 8147bc7; the build fails with:
-> host SharedLib: libsepol (out/host/linux-x86/obj/lib/libsepol.so)
-> prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8//x86_64-linux/bin/ld: error: symbol cil_build_policydb has undefined version
-> prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8//x86_64-linux/bin/ld: error: symbol cil_build_policydb has undefined version LIBSEPOL_1.1
-> clang: error: linker command failed with exit code 1 (use -v to see invocation)
->
-> The simplest fix appears to be to just drop the symver entries when
-> building on Android.
->
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  libsepol/Android.mk    | 1 +
->  libsepol/cil/src/cil.c | 2 ++
->  2 files changed, 3 insertions(+)
->
-> diff --git a/libsepol/Android.mk b/libsepol/Android.mk
-> index 3e4700b..f84b0d7 100644
-> --- a/libsepol/Android.mk
-> +++ b/libsepol/Android.mk
-> @@ -62,6 +62,7 @@ cil_src_files := \
->         cil/src/cil_verify.c
->
->  common_cflags := \
-> +       -D_ANDROID_ \
+This prints the 'sclass' field as string instead of index in unrecognized netlink message.
+The textual representation makes it easier to distinguish the right class.
 
+Signed-off-by: Marek Milkovic <mmilkovi@redhat.com>
+---
+ security/selinux/hooks.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Android builds set the flag ANDROID by default, not _ANDROID_ . If use
-use ANDROID instead of _ANDROID_ you don't need the Android.mk change.
-
->         -Wall -W -Wundef \
->         -Wshadow -Wmissing-noreturn \
->         -Wmissing-format-attribute
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index 1594be6..c13e8a4 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -51,6 +51,7 @@
->  #include "cil_policy.h"
->  #include "cil_strpool.h"
->
-> +#ifndef _ANDROID_
->  asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
->  asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
->
-> @@ -65,6 +66,7 @@ asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSE
->
->  asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
->  asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
-> +#endif
->
->  int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
->         {64, 64, 64, 1 << 13, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
-> --
-> 1.9.3
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-
-
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 87a9156..d75f525 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4712,8 +4712,8 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ 		if (err == -EINVAL) {
+ 			printk(KERN_WARNING
+ 			       "SELinux: unrecognized netlink message:"
+-			       " protocol=%hu nlmsg_type=%hu sclass=%hu\n",
+-			       sk->sk_protocol, nlh->nlmsg_type, sksec->sclass);
++			       " protocol=%hu nlmsg_type=%hu sclass=%s\n",
++			       sk->sk_protocol, nlh->nlmsg_type, secclass_map[sksec->sclass - 1].name);
+ 			if (!selinux_enforcing || security_get_allow_unknown())
+ 				err = 0;
+ 		}
 -- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+2.1.0
