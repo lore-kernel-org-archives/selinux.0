@@ -1,55 +1,71 @@
-Message-ID: <551C45DE.8050706@tycho.nsa.gov>
-Date: Wed, 01 Apr 2015 15:24:14 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t322ncW4024100
+ for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2015 22:49:38 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux patches for 4.1
+Date: Wed, 01 Apr 2015 22:49:27 -0400
+Message-ID: <1978116.cNUKEOv2T8@sifl>
 MIME-Version: 1.0
-To: Ravi Kumar <nxp.ravi@gmail.com>, Selinux@tycho.nsa.gov
-Subject: Re: Fwd: Booting time is increased after applying kernel 3.10
-References: <CACikiw1GMK=8TNiwna22J_TC-S9PBVPvTzpNLCxte5nwEjDzoQ@mail.gmail.com>
- <551C44E1.8090105@tycho.nsa.gov>
-In-Reply-To: <551C44E1.8090105@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/01/2015 03:20 PM, Stephen Smalley wrote:
-> On 04/01/2015 02:58 PM, Ravi Kumar wrote:
->> Hi Team , 
->> In reference to old discussion via the mail thread , 
->> http://marc.info/?l=selinux&m=140387478632108&q=raw
->>
->> This is on the context on removing the synchronize_net() from bootup and
->> was concluded with optimization  on reducing the the number of call to
->> synchronize_net()  In context to to this what we are seeing is skipping
->> the call is saving much time  on android bootup  and based on the
->> discussion  at least for android  systems it look like we can still
->>  skip this call as suggest in the initial patch  which is much saving on
->> the bootup time .  But still i dont see any mainline / signed off sort
->> of patch for andriod  or any one using this . Did we see any issue or
->> planned different .
->>
->> At least on KK the bootup time was under control for L code base we are
->> trying to see  all the ways of optimization  any input are greatly
->>  appreciated.       
-> 
-> commit 615e51fdda6f274e94b1e905fcaf6111e0d9aa20
-> Author: Paul Moore <pmoore@redhat.com>
-> Date:   Thu Jun 26 14:33:56 2014 -0400
-> 
->     selinux: reduce the number of calls to synchronize_net() when
-> flushing cache
-> 
->     When flushing the AVC, such as during a policy load, the various
->     network caches are also flushed, with each making a call to
->     synchronize_net() which has shown to be expensive in some cases.
->     This patch consolidates the network cache flushes into a single AVC
->     callback which only calls synchronize_net() once for each AVC cache
->     flush.
-> 
->     Reported-by: Jaejyn Shin <flagon22bass@gmail.com>
->     Signed-off-by: Paul Moore <pmoore@redhat.com>
+Hi James,
 
-And this was uploaded to the Android kernel/common tree along with
-various other SELinux kernel fixes/improvements, see
-https://android-review.googlesource.com/#/q/owner:sds+project:kernel/common
+Five patches this time around: three patches to improve and enlarge the the 
+avtab hash table, one to cleanup some MLS label import code, and one to 
+cleanup some of the avc code.  All of the patches are pretty small and 
+straightforward.  The two cleanup patches are trivially understandable and the 
+avtab code is well documented.
+
+As usual, all patches pass the SELinux testsuite.
+
+Enjoy,
+-Paul
+
+---
+The following changes since commit 6436a123a147db51a0b06024a8350f4c230e73ff:
+
+  selinux: fix sel_write_enforce broken return value
+           (2015-03-25 16:55:06 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux upstream
+
+for you to fetch changes up to 9b43e04b188a1f715429604cca32b846e5a48cd2:
+
+  Merge branch 'next' into upstream in preparation for v4.1
+  (2015-04-01 22:24:51 -0400)
+
+----------------------------------------------------------------
+Jeff Vander Stoep (1):
+      selinux: remove unnecessary pointer reassignment in 
+               avc_has_perm_noaudit()
+
+John Brooks (1):
+      selinux: Use a better hash function for avtab
+
+Paul Moore (2):
+      selinux: reconcile security_netlbl_secattr_to_sid() and 
+               mls_import_netlbl_cat()
+      Merge branch 'next' into upstream in preparation for v4.1
+
+Stephen Smalley (2):
+      selinux: convert avtab hash table to flex_array
+      selinux: increase avtab max buckets
+
+ security/selinux/avc.c         |  6 ++--
+ security/selinux/ss/avtab.c    | 72 +++++++++++++++++++++++++++++++---------
+ security/selinux/ss/avtab.h    |  8 +++--
+ security/selinux/ss/mls.c      | 10 ++----
+ security/selinux/ss/services.c |  6 +---
+ 5 files changed, 67 insertions(+), 35 deletions(-)
+
+-- 
+paul moore
+security @ redhat
