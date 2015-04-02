@@ -1,55 +1,61 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t32CW8OI024124
- for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2015 08:32:08 -0400
-Date: Thu, 2 Apr 2015 23:32:02 +1100 (AEDT)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-Subject: Re: [GIT PULL] SELinux patches for 4.1
-In-Reply-To: <1978116.cNUKEOv2T8@sifl>
-Message-ID: <alpine.LRH.2.11.1504022331430.4811@namei.org>
-References: <1978116.cNUKEOv2T8@sifl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol:  Fix build for Android.
+Date: Thu,  2 Apr 2015 11:00:08 -0400
+Message-Id: <1427986808-845-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 1 Apr 2015, Paul Moore wrote:
+The Android build does not like the symbol versioning introduced
+by commit 8147bc7; the build fails with:
+host SharedLib: libsepol (out/host/linux-x86/obj/lib/libsepol.so)
+prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8//x86_64-linux/bin/ld: error: symbol cil_build_policydb has undefined version
+prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.15-4.8//x86_64-linux/bin/ld: error: symbol cil_build_policydb has undefined version LIBSEPOL_1.1
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
 
-> Hi James,
-> 
-> Five patches this time around: three patches to improve and enlarge the the 
-> avtab hash table, one to cleanup some MLS label import code, and one to 
-> cleanup some of the avc code.  All of the patches are pretty small and 
-> straightforward.  The two cleanup patches are trivially understandable and the 
-> avtab code is well documented.
-> 
-> As usual, all patches pass the SELinux testsuite.
-> 
-> Enjoy,
-> -Paul
-> 
-> ---
-> The following changes since commit 6436a123a147db51a0b06024a8350f4c230e73ff:
-> 
->   selinux: fix sel_write_enforce broken return value
->            (2015-03-25 16:55:06 -0400)
-> 
-> are available in the git repository at:
-> 
->   git://git.infradead.org/users/pcmoore/selinux upstream
-> 
-> for you to fetch changes up to 9b43e04b188a1f715429604cca32b846e5a48cd2:
-> 
->   Merge branch 'next' into upstream in preparation for v4.1
->   (2015-04-01 22:24:51 -0400)
-> 
+The simplest fix appears to be to just drop the symver entries when
+building on Android.
 
-Is this branch downstream from my -next?
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/Android.mk    | 1 +
+ libsepol/cil/src/cil.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-
+diff --git a/libsepol/Android.mk b/libsepol/Android.mk
+index 3e4700b..f84b0d7 100644
+--- a/libsepol/Android.mk
++++ b/libsepol/Android.mk
+@@ -62,6 +62,7 @@ cil_src_files := \
+ 	cil/src/cil_verify.c
+ 
+ common_cflags := \
++	-D_ANDROID_ \
+ 	-Wall -W -Wundef \
+ 	-Wshadow -Wmissing-noreturn \
+ 	-Wmissing-format-attribute
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 1594be6..c13e8a4 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -51,6 +51,7 @@
+ #include "cil_policy.h"
+ #include "cil_strpool.h"
+ 
++#ifndef _ANDROID_
+ asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
+ asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
+ 
+@@ -65,6 +66,7 @@ asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSE
+ 
+ asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
+ asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
++#endif
+ 
+ int cil_sym_sizes[CIL_SYM_ARRAY_NUM][CIL_SYM_NUM] = {
+ 	{64, 64, 64, 1 << 13, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64},
 -- 
-James Morris
-<jmorris@namei.org>
+1.9.3
