@@ -1,62 +1,65 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t37BSAPL018317
- for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2015 07:28:11 -0400
-Received: by oblw8 with SMTP id w8so33414016obl.0
- for <selinux@tycho.nsa.gov>; Tue, 07 Apr 2015 04:28:07 -0700 (PDT)
+Message-ID: <5523CE8B.1040600@tycho.nsa.gov>
+Date: Tue, 07 Apr 2015 08:33:15 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <1427990294-19573-1-git-send-email-mmilkovi@redhat.com>
-References: <1427990294-19573-1-git-send-email-mmilkovi@redhat.com>
-Date: Tue, 7 Apr 2015 07:28:07 -0400
-Message-ID: <CAHC9VhRxf2Ck8pgR3Z2y-8T39RJAGhKuWE0PtM-FP5aH5vNbVQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Print 'sclass' as string when unrecognized
- netlink message occurs
-From: Paul Moore <paul@paul-moore.com>
-To: Marek Milkovic <mmilkovi@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: selinux@tycho.nsa.gov
+To: Ravi Kumar <nxp.ravi@gmail.com>, Selinux@tycho.nsa.gov,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Subject: Re: CONFIG_SECURITY_SELINUX_DEVELOP flag is still enabled in most
+ of the AOSP based releases , Can we remove this in production builds . .
+References: <CACikiw0ta3yLkbHLRVG=fScjwq9htK3s2y0VHUqWk09OysoNPA@mail.gmail.com>
+In-Reply-To: <CACikiw0ta3yLkbHLRVG=fScjwq9htK3s2y0VHUqWk09OysoNPA@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Apr 2, 2015 at 11:58 AM, Marek Milkovic <mmilkovi@redhat.com> wrote:
-> This prints the 'sclass' field as string instead of index in unrecognized netlink message.
-> The textual representation makes it easier to distinguish the right class.
->
-> Signed-off-by: Marek Milkovic <mmilkovi@redhat.com>
-> ---
->  security/selinux/hooks.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 04/07/2015 01:30 AM, Ravi Kumar wrote:
+> Hi Team , 
+> 
+> I see most of the AOSP  based release are still using
+> "CONFIG_SECURITY_SELINUX_DEVELOP "  defined and  there is still
+> possibility open for  getting or landing to permissive  can  we  remove
+> this flag  in  release  or production build  ?    and   what sort of
+> additional testing   is expected   to be run . 
 
-Thanks Marek, this looks good.  I'm adding this to the next queue for
-after the merge window.
+First, discussion of SELinux in Android is typically done on the
+seandroid-list, not the selinux list, unless it is generic in nature for
+all of SELinux (e.g. changes to upstream SELinux).  Subscribe by sending
+email to seandroid-list-join@tycho.nsa.gov and following the
+instructions in the confirmation email.  I have added seandroid-list to
+the cc list for this reply.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 87a9156..d75f525 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4712,8 +4712,8 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
->                 if (err == -EINVAL) {
->                         printk(KERN_WARNING
->                                "SELinux: unrecognized netlink message:"
-> -                              " protocol=%hu nlmsg_type=%hu sclass=%hu\n",
-> -                              sk->sk_protocol, nlh->nlmsg_type, sksec->sclass);
-> +                              " protocol=%hu nlmsg_type=%hu sclass=%s\n",
-> +                              sk->sk_protocol, nlh->nlmsg_type, secclass_map[sksec->sclass - 1].name);
->                         if (!selinux_enforcing || security_get_allow_unknown())
->                                 err = 0;
->                 }
-> --
-> 2.1.0
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+CONFIG_SECURITY_SELINUX_DEVELOP aka global permissive mode is useful for
+when you are first developing device-specific policy for a board (add
+androidboot.selinux=permissive to BOARD_KERNEL_CMDLINE).  It also
+permits transient setenforce 0 in -userdebug or -eng builds, which can
+be helpful for developers.
 
+If the bootloader is locked, then you can't modify the kernel cmdline,
+so you cannot use androidboot.selinux=permissive to defeat the security
+of a locked device.  setenforce permission is not allowed to any domain
+in policy (and this is validated by a neverallow rule, checked both at
+policy build time and by CTS) and no permissive domains are permitted in
+-user builds (checked by CTS), so you cannot use setenforce 0 to defeat
+the security of a device with a -user build that has passed CTS.
 
+If you can directly modify the selinux_enforcing kernel variable via
+kernel exploit, then there are many other options available to you for
+disabling SELinux, escalating your own privileges, or modifying the
+policy (including making your own domain permissive, which is not
+affected by CONFIG_SECURITY_SELINUX_DEVELOP=n), so taking away
+CONFIG_SECURITY_SELINUX_DEVELOP won't help significantly.
 
--- 
-paul moore
-www.paul-moore.com
+So I don't believe that disabling CONFIG_SECURITY_SELINUX_DEVELOP would
+truly make a substantive difference to security.  Obviously you are free
+to do so if you wish, but it will require you to use slightly different
+kernel configurations for development vs production, which could have an
+impact on your QA/testing processes.
+
+The only potential breakage from disabling
+CONFIG_SECURITY_SELINUX_DEVELOP would be if the init program treats a
+failed security_setenforce(1) call as a fatal error, since writes to
+/sys/fs/selinux/enforce will always fail in that case.  However, it
+appears that the Android init program ignores the return value of
+security_setenforce() so it would not break if you disable the option.
