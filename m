@@ -1,40 +1,62 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t37BSAPL018317
+ for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2015 07:28:11 -0400
+Received: by oblw8 with SMTP id w8so33414016obl.0
+ for <selinux@tycho.nsa.gov>; Tue, 07 Apr 2015 04:28:07 -0700 (PDT)
 MIME-Version: 1.0
-Date: Tue, 7 Apr 2015 11:00:22 +0530
-Message-ID: <CACikiw0ta3yLkbHLRVG=fScjwq9htK3s2y0VHUqWk09OysoNPA@mail.gmail.com>
-Subject: CONFIG_SECURITY_SELINUX_DEVELOP flag is still enabled in most of the
- AOSP based releases , Can we remove this in production builds . .
-From: Ravi Kumar <nxp.ravi@gmail.com>
-To: Selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a11345c8c0b2fbd05131bb6c0
+In-Reply-To: <1427990294-19573-1-git-send-email-mmilkovi@redhat.com>
+References: <1427990294-19573-1-git-send-email-mmilkovi@redhat.com>
+Date: Tue, 7 Apr 2015 07:28:07 -0400
+Message-ID: <CAHC9VhRxf2Ck8pgR3Z2y-8T39RJAGhKuWE0PtM-FP5aH5vNbVQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Print 'sclass' as string when unrecognized
+ netlink message occurs
+From: Paul Moore <paul@paul-moore.com>
+To: Marek Milkovic <mmilkovi@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11345c8c0b2fbd05131bb6c0
-Content-Type: text/plain; charset=UTF-8
+On Thu, Apr 2, 2015 at 11:58 AM, Marek Milkovic <mmilkovi@redhat.com> wrote:
+> This prints the 'sclass' field as string instead of index in unrecognized netlink message.
+> The textual representation makes it easier to distinguish the right class.
+>
+> Signed-off-by: Marek Milkovic <mmilkovi@redhat.com>
+> ---
+>  security/selinux/hooks.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Hi Team ,
+Thanks Marek, this looks good.  I'm adding this to the next queue for
+after the merge window.
 
-I see most of the AOSP  based release are still using
-"CONFIG_SECURITY_SELINUX_DEVELOP "  defined and  there is still possibility
-open for  getting or landing to permissive  can  we  remove this flag  in
- release  or production build  ?    and   what sort of additional testing
-is expected   to be run .
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 87a9156..d75f525 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4712,8 +4712,8 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+>                 if (err == -EINVAL) {
+>                         printk(KERN_WARNING
+>                                "SELinux: unrecognized netlink message:"
+> -                              " protocol=%hu nlmsg_type=%hu sclass=%hu\n",
+> -                              sk->sk_protocol, nlh->nlmsg_type, sksec->sclass);
+> +                              " protocol=%hu nlmsg_type=%hu sclass=%s\n",
+> +                              sk->sk_protocol, nlh->nlmsg_type, secclass_map[sksec->sclass - 1].name);
+>                         if (!selinux_enforcing || security_get_allow_unknown())
+>                                 err = 0;
+>                 }
+> --
+> 2.1.0
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
-Regards,
-Ravi
 
---001a11345c8c0b2fbd05131bb6c0
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr">Hi Team ,=C2=A0<div><br></div><div>I see most of the AOSP =
-=C2=A0based release are still using &quot;CONFIG_SECURITY_SELINUX_DEVELOP &=
-quot; =C2=A0defined and =C2=A0there is still possibility open for =C2=A0get=
-ting or landing to permissive =C2=A0can =C2=A0we =C2=A0remove this flag =C2=
-=A0in =C2=A0release =C2=A0or production build =C2=A0? =C2=A0 =C2=A0and =C2=
-=A0 what sort of additional testing =C2=A0 is expected =C2=A0 to be run .=
-=C2=A0</div><div><br></div><div>Regards,<br>Ravi =C2=A0</div></div>
-
---001a11345c8c0b2fbd05131bb6c0--
+-- 
+paul moore
+www.paul-moore.com
