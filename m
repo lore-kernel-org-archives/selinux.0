@@ -1,26 +1,31 @@
-Message-ID: <55280271.1090103@tycho.nsa.gov>
-Date: Fri, 10 Apr 2015 13:03:45 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3AHDm03023489
+ for <selinux@tycho.nsa.gov>; Fri, 10 Apr 2015 13:13:48 -0400
+Message-ID: <552804BD.2010700@tresys.com>
+Date: Fri, 10 Apr 2015 13:13:33 -0400
+From: Thomas Hurd <thurd@tresys.com>
 MIME-Version: 1.0
-To: Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov
+To: Jeff Vander Stoep <jeffv@google.com>, <selinux@tycho.nsa.gov>
 Subject: Re: [PATCH v2 2/2] SELinux: per-command whitelisting of ioctls
 References: <1428684856-17981-1-git-send-email-jeffv@google.com>
 In-Reply-To: <1428684856-17981-1-git-send-email-jeffv@google.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Cc: linux-security-module@vger.kernel.org, james.l.morris@oracle.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+
+
 On 04/10/2015 12:54 PM, Jeff Vander Stoep wrote:
 > Extend the generic ioctl permission check with support for per-command
 > filtering. Source/target/class sets including the ioctl permission may
 > additionally include a set of commands. Example:
-> 
+>
 > allow <source> <target>:<class> { 0x8910-0x8926 0x892A-0x8935 }
 > auditallow <source> <target>:<class> 0x892A
-> 
+>
 > When ioctl commands are omitted only the permissions are checked. This
 > feature is intended to provide finer granularity for the ioctl
 > permission which may be too imprecise in some circumstances. For
@@ -30,53 +35,57 @@ On 04/10/2015 12:54 PM, Jeff Vander Stoep wrote:
 > to physical memory or access to sensitive data. Per-command filtering
 > provides a mechanism to reduce the attack surface of the kernel, and
 > limit applications to the subset of commands required.
-> 
+>
 > The format of the policy binary has been modified to include ioctl
 > commands, and the policy version number has been incremented to
 > POLICYDB_VERSION_IOCTL_OPERATIONS=30 to account for the format change.
-> 
+
+There is a collision with version 30 in userspace from the recent Xen 
+changes.
+
+libsepol/include/sepol/policydb/policydb.h
+#define POLICYDB_VERSION_XEN_DEVICETREE 30
+
+>
 > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
 > ---
->  security/selinux/avc.c              | 422 ++++++++++++++++++++++++++++++++++--
->  security/selinux/hooks.c            |  40 +++-
->  security/selinux/include/avc.h      |   5 +
->  security/selinux/include/security.h |  34 ++-
->  security/selinux/ss/avtab.c         |  91 ++++++--
->  security/selinux/ss/avtab.h         |  25 ++-
->  security/selinux/ss/conditional.c   |  32 ++-
->  security/selinux/ss/conditional.h   |   6 +-
->  security/selinux/ss/policydb.c      |   5 +
->  security/selinux/ss/services.c      | 202 +++++++++++++++--
->  security/selinux/ss/services.h      |   6 +
->  11 files changed, 808 insertions(+), 60 deletions(-)
-> 
+>   security/selinux/avc.c              | 422 ++++++++++++++++++++++++++++++++++--
+>   security/selinux/hooks.c            |  40 +++-
+>   security/selinux/include/avc.h      |   5 +
+>   security/selinux/include/security.h |  34 ++-
+>   security/selinux/ss/avtab.c         |  91 ++++++--
+>   security/selinux/ss/avtab.h         |  25 ++-
+>   security/selinux/ss/conditional.c   |  32 ++-
+>   security/selinux/ss/conditional.h   |   6 +-
+>   security/selinux/ss/policydb.c      |   5 +
+>   security/selinux/ss/services.c      | 202 +++++++++++++++--
+>   security/selinux/ss/services.h      |   6 +
+>   11 files changed, 808 insertions(+), 60 deletions(-)
+>
 > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
 > index 3c17dda..97b2532 100644
 > --- a/security/selinux/avc.c
 > +++ b/security/selinux/avc.c
 > @@ -22,6 +22,7 @@
->  #include <linux/init.h>
->  #include <linux/skbuff.h>
->  #include <linux/percpu.h>
+>   #include <linux/init.h>
+>   #include <linux/skbuff.h>
+>   #include <linux/percpu.h>
 > +#include <linux/list.h>
->  #include <net/sock.h>
->  #include <linux/un.h>
->  #include <net/af_unix.h>
+>   #include <net/sock.h>
+>   #include <linux/un.h>
+>   #include <net/af_unix.h>
 > @@ -48,6 +49,7 @@ struct avc_entry {
->  	u32			tsid;
->  	u16			tclass;
->  	struct av_decision	avd;
+>   	u32			tsid;
+>   	u16			tclass;
+>   	struct av_decision	avd;
 > +	struct avc_operation_node *ops_node;
->  };
->  
->  struct avc_node {
+>   };
+>
+>   struct avc_node {
 > @@ -64,6 +66,16 @@ struct avc_cache {
->  	u32			latest_notif;	/* latest revocation notification */
->  };
->  
+>   	u32			latest_notif;	/* latest revocation notification */
+>   };
+>
 > +struct avc_operation_decision_node {
 > +	struct operation_decision od;
 > +	struct list_head od_list;
@@ -87,23 +96,23 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	struct list_head od_head; /* list of operation_decision_node */
 > +};
 > +
->  struct avc_callback_node {
->  	int (*callback) (u32 event);
->  	u32 events;
+>   struct avc_callback_node {
+>   	int (*callback) (u32 event);
+>   	u32 events;
 > @@ -80,6 +92,9 @@ DEFINE_PER_CPU(struct avc_cache_stats, avc_cache_stats) = { 0 };
->  static struct avc_cache avc_cache;
->  static struct avc_callback_node *avc_callbacks;
->  static struct kmem_cache *avc_node_cachep;
+>   static struct avc_cache avc_cache;
+>   static struct avc_callback_node *avc_callbacks;
+>   static struct kmem_cache *avc_node_cachep;
 > +static struct kmem_cache *avc_operation_decision_node_cachep;
 > +static struct kmem_cache *avc_operation_node_cachep;
 > +static struct kmem_cache *avc_operation_perm_cachep;
->  
->  static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
->  {
+>
+>   static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
+>   {
 > @@ -171,6 +186,16 @@ void __init avc_init(void)
->  
->  	avc_node_cachep = kmem_cache_create("avc_node", sizeof(struct avc_node),
->  					     0, SLAB_PANIC, NULL);
+>
+>   	avc_node_cachep = kmem_cache_create("avc_node", sizeof(struct avc_node),
+>   					     0, SLAB_PANIC, NULL);
 > +	avc_operation_node_cachep = kmem_cache_create("avc_operation_node",
 > +				sizeof(struct avc_operation_node),
 > +				0, SLAB_PANIC, NULL);
@@ -114,13 +123,13 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	avc_operation_perm_cachep = kmem_cache_create("avc_operation_perm",
 > +				sizeof(struct operation_perm),
 > +				0, SLAB_PANIC, NULL);
->  
->  	audit_log(current->audit_context, GFP_KERNEL, AUDIT_KERNEL, "AVC INITIALIZED\n");
->  }
+>
+>   	audit_log(current->audit_context, GFP_KERNEL, AUDIT_KERNEL, "AVC INITIALIZED\n");
+>   }
 > @@ -205,9 +230,269 @@ int avc_get_hash_stats(char *page)
->  			 slots_used, AVC_CACHE_SLOTS, max_chain_len);
->  }
->  
+>   			 slots_used, AVC_CACHE_SLOTS, max_chain_len);
+>   }
+>
 > +/*
 > + * using a linked list for operation_decision lookup because the list is
 > + * always small. i.e. less than 5, typically 1
@@ -380,81 +389,81 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +			audited, denied, result, ad, 0);
 > +}
 > +
->  static void avc_node_free(struct rcu_head *rhead)
->  {
->  	struct avc_node *node = container_of(rhead, struct avc_node, rhead);
+>   static void avc_node_free(struct rcu_head *rhead)
+>   {
+>   	struct avc_node *node = container_of(rhead, struct avc_node, rhead);
 > +	avc_operation_free(node->ae.ops_node);
->  	kmem_cache_free(avc_node_cachep, node);
->  	avc_cache_stats_incr(frees);
->  }
+>   	kmem_cache_free(avc_node_cachep, node);
+>   	avc_cache_stats_incr(frees);
+>   }
 > @@ -221,6 +506,7 @@ static void avc_node_delete(struct avc_node *node)
->  
->  static void avc_node_kill(struct avc_node *node)
->  {
+>
+>   static void avc_node_kill(struct avc_node *node)
+>   {
 > +	avc_operation_free(node->ae.ops_node);
->  	kmem_cache_free(avc_node_cachep, node);
->  	avc_cache_stats_incr(frees);
->  	atomic_dec(&avc_cache.active_nodes);
+>   	kmem_cache_free(avc_node_cachep, node);
+>   	avc_cache_stats_incr(frees);
+>   	atomic_dec(&avc_cache.active_nodes);
 > @@ -367,6 +653,7 @@ static int avc_latest_notif_update(int seqno, int is_insert)
->   * @tsid: target security identifier
->   * @tclass: target security class
->   * @avd: resulting av decision
+>    * @tsid: target security identifier
+>    * @tclass: target security class
+>    * @avd: resulting av decision
 > + * @ops: resulting operation decisions
->   *
->   * Insert an AVC entry for the SID pair
->   * (@ssid, @tsid) and class @tclass.
+>    *
+>    * Insert an AVC entry for the SID pair
+>    * (@ssid, @tsid) and class @tclass.
 > @@ -378,7 +665,9 @@ static int avc_latest_notif_update(int seqno, int is_insert)
->   * the access vectors into a cache entry, returns
->   * avc_node inserted. Otherwise, this function returns NULL.
->   */
+>    * the access vectors into a cache entry, returns
+>    * avc_node inserted. Otherwise, this function returns NULL.
+>    */
 > -static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_decision *avd)
 > +static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass,
 > +				struct av_decision *avd,
 > +				struct avc_operation_node *ops_node)
->  {
->  	struct avc_node *pos, *node = NULL;
->  	int hvalue;
+>   {
+>   	struct avc_node *pos, *node = NULL;
+>   	int hvalue;
 > @@ -391,10 +680,15 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
->  	if (node) {
->  		struct hlist_head *head;
->  		spinlock_t *lock;
+>   	if (node) {
+>   		struct hlist_head *head;
+>   		spinlock_t *lock;
 > +		int rc = 0;
->  
->  		hvalue = avc_hash(ssid, tsid, tclass);
->  		avc_node_populate(node, ssid, tsid, tclass, avd);
+>
+>   		hvalue = avc_hash(ssid, tsid, tclass);
+>   		avc_node_populate(node, ssid, tsid, tclass, avd);
 > -
 > +		rc = avc_operation_populate(node, ops_node);
 > +		if (rc) {
 > +			kmem_cache_free(avc_node_cachep, node);
 > +			return NULL;
 > +		}
->  		head = &avc_cache.slots[hvalue];
->  		lock = &avc_cache.slots_lock[hvalue];
->  
+>   		head = &avc_cache.slots[hvalue];
+>   		lock = &avc_cache.slots_lock[hvalue];
+>
 > @@ -523,14 +817,17 @@ out:
->   * @perms : Permission mask bits
->   * @ssid,@tsid,@tclass : identifier of an AVC entry
->   * @seqno : sequence number when decision was made
+>    * @perms : Permission mask bits
+>    * @ssid,@tsid,@tclass : identifier of an AVC entry
+>    * @seqno : sequence number when decision was made
 > + * @od: operation_decision to be added to the node
->   *
->   * if a valid AVC entry doesn't exist,this function returns -ENOENT.
->   * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
->   * otherwise, this function updates the AVC entry. The original AVC-entry object
->   * will release later by RCU.
->   */
+>    *
+>    * if a valid AVC entry doesn't exist,this function returns -ENOENT.
+>    * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
+>    * otherwise, this function updates the AVC entry. The original AVC-entry object
+>    * will release later by RCU.
+>    */
 > -static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
 > -			   u32 seqno)
 > +static int avc_update_node(u32 event, u32 perms, u16 cmd, u32 ssid, u32 tsid,
 > +			u16 tclass, u32 seqno,
 > +			struct operation_decision *od,
 > +			u32 flags)
->  {
->  	int hvalue, rc = 0;
->  	unsigned long flag;
+>   {
+>   	int hvalue, rc = 0;
+>   	unsigned long flag;
 > @@ -574,9 +871,19 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
->  
->  	avc_node_populate(node, ssid, tsid, tclass, &orig->ae.avd);
->  
+>
+>   	avc_node_populate(node, ssid, tsid, tclass, &orig->ae.avd);
+>
 > +	if (orig->ae.ops_node) {
 > +		rc = avc_operation_populate(node, orig->ae.ops_node);
 > +		if (rc) {
@@ -463,62 +472,62 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +		}
 > +	}
 > +
->  	switch (event) {
->  	case AVC_CALLBACK_GRANT:
->  		node->ae.avd.allowed |= perms;
+>   	switch (event) {
+>   	case AVC_CALLBACK_GRANT:
+>   		node->ae.avd.allowed |= perms;
 > +		if (node->ae.ops_node && (flags & AVC_OPERATION_CMD))
 > +			avc_operation_allow_perm(node->ae.ops_node, cmd);
->  		break;
->  	case AVC_CALLBACK_TRY_REVOKE:
->  	case AVC_CALLBACK_REVOKE:
+>   		break;
+>   	case AVC_CALLBACK_TRY_REVOKE:
+>   	case AVC_CALLBACK_REVOKE:
 > @@ -594,6 +901,9 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
->  	case AVC_CALLBACK_AUDITDENY_DISABLE:
->  		node->ae.avd.auditdeny &= ~perms;
->  		break;
+>   	case AVC_CALLBACK_AUDITDENY_DISABLE:
+>   		node->ae.avd.auditdeny &= ~perms;
+>   		break;
 > +	case AVC_CALLBACK_ADD_OPERATION:
 > +		avc_add_operation(node, od);
 > +		break;
->  	}
->  	avc_node_replace(node, orig);
->  out_unlock:
+>   	}
+>   	avc_node_replace(node, orig);
+>   out_unlock:
 > @@ -665,18 +975,20 @@ int avc_ss_reset(u32 seqno)
->   * results in a bigger stack frame.
->   */
->  static noinline struct avc_node *avc_compute_av(u32 ssid, u32 tsid,
+>    * results in a bigger stack frame.
+>    */
+>   static noinline struct avc_node *avc_compute_av(u32 ssid, u32 tsid,
 > -			 u16 tclass, struct av_decision *avd)
 > +			 u16 tclass, struct av_decision *avd,
 > +			 struct avc_operation_node *ops_node)
->  {
->  	rcu_read_unlock();
+>   {
+>   	rcu_read_unlock();
 > -	security_compute_av(ssid, tsid, tclass, avd);
 > +	INIT_LIST_HEAD(&ops_node->od_head);
 > +	security_compute_av(ssid, tsid, tclass, avd, &ops_node->ops);
->  	rcu_read_lock();
+>   	rcu_read_lock();
 > -	return avc_insert(ssid, tsid, tclass, avd);
 > +	return avc_insert(ssid, tsid, tclass, avd, ops_node);
->  }
->  
->  static noinline int avc_denied(u32 ssid, u32 tsid,
+>   }
+>
+>   static noinline int avc_denied(u32 ssid, u32 tsid,
 > -			 u16 tclass, u32 requested,
 > -			 unsigned flags,
 > -			 struct av_decision *avd)
 > +				u16 tclass, u32 requested,
 > +				u16 cmd, unsigned flags,
 > +				struct av_decision *avd)
->  {
->  	if (flags & AVC_STRICT)
->  		return -EACCES;
+>   {
+>   	if (flags & AVC_STRICT)
+>   		return -EACCES;
 > @@ -684,11 +996,92 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
->  	if (selinux_enforcing && !(avd->flags & AVD_FLAGS_PERMISSIVE))
->  		return -EACCES;
->  
+>   	if (selinux_enforcing && !(avd->flags & AVD_FLAGS_PERMISSIVE))
+>   		return -EACCES;
+>
 > -	avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
 > -				tsid, tclass, avd->seqno);
 > +	avc_update_node(AVC_CALLBACK_GRANT, requested, cmd, ssid,
 > +				tsid, tclass, avd->seqno, NULL, flags);
->  	return 0;
->  }
->  
+>   	return 0;
+>   }
+>
 > +/*
 > + * ioctl commands are comprised of four fields, direction, size, type, and
 > + * number. The avc operation logic filters based on two of them:
@@ -600,41 +609,41 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +		return rc2;
 > +	return rc;
 > +}
->  
->  /**
->   * avc_has_perm_noaudit - Check permissions but perform no auditing.
+>
+>   /**
+>    * avc_has_perm_noaudit - Check permissions but perform no auditing.
 > @@ -716,6 +1109,7 @@ inline int avc_has_perm_noaudit(u32 ssid, u32 tsid,
->  			 struct av_decision *avd)
->  {
->  	struct avc_node *node;
+>   			 struct av_decision *avd)
+>   {
+>   	struct avc_node *node;
 > +	struct avc_operation_node ops_node;
->  	int rc = 0;
->  	u32 denied;
->  
+>   	int rc = 0;
+>   	u32 denied;
+>
 > @@ -725,13 +1119,13 @@ inline int avc_has_perm_noaudit(u32 ssid, u32 tsid,
->  
->  	node = avc_lookup(ssid, tsid, tclass);
->  	if (unlikely(!node))
+>
+>   	node = avc_lookup(ssid, tsid, tclass);
+>   	if (unlikely(!node))
 > -		node = avc_compute_av(ssid, tsid, tclass, avd);
 > +		node = avc_compute_av(ssid, tsid, tclass, avd, &ops_node);
->  	else
->  		memcpy(avd, &node->ae.avd, sizeof(*avd));
->  
->  	denied = requested & ~(avd->allowed);
->  	if (unlikely(denied))
+>   	else
+>   		memcpy(avd, &node->ae.avd, sizeof(*avd));
+>
+>   	denied = requested & ~(avd->allowed);
+>   	if (unlikely(denied))
 > -		rc = avc_denied(ssid, tsid, tclass, requested, flags, avd);
 > +		rc = avc_denied(ssid, tsid, tclass, requested, 0, flags, avd);
->  
->  	rcu_read_unlock();
->  	return rc;
+>
+>   	rcu_read_unlock();
+>   	return rc;
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
 > index 4d1a541..0fe64bb 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
 > @@ -3239,6 +3239,44 @@ static void selinux_file_free_security(struct file *file)
->  	file_free_security(file);
->  }
->  
+>   	file_free_security(file);
+>   }
+>
 > +/*
 > + * Check whether a task has the ioctl permission and cmd
 > + * operation to an inode.
@@ -673,72 +682,72 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	return rc;
 > +}
 > +
->  static int selinux_file_ioctl(struct file *file, unsigned int cmd,
->  			      unsigned long arg)
->  {
+>   static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+>   			      unsigned long arg)
+>   {
 > @@ -3281,7 +3319,7 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
->  	 * to the file's ioctl() function.
->  	 */
->  	default:
+>   	 * to the file's ioctl() function.
+>   	 */
+>   	default:
 > -		error = file_has_perm(cred, file, FILE__IOCTL);
 > +		error = ioctl_has_perm(cred, file, FILE__IOCTL, (u16) cmd);
->  	}
->  	return error;
->  }
+>   	}
+>   	return error;
+>   }
 > diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
 > index ddf8eec..3165d4e 100644
 > --- a/security/selinux/include/avc.h
 > +++ b/security/selinux/include/avc.h
 > @@ -142,6 +142,7 @@ static inline int avc_audit(u32 ssid, u32 tsid,
->  }
->  
->  #define AVC_STRICT 1 /* Ignore permissive mode. */
+>   }
+>
+>   #define AVC_STRICT 1 /* Ignore permissive mode. */
 > +#define AVC_OPERATION_CMD 2	/* ignore command when updating operations */
->  int avc_has_perm_noaudit(u32 ssid, u32 tsid,
->  			 u16 tclass, u32 requested,
->  			 unsigned flags,
+>   int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+>   			 u16 tclass, u32 requested,
+>   			 unsigned flags,
 > @@ -151,6 +152,9 @@ int avc_has_perm(u32 ssid, u32 tsid,
->  		 u16 tclass, u32 requested,
->  		 struct common_audit_data *auditdata);
->  
+>   		 u16 tclass, u32 requested,
+>   		 struct common_audit_data *auditdata);
+>
 > +int avc_has_operation(u32 ssid, u32 tsid, u16 tclass, u32 requested,
 > +		u16 cmd, struct common_audit_data *ad);
 > +
->  u32 avc_policy_seqno(void);
->  
->  #define AVC_CALLBACK_GRANT		1
+>   u32 avc_policy_seqno(void);
+>
+>   #define AVC_CALLBACK_GRANT		1
 > @@ -161,6 +165,7 @@ u32 avc_policy_seqno(void);
->  #define AVC_CALLBACK_AUDITALLOW_DISABLE	32
->  #define AVC_CALLBACK_AUDITDENY_ENABLE	64
->  #define AVC_CALLBACK_AUDITDENY_DISABLE	128
+>   #define AVC_CALLBACK_AUDITALLOW_DISABLE	32
+>   #define AVC_CALLBACK_AUDITDENY_ENABLE	64
+>   #define AVC_CALLBACK_AUDITDENY_DISABLE	128
 > +#define AVC_CALLBACK_ADD_OPERATION	256
->  
->  int avc_add_callback(int (*callback)(u32 event), u32 events);
->  
+>
+>   int avc_add_callback(int (*callback)(u32 event), u32 events);
+>
 > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
 > index d1e0b23..9f4f7cb 100644
 > --- a/security/selinux/include/security.h
 > +++ b/security/selinux/include/security.h
 > @@ -35,13 +35,14 @@
->  #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
->  #define POLICYDB_VERSION_DEFAULT_TYPE	28
->  #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
+>   #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
+>   #define POLICYDB_VERSION_DEFAULT_TYPE	28
+>   #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
 > +#define POLICYDB_VERSION_IOCTL_OPERATIONS	30
->  
->  /* Range of policy versions we understand*/
->  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
->  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
->  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
->  #else
+>
+>   /* Range of policy versions we understand*/
+>   #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+>   #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+>   #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+>   #else
 > -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
 > +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_IOCTL_OPERATIONS
->  #endif
->  
->  /* Mask for just the mount related flags */
+>   #endif
+>
+>   /* Mask for just the mount related flags */
 > @@ -108,11 +109,40 @@ struct av_decision {
->  	u32 flags;
->  };
->  
+>   	u32 flags;
+>   };
+>
 > +#define security_operation_set(perms, x) (perms[x >> 5] |= 1 << (x & 0x1f))
 > +#define security_operation_test(perms, x) (1 & (perms[x >> 5] >> (x & 0x1f)))
 > +
@@ -764,40 +773,40 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	u32 type[8];	/* 256 types */
 > +};
 > +
->  /* definitions of av_decision.flags */
->  #define AVD_FLAGS_PERMISSIVE	0x0001
->  
->  void security_compute_av(u32 ssid, u32 tsid,
+>   /* definitions of av_decision.flags */
+>   #define AVD_FLAGS_PERMISSIVE	0x0001
+>
+>   void security_compute_av(u32 ssid, u32 tsid,
 > -			 u16 tclass, struct av_decision *avd);
 > +			 u16 tclass, struct av_decision *avd,
 > +			 struct operation *ops);
 > +
 > +void security_compute_operation(u32 ssid, u32 tsid, u16 tclass,
 > +			 u8 type, struct operation_decision *od);
->  
->  void security_compute_av_user(u32 ssid, u32 tsid,
->  			     u16 tclass, struct av_decision *avd);
+>
+>   void security_compute_av_user(u32 ssid, u32 tsid,
+>   			     u16 tclass, struct av_decision *avd);
 > diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
 > index b64f277..28a4d27 100644
 > --- a/security/selinux/ss/avtab.c
 > +++ b/security/selinux/ss/avtab.c
 > @@ -24,6 +24,7 @@
->  #include "policydb.h"
->  
->  static struct kmem_cache *avtab_node_cachep;
+>   #include "policydb.h"
+>
+>   static struct kmem_cache *avtab_node_cachep;
 > +static struct kmem_cache *avtab_operation_cachep;
->  
->  /* Based on MurmurHash3, written by Austin Appleby and placed in the
->   * public domain.
+>
+>   /* Based on MurmurHash3, written by Austin Appleby and placed in the
+>    * public domain.
 > @@ -70,11 +71,24 @@ avtab_insert_node(struct avtab *h, int hvalue,
->  		  struct avtab_key *key, struct avtab_datum *datum)
->  {
->  	struct avtab_node *newnode;
+>   		  struct avtab_key *key, struct avtab_datum *datum)
+>   {
+>   	struct avtab_node *newnode;
 > +	struct avtab_operation *ops;
->  	newnode = kmem_cache_zalloc(avtab_node_cachep, GFP_KERNEL);
->  	if (newnode == NULL)
->  		return NULL;
->  	newnode->key = *key;
+>   	newnode = kmem_cache_zalloc(avtab_node_cachep, GFP_KERNEL);
+>   	if (newnode == NULL)
+>   		return NULL;
+>   	newnode->key = *key;
 > -	newnode->datum = *datum;
 > +
 > +	if (key->specified & AVTAB_OP) {
@@ -812,36 +821,36 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +		newnode->datum.u.data = datum->u.data;
 > +	}
 > +
->  	if (prev) {
->  		newnode->next = prev->next;
->  		prev->next = newnode;
+>   	if (prev) {
+>   		newnode->next = prev->next;
+>   		prev->next = newnode;
 > @@ -107,8 +121,11 @@ static int avtab_insert(struct avtab *h, struct avtab_key *key, struct avtab_dat
->  		if (key->source_type == cur->key.source_type &&
->  		    key->target_type == cur->key.target_type &&
->  		    key->target_class == cur->key.target_class &&
+>   		if (key->source_type == cur->key.source_type &&
+>   		    key->target_type == cur->key.target_type &&
+>   		    key->target_class == cur->key.target_class &&
 > -		    (specified & cur->key.specified))
 > +		    (specified & cur->key.specified)) {
 > +			if (specified & AVTAB_OPNUM)
 > +				break;
->  			return -EEXIST;
+>   			return -EEXIST;
 > +		}
->  		if (key->source_type < cur->key.source_type)
->  			break;
->  		if (key->source_type == cur->key.source_type &&
+>   		if (key->source_type < cur->key.source_type)
+>   			break;
+>   		if (key->source_type == cur->key.source_type &&
 > @@ -271,6 +288,9 @@ void avtab_destroy(struct avtab *h)
->  		while (cur) {
->  			temp = cur;
->  			cur = cur->next;
+>   		while (cur) {
+>   			temp = cur;
+>   			cur = cur->next;
 > +			if (temp->key.specified & AVTAB_OP)
 > +				kmem_cache_free(avtab_operation_cachep,
 > +							temp->datum.u.ops);
->  			kmem_cache_free(avtab_node_cachep, temp);
->  		}
->  	}
+>   			kmem_cache_free(avtab_node_cachep, temp);
+>   		}
+>   	}
 > @@ -359,7 +379,13 @@ static uint16_t spec_order[] = {
->  	AVTAB_AUDITALLOW,
->  	AVTAB_TRANSITION,
->  	AVTAB_CHANGE,
+>   	AVTAB_AUDITALLOW,
+>   	AVTAB_TRANSITION,
+>   	AVTAB_CHANGE,
 > -	AVTAB_MEMBER
 > +	AVTAB_MEMBER,
 > +	AVTAB_OPNUM_ALLOWED,
@@ -850,51 +859,51 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	AVTAB_OPTYPE_ALLOWED,
 > +	AVTAB_OPTYPE_AUDITALLOW,
 > +	AVTAB_OPTYPE_DONTAUDIT
->  };
->  
->  int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>   };
+>
+>   int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
 > @@ -369,10 +395,11 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->  {
->  	__le16 buf16[4];
->  	u16 enabled;
+>   {
+>   	__le16 buf16[4];
+>   	u16 enabled;
 > -	__le32 buf32[7];
->  	u32 items, items2, val, vers = pol->policyvers;
->  	struct avtab_key key;
->  	struct avtab_datum datum;
+>   	u32 items, items2, val, vers = pol->policyvers;
+>   	struct avtab_key key;
+>   	struct avtab_datum datum;
 > +	struct avtab_operation ops;
 > +	__le32 buf32[ARRAY_SIZE(ops.op.perms)];
->  	int i, rc;
->  	unsigned set;
->  
+>   	int i, rc;
+>   	unsigned set;
+>
 > @@ -429,11 +456,15 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->  			printk(KERN_ERR "SELinux: avtab: entry has both access vectors and types\n");
->  			return -EINVAL;
->  		}
+>   			printk(KERN_ERR "SELinux: avtab: entry has both access vectors and types\n");
+>   			return -EINVAL;
+>   		}
 > +		if (val & AVTAB_OP) {
 > +			printk(KERN_ERR "SELinux: avtab: entry has operations\n");
 > +			return -EINVAL;
 > +		}
->  
->  		for (i = 0; i < ARRAY_SIZE(spec_order); i++) {
->  			if (val & spec_order[i]) {
->  				key.specified = spec_order[i] | enabled;
+>
+>   		for (i = 0; i < ARRAY_SIZE(spec_order); i++) {
+>   			if (val & spec_order[i]) {
+>   				key.specified = spec_order[i] | enabled;
 > -				datum.data = le32_to_cpu(buf32[items++]);
 > +				datum.u.data = le32_to_cpu(buf32[items++]);
->  				rc = insertf(a, &key, &datum, p);
->  				if (rc)
->  					return rc;
+>   				rc = insertf(a, &key, &datum, p);
+>   				if (rc)
+>   					return rc;
 > @@ -452,7 +483,6 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->  		printk(KERN_ERR "SELinux: avtab: truncated entry\n");
->  		return rc;
->  	}
+>   		printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+>   		return rc;
+>   	}
 > -
->  	items = 0;
->  	key.source_type = le16_to_cpu(buf16[items++]);
->  	key.target_type = le16_to_cpu(buf16[items++]);
+>   	items = 0;
+>   	key.source_type = le16_to_cpu(buf16[items++]);
+>   	key.target_type = le16_to_cpu(buf16[items++]);
 > @@ -476,14 +506,32 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->  		return -EINVAL;
->  	}
->  
+>   		return -EINVAL;
+>   	}
+>
 > -	rc = next_entry(buf32, fp, sizeof(u32));
 > -	if (rc) {
 > -		printk(KERN_ERR "SELinux: avtab: truncated entry\n");
@@ -922,29 +931,29 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +		for (i = 0; i < ARRAY_SIZE(ops.op.perms); i++)
 > +			ops.op.perms[i] = le32_to_cpu(buf32[i]);
 > +		datum.u.ops = &ops;
->  	}
+>   	}
 > -	datum.data = le32_to_cpu(*buf32);
->  	if ((key.specified & AVTAB_TYPE) &&
+>   	if ((key.specified & AVTAB_TYPE) &&
 > -	    !policydb_type_isvalid(pol, datum.data)) {
 > +	    !policydb_type_isvalid(pol, datum.u.data)) {
->  		printk(KERN_ERR "SELinux: avtab: invalid type\n");
->  		return -EINVAL;
->  	}
+>   		printk(KERN_ERR "SELinux: avtab: invalid type\n");
+>   		return -EINVAL;
+>   	}
 > @@ -543,8 +591,9 @@ bad:
->  int avtab_write_item(struct policydb *p, struct avtab_node *cur, void *fp)
->  {
->  	__le16 buf16[4];
+>   int avtab_write_item(struct policydb *p, struct avtab_node *cur, void *fp)
+>   {
+>   	__le16 buf16[4];
 > -	__le32 buf32[1];
 > +	__le32 buf32[ARRAY_SIZE(cur->datum.u.ops->op.perms)];
->  	int rc;
+>   	int rc;
 > +	unsigned int i;
->  
->  	buf16[0] = cpu_to_le16(cur->key.source_type);
->  	buf16[1] = cpu_to_le16(cur->key.target_type);
+>
+>   	buf16[0] = cpu_to_le16(cur->key.source_type);
+>   	buf16[1] = cpu_to_le16(cur->key.target_type);
 > @@ -553,8 +602,16 @@ int avtab_write_item(struct policydb *p, struct avtab_node *cur, void *fp)
->  	rc = put_entry(buf16, sizeof(u16), 4, fp);
->  	if (rc)
->  		return rc;
+>   	rc = put_entry(buf16, sizeof(u16), 4, fp);
+>   	if (rc)
+>   		return rc;
 > -	buf32[0] = cpu_to_le32(cur->datum.data);
 > -	rc = put_entry(buf32, sizeof(u32), 1, fp);
 > +
@@ -957,40 +966,40 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +		buf32[0] = cpu_to_le32(cur->datum.u.data);
 > +		rc = put_entry(buf32, sizeof(u32), 1, fp);
 > +	}
->  	if (rc)
->  		return rc;
->  	return 0;
+>   	if (rc)
+>   		return rc;
+>   	return 0;
 > @@ -588,9 +645,13 @@ void avtab_cache_init(void)
->  	avtab_node_cachep = kmem_cache_create("avtab_node",
->  					      sizeof(struct avtab_node),
->  					      0, SLAB_PANIC, NULL);
+>   	avtab_node_cachep = kmem_cache_create("avtab_node",
+>   					      sizeof(struct avtab_node),
+>   					      0, SLAB_PANIC, NULL);
 > +	avtab_operation_cachep = kmem_cache_create("avtab_operation",
 > +					      sizeof(struct avtab_operation),
 > +					      0, SLAB_PANIC, NULL);
->  }
->  
->  void avtab_cache_destroy(void)
->  {
->  	kmem_cache_destroy(avtab_node_cachep);
+>   }
+>
+>   void avtab_cache_destroy(void)
+>   {
+>   	kmem_cache_destroy(avtab_node_cachep);
 > +	kmem_cache_destroy(avtab_operation_cachep);
->  }
+>   }
 > diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
 > index adb451c..0a8be63e 100644
 > --- a/security/selinux/ss/avtab.h
 > +++ b/security/selinux/ss/avtab.h
 > @@ -25,6 +25,8 @@
->  
->  #include <linux/flex_array.h>
->  
+>
+>   #include <linux/flex_array.h>
+>
 > +#include "security.h"
 > +
->  struct avtab_key {
->  	u16 source_type;	/* source type */
->  	u16 target_type;	/* target type */
+>   struct avtab_key {
+>   	u16 source_type;	/* source type */
+>   	u16 target_type;	/* target type */
 > @@ -37,13 +39,34 @@ struct avtab_key {
->  #define AVTAB_MEMBER		0x0020
->  #define AVTAB_CHANGE		0x0040
->  #define AVTAB_TYPE		(AVTAB_TRANSITION | AVTAB_MEMBER | AVTAB_CHANGE)
+>   #define AVTAB_MEMBER		0x0020
+>   #define AVTAB_CHANGE		0x0040
+>   #define AVTAB_TYPE		(AVTAB_TRANSITION | AVTAB_MEMBER | AVTAB_CHANGE)
 > +#define AVTAB_OPNUM_ALLOWED	0x0100
 > +#define AVTAB_OPNUM_AUDITALLOW	0x0200
 > +#define AVTAB_OPNUM_DONTAUDIT	0x0400
@@ -1004,41 +1013,41 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +				AVTAB_OPTYPE_AUDITALLOW | \
 > +				AVTAB_OPTYPE_DONTAUDIT)
 > +#define AVTAB_OP		(AVTAB_OPNUM | AVTAB_OPTYPE)
->  #define AVTAB_ENABLED_OLD   0x80000000 /* reserved for used in cond_avtab */
->  #define AVTAB_ENABLED		0x8000 /* reserved for used in cond_avtab */
->  	u16 specified;	/* what field is specified */
->  };
->  
+>   #define AVTAB_ENABLED_OLD   0x80000000 /* reserved for used in cond_avtab */
+>   #define AVTAB_ENABLED		0x8000 /* reserved for used in cond_avtab */
+>   	u16 specified;	/* what field is specified */
+>   };
+>
 > +struct avtab_operation {
 > +	u8 type;
 > +	struct operation_perm op;
 > +};
 > +
->  struct avtab_datum {
+>   struct avtab_datum {
 > -	u32 data; /* access vector or type value */
 > +	union {
 > +		u32 data; /* access vector or type value */
 > +		struct avtab_operation *ops; /* ioctl operations */
 > +	} u;
->  };
->  
->  struct avtab_node {
+>   };
+>
+>   struct avtab_node {
 > diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
 > index 62c6773..c4cd20a 100644
 > --- a/security/selinux/ss/conditional.c
 > +++ b/security/selinux/ss/conditional.c
 > @@ -15,6 +15,7 @@
->  
->  #include "security.h"
->  #include "conditional.h"
+>
+>   #include "security.h"
+>   #include "conditional.h"
 > +#include "services.h"
->  
->  /*
->   * cond_evaluate_expr evaluates a conditional expr
+>
+>   /*
+>    * cond_evaluate_expr evaluates a conditional expr
 > @@ -612,21 +613,39 @@ int cond_write_list(struct policydb *p, struct cond_node *list, void *fp)
->  
->  	return 0;
->  }
+>
+>   	return 0;
+>   }
 > +
 > +void cond_compute_operation(struct avtab *ctab, struct avtab_key *key,
 > +		struct operation_decision *od)
@@ -1056,85 +1065,85 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	return;
 > +
 > +}
->  /* Determine whether additional permissions are granted by the conditional
->   * av table, and if so, add them to the result
->   */
+>   /* Determine whether additional permissions are granted by the conditional
+>    * av table, and if so, add them to the result
+>    */
 > -void cond_compute_av(struct avtab *ctab, struct avtab_key *key, struct av_decision *avd)
 > +void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
 > +		struct av_decision *avd, struct operation *ops)
->  {
->  	struct avtab_node *node;
->  
+>   {
+>   	struct avtab_node *node;
+>
 > -	if (!ctab || !key || !avd)
 > +	if (!ctab || !key || !avd || !ops)
->  		return;
->  
->  	for (node = avtab_search_node(ctab, key); node;
->  				node = avtab_search_node_next(node, key->specified)) {
->  		if ((u16)(AVTAB_ALLOWED|AVTAB_ENABLED) ==
->  		    (node->key.specified & (AVTAB_ALLOWED|AVTAB_ENABLED)))
+>   		return;
+>
+>   	for (node = avtab_search_node(ctab, key); node;
+>   				node = avtab_search_node_next(node, key->specified)) {
+>   		if ((u16)(AVTAB_ALLOWED|AVTAB_ENABLED) ==
+>   		    (node->key.specified & (AVTAB_ALLOWED|AVTAB_ENABLED)))
 > -			avd->allowed |= node->datum.data;
 > +			avd->allowed |= node->datum.u.data;
->  		if ((u16)(AVTAB_AUDITDENY|AVTAB_ENABLED) ==
->  		    (node->key.specified & (AVTAB_AUDITDENY|AVTAB_ENABLED)))
->  			/* Since a '0' in an auditdeny mask represents a
+>   		if ((u16)(AVTAB_AUDITDENY|AVTAB_ENABLED) ==
+>   		    (node->key.specified & (AVTAB_AUDITDENY|AVTAB_ENABLED)))
+>   			/* Since a '0' in an auditdeny mask represents a
 > @@ -634,10 +653,13 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key, struct av_decisi
->  			 * the '&' operand to ensure that all '0's in the mask
->  			 * are retained (much unlike the allow and auditallow cases).
->  			 */
+>   			 * the '&' operand to ensure that all '0's in the mask
+>   			 * are retained (much unlike the allow and auditallow cases).
+>   			 */
 > -			avd->auditdeny &= node->datum.data;
 > +			avd->auditdeny &= node->datum.u.data;
->  		if ((u16)(AVTAB_AUDITALLOW|AVTAB_ENABLED) ==
->  		    (node->key.specified & (AVTAB_AUDITALLOW|AVTAB_ENABLED)))
+>   		if ((u16)(AVTAB_AUDITALLOW|AVTAB_ENABLED) ==
+>   		    (node->key.specified & (AVTAB_AUDITALLOW|AVTAB_ENABLED)))
 > -			avd->auditallow |= node->datum.data;
 > +			avd->auditallow |= node->datum.u.data;
 > +		if ((node->key.specified & AVTAB_ENABLED) &&
 > +				(node->key.specified & AVTAB_OP))
 > +			services_compute_operation_type(ops, node);
->  	}
->  	return;
->  }
+>   	}
+>   	return;
+>   }
 > diff --git a/security/selinux/ss/conditional.h b/security/selinux/ss/conditional.h
 > index 4d1f874..80ee2bb 100644
 > --- a/security/selinux/ss/conditional.h
 > +++ b/security/selinux/ss/conditional.h
 > @@ -73,8 +73,10 @@ int cond_read_list(struct policydb *p, void *fp);
->  int cond_write_bool(void *key, void *datum, void *ptr);
->  int cond_write_list(struct policydb *p, struct cond_node *list, void *fp);
->  
+>   int cond_write_bool(void *key, void *datum, void *ptr);
+>   int cond_write_list(struct policydb *p, struct cond_node *list, void *fp);
+>
 > -void cond_compute_av(struct avtab *ctab, struct avtab_key *key, struct av_decision *avd);
 > -
 > +void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
 > +		struct av_decision *avd, struct operation *ops);
 > +void cond_compute_operation(struct avtab *ctab, struct avtab_key *key,
 > +		struct operation_decision *od);
->  int evaluate_cond_node(struct policydb *p, struct cond_node *node);
->  
->  #endif /* _CONDITIONAL_H_ */
+>   int evaluate_cond_node(struct policydb *p, struct cond_node *node);
+>
+>   #endif /* _CONDITIONAL_H_ */
 > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
 > index 74aa224..68ffbda 100644
 > --- a/security/selinux/ss/policydb.c
 > +++ b/security/selinux/ss/policydb.c
 > @@ -148,6 +148,11 @@ static struct policydb_compat_info policydb_compat[] = {
->  		.sym_num	= SYM_NUM,
->  		.ocon_num	= OCON_NUM,
->  	},
+>   		.sym_num	= SYM_NUM,
+>   		.ocon_num	= OCON_NUM,
+>   	},
 > +	{
 > +		.version	= POLICYDB_VERSION_IOCTL_OPERATIONS,
 > +		.sym_num	= SYM_NUM,
 > +		.ocon_num	= OCON_NUM,
 > +	},
->  };
->  
->  static struct policydb_compat_info *policydb_lookup_compat(int version)
+>   };
+>
+>   static struct policydb_compat_info *policydb_lookup_compat(int version)
 > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
 > index 9e2d820..d8d966f 100644
 > --- a/security/selinux/ss/services.c
 > +++ b/security/selinux/ss/services.c
 > @@ -93,9 +93,10 @@ static int context_struct_to_string(struct context *context, char **scontext,
->  				    u32 *scontext_len);
->  
->  static void context_struct_compute_av(struct context *scontext,
+>   				    u32 *scontext_len);
+>
+>   static void context_struct_compute_av(struct context *scontext,
 > -				      struct context *tcontext,
 > -				      u16 tclass,
 > -				      struct av_decision *avd);
@@ -1142,43 +1151,43 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +					u16 tclass,
 > +					struct av_decision *avd,
 > +					struct operation *ops);
->  
->  struct selinux_mapping {
->  	u16 value; /* policy value */
+>
+>   struct selinux_mapping {
+>   	u16 value; /* policy value */
 > @@ -565,7 +566,8 @@ static void type_attribute_bounds_av(struct context *scontext,
->  		context_struct_compute_av(&lo_scontext,
->  					  tcontext,
->  					  tclass,
+>   		context_struct_compute_av(&lo_scontext,
+>   					  tcontext,
+>   					  tclass,
 > -					  &lo_avd);
 > +					  &lo_avd,
 > +					  NULL);
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
->  		masked = ~lo_avd.allowed & avd->allowed;
+>   		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+>   			return;		/* no masked permission */
+>   		masked = ~lo_avd.allowed & avd->allowed;
 > @@ -580,7 +582,8 @@ static void type_attribute_bounds_av(struct context *scontext,
->  		context_struct_compute_av(scontext,
->  					  &lo_tcontext,
->  					  tclass,
+>   		context_struct_compute_av(scontext,
+>   					  &lo_tcontext,
+>   					  tclass,
 > -					  &lo_avd);
 > +					  &lo_avd,
 > +					  NULL);
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
->  		masked = ~lo_avd.allowed & avd->allowed;
+>   		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+>   			return;		/* no masked permission */
+>   		masked = ~lo_avd.allowed & avd->allowed;
 > @@ -596,7 +599,8 @@ static void type_attribute_bounds_av(struct context *scontext,
->  		context_struct_compute_av(&lo_scontext,
->  					  &lo_tcontext,
->  					  tclass,
+>   		context_struct_compute_av(&lo_scontext,
+>   					  &lo_tcontext,
+>   					  tclass,
 > -					  &lo_avd);
 > +					  &lo_avd,
 > +					  NULL);
->  		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
->  			return;		/* no masked permission */
->  		masked = ~lo_avd.allowed & avd->allowed;
+>   		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+>   			return;		/* no masked permission */
+>   		masked = ~lo_avd.allowed & avd->allowed;
 > @@ -612,14 +616,39 @@ static void type_attribute_bounds_av(struct context *scontext,
->  	}
->  }
->  
+>   	}
+>   }
+>
 > +/* flag ioctl types that have operation permissions */
 > +void services_compute_operation_type(
 > +		struct operation *ops,
@@ -1203,13 +1212,13 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +		ops->len = 1;
 > +}
 > +
->  /*
+>   /*
 > - * Compute access vectors based on a context structure pair for
 > - * the permissions in a particular class.
 > + * Compute access vectors and operations ranges based on a context
 > + * structure pair for the permissions in a particular class.
->   */
->  static void context_struct_compute_av(struct context *scontext,
+>    */
+>   static void context_struct_compute_av(struct context *scontext,
 > -				      struct context *tcontext,
 > -				      u16 tclass,
 > -				      struct av_decision *avd)
@@ -1217,60 +1226,60 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +					u16 tclass,
 > +					struct av_decision *avd,
 > +					struct operation *ops)
->  {
->  	struct constraint_node *constraint;
->  	struct role_allow *ra;
+>   {
+>   	struct constraint_node *constraint;
+>   	struct role_allow *ra;
 > @@ -633,6 +662,10 @@ static void context_struct_compute_av(struct context *scontext,
->  	avd->allowed = 0;
->  	avd->auditallow = 0;
->  	avd->auditdeny = 0xffffffff;
+>   	avd->allowed = 0;
+>   	avd->auditallow = 0;
+>   	avd->auditdeny = 0xffffffff;
 > +	if (ops) {
 > +		memset(&ops->type, 0, sizeof(ops->type));
 > +		ops->len = 0;
 > +	}
->  
->  	if (unlikely(!tclass || tclass > policydb.p_classes.nprim)) {
->  		if (printk_ratelimit())
+>
+>   	if (unlikely(!tclass || tclass > policydb.p_classes.nprim)) {
+>   		if (printk_ratelimit())
 > @@ -647,7 +680,7 @@ static void context_struct_compute_av(struct context *scontext,
->  	 * this permission check, then use it.
->  	 */
->  	avkey.target_class = tclass;
+>   	 * this permission check, then use it.
+>   	 */
+>   	avkey.target_class = tclass;
 > -	avkey.specified = AVTAB_AV;
 > +	avkey.specified = AVTAB_AV | AVTAB_OP;
->  	sattr = flex_array_get(policydb.type_attr_map_array, scontext->type - 1);
->  	BUG_ON(!sattr);
->  	tattr = flex_array_get(policydb.type_attr_map_array, tcontext->type - 1);
+>   	sattr = flex_array_get(policydb.type_attr_map_array, scontext->type - 1);
+>   	BUG_ON(!sattr);
+>   	tattr = flex_array_get(policydb.type_attr_map_array, tcontext->type - 1);
 > @@ -660,15 +693,17 @@ static void context_struct_compute_av(struct context *scontext,
->  			     node;
->  			     node = avtab_search_node_next(node, avkey.specified)) {
->  				if (node->key.specified == AVTAB_ALLOWED)
+>   			     node;
+>   			     node = avtab_search_node_next(node, avkey.specified)) {
+>   				if (node->key.specified == AVTAB_ALLOWED)
 > -					avd->allowed |= node->datum.data;
 > +					avd->allowed |= node->datum.u.data;
->  				else if (node->key.specified == AVTAB_AUDITALLOW)
+>   				else if (node->key.specified == AVTAB_AUDITALLOW)
 > -					avd->auditallow |= node->datum.data;
 > +					avd->auditallow |= node->datum.u.data;
->  				else if (node->key.specified == AVTAB_AUDITDENY)
+>   				else if (node->key.specified == AVTAB_AUDITDENY)
 > -					avd->auditdeny &= node->datum.data;
 > +					avd->auditdeny &= node->datum.u.data;
 > +				else if (ops && (node->key.specified & AVTAB_OP))
 > +					services_compute_operation_type(ops, node);
->  			}
->  
->  			/* Check conditional av table for additional permissions */
+>   			}
+>
+>   			/* Check conditional av table for additional permissions */
 > -			cond_compute_av(&policydb.te_cond_avtab, &avkey, avd);
 > +			cond_compute_av(&policydb.te_cond_avtab, &avkey, avd, ops);
->  
->  		}
->  	}
+>
+>   		}
+>   	}
 > @@ -899,13 +934,138 @@ static void avd_init(struct av_decision *avd)
->  	avd->flags = 0;
->  }
->  
+>   	avd->flags = 0;
+>   }
+>
 > +void services_compute_operation_num(struct operation_decision *od,
 > +					struct avtab_node *node)
 > +{
 > +	unsigned int i;
->  
+>
 > +	if (node->key.specified & AVTAB_OPNUM) {
 > +		if (od->type != node->datum.u.ops->type)
 > +			return;
@@ -1391,74 +1400,74 @@ Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > +	memset(od->allowed->perms, 0xff, sizeof(od->allowed->perms));
 > +	goto out;
 > +}
->  /**
->   * security_compute_av - Compute access vector decisions.
->   * @ssid: source security identifier
->   * @tsid: target security identifier
->   * @tclass: target security class
->   * @avd: access vector decisions
+>   /**
+>    * security_compute_av - Compute access vector decisions.
+>    * @ssid: source security identifier
+>    * @tsid: target security identifier
+>    * @tclass: target security class
+>    * @avd: access vector decisions
 > + * @od: operation decisions
->   *
->   * Compute a set of access vector decisions based on the
->   * SID pair (@ssid, @tsid) for the permissions in @tclass.
+>    *
+>    * Compute a set of access vector decisions based on the
+>    * SID pair (@ssid, @tsid) for the permissions in @tclass.
 > @@ -913,13 +1073,15 @@ static void avd_init(struct av_decision *avd)
->  void security_compute_av(u32 ssid,
->  			 u32 tsid,
->  			 u16 orig_tclass,
+>   void security_compute_av(u32 ssid,
+>   			 u32 tsid,
+>   			 u16 orig_tclass,
 > -			 struct av_decision *avd)
 > +			 struct av_decision *avd,
 > +			 struct operation *ops)
->  {
->  	u16 tclass;
->  	struct context *scontext = NULL, *tcontext = NULL;
->  
->  	read_lock(&policy_rwlock);
->  	avd_init(avd);
+>   {
+>   	u16 tclass;
+>   	struct context *scontext = NULL, *tcontext = NULL;
+>
+>   	read_lock(&policy_rwlock);
+>   	avd_init(avd);
 > +	ops->len = 0;
->  	if (!ss_initialized)
->  		goto allow;
->  
+>   	if (!ss_initialized)
+>   		goto allow;
+>
 > @@ -947,7 +1109,7 @@ void security_compute_av(u32 ssid,
->  			goto allow;
->  		goto out;
->  	}
+>   			goto allow;
+>   		goto out;
+>   	}
 > -	context_struct_compute_av(scontext, tcontext, tclass, avd);
 > +	context_struct_compute_av(scontext, tcontext, tclass, avd, ops);
->  	map_decision(orig_tclass, avd, policydb.allow_unknown);
->  out:
->  	read_unlock(&policy_rwlock);
+>   	map_decision(orig_tclass, avd, policydb.allow_unknown);
+>   out:
+>   	read_unlock(&policy_rwlock);
 > @@ -993,7 +1155,7 @@ void security_compute_av_user(u32 ssid,
->  		goto out;
->  	}
->  
+>   		goto out;
+>   	}
+>
 > -	context_struct_compute_av(scontext, tcontext, tclass, avd);
 > +	context_struct_compute_av(scontext, tcontext, tclass, avd, NULL);
->   out:
->  	read_unlock(&policy_rwlock);
->  	return;
+>    out:
+>   	read_unlock(&policy_rwlock);
+>   	return;
 > @@ -1515,7 +1677,7 @@ static int security_compute_sid(u32 ssid,
->  
->  	if (avdatum) {
->  		/* Use the type from the type transition/member/change rule. */
+>
+>   	if (avdatum) {
+>   		/* Use the type from the type transition/member/change rule. */
 > -		newcontext.type = avdatum->data;
 > +		newcontext.type = avdatum->u.data;
->  	}
->  
->  	/* if we have a objname this is a file trans check so check those rules */
+>   	}
+>
+>   	/* if we have a objname this is a file trans check so check those rules */
 > diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
 > index e8d907e..5697574 100644
 > --- a/security/selinux/ss/services.h
 > +++ b/security/selinux/ss/services.h
 > @@ -11,5 +11,11 @@
->  
->  extern struct policydb policydb;
->  
+>
+>   extern struct policydb policydb;
+>
 > +void services_compute_operation_type(struct operation *ops,
 > +				struct avtab_node *node);
 > +
 > +void services_compute_operation_num(struct operation_decision *od,
 > +					struct avtab_node *node);
 > +
->  #endif	/* _SS_SERVICES_H_ */
->  
-> 
+>   #endif	/* _SS_SERVICES_H_ */
+>
+>
