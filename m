@@ -1,157 +1,127 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3FDqDnQ011192
- for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2015 09:52:13 -0400
-From: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsepol: Don't use symbol versioning for static object files
-Date: Wed, 15 Apr 2015 09:51:42 -0400
-Message-ID: <1429105902-7284-1-git-send-email-ykhodorkovskiy@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <60ABE64B4BE4AC45964F1A967BA76CB20156A519@szxeml522-mbx.china.huawei.com>
+References: <60ABE64B4BE4AC45964F1A967BA76CB20156A477@szxeml522-mbx.china.huawei.com>
+ <552D0F7C.3080206@tycho.nsa.gov>
+ <60ABE64B4BE4AC45964F1A967BA76CB20156A519@szxeml522-mbx.china.huawei.com>
+Date: Wed, 15 Apr 2015 10:39:09 -0400
+Message-ID: <CAB9W1A2hBRR5t+WtB-EO7ULykHCVBw07J43dYNrpqNA8fT+3cQ@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_=E7=AD=94=E5=A4=8D=3A_got_some_problems_with_the_selinux_polic?=
+ =?UTF-8?Q?y?=
+From: Stephen Smalley <stephen.smalley@gmail.com>
+To: kuangjiou <kuangjiou@huawei.com>, Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Libraries such as libqpol that link with libsepol statically do not understand
-the symbolic versioning in libsepol. This patch disables the symbolic versioning
-in libsepol if building the static library or building for Android.
+I had never seen those errors before, so I downloaded the util-linux
+source code to see what they mean.  It seems that mount is checking
+whether the context fetched from the filesystem matches the default
+for a file with no extended attribute set, and if so, complaining.  It
+is however only a warning message, not an error, and I suspect in your
+case it is because your policy does not define a different context for
+these filesystems than the one used for the file initial SID.  Also,
+the messages from mount about rootcontext= are odd; you should not be
+assigning unconfined_t to the root directory of those mounts.  It
+looks like your policy is breaking assumptions made by userspace.  in
+one of your logs, it also showed denials that suggested that your /dev
+tree is not being correctly labeled.  Not sure whether SUSE does any
+testing of SELinux as it is not their default.
 
-Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
----
- libsepol/cil/src/cil.c       | 21 +++++++++++----------
- libsepol/{ => cil}/src/dso.h |  4 ++++
- libsepol/src/dso.h           |  4 ++++
- 3 files changed, 19 insertions(+), 10 deletions(-)
- copy libsepol/{ => cil}/src/dso.h (89%)
-
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index b852628..5c53bf3 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -50,8 +50,9 @@
- #include "cil_binary.h"
- #include "cil_policy.h"
- #include "cil_strpool.h"
-+#include "dso.h"
- 
--#ifndef ANDROID
-+#ifndef DISABLE_SYMVER
- asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
- asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
- 
-@@ -354,7 +355,7 @@ exit:
- 	return rc;
- }
- 
--#ifdef ANDROID
-+#ifdef DISABLE_SYMVER
- int cil_compile(struct cil_db *db)
- #else
- int cil_compile_nopdb(struct cil_db *db)
-@@ -402,7 +403,7 @@ exit:
- 	return rc;
- }
- 
--#ifndef ANDROID
-+#ifndef DISABLE_SYMVER
- int cil_compile_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db)
- {
- 	return cil_compile_nopdb(db);
-@@ -424,7 +425,7 @@ exit:
- }
- #endif
- 
--#ifdef ANDROID
-+#ifdef DISABLE_SYMVER
- int cil_build_policydb(cil_db_t *db, sepol_policydb_t **sepol_db)
- #else
- int cil_build_policydb_create_pdb(cil_db_t *db, sepol_policydb_t **sepol_db)
-@@ -1116,7 +1117,7 @@ const char * cil_node_to_string(struct cil_tree_node *node)
- 	return "<unknown>";
- }
- 
--#ifdef ANDROID
-+#ifdef DISABLE_SYMVER
- int cil_userprefixes_to_string(struct cil_db *db, char **out, size_t *size)
- #else
- int cil_userprefixes_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
-@@ -1165,7 +1166,7 @@ exit:
- 
- }
- 
--#ifndef ANDROID
-+#ifndef DISABLE_SYMVER
- int cil_userprefixes_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
- {
- 	return cil_userprefixes_to_string_nopdb(db, out, size);
-@@ -1357,7 +1358,7 @@ static int __cil_level_to_string(struct cil_level *lvl, char *out)
- 	return str_tmp - out;
- }
- 
--#ifdef ANDROID
-+#ifdef DISABLE_SYMVER
- int cil_selinuxusers_to_string(struct cil_db *db, char **out, size_t *size)
- #else
- int cil_selinuxusers_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
-@@ -1418,14 +1419,14 @@ int cil_selinuxusers_to_string_nopdb(struct cil_db *db, char **out, size_t *size
- 	return SEPOL_OK;
- }
- 
--#ifndef ANDROID
-+#ifndef DISABLE_SYMVER
- int cil_selinuxusers_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
- {
- 	return cil_selinuxusers_to_string_nopdb(db, out, size);
- }
- #endif
- 
--#ifdef ANDROID
-+#ifdef DISABLE_SYMVER
- int cil_filecons_to_string(struct cil_db *db, char **out, size_t *size)
- #else
- int cil_filecons_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
-@@ -1547,7 +1548,7 @@ int cil_filecons_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
- 	return SEPOL_OK;
- }
- 
--#ifndef ANDROID
-+#ifndef DISABLE_SYMVER
- int cil_filecons_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
- {
- 	return cil_filecons_to_string_nopdb(db, out, size);
-diff --git a/libsepol/src/dso.h b/libsepol/cil/src/dso.h
-similarity index 89%
-copy from libsepol/src/dso.h
-copy to libsepol/cil/src/dso.h
-index 5c69aae..a06e349 100644
---- a/libsepol/src/dso.h
-+++ b/libsepol/cil/src/dso.h
-@@ -1,6 +1,10 @@
- #ifndef _SEPOL_DSO_H
- #define _SEPOL_DSO_H	1
- 
-+#if !defined(SHARED) || defined(ANDROID)
-+    #define DISABLE_SYMVER 1
-+#endif
-+
- #ifdef SHARED
- # define hidden __attribute__ ((visibility ("hidden")))
- # define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
-diff --git a/libsepol/src/dso.h b/libsepol/src/dso.h
-index 5c69aae..a06e349 100644
---- a/libsepol/src/dso.h
-+++ b/libsepol/src/dso.h
-@@ -1,6 +1,10 @@
- #ifndef _SEPOL_DSO_H
- #define _SEPOL_DSO_H	1
- 
-+#if !defined(SHARED) || defined(ANDROID)
-+    #define DISABLE_SYMVER 1
-+#endif
-+
- #ifdef SHARED
- # define hidden __attribute__ ((visibility ("hidden")))
- # define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
--- 
-1.9.3
+On Tue, Apr 14, 2015 at 10:11 PM, kuangjiou <kuangjiou@huawei.com> wrote:
+> I use the refpolicy(20080702) in my linux , the system can start successful , so I think there must be something wrong with my own policy.
+>
+> I use my own policy and I got this messages during the system start time
+>
+> /proc on /proc type proc (rw)
+> Mount: /proc dose not contain SELinux labels.
+>         You just mounted an file system that supports labels which does not contain labels, onto SElinux box. It is likely that confined applications will generate AVC messages and not allowed access to this file system. For more details see restorecon and mount
+> Sysfs on /sys type sysfs (rw)
+> Mount: /sys dose not contain SELinux labels.
+>         You just mounted an file system that supports labels which does not contain labels, onto SElinux box. It is likely that confined applications will generate AVC messages and not allowed access to this file system. For more details see restorecon and mount
+> Debugfs on /sys/kernel/debug type debugfs (rw)
+> Mount: /sys/kernel/debug dose not contain SELinux labels.
+>         You just mounted an file system that supports labels which does not contain labels, onto SElinux box. It is likely that confined applications will generate AVC messages and not allowed access to this file system. For more details see restorecon and mount
+> Mount: translated rootcontext='system_u:object_r:unconfined_t' to 'system_u:object_r:unconfined_t'
+> Udev on /dev type tmpfs (rw,rw,)
+> Mount: /dev dose not contain SELinux labels.
+>         You just mounted an file system that supports labels which does not contain labels, onto SElinux box. It is likely that confined applications will generate AVC messages and not allowed access to this file system. For more details see restorecon and mount
+> Aborted
+>
+> -----邮件原件-----
+> 发件人: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> 发送时间: 2015年4月14日 21:01
+> 收件人: kuangjiou; selinux@tycho.nsa.gov
+> 主题: Re: got some problems with the selinux policy
+>
+> On 04/13/2015 11:29 PM, kuangjiou wrote:
+>> Hello,everyone!
+>>
+>>
+>>
+>> I am trying to setup selinux in my linux (SLES 11 sp3 with kernel
+>> 3.0.76-0.11-default, the /selinux/policyvers is 26), and I got some
+>> problem when reboot the OS after i install my own selinux policy. I
+>> would be very grateful if anyone can help me to solve this problem
+>>
+>> Here are some description of my problem
+>>
+>>
+>>
+>>
+>>
+>> 1.when I compile my policy to a non-mls policy (version 24),and add
+>> the boot parameters (security=selinux selinux=1),The system will stuck
+>> in the start page.
+>>
+>> 2 when I set the boot parameters to selinux=0,the system will start
+>> successful
+>>
+>> 3 when I set the boot parameter to (security=selinux selinux=1), and
+>> delete the /etc/selinux/config so that the os will not load the
+>> selinux policy during the start time. After the OS is started, I
+>> rebuild the /etc/selinux/config file and use the load_policy command
+>> to load the selinux policy, It can loaded successful.
+>>
+>>
+>>
+>>
+>>
+>> 4 when I compile my policy to a mls policy (version 24).and set the
+>> boot parameters (security=selinux selinux=1),The system will start
+>> successful
+>>
+>>
+>>
+>> 5 when I try the actions all above than compile the policy to version
+>> 26, the results are the same.
+>>
+>>
+>>
+>> 6 when I try the actions all above in my other linux (SLES 11 sp1 with
+>> 2.6.32.12-0.7-default,the /selinux/policyvers is 26 ) the system will
+>> start successful
+>>
+>>
+>>
+>> and you can see my policy.conf in the attachment.
+>
+> Difficult to diagnose without the actual kernel output from the failed boots - can you boot non-graphically and capture that?  Sounds like a kernel bug in your 3.0.76-0.11-default kernel not handling non-MLS policies correctly.  That's not a well tested path anymore, as all Fedora and Red Hat policies have MLS enabled (even targeted policy has it enabled for MCS) and likewise Android has MLS enabled in its policy.
+>
+> Normally you would just use whatever policy version is supported by your libsepol/checkpolicy; libselinux will automatically downgrade the policy file to whatever version is supported by your kernel at load time (if using upstream SELinux userspace, not true in Android).
+>
+> Any particular reason you can't just enable MLS in your policy?  It is enabled for TYPE=mls or TYPE=mcs in refpolicy build.conf; they are both using the MLS engine.
+>
+>
+>
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
