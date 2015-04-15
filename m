@@ -1,160 +1,81 @@
-Message-ID: <552EA88F.2020109@tycho.nsa.gov>
-Date: Wed, 15 Apr 2015 14:06:07 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libsepol: Don't use symbol versioning for static object
- files
-References: <1429105902-7284-1-git-send-email-ykhodorkovskiy@tresys.com>
-In-Reply-To: <1429105902-7284-1-git-send-email-ykhodorkovskiy@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3FICIIR004112
+ for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2015 14:12:22 -0400
+Received: from us-aus-mgwout2.amer.corp.natinst.com (nb-snip2-1338.natinst.com
+ [130.164.19.135])
+ by us-aus-skprod2.natinst.com (8.15.0.59/8.15.0.59) with ESMTP id
+ t3FICLa1019695
+ for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2015 13:12:21 -0500
+From: Ben Shelton <ben.shelton@ni.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: Mount procfs before checking /proc/filesystems
+Date: Wed, 15 Apr 2015 13:11:51 -0500
+Message-Id: <1429121511-16449-1-git-send-email-ben.shelton@ni.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/15/2015 09:51 AM, Yuli Khodorkovskiy wrote:
-> Libraries such as libqpol that link with libsepol statically do not understand
-> the symbolic versioning in libsepol. This patch disables the symbolic versioning
-> in libsepol if building the static library or building for Android.
-> 
-> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+In the case where the SELinux security module is not loaded in the
+kernel and it's early enough in the boot process that /proc has not yet
+been mounted, selinuxfs_exists() will incorrectly return 1, and
+selinux_init_load_policy() will print a message like this to the
+console:
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Mount failed for selinuxfs on /sys/fs/selinux:  No such file or directory
 
-> ---
->  libsepol/cil/src/cil.c       | 21 +++++++++++----------
->  libsepol/{ => cil}/src/dso.h |  4 ++++
->  libsepol/src/dso.h           |  4 ++++
->  3 files changed, 19 insertions(+), 10 deletions(-)
->  copy libsepol/{ => cil}/src/dso.h (89%)
-> 
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index b852628..5c53bf3 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -50,8 +50,9 @@
->  #include "cil_binary.h"
->  #include "cil_policy.h"
->  #include "cil_strpool.h"
-> +#include "dso.h"
->  
-> -#ifndef ANDROID
-> +#ifndef DISABLE_SYMVER
->  asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
->  asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
->  
-> @@ -354,7 +355,7 @@ exit:
->  	return rc;
->  }
->  
-> -#ifdef ANDROID
-> +#ifdef DISABLE_SYMVER
->  int cil_compile(struct cil_db *db)
->  #else
->  int cil_compile_nopdb(struct cil_db *db)
-> @@ -402,7 +403,7 @@ exit:
->  	return rc;
->  }
->  
-> -#ifndef ANDROID
-> +#ifndef DISABLE_SYMVER
->  int cil_compile_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db)
->  {
->  	return cil_compile_nopdb(db);
-> @@ -424,7 +425,7 @@ exit:
->  }
->  #endif
->  
-> -#ifdef ANDROID
-> +#ifdef DISABLE_SYMVER
->  int cil_build_policydb(cil_db_t *db, sepol_policydb_t **sepol_db)
->  #else
->  int cil_build_policydb_create_pdb(cil_db_t *db, sepol_policydb_t **sepol_db)
-> @@ -1116,7 +1117,7 @@ const char * cil_node_to_string(struct cil_tree_node *node)
->  	return "<unknown>";
->  }
->  
-> -#ifdef ANDROID
-> +#ifdef DISABLE_SYMVER
->  int cil_userprefixes_to_string(struct cil_db *db, char **out, size_t *size)
->  #else
->  int cil_userprefixes_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
-> @@ -1165,7 +1166,7 @@ exit:
->  
->  }
->  
-> -#ifndef ANDROID
-> +#ifndef DISABLE_SYMVER
->  int cil_userprefixes_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
->  {
->  	return cil_userprefixes_to_string_nopdb(db, out, size);
-> @@ -1357,7 +1358,7 @@ static int __cil_level_to_string(struct cil_level *lvl, char *out)
->  	return str_tmp - out;
->  }
->  
-> -#ifdef ANDROID
-> +#ifdef DISABLE_SYMVER
->  int cil_selinuxusers_to_string(struct cil_db *db, char **out, size_t *size)
->  #else
->  int cil_selinuxusers_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
-> @@ -1418,14 +1419,14 @@ int cil_selinuxusers_to_string_nopdb(struct cil_db *db, char **out, size_t *size
->  	return SEPOL_OK;
->  }
->  
-> -#ifndef ANDROID
-> +#ifndef DISABLE_SYMVER
->  int cil_selinuxusers_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
->  {
->  	return cil_selinuxusers_to_string_nopdb(db, out, size);
->  }
->  #endif
->  
-> -#ifdef ANDROID
-> +#ifdef DISABLE_SYMVER
->  int cil_filecons_to_string(struct cil_db *db, char **out, size_t *size)
->  #else
->  int cil_filecons_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
-> @@ -1547,7 +1548,7 @@ int cil_filecons_to_string_nopdb(struct cil_db *db, char **out, size_t *size)
->  	return SEPOL_OK;
->  }
->  
-> -#ifndef ANDROID
-> +#ifndef DISABLE_SYMVER
->  int cil_filecons_to_string_pdb(struct cil_db *db, __attribute__((unused)) sepol_policydb_t *sepol_db, char **out, size_t *size)
->  {
->  	return cil_filecons_to_string_nopdb(db, out, size);
-> diff --git a/libsepol/src/dso.h b/libsepol/cil/src/dso.h
-> similarity index 89%
-> copy from libsepol/src/dso.h
-> copy to libsepol/cil/src/dso.h
-> index 5c69aae..a06e349 100644
-> --- a/libsepol/src/dso.h
-> +++ b/libsepol/cil/src/dso.h
-> @@ -1,6 +1,10 @@
->  #ifndef _SEPOL_DSO_H
->  #define _SEPOL_DSO_H	1
->  
-> +#if !defined(SHARED) || defined(ANDROID)
-> +    #define DISABLE_SYMVER 1
-> +#endif
-> +
->  #ifdef SHARED
->  # define hidden __attribute__ ((visibility ("hidden")))
->  # define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
-> diff --git a/libsepol/src/dso.h b/libsepol/src/dso.h
-> index 5c69aae..a06e349 100644
-> --- a/libsepol/src/dso.h
-> +++ b/libsepol/src/dso.h
-> @@ -1,6 +1,10 @@
->  #ifndef _SEPOL_DSO_H
->  #define _SEPOL_DSO_H	1
->  
-> +#if !defined(SHARED) || defined(ANDROID)
-> +    #define DISABLE_SYMVER 1
-> +#endif
-> +
->  #ifdef SHARED
->  # define hidden __attribute__ ((visibility ("hidden")))
->  # define hidden_proto(fct) __hidden_proto (fct, fct##_internal)
-> 
+To fix this, mount the procfs before attempting to open
+/proc/filesystems, and unmount it when done if it was initially not
+mounted.  This is the same thing that selinux_init_load_policy() does
+when reading /proc/cmdline.
+
+Signed-off-by: Ben Shelton <ben.shelton@ni.com>
+---
+ libselinux/src/init.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+index 6d1ef33..507f17e 100644
+--- a/libselinux/src/init.c
++++ b/libselinux/src/init.c
+@@ -54,15 +54,20 @@ static int verify_selinuxmnt(const char *mnt)
+ 
+ int selinuxfs_exists(void)
+ {
+-	int exists = 0;
++	int exists = 0, mnt_rc = 0;
+ 	FILE *fp = NULL;
+ 	char *buf = NULL;
+ 	size_t len;
+ 	ssize_t num;
+ 
++	mnt_rc = mount("proc", "/proc", "proc", 0, 0);
++
+ 	fp = fopen("/proc/filesystems", "r");
+-	if (!fp)
+-		return 1; /* Fail as if it exists */
++	if (!fp) {
++		exists = 1; /* Fail as if it exists */
++		goto out;
++	}
++
+ 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+ 
+ 	num = getline(&buf, &len, fp);
+@@ -76,6 +81,14 @@ int selinuxfs_exists(void)
+ 
+ 	free(buf);
+ 	fclose(fp);
++
++out:
++#ifndef MNT_DETACH
++#define MNT_DETACH 2
++#endif
++	if (mnt_rc == 0)
++		umount2("/proc", MNT_DETACH);
++
+ 	return exists;
+ }
+ hidden_def(selinuxfs_exists)
+-- 
+2.3.5
