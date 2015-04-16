@@ -1,53 +1,45 @@
-Message-ID: <552FA3D0.7080606@tycho.nsa.gov>
-Date: Thu, 16 Apr 2015 07:58:08 -0400
+Message-ID: <552FA882.7030604@tycho.nsa.gov>
+Date: Thu, 16 Apr 2015 08:18:10 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Nick Kralevich <nnk@google.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] Add empty top level Android.mk / CleanSpec.mk files
-References: <1429135642-25619-1-git-send-email-nnk@google.com>
-In-Reply-To: <1429135642-25619-1-git-send-email-nnk@google.com>
+To: Florian Weimer <fweimer@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Impersonating a process for file creation purposes
+References: <552F80C8.9060809@redhat.com>
+In-Reply-To: <552F80C8.9060809@redhat.com>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/15/2015 06:07 PM, Nick Kralevich wrote:
-> Needed to allow Android to keep building with a copy of the SELinux
-> source code checked into external/selinux
-> 
-> Bug: 19963152
-> Change-Id: I4e192bb6ca5d185e11540aca7253e729d92a00c1
+On 04/16/2015 05:28 AM, Florian Weimer wrote:
+> The ABRT coredump handler has code to emulate default core file creation
+> (as if no such pipe-based handler was installed).  The handler runs in a
+> separate process, initially as root.  Currently, the handler just
+> switches effective IDs and creates the file.  This does not replicate
+> the SELinux context of the zombie process.
 
-Thanks, applied.  I assume at some point you'll switch over to using the
-external/selinux/{libsepol,checkpolicy,secilc} and drop
-external/{libsepol,checkpolicy}, but retain external/libselinux since it
-is a fork and differs substantially as described in its README.android
-file.  I suppose someone could try to upstream all the changes, some
-under conditional guards for ANDROID, but it wouldn't be trivial; I took
-a hacksaw to libselinux originally for Android.
+Pardon me for asking, but why does it include this code for emulating
+default core file creation, versus just letting the kernel directly
+handle it?
 
-> ---
->  Android.mk   | 2 ++
->  CleanSpec.mk | 2 ++
->  2 files changed, 4 insertions(+)
->  create mode 100644 Android.mk
->  create mode 100644 CleanSpec.mk
-> 
-> diff --git a/Android.mk b/Android.mk
-> new file mode 100644
-> index 0000000..02f35a9
-> --- /dev/null
-> +++ b/Android.mk
-> @@ -0,0 +1,2 @@
-> +# This empty Android.mk file will prevent the build system
-> +# from building anything below this point.
-> diff --git a/CleanSpec.mk b/CleanSpec.mk
-> new file mode 100644
-> index 0000000..1ac5a62
-> --- /dev/null
-> +++ b/CleanSpec.mk
-> @@ -0,0 +1,2 @@
-> +# This empty CleanSpec.mk file will prevent the build system
-> +# from descending into subdirs.
-> 
+> Is there a way to do that?   Is there some recommended way to inherit
+> all the security-related process attributes?
+
+Technically it could use setcon() if allowed by policy but I wouldn't
+really recommend it.  You'd have to allow it to dyntransition to any
+domain for any potential process you want it to be able to dump, at
+which point it could assume any of the permissions of any of those
+processes at will.  Not so great if there is ever a vulnerability in
+ABRT itself.  Plus any other process in the same context would be able
+to act on the handler at that point as they would then be in the same
+context.
+
+It could also compute the context in which the file would be created by
+the zombie by calling security_compute_create() with the context of the
+zombie process, the context of the directory into which it is writing
+the core dump file, and string_to_security_class("file") as its
+arguments, and then pass the resulting context returned by that call to
+setfscreatecon() prior to creating the core dump file and then call
+setfscreatecon(NULL) afterward; this will create the core dump file in
+that context.  That seems more suited to your scenario.
