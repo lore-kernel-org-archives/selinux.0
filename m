@@ -1,51 +1,61 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux:  Remove deprecated mudflap option.
-Date: Thu, 16 Apr 2015 08:26:00 -0400
-Message-Id: <1429187160-24527-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <552FAC40.5050207@redhat.com>
+Date: Thu, 16 Apr 2015 14:34:08 +0200
+From: Florian Weimer <fweimer@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Impersonating a process for file creation purposes
+References: <552F80C8.9060809@redhat.com> <552FA882.7030604@tycho.nsa.gov>
+In-Reply-To: <552FA882.7030604@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The mudflap run time checker was removed in GCC 4.9.  The
-option no longer does anything and triggers a warning from gcc 4.9
-and later.  Remove it.  We might want to add -fsanitize=address
-to enable AddressSanitizer in its place, but that should be a separate
-change.
+On 04/16/2015 02:18 PM, Stephen Smalley wrote:
+> On 04/16/2015 05:28 AM, Florian Weimer wrote:
+>> The ABRT coredump handler has code to emulate default core file creation
+>> (as if no such pipe-based handler was installed).  The handler runs in a
+>> separate process, initially as root.  Currently, the handler just
+>> switches effective IDs and creates the file.  This does not replicate
+>> the SELinux context of the zombie process.
+> 
+> Pardon me for asking, but why does it include this code for emulating
+> default core file creation, versus just letting the kernel directly
+> handle it?
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libselinux/src/Makefile   | 2 +-
- libselinux/utils/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+It's either-or on the kernel side.  You can spawn a process which is fed
+the core, or you can have the kernel write a core file.  But not both at
+the same time.
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 82cb6ed..ac25c1f 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -59,7 +59,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
-           -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes \
-           -Wmissing-declarations -Wmissing-noreturn -Wmissing-format-attribute \
-           -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var \
--          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wmudflap -Wpacked-bitfield-compat \
-+          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wpacked-bitfield-compat \
-           -Wsync-nand -Wattributes -Wcoverage-mismatch -Wmultichar -Wcpp \
-           -Wdeprecated-declarations -Wdiv-by-zero -Wdouble-promotion -Wendif-labels -Wextra \
-           -Wformat-contains-nul -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index f469924..5499538 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -11,7 +11,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
-           -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes \
-           -Wmissing-declarations -Wmissing-noreturn -Wmissing-format-attribute \
-           -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var \
--          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wmudflap -Wpacked-bitfield-compat \
-+          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wpacked-bitfield-compat \
-           -Wsync-nand -Wattributes -Wcoverage-mismatch -Wmultichar -Wcpp \
-           -Wdeprecated-declarations -Wdiv-by-zero -Wdouble-promotion -Wendif-labels -Wextra \
-           -Wformat-contains-nul -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
+>> Is there a way to do that?   Is there some recommended way to inherit
+>> all the security-related process attributes?
+> 
+> Technically it could use setcon() if allowed by policy but I wouldn't
+> really recommend it.  You'd have to allow it to dyntransition to any
+> domain for any potential process you want it to be able to dump, at
+> which point it could assume any of the permissions of any of those
+> processes at will.  Not so great if there is ever a vulnerability in
+> ABRT itself.  Plus any other process in the same context would be able
+> to act on the handler at that point as they would then be in the same
+> context.
+
+The handler would not be dumpable anymore because of the UID/GID
+transitions.  But I do not need this level of impersonation.
+
+> It could also compute the context in which the file would be created by
+> the zombie by calling security_compute_create() with the context of the
+> zombie process, the context of the directory into which it is writing
+> the core dump file, and string_to_security_class("file") as its
+> arguments, and then pass the resulting context returned by that call to
+> setfscreatecon() prior to creating the core dump file and then call
+> setfscreatecon(NULL) afterward; this will create the core dump file in
+> that context.  That seems more suited to your scenario.
+
+Right, that seems doable.  I think I can even get the directory context
+without triggering new path name resolution.
+
+Thanks for the suggestion.
+
 -- 
-2.1.0
+Florian Weimer / Red Hat Product Security
