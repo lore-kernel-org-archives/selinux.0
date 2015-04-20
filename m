@@ -1,43 +1,50 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3KE5OtK009660
+ for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2015 10:07:59 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t3KE5MWK020773
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+ for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2015 10:05:22 -0400
+Message-ID: <553507A0.1050902@redhat.com>
+Date: Mon, 20 Apr 2015 16:05:20 +0200
+From: Florian Weimer <fweimer@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <55314652.7060207@tycho.nsa.gov>
-References: <CANnpg5RnMMJ_sK4MqFZzh01ZJwE-kZDKZJ3QjZNn1PD=9UZusw@mail.gmail.com>
- <55314652.7060207@tycho.nsa.gov>
-Date: Fri, 17 Apr 2015 19:19:03 -0400
-Message-ID: <CANnpg5QwyQdw6J6+ArDDrs7MqoFawAtWvz=V=-wnKN4PJ6AsFw@mail.gmail.com>
-Subject: Re: HTCondor process visibility
-From: Steve Huston <huston@astro.princeton.edu>
-To: Selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+To: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Impersonating a process for file creation purposes
+References: <552F80C8.9060809@redhat.com> <552FFA39.3030909@redhat.com>
+In-Reply-To: <552FFA39.3030909@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Apr 17, 2015 at 1:43 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 04/17/2015 01:31 PM, Steve Huston wrote:
-> You also need allow user_t condor_startd_t:process getattr; to see the
-> process labels.
->
-> I doubt you need lock or ioctl permissions; they tend to get lumped in
-> together with read.
+On 04/16/2015 08:06 PM, Daniel J Walsh wrote:
+> 
+> On 04/16/2015 05:28 AM, Florian Weimer wrote:
+>> The ABRT coredump handler has code to emulate default core file creation
+>> (as if no such pipe-based handler was installed).  The handler runs in a
+>> separate process, initially as root.  Currently, the handler just
+>> switches effective IDs and creates the file.  This does not replicate
+>> the SELinux context of the zombie process.
+>>
+>> Is there a way to do that?   Is there some recommended way to inherit
+>> all the security-related process attributes?
+>>
+> You have two choices.  1 would be to setcon() call to change the label
+> to the user process.
+> 
+> The other choice would be to ask the kernel what label this user would
+> create if he created a file
+> in the specified directory.  This is what systemd does.
 
-Made these changes and it works perfectly.  Thank you kind sir.
+Dan, could you please double-check if this change (implementing the
+second option) looks reasonable?
 
-> You could alternatively write your rules using macros from the
-> refpolicy, e.g.:
-> allow user_t condor_startd_t:file read_file_perms;
-> allow user_t condor_startd_t:dir list_dir_perms;
-> allow user_t condor_startd_t:lnk_file read_lnk_file_perms;
->
-> or even using a macro that captures all of these rules in one call, e.g.
-> ps_process_pattern(user_t, condor_startd_t)
+<https://github.com/abrt/abrt/commit/3e4155bfcd9f6f5a20964080fa05724503b20761>
 
-I'll leave these in my evernote folder for "some day I should learn
-this better" :D
-
+Thanks,
+Florian
 -- 
-Steve Huston - W2SRH - Unix Sysadmin, PICSciE/CSES & Astrophysical Sci
-  Princeton University  |    ICBM Address: 40.346344   -74.652242
-    345 Lewis Library   |"On my ship, the Rocinante, wheeling through
-  Princeton, NJ   08544 | the galaxies; headed for the heart of Cygnus,
-    (267) 793-0852      | headlong into mystery."  -Rush, 'Cygnus X-1'
+Florian Weimer / Red Hat Product Security
