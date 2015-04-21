@@ -1,50 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3KE5OtK009660
- for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2015 10:07:59 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com
- (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t3KE5MWK020773
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Mon, 20 Apr 2015 10:05:22 -0400
-Message-ID: <553507A0.1050902@redhat.com>
-Date: Mon, 20 Apr 2015 16:05:20 +0200
-From: Florian Weimer <fweimer@redhat.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Impersonating a process for file creation purposes
-References: <552F80C8.9060809@redhat.com> <552FFA39.3030909@redhat.com>
-In-Reply-To: <552FFA39.3030909@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3LBlAop024507
+ for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2015 07:47:10 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com
+ (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ by mx1.redhat.com (Postfix) with ESMTPS id 25C528F004
+ for <selinux@tycho.nsa.gov>; Tue, 21 Apr 2015 11:46:57 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: selinux.py - use os.walk() instead of
+ os.path.walk()
+Date: Tue, 21 Apr 2015 13:46:49 +0200
+Message-Id: <1429616809-5417-1-git-send-email-plautrba@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Cc: =?UTF-8?q?Miro=20Hron=C4=8Dok?= <mhroncok@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/16/2015 08:06 PM, Daniel J Walsh wrote:
-> 
-> On 04/16/2015 05:28 AM, Florian Weimer wrote:
->> The ABRT coredump handler has code to emulate default core file creation
->> (as if no such pipe-based handler was installed).  The handler runs in a
->> separate process, initially as root.  Currently, the handler just
->> switches effective IDs and creates the file.  This does not replicate
->> the SELinux context of the zombie process.
->>
->> Is there a way to do that?   Is there some recommended way to inherit
->> all the security-related process attributes?
->>
-> You have two choices.  1 would be to setcon() call to change the label
-> to the user process.
-> 
-> The other choice would be to ask the kernel what label this user would
-> create if he created a file
-> in the specified directory.  This is what systemd does.
+From: Miro Hrončok <mhroncok@redhat.com>
 
-Dan, could you please double-check if this change (implementing the
-second option) looks reasonable?
+os.path.walk() function is deprecated and has been removed in Python 3
 
-<https://github.com/abrt/abrt/commit/3e4155bfcd9f6f5a20964080fa05724503b20761>
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
 
-Thanks,
-Florian
+A simple fix which allows to use same construction in Python 2 and Python 3.
+It's reported and proposed in https://bugzilla.redhat.com/show_bug.cgi?id=1195004
+
+
+ libselinux/src/selinuxswig_python.i | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index ae72246..c9a2341 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -31,9 +31,9 @@ def restorecon(path, recursive=False):
+             lsetfilecon(path, context)
+ 
+         if recursive:
+-            os.path.walk(path, lambda arg, dirname, fnames:
+-                             map(restorecon, [os.path.join(dirname, fname)
+-                                              for fname in fnames]), None)
++            for root, dirs, files in os.walk(path):
++                for name in files + dirs:
++                   restorecon(os.path.join(root, name))
+ 
+ def chcon(path, context, recursive=False):
+     """ Set the SELinux context on a given path """
 -- 
-Florian Weimer / Red Hat Product Security
+2.3.5
