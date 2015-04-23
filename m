@@ -1,50 +1,101 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3NMJqLY014851
- for <selinux@tycho.nsa.gov>; Thu, 23 Apr 2015 18:19:52 -0400
-Received: by oblw8 with SMTP id w8so24913147obl.0
- for <selinux@tycho.nsa.gov>; Thu, 23 Apr 2015 15:19:50 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3NMP4Mj015265
+ for <selinux@tycho.nsa.gov>; Thu, 23 Apr 2015 18:25:04 -0400
+Received: by oign205 with SMTP id n205so26738191oig.2
+ for <selinux@tycho.nsa.gov>; Thu, 23 Apr 2015 15:25:02 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <363d72e72db54ed2a93f39f76d1811fd@MIVEXUSR1N01.corpzone.internalzone.com>
-References: <363d72e72db54ed2a93f39f76d1811fd@MIVEXUSR1N01.corpzone.internalzone.com>
-Date: Thu, 23 Apr 2015 18:19:50 -0400
-Message-ID: <CAHC9VhS33Jys15zLsyy+RCLpgkAu4m-r-O5LY=Bstt7YJc8sWA@mail.gmail.com>
-Subject: Re: Switching to enforcing mode introduces new policy issues?
+In-Reply-To: <1428616171-14767-1-git-send-email-jeffv@google.com>
+References: <1428616171-14767-1-git-send-email-jeffv@google.com>
+Date: Thu, 23 Apr 2015 18:25:02 -0400
+Message-ID: <CAHC9VhTF9MrU2tgd+YLLRFFaRqy=OLw3WmrT7vHBW_xfuX7A=A@mail.gmail.com>
+Subject: Re: [PATCH 1/2] security: lsm_audit: add ioctl specific auditing
 From: Paul Moore <paul@paul-moore.com>
-To: "Spector, Aaron" <Aaron_Spector@mcafee.com>
+To: Jeff Vander Stoep <jeffv@google.com>
 Content-Type: text/plain; charset=UTF-8
-Cc: "SELinux \(selinux@tycho.nsa.gov\)" <selinux@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Apr 23, 2015 at 5:14 PM, Spector, Aaron
-<Aaron_Spector@mcafee.com> wrote:
-> Hi all,
+On Thu, Apr 9, 2015 at 5:49 PM, Jeff Vander Stoep <jeffv@google.com> wrote:
+> Add information about ioctl calls to the LSM audit data. Log the
+> file path and command number.
 >
-> I’ve been working on writing my first policy for SELinux and I’ve hit a bit
-> of a snag. I’ve gotten the policy clean in permissive mode, but when I swap
-> the system over to enforcing, a whole new set of policy issues crop up.
-> Everything I’ve read says this isn’t to be expected so I’m a bit confused as
-> to what’s happening.
+> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+> ---
+>  include/linux/lsm_audit.h |  7 +++++++
+>  security/lsm_audit.c      | 15 +++++++++++++++
+>  2 files changed, 22 insertions(+)
 
-{snip}
+While this isn't specific to a given LSM, at present it only makes
+sense with the associated SELinux patches.  James, unless you have any
+objections I would prefer if this went in via the SELinux tree.
 
-> So far what I’ve had to do to get around it is to add to my policy, but that
-> doesn’t seem like that should be necessary. If the audit is clean in
-> permissive mode, why isn’t it clean in enforcing?
+> diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+> index 1cc89e9..ffb9c9d 100644
+> --- a/include/linux/lsm_audit.h
+> +++ b/include/linux/lsm_audit.h
+> @@ -40,6 +40,11 @@ struct lsm_network_audit {
+>         } fam;
+>  };
 >
-> Is it possible that I’m missing policy deny audits when it’s in permissive
-> mode?
+> +struct lsm_ioctlop_audit {
+> +       struct path path;
+> +       u16 cmd;
+> +};
+> +
+>  /* Auxiliary data to use in generating the audit record. */
+>  struct common_audit_data {
+>         char type;
+> @@ -53,6 +58,7 @@ struct common_audit_data {
+>  #define LSM_AUDIT_DATA_KMOD    8
+>  #define LSM_AUDIT_DATA_INODE   9
+>  #define LSM_AUDIT_DATA_DENTRY  10
+> +#define LSM_AUDIT_DATA_IOCTL_OP        11
+>         union   {
+>                 struct path path;
+>                 struct dentry *dentry;
+> @@ -68,6 +74,7 @@ struct common_audit_data {
+>                 } key_struct;
+>  #endif
+>                 char *kmod_name;
+> +               struct lsm_ioctlop_audit *op;
+>         } u;
+>         /* this union contains LSM specific data */
+>         union {
+> diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> index 69fdf3b..7147c17 100644
+> --- a/security/lsm_audit.c
+> +++ b/security/lsm_audit.c
+> @@ -245,6 +245,21 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+>                 }
+>                 break;
+>         }
+> +       case LSM_AUDIT_DATA_IOCTL_OP: {
+> +               struct inode *inode;
+> +
+> +               audit_log_d_path(ab, " path=", &a->u.op->path);
+> +
+> +               inode = a->u.op->path.dentry->d_inode;
+> +               if (inode) {
+> +                       audit_log_format(ab, " dev=");
+> +                       audit_log_untrustedstring(ab, inode->i_sb->s_id);
+> +                       audit_log_format(ab, " ino=%lu", inode->i_ino);
+> +               }
+> +
+> +               audit_log_format(ab, " ioctlcmd=%hx", a->u.op->cmd);
+> +               break;
+> +       }
+>         case LSM_AUDIT_DATA_DENTRY: {
+>                 struct inode *inode;
+>
+> --
+> 2.2.0.rc0.207.ga3a616c
+>
 
-It's important to remember that when you are in permissive mode you
-will only see a given SELinux AVC denial *once*, after that it will
-not be reported until the AVC is reset.  My two favorite ways of
-resetting the SELinux AVC are to run either 'load_policy' or toggle
-the system from permissive into enforcing and then back into
-permissive mode.  Try that and I suspect that will solve your problem.
 
--Paul
 
 -- 
 paul moore
