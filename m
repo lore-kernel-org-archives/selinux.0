@@ -1,5 +1,5 @@
-Message-ID: <553A69CB.8010202@tycho.nsa.gov>
-Date: Fri, 24 Apr 2015 12:05:31 -0400
+Message-ID: <553A6B3A.70108@tycho.nsa.gov>
+Date: Fri, 24 Apr 2015 12:11:38 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: "Spector, Aaron" <Aaron_Spector@mcafee.com>,
@@ -27,10 +27,6 @@ On 04/24/2015 12:03 PM, Stephen Smalley wrote:
 > 
 > No, the only information about the AVC that is made available to
 > userspace is statistics via /sys/fs/selinux/avc/cache_stats and hash_stats.
-
-cache_stats btw can be more conveniently summarized or monitored via the
-avcstat utility from libselinux.
-
 > 
 > I don't think your permissive mode is denying anything.  The more likely
 > scenario is audit is just losing events IMHO.  Looking again at the
@@ -42,4 +38,6 @@ avcstat utility from libselinux.
 > Yes, so it doesn't sound like you are rolling over that buffer.
 > 
 > Sounds like a bug in audit to me...
-> 
+
+Just wanted to check - it sounds like you are not running auditd at all?
+ Just letting all of the audit messages go to dmesg?
