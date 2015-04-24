@@ -1,74 +1,97 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3OCHarj030732
- for <selinux@tycho.nsa.gov>; Fri, 24 Apr 2015 08:17:36 -0400
-Message-ID: <553A3446.8010809@redhat.com>
-Date: Fri, 24 Apr 2015 14:17:10 +0200
-From: Miroslav Grepl <mgrepl@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-To: "Spector, Aaron" <Aaron_Spector@mcafee.com>
+Message-ID: <553A362B.7040500@tycho.nsa.gov>
+Date: Fri, 24 Apr 2015 08:25:15 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: "Spector, Aaron" <Aaron_Spector@mcafee.com>,
+ "SELinux (selinux@tycho.nsa.gov)" <selinux@tycho.nsa.gov>,
+ Paul Moore <paul@paul-moore.com>
 Subject: Re: Switching to enforcing mode introduces new policy issues?
 References: <363d72e72db54ed2a93f39f76d1811fd@MIVEXUSR1N01.corpzone.internalzone.com>
- <CAHC9VhS33Jys15zLsyy+RCLpgkAu4m-r-O5LY=Bstt7YJc8sWA@mail.gmail.com>
- <d15a5dc7a1fc4677b6ea3908b7480c6c@MIVEXUSR1N01.corpzone.internalzone.com>
-In-Reply-To: <d15a5dc7a1fc4677b6ea3908b7480c6c@MIVEXUSR1N01.corpzone.internalzone.com>
-Cc: "SELinux \(selinux@tycho.nsa.gov\)" <selinux@tycho.nsa.gov>
+In-Reply-To: <363d72e72db54ed2a93f39f76d1811fd@MIVEXUSR1N01.corpzone.internalzone.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/24/2015 06:12 AM, Spector, Aaron wrote:
-> That sounds like an idea, I'll have to give it a shot. To add a bit more information, I'm seeing a bunch of these changes happen during the boot process in init and I would assume the AVC is cleared between reboots - I've tweaked and added some things there for experimentation. I can boot my system up in permissive and see no problems, but when I restart it in enforcing I start seeing brand new policy violations, things I haven't seen before. It seems odd that the same boot sequence would result in such different behavior.
+On 04/23/2015 05:14 PM, Spector, Aaron wrote:
+> Hi all,
 > 
-> -Aaron
+>  
 > 
-> -----Original Message-----
-> From: Paul Moore [mailto:paul@paul-moore.com] 
-> Sent: Thursday, April 23, 2015 5:20 PM
-> To: Spector, Aaron
-> Cc: SELinux (selinux@tycho.nsa.gov)
-> Subject: Re: Switching to enforcing mode introduces new policy issues?
+> I’ve been working on writing my first policy for SELinux and I’ve hit a
+> bit of a snag. I’ve gotten the policy clean in permissive mode, but when
+> I swap the system over to enforcing, a whole new set of policy issues
+> crop up. Everything I’ve read says this isn’t to be expected so I’m a
+> bit confused as to what’s happening. Output from sestatus when in
+> permissive mode is:
 > 
-> On Thu, Apr 23, 2015 at 5:14 PM, Spector, Aaron <Aaron_Spector@mcafee.com> wrote:
->> Hi all,
->>
->> Iâ€™ve been working on writing my first policy for SELinux and Iâ€™ve hit 
->> a bit of a snag. Iâ€™ve gotten the policy clean in permissive mode, but 
->> when I swap the system over to enforcing, a whole new set of policy issues crop up.
->> Everything Iâ€™ve read says this isnâ€™t to be expected so Iâ€™m a bit 
->> confused as to whatâ€™s happening.
+>  
 > 
+> SELinux status:                 enabled
+> 
+> SELinuxfs mount:                /sys/fs/selinux
+> 
+> SELinux root directory:         /etc/selinux
+> 
+> Loaded policy name:             default
+> 
+> Current mode:                   permissive
+> 
+> Mode from config file:          permissive
+> 
+> Policy MLS status:              enabled
+> 
+> Policy deny_unknown status:     denied
+> 
+> Max kernel policy version:      29
+> 
+>  
+> 
+> I’m running a version 26 policy and a 3.16.7 kernel.
+> 
+>  
+> 
+> It seems like the majority of the new deny audits are about the need for
+> search permissions on directories between types that already have what I
+> believe are the necessary file permissions.
+> 
+>  
+> 
+> So far what I’ve had to do to get around it is to add to my policy, but
+> that doesn’t seem like that should be necessary. If the audit is clean
+> in permissive mode, why isn’t it clean in enforcing?
+> 
+>  
+> 
+> Is it possible that I’m missing policy deny audits when it’s in
+> permissive mode?
 
-Try to use journalctl/dmesg to search either SELINUX_ERR or AVCs during
-boot time.
+The audit system can be overwhelmed by too many denials and therefore
+can drop some of the messages under certain conditions; look for
+audit_lost= in your dmesg output after booting.  You may be hitting the
+audit rate limit, if set, or the backlog limit, if the userspace audit
+daemon cannot keep up, or an OOM condition.  I've seen that for e.g.
+Android board bringup where you have too many denials during early boot.
+You can try adjusting the backlog or rate limits to improve the capture
+of denials, but sometimes you may just have to do it iteratively to
+ensure full coverage.
 
-> {snip}
-> 
->> So far what Iâ€™ve had to do to get around it is to add to my policy, 
->> but that doesnâ€™t seem like that should be necessary. If the audit is 
->> clean in permissive mode, why isnâ€™t it clean in enforcing?
->>
->> Is it possible that Iâ€™m missing policy deny audits when itâ€™s in 
->> permissive mode?
-> 
-> It's important to remember that when you are in permissive mode you will only see a given SELinux AVC denial *once*, after that it will not be reported until the AVC is reset.  My two favorite ways of resetting the SELinux AVC are to run either 'load_policy' or toggle the system from permissive into enforcing and then back into permissive mode.  Try that and I suspect that will solve your problem.
-> 
-> -Paul
-> 
-> --
-> paul moore
-> www.paul-moore.com
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+Another possibility is that in enforcing mode, the kernel or userspace
+may follow a different code path after the point of the denial since the
+denial is then being enforced, and that different code path may itself
+trigger further permission checks that were not being triggered while
+permissive.  I've seen that before as well.
 
-
--- 
-Miroslav Grepl
-Software Engineering, SELinux Solutions
-Red Hat, Inc.
+I am a little puzzled though by your comment about the majority of the
+new denials being for search permissions on directories between types
+that already have the necessary permissions.  Does that mean that you
+have already added allow rules for these denials, rebuilt, reinstalled,
+and rebooted with that policy, and yet you are still seeing the same
+denials?  If so, then a possible explanation is that the denial are due
+to something other than a missing allow rule, e.g. they might be due to
+a difference in the user identity or level fields of the source and
+target security contexts based on constraints in the policy.  audit2why
+can tell you why a given denial occurred, but its ability to give you
+detailed info will depend on your policy version and how modern a
+version of libselinux and policycoreutils you have.
