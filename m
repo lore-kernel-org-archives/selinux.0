@@ -1,43 +1,56 @@
-Message-ID: <553A6B3A.70108@tycho.nsa.gov>
-Date: Fri, 24 Apr 2015 12:11:38 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3OGK5p7018218
+ for <selinux@tycho.nsa.gov>; Fri, 24 Apr 2015 12:20:06 -0400
+Message-ID: <553A6D3D.8020904@schaufler-ca.com>
+Date: Fri, 24 Apr 2015 09:20:13 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: "Spector, Aaron" <Aaron_Spector@mcafee.com>,
- "SELinux (selinux@tycho.nsa.gov)" <selinux@tycho.nsa.gov>,
- "Paul Moore (paul@paul-moore.com)" <paul@paul-moore.com>
-Subject: Re: Switching to enforcing mode introduces new policy issues?
-References: <363d72e72db54ed2a93f39f76d1811fd@MIVEXUSR1N01.corpzone.internalzone.com>
- <553A362B.7040500@tycho.nsa.gov>
- <0787916bff754fec87b219654e47b1e0@MIVEXUSR1N01.corpzone.internalzone.com>
- <553A60D2.30105@tycho.nsa.gov>
- <73c3e069515544578eb3a2798436f272@MIVEXUSR1N01.corpzone.internalzone.com>
- <553A693A.5080807@tycho.nsa.gov>
-In-Reply-To: <553A693A.5080807@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+To: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>
+Subject: Re: [GIT PULL] SELinux patches for 4.1
+References: <1978116.cNUKEOv2T8@sifl>	<14c8ec61728.2806.85c95baa4474aabc7814e68940a78392@paul-moore.com>	<alpine.LRH.2.11.1504070004170.7027@namei.org>	<47618041.M4z7H003Sc@sifl>	<alpine.LRH.2.11.1504082055100.32381@namei.org>	<CAHC9VhQu=U51b85U74xhP+x+4VCOrm9W8WVAw=vW6s0FdSNPxw@mail.gmail.com>	<alpine.LRH.2.11.1504131142390.774@namei.org>	<CAHC9VhSAVxo2wkOpMj1QcM-=HvBVhOvVGyTG-JGQHKJhn-rvYw@mail.gmail.com>	<alpine.LRH.2.11.1504241023280.13918@namei.org>
+ <CAHC9VhTGXTRi0=XbeB8b+LQVC+MDdk3PH38hYSafmV5CMrvi8Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhTGXTRi0=XbeB8b+LQVC+MDdk3PH38hYSafmV5CMrvi8Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Cc: linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/24/2015 12:03 PM, Stephen Smalley wrote:
-> On 04/24/2015 11:57 AM, Spector, Aaron wrote:
->> That's what I thought with regards to the file opens. It seemed to work when I lacked the directory search permission, but once it came up and I thought about it, it made sense. I'm just not sure why I didn't see the deny in permissive mode.. All of the rules I have had to add have made sense in the grand scheme of things.
+On 4/24/2015 7:53 AM, Paul Moore wrote:
+> On Thu, Apr 23, 2015 at 8:24 PM, James Morris <jmorris@namei.org> wrote:
+>> On Thu, 23 Apr 2015, Paul Moore wrote:
 >>
->> Is it possible to examine the cache for what lookups have happened, similar to how sesearch works? Perhaps my permissive mode is actually denying some operations, but not telling me for some reason.
-> 
-> No, the only information about the AVC that is made available to
-> userspace is statistics via /sys/fs/selinux/avc/cache_stats and hash_stats.
-> 
-> I don't think your permissive mode is denying anything.  The more likely
-> scenario is audit is just losing events IMHO.  Looking again at the
-> code, even the audit_lost output is wrapped with a printk_ratelimit
-> check, so it could be suppressed.
-> 
->> If I was rolling over the kernel ring buffer, wouldn't I be missing the initial boot events? I've got the entire boot sequence in dmesg.
-> 
-> Yes, so it doesn't sound like you are rolling over that buffer.
-> 
-> Sounds like a bug in audit to me...
+>>> On Sun, Apr 12, 2015 at 9:46 PM, James Morris <jmorris@namei.org> wrote:
+>>>> On Wed, 8 Apr 2015, Paul Moore wrote:
+>>>>
+>>>>> On Wed, Apr 8, 2015 at 6:57 AM, James Morris <jmorris@namei.org> wrote:
+>>>>>> On Mon, 6 Apr 2015, Paul Moore wrote:
+>>>>>>
+>>>>>>> Removed the patch, it should now just contain the five patches described at
+>>>>>>> the start, and shown again below.  It's based again the current security#next
+>>>>>>> branch so there should be no problems, at least there haven't been in my test
+>>>>>>> pulls.
+>>>>>> Ok, I'll pull it on the weekend when I get back from PTO.
+>>>>> Okay, thanks.  When you get back I'd still be curious to hear how you
+>>>>> manage the security tree; my process works *ok* but I'm always looking
+>>>>> for new approaches that may work better.
+>>>> Currently I merge my next branch with Linus at -rc1 or -rc2, after
+>>>> experimenting with other approaches.  I pull into that from security
+>>>> subsystems and push to Linus during the merge window.  Do you need any
+>>>> more info?  Not sure what else there is to add.
+>>>>
+>>>> For urgent fixes, I branch from Linus current (e.g. for-linus) and use
+>>>> that to push to Linus. This is a volatile branch which should not be
+>>>> tracked.
+>>> So no long running branches then?  You simply recreate your next
+>>> branch every release?
+>> The next branch is long running.
+> I guess I misunderstood your merge with -rc1/-rc2 comment, I thought
+> you meant you rebased at each -rc1/-rc2.
+>
 
-Just wanted to check - it sounds like you are not running auditd at all?
- Just letting all of the audit messages go to dmesg?
+James, do you suppose you could send an announcement when you
+do your merge? That would make it easier on the sub-tree maintainers.
+Just a quick "I merged the next branch to XXXX" to the LSM list.
