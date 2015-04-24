@@ -1,5 +1,5 @@
-Message-ID: <553A7050.3050208@tycho.nsa.gov>
-Date: Fri, 24 Apr 2015 12:33:20 -0400
+Message-ID: <553A710A.80804@tycho.nsa.gov>
+Date: Fri, 24 Apr 2015 12:36:26 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: "Spector, Aaron" <Aaron_Spector@mcafee.com>,
@@ -13,16 +13,21 @@ References: <363d72e72db54ed2a93f39f76d1811fd@MIVEXUSR1N01.corpzone.internalzone
  <73c3e069515544578eb3a2798436f272@MIVEXUSR1N01.corpzone.internalzone.com>
  <553A693A.5080807@tycho.nsa.gov> <553A6B3A.70108@tycho.nsa.gov>
  <265314580c2149fca9a8b2d9f9b74592@MIVEXUSR1N01.corpzone.internalzone.com>
-In-Reply-To: <265314580c2149fca9a8b2d9f9b74592@MIVEXUSR1N01.corpzone.internalzone.com>
+ <553A7050.3050208@tycho.nsa.gov>
+In-Reply-To: <553A7050.3050208@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/24/2015 12:30 PM, Spector, Aaron wrote:
-> Correct, I'm not running auditd.
+On 04/24/2015 12:33 PM, Stephen Smalley wrote:
+> On 04/24/2015 12:30 PM, Spector, Aaron wrote:
+>> Correct, I'm not running auditd.
+>>
+>> Is it worth removing the printk_ratelimit call in audit_printk_skb() in audit.c for experimentation purposes? Just let it printk all the audits and if it rolls over, oh well?
 > 
-> Is it worth removing the printk_ratelimit call in audit_printk_skb() in audit.c for experimentation purposes? Just let it printk all the audits and if it rolls over, oh well?
+> Sure.
 
-Sure.
+We actually do that in our kernel trees for Android policy development, e.g.
+https://bitbucket.org/seandroid/kernel-msm/commits/0388e1630648c481e42929135babb1dbba272e27
