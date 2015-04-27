@@ -1,122 +1,112 @@
-Message-ID: <553E450E.8090403@tycho.nsa.gov>
-Date: Mon, 27 Apr 2015 10:17:50 -0400
+Message-ID: <553E45A2.1060906@tycho.nsa.gov>
+Date: Mon, 27 Apr 2015 10:20:18 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH] selinux: Merge Android libselinux changes with
- upstream
-References: <1430136696-1254-1-git-send-email-richard_c_haines@btinternet.com>
- <553E429F.8080909@tycho.nsa.gov>
-In-Reply-To: <553E429F.8080909@tycho.nsa.gov>
+To: Florian Weimer <fweimer@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Impersonating a process for file creation purposes
+References: <552F80C8.9060809@redhat.com> <552FA882.7030604@tycho.nsa.gov>
+ <553DFC22.3050006@redhat.com> <553E3942.5020800@tycho.nsa.gov>
+In-Reply-To: <553E3942.5020800@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
-Cc: Eric Paris <eparis@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/27/2015 10:07 AM, Stephen Smalley wrote:
-> On 04/27/2015 08:11 AM, Richard Haines wrote:
->> This RFC patch takes the libselinux changes from AOSP master
->> and merges them into the SELinux project source from
->> https://github.com/SELinuxProject/selinux
+On 04/27/2015 09:27 AM, Stephen Smalley wrote:
+> On 04/27/2015 05:06 AM, Florian Weimer wrote:
+>> On 04/16/2015 02:18 PM, Stephen Smalley wrote:
 >>
->> checkpolicy, libselinux and libsepol have been updated with the
->> appropriate Android.mk files and licences.
+>>> It could also compute the context in which the file would be created by
+>>> the zombie by calling security_compute_create() with the context of the
+>>> zombie process, the context of the directory into which it is writing
+>>> the core dump file, and string_to_security_class("file") as its
+>>> arguments, and then pass the resulting context returned by that call to
+>>> setfscreatecon() prior to creating the core dump file and then call
+>>> setfscreatecon(NULL) afterward; this will create the core dump file in
+>>> that context.  That seems more suited to your scenario.
 >>
->> The majority of changes were minor and use ifdef/ifndef, however:
->> 1) label_file.c from Android was renamed label_android_file.c
->>    as the changes between them were great (Android does not
->>    currently use the *.bin file_contexts file)
->>    There is a request to add this support to Android (see
->>    https://bitbucket.org/seandroid/wiki/wiki/ToDo), but left it
->>    until later (just in case this patch does not fly at all).
+>> We tried this, and strace shows a lot of activity behind the scenes:
 >>
->> 2) procattr.c has been modified to support both but looks messy.
+>> 3449  open("/sys/fs/selinux/mls", O_RDONLY) = 4
+>> 3449  read(4, "1", 19)                  = 1
+>> 3449  close(4)                          = 0
+>> 3449  futex(0x7fefa9b34820, FUTEX_WAKE_PRIVATE, 2147483647) = 0
+>> 3449  socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0) = 4
+>> 3449  connect(4, {sa_family=AF_LOCAL,
+>> sun_path="/var/run/setrans/.setrans-unix"}, 110) = -1 ENOENT (No such
+>> file or directory)
+>> 3449  close(4)                          = 0
+>> 3449  fgetxattr(3, "security.selinux",
+>> "unconfined_u:object_r:user_home_dir_t:s0", 255) = 41
+>> 3449  socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0) = 4
+>> 3449  connect(4, {sa_family=AF_LOCAL,
+>> sun_path="/var/run/setrans/.setrans-unix"}, 110) = -1 ENOENT (No such
+>> file or directory)
+>> 3449  close(4)                          = 0
+>> 3449  stat("/sys/fs/selinux/class", {st_mode=S_IFDIR|0555, st_size=0,
+>> ...}) = 0
+>> 3449  futex(0x7fefa9b3375c, FUTEX_WAKE_PRIVATE, 2147483647) = 0
+>> 3449  open("/sys/fs/selinux/class/file/index", O_RDONLY) = 4
+>> 3449  read(4, "6", 19)                  = 1
+>> 3449  close(4)                          = 0
+>> 3449  openat(AT_FDCWD, "/sys/fs/selinux/class/file/perms",
+>> O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+>> 3449  getdents(4, /* 24 entries */, 32768) = 728
+>> 3449  open("/sys/fs/selinux/class/file/perms/.", O_RDONLY|O_CLOEXEC) = 5
+>> 3449  fstat(5, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+>> 3449  close(5)                          = 0
+>> 3449  open("/sys/fs/selinux/class/file/perms/..", O_RDONLY|O_CLOEXEC) = 5
+>> 3449  fstat(5, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+>> 3449  close(5)                          = 0
+>> 3449  open("/sys/fs/selinux/class/file/perms/audit_access",
+>> O_RDONLY|O_CLOEXEC) = 5
+>> 3449  fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+>> 3449  read(5, "22", 19)                 = 2
+>> 3449  close(5)                          = 0
+>> 3449  open("/sys/fs/selinux/class/file/perms/open", O_RDONLY|O_CLOEXEC) = 5
+>> 3449  fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+>> 3449  read(5, "21", 19)                 = 2
+>> 3449  close(5)                          = 0
 >>
->> 3) Not all Android changes were added as they did not seem necessary,
->>    for example include/selinux/selinux.h was not modified.
+>> And so on.
 >>
->> 4) libselinux/src/Makefile was modified to build the required modules.
+>> We use this code sequence:
 >>
->> 5) The Android.mk file was modified to add src/enabled.c because
->>    callbacks.c calls is_selinux_enabled.
->>    Also for non-user TARGET_BUILD_VARIANT add booleans.c because
->>    external/ltrace/sysdeps/linux-gnu/trace.c requires
->>    security_get_boolean_active, otherwise booleans could be removed.
+>>     if (getpidcon(pid, &srccon) < 0)
+>>     {
+>>         perror_msg("getpidcon(%d)", pid);
+>>         return -1;
+>>     }
 >>
->> These changes have been tested on Fedora 21 and Android master
->> builds (eng and user) using the emulator with no problems (the
->> external/checkpolicy, external/libselinux and external/libsepol
->> projects were removed).
->> The testing was not extensive and consisted of checking bootloading,
->> labeling and running apps (Android) and checking the libselinux/sepol
->> functions on Fedora.
+>>     if (fgetfilecon(dirfd(proc_cwd), &dstcon) < 0)
+>>     {
+>>         perror_msg("getfilecon(%s)", user_pwd);
+>>         return -1;
+>>     }
 >>
->> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>>     if (security_compute_create(srccon, dstcon,
+>> string_to_security_class("file"), &newcon) < 0)
+>>     {
+>>         perror_msg("security_compute_create()");
+>>         return -1;
+>>     }
+>>
+>>     if (setfscreatecon(newcon) < 0)
+>>     {
+>>         perror_msg("setfscreatecon(newcon)");
+>>         return -1;
+>>     }
+>>
+>> This happens after switching to the other user ID (not root), and I
+>> think we should run the preparatory steps (everything before the call to
+>> setfscreatecon) as root.
+>>
+>> Is there are supported way to get something leaner?  Is it really
+>> necessary to get setrans involved?  Can't we just copy the kernel
+>> context without translating it back and forth?
 > 
-> NAK.  I agree with the end goal but not the approach taken here.
-> 
-> What I would prefer is a more incremental approach, e.g. (in no specific
-> order):
-> 
-> - port individual changes from upstream libselinux to Android libselinux
-> that occurred after the fork, such as the file_contexts.bin support (in
-> doing so, taking a careful look at that change and consider improving
-> it, as it looked a bit suspect to me; consider an ill-formed/corrupted
-> file_contexts.bin file and how well the current parsing code will handle
-> that situation),
-> 
-> - port individual changes from Android libselinux to upstream
-> libselinux, such as the extensions to the selabel interface and
-> label_file backend for best match and partial match support, and
-> consider using them for equivalent functionality in Linux distributions
-> for enabling labeling of device nodes based on stable partition names
-> and fast labeling of all of /sys at boot,
-> 
-> - wrap any residual glibc-specific dependencies in upstream libselinux
-> with conditional code to allow use of other libc implementations like
-> bionic,
-> 
-> - reconsider the handling of context translation in upstream libselinux;
-> it adds overhead to every non-raw call and mcstrans is not
-> installed/active by default, so this is wasted on most installs; for
-> Android, we made the _raw behavior the default and only behavior,
-> 
-> - reconsider the procattr cache in upstream libselinux; it was allegedly
-> added to improve performance but seems to have grown ever more complex
-> and has caused subtle breakages; it would be useful to revisit whether
-> it is in fact worth retaining,
-> 
-> - consider dropping some legacy functions/interfaces and compatibility
-> code from upstream libselinux that we intentionally dropped from the
-> Android libselinux,
-> 
-> - generalize all policy pathname definition/code in upstream libselinux
-> so that it works cleanly on Android or Linux distributions,
-> 
-> - Consider taking selinux_android_restorecon() to upstream libselinux as
-> a general selinux_restorecon() function and rewriting
-> policycoreutils/setfiles to use it instead.
-> 
-> Also, it makes no sense to add MODULE_LICENSE_* or NOTICE files to
-> upstream selinux because they merely duplicate information already in
-> upstream COPYING or LICENSE files just for the sake of conventions
-> preferred by Android.  Those additional files only need to exist in the
-> Android tree.  Possibly even the Android.mk files don't belong in the
-> upstream selinux tree since they are only ever used in the Android
-> build, but I did previously upstream the files for libsepol and
-> checkpolicy.  I don't think those are usually upstreamed however for
-> other external projects.
-> 
-> I would minimize use of #ifdefs, and only use them when it is truly an
-> Android-specific change.
-> 
-> I recognize that this approach is a lot more work and will take longer,
-> but I think it will yield a better result for both upstream and Android.
+> You can use the _raw interfaces to avoid the context translation.
 
-Also, note that some of the differences between upstream libselinux and
-Android libselinux were due to limitations of bionic at the time we
-originally did the port and are no longer true of current bionic, e.g.
-bionic did not have a getline() implementation when we started but now
-includes OpenBSD's getline() implementation.
+Also, the reading of the /sys/fs/selinux/class tree should be done once
+and then cached by libselinux, so you shouldn't see that each time.
