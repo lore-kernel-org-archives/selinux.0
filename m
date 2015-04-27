@@ -1,43 +1,107 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3R5SlCP010010
- for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2015 01:28:47 -0400
-Date: Mon, 27 Apr 2015 15:28:40 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul@paul-moore.com>
-Subject: Re: [GIT PULL] SELinux patches for 4.1
-In-Reply-To: <CAHC9VhQkYU990OKAySUnPn-XzoOUN=21AjOB76pbM7uVQX_0xQ@mail.gmail.com>
-Message-ID: <alpine.LRH.2.11.1504271528350.16342@namei.org>
-References: <1978116.cNUKEOv2T8@sifl>
- <14c8ec61728.2806.85c95baa4474aabc7814e68940a78392@paul-moore.com>
- <alpine.LRH.2.11.1504070004170.7027@namei.org> <47618041.M4z7H003Sc@sifl>
- <alpine.LRH.2.11.1504082055100.32381@namei.org>
- <CAHC9VhQu=U51b85U74xhP+x+4VCOrm9W8WVAw=vW6s0FdSNPxw@mail.gmail.com>
- <alpine.LRH.2.11.1504131142390.774@namei.org>
- <CAHC9VhSAVxo2wkOpMj1QcM-=HvBVhOvVGyTG-JGQHKJhn-rvYw@mail.gmail.com>
- <alpine.LRH.2.11.1504241023280.13918@namei.org>
- <CAHC9VhTGXTRi0=XbeB8b+LQVC+MDdk3PH38hYSafmV5CMrvi8Q@mail.gmail.com>
- <553A6D3D.8020904@schaufler-ca.com>
- <CAHC9VhQkYU990OKAySUnPn-XzoOUN=21AjOB76pbM7uVQX_0xQ@mail.gmail.com>
+Message-ID: <553DFC22.3050006@redhat.com>
+Date: Mon, 27 Apr 2015 11:06:42 +0200
+From: Florian Weimer <fweimer@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Cc: linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Impersonating a process for file creation purposes
+References: <552F80C8.9060809@redhat.com> <552FA882.7030604@tycho.nsa.gov>
+In-Reply-To: <552FA882.7030604@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, 26 Apr 2015, Paul Moore wrote:
+On 04/16/2015 02:18 PM, Stephen Smalley wrote:
 
-> On Fri, Apr 24, 2015 at 6:20 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > James, do you suppose you could send an announcement when you
-> > do your merge? That would make it easier on the sub-tree maintainers.
-> > Just a quick "I merged the next branch to XXXX" to the LSM list.
-> 
-> That would definitely make my life a little easier.
+> It could also compute the context in which the file would be created by
+> the zombie by calling security_compute_create() with the context of the
+> zombie process, the context of the directory into which it is writing
+> the core dump file, and string_to_security_class("file") as its
+> arguments, and then pass the resulting context returned by that call to
+> setfscreatecon() prior to creating the core dump file and then call
+> setfscreatecon(NULL) afterward; this will create the core dump file in
+> that context.  That seems more suited to your scenario.
 
-Ok, sure.
+We tried this, and strace shows a lot of activity behind the scenes:
+
+3449  open("/sys/fs/selinux/mls", O_RDONLY) = 4
+3449  read(4, "1", 19)                  = 1
+3449  close(4)                          = 0
+3449  futex(0x7fefa9b34820, FUTEX_WAKE_PRIVATE, 2147483647) = 0
+3449  socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0) = 4
+3449  connect(4, {sa_family=AF_LOCAL,
+sun_path="/var/run/setrans/.setrans-unix"}, 110) = -1 ENOENT (No such
+file or directory)
+3449  close(4)                          = 0
+3449  fgetxattr(3, "security.selinux",
+"unconfined_u:object_r:user_home_dir_t:s0", 255) = 41
+3449  socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0) = 4
+3449  connect(4, {sa_family=AF_LOCAL,
+sun_path="/var/run/setrans/.setrans-unix"}, 110) = -1 ENOENT (No such
+file or directory)
+3449  close(4)                          = 0
+3449  stat("/sys/fs/selinux/class", {st_mode=S_IFDIR|0555, st_size=0,
+...}) = 0
+3449  futex(0x7fefa9b3375c, FUTEX_WAKE_PRIVATE, 2147483647) = 0
+3449  open("/sys/fs/selinux/class/file/index", O_RDONLY) = 4
+3449  read(4, "6", 19)                  = 1
+3449  close(4)                          = 0
+3449  openat(AT_FDCWD, "/sys/fs/selinux/class/file/perms",
+O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
+3449  getdents(4, /* 24 entries */, 32768) = 728
+3449  open("/sys/fs/selinux/class/file/perms/.", O_RDONLY|O_CLOEXEC) = 5
+3449  fstat(5, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+3449  close(5)                          = 0
+3449  open("/sys/fs/selinux/class/file/perms/..", O_RDONLY|O_CLOEXEC) = 5
+3449  fstat(5, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
+3449  close(5)                          = 0
+3449  open("/sys/fs/selinux/class/file/perms/audit_access",
+O_RDONLY|O_CLOEXEC) = 5
+3449  fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+3449  read(5, "22", 19)                 = 2
+3449  close(5)                          = 0
+3449  open("/sys/fs/selinux/class/file/perms/open", O_RDONLY|O_CLOEXEC) = 5
+3449  fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
+3449  read(5, "21", 19)                 = 2
+3449  close(5)                          = 0
+
+And so on.
+
+We use this code sequence:
+
+    if (getpidcon(pid, &srccon) < 0)
+    {
+        perror_msg("getpidcon(%d)", pid);
+        return -1;
+    }
+
+    if (fgetfilecon(dirfd(proc_cwd), &dstcon) < 0)
+    {
+        perror_msg("getfilecon(%s)", user_pwd);
+        return -1;
+    }
+
+    if (security_compute_create(srccon, dstcon,
+string_to_security_class("file"), &newcon) < 0)
+    {
+        perror_msg("security_compute_create()");
+        return -1;
+    }
+
+    if (setfscreatecon(newcon) < 0)
+    {
+        perror_msg("setfscreatecon(newcon)");
+        return -1;
+    }
+
+This happens after switching to the other user ID (not root), and I
+think we should run the preparatory steps (everything before the call to
+setfscreatecon) as root.
+
+Is there are supported way to get something leaner?  Is it really
+necessary to get setrans involved?  Can't we just copy the kernel
+context without translating it back and forth?
 
 -- 
-James Morris
-<jmorris@namei.org>
+Florian Weimer / Red Hat Product Security
