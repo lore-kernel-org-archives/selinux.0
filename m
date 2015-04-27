@@ -1,42 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3RJRjDk032019
- for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2015 15:27:46 -0400
-Received: by vnbg7 with SMTP id g7so13307803vnb.11
- for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2015 12:27:43 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <553E8CA6.70404@tycho.nsa.gov>
-References: <1430162024-29420-1-git-send-email-nnk@google.com>
- <553E8CA6.70404@tycho.nsa.gov>
-Date: Mon, 27 Apr 2015 12:27:43 -0700
-Message-ID: <CAFJ0LnHhz5wL5q5jTuD8pwRimZ0N7dTYPPGM18EAr=4qxXfWkA@mail.gmail.com>
-Subject: Re: [PATCH] Don't assume SELinux code is already installed on host
-From: Nick Kralevich <nnk@google.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
-Cc: SELinux <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3RM5siO010877
+ for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2015 18:05:54 -0400
+Received: by igbyr2 with SMTP id yr2so75777077igb.0
+ for <selinux@tycho.nsa.gov>; Mon, 27 Apr 2015 15:05:53 -0700 (PDT)
+From: Jeff Vander Stoep <jeffv@google.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] dispol: display operations as ranges
+Date: Mon, 27 Apr 2015 15:05:31 -0700
+Message-Id: <1430172331-29172-1-git-send-email-jeffv@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Apr 27, 2015 at 12:23 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> Hmmm...well, we don't assume it has been installed on the host; we just
-> assume that you are building as per selinux/README, i.e.
-> cd selinux && make DESTDIR=~/obj install
-> will correctly install to a private build directory specified via
-> DESTDIR and pick up the headers and libraries from there.
->
-> Using relative paths within the selinux source tree is problematic in
-> the other case since historically we have distributed individual
-> tarballs for each components and not the entire tree.  Actually, it was
-> the other way around originally but Red Hat wanted us to break it up
-> into separate tarballs for inclusion in separate packages in the Linux
-> distributions.
+Displays operations ranges more concisely. E.g.
 
-Ok, disregard this patch then. I figured I was doing something
-fundamentally wrong. Next time I should read the README.
+{ 0x8901-0x8930 }
 
--- Nick
+instead of
 
+{ 0x8901 0x8902 0x8903 0x8904 80x8905 0x0806 ... 0x8930 }
+---
+ checkpolicy/test/dispol.c | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
+
+diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+index 133759f..157361a 100644
+--- a/checkpolicy/test/dispol.c
++++ b/checkpolicy/test/dispol.c
+@@ -55,23 +55,50 @@ int render_access_mask(uint32_t mask, avtab_key_t * key, policydb_t * p,
+ }
+ 
+ #define operation_perm_test(x, p) (1 & (p[x >> 5] >> (x & 0x1f)))
++#define next_bit_in_range(i, p) \
++	((i + 1 < sizeof(p)*8) && operation_perm_test((i + 1), p))
+ 
+ int render_operations(avtab_operations_t *ops, avtab_key_t * key, FILE * fp)
+ {
+ 	uint16_t value;
+-	unsigned int bit = 0;
++	uint16_t low_bit;
++	uint16_t low_value;
++	unsigned int bit;
++	unsigned int in_range = 0;
+ 
+ 	fprintf(fp, "{ ");
+ 	for (bit = 0; bit < sizeof(ops->perms)*8; bit++) {
+ 		if (!operation_perm_test(bit, ops->perms))
+ 			continue;
++
++		if (in_range && next_bit_in_range(bit, ops->perms)) {
++			/* continue until high value found */
++			continue;
++		} else if (next_bit_in_range(bit, ops->perms)) {
++			/* low value */
++			low_bit = bit;
++			in_range = 1;
++			continue;
++		}
++
+ 		if (key->specified & AVTAB_OPNUM) {
+ 			value = ops->type<<8 | bit;
+-			fprintf(fp, "0x%hx ", value);
++			low_value = ops->type<<8 | low_bit;
++			if (in_range)
++				fprintf(fp, "0x%hx-0x%hx ", low_value, value);
++			else
++				fprintf(fp, "0x%hx ", value);
+ 		} else if (key->specified & AVTAB_OPTYPE) {
+ 			value = bit << 8;
+-			fprintf(fp, "0x%hx-0x%hx ", value, value|0xff);
++			low_value = low_bit << 8;
++			if (in_range)
++				fprintf(fp, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
++			else
++				fprintf(fp, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
++
+ 		}
++		if (in_range)
++			in_range = 0;
+ 	}
+ 	fprintf(fp, "}");
+ 	return 0;
 -- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+2.2.0.rc0.207.ga3a616c
