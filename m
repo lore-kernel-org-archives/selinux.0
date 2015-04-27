@@ -1,108 +1,63 @@
-Message-ID: <553E3942.5020800@tycho.nsa.gov>
-Date: Mon, 27 Apr 2015 09:27:30 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <553E417B.3040406@draigBrady.com>
+Date: Mon, 27 Apr 2015 15:02:35 +0100
+From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigbrady.com>
 MIME-Version: 1.0
-To: Florian Weimer <fweimer@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Impersonating a process for file creation purposes
-References: <552F80C8.9060809@redhat.com> <552FA882.7030604@tycho.nsa.gov>
- <553DFC22.3050006@redhat.com>
-In-Reply-To: <553DFC22.3050006@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+To: Paul Eggert <eggert@cs.ucla.edu>, 20437@debbugs.gnu.org
+Subject: Re: bug#20437: ls links too many dynamic libraries
+References: <553DC968.80809@cs.ucla.edu> <553E35B7.3020105@draigBrady.com>
+In-Reply-To: <553E35B7.3020105@draigBrady.com>
+Content-Type: text/plain; charset=utf-8
+Cc: SE-Linux <SELinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/27/2015 05:06 AM, Florian Weimer wrote:
-> On 04/16/2015 02:18 PM, Stephen Smalley wrote:
+On 27/04/15 14:12, Pádraig Brady wrote:
+> tag 20437 notabug
+> close 20437
+> stop
 > 
->> It could also compute the context in which the file would be created by
->> the zombie by calling security_compute_create() with the context of the
->> zombie process, the context of the directory into which it is writing
->> the core dump file, and string_to_security_class("file") as its
->> arguments, and then pass the resulting context returned by that call to
->> setfscreatecon() prior to creating the core dump file and then call
->> setfscreatecon(NULL) afterward; this will create the core dump file in
->> that context.  That seems more suited to your scenario.
+> On 27/04/15 06:30, Paul Eggert wrote:
+>> Currently GNU 'ls' dynamically links a whole bunch of libraries, libraries like 
+>> libpcre and liblzma.  Can we figure out some way to remove the runtime 
+>> dependencies on these libraries?  It's better if a core utility like 'ls' avoids 
+>> libthis and libthat unless the libraries are vital to its function, which these 
+>> shouldn't be.
+>>
+>> I installed the attached patches to get rid of one unnecessary library, libacl, 
+>> on GNU/Linux.  Can we do better and get rid of more dependencies?  Perhaps using 
+>> techniques similar to what was used to get rid of libacl?
 > 
-> We tried this, and strace shows a lot of activity behind the scenes:
+> As was discussed recently¹ with removing the libmount dependency for df,
+> these dependencies are coming from libselinux, and one of the primary
+> authors of libselinux was made aware of that issue, so I'm closing
+> this here.
 > 
-> 3449  open("/sys/fs/selinux/mls", O_RDONLY) = 4
-> 3449  read(4, "1", 19)                  = 1
-> 3449  close(4)                          = 0
-> 3449  futex(0x7fefa9b34820, FUTEX_WAKE_PRIVATE, 2147483647) = 0
-> 3449  socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0) = 4
-> 3449  connect(4, {sa_family=AF_LOCAL,
-> sun_path="/var/run/setrans/.setrans-unix"}, 110) = -1 ENOENT (No such
-> file or directory)
-> 3449  close(4)                          = 0
-> 3449  fgetxattr(3, "security.selinux",
-> "unconfined_u:object_r:user_home_dir_t:s0", 255) = 41
-> 3449  socket(PF_LOCAL, SOCK_STREAM|SOCK_CLOEXEC, 0) = 4
-> 3449  connect(4, {sa_family=AF_LOCAL,
-> sun_path="/var/run/setrans/.setrans-unix"}, 110) = -1 ENOENT (No such
-> file or directory)
-> 3449  close(4)                          = 0
-> 3449  stat("/sys/fs/selinux/class", {st_mode=S_IFDIR|0555, st_size=0,
-> ...}) = 0
-> 3449  futex(0x7fefa9b3375c, FUTEX_WAKE_PRIVATE, 2147483647) = 0
-> 3449  open("/sys/fs/selinux/class/file/index", O_RDONLY) = 4
-> 3449  read(4, "6", 19)                  = 1
-> 3449  close(4)                          = 0
-> 3449  openat(AT_FDCWD, "/sys/fs/selinux/class/file/perms",
-> O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC) = 4
-> 3449  getdents(4, /* 24 entries */, 32768) = 728
-> 3449  open("/sys/fs/selinux/class/file/perms/.", O_RDONLY|O_CLOEXEC) = 5
-> 3449  fstat(5, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-> 3449  close(5)                          = 0
-> 3449  open("/sys/fs/selinux/class/file/perms/..", O_RDONLY|O_CLOEXEC) = 5
-> 3449  fstat(5, {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-> 3449  close(5)                          = 0
-> 3449  open("/sys/fs/selinux/class/file/perms/audit_access",
-> O_RDONLY|O_CLOEXEC) = 5
-> 3449  fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-> 3449  read(5, "22", 19)                 = 2
-> 3449  close(5)                          = 0
-> 3449  open("/sys/fs/selinux/class/file/perms/open", O_RDONLY|O_CLOEXEC) = 5
-> 3449  fstat(5, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-> 3449  read(5, "21", 19)                 = 2
-> 3449  close(5)                          = 0
+> coreutils linking with libselinux are:
 > 
-> And so on.
+>  chcon cp dir install id ls mkdir mkfifo mknod mv runcon stat vdir
 > 
-> We use this code sequence:
+> BTW I noticed ldd -v doesn't give complete info,
+> and that `readelf -d $(which ls) | grep NEEDED` is better.
+> This is wrapped in the lddot² visualizer, and I've attached
+> the output from `lddot git/coreutils/src/ls | graph-easy --as png`
 > 
->     if (getpidcon(pid, &srccon) < 0)
->     {
->         perror_msg("getpidcon(%d)", pid);
->         return -1;
->     }
+> cheers,
+> Pádraig.
 > 
->     if (fgetfilecon(dirfd(proc_cwd), &dstcon) < 0)
->     {
->         perror_msg("getfilecon(%s)", user_pwd);
->         return -1;
->     }
-> 
->     if (security_compute_create(srccon, dstcon,
-> string_to_security_class("file"), &newcon) < 0)
->     {
->         perror_msg("security_compute_create()");
->         return -1;
->     }
-> 
->     if (setfscreatecon(newcon) < 0)
->     {
->         perror_msg("setfscreatecon(newcon)");
->         return -1;
->     }
-> 
-> This happens after switching to the other user ID (not root), and I
-> think we should run the preparatory steps (everything before the call to
-> setfscreatecon) as root.
-> 
-> Is there are supported way to get something leaner?  Is it really
-> necessary to get setrans involved?  Can't we just copy the kernel
-> context without translating it back and forth?
+> ¹ http://lists.gnu.org/archive/html/coreutils/2015-04/msg00011.html
+> ² http://jwilk.net/software/lddot
 
-You can use the _raw interfaces to avoid the context translation.
+BTW I had a look at whether we could duplicate some getfilecon() logic
+internally, but it doesn't seem practical due to mcstransd which
+is a daemon that's used to translate the MCS / MLS internal policy
+levels into user friendly labels.
+
+I.E. we could duplicate the logic, and remove the lzma and pcre dependencies,
+but it seems like too much to be duplicating. Further reductions in deps
+might be possible by splitting up libselinux, allowing apps like ls
+that just read contexts, to link with the appropriate lib.
+
+cheers,
+Pádraig.
