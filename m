@@ -1,63 +1,114 @@
-Message-ID: <553E417B.3040406@draigBrady.com>
-Date: Mon, 27 Apr 2015 15:02:35 +0100
-From: =?UTF-8?B?UMOhZHJhaWcgQnJhZHk=?= <P@draigbrady.com>
+Message-ID: <553E429F.8080909@tycho.nsa.gov>
+Date: Mon, 27 Apr 2015 10:07:27 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Paul Eggert <eggert@cs.ucla.edu>, 20437@debbugs.gnu.org
-Subject: Re: bug#20437: ls links too many dynamic libraries
-References: <553DC968.80809@cs.ucla.edu> <553E35B7.3020105@draigBrady.com>
-In-Reply-To: <553E35B7.3020105@draigBrady.com>
-Content-Type: text/plain; charset=utf-8
-Cc: SE-Linux <SELinux@tycho.nsa.gov>
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH] selinux: Merge Android libselinux changes with
+ upstream
+References: <1430136696-1254-1-git-send-email-richard_c_haines@btinternet.com>
+In-Reply-To: <1430136696-1254-1-git-send-email-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=windows-1252
+Cc: Eric Paris <eparis@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 27/04/15 14:12, Pádraig Brady wrote:
-> tag 20437 notabug
-> close 20437
-> stop
+On 04/27/2015 08:11 AM, Richard Haines wrote:
+> This RFC patch takes the libselinux changes from AOSP master
+> and merges them into the SELinux project source from
+> https://github.com/SELinuxProject/selinux
 > 
-> On 27/04/15 06:30, Paul Eggert wrote:
->> Currently GNU 'ls' dynamically links a whole bunch of libraries, libraries like 
->> libpcre and liblzma.  Can we figure out some way to remove the runtime 
->> dependencies on these libraries?  It's better if a core utility like 'ls' avoids 
->> libthis and libthat unless the libraries are vital to its function, which these 
->> shouldn't be.
->>
->> I installed the attached patches to get rid of one unnecessary library, libacl, 
->> on GNU/Linux.  Can we do better and get rid of more dependencies?  Perhaps using 
->> techniques similar to what was used to get rid of libacl?
+> checkpolicy, libselinux and libsepol have been updated with the
+> appropriate Android.mk files and licences.
 > 
-> As was discussed recently¹ with removing the libmount dependency for df,
-> these dependencies are coming from libselinux, and one of the primary
-> authors of libselinux was made aware of that issue, so I'm closing
-> this here.
+> The majority of changes were minor and use ifdef/ifndef, however:
+> 1) label_file.c from Android was renamed label_android_file.c
+>    as the changes between them were great (Android does not
+>    currently use the *.bin file_contexts file)
+>    There is a request to add this support to Android (see
+>    https://bitbucket.org/seandroid/wiki/wiki/ToDo), but left it
+>    until later (just in case this patch does not fly at all).
 > 
-> coreutils linking with libselinux are:
+> 2) procattr.c has been modified to support both but looks messy.
 > 
->  chcon cp dir install id ls mkdir mkfifo mknod mv runcon stat vdir
+> 3) Not all Android changes were added as they did not seem necessary,
+>    for example include/selinux/selinux.h was not modified.
 > 
-> BTW I noticed ldd -v doesn't give complete info,
-> and that `readelf -d $(which ls) | grep NEEDED` is better.
-> This is wrapped in the lddot² visualizer, and I've attached
-> the output from `lddot git/coreutils/src/ls | graph-easy --as png`
+> 4) libselinux/src/Makefile was modified to build the required modules.
 > 
-> cheers,
-> Pádraig.
+> 5) The Android.mk file was modified to add src/enabled.c because
+>    callbacks.c calls is_selinux_enabled.
+>    Also for non-user TARGET_BUILD_VARIANT add booleans.c because
+>    external/ltrace/sysdeps/linux-gnu/trace.c requires
+>    security_get_boolean_active, otherwise booleans could be removed.
 > 
-> ¹ http://lists.gnu.org/archive/html/coreutils/2015-04/msg00011.html
-> ² http://jwilk.net/software/lddot
+> These changes have been tested on Fedora 21 and Android master
+> builds (eng and user) using the emulator with no problems (the
+> external/checkpolicy, external/libselinux and external/libsepol
+> projects were removed).
+> The testing was not extensive and consisted of checking bootloading,
+> labeling and running apps (Android) and checking the libselinux/sepol
+> functions on Fedora.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 
-BTW I had a look at whether we could duplicate some getfilecon() logic
-internally, but it doesn't seem practical due to mcstransd which
-is a daemon that's used to translate the MCS / MLS internal policy
-levels into user friendly labels.
+NAK.  I agree with the end goal but not the approach taken here.
 
-I.E. we could duplicate the logic, and remove the lzma and pcre dependencies,
-but it seems like too much to be duplicating. Further reductions in deps
-might be possible by splitting up libselinux, allowing apps like ls
-that just read contexts, to link with the appropriate lib.
+What I would prefer is a more incremental approach, e.g. (in no specific
+order):
 
-cheers,
-Pádraig.
+- port individual changes from upstream libselinux to Android libselinux
+that occurred after the fork, such as the file_contexts.bin support (in
+doing so, taking a careful look at that change and consider improving
+it, as it looked a bit suspect to me; consider an ill-formed/corrupted
+file_contexts.bin file and how well the current parsing code will handle
+that situation),
+
+- port individual changes from Android libselinux to upstream
+libselinux, such as the extensions to the selabel interface and
+label_file backend for best match and partial match support, and
+consider using them for equivalent functionality in Linux distributions
+for enabling labeling of device nodes based on stable partition names
+and fast labeling of all of /sys at boot,
+
+- wrap any residual glibc-specific dependencies in upstream libselinux
+with conditional code to allow use of other libc implementations like
+bionic,
+
+- reconsider the handling of context translation in upstream libselinux;
+it adds overhead to every non-raw call and mcstrans is not
+installed/active by default, so this is wasted on most installs; for
+Android, we made the _raw behavior the default and only behavior,
+
+- reconsider the procattr cache in upstream libselinux; it was allegedly
+added to improve performance but seems to have grown ever more complex
+and has caused subtle breakages; it would be useful to revisit whether
+it is in fact worth retaining,
+
+- consider dropping some legacy functions/interfaces and compatibility
+code from upstream libselinux that we intentionally dropped from the
+Android libselinux,
+
+- generalize all policy pathname definition/code in upstream libselinux
+so that it works cleanly on Android or Linux distributions,
+
+- Consider taking selinux_android_restorecon() to upstream libselinux as
+a general selinux_restorecon() function and rewriting
+policycoreutils/setfiles to use it instead.
+
+Also, it makes no sense to add MODULE_LICENSE_* or NOTICE files to
+upstream selinux because they merely duplicate information already in
+upstream COPYING or LICENSE files just for the sake of conventions
+preferred by Android.  Those additional files only need to exist in the
+Android tree.  Possibly even the Android.mk files don't belong in the
+upstream selinux tree since they are only ever used in the Android
+build, but I did previously upstream the files for libsepol and
+checkpolicy.  I don't think those are usually upstreamed however for
+other external projects.
+
+I would minimize use of #ifdefs, and only use them when it is truly an
+Android-specific change.
+
+I recognize that this approach is a lot more work and will take longer,
+but I think it will yield a better result for both upstream and Android.
