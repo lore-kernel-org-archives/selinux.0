@@ -1,44 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3SHJJv7021926
- for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2015 13:19:26 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t3SHJOOf029117
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
- for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2015 13:19:24 -0400
-Message-ID: <553FC119.50402@redhat.com>
-Date: Tue, 28 Apr 2015 19:19:21 +0200
-From: Florian Weimer <fweimer@redhat.com>
-MIME-Version: 1.0
-To: Miroslav Grepl <mgrepl@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
- SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Impersonating a process for file creation purposes
-References: <552F80C8.9060809@redhat.com> <552FFA39.3030909@redhat.com>
- <553507A0.1050902@redhat.com> <553FBF96.8030309@redhat.com>
-In-Reply-To: <553FBF96.8030309@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3SNsLC2019581
+ for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2015 19:56:45 -0400
+Received: from /spool/local
+ by e28smtp01.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ Violators will be prosecuted
+ for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
+ Wed, 29 Apr 2015 05:23:40 +0530
+Received: from d28relay05.in.ibm.com (d28relay05.in.ibm.com [9.184.220.62])
+ by d28dlp03.in.ibm.com (Postfix) with ESMTP id AEE7C125805A
+ for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2015 05:25:37 +0530 (IST)
+Received: from d28av05.in.ibm.com (d28av05.in.ibm.com [9.184.220.67])
+ by d28relay05.in.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ t3SNrZ8c46203122
+ for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2015 05:23:35 +0530
+Received: from d28av05.in.ibm.com (localhost [127.0.0.1])
+ by d28av05.in.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id
+ t3SNrYpd031661
+ for <selinux@tycho.nsa.gov>; Wed, 29 Apr 2015 05:23:35 +0530
+Message-ID: <1430265211.2218.13.camel@linux.vnet.ibm.com>
+Subject: Re: [GIT PULL] SELinux patches for 4.1
+From: Mimi Zohar <zohar@linux.vnet.ibm.com>
+To: James Morris <jmorris@namei.org>
+Date: Tue, 28 Apr 2015 19:53:31 -0400
+In-Reply-To: <alpine.LRH.2.11.1504271528350.16342@namei.org>
+References: <1978116.cNUKEOv2T8@sifl>
+ <14c8ec61728.2806.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+ <alpine.LRH.2.11.1504070004170.7027@namei.org> <47618041.M4z7H003Sc@sifl>
+ <alpine.LRH.2.11.1504082055100.32381@namei.org>
+ <CAHC9VhQu=U51b85U74xhP+x+4VCOrm9W8WVAw=vW6s0FdSNPxw@mail.gmail.com>
+ <alpine.LRH.2.11.1504131142390.774@namei.org>
+ <CAHC9VhSAVxo2wkOpMj1QcM-=HvBVhOvVGyTG-JGQHKJhn-rvYw@mail.gmail.com>
+ <alpine.LRH.2.11.1504241023280.13918@namei.org>
+ <CAHC9VhTGXTRi0=XbeB8b+LQVC+MDdk3PH38hYSafmV5CMrvi8Q@mail.gmail.com>
+ <553A6D3D.8020904@schaufler-ca.com>
+ <CAHC9VhQkYU990OKAySUnPn-XzoOUN=21AjOB76pbM7uVQX_0xQ@mail.gmail.com>
+ <alpine.LRH.2.11.1504271528350.16342@namei.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Cc: linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/28/2015 07:12 PM, Miroslav Grepl wrote:
-
->> <https://github.com/abrt/abrt/commit/3e4155bfcd9f6f5a20964080fa05724503b20761>
+On Mon, 2015-04-27 at 15:28 +1000, James Morris wrote:
+> On Sun, 26 Apr 2015, Paul Moore wrote:
 > 
-> I would go with _raw interfaces how Stephen suggested above.
+> > On Fri, Apr 24, 2015 at 6:20 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > > James, do you suppose you could send an announcement when you
+> > > do your merge? That would make it easier on the sub-tree maintainers.
+> > > Just a quick "I merged the next branch to XXXX" to the LSM list.
+> > 
+> > That would definitely make my life a little easier.
+> 
+> Ok, sure.
 
-Thanks.
+After posting the integrity patches here, I tried applying them to
+Linus' 4.1.0-rc1 branch to make sure they'll apply cleanly.  Looks like
+commit c6f439d "VFS: security/: d_backing_inode() annotations" affects
+all of the security subsystems.
 
-I think the current version is here:
-
-<https://github.com/abrt/abrt/commit/c4f06d4198658c82550e93bb2617b96022c06cf4>
-
-> Also we should take care about ABRT SELinux policy.
-
-See <https://bugzilla.redhat.com/show_bug.cgi?id=1212885>.  As far as I
-understand it, with the current default behavior, an effective SELinux
-policy is difficult to write.
-
--- 
-Florian Weimer / Red Hat Product Security
+Mimi
