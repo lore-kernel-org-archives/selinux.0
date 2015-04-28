@@ -1,166 +1,60 @@
-Message-ID: <553FA4F0.7060806@tycho.nsa.gov>
-Date: Tue, 28 Apr 2015 11:19:12 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t3SHD17b021573
+ for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2015 13:13:01 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ by mx1.redhat.com (Postfix) with ESMTPS id C33E6C1EED
+ for <selinux@tycho.nsa.gov>; Tue, 28 Apr 2015 17:12:58 +0000 (UTC)
+Message-ID: <553FBF96.8030309@redhat.com>
+Date: Tue, 28 Apr 2015 19:12:54 +0200
+From: Miroslav Grepl <mgrepl@redhat.com>
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Re: [RFC PATCH] selinux: Merge Android libselinux changes with
- upstream
-References: <1430136696-1254-1-git-send-email-richard_c_haines@btinternet.com>
- <553E429F.8080909@tycho.nsa.gov> <553E450E.8090403@tycho.nsa.gov>
- <1430231450.50153.YahooMailNeo@web133204.mail.ir2.yahoo.com>
-In-Reply-To: <1430231450.50153.YahooMailNeo@web133204.mail.ir2.yahoo.com>
+To: Florian Weimer <fweimer@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+ SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Impersonating a process for file creation purposes
+References: <552F80C8.9060809@redhat.com> <552FFA39.3030909@redhat.com>
+ <553507A0.1050902@redhat.com>
+In-Reply-To: <553507A0.1050902@redhat.com>
 Content-Type: text/plain; charset=windows-1252
-Cc: Eric Paris <eparis@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/28/2015 10:30 AM, Richard Haines wrote:
-> Thanks for the feedback on this. As I'm in the process of adding the
-> file_contexts.bin support to Android I'll complete this and also add
-> the best match and partial match support to upstream. I'll try various
-> corrupt file contexts files and fix any problems I find.
-
-You don't need to find the bugs by testing, just look for cases where
-the current code uses values read from file_contexts.bin without
-adequate validation that we never run off the end of the mapping, that
-loop bounds are bounded sanely, etc.
-
-Many of the differences though between label_file.c in Android and
-upstream can likely be eliminated, e.g. you can switch Android back to
-using getline() since it now exists in Android.
-
-> I'll probably have ago at the context translation as that is the major
-> difference between the two. If anyone has ideas about how to best
-> implement this let me know.
-
-Possibly we could probe for whether mcstransd is running once and even
-skip the calls to selinux_raw_to_trans_context() and
-selinux_trans_to_raw_context() in each of the client functions if not?
-Then we don't have to pay any extra cost in the common case where
-mcstransd is not running on the system.
-
-
-> 
-> As for the rest - well who knows !!!
-> 
-> 
-> 
-> ----- Original Message -----
->> From: Stephen Smalley <sds@tycho.nsa.gov>
->> To: Richard Haines <richard_c_haines@btinternet.com>; selinux@tycho.nsa.gov
->> Cc: Daniel J Walsh <dwalsh@redhat.com>; Eric Paris <eparis@redhat.com>; Miroslav Grepl <mgrepl@redhat.com>; Petr Lautrbach <plautrba@redhat.com>
->> Sent: Monday, 27 April 2015, 15:17
->> Subject: Re: [RFC PATCH] selinux: Merge Android libselinux changes with upstream
+On 04/20/2015 04:05 PM, Florian Weimer wrote:
+> On 04/16/2015 08:06 PM, Daniel J Walsh wrote:
 >>
->> On 04/27/2015 10:07 AM, Stephen Smalley wrote:
+>> On 04/16/2015 05:28 AM, Florian Weimer wrote:
+>>> The ABRT coredump handler has code to emulate default core file creation
+>>> (as if no such pipe-based handler was installed).  The handler runs in a
+>>> separate process, initially as root.  Currently, the handler just
+>>> switches effective IDs and creates the file.  This does not replicate
+>>> the SELinux context of the zombie process.
+>>>
+>>> Is there a way to do that?   Is there some recommended way to inherit
+>>> all the security-related process attributes?
+>>>
+>> You have two choices.  1 would be to setcon() call to change the label
+>> to the user process.
 >>
->>>  On 04/27/2015 08:11 AM, Richard Haines wrote:
->>>>  This RFC patch takes the libselinux changes from AOSP master
->>>>  and merges them into the SELinux project source from
->>>>  https://github.com/SELinuxProject/selinux
->>>>
->>>>  checkpolicy, libselinux and libsepol have been updated with the
->>>>  appropriate Android.mk files and licences.
->>>>
->>>>  The majority of changes were minor and use ifdef/ifndef, however:
->>>>  1) label_file.c from Android was renamed label_android_file.c
->>>>     as the changes between them were great (Android does not
->>>>     currently use the *.bin file_contexts file)
->>>>     There is a request to add this support to Android (see
->>>>     https://bitbucket.org/seandroid/wiki/wiki/ToDo), but left it
->>>>     until later (just in case this patch does not fly at all).
->>>>
->>>>  2) procattr.c has been modified to support both but looks messy.
->>>>
->>>>  3) Not all Android changes were added as they did not seem necessary,
->>>>     for example include/selinux/selinux.h was not modified.
->>>>
->>>>  4) libselinux/src/Makefile was modified to build the required modules.
->>>>
->>>>  5) The Android.mk file was modified to add src/enabled.c because
->>>>     callbacks.c calls is_selinux_enabled.
->>>>     Also for non-user TARGET_BUILD_VARIANT add booleans.c because
->>>>     external/ltrace/sysdeps/linux-gnu/trace.c requires
->>>>     security_get_boolean_active, otherwise booleans could be removed.
->>>>
->>>>  These changes have been tested on Fedora 21 and Android master
->>>>  builds (eng and user) using the emulator with no problems (the
->>>>  external/checkpolicy, external/libselinux and external/libsepol
->>>>  projects were removed).
->>>>  The testing was not extensive and consisted of checking bootloading,
->>>>  labeling and running apps (Android) and checking the libselinux/sepol
->>>>  functions on Fedora.
->>>>
->>>>  Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->>>
->>>  NAK.  I agree with the end goal but not the approach taken here.
->>>
->>>  What I would prefer is a more incremental approach, e.g. (in no specific
->>>  order):
->>>
->>>  - port individual changes from upstream libselinux to Android libselinux
->>>  that occurred after the fork, such as the file_contexts.bin support (in
->>>  doing so, taking a careful look at that change and consider improving
->>>  it, as it looked a bit suspect to me; consider an ill-formed/corrupted
->>>  file_contexts.bin file and how well the current parsing code will handle
->>>  that situation),
->>>
->>>  - port individual changes from Android libselinux to upstream
->>>  libselinux, such as the extensions to the selabel interface and
->>>  label_file backend for best match and partial match support, and
->>>  consider using them for equivalent functionality in Linux distributions
->>>  for enabling labeling of device nodes based on stable partition names
->>>  and fast labeling of all of /sys at boot,
->>>
->>>  - wrap any residual glibc-specific dependencies in upstream libselinux
->>>  with conditional code to allow use of other libc implementations like
->>>  bionic,
->>>
->>>  - reconsider the handling of context translation in upstream libselinux;
->>>  it adds overhead to every non-raw call and mcstrans is not
->>>  installed/active by default, so this is wasted on most installs; for
->>>  Android, we made the _raw behavior the default and only behavior,
->>>
->>>  - reconsider the procattr cache in upstream libselinux; it was allegedly
->>>  added to improve performance but seems to have grown ever more complex
->>>  and has caused subtle breakages; it would be useful to revisit whether
->>>  it is in fact worth retaining,
->>>
->>>  - consider dropping some legacy functions/interfaces and compatibility
->>>  code from upstream libselinux that we intentionally dropped from the
->>>  Android libselinux,
->>>
->>>  - generalize all policy pathname definition/code in upstream libselinux
->>>  so that it works cleanly on Android or Linux distributions,
->>>
->>>  - Consider taking selinux_android_restorecon() to upstream libselinux as
->>>  a general selinux_restorecon() function and rewriting
->>>  policycoreutils/setfiles to use it instead.
->>>
->>>  Also, it makes no sense to add MODULE_LICENSE_* or NOTICE files to
->>>  upstream selinux because they merely duplicate information already in
->>>  upstream COPYING or LICENSE files just for the sake of conventions
->>>  preferred by Android.  Those additional files only need to exist in the
->>>  Android tree.  Possibly even the Android.mk files don't belong in the
->>>  upstream selinux tree since they are only ever used in the Android
->>>  build, but I did previously upstream the files for libsepol and
->>>  checkpolicy.  I don't think those are usually upstreamed however for
->>>  other external projects.
->>>
->>>  I would minimize use of #ifdefs, and only use them when it is truly an
->>>  Android-specific change.
->>>
->>>  I recognize that this approach is a lot more work and will take longer,
->>>  but I think it will yield a better result for both upstream and Android.
->>
->> Also, note that some of the differences between upstream libselinux and
->> Android libselinux were due to limitations of bionic at the time we
->> originally did the port and are no longer true of current bionic, e.g.
->> bionic did not have a getline() implementation when we started but now
->> includes OpenBSD's getline() implementation.
->>
+>> The other choice would be to ask the kernel what label this user would
+>> create if he created a file
+>> in the specified directory.  This is what systemd does.
 > 
+> Dan, could you please double-check if this change (implementing the
+> second option) looks reasonable?
 > 
+> <https://github.com/abrt/abrt/commit/3e4155bfcd9f6f5a20964080fa05724503b20761>
+
+I would go with _raw interfaces how Stephen suggested above. Also we
+should take care about ABRT SELinux policy.
+
+> Thanks,
+> Florian
+> 
+
+
+-- 
+Miroslav Grepl
+Software Engineering, SELinux Solutions
+Red Hat, Inc.
