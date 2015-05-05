@@ -1,102 +1,161 @@
-Message-ID: <58713.10.254.14.155.1430834776.squirrel@linux.intel.com>
-In-Reply-To: <5548C89D.2020601@tycho.nsa.gov>
-References: <F766E4F80769BD478052FB6533FA745D66611C3FD9@SC-VEXCH4.marvell.com>
- <CAFftDdqp06sbW9chUrzS0RaNgrqv=W5=3nP9VcFnYrzOkUkf5Q@mail.gmail.com>
- <CACikiw07wGq+Pp_QjnXnUAhHsBe48X4Kpr25MzJyB5Xby_gQ9g@mail.gmail.com>
- <F766E4F80769BD478052FB6533FA745D66611C40DE@SC-VEXCH4.marvell.com>
- <CA+XqU8iaVZZM5Z2fwDMBtJeMS3OV4dQh797BTTQ8b91SOh-9Ew@mail.gmail.com>
- <F766E4F80769BD478052FB6533FA745D66611C4124@SC-VEXCH4.marvell.com>
- <5548C89D.2020601@tycho.nsa.gov>
-Date: Tue, 5 May 2015 07:06:16 -0700 (PDT)
-Subject: Re: Give out all the avc logs in ome time
-From: william.c.roberts@linux.intel.com
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t45Hs811032114
+ for <selinux@tycho.nsa.gov>; Tue, 5 May 2015 13:54:09 -0400
+From: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: Verify users prior to evaluating users
+Date: Tue, 5 May 2015 13:53:36 -0400
+Message-ID: <1430848416-15769-1-git-send-email-ykhodorkovskiy@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> On 05/05/2015 04:55 AM, Zhi Xin wrote:
->> (1)  avc size
->>
->> I’m reading the code under
->>
->> /kernel/security/selinux/avc.c
->>
->>
->>
->> I noticed that there are some macro like
->>
->> #define      AVC_DEF_CACHE_THRESHOLD              512
->>
->> #define      AVC_CACHE_SLOTS                                    512
->>
->>
->>
->> Are they some kind of threshold ? If the size of avc log reported is
->> bigger than that, new avc will be abandoned ?
->
-> No, that has nothing to do with auditing.  Just the size of the cache.
->
->> (2) audit subsystem may drop some record when it’s satisfied with some
->> condition like
->>
->>
->>
->> /kernel/kernel/audit.c
->>
->> 115
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#115>/*
->> Records can be lost in several ways:
->>
->> 116
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#116>
->>   0) [suppressed in audit_alloc]
->>
->> 117
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#117>
->>   1) out of memory in audit_log_start [kmalloc of struct audit_buffer]
->>
->> 118
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#118>
->>   2) out of memory in audit_log_move [alloc_skb]
->>
->> 119
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#119>
->>   3) suppressed due to audit_rate_limit
->>
->> 120
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#120>
->>   4) suppressed due to audit_backlog_limit
->>
->> 121
->> <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#121>*/
->>
->>
->>
->> Any comments on these two ?
->
-> Yes, one of the above cases is the most likely reason you are losing
-> audit messages.  You can set the audit_rate_limit to zero to disable
-> ratelimiting of audit messages by removing the code from
-> system/core/logd/libaudit.c that sets it.  You could set the
-> audit_backlog_limit to zero either by patching your kernel or by
-> modifying logd to set it.  You can patch your kernel to disable
-> printk_ratelimit from being applied when sending audit messages to the
-> kernel ring buffer.
+If a userrole statement is missing from a policy,
+evaluate_level_expression() will have a NULL pointer dereference
+caused by a missing level in a user.
 
-Its likely this, I normally patch this out on my kernel in the first few
-bring ups. I would start here if I were you.
+Add cil_pre_verify() which verifies users have a valid level. Also, move loop
+checking in classpermissions into cil_pre_verify().
 
->
-> _______________________________________________
-> Seandroid-list mailing list
-> Seandroid-list@tycho.nsa.gov
-> To unsubscribe, send email to Seandroid-list-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Seandroid-list-request@tycho.nsa.gov.
->
+This fixes https://github.com/SELinuxProject/cil/issues/1.
+
+Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+---
+ libsepol/cil/src/cil_post.c   | 20 +++++++++++++++++++-
+ libsepol/cil/src/cil_verify.c | 37 ++++++++++++++++++++-----------------
+ libsepol/cil/src/cil_verify.h |  2 +-
+ 3 files changed, 40 insertions(+), 19 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index 633a5a1..f91727f 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -1691,12 +1691,30 @@ exit:
+ 	return rc;
+ }
+ 
++static int cil_pre_verify(struct cil_db *db)
++{
++	int rc = SEPOL_ERR;
++	struct cil_args_verify extra_args;
++
++	extra_args.db = db;
++
++	rc = cil_tree_walk(db->ast->root, __cil_pre_verify_helper, NULL, NULL, &extra_args);
++	if (rc != SEPOL_OK) {
++		cil_log(CIL_ERR, "Failed to verify cil database\n");
++		goto exit;
++	}
++
++exit:
++	return rc;
++}
++
+ int cil_post_process(struct cil_db *db)
+ {
+ 	int rc = SEPOL_ERR;
+ 
+-	rc = cil_verify_no_classperms_loop(db);
++	rc = cil_pre_verify(db);
+ 	if (rc != SEPOL_OK) {
++		cil_log(CIL_ERR, "Failed to verify cil database\n");
+ 		goto exit;
+ 	}
+ 
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 399c94a..62b88d0 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -601,7 +601,7 @@ exit:
+ 	return rc;
+ }
+ 
+-int __cil_verify_user(struct cil_db *db, struct cil_tree_node *node)
++static int __cil_verify_user_pre_eval(struct cil_tree_node *node)
+ {
+ 	int rc = SEPOL_ERR;
+ 	struct cil_user *user = node->data;
+@@ -635,6 +635,17 @@ int __cil_verify_user(struct cil_db *db, struct cil_tree_node *node)
+ 		}
+ 	}
+ 
++	return SEPOL_OK;
++exit:
++	cil_log(CIL_ERR, "Invalid user at line %d of %s\n", node->line, node->path);
++	return rc;
++}
++
++static int __cil_verify_user_post_eval(struct cil_db *db, struct cil_tree_node *node)
++{
++	int rc = SEPOL_ERR;
++	struct cil_user *user = node->data;
++
+ 	/* Verify user range only if anonymous */
+ 	if (user->range->datum.name == NULL) {
+ 		rc = __cil_verify_levelrange(db, user->range);
+@@ -1318,7 +1329,7 @@ int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, void *ex
+ 	case 0: {
+ 		switch (node->flavor) {
+ 		case CIL_USER:
+-			rc = __cil_verify_user(db, node);
++			rc = __cil_verify_user_post_eval(db, node);
+ 			break;
+ 		case CIL_SELINUXUSERDEFAULT:
+ 			(*nseuserdflt)++;
+@@ -1531,7 +1542,7 @@ static int __cil_verify_map_class(struct cil_tree_node *node)
+ 	return SEPOL_OK;
+ }
+ 
+-static int __cil_verify_no_classperms_loop_helper(struct cil_tree_node *node, uint32_t *finished, __attribute__((unused)) void *extra_args)
++int __cil_pre_verify_helper(struct cil_tree_node *node, uint32_t *finished, __attribute__((unused)) void *extra_args)
+ {
+ 	int rc = SEPOL_ERR;
+ 
+@@ -1549,6 +1560,12 @@ static int __cil_verify_no_classperms_loop_helper(struct cil_tree_node *node, ui
+ 	}
+ 
+ 	switch (node->flavor) {
++	case CIL_USER:
++		rc = __cil_verify_user_pre_eval(node);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
++		break;
+ 	case CIL_MAP_CLASS:
+ 		rc = __cil_verify_map_class(node);
+ 		break;
+@@ -1563,17 +1580,3 @@ static int __cil_verify_no_classperms_loop_helper(struct cil_tree_node *node, ui
+ exit:
+ 	return rc;
+ }
+-
+-int cil_verify_no_classperms_loop(struct cil_db *db)
+-{
+-	int rc = SEPOL_ERR;
+-
+-	rc = cil_tree_walk(db->ast->root, __cil_verify_no_classperms_loop_helper, NULL, NULL, NULL);
+-	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Failed to verify no loops in class permissions\n");
+-		goto exit;
+-	}
+-
+-exit:
+-	return rc;
+-}
+diff --git a/libsepol/cil/src/cil_verify.h b/libsepol/cil/src/cil_verify.h
+index 1f47641..bda1565 100644
+--- a/libsepol/cil/src/cil_verify.h
++++ b/libsepol/cil/src/cil_verify.h
+@@ -68,6 +68,6 @@ int __cil_verify_ordered(struct cil_tree_node *current, enum cil_flavor flavor);
+ int __cil_verify_initsids(struct cil_list *sids);
+ int __cil_verify_senscat(struct cil_sens *sens, struct cil_cat *cat);
+ int __cil_verify_helper(struct cil_tree_node *node, __attribute__((unused)) uint32_t *finished, void *extra_args);
+-int cil_verify_no_classperms_loop(struct cil_db *db);
++int __cil_pre_verify_helper(struct cil_tree_node *node, __attribute__((unused)) uint32_t *finished, void *extra_args);
+ 
+ #endif
+-- 
+1.9.3
