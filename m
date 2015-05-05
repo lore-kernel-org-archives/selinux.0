@@ -1,44 +1,52 @@
-Message-ID: <5548BA95.2040908@tycho.nsa.gov>
-Date: Tue, 05 May 2015 08:41:57 -0400
+Message-ID: <5548C89D.2020601@tycho.nsa.gov>
+Date: Tue, 05 May 2015 09:41:49 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Zhi Xin <xinzhi@marvell.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+To: Zhi Xin <xinzhi@marvell.com>, Gaurav Gangwar <gauravgangwaar@gmail.com>
 Subject: Re: Give out all the avc logs in ome time
 References: <F766E4F80769BD478052FB6533FA745D66611C3FD9@SC-VEXCH4.marvell.com>
-In-Reply-To: <F766E4F80769BD478052FB6533FA745D66611C3FD9@SC-VEXCH4.marvell.com>
+ <CAFftDdqp06sbW9chUrzS0RaNgrqv=W5=3nP9VcFnYrzOkUkf5Q@mail.gmail.com>
+ <CACikiw07wGq+Pp_QjnXnUAhHsBe48X4Kpr25MzJyB5Xby_gQ9g@mail.gmail.com>
+ <F766E4F80769BD478052FB6533FA745D66611C40DE@SC-VEXCH4.marvell.com>
+ <CA+XqU8iaVZZM5Z2fwDMBtJeMS3OV4dQh797BTTQ8b91SOh-9Ew@mail.gmail.com>
+ <F766E4F80769BD478052FB6533FA745D66611C4124@SC-VEXCH4.marvell.com>
+In-Reply-To: <F766E4F80769BD478052FB6533FA745D66611C4124@SC-VEXCH4.marvell.com>
 Content-Type: text/plain; charset=windows-1252
-Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/04/2015 10:06 PM, Zhi Xin wrote:
-> Hi All,
+On 05/05/2015 04:55 AM, Zhi Xin wrote:
+> (1)  avc size
+> 
+> I’m reading the code under
+> 
+> /kernel/security/selinux/avc.c
 > 
 >  
 > 
-> In my daily work, I’m always solving the selinux deny as presented by
-> avc log. But I found that, for one particular test, selinux cannot give
-> me all the avc deny log in one time, which has slowed down a lot of my
-> daily work.
+> I noticed that there are some macro like
+> 
+> #define      AVC_DEF_CACHE_THRESHOLD              512
+> 
+> #define      AVC_CACHE_SLOTS                                    512
 > 
 >  
 > 
-> For example, I trigger a process called test_daemon to access a
-> /dev/test_device in a particular test. Totally, it should have “open,
-> read, write, ioctl” for permissions. But for one time test, I only catch
-> “open, read” related avc log. And only after I have merged a patch to
-> give the “open” and “read” permission, I rerun the test. The “write
-> ioctl” related avc  logs start to occur. So my question is how can I get
-> “open, read, write, ioctl” avc log in one test.
+> Are they some kind of threshold ? If the size of avc log reported is
+> bigger than that, new avc will be abandoned ?
+
+No, that has nothing to do with auditing.  Just the size of the cache.
+
+> (2) audit subsystem may drop some record when it’s satisfied with some
+> condition like
 > 
 >  
 > 
-> I have done a little study on this issue. selinux avc log depends on
-> audit subsystem. In /kernel/kernel/audit.c, some code has indicated that
-> we may lost the records in five ways:
+> /kernel/kernel/audit.c
 > 
 > 115 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#115>/* Records can be lost in several ways:
 > 
@@ -56,23 +64,13 @@ On 05/04/2015 10:06 PM, Zhi Xin wrote:
 > 
 >  
 > 
-> So is this the root-cause of my issue ? How can I modify kernel code to
-> archieve my purpose or there already is a open/off switch to help me on
-> giving all the logs in one time test ?
+> Any comments on these two ? 
 
-(cc'ing seandroid-list as you later mentioned that you are encountering
-this in the context of Android, although I don't know if it is truly
-specific to Android)
-
-Generally you should see audit_lost= log messages in dmesg if audit log
-messages were lost, although those are also subject to the printk
-ratelimit and could be suppressed.
-
-One thing you can try is to disable the audit ratelimit, which in
-Android is set by system/core/logd/libaudit.c.  Just remove the
-AUDIT_STATUS_RATE_LIMIT flag from status.mask and don't bother setting
-status.rate_limit.
-
-We also carry a patch in our kernel branches for Nexus devices that
-disables the printk ratelimit for audit messages. e.g.
-https://bitbucket.org/seandroid/kernel-msm/commits/0388e1630648c481e42929135babb1dbba272e27
+Yes, one of the above cases is the most likely reason you are losing
+audit messages.  You can set the audit_rate_limit to zero to disable
+ratelimiting of audit messages by removing the code from
+system/core/logd/libaudit.c that sets it.  You could set the
+audit_backlog_limit to zero either by patching your kernel or by
+modifying logd to set it.  You can patch your kernel to disable
+printk_ratelimit from being applied when sending audit messages to the
+kernel ring buffer.
