@@ -1,207 +1,293 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t452bKMx029183
- for <selinux@tycho.nsa.gov>; Mon, 4 May 2015 22:37:20 -0400
-Received: by wiun10 with SMTP id n10so129522146wiu.1
- for <selinux@tycho.nsa.gov>; Mon, 04 May 2015 19:37:17 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <F766E4F80769BD478052FB6533FA745D66611C3FD9@SC-VEXCH4.marvell.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t452hftj029691
+ for <selinux@tycho.nsa.gov>; Mon, 4 May 2015 22:43:41 -0400
+From: Zhi Xin <xinzhi@marvell.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Date: Mon, 4 May 2015 19:43:31 -0700
+Subject: RE: Give out all the avc logs in ome time
+Message-ID: <F766E4F80769BD478052FB6533FA745D66611C4006@SC-VEXCH4.marvell.com>
 References: <F766E4F80769BD478052FB6533FA745D66611C3FD9@SC-VEXCH4.marvell.com>
-Date: Mon, 4 May 2015 19:37:17 -0700
-Message-ID: <CAFftDdqp06sbW9chUrzS0RaNgrqv=W5=3nP9VcFnYrzOkUkf5Q@mail.gmail.com>
-Subject: Re: Give out all the avc logs in ome time
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Zhi Xin <xinzhi@marvell.com>
-Content-Type: multipart/alternative; boundary=047d7b86de869797b205154c8e89
-Cc: selinux@tycho.nsa.gov
+ <CAFftDdqp06sbW9chUrzS0RaNgrqv=W5=3nP9VcFnYrzOkUkf5Q@mail.gmail.com>
+In-Reply-To: <CAFftDdqp06sbW9chUrzS0RaNgrqv=W5=3nP9VcFnYrzOkUkf5Q@mail.gmail.com>
+Content-Type: multipart/alternative;
+ boundary="_000_F766E4F80769BD478052FB6533FA745D66611C4006SCVEXCH4marve_"
+MIME-Version: 1.0
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7b86de869797b205154c8e89
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--_000_F766E4F80769BD478052FB6533FA745D66611C4006SCVEXCH4marve_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Are you running in permissive or enforcing mode? Usually if you're running
-in enforcing mode the daemon will not be able to perform all of its tasks
-that it normally would thus your missing messages
-On May 4, 2015 7:11 PM, "Zhi Xin" <xinzhi@marvell.com> wrote:
+SGkgIFdpbGxpYW0sDQoNCkluIG15IGV4cGVyaWVuY2UsIHVuZGVyIHBlcm1pc3NpdmUsIHdlIGNh
+biBpbmRlZWQgZ2V0IG1vcmUgYXZjIGxvZyB0aGFuIGVuZm9yY2luZyBidXQgaXQgc3RpbGwgY2Fu
+bm90IGdpdmUgYWxsIHRoZSBkZW55IGxvZyBpbiBvbmUgdGltZS4gVXN1YWxseSwgaXQgcmVxdWly
+ZSAyLTMgcm91bmQgb2YgcG9saWN5IGFkZGluZyBmb3IgYSBjb21wbGljYXRlZCBpc3N1ZSBldmVu
+IHVuZGVyIHBlcm1pc3NpdmUuDQoNCkFueSBjbHVlIGFib3V0IHRoaXMgPw0KDQpUaGFua3MuDQpT
+aW5jZXJlbHkNCkFsYW4gWGluDQoNCkZyb206IFdpbGxpYW0gUm9iZXJ0cyBbbWFpbHRvOmJpbGwu
+Yy5yb2JlcnRzQGdtYWlsLmNvbV0NClNlbnQ6IDIwMTXlubQ15pyINeaXpSAxMDozNw0KVG86IFpo
+aSBYaW4NCkNjOiBzZWxpbnV4QHR5Y2hvLm5zYS5nb3YNClN1YmplY3Q6IFJlOiBHaXZlIG91dCBh
+bGwgdGhlIGF2YyBsb2dzIGluIG9tZSB0aW1lDQoNCg0KQXJlIHlvdSBydW5uaW5nIGluIHBlcm1p
+c3NpdmUgb3IgZW5mb3JjaW5nIG1vZGU/IFVzdWFsbHkgaWYgeW91J3JlIHJ1bm5pbmcgaW4gZW5m
+b3JjaW5nIG1vZGUgdGhlIGRhZW1vbiB3aWxsIG5vdCBiZSBhYmxlIHRvIHBlcmZvcm0gYWxsIG9m
+IGl0cyB0YXNrcyB0aGF0IGl0IG5vcm1hbGx5IHdvdWxkIHRodXMgeW91ciBtaXNzaW5nIG1lc3Nh
+Z2VzDQpPbiBNYXkgNCwgMjAxNSA3OjExIFBNLCAiWmhpIFhpbiIgPHhpbnpoaUBtYXJ2ZWxsLmNv
+bTxtYWlsdG86eGluemhpQG1hcnZlbGwuY29tPj4gd3JvdGU6DQpIaSBBbGwsDQoNCkluIG15IGRh
+aWx5IHdvcmssIEnigJltIGFsd2F5cyBzb2x2aW5nIHRoZSBzZWxpbnV4IGRlbnkgYXMgcHJlc2Vu
+dGVkIGJ5IGF2YyBsb2cuIEJ1dCBJIGZvdW5kIHRoYXQsIGZvciBvbmUgcGFydGljdWxhciB0ZXN0
+LCBzZWxpbnV4IGNhbm5vdCBnaXZlIG1lIGFsbCB0aGUgYXZjIGRlbnkgbG9nIGluIG9uZSB0aW1l
+LCB3aGljaCBoYXMgc2xvd2VkIGRvd24gYSBsb3Qgb2YgbXkgZGFpbHkgd29yay4NCg0KRm9yIGV4
+YW1wbGUsIEkgdHJpZ2dlciBhIHByb2Nlc3MgY2FsbGVkIHRlc3RfZGFlbW9uIHRvIGFjY2VzcyBh
+IC9kZXYvdGVzdF9kZXZpY2UgaW4gYSBwYXJ0aWN1bGFyIHRlc3QuIFRvdGFsbHksIGl0IHNob3Vs
+ZCBoYXZlIOKAnG9wZW4sIHJlYWQsIHdyaXRlLCBpb2N0bOKAnSBmb3IgcGVybWlzc2lvbnMuIEJ1
+dCBmb3Igb25lIHRpbWUgdGVzdCwgSSBvbmx5IGNhdGNoIOKAnG9wZW4sIHJlYWTigJ0gcmVsYXRl
+ZCBhdmMgbG9nLiBBbmQgb25seSBhZnRlciBJIGhhdmUgbWVyZ2VkIGEgcGF0Y2ggdG8gZ2l2ZSB0
+aGUg4oCcb3BlbuKAnSBhbmQg4oCccmVhZOKAnSBwZXJtaXNzaW9uLCBJIHJlcnVuIHRoZSB0ZXN0
+LiBUaGUg4oCcd3JpdGUgaW9jdGzigJ0gcmVsYXRlZCBhdmMgIGxvZ3Mgc3RhcnQgdG8gb2NjdXIu
+IFNvIG15IHF1ZXN0aW9uIGlzIGhvdyBjYW4gSSBnZXQg4oCcb3BlbiwgcmVhZCwgd3JpdGUsIGlv
+Y3Rs4oCdIGF2YyBsb2cgaW4gb25lIHRlc3QuDQoNCkkgaGF2ZSBkb25lIGEgbGl0dGxlIHN0dWR5
+IG9uIHRoaXMgaXNzdWUuIHNlbGludXggYXZjIGxvZyBkZXBlbmRzIG9uIGF1ZGl0IHN1YnN5c3Rl
+bS4gSW4gL2tlcm5lbC9rZXJuZWwvYXVkaXQuYywgc29tZSBjb2RlIGhhcyBpbmRpY2F0ZWQgdGhh
+dCB3ZSBtYXkgbG9zdCB0aGUgcmVjb3JkcyBpbiBmaXZlIHdheXM6DQoNCjExNTxodHRwOi8vMTAu
+MzguMTIwLjMxOjgwODAvc291cmNlL3hyZWYvcHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1
+ZGl0LmMjMTE1Pi8qIFJlY29yZHMgY2FuIGJlIGxvc3QgaW4gc2V2ZXJhbCB3YXlzOg0KDQoxMTY8
+aHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVs
+L2tlcm5lbC9hdWRpdC5jIzExNj4gICAwKSBbc3VwcHJlc3NlZCBpbiBhdWRpdF9hbGxvY10NCg0K
+MTE3PGh0dHA6Ly8xMC4zOC4xMjAuMzE6ODA4MC9zb3VyY2UveHJlZi9weGExOTI4LWxwNS4wL2tl
+cm5lbC9rZXJuZWwvYXVkaXQuYyMxMTc+ICAgMSkgb3V0IG9mIG1lbW9yeSBpbiBhdWRpdF9sb2df
+c3RhcnQgW2ttYWxsb2Mgb2Ygc3RydWN0IGF1ZGl0X2J1ZmZlcl0NCg0KMTE4PGh0dHA6Ly8xMC4z
+OC4xMjAuMzE6ODA4MC9zb3VyY2UveHJlZi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJuZWwvYXVk
+aXQuYyMxMTg+ICAgMikgb3V0IG9mIG1lbW9yeSBpbiBhdWRpdF9sb2dfbW92ZSBbYWxsb2Nfc2ti
+XQ0KDQoxMTk8aHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1
+LjAva2VybmVsL2tlcm5lbC9hdWRpdC5jIzExOT4gICAzKSBzdXBwcmVzc2VkIGR1ZSB0byBhdWRp
+dF9yYXRlX2xpbWl0DQoNCjEyMDxodHRwOi8vMTAuMzguMTIwLjMxOjgwODAvc291cmNlL3hyZWYv
+cHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0LmMjMTIwPiAgIDQpIHN1cHByZXNzZWQg
+ZHVlIHRvIGF1ZGl0X2JhY2tsb2dfbGltaXQNCg0KMTIxPGh0dHA6Ly8xMC4zOC4xMjAuMzE6ODA4
+MC9zb3VyY2UveHJlZi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJuZWwvYXVkaXQuYyMxMjE+Ki8N
+Cg0KU28gaXMgdGhpcyB0aGUgcm9vdC1jYXVzZSBvZiBteSBpc3N1ZSA/IEhvdyBjYW4gSSBtb2Rp
+Znkga2VybmVsIGNvZGUgdG8gYXJjaGlldmUgbXkgcHVycG9zZSBvciB0aGVyZSBhbHJlYWR5IGlz
+IGEgb3Blbi9vZmYgc3dpdGNoIHRvIGhlbHAgbWUgb24gZ2l2aW5nIGFsbCB0aGUgbG9ncyBpbiBv
+bmUgdGltZSB0ZXN0ID8NCg0KVGhhbmtzDQpTaW5jZXJlbHkNCkFsYW4gWGluDQoNCg0KDQpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KU2VsaW51eCBtYWls
+aW5nIGxpc3QNClNlbGludXhAdHljaG8ubnNhLmdvdjxtYWlsdG86U2VsaW51eEB0eWNoby5uc2Eu
+Z292Pg0KVG8gdW5zdWJzY3JpYmUsIHNlbmQgZW1haWwgdG8gU2VsaW51eC1sZWF2ZUB0eWNoby5u
+c2EuZ292PG1haWx0bzpTZWxpbnV4LWxlYXZlQHR5Y2hvLm5zYS5nb3Y+Lg0KVG8gZ2V0IGhlbHAs
+IHNlbmQgYW4gZW1haWwgY29udGFpbmluZyAiaGVscCIgdG8gU2VsaW51eC1yZXF1ZXN0QHR5Y2hv
+Lm5zYS5nb3Y8bWFpbHRvOlNlbGludXgtcmVxdWVzdEB0eWNoby5uc2EuZ292Pi4NCg==
 
-> Hi All,
->
->
->
-> In my daily work, I=E2=80=99m always solving the selinux deny as presente=
-d by avc
-> log. But I found that, for one particular test, selinux cannot give me al=
-l
-> the avc deny log in one time, which has slowed down a lot of my daily wor=
-k.
->
->
->
-> For example, I trigger a process called test_daemon to access a
-> /dev/test_device in a particular test. Totally, it should have =E2=80=9Co=
-pen, read,
-> write, ioctl=E2=80=9D for permissions. But for one time test, I only catc=
-h =E2=80=9Copen,
-> read=E2=80=9D related avc log. And only after I have merged a patch to gi=
-ve the
-> =E2=80=9Copen=E2=80=9D and =E2=80=9Cread=E2=80=9D permission, I rerun the=
- test. The =E2=80=9Cwrite ioctl=E2=80=9D related
-> avc  logs start to occur. So my question is how can I get =E2=80=9Copen, =
-read,
-> write, ioctl=E2=80=9D avc log in one test.
->
->
->
-> I have done a little study on this issue. selinux avc log depends on audi=
-t
-> subsystem. In /kernel/kernel/audit.c, some code has indicated that we may
-> lost the records in five ways:
->
-> 115 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#115>/* Records can be lost in several ways:
->
-> 116 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#116>   0) [suppressed in audit_alloc]
->
-> 117 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#117>   1) out of memory in audit_log_start [kmalloc of struct audit_bu=
-ffer]
->
-> 118 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#118>   2) out of memory in audit_log_move [alloc_skb]
->
-> 119 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#119>   3) suppressed due to audit_rate_limit
->
-> 120 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#120>   4) suppressed due to audit_backlog_limit
->
-> 121 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
-it.c#121>*/
->
->
->
-> So is this the root-cause of my issue ? How can I modify kernel code to
-> archieve my purpose or there already is a open/off switch to help me on
-> giving all the logs in one time test ?
->
->
->
-> Thanks
->
-> Sincerely
->
-> Alan Xin
->
->
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
->
+--_000_F766E4F80769BD478052FB6533FA745D66611C4006SCVEXCH4marve_
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
 
---047d7b86de869797b205154c8e89
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
+bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
+YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
+cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
+VFIvUkVDLWh0bWw0MCI+PGhlYWQ+PG1ldGEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
+dD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij48bWV0YSBuYW1lPUdlbmVyYXRvciBjb250ZW50
+PSJNaWNyb3NvZnQgV29yZCAxMiAoZmlsdGVyZWQgbWVkaXVtKSI+PHN0eWxlPjwhLS0NCi8qIEZv
+bnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk65a6L5L2TOw0KCXBh
+bm9zZS0xOjIgMSA2IDAgMyAxIDEgMSAxIDE7fQ0KQGZvbnQtZmFjZQ0KCXtmb250LWZhbWlseToi
+Q2FtYnJpYSBNYXRoIjsNCglwYW5vc2UtMToyIDQgNSAzIDUgNCA2IDMgMiA0O30NCkBmb250LWZh
+Y2UNCgl7Zm9udC1mYW1pbHk6Q2FsaWJyaTsNCglwYW5vc2UtMToyIDE1IDUgMiAyIDIgNCAzIDIg
+NDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OlRhaG9tYTsNCglwYW5vc2UtMToyIDExIDYg
+NCAzIDUgNCA0IDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OiJcQOWui+S9kyI7DQoJ
+cGFub3NlLTE6MiAxIDYgMCAzIDEgMSAxIDEgMTt9DQovKiBTdHlsZSBEZWZpbml0aW9ucyAqLw0K
+cC5Nc29Ob3JtYWwsIGxpLk1zb05vcm1hbCwgZGl2Lk1zb05vcm1hbA0KCXttYXJnaW46MGNtOw0K
+CW1hcmdpbi1ib3R0b206LjAwMDFwdDsNCglmb250LXNpemU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5
+OuWui+S9kzt9DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0
+eTo5OTsNCgljb2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0KYTp2aXNp
+dGVkLCBzcGFuLk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsN
+Cgljb2xvcjpwdXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpwDQoJe21zby1z
+dHlsZS1wcmlvcml0eTo5OTsNCgltc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzsNCgltYXJnaW4tcmln
+aHQ6MGNtOw0KCW1zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvOw0KCW1hcmdpbi1sZWZ0OjBjbTsN
+Cglmb250LXNpemU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5OuWui+S9kzt9DQpwcmUNCgl7bXNvLXN0
+eWxlLXByaW9yaXR5Ojk5Ow0KCW1zby1zdHlsZS1saW5rOiJIVE1MIFByZWZvcm1hdHRlZCBDaGFy
+IjsNCgltYXJnaW46MGNtOw0KCW1hcmdpbi1ib3R0b206LjAwMDFwdDsNCglmb250LXNpemU6MTIu
+MHB0Ow0KCWZvbnQtZmFtaWx5OuWui+S9kzt9DQpzcGFuLkhUTUxQcmVmb3JtYXR0ZWRDaGFyDQoJ
+e21zby1zdHlsZS1uYW1lOiJIVE1MIFByZWZvcm1hdHRlZCBDaGFyIjsNCgltc28tc3R5bGUtcHJp
+b3JpdHk6OTk7DQoJbXNvLXN0eWxlLWxpbms6IkhUTUwgUHJlZm9ybWF0dGVkIjsNCglmb250LWZh
+bWlseToiQ291cmllciBOZXciO30NCnNwYW4uRW1haWxTdHlsZTIwDQoJe21zby1zdHlsZS10eXBl
+OnBlcnNvbmFsLXJlcGx5Ow0KCWZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7DQoJ
+Y29sb3I6IzFGNDk3RDt9DQouTXNvQ2hwRGVmYXVsdA0KCXttc28tc3R5bGUtdHlwZTpleHBvcnQt
+b25seTt9DQpAcGFnZSBXb3JkU2VjdGlvbjENCgl7c2l6ZTo2MTIuMHB0IDc5Mi4wcHQ7DQoJbWFy
+Z2luOjcyLjBwdCA5MC4wcHQgNzIuMHB0IDkwLjBwdDt9DQpkaXYuV29yZFNlY3Rpb24xDQoJe3Bh
+Z2U6V29yZFNlY3Rpb24xO30NCi0tPjwvc3R5bGU+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8
+bzpzaGFwZWRlZmF1bHRzIHY6ZXh0PSJlZGl0IiBzcGlkbWF4PSIxMDI2IiAvPg0KPC94bWw+PCFb
+ZW5kaWZdLS0+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8bzpzaGFwZWxheW91dCB2OmV4dD0i
+ZWRpdCI+DQo8bzppZG1hcCB2OmV4dD0iZWRpdCIgZGF0YT0iMSIgLz4NCjwvbzpzaGFwZWxheW91
+dD48L3htbD48IVtlbmRpZl0tLT48L2hlYWQ+PGJvZHkgbGFuZz1aSC1DTiBsaW5rPWJsdWUgdmxp
+bms9cHVycGxlPjxkaXYgY2xhc3M9V29yZFNlY3Rpb24xPjxwIGNsYXNzPU1zb05vcm1hbD48c3Bh
+biBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJp
+Iiwic2Fucy1zZXJpZiI7Y29sb3I6IzFGNDk3RCc+SGnCoCBXaWxsaWFtLDxvOnA+PC9vOnA+PC9z
+cGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1z
+aXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiO2NvbG9yOiMxRjQ5
+N0QnPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4g
+bGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIs
+InNhbnMtc2VyaWYiO2NvbG9yOiMxRjQ5N0QnPkluIG15IGV4cGVyaWVuY2UsIHVuZGVyIHBlcm1p
+c3NpdmUsIHdlIGNhbiBpbmRlZWQgZ2V0IG1vcmUgYXZjIGxvZyB0aGFuIGVuZm9yY2luZyBidXQg
+aXQgc3RpbGwgY2Fubm90IGdpdmUgYWxsIHRoZSBkZW55IGxvZyBpbiBvbmUgdGltZS4gVXN1YWxs
+eSwgaXQgcmVxdWlyZSAyLTMgcm91bmQgb2YgcG9saWN5IGFkZGluZyBmb3IgYSBjb21wbGljYXRl
+ZCBpc3N1ZSBldmVuIHVuZGVyIHBlcm1pc3NpdmUuIDxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBj
+bGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtm
+b250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiO2NvbG9yOiMxRjQ5N0QnPjxvOnA+Jm5i
+c3A7PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUyBz
+dHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYi
+O2NvbG9yOiMxRjQ5N0QnPkFueSBjbHVlIGFib3V0IHRoaXMgPyA8bzpwPjwvbzpwPjwvc3Bhbj48
+L3A+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZTox
+MC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjojMUY0OTdEJz48
+bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9
+RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5z
+LXNlcmlmIjtjb2xvcjojMUY0OTdEJz5UaGFua3MuPG86cD48L286cD48L3NwYW4+PC9wPjxwIGNs
+YXNzPU1zb05vcm1hbD48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2Zv
+bnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6IzFGNDk3RCc+U2luY2VyZWx5
+PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBsYW5nPUVOLVVT
+IHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJp
+ZiI7Y29sb3I6IzFGNDk3RCc+QWxhbiBYaW48bzpwPjwvbzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9
+TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1m
+YW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjojMUY0OTdEJz48bzpwPiZuYnNwOzwv
+bzpwPjwvc3Bhbj48L3A+PGRpdiBzdHlsZT0nYm9yZGVyOm5vbmU7Ym9yZGVyLXRvcDpzb2xpZCAj
+QjVDNERGIDEuMHB0O3BhZGRpbmc6My4wcHQgMGNtIDBjbSAwY20nPjxwIGNsYXNzPU1zb05vcm1h
+bD48Yj48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuMHB0O2ZvbnQtZmFtaWx5
+OiJUYWhvbWEiLCJzYW5zLXNlcmlmIic+RnJvbTo8L3NwYW4+PC9iPjxzcGFuIGxhbmc9RU4tVVMg
+c3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQ7Zm9udC1mYW1pbHk6IlRhaG9tYSIsInNhbnMtc2VyaWYi
+Jz4gV2lsbGlhbSBSb2JlcnRzIFttYWlsdG86YmlsbC5jLnJvYmVydHNAZ21haWwuY29tXSA8YnI+
+PGI+U2VudDo8L2I+IDIwMTU8L3NwYW4+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQnPuW5
+tDwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuMHB0O2ZvbnQtZmFt
+aWx5OiJUYWhvbWEiLCJzYW5zLXNlcmlmIic+NTwvc3Bhbj48c3BhbiBzdHlsZT0nZm9udC1zaXpl
+OjEwLjBwdCc+5pyIPC9zcGFuPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC4w
+cHQ7Zm9udC1mYW1pbHk6IlRhaG9tYSIsInNhbnMtc2VyaWYiJz41PC9zcGFuPjxzcGFuIHN0eWxl
+PSdmb250LXNpemU6MTAuMHB0Jz7ml6U8L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9u
+dC1zaXplOjEwLjBwdDtmb250LWZhbWlseToiVGFob21hIiwic2Fucy1zZXJpZiInPiAxMDozNzxi
+cj48Yj5Ubzo8L2I+IFpoaSBYaW48YnI+PGI+Q2M6PC9iPiBzZWxpbnV4QHR5Y2hvLm5zYS5nb3Y8
+YnI+PGI+U3ViamVjdDo8L2I+IFJlOiBHaXZlIG91dCBhbGwgdGhlIGF2YyBsb2dzIGluIG9tZSB0
+aW1lPG86cD48L286cD48L3NwYW4+PC9wPjwvZGl2PjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBs
+YW5nPUVOLVVTPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD48cD48c3BhbiBsYW5nPUVOLVVT
+PkFyZSB5b3UgcnVubmluZyBpbiBwZXJtaXNzaXZlIG9yIGVuZm9yY2luZyBtb2RlPyBVc3VhbGx5
+IGlmIHlvdSdyZSBydW5uaW5nIGluIGVuZm9yY2luZyBtb2RlIHRoZSBkYWVtb24gd2lsbCBub3Qg
+YmUgYWJsZSB0byBwZXJmb3JtIGFsbCBvZiBpdHMgdGFza3MgdGhhdCBpdCBub3JtYWxseSB3b3Vs
+ZCB0aHVzIHlvdXIgbWlzc2luZyBtZXNzYWdlczxvOnA+PC9vOnA+PC9zcGFuPjwvcD48ZGl2Pjxw
+IGNsYXNzPU1zb05vcm1hbD48c3BhbiBsYW5nPUVOLVVTPk9uIE1heSA0LCAyMDE1IDc6MTEgUE0s
+ICZxdW90O1poaSBYaW4mcXVvdDsgJmx0OzxhIGhyZWY9Im1haWx0bzp4aW56aGlAbWFydmVsbC5j
+b20iPnhpbnpoaUBtYXJ2ZWxsLmNvbTwvYT4mZ3Q7IHdyb3RlOjxvOnA+PC9vOnA+PC9zcGFuPjwv
+cD48ZGl2PjxkaXY+PHAgY2xhc3M9TXNvTm9ybWFsIHN0eWxlPSdtc28tbWFyZ2luLXRvcC1hbHQ6
+YXV0bzttc28tbWFyZ2luLWJvdHRvbS1hbHQ6YXV0byc+PHNwYW4gbGFuZz1FTi1VUz5IaSBBbGws
+PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdp
+bi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4t
+VVM+Jm5ic3A7PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0n
+bXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFu
+IGxhbmc9RU4tVVM+SW4gbXkgZGFpbHkgd29yaywgSeKAmW0gYWx3YXlzIHNvbHZpbmcgdGhlIHNl
+bGludXggZGVueSBhcyBwcmVzZW50ZWQgYnkgYXZjIGxvZy4gQnV0IEkgZm91bmQgdGhhdCwgZm9y
+IG9uZSBwYXJ0aWN1bGFyIHRlc3QsIHNlbGludXggY2Fubm90IGdpdmUgbWUgYWxsIHRoZSBhdmMg
+ZGVueSBsb2cgaW4gb25lIHRpbWUsIHdoaWNoIGhhcyBzbG93ZWQgZG93biBhIGxvdCBvZiBteSBk
+YWlseSB3b3JrLjxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9
+J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvJz48c3Bh
+biBsYW5nPUVOLVVTPiZuYnNwOzxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3Jt
+YWwgc3R5bGU9J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDph
+dXRvJz48c3BhbiBsYW5nPUVOLVVTPkZvciBleGFtcGxlLCBJIHRyaWdnZXIgYSBwcm9jZXNzIGNh
+bGxlZCB0ZXN0X2RhZW1vbiB0byBhY2Nlc3MgYSAvZGV2L3Rlc3RfZGV2aWNlIGluIGEgcGFydGlj
+dWxhciB0ZXN0LiBUb3RhbGx5LCBpdCBzaG91bGQgaGF2ZSDigJxvcGVuLCByZWFkLCB3cml0ZSwg
+aW9jdGzigJ0gZm9yIHBlcm1pc3Npb25zLiBCdXQgZm9yIG9uZSB0aW1lIHRlc3QsIEkgb25seSBj
+YXRjaCDigJxvcGVuLCByZWFk4oCdIHJlbGF0ZWQgYXZjIGxvZy4gQW5kIG9ubHkgYWZ0ZXIgSSBo
+YXZlIG1lcmdlZCBhIHBhdGNoIHRvIGdpdmUgdGhlIOKAnG9wZW7igJ0gYW5kIOKAnHJlYWTigJ0g
+cGVybWlzc2lvbiwgSSByZXJ1biB0aGUgdGVzdC4gVGhlIOKAnHdyaXRlIGlvY3Rs4oCdIHJlbGF0
+ZWQgYXZjICZuYnNwO2xvZ3Mgc3RhcnQgdG8gb2NjdXIuIFNvIG15IHF1ZXN0aW9uIGlzIGhvdyBj
+YW4gSSBnZXQg4oCcb3BlbiwgcmVhZCwgd3JpdGUsIGlvY3Rs4oCdIGF2YyBsb2cgaW4gb25lIHRl
+c3QuPG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1h
+cmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9
+RU4tVVM+Jm5ic3A7PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHls
+ZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxz
+cGFuIGxhbmc9RU4tVVM+SSBoYXZlIGRvbmUgYSBsaXR0bGUgc3R1ZHkgb24gdGhpcyBpc3N1ZS4g
+c2VsaW51eCBhdmMgbG9nIGRlcGVuZHMgb24gYXVkaXQgc3Vic3lzdGVtLiBJbiAva2VybmVsL2tl
+cm5lbC9hdWRpdC5jLCBzb21lIGNvZGUgaGFzIGluZGljYXRlZCB0aGF0IHdlIG1heSBsb3N0IHRo
+ZSByZWNvcmRzIGluIGZpdmUgd2F5czo8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PHByZT48YSBuYW1l
+PSIxNGQyMWQ3YTdjMWYyYzAzXzExNSI+PC9hPjxzcGFuIGxhbmc9RU4tVVM+PGEgaHJlZj0iaHR0
+cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVsL2tl
+cm5lbC9hdWRpdC5jIzExNSIgdGFyZ2V0PSJfYmxhbmsiPjxzcGFuIHN0eWxlPSdmb250LXNpemU6
+MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6d2luZG93dGV4
+dDt0ZXh0LWRlY29yYXRpb246bm9uZSc+MTE1PC9zcGFuPjwvYT48L3NwYW4+PHNwYW4gbGFuZz1F
+Ti1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMt
+c2VyaWYiJz4vKiBSZWNvcmRzIGNhbiBiZSBsb3N0IGluIHNldmVyYWwgd2F5czo8L3NwYW4+PHNw
+YW4gbGFuZz1FTi1VUz48bzpwPjwvbzpwPjwvc3Bhbj48L3ByZT48cHJlPjxhIG5hbWU9IjE0ZDIx
+ZDdhN2MxZjJjMDNfMTE2Ij48L2E+PHNwYW4gbGFuZz1FTi1VUz48YSBocmVmPSJodHRwOi8vMTAu
+MzguMTIwLjMxOjgwODAvc291cmNlL3hyZWYvcHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1
+ZGl0LmMjMTE2IiB0YXJnZXQ9Il9ibGFuayI+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7
+Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjp3aW5kb3d0ZXh0O3RleHQt
+ZGVjb3JhdGlvbjpub25lJz4xMTY8L3NwYW4+PC9hPjwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTIHN0
+eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiIn
+PiZuYnNwOyZuYnNwOyAwKSBbc3VwcHJlc3NlZCBpbiBhdWRpdF9hbGxvY108L3NwYW4+PHNwYW4g
+bGFuZz1FTi1VUz48bzpwPjwvbzpwPjwvc3Bhbj48L3ByZT48cHJlPjxhIG5hbWU9IjE0ZDIxZDdh
+N2MxZjJjMDNfMTE3Ij48L2E+PHNwYW4gbGFuZz1FTi1VUz48YSBocmVmPSJodHRwOi8vMTAuMzgu
+MTIwLjMxOjgwODAvc291cmNlL3hyZWYvcHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0
+LmMjMTE3IiB0YXJnZXQ9Il9ibGFuayI+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9u
+dC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjp3aW5kb3d0ZXh0O3RleHQtZGVj
+b3JhdGlvbjpub25lJz4xMTc8L3NwYW4+PC9hPjwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTIHN0eWxl
+PSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiInPiZu
+YnNwOyZuYnNwOyAxKSBvdXQgb2YgbWVtb3J5IGluIGF1ZGl0X2xvZ19zdGFydCBba21hbGxvYyBv
+ZiBzdHJ1Y3QgYXVkaXRfYnVmZmVyXTwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTPjxvOnA+PC9vOnA+
+PC9zcGFuPjwvcHJlPjxwcmU+PGEgbmFtZT0iMTRkMjFkN2E3YzFmMmMwM18xMTgiPjwvYT48c3Bh
+biBsYW5nPUVOLVVTPjxhIGhyZWY9Imh0dHA6Ly8xMC4zOC4xMjAuMzE6ODA4MC9zb3VyY2UveHJl
+Zi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJuZWwvYXVkaXQuYyMxMTgiIHRhcmdldD0iX2JsYW5r
+Ij48c3BhbiBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNh
+bnMtc2VyaWYiO2NvbG9yOndpbmRvd3RleHQ7dGV4dC1kZWNvcmF0aW9uOm5vbmUnPjExODwvc3Bh
+bj48L2E+PC9zcGFuPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9u
+dC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIic+Jm5ic3A7Jm5ic3A7IDIpIG91dCBvZiBt
+ZW1vcnkgaW4gYXVkaXRfbG9nX21vdmUgW2FsbG9jX3NrYl08L3NwYW4+PHNwYW4gbGFuZz1FTi1V
+Uz48bzpwPjwvbzpwPjwvc3Bhbj48L3ByZT48cHJlPjxhIG5hbWU9IjE0ZDIxZDdhN2MxZjJjMDNf
+MTE5Ij48L2E+PHNwYW4gbGFuZz1FTi1VUz48YSBocmVmPSJodHRwOi8vMTAuMzguMTIwLjMxOjgw
+ODAvc291cmNlL3hyZWYvcHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0LmMjMTE5IiB0
+YXJnZXQ9Il9ibGFuayI+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6
+IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjp3aW5kb3d0ZXh0O3RleHQtZGVjb3JhdGlvbjpu
+b25lJz4xMTk8L3NwYW4+PC9hPjwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNp
+emU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiInPiZuYnNwOyZuYnNw
+OyAzKSBzdXBwcmVzc2VkIGR1ZSB0byBhdWRpdF9yYXRlX2xpbWl0PC9zcGFuPjxzcGFuIGxhbmc9
+RU4tVVM+PG86cD48L286cD48L3NwYW4+PC9wcmU+PHByZT48YSBuYW1lPSIxNGQyMWQ3YTdjMWYy
+YzAzXzEyMCI+PC9hPjxzcGFuIGxhbmc9RU4tVVM+PGEgaHJlZj0iaHR0cDovLzEwLjM4LjEyMC4z
+MTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVsL2tlcm5lbC9hdWRpdC5jIzEy
+MCIgdGFyZ2V0PSJfYmxhbmsiPjxzcGFuIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFt
+aWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6d2luZG93dGV4dDt0ZXh0LWRlY29yYXRp
+b246bm9uZSc+MTIwPC9zcGFuPjwvYT48L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9u
+dC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiJz4mbmJzcDsm
+bmJzcDsgNCkgc3VwcHJlc3NlZCBkdWUgdG8gYXVkaXRfYmFja2xvZ19saW1pdDwvc3Bhbj48c3Bh
+biBsYW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwvcHJlPjxwcmU+PGEgbmFtZT0iMTRkMjFk
+N2E3YzFmMmMwM18xMjEiPjwvYT48c3BhbiBsYW5nPUVOLVVTPjxhIGhyZWY9Imh0dHA6Ly8xMC4z
+OC4xMjAuMzE6ODA4MC9zb3VyY2UveHJlZi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJuZWwvYXVk
+aXQuYyMxMjEiIHRhcmdldD0iX2JsYW5rIj48c3BhbiBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtm
+b250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiO2NvbG9yOndpbmRvd3RleHQ7dGV4dC1k
+ZWNvcmF0aW9uOm5vbmUnPjEyMTwvc3Bhbj48L2E+PC9zcGFuPjxzcGFuIGxhbmc9RU4tVVMgc3R5
+bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIic+
+Ki88L3NwYW4+PHNwYW4gbGFuZz1FTi1VUz48bzpwPjwvbzpwPjwvc3Bhbj48L3ByZT48cCBjbGFz
+cz1Nc29Ob3JtYWwgc3R5bGU9J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90
+dG9tLWFsdDphdXRvJz48c3BhbiBsYW5nPUVOLVVTPiZuYnNwOzxvOnA+PC9vOnA+PC9zcGFuPjwv
+cD48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1t
+YXJnaW4tYm90dG9tLWFsdDphdXRvJz48c3BhbiBsYW5nPUVOLVVTPlNvIGlzIHRoaXMgdGhlIHJv
+b3QtY2F1c2Ugb2YgbXkgaXNzdWUgPyBIb3cgY2FuIEkgbW9kaWZ5IGtlcm5lbCBjb2RlIHRvIGFy
+Y2hpZXZlIG15IHB1cnBvc2Ugb3IgdGhlcmUgYWxyZWFkeSBpcyBhIG9wZW4vb2ZmIHN3aXRjaCB0
+byBoZWxwIG1lIG9uIGdpdmluZyBhbGwgdGhlIGxvZ3MgaW4gb25lIHRpbWUgdGVzdCA/IDxvOnA+
+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9J21zby1tYXJnaW4tdG9w
+LWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvJz48c3BhbiBsYW5nPUVOLVVTPiZu
+YnNwOzxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9J21zby1t
+YXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvJz48c3BhbiBsYW5n
+PUVOLVVTPlRoYW5rczxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5
+bGU9J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvJz48
+c3BhbiBsYW5nPUVOLVVTPlNpbmNlcmVseTxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1N
+c29Ob3JtYWwgc3R5bGU9J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9t
+LWFsdDphdXRvJz48c3BhbiBsYW5nPUVOLVVTPkFsYW4gWGluPG86cD48L286cD48L3NwYW4+PC9w
+PjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1h
+cmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+Jm5ic3A7PG86cD48L286cD48
+L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1
+dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+Jm5ic3A7PG86
+cD48L286cD48L3NwYW4+PC9wPjwvZGl2PjwvZGl2PjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBs
+YW5nPUVOLVVTPjxicj5fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXzxicj5TZWxpbnV4IG1haWxpbmcgbGlzdDxicj48YSBocmVmPSJtYWlsdG86U2VsaW51eEB0
+eWNoby5uc2EuZ292Ij5TZWxpbnV4QHR5Y2hvLm5zYS5nb3Y8L2E+PGJyPlRvIHVuc3Vic2NyaWJl
+LCBzZW5kIGVtYWlsIHRvIDxhIGhyZWY9Im1haWx0bzpTZWxpbnV4LWxlYXZlQHR5Y2hvLm5zYS5n
+b3YiPlNlbGludXgtbGVhdmVAdHljaG8ubnNhLmdvdjwvYT4uPGJyPlRvIGdldCBoZWxwLCBzZW5k
+IGFuIGVtYWlsIGNvbnRhaW5pbmcgJnF1b3Q7aGVscCZxdW90OyB0byA8YSBocmVmPSJtYWlsdG86
+U2VsaW51eC1yZXF1ZXN0QHR5Y2hvLm5zYS5nb3YiPlNlbGludXgtcmVxdWVzdEB0eWNoby5uc2Eu
+Z292PC9hPi48bzpwPjwvbzpwPjwvc3Bhbj48L3A+PC9kaXY+PC9kaXY+PC9ib2R5PjwvaHRtbD4=
 
-<p dir=3D"ltr">Are you running in permissive or enforcing mode? Usually if =
-you&#39;re running in enforcing mode the daemon will not be able to perform=
- all of its tasks that it normally would thus your missing messages</p>
-<div class=3D"gmail_quote">On May 4, 2015 7:11 PM, &quot;Zhi Xin&quot; &lt;=
-<a href=3D"mailto:xinzhi@marvell.com">xinzhi@marvell.com</a>&gt; wrote:<br =
-type=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"margin:0 0 =
-0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div lang=3D"ZH-CN" lin=
-k=3D"blue" vlink=3D"purple"><div><p class=3D"MsoNormal"><span lang=3D"EN-US=
-">Hi All,<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-U=
-S"><u></u>=C2=A0<u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-U=
-S">In my daily work, I=E2=80=99m always solving the selinux deny as present=
-ed by avc log. But I found that, for one particular test, selinux cannot gi=
-ve me all the avc deny log in one time, which has slowed down a lot of my d=
-aily work.<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-=
-US"><u></u>=C2=A0<u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-=
-US">For example, I trigger a process called test_daemon to access a /dev/te=
-st_device in a particular test. Totally, it should have =E2=80=9Copen, read=
-, write, ioctl=E2=80=9D for permissions. But for one time test, I only catc=
-h =E2=80=9Copen, read=E2=80=9D related avc log. And only after I have merge=
-d a patch to give the =E2=80=9Copen=E2=80=9D and =E2=80=9Cread=E2=80=9D per=
-mission, I rerun the test. The =E2=80=9Cwrite ioctl=E2=80=9D related avc =
-=C2=A0logs start to occur. So my question is how can I get =E2=80=9Copen, r=
-ead, write, ioctl=E2=80=9D avc log in one test.<u></u><u></u></span></p><p =
-class=3D"MsoNormal"><span lang=3D"EN-US"><u></u>=C2=A0<u></u></span></p><p =
-class=3D"MsoNormal"><span lang=3D"EN-US">I have done a little study on this=
- issue. selinux avc log depends on audit subsystem. In /kernel/kernel/audit=
-.c, some code has indicated that we may lost the records in five ways:<u></=
-u><u></u></span></p><pre><a name=3D"14d21d7a7c1f2c03_115"></a><a href=3D"ht=
-tp://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#115"=
- target=3D"_blank"><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-fami=
-ly:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:windowtext;text-decorat=
-ion:none">115</span></a><span lang=3D"EN-US" style=3D"font-size:10.5pt;font=
--family:&quot;Calibri&quot;,&quot;sans-serif&quot;">/* Records can be lost =
-in several ways:<u></u><u></u></span></pre><pre><a name=3D"14d21d7a7c1f2c03=
-_116"></a><a href=3D"http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/ker=
-nel/kernel/audit.c#116" target=3D"_blank"><span lang=3D"EN-US" style=3D"fon=
-t-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:=
-windowtext;text-decoration:none">116</span></a><span lang=3D"EN-US" style=
-=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;=
-">=C2=A0=C2=A0 0) [suppressed in audit_alloc]<u></u><u></u></span></pre><pr=
-e><a name=3D"14d21d7a7c1f2c03_117"></a><a href=3D"http://10.38.120.31:8080/=
-source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#117" target=3D"_blank"><spa=
-n lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,=
-&quot;sans-serif&quot;;color:windowtext;text-decoration:none">117</span></a=
-><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&q=
-uot;,&quot;sans-serif&quot;">=C2=A0=C2=A0 1) out of memory in audit_log_sta=
-rt [kmalloc of struct audit_buffer]<u></u><u></u></span></pre><pre><a name=
-=3D"14d21d7a7c1f2c03_118"></a><a href=3D"http://10.38.120.31:8080/source/xr=
-ef/pxa1928-lp5.0/kernel/kernel/audit.c#118" target=3D"_blank"><span lang=3D=
-"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;san=
-s-serif&quot;;color:windowtext;text-decoration:none">118</span></a><span la=
-ng=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quo=
-t;sans-serif&quot;">=C2=A0=C2=A0 2) out of memory in audit_log_move [alloc_=
-skb]<u></u><u></u></span></pre><pre><a name=3D"14d21d7a7c1f2c03_119"></a><a=
- href=3D"http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/a=
-udit.c#119" target=3D"_blank"><span lang=3D"EN-US" style=3D"font-size:10.5p=
-t;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:windowtext;t=
-ext-decoration:none">119</span></a><span lang=3D"EN-US" style=3D"font-size:=
-10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;">=C2=A0=C2=A0=
- 3) suppressed due to audit_rate_limit<u></u><u></u></span></pre><pre><a na=
-me=3D"14d21d7a7c1f2c03_120"></a><a href=3D"http://10.38.120.31:8080/source/=
-xref/pxa1928-lp5.0/kernel/kernel/audit.c#120" target=3D"_blank"><span lang=
-=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;=
-sans-serif&quot;;color:windowtext;text-decoration:none">120</span></a><span=
- lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&=
-quot;sans-serif&quot;">=C2=A0=C2=A0 4) suppressed due to audit_backlog_limi=
-t<u></u><u></u></span></pre><pre><a name=3D"14d21d7a7c1f2c03_121"></a><a hr=
-ef=3D"http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audi=
-t.c#121" target=3D"_blank"><span lang=3D"EN-US" style=3D"font-size:10.5pt;f=
-ont-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:windowtext;text=
--decoration:none">121</span></a><span lang=3D"EN-US" style=3D"font-size:10.=
-5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;">*/<u></u><u></u=
-></span></pre><p class=3D"MsoNormal"><span lang=3D"EN-US"><u></u>=C2=A0<u><=
-/u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-US">So is this the ro=
-ot-cause of my issue ? How can I modify kernel code to archieve my purpose =
-or there already is a open/off switch to help me on giving all the logs in =
-one time test ? <u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=
-=3D"EN-US"><u></u>=C2=A0<u></u></span></p><p class=3D"MsoNormal"><span lang=
-=3D"EN-US">Thanks<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=
-=3D"EN-US">Sincerely<u></u><u></u></span></p><p class=3D"MsoNormal"><span l=
-ang=3D"EN-US">Alan Xin<u></u><u></u></span></p><p class=3D"MsoNormal"><span=
- lang=3D"EN-US"><u></u>=C2=A0<u></u></span></p><p class=3D"MsoNormal"><span=
- lang=3D"EN-US"><u></u>=C2=A0<u></u></span></p></div></div><br>____________=
-___________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br></blo=
-ckquote></div>
-
---047d7b86de869797b205154c8e89--
+--_000_F766E4F80769BD478052FB6533FA745D66611C4006SCVEXCH4marve_--
