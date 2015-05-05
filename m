@@ -1,389 +1,438 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t457Wc8t014046
- for <selinux@tycho.nsa.gov>; Tue, 5 May 2015 03:32:38 -0400
-From: Zhi Xin <xinzhi@marvell.com>
-To: Ravi Kumar <nxp.ravi@gmail.com>, William Roberts <bill.c.roberts@gmail.com>
-Date: Tue, 5 May 2015 00:32:30 -0700
-Subject: RE: Give out all the avc logs in ome time
-Message-ID: <F766E4F80769BD478052FB6533FA745D66611C40DE@SC-VEXCH4.marvell.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t458dBY2017522
+ for <selinux@tycho.nsa.gov>; Tue, 5 May 2015 04:39:14 -0400
+Received: by ykft189 with SMTP id t189so39417174ykf.1
+ for <selinux@tycho.nsa.gov>; Tue, 05 May 2015 01:39:11 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <F766E4F80769BD478052FB6533FA745D66611C40DE@SC-VEXCH4.marvell.com>
 References: <F766E4F80769BD478052FB6533FA745D66611C3FD9@SC-VEXCH4.marvell.com>
  <CAFftDdqp06sbW9chUrzS0RaNgrqv=W5=3nP9VcFnYrzOkUkf5Q@mail.gmail.com>
  <CACikiw07wGq+Pp_QjnXnUAhHsBe48X4Kpr25MzJyB5Xby_gQ9g@mail.gmail.com>
-In-Reply-To: <CACikiw07wGq+Pp_QjnXnUAhHsBe48X4Kpr25MzJyB5Xby_gQ9g@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="_000_F766E4F80769BD478052FB6533FA745D66611C40DESCVEXCH4marve_"
-MIME-Version: 1.0
+ <F766E4F80769BD478052FB6533FA745D66611C40DE@SC-VEXCH4.marvell.com>
+Date: Tue, 5 May 2015 14:09:11 +0530
+Message-ID: <CA+XqU8iaVZZM5Z2fwDMBtJeMS3OV4dQh797BTTQ8b91SOh-9Ew@mail.gmail.com>
+Subject: Re: Give out all the avc logs in ome time
+From: Gaurav Gangwar <gauravgangwaar@gmail.com>
+To: Zhi Xin <xinzhi@marvell.com>
+Content-Type: multipart/alternative; boundary=001a113a62dad433c70515519ccd
 Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_000_F766E4F80769BD478052FB6533FA745D66611C40DESCVEXCH4marve_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+--001a113a62dad433c70515519ccd
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-SGkgIFJhdmksDQoNClRoYW5rcyBmb3IgYW5hbHlzaXMuIEkgZ2V0IHlvdXIgcG9pbnQuIFVuZGVy
-IGVuZm9yY2luZywgaWYgb3BlbiBpcyBibG9ja2VkLCB3ZSBuZXZlciBzZWUgdGhlIGlvY3RsIG9w
-ZXJhdGlvbiBjb21lLiBJIGFncmVlZCB3aXRoIHlvdSBhbmFseXNpcy4NCg0KQnV0IG15IGlzc3Vl
-IGlzIG5vdCBsaWtlIHRoaXMuIFRoZSBpc3N1ZSBJIHRyeSB0byBzYXkgaXMgdGhhdCBldmVuIHVu
-ZGVyIHBlcm1pc3NpdmUsIHNlbGludXggY2Fubm90IGdpdmUgb3V0IGFsbCB0aGUgYXZjIGxvZyBp
-biBvbmUgdGltZS4NCg0KTXkgcHJldmlvdXMgZXhhbXBsZSBpcyBwcm9iYWJseSBub3QgYSBnb29k
-IG9uZS4gSeKAmWQgbGlrZSB0byBnaXZlIGEgbmV3IG9uZS4gRm9yIGEgbmV3IHBob25lIHdpdGgg
-QW5kcm9pZCBscDUuMCB0aGF0IGVuYWJsZWQgcGVybWlzc2l2ZSBtb2RlIG9mIFNFQW5kcm9pZCwg
-aXQgcmVwb3J0cyBsb3RzIG9mIGF2YyBkZW55IGxvZ3MgaW4gb25lIGJvb3QuICBBbmQgYWZ0ZXIg
-SSBmaXggdGhlbSBieSBhZGRpbmcgc2VsaW51eCBwb2xpY3ksIHJlYnVybiB0aGUgYm9vdC5pbWcg
-YW5kIGJvb3QgYWdhaW4uIEkgY2FuIHN0aWxsIGdldCBhdmMgbG9ncywgd2hpY2ggYXJlIGRpZmZl
-cmVudCBmcm9tIHByZXZpb3VzLiBXaHkgdGhleSBjYW5ub3QgYmUgcHJpbnRlZCBvdXQgaW4gb25l
-IHRpbWUgPw0KDQpUaGFua3MuDQpTaW5jZXJlbHkNClpoaSBYaW4NCg0KDQpGcm9tOiBSYXZpIEt1
-bWFyIFttYWlsdG86bnhwLnJhdmlAZ21haWwuY29tXQ0KU2VudDogMjAxNeW5tDXmnIg15pelIDEz
-OjU2DQpUbzogV2lsbGlhbSBSb2JlcnRzDQpDYzogWmhpIFhpbjsgc2VsaW51eEB0eWNoby5uc2Eu
-Z292DQpTdWJqZWN0OiBSZTogR2l2ZSBvdXQgYWxsIHRoZSBhdmMgbG9ncyBpbiBvbWUgdGltZQ0K
-DQpBbGFuLA0KQ29kZSB3cml0dGVuIGluIG1vc3Qgb2YgdGhlIGNhc2VzIHdpbGwgYmUgY2hlY2tp
-bmcgZm9yIHN1Y2Nlc3Mgb24gICBmaWxlIG9wZW4gb3IgZGV2aWNlIG5vZGUgb3BlbiAuIFdoaWNo
-IGlzIGJhc2ljYWxseSBhICBjaGVjayBvbiAgZmlsZSBkZXNjcmlwdG9yIChmZCkgICBpZiBpdHMg
-bnVsbCAoIG1heSBiZSBmYWlsZWQgZHVlIHRvICBzZWxpbnV4IHBvbGljeSBtaXNzaW5nKSAgaXQg
-IGNvbWVzIG91dCBvZiB0aGUgY29kZSBhbmQgbmV2ZXIgdHJ5IHRvIGRvIGEgSU9DVEwgLyBvciBh
-bnkgb3RoZXIgIG9wZXJhdGlvbiBvbiB0aGUgbnVsbCAgZmQgIHNvIHdlIHdpbGwgbm90IHNlZSBh
-bnkgYWRkaXRpb25hbCAgZGVuaWFscyAgdW50aWwgd2UgYWRkcmVzcyB0aGUgb3Blbi4NCkFzIGEg
-Z2VuZXJhbGx5IHByYWN0aWNlIHdoYXQgaSBmZWVsIHJlY29tbWVuZGluZyAgaXMgIHNldCB0aGUg
-c2VsaW51eCBtb2RlIGluIHBlcm1pc3NpdmUgYW5kIGNhcHR1cmUgYWxsIHRoZSBkZW5pYWxzIGF0
-IE9ORSBzaG90IC4gQmFzZWQgb24gdGhlIGRlbmlhbHMgbG9ncyBjb2xsZWN0ZWQgaXQgd2lsbCBi
-ZSBlYXN5IGZvciB1cyB0byB3cml0ZSAvIGRlZmluZSB0aGUgcG9saWN5IGF0IGEgc2luZ2xlIHNo
-b3QgLg0KeW91IGNhbiB1c2Uga2VybmVsIGNtZGxpbmUgZm9yIHNldHRpbmcgaXQgaW4gcGVybWlz
-c2l2ZSAgb3IgdXNlICAic2V0ZW5mb3JjZSAiIGNtZCBmcm9tIHJvb3Qgc2hlbGwgLg0KDQpSZWdh
-cmRzLA0KUmF2aQ0KDQoNCg0KDQpPbiBUdWUsIE1heSA1LCAyMDE1IGF0IDg6MDcgQU0sIFdpbGxp
-YW0gUm9iZXJ0cyA8YmlsbC5jLnJvYmVydHNAZ21haWwuY29tPG1haWx0bzpiaWxsLmMucm9iZXJ0
-c0BnbWFpbC5jb20+PiB3cm90ZToNCg0KQXJlIHlvdSBydW5uaW5nIGluIHBlcm1pc3NpdmUgb3Ig
-ZW5mb3JjaW5nIG1vZGU/IFVzdWFsbHkgaWYgeW91J3JlIHJ1bm5pbmcgaW4gZW5mb3JjaW5nIG1v
-ZGUgdGhlIGRhZW1vbiB3aWxsIG5vdCBiZSBhYmxlIHRvIHBlcmZvcm0gYWxsIG9mIGl0cyB0YXNr
-cyB0aGF0IGl0IG5vcm1hbGx5IHdvdWxkIHRodXMgeW91ciBtaXNzaW5nIG1lc3NhZ2VzDQpPbiBN
-YXkgNCwgMjAxNSA3OjExIFBNLCAiWmhpIFhpbiIgPHhpbnpoaUBtYXJ2ZWxsLmNvbTxtYWlsdG86
-eGluemhpQG1hcnZlbGwuY29tPj4gd3JvdGU6DQpIaSBBbGwsDQoNCkluIG15IGRhaWx5IHdvcmss
-IEnigJltIGFsd2F5cyBzb2x2aW5nIHRoZSBzZWxpbnV4IGRlbnkgYXMgcHJlc2VudGVkIGJ5IGF2
-YyBsb2cuIEJ1dCBJIGZvdW5kIHRoYXQsIGZvciBvbmUgcGFydGljdWxhciB0ZXN0LCBzZWxpbnV4
-IGNhbm5vdCBnaXZlIG1lIGFsbCB0aGUgYXZjIGRlbnkgbG9nIGluIG9uZSB0aW1lLCB3aGljaCBo
-YXMgc2xvd2VkIGRvd24gYSBsb3Qgb2YgbXkgZGFpbHkgd29yay4NCg0KRm9yIGV4YW1wbGUsIEkg
-dHJpZ2dlciBhIHByb2Nlc3MgY2FsbGVkIHRlc3RfZGFlbW9uIHRvIGFjY2VzcyBhIC9kZXYvdGVz
-dF9kZXZpY2UgaW4gYSBwYXJ0aWN1bGFyIHRlc3QuIFRvdGFsbHksIGl0IHNob3VsZCBoYXZlIOKA
-nG9wZW4sIHJlYWQsIHdyaXRlLCBpb2N0bOKAnSBmb3IgcGVybWlzc2lvbnMuIEJ1dCBmb3Igb25l
-IHRpbWUgdGVzdCwgSSBvbmx5IGNhdGNoIOKAnG9wZW4sIHJlYWTigJ0gcmVsYXRlZCBhdmMgbG9n
-LiBBbmQgb25seSBhZnRlciBJIGhhdmUgbWVyZ2VkIGEgcGF0Y2ggdG8gZ2l2ZSB0aGUg4oCcb3Bl
-buKAnSBhbmQg4oCccmVhZOKAnSBwZXJtaXNzaW9uLCBJIHJlcnVuIHRoZSB0ZXN0LiBUaGUg4oCc
-d3JpdGUgaW9jdGzigJ0gcmVsYXRlZCBhdmMgIGxvZ3Mgc3RhcnQgdG8gb2NjdXIuIFNvIG15IHF1
-ZXN0aW9uIGlzIGhvdyBjYW4gSSBnZXQg4oCcb3BlbiwgcmVhZCwgd3JpdGUsIGlvY3Rs4oCdIGF2
-YyBsb2cgaW4gb25lIHRlc3QuDQoNCkkgaGF2ZSBkb25lIGEgbGl0dGxlIHN0dWR5IG9uIHRoaXMg
-aXNzdWUuIHNlbGludXggYXZjIGxvZyBkZXBlbmRzIG9uIGF1ZGl0IHN1YnN5c3RlbS4gSW4gL2tl
-cm5lbC9rZXJuZWwvYXVkaXQuYywgc29tZSBjb2RlIGhhcyBpbmRpY2F0ZWQgdGhhdCB3ZSBtYXkg
-bG9zdCB0aGUgcmVjb3JkcyBpbiBmaXZlIHdheXM6DQoNCjExNTxodHRwOi8vMTAuMzguMTIwLjMx
-OjgwODAvc291cmNlL3hyZWYvcHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0LmMjMTE1
-Pi8qIFJlY29yZHMgY2FuIGJlIGxvc3QgaW4gc2V2ZXJhbCB3YXlzOg0KDQoxMTY8aHR0cDovLzEw
-LjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVsL2tlcm5lbC9h
-dWRpdC5jIzExNj4gICAwKSBbc3VwcHJlc3NlZCBpbiBhdWRpdF9hbGxvY10NCg0KMTE3PGh0dHA6
-Ly8xMC4zOC4xMjAuMzE6ODA4MC9zb3VyY2UveHJlZi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJu
-ZWwvYXVkaXQuYyMxMTc+ICAgMSkgb3V0IG9mIG1lbW9yeSBpbiBhdWRpdF9sb2dfc3RhcnQgW2tt
-YWxsb2Mgb2Ygc3RydWN0IGF1ZGl0X2J1ZmZlcl0NCg0KMTE4PGh0dHA6Ly8xMC4zOC4xMjAuMzE6
-ODA4MC9zb3VyY2UveHJlZi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJuZWwvYXVkaXQuYyMxMTg+
-ICAgMikgb3V0IG9mIG1lbW9yeSBpbiBhdWRpdF9sb2dfbW92ZSBbYWxsb2Nfc2tiXQ0KDQoxMTk8
-aHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVs
-L2tlcm5lbC9hdWRpdC5jIzExOT4gICAzKSBzdXBwcmVzc2VkIGR1ZSB0byBhdWRpdF9yYXRlX2xp
-bWl0DQoNCjEyMDxodHRwOi8vMTAuMzguMTIwLjMxOjgwODAvc291cmNlL3hyZWYvcHhhMTkyOC1s
-cDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0LmMjMTIwPiAgIDQpIHN1cHByZXNzZWQgZHVlIHRvIGF1
-ZGl0X2JhY2tsb2dfbGltaXQNCg0KMTIxPGh0dHA6Ly8xMC4zOC4xMjAuMzE6ODA4MC9zb3VyY2Uv
-eHJlZi9weGExOTI4LWxwNS4wL2tlcm5lbC9rZXJuZWwvYXVkaXQuYyMxMjE+Ki8NCg0KU28gaXMg
-dGhpcyB0aGUgcm9vdC1jYXVzZSBvZiBteSBpc3N1ZSA/IEhvdyBjYW4gSSBtb2RpZnkga2VybmVs
-IGNvZGUgdG8gYXJjaGlldmUgbXkgcHVycG9zZSBvciB0aGVyZSBhbHJlYWR5IGlzIGEgb3Blbi9v
-ZmYgc3dpdGNoIHRvIGhlbHAgbWUgb24gZ2l2aW5nIGFsbCB0aGUgbG9ncyBpbiBvbmUgdGltZSB0
-ZXN0ID8NCg0KVGhhbmtzDQpTaW5jZXJlbHkNCkFsYW4gWGluDQoNCg0KDQpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KU2VsaW51eCBtYWlsaW5nIGxpc3QN
-ClNlbGludXhAdHljaG8ubnNhLmdvdjxtYWlsdG86U2VsaW51eEB0eWNoby5uc2EuZ292Pg0KVG8g
-dW5zdWJzY3JpYmUsIHNlbmQgZW1haWwgdG8gU2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292PG1h
-aWx0bzpTZWxpbnV4LWxlYXZlQHR5Y2hvLm5zYS5nb3Y+Lg0KVG8gZ2V0IGhlbHAsIHNlbmQgYW4g
-ZW1haWwgY29udGFpbmluZyAiaGVscCIgdG8gU2VsaW51eC1yZXF1ZXN0QHR5Y2hvLm5zYS5nb3Y8
-bWFpbHRvOlNlbGludXgtcmVxdWVzdEB0eWNoby5uc2EuZ292Pi4NCg0KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NClNlbGludXggbWFpbGluZyBsaXN0DQpT
-ZWxpbnV4QHR5Y2hvLm5zYS5nb3Y8bWFpbHRvOlNlbGludXhAdHljaG8ubnNhLmdvdj4NClRvIHVu
-c3Vic2NyaWJlLCBzZW5kIGVtYWlsIHRvIFNlbGludXgtbGVhdmVAdHljaG8ubnNhLmdvdjxtYWls
-dG86U2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292Pi4NClRvIGdldCBoZWxwLCBzZW5kIGFuIGVt
-YWlsIGNvbnRhaW5pbmcgImhlbHAiIHRvIFNlbGludXgtcmVxdWVzdEB0eWNoby5uc2EuZ292PG1h
-aWx0bzpTZWxpbnV4LXJlcXVlc3RAdHljaG8ubnNhLmdvdj4uDQoNCg==
+Hi Alan,
 
---_000_F766E4F80769BD478052FB6533FA745D66611C40DESCVEXCH4marve_
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: base64
+Do flash all the images every-time or just the boot image.
+if you flash only boot-image then that could be reason.
 
-PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
-bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
-YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
-cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
-VFIvUkVDLWh0bWw0MCI+PGhlYWQ+PG1ldGEgaHR0cC1lcXVpdj1Db250ZW50LVR5cGUgY29udGVu
-dD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij48bWV0YSBuYW1lPUdlbmVyYXRvciBjb250ZW50
-PSJNaWNyb3NvZnQgV29yZCAxMiAoZmlsdGVyZWQgbWVkaXVtKSI+PHN0eWxlPjwhLS0NCi8qIEZv
-bnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk65a6L5L2TOw0KCXBh
-bm9zZS0xOjIgMSA2IDAgMyAxIDEgMSAxIDE7fQ0KQGZvbnQtZmFjZQ0KCXtmb250LWZhbWlseToi
-Q2FtYnJpYSBNYXRoIjsNCglwYW5vc2UtMToyIDQgNSAzIDUgNCA2IDMgMiA0O30NCkBmb250LWZh
-Y2UNCgl7Zm9udC1mYW1pbHk6Q2FsaWJyaTsNCglwYW5vc2UtMToyIDE1IDUgMiAyIDIgNCAzIDIg
-NDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OlRhaG9tYTsNCglwYW5vc2UtMToyIDExIDYg
-NCAzIDUgNCA0IDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OiJcQOWui+S9kyI7DQoJ
-cGFub3NlLTE6MiAxIDYgMCAzIDEgMSAxIDEgMTt9DQovKiBTdHlsZSBEZWZpbml0aW9ucyAqLw0K
-cC5Nc29Ob3JtYWwsIGxpLk1zb05vcm1hbCwgZGl2Lk1zb05vcm1hbA0KCXttYXJnaW46MGNtOw0K
-CW1hcmdpbi1ib3R0b206LjAwMDFwdDsNCglmb250LXNpemU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5
-OuWui+S9kzt9DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0
-eTo5OTsNCgljb2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0KYTp2aXNp
-dGVkLCBzcGFuLk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsN
-Cgljb2xvcjpwdXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpwDQoJe21zby1z
-dHlsZS1wcmlvcml0eTo5OTsNCgltc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzsNCgltYXJnaW4tcmln
-aHQ6MGNtOw0KCW1zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvOw0KCW1hcmdpbi1sZWZ0OjBjbTsN
-Cglmb250LXNpemU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5OuWui+S9kzt9DQpwcmUNCgl7bXNvLXN0
-eWxlLXByaW9yaXR5Ojk5Ow0KCW1zby1zdHlsZS1saW5rOiJIVE1MIFByZWZvcm1hdHRlZCBDaGFy
-IjsNCgltYXJnaW46MGNtOw0KCW1hcmdpbi1ib3R0b206LjAwMDFwdDsNCglmb250LXNpemU6MTIu
-MHB0Ow0KCWZvbnQtZmFtaWx5OuWui+S9kzt9DQpzcGFuLkhUTUxQcmVmb3JtYXR0ZWRDaGFyDQoJ
-e21zby1zdHlsZS1uYW1lOiJIVE1MIFByZWZvcm1hdHRlZCBDaGFyIjsNCgltc28tc3R5bGUtcHJp
-b3JpdHk6OTk7DQoJbXNvLXN0eWxlLWxpbms6IkhUTUwgUHJlZm9ybWF0dGVkIjsNCglmb250LWZh
-bWlseToiQ291cmllciBOZXciO30NCnNwYW4uRW1haWxTdHlsZTIwDQoJe21zby1zdHlsZS10eXBl
-OnBlcnNvbmFsLXJlcGx5Ow0KCWZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7DQoJ
-Y29sb3I6IzFGNDk3RDt9DQouTXNvQ2hwRGVmYXVsdA0KCXttc28tc3R5bGUtdHlwZTpleHBvcnQt
-b25seTt9DQpAcGFnZSBXb3JkU2VjdGlvbjENCgl7c2l6ZTo2MTIuMHB0IDc5Mi4wcHQ7DQoJbWFy
-Z2luOjcyLjBwdCA5MC4wcHQgNzIuMHB0IDkwLjBwdDt9DQpkaXYuV29yZFNlY3Rpb24xDQoJe3Bh
-Z2U6V29yZFNlY3Rpb24xO30NCi0tPjwvc3R5bGU+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8
-bzpzaGFwZWRlZmF1bHRzIHY6ZXh0PSJlZGl0IiBzcGlkbWF4PSIxMDI2IiAvPg0KPC94bWw+PCFb
-ZW5kaWZdLS0+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8bzpzaGFwZWxheW91dCB2OmV4dD0i
-ZWRpdCI+DQo8bzppZG1hcCB2OmV4dD0iZWRpdCIgZGF0YT0iMSIgLz4NCjwvbzpzaGFwZWxheW91
-dD48L3htbD48IVtlbmRpZl0tLT48L2hlYWQ+PGJvZHkgbGFuZz1aSC1DTiBsaW5rPWJsdWUgdmxp
-bms9cHVycGxlPjxkaXYgY2xhc3M9V29yZFNlY3Rpb24xPjxwIGNsYXNzPU1zb05vcm1hbD48c3Bh
-biBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJp
-Iiwic2Fucy1zZXJpZiI7Y29sb3I6IzFGNDk3RCc+SGnCoCBSYXZpLDxvOnA+PC9vOnA+PC9zcGFu
-PjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXpl
-OjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiO2NvbG9yOiMxRjQ5N0Qn
-PjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFu
-Zz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNh
-bnMtc2VyaWYiO2NvbG9yOiMxRjQ5N0QnPlRoYW5rcyBmb3IgYW5hbHlzaXMuIEkgZ2V0IHlvdXIg
-cG9pbnQuIFVuZGVyIGVuZm9yY2luZywgaWYgb3BlbiBpcyBibG9ja2VkLCB3ZSBuZXZlciBzZWUg
-dGhlIGlvY3RsIG9wZXJhdGlvbiBjb21lLiBJIGFncmVlZCB3aXRoIHlvdSBhbmFseXNpcy48bzpw
-PjwvbzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5
-bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtj
-b2xvcjojMUY0OTdEJz48bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9TXNvTm9y
-bWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6
-IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjojMUY0OTdEJz5CdXQgbXkgaXNzdWUgaXMgbm90
-IGxpa2UgdGhpcy4gVGhlIGlzc3VlIEkgdHJ5IHRvIHNheSBpczwvc3Bhbj48c3BhbiBsYW5nPUVO
-LVVTIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1z
-ZXJpZiI7Y29sb3I6cmVkJz4gdGhhdCBldmVuIHVuZGVyIHBlcm1pc3NpdmUsIHNlbGludXggY2Fu
-bm90IGdpdmUgb3V0IGFsbCB0aGUgYXZjIGxvZyBpbiBvbmUgdGltZS4gPC9zcGFuPjxzcGFuIGxh
-bmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJz
-YW5zLXNlcmlmIjtjb2xvcjojMUY0OTdEJz48bzpwPjwvbzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9
-TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1m
-YW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjojMUY0OTdEJz48bzpwPiZuYnNwOzwv
-bzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9
-J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xv
-cjojMUY0OTdEJz5NeSBwcmV2aW91cyBleGFtcGxlIGlzIHByb2JhYmx5IG5vdCBhIGdvb2Qgb25l
-LiBJ4oCZZCBsaWtlIHRvIGdpdmUgYSBuZXcgb25lLiBGb3IgYSBuZXcgcGhvbmUgd2l0aCBBbmRy
-b2lkIGxwNS4wIHRoYXQgZW5hYmxlZCBwZXJtaXNzaXZlIG1vZGUgb2YgU0VBbmRyb2lkLCBpdCBy
-ZXBvcnRzIGxvdHMgb2YgYXZjIGRlbnkgbG9ncyBpbiBvbmUgYm9vdC4gwqBBbmQgYWZ0ZXIgSSBm
-aXggdGhlbSBieSBhZGRpbmcgc2VsaW51eCBwb2xpY3ksIHJlYnVybiB0aGUgYm9vdC5pbWcgYW5k
-IGJvb3QgYWdhaW4uIEkgY2FuIHN0aWxsIGdldCBhdmMgbG9ncywgd2hpY2ggYXJlIGRpZmZlcmVu
-dCBmcm9tIHByZXZpb3VzLiBXaHkgdGhleSBjYW5ub3QgYmUgcHJpbnRlZCBvdXQgaW4gb25lIHRp
-bWUgPyA8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9
-RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5z
-LXNlcmlmIjtjb2xvcjojMUY0OTdEJz48bzpwPiZuYnNwOzwvbzpwPjwvc3Bhbj48L3A+PHAgY2xh
-c3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9u
-dC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjojMUY0OTdEJz5UaGFua3MuPG86
-cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbD48c3BhbiBsYW5nPUVOLVVTIHN0
-eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7
-Y29sb3I6IzFGNDk3RCc+U2luY2VyZWx5PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1z
-b05vcm1hbD48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFt
-aWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6IzFGNDk3RCc+WmhpIFhpbjxvOnA+PC9v
-OnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0n
-Zm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiO2NvbG9y
-OiMxRjQ5N0QnPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWw+
-PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2Fs
-aWJyaSIsInNhbnMtc2VyaWYiO2NvbG9yOiMxRjQ5N0QnPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFu
-PjwvcD48ZGl2IHN0eWxlPSdib3JkZXI6bm9uZTtib3JkZXItdG9wOnNvbGlkICNCNUM0REYgMS4w
-cHQ7cGFkZGluZzozLjBwdCAwY20gMGNtIDBjbSc+PHAgY2xhc3M9TXNvTm9ybWFsPjxiPjxzcGFu
-IGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQ7Zm9udC1mYW1pbHk6IlRhaG9tYSIs
-InNhbnMtc2VyaWYiJz5Gcm9tOjwvc3Bhbj48L2I+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9u
-dC1zaXplOjEwLjBwdDtmb250LWZhbWlseToiVGFob21hIiwic2Fucy1zZXJpZiInPiBSYXZpIEt1
-bWFyIFttYWlsdG86bnhwLnJhdmlAZ21haWwuY29tXSA8YnI+PGI+U2VudDo8L2I+IDIwMTU8L3Nw
-YW4+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQnPuW5tDwvc3Bhbj48c3BhbiBsYW5nPUVO
-LVVTIHN0eWxlPSdmb250LXNpemU6MTAuMHB0O2ZvbnQtZmFtaWx5OiJUYWhvbWEiLCJzYW5zLXNl
-cmlmIic+NTwvc3Bhbj48c3BhbiBzdHlsZT0nZm9udC1zaXplOjEwLjBwdCc+5pyIPC9zcGFuPjxz
-cGFuIGxhbmc9RU4tVVMgc3R5bGU9J2ZvbnQtc2l6ZToxMC4wcHQ7Zm9udC1mYW1pbHk6IlRhaG9t
-YSIsInNhbnMtc2VyaWYiJz41PC9zcGFuPjxzcGFuIHN0eWxlPSdmb250LXNpemU6MTAuMHB0Jz7m
-l6U8L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjBwdDtmb250LWZh
-bWlseToiVGFob21hIiwic2Fucy1zZXJpZiInPiAxMzo1Njxicj48Yj5Ubzo8L2I+IFdpbGxpYW0g
-Um9iZXJ0czxicj48Yj5DYzo8L2I+IFpoaSBYaW47IHNlbGludXhAdHljaG8ubnNhLmdvdjxicj48
-Yj5TdWJqZWN0OjwvYj4gUmU6IEdpdmUgb3V0IGFsbCB0aGUgYXZjIGxvZ3MgaW4gb21lIHRpbWU8
-bzpwPjwvbzpwPjwvc3Bhbj48L3A+PC9kaXY+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9
-RU4tVVM+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPjxkaXY+PGRpdj48ZGl2PjxwIGNsYXNz
-PU1zb05vcm1hbD48c3BhbiBsYW5nPUVOLVVTPkFsYW4sIDxvOnA+PC9vOnA+PC9zcGFuPjwvcD48
-L2Rpdj48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9J21hcmdpbi1ib3R0b206MTIuMHB0Jz48c3Bh
-biBsYW5nPUVOLVVTPkNvZGUgd3JpdHRlbiBpbiBtb3N0IG9mIHRoZSBjYXNlcyB3aWxsIGJlIGNo
-ZWNraW5nIGZvciBzdWNjZXNzIG9uICZuYnNwOyBmaWxlIG9wZW4gb3IgZGV2aWNlIG5vZGUgb3Bl
-biAuIFdoaWNoIGlzIGJhc2ljYWxseSBhJm5ic3A7IGNoZWNrIG9uJm5ic3A7IGZpbGUgZGVzY3Jp
-cHRvciAoZmQpICZuYnNwOyBpZiBpdHMgbnVsbCAoIG1heSBiZSBmYWlsZWQgZHVlIHRvJm5ic3A7
-IHNlbGludXggcG9saWN5IG1pc3NpbmcpJm5ic3A7IGl0Jm5ic3A7IGNvbWVzIG91dCBvZiB0aGUg
-Y29kZSBhbmQgbmV2ZXIgdHJ5IHRvIGRvIGEgSU9DVEwgLyBvciBhbnkgb3RoZXImbmJzcDsgb3Bl
-cmF0aW9uIG9uIHRoZSBudWxsJm5ic3A7IGZkJm5ic3A7IHNvIHdlIHdpbGwgbm90IHNlZSBhbnkg
-YWRkaXRpb25hbCZuYnNwOyBkZW5pYWxzJm5ic3A7IHVudGlsIHdlIGFkZHJlc3MgdGhlIG9wZW4u
-IDxvOnA+PC9vOnA+PC9zcGFuPjwvcD48L2Rpdj48ZGl2PjxwIGNsYXNzPU1zb05vcm1hbCBzdHls
-ZT0nbWFyZ2luLWJvdHRvbToxMi4wcHQnPjxzcGFuIGxhbmc9RU4tVVM+QXMgYSBnZW5lcmFsbHkg
-cHJhY3RpY2Ugd2hhdCBpIGZlZWwgcmVjb21tZW5kaW5nJm5ic3A7IGlzJm5ic3A7IHNldCB0aGUg
-c2VsaW51eCBtb2RlIGluIHBlcm1pc3NpdmUgYW5kIGNhcHR1cmUgYWxsIHRoZSBkZW5pYWxzIGF0
-IE9ORSBzaG90IC4gQmFzZWQgb24gdGhlIGRlbmlhbHMgbG9ncyBjb2xsZWN0ZWQgaXQgd2lsbCBi
-ZSBlYXN5IGZvciB1cyB0byB3cml0ZSAvIGRlZmluZSB0aGUgcG9saWN5IGF0IGEgc2luZ2xlIHNo
-b3QgLiZuYnNwOyA8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PC9kaXY+PGRpdj48cCBjbGFzcz1Nc29O
-b3JtYWw+PHNwYW4gbGFuZz1FTi1VUz55b3UgY2FuIHVzZSBrZXJuZWwgY21kbGluZSBmb3Igc2V0
-dGluZyBpdCBpbiBwZXJtaXNzaXZlJm5ic3A7IG9yIHVzZSZuYnNwOyAmcXVvdDtzZXRlbmZvcmNl
-ICZxdW90OyBjbWQgZnJvbSByb290IHNoZWxsIC4mbmJzcDsgPG86cD48L286cD48L3NwYW4+PC9w
-PjwvZGl2PjxkaXY+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVM+PG86cD4mbmJz
-cDs8L286cD48L3NwYW4+PC9wPjwvZGl2PjxkaXY+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxh
-bmc9RU4tVVM+UmVnYXJkcyw8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PC9kaXY+PGRpdj48cCBjbGFz
-cz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUz5SYXZpPG86cD48L286cD48L3NwYW4+PC9wPjwv
-ZGl2PjxkaXY+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVM+PGJyPjxicj4mbmJz
-cDsgPG86cD48L286cD48L3NwYW4+PC9wPjwvZGl2PjwvZGl2PjxkaXY+PHAgY2xhc3M9TXNvTm9y
-bWFsPjxzcGFuIGxhbmc9RU4tVVM+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPjxkaXY+PHAg
-Y2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVM+T24gVHVlLCBNYXkgNSwgMjAxNSBhdCA4
-OjA3IEFNLCBXaWxsaWFtIFJvYmVydHMgJmx0OzxhIGhyZWY9Im1haWx0bzpiaWxsLmMucm9iZXJ0
-c0BnbWFpbC5jb20iIHRhcmdldD0iX2JsYW5rIj5iaWxsLmMucm9iZXJ0c0BnbWFpbC5jb208L2E+
-Jmd0OyB3cm90ZTo8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PHA+PHNwYW4gbGFuZz1FTi1VUz5BcmUg
-eW91IHJ1bm5pbmcgaW4gcGVybWlzc2l2ZSBvciBlbmZvcmNpbmcgbW9kZT8gVXN1YWxseSBpZiB5
-b3UncmUgcnVubmluZyBpbiBlbmZvcmNpbmcgbW9kZSB0aGUgZGFlbW9uIHdpbGwgbm90IGJlIGFi
-bGUgdG8gcGVyZm9ybSBhbGwgb2YgaXRzIHRhc2tzIHRoYXQgaXQgbm9ybWFsbHkgd291bGQgdGh1
-cyB5b3VyIG1pc3NpbmcgbWVzc2FnZXM8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PGRpdj48ZGl2Pjxk
-aXY+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVM+T24gTWF5IDQsIDIwMTUgNzox
-MSBQTSwgJnF1b3Q7WmhpIFhpbiZxdW90OyAmbHQ7PGEgaHJlZj0ibWFpbHRvOnhpbnpoaUBtYXJ2
-ZWxsLmNvbSIgdGFyZ2V0PSJfYmxhbmsiPnhpbnpoaUBtYXJ2ZWxsLmNvbTwvYT4mZ3Q7IHdyb3Rl
-OjxvOnA+PC9vOnA+PC9zcGFuPjwvcD48L2Rpdj48L2Rpdj48YmxvY2txdW90ZSBzdHlsZT0nYm9y
-ZGVyOm5vbmU7Ym9yZGVyLWxlZnQ6c29saWQgI0NDQ0NDQyAxLjBwdDtwYWRkaW5nOjBjbSAwY20g
-MGNtIDYuMHB0O21hcmdpbi1sZWZ0OjQuOHB0O21hcmdpbi1yaWdodDowY20nPjxkaXY+PGRpdj48
-ZGl2PjxkaXY+PHAgY2xhc3M9TXNvTm9ybWFsIHN0eWxlPSdtc28tbWFyZ2luLXRvcC1hbHQ6YXV0
-bzttc28tbWFyZ2luLWJvdHRvbS1hbHQ6YXV0byc+PHNwYW4gbGFuZz1FTi1VUz5IaSBBbGwsPG86
-cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10
-b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+
-Jm5ic3A7PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNv
-LW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxh
-bmc9RU4tVVM+SW4gbXkgZGFpbHkgd29yaywgSeKAmW0gYWx3YXlzIHNvbHZpbmcgdGhlIHNlbGlu
-dXggZGVueSBhcyBwcmVzZW50ZWQgYnkgYXZjIGxvZy4gQnV0IEkgZm91bmQgdGhhdCwgZm9yIG9u
-ZSBwYXJ0aWN1bGFyIHRlc3QsIHNlbGludXggY2Fubm90IGdpdmUgbWUgYWxsIHRoZSBhdmMgZGVu
-eSBsb2cgaW4gb25lIHRpbWUsIHdoaWNoIGhhcyBzbG93ZWQgZG93biBhIGxvdCBvZiBteSBkYWls
-eSB3b3JrLjxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWwgc3R5bGU9J21z
-by1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvJz48c3BhbiBs
-YW5nPUVOLVVTPiZuYnNwOzxvOnA+PC9vOnA+PC9zcGFuPjwvcD48cCBjbGFzcz1Nc29Ob3JtYWwg
-c3R5bGU9J21zby1tYXJnaW4tdG9wLWFsdDphdXRvO21zby1tYXJnaW4tYm90dG9tLWFsdDphdXRv
-Jz48c3BhbiBsYW5nPUVOLVVTPkZvciBleGFtcGxlLCBJIHRyaWdnZXIgYSBwcm9jZXNzIGNhbGxl
-ZCB0ZXN0X2RhZW1vbiB0byBhY2Nlc3MgYSAvZGV2L3Rlc3RfZGV2aWNlIGluIGEgcGFydGljdWxh
-ciB0ZXN0LiBUb3RhbGx5LCBpdCBzaG91bGQgaGF2ZSDigJxvcGVuLCByZWFkLCB3cml0ZSwgaW9j
-dGzigJ0gZm9yIHBlcm1pc3Npb25zLiBCdXQgZm9yIG9uZSB0aW1lIHRlc3QsIEkgb25seSBjYXRj
-aCDigJxvcGVuLCByZWFk4oCdIHJlbGF0ZWQgYXZjIGxvZy4gQW5kIG9ubHkgYWZ0ZXIgSSBoYXZl
-IG1lcmdlZCBhIHBhdGNoIHRvIGdpdmUgdGhlIOKAnG9wZW7igJ0gYW5kIOKAnHJlYWTigJ0gcGVy
-bWlzc2lvbiwgSSByZXJ1biB0aGUgdGVzdC4gVGhlIOKAnHdyaXRlIGlvY3Rs4oCdIHJlbGF0ZWQg
-YXZjICZuYnNwO2xvZ3Mgc3RhcnQgdG8gb2NjdXIuIFNvIG15IHF1ZXN0aW9uIGlzIGhvdyBjYW4g
-SSBnZXQg4oCcb3BlbiwgcmVhZCwgd3JpdGUsIGlvY3Rs4oCdIGF2YyBsb2cgaW4gb25lIHRlc3Qu
-PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdp
-bi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4t
-VVM+Jm5ic3A7PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0n
-bXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFu
-IGxhbmc9RU4tVVM+SSBoYXZlIGRvbmUgYSBsaXR0bGUgc3R1ZHkgb24gdGhpcyBpc3N1ZS4gc2Vs
-aW51eCBhdmMgbG9nIGRlcGVuZHMgb24gYXVkaXQgc3Vic3lzdGVtLiBJbiAva2VybmVsL2tlcm5l
-bC9hdWRpdC5jLCBzb21lIGNvZGUgaGFzIGluZGljYXRlZCB0aGF0IHdlIG1heSBsb3N0IHRoZSBy
-ZWNvcmRzIGluIGZpdmUgd2F5czo8bzpwPjwvbzpwPjwvc3Bhbj48L3A+PHByZT48YSBuYW1lPSIx
-NGQyMWYyZjkzNDJiNjQ0XzE0ZDIxZDdhN2MxZjJjMDNfMTE1Ij48L2E+PHNwYW4gbGFuZz1FTi1V
-Uz48YSBocmVmPSJodHRwOi8vMTAuMzguMTIwLjMxOjgwODAvc291cmNlL3hyZWYvcHhhMTkyOC1s
-cDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0LmMjMTE1IiB0YXJnZXQ9Il9ibGFuayI+PHNwYW4gc3R5
-bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtj
-b2xvcjp3aW5kb3d0ZXh0O3RleHQtZGVjb3JhdGlvbjpub25lJz4xMTU8L3NwYW4+PC9hPjwvc3Bh
-bj48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJD
-YWxpYnJpIiwic2Fucy1zZXJpZiInPi8qIFJlY29yZHMgY2FuIGJlIGxvc3QgaW4gc2V2ZXJhbCB3
-YXlzOjwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwvcHJlPjxwcmU+
-PGEgbmFtZT0iMTRkMjFmMmY5MzQyYjY0NF8xNGQyMWQ3YTdjMWYyYzAzXzExNiI+PC9hPjxzcGFu
-IGxhbmc9RU4tVVM+PGEgaHJlZj0iaHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVm
-L3B4YTE5MjgtbHA1LjAva2VybmVsL2tlcm5lbC9hdWRpdC5jIzExNiIgdGFyZ2V0PSJfYmxhbmsi
-PjxzcGFuIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fu
-cy1zZXJpZiI7Y29sb3I6d2luZG93dGV4dDt0ZXh0LWRlY29yYXRpb246bm9uZSc+MTE2PC9zcGFu
-PjwvYT48L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250
-LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiJz4mbmJzcDsmbmJzcDsgMCkgW3N1cHByZXNz
-ZWQgaW4gYXVkaXRfYWxsb2NdPC9zcGFuPjxzcGFuIGxhbmc9RU4tVVM+PG86cD48L286cD48L3Nw
-YW4+PC9wcmU+PHByZT48YSBuYW1lPSIxNGQyMWYyZjkzNDJiNjQ0XzE0ZDIxZDdhN2MxZjJjMDNf
-MTE3Ij48L2E+PHNwYW4gbGFuZz1FTi1VUz48YSBocmVmPSJodHRwOi8vMTAuMzguMTIwLjMxOjgw
-ODAvc291cmNlL3hyZWYvcHhhMTkyOC1scDUuMC9rZXJuZWwva2VybmVsL2F1ZGl0LmMjMTE3IiB0
-YXJnZXQ9Il9ibGFuayI+PHNwYW4gc3R5bGU9J2ZvbnQtc2l6ZToxMC41cHQ7Zm9udC1mYW1pbHk6
-IkNhbGlicmkiLCJzYW5zLXNlcmlmIjtjb2xvcjp3aW5kb3d0ZXh0O3RleHQtZGVjb3JhdGlvbjpu
-b25lJz4xMTc8L3NwYW4+PC9hPjwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTIHN0eWxlPSdmb250LXNp
-emU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiInPiZuYnNwOyZuYnNw
-OyAxKSBvdXQgb2YgbWVtb3J5IGluIGF1ZGl0X2xvZ19zdGFydCBba21hbGxvYyBvZiBzdHJ1Y3Qg
-YXVkaXRfYnVmZmVyXTwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwv
-cHJlPjxwcmU+PGEgbmFtZT0iMTRkMjFmMmY5MzQyYjY0NF8xNGQyMWQ3YTdjMWYyYzAzXzExOCI+
-PC9hPjxzcGFuIGxhbmc9RU4tVVM+PGEgaHJlZj0iaHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3Nv
-dXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVsL2tlcm5lbC9hdWRpdC5jIzExOCIgdGFyZ2V0
-PSJfYmxhbmsiPjxzcGFuIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxp
-YnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6d2luZG93dGV4dDt0ZXh0LWRlY29yYXRpb246bm9uZSc+
-MTE4PC9zcGFuPjwvYT48L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEw
-LjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiJz4mbmJzcDsmbmJzcDsgMikg
-b3V0IG9mIG1lbW9yeSBpbiBhdWRpdF9sb2dfbW92ZSBbYWxsb2Nfc2tiXTwvc3Bhbj48c3BhbiBs
-YW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwvcHJlPjxwcmU+PGEgbmFtZT0iMTRkMjFmMmY5
-MzQyYjY0NF8xNGQyMWQ3YTdjMWYyYzAzXzExOSI+PC9hPjxzcGFuIGxhbmc9RU4tVVM+PGEgaHJl
-Zj0iaHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2Vy
-bmVsL2tlcm5lbC9hdWRpdC5jIzExOSIgdGFyZ2V0PSJfYmxhbmsiPjxzcGFuIHN0eWxlPSdmb250
-LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6d2lu
-ZG93dGV4dDt0ZXh0LWRlY29yYXRpb246bm9uZSc+MTE5PC9zcGFuPjwvYT48L3NwYW4+PHNwYW4g
-bGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIs
-InNhbnMtc2VyaWYiJz4mbmJzcDsmbmJzcDsgMykgc3VwcHJlc3NlZCBkdWUgdG8gYXVkaXRfcmF0
-ZV9saW1pdDwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwvcHJlPjxw
-cmU+PGEgbmFtZT0iMTRkMjFmMmY5MzQyYjY0NF8xNGQyMWQ3YTdjMWYyYzAzXzEyMCI+PC9hPjxz
-cGFuIGxhbmc9RU4tVVM+PGEgaHJlZj0iaHR0cDovLzEwLjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94
-cmVmL3B4YTE5MjgtbHA1LjAva2VybmVsL2tlcm5lbC9hdWRpdC5jIzEyMCIgdGFyZ2V0PSJfYmxh
-bmsiPjxzcGFuIHN0eWxlPSdmb250LXNpemU6MTAuNXB0O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwi
-c2Fucy1zZXJpZiI7Y29sb3I6d2luZG93dGV4dDt0ZXh0LWRlY29yYXRpb246bm9uZSc+MTIwPC9z
-cGFuPjwvYT48L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBzdHlsZT0nZm9udC1zaXplOjEwLjVwdDtm
-b250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYiJz4mbmJzcDsmbmJzcDsgNCkgc3VwcHJl
-c3NlZCBkdWUgdG8gYXVkaXRfYmFja2xvZ19saW1pdDwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTPjxv
-OnA+PC9vOnA+PC9zcGFuPjwvcHJlPjxwcmU+PGEgbmFtZT0iMTRkMjFmMmY5MzQyYjY0NF8xNGQy
-MWQ3YTdjMWYyYzAzXzEyMSI+PC9hPjxzcGFuIGxhbmc9RU4tVVM+PGEgaHJlZj0iaHR0cDovLzEw
-LjM4LjEyMC4zMTo4MDgwL3NvdXJjZS94cmVmL3B4YTE5MjgtbHA1LjAva2VybmVsL2tlcm5lbC9h
-dWRpdC5jIzEyMSIgdGFyZ2V0PSJfYmxhbmsiPjxzcGFuIHN0eWxlPSdmb250LXNpemU6MTAuNXB0
-O2ZvbnQtZmFtaWx5OiJDYWxpYnJpIiwic2Fucy1zZXJpZiI7Y29sb3I6d2luZG93dGV4dDt0ZXh0
-LWRlY29yYXRpb246bm9uZSc+MTIxPC9zcGFuPjwvYT48L3NwYW4+PHNwYW4gbGFuZz1FTi1VUyBz
-dHlsZT0nZm9udC1zaXplOjEwLjVwdDtmb250LWZhbWlseToiQ2FsaWJyaSIsInNhbnMtc2VyaWYi
-Jz4qLzwvc3Bhbj48c3BhbiBsYW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwvcHJlPjxwIGNs
-YXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1i
-b3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+Jm5ic3A7PG86cD48L286cD48L3NwYW4+
-PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNv
-LW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+U28gaXMgdGhpcyB0aGUg
-cm9vdC1jYXVzZSBvZiBteSBpc3N1ZSA/IEhvdyBjYW4gSSBtb2RpZnkga2VybmVsIGNvZGUgdG8g
-YXJjaGlldmUgbXkgcHVycG9zZSBvciB0aGVyZSBhbHJlYWR5IGlzIGEgb3Blbi9vZmYgc3dpdGNo
-IHRvIGhlbHAgbWUgb24gZ2l2aW5nIGFsbCB0aGUgbG9ncyBpbiBvbmUgdGltZSB0ZXN0ID8gPG86
-cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10
-b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+
-Jm5ic3A7PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBzdHlsZT0nbXNv
-LW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8nPjxzcGFuIGxh
-bmc9RU4tVVM+VGhhbmtzPG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNzPU1zb05vcm1hbCBz
-dHlsZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0b20tYWx0OmF1dG8n
-PjxzcGFuIGxhbmc9RU4tVVM+U2luY2VyZWx5PG86cD48L286cD48L3NwYW4+PC9wPjxwIGNsYXNz
-PU1zb05vcm1hbCBzdHlsZT0nbXNvLW1hcmdpbi10b3AtYWx0OmF1dG87bXNvLW1hcmdpbi1ib3R0
-b20tYWx0OmF1dG8nPjxzcGFuIGxhbmc9RU4tVVM+QWxhbiBYaW48bzpwPjwvbzpwPjwvc3Bhbj48
-L3A+PHAgY2xhc3M9TXNvTm9ybWFsIHN0eWxlPSdtc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzttc28t
-bWFyZ2luLWJvdHRvbS1hbHQ6YXV0byc+PHNwYW4gbGFuZz1FTi1VUz4mbmJzcDs8bzpwPjwvbzpw
-Pjwvc3Bhbj48L3A+PHAgY2xhc3M9TXNvTm9ybWFsIHN0eWxlPSdtc28tbWFyZ2luLXRvcC1hbHQ6
-YXV0bzttc28tbWFyZ2luLWJvdHRvbS1hbHQ6YXV0byc+PHNwYW4gbGFuZz1FTi1VUz4mbmJzcDs8
-bzpwPjwvbzpwPjwvc3Bhbj48L3A+PC9kaXY+PC9kaXY+PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFu
-IGxhbmc9RU4tVVM+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPjwvZGl2PjwvZGl2PjxwIGNs
-YXNzPU1zb05vcm1hbD48c3BhbiBsYW5nPUVOLVVTPl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fPGJyPlNlbGludXggbWFpbGluZyBsaXN0PGJyPjxhIGhyZWY9
-Im1haWx0bzpTZWxpbnV4QHR5Y2hvLm5zYS5nb3YiIHRhcmdldD0iX2JsYW5rIj5TZWxpbnV4QHR5
-Y2hvLm5zYS5nb3Y8L2E+PGJyPlRvIHVuc3Vic2NyaWJlLCBzZW5kIGVtYWlsIHRvIDxhIGhyZWY9
-Im1haWx0bzpTZWxpbnV4LWxlYXZlQHR5Y2hvLm5zYS5nb3YiIHRhcmdldD0iX2JsYW5rIj5TZWxp
-bnV4LWxlYXZlQHR5Y2hvLm5zYS5nb3Y8L2E+Ljxicj5UbyBnZXQgaGVscCwgc2VuZCBhbiBlbWFp
-bCBjb250YWluaW5nICZxdW90O2hlbHAmcXVvdDsgdG8gPGEgaHJlZj0ibWFpbHRvOlNlbGludXgt
-cmVxdWVzdEB0eWNoby5uc2EuZ292IiB0YXJnZXQ9Il9ibGFuayI+U2VsaW51eC1yZXF1ZXN0QHR5
-Y2hvLm5zYS5nb3Y8L2E+LjxvOnA+PC9vOnA+PC9zcGFuPjwvcD48L2Jsb2NrcXVvdGU+PC9kaXY+
-PHAgY2xhc3M9TXNvTm9ybWFsPjxzcGFuIGxhbmc9RU4tVVM+PGJyPl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fPGJyPlNlbGludXggbWFpbGluZyBsaXN0PGJy
-PjxhIGhyZWY9Im1haWx0bzpTZWxpbnV4QHR5Y2hvLm5zYS5nb3YiPlNlbGludXhAdHljaG8ubnNh
-LmdvdjwvYT48YnI+VG8gdW5zdWJzY3JpYmUsIHNlbmQgZW1haWwgdG8gPGEgaHJlZj0ibWFpbHRv
-OlNlbGludXgtbGVhdmVAdHljaG8ubnNhLmdvdiI+U2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292
-PC9hPi48YnI+VG8gZ2V0IGhlbHAsIHNlbmQgYW4gZW1haWwgY29udGFpbmluZyAmcXVvdDtoZWxw
-JnF1b3Q7IHRvIDxhIGhyZWY9Im1haWx0bzpTZWxpbnV4LXJlcXVlc3RAdHljaG8ubnNhLmdvdiI+
-U2VsaW51eC1yZXF1ZXN0QHR5Y2hvLm5zYS5nb3Y8L2E+LjxvOnA+PC9vOnA+PC9zcGFuPjwvcD48
-L2Rpdj48cCBjbGFzcz1Nc29Ob3JtYWw+PHNwYW4gbGFuZz1FTi1VUz48bzpwPiZuYnNwOzwvbzpw
-Pjwvc3Bhbj48L3A+PC9kaXY+PC9kaXY+PC9ib2R5PjwvaHRtbD4=
+Thanks and Regards
+Gaurav Gangwar
 
---_000_F766E4F80769BD478052FB6533FA745D66611C40DESCVEXCH4marve_--
+On 5 May 2015 at 13:02, Zhi Xin <xinzhi@marvell.com> wrote:
+
+> Hi  Ravi,
+>
+>
+>
+> Thanks for analysis. I get your point. Under enforcing, if open is
+> blocked, we never see the ioctl operation come. I agreed with you analysi=
+s.
+>
+>
+>
+> But my issue is not like this. The issue I try to say is that even under
+> permissive, selinux cannot give out all the avc log in one time.
+>
+>
+>
+> My previous example is probably not a good one. I=E2=80=99d like to give =
+a new
+> one. For a new phone with Android lp5.0 that enabled permissive mode of
+> SEAndroid, it reports lots of avc deny logs in one boot.  And after I fix
+> them by adding selinux policy, reburn the boot.img and boot again. I can
+> still get avc logs, which are different from previous. Why they cannot be
+> printed out in one time ?
+>
+>
+>
+> Thanks.
+>
+> Sincerely
+>
+> Zhi Xin
+>
+>
+>
+>
+>
+> *From:* Ravi Kumar [mailto:nxp.ravi@gmail.com]
+> *Sent:* 2015=E5=B9=B45=E6=9C=885=E6=97=A5 13:56
+> *To:* William Roberts
+> *Cc:* Zhi Xin; selinux@tycho.nsa.gov
+> *Subject:* Re: Give out all the avc logs in ome time
+>
+>
+>
+> Alan,
+>
+> Code written in most of the cases will be checking for success on   file
+> open or device node open . Which is basically a  check on  file descripto=
+r
+> (fd)   if its null ( may be failed due to  selinux policy missing)  it
+> comes out of the code and never try to do a IOCTL / or any other  operati=
+on
+> on the null  fd  so we will not see any additional  denials  until we
+> address the open.
+>
+> As a generally practice what i feel recommending  is  set the selinux mod=
+e
+> in permissive and capture all the denials at ONE shot . Based on the
+> denials logs collected it will be easy for us to write / define the polic=
+y
+> at a single shot .
+>
+> you can use kernel cmdline for setting it in permissive  or use
+> "setenforce " cmd from root shell .
+>
+>
+>
+> Regards,
+>
+> Ravi
+>
+>
+>
+>
+>
+>
+>
+> On Tue, May 5, 2015 at 8:07 AM, William Roberts <bill.c.roberts@gmail.com=
+>
+> wrote:
+>
+> Are you running in permissive or enforcing mode? Usually if you're runnin=
+g
+> in enforcing mode the daemon will not be able to perform all of its tasks
+> that it normally would thus your missing messages
+>
+> On May 4, 2015 7:11 PM, "Zhi Xin" <xinzhi@marvell.com> wrote:
+>
+> Hi All,
+>
+>
+>
+> In my daily work, I=E2=80=99m always solving the selinux deny as presente=
+d by avc
+> log. But I found that, for one particular test, selinux cannot give me al=
+l
+> the avc deny log in one time, which has slowed down a lot of my daily wor=
+k.
+>
+>
+>
+> For example, I trigger a process called test_daemon to access a
+> /dev/test_device in a particular test. Totally, it should have =E2=80=9Co=
+pen, read,
+> write, ioctl=E2=80=9D for permissions. But for one time test, I only catc=
+h =E2=80=9Copen,
+> read=E2=80=9D related avc log. And only after I have merged a patch to gi=
+ve the
+> =E2=80=9Copen=E2=80=9D and =E2=80=9Cread=E2=80=9D permission, I rerun the=
+ test. The =E2=80=9Cwrite ioctl=E2=80=9D related
+> avc  logs start to occur. So my question is how can I get =E2=80=9Copen, =
+read,
+> write, ioctl=E2=80=9D avc log in one test.
+>
+>
+>
+> I have done a little study on this issue. selinux avc log depends on audi=
+t
+> subsystem. In /kernel/kernel/audit.c, some code has indicated that we may
+> lost the records in five ways:
+>
+> 115 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#115>/* Records can be lost in several ways:
+>
+> 116 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#116>   0) [suppressed in audit_alloc]
+>
+> 117 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#117>   1) out of memory in audit_log_start [kmalloc of struct audit_bu=
+ffer]
+>
+> 118 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#118>   2) out of memory in audit_log_move [alloc_skb]
+>
+> 119 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#119>   3) suppressed due to audit_rate_limit
+>
+> 120 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#120>   4) suppressed due to audit_backlog_limit
+>
+> 121 <http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/aud=
+it.c#121>*/
+>
+>
+>
+> So is this the root-cause of my issue ? How can I modify kernel code to
+> archieve my purpose or there already is a open/off switch to help me on
+> giving all the logs in one time test ?
+>
+>
+>
+> Thanks
+>
+> Sincerely
+>
+> Alan Xin
+>
+>
+>
+>
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+>
+
+--001a113a62dad433c70515519ccd
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Alan,<div><br></div><div>Do flash all the images every-=
+time or just the boot image.</div><div>if you flash only boot-image then th=
+at could be reason.</div><div><br></div><div>Thanks and Regards</div><div>G=
+aurav Gangwar</div></div><div class=3D"gmail_extra"><br><div class=3D"gmail=
+_quote">On 5 May 2015 at 13:02, Zhi Xin <span dir=3D"ltr">&lt;<a href=3D"ma=
+ilto:xinzhi@marvell.com" target=3D"_blank">xinzhi@marvell.com</a>&gt;</span=
+> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bo=
+rder-left:1px #ccc solid;padding-left:1ex"><div lang=3D"ZH-CN" link=3D"blue=
+" vlink=3D"purple"><div><p class=3D"MsoNormal"><span lang=3D"EN-US" style=
+=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;=
+;color:#1f497d">Hi=C2=A0 Ravi,<u></u><u></u></span></p><p class=3D"MsoNorma=
+l"><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri=
+&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></span></p=
+><p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt;font=
+-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d">Thanks fo=
+r analysis. I get your point. Under enforcing, if open is blocked, we never=
+ see the ioctl operation come. I agreed with you analysis.<u></u><u></u></s=
+pan></p><p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5=
+pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u=
+></u>=C2=A0<u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-US" st=
+yle=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&qu=
+ot;;color:#1f497d">But my issue is not like this. The issue I try to say is=
+</span><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Cal=
+ibri&quot;,&quot;sans-serif&quot;;color:red"> that even under permissive, s=
+elinux cannot give out all the avc log in one time. </span><span lang=3D"EN=
+-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-s=
+erif&quot;;color:#1f497d"><u></u><u></u></span></p><p class=3D"MsoNormal"><=
+span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quo=
+t;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></span></p><p =
+class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-fam=
+ily:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d">My previous e=
+xample is probably not a good one. I=E2=80=99d like to give a new one. For =
+a new phone with Android lp5.0 that enabled permissive mode of SEAndroid, i=
+t reports lots of avc deny logs in one boot.=C2=A0 And after I fix them by =
+adding selinux policy, reburn the boot.img and boot again. I can still get =
+avc logs, which are different from previous. Why they cannot be printed out=
+ in one time ? <u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=
+=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;=
+sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></span></p><p class=3D"=
+MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot=
+;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d">Thanks.<u></u><u></u><=
+/span></p><p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10=
+.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d">=
+Sincerely<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-U=
+S" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-ser=
+if&quot;;color:#1f497d">Zhi Xin<u></u><u></u></span></p><p class=3D"MsoNorm=
+al"><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibr=
+i&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=C2=A0<u></u></span></=
+p><p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt;fon=
+t-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:#1f497d"><u></u>=
+=C2=A0<u></u></span></p><div style=3D"border:none;border-top:solid #b5c4df =
+1.0pt;padding:3.0pt 0cm 0cm 0cm"><p class=3D"MsoNormal"><b><span lang=3D"EN=
+-US" style=3D"font-size:10.0pt;font-family:&quot;Tahoma&quot;,&quot;sans-se=
+rif&quot;">From:</span></b><span lang=3D"EN-US" style=3D"font-size:10.0pt;f=
+ont-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;"> Ravi Kumar [mailto:<=
+a href=3D"mailto:nxp.ravi@gmail.com" target=3D"_blank">nxp.ravi@gmail.com</=
+a>] <br><b>Sent:</b> 2015</span><span style=3D"font-size:10.0pt">=E5=B9=B4<=
+/span><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-family:&quot;Taho=
+ma&quot;,&quot;sans-serif&quot;">5</span><span style=3D"font-size:10.0pt">=
+=E6=9C=88</span><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-family:=
+&quot;Tahoma&quot;,&quot;sans-serif&quot;">5</span><span style=3D"font-size=
+:10.0pt">=E6=97=A5</span><span lang=3D"EN-US" style=3D"font-size:10.0pt;fon=
+t-family:&quot;Tahoma&quot;,&quot;sans-serif&quot;"> 13:56<br><b>To:</b> Wi=
+lliam Roberts<br><b>Cc:</b> Zhi Xin; <a href=3D"mailto:selinux@tycho.nsa.go=
+v" target=3D"_blank">selinux@tycho.nsa.gov</a><br><b>Subject:</b> Re: Give =
+out all the avc logs in ome time<u></u><u></u></span></p></div><p class=3D"=
+MsoNormal"><span lang=3D"EN-US"><u></u>=C2=A0<u></u></span></p><div><div><d=
+iv><p class=3D"MsoNormal"><span lang=3D"EN-US">Alan, <u></u><u></u></span><=
+/p></div><p class=3D"MsoNormal" style=3D"margin-bottom:12.0pt"><span lang=
+=3D"EN-US">Code written in most of the cases will be checking for success o=
+n =C2=A0 file open or device node open . Which is basically a=C2=A0 check o=
+n=C2=A0 file descriptor (fd) =C2=A0 if its null ( may be failed due to=C2=
+=A0 selinux policy missing)=C2=A0 it=C2=A0 comes out of the code and never =
+try to do a IOCTL / or any other=C2=A0 operation on the null=C2=A0 fd=C2=A0=
+ so we will not see any additional=C2=A0 denials=C2=A0 until we address the=
+ open. <u></u><u></u></span></p></div><div><p class=3D"MsoNormal" style=3D"=
+margin-bottom:12.0pt"><span lang=3D"EN-US">As a generally practice what i f=
+eel recommending=C2=A0 is=C2=A0 set the selinux mode in permissive and capt=
+ure all the denials at ONE shot . Based on the denials logs collected it wi=
+ll be easy for us to write / define the policy at a single shot .=C2=A0 <u>=
+</u><u></u></span></p></div><div><p class=3D"MsoNormal"><span lang=3D"EN-US=
+">you can use kernel cmdline for setting it in permissive=C2=A0 or use=C2=
+=A0 &quot;setenforce &quot; cmd from root shell .=C2=A0 <u></u><u></u></spa=
+n></p></div><div><p class=3D"MsoNormal"><span lang=3D"EN-US"><u></u>=C2=A0<=
+u></u></span></p></div><div><p class=3D"MsoNormal"><span lang=3D"EN-US">Reg=
+ards,<u></u><u></u></span></p></div><div><p class=3D"MsoNormal"><span lang=
+=3D"EN-US">Ravi<u></u><u></u></span></p></div><div><p class=3D"MsoNormal"><=
+span lang=3D"EN-US"><br><br>=C2=A0 <u></u><u></u></span></p></div></div><di=
+v><p class=3D"MsoNormal"><span lang=3D"EN-US"><u></u>=C2=A0<u></u></span></=
+p><div><p class=3D"MsoNormal"><span lang=3D"EN-US">On Tue, May 5, 2015 at 8=
+:07 AM, William Roberts &lt;<a href=3D"mailto:bill.c.roberts@gmail.com" tar=
+get=3D"_blank">bill.c.roberts@gmail.com</a>&gt; wrote:<u></u><u></u></span>=
+</p><p><span lang=3D"EN-US">Are you running in permissive or enforcing mode=
+? Usually if you&#39;re running in enforcing mode the daemon will not be ab=
+le to perform all of its tasks that it normally would thus your missing mes=
+sages<u></u><u></u></span></p><div><div><div><p class=3D"MsoNormal"><span l=
+ang=3D"EN-US">On May 4, 2015 7:11 PM, &quot;Zhi Xin&quot; &lt;<a href=3D"ma=
+ilto:xinzhi@marvell.com" target=3D"_blank">xinzhi@marvell.com</a>&gt; wrote=
+:<u></u><u></u></span></p></div></div><blockquote style=3D"border:none;bord=
+er-left:solid #cccccc 1.0pt;padding:0cm 0cm 0cm 6.0pt;margin-left:4.8pt;mar=
+gin-right:0cm"><div><div><div><div><p class=3D"MsoNormal"><span lang=3D"EN-=
+US">Hi All,<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN=
+-US">=C2=A0<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN=
+-US">In my daily work, I=E2=80=99m always solving the selinux deny as prese=
+nted by avc log. But I found that, for one particular test, selinux cannot =
+give me all the avc deny log in one time, which has slowed down a lot of my=
+ daily work.<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"E=
+N-US">=C2=A0<u></u><u></u></span></p><p class=3D"MsoNormal"><span lang=3D"E=
+N-US">For example, I trigger a process called test_daemon to access a /dev/=
+test_device in a particular test. Totally, it should have =E2=80=9Copen, re=
+ad, write, ioctl=E2=80=9D for permissions. But for one time test, I only ca=
+tch =E2=80=9Copen, read=E2=80=9D related avc log. And only after I have mer=
+ged a patch to give the =E2=80=9Copen=E2=80=9D and =E2=80=9Cread=E2=80=9D p=
+ermission, I rerun the test. The =E2=80=9Cwrite ioctl=E2=80=9D related avc =
+=C2=A0logs start to occur. So my question is how can I get =E2=80=9Copen, r=
+ead, write, ioctl=E2=80=9D avc log in one test.<u></u><u></u></span></p><p =
+class=3D"MsoNormal"><span lang=3D"EN-US">=C2=A0<u></u><u></u></span></p><p =
+class=3D"MsoNormal"><span lang=3D"EN-US">I have done a little study on this=
+ issue. selinux avc log depends on audit subsystem. In /kernel/kernel/audit=
+.c, some code has indicated that we may lost the records in five ways:<u></=
+u><u></u></span></p><pre><a name=3D"14d2301c6cb57c75_14d21f2f9342b644_14d21=
+d7a7c1f2c03_115"></a><span lang=3D"EN-US"><a href=3D"http://10.38.120.31:80=
+80/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#115" target=3D"_blank"><=
+span style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-s=
+erif&quot;;color:windowtext;text-decoration:none">115</span></a></span><spa=
+n lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,=
+&quot;sans-serif&quot;">/* Records can be lost in several ways:</span><span=
+ lang=3D"EN-US"><u></u><u></u></span></pre><pre><a name=3D"14d2301c6cb57c75=
+_14d21f2f9342b644_14d21d7a7c1f2c03_116"></a><span lang=3D"EN-US"><a href=3D=
+"http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#1=
+16" target=3D"_blank"><span style=3D"font-size:10.5pt;font-family:&quot;Cal=
+ibri&quot;,&quot;sans-serif&quot;;color:windowtext;text-decoration:none">11=
+6</span></a></span><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-fami=
+ly:&quot;Calibri&quot;,&quot;sans-serif&quot;">=C2=A0=C2=A0 0) [suppressed =
+in audit_alloc]</span><span lang=3D"EN-US"><u></u><u></u></span></pre><pre>=
+<a name=3D"14d2301c6cb57c75_14d21f2f9342b644_14d21d7a7c1f2c03_117"></a><spa=
+n lang=3D"EN-US"><a href=3D"http://10.38.120.31:8080/source/xref/pxa1928-lp=
+5.0/kernel/kernel/audit.c#117" target=3D"_blank"><span style=3D"font-size:1=
+0.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:windowte=
+xt;text-decoration:none">117</span></a></span><span lang=3D"EN-US" style=3D=
+"font-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;">=
+=C2=A0=C2=A0 1) out of memory in audit_log_start [kmalloc of struct audit_b=
+uffer]</span><span lang=3D"EN-US"><u></u><u></u></span></pre><pre><a name=
+=3D"14d2301c6cb57c75_14d21f2f9342b644_14d21d7a7c1f2c03_118"></a><span lang=
+=3D"EN-US"><a href=3D"http://10.38.120.31:8080/source/xref/pxa1928-lp5.0/ke=
+rnel/kernel/audit.c#118" target=3D"_blank"><span style=3D"font-size:10.5pt;=
+font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:windowtext;tex=
+t-decoration:none">118</span></a></span><span lang=3D"EN-US" style=3D"font-=
+size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;">=C2=A0=
+=C2=A0 2) out of memory in audit_log_move [alloc_skb]</span><span lang=3D"E=
+N-US"><u></u><u></u></span></pre><pre><a name=3D"14d2301c6cb57c75_14d21f2f9=
+342b644_14d21d7a7c1f2c03_119"></a><span lang=3D"EN-US"><a href=3D"http://10=
+.38.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#119" target=
+=3D"_blank"><span style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;=
+,&quot;sans-serif&quot;;color:windowtext;text-decoration:none">119</span></=
+a></span><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;C=
+alibri&quot;,&quot;sans-serif&quot;">=C2=A0=C2=A0 3) suppressed due to audi=
+t_rate_limit</span><span lang=3D"EN-US"><u></u><u></u></span></pre><pre><a =
+name=3D"14d2301c6cb57c75_14d21f2f9342b644_14d21d7a7c1f2c03_120"></a><span l=
+ang=3D"EN-US"><a href=3D"http://10.38.120.31:8080/source/xref/pxa1928-lp5.0=
+/kernel/kernel/audit.c#120" target=3D"_blank"><span style=3D"font-size:10.5=
+pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;;color:windowtext;=
+text-decoration:none">120</span></a></span><span lang=3D"EN-US" style=3D"fo=
+nt-size:10.5pt;font-family:&quot;Calibri&quot;,&quot;sans-serif&quot;">=C2=
+=A0=C2=A0 4) suppressed due to audit_backlog_limit</span><span lang=3D"EN-U=
+S"><u></u><u></u></span></pre><pre><a name=3D"14d2301c6cb57c75_14d21f2f9342=
+b644_14d21d7a7c1f2c03_121"></a><span lang=3D"EN-US"><a href=3D"http://10.38=
+.120.31:8080/source/xref/pxa1928-lp5.0/kernel/kernel/audit.c#121" target=3D=
+"_blank"><span style=3D"font-size:10.5pt;font-family:&quot;Calibri&quot;,&q=
+uot;sans-serif&quot;;color:windowtext;text-decoration:none">121</span></a><=
+/span><span lang=3D"EN-US" style=3D"font-size:10.5pt;font-family:&quot;Cali=
+bri&quot;,&quot;sans-serif&quot;">*/</span><span lang=3D"EN-US"><u></u><u><=
+/u></span></pre><p class=3D"MsoNormal"><span lang=3D"EN-US">=C2=A0<u></u><u=
+></u></span></p><p class=3D"MsoNormal"><span lang=3D"EN-US">So is this the =
+root-cause of my issue ? How can I modify kernel code to archieve my purpos=
+e or there already is a open/off switch to help me on giving all the logs i=
+n one time test ? <u></u><u></u></span></p><p class=3D"MsoNormal"><span lan=
+g=3D"EN-US">=C2=A0<u></u><u></u></span></p><p class=3D"MsoNormal"><span lan=
+g=3D"EN-US">Thanks<u></u><u></u></span></p><p class=3D"MsoNormal"><span lan=
+g=3D"EN-US">Sincerely<u></u><u></u></span></p><p class=3D"MsoNormal"><span =
+lang=3D"EN-US">Alan Xin<u></u><u></u></span></p><p class=3D"MsoNormal"><spa=
+n lang=3D"EN-US">=C2=A0<u></u><u></u></span></p><p class=3D"MsoNormal"><spa=
+n lang=3D"EN-US">=C2=A0<u></u><u></u></span></p></div></div><p class=3D"Mso=
+Normal"><span lang=3D"EN-US"><u></u>=C2=A0<u></u></span></p></div></div><p =
+class=3D"MsoNormal"><span lang=3D"EN-US">__________________________________=
+_____________<br>Selinux mailing list<br><a href=3D"mailto:Selinux@tycho.ns=
+a.gov" target=3D"_blank">Selinux@tycho.nsa.gov</a><br>To unsubscribe, send =
+email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov" target=3D"_blank">S=
+elinux-leave@tycho.nsa.gov</a>.<br>To get help, send an email containing &q=
+uot;help&quot; to <a href=3D"mailto:Selinux-request@tycho.nsa.gov" target=
+=3D"_blank">Selinux-request@tycho.nsa.gov</a>.<u></u><u></u></span></p></bl=
+ockquote></div><p class=3D"MsoNormal"><span lang=3D"EN-US"><br>____________=
+___________________________________<br>Selinux mailing list<br><a href=3D"m=
+ailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.nsa.gov</a><br=
+>To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.go=
+v" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>To get help, send =
+an email containing &quot;help&quot; to <a href=3D"mailto:Selinux-request@t=
+ycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa.gov</a>.<u></u><u=
+></u></span></p></div><p class=3D"MsoNormal"><span lang=3D"EN-US"><u></u>=
+=C2=A0<u></u></span></p></div></div></div><br>_____________________________=
+__________________<br>
+Selinux mailing list<br>
+<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
+To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
+">Selinux-leave@tycho.nsa.gov</a>.<br>
+To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
+:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br></blo=
+ckquote></div><br></div>
+
+--001a113a62dad433c70515519ccd--
