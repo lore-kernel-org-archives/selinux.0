@@ -1,75 +1,128 @@
-Message-ID: <5550B6D4.4070002@tycho.nsa.gov>
-Date: Mon, 11 May 2015 10:04:04 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: is_selinux_enabled(): drop no-policy-loaded
- test.
-References: <1429278141-7728-1-git-send-email-sds@tycho.nsa.gov>
- <5550B134.6050606@redhat.com> <5550B1FE.5040304@tycho.nsa.gov>
- <5550B368.5020600@redhat.com> <5550B663.1070000@tycho.nsa.gov>
-In-Reply-To: <5550B663.1070000@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: matchpathcon/selabel_file: Fix man pages.
+Date: Mon, 11 May 2015 10:09:38 -0400
+Message-Id: <1431353378-6438-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/11/2015 10:02 AM, Stephen Smalley wrote:
-> On 05/11/2015 09:49 AM, Petr Lautrbach wrote:
->> On 05/11/2015 03:43 PM, Stephen Smalley wrote:
->>> On 05/11/2015 09:40 AM, Petr Lautrbach wrote:
->>>> On 04/17/2015 03:42 PM, Stephen Smalley wrote:
->>>>> SELinux can be disabled via the selinux=0 kernel parameter or via
->>>>> /sys/fs/selinux/disable (triggered by setting SELINUX=disabled in
->>>>> /etc/selinux/config).  In either case, selinuxfs will be unmounted
->>>>> and unregistered and therefore it is sufficient to check for the
->>>>> selinuxfs mount.  We do not need to check for no-policy-loaded and
->>>>> treat that as SELinux-disabled anymore; that is a relic of Fedora Core 2
->>>>> days.  Drop the no-policy-loaded test, which was a bit of a hack anyway
->>>>> (checking whether getcon_raw() returned "kernel" as that can only happen
->>>>> if no policy is yet loaded and therefore security_sid_to_context() only
->>>>> has the initial SID name available to return as the context).
->>>>>
->>>>> May possibly fix https://bugzilla.redhat.com/show_bug.cgi?id=1195074
->>>>> by virtue of removing the call to getcon_raw() and therefore avoiding
->>>>> use of tls on is_selinux_enabled() calls.  Regardless, it will make
->>>>> is_selinux_enabled() faster and simpler.
->>>>>
->>>>
->>>> This patch breaks system with SELinux enabled kernel and without
->>>> loaded/installed an SELinux policy, see [1].
->>>>
->>>> Would it be feasible to have is_selinux_enabled() connected to existence
->>>> of SELINUX variable in /etc/selinux/config file for the cases when
->>>> there's no specific kernel command line option used in running system?
->>>> Or would it break something else?
->>>>
->>>> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1219045
->>>
->>> Sorry, does this occur even if they have SELINUX=disabled in
->>> /etc/selinux/config?
->>
->> It works with SELINUX=disabled. It's only related to systems without
->> /etc/selinux/config and without selinux=0 on kernel command line.
-> 
-> I see.  So I can see that it is a regression for such systems, but such
-> systems are definitely running suboptimally by NOT disabling SELinux if
-> they are not going to even load a policy.  They are just wasting all of
-> the SELinux hook call overhead in the kernel.
-> 
-> In any event, one of the benefits of the change that caused this
-> regression is that it makes is_selinux_enabled() very fast and avoids
-> any need to open any extra files on calls to it, thereby improving
-> performance on both SELinux-enabled and SELinux-disabled systems.
-> 
-> I don't think we need or want to actually have it read
-> /etc/selinux/config and look for a SELINUX= variable.  Isn't it
-> sufficient to test for the existence of an /etc/selinux/config file,
-> e.g. access("/etc/selinux/config", F_OK)?
-> 
-> We'll have to wrap that test with #ifndef ANDROID as Android does not
-> use /etc/selinux/config.
+As discussed in https://bugzilla.redhat.com/show_bug.cgi?id=1219718,
+there are several inconsistencies between the matchpathcon man page
+and the implementation.  The same is true of the SELABEL_OPT_SUBSET
+option for the selabel_file backend.  Fix the man pages for both.
+Also note in the man pages that the entire matchpathcon family
+of functions is deprecated and recommend use of the corresponding
+selabel interfaces for new code.
 
-Oh, and let's do it once in init_selinuxmnt() and cache the result so we
-aren't calling access() on each is_selinux_enabled() call.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/man/man3/matchpathcon.3 | 45 +++++++++++++++++++++++++++++++++-----
+ libselinux/man/man5/selabel_file.5 |  6 +++--
+ 2 files changed, 44 insertions(+), 7 deletions(-)
+
+diff --git a/libselinux/man/man3/matchpathcon.3 b/libselinux/man/man3/matchpathcon.3
+index 1bc7ba1..177f15d 100644
+--- a/libselinux/man/man3/matchpathcon.3
++++ b/libselinux/man/man3/matchpathcon.3
+@@ -7,7 +7,7 @@ matchpathcon, matchpathcon_index \- get the default SELinux security context for
+ .sp
+ .BI "int matchpathcon_init(const char *" path ");"
+ .sp
+-.BI "int matchpathcon_init_prefix(const char *" path ", const char *" subset ");"
++.BI "int matchpathcon_init_prefix(const char *" path ", const char *" prefix ");"
+ .sp
+ .BI "int matchpathcon_fini(void);"
+ .sp
+@@ -16,6 +16,24 @@ matchpathcon, matchpathcon_index \- get the default SELinux security context for
+ .BI "int matchpathcon_index(const char *" name ", mode_t " mode ", char **" con ");"
+ .
+ .SH "DESCRIPTION"
++
++This family of functions is deprecated.  For new code, please use
++.BR selabel_open (3)
++with the
++.B SELABEL_CTX_FILE
++backend in place of
++.BR matchpathcon_init (),
++use
++.BR selabel_close (3)
++in place of
++.BR matchpathcon_fini (),
++and use
++.BR selabel_lookup (3)
++in place of
++.BR matchpathcon ().
++
++The remaining description below is for the legacy interface.
++
+ .BR matchpathcon_init ()
+ loads the file contexts configuration specified by
+ .I path
+@@ -41,9 +59,16 @@ customizations.
+ .BR matchpathcon_init_prefix ()
+ is the same as
+ .BR matchpathcon_init ()
+-but only loads entries with regular expressions that have stems prefixed
+-by
+-.I \%prefix.
++but only loads entries with regular expressions whose first pathname
++component is a prefix of
++.I \%prefix
++, e.g. pass "/dev" if you only intend to call
++.BR matchpathcon ()
++with pathnames beginning with /dev.
++However, this optimization is no longer necessary due to the use of
++.I file_contexts.bin
++files with precompiled regular expressions, so use of this interface
++is deprecated.
+ 
+ .BR matchpathcon_fini ()
+ frees the memory allocated by a prior call to
+@@ -54,7 +79,17 @@ calls, or to free memory when finished using
+ .BR matchpathcon ().
+ 
+ .BR matchpathcon ()
+-matches the specified pathname and mode against the file contexts
++matches the specified
++.I pathname,
++after transformation via
++.BR realpath (3)
++excepting any final symbolic link component if S_IFLNK was
++specified as the
++.I mode,
++and
++.I mode
++against the
++.I file contexts
+ configuration and sets the security context 
+ .I con 
+ to refer to the
+diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
+index 79eca95..e738824 100644
+--- a/libselinux/man/man5/selabel_file.5
++++ b/libselinux/man/man5/selabel_file.5
+@@ -55,7 +55,9 @@ A non-null value for this option specifies a path to a file that will be opened
+ A non-null value for this option indicates that any local customizations to the file contexts mapping should be ignored.
+ .TP
+ .B SELABEL_OPT_SUBSET
+-A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications starting with the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix will fail.
++A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications with starting with a first component that prefix matches the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix may fail.  This optimization is no longer required due to the use of
++.I file_contexts.bin
++files and is deprecated.
+ .RE
+ .
+ .SH "FILES"
+@@ -206,7 +208,7 @@ component with \fI/var/www\fR, therefore the path used is:
+ If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
+ .IP "2." 4
+ If the size of file contexts series of files contain many entries, then \fBselabel_open\fR(3) may have a delay as it reads in the files, and if
+-requested validates the entries. If possible use the \fBSELABEL_OPT_SUBSET\fR option to reduce the number of entries processed.
++requested validates the entries.
+ .IP "3." 4
+ Depending on the version of SELinux it is possible that a \fIfile_contexts.template\fR file may also be present, however this is now deprecated.
+ .br
+-- 
+2.1.0
