@@ -1,128 +1,143 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: matchpathcon/selabel_file: Fix man pages.
-Date: Mon, 11 May 2015 10:09:38 -0400
-Message-Id: <1431353378-6438-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5550B899.7060603@redhat.com>
+Date: Mon, 11 May 2015 16:11:37 +0200
+From: Petr Lautrbach <plautrba@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] libselinux: is_selinux_enabled(): drop no-policy-loaded
+ test.
+References: <1429278141-7728-1-git-send-email-sds@tycho.nsa.gov>
+ <5550B134.6050606@redhat.com> <5550B1FE.5040304@tycho.nsa.gov>
+ <5550B368.5020600@redhat.com> <5550B663.1070000@tycho.nsa.gov>
+ <5550B6D4.4070002@tycho.nsa.gov>
+In-Reply-To: <5550B6D4.4070002@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="6quLD35tck7KQKRNerrDLbjGF5kTDdbV8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As discussed in https://bugzilla.redhat.com/show_bug.cgi?id=1219718,
-there are several inconsistencies between the matchpathcon man page
-and the implementation.  The same is true of the SELABEL_OPT_SUBSET
-option for the selabel_file backend.  Fix the man pages for both.
-Also note in the man pages that the entire matchpathcon family
-of functions is deprecated and recommend use of the corresponding
-selabel interfaces for new code.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--6quLD35tck7KQKRNerrDLbjGF5kTDdbV8
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libselinux/man/man3/matchpathcon.3 | 45 +++++++++++++++++++++++++++++++++-----
- libselinux/man/man5/selabel_file.5 |  6 +++--
- 2 files changed, 44 insertions(+), 7 deletions(-)
+On 05/11/2015 04:04 PM, Stephen Smalley wrote:
+> On 05/11/2015 10:02 AM, Stephen Smalley wrote:
+>> On 05/11/2015 09:49 AM, Petr Lautrbach wrote:
+>>> On 05/11/2015 03:43 PM, Stephen Smalley wrote:
+>>>> On 05/11/2015 09:40 AM, Petr Lautrbach wrote:
+>>>>> On 04/17/2015 03:42 PM, Stephen Smalley wrote:
+>>>>>> SELinux can be disabled via the selinux=3D0 kernel parameter or vi=
+a
+>>>>>> /sys/fs/selinux/disable (triggered by setting SELINUX=3Ddisabled i=
+n
+>>>>>> /etc/selinux/config).  In either case, selinuxfs will be unmounted=
 
-diff --git a/libselinux/man/man3/matchpathcon.3 b/libselinux/man/man3/matchpathcon.3
-index 1bc7ba1..177f15d 100644
---- a/libselinux/man/man3/matchpathcon.3
-+++ b/libselinux/man/man3/matchpathcon.3
-@@ -7,7 +7,7 @@ matchpathcon, matchpathcon_index \- get the default SELinux security context for
- .sp
- .BI "int matchpathcon_init(const char *" path ");"
- .sp
--.BI "int matchpathcon_init_prefix(const char *" path ", const char *" subset ");"
-+.BI "int matchpathcon_init_prefix(const char *" path ", const char *" prefix ");"
- .sp
- .BI "int matchpathcon_fini(void);"
- .sp
-@@ -16,6 +16,24 @@ matchpathcon, matchpathcon_index \- get the default SELinux security context for
- .BI "int matchpathcon_index(const char *" name ", mode_t " mode ", char **" con ");"
- .
- .SH "DESCRIPTION"
-+
-+This family of functions is deprecated.  For new code, please use
-+.BR selabel_open (3)
-+with the
-+.B SELABEL_CTX_FILE
-+backend in place of
-+.BR matchpathcon_init (),
-+use
-+.BR selabel_close (3)
-+in place of
-+.BR matchpathcon_fini (),
-+and use
-+.BR selabel_lookup (3)
-+in place of
-+.BR matchpathcon ().
-+
-+The remaining description below is for the legacy interface.
-+
- .BR matchpathcon_init ()
- loads the file contexts configuration specified by
- .I path
-@@ -41,9 +59,16 @@ customizations.
- .BR matchpathcon_init_prefix ()
- is the same as
- .BR matchpathcon_init ()
--but only loads entries with regular expressions that have stems prefixed
--by
--.I \%prefix.
-+but only loads entries with regular expressions whose first pathname
-+component is a prefix of
-+.I \%prefix
-+, e.g. pass "/dev" if you only intend to call
-+.BR matchpathcon ()
-+with pathnames beginning with /dev.
-+However, this optimization is no longer necessary due to the use of
-+.I file_contexts.bin
-+files with precompiled regular expressions, so use of this interface
-+is deprecated.
- 
- .BR matchpathcon_fini ()
- frees the memory allocated by a prior call to
-@@ -54,7 +79,17 @@ calls, or to free memory when finished using
- .BR matchpathcon ().
- 
- .BR matchpathcon ()
--matches the specified pathname and mode against the file contexts
-+matches the specified
-+.I pathname,
-+after transformation via
-+.BR realpath (3)
-+excepting any final symbolic link component if S_IFLNK was
-+specified as the
-+.I mode,
-+and
-+.I mode
-+against the
-+.I file contexts
- configuration and sets the security context 
- .I con 
- to refer to the
-diff --git a/libselinux/man/man5/selabel_file.5 b/libselinux/man/man5/selabel_file.5
-index 79eca95..e738824 100644
---- a/libselinux/man/man5/selabel_file.5
-+++ b/libselinux/man/man5/selabel_file.5
-@@ -55,7 +55,9 @@ A non-null value for this option specifies a path to a file that will be opened
- A non-null value for this option indicates that any local customizations to the file contexts mapping should be ignored.
- .TP
- .B SELABEL_OPT_SUBSET
--A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications starting with the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix will fail.
-+A non-null value for this option is interpreted as a path prefix, for example "/etc".  Only file context specifications with starting with a first component that prefix matches the given prefix are loaded.  This may increase lookup performance, however any attempt to look up a path not starting with the given prefix may fail.  This optimization is no longer required due to the use of
-+.I file_contexts.bin
-+files and is deprecated.
- .RE
- .
- .SH "FILES"
-@@ -206,7 +208,7 @@ component with \fI/var/www\fR, therefore the path used is:
- If contexts are to be validated, then the global option \fBSELABEL_OPT_VALIDATE\fR must be set before calling \fBselabel_open\fR(3). If this is not set, then it is possible for an invalid context to be returned.
- .IP "2." 4
- If the size of file contexts series of files contain many entries, then \fBselabel_open\fR(3) may have a delay as it reads in the files, and if
--requested validates the entries. If possible use the \fBSELABEL_OPT_SUBSET\fR option to reduce the number of entries processed.
-+requested validates the entries.
- .IP "3." 4
- Depending on the version of SELinux it is possible that a \fIfile_contexts.template\fR file may also be present, however this is now deprecated.
- .br
--- 
-2.1.0
+>>>>>> and unregistered and therefore it is sufficient to check for the
+>>>>>> selinuxfs mount.  We do not need to check for no-policy-loaded and=
+
+>>>>>> treat that as SELinux-disabled anymore; that is a relic of Fedora =
+Core 2
+>>>>>> days.  Drop the no-policy-loaded test, which was a bit of a hack a=
+nyway
+>>>>>> (checking whether getcon_raw() returned "kernel" as that can only =
+happen
+>>>>>> if no policy is yet loaded and therefore security_sid_to_context()=
+ only
+>>>>>> has the initial SID name available to return as the context).
+>>>>>>
+>>>>>> May possibly fix https://bugzilla.redhat.com/show_bug.cgi?id=3D119=
+5074
+>>>>>> by virtue of removing the call to getcon_raw() and therefore avoid=
+ing
+>>>>>> use of tls on is_selinux_enabled() calls.  Regardless, it will mak=
+e
+>>>>>> is_selinux_enabled() faster and simpler.
+>>>>>>
+>>>>>
+>>>>> This patch breaks system with SELinux enabled kernel and without
+>>>>> loaded/installed an SELinux policy, see [1].
+>>>>>
+>>>>> Would it be feasible to have is_selinux_enabled() connected to exis=
+tence
+>>>>> of SELINUX variable in /etc/selinux/config file for the cases when
+>>>>> there's no specific kernel command line option used in running syst=
+em?
+>>>>> Or would it break something else?
+>>>>>
+>>>>> [1] https://bugzilla.redhat.com/show_bug.cgi?id=3D1219045
+>>>>
+>>>> Sorry, does this occur even if they have SELINUX=3Ddisabled in
+>>>> /etc/selinux/config?
+>>>
+>>> It works with SELINUX=3Ddisabled. It's only related to systems withou=
+t
+>>> /etc/selinux/config and without selinux=3D0 on kernel command line.
+>>
+>> I see.  So I can see that it is a regression for such systems, but suc=
+h
+>> systems are definitely running suboptimally by NOT disabling SELinux i=
+f
+>> they are not going to even load a policy.  They are just wasting all o=
+f
+>> the SELinux hook call overhead in the kernel.
+
+I agree.
+
+>>
+>> In any event, one of the benefits of the change that caused this
+>> regression is that it makes is_selinux_enabled() very fast and avoids
+>> any need to open any extra files on calls to it, thereby improving
+>> performance on both SELinux-enabled and SELinux-disabled systems.
+>>
+>> I don't think we need or want to actually have it read
+>> /etc/selinux/config and look for a SELINUX=3D variable.  Isn't it
+>> sufficient to test for the existence of an /etc/selinux/config file,
+>> e.g. access("/etc/selinux/config", F_OK)?
+
+I'm fine with that.
+
+>>
+>> We'll have to wrap that test with #ifndef ANDROID as Android does not
+>> use /etc/selinux/config.
+>=20
+> Oh, and let's do it once in init_selinuxmnt() and cache the result so w=
+e
+> aren't calling access() on each is_selinux_enabled() call.
+
+Do you want me to prepare and send a patch?
+
+Thanks,
+
+Petr
+--=20
+Petr Lautrbach
+
+
+
+--6quLD35tck7KQKRNerrDLbjGF5kTDdbV8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJVULiZAAoJEGOorUuYLENzX38P/A/ugCnU5J3LgM9i5UdGclDN
+F9eSem7X/BeavEi0VUszwTlEK47e8RBHD2ftOhPvnE3gU/VeXL01kDBBp1nMiOr5
+G/U1G98y6/Nq9HgSnr0S0PDFmXWwUHHba+s6i3FltfcNmlfmPiv1wpEmxDYdfnV5
+O/rGD881ukdBlxhgQ9ULoN/bcFzHW1pJykRrkkGhtMR2m5lIieVJK/z8doNYW8L/
+1F3XzLz2Ti7JJbRwQeHXQxpaHHSPu+4cKJ8kGtoY85AuPCZZjemJuuL3K4LFX3Wr
++svFQEAYLni42kfPZfoV1cxeF3mj3yA/p11R+46hjcefbLMFoMbp79TsGe00orS4
+4scgMiYcxRfH5WTqlkXzjC8AmDCGgct2BA8tAcjKoW9YZe1z69x/OpvIOhCKjuDc
+v1crM3iXlgMrgklA3psfVZk0S/q18a/4fl1m29OAONyxyhcSg1zPbFkrxB05aWCb
+heGDdwnWcyT7wweDrF53MIjqTE0i5TLXynZQpAkK45XfwFhQ36ZV0H6BLDpZ6uJ9
+EmnSB2hKQ8KIVjBt8+h+tE02prVQOgyw2qxuFFtmvrzx5iDbU8aiEmsNR+FkfT8X
+44OH0z5jOPF1iwWO3AQqyNrrHuzkulzHscbFTuVcVG0sRU8e+WClbc6KRD5rvWNX
+7VcU0bg5zd8Stnq5SnzU
+=8/AC
+-----END PGP SIGNATURE-----
+
+--6quLD35tck7KQKRNerrDLbjGF5kTDdbV8--
