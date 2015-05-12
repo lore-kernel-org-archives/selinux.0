@@ -1,176 +1,124 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4CFTHkw013036
- for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 11:29:20 -0400
-Message-ID: <55521C45.1010105@itechfrontiers.com>
-Date: Tue, 12 May 2015 11:29:09 -0400
-From: "Patrick K.,   ITF" <cto@itechfrontiers.com>
-MIME-Version: 1.0
-To: Andrew Holway <andrew.holway@otternetworks.de>, selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4CG0u2g015871
+ for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 12:00:57 -0400
+Received: by widdi4 with SMTP id di4so160623514wid.0
+ for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 09:00:38 -0700 (PDT)
+Received: from x131e (217-19-24-195.dsl.cambrium.nl. [217.19.24.195])
+ by mx.google.com with ESMTPSA id mv11sm3504102wic.23.2015.05.12.09.00.36
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Tue, 12 May 2015 09:00:37 -0700 (PDT)
+Date: Tue, 12 May 2015 18:00:35 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
 Subject: Re: SELinux talk
+Message-ID: <20150512160033.GB9693@x131e>
 References: <CAEcA1_vvm7TEkrULWOxbC=BtuCyn+Tm0DMXLE3ScZe24Lktpjw@mail.gmail.com>
-In-Reply-To: <CAEcA1_vvm7TEkrULWOxbC=BtuCyn+Tm0DMXLE3ScZe24Lktpjw@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="------------020700010506070805030400"
+ <20150512151201.GA9693@x131e>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
+In-Reply-To: <20150512151201.GA9693@x131e>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------020700010506070805030400
-Content-Type: text/plain; charset=windows-1252; format=flowed
+
+--oC1+HKm2/end4ao3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Andrew,
+On Tue, May 12, 2015 at 05:12:01PM +0200, Dominick Grift wrote:
+> Here is one i somehow find compelling:
+>=20
+> Centralized governed (MAC) versus De-centralized goverened (DAC) security
+>=20
+> Back in the days of 1997 the privilege of computer environments was prett=
+y much limited to academic use.
+>=20
+> I think there was an filosophy of trust. Were all academics we know what =
+we do and we're all good (we dont make mistakes)
+>=20
+> (Some still believe in that)
+>=20
+> To others, things changed since then.
+>=20
+> Computer environments are no longer limited to academics and everyone and=
+ their mother are now wielding a computer with a 100 mbit+ uplink to the re=
+st of the connected world.
+>=20
+> Also we're now pretty much all connected. That means that we can in theor=
+y now all affect eachothers=B4 experience.
+>=20
+> For example some could in theory send your site into a black hole by pack=
+eting it to death.
+> (some user with access to your system may decide to use your assets to ru=
+in the fun for someone else on the network by udp flooding or whatever)=20
+>=20
+> Also these days the stakes are much higher in general (some businesses de=
+pend for their lively hood on computer environment)
+>=20
+> Those three changes are basically a pretty compelling reason to calibrate=
+ the security model to the new requirements and threats.
+>=20
+> SELinux and MAC in general, allows the owner of a computer system or envi=
+ronment to take control back into his own hands by overriding traditional D=
+AC
+>=20
+> SELinux enables one to not necessarily trust individual processes and/or =
+users on a system. It allows owners to enforce what
+> indidivual processes and users can do thereby enforcing integrity
+>=20
+> Some other advantages of SELinux over other MAC systems are that SELinux =
+is customizable, flexible and allows for finer-grained access control.
+>=20
 
+After this i will stop my ramble :)
 
-Please visit:
-http://www.tresys.com/innovation/library.php
+Basically i would argue that DAC =3D=3D trust, versus MAC =3D=3D trust but =
+verify
 
-Best Regards,
+Also the above explanation focusses a bit too much on malicious intent.
+
+But consider for example: now a lot of people write code that runs on other=
+s systems. (consider php and your average php dev, or people like myself LO=
+L)
+
+So these people aren't necessarily malicious but instead maybe not as compe=
+tent. You may end up with a buggy program that affects the functionality of=
+ the remainder of the system or even the network.
+
+By enforcing what the process can do exactly one can ensure a higher level =
+of integrity.
+
+The SELinux type enforcement security model is used to enforce integrity
+The SElinux identity based access control security model is used by SELinux=
+ to complement traditional DAC
 
 --=20
-  Patrick K.
+02DFF788
+4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
+http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
+Dominick Grift
 
-On 5/12/2015 10:42 AM, Andrew Holway wrote:
-> Hello,
->
-> I'm giving a talk on SELinux at a little conference here in Berlin in=20
-> a couple of days. I was going to do the following items.
->
-> IEEE 1003.1e/2c - A withdrawn draft standard.
-> Linux ACLS - Hacked together from IEEE 1003.1e/2c
-> SELinux -> An opensource solution for the US military.
-> DAC 1997 -> 2015 - The elephant in the room.
->
-> I was wondering if anyone could provide me with specific bulletpoint=20
-> examples of the problems inherent with the current ACL system and how=20
-> SELinux can mitigate these problems.
->
-> Can anyone tell me about the relationship between IEEE 1003.1e/2c and=20
-> SELinux?
->
-> Any other interesting nuggets to keep a technical but non security=20
-> focussed audience interested?
->
-> Ta
->
-> Andrew
->
->
->
-> --=20
-> Otter Networks UG
-> http://otternetworks.de
-> fon: +49 30 54 88 5197
-> Gotenstra=DFe 17
-> 10829 Berlin
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
+--oC1+HKm2/end4ao3
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
---------------020700010506070805030400
-Content-Type: text/html; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+iQGcBAEBCgAGBQJVUiOdAAoJENAR6kfG5xmcFRsL/1PtbcDt+tXqIHozKrvtGaSu
+DKwYNKDwYrnKZUD3KnaNf82EKkM1+TZd+Kh3u7QpWv5R48dhDxR8qGuL1yfb1taG
+zozFhDGnOlO0J23mpWHmX6XdagDYTsa0P4zKSCSf7AnS1+d4RwTQXipjHTztC0h8
+CROoMjAULbyB0aeP9B0C0Br1QtxaLDKEAj+QvTssTqqVwHeYirKXJJdR16tedY37
+f7kW0GddbxirwLhlvkkK5Gh2kl5v50dHICEpOsTqZKiWqL8wXRw/DFYmdkZBfEQG
+/c3oMOAt5UcbWt8UyWgExVQwGGKCAVbCvi7A4Z8WBDOvEn94/18CjVqToG+EHZLX
+71PaoSTXyeD1BaXmxuxCtbK9sgBSgldzwnNLLeytWr7GNsaePmtfM6KEmyk71SLc
+5RAr0czQLh7nJhzqmEqrv1Lw1TIzorU80s3jrXYU1vgAEwOZlXEmoBBzLgVmZuvG
+WapK9kNl6tZH3jAMRUT7SmIsQuaXbU+1KRf9DlHs/w==
+=+CpO
+-----END PGP SIGNATURE-----
 
-<html>
-  <head>
-    <meta content=3D"text/html; charset=3Dwindows-1252"
-      http-equiv=3D"Content-Type">
-  </head>
-  <body bgcolor=3D"#FFFFFF" text=3D"#000000">
-    Andrew,<br>
-    <br>
-    <br>
-    Please visit: <br>
-    <a class=3D"moz-txt-link-freetext" href=3D"http://www.tresys.com/inno=
-vation/library.php">http://www.tresys.com/innovation/library.php</a><br>
-    <br>
-    Best Regards, <br>
-    <pre class=3D"moz-signature" cols=3D"72">--=20
- Patrick K.</pre>
-    <div class=3D"moz-cite-prefix">On 5/12/2015 10:42 AM, Andrew Holway
-      wrote:<br>
-    </div>
-    <blockquote
-cite=3D"mid:CAEcA1_vvm7TEkrULWOxbC=3DBtuCyn+Tm0DMXLE3ScZe24Lktpjw@mail.gm=
-ail.com"
-      type=3D"cite">
-      <div dir=3D"ltr">Hello,
-        <div><br>
-        </div>
-        <div>I'm giving a talk on SELinux at a little conference here in
-          Berlin in a couple of days. I was going to do the following
-          items.</div>
-        <div><br>
-        </div>
-        <div>IEEE 1003.1e/2c - A withdrawn draft standard.<br>
-        </div>
-        <div>Linux ACLS - Hacked together from IEEE 1003.1e/2c</div>
-        <div>SELinux -&gt; An opensource solution for the US military.<br=
->
-        </div>
-        <div>DAC 1997 -&gt; 2015 - The elephant in the room.</div>
-        <div><br>
-        </div>
-        <div>I was wondering if anyone could provide me with specific
-          bulletpoint examples of the problems inherent with the current
-          ACL system and how SELinux can mitigate these problems.=A0</div=
->
-        <div><br>
-        </div>
-        <div>Can anyone tell me about the relationship between IEEE
-          1003.1e/2c and SELinux?=A0</div>
-        <div><br>
-        </div>
-        <div>Any other interesting nuggets to keep a technical but non
-          security focussed audience interested?</div>
-        <div><br>
-        </div>
-        <div>Ta</div>
-        <div><br>
-        </div>
-        <div>Andrew</div>
-        <div><br>
-        </div>
-        <div><br>
-        </div>
-        <div>
-          <div><br>
-          </div>
-          -- <br>
-          <div class=3D"gmail_signature">
-            <div dir=3D"ltr">Otter Networks UG<br>
-              <a moz-do-not-send=3D"true" href=3D"http://otternetworks.de=
-"
-                target=3D"_blank">http://otternetworks.de</a><br>
-              fon: +49 30 54 88 5197<br>
-              Gotenstra=DFe 17<br>
-              10829 Berlin</div>
-          </div>
-        </div>
-      </div>
-      <br>
-      <fieldset class=3D"mimeAttachmentHeader"></fieldset>
-      <br>
-      <pre wrap=3D"">_______________________________________________
-Selinux mailing list
-<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
-v">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
-"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to <a class=3D"moz-txt-link-=
-abbreviated" href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-reques=
-t@tycho.nsa.gov</a>.</pre>
-    </blockquote>
-    <br>
-  </body>
-</html>
-
---------------020700010506070805030400--
+--oC1+HKm2/end4ao3--
