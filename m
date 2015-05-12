@@ -1,133 +1,78 @@
-Message-ID: <55520DB7.3080605@redhat.com>
-Date: Tue, 12 May 2015 16:27:03 +0200
-From: Petr Lautrbach <plautrba@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4CEgiP3008870
+ for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 10:42:44 -0400
+Received: by wizk4 with SMTP id k4so157257488wiz.1
+ for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 07:42:42 -0700 (PDT)
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: is_selinux_enabled(): drop no-policy-loaded
- test.
-References: <1429278141-7728-1-git-send-email-sds@tycho.nsa.gov>
- <5550B134.6050606@redhat.com> <5550B1FE.5040304@tycho.nsa.gov>
- <5550B368.5020600@redhat.com> <5550B663.1070000@tycho.nsa.gov>
- <5550B6D4.4070002@tycho.nsa.gov> <5550B899.7060603@redhat.com>
- <5550C212.6090702@tycho.nsa.gov> <5551F7F4.5050907@redhat.com>
- <5551F886.40100@tycho.nsa.gov> <55520569.8030306@redhat.com>
- <55520757.8080509@tycho.nsa.gov>
-In-Reply-To: <55520757.8080509@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="nOrF3qHGFuBP0FQFfhgMaK1rheu2msTeB"
+Date: Tue, 12 May 2015 16:42:41 +0200
+Message-ID: <CAEcA1_vvm7TEkrULWOxbC=BtuCyn+Tm0DMXLE3ScZe24Lktpjw@mail.gmail.com>
+Subject: SELinux talk
+From: Andrew Holway <andrew.holway@otternetworks.de>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=f46d043c7f0cba99700515e3816c
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---nOrF3qHGFuBP0FQFfhgMaK1rheu2msTeB
-Content-Type: text/plain; charset=windows-1252
+--f46d043c7f0cba99700515e3816c
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On 05/12/2015 03:59 PM, Stephen Smalley wrote:
-> On 05/12/2015 09:51 AM, Petr Lautrbach wrote:
->> On 05/12/2015 02:56 PM, Stephen Smalley wrote:
->>> BTW, in trying to test these scenarios, I did a yum remove
->>> selinux-policy-targeted at one point and was surprised to find that I=
+Hello,
 
->>> couldn't subsequently do a yum install selinux-policy-targeted.  It
->>> would always fail.  Ultimately I found that if I created an empty
->>> /etc/selinux/targeted/contexts/files/file_contexts file and then trie=
-d
->>> installing it, it would work.  So I guess rpm -i fails if there is no=
+I'm giving a talk on SELinux at a little conference here in Berlin in a
+couple of days. I was going to do the following items.
 
->>> file_contexts file?  That doesn't seem right.
->>>
->>
->> That's correct. rpm does a verification of a transaction and one of th=
-e
->> steps is to check files labels. It uses selinux_file_context_path() to=
+IEEE 1003.1e/2c - A withdrawn draft standard.
+Linux ACLS - Hacked together from IEEE 1003.1e/2c
+SELinux -> An opensource solution for the US military.
+DAC 1997 -> 2015 - The elephant in the room.
 
->> get a file path and if it can't open this file, it fails as it can't
->> confirm whether contexts are ok or not. Empty file_contexts file means=
+I was wondering if anyone could provide me with specific bulletpoint
+examples of the problems inherent with the current ACL system and how
+SELinux can mitigate these problems.
 
->> that there's no conflict.
->>
->> If you want to skip this check, you can use:
->>
->> rpm -i --nocontexts ...
->> or
->> yum install --setopt=3Dtsflags=3Dnocontexts
->>
->> or just reboot and install selinux-policy-targeted with disabled SELin=
-ux.
->=20
-> But it seems wrong that it fails silently, with no indication to the
-> user what went wrong or how to fix it.
->=20
-> # yum remove selinux-policy-targeted
-> ...
-> # yum install selinux-policy-targeted
-> ...
-> Running transaction check
-> Running transaction test
-> Transaction test succeeded
-> Running transaction (shutdown inhibited)
-> selinux-policy-targeted-3.13.1-105.13.fc21.noarch was supposed to be
-> installed but is not!
->   Verifying  : selinux-policy-targeted-3.13.1-105.13.fc21.noarch
->     1/1
->   Verifying  : selinux-policy-targeted-3.13.1-105.13.fc21.noarch
->     2/1
->=20
-> Failed:
->   selinux-policy-targeted.noarch 0:3.13.1-105.13.fc21
->=20
->=20
-> Complete!
->=20
-> # yumdownloader selinux-policy-targeted
-> # rpm -i selinux-policy-targeted-3.13.1-105.13.fc21.noarch.rpm
-> # echo $?
-> 1
-> # rpm -q selinux-policy-targeted
-> package selinux-policy-targeted is not installed
->=20
+Can anyone tell me about the relationship between IEEE 1003.1e/2c and
+SELinux?
 
-I've filed a bug about it -
-https://bugzilla.redhat.com/show_bug.cgi?id=3D1220822
+Any other interesting nuggets to keep a technical but non security focussed
+audience interested?
 
-Thanks,
+Ta
 
-Petr
+Andrew
+
+
+
 --=20
-Petr Lautrbach
-SELinux Solutions
-Red Hat
+Otter Networks UG
+http://otternetworks.de
+fon: +49 30 54 88 5197
+Gotenstra=C3=9Fe 17
+10829 Berlin
 
-Better technology. Faster innovation. Powered by community collaboration.=
+--f46d043c7f0cba99700515e3816c
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-See how it works at redhat.com.
+<div dir=3D"ltr">Hello,<div><br></div><div>I&#39;m giving a talk on SELinux=
+ at a little conference here in Berlin in a couple of days. I was going to =
+do the following items.</div><div><br></div><div>IEEE 1003.1e/2c - A withdr=
+awn draft standard.<br></div><div>Linux ACLS - Hacked together from IEEE 10=
+03.1e/2c</div><div>SELinux -&gt; An opensource solution for the US military=
+.<br></div><div>DAC 1997 -&gt; 2015 - The elephant in the room.</div><div><=
+br></div><div>I was wondering if anyone could provide me with specific bull=
+etpoint examples of the problems inherent with the current ACL system and h=
+ow SELinux can mitigate these problems.=C2=A0</div><div><br></div><div>Can =
+anyone tell me about the relationship between IEEE 1003.1e/2c and SELinux?=
+=C2=A0</div><div><br></div><div>Any other interesting nuggets to keep a tec=
+hnical but non security focussed audience interested?</div><div><br></div><=
+div>Ta</div><div><br></div><div>Andrew</div><div><br></div><div><br></div><=
+div><div><br></div>-- <br><div class=3D"gmail_signature"><div dir=3D"ltr">O=
+tter Networks UG<br><a href=3D"http://otternetworks.de" target=3D"_blank">h=
+ttp://otternetworks.de</a><br>fon: +49 30 54 88 5197<br>Gotenstra=C3=9Fe 17=
+<br>10829 Berlin</div></div>
+</div></div>
 
-
---nOrF3qHGFuBP0FQFfhgMaK1rheu2msTeB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJVUg23AAoJEGOorUuYLENzm2YP/3BnroHK/EDSs+QfJxHU1vnw
-LY3qrIU/i6/5aW0Gf+ZRFWMFHH5UwtPT23uPkFryp8L4JSwR1Ic0lFzFsXJcwJ59
-+VgHNIXoZgqMqBJQ/zJuJ8Yod6lemwcgT4ztFOx6UflgdSeWK47hRZFM62CgHZkw
-dqOMYsHxzVv2nrFPLn1XVrWUy8rp3FeoywJFTqpflRCRK0vZPk3LS2Lty/0Qe1P8
-Oqs7KK2GMwE+lWKU+JFps+N+TNw/OdPaqngpYDSxwpjNn1bZ9p2jqU0T4xPv24qD
-9S9MURcOqNutcJpBrrCWkhHKEbkK9xvXB/EMXSebqCaL5o8eX8hvVh39aqsdoE+g
-uFGfDCp8RXirkQmW6I9XMdg2duwJ9bJsXVZ5PtKZxsaLlP80qkeOGWFWEuwLu2IW
-38UN1/Y8/lgtzthABWHU9S0DW43RaevlvdmuQpt8yMxSLvA+SXWV5Wy/5lfltOXZ
-a1VWdMAe7pZPimV+NlR9ba/uFeiHbR9J0q7Qsq4GnSAkD3GufTDlwrqYRF9t/NJj
-ZMAeXtzXQFKqu9eQBmEGVo8RdN83nclG2cJ0tu7xBtD66f97mnbJ8m1eiJIpPaBE
-WIqmvNR1nVsAHQ7yDP9D3YxFmKvuiOKfQhluOKog7cfpfnm9PW08HBHdubiLITs8
-h1J8FbMOZozYy6Kia+UC
-=4yqg
------END PGP SIGNATURE-----
-
---nOrF3qHGFuBP0FQFfhgMaK1rheu2msTeB--
+--f46d043c7f0cba99700515e3816c--
