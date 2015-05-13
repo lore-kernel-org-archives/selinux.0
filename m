@@ -1,114 +1,94 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4D29roq027600
- for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 22:09:53 -0400
-Message-ID: <5552B26C.9000101@schaufler-ca.com>
-Date: Tue, 12 May 2015 19:09:48 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4D2BE9O027874
+ for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 22:11:14 -0400
+Received: from ALA-HCA.corp.ad.wrs.com (ala-hca.corp.ad.wrs.com
+ [147.11.189.40])
+ by mail.windriver.com (8.14.9/8.14.9) with ESMTP id t4D2BBE2028240
+ (version=TLSv1/SSLv3 cipher=AES128-SHA bits=128 verify=FAIL)
+ for <selinux@tycho.nsa.gov>; Tue, 12 May 2015 19:11:11 -0700 (PDT)
+From: <wenzong.fan@windriver.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] mcstransd: fix reload issue
+Date: Wed, 13 May 2015 10:11:09 +0800
+Message-ID: <1431483069-16408-1-git-send-email-wenzong.fan@windriver.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Andrew Holway <andrew.holway@otternetworks.de>, selinux@tycho.nsa.gov
-Subject: Re: SELinux talk
-References: <CAEcA1_vvm7TEkrULWOxbC=BtuCyn+Tm0DMXLE3ScZe24Lktpjw@mail.gmail.com>
- <555230E7.6030604@tycho.nsa.gov>
-In-Reply-To: <555230E7.6030604@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 5/12/2015 9:57 AM, Stephen Smalley wrote:
-> On 05/12/2015 10:42 AM, Andrew Holway wrote:
->> Hello,
->>
->> I'm giving a talk on SELinux at a little conference here in Berlin in a
->> couple of days. I was going to do the following items.
->>
->> IEEE 1003.1e/2c - A withdrawn draft standard.
+From: Wenzong Fan <wenzong.fan@windriver.com>
 
-As Stephen says below, SELinux is more of a pendulum swing away from
-than a derivative of that work and the TCSEC that inspired it.
+Generally mcstransd works well on MLS enabled system, but if "Reload
+Translations" triggered, it will fail to translate any MLS level.
 
->> Linux ACLS - Hacked together from IEEE 1003.1e/2c
+* Why it fails:
 
-Not a hack. Really. A port of the ACLs from Irix,
-with the nasty parts replaced. Yes, based on 1003.1e/2c,
-but all the UNIX systems did that, too.
+Check process_trans() in mcstrans.c:
 
->> SELinux -> An opensource solution for the US military.
->> DAC 1997 -> 2015 - The elephant in the room.
+ 723 process_trans(char *buffer) {
+ 724         static domain_t *domain;
+ [snip] ...
+ 784         if (!domain) {
+ 785                 domain = create_domain("Default");
 
-Oh! Please, expound. 
+While reloading translations, the struct of domain will be destroyed
+but the static pointer will be kept, it becomes wild and prevents the
+create_domain() from running; Then invalid domain will be used for
+initializing hashtable that stores translations data.
 
+* Fix to it:
 
->>
->> I was wondering if anyone could provide me with specific bulletpoint
->> examples of the problems inherent with the current ACL system and how
->> SELinux can mitigate these problems.
-> This has been repeatedly described in our published papers and
-> presentations as well as many external SELinux resources.  In short form:
->
-> DAC:
-> - Decisions based only on user identity/ownership.
-> - No protection against malicious or flawed applications (every
-> application you run has access to everything to which you have access,
-> and is free to propagate that access to others).
-> - Subject to the whims, carelessness, or maliciousness of every user.
-> - Typically only two major categories of users:  superuser or completely
-> unprivileged, leading to overprivilege for many processes or weak
-> permissions to work around.
->
-> MAC, and in particular SELinux:
-> - Decisions based on all security-relevant attributes, taking into
-> account not only user identity but also active role, the trustworthiness
-> and function of the program that is executing (encoded in the domain),
-> the clearance of the user, etc.
-> - Ability to confine malicious and flawed applications, including even
-> ones that run as root.
-> - Policy defined by administrator/organization, enforced over all users
-> and their programs.
-> - Support for fine-grained least privilege, ability to tailor to match
-> the specific trustworthiness and function of each component.
->
->
->> Can anyone tell me about the relationship between IEEE 1003.1e/2c and
->> SELinux? 
-> Largely none.  That withdrawn draft standard embodied the traditional
-> view of Mandatory Access Control and Privileges embodied in the legacy
-> trusted operating systems of the past, which is quite different from the
-> flexible Mandatory Access Control architecture and Type Enforcement
-> model embodied in SELinux.  That flexible MAC architecture and TE model
-> were in fact designed to address the shortcomings of such systems.
+Define local *domain to get the struct of domain always be initialized;
+Use static hashtable to store all translations data.
 
-The MAC component of P1003.1e/2c was sufficient to supply the Bell & LaPadula
-model required by the Orange Book (the "traditional" model) but was also
-carefully designed to allow for alternative models. One of the members of the
-working group wanted to do Biba integrity. A timestamp model was also held up
-as a something that had to be supportable. POSIX limits itself to interfaces,
-so you can't really read much into what's going on underneath. You could support
-the MAC interfaces on Linux (in support of SELinux or Smack) if you were so
-inclined.
+Signed-off-by: Wenzong Fan <wenzong.fan@windriver.com>
+---
+ policycoreutils/mcstrans/src/mcstrans.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-Capabilities are another story.
-
-> Again, see our published papers and presentations and external SELinux
-> resources, e.g.:
-> https://www.nsa.gov/research/selinux/background.shtml
-> https://www.nsa.gov/research/selinux/docs.shtml
-> http://freecomputerbooks.com/The-SELinux-Notebook-The-Foundations.html
-> http://seandroid.bitbucket.org/PapersandPresentations.html
->
-> Particularly with respect to comparisons with POSIX.1e, you may be
-> interested in:
-> http://www.securecomputing.com/pdf/secureos.pdf (not about SELinux per
-> se, but compares Type Enforcement, which is the core SELinux security
-> model, to POSIX.1e capability model)
->
->> Any other interesting nuggets to keep a technical but non security
->> focussed audience interested?
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
+diff --git a/policycoreutils/mcstrans/src/mcstrans.c b/policycoreutils/mcstrans/src/mcstrans.c
+index 4d31857..e8eda32 100644
+--- a/policycoreutils/mcstrans/src/mcstrans.c
++++ b/policycoreutils/mcstrans/src/mcstrans.c
+@@ -100,11 +100,14 @@ typedef struct base_classification {
+ 	struct base_classification *next;
+ } base_classification_t;
+ 
++static context_map_node_t *table_raw_to_trans[N_BUCKETS];
++static context_map_node_t *table_trans_to_raw[N_BUCKETS];
++
+ typedef struct domain {
+ 	char *name;
+ 
+-	context_map_node_t *raw_to_trans[N_BUCKETS];
+-	context_map_node_t *trans_to_raw[N_BUCKETS];
++	context_map_node_t **raw_to_trans;
++	context_map_node_t **trans_to_raw;
+ 
+ 	base_classification_t *base_classifications;
+ 	word_group_t *groups;
+@@ -643,9 +646,11 @@ add_cache(domain_t *domain, char *raw, char *trans) {
+ 	}
+ 
+ 	log_debug(" add_cache (%s,%s)\n", raw, trans);
++	domain->raw_to_trans = table_raw_to_trans;
+ 	if (add_to_hashtable(domain->raw_to_trans, map->raw, map) < 0)
+ 		goto err;
+ 
++	domain->trans_to_raw = table_trans_to_raw;
+ 	if (add_to_hashtable(domain->trans_to_raw, map->trans, map) < 0)
+ 		goto err;
+ 
+@@ -721,7 +726,7 @@ static int read_translations(const char *filename);
+  */
+ static int
+ process_trans(char *buffer) {
+-	static domain_t *domain;
++	domain_t *domain;
+ 	static word_group_t *group;
+ 	static int base_classification;
+ 	static int lineno = 0;
+-- 
+1.9.1
