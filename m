@@ -1,70 +1,123 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] mcstransd: don't reinvent getpeercon, badly.
-Date: Thu, 14 May 2015 13:00:03 -0400
-Message-Id: <1431622803-30765-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4FEwibT018585
+ for <selinux@tycho.nsa.gov>; Fri, 15 May 2015 10:58:45 -0400
+Date: Fri, 15 May 2015 14:58:02 +0000 (UTC)
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Eric Paris <eparis@redhat.com>
+Message-ID: <2128506475.602059.1431701882235.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <5554C006.5040605@tycho.nsa.gov>
+References: <5554C006.5040605@tycho.nsa.gov>
+Subject: Re: [PATCH] Fix more bin file processing core dumps
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-libselinux provides a proper getpeercon() implementation that uses
-getsockopt with SO_PEERSEC to reliably obtain the peer's security
-context from the kernel.  mcstransd for reasons unknown rolled its
-own get_peer_con() function that uses getsockopt SO_PEERCRED
-to obtain the peer PID and then calls getpidcon_raw().  That's
-less efficient and less secure (subject to races; peer context
-may have changed since connect).  Don't do that.
 
-The peer context doesn't appear to be used for anything currently,
-although there is a comment suggesting adding a permission check to
-see if the requester dominates the label to be translated to control
-what labels can be translated by what peers.  Could likely dispense
-with it altogether.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- policycoreutils/mcstrans/src/mcstransd.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/policycoreutils/mcstrans/src/mcstransd.c b/policycoreutils/mcstrans/src/mcstransd.c
-index a65076d..6c8c703 100644
---- a/policycoreutils/mcstrans/src/mcstransd.c
-+++ b/policycoreutils/mcstrans/src/mcstransd.c
-@@ -139,24 +139,6 @@ get_peer_pid(int fd, pid_t *pid)
- 
- 
- static int
--get_peer_con(int fd, char **peercon)
--{
--	int ret;
--	pid_t pid;
--	ret = get_peer_pid(fd, &pid);
--	if (ret)
--		return -1;
--	ret = getpidcon_raw(pid, peercon);
--	if (ret) {
--		syslog(LOG_ERR, 
--			"Failed to get context of client process (pid=%u)",
--			pid);
--		return -1;
--	}
--	return 0;
--}
--
--static int
- process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
- {
- 	int32_t result;
-@@ -164,7 +146,7 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
- 	char *peercon = NULL;
- 	int ret;
- 
--	ret = get_peer_con(fd, &peercon);
-+	ret = getpeercon_raw(fd, &peercon);
- 	if (ret)
- 		return ret;
- 
--- 
-2.1.0
+
+
+> On Thursday, 14 May 2015, 16:35, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 05/14/2015 11:28 AM, Stephen Smalley wrote:
+>>  On 05/14/2015 10:36 AM, Richard Haines wrote:
+>>>  The reading of bin files has been changed to follow that of loading
+>>>  policy to catch over-runs. Entries that should be NULL terminated are
+>>>  also checked. If any error, then process the text file. This should
+>>>  fix all problems highlighted in [1].
+>>> 
+>>>  Tested with bin files built using sefcontext_compile PCRE_VERS 1 and 2.
+>>> 
+>>>  The following is a rough guide to the difference in processing a bin
+>>>  file against a text file:
+>>>     6K entries - x5
+>>>     4K entries - x4
+>>>     1K entries - x3
+>>>     500 entries - x2
+>>> 
+>>>  [1] http://marc.info/?l=selinux&m=143101983922281&w=2
+>>> 
+>>>  Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>>>  ---
+>>>   libselinux/src/label_file.c | 167 
+> +++++++++++++++++++++++++++-----------------
+>>>   libselinux/src/label_file.h |  20 +++++-
+>>>   2 files changed, 121 insertions(+), 66 deletions(-)
+>>> 
+>>>  diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+>>>  index c722f29..d6103d8 100644
+>>>  --- a/libselinux/src/label_file.c
+>>>  +++ b/libselinux/src/label_file.c
+>>>  @@ -8,7 +8,6 @@
+>>>    * developed by Secure Computing Corporation.
+>>>    */
+>>>   
+>>>  -#include <assert.h>
+>>>   #include <fcntl.h>
+>>>   #include <stdarg.h>
+>>>   #include <string.h>
+>>>  @@ -248,9 +247,9 @@ static int load_mmap(struct selabel_handle *rec, 
+> const char *path, struct stat *
+>>>       struct mmap_area *mmap_area;
+>>>   
+>>>       uint32_t i;
+>>>  -    uint32_t *magic;
+>>>  -    uint32_t *section_len;
+>>>  -    uint32_t *plen;
+>>>  +    uint32_t magic[2];
+>>>  +    uint32_t section_len[2];
+>>>  +    uint32_t plen[2];
+>> 
+>>  Why isn't this just:
+>>  uint32_t magic, section_len, plen;
+>>  and use &magic, &section_len, &plen in calls to next_entry() 
+> and magic,
+>>  section_len, and plen in place of *magic, *section_len, *plen.
+>> 
+>>>  @@ -304,35 +303,36 @@ static int load_mmap(struct selabel_handle *rec, 
+> const char *path, struct stat *
+>>>       data->mmap_areas = mmap_area;
+>>>   
+>>>       /* check if this looks like an fcontext file */
+>>>  -    magic = (uint32_t *)addr;
+>>>  -    if (*magic != SELINUX_MAGIC_COMPILED_FCONTEXT)
+>>>  +    rc = next_entry(magic, mmap_area, sizeof(uint32_t));
+>>>  +    if (rc < 0 || *magic != SELINUX_MAGIC_COMPILED_FCONTEXT)
+>>>           return -1;
+>> 
+>>  Then this becomes:
+>>  rc = next_entry(&magic, mmap_area, sizeof(uint32_t));
+>>  if (rc < 0 || magic != SELINUX_MAGIC_COMPILED_FCONTEXT)
+>>      return -1;
+>> 
+>>  Or, alternatively, you could do it as in libsepol and declare:
+>>  uint32_t buf[2];
+> 
+> Sorry, should be buf[3] in that example.
+> 
+> 
+>>  rc = next_entry(buf, mmap_area, sizeof buf);
+>>  and read several values at one time, e.g. the magic as buf[0], the
+>>  version as buf[1], and either the pcre version string length or the stem
+
+>>  map length as buf[2].
+I'll fix all the problems highlighted and send a V2 next week
+
+>> 
+>>  BTW, there is no endianness conversion here, unlike libsepol for binary
+>>  policies?  So you have to ensure that you generate file_contexts.bin on
+>>  the same endian architecture as you use it?  That's a bit worrisome
+>>  although probably not an issue at the moment.  Can't change that though
+>>  without more substantial alteration and a version change, so don't 
+> worry
+
+>>  about it for now.
+I guess this would need to be done for acceptance into Android ??. If so,
+and as the overall objective of what I started was Android support, then
+I'm willing to give this a shot by following the way libsepol handles
+this. All advice welcome.
