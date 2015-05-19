@@ -1,46 +1,133 @@
-MIME-Version: 1.0
-In-Reply-To: <555B62C9.5020808@tycho.nsa.gov>
-References: <CAFPpqQF4RPxtJZcdDB_2yke_L+hX4vSk98vOzeFt-EVfznu3+g@mail.gmail.com>
- <555B62C9.5020808@tycho.nsa.gov>
-Date: Tue, 19 May 2015 11:56:27 -0500
-Message-ID: <CAFPpqQF8oMkJ6_BK8z1VGDFmNq3MC6VJZ+HnOBusmRa3tMW0yA@mail.gmail.com>
-Subject: Re: exec'ing new process with different type and MLS level
-From: Ted Toth <txtoth@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
-Cc: SELinux <selinux@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] selinux: enable per-file labeling for debugfs files.
+Date: Tue, 19 May 2015 15:46:06 -0400
+Message-Id: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Got it, thanks.
+Add support for per-file labeling of debugfs files so that
+we can distinguish them in policy.  This is particularly
+important in Android where certain debugfs files have to be writable
+by apps and therefore the debugfs directory tree can be read and
+searched by all.
 
-Ted
+Since debugfs is entirely kernel-generated, the directory tree is
+immutable by userspace, and the inodes are pinned in memory, we can
+simply use the same approach as with proc and label the inodes from
+policy based on pathname from the root of the debugfs filesystem.
+Generalize the existing labeling support used for proc and reuse it
+for debugfs too.
 
-On Tue, May 19, 2015 at 11:20 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 05/19/2015 11:48 AM, Ted Toth wrote:
->> I've got a process that runs at SystemHigh who's type has lots of mac
->> privileges call it x_t  that execs (calling fork, setexeccon and then
->> execv) other processes in a less privileged type call it y_t and at
->> 'lower' levels. Between the fork and exec I also close all of the file
->> descriptor 0 to maxfd. The issue is that there are MLS constraint AVCs
->> generated for the y_t 'use' access of the fd for ld.so because it is
->> labeled x_t:SystemHigh. Since I did the setexeccon to y_t I'd have
->> thought that ld.so would have been opened as y_t. What am I missing
->> here?
->
-> Kernel opens ld.so before the credential change, e.g. see:
-> http://marc.info/?l=linux-security-module&m=130339623211102&w=2
->
-> There were patches floated to change that behavior but it was
-> controversial and would affect user-visible behavior so it would at
-> least need some kind of compatibility switch.
->
-> I think you either have to allow it or have your privileged process
-> first invoke a statically linked "gate" executable that then invokes the
-> real program so that ld.so is re-opened in the right context.
->
->
->
->
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c            | 43 ++++++++++++++++++-------------------
+ security/selinux/include/security.h |  1 +
+ 2 files changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7dade28..56c90dd 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -724,7 +724,10 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	}
+ 
+ 	if (strcmp(sb->s_type->name, "proc") == 0)
+-		sbsec->flags |= SE_SBPROC;
++		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
++
++	if (strcmp(sb->s_type->name, "debugfs") == 0)
++		sbsec->flags |= SE_SBGENFS;
+ 
+ 	if (!sbsec->behavior) {
+ 		/*
+@@ -1220,12 +1223,13 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
+ 	return SECCLASS_SOCKET;
+ }
+ 
+-#ifdef CONFIG_PROC_FS
+-static int selinux_proc_get_sid(struct dentry *dentry,
+-				u16 tclass,
+-				u32 *sid)
++static int selinux_genfs_get_sid(struct dentry *dentry,
++				 u16 tclass,
++				 u16 flags,
++				 u32 *sid)
+ {
+ 	int rc;
++	struct super_block *sb = dentry->d_inode->i_sb;
+ 	char *buffer, *path;
+ 
+ 	buffer = (char *)__get_free_page(GFP_KERNEL);
+@@ -1236,26 +1240,20 @@ static int selinux_proc_get_sid(struct dentry *dentry,
+ 	if (IS_ERR(path))
+ 		rc = PTR_ERR(path);
+ 	else {
+-		/* each process gets a /proc/PID/ entry. Strip off the
+-		 * PID part to get a valid selinux labeling.
+-		 * e.g. /proc/1/net/rpc/nfs -> /net/rpc/nfs */
+-		while (path[1] >= '0' && path[1] <= '9') {
+-			path[1] = '/';
+-			path++;
++		if (flags & SE_SBPROC) {
++			/* each process gets a /proc/PID/ entry. Strip off the
++			 * PID part to get a valid selinux labeling.
++			 * e.g. /proc/1/net/rpc/nfs -> /net/rpc/nfs */
++			while (path[1] >= '0' && path[1] <= '9') {
++				path[1] = '/';
++				path++;
++			}
+ 		}
+-		rc = security_genfs_sid("proc", path, tclass, sid);
++		rc = security_genfs_sid(sb->s_type->name, path, tclass, sid);
+ 	}
+ 	free_page((unsigned long)buffer);
+ 	return rc;
+ }
+-#else
+-static int selinux_proc_get_sid(struct dentry *dentry,
+-				u16 tclass,
+-				u32 *sid)
+-{
+-	return -EINVAL;
+-}
+-#endif
+ 
+ /* The inode's security attributes must be initialized before first use. */
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
+@@ -1412,7 +1410,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		/* Default to the fs superblock SID. */
+ 		isec->sid = sbsec->sid;
+ 
+-		if ((sbsec->flags & SE_SBPROC) && !S_ISLNK(inode->i_mode)) {
++		if ((sbsec->flags & SE_SBGENFS) && !S_ISLNK(inode->i_mode)) {
+ 			/* We must have a dentry to determine the label on
+ 			 * procfs inodes */
+ 			if (opt_dentry)
+@@ -1435,7 +1433,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			if (!dentry)
+ 				goto out_unlock;
+ 			isec->sclass = inode_mode_to_security_class(inode->i_mode);
+-			rc = selinux_proc_get_sid(dentry, isec->sclass, &sid);
++			rc = selinux_genfs_get_sid(dentry, isec->sclass,
++						   sbsec->flags, &sid);
+ 			dput(dentry);
+ 			if (rc)
+ 				goto out_unlock;
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index d1e0b23..36993ad 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -56,6 +56,7 @@
+ /* Non-mount related flags */
+ #define SE_SBINITIALIZED	0x0100
+ #define SE_SBPROC		0x0200
++#define SE_SBGENFS		0x0400
+ 
+ #define CONTEXT_STR	"context="
+ #define FSCONTEXT_STR	"fscontext="
+-- 
+2.1.0
