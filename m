@@ -1,128 +1,72 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4KFq5Fi022722
+ for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 11:52:05 -0400
+Received: by wicmx19 with SMTP id mx19so159999395wic.0
+ for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 08:51:39 -0700 (PDT)
+Received: from x131e (217-19-24-195.dsl.cambrium.nl. [217.19.24.195])
+ by mx.google.com with ESMTPSA id n3sm4207245wix.1.2015.05.20.08.51.38
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 20 May 2015 08:51:38 -0700 (PDT)
+Date: Wed, 20 May 2015 17:51:37 +0200
+From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux: update netlink socket classes
-Date: Wed, 20 May 2015 11:11:54 -0400
-Message-Id: <1432134714-7655-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: enable per-file labeling for debugfs files.
+Message-ID: <20150520155135.GA30612@x131e>
+References: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+In-Reply-To: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Update the set of SELinux netlink socket class definitions to match
-the set of netlink protocols implemented by the kernel.  The
-ip_queue implementation for the NETLINK_FIREWALL and NETLINK_IP6_FW protocols
-was removed in d16cf20e2f2f13411eece7f7fb72c17d141c4a84, so we can remove
-the corresponding class definitions as this is dead code.  Add new
-classes for NETLINK_ISCSI, NETLINK_FIB_LOOKUP, NETLINK_CONNECTOR,
-NETLINK_NETFILTER, NETLINK_GENERIC, NETLINK_SCSITRANSPORT, NETLINK_RDMA,
-and NETLINK_CRYPTO so that we can distinguish among sockets created
-for each of these protocols.  This change does not define the finer-grained
-nlsmsg_read/write permissions or map specific nlmsg_type values to those
-permissions in the SELinux nlmsgtab; if finer-grained control of these
-sockets is desired/required, that can be added as a follow-on change.
-We do not define a SELinux class for NETLINK_ECRYPTFS as the implementation
-was removed in 624ae5284516870657505103ada531c64dba2a9a.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- security/selinux/hooks.c            | 20 ++++++++++++++++----
- security/selinux/include/classmap.h | 22 ++++++++++++++++------
- 2 files changed, 32 insertions(+), 10 deletions(-)
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7dade28..9ae4a8b 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1188,8 +1188,6 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
- 		switch (protocol) {
- 		case NETLINK_ROUTE:
- 			return SECCLASS_NETLINK_ROUTE_SOCKET;
--		case NETLINK_FIREWALL:
--			return SECCLASS_NETLINK_FIREWALL_SOCKET;
- 		case NETLINK_SOCK_DIAG:
- 			return SECCLASS_NETLINK_TCPDIAG_SOCKET;
- 		case NETLINK_NFLOG:
-@@ -1198,14 +1196,28 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
- 			return SECCLASS_NETLINK_XFRM_SOCKET;
- 		case NETLINK_SELINUX:
- 			return SECCLASS_NETLINK_SELINUX_SOCKET;
-+		case NETLINK_ISCSI:
-+			return SECCLASS_NETLINK_ISCSI_SOCKET;
- 		case NETLINK_AUDIT:
- 			return SECCLASS_NETLINK_AUDIT_SOCKET;
--		case NETLINK_IP6_FW:
--			return SECCLASS_NETLINK_IP6FW_SOCKET;
-+		case NETLINK_FIB_LOOKUP:
-+			return SECCLASS_NETLINK_FIB_LOOKUP_SOCKET;
-+		case NETLINK_CONNECTOR:
-+			return SECCLASS_NETLINK_CONNECTOR_SOCKET;
-+		case NETLINK_NETFILTER:
-+			return SECCLASS_NETLINK_NETFILTER_SOCKET;
- 		case NETLINK_DNRTMSG:
- 			return SECCLASS_NETLINK_DNRT_SOCKET;
- 		case NETLINK_KOBJECT_UEVENT:
- 			return SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET;
-+		case NETLINK_GENERIC:
-+			return SECCLASS_NETLINK_GENERIC_SOCKET;
-+		case NETLINK_SCSITRANSPORT:
-+			return SECCLASS_NETLINK_SCSITRANSPORT_SOCKET;
-+		case NETLINK_RDMA:
-+			return SECCLASS_NETLINK_RDMA_SOCKET;
-+		case NETLINK_CRYPTO:
-+			return SECCLASS_NETLINK_CRYPTO_SOCKET;
- 		default:
- 			return SECCLASS_NETLINK_SOCKET;
- 		}
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index eccd61b..1d8b924 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -107,9 +107,6 @@ struct security_class_mapping secclass_map[] = {
- 	{ "netlink_route_socket",
- 	  { COMMON_SOCK_PERMS,
- 	    "nlmsg_read", "nlmsg_write", NULL } },
--	{ "netlink_firewall_socket",
--	  { COMMON_SOCK_PERMS,
--	    "nlmsg_read", "nlmsg_write", NULL } },
- 	{ "netlink_tcpdiag_socket",
- 	  { COMMON_SOCK_PERMS,
- 	    "nlmsg_read", "nlmsg_write", NULL } },
-@@ -120,19 +117,32 @@ struct security_class_mapping secclass_map[] = {
- 	    "nlmsg_read", "nlmsg_write", NULL } },
- 	{ "netlink_selinux_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_iscsi_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_audit_socket",
- 	  { COMMON_SOCK_PERMS,
- 	    "nlmsg_read", "nlmsg_write", "nlmsg_relay", "nlmsg_readpriv",
- 	    "nlmsg_tty_audit", NULL } },
--	{ "netlink_ip6fw_socket",
--	  { COMMON_SOCK_PERMS,
--	    "nlmsg_read", "nlmsg_write", NULL } },
-+	{ "netlink_fib_lookup_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_connector_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_netfilter_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_dnrt_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "association",
- 	  { "sendto", "recvfrom", "setcontext", "polmatch", NULL } },
- 	{ "netlink_kobject_uevent_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_generic_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_scsitransport_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_rdma_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "netlink_crypto_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "appletalk_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "packet",
--- 
-2.1.0
+On Tue, May 19, 2015 at 03:46:06PM -0400, Stephen Smalley wrote:
+> Add support for per-file labeling of debugfs files so that
+> we can distinguish them in policy.  This is particularly
+> important in Android where certain debugfs files have to be writable
+> by apps and therefore the debugfs directory tree can be read and
+> searched by all.
+>=20
+> Since debugfs is entirely kernel-generated, the directory tree is
+> immutable by userspace, and the inodes are pinned in memory, we can
+> simply use the same approach as with proc and label the inodes from
+> policy based on pathname from the root of the debugfs filesystem.
+> Generalize the existing labeling support used for proc and reuse it
+> for debugfs too.
+
+Was there a compelling reason not to implement something similar for /sys?
+
+--=20
+02DFF788
+4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
+http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
+Dominick Grift
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJVXK2EAAoJENAR6kfG5xmcr84L/jEsnuf+W/elAvVUYQUHxwg2
+qfH2/7hk/poCz8hTC4TSw0JpCz3s+He1qqmgbvhbMjcR/l9KmSUv0snKXNnLgxHF
+UHbdbCI9gqlKN7VkyRGYcpitz6DMIKeUUxa790kfQwRrUccwJAH95pJ83DlxJN+U
+tU8mDs3EQclJkUn4AzpJSyjKGUdMPCA6zW94v8FhU43ofVoUtvZLCUJ7ag9tjRV7
+DxbBew5IwNPv5yBnI5o5yqh6yYFKeN1ON7awSTfqo1C+m7pXiaf84XEtWIrxkVlp
+K1vGQ10uRaI38PRg1gy9mIZedC5S+iiFsGzvdFr73pj66WosQl4zvsrsc+okfCnX
+42nd2b1vUIdKE0t5pqaxuAV6+3yIIbD2XJwwRq37LMeSzBe1oeZaO/mU6IzaIVkl
+tH/c8OnAGZVqIL2laCHO+2zsvy35UfImctzgNrZvmpLABHTYgM4iHSwki+ZA/M+b
+YYvVjMs0jYhcYjoDkhtuyRe5JwqLNrYgzvaq7t13ag==
+=wED2
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--
