@@ -1,47 +1,48 @@
+Message-ID: <555CC3A6.1030404@tycho.nsa.gov>
+Date: Wed, 20 May 2015 13:25:58 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux: enable genfscon-based labeling for sysfs files
-Date: Wed, 20 May 2015 12:44:06 -0400
-Message-Id: <1432140246-9776-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov, Dominick Grift <dac.override@gmail.com>
+Subject: Re: [PATCH] selinux: enable per-file labeling for debugfs files.
+References: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
+ <20150520155135.GA30612@x131e> <555CAF66.7070004@tycho.nsa.gov>
+ <20150520160422.GB30612@x131e> <555CB29E.30904@tycho.nsa.gov>
+ <20150520162023.GC30612@x131e> <555CB552.5040305@tycho.nsa.gov>
+ <20150520162817.GD30612@x131e>
+In-Reply-To: <20150520162817.GD30612@x131e>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Support per-file labeling of sysfs files based on genfscon
-policy entries.  This is safe because the sysfs directory
-tree cannot be manipulated by userspace.  This provides an
-alternative method of assigning per-file labeling to sysfs
-files without needing to set the labels from userspace.
-The advantages of this approach are that the labels are
-assigned as soon as the dentry is first instantiated
-and userspace does not need to walk the sysfs tree and
-set each label.  The limitations of this approach are that
-the labels can only be assigned based on pathname prefix
-matching.  You can initially assign labels using this
-mechanism and then change them at runtime via setxattr
-if allowed to do so by policy.
+On 05/20/2015 12:28 PM, Dominick Grift wrote:
+> On Wed, May 20, 2015 at 12:24:50PM -0400, Stephen Smalley wrote:
+>> On 05/20/2015 12:20 PM, Dominick Grift wrote:
+>>> On Wed, May 20, 2015 at 12:13:18PM -0400, Stephen Smalley wrote:
+>>>> On 05/20/2015 12:04 PM, Dominick Grift wrote:
+>>>>> On Wed, May 20, 2015 at 11:59:34AM -0400, Stephen Smalley wrote:
+>>>>>> On 05/20/2015 11:51 AM, Dominick Grift wrote:
+>>>>>>> On Tue, May 19, 2015 at 03:46:06PM -0400, Stephen Smalley wrote:
+>>>
+>>>>>> The original motivating use case for per-file labeling for sysfs was
+>>>>>> libvirt labeling of specific sysfs nodes to make them accessible to
+>>>>>> specific virtual machines (qemu instances).  In that scenario, we needed
+>>>>>> userspace to be able to drive the labeling based on more than just the
+>>>>>> pathname and so genfs_contexts wasn't suitable.
+>>>
+>>> I do not think that is applicable anymore (although i may be wrong)
+>>
+>> Not sure what you mean, but to clarify, I mean that libvirt has to set
+>> the context (at least the categories for MCS and possibly the type as
+>> well) on any sysfs node that needs to be accessible by the qemu
+>> instance.  At least that used to be the case.
+>>
+> 
+> That is what i mean. I am not aware of any such scenario's today. Again, I might be overlooking it.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Reported-by:  Dominick Grift <dac.override@gmail.com>
----
- security/selinux/hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Would only show up if you are doing PCI passthrough, I believe.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 56c90dd..727cc07 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -726,7 +726,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	if (strcmp(sb->s_type->name, "proc") == 0)
- 		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
- 
--	if (strcmp(sb->s_type->name, "debugfs") == 0)
-+	if (!strcmp(sb->s_type->name, "debugfs") ||
-+	    !strcmp(sb->s_type->name, "sysfs"))
- 		sbsec->flags |= SE_SBGENFS;
- 
- 	if (!sbsec->behavior) {
--- 
-2.1.0
+Also possible that they never leveraged the support in libvirt even
+after we got the kernel support merged.  But not to say that it wouldn't
+improve their security nonetheless today...
