@@ -1,330 +1,372 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4KLMvFd016040
- for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 17:22:58 -0400
-Received: by qgfa63 with SMTP id a63so10725101qgf.0
- for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 14:22:27 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Jeff Vander Stoep <jeffv@google.com>, sds@tycho.nsa.gov
-Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
-Date: Wed, 20 May 2015 17:22:25 -0400
-Message-ID: <3147722.RboehMiu35@sifl>
-In-Reply-To: <1430337372-7758-1-git-send-email-jeffv@google.com>
-References: <1430337372-7758-1-git-send-email-jeffv@google.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4KLuFeL017807
+ for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 17:56:17 -0400
+Received: by obcus9 with SMTP id us9so47258617obc.2
+ for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 14:56:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org, james.l.morris@oracle.com,
- selinux@tycho.nsa.gov
+In-Reply-To: <1684020.b5Ioztp7mc@sifl>
+References: <1428616130-14570-1-git-send-email-jeffv@google.com>
+ <1684020.b5Ioztp7mc@sifl>
+Date: Wed, 20 May 2015 14:56:12 -0700
+Message-ID: <CABXk95Ak4rPUv6jsdY+QwRtnwAHWzdvxheE6FAt2=zBULYzryg@mail.gmail.com>
+Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
+From: Jeffrey Vander Stoep <jeffv@google.com>
+To: Paul Moore <paul@paul-moore.com>
+Content-Type: multipart/alternative; boundary=001a113cd73cd938ff05168a7ec1
+Cc: SELinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, April 29, 2015 12:56:12 PM Jeff Vander Stoep wrote:
-> Extend the generic ioctl permission check with support for per-command
-> filtering. Source/target/class sets including the ioctl permission may
-> additionally include a set of commands. Example:
-> 
-> allow <source> <target>:<class> { 0x8910-0x8926 0x892A-0x8935 }
-> auditallow <source> <target>:<class> 0x892A
-> 
-> When ioctl commands are omitted only the permissions are checked. This
-> feature is intended to provide finer granularity for the ioctl
-> permission which may be too imprecise in some circumstances. For
-> example, the same driver may use ioctls to provide important and
-> benign functionality such as driver version or socket type as well as
-> dangerous capabilities such as debugging features, read/write/execute
-> to physical memory or access to sensitive data. Per-command filtering
-> provides a mechanism to reduce the attack surface of the kernel, and
-> limit applications to the subset of commands required.
-> 
-> The format of the policy binary has been modified to include ioctl
-> commands, and the policy version number has been incremented to
-> POLICYDB_VERSION_IOCTL_OPERATIONS=30 to account for the format change.
-> 
-> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+--001a113cd73cd938ff05168a7ec1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-If you haven't already, read my comments on patch 0/2; additional comments 
-below ...
+Thank you Paul.
 
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 3c17dda..47918fa 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -22,6 +22,7 @@
->  #include <linux/init.h>
->  #include <linux/skbuff.h>
->  #include <linux/percpu.h>
-> +#include <linux/list.h>
->  #include <net/sock.h>
->  #include <linux/un.h>
->  #include <net/af_unix.h>
-> @@ -48,6 +49,7 @@ struct avc_entry {
->  	u32			tsid;
->  	u16			tclass;
->  	struct av_decision	avd;
-> +	struct avc_operation_node *ops_node;
+I'll put together some updated patches.
 
-As I said earlier, I would like to make this avc extension more general.  In 
-avc_entry that probably will mean nothing, but I wanted to mention this soon 
-in this patch's comments.
 
->  };
-> 
->  struct avc_node {
-> @@ -64,6 +66,16 @@ struct avc_cache {
->  	u32			latest_notif;	/* latest revocation notification */
->  };
-> 
-> +struct avc_operation_decision_node {
-> +	struct operation_decision od;
-> +	struct list_head od_list;
-> +};
+On Wed, May 20, 2015 at 1:04 PM, Paul Moore <paul@paul-moore.com> wrote:
 
-Making this more generic may mean adding an extra field here to specify the 
-type of extension, e.g. ioctl commands.
+> First off, my apologies for such a long delay in providing feedback.  The
+> delay wasn't due to any fault of yours, rather just a backlog on my todo
+> list.
+>
+> Comments below ...
+>
+> On Thursday, April 09, 2015 02:48:50 PM Jeff Vander Stoep wrote:
+> > ---- motivation ----
+> > Ioctls provide many of the operations necessary for device control. The
+> > typical driver supports a device specific set of operations accessible =
+by
+> > the ioctl system call and specified by the command argument. SELinux
+> > provides per operation access control to many system operations e.g.
+> chown,
+> > kill, setuid, ipc_lock, etc. Ioclts on the other hand are granted on a
+> per
+> > file descriptor basis using the ioctl permission, meaning that the set =
+of
+> > operations provided by the driver are granted on an all-or-nothing basi=
+s.
+>
+> ...
+>
+> > ---- Design constraints ----
+> > Policy: Support existing policy, targeted whitelisting. The ioctls
+> commands
+> > used on a system may not be completely known to a sysadmin/policywriter=
+.
+> It
+> > is not reasonable to enforce that all needed commands be known in order
+> to
+> > use this feature in a targeted manner. Existing policy using the ioctl
+> > permission will continue to work as-is. Policy targeting a specific
+> > source/target/class will only be enforced on that particular
+> > source/target/class. E.g. continue to allow init to access all ioctls
+> > provided by a driver, but only allow the browser to access a subset.
+> >
+> > Performance: Many ioctl calls are performance sensitive, and some ioctl=
+s
+> > have a large command set (e.g. sockets support hundreds of commands).
+> > Execution time on a filtered ioctl should be similar to execution time =
+on
+> > an unfiltered one and not related to the number of commands being
+> filtered.
+> > Performance numbers will be included in a separate document.
+> >
+> > Command space: The ioctl command is a 32 bit number comprised of four
+> > fields, number - sequence number of the command. 8 bits
+> > type - magic number assigned to the driver. 8 bits
+> > size - size of the user data involved. typically 14 bits (arch dependen=
+t)
+> > direction - The direction of data transfer. typically 2 bits (arch
+> > dependent) The command is uniquely identified by the type and number,
+> size
+> > and direction are considered to be arguments and are not considered for
+> > SELinux whitelisting.
+> >
+> > ---- Policy format ----
+> > allow <source> <target>:<class> { 0x8910-0x8926 0x892A-0x8935 }
+> > auditallow <source> <target>:<class> 0x892A
+>
+> I agree with only specifying the lower 16 bits (command,type) when
+> specifying
+> the individual ioctls, I even like the '-' shortcut, but I'm a little
+> concerned about specifying a number directly in the permission field
+> without
+> any sort of qualifier.  Specifically I'm worried that it hurts the
+> readability
+> of the policy and could pose problems with future work.
+>
+> I'd be much happier if we could add some sort of syntax which would quali=
+fy
+> the numbers as ioctls, for example:
+>
+>   allow <source> <target>:<class> { ioctl(0x8910-0x8926) ioctl(0x892A) }
+>
+> The above is just an example, if you have a better idea for the syntax I'=
+m
+> open to suggestions.
+>
+> > ---- Architecture ----
+> > policy: Ioctl operations include allow, auditallow and dontaudit
+> > permissions.
+> >
+> > binary policy/avtab: Like AVC permissions, ioctl operations permissions
+> are
+> > represented by set/cleared bits. Each ioctl operation avtab entry
+> represents
+> > a single ioctl command type (using =E2=80=9Ctype=E2=80=9D as defined ab=
+ove in the
+> =E2=80=9Ccommand
+> > space=E2=80=9D section) and includes permissions for the 256 operations=
+ within
+> that
+> > type ...
+>
+> I like the work you did expanding the policy/AVC, especially since it is
+> rather generic.  Sure, there are some ioctl specific quirks, e.g. the
+> type/number handling, but in general, the "operations" concept could be
+> used
+> for any number of things where the existing 32 choices are too limiting.
+> The
+> netfilter command handling is one such example.
+>
+> While what you've submitted here is just fine for ioctl handling, I'd lik=
+e
+> to
+> see us tweak things a bit, and move around some of the ioctl specific
+> quirks,
+> so that we can leverage some of the underlying avtab and avc code for
+> future
+> expansion (if/when we get there).
+>
+> The unfortunate side effect of doing your job too well is that I ask you
+> to do
+> more ;)
+>
+> > AVC: A pointer to an operations structure has been added to the avc_nod=
+e
+> > such that general avc_lookup also returns the allowed ioctl operations.
+>
+> More on this when I send my comments on the patches themselves, but I fou=
+nd
+> the term "operations" a bit ... misleading?  Overly generic?  Odd
+> considering
+> my desire to make this more generic, I know.
+>
+> How about "extops" or something similar?  I would much prefer struct/type
+> names and function names that help indicate that it relates to the extend=
+ed
+> permissions/operations and not the original 32 permissions; "operations"
+> doesn't in my mind, but "extops" or something similar helps.  Once again,
+> if
+> you have a better idea I'm open to suggestions.
+>
+> Nitpicky, I know ...
+>
+> > The structure flags the ioctl types that are allowed and only looks up
+> the
+> > permissions within that type from the avtab when they are first used.
+> After
+> > the initial lookup of a type it is added to a list of types that are
+> > allowed for the source/target/class being retrieved.
+>
+> More on this in the individual patch comments.  I have no argument with
+> your
+> logic from an ioctl perspective, I'd just like to see some slight changes
+> so
+> we can recycle your work later.
+>
+> --
+> paul moore
+> www.paul-moore.com
+>
+>
 
-> +struct avc_operation_node {
-> +	struct operation ops;
-> +	struct list_head od_head; /* list of operation_decision_node */
-> +};
+--001a113cd73cd938ff05168a7ec1
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-As mentioned earlier, I think "operation" needs a name change; I tend to like 
-"extop" better, e.g. "avc_extop_decision_node" and "avc_extop_node".  Feel 
-free to suggest others.
+<div dir=3D"ltr">Thank you Paul.<div><br></div><div>I&#39;ll put together s=
+ome updated patches.</div><div><div><div><br></div></div></div></div><div c=
+lass=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, May 20, 2015 at=
+ 1:04 PM, Paul Moore <span dir=3D"ltr">&lt;<a href=3D"mailto:paul@paul-moor=
+e.com" target=3D"_blank">paul@paul-moore.com</a>&gt;</span> wrote:<br><bloc=
+kquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #cc=
+c solid;padding-left:1ex">First off, my apologies for such a long delay in =
+providing feedback.=C2=A0 The<br>
+delay wasn&#39;t due to any fault of yours, rather just a backlog on my tod=
+o list.<br>
+<br>
+Comments below ...<br>
+<span class=3D""><br>
+On Thursday, April 09, 2015 02:48:50 PM Jeff Vander Stoep wrote:<br>
+&gt; ---- motivation ----<br>
+&gt; Ioctls provide many of the operations necessary for device control. Th=
+e<br>
+&gt; typical driver supports a device specific set of operations accessible=
+ by<br>
+&gt; the ioctl system call and specified by the command argument. SELinux<b=
+r>
+&gt; provides per operation access control to many system operations e.g. c=
+hown,<br>
+&gt; kill, setuid, ipc_lock, etc. Ioclts on the other hand are granted on a=
+ per<br>
+&gt; file descriptor basis using the ioctl permission, meaning that the set=
+ of<br>
+&gt; operations provided by the driver are granted on an all-or-nothing bas=
+is.<br>
+<br>
+</span>...<br>
+<div><div class=3D"h5"><br>
+&gt; ---- Design constraints ----<br>
+&gt; Policy: Support existing policy, targeted whitelisting. The ioctls com=
+mands<br>
+&gt; used on a system may not be completely known to a sysadmin/policywrite=
+r. It<br>
+&gt; is not reasonable to enforce that all needed commands be known in orde=
+r to<br>
+&gt; use this feature in a targeted manner. Existing policy using the ioctl=
+<br>
+&gt; permission will continue to work as-is. Policy targeting a specific<br=
+>
+&gt; source/target/class will only be enforced on that particular<br>
+&gt; source/target/class. E.g. continue to allow init to access all ioctls<=
+br>
+&gt; provided by a driver, but only allow the browser to access a subset.<b=
+r>
+&gt;<br>
+&gt; Performance: Many ioctl calls are performance sensitive, and some ioct=
+ls<br>
+&gt; have a large command set (e.g. sockets support hundreds of commands).<=
+br>
+&gt; Execution time on a filtered ioctl should be similar to execution time=
+ on<br>
+&gt; an unfiltered one and not related to the number of commands being filt=
+ered.<br>
+&gt; Performance numbers will be included in a separate document.<br>
+&gt;<br>
+&gt; Command space: The ioctl command is a 32 bit number comprised of four<=
+br>
+&gt; fields, number - sequence number of the command. 8 bits<br>
+&gt; type - magic number assigned to the driver. 8 bits<br>
+&gt; size - size of the user data involved. typically 14 bits (arch depende=
+nt)<br>
+&gt; direction - The direction of data transfer. typically 2 bits (arch<br>
+&gt; dependent) The command is uniquely identified by the type and number, =
+size<br>
+&gt; and direction are considered to be arguments and are not considered fo=
+r<br>
+&gt; SELinux whitelisting.<br>
+&gt;<br>
+&gt; ---- Policy format ----<br>
+&gt; allow &lt;source&gt; &lt;target&gt;:&lt;class&gt; { 0x8910-0x8926 0x89=
+2A-0x8935 }<br>
+&gt; auditallow &lt;source&gt; &lt;target&gt;:&lt;class&gt; 0x892A<br>
+<br>
+</div></div>I agree with only specifying the lower 16 bits (command,type) w=
+hen specifying<br>
+the individual ioctls, I even like the &#39;-&#39; shortcut, but I&#39;m a =
+little<br>
+concerned about specifying a number directly in the permission field withou=
+t<br>
+any sort of qualifier.=C2=A0 Specifically I&#39;m worried that it hurts the=
+ readability<br>
+of the policy and could pose problems with future work.<br>
+<br>
+I&#39;d be much happier if we could add some sort of syntax which would qua=
+lify<br>
+the numbers as ioctls, for example:<br>
+<br>
+=C2=A0 allow &lt;source&gt; &lt;target&gt;:&lt;class&gt; { ioctl(0x8910-0x8=
+926) ioctl(0x892A) }<br>
+<br>
+The above is just an example, if you have a better idea for the syntax I&#3=
+9;m<br>
+open to suggestions.<br>
+<span class=3D""><br>
+&gt; ---- Architecture ----<br>
+&gt; policy: Ioctl operations include allow, auditallow and dontaudit<br>
+&gt; permissions.<br>
+&gt;<br>
+&gt; binary policy/avtab: Like AVC permissions, ioctl operations permission=
+s are<br>
+&gt; represented by set/cleared bits. Each ioctl operation avtab entry repr=
+esents<br>
+&gt; a single ioctl command type (using =E2=80=9Ctype=E2=80=9D as defined a=
+bove in the =E2=80=9Ccommand<br>
+&gt; space=E2=80=9D section) and includes permissions for the 256 operation=
+s within that<br>
+</span>&gt; type ...<br>
+<br>
+I like the work you did expanding the policy/AVC, especially since it is<br=
+>
+rather generic.=C2=A0 Sure, there are some ioctl specific quirks, e.g. the<=
+br>
+type/number handling, but in general, the &quot;operations&quot; concept co=
+uld be used<br>
+for any number of things where the existing 32 choices are too limiting.=C2=
+=A0 The<br>
+netfilter command handling is one such example.<br>
+<br>
+While what you&#39;ve submitted here is just fine for ioctl handling, I&#39=
+;d like to<br>
+see us tweak things a bit, and move around some of the ioctl specific quirk=
+s,<br>
+so that we can leverage some of the underlying avtab and avc code for futur=
+e<br>
+expansion (if/when we get there).<br>
+<br>
+The unfortunate side effect of doing your job too well is that I ask you to=
+ do<br>
+more ;)<br>
+<span class=3D""><br>
+&gt; AVC: A pointer to an operations structure has been added to the avc_no=
+de<br>
+&gt; such that general avc_lookup also returns the allowed ioctl operations=
+.<br>
+<br>
+</span>More on this when I send my comments on the patches themselves, but =
+I found<br>
+the term &quot;operations&quot; a bit ... misleading?=C2=A0 Overly generic?=
+=C2=A0 Odd considering<br>
+my desire to make this more generic, I know.<br>
+<br>
+How about &quot;extops&quot; or something similar?=C2=A0 I would much prefe=
+r struct/type<br>
+names and function names that help indicate that it relates to the extended=
+<br>
+permissions/operations and not the original 32 permissions; &quot;operation=
+s&quot;<br>
+doesn&#39;t in my mind, but &quot;extops&quot; or something similar helps.=
+=C2=A0 Once again, if<br>
+you have a better idea I&#39;m open to suggestions.<br>
+<br>
+Nitpicky, I know ...<br>
+<span class=3D""><br>
+&gt; The structure flags the ioctl types that are allowed and only looks up=
+ the<br>
+&gt; permissions within that type from the avtab when they are first used. =
+After<br>
+&gt; the initial lookup of a type it is added to a list of types that are<b=
+r>
+&gt; allowed for the source/target/class being retrieved.<br>
+<br>
+</span>More on this in the individual patch comments.=C2=A0 I have no argum=
+ent with your<br>
+logic from an ioctl perspective, I&#39;d just like to see some slight chang=
+es so<br>
+we can recycle your work later.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+--<br>
+paul moore<br>
+<a href=3D"http://www.paul-moore.com" target=3D"_blank">www.paul-moore.com<=
+/a><br>
+<br>
+</font></span></blockquote></div><br></div>
 
-The "operation" struct is named poorly as well; even if we stick with 
-"operation" elsewhere we really need to name this one better, it's way too 
-generic.
-
-> @@ -367,6 +655,7 @@ static int avc_latest_notif_update(int seqno, int
-> is_insert) * @tsid: target security identifier
->   * @tclass: target security class
->   * @avd: resulting av decision
-> + * @ops: resulting operation decisions
-
-Parameter in the comment block doesn't match the actual function definition.
-
-> +/*
-> + * ioctl commands are comprised of four fields, direction, size, type, and
-> + * number. The avc operation logic filters based on two of them:
-> + *
-> + * type: or code, typically unique to each driver
-> + * number: or function
-> + *
-> + * For example, 0x89 is a socket type, and number 0x27 is the get hardware
-> + * address function.
-> + */
-> +int avc_has_operation(u32 ssid, u32 tsid, u16 tclass, u32 requested,
-> +			u16 cmd, struct common_audit_data *ad)
-> +{
-> +	struct avc_node *node;
-> +	struct av_decision avd;
-> +	u32 denied;
-> +	struct operation_decision *od = NULL;
-> +	struct operation_decision od_local;
-> +	struct operation_perm allowed;
-> +	struct operation_perm auditallow;
-> +	struct operation_perm dontaudit;
-> +	struct avc_operation_node local_ops_node;
-> +	struct avc_operation_node *ops_node;
-> +	u8 type = cmd >> 8;
-> +	int rc = 0, rc2;
-> +
-> +	ops_node = &local_ops_node;
-> +	BUG_ON(!requested);
-> +
-> +	rcu_read_lock();
-> +
-> +	node = avc_lookup(ssid, tsid, tclass);
-> +	if (unlikely(!node)) {
-> +		node = avc_compute_av(ssid, tsid, tclass, &avd, ops_node);
-> +	} else {
-> +		memcpy(&avd, &node->ae.avd, sizeof(avd));
-> +		ops_node = node->ae.ops_node;
-> +	}
-> +	/* if operations are not defined, only consider av_decision */
-> +	if (!ops_node || !ops_node->ops.len)
-> +		goto decision;
-> +
-> +	od_local.allowed = &allowed;
-> +	od_local.auditallow = &auditallow;
-> +	od_local.dontaudit = &dontaudit;
-> +
-> +	/* lookup operation decision */
-> +	od = avc_operation_lookup(type, ops_node);
-> +	if (unlikely(!od)) {
-> +		/* Compute operation decision if type is flagged */
-> +		if (!security_operation_test(ops_node->ops.type, type)) {
-> +			avd.allowed &= ~requested;
-> +			goto decision;
-> +		}
-> +		rcu_read_unlock();
-> +		security_compute_operation(ssid, tsid, tclass, type, &od_local);
-> +		rcu_read_lock();
-> +		avc_update_node(AVC_CALLBACK_ADD_OPERATION, requested, cmd,
-> +				ssid, tsid, tclass, avd.seqno, &od_local, 0);
-> +	} else {
-> +		avc_quick_copy_operation_decision(cmd, &od_local, od);
-> +	}
-> +	od = &od_local;
-> +
-> +	if (!avc_operation_has_perm(od, cmd, OPERATION_ALLOWED))
-> +		avd.allowed &= ~requested;
-> +
-> +decision:
-> +	denied = requested & ~(avd.allowed);
-> +	if (unlikely(denied))
-> +		rc = avc_denied(ssid, tsid, tclass, requested, cmd,
-> +				AVC_OPERATION_CMD, &avd);
-> +
-> +	rcu_read_unlock();
-> +
-> +	rc2 = avc_operation_audit(ssid, tsid, tclass, requested,
-> +			&avd, od, cmd, rc, ad);
-> +	if (rc2)
-> +		return rc2;
-> +	return rc;
-> +}
-
-The above function is a good example of what this patchset being very close to 
-a general avc expansion with some minor tweaks.  With the exception of the 
-ioctl cmd/type encoding/handling it really is generic function; splitting this 
-single function into a generic version and an ioctl specific wrapper would be 
-a good thing.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 4d1a541..0fe64bb 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3239,6 +3239,44 @@ static void selinux_file_free_security(struct file
-> *file) file_free_security(file);
->  }
-> 
-> +/*
-> + * Check whether a task has the ioctl permission and cmd
-> + * operation to an inode.
-> + */
-> +int ioctl_has_perm(const struct cred *cred, struct file *file,
-> +		u32 requested, u16 cmd)
-> +{
-> +	struct common_audit_data ad;
-> +	struct file_security_struct *fsec = file->f_security;
-> +	struct inode *inode = file_inode(file);
-> +	struct inode_security_struct *isec = inode->i_security;
-> +	struct lsm_ioctlop_audit ioctl;
-> +	u32 ssid = cred_sid(cred);
-> +	int rc;
-> +
-> +	ad.type = LSM_AUDIT_DATA_IOCTL_OP;
-> +	ad.u.op = &ioctl;
-> +	ad.u.op->cmd = cmd;
-> +	ad.u.op->path = file->f_path;
-> +
-> +	if (ssid != fsec->sid) {
-> +		rc = avc_has_perm(ssid, fsec->sid,
-> +				SECCLASS_FD,
-> +				FD__USE,
-> +				&ad);
-> +		if (rc)
-> +			goto out;
-> +	}
-> +
-> +	if (unlikely(IS_PRIVATE(inode)))
-> +		return 0;
-> +
-> +	rc = avc_has_operation(ssid, isec->sid, isec->sclass,
-> +			requested, cmd, &ad);
-> +out:
-> +	return rc;
-> +}
-
-If we generalize things, I imagine we would replace the "avc_has_operation" 
-call with something ioctl specific, or maybe an ioctl parameter ... let's see 
-where the discussion/investigation takes us.
-
-> diff --git a/security/selinux/include/security.h
-> b/security/selinux/include/security.h index d1e0b23..9f4f7cb 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -35,13 +35,14 @@
->  #define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
->  #define POLICYDB_VERSION_DEFAULT_TYPE	28
->  #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
-> +#define POLICYDB_VERSION_IOCTL_OPERATIONS	30
-> 
->  /* Range of policy versions we understand*/
->  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
->  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
->  #define
-> POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
-> #else
-> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_CONSTRAINT_NAMES
-> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_IOCTL_OPERATIONS
->  #endif
-> 
->  /* Mask for just the mount related flags */
-> @@ -108,11 +109,40 @@ struct av_decision {
->  	u32 flags;
->  };
-> 
-> +#define security_operation_set(perms, x) (perms[x >> 5] |= 1 << (x & 0x1f))
-> +#define security_operation_test(perms, x) (1 & (perms[x >> 5] >> (x &
-> 0x1f)))
-
-See the other comments about "operation" vs. "extop" or similar.
-
-> +
-> +struct operation_perm {
-> +	u32 perms[8];
-> +};
-
-It might be nice to put "8" in a #define somewhere.  Ideally it would be nice 
-to make this variable, but likely not worth the effort at this point in time; 
-256 bits is fine for ioctls and it makes the code a bit more tidy.
-
-> +struct operation_decision {
-> +	u8 type;
-> +	u8 specified;
-> +	struct operation_perm *allowed;
-> +	struct operation_perm *auditallow;
-> +	struct operation_perm *dontaudit;
-> +};
-
-Beyond the "operation" name discussion, we *need* to find another name for the 
-"type" field; it simply carries too many meanings and has special meaning 
-within the context of SELinux.
-
-It would also be nice to have some comments here explaining the fields.
-
-> +#define OPERATION_ALLOWED 1
-> +#define OPERATION_AUDITALLOW 2
-> +#define OPERATION_DONTAUDIT 4
-> +#define OPERATION_ALL (OPERATION_ALLOWED | OPERATION_AUDITALLOW |\
-> +			OPERATION_DONTAUDIT)
-> +struct operation {
-> +	u16 len;	/* length of operation decision chain */
-> +	u32 type[8];	/* 256 types */
-> +};
-
-Name.  Also, I expect this struct will change if we generalize things.
-
-> @@ -429,11 +456,15 @@ int avtab_read_item(struct avtab *a, void *fp, struct
-> policydb *pol, printk(KERN_ERR "SELinux: avtab: entry has both access
-> vectors and types\n"); return -EINVAL;
->  		}
-> +		if (val & AVTAB_OP) {
-> +			printk(KERN_ERR "SELinux: avtab: entry has operations\n");
-> +			return -EINVAL;
-> +		}
-
-Another "operations" vs. "extop" or similar.  If we generalize, it would also 
-be nice to know what kind of extended operations, e.g. ioctl commands.
-
-Further, beyond the extension type (ioctl), I think it would be nice to 
-include a size value in the binary policy.  With the current ioctl code it 
-would be 8/256, but we might want to make this variable in the future and it 
-would be nice not to have to bump the policy format again.
-
--- 
-paul moore
-www.paul-moore.com
+--001a113cd73cd938ff05168a7ec1--
