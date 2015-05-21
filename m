@@ -1,63 +1,81 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LEb4l0014637
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:37:04 -0400
-Received: by oige141 with SMTP id e141so2102696oig.1
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:37:02 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LEdE0Q014740
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:39:14 -0400
+Received: by obblk2 with SMTP id lk2so61918540obb.0
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:39:12 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <555DEA4E.4000807@quarksecurity.com>
-References: <1428616130-14570-1-git-send-email-jeffv@google.com>
- <1684020.b5Ioztp7mc@sifl>
- <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
- <555D3E20.7050907@quarksecurity.com>
- <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
- <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
- <555DDF2C.3010606@quarksecurity.com>
- <CAHC9VhSeZA_qKK_7L94C24LsctATj5etRK7bayO2W6TfmimwOg@mail.gmail.com>
- <555DE8A4.2050000@quarksecurity.com>
- <CAHC9VhSpbMSu2HYMkvt=GsYtara1v+DSbaSHZfa2bWbFAUSYwQ@mail.gmail.com>
- <555DEA4E.4000807@quarksecurity.com>
-Date: Thu, 21 May 2015 10:37:02 -0400
-Message-ID: <CAHC9VhRBD7W+oA3nZ3WDAQUYFg88n1WzrshRJGE_+XMKkMYUtw@mail.gmail.com>
-Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
+In-Reply-To: <555DEA32.4080205@tycho.nsa.gov>
+References: <1430337372-7758-1-git-send-email-jeffv@google.com>
+ <3147722.RboehMiu35@sifl> <555DD091.8060307@tycho.nsa.gov>
+ <CAHC9VhTX8k2gSVBZaX_68b11OzBxFhWbkLrHfpjZ=v0h=82Ceg@mail.gmail.com>
+ <555DEA32.4080205@tycho.nsa.gov>
+Date: Thu, 21 May 2015 10:39:12 -0400
+Message-ID: <CAHC9VhQSA7KuDwL3x45iShSGgsd11Yv3vS=_O4BN_S=fhvrQgg@mail.gmail.com>
+Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
 From: Paul Moore <paul@paul-moore.com>
-To: Joshua Brindle <brindle@quarksecurity.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset=UTF-8
-Cc: James Morris <james.l.morris@oracle.com>,
- linux-security-module@vger.kernel.org,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, May 21, 2015 at 10:23 AM, Joshua Brindle
-<brindle@quarksecurity.com> wrote:
-> Paul Moore wrote:
->> You've got the ioctl numbers in the binary policy, which are the same
->> numbers used in the policy representation, which are also the same
->> numbers used by applications actually making use of the ioctl()
->> syscall.  Other than the fact that these things are numbers and not a
->> more conventional label string, I don't understand the problem.
+On Thu, May 21, 2015 at 10:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 05/21/2015 10:16 AM, Paul Moore wrote:
+>> On Thu, May 21, 2015 at 8:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On 05/20/2015 05:22 PM, Paul Moore wrote:
+>>>>> @@ -64,6 +66,16 @@ struct avc_cache {
+>>>>>      u32                     latest_notif;   /* latest revocation notification */
+>>>>>  };
+>>>>>
+>>>>> +struct avc_operation_decision_node {
+>>>>> +    struct operation_decision od;
+>>>>> +    struct list_head od_list;
+>>>>> +};
+>>>>
+>>>> Making this more generic may mean adding an extra field here to specify the
+>>>> type of extension, e.g. ioctl commands.
+>>>>
+>>>>> +struct avc_operation_node {
+>>>>> +    struct operation ops;
+>>>>> +    struct list_head od_head; /* list of operation_decision_node */
+>>>>> +};
+>>>>
+>>>> As mentioned earlier, I think "operation" needs a name change; I tend to like
+>>>> "extop" better, e.g. "avc_extop_decision_node" and "avc_extop_node".  Feel
+>>>> free to suggest others.
+>>>>
+>>>> The "operation" struct is named poorly as well; even if we stick with
+>>>> "operation" elsewhere we really need to name this one better, it's way too
+>>>> generic.
+>>>
+>>> Don't want to bikeshed here, but I think "operation" is more readable
+>>> then "extop" (not evident what that means or even whether it is supposed
+>>> to be read as "ex-top" or "ext-op" or what).  "operation" at least is
+>>> meaningful and is a suitable generalization of "ioctl command".
+>>
+>> I agree we're (okay, me) being a bit nitpicky here regarding names,
+>> but I really don't like "operation".  I'd much prefer if we could find
+>> something else that implies an extension to the existing 32
+>> permissions, maybe "extperm" or similar?
+>>
+>> As I said earlier, I'm open to suggestions so long as they aren't "operation" :)
 >
-> That is precisely the problem. I'd like any extra symbolic information
-> (e.g., calling this range of ioctls gpu_op) preserved and not thrown away by
-> m4.
->
-> Some of us work on binary only systems where we don't get to see the source
-> code of the applications or the policy.
+> Well, let 's see what these values could possibly represent.  Presently
+> they are "ioctl commands".  "Netlink message types" are a possible use
+> case.  System call numbers would be a closer analogy than permissions,
+> as effectively this is a one-to-one mapping for kernel operations (oh,
+> whoops, there is that word again), so if we were doing this for normal
+> permission checking, we would be encoding the system call number instead.
 
-Sorry, I keep forgetting you are special.  Thanks for the multiple reminders.
+ :)
 
-I suggest talking with James and the CIL folks to arrive at some
-solution that works well with CIL, whatever that might be.  As for the
-checkpolicy based policy, I think m4 is just fine if folks want to use
-it; there is no requirement that m4 must be used for this.
+> Now, what word can be used to describe all of those things?  I have no
+> idea.  Operation seemed pretty close to me.
 
-Further, if we do need to introduce some attribute like construct for
-these operations/ranges/permissions/whatever-we-call-them, I'm okay
-adding that in a future patchset, I see no reason to hold up this
-initial work for that.
+How about you Jeff, any ideas?
 
 -- 
 paul moore
