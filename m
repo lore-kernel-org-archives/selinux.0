@@ -1,144 +1,54 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFaBd7019694
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:36:11 -0400
-Received: by qgfa63 with SMTP id a63so22775380qgf.0
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 08:36:09 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: enable per-file labeling for debugfs files.
-Date: Thu, 21 May 2015 11:36:07 -0400
-Message-ID: <5781225.ThKCgoL4Aq@sifl>
-In-Reply-To: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
-References: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFaZ0t019710
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:36:35 -0400
+Message-ID: <555DFB69.1010802@tresys.com>
+Date: Thu, 21 May 2015 11:36:09 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: selinux@tycho.nsa.gov
+To: Miroslav Grepl <mgrepl@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: CIL: migrate_store issues with MLS policy
+References: <555DEECA.1010409@redhat.com>
+In-Reply-To: <555DEECA.1010409@redhat.com>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tuesday, May 19, 2015 03:46:06 PM Stephen Smalley wrote:
-> Add support for per-file labeling of debugfs files so that
-> we can distinguish them in policy.  This is particularly
-> important in Android where certain debugfs files have to be writable
-> by apps and therefore the debugfs directory tree can be read and
-> searched by all.
+On 05/21/2015 10:42 AM, Miroslav Grepl wrote:
+> We try to get working Fedora SELinux policy builds with migrated store.
+> But we get some issues with MLS policy. We needed to add the following
+> fixes to make it working.
 > 
-> Since debugfs is entirely kernel-generated, the directory tree is
-> immutable by userspace, and the inodes are pinned in memory, we can
-> simply use the same approach as with proc and label the inodes from
-> policy based on pathname from the root of the debugfs filesystem.
-> Generalize the existing labeling support used for proc and reuse it
-> for debugfs too.
-> 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> https://github.com/mgrepl/selinux-policy/commit/daad0252400284027e8a5c300addf6226f74e312
 
-Also applied.  Thanks.
+Looks like a bug with the pp2cil converter. Looking into this.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7dade28..56c90dd 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -724,7 +724,10 @@ static int selinux_set_mnt_opts(struct super_block *sb,
-> }
+> and
 > 
->  	if (strcmp(sb->s_type->name, "proc") == 0)
-> -		sbsec->flags |= SE_SBPROC;
-> +		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
-> +
-> +	if (strcmp(sb->s_type->name, "debugfs") == 0)
-> +		sbsec->flags |= SE_SBGENFS;
+> https://github.com/mgrepl/selinux-policy/commit/113792a78ac27e8a05b4e3b550d7bc40c3c937db
 > 
->  	if (!sbsec->behavior) {
->  		/*
-> @@ -1220,12 +1223,13 @@ static inline u16 socket_type_to_security_class(int
-> family, int type, int protoc return SECCLASS_SOCKET;
->  }
-> 
-> -#ifdef CONFIG_PROC_FS
-> -static int selinux_proc_get_sid(struct dentry *dentry,
-> -				u16 tclass,
-> -				u32 *sid)
-> +static int selinux_genfs_get_sid(struct dentry *dentry,
-> +				 u16 tclass,
-> +				 u16 flags,
-> +				 u32 *sid)
->  {
->  	int rc;
-> +	struct super_block *sb = dentry->d_inode->i_sb;
->  	char *buffer, *path;
-> 
->  	buffer = (char *)__get_free_page(GFP_KERNEL);
-> @@ -1236,26 +1240,20 @@ static int selinux_proc_get_sid(struct dentry
-> *dentry, if (IS_ERR(path))
->  		rc = PTR_ERR(path);
->  	else {
-> -		/* each process gets a /proc/PID/ entry. Strip off the
-> -		 * PID part to get a valid selinux labeling.
-> -		 * e.g. /proc/1/net/rpc/nfs -> /net/rpc/nfs */
-> -		while (path[1] >= '0' && path[1] <= '9') {
-> -			path[1] = '/';
-> -			path++;
-> +		if (flags & SE_SBPROC) {
-> +			/* each process gets a /proc/PID/ entry. Strip off the
-> +			 * PID part to get a valid selinux labeling.
-> +			 * e.g. /proc/1/net/rpc/nfs -> /net/rpc/nfs */
-> +			while (path[1] >= '0' && path[1] <= '9') {
-> +				path[1] = '/';
-> +				path++;
-> +			}
->  		}
-> -		rc = security_genfs_sid("proc", path, tclass, sid);
-> +		rc = security_genfs_sid(sb->s_type->name, path, tclass, sid);
->  	}
->  	free_page((unsigned long)buffer);
->  	return rc;
->  }
-> -#else
-> -static int selinux_proc_get_sid(struct dentry *dentry,
-> -				u16 tclass,
-> -				u32 *sid)
-> -{
-> -	return -EINVAL;
-> -}
-> -#endif
-> 
->  /* The inode's security attributes must be initialized before first use. */
-> static int inode_doinit_with_dentry(struct inode *inode, struct dentry
-> *opt_dentry) @@ -1412,7 +1410,7 @@ static int
-> inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent /*
-> Default to the fs superblock SID. */
->  		isec->sid = sbsec->sid;
-> 
-> -		if ((sbsec->flags & SE_SBPROC) && !S_ISLNK(inode->i_mode)) {
-> +		if ((sbsec->flags & SE_SBGENFS) && !S_ISLNK(inode->i_mode)) {
->  			/* We must have a dentry to determine the label on
->  			 * procfs inodes */
->  			if (opt_dentry)
-> @@ -1435,7 +1433,8 @@ static int inode_doinit_with_dentry(struct inode
-> *inode, struct dentry *opt_dent if (!dentry)
->  				goto out_unlock;
->  			isec->sclass = inode_mode_to_security_class(inode->i_mode);
-> -			rc = selinux_proc_get_sid(dentry, isec->sclass, &sid);
-> +			rc = selinux_genfs_get_sid(dentry, isec->sclass,
-> +						   sbsec->flags, &sid);
->  			dput(dentry);
->  			if (rc)
->  				goto out_unlock;
-> diff --git a/security/selinux/include/security.h
-> b/security/selinux/include/security.h index d1e0b23..36993ad 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -56,6 +56,7 @@
->  /* Non-mount related flags */
->  #define SE_SBINITIALIZED	0x0100
->  #define SE_SBPROC		0x0200
-> +#define SE_SBGENFS		0x0400
-> 
->  #define CONTEXT_STR	"context="
->  #define FSCONTEXT_STR	"fscontext="
 
--- 
-paul moore
-www.paul-moore.com
+This works for staff_r, user_r, and sysadm_r because of this hack:
+
+https://github.com/SELinuxProject/selinux/blob/master/libsepol/src/module_to_cil.c#L2023-L2045
+
+The issue here is that secadm and auditadm are always defined in their
+respective modules, but conditionally defined in base if enable_mls is
+true. Because of this, we can't really use the hack mentioned above,
+because auditadm_r and secamd_r aren't always in base, which that hack
+relies on.
+
+It's possible we could do the reverse of that for these roles, and only
+declare secadm_r and auditadm_r when NOT converting a base module. But I
+this could potentially break things if enable_mls == true and
+auditadm/secadm modules aren't installed, but something still relies on
+the roles. Not immediately clear if that's the case. Will have to look
+into this...
+
+
+> Please check my commit messages.
+> 
+> Regards,
+> Miroslav
+> 
