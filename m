@@ -1,91 +1,142 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFEMM4017823
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:14:22 -0400
-Received: by oihb142 with SMTP id b142so557860oih.3
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 08:14:19 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFPWgt018775
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:25:32 -0400
+Received: by qkgx75 with SMTP id x75so57449280qkg.1
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 08:25:31 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: update netlink socket classes
+Date: Thu, 21 May 2015 11:25:29 -0400
+Message-ID: <2037655.VryGQaUhyt@sifl>
+In-Reply-To: <1432134714-7655-1-git-send-email-sds@tycho.nsa.gov>
+References: <1432134714-7655-1-git-send-email-sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQSA7KuDwL3x45iShSGgsd11Yv3vS=_O4BN_S=fhvrQgg@mail.gmail.com>
-References: <1430337372-7758-1-git-send-email-jeffv@google.com>
- <3147722.RboehMiu35@sifl> <555DD091.8060307@tycho.nsa.gov>
- <CAHC9VhTX8k2gSVBZaX_68b11OzBxFhWbkLrHfpjZ=v0h=82Ceg@mail.gmail.com>
- <555DEA32.4080205@tycho.nsa.gov>
- <CAHC9VhQSA7KuDwL3x45iShSGgsd11Yv3vS=_O4BN_S=fhvrQgg@mail.gmail.com>
-Date: Thu, 21 May 2015 08:14:18 -0700
-Message-ID: <CABXk95ARYdCokbGYLW8REPjx_qH-X--xsZcCmLnRoGU7KP+nZQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
-From: Jeffrey Vander Stoep <jeffv@google.com>
-To: Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: SELinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I selected operation because it is not ioctl specific. Stephen and I
-had discussed the possibility of this being used for other things but
-ultimately decided to focus on ioctls because that was my intended
-use-case. I would be ok with other names, but I also thing the naming
-could be kept the same and I could add clearer in-code comments to
-better convey the extended operations or extended permissions idea.
+On Wednesday, May 20, 2015 11:11:54 AM Stephen Smalley wrote:
+> Update the set of SELinux netlink socket class definitions to match
+> the set of netlink protocols implemented by the kernel.  The
+> ip_queue implementation for the NETLINK_FIREWALL and NETLINK_IP6_FW
+> protocols was removed in d16cf20e2f2f13411eece7f7fb72c17d141c4a84, so we
+> can remove the corresponding class definitions as this is dead code.  Add
+> new classes for NETLINK_ISCSI, NETLINK_FIB_LOOKUP, NETLINK_CONNECTOR,
+> NETLINK_NETFILTER, NETLINK_GENERIC, NETLINK_SCSITRANSPORT, NETLINK_RDMA,
+> and NETLINK_CRYPTO so that we can distinguish among sockets created
+> for each of these protocols.  This change does not define the finer-grained
+> nlsmsg_read/write permissions or map specific nlmsg_type values to those
+> permissions in the SELinux nlmsgtab; if finer-grained control of these
+> sockets is desired/required, that can be added as a follow-on change.
+> We do not define a SELinux class for NETLINK_ECRYPTFS as the implementation
+> was removed in 624ae5284516870657505103ada531c64dba2a9a.
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/hooks.c            | 20 ++++++++++++++++----
+>  security/selinux/include/classmap.h | 22 ++++++++++++++++------
+>  2 files changed, 32 insertions(+), 10 deletions(-)
 
-On Thu, May 21, 2015 at 7:39 AM, Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, May 21, 2015 at 10:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 05/21/2015 10:16 AM, Paul Moore wrote:
->>> On Thu, May 21, 2015 at 8:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>> On 05/20/2015 05:22 PM, Paul Moore wrote:
->>>>>> @@ -64,6 +66,16 @@ struct avc_cache {
->>>>>>      u32                     latest_notif;   /* latest revocation notification */
->>>>>>  };
->>>>>>
->>>>>> +struct avc_operation_decision_node {
->>>>>> +    struct operation_decision od;
->>>>>> +    struct list_head od_list;
->>>>>> +};
->>>>>
->>>>> Making this more generic may mean adding an extra field here to specify the
->>>>> type of extension, e.g. ioctl commands.
->>>>>
->>>>>> +struct avc_operation_node {
->>>>>> +    struct operation ops;
->>>>>> +    struct list_head od_head; /* list of operation_decision_node */
->>>>>> +};
->>>>>
->>>>> As mentioned earlier, I think "operation" needs a name change; I tend to like
->>>>> "extop" better, e.g. "avc_extop_decision_node" and "avc_extop_node".  Feel
->>>>> free to suggest others.
->>>>>
->>>>> The "operation" struct is named poorly as well; even if we stick with
->>>>> "operation" elsewhere we really need to name this one better, it's way too
->>>>> generic.
->>>>
->>>> Don't want to bikeshed here, but I think "operation" is more readable
->>>> then "extop" (not evident what that means or even whether it is supposed
->>>> to be read as "ex-top" or "ext-op" or what).  "operation" at least is
->>>> meaningful and is a suitable generalization of "ioctl command".
->>>
->>> I agree we're (okay, me) being a bit nitpicky here regarding names,
->>> but I really don't like "operation".  I'd much prefer if we could find
->>> something else that implies an extension to the existing 32
->>> permissions, maybe "extperm" or similar?
->>>
->>> As I said earlier, I'm open to suggestions so long as they aren't "operation" :)
->>
->> Well, let 's see what these values could possibly represent.  Presently
->> they are "ioctl commands".  "Netlink message types" are a possible use
->> case.  System call numbers would be a closer analogy than permissions,
->> as effectively this is a one-to-one mapping for kernel operations (oh,
->> whoops, there is that word again), so if we were doing this for normal
->> permission checking, we would be encoding the system call number instead.
->
->  :)
->
->> Now, what word can be used to describe all of those things?  I have no
->> idea.  Operation seemed pretty close to me.
->
-> How about you Jeff, any ideas?
->
-> --
-> paul moore
-> www.paul-moore.com
+Applied, thanks.
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 7dade28..9ae4a8b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1188,8 +1188,6 @@ static inline u16 socket_type_to_security_class(int
+> family, int type, int protoc switch (protocol) {
+>  		case NETLINK_ROUTE:
+>  			return SECCLASS_NETLINK_ROUTE_SOCKET;
+> -		case NETLINK_FIREWALL:
+> -			return SECCLASS_NETLINK_FIREWALL_SOCKET;
+>  		case NETLINK_SOCK_DIAG:
+>  			return SECCLASS_NETLINK_TCPDIAG_SOCKET;
+>  		case NETLINK_NFLOG:
+> @@ -1198,14 +1196,28 @@ static inline u16 socket_type_to_security_class(int
+> family, int type, int protoc return SECCLASS_NETLINK_XFRM_SOCKET;
+>  		case NETLINK_SELINUX:
+>  			return SECCLASS_NETLINK_SELINUX_SOCKET;
+> +		case NETLINK_ISCSI:
+> +			return SECCLASS_NETLINK_ISCSI_SOCKET;
+>  		case NETLINK_AUDIT:
+>  			return SECCLASS_NETLINK_AUDIT_SOCKET;
+> -		case NETLINK_IP6_FW:
+> -			return SECCLASS_NETLINK_IP6FW_SOCKET;
+> +		case NETLINK_FIB_LOOKUP:
+> +			return SECCLASS_NETLINK_FIB_LOOKUP_SOCKET;
+> +		case NETLINK_CONNECTOR:
+> +			return SECCLASS_NETLINK_CONNECTOR_SOCKET;
+> +		case NETLINK_NETFILTER:
+> +			return SECCLASS_NETLINK_NETFILTER_SOCKET;
+>  		case NETLINK_DNRTMSG:
+>  			return SECCLASS_NETLINK_DNRT_SOCKET;
+>  		case NETLINK_KOBJECT_UEVENT:
+>  			return SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET;
+> +		case NETLINK_GENERIC:
+> +			return SECCLASS_NETLINK_GENERIC_SOCKET;
+> +		case NETLINK_SCSITRANSPORT:
+> +			return SECCLASS_NETLINK_SCSITRANSPORT_SOCKET;
+> +		case NETLINK_RDMA:
+> +			return SECCLASS_NETLINK_RDMA_SOCKET;
+> +		case NETLINK_CRYPTO:
+> +			return SECCLASS_NETLINK_CRYPTO_SOCKET;
+>  		default:
+>  			return SECCLASS_NETLINK_SOCKET;
+>  		}
+> diff --git a/security/selinux/include/classmap.h
+> b/security/selinux/include/classmap.h index eccd61b..1d8b924 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -107,9 +107,6 @@ struct security_class_mapping secclass_map[] = {
+>  	{ "netlink_route_socket",
+>  	  { COMMON_SOCK_PERMS,
+>  	    "nlmsg_read", "nlmsg_write", NULL } },
+> -	{ "netlink_firewall_socket",
+> -	  { COMMON_SOCK_PERMS,
+> -	    "nlmsg_read", "nlmsg_write", NULL } },
+>  	{ "netlink_tcpdiag_socket",
+>  	  { COMMON_SOCK_PERMS,
+>  	    "nlmsg_read", "nlmsg_write", NULL } },
+> @@ -120,19 +117,32 @@ struct security_class_mapping secclass_map[] = {
+>  	    "nlmsg_read", "nlmsg_write", NULL } },
+>  	{ "netlink_selinux_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_iscsi_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "netlink_audit_socket",
+>  	  { COMMON_SOCK_PERMS,
+>  	    "nlmsg_read", "nlmsg_write", "nlmsg_relay", "nlmsg_readpriv",
+>  	    "nlmsg_tty_audit", NULL } },
+> -	{ "netlink_ip6fw_socket",
+> -	  { COMMON_SOCK_PERMS,
+> -	    "nlmsg_read", "nlmsg_write", NULL } },
+> +	{ "netlink_fib_lookup_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_connector_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_netfilter_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "netlink_dnrt_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "association",
+>  	  { "sendto", "recvfrom", "setcontext", "polmatch", NULL } },
+>  	{ "netlink_kobject_uevent_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_generic_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_scsitransport_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_rdma_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+> +	{ "netlink_crypto_socket",
+> +	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "appletalk_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "packet",
+
+-- 
+paul moore
+www.paul-moore.com
