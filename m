@@ -1,33 +1,23 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4KLuFeL017807
- for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 17:56:17 -0400
-Received: by obcus9 with SMTP id us9so47258617obc.2
- for <selinux@tycho.nsa.gov>; Wed, 20 May 2015 14:56:13 -0700 (PDT)
 MIME-Version: 1.0
 In-Reply-To: <1684020.b5Ioztp7mc@sifl>
 References: <1428616130-14570-1-git-send-email-jeffv@google.com>
  <1684020.b5Ioztp7mc@sifl>
-Date: Wed, 20 May 2015 14:56:12 -0700
-Message-ID: <CABXk95Ak4rPUv6jsdY+QwRtnwAHWzdvxheE6FAt2=zBULYzryg@mail.gmail.com>
+Date: Wed, 20 May 2015 17:39:38 -0700
+Message-ID: <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
 Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
-From: Jeffrey Vander Stoep <jeffv@google.com>
+From: William Roberts <bill.c.roberts@gmail.com>
 To: Paul Moore <paul@paul-moore.com>
-Content-Type: multipart/alternative; boundary=001a113cd73cd938ff05168a7ec1
-Cc: SELinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=047d7b86de864cabb005168cc78c
+Cc: linux-security-module@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, james.l.morris@oracle.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113cd73cd938ff05168a7ec1
+--047d7b86de864cabb005168cc78c
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-
-Thank you Paul.
-
-I'll put together some updated patches.
-
 
 On Wed, May 20, 2015 at 1:04 PM, Paul Moore <paul@paul-moore.com> wrote:
 
@@ -107,6 +97,11 @@ fy
 >
 >   allow <source> <target>:<class> { ioctl(0x8910-0x8926) ioctl(0x892A) }
 >
+>
+If you want additional syntax couldn't we move that burden to m4 rather
+then making it a part of the compiler core?
+
+
 > The above is just an example, if you have a better idea for the syntax I'=
 m
 > open to suggestions.
@@ -186,24 +181,36 @@ ed
 > www.paul-moore.com
 >
 >
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
 
---001a113cd73cd938ff05168a7ec1
+
+
+
+--=20
+Respectfully,
+
+William C Roberts
+
+--047d7b86de864cabb005168cc78c
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr">Thank you Paul.<div><br></div><div>I&#39;ll put together s=
-ome updated patches.</div><div><div><div><br></div></div></div></div><div c=
-lass=3D"gmail_extra"><br><div class=3D"gmail_quote">On Wed, May 20, 2015 at=
- 1:04 PM, Paul Moore <span dir=3D"ltr">&lt;<a href=3D"mailto:paul@paul-moor=
-e.com" target=3D"_blank">paul@paul-moore.com</a>&gt;</span> wrote:<br><bloc=
-kquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #cc=
-c solid;padding-left:1ex">First off, my apologies for such a long delay in =
-providing feedback.=C2=A0 The<br>
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
+te">On Wed, May 20, 2015 at 1:04 PM, Paul Moore <span dir=3D"ltr">&lt;<a hr=
+ef=3D"mailto:paul@paul-moore.com" target=3D"_blank">paul@paul-moore.com</a>=
+&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0=
+ 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">First off, my apologie=
+s for such a long delay in providing feedback.=C2=A0 The<br>
 delay wasn&#39;t due to any fault of yours, rather just a backlog on my tod=
 o list.<br>
 <br>
 Comments below ...<br>
-<span class=3D""><br>
+<br>
 On Thursday, April 09, 2015 02:48:50 PM Jeff Vander Stoep wrote:<br>
 &gt; ---- motivation ----<br>
 &gt; Ioctls provide many of the operations necessary for device control. Th=
@@ -221,8 +228,8 @@ hown,<br>
 &gt; operations provided by the driver are granted on an all-or-nothing bas=
 is.<br>
 <br>
-</span>...<br>
-<div><div class=3D"h5"><br>
+...<br>
+<br>
 &gt; ---- Design constraints ----<br>
 &gt; Policy: Support existing policy, targeted whitelisting. The ioctls com=
 mands<br>
@@ -268,8 +275,8 @@ r<br>
 2A-0x8935 }<br>
 &gt; auditallow &lt;source&gt; &lt;target&gt;:&lt;class&gt; 0x892A<br>
 <br>
-</div></div>I agree with only specifying the lower 16 bits (command,type) w=
-hen specifying<br>
+I agree with only specifying the lower 16 bits (command,type) when specifyi=
+ng<br>
 the individual ioctls, I even like the &#39;-&#39; shortcut, but I&#39;m a =
 little<br>
 concerned about specifying a number directly in the permission field withou=
@@ -284,11 +291,14 @@ the numbers as ioctls, for example:<br>
 <br>
 =C2=A0 allow &lt;source&gt; &lt;target&gt;:&lt;class&gt; { ioctl(0x8910-0x8=
 926) ioctl(0x892A) }<br>
-<br>
+<br></blockquote><div><br></div><div>If you want additional syntax couldn&#=
+39;t we move that burden to m4 rather then making it a part of the compiler=
+ core?</div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"mar=
+gin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
 The above is just an example, if you have a better idea for the syntax I&#3=
 9;m<br>
 open to suggestions.<br>
-<span class=3D""><br>
+<br>
 &gt; ---- Architecture ----<br>
 &gt; policy: Ioctl operations include allow, auditallow and dontaudit<br>
 &gt; permissions.<br>
@@ -301,7 +311,7 @@ esents<br>
 bove in the =E2=80=9Ccommand<br>
 &gt; space=E2=80=9D section) and includes permissions for the 256 operation=
 s within that<br>
-</span>&gt; type ...<br>
+&gt; type ...<br>
 <br>
 I like the work you did expanding the policy/AVC, especially since it is<br=
 >
@@ -324,14 +334,14 @@ expansion (if/when we get there).<br>
 The unfortunate side effect of doing your job too well is that I ask you to=
  do<br>
 more ;)<br>
-<span class=3D""><br>
+<br>
 &gt; AVC: A pointer to an operations structure has been added to the avc_no=
 de<br>
 &gt; such that general avc_lookup also returns the allowed ioctl operations=
 .<br>
 <br>
-</span>More on this when I send my comments on the patches themselves, but =
-I found<br>
+More on this when I send my comments on the patches themselves, but I found=
+<br>
 the term &quot;operations&quot; a bit ... misleading?=C2=A0 Overly generic?=
 =C2=A0 Odd considering<br>
 my desire to make this more generic, I know.<br>
@@ -347,7 +357,7 @@ doesn&#39;t in my mind, but &quot;extops&quot; or something similar helps.=
 you have a better idea I&#39;m open to suggestions.<br>
 <br>
 Nitpicky, I know ...<br>
-<span class=3D""><br>
+<br>
 &gt; The structure flags the ioctl types that are allowed and only looks up=
  the<br>
 &gt; permissions within that type from the avtab when they are first used. =
@@ -356,8 +366,8 @@ After<br>
 r>
 &gt; allowed for the source/target/class being retrieved.<br>
 <br>
-</span>More on this in the individual patch comments.=C2=A0 I have no argum=
-ent with your<br>
+More on this in the individual patch comments.=C2=A0 I have no argument wit=
+h your<br>
 logic from an ioctl perspective, I&#39;d just like to see some slight chang=
 es so<br>
 we can recycle your work later.<br>
@@ -367,6 +377,17 @@ paul moore<br>
 <a href=3D"http://www.paul-moore.com" target=3D"_blank">www.paul-moore.com<=
 /a><br>
 <br>
-</font></span></blockquote></div><br></div>
+<br>
+_______________________________________________<br>
+Selinux mailing list<br>
+<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
+To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
+">Selinux-leave@tycho.nsa.gov</a>.<br>
+To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
+:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.</font></=
+span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br><div cl=
+ass=3D"gmail_signature">Respectfully,<br><br>William C Roberts<br><br></div=
+>
+</div></div>
 
---001a113cd73cd938ff05168a7ec1--
+--047d7b86de864cabb005168cc78c--
