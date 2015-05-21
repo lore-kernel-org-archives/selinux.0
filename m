@@ -1,66 +1,100 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFpa1J020835
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:51:36 -0400
-Message-ID: <555DFF01.2030207@redhat.com>
-Date: Thu, 21 May 2015 17:51:29 +0200
-From: Miroslav Grepl <mgrepl@redhat.com>
-MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: CIL: migrate_store issues with MLS policy
-References: <555DEECA.1010409@redhat.com> <555DFB69.1010802@tresys.com>
-In-Reply-To: <555DFB69.1010802@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LGEgtp022663
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 12:14:42 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com
+ (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ by mx1.redhat.com (8.14.4/8.14.4) with ESMTP id t4LGEcYV010090
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 12:14:39 -0400
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: add selinux_openssh_contexts_path()
+Date: Thu, 21 May 2015 18:14:22 +0200
+Message-Id: <1432224862-14659-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/21/2015 05:36 PM, Steve Lawrence wrote:
-> On 05/21/2015 10:42 AM, Miroslav Grepl wrote:
->> We try to get working Fedora SELinux policy builds with migrated store.
->> But we get some issues with MLS policy. We needed to add the following
->> fixes to make it working.
->>
->> https://github.com/mgrepl/selinux-policy/commit/daad0252400284027e8a5c300addf6226f74e312
-> 
-> Looks like a bug with the pp2cil converter. Looking into this.
-> 
->> and
->>
->> https://github.com/mgrepl/selinux-policy/commit/113792a78ac27e8a05b4e3b550d7bc40c3c937db
->>
-> 
-> This works for staff_r, user_r, and sysadm_r because of this hack:
-> 
-> https://github.com/SELinuxProject/selinux/blob/master/libsepol/src/module_to_cil.c#L2023-L2045
+openssh in Fedora uses "sshd_net_t" type for privilege separated
+processes in the preauthentication phase. Similarly, openssh portable uses
+"sftp_t" for internal-sftp processes. Both type are hardcoded what is not ideal.
+Therefore selinux_openssh_contexts_path() was created to get a path where sshd
+can get a correct types prepared by a distribution or an administrator.
 
-Thanks, I overlooked it.
-> 
-> The issue here is that secadm and auditadm are always defined in their
-> respective modules, but conditionally defined in base if enable_mls is
-> true. Because of this, we can't really use the hack mentioned above,
-> because auditadm_r and secamd_r aren't always in base, which that hack
-> relies on.
-> 
-> It's possible we could do the reverse of that for these roles, and only
-> declare secadm_r and auditadm_r when NOT converting a base module. But I
-> this could potentially break things if enable_mls == true and
-> auditadm/secadm modules aren't installed, but something still relies on
-> the roles. Not immediately clear if that's the case. Will have to look
-> into this...
-> 
-Ok. The point is if we add another SELinux user we will get the same
-issue also for targeted policy.
-> 
->> Please check my commit messages.
->>
->> Regards,
->> Miroslav
->>
-> 
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libselinux/include/selinux/selinux.h |  1 +
+ libselinux/src/file_path_suffixes.h  |  1 +
+ libselinux/src/selinux_config.c      | 12 ++++++++++--
+ libselinux/src/selinux_internal.h    |  1 +
+ 4 files changed, 13 insertions(+), 2 deletions(-)
 
-
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index d0eb5c6..4beb170 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -543,6 +543,7 @@ extern const char *selinux_virtual_image_context_path(void);
+ extern const char *selinux_lxc_contexts_path(void);
+ extern const char *selinux_x_context_path(void);
+ extern const char *selinux_sepgsql_context_path(void);
++extern const char *selinux_openssh_contexts_path(void);
+ extern const char *selinux_systemd_contexts_path(void);
+ extern const char *selinux_contexts_path(void);
+ extern const char *selinux_securetty_types_path(void);
+diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
+index 3c92424..d1f9b48 100644
+--- a/libselinux/src/file_path_suffixes.h
++++ b/libselinux/src/file_path_suffixes.h
+@@ -23,6 +23,7 @@ S_(BINPOLICY, "/policy/policy")
+     S_(VIRTUAL_DOMAIN, "/contexts/virtual_domain_context")
+     S_(VIRTUAL_IMAGE, "/contexts/virtual_image_context")
+     S_(LXC_CONTEXTS, "/contexts/lxc_contexts")
++    S_(OPENSSH_CONTEXTS, "/contexts/openssh_contexts")
+     S_(SYSTEMD_CONTEXTS, "/contexts/systemd_contexts")
+     S_(FILE_CONTEXT_SUBS, "/contexts/files/file_contexts.subs")
+     S_(FILE_CONTEXT_SUBS_DIST, "/contexts/files/file_contexts.subs_dist")
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index 0a80141..bec5f3b 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -48,8 +48,9 @@
+ #define FILE_CONTEXT_SUBS_DIST 25
+ #define LXC_CONTEXTS      26
+ #define BOOLEAN_SUBS      27
+-#define SYSTEMD_CONTEXTS  28
+-#define NEL               29
++#define OPENSSH_CONTEXTS  28
++#define SYSTEMD_CONTEXTS  29
++#define NEL               30
+ 
+ /* Part of one-time lazy init */
+ static pthread_once_t once = PTHREAD_ONCE_INIT;
+@@ -491,6 +492,13 @@ const char *selinux_lxc_contexts_path(void)
+ 
+ hidden_def(selinux_lxc_contexts_path)
+ 
++const char *selinux_openssh_contexts_path(void)
++{
++    return get_path(OPENSSH_CONTEXTS);
++}
++
++hidden_def(selinux_openssh_contexts_path)
++
+ const char *selinux_systemd_contexts_path(void)
+ {
+ 	return get_path(SYSTEMD_CONTEXTS);
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 0abf1b4..844e408 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -83,6 +83,7 @@ hidden_proto(selinux_mkload_policy)
+     hidden_proto(selinux_media_context_path)
+     hidden_proto(selinux_x_context_path)
+     hidden_proto(selinux_sepgsql_context_path)
++    hidden_proto(selinux_openssh_contexts_path)
+     hidden_proto(selinux_systemd_contexts_path)
+     hidden_proto(selinux_path)
+     hidden_proto(selinux_check_passwd_access)
 -- 
-Miroslav Grepl
-Software Engineering, SELinux Solutions
-Red Hat, Inc.
+2.4.1
