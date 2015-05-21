@@ -1,62 +1,56 @@
-Message-ID: <555DE73C.3010807@tycho.nsa.gov>
-Date: Thu, 21 May 2015 10:10:04 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LEBXGb012459
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:11:33 -0400
+Received: by oiww2 with SMTP id w2so11916063oiw.0
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:11:32 -0700 (PDT)
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
-References: <1428616130-14570-1-git-send-email-jeffv@google.com>	<1684020.b5Ioztp7mc@sifl>	<CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>	<555DD0CF.8070000@tycho.nsa.gov>	<555DE0EF.3010402@tycho.nsa.gov>	<555DE298.9020207@tycho.nsa.gov>	<555DE3A2.1070509@tycho.nsa.gov>
- <CAHC9VhTyjGexBXkCPaxnfcXdzSUbi8cSLmVjT7ncD7DHq1qQAQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhTyjGexBXkCPaxnfcXdzSUbi8cSLmVjT7ncD7DHq1qQAQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Cc: selinux@tycho.nsa.gov
+In-Reply-To: <555DD091.8060307@tycho.nsa.gov>
+References: <1430337372-7758-1-git-send-email-jeffv@google.com>
+ <3147722.RboehMiu35@sifl> <555DD091.8060307@tycho.nsa.gov>
+Date: Thu, 21 May 2015 10:11:31 -0400
+Message-ID: <CAHC9VhSvE-ajq16kaFufaeFnYGkdT=Fyb+nR_zKPjhjRuqSktw@mail.gmail.com>
+Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/21/2015 10:04 AM, Paul Moore wrote:
-> On Thu, May 21, 2015 at 9:54 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 05/21/2015 09:50 AM, Stephen Smalley wrote:
->>> On 05/21/2015 09:43 AM, James Carter wrote:
->>>> Do you have something else in mind that might use the operation structures?
->>>>
->>>> In CIL we will probably make the syntax something like this:
->>>>
->>>> ((allowop <source> <target> <class> <ioctl expression>)
->>>>
->>>> So the above rule might look like:
->>>>
->>>> (allowop <source> <target> <class> ((range 0x8910 0x8926) 0x892A))
->>>
->>> Paul asked to generalize it so it can be reused for other purposes.  One
->>> example would be netlink message types.  Today, there is a hardcoded
->>> table in SELinux (security/selinux/nlmsgtab.c) that maps specific
->>> netlink message type values to nlmsg_read (i.e. reads public kernel
->>> state), nlmsg_readpriv (i.e. reads potentially sensitive kernel state),
->>> nlmsg_write (i.e. modifies kernel state), and a few other audit-specific
->>> values so we can distinguish e.g. who can read vs write routing table
->>> entries or audit configuration, as the normal socket read/write checks
->>> merely control the ability to send/recv on the socket, which is always
->>> required for any user of it.  That has limited flexibility and isn't
->>> generally well maintained for newer netlink protocols.
+On Thu, May 21, 2015 at 8:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 05/20/2015 05:22 PM, Paul Moore wrote:
+>>> @@ -429,11 +456,15 @@ int avtab_read_item(struct avtab *a, void *fp, struct
+>>> policydb *pol, printk(KERN_ERR "SELinux: avtab: entry has both access
+>>> vectors and types\n"); return -EINVAL;
+>>>              }
+>>> +            if (val & AVTAB_OP) {
+>>> +                    printk(KERN_ERR "SELinux: avtab: entry has operations\n");
+>>> +                    return -EINVAL;
+>>> +            }
 >>
->> So the proposal would be to just add an additional field specifying how
->> to interpret/apply the operation list, e.g.
->> (allowop <source> <target> <class> <ioctl|netlink|...> ((range 0x8910
->> 0x8926) 0x892A))
+>> Another "operations" vs. "extop" or similar.  If we generalize, it would also
+>> be nice to know what kind of extended operations, e.g. ioctl commands.
+>>
+>> Further, beyond the extension type (ioctl), I think it would be nice to
+>> include a size value in the binary policy.  With the current ioctl code it
+>> would be 8/256, but we might want to make this variable in the future and it
+>> would be nice not to have to bump the policy format again.
 >
-> Looks to me like a good solution for CIL.
->
+> Not sure we can avoid changing the format version again regardless.
+> Note that we didn't even strictly need to increment the version this
+> time, as the new structure is only included in the binary policy if one
+> of the newly defined AVTAB_OP flag bits is set for the entry, but it was
+> still useful to define a new version so that userspace can tell whether
+> the kernel supports the extension and decide how to handle it if the
+> policy defined these operations but the kernel doesn't support enforcing
+> them. The same would be true of any future extension that used this
+> facility.
 
-I agree.
-
-So why not have a syntax like the following for checkpolicy?
-
-allowop <source> <target> <class> <ioctl|netlink|...> { 0x8910-0x8926 0x892A };
-
-Woudln't that be clearer?
-
+You are probably right, but I think it might be a good idea just the same.
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+paul moore
+www.paul-moore.com
