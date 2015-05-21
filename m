@@ -1,14 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LENZxO013720
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:23:36 -0400
-Received: by qget53 with SMTP id t53so40563116qge.3
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:23:10 -0700 (PDT)
-Message-ID: <555DEA4E.4000807@quarksecurity.com>
-Date: Thu, 21 May 2015 10:23:10 -0400
-From: Joshua Brindle <brindle@quarksecurity.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LEb4l0014637
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:37:04 -0400
+Received: by oige141 with SMTP id e141so2102696oig.1
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:37:02 -0700 (PDT)
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
+In-Reply-To: <555DEA4E.4000807@quarksecurity.com>
 References: <1428616130-14570-1-git-send-email-jeffv@google.com>
  <1684020.b5Ioztp7mc@sifl>
  <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
@@ -19,8 +15,13 @@ References: <1428616130-14570-1-git-send-email-jeffv@google.com>
  <CAHC9VhSeZA_qKK_7L94C24LsctATj5etRK7bayO2W6TfmimwOg@mail.gmail.com>
  <555DE8A4.2050000@quarksecurity.com>
  <CAHC9VhSpbMSu2HYMkvt=GsYtara1v+DSbaSHZfa2bWbFAUSYwQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSpbMSu2HYMkvt=GsYtara1v+DSbaSHZfa2bWbFAUSYwQ@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+ <555DEA4E.4000807@quarksecurity.com>
+Date: Thu, 21 May 2015 10:37:02 -0400
+Message-ID: <CAHC9VhRBD7W+oA3nZ3WDAQUYFg88n1WzrshRJGE_+XMKkMYUtw@mail.gmail.com>
+Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
+From: Paul Moore <paul@paul-moore.com>
+To: Joshua Brindle <brindle@quarksecurity.com>
+Content-Type: text/plain; charset=UTF-8
 Cc: James Morris <james.l.morris@oracle.com>,
  linux-security-module@vger.kernel.org,
  "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
@@ -30,59 +31,34 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Paul Moore wrote:
-> On Thu, May 21, 2015 at 10:16 AM, Joshua Brindle
-> <brindle@quarksecurity.com>  wrote:
->> Paul Moore wrote:
->>> On Thu, May 21, 2015 at 9:35 AM, Joshua Brindle
->>> <brindle@quarksecurity.com>   wrote:
->>>> Paul Moore wrote:
->>>>> On Thu, May 21, 2015 at 12:17 AM, Jeffrey Vander Stoep wrote:
->>>>>> Thanks for all the feedback and suggestions. Agreed that raw numerical
->>>>>> values are confusing. I will fix up the commit message to set a better
->>>>>> precedent for intended use. I included them more to illustrate what is
->>>>>> happening under the hood. I like the idea of a qualifier for clarity.
->>>>>> The qualifier seems necessary for the suggested non-ioctl-specific
->>>>>> approach.
->>>>> Great, thank you.
->>>>>
->>>>>> Individual ioctl labels are only marginally better than raw numbers.
->>>>>> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
->>>>>> TIOCMBIS }. More helpful...but not much.
->>>>>>
->>>>>> My plan was to group commonly used ioctl sets into macros.
->>>>>>
->>>>>> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
->>>>>>
->>>>>> After monitoring ioctl use across five different devices I think this
->>>>>> is a good approach as just 10-20 macros would be adequate for a
->>>>>> targeted policy and would provide a clearer explanation of the
->>>>>> permissions given.
->>>>> Agreed.  We can use m4 to provide both the ioctl names and sets if
->>>>> needed.
->>>> m4 is never the answer....
->>>
->>> Except for the policy interfaces, permission sets, etc. ;)
->>>
->>> See Stephen's comments on this, specifically the idea that ioctls are
->>> not objects.  Further, the existing permission set shorthand is a very
->>> good precedence for this approach towards ioctl number handling; I see
->>> no reason *not* to use m4.
->>>
->> The reason *not* to use m4 is because we want some sort of meaningful
->> identifiers preserved in the kernel policy for analysis. I know that isn't
->> your use case but it is some of ours.
+On Thu, May 21, 2015 at 10:23 AM, Joshua Brindle
+<brindle@quarksecurity.com> wrote:
+> Paul Moore wrote:
+>> You've got the ioctl numbers in the binary policy, which are the same
+>> numbers used in the policy representation, which are also the same
+>> numbers used by applications actually making use of the ioctl()
+>> syscall.  Other than the fact that these things are numbers and not a
+>> more conventional label string, I don't understand the problem.
 >
-> You've got the ioctl numbers in the binary policy, which are the same
-> numbers used in the policy representation, which are also the same
-> numbers used by applications actually making use of the ioctl()
-> syscall.  Other than the fact that these things are numbers and not a
-> more conventional label string, I don't understand the problem.
+> That is precisely the problem. I'd like any extra symbolic information
+> (e.g., calling this range of ioctls gpu_op) preserved and not thrown away by
+> m4.
 >
+> Some of us work on binary only systems where we don't get to see the source
+> code of the applications or the policy.
 
-That is precisely the problem. I'd like any extra symbolic information 
-(e.g., calling this range of ioctls gpu_op) preserved and not thrown 
-away by m4.
+Sorry, I keep forgetting you are special.  Thanks for the multiple reminders.
 
-Some of us work on binary only systems where we don't get to see the 
-source code of the applications or the policy.
+I suggest talking with James and the CIL folks to arrive at some
+solution that works well with CIL, whatever that might be.  As for the
+checkpolicy based policy, I think m4 is just fine if folks want to use
+it; there is no requirement that m4 must be used for this.
+
+Further, if we do need to introduce some attribute like construct for
+these operations/ranges/permissions/whatever-we-call-them, I'm okay
+adding that in a future patchset, I see no reason to hold up this
+initial work for that.
+
+-- 
+paul moore
+www.paul-moore.com
