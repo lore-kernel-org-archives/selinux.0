@@ -1,95 +1,144 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFRGcN018871
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:27:19 -0400
-Received: by qkgx75 with SMTP id x75so57500285qkg.1
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 08:27:17 -0700 (PDT)
-Message-ID: <555DF952.1010008@quarksecurity.com>
-Date: Thu, 21 May 2015 11:27:14 -0400
-From: Joshua Brindle <brindle@quarksecurity.com>
-MIME-Version: 1.0
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFaBd7019694
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:36:11 -0400
+Received: by qgfa63 with SMTP id a63so22775380qgf.0
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 08:36:09 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
-References: <1428616130-14570-1-git-send-email-jeffv@google.com>
- <1684020.b5Ioztp7mc@sifl>
- <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
- <555D3E20.7050907@quarksecurity.com>
- <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
- <CAFftDdpuSc6qyAo8Zd8At+LodwUbNmdi2LGT7HurAfG68rEruQ@mail.gmail.com>
- <555DF171.10805@quarksecurity.com>
- <CAFftDdpayX=GqssXHxpfq8UTycJSfamGQdzqMWe9wYDfwwegvg@mail.gmail.com>
- <555DF24E.1060000@quarksecurity.com> <555DF546.80103@tycho.nsa.gov>
-In-Reply-To: <555DF546.80103@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- James Morris <james.l.morris@oracle.com>
+Subject: Re: [PATCH] selinux: enable per-file labeling for debugfs files.
+Date: Thu, 21 May 2015 11:36:07 -0400
+Message-ID: <5781225.ThKCgoL4Aq@sifl>
+In-Reply-To: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
+References: <1432064766-30354-1-git-send-email-sds@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Stephen Smalley wrote:
-> On 05/21/2015 10:57 AM, Joshua Brindle wrote:
->> William Roberts wrote:
->>> On May 21, 2015 7:53 AM, "Joshua Brindle"<brindle@quarksecurity.com>
->>> wrote:
->>>> William Roberts wrote:
->>>>> On Wed, May 20, 2015 at 9:17 PM, Jeffrey Vander Stoep<jeffv@google.com>
->>>>> wrote:
->>>>>
->>>>>> Thanks for all the feedback and suggestions. Agreed that raw numerical
->>>>>> values are confusing. I will fix up the commit message to set a better
->>>>>> precedent for intended use. I included them more to illustrate what is
->>>>>> happening under the hood. I like the idea of a qualifier for clarity.
->>>>>> The qualifier seems necessary for the suggested non-ioctl-specific
->>>>>> approach.
->>>>>>
->>>>>> Individual ioctl labels are only marginally better than raw numbers.
->>>>>> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
->>>>>> TIOCMBIS }. More helpful...but not much.
->>>>>>
->>>>>> My plan was to group commonly used ioctl sets into macros.
->>>>>>
->>>>>> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
->>>>>>
->>>>> This is exactly what I had in mind, just use m4
->>>>>
->>>> Even outside of my analysis use case I think this is not a good idea.
->>>>
->>>> Consider the Android base policy defined gpu_op as a set of ioctls, and
->>> there were related rules for gpu users defined there. Then a device
->>> variant
->>> policy has additional gpu_op ioctl's. How does it add them? Does it
->>> have to
->>> re-add all of the related rules with the new ioctls?
->>>
->>> I could define a new macro my_device_GPU_ioctls and include the base
->>> macro
->>> in its expansion.
->> And repeat every related rule (and keep them in sync as the base policy
->> develops). How much easier is it just to add your ioctl to an ioctl
->> attribute and be done?
->
-> Technically not required for that purpose, e.g. I can do this today:
-> $ cat device/lge/hammerhead/sepolicy/global_macros
-> define(`r_file_perms', `{ ' r_file_perms `write }')
-> and have it automatically add write everywhere we allow r_file_perms
-> even in the core policy, because the build process unions on a
-> file-by-file basis.
->
-> Effectively your attribute would only be useful as inline documentation;
-> it would have no binding to the actual semantic meaning of the check.
-> If the policy writer allows it as gpu_ioc in policy but the driver is
-> actually something other than a gpu driver or chooses to interpret a
-> particular command value included in that attribute in some other way,
-> then it might have an entirely different effect.  So it might be helpful
-> but not sufficient for analysis.
+On Tuesday, May 19, 2015 03:46:06 PM Stephen Smalley wrote:
+> Add support for per-file labeling of debugfs files so that
+> we can distinguish them in policy.  This is particularly
+> important in Android where certain debugfs files have to be writable
+> by apps and therefore the debugfs directory tree can be read and
+> searched by all.
+> 
+> Since debugfs is entirely kernel-generated, the directory tree is
+> immutable by userspace, and the inodes are pinned in memory, we can
+> simply use the same approach as with proc and label the inodes from
+> policy based on pathname from the root of the debugfs filesystem.
+> Generalize the existing labeling support used for proc and reuse it
+> for debugfs too.
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Unless the attributes were specific to the type in question:
+Also applied.  Thanks.
 
-ioctl gpu_device gpu_ioc { 0x8910-0x8926 0x892A-0x8935 };
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 7dade28..56c90dd 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -724,7 +724,10 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+> }
+> 
+>  	if (strcmp(sb->s_type->name, "proc") == 0)
+> -		sbsec->flags |= SE_SBPROC;
+> +		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
+> +
+> +	if (strcmp(sb->s_type->name, "debugfs") == 0)
+> +		sbsec->flags |= SE_SBGENFS;
+> 
+>  	if (!sbsec->behavior) {
+>  		/*
+> @@ -1220,12 +1223,13 @@ static inline u16 socket_type_to_security_class(int
+> family, int type, int protoc return SECCLASS_SOCKET;
+>  }
+> 
+> -#ifdef CONFIG_PROC_FS
+> -static int selinux_proc_get_sid(struct dentry *dentry,
+> -				u16 tclass,
+> -				u32 *sid)
+> +static int selinux_genfs_get_sid(struct dentry *dentry,
+> +				 u16 tclass,
+> +				 u16 flags,
+> +				 u32 *sid)
+>  {
+>  	int rc;
+> +	struct super_block *sb = dentry->d_inode->i_sb;
+>  	char *buffer, *path;
+> 
+>  	buffer = (char *)__get_free_page(GFP_KERNEL);
+> @@ -1236,26 +1240,20 @@ static int selinux_proc_get_sid(struct dentry
+> *dentry, if (IS_ERR(path))
+>  		rc = PTR_ERR(path);
+>  	else {
+> -		/* each process gets a /proc/PID/ entry. Strip off the
+> -		 * PID part to get a valid selinux labeling.
+> -		 * e.g. /proc/1/net/rpc/nfs -> /net/rpc/nfs */
+> -		while (path[1] >= '0' && path[1] <= '9') {
+> -			path[1] = '/';
+> -			path++;
+> +		if (flags & SE_SBPROC) {
+> +			/* each process gets a /proc/PID/ entry. Strip off the
+> +			 * PID part to get a valid selinux labeling.
+> +			 * e.g. /proc/1/net/rpc/nfs -> /net/rpc/nfs */
+> +			while (path[1] >= '0' && path[1] <= '9') {
+> +				path[1] = '/';
+> +				path++;
+> +			}
+>  		}
+> -		rc = security_genfs_sid("proc", path, tclass, sid);
+> +		rc = security_genfs_sid(sb->s_type->name, path, tclass, sid);
+>  	}
+>  	free_page((unsigned long)buffer);
+>  	return rc;
+>  }
+> -#else
+> -static int selinux_proc_get_sid(struct dentry *dentry,
+> -				u16 tclass,
+> -				u32 *sid)
+> -{
+> -	return -EINVAL;
+> -}
+> -#endif
+> 
+>  /* The inode's security attributes must be initialized before first use. */
+> static int inode_doinit_with_dentry(struct inode *inode, struct dentry
+> *opt_dentry) @@ -1412,7 +1410,7 @@ static int
+> inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent /*
+> Default to the fs superblock SID. */
+>  		isec->sid = sbsec->sid;
+> 
+> -		if ((sbsec->flags & SE_SBPROC) && !S_ISLNK(inode->i_mode)) {
+> +		if ((sbsec->flags & SE_SBGENFS) && !S_ISLNK(inode->i_mode)) {
+>  			/* We must have a dentry to determine the label on
+>  			 * procfs inodes */
+>  			if (opt_dentry)
+> @@ -1435,7 +1433,8 @@ static int inode_doinit_with_dentry(struct inode
+> *inode, struct dentry *opt_dent if (!dentry)
+>  				goto out_unlock;
+>  			isec->sclass = inode_mode_to_security_class(inode->i_mode);
+> -			rc = selinux_proc_get_sid(dentry, isec->sclass, &sid);
+> +			rc = selinux_genfs_get_sid(dentry, isec->sclass,
+> +						   sbsec->flags, &sid);
+>  			dput(dentry);
+>  			if (rc)
+>  				goto out_unlock;
+> diff --git a/security/selinux/include/security.h
+> b/security/selinux/include/security.h index d1e0b23..36993ad 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -56,6 +56,7 @@
+>  /* Non-mount related flags */
+>  #define SE_SBINITIALIZED	0x0100
+>  #define SE_SBPROC		0x0200
+> +#define SE_SBGENFS		0x0400
+> 
+>  #define CONTEXT_STR	"context="
+>  #define FSCONTEXT_STR	"fscontext="
 
-allow surfaceflinger gpu_device : chr_file gpu_ioc;
-
-This would 1) enforce the policy authors intention, 2) force policy 
-authors to be specific with what ioctls mean what with which devices and 
-3) allow more meaningful analysis.
+-- 
+paul moore
+www.paul-moore.com
