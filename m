@@ -1,77 +1,64 @@
-Message-ID: <555DD194.3060702@tycho.nsa.gov>
-Date: Thu, 21 May 2015 08:37:40 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LDdXDP009158
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 09:39:34 -0400
+Received: by qkx62 with SMTP id 62so7210358qkx.3
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 06:35:40 -0700 (PDT)
+Message-ID: <555DDF2C.3010606@quarksecurity.com>
+Date: Thu, 21 May 2015 09:35:40 -0400
+From: Joshua Brindle <brindle@quarksecurity.com>
 MIME-Version: 1.0
-To: Joshua Brindle <brindle@quarksecurity.com>,
- William Roberts <bill.c.roberts@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
 Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
 References: <1428616130-14570-1-git-send-email-jeffv@google.com>
  <1684020.b5Ioztp7mc@sifl>
  <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
  <555D3E20.7050907@quarksecurity.com>
-In-Reply-To: <555D3E20.7050907@quarksecurity.com>
-Content-Type: text/plain; charset=utf-8
-Cc: james.l.morris@oracle.com, linux-security-module@vger.kernel.org,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+ <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
+ <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Cc: James Morris <james.l.morris@oracle.com>,
+ linux-security-module@vger.kernel.org,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/20/2015 10:08 PM, Joshua Brindle wrote:
-> William Roberts wrote:
-> <snip>
->>>> ---- Policy format ----
->>>> allow<source>  <target>:<class>  { 0x8910-0x8926 0x892A-0x8935 }
->>>> auditallow<source>  <target>:<class>  0x892A
->>> I agree with only specifying the lower 16 bits (command,type) when
->>> specifying
->>> the individual ioctls, I even like the '-' shortcut, but I'm a little
->>> concerned about specifying a number directly in the permission field
->>> without
->>> any sort of qualifier.  Specifically I'm worried that it hurts the
->>> readability
->>> of the policy and could pose problems with future work.
->>>
->>> I'd be much happier if we could add some sort of syntax which would
->>> qualify
->>> the numbers as ioctls, for example:
->>>
->>>    allow<source>  <target>:<class>  { ioctl(0x8910-0x8926)
->>> ioctl(0x892A) }
->>>
->>>
->> If you want additional syntax couldn't we move that burden to m4 rather
->> then making it a part of the compiler core?
+Paul Moore wrote:
+> On Thu, May 21, 2015 at 12:17 AM, Jeffrey Vander Stoep<jeffv@google.com>  wrote:
+>> Thanks for all the feedback and suggestions. Agreed that raw numerical
+>> values are confusing. I will fix up the commit message to set a better
+>> precedent for intended use. I included them more to illustrate what is
+>> happening under the hood. I like the idea of a qualifier for clarity.
+>> The qualifier seems necessary for the suggested non-ioctl-specific
+>> approach.
+>
+> Great, thank you.
+>
+>> Individual ioctl labels are only marginally better than raw numbers.
+>> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
+>> TIOCMBIS }. More helpful...but not much.
 >>
-> 
-> I haven't looked at the patches but the parser isn't going to be any
-> more or less complex either way, so whatever looks better and is easier
-> to generate is likely better.
-> 
-> These raw values really bother me, though. They make policy impossible
-> to interpret if you do not have an intimate understanding of the
-> drivers. Are these really permissions? It seems closer to Xen's labeling
-> of memory addresses and pci devices.
-> 
-> For reference Xen policy labels various objects:
-> pirqcon 33 system_u:object_r:nicP_t
-> iomemcon 0xfebe0-0xfebff system_u:object_r:nicP_t
-> iomemcon 0xfebd9 system_u:object_r:nicP_t
-> ioportcon 0xecc0-0xecdf system_u:object_r:nicP_t
-> pcidevicecon 0xc800 system_u:object_r:nicP_t
-> 
-> And uses standard TE rules to allow access.
-> 
-> Why not label ioctls and have an ioctl object class?
+>> My plan was to group commonly used ioctl sets into macros.
+>>
+>> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
+>>
+>> After monitoring ioctl use across five different devices I think this
+>> is a good approach as just 10-20 macros would be adequate for a
+>> targeted policy and would provide a clearer explanation of the
+>> permissions given.
+>
+> Agreed.  We can use m4 to provide both the ioctl names and sets if needed.
 
-An early version of the patches tried that, but I advised against it.
-ioctl commands are not objects/resources; they are actions and therefore
-map to something like permissions.  Further, the object in these checks
-is the device node security context and class, which reflects the
-underlying driver, e.g. the GPU driver, the binder driver, the block
-driver for the /system partition, etc.  IIRC, the early version of the
-patch had two checks, the normal ioctl check against the device node
-security context and a new check against the security context derived
-from the ioctl command value, but the pairwise checking doesn't
-necessarily give you the same control or expressiveness.
+m4 is never the answer....
+
+An attribute-like symbol that is maintained in the binary would make 
+these visible in the loaded policy and therefore more 
+understandable/analyzable.
+
+It would also allow you to easily add them in specific devices in a more 
+readable way. For example, if the Android base policy allowed gpu_ioc to 
+surfaceflinger all a device specific variant would need to do is add its 
+ioctls to the attribute.
