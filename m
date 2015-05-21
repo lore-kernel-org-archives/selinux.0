@@ -1,81 +1,91 @@
-Message-ID: <555DF546.80103@tycho.nsa.gov>
-Date: Thu, 21 May 2015 11:09:58 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LFEMM4017823
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 11:14:22 -0400
+Received: by oihb142 with SMTP id b142so557860oih.3
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 08:14:19 -0700 (PDT)
 MIME-Version: 1.0
-To: Joshua Brindle <brindle@quarksecurity.com>,
- William Roberts <bill.c.roberts@gmail.com>
-Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
-References: <1428616130-14570-1-git-send-email-jeffv@google.com>
- <1684020.b5Ioztp7mc@sifl>
- <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
- <555D3E20.7050907@quarksecurity.com>
- <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
- <CAFftDdpuSc6qyAo8Zd8At+LodwUbNmdi2LGT7HurAfG68rEruQ@mail.gmail.com>
- <555DF171.10805@quarksecurity.com>
- <CAFftDdpayX=GqssXHxpfq8UTycJSfamGQdzqMWe9wYDfwwegvg@mail.gmail.com>
- <555DF24E.1060000@quarksecurity.com>
-In-Reply-To: <555DF24E.1060000@quarksecurity.com>
-Content-Type: text/plain; charset=windows-1252
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- James Morris <james.l.morris@oracle.com>
+In-Reply-To: <CAHC9VhQSA7KuDwL3x45iShSGgsd11Yv3vS=_O4BN_S=fhvrQgg@mail.gmail.com>
+References: <1430337372-7758-1-git-send-email-jeffv@google.com>
+ <3147722.RboehMiu35@sifl> <555DD091.8060307@tycho.nsa.gov>
+ <CAHC9VhTX8k2gSVBZaX_68b11OzBxFhWbkLrHfpjZ=v0h=82Ceg@mail.gmail.com>
+ <555DEA32.4080205@tycho.nsa.gov>
+ <CAHC9VhQSA7KuDwL3x45iShSGgsd11Yv3vS=_O4BN_S=fhvrQgg@mail.gmail.com>
+Date: Thu, 21 May 2015 08:14:18 -0700
+Message-ID: <CABXk95ARYdCokbGYLW8REPjx_qH-X--xsZcCmLnRoGU7KP+nZQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
+From: Jeffrey Vander Stoep <jeffv@google.com>
+To: Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: SELinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/21/2015 10:57 AM, Joshua Brindle wrote:
-> William Roberts wrote:
->> On May 21, 2015 7:53 AM, "Joshua Brindle"<brindle@quarksecurity.com> 
->> wrote:
->>> William Roberts wrote:
->>>> On Wed, May 20, 2015 at 9:17 PM, Jeffrey Vander Stoep<jeffv@google.com>
->>>> wrote:
+I selected operation because it is not ioctl specific. Stephen and I
+had discussed the possibility of this being used for other things but
+ultimately decided to focus on ioctls because that was my intended
+use-case. I would be ok with other names, but I also thing the naming
+could be kept the same and I could add clearer in-code comments to
+better convey the extended operations or extended permissions idea.
+
+On Thu, May 21, 2015 at 7:39 AM, Paul Moore <paul@paul-moore.com> wrote:
+> On Thu, May 21, 2015 at 10:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 05/21/2015 10:16 AM, Paul Moore wrote:
+>>> On Thu, May 21, 2015 at 8:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>> On 05/20/2015 05:22 PM, Paul Moore wrote:
+>>>>>> @@ -64,6 +66,16 @@ struct avc_cache {
+>>>>>>      u32                     latest_notif;   /* latest revocation notification */
+>>>>>>  };
+>>>>>>
+>>>>>> +struct avc_operation_decision_node {
+>>>>>> +    struct operation_decision od;
+>>>>>> +    struct list_head od_list;
+>>>>>> +};
+>>>>>
+>>>>> Making this more generic may mean adding an extra field here to specify the
+>>>>> type of extension, e.g. ioctl commands.
+>>>>>
+>>>>>> +struct avc_operation_node {
+>>>>>> +    struct operation ops;
+>>>>>> +    struct list_head od_head; /* list of operation_decision_node */
+>>>>>> +};
+>>>>>
+>>>>> As mentioned earlier, I think "operation" needs a name change; I tend to like
+>>>>> "extop" better, e.g. "avc_extop_decision_node" and "avc_extop_node".  Feel
+>>>>> free to suggest others.
+>>>>>
+>>>>> The "operation" struct is named poorly as well; even if we stick with
+>>>>> "operation" elsewhere we really need to name this one better, it's way too
+>>>>> generic.
 >>>>
->>>>> Thanks for all the feedback and suggestions. Agreed that raw numerical
->>>>> values are confusing. I will fix up the commit message to set a better
->>>>> precedent for intended use. I included them more to illustrate what is
->>>>> happening under the hood. I like the idea of a qualifier for clarity.
->>>>> The qualifier seems necessary for the suggested non-ioctl-specific
->>>>> approach.
->>>>>
->>>>> Individual ioctl labels are only marginally better than raw numbers.
->>>>> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
->>>>> TIOCMBIS }. More helpful...but not much.
->>>>>
->>>>> My plan was to group commonly used ioctl sets into macros.
->>>>>
->>>>> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
->>>>>
->>>> This is exactly what I had in mind, just use m4
->>>>
->>> Even outside of my analysis use case I think this is not a good idea.
+>>>> Don't want to bikeshed here, but I think "operation" is more readable
+>>>> then "extop" (not evident what that means or even whether it is supposed
+>>>> to be read as "ex-top" or "ext-op" or what).  "operation" at least is
+>>>> meaningful and is a suitable generalization of "ioctl command".
 >>>
->>> Consider the Android base policy defined gpu_op as a set of ioctls, and
->> there were related rules for gpu users defined there. Then a device
->> variant
->> policy has additional gpu_op ioctl's. How does it add them? Does it
->> have to
->> re-add all of the related rules with the new ioctls?
+>>> I agree we're (okay, me) being a bit nitpicky here regarding names,
+>>> but I really don't like "operation".  I'd much prefer if we could find
+>>> something else that implies an extension to the existing 32
+>>> permissions, maybe "extperm" or similar?
+>>>
+>>> As I said earlier, I'm open to suggestions so long as they aren't "operation" :)
 >>
->> I could define a new macro my_device_GPU_ioctls and include the base
->> macro
->> in its expansion.
-> 
-> And repeat every related rule (and keep them in sync as the base policy
-> develops). How much easier is it just to add your ioctl to an ioctl
-> attribute and be done?
-
-Technically not required for that purpose, e.g. I can do this today:
-$ cat device/lge/hammerhead/sepolicy/global_macros
-define(`r_file_perms', `{ ' r_file_perms `write }')
-and have it automatically add write everywhere we allow r_file_perms
-even in the core policy, because the build process unions on a
-file-by-file basis.
-
-Effectively your attribute would only be useful as inline documentation;
-it would have no binding to the actual semantic meaning of the check.
-If the policy writer allows it as gpu_ioc in policy but the driver is
-actually something other than a gpu driver or chooses to interpret a
-particular command value included in that attribute in some other way,
-then it might have an entirely different effect.  So it might be helpful
-but not sufficient for analysis.
+>> Well, let 's see what these values could possibly represent.  Presently
+>> they are "ioctl commands".  "Netlink message types" are a possible use
+>> case.  System call numbers would be a closer analogy than permissions,
+>> as effectively this is a one-to-one mapping for kernel operations (oh,
+>> whoops, there is that word again), so if we were doing this for normal
+>> permission checking, we would be encoding the system call number instead.
+>
+>  :)
+>
+>> Now, what word can be used to describe all of those things?  I have no
+>> idea.  Operation seemed pretty close to me.
+>
+> How about you Jeff, any ideas?
+>
+> --
+> paul moore
+> www.paul-moore.com
