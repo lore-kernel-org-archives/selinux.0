@@ -1,58 +1,81 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LE5107011799
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:05:01 -0400
-Received: by oihd6 with SMTP id d6so18109130oih.2
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:04:59 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LEADV4012366
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:10:13 -0400
+Received: by obcus9 with SMTP id us9so61035160obc.2
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:10:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <555DE3A2.1070509@tycho.nsa.gov>
+In-Reply-To: <555DDF2C.3010606@quarksecurity.com>
 References: <1428616130-14570-1-git-send-email-jeffv@google.com>
  <1684020.b5Ioztp7mc@sifl>
  <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
- <555DD0CF.8070000@tycho.nsa.gov> <555DE0EF.3010402@tycho.nsa.gov>
- <555DE298.9020207@tycho.nsa.gov> <555DE3A2.1070509@tycho.nsa.gov>
-Date: Thu, 21 May 2015 10:04:59 -0400
-Message-ID: <CAHC9VhTyjGexBXkCPaxnfcXdzSUbi8cSLmVjT7ncD7DHq1qQAQ@mail.gmail.com>
+ <555D3E20.7050907@quarksecurity.com>
+ <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
+ <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
+ <555DDF2C.3010606@quarksecurity.com>
+Date: Thu, 21 May 2015 10:10:10 -0400
+Message-ID: <CAHC9VhSeZA_qKK_7L94C24LsctATj5etRK7bayO2W6TfmimwOg@mail.gmail.com>
 Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
 From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <brindle@quarksecurity.com>
 Content-Type: text/plain; charset=UTF-8
-Cc: selinux@tycho.nsa.gov
+Cc: James Morris <james.l.morris@oracle.com>,
+ linux-security-module@vger.kernel.org,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, May 21, 2015 at 9:54 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 05/21/2015 09:50 AM, Stephen Smalley wrote:
->> On 05/21/2015 09:43 AM, James Carter wrote:
->>> Do you have something else in mind that might use the operation structures?
+On Thu, May 21, 2015 at 9:35 AM, Joshua Brindle
+<brindle@quarksecurity.com> wrote:
+> Paul Moore wrote:
+>> On Thu, May 21, 2015 at 12:17 AM, Jeffrey Vander Stoep wrote:
 >>>
->>> In CIL we will probably make the syntax something like this:
->>>
->>> ((allowop <source> <target> <class> <ioctl expression>)
->>>
->>> So the above rule might look like:
->>>
->>> (allowop <source> <target> <class> ((range 0x8910 0x8926) 0x892A))
+>>> Thanks for all the feedback and suggestions. Agreed that raw numerical
+>>> values are confusing. I will fix up the commit message to set a better
+>>> precedent for intended use. I included them more to illustrate what is
+>>> happening under the hood. I like the idea of a qualifier for clarity.
+>>> The qualifier seems necessary for the suggested non-ioctl-specific
+>>> approach.
 >>
->> Paul asked to generalize it so it can be reused for other purposes.  One
->> example would be netlink message types.  Today, there is a hardcoded
->> table in SELinux (security/selinux/nlmsgtab.c) that maps specific
->> netlink message type values to nlmsg_read (i.e. reads public kernel
->> state), nlmsg_readpriv (i.e. reads potentially sensitive kernel state),
->> nlmsg_write (i.e. modifies kernel state), and a few other audit-specific
->> values so we can distinguish e.g. who can read vs write routing table
->> entries or audit configuration, as the normal socket read/write checks
->> merely control the ability to send/recv on the socket, which is always
->> required for any user of it.  That has limited flexibility and isn't
->> generally well maintained for newer netlink protocols.
+>> Great, thank you.
+>>
+>>> Individual ioctl labels are only marginally better than raw numbers.
+>>> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
+>>> TIOCMBIS }. More helpful...but not much.
+>>>
+>>> My plan was to group commonly used ioctl sets into macros.
+>>>
+>>> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
+>>>
+>>> After monitoring ioctl use across five different devices I think this
+>>> is a good approach as just 10-20 macros would be adequate for a
+>>> targeted policy and would provide a clearer explanation of the
+>>> permissions given.
+>>
+>> Agreed.  We can use m4 to provide both the ioctl names and sets if needed.
 >
-> So the proposal would be to just add an additional field specifying how
-> to interpret/apply the operation list, e.g.
-> (allowop <source> <target> <class> <ioctl|netlink|...> ((range 0x8910
-> 0x8926) 0x892A))
+> m4 is never the answer....
 
-Looks to me like a good solution for CIL.
+Except for the policy interfaces, permission sets, etc. ;)
+
+See Stephen's comments on this, specifically the idea that ioctls are
+not objects.  Further, the existing permission set shorthand is a very
+good precedence for this approach towards ioctl number handling; I see
+no reason *not* to use m4.
+
+> An attribute-like symbol that is maintained in the binary would make these
+> visible in the loaded policy and therefore more understandable/analyzable.
+
+I think the proposed approach is easily understood and/or analyzable.
+
+> It would also allow you to easily add them in specific devices in a more
+> readable way. For example, if the Android base policy allowed gpu_ioc to
+> surfaceflinger all a device specific variant would need to do is add its
+> ioctls to the attribute.
+
+Once again, I think the proposed approach ticks these boxes as well.
 
 -- 
 paul moore
