@@ -1,22 +1,22 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LGOlhZ023415
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 12:24:47 -0400
-Received: by wgez8 with SMTP id z8so1138939wge.0
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 09:24:45 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LGVpnm024045
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 12:31:59 -0400
+Received: by wicmx19 with SMTP id mx19so18267157wic.0
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 09:31:56 -0700 (PDT)
 Received: from x131e (217-19-24-195.dsl.cambrium.nl. [217.19.24.195])
- by mx.google.com with ESMTPSA id u3sm32867552wjq.36.2015.05.21.09.24.43
+ by mx.google.com with ESMTPSA id x3sm3615705wiy.20.2015.05.21.09.31.55
  for <selinux@tycho.nsa.gov>
  (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Thu, 21 May 2015 09:24:43 -0700 (PDT)
-Date: Thu, 21 May 2015 18:24:42 +0200
+ Thu, 21 May 2015 09:31:55 -0700 (PDT)
+Date: Thu, 21 May 2015 18:31:54 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
 Subject: Re: [PATCH] libselinux: add selinux_openssh_contexts_path()
-Message-ID: <20150521162441.GB683@x131e>
+Message-ID: <20150521163153.GC683@x131e>
 References: <1432224862-14659-1-git-send-email-plautrba@redhat.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
+ protocol="application/pgp-signature"; boundary="2/5bycvrmDh4d1IB"
 In-Reply-To: <1432224862-14659-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -24,7 +24,7 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
---+g7M9IMkV8truYOl
+--2/5bycvrmDh4d1IB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -37,16 +37,6 @@ On Thu, May 21, 2015 at 06:14:22PM +0200, Petr Lautrbach wrote:
 > Therefore selinux_openssh_contexts_path() was created to get a path where=
  sshd
 > can get a correct types prepared by a distribution or an administrator.
-
-I requested this feature and i am using this feature in my personal policy.=
- So hereby my ACK for what it is worth.
-
-However:
-
-That SYSTEMD_CONTEXTS though, that must have been a mistake?
-
-I do not believe that this is used or that it is needed/wanted.
-
 >=20
 > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 > ---
@@ -97,6 +87,10 @@ fig.c
 > +#define OPENSSH_CONTEXTS  28
 > +#define SYSTEMD_CONTEXTS  29
 > +#define NEL               30
+
+How come openssh_context becomes version 28 and systemd_contexts changes fr=
+om 28 to 29?
+
 > =20
 >  /* Part of one-time lazy init */
 >  static pthread_once_t once =3D PTHREAD_ONCE_INIT;
@@ -143,22 +137,22 @@ nternal.h
 http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
 Dominick Grift
 
---+g7M9IMkV8truYOl
+--2/5bycvrmDh4d1IB
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJVXgbFAAoJENAR6kfG5xmcoFkL/Ai88vr8I6KDxu40+IwhPeeh
-+7qR9OchpX64pi33pV5JDaEh3Xr34ioR5KskpH9/wp2XsqKs8cVFwJxV0Aoenlxr
-Lw7HTLdLBDPRzJeLWHNfhH3lB2JCQ9vsvGIDBenK143S7eFoZaCYw3Hc0DFXSDXV
-ojYUmaaYppQGsx7nFGEFXruXVprvpwQ+eKQdNoOdbFiObdKePl5mKdHQ3DXjsTzH
-P0kY3JIrxH6T2VslCpMxhccVla3dr9OvWQwNg7QWoTELwK6SNxdDo4RWLuW4Gjem
-LiqUz1qZM7ae6qCFmAyUAH+ZDXVfoBPUICde+E7YsP15zR2yWwaUHdj0NO8XLLui
-ID3Bn7Nu3RjENWm1eZurkcZeefjJA6FWpzrul7973F450nNvL9QuDTB8khcv0yAD
-r2zoyNFmlaTDqby1QxkmVbLfU2mh9+qk4xu5bJPjjiGYTfIqaqHvRPwFr18zIK/a
-aw5kXT2hCbR1UrKTXS/qJC+5ppSnxCoXI0ke8j6tMw==
-=wLms
+iQGcBAEBCgAGBQJVXgh1AAoJENAR6kfG5xmcHMgMAKzm9Z9Hs1T3gYZ4pGr2wjMp
++nLeXa3ZP7JR0e2SY0CGAKBf7GrnMG3BzN4d0bgSyh6wFW76QjcoTQZOqa0uKtap
+a+6XRLiLoJzgbaBOZxgwdvWXQNyekGoeQyjS8w4vaeb4V1DG05ZidLuR8CORwPFt
+0VgMigfGnS3mqLjLF8AlShJx0izytD5cg/QdgrFZ16w7ml87+oCTN2WSccOE1OwK
+aByP4TQfqWyAR0I3jQATYfWXVW9umF/qB8ZfVZPARdONzTiGjOWJ6j+oSd1gZTC3
+QjT7RI7ySIMIFAhEVV1H5Aya8gdNKiYVhq0h8P2p+NAp/+AbRC3RbsijESXcdca3
+pwJtUcpnfQvaJjpqnokO7JIRA+SkSz+JJCWPfu+vFhP0pEZEWw9rBnt3j/hpKQL9
++odJBy/QHOWtw3FH4eHMqUOirikxdi/uam3MpIcwolXFUVdjvTZ8nVYFWlW1S+s1
+pZ1p5K/rbiDooEcRcfC5fhJArtZtDeXm/yzxYu7bzA==
+=uL9b
 -----END PGP SIGNATURE-----
 
---+g7M9IMkV8truYOl--
+--2/5bycvrmDh4d1IB--
