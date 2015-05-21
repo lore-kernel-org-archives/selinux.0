@@ -1,88 +1,66 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LEJmF2013293
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 10:19:48 -0400
-Received: by oige141 with SMTP id e141so1667344oig.1
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 07:19:47 -0700 (PDT)
+Message-ID: <555DEA32.4080205@tycho.nsa.gov>
+Date: Thu, 21 May 2015 10:22:42 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <555DE8A4.2050000@quarksecurity.com>
-References: <1428616130-14570-1-git-send-email-jeffv@google.com>
- <1684020.b5Ioztp7mc@sifl>
- <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
- <555D3E20.7050907@quarksecurity.com>
- <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
- <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
- <555DDF2C.3010606@quarksecurity.com>
- <CAHC9VhSeZA_qKK_7L94C24LsctATj5etRK7bayO2W6TfmimwOg@mail.gmail.com>
- <555DE8A4.2050000@quarksecurity.com>
-Date: Thu, 21 May 2015 10:19:46 -0400
-Message-ID: <CAHC9VhSpbMSu2HYMkvt=GsYtara1v+DSbaSHZfa2bWbFAUSYwQ@mail.gmail.com>
-Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
-From: Paul Moore <paul@paul-moore.com>
-To: Joshua Brindle <brindle@quarksecurity.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: James Morris <james.l.morris@oracle.com>,
- linux-security-module@vger.kernel.org,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul@paul-moore.com>
+Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
+References: <1430337372-7758-1-git-send-email-jeffv@google.com>	<3147722.RboehMiu35@sifl>	<555DD091.8060307@tycho.nsa.gov>
+ <CAHC9VhTX8k2gSVBZaX_68b11OzBxFhWbkLrHfpjZ=v0h=82Ceg@mail.gmail.com>
+In-Reply-To: <CAHC9VhTX8k2gSVBZaX_68b11OzBxFhWbkLrHfpjZ=v0h=82Ceg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, May 21, 2015 at 10:16 AM, Joshua Brindle
-<brindle@quarksecurity.com> wrote:
-> Paul Moore wrote:
->> On Thu, May 21, 2015 at 9:35 AM, Joshua Brindle
->> <brindle@quarksecurity.com>  wrote:
->>> Paul Moore wrote:
->>>> On Thu, May 21, 2015 at 12:17 AM, Jeffrey Vander Stoep wrote:
->>>>>
->>>>> Thanks for all the feedback and suggestions. Agreed that raw numerical
->>>>> values are confusing. I will fix up the commit message to set a better
->>>>> precedent for intended use. I included them more to illustrate what is
->>>>> happening under the hood. I like the idea of a qualifier for clarity.
->>>>> The qualifier seems necessary for the suggested non-ioctl-specific
->>>>> approach.
+On 05/21/2015 10:16 AM, Paul Moore wrote:
+> On Thu, May 21, 2015 at 8:33 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 05/20/2015 05:22 PM, Paul Moore wrote:
+>>>> @@ -64,6 +66,16 @@ struct avc_cache {
+>>>>      u32                     latest_notif;   /* latest revocation notification */
+>>>>  };
 >>>>
->>>> Great, thank you.
->>>>
->>>>> Individual ioctl labels are only marginally better than raw numbers.
->>>>> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
->>>>> TIOCMBIS }. More helpful...but not much.
->>>>>
->>>>> My plan was to group commonly used ioctl sets into macros.
->>>>>
->>>>> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
->>>>>
->>>>> After monitoring ioctl use across five different devices I think this
->>>>> is a good approach as just 10-20 macros would be adequate for a
->>>>> targeted policy and would provide a clearer explanation of the
->>>>> permissions given.
->>>>
->>>> Agreed.  We can use m4 to provide both the ioctl names and sets if
->>>> needed.
+>>>> +struct avc_operation_decision_node {
+>>>> +    struct operation_decision od;
+>>>> +    struct list_head od_list;
+>>>> +};
 >>>
->>> m4 is never the answer....
+>>> Making this more generic may mean adding an extra field here to specify the
+>>> type of extension, e.g. ioctl commands.
+>>>
+>>>> +struct avc_operation_node {
+>>>> +    struct operation ops;
+>>>> +    struct list_head od_head; /* list of operation_decision_node */
+>>>> +};
+>>>
+>>> As mentioned earlier, I think "operation" needs a name change; I tend to like
+>>> "extop" better, e.g. "avc_extop_decision_node" and "avc_extop_node".  Feel
+>>> free to suggest others.
+>>>
+>>> The "operation" struct is named poorly as well; even if we stick with
+>>> "operation" elsewhere we really need to name this one better, it's way too
+>>> generic.
 >>
->>
->> Except for the policy interfaces, permission sets, etc. ;)
->>
->> See Stephen's comments on this, specifically the idea that ioctls are
->> not objects.  Further, the existing permission set shorthand is a very
->> good precedence for this approach towards ioctl number handling; I see
->> no reason *not* to use m4.
->>
->
-> The reason *not* to use m4 is because we want some sort of meaningful
-> identifiers preserved in the kernel policy for analysis. I know that isn't
-> your use case but it is some of ours.
+>> Don't want to bikeshed here, but I think "operation" is more readable
+>> then "extop" (not evident what that means or even whether it is supposed
+>> to be read as "ex-top" or "ext-op" or what).  "operation" at least is
+>> meaningful and is a suitable generalization of "ioctl command".
+> 
+> I agree we're (okay, me) being a bit nitpicky here regarding names,
+> but I really don't like "operation".  I'd much prefer if we could find
+> something else that implies an extension to the existing 32
+> permissions, maybe "extperm" or similar?
+> 
+> As I said earlier, I'm open to suggestions so long as they aren't "operation" :)
 
-You've got the ioctl numbers in the binary policy, which are the same
-numbers used in the policy representation, which are also the same
-numbers used by applications actually making use of the ioctl()
-syscall.  Other than the fact that these things are numbers and not a
-more conventional label string, I don't understand the problem.
+Well, let 's see what these values could possibly represent.  Presently
+they are "ioctl commands".  "Netlink message types" are a possible use
+case.  System call numbers would be a closer analogy than permissions,
+as effectively this is a one-to-one mapping for kernel operations (oh,
+whoops, there is that word again), so if we were doing this for normal
+permission checking, we would be encoding the system call number instead.
 
--- 
-paul moore
-www.paul-moore.com
+Now, what word can be used to describe all of those things?  I have no
+idea.  Operation seemed pretty close to me.
