@@ -1,64 +1,137 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LDdXDP009158
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 09:39:34 -0400
-Received: by qkx62 with SMTP id 62so7210358qkx.3
- for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 06:35:40 -0700 (PDT)
-Message-ID: <555DDF2C.3010606@quarksecurity.com>
-Date: Thu, 21 May 2015 09:35:40 -0400
-From: Joshua Brindle <brindle@quarksecurity.com>
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4LDhQDG009630
+ for <selinux@tycho.nsa.gov>; Thu, 21 May 2015 09:43:26 -0400
+Message-ID: <555DE0EF.3010402@tycho.nsa.gov>
+Date: Thu, 21 May 2015 09:43:11 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
+To: selinux@tycho.nsa.gov
 Subject: Re: [PATCH 0/2] selinux: add targeted whitelisting of ioctl commands.
-References: <1428616130-14570-1-git-send-email-jeffv@google.com>
- <1684020.b5Ioztp7mc@sifl>
+References: <1428616130-14570-1-git-send-email-jeffv@google.com>	<1684020.b5Ioztp7mc@sifl>
  <CAFftDdqfcMGht2JWHzPcBUauD-7RTXio=aTHHNMUKcJPPNLeRg@mail.gmail.com>
- <555D3E20.7050907@quarksecurity.com>
- <CABXk95CESxmfTbmpTyx0_jkj3TXs6EEYeZwo_Jpri0nAVtUCDg@mail.gmail.com>
- <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhQDg6S9UObCqCLQgg=V6_5Lj7BSQ-LYfRLGGLMZOoaoGQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Cc: James Morris <james.l.morris@oracle.com>,
- linux-security-module@vger.kernel.org,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Stephen Smalley <sds@tycho.nsa.gov>
+ <555DD0CF.8070000@tycho.nsa.gov>
+In-Reply-To: <555DD0CF.8070000@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Paul Moore wrote:
-> On Thu, May 21, 2015 at 12:17 AM, Jeffrey Vander Stoep<jeffv@google.com>  wrote:
->> Thanks for all the feedback and suggestions. Agreed that raw numerical
->> values are confusing. I will fix up the commit message to set a better
->> precedent for intended use. I included them more to illustrate what is
->> happening under the hood. I like the idea of a qualifier for clarity.
->> The qualifier seems necessary for the suggested non-ioctl-specific
->> approach.
->
-> Great, thank you.
->
->> Individual ioctl labels are only marginally better than raw numbers.
->> E.g. { TCSETSF TIOCGWINSZ TCGETA TCSETA TCSETAW TCSETAF TCSBRK TCXONC
->> TIOCMBIS }. More helpful...but not much.
+On 05/21/2015 08:34 AM, Stephen Smalley wrote:
+> On 05/20/2015 08:39 PM, William Roberts wrote:
 >>
->> My plan was to group commonly used ioctl sets into macros.
 >>
->> e.g. common_socket_ioc, priv_socket_ioc, tty_ioc, gpu_ioc, etc
+>> On Wed, May 20, 2015 at 1:04 PM, Paul Moore <paul@paul-moore.com
+>> <mailto:paul@paul-moore.com>> wrote:
 >>
->> After monitoring ioctl use across five different devices I think this
->> is a good approach as just 10-20 macros would be adequate for a
->> targeted policy and would provide a clearer explanation of the
->> permissions given.
+>>      First off, my apologies for such a long delay in providing
+>>      feedback.  The
+>>      delay wasn't due to any fault of yours, rather just a backlog on my
+>>      todo list.
+>>
+>>      Comments below ...
+>>
+>>      On Thursday, April 09, 2015 02:48:50 PM Jeff Vander Stoep wrote:
+>>      > ---- motivation ----
+>>      > Ioctls provide many of the operations necessary for device
+>>      control. The
+>>      > typical driver supports a device specific set of operations
+>>      accessible by
+>>      > the ioctl system call and specified by the command argument. SELinux
+>>      > provides per operation access control to many system operations
+>>      e.g. chown,
+>>      > kill, setuid, ipc_lock, etc. Ioclts on the other hand are granted
+>>      on a per
+>>      > file descriptor basis using the ioctl permission, meaning that the
+>>      set of
+>>      > operations provided by the driver are granted on an all-or-nothing
+>>      basis.
+>>
+>>      ...
+>>
+>>      > ---- Design constraints ----
+>>      > Policy: Support existing policy, targeted whitelisting. The ioctls
+>>      commands
+>>      > used on a system may not be completely known to a
+>>      sysadmin/policywriter. It
+>>      > is not reasonable to enforce that all needed commands be known in
+>>      order to
+>>      > use this feature in a targeted manner. Existing policy using the ioctl
+>>      > permission will continue to work as-is. Policy targeting a specific
+>>      > source/target/class will only be enforced on that particular
+>>      > source/target/class. E.g. continue to allow init to access all ioctls
+>>      > provided by a driver, but only allow the browser to access a subset.
+>>      >
+>>      > Performance: Many ioctl calls are performance sensitive, and some
+>>      ioctls
+>>      > have a large command set (e.g. sockets support hundreds of commands).
+>>      > Execution time on a filtered ioctl should be similar to execution
+>>      time on
+>>      > an unfiltered one and not related to the number of commands being
+>>      filtered.
+>>      > Performance numbers will be included in a separate document.
+>>      >
+>>      > Command space: The ioctl command is a 32 bit number comprised of four
+>>      > fields, number - sequence number of the command. 8 bits
+>>      > type - magic number assigned to the driver. 8 bits
+>>      > size - size of the user data involved. typically 14 bits (arch
+>>      dependent)
+>>      > direction - The direction of data transfer. typically 2 bits (arch
+>>      > dependent) The command is uniquely identified by the type and
+>>      number, size
+>>      > and direction are considered to be arguments and are not
+>>      considered for
+>>      > SELinux whitelisting.
+>>      >
+>>      > ---- Policy format ----
+>>      > allow <source> <target>:<class> { 0x8910-0x8926 0x892A-0x8935 }
+>>      > auditallow <source> <target>:<class> 0x892A
+>>
+>>      I agree with only specifying the lower 16 bits (command,type) when
+>>      specifying
+>>      the individual ioctls, I even like the '-' shortcut, but I'm a little
+>>      concerned about specifying a number directly in the permission field
+>>      without
+>>      any sort of qualifier.  Specifically I'm worried that it hurts the
+>>      readability
+>>      of the policy and could pose problems with future work.
+>>
+>>      I'd be much happier if we could add some sort of syntax which would
+>>      qualify
+>>      the numbers as ioctls, for example:
+>>
+>>        allow <source> <target>:<class> { ioctl(0x8910-0x8926) ioctl(0x892A) }
+>>
+>>
+>> If you want additional syntax couldn't we move that burden to m4 rather
+>> then making it a part of the compiler core?
 >
-> Agreed.  We can use m4 to provide both the ioctl names and sets if needed.
+> It has to be handled by checkpolicy and encoded in the kernel binary
+> policy as an additional field if we want to support other uses of these
+> operation structures for purposes other than just ioctl.
+>
 
-m4 is never the answer....
+Do you have something else in mind that might use the operation structures?
 
-An attribute-like symbol that is maintained in the binary would make 
-these visible in the loaded policy and therefore more 
-understandable/analyzable.
 
-It would also allow you to easily add them in specific devices in a more 
-readable way. For example, if the Android base policy allowed gpu_ioc to 
-surfaceflinger all a device specific variant would need to do is add its 
-ioctls to the attribute.
+In CIL we will probably make the syntax something like this:
+
+((allowop <source> <target> <class> <ioctl expression>)
+
+So the above rule might look like:
+
+(allowop <source> <target> <class> ((range 0x8910 0x8926) 0x892A))
+
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
