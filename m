@@ -1,188 +1,160 @@
-From: william.c.roberts@intel.com
-To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- gregkh@linuxfoundation.org
-Subject: [PATCH] [RFC] kernfs: hook inode initialization for LSMs
-Date: Fri, 22 May 2015 11:25:36 -0700
-Message-Id: <1432319136-160378-2-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <1432319136-160378-1-git-send-email-william.c.roberts@intel.com>
-References: <1432319136-160378-1-git-send-email-william.c.roberts@intel.com>
-Cc: sds@tycho.nsa.gov
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4MITiJa022475
+ for <selinux@tycho.nsa.gov>; Fri, 22 May 2015 14:29:44 -0400
+From: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: Do not allow categories/sensitivities inside
+ blocks
+Date: Fri, 22 May 2015 14:29:23 -0400
+Message-ID: <1432319363-47838-1-git-send-email-ykhodorkovskiy@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+Fixes https://github.com/SELinuxProject/cil/issues/2.
 
-This corrects issues in client filesystems, like sysfs, where LSMs missed
-the opportunity to initialize inodes. In the case of SELinux this prevented
-newly created files from inheriting their parent's label. This has posed
-many issues on Android where transient sysfs files were defaulting to the
-sysfs wide label, rather than their parent, which is the normal behavior
-for other filesystems. Without this, access controls for these files had
-to be granted on the file system wide label, rather then a file specific
-label. The result of which over-privilege the caller but also can cause
-CTS failures.
+Sensitivities and categories generated from blocks use dots to indicate
+namespacing. This could result in categories that contain ambiguous
+ranges with categories declared in blocks.
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
+Example:
+
+    (category c0)
+    (category c2)
+    (block c0
+        (category (c2))
+        (filecon ... (s0 (c2)))
+    )
+
+The above policy results in the filecontext: ... s0:c0.c2. The categories c0.c2
+could be interpreted as a range between c0 and c2 or it could be the namespaced
+category c0.c2. Therefore, categories are no longer allowed inside blocks to
+eliminate this ambiguity.
+
+This patch also disallows sensitivites in blocks for consistency with category
+behavior.
+
+Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
 ---
- fs/kernfs/dir.c             |  2 +-
- fs/kernfs/inode.c           | 34 ++++++++++++++++++++++++++++++----
- fs/kernfs/kernfs-internal.h | 26 +++++++++++++++++++++++++-
- fs/kernfs/mount.c           |  2 +-
- 4 files changed, 57 insertions(+), 7 deletions(-)
+ libsepol/cil/src/cil_resolve_ast.c | 38 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
-index fffca95..096379e 100644
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -809,7 +809,7 @@ static struct dentry *kernfs_iop_lookup(struct inode *dir,
- 	dentry->d_fsdata = kn;
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index 7d46fd5..c9738da 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -55,6 +55,7 @@ struct cil_args_resolve {
+ 	struct cil_tree_node *optstack;
+ 	struct cil_tree_node *boolif;
+ 	struct cil_tree_node *macro;
++	struct cil_tree_node *blockstack;
+ 	struct cil_list *sidorder_lists;
+ 	struct cil_list *classorder_lists;
+ 	struct cil_list *catorder_lists;
+@@ -3248,6 +3249,7 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+ 	enum cil_pass pass = args->pass;
+ 	struct cil_tree_node *optstack = args->optstack;
+ 	struct cil_tree_node *boolif = args->boolif;
++	struct cil_tree_node *blockstack = args->blockstack;
  
- 	/* attach dentry and inode */
--	inode = kernfs_get_inode(dir->i_sb, kn);
-+	inode = kernfs_get_inode(dir->i_sb, kn, dentry->d_parent);
- 	if (!inode) {
- 		ret = ERR_PTR(-ENOMEM);
- 		goto out_unlock;
-diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-index 2da8493..d37b8ff 100644
---- a/fs/kernfs/inode.c
-+++ b/fs/kernfs/inode.c
-@@ -281,8 +281,10 @@ int kernfs_iop_getattr(struct vfsmount *mnt, struct dentry *dentry,
- 	return 0;
- }
- 
--static void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
-+static int kernfs_init_inode(struct kernfs_node *kn, struct inode *inode,
-+			struct dentry *parent)
- {
-+	int error = 0;
- 	kernfs_get(kn);
- 	inode->i_private = kn;
- 	inode->i_mapping->a_ops = &kernfs_aops;
-@@ -291,6 +293,8 @@ static void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
- 	set_default_inode_attr(inode, kn->mode);
- 	kernfs_refresh_inode(kn, inode);
- 
-+	WARN_ON(kn->parent && !parent);
-+
- 	/* initialize inode according to type */
- 	switch (kernfs_type(kn)) {
- 	case KERNFS_DIR:
-@@ -308,31 +312,53 @@ static void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
- 		BUG();
+ 	if (node == NULL) {
+ 		goto exit;
+@@ -3262,6 +3264,14 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+ 		}
  	}
  
-+	if (parent)
-+		error = security_inode_init_security(inode, parent->d_inode,
-+				&parent->d_name, NULL, NULL);
-+
- 	unlock_new_inode(inode);
-+	return error;
- }
- 
- /**
-  *	kernfs_get_inode - get inode for kernfs_node
-  *	@sb: super block
-  *	@kn: kernfs_node to allocate inode for
-+ *	@parent:The parent dentry or NULL if root node
-  *
-  *	Get inode for @kn.  If such inode doesn't exist, a new inode is
-  *	allocated and basics are initialized.  New inode is returned
-  *	locked.
-  *
-+ *	WARN: If parent is null but @kn is not the root node.
-+ *
-  *	LOCKING:
-  *	Kernel thread context (may sleep).
-  *
-  *	RETURNS:
-  *	Pointer to allocated inode on success, NULL on failure.
-  */
--struct inode *kernfs_get_inode(struct super_block *sb, struct kernfs_node *kn)
-+struct inode *kernfs_get_inode(struct super_block *sb, struct kernfs_node *kn,
-+			struct dentry *parent)
- {
-+	int error;
- 	struct inode *inode;
- 
- 	inode = iget_locked(sb, kn->ino);
--	if (inode && (inode->i_state & I_NEW))
--		kernfs_init_inode(kn, inode);
-+	if (inode && (inode->i_state & I_NEW)) {
-+		error = kernfs_init_inode(kn, inode, parent);
-+		if (unlikely(error)) {
-+			/*
-+			 * XXX
-+			 * What is the proper error sequence here?
-+			 * Should we kernfs_put() and iput() or
-+			 * just run the kernfs_evict_inode()
-+			 * routine. 
-+			 */
-+			kernfs_evict_inode(inode);
-+			return NULL;
++	if (blockstack != NULL) {
++		if (node->flavor == CIL_CAT || node->flavor == CIL_SENS) {
++			cil_log(CIL_ERR, "%s statement is not allowed in blocks (%s:%d)\n", cil_node_to_string(node), node->path, node->line);
++			rc = SEPOL_ERR;
++			goto exit;
 +		}
 +	}
- 
- 	return inode;
- }
-diff --git a/fs/kernfs/kernfs-internal.h b/fs/kernfs/kernfs-internal.h
-index af9fa74..b2ead66 100644
---- a/fs/kernfs/kernfs-internal.h
-+++ b/fs/kernfs/kernfs-internal.h
-@@ -76,7 +76,8 @@ extern struct kmem_cache *kernfs_node_cache;
- /*
-  * inode.c
-  */
--struct inode *kernfs_get_inode(struct super_block *sb, struct kernfs_node *kn);
-+struct inode *kernfs_get_inode(struct super_block *sb, struct kernfs_node *kn,
-+			       struct dentry *parent);
- void kernfs_evict_inode(struct inode *inode);
- int kernfs_iop_permission(struct inode *inode, int mask);
- int kernfs_iop_setattr(struct dentry *dentry, struct iattr *iattr);
-@@ -89,6 +90,29 @@ ssize_t kernfs_iop_getxattr(struct dentry *dentry, const char *name, void *buf,
- 			    size_t size);
- ssize_t kernfs_iop_listxattr(struct dentry *dentry, char *buf, size_t size);
- 
-+/**
-+ *	kernfs_get_root_inode - get root inode for kernfs_node
-+ *	@sb: super block
-+ *	@kn: kernfs_node to allocate inode for
-+ *
-+ *	SEE: kernfs_get_inode() for more details
-+ *
-+ *	WARN: if @kn is not the root node, ie has a parent.
-+ *
-+ *	LOCKING:
-+ *	Kernel thread context (may sleep).
-+ *
-+ *	RETURNS:
-+ *	Pointer to allocated inode on success, NULL on failure.
-+ */
-+static inline struct inode *kernfs_get_root_inode(struct super_block *sb,
-+					struct kernfs_node *kn)
-+{
-+	WARN_ON(kn->parent);
-+	return kernfs_get_inode(sb, kn, NULL);
-+}
 +
-+
- /*
-  * dir.c
-  */
-diff --git a/fs/kernfs/mount.c b/fs/kernfs/mount.c
-index 8eaf417..930044f 100644
---- a/fs/kernfs/mount.c
-+++ b/fs/kernfs/mount.c
-@@ -77,7 +77,7 @@ static int kernfs_fill_super(struct super_block *sb, unsigned long magic)
+ 	if (boolif != NULL) {
+ 		if (!(node->flavor == CIL_CONDBLOCK ||
+ 			node->flavor == CIL_AVRULE ||
+@@ -3318,6 +3328,8 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+ 	struct cil_tree_node *callstack = NULL;
+ 	struct cil_tree_node *optstack = NULL;
+ 	struct cil_tree_node *parent = NULL;
++	struct cil_tree_node *blockstack = NULL;
++	struct cil_tree_node *new = NULL;
  
- 	/* get root inode, initialize and unlock it */
- 	mutex_lock(&kernfs_mutex);
--	inode = kernfs_get_inode(sb, info->root->kn);
-+	inode = kernfs_get_root_inode(sb, info->root->kn);
- 	mutex_unlock(&kernfs_mutex);
- 	if (!inode) {
- 		pr_debug("kernfs: could not get root inode\n");
+ 	if (current == NULL || extra_args == NULL) {
+ 		goto exit;
+@@ -3326,10 +3338,10 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+ 	callstack = args->callstack;
+ 	optstack = args->optstack;
+ 	parent = current->parent;
++	blockstack = args->blockstack;
+ 
+-	if (parent->flavor == CIL_CALL || parent->flavor == CIL_OPTIONAL) {
++	if (parent->flavor == CIL_CALL || parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
+ 		/* push this node onto a stack */
+-		struct cil_tree_node *new;
+ 		cil_tree_node_init(&new);
+ 
+ 		new->data = parent->data;
+@@ -3358,6 +3370,12 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+ 				new->cl_head = optstack;
+ 			}
+ 			args->optstack = new;
++		} else if (parent->flavor == CIL_BLOCK) {
++			if (blockstack != NULL) {
++				blockstack->parent = new;
++				new->cl_head = blockstack;
++			}
++			args->blockstack = new;
+ 		}
+ 	} else if (parent->flavor == CIL_BOOLEANIF) {
+ 		args->boolif = parent;
+@@ -3377,6 +3395,7 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+ 	int rc = SEPOL_ERR;
+ 	struct cil_args_resolve *args = extra_args;
+ 	struct cil_tree_node *parent = NULL;
++	struct cil_tree_node *blockstack = NULL;
+ 
+ 	if (current == NULL ||  extra_args == NULL) {
+ 		goto exit;
+@@ -3411,6 +3430,14 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+ 		free(optstack);
+ 	} else if (parent->flavor == CIL_BOOLEANIF) {
+ 		args->boolif = NULL;
++	} else if (parent->flavor == CIL_BLOCK) {
++		/* pop off the stack */
++		blockstack = args->blockstack;
++		args->blockstack = blockstack->cl_head;
++		if (blockstack->cl_head) {
++			blockstack->cl_head->parent = NULL;
++		}
++		free(blockstack);
+ 	}
+ 
+ 	return SEPOL_OK;
+@@ -3442,6 +3469,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 	extra_args.catorder_lists = NULL;
+ 	extra_args.sensitivityorder_lists = NULL;
+ 	extra_args.in_list = NULL;
++	extra_args.blockstack = NULL;
+ 
+ 	cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
+ 	cil_list_init(&extra_args.classorder_lists, CIL_LIST_ITEM);
+@@ -3536,6 +3564,12 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 			free(curr);
+ 			extra_args.optstack = next;
+ 		}
++		while (extra_args.blockstack!= NULL) {
++			struct cil_tree_node *curr = extra_args.blockstack;
++			struct cil_tree_node *next = curr->cl_head;
++			free(curr);
++			extra_args.blockstack= next;
++		}
+ 	}
+ 
+ 	rc = __cil_verify_initsids(db->sidorder);
 -- 
-1.9.1
+1.9.3
