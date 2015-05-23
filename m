@@ -1,109 +1,42 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4PAjhoE019812
- for <selinux@tycho.nsa.gov>; Mon, 25 May 2015 06:45:44 -0400
-Message-ID: <5562FD51.60706@redhat.com>
-Date: Mon, 25 May 2015 12:45:37 +0200
-From: Miroslav Grepl <mgrepl@redhat.com>
+Date: Sat, 23 May 2015 08:11:58 -0700
+From: Greg KH <gregkh@linuxfoundation.org>
+To: william.c.roberts@intel.com
+Subject: Re: [RFC] [PATCH] kernfs: hook inode initialization for LSMs
+Message-ID: <20150523151158.GC11783@kroah.com>
+References: <1432319136-160378-1-git-send-email-william.c.roberts@intel.com>
 MIME-Version: 1.0
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] libsepol: with pp to CIL, always write auditadm_r
- and secadm_r roles to the base module
-References: <1432316069-24113-1-git-send-email-slawrence@tresys.com>
- <1432316069-24113-2-git-send-email-slawrence@tresys.com>
-In-Reply-To: <1432316069-24113-2-git-send-email-slawrence@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1432319136-160378-1-git-send-email-william.c.roberts@intel.com>
+Cc: linux-security-module@vger.kernel.org, sds@tycho.nsa.gov,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/22/2015 07:34 PM, Steve Lawrence wrote:
-> In fedora and refpolicy, the auditadm_r and secadm_r roles can be in
-> either the base module or a non-base module, or they could be in both.
-> This means that it is possible for duplicate role declarations to exist.
-> CIL does not allow duplicate declarations of anything, but there is no
-> way for the pp compiler to know if the roles are declared in which
-> module, or if they are in both when compiling a single module. This
-> means we cannot use the same hack that we use for user_r, staff_r, etc.,
-> to generate CIL role declarations (i.e. only create role declarations
-> for these when defined in base).
+On Fri, May 22, 2015 at 11:25:35AM -0700, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 > 
-> So only for these two roles, always declare them as part of base,
-> regardless of where or if they are defined. This means that turning off
-> the auditadm module will never remove the auditamd_r role (likewise for
-> secadm), whereas right now, in some cases it would. This also means that
-> role allow rules will still exist for these roles even with the modules
-> removed. However, this is okay because the roles would not have any
-> types associated with them so no access would be allowed.
-> 
-> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
-> Reported-by: Miroslav Grepl <mgrepl@redhat.com>
-> ---
->  libsepol/src/module_to_cil.c | 28 +++++++++++++++++++++++++++-
->  1 file changed, 27 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 1ded21d..2d8046c 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -2035,12 +2035,22 @@ static int role_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
->  			// one of these roles in base, the declaration will not appeaer in
->  			// the resulting policy, likely resulting in a compilation error in
->  			// CIL.
-> +			//
-> +			// To make things more complicated, the auditadm_r and secadm_r
-> +			// roles could actually be in either the base module or a non-base
-> +			// module, or both. So we can't rely on this same behavior. So for
-> +			// these roles, don't declare them here, even if they are in a base
-> +			// or non-base module. Instead we will just declare them in the
-> +			// base module elsewhere.
->  			int is_base_role = (!strcmp(key, "user_r") ||
->  			                    !strcmp(key, "staff_r") ||
->  			                    !strcmp(key, "sysadm_r") ||
->  			                    !strcmp(key, "system_r") ||
->  			                    !strcmp(key, "unconfined_r"));
-> -			if ((is_base_role && pdb->policy_type == SEPOL_POLICY_BASE) || !is_base_role) {
-> +			int is_builtin_role = (!strcmp(key, "auditadm_r") ||
-> +			                       !strcmp(key, "secadm_r"));
-> +			if ((is_base_role && pdb->policy_type == SEPOL_POLICY_BASE) ||
-> +			    (!is_base_role && !is_builtin_role)) {
->  				cil_println(indent, "(role %s)", key);
->  			}
->  		}
-> @@ -3717,6 +3727,17 @@ static int generate_default_object(void)
->  	return 0;
->  }
->  
-> +static int generate_builtin_roles(void)
-> +{
-> +	// due to inconsistentencies between policies and CIL not allowing
-> +	// duplicate roles, some roles are always created, regardless of if they
-> +	// are declared in modules or not
-> +	cil_println(0, "(role auditadm_r)");
-> +	cil_println(0, "(role secadm_r)");
-> +
-> +	return 0;
-> +}
-> +
->  static int generate_gen_require_attribute(void)
->  {
->  	cil_println(0, "(typeattribute " GEN_REQUIRE_ATTR ")");
-> @@ -3801,6 +3822,11 @@ int sepol_module_policydb_to_cil(FILE *fp, struct policydb *pdb, int linked)
->  			goto exit;
->  		}
->  
-> +		rc = generate_builtin_roles();
-> +		if (rc != 0) {
-> +			goto exit;
-> +		}
-> +
->  		// default attribute to be used to mimic gen_require in CIL
->  		rc = generate_gen_require_attribute();
->  		if (rc != 0) {
-> 
-Thank you.
+> On the Android side of the house, were required to label each and
+> every sysfs file with a specific label.
 
--- 
-Miroslav Grepl
-Software Engineering, SELinux Solutions
-Red Hat, Inc.
+"required"?
+
+And what label are you having to use?
+
+> sysfs often has transient
+> files, and this uncovered a limitation in SELinux. In most filesystems
+> the new inode inherits from the parents label, but in sysfs, this
+> was not the case. The new inode would inherit the syfs wide "default"
+> label.
+
+Do you really want to build up a list of SELinux policies for sysfs
+files/directories, only to see them need to be redone when the tree
+moves things around in the future?
+
+What type of "rules" are you using here for sysfs to handle the
+dynamic-ness of the tree properly?
+
+thanks,
+
+greg k-h
