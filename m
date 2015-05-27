@@ -1,106 +1,169 @@
-Message-ID: <5565F139.8010909@tycho.nsa.gov>
-Date: Wed, 27 May 2015 12:30:49 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5566079E.1050508@tycho.nsa.gov>
+Date: Wed, 27 May 2015 14:06:22 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH V2] libselinux: Support consistent mode size for bin files
-References: <1432743299-30028-1-git-send-email-richard_c_haines@btinternet.com>
-In-Reply-To: <1432743299-30028-1-git-send-email-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset=windows-1252
+To: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] libsepol/cil: Do not allow categories/sensitivities inside
+ blocks
+References: <1432319363-47838-1-git-send-email-ykhodorkovskiy@tresys.com>
+In-Reply-To: <1432319363-47838-1-git-send-email-ykhodorkovskiy@tresys.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/27/2015 12:14 PM, Richard Haines wrote:
-> Currently sefcontext_compile defines the mode field as mode_t whose
-> size will vary depending on the architecture (e.g. 32 bit / 64 bit).
-> This patch sets the size when writing/reading binary files to
-> uint32_t. The file version is set to SELINUX_COMPILED_FCONTEXT_MODE
-> 
-> V2 fixes those listed in http://marc.info/?l=selinux&m=143273965514292&w=2
-> 
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+On 05/22/2015 02:29 PM, Yuli Khodorkovskiy wrote:
+> Fixes https://github.com/SELinuxProject/cil/issues/2.
+>
+> Sensitivities and categories generated from blocks use dots to indicate
+> namespacing. This could result in categories that contain ambiguous
+> ranges with categories declared in blocks.
+>
+> Example:
+>
+>      (category c0)
+>      (category c2)
+>      (block c0
+>          (category (c2))
+>          (filecon ... (s0 (c2)))
+>      )
+>
+> The above policy results in the filecontext: ... s0:c0.c2. The categories c0.c2
+> could be interpreted as a range between c0 and c2 or it could be the namespaced
+> category c0.c2. Therefore, categories are no longer allowed inside blocks to
+> eliminate this ambiguity.
+>
+> This patch also disallows sensitivites in blocks for consistency with category
+> behavior.
+>
+> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
 
 Thanks, applied.
 
+Jim
+
 > ---
->  libselinux/src/label_file.c           | 8 +++++++-
->  libselinux/src/label_file.h           | 6 +++++-
->  libselinux/utils/sefcontext_compile.c | 6 ++++--
->  3 files changed, 16 insertions(+), 4 deletions(-)
-> 
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 7da79b4..bfb64af 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -404,6 +404,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *
->  	for (i = 0; i < regex_array_len; i++) {
->  		struct spec *spec;
->  		int32_t stem_id, meta_chars;
-> +		uint32_t mode = 0;
->  
->  		rc = grow_specs(data);
->  		if (rc < 0)
-> @@ -454,10 +455,15 @@ static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *
->  		}
->  
->  		/* Process mode */
-> -		rc = next_entry(&spec->mode, mmap_area, sizeof(mode_t));
-> +		if (version >= SELINUX_COMPILED_FCONTEXT_MODE)
-> +			rc = next_entry(&mode, mmap_area, sizeof(uint32_t));
-> +		else
-> +			rc = next_entry(&mode, mmap_area, sizeof(mode_t));
->  		if (rc < 0)
->  			goto err;
->  
-> +		spec->mode = mode;
+>   libsepol/cil/src/cil_resolve_ast.c | 38 ++++++++++++++++++++++++++++++++++++--
+>   1 file changed, 36 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> index 7d46fd5..c9738da 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -55,6 +55,7 @@ struct cil_args_resolve {
+>   	struct cil_tree_node *optstack;
+>   	struct cil_tree_node *boolif;
+>   	struct cil_tree_node *macro;
+> +	struct cil_tree_node *blockstack;
+>   	struct cil_list *sidorder_lists;
+>   	struct cil_list *classorder_lists;
+>   	struct cil_list *catorder_lists;
+> @@ -3248,6 +3249,7 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+>   	enum cil_pass pass = args->pass;
+>   	struct cil_tree_node *optstack = args->optstack;
+>   	struct cil_tree_node *boolif = args->boolif;
+> +	struct cil_tree_node *blockstack = args->blockstack;
+>
+>   	if (node == NULL) {
+>   		goto exit;
+> @@ -3262,6 +3264,14 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+>   		}
+>   	}
+>
+> +	if (blockstack != NULL) {
+> +		if (node->flavor == CIL_CAT || node->flavor == CIL_SENS) {
+> +			cil_log(CIL_ERR, "%s statement is not allowed in blocks (%s:%d)\n", cil_node_to_string(node), node->path, node->line);
+> +			rc = SEPOL_ERR;
+> +			goto exit;
+> +		}
+> +	}
 > +
->  		/* map the stem id from the mmap file to the data->stem_arr */
->  		rc = next_entry(&stem_id, mmap_area, sizeof(int32_t));
->  		if (rc < 0)
-> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> index 3d963b4..a8d1e51 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -6,9 +6,13 @@
->  #include "label_internal.h"
->  
->  #define SELINUX_MAGIC_COMPILED_FCONTEXT	0xf97cff8a
-> +
-> +/* Version specific changes */
->  #define SELINUX_COMPILED_FCONTEXT_NOPCRE_VERS	1
->  #define SELINUX_COMPILED_FCONTEXT_PCRE_VERS	2
-> -#define SELINUX_COMPILED_FCONTEXT_MAX_VERS	2
-> +#define SELINUX_COMPILED_FCONTEXT_MODE		3
-> +
-> +#define SELINUX_COMPILED_FCONTEXT_MAX_VERS	SELINUX_COMPILED_FCONTEXT_MODE
->  
->  /* Prior to verison 8.20, libpcre did not have pcre_free_study() */
->  #if (PCRE_MAJOR < 8 || (PCRE_MAJOR == 8 && PCRE_MINOR < 20))
-> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-> index e6d93d4..33a4a42 100644
-> --- a/libselinux/utils/sefcontext_compile.c
-> +++ b/libselinux/utils/sefcontext_compile.c
-> @@ -142,7 +142,8 @@ static int process_file(struct saved_data *data, const char *filename)
->   * 	char - char array of the raw context
->   *	u32  - length of the upcoming regex_str
->   *	char - char array of the original regex string including the stem.
-> - *	mode_t - mode bits
-> + *	u32  - mode bits for >= SELINUX_COMPILED_FCONTEXT_MODE
-> + *	       mode_t for <= SELINUX_COMPILED_FCONTEXT_PCRE_VERS
->   *	s32  - stemid associated with the regex
->   *	u32  - spec has meta characters
->   *	u32  - data length of the pcre regex
-> @@ -247,7 +248,8 @@ static int write_binary_file(struct saved_data *data, int fd)
->  			goto err;
->  
->  		/* binary F_MODE bits */
-> -		len = fwrite(&mode, sizeof(mode), 1, bin_file);
-> +		to_write = mode;
-> +		len = fwrite(&to_write, sizeof(uint32_t), 1, bin_file);
->  		if (len != 1)
->  			goto err;
->  
-> 
+>   	if (boolif != NULL) {
+>   		if (!(node->flavor == CIL_CONDBLOCK ||
+>   			node->flavor == CIL_AVRULE ||
+> @@ -3318,6 +3328,8 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+>   	struct cil_tree_node *callstack = NULL;
+>   	struct cil_tree_node *optstack = NULL;
+>   	struct cil_tree_node *parent = NULL;
+> +	struct cil_tree_node *blockstack = NULL;
+> +	struct cil_tree_node *new = NULL;
+>
+>   	if (current == NULL || extra_args == NULL) {
+>   		goto exit;
+> @@ -3326,10 +3338,10 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+>   	callstack = args->callstack;
+>   	optstack = args->optstack;
+>   	parent = current->parent;
+> +	blockstack = args->blockstack;
+>
+> -	if (parent->flavor == CIL_CALL || parent->flavor == CIL_OPTIONAL) {
+> +	if (parent->flavor == CIL_CALL || parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
+>   		/* push this node onto a stack */
+> -		struct cil_tree_node *new;
+>   		cil_tree_node_init(&new);
+>
+>   		new->data = parent->data;
+> @@ -3358,6 +3370,12 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+>   				new->cl_head = optstack;
+>   			}
+>   			args->optstack = new;
+> +		} else if (parent->flavor == CIL_BLOCK) {
+> +			if (blockstack != NULL) {
+> +				blockstack->parent = new;
+> +				new->cl_head = blockstack;
+> +			}
+> +			args->blockstack = new;
+>   		}
+>   	} else if (parent->flavor == CIL_BOOLEANIF) {
+>   		args->boolif = parent;
+> @@ -3377,6 +3395,7 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+>   	int rc = SEPOL_ERR;
+>   	struct cil_args_resolve *args = extra_args;
+>   	struct cil_tree_node *parent = NULL;
+> +	struct cil_tree_node *blockstack = NULL;
+>
+>   	if (current == NULL ||  extra_args == NULL) {
+>   		goto exit;
+> @@ -3411,6 +3430,14 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+>   		free(optstack);
+>   	} else if (parent->flavor == CIL_BOOLEANIF) {
+>   		args->boolif = NULL;
+> +	} else if (parent->flavor == CIL_BLOCK) {
+> +		/* pop off the stack */
+> +		blockstack = args->blockstack;
+> +		args->blockstack = blockstack->cl_head;
+> +		if (blockstack->cl_head) {
+> +			blockstack->cl_head->parent = NULL;
+> +		}
+> +		free(blockstack);
+>   	}
+>
+>   	return SEPOL_OK;
+> @@ -3442,6 +3469,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+>   	extra_args.catorder_lists = NULL;
+>   	extra_args.sensitivityorder_lists = NULL;
+>   	extra_args.in_list = NULL;
+> +	extra_args.blockstack = NULL;
+>
+>   	cil_list_init(&extra_args.sidorder_lists, CIL_LIST_ITEM);
+>   	cil_list_init(&extra_args.classorder_lists, CIL_LIST_ITEM);
+> @@ -3536,6 +3564,12 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+>   			free(curr);
+>   			extra_args.optstack = next;
+>   		}
+> +		while (extra_args.blockstack!= NULL) {
+> +			struct cil_tree_node *curr = extra_args.blockstack;
+> +			struct cil_tree_node *next = curr->cl_head;
+> +			free(curr);
+> +			extra_args.blockstack= next;
+> +		}
+>   	}
+>
+>   	rc = __cil_verify_initsids(db->sidorder);
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
