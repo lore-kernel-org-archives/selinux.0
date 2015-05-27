@@ -1,97 +1,104 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t4REUmCf005801
- for <selinux@tycho.nsa.gov>; Wed, 27 May 2015 10:30:48 -0400
-From: Richard Haines <richard_c_haines@btinternet.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: Support consistent mode size for bin files
-Date: Wed, 27 May 2015 15:30:21 +0100
-Message-Id: <1432737021-14603-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: [RFC][PATCH] selinux: Remove unused permission definitions
+Date: Wed, 27 May 2015 11:03:25 -0400
+Message-Id: <1432739005-1955-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Currently sefcontext_compile defines the mode field as mode_t whose
-size will vary depending on the architecture (e.g. 32 bit / 64 bit).
-This patch sets the size when writing/reading binary files to
-uint32_t. The file version is set to SELINUX_COMPILED_FCONTEXT_MODE
+Remove unused permission definitions from SELinux.
+Many of these were only ever used in pre-mainline
+versions of SELinux, prior to Linux 2.6.0.  Some of them
+were used in the legacy network or compat_net=1 checks
+that were disabled by default in Linux 2.6.18 and
+fully removed in Linux 2.6.30.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+Permissions never used in mainline Linux:
+file swapon
+filesystem transition
+tcp_socket { connectto newconn acceptfrom }
+node enforce_dest
+unix_stream_socket { newconn acceptfrom }
+
+Legacy network checks, removed in 2.6.30:
+socket { recv_msg send_msg }
+node { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send dccp_recv dccp_send }
+netif { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send dccp_recv dccp_send }
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- libselinux/src/label_file.c           | 8 +++++++-
- libselinux/src/label_file.h           | 5 ++++-
- libselinux/utils/sefcontext_compile.c | 5 +++--
- 3 files changed, 14 insertions(+), 4 deletions(-)
+ security/selinux/include/classmap.h | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 7da79b4..bfb64af 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -404,6 +404,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *
- 	for (i = 0; i < regex_array_len; i++) {
- 		struct spec *spec;
- 		int32_t stem_id, meta_chars;
-+		uint32_t mode = 0;
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 1d8b924..5a4eef5 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -2,12 +2,12 @@
+     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
  
- 		rc = grow_specs(data);
- 		if (rc < 0)
-@@ -454,10 +455,15 @@ static int load_mmap(struct selabel_handle *rec, const char *path, struct stat *
- 		}
+ #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+-    "rename", "execute", "swapon", "quotaon", "mounton", "audit_access", \
++    "rename", "execute", "quotaon", "mounton", "audit_access", \
+     "open", "execmod"
  
- 		/* Process mode */
--		rc = next_entry(&spec->mode, mmap_area, sizeof(mode_t));
-+		if (version >= SELINUX_COMPILED_FCONTEXT_MODE)
-+			rc = next_entry(&mode, mmap_area, sizeof(uint32_t));
-+		else
-+			rc = next_entry(&mode, mmap_area, sizeof(mode_t));
- 		if (rc < 0)
- 			goto err;
+ #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+     "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+-    "sendto", "recv_msg", "send_msg", "name_bind"
++    "sendto", "name_bind"
  
-+		spec->mode = mode;
-+
- 		/* map the stem id from the mmap file to the data->stem_arr */
- 		rc = next_entry(&stem_id, mmap_area, sizeof(int32_t));
- 		if (rc < 0)
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index 3d963b4..4c2dc9b 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -6,9 +6,12 @@
- #include "label_internal.h"
- 
- #define SELINUX_MAGIC_COMPILED_FCONTEXT	0xf97cff8a
-+#define SELINUX_COMPILED_FCONTEXT_MAX_VERS	SELINUX_COMPILED_FCONTEXT_MODE
-+
-+/* Version specific changes */
- #define SELINUX_COMPILED_FCONTEXT_NOPCRE_VERS	1
- #define SELINUX_COMPILED_FCONTEXT_PCRE_VERS	2
--#define SELINUX_COMPILED_FCONTEXT_MAX_VERS	2
-+#define SELINUX_COMPILED_FCONTEXT_MODE		3
- 
- /* Prior to verison 8.20, libpcre did not have pcre_free_study() */
- #if (PCRE_MAJOR < 8 || (PCRE_MAJOR == 8 && PCRE_MINOR < 20))
-diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-index e6d93d4..b132706 100644
---- a/libselinux/utils/sefcontext_compile.c
-+++ b/libselinux/utils/sefcontext_compile.c
-@@ -142,7 +142,8 @@ static int process_file(struct saved_data *data, const char *filename)
-  * 	char - char array of the raw context
-  *	u32  - length of the upcoming regex_str
-  *	char - char array of the original regex string including the stem.
-- *	mode_t - mode bits
-+ *	u32  - mode bits for >= SELINUX_COMPILED_FCONTEXT_MODE
-+ *	       mode_t for <= SELINUX_COMPILED_FCONTEXT_PCRE_VERS
-  *	s32  - stemid associated with the regex
-  *	u32  - spec has meta characters
-  *	u32  - data length of the pcre regex
-@@ -247,7 +248,7 @@ static int write_binary_file(struct saved_data *data, int fd)
- 			goto err;
- 
- 		/* binary F_MODE bits */
--		len = fwrite(&mode, sizeof(mode), 1, bin_file);
-+		len = fwrite(&mode, sizeof(uint32_t), 1, bin_file);
- 		if (len != 1)
- 			goto err;
- 
+ #define COMMON_IPC_PERMS "create", "destroy", "getattr", "setattr", "read", \
+ 	    "write", "associate", "unix_read", "unix_write"
+@@ -44,7 +44,7 @@ struct security_class_mapping secclass_map[] = {
+ 	    "audit_control", "setfcap", NULL } },
+ 	{ "filesystem",
+ 	  { "mount", "remount", "unmount", "getattr",
+-	    "relabelfrom", "relabelto", "transition", "associate", "quotamod",
++	    "relabelfrom", "relabelto", "associate", "quotamod",
+ 	    "quotaget", NULL } },
+ 	{ "file",
+ 	  { COMMON_FILE_PERMS,
+@@ -67,7 +67,7 @@ struct security_class_mapping secclass_map[] = {
+ 	  { COMMON_SOCK_PERMS, NULL } },
+ 	{ "tcp_socket",
+ 	  { COMMON_SOCK_PERMS,
+-	    "connectto", "newconn", "acceptfrom", "node_bind", "name_connect",
++	    "node_bind", "name_connect",
+ 	    NULL } },
+ 	{ "udp_socket",
+ 	  { COMMON_SOCK_PERMS,
+@@ -76,13 +76,9 @@ struct security_class_mapping secclass_map[] = {
+ 	  { COMMON_SOCK_PERMS,
+ 	    "node_bind", NULL } },
+ 	{ "node",
+-	  { "tcp_recv", "tcp_send", "udp_recv", "udp_send",
+-	    "rawip_recv", "rawip_send", "enforce_dest",
+-	    "dccp_recv", "dccp_send", "recvfrom", "sendto", NULL } },
++	  { "recvfrom", "sendto", NULL } },
+ 	{ "netif",
+-	  {  "tcp_recv", "tcp_send", "udp_recv", "udp_send",
+-	     "rawip_recv", "rawip_send", "dccp_recv", "dccp_send",
+-	     "ingress", "egress", NULL } },
++	  { "ingress", "egress", NULL } },
+ 	{ "netlink_socket",
+ 	  { COMMON_SOCK_PERMS, NULL } },
+ 	{ "packet_socket",
+@@ -90,11 +86,9 @@ struct security_class_mapping secclass_map[] = {
+ 	{ "key_socket",
+ 	  { COMMON_SOCK_PERMS, NULL } },
+ 	{ "unix_stream_socket",
+-	  { COMMON_SOCK_PERMS, "connectto", "newconn", "acceptfrom", NULL
+-	  } },
++	  { COMMON_SOCK_PERMS, "connectto", NULL } },
+ 	{ "unix_dgram_socket",
+-	  { COMMON_SOCK_PERMS, NULL
+-	  } },
++	  { COMMON_SOCK_PERMS, NULL } },
+ 	{ "sem",
+ 	  { COMMON_IPC_PERMS, NULL } },
+ 	{ "msg", { "send", "receive", NULL } },
 -- 
 2.1.0
