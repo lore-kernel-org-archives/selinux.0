@@ -1,52 +1,33 @@
-Message-ID: <55675F02.70201@tycho.nsa.gov>
-Date: Thu, 28 May 2015 14:31:30 -0400
+Message-ID: <55676482.6000302@tycho.nsa.gov>
+Date: Thu, 28 May 2015 14:54:58 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Laurent Bigonville <bigon@debian.org>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: getpidcon() behaviour when other LSM is enabled
-References: <20150528200648.6fb9e949@fornost.bigon.be>
-In-Reply-To: <20150528200648.6fb9e949@fornost.bigon.be>
+To: Ted Toth <txtoth@gmail.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: postgresql policy
+References: <CAFPpqQH8nFm0YRM-sgQ_8ijmEy6AFiBaU9-71MWRUJ_w0y6L3Q@mail.gmail.com>
+In-Reply-To: <CAFPpqQH8nFm0YRM-sgQ_8ijmEy6AFiBaU9-71MWRUJ_w0y6L3Q@mail.gmail.com>
 Content-Type: text/plain; charset=windows-1252
-Cc: 786956@bugs.debian.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/28/2015 02:06 PM, Laurent Bigonville wrote:
-> Hello,
-> 
-> In procps(-ng)[0] when the use of libselinux is enabled at build time,
-> it always uses getpidcon() even if an other (or no) LSM is enabled.
-> 
-> I tried to use getpidcon() (via the cmd tool getpidcon) with apparmor
-> enabled instead of selinux, and it returned the apparmor context.
-> Is this expected and can we rely on this?
+On 05/28/2015 12:52 PM, Ted Toth wrote:
+> The ref policy contains a number of sepgsql_ types that are specific
+> to the sepgsql postgresql module. The sepgsql module was written to
+> support a postgresql security patch that was never accepted by the
+> upstream. Now postgresql has gone in a different direction security
+> wise adding row level security (RLS). I've been working on developing
+> RLS policy to label rows on insert and update and to check access
+> perms on select. I've tried using the sepgsql module in the RLS policy
+> but have come to the conclusion that because it was not designed for
+> this purpose it is not usable. So I'd like to suggest that these types
+> be moved out of the postgresql policy possibly into their own module
+> although I personally think they have little if any use.
 
-Fundamentally, getpidcon() just reads the value of
-/proc/pid/attr/current into a dynamically allocated buffer and returns
-it.  That part should work for any security module.  The only other
-thing getpidcon() does is pass the context to mcstransd for context
-translation if mcstransd is running.  That could potentially break if
-you happen to be running mcstransd on a non-SELinux system, although I
-don't know why anyone would.  Possibly we ought to have mcstransd test
-is_selinux_enabled() and bail immediately if it is disabled just to
-preclude that.
+Should probably post a rfc patch to refpolicy list.
 
-> Otherwise, I've prepared the attached patch. Would this patch be
-> acceptable?
-> 
-> Cheers,
-> 
-> Laurent Bigonville
-> 
-> [0] https://gitlab.com/procps-ng/procps/blob/master/ps/output.c#L1237
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+On a different note, does this RLS implementation have any SELinux
+integration or is it just the typical "let's implement our own custom
+policy engine in the database manager and not link it in any way to the
+OS security model" approach?  Pity if it is the latter.
