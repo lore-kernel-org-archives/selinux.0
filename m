@@ -1,81 +1,77 @@
-Message-ID: <55685F78.9080306@tycho.nsa.gov>
-Date: Fri, 29 May 2015 08:45:44 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <55686D06.30506@tycho.nsa.gov>
+Date: Fri, 29 May 2015 09:43:34 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
- SELinux List <selinux@tycho.nsa.gov>,
- Steve Lawrence <slawrence@tresys.com>,
- Joshua Brindle <brindle@quarksecurity.com>,
- Eric Paris <eparis@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: ANN: SETools 4.0.0-alpha2
-References: <54DB79D3.8@tresys.com>
-In-Reply-To: <54DB79D3.8@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 1/2] libsepol: with pp to CIL, only associate declared
+ roleattributes with in-scope types
+References: <1432316069-24113-1-git-send-email-slawrence@tresys.com>
+ <55676790.4010601@tycho.nsa.gov> <55677751.4090405@tycho.nsa.gov>
+In-Reply-To: <55677751.4090405@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/11/2015 10:48 AM, Christopher J. PeBenito wrote:
-> Tresys has released SETools 4.0.0-alpha2:
-> 
-> https://github.com/TresysTechnology/setools/releases/tag/4.0.0-alpha2
-> 
-> In this release, SETools has been updated to support Python 3 (tested
-> with 3.3 and 3.4) and includes travis-ci testing[1].  Many features are
-> complete or nearly complete (full list at the end of the email) and
-> available for use via the CLI tools.  The GUI tools have not yet been
-> started.
-> 
-> Warning: If you replace the SETools 3.x on your system, it will break
-> the couple of tools from sepolgen/policycoreutils that depend on SETools
-> (e.g. sepolicy) since libqpol/libapol C libraries and their
-> corresponding SWIG wrappers are no longer provided.
+On 05/28/2015 04:15 PM, James Carter wrote:
+> On 05/28/2015 03:08 PM, James Carter wrote:
+>> On 05/22/2015 01:34 PM, Steve Lawrence wrote:
+>>> When a roleattribute is in a declared scope, CIL roletype statements are
+>>> generated for all types associated with it. This incorrectly includes
+>>> types that are associated with the roleattribute in optional blocks,
+>>> which can result in CIL resolution failures if the optional block is
+>>> turned off due to a missing type. So, change the roletype CIL statement
+>>> generation with roleattributes to mimic the behavior of roles, ensuring
+>>> declared roleattributes are only associated with in-scope types.
+>>>
+>>> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+>>> Reported-by: Miroslav Grepl <mgrepl@redhat.com>
+>>> ---
+>>>   libsepol/src/module_to_cil.c | 4 +++-
+>>>   1 file changed, 3 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+>>> index 8d16d3e..1ded21d 100644
+>>> --- a/libsepol/src/module_to_cil.c
+>>> +++ b/libsepol/src/module_to_cil.c
+>>> @@ -2091,7 +2091,9 @@ static int role_to_cil(int indent, struct policydb *pdb,
+>>> struct avrule_block *UN
+>>>
+>>>
+>>>           for (i = 0; i < num_types; i++) {
+>>> -            cil_println(indent, "(roletype %s %s)", key, types[i]);
+>>> +            if (is_id_in_scope(pdb, decl_stack, types[i], SYM_TYPES)) {
+>>> +                cil_println(indent, "(roletype %s %s)", key, types[i]);
+>>> +            }
+>>>           }
+>>>
+>>>           break;
+>>>
+>>
+>> This breaks generating CIL from a policy.conf, or, more likely, exposes a
+>> problem in what I did to make that work.
+>>
+>> A roletype rule will not appear in the generated CIL policy, if
+>> 1) It is in an optional block
+>> 2) It is for a role attribute that is in the required block of the optional.
+>>
+>> The policydb to CIL code is called after policy linking, so I would have thought
+>> that everything should work. I am still looking at this.
+>>
+>
+> Actually, it doesn't matter whether or not the role attribute is in a require
+> block. The determining factor is whether there is any role rule (CIL roletype
+> rule) outside of an optional block. If there is, then all of the roletype rules
+> for that role attribute will be in the CIL policy. If not, then none of them
+> will be.
+>
 
-Should we then import libqpol and libapol into the upstream selinux?
-We never should have added dependencies on setools to the core selinux
-userspace in the first place, as it creates a cyclic dependency.
-Doesn't look like libapol and libqpol have other dependencies themselves
-beyond what we already require for selinux userspace unless I am missing
-something.
+I apparently did not have enough caffeine yesterday. I now see that everything 
+was working exactly as it should. When converting a policy.conf to CIL, two 
+roletype rules were being generated for these rules. This patch correctly 
+eliminates one of them.
 
-> 
-> If you are interested in contributing, GitHub's pull request feature is
-> preferred for submitting patches.  Please include unit tests.
-> 
-> SETools requires the following development packages for building:
->   Python 2.7 or 3.3+
->   setuptools
->   gcc
->   bison
->   flex
->   libselinux
->   libsepol 2.4+
->   libbz2
->   SWIG 2.0.12+ or 3.0+
-> 
-> To run SETools, the following packages are required:
->   Python 2.7 or 3.3+
->   NetworkX 1.8+
->   setuptools
->   libselinux
->   libsepol 2.4+
->   libbz2
-> 
-> Completed (and nearly completed) features:
-> * TE rule query
-> * RBAC rule query
-> * MLS rule query (range_transition; except for range criteria)
-> * Type query
-> * Role query
-> * User query (except level/range criteria)
-> * Object class query
-> * Common query
-> * Boolean query
-> * Policy capability query
-> * All context queries (portcon, genfscon, etc, except range criteria)
-> * Information flow analysis
-> * Domain transition analysis
-> 
-> [1] https://travis-ci.org/TresysTechnology/setools
-> 
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
