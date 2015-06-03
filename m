@@ -1,65 +1,119 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t53IeXCq015712
- for <selinux@tycho.nsa.gov>; Wed, 3 Jun 2015 14:40:34 -0400
-Received: by oiww2 with SMTP id w2so14339353oiw.0
- for <selinux@tycho.nsa.gov>; Wed, 03 Jun 2015 11:40:31 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t53Ij4Lv015947
+ for <selinux@tycho.nsa.gov>; Wed, 3 Jun 2015 14:45:04 -0400
+Received: by qkhg32 with SMTP id g32so10955169qkh.0
+ for <selinux@tycho.nsa.gov>; Wed, 03 Jun 2015 11:45:02 -0700 (PDT)
+Date: Wed, 03 Jun 2015 11:45:01 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC][PATCH] selinux: Remove unused permission definitions
+Message-ID: <8058766.cU4jPUb5iN@sifl>
+In-Reply-To: <1432739005-1955-1-git-send-email-sds@tycho.nsa.gov>
+References: <1432739005-1955-1-git-send-email-sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTmrJciwdkjGaMjx2RhyrS_En6JZF-pxWiWoz8geF_f3w@mail.gmail.com>
-References: <1430337372-7758-1-git-send-email-jeffv@google.com>
- <3147722.RboehMiu35@sifl> <555DD091.8060307@tycho.nsa.gov>
- <CAHC9VhTX8k2gSVBZaX_68b11OzBxFhWbkLrHfpjZ=v0h=82Ceg@mail.gmail.com>
- <555DEA32.4080205@tycho.nsa.gov>
- <CAHC9VhQSA7KuDwL3x45iShSGgsd11Yv3vS=_O4BN_S=fhvrQgg@mail.gmail.com>
- <CABXk95ARYdCokbGYLW8REPjx_qH-X--xsZcCmLnRoGU7KP+nZQ@mail.gmail.com>
- <CAHC9VhTmrJciwdkjGaMjx2RhyrS_En6JZF-pxWiWoz8geF_f3w@mail.gmail.com>
-Date: Wed, 3 Jun 2015 11:40:31 -0700
-Message-ID: <CABXk95BzUMsq72Nr-r=oZjttVyq3kwUeWOJfG9mxboSAYS09bg@mail.gmail.com>
-Subject: Re: [PATCH 2/2 v4] SELinux: per-command whitelisting of ioctls
-From: Jeffrey Vander Stoep <jeffv@google.com>
-To: Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: SELinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Ok, I have finished a revision that addresses your comments (will
-email out shortly). You'll be happy to hear that I am using "extended
-permissions" instead of "operations."
+On Wednesday, May 27, 2015 11:03:25 AM Stephen Smalley wrote:
+> Remove unused permission definitions from SELinux.
+> Many of these were only ever used in pre-mainline
+> versions of SELinux, prior to Linux 2.6.0.  Some of them
+> were used in the legacy network or compat_net=1 checks
+> that were disabled by default in Linux 2.6.18 and
+> fully removed in Linux 2.6.30.
+> 
+> Permissions never used in mainline Linux:
+> file swapon
+> filesystem transition
+> tcp_socket { connectto newconn acceptfrom }
+> node enforce_dest
+> unix_stream_socket { newconn acceptfrom }
+> 
+> Legacy network checks, removed in 2.6.30:
+> socket { recv_msg send_msg }
+> node { tcp_recv tcp_send udp_recv udp_send rawip_recv rawip_send dccp_recv
+> dccp_send } netif { tcp_recv tcp_send udp_recv udp_send rawip_recv
+> rawip_send dccp_recv dccp_send }
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/include/classmap.h | 22 ++++++++--------------
+>  1 file changed, 8 insertions(+), 14 deletions(-)
 
-I tried to focus on:
+Applied, thanks all.
 
--Creating a stable binary policy format that will work for ioctls and
-netlink (and others) such that the policy version XPERMS_IOCTL will
-remain valid if/when version XPERMS_NETLINK is added
+> diff --git a/security/selinux/include/classmap.h
+> b/security/selinux/include/classmap.h index 1d8b924..5a4eef5 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -2,12 +2,12 @@
+>      "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
+> 
+>  #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+> -    "rename", "execute", "swapon", "quotaon", "mounton", "audit_access", \
+> +    "rename", "execute", "quotaon", "mounton", "audit_access", \
+>      "open", "execmod"
+> 
+>  #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
+>      "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
+> -    "sendto", "recv_msg", "send_msg", "name_bind"
+> +    "sendto", "name_bind"
+> 
+>  #define COMMON_IPC_PERMS "create", "destroy", "getattr", "setattr", "read",
+> \ "write", "associate", "unix_read", "unix_write"
+> @@ -44,7 +44,7 @@ struct security_class_mapping secclass_map[] = {
+>  	    "audit_control", "setfcap", NULL } },
+>  	{ "filesystem",
+>  	  { "mount", "remount", "unmount", "getattr",
+> -	    "relabelfrom", "relabelto", "transition", "associate", "quotamod",
+> +	    "relabelfrom", "relabelto", "associate", "quotamod",
+>  	    "quotaget", NULL } },
+>  	{ "file",
+>  	  { COMMON_FILE_PERMS,
+> @@ -67,7 +67,7 @@ struct security_class_mapping secclass_map[] = {
+>  	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "tcp_socket",
+>  	  { COMMON_SOCK_PERMS,
+> -	    "connectto", "newconn", "acceptfrom", "node_bind", "name_connect",
+> +	    "node_bind", "name_connect",
+>  	    NULL } },
+>  	{ "udp_socket",
+>  	  { COMMON_SOCK_PERMS,
+> @@ -76,13 +76,9 @@ struct security_class_mapping secclass_map[] = {
+>  	  { COMMON_SOCK_PERMS,
+>  	    "node_bind", NULL } },
+>  	{ "node",
+> -	  { "tcp_recv", "tcp_send", "udp_recv", "udp_send",
+> -	    "rawip_recv", "rawip_send", "enforce_dest",
+> -	    "dccp_recv", "dccp_send", "recvfrom", "sendto", NULL } },
+> +	  { "recvfrom", "sendto", NULL } },
+>  	{ "netif",
+> -	  {  "tcp_recv", "tcp_send", "udp_recv", "udp_send",
+> -	     "rawip_recv", "rawip_send", "dccp_recv", "dccp_send",
+> -	     "ingress", "egress", NULL } },
+> +	  { "ingress", "egress", NULL } },
+>  	{ "netlink_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "packet_socket",
+> @@ -90,11 +86,9 @@ struct security_class_mapping secclass_map[] = {
+>  	{ "key_socket",
+>  	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "unix_stream_socket",
+> -	  { COMMON_SOCK_PERMS, "connectto", "newconn", "acceptfrom", NULL
+> -	  } },
+> +	  { COMMON_SOCK_PERMS, "connectto", NULL } },
+>  	{ "unix_dgram_socket",
+> -	  { COMMON_SOCK_PERMS, NULL
+> -	  } },
+> +	  { COMMON_SOCK_PERMS, NULL } },
+>  	{ "sem",
+>  	  { COMMON_IPC_PERMS, NULL } },
+>  	{ "msg", { "send", "receive", NULL } },
 
--Keeping the current version simple, don’t partially add logic for
-selecting between ioctl/netlink in the AVC. I originally started
-adding additional components to the avc structures, but a few
-questions came up that Stephen and I did not know the answer to. It
-makes sense to punt these decisions to if/when the netlink extended
-permissions capability is actually added (saves memory in the
-meantime). The internals can change as long as the binary policy is
-stable.
-
-On Fri, May 22, 2015 at 11:03 AM, Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, May 21, 2015 at 11:14 AM, Jeffrey Vander Stoep <jeffv@google.com> wrote:
->> I selected operation because it is not ioctl specific. Stephen and I
->> had discussed the possibility of this being used for other things but
->> ultimately decided to focus on ioctls because that was my intended
->> use-case. I would be ok with other names, but I also thing the naming
->> could be kept the same and I could add clearer in-code comments to
->> better convey the extended operations or extended permissions idea.
->
-> <grumble> <grumble> <grumble>
->
-> Okay, it's been a day and I can't think of anything else beyond what
-> we've discussed so just stick with operation for now and add some
-> better comments.  It's all internal anyway so renaming in the future
-> is a non-issue (minus the usual code churn arguments).
->
-> --
-> paul moore
-> www.paul-moore.com
+-- 
+paul moore
+www.paul-moore.com
