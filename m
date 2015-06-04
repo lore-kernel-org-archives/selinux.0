@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54GFZiI032597
- for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 12:15:35 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (Postfix) with ESMTPS id E8BB3376B7F
- for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 16:15:33 +0000 (UTC)
-Subject: [PATCH 2/3] selinux-testsuite: fix compile warnings in tests/setnice
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54GFfwq032600
+ for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 12:15:41 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ by mx1.redhat.com (Postfix) with ESMTPS id A853F2CAB8B
+ for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 16:15:39 +0000 (UTC)
+Subject: [PATCH 3/3] selinux-testsuite: fix compile warnings in tests/execshare
 From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Thu, 04 Jun 2015 12:15:32 -0400
-Message-ID: <20150604161532.4124.50795.stgit@localhost>
+Date: Thu, 04 Jun 2015 12:15:38 -0400
+Message-ID: <20150604161538.4124.38211.stgit@localhost>
 In-Reply-To: <20150604161454.4124.77310.stgit@localhost>
 References: <20150604161454.4124.77310.stgit@localhost>
 MIME-Version: 1.0
@@ -21,28 +21,26 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Correct the following:
 
-make[2]: Entering directory '/root/sources/selinux-testsuite/tests/setnice'
+make[2]: Entering directory '/root/sources/selinux-testsuite/tests/execshare'
 cc     parent.c  -lselinux -o parent
 parent.c: In function 'main':
-parent.c:92:9: warning: implicit declaration of function 'setpriority'
-   rc =  setpriority(0,pid,10);
-         ^
+parent.c:83:8: warning: implicit declaration of function 'clone'
+  pid = clone(clone_fn, clone_stack, cloneflags | SIGCHLD, argv);
+        ^
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- tests/setnice/parent.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tests/execshare/parent.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tests/setnice/parent.c b/tests/setnice/parent.c
-index d5a2533..6d3c855 100644
---- a/tests/setnice/parent.c
-+++ b/tests/setnice/parent.c
-@@ -3,6 +3,8 @@
+diff --git a/tests/execshare/parent.c b/tests/execshare/parent.c
+index 86f6ae9..343c35f 100644
+--- a/tests/execshare/parent.c
++++ b/tests/execshare/parent.c
+@@ -1,3 +1,6 @@
++
++#define _GNU_SOURCE
++
+ #include <stdio.h>
+ #include <stdlib.h>
  #include <unistd.h>
- #include <sys/types.h>
- #include <sys/wait.h>
-+#include <sys/time.h>
-+#include <sys/resource.h>
- #include <signal.h>
- #include <selinux/selinux.h>
- #include <selinux/context.h>
