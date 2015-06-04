@@ -1,86 +1,53 @@
-Message-ID: <5570AC04.3050709@tycho.nsa.gov>
-Date: Thu, 04 Jun 2015 15:50:28 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu, 4 Jun 2015 15:57:25 -0400
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>
+Subject: [PATCH] selinux: fix setting of security labels on NFS
+Message-ID: <20150604195725.GC5209@fieldses.org>
 MIME-Version: 1.0
-To: Paul Moore <pmoore@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/6] selinux-testsuite: add _GNU_SOURCE to tests/Makefile
-References: <20150604194045.31270.58300.stgit@localhost>
- <20150604194149.31270.13124.stgit@localhost>
-In-Reply-To: <20150604194149.31270.13124.stgit@localhost>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+From: bfields@fieldses.org (J. Bruce Fields)
+Cc: Richard Chan <rc556677@outlook.com>, linux-nfs@vger.kernel.org,
+ David Quigley <dpquigl@davequigley.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/04/2015 03:41 PM, Paul Moore wrote:
-> As suggested by Stephen Smalley.  A couple of msgbuf struct
-> definitions had to be removed as they were conflicting with system
-> definitions.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  tests/Makefile     |    3 +++
->  tests/msg/msgrcv.c |    5 -----
->  tests/msg/msgsnd.c |    5 -----
->  3 files changed, 3 insertions(+), 10 deletions(-)
-> 
-> diff --git a/tests/Makefile b/tests/Makefile
-> index e9d4646..8100b8f 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -1,3 +1,6 @@
-> +
-> +export CFLAGS+=-D_GNU_SOURCE
-> +
->  DISTRO=$(shell ./os_detect)
->  
->  SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
-> diff --git a/tests/msg/msgrcv.c b/tests/msg/msgrcv.c
-> index b23c801..285dcad 100644
-> --- a/tests/msg/msgrcv.c
-> +++ b/tests/msg/msgrcv.c
-> @@ -6,11 +6,6 @@
->  
->  #define MSGMAX 1024
->  
-> -struct msgbuf {
-> -  long mtype;     /* message type, must be > 0 */
-> -  char mtext[1024];  /* message data */
-> -};
-> -
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-This doesn't seem right.  I see that the _GNU_SOURCE definition triggers
-inclusion of a struct msgbuf definition from sys/msg.h, but that
-definition doesn't allocate any space for the mtext buffer.  So then
-when we try to msgsnd() or msgrcv() with MSGMAX, we'll be
-reading/writing memory past the end of the structure?
+Before calling into the filesystem, vfs_setxattr calls
+security_inode_setxattr, which ends up calling selinux_inode_setxattr in
+our case.  That returns -EOPNOTSUPP whenever SBLABEL_MNT is not set.
+SBLABEL_MNT was supposed to be set by sb_finish_set_opts, which sets it
+only if selinux_is_sblabel_mnt returns true.
 
-Maybe you were right the first time, sorry.
+The selinux_is_sblabel_mnt logic was broken by eadcabc697e9 "SELinux: do
+all flags twiddling in one place", which didn't take into the account
+the SECURITY_FS_USE_NATIVE behavior that had been introduced for nfs
+with eb9ae686507b "SELinux: Add new labeling type native labels".
 
->  int main(int argc, char **argv)
->  {
->  	int ch;
-> diff --git a/tests/msg/msgsnd.c b/tests/msg/msgsnd.c
-> index e200aef..7204ab6 100644
-> --- a/tests/msg/msgsnd.c
-> +++ b/tests/msg/msgsnd.c
-> @@ -7,11 +7,6 @@
->  
->  #define MSGMAX 1024
->  
-> -struct msgbuf {
-> -  long mtype;     /* message type, must be > 0 */
-> -  char mtext[1024];  /* message data */
-> -};
-> -
->  int main(int argc, char **argv)
->  {
->  	int ch;
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+This caused setxattr's of security labels over NFSv4.2 to fail.
+
+Cc: stable@kernel.org
+Cc: Eric Paris <eparis@redhat.com>
+Cc: David Quigley <dpquigl@davequigley.com>
+Reported-by: Richard Chan <rc556677@outlook.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+---
+ security/selinux/hooks.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e8a060bd9677..171fb30e4b99 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -403,6 +403,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+ 	return sbsec->behavior == SECURITY_FS_USE_XATTR ||
+ 		sbsec->behavior == SECURITY_FS_USE_TRANS ||
+ 		sbsec->behavior == SECURITY_FS_USE_TASK ||
++		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
+ 		/* Special handling. Genfs but also in-core setxattr handler */
+ 		!strcmp(sb->s_type->name, "sysfs") ||
+ 		!strcmp(sb->s_type->name, "pstore") ||
+-- 
+1.9.3
