@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54KwFja021393
- for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 16:58:15 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com
- (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- by mx1.redhat.com (Postfix) with ESMTPS id 9C9E28E3C8
- for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 20:58:13 +0000 (UTC)
-Subject: [PATCH v3 3/6] selinux-testsuite: fix some compile warnings in
- tests/nnp
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54KwL1F021414
+ for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 16:58:21 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ by mx1.redhat.com (Postfix) with ESMTPS id 9B787B8149
+ for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 20:58:19 +0000 (UTC)
+Subject: [PATCH v3 4/6] selinux-testsuite: fix compile warnings in
+ tests/setnice
 From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Thu, 04 Jun 2015 16:58:12 -0400
-Message-ID: <20150604205812.19614.81751.stgit@localhost>
+Date: Thu, 04 Jun 2015 16:58:18 -0400
+Message-ID: <20150604205818.19614.97266.stgit@localhost>
 In-Reply-To: <20150604205708.19614.64746.stgit@localhost>
 References: <20150604205708.19614.64746.stgit@localhost>
 MIME-Version: 1.0
@@ -22,30 +22,28 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Correct the following:
 
-make[2]: Entering directory '/root/sources/selinux-testsuite/tests/nnp'
-cc     execnnp.c  -lselinux -o execnnp
-execnnp.c: In function 'main':
-execnnp.c:27:9: warning: implicit declaration of function 'strverscmp'
-        (strverscmp(uts.release, "3.18") < 0));
+make[2]: Entering directory '/root/sources/selinux-testsuite/tests/setnice'
+cc     parent.c  -lselinux -o parent
+parent.c: In function 'main':
+parent.c:92:9: warning: implicit declaration of function 'setpriority'
+   rc =  setpriority(0,pid,10);
          ^
-execnnp.c:47:8: warning: implicit declaration of function 'wait'
-  pid = wait(&status);
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- tests/nnp/execnnp.c |    2 ++
+ tests/setnice/parent.c |    2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/tests/nnp/execnnp.c b/tests/nnp/execnnp.c
-index a5a80cf..756c2d0 100644
---- a/tests/nnp/execnnp.c
-+++ b/tests/nnp/execnnp.c
-@@ -5,6 +5,8 @@
+diff --git a/tests/setnice/parent.c b/tests/setnice/parent.c
+index d5a2533..6d3c855 100644
+--- a/tests/setnice/parent.c
++++ b/tests/setnice/parent.c
+@@ -3,6 +3,8 @@
  #include <unistd.h>
- #include <sys/utsname.h>
- #include <sys/prctl.h>
-+#include <sys/types.h>
-+#include <sys/wait.h>
- 
- int main(int argc, char **argv)
- {
+ #include <sys/types.h>
+ #include <sys/wait.h>
++#include <sys/time.h>
++#include <sys/resource.h>
+ #include <signal.h>
+ #include <selinux/selinux.h>
+ #include <selinux/context.h>
