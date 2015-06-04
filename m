@@ -1,46 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54JQFoH014685
- for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 15:26:16 -0400
-Received: by igbpi8 with SMTP id pi8so145751580igb.1
- for <selinux@tycho.nsa.gov>; Thu, 04 Jun 2015 12:26:14 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54JfkgL015730
+ for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 15:41:47 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com
+ (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ by mx1.redhat.com (Postfix) with ESMTPS id 7B8742BCD9F
+ for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 19:41:44 +0000 (UTC)
+Subject: [PATCH v2 0/6] SELinux testsuite compilation fixes
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 04 Jun 2015 15:41:43 -0400
+Message-ID: <20150604194045.31270.58300.stgit@localhost>
 MIME-Version: 1.0
-In-Reply-To: <55707CF4.4050807@tycho.nsa.gov>
-References: <20150604161454.4124.77310.stgit@localhost>
- <20150604161538.4124.38211.stgit@localhost>
- <55707CF4.4050807@tycho.nsa.gov>
-Date: Thu, 4 Jun 2015 15:26:13 -0400
-Message-ID: <CAHC9VhSiSc=zQjUbSivivSFwKm2ZVopjaxMF1URwA4Pkk9DZOw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] selinux-testsuite: fix compile warnings in
- tests/execshare
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jun 4, 2015 at 12:29 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 06/04/2015 12:15 PM, Paul Moore wrote:
->> Correct the following:
->>
->> make[2]: Entering directory '/root/sources/selinux-testsuite/tests/execshare'
->> cc     parent.c  -lselinux -o parent
->> parent.c: In function 'main':
->> parent.c:83:8: warning: implicit declaration of function 'clone'
->>   pid = clone(clone_fn, clone_stack, cloneflags | SIGCHLD, argv);
->>         ^
->>
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
->
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->
-> Although maybe we should just add -D_GNU_SOURCE to CFLAGS in the
-> tests/Makefile...
+A collection of compilation fixes.
 
-Good point, v2 shortly.
+---
 
--- 
-paul moore
-www.paul-moore.com
+Paul Moore (6):
+      selinux-testsuite: add _GNU_SOURCE to tests/Makefile
+      selinux-testsuite: add some default CFLAGS
+      selinux-testsuite: fix some compile warnings in tests/nnp
+      selinux-testsuite: fix compile warnings in tests/setnice
+      selinux-testsuite: fix compile problems in tests/shm
+      selinux-testsuite: fix compile problems in tests/capable_file
+
+
+ tests/Makefile                  |    3 +++
+ tests/capable_file/test_lease.c |    9 +++++----
+ tests/msg/msgrcv.c              |    5 -----
+ tests/msg/msgsnd.c              |    5 -----
+ tests/nnp/execnnp.c             |    2 ++
+ tests/setnice/parent.c          |    2 ++
+ tests/shm/shmat.c               |    6 +-----
+ tests/shm/shmctl.c              |    6 +-----
+ tests/shm/shmget.c              |    6 +-----
+ 9 files changed, 15 insertions(+), 29 deletions(-)
