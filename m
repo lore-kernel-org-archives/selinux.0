@@ -1,53 +1,67 @@
-Date: Thu, 4 Jun 2015 15:57:25 -0400
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>
-Subject: [PATCH] selinux: fix setting of security labels on NFS
-Message-ID: <20150604195725.GC5209@fieldses.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54Kad52020016
+ for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 16:36:39 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux patches for 4.2
+Date: Thu, 04 Jun 2015 16:36:35 -0400
+Message-ID: <2158515.KYehkOGLZJ@sifl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: bfields@fieldses.org (J. Bruce Fields)
-Cc: Richard Chan <rc556677@outlook.com>, linux-nfs@vger.kernel.org,
- David Quigley <dpquigl@davequigley.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+Hi James,
 
-Before calling into the filesystem, vfs_setxattr calls
-security_inode_setxattr, which ends up calling selinux_inode_setxattr in
-our case.  That returns -EOPNOTSUPP whenever SBLABEL_MNT is not set.
-SBLABEL_MNT was supposed to be set by sb_finish_set_opts, which sets it
-only if selinux_is_sblabel_mnt returns true.
+Six SELinux patches for 4.2: two to add better labeling support for three 
+pseudo filesystems, one netlink update, a __flush_signals() removal/fix, and a 
+couple of minor cleanup patches.  Nothing too scary or large this time.
 
-The selinux_is_sblabel_mnt logic was broken by eadcabc697e9 "SELinux: do
-all flags twiddling in one place", which didn't take into the account
-the SECURITY_FS_USE_NATIVE behavior that had been introduced for nfs
-with eb9ae686507b "SELinux: Add new labeling type native labels".
+All patches pass the SELinux testsuite and the selinux#upstream branch is 
+based on your linux-security#next branch as of about an hour ago.
 
-This caused setxattr's of security labels over NFSv4.2 to fail.
+Enjoy,
+-Paul
 
-Cc: stable@kernel.org
-Cc: Eric Paris <eparis@redhat.com>
-Cc: David Quigley <dpquigl@davequigley.com>
-Reported-by: Richard Chan <rc556677@outlook.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 ---
- security/selinux/hooks.c | 1 +
- 1 file changed, 1 insertion(+)
+The following changes since commit e6e29a4eae335059d2cc44ac543de7556ff7ac09:
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e8a060bd9677..171fb30e4b99 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -403,6 +403,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
- 	return sbsec->behavior == SECURITY_FS_USE_XATTR ||
- 		sbsec->behavior == SECURITY_FS_USE_TRANS ||
- 		sbsec->behavior == SECURITY_FS_USE_TASK ||
-+		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
- 		/* Special handling. Genfs but also in-core setxattr handler */
- 		!strcmp(sb->s_type->name, "sysfs") ||
- 		!strcmp(sb->s_type->name, "pstore") ||
+  Merge branch 'smack-for-4.2-stacked' of 
+    https://github.com/cschaufler/smack-next into next
+    (2015-06-03 19:10:29 +1000)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux upstream
+
+for you to fetch changes up to 42a9699a9fa179c0054ea3cf5ad3cc67104a6162:
+
+  selinux: Remove unused permission definitions (2015-06-04 16:22:17 -0400)
+
+----------------------------------------------------------------
+Marek Milkovic (1):
+      selinux: Print 'sclass' as string when unrecognized netlink message 
+occurs
+
+Oleg Nesterov (1):
+      signals: don't abuse __flush_signals() in selinux_bprm_committed_creds()
+
+Stephen Smalley (4):
+      selinux: update netlink socket classes
+      selinux: enable per-file labeling for debugfs files.
+      selinux: enable genfscon labeling for sysfs and pstore files
+      selinux: Remove unused permission definitions
+
+ include/linux/sched.h               |  1 -
+ kernel/signal.c                     | 13 ++-----
+ security/selinux/hooks.c            | 76 +++++++++++++++++++++--------------
+ security/selinux/include/classmap.h | 44 +++++++++++----------
+ security/selinux/include/security.h |  1 +
+ 5 files changed, 75 insertions(+), 60 deletions(-)
+
 -- 
-1.9.3
+paul moore
+security @ redhat
