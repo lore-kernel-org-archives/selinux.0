@@ -1,67 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54Kad52020016
- for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 16:36:39 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: James Morris <jmorris@namei.org>
-Subject: [GIT PULL] SELinux patches for 4.2
-Date: Thu, 04 Jun 2015 16:36:35 -0400
-Message-ID: <2158515.KYehkOGLZJ@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54KoAOt021030
+ for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 16:50:10 -0400
+Received: by oihd6 with SMTP id d6so39832520oih.2
+ for <selinux@tycho.nsa.gov>; Thu, 04 Jun 2015 13:50:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+In-Reply-To: <5570AC04.3050709@tycho.nsa.gov>
+References: <20150604194045.31270.58300.stgit@localhost>
+ <20150604194149.31270.13124.stgit@localhost>
+ <5570AC04.3050709@tycho.nsa.gov>
+Date: Thu, 4 Jun 2015 16:50:08 -0400
+Message-ID: <CAHC9VhRoXDQTNvqj91-YWMuFfhUJq7wW90erJ3S78L6R_Wr=5Q@mail.gmail.com>
+Subject: Re: [PATCH 1/6] selinux-testsuite: add _GNU_SOURCE to tests/Makefile
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi James,
+On Thu, Jun 4, 2015 at 3:50 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 06/04/2015 03:41 PM, Paul Moore wrote:
+>> diff --git a/tests/msg/msgrcv.c b/tests/msg/msgrcv.c
+>> index b23c801..285dcad 100644
+>> --- a/tests/msg/msgrcv.c
+>> +++ b/tests/msg/msgrcv.c
+>> @@ -6,11 +6,6 @@
+>>
+>>  #define MSGMAX 1024
+>>
+>> -struct msgbuf {
+>> -  long mtype;     /* message type, must be > 0 */
+>> -  char mtext[1024];  /* message data */
+>> -};
+>> -
+>
+> This doesn't seem right.  I see that the _GNU_SOURCE definition triggers
+> inclusion of a struct msgbuf definition from sys/msg.h, but that
+> definition doesn't allocate any space for the mtext buffer.  So then
+> when we try to msgsnd() or msgrcv() with MSGMAX, we'll be
+> reading/writing memory past the end of the structure?
+>
+> Maybe you were right the first time, sorry.
 
-Six SELinux patches for 4.2: two to add better labeling support for three 
-pseudo filesystems, one netlink update, a __flush_signals() removal/fix, and a 
-couple of minor cleanup patches.  Nothing too scary or large this time.
+My mistake, I should have looked closer then I saw the conflict; I was
+rushing to get some other things sorted and did something stupid,
+thanks for the sanity check.
 
-All patches pass the SELinux testsuite and the selinux#upstream branch is 
-based on your linux-security#next branch as of about an hour ago.
-
-Enjoy,
--Paul
-
----
-The following changes since commit e6e29a4eae335059d2cc44ac543de7556ff7ac09:
-
-  Merge branch 'smack-for-4.2-stacked' of 
-    https://github.com/cschaufler/smack-next into next
-    (2015-06-03 19:10:29 +1000)
-
-are available in the git repository at:
-
-  git://git.infradead.org/users/pcmoore/selinux upstream
-
-for you to fetch changes up to 42a9699a9fa179c0054ea3cf5ad3cc67104a6162:
-
-  selinux: Remove unused permission definitions (2015-06-04 16:22:17 -0400)
-
-----------------------------------------------------------------
-Marek Milkovic (1):
-      selinux: Print 'sclass' as string when unrecognized netlink message 
-occurs
-
-Oleg Nesterov (1):
-      signals: don't abuse __flush_signals() in selinux_bprm_committed_creds()
-
-Stephen Smalley (4):
-      selinux: update netlink socket classes
-      selinux: enable per-file labeling for debugfs files.
-      selinux: enable genfscon labeling for sysfs and pstore files
-      selinux: Remove unused permission definitions
-
- include/linux/sched.h               |  1 -
- kernel/signal.c                     | 13 ++-----
- security/selinux/hooks.c            | 76 +++++++++++++++++++++--------------
- security/selinux/include/classmap.h | 44 +++++++++++----------
- security/selinux/include/security.h |  1 +
- 5 files changed, 75 insertions(+), 60 deletions(-)
+I like your idea of defining _GNU_SOURCE at a higher level, I think
+the right solution here is to just rename our local definition of the
+msgbuf struct.  A new patchset due shortly ...
 
 -- 
 paul moore
-security @ redhat
+www.paul-moore.com
