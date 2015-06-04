@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54JgAYA015765
- for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 15:42:10 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (Postfix) with ESMTPS id 871EA2DC416
- for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 19:42:08 +0000 (UTC)
-Subject: [PATCH 4/6] selinux-testsuite: fix compile warnings in tests/setnice
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54JgGBY015769
+ for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 15:42:16 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ by mx1.redhat.com (Postfix) with ESMTPS id 8BC1DB5C10
+ for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 19:42:14 +0000 (UTC)
+Subject: [PATCH 5/6] selinux-testsuite: fix compile problems in tests/shm
 From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Thu, 04 Jun 2015 15:42:07 -0400
-Message-ID: <20150604194207.31270.38391.stgit@localhost>
+Date: Thu, 04 Jun 2015 15:42:13 -0400
+Message-ID: <20150604194213.31270.80754.stgit@localhost>
 In-Reply-To: <20150604194045.31270.58300.stgit@localhost>
 References: <20150604194045.31270.58300.stgit@localhost>
 MIME-Version: 1.0
@@ -19,30 +19,105 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Correct the following:
+Resolve the following problems:
 
-make[2]: Entering directory '/root/sources/selinux-testsuite/tests/setnice'
-cc     parent.c  -lselinux -o parent
-parent.c: In function 'main':
-parent.c:92:9: warning: implicit declaration of function 'setpriority'
-   rc =  setpriority(0,pid,10);
-         ^
+make[2]: Entering directory '/home/pmoore/sources/selinux-testsuite/selinux_testsuite-upstream/tests/shm'
+cc -g -O0 -Wall -D_GNU_SOURCE    shmctl.c   -o shmctl
+shmctl.c: In function 'main':
+shmctl.c:11:6: warning: variable 'num' set but not used
+  int num = 1;
+      ^
+cc -g -O0 -Wall -D_GNU_SOURCE    shmat.c   -o shmat
+shmat.c: In function 'main':
+shmat.c:11:6: warning: variable 'num' set but not used
+  int num = 1;
+      ^
+cc -g -O0 -Wall -D_GNU_SOURCE    shmget.c   -o shmget
+shmget.c: In function 'main':
+shmget.c:11:6: warning: variable 'num' set but not used
+  int num = 1;
+      ^
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- tests/setnice/parent.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tests/shm/shmat.c  |    6 +-----
+ tests/shm/shmctl.c |    6 +-----
+ tests/shm/shmget.c |    6 +-----
+ 3 files changed, 3 insertions(+), 15 deletions(-)
 
-diff --git a/tests/setnice/parent.c b/tests/setnice/parent.c
-index d5a2533..6d3c855 100644
---- a/tests/setnice/parent.c
-+++ b/tests/setnice/parent.c
-@@ -3,6 +3,8 @@
- #include <unistd.h>
- #include <sys/types.h>
- #include <sys/wait.h>
-+#include <sys/time.h>
-+#include <sys/resource.h>
- #include <signal.h>
- #include <selinux/selinux.h>
- #include <selinux/context.h>
+diff --git a/tests/shm/shmat.c b/tests/shm/shmat.c
+index 89ac299..704d676 100644
+--- a/tests/shm/shmat.c
++++ b/tests/shm/shmat.c
+@@ -8,20 +8,16 @@
+ int main(int argc, char **argv)
+ {
+ 	int ch;
+-	int num = 1;
+ 	int key = 0x8888;
+ 	int id;
+ 	int error;
+ 	char *buf;
+ 
+-	while ((ch = getopt(argc, argv, "k:-n:")) != -1) {
++	while ((ch = getopt(argc, argv, "k:")) != -1) {
+ 		switch (ch) {
+ 		case 'k':
+ 			key = atoi(optarg);
+ 			break;
+-		case 'n':
+-			num = atoi(optarg);
+-			break;
+ 		}
+ 	}
+ 
+diff --git a/tests/shm/shmctl.c b/tests/shm/shmctl.c
+index 78397b6..d17a804 100644
+--- a/tests/shm/shmctl.c
++++ b/tests/shm/shmctl.c
+@@ -8,20 +8,16 @@
+ int main(int argc, char **argv)
+ {
+ 	int ch;
+-	int num = 1;
+ 	int key = 0x8888;
+ 	int id;
+ 	int error;
+ 	struct shmid_ds buf;
+ 
+-	while ((ch = getopt(argc, argv, "k:-n:")) != -1) {
++	while ((ch = getopt(argc, argv, "k:")) != -1) {
+ 		switch (ch) {
+ 		case 'k':
+ 			key = atoi(optarg);
+ 			break;
+-		case 'n':
+-			num = atoi(optarg);
+-			break;
+ 		}
+ 	}
+ 
+diff --git a/tests/shm/shmget.c b/tests/shm/shmget.c
+index a04da25..42d6394 100644
+--- a/tests/shm/shmget.c
++++ b/tests/shm/shmget.c
+@@ -8,18 +8,14 @@
+ int main(int argc, char **argv)
+ {
+ 	int ch;
+-	int num = 1;
+ 	int key = 0x8888;
+ 	int id;
+ 
+-	while ((ch = getopt(argc, argv, "k:-n:")) != -1) {
++	while ((ch = getopt(argc, argv, "k:")) != -1) {
+ 		switch (ch) {
+ 		case 'k':
+ 			key = atoi(optarg);
+ 			break;
+-		case 'n':
+-			num = atoi(optarg);
+-			break;
+ 		}
+ 	}
+ 
