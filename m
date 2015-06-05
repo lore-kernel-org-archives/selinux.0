@@ -1,58 +1,36 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t54KwRcD021419
- for <selinux@tycho.nsa.gov>; Thu, 4 Jun 2015 16:58:33 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com
- (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- by mx1.redhat.com (Postfix) with ESMTPS id 9380835C104
- for <selinux@tycho.nsa.gov>; Thu,  4 Jun 2015 20:58:31 +0000 (UTC)
-Subject: [PATCH v3 6/6] selinux-testsuite: fix compile problems in
- tests/capable_file
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 04 Jun 2015 16:58:30 -0400
-Message-ID: <20150604205830.19614.68299.stgit@localhost>
-In-Reply-To: <20150604205708.19614.64746.stgit@localhost>
-References: <20150604205708.19614.64746.stgit@localhost>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t555L388017171
+ for <selinux@tycho.nsa.gov>; Fri, 5 Jun 2015 01:21:03 -0400
+Date: Fri, 5 Jun 2015 15:20:57 +1000 (AEST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+Subject: Re: [GIT PULL] SELinux patches for 4.2
+In-Reply-To: <2158515.KYehkOGLZJ@sifl>
+Message-ID: <alpine.LRH.2.11.1506051520430.15998@namei.org>
+References: <2158515.KYehkOGLZJ@sifl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fix the following warnings:
+On Thu, 4 Jun 2015, Paul Moore wrote:
 
-make[2]: Entering directory '/home/pmoore/sources/selinux-testsuite/selinux_testsuite-upstream/tests/capable_file'
-cc -g -O0 -Wall -D_GNU_SOURCE    test_lease.c   -o test_lease
-test_lease.c: In function 'main':
-test_lease.c:22:3: warning: implicit declaration of function 'open'
-   fd = open(argv[1], O_RDONLY, 0);
-   ^
-test_lease.c:29:3: warning: implicit declaration of function 'fcntl'
-   rc = fcntl(fd, F_SETLEASE, 0);
-   ^
+> Hi James,
+> 
+> Six SELinux patches for 4.2: two to add better labeling support for three 
+> pseudo filesystems, one netlink update, a __flush_signals() removal/fix, and a 
+> couple of minor cleanup patches.  Nothing too scary or large this time.
+> 
+> All patches pass the SELinux testsuite and the selinux#upstream branch is 
+> based on your linux-security#next branch as of about an hour ago.
+> 
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- tests/capable_file/test_lease.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Thanks, pulled.
 
-diff --git a/tests/capable_file/test_lease.c b/tests/capable_file/test_lease.c
-index 606d75c..e8f29eb 100644
---- a/tests/capable_file/test_lease.c
-+++ b/tests/capable_file/test_lease.c
-@@ -1,9 +1,10 @@
--#include<stdio.h>
--#include<stdlib.h>
--#include<sys/types.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
- #include <linux/posix_types.h>
--#include<linux/fcntl.h>
- #include <unistd.h>
-+#include <fcntl.h>
- 
- /*
-  * Test the fcntl F_SETLEASE operation on a file whose name is given as 
+
+-- 
+James Morris
+<jmorris@namei.org>
