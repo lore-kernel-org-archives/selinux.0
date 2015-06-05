@@ -1,60 +1,58 @@
-Message-ID: <55719429.6020108@tycho.nsa.gov>
-Date: Fri, 05 Jun 2015 08:20:57 -0400
+Message-ID: <5571951E.4010902@tycho.nsa.gov>
+Date: Fri, 05 Jun 2015 08:25:02 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Ravi Kumar <nxp.ravi@gmail.com>, Selinux@tycho.nsa.gov,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: Re: Seeing new denial on AOSP 5.1.1 w.r.t shell request read access
- on lnk_file .
-References: <CACikiw1qa82Y1_4wvQOLsijmA=tzSWgWJHbvhQpp=jsSeeX7fQ@mail.gmail.com>
-In-Reply-To: <CACikiw1qa82Y1_4wvQOLsijmA=tzSWgWJHbvhQpp=jsSeeX7fQ@mail.gmail.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>, Paul Moore <paul@paul-moore.com>,
+ Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH] selinux: fix setting of security labels on NFS
+References: <20150604195725.GC5209@fieldses.org>
+In-Reply-To: <20150604195725.GC5209@fieldses.org>
 Content-Type: text/plain; charset=windows-1252
+Cc: Richard Chan <rc556677@outlook.com>, linux-nfs@vger.kernel.org,
+ David Quigley <dpquigl@davequigley.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/05/2015 02:31 AM, Ravi Kumar wrote:
-> Hi Team  ,
-> I am seeing some new denial when running the CTS test cases  which is as
-> follows
+On 06/04/2015 03:57 PM, J. Bruce Fields wrote:
+> From: "J. Bruce Fields" <bfields@redhat.com>
 > 
-> avc: denied { read } for pid=6013 comm="sh" name="app_process"
-> dev="mmcblk0p24" ino=410 scontext=u:r:shell:s0
-> tcontext=u:object_r:zygote_exec:s0 tclass=lnk_file permissive=0
+> Before calling into the filesystem, vfs_setxattr calls
+> security_inode_setxattr, which ends up calling selinux_inode_setxattr in
+> our case.  That returns -EOPNOTSUPP whenever SBLABEL_MNT is not set.
+> SBLABEL_MNT was supposed to be set by sb_finish_set_opts, which sets it
+> only if selinux_is_sblabel_mnt returns true.
 > 
-> where app_process is link created to point app_process32/app_process64
-> binary when doing a  ls -Z  i see the context of this is as expected
-> and  tcontext on the denial  is also as expected (as below ).
+> The selinux_is_sblabel_mnt logic was broken by eadcabc697e9 "SELinux: do
+> all flags twiddling in one place", which didn't take into the account
+> the SECURITY_FS_USE_NATIVE behavior that had been introduced for nfs
+> with eb9ae686507b "SELinux: Add new labeling type native labels".
 > 
-> root# ls -Z |grep app
-> lrwxr-xr-x root     shell             u:object_r:zygote_exec:s0
-> app_process -> app_process64
-> -rwxr-xr-x root     shell             u:object_r:zygote_exec:s0
-> app_process32
-> -rwxr-xr-x root     shell             u:object_r:zygote_exec:s0
-> app_process64
+> This caused setxattr's of security labels over NFSv4.2 to fail.
 > 
-> 
-> I can see that there are NO changes in sepolicy for shell domain /
-> Zygote domain.
-> Only change is the kernel migration from 3.10.48  to 3.10.73(policy
-> version 28)  and i see there are  couple of changes done in security .
-> Looking at the changes  I don't see any suspicious changes which could
-> impact the shell domain nature. Adding the rule is surely  going to
-> addressing the issue but wonder why at first place it is needed  from
-> security point of view i don't think adding just read should create a
-> problem as the  lnk_files is as good as common_file and to as 
-> write/execute are not given should not be at risk.  Please let me know
-> if we have any changes which could cause this or any comment on this
-> will be of great help .
+> Cc: stable@kernel.org
+> Cc: Eric Paris <eparis@redhat.com>
+> Cc: David Quigley <dpquigl@davequigley.com>
+> Reported-by: Richard Chan <rc556677@outlook.com>
+> Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 
-(cc seandroid-list, as that is the list for Android-specific SELinux
-questions)
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-On lollipop-mr1-release, we have the following in file_contexts:
-$ grep app_process file_contexts
-/system/bin/app_process32	u:object_r:zygote_exec:s0
-/system/bin/app_process64	u:object_r:zygote_exec:s0
-so the /system/bin/app_process symbolic link should just be labeled
-system_file.
+> ---
+>  security/selinux/hooks.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e8a060bd9677..171fb30e4b99 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -403,6 +403,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+>  	return sbsec->behavior == SECURITY_FS_USE_XATTR ||
+>  		sbsec->behavior == SECURITY_FS_USE_TRANS ||
+>  		sbsec->behavior == SECURITY_FS_USE_TASK ||
+> +		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
+>  		/* Special handling. Genfs but also in-core setxattr handler */
+>  		!strcmp(sb->s_type->name, "sysfs") ||
+>  		!strcmp(sb->s_type->name, "pstore") ||
+> 
