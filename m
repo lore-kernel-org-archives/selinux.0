@@ -1,84 +1,66 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, Ravi Kumar <nxp.ravi@gmail.com>,
- "Selinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: RE: Seeing new denial on AOSP 5.1.1 w.r.t shell request read access
- on lnk_file .
-Date: Fri, 5 Jun 2015 15:15:49 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC560101AB76@ORSMSX103.amr.corp.intel.com>
-References: <CACikiw1qa82Y1_4wvQOLsijmA=tzSWgWJHbvhQpp=jsSeeX7fQ@mail.gmail.com>
- <55719429.6020108@tycho.nsa.gov>
-In-Reply-To: <55719429.6020108@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t55ISsRK005240
+ for <selinux@tycho.nsa.gov>; Fri, 5 Jun 2015 14:28:55 -0400
+Received: by qkx62 with SMTP id 62so44760824qkx.3
+ for <selinux@tycho.nsa.gov>; Fri, 05 Jun 2015 11:28:53 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: [PATCH] selinux: fix setting of security labels on NFS
+Date: Fri, 05 Jun 2015 14:28:51 -0400
+Message-ID: <1445478.RRUV9J93hm@sifl>
+In-Reply-To: <20150604195725.GC5209@fieldses.org>
+References: <20150604195725.GC5209@fieldses.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-nfs@vger.kernel.org, David Quigley <dpquigl@davequigley.com>,
+ Richard Chan <rc556677@outlook.com>, selinux@tycho.nsa.gov,
+ Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
-> -----Original Message-----
-> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of
-> Stephen Smalley
-> Sent: Friday, June 5, 2015 5:21 AM
-> To: Ravi Kumar; Selinux@tycho.nsa.gov; seandroid-list@tycho.nsa.gov
-> Subject: Re: Seeing new denial on AOSP 5.1.1 w.r.t shell request read access
-> on lnk_file .
+On Thursday, June 04, 2015 03:57:25 PM J. Bruce Fields wrote:
+> From: "J. Bruce Fields" <bfields@redhat.com>
 > 
-> On 06/05/2015 02:31 AM, Ravi Kumar wrote:
-> > Hi Team  ,
-> > I am seeing some new denial when running the CTS test cases  which is
-> > as follows
-> >
-> > avc: denied { read } for pid=6013 comm="sh" name="app_process"
-> > dev="mmcblk0p24" ino=410 scontext=u:r:shell:s0
-> > tcontext=u:object_r:zygote_exec:s0 tclass=lnk_file permissive=0
-> >
-> > where app_process is link created to point app_process32/app_process64
-> > binary when doing a  ls -Z  i see the context of this is as expected
-> > and  tcontext on the denial  is also as expected (as below ).
-> >
-> > root# ls -Z |grep app
-> > lrwxr-xr-x root     shell             u:object_r:zygote_exec:s0
-> > app_process -> app_process64
-> > -rwxr-xr-x root     shell             u:object_r:zygote_exec:s0
-> > app_process32
-> > -rwxr-xr-x root     shell             u:object_r:zygote_exec:s0
-> > app_process64
-> >
-> >
-> > I can see that there are NO changes in sepolicy for shell domain /
-> > Zygote domain.
-> > Only change is the kernel migration from 3.10.48  to 3.10.73(policy
-> > version 28)  and i see there are  couple of changes done in security .
-> > Looking at the changes  I don't see any suspicious changes which could
-> > impact the shell domain nature. Adding the rule is surely  going to
-> > addressing the issue but wonder why at first place it is needed  from
-> > security point of view i don't think adding just read should create a
-> > problem as the  lnk_files is as good as common_file and to as
-> > write/execute are not given should not be at risk.  Please let me know
-> > if we have any changes which could cause this or any comment on this
-> > will be of great help .
+> Before calling into the filesystem, vfs_setxattr calls
+> security_inode_setxattr, which ends up calling selinux_inode_setxattr in
+> our case.  That returns -EOPNOTSUPP whenever SBLABEL_MNT is not set.
+> SBLABEL_MNT was supposed to be set by sb_finish_set_opts, which sets it
+> only if selinux_is_sblabel_mnt returns true.
 > 
-> (cc seandroid-list, as that is the list for Android-specific SELinux
-> questions)
+> The selinux_is_sblabel_mnt logic was broken by eadcabc697e9 "SELinux: do
+> all flags twiddling in one place", which didn't take into the account
+> the SECURITY_FS_USE_NATIVE behavior that had been introduced for nfs
+> with eb9ae686507b "SELinux: Add new labeling type native labels".
 > 
-> On lollipop-mr1-release, we have the following in file_contexts:
-> $ grep app_process file_contexts
-> /system/bin/app_process32	u:object_r:zygote_exec:s0
-> /system/bin/app_process64	u:object_r:zygote_exec:s0
-> so the /system/bin/app_process symbolic link should just be labeled
-> system_file.
+> This caused setxattr's of security labels over NFSv4.2 to fail.
 > 
+> Cc: stable@kernel.org
+> Cc: Eric Paris <eparis@redhat.com>
+> Cc: David Quigley <dpquigl@davequigley.com>
+> Reported-by: Richard Chan <rc556677@outlook.com>
+> Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+> ---
+>  security/selinux/hooks.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-Yes and once you get labeled properly all domains can read system_file
-See domain.te: allow domain system_file:lnk_file r_file_perms;
-The read permission is required for symbolic links to read the location to follow.
+Applied, thanks.  In the future, you don't have to worry about marking it for 
+stable, I'll take care of that when I merge it into the tree.
 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-
-> request@tycho.nsa.gov.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e8a060bd9677..171fb30e4b99 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -403,6 +403,7 @@ static int selinux_is_sblabel_mnt(struct super_block
+> *sb) return sbsec->behavior == SECURITY_FS_USE_XATTR ||
+>  		sbsec->behavior == SECURITY_FS_USE_TRANS ||
+>  		sbsec->behavior == SECURITY_FS_USE_TASK ||
+> +		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
+>  		/* Special handling. Genfs but also in-core setxattr handler */
+>  		!strcmp(sb->s_type->name, "sysfs") ||
+>  		!strcmp(sb->s_type->name, "pstore") ||
+
+-- 
+paul moore
+www.paul-moore.com
