@@ -1,76 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t55Idcp2005936
- for <selinux@tycho.nsa.gov>; Fri, 5 Jun 2015 14:39:38 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t55Ie4Km006316
+ for <selinux@tycho.nsa.gov>; Fri, 5 Jun 2015 14:40:04 -0400
 From: Paul Moore <pmoore@redhat.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [GIT PULL] SELinux patches for 4.2
-Date: Fri, 05 Jun 2015 14:34:02 -0400
-Message-ID: <1470471.fn8YxcfUZR@sifl>
-In-Reply-To: <alpine.LRH.2.11.1506051520430.15998@namei.org>
-References: <2158515.KYehkOGLZJ@sifl>
- <alpine.LRH.2.11.1506051520430.15998@namei.org>
+To: selinux@tycho.nsa.gov
+Subject: SELinux tree updates
+Date: Fri, 05 Jun 2015 14:40:01 -0400
+Message-ID: <9892603.2N9PhGGyoM@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, June 05, 2015 03:20:57 PM James Morris wrote:
-> On Thu, 4 Jun 2015, Paul Moore wrote:
-> > Hi James,
-> > 
-> > Six SELinux patches for 4.2: two to add better labeling support for three
-> > pseudo filesystems, one netlink update, a __flush_signals() removal/fix,
-> > and a couple of minor cleanup patches.  Nothing too scary or large this
-> > time.
-> > 
-> > All patches pass the SELinux testsuite and the selinux#upstream branch is
-> > based on your linux-security#next branch as of about an hour ago.
-> 
-> Thanks, pulled.
+Hello All,
 
-Hi James,
+While I try to keep rebases to the SELinux tree at a minimum, they are 
+occasionally necessary to sync with upstream development; Casey's LSM stacking 
+patches merit a rebase.  You may have noticed this starting yesterday, but in 
+case you haven't, this serves as notice that I've rebased the SELinux upstream 
+and next branches.  I apologize for any inconvenience this may have caused.  
+Once Linux 4.1 is released, I will resume my usual process of updating the 
+SELinux tree (described below).
 
-My apologies, but one more last minute patch that really should go in for v4.2 
-as it fixes a labeled NFS regression.
+* SELinux Tree
+  -> git://git.infradead.org/users/pcmoore/selinux
+  -> http://git.infradead.org/users/pcmoore/selinux
 
--Paul
+* SELinux Tree Process
 
----
-The following changes since commit 42a9699a9fa179c0054ea3cf5ad3cc67104a6162:
+  1. Create a new branch, stable-X.XX, set to the upstream branch that
+  was sent during the merge window.
 
-  selinux: Remove unused permission definitions (2015-06-04 16:22:17 -0400)
+  2. Reset the next branch to the upstream branch that was sent during
+  the merge window.
 
-are available in the git repository at:
+  3. Accept new features into the next branch and fixes into the
+  stable-X.XX branch.
 
-  git://git.infradead.org/users/pcmoore/selinux upstream
+  4. As necessary, merge stable-X.XX into upstream and send pull
+  requests upstream.
 
-for you to fetch changes up to 9fc2b4b436cff7d8403034676014f1be9d534942:
+  5. When vX.XX is released, merge next into upstream and send a pull
+  request for the upstream branch.  Leave stable-X.XX untouched for
+  future stable fixes.
 
-  selinux: fix setting of security labels on NFS (2015-06-05 14:21:48 -0400)
-
-----------------------------------------------------------------
-J. Bruce Fields (1):
-      selinux: fix setting of security labels on NFS
-
- security/selinux/hooks.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index daf59b4..312537d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -403,6 +403,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
-        return sbsec->behavior == SECURITY_FS_USE_XATTR ||
-                sbsec->behavior == SECURITY_FS_USE_TRANS ||
-                sbsec->behavior == SECURITY_FS_USE_TASK ||
-+               sbsec->behavior == SECURITY_FS_USE_NATIVE ||
-                /* Special handling. Genfs but also in-core setxattr handler 
-*/
-                !strcmp(sb->s_type->name, "sysfs") ||
-                !strcmp(sb->s_type->name, "pstore") ||
+  6. Goto step #1.
 
 -- 
 paul moore
