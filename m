@@ -1,86 +1,85 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t58Kn42c015014
- for <selinux@tycho.nsa.gov>; Mon, 8 Jun 2015 16:49:04 -0400
-Received: by obcej4 with SMTP id ej4so56463028obc.0
- for <selinux@tycho.nsa.gov>; Mon, 08 Jun 2015 13:49:02 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5921rFM000664
+ for <selinux@tycho.nsa.gov>; Mon, 8 Jun 2015 22:01:54 -0400
+Date: Tue, 9 Jun 2015 12:01:47 +1000 (AEST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <pmoore@redhat.com>
+Subject: Re: [GIT PULL] SELinux patches for 4.2
+In-Reply-To: <1470471.fn8YxcfUZR@sifl>
+Message-ID: <alpine.LRH.2.11.1506091201400.19198@namei.org>
+References: <2158515.KYehkOGLZJ@sifl>
+ <alpine.LRH.2.11.1506051520430.15998@namei.org> <1470471.fn8YxcfUZR@sifl>
 MIME-Version: 1.0
-In-Reply-To: <20150608151704.GF24159@fieldses.org>
-References: <20150604195725.GC5209@fieldses.org> <1445478.RRUV9J93hm@sifl>
- <20150608151704.GF24159@fieldses.org>
-Date: Mon, 8 Jun 2015 16:49:02 -0400
-Message-ID: <CAHC9VhR2D6Gy31L0N8oPTwyz1+s-ACEr6MNiDZ=j6aMBXo_u+w@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix setting of security labels on NFS
-From: Paul Moore <paul@paul-moore.com>
-To: "J. Bruce Fields" <bfields@fieldses.org>
-Content-Type: text/plain; charset=UTF-8
-Cc: linux-nfs@vger.kernel.org, David Quigley <dpquigl@davequigley.com>,
- Richard Chan <rc556677@outlook.com>, selinux@tycho.nsa.gov,
- Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Jun 8, 2015 at 11:17 AM, J. Bruce Fields <bfields@fieldses.org> wrote:
-> On Fri, Jun 05, 2015 at 02:28:51PM -0400, Paul Moore wrote:
->> On Thursday, June 04, 2015 03:57:25 PM J. Bruce Fields wrote:
->> > From: "J. Bruce Fields" <bfields@redhat.com>
->> >
->> > Before calling into the filesystem, vfs_setxattr calls
->> > security_inode_setxattr, which ends up calling selinux_inode_setxattr in
->> > our case.  That returns -EOPNOTSUPP whenever SBLABEL_MNT is not set.
->> > SBLABEL_MNT was supposed to be set by sb_finish_set_opts, which sets it
->> > only if selinux_is_sblabel_mnt returns true.
->> >
->> > The selinux_is_sblabel_mnt logic was broken by eadcabc697e9 "SELinux: do
->> > all flags twiddling in one place", which didn't take into the account
->> > the SECURITY_FS_USE_NATIVE behavior that had been introduced for nfs
->> > with eb9ae686507b "SELinux: Add new labeling type native labels".
->> >
->> > This caused setxattr's of security labels over NFSv4.2 to fail.
->> >
->> > Cc: stable@kernel.org
->> > Cc: Eric Paris <eparis@redhat.com>
->> > Cc: David Quigley <dpquigl@davequigley.com>
->> > Reported-by: Richard Chan <rc556677@outlook.com>
->> > Signed-off-by: J. Bruce Fields <bfields@redhat.com>
->> > ---
->> >  security/selinux/hooks.c | 1 +
->> >  1 file changed, 1 insertion(+)
->>
->> Applied, thanks.
->
-> Thanks!
->
->> In the future, you don't have to worry about marking it for
->> stable, I'll take care of that when I merge it into the tree.
->
-> OK.  With roles reversed, I usually appreciate the stable tag from
-> submitters, just as a statement of their opinion as to whether it's
-> stable-worthy, which can always be overridden.
+On Fri, 5 Jun 2015, Paul Moore wrote:
 
-Every subsystem is different, but in general I haven't found it too
-difficult to determine if a given patch is stable worthy; on the rare
-occasion that I'm uncertain I'll ask the submitter for their opinion.
-I wouldn't say I discourage people from adding a stable tag, it is
-just that I don't require people to add one to make it into my stable
-queue, and I don't automatically add it to the queue if the poster
-does tag it so (although that said, I don't recall ever removing a
-stable CC).
+> On Friday, June 05, 2015 03:20:57 PM James Morris wrote:
+> > On Thu, 4 Jun 2015, Paul Moore wrote:
+> > > Hi James,
+> > > 
+> > > Six SELinux patches for 4.2: two to add better labeling support for three
+> > > pseudo filesystems, one netlink update, a __flush_signals() removal/fix,
+> > > and a couple of minor cleanup patches.  Nothing too scary or large this
+> > > time.
+> > > 
+> > > All patches pass the SELinux testsuite and the selinux#upstream branch is
+> > > based on your linux-security#next branch as of about an hour ago.
+> > 
+> > Thanks, pulled.
+> 
+> Hi James,
+> 
+> My apologies, but one more last minute patch that really should go in for v4.2 
+> as it fixes a labeled NFS regression.
+> 
 
-> (I mean, this one seems obvious enough--one-liner, fixes a user-visible
-> regression--but in more complicated cases their opinion might be
-> useful.)
+Applied.
 
-This patch is definitely a stable no-brainer.
 
-> By the way, I suspect this requires (obvious) fixups to apply to some
-> older kernels, let me know if help's needed there.
-
-It may, I generally wait until the stable devs pick it up and if they
-hit a merge conflict I fix it up, however, since you offered I may
-kick it your way ;)
+> -Paul
+> 
+> ---
+> The following changes since commit 42a9699a9fa179c0054ea3cf5ad3cc67104a6162:
+> 
+>   selinux: Remove unused permission definitions (2015-06-04 16:22:17 -0400)
+> 
+> are available in the git repository at:
+> 
+>   git://git.infradead.org/users/pcmoore/selinux upstream
+> 
+> for you to fetch changes up to 9fc2b4b436cff7d8403034676014f1be9d534942:
+> 
+>   selinux: fix setting of security labels on NFS (2015-06-05 14:21:48 -0400)
+> 
+> ----------------------------------------------------------------
+> J. Bruce Fields (1):
+>       selinux: fix setting of security labels on NFS
+> 
+>  security/selinux/hooks.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index daf59b4..312537d 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -403,6 +403,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+>         return sbsec->behavior == SECURITY_FS_USE_XATTR ||
+>                 sbsec->behavior == SECURITY_FS_USE_TRANS ||
+>                 sbsec->behavior == SECURITY_FS_USE_TASK ||
+> +               sbsec->behavior == SECURITY_FS_USE_NATIVE ||
+>                 /* Special handling. Genfs but also in-core setxattr handler 
+> */
+>                 !strcmp(sb->s_type->name, "sysfs") ||
+>                 !strcmp(sb->s_type->name, "pstore") ||
+> 
+> 
 
 -- 
-paul moore
-www.paul-moore.com
+James Morris
+<jmorris@namei.org>
