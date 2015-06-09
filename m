@@ -1,66 +1,112 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux: do not remap unknown SIDs to the unlabeled context
-Date: Tue,  9 Jun 2015 09:09:52 -0400
-Message-Id: <1433855392-17188-1-git-send-email-sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [RFC][PATCH] net/unix: support SCM_SECURITY for stream sockets
+Date: Tue,  9 Jun 2015 11:47:34 -0400
+Message-Id: <1433864854-21660-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-SELinux remaps invalid SIDs to the unlabeled SID/context in order
-to provide sane handling of objects whose SIDs become invalid upon
-a policy reload (e.g. removal of a type from policy).  However,
-this can also hide bugs and yield unexpected behavior, e.g. as described
-in https://bugzilla.redhat.com/show_bug.cgi?id=1224211, if a program
-sets SO_PASSSEC on a Unix stream socket, it will receive a SCM_SECURITY
-control message with the unlabeled context because the secid is not
-properly set/propagated for Unix stream sends, only for Unix datagram
-sends, but the automatic remapping of any invalid SID to the unlabeled
-context still produces a context to be returned when SO_PASSSEC is
-set on the socket.  Since commit 12b29f34558b9b45a2c6eabd4f3c6be939a3980f
-("selinux: support deferred mapping of contexts") changed SELinux to not
-remove invalid SIDs from the SID table but rather to retain them with a
-copy of the unmapped context string so that the SID could be made valid
-again if a subsequent policy reload made the context valid again, we no
-longer need to map unknown SIDs to the unlabeled context, only SIDs that
-have unmapped context strings.
+SCM_SECURITY was originally only implemented for datagram sockets,
+not for stream sockets.  However, SCM_CREDENTIALS is supported on
+Unix stream sockets.  For consistency, implement Unix stream support
+for SCM_SECURITY as well.  Also clean up the existing code and get
+rid of the superfluous UNIXSID macro.
 
-With this change applied, we get saner behavior for SCM_SECURITY on
-Unix stream sockets:  the kernel will not put any SCM_SECURITY control
-message at all rather than putting one with an unlabeled context.  If
-we want to support SCM_SECURITY on Unix stream sockets, that can be
-taken up as a separate change.  Regardless, this change will help catch
-cases where a secid/SID is never set (0) or contain a value beyond the
-set of allocated SIDs (e.g. never initialized and contains garbage).  The
-change does not break the support for deferred mapping of contexts; one
-can still insert a policy module that defines a type, label a file with
-that type, remove the policy module (i.e. load a policy that does not
-contain the type), check that the file's label is remapped to the
-unlabeled context, re-insert the policy module that defined the type,
-and see that the file's label is properly restored and valid.
+Motivated by https://bugzilla.redhat.com/show_bug.cgi?id=1224211,
+where systemd was using SCM_CREDENTIALS and assumed wrongly that
+SCM_SECURITY was also supported on Unix stream sockets.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/ss/sidtab.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index 5840a35..3bd992c 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -98,7 +98,10 @@ static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
- 	if (force && cur && sid == cur->sid && cur->context.len)
- 		return &cur->context;
+This is an RFC for security folks before I send this along to netdev.
+The patch is relative to net-next, not security-next.
+
+ include/net/af_unix.h |  1 -
+ net/unix/af_unix.c    | 20 ++++++++++++++++----
+ 2 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/include/net/af_unix.h b/include/net/af_unix.h
+index a175ba4..4a167b3 100644
+--- a/include/net/af_unix.h
++++ b/include/net/af_unix.h
+@@ -39,7 +39,6 @@ struct unix_skb_parms {
+ };
  
--	if (cur == NULL || sid != cur->sid || cur->context.len) {
-+	if (cur == NULL || sid != cur->sid)
-+		return NULL;
+ #define UNIXCB(skb) 	(*(struct unix_skb_parms *)&((skb)->cb))
+-#define UNIXSID(skb)	(&UNIXCB((skb)).secid)
+ 
+ #define unix_state_lock(s)	spin_lock(&unix_sk(s)->lock)
+ #define unix_state_unlock(s)	spin_unlock(&unix_sk(s)->lock)
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index f25e167..03ee4d3 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -140,12 +140,17 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+ #ifdef CONFIG_SECURITY_NETWORK
+ static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	memcpy(UNIXSID(skb), &scm->secid, sizeof(u32));
++	UNIXCB(skb).secid = scm->secid;
+ }
+ 
+ static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	scm->secid = *UNIXSID(skb);
++	scm->secid = UNIXCB(skb).secid;
++}
 +
-+	if (cur->context.len) {
- 		/* Remap invalid SIDs to the unlabeled SID. */
- 		sid = SECINITSID_UNLABELED;
- 		hvalue = SIDTAB_HASH(sid);
++static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
++{
++	return (scm->secid == UNIXCB(skb).secid);
+ }
+ #else
+ static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+@@ -153,6 +158,11 @@ static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ 
+ static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ { }
++
++static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
++{
++	return true;
++}
+ #endif /* CONFIG_SECURITY_NETWORK */
+ 
+ /*
+@@ -1414,6 +1424,7 @@ static int unix_scm_to_skb(struct scm_cookie *scm, struct sk_buff *skb, bool sen
+ 	UNIXCB(skb).uid = scm->creds.uid;
+ 	UNIXCB(skb).gid = scm->creds.gid;
+ 	UNIXCB(skb).fp = NULL;
++	unix_get_secdata(scm, skb);
+ 	if (scm->fp && send_fds)
+ 		err = unix_attach_fds(scm, skb);
+ 
+@@ -1509,7 +1520,6 @@ static int unix_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	if (err < 0)
+ 		goto out_free;
+ 	max_level = err + 1;
+-	unix_get_secdata(&scm, skb);
+ 
+ 	skb_put(skb, len - data_len);
+ 	skb->data_len = data_len;
+@@ -2118,11 +2128,13 @@ unlock:
+ 			/* Never glue messages from different writers */
+ 			if ((UNIXCB(skb).pid  != scm.pid) ||
+ 			    !uid_eq(UNIXCB(skb).uid, scm.creds.uid) ||
+-			    !gid_eq(UNIXCB(skb).gid, scm.creds.gid))
++			    !gid_eq(UNIXCB(skb).gid, scm.creds.gid) ||
++			    !unix_secdata_eq(&scm, skb))
+ 				break;
+ 		} else if (test_bit(SOCK_PASSCRED, &sock->flags)) {
+ 			/* Copy credentials */
+ 			scm_set_cred(&scm, UNIXCB(skb).pid, UNIXCB(skb).uid, UNIXCB(skb).gid);
++			unix_set_secdata(&scm, skb);
+ 			check_creds = true;
+ 		}
+ 
 -- 
 2.1.0
