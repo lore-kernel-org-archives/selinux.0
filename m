@@ -1,71 +1,90 @@
-Message-ID: <55798149.5070404@tycho.nsa.gov>
-Date: Thu, 11 Jun 2015 08:38:33 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BEP1PI012532
+ for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 10:25:01 -0400
+Received: by qkhq76 with SMTP id q76so3730692qkh.2
+ for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 07:24:59 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: do not remap unknown SIDs to the unlabeled
+ context
+Date: Thu, 11 Jun 2015 10:24:57 -0400
+Message-ID: <2812439.sEMCQPxe3C@sifl>
+In-Reply-To: <1433855392-17188-1-git-send-email-sds@tycho.nsa.gov>
+References: <1433855392-17188-1-git-send-email-sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Waiman Long <Waiman.Long@hp.com>, Paul Moore <paul@paul-moore.com>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: reduce locking overhead in inode_free_security()
-References: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
-In-Reply-To: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
-Content-Type: text/plain; charset=windows-1252
-Cc: Scott J Norton <scott.norton@hp.com>, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>
+Content-Type: text/plain; charset="us-ascii"
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/10/2015 04:17 PM, Waiman Long wrote:
-> The inode_free_security() function just took the superblock's isec_lock
-> before checking and trying to remove the inode security struct from the
-> linked list. In many cases, the list was empty and so the lock taking
-> is wasteful as no useful work is done. On multi-socket systems with
-> a large number of CPUs, there can also be a fair amount of spinlock
-> contention on the isec_lock if many tasks are exiting at the same time.
+On Tuesday, June 09, 2015 09:09:52 AM Stephen Smalley wrote:
+> SELinux remaps invalid SIDs to the unlabeled SID/context in order
+> to provide sane handling of objects whose SIDs become invalid upon
+> a policy reload (e.g. removal of a type from policy).  However,
+> this can also hide bugs and yield unexpected behavior, e.g. as described
+> in https://bugzilla.redhat.com/show_bug.cgi?id=1224211, if a program
+> sets SO_PASSSEC on a Unix stream socket, it will receive a SCM_SECURITY
+> control message with the unlabeled context because the secid is not
+> properly set/propagated for Unix stream sends, only for Unix datagram
+> sends, but the automatic remapping of any invalid SID to the unlabeled
+> context still produces a context to be returned when SO_PASSSEC is
+> set on the socket.  Since commit 12b29f34558b9b45a2c6eabd4f3c6be939a3980f
+> ("selinux: support deferred mapping of contexts") changed SELinux to not
+> remove invalid SIDs from the SID table but rather to retain them with a
+> copy of the unmapped context string so that the SID could be made valid
+> again if a subsequent policy reload made the context valid again, we no
+> longer need to map unknown SIDs to the unlabeled context, only SIDs that
+> have unmapped context strings.
 > 
-> This patch changes the code to check the state of the list first
-> before taking the lock and attempting to dequeue it. We still need
-> to do the empty list test inside the lock for safety reason, but it
-> minimizes the chance of unnecessary spinlock contention.
+> With this change applied, we get saner behavior for SCM_SECURITY on
+> Unix stream sockets:  the kernel will not put any SCM_SECURITY control
+> message at all rather than putting one with an unlabeled context.  If
+> we want to support SCM_SECURITY on Unix stream sockets, that can be
+> taken up as a separate change.  Regardless, this change will help catch
+> cases where a secid/SID is never set (0) or contain a value beyond the
+> set of allocated SIDs (e.g. never initialized and contains garbage).  The
+> change does not break the support for deferred mapping of contexts; one
+> can still insert a policy module that defines a type, label a file with
+> that type, remove the policy module (i.e. load a policy that does not
+> contain the type), check that the file's label is remapped to the
+> unlabeled context, re-insert the policy module that defined the type,
+> and see that the file's label is properly restored and valid.
 > 
-> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/hooks.c |   17 +++++++++++++----
->  1 files changed, 13 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7dade28..cd736c3 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode *inode)
->  	struct inode_security_struct *isec = inode->i_security;
->  	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
->  
-> -	spin_lock(&sbsec->isec_lock);
-> -	if (!list_empty(&isec->list))
-> -		list_del_init(&isec->list);
-> -	spin_unlock(&sbsec->isec_lock);
-> +	/*
-> +	 * As not all inode security structures are in a list, we check for
-> +	 * empty list outside of the lock to make sure that we won't waste
-> +	 * time taking a lock doing nothing. Lock taking can be slow
-> +	 * especially if the lock is being contended. We do, however, need
-> +	 * to recheck the list again before deleting it for safety.
-> +	 */
-> +	if (!list_empty(&isec->list)) {
-> +		spin_lock(&sbsec->isec_lock);
-> +		if (!list_empty(&isec->list))
-> +			list_del_init(&isec->list);
-> +		spin_unlock(&sbsec->isec_lock);
-> +	}
->  
->  	/*
->  	 * The inode may still be referenced in a path walk and
-> 
+>  security/selinux/ss/sidtab.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
-Do we really need the second list_empty() test at all?
-Once removed, inode security structures are never re-added to the list.
-For comparison, inode_sb_list_del() only tests list_empty() outside the
-lock.
+This looks good to me thank for sending this patch.
+
+Since SO_PASSSEC isn't widely used and/or documented I don't think there is 
+any rush to push this for v4.2 since we've already done two pull requests for 
+v4.2.  I'm also a little leery of changing such core behavior with little to 
+no time in linux-next (although I will admit to being skeptical of the testing 
+value of linux-next).  Unless someone can provide a very compelling reason why 
+this needs to go into v4.2 I'm going to queue this up in my next-queue branch 
+and apply it after the merge window is closed.
+
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index 5840a35..3bd992c 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -98,7 +98,10 @@ static struct context *sidtab_search_core(struct sidtab
+> *s, u32 sid, int force) if (force && cur && sid == cur->sid &&
+> cur->context.len)
+>  		return &cur->context;
+> 
+> -	if (cur == NULL || sid != cur->sid || cur->context.len) {
+> +	if (cur == NULL || sid != cur->sid)
+> +		return NULL;
+> +
+> +	if (cur->context.len) {
+>  		/* Remap invalid SIDs to the unlabeled SID. */
+>  		sid = SECINITSID_UNLABELED;
+>  		hvalue = SIDTAB_HASH(sid);
+
+-- 
+paul moore
+www.paul-moore.com
