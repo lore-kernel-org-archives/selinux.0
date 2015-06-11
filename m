@@ -1,67 +1,40 @@
-Message-ID: <55799B47.1000801@tycho.nsa.gov>
-Date: Thu, 11 Jun 2015 10:29:27 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Sender: Sven Vermeulen <sven.j.vermeulen@gmail.com>
+Date: Thu, 11 Jun 2015 17:22:02 +0200
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] Only invoke RPM on RPM-enabled Linux distributions
+Message-ID: <20150611152202.GA13058@siphos.be>
+References: <20150609112624.GA10618@siphos.be> <5576D9CC.3020102@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-Subject: Re: [PATCH] selinux: do not remap unknown SIDs to the unlabeled
- context
-References: <1433855392-17188-1-git-send-email-sds@tycho.nsa.gov>
- <2812439.sEMCQPxe3C@sifl>
-In-Reply-To: <2812439.sEMCQPxe3C@sifl>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <5576D9CC.3020102@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/11/2015 10:24 AM, Paul Moore wrote:
-> On Tuesday, June 09, 2015 09:09:52 AM Stephen Smalley wrote:
->> SELinux remaps invalid SIDs to the unlabeled SID/context in order
->> to provide sane handling of objects whose SIDs become invalid upon
->> a policy reload (e.g. removal of a type from policy).  However,
->> this can also hide bugs and yield unexpected behavior, e.g. as described
->> in https://bugzilla.redhat.com/show_bug.cgi?id=1224211, if a program
->> sets SO_PASSSEC on a Unix stream socket, it will receive a SCM_SECURITY
->> control message with the unlabeled context because the secid is not
->> properly set/propagated for Unix stream sends, only for Unix datagram
->> sends, but the automatic remapping of any invalid SID to the unlabeled
->> context still produces a context to be returned when SO_PASSSEC is
->> set on the socket.  Since commit 12b29f34558b9b45a2c6eabd4f3c6be939a3980f
->> ("selinux: support deferred mapping of contexts") changed SELinux to not
->> remove invalid SIDs from the SID table but rather to retain them with a
->> copy of the unmapped context string so that the SID could be made valid
->> again if a subsequent policy reload made the context valid again, we no
->> longer need to map unknown SIDs to the unlabeled context, only SIDs that
->> have unmapped context strings.
->>
->> With this change applied, we get saner behavior for SCM_SECURITY on
->> Unix stream sockets:  the kernel will not put any SCM_SECURITY control
->> message at all rather than putting one with an unlabeled context.  If
->> we want to support SCM_SECURITY on Unix stream sockets, that can be
->> taken up as a separate change.  Regardless, this change will help catch
->> cases where a secid/SID is never set (0) or contain a value beyond the
->> set of allocated SIDs (e.g. never initialized and contains garbage).  The
->> change does not break the support for deferred mapping of contexts; one
->> can still insert a policy module that defines a type, label a file with
->> that type, remove the policy module (i.e. load a policy that does not
->> contain the type), check that the file's label is remapped to the
->> unlabeled context, re-insert the policy module that defined the type,
->> and see that the file's label is properly restored and valid.
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->>  security/selinux/ss/sidtab.c | 5 ++++-
->>  1 file changed, 4 insertions(+), 1 deletion(-)
+On Tue, Jun 09, 2015 at 08:19:24AM -0400, Stephen Smalley wrote:
+> On 06/09/2015 07:26 AM, Sven Vermeulen wrote:
+> > In this patch, we use the Python platform module to get the Linux
+> > distribution, and only start the RPM-related activities on Linux
+> > distributions that use RPM as their native package manager.
+> > 
+> > Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
 > 
-> This looks good to me thank for sending this patch.
-> 
-> Since SO_PASSSEC isn't widely used and/or documented I don't think there is 
-> any rush to push this for v4.2 since we've already done two pull requests for 
-> v4.2.  I'm also a little leery of changing such core behavior with little to 
-> no time in linux-next (although I will admit to being skeptical of the testing 
-> value of linux-next).  Unless someone can provide a very compelling reason why 
-> this needs to go into v4.2 I'm going to queue this up in my next-queue branch 
-> and apply it after the merge window is closed.
+> Is there a more general way that we could do this without hardcoding
+> checks of distribution names?  Maybe we could just test for the
+> existence of rpm?
 
-Sounds good to me.
+That wouldn't be sufficient.
+
+The rpm binary might be installed for other reasons. The code in sepolicy is
+used to query the rpm database and search for specific package names. This
+is distribution-specific behavior.
+
+If you rather check on the rpm binary, then additional checks will need to
+be added to make sure that the assumptions that the code takes (such as
+"selinux-policy" package being available) are valid as well.
+
+Wkr,
+        Sven Vermeulen
