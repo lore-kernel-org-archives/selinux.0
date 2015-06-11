@@ -1,70 +1,78 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: "'Greg KH'" <gregkh@linuxfoundation.org>
-Subject: RE: [PATCH] kernfs: hook inode initialization for LSMs
-Date: Fri, 12 Jun 2015 01:29:39 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC56010241E7@ORSMSX103.amr.corp.intel.com>
-References: <1433877101-31866-1-git-send-email-william.c.roberts@intel.com>
- <1433877101-31866-2-git-send-email-william.c.roberts@intel.com>
- <20150609210925.GB16038@kroah.com>
- <476DC76E7D1DF2438D32BFADF679FC560101BD9B@ORSMSX103.amr.corp.intel.com>
- <20150610160150.GA31100@kroah.com>
-In-Reply-To: <20150610160150.GA31100@kroah.com>
-Content-Type: text/plain; charset="us-ascii"
+Message-ID: <5579FAE0.9040201@hp.com>
+Date: Thu, 11 Jun 2015 17:17:20 -0400
+From: Waiman Long <waiman.long@hp.com>
 MIME-Version: 1.0
-Cc: "Selinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: reduce locking overhead in inode_free_security()
+References: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
+ <55798149.5070404@tycho.nsa.gov>
+In-Reply-To: <55798149.5070404@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: James Morris <james.l.morris@oracle.com>,
+ Scott J Norton <scott.norton@hp.com>, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-<snip>
-> > > > +	int error = 0;
-> > > >  	kernfs_get(kn);
-> > > >  	inode->i_private = kn;
-> > > >  	inode->i_mapping->a_ops = &kernfs_aops; @@ -291,6 +293,8 @@
-> > > static
-> > > > void kernfs_init_inode(struct kernfs_node *kn, struct inode *inode)
-> > > >  	set_default_inode_attr(inode, kn->mode);
-> > > >  	kernfs_refresh_inode(kn, inode);
-> > > >
-> > > > +	WARN_ON(kn->parent && !parent);
-> > >
-> > > What can a developer do about this?
-> > This means that the node has a parent, but you didn't pass it as its
-> > argument. Doing a lookup internally, instead Of passing parent,
-> > results in a recursive lookup all the way to the root node as to get
-> > the inode for The parent one must do a kernfs_get_inode() on it, which
-> > can call the initialization routine, which calls Kernfs_get_inode().
-> > What the developer should do is forward the inode from the parent so
-> > we can Avoid the recursive lookup and any lookup in general. This is
-> > based on where this was getting called from, the parent inode was
-> > readily available. That WARN_ON is not even strict enough, read
-> > further down I mention it again. The goal is that We don't end up
-> > skipping LSM initialization by accident, ie kn has parent but they do not pass
-> parent. Alternatively, We can move the warning (and make it proper) to right
-> before the LSM hook and make sure that parent arg And kn->parent are
-> either both specified or both unspecified ie XOR. !a != !b. Rather than litter
-> the top level functions With this warning. Also, I chose warn_on because I
-> didn't want it to be fatal, however, I am not arguing that its proper And am
-> seeking alternative suggestions.
->  
-> But again, what can a driver do about this?  If this shouldn't happen, then
-> don't test for it.  This isn't something that a driver developer should care
-> about, right?  If not, then is it something that the sysfs core could be doing?
-> If so, then fix the sysfs core.
+On 06/11/2015 08:38 AM, Stephen Smalley wrote:
+> On 06/10/2015 04:17 PM, Waiman Long wrote:
+>> The inode_free_security() function just took the superblock's isec_lock
+>> before checking and trying to remove the inode security struct from the
+>> linked list. In many cases, the list was empty and so the lock taking
+>> is wasteful as no useful work is done. On multi-socket systems with
+>> a large number of CPUs, there can also be a fair amount of spinlock
+>> contention on the isec_lock if many tasks are exiting at the same time.
+>>
+>> This patch changes the code to check the state of the list first
+>> before taking the lock and attempting to dequeue it. We still need
+>> to do the empty list test inside the lock for safety reason, but it
+>> minimizes the chance of unnecessary spinlock contention.
+>>
+>> Signed-off-by: Waiman Long<Waiman.Long@hp.com>
+>> ---
+>>   security/selinux/hooks.c |   17 +++++++++++++----
+>>   1 files changed, 13 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 7dade28..cd736c3 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode *inode)
+>>   	struct inode_security_struct *isec = inode->i_security;
+>>   	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+>>
+>> -	spin_lock(&sbsec->isec_lock);
+>> -	if (!list_empty(&isec->list))
+>> -		list_del_init(&isec->list);
+>> -	spin_unlock(&sbsec->isec_lock);
+>> +	/*
+>> +	 * As not all inode security structures are in a list, we check for
+>> +	 * empty list outside of the lock to make sure that we won't waste
+>> +	 * time taking a lock doing nothing. Lock taking can be slow
+>> +	 * especially if the lock is being contended. We do, however, need
+>> +	 * to recheck the list again before deleting it for safety.
+>> +	 */
+>> +	if (!list_empty(&isec->list)) {
+>> +		spin_lock(&sbsec->isec_lock);
+>> +		if (!list_empty(&isec->list))
+>> +			list_del_init(&isec->list);
+>> +		spin_unlock(&sbsec->isec_lock);
+>> +	}
+>>
+>>   	/*
+>>   	 * The inode may still be referenced in a path walk and
+>>
+> Do we really need the second list_empty() test at all?
+> Once removed, inode security structures are never re-added to the list.
+> For comparison, inode_sb_list_del() only tests list_empty() outside the
+> lock.
+>
 
-All of these modifications are to kernfs internal users and will not affect the users
-of kernfs (like cgroups and sysfs) from a modules perspective. In reality, the only
-Intended purpose was to keep someone from "in the future" accidentally modifying
-Kernfs and calling the wrong function. I guess serving that need is rather pointless.
+Yes, I think we can remove the second list_empty() test. I will update 
+the patch to do that.
 
-With that said, I have been thinking about the "too deep to unwind" comment you made.
-I guess I don't follow. Eventually that kernfs node and inode would come back from the init routine
-To eventually be undone at later time when things are removed from the cache. The reversal
-Process for kernfs looks like the inode eviction routine kernfs_evict_inode(). Which only handles
-Some of it (handles kernfs + readying the inode for eviction), the ref on the inode needs to be put,
-so an iput() should end up calling iput_final() and evict(inode). Although, this is just  from me
-browsing the code, I'd like to add a poison filename value to my test module that will cause an
-LSM failure and verify the failure case. The failure case, in theory should only be traversed on
-ENOMEM cases within the LSM itself. If there are more details I am missing, I'd be eager to
-Understand what they are.
+Cheers,
+Longman
