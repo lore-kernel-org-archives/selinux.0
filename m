@@ -1,92 +1,64 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BIQkGI029974
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BIQkGG029974
  for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 14:26:46 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 02/10] libsepol: Treat types like an attribute in the
- attr_type_map.
-Date: Thu, 11 Jun 2015 14:26:39 -0400
-Message-Id: <1434047207-25503-3-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 00/10] Improve libsepol and CIL neverallow and bounds checking
+Date: Thu, 11 Jun 2015 14:26:37 -0400
+Message-Id: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Types are treated as attributes that contain only themselves. This
-is how types are already treated in the type_attr_map.
+This patch set refactors libsepol's neverallow and bounds checking, refactors CIL's
+neverallow checking, and adds bounds checking to CIL.
 
-Treating types this way makes finding rules that apply to a given
-type much easier.
+It also results in improved memory usage and speed. With a test policy.conf derived
+from Refpolicy with typebounds statements added (but no violations of neverallow
+rules or type bounds) the following improvements are seen:
+Before: 9,605M of memory and 22.5 sec.
+Now   :   125M of memory and  2.1 sec.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/src/expand.c   | 26 +++++++++++++++++---------
- libsepol/src/policydb.c |  4 ++++
- 2 files changed, 21 insertions(+), 9 deletions(-)
+In addition to adding bounds checking to CIL. This patch set also improves the error
+reporting for neverallow rule violations and CIL will now report all violations
+instead of stopping at the first one.
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index b999890..cbd39df 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2317,25 +2317,33 @@ static int type_attr_map(hashtab_key_t key
- 	policydb_t *p = state->out;
- 	unsigned int i;
- 	ebitmap_node_t *tnode;
-+	int value;
- 
- 	type = (type_datum_t *) datum;
-+	value = type->s.value;
-+
- 	if (type->flavor == TYPE_ATTRIB) {
--		if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
--				&type->types)) {
--			ERR(state->handle, "Out of memory!");
--			return -1;
--		}
- 		ebitmap_for_each_bit(&type->types, tnode, i) {
- 			if (!ebitmap_node_get_bit(tnode, i))
- 				continue;
--			if (ebitmap_set_bit(&p->type_attr_map[i],
--					    type->s.value - 1, 1)) {
--				ERR(state->handle, "Out of memory!");
--				return -1;
-+			if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
-+				goto out;
- 			}
-+			if (ebitmap_set_bit(&p->attr_type_map[value - 1], i, 1)) {
-+				goto out;
-+			}
-+		}
-+	} else {
-+		if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1, 1)) {
-+			goto out;
- 		}
- 	}
-+
- 	return 0;
-+
-+out:
-+	ERR(state->handle, "Out of memory!");
-+	return -1;
- }
- 
- /* converts typeset using typemap and expands into ebitmap_t types using the attributes in the passed in policy.
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 8c3c7ac..be0c701 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -3936,6 +3936,10 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- 			/* add the type itself as the degenerate case */
- 			if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
- 				goto bad;
-+			if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
-+				if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
-+					goto bad;
-+			}
- 		}
- 	}
- 
+James Carter (10):
+  libsepol: Add new ebitmap function named ebitmap_match_any()
+  libsepol: Treat types like an attribute in the attr_type_map.
+  libsepol: Refactored neverallow checking.
+  libsepol: Refactored bounds (hierarchy) checking code
+  libsepol/cil: Add function to search the CIL AST for an AV rule.
+  libsepol/cil: Refactored CIL neverallow checking and reporting.
+  libsepol/cil: Track number of classes and number of types and
+    attributes.
+  libsepol/cil: Add CIL bounds checking and reporting.
+  secilc: Add a CIL policy file to test neverallow checking.
+  secilc: Add a CIL policy file to test bounds checking.
+
+ libsepol/cil/src/cil.c                      |    3 +-
+ libsepol/cil/src/cil_binary.c               |  684 +++++++++++++-----
+ libsepol/cil/src/cil_binary.h               |    8 +-
+ libsepol/cil/src/cil_find.c                 |  281 ++++++++
+ libsepol/cil/src/cil_find.h                 |   39 ++
+ libsepol/cil/src/cil_internal.h             |    2 +
+ libsepol/cil/src/cil_post.c                 |   26 +-
+ libsepol/include/sepol/policydb/ebitmap.h   |    1 +
+ libsepol/include/sepol/policydb/hierarchy.h |   11 +
+ libsepol/include/sepol/policydb/policydb.h  |    2 +-
+ libsepol/src/assertion.c                    |  225 +++---
+ libsepol/src/ebitmap.c                      |   22 +
+ libsepol/src/expand.c                       |   26 +-
+ libsepol/src/hierarchy.c                    | 1000 +++++++++++++++++----------
+ libsepol/src/policydb.c                     |    4 +
+ secilc/test/bounds.cil                      |  241 +++++++
+ secilc/test/neverallow.cil                  |   79 +++
+ 17 files changed, 1994 insertions(+), 660 deletions(-)
+ create mode 100644 libsepol/cil/src/cil_find.c
+ create mode 100644 libsepol/cil/src/cil_find.h
+ create mode 100644 secilc/test/bounds.cil
+ create mode 100644 secilc/test/neverallow.cil
+
 -- 
 1.9.3
