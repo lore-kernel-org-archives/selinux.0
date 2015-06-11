@@ -1,11 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BIQkGJ029974
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BIQkGL029974
  for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 14:26:46 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 03/10] libsepol: Refactored neverallow checking.
-Date: Thu, 11 Jun 2015 14:26:40 -0400
-Message-Id: <1434047207-25503-4-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 05/10] libsepol/cil: Add function to search the CIL AST for an
+ AV rule.
+Date: Thu, 11 Jun 2015 14:26:42 -0400
+Message-Id: <1434047207-25503-6-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,317 +14,352 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Instead of creating an expanded avtab, generating all of the avtab
-keys corresponding to a neverallow rule and searching for a match,
-walk the nodes in the avtab and use the attr_type_map and ebitmap
-functions to find matching rules.
+The search will be considered a success if any rule is found that
+at least partially matches all parts (src type, tgt type, and class-
+perms) of the target rule.
 
-Memory usage is reduced from 370M to 125M and time is reduced from
-14 sec to 2 sec. (Bounds checking commented out in both cases.)
+For example, for a target of (allow domain file_type (file (read write)
+the rule (allow init_t init_exec_t (file (read exec)) will match.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/include/sepol/policydb/policydb.h |   2 +-
- libsepol/src/assertion.c                   | 225 ++++++++++++++++++-----------
- 2 files changed, 145 insertions(+), 82 deletions(-)
+ libsepol/cil/src/cil_find.c | 281 ++++++++++++++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_find.h |  39 ++++++
+ 2 files changed, 320 insertions(+)
+ create mode 100644 libsepol/cil/src/cil_find.c
+ create mode 100644 libsepol/cil/src/cil_find.h
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 1d8310c..b3cf9db 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -652,7 +652,7 @@ extern void level_datum_init(level_datum_t * x);
- extern void level_datum_destroy(level_datum_t * x);
- extern void cat_datum_init(cat_datum_t * x);
- extern void cat_datum_destroy(cat_datum_t * x);
--
-+extern int check_assertion(policydb_t *p, avrule_t *avrule);
- extern int check_assertions(sepol_handle_t * handle,
- 			    policydb_t * p, avrule_t * avrules);
- 
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index c335968..35698df 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -27,11 +27,16 @@
- 
- #include "debug.h"
- 
--static void report_failure(sepol_handle_t *handle, policydb_t *p,
--			   const avrule_t * avrule,
-+struct avtab_match_args {
-+	sepol_handle_t *handle;
-+	policydb_t *p;
-+	avrule_t *avrule;
-+	unsigned long errors;
+diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
+new file mode 100644
+index 0000000..1eda966
+--- /dev/null
++++ b/libsepol/cil/src/cil_find.c
+@@ -0,0 +1,281 @@
++/*
++ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *    1. Redistributions of source code must retain the above copyright notice,
++ *       this list of conditions and the following disclaimer.
++ *
++ *    2. Redistributions in binary form must reproduce the above copyright notice,
++ *       this list of conditions and the following disclaimer in the documentation
++ *       and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
++ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
++ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * The views and conclusions contained in the software and documentation are those
++ * of the authors and should not be interpreted as representing official policies,
++ * either expressed or implied, of Tresys Technology, LLC.
++ */
++
++#include <sepol/policydb/ebitmap.h>
++
++#include "cil_internal.h"
++#include "cil_flavor.h"
++#include "cil_list.h"
++#include "cil_log.h"
++#include "cil_symtab.h"
++
++struct cil_args_find {
++	enum cil_flavor flavor;
++	void *target;
++	struct cil_list *matching;
++	int match_self;
 +};
 +
-+static void report_failure(sepol_handle_t *handle, policydb_t *p, const avrule_t *avrule,
- 			   unsigned int stype, unsigned int ttype,
--			   const class_perm_node_t *curperm,
--			   const avtab_ptr_t node)
-+			   const class_perm_node_t *curperm, uint32_t perms)
- {
- 	if (avrule->source_filename) {
- 		ERR(handle, "neverallow on line %lu of %s (or line %lu of policy.conf) violated by allow %s %s:%s {%s };",
-@@ -39,69 +44,164 @@ static void report_failure(sepol_handle_t *handle, policydb_t *p,
- 		    p->p_type_val_to_name[stype],
- 		    p->p_type_val_to_name[ttype],
- 		    p->p_class_val_to_name[curperm->tclass - 1],
--		    sepol_av_to_string(p, curperm->tclass,
--				       node->datum.data & curperm->data));
-+		    sepol_av_to_string(p, curperm->tclass, perms));
- 	} else if (avrule->line) {
- 		ERR(handle, "neverallow on line %lu violated by allow %s %s:%s {%s };",
- 		    avrule->line, p->p_type_val_to_name[stype],
- 		    p->p_type_val_to_name[ttype],
- 		    p->p_class_val_to_name[curperm->tclass - 1],
--		    sepol_av_to_string(p, curperm->tclass,
--				       node->datum.data & curperm->data));
-+		    sepol_av_to_string(p, curperm->tclass, perms));
- 	} else {
- 		ERR(handle, "neverallow violated by allow %s %s:%s {%s };",
- 		    p->p_type_val_to_name[stype],
- 		    p->p_type_val_to_name[ttype],
- 		    p->p_class_val_to_name[curperm->tclass - 1],
--		    sepol_av_to_string(p, curperm->tclass,
--				       node->datum.data & curperm->data));
-+		    sepol_av_to_string(p, curperm->tclass, perms));
- 	}
- }
- 
--static unsigned long check_assertion_helper(sepol_handle_t * handle,
--				  policydb_t * p,
--				  avtab_t * te_avtab, avtab_t * te_cond_avtab,
--				  unsigned int stype, unsigned int ttype,
--				  const avrule_t * avrule)
-+static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void *args)
- {
--	avtab_key_t avkey;
--	avtab_ptr_t node;
--	class_perm_node_t *curperm;
--	unsigned long errors = 0;
-+	struct avtab_match_args *a = (struct avtab_match_args *)args;
-+	sepol_handle_t *handle = a->handle;
-+	policydb_t *p = a->p;
-+	avrule_t *avrule = a->avrule;
-+	class_perm_node_t *cp;
-+	uint32_t perms;
-+	ebitmap_t src_matches, tgt_matches;
-+	ebitmap_node_t *snode, *tnode;
-+	unsigned int i, j;
- 
--	for (curperm = avrule->perms; curperm != NULL; curperm = curperm->next) {
--		avkey.source_type = stype + 1;
--		avkey.target_type = ttype + 1;
--		avkey.target_class = curperm->tclass;
--		avkey.specified = AVTAB_ALLOWED;
--		for (node = avtab_search_node(te_avtab, &avkey);
--		     node != NULL;
--		     node = avtab_search_node_next(node, avkey.specified)) {
--			if (node->datum.data & curperm->data) {
--				report_failure(handle, p, avrule, stype, ttype, curperm, node);
--				errors++;
--			}
-+	if (k->specified != AVTAB_ALLOWED)
-+		goto exit;
-+
-+	for (cp = avrule->perms; cp; cp = cp->next) {
-+		perms = cp->data & d->data;
-+		if ((cp->tclass != k->target_class) || !perms) {
-+			continue;
-+		}
-+
-+		ebitmap_and(&src_matches, &avrule->stypes.types,
-+			    &p->attr_type_map[k->source_type - 1]);
-+		if (ebitmap_length(&src_matches) == 0)
-+			continue;
-+
-+		if (avrule->flags == RULE_SELF) {
-+			ebitmap_t matches;
-+			ebitmap_init(&matches);
-+			ebitmap_and(&matches, &p->attr_type_map[k->source_type - 1], &p->attr_type_map[k->target_type - 1]);
-+			ebitmap_and(&tgt_matches, &avrule->stypes.types, &matches);
-+			ebitmap_destroy(&matches);
++static int cil_ebitmap_match_any(ebitmap_t *e1, ebitmap_t *e2)
++{
++	/* abusing the ebitmap abstraction for speed */
++	ebitmap_node_t *n1 = e1->node;
++	ebitmap_node_t *n2 = e2->node;
++	while (n1 && n2) {
++		if (n1->startbit < n2->startbit) {
++			n1 = n1->next;
++		} else if (n2->startbit < n1->startbit) {
++			n2 = n2->next;
 +		} else {
-+			ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
-+		}
-+
-+		if (ebitmap_length(&tgt_matches) == 0) {
-+			ebitmap_destroy(&src_matches);
-+			continue;
- 		}
--		for (node = avtab_search_node(te_cond_avtab, &avkey);
--		     node != NULL;
--		     node = avtab_search_node_next(node, avkey.specified)) {
--			if (node->datum.data & curperm->data) {
--				report_failure(handle, p, avrule, stype, ttype, curperm, node);
--				errors++;
-+
-+		ebitmap_for_each_bit(&src_matches, snode, i) {
-+			if (!ebitmap_node_get_bit(snode, i))
-+				continue;
-+			ebitmap_for_each_bit(&tgt_matches, tnode, j) {
-+				if (!ebitmap_node_get_bit(tnode, j))
-+					continue;
-+				a->errors++;
-+				report_failure(handle, p, avrule, i, j, cp, perms);
- 			}
- 		}
- 	}
- 
--	return errors;
-+exit:
-+	return 0;
-+}
-+
-+int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avrule_t *avrule)
-+{
-+	struct avtab_match_args args;
-+
-+	args.handle = handle;
-+	args.p = p;
-+	args.avrule = avrule;
-+	args.errors = 0;
-+
-+	avtab_map(&p->te_avtab, report_assertion_avtab_matches, &args);
-+	avtab_map(&p->te_cond_avtab, report_assertion_avtab_matches, &args);
-+
-+	return args.errors;
-+}
-+
-+static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *args)
-+{
-+	int rc;
-+	struct avtab_match_args *a = (struct avtab_match_args *)args;
-+	policydb_t *p = a->p;
-+	avrule_t *avrule = a->avrule;
-+	class_perm_node_t *cp;
-+
-+	if (k->specified != AVTAB_ALLOWED)
-+		goto exit;
-+
-+	for (cp = avrule->perms; cp; cp = cp->next) {
-+		if ((cp->tclass == k->target_class) && (cp->data & d->data)) {
-+			break;
++			if (n1->map & n2->map) {
++				return CIL_TRUE;
++			}
++			n1 = n1->next;
++			n2 = n2->next;
 +		}
 +	}
-+	if (!cp)
-+		goto exit;
++	return CIL_FALSE;
++}
 +
-+	rc = ebitmap_match_any(&avrule->stypes.types, &p->attr_type_map[k->source_type - 1]);
-+	if (rc == 0)
-+		goto exit;
++static int cil_type_match_any(struct cil_symtab_datum *d1, struct cil_symtab_datum *d2)
++{
++	enum cil_flavor f1 = ((struct cil_tree_node*)d1->nodes->head->data)->flavor;
++	enum cil_flavor f2 = ((struct cil_tree_node*)d2->nodes->head->data)->flavor;
 +
-+	if (avrule->flags == RULE_SELF) {
-+		/* If the neverallow uses SELF, then it is not enough that the
-+		 * neverallow's source matches the src and tgt of the rule being checked.
-+		 * It must match the same thing in the src and tgt, so AND the source
-+		 * and target together and check for a match on the result.
-+		 */
-+		ebitmap_t match;
-+		ebitmap_init(&match);
-+		ebitmap_and(&match, &p->attr_type_map[k->source_type - 1], &p->attr_type_map[k->target_type - 1] );
-+		rc = ebitmap_match_any(&avrule->stypes.types, &match);
-+		ebitmap_destroy(&match);
++	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_type *t1 = (struct cil_type *)d1;
++		struct cil_type *t2 = (struct cil_type *)d2;
++		if (t1->value == t2->value) {
++			return CIL_TRUE;
++		}
++	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
++		struct cil_type *t = (struct cil_type *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			return CIL_TRUE;
++		}
++	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
++		struct cil_type *t = (struct cil_type *)d1;
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			return CIL_TRUE;
++		}
 +	} else {
-+		rc = ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
++		/* Both are attributes */
++		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
++		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
++		return cil_ebitmap_match_any(a1->types, a2->types);
 +	}
-+	if (rc == 0)
-+		goto exit;
-+
-+	return 1;
-+
-+exit:
-+	return 0;
++	return CIL_FALSE;
 +}
 +
-+int check_assertion(policydb_t *p, avrule_t *avrule)
++static void cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, struct cil_symtab_datum *d2)
++{
++	enum cil_flavor f1 = ((struct cil_tree_node*)d1->nodes->head->data)->flavor;
++	enum cil_flavor f2 = ((struct cil_tree_node*)d2->nodes->head->data)->flavor;
++
++	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_type *t1 = (struct cil_type *)d1;
++		struct cil_type *t2 = (struct cil_type *)d2;
++		if (t1->value == t2->value) {
++			ebitmap_set_bit(matches, t1->value, 1);
++		}
++	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
++		struct cil_type *t = (struct cil_type *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			ebitmap_set_bit(matches, t->value, 1);
++		}
++	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
++		struct cil_type *t = (struct cil_type *)d1;
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			ebitmap_set_bit(matches, t->value, 1);
++		}
++	} else {
++		/* Both are attributes */
++		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
++		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
++		ebitmap_and(matches, a1->types, a2->types);
++	}
++}
++
++/* s1 is the src type that is matched with a self
++ * s2, and t2 are the source and type of the other rule
++ */
++static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
++{
++	struct cil_tree_node *n1 = s1->nodes->head->data;
++	if (n1->flavor != CIL_TYPEATTRIBUTE) {
++		return cil_type_match_any(s1, t2);
++	} else {
++		int rc;
++		struct cil_typeattribute *a = (struct cil_typeattribute *)s1;
++		ebitmap_t map;
++		ebitmap_init(&map);
++		cil_type_matches(&map, s2, t2);
++		if (map.node == NULL) {
++			return CIL_FALSE;
++		}
++		rc = cil_ebitmap_match_any(&map, a->types);
++		ebitmap_destroy(&map);
++		return rc;
++	}
++}
++
++static int cil_classperms_match_any(struct cil_classperms *cp1, struct cil_classperms *cp2)
++{
++	struct cil_class *c1 = cp1->class;
++	struct cil_class *c2 = cp2->class;
++	struct cil_list_item *i1, *i2;
++
++	if (&c1->datum != &c2->datum) return CIL_FALSE;
++
++	cil_list_for_each(i1, cp1->perms) {
++		struct cil_perm *p1 = i1->data;
++		cil_list_for_each(i2, cp2->perms) {
++			struct cil_perm *p2 = i2->data;
++			if (&p1->datum == &p2->datum) return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
++
++static int __cil_classperms_list_match_any(struct cil_classperms *cp1, struct cil_list *cpl2)
 +{
 +	int rc;
-+	struct avtab_match_args args;
++	struct cil_list_item *curr;
 +
-+	args.handle = NULL;
-+	args.p = p;
-+	args.avrule = avrule;
-+	args.errors = 0;
++	cil_list_for_each(curr, cpl2) {
++		if (curr->flavor == CIL_CLASSPERMS) {
++			struct cil_classperms *cp = curr->data;
++			if (FLAVOR(cp->class) == CIL_CLASS) {
++				rc = cil_classperms_match_any(cp1, cp);
++				if (rc == CIL_TRUE) return CIL_TRUE;
++			} else { /* MAP */
++				struct cil_list_item *i = NULL;
++				cil_list_for_each(i, cp->perms) {
++					struct cil_perm *cmp = i->data;
++					rc = __cil_classperms_list_match_any(cp1, cmp->classperms);
++					if (rc == CIL_TRUE) return CIL_TRUE;
++				}
++			}
++		} else { /* SET */
++			struct cil_classperms_set *cp_set = curr->data;
++			struct cil_classpermission *cp = cp_set->set;
++			rc = __cil_classperms_list_match_any(cp1, cp->classperms);
++			if (rc == CIL_TRUE) return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
 +
-+	rc = avtab_map(&p->te_avtab, check_assertion_avtab_match, &args);
++static int cil_classperms_list_match_any(struct cil_list *cpl1, struct cil_list *cpl2)
++{
++	int rc;
++	struct cil_list_item *curr;
 +
-+	if (rc == 0) {
-+		rc = avtab_map(&p->te_cond_avtab, check_assertion_avtab_match, &args);
++	cil_list_for_each(curr, cpl1) {
++		if (curr->flavor == CIL_CLASSPERMS) {
++			struct cil_classperms *cp = curr->data;
++			if (FLAVOR(cp->class) == CIL_CLASS) {
++				rc = __cil_classperms_list_match_any(cp, cpl2);
++				if (rc == CIL_TRUE) return CIL_TRUE;
++			} else { /* MAP */
++				struct cil_list_item *i = NULL;
++				cil_list_for_each(i, cp->perms) {
++					struct cil_perm *cmp = i->data;
++					rc = cil_classperms_list_match_any(cmp->classperms, cpl2);
++					if (rc == CIL_TRUE) return CIL_TRUE;
++				}
++			}
++		} else { /* SET */
++			struct cil_classperms_set *cp_set = curr->data;
++			struct cil_classpermission *cp = cp_set->set;
++			rc = cil_classperms_list_match_any(cp->classperms, cpl2);
++			if (rc == CIL_TRUE) return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
++
++void cil_find_matching_avrule(struct cil_tree_node *node, struct cil_avrule *avrule, struct cil_avrule *target, struct cil_list *matching, int match_self)
++{
++	struct cil_symtab_datum *s1 = avrule->src;
++	struct cil_symtab_datum *t1 = avrule->tgt;
++	struct cil_list *cp1 = avrule->classperms;
++	struct cil_symtab_datum *s2 = target->src;
++	struct cil_symtab_datum *t2 = target->tgt;
++	struct cil_list *cp2 = target->classperms;
++
++	if (match_self != CIL_TRUE && avrule == target) return;
++
++	if (avrule->rule_kind != target->rule_kind) return;
++
++	if (!cil_type_match_any(s1, s2)) return;
++
++	if (t1->fqn != CIL_KEY_SELF && t2->fqn != CIL_KEY_SELF) {
++		if (!cil_type_match_any(t1, t2)) return;
++	} else {
++		if (t1->fqn == CIL_KEY_SELF && t2->fqn == CIL_KEY_SELF) {
++			/* The earlier check whether s1 and s2 matches is all that is needed */
++		} else if (t1->fqn == CIL_KEY_SELF) {
++			if (!cil_self_match_any(s1, s2, t2)) return;
++		} else if (t2->fqn == CIL_KEY_SELF) {
++			if (!cil_self_match_any(s2, s1, t1)) return;
++		}
 +	}
 +
-+	return rc;
- }
- 
- int check_assertions(sepol_handle_t * handle, policydb_t * p,
- 		     avrule_t * avrules)
- {
-+	int rc;
- 	avrule_t *a;
--	avtab_t te_avtab, te_cond_avtab;
--	ebitmap_node_t *snode, *tnode;
--	unsigned int i, j;
- 	unsigned long errors = 0;
- 
- 	if (!avrules) {
-@@ -111,54 +211,17 @@ int check_assertions(sepol_handle_t * handle, policydb_t * p,
- 		return 0;
- 	}
- 
--	if (avrules) {
--		if (avtab_init(&te_avtab))
--			goto oom;
--		if (avtab_init(&te_cond_avtab)) {
--			avtab_destroy(&te_avtab);
--			goto oom;
--		}
--		if (expand_avtab(p, &p->te_avtab, &te_avtab) ||
--		    expand_avtab(p, &p->te_cond_avtab, &te_cond_avtab)) {
--			avtab_destroy(&te_avtab);
--			avtab_destroy(&te_cond_avtab);
--			goto oom;
--		}
--	}
--
- 	for (a = avrules; a != NULL; a = a->next) {
--		ebitmap_t *stypes = &a->stypes.types;
--		ebitmap_t *ttypes = &a->ttypes.types;
--
- 		if (!(a->specified & AVRULE_NEVERALLOW))
- 			continue;
--
--		ebitmap_for_each_bit(stypes, snode, i) {
--			if (!ebitmap_node_get_bit(snode, i))
--				continue;
--			if (a->flags & RULE_SELF) {
--				errors += check_assertion_helper
--				    (handle, p, &te_avtab, &te_cond_avtab, i, i,
--				     a);
--			}
--			ebitmap_for_each_bit(ttypes, tnode, j) {
--				if (!ebitmap_node_get_bit(tnode, j))
--					continue;
--				errors += check_assertion_helper
--				    (handle, p, &te_avtab, &te_cond_avtab, i, j,
--				     a);
--			}
-+		rc = check_assertion(p, a);
-+		if (rc) {
-+			errors += report_assertion_failures(handle, p, a);
- 		}
- 	}
- 
- 	if (errors)
- 		ERR(handle, "%lu neverallow failures occurred", errors);
- 
--	avtab_destroy(&te_avtab);
--	avtab_destroy(&te_cond_avtab);
- 	return errors ? -1 : 0;
--
--      oom:
--	ERR(handle, "Out of memory - unable to check neverallows");
--	return -1;
- }
++	if (cil_classperms_list_match_any(cp1, cp2)) {
++		cil_list_append(matching, CIL_NODE, node);
++	}
++}
++
++static int __cil_find_matching_avrule_in_ast(struct cil_tree_node *node,  __attribute__((unused)) uint32_t *finished, void *extra_args)
++{
++	struct cil_args_find *args = extra_args;
++
++	if (node->flavor == CIL_AVRULE) {
++		cil_find_matching_avrule(node, node->data, args->target, args->matching, args->match_self);
++	}
++
++	return SEPOL_OK;
++}
++
++void cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flavor flavor, void *target, struct cil_list *matching, int match_self)
++{
++	struct cil_args_find args;
++
++	args.flavor = flavor;
++	args.target = target;
++	args.matching = matching;
++	args.match_self = match_self;
++
++	cil_tree_walk(current, __cil_find_matching_avrule_in_ast, NULL, NULL, &args);
++}
+diff --git a/libsepol/cil/src/cil_find.h b/libsepol/cil/src/cil_find.h
+new file mode 100644
+index 0000000..cda9134
+--- /dev/null
++++ b/libsepol/cil/src/cil_find.h
+@@ -0,0 +1,39 @@
++/*
++ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *    1. Redistributions of source code must retain the above copyright notice,
++ *       this list of conditions and the following disclaimer.
++ *
++ *    2. Redistributions in binary form must reproduce the above copyright notice,
++ *       this list of conditions and the following disclaimer in the documentation
++ *       and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
++ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
++ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * The views and conclusions contained in the software and documentation are those
++ * of the authors and should not be interpreted as representing official policies,
++ * either expressed or implied, of Tresys Technology, LLC.
++ */
++
++#include "cil_flavor.h"
++#include "cil_tree.h"
++#include "cil_list.h"
++
++#ifndef CIL_FIND_H_
++#define CIL_FIND_H_
++
++void cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flavor flavor, void *target, struct cil_list *matching, int match_self);
++
++#endif
 -- 
 1.9.3
