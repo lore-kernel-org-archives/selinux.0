@@ -1,40 +1,34 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BFcqjG017826
+ for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 11:38:52 -0400
+Received: by wibbw19 with SMTP id bw19so3950079wib.2
+ for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 08:38:50 -0700 (PDT)
+Received: from siphos.be (ip-81-11-253-41.dsl.scarlet.be. [81.11.253.41])
+ by mx.google.com with ESMTPSA id u6sm1588802wja.40.2015.06.11.08.38.48
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128/128);
+ Thu, 11 Jun 2015 08:38:49 -0700 (PDT)
 Sender: Sven Vermeulen <sven.j.vermeulen@gmail.com>
-Date: Thu, 11 Jun 2015 17:22:02 +0200
+Date: Thu, 11 Jun 2015 17:38:31 +0200
 From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] Only invoke RPM on RPM-enabled Linux distributions
-Message-ID: <20150611152202.GA13058@siphos.be>
-References: <20150609112624.GA10618@siphos.be> <5576D9CC.3020102@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: Why does semanage_migrate_store migrate file_contexts.local?
+Message-ID: <20150611153831.GA15810@siphos.be>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-In-Reply-To: <5576D9CC.3020102@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 09, 2015 at 08:19:24AM -0400, Stephen Smalley wrote:
-> On 06/09/2015 07:26 AM, Sven Vermeulen wrote:
-> > In this patch, we use the Python platform module to get the Linux
-> > distribution, and only start the RPM-related activities on Linux
-> > distributions that use RPM as their native package manager.
-> > 
-> > Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
-> 
-> Is there a more general way that we could do this without hardcoding
-> checks of distribution names?  Maybe we could just test for the
-> existence of rpm?
+I noticed that /var/lib/selinux/msc/active on my system contained a stale
+file_contexts.local file. Whenever the policy is rebuild (using "semanage
+-B") this file is moved along to the new active store.
 
-That wouldn't be sufficient.
-
-The rpm binary might be installed for other reasons. The code in sepolicy is
-used to query the rpm database and search for specific package names. This
-is distribution-specific behavior.
-
-If you rather check on the rpm binary, then additional checks will need to
-be added to make sure that the assumptions that the code takes (such as
-"selinux-policy" package being available) are valid as well.
+However, the file_contexts.local that is used by the utilities (such as
+matchpathcon, semanage fcontext, restorecon) is the one inside
+/etc/selinux/mcs/contexts/files. I'm thus assuming that the
+file_contexts.local file insode /var/lib/selinux/mcs/active can be removed.
 
 Wkr,
         Sven Vermeulen
