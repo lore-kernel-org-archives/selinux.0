@@ -1,80 +1,127 @@
-Message-ID: <557AD7BB.70906@tycho.nsa.gov>
-Date: Fri, 12 Jun 2015 08:59:39 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <557AD86B.5080700@tycho.nsa.gov>
+Date: Fri, 12 Jun 2015 09:02:35 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] Only invoke RPM on RPM-enabled Linux distributions
-References: <20150609112624.GA10618@siphos.be>
-In-Reply-To: <20150609112624.GA10618@siphos.be>
-Content-Type: text/plain; charset=windows-1252
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 02/10] libsepol: Treat types like an attribute in the
+ attr_type_map.
+References: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1434047207-25503-3-git-send-email-jwcart2@tycho.nsa.gov>
+ <5579E99E.1060502@tycho.nsa.gov> <557ACD39.9020108@tycho.nsa.gov>
+ <557ACF1A.4020103@tycho.nsa.gov>
+In-Reply-To: <557ACF1A.4020103@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/09/2015 07:26 AM, Sven Vermeulen wrote:
-> When calling "sepolgen generate" to automatically generate a SELinux
-> policy template, the command fails when it cannot invoke RPM related
-> commands on Linux distributions that do not support RPM by default:
-> 
-> Failed to retrieve rpm info for selinux-policy
-> Traceback (most recent call last):
->   File "/usr/lib/python-exec/python2.7/sepolicy", line 643, in <module>
->     args.func(args)
->   File "/usr/lib/python-exec/python2.7/sepolicy", line 517, in generate
->     print mypolicy.generate(args.path)
->   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1370, in generate
->     out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
->   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1219, in write_spec
->     fd.write(self.generate_spec())
->   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1181, in generate_spec
->     selinux_policyver = get_rpm_nvr_list("selinux-policy")[1]
-> TypeError: 'NoneType' object has no attribute '__getitem__'
-> 
-> As the RPM related steps are only needed on RPM-enabled distributions,
-> we should ignore these steps on other Linux distribution platforms.
-> 
-> In this patch, we use the Python platform module to get the Linux
-> distribution, and only start the RPM-related activities on Linux
-> distributions that use RPM as their native package manager.
-> 
-> Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+On 06/12/2015 08:22 AM, Stephen Smalley wrote:
+> On 06/12/2015 08:14 AM, James Carter wrote:
+>> On 06/11/2015 04:03 PM, Stephen Smalley wrote:
+>>> On 06/11/2015 02:26 PM, James Carter wrote:
+>>>> Types are treated as attributes that contain only themselves. This
+>>>> is how types are already treated in the type_attr_map.
+>>>>
+>>>> Treating types this way makes finding rules that apply to a given
+>>>> type much easier.
+>>>>
+>>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>>>> ---
+>>>>    libsepol/src/expand.c   | 26 +++++++++++++++++---------
+>>>>    libsepol/src/policydb.c |  4 ++++
+>>>>    2 files changed, 21 insertions(+), 9 deletions(-)
+>>>>
+>>>> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+>>>> index b999890..cbd39df 100644
+>>>> --- a/libsepol/src/expand.c
+>>>> +++ b/libsepol/src/expand.c
+>>>> @@ -2317,25 +2317,33 @@ static int type_attr_map(hashtab_key_t key
+>>>>        policydb_t *p = state->out;
+>>>>        unsigned int i;
+>>>>        ebitmap_node_t *tnode;
+>>>> +    int value;
+>>>>
+>>>>        type = (type_datum_t *) datum;
+>>>> +    value = type->s.value;
+>>>> +
+>>>>        if (type->flavor == TYPE_ATTRIB) {
+>>>> -        if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
+>>>> -                &type->types)) {
+>>>> -            ERR(state->handle, "Out of memory!");
+>>>> -            return -1;
+>>>> -        }
+>>>>            ebitmap_for_each_bit(&type->types, tnode, i) {
+>>>>                if (!ebitmap_node_get_bit(tnode, i))
+>>>>                    continue;
+>>>> -            if (ebitmap_set_bit(&p->type_attr_map[i],
+>>>> -                        type->s.value - 1, 1)) {
+>>>> -                ERR(state->handle, "Out of memory!");
+>>>> -                return -1;
+>>>> +            if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
+>>>> +                goto out;
+>>>>                }
+>>>> +            if (ebitmap_set_bit(&p->attr_type_map[value - 1], i, 1)) {
+>>>> +                goto out;
+>>>
+>>> Why populate attr_type_map here via individual ebitmap_set_bit() calls
+>>> rather than just a single ebitmap_cpy() as above?
+>>>
+>>
+>> I was conflicted on what was the best way to do this. The ebitmap_cpy()
+>> does an ebitmap_init() and I thought that it might be clearer to leave
+>> the ebitmap_init() close to where the attr_type_map is malloc'd.
+>>
+>> I could use ebitmap_union() here if you would prefer.
+>
+> ebitmap_init() is just a memset so it doesn't hurt to do it more than
+> once.  And you only set attr_type_map[n] once, at this point, so no need
+> to union as there is no pre-existing value. That's why we just did an
+> ebitmap_cpy above.
+>
 
-Thanks, applied.
+Ok. I'll use ebitmap_cpy() then.
 
-> ---
->  policycoreutils/sepolicy/sepolicy/generate.py | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/policycoreutils/sepolicy/sepolicy/generate.py b/policycoreutils/sepolicy/sepolicy/generate.py
-> index 6b53035..4858582 100644
-> --- a/policycoreutils/sepolicy/sepolicy/generate.py
-> +++ b/policycoreutils/sepolicy/sepolicy/generate.py
-> @@ -26,6 +26,7 @@ import re
->  import sepolicy
->  from sepolicy import get_all_types, get_all_attributes, get_all_roles
->  import time
-> +import platform
->  
->  from templates import executable
->  from templates import boolean
-> @@ -1171,7 +1172,8 @@ allow %s_t %s_t:%s_socket name_%s;
->  			newsh += re.sub("TEMPLATETYPE", self.name, t1)
->  
->                  newsh += self.generate_user_sh()
-> -                newsh += re.sub("TEMPLATEFILE", self.file_name, script.rpm)
-> +                if (platform.linux_distribution(full_distribution_name=0)[0] in ("redhat","centos","SuSE","fedora","mandrake","mandriva")):
-> +                    newsh += re.sub("TEMPLATEFILE", self.file_name, script.rpm)
->  
->  		return newsh
->  
-> @@ -1367,6 +1369,7 @@ Warning %s does not exist
->              out += "%s # %s\n" % (self.write_if(out_dir), _("Interface file"))
->              out += "%s # %s\n" % (self.write_fc(out_dir), _("File Contexts file"))
->              if self.type != NEWTYPE:
-> -                out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
-> +                if (platform.linux_distribution(full_distribution_name=0)[0] in ("redhat","centos","SuSE","fedora","mandrake","mandriva")):
-> +                    out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
->                  out += "%s # %s\n" % (self.write_sh(out_dir), _("Setup Script"))
->              return out
-> 
+>>
+>>>> +            }
+>>>> +        }
+>>>> +    } else {
+>>>> +        if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1,
+>>>> 1)) {
+>>>> +            goto out;
+>>>>            }
+>>>>        }
+>>>> +
+>>>>        return 0;
+>>>> +
+>>>> +out:
+>>>> +    ERR(state->handle, "Out of memory!");
+>>>> +    return -1;
+>>>>    }
+>>>>
+>>>>    /* converts typeset using typemap and expands into ebitmap_t types
+>>>> using the attributes in the passed in policy.
+>>>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+>>>> index 8c3c7ac..be0c701 100644
+>>>> --- a/libsepol/src/policydb.c
+>>>> +++ b/libsepol/src/policydb.c
+>>>> @@ -3936,6 +3936,10 @@ int policydb_read(policydb_t * p, struct
+>>>> policy_file *fp, unsigned verbose)
+>>>>                /* add the type itself as the degenerate case */
+>>>>                if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
+>>>>                    goto bad;
+>>>> +            if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
+>>>> +                if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
+>>>> +                    goto bad;
+>>>> +            }
+>>>>            }
+>>>>        }
+>>>>
+>>>>
+>>
+>>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
