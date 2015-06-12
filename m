@@ -1,117 +1,78 @@
-Message-ID: <557ACF1A.4020103@tycho.nsa.gov>
-Date: Fri, 12 Jun 2015 08:22:50 -0400
+Message-ID: <557AD10D.6060200@tycho.nsa.gov>
+Date: Fri, 12 Jun 2015 08:31:09 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 02/10] libsepol: Treat types like an attribute in the
- attr_type_map.
-References: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1434047207-25503-3-git-send-email-jwcart2@tycho.nsa.gov>
- <5579E99E.1060502@tycho.nsa.gov> <557ACD39.9020108@tycho.nsa.gov>
-In-Reply-To: <557ACD39.9020108@tycho.nsa.gov>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
+ Waiman Long <Waiman.Long@hp.com>
+Subject: Re: [PATCH v2] selinux: reduce locking overhead in
+ inode_free_security()
+References: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
+ <557A7B91.4000502@linux.vnet.ibm.com>
+In-Reply-To: <557A7B91.4000502@linux.vnet.ibm.com>
 Content-Type: text/plain; charset=windows-1252
+Cc: James Morris <james.l.morris@oracle.com>,
+ Scott J Norton <scott.norton@hp.com>, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/12/2015 08:14 AM, James Carter wrote:
-> On 06/11/2015 04:03 PM, Stephen Smalley wrote:
->> On 06/11/2015 02:26 PM, James Carter wrote:
->>> Types are treated as attributes that contain only themselves. This
->>> is how types are already treated in the type_attr_map.
->>>
->>> Treating types this way makes finding rules that apply to a given
->>> type much easier.
->>>
->>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->>> ---
->>>   libsepol/src/expand.c   | 26 +++++++++++++++++---------
->>>   libsepol/src/policydb.c |  4 ++++
->>>   2 files changed, 21 insertions(+), 9 deletions(-)
->>>
->>> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
->>> index b999890..cbd39df 100644
->>> --- a/libsepol/src/expand.c
->>> +++ b/libsepol/src/expand.c
->>> @@ -2317,25 +2317,33 @@ static int type_attr_map(hashtab_key_t key
->>>       policydb_t *p = state->out;
->>>       unsigned int i;
->>>       ebitmap_node_t *tnode;
->>> +    int value;
->>>
->>>       type = (type_datum_t *) datum;
->>> +    value = type->s.value;
->>> +
->>>       if (type->flavor == TYPE_ATTRIB) {
->>> -        if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
->>> -                &type->types)) {
->>> -            ERR(state->handle, "Out of memory!");
->>> -            return -1;
->>> -        }
->>>           ebitmap_for_each_bit(&type->types, tnode, i) {
->>>               if (!ebitmap_node_get_bit(tnode, i))
->>>                   continue;
->>> -            if (ebitmap_set_bit(&p->type_attr_map[i],
->>> -                        type->s.value - 1, 1)) {
->>> -                ERR(state->handle, "Out of memory!");
->>> -                return -1;
->>> +            if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
->>> +                goto out;
->>>               }
->>> +            if (ebitmap_set_bit(&p->attr_type_map[value - 1], i, 1)) {
->>> +                goto out;
+On 06/12/2015 02:26 AM, Raghavendra K T wrote:
+> On 06/12/2015 03:01 AM, Waiman Long wrote:
+>> The inode_free_security() function just took the superblock's isec_lock
+>> before checking and trying to remove the inode security struct from the
+>> linked list. In many cases, the list was empty and so the lock taking
+>> is wasteful as no useful work is done. On multi-socket systems with
+>> a large number of CPUs, there can also be a fair amount of spinlock
+>> contention on the isec_lock if many tasks are exiting at the same time.
 >>
->> Why populate attr_type_map here via individual ebitmap_set_bit() calls
->> rather than just a single ebitmap_cpy() as above?
+>> This patch changes the code to check the state of the list first
+>> before taking the lock and attempting to dequeue it. As this function
+>> is called indirectly from __destroy_inode(), there can't be another
+>> instance of inode_free_security() running on the same inode.
 >>
+>> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+>> ---
+>>   security/selinux/hooks.c |   15 ++++++++++++---
+>>   1 files changed, 12 insertions(+), 3 deletions(-)
+>>
+>> v1->v2:
+>>   - Take out the second list_empty() test inside the lock.
+>>
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 7dade28..e5cdad7 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode
+>> *inode)
+>>       struct inode_security_struct *isec = inode->i_security;
+>>       struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+>>
+>> -    spin_lock(&sbsec->isec_lock);
+>> -    if (!list_empty(&isec->list))
+>> +    /*
+>> +     * As not all inode security structures are in a list, we check for
+>> +     * empty list outside of the lock to make sure that we won't waste
+>> +     * time taking a lock doing nothing. As inode_free_security() is
+>> +     * being called indirectly from __destroy_inode(), there is no way
+>> +     * there can be two or more concurrent calls. So doing the
+>> list_empty()
+>> +     * test outside the loop should be safe.
+>> +     */
+>> +    if (!list_empty(&isec->list)) {
+>> +        spin_lock(&sbsec->isec_lock);
+>>           list_del_init(&isec->list);
 > 
-> I was conflicted on what was the best way to do this. The ebitmap_cpy()
-> does an ebitmap_init() and I thought that it might be clearer to leave
-> the ebitmap_init() close to where the attr_type_map is malloc'd.
+> Stupid question,
 > 
-> I could use ebitmap_union() here if you would prefer.
+> I need to take a look at list_del_init() code, but it can so happen that
+> if !list_empty() check could happen simultaneously, then serially two
+> list_del_init() can happen.
+> 
+> is that not a problem()?
 
-ebitmap_init() is just a memset so it doesn't hurt to do it more than
-once.  And you only set attr_type_map[n] once, at this point, so no need
-to union as there is no pre-existing value. That's why we just did an
-ebitmap_cpy above.
-
-> 
->>> +            }
->>> +        }
->>> +    } else {
->>> +        if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1,
->>> 1)) {
->>> +            goto out;
->>>           }
->>>       }
->>> +
->>>       return 0;
->>> +
->>> +out:
->>> +    ERR(state->handle, "Out of memory!");
->>> +    return -1;
->>>   }
->>>
->>>   /* converts typeset using typemap and expands into ebitmap_t types
->>> using the attributes in the passed in policy.
->>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
->>> index 8c3c7ac..be0c701 100644
->>> --- a/libsepol/src/policydb.c
->>> +++ b/libsepol/src/policydb.c
->>> @@ -3936,6 +3936,10 @@ int policydb_read(policydb_t * p, struct
->>> policy_file *fp, unsigned verbose)
->>>               /* add the type itself as the degenerate case */
->>>               if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
->>>                   goto bad;
->>> +            if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
->>> +                if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
->>> +                    goto bad;
->>> +            }
->>>           }
->>>       }
->>>
->>>
-> 
-> 
+Hmm...I suppose that's possible (sb_finish_set_opts and
+inode_free_security could both perform the list_del_init).  Ok, we'll
+stay with the first version.
