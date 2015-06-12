@@ -1,85 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5C6jC6d007734
- for <selinux@tycho.nsa.gov>; Fri, 12 Jun 2015 02:45:12 -0400
-Received: from /spool/local
- by e28smtp07.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
- Violators will be prosecuted
- for <selinux@tycho.nsa.gov> from <raghavendra.kt@linux.vnet.ibm.com>;
- Fri, 12 Jun 2015 12:15:03 +0530
-Message-ID: <557A7B91.4000502@linux.vnet.ibm.com>
-Date: Fri, 12 Jun 2015 11:56:25 +0530
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5CCDx45014258
+ for <selinux@tycho.nsa.gov>; Fri, 12 Jun 2015 08:13:59 -0400
+Received: by oihd6 with SMTP id d6so20618908oih.2
+ for <selinux@tycho.nsa.gov>; Fri, 12 Jun 2015 05:13:57 -0700 (PDT)
 MIME-Version: 1.0
-To: Waiman Long <Waiman.Long@hp.com>
-Subject: Re: [PATCH v2] selinux: reduce locking overhead in
- inode_free_security()
-References: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
-In-Reply-To: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Cc: James Morris <james.l.morris@oracle.com>,
- Scott J Norton <scott.norton@hp.com>, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>,
- selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Sender: sven.j.vermeulen@gmail.com
+In-Reply-To: <CA+SaE3t=02nZnoM=K2cd+1MyPo74QZHvYwv+5Shr0+LpLFUGBA@mail.gmail.com>
+References: <008e01d0a431$3c777980$b5666c80$@gmail.com>
+ <557983AD.1040706@tycho.nsa.gov>
+ <00b901d0a449$0988c2f0$1c9a48d0$@gmail.com>
+ <CA+SaE3uawE6VSKiDTeh-dayVnjWzK=DzqQ9Ju5YtN1m_uyuAiQ@mail.gmail.com>
+ <CAHC9VhR1NbLkaXRY8Up0DT_onxFe05Xr87ddRMBXTUkA4QvyLQ@mail.gmail.com>
+ <CA+SaE3t=02nZnoM=K2cd+1MyPo74QZHvYwv+5Shr0+LpLFUGBA@mail.gmail.com>
+Date: Fri, 12 Jun 2015 14:13:57 +0200
+Message-ID: <CAPzO=Nxredpu5q-w4x_3UkbP=HU5a4VzjRd8_bTXXo=UHSUVwQ@mail.gmail.com>
+Subject: Re: SELinux: Interface Labeling Problem
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: Maurizio Pagani <pag.maurizio@gmail.com>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/12/2015 03:01 AM, Waiman Long wrote:
-> The inode_free_security() function just took the superblock's isec_lock
-> before checking and trying to remove the inode security struct from the
-> linked list. In many cases, the list was empty and so the lock taking
-> is wasteful as no useful work is done. On multi-socket systems with
-> a large number of CPUs, there can also be a fair amount of spinlock
-> contention on the isec_lock if many tasks are exiting at the same time.
->
-> This patch changes the code to check the state of the list first
-> before taking the lock and attempting to dequeue it. As this function
-> is called indirectly from __destroy_inode(), there can't be another
-> instance of inode_free_security() running on the same inode.
->
-> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
-> ---
->   security/selinux/hooks.c |   15 ++++++++++++---
->   1 files changed, 12 insertions(+), 3 deletions(-)
->
-> v1->v2:
->   - Take out the second list_empty() test inside the lock.
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7dade28..e5cdad7 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode *inode)
->   	struct inode_security_struct *isec = inode->i_security;
->   	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
->
-> -	spin_lock(&sbsec->isec_lock);
-> -	if (!list_empty(&isec->list))
-> +	/*
-> +	 * As not all inode security structures are in a list, we check for
-> +	 * empty list outside of the lock to make sure that we won't waste
-> +	 * time taking a lock doing nothing. As inode_free_security() is
-> +	 * being called indirectly from __destroy_inode(), there is no way
-> +	 * there can be two or more concurrent calls. So doing the list_empty()
-> +	 * test outside the loop should be safe.
-> +	 */
-> +	if (!list_empty(&isec->list)) {
-> +		spin_lock(&sbsec->isec_lock);
->   		list_del_init(&isec->list);
+On Thu, Jun 11, 2015 at 10:47 PM, Maurizio Pagani
+<pag.maurizio@gmail.com> wrote:
+> ok, imattached also the community on this thread.
+>> >> -----Messaggio originale-----
+>> >> Da: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+[...]
+>> >> In any event, SELinux network permission checks have changed over time.
+>> >> The netif { tcp_recv tcp_send udp_recv udp_send } checks were legacy
+>> >> network checks that were removed in Linux 2.6.30.  netif { ingress
+>> >> egress }
+>> >> are newer checks that are only enabled if you have configured peer
+>> >> labeling
+>> >> via NetLabel or labeled IPSEC/xfrm.
 
-Stupid question,
+As Stephen already mentioned, recent Linux kernels only listen to the
+egress/ingress permissions in the netif class. The other permissions
+might still be marked as "existing" for backwards compatibility, but
+they are not enforced anymore. See
+http://lists.openwall.net/netdev/2009/03/27/144
 
-I need to take a look at list_del_init() code, but it can so happen that
-if !list_empty() check could happen simultaneously, then serially two
-list_del_init() can happen.
+To enable the egress/ingress support however, you need to use either
+Labeled IPSec or NetLabel/CIPSO support.
 
-is that not a problem()?
+If you want to use SECMARK, then the controls are not on the netif
+class, but on the packet classes.
 
-> -	spin_unlock(&sbsec->isec_lock);
-> +		spin_unlock(&sbsec->isec_lock);
-> +	}
->
->   	/*
->   	 * The inode may still be referenced in a path walk and
->
+Wkr,
+  Sven Vermeulen
