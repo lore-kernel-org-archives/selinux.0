@@ -1,69 +1,85 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5EKXvgU003731
- for <selinux@tycho.nsa.gov>; Sun, 14 Jun 2015 16:33:57 -0400
-Received: by oiha141 with SMTP id a141so47591415oih.0
- for <selinux@tycho.nsa.gov>; Sun, 14 Jun 2015 13:33:54 -0700 (PDT)
+Message-ID: <557B5EBF.6010105@hp.com>
+Date: Fri, 12 Jun 2015 18:35:43 -0400
+From: Waiman Long <waiman.long@hp.com>
 MIME-Version: 1.0
-In-Reply-To: <1434206958-9234-1-git-send-email-nnk@google.com>
-References: <1434206958-9234-1-git-send-email-nnk@google.com>
-Date: Sun, 14 Jun 2015 13:33:53 -0700
-Message-ID: <CABXk95CWgapfRtDC=17t_B_eaJTCrnu+Fy52ohHtm_wSbY1nQA@mail.gmail.com>
-Subject: Re: [PATCH] policy_define.c: fix compiler warnings
-From: Jeffrey Vander Stoep <jeffv@google.com>
-To: Nick Kralevich <nnk@google.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: SELinux <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v2] selinux: reduce locking overhead in
+ inode_free_security()
+References: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
+ <557A7B91.4000502@linux.vnet.ibm.com> <557AD10D.6060200@tycho.nsa.gov>
+In-Reply-To: <557AD10D.6060200@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Cc: James Morris <james.l.morris@oracle.com>,
+ Scott J Norton <scott.norton@hp.com>,
+ Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ Douglas Hatch <doug.hatch@hp.com>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Acked-by: Jeff Vander Stoep <jeffv@google.com>
+On 06/12/2015 08:31 AM, Stephen Smalley wrote:
+> On 06/12/2015 02:26 AM, Raghavendra K T wrote:
+>> On 06/12/2015 03:01 AM, Waiman Long wrote:
+>>> The inode_free_security() function just took the superblock's isec_lock
+>>> before checking and trying to remove the inode security struct from the
+>>> linked list. In many cases, the list was empty and so the lock taking
+>>> is wasteful as no useful work is done. On multi-socket systems with
+>>> a large number of CPUs, there can also be a fair amount of spinlock
+>>> contention on the isec_lock if many tasks are exiting at the same time.
+>>>
+>>> This patch changes the code to check the state of the list first
+>>> before taking the lock and attempting to dequeue it. As this function
+>>> is called indirectly from __destroy_inode(), there can't be another
+>>> instance of inode_free_security() running on the same inode.
+>>>
+>>> Signed-off-by: Waiman Long<Waiman.Long@hp.com>
+>>> ---
+>>>    security/selinux/hooks.c |   15 ++++++++++++---
+>>>    1 files changed, 12 insertions(+), 3 deletions(-)
+>>>
+>>> v1->v2:
+>>>    - Take out the second list_empty() test inside the lock.
+>>>
+>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>> index 7dade28..e5cdad7 100644
+>>> --- a/security/selinux/hooks.c
+>>> +++ b/security/selinux/hooks.c
+>>> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode
+>>> *inode)
+>>>        struct inode_security_struct *isec = inode->i_security;
+>>>        struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+>>>
+>>> -    spin_lock(&sbsec->isec_lock);
+>>> -    if (!list_empty(&isec->list))
+>>> +    /*
+>>> +     * As not all inode security structures are in a list, we check for
+>>> +     * empty list outside of the lock to make sure that we won't waste
+>>> +     * time taking a lock doing nothing. As inode_free_security() is
+>>> +     * being called indirectly from __destroy_inode(), there is no way
+>>> +     * there can be two or more concurrent calls. So doing the
+>>> list_empty()
+>>> +     * test outside the loop should be safe.
+>>> +     */
+>>> +    if (!list_empty(&isec->list)) {
+>>> +        spin_lock(&sbsec->isec_lock);
+>>>            list_del_init(&isec->list);
+>> Stupid question,
+>>
+>> I need to take a look at list_del_init() code, but it can so happen that
+>> if !list_empty() check could happen simultaneously, then serially two
+>> list_del_init() can happen.
+>>
+>> is that not a problem()?
+> Hmm...I suppose that's possible (sb_finish_set_opts and
+> inode_free_security could both perform the list_del_init).  Ok, we'll
+> stay with the first version.
+>
 
-On Sat, Jun 13, 2015 at 7:49 AM, Nick Kralevich <nnk@google.com> wrote:
-> Fixes compiler warnings all similar to the following:
->
-> host C: checkpolicy <= external/selinux/checkpolicy/policy_define.c
-> external/selinux/checkpolicy/policy_define.c:1572:2: warning: comparison of integers of different signs: 'int' and 'uint32_t' (aka 'unsigned int') [-Wsign-compare]
->         ebitmap_for_each_bit(&tclasses, node, i) {
->         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> external/selinux/checkpolicy/../libsepol/include/sepol/policydb/ebitmap.h:76:39: note: expanded from macro 'ebitmap_for_each_bit'
->         for (bit = ebitmap_start(e, &n); bit < ebitmap_length(e); bit = ebitmap_next(&n, bit)) \
->                                              ^ ~~~~~~~~~~~~~~~~~
->
-> Signed-off-by: Nick Kralevich <nnk@google.com>
-> ---
->  checkpolicy/policy_define.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 093bded..27d8fe7 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -1521,7 +1521,8 @@ int define_compute_type_helper(int which, avrule_t ** rule)
->         ebitmap_node_t *node;
->         avrule_t *avrule;
->         class_perm_node_t *perm;
-> -       int i, add = 1;
-> +       uint32_t i;
-> +       int add = 1;
->
->         avrule = malloc(sizeof(avrule_t));
->         if (!avrule) {
-> @@ -2745,7 +2746,7 @@ static int dominate_role_recheck(hashtab_key_t key __attribute__ ((unused)),
->         role_datum_t *rdp = (role_datum_t *) arg;
->         role_datum_t *rdatum = (role_datum_t *) datum;
->         ebitmap_node_t *node;
-> -       int i;
-> +       uint32_t i;
->
->         /* Don't bother to process against self role */
->         if (rdatum->s.value == rdp->s.value)
-> --
-> 2.2.0.rc0.207.ga3a616c
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+Actually, list_del_init() can be applied twice with no harm being done. 
+The first list_del_init() will set list-> next = list->prev = list. The 
+second one will do the same thing and so it should be safe.
+
+Cheers,
+Longman
