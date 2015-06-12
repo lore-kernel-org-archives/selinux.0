@@ -1,78 +1,69 @@
-Message-ID: <557AD10D.6060200@tycho.nsa.gov>
-Date: Fri, 12 Jun 2015 08:31:09 -0400
+Message-ID: <557AD15A.3090004@tycho.nsa.gov>
+Date: Fri, 12 Jun 2015 08:32:26 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
- Waiman Long <Waiman.Long@hp.com>
-Subject: Re: [PATCH v2] selinux: reduce locking overhead in
- inode_free_security()
-References: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
- <557A7B91.4000502@linux.vnet.ibm.com>
-In-Reply-To: <557A7B91.4000502@linux.vnet.ibm.com>
+To: Waiman Long <Waiman.Long@hp.com>, Paul Moore <paul@paul-moore.com>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: reduce locking overhead in inode_free_security()
+References: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
 Content-Type: text/plain; charset=windows-1252
-Cc: James Morris <james.l.morris@oracle.com>,
- Scott J Norton <scott.norton@hp.com>, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>,
- selinux@tycho.nsa.gov
+Cc: Scott J Norton <scott.norton@hp.com>, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/12/2015 02:26 AM, Raghavendra K T wrote:
-> On 06/12/2015 03:01 AM, Waiman Long wrote:
->> The inode_free_security() function just took the superblock's isec_lock
->> before checking and trying to remove the inode security struct from the
->> linked list. In many cases, the list was empty and so the lock taking
->> is wasteful as no useful work is done. On multi-socket systems with
->> a large number of CPUs, there can also be a fair amount of spinlock
->> contention on the isec_lock if many tasks are exiting at the same time.
->>
->> This patch changes the code to check the state of the list first
->> before taking the lock and attempting to dequeue it. As this function
->> is called indirectly from __destroy_inode(), there can't be another
->> instance of inode_free_security() running on the same inode.
->>
->> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
->> ---
->>   security/selinux/hooks.c |   15 ++++++++++++---
->>   1 files changed, 12 insertions(+), 3 deletions(-)
->>
->> v1->v2:
->>   - Take out the second list_empty() test inside the lock.
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 7dade28..e5cdad7 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode
->> *inode)
->>       struct inode_security_struct *isec = inode->i_security;
->>       struct superblock_security_struct *sbsec = inode->i_sb->s_security;
->>
->> -    spin_lock(&sbsec->isec_lock);
->> -    if (!list_empty(&isec->list))
->> +    /*
->> +     * As not all inode security structures are in a list, we check for
->> +     * empty list outside of the lock to make sure that we won't waste
->> +     * time taking a lock doing nothing. As inode_free_security() is
->> +     * being called indirectly from __destroy_inode(), there is no way
->> +     * there can be two or more concurrent calls. So doing the
->> list_empty()
->> +     * test outside the loop should be safe.
->> +     */
->> +    if (!list_empty(&isec->list)) {
->> +        spin_lock(&sbsec->isec_lock);
->>           list_del_init(&isec->list);
+On 06/10/2015 04:17 PM, Waiman Long wrote:
+> The inode_free_security() function just took the superblock's isec_lock
+> before checking and trying to remove the inode security struct from the
+> linked list. In many cases, the list was empty and so the lock taking
+> is wasteful as no useful work is done. On multi-socket systems with
+> a large number of CPUs, there can also be a fair amount of spinlock
+> contention on the isec_lock if many tasks are exiting at the same time.
 > 
-> Stupid question,
+> This patch changes the code to check the state of the list first
+> before taking the lock and attempting to dequeue it. We still need
+> to do the empty list test inside the lock for safety reason, but it
+> minimizes the chance of unnecessary spinlock contention.
 > 
-> I need to take a look at list_del_init() code, but it can so happen that
-> if !list_empty() check could happen simultaneously, then serially two
-> list_del_init() can happen.
-> 
-> is that not a problem()?
+> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
 
-Hmm...I suppose that's possible (sb_finish_set_opts and
-inode_free_security could both perform the list_del_init).  Ok, we'll
-stay with the first version.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>  security/selinux/hooks.c |   17 +++++++++++++----
+>  1 files changed, 13 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 7dade28..cd736c3 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode *inode)
+>  	struct inode_security_struct *isec = inode->i_security;
+>  	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+>  
+> -	spin_lock(&sbsec->isec_lock);
+> -	if (!list_empty(&isec->list))
+> -		list_del_init(&isec->list);
+> -	spin_unlock(&sbsec->isec_lock);
+> +	/*
+> +	 * As not all inode security structures are in a list, we check for
+> +	 * empty list outside of the lock to make sure that we won't waste
+> +	 * time taking a lock doing nothing. Lock taking can be slow
+> +	 * especially if the lock is being contended. We do, however, need
+> +	 * to recheck the list again before deleting it for safety.
+> +	 */
+> +	if (!list_empty(&isec->list)) {
+> +		spin_lock(&sbsec->isec_lock);
+> +		if (!list_empty(&isec->list))
+> +			list_del_init(&isec->list);
+> +		spin_unlock(&sbsec->isec_lock);
+> +	}
+>  
+>  	/*
+>  	 * The inode may still be referenced in a path walk and
+> 
