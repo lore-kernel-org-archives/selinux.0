@@ -1,53 +1,110 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5CCDx45014258
- for <selinux@tycho.nsa.gov>; Fri, 12 Jun 2015 08:13:59 -0400
-Received: by oihd6 with SMTP id d6so20618908oih.2
- for <selinux@tycho.nsa.gov>; Fri, 12 Jun 2015 05:13:57 -0700 (PDT)
+Message-ID: <557ACD39.9020108@tycho.nsa.gov>
+Date: Fri, 12 Jun 2015 08:14:49 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-Sender: sven.j.vermeulen@gmail.com
-In-Reply-To: <CA+SaE3t=02nZnoM=K2cd+1MyPo74QZHvYwv+5Shr0+LpLFUGBA@mail.gmail.com>
-References: <008e01d0a431$3c777980$b5666c80$@gmail.com>
- <557983AD.1040706@tycho.nsa.gov>
- <00b901d0a449$0988c2f0$1c9a48d0$@gmail.com>
- <CA+SaE3uawE6VSKiDTeh-dayVnjWzK=DzqQ9Ju5YtN1m_uyuAiQ@mail.gmail.com>
- <CAHC9VhR1NbLkaXRY8Up0DT_onxFe05Xr87ddRMBXTUkA4QvyLQ@mail.gmail.com>
- <CA+SaE3t=02nZnoM=K2cd+1MyPo74QZHvYwv+5Shr0+LpLFUGBA@mail.gmail.com>
-Date: Fri, 12 Jun 2015 14:13:57 +0200
-Message-ID: <CAPzO=Nxredpu5q-w4x_3UkbP=HU5a4VzjRd8_bTXXo=UHSUVwQ@mail.gmail.com>
-Subject: Re: SELinux: Interface Labeling Problem
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: Maurizio Pagani <pag.maurizio@gmail.com>, SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 02/10] libsepol: Treat types like an attribute in the
+ attr_type_map.
+References: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1434047207-25503-3-git-send-email-jwcart2@tycho.nsa.gov>
+ <5579E99E.1060502@tycho.nsa.gov>
+In-Reply-To: <5579E99E.1060502@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jun 11, 2015 at 10:47 PM, Maurizio Pagani
-<pag.maurizio@gmail.com> wrote:
-> ok, imattached also the community on this thread.
->> >> -----Messaggio originale-----
->> >> Da: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-[...]
->> >> In any event, SELinux network permission checks have changed over time.
->> >> The netif { tcp_recv tcp_send udp_recv udp_send } checks were legacy
->> >> network checks that were removed in Linux 2.6.30.  netif { ingress
->> >> egress }
->> >> are newer checks that are only enabled if you have configured peer
->> >> labeling
->> >> via NetLabel or labeled IPSEC/xfrm.
+On 06/11/2015 04:03 PM, Stephen Smalley wrote:
+> On 06/11/2015 02:26 PM, James Carter wrote:
+>> Types are treated as attributes that contain only themselves. This
+>> is how types are already treated in the type_attr_map.
+>>
+>> Treating types this way makes finding rules that apply to a given
+>> type much easier.
+>>
+>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>> ---
+>>   libsepol/src/expand.c   | 26 +++++++++++++++++---------
+>>   libsepol/src/policydb.c |  4 ++++
+>>   2 files changed, 21 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+>> index b999890..cbd39df 100644
+>> --- a/libsepol/src/expand.c
+>> +++ b/libsepol/src/expand.c
+>> @@ -2317,25 +2317,33 @@ static int type_attr_map(hashtab_key_t key
+>>   	policydb_t *p = state->out;
+>>   	unsigned int i;
+>>   	ebitmap_node_t *tnode;
+>> +	int value;
+>>
+>>   	type = (type_datum_t *) datum;
+>> +	value = type->s.value;
+>> +
+>>   	if (type->flavor == TYPE_ATTRIB) {
+>> -		if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
+>> -				&type->types)) {
+>> -			ERR(state->handle, "Out of memory!");
+>> -			return -1;
+>> -		}
+>>   		ebitmap_for_each_bit(&type->types, tnode, i) {
+>>   			if (!ebitmap_node_get_bit(tnode, i))
+>>   				continue;
+>> -			if (ebitmap_set_bit(&p->type_attr_map[i],
+>> -					    type->s.value - 1, 1)) {
+>> -				ERR(state->handle, "Out of memory!");
+>> -				return -1;
+>> +			if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
+>> +				goto out;
+>>   			}
+>> +			if (ebitmap_set_bit(&p->attr_type_map[value - 1], i, 1)) {
+>> +				goto out;
+>
+> Why populate attr_type_map here via individual ebitmap_set_bit() calls
+> rather than just a single ebitmap_cpy() as above?
+>
 
-As Stephen already mentioned, recent Linux kernels only listen to the
-egress/ingress permissions in the netif class. The other permissions
-might still be marked as "existing" for backwards compatibility, but
-they are not enforced anymore. See
-http://lists.openwall.net/netdev/2009/03/27/144
+I was conflicted on what was the best way to do this. The ebitmap_cpy() does an 
+ebitmap_init() and I thought that it might be clearer to leave the 
+ebitmap_init() close to where the attr_type_map is malloc'd.
 
-To enable the egress/ingress support however, you need to use either
-Labeled IPSec or NetLabel/CIPSO support.
+I could use ebitmap_union() here if you would prefer.
 
-If you want to use SECMARK, then the controls are not on the netif
-class, but on the packet classes.
+>> +			}
+>> +		}
+>> +	} else {
+>> +		if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1, 1)) {
+>> +			goto out;
+>>   		}
+>>   	}
+>> +
+>>   	return 0;
+>> +
+>> +out:
+>> +	ERR(state->handle, "Out of memory!");
+>> +	return -1;
+>>   }
+>>
+>>   /* converts typeset using typemap and expands into ebitmap_t types using the attributes in the passed in policy.
+>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+>> index 8c3c7ac..be0c701 100644
+>> --- a/libsepol/src/policydb.c
+>> +++ b/libsepol/src/policydb.c
+>> @@ -3936,6 +3936,10 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>>   			/* add the type itself as the degenerate case */
+>>   			if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
+>>   				goto bad;
+>> +			if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
+>> +				if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
+>> +					goto bad;
+>> +			}
+>>   		}
+>>   	}
+>>
+>>
 
-Wkr,
-  Sven Vermeulen
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
