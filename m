@@ -1,98 +1,30 @@
-Message-ID: <1434117699.19134.73.camel@redhat.com>
-Subject: Re: [PATCH v2] selinux: reduce locking overhead in
- inode_free_security()
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Fri, 12 Jun 2015 09:01:39 -0500
-In-Reply-To: <557AD10D.6060200@tycho.nsa.gov>
-References: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
- <557A7B91.4000502@linux.vnet.ibm.com> <557AD10D.6060200@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Cc: Waiman Long <Waiman.Long@hp.com>, James Morris <james.l.morris@oracle.com>,
- Scott J Norton <scott.norton@hp.com>,
- Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- Douglas Hatch <doug.hatch@hp.com>, selinux@tycho.nsa.gov
+Message-ID: <557AF847.6090504@redhat.com>
+Date: Fri, 12 Jun 2015 17:18:31 +0200
+From: Miroslav Grepl <mgrepl@redhat.com>
+MIME-Version: 1.0
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: New module store + /var being split off
+Content-Type: text/plain; charset=utf-8
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2015-06-12 at 08:31 -0400, Stephen Smalley wrote:
-> On 06/12/2015 02:26 AM, Raghavendra K T wrote:
-> > On 06/12/2015 03:01 AM, Waiman Long wrote:
-> > > The inode_free_security() function just took the superblock's 
-> > > isec_lock
-> > > before checking and trying to remove the inode security struct 
-> > > from the
-> > > linked list. In many cases, the list was empty and so the lock 
-> > > taking
-> > > is wasteful as no useful work is done. On multi-socket systems 
-> > > with
-> > > a large number of CPUs, there can also be a fair amount of 
-> > > spinlock
-> > > contention on the isec_lock if many tasks are exiting at the same 
-> > > time.
-> > > 
-> > > This patch changes the code to check the state of the list first
-> > > before taking the lock and attempting to dequeue it. As this 
-> > > function
-> > > is called indirectly from __destroy_inode(), there can't be 
-> > > another
-> > > instance of inode_free_security() running on the same inode.
-> > > 
-> > > Signed-off-by: Waiman Long <Waiman.Long@hp.com>
-> > > ---
-> > >   security/selinux/hooks.c |   15 ++++++++++++---
-> > >   1 files changed, 12 insertions(+), 3 deletions(-)
-> > > 
-> > > v1->v2:
-> > >   - Take out the second list_empty() test inside the lock.
-> > > 
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 7dade28..e5cdad7 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -254,10 +254,19 @@ static void inode_free_security(struct 
-> > > inode
-> > > *inode)
-> > >       struct inode_security_struct *isec = inode->i_security;
-> > >       struct superblock_security_struct *sbsec = inode->i_sb
-> > > ->s_security;
-> > > 
-> > > -    spin_lock(&sbsec->isec_lock);
-> > > -    if (!list_empty(&isec->list))
-> > > +    /*
-> > > +     * As not all inode security structures are in a list, we 
-> > > check for
-> > > +     * empty list outside of the lock to make sure that we won't 
-> > > waste
-> > > +     * time taking a lock doing nothing. As 
-> > > inode_free_security() is
-> > > +     * being called indirectly from __destroy_inode(), there is 
-> > > no way
-> > > +     * there can be two or more concurrent calls. So doing the
-> > > list_empty()
-> > > +     * test outside the loop should be safe.
-> > > +     */
-> > > +    if (!list_empty(&isec->list)) {
-> > > +        spin_lock(&sbsec->isec_lock);
-> > >           list_del_init(&isec->list);
-> > 
-> > Stupid question,
-> > 
-> > I need to take a look at list_del_init() code, but it can so happen 
-> > that
-> > if !list_empty() check could happen simultaneously, then serially 
-> > two
-> > list_del_init() can happen.
-> > 
-> > is that not a problem()?
-> 
-> Hmm...I suppose that's possible (sb_finish_set_opts and
-> inode_free_security could both perform the list_del_init).  Ok, we'll
-> stay with the first version.
+Hello.
 
-Wait, can't you list_del_init() an already list_del_init'd object.
-Isn't that a big difference between list_del() and list_del_init() ?
+We are close to get the latest userspace (modules store + CIL) into
+Fedora. We just have a discussion about "/var" being split off and be
+mounted only very late at boot.
+
+Can you think about an issue with that? I don't see any urgent blocker
+which blocks the boot process.
+
+Thank you,
+Miroslav
+
+
+-- 
+Miroslav Grepl
+Senior Software Engineer, SELinux Solutions
+Red Hat, Inc.
