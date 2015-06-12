@@ -1,38 +1,35 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <16216.1417109138@warthog.procyon.org.uk>
-References: <16216.1417109138@warthog.procyon.org.uk>
- <545A51CB.6070107@tycho.nsa.gov>
- <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
- <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
+Message-ID: <557AFFB1.3030404@tresys.com>
+Date: Fri, 12 Jun 2015 11:50:09 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 12 Jun 2015 16:30:54 +0100
-Message-ID: <8813.1434123054@warthog.procyon.org.uk>
-Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
- dhowells@redhat.com, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org
+To: Miroslav Grepl <mgrepl@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: New module store + /var being split off
+References: <557AF847.6090504@redhat.com>
+In-Reply-To: <557AF847.6090504@redhat.com>
+Content-Type: text/plain; charset="windows-1252"
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi Stephen,
-
-David Howells <dhowells@redhat.com> wrote:
-
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On 06/12/2015 11:18 AM, Miroslav Grepl wrote:
+> Hello.
 > 
-> > Also, would be good to create a common helper for use here, by
-> > selinux_dentry_init_security(), selinux_inode_init_security(), and
-> > may_create().  Already some seeming potential for inconsistencies there.
+> We are close to get the latest userspace (modules store + CIL) into
+> Fedora. We just have a discussion about "/var" being split off and be
+> mounted only very late at boot.
 > 
-> selinux_dentry_init_security() and selinux_inode_init_security() do
-> something different depending on SECURITY_FS_USE_MNTPOINT.  Is the dentry
-> variant wrong?  Shouldn't it be using the mountpoint label if that flag _is_
-> set?
+> Can you think about an issue with that? I don't see any urgent blocker
+> which blocks the boot process.
+> 
+> Thank you,
+> Miroslav
+> 
 
-Any answer to that?
+I don't believe anything in /var/selinux is necessary during boot. The
+policy store in /var/selinux is only used with commands like
+semodule/semanage/etc. so as long as those aren't run during boot I
+suspect it should be fine.
 
-David
+- Steve
