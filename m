@@ -1,69 +1,42 @@
-Message-ID: <557AD15A.3090004@tycho.nsa.gov>
-Date: Fri, 12 Jun 2015 08:32:26 -0400
+Message-ID: <557AD1AB.2020305@tycho.nsa.gov>
+Date: Fri, 12 Jun 2015 08:33:47 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Waiman Long <Waiman.Long@hp.com>, Paul Moore <paul@paul-moore.com>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: reduce locking overhead in inode_free_security()
-References: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
-In-Reply-To: <1433967446-44555-1-git-send-email-Waiman.Long@hp.com>
+To: Sven Vermeulen <sven.vermeulen@siphos.be>
+Subject: Re: [PATCH] Only invoke RPM on RPM-enabled Linux distributions
+References: <20150609112624.GA10618@siphos.be>
+ <5576D9CC.3020102@tycho.nsa.gov> <20150611152202.GA13058@siphos.be>
+In-Reply-To: <20150611152202.GA13058@siphos.be>
 Content-Type: text/plain; charset=windows-1252
-Cc: Scott J Norton <scott.norton@hp.com>, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/10/2015 04:17 PM, Waiman Long wrote:
-> The inode_free_security() function just took the superblock's isec_lock
-> before checking and trying to remove the inode security struct from the
-> linked list. In many cases, the list was empty and so the lock taking
-> is wasteful as no useful work is done. On multi-socket systems with
-> a large number of CPUs, there can also be a fair amount of spinlock
-> contention on the isec_lock if many tasks are exiting at the same time.
+On 06/11/2015 11:22 AM, Sven Vermeulen wrote:
+> On Tue, Jun 09, 2015 at 08:19:24AM -0400, Stephen Smalley wrote:
+>> On 06/09/2015 07:26 AM, Sven Vermeulen wrote:
+>>> In this patch, we use the Python platform module to get the Linux
+>>> distribution, and only start the RPM-related activities on Linux
+>>> distributions that use RPM as their native package manager.
+>>>
+>>> Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
+>>
+>> Is there a more general way that we could do this without hardcoding
+>> checks of distribution names?  Maybe we could just test for the
+>> existence of rpm?
 > 
-> This patch changes the code to check the state of the list first
-> before taking the lock and attempting to dequeue it. We still need
-> to do the empty list test inside the lock for safety reason, but it
-> minimizes the chance of unnecessary spinlock contention.
+> That wouldn't be sufficient.
 > 
-> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> The rpm binary might be installed for other reasons. The code in sepolicy is
+> used to query the rpm database and search for specific package names. This
+> is distribution-specific behavior.
+> 
+> If you rather check on the rpm binary, then additional checks will need to
+> be added to make sure that the assumptions that the code takes (such as
+> "selinux-policy" package being available) are valid as well.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-> ---
->  security/selinux/hooks.c |   17 +++++++++++++----
->  1 files changed, 13 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7dade28..cd736c3 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode *inode)
->  	struct inode_security_struct *isec = inode->i_security;
->  	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
->  
-> -	spin_lock(&sbsec->isec_lock);
-> -	if (!list_empty(&isec->list))
-> -		list_del_init(&isec->list);
-> -	spin_unlock(&sbsec->isec_lock);
-> +	/*
-> +	 * As not all inode security structures are in a list, we check for
-> +	 * empty list outside of the lock to make sure that we won't waste
-> +	 * time taking a lock doing nothing. Lock taking can be slow
-> +	 * especially if the lock is being contended. We do, however, need
-> +	 * to recheck the list again before deleting it for safety.
-> +	 */
-> +	if (!list_empty(&isec->list)) {
-> +		spin_lock(&sbsec->isec_lock);
-> +		if (!list_empty(&isec->list))
-> +			list_del_init(&isec->list);
-> +		spin_unlock(&sbsec->isec_lock);
-> +	}
->  
->  	/*
->  	 * The inode may still be referenced in a path walk and
-> 
+Ok, I guess we'll have to go with your patch then.  It would be better
+though if there were some way to ask the system what package manager is
+in use.
