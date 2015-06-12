@@ -1,125 +1,383 @@
-Message-ID: <557AD86B.5080700@tycho.nsa.gov>
-Date: Fri, 12 Jun 2015 09:02:35 -0400
+Message-ID: <557AD936.7060005@tycho.nsa.gov>
+Date: Fri, 12 Jun 2015 09:05:58 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 02/10] libsepol: Treat types like an attribute in the
- attr_type_map.
+Subject: Re: [PATCH 03/10] libsepol: Refactored neverallow checking.
 References: <1434047207-25503-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1434047207-25503-3-git-send-email-jwcart2@tycho.nsa.gov>
- <5579E99E.1060502@tycho.nsa.gov> <557ACD39.9020108@tycho.nsa.gov>
- <557ACF1A.4020103@tycho.nsa.gov>
-In-Reply-To: <557ACF1A.4020103@tycho.nsa.gov>
+ <1434047207-25503-4-git-send-email-jwcart2@tycho.nsa.gov>
+ <5579EA96.5020108@tycho.nsa.gov> <557AD7AB.1080408@tycho.nsa.gov>
+In-Reply-To: <557AD7AB.1080408@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/12/2015 08:22 AM, Stephen Smalley wrote:
-> On 06/12/2015 08:14 AM, James Carter wrote:
->> On 06/11/2015 04:03 PM, Stephen Smalley wrote:
->>> On 06/11/2015 02:26 PM, James Carter wrote:
->>>> Types are treated as attributes that contain only themselves. This
->>>> is how types are already treated in the type_attr_map.
->>>>
->>>> Treating types this way makes finding rules that apply to a given
->>>> type much easier.
->>>>
->>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->>>> ---
->>>>    libsepol/src/expand.c   | 26 +++++++++++++++++---------
->>>>    libsepol/src/policydb.c |  4 ++++
->>>>    2 files changed, 21 insertions(+), 9 deletions(-)
->>>>
->>>> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
->>>> index b999890..cbd39df 100644
->>>> --- a/libsepol/src/expand.c
->>>> +++ b/libsepol/src/expand.c
->>>> @@ -2317,25 +2317,33 @@ static int type_attr_map(hashtab_key_t key
->>>>        policydb_t *p = state->out;
->>>>        unsigned int i;
->>>>        ebitmap_node_t *tnode;
->>>> +    int value;
->>>>
->>>>        type = (type_datum_t *) datum;
->>>> +    value = type->s.value;
->>>> +
->>>>        if (type->flavor == TYPE_ATTRIB) {
->>>> -        if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
->>>> -                &type->types)) {
->>>> -            ERR(state->handle, "Out of memory!");
->>>> -            return -1;
->>>> -        }
->>>>            ebitmap_for_each_bit(&type->types, tnode, i) {
->>>>                if (!ebitmap_node_get_bit(tnode, i))
->>>>                    continue;
->>>> -            if (ebitmap_set_bit(&p->type_attr_map[i],
->>>> -                        type->s.value - 1, 1)) {
->>>> -                ERR(state->handle, "Out of memory!");
->>>> -                return -1;
->>>> +            if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
->>>> +                goto out;
->>>>                }
->>>> +            if (ebitmap_set_bit(&p->attr_type_map[value - 1], i, 1)) {
->>>> +                goto out;
+On 06/12/2015 08:59 AM, James Carter wrote:
+> On 06/11/2015 04:07 PM, Stephen Smalley wrote:
+>> On 06/11/2015 02:26 PM, James Carter wrote:
+>>> Instead of creating an expanded avtab, generating all of the avtab
+>>> keys corresponding to a neverallow rule and searching for a match,
+>>> walk the nodes in the avtab and use the attr_type_map and ebitmap
+>>> functions to find matching rules.
 >>>
->>> Why populate attr_type_map here via individual ebitmap_set_bit() calls
->>> rather than just a single ebitmap_cpy() as above?
+>>> Memory usage is reduced from 370M to 125M and time is reduced from
+>>> 14 sec to 2 sec. (Bounds checking commented out in both cases.)
 >>>
+>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>>> ---
+>>>   libsepol/include/sepol/policydb/policydb.h |   2 +-
+>>>   libsepol/src/assertion.c                   | 225 ++++++++++++++++++-----------
+>>>   2 files changed, 145 insertions(+), 82 deletions(-)
+>>>
+>>> diff --git a/libsepol/include/sepol/policydb/policydb.h
+>>> b/libsepol/include/sepol/policydb/policydb.h
+>>> index 1d8310c..b3cf9db 100644
+>>> --- a/libsepol/include/sepol/policydb/policydb.h
+>>> +++ b/libsepol/include/sepol/policydb/policydb.h
+>>> @@ -652,7 +652,7 @@ extern void level_datum_init(level_datum_t * x);
+>>>   extern void level_datum_destroy(level_datum_t * x);
+>>>   extern void cat_datum_init(cat_datum_t * x);
+>>>   extern void cat_datum_destroy(cat_datum_t * x);
+>>> -
+>>> +extern int check_assertion(policydb_t *p, avrule_t *avrule);
+>>>   extern int check_assertions(sepol_handle_t * handle,
+>>>                   policydb_t * p, avrule_t * avrules);
+>>>
+>>> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+>>> index c335968..35698df 100644
+>>> --- a/libsepol/src/assertion.c
+>>> +++ b/libsepol/src/assertion.c
+>>> @@ -27,11 +27,16 @@
+>>>
+>>>   #include "debug.h"
+>>>
+>>> -static void report_failure(sepol_handle_t *handle, policydb_t *p,
+>>> -               const avrule_t * avrule,
+>>> +struct avtab_match_args {
+>>> +    sepol_handle_t *handle;
+>>> +    policydb_t *p;
+>>> +    avrule_t *avrule;
+>>> +    unsigned long errors;
+>>> +};
+>>> +
+>>> +static void report_failure(sepol_handle_t *handle, policydb_t *p, const
+>>> avrule_t *avrule,
+>>>                  unsigned int stype, unsigned int ttype,
+>>> -               const class_perm_node_t *curperm,
+>>> -               const avtab_ptr_t node)
+>>> +               const class_perm_node_t *curperm, uint32_t perms)
+>>>   {
+>>>       if (avrule->source_filename) {
+>>>           ERR(handle, "neverallow on line %lu of %s (or line %lu of
+>>> policy.conf) violated by allow %s %s:%s {%s };",
+>>> @@ -39,69 +44,164 @@ static void report_failure(sepol_handle_t *handle,
+>>> policydb_t *p,
+>>>               p->p_type_val_to_name[stype],
+>>>               p->p_type_val_to_name[ttype],
+>>>               p->p_class_val_to_name[curperm->tclass - 1],
+>>> -            sepol_av_to_string(p, curperm->tclass,
+>>> -                       node->datum.data & curperm->data));
+>>> +            sepol_av_to_string(p, curperm->tclass, perms));
 >>
->> I was conflicted on what was the best way to do this. The ebitmap_cpy()
->> does an ebitmap_init() and I thought that it might be clearer to leave
->> the ebitmap_init() close to where the attr_type_map is malloc'd.
->>
->> I could use ebitmap_union() here if you would prefer.
+>> So you're reporting the entire list of permissions from the allow rule,
+>> not just the offending ones?  I guess I could go either way; the old
+>> approach was more indicative of what the problem was, while the new is
+>> closer to what they might find in source (albeit after macro expansion).
 >
-> ebitmap_init() is just a memset so it doesn't hurt to do it more than
-> once.  And you only set attr_type_map[n] once, at this point, so no need
-> to union as there is no pre-existing value. That's why we just did an
-> ebitmap_cpy above.
+> It is just the offending ones (node->datum.data & curperm->data).
 >
+Oops. Sorry, I switched to master when I was responding to your previous email.
 
-Ok. I'll use ebitmap_cpy() then.
+We report just the offending ones for the bounds checking and it would be better 
+to do the same here as well.
 
 >>
->>>> +            }
->>>> +        }
->>>> +    } else {
->>>> +        if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1,
->>>> 1)) {
->>>> +            goto out;
->>>>            }
->>>>        }
->>>> +
->>>>        return 0;
->>>> +
->>>> +out:
->>>> +    ERR(state->handle, "Out of memory!");
->>>> +    return -1;
->>>>    }
->>>>
->>>>    /* converts typeset using typemap and expands into ebitmap_t types
->>>> using the attributes in the passed in policy.
->>>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
->>>> index 8c3c7ac..be0c701 100644
->>>> --- a/libsepol/src/policydb.c
->>>> +++ b/libsepol/src/policydb.c
->>>> @@ -3936,6 +3936,10 @@ int policydb_read(policydb_t * p, struct
->>>> policy_file *fp, unsigned verbose)
->>>>                /* add the type itself as the degenerate case */
->>>>                if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
->>>>                    goto bad;
->>>> +            if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
->>>> +                if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
->>>> +                    goto bad;
->>>> +            }
->>>>            }
->>>>        }
->>>>
->>>>
+>>>       } else if (avrule->line) {
+>>>           ERR(handle, "neverallow on line %lu violated by allow %s %s:%s {%s
+>>> };",
+>>>               avrule->line, p->p_type_val_to_name[stype],
+>>>               p->p_type_val_to_name[ttype],
+>>>               p->p_class_val_to_name[curperm->tclass - 1],
+>>> -            sepol_av_to_string(p, curperm->tclass,
+>>> -                       node->datum.data & curperm->data));
+>>> +            sepol_av_to_string(p, curperm->tclass, perms));
+>>>       } else {
+>>>           ERR(handle, "neverallow violated by allow %s %s:%s {%s };",
+>>>               p->p_type_val_to_name[stype],
+>>>               p->p_type_val_to_name[ttype],
+>>>               p->p_class_val_to_name[curperm->tclass - 1],
+>>> -            sepol_av_to_string(p, curperm->tclass,
+>>> -                       node->datum.data & curperm->data));
+>>> +            sepol_av_to_string(p, curperm->tclass, perms));
+>>>       }
+>>>   }
+>>>
+>>> -static unsigned long check_assertion_helper(sepol_handle_t * handle,
+>>> -                  policydb_t * p,
+>>> -                  avtab_t * te_avtab, avtab_t * te_cond_avtab,
+>>> -                  unsigned int stype, unsigned int ttype,
+>>> -                  const avrule_t * avrule)
+>>> +static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d,
+>>> void *args)
+>>>   {
+>>> -    avtab_key_t avkey;
+>>> -    avtab_ptr_t node;
+>>> -    class_perm_node_t *curperm;
+>>> -    unsigned long errors = 0;
+>>> +    struct avtab_match_args *a = (struct avtab_match_args *)args;
+>>> +    sepol_handle_t *handle = a->handle;
+>>> +    policydb_t *p = a->p;
+>>> +    avrule_t *avrule = a->avrule;
+>>> +    class_perm_node_t *cp;
+>>> +    uint32_t perms;
+>>> +    ebitmap_t src_matches, tgt_matches;
+>>> +    ebitmap_node_t *snode, *tnode;
+>>> +    unsigned int i, j;
+>>>
+>>> -    for (curperm = avrule->perms; curperm != NULL; curperm = curperm->next) {
+>>> -        avkey.source_type = stype + 1;
+>>> -        avkey.target_type = ttype + 1;
+>>> -        avkey.target_class = curperm->tclass;
+>>> -        avkey.specified = AVTAB_ALLOWED;
+>>> -        for (node = avtab_search_node(te_avtab, &avkey);
+>>> -             node != NULL;
+>>> -             node = avtab_search_node_next(node, avkey.specified)) {
+>>> -            if (node->datum.data & curperm->data) {
+>>> -                report_failure(handle, p, avrule, stype, ttype, curperm, node);
+>>> -                errors++;
+>>> -            }
+>>> +    if (k->specified != AVTAB_ALLOWED)
+>>> +        goto exit;
+>>> +
+>>> +    for (cp = avrule->perms; cp; cp = cp->next) {
+>>> +        perms = cp->data & d->data;
+>>> +        if ((cp->tclass != k->target_class) || !perms) {
+>>> +            continue;
+>>> +        }
+>>> +
+>>> +        ebitmap_and(&src_matches, &avrule->stypes.types,
+>>> +                &p->attr_type_map[k->source_type - 1]);
+>>> +        if (ebitmap_length(&src_matches) == 0)
+>>> +            continue;
+>>> +
+>>> +        if (avrule->flags == RULE_SELF) {
+>>> +            ebitmap_t matches;
+>>> +            ebitmap_init(&matches);
+>>> +            ebitmap_and(&matches, &p->attr_type_map[k->source_type - 1],
+>>> &p->attr_type_map[k->target_type - 1]);
+>>> +            ebitmap_and(&tgt_matches, &avrule->stypes.types, &matches);
+>>> +            ebitmap_destroy(&matches);
 >>
+>> ebitmap_and() can fail on memory allocation failure so we need to check
+>> and handle.
+>
+> Don't know how I missed that.
+>
 >>
+>>> +        } else {
+>>> +            ebitmap_and(&tgt_matches, &avrule->ttypes.types,
+>>> &p->attr_type_map[k->target_type -1]);
+>>> +        }
+>>> +
+>>> +        if (ebitmap_length(&tgt_matches) == 0) {
+>>> +            ebitmap_destroy(&src_matches);
+>>> +            continue;
+>>>           }
+>>> -        for (node = avtab_search_node(te_cond_avtab, &avkey);
+>>> -             node != NULL;
+>>> -             node = avtab_search_node_next(node, avkey.specified)) {
+>>> -            if (node->datum.data & curperm->data) {
+>>> -                report_failure(handle, p, avrule, stype, ttype, curperm, node);
+>>> -                errors++;
+>>> +
+>>> +        ebitmap_for_each_bit(&src_matches, snode, i) {
+>>> +            if (!ebitmap_node_get_bit(snode, i))
+>>> +                continue;
+>>> +            ebitmap_for_each_bit(&tgt_matches, tnode, j) {
+>>> +                if (!ebitmap_node_get_bit(tnode, j))
+>>> +                    continue;
+>>> +                a->errors++;
+>>> +                report_failure(handle, p, avrule, i, j, cp, perms);
+>>>               }
+>>>           }
+>>>       }
+>>>
+>>> -    return errors;
+>>> +exit:
+>>> +    return 0;
+>>> +}
+>>> +
+>>> +int report_assertion_failures(sepol_handle_t *handle, policydb_t *p,
+>>> avrule_t *avrule)
+>>> +{
+>>> +    struct avtab_match_args args;
+>>> +
+>>> +    args.handle = handle;
+>>> +    args.p = p;
+>>> +    args.avrule = avrule;
+>>> +    args.errors = 0;
+>>> +
+>>> +    avtab_map(&p->te_avtab, report_assertion_avtab_matches, &args);
+>>> +    avtab_map(&p->te_cond_avtab, report_assertion_avtab_matches, &args);
+>>> +
+>>> +    return args.errors;
+>>> +}
+>>> +
+>>> +static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d,
+>>> void *args)
+>>> +{
+>>> +    int rc;
+>>> +    struct avtab_match_args *a = (struct avtab_match_args *)args;
+>>> +    policydb_t *p = a->p;
+>>> +    avrule_t *avrule = a->avrule;
+>>> +    class_perm_node_t *cp;
+>>> +
+>>> +    if (k->specified != AVTAB_ALLOWED)
+>>> +        goto exit;
+>>> +
+>>> +    for (cp = avrule->perms; cp; cp = cp->next) {
+>>> +        if ((cp->tclass == k->target_class) && (cp->data & d->data)) {
+>>> +            break;
+>>> +        }
+>>> +    }
+>>> +    if (!cp)
+>>> +        goto exit;
+>>> +
+>>> +    rc = ebitmap_match_any(&avrule->stypes.types,
+>>> &p->attr_type_map[k->source_type - 1]);
+>>> +    if (rc == 0)
+>>> +        goto exit;
+>>> +
+>>> +    if (avrule->flags == RULE_SELF) {
+>>> +        /* If the neverallow uses SELF, then it is not enough that the
+>>> +         * neverallow's source matches the src and tgt of the rule being
+>>> checked.
+>>> +         * It must match the same thing in the src and tgt, so AND the source
+>>> +         * and target together and check for a match on the result.
+>>> +         */
+>>> +        ebitmap_t match;
+>>> +        ebitmap_init(&match);
+>>> +        ebitmap_and(&match, &p->attr_type_map[k->source_type - 1],
+>>> &p->attr_type_map[k->target_type - 1] );
+>>> +        rc = ebitmap_match_any(&avrule->stypes.types, &match);
+>>> +        ebitmap_destroy(&match);
+>>> +    } else {
+>>> +        rc = ebitmap_match_any(&avrule->ttypes.types,
+>>> &p->attr_type_map[k->target_type -1]);
+>>> +    }
+>>> +    if (rc == 0)
+>>> +        goto exit;
+>>> +
+>>> +    return 1;
+>>> +
+>>> +exit:
+>>> +    return 0;
+>>> +}
+>>
+>> Seems like we are duplicating a lot of logic between the check and
+>> report functions.  I assume you split them so that the check function
+>> could be reused for CIL.  Can we perhaps take the common code though to
+>> a shared helper or macro?
+>>
+>
+> It is split so it can be reused for CIL. I'll see if I can factor out some of
+> the common code.
+>
+>>> +
+>>> +int check_assertion(policydb_t *p, avrule_t *avrule)
+>>> +{
+>>> +    int rc;
+>>> +    struct avtab_match_args args;
+>>> +
+>>> +    args.handle = NULL;
+>>> +    args.p = p;
+>>> +    args.avrule = avrule;
+>>> +    args.errors = 0;
+>>> +
+>>> +    rc = avtab_map(&p->te_avtab, check_assertion_avtab_match, &args);
+>>> +
+>>> +    if (rc == 0) {
+>>> +        rc = avtab_map(&p->te_cond_avtab, check_assertion_avtab_match, &args);
+>>> +    }
+>>> +
+>>> +    return rc;
+>>>   }
+>>>
+>>>   int check_assertions(sepol_handle_t * handle, policydb_t * p,
+>>>                avrule_t * avrules)
+>>>   {
+>>> +    int rc;
+>>>       avrule_t *a;
+>>> -    avtab_t te_avtab, te_cond_avtab;
+>>> -    ebitmap_node_t *snode, *tnode;
+>>> -    unsigned int i, j;
+>>>       unsigned long errors = 0;
+>>>
+>>>       if (!avrules) {
+>>> @@ -111,54 +211,17 @@ int check_assertions(sepol_handle_t * handle,
+>>> policydb_t * p,
+>>>           return 0;
+>>>       }
+>>>
+>>> -    if (avrules) {
+>>> -        if (avtab_init(&te_avtab))
+>>> -            goto oom;
+>>> -        if (avtab_init(&te_cond_avtab)) {
+>>> -            avtab_destroy(&te_avtab);
+>>> -            goto oom;
+>>> -        }
+>>> -        if (expand_avtab(p, &p->te_avtab, &te_avtab) ||
+>>> -            expand_avtab(p, &p->te_cond_avtab, &te_cond_avtab)) {
+>>> -            avtab_destroy(&te_avtab);
+>>> -            avtab_destroy(&te_cond_avtab);
+>>> -            goto oom;
+>>> -        }
+>>> -    }
+>>> -
+>>>       for (a = avrules; a != NULL; a = a->next) {
+>>> -        ebitmap_t *stypes = &a->stypes.types;
+>>> -        ebitmap_t *ttypes = &a->ttypes.types;
+>>> -
+>>>           if (!(a->specified & AVRULE_NEVERALLOW))
+>>>               continue;
+>>> -
+>>> -        ebitmap_for_each_bit(stypes, snode, i) {
+>>> -            if (!ebitmap_node_get_bit(snode, i))
+>>> -                continue;
+>>> -            if (a->flags & RULE_SELF) {
+>>> -                errors += check_assertion_helper
+>>> -                    (handle, p, &te_avtab, &te_cond_avtab, i, i,
+>>> -                     a);
+>>> -            }
+>>> -            ebitmap_for_each_bit(ttypes, tnode, j) {
+>>> -                if (!ebitmap_node_get_bit(tnode, j))
+>>> -                    continue;
+>>> -                errors += check_assertion_helper
+>>> -                    (handle, p, &te_avtab, &te_cond_avtab, i, j,
+>>> -                     a);
+>>> -            }
+>>> +        rc = check_assertion(p, a);
+>>> +        if (rc) {
+>>> +            errors += report_assertion_failures(handle, p, a);
+>>>           }
+>>>       }
+>>>
+>>>       if (errors)
+>>>           ERR(handle, "%lu neverallow failures occurred", errors);
+>>>
+>>> -    avtab_destroy(&te_avtab);
+>>> -    avtab_destroy(&te_cond_avtab);
+>>>       return errors ? -1 : 0;
+>>> -
+>>> -      oom:
+>>> -    ERR(handle, "Out of memory - unable to check neverallows");
+>>> -    return -1;
+>>>   }
+>>>
+>
+>
 
 
 -- 
