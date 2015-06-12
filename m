@@ -1,95 +1,85 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5BNlclx017665
- for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 19:47:38 -0400
-Received: by obcej4 with SMTP id ej4so12929353obc.0
- for <selinux@tycho.nsa.gov>; Thu, 11 Jun 2015 16:47:36 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5C6jC6d007734
+ for <selinux@tycho.nsa.gov>; Fri, 12 Jun 2015 02:45:12 -0400
+Received: from /spool/local
+ by e28smtp07.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ Violators will be prosecuted
+ for <selinux@tycho.nsa.gov> from <raghavendra.kt@linux.vnet.ibm.com>;
+ Fri, 12 Jun 2015 12:15:03 +0530
+Message-ID: <557A7B91.4000502@linux.vnet.ibm.com>
+Date: Fri, 12 Jun 2015 11:56:25 +0530
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 MIME-Version: 1.0
-From: Dan Albert <danalbert@google.com>
-Date: Thu, 11 Jun 2015 16:47:16 -0700
-Message-ID: <CAFVaGhtDWzjpa+w0k6ktUWj5aBT3vQ-v5zAuhwNFrpvWA_APrQ@mail.gmail.com>
-Subject: [PATCH] Fix -Wreturn-type issues.
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary=089e013a1a2abb8edc0518469d06
-Cc: Elliott Hughes <enh@google.com>, sds@tycho.nsa.gov
+To: Waiman Long <Waiman.Long@hp.com>
+Subject: Re: [PATCH v2] selinux: reduce locking overhead in
+ inode_free_security()
+References: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <1434058284-56634-1-git-send-email-Waiman.Long@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: James Morris <james.l.morris@oracle.com>,
+ Scott J Norton <scott.norton@hp.com>, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>,
+ selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e013a1a2abb8edc0518469d06
-Content-Type: multipart/alternative; boundary=089e013a1a2abb8ecf0518469d04
+On 06/12/2015 03:01 AM, Waiman Long wrote:
+> The inode_free_security() function just took the superblock's isec_lock
+> before checking and trying to remove the inode security struct from the
+> linked list. In many cases, the list was empty and so the lock taking
+> is wasteful as no useful work is done. On multi-socket systems with
+> a large number of CPUs, there can also be a fair amount of spinlock
+> contention on the isec_lock if many tasks are exiting at the same time.
+>
+> This patch changes the code to check the state of the list first
+> before taking the lock and attempting to dequeue it. As this function
+> is called indirectly from __destroy_inode(), there can't be another
+> instance of inode_free_security() running on the same inode.
+>
+> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> ---
+>   security/selinux/hooks.c |   15 ++++++++++++---
+>   1 files changed, 12 insertions(+), 3 deletions(-)
+>
+> v1->v2:
+>   - Take out the second list_empty() test inside the lock.
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 7dade28..e5cdad7 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -254,10 +254,19 @@ static void inode_free_security(struct inode *inode)
+>   	struct inode_security_struct *isec = inode->i_security;
+>   	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+>
+> -	spin_lock(&sbsec->isec_lock);
+> -	if (!list_empty(&isec->list))
+> +	/*
+> +	 * As not all inode security structures are in a list, we check for
+> +	 * empty list outside of the lock to make sure that we won't waste
+> +	 * time taking a lock doing nothing. As inode_free_security() is
+> +	 * being called indirectly from __destroy_inode(), there is no way
+> +	 * there can be two or more concurrent calls. So doing the list_empty()
+> +	 * test outside the loop should be safe.
+> +	 */
+> +	if (!list_empty(&isec->list)) {
+> +		spin_lock(&sbsec->isec_lock);
+>   		list_del_init(&isec->list);
 
---089e013a1a2abb8ecf0518469d04
-Content-Type: text/plain; charset=UTF-8
+Stupid question,
 
-assert() only prevents -Wreturn-type from firing if asserts are
-enabled. Use abort() so we don't do unexpected things even if we use
--UNDEBUG.
+I need to take a look at list_del_init() code, but it can so happen that
+if !list_empty() check could happen simultaneously, then serially two
+list_del_init() can happen.
 
---089e013a1a2abb8ecf0518469d04
-Content-Type: text/html; charset=UTF-8
+is that not a problem()?
 
-<div dir="ltr"><div>assert() only prevents -Wreturn-type from firing if asserts are</div><div>enabled. Use abort() so we don&#39;t do unexpected things even if we use</div><div>-UNDEBUG.</div></div>
-
---089e013a1a2abb8ecf0518469d04--
-
---089e013a1a2abb8edc0518469d06
-Content-Type: text/x-patch; charset=US-ASCII; name="0001-Fix-Wreturn-type-issues.patch"
-Content-Disposition: attachment;
-	filename="0001-Fix-Wreturn-type-issues.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_iasu45rr0
-
-RnJvbSBiNTNhZDA0MWRhYTUzZjUxMWJhY2NjODYwYjZmZTY5OTM1OTBhYTg3IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBEYW4gQWxiZXJ0IDxkYW5hbGJlcnRAZ29vZ2xlLmNvbT4KRGF0
-ZTogV2VkLCAxMCBKdW4gMjAxNSAxNzowMToyMyAtMDcwMApTdWJqZWN0OiBbUEFUQ0hdIEZpeCAt
-V3JldHVybi10eXBlIGlzc3Vlcy4KVG86IHNlbGludXhAdHljaG8ubnNhLmdvdgpDYzogbm5rQGdv
-b2dsZS5jb20sCiAgICBzZHNAdHljaG8ubnNhLmdvdgoKYXNzZXJ0KCkgb25seSBwcmV2ZW50cyAt
-V3JldHVybi10eXBlIGZyb20gZmlyaW5nIGlmIGFzc2VydHMgYXJlCmVuYWJsZWQuIFVzZSBhYm9y
-dCgpIHNvIHdlIGRvbid0IGRvIHVuZXhwZWN0ZWQgdGhpbmdzIGV2ZW4gaWYgd2UgdXNlCi1VTkRF
-QlVHLgotLS0KIGNoZWNrcG9saWN5L21vZHVsZV9jb21waWxlci5jIHwgMjAgKysrKysrKysrKy0t
-LS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMo
-LSkKCmRpZmYgLS1naXQgYS9jaGVja3BvbGljeS9tb2R1bGVfY29tcGlsZXIuYyBiL2NoZWNrcG9s
-aWN5L21vZHVsZV9jb21waWxlci5jCmluZGV4IGQ3ZjI3ZjUuLjZlNTQ4M2MgMTAwNjQ0Ci0tLSBh
-L2NoZWNrcG9saWN5L21vZHVsZV9jb21waWxlci5jCisrKyBiL2NoZWNrcG9saWN5L21vZHVsZV9j
-b21waWxlci5jCkBAIC0zMDAsNyArMzAwLDcgQEAgcm9sZV9kYXR1bV90ICpkZWNsYXJlX3JvbGUo
-dW5zaWduZWQgY2hhciBpc2F0dHIpCiAJCQlyZXR1cm4gZGVzdF9yb2xlOwkvKiByb2xlIGFscmVh
-ZHkgZGVjbGFyZWQgZm9yIHRoaXMgYmxvY2sgKi8KIAkJfQogCWRlZmF1bHQ6ewotCQkJYXNzZXJ0
-KDApOwkvKiBzaG91bGQgbmV2ZXIgZ2V0IGhlcmUgKi8KKwkJCWFib3J0KCk7CS8qIHNob3VsZCBu
-ZXZlciBnZXQgaGVyZSAqLwogCQl9CiAJfQogfQpAQCAtMzYzLDcgKzM2Myw3IEBAIHR5cGVfZGF0
-dW1fdCAqZGVjbGFyZV90eXBlKHVuc2lnbmVkIGNoYXIgcHJpbWFyeSwgdW5zaWduZWQgY2hhciBp
-c2F0dHIpCiAJCQlyZXR1cm4gdHlwZGF0dW07CiAJCX0KIAlkZWZhdWx0OnsKLQkJCWFzc2VydCgw
-KTsJLyogc2hvdWxkIG5ldmVyIGdldCBoZXJlICovCisJCQlhYm9ydCgpOwkvKiBzaG91bGQgbmV2
-ZXIgZ2V0IGhlcmUgKi8KIAkJfQogCX0KIH0KQEAgLTQ5OSw3ICs0OTksNyBAQCB1c2VyX2RhdHVt
-X3QgKmRlY2xhcmVfdXNlcih2b2lkKQogCQkJcmV0dXJuIGRlc3RfdXNlcjsJLyogdXNlciBhbHJl
-YWR5IGRlY2xhcmVkIGZvciB0aGlzIGJsb2NrICovCiAJCX0KIAlkZWZhdWx0OnsKLQkJCWFzc2Vy
-dCgwKTsJLyogc2hvdWxkIG5ldmVyIGdldCBoZXJlICovCisJCQlhYm9ydCgpOwkvKiBzaG91bGQg
-bmV2ZXIgZ2V0IGhlcmUgKi8KIAkJfQogCX0KIH0KQEAgLTgwNCw3ICs4MDQsNyBAQCBpbnQgcmVx
-dWlyZV9jbGFzcyhpbnQgcGFzcykKIAkJCWJyZWFrOwogCQl9CiAJZGVmYXVsdDp7Ci0JCQlhc3Nl
-cnQoMCk7CS8qIHNob3VsZCBuZXZlciBnZXQgaGVyZSAqLworCQkJYWJvcnQoKTsJLyogc2hvdWxk
-IG5ldmVyIGdldCBoZXJlICovCiAJCX0KIAl9CiAKQEAgLTkxNyw3ICs5MTcsNyBAQCBzdGF0aWMg
-aW50IHJlcXVpcmVfcm9sZV9vcl9hdHRyaWJ1dGUoaW50IHBhc3MsIHVuc2lnbmVkIGNoYXIgaXNh
-dHRyKQogCQkJcmV0dXJuIDA7CS8qIHJvbGUgYWxyZWFkeSByZXF1aXJlZCAqLwogCQl9CiAJZGVm
-YXVsdDp7Ci0JCQlhc3NlcnQoMCk7CS8qIHNob3VsZCBuZXZlciBnZXQgaGVyZSAqLworCQkJYWJv
-cnQoKTsJLyogc2hvdWxkIG5ldmVyIGdldCBoZXJlICovCiAJCX0KIAl9CiB9CkBAIC05ODAsNyAr
-OTgwLDcgQEAgc3RhdGljIGludCByZXF1aXJlX3R5cGVfb3JfYXR0cmlidXRlKGludCBwYXNzLCB1
-bnNpZ25lZCBjaGFyIGlzYXR0cikKIAkJCXJldHVybiAwOwkvKiB0eXBlIGFscmVhZHkgcmVxdWly
-ZWQgKi8KIAkJfQogCWRlZmF1bHQ6ewotCQkJYXNzZXJ0KDApOwkvKiBzaG91bGQgbmV2ZXIgZ2V0
-IGhlcmUgKi8KKwkJCWFib3J0KCk7CS8qIHNob3VsZCBuZXZlciBnZXQgaGVyZSAqLwogCQl9CiAJ
-fQogfQpAQCAtMTA0MSw3ICsxMDQxLDcgQEAgaW50IHJlcXVpcmVfdXNlcihpbnQgcGFzcykKIAkJ
-CXJldHVybiAwOwkvKiB1c2VyIGFscmVhZHkgcmVxdWlyZWQgKi8KIAkJfQogCWRlZmF1bHQ6ewot
-CQkJYXNzZXJ0KDApOwkvKiBzaG91bGQgbmV2ZXIgZ2V0IGhlcmUgKi8KKwkJCWFib3J0KCk7CS8q
-IHNob3VsZCBuZXZlciBnZXQgaGVyZSAqLwogCQl9CiAJfQogfQpAQCAtMTA5Miw3ICsxMDkyLDcg
-QEAgc3RhdGljIGludCByZXF1aXJlX2Jvb2xfdHVuYWJsZShpbnQgcGFzcywgaW50IGlzX3R1bmFi
-bGUpCiAJCQlyZXR1cm4gMDsJLyogYm9vbGVhbiBhbHJlYWR5IHJlcXVpcmVkICovCiAJCX0KIAlk
-ZWZhdWx0OnsKLQkJCWFzc2VydCgwKTsJLyogc2hvdWxkIG5ldmVyIGdldCBoZXJlICovCisJCQlh
-Ym9ydCgpOwkvKiBzaG91bGQgbmV2ZXIgZ2V0IGhlcmUgKi8KIAkJfQogCX0KIH0KQEAgLTExNjUs
-NyArMTE2NSw3IEBAIGludCByZXF1aXJlX3NlbnMoaW50IHBhc3MpCiAJCQlyZXR1cm4gMDsJLyog
-c2Vuc2l0aXZpdHkgYWxyZWFkeSByZXF1aXJlZCAqLwogCQl9CiAJZGVmYXVsdDp7Ci0JCQlhc3Nl
-cnQoMCk7CS8qIHNob3VsZCBuZXZlciBnZXQgaGVyZSAqLworCQkJYWJvcnQoKTsJLyogc2hvdWxk
-IG5ldmVyIGdldCBoZXJlICovCiAJCX0KIAl9CiB9CkBAIC0xMjE4LDcgKzEyMTgsNyBAQCBpbnQg
-cmVxdWlyZV9jYXQoaW50IHBhc3MpCiAJCQlyZXR1cm4gMDsJLyogY2F0ZWdvcnkgYWxyZWFkeSBy
-ZXF1aXJlZCAqLwogCQl9CiAJZGVmYXVsdDp7Ci0JCQlhc3NlcnQoMCk7CS8qIHNob3VsZCBuZXZl
-ciBnZXQgaGVyZSAqLworCQkJYWJvcnQoKTsJLyogc2hvdWxkIG5ldmVyIGdldCBoZXJlICovCiAJ
-CX0KIAl9CiB9Ci0tIAoyLjIuMC5yYzAuMjA3LmdhM2E2MTZjCgo=
---089e013a1a2abb8edc0518469d06--
+> -	spin_unlock(&sbsec->isec_lock);
+> +		spin_unlock(&sbsec->isec_lock);
+> +	}
+>
+>   	/*
+>   	 * The inode may still be referenced in a path walk and
+>
