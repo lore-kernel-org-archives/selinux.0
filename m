@@ -1,60 +1,40 @@
-Message-ID: <557F0974.4080109@tycho.nsa.gov>
-Date: Mon, 15 Jun 2015 13:20:52 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Tim Shearer <tim.shearer@overturenetworks.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-Subject: Re: Kernel error: SELinux:  Invalid class 0
-References: <33526A3108217C45B7DAFFA5277E4B67118AF1B3@mbx024-e1-nj-2.exch024.domain.local>
- <557F004B.8090703@tycho.nsa.gov>
-In-Reply-To: <557F004B.8090703@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] selinux: initialize sock security class to default value
+Date: Mon, 15 Jun 2015 13:24:50 -0400
+Message-Id: <1434389090-1197-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/15/2015 12:41 PM, Stephen Smalley wrote:
-> On 06/12/2015 01:48 PM, Tim Shearer wrote:
->> Hi all,
->>
->>  
->>
->> Environment: CentOS 7, with either stock 3.10 kernel, or custom 3.19 kernel.
->>
->>  
->>
->> I’m getting a AVC denial message in the audit logs that corresponds to
->> the opening of a TIPC socket (AF_TIPC). The denial is seems valid, and
->> is triggered by a custom C++ application that hasn’t yet been assigned
->> an appropriate security context. The problem I’m having is that the AVC
->> message is garbled (non-ASCII data in the denied and tclass fields),
->> which makes it difficult to assemble a new policy:
->>
->>  
->>
->> ----
->>
->> type=AVC msg=audit(1434126658.487:34500): avc:  denied  {
->> *garbage_characters* } for  pid=292 comm="kworker/u16:5"
->> scontext=system_u:system_r:kernel_t:s0
->> tcontext=system_u:object_r:unlabeled_t:s0 tclass=*garbage_characters*
->> permissive=0
->>
->> ----
->>
->>  
->>
->> This corresponds to a kernel error that shows up in the debuglog:
->>
->> SELinux:  Invalid class 0
-> 
-> This suggests that the tipc kernel module is creating a socket in some
-> manner without initializing its security state.
-> 
-> Can you provide a reproducer program that triggers the error?
+Initialize the security class of sock security structures
+to the generic socket class.  This is similar to what is
+already done in inode_alloc_security for files.  Generally
+the sclass field will later by set by socket_post_create
+or sk_clone or sock_graft, but for protocol implementations
+that fail to call any of these for newly accepted sockets,
+we want some sane default that will yield a legitimate
+avc denied message with non-garbage values for class and
+permission.
 
-Looks to me as if tipc_accept() never calls sock_graft() or
-security_sk_clone() so it will never initialize the security state of
-the new sock.  Kernel bug.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 312537d..90e6cdc 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4507,6 +4507,7 @@ static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority
+ 
+ 	sksec->peer_sid = SECINITSID_UNLABELED;
+ 	sksec->sid = SECINITSID_UNLABELED;
++	sksec->sclass = SECCLASS_SOCKET;
+ 	selinux_netlbl_sk_security_reset(sksec);
+ 	sk->sk_security = sksec;
+ 
+-- 
+2.1.0
