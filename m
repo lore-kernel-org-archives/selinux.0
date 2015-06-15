@@ -1,82 +1,60 @@
-Message-ID: <557F08E0.4040007@tycho.nsa.gov>
-Date: Mon, 15 Jun 2015 13:18:24 -0400
+Message-ID: <557F0974.4080109@tycho.nsa.gov>
+Date: Mon, 15 Jun 2015 13:20:52 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Waiman Long <Waiman.Long@hp.com>, Paul Moore <paul@paul-moore.com>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH v3] selinux: reduce locking overhead in
- inode_free_security()
-References: <1434388419-14850-1-git-send-email-Waiman.Long@hp.com>
-In-Reply-To: <1434388419-14850-1-git-send-email-Waiman.Long@hp.com>
+To: Tim Shearer <tim.shearer@overturenetworks.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Paul Moore <paul@paul-moore.com>
+Subject: Re: Kernel error: SELinux:  Invalid class 0
+References: <33526A3108217C45B7DAFFA5277E4B67118AF1B3@mbx024-e1-nj-2.exch024.domain.local>
+ <557F004B.8090703@tycho.nsa.gov>
+In-Reply-To: <557F004B.8090703@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
-Cc: Yury <yury.norov@gmail.com>, Scott J Norton <scott.norton@hp.com>,
- Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- Douglas Hatch <doug.hatch@hp.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/15/2015 01:13 PM, Waiman Long wrote:
-> The inode_free_security() function just took the superblock's isec_lock
-> before checking and trying to remove the inode security struct from the
-> linked list. In many cases, the list was empty and so the lock taking
-> is wasteful as no useful work is done. On multi-socket systems with
-> a large number of CPUs, there can also be a fair amount of spinlock
-> contention on the isec_lock if many tasks are exiting at the same time.
+On 06/15/2015 12:41 PM, Stephen Smalley wrote:
+> On 06/12/2015 01:48 PM, Tim Shearer wrote:
+>> Hi all,
+>>
+>>  
+>>
+>> Environment: CentOS 7, with either stock 3.10 kernel, or custom 3.19 kernel.
+>>
+>>  
+>>
+>> I’m getting a AVC denial message in the audit logs that corresponds to
+>> the opening of a TIPC socket (AF_TIPC). The denial is seems valid, and
+>> is triggered by a custom C++ application that hasn’t yet been assigned
+>> an appropriate security context. The problem I’m having is that the AVC
+>> message is garbled (non-ASCII data in the denied and tclass fields),
+>> which makes it difficult to assemble a new policy:
+>>
+>>  
+>>
+>> ----
+>>
+>> type=AVC msg=audit(1434126658.487:34500): avc:  denied  {
+>> *garbage_characters* } for  pid=292 comm="kworker/u16:5"
+>> scontext=system_u:system_r:kernel_t:s0
+>> tcontext=system_u:object_r:unlabeled_t:s0 tclass=*garbage_characters*
+>> permissive=0
+>>
+>> ----
+>>
+>>  
+>>
+>> This corresponds to a kernel error that shows up in the debuglog:
+>>
+>> SELinux:  Invalid class 0
 > 
-> This patch changes the code to check the state of the list first before
-> taking the lock and attempting to dequeue it. The list_del_init()
-> can be called more than once on the same list with no harm as long
-> as they are properly serialized. It should not be possible to have
-> inode_free_security() called concurrently with list_add(). For better
-> safety, however, we use list_empty_careful() here even though it is
-> still not completely safe in case that happens.
+> This suggests that the tipc kernel module is creating a socket in some
+> manner without initializing its security state.
 > 
-> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> Can you provide a reproducer program that triggers the error?
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-> ---
->  security/selinux/hooks.c |   17 ++++++++++++++---
->  1 files changed, 14 insertions(+), 3 deletions(-)
-> 
-> v1->v2:
->  - Take out the second list_empty() test inside the lock.
-> 
-> v2->v3:
->  - Fix incorrent comment and commit log message.
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7dade28..2a99804 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -254,10 +254,21 @@ static void inode_free_security(struct inode *inode)
->  	struct inode_security_struct *isec = inode->i_security;
->  	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
->  
-> -	spin_lock(&sbsec->isec_lock);
-> -	if (!list_empty(&isec->list))
-> +	/*
-> +	 * As not all inode security structures are in a list, we check for
-> +	 * empty list outside of the lock to make sure that we won't waste
-> +	 * time taking a lock doing nothing.
-> +	 *
-> +	 * The list_del_init() function can be safely called more than once.
-> +	 * It should not be possible for this function to be called with
-> +	 * concurrent list_add(), but for better safety against future changes
-> +	 * in the code, we use list_empty_careful() here.
-> +	 */
-> +	if (!list_empty_careful(&isec->list)) {
-> +		spin_lock(&sbsec->isec_lock);
->  		list_del_init(&isec->list);
-> -	spin_unlock(&sbsec->isec_lock);
-> +		spin_unlock(&sbsec->isec_lock);
-> +	}
->  
->  	/*
->  	 * The inode may still be referenced in a path walk and
-> 
+Looks to me as if tipc_accept() never calls sock_graft() or
+security_sk_clone() so it will never initialize the security state of
+the new sock.  Kernel bug.
