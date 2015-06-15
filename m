@@ -1,40 +1,83 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <557ECBC5.7000705@tycho.nsa.gov>
-References: <557ECBC5.7000705@tycho.nsa.gov>
- <16216.1417109138@warthog.procyon.org.uk> <545A51CB.6070107@tycho.nsa.gov>
- <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
- <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
- <8813.1434123054@warthog.procyon.org.uk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
+Message-ID: <557F36B5.8040607@gmail.com>
+Date: Mon, 15 Jun 2015 23:33:57 +0300
+From: Yury <yury.norov@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 16 Jun 2015 10:41:36 +0100
-Message-ID: <32052.1434447696@warthog.procyon.org.uk>
-Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
- dhowells@redhat.com, drquigl <drquigl@tycho.nsa.gov>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org
+To: Waiman Long <Waiman.Long@hp.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH v3] selinux: reduce locking overhead in
+ inode_free_security()
+References: <1434388419-14850-1-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <1434388419-14850-1-git-send-email-Waiman.Long@hp.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Cc: Scott J Norton <scott.norton@hp.com>, linux-security-module@vger.kernel.org,
+ Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
+ linux-kernel@vger.kernel.org, Douglas Hatch <doug.hatch@hp.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On 15.06.2015 20:13, Waiman Long wrote:
+> The inode_free_security() function just took the superblock's isec_lock
+> before checking and trying to remove the inode security struct from the
+> linked list. In many cases, the list was empty and so the lock taking
+> is wasteful as no useful work is done. On multi-socket systems with
+> a large number of CPUs, there can also be a fair amount of spinlock
+> contention on the isec_lock if many tasks are exiting at the same time.
+>
+> This patch changes the code to check the state of the list first before
+> taking the lock and attempting to dequeue it. The list_del_init()
+> can be called more than once on the same list with no harm as long
+> as they are properly serialized. It should not be possible to have
+> inode_free_security() called concurrently with list_add(). For better
+> safety, however, we use list_empty_careful() here even though it is
+> still not completely safe in case that happens.
+>
+> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> ---
+>   security/selinux/hooks.c |   17 ++++++++++++++---
+>   1 files changed, 14 insertions(+), 3 deletions(-)
+>
+> v1->v2:
+>   - Take out the second list_empty() test inside the lock.
+>
+> v2->v3:
+>   - Fix incorrent comment and commit log message.
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 7dade28..2a99804 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -254,10 +254,21 @@ static void inode_free_security(struct inode *inode)
+>   	struct inode_security_struct *isec = inode->i_security;
+>   	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+>   
+> -	spin_lock(&sbsec->isec_lock);
+> -	if (!list_empty(&isec->list))
+> +	/*
+> +	 * As not all inode security structures are in a list, we check for
+> +	 * empty list outside of the lock to make sure that we won't waste
+> +	 * time taking a lock doing nothing.
+> +	 *
+> +	 * The list_del_init() function can be safely called more than once.
+> +	 * It should not be possible for this function to be called with
+> +	 * concurrent list_add(), but for better safety against future changes
+> +	 * in the code, we use list_empty_careful() here.
+> +	 */
+> +	if (!list_empty_careful(&isec->list)) {
+> +		spin_lock(&sbsec->isec_lock);
+>   		list_del_init(&isec->list);
+> -	spin_unlock(&sbsec->isec_lock);
+> +		spin_unlock(&sbsec->isec_lock);
+> +	}
+>   
+>   	/*
+>   	 * The inode may still be referenced in a path walk and
+Hi Waiman,
 
-> It looks like commit 415103f9932d45f7927f4b17e3a9a13834cdb9a1 changed
-> selinux_inode_init_security()'s handling of SECURITY_FS_USE_MNTPOINT,
-> and this change was never propagated to selinux_dentry_init_security().
->  However, that commit also did not update
-> security/selinux/hooks.c:may_create()'s logic for computing the new file
-> label when checking CREATE permission, and therefore introduced a
-> potential inconsistency between the label used for the permission check
-> and the label assigned to the inode.
-> 
-> That's why I suggested that we need a common helper for all three to
-> ensure consistency there.
+If you need my Acked-by, you have it.
 
-Ah, okay.  I didn't realise selinux_dentry_init_security() wasn't supposed to
-be so different.
-
-David
+BR,
+Yury
