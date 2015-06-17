@@ -1,93 +1,69 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5GN7t8v007148
- for <selinux@tycho.nsa.gov>; Tue, 16 Jun 2015 19:07:56 -0400
-Received: by oiyy130 with SMTP id y130so5425508oiy.0
- for <selinux@tycho.nsa.gov>; Tue, 16 Jun 2015 16:07:54 -0700 (PDT)
+Message-ID: <558187EA.60805@tycho.nsa.gov>
+Date: Wed, 17 Jun 2015 10:44:58 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <1434482150-25603-1-git-send-email-sds@tycho.nsa.gov>
-References: <1434482150-25603-1-git-send-email-sds@tycho.nsa.gov>
-Date: Tue, 16 Jun 2015 19:07:54 -0400
-Message-ID: <CAHC9VhSDTHhQKSAiiBHu4wrWrnZH26Q53yLWhUVGobZnH6d3Dg@mail.gmail.com>
-Subject: Re: [RFC][PATCH] net/tipc: initialize security state for new
- connection socket
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
-Cc: selinux@tycho.nsa.gov
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 5/7] SELinux: Handle opening of a unioned file
+References: <55805AEA.3050407@tycho.nsa.gov> <557ECBC5.7000705@tycho.nsa.gov>
+ <16216.1417109138@warthog.procyon.org.uk> <545A51CB.6070107@tycho.nsa.gov>
+ <20141105154217.2555.578.stgit@warthog.procyon.org.uk>
+ <20141105154307.2555.9847.stgit@warthog.procyon.org.uk>
+ <8813.1434123054@warthog.procyon.org.uk>
+ <7332.1434473388@warthog.procyon.org.uk>
+ <16652.1434490473@warthog.procyon.org.uk>
+In-Reply-To: <16652.1434490473@warthog.procyon.org.uk>
+Content-Type: text/plain; charset=windows-1252
+Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, drquigl <drquigl@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 16, 2015 at 3:15 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> Calling connect() with an AF_TIPC socket would trigger a series
-> of error messages from SELinux along the lines of:
-> SELinux: Invalid class 0
-> type=AVC msg=audit(1434126658.487:34500): avc:  denied  { <unprintable> }
->   for pid=292 comm="kworker/u16:5" scontext=system_u:system_r:kernel_t:s0
->   tcontext=system_u:object_r:unlabeled_t:s0 tclass=<unprintable>
->   permissive=0
->
-> This was due to a failure to initialize the security state of the new
-> connection sock by the tipc code, leaving it with junk in the security
-> class field and an unlabeled secid.  Add a call to security_sk_clone()
-> to inherit the security state from the parent socket.
->
-> Reported-by: Tim Shearer <tim.shearer@overturenetworks.com>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+On 06/16/2015 05:34 PM, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+>> Why are you talking about file_open()?
+> 
+> Because that's the focus of the patch 5/7 that this comment chain is in
+> response to.  You said that it should have a common helper with the dentry and
+> inode init functions.
 
-Just one small comment about spacing, but it's cosmetic, feel free to
-ignore.  See below.
+Ah, thanks - I had lost the context (the patch and prior discussion was
+sufficiently long ago to drop out of my cache).
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+> 
+> 	Also, would be good to create a common helper for use here, by
+> 	selinux_dentry_init_security(), selinux_inode_init_security(), and
+> 	may_create().  Already some seeming potential for inconsistencies
+> 	there.
+> 
+> Okay, I missed that you'd said may_create() too.  I further assumed that you
+> meant that selinux_file_open_union() should use the common helper too.
 
-> ---
->
-> This is an RFC before sending this to netdev and the tipc maintainers.
-> Under separate cover, I also submitted two patches for selinux that
-> should avoid having a sclass of 0 for any sockets (so we will at least
-> get printable output and can even work around such denials by allowing
-> access to unlabeled_t:socket) and that will BUG_ON if we ever encounter
-> a 0 class value again, but this change is still needed to properly label
-> the new connection sock with something other than unlabeled.   I am
-> not entirely comfortable with the fact that we might need to sprinkle
-> these security_sk_clone() calls throughout the various network
-> protocol implementations; I think this is a consequence of switching
-> from using the socket inode security structure to using the sock security
-> structure in the generic socket layer hooks; we could ensure that the
-> socket inode security structure was initialized in selinux_socket_accept()
-> but cannot do the same for the sock, which is allocated by the network
-> protocol implementation, without hooking the network protocol implementations.
-> I see no better option, but am open to suggestions.
+If it also needs to compute the context of a newly created file.  That's
+what the logic in may_create, inode_init_security, and
+dentry_init_security is doing.
 
->From a SELinux perspective I like using the sock security blob over
-the inode security blob when we are talking about sockets, however, I
-share your frustration about having to instrument the individual
-protocols.  Unfortunately, I have yet to think of a better solution
-that isn't prone to abuse; if someone else has a good idea, I too
-would be very interested in hearing about it.
+>> Until a process writes to the file, we just want to use the lower inode
+>> label, right?
+> 
+> No.
+> 
+> There are two issues:
+> 
+>  (1) Non-fd accesses to an overlayfs file use the security label on the
+>      overlay inode, not the lower inode, even before copy up because they go
+>      through the inode ops of the overlayfs file first.
+> 
+>  (2) I'm told that we want the ability to have a different label on the upper
+>      file to that on the lower file.  This is trivial in overlayfs since you
+>      always have an overlay inode off which to hang the security label, but
+>      tricky with unionmount since you may only have a dentry.
 
->  net/tipc/socket.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-> index 46b6ed5..77cfe3a 100644
-> --- a/net/tipc/socket.c
-> +++ b/net/tipc/socket.c
-> @@ -2008,6 +2008,8 @@ static int tipc_accept(struct socket *sock, struct socket *new_sock, int flags)
->         if (res)
->                 goto exit;
-
-I might remove the vertical space here, between the tipc_sk_create()
-error handling and the security_sk_clone() so it lumps the alloc/init
-stuff together.
-
-> +       security_sk_clone(sock->sk, new_sock->sk);
-> +
->         new_sk = new_sock->sk;
->         new_tsock = tipc_sk(new_sk);
->         msg = buf_msg(buf);
-
--- 
-paul moore
-www.paul-moore.com
+I recall that being controversial.  I agree that if a process attempts
+to write to the file and a copy-up is triggered, then we want to be able
+to label the copy of the file differently.  But until that happens, why
+wouldn't we simply treat the file as having the lower file label for
+access control purposes on read operations?
