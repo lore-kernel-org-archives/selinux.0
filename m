@@ -1,76 +1,271 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5HJwjvP023081
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5HJwjvZ023081
  for <selinux@tycho.nsa.gov>; Wed, 17 Jun 2015 15:58:45 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 00/10 v2] Improve libsepol and CIL neverallow and bounds
- checking
-Date: Wed, 17 Jun 2015 15:58:44 -0400
-Message-Id: <1434571134-31452-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 10/10 v2] secilc: Add a CIL policy file to test bounds
+ checking.
+Date: Wed, 17 Jun 2015 15:58:54 -0400
+Message-Id: <1434571134-31452-11-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1434571134-31452-1-git-send-email-jwcart2@tycho.nsa.gov>
+References: <1434571134-31452-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-V2 fixes the following issues:
- - Patch 02/10 uses ebitmap_cpy() instead of individual ebitmap_set_bit() calls.
- - Patch 03/10 just the offending permissions are reported during neverallow checking.
- - Patch 03/10 checks and handles failure on ebitmap_and() calls.
- - Patch 03/10 removes some of the duplicated logic between checking and reporting.
- - Patch 05/10 uses the newly added ebitmap_match_any() function instead of its own.
- - Patch 05/10 ignores macros and abstract blocks when walking the AST. If in the 
-future there are other users of cil_find.c, then we can make this functionality 
-configureable then.
-
-This patch set refactors libsepol's neverallow and bounds checking, refactors CIL's
-neverallow checking, and adds bounds checking to CIL.
-
-It also results in improved memory usage and speed. With a test policy.conf derived
-from Refpolicy with typebounds statements added (but no violations of neverallow
-rules or type bounds) the following improvements are seen:
-Before: 9,605M of memory and 22.5 sec.
-Now   :   125M of memory and  2.1 sec.
-(Memory usage as reported by valgrind)
-
-In addition to adding bounds checking to CIL. This patch set also improves the error
-reporting for neverallow rule violations and CIL will now report all violations
-instead of stopping at the first one.
-
-James Carter (10):
-  libsepol: Add new ebitmap function named ebitmap_match_any()
-  libsepol: Treat types like an attribute in the attr_type_map.
-  libsepol: Refactored neverallow checking.
-  libsepol: Refactored bounds (hierarchy) checking code
-  libsepol/cil: Add function to search the CIL AST for an AV rule.
-  libsepol/cil: Refactored CIL neverallow checking and reporting.
-  libsepol/cil: Track number of classes and number of types and
-    attributes.
-  libsepol/cil: Add CIL bounds checking and reporting.
-  secilc: Add a CIL policy file to test neverallow checking.
-  secilc: Add a CIL policy file to test bounds checking.
-
- libsepol/cil/src/cil.c                      |    3 +-
- libsepol/cil/src/cil_binary.c               |  699 ++++++++++++++-----
- libsepol/cil/src/cil_binary.h               |    8 +-
- libsepol/cil/src/cil_find.c                 |  305 ++++++++
- libsepol/cil/src/cil_find.h                 |   39 ++
- libsepol/cil/src/cil_internal.h             |    2 +
- libsepol/cil/src/cil_post.c                 |   26 +-
- libsepol/include/sepol/policydb/ebitmap.h   |    1 +
- libsepol/include/sepol/policydb/hierarchy.h |   11 +
- libsepol/include/sepol/policydb/policydb.h  |    2 +-
- libsepol/src/assertion.c                    |  272 +++++---
- libsepol/src/ebitmap.c                      |   22 +
- libsepol/src/expand.c                       |   24 +-
- libsepol/src/hierarchy.c                    | 1000 +++++++++++++++++----------
- libsepol/src/policydb.c                     |    4 +
- secilc/test/bounds.cil                      |  241 +++++++
- secilc/test/neverallow.cil                  |   79 +++
- 17 files changed, 2080 insertions(+), 658 deletions(-)
- create mode 100644 libsepol/cil/src/cil_find.c
- create mode 100644 libsepol/cil/src/cil_find.h
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ secilc/test/bounds.cil | 241 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 241 insertions(+)
  create mode 100644 secilc/test/bounds.cil
- create mode 100644 secilc/test/neverallow.cil
 
+diff --git a/secilc/test/bounds.cil b/secilc/test/bounds.cil
+new file mode 100644
+index 0000000..e72560e
+--- /dev/null
++++ b/secilc/test/bounds.cil
+@@ -0,0 +1,241 @@
++(class CLASS (PERM))
++(classorder (CLASS))
++(sid SID)
++(sidorder (SID))
++(user USER)
++(role ROLE)
++(type TYPE)
++(category CAT)
++(categoryorder (CAT))
++(sensitivity SENS)
++(sensitivityorder (SENS))
++(sensitivitycategory SENS (CAT))
++(allow TYPE self (CLASS (PERM)))
++(roletype ROLE TYPE)
++(userrole USER ROLE)
++(userlevel USER (SENS))
++(userrange USER ((SENS)(SENS (CAT))))
++(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
++
++(class c1 (p1a p1b p1c))
++(class c2 (p2a p2b p2c))
++(class c3 (p3a p3b p3c))
++
++(classorder (CLASS c1 c2 c3))
++
++(classpermission cp1)
++(classpermissionset cp1 (c1 (p1a p1b)))
++(classpermissionset cp1 (c2 (p2a)))
++
++(classmap cm1 (mp1))
++(classmapping cm1 mp1
++	      (c1 (p1a)))
++
++(boolean b_b1 false)
++(boolean b_b2 false)
++(boolean b_b3 false)
++
++
++(type b_ta)
++(type b_tb)
++(type b_tc)
++(type b_td)
++
++
++;; All of these rules should pass the bounds check
++(type b_t1)
++(type b_t1_c)
++(typebounds b_t1 b_t1_c)
++
++(allow b_t1 self (CLASS (PERM)))
++(allow b_t1_c self (CLASS (PERM)))
++(allow b_t1 b_ta (CLASS (PERM)))
++(allow b_t1_c b_ta (CLASS (PERM)))
++(allow b_ta b_t1 (CLASS (PERM)))
++(allow b_ta b_t1_c (CLASS (PERM)))
++
++(booleanif b_b1
++  (false
++    (allow b_t1 b_tb (CLASS (PERM)))
++    (allow b_t1_c b_tb (CLASS (PERM)))
++    (allow b_tb b_t1 (CLASS (PERM)))
++    (allow b_tb b_t1_c (CLASS (PERM)))))
++
++(allow b_t1 b_tc (CLASS (PERM)))
++(allow b_tc b_t1 (CLASS (PERM)))
++(booleanif b_b2
++  (false
++    (allow b_t1_c b_tc (CLASS (PERM)))
++    (allow b_tc b_t1_c (CLASS (PERM)))))
++
++(allow b_t1_c b_td (CLASS (PERM)))
++(allow b_td b_t1_c (CLASS (PERM)))
++(booleanif b_b3
++  (true
++    (allow b_t1 b_td (CLASS (PERM)))
++    (allow b_td b_t1 (CLASS (PERM))))
++  (false
++    (allow b_t1 b_td (CLASS (PERM)))
++    (allow b_td b_t1 (CLASS (PERM)))))
++
++
++;; All of these rules should pass the bounds check
++(type b_t2)
++(type b_t2_c)
++(typebounds b_t2 b_t2_c)
++(typeattribute b_a2)
++(typeattribute b_a2_c)
++(typeattributeset b_a2 b_t2)
++(typeattributeset b_a2_c b_t2_c)
++
++(allow b_a2 self (CLASS (PERM)))
++(allow b_a2_c self (CLASS (PERM)))
++(allow b_a2 b_ta (CLASS (PERM)))
++(allow b_a2_c b_ta (CLASS (PERM)))
++(allow b_ta b_a2 (CLASS (PERM)))
++(allow b_ta b_a2_c (CLASS (PERM)))
++
++(booleanif b_b1
++  (false
++    (allow b_a2 b_tb (CLASS (PERM)))
++    (allow b_a2_c b_tb (CLASS (PERM)))
++    (allow b_tb b_a2 (CLASS (PERM)))
++    (allow b_tb b_a2_c (CLASS (PERM)))))
++
++(allow b_a2 b_tc (CLASS (PERM)))
++(allow b_tc b_a2 (CLASS (PERM)))
++(booleanif b_b2
++  (false
++    (allow b_a2_c b_tc (CLASS (PERM)))
++    (allow b_tc b_a2_c (CLASS (PERM)))))
++
++(allow b_a2_c b_td (CLASS (PERM)))
++(allow b_td b_a2_c (CLASS (PERM)))
++(booleanif b_b3
++  (true
++    (allow b_a2 b_td (CLASS (PERM)))
++    (allow b_td b_a2 (CLASS (PERM))))
++  (false
++    (allow b_a2 b_td (CLASS (PERM)))
++    (allow b_td b_a2 (CLASS (PERM)))))
++
++
++;; All of these rules should fail the bounds check
++(type b_t3)
++(type b_t3_c)
++(typebounds b_t3 b_t3_c)
++
++(allow b_t3 self (CLASS (PERM)))
++(allow b_t3_c self (c1 (p1a)))
++(allow b_t3 b_ta (CLASS (PERM)))
++(allow b_t3_c b_ta (c1 (p1a)))
++(allow b_ta b_t3 (CLASS (PERM)))
++(allow b_ta b_t3_c (c1 (p1a)))
++
++(booleanif b_b1
++  (false
++    (allow b_t3_c b_tb (c1 (p1a)))
++    (allow b_tb b_t3_c (c1 (p1a)))))
++
++(booleanif b_b2
++  (true
++    (allow b_t3_c b_tc (c1 (p1a)))
++    (allow b_tc b_t3_c (c1 (p1a))))
++  (false
++    (allow b_t3 b_tc (c1 (p1a)))
++    (allow b_tc b_t3 (c1 (p1a)))))
++
++(allow b_t3_c b_td (c1 (p1a)))
++(allow b_td b_t3_c (c1 (p1a)))
++(booleanif b_b3
++  (false
++    (allow b_t3 b_td (c1 (p1a)))
++    (allow b_td b_t3 (c1 (p1a)))))
++
++
++;; All of these rules should fail the bounds check
++(type b_t4)
++(type b_t4_c)
++(typebounds b_t4 b_t4_c)
++(typeattribute b_a4)
++(typeattribute b_a4_c)
++(typeattributeset b_a4 b_t4)
++(typeattributeset b_a4_c b_t4_c)
++
++(allow b_a4 self (CLASS (PERM)))
++(allow b_a4_c self (c1 (p1a)))
++(allow b_a4 b_ta (CLASS (PERM)))
++(allow b_a4_c b_ta (c1 (p1a)))
++(allow b_ta b_a4 (CLASS (PERM)))
++(allow b_ta b_a4_c (c1 (p1a)))
++
++(booleanif b_b1
++  (false
++    (allow b_a4_c b_tb (c1 (p1a)))
++    (allow b_tb b_a4_c (c1 (p1a)))))
++
++(booleanif b_b2
++  (true
++    (allow b_a4_c b_tc (c1 (p1a)))
++    (allow b_tc b_a4_c (c1 (p1a))))
++  (false
++    (allow b_a4 b_tc (c1 (p1a)))
++    (allow b_tc b_a4 (c1 (p1a)))))
++
++(allow b_a4_c b_td (c1 (p1a)))
++(allow b_td b_a4_c (c1 (p1a)))
++(booleanif b_b3
++  (false
++    (allow b_a4 b_td (c1 (p1a)))
++    (allow b_td b_a4 (c1 (p1a)))))
++
++
++;; Marked rules should fail, all others should pass
++(type b_t5)
++(type b_t5_c)
++(typebounds b_t5 b_t5_c)
++
++(allow b_t5 b_ta cp1)
++(allow b_t5_c b_ta (c1 (p1a)))
++(allow b_t5_c b_ta (c2 (p2a)))
++(allow b_t5_c b_ta (c2 (p2b))) ;; Fail
++(allow b_t5_c b_ta (c3 (p3a))) ;; Fail
++
++(allow b_t5 b_tb (c1 (p1a p1b)))
++(allow b_t5 b_tb (c2 (p2a)))
++(allow b_t5_c b_tb cp1)
++
++(allow b_t5 b_tc (cm1 (mp1)))
++(allow b_t5_c b_tc (c1 (p1a)))
++(allow b_t5_c b_tc (c1 (p1b))) ;; Fail
++(allow b_t5_c b_tc (c2 (p2a))) ;; Fail
++
++(allow b_t5 b_tc (c1 (p1a)))
++(allow b_t5_c b_tc (cm1 (mp1)))
++
++
++;; Marked rules should fail, all others should pass
++(type b_t6a)
++(type b_t6a_c)
++(type b_t6b)
++(type b_t6b_c)
++(typebounds b_t6a b_t6a_c)
++(typebounds b_t6b b_t6b_c)
++
++(allow b_t6a b_t6b (CLASS (PERM)))
++(allow b_t6a_c b_t6b_c (CLASS (PERM)))
++
++;; Needs: (allow b_t6a b_t6b (c1 (p1a)))
++(allow b_t6a_c b_t6b (c1 (p1a))) ;; Fail
++(allow b_t6a_c b_t6b_c (c1 (p1a))) ;; Fail
++
++;; Needs: (allow b_t6a b_t6b (c2 (p2a)))
++(allow b_t6a b_t6b_c (c2 (p2a))) ;; Fail
++(allow b_t6a_c b_t6b (c2 (p2a))) ;; Fail
++(allow b_t6a_c b_t6b_c (c2 (p2a)))
++
++;; Needs: (allow b_t6a b_t6b (c3 (p3c)))
++(allow b_t6a b_t6b (c3 (p3a p3b)))
++(allow b_t6a b_t6b_c (c3 (p3b p3c))) ;; Fail
++(allow b_t6a_c b_t6b (c3 (p3a p3c))) ;; Fail
++(allow b_t6a_c b_t6b_c (c3 (p3a p3b p3c))) ;; Fail
 -- 
 1.9.3
