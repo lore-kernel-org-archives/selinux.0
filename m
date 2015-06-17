@@ -1,12 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5HJwjvZ023081
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5HJwjvU023081
  for <selinux@tycho.nsa.gov>; Wed, 17 Jun 2015 15:58:45 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 10/10 v2] secilc: Add a CIL policy file to test bounds
- checking.
-Date: Wed, 17 Jun 2015 15:58:54 -0400
-Message-Id: <1434571134-31452-11-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 05/10 v2] libsepol/cil: Add function to search the CIL AST for
+ an AV rule.
+Date: Wed, 17 Jun 2015 15:58:49 -0400
+Message-Id: <1434571134-31452-6-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1434571134-31452-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1434571134-31452-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,258 +14,376 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+The search will be considered a success if any rule is found that
+at least partially matches all parts (src type, tgt type, and class-
+perms) of the target rule.
+
+For example, for a target of (allow domain file_type (file (read write)
+the rule (allow init_t init_exec_t (file (read exec)) will match.
+
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- secilc/test/bounds.cil | 241 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 241 insertions(+)
- create mode 100644 secilc/test/bounds.cil
+ libsepol/cil/src/cil_find.c | 305 ++++++++++++++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_find.h |  39 ++++++
+ 2 files changed, 344 insertions(+)
+ create mode 100644 libsepol/cil/src/cil_find.c
+ create mode 100644 libsepol/cil/src/cil_find.h
 
-diff --git a/secilc/test/bounds.cil b/secilc/test/bounds.cil
+diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
 new file mode 100644
-index 0000000..e72560e
+index 0000000..a76dc37
 --- /dev/null
-+++ b/secilc/test/bounds.cil
-@@ -0,0 +1,241 @@
-+(class CLASS (PERM))
-+(classorder (CLASS))
-+(sid SID)
-+(sidorder (SID))
-+(user USER)
-+(role ROLE)
-+(type TYPE)
-+(category CAT)
-+(categoryorder (CAT))
-+(sensitivity SENS)
-+(sensitivityorder (SENS))
-+(sensitivitycategory SENS (CAT))
-+(allow TYPE self (CLASS (PERM)))
-+(roletype ROLE TYPE)
-+(userrole USER ROLE)
-+(userlevel USER (SENS))
-+(userrange USER ((SENS)(SENS (CAT))))
-+(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
++++ b/libsepol/cil/src/cil_find.c
+@@ -0,0 +1,305 @@
++/*
++ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *    1. Redistributions of source code must retain the above copyright notice,
++ *       this list of conditions and the following disclaimer.
++ *
++ *    2. Redistributions in binary form must reproduce the above copyright notice,
++ *       this list of conditions and the following disclaimer in the documentation
++ *       and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
++ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
++ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * The views and conclusions contained in the software and documentation are those
++ * of the authors and should not be interpreted as representing official policies,
++ * either expressed or implied, of Tresys Technology, LLC.
++ */
 +
-+(class c1 (p1a p1b p1c))
-+(class c2 (p2a p2b p2c))
-+(class c3 (p3a p3b p3c))
++#include <sepol/policydb/ebitmap.h>
 +
-+(classorder (CLASS c1 c2 c3))
++#include "cil_internal.h"
++#include "cil_flavor.h"
++#include "cil_list.h"
++#include "cil_log.h"
++#include "cil_symtab.h"
 +
-+(classpermission cp1)
-+(classpermissionset cp1 (c1 (p1a p1b)))
-+(classpermissionset cp1 (c2 (p2a)))
++struct cil_args_find {
++	enum cil_flavor flavor;
++	void *target;
++	struct cil_list *matching;
++	int match_self;
++};
 +
-+(classmap cm1 (mp1))
-+(classmapping cm1 mp1
-+	      (c1 (p1a)))
++static int cil_type_match_any(struct cil_symtab_datum *d1, struct cil_symtab_datum *d2)
++{
++	enum cil_flavor f1 = ((struct cil_tree_node*)d1->nodes->head->data)->flavor;
++	enum cil_flavor f2 = ((struct cil_tree_node*)d2->nodes->head->data)->flavor;
 +
-+(boolean b_b1 false)
-+(boolean b_b2 false)
-+(boolean b_b3 false)
++	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_type *t1 = (struct cil_type *)d1;
++		struct cil_type *t2 = (struct cil_type *)d2;
++		if (t1->value == t2->value) {
++			return CIL_TRUE;
++		}
++	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
++		struct cil_type *t = (struct cil_type *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			return CIL_TRUE;
++		}
++	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
++		struct cil_type *t = (struct cil_type *)d1;
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			return CIL_TRUE;
++		}
++	} else {
++		/* Both are attributes */
++		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
++		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
++		return ebitmap_match_any(a1->types, a2->types);
++	}
++	return CIL_FALSE;
++}
 +
++static int cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, struct cil_symtab_datum *d2)
++{
++	int rc = SEPOL_OK;
++	enum cil_flavor f1 = ((struct cil_tree_node*)d1->nodes->head->data)->flavor;
++	enum cil_flavor f2 = ((struct cil_tree_node*)d2->nodes->head->data)->flavor;
 +
-+(type b_ta)
-+(type b_tb)
-+(type b_tc)
-+(type b_td)
++	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_type *t1 = (struct cil_type *)d1;
++		struct cil_type *t2 = (struct cil_type *)d2;
++		if (t1->value == t2->value) {
++			ebitmap_set_bit(matches, t1->value, 1);
++		}
++	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
++		struct cil_type *t = (struct cil_type *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			ebitmap_set_bit(matches, t->value, 1);
++		}
++	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
++		struct cil_type *t = (struct cil_type *)d1;
++		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
++		if (ebitmap_get_bit(a->types, t->value)) {
++			ebitmap_set_bit(matches, t->value, 1);
++		}
++	} else {
++		/* Both are attributes */
++		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
++		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
++		rc = ebitmap_and(matches, a1->types, a2->types);
++	}
 +
++	return rc;
++}
 +
-+;; All of these rules should pass the bounds check
-+(type b_t1)
-+(type b_t1_c)
-+(typebounds b_t1 b_t1_c)
++/* s1 is the src type that is matched with a self
++ * s2, and t2 are the source and type of the other rule
++ */
++static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
++{
++	int rc;
++	struct cil_tree_node *n1 = s1->nodes->head->data;
++	if (n1->flavor != CIL_TYPEATTRIBUTE) {
++		rc = cil_type_match_any(s1, t2);
++	} else {
++		struct cil_typeattribute *a = (struct cil_typeattribute *)s1;
++		ebitmap_t map;
++		ebitmap_init(&map);
++		rc = cil_type_matches(&map, s2, t2);
++		if (rc < 0) {
++			ebitmap_destroy(&map);
++			goto exit;
++		}
++		if (map.node == NULL) {
++			rc = CIL_FALSE;
++			goto exit;
++		}
++		rc = ebitmap_match_any(&map, a->types);
++		ebitmap_destroy(&map);
++	}
 +
-+(allow b_t1 self (CLASS (PERM)))
-+(allow b_t1_c self (CLASS (PERM)))
-+(allow b_t1 b_ta (CLASS (PERM)))
-+(allow b_t1_c b_ta (CLASS (PERM)))
-+(allow b_ta b_t1 (CLASS (PERM)))
-+(allow b_ta b_t1_c (CLASS (PERM)))
++exit:
++	return rc;
++}
 +
-+(booleanif b_b1
-+  (false
-+    (allow b_t1 b_tb (CLASS (PERM)))
-+    (allow b_t1_c b_tb (CLASS (PERM)))
-+    (allow b_tb b_t1 (CLASS (PERM)))
-+    (allow b_tb b_t1_c (CLASS (PERM)))))
++static int cil_classperms_match_any(struct cil_classperms *cp1, struct cil_classperms *cp2)
++{
++	struct cil_class *c1 = cp1->class;
++	struct cil_class *c2 = cp2->class;
++	struct cil_list_item *i1, *i2;
 +
-+(allow b_t1 b_tc (CLASS (PERM)))
-+(allow b_tc b_t1 (CLASS (PERM)))
-+(booleanif b_b2
-+  (false
-+    (allow b_t1_c b_tc (CLASS (PERM)))
-+    (allow b_tc b_t1_c (CLASS (PERM)))))
++	if (&c1->datum != &c2->datum) return CIL_FALSE;
 +
-+(allow b_t1_c b_td (CLASS (PERM)))
-+(allow b_td b_t1_c (CLASS (PERM)))
-+(booleanif b_b3
-+  (true
-+    (allow b_t1 b_td (CLASS (PERM)))
-+    (allow b_td b_t1 (CLASS (PERM))))
-+  (false
-+    (allow b_t1 b_td (CLASS (PERM)))
-+    (allow b_td b_t1 (CLASS (PERM)))))
++	cil_list_for_each(i1, cp1->perms) {
++		struct cil_perm *p1 = i1->data;
++		cil_list_for_each(i2, cp2->perms) {
++			struct cil_perm *p2 = i2->data;
++			if (&p1->datum == &p2->datum) return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
 +
++static int __cil_classperms_list_match_any(struct cil_classperms *cp1, struct cil_list *cpl2)
++{
++	int rc;
++	struct cil_list_item *curr;
 +
-+;; All of these rules should pass the bounds check
-+(type b_t2)
-+(type b_t2_c)
-+(typebounds b_t2 b_t2_c)
-+(typeattribute b_a2)
-+(typeattribute b_a2_c)
-+(typeattributeset b_a2 b_t2)
-+(typeattributeset b_a2_c b_t2_c)
++	cil_list_for_each(curr, cpl2) {
++		if (curr->flavor == CIL_CLASSPERMS) {
++			struct cil_classperms *cp = curr->data;
++			if (FLAVOR(cp->class) == CIL_CLASS) {
++				rc = cil_classperms_match_any(cp1, cp);
++				if (rc == CIL_TRUE) return CIL_TRUE;
++			} else { /* MAP */
++				struct cil_list_item *i = NULL;
++				cil_list_for_each(i, cp->perms) {
++					struct cil_perm *cmp = i->data;
++					rc = __cil_classperms_list_match_any(cp1, cmp->classperms);
++					if (rc == CIL_TRUE) return CIL_TRUE;
++				}
++			}
++		} else { /* SET */
++			struct cil_classperms_set *cp_set = curr->data;
++			struct cil_classpermission *cp = cp_set->set;
++			rc = __cil_classperms_list_match_any(cp1, cp->classperms);
++			if (rc == CIL_TRUE) return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
 +
-+(allow b_a2 self (CLASS (PERM)))
-+(allow b_a2_c self (CLASS (PERM)))
-+(allow b_a2 b_ta (CLASS (PERM)))
-+(allow b_a2_c b_ta (CLASS (PERM)))
-+(allow b_ta b_a2 (CLASS (PERM)))
-+(allow b_ta b_a2_c (CLASS (PERM)))
++static int cil_classperms_list_match_any(struct cil_list *cpl1, struct cil_list *cpl2)
++{
++	int rc;
++	struct cil_list_item *curr;
 +
-+(booleanif b_b1
-+  (false
-+    (allow b_a2 b_tb (CLASS (PERM)))
-+    (allow b_a2_c b_tb (CLASS (PERM)))
-+    (allow b_tb b_a2 (CLASS (PERM)))
-+    (allow b_tb b_a2_c (CLASS (PERM)))))
++	cil_list_for_each(curr, cpl1) {
++		if (curr->flavor == CIL_CLASSPERMS) {
++			struct cil_classperms *cp = curr->data;
++			if (FLAVOR(cp->class) == CIL_CLASS) {
++				rc = __cil_classperms_list_match_any(cp, cpl2);
++				if (rc == CIL_TRUE) return CIL_TRUE;
++			} else { /* MAP */
++				struct cil_list_item *i = NULL;
++				cil_list_for_each(i, cp->perms) {
++					struct cil_perm *cmp = i->data;
++					rc = cil_classperms_list_match_any(cmp->classperms, cpl2);
++					if (rc == CIL_TRUE) return CIL_TRUE;
++				}
++			}
++		} else { /* SET */
++			struct cil_classperms_set *cp_set = curr->data;
++			struct cil_classpermission *cp = cp_set->set;
++			rc = cil_classperms_list_match_any(cp->classperms, cpl2);
++			if (rc == CIL_TRUE) return CIL_TRUE;
++		}
++	}
++	return CIL_FALSE;
++}
 +
-+(allow b_a2 b_tc (CLASS (PERM)))
-+(allow b_tc b_a2 (CLASS (PERM)))
-+(booleanif b_b2
-+  (false
-+    (allow b_a2_c b_tc (CLASS (PERM)))
-+    (allow b_tc b_a2_c (CLASS (PERM)))))
++int cil_find_matching_avrule(struct cil_tree_node *node, struct cil_avrule *avrule, struct cil_avrule *target, struct cil_list *matching, int match_self)
++{
++	int rc = SEPOL_OK;
++	struct cil_symtab_datum *s1 = avrule->src;
++	struct cil_symtab_datum *t1 = avrule->tgt;
++	struct cil_list *cp1 = avrule->classperms;
++	struct cil_symtab_datum *s2 = target->src;
++	struct cil_symtab_datum *t2 = target->tgt;
++	struct cil_list *cp2 = target->classperms;
 +
-+(allow b_a2_c b_td (CLASS (PERM)))
-+(allow b_td b_a2_c (CLASS (PERM)))
-+(booleanif b_b3
-+  (true
-+    (allow b_a2 b_td (CLASS (PERM)))
-+    (allow b_td b_a2 (CLASS (PERM))))
-+  (false
-+    (allow b_a2 b_td (CLASS (PERM)))
-+    (allow b_td b_a2 (CLASS (PERM)))))
++	if (match_self != CIL_TRUE && avrule == target) goto exit;
 +
++	if (avrule->rule_kind != target->rule_kind) goto exit;
 +
-+;; All of these rules should fail the bounds check
-+(type b_t3)
-+(type b_t3_c)
-+(typebounds b_t3 b_t3_c)
++	if (!cil_type_match_any(s1, s2)) goto exit;
 +
-+(allow b_t3 self (CLASS (PERM)))
-+(allow b_t3_c self (c1 (p1a)))
-+(allow b_t3 b_ta (CLASS (PERM)))
-+(allow b_t3_c b_ta (c1 (p1a)))
-+(allow b_ta b_t3 (CLASS (PERM)))
-+(allow b_ta b_t3_c (c1 (p1a)))
++	if (t1->fqn != CIL_KEY_SELF && t2->fqn != CIL_KEY_SELF) {
++		if (!cil_type_match_any(t1, t2)) goto exit;
++	} else {
++		if (t1->fqn == CIL_KEY_SELF && t2->fqn == CIL_KEY_SELF) {
++			/* The earlier check whether s1 and s2 matches is all that is needed */
++		} else if (t1->fqn == CIL_KEY_SELF) {
++			rc = cil_self_match_any(s1, s2, t2);
++			if (rc < 0) {
++				goto exit;
++			} else if (rc == CIL_FALSE) {
++				rc = SEPOL_OK;
++				goto exit;
++			}
++		} else if (t2->fqn == CIL_KEY_SELF) {
++			rc = cil_self_match_any(s2, s1, t1);
++			if (rc < 0) {
++				goto exit;
++			} else if (rc == CIL_FALSE) {
++				rc = SEPOL_OK;
++				goto exit;
++			}
++		}
++	}
 +
-+(booleanif b_b1
-+  (false
-+    (allow b_t3_c b_tb (c1 (p1a)))
-+    (allow b_tb b_t3_c (c1 (p1a)))))
++	if (cil_classperms_list_match_any(cp1, cp2)) {
++		cil_list_append(matching, CIL_NODE, node);
++	}
 +
-+(booleanif b_b2
-+  (true
-+    (allow b_t3_c b_tc (c1 (p1a)))
-+    (allow b_tc b_t3_c (c1 (p1a))))
-+  (false
-+    (allow b_t3 b_tc (c1 (p1a)))
-+    (allow b_tc b_t3 (c1 (p1a)))))
++	rc = SEPOL_OK;
 +
-+(allow b_t3_c b_td (c1 (p1a)))
-+(allow b_td b_t3_c (c1 (p1a)))
-+(booleanif b_b3
-+  (false
-+    (allow b_t3 b_td (c1 (p1a)))
-+    (allow b_td b_t3 (c1 (p1a)))))
++exit:
++	return rc;
++}
 +
++static int __cil_find_matching_avrule_in_ast(struct cil_tree_node *node,  __attribute__((unused)) uint32_t *finished, void *extra_args)
++{
++	int rc = SEPOL_OK;
++	struct cil_args_find *args = extra_args;
 +
-+;; All of these rules should fail the bounds check
-+(type b_t4)
-+(type b_t4_c)
-+(typebounds b_t4 b_t4_c)
-+(typeattribute b_a4)
-+(typeattribute b_a4_c)
-+(typeattributeset b_a4 b_t4)
-+(typeattributeset b_a4_c b_t4_c)
++	if (node->flavor == CIL_BLOCK) {
++		struct cil_block *blk = node->data;
++		if (blk->is_abstract == CIL_TRUE) {
++			*finished = CIL_TREE_SKIP_HEAD;
++			goto exit;
++		}
++	} else if (node->flavor == CIL_MACRO) {
++		*finished = CIL_TREE_SKIP_HEAD;
++		goto exit;
++	} else if (node->flavor == CIL_AVRULE) {
++		rc = cil_find_matching_avrule(node, node->data, args->target, args->matching, args->match_self);
++	}
 +
-+(allow b_a4 self (CLASS (PERM)))
-+(allow b_a4_c self (c1 (p1a)))
-+(allow b_a4 b_ta (CLASS (PERM)))
-+(allow b_a4_c b_ta (c1 (p1a)))
-+(allow b_ta b_a4 (CLASS (PERM)))
-+(allow b_ta b_a4_c (c1 (p1a)))
++exit:
++	return rc;
++}
 +
-+(booleanif b_b1
-+  (false
-+    (allow b_a4_c b_tb (c1 (p1a)))
-+    (allow b_tb b_a4_c (c1 (p1a)))))
++int cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flavor flavor, void *target, struct cil_list *matching, int match_self)
++{
++	int rc;
++	struct cil_args_find args;
 +
-+(booleanif b_b2
-+  (true
-+    (allow b_a4_c b_tc (c1 (p1a)))
-+    (allow b_tc b_a4_c (c1 (p1a))))
-+  (false
-+    (allow b_a4 b_tc (c1 (p1a)))
-+    (allow b_tc b_a4 (c1 (p1a)))))
++	args.flavor = flavor;
++	args.target = target;
++	args.matching = matching;
++	args.match_self = match_self;
 +
-+(allow b_a4_c b_td (c1 (p1a)))
-+(allow b_td b_a4_c (c1 (p1a)))
-+(booleanif b_b3
-+  (false
-+    (allow b_a4 b_td (c1 (p1a)))
-+    (allow b_td b_a4 (c1 (p1a)))))
++	rc = cil_tree_walk(current, __cil_find_matching_avrule_in_ast, NULL, NULL, &args);
++	if (rc) {
++		cil_log(CIL_ERR, "An error occured while searching for avrule in AST\n");
++	}
 +
++	return rc;
++}
+diff --git a/libsepol/cil/src/cil_find.h b/libsepol/cil/src/cil_find.h
+new file mode 100644
+index 0000000..c8ca2d2
+--- /dev/null
++++ b/libsepol/cil/src/cil_find.h
+@@ -0,0 +1,39 @@
++/*
++ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions are met:
++ *
++ *    1. Redistributions of source code must retain the above copyright notice,
++ *       this list of conditions and the following disclaimer.
++ *
++ *    2. Redistributions in binary form must reproduce the above copyright notice,
++ *       this list of conditions and the following disclaimer in the documentation
++ *       and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
++ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
++ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
++ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
++ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
++ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
++ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ * The views and conclusions contained in the software and documentation are those
++ * of the authors and should not be interpreted as representing official policies,
++ * either expressed or implied, of Tresys Technology, LLC.
++ */
 +
-+;; Marked rules should fail, all others should pass
-+(type b_t5)
-+(type b_t5_c)
-+(typebounds b_t5 b_t5_c)
++#include "cil_flavor.h"
++#include "cil_tree.h"
++#include "cil_list.h"
 +
-+(allow b_t5 b_ta cp1)
-+(allow b_t5_c b_ta (c1 (p1a)))
-+(allow b_t5_c b_ta (c2 (p2a)))
-+(allow b_t5_c b_ta (c2 (p2b))) ;; Fail
-+(allow b_t5_c b_ta (c3 (p3a))) ;; Fail
++#ifndef CIL_FIND_H_
++#define CIL_FIND_H_
 +
-+(allow b_t5 b_tb (c1 (p1a p1b)))
-+(allow b_t5 b_tb (c2 (p2a)))
-+(allow b_t5_c b_tb cp1)
++int cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flavor flavor, void *target, struct cil_list *matching, int match_self);
 +
-+(allow b_t5 b_tc (cm1 (mp1)))
-+(allow b_t5_c b_tc (c1 (p1a)))
-+(allow b_t5_c b_tc (c1 (p1b))) ;; Fail
-+(allow b_t5_c b_tc (c2 (p2a))) ;; Fail
-+
-+(allow b_t5 b_tc (c1 (p1a)))
-+(allow b_t5_c b_tc (cm1 (mp1)))
-+
-+
-+;; Marked rules should fail, all others should pass
-+(type b_t6a)
-+(type b_t6a_c)
-+(type b_t6b)
-+(type b_t6b_c)
-+(typebounds b_t6a b_t6a_c)
-+(typebounds b_t6b b_t6b_c)
-+
-+(allow b_t6a b_t6b (CLASS (PERM)))
-+(allow b_t6a_c b_t6b_c (CLASS (PERM)))
-+
-+;; Needs: (allow b_t6a b_t6b (c1 (p1a)))
-+(allow b_t6a_c b_t6b (c1 (p1a))) ;; Fail
-+(allow b_t6a_c b_t6b_c (c1 (p1a))) ;; Fail
-+
-+;; Needs: (allow b_t6a b_t6b (c2 (p2a)))
-+(allow b_t6a b_t6b_c (c2 (p2a))) ;; Fail
-+(allow b_t6a_c b_t6b (c2 (p2a))) ;; Fail
-+(allow b_t6a_c b_t6b_c (c2 (p2a)))
-+
-+;; Needs: (allow b_t6a b_t6b (c3 (p3c)))
-+(allow b_t6a b_t6b (c3 (p3a p3b)))
-+(allow b_t6a b_t6b_c (c3 (p3b p3c))) ;; Fail
-+(allow b_t6a_c b_t6b (c3 (p3a p3c))) ;; Fail
-+(allow b_t6a_c b_t6b_c (c3 (p3a p3b p3c))) ;; Fail
++#endif
 -- 
 1.9.3
