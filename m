@@ -1,89 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5IJ7sCm017251
- for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2015 15:07:58 -0400
-Received: by qkfe185 with SMTP id e185so49211996qkf.3
- for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2015 12:07:56 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5IJLWc5018438
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2015 15:21:33 -0400
+Received: by qkbp125 with SMTP id p125so45146549qkb.2
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2015 12:21:31 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
-To: Waiman Long <Waiman.Long@hp.com>
-Subject: Re: [PATCH v3] selinux: reduce locking overhead in
- inode_free_security()
-Date: Thu, 18 Jun 2015 15:07:54 -0400
-Message-ID: <4547030.ymnAKE063H@sifl>
-In-Reply-To: <1434388419-14850-1-git-send-email-Waiman.Long@hp.com>
-References: <1434388419-14850-1-git-send-email-Waiman.Long@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: initialize sock security class to default value
+Date: Thu, 18 Jun 2015 15:21:29 -0400
+Message-ID: <1473912.cJdDCMlIzc@sifl>
+In-Reply-To: <1434389090-1197-1-git-send-email-sds@tycho.nsa.gov>
+References: <1434389090-1197-1-git-send-email-sds@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Cc: James Morris <james.l.morris@oracle.com>, Yury <yury.norov@gmail.com>,
- Scott J Norton <scott.norton@hp.com>,
- Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- Douglas Hatch <doug.hatch@hp.com>, selinux@tycho.nsa.gov,
- Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Monday, June 15, 2015 01:13:39 PM Waiman Long wrote:
-> The inode_free_security() function just took the superblock's isec_lock
-> before checking and trying to remove the inode security struct from the
-> linked list. In many cases, the list was empty and so the lock taking
-> is wasteful as no useful work is done. On multi-socket systems with
-> a large number of CPUs, there can also be a fair amount of spinlock
-> contention on the isec_lock if many tasks are exiting at the same time.
+On Monday, June 15, 2015 01:24:50 PM Stephen Smalley wrote:
+> Initialize the security class of sock security structures
+> to the generic socket class.  This is similar to what is
+> already done in inode_alloc_security for files.  Generally
+> the sclass field will later by set by socket_post_create
+> or sk_clone or sock_graft, but for protocol implementations
+> that fail to call any of these for newly accepted sockets,
+> we want some sane default that will yield a legitimate
+> avc denied message with non-garbage values for class and
+> permission.
 > 
-> This patch changes the code to check the state of the list first before
-> taking the lock and attempting to dequeue it. The list_del_init()
-> can be called more than once on the same list with no harm as long
-> as they are properly serialized. It should not be possible to have
-> inode_free_security() called concurrently with list_add(). For better
-> safety, however, we use list_empty_careful() here even though it is
-> still not completely safe in case that happens.
-> 
-> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/hooks.c |   17 ++++++++++++++---
->  1 files changed, 14 insertions(+), 3 deletions(-)
-> 
-> v1->v2:
->  - Take out the second list_empty() test inside the lock.
-> 
-> v2->v3:
->  - Fix incorrent comment and commit log message.
+>  security/selinux/hooks.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-Thanks for the patch and the discussion; I've added this to the SELinux next-
-queue branch and I'll push it to selinux#next as soon as the merge window 
-closes.
+Applied to the SELinux next-queue, thanks.
 
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7dade28..2a99804 100644
+> index 312537d..90e6cdc 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -254,10 +254,21 @@ static void inode_free_security(struct inode *inode)
->  	struct inode_security_struct *isec = inode->i_security;
->  	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+> @@ -4507,6 +4507,7 @@ static int selinux_sk_alloc_security(struct sock *sk,
+> int family, gfp_t priority
 > 
-> -	spin_lock(&sbsec->isec_lock);
-> -	if (!list_empty(&isec->list))
-> +	/*
-> +	 * As not all inode security structures are in a list, we check for
-> +	 * empty list outside of the lock to make sure that we won't waste
-> +	 * time taking a lock doing nothing.
-> +	 *
-> +	 * The list_del_init() function can be safely called more than once.
-> +	 * It should not be possible for this function to be called with
-> +	 * concurrent list_add(), but for better safety against future changes
-> +	 * in the code, we use list_empty_careful() here.
-> +	 */
-> +	if (!list_empty_careful(&isec->list)) {
-> +		spin_lock(&sbsec->isec_lock);
->  		list_del_init(&isec->list);
-> -	spin_unlock(&sbsec->isec_lock);
-> +		spin_unlock(&sbsec->isec_lock);
-> +	}
-> 
->  	/*
->  	 * The inode may still be referenced in a path walk and
+>  	sksec->peer_sid = SECINITSID_UNLABELED;
+>  	sksec->sid = SECINITSID_UNLABELED;
+> +	sksec->sclass = SECCLASS_SOCKET;
+>  	selinux_netlbl_sk_security_reset(sksec);
+>  	sk->sk_security = sksec;
 
 -- 
 paul moore
