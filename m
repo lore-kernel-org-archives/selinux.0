@@ -1,5 +1,5 @@
-Message-ID: <5582E7FE.5090904@tycho.nsa.gov>
-Date: Thu, 18 Jun 2015 11:47:10 -0400
+Message-ID: <5582E82F.1040403@tycho.nsa.gov>
+Date: Thu, 18 Jun 2015 11:47:59 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: David Howells <dhowells@redhat.com>
@@ -63,7 +63,4 @@ On 06/18/2015 11:32 AM, David Howells wrote:
 > 	return 0;
 > }
 
-That looks good to me.  In fact, I'd take a patch that defines that
-function and rewrites may_create(), inode_init_security(), and
-dentry_init_security() to use it even before (or independent of) the
-union support patches.
+Except you can drop the caller argument now.
