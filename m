@@ -1,175 +1,71 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5IKZ9t6024267
- for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2015 16:35:09 -0400
-Received: by qkbp125 with SMTP id p125so46232935qkb.2
- for <selinux@tycho.nsa.gov>; Thu, 18 Jun 2015 13:35:08 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] SELinux: Create a common helper to determine an inode
- label [ver #3]
-Date: Thu, 18 Jun 2015 16:35:06 -0400
-Message-ID: <9833421.4OAA7AQtgN@sifl>
-In-Reply-To: <6033.1434651905@warthog.procyon.org.uk>
-References: <6033.1434651905@warthog.procyon.org.uk>
+Message-ID: <55832B99.7060907@tycho.nsa.gov>
+Date: Thu, 18 Jun 2015 16:35:37 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>,
- linux-fsdevel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 04/10 v2] libsepol: Refactored bounds (hierarchy) checking
+ code
+References: <1434571134-31452-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1434571134-31452-5-git-send-email-jwcart2@tycho.nsa.gov>
+ <5582CE01.50800@tycho.nsa.gov> <55832977.9010804@tycho.nsa.gov>
+ <55832A22.1040103@tycho.nsa.gov>
+In-Reply-To: <55832A22.1040103@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, June 18, 2015 07:25:05 PM David Howells wrote:
-> Create a common helper function to determine the label for a new inode.
-> This is then used by:
-> 
-> 	- may_create()
-> 	- selinux_dentry_init_security()
-> 	- selinux_inode_init_security()
-> 
-> This will change the behaviour of the functions slightly, bringing them all
-> into line.
-> 
-> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Signed-off-by: David Howells <dhowells@redhat.com>
+On 06/18/2015 04:29 PM, Stephen Smalley wrote:
+> On 06/18/2015 04:26 PM, James Carter wrote:
+>> On 06/18/2015 09:56 AM, Stephen Smalley wrote:
+>>> On 06/17/2015 03:58 PM, James Carter wrote:
+>>>> The largest change to the user and role bounds checking was to put
+>>>> them in their own functions, so they could be called independently.
+>>>>
+>>>> The type bounds checking was changed to check one type bounds at
+>>>> a time. An expanded avtab is still created, but now only the rules
+>>>> of the parent type are expanded. If violations are discovered,
+>>>> a list of avtab_ptr_t's provides details. This list is used to
+>>>> display error messages for backwards compatibility and will be
+>>>> used by CIL to provide a more detailed error message.
+>>>>
+>>>> Memory usage is reduced from 9,355M to 126M and time is reduced
+>>>> from 9 sec to 2 sec.
+>>>>
+>>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>>>
+>>> Can we optimize the case where there are no bounded users/roles/types at
+>>> all in the policy, and quickly return in that situation?  Seems like we
+>>> could just quickly walk them and check to see if any are bounded before
+>>> we start doing anything else.  Surprised we don't already do that.
+>>>
+>>
+>> I am not sure how to do it faster.
+>>
+>> I am walking the types table [The statement:
+>> hashtab_map(p->p_types.table, bounds_check_type_callback, &args);] and
+>> only calling bounds_check_type() if the type has a bounds.
+>>
+>> Is there a faster way?
+>
+> So is there any avtab allocation if there are no bounded types?
+> That's what I wanted to ensure we avoid or at least minimize.
+>
 
-This patch looks fine to me and I think there is an advantage to merging this 
-regardless of what happens with the "unioning" work so I'm inclined to queue 
-this up now unless you would prefer to resubmit with the union patches?
+There is no avtab allocation unless there is a bounded type. And when there are, 
+it is only rules that involve the parent that are expanded.
 
-> ---
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index ffa5a642629a..ec30e599fb46 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1684,6 +1684,32 @@ out:
->  	return rc;
->  }
-> 
-> +/*
-> + * Determine the label for an inode that might be unioned.
-> + */
-> +static int selinux_determine_inode_label(const struct inode *dir,
-> +					 const struct qstr *name,
-> +					 u16 tclass,
-> +					 u32 *_new_isid)
-> +{
-> +	const struct superblock_security_struct *sbsec = dir->i_sb->s_security;
-> +	const struct inode_security_struct *dsec = dir->i_security;
-> +	const struct task_security_struct *tsec = current_security();
-> +
-> +	if ((sbsec->flags & SE_SBINITIALIZED) &&
-> +	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
-> +		*_new_isid = sbsec->mntpoint_sid;
-> +	} else if ((sbsec->flags & SBLABEL_MNT) &&
-> +		   tsec->create_sid) {
-> +		*_new_isid = tsec->create_sid;
-> +	} else {
-> +		return security_transition_sid(tsec->sid, dsec->sid, tclass,
-> +					       name, _new_isid);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /* Check whether a task can create a file. */
->  static int may_create(struct inode *dir,
->  		      struct dentry *dentry,
-> @@ -1700,7 +1726,6 @@ static int may_create(struct inode *dir,
->  	sbsec = dir->i_sb->s_security;
-> 
->  	sid = tsec->sid;
-> -	newsid = tsec->create_sid;
-> 
->  	ad.type = LSM_AUDIT_DATA_DENTRY;
->  	ad.u.dentry = dentry;
-> @@ -1711,12 +1736,10 @@ static int may_create(struct inode *dir,
->  	if (rc)
->  		return rc;
-> 
-> -	if (!newsid || !(sbsec->flags & SBLABEL_MNT)) {
-> -		rc = security_transition_sid(sid, dsec->sid, tclass,
-> -					     &dentry->d_name, &newsid);
-> -		if (rc)
-> -			return rc;
-> -	}
-> +	rc = selinux_determine_inode_label(dir, &dentry->d_name, tclass,
-> +					   &newsid);
-> +	if (rc)
-> +		return rc;
-> 
->  	rc = avc_has_perm(sid, newsid, tclass, FILE__CREATE, &ad);
->  	if (rc)
-> @@ -2723,32 +2746,14 @@ static int selinux_dentry_init_security(struct
-> dentry *dentry, int mode, struct qstr *name, void **ctx,
->  					u32 *ctxlen)
->  {
-> -	const struct cred *cred = current_cred();
-> -	struct task_security_struct *tsec;
-> -	struct inode_security_struct *dsec;
-> -	struct superblock_security_struct *sbsec;
-> -	struct inode *dir = d_backing_inode(dentry->d_parent);
->  	u32 newsid;
->  	int rc;
-> 
-> -	tsec = cred->security;
-> -	dsec = dir->i_security;
-> -	sbsec = dir->i_sb->s_security;
-> -
-> -	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
-> -		newsid = tsec->create_sid;
-> -	} else {
-> -		rc = security_transition_sid(tsec->sid, dsec->sid,
-> -					     inode_mode_to_security_class(mode),
-> -					     name,
-> -					     &newsid);
-> -		if (rc) {
-> -			printk(KERN_WARNING
-> -				"%s: security_transition_sid failed, rc=%d\n",
-> -			       __func__, -rc);
-> -			return rc;
-> -		}
-> -	}
-> +	rc = selinux_determine_inode_label(d_inode(dentry->d_parent), name,
-> +					   inode_mode_to_security_class(mode),
-> +					   &newsid);
-> +	if (rc)
-> +		return rc;
-> 
->  	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
->  }
-> @@ -2771,22 +2776,12 @@ static int selinux_inode_init_security(struct inode
-> *inode, struct inode *dir, sid = tsec->sid;
->  	newsid = tsec->create_sid;
-> 
-> -	if ((sbsec->flags & SE_SBINITIALIZED) &&
-> -	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT))
-> -		newsid = sbsec->mntpoint_sid;
-> -	else if (!newsid || !(sbsec->flags & SBLABEL_MNT)) {
-> -		rc = security_transition_sid(sid, dsec->sid,
-> -					     inode_mode_to_security_class(inode->i_mode),
-> -					     qstr, &newsid);
-> -		if (rc) {
-> -			printk(KERN_WARNING "%s:  "
-> -			       "security_transition_sid failed, rc=%d (dev=%s "
-> -			       "ino=%ld)\n",
-> -			       __func__,
-> -			       -rc, inode->i_sb->s_id, inode->i_ino);
-> -			return rc;
-> -		}
-> -	}
-> +	rc = selinux_determine_inode_label(
-> +		dir, qstr,
-> +		inode_mode_to_security_class(inode->i_mode),
-> +		&newsid);
-> +	if (rc)
-> +		return rc;
-> 
->  	/* Possibly defer initialization to selinux_complete_init. */
->  	if (sbsec->flags & SE_SBINITIALIZED) {
+> I was surprised that you indicated that we have significant memory and
+> time usage from the old hierarchy checker since there are no bounded
+> types in the default policy; I had assumed that it would optimize for
+> that case, just as we quickly bail out of the assertion checker if there
+> are no neverallows before even doing an avtab_init.
+>
+
+I was surprised as well, but that is the case.
+
 
 -- 
-paul moore
-www.paul-moore.com
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
