@@ -1,11 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5JIJ8qc006185
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5JIJ8qe006185
  for <selinux@tycho.nsa.gov>; Fri, 19 Jun 2015 14:19:08 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 04/10 v3] libsepol: Refactored bounds (hierarchy) checking code
-Date: Fri, 19 Jun 2015 14:19:10 -0400
-Message-Id: <1434737956-17932-5-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 06/10 v3] libsepol/cil: Refactored CIL neverallow checking and
+ reporting.
+Date: Fri, 19 Jun 2015 14:19:12 -0400
+Message-Id: <1434737956-17932-7-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,1138 +14,731 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The largest change to the user and role bounds checking was to put
-them in their own functions, so they could be called independently.
+Use the libsepol neverallow checking to determine if a given neverallow
+rule is violated. If a violation is found, use the function
+cil_find_matching_avrule_in_ast() to find the AST node of the particular
+rule that violates the neverallow. This allows CIL to provide a more
+informative error message that includes the file and line number of the
+node and all of its parents.
 
-The type bounds checking was changed to check one type bounds at
-a time. An expanded avtab is still created, but now only the rules
-of the parent type are expanded. If violations are discovered,
-a list of avtab_ptr_t's provides details. This list is used to
-display error messages for backwards compatibility and will be
-used by CIL to provide a more detailed error message.
-
-Memory usage is reduced from 9,355M to 126M and time is reduced
-from 9 sec to 2 sec.
+Example error report:
+Neverallow check failed at line 31285 of cil.conf.neverallow
+  (neverallow typeset4 self (memprotect (mmap_zero)))
+    <root>
+    booleanif at line 152094 of cil.conf.neverallow
+    true at line 152095 of cil.conf.neverallow
+    allow at line 152096 of cil.conf.neverallow
+      (allow ada_t self (memprotect (mmap_zero)))
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/include/sepol/policydb/hierarchy.h |  11 +
- libsepol/src/hierarchy.c                    | 996 +++++++++++++++++-----------
- 2 files changed, 627 insertions(+), 380 deletions(-)
+ libsepol/cil/src/cil_binary.c | 492 ++++++++++++++++++++++++++++--------------
+ libsepol/cil/src/cil_binary.h |   4 +-
+ 2 files changed, 330 insertions(+), 166 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/hierarchy.h b/libsepol/include/sepol/policydb/hierarchy.h
-index b4eb9bc..88bc02e 100644
---- a/libsepol/include/sepol/policydb/hierarchy.h
-+++ b/libsepol/include/sepol/policydb/hierarchy.h
-@@ -25,11 +25,22 @@
- #ifndef _SEPOL_POLICYDB_HIERARCHY_H_
- #define _SEPOL_POLICYDB_HIERARCHY_H_
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 03f4924..fd5983a 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -37,6 +37,8 @@
+ #include <sepol/policydb/conditional.h>
+ #include <sepol/policydb/constraint.h>
+ #include <sepol/policydb/flask.h>
++#include <sepol/policydb/expand.h>
++#include <sepol/policydb/hierarchy.h>
  
-+#include <sepol/policydb/avtab.h>
- #include <sepol/policydb/policydb.h>
- #include <sys/cdefs.h>
+ #include "cil_internal.h"
+ #include "cil_flavor.h"
+@@ -45,6 +47,7 @@
+ #include "cil_tree.h"
+ #include "cil_binary.h"
+ #include "cil_symtab.h"
++#include "cil_find.h"
  
- __BEGIN_DECLS
+ /* There are 44000 filename_trans in current fedora policy. 1.33 times this is the recommended
+  * size of a hashtable. The next power of 2 of this is 2 ** 16.
+@@ -68,39 +71,9 @@ struct cil_args_booleanif {
+ 	policydb_t *pdb;
+ 	cond_node_t *cond_node;
+ 	enum cil_flavor cond_flavor;
+-	struct cil_list *neverallows;
+ 	hashtab_t filename_trans_table;
+ };
  
-+extern int hierarchy_add_bounds(sepol_handle_t *handle, policydb_t *p);
-+
-+extern void bounds_destroy_bad(avtab_ptr_t cur);
-+extern int bounds_check_type(sepol_handle_t *handle, policydb_t *p, uint32_t child,
-+			     uint32_t parent, avtab_ptr_t *bad, int *numbad);
-+
-+extern int bounds_check_users(sepol_handle_t *handle, policydb_t *p);
-+extern int bounds_check_roles(sepol_handle_t *handle, policydb_t *p);
-+extern int bounds_check_types(sepol_handle_t *handle, policydb_t *p);
-+
- extern int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p);
- 
- __END_DECLS
-diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-index d787a64..f6c5fae 100644
---- a/libsepol/src/hierarchy.c
-+++ b/libsepol/src/hierarchy.c
-@@ -37,466 +37,702 @@
- 
- #include "debug.h"
- 
--typedef struct hierarchy_args {
--	policydb_t *p;
--	avtab_t *expa;		/* expanded avtab */
--	/* This tells check_avtab_hierarchy to check this list in addition to the unconditional avtab */
--	cond_av_list_t *opt_cond_list;
--	sepol_handle_t *handle;
--	int numerr;
--} hierarchy_args_t;
-+#define BOUNDS_AVTAB_SIZE 1024
- 
--/*
-- * find_parent_(type|role|user)
-- *
-- * This function returns the parent datum of given XXX_datum_t
-- * object or NULL, if it doesn't exist.
-- *
-- * If the given datum has a valid bounds, this function merely
-- * returns the indicated object. Otherwise, it looks up the
-- * parent based on the based hierarchy.
-- */
--#define find_parent_template(prefix)				\
--int find_parent_##prefix(hierarchy_args_t *a,			\
--			 prefix##_datum_t *datum,		\
--			 prefix##_datum_t **parent)		\
--{								\
--	char *parent_name, *datum_name, *tmp;			\
--								\
--	if (datum->bounds)						\
--		*parent = a->p->prefix##_val_to_struct[datum->bounds - 1]; \
--	else {								\
--		datum_name = a->p->p_##prefix##_val_to_name[datum->s.value - 1]; \
--									\
--		tmp = strrchr(datum_name, '.');				\
--		/* no '.' means it has no parent */			\
--		if (!tmp) {						\
--			*parent = NULL;					\
--			return 0;					\
--		}							\
--									\
--		parent_name = strdup(datum_name);			\
--		if (!parent_name)					\
--			return -1;					\
--		parent_name[tmp - datum_name] = '\0';			\
--									\
--		*parent = hashtab_search(a->p->p_##prefix##s.table, parent_name); \
--		if (!*parent) {						\
--			/* Orphan type/role/user */			\
--			ERR(a->handle,					\
--			    "%s doesn't exist, %s is an orphan",	\
--			    parent_name,				\
--			    a->p->p_##prefix##_val_to_name[datum->s.value - 1]); \
--			free(parent_name);				\
--			return -1;					\
--		}							\
--		free(parent_name);					\
--	}								\
--									\
--	return 0;							\
-+static int bounds_insert_helper(sepol_handle_t *handle, avtab_t *avtab,
-+				avtab_key_t *avtab_key, avtab_datum_t *datum)
-+{
-+	int rc = avtab_insert(avtab, avtab_key, datum);
-+	if (rc) {
-+		if (rc == SEPOL_ENOMEM)
-+			ERR(handle, "Insufficient memory");
-+		else
-+			ERR(handle, "Unexpected error (%d)", rc);
-+	}
-+	return rc;
- }
- 
--static find_parent_template(type)
--static find_parent_template(role)
--static find_parent_template(user)
- 
--static void compute_avtab_datum(hierarchy_args_t *args,
--				avtab_key_t *key,
--				avtab_datum_t *result)
-+static int bounds_insert_rule(sepol_handle_t *handle, avtab_t *avtab,
-+			      avtab_t *global, avtab_t *other,
-+			      avtab_key_t *avtab_key, avtab_datum_t *datum)
- {
--	avtab_datum_t *avdatp;
--	uint32_t av = 0;
+-struct cil_neverallow {
+-	struct cil_tree_node *node;
+-	struct cil_list *rules;
+-};
 -
--	avdatp = avtab_search(args->expa, key);
--	if (avdatp)
--		av = avdatp->data;
--	if (args->opt_cond_list) {
--		avdatp = cond_av_list_search(key, args->opt_cond_list);
--		if (avdatp)
--			av |= avdatp->data;
-+	int rc = 0;
-+	avtab_datum_t *dup = avtab_search(avtab, avtab_key);
+-struct cil_neverallow_rule {
+-	struct cil_symtab_datum *src;
+-	struct cil_symtab_datum *tgt;
+-	uint32_t class;
+-	uint32_t perms;
+-};
+-
+-void cil_neverallows_list_destroy(struct cil_list *neverallows)
+-{
+-	struct cil_list_item *i;
+-	struct cil_list_item *j;
+-
+-	cil_list_for_each(i, neverallows) {
+-		struct cil_neverallow *neverallow = i->data;
+-		cil_list_for_each(j, neverallow->rules) {
+-			struct cil_neverallow_rule *rule = j->data;
+-			free(rule);
+-		}
+-		cil_list_destroy(&neverallow->rules, CIL_FALSE);
+-		free(neverallow);
+-	}
+-	cil_list_destroy(&neverallows, CIL_FALSE);
+-}
+-
+ static int __cil_get_sepol_user_datum(policydb_t *pdb, struct cil_symtab_datum *datum, user_datum_t **sepol_user)
+ {
+ 	*sepol_user = hashtab_search(pdb->p_users.table, datum->fqn);
+@@ -628,14 +601,21 @@ int __cil_typeattr_bitmap_init(policydb_t *pdb)
+ 	int rc = SEPOL_ERR;
+ 
+ 	pdb->type_attr_map = cil_malloc(pdb->p_types.nprim * sizeof(ebitmap_t));
++	pdb->attr_type_map = cil_malloc(pdb->p_types.nprim * sizeof(ebitmap_t));
+ 
+ 	uint32_t i = 0;
+ 	for (i = 0; i < pdb->p_types.nprim; i++) {
+ 		ebitmap_init(&pdb->type_attr_map[i]);
++		ebitmap_init(&pdb->attr_type_map[i]);
+ 		if (ebitmap_set_bit(&pdb->type_attr_map[i], i, 1)) {
+ 			rc = SEPOL_ERR;
+ 			goto exit;
+ 		}
++		if (ebitmap_set_bit(&pdb->attr_type_map[i], i, 1)) {
++			rc = SEPOL_ERR;
++			goto exit;
++		}
 +
-+	if (!dup) {
-+		rc = bounds_insert_helper(handle, avtab, avtab_key, datum);
-+		if (rc) goto exit;
-+	} else {
-+		dup->data |= datum->data;
  	}
  
--	result->data = av;
-+	if (other) {
-+		/* Search the other conditional avtab for the key and
-+		 * add any common permissions to the global avtab
-+		 */
-+		uint32_t data = 0;
-+		dup = avtab_search(other, avtab_key);
-+		if (dup) {
-+			data = dup->data & datum->data;
-+			if (data) {
-+				dup = avtab_search(global, avtab_key);
-+				if (!dup) {
-+					avtab_datum_t d;
-+					d.data = data;
-+					rc = bounds_insert_helper(handle, global,
-+								  avtab_key, &d);
-+					if (rc) goto exit;
-+				} else {
-+					dup->data |= data;
+ 	return SEPOL_OK;
+@@ -675,6 +655,7 @@ int cil_typeattribute_to_bitmap(policydb_t *pdb, const struct cil_db *db, struct
+ 		if (rc != SEPOL_OK) goto exit;
+ 
+ 		ebitmap_set_bit(&pdb->type_attr_map[sepol_type->s.value - 1], value - 1, 1);
++		ebitmap_set_bit(&pdb->attr_type_map[value - 1], sepol_type->s.value - 1, 1);
+ 	}
+ 
+ 	rc = SEPOL_OK;
+@@ -1324,89 +1305,7 @@ exit:
+ 	return rc;
+ }
+ 
+-static void __cil_neverallow_handle(struct cil_list *neverallows, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, uint32_t class, uint32_t perms)
+-{
+-	struct cil_neverallow *neverallow = neverallows->head->data;
+-	struct cil_list *neverallow_rules = neverallow->rules;
+-	struct cil_neverallow_rule *new = NULL;
+-
+-	new = cil_malloc(sizeof(*new));
+-	new->src = src;
+-	new->tgt = tgt;
+-	new->class = class;
+-	new->perms = perms;
+-
+-	cil_list_append(neverallow_rules, CIL_LIST_ITEM, new);
+-}
+-
+-static int __cil_is_type_match(enum cil_flavor f1, struct cil_symtab_datum *t1, enum cil_flavor f2, struct cil_symtab_datum *t2)
+-{
+-	if (t1->fqn == t2->fqn) {
+-		return CIL_TRUE;
+-	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
+-		struct cil_typeattribute *a = (struct cil_typeattribute *)t1;
+-		struct cil_type *t = (struct cil_type *)t2;
+-		if (ebitmap_get_bit(a->types, t->value)) {
+-			return CIL_TRUE;
+-		}
+-	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
+-		struct cil_typeattribute *a = (struct cil_typeattribute *)t2;
+-		struct cil_type *t = (struct cil_type *)t1;
+-		if (ebitmap_get_bit(a->types, t->value)) {
+-			return CIL_TRUE;
+-		}
+-	} else if (f1 == CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
+-		struct cil_typeattribute *a1 = (struct cil_typeattribute *)t2;
+-		struct cil_typeattribute *a2 = (struct cil_typeattribute *)t1;
+-		/* abusing the ebitmap abstraction for speed */
+-		ebitmap_node_t *n1 = a1->types->node;
+-		ebitmap_node_t *n2 = a2->types->node;
+-		while (n1 && n2) {
+-			if (n1->startbit < n2->startbit) {
+-				n1 = n1->next;
+-			} else if (n2->startbit < n1->startbit) {
+-				n2 = n2->next;
+-			} else {
+-				if (n1->map & n2->map) {
+-					return CIL_TRUE;
+-				}
+-				n1 = n1->next;
+-				n2 = n2->next;
+-			}
+-		}
+-	}
+-	return CIL_FALSE;
+-}
+-
+-static int __cil_check_neverallows(struct cil_list *neverallows, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, uint32_t class, uint32_t perms)
+-{
+-	struct cil_list_item *curr = NULL;
+-	enum cil_flavor al_src_flavor = ((struct cil_tree_node*)src->nodes->head->data)->flavor;
+-	enum cil_flavor al_tgt_flavor = ((struct cil_tree_node*)tgt->nodes->head->data)->flavor;
+-	cil_list_for_each(curr, neverallows) {
+-		struct cil_neverallow *neverallow = curr->data;
+-		struct cil_tree_node *node = neverallow->node;
+-		struct cil_list_item *curr_item = NULL;
+-		cil_list_for_each(curr_item, neverallow->rules) {
+-			struct cil_neverallow_rule *curr_rule = curr_item->data;
+-			enum cil_flavor nv_src_flavor = ((struct cil_tree_node*)curr_rule->src->nodes->head->data)->flavor;
+-			enum cil_flavor nv_tgt_flavor = ((struct cil_tree_node*)curr_rule->tgt->nodes->head->data)->flavor;
+-			if ((curr_rule->perms & perms) && (class == curr_rule->class)) {
+-				int src_match = __cil_is_type_match(al_src_flavor, src, nv_src_flavor, curr_rule->src);
+-				if (src_match) {
+-					int tgt_match = __cil_is_type_match(al_tgt_flavor, tgt, nv_tgt_flavor, curr_rule->tgt);
+-					if (tgt_match) {
+-						cil_log(CIL_ERR, "Neverallow found that matches avrule at line %d of %s\n", node->line, node->path);
+-						return SEPOL_ERR;
+-					}
+-				}
+-			}
+-		}
+-	}
+-	return SEPOL_OK;
+-}
+-
+-int __cil_avrule_expand_helper(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_classperms *cp, struct cil_list *neverallows, cond_node_t *cond_node, enum cil_flavor cond_flavor)
++int __cil_avrule_expand_helper(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_classperms *cp, cond_node_t *cond_node, enum cil_flavor cond_flavor)
+ {
+ 	int rc = SEPOL_ERR;
+ 	type_datum_t *sepol_src = NULL;
+@@ -1425,28 +1324,19 @@ int __cil_avrule_expand_helper(policydb_t *pdb, uint16_t kind, struct cil_symtab
+ 		return SEPOL_OK;
+ 	}
+ 
+-	if (kind == CIL_AVRULE_NEVERALLOW) {
+-		__cil_neverallow_handle(neverallows, src, tgt, sepol_class->s.value, data);
+-	} else {
+-		if (kind == CIL_AVRULE_DONTAUDIT) {
+-			data = ~data;
+-		} else if (neverallows != NULL && kind == CIL_AVRULE_ALLOWED) {
+-			rc = __cil_check_neverallows(neverallows, src, tgt, sepol_class->s.value, data);
+-			if (rc != SEPOL_OK) {
+-				goto exit;
+-			}
+-		}
++	if (kind == CIL_AVRULE_DONTAUDIT) {
++		data = ~data;
++	}
+ 
+-		rc = __cil_get_sepol_type_datum(pdb, src, &sepol_src);
+-		if (rc != SEPOL_OK) goto exit;
++	rc = __cil_get_sepol_type_datum(pdb, src, &sepol_src);
++	if (rc != SEPOL_OK) goto exit;
+ 
+-		rc = __cil_get_sepol_type_datum(pdb, tgt, &sepol_tgt);
+-		if (rc != SEPOL_OK) goto exit;
++	rc = __cil_get_sepol_type_datum(pdb, tgt, &sepol_tgt);
++	if (rc != SEPOL_OK) goto exit;
+ 
+-		rc = __cil_insert_avrule(pdb, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_class->s.value, data, cond_node, cond_flavor);
+-		if (rc != SEPOL_OK) {
+-			goto exit;
+-		}
++	rc = __cil_insert_avrule(pdb, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_class->s.value, data, cond_node, cond_flavor);
++	if (rc != SEPOL_OK) {
++		goto exit;
+ 	}
+ 
+ 	return SEPOL_OK;
+@@ -1456,7 +1346,7 @@ exit:
+ }
+ 
+ 
+-int __cil_avrule_expand(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_list *classperms, struct cil_list *neverallows, cond_node_t *cond_node, enum cil_flavor cond_flavor)
++int __cil_avrule_expand(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_list *classperms, cond_node_t *cond_node, enum cil_flavor cond_flavor)
+ {
+ 	int rc = SEPOL_ERR;
+ 	struct cil_list_item *curr;
+@@ -1465,7 +1355,7 @@ int __cil_avrule_expand(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum
+ 		if (curr->flavor == CIL_CLASSPERMS) {
+ 			struct cil_classperms *cp = curr->data;
+ 			if (FLAVOR(cp->class) == CIL_CLASS) {
+-				rc = __cil_avrule_expand_helper(pdb, kind, src, tgt, cp, neverallows, cond_node, cond_flavor);
++				rc = __cil_avrule_expand_helper(pdb, kind, src, tgt, cp, cond_node, cond_flavor);
+ 				if (rc != SEPOL_OK) {
+ 					goto exit;
+ 				}
+@@ -1473,7 +1363,7 @@ int __cil_avrule_expand(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum
+ 				struct cil_list_item *i = NULL;
+ 				cil_list_for_each(i, cp->perms) {
+ 					struct cil_perm *cmp = i->data;
+-					rc = __cil_avrule_expand(pdb, kind, src, tgt, cmp->classperms, neverallows, cond_node, cond_flavor);
++					rc = __cil_avrule_expand(pdb, kind, src, tgt, cmp->classperms, cond_node, cond_flavor);
+ 					if (rc != SEPOL_OK) {
+ 						goto exit;
+ 					}
+@@ -1482,7 +1372,7 @@ int __cil_avrule_expand(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum
+ 		} else { /* SET */
+ 			struct cil_classperms_set *cp_set = curr->data;
+ 			struct cil_classpermission *cp = cp_set->set;
+-			rc = __cil_avrule_expand(pdb, kind, src, tgt, cp->classperms, neverallows, cond_node, cond_flavor);
++			rc = __cil_avrule_expand(pdb, kind, src, tgt, cp->classperms, cond_node, cond_flavor);
+ 			if (rc != SEPOL_OK) {
+ 				goto exit;
+ 			}
+@@ -1495,7 +1385,7 @@ exit:
+ 	return rc;
+ }
+ 
+-int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule, struct cil_list *neverallows, cond_node_t *cond_node, enum cil_flavor cond_flavor)
++int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule, cond_node_t *cond_node, enum cil_flavor cond_flavor)
+ {
+ 	int rc = SEPOL_ERR;
+ 	uint16_t kind = cil_avrule->rule_kind;
+@@ -1509,12 +1399,6 @@ int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_a
+ 		goto exit;
+ 	}
+ 
+-	if (cil_avrule->rule_kind == CIL_AVRULE_NEVERALLOW && db->disable_neverallow == CIL_TRUE) {
+-		// ignore neverallow rules
+-		rc = SEPOL_OK;
+-		goto exit;
+-	}
+-
+ 	src = cil_avrule->src;
+ 	tgt = cil_avrule->tgt;
+ 
+@@ -1530,7 +1414,7 @@ int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_a
+ 			if (!ebitmap_get_bit(&type_bitmap, i)) continue;
+ 
+ 			src = DATUM(db->val_to_type[i]);
+-			rc = __cil_avrule_expand(pdb, kind, src, src, classperms, neverallows, cond_node, cond_flavor);
++			rc = __cil_avrule_expand(pdb, kind, src, src, classperms, cond_node, cond_flavor);
+ 			if (rc != SEPOL_OK) {
+ 				ebitmap_destroy(&type_bitmap);
+ 				goto exit;
+@@ -1538,7 +1422,7 @@ int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_a
+ 		}
+ 		ebitmap_destroy(&type_bitmap);
+ 	} else {
+-		rc = __cil_avrule_expand(pdb, kind, src, tgt, classperms, neverallows, cond_node, cond_flavor);
++		rc = __cil_avrule_expand(pdb, kind, src, tgt, classperms, cond_node, cond_flavor);
+ 		if (rc != SEPOL_OK) goto exit;
+ 	}
+ 
+@@ -1548,9 +1432,9 @@ exit:
+ 	return rc;
+ }
+ 
+-int cil_avrule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule, struct cil_list *neverallows)
++int cil_avrule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule)
+ {
+-	return __cil_avrule_to_avtab(pdb, db, cil_avrule, neverallows, NULL, CIL_FALSE);
++	return __cil_avrule_to_avtab(pdb, db, cil_avrule, NULL, CIL_FALSE);
+ }
+ 
+ int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute__((unused)) uint32_t *finished, void *extra_args)
+@@ -1593,7 +1477,7 @@ int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute__((unu
+ 		break;
+ 	case CIL_AVRULE:
+ 		cil_avrule = node->data;
+-		rc = __cil_avrule_to_avtab(pdb, db, cil_avrule, args->neverallows, cond_node, cond_flavor);
++		rc = __cil_avrule_to_avtab(pdb, db, cil_avrule, cond_node, cond_flavor);
+ 		if (rc != SEPOL_OK) {
+ 			cil_log(CIL_ERR, "Failed to insert avrule into avtab at line %d of %s\n", node->line, node->path);
+ 			goto exit;
+@@ -1762,7 +1646,7 @@ static int __cil_cond_expr_to_sepol_expr(policydb_t *pdb, struct cil_list *cil_e
+ 	return SEPOL_OK;
+ }
+ 
+-int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node, struct cil_list *neverallows, hashtab_t filename_trans_table)
++int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node, hashtab_t filename_trans_table)
+ {
+ 	int rc = SEPOL_ERR;
+ 	struct cil_args_booleanif bool_args;
+@@ -1837,7 +1721,6 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+ 	bool_args.db = db;
+ 	bool_args.pdb = pdb;
+ 	bool_args.cond_node = cond_node;
+-	bool_args.neverallows = neverallows;
+ 	bool_args.filename_trans_table = filename_trans_table;
+ 
+ 	if (true_node != NULL) {
+@@ -3202,17 +3085,9 @@ int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+ 			break;
+ 		case CIL_AVRULE: {
+ 			struct cil_avrule *rule = node->data;
+-			struct cil_list *neverallows = args->neverallows;
+-			if (rule->rule_kind == CIL_AVRULE_NEVERALLOW) {
+-				struct cil_neverallow *new_rule = NULL;
+-
+-				new_rule = cil_malloc(sizeof(*new_rule));
+-				cil_list_init(&new_rule->rules, CIL_LIST_ITEM);
+-				new_rule->node = node;
+-
+-				cil_list_prepend(neverallows, CIL_LIST_ITEM, new_rule);
+-
+-				rc = cil_avrule_to_policydb(pdb, db, node->data, neverallows);
++			if (db->disable_neverallow != CIL_TRUE && rule->rule_kind == CIL_AVRULE_NEVERALLOW) {
++				struct cil_list *neverallows = args->neverallows;
++				cil_list_prepend(neverallows, CIL_LIST_ITEM, node);
+ 			}
+ 			break;
+ 		}
+@@ -3261,12 +3136,12 @@ int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+ 	case 3:
+ 		switch (node->flavor) {
+ 		case CIL_BOOLEANIF:
+-			rc = cil_booleanif_to_policydb(pdb, db, node, args->neverallows, filename_trans_table);
++			rc = cil_booleanif_to_policydb(pdb, db, node, filename_trans_table);
+ 			break;
+ 		case CIL_AVRULE: {
+ 				struct cil_avrule *rule = node->data;
+ 				if (rule->rule_kind != CIL_AVRULE_NEVERALLOW) {
+-					rc = cil_avrule_to_policydb(pdb, db, node->data, args->neverallows);
++					rc = cil_avrule_to_policydb(pdb, db, node->data);
+ 				}
+ 			}
+ 			break;
+@@ -3728,6 +3603,289 @@ exit:
+ 	return rc;
+ }
+ 
++static void __cil_destroy_sepol_class_perms(class_perm_node_t *curr)
++{
++	class_perm_node_t *next;
++
++	while (curr) {
++		next = curr->next;
++		free(curr);
++		curr = next;
++	}
++}
++
++static int __cil_rule_to_sepol_class_perms(policydb_t *pdb, struct cil_list *classperms, class_perm_node_t **sepol_class_perms)
++{
++	int rc = SEPOL_ERR;
++	struct cil_list_item *i;
++	cil_list_for_each(i, classperms) {
++		if (i->flavor == CIL_CLASSPERMS) {
++			struct cil_classperms *cp = i->data;
++			if (FLAVOR(cp->class) == CIL_CLASS) {
++				class_perm_node_t *cpn = NULL;
++				class_datum_t *sepol_class = NULL;
++				uint32_t data = 0;
++
++				rc = __cil_get_sepol_class_datum(pdb, DATUM(cp->class), &sepol_class);
++				if (rc != SEPOL_OK) goto exit;
++
++				rc = __cil_perms_to_datum(cp->perms, sepol_class, &data);
++				if (rc != SEPOL_OK) goto exit;
++				if (data == 0) {
++					/* No permissions */
++					return SEPOL_OK;
++				}
++				cpn = cil_malloc(sizeof(class_perm_node_t));
++				cpn->tclass = sepol_class->s.value;
++				cpn->data = data;
++				cpn->next = *sepol_class_perms;
++				*sepol_class_perms = cpn;
++			} else { /* MAP */
++				struct cil_list_item *j = NULL;
++				cil_list_for_each(j, cp->perms) {
++					struct cil_perm *cmp = j->data;
++					rc = __cil_rule_to_sepol_class_perms(pdb, cmp->classperms, sepol_class_perms);
++					if (rc != SEPOL_OK) {
++						goto exit;
++					}
 +				}
 +			}
-+		}
-+	}
-+
-+exit:
-+	return rc;
- }
- 
--/* This function verifies that the type passed in either has a parent or is in the 
-- * root of the namespace, 0 on success, 1 on orphan and -1 on error
-- */
--static int check_type_hierarchy_callback(hashtab_key_t k, hashtab_datum_t d,
--					 void *args)
-+static int bounds_expand_rule(sepol_handle_t *handle, policydb_t *p,
-+			      avtab_t *avtab, avtab_t *global, avtab_t *other,
-+			      uint32_t parent, uint32_t src, uint32_t tgt,
-+			      uint32_t class, uint32_t data)
- {
--	hierarchy_args_t *a;
--	type_datum_t *t, *tp;
--
--	a = (hierarchy_args_t *) args;
--	t = (type_datum_t *) d;
-+	int rc = 0;
-+	avtab_key_t avtab_key;
-+	avtab_datum_t datum;
-+	ebitmap_node_t *tnode;
-+	unsigned int i;
-+
-+	avtab_key.specified = AVTAB_ALLOWED;
-+	avtab_key.target_class = class;
-+	datum.data = data;
-+
-+	if (ebitmap_get_bit(&p->attr_type_map[src - 1], parent - 1)) {
-+		avtab_key.source_type = parent;
-+		ebitmap_for_each_bit(&p->attr_type_map[tgt - 1], tnode, i) {
-+			if (!ebitmap_node_get_bit(tnode, i))
-+				continue;
-+			avtab_key.target_type = i + 1;
-+			rc = bounds_insert_rule(handle, avtab, global, other,
-+						&avtab_key, &datum);
-+			if (rc) goto exit;
-+		}
-+	}
- 
--	if (t->flavor == TYPE_ATTRIB) {
--		/* It's an attribute, we don't care */
--		return 0;
-+	if (ebitmap_get_bit(&p->attr_type_map[tgt - 1], parent - 1)) {
-+		avtab_key.target_type = parent;
-+		ebitmap_for_each_bit(&p->attr_type_map[src - 1], tnode, i) {
-+			if (!ebitmap_node_get_bit(tnode, i))
-+				continue;
-+			avtab_key.source_type = i + 1;
-+			rc = bounds_insert_rule(handle, avtab, global, other,
-+						&avtab_key, &datum);
-+			if (rc) goto exit;
-+		}
- 	}
--	if (find_parent_type(a, t, &tp) < 0)
--		return -1;
--
--	if (tp && tp->flavor == TYPE_ATTRIB) {
--		/* The parent is an attribute but the child isn't, not legal */
--		ERR(a->handle, "type %s is a child of an attribute %s",
--		    (char *) k, a->p->p_type_val_to_name[tp->s.value - 1]);
--		a->numerr++;
--		return -1;
-+
-+exit:
-+	return rc;
-+}
-+
-+static int bounds_expand_cond_rules(sepol_handle_t *handle, policydb_t *p,
-+				    cond_av_list_t *cur, avtab_t *avtab,
-+				    avtab_t *global, avtab_t *other,
-+				    uint32_t parent)
-+{
-+	int rc = 0;
-+
-+	for (; cur; cur = cur->next) {
-+		avtab_ptr_t n = cur->node;
-+		rc = bounds_expand_rule(handle, p, avtab, global, other, parent,
-+					n->key.source_type, n->key.target_type,
-+					n->key.target_class, n->datum.data);
-+		if (rc) goto exit;
- 	}
--	return 0;
-+
-+exit:
-+	return rc;
- }
- 
--/* This function only verifies that the avtab node passed in does not violate any
-- * hiearchy constraint via any relationship with other types in the avtab.
-- * it should be called using avtab_map, returns 0 on success, 1 on violation and
-- * -1 on error. opt_cond_list is an optional argument that tells this to check
-- * a conditional list for the relationship as well as the unconditional avtab
-- */
--static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
--					  void *args)
-+struct bounds_expand_args {
-+	sepol_handle_t *handle;
-+	policydb_t *p;
-+	avtab_t *avtab;
-+	uint32_t parent;
-+};
-+
-+static int bounds_expand_rule_callback(avtab_key_t *k, avtab_datum_t *d,
-+				       void *args)
- {
--	avtab_key_t key;
--	hierarchy_args_t *a = (hierarchy_args_t *) args;
--	type_datum_t *s, *t1 = NULL, *t2 = NULL;
--	avtab_datum_t av;
-+	struct bounds_expand_args *a = (struct bounds_expand_args *)args;
- 
--	if (!(k->specified & AVTAB_ALLOWED)) {
--		/* This is not an allow rule, no checking done */
-+	if (!(k->specified & AVTAB_ALLOWED))
- 		return 0;
--	}
- 
--	/* search for parent first */
--	s = a->p->type_val_to_struct[k->source_type - 1];
--	if (find_parent_type(a, s, &t1) < 0)
--		return -1;
--	if (t1) {
--		/*
--		 * search for access allowed between type 1's
--		 * parent and type 2.
--		 */
--		key.source_type = t1->s.value;
--		key.target_type = k->target_type;
--		key.target_class = k->target_class;
--		key.specified = AVTAB_ALLOWED;
--		compute_avtab_datum(a, &key, &av);
--
--		if ((av.data & d->data) == d->data)
--			return 0;
-+	return bounds_expand_rule(a->handle, a->p, a->avtab, NULL, NULL,
-+				  a->parent, k->source_type, k->target_type,
-+				  k->target_class, d->data);
-+}
-+
-+struct bounds_cond_info {
-+	avtab_t true_avtab;
-+	avtab_t false_avtab;
-+	cond_list_t *cond_list;
-+	struct bounds_cond_info *next;
-+};
-+
-+static void bounds_destroy_cond_info(struct bounds_cond_info *cur)
-+{
-+	struct bounds_cond_info *next;
-+
-+	for (; cur; cur = next) {
-+		next = cur->next;
-+		avtab_destroy(&cur->true_avtab);
-+		avtab_destroy(&cur->false_avtab);
-+		cur->next = NULL;
-+		free(cur);
- 	}
-+}
- 
--	/* next we try type 1 and type 2's parent */
--	s = a->p->type_val_to_struct[k->target_type - 1];
--	if (find_parent_type(a, s, &t2) < 0)
--		return -1;
--	if (t2) {
--		/*
--		 * search for access allowed between type 1 and
--		 * type 2's parent.
--		 */
--		key.source_type = k->source_type;
--		key.target_type = t2->s.value;
--		key.target_class = k->target_class;
--		key.specified = AVTAB_ALLOWED;
--		compute_avtab_datum(a, &key, &av);
--
--		if ((av.data & d->data) == d->data)
--			return 0;
-+static int bounds_expand_parent_rules(sepol_handle_t *handle, policydb_t *p,
-+				      avtab_t *global_avtab,
-+				      struct bounds_cond_info **cond_info,
-+				      uint32_t parent)
-+{
-+	int rc = 0;
-+	struct bounds_expand_args args;
-+	cond_list_t *cur;
-+
-+	avtab_init(global_avtab);
-+	rc = avtab_alloc(global_avtab, BOUNDS_AVTAB_SIZE);
-+	if (rc) goto oom;
-+
-+	args.handle = handle;
-+	args.p = p;
-+	args.avtab = global_avtab;
-+	args.parent = parent;
-+	rc = avtab_map(&p->te_avtab, bounds_expand_rule_callback, &args);
-+	if (rc) goto exit;
-+
-+	*cond_info = NULL;
-+	for (cur = p->cond_list; cur; cur = cur->next) {
-+		struct bounds_cond_info *ci;
-+		ci = malloc(sizeof(struct bounds_cond_info));
-+		if (!ci) goto oom;
-+		avtab_init(&ci->true_avtab);
-+		avtab_init(&ci->false_avtab);
-+		ci->cond_list = cur;
-+		ci->next = *cond_info;
-+		*cond_info = ci;
-+		if (cur->true_list) {
-+			rc = avtab_alloc(&ci->true_avtab, BOUNDS_AVTAB_SIZE);
-+			if (rc) goto oom;
-+			rc = bounds_expand_cond_rules(handle, p, cur->true_list,
-+						      &ci->true_avtab, NULL,
-+						      NULL, parent);
-+			if (rc) goto exit;
-+		}
-+		if (cur->false_list) {
-+			rc = avtab_alloc(&ci->false_avtab, BOUNDS_AVTAB_SIZE);
-+			if (rc) goto oom;
-+			rc = bounds_expand_cond_rules(handle, p, cur->false_list,
-+						      &ci->false_avtab,
-+						      global_avtab,
-+						      &ci->true_avtab, parent);
-+			if (rc) goto exit;
-+		}
- 	}
- 
--	if (t1 && t2) {
--		/*
--                 * search for access allowed between type 1's parent
--                 * and type 2's parent.
--                 */
--		key.source_type = t1->s.value;
--		key.target_type = t2->s.value;
--		key.target_class = k->target_class;
--		key.specified = AVTAB_ALLOWED;
--		compute_avtab_datum(a, &key, &av);
--
--		if ((av.data & d->data) == d->data)
--			return 0;
-+	return 0;
-+
-+oom:
-+	ERR(handle, "Insufficient memory");
-+
-+exit:
-+	ERR(handle,"Failed to expand parent rules\n");
-+	avtab_destroy(global_avtab);
-+	bounds_destroy_cond_info(*cond_info);
-+	*cond_info = NULL;
-+	return rc;
-+}
-+
-+static int bounds_not_covered(avtab_t *global_avtab, avtab_t *cur_avtab,
-+			      avtab_key_t *avtab_key, uint32_t data)
-+{
-+	avtab_datum_t *datum = avtab_search(cur_avtab, avtab_key);
-+	if (datum)
-+		data &= ~datum->data;
-+	if (global_avtab && data) {
-+		datum = avtab_search(global_avtab, avtab_key);
-+		if (datum)
-+			data &= ~datum->data;
- 	}
- 
--	/*
--	 * Neither one of these types have parents and 
--	 * therefore the hierarchical constraint does not apply
--	 */
--	if (!t1 && !t2)
--		return 0;
-+	return data;
-+}
-+
-+static int bounds_add_bad(sepol_handle_t *handle, uint32_t src, uint32_t tgt,
-+			  uint32_t class, uint32_t data, avtab_ptr_t *bad)
-+{
-+	struct avtab_node *new = malloc(sizeof(struct avtab_node));
-+	if (new == NULL) {
-+		ERR(handle, "Insufficient memory");
-+		return SEPOL_ENOMEM;
-+	}
-+	memset(new, 0, sizeof(struct avtab_node));
-+	new->key.source_type = src;
-+	new->key.target_type = tgt;
-+	new->key.target_class = class;
-+	new->datum.data = data;
-+	new->next = *bad;
-+	*bad = new;
- 
--	/*
--	 * At this point there is a violation of the hierarchal
--	 * constraint, send error condition back
--	 */
--	ERR(a->handle,
--	    "hierarchy violation between types %s and %s : %s { %s }",
--	    a->p->p_type_val_to_name[k->source_type - 1],
--	    a->p->p_type_val_to_name[k->target_type - 1],
--	    a->p->p_class_val_to_name[k->target_class - 1],
--	    sepol_av_to_string(a->p, k->target_class, d->data & ~av.data));
--	a->numerr++;
- 	return 0;
- }
- 
--/*
-- * If same permissions are allowed for same combination of
-- * source and target, we can evaluate them as unconditional
-- * one.
-- * See the following example. A_t type is bounds of B_t type,
-- * so B_t can never have wider permissions then A_t.
-- * A_t has conditional permission on X_t, however, a part of
-- * them (getattr and read) are unconditionaly allowed to A_t.
-- *
-- * Example)
-- * typebounds A_t B_t;
-- *
-- * allow B_t X_t : file { getattr };
-- * if (foo_bool) {
-- *     allow A_t X_t : file { getattr read };
-- * } else {
-- *     allow A_t X_t : file { getattr read write };
-- * }
-- *
-- * We have to pull up them as unconditional ones in this case,
-- * because it seems to us B_t is violated to bounds constraints
-- * during unconditional policy checking.
-- */
--static int pullup_unconditional_perms(cond_list_t * cond_list,
--				      hierarchy_args_t * args)
-+static int bounds_check_rule(sepol_handle_t *handle, policydb_t *p,
-+			     avtab_t *global_avtab, avtab_t *cur_avtab,
-+			     uint32_t child, uint32_t parent, uint32_t src,
-+			     uint32_t tgt, uint32_t class, uint32_t data,
-+			     avtab_ptr_t *bad, int *numbad)
- {
--	cond_list_t *cur_node;
--	cond_av_list_t *cur_av, *expl_true = NULL, *expl_false = NULL;
--	avtab_t expa_true, expa_false;
--	avtab_datum_t *avdatp;
--	avtab_datum_t avdat;
--	avtab_ptr_t avnode;
--
--	for (cur_node = cond_list; cur_node; cur_node = cur_node->next) {
--		if (avtab_init(&expa_true))
--			goto oom0;
--		if (avtab_init(&expa_false))
--			goto oom1;
--		if (expand_cond_av_list(args->p, cur_node->true_list,
--					&expl_true, &expa_true))
--			goto oom2;
--		if (expand_cond_av_list(args->p, cur_node->false_list,
--					&expl_false, &expa_false))
--			goto oom3;
--		for (cur_av = expl_true; cur_av; cur_av = cur_av->next) {
--			avdatp = avtab_search(&expa_false,
--					      &cur_av->node->key);
--			if (!avdatp)
-+	int rc = 0;
-+	avtab_key_t avtab_key;
-+	type_datum_t *td;
-+	ebitmap_node_t *tnode;
-+	unsigned int i;
-+	uint32_t d;
-+
-+	avtab_key.specified = AVTAB_ALLOWED;
-+	avtab_key.target_class = class;
-+
-+	if (ebitmap_get_bit(&p->attr_type_map[src - 1], child - 1)) {
-+		avtab_key.source_type = parent;
-+		ebitmap_for_each_bit(&p->attr_type_map[tgt - 1], tnode, i) {
-+			if (!ebitmap_node_get_bit(tnode, i))
- 				continue;
--
--			avdat.data = (cur_av->node->datum.data
--				      & avdatp->data);
--			if (!avdat.data)
-+			avtab_key.target_type = i + 1;
-+			d = bounds_not_covered(global_avtab, cur_avtab,
-+					       &avtab_key, data);
-+			if (!d) continue;
-+			td = p->type_val_to_struct[i];
-+			if (td && td->bounds) {
-+				avtab_key.target_type = td->bounds;
-+				d = bounds_not_covered(global_avtab, cur_avtab,
-+						       &avtab_key, data);
-+				if (!d) continue;
++		} else { /* SET */
++			struct cil_classperms_set *cp_set = i->data;
++			struct cil_classpermission *cp = cp_set->set;
++			rc = __cil_rule_to_sepol_class_perms(pdb, cp->classperms, sepol_class_perms);
++			if (rc != SEPOL_OK) {
++				goto exit;
 +			}
-+			(*numbad)++;
-+			rc = bounds_add_bad(handle, child, i+1, class, d, bad);
-+			if (rc) goto exit;
 +		}
 +	}
-+	if (ebitmap_get_bit(&p->attr_type_map[tgt - 1], child - 1)) {
-+		avtab_key.target_type = parent;
-+		ebitmap_for_each_bit(&p->attr_type_map[src - 1], tnode, i) {
-+			if (!ebitmap_node_get_bit(tnode, i))
- 				continue;
--
--			avnode = avtab_search_node(args->expa,
--						   &cur_av->node->key);
--			if (avnode) {
--				avnode->datum.data |= avdat.data;
--			} else {
--				if (avtab_insert(args->expa,
--						 &cur_av->node->key,
--						 &avdat))
--					goto oom4;
-+			avtab_key.source_type = i + 1;
-+			if (avtab_key.source_type == child) {
-+				/* Checked above */
-+				continue;
-+			}
-+			d = bounds_not_covered(global_avtab, cur_avtab,
-+					       &avtab_key, data);
-+			if (!d) continue;
-+			td = p->type_val_to_struct[i];
-+			if (td && td->bounds) {
-+				avtab_key.source_type = td->bounds;
-+				d = bounds_not_covered(global_avtab, cur_avtab,
-+						       &avtab_key, data);
-+				if (!d) continue;
- 			}
-+			(*numbad)++;
-+			rc = bounds_add_bad(handle, i+1, child, class, d, bad);
-+			if (rc) goto exit;
- 		}
--		cond_av_list_destroy(expl_false);
--		cond_av_list_destroy(expl_true);
--		avtab_destroy(&expa_false);
--		avtab_destroy(&expa_true);
- 	}
--	return 0;
- 
--oom4:
--	cond_av_list_destroy(expl_false);
--oom3:
--	cond_av_list_destroy(expl_true);
--oom2:
--	avtab_destroy(&expa_false);
--oom1:
--	avtab_destroy(&expa_true);
--oom0:
--	ERR(args->handle, "out of memory on conditional av list expansion");
--        return 1;
-+exit:
-+	return rc;
-+}
-+
-+static int bounds_check_cond_rules(sepol_handle_t *handle, policydb_t *p,
-+				   avtab_t *global_avtab, avtab_t *cond_avtab,
-+				   cond_av_list_t *rules, uint32_t child,
-+				   uint32_t parent, avtab_ptr_t *bad,
-+				   int *numbad)
-+{
-+	int rc = 0;
-+	cond_av_list_t *cur;
-+
-+	for (cur = rules; cur; cur = cur->next) {
-+		avtab_ptr_t ap = cur->node;
-+		avtab_key_t *key = &ap->key;
-+		avtab_datum_t *datum = &ap->datum;
-+		if (!(key->specified & AVTAB_ALLOWED))
-+			continue;
-+		rc = bounds_check_rule(handle, p, global_avtab, cond_avtab,
-+				       child, parent, key->source_type,
-+				       key->target_type, key->target_class,
-+				       datum->data, bad, numbad);
-+		if (rc) goto exit;
-+	}
++	return SEPOL_OK;
 +
 +exit:
 +	return rc;
 +}
 +
-+struct bounds_check_args {
-+	sepol_handle_t *handle;
-+	policydb_t *p;
-+	avtab_t *cur_avtab;
-+	uint32_t child;
-+	uint32_t parent;
-+	avtab_ptr_t bad;
-+	int numbad;
-+};
-+
-+static int bounds_check_rule_callback(avtab_key_t *k, avtab_datum_t *d,
-+				      void *args)
++static void __cil_init_sepol_type_set(type_set_t *t)
 +{
-+	struct bounds_check_args *a = (struct bounds_check_args *)args;
++	ebitmap_init(&t->types);
++	ebitmap_init(&t->negset);
++	t->flags = 0;
++}
 +
-+	if (!(k->specified & AVTAB_ALLOWED))
-+		return 0;
++static int __cil_add_sepol_type(policydb_t *pdb, const struct cil_db *db, struct cil_symtab_datum *datum, ebitmap_t *map)
++{
++	int rc = SEPOL_ERR;
++	struct cil_tree_node *n = datum->nodes->head->data;
++	type_datum_t *sepol_datum = NULL;
 +
-+	return bounds_check_rule(a->handle, a->p, NULL, a->cur_avtab, a->child,
-+				 a->parent, k->source_type, k->target_type,
-+				 k->target_class, d->data, &a->bad, &a->numbad);
- }
- 
--static int check_cond_avtab_hierarchy(cond_list_t * cond_list,
--				      hierarchy_args_t * args)
-+static int bounds_check_child_rules(sepol_handle_t *handle, policydb_t *p,
-+				    avtab_t *global_avtab,
-+				    struct bounds_cond_info *cond_info,
-+				    uint32_t child, uint32_t parent,
-+				    avtab_ptr_t *bad, int *numbad)
- {
- 	int rc;
--	cond_list_t *cur_node;
--	cond_av_list_t *cur_av, *expl = NULL;
--	avtab_t expa;
--	hierarchy_args_t *a = (hierarchy_args_t *) args;
--	avtab_datum_t avdat, *uncond;
--
--	for (cur_node = cond_list; cur_node; cur_node = cur_node->next) {
--		/*
--		 * Check true condition
--		 */
--		if (avtab_init(&expa))
--			goto oom;
--		if (expand_cond_av_list(args->p, cur_node->true_list,
--					&expl, &expa)) {
--			avtab_destroy(&expa);
--			goto oom;
--		}
--		args->opt_cond_list = expl;
--		for (cur_av = expl; cur_av; cur_av = cur_av->next) {
--			avdat.data = cur_av->node->datum.data;
--			uncond = avtab_search(a->expa, &cur_av->node->key);
--			if (uncond)
--				avdat.data |= uncond->data;
--			rc = check_avtab_hierarchy_callback(&cur_av->node->key,
--							    &avdat, args);
--			if (rc)
--				args->numerr++;
--		}
--		cond_av_list_destroy(expl);
--		avtab_destroy(&expa);
-+	struct bounds_check_args args;
-+	struct bounds_cond_info *cur;
- 
--		/*
--		 * Check false condition
--		 */
--		if (avtab_init(&expa))
--			goto oom;
--		if (expand_cond_av_list(args->p, cur_node->false_list,
--					&expl, &expa)) {
--			avtab_destroy(&expa);
--			goto oom;
--		}
--		args->opt_cond_list = expl;
--		for (cur_av = expl; cur_av; cur_av = cur_av->next) {
--			avdat.data = cur_av->node->datum.data;
--			uncond = avtab_search(a->expa, &cur_av->node->key);
--			if (uncond)
--				avdat.data |= uncond->data;
--
--			rc = check_avtab_hierarchy_callback(&cur_av->node->key,
--							    &avdat, args);
--			if (rc)
--				a->numerr++;
-+	args.handle = handle;
-+	args.p = p;
-+	args.cur_avtab = global_avtab;
-+	args.child = child;
-+	args.parent = parent;
-+	args.bad = NULL;
-+	args.numbad = 0;
-+	rc = avtab_map(&p->te_avtab, bounds_check_rule_callback, &args);
-+	if (rc) goto exit;
-+
-+	for (cur = cond_info; cur; cur = cur->next) {
-+		cond_list_t *node = cur->cond_list;
-+		rc = bounds_check_cond_rules(handle, p, global_avtab,
-+					     &cur->true_avtab,
-+					     node->true_list, child, parent,
-+					     &args.bad, &args.numbad);
-+		if (rc) goto exit;
-+
-+		rc = bounds_check_cond_rules(handle, p, global_avtab,
-+					     &cur->false_avtab,
-+					     node->false_list, child, parent,
-+					     &args.bad, &args.numbad);
-+		if (rc) goto exit;
++	if (n->flavor == CIL_TYPEATTRIBUTE) {
++		ebitmap_node_t *tnode;
++		unsigned int i;
++		struct cil_typeattribute *attr = (struct cil_typeattribute *)datum;
++		ebitmap_for_each_bit(attr->types, tnode, i) {
++			if (!ebitmap_get_bit(attr->types, i)) continue;
++			datum = DATUM(db->val_to_type[i]);
++			rc = __cil_get_sepol_type_datum(pdb, datum, &sepol_datum);
++			if (rc != SEPOL_OK) goto exit;
++			ebitmap_set_bit(map, sepol_datum->s.value - 1, 1);
++		}
++	} else {
++		rc = __cil_get_sepol_type_datum(pdb, datum, &sepol_datum);
++		if (rc != SEPOL_OK) goto exit;
++		ebitmap_set_bit(map, sepol_datum->s.value - 1, 1);
 +	}
 +
-+	*numbad += args.numbad;
-+	*bad = args.bad;
++	return SEPOL_OK;
 +
 +exit:
 +	return rc;
 +}
 +
-+int bounds_check_type(sepol_handle_t *handle, policydb_t *p, uint32_t child,
-+		      uint32_t parent, avtab_ptr_t *bad, int *numbad)
++static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *node)
 +{
-+	int rc = 0;
-+	avtab_t global_avtab;
-+	struct bounds_cond_info *cond_info = NULL;
++	avrule_t *avrule;
 +
-+	rc = bounds_expand_parent_rules(handle, p, &global_avtab, &cond_info, parent);
-+	if (rc) goto exit;
-+
-+	rc = bounds_check_child_rules(handle, p, &global_avtab, cond_info,
-+				      child, parent, bad, numbad);
-+
-+	bounds_destroy_cond_info(cond_info);
-+	avtab_destroy(&global_avtab);
-+
-+exit:
-+	return rc;
++	avrule = cil_malloc(sizeof(avrule_t));
++	avrule->specified = kind;
++	avrule->flags = 0;
++	__cil_init_sepol_type_set(&avrule->stypes);
++	__cil_init_sepol_type_set(&avrule->ttypes);
++	avrule->perms = NULL;
++	avrule->line = node->line;
++	avrule->source_filename = node->path;
++	avrule->source_line = node->line;
++	avrule->next = NULL;
++	return avrule;
 +}
 +
-+struct bounds_args {
-+	sepol_handle_t *handle;
-+	policydb_t *p;
-+	int numbad;
-+};
-+
-+static void bounds_report(sepol_handle_t *handle, policydb_t *p, uint32_t child,
-+			  uint32_t parent, avtab_ptr_t cur)
++static void __cil_destroy_sepol_avrules(avrule_t *curr)
 +{
-+	ERR(handle, "Child type %s exceeds bounds of parent %s in the following rules:",
-+	    p->p_type_val_to_name[child - 1],
-+	    p->p_type_val_to_name[parent - 1]);
-+	for (; cur; cur = cur->next) {
-+		ERR(handle, "    %s %s : %s { %s }",
-+		    p->p_type_val_to_name[cur->key.source_type - 1],
-+		    p->p_type_val_to_name[cur->key.target_type - 1],
-+		    p->p_class_val_to_name[cur->key.target_class - 1],
-+		    sepol_av_to_string(p, cur->key.target_class,
-+				       cur->datum.data));
++	avrule_t *next;
++
++	while (curr) {
++		next = curr->next;
++		ebitmap_destroy(&curr->stypes.types);
++		ebitmap_destroy(&curr->stypes.negset);
++		ebitmap_destroy(&curr->ttypes.types);
++		ebitmap_destroy(&curr->ttypes.negset);
++		__cil_destroy_sepol_class_perms(curr->perms);
++		free(curr);
++		curr = next;
 +	}
 +}
 +
-+void bounds_destroy_bad(avtab_ptr_t cur)
++static int __cil_rule_to_expanded_sepol_avrule(const struct cil_db *db, policydb_t *pdb, struct cil_tree_node *node, avrule_t **avrule)
 +{
-+	avtab_ptr_t next;
++	int rc = SEPOL_ERR;
++	struct cil_avrule *cil_rule = node->data;
++	struct cil_symtab_datum *tgt = cil_rule->tgt;
++	uint32_t kind;
++	avrule_t *rule;
 +
-+	for (; cur; cur = next) {
-+		next = cur->next;
-+		cur->next = NULL;
-+		free(cur);
-+	}
-+}
++	*avrule = NULL;
 +
-+static int bounds_check_type_callback(hashtab_key_t k __attribute__ ((unused)),
-+				      hashtab_datum_t d, void *args)
-+{
-+	int rc = 0;
-+	struct bounds_args *a = (struct bounds_args *)args;
-+	type_datum_t *t = (type_datum_t *)d;
-+	avtab_ptr_t bad = NULL;
-+
-+	if (t->bounds) {
-+		rc = bounds_check_type(a->handle, a->p, t->s.value, t->bounds,
-+				       &bad, &a->numbad);
-+		if (bad) {
-+			bounds_report(a->handle, a->p, t->s.value, t->bounds,
-+				      bad);
-+			bounds_destroy_bad(bad);
- 		}
--		cond_av_list_destroy(expl);
--		avtab_destroy(&expa);
- 	}
- 
--	return 0;
-+	return rc;
-+}
-+
-+int bounds_check_types(sepol_handle_t *handle, policydb_t *p)
-+{
-+	int rc;
-+	struct bounds_args args;
-+
-+	args.handle = handle;
-+	args.p = p;
-+	args.numbad = 0;
-+
-+	rc = hashtab_map(p->p_types.table, bounds_check_type_callback, &args);
-+	if (rc) goto exit;
-+
-+	if (args.numbad > 0) {
-+		ERR(handle, "%d errors found during type bounds check",
-+		    args.numbad);
-+		rc = SEPOL_ERR;
-+	}
- 
--      oom:
--	ERR(args->handle, "out of memory on conditional av list expansion");
--	return 1;
-+exit:
-+	return rc;
- }
- 
--/* The role hierarchy is defined as: a child role cannot have more types than it's parent.
-- * This function should be called with hashtab_map, it will return 0 on success, 1 on 
-- * constraint violation and -1 on error
-+/* The role bounds is defined as: a child role cannot have a type that
-+ * its parent doesn't have.
-  */
--static int check_role_hierarchy_callback(hashtab_key_t k
--					 __attribute__ ((unused)),
--					 hashtab_datum_t d, void *args)
-+static int bounds_check_role_callback(hashtab_key_t k __attribute__ ((unused)),
-+				      hashtab_datum_t d, void *args)
- {
--	hierarchy_args_t *a;
--	role_datum_t *r, *rp;
-+	struct bounds_args *a = (struct bounds_args *)args;
-+	role_datum_t *r = (role_datum_t *) d;
-+	role_datum_t *rp = NULL;
- 
--	a = (hierarchy_args_t *) args;
--	r = (role_datum_t *) d;
-+	if (!r->bounds)
-+		return 0;
- 
--	if (find_parent_role(a, r, &rp) < 0)
--		return -1;
-+	rp = a->p->role_val_to_struct[r->bounds - 1];
- 
- 	if (rp && !ebitmap_contains(&rp->types.types, &r->types.types)) {
--		/* hierarchical constraint violation, return error */
--		ERR(a->handle, "Role hierarchy violation, %s exceeds %s",
--		    (char *) k, a->p->p_role_val_to_name[rp->s.value - 1]);
--		a->numerr++;
-+		ERR(a->handle, "Role bounds violation, %s exceeds %s",
-+		    (char *)k, a->p->p_role_val_to_name[rp->s.value - 1]);
-+		a->numbad++;
++	switch (cil_rule->rule_kind) {
++	case CIL_AVRULE_AUDITALLOW:
++		kind = AVRULE_AUDITALLOW;
++		break;
++	case CIL_AVRULE_DONTAUDIT:
++		kind = AVRULE_AUDITDENY;
++		break;
++	case CIL_AVRULE_NEVERALLOW:
++		kind = AVRULE_NEVERALLOW;
++		break;
++	default:
++		kind = AVRULE_ALLOWED;
++		break;
 +	}
 +
-+	return 0;
-+}
++	rule = __cil_init_sepol_avrule(kind, node);
 +
-+int bounds_check_roles(sepol_handle_t *handle, policydb_t *p)
-+{
-+	struct bounds_args args;
-+
-+	args.handle = handle;
-+	args.p = p;
-+	args.numbad = 0;
-+
-+	hashtab_map(p->p_roles.table, bounds_check_role_callback, &args);
-+
-+	if (args.numbad > 0) {
-+		ERR(handle, "%d errors found during role bounds check",
-+		    args.numbad);
-+		return SEPOL_ERR;
- 	}
-+
- 	return 0;
- }
- 
--/* The user hierarchy is defined as: a child user cannot have a role that
-- * its parent doesn't have.  This function should be called with hashtab_map,
-- * it will return 0 on success, 1 on constraint violation and -1 on error.
-+/* The user bounds is defined as: a child user cannot have a role that
-+ * its parent doesn't have.
-  */
--static int check_user_hierarchy_callback(hashtab_key_t k
--					 __attribute__ ((unused)),
--					 hashtab_datum_t d, void *args)
-+static int bounds_check_user_callback(hashtab_key_t k __attribute__ ((unused)),
-+				      hashtab_datum_t d, void *args)
- {
--	hierarchy_args_t *a;
--	user_datum_t *u, *up;
-+	struct bounds_args *a = (struct bounds_args *)args;
-+	user_datum_t *u = (user_datum_t *) d;
-+	user_datum_t *up = NULL;
- 
--	a = (hierarchy_args_t *) args;
--	u = (user_datum_t *) d;
-+	if (!u->bounds)
-+		return 0;
- 
--	if (find_parent_user(a, u, &up) < 0)
--		return -1;
-+	up = a->p->user_val_to_struct[u->bounds - 1];
- 
- 	if (up && !ebitmap_contains(&up->roles.roles, &u->roles.roles)) {
--		/* hierarchical constraint violation, return error */
--		ERR(a->handle, "User hierarchy violation, %s exceeds %s",
-+		ERR(a->handle, "User bounds violation, %s exceeds %s",
- 		    (char *) k, a->p->p_user_val_to_name[up->s.value - 1]);
--		a->numerr++;
-+		a->numbad++;
- 	}
-+
- 	return 0;
- }
- 
--int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p)
-+int bounds_check_users(sepol_handle_t *handle, policydb_t *p)
- {
--	hierarchy_args_t args;
--	avtab_t expa;
--
--	if (avtab_init(&expa))
--		goto oom;
--	if (expand_avtab(p, &p->te_avtab, &expa)) {
--		avtab_destroy(&expa);
--		goto oom;
--	}
-+	struct bounds_args args;
- 
--	args.p = p;
--	args.expa = &expa;
--	args.opt_cond_list = NULL;
- 	args.handle = handle;
--	args.numerr = 0;
-+	args.p = p;
-+	args.numbad = 0;
- 
--	if (hashtab_map(p->p_types.table, check_type_hierarchy_callback, &args))
--		goto bad;
-+	hashtab_map(p->p_users.table, bounds_check_user_callback, &args);
- 
--	if (pullup_unconditional_perms(p->cond_list, &args))
--		return -1;
-+	if (args.numbad > 0) {
-+		ERR(handle, "%d errors found during user bounds check",
-+		    args.numbad);
-+		return SEPOL_ERR;
++	rc = __cil_rule_to_sepol_class_perms(pdb, cil_rule->classperms, &rule->perms);
++	if (rc != SEPOL_OK) {
++		goto exit;
 +	}
- 
--	if (avtab_map(&expa, check_avtab_hierarchy_callback, &args))
--		goto bad;
-+	return 0;
-+}
- 
--	if (check_cond_avtab_hierarchy(p->cond_list, &args))
--		goto bad;
-+#define add_hierarchy_callback_template(prefix)				\
-+	int hierarchy_add_##prefix##_callback(hashtab_key_t k __attribute__ ((unused)), \
-+					    hashtab_datum_t d, void *args) \
-+{								\
-+	struct bounds_args *a = (struct bounds_args *)args;		\
-+	sepol_handle_t *handle = a->handle;				\
-+	policydb_t *p = a->p;						\
-+	prefix##_datum_t *datum = (prefix##_datum_t *)d;		\
-+	prefix##_datum_t *parent;					\
-+	char *parent_name, *datum_name, *tmp;				\
-+									\
-+	if (!datum->bounds) {						\
-+		datum_name = p->p_##prefix##_val_to_name[datum->s.value - 1]; \
-+									\
-+		tmp = strrchr(datum_name, '.');				\
-+		/* no '.' means it has no parent */			\
-+		if (!tmp) return 0;					\
-+									\
-+		parent_name = strdup(datum_name);			\
-+		if (!parent_name) {					\
-+			ERR(handle, "Insufficient memory");		\
-+			return SEPOL_ENOMEM;				\
-+		}							\
-+		parent_name[tmp - datum_name] = '\0';			\
-+									\
-+		parent = hashtab_search(p->p_##prefix##s.table, parent_name); \
-+		if (!parent) {						\
-+			/* Orphan type/role/user */			\
-+			ERR(handle, "%s doesn't exist, %s is an orphan",\
-+			    parent_name,				\
-+			    p->p_##prefix##_val_to_name[datum->s.value - 1]); \
-+			free(parent_name);				\
-+			a->numbad++;					\
-+			return 0;					\
-+		}							\
-+		datum->bounds = parent->s.value;			\
-+		free(parent_name);					\
-+	}								\
-+									\
-+	return 0;							\
-+}								\
 +
-+static add_hierarchy_callback_template(type)
-+static add_hierarchy_callback_template(role)
-+static add_hierarchy_callback_template(user)
- 
--	if (hashtab_map(p->p_roles.table, check_role_hierarchy_callback, &args))
--		goto bad;
-+int hierarchy_add_bounds(sepol_handle_t *handle, policydb_t *p)
-+{
-+	int rc = 0;
-+	struct bounds_args args;
++	rc = __cil_add_sepol_type(pdb, db, cil_rule->src, &rule->stypes.types);
++	if (rc != SEPOL_OK) {
++		goto exit;
++	}
 +
-+	args.handle = handle;
-+	args.p = p;
-+	args.numbad = 0;
-+
-+	rc = hashtab_map(p->p_users.table, hierarchy_add_user_callback, &args);
-+	if (rc) goto exit;
-+
-+	rc = hashtab_map(p->p_roles.table, hierarchy_add_role_callback, &args);
-+	if (rc) goto exit;
- 
--	if (hashtab_map(p->p_users.table, check_user_hierarchy_callback, &args))
--		goto bad;
-+	rc = hashtab_map(p->p_types.table, hierarchy_add_type_callback, &args);
-+	if (rc) goto exit;
- 
--	if (args.numerr) {
--		ERR(handle, "%d total errors found during hierarchy check",
--		    args.numerr);
--		goto bad;
-+	if (args.numbad > 0) {
-+		ERR(handle, "%d errors found while adding hierarchies",
-+		    args.numbad);
-+		rc = SEPOL_ERR;
- 	}
- 
--	avtab_destroy(&expa);
--	return 0;
-+exit:
-+	return rc;
-+}
-+
-+int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p)
-+{
-+	int rc = 0;
-+	int violation = 0;
-+
-+	rc = hierarchy_add_bounds(handle, p);
-+	if (rc) goto exit;
-+
-+	rc = bounds_check_users(handle, p);
-+	if (rc)
-+		violation = 1;
-+
-+	rc = bounds_check_roles(handle, p);
-+	if (rc)
-+		violation = 1;
-+
-+	rc = bounds_check_types(handle, p);
-+	if (rc) {
-+		if (rc == SEPOL_ERR)
-+			violation = 1;
-+		else
++	if (tgt->fqn == CIL_KEY_SELF) {
++		rule->flags = RULE_SELF;
++	} else {
++		rc = __cil_add_sepol_type(pdb, db, cil_rule->tgt, &rule->ttypes.types);
++		if (rc != SEPOL_OK) {
 +			goto exit;
++		}
 +	}
- 
--      bad:
--	avtab_destroy(&expa);
--	return -1;
-+	if (violation)
-+		rc = SEPOL_ERR;
- 
--      oom:
--	ERR(handle, "Out of memory");
--	return -1;
++
++	rule->next = NULL;
++	*avrule = rule;
++
++	return SEPOL_OK;
++
++exit:
++	__cil_destroy_sepol_avrules(rule);
++	return rc;
++}
++
++static void __cil_print_parents(const char *pad, struct cil_tree_node *n)
++{
++	if (!n) return;
++
++	__cil_print_parents(pad, n->parent);
++
++	if (!n->path) {
++		cil_log(CIL_ERR,"%s%s\n", pad, cil_node_to_string(n));
++	} else {
++		cil_log(CIL_ERR,"%s%s at line %d of %s\n", pad, cil_node_to_string(n), n->line, n->path);
++	}
++}
++
++static void __cil_print_rule(const char *pad, const char *kind, struct cil_avrule *avrule)
++{
++	struct cil_list *cp_list = avrule->classperms;
++	struct cil_list_item *i1, *i2;
++
++	cil_log(CIL_ERR,"%s(%s ", pad, kind);
++	cil_log(CIL_ERR,"%s %s ", DATUM(avrule->src)->fqn, DATUM(avrule->tgt)->fqn);
++
++	i1 = cp_list->head;
++	if (i1->flavor == CIL_CLASSPERMS) {
++		struct cil_classperms *cp = i1->data;
++		cil_log(CIL_ERR,"(%s (", DATUM(cp->class)->fqn);
++		cil_list_for_each(i2, cp->perms) {
++			cil_log(CIL_ERR,"%s",DATUM(i2->data)->fqn);
++			if (i2 != cp->perms->tail) {
++				cil_log(CIL_ERR," ");
++			} else {
++				cil_log(CIL_ERR,"))");
++			}
++		}
++	} else {
++		struct cil_classperms_set *cp_set = i1->data;
++		cil_log(CIL_ERR,"%s", DATUM(cp_set->set)->fqn);
++	}
++
++	cil_log(CIL_ERR,")\n");
++}
++
++static int cil_check_neverallows(const struct cil_db *db, policydb_t *pdb, struct cil_list *neverallows)
++{
++	int rc = SEPOL_OK;
++	struct cil_list_item *i1;
++
++	cil_list_for_each(i1, neverallows) {
++		struct cil_tree_node *node = i1->data;
++		avrule_t *avrule;
++		rc = __cil_rule_to_expanded_sepol_avrule(db, pdb, node, &avrule);
++		if (rc != SEPOL_OK) {
++			cil_log(CIL_ERR, "Failed to create expanded sepol avrules to check neverallow rules\n");
++			goto exit;
++		}
++
++		rc = check_assertion(pdb, avrule);
++
++		if (rc == CIL_TRUE) {
++			struct cil_list_item *i2;
++			struct cil_list *matching;
++			struct cil_avrule *cil_rule = node->data;
++			struct cil_avrule target;
++			struct cil_tree_node *n2;
++			struct cil_avrule *r2;
++			target.rule_kind = CIL_AVRULE_ALLOWED;
++			target.src = cil_rule->src;
++			target.tgt = cil_rule->tgt;
++			target.classperms = cil_rule->classperms;
++			cil_log(CIL_ERR, "Neverallow check failed at line %d of %s\n", node->line, node->path);
++			__cil_print_rule("  ", "neverallow", cil_rule);
++			cil_list_init(&matching, CIL_NODE);
++			rc = cil_find_matching_avrule_in_ast(db->ast->root, CIL_AVRULE, &target, matching, CIL_FALSE);
++			if (rc) {
++				cil_log(CIL_ERR, "Error occurred while checking neverallow rules\n");
++				cil_list_destroy(&matching, CIL_FALSE);
++				__cil_destroy_sepol_avrules(avrule);
++				goto exit;
++			}
++
++			cil_list_for_each(i2, matching) {
++				n2 = i2->data;
++				r2 = n2->data;
++				__cil_print_parents("    ", n2);
++				__cil_print_rule("      ", "allow", r2);
++			}
++			cil_log(CIL_ERR,"\n");
++			cil_list_destroy(&matching, CIL_FALSE);
++		}
++		__cil_destroy_sepol_avrules(avrule);
++		avrule = NULL;
++	}
++
 +exit:
 +	return rc;
++}
++
+ // assumes policydb is already allocated and initialized properly with things
+ // like policy type set to kernel and version set appropriately
+ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *policydb)
+@@ -3822,13 +3980,19 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+ 	cond_optimize_lists(pdb->cond_list);
+ 	__cil_set_conditional_state_and_flags(pdb);
+ 
++	if (db->disable_neverallow != CIL_TRUE) {
++		cil_log(CIL_INFO, "Checking Neverallows\n");
++		rc = cil_check_neverallows(db, pdb, neverallows);
++		if (rc != SEPOL_OK) goto exit;
++	}
++
+ 	rc = SEPOL_OK;
+ 
+ exit:
+ 	hashtab_destroy(filename_trans_table);
+ 	hashtab_destroy(range_trans_table);
+ 	hashtab_destroy(role_trans_table);
+-	cil_neverallows_list_destroy(neverallows);
++	cil_list_destroy(&neverallows, CIL_FALSE);
+ 
+ 	return rc;
  }
+diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
+index 5045c6e..72c0f95 100644
+--- a/libsepol/cil/src/cil_binary.h
++++ b/libsepol/cil/src/cil_binary.h
+@@ -250,7 +250,7 @@ int cil_type_rule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+  *
+  * @return SEPOL_OK upon success or an error otherwise.
+  */
+-int cil_avrule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule, struct cil_list *neverallows);
++int cil_avrule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule);
+ 
+ /**
+  * Insert cil booleanif structure into sepol policydb.  This populates the
+@@ -262,7 +262,7 @@ int cil_avrule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_
+  *
+  * @return SEPOL_OK upon success or an error otherwise.
+  */
+-int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node, struct cil_list *neverallows, hashtab_t filename_trans_table);
++int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node, hashtab_t filename_trans_table);
+ 
+ /**
+  * Insert cil role transition structure into sepol policydb.
 -- 
 1.9.3
