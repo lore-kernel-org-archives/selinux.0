@@ -1,13 +1,13 @@
-Message-ID: <558467F6.7010207@tycho.nsa.gov>
-Date: Fri, 19 Jun 2015 15:05:26 -0400
+Message-ID: <5584683A.3050403@tycho.nsa.gov>
+Date: Fri, 19 Jun 2015 15:06:34 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 01/10 v3] libsepol: Add new ebitmap function named
- ebitmap_match_any()
+Subject: Re: [PATCH 02/10 v3] libsepol: Treat types like an attribute in the
+ attr_type_map.
 References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1434737956-17932-2-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1434737956-17932-2-git-send-email-jwcart2@tycho.nsa.gov>
+ <1434737956-17932-3-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1434737956-17932-3-git-send-email-jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -15,61 +15,81 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 06/19/2015 02:19 PM, James Carter wrote:
-> This function returns true if there is a common bit that is set
-> in both bitmaps.
+> Types are treated as attributes that contain only themselves. This
+> is how types are already treated in the type_attr_map.
+> 
+> Treating types this way makes finding rules that apply to a given
+> type much easier. This simplifies the implementation of neverallow
+> checking in assertion.c and bounds checking in hierarchy.c.
 > 
 > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->  libsepol/include/sepol/policydb/ebitmap.h |  1 +
->  libsepol/src/ebitmap.c                    | 22 ++++++++++++++++++++++
->  2 files changed, 23 insertions(+)
+>  libsepol/src/expand.c   | 24 ++++++++++++++++--------
+>  libsepol/src/policydb.c |  4 ++++
+>  2 files changed, 20 insertions(+), 8 deletions(-)
 > 
-> diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
-> index 801438c..7b3508d 100644
-> --- a/libsepol/include/sepol/policydb/ebitmap.h
-> +++ b/libsepol/include/sepol/policydb/ebitmap.h
-> @@ -86,6 +86,7 @@ extern unsigned int ebitmap_cardinality(ebitmap_t *e1);
->  extern int ebitmap_hamming_distance(ebitmap_t * e1, ebitmap_t * e2);
->  extern int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src);
->  extern int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2);
-> +extern int ebitmap_match_any(const ebitmap_t *e1, const ebitmap_t *e2);
->  extern int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit);
->  extern int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value);
->  extern void ebitmap_destroy(ebitmap_t * e);
-> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
-> index be6b591..58f2fc4 100644
-> --- a/libsepol/src/ebitmap.c
-> +++ b/libsepol/src/ebitmap.c
-> @@ -224,6 +224,28 @@ int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2)
->  	return 1;
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 478eaff..7b99f40 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -2311,25 +2311,33 @@ static int type_attr_map(hashtab_key_t key
+>  	policydb_t *p = state->out;
+>  	unsigned int i;
+>  	ebitmap_node_t *tnode;
+> +	int value;
+>  
+>  	type = (type_datum_t *) datum;
+> +	value = type->s.value;
+> +
+>  	if (type->flavor == TYPE_ATTRIB) {
+> -		if (ebitmap_cpy(&p->attr_type_map[type->s.value - 1],
+> -				&type->types)) {
+> -			ERR(state->handle, "Out of memory!");
+> -			return -1;
+> +		if (ebitmap_cpy(&p->attr_type_map[value - 1], &type->types)) {
+> +			goto oom;
+>  		}
+>  		ebitmap_for_each_bit(&type->types, tnode, i) {
+>  			if (!ebitmap_node_get_bit(tnode, i))
+>  				continue;
+> -			if (ebitmap_set_bit(&p->type_attr_map[i],
+> -					    type->s.value - 1, 1)) {
+> -				ERR(state->handle, "Out of memory!");
+> -				return -1;
+> +			if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
+> +				goto oom;
+>  			}
+>  		}
+> +	} else {
+> +		if (ebitmap_set_bit(&p->attr_type_map[value - 1], value - 1, 1)) {
+> +			goto oom;
+> +		}
+>  	}
+> +
+>  	return 0;
+> +
+> +oom:
+> +	ERR(state->handle, "Out of memory!");
+> +	return -1;
 >  }
 >  
-> +int ebitmap_match_any(const ebitmap_t *e1, const ebitmap_t *e2)
-> +{
-> +	ebitmap_node_t *n1 = e1->node;
-> +	ebitmap_node_t *n2 = e2->node;
-> +
-> +	while (n1 && n2) {
-> +		if (n1->startbit < n2->startbit) {
-> +			n1 = n1->next;
-> +		} else if (n2->startbit < n1->startbit) {
-> +			n2 = n2->next;
-> +		} else {
-> +			if (n1->map & n2->map) {
-> +				return 1;
+>  /* converts typeset using typemap and expands into ebitmap_t types using the attributes in the passed in policy.
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 1677eb5..670aef8 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -3936,6 +3936,10 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  			/* add the type itself as the degenerate case */
+>  			if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
+>  				goto bad;
+> +			if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
+> +				if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
+> +					goto bad;
 > +			}
-> +			n1 = n1->next;
-> +			n2 = n2->next;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit)
->  {
->  	ebitmap_node_t *n;
+>  		}
+>  	}
+>  
 > 
