@@ -1,11 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5JIJ8qg006185
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5JIJ8qi006185
  for <selinux@tycho.nsa.gov>; Fri, 19 Jun 2015 14:19:08 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 08/10 v3] libsepol/cil: Add CIL bounds checking and reporting.
-Date: Fri, 19 Jun 2015 14:19:14 -0400
-Message-Id: <1434737956-17932-9-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 10/10 v3] secilc: Add a CIL policy file to test bounds
+ checking.
+Date: Fri, 19 Jun 2015 14:19:16 -0400
+Message-Id: <1434737956-17932-11-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,180 +14,258 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Use the libsepol bounds checking to check for and report user and
-role bounds violations.
-
-For type bounds checking, use libsepol bounds checking to determine
-if there is a violation for a given type. For each violation display
-an error message that includes the CIL AST from the root node to the
-node of the rule causing the violation.
-
-Example error report:
-Child type b_t3_c exceeds bounds of parent b_t3
-  (allow b_t3_c b_tc (file (write)))
-    <root>
-    booleanif at line 148633 of cil.conf.bounds
-    true at line 148634 of cil.conf.bounds
-    allow at line 148636 of cil.conf.bounds
-      (allow b_t3_c b_tc (file (read write)))
-
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/cil/src/cil_binary.c | 135 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 135 insertions(+)
+ secilc/test/bounds.cil | 241 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 241 insertions(+)
+ create mode 100644 secilc/test/bounds.cil
 
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 066184a..6d095db 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -3903,6 +3903,130 @@ exit:
- 	return rc;
- }
- 
-+static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
-+{
-+	struct cil_classperms *cp;
-+	struct cil_list *cp_list;
-+	class_datum_t *sepol_class = pdb->class_val_to_struct[class - 1];
-+	unsigned i;
+diff --git a/secilc/test/bounds.cil b/secilc/test/bounds.cil
+new file mode 100644
+index 0000000..e72560e
+--- /dev/null
++++ b/secilc/test/bounds.cil
+@@ -0,0 +1,241 @@
++(class CLASS (PERM))
++(classorder (CLASS))
++(sid SID)
++(sidorder (SID))
++(user USER)
++(role ROLE)
++(type TYPE)
++(category CAT)
++(categoryorder (CAT))
++(sensitivity SENS)
++(sensitivityorder (SENS))
++(sensitivitycategory SENS (CAT))
++(allow TYPE self (CLASS (PERM)))
++(roletype ROLE TYPE)
++(userrole USER ROLE)
++(userlevel USER (SENS))
++(userrange USER ((SENS)(SENS (CAT))))
++(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
 +
-+	cil_classperms_init(&cp);
++(class c1 (p1a p1b p1c))
++(class c2 (p2a p2b p2c))
++(class c3 (p3a p3b p3c))
 +
-+	cp->class = class_value_to_cil[class];
-+	if (!cp->class) goto exit;
++(classorder (CLASS c1 c2 c3))
 +
-+	cil_list_init(&cp->perms, CIL_PERM);
-+	for (i = 0; i < sepol_class->permissions.nprim; i++) {
-+		struct cil_perm *perm;
-+		if ((data & (1 << i)) == 0) continue;
-+		perm = perm_value_to_cil[class][i+1];
-+		if (!perm) goto exit;
-+		cil_list_append(cp->perms, CIL_PERM, perm);
-+	}
++(classpermission cp1)
++(classpermissionset cp1 (c1 (p1a p1b)))
++(classpermissionset cp1 (c2 (p2a)))
 +
-+	cil_list_init(&cp_list, CIL_CLASSPERMS);
-+	cil_list_append(cp_list, CIL_CLASSPERMS, cp);
++(classmap cm1 (mp1))
++(classmapping cm1 mp1
++	      (c1 (p1a)))
 +
-+	return cp_list;
++(boolean b_b1 false)
++(boolean b_b2 false)
++(boolean b_b3 false)
 +
-+exit:
-+	cil_log(CIL_ERR,"Failed to create CIL class-permissions from sepol values\n");
-+	return NULL;
-+}
 +
-+static int cil_avrule_from_sepol(policydb_t *pdb, avtab_ptr_t sepol_rule, struct cil_avrule *cil_rule, void *type_value_to_cil[], struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
-+{
-+	int rc = SEPOL_ERR;
-+	avtab_key_t *k = &sepol_rule->key;
-+	avtab_datum_t *d = &sepol_rule->datum;
-+	cil_rule->src = type_value_to_cil[k->source_type];
-+	if (!cil_rule->src) goto exit;
++(type b_ta)
++(type b_tb)
++(type b_tc)
++(type b_td)
 +
-+	cil_rule->tgt = type_value_to_cil[k->target_type];
-+	if (!cil_rule->tgt) goto exit;
 +
-+	cil_rule->classperms = cil_classperms_from_sepol(pdb, k->target_class, d->data, class_value_to_cil, perm_value_to_cil);
-+	if (!cil_rule->classperms) goto exit;
++;; All of these rules should pass the bounds check
++(type b_t1)
++(type b_t1_c)
++(typebounds b_t1 b_t1_c)
 +
-+	return SEPOL_OK;
++(allow b_t1 self (CLASS (PERM)))
++(allow b_t1_c self (CLASS (PERM)))
++(allow b_t1 b_ta (CLASS (PERM)))
++(allow b_t1_c b_ta (CLASS (PERM)))
++(allow b_ta b_t1 (CLASS (PERM)))
++(allow b_ta b_t1_c (CLASS (PERM)))
 +
-+exit:
-+	cil_log(CIL_ERR,"Failed to create CIL AV rule from sepol values\n");
-+	return rc;
-+}
++(booleanif b_b1
++  (false
++    (allow b_t1 b_tb (CLASS (PERM)))
++    (allow b_t1_c b_tb (CLASS (PERM)))
++    (allow b_tb b_t1 (CLASS (PERM)))
++    (allow b_tb b_t1_c (CLASS (PERM)))))
 +
-+static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void *type_value_to_cil, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
-+{
-+	int rc = SEPOL_OK;
-+	int i;
++(allow b_t1 b_tc (CLASS (PERM)))
++(allow b_tc b_t1 (CLASS (PERM)))
++(booleanif b_b2
++  (false
++    (allow b_t1_c b_tc (CLASS (PERM)))
++    (allow b_tc b_t1_c (CLASS (PERM)))))
 +
-+	for (i = 0; i < db->num_types; i++) {
-+		type_datum_t *child;
-+		type_datum_t *parent;
-+		avtab_ptr_t bad = NULL;
-+		int numbad = 0;
-+		struct cil_type *t = db->val_to_type[i];
++(allow b_t1_c b_td (CLASS (PERM)))
++(allow b_td b_t1_c (CLASS (PERM)))
++(booleanif b_b3
++  (true
++    (allow b_t1 b_td (CLASS (PERM)))
++    (allow b_td b_t1 (CLASS (PERM))))
++  (false
++    (allow b_t1 b_td (CLASS (PERM)))
++    (allow b_td b_t1 (CLASS (PERM)))))
 +
-+		if (!t->bounds) continue;
 +
-+		rc = __cil_get_sepol_type_datum(pdb, DATUM(t), &child);
-+		if (rc != SEPOL_OK) goto exit;
++;; All of these rules should pass the bounds check
++(type b_t2)
++(type b_t2_c)
++(typebounds b_t2 b_t2_c)
++(typeattribute b_a2)
++(typeattribute b_a2_c)
++(typeattributeset b_a2 b_t2)
++(typeattributeset b_a2_c b_t2_c)
 +
-+		rc = __cil_get_sepol_type_datum(pdb, DATUM(t->bounds), &parent);
-+		if (rc != SEPOL_OK) goto exit;
++(allow b_a2 self (CLASS (PERM)))
++(allow b_a2_c self (CLASS (PERM)))
++(allow b_a2 b_ta (CLASS (PERM)))
++(allow b_a2_c b_ta (CLASS (PERM)))
++(allow b_ta b_a2 (CLASS (PERM)))
++(allow b_ta b_a2_c (CLASS (PERM)))
 +
-+		rc = bounds_check_type(NULL, pdb, child->s.value, parent->s.value, &bad, &numbad);
-+		if (rc != SEPOL_OK) goto exit;
++(booleanif b_b1
++  (false
++    (allow b_a2 b_tb (CLASS (PERM)))
++    (allow b_a2_c b_tb (CLASS (PERM)))
++    (allow b_tb b_a2 (CLASS (PERM)))
++    (allow b_tb b_a2_c (CLASS (PERM)))))
 +
-+		if (bad) {
-+			avtab_ptr_t cur;
-+			struct cil_avrule target;
++(allow b_a2 b_tc (CLASS (PERM)))
++(allow b_tc b_a2 (CLASS (PERM)))
++(booleanif b_b2
++  (false
++    (allow b_a2_c b_tc (CLASS (PERM)))
++    (allow b_tc b_a2_c (CLASS (PERM)))))
 +
-+			target.rule_kind = CIL_AVRULE_ALLOWED;
-+			target.src_str = NULL;
-+			target.tgt_str = NULL;
++(allow b_a2_c b_td (CLASS (PERM)))
++(allow b_td b_a2_c (CLASS (PERM)))
++(booleanif b_b3
++  (true
++    (allow b_a2 b_td (CLASS (PERM)))
++    (allow b_td b_a2 (CLASS (PERM))))
++  (false
++    (allow b_a2 b_td (CLASS (PERM)))
++    (allow b_td b_a2 (CLASS (PERM)))))
 +
-+			cil_log(CIL_ERR, "Child type %s exceeds bounds of parent %s\n",
-+				t->datum.fqn, t->bounds->datum.fqn);
-+			for (cur = bad; cur; cur = cur->next) {
-+				struct cil_list_item *i2;
-+				struct cil_list *matching;
-+				struct cil_tree_node *n;
 +
-+				rc = cil_avrule_from_sepol(pdb, cur, &target, type_value_to_cil, class_value_to_cil, perm_value_to_cil);
-+				if (rc != SEPOL_OK) {
-+					cil_log(CIL_ERR, "Failed to convert sepol avrule to CIL\n");
-+					goto exit;
-+				}
-+				__cil_print_rule("  ", "allow", &target);
-+				cil_list_init(&matching, CIL_NODE);
-+				rc = cil_find_matching_avrule_in_ast(db->ast->root, CIL_AVRULE, &target, matching, CIL_FALSE);
-+				if (rc) {
-+					cil_log(CIL_ERR, "Error occurred while checking type bounds\n");
-+					cil_list_destroy(&matching, CIL_FALSE);
-+					cil_list_destroy(&target.classperms, CIL_TRUE);
-+					bounds_destroy_bad(bad);
-+					goto exit;
-+				}
++;; All of these rules should fail the bounds check
++(type b_t3)
++(type b_t3_c)
++(typebounds b_t3 b_t3_c)
 +
-+				cil_list_for_each(i2, matching) {
-+					__cil_print_parents("    ", (struct cil_tree_node *)i2->data);
-+				}
-+				i2 = matching->tail;
-+				n = i2->data;
-+				__cil_print_rule("      ", "allow", n->data);
-+				cil_log(CIL_ERR,"\n");
-+				cil_list_destroy(&matching, CIL_FALSE);
-+				cil_list_destroy(&target.classperms, CIL_TRUE);
-+			}
-+			bounds_destroy_bad(bad);
-+		}
-+	}
++(allow b_t3 self (CLASS (PERM)))
++(allow b_t3_c self (c1 (p1a)))
++(allow b_t3 b_ta (CLASS (PERM)))
++(allow b_t3_c b_ta (c1 (p1a)))
++(allow b_ta b_t3 (CLASS (PERM)))
++(allow b_ta b_t3_c (c1 (p1a)))
 +
-+exit:
-+	return rc;
-+}
++(booleanif b_b1
++  (false
++    (allow b_t3_c b_tb (c1 (p1a)))
++    (allow b_tb b_t3_c (c1 (p1a)))))
 +
- // assumes policydb is already allocated and initialized properly with things
- // like policy type set to kernel and version set appropriately
- int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *policydb)
-@@ -4022,6 +4146,17 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
- 		cil_log(CIL_INFO, "Checking Neverallows\n");
- 		rc = cil_check_neverallows(db, pdb, neverallows);
- 		if (rc != SEPOL_OK) goto exit;
++(booleanif b_b2
++  (true
++    (allow b_t3_c b_tc (c1 (p1a)))
++    (allow b_tc b_t3_c (c1 (p1a))))
++  (false
++    (allow b_t3 b_tc (c1 (p1a)))
++    (allow b_tc b_t3 (c1 (p1a)))))
 +
-+		cil_log(CIL_INFO, "Checking User Bounds\n");
-+		bounds_check_users(NULL, pdb);
++(allow b_t3_c b_td (c1 (p1a)))
++(allow b_td b_t3_c (c1 (p1a)))
++(booleanif b_b3
++  (false
++    (allow b_t3 b_td (c1 (p1a)))
++    (allow b_td b_t3 (c1 (p1a)))))
 +
-+		cil_log(CIL_INFO, "Checking Role Bounds\n");
-+		bounds_check_roles(NULL, pdb);
 +
-+		cil_log(CIL_INFO, "Checking Type Bounds\n");
-+		rc = cil_check_type_bounds(db, pdb, type_value_to_cil, class_value_to_cil, perm_value_to_cil);
-+		if (rc != SEPOL_OK) goto exit;
++;; All of these rules should fail the bounds check
++(type b_t4)
++(type b_t4_c)
++(typebounds b_t4 b_t4_c)
++(typeattribute b_a4)
++(typeattribute b_a4_c)
++(typeattributeset b_a4 b_t4)
++(typeattributeset b_a4_c b_t4_c)
 +
- 	}
- 
- 	rc = SEPOL_OK;
++(allow b_a4 self (CLASS (PERM)))
++(allow b_a4_c self (c1 (p1a)))
++(allow b_a4 b_ta (CLASS (PERM)))
++(allow b_a4_c b_ta (c1 (p1a)))
++(allow b_ta b_a4 (CLASS (PERM)))
++(allow b_ta b_a4_c (c1 (p1a)))
++
++(booleanif b_b1
++  (false
++    (allow b_a4_c b_tb (c1 (p1a)))
++    (allow b_tb b_a4_c (c1 (p1a)))))
++
++(booleanif b_b2
++  (true
++    (allow b_a4_c b_tc (c1 (p1a)))
++    (allow b_tc b_a4_c (c1 (p1a))))
++  (false
++    (allow b_a4 b_tc (c1 (p1a)))
++    (allow b_tc b_a4 (c1 (p1a)))))
++
++(allow b_a4_c b_td (c1 (p1a)))
++(allow b_td b_a4_c (c1 (p1a)))
++(booleanif b_b3
++  (false
++    (allow b_a4 b_td (c1 (p1a)))
++    (allow b_td b_a4 (c1 (p1a)))))
++
++
++;; Marked rules should fail, all others should pass
++(type b_t5)
++(type b_t5_c)
++(typebounds b_t5 b_t5_c)
++
++(allow b_t5 b_ta cp1)
++(allow b_t5_c b_ta (c1 (p1a)))
++(allow b_t5_c b_ta (c2 (p2a)))
++(allow b_t5_c b_ta (c2 (p2b))) ;; Fail
++(allow b_t5_c b_ta (c3 (p3a))) ;; Fail
++
++(allow b_t5 b_tb (c1 (p1a p1b)))
++(allow b_t5 b_tb (c2 (p2a)))
++(allow b_t5_c b_tb cp1)
++
++(allow b_t5 b_tc (cm1 (mp1)))
++(allow b_t5_c b_tc (c1 (p1a)))
++(allow b_t5_c b_tc (c1 (p1b))) ;; Fail
++(allow b_t5_c b_tc (c2 (p2a))) ;; Fail
++
++(allow b_t5 b_tc (c1 (p1a)))
++(allow b_t5_c b_tc (cm1 (mp1)))
++
++
++;; Marked rules should fail, all others should pass
++(type b_t6a)
++(type b_t6a_c)
++(type b_t6b)
++(type b_t6b_c)
++(typebounds b_t6a b_t6a_c)
++(typebounds b_t6b b_t6b_c)
++
++(allow b_t6a b_t6b (CLASS (PERM)))
++(allow b_t6a_c b_t6b_c (CLASS (PERM)))
++
++;; Needs: (allow b_t6a b_t6b (c1 (p1a)))
++(allow b_t6a_c b_t6b (c1 (p1a))) ;; Fail
++(allow b_t6a_c b_t6b_c (c1 (p1a))) ;; Fail
++
++;; Needs: (allow b_t6a b_t6b (c2 (p2a)))
++(allow b_t6a b_t6b_c (c2 (p2a))) ;; Fail
++(allow b_t6a_c b_t6b (c2 (p2a))) ;; Fail
++(allow b_t6a_c b_t6b_c (c2 (p2a)))
++
++;; Needs: (allow b_t6a b_t6b (c3 (p3c)))
++(allow b_t6a b_t6b (c3 (p3a p3b)))
++(allow b_t6a b_t6b_c (c3 (p3b p3c))) ;; Fail
++(allow b_t6a_c b_t6b (c3 (p3a p3c))) ;; Fail
++(allow b_t6a_c b_t6b_c (c3 (p3a p3b p3c))) ;; Fail
 -- 
 1.9.3
