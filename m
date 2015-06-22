@@ -1,125 +1,94 @@
-Message-ID: <55883793.2040400@tycho.nsa.gov>
-Date: Mon, 22 Jun 2015 12:28:03 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Miroslav Grepl <mgrepl@redhat.com>, selinux@tycho.nsa.gov,
- Steve Lawrence <slawrence@tresys.com>,
- "jwcart2 >> James Carter" <jwcart2@tycho.nsa.gov>,
- Joshua Brindle <brindle@quarksecurity.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5MI937o013701
+ for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 14:09:03 -0400
+Received: by wiga1 with SMTP id a1so84533740wig.0
+ for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 11:09:01 -0700 (PDT)
+Received: from localhost.localdomain (84-245-28-90.dsl.cambrium.nl.
+ [84.245.28.90])
+ by mx.google.com with ESMTPSA id l6sm18414581wib.18.2015.06.22.11.08.59
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Mon, 22 Jun 2015 11:09:00 -0700 (PDT)
+Date: Mon, 22 Jun 2015 20:08:58 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
 Subject: Re: Strange behavior: type boundaries
+Message-ID: <20150622180857.GB10451@localhost.localdomain>
 References: <20150313181459.GB9437@linksys-wireless-usb.network2>
  <55032BCD.7090103@tycho.nsa.gov>
  <20150313184330.GC9437@linksys-wireless-usb.network2>
  <55033162.8040508@tycho.nsa.gov>
  <20150314072253.GA26393@linksys-wireless-usb.network2>
  <5506CFD9.2030606@tycho.nsa.gov> <558832B8.8020705@redhat.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
 In-Reply-To: <558832B8.8020705@redhat.com>
-Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/22/2015 12:07 PM, Miroslav Grepl wrote:
-> On 03/16/2015 01:43 PM, Stephen Smalley wrote:
->> On 03/14/2015 03:22 AM, Dominick Grift wrote:
->>> On Fri, Mar 13, 2015 at 02:50:10PM -0400, Stephen Smalley wrote:
->>>> On 03/13/2015 02:43 PM, Dominick Grift wrote:
->>>>> On Fri, Mar 13, 2015 at 02:26:21PM -0400, Stephen Smalley wrote:
->>>>>> On 03/13/2015 02:15 PM, Dominick Grift wrote:
->>>>>>> I was playing with systemd-nspawn/machine, and machinectl allows one to pull in images. I am trying to confine it and i hit issues:
->>>>>>>
->>>>>>> systemd runs systemd-importd, and systemd-importd runs systemd-pull
->>>>>>>
->>>>>>> It seems as if though its some multithreading going on because i get:
->>>>>>>
->>>>>>> type=SELINUX_ERR msg=audit(1426268982.258:2559): op=security_bounded_transition seresult=denied oldcontext=system_u:system_r:systemd_t newcontext=system_u:system_r:importd_t
->>>>>>>
->>>>>>> Even though I am in permissive mode, and a transition rule "allow systemd_t importd_t:process transition;" is present, SELinux does not transition.
->>>>>>>
->>>>>>> When i add a typebounds statement (typebounds systemd_t importd_t), then the scenario changes:
->>>>>>>
->>>>>>> type=SELINUX_ERR msg=audit(1426268121.044:2414): op=security_compute_av reason=bounds scontext=system_u:system_r:systemd_t tcontext=system_u:system_r:importd_t tclass=process perms=transition
->>>>>>> ----
->>>>>>> type=AVC msg=audit(1426268121.044:2415): avc:  denied  { transition } for  pid=9210 comm="(-importd)" path="/usr/lib/systemd/systemd-importd" dev="dm-1" ino=2232532 scontext=system_u:system_r:systemd_t tcontext=system_u:system_r:importd_t tclass=process permissive=1
->>>>>>> ----
->>>>>>> type=SELINUX_ERR msg=audit(1426268121.044:2416): op=security_compute_av reason=bounds scontext=system_u:system_r:importd_t tcontext=system_u:object_r:importd_exec_t tclass=file perms=entrypoint
->>>>>>> ----
->>>>>>> type=AVC msg=audit(1426268121.044:2417): avc:  denied  { entrypoint } for  pid=9210 comm="(-importd)" path="/usr/lib/systemd/systemd-importd" dev="dm-1" ino=2232532 scontext=system_u:system_r:importd_t tcontext=system_u:object_r:importd_exec_t tclass=file permissive=1
->>>>>>> ----
->>>>>>> type=SELINUX_ERR msg=audit(1426268121.046:2418): op=security_compute_av reason=bounds scontext=system_u:system_r:importd_t tcontext=system_u:system_r:systemd_t tclass=fd perms=use
->>>>>>> ----
->>>>>>> type=AVC msg=audit(1426268121.046:2419): avc:  denied  { use } for  pid=9210 comm="systemd-importd" path="/dev/null" dev="devtmpfs" ino=1028 scontext=system_u:system_r:importd_t tcontext=system_u:system_r:systemd_t tclass=fd permissive=1
->>>>>>>
->>>>>>> These rules are present in the policy (the transition is obviously taking place in permissive mode) and so is the typebounds rule, but access looks still denied.
->>>>>>>
->>>>>>> I do not understand what is going on here.
->>>>>>>
->>>>>>> First of all importd_t is bounded to systemd. So why does it appear to be a problem that systemd operates on importd_t entities?
->>>>>>>
->>>>>>> Also why does selinux refuse to type transition without a typebounds, and why does it give me a permission denied with a typebounds 
->>>>>
->>>>>> NO_NEW_PRIVS?  See http://marc.info/?l=selinux&m=140717412324539&w=2
->>>>>> Previously domain transitions on exec were always disabled under
->>>>>> NO_NEW_PRIVS and nosuid mounts.  This was introduced as a way of
->>>>>> supporting e.g. the SELinux sandbox or other cases where NNP is being
->>>>>> used and they want to transition domains on exec.  Typebounds makes this
->>>>>> safe, but typebounds requires you to cap the child type's permissions to
->>>>>> a subset of the parent type's permissions.  This is normally checked by
->>>>>> checkpolicy or libsemanage at policy build/link time but I'm sure Red
->>>>>> Hat has disabled it along with neverallow checking, so you probably
->>>>>> don't see it until the kernel recognizes the discrepancy and dynamically
->>>>>> blocks the access that would violate the bound.
->>>>>
->>>>> Yes that is what i mentioned on #selinux. However i am not using checkpolicy or libsemanage. I am using secilc (and i have it check for neverallow rule violations). I would have expected it to catch it on compile time.
->>>>>
->>>>> However there is still something strange in that importd_t is bounded to systemd_t: thus why would: "systemd_t importd_t:process transition;" be denied?
->>>>>
->>>>> systemd_t is the parent and not the bounded child.
->>>>>
->>>>> A rule "allow systemd_t importd_t:process transition;" is present in the output of "sesearch -A -s systemd_t -t
->>>> importd_t". Yet it still prints a denial.
->>>>
->>>> Typebounds restricts its use both as a source and as a target context.
->>>> Does systemd_t have transition to self?
->>>
->>> Thanks for the hint. That did it.
->>>
->>> It feels wrong/unnatural though because now i have to give the parent more permissions to be able to run the child with less permissions than its parent.
->>>
->>> But ce'st la vie i suppose. At least i know what the problem was now.
->>
->> I agree that the typebounds logic is somewhat less than optimal presently.
-> 
+
+--rS8CxjVDS/+yyDmU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jun 22, 2015 at 06:07:20PM +0200, Miroslav Grepl wrote:
+
+>=20
 > In Fedora, we have unconfined_service_t domain for unconfined services
 > started by init. So there is init_t @bin_t -> unconfined_service_t and
-> we get op=security_bounded_transition for init_t against
+> we get op=3Dsecurity_bounded_transition for init_t against
 > unconfined_service_t. But of course it is not going to work with
-> 
+>=20
 > typebounds init_t unconfined_service_t;
-> 
+>=20
 > because there is
-> 
-> # <audit-1401> op=security_compute_av reason=bounds
-> scontext=system_u:system_r:unconfined_service_t:s0
-> tcontext=system_u:object_r:bin_t:s0 tclass=file perms=entrypoint
-> 
+>=20
+> # <audit-1401> op=3Dsecurity_compute_av reason=3Dbounds
+> scontext=3Dsystem_u:system_r:unconfined_service_t:s0
+> tcontext=3Dsystem_u:object_r:bin_t:s0 tclass=3Dfile perms=3Dentrypoint
+>=20
 > So this logic breaks our concept with unconfined_service_t.
+>=20
 
-But the bounds check is only applied if the caller or one of its
-ancestors (systemd?) set NO_NEW_PRIVS or the filesystem is mounted nosuid.
+What is running in the unconfined_service_t domain in that event?
 
-And if the type is not bounded, we simply fall back to the original
-context on a default transition, just as we did unconditionally prior to
-the kernel change when NO_NEW_PRIVS was set.  The kernel change did not
-make type bounds a requirement; it just added it as an optional way of
-support type transitions under NO_NEW_PRIVS.  Prior to the kernel
-change, there was no way to perform a type transition upon exec if
-NO_NEW_PRIVS was set.
+> --=20
+> Miroslav Grepl
+> Senior Software Engineer, SELinux Solutions
+> Red Hat, Inc.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa=
+=2Egov.
 
-What definition of typebounds would permit the above scenario yet still
-ensure that no privilege escalation can result?  Would we need special
-case handling of :file entrypoint and possibly self: rules (to address
-Dominick's earlier issue)?  Or dropping the target bounds checks
-entirely as was proposed back in
-http://marc.info/?l=selinux&m=125770868309928&w=2 ?
+--=20
+02DFF788
+4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
+http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
+Dominick Grift
+
+--rS8CxjVDS/+yyDmU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJViE81AAoJENAR6kfG5xmciIsL/3Xz3tJpET0LYqh0DDi7+d0j
+PaJiIkBfxpoQIj8VCIkW9AfhmwE/8GGaiWL9lkb/4/Iq0kuu98zVmLi5jgSO+Kjp
+k66FJhe3m/KiCEecXG6Pt2u7/EEyfaWu7CKcEW2DWQjxR8/Y5IdEL9mRfspdWkZB
+e6/IVDc5NrpwPjIEE549pKfpEAGgidXE2d3jM8tc4NdikFZ7UipvK5OSjYT/+DaJ
+5jcbVFtCnEpGzXMlTJUpkSCfTWUi4unYOvq1spmNFZCAYDlddQE4QI4TzHFCFXx8
+LDdQiws7G4CgeQzmFY7PwN+cpZ6hf0kMVRfnhGDv95ntEsO0xioidvfxyENVnzRd
+qMr6pGJtGT4OFP9U4x7ueLsIoswaA9dVYJlHTk/v9begseXcLiRjSaijvwOC5HVx
+a400EvQtbVmDhyln7cAmAuhUKK0ozuHzKiHvmgebnG3c5DBjvMq+E3EKiImZuSLc
+zYETLMsXZP4KYls/sKgIJtMbvKKwkK7cG4xfwNl+ow==
+=p2b0
+-----END PGP SIGNATURE-----
+
+--rS8CxjVDS/+yyDmU--
