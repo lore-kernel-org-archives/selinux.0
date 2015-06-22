@@ -1,274 +1,41 @@
-Message-ID: <5587FC47.5040002@tresys.com>
-Date: Mon, 22 Jun 2015 08:15:03 -0400
-From: Steve Lawrence <slawrence@tresys.com>
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5MCnOI6020465
+ for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 08:49:24 -0400
+Message-ID: <55880431.1030507@tycho.nsa.gov>
+Date: Mon, 22 Jun 2015 08:48:49 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 10/10 v3] secilc: Add a CIL policy file to test bounds
- checking.
-References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1434737956-17932-11-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1434737956-17932-11-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+To: selinux@tycho.nsa.gov
+Subject: Re: libselinux equivalent of restorecon -F
+References: <9833421.4OAA7AQtgN@sifl> <6033.1434651905@warthog.procyon.org.uk>
+ <9305.1434966107@warthog.procyon.org.uk>
+ <20150622121355.GA10451@localhost.localdomain>
+In-Reply-To: <20150622121355.GA10451@localhost.localdomain>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/19/2015 02:19 PM, James Carter wrote:
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-
-Acked-by: Steve Lawrence <slawrence@tresys.com>
-
-> ---
->  secilc/test/bounds.cil | 241 +++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 241 insertions(+)
->  create mode 100644 secilc/test/bounds.cil
+On 06/22/2015 08:13 AM, Dominick Grift wrote:
+> Please excuse my ignorance, and please bear with me for a moment:
 > 
-> diff --git a/secilc/test/bounds.cil b/secilc/test/bounds.cil
-> new file mode 100644
-> index 0000000..e72560e
-> --- /dev/null
-> +++ b/secilc/test/bounds.cil
-> @@ -0,0 +1,241 @@
-> +(class CLASS (PERM))
-> +(classorder (CLASS))
-> +(sid SID)
-> +(sidorder (SID))
-> +(user USER)
-> +(role ROLE)
-> +(type TYPE)
-> +(category CAT)
-> +(categoryorder (CAT))
-> +(sensitivity SENS)
-> +(sensitivityorder (SENS))
-> +(sensitivitycategory SENS (CAT))
-> +(allow TYPE self (CLASS (PERM)))
-> +(roletype ROLE TYPE)
-> +(userrole USER ROLE)
-> +(userlevel USER (SENS))
-> +(userrange USER ((SENS)(SENS (CAT))))
-> +(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-> +
-> +(class c1 (p1a p1b p1c))
-> +(class c2 (p2a p2b p2c))
-> +(class c3 (p3a p3b p3c))
-> +
-> +(classorder (CLASS c1 c2 c3))
-> +
-> +(classpermission cp1)
-> +(classpermissionset cp1 (c1 (p1a p1b)))
-> +(classpermissionset cp1 (c2 (p2a)))
-> +
-> +(classmap cm1 (mp1))
-> +(classmapping cm1 mp1
-> +	      (c1 (p1a)))
-> +
-> +(boolean b_b1 false)
-> +(boolean b_b2 false)
-> +(boolean b_b3 false)
-> +
-> +
-> +(type b_ta)
-> +(type b_tb)
-> +(type b_tc)
-> +(type b_td)
-> +
-> +
-> +;; All of these rules should pass the bounds check
-> +(type b_t1)
-> +(type b_t1_c)
-> +(typebounds b_t1 b_t1_c)
-> +
-> +(allow b_t1 self (CLASS (PERM)))
-> +(allow b_t1_c self (CLASS (PERM)))
-> +(allow b_t1 b_ta (CLASS (PERM)))
-> +(allow b_t1_c b_ta (CLASS (PERM)))
-> +(allow b_ta b_t1 (CLASS (PERM)))
-> +(allow b_ta b_t1_c (CLASS (PERM)))
-> +
-> +(booleanif b_b1
-> +  (false
-> +    (allow b_t1 b_tb (CLASS (PERM)))
-> +    (allow b_t1_c b_tb (CLASS (PERM)))
-> +    (allow b_tb b_t1 (CLASS (PERM)))
-> +    (allow b_tb b_t1_c (CLASS (PERM)))))
-> +
-> +(allow b_t1 b_tc (CLASS (PERM)))
-> +(allow b_tc b_t1 (CLASS (PERM)))
-> +(booleanif b_b2
-> +  (false
-> +    (allow b_t1_c b_tc (CLASS (PERM)))
-> +    (allow b_tc b_t1_c (CLASS (PERM)))))
-> +
-> +(allow b_t1_c b_td (CLASS (PERM)))
-> +(allow b_td b_t1_c (CLASS (PERM)))
-> +(booleanif b_b3
-> +  (true
-> +    (allow b_t1 b_td (CLASS (PERM)))
-> +    (allow b_td b_t1 (CLASS (PERM))))
-> +  (false
-> +    (allow b_t1 b_td (CLASS (PERM)))
-> +    (allow b_td b_t1 (CLASS (PERM)))))
-> +
-> +
-> +;; All of these rules should pass the bounds check
-> +(type b_t2)
-> +(type b_t2_c)
-> +(typebounds b_t2 b_t2_c)
-> +(typeattribute b_a2)
-> +(typeattribute b_a2_c)
-> +(typeattributeset b_a2 b_t2)
-> +(typeattributeset b_a2_c b_t2_c)
-> +
-> +(allow b_a2 self (CLASS (PERM)))
-> +(allow b_a2_c self (CLASS (PERM)))
-> +(allow b_a2 b_ta (CLASS (PERM)))
-> +(allow b_a2_c b_ta (CLASS (PERM)))
-> +(allow b_ta b_a2 (CLASS (PERM)))
-> +(allow b_ta b_a2_c (CLASS (PERM)))
-> +
-> +(booleanif b_b1
-> +  (false
-> +    (allow b_a2 b_tb (CLASS (PERM)))
-> +    (allow b_a2_c b_tb (CLASS (PERM)))
-> +    (allow b_tb b_a2 (CLASS (PERM)))
-> +    (allow b_tb b_a2_c (CLASS (PERM)))))
-> +
-> +(allow b_a2 b_tc (CLASS (PERM)))
-> +(allow b_tc b_a2 (CLASS (PERM)))
-> +(booleanif b_b2
-> +  (false
-> +    (allow b_a2_c b_tc (CLASS (PERM)))
-> +    (allow b_tc b_a2_c (CLASS (PERM)))))
-> +
-> +(allow b_a2_c b_td (CLASS (PERM)))
-> +(allow b_td b_a2_c (CLASS (PERM)))
-> +(booleanif b_b3
-> +  (true
-> +    (allow b_a2 b_td (CLASS (PERM)))
-> +    (allow b_td b_a2 (CLASS (PERM))))
-> +  (false
-> +    (allow b_a2 b_td (CLASS (PERM)))
-> +    (allow b_td b_a2 (CLASS (PERM)))))
-> +
-> +
-> +;; All of these rules should fail the bounds check
-> +(type b_t3)
-> +(type b_t3_c)
-> +(typebounds b_t3 b_t3_c)
-> +
-> +(allow b_t3 self (CLASS (PERM)))
-> +(allow b_t3_c self (c1 (p1a)))
-> +(allow b_t3 b_ta (CLASS (PERM)))
-> +(allow b_t3_c b_ta (c1 (p1a)))
-> +(allow b_ta b_t3 (CLASS (PERM)))
-> +(allow b_ta b_t3_c (c1 (p1a)))
-> +
-> +(booleanif b_b1
-> +  (false
-> +    (allow b_t3_c b_tb (c1 (p1a)))
-> +    (allow b_tb b_t3_c (c1 (p1a)))))
-> +
-> +(booleanif b_b2
-> +  (true
-> +    (allow b_t3_c b_tc (c1 (p1a)))
-> +    (allow b_tc b_t3_c (c1 (p1a))))
-> +  (false
-> +    (allow b_t3 b_tc (c1 (p1a)))
-> +    (allow b_tc b_t3 (c1 (p1a)))))
-> +
-> +(allow b_t3_c b_td (c1 (p1a)))
-> +(allow b_td b_t3_c (c1 (p1a)))
-> +(booleanif b_b3
-> +  (false
-> +    (allow b_t3 b_td (c1 (p1a)))
-> +    (allow b_td b_t3 (c1 (p1a)))))
-> +
-> +
-> +;; All of these rules should fail the bounds check
-> +(type b_t4)
-> +(type b_t4_c)
-> +(typebounds b_t4 b_t4_c)
-> +(typeattribute b_a4)
-> +(typeattribute b_a4_c)
-> +(typeattributeset b_a4 b_t4)
-> +(typeattributeset b_a4_c b_t4_c)
-> +
-> +(allow b_a4 self (CLASS (PERM)))
-> +(allow b_a4_c self (c1 (p1a)))
-> +(allow b_a4 b_ta (CLASS (PERM)))
-> +(allow b_a4_c b_ta (c1 (p1a)))
-> +(allow b_ta b_a4 (CLASS (PERM)))
-> +(allow b_ta b_a4_c (c1 (p1a)))
-> +
-> +(booleanif b_b1
-> +  (false
-> +    (allow b_a4_c b_tb (c1 (p1a)))
-> +    (allow b_tb b_a4_c (c1 (p1a)))))
-> +
-> +(booleanif b_b2
-> +  (true
-> +    (allow b_a4_c b_tc (c1 (p1a)))
-> +    (allow b_tc b_a4_c (c1 (p1a))))
-> +  (false
-> +    (allow b_a4 b_tc (c1 (p1a)))
-> +    (allow b_tc b_a4 (c1 (p1a)))))
-> +
-> +(allow b_a4_c b_td (c1 (p1a)))
-> +(allow b_td b_a4_c (c1 (p1a)))
-> +(booleanif b_b3
-> +  (false
-> +    (allow b_a4 b_td (c1 (p1a)))
-> +    (allow b_td b_a4 (c1 (p1a)))))
-> +
-> +
-> +;; Marked rules should fail, all others should pass
-> +(type b_t5)
-> +(type b_t5_c)
-> +(typebounds b_t5 b_t5_c)
-> +
-> +(allow b_t5 b_ta cp1)
-> +(allow b_t5_c b_ta (c1 (p1a)))
-> +(allow b_t5_c b_ta (c2 (p2a)))
-> +(allow b_t5_c b_ta (c2 (p2b))) ;; Fail
-> +(allow b_t5_c b_ta (c3 (p3a))) ;; Fail
-> +
-> +(allow b_t5 b_tb (c1 (p1a p1b)))
-> +(allow b_t5 b_tb (c2 (p2a)))
-> +(allow b_t5_c b_tb cp1)
-> +
-> +(allow b_t5 b_tc (cm1 (mp1)))
-> +(allow b_t5_c b_tc (c1 (p1a)))
-> +(allow b_t5_c b_tc (c1 (p1b))) ;; Fail
-> +(allow b_t5_c b_tc (c2 (p2a))) ;; Fail
-> +
-> +(allow b_t5 b_tc (c1 (p1a)))
-> +(allow b_t5_c b_tc (cm1 (mp1)))
-> +
-> +
-> +;; Marked rules should fail, all others should pass
-> +(type b_t6a)
-> +(type b_t6a_c)
-> +(type b_t6b)
-> +(type b_t6b_c)
-> +(typebounds b_t6a b_t6a_c)
-> +(typebounds b_t6b b_t6b_c)
-> +
-> +(allow b_t6a b_t6b (CLASS (PERM)))
-> +(allow b_t6a_c b_t6b_c (CLASS (PERM)))
-> +
-> +;; Needs: (allow b_t6a b_t6b (c1 (p1a)))
-> +(allow b_t6a_c b_t6b (c1 (p1a))) ;; Fail
-> +(allow b_t6a_c b_t6b_c (c1 (p1a))) ;; Fail
-> +
-> +;; Needs: (allow b_t6a b_t6b (c2 (p2a)))
-> +(allow b_t6a b_t6b_c (c2 (p2a))) ;; Fail
-> +(allow b_t6a_c b_t6b (c2 (p2a))) ;; Fail
-> +(allow b_t6a_c b_t6b_c (c2 (p2a)))
-> +
-> +;; Needs: (allow b_t6a b_t6b (c3 (p3c)))
-> +(allow b_t6a b_t6b (c3 (p3a p3b)))
-> +(allow b_t6a b_t6b_c (c3 (p3b p3c))) ;; Fail
-> +(allow b_t6a_c b_t6b (c3 (p3a p3c))) ;; Fail
-> +(allow b_t6a_c b_t6b_c (c3 (p3a p3b p3c))) ;; Fail
+> I would consider lsetfilecon() functionality roughly the same to that of "restorecon" (in a sense at least).
 > 
+> Which libselinux interface would be provide roughly the same functionality to that of "restorecon -F" (in a sense at least) ?
+> 
+> Is that what selinux_lsetfilecon_default() is for?
+
+Yes, that's probably the closest equivalent in upstream libselinux.
+However, in Android libselinux [1], we have a
+selinux_android_restorecon() function that fully replicates restorecon
+functionality.  We should likely take a version of that to upstream
+libselinux.  Interface is:
+#define SELINUX_ANDROID_RESTORECON_NOCHANGE 1
+#define SELINUX_ANDROID_RESTORECON_VERBOSE  2
+#define SELINUX_ANDROID_RESTORECON_RECURSE  4
+#define SELINUX_ANDROID_RESTORECON_FORCE    8
+#define SELINUX_ANDROID_RESTORECON_DATADATA 16
+extern int selinux_android_restorecon(const char *file, unsigned int flags);
+
+[1] https://android.googlesource.com/platform/external/libselinux
