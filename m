@@ -1,13 +1,13 @@
-Message-ID: <5587FC3F.3040105@tresys.com>
-Date: Mon, 22 Jun 2015 08:14:55 -0400
+Message-ID: <5587FC47.5040002@tresys.com>
+Date: Mon, 22 Jun 2015 08:15:03 -0400
 From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
 To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 09/10 v3] secilc: Add a CIL policy file to test neverallow
+Subject: Re: [PATCH 10/10 v3] secilc: Add a CIL policy file to test bounds
  checking.
 References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1434737956-17932-10-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1434737956-17932-10-git-send-email-jwcart2@tycho.nsa.gov>
+ <1434737956-17932-11-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1434737956-17932-11-git-send-email-jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -20,16 +20,16 @@ On 06/19/2015 02:19 PM, James Carter wrote:
 Acked-by: Steve Lawrence <slawrence@tresys.com>
 
 > ---
->  secilc/test/neverallow.cil | 79 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 79 insertions(+)
->  create mode 100644 secilc/test/neverallow.cil
+>  secilc/test/bounds.cil | 241 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 241 insertions(+)
+>  create mode 100644 secilc/test/bounds.cil
 > 
-> diff --git a/secilc/test/neverallow.cil b/secilc/test/neverallow.cil
+> diff --git a/secilc/test/bounds.cil b/secilc/test/bounds.cil
 > new file mode 100644
-> index 0000000..6351558
+> index 0000000..e72560e
 > --- /dev/null
-> +++ b/secilc/test/neverallow.cil
-> @@ -0,0 +1,79 @@
+> +++ b/secilc/test/bounds.cil
+> @@ -0,0 +1,241 @@
 > +(class CLASS (PERM))
 > +(classorder (CLASS))
 > +(sid SID)
@@ -63,50 +63,212 @@ Acked-by: Steve Lawrence <slawrence@tresys.com>
 > +(classmapping cm1 mp1
 > +	      (c1 (p1a)))
 > +
-> +(type t1)
-> +(type t2)
-> +(type t3)
-> +(type t4)
-> +(type t5)
-> +(type t6)
-> +(type t7)
+> +(boolean b_b1 false)
+> +(boolean b_b2 false)
+> +(boolean b_b3 false)
 > +
-> +(typeattribute a1)
-> +(typeattribute a2)
-> +(typeattribute a3)
-> +(typeattribute a4)
-> +(typeattribute a5)
-> +(typeattribute a6)
 > +
-> +(typeattributeset a1 (t1 t2 t3 t4 t5))
-> +(typeattributeset a2 (t1 t2))
-> +(typeattributeset a3 (t3 t4))
-> +(typeattributeset a4 (t2 t3))
-> +(typeattributeset a5 (t5 t6))
-> +(typeattributeset a6 (t6 t7))
+> +(type b_ta)
+> +(type b_tb)
+> +(type b_tc)
+> +(type b_td)
 > +
-> +(neverallow t1 t2 (c1 (p1a p1b)))
-> +(allow t1 t2 (c1 (p1a)))
 > +
-> +(neverallow t3 t4 (cm1 (mp1)))
-> +(allow t3 t4 (c1 (p1a)))
+> +;; All of these rules should pass the bounds check
+> +(type b_t1)
+> +(type b_t1_c)
+> +(typebounds b_t1 b_t1_c)
 > +
-> +(neverallow t5 t6 cp1)
-> +(allow t5 t6 (c1 (p1b)))
-> +(allow t5 t6 (c2 (p2a)))
+> +(allow b_t1 self (CLASS (PERM)))
+> +(allow b_t1_c self (CLASS (PERM)))
+> +(allow b_t1 b_ta (CLASS (PERM)))
+> +(allow b_t1_c b_ta (CLASS (PERM)))
+> +(allow b_ta b_t1 (CLASS (PERM)))
+> +(allow b_ta b_t1_c (CLASS (PERM)))
 > +
-> +(neverallow a1 self (CLASS (PERM)))
-> +(allow t1 t1 (CLASS (PERM)))
-> +(allow t2 self (CLASS (PERM)))
-> +(allow a3 self (CLASS (PERM)))
-> +(allow a2 a4 (CLASS (PERM)))
+> +(booleanif b_b1
+> +  (false
+> +    (allow b_t1 b_tb (CLASS (PERM)))
+> +    (allow b_t1_c b_tb (CLASS (PERM)))
+> +    (allow b_tb b_t1 (CLASS (PERM)))
+> +    (allow b_tb b_t1_c (CLASS (PERM)))))
 > +
-> +(neverallow a5 a6 (CLASS (PERM)))
-> +(allow t5 t7 (CLASS (PERM)))
-> +(allow t6 self (CLASS (PERM)))
+> +(allow b_t1 b_tc (CLASS (PERM)))
+> +(allow b_tc b_t1 (CLASS (PERM)))
+> +(booleanif b_b2
+> +  (false
+> +    (allow b_t1_c b_tc (CLASS (PERM)))
+> +    (allow b_tc b_t1_c (CLASS (PERM)))))
 > +
-> +;; Should not call these violations
-> +(allow a1 self (c1 (p1a)))
-> +(allow a2 a3 (CLASS (PERM)))
-> +(allow t5 t6 (c2 (p2b)))
+> +(allow b_t1_c b_td (CLASS (PERM)))
+> +(allow b_td b_t1_c (CLASS (PERM)))
+> +(booleanif b_b3
+> +  (true
+> +    (allow b_t1 b_td (CLASS (PERM)))
+> +    (allow b_td b_t1 (CLASS (PERM))))
+> +  (false
+> +    (allow b_t1 b_td (CLASS (PERM)))
+> +    (allow b_td b_t1 (CLASS (PERM)))))
+> +
+> +
+> +;; All of these rules should pass the bounds check
+> +(type b_t2)
+> +(type b_t2_c)
+> +(typebounds b_t2 b_t2_c)
+> +(typeattribute b_a2)
+> +(typeattribute b_a2_c)
+> +(typeattributeset b_a2 b_t2)
+> +(typeattributeset b_a2_c b_t2_c)
+> +
+> +(allow b_a2 self (CLASS (PERM)))
+> +(allow b_a2_c self (CLASS (PERM)))
+> +(allow b_a2 b_ta (CLASS (PERM)))
+> +(allow b_a2_c b_ta (CLASS (PERM)))
+> +(allow b_ta b_a2 (CLASS (PERM)))
+> +(allow b_ta b_a2_c (CLASS (PERM)))
+> +
+> +(booleanif b_b1
+> +  (false
+> +    (allow b_a2 b_tb (CLASS (PERM)))
+> +    (allow b_a2_c b_tb (CLASS (PERM)))
+> +    (allow b_tb b_a2 (CLASS (PERM)))
+> +    (allow b_tb b_a2_c (CLASS (PERM)))))
+> +
+> +(allow b_a2 b_tc (CLASS (PERM)))
+> +(allow b_tc b_a2 (CLASS (PERM)))
+> +(booleanif b_b2
+> +  (false
+> +    (allow b_a2_c b_tc (CLASS (PERM)))
+> +    (allow b_tc b_a2_c (CLASS (PERM)))))
+> +
+> +(allow b_a2_c b_td (CLASS (PERM)))
+> +(allow b_td b_a2_c (CLASS (PERM)))
+> +(booleanif b_b3
+> +  (true
+> +    (allow b_a2 b_td (CLASS (PERM)))
+> +    (allow b_td b_a2 (CLASS (PERM))))
+> +  (false
+> +    (allow b_a2 b_td (CLASS (PERM)))
+> +    (allow b_td b_a2 (CLASS (PERM)))))
+> +
+> +
+> +;; All of these rules should fail the bounds check
+> +(type b_t3)
+> +(type b_t3_c)
+> +(typebounds b_t3 b_t3_c)
+> +
+> +(allow b_t3 self (CLASS (PERM)))
+> +(allow b_t3_c self (c1 (p1a)))
+> +(allow b_t3 b_ta (CLASS (PERM)))
+> +(allow b_t3_c b_ta (c1 (p1a)))
+> +(allow b_ta b_t3 (CLASS (PERM)))
+> +(allow b_ta b_t3_c (c1 (p1a)))
+> +
+> +(booleanif b_b1
+> +  (false
+> +    (allow b_t3_c b_tb (c1 (p1a)))
+> +    (allow b_tb b_t3_c (c1 (p1a)))))
+> +
+> +(booleanif b_b2
+> +  (true
+> +    (allow b_t3_c b_tc (c1 (p1a)))
+> +    (allow b_tc b_t3_c (c1 (p1a))))
+> +  (false
+> +    (allow b_t3 b_tc (c1 (p1a)))
+> +    (allow b_tc b_t3 (c1 (p1a)))))
+> +
+> +(allow b_t3_c b_td (c1 (p1a)))
+> +(allow b_td b_t3_c (c1 (p1a)))
+> +(booleanif b_b3
+> +  (false
+> +    (allow b_t3 b_td (c1 (p1a)))
+> +    (allow b_td b_t3 (c1 (p1a)))))
+> +
+> +
+> +;; All of these rules should fail the bounds check
+> +(type b_t4)
+> +(type b_t4_c)
+> +(typebounds b_t4 b_t4_c)
+> +(typeattribute b_a4)
+> +(typeattribute b_a4_c)
+> +(typeattributeset b_a4 b_t4)
+> +(typeattributeset b_a4_c b_t4_c)
+> +
+> +(allow b_a4 self (CLASS (PERM)))
+> +(allow b_a4_c self (c1 (p1a)))
+> +(allow b_a4 b_ta (CLASS (PERM)))
+> +(allow b_a4_c b_ta (c1 (p1a)))
+> +(allow b_ta b_a4 (CLASS (PERM)))
+> +(allow b_ta b_a4_c (c1 (p1a)))
+> +
+> +(booleanif b_b1
+> +  (false
+> +    (allow b_a4_c b_tb (c1 (p1a)))
+> +    (allow b_tb b_a4_c (c1 (p1a)))))
+> +
+> +(booleanif b_b2
+> +  (true
+> +    (allow b_a4_c b_tc (c1 (p1a)))
+> +    (allow b_tc b_a4_c (c1 (p1a))))
+> +  (false
+> +    (allow b_a4 b_tc (c1 (p1a)))
+> +    (allow b_tc b_a4 (c1 (p1a)))))
+> +
+> +(allow b_a4_c b_td (c1 (p1a)))
+> +(allow b_td b_a4_c (c1 (p1a)))
+> +(booleanif b_b3
+> +  (false
+> +    (allow b_a4 b_td (c1 (p1a)))
+> +    (allow b_td b_a4 (c1 (p1a)))))
+> +
+> +
+> +;; Marked rules should fail, all others should pass
+> +(type b_t5)
+> +(type b_t5_c)
+> +(typebounds b_t5 b_t5_c)
+> +
+> +(allow b_t5 b_ta cp1)
+> +(allow b_t5_c b_ta (c1 (p1a)))
+> +(allow b_t5_c b_ta (c2 (p2a)))
+> +(allow b_t5_c b_ta (c2 (p2b))) ;; Fail
+> +(allow b_t5_c b_ta (c3 (p3a))) ;; Fail
+> +
+> +(allow b_t5 b_tb (c1 (p1a p1b)))
+> +(allow b_t5 b_tb (c2 (p2a)))
+> +(allow b_t5_c b_tb cp1)
+> +
+> +(allow b_t5 b_tc (cm1 (mp1)))
+> +(allow b_t5_c b_tc (c1 (p1a)))
+> +(allow b_t5_c b_tc (c1 (p1b))) ;; Fail
+> +(allow b_t5_c b_tc (c2 (p2a))) ;; Fail
+> +
+> +(allow b_t5 b_tc (c1 (p1a)))
+> +(allow b_t5_c b_tc (cm1 (mp1)))
+> +
+> +
+> +;; Marked rules should fail, all others should pass
+> +(type b_t6a)
+> +(type b_t6a_c)
+> +(type b_t6b)
+> +(type b_t6b_c)
+> +(typebounds b_t6a b_t6a_c)
+> +(typebounds b_t6b b_t6b_c)
+> +
+> +(allow b_t6a b_t6b (CLASS (PERM)))
+> +(allow b_t6a_c b_t6b_c (CLASS (PERM)))
+> +
+> +;; Needs: (allow b_t6a b_t6b (c1 (p1a)))
+> +(allow b_t6a_c b_t6b (c1 (p1a))) ;; Fail
+> +(allow b_t6a_c b_t6b_c (c1 (p1a))) ;; Fail
+> +
+> +;; Needs: (allow b_t6a b_t6b (c2 (p2a)))
+> +(allow b_t6a b_t6b_c (c2 (p2a))) ;; Fail
+> +(allow b_t6a_c b_t6b (c2 (p2a))) ;; Fail
+> +(allow b_t6a_c b_t6b_c (c2 (p2a)))
+> +
+> +;; Needs: (allow b_t6a b_t6b (c3 (p3c)))
+> +(allow b_t6a b_t6b (c3 (p3a p3b)))
+> +(allow b_t6a b_t6b_c (c3 (p3b p3c))) ;; Fail
+> +(allow b_t6a_c b_t6b (c3 (p3a p3c))) ;; Fail
+> +(allow b_t6a_c b_t6b_c (c3 (p3a p3b p3c))) ;; Fail
 > 
