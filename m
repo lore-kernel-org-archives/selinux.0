@@ -1,41 +1,56 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5MCnOI6020465
- for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 08:49:24 -0400
-Message-ID: <55880431.1030507@tycho.nsa.gov>
-Date: Mon, 22 Jun 2015 08:48:49 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: Re: libselinux equivalent of restorecon -F
-References: <9833421.4OAA7AQtgN@sifl> <6033.1434651905@warthog.procyon.org.uk>
- <9305.1434966107@warthog.procyon.org.uk>
- <20150622121355.GA10451@localhost.localdomain>
-In-Reply-To: <20150622121355.GA10451@localhost.localdomain>
-Content-Type: text/plain; charset=windows-1252
+Subject: [PATCH] libselinux:  Correctly handle an empty file_contexts file.
+Date: Mon, 22 Jun 2015 09:23:10 -0400
+Message-Id: <1434979390-12058-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/22/2015 08:13 AM, Dominick Grift wrote:
-> Please excuse my ignorance, and please bear with me for a moment:
-> 
-> I would consider lsetfilecon() functionality roughly the same to that of "restorecon" (in a sense at least).
-> 
-> Which libselinux interface would be provide roughly the same functionality to that of "restorecon -F" (in a sense at least) ?
-> 
-> Is that what selinux_lsetfilecon_default() is for?
+If you add some local file contexts via semanage fcontext -a and
+later delete them all via semanage fcontext -D, you get an empty
+file_contexts.local file.  Then when you try to load it, getline()
+returns 0 and we fall through to the out path without having set rc.
+In label_file.c, rc will always be non-zero at this point because
+we will have failed the load_mmap() call.  In sefcontext_compile,
+rc may contain random garbage at this point.  Explicitly set rc
+before the loop.
 
-Yes, that's probably the closest equivalent in upstream libselinux.
-However, in Android libselinux [1], we have a
-selinux_android_restorecon() function that fully replicates restorecon
-functionality.  We should likely take a version of that to upstream
-libselinux.  Interface is:
-#define SELINUX_ANDROID_RESTORECON_NOCHANGE 1
-#define SELINUX_ANDROID_RESTORECON_VERBOSE  2
-#define SELINUX_ANDROID_RESTORECON_RECURSE  4
-#define SELINUX_ANDROID_RESTORECON_FORCE    8
-#define SELINUX_ANDROID_RESTORECON_DATADATA 16
-extern int selinux_android_restorecon(const char *file, unsigned int flags);
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/label_file.c           | 3 ++-
+ libselinux/utils/sefcontext_compile.c | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-[1] https://android.googlesource.com/platform/external/libselinux
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 1d6c36e..4faf808 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -425,9 +425,10 @@ static int process_file(const char *path, const char *suffix,
+ 		goto out;
+ 
+ 	/*
+-	 * The do detailed validation of the input and fill the spec array
++	 * Then do detailed validation of the input and fill the spec array
+ 	 */
+ 	lineno = 0;
++	rc = 0;
+ 	while (getline(&line_buf, &line_len, fp) > 0) {
+ 		rc = process_line(rec, path, prefix, line_buf, ++lineno);
+ 		if (rc)
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index 1c46af8..a93105d 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -35,6 +35,7 @@ static int process_file(struct selabel_handle *rec, const char *filename)
+ 	}
+ 
+ 	line_num = 0;
++	rc = 0;
+ 	while (getline(&line_buf, &line_len, context_file) > 0) {
+ 		rc = process_line(rec, filename, prefix, line_buf, ++line_num);
+ 		if (rc)
+-- 
+2.1.0
