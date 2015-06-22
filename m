@@ -1,56 +1,100 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5MEAxRa027256
+ for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 10:10:59 -0400
+Message-ID: <55881781.1050902@tycho.nsa.gov>
+Date: Mon, 22 Jun 2015 10:11:13 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+MIME-Version: 1.0
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux:  Correctly handle an empty file_contexts file.
-Date: Mon, 22 Jun 2015 09:23:10 -0400
-Message-Id: <1434979390-12058-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 00/10 v3] Improve libsepol and CIL neverallow and bounds
+ checking
+References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If you add some local file contexts via semanage fcontext -a and
-later delete them all via semanage fcontext -D, you get an empty
-file_contexts.local file.  Then when you try to load it, getline()
-returns 0 and we fall through to the out path without having set rc.
-In label_file.c, rc will always be non-zero at this point because
-we will have failed the load_mmap() call.  In sefcontext_compile,
-rc may contain random garbage at this point.  Explicitly set rc
-before the loop.
+Applied the series.
+Thanks for your reviews and feedback.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libselinux/src/label_file.c           | 3 ++-
- libselinux/utils/sefcontext_compile.c | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+Jim
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 1d6c36e..4faf808 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -425,9 +425,10 @@ static int process_file(const char *path, const char *suffix,
- 		goto out;
- 
- 	/*
--	 * The do detailed validation of the input and fill the spec array
-+	 * Then do detailed validation of the input and fill the spec array
- 	 */
- 	lineno = 0;
-+	rc = 0;
- 	while (getline(&line_buf, &line_len, fp) > 0) {
- 		rc = process_line(rec, path, prefix, line_buf, ++lineno);
- 		if (rc)
-diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-index 1c46af8..a93105d 100644
---- a/libselinux/utils/sefcontext_compile.c
-+++ b/libselinux/utils/sefcontext_compile.c
-@@ -35,6 +35,7 @@ static int process_file(struct selabel_handle *rec, const char *filename)
- 	}
- 
- 	line_num = 0;
-+	rc = 0;
- 	while (getline(&line_buf, &line_len, context_file) > 0) {
- 		rc = process_line(rec, filename, prefix, line_buf, ++line_num);
- 		if (rc)
+On 06/19/2015 02:19 PM, James Carter wrote:
+> V3 fixes the following issues:
+>   - Patch 02/10 added more detail to commit message.
+>   - Patch 02/10 changed label from "out" to "oom".
+>   - Patch 03/10 fixed whitespace problem.
+>   - Patch 04/10 removed unused parameter in bounds_expand_parent_rules() and bounds_not_covered(), and added unused attribute to parameter in bounds_check_type_callback().
+>   - Patch 06/10 fixed whitespace problem.
+>   - Patch 07/10 initialize type_value_to_cil, class_value_to_cil, and perm_value_to_cil to NULL.
+>   - Patch 07/10 check for NULL value after calloc for perm_value_to_cil[i].
+>   - Patch 08/10 removed unused parameter in cil_classperms_from_sepol() and cil_avrule_from_sepol().
+>   - Patch 08/10 use unsigned instead of int for loop index in cil_classperms_from_sepol().
+>
+> V2 fixes the following issues:
+>   - Patch 02/10 uses ebitmap_cpy() instead of individual ebitmap_set_bit() calls.
+>   - Patch 03/10 just the offending permissions are reported during neverallow checking.
+>   - Patch 03/10 checks and handles failure on ebitmap_and() calls.
+>   - Patch 03/10 removes some of the duplicated logic between checking and reporting.
+>   - Patch 05/10 uses the newly added ebitmap_match_any() function instead of its own.
+>   - Patch 05/10 ignores macros and abstract blocks when walking the AST. If in the
+> future there are other users of cil_find.c, then we can make this functionality
+> configureable then.
+>
+> This patch set refactors libsepol's neverallow and bounds checking, refactors CIL's
+> neverallow checking, and adds bounds checking to CIL.
+>
+> It also results in improved memory usage and speed. With a test policy.conf derived
+> from Refpolicy with typebounds statements added (but no violations of neverallow
+> rules or type bounds) the following improvements are seen:
+> Before: 9,605M of memory and 22.5 sec.
+> Now   :   125M of memory and  2.1 sec.
+> (Memory usage as reported by valgrind)
+>
+> In addition to adding bounds checking to CIL. This patch set also improves the error
+> reporting for neverallow rule violations and CIL will now report all violations
+> instead of stopping at the first one.
+>
+> James Carter (10):
+>    libsepol: Add new ebitmap function named ebitmap_match_any()
+>    libsepol: Treat types like an attribute in the attr_type_map.
+>    libsepol: Refactored neverallow checking.
+>    libsepol: Refactored bounds (hierarchy) checking code
+>    libsepol/cil: Add function to search the CIL AST for an AV rule.
+>    libsepol/cil: Refactored CIL neverallow checking and reporting.
+>    libsepol/cil: Track number of classes and number of types and
+>      attributes.
+>    libsepol/cil: Add CIL bounds checking and reporting.
+>    secilc: Add a CIL policy file to test neverallow checking.
+>    secilc: Add a CIL policy file to test bounds checking.
+>
+>   libsepol/cil/src/cil.c                      |   3 +-
+>   libsepol/cil/src/cil_binary.c               | 700 ++++++++++++++-----
+>   libsepol/cil/src/cil_binary.h               |   8 +-
+>   libsepol/cil/src/cil_find.c                 | 305 +++++++++
+>   libsepol/cil/src/cil_find.h                 |  39 ++
+>   libsepol/cil/src/cil_internal.h             |   2 +
+>   libsepol/cil/src/cil_post.c                 |  26 +-
+>   libsepol/include/sepol/policydb/ebitmap.h   |   1 +
+>   libsepol/include/sepol/policydb/hierarchy.h |  11 +
+>   libsepol/include/sepol/policydb/policydb.h  |   2 +-
+>   libsepol/src/assertion.c                    | 272 +++++---
+>   libsepol/src/ebitmap.c                      |  22 +
+>   libsepol/src/expand.c                       |  24 +-
+>   libsepol/src/hierarchy.c                    | 996 +++++++++++++++++-----------
+>   libsepol/src/policydb.c                     |   4 +
+>   secilc/test/bounds.cil                      | 241 +++++++
+>   secilc/test/neverallow.cil                  |  79 +++
+>   17 files changed, 2077 insertions(+), 658 deletions(-)
+>   create mode 100644 libsepol/cil/src/cil_find.c
+>   create mode 100644 libsepol/cil/src/cil_find.h
+>   create mode 100644 secilc/test/bounds.cil
+>   create mode 100644 secilc/test/neverallow.cil
+>
+
+
 -- 
-2.1.0
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
