@@ -1,70 +1,392 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5MCE1le017985
- for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 08:14:01 -0400
-Received: by wguu7 with SMTP id u7so67546044wgu.3
- for <selinux@tycho.nsa.gov>; Mon, 22 Jun 2015 05:13:58 -0700 (PDT)
-Received: from localhost.localdomain (84-245-28-90.dsl.cambrium.nl.
- [84.245.28.90])
- by mx.google.com with ESMTPSA id v4sm3782394wiy.5.2015.06.22.05.13.57
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Mon, 22 Jun 2015 05:13:57 -0700 (PDT)
-Date: Mon, 22 Jun 2015 14:13:56 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: libselinux equivalent of restorecon -F
-Message-ID: <20150622121355.GA10451@localhost.localdomain>
-References: <9833421.4OAA7AQtgN@sifl> <6033.1434651905@warthog.procyon.org.uk>
- <9305.1434966107@warthog.procyon.org.uk>
+Message-ID: <5587FC0A.7060806@tresys.com>
+Date: Mon, 22 Jun 2015 08:14:02 -0400
+From: Steve Lawrence <slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
-In-Reply-To: <9305.1434966107@warthog.procyon.org.uk>
+To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 05/10 v3] libsepol/cil: Add function to search the CIL
+ AST for an AV rule.
+References: <1434737956-17932-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1434737956-17932-6-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1434737956-17932-6-git-send-email-jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 06/19/2015 02:19 PM, James Carter wrote:
+> The search will be considered a success if any rule is found that
+> at least partially matches all parts (src type, tgt type, and class-
+> perms) of the target rule.
+> 
+> For example, for a target of (allow domain file_type (file (read write)
+> the rule (allow init_t init_exec_t (file (read exec)) will match.
+> 
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
---1yeeQ81UyVL57Vl7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Steve Lawrence <slawrence@tresys.com>
 
-Please excuse my ignorance, and please bear with me for a moment:
-
-I would consider lsetfilecon() functionality roughly the same to that of "r=
-estorecon" (in a sense at least).
-
-Which libselinux interface would be provide roughly the same functionality =
-to that of "restorecon -F" (in a sense at least) ?
-
-Is that what selinux_lsetfilecon_default() is for?
-
-Thanks
-
---=20
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
-Dominick Grift
-
---1yeeQ81UyVL57Vl7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJVh/v/AAoJENAR6kfG5xmcDRgMAIcviiavwsELgkRoDh4Rj6D/
-EbenNvWN+sA+cmQrREeNu02D7GuKNLW9Y0vszaWZqcAk1Ly4Lntdb+b1x4l5xQfV
-EdtTHIecOPtyGIYYMT+eu+l999IxcOIAxPZKQDdXNydtPNkNxHB4VRlj58eJzhSj
-zWAJkyT6c+9VK4JtjURfZ6NmEz79pXh6lcB/5XyaWZnp6gkxBLKwrXfqow2hmpyh
-UKehSAeUvoSmVjRSYtt5M5JZmqjz5Qyru8wdAanqZZRvxAeYBOL/Rz1t6Oz60CeD
-eIJ4oH9CnzBllHGJbDgYCo8lT352CoVSVF9oqAtKuoLLR46ZbyROIJZDP5D1A39L
-9ngC3LTU+TQUdW9j4+zGMqq2diZoFOrg+HbmsDSXRgVTqmMyYZIc0E+xnTtjXKUC
-z/yvL7FjAs09BZXSPpOUeGoX8wsMhGXpONXWmMs5yqdE7UsgETWYYA2v7GyGIZBM
-jCbOiAr8k8ThN21VvWRNkkEYm/2sN2AGQpKysJY9Wg==
-=twiu
------END PGP SIGNATURE-----
-
---1yeeQ81UyVL57Vl7--
+> ---
+>  libsepol/cil/src/cil_find.c | 305 ++++++++++++++++++++++++++++++++++++++++++++
+>  libsepol/cil/src/cil_find.h |  39 ++++++
+>  2 files changed, 344 insertions(+)
+>  create mode 100644 libsepol/cil/src/cil_find.c
+>  create mode 100644 libsepol/cil/src/cil_find.h
+> 
+> diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
+> new file mode 100644
+> index 0000000..a76dc37
+> --- /dev/null
+> +++ b/libsepol/cil/src/cil_find.c
+> @@ -0,0 +1,305 @@
+> +/*
+> + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions are met:
+> + *
+> + *    1. Redistributions of source code must retain the above copyright notice,
+> + *       this list of conditions and the following disclaimer.
+> + *
+> + *    2. Redistributions in binary form must reproduce the above copyright notice,
+> + *       this list of conditions and the following disclaimer in the documentation
+> + *       and/or other materials provided with the distribution.
+> + *
+> + * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
+> + * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+> + * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+> + * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+> + * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+> + * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+> + * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+> + * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+> + * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+> + *
+> + * The views and conclusions contained in the software and documentation are those
+> + * of the authors and should not be interpreted as representing official policies,
+> + * either expressed or implied, of Tresys Technology, LLC.
+> + */
+> +
+> +#include <sepol/policydb/ebitmap.h>
+> +
+> +#include "cil_internal.h"
+> +#include "cil_flavor.h"
+> +#include "cil_list.h"
+> +#include "cil_log.h"
+> +#include "cil_symtab.h"
+> +
+> +struct cil_args_find {
+> +	enum cil_flavor flavor;
+> +	void *target;
+> +	struct cil_list *matching;
+> +	int match_self;
+> +};
+> +
+> +static int cil_type_match_any(struct cil_symtab_datum *d1, struct cil_symtab_datum *d2)
+> +{
+> +	enum cil_flavor f1 = ((struct cil_tree_node*)d1->nodes->head->data)->flavor;
+> +	enum cil_flavor f2 = ((struct cil_tree_node*)d2->nodes->head->data)->flavor;
+> +
+> +	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
+> +		struct cil_type *t1 = (struct cil_type *)d1;
+> +		struct cil_type *t2 = (struct cil_type *)d2;
+> +		if (t1->value == t2->value) {
+> +			return CIL_TRUE;
+> +		}
+> +	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
+> +		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
+> +		struct cil_type *t = (struct cil_type *)d2;
+> +		if (ebitmap_get_bit(a->types, t->value)) {
+> +			return CIL_TRUE;
+> +		}
+> +	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
+> +		struct cil_type *t = (struct cil_type *)d1;
+> +		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
+> +		if (ebitmap_get_bit(a->types, t->value)) {
+> +			return CIL_TRUE;
+> +		}
+> +	} else {
+> +		/* Both are attributes */
+> +		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
+> +		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
+> +		return ebitmap_match_any(a1->types, a2->types);
+> +	}
+> +	return CIL_FALSE;
+> +}
+> +
+> +static int cil_type_matches(ebitmap_t *matches, struct cil_symtab_datum *d1, struct cil_symtab_datum *d2)
+> +{
+> +	int rc = SEPOL_OK;
+> +	enum cil_flavor f1 = ((struct cil_tree_node*)d1->nodes->head->data)->flavor;
+> +	enum cil_flavor f2 = ((struct cil_tree_node*)d2->nodes->head->data)->flavor;
+> +
+> +	if (f1 != CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
+> +		struct cil_type *t1 = (struct cil_type *)d1;
+> +		struct cil_type *t2 = (struct cil_type *)d2;
+> +		if (t1->value == t2->value) {
+> +			ebitmap_set_bit(matches, t1->value, 1);
+> +		}
+> +	} else if (f1 == CIL_TYPEATTRIBUTE && f2 != CIL_TYPEATTRIBUTE) {
+> +		struct cil_typeattribute *a = (struct cil_typeattribute *)d1;
+> +		struct cil_type *t = (struct cil_type *)d2;
+> +		if (ebitmap_get_bit(a->types, t->value)) {
+> +			ebitmap_set_bit(matches, t->value, 1);
+> +		}
+> +	} else if (f1 != CIL_TYPEATTRIBUTE && f2 == CIL_TYPEATTRIBUTE) {
+> +		struct cil_type *t = (struct cil_type *)d1;
+> +		struct cil_typeattribute *a = (struct cil_typeattribute *)d2;
+> +		if (ebitmap_get_bit(a->types, t->value)) {
+> +			ebitmap_set_bit(matches, t->value, 1);
+> +		}
+> +	} else {
+> +		/* Both are attributes */
+> +		struct cil_typeattribute *a1 = (struct cil_typeattribute *)d1;
+> +		struct cil_typeattribute *a2 = (struct cil_typeattribute *)d2;
+> +		rc = ebitmap_and(matches, a1->types, a2->types);
+> +	}
+> +
+> +	return rc;
+> +}
+> +
+> +/* s1 is the src type that is matched with a self
+> + * s2, and t2 are the source and type of the other rule
+> + */
+> +static int cil_self_match_any(struct cil_symtab_datum *s1, struct cil_symtab_datum *s2, struct cil_symtab_datum *t2)
+> +{
+> +	int rc;
+> +	struct cil_tree_node *n1 = s1->nodes->head->data;
+> +	if (n1->flavor != CIL_TYPEATTRIBUTE) {
+> +		rc = cil_type_match_any(s1, t2);
+> +	} else {
+> +		struct cil_typeattribute *a = (struct cil_typeattribute *)s1;
+> +		ebitmap_t map;
+> +		ebitmap_init(&map);
+> +		rc = cil_type_matches(&map, s2, t2);
+> +		if (rc < 0) {
+> +			ebitmap_destroy(&map);
+> +			goto exit;
+> +		}
+> +		if (map.node == NULL) {
+> +			rc = CIL_FALSE;
+> +			goto exit;
+> +		}
+> +		rc = ebitmap_match_any(&map, a->types);
+> +		ebitmap_destroy(&map);
+> +	}
+> +
+> +exit:
+> +	return rc;
+> +}
+> +
+> +static int cil_classperms_match_any(struct cil_classperms *cp1, struct cil_classperms *cp2)
+> +{
+> +	struct cil_class *c1 = cp1->class;
+> +	struct cil_class *c2 = cp2->class;
+> +	struct cil_list_item *i1, *i2;
+> +
+> +	if (&c1->datum != &c2->datum) return CIL_FALSE;
+> +
+> +	cil_list_for_each(i1, cp1->perms) {
+> +		struct cil_perm *p1 = i1->data;
+> +		cil_list_for_each(i2, cp2->perms) {
+> +			struct cil_perm *p2 = i2->data;
+> +			if (&p1->datum == &p2->datum) return CIL_TRUE;
+> +		}
+> +	}
+> +	return CIL_FALSE;
+> +}
+> +
+> +static int __cil_classperms_list_match_any(struct cil_classperms *cp1, struct cil_list *cpl2)
+> +{
+> +	int rc;
+> +	struct cil_list_item *curr;
+> +
+> +	cil_list_for_each(curr, cpl2) {
+> +		if (curr->flavor == CIL_CLASSPERMS) {
+> +			struct cil_classperms *cp = curr->data;
+> +			if (FLAVOR(cp->class) == CIL_CLASS) {
+> +				rc = cil_classperms_match_any(cp1, cp);
+> +				if (rc == CIL_TRUE) return CIL_TRUE;
+> +			} else { /* MAP */
+> +				struct cil_list_item *i = NULL;
+> +				cil_list_for_each(i, cp->perms) {
+> +					struct cil_perm *cmp = i->data;
+> +					rc = __cil_classperms_list_match_any(cp1, cmp->classperms);
+> +					if (rc == CIL_TRUE) return CIL_TRUE;
+> +				}
+> +			}
+> +		} else { /* SET */
+> +			struct cil_classperms_set *cp_set = curr->data;
+> +			struct cil_classpermission *cp = cp_set->set;
+> +			rc = __cil_classperms_list_match_any(cp1, cp->classperms);
+> +			if (rc == CIL_TRUE) return CIL_TRUE;
+> +		}
+> +	}
+> +	return CIL_FALSE;
+> +}
+> +
+> +static int cil_classperms_list_match_any(struct cil_list *cpl1, struct cil_list *cpl2)
+> +{
+> +	int rc;
+> +	struct cil_list_item *curr;
+> +
+> +	cil_list_for_each(curr, cpl1) {
+> +		if (curr->flavor == CIL_CLASSPERMS) {
+> +			struct cil_classperms *cp = curr->data;
+> +			if (FLAVOR(cp->class) == CIL_CLASS) {
+> +				rc = __cil_classperms_list_match_any(cp, cpl2);
+> +				if (rc == CIL_TRUE) return CIL_TRUE;
+> +			} else { /* MAP */
+> +				struct cil_list_item *i = NULL;
+> +				cil_list_for_each(i, cp->perms) {
+> +					struct cil_perm *cmp = i->data;
+> +					rc = cil_classperms_list_match_any(cmp->classperms, cpl2);
+> +					if (rc == CIL_TRUE) return CIL_TRUE;
+> +				}
+> +			}
+> +		} else { /* SET */
+> +			struct cil_classperms_set *cp_set = curr->data;
+> +			struct cil_classpermission *cp = cp_set->set;
+> +			rc = cil_classperms_list_match_any(cp->classperms, cpl2);
+> +			if (rc == CIL_TRUE) return CIL_TRUE;
+> +		}
+> +	}
+> +	return CIL_FALSE;
+> +}
+> +
+> +int cil_find_matching_avrule(struct cil_tree_node *node, struct cil_avrule *avrule, struct cil_avrule *target, struct cil_list *matching, int match_self)
+> +{
+> +	int rc = SEPOL_OK;
+> +	struct cil_symtab_datum *s1 = avrule->src;
+> +	struct cil_symtab_datum *t1 = avrule->tgt;
+> +	struct cil_list *cp1 = avrule->classperms;
+> +	struct cil_symtab_datum *s2 = target->src;
+> +	struct cil_symtab_datum *t2 = target->tgt;
+> +	struct cil_list *cp2 = target->classperms;
+> +
+> +	if (match_self != CIL_TRUE && avrule == target) goto exit;
+> +
+> +	if (avrule->rule_kind != target->rule_kind) goto exit;
+> +
+> +	if (!cil_type_match_any(s1, s2)) goto exit;
+> +
+> +	if (t1->fqn != CIL_KEY_SELF && t2->fqn != CIL_KEY_SELF) {
+> +		if (!cil_type_match_any(t1, t2)) goto exit;
+> +	} else {
+> +		if (t1->fqn == CIL_KEY_SELF && t2->fqn == CIL_KEY_SELF) {
+> +			/* The earlier check whether s1 and s2 matches is all that is needed */
+> +		} else if (t1->fqn == CIL_KEY_SELF) {
+> +			rc = cil_self_match_any(s1, s2, t2);
+> +			if (rc < 0) {
+> +				goto exit;
+> +			} else if (rc == CIL_FALSE) {
+> +				rc = SEPOL_OK;
+> +				goto exit;
+> +			}
+> +		} else if (t2->fqn == CIL_KEY_SELF) {
+> +			rc = cil_self_match_any(s2, s1, t1);
+> +			if (rc < 0) {
+> +				goto exit;
+> +			} else if (rc == CIL_FALSE) {
+> +				rc = SEPOL_OK;
+> +				goto exit;
+> +			}
+> +		}
+> +	}
+> +
+> +	if (cil_classperms_list_match_any(cp1, cp2)) {
+> +		cil_list_append(matching, CIL_NODE, node);
+> +	}
+> +
+> +	rc = SEPOL_OK;
+> +
+> +exit:
+> +	return rc;
+> +}
+> +
+> +static int __cil_find_matching_avrule_in_ast(struct cil_tree_node *node,  __attribute__((unused)) uint32_t *finished, void *extra_args)
+> +{
+> +	int rc = SEPOL_OK;
+> +	struct cil_args_find *args = extra_args;
+> +
+> +	if (node->flavor == CIL_BLOCK) {
+> +		struct cil_block *blk = node->data;
+> +		if (blk->is_abstract == CIL_TRUE) {
+> +			*finished = CIL_TREE_SKIP_HEAD;
+> +			goto exit;
+> +		}
+> +	} else if (node->flavor == CIL_MACRO) {
+> +		*finished = CIL_TREE_SKIP_HEAD;
+> +		goto exit;
+> +	} else if (node->flavor == CIL_AVRULE) {
+> +		rc = cil_find_matching_avrule(node, node->data, args->target, args->matching, args->match_self);
+> +	}
+> +
+> +exit:
+> +	return rc;
+> +}
+> +
+> +int cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flavor flavor, void *target, struct cil_list *matching, int match_self)
+> +{
+> +	int rc;
+> +	struct cil_args_find args;
+> +
+> +	args.flavor = flavor;
+> +	args.target = target;
+> +	args.matching = matching;
+> +	args.match_self = match_self;
+> +
+> +	rc = cil_tree_walk(current, __cil_find_matching_avrule_in_ast, NULL, NULL, &args);
+> +	if (rc) {
+> +		cil_log(CIL_ERR, "An error occured while searching for avrule in AST\n");
+> +	}
+> +
+> +	return rc;
+> +}
+> diff --git a/libsepol/cil/src/cil_find.h b/libsepol/cil/src/cil_find.h
+> new file mode 100644
+> index 0000000..c8ca2d2
+> --- /dev/null
+> +++ b/libsepol/cil/src/cil_find.h
+> @@ -0,0 +1,39 @@
+> +/*
+> + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions are met:
+> + *
+> + *    1. Redistributions of source code must retain the above copyright notice,
+> + *       this list of conditions and the following disclaimer.
+> + *
+> + *    2. Redistributions in binary form must reproduce the above copyright notice,
+> + *       this list of conditions and the following disclaimer in the documentation
+> + *       and/or other materials provided with the distribution.
+> + *
+> + * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
+> + * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+> + * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+> + * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+> + * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+> + * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+> + * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+> + * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+> + * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+> + *
+> + * The views and conclusions contained in the software and documentation are those
+> + * of the authors and should not be interpreted as representing official policies,
+> + * either expressed or implied, of Tresys Technology, LLC.
+> + */
+> +
+> +#include "cil_flavor.h"
+> +#include "cil_tree.h"
+> +#include "cil_list.h"
+> +
+> +#ifndef CIL_FIND_H_
+> +#define CIL_FIND_H_
+> +
+> +int cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flavor flavor, void *target, struct cil_list *matching, int match_self);
+> +
+> +#endif
+> 
