@@ -1,103 +1,69 @@
-Message-ID: <55910C8D.8060709@itechfrontiers.com>
-Date: Mon, 29 Jun 2015 05:14:53 -0400
-From: "Patrick K.,   ITF" <cto@itechfrontiers.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t5TBJXiK006549
+ for <selinux@tycho.nsa.gov>; Mon, 29 Jun 2015 07:19:33 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ by mx1.redhat.com (Postfix) with ESMTPS id 1CE5ABC8DD
+ for <selinux@tycho.nsa.gov>; Mon, 29 Jun 2015 11:19:31 +0000 (UTC)
+Received: from localhost.localdomain (dhcp-10-40-2-107.brq.redhat.com
+ [10.40.2.107])
+ by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ t5TBJTmZ020020
+ for <selinux@tycho.nsa.gov>; Mon, 29 Jun 2015 07:19:30 -0400
+Message-ID: <559129C1.4010201@redhat.com>
+Date: Mon, 29 Jun 2015 13:19:29 +0200
+From: Miroslav Grepl <mgrepl@redhat.com>
 MIME-Version: 1.0
-To: S S Dhawale <sandesh.s.dhawale@gmail.com>, Selinux@tycho.nsa.gov
-Subject: Re: Unsubscribing
-References: <CAGL7WEdP1x1nyGpj7pf_h2dW8D+yxrPrzBxr7hGU4eumKQC-_w@mail.gmail.com>
-In-Reply-To: <CAGL7WEdP1x1nyGpj7pf_h2dW8D+yxrPrzBxr7hGU4eumKQC-_w@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="------------010605020208050308090405"
+To: selinux@tycho.nsa.gov
+Subject: Re: type inheritance in CIL
+References: <5590F3DE.8070202@redhat.com> <20150629075651.GA8191@x250>
+In-Reply-To: <20150629075651.GA8191@x250>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------010605020208050308090405
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+On 06/29/2015 09:56 AM, Dominick Grift wrote:
+> On Mon, Jun 29, 2015 at 09:29:34AM +0200, Miroslav Grepl wrote:
+>> Trying to make sandbox working using CIL but I see it does not
+>> support typeinherit statement.
+> 
+> One of those features that really define CIL but that is currently
+> not available or fully working yet.
+> 
+> My suggestion is to study the "cilpolicy" (which is really just a
+> snapshot of reference policy transformed to cil with hll i
+> believe)
+> 
+> This will give you some pointers as to how to create an alternative
+> implementation that achieves a similar result.
+> 
+> When you write CIL policy, there are some "bugs" to take into
+> account and to workaround.
+> 
 
-Mr S S Dhawale,
+Sure there are different ways how to write it. I just wanted to
+combine it with the current Fedora policy as much as possible without
+re-writing the current Fedora policy.
 
-You can unsubscribe from selinux mailing list by sending email to
-selinux-leave@tycho.nsa.gov.  You can unsubscribe from seandroid-list
-mailing list by sending email toseandroid-list-leave@tycho.nsa.gov.
+>> 
+>> -- Miroslav Grepl Senior Software Engineer, SELinux Solutions Red
+>> Hat, Inc. _______________________________________________ Selinux
+>> mailing list Selinux@tycho.nsa.gov To unsubscribe, send email to
+>> Selinux-leave@tycho.nsa.gov. To get help, send an email
+>> containing "help" to Selinux-request@tycho.nsa.gov.
+> 
+> 
+> 
+> _______________________________________________ Selinux mailing
+> list Selinux@tycho.nsa.gov To unsubscribe, send email to
+> Selinux-leave@tycho.nsa.gov. To get help, send an email containing
+> "help" to Selinux-request@tycho.nsa.gov.
+> 
+
 
 -- 
-
-  Patrick
-
-On 6/29/2015 4:39 AM, S S Dhawale wrote:
-> remove this email id from your list.
-> -- 
-> Regards
-> Mr S S Dhawale
-> Assistant Professor,
-> CSE Department,
-> SSPM's COE,
-> Kankavli, Sindhudurg,
-> Maharashtra.
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-
-
---------------010605020208050308090405
-Content-Type: text/html; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-    <meta content="text/html; charset=windows-1252"
-      http-equiv="Content-Type">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <pre wrap="">Mr S S Dhawale,
-
-You can unsubscribe from selinux mailing list by sending email to
-<a class="moz-txt-link-abbreviated" href="mailto:selinux-leave@tycho.nsa.gov">selinux-leave@tycho.nsa.gov</a>.  You can unsubscribe from seandroid-list
-mailing list by sending email to <a class="moz-txt-link-abbreviated" href="mailto:seandroid-list-leave@tycho.nsa.gov">seandroid-list-leave@tycho.nsa.gov</a>.
-
-</pre>
-    <pre class="moz-signature" cols="72">-- 
-
- Patrick</pre>
-    On 6/29/2015 4:39 AM, S S Dhawale wrote:<br>
-    <blockquote
-cite="mid:CAGL7WEdP1x1nyGpj7pf_h2dW8D+yxrPrzBxr7hGU4eumKQC-_w@mail.gmail.com"
-      type="cite">
-      <div dir="ltr">
-        <div>remove this email id from your list.<br>
-        </div>
-        <div>-- <br>
-          <div class="gmail_signature">Regards<br>
-            Mr S S Dhawale<br>
-            Assistant Professor,<br>
-            CSE Department,<br>
-            SSPM's COE,<br>
-            Kankavli, Sindhudurg,<br>
-            Maharashtra.<br>
-            <br>
-          </div>
-        </div>
-      </div>
-      <br>
-      <fieldset class="mimeAttachmentHeader"></fieldset>
-      <br>
-      <pre wrap="">_______________________________________________
-Selinux mailing list
-<a class="moz-txt-link-abbreviated" href="mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a>
-To unsubscribe, send email to <a class="moz-txt-link-abbreviated" href="mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
-To get help, send an email containing "help" to <a class="moz-txt-link-abbreviated" href="mailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.</pre>
-    </blockquote>
-    <br>
-  </body>
-</html>
-
---------------010605020208050308090405--
+Miroslav Grepl
+Senior Software Engineer, SELinux Solutions
+Red Hat, Inc.
