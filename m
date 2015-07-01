@@ -1,131 +1,56 @@
-Message-ID: <5592AC53.6010509@tycho.nsa.gov>
-Date: Tue, 30 Jun 2015 10:48:51 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t612TUJH031057
+ for <selinux@tycho.nsa.gov>; Tue, 30 Jun 2015 22:29:30 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ by mx1.redhat.com (Postfix) with ESMTPS id 33D52388802
+ for <selinux@tycho.nsa.gov>; Wed,  1 Jul 2015 02:29:25 +0000 (UTC)
+Subject: [PATCH] selinux: don't waste ebitmap space when importing NetLabel
+ categories
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Tue, 30 Jun 2015 22:29:24 -0400
+Message-ID: <20150701022924.7788.80821.stgit@localhost>
 MIME-Version: 1.0
-To: Miroslav Grepl <mgrepl@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: type inheritance in CIL
-References: <5590F3DE.8070202@redhat.com> <20150629075651.GA8191@x250>
- <559129C1.4010201@redhat.com> <559194E2.20501@tycho.nsa.gov>
- <20150629192501.GA1380@x250> <5592554E.3040202@redhat.com>
-In-Reply-To: <5592554E.3040202@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/30/2015 04:37 AM, Miroslav Grepl wrote:
-> On 06/29/2015 09:25 PM, Dominick Grift wrote:
->> On Mon, Jun 29, 2015 at 02:56:34PM -0400, James Carter wrote:
->>> On 06/29/2015 07:19 AM, Miroslav Grepl wrote:
->>>> On 06/29/2015 09:56 AM, Dominick Grift wrote:
->>>>> On Mon, Jun 29, 2015 at 09:29:34AM +0200, Miroslav Grepl
->>>>> wrote:
->>>>>> Trying to make sandbox working using CIL but I see it does
->>>>>> not support typeinherit statement.
->>>>>
->>>>> One of those features that really define CIL but that is
->>>>> currently not available or fully working yet.
->>>>>
->>>
->>> Inheritance in CIL is handled with blocks.
->>>
->>> The following policy:
->>>
->>> (block b1 (type t) (allow t self (CLASS (PERM))) )
->>>
->>> (block b2 (blockinherit b1))
->>>
->>> Would result in two types (b1.t and b2.t) and two rules.
->>>
->>> See block_test.cil and name_resolution_test.cil in secilc/test/
->>> for more examples. Everything should work, but, of course, it has
->>> seen less testing at this point.
->>
->> Thanks I am aware of that featurew, namespacing is also still a bit
->> buggy in my view though.
->>
->> If this is meant to be a substitute for typeinherit then how is one
->> supposed to implement something that behaves like
->> typeinheritfilter?
->>
->> You are aware the typeinherit and typeinheritfilter are still
->> documented on https://github.com/SELinuxProject/cil/wiki?
->>>
->
-> Yeap.
->
-> So the point is I need to re-write the current sandbox policy to CIL
-> using block statements to use inheritance.
->
+At present we don't create efficient ebitmaps when importing NetLabel
+category bitmaps.  This can present a problem when comparing ebitmaps
+since ebitmap_cmp() is very strict about these things and considers
+these wasteful ebitmaps not equal when compared to their more
+efficient counterparts, even if their values are the same.  This isn't
+likely to cause problems on 64-bit systems due to a bit of luck on
+how NetLabel/CIPSO works and the default ebitmap size, but it can be
+a problem on 32-bit systems.
 
-Yes.
+This patch fixes this problem by being a bit more intelligent when
+importing NetLabel category bitmaps by skipping over empty sections
+which should result in a nice, efficient ebitmap.
 
-Please keep me informed of any difficulties and bugs. I've tested the name 
-resolution and block handling as much as I could, but you're likely to discover 
-corner cases which I didn't think about.
+Cc: stable@vger.kernel.org # 3.17
+Signed-off-by: Paul Moore <pmoore@redhat.com>
+---
+ security/selinux/ss/ebitmap.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I am also curious about how you plan on using inheritance. What are you going to 
-put in blocks? Which blocks are going to inherit from which blocks?
-
-I am not sure if it will be useful in your case, but there is a blockabstract 
-statement which tells CIL that the block is to be ignored except for inheritance.
-
-Jim
-
->>> Jim
->>>
->>>>> My suggestion is to study the "cilpolicy" (which is really
->>>>> just a snapshot of reference policy transformed to cil with
->>>>> hll i believe)
->>>>>
->>>>> This will give you some pointers as to how to create an
->>>>> alternative implementation that achieves a similar result.
->>>>>
->>>>> When you write CIL policy, there are some "bugs" to take
->>>>> into account and to workaround.
->>>>>
->>>>
->>>> Sure there are different ways how to write it. I just wanted
->>>> to combine it with the current Fedora policy as much as
->>>> possible without re-writing the current Fedora policy.
->>>>
->>>>>>
->>>>>> -- Miroslav Grepl Senior Software Engineer, SELinux
->>>>>> Solutions Red Hat, Inc.
->>>>>> _______________________________________________ Selinux
->>>>>> mailing list Selinux@tycho.nsa.gov To unsubscribe, send
->>>>>> email to Selinux-leave@tycho.nsa.gov. To get help, send an
->>>>>> email containing "help" to Selinux-request@tycho.nsa.gov.
->>>>>
->>>>>
->>>>>
->>>>> _______________________________________________ Selinux
->>>>> mailing list Selinux@tycho.nsa.gov To unsubscribe, send email
->>>>> to Selinux-leave@tycho.nsa.gov. To get help, send an email
->>>>> containing "help" to Selinux-request@tycho.nsa.gov.
->>>>>
->>>>
->>>>
->>>
->>>
->>> -- James Carter <jwcart2@tycho.nsa.gov> National Security Agency
->>> _______________________________________________ Selinux mailing
->>> list Selinux@tycho.nsa.gov To unsubscribe, send email to
->>> Selinux-leave@tycho.nsa.gov. To get help, send an email
->>> containing "help" to Selinux-request@tycho.nsa.gov.
->>
->>
->>
->> _______________________________________________ Selinux mailing
->> list Selinux@tycho.nsa.gov To unsubscribe, send email to
->> Selinux-leave@tycho.nsa.gov. To get help, send an email containing
->> "help" to Selinux-request@tycho.nsa.gov.
->>
->
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index afe6a26..57644b1 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -153,6 +153,12 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
+ 		if (offset == (u32)-1)
+ 			return 0;
+ 
++		/* don't waste ebitmap space if the netlabel bitmap is empty */
++		if (bitmap == 0) {
++			offset += EBITMAP_UNIT_SIZE;
++			continue;
++		}
++
+ 		if (e_iter == NULL ||
+ 		    offset >= e_iter->startbit + EBITMAP_SIZE) {
+ 			e_prev = e_iter;
