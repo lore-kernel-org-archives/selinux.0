@@ -1,91 +1,70 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- "Selinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>
-Subject: executing off of a fusefs
-Date: Thu, 9 Jul 2015 23:04:48 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC560102C611@ORSMSX103.amr.corp.intel.com>
-Content-Type: multipart/alternative;
- boundary="_000_476DC76E7D1DF2438D32BFADF679FC560102C611ORSMSX103amrcor_"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t69NuwEb017056
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2015 19:56:59 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Subject: [GIT PULL] SELinux fixes for 4.2
+Date: Thu, 09 Jul 2015 19:56:52 -0400
+Message-ID: <10193986.g5qmVsbCGZ@sifl>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_000_476DC76E7D1DF2438D32BFADF679FC560102C611ORSMSX103amrcor_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Hi James,
 
-I have this problem on Android, but it's SELinux general. I'd like to get s=
-ome info from those in the know.
-If you wanted to be able to execute files off of fuse and have the kernel h=
-andle the transition, would it be as simple as having the file system retur=
-n the getxattr call for the security label?
+A small SELinux patch to fix an annoying problem when importing NetLabel 
+category bitmaps.  Due to a bit of dumb luck it really isn't an issue for the 
+majority of people running 64-bit systems, but for the 32-bit NetLabel crowd 
+(single digits perhaps?) it can be a real problem.
 
---_000_476DC76E7D1DF2438D32BFADF679FC560102C611ORSMSX103amrcor_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Please merge for the next 4.2-rc release.
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
-//www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
-<style><!--
-/* Font Definitions */
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:#0563C1;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:#954F72;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri",sans-serif;
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri",sans-serif;}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]-->
-</head>
-<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
-<div class=3D"WordSection1">
-<p class=3D"MsoNormal">I have this problem on Android, but it&#8217;s SELin=
-ux general. I&#8217;d like to get some info from those in the know.<o:p></o=
-:p></p>
-<p class=3D"MsoNormal">If you wanted to be able to execute files off of fus=
-e and have the kernel handle the transition, would it be as simple as havin=
-g the file system return the getxattr call for the security label?<o:p></o:=
-p></p>
-</div>
-</body>
-</html>
+Thanks,
+-Paul
 
---_000_476DC76E7D1DF2438D32BFADF679FC560102C611ORSMSX103amrcor_--
+---
+The following changes since commit 9fc2b4b436cff7d8403034676014f1be9d534942:
+
+  selinux: fix setting of security labels on NFS (2015-06-05 14:21:48 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux upstream
+
+for you to fetch changes up to 3324603524925c7727207027d1c15e597412d15e:
+
+  selinux: don't waste ebitmap space when importing NetLabel categories
+           (2015-07-09 14:20:36 -0400)
+
+----------------------------------------------------------------
+Paul Moore (1):
+      selinux: don't waste ebitmap space when importing NetLabel categories
+
+ security/selinux/ss/ebitmap.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index afe6a26..57644b1 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -153,6 +153,12 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
+ 		if (offset == (u32)-1)
+ 			return 0;
+ 
++		/* don't waste ebitmap space if the netlabel bitmap is empty */
++		if (bitmap == 0) {
++			offset += EBITMAP_UNIT_SIZE;
++			continue;
++		}
++
+ 		if (e_iter == NULL ||
+ 		    offset >= e_iter->startbit + EBITMAP_SIZE) {
+ 			e_prev = e_iter;
+
+-- 
+paul moore
+security @ redhat
