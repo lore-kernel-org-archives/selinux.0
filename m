@@ -1,90 +1,220 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t69AnA37026279
- for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2015 06:49:10 -0400
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com
- (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- by mx1.redhat.com (Postfix) with ESMTPS id 4A5F9319837
- for <selinux@tycho.nsa.gov>; Thu,  9 Jul 2015 10:49:08 +0000 (UTC)
-Received: from hulk.w.lan (dhcp-10-40-2-179.brq.redhat.com [10.40.2.179])
- by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- t69An6aA004102
- (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=NO)
- for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2015 06:49:07 -0400
-Subject: Re: [PATCH] Fix typo in semanage args for minimum policy store
-To: selinux@tycho.nsa.gov
-References: <1436429776-32450-1-git-send-email-plautrba@redhat.com>
- <20150709100450.GA20638@x250>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <559E519D.4060800@redhat.com>
-Date: Thu, 9 Jul 2015 12:49:01 +0200
-MIME-Version: 1.0
-In-Reply-To: <20150709100450.GA20638@x250>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="2Rp9BgL7rXKDHiB3A0bne2r8TaK8lIAkm"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t69Bh8dM029977
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2015 07:43:08 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 5EA331A1BD
+ for <selinux@tycho.nsa.gov>; Thu,  9 Jul 2015 13:42:41 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id kLSiMb0cFqw0 for <selinux@tycho.nsa.gov>;
+ Thu,  9 Jul 2015 13:42:37 +0200 (CEST)
+Received: from soldur.bigon.be (unknown [193.53.238.195])
+ (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id BED151A1BC
+ for <selinux@tycho.nsa.gov>; Thu,  9 Jul 2015 13:42:36 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
+To: 510466@bugs.debian.org
+Subject: [PATCH] Add SELinux support to run jobs in the proper domain
+Date: Thu,  9 Jul 2015 13:42:36 +0200
+Message-Id: <1436442156-1163-1-git-send-email-bigon@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---2Rp9BgL7rXKDHiB3A0bne2r8TaK8lIAkm
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+From: Marcela Mašláňová <mmaslano@redhat.com>
 
-Dne 9.7.2015 v 12:04 Dominick Grift napsal(a):
-> On Thu, Jul 09, 2015 at 10:16:16AM +0200, Petr Lautrbach wrote:
->> ---
->>  policycoreutils/semanage/semanage | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/seman=
-age/semanage
->> index dd63010..dd1010a 100644
->> --- a/policycoreutils/semanage/semanage
->> +++ b/policycoreutils/semanage/semanage
->> @@ -788,7 +788,7 @@ def createCommandParser():
->> =20
->>  def make_io_args(args):
->>      # import/export backward compability
->> -    args_origin =3D ["-S", "-o", "-i", "targeted", "minumum", "mls"]
->> +    args_origin =3D ["-S", "-o", "-i", "targeted", "minimum", "mls"]
->=20
-> Hard coding policy models is not very user friendly. Besides the minimu=
-m policy model is fedora specific.
->=20
+Currently, jobs run by at are run in the crond_t domain and not
+transitioned outside of it.
 
-You are right. The patch just fixes the typo which makes it unusable
-even on Fedora.
+With this patch, the jobs are transitioned in the same domain as the
+jobs that are run by the cron daemon:
 
+- When cron_userdomain_transition is set to off, a process for an
+  unconfined user will transition to unconfined_cronjob_t. For confined
+  user, the job is run as cronjob_t.
 
-Petr
---=20
-Petr Lautrbach
+- When cron_userdomain_transition is set to on, the processes are run
+  under the user default context.
 
+Tested-by: Laurent Bigonville <bigon@bigon.be>
+---
+ Makefile.in  |  3 ++-
+ atd.c        | 81 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ config.h.in  |  3 +++
+ configure.ac |  8 ++++++
+ 4 files changed, 94 insertions(+), 1 deletion(-)
 
-
---2Rp9BgL7rXKDHiB3A0bne2r8TaK8lIAkm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJVnlGdAAoJEGOorUuYLENzxb0QAKT4wdkG7TxJ5IaOtgw90CMk
-Ag59uQjjJFS91dufp+rruoMvLDsxApylQPdHew9EgmJs8NEcGl02DaPEFnSsm4hE
-HPTiUiAmSgJDTiqEQKnQnpcFiCZrkHDdPsZXfM7YH66/HE4K0fjeLCDgSu5KDSLP
-1TS+/6LMSkCiXY08KPYxDvLEOoEsbxQnYa4795YrPh7KMNVxejzjCmcC9djhgk6W
-zCIEO3NpXdh11aia3RVLd03H8u7uOUXkGJ8IRj5kPwFWNGAobYndvNY6tAneo4uB
-2iz2C1Y9/Ui78jO0e4VnKXFSMvAG/lyptHT6305pAjchyW6NK2ZA9hW9cAAJJoRy
-3a3Em3lm07Wm4lqLBkVET8n5fSWymzUQygF5BsSBG5PJaYq0zH/e3lgJ2SM7oIyf
-GGoE9HjsQyArBggxgFG+WfQj2AnBrpKAXiI8gbTBf2LVH0xukmeYMN3W3g2lBar7
-I2EYGy+3pS1PXEaQAOkV5tCAlRR/aIU4V3H959VbxCBd+S01EzcvzmwasQOg3zAj
-IGIdzBS0Tfq0xnGK/d8PUD0BhqEAvN6BuPmIJh4zxTyos+P9ofRMe9tO6uKnSbCv
-q9cSr/5oxk33IafcyljT2pCxk+9KO2tnJSL7JtKVV2pjIxW6uCuXZMIP/WmxnJl+
-UE6ESjhud9Drx5GfbWXn
-=cBct
------END PGP SIGNATURE-----
-
---2Rp9BgL7rXKDHiB3A0bne2r8TaK8lIAkm--
+diff --git a/Makefile.in b/Makefile.in
+index 5dd2767..2bddc13 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -40,6 +40,7 @@ LIBS		= @LIBS@
+ LIBOBJS		= @LIBOBJS@
+ INSTALL		= @INSTALL@
+ PAMLIB          = @PAMLIB@
++SELINUXLIB      = @SELINUXLIB@
+ 
+ CLONES		= atq atrm
+ ATOBJECTS	= at.o panic.o perm.o posixtm.o y.tab.o lex.yy.o
+@@ -73,7 +74,7 @@ at: $(ATOBJECTS)
+ 	$(LN_S) -f at atrm
+ 
+ atd: $(RUNOBJECTS)
+-	$(CC) $(LDFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB)
++	$(CC) $(LDFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB) $(SELINUXLIB)
+ 
+ y.tab.c y.tab.h: parsetime.y
+ 	$(YACC) -d parsetime.y
+diff --git a/atd.c b/atd.c
+index d0b422e..55f6f8d 100644
+--- a/atd.c
++++ b/atd.c
+@@ -83,6 +83,14 @@
+ #include "getloadavg.h"
+ #endif
+ 
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#include <selinux/get_context_list.h>
++int selinux_enabled=0;
++#include <selinux/flask.h>
++#include <selinux/av_permissions.h>
++#endif
++
+ /* Macros */
+ 
+ #define BATCH_INTERVAL_DEFAULT 60
+@@ -195,6 +203,68 @@ myfork()
+ #define fork myfork
+ #endif
+ 
++#ifdef WITH_SELINUX
++static int set_selinux_context(const char *name, const char *filename) {
++       security_context_t user_context=NULL;
++       security_context_t  file_context=NULL;
++       struct av_decision avd;
++       int retval=-1;
++       char *seuser=NULL;
++       char *level=NULL;
++
++       if (getseuserbyname(name, &seuser, &level) == 0) {
++               retval=get_default_context_with_level(seuser, level, NULL, &user_context);
++               free(seuser);
++               free(level);
++               if (retval) {
++                       if (security_getenforce()==1) {
++                               perr("execle: couldn't get security context for user %s\n", name);
++                       } else {
++                               syslog(LOG_ERR, "execle: couldn't get security context for user %s\n", name);
++                               return -1;
++                       }
++               }
++       }
++
++       /*
++       * Since crontab files are not directly executed,
++       * crond must ensure that the crontab file has
++       * a context that is appropriate for the context of
++       * the user cron job.  It performs an entrypoint
++       * permission check for this purpose.
++       */
++       if (fgetfilecon(STDIN_FILENO, &file_context) < 0)
++               perr("fgetfilecon FAILED %s", filename);
++
++       retval = security_compute_av(user_context,
++                                    file_context,
++                                    SECCLASS_FILE,
++                                    FILE__ENTRYPOINT,
++                                    &avd);
++       freecon(file_context);
++       if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
++               if (security_getenforce()==1) {
++                       perr("Not allowed to set exec context to %s for user  %s\n", user_context,name);
++               } else {
++                       syslog(LOG_ERR, "Not allowed to set exec context to %s for user  %s\n", user_context,name);
++                       retval = -1;
++                       goto err;
++               }
++       }
++       if (setexeccon(user_context) < 0) {
++               if (security_getenforce()==1) {
++                       perr("Could not set exec context to %s for user  %s\n", user_context,name);
++                       retval = -1;
++               } else {
++                       syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,name);
++               }
++       }
++  err:
++       freecon(user_context);
++       return 0;
++}
++#endif
++
+ static void
+ run_file(const char *filename, uid_t uid, gid_t gid)
+ {
+@@ -424,6 +494,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
+ 
+ 	    nice((tolower((int) queue) - 'a' + 1) * 2);
+ 
++#ifdef WITH_SELINUX
++	    if (selinux_enabled > 0) {
++	        if (set_selinux_context(pentry->pw_name, filename) < 0)
++	               perr("SELinux Failed to set context\n");
++	    }
++#endif
++
+ 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
+ 		perr("Cannot initialize the supplementary group access list");
+ 
+@@ -707,6 +784,10 @@ main(int argc, char *argv[])
+     struct passwd *pwe;
+     struct group *ge;
+ 
++#ifdef WITH_SELINUX
++    selinux_enabled=is_selinux_enabled();
++#endif
++
+ /* We don't need root privileges all the time; running under uid and gid
+  * daemon is fine.
+  */
+diff --git a/config.h.in b/config.h.in
+index 4d7dc91..681d68e 100644
+--- a/config.h.in
++++ b/config.h.in
+@@ -192,6 +192,9 @@
+    <sys/cpustats.h>. */
+ #undef UMAX4_3
+ 
++/* Define if you are building with_selinux */
++#undef WITH_SELINUX
++
+ /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+    `char[]'. */
+ #undef YYTEXT_POINTER
+diff --git a/configure.ac b/configure.ac
+index f3d2e35..1f6494a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -239,6 +239,14 @@ AC_ARG_WITH(daemon_username,
+ )
+ AC_SUBST(DAEMON_USERNAME)
+ 
++AC_ARG_WITH(selinux,
++[ --with-selinux       Define to run with selinux],
++AC_DEFINE(WITH_SELINUX, 1, [Define if you are building with_selinux]),
++)
++AC_CHECK_LIB(selinux, is_selinux_enabled, SELINUXLIB=-lselinux)
++AC_SUBST(SELINUXLIB)
++AC_SUBST(WITH_SELINUX)
++
+ AC_MSG_CHECKING(groupname to run under)
+ AC_ARG_WITH(daemon_groupname,
+ [ --with-daemon_groupname=DAEMON_GROUPNAME	Groupname to run under (default daemon) ],
+-- 
+2.1.4
