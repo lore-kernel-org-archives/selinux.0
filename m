@@ -1,41 +1,223 @@
-Message-ID: <559E716C.6050000@tycho.nsa.gov>
-Date: Thu, 09 Jul 2015 09:04:44 -0400
+Message-ID: <559E737C.4080804@tycho.nsa.gov>
+Date: Thu, 09 Jul 2015 09:13:32 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] Fix typo in semanage args for minimum policy store
-References: <1436429776-32450-1-git-send-email-plautrba@redhat.com>
- <20150709100450.GA20638@x250> <559E519D.4060800@redhat.com>
-In-Reply-To: <559E519D.4060800@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+To: Laurent Bigonville <bigon@debian.org>, 510466@bugs.debian.org
+Subject: Re: [PATCH] Add SELinux support to run jobs in the proper domain
+References: <1436442156-1163-1-git-send-email-bigon@debian.org>
+In-Reply-To: <1436442156-1163-1-git-send-email-bigon@debian.org>
+Content-Type: text/plain; charset=utf-8
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/09/2015 06:49 AM, Petr Lautrbach wrote:
-> Dne 9.7.2015 v 12:04 Dominick Grift napsal(a):
->> On Thu, Jul 09, 2015 at 10:16:16AM +0200, Petr Lautrbach wrote:
->>> ---
->>>  policycoreutils/semanage/semanage | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
->>> index dd63010..dd1010a 100644
->>> --- a/policycoreutils/semanage/semanage
->>> +++ b/policycoreutils/semanage/semanage
->>> @@ -788,7 +788,7 @@ def createCommandParser():
->>>  
->>>  def make_io_args(args):
->>>      # import/export backward compability
->>> -    args_origin = ["-S", "-o", "-i", "targeted", "minumum", "mls"]
->>> +    args_origin = ["-S", "-o", "-i", "targeted", "minimum", "mls"]
->>
->> Hard coding policy models is not very user friendly. Besides the minimum policy model is fedora specific.
->>
+On 07/09/2015 07:42 AM, Laurent Bigonville wrote:
+> From: Marcela Mašláňová <mmaslano@redhat.com>
 > 
-> You are right. The patch just fixes the typo which makes it unusable
-> even on Fedora.
+> Currently, jobs run by at are run in the crond_t domain and not
+> transitioned outside of it.
+> 
+> With this patch, the jobs are transitioned in the same domain as the
+> jobs that are run by the cron daemon:
+> 
+> - When cron_userdomain_transition is set to off, a process for an
+>   unconfined user will transition to unconfined_cronjob_t. For confined
+>   user, the job is run as cronjob_t.
+> 
+> - When cron_userdomain_transition is set to on, the processes are run
+>   under the user default context.
+> 
+> Tested-by: Laurent Bigonville <bigon@bigon.be>
+> ---
+>  Makefile.in  |  3 ++-
+>  atd.c        | 81 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  config.h.in  |  3 +++
+>  configure.ac |  8 ++++++
+>  4 files changed, 94 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Makefile.in b/Makefile.in
+> index 5dd2767..2bddc13 100644
+> --- a/Makefile.in
+> +++ b/Makefile.in
+> @@ -40,6 +40,7 @@ LIBS		= @LIBS@
+>  LIBOBJS		= @LIBOBJS@
+>  INSTALL		= @INSTALL@
+>  PAMLIB          = @PAMLIB@
+> +SELINUXLIB      = @SELINUXLIB@
+>  
+>  CLONES		= atq atrm
+>  ATOBJECTS	= at.o panic.o perm.o posixtm.o y.tab.o lex.yy.o
+> @@ -73,7 +74,7 @@ at: $(ATOBJECTS)
+>  	$(LN_S) -f at atrm
+>  
+>  atd: $(RUNOBJECTS)
+> -	$(CC) $(LDFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB)
+> +	$(CC) $(LDFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB) $(SELINUXLIB)
+>  
+>  y.tab.c y.tab.h: parsetime.y
+>  	$(YACC) -d parsetime.y
+> diff --git a/atd.c b/atd.c
+> index d0b422e..55f6f8d 100644
+> --- a/atd.c
+> +++ b/atd.c
+> @@ -83,6 +83,14 @@
+>  #include "getloadavg.h"
+>  #endif
+>  
+> +#ifdef WITH_SELINUX
+> +#include <selinux/selinux.h>
+> +#include <selinux/get_context_list.h>
+> +int selinux_enabled=0;
+> +#include <selinux/flask.h>
+> +#include <selinux/av_permissions.h>
 
-Agree that we ought to revisit this, but applied the patch to fix the
-typo for now.
+Use of these headers (flask.h and av_permissions.h) is deprecated.
+See below.
+
+> +#endif
+> +
+>  /* Macros */
+>  
+>  #define BATCH_INTERVAL_DEFAULT 60
+> @@ -195,6 +203,68 @@ myfork()
+>  #define fork myfork
+>  #endif
+>  
+> +#ifdef WITH_SELINUX
+> +static int set_selinux_context(const char *name, const char *filename) {
+> +       security_context_t user_context=NULL;
+> +       security_context_t  file_context=NULL;
+> +       struct av_decision avd;
+> +       int retval=-1;
+> +       char *seuser=NULL;
+> +       char *level=NULL;
+> +
+> +       if (getseuserbyname(name, &seuser, &level) == 0) {
+> +               retval=get_default_context_with_level(seuser, level, NULL, &user_context);
+> +               free(seuser);
+> +               free(level);
+> +               if (retval) {
+> +                       if (security_getenforce()==1) {
+> +                               perr("execle: couldn't get security context for user %s\n", name);
+> +                       } else {
+> +                               syslog(LOG_ERR, "execle: couldn't get security context for user %s\n", name);
+> +                               return -1;
+> +                       }
+> +               }
+> +       }
+> +
+> +       /*
+> +       * Since crontab files are not directly executed,
+> +       * crond must ensure that the crontab file has
+> +       * a context that is appropriate for the context of
+> +       * the user cron job.  It performs an entrypoint
+> +       * permission check for this purpose.
+> +       */
+> +       if (fgetfilecon(STDIN_FILENO, &file_context) < 0)
+> +               perr("fgetfilecon FAILED %s", filename);
+> +
+> +       retval = security_compute_av(user_context,
+> +                                    file_context,
+> +                                    SECCLASS_FILE,
+> +                                    FILE__ENTRYPOINT,
+> +                                    &avd);
+> +       freecon(file_context);
+> +       if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
+> +               if (security_getenforce()==1) {
+> +                       perr("Not allowed to set exec context to %s for user  %s\n", user_context,name);
+> +               } else {
+> +                       syslog(LOG_ERR, "Not allowed to set exec context to %s for user  %s\n", user_context,name);
+> +                       retval = -1;
+> +                       goto err;
+> +               }
+> +       }
+
+Please switch to using selinux_check_access() rather than
+security_compute_av() in new code.  This handles dynamically looking up
+the "file" class and "entrypoint" permission values, checks and uses
+security_deny_unknown() to handle unknown classes/permissions, uses the
+AVC, checks enforcing mode (both global and per-domain), and ensures
+that denials are audited/logged in a standardized format.  You will also
+want to use selinux_set_callback(SELINUX_CB_LOG, ...) and possibly
+selinux_set_callback(SELINUX_CB_AUDIT, ...) to redirect the logging to
+your preferred destination and to supply any auxiliary audit data in the
+message.
+
+> +       if (setexeccon(user_context) < 0) {
+> +               if (security_getenforce()==1) {
+> +                       perr("Could not set exec context to %s for user  %s\n", user_context,name);
+> +                       retval = -1;
+> +               } else {
+> +                       syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,name);
+> +               }
+> +       }
+> +  err:
+> +       freecon(user_context);
+> +       return 0;
+> +}
+> +#endif
+> +
+>  static void
+>  run_file(const char *filename, uid_t uid, gid_t gid)
+>  {
+> @@ -424,6 +494,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
+>  
+>  	    nice((tolower((int) queue) - 'a' + 1) * 2);
+>  
+> +#ifdef WITH_SELINUX
+> +	    if (selinux_enabled > 0) {
+> +	        if (set_selinux_context(pentry->pw_name, filename) < 0)
+> +	               perr("SELinux Failed to set context\n");
+> +	    }
+> +#endif
+> +
+>  	    if (initgroups(pentry->pw_name, pentry->pw_gid))
+>  		perr("Cannot initialize the supplementary group access list");
+>  
+> @@ -707,6 +784,10 @@ main(int argc, char *argv[])
+>      struct passwd *pwe;
+>      struct group *ge;
+>  
+> +#ifdef WITH_SELINUX
+> +    selinux_enabled=is_selinux_enabled();
+> +#endif
+> +
+>  /* We don't need root privileges all the time; running under uid and gid
+>   * daemon is fine.
+>   */
+> diff --git a/config.h.in b/config.h.in
+> index 4d7dc91..681d68e 100644
+> --- a/config.h.in
+> +++ b/config.h.in
+> @@ -192,6 +192,9 @@
+>     <sys/cpustats.h>. */
+>  #undef UMAX4_3
+>  
+> +/* Define if you are building with_selinux */
+> +#undef WITH_SELINUX
+> +
+>  /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+>     `char[]'. */
+>  #undef YYTEXT_POINTER
+> diff --git a/configure.ac b/configure.ac
+> index f3d2e35..1f6494a 100644
+> --- a/configure.ac
+> +++ b/configure.ac
+> @@ -239,6 +239,14 @@ AC_ARG_WITH(daemon_username,
+>  )
+>  AC_SUBST(DAEMON_USERNAME)
+>  
+> +AC_ARG_WITH(selinux,
+> +[ --with-selinux       Define to run with selinux],
+> +AC_DEFINE(WITH_SELINUX, 1, [Define if you are building with_selinux]),
+> +)
+> +AC_CHECK_LIB(selinux, is_selinux_enabled, SELINUXLIB=-lselinux)
+> +AC_SUBST(SELINUXLIB)
+> +AC_SUBST(WITH_SELINUX)
+> +
+>  AC_MSG_CHECKING(groupname to run under)
+>  AC_ARG_WITH(daemon_groupname,
+>  [ --with-daemon_groupname=DAEMON_GROUPNAME	Groupname to run under (default daemon) ],
+> 
