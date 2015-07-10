@@ -1,54 +1,141 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: paul@paul-moore.com, hughd@google.com
-Subject: [PATCH] selinux: fix mprotect PROT_EXEC regression caused by mm change
-Date: Fri, 10 Jul 2015 09:40:59 -0400
-Message-Id: <1436535659-13124-1-git-send-email-sds@tycho.nsa.gov>
-Cc: prarit@redhat.com, mstevens@fedoraproject.org, esandeen@redhat.com,
- Stephen Smalley <sds@tycho.nsa.gov>, wagi@monom.org, david@fromorbit.com,
- linux-kernel@vger.kernel.org, eparis@redhat.com, linux-mm@kvack.org,
- selinux@tycho.nsa.gov, akpm@linux-foundation.org,
- torvalds@linux-foundation.org
+MIME-Version: 1.0
+In-Reply-To: <559FBD3A.4090300@tycho.nsa.gov>
+References: <476DC76E7D1DF2438D32BFADF679FC560102C611@ORSMSX103.amr.corp.intel.com>
+ <559FBD3A.4090300@tycho.nsa.gov>
+Date: Fri, 10 Jul 2015 08:10:18 -0700
+Message-ID: <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
+Subject: Re: executing off of a fusefs
+From: William Roberts <bill.c.roberts@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=089e016819ae280110051a86c557
+Cc: seandroid-list@tycho.nsa.gov, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-commit 66fc13039422ba7df2d01a8ee0873e4ef965b50b ("mm: shmem_zero_setup skip
-security check and lockdep conflict with XFS") caused a regression for
-SELinux by disabling any SELinux checking of mprotect PROT_EXEC on
-shared anonymous mappings.  However, even before that regression, the
-checking on such mprotect PROT_EXEC calls was inconsistent with the
-checking on a mmap PROT_EXEC call for a shared anonymous mapping.  On a
-mmap, the security hook is passed a NULL file and knows it is dealing with
-an anonymous mapping and therefore applies an execmem check and no file
-checks.  On a mprotect, the security hook is passed a vma with a
-non-NULL vm_file (as this was set from the internally-created shmem
-file during mmap) and therefore applies the file-based execute check and
-no execmem check.  Since the aforementioned commit now marks the shmem
-zero inode with the S_PRIVATE flag, the file checks are disabled and
-we have no checking at all on mprotect PROT_EXEC.  Add a test to
-the mprotect hook logic for such private inodes, and apply an execmem
-check in that case.  This makes the mmap and mprotect checking consistent
-for shared anonymous mappings, as well as for /dev/zero and ashmem.
+--089e016819ae280110051a86c557
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- security/selinux/hooks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On Jul 10, 2015 5:48 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+>
+> On 07/09/2015 07:04 PM, Roberts, William C wrote:
+> > I have this problem on Android, but it=E2=80=99s SELinux general. I=E2=
+=80=99d like to
+> > get some info from those in the know.
+> >
+> > If you wanted to be able to execute files off of fuse and have the
+> > kernel handle the transition, would it be as simple as having the file
+> > system return the getxattr call for the security label?
+>
+> Aren't fuse mounts mounted with nosuid?  That disables SELinux context
+> transitions as well as suid/sgid/file-capabilities. Otherwise, the
+> kernel is trusting the userspace filesystem to not cause a privilege
+> escalation, potentially in excess of the privileges of the userspace
+> filesystem daemon itself.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6231081..564079c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3283,7 +3283,8 @@ static int file_map_prot_check(struct file *file, unsigned long prot, int shared
- 	int rc = 0;
- 
- 	if (default_noexec &&
--	    (prot & PROT_EXEC) && (!file || (!shared && (prot & PROT_WRITE)))) {
-+	    (prot & PROT_EXEC) && (!file || IS_PRIVATE(file_inode(file)) ||
-+				   (!shared && (prot & PROT_WRITE)))) {
- 		/*
- 		 * We are making executable an anonymous mapping or a
- 		 * private file mapping that will also be writable.
--- 
-2.1.0
+On AOSP yes others no. BTW I'm not condoning doing this either.
+
+>
+> Aside from that, you would also need to configure SELinux to use xattrs
+> from fuse (i.e. fs_use_xattr fuse ...), and change the daemon to support
+> getxattr, and ensure that you do not have the deadlock problem that
+> exists with upstream FUSE where it
+
+This old problem, I think if you don't use libfuse you can get around it.
+
+does not support handling a getxattr
+> request on the root directory during the mount(2) call.  And doing this
+> would affect all fuse mounts (e.g. /storage/emulated), not just a
+> specific one.  There was an attempt to add per-subtype support for
+> fs_use so that one could specify a different labeling behavior for a
+> specific kind of fuse filesystem, see kernel commit
+> 102aefdda4d8275ce7d7100bc16c88c74272b260, but this was reverted in
+> 4d546f81717d253ab67643bf072c6d8821a9249c and
+> 29b1deb2a48a9dd02b93597aa4c055a24c0e989f as it did not work and caused a
+> deadlock for other fuse filesystems.
+>
+>
+>
+>
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+Selinux-request@tycho.nsa.gov.
+
+--089e016819ae280110051a86c557
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr"><br>
+On Jul 10, 2015 5:48 AM, &quot;Stephen Smalley&quot; &lt;<a href=3D"mailto:=
+sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
+&gt;<br>
+&gt; On 07/09/2015 07:04 PM, Roberts, William C wrote:<br>
+&gt; &gt; I have this problem on Android, but it=E2=80=99s SELinux general.=
+ I=E2=80=99d like to<br>
+&gt; &gt; get some info from those in the know.<br>
+&gt; &gt;<br>
+&gt; &gt; If you wanted to be able to execute files off of fuse and have th=
+e<br>
+&gt; &gt; kernel handle the transition, would it be as simple as having the=
+ file<br>
+&gt; &gt; system return the getxattr call for the security label?<br>
+&gt;<br>
+&gt; Aren&#39;t fuse mounts mounted with nosuid?=C2=A0 That disables SELinu=
+x context<br>
+&gt; transitions as well as suid/sgid/file-capabilities. Otherwise, the<br>
+&gt; kernel is trusting the userspace filesystem to not cause a privilege<b=
+r>
+&gt; escalation, potentially in excess of the privileges of the userspace<b=
+r>
+&gt; filesystem daemon itself.</p>
+<p dir=3D"ltr">On AOSP yes others no. BTW I&#39;m not condoning doing this =
+either.</p>
+<p dir=3D"ltr">&gt;<br>
+&gt; Aside from that, you would also need to configure SELinux to use xattr=
+s<br>
+&gt; from fuse (i.e. fs_use_xattr fuse ...), and change the daemon to suppo=
+rt<br>
+&gt; getxattr, and ensure that you do not have the deadlock problem that<br=
+>
+&gt; exists with upstream FUSE where it</p>
+<p dir=3D"ltr">This old problem, I think if you don&#39;t use libfuse you c=
+an get around it.</p>
+<p dir=3D"ltr"> does not support handling a getxattr<br>
+&gt; request on the root directory during the mount(2) call.=C2=A0 And doin=
+g this<br>
+&gt; would affect all fuse mounts (e.g. /storage/emulated), not just a<br>
+&gt; specific one.=C2=A0 There was an attempt to add per-subtype support fo=
+r<br>
+&gt; fs_use so that one could specify a different labeling behavior for a<b=
+r>
+&gt; specific kind of fuse filesystem, see kernel commit<br>
+&gt; 102aefdda4d8275ce7d7100bc16c88c74272b260, but this was reverted in<br>
+&gt; 4d546f81717d253ab67643bf072c6d8821a9249c and<br>
+&gt; 29b1deb2a48a9dd02b93597aa4c055a24c0e989f as it did not work and caused=
+ a<br>
+&gt; deadlock for other fuse filesystems.<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt;<br>
+&gt; _______________________________________________<br>
+&gt; Selinux mailing list<br>
+&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
+&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.ns=
+a.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
+&gt; To get help, send an email containing &quot;help&quot; to <a href=3D"m=
+ailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>
+</p>
+
+--089e016819ae280110051a86c557--
