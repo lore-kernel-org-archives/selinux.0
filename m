@@ -1,70 +1,112 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t69NuwEb017056
- for <selinux@tycho.nsa.gov>; Thu, 9 Jul 2015 19:56:59 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: James Morris <jmorris@namei.org>
-Subject: [GIT PULL] SELinux fixes for 4.2
-Date: Thu, 09 Jul 2015 19:56:52 -0400
-Message-ID: <10193986.g5qmVsbCGZ@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6A7mTc2009694
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jul 2015 03:48:29 -0400
+Received: by pabvl15 with SMTP id vl15so164129762pab.1
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jul 2015 00:48:26 -0700 (PDT)
+Date: Fri, 10 Jul 2015 00:48:14 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: mm: shmem_zero_setup skip security check and lockdep conflict
+ with XFS
+In-Reply-To: <559E7023.8040203@tycho.nsa.gov>
+Message-ID: <alpine.LSU.2.11.1507100013270.5082@eggly.anvils>
+References: <alpine.LSU.2.11.1506140944380.11018@eggly.anvils>
+ <CAB9W1A2ekXaqHfcUxpmx_5rwxfP+wMHA17BdrA7f=Ey-rp0Lvw@mail.gmail.com>
+ <559D51C2.7060603@tycho.nsa.gov>
+ <alpine.LSU.2.11.1507090112430.2698@eggly.anvils>
+ <559E7023.8040203@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Prarit Bhargava <prarit@redhat.com>,
+ Morten Stevens <mstevens@fedoraproject.org>,
+ Eric Sandeen <esandeen@redhat.com>, Hugh Dickins <hughd@google.com>,
+ Dave Chinner <david@fromorbit.com>,
+ Linux Kernel <linux-kernel@vger.kernel.org>, Eric Paris <eparis@redhat.com>,
+ David Howells <dhowells@redhat.com>, linux-mm@kvack.org,
+ Daniel Wagner <wagi@monom.org>, selinux <selinux@tycho.nsa.gov>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi James,
+On Thu, 9 Jul 2015, Stephen Smalley wrote:
+> On 07/09/2015 04:23 AM, Hugh Dickins wrote:
+> > On Wed, 8 Jul 2015, Stephen Smalley wrote:
+> >> On 07/08/2015 09:13 AM, Stephen Smalley wrote:
+> >>> On Sun, Jun 14, 2015 at 12:48 PM, Hugh Dickins <hughd@google.com> wrote:
+> >>>> It appears that, at some point last year, XFS made directory handling
+> >>>> changes which bring it into lockdep conflict with shmem_zero_setup():
+> >>>> it is surprising that mmap() can clone an inode while holding mmap_sem,
+> >>>> but that has been so for many years.
+> >>>>
+> >>>> Since those few lockdep traces that I've seen all implicated selinux,
+> >>>> I'm hoping that we can use the __shmem_file_setup(,,,S_PRIVATE) which
+> >>>> v3.13's commit c7277090927a ("security: shmem: implement kernel private
+> >>>> shmem inodes") introduced to avoid LSM checks on kernel-internal inodes:
+> >>>> the mmap("/dev/zero") cloned inode is indeed a kernel-internal detail.
+> >>>>
+> >>>> This also covers the !CONFIG_SHMEM use of ramfs to support /dev/zero
+> >>>> (and MAP_SHARED|MAP_ANONYMOUS).  I thought there were also drivers
+> >>>> which cloned inode in mmap(), but if so, I cannot locate them now.
+> >>>
+> >>> This causes a regression for SELinux (please, in the future, cc
+> >>> selinux list and Paul Moore on SELinux-related changes).  In
+> > 
+> > Surprised and sorry about that, yes, I should have Cc'ed.
+> > 
+> >>> particular, this change disables SELinux checking of mprotect
+> >>> PROT_EXEC on shared anonymous mappings, so we lose the ability to
+> >>> control executable mappings.  That said, we are only getting that
+> >>> check today as a side effect of our file execute check on the tmpfs
+> >>> inode, whereas it would be better (and more consistent with the
+> >>> mmap-time checks) to apply an execmem check in that case, in which
+> >>> case we wouldn't care about the inode-based check.  However, I am
+> >>> unclear on how to correctly detect that situation from
+> >>> selinux_file_mprotect() -> file_map_prot_check(), because we do have a
+> >>> non-NULL vma->vm_file so we treat it as a file execute check.  In
+> >>> contrast, if directly creating an anonymous shared mapping with
+> >>> PROT_EXEC via mmap(...PROT_EXEC...),  selinux_mmap_file is called with
+> >>> a NULL file and therefore we end up applying an execmem check.
+> > 
+> > If you're willing to go forward with the change, rather than just call
+> > for an immediate revert of it, then I think the right way to detect
+> > the situation would be to check IS_PRIVATE(file_inode(vma->vm_file)),
+> > wouldn't it?
+> 
+> That seems misleading and might trigger execmem checks on non-shmem
+> inodes.  S_PRIVATE was originally introduced for fs-internal inodes that
+> are never directly exposed to userspace, originally for reiserfs xattr
+> inodes (reiserfs xattrs are internally implemented as their own files
+> that are hidden from userspace) and later also applied to anon inodes.
+> It would be better if we had an explicit way of testing that we are
+> dealing with an anonymous shared mapping in selinux_file_mprotect() ->
+> file_map_prot_check().
 
-A small SELinux patch to fix an annoying problem when importing NetLabel 
-category bitmaps.  Due to a bit of dumb luck it really isn't an issue for the 
-majority of people running 64-bit systems, but for the 32-bit NetLabel crowd 
-(single digits perhaps?) it can be a real problem.
+But how would any of those original S_PRIVATE inodes arrive at
+selinux_file_mprotect()?  Now we have added the anon shared mmap case
+which can arrive there, but the S_PRIVATE check seems just the right
+tool for the job of distinguishing those from the user-visible inodes.
 
-Please merge for the next 4.2-rc release.
+I don't see how adding some other flag for this case would be better
+- though certainly I can see that adding an "anon shared shmem"
+comment on its use in that check would be helpful.
 
-Thanks,
--Paul
+Or is there some further difficulty in this use of S_PRIVATE, beyond
+the mprotect case that you've mentioned?  Unless there is some further
+difficulty, duplicating all the code relating to S_PRIVATE for a
+differently named flag seems counter-productive to me.
 
----
-The following changes since commit 9fc2b4b436cff7d8403034676014f1be9d534942:
+(There is a bool shmem_mapping(mapping) that could be used to confirm
+that the inode you're looking at indeed belongs to shmem; but of
+course that would say yes on all the user-visible shmem inodes too,
+so it wouldn't be a useful test on its own, and I don't see that
+adding it to an S_PRIVATE test would add any real value.)
 
-  selinux: fix setting of security labels on NFS (2015-06-05 14:21:48 -0400)
+Probably you were hoping that there's already some distinguishing
+feature of anon shared shmem inodes that you could check: I can't
+think of one offhand, beyond S_PRIVATE: if there is another,
+it would be accidental.
 
-are available in the git repository at:
-
-  git://git.infradead.org/users/pcmoore/selinux upstream
-
-for you to fetch changes up to 3324603524925c7727207027d1c15e597412d15e:
-
-  selinux: don't waste ebitmap space when importing NetLabel categories
-           (2015-07-09 14:20:36 -0400)
-
-----------------------------------------------------------------
-Paul Moore (1):
-      selinux: don't waste ebitmap space when importing NetLabel categories
-
- security/selinux/ss/ebitmap.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index afe6a26..57644b1 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -153,6 +153,12 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
- 		if (offset == (u32)-1)
- 			return 0;
- 
-+		/* don't waste ebitmap space if the netlabel bitmap is empty */
-+		if (bitmap == 0) {
-+			offset += EBITMAP_UNIT_SIZE;
-+			continue;
-+		}
-+
- 		if (e_iter == NULL ||
- 		    offset >= e_iter->startbit + EBITMAP_SIZE) {
- 			e_prev = e_iter;
-
--- 
-paul moore
-security @ redhat
+Hugh
