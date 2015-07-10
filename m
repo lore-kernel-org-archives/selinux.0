@@ -1,128 +1,54 @@
-Message-ID: <559FC421.3000109@tycho.nsa.gov>
-Date: Fri, 10 Jul 2015 09:09:53 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Hugh Dickins <hughd@google.com>
-Subject: Re: mm: shmem_zero_setup skip security check and lockdep conflict
- with XFS
-References: <alpine.LSU.2.11.1506140944380.11018@eggly.anvils>
- <CAB9W1A2ekXaqHfcUxpmx_5rwxfP+wMHA17BdrA7f=Ey-rp0Lvw@mail.gmail.com>
- <559D51C2.7060603@tycho.nsa.gov>
- <alpine.LSU.2.11.1507090112430.2698@eggly.anvils>
- <559E7023.8040203@tycho.nsa.gov>
- <alpine.LSU.2.11.1507100013270.5082@eggly.anvils>
-In-Reply-To: <alpine.LSU.2.11.1507100013270.5082@eggly.anvils>
-Content-Type: text/plain; charset=windows-1252
-Cc: Prarit Bhargava <prarit@redhat.com>,
- Morten Stevens <mstevens@fedoraproject.org>,
- Eric Sandeen <esandeen@redhat.com>, Daniel Wagner <wagi@monom.org>,
- Dave Chinner <david@fromorbit.com>,
- Linux Kernel <linux-kernel@vger.kernel.org>, Eric Paris <eparis@redhat.com>,
- David Howells <dhowells@redhat.com>, linux-mm@kvack.org,
- selinux <selinux@tycho.nsa.gov>, Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linux-foundation.org>
+To: paul@paul-moore.com, hughd@google.com
+Subject: [PATCH] selinux: fix mprotect PROT_EXEC regression caused by mm change
+Date: Fri, 10 Jul 2015 09:40:59 -0400
+Message-Id: <1436535659-13124-1-git-send-email-sds@tycho.nsa.gov>
+Cc: prarit@redhat.com, mstevens@fedoraproject.org, esandeen@redhat.com,
+ Stephen Smalley <sds@tycho.nsa.gov>, wagi@monom.org, david@fromorbit.com,
+ linux-kernel@vger.kernel.org, eparis@redhat.com, linux-mm@kvack.org,
+ selinux@tycho.nsa.gov, akpm@linux-foundation.org,
+ torvalds@linux-foundation.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/10/2015 03:48 AM, Hugh Dickins wrote:
-> On Thu, 9 Jul 2015, Stephen Smalley wrote:
->> On 07/09/2015 04:23 AM, Hugh Dickins wrote:
->>> On Wed, 8 Jul 2015, Stephen Smalley wrote:
->>>> On 07/08/2015 09:13 AM, Stephen Smalley wrote:
->>>>> On Sun, Jun 14, 2015 at 12:48 PM, Hugh Dickins <hughd@google.com> wrote:
->>>>>> It appears that, at some point last year, XFS made directory handling
->>>>>> changes which bring it into lockdep conflict with shmem_zero_setup():
->>>>>> it is surprising that mmap() can clone an inode while holding mmap_sem,
->>>>>> but that has been so for many years.
->>>>>>
->>>>>> Since those few lockdep traces that I've seen all implicated selinux,
->>>>>> I'm hoping that we can use the __shmem_file_setup(,,,S_PRIVATE) which
->>>>>> v3.13's commit c7277090927a ("security: shmem: implement kernel private
->>>>>> shmem inodes") introduced to avoid LSM checks on kernel-internal inodes:
->>>>>> the mmap("/dev/zero") cloned inode is indeed a kernel-internal detail.
->>>>>>
->>>>>> This also covers the !CONFIG_SHMEM use of ramfs to support /dev/zero
->>>>>> (and MAP_SHARED|MAP_ANONYMOUS).  I thought there were also drivers
->>>>>> which cloned inode in mmap(), but if so, I cannot locate them now.
->>>>>
->>>>> This causes a regression for SELinux (please, in the future, cc
->>>>> selinux list and Paul Moore on SELinux-related changes).  In
->>>
->>> Surprised and sorry about that, yes, I should have Cc'ed.
->>>
->>>>> particular, this change disables SELinux checking of mprotect
->>>>> PROT_EXEC on shared anonymous mappings, so we lose the ability to
->>>>> control executable mappings.  That said, we are only getting that
->>>>> check today as a side effect of our file execute check on the tmpfs
->>>>> inode, whereas it would be better (and more consistent with the
->>>>> mmap-time checks) to apply an execmem check in that case, in which
->>>>> case we wouldn't care about the inode-based check.  However, I am
->>>>> unclear on how to correctly detect that situation from
->>>>> selinux_file_mprotect() -> file_map_prot_check(), because we do have a
->>>>> non-NULL vma->vm_file so we treat it as a file execute check.  In
->>>>> contrast, if directly creating an anonymous shared mapping with
->>>>> PROT_EXEC via mmap(...PROT_EXEC...),  selinux_mmap_file is called with
->>>>> a NULL file and therefore we end up applying an execmem check.
->>>
->>> If you're willing to go forward with the change, rather than just call
->>> for an immediate revert of it, then I think the right way to detect
->>> the situation would be to check IS_PRIVATE(file_inode(vma->vm_file)),
->>> wouldn't it?
->>
->> That seems misleading and might trigger execmem checks on non-shmem
->> inodes.  S_PRIVATE was originally introduced for fs-internal inodes that
->> are never directly exposed to userspace, originally for reiserfs xattr
->> inodes (reiserfs xattrs are internally implemented as their own files
->> that are hidden from userspace) and later also applied to anon inodes.
->> It would be better if we had an explicit way of testing that we are
->> dealing with an anonymous shared mapping in selinux_file_mprotect() ->
->> file_map_prot_check().
-> 
-> But how would any of those original S_PRIVATE inodes arrive at
-> selinux_file_mprotect()?  Now we have added the anon shared mmap case
-> which can arrive there, but the S_PRIVATE check seems just the right
-> tool for the job of distinguishing those from the user-visible inodes.
-> 
-> I don't see how adding some other flag for this case would be better
-> - though certainly I can see that adding an "anon shared shmem"
-> comment on its use in that check would be helpful.
-> 
-> Or is there some further difficulty in this use of S_PRIVATE, beyond
-> the mprotect case that you've mentioned?  Unless there is some further
-> difficulty, duplicating all the code relating to S_PRIVATE for a
-> differently named flag seems counter-productive to me.
+commit 66fc13039422ba7df2d01a8ee0873e4ef965b50b ("mm: shmem_zero_setup skip
+security check and lockdep conflict with XFS") caused a regression for
+SELinux by disabling any SELinux checking of mprotect PROT_EXEC on
+shared anonymous mappings.  However, even before that regression, the
+checking on such mprotect PROT_EXEC calls was inconsistent with the
+checking on a mmap PROT_EXEC call for a shared anonymous mapping.  On a
+mmap, the security hook is passed a NULL file and knows it is dealing with
+an anonymous mapping and therefore applies an execmem check and no file
+checks.  On a mprotect, the security hook is passed a vma with a
+non-NULL vm_file (as this was set from the internally-created shmem
+file during mmap) and therefore applies the file-based execute check and
+no execmem check.  Since the aforementioned commit now marks the shmem
+zero inode with the S_PRIVATE flag, the file checks are disabled and
+we have no checking at all on mprotect PROT_EXEC.  Add a test to
+the mprotect hook logic for such private inodes, and apply an execmem
+check in that case.  This makes the mmap and mprotect checking consistent
+for shared anonymous mappings, as well as for /dev/zero and ashmem.
 
-S_PRIVATE is supposed to disable all security processing on the inode,
-and often this is checked in the security framework
-(security/security.c) even before we reach the SELinux hook and causes
-an immediate return there.  In the case of mprotect, we do reach the
-SELinux code since the hook is on the vma, not merely the inode, so we
-could apply an execmem check in the SELinux code if IS_PRIVATE() instead
-of file execute.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-However, I was trying to figure out if the fact that S_PRIVATE also
-would disable any read/write checking by SELinux on the inode could
-potentially open up a bypass of security policy.  That would only be an
-issue if the file returned by shmem_zero_setup() was ever linked to an
-open file descriptor that could be inherited across a fork+exec or
-passed across local socket IPC or binder IPC and thereby shared across
-different security contexts. Uses of shmem_zero_setup() include mmap
-MAP_ANONYMOUS|MAP_SHARED, drivers/staging/android/ashmem.c (from
-ashmem_mmap if VM_SHARED), and drivers/char/mem.c (from mmap_zero if
-VM_SHARED).  That all seems fine AFAICS.
-
-> (There is a bool shmem_mapping(mapping) that could be used to confirm
-> that the inode you're looking at indeed belongs to shmem; but of
-> course that would say yes on all the user-visible shmem inodes too,
-> so it wouldn't be a useful test on its own, and I don't see that
-> adding it to an S_PRIVATE test would add any real value.)
-> 
-> Probably you were hoping that there's already some distinguishing
-> feature of anon shared shmem inodes that you could check: I can't
-> think of one offhand, beyond S_PRIVATE: if there is another,
-> it would be accidental.
-
-Yes, I was hoping for that.  Ok, I'll spin up a patch for adding an
-IS_PRIVATE() test to SELinux file_map_prot_check() and cc you all on it.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 6231081..564079c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3283,7 +3283,8 @@ static int file_map_prot_check(struct file *file, unsigned long prot, int shared
+ 	int rc = 0;
+ 
+ 	if (default_noexec &&
+-	    (prot & PROT_EXEC) && (!file || (!shared && (prot & PROT_WRITE)))) {
++	    (prot & PROT_EXEC) && (!file || IS_PRIVATE(file_inode(file)) ||
++				   (!shared && (prot & PROT_WRITE)))) {
+ 		/*
+ 		 * We are making executable an anonymous mapping or a
+ 		 * private file mapping that will also be writable.
+-- 
+2.1.0
