@@ -1,141 +1,180 @@
-MIME-Version: 1.0
-In-Reply-To: <559FBD3A.4090300@tycho.nsa.gov>
+From: "Roberts, William C" <william.c.roberts@intel.com>
+To: William Roberts <bill.c.roberts@gmail.com>, Stephen Smalley
+ <sds@tycho.nsa.gov>
+Subject: RE: executing off of a fusefs
+Date: Fri, 10 Jul 2015 15:53:36 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC560102C7C5@ORSMSX103.amr.corp.intel.com>
 References: <476DC76E7D1DF2438D32BFADF679FC560102C611@ORSMSX103.amr.corp.intel.com>
  <559FBD3A.4090300@tycho.nsa.gov>
-Date: Fri, 10 Jul 2015 08:10:18 -0700
-Message-ID: <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
-Subject: Re: executing off of a fusefs
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=089e016819ae280110051a86c557
-Cc: seandroid-list@tycho.nsa.gov, selinux@tycho.nsa.gov
+ <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
+In-Reply-To: <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
+Content-Type: multipart/alternative;
+ boundary="_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_"
+MIME-Version: 1.0
+Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e016819ae280110051a86c557
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+--_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-On Jul 10, 2015 5:48 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
->
-> On 07/09/2015 07:04 PM, Roberts, William C wrote:
-> > I have this problem on Android, but it=E2=80=99s SELinux general. I=E2=
-=80=99d like to
-> > get some info from those in the know.
-> >
-> > If you wanted to be able to execute files off of fuse and have the
-> > kernel handle the transition, would it be as simple as having the file
-> > system return the getxattr call for the security label?
->
-> Aren't fuse mounts mounted with nosuid?  That disables SELinux context
-> transitions as well as suid/sgid/file-capabilities. Otherwise, the
-> kernel is trusting the userspace filesystem to not cause a privilege
-> escalation, potentially in excess of the privileges of the userspace
-> filesystem daemon itself.
+DQoNCkZyb206IFdpbGxpYW0gUm9iZXJ0cyBbbWFpbHRvOmJpbGwuYy5yb2JlcnRzQGdtYWlsLmNv
+bV0NClNlbnQ6IEZyaWRheSwgSnVseSAxMCwgMjAxNSA4OjEwIEFNDQpUbzogU3RlcGhlbiBTbWFs
+bGV5DQpDYzogc2VhbmRyb2lkLWxpc3RAdHljaG8ubnNhLmdvdjsgc2VsaW51eEB0eWNoby5uc2Eu
+Z292OyBSb2JlcnRzLCBXaWxsaWFtIEMNClN1YmplY3Q6IFJlOiBleGVjdXRpbmcgb2ZmIG9mIGEg
+ZnVzZWZzDQoNCg0KT24gSnVsIDEwLCAyMDE1IDU6NDggQU0sICJTdGVwaGVuIFNtYWxsZXkiIDxz
+ZHNAdHljaG8ubnNhLmdvdjxtYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3Y+PiB3cm90ZToNCj4NCj4g
+T24gMDcvMDkvMjAxNSAwNzowNCBQTSwgUm9iZXJ0cywgV2lsbGlhbSBDIHdyb3RlOg0KPiA+IEkg
+aGF2ZSB0aGlzIHByb2JsZW0gb24gQW5kcm9pZCwgYnV0IGl04oCZcyBTRUxpbnV4IGdlbmVyYWwu
+IEnigJlkIGxpa2UgdG8NCj4gPiBnZXQgc29tZSBpbmZvIGZyb20gdGhvc2UgaW4gdGhlIGtub3cu
+DQo+ID4NCj4gPiBJZiB5b3Ugd2FudGVkIHRvIGJlIGFibGUgdG8gZXhlY3V0ZSBmaWxlcyBvZmYg
+b2YgZnVzZSBhbmQgaGF2ZSB0aGUNCj4gPiBrZXJuZWwgaGFuZGxlIHRoZSB0cmFuc2l0aW9uLCB3
+b3VsZCBpdCBiZSBhcyBzaW1wbGUgYXMgaGF2aW5nIHRoZSBmaWxlDQo+ID4gc3lzdGVtIHJldHVy
+biB0aGUgZ2V0eGF0dHIgY2FsbCBmb3IgdGhlIHNlY3VyaXR5IGxhYmVsPw0KPg0KPiBBcmVuJ3Qg
+ZnVzZSBtb3VudHMgbW91bnRlZCB3aXRoIG5vc3VpZD8gIFRoYXQgZGlzYWJsZXMgU0VMaW51eCBj
+b250ZXh0DQo+IHRyYW5zaXRpb25zIGFzIHdlbGwgYXMgc3VpZC9zZ2lkL2ZpbGUtY2FwYWJpbGl0
+aWVzLiBPdGhlcndpc2UsIHRoZQ0KPiBrZXJuZWwgaXMgdHJ1c3RpbmcgdGhlIHVzZXJzcGFjZSBm
+aWxlc3lzdGVtIHRvIG5vdCBjYXVzZSBhIHByaXZpbGVnZQ0KPiBlc2NhbGF0aW9uLCBwb3RlbnRp
+YWxseSBpbiBleGNlc3Mgb2YgdGhlIHByaXZpbGVnZXMgb2YgdGhlIHVzZXJzcGFjZQ0KPiBmaWxl
+c3lzdGVtIGRhZW1vbiBpdHNlbGYuDQoNCk9uIEFPU1AgeWVzIG90aGVycyBuby4gQlRXIEknbSBu
+b3QgY29uZG9uaW5nIGRvaW5nIHRoaXMgZWl0aGVyLg0KDQo+DQo+IEFzaWRlIGZyb20gdGhhdCwg
+eW91IHdvdWxkIGFsc28gbmVlZCB0byBjb25maWd1cmUgU0VMaW51eCB0byB1c2UgeGF0dHJzDQo+
+IGZyb20gZnVzZSAoaS5lLiBmc191c2VfeGF0dHIgZnVzZSAuLi4pLCBhbmQgY2hhbmdlIHRoZSBk
+YWVtb24gdG8gc3VwcG9ydA0KPiBnZXR4YXR0ciwgYW5kIGVuc3VyZSB0aGF0IHlvdSBkbyBub3Qg
+aGF2ZSB0aGUgZGVhZGxvY2sgcHJvYmxlbSB0aGF0DQo+IGV4aXN0cyB3aXRoIHVwc3RyZWFtIEZV
+U0Ugd2hlcmUgaXQNCg0KVGhpcyBvbGQgcHJvYmxlbSwgSSB0aGluayBpZiB5b3UgZG9uJ3QgdXNl
+IGxpYmZ1c2UgeW91IGNhbiBnZXQgYXJvdW5kIGl0Lg0KDQpBbHNvLCBJIHNlZSB0aGUgbWFucGFn
+ZSBmb3IgbW91bnQgaGFzIHJvb3Rjb250ZXh0LCBkb2VzIHRoaXMgcHJvdmlkZSB0aGUNCnJvb3Ru
+b2RlIGNvbnRleHQgc28gdGhlIHhhdHRyIHdvbuKAmXQgYmUgcXVlcmllZCwgb3IgZG9lcyBpdCBw
+cm92aWRlIHNvbWUgdHJhbnNpZW50DQpsYWJlbCB0aGF0IGlzIHJlcGxhY2VkIGF0ICBtb3VudCB3
+aXRoIHRoZSB4YXR0ciBxdWVyeT8NCg0KZG9lcyBub3Qgc3VwcG9ydCBoYW5kbGluZyBhIGdldHhh
+dHRyDQo+IHJlcXVlc3Qgb24gdGhlIHJvb3QgZGlyZWN0b3J5IGR1cmluZyB0aGUgbW91bnQoMikg
+Y2FsbC4gIEFuZCBkb2luZyB0aGlzDQo+IHdvdWxkIGFmZmVjdCBhbGwgZnVzZSBtb3VudHMgKGUu
+Zy4gL3N0b3JhZ2UvZW11bGF0ZWQpLCBub3QganVzdCBhDQo+IHNwZWNpZmljIG9uZS4gIFRoZXJl
+IHdhcyBhbiBhdHRlbXB0IHRvIGFkZCBwZXItc3VidHlwZSBzdXBwb3J0IGZvcg0KPiBmc191c2Ug
+c28gdGhhdCBvbmUgY291bGQgc3BlY2lmeSBhIGRpZmZlcmVudCBsYWJlbGluZyBiZWhhdmlvciBm
+b3IgYQ0KPiBzcGVjaWZpYyBraW5kIG9mIGZ1c2UgZmlsZXN5c3RlbSwgc2VlIGtlcm5lbCBjb21t
+aXQNCj4gMTAyYWVmZGRhNGQ4Mjc1Y2U3ZDcxMDBiYzE2Yzg4Yzc0MjcyYjI2MCwgYnV0IHRoaXMg
+d2FzIHJldmVydGVkIGluDQo+IDRkNTQ2ZjgxNzE3ZDI1M2FiNjc2NDNiZjA3MmM2ZDg4MjFhOTI0
+OWMgYW5kDQo+IDI5YjFkZWIyYTQ4YTlkZDAyYjkzNTk3YWE0YzA1NWEyNGMwZTk4OWYgYXMgaXQg
+ZGlkIG5vdCB3b3JrIGFuZCBjYXVzZWQgYQ0KPiBkZWFkbG9jayBmb3Igb3RoZXIgZnVzZSBmaWxl
+c3lzdGVtcy4NCj4NCj4NCj4NCj4NCj4NCj4NCj4NCj4gX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18NCj4gU2VsaW51eCBtYWlsaW5nIGxpc3QNCj4gU2VsaW51
+eEB0eWNoby5uc2EuZ292PG1haWx0bzpTZWxpbnV4QHR5Y2hvLm5zYS5nb3Y+DQo+IFRvIHVuc3Vi
+c2NyaWJlLCBzZW5kIGVtYWlsIHRvIFNlbGludXgtbGVhdmVAdHljaG8ubnNhLmdvdjxtYWlsdG86
+U2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292Pi4NCj4gVG8gZ2V0IGhlbHAsIHNlbmQgYW4gZW1h
+aWwgY29udGFpbmluZyAiaGVscCIgdG8gU2VsaW51eC1yZXF1ZXN0QHR5Y2hvLm5zYS5nb3Y8bWFp
+bHRvOlNlbGludXgtcmVxdWVzdEB0eWNoby5uc2EuZ292Pi4NCg==
 
-On AOSP yes others no. BTW I'm not condoning doing this either.
+--_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: base64
 
->
-> Aside from that, you would also need to configure SELinux to use xattrs
-> from fuse (i.e. fs_use_xattr fuse ...), and change the daemon to support
-> getxattr, and ensure that you do not have the deadlock problem that
-> exists with upstream FUSE where it
+PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
+bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
+YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
+cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
+VFIvUkVDLWh0bWw0MCI+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIg
+Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRv
+ciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTUgKGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxl
+PjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6
+IkNhbWJyaWEgTWF0aCI7DQoJcGFub3NlLTE6MiA0IDUgMyA1IDQgNiAzIDIgNDt9DQpAZm9udC1m
+YWNlDQoJe2ZvbnQtZmFtaWx5OkNhbGlicmk7DQoJcGFub3NlLTE6MiAxNSA1IDIgMiAyIDQgMyAy
+IDQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWws
+IGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBpbjsNCgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJ
+Zm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWlseToiVGltZXMgTmV3IFJvbWFuIixzZXJpZjt9
+DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsNCglj
+b2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0KYTp2aXNpdGVkLCBzcGFu
+Lk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsNCgljb2xvcjpw
+dXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpwDQoJe21zby1zdHlsZS1wcmlv
+cml0eTo5OTsNCgltc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzsNCgltYXJnaW4tcmlnaHQ6MGluOw0K
+CW1zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvOw0KCW1hcmdpbi1sZWZ0OjBpbjsNCglmb250LXNp
+emU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5OiJUaW1lcyBOZXcgUm9tYW4iLHNlcmlmO30NCnNwYW4u
+RW1haWxTdHlsZTE4DQoJe21zby1zdHlsZS10eXBlOnBlcnNvbmFsLXJlcGx5Ow0KCWZvbnQtZmFt
+aWx5OiJDYWxpYnJpIixzYW5zLXNlcmlmOw0KCWNvbG9yOiMxRjQ5N0Q7fQ0KLk1zb0NocERlZmF1
+bHQNCgl7bXNvLXN0eWxlLXR5cGU6ZXhwb3J0LW9ubHk7DQoJZm9udC1mYW1pbHk6IkNhbGlicmki
+LHNhbnMtc2VyaWY7fQ0KQHBhZ2UgV29yZFNlY3Rpb24xDQoJe3NpemU6OC41aW4gMTEuMGluOw0K
+CW1hcmdpbjoxLjBpbiAxLjBpbiAxLjBpbiAxLjBpbjt9DQpkaXYuV29yZFNlY3Rpb24xDQoJe3Bh
+Z2U6V29yZFNlY3Rpb24xO30NCi0tPjwvc3R5bGU+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8
+bzpzaGFwZWRlZmF1bHRzIHY6ZXh0PSJlZGl0IiBzcGlkbWF4PSIxMDI2IiAvPg0KPC94bWw+PCFb
+ZW5kaWZdLS0+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8bzpzaGFwZWxheW91dCB2OmV4dD0i
+ZWRpdCI+DQo8bzppZG1hcCB2OmV4dD0iZWRpdCIgZGF0YT0iMSIgLz4NCjwvbzpzaGFwZWxheW91
+dD48L3htbD48IVtlbmRpZl0tLT4NCjwvaGVhZD4NCjxib2R5IGxhbmc9IkVOLVVTIiBsaW5rPSJi
+bHVlIiB2bGluaz0icHVycGxlIj4NCjxkaXYgY2xhc3M9IldvcmRTZWN0aW9uMSI+DQo8cCBjbGFz
+cz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTom
+cXVvdDtDYWxpYnJpJnF1b3Q7LHNhbnMtc2VyaWY7Y29sb3I6IzFGNDk3RCI+PG86cD4mbmJzcDs8
+L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQt
+c2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNlcmlmO2Nv
+bG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxkaXYgc3R5bGU9ImJv
+cmRlcjpub25lO2JvcmRlci1sZWZ0OnNvbGlkIGJsdWUgMS41cHQ7cGFkZGluZzowaW4gMGluIDBp
+biA0LjBwdCI+DQo8ZGl2Pg0KPGRpdiBzdHlsZT0iYm9yZGVyOm5vbmU7Ym9yZGVyLXRvcDpzb2xp
+ZCAjRTFFMUUxIDEuMHB0O3BhZGRpbmc6My4wcHQgMGluIDBpbiAwaW4iPg0KPHAgY2xhc3M9Ik1z
+b05vcm1hbCI+PGI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1
+b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNlcmlmIj5Gcm9tOjwvc3Bhbj48L2I+PHNwYW4gc3R5bGU9
+ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNl
+cmlmIj4gV2lsbGlhbSBSb2JlcnRzIFttYWlsdG86YmlsbC5jLnJvYmVydHNAZ21haWwuY29tXQ0K
+PGJyPg0KPGI+U2VudDo8L2I+IEZyaWRheSwgSnVseSAxMCwgMjAxNSA4OjEwIEFNPGJyPg0KPGI+
+VG86PC9iPiBTdGVwaGVuIFNtYWxsZXk8YnI+DQo8Yj5DYzo8L2I+IHNlYW5kcm9pZC1saXN0QHR5
+Y2hvLm5zYS5nb3Y7IHNlbGludXhAdHljaG8ubnNhLmdvdjsgUm9iZXJ0cywgV2lsbGlhbSBDPGJy
+Pg0KPGI+U3ViamVjdDo8L2I+IFJlOiBleGVjdXRpbmcgb2ZmIG9mIGEgZnVzZWZzPG86cD48L286
+cD48L3NwYW4+PC9wPg0KPC9kaXY+DQo8L2Rpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxvOnA+
+Jm5ic3A7PC9vOnA+PC9wPg0KPHA+PGJyPg0KT24gSnVsIDEwLCAyMDE1IDU6NDggQU0sICZxdW90
+O1N0ZXBoZW4gU21hbGxleSZxdW90OyAmbHQ7PGEgaHJlZj0ibWFpbHRvOnNkc0B0eWNoby5uc2Eu
+Z292Ij5zZHNAdHljaG8ubnNhLmdvdjwvYT4mZ3Q7IHdyb3RlOjxicj4NCiZndDs8YnI+DQomZ3Q7
+IE9uIDA3LzA5LzIwMTUgMDc6MDQgUE0sIFJvYmVydHMsIFdpbGxpYW0gQyB3cm90ZTo8YnI+DQom
+Z3Q7ICZndDsgSSBoYXZlIHRoaXMgcHJvYmxlbSBvbiBBbmRyb2lkLCBidXQgaXTigJlzIFNFTGlu
+dXggZ2VuZXJhbC4gSeKAmWQgbGlrZSB0bzxicj4NCiZndDsgJmd0OyBnZXQgc29tZSBpbmZvIGZy
+b20gdGhvc2UgaW4gdGhlIGtub3cuPGJyPg0KJmd0OyAmZ3Q7PGJyPg0KJmd0OyAmZ3Q7IElmIHlv
+dSB3YW50ZWQgdG8gYmUgYWJsZSB0byBleGVjdXRlIGZpbGVzIG9mZiBvZiBmdXNlIGFuZCBoYXZl
+IHRoZTxicj4NCiZndDsgJmd0OyBrZXJuZWwgaGFuZGxlIHRoZSB0cmFuc2l0aW9uLCB3b3VsZCBp
+dCBiZSBhcyBzaW1wbGUgYXMgaGF2aW5nIHRoZSBmaWxlPGJyPg0KJmd0OyAmZ3Q7IHN5c3RlbSBy
+ZXR1cm4gdGhlIGdldHhhdHRyIGNhbGwgZm9yIHRoZSBzZWN1cml0eSBsYWJlbD88YnI+DQomZ3Q7
+PGJyPg0KJmd0OyBBcmVuJ3QgZnVzZSBtb3VudHMgbW91bnRlZCB3aXRoIG5vc3VpZD8mbmJzcDsg
+VGhhdCBkaXNhYmxlcyBTRUxpbnV4IGNvbnRleHQ8YnI+DQomZ3Q7IHRyYW5zaXRpb25zIGFzIHdl
+bGwgYXMgc3VpZC9zZ2lkL2ZpbGUtY2FwYWJpbGl0aWVzLiBPdGhlcndpc2UsIHRoZTxicj4NCiZn
+dDsga2VybmVsIGlzIHRydXN0aW5nIHRoZSB1c2Vyc3BhY2UgZmlsZXN5c3RlbSB0byBub3QgY2F1
+c2UgYSBwcml2aWxlZ2U8YnI+DQomZ3Q7IGVzY2FsYXRpb24sIHBvdGVudGlhbGx5IGluIGV4Y2Vz
+cyBvZiB0aGUgcHJpdmlsZWdlcyBvZiB0aGUgdXNlcnNwYWNlPGJyPg0KJmd0OyBmaWxlc3lzdGVt
+IGRhZW1vbiBpdHNlbGYuPG86cD48L286cD48L3A+DQo8cD5PbiBBT1NQIHllcyBvdGhlcnMgbm8u
+IEJUVyBJJ20gbm90IGNvbmRvbmluZyBkb2luZyB0aGlzIGVpdGhlci48bzpwPjwvbzpwPjwvcD4N
+CjxwPiZndDs8YnI+DQomZ3Q7IEFzaWRlIGZyb20gdGhhdCwgeW91IHdvdWxkIGFsc28gbmVlZCB0
+byBjb25maWd1cmUgU0VMaW51eCB0byB1c2UgeGF0dHJzPGJyPg0KJmd0OyBmcm9tIGZ1c2UgKGku
+ZS4gZnNfdXNlX3hhdHRyIGZ1c2UgLi4uKSwgYW5kIGNoYW5nZSB0aGUgZGFlbW9uIHRvIHN1cHBv
+cnQ8YnI+DQomZ3Q7IGdldHhhdHRyLCBhbmQgZW5zdXJlIHRoYXQgeW91IGRvIG5vdCBoYXZlIHRo
+ZSBkZWFkbG9jayBwcm9ibGVtIHRoYXQ8YnI+DQomZ3Q7IGV4aXN0cyB3aXRoIHVwc3RyZWFtIEZV
+U0Ugd2hlcmUgaXQ8bzpwPjwvbzpwPjwvcD4NCjxwPlRoaXMgb2xkIHByb2JsZW0sIEkgdGhpbmsg
+aWYgeW91IGRvbid0IHVzZSBsaWJmdXNlIHlvdSBjYW4gZ2V0IGFyb3VuZCBpdC48bzpwPjwvbzpw
+PjwvcD4NCjxwPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90
+O0NhbGlicmkmcXVvdDssc2Fucy1zZXJpZjtjb2xvcjojMUY0OTdEIj5BbHNvLCBJIHNlZSB0aGUg
+bWFucGFnZSBmb3IgbW91bnQgaGFzIHJvb3Rjb250ZXh0LCBkb2VzIHRoaXMgcHJvdmlkZSB0aGU8
+YnI+DQpyb290bm9kZSBjb250ZXh0IHNvIHRoZSB4YXR0ciB3b27igJl0IGJlIHF1ZXJpZWQsIG9y
+IGRvZXMgaXQgcHJvdmlkZSBzb21lIHRyYW5zaWVudDxicj4NCmxhYmVsIHRoYXQgaXMgcmVwbGFj
+ZWQgYXQmbmJzcDsgbW91bnQgd2l0aCB0aGUgeGF0dHIgcXVlcnk/PG86cD48L286cD48L3NwYW4+
+PC9wPg0KPHA+ZG9lcyBub3Qgc3VwcG9ydCBoYW5kbGluZyBhIGdldHhhdHRyPGJyPg0KJmd0OyBy
+ZXF1ZXN0IG9uIHRoZSByb290IGRpcmVjdG9yeSBkdXJpbmcgdGhlIG1vdW50KDIpIGNhbGwuJm5i
+c3A7IEFuZCBkb2luZyB0aGlzPGJyPg0KJmd0OyB3b3VsZCBhZmZlY3QgYWxsIGZ1c2UgbW91bnRz
+IChlLmcuIC9zdG9yYWdlL2VtdWxhdGVkKSwgbm90IGp1c3QgYTxicj4NCiZndDsgc3BlY2lmaWMg
+b25lLiZuYnNwOyBUaGVyZSB3YXMgYW4gYXR0ZW1wdCB0byBhZGQgcGVyLXN1YnR5cGUgc3VwcG9y
+dCBmb3I8YnI+DQomZ3Q7IGZzX3VzZSBzbyB0aGF0IG9uZSBjb3VsZCBzcGVjaWZ5IGEgZGlmZmVy
+ZW50IGxhYmVsaW5nIGJlaGF2aW9yIGZvciBhPGJyPg0KJmd0OyBzcGVjaWZpYyBraW5kIG9mIGZ1
+c2UgZmlsZXN5c3RlbSwgc2VlIGtlcm5lbCBjb21taXQ8YnI+DQomZ3Q7IDEwMmFlZmRkYTRkODI3
+NWNlN2Q3MTAwYmMxNmM4OGM3NDI3MmIyNjAsIGJ1dCB0aGlzIHdhcyByZXZlcnRlZCBpbjxicj4N
+CiZndDsgNGQ1NDZmODE3MTdkMjUzYWI2NzY0M2JmMDcyYzZkODgyMWE5MjQ5YyBhbmQ8YnI+DQom
+Z3Q7IDI5YjFkZWIyYTQ4YTlkZDAyYjkzNTk3YWE0YzA1NWEyNGMwZTk4OWYgYXMgaXQgZGlkIG5v
+dCB3b3JrIGFuZCBjYXVzZWQgYTxicj4NCiZndDsgZGVhZGxvY2sgZm9yIG90aGVyIGZ1c2UgZmls
+ZXN5c3RlbXMuPGJyPg0KJmd0Ozxicj4NCiZndDs8YnI+DQomZ3Q7PGJyPg0KJmd0Ozxicj4NCiZn
+dDs8YnI+DQomZ3Q7PGJyPg0KJmd0Ozxicj4NCiZndDsgX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX188YnI+DQomZ3Q7IFNlbGludXggbWFpbGluZyBsaXN0PGJy
+Pg0KJmd0OyA8YSBocmVmPSJtYWlsdG86U2VsaW51eEB0eWNoby5uc2EuZ292Ij5TZWxpbnV4QHR5
+Y2hvLm5zYS5nb3Y8L2E+PGJyPg0KJmd0OyBUbyB1bnN1YnNjcmliZSwgc2VuZCBlbWFpbCB0byA8
+YSBocmVmPSJtYWlsdG86U2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292Ij5TZWxpbnV4LWxlYXZl
+QHR5Y2hvLm5zYS5nb3Y8L2E+Ljxicj4NCiZndDsgVG8gZ2V0IGhlbHAsIHNlbmQgYW4gZW1haWwg
+Y29udGFpbmluZyAmcXVvdDtoZWxwJnF1b3Q7IHRvIDxhIGhyZWY9Im1haWx0bzpTZWxpbnV4LXJl
+cXVlc3RAdHljaG8ubnNhLmdvdiI+DQpTZWxpbnV4LXJlcXVlc3RAdHljaG8ubnNhLmdvdjwvYT4u
+PG86cD48L286cD48L3A+DQo8L2Rpdj4NCjwvZGl2Pg0KPC9ib2R5Pg0KPC9odG1sPg0K
 
-This old problem, I think if you don't use libfuse you can get around it.
-
-does not support handling a getxattr
-> request on the root directory during the mount(2) call.  And doing this
-> would affect all fuse mounts (e.g. /storage/emulated), not just a
-> specific one.  There was an attempt to add per-subtype support for
-> fs_use so that one could specify a different labeling behavior for a
-> specific kind of fuse filesystem, see kernel commit
-> 102aefdda4d8275ce7d7100bc16c88c74272b260, but this was reverted in
-> 4d546f81717d253ab67643bf072c6d8821a9249c and
-> 29b1deb2a48a9dd02b93597aa4c055a24c0e989f as it did not work and caused a
-> deadlock for other fuse filesystems.
->
->
->
->
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-Selinux-request@tycho.nsa.gov.
-
---089e016819ae280110051a86c557
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"><br>
-On Jul 10, 2015 5:48 AM, &quot;Stephen Smalley&quot; &lt;<a href=3D"mailto:=
-sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt;<br>
-&gt; On 07/09/2015 07:04 PM, Roberts, William C wrote:<br>
-&gt; &gt; I have this problem on Android, but it=E2=80=99s SELinux general.=
- I=E2=80=99d like to<br>
-&gt; &gt; get some info from those in the know.<br>
-&gt; &gt;<br>
-&gt; &gt; If you wanted to be able to execute files off of fuse and have th=
-e<br>
-&gt; &gt; kernel handle the transition, would it be as simple as having the=
- file<br>
-&gt; &gt; system return the getxattr call for the security label?<br>
-&gt;<br>
-&gt; Aren&#39;t fuse mounts mounted with nosuid?=C2=A0 That disables SELinu=
-x context<br>
-&gt; transitions as well as suid/sgid/file-capabilities. Otherwise, the<br>
-&gt; kernel is trusting the userspace filesystem to not cause a privilege<b=
-r>
-&gt; escalation, potentially in excess of the privileges of the userspace<b=
-r>
-&gt; filesystem daemon itself.</p>
-<p dir=3D"ltr">On AOSP yes others no. BTW I&#39;m not condoning doing this =
-either.</p>
-<p dir=3D"ltr">&gt;<br>
-&gt; Aside from that, you would also need to configure SELinux to use xattr=
-s<br>
-&gt; from fuse (i.e. fs_use_xattr fuse ...), and change the daemon to suppo=
-rt<br>
-&gt; getxattr, and ensure that you do not have the deadlock problem that<br=
->
-&gt; exists with upstream FUSE where it</p>
-<p dir=3D"ltr">This old problem, I think if you don&#39;t use libfuse you c=
-an get around it.</p>
-<p dir=3D"ltr"> does not support handling a getxattr<br>
-&gt; request on the root directory during the mount(2) call.=C2=A0 And doin=
-g this<br>
-&gt; would affect all fuse mounts (e.g. /storage/emulated), not just a<br>
-&gt; specific one.=C2=A0 There was an attempt to add per-subtype support fo=
-r<br>
-&gt; fs_use so that one could specify a different labeling behavior for a<b=
-r>
-&gt; specific kind of fuse filesystem, see kernel commit<br>
-&gt; 102aefdda4d8275ce7d7100bc16c88c74272b260, but this was reverted in<br>
-&gt; 4d546f81717d253ab67643bf072c6d8821a9249c and<br>
-&gt; 29b1deb2a48a9dd02b93597aa4c055a24c0e989f as it did not work and caused=
- a<br>
-&gt; deadlock for other fuse filesystems.<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt; _______________________________________________<br>
-&gt; Selinux mailing list<br>
-&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.ns=
-a.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
-&gt; To get help, send an email containing &quot;help&quot; to <a href=3D"m=
-ailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>
-</p>
-
---089e016819ae280110051a86c557--
+--_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_--
