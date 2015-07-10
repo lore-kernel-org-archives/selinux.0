@@ -1,180 +1,244 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: William Roberts <bill.c.roberts@gmail.com>, Stephen Smalley
- <sds@tycho.nsa.gov>
-Subject: RE: executing off of a fusefs
-Date: Fri, 10 Jul 2015 15:53:36 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC560102C7C5@ORSMSX103.amr.corp.intel.com>
-References: <476DC76E7D1DF2438D32BFADF679FC560102C611@ORSMSX103.amr.corp.intel.com>
- <559FBD3A.4090300@tycho.nsa.gov>
- <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
-In-Reply-To: <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_"
-MIME-Version: 1.0
-Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6AFsLgh010661
+ for <selinux@tycho.nsa.gov>; Fri, 10 Jul 2015 11:54:22 -0400
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: Add const to selinux_opt for label backends.
+Date: Fri, 10 Jul 2015 16:53:54 +0100
+Message-Id: <1436543634-24498-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Change selabel_open and label backends to take a
+'const struct selinux_opt' argument. This work has already
+been done for the Android version components.
 
-DQoNCkZyb206IFdpbGxpYW0gUm9iZXJ0cyBbbWFpbHRvOmJpbGwuYy5yb2JlcnRzQGdtYWlsLmNv
-bV0NClNlbnQ6IEZyaWRheSwgSnVseSAxMCwgMjAxNSA4OjEwIEFNDQpUbzogU3RlcGhlbiBTbWFs
-bGV5DQpDYzogc2VhbmRyb2lkLWxpc3RAdHljaG8ubnNhLmdvdjsgc2VsaW51eEB0eWNoby5uc2Eu
-Z292OyBSb2JlcnRzLCBXaWxsaWFtIEMNClN1YmplY3Q6IFJlOiBleGVjdXRpbmcgb2ZmIG9mIGEg
-ZnVzZWZzDQoNCg0KT24gSnVsIDEwLCAyMDE1IDU6NDggQU0sICJTdGVwaGVuIFNtYWxsZXkiIDxz
-ZHNAdHljaG8ubnNhLmdvdjxtYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3Y+PiB3cm90ZToNCj4NCj4g
-T24gMDcvMDkvMjAxNSAwNzowNCBQTSwgUm9iZXJ0cywgV2lsbGlhbSBDIHdyb3RlOg0KPiA+IEkg
-aGF2ZSB0aGlzIHByb2JsZW0gb24gQW5kcm9pZCwgYnV0IGl04oCZcyBTRUxpbnV4IGdlbmVyYWwu
-IEnigJlkIGxpa2UgdG8NCj4gPiBnZXQgc29tZSBpbmZvIGZyb20gdGhvc2UgaW4gdGhlIGtub3cu
-DQo+ID4NCj4gPiBJZiB5b3Ugd2FudGVkIHRvIGJlIGFibGUgdG8gZXhlY3V0ZSBmaWxlcyBvZmYg
-b2YgZnVzZSBhbmQgaGF2ZSB0aGUNCj4gPiBrZXJuZWwgaGFuZGxlIHRoZSB0cmFuc2l0aW9uLCB3
-b3VsZCBpdCBiZSBhcyBzaW1wbGUgYXMgaGF2aW5nIHRoZSBmaWxlDQo+ID4gc3lzdGVtIHJldHVy
-biB0aGUgZ2V0eGF0dHIgY2FsbCBmb3IgdGhlIHNlY3VyaXR5IGxhYmVsPw0KPg0KPiBBcmVuJ3Qg
-ZnVzZSBtb3VudHMgbW91bnRlZCB3aXRoIG5vc3VpZD8gIFRoYXQgZGlzYWJsZXMgU0VMaW51eCBj
-b250ZXh0DQo+IHRyYW5zaXRpb25zIGFzIHdlbGwgYXMgc3VpZC9zZ2lkL2ZpbGUtY2FwYWJpbGl0
-aWVzLiBPdGhlcndpc2UsIHRoZQ0KPiBrZXJuZWwgaXMgdHJ1c3RpbmcgdGhlIHVzZXJzcGFjZSBm
-aWxlc3lzdGVtIHRvIG5vdCBjYXVzZSBhIHByaXZpbGVnZQ0KPiBlc2NhbGF0aW9uLCBwb3RlbnRp
-YWxseSBpbiBleGNlc3Mgb2YgdGhlIHByaXZpbGVnZXMgb2YgdGhlIHVzZXJzcGFjZQ0KPiBmaWxl
-c3lzdGVtIGRhZW1vbiBpdHNlbGYuDQoNCk9uIEFPU1AgeWVzIG90aGVycyBuby4gQlRXIEknbSBu
-b3QgY29uZG9uaW5nIGRvaW5nIHRoaXMgZWl0aGVyLg0KDQo+DQo+IEFzaWRlIGZyb20gdGhhdCwg
-eW91IHdvdWxkIGFsc28gbmVlZCB0byBjb25maWd1cmUgU0VMaW51eCB0byB1c2UgeGF0dHJzDQo+
-IGZyb20gZnVzZSAoaS5lLiBmc191c2VfeGF0dHIgZnVzZSAuLi4pLCBhbmQgY2hhbmdlIHRoZSBk
-YWVtb24gdG8gc3VwcG9ydA0KPiBnZXR4YXR0ciwgYW5kIGVuc3VyZSB0aGF0IHlvdSBkbyBub3Qg
-aGF2ZSB0aGUgZGVhZGxvY2sgcHJvYmxlbSB0aGF0DQo+IGV4aXN0cyB3aXRoIHVwc3RyZWFtIEZV
-U0Ugd2hlcmUgaXQNCg0KVGhpcyBvbGQgcHJvYmxlbSwgSSB0aGluayBpZiB5b3UgZG9uJ3QgdXNl
-IGxpYmZ1c2UgeW91IGNhbiBnZXQgYXJvdW5kIGl0Lg0KDQpBbHNvLCBJIHNlZSB0aGUgbWFucGFn
-ZSBmb3IgbW91bnQgaGFzIHJvb3Rjb250ZXh0LCBkb2VzIHRoaXMgcHJvdmlkZSB0aGUNCnJvb3Ru
-b2RlIGNvbnRleHQgc28gdGhlIHhhdHRyIHdvbuKAmXQgYmUgcXVlcmllZCwgb3IgZG9lcyBpdCBw
-cm92aWRlIHNvbWUgdHJhbnNpZW50DQpsYWJlbCB0aGF0IGlzIHJlcGxhY2VkIGF0ICBtb3VudCB3
-aXRoIHRoZSB4YXR0ciBxdWVyeT8NCg0KZG9lcyBub3Qgc3VwcG9ydCBoYW5kbGluZyBhIGdldHhh
-dHRyDQo+IHJlcXVlc3Qgb24gdGhlIHJvb3QgZGlyZWN0b3J5IGR1cmluZyB0aGUgbW91bnQoMikg
-Y2FsbC4gIEFuZCBkb2luZyB0aGlzDQo+IHdvdWxkIGFmZmVjdCBhbGwgZnVzZSBtb3VudHMgKGUu
-Zy4gL3N0b3JhZ2UvZW11bGF0ZWQpLCBub3QganVzdCBhDQo+IHNwZWNpZmljIG9uZS4gIFRoZXJl
-IHdhcyBhbiBhdHRlbXB0IHRvIGFkZCBwZXItc3VidHlwZSBzdXBwb3J0IGZvcg0KPiBmc191c2Ug
-c28gdGhhdCBvbmUgY291bGQgc3BlY2lmeSBhIGRpZmZlcmVudCBsYWJlbGluZyBiZWhhdmlvciBm
-b3IgYQ0KPiBzcGVjaWZpYyBraW5kIG9mIGZ1c2UgZmlsZXN5c3RlbSwgc2VlIGtlcm5lbCBjb21t
-aXQNCj4gMTAyYWVmZGRhNGQ4Mjc1Y2U3ZDcxMDBiYzE2Yzg4Yzc0MjcyYjI2MCwgYnV0IHRoaXMg
-d2FzIHJldmVydGVkIGluDQo+IDRkNTQ2ZjgxNzE3ZDI1M2FiNjc2NDNiZjA3MmM2ZDg4MjFhOTI0
-OWMgYW5kDQo+IDI5YjFkZWIyYTQ4YTlkZDAyYjkzNTk3YWE0YzA1NWEyNGMwZTk4OWYgYXMgaXQg
-ZGlkIG5vdCB3b3JrIGFuZCBjYXVzZWQgYQ0KPiBkZWFkbG9jayBmb3Igb3RoZXIgZnVzZSBmaWxl
-c3lzdGVtcy4NCj4NCj4NCj4NCj4NCj4NCj4NCj4NCj4gX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18NCj4gU2VsaW51eCBtYWlsaW5nIGxpc3QNCj4gU2VsaW51
-eEB0eWNoby5uc2EuZ292PG1haWx0bzpTZWxpbnV4QHR5Y2hvLm5zYS5nb3Y+DQo+IFRvIHVuc3Vi
-c2NyaWJlLCBzZW5kIGVtYWlsIHRvIFNlbGludXgtbGVhdmVAdHljaG8ubnNhLmdvdjxtYWlsdG86
-U2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292Pi4NCj4gVG8gZ2V0IGhlbHAsIHNlbmQgYW4gZW1h
-aWwgY29udGFpbmluZyAiaGVscCIgdG8gU2VsaW51eC1yZXF1ZXN0QHR5Y2hvLm5zYS5nb3Y8bWFp
-bHRvOlNlbGludXgtcmVxdWVzdEB0eWNoby5uc2EuZ292Pi4NCg==
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ libselinux/include/selinux/label.h      |  3 ++-
+ libselinux/man/man3/selabel_open.3      |  2 +-
+ libselinux/src/label.c                  |  9 ++++++---
+ libselinux/src/label_android_property.c |  4 ++--
+ libselinux/src/label_db.c               |  5 +++--
+ libselinux/src/label_file.c             |  7 ++++---
+ libselinux/src/label_internal.h         | 21 +++++++++++++--------
+ libselinux/src/label_media.c            |  7 ++++---
+ libselinux/src/label_x.c                |  4 ++--
+ 9 files changed, 37 insertions(+), 25 deletions(-)
 
---_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: base64
-
-PGh0bWwgeG1sbnM6dj0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTp2bWwiIHhtbG5zOm89InVy
-bjpzY2hlbWFzLW1pY3Jvc29mdC1jb206b2ZmaWNlOm9mZmljZSIgeG1sbnM6dz0idXJuOnNjaGVt
-YXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6d29yZCIgeG1sbnM6bT0iaHR0cDovL3NjaGVtYXMubWlj
-cm9zb2Z0LmNvbS9vZmZpY2UvMjAwNC8xMi9vbW1sIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
-VFIvUkVDLWh0bWw0MCI+DQo8aGVhZD4NCjxtZXRhIGh0dHAtZXF1aXY9IkNvbnRlbnQtVHlwZSIg
-Y29udGVudD0idGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04Ij4NCjxtZXRhIG5hbWU9IkdlbmVyYXRv
-ciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTUgKGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxl
-PjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8NCkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6
-IkNhbWJyaWEgTWF0aCI7DQoJcGFub3NlLTE6MiA0IDUgMyA1IDQgNiAzIDIgNDt9DQpAZm9udC1m
-YWNlDQoJe2ZvbnQtZmFtaWx5OkNhbGlicmk7DQoJcGFub3NlLTE6MiAxNSA1IDIgMiAyIDQgMyAy
-IDQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8NCnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWws
-IGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBpbjsNCgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJ
-Zm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWlseToiVGltZXMgTmV3IFJvbWFuIixzZXJpZjt9
-DQphOmxpbmssIHNwYW4uTXNvSHlwZXJsaW5rDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsNCglj
-b2xvcjpibHVlOw0KCXRleHQtZGVjb3JhdGlvbjp1bmRlcmxpbmU7fQ0KYTp2aXNpdGVkLCBzcGFu
-Lk1zb0h5cGVybGlua0ZvbGxvd2VkDQoJe21zby1zdHlsZS1wcmlvcml0eTo5OTsNCgljb2xvcjpw
-dXJwbGU7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpwDQoJe21zby1zdHlsZS1wcmlv
-cml0eTo5OTsNCgltc28tbWFyZ2luLXRvcC1hbHQ6YXV0bzsNCgltYXJnaW4tcmlnaHQ6MGluOw0K
-CW1zby1tYXJnaW4tYm90dG9tLWFsdDphdXRvOw0KCW1hcmdpbi1sZWZ0OjBpbjsNCglmb250LXNp
-emU6MTIuMHB0Ow0KCWZvbnQtZmFtaWx5OiJUaW1lcyBOZXcgUm9tYW4iLHNlcmlmO30NCnNwYW4u
-RW1haWxTdHlsZTE4DQoJe21zby1zdHlsZS10eXBlOnBlcnNvbmFsLXJlcGx5Ow0KCWZvbnQtZmFt
-aWx5OiJDYWxpYnJpIixzYW5zLXNlcmlmOw0KCWNvbG9yOiMxRjQ5N0Q7fQ0KLk1zb0NocERlZmF1
-bHQNCgl7bXNvLXN0eWxlLXR5cGU6ZXhwb3J0LW9ubHk7DQoJZm9udC1mYW1pbHk6IkNhbGlicmki
-LHNhbnMtc2VyaWY7fQ0KQHBhZ2UgV29yZFNlY3Rpb24xDQoJe3NpemU6OC41aW4gMTEuMGluOw0K
-CW1hcmdpbjoxLjBpbiAxLjBpbiAxLjBpbiAxLjBpbjt9DQpkaXYuV29yZFNlY3Rpb24xDQoJe3Bh
-Z2U6V29yZFNlY3Rpb24xO30NCi0tPjwvc3R5bGU+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8
-bzpzaGFwZWRlZmF1bHRzIHY6ZXh0PSJlZGl0IiBzcGlkbWF4PSIxMDI2IiAvPg0KPC94bWw+PCFb
-ZW5kaWZdLS0+PCEtLVtpZiBndGUgbXNvIDldPjx4bWw+DQo8bzpzaGFwZWxheW91dCB2OmV4dD0i
-ZWRpdCI+DQo8bzppZG1hcCB2OmV4dD0iZWRpdCIgZGF0YT0iMSIgLz4NCjwvbzpzaGFwZWxheW91
-dD48L3htbD48IVtlbmRpZl0tLT4NCjwvaGVhZD4NCjxib2R5IGxhbmc9IkVOLVVTIiBsaW5rPSJi
-bHVlIiB2bGluaz0icHVycGxlIj4NCjxkaXYgY2xhc3M9IldvcmRTZWN0aW9uMSI+DQo8cCBjbGFz
-cz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXplOjExLjBwdDtmb250LWZhbWlseTom
-cXVvdDtDYWxpYnJpJnF1b3Q7LHNhbnMtc2VyaWY7Y29sb3I6IzFGNDk3RCI+PG86cD4mbmJzcDs8
-L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQt
-c2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNlcmlmO2Nv
-bG9yOiMxRjQ5N0QiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFuPjwvcD4NCjxkaXYgc3R5bGU9ImJv
-cmRlcjpub25lO2JvcmRlci1sZWZ0OnNvbGlkIGJsdWUgMS41cHQ7cGFkZGluZzowaW4gMGluIDBp
-biA0LjBwdCI+DQo8ZGl2Pg0KPGRpdiBzdHlsZT0iYm9yZGVyOm5vbmU7Ym9yZGVyLXRvcDpzb2xp
-ZCAjRTFFMUUxIDEuMHB0O3BhZGRpbmc6My4wcHQgMGluIDBpbiAwaW4iPg0KPHAgY2xhc3M9Ik1z
-b05vcm1hbCI+PGI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1
-b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNlcmlmIj5Gcm9tOjwvc3Bhbj48L2I+PHNwYW4gc3R5bGU9
-ImZvbnQtc2l6ZToxMS4wcHQ7Zm9udC1mYW1pbHk6JnF1b3Q7Q2FsaWJyaSZxdW90OyxzYW5zLXNl
-cmlmIj4gV2lsbGlhbSBSb2JlcnRzIFttYWlsdG86YmlsbC5jLnJvYmVydHNAZ21haWwuY29tXQ0K
-PGJyPg0KPGI+U2VudDo8L2I+IEZyaWRheSwgSnVseSAxMCwgMjAxNSA4OjEwIEFNPGJyPg0KPGI+
-VG86PC9iPiBTdGVwaGVuIFNtYWxsZXk8YnI+DQo8Yj5DYzo8L2I+IHNlYW5kcm9pZC1saXN0QHR5
-Y2hvLm5zYS5nb3Y7IHNlbGludXhAdHljaG8ubnNhLmdvdjsgUm9iZXJ0cywgV2lsbGlhbSBDPGJy
-Pg0KPGI+U3ViamVjdDo8L2I+IFJlOiBleGVjdXRpbmcgb2ZmIG9mIGEgZnVzZWZzPG86cD48L286
-cD48L3NwYW4+PC9wPg0KPC9kaXY+DQo8L2Rpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxvOnA+
-Jm5ic3A7PC9vOnA+PC9wPg0KPHA+PGJyPg0KT24gSnVsIDEwLCAyMDE1IDU6NDggQU0sICZxdW90
-O1N0ZXBoZW4gU21hbGxleSZxdW90OyAmbHQ7PGEgaHJlZj0ibWFpbHRvOnNkc0B0eWNoby5uc2Eu
-Z292Ij5zZHNAdHljaG8ubnNhLmdvdjwvYT4mZ3Q7IHdyb3RlOjxicj4NCiZndDs8YnI+DQomZ3Q7
-IE9uIDA3LzA5LzIwMTUgMDc6MDQgUE0sIFJvYmVydHMsIFdpbGxpYW0gQyB3cm90ZTo8YnI+DQom
-Z3Q7ICZndDsgSSBoYXZlIHRoaXMgcHJvYmxlbSBvbiBBbmRyb2lkLCBidXQgaXTigJlzIFNFTGlu
-dXggZ2VuZXJhbC4gSeKAmWQgbGlrZSB0bzxicj4NCiZndDsgJmd0OyBnZXQgc29tZSBpbmZvIGZy
-b20gdGhvc2UgaW4gdGhlIGtub3cuPGJyPg0KJmd0OyAmZ3Q7PGJyPg0KJmd0OyAmZ3Q7IElmIHlv
-dSB3YW50ZWQgdG8gYmUgYWJsZSB0byBleGVjdXRlIGZpbGVzIG9mZiBvZiBmdXNlIGFuZCBoYXZl
-IHRoZTxicj4NCiZndDsgJmd0OyBrZXJuZWwgaGFuZGxlIHRoZSB0cmFuc2l0aW9uLCB3b3VsZCBp
-dCBiZSBhcyBzaW1wbGUgYXMgaGF2aW5nIHRoZSBmaWxlPGJyPg0KJmd0OyAmZ3Q7IHN5c3RlbSBy
-ZXR1cm4gdGhlIGdldHhhdHRyIGNhbGwgZm9yIHRoZSBzZWN1cml0eSBsYWJlbD88YnI+DQomZ3Q7
-PGJyPg0KJmd0OyBBcmVuJ3QgZnVzZSBtb3VudHMgbW91bnRlZCB3aXRoIG5vc3VpZD8mbmJzcDsg
-VGhhdCBkaXNhYmxlcyBTRUxpbnV4IGNvbnRleHQ8YnI+DQomZ3Q7IHRyYW5zaXRpb25zIGFzIHdl
-bGwgYXMgc3VpZC9zZ2lkL2ZpbGUtY2FwYWJpbGl0aWVzLiBPdGhlcndpc2UsIHRoZTxicj4NCiZn
-dDsga2VybmVsIGlzIHRydXN0aW5nIHRoZSB1c2Vyc3BhY2UgZmlsZXN5c3RlbSB0byBub3QgY2F1
-c2UgYSBwcml2aWxlZ2U8YnI+DQomZ3Q7IGVzY2FsYXRpb24sIHBvdGVudGlhbGx5IGluIGV4Y2Vz
-cyBvZiB0aGUgcHJpdmlsZWdlcyBvZiB0aGUgdXNlcnNwYWNlPGJyPg0KJmd0OyBmaWxlc3lzdGVt
-IGRhZW1vbiBpdHNlbGYuPG86cD48L286cD48L3A+DQo8cD5PbiBBT1NQIHllcyBvdGhlcnMgbm8u
-IEJUVyBJJ20gbm90IGNvbmRvbmluZyBkb2luZyB0aGlzIGVpdGhlci48bzpwPjwvbzpwPjwvcD4N
-CjxwPiZndDs8YnI+DQomZ3Q7IEFzaWRlIGZyb20gdGhhdCwgeW91IHdvdWxkIGFsc28gbmVlZCB0
-byBjb25maWd1cmUgU0VMaW51eCB0byB1c2UgeGF0dHJzPGJyPg0KJmd0OyBmcm9tIGZ1c2UgKGku
-ZS4gZnNfdXNlX3hhdHRyIGZ1c2UgLi4uKSwgYW5kIGNoYW5nZSB0aGUgZGFlbW9uIHRvIHN1cHBv
-cnQ8YnI+DQomZ3Q7IGdldHhhdHRyLCBhbmQgZW5zdXJlIHRoYXQgeW91IGRvIG5vdCBoYXZlIHRo
-ZSBkZWFkbG9jayBwcm9ibGVtIHRoYXQ8YnI+DQomZ3Q7IGV4aXN0cyB3aXRoIHVwc3RyZWFtIEZV
-U0Ugd2hlcmUgaXQ8bzpwPjwvbzpwPjwvcD4NCjxwPlRoaXMgb2xkIHByb2JsZW0sIEkgdGhpbmsg
-aWYgeW91IGRvbid0IHVzZSBsaWJmdXNlIHlvdSBjYW4gZ2V0IGFyb3VuZCBpdC48bzpwPjwvbzpw
-PjwvcD4NCjxwPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0O2ZvbnQtZmFtaWx5OiZxdW90
-O0NhbGlicmkmcXVvdDssc2Fucy1zZXJpZjtjb2xvcjojMUY0OTdEIj5BbHNvLCBJIHNlZSB0aGUg
-bWFucGFnZSBmb3IgbW91bnQgaGFzIHJvb3Rjb250ZXh0LCBkb2VzIHRoaXMgcHJvdmlkZSB0aGU8
-YnI+DQpyb290bm9kZSBjb250ZXh0IHNvIHRoZSB4YXR0ciB3b27igJl0IGJlIHF1ZXJpZWQsIG9y
-IGRvZXMgaXQgcHJvdmlkZSBzb21lIHRyYW5zaWVudDxicj4NCmxhYmVsIHRoYXQgaXMgcmVwbGFj
-ZWQgYXQmbmJzcDsgbW91bnQgd2l0aCB0aGUgeGF0dHIgcXVlcnk/PG86cD48L286cD48L3NwYW4+
-PC9wPg0KPHA+ZG9lcyBub3Qgc3VwcG9ydCBoYW5kbGluZyBhIGdldHhhdHRyPGJyPg0KJmd0OyBy
-ZXF1ZXN0IG9uIHRoZSByb290IGRpcmVjdG9yeSBkdXJpbmcgdGhlIG1vdW50KDIpIGNhbGwuJm5i
-c3A7IEFuZCBkb2luZyB0aGlzPGJyPg0KJmd0OyB3b3VsZCBhZmZlY3QgYWxsIGZ1c2UgbW91bnRz
-IChlLmcuIC9zdG9yYWdlL2VtdWxhdGVkKSwgbm90IGp1c3QgYTxicj4NCiZndDsgc3BlY2lmaWMg
-b25lLiZuYnNwOyBUaGVyZSB3YXMgYW4gYXR0ZW1wdCB0byBhZGQgcGVyLXN1YnR5cGUgc3VwcG9y
-dCBmb3I8YnI+DQomZ3Q7IGZzX3VzZSBzbyB0aGF0IG9uZSBjb3VsZCBzcGVjaWZ5IGEgZGlmZmVy
-ZW50IGxhYmVsaW5nIGJlaGF2aW9yIGZvciBhPGJyPg0KJmd0OyBzcGVjaWZpYyBraW5kIG9mIGZ1
-c2UgZmlsZXN5c3RlbSwgc2VlIGtlcm5lbCBjb21taXQ8YnI+DQomZ3Q7IDEwMmFlZmRkYTRkODI3
-NWNlN2Q3MTAwYmMxNmM4OGM3NDI3MmIyNjAsIGJ1dCB0aGlzIHdhcyByZXZlcnRlZCBpbjxicj4N
-CiZndDsgNGQ1NDZmODE3MTdkMjUzYWI2NzY0M2JmMDcyYzZkODgyMWE5MjQ5YyBhbmQ8YnI+DQom
-Z3Q7IDI5YjFkZWIyYTQ4YTlkZDAyYjkzNTk3YWE0YzA1NWEyNGMwZTk4OWYgYXMgaXQgZGlkIG5v
-dCB3b3JrIGFuZCBjYXVzZWQgYTxicj4NCiZndDsgZGVhZGxvY2sgZm9yIG90aGVyIGZ1c2UgZmls
-ZXN5c3RlbXMuPGJyPg0KJmd0Ozxicj4NCiZndDs8YnI+DQomZ3Q7PGJyPg0KJmd0Ozxicj4NCiZn
-dDs8YnI+DQomZ3Q7PGJyPg0KJmd0Ozxicj4NCiZndDsgX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX188YnI+DQomZ3Q7IFNlbGludXggbWFpbGluZyBsaXN0PGJy
-Pg0KJmd0OyA8YSBocmVmPSJtYWlsdG86U2VsaW51eEB0eWNoby5uc2EuZ292Ij5TZWxpbnV4QHR5
-Y2hvLm5zYS5nb3Y8L2E+PGJyPg0KJmd0OyBUbyB1bnN1YnNjcmliZSwgc2VuZCBlbWFpbCB0byA8
-YSBocmVmPSJtYWlsdG86U2VsaW51eC1sZWF2ZUB0eWNoby5uc2EuZ292Ij5TZWxpbnV4LWxlYXZl
-QHR5Y2hvLm5zYS5nb3Y8L2E+Ljxicj4NCiZndDsgVG8gZ2V0IGhlbHAsIHNlbmQgYW4gZW1haWwg
-Y29udGFpbmluZyAmcXVvdDtoZWxwJnF1b3Q7IHRvIDxhIGhyZWY9Im1haWx0bzpTZWxpbnV4LXJl
-cXVlc3RAdHljaG8ubnNhLmdvdiI+DQpTZWxpbnV4LXJlcXVlc3RAdHljaG8ubnNhLmdvdjwvYT4u
-PG86cD48L286cD48L3A+DQo8L2Rpdj4NCjwvZGl2Pg0KPC9ib2R5Pg0KPC9odG1sPg0K
-
---_000_476DC76E7D1DF2438D32BFADF679FC560102C7C5ORSMSX103amrcor_--
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
+index 7a94a92..8d013d8 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -69,7 +69,8 @@ struct selabel_handle;
+  * @errno set on failure.
+  */
+ struct selabel_handle *selabel_open(unsigned int backend,
+-				    struct selinux_opt *opts, unsigned nopts);
++				    const struct selinux_opt *opts,
++				    unsigned nopts);
+ 
+ /**
+  * selabel_close - Close a labeling handle.
+diff --git a/libselinux/man/man3/selabel_open.3 b/libselinux/man/man3/selabel_open.3
+index 00f2828..405b6ec 100644
+--- a/libselinux/man/man3/selabel_open.3
++++ b/libselinux/man/man3/selabel_open.3
+@@ -12,7 +12,7 @@ selabel_open, selabel_close \- userspace SELinux labeling interface
+ .sp
+ .BI "struct selabel_handle *selabel_open(int " backend , 
+ .in +\w'struct selabel_handle *selabel_open('u
+-.BI "struct selinux_opt *" options ,
++.BI "const struct selinux_opt *" options ,
+ .br
+ .BI "unsigned " nopt ");"
+ .in
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 759a3fa..adc0722 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -17,7 +17,8 @@
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ 
+ typedef int (*selabel_initfunc)(struct selabel_handle *rec,
+-				struct selinux_opt *opts, unsigned nopts);
++				const struct selinux_opt *opts,
++				unsigned nopts);
+ 
+ static selabel_initfunc initfuncs[] = {
+ 	&selabel_file_init,
+@@ -128,7 +129,8 @@ err:
+  * Validation functions
+  */
+ 
+-static inline int selabel_is_validate_set(struct selinux_opt *opts, unsigned n)
++static inline int selabel_is_validate_set(const struct selinux_opt *opts,
++					  unsigned n)
+ {
+ 	while (n--)
+ 		if (opts[n].type == SELABEL_OPT_VALIDATE)
+@@ -251,7 +253,8 @@ selabel_lookup_bm_common(struct selabel_handle *rec, int translating,
+  */
+ 
+ struct selabel_handle *selabel_open(unsigned int backend,
+-				    struct selinux_opt *opts, unsigned nopts)
++				    const struct selinux_opt *opts,
++				    unsigned nopts)
+ {
+ 	struct selabel_handle *rec = NULL;
+ 
+diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
+index cf1cd7b..4af9896 100644
+--- a/libselinux/src/label_android_property.c
++++ b/libselinux/src/label_android_property.c
+@@ -135,7 +135,7 @@ static int process_line(struct selabel_handle *rec,
+ 	return 0;
+ }
+ 
+-static int init(struct selabel_handle *rec, struct selinux_opt *opts,
++static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		unsigned n)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+@@ -278,7 +278,7 @@ static void stats(struct selabel_handle __attribute__((unused)) *rec)
+ }
+ 
+ int selabel_property_init(struct selabel_handle *rec,
+-			  struct selinux_opt *opts,
++			  const struct selinux_opt *opts,
+ 			  unsigned nopts)
+ {
+ 	struct saved_data *data;
+diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+index 1b48735..6820ae3 100644
+--- a/libselinux/src/label_db.c
++++ b/libselinux/src/label_db.c
+@@ -234,7 +234,8 @@ db_stats(struct selabel_handle *rec)
+  * selabel_open() handler
+  */
+ static catalog_t *
+-db_init(struct selinux_opt *opts, unsigned nopts, struct selabel_handle *rec)
++db_init(const struct selinux_opt *opts, unsigned nopts,
++			    struct selabel_handle *rec)
+ {
+ 	catalog_t      *catalog;
+ 	FILE	       *filp;
+@@ -332,7 +333,7 @@ out_error:
+  * Initialize selabel_handle and load the entries of specfile
+  */
+ int selabel_db_init(struct selabel_handle *rec,
+-		    struct selinux_opt *opts, unsigned nopts)
++		    const struct selinux_opt *opts, unsigned nopts)
+ {
+ 	rec->func_close = &db_close;
+ 	rec->func_lookup = &db_lookup;
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index b4ee15d..b927681 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -450,7 +450,7 @@ out:
+ 	return rc;
+ }
+ 
+-static int init(struct selabel_handle *rec, struct selinux_opt *opts,
++static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		unsigned n)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+@@ -759,8 +759,9 @@ static void stats(struct selabel_handle *rec)
+ 	}
+ }
+ 
+-int selabel_file_init(struct selabel_handle *rec, struct selinux_opt *opts,
+-		      unsigned nopts)
++int selabel_file_init(struct selabel_handle *rec,
++				    const struct selinux_opt *opts,
++				    unsigned nopts)
+ {
+ 	struct saved_data *data;
+ 
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index 5300319..861eca1 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -17,16 +17,21 @@
+ /*
+  * Installed backends
+  */
+-int selabel_file_init(struct selabel_handle *rec, struct selinux_opt *opts,
+-		      unsigned nopts) hidden;
+-int selabel_media_init(struct selabel_handle *rec, struct selinux_opt *opts,
+-		      unsigned nopts) hidden;
+-int selabel_x_init(struct selabel_handle *rec, struct selinux_opt *opts,
+-		   unsigned nopts) hidden;
++int selabel_file_init(struct selabel_handle *rec,
++			    const struct selinux_opt *opts,
++			    unsigned nopts) hidden;
++int selabel_media_init(struct selabel_handle *rec,
++			    const struct selinux_opt *opts,
++			    unsigned nopts) hidden;
++int selabel_x_init(struct selabel_handle *rec,
++			    const struct selinux_opt *opts,
++			    unsigned nopts) hidden;
+ int selabel_db_init(struct selabel_handle *rec,
+-		    struct selinux_opt *opts, unsigned nopts) hidden;
++			    const struct selinux_opt *opts,
++			    unsigned nopts) hidden;
+ int selabel_property_init(struct selabel_handle *rec,
+-			  struct selinux_opt *opts, unsigned nopts) hidden;
++			    const struct selinux_opt *opts,
++			    unsigned nopts) hidden;
+ 
+ /*
+  * Labeling internal structures
+diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+index a09486b..725d5bd 100644
+--- a/libselinux/src/label_media.c
++++ b/libselinux/src/label_media.c
+@@ -67,7 +67,7 @@ static int process_line(const char *path, char *line_buf, int pass,
+ 	return 0;
+ }
+ 
+-static int init(struct selabel_handle *rec, struct selinux_opt *opts,
++static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		unsigned n)
+ {
+ 	FILE *fp;
+@@ -201,8 +201,9 @@ static void stats(struct selabel_handle *rec)
+ 		  data->nspec, total);
+ }
+ 
+-int selabel_media_init(struct selabel_handle *rec, struct selinux_opt *opts,
+-		       unsigned nopts)
++int selabel_media_init(struct selabel_handle *rec,
++				    const struct selinux_opt *opts,
++				    unsigned nopts)
+ {
+ 	struct saved_data *data;
+ 
+diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+index 8435b76..3f2ee1c 100644
+--- a/libselinux/src/label_x.c
++++ b/libselinux/src/label_x.c
+@@ -94,7 +94,7 @@ static int process_line(const char *path, char *line_buf, int pass,
+ 	return 0;
+ }
+ 
+-static int init(struct selabel_handle *rec, struct selinux_opt *opts,
++static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		unsigned n)
+ {
+ 	FILE *fp;
+@@ -227,7 +227,7 @@ static void stats(struct selabel_handle *rec)
+ 		  data->nspec, total);
+ }
+ 
+-int selabel_x_init(struct selabel_handle *rec, struct selinux_opt *opts,
++int selabel_x_init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		   unsigned nopts)
+ {
+ 	struct saved_data *data;
+-- 
+2.1.0
