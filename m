@@ -1,43 +1,44 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6DFBhBQ009285
- for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2015 11:11:43 -0400
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id BDC731A1D5
- for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2015 17:11:13 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id zLmsolaKEPh1 for <selinux@tycho.nsa.gov>;
- Mon, 13 Jul 2015 17:11:11 +0200 (CEST)
-Received: from soldur.bigon.be (unknown [193.53.238.195])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id B75BA1A00F
- for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2015 17:11:11 +0200 (CEST)
-Date: Mon, 13 Jul 2015 17:11:11 +0200
-From: Laurent Bigonville <bigon@debian.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: Re: semanage: TypeError: cannot concatenate 'str' and 'NoneType'
- objects
-Message-ID: <20150713171111.75f81b55@soldur.bigon.be>
-In-Reply-To: <20150713170743.2d8aac3b@soldur.bigon.be>
-References: <20140518191844.2365e3ad@soldur.bigon.be>
- <20150713170743.2d8aac3b@soldur.bigon.be>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH] selinux-testsuite: move unix_socket and mmmap tests out of
+ SUBDIRS_COMMON
+Date: Mon, 13 Jul 2015 11:42:26 -0400
+Message-Id: <1436802146-25156-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le Mon, 13 Jul 2015 17:07:43 +0200,
-Laurent Bigonville <bigon@debian.org> a écrit :
+RHEL 4 and 5 have forked test policies under policy/redhat, so
+we cannot add new tests to SUBDIRS_COMMON unless we want to port the
+policy rules for those tests to the rhel 4 and 5 test policies
+as well.  For now, just move the unix_socket and mmap tests out of
+SUBDIRS_COMMON to SUBDIRS so that they are only run on Fedora and
+RHEL 7.  We might also be able to add them to the RHEL6 SUBDIRS
+definition as it shares the same test policy but that has not been
+tested.
 
-> Hello,
-> 
-> Bumping a (quite) old mail.
-> 
-> If the audit python binding, "semanage login -m -s root root" is
-> crashing with a backtrace in the logging part of the code.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ tests/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-If the audit python binding *is not installed*, "semanage login -m -s
-root root" is crashing with a backtrace in the logging part of the code.
+diff --git a/tests/Makefile b/tests/Makefile
+index f92e6a1..90b1cc1 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -3,9 +3,9 @@ export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
+ 
+ DISTRO=$(shell ./os_detect)
+ 
+-SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys unix_socket mmap
++SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
+ 
+-SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp inet_socket
++SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp inet_socket unix_socket mmap
+ 
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(SUBDIRS_COMMON)
+-- 
+2.1.0
