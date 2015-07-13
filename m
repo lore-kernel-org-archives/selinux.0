@@ -1,21 +1,26 @@
-Message-ID: <55A3E654.6000009@tycho.nsa.gov>
-Date: Mon, 13 Jul 2015 12:24:52 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6DHZFNk020289
+ for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2015 13:35:16 -0400
+Received: by oihq81 with SMTP id q81so45334564oih.2
+ for <selinux@tycho.nsa.gov>; Mon, 13 Jul 2015 10:35:14 -0700 (PDT)
 MIME-Version: 1.0
-To: Paul Moore <paul@paul-moore.com>
-Subject: Re: [PATCH] selinux: do not remap unknown SIDs to the unlabeled
- context
+In-Reply-To: <55A3E53E.9010507@tycho.nsa.gov>
 References: <1433855392-17188-1-git-send-email-sds@tycho.nsa.gov>
  <2812439.sEMCQPxe3C@sifl> <55A3E53E.9010507@tycho.nsa.gov>
-In-Reply-To: <55A3E53E.9010507@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+Date: Mon, 13 Jul 2015 13:35:13 -0400
+Message-ID: <CAHC9VhTsXRdrXv1Az4o6C4d252vZ-TgCHb_YzfAJ5Y65dgEzRA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: do not remap unknown SIDs to the unlabeled
+ context
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/13/2015 12:20 PM, Stephen Smalley wrote:
+On Mon, Jul 13, 2015 at 12:20 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > On 06/11/2015 10:24 AM, Paul Moore wrote:
 >> On Tuesday, June 09, 2015 09:09:52 AM Stephen Smalley wrote:
 >>> SELinux remaps invalid SIDs to the unlabeled SID/context in order
@@ -57,41 +62,29 @@ On 07/13/2015 12:20 PM, Stephen Smalley wrote:
 >>
 >> This looks good to me thank for sending this patch.
 >>
->> Since SO_PASSSEC isn't widely used and/or documented I don't think there is 
->> any rush to push this for v4.2 since we've already done two pull requests for 
->> v4.2.  I'm also a little leery of changing such core behavior with little to 
->> no time in linux-next (although I will admit to being skeptical of the testing 
->> value of linux-next).  Unless someone can provide a very compelling reason why 
->> this needs to go into v4.2 I'm going to queue this up in my next-queue branch 
+>> Since SO_PASSSEC isn't widely used and/or documented I don't think there is
+>> any rush to push this for v4.2 since we've already done two pull requests for
+>> v4.2.  I'm also a little leery of changing such core behavior with little to
+>> no time in linux-next (although I will admit to being skeptical of the testing
+>> value of linux-next).  Unless someone can provide a very compelling reason why
+>> this needs to go into v4.2 I'm going to queue this up in my next-queue branch
 >> and apply it after the merge window is closed.
-> 
+>
 > Please revert or drop this patch from your next branch.
 > When running the selinux-testsuite inet_socket tests, we get a number of
 > errors from SELinux as a result of this change and network packets are
 > dropped as a result.  Apparently the SELinux networking hooks are
 > relying on SID 0 being treated the same as the unlabeled context.
 
-Note btw that the original motivation for this patch is obsolete, as we
-separately fixed the SCM_SECURITY support for Unix stream sockets and
-that change is already in 4.2-rc1.
-> 
->>
->>> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
->>> index 5840a35..3bd992c 100644
->>> --- a/security/selinux/ss/sidtab.c
->>> +++ b/security/selinux/ss/sidtab.c
->>> @@ -98,7 +98,10 @@ static struct context *sidtab_search_core(struct sidtab
->>> *s, u32 sid, int force) if (force && cur && sid == cur->sid &&
->>> cur->context.len)
->>>  		return &cur->context;
->>>
->>> -	if (cur == NULL || sid != cur->sid || cur->context.len) {
->>> +	if (cur == NULL || sid != cur->sid)
->>> +		return NULL;
->>> +
->>> +	if (cur->context.len) {
->>>  		/* Remap invalid SIDs to the unlabeled SID. */
->>>  		sid = SECINITSID_UNLABELED;
->>>  		hvalue = SIDTAB_HASH(sid);
->>
-> 
+Okay, I just removed it from the SELinux next patch stack.  Thanks for
+the update.
+
+I agree that the immediate need for the patch is now gone, but I think
+there is still value in this patch once we sort out the labeled
+networking issue so I haven't discarded it completely.  Hopefully once
+I get a better handle on the kdbus stuff I can take a closer look at
+the labeled networking failure with this patch.
+
+-- 
+paul moore
+www.paul-moore.com
