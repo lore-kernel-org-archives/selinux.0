@@ -1,107 +1,187 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux-testsuite: Clean up prerequisites/dependencies.
-Date: Mon, 13 Jul 2015 16:28:27 -0400
-Message-Id: <1436819307-32093-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: enable running new tests on RHEL6/7
+Date: Tue, 14 Jul 2015 11:13:32 -0400
+Message-Id: <1436886812-19468-1-git-send-email-sds@tycho.nsa.gov>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Under kernel configuration, add CONFIG_IP_NF_SECURITY as this is
-used by the iptables SECMARK tests, drop options not required by the
-tests since they are unnecessary and not always desirable, and drop
-capabilities options as they are obsolete.
+RHEL 6 and 7 do not include ipsec-tools, so rewrite the ipsec
+tests to use ip xfrm for loading the test configuration rather than
+setkey.
 
-Under userland and base policy, summarize the list of extra packages
-needed at the beginning and drop some legacy text.
+RHEL 6 unlabelednet policy module only includes rules for the domains
+in the RHEL 6 policy, not a rule written on the domain attribute, so
+we have to explicitly allow unlabeled send/recv for the test
+domains in order for the tests to succeed there.
+
+RHEL 6 uses its own SUBDIRS definition to exclude the nnp test, so
+add the mmap, unix_socket, and inet_socket tests to its list.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- README | 46 +++++++++-------------------------------------
- 1 file changed, 9 insertions(+), 37 deletions(-)
+ README                            |  3 ++-
+ policy/test_inet_socket.te        |  4 +++
+ tests/Makefile                    |  4 +--
+ tests/inet_socket/ipsec-flush     |  4 +--
+ tests/inet_socket/ipsec-load      |  7 +++++-
+ tests/inet_socket/ipsec_manual_SA | 51 ---------------------------------------
+ tests/inet_socket/test            |  2 +-
+ 7 files changed, 17 insertions(+), 58 deletions(-)
+ delete mode 100644 tests/inet_socket/ipsec_manual_SA
 
 diff --git a/README b/README
-index 568ebb8..7de74c0 100644
+index 7de74c0..44d0788 100644
 --- a/README
 +++ b/README
-@@ -21,6 +21,7 @@ CONFIG_SECURITY_NETWORK=y
- CONFIG_SECURITY_NETWORK_XFRM=y
- CONFIG_SECURITY_SELINUX=y
- CONFIG_NETLABEL=y
-+CONFIG_IP_NF_SECURITY=m
- CONFIG_NETWORK_SECMARK=y
- CONFIG_NF_CONNTRACK_SECMARK=y
- CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=m
-@@ -36,24 +37,9 @@ CONFIG_JFS_SECURITY=y
- CONFIG_XFS_SECURITY=y
- CONFIG_JFFS2_FS_SECURITY=y
- 
--The following config options are not required by the tests but
--are typical settings for SELinux kernel configuration:
--CONFIG_SECURITY_SELINUX_BOOTPARAM=y
--CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
--CONFIG_SECURITY_SELINUX_DISABLE=y
--CONFIG_SECURITY_SELINUX_DEVELOP=y
--CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
--CONFIG_SECURITY_SELINUX_AVC_STATS=y
--
- Do not set CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX; it is an
- option for legacy distributions (Fedora 3 and 4).
- 
--The capabilities module and the file capability support may be enabled
--simultaneously with SELinux with no conflicts if you wish to also exercise
--their ltp tests:
--CONFIG_SECURITY_CAPABILITIES=y # Removed in 2.6.27 and later.
--CONFIG_SECURITY_FILE_CAPABILITIES=y
--
- Otherwise, you should not enable any other security modules in your
- kernel configuration unless you use the security= option to select a
- module at boot time.  Only one primary security module may be active
-@@ -61,9 +47,14 @@ at a time.
- 
- Userland and Base Policy
- ------------------------
--
--The testsuite depends on the perl test harness, which you can
--install on Fedora via yum install perl-Test-Harness.
-+The testsuite has the following userspace dependencies on Fedora
-+or RHEL beyond a minimal install:
-+perl-Test-Harness # test harness used by the testsuite
-+selinux-policy-devel # to build the test policy
-+libselinux-devel # to build some of the test programs
-+netlabel_tools # to load NetLabel configuration during inet_socket tests
-+ipsec-tools # to load IPSEC configuration during inet_socket tests
-+iptables # to load iptables SECMARK rules during inet_socket tests
+@@ -51,9 +51,10 @@ The testsuite has the following userspace dependencies on Fedora
+ or RHEL beyond a minimal install:
+ perl-Test-Harness # test harness used by the testsuite
+ selinux-policy-devel # to build the test policy
++gcc # to build the test programs
+ libselinux-devel # to build some of the test programs
++net-tools # for ifconfig, used by capable_net/test
+ netlabel_tools # to load NetLabel configuration during inet_socket tests
+-ipsec-tools # to load IPSEC configuration during inet_socket tests
+ iptables # to load iptables SECMARK rules during inet_socket tests
  
  The testsuite requires a pre-existing base policy configuration of
- SELinux, using either the old example policy or the reference policy
-@@ -74,25 +65,6 @@ rely upon the SELinux extensions being integrated into the coreutils
- package, with support for the chcon and runcon commands as well as the
- SELinux options to existing utilities such as ls and mkdir.
+diff --git a/policy/test_inet_socket.te b/policy/test_inet_socket.te
+index 9a35c99..9a476b3 100644
+--- a/policy/test_inet_socket.te
++++ b/policy/test_inet_socket.te
+@@ -151,6 +151,10 @@ allow test_inet_client_t test_server_packet_t:packet { send recv };
+ # Common rules for all inet socket test domains.
+ #
  
--The inet_socket tests depend on netlabel_tools, ipsec-tools, and
--iptables in order to load the relevant configurations for testing
--netlabel peer labeling, labeled IPSEC peer labeling, and SECMARK
--packet labeling.
++# Send/recv unlabeled packets.
++kernel_sendrecv_unlabeled_packets(inetsocketdomain)
++kernel_recvfrom_unlabeled_peer(inetsocketdomain)
++
+ # Allow all of these domains to be entered from the sysadm domain.
+ miscfiles_domain_entry_test_files(inetsocketdomain)
+ userdom_sysadm_entry_spec_domtrans_to(inetsocketdomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index 90b1cc1..7a9b39c 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -5,7 +5,7 @@ DISTRO=$(shell ./os_detect)
+ 
+ SUBDIRS_COMMON:=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
+ 
+-SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp inet_socket unix_socket mmap
++SUBDIRS:= $(SUBDIRS_COMMON) dyntrans dyntrace bounds nnp mmap unix_socket inet_socket
+ 
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(SUBDIRS_COMMON)
+@@ -16,7 +16,7 @@ ifeq ($(DISTRO),RHEL5)
+ endif
+ 
+ ifeq ($(DISTRO),RHEL6)
+-    SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans bounds
++    SUBDIRS:=$(SUBDIRS_COMMON) dyntrace dyntrans bounds mmap unix_socket inet_socket
+ endif
+ 
+ .PHONY: all test clean
+diff --git a/tests/inet_socket/ipsec-flush b/tests/inet_socket/ipsec-flush
+index 31467c6..ed3b5f7 100755
+--- a/tests/inet_socket/ipsec-flush
++++ b/tests/inet_socket/ipsec-flush
+@@ -1,5 +1,5 @@
+ #!/bin/sh
+ echo 1 > /proc/sys/net/ipv4/conf/lo/disable_xfrm
+ echo 1 > /proc/sys/net/ipv4/conf/lo/disable_policy
+-setkey -FP
+-setkey -F
++ip xfrm policy flush
++ip xfrm state flush
+diff --git a/tests/inet_socket/ipsec-load b/tests/inet_socket/ipsec-load
+index deb8cbd..1ce86fd 100755
+--- a/tests/inet_socket/ipsec-load
++++ b/tests/inet_socket/ipsec-load
+@@ -1,4 +1,9 @@
+ #!/bin/sh
+ echo 0 > /proc/sys/net/ipv4/conf/lo/disable_xfrm
+ echo 0 > /proc/sys/net/ipv4/conf/lo/disable_policy
+-setkey -f $1
++ip xfrm policy flush
++ip xfrm state flush
++ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx "unconfined_u:unconfined_r:test_inet_client_t:s0-s0:c0.c1023" auth md5 0123456789012345
++ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x250 ctx "unconfined_u:unconfined_r:test_inet_bad_client_t:s0-s0:c0.c1023" auth md5 0123456789012345
++ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto tcp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
++ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto udp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
+diff --git a/tests/inet_socket/ipsec_manual_SA b/tests/inet_socket/ipsec_manual_SA
+deleted file mode 100644
+index 81b7d23..0000000
+--- a/tests/inet_socket/ipsec_manual_SA
++++ /dev/null
+@@ -1,51 +0,0 @@
+-# setkey -f configuration file entries for MANUAL SA configuration
+-#
+-# Based on the file:
+-#     notebook-source/basic-selinux-policy/CIL/message-filter/ipsec_manual_SA
+-# taken from The SELinux Notebook 4th Edition source code tarball,
+-# by Richard Haines.
+-#
+-# Modifications:
+-# - Replaced security contexts with the ones used by the tests.
+-# - Dropped the ESP entries; just use AH for testing purposes.
+-# - Only define a single spd context and entry (no need for separate ones
+-#   unless you truly want a different policy).
+-# - Define a spd entry for udp traffic for testing SCM_SECURITY.
 -
--In addition to the libselinux shared library, the libselinux headers
--are required in order to build certain testcases.  These can be found in 
--the libselinux-devel package in Fedora or RHEL.
+-#
+-# Flush the SAD and SPD
+-flush;
+-spdflush;
 -
--On systems whose policy was derived from the old example policy
--(e.g. RHEL 4), the base policy sources must be installed on the
--system, e.g. the selinux-policy-targeted-sources package in RHEL 4.
+-#
+-########## Security Association Database entries #################
+-#
+-# Important notes:
+-# 1) The security context (-ctx) entries MUST match
+-#    the actual running context of the process or it will fail to
+-#    match (therefore racoon is the best configuration option as
+-#    these are automatically exchanged).
+-# 2) If the manual configuration is used in a live environment,
+-#    then DO NOT use these encryption keys, generate your own.
+-#
+-# Authentication Header info
+-# AH SAs using 128 bit long keys
+-add 127.0.0.1 127.0.0.1 ah 0x200
+--ctx 1 1 "unconfined_u:unconfined_r:test_inet_client_t:s0-s0:c0.c1023"
+--A hmac-md5 0xc0291ff014dccdd03874d9e8e4cdf3e6;
 -
--On systems whose policy is derived from the reference policy
--(e.g. RHEL 5, Fedora 5 or later), the policy module development files
--(Makefile and include tree) must be installed on the system, e.g. the
--selinux-policy-devel package in RHEL 5, subsequently folded into the
--base selinux-policy package in Fedora 10 and later.
+-add 127.0.0.1 127.0.0.1 ah 0x250
+--ctx 1 1 "unconfined_u:unconfined_r:test_inet_bad_client_t:s0-s0:c0.c1023"
+--A hmac-md5 0xc0291ff014dccdd03874d9e8e4cdf3e6;
 -
- If the base distribution does not include the SELinux userland, then
- the source code for the core SELinux userland packages can be obtained from:
- https://github.com/SELinuxProject/selinux/wiki/Releases
+-#
+-########### Security Policy Database entries ##########################
+-#
+-
+-spdadd 127.0.0.1 127.0.0.1 tcp
+--ctx 1 1 "system_u:object_r:test_spd_t:s0"
+--P out ipsec ah/transport//require;
+-
+-spdadd 127.0.0.1 127.0.0.1 udp
+--ctx 1 1 "system_u:object_r:test_spd_t:s0"
+--P out ipsec ah/transport//require;
+diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+index 4652a97..4deca74 100755
+--- a/tests/inet_socket/test
++++ b/tests/inet_socket/test
+@@ -80,7 +80,7 @@ $result = system "runcon -t test_inet_no_name_connect_t -- $basedir/connect 6553
+ ok($result);
+ 
+ # Load IPSEC configuration.
+-system "$basedir/ipsec-load $basedir/ipsec_manual_SA";
++system "$basedir/ipsec-load";
+ 
+ # Start the stream server.
+ if (($pid = fork()) == 0) {
 -- 
 2.1.0
