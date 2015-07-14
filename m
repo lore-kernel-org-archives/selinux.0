@@ -1,44 +1,51 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6EH86qJ012938
+ for <selinux@tycho.nsa.gov>; Tue, 14 Jul 2015 13:08:08 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 6E28C1A1D8
+ for <selinux@tycho.nsa.gov>; Tue, 14 Jul 2015 19:08:01 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id rflqEX9yiOxq for <selinux@tycho.nsa.gov>;
+ Tue, 14 Jul 2015 19:07:58 +0200 (CEST)
+Received: from soldur.bigon.be (unknown [193.53.238.195])
+ (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 353FD1A1D5
+ for <selinux@tycho.nsa.gov>; Tue, 14 Jul 2015 19:07:58 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] selinux-testsuite: ipsec-load: Derive state context from
- current context.
-Date: Tue, 14 Jul 2015 11:56:51 -0400
-Message-Id: <1436889411-23818-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] Set self.sename to sename after calling
+ semanage_seuser_set_sename()
+Date: Tue, 14 Jul 2015 19:07:56 +0200
+Message-Id: <1436893676-21412-1-git-send-email-bigon@debian.org>
+Cc: 734806@bugs.debian.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Change ipsec-load to derive the state context from the current context
-rather than assuming that the caller always has a given user/role/range.
-This is similar to logic elsewhere throughout the tests that only
-sets the type to one of the test domains/types and otherwise inherits
-the user/role/range from the caller (for a process) or a related object
-(for a file).  This keeps the test independent of whether it is called
-from e.g. an unconfined user shell vs a sysadm user shell or from
-targeted vs mls policy.
+From: Laurent Bigonville <bigon@bigon.be>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+This fixes audit information that are being logged and a crash when the
+python-audit binding is not installed.
+
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=734806
 ---
- tests/inet_socket/ipsec-load | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ policycoreutils/semanage/seobject.py | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tests/inet_socket/ipsec-load b/tests/inet_socket/ipsec-load
-index 1ce86fd..ded6efb 100755
---- a/tests/inet_socket/ipsec-load
-+++ b/tests/inet_socket/ipsec-load
-@@ -3,7 +3,9 @@ echo 0 > /proc/sys/net/ipv4/conf/lo/disable_xfrm
- echo 0 > /proc/sys/net/ipv4/conf/lo/disable_policy
- ip xfrm policy flush
- ip xfrm state flush
--ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx "unconfined_u:unconfined_r:test_inet_client_t:s0-s0:c0.c1023" auth md5 0123456789012345
--ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x250 ctx "unconfined_u:unconfined_r:test_inet_bad_client_t:s0-s0:c0.c1023" auth md5 0123456789012345
-+goodclientcon=`secon -u`:`secon -r`:test_inet_client_t:`secon -m`
-+badclientcon=`secon -u`:`secon -r`:test_inet_bad_client_t:`secon -m`
-+ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx $goodclientcon auth md5 0123456789012345
-+ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x250 ctx $badclientcon auth md5 0123456789012345
- ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto tcp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
- ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto udp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
+diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+index 568ebfd..2edb050 100644
+--- a/policycoreutils/semanage/seobject.py
++++ b/policycoreutils/semanage/seobject.py
+@@ -575,6 +575,7 @@ class loginRecords(semanageRecords):
+ 
+ 		if sename != "":
+ 			semanage_seuser_set_sename(self.sh, u, sename)
++                        self.sename = sename
+ 		else:
+ 			self.sename = self.oldsename
+ 			
 -- 
-2.1.0
+2.1.4
