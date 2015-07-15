@@ -1,93 +1,113 @@
-MIME-Version: 1.0
-In-Reply-To: <559FF186.7090008@tycho.nsa.gov>
-References: <476DC76E7D1DF2438D32BFADF679FC560102C611@ORSMSX103.amr.corp.intel.com>
- <559FBD3A.4090300@tycho.nsa.gov>
- <CAFftDdqP616u6UDZQAnd8AucCz=EXm0mY1Uhcwmp3x9rmWNBgg@mail.gmail.com>
- <476DC76E7D1DF2438D32BFADF679FC560102C7C5@ORSMSX103.amr.corp.intel.com>
- <559FF186.7090008@tycho.nsa.gov>
-Date: Tue, 14 Jul 2015 16:15:33 -0700
-Message-ID: <CAFftDdoTnAfVGCaPa7Q8Y8j2NHvDebQ5AGRkKdL7XDq_GD-J4Q@mail.gmail.com>
-Subject: Re: executing off of a fusefs
-From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 15 Jul 2015 06:37:51 -0400 (EDT)
+From: Robert Kuska <rkuska@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=089e0102ef54e4601a051ade0309
-Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <1158991843.33317713.1436956671074.JavaMail.zimbra@redhat.com>
+In-Reply-To: <1482209083.32107040.1436812463571.JavaMail.zimbra@redhat.com>
+References: <1083792539.31969453.1436795740226.JavaMail.zimbra@redhat.com>
+ <55A3CB1A.5050001@tycho.nsa.gov>
+ <1482209083.32107040.1436812463571.JavaMail.zimbra@redhat.com>
+Subject: Re: [PATCH] sepolgen: add support for python3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e0102ef54e4601a051ade0309
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Jul 10, 2015 at 9:23 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On 07/10/2015 11:53 AM, Roberts, William C wrote:
-> > Also, I see the manpage for mount has rootcontext, does this provide th=
-e
-> > rootnode context so the xattr won=E2=80=99t be queried, or does it prov=
-ide some
-> > transient
-> > label that is replaced at  mount with the xattr query?
->
-> rootcontext=3D is typically used to assign a specific context to the root
-> directory of e.g. tmpfs mounts, rather than having to first mount it and
-> then change the context to some value.
->
-> Using it wouldn't suppress the getxattr call by SELinux for a
-> fs_use_xattr filesystem, as SELinux always does that regardless just to
-> probe whether the filesystem supports security xattrs (if not, then it
-> will fail the mount).  It would however override any underlying xattr
-> value for the root directory.
->
-
-I found this before, but cannot seem to find it now, where in the mount cal=
-l
-path is the routine to query the xattr for the rootnode?
 
 
+----- Original Message -----
+> From: "Robert Kuska" <rkuska@redhat.com>
+> To: "Stephen Smalley" <sds@tycho.nsa.gov>
+> Cc: selinux@tycho.nsa.gov
+> Sent: Monday, July 13, 2015 8:34:23 PM
+> Subject: Re: [PATCH] sepolgen: add support for python3
+> 
+> 
+> 
+> ----- Original Message -----
+> > From: "Stephen Smalley" <sds@tycho.nsa.gov>
+> > To: "Robert Kuska" <rkuska@redhat.com>, selinux@tycho.nsa.gov
+> > Sent: Monday, July 13, 2015 4:28:42 PM
+> > Subject: Re: [PATCH] sepolgen: add support for python3
+> > 
+> > On 07/13/2015 09:55 AM, Robert Kuska wrote:
+> > > Hello everyone,
+> > > 
+> > > this is my first mail to this mailing list so I would like to
+> > > introduce myself a bit.
+> > > 
+> > > I am Robert Kuska, member of python-sig in Fedora and co-owner
+> > > of change Python3 as default. In Fedora many packages depends
+> > > on policycoreutils which ships python modules from selinux, the
+> > > problem is (at least for us as we want to have default installation
+> > > clean of Python2) that not all of them work with Python3. Therefore
+> > > I've decided to make a patch(es) for all modules (except for GUI)
+> > > to make them work with python3.
+> > > 
+> > > As a first I've picked a sepolgen as it seemed it will be the hardest.
+> > > Please note that I have no previous experience with coding for selinux
+> > > project.
+> > > 
+> > > You can find my patch as an attachment to this mail, as it is a rather
+> > > big one (I didn't split the patch because it fixes mostly same syntax
+> > > errors).
+> > > 
+> > > I have tested the patch with python2.7 and python3.4. I had
+> > > no issue with python2.7 except for test_module.TestModuleCompiler.test
+> > > which was failing even before my patch.
+> > 
+> > Do you have selinux-policy-devel installed?
+> 
+> My bad, after installing the devel package all tests pass (on python2).
+> 
+> Thank you.
+> 
+> > 
+> > > 
+> > > Following failures (number vary, from 1 to 6) were seen with python3.4:
+> > > 
+> > > https://paste.fedoraproject.org/243817/36795382/
+> > > 
+> > > The origin of these failures lies within change in hash function of sets
+> > > and dicts, hash now uses random seed in python3 and tests rely on
+> > > frozen order of items which is imho bad. I didn't fix those tests
+> > > as I wanted to know firstly if this is just a issue with tests and such
+> > > frozen order is not expected.
+> > 
+> > I didn't write sepolgen, but it is certainly the case that the order in
+> > which permissions or types are listed in a policy rule makes no
+> > difference to its semantics.
+> 
+> Jason Zaman said the same thing on irc, I just wanted to be sure, I can send
+> another patch with fixed tests.
+> 
+
+I've managed to split patch into smaller (11) patches. As seems that the big one
+is not attracting any reviewers :-).
+
+Should I create a new thread for each patch or can I continue within this one?
+
+> > 
+> > 
+> > 
+> 
+> 
+> 
+> --
+> Robert Kuska
+> {rkuska}
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+> 
 
 
---=20
-Respectfully,
 
-William C Roberts
-
---089e0102ef54e4601a051ade0309
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">On Fri, Jul 10, 2015 at 9:23 AM, Stephen Smalley <span dir=3D"ltr">&lt;=
-<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a=
->&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 =
-0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On 0=
-7/10/2015 11:53 AM, Roberts, William C wrote:<br>
-&gt; Also, I see the manpage for mount has rootcontext, does this provide t=
-he<br>
-&gt; rootnode context so the xattr won=E2=80=99t be queried, or does it pro=
-vide some<br>
-&gt; transient<br>
-&gt; label that is replaced at=C2=A0 mount with the xattr query?<br>
-<br>
-</span>rootcontext=3D is typically used to assign a specific context to the=
- root<br>
-directory of e.g. tmpfs mounts, rather than having to first mount it and<br=
->
-then change the context to some value.<br>
-<br>
-Using it wouldn&#39;t suppress the getxattr call by SELinux for a<br>
-fs_use_xattr filesystem, as SELinux always does that regardless just to<br>
-probe whether the filesystem supports security xattrs (if not, then it<br>
-will fail the mount).=C2=A0 It would however override any underlying xattr<=
-br>
-value for the root directory.<br></blockquote><div><br></div><div>I found t=
-his before, but cannot seem to find it now, where in the mount call</div><d=
-iv>path is the routine to query the xattr for the rootnode?</div><div>=C2=
-=A0</div></div><br><br clear=3D"all"><div><br></div>-- <br><div class=3D"gm=
-ail_signature">Respectfully,<br><br>William C Roberts<br><br></div>
-</div></div>
-
---089e0102ef54e4601a051ade0309--
+--
+Robert Kuska
+{rkuska}
