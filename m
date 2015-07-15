@@ -1,21 +1,21 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6FJlHZg029319
- for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 15:47:22 -0400
-Received: by obnw1 with SMTP id w1so33443850obn.3
- for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 12:47:20 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6FJlHZi029319
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 15:47:23 -0400
+Received: by obbop1 with SMTP id op1so33394597obb.2
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 12:47:21 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
  James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-Subject: [PATCH 4/7] fs: Treat foreign mounts as nosuid
-Date: Wed, 15 Jul 2015 14:46:05 -0500
-Message-Id: <1436989569-69582-5-git-send-email-seth.forshee@canonical.com>
+ "Serge E. Hallyn" <serge@hallyn.com>
+Subject: [PATCH 5/7] security: Restrict security attribute updates for userns
+ mounts
+Date: Wed, 15 Jul 2015 14:46:06 -0500
+Message-Id: <1436989569-69582-6-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
 References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
-Cc: linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>,
  Seth Forshee <seth.forshee@canonical.com>,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-fsdevel@vger.kernel.org
@@ -24,125 +24,60 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Andy Lutomirski <luto@amacapital.net>
+Respecting security labels for mounts from user namespaces may
+allow unprivileged users to introduce security labels into the
+system. To stop this from happening prevent calling the
+inode_post_setxattr, inode_setsecurity, inode_notifysecctx, and
+inode_setsecctx hooks when s_user_ns != init_user_ns. There's no
+purpose in actually blocking setting of these xattrs, as (for rw
+mounts at least) the user must have write access to the
+underlying filesystem and could set the xattrs by other means.
 
-If a process gets access to a mount from a different namespace user
-namespace, that process should not be able to take advantage of
-setuid files or selinux entrypoints from that filesystem.
-Technically, trusting mounts created by the same or ancestor user
-namespaces ought to be safe, but it's simpler to distrust all
-foreign mounts.
-
-This will make it safer to allow more complex filesystems to be
-mounted in non-root user namespaces.
-
-This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
-setgid, and file capability bits can no longer be abused if code in
-a user namespace were to clear nosuid on an untrusted filesystem,
-but this patch, by itself, is insufficient to protect the system
-from abuse of files that, when execed, would increase MAC privilege.
-
-As a more concrete explanation, any task that can manipulate a
-vfsmount associated with a given user namespace already has
-capabilities in that namespace and all of its descendents.  If they
-can cause a malicious setuid, setgid, or file-caps executable to
-appear in that mount, then that executable will only allow them to
-elevate privileges in exactly the set of namespaces in which they
-are already privileges.
-
-On the other hand, if they can cause a malicious executable to
-appear with a dangerous MAC label, running it could change the
-caller's security context in a way that should not have been
-possible, even inside the namespace in which the task is confined.
-
-As a hardening measure, this would have made CVE-2014-5207 much
-more difficult to exploit.
-
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
-[ saf: Forward ported to 4.2 ]
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- fs/exec.c                |  2 +-
- fs/namespace.c           | 13 +++++++++++++
- include/linux/mount.h    |  1 +
- security/commoncap.c     |  2 +-
- security/selinux/hooks.c |  2 +-
- 5 files changed, 17 insertions(+), 3 deletions(-)
+ security/security.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index b06623a9347f..ea7311d72cc3 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
- 	bprm->cred->euid = current_euid();
- 	bprm->cred->egid = current_egid();
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
+diff --git a/security/security.c b/security/security.c
+index 062f3c997fdc..980710baa8f9 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -653,7 +653,9 @@ void security_inode_post_setxattr(struct dentry *dentry, const char *name,
+ {
+ 	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
  		return;
- 
- 	if (task_no_new_privs(current))
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 423001de32a2..2bfd7ca92247 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -3252,6 +3252,19 @@ found:
- 	return visible;
+-	call_void_hook(inode_post_setxattr, dentry, name, value, size, flags);
++	if (dentry->d_inode->i_sb->s_user_ns == &init_user_ns)
++		call_void_hook(inode_post_setxattr, dentry, name, value, size,
++			       flags);
+ 	evm_inode_post_setxattr(dentry, name, value, size);
  }
  
-+bool mnt_may_suid(struct vfsmount *mnt)
-+{
-+	/*
-+	 * Foreign mounts (accessed via fchdir or through /proc
-+	 * symlinks) are always treated as if they are nosuid.  This
-+	 * prevents namespaces from trusting potentially unsafe
-+	 * suid/sgid bits, file caps, or security labels that originate
-+	 * in other namespaces.
-+	 */
-+	return real_mount(mnt)->mnt_ns == current->nsproxy->mnt_ns &&
-+		!(mnt->mnt_flags & MNT_NOSUID);
-+}
-+
- static struct ns_common *mntns_get(struct task_struct *task)
+@@ -712,6 +714,8 @@ int security_inode_getsecurity(const struct inode *inode, const char *name, void
+ 
+ int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags)
  {
- 	struct ns_common *ns = NULL;
-diff --git a/include/linux/mount.h b/include/linux/mount.h
-index f822c3c11377..54a594d49733 100644
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
- extern struct vfsmount *mntget(struct vfsmount *mnt);
- extern struct vfsmount *mnt_clone_internal(struct path *path);
- extern int __mnt_is_readonly(struct vfsmount *mnt);
-+extern bool mnt_may_suid(struct vfsmount *mnt);
++	if (inode->i_sb->s_user_ns != &init_user_ns)
++		return -EOPNOTSUPP;
+ 	if (unlikely(IS_PRIVATE(inode)))
+ 		return -EOPNOTSUPP;
+ 	return call_int_hook(inode_setsecurity, -EOPNOTSUPP, inode, name,
+@@ -1168,12 +1172,16 @@ EXPORT_SYMBOL(security_release_secctx);
  
- struct path;
- extern struct vfsmount *clone_private_mount(struct path *path);
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 175ab497e810..858d86a1b73c 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -437,7 +437,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
- 	if (!file_caps_enabled)
- 		return 0;
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return 0;
- 	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
- 		return 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 564079c5c49d..459e71ddbc9d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2137,7 +2137,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
- 			    const struct task_security_struct *new_tsec)
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
  {
- 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
--	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
-+	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
- 	int rc;
++	if (inode->i_sb->s_user_ns != &init_user_ns)
++		return -EOPNOTSUPP;
+ 	return call_int_hook(inode_notifysecctx, 0, inode, ctx, ctxlen);
+ }
+ EXPORT_SYMBOL(security_inode_notifysecctx);
  
- 	if (!nnp && !nosuid)
+ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
+ {
++	if (dentry->d_inode->i_sb->s_user_ns != &init_user_ns)
++		return -EOPNOTSUPP;
+ 	return call_int_hook(inode_setsecctx, 0, dentry, ctx, ctxlen);
+ }
+ EXPORT_SYMBOL(security_inode_setsecctx);
 -- 
 1.9.1
