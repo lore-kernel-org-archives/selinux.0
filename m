@@ -1,113 +1,102 @@
-Date: Wed, 15 Jul 2015 06:37:51 -0400 (EDT)
-From: Robert Kuska <rkuska@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <1158991843.33317713.1436956671074.JavaMail.zimbra@redhat.com>
-In-Reply-To: <1482209083.32107040.1436812463571.JavaMail.zimbra@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6FAn35p020357
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 06:49:03 -0400
+Received: by widic2 with SMTP id ic2so60153690wid.0
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 03:49:01 -0700 (PDT)
+Date: Wed, 15 Jul 2015 14:48:57 +0400
+From: Jason Zaman <jason@perfinion.com>
+To: Robert Kuska <rkuska@redhat.com>
+Subject: Re: [PATCH] sepolgen: add support for python3
+Message-ID: <20150715104857.GA28921@meriadoc.Home>
 References: <1083792539.31969453.1436795740226.JavaMail.zimbra@redhat.com>
  <55A3CB1A.5050001@tycho.nsa.gov>
  <1482209083.32107040.1436812463571.JavaMail.zimbra@redhat.com>
-Subject: Re: [PATCH] sepolgen: add support for python3
+ <1158991843.33317713.1436956671074.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1158991843.33317713.1436956671074.JavaMail.zimbra@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
------ Original Message -----
-> From: "Robert Kuska" <rkuska@redhat.com>
-> To: "Stephen Smalley" <sds@tycho.nsa.gov>
-> Cc: selinux@tycho.nsa.gov
-> Sent: Monday, July 13, 2015 8:34:23 PM
-> Subject: Re: [PATCH] sepolgen: add support for python3
-> 
+On Wed, Jul 15, 2015 at 06:37:51AM -0400, Robert Kuska wrote:
 > 
 > 
 > ----- Original Message -----
-> > From: "Stephen Smalley" <sds@tycho.nsa.gov>
-> > To: "Robert Kuska" <rkuska@redhat.com>, selinux@tycho.nsa.gov
-> > Sent: Monday, July 13, 2015 4:28:42 PM
+> > From: "Robert Kuska" <rkuska@redhat.com>
+> > To: "Stephen Smalley" <sds@tycho.nsa.gov>
+> > Cc: selinux@tycho.nsa.gov
+> > Sent: Monday, July 13, 2015 8:34:23 PM
 > > Subject: Re: [PATCH] sepolgen: add support for python3
 > > 
-> > On 07/13/2015 09:55 AM, Robert Kuska wrote:
-> > > Hello everyone,
-> > > 
-> > > this is my first mail to this mailing list so I would like to
-> > > introduce myself a bit.
-> > > 
-> > > I am Robert Kuska, member of python-sig in Fedora and co-owner
-> > > of change Python3 as default. In Fedora many packages depends
-> > > on policycoreutils which ships python modules from selinux, the
-> > > problem is (at least for us as we want to have default installation
-> > > clean of Python2) that not all of them work with Python3. Therefore
-> > > I've decided to make a patch(es) for all modules (except for GUI)
-> > > to make them work with python3.
-> > > 
-> > > As a first I've picked a sepolgen as it seemed it will be the hardest.
-> > > Please note that I have no previous experience with coding for selinux
-> > > project.
-> > > 
-> > > You can find my patch as an attachment to this mail, as it is a rather
-> > > big one (I didn't split the patch because it fixes mostly same syntax
-> > > errors).
-> > > 
-> > > I have tested the patch with python2.7 and python3.4. I had
-> > > no issue with python2.7 except for test_module.TestModuleCompiler.test
-> > > which was failing even before my patch.
-> > 
-> > Do you have selinux-policy-devel installed?
-> 
-> My bad, after installing the devel package all tests pass (on python2).
-> 
-> Thank you.
-> 
-> > 
-> > > 
-> > > Following failures (number vary, from 1 to 6) were seen with python3.4:
-> > > 
-> > > https://paste.fedoraproject.org/243817/36795382/
-> > > 
-> > > The origin of these failures lies within change in hash function of sets
-> > > and dicts, hash now uses random seed in python3 and tests rely on
-> > > frozen order of items which is imho bad. I didn't fix those tests
-> > > as I wanted to know firstly if this is just a issue with tests and such
-> > > frozen order is not expected.
-> > 
-> > I didn't write sepolgen, but it is certainly the case that the order in
-> > which permissions or types are listed in a policy rule makes no
-> > difference to its semantics.
-> 
-> Jason Zaman said the same thing on irc, I just wanted to be sure, I can send
-> another patch with fixed tests.
-> 
-
-I've managed to split patch into smaller (11) patches. As seems that the big one
-is not attracting any reviewers :-).
-
-Should I create a new thread for each patch or can I continue within this one?
-
 > > 
 > > 
+> > ----- Original Message -----
+> > > From: "Stephen Smalley" <sds@tycho.nsa.gov>
+> > > To: "Robert Kuska" <rkuska@redhat.com>, selinux@tycho.nsa.gov
+> > > Sent: Monday, July 13, 2015 4:28:42 PM
+> > > Subject: Re: [PATCH] sepolgen: add support for python3
+> > > 
+> > > On 07/13/2015 09:55 AM, Robert Kuska wrote:
+> > > > Hello everyone,
+> > > > 
+> > > > this is my first mail to this mailing list so I would like to
+> > > > introduce myself a bit.
+> > > > 
+> > > > I am Robert Kuska, member of python-sig in Fedora and co-owner
+> > > > of change Python3 as default. In Fedora many packages depends
+> > > > on policycoreutils which ships python modules from selinux, the
+> > > > problem is (at least for us as we want to have default installation
+> > > > clean of Python2) that not all of them work with Python3. Therefore
+> > > > I've decided to make a patch(es) for all modules (except for GUI)
+> > > > to make them work with python3.
+> > > > 
+> > > > As a first I've picked a sepolgen as it seemed it will be the hardest.
+> > > > Please note that I have no previous experience with coding for selinux
+> > > > project.
+> > > > 
+> > > > You can find my patch as an attachment to this mail, as it is a rather
+> > > > big one (I didn't split the patch because it fixes mostly same syntax
+> > > > errors).
+> > > > 
+> > > > I have tested the patch with python2.7 and python3.4. I had
+> > > > no issue with python2.7 except for test_module.TestModuleCompiler.test
+> > > > which was failing even before my patch.
+> > > 
+> > > Do you have selinux-policy-devel installed?
+> > 
+> > My bad, after installing the devel package all tests pass (on python2).
+> > 
+> > Thank you.
+> > 
+> > > 
+> > > > 
+> > > > Following failures (number vary, from 1 to 6) were seen with python3.4:
+> > > > 
+> > > > https://paste.fedoraproject.org/243817/36795382/
+> > > > 
+> > > > The origin of these failures lies within change in hash function of sets
+> > > > and dicts, hash now uses random seed in python3 and tests rely on
+> > > > frozen order of items which is imho bad. I didn't fix those tests
+> > > > as I wanted to know firstly if this is just a issue with tests and such
+> > > > frozen order is not expected.
+> > > 
+> > > I didn't write sepolgen, but it is certainly the case that the order in
+> > > which permissions or types are listed in a policy rule makes no
+> > > difference to its semantics.
+> > 
+> > Jason Zaman said the same thing on irc, I just wanted to be sure, I can send
+> > another patch with fixed tests.
 > > 
 > 
+> I've managed to split patch into smaller (11) patches. As seems that the big one
+> is not attracting any reviewers :-).
 > 
-> 
-> --
-> Robert Kuska
-> {rkuska}
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
-> 
+> Should I create a new thread for each patch or can I continue within this one?
 
+Sending inline with git format-patch and git send-email is probably the
+best, it does it correctly.
 
-
---
-Robert Kuska
-{rkuska}
+-- Jason
