@@ -1,17 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6FJlHZe029319
- for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 15:47:20 -0400
-Received: by oige126 with SMTP id e126so36027932oig.0
- for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 12:47:18 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6FJlHZg029319
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 15:47:22 -0400
+Received: by obnw1 with SMTP id w1so33443850obn.3
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 12:47:20 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
  James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Subject: [PATCH 3/7] fs: Ignore file caps in mounts from other user namespaces
-Date: Wed, 15 Jul 2015 14:46:04 -0500
-Message-Id: <1436989569-69582-4-git-send-email-seth.forshee@canonical.com>
+ "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+Subject: [PATCH 4/7] fs: Treat foreign mounts as nosuid
+Date: Wed, 15 Jul 2015 14:46:05 -0500
+Message-Id: <1436989569-69582-5-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
 References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
 Cc: linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
@@ -23,86 +24,125 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Capability sets attached to files must be ignored except in the
-user namespaces where the mounter is privileged, i.e. s_user_ns
-and its descendants. Otherwise a vector exists for gaining
-privileges in namespaces where a user is not already privileged.
+From: Andy Lutomirski <luto@amacapital.net>
 
-Add a new helper function, in_user_ns(), to test whether a user
-namespace is the same as or a descendant of another namespace.
-Use this helper to determine whether a file's capability set
-should be applied to the caps constructed during exec.
+If a process gets access to a mount from a different namespace user
+namespace, that process should not be able to take advantage of
+setuid files or selinux entrypoints from that filesystem.
+Technically, trusting mounts created by the same or ancestor user
+namespaces ought to be safe, but it's simpler to distrust all
+foreign mounts.
 
+This will make it safer to allow more complex filesystems to be
+mounted in non-root user namespaces.
+
+This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
+setgid, and file capability bits can no longer be abused if code in
+a user namespace were to clear nosuid on an untrusted filesystem,
+but this patch, by itself, is insufficient to protect the system
+from abuse of files that, when execed, would increase MAC privilege.
+
+As a more concrete explanation, any task that can manipulate a
+vfsmount associated with a given user namespace already has
+capabilities in that namespace and all of its descendents.  If they
+can cause a malicious setuid, setgid, or file-caps executable to
+appear in that mount, then that executable will only allow them to
+elevate privileges in exactly the set of namespaces in which they
+are already privileges.
+
+On the other hand, if they can cause a malicious executable to
+appear with a dangerous MAC label, running it could change the
+caller's security context in a way that should not have been
+possible, even inside the namespace in which the task is confined.
+
+As a hardening measure, this would have made CVE-2014-5207 much
+more difficult to exploit.
+
+Signed-off-by: Andy Lutomirski <luto@amacapital.net>
+[ saf: Forward ported to 4.2 ]
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- include/linux/user_namespace.h |  8 ++++++++
- kernel/user_namespace.c        | 14 ++++++++++++++
- security/commoncap.c           |  2 ++
- 3 files changed, 24 insertions(+)
+ fs/exec.c                |  2 +-
+ fs/namespace.c           | 13 +++++++++++++
+ include/linux/mount.h    |  1 +
+ security/commoncap.c     |  2 +-
+ security/selinux/hooks.c |  2 +-
+ 5 files changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 8297e5b341d8..a43faa727124 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -72,6 +72,8 @@ extern ssize_t proc_projid_map_write(struct file *, const char __user *, size_t,
- extern ssize_t proc_setgroups_write(struct file *, const char __user *, size_t, loff_t *);
- extern int proc_setgroups_show(struct seq_file *m, void *v);
- extern bool userns_may_setgroups(const struct user_namespace *ns);
-+extern bool in_userns(const struct user_namespace *ns,
-+		      const struct user_namespace *target_ns);
- #else
+diff --git a/fs/exec.c b/fs/exec.c
+index b06623a9347f..ea7311d72cc3 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
+ 	bprm->cred->euid = current_euid();
+ 	bprm->cred->egid = current_egid();
  
- static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-@@ -100,6 +102,12 @@ static inline bool userns_may_setgroups(const struct user_namespace *ns)
- {
- 	return true;
- }
-+
-+static inline bool in_userns(const struct user_namespace *ns,
-+			     const struct user_namespace *target_ns)
-+{
-+	return true;
-+}
- #endif
+-	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
++	if (!mnt_may_suid(bprm->file->f_path.mnt))
+ 		return;
  
- #endif /* _LINUX_USER_H */
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 4109f8320684..2b043876d5f0 100644
---- a/kernel/user_namespace.c
-+++ b/kernel/user_namespace.c
-@@ -944,6 +944,20 @@ bool userns_may_setgroups(const struct user_namespace *ns)
- 	return allowed;
+ 	if (task_no_new_privs(current))
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 423001de32a2..2bfd7ca92247 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3252,6 +3252,19 @@ found:
+ 	return visible;
  }
  
-+/*
-+ * Returns true if @ns is the same namespace as or a descendant of
-+ * @target_ns.
-+ */
-+bool in_userns(const struct user_namespace *ns,
-+	       const struct user_namespace *target_ns)
++bool mnt_may_suid(struct vfsmount *mnt)
 +{
-+	for (; ns; ns = ns->parent) {
-+		if (ns == target_ns)
-+			return true;
-+	}
-+	return false;
++	/*
++	 * Foreign mounts (accessed via fchdir or through /proc
++	 * symlinks) are always treated as if they are nosuid.  This
++	 * prevents namespaces from trusting potentially unsafe
++	 * suid/sgid bits, file caps, or security labels that originate
++	 * in other namespaces.
++	 */
++	return real_mount(mnt)->mnt_ns == current->nsproxy->mnt_ns &&
++		!(mnt->mnt_flags & MNT_NOSUID);
 +}
 +
- static inline struct user_namespace *to_user_ns(struct ns_common *ns)
+ static struct ns_common *mntns_get(struct task_struct *task)
  {
- 	return container_of(ns, struct user_namespace, ns);
+ 	struct ns_common *ns = NULL;
+diff --git a/include/linux/mount.h b/include/linux/mount.h
+index f822c3c11377..54a594d49733 100644
+--- a/include/linux/mount.h
++++ b/include/linux/mount.h
+@@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
+ extern struct vfsmount *mntget(struct vfsmount *mnt);
+ extern struct vfsmount *mnt_clone_internal(struct path *path);
+ extern int __mnt_is_readonly(struct vfsmount *mnt);
++extern bool mnt_may_suid(struct vfsmount *mnt);
+ 
+ struct path;
+ extern struct vfsmount *clone_private_mount(struct path *path);
 diff --git a/security/commoncap.c b/security/commoncap.c
-index d103f5a4043d..175ab497e810 100644
+index 175ab497e810..858d86a1b73c 100644
 --- a/security/commoncap.c
 +++ b/security/commoncap.c
-@@ -439,6 +439,8 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
- 
- 	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+@@ -437,7 +437,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
+ 	if (!file_caps_enabled)
  		return 0;
-+	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
-+		return 0;
  
- 	rc = get_vfs_caps_from_disk(bprm->file->f_path.dentry, &vcaps);
- 	if (rc < 0) {
+-	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
++	if (!mnt_may_suid(bprm->file->f_path.mnt))
+ 		return 0;
+ 	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
+ 		return 0;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 564079c5c49d..459e71ddbc9d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2137,7 +2137,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+ 			    const struct task_security_struct *new_tsec)
+ {
+ 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+-	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
++	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+ 	int rc;
+ 
+ 	if (!nnp && !nosuid)
 -- 
 1.9.1
