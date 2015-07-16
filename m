@@ -1,62 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GBH203019369
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 07:17:02 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May 5 2014))
- with ESMTP id <0NRK00F89VBYRQA0@mailout1.w1.samsung.com> for
- selinux@tycho.nsa.gov; Thu, 16 Jul 2015 12:16:46 +0100 (BST)
-Message-id: <1437045404.2207.5.camel@samsung.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-Date: Thu, 16 Jul 2015 13:16:44 +0200
-In-reply-to: <87vbdlf7vo.fsf@x220.int.ebiederm.org>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <55A6C448.5050902@schaufler-ca.com> <87vbdlf7vo.fsf@x220.int.ebiederm.org>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- linux-security-module@vger.kernel.org,
- Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GCr5Qs027817
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 08:53:06 -0400
+Date: Thu, 16 Jul 2015 14:53:46 +0200
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Dan <dtdevore64@yahoo.com>
+Subject: Re: Trouble building secilc compiler
+Message-ID: <20150716125316.GA31003@sec-eng-01.lab.eng.brq.redhat.com>
+References: <55A72AE8.6010104@yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <55A72AE8.6010104@yahoo.com>
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On śro, 2015-07-15 at 16:06 -0500, Eric W. Biederman wrote:
+On Wed, Jul 15, 2015 at 11:54:16PM -0400, Dan wrote:
+> I am having trouble building the secilc compiler. I cloned this repository:
+> "https://github.com/SELinuxProject/selinux" and when I change into
+> the directory "secilc", and try to run the "make" command it gives
+> me this output:
 > 
-> I am on the fence with Lukasz Pawelczyk's patches.  Some parts I 
-> liked
-> some parts I had issues with.  As I recall one of my issues was that
-> those patches conflicted in detail if not in principle with this
-> appropach.
 > 
-> If these patches do not do a good job of laying the ground work for
-> supporting security labels that unprivileged users can set than Seth
-> could really use some feedback.  Figuring out how to properly deal 
-> with
-> the LSMs has been one of his challenges.
+> 
+> [steve@localhost secilc]$ sudo make
+> "cc -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute
+> -Wcast-align -Wstrict-prototypes -Wpointer-arith -Wunused
+> -I/usr/include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64   -c -o secilc.o
+> secilc.c
+> secilc.c:30:20: fatal error: stdlib.h: No such file or directory
+> compilation terminated.
+> <builtin>: recipe for target 'secilc.o' failed
+> make: *** [secilc.o] Error 1"
+> 
+> 
+> I'm not sure what I'm doing wrong, I am just trying to get the
+> compiler because I have upgraded everything else on my system to
+> selinux userspace 2.4 from this website below.
 
-I fail to see how those 2 are in any conflict. Smack namespace is just
-a mean of limiting the view of Smack labels within user namespace, to
-be able to give some limited capabilities to processes in the namespace
-to make it possible to partially administer Smack there. It doesn't
-change Smack behaviour or mode of operation in any way.
+I can only guess that you are missing glibc-headers package installed.
+> 
+> "https://fedoraproject.org/wiki/Changes/SELinuxPolicyStoreMigration"
+> 
+> 
+> If anyone can help me I would really appreciate it. Thanks.
 
-If your approach here is to treat user ns mounted filesystem as if they
-didn't support xattrs at all then my patches don't conflict here any
-more than Smack itself already does.
+I'm just building secilc package in my plautrba/selinux COPR repository:
 
-If the filesystem will get a default (e.g. by smack* mount options)
-label then this label will co-work with Smack namespaces.
+https://copr.fedoraproject.org/coprs/plautrba/selinux/builds/
 
+and I'm going to send it to package review process soon.
 
--- 
-Lukasz Pawelczyk
-Samsung R&D Institute Poland
-Samsung Electronics
+Petr
