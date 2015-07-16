@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GBn1j3021566
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 07:49:08 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GBn1j4021566
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 07:49:09 -0400
 Received: from int-mx10.intmail.prod.int.phx2.redhat.com
  (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- by mx1.redhat.com (Postfix) with ESMTPS id 15B1638886F
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 11:49:07 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id 3A8EB38886F
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 11:49:08 +0000 (UTC)
 From: Robert Kuska <rkuska@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 06/11] sepolgen: Replace usage of __cmp__ with rich comparison.
-Date: Thu, 16 Jul 2015 13:48:16 +0200
-Message-Id: <1437047301-17672-7-git-send-email-rkuska@redhat.com>
+Subject: [PATCH 07/11] sepolgen: Replace usage of attributes of types module
+Date: Thu, 16 Jul 2015 13:48:17 +0200
+Message-Id: <1437047301-17672-8-git-send-email-rkuska@redhat.com>
 In-Reply-To: <1437047301-17672-1-git-send-email-rkuska@redhat.com>
 References: <1437047301-17672-1-git-send-email-rkuska@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,219 +17,201 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In Python3 the __cmp__ function is removed, and rich
-comparison should be used instead.
-Also the cmp function is gone in Python3 therefore it is
-reimplemented in util.py and used if running on Python3.
+In Python3 all strings are by default Unicode and both Unicode and String
+types are removed from types module. We introduce separate
+variables `bytes_type` and `string_type` to reflect Python3 understanding
+of strings, on Python2 `bytes_type` refers to <str> and `string_type` to
+<unicode>, on Python3 `bytes_type` are <bytes> and `string_type` <str>.
+As all strings are Unicodes by default on Python3 we encode them to
+bytes when needed as late as possible.
+
+Also other attributes were replaced with their equivalents from
+builtins which are available for both Python3 and Python2.
 
 Signed-off-by: Robert Kuska <rkuska@redhat.com>
 ---
- sepolgen/src/sepolgen/access.py    | 36 ++++++++++++++++++------------------
- sepolgen/src/sepolgen/matching.py  | 33 ++++++++++++++-------------------
- sepolgen/src/sepolgen/output.py    |  4 ++++
- sepolgen/src/sepolgen/policygen.py |  3 +++
- sepolgen/src/sepolgen/util.py      | 35 +++++++++++++++++++++++++++++++++++
- 5 files changed, 74 insertions(+), 37 deletions(-)
+ sepolgen/src/sepolgen/lex.py  | 31 ++++++++++++++++++-------------
+ sepolgen/src/sepolgen/util.py |  9 +++++++++
+ sepolgen/src/sepolgen/yacc.py | 16 ++++++++--------
+ 3 files changed, 35 insertions(+), 21 deletions(-)
 
-diff --git a/sepolgen/src/sepolgen/access.py b/sepolgen/src/sepolgen/access.py
-index 46d4dba..98bee98 100644
---- a/sepolgen/src/sepolgen/access.py
-+++ b/sepolgen/src/sepolgen/access.py
-@@ -32,6 +32,7 @@ in a variety of ways, but they are the fundamental representation of access.
- """
+diff --git a/sepolgen/src/sepolgen/lex.py b/sepolgen/src/sepolgen/lex.py
+index 3f5904b..b9f3d9e 100644
+--- a/sepolgen/src/sepolgen/lex.py
++++ b/sepolgen/src/sepolgen/lex.py
+@@ -26,18 +26,20 @@ __version__ = "2.2"
  
- from . import refpolicy
+ import re, sys, types
+ 
 +from . import util
- 
- from selinux import audit2why
- 
-@@ -52,7 +53,7 @@ def is_idparam(id):
-     else:
-         return False
- 
--class AccessVector:
-+class AccessVector(util.Comparison):
-     """
-     An access vector is the basic unit of access in SELinux.
- 
-@@ -89,6 +90,9 @@ class AccessVector:
-             self.audit_msgs = []
-             self.type = audit2why.TERULE
-             self.data = []
-+        # when implementing __eq__ also __hash__ is needed on py2
-+        # if object is muttable __hash__ should be None
-+        self.__hash__ = None
- 
-         # The direction of the information flow represented by this
-         # access vector - used for matching
-@@ -134,23 +138,19 @@ class AccessVector:
-         return "allow %s %s:%s %s;" % (self.src_type, self.tgt_type,
-                                         self.obj_class, self.perms.to_space_str())
- 
--    def __cmp__(self, other):
--        if self.src_type != other.src_type:
--            return cmp(self.src_type, other.src_type)
--        if self.tgt_type != other.tgt_type:
--            return cmp(self.tgt_type, other.tgt_type)
--        if self.obj_class != self.obj_class:
--            return cmp(self.obj_class, other.obj_class)
--        if len(self.perms) != len(other.perms):
--            return cmp(len(self.perms), len(other.perms))
--        x = list(self.perms)
--        x.sort()
--        y = list(other.perms)
--        y.sort()
--        for pa, pb in zip(x, y):
--            if pa != pb:
--                return cmp(pa, pb)
--        return 0
-+    def _compare(self, other, method):
-+        try:
-+            x = list(self.perms)
-+            a = (self.src_type, self.tgt_type, self.obj_class, x)
-+            y = list(other.perms)
-+            x.sort()
-+            y.sort()
-+            b = (other.src_type, other.tgt_type, other.obj_class, y)
-+            return method(a, b)
-+        except (AttributeError, TypeError):
-+            # trying to compare to foreign type
-+            return NotImplemented
-+
- 
- def avrule_to_access_vectors(avrule):
-     """Convert an avrule into a list of access vectors.
-diff --git a/sepolgen/src/sepolgen/matching.py b/sepolgen/src/sepolgen/matching.py
-index 47531ff..6f86359 100644
---- a/sepolgen/src/sepolgen/matching.py
-+++ b/sepolgen/src/sepolgen/matching.py
-@@ -25,31 +25,26 @@ import itertools
- 
- from . import access
- from . import objectmodel
-+from . import util
- 
- 
--class Match:
-+class Match(util.Comparison):
-     def __init__(self, interface=None, dist=0):
-         self.interface = interface
-         self.dist = dist
-         self.info_dir_change = False
--
--    def __cmp__(self, other):
--        if self.dist == other.dist:
--            if self.info_dir_change:
--                if other.info_dir_change:
--                    return 0
--                else:
--                    return 1
--            else:
--                if other.info_dir_change:
--                    return -1
--                else:
--                    return 0
--        else:
--            if self.dist < other.dist:
--                return -1
--            else:
--                return 1
-+        # when implementing __eq__ also __hash__ is needed on py2
-+        # if object is muttable __hash__ should be None
-+        self.__hash__ = None
-+
-+    def _compare(self, other, method):
-+        try:
-+            a = (self.dist, self.info_dir_change)
-+            b = (other.dist, other.info_dir_change)
-+            return method(a, b)
-+        except (AttributeError, TypeError):
-+            # trying to compare to foreign type
-+            return NotImplemented
- 
- class MatchList:
-     DEFAULT_THRESHOLD = 150
-diff --git a/sepolgen/src/sepolgen/output.py b/sepolgen/src/sepolgen/output.py
-index 4244a74..d8daedb 100644
---- a/sepolgen/src/sepolgen/output.py
-+++ b/sepolgen/src/sepolgen/output.py
-@@ -30,6 +30,10 @@ cleanly separated from the formatting issues.
- from . import refpolicy
- from . import util
- 
-+if util.PY3:
-+    from .util import cmp
 +
 +
- class ModuleWriter:
-     def __init__(self):
-         self.fd = None
-diff --git a/sepolgen/src/sepolgen/policygen.py b/sepolgen/src/sepolgen/policygen.py
-index 221b78e..0f4c419 100644
---- a/sepolgen/src/sepolgen/policygen.py
-+++ b/sepolgen/src/sepolgen/policygen.py
-@@ -35,6 +35,9 @@ from . import objectmodel
- from . import access
- from . import interfaces
- from . import matching
-+from . import util
-+if util.PY3:
-+    from .util import cmp
- # Constants for the level of explanation from the generation
- # routines
- NO_EXPLANATION    = 0
+ # Regular expression used to match valid token names
+ _is_identifier = re.compile(r'^[a-zA-Z0-9_]+$')
+ 
+-# Available instance types.  This is used when lexers are defined by a class.
+-# It's a little funky because I want to preserve backwards compatibility
+-# with Python 2.0 where types.ObjectType is undefined.
++# Available instance types.  This is used when parsers are defined by a class.
++# In Python3 the InstanceType and ObjectType are no more, they've passed, ceased
++# to be, they are ex-classes along with old-style classes
+ 
+ try:
+    _INSTANCETYPE = (types.InstanceType, types.ObjectType)
+ except AttributeError:
+-   _INSTANCETYPE = types.InstanceType
+-   class object: pass       # Note: needed if no new-style classes present
++   _INSTANCETYPE = object
+ 
+ # Exception thrown when invalid token encountered and no default error
+ # handler is defined.
+@@ -197,7 +199,7 @@ class Lexer:
+     # input() - Push a new string into the lexer
+     # ------------------------------------------------------------
+     def input(self,s):
+-        if not (isinstance(s,types.StringType) or isinstance(s,types.UnicodeType)):
++        if not (isinstance(s,util.bytes_type) or isinstance(s, util.string_type)):
+             raise ValueError, "Expected a string"
+         self.lexdata = s
+         self.lexpos = 0
+@@ -543,7 +545,7 @@ def lex(module=None,object=None,debug=0,optimize=0,lextab="lextab",reflags=0,now
+         
+     if not tokens:
+         raise SyntaxError,"lex: module does not define 'tokens'"
+-    if not (isinstance(tokens,types.ListType) or isinstance(tokens,types.TupleType)):
++    if not (isinstance(tokens,list) or isinstance(tokens,tuple)):
+         raise SyntaxError,"lex: tokens must be a list or tuple."
+ 
+     # Build a dictionary of valid token names
+@@ -564,7 +566,7 @@ def lex(module=None,object=None,debug=0,optimize=0,lextab="lextab",reflags=0,now
+ 
+     try:
+          for c in literals:
+-               if not (isinstance(c,types.StringType) or isinstance(c,types.UnicodeType)) or len(c) > 1:
++               if not (isinstance(c,util.bytes_type) or isinstance(c, util.string_type)) or len(c) > 1:
+                     print "lex: Invalid literal %s. Must be a single character" % repr(c)
+                     error = 1
+                     continue
+@@ -577,18 +579,21 @@ def lex(module=None,object=None,debug=0,optimize=0,lextab="lextab",reflags=0,now
+ 
+     # Build statemap
+     if states:
+-         if not (isinstance(states,types.TupleType) or isinstance(states,types.ListType)):
++         if not (isinstance(states,tuple) or isinstance(states,list)):
+               print "lex: states must be defined as a tuple or list."
+               error = 1
+          else:
+               for s in states:
+-                    if not isinstance(s,types.TupleType) or len(s) != 2:
++                    if not isinstance(s,tuple) or len(s) != 2:
+                            print "lex: invalid state specifier %s. Must be a tuple (statename,'exclusive|inclusive')" % repr(s)
+                            error = 1
+                            continue
+                     name, statetype = s
+-                    if not isinstance(name,types.StringType):
+-                           print "lex: state name %s must be a string" % repr(name)
++                    if isinstance(name, util.string_type):
++                           original_name = name
++                           name = util.encode_input(name)
++                    if not isinstance(name,util.bytes_type) or len(original_name) != len(name):
++                           print "lex: state name %s must be a byte string" % repr(original_name)
+                            error = 1
+                            continue
+                     if not (statetype == 'inclusive' or statetype == 'exclusive'):
+@@ -627,7 +632,7 @@ def lex(module=None,object=None,debug=0,optimize=0,lextab="lextab",reflags=0,now
+ 
+         if callable(t):
+             for s in states: funcsym[s].append((f,t))
+-        elif (isinstance(t, types.StringType) or isinstance(t,types.UnicodeType)):
++        elif (isinstance(t, util.bytes_type) or isinstance(t,util.string_type)):
+             for s in states: strsym[s].append((f,t))
+         else:
+             print "lex: %s not defined as a function or string" % f
 diff --git a/sepolgen/src/sepolgen/util.py b/sepolgen/src/sepolgen/util.py
-index 2edbf8c..ec628e9 100644
+index ec628e9..875357f 100644
 --- a/sepolgen/src/sepolgen/util.py
 +++ b/sepolgen/src/sepolgen/util.py
-@@ -16,6 +16,10 @@
+@@ -16,11 +16,20 @@
  # along with this program; if not, write to the Free Software
  # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  #
-+import sys
-+
-+
-+PY3 = sys.version_info[0] == 3
++import locale
+ import sys
  
+ 
+ PY3 = sys.version_info[0] == 3
+ 
++if PY3:
++    bytes_type=bytes
++    string_type=str
++else:
++    bytes_type=str
++    string_type=unicode
++
++
  class ConsoleProgressBar:
      def __init__(self, out, steps=100, indicator='#'):
-@@ -90,6 +94,37 @@ def encode_input(text):
-         encoded_text = text.encode('utf-8')
-     return encoded_text 
+         self.blocks = 0
+diff --git a/sepolgen/src/sepolgen/yacc.py b/sepolgen/src/sepolgen/yacc.py
+index b681785..8b9b3e2 100644
+--- a/sepolgen/src/sepolgen/yacc.py
++++ b/sepolgen/src/sepolgen/yacc.py
+@@ -111,7 +111,7 @@ class YaccProduction:
+         self.stack = stack
  
-+class Comparison():
-+    """Class used when implementing rich comparison.
-+
-+    Inherit from this class if you want to have a rich
-+    comparison withing the class, afterwards implement
-+    _compare function within your class."""
-+    
-+    def _compare(self, other, method):
-+        raise NotImplemented
-+
-+    def __eq__(self, other):
-+        return self._compare(other, lambda a, b: a == b)
-+
-+    def __lt__(self, other):
-+        return self._compare(other, lambda a, b: a < b)
-+
-+    def __le__(self, other):
-+        return self._compare(other, lambda a, b: a <= b)
-+
-+    def __ge__(self, other):
-+        return self._compare(other, lambda a, b: a >= b)
-+
-+    def __gt__(self, other):
-+        return self._compare(other, lambda a, b: a > b)
-+
-+    def __ne__(self, other):
-+        return self._compare(other, lambda a, b: a != b)
-+
-+def cmp(first, second):
-+    return (first > second) - (second > first)
-+
- if __name__ == "__main__":
-     import sys
-     import time
+     def __getitem__(self,n):
+-        if type(n) == types.IntType:
++        if type(n) == int:
+              if n >= 0: return self.slice[n].value
+              else: return self.stack[n].value
+         else:
+@@ -1940,13 +1940,13 @@ def lr_read_tables(module=tab_module,optimize=0):
+ 
+ 
+ # Available instance types.  This is used when parsers are defined by a class.
+-# it's a little funky because I want to preserve backwards compatibility
+-# with Python 2.0 where types.ObjectType is undefined.
++# In Python3 the InstanceType and ObjectType are no more, they've passed, ceased
++# to be, they are ex-classes along with old-style classes
+ 
+ try:
+    _INSTANCETYPE = (types.InstanceType, types.ObjectType)
+ except AttributeError:
+-   _INSTANCETYPE = types.InstanceType
++   _INSTANCETYPE = object
+ 
+ # -----------------------------------------------------------------------------
+ # yacc(module)
+@@ -2026,18 +2026,18 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module,
+     
+         if not tokens:
+             raise YaccError,"module does not define a list 'tokens'"
+-        if not (isinstance(tokens,types.ListType) or isinstance(tokens,types.TupleType)):
++        if not (isinstance(tokens,list) or isinstance(tokens,tuple)):
+             raise YaccError,"tokens must be a list or tuple."
+ 
+         # Check to see if a requires dictionary is defined.
+         requires = ldict.get("require",None)
+         if requires:
+-            if not (isinstance(requires,types.DictType)):
++            if not (isinstance(requires,dict)):
+                 raise YaccError,"require must be a dictionary."
+ 
+             for r,v in requires.items():
+                 try:
+-                    if not (isinstance(v,types.ListType)):
++                    if not (isinstance(v,list)):
+                         raise TypeError
+                     v1 = [x.split(".") for x in v]
+                     Requires[r] = v1
+@@ -2063,7 +2063,7 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module,
+         # Get the precedence map (if any)
+         prec = ldict.get("precedence",None)
+         if prec:
+-            if not (isinstance(prec,types.ListType) or isinstance(prec,types.TupleType)):
++            if not (isinstance(prec,list) or isinstance(prec,tuple)):
+                 raise YaccError,"precedence must be a list or tuple."
+             add_precedence(prec)
+             Signature.update(util.encode_input(repr(prec)))
 -- 
 2.4.3
