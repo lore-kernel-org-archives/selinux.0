@@ -1,78 +1,43 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GG09dF010626
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 12:00:11 -0400
-Received: by obnw1 with SMTP id w1so49600811obn.3
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 09:00:09 -0700 (PDT)
-Date: Thu, 16 Jul 2015 10:59:05 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Message-ID: <20150716155905.GA51751@ubuntu-hedt>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <87615k7pyu.fsf@x220.int.ebiederm.org>
- <20150716135947.GC77715@ubuntu-hedt>
+Message-ID: <55A7DC12.3020002@tycho.nsa.gov>
+Date: Thu, 16 Jul 2015 12:30:10 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150716135947.GC77715@ubuntu-hedt>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
- Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
- Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] Set self.sename to sename after calling
+ semanage_seuser_set_sename()
+References: <1436893676-21412-1-git-send-email-bigon@debian.org>
+In-Reply-To: <1436893676-21412-1-git-send-email-bigon@debian.org>
+Content-Type: text/plain; charset=windows-1252
+Cc: 734806@bugs.debian.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 16, 2015 at 08:59:47AM -0500, Seth Forshee wrote:
-> On Wed, Jul 15, 2015 at 10:15:21PM -0500, Eric W. Biederman wrote:
-> > 
-> > Seth I think for the LSMs we should start with:
-> > 
-> > diff --git a/security/security.c b/security/security.c
-> > index 062f3c997fdc..5b6ece92a8e5 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -310,6 +310,8 @@ int security_sb_statfs(struct dentry *dentry)
-> >  int security_sb_mount(const char *dev_name, struct path *path,
-> >                         const char *type, unsigned long flags, void *data)
-> >  {
-> > +       if (current_user_ns() != &init_user_ns)
-> > +               return -EPERM;
-> >         return call_int_hook(sb_mount, 0, dev_name, path, type, flags, data);
-> >  }
+On 07/14/2015 01:07 PM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
 > 
-> This just makes it impossible to mount from a user namespace. Every
-> mount from current_user_ns() != &init_user_ns will fail.
-
-What might work instead is to add a check in security_sb_kern_mount.
-Then it would need to check s_user_ns, that way if proc, sysfs, etc.
-use sget_userns(..., &init_user_ns) they can still be mounted in
-containers.
-
-It would be nicer to have a hook after sget but before fill_super so
-that a bunch of work doesn't have to be done and then undone. Right now
-there doesn't seem to be any suitable hook.
-
-> > Then we should push this down into all of the lsms.
-> > Then when we should remove or relax or change the check as appropriate
-> > in each lsm.
-> > 
-> > The point is this is good enough to see that it is trivially safe,
-> > and this allows us to focus on the core issues, and stop worrying about
-> > the lsms for a bit.
-> > 
-> > Then we can focus on each lsm one at at time and take the time to really
-> > understand them and talk with their maintainers etc to make certain
-> > we get things correct.
-> > 
-> > This should remove the need for your patches 5, 6 and 7. For the
-> > immediate future.
+> This fixes audit information that are being logged and a crash when the
+> python-audit binding is not installed.
 > 
-> I'm still not entirely sure what you were trying to do, maybe refuse to
-> mount whenever a security module is loaded? I think this could be a good
-> option to start, but couldn't we restrict it to only the LSMs which use
-> xattrs for security labels? In situations where the filesystem cannot
-> supply security policy metadata I can't think of any reason to disallow
-> the mounts.
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=734806
+
+Thanks, applied.
+
+> ---
+>  policycoreutils/semanage/seobject.py | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> Seth
+> diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+> index 568ebfd..2edb050 100644
+> --- a/policycoreutils/semanage/seobject.py
+> +++ b/policycoreutils/semanage/seobject.py
+> @@ -575,6 +575,7 @@ class loginRecords(semanageRecords):
+>  
+>  		if sename != "":
+>  			semanage_seuser_set_sename(self.sh, u, sename)
+> +                        self.sename = sename
+>  		else:
+>  			self.sename = self.oldsename
+>  			
+> 
