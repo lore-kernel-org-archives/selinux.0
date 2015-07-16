@@ -1,140 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6G5pjiG032443
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 01:51:45 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andy Lutomirski <luto@amacapital.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GBH203019369
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 07:17:02 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
+ by mailout1.w1.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May 5 2014))
+ with ESMTP id <0NRK00F89VBYRQA0@mailout1.w1.samsung.com> for
+ selinux@tycho.nsa.gov; Thu, 16 Jul 2015 12:16:46 +0100 (BST)
+Message-id: <1437045404.2207.5.camel@samsung.com>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Casey Schaufler <casey@schaufler-ca.com>
+Date: Thu, 16 Jul 2015 13:16:44 +0200
+In-reply-to: <87vbdlf7vo.fsf@x220.int.ebiederm.org>
 References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <1436989569-69582-4-git-send-email-seth.forshee@canonical.com>
- <20150715214848.GA24204@mail.hallyn.com>
- <CALCETrVTGC8NJdpOhkqDaE8HdD95y-K2-VnsL+Oo4NjVUyovsA@mail.gmail.com>
- <87wpy1camr.fsf@x220.int.ebiederm.org>
- <CALCETrULyv9pfwAeyNrvJ06o+bW6JbWgBOsi4b4OUhbPjD4FnQ@mail.gmail.com>
- <87io9kzq5g.fsf@x220.int.ebiederm.org>
- <CALCETrWrFQJev_yn00BgMYbRhGGGa6nDBqmodbZxBrDO9xVSNw@mail.gmail.com>
- <87wpy0u1zo.fsf@x220.int.ebiederm.org>
- <CALCETrUiwuMaYCKPNam3VzmNr4=tFUs-fO3Kusag3UGWVwu8JQ@mail.gmail.com>
-Date: Thu, 16 Jul 2015 00:44:49 -0500
-In-Reply-To: <CALCETrUiwuMaYCKPNam3VzmNr4=tFUs-fO3Kusag3UGWVwu8JQ@mail.gmail.com>
- (Andy Lutomirski's message of "Wed, 15 Jul 2015 22:15:30 -0700")
-Message-ID: <87vbdkslke.fsf@x220.int.ebiederm.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 3/7] fs: Ignore file caps in mounts from other user
- namespaces
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ <55A6C448.5050902@schaufler-ca.com> <87vbdlf7vo.fsf@x220.int.ebiederm.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>,
  Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- James Morris <james.l.morris@oracle.com>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>
+ linux-security-module@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
+ linux-fsdevel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Andy Lutomirski <luto@amacapital.net> writes:
+On śro, 2015-07-15 at 16:06 -0500, Eric W. Biederman wrote:
+> 
+> I am on the fence with Lukasz Pawelczyk's patches.  Some parts I 
+> liked
+> some parts I had issues with.  As I recall one of my issues was that
+> those patches conflicted in detail if not in principle with this
+> appropach.
+> 
+> If these patches do not do a good job of laying the ground work for
+> supporting security labels that unprivileged users can set than Seth
+> could really use some feedback.  Figuring out how to properly deal 
+> with
+> the LSMs has been one of his challenges.
 
-> On Wed, Jul 15, 2015 at 10:04 PM, Eric W. Biederman
-> <ebiederm@xmission.com> wrote:
->> Andy Lutomirski <luto@amacapital.net> writes:
->>
->>>
->>> So here's the semantic question:
->>>
->>> Suppose an unprivileged user (uid 1000) creates a user namespace and a
->>> mount namespace.  They stick a file (owned by uid 1000 as seen by
->>> init_user_ns) in there and mark it setuid root and give it fcaps.
->>
->> To make this make sense I have to ask, is this file on a filesystem
->> where uid 1000 as seen by the init_user_ns stored as uid 1000 on
->> the filesystem?  Or is this uid 0 as seen by the filesystem?
->>
->> I assume this is uid 0 on the filesystem in question or else your
->> unprivileged user would not have sufficient privileges over the
->> filesystem to setup fcaps.
->
-> I was thinking uid 0 as seen by the filesystem.  But even if it were
-> uid 1000, the unprivileged user can still set whatever mode and xattrs
-> they want -- they control the backing store.
+I fail to see how those 2 are in any conflict. Smack namespace is just
+a mean of limiting the view of Smack labels within user namespace, to
+be able to give some limited capabilities to processes in the namespace
+to make it possible to partially administer Smack there. It doesn't
+change Smack behaviour or mode of operation in any way.
 
-Yes.   And that is what I was really asking.  Are we taking about a
-filesystem where the user controls the backing store?
+If your approach here is to treat user ns mounted filesystem as if they
+didn't support xattrs at all then my patches don't conflict here any
+more than Smack itself already does.
 
->>> Then global root gets an fd to this filesystem.  If they execve the
->>> file directly, then, with my patch 4, it won't act as setuid 1000 and
->>> the fcaps will be ignored.  Even with my patch 4, though, if they bind
->>> mount the fs and execve the file from their bind mount, it will act as
->>> setuid 1000.  Maybe this is odd.  However, with Seth's patch 3, the
->>> fcaps will (correctly) not be honored.
->>
->> With patch 3 you can also think of it as fcaps being honored and you
->> get all the caps in the appropriate user namespace, but since you are
->> not in that user namespace and so don't have a place to store them
->> in struct cred you don't get the file caps.
->>
->> From the philosophy of interpreting the file as defined by the
->> filesystem in principle we could extend struct cred so you actually
->> get the creds just in uid 1000s user namespace, but that is very
->> unlikely to be worth it.
->
-> I agree.
->
->>
->>> I tend to thing that, if we're not honoring the fcaps, we shouldn't be
->>> honoring the setuid bit either.  After all, it's really not a trusted
->>> file, even though the only user who could have messed with it really
->>> is the apparent owner.
->>
->> For the file caps we can't honor them because you don't have the bits
->> in struct cred.
->>
->> For setuid we can honor it, and setuid is something that the user
->> namespace allows.
->>
->
-> We certainly *can* honor it.  But why should we?  I'd be more
-> comfortable with this if the contents of an untrusted filesystem were
-> really treated as just data.
+If the filesystem will get a default (e.g. by smack* mount options)
+label then this label will co-work with Smack namespaces.
 
-In these weird bleed through situtations I don't know that we should.
-But extending nosuid protections in this way is a bit like yama
-a bit gratuitious stomping don't care cases in the semantics to
-make bugs harder to exploit.
 
->>> And, if we're going to say we don't trust the file and shouldn't honor
->>> setuid or fcaps, then merging all the functionality into mnt_may_suid
->>> could make sense.  Yes, these two things do different things, but they
->>> could hook in to the same place.
->>
->> There are really two separate questions:
->> - Do we trust this filesystem?
->> - Do you have the bits to implement this concept?
->>
->> Even if in this specific context the two questions wind up looking
->> exactly the same. I think it makes a lot of sense to ask the two
->> questions separately.  As future maintenance changes may cause the
->> implementation of the questions to diverge.
->>
->
-> Agreed.
->
-> Unless someone thinks of an argument to the contrary, I'd say "no, we
-> don't trust this filesystem".  I could be convinced otherwise.
-
-But this is context dependent.  From the perspective of the container
-we really do want to trust the filesystem.  As the container root set it
-up, and if he isn't being hostile likely has a use for setfcaps files
-and setuid files and all of the rest.
-
-Perhaps I should phrase it as:
-- In this context do we trust the code?   AKA mnt_may_suid?
-- What do these bits mean in this context?  (Usually something more complicated).
-
-Which says to me we want both patches 3 and 4 (even if 4 uses s_user_ns)
-because 3 is different than 4.
-
-And now I better context switch back to fixing bind mounts.
-
-Eric
+-- 
+Lukasz Pawelczyk
+Samsung R&D Institute Poland
+Samsung Electronics
