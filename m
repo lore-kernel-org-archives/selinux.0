@@ -1,268 +1,125 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6FN6IrQ010663
- for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 19:06:18 -0400
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id 6BAC51A1D8
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 01:06:15 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id 88RggnOYiPDo for <selinux@tycho.nsa.gov>;
- Thu, 16 Jul 2015 01:06:09 +0200 (CEST)
-Received: from soldur.bigon.be (unknown
- [IPv6:2a02:578:85fc:1:5cec:d9e9:eba9:1f5b])
- (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 35C2F1A00F
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 01:06:09 +0200 (CEST)
-From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH v2] Currently,
- jobs run by at are run in the crond_t domain and not transitioned
- outside of it.
-Date: Thu, 16 Jul 2015 01:06:06 +0200
-Message-Id: <1437001566-26458-1-git-send-email-bigon@debian.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Cc: 510466@bugs.debian.org
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6G2QsJa021077
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 22:26:55 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andy Lutomirski <luto@amacapital.net>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <55A6C448.5050902@schaufler-ca.com>
+ <87vbdlf7vo.fsf@x220.int.ebiederm.org>
+ <20150715214813.GB76420@ubuntu-hedt>
+ <87wpy1dpjg.fsf@x220.int.ebiederm.org>
+ <CALCETrXhVtR3oCPPHK1CfswBZNzMFYJAvdQr8FeckxWF-1A-NA@mail.gmail.com>
+Date: Wed, 15 Jul 2015 21:20:23 -0500
+In-Reply-To: <CALCETrXhVtR3oCPPHK1CfswBZNzMFYJAvdQr8FeckxWF-1A-NA@mail.gmail.com>
+ (Andy Lutomirski's message of "Wed, 15 Jul 2015 18:05:52 -0700")
+Message-ID: <874ml4c07s.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Laurent Bigonville <bigon@bigon.be>
+Andy Lutomirski <luto@amacapital.net> writes:
 
-With this patch, the jobs are transitioned in the same domain as the
-jobs that are run by the cron daemon:
+> On Jul 15, 2015 3:34 PM, "Eric W. Biederman" <ebiederm@xmission.com> wrote:
+>>
+>> Seth Forshee <seth.forshee@canonical.com> writes:
+>>
+>> > On Wed, Jul 15, 2015 at 04:06:35PM -0500, Eric W. Biederman wrote:
+>> >> Casey Schaufler <casey@schaufler-ca.com> writes:
+>> >>
+>> >> > On 7/15/2015 12:46 PM, Seth Forshee wrote:
+>> >> >> These are the first in a larger set of patches that I've been working on
+>> >> >> (with help from Eric Biederman) to support mounting ext4 and fuse
+>> >> >> filesystems from within user namespaces. I've pushed the full series to:
+>> >> >>
+>> >> >>   git://kernel.ubuntu.com/sforshee/linux.git userns-mounts
+>> >> >>
+>> >> >> Taking the series as a whole, the strategy is to handle as much of the
+>> >> >> heavy lifting as possible in the vfs so the filesystems don't have to
+>> >> >> handle weird edge cases. If you look at the full series you'll find that
+>> >> >> the changes in ext4 to support user namespace mounts turn out to be
+>> >> >> fairly minimal (fuse is a bit more complicated though as it must deal
+>> >> >> with translating ids for a userspace process which is running in pid and
+>> >> >> user namespaces).
+>> >> >>
+>> >> >> The patches I'm sending today lay some of the groundwork in the vfs and
+>> >> >> related code. They fall into two broad groups:
+>> >> >>
+>> >> >>  1. Patches 1-2 add s_user_ns and simplify MNT_NODEV handling. These are
+>> >> >>     pretty straightforward, and Eric has expressed interest in merging
+>> >> >>     these patches soon. Note that patch 2 won't apply cleanly without
+>> >> >>     Eric's noexec patches for proc and sys [1].
+>> >> >>
+>> >> >>  2. Patches 2-7 tighten down security for mounts with s_user_ns !=
+>> >> >>     &init_user_ns. This includes updates to how file caps and suid are
+>> >> >>     handled and LSM updates to ignore security labels on superblocks
+>> >> >>     from non-init namespaces.
+>> >> >>
+>> >> >>     The LSM changes in particular may not be optimal, as I don't have a
+>> >> >>     lot of familiarity with this code, so I'd be especially appreciative
+>> >> >>     of review of these changes and suggestions on how to improve them.
+>> >> >
+>> >> > Lukasz Pawelczyk <l.pawelczyk@samsung.com> proposed
+>> >> > LSM support in user namespaces ([RFC] lsm: namespace hooks)
+>> >> > that make a whole lot more sense than just turning off
+>> >> > the option of using labels on files. Gutting the ability
+>> >> > to use MAC in a namespace is a step down the road of
+>> >> > making MAC and namespaces incompatible.
+>> >>
+>> >> This is not "turning off the option to use labels on files".
+>> >>
+>> >> This is supporting mounting filesystems like ext4 by unprivileged users
+>> >> and not trusting the labels they set in the same way as we trust labels
+>> >> on filesystems mounted by privileged users.
+>> >>
+>> >> The first step needs to be not trusting those labels and treating such
+>> >> filesystems as filesystems without label support.  I hope that is Seth
+>> >> has implemented.
+>> >>
+>> >> In the long run we can do more interesting things with such filesystems
+>> >> once the appropriate LSM policy is in place.
+>> >
+>> > Yes, this exactly. Right now it looks to me like the only safe thing to
+>> > do with mounts from unprivileged users is to ignore the security labels,
+>> > so that's what I'm trying to do with these changes. If there's some
+>> > better thing to do, or some better way to do it, I'm more than happy to
+>> > receive that feedback.
+>>
+>> Ugh.
+>>
+>> This made me realize that we have an interesting problem here.  An
+>> unprivileged mount of tmpfs probably needs to have
+>> s_user_ns == &init_user_ns.
+>>
+>> Otherwise we will break security labels on tmpfs for no good reason.
+>> ramfs and sysfs also seem to have similar concerns.
+>>
+>> Because they have no backing store we can trust those filesystems with
+>> security labels.  Plus for at least sysfs there is the security label
+>> bleed through issue, that we need to make certain works.
+>>
+>> Perhaps these filesystems with trusted backing store need to call
+>> "sget_userns(..., &init_user_ns)".
+>>
+>> If we don't get this right we will have significant regressions with
+>> respect to security labels, and that is not ok.
+>
+> That's only a problem if there's anyone who sets security labels on
+> such a mount.  You need global caps to do that (I hope), which
+> requires someone outside the userns to help, which means there's a
+> good chance that literally no one does this.
 
-- When cron_userdomain_transition is set to off, a process for an
-  unconfined user will transition to unconfined_cronjob_t. For confined
-  user, the job is run as cronjob_t.
+Fair enough.  That is however something we need to test.  If no one
+puts security labels or file caps on such a mount we can change things.
+If not we can't because it would introduce regressions.
 
-- When cron_userdomain_transition is set to on, the processes are run
-  under the user default context.
-
-This patch is based on Marcela Mašláňová <mmaslano@redhat.com> work
----
- Makefile.in  |  3 ++-
- atd.c        | 87 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- config.h.in  |  3 +++
- configure.ac |  8 ++++++
- daemon.c     | 16 +++++++++++
- daemon.h     |  3 +++
- 6 files changed, 119 insertions(+), 1 deletion(-)
-
-diff --git a/Makefile.in b/Makefile.in
-index 5dd2767..2bddc13 100644
---- a/Makefile.in
-+++ b/Makefile.in
-@@ -40,6 +40,7 @@ LIBS		= @LIBS@
- LIBOBJS		= @LIBOBJS@
- INSTALL		= @INSTALL@
- PAMLIB          = @PAMLIB@
-+SELINUXLIB      = @SELINUXLIB@
- 
- CLONES		= atq atrm
- ATOBJECTS	= at.o panic.o perm.o posixtm.o y.tab.o lex.yy.o
-@@ -73,7 +74,7 @@ at: $(ATOBJECTS)
- 	$(LN_S) -f at atrm
- 
- atd: $(RUNOBJECTS)
--	$(CC) $(LDFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB)
-+	$(CC) $(LDFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB) $(SELINUXLIB)
- 
- y.tab.c y.tab.h: parsetime.y
- 	$(YACC) -d parsetime.y
-diff --git a/atd.c b/atd.c
-index d0b422e..e70caf0 100644
---- a/atd.c
-+++ b/atd.c
-@@ -83,6 +83,12 @@
- #include "getloadavg.h"
- #endif
- 
-+#ifdef WITH_SELINUX
-+#include <selinux/selinux.h>
-+#include <selinux/get_context_list.h>
-+int selinux_enabled = 0;
-+#endif
-+
- /* Macros */
- 
- #define BATCH_INTERVAL_DEFAULT 60
-@@ -195,6 +201,72 @@ myfork()
- #define fork myfork
- #endif
- 
-+#ifdef WITH_SELINUX
-+static int
-+set_selinux_context(const char *name, const char *filename) {
-+    security_context_t user_context = NULL;
-+    security_context_t file_context = NULL;
-+    int retval = 0;
-+    char *seuser = NULL;
-+    char *level = NULL;
-+
-+    if (getseuserbyname(name, &seuser, &level) == 0) {
-+        retval = get_default_context_with_level(seuser, level, NULL, &user_context);
-+        free(seuser);
-+        free(level);
-+        if (retval < 0) {
-+            lerr("execle: couldn't get security context for user %s\n", name);
-+            retval = -1;
-+            goto err;
-+        }
-+    }
-+
-+    /*
-+     * Since crontab files are not directly executed,
-+     * crond must ensure that the crontab file has
-+     * a context that is appropriate for the context of
-+     * the user cron job.  It performs an entrypoint
-+     * permission check for this purpose.
-+     */
-+    if (fgetfilecon(STDIN_FILENO, &file_context) < 0) {
-+        lerr("fgetfilecon FAILED %s", filename);
-+        retval = -1;
-+        goto err;
-+    }
-+
-+    retval = selinux_check_access(user_context, file_context, "file", "entrypoint", NULL);
-+    freecon(file_context);
-+    if (retval < 0) {
-+        lerr("Not allowed to set exec context to %s for user  %s\n", user_context, name);
-+        retval = -1;
-+        goto err;
-+    }
-+    if (setexeccon(user_context) < 0) {
-+        lerr("Could not set exec context to %s for user  %s\n", user_context, name);
-+        retval = -1;
-+        goto err;
-+    }
-+err:
-+    if (retval < 0 && security_getenforce() != 1)
-+        retval = 0;
-+    if (user_context)
-+        freecon(user_context);
-+    return retval;
-+}
-+
-+static int
-+selinux_log_callback (int type, const char *fmt, ...)
-+{
-+    va_list ap;
-+
-+    va_start(ap, fmt);
-+    vsyslog (LOG_ERR, fmt, ap);
-+    va_end(ap);
-+    return 0;
-+}
-+
-+#endif
-+
- static void
- run_file(const char *filename, uid_t uid, gid_t gid)
- {
-@@ -424,6 +496,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
- 
- 	    nice((tolower((int) queue) - 'a' + 1) * 2);
- 
-+#ifdef WITH_SELINUX
-+	    if (selinux_enabled > 0) {
-+	        if (set_selinux_context(pentry->pw_name, filename) < 0)
-+	            perr("SELinux Failed to set context\n");
-+	    }
-+#endif
-+
- 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
- 		perr("Cannot initialize the supplementary group access list");
- 
-@@ -707,6 +786,14 @@ main(int argc, char *argv[])
-     struct passwd *pwe;
-     struct group *ge;
- 
-+#ifdef WITH_SELINUX
-+    selinux_enabled=is_selinux_enabled();
-+
-+    if (selinux_enabled) {
-+        selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) selinux_log_callback);
-+    }
-+#endif
-+
- /* We don't need root privileges all the time; running under uid and gid
-  * daemon is fine.
-  */
-diff --git a/config.h.in b/config.h.in
-index 4d7dc91..681d68e 100644
---- a/config.h.in
-+++ b/config.h.in
-@@ -192,6 +192,9 @@
-    <sys/cpustats.h>. */
- #undef UMAX4_3
- 
-+/* Define if you are building with_selinux */
-+#undef WITH_SELINUX
-+
- /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
-    `char[]'. */
- #undef YYTEXT_POINTER
-diff --git a/configure.ac b/configure.ac
-index f3d2e35..1f6494a 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -239,6 +239,14 @@ AC_ARG_WITH(daemon_username,
- )
- AC_SUBST(DAEMON_USERNAME)
- 
-+AC_ARG_WITH(selinux,
-+[ --with-selinux       Define to run with selinux],
-+AC_DEFINE(WITH_SELINUX, 1, [Define if you are building with_selinux]),
-+)
-+AC_CHECK_LIB(selinux, is_selinux_enabled, SELINUXLIB=-lselinux)
-+AC_SUBST(SELINUXLIB)
-+AC_SUBST(WITH_SELINUX)
-+
- AC_MSG_CHECKING(groupname to run under)
- AC_ARG_WITH(daemon_groupname,
- [ --with-daemon_groupname=DAEMON_GROUPNAME	Groupname to run under (default daemon) ],
-diff --git a/daemon.c b/daemon.c
-index 8be40d4..f9d25e7 100644
---- a/daemon.c
-+++ b/daemon.c
-@@ -83,6 +83,22 @@ perr(const char *fmt,...)
- }
- 
- void
-+lerr(const char *fmt,...)
-+{
-+    char buf[1024];
-+    va_list args;
-+
-+    va_start(args, fmt);
-+    vsnprintf(buf, sizeof(buf), fmt, args);
-+    va_end(args);
-+
-+    if (daemon_debug) {
-+	perror(buf);
-+    } else
-+	syslog(LOG_ERR, "%s: %m", buf);
-+}
-+
-+void
- pabort(const char *fmt,...)
- {
-     char buf[1024];
-diff --git a/daemon.h b/daemon.h
-index c4507ae..f44ccd1 100644
---- a/daemon.h
-+++ b/daemon.h
-@@ -13,5 +13,8 @@ __attribute__((noreturn))
- #endif
- perr (const char *fmt, ...);
- 
-+void
-+lerr (const char *fmt, ...);
-+
- extern int daemon_debug;
- extern int daemon_foreground;
--- 
-2.1.4
+Eric
