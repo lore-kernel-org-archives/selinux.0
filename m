@@ -1,75 +1,35 @@
-Message-ID: <55A7B055.4050809@tycho.nsa.gov>
-Date: Thu, 16 Jul 2015 09:23:33 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Seth Forshee <seth.forshee@canonical.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>
-Subject: Re: [PATCH 6/7] selinux: Ignore security labels on user namespace
- mounts
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <1436989569-69582-7-git-send-email-seth.forshee@canonical.com>
-In-Reply-To: <1436989569-69582-7-git-send-email-seth.forshee@canonical.com>
-Content-Type: text/plain; charset=windows-1252
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
- Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: fix policydb_read for policy versions < 24
+Date: Thu, 16 Jul 2015 09:33:32 -0400
+Message-Id: <1437053612-17564-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/15/2015 03:46 PM, Seth Forshee wrote:
-> Unprivileged users should not be able to supply security labels
-> in filesystems, nor should they be able to supply security
-> contexts in unprivileged mounts. For any mount where s_user_ns is
-> not init_user_ns, force the use of SECURITY_FS_USE_NONE behavior
-> and return EPERM if any contexts are supplied in the mount
-> options.
-> 
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Policy versions < 24 did not include type attributes in the types symtab,
+so there can be holes in the type_val_to_struct array.  Fixes a segfault
+during the downgrade test performed by a make test in libsepol.
 
-I think this is obsoleted by the subsequent discussion, but just for the
-record: this patch would cause the files in the userns mount to be left
-with the "unlabeled" label, and therefore under typical policies,
-completely inaccessible to any process in a confined domain.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/policydb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  security/selinux/hooks.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 459e71ddbc9d..eeb71e45ab82 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -732,6 +732,19 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->  	    !strcmp(sb->s_type->name, "pstore"))
->  		sbsec->flags |= SE_SBGENFS;
->  
-> +	/*
-> +	 * If this is a user namespace mount, no contexts are allowed
-> +	 * on the command line and security labels mus be ignored.
-> +	 */
-> +	if (sb->s_user_ns != &init_user_ns) {
-> +		if (context_sid || fscontext_sid || rootcontext_sid ||
-> +		    defcontext_sid)
-> +			return -EPERM;
-> +		sbsec->behavior = SECURITY_FS_USE_NONE;
-> +		goto out_set_opts;
-> +	}
-> +
-> +
->  	if (!sbsec->behavior) {
->  		/*
->  		 * Determine the labeling behavior to use for this
-> @@ -813,6 +826,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->  		sbsec->def_sid = defcontext_sid;
->  	}
->  
-> +out_set_opts:
->  	rc = sb_finish_set_opts(sb);
->  out:
->  	mutex_unlock(&sbsec->lock);
-> 
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 670aef8..665f7a9 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -3936,7 +3936,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 			/* add the type itself as the degenerate case */
+ 			if (ebitmap_set_bit(&p->type_attr_map[i], i, 1))
+ 				goto bad;
+-			if (p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
++			if (p->type_val_to_struct[i] && p->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
+ 				if (ebitmap_set_bit(&p->attr_type_map[i], i, 1))
+ 					goto bad;
+ 			}
+-- 
+2.1.0
