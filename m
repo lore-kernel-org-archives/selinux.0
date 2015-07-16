@@ -1,125 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6G2QsJa021077
- for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 22:26:55 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andy Lutomirski <luto@amacapital.net>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <55A6C448.5050902@schaufler-ca.com>
- <87vbdlf7vo.fsf@x220.int.ebiederm.org>
- <20150715214813.GB76420@ubuntu-hedt>
- <87wpy1dpjg.fsf@x220.int.ebiederm.org>
- <CALCETrXhVtR3oCPPHK1CfswBZNzMFYJAvdQr8FeckxWF-1A-NA@mail.gmail.com>
-Date: Wed, 15 Jul 2015 21:20:23 -0500
-In-Reply-To: <CALCETrXhVtR3oCPPHK1CfswBZNzMFYJAvdQr8FeckxWF-1A-NA@mail.gmail.com>
- (Andy Lutomirski's message of "Wed, 15 Jul 2015 18:05:52 -0700")
-Message-ID: <874ml4c07s.fsf@x220.int.ebiederm.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6G2sR5D022513
+ for <selinux@tycho.nsa.gov>; Wed, 15 Jul 2015 22:54:30 -0400
+Message-ID: <55A71CE3.4050708@schaufler-ca.com>
+Date: Wed, 15 Jul 2015 19:54:27 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+To: Andy Lutomirski <luto@amacapital.net>
 Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <55A6C448.5050902@schaufler-ca.com> <87vbdlf7vo.fsf@x220.int.ebiederm.org>
+ <55A6E107.3070200@schaufler-ca.com>
+ <CALCETrVCNQPVr-hg_pqd2J_LeWtRJs3LRsbbE+fifo4sat+FQQ@mail.gmail.com>
+In-Reply-To: <CALCETrVCNQPVr-hg_pqd2J_LeWtRJs3LRsbbE+fifo4sat+FQQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- Seth Forshee <seth.forshee@canonical.com>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Seth Forshee <seth.forshee@canonical.com>,
  LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Andy Lutomirski <luto@amacapital.net> writes:
-
-> On Jul 15, 2015 3:34 PM, "Eric W. Biederman" <ebiederm@xmission.com> wrote:
->>
->> Seth Forshee <seth.forshee@canonical.com> writes:
->>
->> > On Wed, Jul 15, 2015 at 04:06:35PM -0500, Eric W. Biederman wrote:
->> >> Casey Schaufler <casey@schaufler-ca.com> writes:
->> >>
->> >> > On 7/15/2015 12:46 PM, Seth Forshee wrote:
->> >> >> These are the first in a larger set of patches that I've been working on
->> >> >> (with help from Eric Biederman) to support mounting ext4 and fuse
->> >> >> filesystems from within user namespaces. I've pushed the full series to:
->> >> >>
->> >> >>   git://kernel.ubuntu.com/sforshee/linux.git userns-mounts
->> >> >>
->> >> >> Taking the series as a whole, the strategy is to handle as much of the
->> >> >> heavy lifting as possible in the vfs so the filesystems don't have to
->> >> >> handle weird edge cases. If you look at the full series you'll find that
->> >> >> the changes in ext4 to support user namespace mounts turn out to be
->> >> >> fairly minimal (fuse is a bit more complicated though as it must deal
->> >> >> with translating ids for a userspace process which is running in pid and
->> >> >> user namespaces).
->> >> >>
->> >> >> The patches I'm sending today lay some of the groundwork in the vfs and
->> >> >> related code. They fall into two broad groups:
->> >> >>
->> >> >>  1. Patches 1-2 add s_user_ns and simplify MNT_NODEV handling. These are
->> >> >>     pretty straightforward, and Eric has expressed interest in merging
->> >> >>     these patches soon. Note that patch 2 won't apply cleanly without
->> >> >>     Eric's noexec patches for proc and sys [1].
->> >> >>
->> >> >>  2. Patches 2-7 tighten down security for mounts with s_user_ns !=
->> >> >>     &init_user_ns. This includes updates to how file caps and suid are
->> >> >>     handled and LSM updates to ignore security labels on superblocks
->> >> >>     from non-init namespaces.
->> >> >>
->> >> >>     The LSM changes in particular may not be optimal, as I don't have a
->> >> >>     lot of familiarity with this code, so I'd be especially appreciative
->> >> >>     of review of these changes and suggestions on how to improve them.
->> >> >
->> >> > Lukasz Pawelczyk <l.pawelczyk@samsung.com> proposed
->> >> > LSM support in user namespaces ([RFC] lsm: namespace hooks)
->> >> > that make a whole lot more sense than just turning off
->> >> > the option of using labels on files. Gutting the ability
->> >> > to use MAC in a namespace is a step down the road of
->> >> > making MAC and namespaces incompatible.
->> >>
->> >> This is not "turning off the option to use labels on files".
->> >>
->> >> This is supporting mounting filesystems like ext4 by unprivileged users
->> >> and not trusting the labels they set in the same way as we trust labels
->> >> on filesystems mounted by privileged users.
->> >>
->> >> The first step needs to be not trusting those labels and treating such
->> >> filesystems as filesystems without label support.  I hope that is Seth
->> >> has implemented.
->> >>
->> >> In the long run we can do more interesting things with such filesystems
->> >> once the appropriate LSM policy is in place.
->> >
->> > Yes, this exactly. Right now it looks to me like the only safe thing to
->> > do with mounts from unprivileged users is to ignore the security labels,
->> > so that's what I'm trying to do with these changes. If there's some
->> > better thing to do, or some better way to do it, I'm more than happy to
->> > receive that feedback.
->>
->> Ugh.
->>
->> This made me realize that we have an interesting problem here.  An
->> unprivileged mount of tmpfs probably needs to have
->> s_user_ns == &init_user_ns.
->>
->> Otherwise we will break security labels on tmpfs for no good reason.
->> ramfs and sysfs also seem to have similar concerns.
->>
->> Because they have no backing store we can trust those filesystems with
->> security labels.  Plus for at least sysfs there is the security label
->> bleed through issue, that we need to make certain works.
->>
->> Perhaps these filesystems with trusted backing store need to call
->> "sget_userns(..., &init_user_ns)".
->>
->> If we don't get this right we will have significant regressions with
->> respect to security labels, and that is not ok.
+On 7/15/2015 6:08 PM, Andy Lutomirski wrote:
+> On Wed, Jul 15, 2015 at 3:39 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 7/15/2015 2:06 PM, Eric W. Biederman wrote:
+>>> Casey Schaufler <casey@schaufler-ca.com> writes:
+>>> The first step needs to be not trusting those labels and treating such
+>>> filesystems as filesystems without label support.  I hope that is Seth
+>>> has implemented.
+>> A filesystem with Smack labels gets mounted in a namespace. The labels
+>> are ignored. Instead, the filesystem defaults (potentially specified as
+>> mount options smackfsdef="something", but usually the floor label ("_"))
+>> are used, giving the user the ability to read everything and (usually)
+>> change nothing. This is both dangerous (unintended read access to files)
+>> and pointless (can't make changes).
+> I don't get it.
 >
-> That's only a problem if there's anyone who sets security labels on
-> such a mount.  You need global caps to do that (I hope), which
-> requires someone outside the userns to help, which means there's a
-> good chance that literally no one does this.
+> If I mount an unprivileged filesystem, then either the contents were
+> put there *by me*, in which case letting me access them are fine, or
+> (with Seth's patches and then some) I control the backing store, in
+> which case I can do whatever I want regardless of what LSM thinks.
+>
+> So I don't see the problem.  Why would Smack or any other LSM care at
+> all, unless it wants to prevent me from mounting the fs in the first
+> place?
 
-Fair enough.  That is however something we need to test.  If no one
-puts security labels or file caps on such a mount we can change things.
-If not we can't because it would introduce regressions.
+First off, I don't cotton to the notion that you should be able
+to mount filesystems without privilege. But it seems I'm being
+outvoted on that. I suspect that there are cases where it might
+be safe, but I can't think of one off the top of my head.
 
-Eric
+If you do mount a filesystem it needs to behave according to the
+rules of the system. If you have a security module that uses
+attributes on the filesystem you can't ignore them just because
+it's "your data". Mandatory access control schemes, including
+Smack and SELinux don't give a fig about who you are. It's the
+label on the data and the process that matter. If "you" get to
+muck the labels up, you've broken the mandatory access control.
+
+> --Andy
