@@ -1,75 +1,75 @@
-Message-ID: <55A8F80C.8080806@tycho.nsa.gov>
-Date: Fri, 17 Jul 2015 08:41:48 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Colin Powers <Colin.Powers@nexor.com>,
- "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6HCqTW1022111
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 08:52:29 -0400
+Received: by wibud3 with SMTP id ud3so38597791wib.1
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 05:52:27 -0700 (PDT)
+Received: from x250 (84-245-28-90.dsl.cambrium.nl. [84.245.28.90])
+ by smtp.gmail.com with ESMTPSA id bq7sm18238669wjc.31.2015.07.17.05.52.27
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Fri, 17 Jul 2015 05:52:27 -0700 (PDT)
+Date: Fri, 17 Jul 2015 14:52:25 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
 Subject: Re: Restricting samba to only talk to one network interface?
+Message-ID: <20150717125224.GA27338@x250>
 References: <VI1PR03MB1006B3B0EFB3FB97DC18A3AB9E980@VI1PR03MB1006.eurprd03.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
 In-Reply-To: <VI1PR03MB1006B3B0EFB3FB97DC18A3AB9E980@VI1PR03MB1006.eurprd03.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/17/2015 06:46 AM, Colin Powers wrote:
-> Hi,
-> 
-> I have a case where I want to apply a more restrictive policy to the samba daemon, smbd. I am not sure what the best way to approach this problem is, any ideas?
-> 
-> My situation is:
-> * I have two network interfaces
->   	* I am using iptables to label packets based on the network interface. E.g. all packets on eth0 are eth0_packet_t and all packets on eth1 are eth1_packet_t
-> * I want smbd to be able to interact with only one of the network interfaces
-> * I have a policy module that allows smbd_t to send/recv eth0_packet_t
-> * Problem: if the firewall is off, I would like smbd to be unable to communicate on the network.
-> 	* However, it seems in default targeted policy smbd can communicate over the network using unlabelled packets, so it can talk to either network interface in this state.
-> 	* How do I alter things so samba can only communicate on the network using eth0_packet_t - therefore making it impossible for smbd to communicate on the network unless the iptables is labelling packets as eth0_packet_t?
-> 
-> 
+
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jul 17, 2015 at 10:46:04AM +0000, Colin Powers wrote:
+
+<snip>
+
+>=20
 > Possible ideas:
-> * take ownership of the whole policy rather than build on top of the default RHEL policy, and customise the samba policy that is delivered?
+> * take ownership of the whole policy rather than build on top of the defa=
+ult RHEL policy, and customise the samba policy that is delivered?
 > * make a copy or symlink of the smbd daemon and apply custom policy to it?
-> * somehow relabel the existing smbd executable with a custom type that can only communicate on eth0_packet_t?
-> 	* but what's the best way to "override" the default policy? must I unload the samba policy module with semodule to allow smbd to be labelled with some other type?
+> * somehow relabel the existing smbd executable with a custom type that ca=
+n only communicate on eth0_packet_t?
+> 	* but what's the best way to "override" the default policy? must I unloa=
+d the samba policy module with semodule to allow smbd to be labelled with s=
+ome other type?
 > * something else?
-> 
-> Potentially it seems like any of those ideas can work but I'm trying to figure out which one is the path of least resistance - i.e. which one causes the smallest maintenance headache e.g. when default targeted policy is updated. Any thoughts/recommendations?
 
-There are two reasons why it can communicate when the iptables SECMARK
-rules are flushed:
-1. Policy allows it (there is an allow domain unlabeled_t:packet { send
-recv }; rule in the unlabelednet policy module.
+You could try to disable the existing samba module , and then load your mod=
+ified samba module in its place
 
-2. The kernel disables the packet permission checks entirely when there
-are no iptables SECMARK rules loaded (this is for both performance and
-compatibility) _unless_ the policy defines the always_check_network
-policy capability (cat
-/sys/fs/selinux/policy_capabilities/always_check_network).  The policy
-capabilities are defined in the base policy module.
+I theory that should work I believe. In practice you, may or may not end up=
+ in dependency hell. Worth a try though.
 
-This assumes that your kernel even supports this policy capability.  You
-didn't mention your RHEL version or kernel version.
+semodule -d samba
 
-So to enforce this restriction even when iptables rules are flushed, you
-would need to rebuild both the base module (with a modified
-policy/policy_capabilities file that defines always_check_network), and
-you would need to remove the unlabelednet module.  At that point, you
-are basically maintaining your own forked policy and should probably
-install it with a different policy NAME (build.conf) / SELINUXTYPE
-(/etc/selinux/config), and switch your /etc/selinux/config to refer to
-it so that any selinux-policy-targeted updates will not affect your
-system.  Then you would need to manually merge updates into your custom
-policy.
 
-A possible alternative would be to use peer labeling (NetLabel or
-labeled IPSEC) configured only for loopback labeling and the net
-egress/ingress permission checks instead of SECMARK.  Examples of
-configuring those mechanisms for loopback only labeling can be found in
-the selinux-testsuite (under tests/inet_socket) and in The SELinux
-Notebook.  However, those checks are also subject to being disabled if
-the peer labeling configuration (NetLabel or labeled IPSEC) is unloaded
-unless always_check_network is set (but they wouldn't be affected by
-flushing iptables).
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJVqPqEAAoJENAR6kfG5xmcAqIL/Rw+XWP+Z+BEUOhkavPwNUB4
+vFbaeHr5/cf2JIEDXfsBfuOy+qYKie5cvMrtGXgbKogVHqzXOjLFOLIPQbIlv2oJ
+p+MW1yOUMtGbgWFjSZLktFFg8zqvbbKbdew6NzXuzOAxHe73hlcKa0c+G4uehymm
+QpYqLyUEWKPFC4jdyvpJ8MbuqaD/xcwyHdKxEXXjy7pMA48+kI9+f5KdYcs37Sfs
+IJwRkGpaP2WajnMpscnHTR6Ap2sDTJjfXnKO+KB0F4wrLxhkyIIINkx/m1/Z2Ayn
+SimeLGNQPtMG8hsSWOTYQyHUO/gQ1Q7MxSIDT5mFLY6K/bcx/vaQOft3VHTpjmip
+sDeQOSpAFjSTOrvMAI8y8jFpcZ42X6xkkA+bv/LtZgIMJkWaSCVeeT3I3eZqQ2/N
+WvfljkJnlKGtIz43+5MGl8Ji7Lbt1Nz3PBHpGunt5QrGLzOrzm48H/UgI45KK/dw
+lnh3B9qkT/VMWCj+tYcDoDHmV+A8DoxhSQjkKFEwVA==
+=Ra3N
+-----END PGP SIGNATURE-----
+
+--6TrnltStXW4iwmi0--
