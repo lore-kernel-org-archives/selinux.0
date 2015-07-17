@@ -1,92 +1,94 @@
-From: Colin Powers <Colin.Powers@nexor.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "SELinux@tycho.nsa.gov"
- <SELinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>
-Subject: RE: Restricting samba to only talk to one network interface?
-Date: Fri, 17 Jul 2015 12:57:03 +0000
-Message-ID: <VI1PR03MB100621E733A787451EF9B7FA9E980@VI1PR03MB1006.eurprd03.prod.outlook.com>
-References: <VI1PR03MB1006B3B0EFB3FB97DC18A3AB9E980@VI1PR03MB1006.eurprd03.prod.outlook.com>
- <55A8F80C.8080806@tycho.nsa.gov>
-In-Reply-To: <55A8F80C.8080806@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6HDMsqg024356
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 09:22:54 -0400
+Received: by oibn4 with SMTP id n4so70492002oib.3
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 06:22:52 -0700 (PDT)
+Date: Fri, 17 Jul 2015 08:21:46 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+Message-ID: <20150717132146.GA65566@ubuntu-hedt>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <87615k7pyu.fsf@x220.int.ebiederm.org>
+ <20150716135947.GC77715@ubuntu-hedt>
+ <55A7C920.7090206@schaufler-ca.com>
+ <20150716185750.GB51751@ubuntu-hedt>
+ <55A8253E.3000407@schaufler-ca.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <55A8253E.3000407@schaufler-ca.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks Stephen, that's really helpful.
+On Thu, Jul 16, 2015 at 02:42:22PM -0700, Casey Schaufler wrote:
 
-I had a suspision that creating a whole new policy might end up being the answer, but thought it was worth making sure.
+<snip>
 
-In my case the firewall should always be on; I will have to have a think about whether it is worth the effort to fork the policy or whether I would be better off having something like a script periodically checking the firewall state and taking appropriate action.
-
-For the record I am on RHEL 6.6, but I suspect all the information you have given is still valid in this case.
-
-Many thanks.
-Colin
-
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: 17 July 2015 13:42
-To: Colin Powers; SELinux@tycho.nsa.gov; Paul Moore
-Subject: Re: Restricting samba to only talk to one network interface?
-
-On 07/17/2015 06:46 AM, Colin Powers wrote:
-> Hi,
+> > I welcome feedback about anything I've missed, but stating generally
+> > that you think I probably missed something isn't very helpful.
 > 
-> I have a case where I want to apply a more restrictive policy to the samba daemon, smbd. I am not sure what the best way to approach this problem is, any ideas?
+> True enough. I hope I've explained myself above.
+
+Thanks, that definitely clarified where we were having a disconnect.
+Andy's done a fantastic job explaining how those concerns are addressed.
+
+> > The LSM issue is thornier than the rest of it though, which is why I
+> > specifically asked for review there in the cover letter. There's a lot
+> > of complexity and nuance, and I still don't have a grasp on all the
+> > subtleties. One such subtlety is the full impact of simply ignoring the
+> > security labels on disk (but I am still confused as to why this is
+> > different from filesystems which don't support xattrs at all).
 > 
-> My situation is:
-> * I have two network interfaces
->   	* I am using iptables to label packets based on the network interface. E.g. all packets on eth0 are eth0_packet_t and all packets on eth1 are eth1_packet_t
-> * I want smbd to be able to interact with only one of the network interfaces
-> * I have a policy module that allows smbd_t to send/recv eth0_packet_t
-> * Problem: if the firewall is off, I would like smbd to be unable to communicate on the network.
-> 	* However, it seems in default targeted policy smbd can communicate over the network using unlabelled packets, so it can talk to either network interface in this state.
-> 	* How do I alter things so samba can only communicate on the network using eth0_packet_t - therefore making it impossible for smbd to communicate on the network unless the iptables is labelling packets as eth0_packet_t?
+> If you can mount a filesystem such that the labels are ignored you
+> are effectively specifying that the Smack label on the files be 
+> determined by the defaulting rules. With CAP_MAC_ADMIN that's fine.
+> Without it, it's not.
 > 
+> > I was unaware of Lukasz's patches until yesterday, and I will have a
+> > look at them. But since we don't have the LSM support for user
+> > namespaces yet, I don't see the problem with doing something safe for
+> > LSMs initially and evolving the LSM integration for user ns mounts along
+> > with the rest of the user ns integration.
 > 
-> Possible ideas:
-> * take ownership of the whole policy rather than build on top of the default RHEL policy, and customise the samba policy that is delivered?
-> * make a copy or symlink of the smbd daemon and apply custom policy to it?
-> * somehow relabel the existing smbd executable with a custom type that can only communicate on eth0_packet_t?
-> 	* but what's the best way to "override" the default policy? must I unload the samba policy module with semodule to allow smbd to be labelled with some other type?
-> * something else?
+> Ignoring the security attributes is not safe!
+
+Understood. It's surely safe for each LSM to deny such mounts until it
+has a way to handle them safely though.
+
+I'm not trying to completely punt on the issue of security modules, just
+break this down into more manageable chunks. You've given good guidance
+for Smack (thanks very much for that), so I can plan to work on that
+soon.
+
+> > Your point is taken about my less-than-expert opinion about the other
+> > security modules. We should at minimum get acks from the maintainers of
+> > those modules that unprivileged mounts will not compromise MAC.
 > 
-> Potentially it seems like any of those ideas can work but I'm trying to figure out which one is the path of least resistance - i.e. which one causes the smallest maintenance headache e.g. when default targeted policy is updated. Any thoughts/recommendations?
+> I am the Smack maintainer. Unprivileged mounts as you have
+> described them compromise MAC. They compromise DAC, too.
 
-There are two reasons why it can communicate when the iptables SECMARK
-rules are flushed:
-1. Policy allows it (there is an allow domain unlabeled_t:packet { send
-recv }; rule in the unlabelednet policy module.
+It looks like Andy's more or less convinced you that DAC isn't
+(additionally?) compromised. And there's a plan for MAC, that the
+security module can deny mounts from user namespaces until it has a
+solution for allowing them safely.
 
-2. The kernel disables the packet permission checks entirely when there
-are no iptables SECMARK rules loaded (this is for both performance and
-compatibility) _unless_ the policy defines the always_check_network
-policy capability (cat
-/sys/fs/selinux/policy_capabilities/always_check_network).  The policy
-capabilities are defined in the base policy module.
+> > For Smack specifically, I believe my only concern was the SMACK64EXEC
+> > attribute, as all the other attributes only affected subjects' access to
+> > the files. So maybe it would be possible to simply ignore this attribute
+> > in unprivileged mounts and respect the others, even lacking more
+> > complete LSM support for user namespaces.
+> 
+> SMACK64EXEC is analogous to the setuid bit, but I would rather see
+> exec() of programs with this attribute refused that for it to be
+> blindly ignored.
 
-This assumes that your kernel even supports this policy capability.  You
-didn't mention your RHEL version or kernel version.
+That's fine, it's your call.
 
-So to enforce this restriction even when iptables rules are flushed, you
-would need to rebuild both the base module (with a modified
-policy/policy_capabilities file that defines always_check_network), and
-you would need to remove the unlabelednet module.  At that point, you
-are basically maintaining your own forked policy and should probably
-install it with a different policy NAME (build.conf) / SELINUXTYPE
-(/etc/selinux/config), and switch your /etc/selinux/config to refer to
-it so that any selinux-policy-targeted updates will not affect your
-system.  Then you would need to manually merge updates into your custom
-policy.
-
-A possible alternative would be to use peer labeling (NetLabel or
-labeled IPSEC) configured only for loopback labeling and the net
-egress/ingress permission checks instead of SECMARK.  Examples of
-configuring those mechanisms for loopback only labeling can be found in
-the selinux-testsuite (under tests/inet_socket) and in The SELinux
-Notebook.  However, those checks are also subject to being disabled if
-the peer labeling configuration (NetLabel or labeled IPSEC) is unloaded
-unless always_check_network is set (but they wouldn't be affected by
-flushing iptables).
+Thanks,
+Seth
