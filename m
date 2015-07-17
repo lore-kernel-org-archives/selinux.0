@@ -1,174 +1,157 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H2mDui019245
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 22:48:13 -0400
-Date: Fri, 17 Jul 2015 12:47:35 +1000
-From: Dave Chinner <david@fromorbit.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Message-ID: <20150717024735.GW3902@dastard>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <55A6C448.5050902@schaufler-ca.com>
- <87vbdlf7vo.fsf@x220.int.ebiederm.org>
- <55A6E107.3070200@schaufler-ca.com>
- <CALCETrVCNQPVr-hg_pqd2J_LeWtRJs3LRsbbE+fifo4sat+FQQ@mail.gmail.com>
- <55A71CE3.4050708@schaufler-ca.com>
- <87fv4owvxv.fsf@x220.int.ebiederm.org>
- <20150717000914.GO7943@dastard>
- <87380nobs4.fsf@x220.int.ebiederm.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H6kJWf032114
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 02:46:19 -0400
+Received: by wgkl9 with SMTP id l9so74596344wgk.1
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 23:46:15 -0700 (PDT)
+Message-ID: <55A8A4B4.3050202@siteground.com>
+Date: Fri, 17 Jul 2015 09:46:12 +0300
+From: Nikolay Borisov <n.borisov@siteground.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <87380nobs4.fsf@x220.int.ebiederm.org>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>
+To: Seth Forshee <seth.forshee@canonical.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH 4/7] fs: Treat foreign mounts as nosuid
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <1436989569-69582-5-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1436989569-69582-5-git-send-email-seth.forshee@canonical.com>
+Content-Type: text/plain; charset=windows-1252
+Cc: linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+ Andy Lutomirski <luto@amacapital.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 16, 2015 at 07:42:03PM -0500, Eric W. Biederman wrote:
-> Dave Chinner <david@fromorbit.com> writes:
+
+
+On 07/15/2015 10:46 PM, Seth Forshee wrote:
+> From: Andy Lutomirski <luto@amacapital.net>
 > 
-> > On Wed, Jul 15, 2015 at 11:47:08PM -0500, Eric W. Biederman wrote:
-> >> Casey Schaufler <casey@schaufler-ca.com> writes:
-> >> > On 7/15/2015 6:08 PM, Andy Lutomirski wrote:
-> >> >> If I mount an unprivileged filesystem, then either the contents were
-> >> >> put there *by me*, in which case letting me access them are fine, or
-> >> >> (with Seth's patches and then some) I control the backing store, in
-> >> >> which case I can do whatever I want regardless of what LSM thinks.
-> >> >>
-> >> >> So I don't see the problem.  Why would Smack or any other LSM care at
-> >> >> all, unless it wants to prevent me from mounting the fs in the first
-> >> >> place?
-> >> >
-> >> > First off, I don't cotton to the notion that you should be able
-> >> > to mount filesystems without privilege. But it seems I'm being
-> >> > outvoted on that. I suspect that there are cases where it might
-> >> > be safe, but I can't think of one off the top of my head.
-> >> 
-> >> There are two fundamental issues mounting filesystems without privielge,
-> >> by which I actually mean mounting filesystems as the root user in a user
-> >> namespace.
-> >> 
-> >> - Are the semantics safe.
-> >> - Is the extra attack surface a problem.
-> >
-> > I think the attack surface this exposes is the biggest problem
-> > facing this proposal.
+> If a process gets access to a mount from a different namespace user
+> namespace, that process should not be able to take advantage of
+> setuid files or selinux entrypoints from that filesystem.
+> Technically, trusting mounts created by the same or ancestor user
+> namespaces ought to be safe, but it's simpler to distrust all
+> foreign mounts.
 > 
-> I completely agree.
+> This will make it safer to allow more complex filesystems to be
+> mounted in non-root user namespaces.
 > 
-> >> Figuring out how to make semantics safe is what we are talking about.
-> >> 
-> >> Once we sort out the semantics we can look at the handful of filesystems
-> >> like fuse where the extra attack surface is not a concern.
-> >> 
-> >> With that said desktop environments have for a long time been
-> >> automatically mounting whichever filesystem you place in your computer,
-> >> so in practice what this is really about is trying to align the kernel
-> >> with how people use filesystems.
-> >
-> > The key difference is that desktops only do this when you physically
-> > plug in a device. With unprivileged mounts, a hostile attacker
-> > doesn't need physical access to the machine to exploit lurking
-> > kernel filesystem bugs. i.e. they can just use loopback mounts, and
-> > they can keep mounting corrupted images until they find something
-> > that works.
+> This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
+> setgid, and file capability bits can no longer be abused if code in
+> a user namespace were to clear nosuid on an untrusted filesystem,
+> but this patch, by itself, is insufficient to protect the system
+> from abuse of files that, when execed, would increase MAC privilege.
 > 
-> Yep.  That magnifies the problem quite a bit.
+> As a more concrete explanation, any task that can manipulate a
+> vfsmount associated with a given user namespace already has
+> capabilities in that namespace and all of its descendents.  If they
+> can cause a malicious setuid, setgid, or file-caps executable to
+> appear in that mount, then that executable will only allow them to
+> elevate privileges in exactly the set of namespaces in which they
+> are already privileges.
 > 
-> > User namespaces are supposed to provide trust separation.  The
-> > kernel filesystems simply aren't hardened against unprivileged
-> > attacks from below - there is a trust relationship between root and
-> > the filesystem in that they are the only things that can write to
-> > the disk. Mounts from within a userns destroys this relationship as
-> > the userns root, by definition, is not a trusted actor.
+> On the other hand, if they can cause a malicious executable to
+> appear with a dangerous MAC label, running it could change the
+> caller's security context in a way that should not have been
+> possible, even inside the namespace in which the task is confined.
 > 
-> I talked to Ted Tso a while back and ext4 is at least in principle
-> already hardened against that kind of attack.  I am not certain I
-> believe it, but if it is true I think it is fantastic.
-
-No, it's not. No filesystem is, because to harden against such
-attacks requires complete verification of all metadata when it is
-read from disk, before it is used, or some method or ensuring the
-block was not tampered with. CRCs are not sufficient, because they
-can be tampered with, too.
-
-The only way a filesystem would be able to trust what it reads from
-disk has not been tampered with in a system with untrusted mounts is
-if it has some kind of cryptographically secure signature in the
-metadata and the attacker is unable to access the key for that
-signature. No filesystem we have has that capability and AFAIA there
-are no plans for any filesystem to implement such tamper detection.
-And no, ext4 encryption does not provide this because it only stores
-the values and data in encrypted format and does not protect
-metadata from tampering when it is not mounted.
-
-If we don't have crypto signatures in metadata, then XFS is probably
-the most robust against tampering as it does a lot more checking of
-the on-disk metadata before it is used than any other filesystem
-(i.e. see the verifier infrastructure that does corruption checks
-after read (in io completion) and before write (in io submission)
-to catch bad metadata before it is used by the kernel, or before it
-is written to disk by the kernel.
-
-However, these checks are far from comprehensive. we can only check
-internal consistency of the metadata objects in the block, and even
-then we really only can check for values within range rather than
-absolute correctness. e.g. we can check a dirent has a valid name,
-length, ftype and inode number, but we can't validate that the inode
-is actually allocated or not because that requires a lookup in the
-allocated inode btree. We *trust* that inode number to be
-allocated and valid because it is in metadata the filesystem wrote.
-
-For inode numbers that come from untrusted sources (NFS,
-open-by-handle, etc) we have a flag that does inode number
-validation on lookup (XFS_IGET_UNTRUSTED) to check against trusted
-metadata (i.e. the allocated inode btrees), but that is expensive
-and so not done on inodes that we pull directly from metadata that
-has come from disk. Indeed, we still trust on-disk metadata to be
-correct to validate that other metadata canbe trusted, so if one
-structure can be tampered with, so can others.
-
-IOWs, if we cannot trust one part of the filesystem metadata to be
-correct, then we cannot trust that filesystem *at all*, *for
-anything*. And even running fsck doesn't restore trust - all it does
-is tell us that any modification that was made is not a detectable
-inconsistency that needs fixing.
-
-> At this point any setting of the FS_USER_MOUNT flag I figure needs to go
-> through the filesystem maintainers tree and they need to be aware of and
-> agree to deal with the attack from below issue.
+> As a hardening measure, this would have made CVE-2014-5207 much
+> more difficult to exploit.
 > 
-> The one filesystem I truly expect we can make work is fuse.  fuse has
-> been designed to deal with some variation of the attack from below issue
-> since day one.  We looked at what the patches to fuse would look like
-> with the current state of the vfs and it was not pretty.
+> Signed-off-by: Andy Lutomirski <luto@amacapital.net>
+> [ saf: Forward ported to 4.2 ]
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> ---
+>  fs/exec.c                |  2 +-
+>  fs/namespace.c           | 13 +++++++++++++
+>  include/linux/mount.h    |  1 +
+>  security/commoncap.c     |  2 +-
+>  security/selinux/hooks.c |  2 +-
+>  5 files changed, 17 insertions(+), 3 deletions(-)
 > 
-> We very much need to sort through as much as possible at the vfs layer,
-> and in generic code.  Allow everyone to see what is going on and how
-> it works before preceeding forward with enabling any filesystems.
+> diff --git a/fs/exec.c b/fs/exec.c
+> index b06623a9347f..ea7311d72cc3 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
+>  	bprm->cred->euid = current_euid();
+>  	bprm->cred->egid = current_egid();
+>  
+> -	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+> +	if (!mnt_may_suid(bprm->file->f_path.mnt))
+>  		return;
+>  
+>  	if (task_no_new_privs(current))
+> diff --git a/fs/namespace.c b/fs/namespace.c
+> index 423001de32a2..2bfd7ca92247 100644
+> --- a/fs/namespace.c
+> +++ b/fs/namespace.c
+> @@ -3252,6 +3252,19 @@ found:
+>  	return visible;
+>  }
+>  
+> +bool mnt_may_suid(struct vfsmount *mnt)
+> +{
+> +	/*
+> +	 * Foreign mounts (accessed via fchdir or through /proc
+> +	 * symlinks) are always treated as if they are nosuid.  This
+> +	 * prevents namespaces from trusting potentially unsafe
+> +	 * suid/sgid bits, file caps, or security labels that originate
+> +	 * in other namespaces.
+> +	 */
+> +	return real_mount(mnt)->mnt_ns == current->nsproxy->mnt_ns &&
+> +		!(mnt->mnt_flags & MNT_NOSUID);
 
-The VFS protects us from attacks from above the filesystem, not
-below. The VFS plays no part in validating the on-disk structure of
-a filesystem which is what attacks from below will be attempting to
-exploit.
+Maybe check_mnt() from fs/namespace.c can be exported and used here,
+instead of open coding it.
 
-> I truly hope we can find a small set of block device filesystems that we
-> can harden from attack below.   That would allow linux to have serious
-> defenses against evil usb stick attacks.  I think that is going to take
-> a lot of careful coding, testing and validation and advancing the state
-> of the art to get there.
-
-Somehow, I just can't see that happening.
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-david@fromorbit.com
+> +}
+> +
+>  static struct ns_common *mntns_get(struct task_struct *task)
+>  {
+>  	struct ns_common *ns = NULL;
+> diff --git a/include/linux/mount.h b/include/linux/mount.h
+> index f822c3c11377..54a594d49733 100644
+> --- a/include/linux/mount.h
+> +++ b/include/linux/mount.h
+> @@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
+>  extern struct vfsmount *mntget(struct vfsmount *mnt);
+>  extern struct vfsmount *mnt_clone_internal(struct path *path);
+>  extern int __mnt_is_readonly(struct vfsmount *mnt);
+> +extern bool mnt_may_suid(struct vfsmount *mnt);
+>  
+>  struct path;
+>  extern struct vfsmount *clone_private_mount(struct path *path);
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index 175ab497e810..858d86a1b73c 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -437,7 +437,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
+>  	if (!file_caps_enabled)
+>  		return 0;
+>  
+> -	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+> +	if (!mnt_may_suid(bprm->file->f_path.mnt))
+>  		return 0;
+>  	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
+>  		return 0;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 564079c5c49d..459e71ddbc9d 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2137,7 +2137,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+>  			    const struct task_security_struct *new_tsec)
+>  {
+>  	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+> -	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
+> +	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+>  	int rc;
+>  
+>  	if (!nnp && !nosuid)
+> 
