@@ -1,76 +1,114 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H0H2hP011198
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 20:17:02 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H0mQEv012719
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 20:48:31 -0400
 From: ebiederm@xmission.com (Eric W. Biederman)
-To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+To: Dave Chinner <david@fromorbit.com>
 References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
  <55A6C448.5050902@schaufler-ca.com>
  <87vbdlf7vo.fsf@x220.int.ebiederm.org>
- <1437045404.2207.5.camel@samsung.com>
-Date: Thu, 16 Jul 2015 19:10:34 -0500
-In-Reply-To: <1437045404.2207.5.camel@samsung.com> (Lukasz Pawelczyk's message
- of "Thu, 16 Jul 2015 13:16:44 +0200")
-Message-ID: <87fv4nr6dh.fsf@x220.int.ebiederm.org>
+ <55A6E107.3070200@schaufler-ca.com>
+ <CALCETrVCNQPVr-hg_pqd2J_LeWtRJs3LRsbbE+fifo4sat+FQQ@mail.gmail.com>
+ <55A71CE3.4050708@schaufler-ca.com>
+ <87fv4owvxv.fsf@x220.int.ebiederm.org> <20150717000914.GO7943@dastard>
+Date: Thu, 16 Jul 2015 19:42:03 -0500
+In-Reply-To: <20150717000914.GO7943@dastard> (Dave Chinner's message of "Fri,
+ 17 Jul 2015 10:09:14 +1000")
+Message-ID: <87380nobs4.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  Andy Lutomirski <luto@amacapital.net>,
  Seth Forshee <seth.forshee@canonical.com>,
- linux-security-module@vger.kernel.org,
- Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org
+ LSM List <linux-security-module@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Lukasz Pawelczyk <l.pawelczyk@samsung.com> writes:
+Dave Chinner <david@fromorbit.com> writes:
 
-> On śro, 2015-07-15 at 16:06 -0500, Eric W. Biederman wrote:
+> On Wed, Jul 15, 2015 at 11:47:08PM -0500, Eric W. Biederman wrote:
+>> Casey Schaufler <casey@schaufler-ca.com> writes:
+>> > On 7/15/2015 6:08 PM, Andy Lutomirski wrote:
+>> >> If I mount an unprivileged filesystem, then either the contents were
+>> >> put there *by me*, in which case letting me access them are fine, or
+>> >> (with Seth's patches and then some) I control the backing store, in
+>> >> which case I can do whatever I want regardless of what LSM thinks.
+>> >>
+>> >> So I don't see the problem.  Why would Smack or any other LSM care at
+>> >> all, unless it wants to prevent me from mounting the fs in the first
+>> >> place?
+>> >
+>> > First off, I don't cotton to the notion that you should be able
+>> > to mount filesystems without privilege. But it seems I'm being
+>> > outvoted on that. I suspect that there are cases where it might
+>> > be safe, but I can't think of one off the top of my head.
 >> 
->> I am on the fence with Lukasz Pawelczyk's patches.  Some parts I 
->> liked
->> some parts I had issues with.  As I recall one of my issues was that
->> those patches conflicted in detail if not in principle with this
->> appropach.
+>> There are two fundamental issues mounting filesystems without privielge,
+>> by which I actually mean mounting filesystems as the root user in a user
+>> namespace.
 >> 
->> If these patches do not do a good job of laying the ground work for
->> supporting security labels that unprivileged users can set than Seth
->> could really use some feedback.  Figuring out how to properly deal 
->> with
->> the LSMs has been one of his challenges.
+>> - Are the semantics safe.
+>> - Is the extra attack surface a problem.
 >
-> I fail to see how those 2 are in any conflict. 
+> I think the attack surface this exposes is the biggest problem
+> facing this proposal.
 
-Like I said.  They don't really conflict, and actually to really support
-things well for smack we probably need something like your patches.
+I completely agree.
 
-At the same time a patch written without dealing with s_user_ns is going
-to going to fail to take a lot of important details into account.
+>> Figuring out how to make semantics safe is what we are talking about.
+>> 
+>> Once we sort out the semantics we can look at the handful of filesystems
+>> like fuse where the extra attack surface is not a concern.
+>> 
+>> With that said desktop environments have for a long time been
+>> automatically mounting whichever filesystem you place in your computer,
+>> so in practice what this is really about is trying to align the kernel
+>> with how people use filesystems.
+>
+> The key difference is that desktops only do this when you physically
+> plug in a device. With unprivileged mounts, a hostile attacker
+> doesn't need physical access to the machine to exploit lurking
+> kernel filesystem bugs. i.e. they can just use loopback mounts, and
+> they can keep mounting corrupted images until they find something
+> that works.
 
-Right now after fixing the mount namespace issues the top priority is to
-work through the details and get s_user_ns implemented.  By that I mean
-some version of patch 1 of Seth's series.
+Yep.  That magnifies the problem quite a bit.
 
-s_user_ns fundamentally changes how the concepts are represented in the
-kernel in a way that is easier to secure, and that fundamentally better
-matches things.  And sigh.  This review has shown we don't quite have
-all of the details worked out.
+> User namespaces are supposed to provide trust separation.  The
+> kernel filesystems simply aren't hardened against unprivileged
+> attacks from below - there is a trust relationship between root and
+> the filesystem in that they are the only things that can write to
+> the disk. Mounts from within a userns destroys this relationship as
+> the userns root, by definition, is not a trusted actor.
 
-> If your approach here is to treat user ns mounted filesystem as if they
-> didn't support xattrs at all then my patches don't conflict here any
-> more than Smack itself already does.
+I talked to Ted Tso a while back and ext4 is at least in principle
+already hardened against that kind of attack.  I am not certain I
+believe it, but if it is true I think it is fantastic.
 
-The end game if people developing smack choose to play, is to figure out
-how to store your unmapped labels in a filesystem contained by a
-user namespace and a smack label namespace root.
+At this point any setting of the FS_USER_MOUNT flag I figure needs to go
+through the filesystem maintainers tree and they need to be aware of and
+agree to deal with the attack from below issue.
 
-> If the filesystem will get a default (e.g. by smack* mount options)
-> label then this label will co-work with Smack namespaces.
+The one filesystem I truly expect we can make work is fuse.  fuse has
+been designed to deal with some variation of the attack from below issue
+since day one.  We looked at what the patches to fuse would look like
+with the current state of the vfs and it was not pretty.
 
-A default, but I don't know if it will be smack mount options that will
-give that default.  The devil is in the details and there are a lot
-of details.
+We very much need to sort through as much as possible at the vfs layer,
+and in generic code.  Allow everyone to see what is going on and how
+it works before preceeding forward with enabling any filesystems.
+
+
+
+I truly hope we can find a small set of block device filesystems that we
+can harden from attack below.   That would allow linux to have serious
+defenses against evil usb stick attacks.  I think that is going to take
+a lot of careful coding, testing and validation and advancing the state
+of the art to get there.
 
 Eric
