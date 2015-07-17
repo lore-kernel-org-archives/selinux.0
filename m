@@ -1,154 +1,127 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H0nsfx012806
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 20:49:54 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Seth Forshee <seth.forshee@canonical.com>
-References: <1436989569-69582-4-git-send-email-seth.forshee@canonical.com>
- <20150715214848.GA24204@mail.hallyn.com>
- <CALCETrVTGC8NJdpOhkqDaE8HdD95y-K2-VnsL+Oo4NjVUyovsA@mail.gmail.com>
- <87wpy1camr.fsf@x220.int.ebiederm.org>
- <CALCETrULyv9pfwAeyNrvJ06o+bW6JbWgBOsi4b4OUhbPjD4FnQ@mail.gmail.com>
- <87io9kzq5g.fsf@x220.int.ebiederm.org>
- <CALCETrWrFQJev_yn00BgMYbRhGGGa6nDBqmodbZxBrDO9xVSNw@mail.gmail.com>
- <87wpy0u1zo.fsf@x220.int.ebiederm.org>
- <CALCETrUiwuMaYCKPNam3VzmNr4=tFUs-fO3Kusag3UGWVwu8JQ@mail.gmail.com>
- <87vbdkslke.fsf@x220.int.ebiederm.org>
- <20150716131308.GB77715@ubuntu-hedt>
-Date: Thu, 16 Jul 2015 19:43:24 -0500
-In-Reply-To: <20150716131308.GB77715@ubuntu-hedt> (Seth Forshee's message of
- "Thu, 16 Jul 2015 08:13:08 -0500")
-Message-ID: <87vbdjmx5f.fsf@x220.int.ebiederm.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H0xiuW013536
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 20:59:44 -0400
+Received: by laem6 with SMTP id m6so53015105lae.0
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 17:59:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 3/7] fs: Ignore file caps in mounts from other user
- namespaces
+In-Reply-To: <55A85041.2070301@schaufler-ca.com>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <87615k7pyu.fsf@x220.int.ebiederm.org> <20150716135947.GC77715@ubuntu-hedt>
+ <55A7C920.7090206@schaufler-ca.com> <20150716185750.GB51751@ubuntu-hedt>
+ <55A8253E.3000407@schaufler-ca.com>
+ <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
+ <55A8398A.3000802@schaufler-ca.com>
+ <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
+ <55A85041.2070301@schaufler-ca.com>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Thu, 16 Jul 2015 17:59:22 -0700
+Message-ID: <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+To: Casey Schaufler <casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
+ Seth Forshee <seth.forshee@canonical.com>,
  LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- James Morris <james.l.morris@oracle.com>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Seth Forshee <seth.forshee@canonical.com> writes:
-
-> On Thu, Jul 16, 2015 at 12:44:49AM -0500, Eric W. Biederman wrote:
->> Andy Lutomirski <luto@amacapital.net> writes:
->> 
->> > On Wed, Jul 15, 2015 at 10:04 PM, Eric W. Biederman
->> > <ebiederm@xmission.com> wrote:
->> >> Andy Lutomirski <luto@amacapital.net> writes:
->> >>
->> >>>
->> >>> So here's the semantic question:
->> >>>
->> >>> Suppose an unprivileged user (uid 1000) creates a user namespace and a
->> >>> mount namespace.  They stick a file (owned by uid 1000 as seen by
->> >>> init_user_ns) in there and mark it setuid root and give it fcaps.
->> >>
->> >> To make this make sense I have to ask, is this file on a filesystem
->> >> where uid 1000 as seen by the init_user_ns stored as uid 1000 on
->> >> the filesystem?  Or is this uid 0 as seen by the filesystem?
->> >>
->> >> I assume this is uid 0 on the filesystem in question or else your
->> >> unprivileged user would not have sufficient privileges over the
->> >> filesystem to setup fcaps.
->> >
->> > I was thinking uid 0 as seen by the filesystem.  But even if it were
->> > uid 1000, the unprivileged user can still set whatever mode and xattrs
->> > they want -- they control the backing store.
->> 
->> Yes.   And that is what I was really asking.  Are we taking about a
->> filesystem where the user controls the backing store?
->> 
->> >>> Then global root gets an fd to this filesystem.  If they execve the
->> >>> file directly, then, with my patch 4, it won't act as setuid 1000 and
->> >>> the fcaps will be ignored.  Even with my patch 4, though, if they bind
->> >>> mount the fs and execve the file from their bind mount, it will act as
->> >>> setuid 1000.  Maybe this is odd.  However, with Seth's patch 3, the
->> >>> fcaps will (correctly) not be honored.
->> >>
->> >> With patch 3 you can also think of it as fcaps being honored and you
->> >> get all the caps in the appropriate user namespace, but since you are
->> >> not in that user namespace and so don't have a place to store them
->> >> in struct cred you don't get the file caps.
->> >>
->> >> From the philosophy of interpreting the file as defined by the
->> >> filesystem in principle we could extend struct cred so you actually
->> >> get the creds just in uid 1000s user namespace, but that is very
->> >> unlikely to be worth it.
->> >
->> > I agree.
->> >
->> >>
->> >>> I tend to thing that, if we're not honoring the fcaps, we shouldn't be
->> >>> honoring the setuid bit either.  After all, it's really not a trusted
->> >>> file, even though the only user who could have messed with it really
->> >>> is the apparent owner.
->> >>
->> >> For the file caps we can't honor them because you don't have the bits
->> >> in struct cred.
->> >>
->> >> For setuid we can honor it, and setuid is something that the user
->> >> namespace allows.
->> >>
->> >
->> > We certainly *can* honor it.  But why should we?  I'd be more
->> > comfortable with this if the contents of an untrusted filesystem were
->> > really treated as just data.
->> 
->> In these weird bleed through situtations I don't know that we should.
->> But extending nosuid protections in this way is a bit like yama
->> a bit gratuitious stomping don't care cases in the semantics to
->> make bugs harder to exploit.
->> 
->> >>> And, if we're going to say we don't trust the file and shouldn't honor
->> >>> setuid or fcaps, then merging all the functionality into mnt_may_suid
->> >>> could make sense.  Yes, these two things do different things, but they
->> >>> could hook in to the same place.
->> >>
->> >> There are really two separate questions:
->> >> - Do we trust this filesystem?
->> >> - Do you have the bits to implement this concept?
->> >>
->> >> Even if in this specific context the two questions wind up looking
->> >> exactly the same. I think it makes a lot of sense to ask the two
->> >> questions separately.  As future maintenance changes may cause the
->> >> implementation of the questions to diverge.
->> >>
->> >
->> > Agreed.
->> >
->> > Unless someone thinks of an argument to the contrary, I'd say "no, we
->> > don't trust this filesystem".  I could be convinced otherwise.
->> 
->> But this is context dependent.  From the perspective of the container
->> we really do want to trust the filesystem.  As the container root set it
->> up, and if he isn't being hostile likely has a use for setfcaps files
->> and setuid files and all of the rest.
->> 
->> Perhaps I should phrase it as:
->> - In this context do we trust the code?   AKA mnt_may_suid?
->> - What do these bits mean in this context?  (Usually something more complicated).
->> 
->> Which says to me we want both patches 3 and 4 (even if 4 uses s_user_ns)
->> because 3 is different than 4.
+On Thu, Jul 16, 2015 at 5:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 7/16/2015 4:29 PM, Andy Lutomirski wrote:
+>> I really don't see the benefit of making up extra rules that apply to
+>> users outside a userns who try to access specifically a filesystem
+>> with backing store.  They wouldn't make sense for filesystems without
+>> backing store.
 >
-> So what I'll do is:
+> Sure it would. For Smack, it would be the label a file would be
+> created with, which would be the label of the process creating
+> the memory based filesystem. For SELinux the rules are more a
+> touch more sophisticated, but I'm sure that Paul or Stephen could
+> come up with how to determine it.
 >
->  - Add a s_user_ns check to mnt_may_suid
->  - Keep the (now redundant) s_user_ns check in get_file_caps
+> The point, looping all the way back to the beginning, where we
+> were talking about just ignoring the labels on the filesystem,
+> is that if you use the same Smack label on the files in the
+> filesystem as the backing store file has, we'll all be happy.
+> If that label isn't something user can write to, he won't be
+> able to write to the mounted objects, either. If there is no
+> backing store then use the label of the process creating the
+> filesystem, which will be the user, which will mean everything
+> will work hunky dory.
 >
-> I'm on the fence about having both the mnt and user ns checks in
-> mnt_may_suid - it might be overkill, but it still adds the protection
-> against clearing MNT_NOSUID in a bind mount. So I guess I'll keep the
-> mnt ns check.
+> Yes, there's work involved, but I doubt there's a lot. Getting
+> the label from the backing store or the creating process is
+> simple enough.
+>
 
-That sounds like a plan.
+So what if Smack used the label of the user creating the filesystem
+even for filesystems with backing store?  IMO this ought to be doable
+with the LSM hooks -- it certainly seems reasonable for the LSM to be
+aware of who created a filesystem.  In fact, I'd argue that if Smack
+can't do this with the proposed LSM hooks, then the hooks are
+insufficient.
 
-Eric
+Presumably Smack could also figure out what was mounted, but keep in
+mind that there are filesystems like ntfs-3g out there.  While ntfs-3g
+logically has backing store, I don't think the kernel actually knows
+about it.
+
+>
+>>>>> If you can mount a filesystem such that the labels are ignored you
+>>>>> are effectively specifying that the Smack label on the files be
+>>>>> determined by the defaulting rules. With CAP_MAC_ADMIN that's fine.
+>>>>> Without it, it's not.
+>>>> Can you explain what the threat model is here?  I don't see what it is
+>>>> that you're trying to prevent.
+>>> Um, OK.
+>>> The filesystem has files with a hundred different Smack labels on it.
+>>> I mount it as an unlabeled filesystem and everything is readable by
+>>> everyone. Bad jojo.
+>> I still don't understand.  If it's a filesystem backed by a file that
+>> Seth has RW access to, then Seth can read everything on it, full stop.
+>> The security labels in the filesystem are irrelevant.
+>
+> Well, they can't be trusted, if that's what you mean.
+> That's why I'm saying that the objects exposed by mounting
+> this backing store need to be treated with the same security
+> attributes as the backing store. Fudge it for DAC if you are
+> so inclined, but I think it's the right way to go for MAC.
+>
+>> This is like saying that, if you put restrictive labels in the
+>> filesystem that lives on /dev/sda2 and give Seth ownership of
+>> /dev/sda2, then you expect Seth to be unable to bypass the policy
+>> specifies by your labels.
+>
+> Consider the Smack label on /dev/sda2. Smack does not care
+> who owns it, just what the Smack label is. Just like on
+> ~/seth/myfs. The backing store "object" is /dev/sda2 in the
+> one case, ~/seth/myfs in the other, and something in the ether
+> for a memory based filesystem. So long as the labels of the
+> files exposed on the mount point match those of the backing
+> store "object", Smack is going to be happy. Since you're
+> running without privilege, you can't change the labels on
+> the files.
+>
+> Now Seth, being the sneaky person that he is, could change
+> the Smack labels on the files in the backing store while it's
+> offline. Since he has access to the backing store, he can't
+> give himself more access by changing the labels within the
+> filesystem. He can give himself less, but I'm OK with that.
+>
+>> Or maybe I'm misunderstanding you.
+>
+> Probably, but I'm undoubtedly doing the same.
+>
+> If you're going to be at LinuxCon in Seattle we should
+> continue this discussion over the beverage of your choice.
+
+There's a small but not quite zero chance I'll be there.  I'll
+probably be in Seoul.  It's too bad that LSS and KS are in different
+places this year.
+
+--Andy
