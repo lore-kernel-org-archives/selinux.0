@@ -1,119 +1,75 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6HADmnP011488
- for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 06:13:48 -0400
-Received: from eucpsbgm1.samsung.com (unknown [203.254.199.244])
- by mailout1.w1.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May 5 2014))
- with ESMTP id <0NRM00412N2P2N50@mailout1.w1.samsung.com> for
- selinux@tycho.nsa.gov; Fri, 17 Jul 2015 11:13:37 +0100 (BST)
-Message-id: <1437128016.2240.12.camel@samsung.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Fri, 17 Jul 2015 12:13:36 +0200
-In-reply-to: <87fv4nr6dh.fsf@x220.int.ebiederm.org>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <55A6C448.5050902@schaufler-ca.com> <87vbdlf7vo.fsf@x220.int.ebiederm.org>
- <1437045404.2207.5.camel@samsung.com> <87fv4nr6dh.fsf@x220.int.ebiederm.org>
-Content-type: text/plain; charset=UTF-8
-MIME-version: 1.0
-Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- linux-security-module@vger.kernel.org,
- Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org
+Message-ID: <55A8F80C.8080806@tycho.nsa.gov>
+Date: Fri, 17 Jul 2015 08:41:48 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Colin Powers <Colin.Powers@nexor.com>,
+ "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
+ Paul Moore <paul@paul-moore.com>
+Subject: Re: Restricting samba to only talk to one network interface?
+References: <VI1PR03MB1006B3B0EFB3FB97DC18A3AB9E980@VI1PR03MB1006.eurprd03.prod.outlook.com>
+In-Reply-To: <VI1PR03MB1006B3B0EFB3FB97DC18A3AB9E980@VI1PR03MB1006.eurprd03.prod.outlook.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On czw, 2015-07-16 at 19:10 -0500, Eric W. Biederman wrote:
-> Lukasz Pawelczyk <l.pawelczyk@samsung.com> writes:
-> > 
-> > I fail to see how those 2 are in any conflict. 
+On 07/17/2015 06:46 AM, Colin Powers wrote:
+> Hi,
 > 
-> Like I said.  They don't really conflict, and actually to really 
-> support
-> things well for smack we probably need something like your patches.
-
-As far as I can see now from the discussion the best thing to do would
-to be inherit label from a backing store object, or something along
-this line.
-
-> At the same time a patch written without dealing with s_user_ns is 
-> going
-> to going to fail to take a lot of important details into account.
-
-I don't touch anything that would need to deal with s_user_ns. I also
-don't change Smack's mounting logic in any way. My patches are
-orthogonal to that.
-
-> Right now after fixing the mount namespace issues the top priority is 
-> to
-> work through the details and get s_user_ns implemented.  By that I 
-> mean
-> some version of patch 1 of Seth's series.
-
-My priority is to make Smack namespace work. This is a functionality
-that has a perfectly valid use case now. Without it Smack in a
-container is impossible to operate on.
-
-> s_user_ns fundamentally changes how the concepts are represented in 
-> the
-> kernel in a way that is easier to secure, and that fundamentally 
-> better
-> matches things.  And sigh.  This review has shown we don't quite have
-> all of the details worked out.
+> I have a case where I want to apply a more restrictive policy to the samba daemon, smbd. I am not sure what the best way to approach this problem is, any ideas?
 > 
-> > If your approach here is to treat user ns mounted filesystem as if 
-> > they
-> > didn't support xattrs at all then my patches don't conflict here 
-> > any
-> > more than Smack itself already does.
+> My situation is:
+> * I have two network interfaces
+>   	* I am using iptables to label packets based on the network interface. E.g. all packets on eth0 are eth0_packet_t and all packets on eth1 are eth1_packet_t
+> * I want smbd to be able to interact with only one of the network interfaces
+> * I have a policy module that allows smbd_t to send/recv eth0_packet_t
+> * Problem: if the firewall is off, I would like smbd to be unable to communicate on the network.
+> 	* However, it seems in default targeted policy smbd can communicate over the network using unlabelled packets, so it can talk to either network interface in this state.
+> 	* How do I alter things so samba can only communicate on the network using eth0_packet_t - therefore making it impossible for smbd to communicate on the network unless the iptables is labelling packets as eth0_packet_t?
 > 
-> The end game if people developing smack choose to play, is to figure 
-> out
-> how to store your unmapped labels in a filesystem contained by a
-> user namespace and a smack label namespace root.
-
-Storing an unmapped label (read: real label) in Smack namespace is
-exactly the same as it is now without the namespace. I always store the
-real label.
-
-The problem here is: what real label should be "read" and eventually
-stored in that filesystem (see my first comment here). Again, Smack
-namespace doesn't touch that logic.
-
-> > If the filesystem will get a default (e.g. by smack* mount options)
-> > label then this label will co-work with Smack namespaces.
 > 
-> A default, but I don't know if it will be smack mount options that 
-> will
-> give that default.  The devil is in the details and there are a lot
-> of details.
+> Possible ideas:
+> * take ownership of the whole policy rather than build on top of the default RHEL policy, and customise the samba policy that is delivered?
+> * make a copy or symlink of the smbd daemon and apply custom policy to it?
+> * somehow relabel the existing smbd executable with a custom type that can only communicate on eth0_packet_t?
+> 	* but what's the best way to "override" the default policy? must I unload the samba policy module with semodule to allow smbd to be labelled with some other type?
+> * something else?
+> 
+> Potentially it seems like any of those ideas can work but I'm trying to figure out which one is the path of least resistance - i.e. which one causes the smallest maintenance headache e.g. when default targeted policy is updated. Any thoughts/recommendations?
 
-Now Smack gives the default. If someone will modify Smack to give a
-different label because of s_user_ns support Smack namepace will not
-cause any hindrance here.
+There are two reasons why it can communicate when the iptables SECMARK
+rules are flushed:
+1. Policy allows it (there is an allow domain unlabeled_t:packet { send
+recv }; rule in the unlabelednet policy module.
 
-Smack namespace main role is only to be able to operate Smack within a
-container. All the other LSM can do that already as they don't require
-caps to operate normally. Smack does. Hence it had to be namespaced in
-some way to give limited capabilities in a container (user ns).
+2. The kernel disables the packet permission checks entirely when there
+are no iptables SECMARK rules loaded (this is for both performance and
+compatibility) _unless_ the policy defines the always_check_network
+policy capability (cat
+/sys/fs/selinux/policy_capabilities/always_check_network).  The policy
+capabilities are defined in the base policy module.
 
-This really has nothing to do with the way Smack mounts, assigns
-labels, decides what is allowed and what is not, etc.
+This assumes that your kernel even supports this policy capability.  You
+didn't mention your RHEL version or kernel version.
 
-What this discussion is about is how to modify or even bend LSM's way
-of work to make unprivileged user ns mounts work under LSM (or not).
-Smack namespace here is just an utility within Smack itself. And maybe
-it can be used to help this at some point, but beyond that it's
-orthogonal to the problem.
+So to enforce this restriction even when iptables rules are flushed, you
+would need to rebuild both the base module (with a modified
+policy/policy_capabilities file that defines always_check_network), and
+you would need to remove the unlabelednet module.  At that point, you
+are basically maintaining your own forked policy and should probably
+install it with a different policy NAME (build.conf) / SELINUXTYPE
+(/etc/selinux/config), and switch your /etc/selinux/config to refer to
+it so that any selinux-policy-targeted updates will not affect your
+system.  Then you would need to manually merge updates into your custom
+policy.
 
-
-
--- 
-Lukasz Pawelczyk
-Samsung R&D Institute Poland
-Samsung Electronics
+A possible alternative would be to use peer labeling (NetLabel or
+labeled IPSEC) configured only for loopback labeling and the net
+egress/ingress permission checks instead of SECMARK.  Examples of
+configuring those mechanisms for loopback only labeling can be found in
+the selinux-testsuite (under tests/inet_socket) and in The SELinux
+Notebook.  However, those checks are also subject to being disabled if
+the peer labeling configuration (NetLabel or labeled IPSEC) is unloaded
+unless always_check_network is set (but they wouldn't be affected by
+flushing iptables).
