@@ -1,198 +1,87 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6GNU2U2008845
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 19:30:02 -0400
-Received: by laem6 with SMTP id m6so52251521lae.0
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 16:29:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <55A8398A.3000802@schaufler-ca.com>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <87615k7pyu.fsf@x220.int.ebiederm.org> <20150716135947.GC77715@ubuntu-hedt>
- <55A7C920.7090206@schaufler-ca.com> <20150716185750.GB51751@ubuntu-hedt>
- <55A8253E.3000407@schaufler-ca.com>
- <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
- <55A8398A.3000802@schaufler-ca.com>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Thu, 16 Jul 2015 16:29:38 -0700
-Message-ID: <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H0CrEq011073
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 20:12:53 -0400
+Date: Fri, 17 Jul 2015 10:09:14 +1000
+From: Dave Chinner <david@fromorbit.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-To: Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <20150717000914.GO7943@dastard>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <55A6C448.5050902@schaufler-ca.com>
+ <87vbdlf7vo.fsf@x220.int.ebiederm.org>
+ <55A6E107.3070200@schaufler-ca.com>
+ <CALCETrVCNQPVr-hg_pqd2J_LeWtRJs3LRsbbE+fifo4sat+FQQ@mail.gmail.com>
+ <55A71CE3.4050708@schaufler-ca.com>
+ <87fv4owvxv.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87fv4owvxv.fsf@x220.int.ebiederm.org>
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
  Seth Forshee <seth.forshee@canonical.com>,
  LSM List <linux-security-module@vger.kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>
+ Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 16, 2015 at 4:08 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 7/16/2015 3:27 PM, Andy Lutomirski wrote:
->> On Thu, Jul 16, 2015 at 2:42 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
->>> You want to provide a mechanism whereby an unprivileged user (Seth)
->>> can mount a filesystem for his own use. You want full filesystem
->>> semantics, but you're willing to accept restrictions on certain
->>> filesystem features to avoid opening security holes. You are not
->>> willing to accept restrictions that make the filesystem unusable,
->>> such as making it read-only.
->>>
->>> I am going to present a suggestion. Feel free to correct my
->>> assumptions and my reasoning. For simplicity let's use loop-back
->>> mounting of a filesystem contained in a file as an example. The
->>> principles should apply to newly created memory based filesystems
->>> or disk partitions "owned" by Seth.
->>>
->>> Seth wants to mount a file (~seth/myfs) which contains an ext4
->>> filesystem. There is already a filesystem object, with security
->>> attributes, that the system knows how to deal with. If Seth mounts
->>> this as a filesystem he, and potentially other people, will be
->>> able to access the content of this object without accessing the
->>> object itself.
->>>
->>>         seth$ mount --justforme -t ext4 ~seth/myfs /tmp/seth
->>>         seth$ chmod 777 /tmp/seth
->>>         seth$ ls -la /tmp/seth
->>>         drwxrwxrwx.  3  seth     seth   260 Jul 16 12:59 .
->>>         drwxrwxrwxt 18  root     root  4069 Jul 16 11:13 ..
->>>         seth$
->>>
->>> Everything's fine at this point. Wilma is also using the system,
->>> being the sort who likes to hide things in out of the way places
->>>
->>>         wilma$ cp ~/scandals /tmp/seth
->>>         wilma$ chmod 600 /tmp/seth/scandals
->> This is already impossible as described.  Seth can only mount the
->> filesystem in a private mount namespace inside a user namespace that
->> he created.  Wilma can't see it unless Seth passes an fd to Wilma and
->> Wilma accepts and uses it.
->
-> But you do have multiple UIDs withing your user namespace, right?
-> There are processes running as someone other than seth, right?
->
+On Wed, Jul 15, 2015 at 11:47:08PM -0500, Eric W. Biederman wrote:
+> Casey Schaufler <casey@schaufler-ca.com> writes:
+> > On 7/15/2015 6:08 PM, Andy Lutomirski wrote:
+> >> If I mount an unprivileged filesystem, then either the contents were
+> >> put there *by me*, in which case letting me access them are fine, or
+> >> (with Seth's patches and then some) I control the backing store, in
+> >> which case I can do whatever I want regardless of what LSM thinks.
+> >>
+> >> So I don't see the problem.  Why would Smack or any other LSM care at
+> >> all, unless it wants to prevent me from mounting the fs in the first
+> >> place?
+> >
+> > First off, I don't cotton to the notion that you should be able
+> > to mount filesystems without privilege. But it seems I'm being
+> > outvoted on that. I suspect that there are cases where it might
+> > be safe, but I can't think of one off the top of my head.
+> 
+> There are two fundamental issues mounting filesystems without privielge,
+> by which I actually mean mounting filesystems as the root user in a user
+> namespace.
+> 
+> - Are the semantics safe.
+> - Is the extra attack surface a problem.
 
-Only if root set it up that way.  For example, root could set up
-"subuids" (this is a userspace concept) that belong to Seth.  These
-would be uids that Seth controls and that represent subsets of Seth's
-authority. Wilma wouldn't be one of these subuids unless she was
-somehow part of Seth (or if root completely screwed up).
+I think the attack surface this exposes is the biggest problem
+facing this proposal.
 
->>
->>> puts her list of scandals on the unsuspecting filesystem, and changes
->>> the mode to ensure that no one can find out what went on after the
->>> office party.
->>>
->>> Seth unmounts /tmp/seth. He looks in ~seth/myfs, finds out what really
->>> happened at the office party, and the story goes from there.
->>>
->>> Wilma did everything correctly according to the system security policy,
->>> but the system security policy did not protect her as advertised. The
->>> system was tricked into behaving as if it was in control of the content
->>> of the filesystem when in fact it was not.
->>
->> I would argue that, if Wilma writes to some place described by an fd
->> and doesn't verify where she's writing to, then she has no expectation
->> of privacy.  After all, she could just *tell* Seth directly whatever
->> she wants (assuming she can communicate with Seth in the first place).
->
-> Don't ascribe either wisdom or good intentions to Wilma.
+> Figuring out how to make semantics safe is what we are talking about.
+> 
+> Once we sort out the semantics we can look at the handful of filesystems
+> like fuse where the extra attack surface is not a concern.
+> 
+> With that said desktop environments have for a long time been
+> automatically mounting whichever filesystem you place in your computer,
+> so in practice what this is really about is trying to align the kernel
+> with how people use filesystems.
 
-In that case, I'll mention the futility of solving the problem, even
-without user namespaces.  If Wilma tells Seth something, he's going to
-find out.  If Wilma pokes it (in whatever form) into an fd provided by
-Seth, then Seth is extremely likely to find out, regardless of what
-root or the MAC owner tries to do.
+The key difference is that desktops only do this when you physically
+plug in a device. With unprivileged mounts, a hostile attacker
+doesn't need physical access to the machine to exploit lurking
+kernel filesystem bugs. i.e. they can just use loopback mounts, and
+they can keep mounting corrupted images until they find something
+that works.
 
-If Wilma writes to a path that's mounted in her namespace, then, sure,
-overall policy associated with her namespace (which, in your example,
-is the root namespace) must apply.  But Seth can't mount things into
-Wilma's namespace without having CAP_SYS_ADMIN in that namespace and,
-if he has CAP_SYS_ADMIN, it's already game over.
+User namespaces are supposed to provide trust separation.  The
+kernel filesystems simply aren't hardened against unprivileged
+attacks from below - there is a trust relationship between root and
+the filesystem in that they are the only things that can write to
+the disk. Mounts from within a userns destroys this relationship as
+the userns root, by definition, is not a trusted actor.
 
->
->>> One way to fix this problem is for unprivileged mounts to recognize the
->>> attributes of the object mounted and to propagate those attributes to all
->>> the objects they present. All files on /tmp/seth would be owned by seth
->>> and protected by the mode bits, ACL and LSM requirements of ~/seth/myfs.
->> This is impossible to enforce, because Seth could use FUSE instead of ext4.
->
-> I never said that things aren't already broken. And, if you want
-> to ignore the potential DAC issues (read, negative groups) just
-> do it for the LSM xattrs.
->
+Cheers,
 
-Negative groups are a solved problem, I believe.
-
->
->>
->>> opening a file on /tmp/seth would require the same permissions as opening
->>> the file containing the mounted filesystem. These attributes would have to
->>> be immutable, or at least demonstrably more restrictive (chmod might be
->>> allowed in some cases, but chown would never be) when changed. I don't see
->>> how a user other than seth could create a new file, as you'd either have
->>> a magical change in ownership or a false sense of security.
->> This would be a very harsh restriction.  Seth might legitimately want
->> to give a user access to a file on backing store he owns without
->> giving that user access to the backing store.  Root on a normal system
->> does that all the time.
->
-> You already said that it was impossible for Wilma to get
-> access, so how is this more restrictive? Besides, Seth can
-> always set the mode on ~/seth so that Wilma can't read the
-> files it contains. This isn't an old problem or a novel
-> solution.
-
-Seth can pass an fd around.  This is actually a plausible thing to do:
-Seth creates a userns to sandbox himself, mounts some FUSE thing in
-there, and passes an fd out for the benefit of some daemon.  That
-daemon had better validate the thing before using it, though.
-
-I really don't see the benefit of making up extra rules that apply to
-users outside a userns who try to access specifically a filesystem
-with backing store.  They wouldn't make sense for filesystems without
-backing store.
-
->
->>> If you can mount a filesystem such that the labels are ignored you
->>> are effectively specifying that the Smack label on the files be
->>> determined by the defaulting rules. With CAP_MAC_ADMIN that's fine.
->>> Without it, it's not.
->> Can you explain what the threat model is here?  I don't see what it is
->> that you're trying to prevent.
->
-> Um, OK.
-> The filesystem has files with a hundred different Smack labels on it.
-> I mount it as an unlabeled filesystem and everything is readable by
-> everyone. Bad jojo.
-
-I still don't understand.  If it's a filesystem backed by a file that
-Seth has RW access to, then Seth can read everything on it, full stop.
-The security labels in the filesystem are irrelevant.
-
-This is like saying that, if you put restrictive labels in the
-filesystem that lives on /dev/sda2 and give Seth ownership of
-/dev/sda2, then you expect Seth to be unable to bypass the policy
-specifies by your labels.
-
-Or maybe I'm misunderstanding you.
-
->
->>
->>>> Your point is taken about my less-than-expert opinion about the other
->>>> security modules. We should at minimum get acks from the maintainers of
->>>> those modules that unprivileged mounts will not compromise MAC.
->>> I am the Smack maintainer. Unprivileged mounts as you have
->>> described them compromise MAC. They compromise DAC, too.
->>>
->> How do they compromise DAC?
->
-> Wilma's expectation (or the application running with a mapped UID)
-> that chmod will keep Seth out of the file.
-
-That was never true.  If Seth has an open fd, Wilma can chmod all day
-and it won't matter.  In this example, Seth owns the entire filesystem
-along with its backing store.
-
---Andy
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
