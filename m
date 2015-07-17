@@ -1,106 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6HESafH029239
- for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 10:28:42 -0400
-Received: by wgxm20 with SMTP id m20so83641249wgx.3
- for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 07:28:38 -0700 (PDT)
-Received: from localhost ([94.204.182.243])
- by smtp.gmail.com with ESMTPSA id e7sm8733757wib.22.2015.07.17.07.28.36
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 17 Jul 2015 07:28:37 -0700 (PDT)
-Date: Fri, 17 Jul 2015 18:28:34 +0400
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: [GIT PULL] policycoreutils: fix PEP8 issues
-Message-ID: <20150717142834.GA20679@meriadoc.Home>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6HFThMS001319
+ for <selinux@tycho.nsa.gov>; Fri, 17 Jul 2015 11:29:43 -0400
+Subject: Re: Python3 Support for Sepolgen module
+To: Jason Zaman <jason@perfinion.com>
+References: <1437047301-17672-1-git-send-email-rkuska@redhat.com>
+ <439836082.34025817.1437047775259.JavaMail.zimbra@redhat.com>
+ <20150716221605.GB28538@meriadoc.Home>
+ <839397810.34677360.1437115148590.JavaMail.zimbra@redhat.com>
+ <20150717065802.GA12312@meriadoc.Home>
+ <1799051406.34694801.1437118108180.JavaMail.zimbra@redhat.com>
+ <20150717075654.GA13727@meriadoc.Home> <20150717133333.GA18060@meriadoc.Home>
+From: Michal Srb <msrb@redhat.com>
+Message-ID: <55A91F50.9070307@redhat.com>
+Date: Fri, 17 Jul 2015 17:29:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150717133333.GA18060@meriadoc.Home>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The following changes since commit 2202a68d5ac2ac4c8fe05cdea829435efd2ba8e6:
 
-  Updated sepolgen ChangeLog. (2015-07-16 13:11:14 -0400)
 
-are available in the git repository at:
+On 07/17/2015 03:33 PM, Jason Zaman wrote:
+> I keep hitting this with python3, it seems to be much stricter than py2:
+>
+> # semanage boolean -l
+> Traceback (most recent call last):
+>    File "/usr/lib/python-exec/python3.3/semanage", line 27, in <module>
+>      import seobject
+>    File "/usr/lib64/python3.3/site-packages/seobject.py", line 154
+>      context = "%s%s" % (filler, raw)
+>                                     ^
+> TabError: inconsistent use of tabs and spaces in indentation
+>
+> I want to fix all the whitespace and other style issues in one big pull
+> request. Will it cause big problems for your porting? The upside is that
+> it's only a one time issue for the repo.
+>
+> If there are no objections, I'll send a pull request with the fix
+> shortly. It is too big for an inline patch.
 
-  https://github.com/perfinion/selinux.git reformat
+Hi Jason,
 
-for you to fetch changes up to 78c977e34c85ff97e236434d90ee9be5ed8ce1d0:
+I am preparing patches for adding python3 support to scripts under 
+policycoreutils/. No objections from me, please go ahead and apply your 
+changes. I can rebase my patches, if there are any problems.
 
-  policycoreutils: Fix PEP8 issues (2015-07-17 17:55:28 +0400)
+Regards
+Michal
 
-Commit message:
 
-    policycoreutils: Fix PEP8 issues
-
-    When trying to get policycoreutils working in python3, I kept running
-    into TabErrors:
-
-        Traceback (most recent call last):
-          File "/usr/lib/python-exec/python3.3/semanage", line 27, in <module>
-            import seobject
-          File "/usr/lib64/python3.3/site-packages/seobject.py", line 154
-            context = "%s%s" % (filler, raw)
-                                           ^
-        TabError: inconsistent use of tabs and spaces in indentation
-
-    Python3 is a lot stricter than python2 regarding whitespace and looks like
-    previous commits mixed the two.  When fixing this, I took the chance to fix
-    other PEP8 style issues at the same time.
-
-    This commit was made using:
-    $ file $(find . -type f) | grep -i python > pyfiles
-    $ autopep8 --in-place --ignore=E501,E265 $(cat pyfiles)
-
-    The ignore E501 is long lines since there are many that would be wrapped
-    otherwise, and E265 is block comments that start with ## instead of just #.
-
----- ------------------------------------------------------------
-Jason Zaman (1):
-      policycoreutils: Fix PEP8 issues
-
- policycoreutils/audit2allow/audit2allow           |  112 ++--
- policycoreutils/audit2allow/audit2why             |  104 ++--
- policycoreutils/audit2allow/sepolgen-ifgen        |   14 +-
- policycoreutils/audit2allow/test_audit2allow.py   |   15 +-
- policycoreutils/gui/booleansPage.py               |   69 ++-
- policycoreutils/gui/domainsPage.py                |   24 +-
- policycoreutils/gui/fcontextPage.py               |   83 +--
- policycoreutils/gui/html_util.py                  |   19 +-
- policycoreutils/gui/loginsPage.py                 |   45 +-
- policycoreutils/gui/mappingsPage.py               |    6 +-
- policycoreutils/gui/modulesPage.py                |   33 +-
- policycoreutils/gui/polgengui.py                  |  201 +++----
- policycoreutils/gui/portsPage.py                  |   48 +-
- policycoreutils/gui/semanagePage.py               |   29 +-
- policycoreutils/gui/statusPage.py                 |   40 +-
- policycoreutils/gui/system-config-selinux.py      |   33 +-
- policycoreutils/gui/usersPage.py                  |   30 +-
- policycoreutils/mcstrans/share/util/mlscolor-test |   18 +-
- policycoreutils/mcstrans/share/util/mlstrans-test |   27 +-
- policycoreutils/sandbox/sandbox                   |  592 +++++++++---------
- policycoreutils/sandbox/start                     |    8 +-
- policycoreutils/sandbox/test_sandbox.py           |   27 +-
- policycoreutils/scripts/chcat                     |  129 ++--
- policycoreutils/semanage/semanage                 |  238 +++++---
- policycoreutils/semanage/seobject.py              | 4316 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-----------------------------------------------------------------
- policycoreutils/semanage/test-semanage.py         |  291 ++++-----
- policycoreutils/sepolicy/selinux_client.py        |   19 +-
- policycoreutils/sepolicy/selinux_server.py        |   29 +-
- policycoreutils/sepolicy/sepolicy.py              |  220 ++++---
- policycoreutils/sepolicy/sepolicy/__init__.py     |  487 ++++++++-------
- policycoreutils/sepolicy/sepolicy/booleans.py     |   19 +-
- policycoreutils/sepolicy/sepolicy/communicate.py  |   21 +-
- policycoreutils/sepolicy/sepolicy/generate.py     | 2168 +++++++++++++++++++++++++++++++++---------------------------------
- policycoreutils/sepolicy/sepolicy/gui.py          |  527 ++++++++--------
- policycoreutils/sepolicy/sepolicy/interface.py    |   49 +-
- policycoreutils/sepolicy/sepolicy/manpage.py      | 1174 ++++++++++++++++++------------------
- policycoreutils/sepolicy/sepolicy/network.py      |   33 +-
- policycoreutils/sepolicy/sepolicy/sedbus.py       |   30 +-
- policycoreutils/sepolicy/sepolicy/transition.py   |   35 +-
- policycoreutils/sepolicy/setup.py                 |    8 +-
- policycoreutils/sepolicy/test_sepolicy.py         |   39 +-
- 41 files changed, 5907 insertions(+), 5502 deletions(-)
+>
+> -- Jason
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
