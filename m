@@ -1,127 +1,174 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H0xiuW013536
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 20:59:44 -0400
-Received: by laem6 with SMTP id m6so53015105lae.0
- for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 17:59:41 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <55A85041.2070301@schaufler-ca.com>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <87615k7pyu.fsf@x220.int.ebiederm.org> <20150716135947.GC77715@ubuntu-hedt>
- <55A7C920.7090206@schaufler-ca.com> <20150716185750.GB51751@ubuntu-hedt>
- <55A8253E.3000407@schaufler-ca.com>
- <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
- <55A8398A.3000802@schaufler-ca.com>
- <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
- <55A85041.2070301@schaufler-ca.com>
-From: Andy Lutomirski <luto@amacapital.net>
-Date: Thu, 16 Jul 2015 17:59:22 -0700
-Message-ID: <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6H2mDui019245
+ for <selinux@tycho.nsa.gov>; Thu, 16 Jul 2015 22:48:13 -0400
+Date: Fri, 17 Jul 2015 12:47:35 +1000
+From: Dave Chinner <david@fromorbit.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-To: Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <20150717024735.GW3902@dastard>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <55A6C448.5050902@schaufler-ca.com>
+ <87vbdlf7vo.fsf@x220.int.ebiederm.org>
+ <55A6E107.3070200@schaufler-ca.com>
+ <CALCETrVCNQPVr-hg_pqd2J_LeWtRJs3LRsbbE+fifo4sat+FQQ@mail.gmail.com>
+ <55A71CE3.4050708@schaufler-ca.com>
+ <87fv4owvxv.fsf@x220.int.ebiederm.org>
+ <20150717000914.GO7943@dastard>
+ <87380nobs4.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87380nobs4.fsf@x220.int.ebiederm.org>
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
  Seth Forshee <seth.forshee@canonical.com>,
  LSM List <linux-security-module@vger.kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>
+ Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 16, 2015 at 5:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 7/16/2015 4:29 PM, Andy Lutomirski wrote:
->> I really don't see the benefit of making up extra rules that apply to
->> users outside a userns who try to access specifically a filesystem
->> with backing store.  They wouldn't make sense for filesystems without
->> backing store.
->
-> Sure it would. For Smack, it would be the label a file would be
-> created with, which would be the label of the process creating
-> the memory based filesystem. For SELinux the rules are more a
-> touch more sophisticated, but I'm sure that Paul or Stephen could
-> come up with how to determine it.
->
-> The point, looping all the way back to the beginning, where we
-> were talking about just ignoring the labels on the filesystem,
-> is that if you use the same Smack label on the files in the
-> filesystem as the backing store file has, we'll all be happy.
-> If that label isn't something user can write to, he won't be
-> able to write to the mounted objects, either. If there is no
-> backing store then use the label of the process creating the
-> filesystem, which will be the user, which will mean everything
-> will work hunky dory.
->
-> Yes, there's work involved, but I doubt there's a lot. Getting
-> the label from the backing store or the creating process is
-> simple enough.
->
+On Thu, Jul 16, 2015 at 07:42:03PM -0500, Eric W. Biederman wrote:
+> Dave Chinner <david@fromorbit.com> writes:
+> 
+> > On Wed, Jul 15, 2015 at 11:47:08PM -0500, Eric W. Biederman wrote:
+> >> Casey Schaufler <casey@schaufler-ca.com> writes:
+> >> > On 7/15/2015 6:08 PM, Andy Lutomirski wrote:
+> >> >> If I mount an unprivileged filesystem, then either the contents were
+> >> >> put there *by me*, in which case letting me access them are fine, or
+> >> >> (with Seth's patches and then some) I control the backing store, in
+> >> >> which case I can do whatever I want regardless of what LSM thinks.
+> >> >>
+> >> >> So I don't see the problem.  Why would Smack or any other LSM care at
+> >> >> all, unless it wants to prevent me from mounting the fs in the first
+> >> >> place?
+> >> >
+> >> > First off, I don't cotton to the notion that you should be able
+> >> > to mount filesystems without privilege. But it seems I'm being
+> >> > outvoted on that. I suspect that there are cases where it might
+> >> > be safe, but I can't think of one off the top of my head.
+> >> 
+> >> There are two fundamental issues mounting filesystems without privielge,
+> >> by which I actually mean mounting filesystems as the root user in a user
+> >> namespace.
+> >> 
+> >> - Are the semantics safe.
+> >> - Is the extra attack surface a problem.
+> >
+> > I think the attack surface this exposes is the biggest problem
+> > facing this proposal.
+> 
+> I completely agree.
+> 
+> >> Figuring out how to make semantics safe is what we are talking about.
+> >> 
+> >> Once we sort out the semantics we can look at the handful of filesystems
+> >> like fuse where the extra attack surface is not a concern.
+> >> 
+> >> With that said desktop environments have for a long time been
+> >> automatically mounting whichever filesystem you place in your computer,
+> >> so in practice what this is really about is trying to align the kernel
+> >> with how people use filesystems.
+> >
+> > The key difference is that desktops only do this when you physically
+> > plug in a device. With unprivileged mounts, a hostile attacker
+> > doesn't need physical access to the machine to exploit lurking
+> > kernel filesystem bugs. i.e. they can just use loopback mounts, and
+> > they can keep mounting corrupted images until they find something
+> > that works.
+> 
+> Yep.  That magnifies the problem quite a bit.
+> 
+> > User namespaces are supposed to provide trust separation.  The
+> > kernel filesystems simply aren't hardened against unprivileged
+> > attacks from below - there is a trust relationship between root and
+> > the filesystem in that they are the only things that can write to
+> > the disk. Mounts from within a userns destroys this relationship as
+> > the userns root, by definition, is not a trusted actor.
+> 
+> I talked to Ted Tso a while back and ext4 is at least in principle
+> already hardened against that kind of attack.  I am not certain I
+> believe it, but if it is true I think it is fantastic.
 
-So what if Smack used the label of the user creating the filesystem
-even for filesystems with backing store?  IMO this ought to be doable
-with the LSM hooks -- it certainly seems reasonable for the LSM to be
-aware of who created a filesystem.  In fact, I'd argue that if Smack
-can't do this with the proposed LSM hooks, then the hooks are
-insufficient.
+No, it's not. No filesystem is, because to harden against such
+attacks requires complete verification of all metadata when it is
+read from disk, before it is used, or some method or ensuring the
+block was not tampered with. CRCs are not sufficient, because they
+can be tampered with, too.
 
-Presumably Smack could also figure out what was mounted, but keep in
-mind that there are filesystems like ntfs-3g out there.  While ntfs-3g
-logically has backing store, I don't think the kernel actually knows
-about it.
+The only way a filesystem would be able to trust what it reads from
+disk has not been tampered with in a system with untrusted mounts is
+if it has some kind of cryptographically secure signature in the
+metadata and the attacker is unable to access the key for that
+signature. No filesystem we have has that capability and AFAIA there
+are no plans for any filesystem to implement such tamper detection.
+And no, ext4 encryption does not provide this because it only stores
+the values and data in encrypted format and does not protect
+metadata from tampering when it is not mounted.
 
->
->>>>> If you can mount a filesystem such that the labels are ignored you
->>>>> are effectively specifying that the Smack label on the files be
->>>>> determined by the defaulting rules. With CAP_MAC_ADMIN that's fine.
->>>>> Without it, it's not.
->>>> Can you explain what the threat model is here?  I don't see what it is
->>>> that you're trying to prevent.
->>> Um, OK.
->>> The filesystem has files with a hundred different Smack labels on it.
->>> I mount it as an unlabeled filesystem and everything is readable by
->>> everyone. Bad jojo.
->> I still don't understand.  If it's a filesystem backed by a file that
->> Seth has RW access to, then Seth can read everything on it, full stop.
->> The security labels in the filesystem are irrelevant.
->
-> Well, they can't be trusted, if that's what you mean.
-> That's why I'm saying that the objects exposed by mounting
-> this backing store need to be treated with the same security
-> attributes as the backing store. Fudge it for DAC if you are
-> so inclined, but I think it's the right way to go for MAC.
->
->> This is like saying that, if you put restrictive labels in the
->> filesystem that lives on /dev/sda2 and give Seth ownership of
->> /dev/sda2, then you expect Seth to be unable to bypass the policy
->> specifies by your labels.
->
-> Consider the Smack label on /dev/sda2. Smack does not care
-> who owns it, just what the Smack label is. Just like on
-> ~/seth/myfs. The backing store "object" is /dev/sda2 in the
-> one case, ~/seth/myfs in the other, and something in the ether
-> for a memory based filesystem. So long as the labels of the
-> files exposed on the mount point match those of the backing
-> store "object", Smack is going to be happy. Since you're
-> running without privilege, you can't change the labels on
-> the files.
->
-> Now Seth, being the sneaky person that he is, could change
-> the Smack labels on the files in the backing store while it's
-> offline. Since he has access to the backing store, he can't
-> give himself more access by changing the labels within the
-> filesystem. He can give himself less, but I'm OK with that.
->
->> Or maybe I'm misunderstanding you.
->
-> Probably, but I'm undoubtedly doing the same.
->
-> If you're going to be at LinuxCon in Seattle we should
-> continue this discussion over the beverage of your choice.
+If we don't have crypto signatures in metadata, then XFS is probably
+the most robust against tampering as it does a lot more checking of
+the on-disk metadata before it is used than any other filesystem
+(i.e. see the verifier infrastructure that does corruption checks
+after read (in io completion) and before write (in io submission)
+to catch bad metadata before it is used by the kernel, or before it
+is written to disk by the kernel.
 
-There's a small but not quite zero chance I'll be there.  I'll
-probably be in Seoul.  It's too bad that LSS and KS are in different
-places this year.
+However, these checks are far from comprehensive. we can only check
+internal consistency of the metadata objects in the block, and even
+then we really only can check for values within range rather than
+absolute correctness. e.g. we can check a dirent has a valid name,
+length, ftype and inode number, but we can't validate that the inode
+is actually allocated or not because that requires a lookup in the
+allocated inode btree. We *trust* that inode number to be
+allocated and valid because it is in metadata the filesystem wrote.
 
---Andy
+For inode numbers that come from untrusted sources (NFS,
+open-by-handle, etc) we have a flag that does inode number
+validation on lookup (XFS_IGET_UNTRUSTED) to check against trusted
+metadata (i.e. the allocated inode btrees), but that is expensive
+and so not done on inodes that we pull directly from metadata that
+has come from disk. Indeed, we still trust on-disk metadata to be
+correct to validate that other metadata canbe trusted, so if one
+structure can be tampered with, so can others.
+
+IOWs, if we cannot trust one part of the filesystem metadata to be
+correct, then we cannot trust that filesystem *at all*, *for
+anything*. And even running fsck doesn't restore trust - all it does
+is tell us that any modification that was made is not a detectable
+inconsistency that needs fixing.
+
+> At this point any setting of the FS_USER_MOUNT flag I figure needs to go
+> through the filesystem maintainers tree and they need to be aware of and
+> agree to deal with the attack from below issue.
+> 
+> The one filesystem I truly expect we can make work is fuse.  fuse has
+> been designed to deal with some variation of the attack from below issue
+> since day one.  We looked at what the patches to fuse would look like
+> with the current state of the vfs and it was not pretty.
+> 
+> We very much need to sort through as much as possible at the vfs layer,
+> and in generic code.  Allow everyone to see what is going on and how
+> it works before preceeding forward with enabling any filesystems.
+
+The VFS protects us from attacks from above the filesystem, not
+below. The VFS plays no part in validating the on-disk structure of
+a filesystem which is what attacks from below will be attempting to
+exploit.
+
+> I truly hope we can find a small set of block device filesystems that we
+> can harden from attack below.   That would allow linux to have serious
+> defenses against evil usb stick attacks.  I think that is going to take
+> a lot of careful coding, testing and validation and advancing the state
+> of the art to get there.
+
+Somehow, I just can't see that happening.
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
