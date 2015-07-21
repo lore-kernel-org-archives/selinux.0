@@ -1,274 +1,164 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6LJ8gUC017839
- for <selinux@tycho.nsa.gov>; Tue, 21 Jul 2015 15:08:43 -0400
-From: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsemanage: Add file_contexts and seusers to the store
-Date: Tue, 21 Jul 2015 15:08:15 -0400
-Message-ID: <1437505695-1248-1-git-send-email-ykhodorkovskiy@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6LKaBOi023820
+ for <selinux@tycho.nsa.gov>; Tue, 21 Jul 2015 16:36:11 -0400
+Received: by oibn4 with SMTP id n4so131467192oib.3
+ for <selinux@tycho.nsa.gov>; Tue, 21 Jul 2015 13:35:52 -0700 (PDT)
+Date: Tue, 21 Jul 2015 15:35:50 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+Message-ID: <20150721203550.GA80838@ubuntu-hedt>
+References: <87615k7pyu.fsf@x220.int.ebiederm.org>
+ <20150716135947.GC77715@ubuntu-hedt>
+ <55A7C920.7090206@schaufler-ca.com>
+ <20150716185750.GB51751@ubuntu-hedt>
+ <55A8253E.3000407@schaufler-ca.com>
+ <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
+ <55A8398A.3000802@schaufler-ca.com>
+ <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
+ <55A85041.2070301@schaufler-ca.com>
+ <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This patch writes file_contexts and seusers to the policy store as well as
-/etc/selinux/. Additionally, file_contexts and seusers are now parsed from the
-store rather than the final directory which was the old behavior. This allows
-all policy related files to be kept in the policy store.
+On Thu, Jul 16, 2015 at 05:59:22PM -0700, Andy Lutomirski wrote:
+> On Thu, Jul 16, 2015 at 5:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > On 7/16/2015 4:29 PM, Andy Lutomirski wrote:
+> >> I really don't see the benefit of making up extra rules that apply to
+> >> users outside a userns who try to access specifically a filesystem
+> >> with backing store.  They wouldn't make sense for filesystems without
+> >> backing store.
+> >
+> > Sure it would. For Smack, it would be the label a file would be
+> > created with, which would be the label of the process creating
+> > the memory based filesystem. For SELinux the rules are more a
+> > touch more sophisticated, but I'm sure that Paul or Stephen could
+> > come up with how to determine it.
+> >
+> > The point, looping all the way back to the beginning, where we
+> > were talking about just ignoring the labels on the filesystem,
+> > is that if you use the same Smack label on the files in the
+> > filesystem as the backing store file has, we'll all be happy.
+> > If that label isn't something user can write to, he won't be
+> > able to write to the mounted objects, either. If there is no
+> > backing store then use the label of the process creating the
+> > filesystem, which will be the user, which will mean everything
+> > will work hunky dory.
+> >
+> > Yes, there's work involved, but I doubt there's a lot. Getting
+> > the label from the backing store or the creating process is
+> > simple enough.
+> >
 
-Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
+So something like the diff below (untested)?
+
+All I'm really doing is setting smk_default as you describe above and
+then using it instead of smk_of_current() in
+smack_inode_alloc_security() and instead of the label from the disk in
+smack_d_instantiate(). Since a user currently needs CAP_MAC_ADMIN in
+init_user_ns to store security labels it looks like this should be
+sufficient. I'm not even sure that the inode_alloc_security hook changes
+are needed.
+
+We could allow privileged users in s_user_ns to write security labels to
+disk since they already control the backing store, as long as Smack
+didn't subsequently import them. I didn't do that here.
+
+> So what if Smack used the label of the user creating the filesystem
+> even for filesystems with backing store?  IMO this ought to be doable
+> with the LSM hooks -- it certainly seems reasonable for the LSM to be
+> aware of who created a filesystem.  In fact, I'd argue that if Smack
+> can't do this with the proposed LSM hooks, then the hooks are
+> insufficient.
+
+It would be very simple to use the label of the task instead.
+
+Seth
+
 ---
- libsemanage/src/direct_api.c             | 69 +++++++++++++++++++++++++-------
- libsemanage/src/semanage_store.c         | 49 ++++-------------------
- libsemanage/src/semanage_store.h         |  5 ++-
- libsemanage/utils/semanage_migrate_store |  3 +-
- 4 files changed, 66 insertions(+), 60 deletions(-)
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 3c6b168..b11f2ba 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -248,18 +248,14 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 		goto err;
- 
- 	if (fcontext_file_dbase_init(sh,
--				     semanage_final_path(SEMANAGE_FINAL_SELINUX,
--							 SEMANAGE_FC),
--				     semanage_final_path(SEMANAGE_FINAL_TMP,
--							 SEMANAGE_FC),
-+				     semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC),
-+				     semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
- 				     semanage_fcontext_dbase_policy(sh)) < 0)
- 		goto err;
- 
- 	if (seuser_file_dbase_init(sh,
--				   semanage_final_path(SEMANAGE_FINAL_SELINUX,
--						       SEMANAGE_SEUSERS),
--				   semanage_final_path(SEMANAGE_FINAL_TMP,
--						       SEMANAGE_SEUSERS),
-+				   semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_SEUSERS),
-+				   semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
- 				   semanage_seuser_dbase_policy(sh)) < 0)
- 		goto err;
- 
-@@ -602,7 +598,7 @@ static int semanage_direct_update_seuser(semanage_handle_t * sh, cil_db_t *cildb
- 	}
- 
- 	if (size > 0) {
--		ofilename = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS);
-+		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
- 		if (ofilename == NULL) {
- 			return -1;
- 		}
-@@ -1039,7 +1035,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	size_t fc_buffer_len = 0;
- 	const char *ofilename = NULL;
- 	const char *path;
--	int retval = -1, num_modinfos = 0, i, missing_policy_kern = 0;
-+	int retval = -1, num_modinfos = 0, i, missing_policy_kern = 0,
-+		missing_seusers = 0, missing_fc = 0, missing = 0;
- 	sepol_policydb_t *out = NULL;
- 	struct cil_db *cildb = NULL;
- 	semanage_module_info_t *modinfos = NULL;
-@@ -1151,10 +1148,26 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 		if (access(path, F_OK) != 0) {
- 			missing_policy_kern = 1;
- 		}
-+
-+		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
-+
-+		if (access(path, F_OK) != 0) {
-+			missing_fc = 1;
-+		}
-+
-+		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
-+
-+		if (access(path, F_OK) != 0) {
-+			missing_seusers = 1;
-+		}
- 	}
- 
-+	missing |= missing_policy_kern;
-+	missing |= missing_fc;
-+	missing |= missing_seusers;
-+
- 	/* If there were policy changes, or explicitly requested, rebuild the policy */
--	if (sh->do_rebuild || modified || missing_policy_kern) {
-+	if (sh->do_rebuild || modified || missing) {
- 		/* =================== Module expansion =============== */
- 
- 		retval = semanage_get_active_modules(sh, &modinfos, &num_modinfos);
-@@ -1312,15 +1325,41 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	if (retval < 0)
- 		goto cleanup;
- 
--	retval = semanage_copy_policydb(sh);
--	if (retval < 0)
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL),
-+			semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL),
-+			sh->conf->file_mode);
-+	if (retval < 0) {
- 		goto cleanup;
-+	}
- 
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
- 	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_fc_local(sh);
--		if (retval < 0)
-+		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
-+							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
-+							sh->conf->file_mode);
-+		if (retval < 0) {
- 			goto cleanup;
-+		}
-+	}
-+
-+	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
-+	if (access(path, F_OK) == 0) {
-+		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
-+							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
-+							sh->conf->file_mode);
-+		if (retval < 0) {
-+			goto cleanup;
-+		}
-+	}
-+
-+	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
-+	if (access(path, F_OK) == 0) {
-+		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
-+							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
-+							sh->conf->file_mode);
-+		if (retval < 0) {
-+			goto cleanup;
-+		}
- 	}
- 
- 	/* run genhomedircon if its enabled, this should be the last operation
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 2856aaf..fa0876f 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -111,7 +111,9 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
- 	"/preserve_tunables",
- 	"/modules/disabled",
- 	"/policy.kern",
--	"/file_contexts.local"
-+	"/file_contexts.local",
-+	"/file_contexts",
-+	"/seusers"
- };
- 
- static char const * const semanage_final_prefix[SEMANAGE_FINAL_NUM] = {
-@@ -666,7 +668,7 @@ static int semanage_filename_select(const struct dirent *d)
- 
- /* Copies a file from src to dst.  If dst already exists then
-  * overwrite it.  Returns 0 on success, -1 on error. */
--static int semanage_copy_file(const char *src, const char *dst, mode_t mode)
-+int semanage_copy_file(const char *src, const char *dst, mode_t mode)
- {
- 	int in, out, retval = 0, amount_read, n, errsv = errno;
- 	char tmp[PATH_MAX];
-@@ -1425,11 +1427,11 @@ int semanage_split_fc(semanage_handle_t * sh)
- 		goto cleanup;
- 	}
- 
--	fc = open(semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
-+	fc = open(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
- 		  O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
- 	if (fc < 0) {
- 		ERR(sh, "Could not open %s for writing.",
--		    semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC));
-+		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC));
- 		goto cleanup;
- 	}
- 	hd = open(semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL),
-@@ -1454,8 +1456,7 @@ int semanage_split_fc(semanage_handle_t * sh)
- 		} else {
- 			if (write(fc, buf, strlen(buf)) < 0) {
- 				ERR(sh, "Write to %s failed.",
--				    semanage_final_path(SEMANAGE_FINAL_TMP,
--							SEMANAGE_FC));
-+				    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC));
- 				goto cleanup;
- 			}
- 		}
-@@ -2914,39 +2915,3 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
- 
- 	return 0;
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 32f598db0b0d..4597420ab933 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1486,6 +1486,10 @@ static inline void sb_start_intwrite(struct super_block *sb)
+ 	__sb_start_write(sb, SB_FREEZE_FS, true);
  }
--
--int semanage_copy_policydb(semanage_handle_t *sh)
--{
--	const char *src = NULL;
--	const char *dst = NULL;
--	int rc = -1;
--
--	src = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
--	dst = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
--
--	rc = semanage_copy_file(src, dst, sh->conf->file_mode);
--	if (rc != 0) {
--		goto cleanup;
--	}
--
--cleanup:
--	return rc;
--}
--
--int semanage_copy_fc_local(semanage_handle_t *sh)
--{
--	const char *src = NULL;
--	const char *dst = NULL;
--	int rc = -1;
--
--	src = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
--	dst = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL);
--
--	rc = semanage_copy_file(src, dst, sh->conf->file_mode);
--	if (rc != 0) {
--		goto cleanup;
--	}
--
--cleanup:
--	return rc;
--}
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index ade43f2..acb6e3f 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -57,6 +57,8 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_MODULES_DISABLED,
- 	SEMANAGE_STORE_KERNEL,
- 	SEMANAGE_STORE_FC_LOCAL,
-+	SEMANAGE_STORE_FC,
-+	SEMANAGE_STORE_SEUSERS,
- 	SEMANAGE_STORE_NUM_PATHS
- };
  
-@@ -150,7 +152,6 @@ int semanage_nc_sort(semanage_handle_t * sh,
- 		     size_t buf_len,
- 		     char **sorted_buf, size_t * sorted_buf_len);
++static inline bool sb_in_userns(struct super_block *sb)
++{
++	return sb->s_user_ns != &init_user_ns;
++}
  
--int semanage_copy_policydb(semanage_handle_t *sh);
--int semanage_copy_fc_local(semanage_handle_t *sh);
-+int semanage_copy_file(const char *src, const char *dst, mode_t mode);
+ extern bool inode_owner_or_capable(const struct inode *inode);
  
- #endif
-diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-index b170eda..6443002 100755
---- a/libsemanage/utils/semanage_migrate_store
-+++ b/libsemanage/utils/semanage_migrate_store
-@@ -244,7 +244,8 @@ if __name__ == "__main__":
- 		"users_extra.local",
- 		"disable_dontaudit",
- 		"preserve_tunables",
--		"policy.kern" ]
-+		"policy.kern",
-+		"file_contexts"]
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index a143328f75eb..591fd19294e7 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -255,6 +255,10 @@ static struct smack_known *smk_fetch(const char *name, struct inode *ip,
+ 	char *buffer;
+ 	struct smack_known *skp = NULL;
  
++	/* Should never fetch xattrs from untrusted mounts */
++	if (WARN_ON(sb_in_userns(ip->i_sb)))
++		return ERR_PTR(-EPERM);
++
+ 	if (ip->i_op->getxattr == NULL)
+ 		return ERR_PTR(-EOPNOTSUPP);
  
- 	create_dir(newroot_path(), 0o755)
--- 
-1.9.3
+@@ -656,10 +660,14 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
+ 		 */
+ 		if (specified)
+ 			return -EPERM;
++
+ 		/*
+-		 * Unprivileged mounts get root and default from the caller.
++		 * User namespace mounts get root and default from the backing
++		 * store, if there is one. Other unprivileged mounts get them
++		 * from the caller.
+ 		 */
+-		skp = smk_of_current();
++		skp = (sb_in_userns(sb) && sb->s_bdev) ?
++			smk_of_inode(sb->s_bdev->bd_inode) : smk_of_current();
+ 		sp->smk_root = skp;
+ 		sp->smk_default = skp;
+ 	}
+@@ -792,7 +800,12 @@ static int smack_bprm_secureexec(struct linux_binprm *bprm)
+  */
+ static int smack_inode_alloc_security(struct inode *inode)
+ {
+-	struct smack_known *skp = smk_of_current();
++	struct smack_known *skp;
++
++	if (sb_in_userns(inode->i_sb))
++		skp = ((struct superblock_smack *)(inode->i_sb->s_security))->smk_default;
++	else
++		skp = smk_of_current();
+ 
+ 	inode->i_security = new_inode_smack(skp);
+ 	if (inode->i_security == NULL)
+@@ -3175,6 +3188,11 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+ 			break;
+ 		}
+ 		/*
++		 * Don't use labels from xattrs for unprivileged mounts.
++		 */
++		if (sb_in_userns(inode->i_sb))
++			break;
++		/*
+ 		 * No xattr support means, alas, no SMACK label.
+ 		 * Use the aforeapplied default.
+ 		 * It would be curious if the label of the task
