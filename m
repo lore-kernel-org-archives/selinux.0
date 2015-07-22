@@ -1,228 +1,291 @@
-Message-ID: <55AF9BFF.1000101@tycho.nsa.gov>
-Date: Wed, 22 Jul 2015 09:34:55 -0400
+Message-ID: <55AF9CBF.3050808@tycho.nsa.gov>
+Date: Wed, 22 Jul 2015 09:38:07 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Michal Srb <msrb@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/4] policycoreutils/semanage: improve compatibility with
- Python 3
-References: <1437439102-9911-1-git-send-email-msrb@redhat.com>
- <1437439102-9911-4-git-send-email-msrb@redhat.com>
-In-Reply-To: <1437439102-9911-4-git-send-email-msrb@redhat.com>
+To: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>, selinux@tycho.nsa.gov,
+ Steve Lawrence <slawrence@tresys.com>
+Subject: Re: [PATCH] libsemanage: Add file_contexts and seusers to the store
+References: <1437505695-1248-1-git-send-email-ykhodorkovskiy@tresys.com>
+ <55AF9AB8.7080505@tycho.nsa.gov>
+In-Reply-To: <55AF9AB8.7080505@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/20/2015 08:38 PM, Michal Srb wrote:
-> - gettext.install() only takes "unicode" keyword argument in Python 2
-> - __builtin__ module has been renamed to "builtins" in Python 3
-> - use reserved word `as` in try-except
-> - replace print statement with print function
+On 07/22/2015 09:29 AM, Stephen Smalley wrote:
+> On 07/21/2015 03:08 PM, Yuli Khodorkovskiy wrote:
+>> This patch writes file_contexts and seusers to the policy store as well as
+>> /etc/selinux/. Additionally, file_contexts and seusers are now parsed from the
+>> store rather than the final directory which was the old behavior. This allows
+>> all policy related files to be kept in the policy store.
+>>
+>> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
 > 
-> Signed-off-by: Michal Srb <msrb@redhat.com>
-> ---
->  policycoreutils/semanage/semanage         | 59 +++++++++++++++++--------------
->  policycoreutils/semanage/test-semanage.py |  4 +--
->  2 files changed, 35 insertions(+), 28 deletions(-)
+> Thanks, applied.
+
+One caveat with these changes:  they require a semodule -B when
+upgrading.  Otherwise any read-only transaction, e.g. semodule login -l,
+will yield no results.
+
 > 
-> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-> index dd1010a..515cef3 100644
-> --- a/policycoreutils/semanage/semanage
-> +++ b/policycoreutils/semanage/semanage
-> @@ -29,13 +29,20 @@ import sys
->  import gettext
->  PROGNAME="policycoreutils"
->  try:
-> -       gettext.install(PROGNAME,
-> -                       localedir="/usr/share/locale",
-> -                       unicode=True,
-> -                       codeset = 'utf-8')
-> +    kwargs = {}
-> +    if sys.version_info < (3,):
-> +        kwargs['unicode'] = True
-> +    gettext.install(PROGNAME,
-> +                    localedir="/usr/share/locale",
-> +                    codeset = 'utf-8',
-> +                    **kwarg)
-
-I had to fix this (kwarg -> kwargs).  Not tested?
-
->  except IOError:
-> -       import __builtin__
-> -       __builtin__.__dict__['_'] = unicode
-> +    try:
-> +        import builtins
-> +        builtins.__dict__['_'] = str
-> +    except ImportError:
-> +        import __builtin__
-> +        __builtin__.__dict__['_'] = unicode
->  
->  # define custom usages for selected main actions
->  usage_login = "semanage login [-h] [-n] [-N] [-s STORE] ["
-> @@ -103,7 +110,7 @@ class SetImportFile(argparse.Action):
->          if values and values is not "-":
->                 try:
->                        sys.stdin = open(values, 'r')
-> -               except IOError,e:
-> +               except IOError as e:
->                        sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->                        sys.exit(1)
->          setattr(namespace, self.dest, values)
-> @@ -207,7 +214,7 @@ def handleLogin(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "login %s" % (str(i))
-> +            print("login %s" % (str(i)))
->  
->  def parser_add_store(parser, name):
->      parser.add_argument('-S', '--store', action=SetStore, help=_("Select an alternate SELinux Policy Store to manage"))
-> @@ -323,7 +330,7 @@ def handleFcontext(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "fcontext %s" % str(i)
-> +            print("fcontext %s" % str(i))
->  
->  def setupFcontextParser(subparsers):
->      ftype_help = '''
-> @@ -381,7 +388,7 @@ def handleUser(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "user %s" % str(i)
-> +            print("user %s" % str(i))
->  
->  def setupUserParser(subparsers):
->      generated_usage = generate_custom_usage(usage_user, usage_user_dict)
-> @@ -430,7 +437,7 @@ def handlePort(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "port %s" % str(i)
-> +            print("port %s" % str(i))
->  
->  def setupPortParser(subparsers):
->      generated_usage = generate_custom_usage(usage_port, usage_port_dict)
-> @@ -473,7 +480,7 @@ def handleInterface(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "interface %s" % str(i)
-> +            print("interface %s" % str(i))
->  
->  def setupInterfaceParser(subparsers):
->      generated_usage = generate_custom_usage(usage_interface, usage_interface_dict)
-> @@ -512,7 +519,7 @@ def handleModule(args):
->          OBJECT.list(args.noheading, args.locallist)
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "module %s" % str(i)
-> +            print("module %s" % str(i))
->  
->  def setupModuleParser(subparsers):
->      moduleParser = subparsers.add_parser('module', help=_('Manage SELinux policy modules'))
-> @@ -552,7 +559,7 @@ def handleNode(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "node %s" % str(i)
-> +            print("node %s" % str(i))
->  
->  def setupNodeParser(subparsers):
->      generated_usage = generate_custom_usage(usage_node, usage_node_dict)
-> @@ -584,10 +591,10 @@ def handleBoolean(args):
->          sys.exit(2)
->      # TODO: should be added to handle_opts logic
->      elif args.action is "modify" and not args.boolean:
-> -        print "boolean name required "
-> +        print("boolean name required ")
->          sys.exit(1)
->      elif args.action is "modify" and args.boolean and not args.state:
-> -        print "state option is needed"
-> +        print("state option is needed")
->          sys.exit(1)
->      else:
->          handle_opts(args,boolean_args,args.action)
-> @@ -604,7 +611,7 @@ def handleBoolean(args):
->          OBJECT.deleteall()
->      if args.action is "extract":
->          for i in OBJECT.customized():
-> -            print "boolean %s" % str(i)
-> +            print("boolean %s" % str(i))
->  
->  def setupBooleanParser(subparsers):
->      generated_usage = generate_custom_usage(usage_boolean, usage_boolean_dict)
-> @@ -670,11 +677,11 @@ def setupDontauditParser(subparsers):
->  def handleExport(args):
->      manageditems=[ "boolean", "login", "interface", "user", "port", "node", "fcontext", "module"]
->      for i in manageditems:
-> -        print "%s -D" % i
-> +        print("%s -D" % i)
->      for i in manageditems:
->          OBJECT = object_dict[i]()
->          for c in OBJECT.customized():
-> -            print "%s %s" % (i, str(c))
-> +            print("%s %s" % (i, str(c)))
->  
->      sys.exit(0)
->  
-> @@ -743,10 +750,10 @@ def handleImport(args):
->              commandParser = createCommandParser()
->              args = commandParser.parse_args(mkargv(l))
->              args.func(args)
-> -        except ValueError,e:
-> +        except ValueError as e:
->              sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->              sys.exit(1)
-> -        except IOError,e:
-> +        except IOError as e:
->              sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->              sys.exit(1)
->          except KeyboardInterrupt:
-> @@ -822,21 +829,21 @@ def do_parser():
->          args = commandParser.parse_args(make_args(sys.argv))
->          args.func(args)
->          sys.exit(0)
-> -    except IOError,e:
-> +    except IOError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->          sys.exit(1)
->      except KeyboardInterrupt:
->          sys.exit(0)
-> -    except ValueError, e:
-> +    except ValueError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
->          sys.exit(1)
-> -    except KeyError, e:
-> +    except KeyError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
->          sys.exit(1)
-> -    except OSError, e:
-> +    except OSError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[1]))
->          sys.exit(1)
-> -    except RuntimeError, e:
-> +    except RuntimeError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, e.args[0]))
->          sys.exit(1)
->  
-> diff --git a/policycoreutils/semanage/test-semanage.py b/policycoreutils/semanage/test-semanage.py
-> index d39013e..fc8368e 100644
-> --- a/policycoreutils/semanage/test-semanage.py
-> +++ b/policycoreutils/semanage/test-semanage.py
-> @@ -273,10 +273,10 @@ if __name__ == "__main__":
->              args = parser.parse_args()
->              args.func(args)
->              sys.exit(0)
-> -        except ValueError,e:
-> +        except ValueError as e:
->              sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->              sys.exit(1)
-> -        except IOError,e:
-> +        except IOError as e:
->              sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->              sys.exit(1)
->          except KeyboardInterrupt:
+>> ---
+>>  libsemanage/src/direct_api.c             | 69 +++++++++++++++++++++++++-------
+>>  libsemanage/src/semanage_store.c         | 49 ++++-------------------
+>>  libsemanage/src/semanage_store.h         |  5 ++-
+>>  libsemanage/utils/semanage_migrate_store |  3 +-
+>>  4 files changed, 66 insertions(+), 60 deletions(-)
+>>
+>> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+>> index 3c6b168..b11f2ba 100644
+>> --- a/libsemanage/src/direct_api.c
+>> +++ b/libsemanage/src/direct_api.c
+>> @@ -248,18 +248,14 @@ int semanage_direct_connect(semanage_handle_t * sh)
+>>  		goto err;
+>>  
+>>  	if (fcontext_file_dbase_init(sh,
+>> -				     semanage_final_path(SEMANAGE_FINAL_SELINUX,
+>> -							 SEMANAGE_FC),
+>> -				     semanage_final_path(SEMANAGE_FINAL_TMP,
+>> -							 SEMANAGE_FC),
+>> +				     semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC),
+>> +				     semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
+>>  				     semanage_fcontext_dbase_policy(sh)) < 0)
+>>  		goto err;
+>>  
+>>  	if (seuser_file_dbase_init(sh,
+>> -				   semanage_final_path(SEMANAGE_FINAL_SELINUX,
+>> -						       SEMANAGE_SEUSERS),
+>> -				   semanage_final_path(SEMANAGE_FINAL_TMP,
+>> -						       SEMANAGE_SEUSERS),
+>> +				   semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_SEUSERS),
+>> +				   semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
+>>  				   semanage_seuser_dbase_policy(sh)) < 0)
+>>  		goto err;
+>>  
+>> @@ -602,7 +598,7 @@ static int semanage_direct_update_seuser(semanage_handle_t * sh, cil_db_t *cildb
+>>  	}
+>>  
+>>  	if (size > 0) {
+>> -		ofilename = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS);
+>> +		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
+>>  		if (ofilename == NULL) {
+>>  			return -1;
+>>  		}
+>> @@ -1039,7 +1035,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>  	size_t fc_buffer_len = 0;
+>>  	const char *ofilename = NULL;
+>>  	const char *path;
+>> -	int retval = -1, num_modinfos = 0, i, missing_policy_kern = 0;
+>> +	int retval = -1, num_modinfos = 0, i, missing_policy_kern = 0,
+>> +		missing_seusers = 0, missing_fc = 0, missing = 0;
+>>  	sepol_policydb_t *out = NULL;
+>>  	struct cil_db *cildb = NULL;
+>>  	semanage_module_info_t *modinfos = NULL;
+>> @@ -1151,10 +1148,26 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>  		if (access(path, F_OK) != 0) {
+>>  			missing_policy_kern = 1;
+>>  		}
+>> +
+>> +		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
+>> +
+>> +		if (access(path, F_OK) != 0) {
+>> +			missing_fc = 1;
+>> +		}
+>> +
+>> +		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
+>> +
+>> +		if (access(path, F_OK) != 0) {
+>> +			missing_seusers = 1;
+>> +		}
+>>  	}
+>>  
+>> +	missing |= missing_policy_kern;
+>> +	missing |= missing_fc;
+>> +	missing |= missing_seusers;
+>> +
+>>  	/* If there were policy changes, or explicitly requested, rebuild the policy */
+>> -	if (sh->do_rebuild || modified || missing_policy_kern) {
+>> +	if (sh->do_rebuild || modified || missing) {
+>>  		/* =================== Module expansion =============== */
+>>  
+>>  		retval = semanage_get_active_modules(sh, &modinfos, &num_modinfos);
+>> @@ -1312,15 +1325,41 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>  	if (retval < 0)
+>>  		goto cleanup;
+>>  
+>> -	retval = semanage_copy_policydb(sh);
+>> -	if (retval < 0)
+>> +	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL),
+>> +			semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL),
+>> +			sh->conf->file_mode);
+>> +	if (retval < 0) {
+>>  		goto cleanup;
+>> +	}
+>>  
+>>  	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
+>>  	if (access(path, F_OK) == 0) {
+>> -		retval = semanage_copy_fc_local(sh);
+>> -		if (retval < 0)
+>> +		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
+>> +							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
+>> +							sh->conf->file_mode);
+>> +		if (retval < 0) {
+>>  			goto cleanup;
+>> +		}
+>> +	}
+>> +
+>> +	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
+>> +	if (access(path, F_OK) == 0) {
+>> +		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
+>> +							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
+>> +							sh->conf->file_mode);
+>> +		if (retval < 0) {
+>> +			goto cleanup;
+>> +		}
+>> +	}
+>> +
+>> +	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
+>> +	if (access(path, F_OK) == 0) {
+>> +		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
+>> +							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
+>> +							sh->conf->file_mode);
+>> +		if (retval < 0) {
+>> +			goto cleanup;
+>> +		}
+>>  	}
+>>  
+>>  	/* run genhomedircon if its enabled, this should be the last operation
+>> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+>> index 2856aaf..fa0876f 100644
+>> --- a/libsemanage/src/semanage_store.c
+>> +++ b/libsemanage/src/semanage_store.c
+>> @@ -111,7 +111,9 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
+>>  	"/preserve_tunables",
+>>  	"/modules/disabled",
+>>  	"/policy.kern",
+>> -	"/file_contexts.local"
+>> +	"/file_contexts.local",
+>> +	"/file_contexts",
+>> +	"/seusers"
+>>  };
+>>  
+>>  static char const * const semanage_final_prefix[SEMANAGE_FINAL_NUM] = {
+>> @@ -666,7 +668,7 @@ static int semanage_filename_select(const struct dirent *d)
+>>  
+>>  /* Copies a file from src to dst.  If dst already exists then
+>>   * overwrite it.  Returns 0 on success, -1 on error. */
+>> -static int semanage_copy_file(const char *src, const char *dst, mode_t mode)
+>> +int semanage_copy_file(const char *src, const char *dst, mode_t mode)
+>>  {
+>>  	int in, out, retval = 0, amount_read, n, errsv = errno;
+>>  	char tmp[PATH_MAX];
+>> @@ -1425,11 +1427,11 @@ int semanage_split_fc(semanage_handle_t * sh)
+>>  		goto cleanup;
+>>  	}
+>>  
+>> -	fc = open(semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
+>> +	fc = open(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
+>>  		  O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+>>  	if (fc < 0) {
+>>  		ERR(sh, "Could not open %s for writing.",
+>> -		    semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC));
+>> +		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC));
+>>  		goto cleanup;
+>>  	}
+>>  	hd = open(semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL),
+>> @@ -1454,8 +1456,7 @@ int semanage_split_fc(semanage_handle_t * sh)
+>>  		} else {
+>>  			if (write(fc, buf, strlen(buf)) < 0) {
+>>  				ERR(sh, "Write to %s failed.",
+>> -				    semanage_final_path(SEMANAGE_FINAL_TMP,
+>> -							SEMANAGE_FC));
+>> +				    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC));
+>>  				goto cleanup;
+>>  			}
+>>  		}
+>> @@ -2914,39 +2915,3 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
+>>  
+>>  	return 0;
+>>  }
+>> -
+>> -int semanage_copy_policydb(semanage_handle_t *sh)
+>> -{
+>> -	const char *src = NULL;
+>> -	const char *dst = NULL;
+>> -	int rc = -1;
+>> -
+>> -	src = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
+>> -	dst = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
+>> -
+>> -	rc = semanage_copy_file(src, dst, sh->conf->file_mode);
+>> -	if (rc != 0) {
+>> -		goto cleanup;
+>> -	}
+>> -
+>> -cleanup:
+>> -	return rc;
+>> -}
+>> -
+>> -int semanage_copy_fc_local(semanage_handle_t *sh)
+>> -{
+>> -	const char *src = NULL;
+>> -	const char *dst = NULL;
+>> -	int rc = -1;
+>> -
+>> -	src = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
+>> -	dst = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL);
+>> -
+>> -	rc = semanage_copy_file(src, dst, sh->conf->file_mode);
+>> -	if (rc != 0) {
+>> -		goto cleanup;
+>> -	}
+>> -
+>> -cleanup:
+>> -	return rc;
+>> -}
+>> diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
+>> index ade43f2..acb6e3f 100644
+>> --- a/libsemanage/src/semanage_store.h
+>> +++ b/libsemanage/src/semanage_store.h
+>> @@ -57,6 +57,8 @@ enum semanage_sandbox_defs {
+>>  	SEMANAGE_MODULES_DISABLED,
+>>  	SEMANAGE_STORE_KERNEL,
+>>  	SEMANAGE_STORE_FC_LOCAL,
+>> +	SEMANAGE_STORE_FC,
+>> +	SEMANAGE_STORE_SEUSERS,
+>>  	SEMANAGE_STORE_NUM_PATHS
+>>  };
+>>  
+>> @@ -150,7 +152,6 @@ int semanage_nc_sort(semanage_handle_t * sh,
+>>  		     size_t buf_len,
+>>  		     char **sorted_buf, size_t * sorted_buf_len);
+>>  
+>> -int semanage_copy_policydb(semanage_handle_t *sh);
+>> -int semanage_copy_fc_local(semanage_handle_t *sh);
+>> +int semanage_copy_file(const char *src, const char *dst, mode_t mode);
+>>  
+>>  #endif
+>> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
+>> index b170eda..6443002 100755
+>> --- a/libsemanage/utils/semanage_migrate_store
+>> +++ b/libsemanage/utils/semanage_migrate_store
+>> @@ -244,7 +244,8 @@ if __name__ == "__main__":
+>>  		"users_extra.local",
+>>  		"disable_dontaudit",
+>>  		"preserve_tunables",
+>> -		"policy.kern" ]
+>> +		"policy.kern",
+>> +		"file_contexts"]
+>>  
+>>  
+>>  	create_dir(newroot_path(), 0o755)
+>>
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 > 
