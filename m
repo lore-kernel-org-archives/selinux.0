@@ -1,291 +1,39 @@
-Message-ID: <55AF9CBF.3050808@tycho.nsa.gov>
-Date: Wed, 22 Jul 2015 09:38:07 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>, selinux@tycho.nsa.gov,
- Steve Lawrence <slawrence@tresys.com>
-Subject: Re: [PATCH] libsemanage: Add file_contexts and seusers to the store
-References: <1437505695-1248-1-git-send-email-ykhodorkovskiy@tresys.com>
- <55AF9AB8.7080505@tycho.nsa.gov>
-In-Reply-To: <55AF9AB8.7080505@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] policycoreutils: semanage: fix moduleRecords deleteall method
+Date: Wed, 22 Jul 2015 10:05:49 -0400
+Message-Id: <1437573949-7401-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/22/2015 09:29 AM, Stephen Smalley wrote:
-> On 07/21/2015 03:08 PM, Yuli Khodorkovskiy wrote:
->> This patch writes file_contexts and seusers to the policy store as well as
->> /etc/selinux/. Additionally, file_contexts and seusers are now parsed from the
->> store rather than the final directory which was the old behavior. This allows
->> all policy related files to be kept in the policy store.
->>
->> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
-> 
-> Thanks, applied.
+commit 2ff279e21e4715ac49e094b5fae8bc8e84b9e417 ("policycoreutils:
+ semanage: update to new source policy infrastructure") introduced
+new methods for enabling/disabling modules but failed to update
+the deleteall method of class moduleRecords to use the new method.
+The deleteall method was introduced by commit
+3dafb1046d847783f1e761535925ea79d69d3305 ("Add deleteall customizations
+field for modules.") as a way to re-enable all locally disabled modules.
 
-One caveat with these changes:  they require a semodule -B when
-upgrading.  Otherwise any read-only transaction, e.g. semodule login -l,
-will yield no results.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ policycoreutils/semanage/seobject.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
->> ---
->>  libsemanage/src/direct_api.c             | 69 +++++++++++++++++++++++++-------
->>  libsemanage/src/semanage_store.c         | 49 ++++-------------------
->>  libsemanage/src/semanage_store.h         |  5 ++-
->>  libsemanage/utils/semanage_migrate_store |  3 +-
->>  4 files changed, 66 insertions(+), 60 deletions(-)
->>
->> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
->> index 3c6b168..b11f2ba 100644
->> --- a/libsemanage/src/direct_api.c
->> +++ b/libsemanage/src/direct_api.c
->> @@ -248,18 +248,14 @@ int semanage_direct_connect(semanage_handle_t * sh)
->>  		goto err;
->>  
->>  	if (fcontext_file_dbase_init(sh,
->> -				     semanage_final_path(SEMANAGE_FINAL_SELINUX,
->> -							 SEMANAGE_FC),
->> -				     semanage_final_path(SEMANAGE_FINAL_TMP,
->> -							 SEMANAGE_FC),
->> +				     semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC),
->> +				     semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
->>  				     semanage_fcontext_dbase_policy(sh)) < 0)
->>  		goto err;
->>  
->>  	if (seuser_file_dbase_init(sh,
->> -				   semanage_final_path(SEMANAGE_FINAL_SELINUX,
->> -						       SEMANAGE_SEUSERS),
->> -				   semanage_final_path(SEMANAGE_FINAL_TMP,
->> -						       SEMANAGE_SEUSERS),
->> +				   semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_SEUSERS),
->> +				   semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
->>  				   semanage_seuser_dbase_policy(sh)) < 0)
->>  		goto err;
->>  
->> @@ -602,7 +598,7 @@ static int semanage_direct_update_seuser(semanage_handle_t * sh, cil_db_t *cildb
->>  	}
->>  
->>  	if (size > 0) {
->> -		ofilename = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS);
->> +		ofilename = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
->>  		if (ofilename == NULL) {
->>  			return -1;
->>  		}
->> @@ -1039,7 +1035,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
->>  	size_t fc_buffer_len = 0;
->>  	const char *ofilename = NULL;
->>  	const char *path;
->> -	int retval = -1, num_modinfos = 0, i, missing_policy_kern = 0;
->> +	int retval = -1, num_modinfos = 0, i, missing_policy_kern = 0,
->> +		missing_seusers = 0, missing_fc = 0, missing = 0;
->>  	sepol_policydb_t *out = NULL;
->>  	struct cil_db *cildb = NULL;
->>  	semanage_module_info_t *modinfos = NULL;
->> @@ -1151,10 +1148,26 @@ static int semanage_direct_commit(semanage_handle_t * sh)
->>  		if (access(path, F_OK) != 0) {
->>  			missing_policy_kern = 1;
->>  		}
->> +
->> +		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
->> +
->> +		if (access(path, F_OK) != 0) {
->> +			missing_fc = 1;
->> +		}
->> +
->> +		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
->> +
->> +		if (access(path, F_OK) != 0) {
->> +			missing_seusers = 1;
->> +		}
->>  	}
->>  
->> +	missing |= missing_policy_kern;
->> +	missing |= missing_fc;
->> +	missing |= missing_seusers;
->> +
->>  	/* If there were policy changes, or explicitly requested, rebuild the policy */
->> -	if (sh->do_rebuild || modified || missing_policy_kern) {
->> +	if (sh->do_rebuild || modified || missing) {
->>  		/* =================== Module expansion =============== */
->>  
->>  		retval = semanage_get_active_modules(sh, &modinfos, &num_modinfos);
->> @@ -1312,15 +1325,41 @@ static int semanage_direct_commit(semanage_handle_t * sh)
->>  	if (retval < 0)
->>  		goto cleanup;
->>  
->> -	retval = semanage_copy_policydb(sh);
->> -	if (retval < 0)
->> +	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL),
->> +			semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL),
->> +			sh->conf->file_mode);
->> +	if (retval < 0) {
->>  		goto cleanup;
->> +	}
->>  
->>  	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
->>  	if (access(path, F_OK) == 0) {
->> -		retval = semanage_copy_fc_local(sh);
->> -		if (retval < 0)
->> +		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
->> +							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
->> +							sh->conf->file_mode);
->> +		if (retval < 0) {
->>  			goto cleanup;
->> +		}
->> +	}
->> +
->> +	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
->> +	if (access(path, F_OK) == 0) {
->> +		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
->> +							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
->> +							sh->conf->file_mode);
->> +		if (retval < 0) {
->> +			goto cleanup;
->> +		}
->> +	}
->> +
->> +	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
->> +	if (access(path, F_OK) == 0) {
->> +		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
->> +							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
->> +							sh->conf->file_mode);
->> +		if (retval < 0) {
->> +			goto cleanup;
->> +		}
->>  	}
->>  
->>  	/* run genhomedircon if its enabled, this should be the last operation
->> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
->> index 2856aaf..fa0876f 100644
->> --- a/libsemanage/src/semanage_store.c
->> +++ b/libsemanage/src/semanage_store.c
->> @@ -111,7 +111,9 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
->>  	"/preserve_tunables",
->>  	"/modules/disabled",
->>  	"/policy.kern",
->> -	"/file_contexts.local"
->> +	"/file_contexts.local",
->> +	"/file_contexts",
->> +	"/seusers"
->>  };
->>  
->>  static char const * const semanage_final_prefix[SEMANAGE_FINAL_NUM] = {
->> @@ -666,7 +668,7 @@ static int semanage_filename_select(const struct dirent *d)
->>  
->>  /* Copies a file from src to dst.  If dst already exists then
->>   * overwrite it.  Returns 0 on success, -1 on error. */
->> -static int semanage_copy_file(const char *src, const char *dst, mode_t mode)
->> +int semanage_copy_file(const char *src, const char *dst, mode_t mode)
->>  {
->>  	int in, out, retval = 0, amount_read, n, errsv = errno;
->>  	char tmp[PATH_MAX];
->> @@ -1425,11 +1427,11 @@ int semanage_split_fc(semanage_handle_t * sh)
->>  		goto cleanup;
->>  	}
->>  
->> -	fc = open(semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
->> +	fc = open(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
->>  		  O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
->>  	if (fc < 0) {
->>  		ERR(sh, "Could not open %s for writing.",
->> -		    semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC));
->> +		    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC));
->>  		goto cleanup;
->>  	}
->>  	hd = open(semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL),
->> @@ -1454,8 +1456,7 @@ int semanage_split_fc(semanage_handle_t * sh)
->>  		} else {
->>  			if (write(fc, buf, strlen(buf)) < 0) {
->>  				ERR(sh, "Write to %s failed.",
->> -				    semanage_final_path(SEMANAGE_FINAL_TMP,
->> -							SEMANAGE_FC));
->> +				    semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC));
->>  				goto cleanup;
->>  			}
->>  		}
->> @@ -2914,39 +2915,3 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
->>  
->>  	return 0;
->>  }
->> -
->> -int semanage_copy_policydb(semanage_handle_t *sh)
->> -{
->> -	const char *src = NULL;
->> -	const char *dst = NULL;
->> -	int rc = -1;
->> -
->> -	src = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
->> -	dst = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
->> -
->> -	rc = semanage_copy_file(src, dst, sh->conf->file_mode);
->> -	if (rc != 0) {
->> -		goto cleanup;
->> -	}
->> -
->> -cleanup:
->> -	return rc;
->> -}
->> -
->> -int semanage_copy_fc_local(semanage_handle_t *sh)
->> -{
->> -	const char *src = NULL;
->> -	const char *dst = NULL;
->> -	int rc = -1;
->> -
->> -	src = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
->> -	dst = semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL);
->> -
->> -	rc = semanage_copy_file(src, dst, sh->conf->file_mode);
->> -	if (rc != 0) {
->> -		goto cleanup;
->> -	}
->> -
->> -cleanup:
->> -	return rc;
->> -}
->> diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
->> index ade43f2..acb6e3f 100644
->> --- a/libsemanage/src/semanage_store.h
->> +++ b/libsemanage/src/semanage_store.h
->> @@ -57,6 +57,8 @@ enum semanage_sandbox_defs {
->>  	SEMANAGE_MODULES_DISABLED,
->>  	SEMANAGE_STORE_KERNEL,
->>  	SEMANAGE_STORE_FC_LOCAL,
->> +	SEMANAGE_STORE_FC,
->> +	SEMANAGE_STORE_SEUSERS,
->>  	SEMANAGE_STORE_NUM_PATHS
->>  };
->>  
->> @@ -150,7 +152,6 @@ int semanage_nc_sort(semanage_handle_t * sh,
->>  		     size_t buf_len,
->>  		     char **sorted_buf, size_t * sorted_buf_len);
->>  
->> -int semanage_copy_policydb(semanage_handle_t *sh);
->> -int semanage_copy_fc_local(semanage_handle_t *sh);
->> +int semanage_copy_file(const char *src, const char *dst, mode_t mode);
->>  
->>  #endif
->> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
->> index b170eda..6443002 100755
->> --- a/libsemanage/utils/semanage_migrate_store
->> +++ b/libsemanage/utils/semanage_migrate_store
->> @@ -244,7 +244,8 @@ if __name__ == "__main__":
->>  		"users_extra.local",
->>  		"disable_dontaudit",
->>  		"preserve_tunables",
->> -		"policy.kern" ]
->> +		"policy.kern",
->> +		"file_contexts"]
->>  
->>  
->>  	create_dir(newroot_path(), 0o755)
->>
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+index 2edb050..4c81a7b 100644
+--- a/policycoreutils/semanage/seobject.py
++++ b/policycoreutils/semanage/seobject.py
+@@ -378,7 +378,7 @@ class moduleRecords(semanageRecords):
+ 	def deleteall(self):
+                 l = map(lambda x: x[0], filter(lambda t: t[1] == 0, self.get_all()))
+                 for m in l:
+-                        self.enable(m)
++                        self.set_enabled(m, True)
+ 
+ class dontauditClass(semanageRecords):
+ 	def __init__(self, store):
+-- 
+2.1.0
