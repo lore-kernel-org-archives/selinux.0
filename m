@@ -1,239 +1,96 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6MFuf3i031516
- for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 11:56:42 -0400
-Received: by obre1 with SMTP id e1so137105346obr.1
- for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 08:56:38 -0700 (PDT)
-Date: Wed, 22 Jul 2015 10:56:34 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Message-ID: <20150722155634.GB124342@ubuntu-hedt>
-References: <55A7C920.7090206@schaufler-ca.com>
- <20150716185750.GB51751@ubuntu-hedt>
- <55A8253E.3000407@schaufler-ca.com>
- <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
- <55A8398A.3000802@schaufler-ca.com>
- <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
- <55A85041.2070301@schaufler-ca.com>
- <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
- <20150721203550.GA80838@ubuntu-hedt>
- <55AEF75F.9010703@schaufler-ca.com>
+Message-ID: <55AFBE85.6010809@tycho.nsa.gov>
+Date: Wed, 22 Jul 2015 12:02:13 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55AEF75F.9010703@schaufler-ca.com>
+To: Seth Forshee <seth.forshee@canonical.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH 6/7] selinux: Ignore security labels on user namespace
+ mounts
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <1436989569-69582-7-git-send-email-seth.forshee@canonical.com>
+ <55A7B055.4050809@tycho.nsa.gov>
+In-Reply-To: <55A7B055.4050809@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- LSM List <linux-security-module@vger.kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>
+ James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jul 21, 2015 at 06:52:31PM -0700, Casey Schaufler wrote:
-> On 7/21/2015 1:35 PM, Seth Forshee wrote:
-> > On Thu, Jul 16, 2015 at 05:59:22PM -0700, Andy Lutomirski wrote:
-> >> On Thu, Jul 16, 2015 at 5:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>> On 7/16/2015 4:29 PM, Andy Lutomirski wrote:
-> >>>> I really don't see the benefit of making up extra rules that apply to
-> >>>> users outside a userns who try to access specifically a filesystem
-> >>>> with backing store.  They wouldn't make sense for filesystems without
-> >>>> backing store.
-> >>> Sure it would. For Smack, it would be the label a file would be
-> >>> created with, which would be the label of the process creating
-> >>> the memory based filesystem. For SELinux the rules are more a
-> >>> touch more sophisticated, but I'm sure that Paul or Stephen could
-> >>> come up with how to determine it.
-> >>>
-> >>> The point, looping all the way back to the beginning, where we
-> >>> were talking about just ignoring the labels on the filesystem,
-> >>> is that if you use the same Smack label on the files in the
-> >>> filesystem as the backing store file has, we'll all be happy.
-> >>> If that label isn't something user can write to, he won't be
-> >>> able to write to the mounted objects, either. If there is no
-> >>> backing store then use the label of the process creating the
-> >>> filesystem, which will be the user, which will mean everything
-> >>> will work hunky dory.
-> >>>
-> >>> Yes, there's work involved, but I doubt there's a lot. Getting
-> >>> the label from the backing store or the creating process is
-> >>> simple enough.
-> >>>
-> > So something like the diff below (untested)?
+On 07/16/2015 09:23 AM, Stephen Smalley wrote:
+> On 07/15/2015 03:46 PM, Seth Forshee wrote:
+>> Unprivileged users should not be able to supply security labels
+>> in filesystems, nor should they be able to supply security
+>> contexts in unprivileged mounts. For any mount where s_user_ns is
+>> not init_user_ns, force the use of SECURITY_FS_USE_NONE behavior
+>> and return EPERM if any contexts are supplied in the mount
+>> options.
+>>
+>> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 > 
-> I think that this is close, and quite good for someone
-> who isn't very familiar with Smack. It's definitely headed
-> in the right direction.
-> 
-> > All I'm really doing is setting smk_default as you describe above and
-> > then using it instead of smk_of_current() in
-> > smack_inode_alloc_security() and instead of the label from the disk in
-> > smack_d_instantiate().
-> 
-> Let's say your backing store is a file labeled Rubble.
-> 
-> mount -o smackfsroot=Rubble,smackfsdef=Rubble ...
-> 
-> It is completely reasonable for a process labeled Flintstone to
-> have rwxa access to a file labeled Rubble.
-> 
-> Smack rule: Flintstone Rubble rwxa
-> 
-> In the case of writing to an existing Rubble file, what you
-> have looks fine. What's not so great is that if the Flintstone
-> process creates a file, it should be labeled Flintstone. Your
-> use of the smk_default, which is going to violate the principle
-> of least astonishment, and break the Smack policy as well.
-> 
-> Let's make a minor change. Instead of using smackfsroot let's
-> use smackfstransmute and a slightly different access rule:
-> 
-> mount -o smackfstransmute=Rubble,smackfsdef=Rubble ...
-> 
-> Smack rule: Flintstone Rubble rwxat
-> 
-> Now the only change we have to make to the Smack code is
-> that we don't want to create any files unless either the
-> process is labeled Rubble or the rule allowing the creation
-> has the "t" for transmute access. That should ensure that
-> everything is labeled Rubble. If it isn't, someone has mucked
-> with the metadata in a detectable way.
+> I think this is obsoleted by the subsequent discussion, but just for the
+> record: this patch would cause the files in the userns mount to be left
+> with the "unlabeled" label, and therefore under typical policies,
+> completely inaccessible to any process in a confined domain.
 
-All right, that kind of makes sense, but I'm still missing some pieces.
-Questions follow.
-
-> > diff --git a/include/linux/fs.h b/include/linux/fs.h
-> > index 32f598db0b0d..4597420ab933 100644
-> > --- a/include/linux/fs.h
-> > +++ b/include/linux/fs.h
-> > @@ -1486,6 +1486,10 @@ static inline void sb_start_intwrite(struct super_block *sb)
-> >  	__sb_start_write(sb, SB_FREEZE_FS, true);
-> >  }
-> >  
-> > +static inline bool sb_in_userns(struct super_block *sb)
-> > +{
-> > +	return sb->s_user_ns != &init_user_ns;
-> > +}
-> >  
-> >  extern bool inode_owner_or_capable(const struct inode *inode);
-> >  
-> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index a143328f75eb..591fd19294e7 100644
-> > --- a/security/smack/smack_lsm.c
-> > +++ b/security/smack/smack_lsm.c
-> > @@ -255,6 +255,10 @@ static struct smack_known *smk_fetch(const char *name, struct inode *ip,
-> >  	char *buffer;
-> >  	struct smack_known *skp = NULL;
-> >  
-> > +	/* Should never fetch xattrs from untrusted mounts */
-> > +	if (WARN_ON(sb_in_userns(ip->i_sb)))
-> > +		return ERR_PTR(-EPERM);
-> > +
-> 
-> Go ahead and fetch it, we'll check to make sure it's viable later.
-> 
-> >  	if (ip->i_op->getxattr == NULL)
-> >  		return ERR_PTR(-EOPNOTSUPP);
-> >  
-> > @@ -656,10 +660,14 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
-> >  		 */
-> >  		if (specified)
-> >  			return -EPERM;
-> > +
-> >  		/*
-> > -		 * Unprivileged mounts get root and default from the caller.
-> > +		 * User namespace mounts get root and default from the backing
-> > +		 * store, if there is one. Other unprivileged mounts get them
-> > +		 * from the caller.
-> >  		 */
-> > -		skp = smk_of_current();
-> > +		skp = (sb_in_userns(sb) && sb->s_bdev) ?
-> > +			smk_of_inode(sb->s_bdev->bd_inode) : smk_of_current();
-> >  		sp->smk_root = skp;
-> >  		sp->smk_default = skp;
-> 
-> 			sp->smk_flags |= SMK_INODE_TRANSMUTE;
-
-I assume that you meant skp and not sp here.
+The right way to handle this for SELinux would be to automatically use
+mountpoint labeling (SECURITY_FS_USE_MNTPOINT, normally set by
+specifying a context= mount option), with the sbsec->mntpoint_sid set
+from some related object (e.g. the block device file context, as in your
+patches for Smack).  That will cause SELinux to use that value instead
+of any xattr value from the filesystem and will cause attempts by
+userspace to set the security.selinux xattr to fail on that filesystem.
+ That is how SELinux normally deals with untrusted filesystems, except
+that it is normally specified as a mount option by a trusted mounting
+process, whereas in your case you need to automatically set it.
 
 > 
-> >  	}
-> > @@ -792,7 +800,12 @@ static int smack_bprm_secureexec(struct linux_binprm *bprm)
-> >   */
-> >  static int smack_inode_alloc_security(struct inode *inode)
-> >  {
-> > -	struct smack_known *skp = smk_of_current();
-> > +	struct smack_known *skp;
-> > +
-> > +	if (sb_in_userns(inode->i_sb))
-> > +		skp = ((struct superblock_smack *)(inode->i_sb->s_security))->smk_default;
-> > +	else
-> > +		skp = smk_of_current();
+>> ---
+>>  security/selinux/hooks.c | 14 ++++++++++++++
+>>  1 file changed, 14 insertions(+)
+>>
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 459e71ddbc9d..eeb71e45ab82 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -732,6 +732,19 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>>  	    !strcmp(sb->s_type->name, "pstore"))
+>>  		sbsec->flags |= SE_SBGENFS;
+>>  
+>> +	/*
+>> +	 * If this is a user namespace mount, no contexts are allowed
+>> +	 * on the command line and security labels mus be ignored.
+>> +	 */
+>> +	if (sb->s_user_ns != &init_user_ns) {
+>> +		if (context_sid || fscontext_sid || rootcontext_sid ||
+>> +		    defcontext_sid)
+>> +			return -EPERM;
+>> +		sbsec->behavior = SECURITY_FS_USE_NONE;
+>> +		goto out_set_opts;
+>> +	}
+>> +
+>> +
+>>  	if (!sbsec->behavior) {
+>>  		/*
+>>  		 * Determine the labeling behavior to use for this
+>> @@ -813,6 +826,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>>  		sbsec->def_sid = defcontext_sid;
+>>  	}
+>>  
+>> +out_set_opts:
+>>  	rc = sb_finish_set_opts(sb);
+>>  out:
+>>  	mutex_unlock(&sbsec->lock);
+>>
 > 
-> This should be left alone.
-> smack_inode_init_security is where you could disallow access that doesn't
-> legitimately result in a Rubble label on the file. It's something like
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-> 	... after the call may = smk_access_entry(...)
-> 	if (sb_in_userns(inode->i_sb))
-> 		if (skp != dsp && (may & MAY_TRANSMUTE) == 0)
-> 			return -EACCES; 
-
-I'm not getting how this covers all cases.
-
-So we've set the transmute flag on the root inode. Files and directories
-created in the root directory get the same label, and directories also
-get the transmute attribute. That's all fine.
-
-What about an existing directory in the filesystem that already has a
-Slate label? I'm not getting what happens with this directory, or for
-new files created in this directory, which also relates to my other
-questions below.
-
-Also an aside - smk_access_entry looks weird. may is initialized to
--ENOENT, and then rule_list is searched for a rule which matches the
-object and subject labels. Presumably it's possible that no rule could
-be found, otherwise the prior initialization of may is pointless. If
-this happens the following code treats it as though it always contains
-access flags even though it might contain -ENOENT. Nothing bad actually
-happens with a two's compliement representation of -ENOENT since it will
-just set a bit that's already set, but it still seems like it should
-have a may > 0 condition, for clarity if for no other reason.
-
-> 
-> >  	inode->i_security = new_inode_smack(skp);
-> >  	if (inode->i_security == NULL)
-> > @@ -3175,6 +3188,11 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
-> >  			break;
-> >  		}
-> >  		/*
-> > +		 * Don't use labels from xattrs for unprivileged mounts.
-> > +		 */
-> > +		if (sb_in_userns(inode->i_sb))
-> > +			break;
-> > +		/*
-> 
-> Again, use the label. Just check to make sure it's what you expect.
-
-What happens if it's not what I expect? smack_d_instantiate cannot fail
-... so just use the default label? In that case why bother reading it at
-all? Or would we actually want to change the on-disk label if it didn't
-match?
-
-> 
-> >  		 * No xattr support means, alas, no SMACK label.
-> >  		 * Use the aforeapplied default.
-> >  		 * It would be curious if the label of the task
-> 
-> Also untested.
-> 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
 > 
