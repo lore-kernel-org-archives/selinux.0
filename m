@@ -1,60 +1,223 @@
-Message-ID: <55AFAAD5.80108@tycho.nsa.gov>
-Date: Wed, 22 Jul 2015 10:38:13 -0400
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6MEoj6R026215
+ for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 10:50:45 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: Improve resolution error messages
+Date: Wed, 22 Jul 2015 10:50:11 -0400
+Message-ID: <1437576611-28576-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-To: Jason Zaman <jason@perfinion.com>
-Subject: Re: [GIT PULL] policycoreutils: fix PEP8 issues
-References: <20150717142834.GA20679@meriadoc.Home>
- <55AF977C.9020705@tycho.nsa.gov>
- <20150722143111.GA20676@meriadoc.perfinion.com>
-In-Reply-To: <20150722143111.GA20676@meriadoc.perfinion.com>
-Content-Type: text/plain; charset=windows-1252
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/22/2015 10:31 AM, Jason Zaman wrote:
-> On Wed, Jul 22, 2015 at 09:15:40AM -0400, Stephen Smalley wrote:
->> On 07/17/2015 10:28 AM, Jason Zaman wrote:
->>> Commit message:
->>>
->>>     policycoreutils: Fix PEP8 issues
->>>
->>>     When trying to get policycoreutils working in python3, I kept running
->>>     into TabErrors:
->>>
->>>         Traceback (most recent call last):
->>>           File "/usr/lib/python-exec/python3.3/semanage", line 27, in <module>
->>>             import seobject
->>>           File "/usr/lib64/python3.3/site-packages/seobject.py", line 154
->>>             context = "%s%s" % (filler, raw)
->>>                                            ^
->>>         TabError: inconsistent use of tabs and spaces in indentation
->>>
->>>     Python3 is a lot stricter than python2 regarding whitespace and looks like
->>>     previous commits mixed the two.  When fixing this, I took the chance to fix
->>>     other PEP8 style issues at the same time.
->>>
->>>     This commit was made using:
->>>     $ file $(find . -type f) | grep -i python > pyfiles
->>>     $ autopep8 --in-place --ignore=E501,E265 $(cat pyfiles)
->>>
->>>     The ignore E501 is long lines since there are many that would be wrapped
->>>     otherwise, and E265 is block comments that start with ## instead of just #.
->>
->> If this was generated entirely via autopep8, I'd prefer to take this
->> other patch series first:
->> http://marc.info/?l=selinux&m=143743932419386&w=2
->> as it will be easier to redo the autopep8 on top than the other way around.
-> 
-> Yes it was 100% automated, I can re-generate it now that those have been
-> applied or I can wait till a bit later once the semanage.py fixes are in
-> or you could just run it yourself and commit it. which would you prefer?
-> 
-> The important part will be to make sure that all commits afterwards are
-> also following pep8.
+In some cases, if a statement failed to resolve inside an optional, we
+would still log a failed to resolve error message, even though the
+optional was disabled and everything successfully compiled. This was
+confusing. Additionally, if a resolution failure occurred outside of an
+optional, the error message did not include the actual name that could
+not be resolved--it only logged the statement type (e.g. allow,
+booleanif, etc.) and file/line number.
 
-I'll ask if Red Hat has any other patches they care to submit for
-policycoreutils python code before performing the conversion.
+This patch removes resolution error messages which should not always be
+printed, as well as improves the resolution failure message to also
+print the last name that was attempted to be resolved. Also makes some
+less important error messages INFO rather than WARN, which tended to
+just clutter things and hide actual error messages.
+
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/cil/src/cil.c             | 10 +++++-----
+ libsepol/cil/src/cil_resolve_ast.c | 40 ++++++++++++++++++++------------------
+ 2 files changed, 26 insertions(+), 24 deletions(-)
+
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index be070de..dcc1a4f 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -341,7 +341,7 @@ int cil_add_file(cil_db_t *db, char *name, char *data, size_t size)
+ 
+ 	rc = cil_parser(name, buffer, size + 2, &db->parse);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Failed to parse %s\n", name);
++		cil_log(CIL_INFO, "Failed to parse %s\n", name);
+ 		goto exit;
+ 	}
+ 
+@@ -371,7 +371,7 @@ int cil_compile_nopdb(struct cil_db *db)
+ 	cil_log(CIL_INFO, "Building AST from Parse Tree\n");
+ 	rc = cil_build_ast(db, db->parse->root, db->ast->root);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Failed to build ast\n");
++		cil_log(CIL_INFO, "Failed to build ast\n");
+ 		goto exit;
+ 	}
+ 
+@@ -381,21 +381,21 @@ int cil_compile_nopdb(struct cil_db *db)
+ 	cil_log(CIL_INFO, "Resolving AST\n");
+ 	rc = cil_resolve_ast(db, db->ast->root);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Failed to resolve ast\n");
++		cil_log(CIL_INFO, "Failed to resolve ast\n");
+ 		goto exit;
+ 	}
+ 
+ 	cil_log(CIL_INFO, "Qualifying Names\n");
+ 	rc = cil_fqn_qualify(db->ast->root);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Failed to qualify names\n");
++		cil_log(CIL_INFO, "Failed to qualify names\n");
+ 		goto exit;
+ 	}
+ 
+ 	cil_log(CIL_INFO, "Compile post process\n");
+ 	rc = cil_post_process(db);
+ 	if (rc != SEPOL_OK ) {
+-		cil_log(CIL_ERR, "Post process failed\n");
++		cil_log(CIL_INFO, "Post process failed\n");
+ 		goto exit;
+ 	}
+ 
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index c9738da..e68a2da 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -51,6 +51,7 @@ struct cil_args_resolve {
+ 	struct cil_db *db;
+ 	enum cil_pass pass;
+ 	uint32_t *changed;
++	char *last_resolved_name;
+ 	struct cil_tree_node *callstack;
+ 	struct cil_tree_node *optstack;
+ 	struct cil_tree_node *boolif;
+@@ -880,7 +881,6 @@ int cil_resolve_selinuxuser(struct cil_tree_node *current, void *extra_args)
+ 	if (selinuxuser->range_str != NULL) {
+ 		rc = cil_resolve_name(current, selinuxuser->range_str, CIL_SYM_LEVELRANGES, extra_args, &lvlrange_datum);
+ 		if (rc != SEPOL_OK) {
+-			cil_log(CIL_ERR, "Unable to resolve name: %s\n", selinuxuser->range_str);
+ 			goto exit;
+ 		}
+ 		selinuxuser->range = (struct cil_levelrange*)lvlrange_datum;
+@@ -1455,7 +1455,6 @@ int cil_resolve_cats(struct cil_tree_node *current, struct cil_cats *cats, void
+ 
+ 	rc = cil_resolve_expr(CIL_CATSET, cats->str_expr, &cats->datum_expr, current, extra_args);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR,"Unable to resolve categories\n");
+ 		goto exit;
+ 	}
+ 	
+@@ -1654,21 +1653,18 @@ int cil_resolve_context(struct cil_tree_node *current, struct cil_context *conte
+ 
+ 	rc = cil_resolve_name(current, context->user_str, CIL_SYM_USERS, extra_args, &user_datum);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->user_str);
+ 		goto exit;
+ 	}
+ 	context->user = (struct cil_user*)user_datum;
+ 
+ 	rc = cil_resolve_name(current, context->role_str, CIL_SYM_ROLES, extra_args, &role_datum);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->role_str);
+ 		goto exit;
+ 	}
+ 	context->role = (struct cil_role*)role_datum;
+ 
+ 	rc = cil_resolve_name(current, context->type_str, CIL_SYM_TYPES, extra_args, &type_datum);
+ 	if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->type_str);
+ 		goto exit;
+ 	}
+ 
+@@ -1684,7 +1680,6 @@ int cil_resolve_context(struct cil_tree_node *current, struct cil_context *conte
+ 	if (context->range_str != NULL) {
+ 		rc = cil_resolve_name(current, context->range_str, CIL_SYM_LEVELRANGES, extra_args, &lvlrange_datum);
+ 		if (rc != SEPOL_OK) {
+-			cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->range_str);
+ 			goto exit;
+ 		}
+ 		context->range = (struct cil_levelrange*)lvlrange_datum;
+@@ -2351,7 +2346,6 @@ int cil_resolve_default(struct cil_tree_node *current, void *extra_args)
+ 	cil_list_for_each(curr, def->class_strs) {
+ 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_CLASSES, extra_args, &datum);
+ 		if (rc != SEPOL_OK) {
+-			cil_log(CIL_ERR, "Failed to resolve class %s in %s\n", (char *)curr->data, cil_node_to_string(current));
+ 			goto exit;
+ 		}
+ 		cil_list_append(def->class_datums, CIL_CLASS, datum);
+@@ -2375,7 +2369,6 @@ int cil_resolve_defaultrange(struct cil_tree_node *current, void *extra_args)
+ 	cil_list_for_each(curr, def->class_strs) {
+ 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_CLASSES, extra_args, &datum);
+ 		if (rc != SEPOL_OK) {
+-			cil_log(CIL_ERR, "Failed to resolve class %s in defaultrange\n", (char *)curr->data);
+ 			goto exit;
+ 		}
+ 		cil_list_append(def->class_datums, CIL_CLASS, datum);
+@@ -2408,7 +2401,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 	macro_node = macro_datum->nodes->head->data;
+ 
+ 	if (macro_node->flavor != CIL_MACRO) {
+-		printf("Failed to resolve macro %s\n", new_call->macro_str);
++		printf("Failed to resolve %s to a macro\n", new_call->macro_str);
+ 		rc = SEPOL_ERR;
+ 		goto exit;
+ 	}
+@@ -3304,14 +3297,22 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+ 	}
+ 
+ 	rc = __cil_resolve_ast_node(node, extra_args);
+-	if (rc == SEPOL_ENOENT && optstack != NULL) {
+-		struct cil_optional *opt = (struct cil_optional *)optstack->data;
+-		cil_log(CIL_WARN, "Disabling optional %s at %d of %s\n", opt->datum.name, node->parent->line, node->parent->path);
+-		/* disable an optional if something failed to resolve */
+-		opt->enabled = CIL_FALSE;
+-		rc = SEPOL_OK;
+-	} else if (rc != SEPOL_OK) {
+-		cil_log(CIL_ERR, "Failed to resolve %s statement at %d of %s\n", cil_node_to_string(node), node->line, node->path);
++	if (rc == SEPOL_ENOENT) {
++		enum cil_log_level lvl = CIL_ERR;
++
++		if (optstack != NULL) {
++			lvl = CIL_WARN;
++
++			struct cil_optional *opt = (struct cil_optional *)optstack->data;
++			struct cil_tree_node *opt_node = opt->datum.nodes->head->data;
++			cil_log(lvl, "Disabling optional '%s' at line %d of %s: ", opt->datum.name, opt_node->line, opt_node->path);
++			/* disable an optional if something failed to resolve */
++			opt->enabled = CIL_FALSE;
++			rc = SEPOL_OK;
++		}
++
++		cil_log(lvl, "Failed to resolve '%s' in %s statement at line %d of %s\n",
++		        args->last_resolved_name, cil_node_to_string(node), node->line, node->path);
+ 		goto exit;
+ 	}
+ 
+@@ -3460,6 +3461,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 	extra_args.db = db;
+ 	extra_args.pass = pass;
+ 	extra_args.changed = &changed;
++	extra_args.last_resolved_name = NULL;
+ 	extra_args.callstack = NULL;
+ 	extra_args.optstack = NULL;
+ 	extra_args.boolif= NULL;
+@@ -3734,8 +3736,6 @@ int cil_resolve_name(struct cil_tree_node *ast_node, char *name, enum cil_sym_in
+ exit:
+ 	if (rc != SEPOL_OK) {
+ 		*datum = NULL;
+-		cil_log(CIL_WARN, "Failed to resolve %s in %s statement on line %d of %s\n", 
+-			name, cil_node_to_string(ast_node), ast_node->line, ast_node->path);
+ 	}
+ 
+ 	if (*datum != NULL) {
+@@ -3752,5 +3752,7 @@ exit:
+ 		}
+ 	}
+ 
++	args->last_resolved_name = name;
++
+ 	return rc;
+ }
+-- 
+2.4.3
