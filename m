@@ -1,223 +1,239 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6MEoj6R026215
- for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 10:50:45 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsepol/cil: Improve resolution error messages
-Date: Wed, 22 Jul 2015 10:50:11 -0400
-Message-ID: <1437576611-28576-1-git-send-email-slawrence@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6MFuf3i031516
+ for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 11:56:42 -0400
+Received: by obre1 with SMTP id e1so137105346obr.1
+ for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 08:56:38 -0700 (PDT)
+Date: Wed, 22 Jul 2015 10:56:34 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+Message-ID: <20150722155634.GB124342@ubuntu-hedt>
+References: <55A7C920.7090206@schaufler-ca.com>
+ <20150716185750.GB51751@ubuntu-hedt>
+ <55A8253E.3000407@schaufler-ca.com>
+ <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
+ <55A8398A.3000802@schaufler-ca.com>
+ <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
+ <55A85041.2070301@schaufler-ca.com>
+ <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
+ <20150721203550.GA80838@ubuntu-hedt>
+ <55AEF75F.9010703@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <55AEF75F.9010703@schaufler-ca.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In some cases, if a statement failed to resolve inside an optional, we
-would still log a failed to resolve error message, even though the
-optional was disabled and everything successfully compiled. This was
-confusing. Additionally, if a resolution failure occurred outside of an
-optional, the error message did not include the actual name that could
-not be resolved--it only logged the statement type (e.g. allow,
-booleanif, etc.) and file/line number.
+On Tue, Jul 21, 2015 at 06:52:31PM -0700, Casey Schaufler wrote:
+> On 7/21/2015 1:35 PM, Seth Forshee wrote:
+> > On Thu, Jul 16, 2015 at 05:59:22PM -0700, Andy Lutomirski wrote:
+> >> On Thu, Jul 16, 2015 at 5:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >>> On 7/16/2015 4:29 PM, Andy Lutomirski wrote:
+> >>>> I really don't see the benefit of making up extra rules that apply to
+> >>>> users outside a userns who try to access specifically a filesystem
+> >>>> with backing store.  They wouldn't make sense for filesystems without
+> >>>> backing store.
+> >>> Sure it would. For Smack, it would be the label a file would be
+> >>> created with, which would be the label of the process creating
+> >>> the memory based filesystem. For SELinux the rules are more a
+> >>> touch more sophisticated, but I'm sure that Paul or Stephen could
+> >>> come up with how to determine it.
+> >>>
+> >>> The point, looping all the way back to the beginning, where we
+> >>> were talking about just ignoring the labels on the filesystem,
+> >>> is that if you use the same Smack label on the files in the
+> >>> filesystem as the backing store file has, we'll all be happy.
+> >>> If that label isn't something user can write to, he won't be
+> >>> able to write to the mounted objects, either. If there is no
+> >>> backing store then use the label of the process creating the
+> >>> filesystem, which will be the user, which will mean everything
+> >>> will work hunky dory.
+> >>>
+> >>> Yes, there's work involved, but I doubt there's a lot. Getting
+> >>> the label from the backing store or the creating process is
+> >>> simple enough.
+> >>>
+> > So something like the diff below (untested)?
+> 
+> I think that this is close, and quite good for someone
+> who isn't very familiar with Smack. It's definitely headed
+> in the right direction.
+> 
+> > All I'm really doing is setting smk_default as you describe above and
+> > then using it instead of smk_of_current() in
+> > smack_inode_alloc_security() and instead of the label from the disk in
+> > smack_d_instantiate().
+> 
+> Let's say your backing store is a file labeled Rubble.
+> 
+> mount -o smackfsroot=Rubble,smackfsdef=Rubble ...
+> 
+> It is completely reasonable for a process labeled Flintstone to
+> have rwxa access to a file labeled Rubble.
+> 
+> Smack rule: Flintstone Rubble rwxa
+> 
+> In the case of writing to an existing Rubble file, what you
+> have looks fine. What's not so great is that if the Flintstone
+> process creates a file, it should be labeled Flintstone. Your
+> use of the smk_default, which is going to violate the principle
+> of least astonishment, and break the Smack policy as well.
+> 
+> Let's make a minor change. Instead of using smackfsroot let's
+> use smackfstransmute and a slightly different access rule:
+> 
+> mount -o smackfstransmute=Rubble,smackfsdef=Rubble ...
+> 
+> Smack rule: Flintstone Rubble rwxat
+> 
+> Now the only change we have to make to the Smack code is
+> that we don't want to create any files unless either the
+> process is labeled Rubble or the rule allowing the creation
+> has the "t" for transmute access. That should ensure that
+> everything is labeled Rubble. If it isn't, someone has mucked
+> with the metadata in a detectable way.
 
-This patch removes resolution error messages which should not always be
-printed, as well as improves the resolution failure message to also
-print the last name that was attempted to be resolved. Also makes some
-less important error messages INFO rather than WARN, which tended to
-just clutter things and hide actual error messages.
+All right, that kind of makes sense, but I'm still missing some pieces.
+Questions follow.
 
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
----
- libsepol/cil/src/cil.c             | 10 +++++-----
- libsepol/cil/src/cil_resolve_ast.c | 40 ++++++++++++++++++++------------------
- 2 files changed, 26 insertions(+), 24 deletions(-)
+> > diff --git a/include/linux/fs.h b/include/linux/fs.h
+> > index 32f598db0b0d..4597420ab933 100644
+> > --- a/include/linux/fs.h
+> > +++ b/include/linux/fs.h
+> > @@ -1486,6 +1486,10 @@ static inline void sb_start_intwrite(struct super_block *sb)
+> >  	__sb_start_write(sb, SB_FREEZE_FS, true);
+> >  }
+> >  
+> > +static inline bool sb_in_userns(struct super_block *sb)
+> > +{
+> > +	return sb->s_user_ns != &init_user_ns;
+> > +}
+> >  
+> >  extern bool inode_owner_or_capable(const struct inode *inode);
+> >  
+> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> > index a143328f75eb..591fd19294e7 100644
+> > --- a/security/smack/smack_lsm.c
+> > +++ b/security/smack/smack_lsm.c
+> > @@ -255,6 +255,10 @@ static struct smack_known *smk_fetch(const char *name, struct inode *ip,
+> >  	char *buffer;
+> >  	struct smack_known *skp = NULL;
+> >  
+> > +	/* Should never fetch xattrs from untrusted mounts */
+> > +	if (WARN_ON(sb_in_userns(ip->i_sb)))
+> > +		return ERR_PTR(-EPERM);
+> > +
+> 
+> Go ahead and fetch it, we'll check to make sure it's viable later.
+> 
+> >  	if (ip->i_op->getxattr == NULL)
+> >  		return ERR_PTR(-EOPNOTSUPP);
+> >  
+> > @@ -656,10 +660,14 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
+> >  		 */
+> >  		if (specified)
+> >  			return -EPERM;
+> > +
+> >  		/*
+> > -		 * Unprivileged mounts get root and default from the caller.
+> > +		 * User namespace mounts get root and default from the backing
+> > +		 * store, if there is one. Other unprivileged mounts get them
+> > +		 * from the caller.
+> >  		 */
+> > -		skp = smk_of_current();
+> > +		skp = (sb_in_userns(sb) && sb->s_bdev) ?
+> > +			smk_of_inode(sb->s_bdev->bd_inode) : smk_of_current();
+> >  		sp->smk_root = skp;
+> >  		sp->smk_default = skp;
+> 
+> 			sp->smk_flags |= SMK_INODE_TRANSMUTE;
 
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index be070de..dcc1a4f 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -341,7 +341,7 @@ int cil_add_file(cil_db_t *db, char *name, char *data, size_t size)
- 
- 	rc = cil_parser(name, buffer, size + 2, &db->parse);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Failed to parse %s\n", name);
-+		cil_log(CIL_INFO, "Failed to parse %s\n", name);
- 		goto exit;
- 	}
- 
-@@ -371,7 +371,7 @@ int cil_compile_nopdb(struct cil_db *db)
- 	cil_log(CIL_INFO, "Building AST from Parse Tree\n");
- 	rc = cil_build_ast(db, db->parse->root, db->ast->root);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Failed to build ast\n");
-+		cil_log(CIL_INFO, "Failed to build ast\n");
- 		goto exit;
- 	}
- 
-@@ -381,21 +381,21 @@ int cil_compile_nopdb(struct cil_db *db)
- 	cil_log(CIL_INFO, "Resolving AST\n");
- 	rc = cil_resolve_ast(db, db->ast->root);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Failed to resolve ast\n");
-+		cil_log(CIL_INFO, "Failed to resolve ast\n");
- 		goto exit;
- 	}
- 
- 	cil_log(CIL_INFO, "Qualifying Names\n");
- 	rc = cil_fqn_qualify(db->ast->root);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Failed to qualify names\n");
-+		cil_log(CIL_INFO, "Failed to qualify names\n");
- 		goto exit;
- 	}
- 
- 	cil_log(CIL_INFO, "Compile post process\n");
- 	rc = cil_post_process(db);
- 	if (rc != SEPOL_OK ) {
--		cil_log(CIL_ERR, "Post process failed\n");
-+		cil_log(CIL_INFO, "Post process failed\n");
- 		goto exit;
- 	}
- 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index c9738da..e68a2da 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -51,6 +51,7 @@ struct cil_args_resolve {
- 	struct cil_db *db;
- 	enum cil_pass pass;
- 	uint32_t *changed;
-+	char *last_resolved_name;
- 	struct cil_tree_node *callstack;
- 	struct cil_tree_node *optstack;
- 	struct cil_tree_node *boolif;
-@@ -880,7 +881,6 @@ int cil_resolve_selinuxuser(struct cil_tree_node *current, void *extra_args)
- 	if (selinuxuser->range_str != NULL) {
- 		rc = cil_resolve_name(current, selinuxuser->range_str, CIL_SYM_LEVELRANGES, extra_args, &lvlrange_datum);
- 		if (rc != SEPOL_OK) {
--			cil_log(CIL_ERR, "Unable to resolve name: %s\n", selinuxuser->range_str);
- 			goto exit;
- 		}
- 		selinuxuser->range = (struct cil_levelrange*)lvlrange_datum;
-@@ -1455,7 +1455,6 @@ int cil_resolve_cats(struct cil_tree_node *current, struct cil_cats *cats, void
- 
- 	rc = cil_resolve_expr(CIL_CATSET, cats->str_expr, &cats->datum_expr, current, extra_args);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR,"Unable to resolve categories\n");
- 		goto exit;
- 	}
- 	
-@@ -1654,21 +1653,18 @@ int cil_resolve_context(struct cil_tree_node *current, struct cil_context *conte
- 
- 	rc = cil_resolve_name(current, context->user_str, CIL_SYM_USERS, extra_args, &user_datum);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->user_str);
- 		goto exit;
- 	}
- 	context->user = (struct cil_user*)user_datum;
- 
- 	rc = cil_resolve_name(current, context->role_str, CIL_SYM_ROLES, extra_args, &role_datum);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->role_str);
- 		goto exit;
- 	}
- 	context->role = (struct cil_role*)role_datum;
- 
- 	rc = cil_resolve_name(current, context->type_str, CIL_SYM_TYPES, extra_args, &type_datum);
- 	if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->type_str);
- 		goto exit;
- 	}
- 
-@@ -1684,7 +1680,6 @@ int cil_resolve_context(struct cil_tree_node *current, struct cil_context *conte
- 	if (context->range_str != NULL) {
- 		rc = cil_resolve_name(current, context->range_str, CIL_SYM_LEVELRANGES, extra_args, &lvlrange_datum);
- 		if (rc != SEPOL_OK) {
--			cil_log(CIL_ERR, "Unable to resolve name: %s\n", context->range_str);
- 			goto exit;
- 		}
- 		context->range = (struct cil_levelrange*)lvlrange_datum;
-@@ -2351,7 +2346,6 @@ int cil_resolve_default(struct cil_tree_node *current, void *extra_args)
- 	cil_list_for_each(curr, def->class_strs) {
- 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_CLASSES, extra_args, &datum);
- 		if (rc != SEPOL_OK) {
--			cil_log(CIL_ERR, "Failed to resolve class %s in %s\n", (char *)curr->data, cil_node_to_string(current));
- 			goto exit;
- 		}
- 		cil_list_append(def->class_datums, CIL_CLASS, datum);
-@@ -2375,7 +2369,6 @@ int cil_resolve_defaultrange(struct cil_tree_node *current, void *extra_args)
- 	cil_list_for_each(curr, def->class_strs) {
- 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_CLASSES, extra_args, &datum);
- 		if (rc != SEPOL_OK) {
--			cil_log(CIL_ERR, "Failed to resolve class %s in defaultrange\n", (char *)curr->data);
- 			goto exit;
- 		}
- 		cil_list_append(def->class_datums, CIL_CLASS, datum);
-@@ -2408,7 +2401,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 	macro_node = macro_datum->nodes->head->data;
- 
- 	if (macro_node->flavor != CIL_MACRO) {
--		printf("Failed to resolve macro %s\n", new_call->macro_str);
-+		printf("Failed to resolve %s to a macro\n", new_call->macro_str);
- 		rc = SEPOL_ERR;
- 		goto exit;
- 	}
-@@ -3304,14 +3297,22 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
- 	}
- 
- 	rc = __cil_resolve_ast_node(node, extra_args);
--	if (rc == SEPOL_ENOENT && optstack != NULL) {
--		struct cil_optional *opt = (struct cil_optional *)optstack->data;
--		cil_log(CIL_WARN, "Disabling optional %s at %d of %s\n", opt->datum.name, node->parent->line, node->parent->path);
--		/* disable an optional if something failed to resolve */
--		opt->enabled = CIL_FALSE;
--		rc = SEPOL_OK;
--	} else if (rc != SEPOL_OK) {
--		cil_log(CIL_ERR, "Failed to resolve %s statement at %d of %s\n", cil_node_to_string(node), node->line, node->path);
-+	if (rc == SEPOL_ENOENT) {
-+		enum cil_log_level lvl = CIL_ERR;
-+
-+		if (optstack != NULL) {
-+			lvl = CIL_WARN;
-+
-+			struct cil_optional *opt = (struct cil_optional *)optstack->data;
-+			struct cil_tree_node *opt_node = opt->datum.nodes->head->data;
-+			cil_log(lvl, "Disabling optional '%s' at line %d of %s: ", opt->datum.name, opt_node->line, opt_node->path);
-+			/* disable an optional if something failed to resolve */
-+			opt->enabled = CIL_FALSE;
-+			rc = SEPOL_OK;
-+		}
-+
-+		cil_log(lvl, "Failed to resolve '%s' in %s statement at line %d of %s\n",
-+		        args->last_resolved_name, cil_node_to_string(node), node->line, node->path);
- 		goto exit;
- 	}
- 
-@@ -3460,6 +3461,7 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 	extra_args.db = db;
- 	extra_args.pass = pass;
- 	extra_args.changed = &changed;
-+	extra_args.last_resolved_name = NULL;
- 	extra_args.callstack = NULL;
- 	extra_args.optstack = NULL;
- 	extra_args.boolif= NULL;
-@@ -3734,8 +3736,6 @@ int cil_resolve_name(struct cil_tree_node *ast_node, char *name, enum cil_sym_in
- exit:
- 	if (rc != SEPOL_OK) {
- 		*datum = NULL;
--		cil_log(CIL_WARN, "Failed to resolve %s in %s statement on line %d of %s\n", 
--			name, cil_node_to_string(ast_node), ast_node->line, ast_node->path);
- 	}
- 
- 	if (*datum != NULL) {
-@@ -3752,5 +3752,7 @@ exit:
- 		}
- 	}
- 
-+	args->last_resolved_name = name;
-+
- 	return rc;
- }
--- 
-2.4.3
+I assume that you meant skp and not sp here.
+
+> 
+> >  	}
+> > @@ -792,7 +800,12 @@ static int smack_bprm_secureexec(struct linux_binprm *bprm)
+> >   */
+> >  static int smack_inode_alloc_security(struct inode *inode)
+> >  {
+> > -	struct smack_known *skp = smk_of_current();
+> > +	struct smack_known *skp;
+> > +
+> > +	if (sb_in_userns(inode->i_sb))
+> > +		skp = ((struct superblock_smack *)(inode->i_sb->s_security))->smk_default;
+> > +	else
+> > +		skp = smk_of_current();
+> 
+> This should be left alone.
+> smack_inode_init_security is where you could disallow access that doesn't
+> legitimately result in a Rubble label on the file. It's something like
+> 
+> 	... after the call may = smk_access_entry(...)
+> 	if (sb_in_userns(inode->i_sb))
+> 		if (skp != dsp && (may & MAY_TRANSMUTE) == 0)
+> 			return -EACCES; 
+
+I'm not getting how this covers all cases.
+
+So we've set the transmute flag on the root inode. Files and directories
+created in the root directory get the same label, and directories also
+get the transmute attribute. That's all fine.
+
+What about an existing directory in the filesystem that already has a
+Slate label? I'm not getting what happens with this directory, or for
+new files created in this directory, which also relates to my other
+questions below.
+
+Also an aside - smk_access_entry looks weird. may is initialized to
+-ENOENT, and then rule_list is searched for a rule which matches the
+object and subject labels. Presumably it's possible that no rule could
+be found, otherwise the prior initialization of may is pointless. If
+this happens the following code treats it as though it always contains
+access flags even though it might contain -ENOENT. Nothing bad actually
+happens with a two's compliement representation of -ENOENT since it will
+just set a bit that's already set, but it still seems like it should
+have a may > 0 condition, for clarity if for no other reason.
+
+> 
+> >  	inode->i_security = new_inode_smack(skp);
+> >  	if (inode->i_security == NULL)
+> > @@ -3175,6 +3188,11 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+> >  			break;
+> >  		}
+> >  		/*
+> > +		 * Don't use labels from xattrs for unprivileged mounts.
+> > +		 */
+> > +		if (sb_in_userns(inode->i_sb))
+> > +			break;
+> > +		/*
+> 
+> Again, use the label. Just check to make sure it's what you expect.
+
+What happens if it's not what I expect? smack_d_instantiate cannot fail
+... so just use the default label? In that case why bother reading it at
+all? Or would we actually want to change the on-disk label if it didn't
+match?
+
+> 
+> >  		 * No xattr support means, alas, no SMACK label.
+> >  		 * Use the aforeapplied default.
+> >  		 * It would be curious if the label of the task
+> 
+> Also untested.
+> 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
