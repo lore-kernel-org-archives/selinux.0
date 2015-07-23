@@ -1,52 +1,84 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6NBh1kJ024207
- for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 07:43:02 -0400
-Subject: Re: Trouble building a .cil policy from scratch.
-To: Dan <dtdevore64@yahoo.com>, <selinux@tycho.nsa.gov>
-References: <55B01776.3030308@yahoo.com>
-From: Steve Lawrence <slawrence@tresys.com>
-Message-ID: <55B0D336.1010406@tresys.com>
-Date: Thu, 23 Jul 2015 07:42:46 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6N1qDiQ007561
+ for <selinux@tycho.nsa.gov>; Wed, 22 Jul 2015 21:52:13 -0400
+Date: Thu, 23 Jul 2015 11:51:35 +1000
+From: Dave Chinner <david@fromorbit.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+Message-ID: <20150723015135.GH7943@dastard>
+References: <55A71CE3.4050708@schaufler-ca.com>
+ <87fv4owvxv.fsf@x220.int.ebiederm.org>
+ <20150717000914.GO7943@dastard>
+ <87380nobs4.fsf@x220.int.ebiederm.org>
+ <20150717024735.GW3902@dastard>
+ <20150721173721.GE11050@fieldses.org>
+ <20150722075640.GE7943@dastard>
+ <20150722140923.GD22718@fieldses.org> <55AFCA6A.60304@gmail.com>
+ <20150722174100.GJ22718@fieldses.org>
 MIME-Version: 1.0
-In-Reply-To: <55B01776.3030308@yahoo.com>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150722174100.GJ22718@fieldses.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Wed, Jul 22, 2015 at 01:41:00PM -0400, J. Bruce Fields wrote:
+> On Wed, Jul 22, 2015 at 12:52:58PM -0400, Austin S Hemmelgarn wrote:
+> > On 2015-07-22 10:09, J. Bruce Fields wrote:
+> > >On Wed, Jul 22, 2015 at 05:56:40PM +1000, Dave Chinner wrote:
+> > >>On Tue, Jul 21, 2015 at 01:37:21PM -0400, J. Bruce Fields wrote:
+> > >>>On Fri, Jul 17, 2015 at 12:47:35PM +1000, Dave Chinner wrote:
+> > >>>So, for example, a screwed up on-disk directory structure shouldn't
+> > >>>result in creating a cycle in the dcache and then deadlocking.
+> > >>
+> > >>Therein lies the problem: how do you detect such structural defects
+> > >>without doing a full structure validation?
+> > >
+> > >You can prevent cycles in a graph if you can prevent adding an edge
+> > >which would be part of a cycle.
+> > >
+> > Except if the user can write to the filesystem's backing storage (be
+> > it a device or a file), and has sufficient knowledge of the on-disk
+> > structures, they can create all the cycles they want in the
+> > metadata. So unless the kernel builds the graph internally by
+> > parsing the metadata _and_ has some way to detect that the on-disk
+> > metadata has hit a cycle (which may not just involve 2 items),
+> 
+> Understood.  Again, see the d_ancestor call in d_splice_alias, this is
+> exactly what it checks for.
 
-On 07/22/2015 06:21 PM, Dan wrote:
-> Hey guys, I've been reading the documentation of CIL language and have
-> been practicing writing policies from scratch and have come across a
-> problem. Here is what I have so far(which is just a simple example):
-> 
-> (type myapp_t)
-> (role object_r)
-> (role staff_r)
-> (roletype object_r myapp_t)
-> (typeattribute domain)
-> (typeattributetypes domain (myapp_t))
-> 
-> 
-> (type myapp_exec_t)
-> (roletype object_r myapp_exec_t)
-> (typeattribute domain)
-> (typeattributetypes domain (myapp_exec_t))
-> 
-> 
-> 
-> Now I know I need other stuff to build this module completely like SID,
-> access vectors, etc, but I'm stuck because it doesn't recognize the
-> "typeattributetypes" statement. It just spits out the error as an
-> unknown keyword which I don't know why I would because I'm pretty sure I
-> used it right, but I'm still learning. Any info would be awesome. Thanks
-> guys.
-> 
+But that only addresses one type of loop in one specific metadata
+structure. There's plenty of other ways you could construct metadata
+loops that are essentially undetected and result in either deadlock
+or livelock within the filesystem code itself. e.g. just make btree
+sibling pointers loop over a range of entries that have the same
+index key (e.g. free space extents of the same size). If allocation
+then falls into this loop, the kernel will just spin searching the
+same blocks for something it will never find.  Such resource
+consumption attacks are trivial to construct but extremely difficult
+to detect because they exploit normal behaviour of the structure and
+algorithms by mangling trusted pointers.
 
-typeattributetypes is an old statement that no longer exists. It was
-renamed to typeattributeset. The CIL documentation on the wiki is pretty
-out of date. I'd recommend just looking at the docs in the secilc
-directory in the selinux userspace repo. Running make in secilc/docs
-will create an html and pdf version of the documentation, which should
-be pretty up to date.
+Of course, this sort of attack will eventually deadlock the
+filesystem because it will backs up on locks held by the live locked
+search. Once the filesystem is deadlocked, it can then cause sync()
+calls to get stuck on the filesystem. And because sync() is a global
+operation, a deadlocked filesystem in one container could cause sync
+to hang in completely unrelated container....
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
