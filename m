@@ -1,95 +1,135 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6NDJXTE031781
- for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 09:19:33 -0400
-Date: Thu, 23 Jul 2015 09:19:28 -0400
-From: "J. Bruce Fields" <bfields@fieldses.org>
-To: Dave Chinner <david@fromorbit.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Message-ID: <20150723131928.GA11582@fieldses.org>
-References: <87fv4owvxv.fsf@x220.int.ebiederm.org>
- <20150717000914.GO7943@dastard>
- <87380nobs4.fsf@x220.int.ebiederm.org>
- <20150717024735.GW3902@dastard>
- <20150721173721.GE11050@fieldses.org>
- <20150722075640.GE7943@dastard>
- <20150722140923.GD22718@fieldses.org> <55AFCA6A.60304@gmail.com>
- <20150722174100.GJ22718@fieldses.org>
- <20150723015135.GH7943@dastard>
+Message-ID: <55B0F2C0.8070709@tycho.nsa.gov>
+Date: Thu, 23 Jul 2015 09:57:20 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150723015135.GH7943@dastard>
+To: Seth Forshee <seth.forshee@canonical.com>
+Subject: Re: [PATCH 6/7] selinux: Ignore security labels on user namespace
+ mounts
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <1436989569-69582-7-git-send-email-seth.forshee@canonical.com>
+ <55A7B055.4050809@tycho.nsa.gov> <55AFBE85.6010809@tycho.nsa.gov>
+ <20150722161422.GC124342@ubuntu-hedt> <55AFFC32.6070701@tycho.nsa.gov>
+ <55AFFFBD.8040907@tycho.nsa.gov>
+In-Reply-To: <55AFFFBD.8040907@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- LSM List <linux-security-module@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>
+ James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
+ linux-fsdevel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 23, 2015 at 11:51:35AM +1000, Dave Chinner wrote:
-> On Wed, Jul 22, 2015 at 01:41:00PM -0400, J. Bruce Fields wrote:
-> > On Wed, Jul 22, 2015 at 12:52:58PM -0400, Austin S Hemmelgarn wrote:
-> > > On 2015-07-22 10:09, J. Bruce Fields wrote:
-> > > >On Wed, Jul 22, 2015 at 05:56:40PM +1000, Dave Chinner wrote:
-> > > >>On Tue, Jul 21, 2015 at 01:37:21PM -0400, J. Bruce Fields wrote:
-> > > >>>On Fri, Jul 17, 2015 at 12:47:35PM +1000, Dave Chinner wrote:
-> > > >>>So, for example, a screwed up on-disk directory structure shouldn't
-> > > >>>result in creating a cycle in the dcache and then deadlocking.
-> > > >>
-> > > >>Therein lies the problem: how do you detect such structural defects
-> > > >>without doing a full structure validation?
-> > > >
-> > > >You can prevent cycles in a graph if you can prevent adding an edge
-> > > >which would be part of a cycle.
-> > > >
-> > > Except if the user can write to the filesystem's backing storage (be
-> > > it a device or a file), and has sufficient knowledge of the on-disk
-> > > structures, they can create all the cycles they want in the
-> > > metadata. So unless the kernel builds the graph internally by
-> > > parsing the metadata _and_ has some way to detect that the on-disk
-> > > metadata has hit a cycle (which may not just involve 2 items),
-> > 
-> > Understood.  Again, see the d_ancestor call in d_splice_alias, this is
-> > exactly what it checks for.
+On 07/22/2015 04:40 PM, Stephen Smalley wrote:
+> On 07/22/2015 04:25 PM, Stephen Smalley wrote:
+>> On 07/22/2015 12:14 PM, Seth Forshee wrote:
+>>> On Wed, Jul 22, 2015 at 12:02:13PM -0400, Stephen Smalley wrote:
+>>>> On 07/16/2015 09:23 AM, Stephen Smalley wrote:
+>>>>> On 07/15/2015 03:46 PM, Seth Forshee wrote:
+>>>>>> Unprivileged users should not be able to supply security labels
+>>>>>> in filesystems, nor should they be able to supply security
+>>>>>> contexts in unprivileged mounts. For any mount where s_user_ns is
+>>>>>> not init_user_ns, force the use of SECURITY_FS_USE_NONE behavior
+>>>>>> and return EPERM if any contexts are supplied in the mount
+>>>>>> options.
+>>>>>>
+>>>>>> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+>>>>>
+>>>>> I think this is obsoleted by the subsequent discussion, but just for the
+>>>>> record: this patch would cause the files in the userns mount to be left
+>>>>> with the "unlabeled" label, and therefore under typical policies,
+>>>>> completely inaccessible to any process in a confined domain.
+>>>>
+>>>> The right way to handle this for SELinux would be to automatically use
+>>>> mountpoint labeling (SECURITY_FS_USE_MNTPOINT, normally set by
+>>>> specifying a context= mount option), with the sbsec->mntpoint_sid set
+>>>> from some related object (e.g. the block device file context, as in your
+>>>> patches for Smack).  That will cause SELinux to use that value instead
+>>>> of any xattr value from the filesystem and will cause attempts by
+>>>> userspace to set the security.selinux xattr to fail on that filesystem.
+>>>>  That is how SELinux normally deals with untrusted filesystems, except
+>>>> that it is normally specified as a mount option by a trusted mounting
+>>>> process, whereas in your case you need to automatically set it.
+>>>
+>>> Excellent, thank you for the advice. I'll start on this when I've
+>>> finished with Smack.
+>>
+>> Not tested, but something like this should work. Note that it should
+>> come after the call to security_fs_use() so we know whether SELinux
+>> would even try to use xattrs supplied by the filesystem in the first place.
+>>
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 564079c..84da3a2 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -745,6 +745,30 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>>                         goto out;
+>>                 }
+>>         }
+>> +
+>> +       /*
+>> +        * If this is a user namespace mount, no contexts are allowed
+>> +        * on the command line and security labels must be ignored.
+>> +        */
+>> +       if (sb->s_user_ns != &init_user_ns) {
+>> +               if (context_sid || fscontext_sid || rootcontext_sid ||
+>> +                   defcontext_sid) {
+>> +                       rc = -EACCES;
+>> +                       goto out;
+>> +               }
+>> +               if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
+>> +                       struct block_device *bdev = sb->s_bdev;
+>> +                       sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
+>> +                       if (bdev) {
+>> +                               struct inode_security_struct *isec =
+>> bdev->bd_inode;
 > 
-> But that only addresses one type of loop in one specific metadata
-> structure.
+> That should be bdev->bd_inode->i_security.
 
-Yep, agreed!
+Sorry, this won't work.  bd_inode is not the inode of the block device
+file that was passed to mount, and it isn't labeled in any way.  It will
+just be unlabeled.
 
-> There's plenty of other ways you could construct metadata
-> loops that are essentially undetected and result in either deadlock
-> or livelock within the filesystem code itself. e.g. just make btree
-> sibling pointers loop over a range of entries that have the same
-> index key (e.g. free space extents of the same size). If allocation
-> then falls into this loop, the kernel will just spin searching the
-> same blocks for something it will never find.  Such resource
-> consumption attacks are trivial to construct but extremely difficult
-> to detect because they exploit normal behaviour of the structure and
-> algorithms by mangling trusted pointers.
-
-Interesting example, thanks!  I doubt this particular example would be
-*that* hard to detect?  But understood that there may be lots of others.
-
---b.
+So I guess the only real option here as a fallback is
+sbsec->mntpoint_sid = current_sid().  Which isn't great either, as the
+only case where we currently assign task labels to files is for their
+/proc/pid inodes, and no current policy will therefore allow create
+permission to such files.
 
 > 
-> Of course, this sort of attack will eventually deadlock the
-> filesystem because it will backs up on locks held by the live locked
-> search. Once the filesystem is deadlocked, it can then cause sync()
-> calls to get stuck on the filesystem. And because sync() is a global
-> operation, a deadlocked filesystem in one container could cause sync
-> to hang in completely unrelated container....
+>> +                               sbsec->mntpoint_sid = isec->sid;
+>> +                       } else {
+>> +                               sbsec->mntpoint_sid = current_sid();
+>> +                       }
+>> +               }
+>> +               goto out_set_opts;
+>> +       }
+>> +
+>>         /* sets the context of the superblock for the fs being mounted. */
+>>         if (fscontext_sid) {
+>>                 rc = may_context_mount_sb_relabel(fscontext_sid, sbsec,
+>> cred);
+>> @@ -813,6 +837,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>>                 sbsec->def_sid = defcontext_sid;
+>>         }
+>>
+>> +out_set_opts:
+>>         rc = sb_finish_set_opts(sb);
+>>  out:
+>>         mutex_unlock(&sbsec->lock);
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
 > 
-> Cheers,
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-> Dave.
-> -- 
-> Dave Chinner
-> david@fromorbit.com
+> 
