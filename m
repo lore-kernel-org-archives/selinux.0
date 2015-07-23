@@ -1,181 +1,94 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6NLxr34007800
- for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 17:59:53 -0400
-Received: by oige126 with SMTP id e126so6174634oig.0
- for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 14:59:51 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6NNn0Bb013695
+ for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 19:49:01 -0400
+Date: Fri, 24 Jul 2015 09:48:54 +1000
+From: Dave Chinner <david@fromorbit.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+Message-ID: <20150723234854.GI7943@dastard>
+References: <20150717000914.GO7943@dastard>
+ <87380nobs4.fsf@x220.int.ebiederm.org>
+ <20150717024735.GW3902@dastard>
+ <20150721173721.GE11050@fieldses.org>
+ <20150722075640.GE7943@dastard>
+ <20150722140923.GD22718@fieldses.org> <55AFCA6A.60304@gmail.com>
+ <20150722174100.GJ22718@fieldses.org>
+ <20150723015135.GH7943@dastard>
+ <20150723131928.GA11582@fieldses.org>
 MIME-Version: 1.0
-In-Reply-To: <1437668913-25446-1-git-send-email-sds@tycho.nsa.gov>
-References: <1437668913-25446-1-git-send-email-sds@tycho.nsa.gov>
-Date: Thu, 23 Jul 2015 17:59:51 -0400
-Message-ID: <CAHC9VhQFHkZexii9OFvA-wuBZ5ypM7DX515SErfPiprx+_NFrQ@mail.gmail.com>
-Subject: Re: [RFC][PATCH] ipc: Use private shmem or hugetlbfs inodes for shm
- segments.
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
-Cc: prarit@redhat.com, david@fromorbit.com, mstevens@fedoraproject.org,
- manfred@colorfullife.com, esandeen@redhat.com, wagi@monom.org,
- hughd@google.com, linux-kernel@vger.kernel.org, Eric Paris <eparis@redhat.com>,
- linux-mm@kvack.org, linux-security-module@vger.kernel.org, dave@stgolabs.net,
- nyc@holomorphy.com, akpm@linux-foundation.org,
- Linus Torvalds <torvalds@linux-foundation.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150723131928.GA11582@fieldses.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 23, 2015 at 12:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> The shm implementation internally uses shmem or hugetlbfs inodes
-> for shm segments.  As these inodes are never directly exposed to
-> userspace and only accessed through the shm operations which are
-> already hooked by security modules, mark the inodes with the
-> S_PRIVATE flag so that inode security initialization and permission
-> checking is skipped.
->
-> This was motivated by the following lockdep warning:
-> ===================================================
-> [ INFO: possible circular locking dependency detected ]
-> 4.2.0-0.rc3.git0.1.fc24.x86_64+debug #1 Tainted: G        W
-> -------------------------------------------------------
-> httpd/1597 is trying to acquire lock:
-> (&ids->rwsem){+++++.}, at: [<ffffffff81385354>] shm_close+0x34/0x130
-> (&mm->mmap_sem){++++++}, at: [<ffffffff81386bbb>] SyS_shmdt+0x4b/0x180
->       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
->       [<ffffffff81217baa>] __might_fault+0x7a/0xa0
->       [<ffffffff81284a1e>] filldir+0x9e/0x130
->       [<ffffffffa019bb08>] xfs_dir2_block_getdents.isra.12+0x198/0x1c0 [xfs]
->       [<ffffffffa019c5b4>] xfs_readdir+0x1b4/0x330 [xfs]
->       [<ffffffffa019f38b>] xfs_file_readdir+0x2b/0x30 [xfs]
->       [<ffffffff812847e7>] iterate_dir+0x97/0x130
->       [<ffffffff81284d21>] SyS_getdents+0x91/0x120
->       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
->       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
->       [<ffffffff81101e97>] down_read_nested+0x57/0xa0
->       [<ffffffffa01b0e57>] xfs_ilock+0x167/0x350 [xfs]
->       [<ffffffffa01b10b8>] xfs_ilock_attr_map_shared+0x38/0x50 [xfs]
->       [<ffffffffa014799d>] xfs_attr_get+0xbd/0x190 [xfs]
->       [<ffffffffa01c17ad>] xfs_xattr_get+0x3d/0x70 [xfs]
->       [<ffffffff8129962f>] generic_getxattr+0x4f/0x70
->       [<ffffffff8139ba52>] inode_doinit_with_dentry+0x162/0x670
->       [<ffffffff8139cf69>] sb_finish_set_opts+0xd9/0x230
->       [<ffffffff8139d66c>] selinux_set_mnt_opts+0x35c/0x660
->       [<ffffffff8139ff97>] superblock_doinit+0x77/0xf0
->       [<ffffffff813a0020>] delayed_superblock_init+0x10/0x20
->       [<ffffffff81272d23>] iterate_supers+0xb3/0x110
->       [<ffffffff813a4e5f>] selinux_complete_init+0x2f/0x40
->       [<ffffffff813b47a3>] security_load_policy+0x103/0x600
->       [<ffffffff813a6901>] sel_write_load+0xc1/0x750
->       [<ffffffff8126e817>] __vfs_write+0x37/0x100
->       [<ffffffff8126f229>] vfs_write+0xa9/0x1a0
->       [<ffffffff8126ff48>] SyS_write+0x58/0xd0
->       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
->       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
->       [<ffffffff8186de8f>] mutex_lock_nested+0x7f/0x3e0
->       [<ffffffff8139b9a9>] inode_doinit_with_dentry+0xb9/0x670
->       [<ffffffff8139bf7c>] selinux_d_instantiate+0x1c/0x20
->       [<ffffffff813955f6>] security_d_instantiate+0x36/0x60
->       [<ffffffff81287c34>] d_instantiate+0x54/0x70
->       [<ffffffff8120111c>] __shmem_file_setup+0xdc/0x240
->       [<ffffffff81201290>] shmem_file_setup+0x10/0x20
->       [<ffffffff813856e0>] newseg+0x290/0x3a0
->       [<ffffffff8137e278>] ipcget+0x208/0x2d0
->       [<ffffffff81386074>] SyS_shmget+0x54/0x70
->       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
->       [<ffffffff81108df8>] __lock_acquire+0x1a78/0x1d00
->       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
->       [<ffffffff8186efba>] down_write+0x5a/0xc0
->       [<ffffffff81385354>] shm_close+0x34/0x130
->       [<ffffffff812203a5>] remove_vma+0x45/0x80
->       [<ffffffff81222a30>] do_munmap+0x2b0/0x460
->       [<ffffffff81386c25>] SyS_shmdt+0xb5/0x180
->       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
-> Chain exists of:#012  &ids->rwsem --> &xfs_dir_ilock_class --> &mm->mmap_sem
-> Possible unsafe locking scenario:
->       CPU0                    CPU1
->       ----                    ----
->  lock(&mm->mmap_sem);
->  lock(&xfs_dir_ilock_class);
->                               lock(&mm->mmap_sem);
->  lock(&ids->rwsem);
-> 1 lock held by httpd/1597:
-> CPU: 7 PID: 1597 Comm: httpd Tainted: G W       4.2.0-0.rc3.git0.1.fc24.x86_64+Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Pla0000000000000000 000000006cb6fe9d ffff88019ff07c58 ffffffff81868175
-> 0000000000000000 ffffffff82aea390 ffff88019ff07ca8 ffffffff81105903
-> ffff88019ff07c78 ffff88019ff07d08 0000000000000001 ffff8800b75108f0
-> Call Trace:
-> [<ffffffff81868175>] dump_stack+0x4c/0x65
-> [<ffffffff81105903>] print_circular_bug+0x1e3/0x250
-> [<ffffffff81108df8>] __lock_acquire+0x1a78/0x1d00
-> [<ffffffff81220c33>] ? unlink_file_vma+0x33/0x60
-> [<ffffffff81109a07>] lock_acquire+0xc7/0x270
-> [<ffffffff81385354>] ? shm_close+0x34/0x130
-> [<ffffffff8186efba>] down_write+0x5a/0xc0
-> [<ffffffff81385354>] ? shm_close+0x34/0x130
-> [<ffffffff81385354>] shm_close+0x34/0x130
-> [<ffffffff812203a5>] remove_vma+0x45/0x80
-> [<ffffffff81222a30>] do_munmap+0x2b0/0x460
-> [<ffffffff81386bbb>] ? SyS_shmdt+0x4b/0x180
-> [<ffffffff81386c25>] SyS_shmdt+0xb5/0x180
-> [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
->
-> Reported-by: Morten Stevens <mstevens@fedoraproject.org>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  fs/hugetlbfs/inode.c | 2 ++
->  ipc/shm.c            | 2 +-
->  mm/shmem.c           | 4 ++--
->  3 files changed, 5 insertions(+), 3 deletions(-)
+On Thu, Jul 23, 2015 at 09:19:28AM -0400, J. Bruce Fields wrote:
+> On Thu, Jul 23, 2015 at 11:51:35AM +1000, Dave Chinner wrote:
+> > On Wed, Jul 22, 2015 at 01:41:00PM -0400, J. Bruce Fields wrote:
+> > > On Wed, Jul 22, 2015 at 12:52:58PM -0400, Austin S Hemmelgarn wrote:
+> > > > On 2015-07-22 10:09, J. Bruce Fields wrote:
+> > > > >On Wed, Jul 22, 2015 at 05:56:40PM +1000, Dave Chinner wrote:
+> > > > >>On Tue, Jul 21, 2015 at 01:37:21PM -0400, J. Bruce Fields wrote:
+> > > > >>>On Fri, Jul 17, 2015 at 12:47:35PM +1000, Dave Chinner wrote:
+> > > > >>>So, for example, a screwed up on-disk directory structure shouldn't
+> > > > >>>result in creating a cycle in the dcache and then deadlocking.
+> > > > >>
+> > > > >>Therein lies the problem: how do you detect such structural defects
+> > > > >>without doing a full structure validation?
+> > > > >
+> > > > >You can prevent cycles in a graph if you can prevent adding an edge
+> > > > >which would be part of a cycle.
+> > > > >
+> > > > Except if the user can write to the filesystem's backing storage (be
+> > > > it a device or a file), and has sufficient knowledge of the on-disk
+> > > > structures, they can create all the cycles they want in the
+> > > > metadata. So unless the kernel builds the graph internally by
+> > > > parsing the metadata _and_ has some way to detect that the on-disk
+> > > > metadata has hit a cycle (which may not just involve 2 items),
+> > > 
+> > > Understood.  Again, see the d_ancestor call in d_splice_alias, this is
+> > > exactly what it checks for.
+> > 
+> > But that only addresses one type of loop in one specific metadata
+> > structure.
+> 
+> Yep, agreed!
+> 
+> > There's plenty of other ways you could construct metadata
+> > loops that are essentially undetected and result in either deadlock
+> > or livelock within the filesystem code itself. e.g. just make btree
+> > sibling pointers loop over a range of entries that have the same
+> > index key (e.g. free space extents of the same size). If allocation
+> > then falls into this loop, the kernel will just spin searching the
+> > same blocks for something it will never find.  Such resource
+> > consumption attacks are trivial to construct but extremely difficult
+> > to detect because they exploit normal behaviour of the structure and
+> > algorithms by mangling trusted pointers.
+> 
+> Interesting example, thanks!  I doubt this particular example would be
+> *that* hard to detect?
 
-Seems reasonable and fits with what we've been doing.
+Yes, it can be detected, but it's not as easy as it sounds because
+of abstractions between tree walking and record parsing.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+>  But understood that there may be lots of others.
 
-> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-> index 0cf74df..973c24c 100644
-> --- a/fs/hugetlbfs/inode.c
-> +++ b/fs/hugetlbfs/inode.c
-> @@ -1010,6 +1010,8 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
->         inode = hugetlbfs_get_inode(sb, NULL, S_IFREG | S_IRWXUGO, 0);
->         if (!inode)
->                 goto out_dentry;
-> +       if (creat_flags == HUGETLB_SHMFS_INODE)
-> +               inode->i_flags |= S_PRIVATE;
->
->         file = ERR_PTR(-ENOMEM);
->         if (hugetlb_reserve_pages(inode, 0,
-> diff --git a/ipc/shm.c b/ipc/shm.c
-> index 06e5cf2..4aef24d 100644
-> --- a/ipc/shm.c
-> +++ b/ipc/shm.c
-> @@ -545,7 +545,7 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
->                 if  ((shmflg & SHM_NORESERVE) &&
->                                 sysctl_overcommit_memory != OVERCOMMIT_NEVER)
->                         acctflag = VM_NORESERVE;
-> -               file = shmem_file_setup(name, size, acctflag);
-> +               file = shmem_kernel_file_setup(name, size, acctflag);
->         }
->         error = PTR_ERR(file);
->         if (IS_ERR(file))
-> diff --git a/mm/shmem.c b/mm/shmem.c
-> index 4caf8ed..dbe0c1e 100644
-> --- a/mm/shmem.c
-> +++ b/mm/shmem.c
-> @@ -3363,8 +3363,8 @@ put_path:
->   * shmem_kernel_file_setup - get an unlinked file living in tmpfs which must be
->   *     kernel internal.  There will be NO LSM permission checks against the
->   *     underlying inode.  So users of this interface must do LSM checks at a
-> - *     higher layer.  The one user is the big_key implementation.  LSM checks
-> - *     are provided at the key level rather than the inode level.
-> + *     higher layer.  The users are the big_key and shm implementations.  LSM
-> + *     checks are provided at the key or shm level rather than the inode.
->   * @name: name for dentry (to be seen in /proc/<pid>/maps
->   * @size: size to be set for the file
->   * @flags: VM_NORESERVE suppresses pre-accounting of the entire object size
-> --
-> 2.1.0
->
+Yeah, that's just one of many, many ways I can think of modifying
+on disk structures to screw up the kernel.
 
+Cheers,
 
-
+Dave.
 -- 
-paul moore
-www.paul-moore.com
+Dave Chinner
+david@fromorbit.com
