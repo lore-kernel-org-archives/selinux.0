@@ -1,319 +1,181 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6NLmQFb007148
- for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 17:48:27 -0400
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-References: <55A8253E.3000407@schaufler-ca.com>
- <CALCETrW6NpwY0CXNXWBcqx6JPyAqr6XP-BKexO1HFdpxnQUJrQ@mail.gmail.com>
- <55A8398A.3000802@schaufler-ca.com>
- <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
- <55A85041.2070301@schaufler-ca.com>
- <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
- <20150721203550.GA80838@ubuntu-hedt> <55AEF75F.9010703@schaufler-ca.com>
- <20150722155634.GB124342@ubuntu-hedt> <55AFDCA6.10201@schaufler-ca.com>
- <20150722193223.GD124342@ubuntu-hedt> <55B02FBD.4040606@schaufler-ca.com>
- <87vbdbd90o.fsf@x220.int.ebiederm.org>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <55B16138.5000906@schaufler-ca.com>
-Date: Thu, 23 Jul 2015 14:48:40 -0700
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6NLxr34007800
+ for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 17:59:53 -0400
+Received: by oige126 with SMTP id e126so6174634oig.0
+ for <selinux@tycho.nsa.gov>; Thu, 23 Jul 2015 14:59:51 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <87vbdbd90o.fsf@x220.int.ebiederm.org>
-Content-Type: text/plain; charset=windows-1252
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <1437668913-25446-1-git-send-email-sds@tycho.nsa.gov>
+References: <1437668913-25446-1-git-send-email-sds@tycho.nsa.gov>
+Date: Thu, 23 Jul 2015 17:59:51 -0400
+Message-ID: <CAHC9VhQFHkZexii9OFvA-wuBZ5ypM7DX515SErfPiprx+_NFrQ@mail.gmail.com>
+Subject: Re: [RFC][PATCH] ipc: Use private shmem or hugetlbfs inodes for shm
+ segments.
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
+Cc: prarit@redhat.com, david@fromorbit.com, mstevens@fedoraproject.org,
+ manfred@colorfullife.com, esandeen@redhat.com, wagi@monom.org,
+ hughd@google.com, linux-kernel@vger.kernel.org, Eric Paris <eparis@redhat.com>,
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, dave@stgolabs.net,
+ nyc@holomorphy.com, akpm@linux-foundation.org,
+ Linus Torvalds <torvalds@linux-foundation.org>, selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 7/22/2015 5:15 PM, Eric W. Biederman wrote:
-> Casey Schaufler <casey@schaufler-ca.com> writes:
+On Thu, Jul 23, 2015 at 12:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> The shm implementation internally uses shmem or hugetlbfs inodes
+> for shm segments.  As these inodes are never directly exposed to
+> userspace and only accessed through the shm operations which are
+> already hooked by security modules, mark the inodes with the
+> S_PRIVATE flag so that inode security initialization and permission
+> checking is skipped.
 >
->> On 7/22/2015 12:32 PM, Seth Forshee wrote:
->>> On Wed, Jul 22, 2015 at 11:10:46AM -0700, Casey Schaufler wrote:
->>>> On 7/22/2015 8:56 AM, Seth Forshee wrote:
->>>>> On Tue, Jul 21, 2015 at 06:52:31PM -0700, Casey Schaufler wrote:
->>>>>> On 7/21/2015 1:35 PM, Seth Forshee wrote:
->>>>>>> On Thu, Jul 16, 2015 at 05:59:22PM -0700, Andy Lutomirski wrote:
->>>>>>>> On Thu, Jul 16, 2015 at 5:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>>>>>>> On 7/16/2015 4:29 PM, Andy Lutomirski wrote:
->>>>>>>>>> I really don't see the benefit of making up extra rules that apply to
->>>>>>>>>> users outside a userns who try to access specifically a filesystem
->>>>>>>>>> with backing store.  They wouldn't make sense for filesystems without
->>>>>>>>>> backing store.
->>>>>>>>> Sure it would. For Smack, it would be the label a file would be
->>>>>>>>> created with, which would be the label of the process creating
->>>>>>>>> the memory based filesystem. For SELinux the rules are more a
->>>>>>>>> touch more sophisticated, but I'm sure that Paul or Stephen could
->>>>>>>>> come up with how to determine it.
->>>>>>>>>
->>>>>>>>> The point, looping all the way back to the beginning, where we
->>>>>>>>> were talking about just ignoring the labels on the filesystem,
->>>>>>>>> is that if you use the same Smack label on the files in the
->>>>>>>>> filesystem as the backing store file has, we'll all be happy.
->>>>>>>>> If that label isn't something user can write to, he won't be
->>>>>>>>> able to write to the mounted objects, either. If there is no
->>>>>>>>> backing store then use the label of the process creating the
->>>>>>>>> filesystem, which will be the user, which will mean everything
->>>>>>>>> will work hunky dory.
->>>>>>>>>
->>>>>>>>> Yes, there's work involved, but I doubt there's a lot. Getting
->>>>>>>>> the label from the backing store or the creating process is
->>>>>>>>> simple enough.
->>>>>>>>>
->>>>>>> So something like the diff below (untested)?
->>>>>> I think that this is close, and quite good for someone
->>>>>> who isn't very familiar with Smack. It's definitely headed
->>>>>> in the right direction.
->>>>>>
->>>>>>> All I'm really doing is setting smk_default as you describe above and
->>>>>>> then using it instead of smk_of_current() in
->>>>>>> smack_inode_alloc_security() and instead of the label from the disk in
->>>>>>> smack_d_instantiate().
->>>>>> Let's say your backing store is a file labeled Rubble.
->>>>>>
->>>>>> mount -o smackfsroot=Rubble,smackfsdef=Rubble ...
->>>>>>
->>>>>> It is completely reasonable for a process labeled Flintstone to
->>>>>> have rwxa access to a file labeled Rubble.
->>>>>>
->>>>>> Smack rule: Flintstone Rubble rwxa
->>>>>>
->>>>>> In the case of writing to an existing Rubble file, what you
->>>>>> have looks fine. What's not so great is that if the Flintstone
->>>>>> process creates a file, it should be labeled Flintstone. Your
->>>>>> use of the smk_default, which is going to violate the principle
->>>>>> of least astonishment, and break the Smack policy as well.
->>>>>>
->>>>>> Let's make a minor change. Instead of using smackfsroot let's
->>>>>> use smackfstransmute and a slightly different access rule:
->>>>>>
->>>>>> mount -o smackfstransmute=Rubble,smackfsdef=Rubble ...
->>>>>>
->>>>>> Smack rule: Flintstone Rubble rwxat
->>>>>>
->>>>>> Now the only change we have to make to the Smack code is
->>>>>> that we don't want to create any files unless either the
->>>>>> process is labeled Rubble or the rule allowing the creation
->>>>>> has the "t" for transmute access. That should ensure that
->>>>>> everything is labeled Rubble. If it isn't, someone has mucked
->>>>>> with the metadata in a detectable way.
->>>>> All right, that kind of makes sense, but I'm still missing some pieces.
->>>>> Questions follow.
->>>>>
->>>>>>> diff --git a/include/linux/fs.h b/include/linux/fs.h
->>>>>>> index 32f598db0b0d..4597420ab933 100644
->>>>>>> --- a/include/linux/fs.h
->>>>>>> +++ b/include/linux/fs.h
->>>>>>> @@ -1486,6 +1486,10 @@ static inline void sb_start_intwrite(struct super_block *sb)
->>>>>>>  	__sb_start_write(sb, SB_FREEZE_FS, true);
->>>>>>>  }
->>>>>>>  
->>>>>>> +static inline bool sb_in_userns(struct super_block *sb)
->>>>>>> +{
->>>>>>> +	return sb->s_user_ns != &init_user_ns;
->>>>>>> +}
->>>>>>>  
->>>>>>>  extern bool inode_owner_or_capable(const struct inode *inode);
->>>>>>>  
->>>>>>> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->>>>>>> index a143328f75eb..591fd19294e7 100644
->>>>>>> --- a/security/smack/smack_lsm.c
->>>>>>> +++ b/security/smack/smack_lsm.c
->>>>>>> @@ -255,6 +255,10 @@ static struct smack_known *smk_fetch(const char *name, struct inode *ip,
->>>>>>>  	char *buffer;
->>>>>>>  	struct smack_known *skp = NULL;
->>>>>>>  
->>>>>>> +	/* Should never fetch xattrs from untrusted mounts */
->>>>>>> +	if (WARN_ON(sb_in_userns(ip->i_sb)))
->>>>>>> +		return ERR_PTR(-EPERM);
->>>>>>> +
->>>>>> Go ahead and fetch it, we'll check to make sure it's viable later.
->>>>>>
->>>>>>>  	if (ip->i_op->getxattr == NULL)
->>>>>>>  		return ERR_PTR(-EOPNOTSUPP);
->>>>>>>  
->>>>>>> @@ -656,10 +660,14 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
->>>>>>>  		 */
->>>>>>>  		if (specified)
->>>>>>>  			return -EPERM;
->>>>>>> +
->>>>>>>  		/*
->>>>>>> -		 * Unprivileged mounts get root and default from the caller.
->>>>>>> +		 * User namespace mounts get root and default from the backing
->>>>>>> +		 * store, if there is one. Other unprivileged mounts get them
->>>>>>> +		 * from the caller.
->>>>>>>  		 */
->>>>>>> -		skp = smk_of_current();
->>>>>>> +		skp = (sb_in_userns(sb) && sb->s_bdev) ?
->>>>>>> +			smk_of_inode(sb->s_bdev->bd_inode) : smk_of_current();
->>>>>>>  		sp->smk_root = skp;
->>>>>>>  		sp->smk_default = skp;
->>>>>> 			sp->smk_flags |= SMK_INODE_TRANSMUTE;
->>>>> I assume that you meant skp and not sp here.
->>>> Actually, neither is correct. You want to set SMK_INODE_TRANSMUTE
->>>> in the smk_flags field of the root inode. That's easy:
->>>>
->>>> 			transmute = 1;
->>>>
->>>> and the code after "Initialize the root inode" will take care of it.
->>> Yeah, that's what I've actually done.
->>>
->>>>>>>  	}
->>>>>>> @@ -792,7 +800,12 @@ static int smack_bprm_secureexec(struct linux_binprm *bprm)
->>>>>>>   */
->>>>>>>  static int smack_inode_alloc_security(struct inode *inode)
->>>>>>>  {
->>>>>>> -	struct smack_known *skp = smk_of_current();
->>>>>>> +	struct smack_known *skp;
->>>>>>> +
->>>>>>> +	if (sb_in_userns(inode->i_sb))
->>>>>>> +		skp = ((struct superblock_smack *)(inode->i_sb->s_security))->smk_default;
->>>>>>> +	else
->>>>>>> +		skp = smk_of_current();
->>>>>> This should be left alone.
->>>>>> smack_inode_init_security is where you could disallow access that doesn't
->>>>>> legitimately result in a Rubble label on the file. It's something like
->>>>>>
->>>>>> 	... after the call may = smk_access_entry(...)
->>>>>> 	if (sb_in_userns(inode->i_sb))
->>>>>> 		if (skp != dsp && (may & MAY_TRANSMUTE) == 0)
->>>>>> 			return -EACCES; 
->>>>> I'm not getting how this covers all cases.
->>>>>
->>>>> So we've set the transmute flag on the root inode. Files and directories
->>>>> created in the root directory get the same label, and directories also
->>>>> get the transmute attribute. That's all fine.
->>>>>
->>>>> What about an existing directory in the filesystem that already has a
->>>>> Slate label? I'm not getting what happens with this directory, or for
->>>>> new files created in this directory, which also relates to my other
->>>>> questions below.
->>>>>
->>>>> Also an aside - smk_access_entry looks weird. may is initialized to
->>>>> -ENOENT, and then rule_list is searched for a rule which matches the
->>>>> object and subject labels. Presumably it's possible that no rule could
->>>>> be found, otherwise the prior initialization of may is pointless. If
->>>>> this happens the following code treats it as though it always contains
->>>>> access flags even though it might contain -ENOENT. Nothing bad actually
->>>>> happens with a two's compliement representation of -ENOENT since it will
->>>>> just set a bit that's already set, but it still seems like it should
->>>>> have a may > 0 condition, for clarity if for no other reason.
->>>> My suggested code is just wrong. I wasn't looking at the whole code,
->>>> only the patch, and got myself confused. Apologies.
->>>>
->>>> If we want to go straight for the jugular how about this? I'm assuming
->>>> that inode->i_sb->s_bdev->bd_inode is the inode of the backing store.
->>> Yes.
->>>
->>>> static int smack_inode_permission(struct inode *inode, int mask)
->>>> {
->>>> 	struct smk_audit_info ad;
->>>> 	int no_block = mask & MAY_NOT_BLOCK;
->>>> 	int rc;
->>>>
->>>> 	mask &= (MAY_READ|MAY_WRITE|MAY_EXEC|MAY_APPEND);
->>>> 	/*
->>>> 	 * No permission to check. Existence test. Yup, it's there.
->>>> 	 */
->>>> 	if (mask == 0)
->>>> 		return 0;
->>>>
->>>> +	if (sb_in_userns(inode->i_sb)) &&
->>>> +	    smk_of_inode(inode) != smk_of_inode(inode->i_sb->s_bdev->bd_inode))
->>>> +		return -EACCES;
->>>> +
->>>> 	/* May be droppable after audit */
->>>> 	if (no_block)
->>>> 		return -ECHILD;
->>>> 	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_INODE);
->>>> 	smk_ad_setfield_u_fs_inode(&ad, inode);
->>>> 	rc = smk_curacc(smk_of_inode(inode), mask, &ad);
->>>> 	rc = smk_bu_inode(inode, mask, rc);
->>>> 	return rc;
->>>> }
->>> Hmm, okay. I think I've been a little confused all this time about how
->>> you want to handle these unprivileged mounts.
->> Not your problem. I'm not the most consistent of reviewers.
->>
->>> Originally I thought you wanted all objects in the filesystem to get the
->>> same label as the backing store. That's what I tried to implement
->>> originally, i.e. smk_root=smk_default=smk_of_inode(...->bd_inode), then
->>> assign every object (new and existing) smk_default and completely ignore
->>> the labels on disk.
->> I want everything to have the label of the backing store, but
->> I don't want to ignore it if it somehow got something else. Because
->> the only legitimate label for this example is Rubble, I want to
->> reject anything else that appears. If someone builds a filesystem
->> by hand with Slate labels I want it treated "safely".
->>
->>> This is what I currently think you want for user ns mounts:
->>>
->>>  1. smk_root and smk_default are assigned the label of the backing
->>>     device.
->>>  2. s_root is assigned the transmute property.
->>>  3. For existing files:
->>>     a. Files with the same label as the backing device are accessible.
->>>     b. Files with any other label are not accessible.
->> That's right. Accept correct data, reject anything that's not right.
->>
->>> If this is right, there are a couple lingering questions in my mind.
->>>
->>> First, what happens with files created in directories with the same
->>> label as the backing device but without the transmute property set? The
->>> inode for the new file will initially be labeled with smk_of_current(),
->>> but then during d_instantiate it will get smk_default and thus end up
->>> with the label we want. So that seems okay.
->> Yes.
->>
->>> The second is whether files with the SMACK64EXEC attribute is still a
->>> problem. It seems it is, for files with the same label as the backing
->>> store at least. I think we can simply skip the code that reads out this
->>> xattr and sets smk_task for user ns mounts, or else skip assigning the
->>> label to the new task in bprm_set_creds. The latter seems more
->>> consistent with the approach you've suggested for dealing with labels
->>> from disk.
->> Yes, I think that skipping the smk_fetch(XATTR_NAME_SMACKEXEC, ...) in
->> smack_d_instantiate for unprivileged mounts would do the trick.
->>
->>> So I guess all of that seems okay, though perhaps a bit restrictive
->>> given that the user who mounted the filesystem already has full access
->>> to the backing store.
->> In truth, there is no reason to expect that the "user" who did the
->> mount will ever have a Smack label that differs from the label of
->> the backing store. If what we've got here seems restrictive, it's
->> because you've got access from someone other than the "user".
->>
->>> Please let me know whether or not this matches up with what you are
->>> thinking, then I can procede with the implementation.
->> My current mindset is that, if you're going to allow unprivileged
->> mounts of user defined backing stores, this is as safe as we can
->> make it.
-> That actually sounds very reasonable to me.  It is essentially what we
-> do with uid and gids already.  I presume the smack namespace support
-> would when integrated with all of this would allow a set of labels to be
-> set.
+> This was motivated by the following lockdep warning:
+> ===================================================
+> [ INFO: possible circular locking dependency detected ]
+> 4.2.0-0.rc3.git0.1.fc24.x86_64+debug #1 Tainted: G        W
+> -------------------------------------------------------
+> httpd/1597 is trying to acquire lock:
+> (&ids->rwsem){+++++.}, at: [<ffffffff81385354>] shm_close+0x34/0x130
+> (&mm->mmap_sem){++++++}, at: [<ffffffff81386bbb>] SyS_shmdt+0x4b/0x180
+>       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+>       [<ffffffff81217baa>] __might_fault+0x7a/0xa0
+>       [<ffffffff81284a1e>] filldir+0x9e/0x130
+>       [<ffffffffa019bb08>] xfs_dir2_block_getdents.isra.12+0x198/0x1c0 [xfs]
+>       [<ffffffffa019c5b4>] xfs_readdir+0x1b4/0x330 [xfs]
+>       [<ffffffffa019f38b>] xfs_file_readdir+0x2b/0x30 [xfs]
+>       [<ffffffff812847e7>] iterate_dir+0x97/0x130
+>       [<ffffffff81284d21>] SyS_getdents+0x91/0x120
+>       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
+>       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+>       [<ffffffff81101e97>] down_read_nested+0x57/0xa0
+>       [<ffffffffa01b0e57>] xfs_ilock+0x167/0x350 [xfs]
+>       [<ffffffffa01b10b8>] xfs_ilock_attr_map_shared+0x38/0x50 [xfs]
+>       [<ffffffffa014799d>] xfs_attr_get+0xbd/0x190 [xfs]
+>       [<ffffffffa01c17ad>] xfs_xattr_get+0x3d/0x70 [xfs]
+>       [<ffffffff8129962f>] generic_getxattr+0x4f/0x70
+>       [<ffffffff8139ba52>] inode_doinit_with_dentry+0x162/0x670
+>       [<ffffffff8139cf69>] sb_finish_set_opts+0xd9/0x230
+>       [<ffffffff8139d66c>] selinux_set_mnt_opts+0x35c/0x660
+>       [<ffffffff8139ff97>] superblock_doinit+0x77/0xf0
+>       [<ffffffff813a0020>] delayed_superblock_init+0x10/0x20
+>       [<ffffffff81272d23>] iterate_supers+0xb3/0x110
+>       [<ffffffff813a4e5f>] selinux_complete_init+0x2f/0x40
+>       [<ffffffff813b47a3>] security_load_policy+0x103/0x600
+>       [<ffffffff813a6901>] sel_write_load+0xc1/0x750
+>       [<ffffffff8126e817>] __vfs_write+0x37/0x100
+>       [<ffffffff8126f229>] vfs_write+0xa9/0x1a0
+>       [<ffffffff8126ff48>] SyS_write+0x58/0xd0
+>       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
+>       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+>       [<ffffffff8186de8f>] mutex_lock_nested+0x7f/0x3e0
+>       [<ffffffff8139b9a9>] inode_doinit_with_dentry+0xb9/0x670
+>       [<ffffffff8139bf7c>] selinux_d_instantiate+0x1c/0x20
+>       [<ffffffff813955f6>] security_d_instantiate+0x36/0x60
+>       [<ffffffff81287c34>] d_instantiate+0x54/0x70
+>       [<ffffffff8120111c>] __shmem_file_setup+0xdc/0x240
+>       [<ffffffff81201290>] shmem_file_setup+0x10/0x20
+>       [<ffffffff813856e0>] newseg+0x290/0x3a0
+>       [<ffffffff8137e278>] ipcget+0x208/0x2d0
+>       [<ffffffff81386074>] SyS_shmget+0x54/0x70
+>       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
+>       [<ffffffff81108df8>] __lock_acquire+0x1a78/0x1d00
+>       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+>       [<ffffffff8186efba>] down_write+0x5a/0xc0
+>       [<ffffffff81385354>] shm_close+0x34/0x130
+>       [<ffffffff812203a5>] remove_vma+0x45/0x80
+>       [<ffffffff81222a30>] do_munmap+0x2b0/0x460
+>       [<ffffffff81386c25>] SyS_shmdt+0xb5/0x180
+>       [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
+> Chain exists of:#012  &ids->rwsem --> &xfs_dir_ilock_class --> &mm->mmap_sem
+> Possible unsafe locking scenario:
+>       CPU0                    CPU1
+>       ----                    ----
+>  lock(&mm->mmap_sem);
+>  lock(&xfs_dir_ilock_class);
+>                               lock(&mm->mmap_sem);
+>  lock(&ids->rwsem);
+> 1 lock held by httpd/1597:
+> CPU: 7 PID: 1597 Comm: httpd Tainted: G W       4.2.0-0.rc3.git0.1.fc24.x86_64+Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Pla0000000000000000 000000006cb6fe9d ffff88019ff07c58 ffffffff81868175
+> 0000000000000000 ffffffff82aea390 ffff88019ff07ca8 ffffffff81105903
+> ffff88019ff07c78 ffff88019ff07d08 0000000000000001 ffff8800b75108f0
+> Call Trace:
+> [<ffffffff81868175>] dump_stack+0x4c/0x65
+> [<ffffffff81105903>] print_circular_bug+0x1e3/0x250
+> [<ffffffff81108df8>] __lock_acquire+0x1a78/0x1d00
+> [<ffffffff81220c33>] ? unlink_file_vma+0x33/0x60
+> [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+> [<ffffffff81385354>] ? shm_close+0x34/0x130
+> [<ffffffff8186efba>] down_write+0x5a/0xc0
+> [<ffffffff81385354>] ? shm_close+0x34/0x130
+> [<ffffffff81385354>] shm_close+0x34/0x130
+> [<ffffffff812203a5>] remove_vma+0x45/0x80
+> [<ffffffff81222a30>] do_munmap+0x2b0/0x460
+> [<ffffffff81386bbb>] ? SyS_shmdt+0x4b/0x180
+> [<ffffffff81386c25>] SyS_shmdt+0xb5/0x180
+> [<ffffffff81871d2e>] entry_SYSCALL_64_fastpath+0x12/0x76
 >
-> Have I missed a part of the conversation you talk about fileystems that
-> don't have support for storing labels?  Filesystems like vfat, isofs,
-> etc.
+> Reported-by: Morten Stevens <mstevens@fedoraproject.org>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  fs/hugetlbfs/inode.c | 2 ++
+>  ipc/shm.c            | 2 +-
+>  mm/shmem.c           | 4 ++--
+>  3 files changed, 5 insertions(+), 3 deletions(-)
 
-They are easier. Set smackfsroot=Rubble,smackfsdef=Rubble and all objects
-there will get labeled Rubble. Processes with different labels that can
-write there will end up creating Rubble objects. For privileged mounts you
-can set the values at will. For unprivileged mounts, you should take the
-label values from the backing store.
+Seems reasonable and fits with what we've been doing.
 
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+> index 0cf74df..973c24c 100644
+> --- a/fs/hugetlbfs/inode.c
+> +++ b/fs/hugetlbfs/inode.c
+> @@ -1010,6 +1010,8 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
+>         inode = hugetlbfs_get_inode(sb, NULL, S_IFREG | S_IRWXUGO, 0);
+>         if (!inode)
+>                 goto out_dentry;
+> +       if (creat_flags == HUGETLB_SHMFS_INODE)
+> +               inode->i_flags |= S_PRIVATE;
 >
-> Eric
->
+>         file = ERR_PTR(-ENOMEM);
+>         if (hugetlb_reserve_pages(inode, 0,
+> diff --git a/ipc/shm.c b/ipc/shm.c
+> index 06e5cf2..4aef24d 100644
+> --- a/ipc/shm.c
+> +++ b/ipc/shm.c
+> @@ -545,7 +545,7 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+>                 if  ((shmflg & SHM_NORESERVE) &&
+>                                 sysctl_overcommit_memory != OVERCOMMIT_NEVER)
+>                         acctflag = VM_NORESERVE;
+> -               file = shmem_file_setup(name, size, acctflag);
+> +               file = shmem_kernel_file_setup(name, size, acctflag);
+>         }
+>         error = PTR_ERR(file);
+>         if (IS_ERR(file))
+> diff --git a/mm/shmem.c b/mm/shmem.c
+> index 4caf8ed..dbe0c1e 100644
+> --- a/mm/shmem.c
+> +++ b/mm/shmem.c
+> @@ -3363,8 +3363,8 @@ put_path:
+>   * shmem_kernel_file_setup - get an unlinked file living in tmpfs which must be
+>   *     kernel internal.  There will be NO LSM permission checks against the
+>   *     underlying inode.  So users of this interface must do LSM checks at a
+> - *     higher layer.  The one user is the big_key implementation.  LSM checks
+> - *     are provided at the key level rather than the inode level.
+> + *     higher layer.  The users are the big_key and shm implementations.  LSM
+> + *     checks are provided at the key or shm level rather than the inode.
+>   * @name: name for dentry (to be seen in /proc/<pid>/maps
+>   * @size: size to be set for the file
+>   * @flags: VM_NORESERVE suppresses pre-accounting of the entire object size
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 2.1.0
 >
+
+
+
+-- 
+paul moore
+www.paul-moore.com
