@@ -1,5 +1,5 @@
-Message-ID: <55B23857.9010607@tycho.nsa.gov>
-Date: Fri, 24 Jul 2015 09:06:31 -0400
+Message-ID: <55B23922.906@tycho.nsa.gov>
+Date: Fri, 24 Jul 2015 09:09:54 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Jason Zaman <jason@perfinion.com>, Petr Lautrbach <plautrba@redhat.com>
@@ -9,7 +9,8 @@ References: <20150717142834.GA20679@meriadoc.Home>
  <20150722143111.GA20676@meriadoc.perfinion.com>
  <55AFAAD5.80108@tycho.nsa.gov> <55B09467.6030807@redhat.com>
  <55B1ECAE.7000905@redhat.com> <20150724081344.GA10961@meriadoc.perfinion.com>
-In-Reply-To: <20150724081344.GA10961@meriadoc.perfinion.com>
+ <20150724083548.GA11791@meriadoc.perfinion.com>
+In-Reply-To: <20150724083548.GA11791@meriadoc.perfinion.com>
 Content-Type: text/plain; charset=windows-1252
 Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,34 +18,45 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/24/2015 04:13 AM, Jason Zaman wrote:
-> On Fri, Jul 24, 2015 at 09:43:42AM +0200, Petr Lautrbach wrote:
->> It seems that there's only seobject.py which needs to be ported to
->> python 3. I would start with the indent conversion as it's needed anyway
->> and then we could provide a patch with python 3 support based on this
->> conversion.
+On 07/24/2015 04:35 AM, Jason Zaman wrote:
+> On Fri, Jul 24, 2015 at 04:13:44PM +0800, Jason Zaman wrote:
+>> On Fri, Jul 24, 2015 at 09:43:42AM +0200, Petr Lautrbach wrote:
+>>> It seems that there's only seobject.py which needs to be ported to
+>>> python 3. I would start with the indent conversion as it's needed anyway
+>>> and then we could provide a patch with python 3 support based on this
+>>> conversion.
+>>
+>> The following changes since commit d19cda0c80524b57464b3bb74dce1297d017b4b1:
+>>
+>>   Updated libsepol ChangeLog (2015-07-22 11:02:32 -0400)
+>>
+>> are available in the git repository at:
+>>
+>>   https://github.com/perfinion/selinux.git reformat
+>>
+>> for you to fetch changes up to 789d0ebbf9fa448b09917ccd0adff91d72e9f5c1:
+>>
+>>   policycoreutils: Fix PEP8 issues (2015-07-24 16:07:13 +0800)
+>>
+>> ----------------------------------------------------------------
+>> Jason Zaman (1):
+>>       policycoreutils: Fix PEP8 issues
+>>
+>>
+>> I re-did the changes on top of the current master and updated that
+>> branch. this is the new commit to pull.
+>>
+>> All the files now follow PEP8 style (ie tabs are 4 spaces) so future
+>> commits should follow that too.
 > 
-> The following changes since commit d19cda0c80524b57464b3bb74dce1297d017b4b1:
+> After seobject.py is converted, I see a few issues with
+> policycoreutils/sepolicy/sepolicy/*.
 > 
->   Updated libsepol ChangeLog (2015-07-22 11:02:32 -0400)
-> 
-> are available in the git repository at:
-> 
->   https://github.com/perfinion/selinux.git reformat
-> 
-> for you to fetch changes up to 789d0ebbf9fa448b09917ccd0adff91d72e9f5c1:
-> 
->   policycoreutils: Fix PEP8 issues (2015-07-24 16:07:13 +0800)
-> 
-> ----------------------------------------------------------------
-> Jason Zaman (1):
->       policycoreutils: Fix PEP8 issues
-> 
-> 
-> I re-did the changes on top of the current master and updated that
-> branch. this is the new commit to pull.
-> 
-> All the files now follow PEP8 style (ie tabs are 4 spaces) so future
-> commits should follow that too.
+> The easy stuff 2to3 handles, but it looks like there will need to be
+> some changes to the C module, I've got it building by adding some
+> #defines for PyInt_AsLong and the like. I am not that familiar with the
+> C-Python stuff so it might not be done the right way.
 
-Thanks, pulled.
+On this, we would prefer to see policycoreutils/sepolicy converted to
+use setools4, which directly provides python interfaces, no C extension
+required.  setools3 is no longer maintained.
