@@ -19,129 +19,170 @@ To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Zefan Li <lizefan@huawei.com>, linux-doc@vger.kernel.org,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: [PATCH v3 00/11] Smack namespace
-Date: Fri, 24 Jul 2015 12:04:34 +0200
-Message-id: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+Subject: [PATCH v3 03/11] lsm: add file opener's cred to a setprocattr
+ arguments
+Date: Fri, 24 Jul 2015 12:04:37 +0200
+Message-id: <1437732285-11524-4-git-send-email-l.pawelczyk@samsung.com>
+In-reply-to: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
 Cc: havner@gmail.com
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Third version of Smack namespace. Changes here are mostly because of
-Stephen Smalley's review:
+setprocattr hook for Smack's label_map attribute needs to know the
+capabilities of file opener. Add those credentials to the hook's
+arguments.
 
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg899383.html
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg898638.html
+While at it add documentation on get/setprocattr hooks.
 
-1. the label map should be in /proc/.../attr/label_map and be handled
-   generically.
-2. The proper file system label (unmapped) should be written only once
-   to remove a state where an incorrect label is on the filesystem.
+Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+---
+ fs/proc/base.c             |  2 +-
+ include/linux/lsm_hooks.h  | 18 ++++++++++++++++--
+ include/linux/security.h   |  7 +++++--
+ security/apparmor/lsm.c    |  5 +++--
+ security/security.c        |  6 ++++--
+ security/selinux/hooks.c   |  2 +-
+ security/smack/smack_lsm.c |  4 ++--
+ 7 files changed, 32 insertions(+), 12 deletions(-)
 
-Ad 1: Contrary to what Stephen said this unfortunately required LSM
-modifications.
-
-For reading: the map can be long, in principle longer than PAGE_SIZE to
-which normal getprocattr hook is limited. So I invented a way for
-getprocattr to be handled by seq operations. I think it is generic and
-can be reused nicely by other LSMs. Also it doesn't break current LSM
-code in any way. This created a new patch.
-
-For writing: the default setprocattr arguments were not enough for me
-to securely decide if the write access should be granted. To be in
-parallel with user namespace I also needed credentials of the process
-that actually opened the map (in addition to current). So I added a new
-argument. This is also a new patch.
-
-Ad 2: I really tried to make it work without introducing a new LSM
-hook but changing a little semantics behind the current ones. Finally
-I just added a simple inode_pre_setxattr hook that can swap the label
-before it is written to the filesystem.  Hopefully this is ok. I
-couldn't do this in inode_setxattr hook as Stephen suggested as this
-hook is called before __vfs_setxattr_noperm which is an exported
-symbol and is used sometimes without setxattr hence the logic had to
-be inside that one. This is also a new patch.
-
-I also added a new patch that "fixes" smackfs/syslog. I've noticed that
-inside a namespace when I cat the file it shows "*". Even when I
-remapped the star. After looking at the code it had it implicitly
-displayed when it's not set. There were few problems with it:
-
-1. In a namespace we can see a label that is not mapped.
-2. There was no way to actually reset the value to default (NULL)
-3. It was inconsistent from user space point of view:
-
-# cat /smack/syslog
-*
-
-After the reboot the syslog hook doesn't limit anything, the
-smack_syslog_label is NULL, but it displays star.
-
-# echo '*' > /smack/syslog
-# cat /smack/syslog
-*
-
->From user space POV this is the same, file has star inside, but now for
-the hook to pass the current needs to be star as well. And there is no
-way to reset it back to NULL. So I treated syslog file the same way
-unconfined and onlycap are handled. If it's empty, there is no label
-set, hook doesn't limit anything (except for the cap). When it's filled
-current needs to be equal for the hook to pass (as was before). But now
-it can be reset back to NULL by writing EINVAL value (e.g. -syslog).
-The syslog hook itself was not modified, only the file handling.
-
-Changes from v2:
-- fix for config ifdefs in user_ns LSM hooks patch (CONFIG_USER_NS
-  should've been used instead of CONFIG_SECURITY in several places)
-- new patch for "smack_map" -> "attr/label_map" and new related
-  getprocattr_seq lsm hook. With this change the code in further
-  patches for handling smack_map has been moved to this new method
-- new patch for setprocattr hook new argument, file's opener creds
-- new patch for inode_pre_setxattr LSM hook
-- new patch related to handling smackfs/syslog
-
-Changes from v1:
-- "kernel/exit.c: make sure current's nsproxy != NULL while checking
-  caps" patch has been dropped
-- fixed the title of the user_ns operations patch
-
-Lukasz Pawelczyk (11):
-  user_ns: 3 new LSM hooks for user namespace operations
-  lsm: /proc/$PID/attr/label_map file and getprocattr_seq hook
-  lsm: add file opener's cred to a setprocattr arguments
-  lsm: inode_pre_setxattr hook
-  smack: extend capability functions and fix 2 checks
-  smack: don't use implicit star to display smackfs/syslog
-  smack: abstraction layer for 2 common Smack operations
-  smack: misc cleanups in preparation for a namespace patch
-  smack: namespace groundwork
-  smack: namespace implementation
-  smack: documentation for the Smack namespace
-
- Documentation/security/00-INDEX            |   2 +
- Documentation/security/Smack-namespace.txt | 231 +++++++++++
- MAINTAINERS                                |   1 +
- fs/proc/base.c                             |  83 +++-
- fs/xattr.c                                 |  10 +
- include/linux/lsm_hooks.h                  |  70 +++-
- include/linux/security.h                   |  49 ++-
- include/linux/user_namespace.h             |   4 +
- kernel/user.c                              |   3 +
- kernel/user_namespace.c                    |  18 +
- security/apparmor/lsm.c                    |   5 +-
- security/security.c                        |  54 ++-
- security/selinux/hooks.c                   |   2 +-
- security/smack/Kconfig                     |  12 +
- security/smack/Makefile                    |   1 +
- security/smack/smack.h                     | 125 +++++-
- security/smack/smack_access.c              | 262 ++++++++++--
- security/smack/smack_lsm.c                 | 615 +++++++++++++++++++++--------
- security/smack/smack_ns.c                  | 443 +++++++++++++++++++++
- security/smack/smackfs.c                   | 188 +++++----
- 20 files changed, 1892 insertions(+), 286 deletions(-)
- create mode 100644 Documentation/security/Smack-namespace.txt
- create mode 100644 security/smack/smack_ns.c
-
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index e5ac827..775372c 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2458,7 +2458,7 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+ 	if (length < 0)
+ 		goto out_free;
+ 
+-	length = security_setprocattr(task,
++	length = security_setprocattr(task, file->f_cred,
+ 				      (char*)file->f_path.dentry->d_name.name,
+ 				      (void*)page, count);
+ 	mutex_unlock(&task->signal->cred_guard_mutex);
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index d347e66..1751864 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1220,6 +1220,20 @@
+  *	Return 0 if @name is to be handled by seq, EOPNOTSUPP if getprocattr()
+  *	should be used. Other errors will be passed to user-space.
+  *
++ * @getprocattr:
++ *	Get a value of a proc security attribute in /proc/$PID/attr/.
++ *	@p a task associated with the proc file.
++ *	@name a name of the file in question.
++ *	@value a pointer where to return the attribute's value.
++ *
++ * @setprocattr:
++ *	Set a value of a proc security attribute in /proc/$PID/attr/.
++ *	@p a task associated with the proc file.
++ *	@f_cred credentials of a file's opener.
++ *	@name a name of the file in question.
++ *	@value a pointer where a value to set is kept.
++ *	@size a number of bytes to read from the @value pointer.
++ *
+  * @secid_to_secctx:
+  *	Convert secid to security context.  If secdata is NULL the length of
+  *	the result will be returned in seclen, but no secdata will be returned.
+@@ -1540,8 +1554,8 @@ union security_list_options {
+ 	int (*getprocattr_seq)(struct task_struct *p, const char *name,
+ 			       const struct seq_operations **ops);
+ 	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+-	int (*setprocattr)(struct task_struct *p, char *name, void *value,
+-				size_t size);
++	int (*setprocattr)(struct task_struct *p, const struct cred *f_cred,
++			   char *name, void *value, size_t size);
+ 	int (*ismaclabel)(const char *name);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+ 	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 3090bb2..f0d2914 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -348,7 +348,8 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+ int security_getprocattr_seq(struct task_struct *p, const char *name,
+ 			     const struct seq_operations **ops);
+ int security_getprocattr(struct task_struct *p, char *name, char **value);
+-int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
++int security_setprocattr(struct task_struct *p, const struct cred *f_cred,
++			 char *name, void *value, size_t size);
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_ismaclabel(const char *name);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+@@ -1071,7 +1072,9 @@ static inline int security_getprocattr(struct task_struct *p, char *name, char *
+ 	return -EINVAL;
+ }
+ 
+-static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
++static inline int security_setprocattr(struct task_struct *p,
++				       const struct cred *f_cred,
++				       char *name, void *value, size_t size)
+ {
+ 	return -EINVAL;
+ }
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index dec607c..1212927 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -518,8 +518,9 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
+ 	return error;
+ }
+ 
+-static int apparmor_setprocattr(struct task_struct *task, char *name,
+-				void *value, size_t size)
++static int apparmor_setprocattr(struct task_struct *task,
++				const struct cred *f_cred,
++				char *name, void *value, size_t size)
+ {
+ 	struct common_audit_data sa;
+ 	struct apparmor_audit_data aad = {0,};
+diff --git a/security/security.c b/security/security.c
+index e348e38..88a3b78 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1137,9 +1137,11 @@ int security_getprocattr(struct task_struct *p, char *name, char **value)
+ 	return call_int_hook(getprocattr, -EINVAL, p, name, value);
+ }
+ 
+-int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
++int security_setprocattr(struct task_struct *p, const struct cred *f_cred,
++			 char *name, void *value, size_t size)
+ {
+-	return call_int_hook(setprocattr, -EINVAL, p, name, value, size);
++	return call_int_hook(setprocattr, -EINVAL, p, f_cred,
++			     name, value, size);
+ }
+ 
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 564079c..3e1b9f7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5556,7 +5556,7 @@ invalid:
+ 	return -EINVAL;
+ }
+ 
+-static int selinux_setprocattr(struct task_struct *p,
++static int selinux_setprocattr(struct task_struct *p, const struct cred *f_cred,
+ 			       char *name, void *value, size_t size)
+ {
+ 	struct task_security_struct *tsec;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index d962f88..cdcabf4 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3450,8 +3450,8 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+  *
+  * Returns the length of the smack label or an error code
+  */
+-static int smack_setprocattr(struct task_struct *p, char *name,
+-			     void *value, size_t size)
++static int smack_setprocattr(struct task_struct *p, const struct cred *f_cred,
++			     char *name, void *value, size_t size)
+ {
+ 	struct task_smack *tsp;
+ 	struct cred *new;
 -- 
 2.4.3
