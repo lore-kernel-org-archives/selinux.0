@@ -1,353 +1,264 @@
-From: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: RE: [PATCH 1/2] libselinux: generalize read_spec_entries for any
- delimiter
-Date: Mon, 27 Jul 2015 19:37:26 +0000
-Message-ID: <90C2B82E7E29DB4ABBA49A53BDC611C00174C99E@Exchange10.columbia.tresys.com>
-References: <1438003263-65455-1-git-send-email-ykhodorkovskiy@tresys.com>
- <1438003263-65455-2-git-send-email-ykhodorkovskiy@tresys.com>
- <55B659EE.2070506@tycho.nsa.gov>
-In-Reply-To: <55B659EE.2070506@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6RJXnmm000657
+ for <selinux@tycho.nsa.gov>; Mon, 27 Jul 2015 15:33:49 -0400
+Received: by pabkd10 with SMTP id kd10so56234099pab.2
+ for <selinux@tycho.nsa.gov>; Mon, 27 Jul 2015 12:33:45 -0700 (PDT)
+Date: Mon, 27 Jul 2015 12:32:53 -0700 (PDT)
+From: Hugh Dickins <hughd@google.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v2] ipc: Use private shmem or hugetlbfs inodes for shm
+ segments.
+In-Reply-To: <1437741275-5388-1-git-send-email-sds@tycho.nsa.gov>
+Message-ID: <alpine.LSU.2.11.1507271212180.1028@eggly.anvils>
+References: <1437741275-5388-1-git-send-email-sds@tycho.nsa.gov>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: prarit@redhat.com, david@fromorbit.com, mstevens@fedoraproject.org,
+ manfred@colorfullife.com, esandeen@redhat.com, wagi@monom.org,
+ hughd@google.com, linux-kernel@vger.kernel.org, eparis@redhat.com,
+ linux-mm@kvack.org, linux-security-module@vger.kernel.org, dave@stgolabs.net,
+ nyc@holomorphy.com, akpm@linux-foundation.org, torvalds@linux-foundation.org,
+ selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Fri, 24 Jul 2015, Stephen Smalley wrote:
 
+> The shm implementation internally uses shmem or hugetlbfs inodes
+> for shm segments.  As these inodes are never directly exposed to
+> userspace and only accessed through the shm operations which are
+> already hooked by security modules, mark the inodes with the
+> S_PRIVATE flag so that inode security initialization and permission
+> checking is skipped.
+> 
+> This was motivated by the following lockdep warning:
+> Jul 22 14:36:40 fc23 kernel:
+> ======================================================
+> Jul 22 14:36:40 fc23 kernel: [ INFO: possible circular locking
+> dependency detected ]
+> Jul 22 14:36:40 fc23 kernel: 4.2.0-0.rc3.git0.1.fc24.x86_64+debug #1
+> Tainted: G        W
+> Jul 22 14:36:40 fc23 kernel:
+> -------------------------------------------------------
+> Jul 22 14:36:40 fc23 kernel: httpd/1597 is trying to acquire lock:
+> Jul 22 14:36:40 fc23 kernel: (&ids->rwsem){+++++.}, at:
+> [<ffffffff81385354>] shm_close+0x34/0x130
+> Jul 22 14:36:40 fc23 kernel: #012but task is already holding lock:
+> Jul 22 14:36:40 fc23 kernel: (&mm->mmap_sem){++++++}, at:
+> [<ffffffff81386bbb>] SyS_shmdt+0x4b/0x180
+> Jul 22 14:36:40 fc23 kernel: #012which lock already depends on the new lock.
+> Jul 22 14:36:40 fc23 kernel: #012the existing dependency chain (in
+> reverse order) is:
+> Jul 22 14:36:40 fc23 kernel: #012-> #3 (&mm->mmap_sem){++++++}:
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81217baa>] __might_fault+0x7a/0xa0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81284a1e>] filldir+0x9e/0x130
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa019bb08>]
+> xfs_dir2_block_getdents.isra.12+0x198/0x1c0 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa019c5b4>]
+> xfs_readdir+0x1b4/0x330 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa019f38b>]
+> xfs_file_readdir+0x2b/0x30 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff812847e7>] iterate_dir+0x97/0x130
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81284d21>] SyS_getdents+0x91/0x120
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81871d2e>]
+> entry_SYSCALL_64_fastpath+0x12/0x76
+> Jul 22 14:36:40 fc23 kernel: #012-> #2 (&xfs_dir_ilock_class){++++.+}:
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81101e97>]
+> down_read_nested+0x57/0xa0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa01b0e57>]
+> xfs_ilock+0x167/0x350 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa01b10b8>]
+> xfs_ilock_attr_map_shared+0x38/0x50 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa014799d>]
+> xfs_attr_get+0xbd/0x190 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffffa01c17ad>]
+> xfs_xattr_get+0x3d/0x70 [xfs]
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8129962f>]
+> generic_getxattr+0x4f/0x70
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8139ba52>]
+> inode_doinit_with_dentry+0x162/0x670
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8139cf69>]
+> sb_finish_set_opts+0xd9/0x230
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8139d66c>]
+> selinux_set_mnt_opts+0x35c/0x660
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8139ff97>]
+> superblock_doinit+0x77/0xf0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff813a0020>]
+> delayed_superblock_init+0x10/0x20
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81272d23>]
+> iterate_supers+0xb3/0x110
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff813a4e5f>]
+> selinux_complete_init+0x2f/0x40
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff813b47a3>]
+> security_load_policy+0x103/0x600
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff813a6901>]
+> sel_write_load+0xc1/0x750
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8126e817>] __vfs_write+0x37/0x100
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8126f229>] vfs_write+0xa9/0x1a0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8126ff48>] SyS_write+0x58/0xd0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81871d2e>]
+> entry_SYSCALL_64_fastpath+0x12/0x76
+> Jul 22 14:36:40 fc23 kernel: #012-> #1 (&isec->lock){+.+.+.}:
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8186de8f>]
+> mutex_lock_nested+0x7f/0x3e0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8139b9a9>]
+> inode_doinit_with_dentry+0xb9/0x670
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8139bf7c>]
+> selinux_d_instantiate+0x1c/0x20
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff813955f6>]
+> security_d_instantiate+0x36/0x60
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81287c34>] d_instantiate+0x54/0x70
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8120111c>]
+> __shmem_file_setup+0xdc/0x240
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81201290>]
+> shmem_file_setup+0x10/0x20
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff813856e0>] newseg+0x290/0x3a0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8137e278>] ipcget+0x208/0x2d0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81386074>] SyS_shmget+0x54/0x70
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81871d2e>]
+> entry_SYSCALL_64_fastpath+0x12/0x76
+> Jul 22 14:36:40 fc23 kernel: #012-> #0 (&ids->rwsem){+++++.}:
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81108df8>]
+> __lock_acquire+0x1a78/0x1d00
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff8186efba>] down_write+0x5a/0xc0
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81385354>] shm_close+0x34/0x130
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff812203a5>] remove_vma+0x45/0x80
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81222a30>] do_munmap+0x2b0/0x460
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81386c25>] SyS_shmdt+0xb5/0x180
+> Jul 22 14:36:40 fc23 kernel:       [<ffffffff81871d2e>]
+> entry_SYSCALL_64_fastpath+0x12/0x76
+> Jul 22 14:36:40 fc23 kernel: #012other info that might help us debug this:
+> Jul 22 14:36:40 fc23 kernel: Chain exists of:#012  &ids->rwsem -->
+> &xfs_dir_ilock_class --> &mm->mmap_sem
+> Jul 22 14:36:40 fc23 kernel: Possible unsafe locking scenario:
+> Jul 22 14:36:40 fc23 kernel:       CPU0                    CPU1
+> Jul 22 14:36:40 fc23 kernel:       ----                    ----
+> Jul 22 14:36:40 fc23 kernel:  lock(&mm->mmap_sem);
+> Jul 22 14:36:40 fc23 kernel:
+> lock(&xfs_dir_ilock_class);
+> Jul 22 14:36:40 fc23 kernel:                               lock(&mm->mmap_sem);
+> Jul 22 14:36:40 fc23 kernel:  lock(&ids->rwsem);
+> Jul 22 14:36:40 fc23 kernel: #012 *** DEADLOCK ***
+> Jul 22 14:36:40 fc23 kernel: 1 lock held by httpd/1597:
+> Jul 22 14:36:40 fc23 kernel: #0:  (&mm->mmap_sem){++++++}, at:
+> [<ffffffff81386bbb>] SyS_shmdt+0x4b/0x180
+> Jul 22 14:36:40 fc23 kernel: #012stack backtrace:
+> Jul 22 14:36:40 fc23 kernel: CPU: 7 PID: 1597 Comm: httpd Tainted: G
+>      W       4.2.0-0.rc3.git0.1.fc24.x86_64+debug #1
+> Jul 22 14:36:40 fc23 kernel: Hardware name: VMware, Inc. VMware
+> Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00
+> 05/20/2014
+> Jul 22 14:36:40 fc23 kernel: 0000000000000000 000000006cb6fe9d
+> ffff88019ff07c58 ffffffff81868175
+> Jul 22 14:36:40 fc23 kernel: 0000000000000000 ffffffff82aea390
+> ffff88019ff07ca8 ffffffff81105903
+> Jul 22 14:36:40 fc23 kernel: ffff88019ff07c78 ffff88019ff07d08
+> 0000000000000001 ffff8800b75108f0
+> Jul 22 14:36:40 fc23 kernel: Call Trace:
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81868175>] dump_stack+0x4c/0x65
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81105903>] print_circular_bug+0x1e3/0x250
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81108df8>] __lock_acquire+0x1a78/0x1d00
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81220c33>] ? unlink_file_vma+0x33/0x60
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81109a07>] lock_acquire+0xc7/0x270
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81385354>] ? shm_close+0x34/0x130
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff8186efba>] down_write+0x5a/0xc0
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81385354>] ? shm_close+0x34/0x130
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81385354>] shm_close+0x34/0x130
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff812203a5>] remove_vma+0x45/0x80
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81222a30>] do_munmap+0x2b0/0x460
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81386bbb>] ? SyS_shmdt+0x4b/0x180
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81386c25>] SyS_shmdt+0xb5/0x180
+> Jul 22 14:36:40 fc23 kernel: [<ffffffff81871d2e>]
+> entry_SYSCALL_64_fastpath+0x12/0x76
+> 
+> Reported-by: Morten Stevens <mstevens@fedoraproject.org>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
->-----Original Message-----
->From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
->Sent: Monday, July 27, 2015 12:19 PM
->To: Yuli Khodorkovskiy; selinux@tycho.nsa.gov
->Subject: Re: [PATCH 1/2] libselinux: generalize read_spec_entries for any
->delimiter
->
->On 07/27/2015 09:21 AM, Yuli Khodorkovskiy wrote:
->> This patch allows the tokenizer previously introduced for libselinux
->> to use any delimiter for tokenization. Delimiters may be squashed by
->> setting the squash_delim flag to 1. When any whitespace delimiter is
->> used,
->> isspace() allows any whitespace character to be used as the delimiter.
->>
->> Previously, read_spec_entries() trimmed whitespace and ignored
->> comments and empty lines. This functionality has been removed as is
->> now the responsiblity of the caller to implement.
->
->Doesn't yield the same output from sefcontext_compile before and after
->this change if file_contexts has any lines trailing in whitespace (old:
->trailing whitespace ignored; new: trailing whitespace included in context
->field).
+Acked-by: Hugh Dickins <hughd@google.com>
+but with one reservation below...
 
-Okay, I'll look into this and send out a v2.
+> ---
+> This version only differs in the patch description, which restores
+> the original lockdep trace from Morten Stevens.  It was unfortunately
+> mangled in the prior version.
+> 
+>  fs/hugetlbfs/inode.c | 2 ++
+>  ipc/shm.c            | 2 +-
+>  mm/shmem.c           | 4 ++--
+>  3 files changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+> index 0cf74df..973c24c 100644
+> --- a/fs/hugetlbfs/inode.c
+> +++ b/fs/hugetlbfs/inode.c
+> @@ -1010,6 +1010,8 @@ struct file *hugetlb_file_setup(const char *name, size_t size,
+>  	inode = hugetlbfs_get_inode(sb, NULL, S_IFREG | S_IRWXUGO, 0);
+>  	if (!inode)
+>  		goto out_dentry;
+> +	if (creat_flags == HUGETLB_SHMFS_INODE)
+> +		inode->i_flags |= S_PRIVATE;
 
->
->>
->> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
->> ---
->>  libselinux/src/label_android_property.c |  11 ++-
->>  libselinux/src/label_file.h             |  10 ++-
->>  libselinux/src/label_internal.h         |   7 +-
->>  libselinux/src/label_support.c          | 129 +++++++++++++++++++------------
->-
->>  4 files changed, 97 insertions(+), 60 deletions(-)
->>
->> diff --git a/libselinux/src/label_android_property.c
->> b/libselinux/src/label_android_property.c
->> index 4af9896..5c06ed3 100644
->> --- a/libselinux/src/label_android_property.c
->> +++ b/libselinux/src/label_android_property.c
->> @@ -90,9 +90,14 @@ static int process_line(struct selabel_handle *rec,
->>  	spec_t *spec_arr = data->spec_arr;
->>  	unsigned int nspec = data->nspec;
->>
->> -	items = read_spec_entries(line_buf, 2, &prop, &context);
->> -	if (items <= 0)
->> -		return items;
->> +	trim_buf(&line_buf);
->> +
->> +	/* Skip comment lines and empty lines. */
->> +	if (*line_buf == '#' || *line_buf == '\0') {
->> +		return 0;
->> +	}
->> +
->> +	items = tokenize(line_buf, 1, ' ', 2, &prop, &context);
->>  	if (items != 2) {
->>  		selinux_log(SELINUX_WARNING,
->>  			    "%s:  line %u is missing fields, skipping\n", path,
->diff --git
->> a/libselinux/src/label_file.h b/libselinux/src/label_file.h index
->> db961ba..3499da1 100644
->> --- a/libselinux/src/label_file.h
->> +++ b/libselinux/src/label_file.h
->> @@ -387,10 +387,14 @@ static inline int process_line(struct
->selabel_handle *rec,
->>  	unsigned int nspec = data->nspec;
->>  	const char *errbuf = NULL;
->>
->> -	items = read_spec_entries(line_buf, 3, &regex, &type, &context);
->> -	if (items <= 0)
->> -		return items;
->> +	trim_buf(&line_buf);
->>
->> +	/* Skip comment lines and empty lines. */
->> +	if (*line_buf == '#' || *line_buf == '\0') {
->> +		return 0;
->> +	}
->> +
->> +	items = tokenize(line_buf, 1, ' ', 3, &regex, &type, &context);
->>  	if (items < 2) {
->>  		COMPAT_LOG(SELINUX_WARNING,
->>  			    "%s:  line %u is missing fields, skipping\n", path,
->diff --git
->> a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
->> index 861eca1..81a4f37 100644
->> --- a/libselinux/src/label_internal.h
->> +++ b/libselinux/src/label_internal.h
->> @@ -108,9 +108,10 @@ compat_validate(struct selabel_handle *rec,
->>  		const char *path, unsigned lineno) hidden;
->>
->>  /*
->> - * The read_spec_entries function may be used to
->> - * replace sscanf to read entries from spec files.
->> + * The tokenize function may be used to
->> + * replace sscanf.
->>   */
->> -extern int read_spec_entries(char *line_buf, int num_args, ...);
->> +extern int tokenize(char *line_buf, int squash_delim, char delim, int
->> +num_args, ...); extern void trim_buf(char **buf);
->>
->>  #endif				/* _SELABEL_INTERNAL_H_ */
->> diff --git a/libselinux/src/label_support.c
->> b/libselinux/src/label_support.c index b3ab8ab..08ef303 100644
->> --- a/libselinux/src/label_support.c
->> +++ b/libselinux/src/label_support.c
->> @@ -11,88 +11,115 @@
->>  #include "label_internal.h"
->>
->>  /*
->> - * The read_spec_entries and read_spec_entry functions may be used to
->> - * replace sscanf to read entries from spec files. The file and
->> - * property services now use these.
->> + * The tokenize and tokenize_str functions may be used to
->> + * replace sscanf to read tokens from buffers.
->>   */
->>
->> -/* Read an entry from a spec file (e.g. file_contexts) */ -static
->> inline int read_spec_entry(char **entry, char **ptr, int *len)
->> +/* Read a token from a buffer */
->> +static inline int tokenize_str(int squash_delim, char delim, char
->> +**str, char **ptr, int *len)
->
->Not introduced by this change, but should likely use size_t *len here.
->
->>  {
->> -	*entry = NULL;
->> -	char *tmp_buf = NULL;
->> +	char *tmp_buf = *ptr;
->> +	*str = NULL;
->> +
->> +	while (**ptr != '\0') {
->> +		if (isspace(delim) && isspace(**ptr)) {
->> +			(*ptr)++;
->> +			break;
->> +		} else if (!isspace(delim) && **ptr == delim) {
->> +			(*ptr)++;
->> +			break;
->> +		}
->
->This seems unnecessarily complicated.  First, all users within libselinux
->want squash_delim=1, delim=' ', so we might as well just make that the
->only supported case in libselinux until such a time as we have a need for
->another.  Also, can't quite see why squash_delim=1,delim=<non-space>
->would ever be desired, or squash_delim=0,delim=<space>, so it seems like
->we would simplify the interface even when supporting both cases.
+I wonder if you would do better just to set S_PRIVATE unconditionally
+there.
 
-The reason this was implemented to support both cases was to have consistency with the implementation in libsepol. If you think it would be easier, I can drop the patch from libselinux altogether and only support squash_delim=1,delim=<space> and squash_delim=0,delim=<non-space> in libsepol.
+hugetlb_file_setup() has two callsites, neither of which exposes an fd.
+One of them is shm.c's newseg(), which is getting us into the lockdep
+trouble that you're fixing here.
 
->
->>
->> -	while (isspace(**ptr) && **ptr != '\0')
->>  		(*ptr)++;
->> +	}
->>
->> -	tmp_buf = *ptr;
->> -	*len = 0;
->> +	*len = *ptr - tmp_buf;
->> +	/* If the end of the string has not been reached, this will ensure
->the
->> +	 * delimiter is not included when returning the token.
->> +	 */
->> +	if (**ptr != '\0') {
->> +		(*len)--;
->
->Can *len underflow here?
+The other is mmap.c's mmap_pgoff().  Now I don't think that will ever
+get into lockdep trouble (no mutex or rwsem has been taken at that
+point), but might your change above introduce (perhaps now or perhaps
+in future) an inconsistency between how SElinux checks are applied to
+a SHM area, and how they are applied to a MAP_ANONYMOUS|MAP_HUGETLB
+area, and how they are applied to a straight MAP_ANONYMOUS area?
 
-*ptr had to have moved by at least one character at this point, therefore len must be greater than 0.
+I think your patch as it stands brings SHM into line with
+MAP_ANONYMOUS, but leaves MAP_ANONYMOUS|MAP_HUGETLB going the old way.
+Perhaps an anomaly would appear when mprotect() is used?
 
->
->> +	}
->>
->> -	while (!isspace(**ptr) && **ptr != '\0') {
->> -		(*ptr)++;
->> -		(*len)++;
->> +	*str = strndup(tmp_buf, *len);
->
->Can *len be 0 here?
+It's up to you: I think your patch is okay as is,
+but I just wonder if it has a surprise in store for the future.
 
-Yes len can be 0 here. If for example, "foo::bar" is provided and squash_delim is set to 0, the string would tokenize into foo, a 0 length NUL terminated string, and bar.
+Hugh
 
->
->> +	if (!*str) {
->> +		return -1;
->>  	}
->>
->> -	if (*len) {
->> -		*entry = strndup(tmp_buf, *len);
->> -		if (!*entry)
->> -			return -1;
->> +	while (**ptr != '\0' && squash_delim == 1) {
->> +		if (isspace(delim) && isspace(**ptr)) {
->> +			(*ptr)++;
->> +		} else if (!isspace(delim) && **ptr == delim) {
->> +			(*ptr)++;
->> +		} else {
->> +			break;
->> +		}
->>  	}
->>
->>  	return 0;
->>  }
->>
->>  /*
->> - * line_buf - Buffer containing the spec entries .
->> - * num_args - The number of spec parameter entries to process.
->> - * ...      - A 'char **spec_entry' for each parameter.
->> + * line_buf - Buffer containing string to tokenize.
->> + * squash_delim - Whether or not to squash repeating delimiters in
->input data.
->> + *		   Set to 1 to squash_delimiter or 0 to disable squashing
->delimiter.
->> + * delim - The delimiter used to tokenize line_buf. A whitespace
->delimiter will
->> + *	    be tokenized using isspace().
->> + * num_args - The number of parameter entries to process.
->> + * ...      - A 'char **' for each parameter.
->>   * returns  - The number of items processed.
->>   *
->> - * This function calls read_spec_entry() to do the actual string
->processing.
->> + * This function calls tokenize_str() to do the actual string
->> + processing. The
->> + * caller is responsible for calling free() on each additional
->> + argument. The
->> + * function will not tokenize more than num_args and the last
->> + argument will
->> + * contain the remaining content of line_buf.
->>   */
->> -int hidden read_spec_entries(char *line_buf, int num_args, ...)
->> +int tokenize(char *line_buf, int squash_delim, char delim, int
->> +num_args, ...)
->
->Must be hidden or it becomes part of the libselinux.so ABI.
->
->>  {
->> -	char **spec_entry, *buf_p;
->> -	int len, rc, items, entry_len = 0;
->> +	char **arg, *buf_p;
->> +	int rc, items, arg_len = 0;
->>  	va_list ap;
->>
->> -	len = strlen(line_buf);
->> -	if (line_buf[len - 1] == '\n')
->> -		line_buf[len - 1] = '\0';
->> -	else
->> -		/* Handle case if line not \n terminated by bumping
->> -		 * the len for the check below (as the line is NUL
->> -		 * terminated by getline(3)) */
->> -		len++;
->> -
->>  	buf_p = line_buf;
->> -	while (isspace(*buf_p))
->> -		buf_p++;
->>
->> -	/* Skip comment lines and empty lines. */
->> -	if (*buf_p == '#' || *buf_p == '\0')
->> -		return 0;
->> -
->> -	/* Process the spec file entries */
->> +	/* Process the arguments */
->>  	va_start(ap, num_args);
->>
->> -	items = 0;
->> -	while (items < num_args) {
->> -		spec_entry = va_arg(ap, char **);
->> +	for (items = 0; items < num_args && *buf_p != '\0'; items++) {
->> +		arg = va_arg(ap, char **);
->> +
->> +		/* Save the remainder of the string in arg */
->> +		if (items == num_args - 1) {
->> +			*arg = strdup(buf_p);
->> +			if (*arg == NULL) {
->> +				goto exit;
->> +			}
->
->Needs to prune last argument at delimiter.
-
-I'll add this functionality to the trim_buf() function. 
-
->
->>
->> -		if (len - 1 == buf_p - line_buf) {
->> -			va_end(ap);
->> -			return items;
->> +			continue;
->>  		}
->>
->> -		rc = read_spec_entry(spec_entry, &buf_p, &entry_len);
->> +		rc = tokenize_str(squash_delim, delim, arg, &buf_p,
->&arg_len);
->>  		if (rc < 0) {
->> -			va_end(ap);
->> -			return rc;
->> +			goto exit;
->>  		}
->> -		if (entry_len)
->> -			items++;
->>  	}
->> +
->> +exit:
->>  	va_end(ap);
->>  	return items;
->>  }
->> +
->> +/* This function removes leading whitespace. If the buffer ends in a
->> +newline,
->> + * the newline is removed.
->> + */
->> +void trim_buf(char **buf)
->
->Must be hidden or it becomes part of the libselinux.so ABI.
->
->> +{
->> +	int len = strlen(*buf);
->
->size_t len
->
->> +	if ((*buf)[len - 1] == '\n') {
->
->Can len == 0 here?
-
-Good catch. I'll add an error check here.
-
->
->> +		(*buf)[len - 1] = '\0';
->> +	}
->> +
->> +	while (isspace(**buf)) {
->> +		(*buf)++;
->> +	}
->> +}
->>
+>  
+>  	file = ERR_PTR(-ENOMEM);
+>  	if (hugetlb_reserve_pages(inode, 0,
+> diff --git a/ipc/shm.c b/ipc/shm.c
+> index 06e5cf2..4aef24d 100644
+> --- a/ipc/shm.c
+> +++ b/ipc/shm.c
+> @@ -545,7 +545,7 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
+>  		if  ((shmflg & SHM_NORESERVE) &&
+>  				sysctl_overcommit_memory != OVERCOMMIT_NEVER)
+>  			acctflag = VM_NORESERVE;
+> -		file = shmem_file_setup(name, size, acctflag);
+> +		file = shmem_kernel_file_setup(name, size, acctflag);
+>  	}
+>  	error = PTR_ERR(file);
+>  	if (IS_ERR(file))
+> diff --git a/mm/shmem.c b/mm/shmem.c
+> index 4caf8ed..dbe0c1e 100644
+> --- a/mm/shmem.c
+> +++ b/mm/shmem.c
+> @@ -3363,8 +3363,8 @@ put_path:
+>   * shmem_kernel_file_setup - get an unlinked file living in tmpfs which must be
+>   * 	kernel internal.  There will be NO LSM permission checks against the
+>   * 	underlying inode.  So users of this interface must do LSM checks at a
+> - * 	higher layer.  The one user is the big_key implementation.  LSM checks
+> - * 	are provided at the key level rather than the inode level.
+> + *	higher layer.  The users are the big_key and shm implementations.  LSM
+> + *	checks are provided at the key or shm level rather than the inode.
+>   * @name: name for dentry (to be seen in /proc/<pid>/maps
+>   * @size: size to be set for the file
+>   * @flags: VM_NORESERVE suppresses pre-accounting of the entire object size
+> -- 
+> 2.1.0
+> 
+> 
