@@ -1,72 +1,51 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6TGI9J6029263
- for <selinux@tycho.nsa.gov>; Wed, 29 Jul 2015 12:18:10 -0400
-Date: Wed, 29 Jul 2015 11:18:06 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Subject: Re: [PATCH 3/7] fs: Ignore file caps in mounts from other user
- namespaces
-Message-ID: <20150729161806.GB21625@mail.hallyn.com>
-References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
- <1436989569-69582-4-git-send-email-seth.forshee@canonical.com>
- <20150715214848.GA24204@mail.hallyn.com>
- <CALCETrVTGC8NJdpOhkqDaE8HdD95y-K2-VnsL+Oo4NjVUyovsA@mail.gmail.com>
- <87wpy1camr.fsf@x220.int.ebiederm.org>
- <CALCETrULyv9pfwAeyNrvJ06o+bW6JbWgBOsi4b4OUhbPjD4FnQ@mail.gmail.com>
- <87io9kzq5g.fsf@x220.int.ebiederm.org>
- <CALCETrWrFQJev_yn00BgMYbRhGGGa6nDBqmodbZxBrDO9xVSNw@mail.gmail.com>
- <87wpy0u1zo.fsf@x220.int.ebiederm.org>
- <20150729160450.GA21625@mail.hallyn.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20150729160450.GA21625@mail.hallyn.com>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
+In-Reply-To: <CACL4Mm-j2AJPc0347Ev0Rr2+FfBKEKgaZ+5boF35uAAwZFwrYg@mail.gmail.com>
+References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-12-git-send-email-l.pawelczyk@samsung.com>
+ <20150729152550.GC19285@mail.hallyn.com>
+ <CACL4Mm-j2AJPc0347Ev0Rr2+FfBKEKgaZ+5boF35uAAwZFwrYg@mail.gmail.com>
+Date: Wed, 29 Jul 2015 18:24:03 +0200
+Message-ID: <CACL4Mm_HmzRAQ-bN+q2FXoRn5P7vLJptAULX+Tt_MJmfNct3cw@mail.gmail.com>
+Subject: Re: [PATCH v3 11/11] smack: documentation for the Smack namespace
+From: Lukasz Pawelczyk <havner@gmail.com>
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
+ linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
+ Lukasz Pawelczyk <l.pawelczyk@samsung.com>, Jonathan Corbet <corbet@lwn.net>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
  James Morris <james.l.morris@oracle.com>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>
+ John Johansen <john.johansen@canonical.com>,
+ Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jul 29, 2015 at 11:04:50AM -0500, Serge E. Hallyn wrote:
-> On Thu, Jul 16, 2015 at 12:04:43AM -0500, Eric W. Biederman wrote:
-> > > I tend to thing that, if we're not honoring the fcaps, we shouldn't be
-> > > honoring the setuid bit either.  After all, it's really not a trusted
-> > > file, even though the only user who could have messed with it really
-> > > is the apparent owner.
-> > 
-> > For the file caps we can't honor them because you don't have the bits
-> > in struct cred.
-> > 
-> > For setuid we can honor it, and setuid is something that the user
-> > namespace allows.
-> 
-> Setuid is something explicitly tied to the user id.  File capabilities
-> are MAC, that is, explicitly orthogonal to user id.  So 100% agreed with
-> honoring setuid in user_ns and, for now, ignoring file caps.
+On Wed, Jul 29, 2015 at 6:13 PM, Lukasz Pawelczyk <havner@gmail.com> wrote:
 
-Hm.  No.  Seems like both should be fine when current is in the mounter's
-user_ns, and ignored otherwise.
+> With this namespace you delegate part of CAP_MAC_ADMIN privilege to an
+> unprivileged user (as with any other namespace).
 
-(The below is still needed :)
+Ok, maybe the part in the brackets is an overstatement. Mostly with
+namespaces you create a full abstraction of some object and give user
+priviledges to that object (e.g. uts structure, network interfaces,
+with UTS and NET namespaces, etc). This is rather not possible with
+Smack, as being a security module it has to retain its core security
+paradigm.  It cannot be a separate LSM within a host LSM (remember the
+part about changing process own label and changing any other object
+label, mostly a file). So Smack namespace really as I see it has big
+analogy to user namespace. You cannot abstract UIDs completely in a
+namespace as those UIDs do live in a host as well. If you want to have
+some capabilities over them, admin has to agree to that explicitly.
 
-> As I've mentioned a few times privately, I'm intending to implement
-> user-namespaced file capabilities as a new xattr.  Design is not 100%
-> nailed down, but probably it would support a set of userns_fcaps, each
-> of which lists the k_uid of the root user in the namespace assigning the
-> filecaps, followed by three sets.  Then when exec()ing the file, if
-> the current->userns->root user has a userns_fcap entry, or there is a -1
-> entry, then use that, else use nothing.  I think this is a very importing
-> thing to support, to remove a barrier to shipping packages with software
-> using filecaps.  Without this, any package, say ping, which wants to
-> support being installed in a (unprivileged) cotainer would need to also
-> support use without filecaps, meaning that will likely be the only
-> supported mode.
-> 
-> -serge
+Thanks,
+Lukasz
