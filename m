@@ -1,147 +1,132 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6SKeXJ6030618
- for <selinux@tycho.nsa.gov>; Tue, 28 Jul 2015 16:40:34 -0400
-Received: by obre1 with SMTP id e1so93775719obr.1
- for <selinux@tycho.nsa.gov>; Tue, 28 Jul 2015 13:40:25 -0700 (PDT)
-Date: Tue, 28 Jul 2015 15:40:09 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Message-ID: <20150728204009.GF83521@ubuntu-hedt>
-References: <55A8398A.3000802@schaufler-ca.com>
- <CALCETrXA94MBrJ7Dni7RW68Wn3MxcxSmr082hG=haWWncL=feg@mail.gmail.com>
- <55A85041.2070301@schaufler-ca.com>
- <CALCETrUTgfRzzdk3T0wZASSE+KC9S+kmyZbD6-xStS2RRaGiBw@mail.gmail.com>
- <20150721203550.GA80838@ubuntu-hedt>
- <55AEF75F.9010703@schaufler-ca.com>
- <20150722155634.GB124342@ubuntu-hedt>
- <55AFDCA6.10201@schaufler-ca.com>
- <20150722193223.GD124342@ubuntu-hedt>
- <55B02FBD.4040606@schaufler-ca.com>
+Date: Wed, 29 Jul 2015 10:25:50 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+Subject: Re: [PATCH v3 11/11] smack: documentation for the Smack namespace
+Message-ID: <20150729152550.GC19285@mail.hallyn.com>
+References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-12-git-send-email-l.pawelczyk@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55B02FBD.4040606@schaufler-ca.com>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- LSM List <linux-security-module@vger.kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Alexander Viro <viro@zeniv.linux.org.uk>
+In-Reply-To: <1437732285-11524-12-git-send-email-l.pawelczyk@samsung.com>
+Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
+ linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
+ Jonathan Corbet <corbet@lwn.net>, havner@gmail.com,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
+ James Morris <james.l.morris@oracle.com>,
+ John Johansen <john.johansen@canonical.com>,
+ Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
-> > This is what I currently think you want for user ns mounts:
-> >
-> >  1. smk_root and smk_default are assigned the label of the backing
-> >     device.
-> >  2. s_root is assigned the transmute property.
-> >  3. For existing files:
-> >     a. Files with the same label as the backing device are accessible.
-> >     b. Files with any other label are not accessible.
-> 
-> That's right. Accept correct data, reject anything that's not right.
-> 
-> > If this is right, there are a couple lingering questions in my mind.
-> >
-> > First, what happens with files created in directories with the same
-> > label as the backing device but without the transmute property set? The
-> > inode for the new file will initially be labeled with smk_of_current(),
-> > but then during d_instantiate it will get smk_default and thus end up
-> > with the label we want. So that seems okay.
-> 
-> Yes.
-> 
-> > The second is whether files with the SMACK64EXEC attribute is still a
-> > problem. It seems it is, for files with the same label as the backing
-> > store at least. I think we can simply skip the code that reads out this
-> > xattr and sets smk_task for user ns mounts, or else skip assigning the
-> > label to the new task in bprm_set_creds. The latter seems more
-> > consistent with the approach you've suggested for dealing with labels
-> > from disk.
-> 
-> Yes, I think that skipping the smk_fetch(XATTR_NAME_SMACKEXEC, ...) in
-> smack_d_instantiate for unprivileged mounts would do the trick.
-> 
-> > So I guess all of that seems okay, though perhaps a bit restrictive
-> > given that the user who mounted the filesystem already has full access
-> > to the backing store.
-> 
-> In truth, there is no reason to expect that the "user" who did the
-> mount will ever have a Smack label that differs from the label of
-> the backing store. If what we've got here seems restrictive, it's
-> because you've got access from someone other than the "user".
-> 
-> > Please let me know whether or not this matches up with what you are
-> > thinking, then I can procede with the implementation.
-> 
-> My current mindset is that, if you're going to allow unprivileged
-> mounts of user defined backing stores, this is as safe as we can
-> make it.
+On Fri, Jul 24, 2015 at 12:04:45PM +0200, Lukasz Pawelczyk wrote:
+> +--- Design ideas ---
+> +
+> +"Smack namespace" is rather "Smack labels namespace" as not the whole
+> +MAC is namespaced, only the labels. There is a great analogy between
+> +Smack labels namespace and the user namespace part that remaps UIDs.
+> +
+> +The idea is to create a map of labels for a namespace so the namespace
+> +is only allowed to use those labels. Smack rules are always the same
+> +as in the init namespace (limited only by what labels are mapped) and
+> +cannot be manipulated from the child namespace. The map is actually
+> +only for labels' names. The underlying structures for labels remain
+> +the same. The filesystem also stores the "unmapped" labels from the
+> +init namespace.
+> +
+> +Let's say we have those labels in the init namespace:
+> +label1
+> +label2
+> +label3
+> +
+> +and those rules:
+> +label1 label2 rwx
+> +label1 label3 rwx
+> +label2 label3 rwx
+> +
+> +We create a map for a namespace:
+> +label1 -> mapped1
+> +label2 -> mapped2
+> +
+> +This means that 'label3' is completely invisible in the namespace. As if
+> +it didn't exist. All the rules that include it are ignored.
+> +
+> +Effectively in the namespace we have only one rule:
+> +mapped1 mapped2 rwx
+> +
+> +Which in reality is:
+> +label1 label2 rwx
+> +
+> +All requests to access an object with a 'label3' will be denied. If it
+> +ever comes to a situation where 'label3' would have to be printed
+> +(e.g. reading an exec or mmap label from a file to which we have
+> +access) then huh sign '?' will be printed instead.
+> +
+> +All the operations in the namespace on the remaining labels will have
+> +to be performed using their mapped names. Things like changing own
+> +process's label, changing filesystem label. Labels will also be
+> +printed with their mapped names.
+> +
+> +You cannot import new labels in a namespace. Every operation that
+> +would do so in an init namespace will return an error in the child
+> +namespace. You cannot assign an unmapped or not existing label to an
+> +object. You can only operate on labels that have been explicitly
+> +mapped.
+> +
+> +
+> +--- Capabilities ---
+> +
+> +Enabling Smack related capabilities (CAP_MAC_ADMIN and
+> +CAP_MAC_OVERRIDE) is main goal of Smack namespace, so it can work
+> +properly in the container. And those capabilities do work to some
+> +extent. In several places where capabilities are checked compatibility
+> +with Smack namespace has been introduced. Capabilities are of course
+> +limited to operate only on mapped labels.
+> +
+> +CAP_MAC_OVERRIDE works fully, will allow you to ignore Smack access
+> +rules, but only between objects that have labels mapped. So in the
+> +example above having this CAP will allow e.g. label2 to write to
+> +label1, but will not allow any access to label3.
 
-All right, I've got a patch which I think does this, and I've managed to
-do some testing to confirm that it behaves like I expect. How does this
-look?
+(Sorry it took me this long to get to reading, and thanks for working
+on this)
 
-What's missing is getting the label from the block device inode; as
-Stephen discovered the inode that I thought we could get the label from
-turned out to be the wrong one. Afaict we would need a new hook in order
-to do that, so for now I'm using the label of the proccess calling
-mount.
+Oh my.  All this is not at all what I'd expected :)
 
----
+Is there rationale for these decisions?  Hm, I guess it really is
+following the user_ns design, but the huge difference is that the
+user_ns is partitioning an already-enumerated set of kuids.  The
+smack labels are inherently different.
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index a143328f75eb..8e631a66b03c 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -662,6 +662,8 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
- 		skp = smk_of_current();
- 		sp->smk_root = skp;
- 		sp->smk_default = skp;
-+		if (sb_in_userns(sb))
-+			transmute = 1;
- 	}
- 	/*
- 	 * Initialize the root inode.
-@@ -1023,6 +1025,12 @@ static int smack_inode_permission(struct inode *inode, int mask)
- 	if (mask == 0)
- 		return 0;
- 
-+	if (sb_in_userns(inode->i_sb)) {
-+		struct superblock_smack *sbsp = inode->i_sb->s_security;
-+		if (smk_of_inode(inode) != sbsp->smk_root)
-+			return -EACCES;
-+	}
-+
- 	/* May be droppable after audit */
- 	if (no_block)
- 		return -ECHILD;
-@@ -3220,14 +3228,16 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
- 			if (rc >= 0)
- 				transflag = SMK_INODE_TRANSMUTE;
- 		}
--		/*
--		 * Don't let the exec or mmap label be "*" or "@".
--		 */
--		skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
--		if (IS_ERR(skp) || skp == &smack_known_star ||
--		    skp == &smack_known_web)
--			skp = NULL;
--		isp->smk_task = skp;
-+		if (!sb_in_userns(inode->i_sb)) {
-+			/*
-+			 * Don't let the exec or mmap label be "*" or "@".
-+			 */
-+			skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
-+			if (IS_ERR(skp) || skp == &smack_known_star ||
-+			    skp == &smack_known_web)
-+				skp = NULL;
-+			isp->smk_task = skp;
-+		}
- 
- 		skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
- 		if (IS_ERR(skp) || skp == &smack_known_star ||
+In containers, something we'd really like to be able to do is:
+
+Create a new container.  Just run it as label 'c1'.  Inside the
+container, let the admin install mysql from a package which assigns
+type 'mysqld', protecting the rest of the container from mysql.
+Without the host admin doing anything.
+
+Normally the way I think of implementing something like this would be
+to allow the host to say "c1 is to be namespaceable."  Then on a userns
+unshare, if the task is in c1, it gets transitioned into the ns.  Then the
+container sees c1 as _ (or whatever).  It can create 'mysql' which is
+actually 'c1.mysql' on the host, and it can create and override rules
+to c1.*.
+
+Also, allowing CAP_MAC_OVERRIDE in this way seems overly dangerous.
+If there were rules defined by the container, then I'd expect those to
+be overrideable - but not all rules pertaining to all labels mapped
+into the container.  But I guess based on  your envisioned usage (where
+I assume 'label1' is meant to *only* be used for that container) it
+might be ok.
+
+thanks,
+-serge
