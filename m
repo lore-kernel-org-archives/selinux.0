@@ -1,120 +1,72 @@
-MIME-Version: 1.0
-In-Reply-To: <20150729152550.GC19285@mail.hallyn.com>
-References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-12-git-send-email-l.pawelczyk@samsung.com>
- <20150729152550.GC19285@mail.hallyn.com>
-Date: Wed, 29 Jul 2015 18:13:59 +0200
-Message-ID: <CACL4Mm-j2AJPc0347Ev0Rr2+FfBKEKgaZ+5boF35uAAwZFwrYg@mail.gmail.com>
-Subject: Re: [PATCH v3 11/11] smack: documentation for the Smack namespace
-From: Lukasz Pawelczyk <havner@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6TGI9J6029263
+ for <selinux@tycho.nsa.gov>; Wed, 29 Jul 2015 12:18:10 -0400
+Date: Wed, 29 Jul 2015 11:18:06 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
 To: "Serge E. Hallyn" <serge@hallyn.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
- linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
- Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
- Lukasz Pawelczyk <l.pawelczyk@samsung.com>, Jonathan Corbet <corbet@lwn.net>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
- Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
+Subject: Re: [PATCH 3/7] fs: Ignore file caps in mounts from other user
+ namespaces
+Message-ID: <20150729161806.GB21625@mail.hallyn.com>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <1436989569-69582-4-git-send-email-seth.forshee@canonical.com>
+ <20150715214848.GA24204@mail.hallyn.com>
+ <CALCETrVTGC8NJdpOhkqDaE8HdD95y-K2-VnsL+Oo4NjVUyovsA@mail.gmail.com>
+ <87wpy1camr.fsf@x220.int.ebiederm.org>
+ <CALCETrULyv9pfwAeyNrvJ06o+bW6JbWgBOsi4b4OUhbPjD4FnQ@mail.gmail.com>
+ <87io9kzq5g.fsf@x220.int.ebiederm.org>
+ <CALCETrWrFQJev_yn00BgMYbRhGGGa6nDBqmodbZxBrDO9xVSNw@mail.gmail.com>
+ <87wpy0u1zo.fsf@x220.int.ebiederm.org>
+ <20150729160450.GA21625@mail.hallyn.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150729160450.GA21625@mail.hallyn.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ LSM List <linux-security-module@vger.kernel.org>,
  James Morris <james.l.morris@oracle.com>,
- John Johansen <john.johansen@canonical.com>,
- Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
- Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Appologise for sending my previous email in HTML, this email address
-was never meant to be used with lists. I resend in plain text.
+On Wed, Jul 29, 2015 at 11:04:50AM -0500, Serge E. Hallyn wrote:
+> On Thu, Jul 16, 2015 at 12:04:43AM -0500, Eric W. Biederman wrote:
+> > > I tend to thing that, if we're not honoring the fcaps, we shouldn't be
+> > > honoring the setuid bit either.  After all, it's really not a trusted
+> > > file, even though the only user who could have messed with it really
+> > > is the apparent owner.
+> > 
+> > For the file caps we can't honor them because you don't have the bits
+> > in struct cred.
+> > 
+> > For setuid we can honor it, and setuid is something that the user
+> > namespace allows.
+> 
+> Setuid is something explicitly tied to the user id.  File capabilities
+> are MAC, that is, explicitly orthogonal to user id.  So 100% agreed with
+> honoring setuid in user_ns and, for now, ignoring file caps.
 
-On Wed, Jul 29, 2015 at 5:25 PM, Serge E. Hallyn <serge@hallyn.com> wrote:
+Hm.  No.  Seems like both should be fine when current is in the mounter's
+user_ns, and ignored otherwise.
 
->> +Enabling Smack related capabilities (CAP_MAC_ADMIN and
->> +CAP_MAC_OVERRIDE) is main goal of Smack namespace, so it can work
->> +properly in the container. And those capabilities do work to some
->> +extent. In several places where capabilities are checked compatibility
->> +with Smack namespace has been introduced. Capabilities are of course
->> +limited to operate only on mapped labels.
->> +
->> +CAP_MAC_OVERRIDE works fully, will allow you to ignore Smack access
->> +rules, but only between objects that have labels mapped. So in the
->> +example above having this CAP will allow e.g. label2 to write to
->> +label1, but will not allow any access to label3.
->
-> (Sorry it took me this long to get to reading, and thanks for working
-> on this)
->
-> Oh my.  All this is not at all what I'd expected :)
->
-> Is there rationale for these decisions?  Hm, I guess it really is
-> following the user_ns design, but the huge difference is that the
-> user_ns is partitioning an already-enumerated set of kuids.  The
-> smack labels are inherently different.
+(The below is still needed :)
 
-There is a big rationale for this. This is not to make Smack limit how
-namespace can be created (this can be done separately, no conflict
-here). This is to make Smack work at all inside a namespace. Please
-note that contrary to SELinux and AppArmor Smack needs CAP_MAC_ADMIN
-for it to operate on a normal basis. There is no rule for changing
-labels. CAP_MAC_ADMIN is always required for this. And you cannot
-unlock and give this capability just like that to anyone. Like in
-every namespace you need a level of abstraction to allow an
-unprivileged namespace to administer something.
-
-> In containers, something we'd really like to be able to do is:
->
-> Create a new container.  Just run it as label 'c1'.  Inside the
-> container, let the admin install mysql from a package which assigns
-> type 'mysqld', protecting the rest of the container from mysql.
-> Without the host admin doing anything.
->
-> Normally the way I think of implementing something like this would be
-> to allow the host to say "c1 is to be namespaceable."  Then on a userns
-> unshare, if the task is in c1, it gets transitioned into the ns.  Then the
-> container sees c1 as _ (or whatever).  It can create 'mysql' which is
-> actually 'c1.mysql' on the host, and it can create and override rules
-> to c1.*.
-
-Few things here.
-1. Such an extension with using prefixes (with two exceptions, see
-below) could be added to my patches. I even planned to do so (make a
-prefix for a container and assign it a group of labels, this doesn't
-conflict with arbitrary mapping). But this was refused by Casey on a
-basis that by Smack defintion labels have no meaning. So no prefixes.
-2. (expcetion #1) Changing any rules in a container has been deemed
-too insecure at this point.
-3. (expcetion #2) About the: "Without the host admin doing anything.".
-With this namespace you delegate part of CAP_MAC_ADMIN privilege to an
-unprivileged user (as with any other namespace). There is now way that
-this will not involve host admin. The way you described it you allow
-an unprivileged process to change its own label and change labels on a
-filesystem. This is simply against Smack rules and completely
-insecure. Even with user_ns if you map several UID you need admin
-intervention.
->
-> Also, allowing CAP_MAC_OVERRIDE in this way seems overly dangerous.
-> If there were rules defined by the container, then I'd expect those to
-> be overrideable - but not all rules pertaining to all labels mapped
-> into the container.  But I guess based on  your envisioned usage (where
-> I assume 'label1' is meant to *only* be used for that container) it
-> might be ok.
-
-CAP_MAC_OVERRIDE is only possible for labels that the admin explicitly
-mapped. So it's up to him to decide what is dangerous or not. It can
-only map labels that are not used outside of the container if it
-wishes to. But the user himself will not be able to explot that
-without permission from the admin.
-
-So sorry this is not what you expected, but it seems that what you
-expected is simply not feasible.
-
-> thanks,
+> As I've mentioned a few times privately, I'm intending to implement
+> user-namespaced file capabilities as a new xattr.  Design is not 100%
+> nailed down, but probably it would support a set of userns_fcaps, each
+> of which lists the k_uid of the root user in the namespace assigning the
+> filecaps, followed by three sets.  Then when exec()ing the file, if
+> the current->userns->root user has a userns_fcap entry, or there is a -1
+> entry, then use that, else use nothing.  I think this is a very importing
+> thing to support, to remove a barrier to shipping packages with software
+> using filecaps.  Without this, any package, say ping, which wants to
+> support being installed in a (unprivileged) cotainer would need to also
+> support use without filecaps, meaning that will likely be the only
+> supported mode.
+> 
 > -serge
-
-Thanks,
-Lukasz
