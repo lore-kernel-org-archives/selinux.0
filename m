@@ -1,14 +1,13 @@
-Date: Thu, 30 Jul 2015 16:50:30 -0500
+Date: Thu, 30 Jul 2015 16:56:48 -0500
 From: "Serge E. Hallyn" <serge@hallyn.com>
 To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-Subject: Re: [PATCH v3 03/11] lsm: add file opener's cred to a setprocattr
- arguments
-Message-ID: <20150730215030.GC13589@mail.hallyn.com>
+Subject: Re: [PATCH v3 04/11] lsm: inode_pre_setxattr hook
+Message-ID: <20150730215648.GD13589@mail.hallyn.com>
 References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-4-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-5-git-send-email-l.pawelczyk@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437732285-11524-4-git-send-email-l.pawelczyk@samsung.com>
+In-Reply-To: <1437732285-11524-5-git-send-email-l.pawelczyk@samsung.com>
 Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
  linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
  Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
@@ -29,162 +28,144 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 24, 2015 at 12:04:37PM +0200, Lukasz Pawelczyk wrote:
-> setprocattr hook for Smack's label_map attribute needs to know the
-> capabilities of file opener. Add those credentials to the hook's
-> arguments.
-> 
-> While at it add documentation on get/setprocattr hooks.
+On Fri, Jul 24, 2015 at 12:04:38PM +0200, Lukasz Pawelczyk wrote:
+> Add a new LSM hook called before inode's setxattr. It is required for
+> LSM to be able to reliably replace the xattr's value to be set to
+> filesystem in __vfs_setxattr_noperm(). Useful for mapped values, like in
+> the upcoming Smack namespace patches.
 > 
 > Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
 
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 
+Could get confusing if userspace passes in 1 char and gets ENOSPC because
+the unmapped label is too long :)
+
 > ---
->  fs/proc/base.c             |  2 +-
->  include/linux/lsm_hooks.h  | 18 ++++++++++++++++--
->  include/linux/security.h   |  7 +++++--
->  security/apparmor/lsm.c    |  5 +++--
->  security/security.c        |  6 ++++--
->  security/selinux/hooks.c   |  2 +-
->  security/smack/smack_lsm.c |  4 ++--
->  7 files changed, 32 insertions(+), 12 deletions(-)
+>  fs/xattr.c                | 10 ++++++++++
+>  include/linux/lsm_hooks.h |  9 +++++++++
+>  include/linux/security.h  | 10 ++++++++++
+>  security/security.c       | 12 ++++++++++++
+>  4 files changed, 41 insertions(+)
 > 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index e5ac827..775372c 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -2458,7 +2458,7 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->  	if (length < 0)
->  		goto out_free;
->  
-> -	length = security_setprocattr(task,
-> +	length = security_setprocattr(task, file->f_cred,
->  				      (char*)file->f_path.dentry->d_name.name,
->  				      (void*)page, count);
->  	mutex_unlock(&task->signal->cred_guard_mutex);
+> diff --git a/fs/xattr.c b/fs/xattr.c
+> index 072fee1..cbc8d19 100644
+> --- a/fs/xattr.c
+> +++ b/fs/xattr.c
+> @@ -100,12 +100,22 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
+>  	if (issec)
+>  		inode->i_flags &= ~S_NOSEC;
+>  	if (inode->i_op->setxattr) {
+> +		bool alloc = false;
+> +
+> +		error = security_inode_pre_setxattr(dentry, name, &value,
+> +						    &size, flags, &alloc);
+> +		if (error)
+> +			return error;
+> +
+>  		error = inode->i_op->setxattr(dentry, name, value, size, flags);
+>  		if (!error) {
+>  			fsnotify_xattr(dentry);
+>  			security_inode_post_setxattr(dentry, name, value,
+>  						     size, flags);
+>  		}
+> +
+> +		if (alloc)
+> +			kfree(value);
+>  	} else if (issec) {
+>  		const char *suffix = name + XATTR_SECURITY_PREFIX_LEN;
+>  		error = security_inode_setsecurity(inode, suffix, value,
 > diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index d347e66..1751864 100644
+> index 1751864..0aeed91 100644
 > --- a/include/linux/lsm_hooks.h
 > +++ b/include/linux/lsm_hooks.h
-> @@ -1220,6 +1220,20 @@
->   *	Return 0 if @name is to be handled by seq, EOPNOTSUPP if getprocattr()
->   *	should be used. Other errors will be passed to user-space.
->   *
-> + * @getprocattr:
-> + *	Get a value of a proc security attribute in /proc/$PID/attr/.
-> + *	@p a task associated with the proc file.
-> + *	@name a name of the file in question.
-> + *	@value a pointer where to return the attribute's value.
-> + *
-> + * @setprocattr:
-> + *	Set a value of a proc security attribute in /proc/$PID/attr/.
-> + *	@p a task associated with the proc file.
-> + *	@f_cred credentials of a file's opener.
-> + *	@name a name of the file in question.
-> + *	@value a pointer where a value to set is kept.
-> + *	@size a number of bytes to read from the @value pointer.
-> + *
->   * @secid_to_secctx:
->   *	Convert secid to security context.  If secdata is NULL the length of
->   *	the result will be returned in seclen, but no secdata will be returned.
-> @@ -1540,8 +1554,8 @@ union security_list_options {
->  	int (*getprocattr_seq)(struct task_struct *p, const char *name,
->  			       const struct seq_operations **ops);
->  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-> -	int (*setprocattr)(struct task_struct *p, char *name, void *value,
-> -				size_t size);
-> +	int (*setprocattr)(struct task_struct *p, const struct cred *f_cred,
-> +			   char *name, void *value, size_t size);
->  	int (*ismaclabel)(const char *name);
->  	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
->  	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+> @@ -349,6 +349,11 @@
+>   *	Check permission before setting the extended attributes
+>   *	@value identified by @name for @dentry.
+>   *	Return 0 if permission is granted.
+> + * @inode_pre_setxattr:
+> + *	Be able to do some operation before setting the @value identified
+> + *	by @name on the filesystem. Replacing the @value and its @size is
+> + *	possible. Useful for mapped values. Set @alloc to true if @value
+> + *	needs to be kfreed afterwards.
+>   * @inode_post_setxattr:
+>   *	Update inode security field after successful setxattr operation.
+>   *	@value identified by @name for @dentry.
+> @@ -1448,6 +1453,9 @@ union security_list_options {
+>  	int (*inode_getattr)(const struct path *path);
+>  	int (*inode_setxattr)(struct dentry *dentry, const char *name,
+>  				const void *value, size_t size, int flags);
+> +	int (*inode_pre_setxattr)(struct dentry *dentry, const char *name,
+> +				  const void **value, size_t *size,
+> +				  int flags, bool *alloc);
+>  	void (*inode_post_setxattr)(struct dentry *dentry, const char *name,
+>  					const void *value, size_t size,
+>  					int flags);
+> @@ -1730,6 +1738,7 @@ struct security_hook_heads {
+>  	struct list_head inode_setattr;
+>  	struct list_head inode_getattr;
+>  	struct list_head inode_setxattr;
+> +	struct list_head inode_pre_setxattr;
+>  	struct list_head inode_post_setxattr;
+>  	struct list_head inode_getxattr;
+>  	struct list_head inode_listxattr;
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index 3090bb2..f0d2914 100644
+> index f0d2914..24f91e0 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -348,7 +348,8 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
->  int security_getprocattr_seq(struct task_struct *p, const char *name,
->  			     const struct seq_operations **ops);
->  int security_getprocattr(struct task_struct *p, char *name, char **value);
-> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
-> +int security_setprocattr(struct task_struct *p, const struct cred *f_cred,
-> +			 char *name, void *value, size_t size);
->  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
->  int security_ismaclabel(const char *name);
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
-> @@ -1071,7 +1072,9 @@ static inline int security_getprocattr(struct task_struct *p, char *name, char *
->  	return -EINVAL;
+> @@ -263,6 +263,9 @@ int security_inode_setattr(struct dentry *dentry, struct iattr *attr);
+>  int security_inode_getattr(const struct path *path);
+>  int security_inode_setxattr(struct dentry *dentry, const char *name,
+>  			    const void *value, size_t size, int flags);
+> +int security_inode_pre_setxattr(struct dentry *dentry, const char *name,
+> +				const void **value, size_t *size, int flags,
+> +				bool *alloc);
+>  void security_inode_post_setxattr(struct dentry *dentry, const char *name,
+>  				  const void *value, size_t size, int flags);
+>  int security_inode_getxattr(struct dentry *dentry, const char *name);
+> @@ -691,6 +694,13 @@ static inline int security_inode_setxattr(struct dentry *dentry,
+>  	return cap_inode_setxattr(dentry, name, value, size, flags);
 >  }
 >  
-> -static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
-> +static inline int security_setprocattr(struct task_struct *p,
-> +				       const struct cred *f_cred,
-> +				       char *name, void *value, size_t size)
->  {
->  	return -EINVAL;
->  }
-> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-> index dec607c..1212927 100644
-> --- a/security/apparmor/lsm.c
-> +++ b/security/apparmor/lsm.c
-> @@ -518,8 +518,9 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
->  	return error;
->  }
->  
-> -static int apparmor_setprocattr(struct task_struct *task, char *name,
-> -				void *value, size_t size)
-> +static int apparmor_setprocattr(struct task_struct *task,
-> +				const struct cred *f_cred,
-> +				char *name, void *value, size_t size)
->  {
->  	struct common_audit_data sa;
->  	struct apparmor_audit_data aad = {0,};
+> +static inline int security_inode_pre_setxattr(struct dentry *dentry,
+> +				const char *name, const void **value,
+> +				size_t *size, int flags, bool *alloc)
+> +{
+> +	return 0;
+> +}
+> +
+>  static inline void security_inode_post_setxattr(struct dentry *dentry,
+>  		const char *name, const void *value, size_t size, int flags)
+>  { }
 > diff --git a/security/security.c b/security/security.c
-> index e348e38..88a3b78 100644
+> index 88a3b78..e1d2c6f 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -1137,9 +1137,11 @@ int security_getprocattr(struct task_struct *p, char *name, char **value)
->  	return call_int_hook(getprocattr, -EINVAL, p, name, value);
+> @@ -649,6 +649,16 @@ int security_inode_setxattr(struct dentry *dentry, const char *name,
+>  	return evm_inode_setxattr(dentry, name, value, size);
 >  }
 >  
-> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
-> +int security_setprocattr(struct task_struct *p, const struct cred *f_cred,
-> +			 char *name, void *value, size_t size)
+> +int security_inode_pre_setxattr(struct dentry *dentry, const char *name,
+> +				const void **value, size_t *size, int flags,
+> +				bool *alloc)
+> +{
+> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+> +		return 0;
+> +	return call_int_hook(inode_pre_setxattr, 0, dentry, name, value, size,
+> +			     flags, alloc);
+> +}
+> +
+>  void security_inode_post_setxattr(struct dentry *dentry, const char *name,
+>  				  const void *value, size_t size, int flags)
 >  {
-> -	return call_int_hook(setprocattr, -EINVAL, p, name, value, size);
-> +	return call_int_hook(setprocattr, -EINVAL, p, f_cred,
-> +			     name, value, size);
->  }
->  
->  int security_netlink_send(struct sock *sk, struct sk_buff *skb)
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 564079c..3e1b9f7 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5556,7 +5556,7 @@ invalid:
->  	return -EINVAL;
->  }
->  
-> -static int selinux_setprocattr(struct task_struct *p,
-> +static int selinux_setprocattr(struct task_struct *p, const struct cred *f_cred,
->  			       char *name, void *value, size_t size)
->  {
->  	struct task_security_struct *tsec;
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index d962f88..cdcabf4 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -3450,8 +3450,8 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
->   *
->   * Returns the length of the smack label or an error code
->   */
-> -static int smack_setprocattr(struct task_struct *p, char *name,
-> -			     void *value, size_t size)
-> +static int smack_setprocattr(struct task_struct *p, const struct cred *f_cred,
-> +			     char *name, void *value, size_t size)
->  {
->  	struct task_smack *tsp;
->  	struct cred *new;
+> @@ -1666,6 +1676,8 @@ struct security_hook_heads security_hook_heads = {
+>  		LIST_HEAD_INIT(security_hook_heads.inode_getattr),
+>  	.inode_setxattr =
+>  		LIST_HEAD_INIT(security_hook_heads.inode_setxattr),
+> +	.inode_pre_setxattr =
+> +		LIST_HEAD_INIT(security_hook_heads.inode_pre_setxattr),
+>  	.inode_post_setxattr =
+>  		LIST_HEAD_INIT(security_hook_heads.inode_post_setxattr),
+>  	.inode_getxattr =
 > -- 
 > 2.4.3
