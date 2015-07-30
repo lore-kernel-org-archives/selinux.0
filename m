@@ -1,22 +1,21 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6UF9DOj015793
- for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 11:09:13 -0400
-Received: by ykdu72 with SMTP id u72so36298183ykd.2
- for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 08:09:10 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20150730135710.GA4590@ubuntumail>
-References: <CAOQ4uxi4vzf2ok23_ymUoyCjXMHBGY=GpypnTKE-zo-ZNB2SCw@mail.gmail.com>
- <20150730135710.GA4590@ubuntumail>
-Date: Thu, 30 Jul 2015 18:09:10 +0300
-Message-ID: <CAA2m6vdiLxFFT0FswTDarHixCAUwuAxTFMWnp7dc9qLQW+6S_A@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6UFXZwl017503
+ for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 11:33:36 -0400
 Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-From: Amir Goldstein <amir@cellrox.com>
-To: Serge Hallyn <serge.hallyn@ubuntu.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+To: Amir Goldstein <amir@cellrox.com>,
+ Seth Forshee <seth.forshee@canonical.com>
+References: <CAOQ4uxi4vzf2ok23_ymUoyCjXMHBGY=GpypnTKE-zo-ZNB2SCw@mail.gmail.com>
+ <20150730135531.GA109168@ubuntu-hedt>
+ <CAA2m6veXwLOHoD5C8h7D=S2t1TdjEP8QWWO_6tNv9CYHWtNkAQ@mail.gmail.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <55BA43C7.40300@schaufler-ca.com>
+Date: Thu, 30 Jul 2015 08:33:27 -0700
+MIME-Version: 1.0
+In-Reply-To: <CAA2m6veXwLOHoD5C8h7D=S2t1TdjEP8QWWO_6tNv9CYHWtNkAQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, Theodore Ts'o <tytso@mit.edu>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
  LSM List <linux-security-module@vger.kernel.org>,
  SELinux-NSA <selinux@tycho.nsa.gov>,
  Linux FS Devel <linux-fsdevel@vger.kernel.org>,
@@ -26,163 +25,91 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 30, 2015 at 4:57 PM, Serge Hallyn <serge.hallyn@ubuntu.com> wrote:
-> Quoting Amir Goldstein (amir@cellrox.com):
->> On Tue, Jul 28, 2015 at 11:40 PM, Seth Forshee
->> <seth.forshee@canonical.com> wrote:
->> >
->> > On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
->> > > > This is what I currently think you want for user ns mounts:
->> > > >
->> > > >  1. smk_root and smk_default are assigned the label of the backing
->> > > >     device.
->>
->> Seth,
->>
->> There were 2 main concerns discussed in this thread:
->> 1. trusting LSM labels outside the namespace
->> 2. trusting the content of the image file/loopdev
->>
->> While your approach addresses the first concern, I suspect it may be placing
->> an obstacle in a way for resolving the second concern.
->>
->> A viable security policy to mitigate the second concern could be:
->> - Allow only trusted programs (e.g. mkfs, fsck) to write to 'Loopback' images
->> - Allow mount only of 'Loopback' images
->>
->> This should allow the system as a whole to trust unprivileged mounts based on
->> the trust of the entities that had raw access the the fs layout.
+On 7/30/2015 7:47 AM, Amir Goldstein wrote:
+> On Thu, Jul 30, 2015 at 4:55 PM, Seth Forshee
+> <seth.forshee@canonical.com> wrote:
+>> On Thu, Jul 30, 2015 at 07:24:11AM +0300, Amir Goldstein wrote:
+>>> On Tue, Jul 28, 2015 at 11:40 PM, Seth Forshee
+>>> <seth.forshee@canonical.com> wrote:
+>>>> On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
+>>>>>> This is what I currently think you want for user ns mounts:
+>>>>>>
+>>>>>>  1. smk_root and smk_default are assigned the label of the backing
+>>>>>>     device.
+>>> Seth,
+>>>
+>>> There were 2 main concerns discussed in this thread:
+>>> 1. trusting LSM labels outside the namespace
+>>> 2. trusting the content of the image file/loopdev
+>>>
+>>> While your approach addresses the first concern, I suspect it may be placing
+>>> an obstacle in a way for resolving the second concern.
+>>>
+>>> A viable security policy to mitigate the second concern could be:
+>>> - Allow only trusted programs (e.g. mkfs, fsck) to write to 'Loopback' images
+>>> - Allow mount only of 'Loopback' images
+>>>
+>>> This should allow the system as a whole to trust unprivileged mounts based on
+>>> the trust of the entities that had raw access the the fs layout.
+>> You don't really say what you mean by "trusted" programs. In a container
+>> context I'd have to assume that you mean suid-root or similar programs
+>> shared into the container by the host. In that case is any new kernel
+>> functionality even required?
+> Sorry I was not clear. I will try to explain better.
+> I meant that the programs are "trusted" by the LSM security policy.
+> I envisioned a system where unprivileged user is allowed to spawn
+> a container which contains "trusted" programs (e.g. mkfs) that are labeled
+> as 'FileSystemTools' by the admin of the host.
+> FileSystemTools are allowed to write into Loopback labeled files.
+
+You could do this on a Smack based system. It would require
+CAP_MAC_ADMIN and CAP_MAC_OVERRIDE to set up. You would need
+to set some SMACK64EXEC labels on your FileSystemTools, and
+they would have to be written as carefully as the would if they
+had "more" privilege. You'd need to designate a repository for
+your loopback files. On the whole, it would be unattractive.
+I will pass on providing the details for fear someone will like
+it well enough to implement.
+
+>> That also doesn't work for some of our use cases, where we'd like to be
+>> able to do something like "mount -o loop foo.img /mnt/foo" in an
+>> unprivileged container where foo.img is not created on the local machine
+>> and not fully under control of the host environment.
+> That use case will not be addressed by the policy I suggested,
+> but the more common case of:
+> - create a loopback file
+> - mkfs
+> - mount
+> will be addressed.
 >
-> Just to be sure I understand right, you're looking for a way to let
-> the host admin trust that the kernel's superblock parsers aren't being
-> fed trash or an exploit?
+> So if the (host) admin of the system trusts that unprivileged user cannot create
+> a malicious fs layout using mkfs and fsck alone, then the system is
+> relatively safe
+> mounting (non fuse) file systems from loopback files.
+> IMHO, this statement is going to be easier for Ted to sign.
 
-Correct.
-I do not believe in the direction of auditing file system code to
-vulnerability free level
-nor do I think that cryptographically signed file system metadata is
-the only way
-to ensure an exploit free unprivileged mount.
-
+But that sort of defeats the purpose of unprivileged mounts.
+Or rather, you're trying to place restrictions on what an
+unprivileged user can do without calling the ability to
+violate those restrictions "privilege". 
 
 >
->> Alas, if you choose to propagate the backing dev label to contained files,
->> they would all share the designated 'Loopback' label and render the policy above
->> useless.
+>> Agreed though that the "attack from below" problem for untrusted
+>> filesystems is still an open question. At minimum we have fuse, which
+>> has been designed to protect against this threat. Others have mentioned
+>> on this thread that Ted had said something at kernel summit last year
+>> about being willing to support ext4 mounts from unprivileged user
+>> namespaces as well. I've added Ted to the Cc in case he wants to confirm
+>> or deny this rumor.
 >>
->> Any thoughts on how to reconcile this conflict?
+>>> Alas, if you choose to propagate the backing dev label to contained files,
+>>> they would all share the designated 'Loopback' label and render the policy above
+>>> useless.
+>>>
+>>> Any thoughts on how to reconcile this conflict?
+>> I'm not seeing what the conflict is here - nothing you proposed says
+>> anything about security labels in the filesystem, and nothing would
+>> prevent a "trusted" program with CAP_MAC_ADMIN from setting whatever
+>> label was desired on the backing device. Care to elaborate?
 >>
->> Amir.
->>
->>
->> > > >  2. s_root is assigned the transmute property.
->> > > >  3. For existing files:
->> > > >     a. Files with the same label as the backing device are accessible.
->> > > >     b. Files with any other label are not accessible.
->> > >
->> > > That's right. Accept correct data, reject anything that's not right.
->> > >
->> > > > If this is right, there are a couple lingering questions in my mind.
->> > > >
->> > > > First, what happens with files created in directories with the same
->> > > > label as the backing device but without the transmute property set? The
->> > > > inode for the new file will initially be labeled with smk_of_current(),
->> > > > but then during d_instantiate it will get smk_default and thus end up
->> > > > with the label we want. So that seems okay.
->> > >
->> > > Yes.
->> > >
->> > > > The second is whether files with the SMACK64EXEC attribute is still a
->> > > > problem. It seems it is, for files with the same label as the backing
->> > > > store at least. I think we can simply skip the code that reads out this
->> > > > xattr and sets smk_task for user ns mounts, or else skip assigning the
->> > > > label to the new task in bprm_set_creds. The latter seems more
->> > > > consistent with the approach you've suggested for dealing with labels
->> > > > from disk.
->> > >
->> > > Yes, I think that skipping the smk_fetch(XATTR_NAME_SMACKEXEC, ...) in
->> > > smack_d_instantiate for unprivileged mounts would do the trick.
->> > >
->> > > > So I guess all of that seems okay, though perhaps a bit restrictive
->> > > > given that the user who mounted the filesystem already has full access
->> > > > to the backing store.
->> > >
->> > > In truth, there is no reason to expect that the "user" who did the
->> > > mount will ever have a Smack label that differs from the label of
->> > > the backing store. If what we've got here seems restrictive, it's
->> > > because you've got access from someone other than the "user".
->> > >
->> > > > Please let me know whether or not this matches up with what you are
->> > > > thinking, then I can procede with the implementation.
->> > >
->> > > My current mindset is that, if you're going to allow unprivileged
->> > > mounts of user defined backing stores, this is as safe as we can
->> > > make it.
->> >
->> > All right, I've got a patch which I think does this, and I've managed to
->> > do some testing to confirm that it behaves like I expect. How does this
->> > look?
->> >
->> > What's missing is getting the label from the block device inode; as
->> > Stephen discovered the inode that I thought we could get the label from
->> > turned out to be the wrong one. Afaict we would need a new hook in order
->> > to do that, so for now I'm using the label of the proccess calling
->> > mount.
->> >
->> > ---
->> >
->> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->> > index a143328f75eb..8e631a66b03c 100644
->> > --- a/security/smack/smack_lsm.c
->> > +++ b/security/smack/smack_lsm.c
->> > @@ -662,6 +662,8 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
->> >                 skp = smk_of_current();
->> >                 sp->smk_root = skp;
->> >                 sp->smk_default = skp;
->> > +               if (sb_in_userns(sb))
->> > +                       transmute = 1;
->> >         }
->> >         /*
->> >          * Initialize the root inode.
->> > @@ -1023,6 +1025,12 @@ static int smack_inode_permission(struct inode *inode, int mask)
->> >         if (mask == 0)
->> >                 return 0;
->> >
->> > +       if (sb_in_userns(inode->i_sb)) {
->> > +               struct superblock_smack *sbsp = inode->i_sb->s_security;
->> > +               if (smk_of_inode(inode) != sbsp->smk_root)
->> > +                       return -EACCES;
->> > +       }
->> > +
->> >         /* May be droppable after audit */
->> >         if (no_block)
->> >                 return -ECHILD;
->> > @@ -3220,14 +3228,16 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
->> >                         if (rc >= 0)
->> >                                 transflag = SMK_INODE_TRANSMUTE;
->> >                 }
->> > -               /*
->> > -                * Don't let the exec or mmap label be "*" or "@".
->> > -                */
->> > -               skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
->> > -               if (IS_ERR(skp) || skp == &smack_known_star ||
->> > -                   skp == &smack_known_web)
->> > -                       skp = NULL;
->> > -               isp->smk_task = skp;
->> > +               if (!sb_in_userns(inode->i_sb)) {
->> > +                       /*
->> > +                        * Don't let the exec or mmap label be "*" or "@".
->> > +                        */
->> > +                       skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
->> > +                       if (IS_ERR(skp) || skp == &smack_known_star ||
->> > +                           skp == &smack_known_web)
->> > +                               skp = NULL;
->> > +                       isp->smk_task = skp;
->> > +               }
->> >
->> >                 skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
->> >                 if (IS_ERR(skp) || skp == &smack_known_star ||
->> > --
->> > To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
->> > the body of a message to majordomo@vger.kernel.org
->> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Seth
