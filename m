@@ -1,13 +1,14 @@
-Date: Thu, 30 Jul 2015 16:56:48 -0500
+Date: Thu, 30 Jul 2015 17:10:54 -0500
 From: "Serge E. Hallyn" <serge@hallyn.com>
 To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-Subject: Re: [PATCH v3 04/11] lsm: inode_pre_setxattr hook
-Message-ID: <20150730215648.GD13589@mail.hallyn.com>
+Subject: Re: [PATCH v3 05/11] smack: extend capability functions and fix 2
+ checks
+Message-ID: <20150730221054.GE13589@mail.hallyn.com>
 References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-5-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-6-git-send-email-l.pawelczyk@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437732285-11524-5-git-send-email-l.pawelczyk@samsung.com>
+In-Reply-To: <1437732285-11524-6-git-send-email-l.pawelczyk@samsung.com>
 Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
  linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
  Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
@@ -28,144 +29,163 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 24, 2015 at 12:04:38PM +0200, Lukasz Pawelczyk wrote:
-> Add a new LSM hook called before inode's setxattr. It is required for
-> LSM to be able to reliably replace the xattr's value to be set to
-> filesystem in __vfs_setxattr_noperm(). Useful for mapped values, like in
-> the upcoming Smack namespace patches.
+On Fri, Jul 24, 2015 at 12:04:39PM +0200, Lukasz Pawelczyk wrote:
+> This patch extends smack capability functions to a full list to those
+> equivalent in the kernel
+> 
+> has_ns_capability -> smack_has_ns_privilege
+> has_capability    -> smack_has_privilege
+> ns_capable        -> smack_ns_privileged
+> capable           -> smack_privileged
+> 
+> It also puts the smack related part to a common function:
+> smack_capability_allowed()
+> 
+> Those functions will be needed for capability checks in the upcoming
+> Smack namespace patches.
+> 
+> Additionally there were 2 smack capability checks that used generic
+> capability functions instead of specific Smack ones effectively ignoring
+> the onlycap rule. This has been fixed now with the introduction of those
+> new functions.
+> 
+> This has implications on the Smack namespace as well as the additional
+> Smack checks in smack_capability_allowed() will be extended beyond the
+> onlycap rule. Not using Smack specific checks in those 2 places could
+> mean breaking the Smack label namespace separation.
 > 
 > Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 
-Could get confusing if userspace passes in 1 char and gets ENOSPC because
-the unmapped label is too long :)
-
 > ---
->  fs/xattr.c                | 10 ++++++++++
->  include/linux/lsm_hooks.h |  9 +++++++++
->  include/linux/security.h  | 10 ++++++++++
->  security/security.c       | 12 ++++++++++++
->  4 files changed, 41 insertions(+)
+>  security/smack/smack.h        |  5 ++++
+>  security/smack/smack_access.c | 64 +++++++++++++++++++++++++++++++++++++++----
+>  security/smack/smack_lsm.c    |  4 +--
+>  3 files changed, 65 insertions(+), 8 deletions(-)
 > 
-> diff --git a/fs/xattr.c b/fs/xattr.c
-> index 072fee1..cbc8d19 100644
-> --- a/fs/xattr.c
-> +++ b/fs/xattr.c
-> @@ -100,12 +100,22 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
->  	if (issec)
->  		inode->i_flags &= ~S_NOSEC;
->  	if (inode->i_op->setxattr) {
-> +		bool alloc = false;
-> +
-> +		error = security_inode_pre_setxattr(dentry, name, &value,
-> +						    &size, flags, &alloc);
-> +		if (error)
-> +			return error;
-> +
->  		error = inode->i_op->setxattr(dentry, name, value, size, flags);
->  		if (!error) {
->  			fsnotify_xattr(dentry);
->  			security_inode_post_setxattr(dentry, name, value,
->  						     size, flags);
->  		}
-> +
-> +		if (alloc)
-> +			kfree(value);
->  	} else if (issec) {
->  		const char *suffix = name + XATTR_SECURITY_PREFIX_LEN;
->  		error = security_inode_setsecurity(inode, suffix, value,
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 1751864..0aeed91 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -349,6 +349,11 @@
->   *	Check permission before setting the extended attributes
->   *	@value identified by @name for @dentry.
->   *	Return 0 if permission is granted.
-> + * @inode_pre_setxattr:
-> + *	Be able to do some operation before setting the @value identified
-> + *	by @name on the filesystem. Replacing the @value and its @size is
-> + *	possible. Useful for mapped values. Set @alloc to true if @value
-> + *	needs to be kfreed afterwards.
->   * @inode_post_setxattr:
->   *	Update inode security field after successful setxattr operation.
->   *	@value identified by @name for @dentry.
-> @@ -1448,6 +1453,9 @@ union security_list_options {
->  	int (*inode_getattr)(const struct path *path);
->  	int (*inode_setxattr)(struct dentry *dentry, const char *name,
->  				const void *value, size_t size, int flags);
-> +	int (*inode_pre_setxattr)(struct dentry *dentry, const char *name,
-> +				  const void **value, size_t *size,
-> +				  int flags, bool *alloc);
->  	void (*inode_post_setxattr)(struct dentry *dentry, const char *name,
->  					const void *value, size_t size,
->  					int flags);
-> @@ -1730,6 +1738,7 @@ struct security_hook_heads {
->  	struct list_head inode_setattr;
->  	struct list_head inode_getattr;
->  	struct list_head inode_setxattr;
-> +	struct list_head inode_pre_setxattr;
->  	struct list_head inode_post_setxattr;
->  	struct list_head inode_getxattr;
->  	struct list_head inode_listxattr;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index f0d2914..24f91e0 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -263,6 +263,9 @@ int security_inode_setattr(struct dentry *dentry, struct iattr *attr);
->  int security_inode_getattr(const struct path *path);
->  int security_inode_setxattr(struct dentry *dentry, const char *name,
->  			    const void *value, size_t size, int flags);
-> +int security_inode_pre_setxattr(struct dentry *dentry, const char *name,
-> +				const void **value, size_t *size, int flags,
-> +				bool *alloc);
->  void security_inode_post_setxattr(struct dentry *dentry, const char *name,
->  				  const void *value, size_t size, int flags);
->  int security_inode_getxattr(struct dentry *dentry, const char *name);
-> @@ -691,6 +694,13 @@ static inline int security_inode_setxattr(struct dentry *dentry,
->  	return cap_inode_setxattr(dentry, name, value, size, flags);
->  }
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index 69ab9eb..e11cc13 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -272,6 +272,11 @@ int smk_netlbl_mls(int, char *, struct netlbl_lsm_secattr *, int);
+>  struct smack_known *smk_import_entry(const char *, int);
+>  void smk_insert_entry(struct smack_known *skp);
+>  struct smack_known *smk_find_entry(const char *);
+> +int smack_has_ns_privilege(struct task_struct *task,
+> +			   struct user_namespace *user_ns,
+> +			   int cap);
+> +int smack_has_privilege(struct task_struct *task, int cap);
+> +int smack_ns_privileged(struct user_namespace *user_ns, int cap);
+>  int smack_privileged(int cap);
 >  
-> +static inline int security_inode_pre_setxattr(struct dentry *dentry,
-> +				const char *name, const void **value,
-> +				size_t *size, int flags, bool *alloc)
+>  /*
+> diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+> index 00f6b38..188b354 100644
+> --- a/security/smack/smack_access.c
+> +++ b/security/smack/smack_access.c
+> @@ -629,17 +629,19 @@ LIST_HEAD(smack_onlycap_list);
+>  DEFINE_MUTEX(smack_onlycap_lock);
+>  
+>  /*
+> - * Is the task privileged and allowed to be privileged
+> - * by the onlycap rule.
+> + * Internal smack capability check complimentary to the
+> + * set of kernel capable() and has_capability() functions
+>   *
+> - * Returns 1 if the task is allowed to be privileged, 0 if it's not.
+> + * For a capability in smack related checks to be effective it needs to:
+> + * - be allowed to be privileged by the onlycap rule.
+> + * - be in the initial user ns
+>   */
+> -int smack_privileged(int cap)
+> +static int smack_capability_allowed(struct smack_known *skp,
+> +				    struct user_namespace *user_ns)
+>  {
+> -	struct smack_known *skp = smk_of_current();
+>  	struct smack_onlycap *sop;
+>  
+> -	if (!capable(cap))
+> +	if (user_ns != &init_user_ns)
+>  		return 0;
+>  
+>  	rcu_read_lock();
+> @@ -658,3 +660,53 @@ int smack_privileged(int cap)
+>  
+>  	return 0;
+>  }
+> +
+> +/*
+> + * Is the task privileged in a namespace and allowed to be privileged
+> + * by additional smack rules.
+> + */
+> +int smack_has_ns_privilege(struct task_struct *task,
+> +			   struct user_namespace *user_ns,
+> +			   int cap)
 > +{
+> +	struct smack_known *skp = smk_of_task_struct(task);
+> +
+> +	if (!has_ns_capability(task, user_ns, cap))
+> +		return 0;
+> +	if (smack_capability_allowed(skp, user_ns))
+> +		return 1;
 > +	return 0;
 > +}
 > +
->  static inline void security_inode_post_setxattr(struct dentry *dentry,
->  		const char *name, const void *value, size_t size, int flags)
->  { }
-> diff --git a/security/security.c b/security/security.c
-> index 88a3b78..e1d2c6f 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -649,6 +649,16 @@ int security_inode_setxattr(struct dentry *dentry, const char *name,
->  	return evm_inode_setxattr(dentry, name, value, size);
->  }
->  
-> +int security_inode_pre_setxattr(struct dentry *dentry, const char *name,
-> +				const void **value, size_t *size, int flags,
-> +				bool *alloc)
+> +/*
+> + * Is the task privileged and allowed to be privileged
+> + * by additional smack rules.
+> + */
+> +int smack_has_privilege(struct task_struct *task, int cap)
 > +{
-> +	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
-> +		return 0;
-> +	return call_int_hook(inode_pre_setxattr, 0, dentry, name, value, size,
-> +			     flags, alloc);
+> +	return smack_has_ns_privilege(task, &init_user_ns, cap);
 > +}
 > +
->  void security_inode_post_setxattr(struct dentry *dentry, const char *name,
->  				  const void *value, size_t size, int flags)
->  {
-> @@ -1666,6 +1676,8 @@ struct security_hook_heads security_hook_heads = {
->  		LIST_HEAD_INIT(security_hook_heads.inode_getattr),
->  	.inode_setxattr =
->  		LIST_HEAD_INIT(security_hook_heads.inode_setxattr),
-> +	.inode_pre_setxattr =
-> +		LIST_HEAD_INIT(security_hook_heads.inode_pre_setxattr),
->  	.inode_post_setxattr =
->  		LIST_HEAD_INIT(security_hook_heads.inode_post_setxattr),
->  	.inode_getxattr =
+> +/*
+> + * Is the current task privileged in a namespace and allowed to be privileged
+> + * by additional smack rules.
+> + */
+> +int smack_ns_privileged(struct user_namespace *user_ns, int cap)
+> +{
+> +	struct smack_known *skp = smk_of_current();
+> +
+> +	if (!ns_capable(user_ns, cap))
+> +		return 0;
+> +	if (smack_capability_allowed(skp, user_ns))
+> +		return 1;
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Is the current task privileged and allowed to be privileged
+> + * by additional smack rules.
+> + */
+> +int smack_privileged(int cap)
+> +{
+> +	return smack_ns_privileged(&init_user_ns, cap);
+> +}
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index cdcabf4..6098518 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -413,7 +413,7 @@ static int smk_ptrace_rule_check(struct task_struct *tracer,
+>  			rc = 0;
+>  		else if (smack_ptrace_rule == SMACK_PTRACE_DRACONIAN)
+>  			rc = -EACCES;
+> -		else if (capable(CAP_SYS_PTRACE))
+> +		else if (smack_has_privilege(tracer, CAP_SYS_PTRACE))
+>  			rc = 0;
+>  		else
+>  			rc = -EACCES;
+> @@ -1805,7 +1805,7 @@ static int smack_file_send_sigiotask(struct task_struct *tsk,
+>  	skp = file->f_security;
+>  	rc = smk_access(skp, tkp, MAY_WRITE, NULL);
+>  	rc = smk_bu_note("sigiotask", skp, tkp, MAY_WRITE, rc);
+> -	if (rc != 0 && has_capability(tsk, CAP_MAC_OVERRIDE))
+> +	if (rc != 0 && smack_has_privilege(tsk, CAP_MAC_OVERRIDE))
+>  		rc = 0;
+>  
+>  	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_TASK);
 > -- 
 > 2.4.3
