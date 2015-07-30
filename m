@@ -1,133 +1,190 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6V8BUbV012966
- for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 04:11:30 -0400
-Received: by ykax123 with SMTP id x123so53814222yka.1
- for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 01:11:13 -0700 (PDT)
+Date: Thu, 30 Jul 2015 16:50:30 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+Subject: Re: [PATCH v3 03/11] lsm: add file opener's cred to a setprocattr
+ arguments
+Message-ID: <20150730215030.GC13589@mail.hallyn.com>
+References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-4-git-send-email-l.pawelczyk@samsung.com>
 MIME-Version: 1.0
-Date: Fri, 31 Jul 2015 11:11:13 +0300
-Message-ID: <CAA2m6vdCmHf1=F=QrjCYEtxdEVMDtp7wKza=vd6Tpv-L9XTqHg@mail.gmail.com>
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-From: Amir Goldstein <amir@cellrox.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: Serge Hallyn <serge.hallyn@canonical.com>, Theodore Ts'o <tytso@mit.edu>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Alexander Viro <viro@zeniv.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1437732285-11524-4-git-send-email-l.pawelczyk@samsung.com>
+Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
+ linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
+ Jonathan Corbet <corbet@lwn.net>, havner@gmail.com,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
+ James Morris <james.l.morris@oracle.com>,
+ John Johansen <john.johansen@canonical.com>,
+ Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 30, 2015 at 6:33 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 7/30/2015 7:47 AM, Amir Goldstein wrote:
->> On Thu, Jul 30, 2015 at 4:55 PM, Seth Forshee
->> <seth.forshee@canonical.com> wrote:
->>> On Thu, Jul 30, 2015 at 07:24:11AM +0300, Amir Goldstein wrote:
->>>> On Tue, Jul 28, 2015 at 11:40 PM, Seth Forshee
->>>> <seth.forshee@canonical.com> wrote:
->>>>> On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
->>>>>>> This is what I currently think you want for user ns mounts:
->>>>>>>
->>>>>>>  1. smk_root and smk_default are assigned the label of the backing
->>>>>>>     device.
->>>> Seth,
->>>>
->>>> There were 2 main concerns discussed in this thread:
->>>> 1. trusting LSM labels outside the namespace
->>>> 2. trusting the content of the image file/loopdev
->>>>
->>>> While your approach addresses the first concern, I suspect it may be placing
->>>> an obstacle in a way for resolving the second concern.
->>>>
->>>> A viable security policy to mitigate the second concern could be:
->>>> - Allow only trusted programs (e.g. mkfs, fsck) to write to 'Loopback' images
->>>> - Allow mount only of 'Loopback' images
->>>>
->>>> This should allow the system as a whole to trust unprivileged mounts based on
->>>> the trust of the entities that had raw access the the fs layout.
->>> You don't really say what you mean by "trusted" programs. In a container
->>> context I'd have to assume that you mean suid-root or similar programs
->>> shared into the container by the host. In that case is any new kernel
->>> functionality even required?
->> Sorry I was not clear. I will try to explain better.
->> I meant that the programs are "trusted" by the LSM security policy.
->> I envisioned a system where unprivileged user is allowed to spawn
->> a container which contains "trusted" programs (e.g. mkfs) that are labeled
->> as 'FileSystemTools' by the admin of the host.
->> FileSystemTools are allowed to write into Loopback labeled files.
->
-> You could do this on a Smack based system. It would require
-> CAP_MAC_ADMIN and CAP_MAC_OVERRIDE to set up. You would need
-> to set some SMACK64EXEC labels on your FileSystemTools, and
-> they would have to be written as carefully as the would if they
-> had "more" privilege. You'd need to designate a repository for
-> your loopback files. On the whole, it would be unattractive.
-> I will pass on providing the details for fear someone will like
-> it well enough to implement.
->
->>> That also doesn't work for some of our use cases, where we'd like to be
->>> able to do something like "mount -o loop foo.img /mnt/foo" in an
->>> unprivileged container where foo.img is not created on the local machine
->>> and not fully under control of the host environment.
->> That use case will not be addressed by the policy I suggested,
->> but the more common case of:
->> - create a loopback file
->> - mkfs
->> - mount
->> will be addressed.
->>
->> So if the (host) admin of the system trusts that unprivileged user cannot create
->> a malicious fs layout using mkfs and fsck alone, then the system is
->> relatively safe
->> mounting (non fuse) file systems from loopback files.
->> IMHO, this statement is going to be easier for Ted to sign.
->
-> But that sort of defeats the purpose of unprivileged mounts.
-> Or rather, you're trying to place restrictions on what an
-> unprivileged user can do without calling the ability to
-> violate those restrictions "privilege".
+On Fri, Jul 24, 2015 at 12:04:37PM +0200, Lukasz Pawelczyk wrote:
+> setprocattr hook for Smack's label_map attribute needs to know the
+> capabilities of file opener. Add those credentials to the hook's
+> arguments.
+> 
+> While at it add documentation on get/setprocattr hooks.
+> 
+> Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
 
-I don't understand your concern.
-I am saying that LSM can come to the rescue, in a use case that
-many have been considering as unsolvable (i.e. the loopback tampering).
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 
-Yes, I am trying to place restrictions on what an unprivileged user can do.
-As it stands right now, user is about to gain the ability to mount FUSE.
-With some extra care on crafting the policy and without any extra code,
-user can gain the ability to mount "trusted loopback files".
-It does not solve all use cases, but it does solve a handful.
-
-Anyway, the concern I was raising was about the fact that if files inside
-the loopback mount inherit the label of the loopback file, this policy is
-going to be impossible to write.
-But Stephan has already proposed an alternative to this implicit inherit rule
-on [PATCH 6/7] thread, so I withdraw my concern.
-
-
->
->>
->>> Agreed though that the "attack from below" problem for untrusted
->>> filesystems is still an open question. At minimum we have fuse, which
->>> has been designed to protect against this threat. Others have mentioned
->>> on this thread that Ted had said something at kernel summit last year
->>> about being willing to support ext4 mounts from unprivileged user
->>> namespaces as well. I've added Ted to the Cc in case he wants to confirm
->>> or deny this rumor.
->>>
->>>> Alas, if you choose to propagate the backing dev label to contained files,
->>>> they would all share the designated 'Loopback' label and render the policy above
->>>> useless.
->>>>
->>>> Any thoughts on how to reconcile this conflict?
->>> I'm not seeing what the conflict is here - nothing you proposed says
->>> anything about security labels in the filesystem, and nothing would
->>> prevent a "trusted" program with CAP_MAC_ADMIN from setting whatever
->>> label was desired on the backing device. Care to elaborate?
->>>
->>> Seth
->
+> ---
+>  fs/proc/base.c             |  2 +-
+>  include/linux/lsm_hooks.h  | 18 ++++++++++++++++--
+>  include/linux/security.h   |  7 +++++--
+>  security/apparmor/lsm.c    |  5 +++--
+>  security/security.c        |  6 ++++--
+>  security/selinux/hooks.c   |  2 +-
+>  security/smack/smack_lsm.c |  4 ++--
+>  7 files changed, 32 insertions(+), 12 deletions(-)
+> 
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index e5ac827..775372c 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2458,7 +2458,7 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+>  	if (length < 0)
+>  		goto out_free;
+>  
+> -	length = security_setprocattr(task,
+> +	length = security_setprocattr(task, file->f_cred,
+>  				      (char*)file->f_path.dentry->d_name.name,
+>  				      (void*)page, count);
+>  	mutex_unlock(&task->signal->cred_guard_mutex);
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index d347e66..1751864 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1220,6 +1220,20 @@
+>   *	Return 0 if @name is to be handled by seq, EOPNOTSUPP if getprocattr()
+>   *	should be used. Other errors will be passed to user-space.
+>   *
+> + * @getprocattr:
+> + *	Get a value of a proc security attribute in /proc/$PID/attr/.
+> + *	@p a task associated with the proc file.
+> + *	@name a name of the file in question.
+> + *	@value a pointer where to return the attribute's value.
+> + *
+> + * @setprocattr:
+> + *	Set a value of a proc security attribute in /proc/$PID/attr/.
+> + *	@p a task associated with the proc file.
+> + *	@f_cred credentials of a file's opener.
+> + *	@name a name of the file in question.
+> + *	@value a pointer where a value to set is kept.
+> + *	@size a number of bytes to read from the @value pointer.
+> + *
+>   * @secid_to_secctx:
+>   *	Convert secid to security context.  If secdata is NULL the length of
+>   *	the result will be returned in seclen, but no secdata will be returned.
+> @@ -1540,8 +1554,8 @@ union security_list_options {
+>  	int (*getprocattr_seq)(struct task_struct *p, const char *name,
+>  			       const struct seq_operations **ops);
+>  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+> -	int (*setprocattr)(struct task_struct *p, char *name, void *value,
+> -				size_t size);
+> +	int (*setprocattr)(struct task_struct *p, const struct cred *f_cred,
+> +			   char *name, void *value, size_t size);
+>  	int (*ismaclabel)(const char *name);
+>  	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+>  	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 3090bb2..f0d2914 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -348,7 +348,8 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+>  int security_getprocattr_seq(struct task_struct *p, const char *name,
+>  			     const struct seq_operations **ops);
+>  int security_getprocattr(struct task_struct *p, char *name, char **value);
+> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
+> +int security_setprocattr(struct task_struct *p, const struct cred *f_cred,
+> +			 char *name, void *value, size_t size);
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+>  int security_ismaclabel(const char *name);
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+> @@ -1071,7 +1072,9 @@ static inline int security_getprocattr(struct task_struct *p, char *name, char *
+>  	return -EINVAL;
+>  }
+>  
+> -static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
+> +static inline int security_setprocattr(struct task_struct *p,
+> +				       const struct cred *f_cred,
+> +				       char *name, void *value, size_t size)
+>  {
+>  	return -EINVAL;
+>  }
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index dec607c..1212927 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -518,8 +518,9 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
+>  	return error;
+>  }
+>  
+> -static int apparmor_setprocattr(struct task_struct *task, char *name,
+> -				void *value, size_t size)
+> +static int apparmor_setprocattr(struct task_struct *task,
+> +				const struct cred *f_cred,
+> +				char *name, void *value, size_t size)
+>  {
+>  	struct common_audit_data sa;
+>  	struct apparmor_audit_data aad = {0,};
+> diff --git a/security/security.c b/security/security.c
+> index e348e38..88a3b78 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1137,9 +1137,11 @@ int security_getprocattr(struct task_struct *p, char *name, char **value)
+>  	return call_int_hook(getprocattr, -EINVAL, p, name, value);
+>  }
+>  
+> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
+> +int security_setprocattr(struct task_struct *p, const struct cred *f_cred,
+> +			 char *name, void *value, size_t size)
+>  {
+> -	return call_int_hook(setprocattr, -EINVAL, p, name, value, size);
+> +	return call_int_hook(setprocattr, -EINVAL, p, f_cred,
+> +			     name, value, size);
+>  }
+>  
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 564079c..3e1b9f7 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5556,7 +5556,7 @@ invalid:
+>  	return -EINVAL;
+>  }
+>  
+> -static int selinux_setprocattr(struct task_struct *p,
+> +static int selinux_setprocattr(struct task_struct *p, const struct cred *f_cred,
+>  			       char *name, void *value, size_t size)
+>  {
+>  	struct task_security_struct *tsec;
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index d962f88..cdcabf4 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -3450,8 +3450,8 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+>   *
+>   * Returns the length of the smack label or an error code
+>   */
+> -static int smack_setprocattr(struct task_struct *p, char *name,
+> -			     void *value, size_t size)
+> +static int smack_setprocattr(struct task_struct *p, const struct cred *f_cred,
+> +			     char *name, void *value, size_t size)
+>  {
+>  	struct task_smack *tsp;
+>  	struct cred *new;
+> -- 
+> 2.4.3
