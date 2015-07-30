@@ -1,47 +1,164 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Colin Walters <walters@verbum.org>
-References: <CAOQ4uxi4vzf2ok23_ymUoyCjXMHBGY=GpypnTKE-zo-ZNB2SCw@mail.gmail.com>
- <20150730135531.GA109168@ubuntu-hedt>
- <CAA2m6veXwLOHoD5C8h7D=S2t1TdjEP8QWWO_6tNv9CYHWtNkAQ@mail.gmail.com>
- <55BA43C7.40300@schaufler-ca.com>
- <1438271527.4081427.337383497.750BC231@webmail.messagingengine.com>
-Date: Thu, 30 Jul 2015 11:15:48 -0500
-In-Reply-To: <1438271527.4081427.337383497.750BC231@webmail.messagingengine.com>
- (Colin Walters's message of "Thu, 30 Jul 2015 11:52:07 -0400")
-Message-ID: <87twslliyz.fsf@x220.int.ebiederm.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6UGOZSX021442
+ for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 12:24:35 -0400
+Received: by oigi136 with SMTP id i136so24517145oig.1
+ for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 09:24:33 -0700 (PDT)
+Date: Thu, 30 Jul 2015 11:24:13 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH 6/7] selinux: Ignore security labels on user namespace
+ mounts
+Message-ID: <20150730162413.GA131344@ubuntu-hedt>
+References: <55AFBE85.6010809@tycho.nsa.gov>
+ <20150722161422.GC124342@ubuntu-hedt>
+ <55AFFC32.6070701@tycho.nsa.gov> <55AFFFBD.8040907@tycho.nsa.gov>
+ <55B0F2C0.8070709@tycho.nsa.gov>
+ <20150723143920.GA25235@ubuntu-hedt>
+ <55B109E3.6030207@tycho.nsa.gov>
+ <20150723162331.GB25235@ubuntu-hedt>
+ <20150724151137.GA82891@ubuntu-hedt> <55BA4964.20400@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-Cc: Theodore Ts'o <tytso@mit.edu>, Serge Hallyn <serge.hallyn@canonical.com>,
- linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
- Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <55BA4964.20400@tycho.nsa.gov>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
+ linux-fsdevel@vger.kernel.org
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Colin Walters <walters@verbum.org> writes:
+On Thu, Jul 30, 2015 at 11:57:24AM -0400, Stephen Smalley wrote:
+> On 07/24/2015 11:11 AM, Seth Forshee wrote:
+> > On Thu, Jul 23, 2015 at 11:23:31AM -0500, Seth Forshee wrote:
+> >> On Thu, Jul 23, 2015 at 11:36:03AM -0400, Stephen Smalley wrote:
+> >>> On 07/23/2015 10:39 AM, Seth Forshee wrote:
+> >>>> On Thu, Jul 23, 2015 at 09:57:20AM -0400, Stephen Smalley wrote:
+> >>>>> On 07/22/2015 04:40 PM, Stephen Smalley wrote:
+> >>>>>> On 07/22/2015 04:25 PM, Stephen Smalley wrote:
+> >>>>>>> On 07/22/2015 12:14 PM, Seth Forshee wrote:
+> >>>>>>>> On Wed, Jul 22, 2015 at 12:02:13PM -0400, Stephen Smalley wrote:
+> >>>>>>>>> On 07/16/2015 09:23 AM, Stephen Smalley wrote:
+> >>>>>>>>>> On 07/15/2015 03:46 PM, Seth Forshee wrote:
+> >>>>>>>>>>> Unprivileged users should not be able to supply security labels
+> >>>>>>>>>>> in filesystems, nor should they be able to supply security
+> >>>>>>>>>>> contexts in unprivileged mounts. For any mount where s_user_ns is
+> >>>>>>>>>>> not init_user_ns, force the use of SECURITY_FS_USE_NONE behavior
+> >>>>>>>>>>> and return EPERM if any contexts are supplied in the mount
+> >>>>>>>>>>> options.
+> >>>>>>>>>>>
+> >>>>>>>>>>> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> >>>>>>>>>>
+> >>>>>>>>>> I think this is obsoleted by the subsequent discussion, but just for the
+> >>>>>>>>>> record: this patch would cause the files in the userns mount to be left
+> >>>>>>>>>> with the "unlabeled" label, and therefore under typical policies,
+> >>>>>>>>>> completely inaccessible to any process in a confined domain.
+> >>>>>>>>>
+> >>>>>>>>> The right way to handle this for SELinux would be to automatically use
+> >>>>>>>>> mountpoint labeling (SECURITY_FS_USE_MNTPOINT, normally set by
+> >>>>>>>>> specifying a context= mount option), with the sbsec->mntpoint_sid set
+> >>>>>>>>> from some related object (e.g. the block device file context, as in your
+> >>>>>>>>> patches for Smack).  That will cause SELinux to use that value instead
+> >>>>>>>>> of any xattr value from the filesystem and will cause attempts by
+> >>>>>>>>> userspace to set the security.selinux xattr to fail on that filesystem.
+> >>>>>>>>>  That is how SELinux normally deals with untrusted filesystems, except
+> >>>>>>>>> that it is normally specified as a mount option by a trusted mounting
+> >>>>>>>>> process, whereas in your case you need to automatically set it.
+> >>>>>>>>
+> >>>>>>>> Excellent, thank you for the advice. I'll start on this when I've
+> >>>>>>>> finished with Smack.
+> >>>>>>>
+> >>>>>>> Not tested, but something like this should work. Note that it should
+> >>>>>>> come after the call to security_fs_use() so we know whether SELinux
+> >>>>>>> would even try to use xattrs supplied by the filesystem in the first place.
+> >>>>>>>
+> >>>>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> >>>>>>> index 564079c..84da3a2 100644
+> >>>>>>> --- a/security/selinux/hooks.c
+> >>>>>>> +++ b/security/selinux/hooks.c
+> >>>>>>> @@ -745,6 +745,30 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+> >>>>>>>                         goto out;
+> >>>>>>>                 }
+> >>>>>>>         }
+> >>>>>>> +
+> >>>>>>> +       /*
+> >>>>>>> +        * If this is a user namespace mount, no contexts are allowed
+> >>>>>>> +        * on the command line and security labels must be ignored.
+> >>>>>>> +        */
+> >>>>>>> +       if (sb->s_user_ns != &init_user_ns) {
+> >>>>>>> +               if (context_sid || fscontext_sid || rootcontext_sid ||
+> >>>>>>> +                   defcontext_sid) {
+> >>>>>>> +                       rc = -EACCES;
+> >>>>>>> +                       goto out;
+> >>>>>>> +               }
+> >>>>>>> +               if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
+> >>>>>>> +                       struct block_device *bdev = sb->s_bdev;
+> >>>>>>> +                       sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
+> >>>>>>> +                       if (bdev) {
+> >>>>>>> +                               struct inode_security_struct *isec =
+> >>>>>>> bdev->bd_inode;
+> >>>>>>
+> >>>>>> That should be bdev->bd_inode->i_security.
+> >>>>>
+> >>>>> Sorry, this won't work.  bd_inode is not the inode of the block device
+> >>>>> file that was passed to mount, and it isn't labeled in any way.  It will
+> >>>>> just be unlabeled.
+> >>>>>
+> >>>>> So I guess the only real option here as a fallback is
+> >>>>> sbsec->mntpoint_sid = current_sid().  Which isn't great either, as the
+> >>>>> only case where we currently assign task labels to files is for their
+> >>>>> /proc/pid inodes, and no current policy will therefore allow create
+> >>>>> permission to such files.
+> >>>>
+> >>>> Darn, you're right, that isn't the inode we want. There really doesn't
+> >>>> seem to be any way to get back to the one we want from the LSM, short of
+> >>>> adding a new hook.
+> >>>
+> >>> Maybe list_first_entry(&sb->s_bdev->bd_inodes, struct inode, i_devices)?
+> >>> Feels like a layering violation though...
+> >>
+> >> Yeah, and even though that probably works out to be the inode we want in
+> >> most cases I don't think we can be absolutely certain that it is. Maybe
+> >> there's some way we could walk the list and be sure we've found the
+> >> right inode, but I'm not seeing it.
+> > 
+> > I guess we could do something like this (note that most of the changes
+> > here are just to give a version of blkdev_get_by_path which takes a
+> > struct path * so that the filename lookup doesn't have to be done
+> > twice). Basically add a new hook that informs the security module of the
+> > inode for the backing device file passed to mount and call that from
+> > mount_bdev. The security module could grab a reference to the inode and
+> > stash it away.
+> > 
+> > Something else to note is that, as I have it here, the hook would end up
+> > getting called for every mount of a given block device, not just the
+> > first. So it's possible the security module could see the hook called a
+> > second time with a different inode that has a different label. The hook
+> > could be changed to return int if you wanted to have the opportunity to
+> > reject such mounts.
+> 
+> I'm not comfortable with this approach due to the aliasing/ambiguity you
+> mention, as well as being unsure as to whether we truly want to label it
+> the same as the backing block device (we certainly do not do that for
+> normal mounts). Was also expecting the vfs folks to veto this patch but
+> haven't seen that yet.
 
-> It's worth noting here that I think a lot of the use cases
-> for unprivileged mounts are testing/development type things,
-> and these are pretty well covered by:
->
-> http://libguestfs.org/
->
-> Basically it just runs the host kernel in a VM, and the userspace
-> is a minimal agent that you can talk to over virtio.  You can use
-> the API, or `guestmount` exposes it via FUSE.
->
-> It doesn't magically make the kernel filesystems robust against
-> untrusted input, but in the case of compromise, it's an
-> "unprivileged" VM.  I've used it for several projects and been
-> quite happy.
+Yeah, I wasn't necessarily suggesting that this was a _good_ way to go,
+only that I couldn't find a workable alternative.
 
-Thanks for pointing this out.  That makes it clear we only have to get
-as far as making fuse work for this work to be useful in practice.
+> For now, how about if we just do this to compute the mountpoint label
+> for SELinux:
+> 	rc = security_transition_sid(current_sid(), current_sid(),
+> SECCLASS_FILE, NULL, &sbsec->mntpoint_sid);
+> 	if (rc)
+> 		goto out;
+> 
+> This will turn the current task context into a form suitable for a file
+> object, while simultaneously allowing the policy writer to specify a
+> different label for the files through policy transition rules if desired.
 
-Eric
+Great, I'll incorporate this. Thanks!
+
+Seth
