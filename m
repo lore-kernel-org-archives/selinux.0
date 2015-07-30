@@ -1,12 +1,18 @@
-MIME-Version: 1.0
-Sender: amir73il@gmail.com
-Date: Thu, 30 Jul 2015 07:24:11 +0300
-Message-ID: <CAOQ4uxi4vzf2ok23_ymUoyCjXMHBGY=GpypnTKE-zo-ZNB2SCw@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6UDtrpd010211
+ for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 09:55:54 -0400
+Received: by oixx19 with SMTP id x19so22057072oix.0
+ for <selinux@tycho.nsa.gov>; Thu, 30 Jul 2015 06:55:52 -0700 (PDT)
+Date: Thu, 30 Jul 2015 08:55:31 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Amir Goldstein <amir@cellrox.com>
 Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
-From: Amir Goldstein <amir@cellrox.com>
-To: Seth Forshee <seth.forshee@canonical.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+Message-ID: <20150730135531.GA109168@ubuntu-hedt>
+References: <CAOQ4uxi4vzf2ok23_ymUoyCjXMHBGY=GpypnTKE-zo-ZNB2SCw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAOQ4uxi4vzf2ok23_ymUoyCjXMHBGY=GpypnTKE-zo-ZNB2SCw@mail.gmail.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, Theodore Ts'o <tytso@mit.edu>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  Andy Lutomirski <luto@amacapital.net>,
  Linux FS Devel <linux-fsdevel@vger.kernel.org>,
@@ -18,148 +24,59 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jul 28, 2015 at 11:40 PM, Seth Forshee
-<seth.forshee@canonical.com> wrote:
->
-> On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
-> > > This is what I currently think you want for user ns mounts:
-> > >
-> > >  1. smk_root and smk_default are assigned the label of the backing
-> > >     device.
-
-Seth,
-
-There were 2 main concerns discussed in this thread:
-1. trusting LSM labels outside the namespace
-2. trusting the content of the image file/loopdev
-
-While your approach addresses the first concern, I suspect it may be placing
-an obstacle in a way for resolving the second concern.
-
-A viable security policy to mitigate the second concern could be:
-- Allow only trusted programs (e.g. mkfs, fsck) to write to 'Loopback' images
-- Allow mount only of 'Loopback' images
-
-This should allow the system as a whole to trust unprivileged mounts based on
-the trust of the entities that had raw access the the fs layout.
-
-Alas, if you choose to propagate the backing dev label to contained files,
-they would all share the designated 'Loopback' label and render the policy above
-useless.
-
-Any thoughts on how to reconcile this conflict?
-
-Amir.
-
-
-> > >  2. s_root is assigned the transmute property.
-> > >  3. For existing files:
-> > >     a. Files with the same label as the backing device are accessible.
-> > >     b. Files with any other label are not accessible.
+On Thu, Jul 30, 2015 at 07:24:11AM +0300, Amir Goldstein wrote:
+> On Tue, Jul 28, 2015 at 11:40 PM, Seth Forshee
+> <seth.forshee@canonical.com> wrote:
 > >
-> > That's right. Accept correct data, reject anything that's not right.
-> >
-> > > If this is right, there are a couple lingering questions in my mind.
-> > >
-> > > First, what happens with files created in directories with the same
-> > > label as the backing device but without the transmute property set? The
-> > > inode for the new file will initially be labeled with smk_of_current(),
-> > > but then during d_instantiate it will get smk_default and thus end up
-> > > with the label we want. So that seems okay.
-> >
-> > Yes.
-> >
-> > > The second is whether files with the SMACK64EXEC attribute is still a
-> > > problem. It seems it is, for files with the same label as the backing
-> > > store at least. I think we can simply skip the code that reads out this
-> > > xattr and sets smk_task for user ns mounts, or else skip assigning the
-> > > label to the new task in bprm_set_creds. The latter seems more
-> > > consistent with the approach you've suggested for dealing with labels
-> > > from disk.
-> >
-> > Yes, I think that skipping the smk_fetch(XATTR_NAME_SMACKEXEC, ...) in
-> > smack_d_instantiate for unprivileged mounts would do the trick.
-> >
-> > > So I guess all of that seems okay, though perhaps a bit restrictive
-> > > given that the user who mounted the filesystem already has full access
-> > > to the backing store.
-> >
-> > In truth, there is no reason to expect that the "user" who did the
-> > mount will ever have a Smack label that differs from the label of
-> > the backing store. If what we've got here seems restrictive, it's
-> > because you've got access from someone other than the "user".
-> >
-> > > Please let me know whether or not this matches up with what you are
-> > > thinking, then I can procede with the implementation.
-> >
-> > My current mindset is that, if you're going to allow unprivileged
-> > mounts of user defined backing stores, this is as safe as we can
-> > make it.
->
-> All right, I've got a patch which I think does this, and I've managed to
-> do some testing to confirm that it behaves like I expect. How does this
-> look?
->
-> What's missing is getting the label from the block device inode; as
-> Stephen discovered the inode that I thought we could get the label from
-> turned out to be the wrong one. Afaict we would need a new hook in order
-> to do that, so for now I'm using the label of the proccess calling
-> mount.
->
-> ---
->
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index a143328f75eb..8e631a66b03c 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -662,6 +662,8 @@ static int smack_sb_kern_mount(struct super_block *sb, int flags, void *data)
->                 skp = smk_of_current();
->                 sp->smk_root = skp;
->                 sp->smk_default = skp;
-> +               if (sb_in_userns(sb))
-> +                       transmute = 1;
->         }
->         /*
->          * Initialize the root inode.
-> @@ -1023,6 +1025,12 @@ static int smack_inode_permission(struct inode *inode, int mask)
->         if (mask == 0)
->                 return 0;
->
-> +       if (sb_in_userns(inode->i_sb)) {
-> +               struct superblock_smack *sbsp = inode->i_sb->s_security;
-> +               if (smk_of_inode(inode) != sbsp->smk_root)
-> +                       return -EACCES;
-> +       }
-> +
->         /* May be droppable after audit */
->         if (no_block)
->                 return -ECHILD;
-> @@ -3220,14 +3228,16 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
->                         if (rc >= 0)
->                                 transflag = SMK_INODE_TRANSMUTE;
->                 }
-> -               /*
-> -                * Don't let the exec or mmap label be "*" or "@".
-> -                */
-> -               skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
-> -               if (IS_ERR(skp) || skp == &smack_known_star ||
-> -                   skp == &smack_known_web)
-> -                       skp = NULL;
-> -               isp->smk_task = skp;
-> +               if (!sb_in_userns(inode->i_sb)) {
-> +                       /*
-> +                        * Don't let the exec or mmap label be "*" or "@".
-> +                        */
-> +                       skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
-> +                       if (IS_ERR(skp) || skp == &smack_known_star ||
-> +                           skp == &smack_known_web)
-> +                               skp = NULL;
-> +                       isp->smk_task = skp;
-> +               }
->
->                 skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
->                 if (IS_ERR(skp) || skp == &smack_known_star ||
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
+> > > > This is what I currently think you want for user ns mounts:
+> > > >
+> > > >  1. smk_root and smk_default are assigned the label of the backing
+> > > >     device.
+> 
+> Seth,
+> 
+> There were 2 main concerns discussed in this thread:
+> 1. trusting LSM labels outside the namespace
+> 2. trusting the content of the image file/loopdev
+> 
+> While your approach addresses the first concern, I suspect it may be placing
+> an obstacle in a way for resolving the second concern.
+> 
+> A viable security policy to mitigate the second concern could be:
+> - Allow only trusted programs (e.g. mkfs, fsck) to write to 'Loopback' images
+> - Allow mount only of 'Loopback' images
+> 
+> This should allow the system as a whole to trust unprivileged mounts based on
+> the trust of the entities that had raw access the the fs layout.
+
+You don't really say what you mean by "trusted" programs. In a container
+context I'd have to assume that you mean suid-root or similar programs
+shared into the container by the host. In that case is any new kernel
+functionality even required?
+
+That also doesn't work for some of our use cases, where we'd like to be
+able to do something like "mount -o loop foo.img /mnt/foo" in an
+unprivileged container where foo.img is not created on the local machine
+and not fully under control of the host environment.
+
+Agreed though that the "attack from below" problem for untrusted
+filesystems is still an open question. At minimum we have fuse, which
+has been designed to protect against this threat. Others have mentioned
+on this thread that Ted had said something at kernel summit last year
+about being willing to support ext4 mounts from unprivileged user
+namespaces as well. I've added Ted to the Cc in case he wants to confirm
+or deny this rumor.
+
+> Alas, if you choose to propagate the backing dev label to contained files,
+> they would all share the designated 'Loopback' label and render the policy above
+> useless.
+> 
+> Any thoughts on how to reconcile this conflict?
+
+I'm not seeing what the conflict is here - nothing you proposed says
+anything about security labels in the filesystem, and nothing would
+prevent a "trusted" program with CAP_MAC_ADMIN from setting whatever
+label was desired on the backing device. Care to elaborate?
+
+Seth
