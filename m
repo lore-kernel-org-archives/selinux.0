@@ -1,38 +1,58 @@
-Message-ID: <55BB827C.5020204@tycho.nsa.gov>
-Date: Fri, 31 Jul 2015 10:13:16 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Subject: Re: [PATCH] policycoreutils: Comment constraint rules in audit2allow
+ and sepolgen output
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+References: <1438271598-3776-1-git-send-email-plautrba@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <55BB922B.8010804@tycho.nsa.gov>
+Date: Fri, 31 Jul 2015 11:20:11 -0400
 MIME-Version: 1.0
-To: Dan <dtdevore64@yahoo.com>, selinux@tycho.nsa.gov
-Subject: Re: Does it matter where .cil modules are build.
-References: <55BB0009.4030809@yahoo.com>
-In-Reply-To: <55BB0009.4030809@yahoo.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <1438271598-3776-1-git-send-email-plautrba@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/31/2015 12:56 AM, Dan wrote:
-> Hello everyone,
->
->       I have been reading up on the cil documentation and am starting to get the
-> hang of it and have successfully built my first module. I have a a module called
-> test.cil. Now my only question on is where exactly would I put this module to
-> build it or does it not matter where you stick them at? I know when you take the
-> .pp packages and convert them to .cil  they get stored in
-> /var/lib/selinux/targeted/active/modules/400, but I'm just using the secilc
-> compiler and nothing else to build policy.
->
+On 07/30/2015 11:53 AM, Petr Lautrbach wrote:
+> Constraint rules in output need to be commented in order to make a policy
+> compilable.
+> 
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1155974
+> 
+> Patch-by: Miroslav Grepl <mgrepl@redhat.com>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-If you are using the CIL compiler to build the whole policy, then it doesn't 
-matter where the files are located. Just specify all of the files that are part 
-of the policy on the command line for secilc.
+Thanks, applied.
 
-Do note that the CIL compiler does not build modules, it builds the complete 
-policy, so if you are only building a module than it should go into the policy 
-store. You should also use the policy store if you want to use the management 
-functions of semanage.
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> ---
+>  policycoreutils/audit2allow/audit2allow | 2 +-
+>  sepolgen/src/sepolgen/policygen.py      | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/policycoreutils/audit2allow/audit2allow b/policycoreutils/audit2allow/audit2allow
+> index 62338a0..6bbab40 100644
+> --- a/policycoreutils/audit2allow/audit2allow
+> +++ b/policycoreutils/audit2allow/audit2allow
+> @@ -273,7 +273,7 @@ class AuditToPolicy:
+>              if rc == audit2why.CONSTRAINT:
+>                  print()  # !!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access.\n"
+>                  print("#Constraint rule:")
+> -                print("\n\t" + data[0])
+> +                print("\n#\t" + data[0])
+>                  for reason in data[1:]:
+>                      print("#\tPossible cause is the source %s and target %s are different.\n" % reason)
+>  
+> diff --git a/sepolgen/src/sepolgen/policygen.py b/sepolgen/src/sepolgen/policygen.py
+> index 9cacc35..4438a11 100644
+> --- a/sepolgen/src/sepolgen/policygen.py
+> +++ b/sepolgen/src/sepolgen/policygen.py
+> @@ -177,7 +177,7 @@ class PolicyGenerator:
+>              if av.type == audit2why.CONSTRAINT:
+>                  rule.comment += "\n#!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access."
+>                  rule.comment += "\n#Constraint rule: "
+> -                rule.comment += "\n\t" + av.data[0]
+> +                rule.comment += "\n#\t" + av.data[0]
+>                  for reason in av.data[1:]:
+>                      rule.comment += "\n#\tPossible cause is the source %s and target %s are different." % reason
+>  
+> 
