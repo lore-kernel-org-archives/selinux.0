@@ -1,91 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6V8aXoG013965
- for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 04:36:33 -0400
-Received: by lacct8 with SMTP id ct8so6565953lac.2
- for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 01:36:07 -0700 (PDT)
-MIME-Version: 1.0
-Sender: amir73il@gmail.com
-Date: Fri, 31 Jul 2015 11:36:07 +0300
-Message-ID: <CAOQ4uxiWO_Tkd2QrfLsBmq3aVAfBsDGmXYRZgMMzk+UU35dPdg@mail.gmail.com>
-Subject: Re: [PATCH 1/7] fs: Add user namesapace member to struct super_block
-From: Amir Goldstein <amir@cellrox.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Content-Type: text/plain; charset=UTF-8
-Cc: Serge Hallyn <serge.hallyn@canonical.com>, Theodore Ts'o <tytso@mit.edu>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- "J. Bruce Fields" <bfields@fieldses.org>,
- Seth Forshee <seth.forshee@canonical.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- Jeff Layton <jlayton@poochiereds.net>
+Message-id: <1438334936.2081.6.camel@samsung.com>
+Subject: Re: [PATCH v3 01/11] user_ns: 3 new LSM hooks for user namespace
+ operations
+From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Date: Fri, 31 Jul 2015 11:28:56 +0200
+In-reply-to: <20150730213059.GA13589@mail.hallyn.com>
+References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-2-git-send-email-l.pawelczyk@samsung.com>
+ <20150730213059.GA13589@mail.hallyn.com>
+Content-type: text/plain; charset=UTF-8
+MIME-version: 1.0
+Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
+ linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
+ Jonathan Corbet <corbet@lwn.net>, havner@gmail.com,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
+ Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
+ Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
+ James Morris <james.l.morris@oracle.com>,
+ John Johansen <john.johansen@canonical.com>,
+ Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
+ Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 16, 2015 at 5:47 AM, Eric W. Biederman
-<ebiederm@xmission.com> wrote:
-> Seth Forshee <seth.forshee@canonical.com> writes:
->
->> Initially this will be used to eliminate the implicit MNT_NODEV
->> flag for mounts from user namespaces. In the future it will also
->> be used for translating ids and checking capabilities for
->> filesystems mounted from user namespaces.
->>
->> s_user_ns is initialized in alloc_super() and is generally set to
->> current_user_ns(). To avoid security and corruption issues, two
->> additional mount checks are also added:
->>
->>  - do_new_mount() gains a check that the user has CAP_SYS_ADMIN
->>    in current_user_ns().
->>
->>  - sget() will fail with EBUSY when the filesystem it's looking
->>    for is already mounted from another user namespace.
->>
->> proc needs some special handling here. The user namespace of
->> current isn't appropriate when forking as a result of clone (2)
->> with CLONE_NEWPID|CLONE_NEWUSER, as it will make proc unmountable
->> from within the new user namespace. Instead, the user namespace
->> which owns the new pid namespace should be used. sget_userns() is
->> added to allow passing of a user namespace other than that of
->> current, and this is used by proc_mount(). sget() becomes a
->> wrapper around sget_userns() which passes current_user_ns().
->
-> From bits of the previous conversation.
->
-> We need sget_userns(..., &init_user_ns) for sysfs.  The sysfs
-> xattrs can travel from one mount of sysfs to another via the sysfs
-> backing store.
->
-> For tmpfs and any other filesystems we support mounting without
-> privilige that support xattrs.  We need to identify them and
-> see if userspace is taking advantage of the ability to set
-> xattrs and file caps (unlikely).  If they are we need to call
-> sget_userns(..., &init_user_ns) on those filesystems as well.
->
-> Possibly/Probably we should just do that for all of the interesting
-> filesystems to start with and then change back to an ordinary old sget
-> after we have done the testing and confirmed we will not be introducing
-> userspace regressions.
+On czw, 2015-07-30 at 16:30 -0500, Serge E. Hallyn wrote:
+> On Fri, Jul 24, 2015 at 12:04:35PM +0200, Lukasz Pawelczyk wrote:
+> > @@ -969,6 +982,7 @@ static int userns_install(struct nsproxy 
+> > *nsproxy, struct ns_common *ns)
+> >  {
+> >  	struct user_namespace *user_ns = to_user_ns(ns);
+> >  	struct cred *cred;
+> > +	int err;
+> >  
+> >  	/* Don't allow gaining capabilities by reentering
+> >  	 * the same user namespace.
+> > @@ -986,6 +1000,10 @@ static int userns_install(struct nsproxy 
+> > *nsproxy, struct ns_common *ns)
+> >  	if (!ns_capable(user_ns, CAP_SYS_ADMIN))
+> >  		return -EPERM;
+> >  
+> > +	err = security_userns_setns(nsproxy, user_ns);
+> > +	if (err)
+> > +		return err;
+> 
+> So at this point the LSM thinks current is in the new ns.  If
+> prepare_creds() fails below, should it be informed of that?
+> (Or am I over-thinking this?)
+> 
+> > +
+> >  	cred = prepare_creds();
+> >  	if (!cred)
+> >  		return -ENOMEM;
 
-Eric,
+Hmm, the use case for this hook I had in mind was just to allow or
+disallow the operation based on the information passed in arguments.
+Not to register the current in any way so LSM can think it is or isn't
+in the new namespace.
 
-Perhaps it is too soon to discuss here, but how do you envision
-handling of file system private mount options in user ns.
+I think that any other LSM check that would like to know in what
+namespace the current is, would just check that from current's creds.
+Not use some stale and duplicated information the above hook could have
+registered.
 
-For example, suppose that we get to a point where we can trust
-an ext4 loopback mount to be non vulnerable to exploits.
-That loopback mounted fs could very well have errors and so
-error=panic option would be very much undesired from unprivileged user mount.
+I see no reason for this hook to change the LSM state, only to answer
+the question: allowed/disallowed (eventually return an error cause it
+is unable to give an answer which falls into the disallow category).
 
-Do you think this would require extra flags/callbacks from VFS to
-file system code or would s_user_ns be sufficient?
 
->
-> Eric
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Lukasz Pawelczyk
+Samsung R&D Institute Poland
+Samsung Electronics
