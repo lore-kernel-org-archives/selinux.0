@@ -1,64 +1,47 @@
-Subject: Re: Android checkpolicy crash
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <476DC76E7D1DF2438D32BFADF679FC5601042D91@ORSMSX103.amr.corp.intel.com>
- <55BB6D6F.2070104@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <55BB6EAD.30400@tycho.nsa.gov>
-Date: Fri, 31 Jul 2015 08:48:45 -0400
-MIME-Version: 1.0
-In-Reply-To: <55BB6D6F.2070104@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov
+Subject: [PATCH] checkpolicy: fix double free on name-based type transitions
+Date: Fri, 31 Jul 2015 09:03:11 -0400
+Message-Id: <1438347791-20224-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/31/2015 08:43 AM, Stephen Smalley wrote:
-> On 07/29/2015 08:11 PM, Roberts, William C wrote:
->> I was investigating to see if we could start using
->> file_type_auto_trans() for named file transitions, however the macro
->> didn’t support passing name.
->>
->> I have this hack’d up diff on the AOSP master branch (see attached
->> patch.diff) that does it however is able to somehow trigger a
->> checkpolicy crash
->>
->>  
->>
->> It dies on this line in the attached policy.conf:
->>
->> type_transition system_server system_data_file:{ file lnk_file sock_file
->> fifo_file } system_ndebug_socket "ndebugsocket";
->>
->>  
->>
->> When you drop that line to a single class it works fine:
->>
->> type_transition system_server system_data_file:sock_file
->> system_ndebug_socket "ndebugsocket";
->>
->>  
->>
->> Valgrind reports some invalid free’s and memory accesses, see attached
->> valgrind.log.
-> 
-> So this is a bug (pointer aliasing in define_filename_trans() in
-> checkpolicy; need to copy the type sets for each class when creating the
-> rules), but I don't think you want to do this regardless.  You always
-> want to be specific about the class when writing a name-based
-> transition, and you don't want to generate a bunch of dead rules that
-> will never be used.  file_type_trans()/file_type_auto_trans() in Android
-> policy is only really useful if you truly want it applied to all
-> classes, unless we change it to take an argument to specify the target
-> classes (this is what is done in refpolicy, in filetrans_pattern()).
+checkpolicy was directly assigning type sets rather than using
+type_set_cpy() and therefore creating pointer aliases to the
+same type set from multiple filename-based type transition rules
+if they specified multiple classes.  This would then yield a double
+free when destroying the rules afterward and a segmentation fault.
+Fix it to use type_set_cpy().
 
-Also, don't go overboard on name-based transitions; they should only be
-used when you need to separately label two files of the same class
-created in the same directory by the same process (and even then, should
-weigh against the cost of modifying the program to assign a specific
-label).  They were only designed to deal with exceptional cases and that
-code path is not optimized for large numbers of such rules, compared to
-a conventional type transition.  Fedora went overboard with them
-unfortunately once they were introduced.
+Reported-by: William C Roberts <william.c.roberts@intel.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ checkpolicy/policy_define.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index da47566..7f32029 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -3315,8 +3315,14 @@ int define_filename_trans(void)
+ 		append_filename_trans(ftr);
+ 
+ 		ftr->name = strdup(name);
+-		ftr->stypes = stypes;
+-		ftr->ttypes = ttypes;
++		if (type_set_cpy(&ftr->stypes, &stypes)) {
++			yyerror("out of memory");
++			goto bad;
++		}
++		if (type_set_cpy(&ftr->ttypes, &ttypes)) {
++			yyerror("out of memory");
++			goto bad;
++		}
+ 		ftr->tclass = c + 1;
+ 		ftr->otype = otype;
+ 	}
+-- 
+2.1.0
