@@ -1,131 +1,91 @@
-Date: Thu, 30 Jul 2015 17:42:56 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-Subject: Re: [PATCH v3 06/11] smack: don't use implicit star to display
- smackfs/syslog
-Message-ID: <20150730224256.GF13589@mail.hallyn.com>
-References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-7-git-send-email-l.pawelczyk@samsung.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6V8aXoG013965
+ for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 04:36:33 -0400
+Received: by lacct8 with SMTP id ct8so6565953lac.2
+ for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 01:36:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437732285-11524-7-git-send-email-l.pawelczyk@samsung.com>
-Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
- linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
- Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
- Jonathan Corbet <corbet@lwn.net>, havner@gmail.com,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
- Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
- James Morris <james.l.morris@oracle.com>,
- John Johansen <john.johansen@canonical.com>,
- Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
- Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Sender: amir73il@gmail.com
+Date: Fri, 31 Jul 2015 11:36:07 +0300
+Message-ID: <CAOQ4uxiWO_Tkd2QrfLsBmq3aVAfBsDGmXYRZgMMzk+UU35dPdg@mail.gmail.com>
+Subject: Re: [PATCH 1/7] fs: Add user namesapace member to struct super_block
+From: Amir Goldstein <amir@cellrox.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, Theodore Ts'o <tytso@mit.edu>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, SELinux-NSA <selinux@tycho.nsa.gov>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Jeff Layton <jlayton@poochiereds.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 24, 2015 at 12:04:40PM +0200, Lukasz Pawelczyk wrote:
-> Smackfs/syslog is analogous to onlycap and unconfined. When not filled
-> they don't do anything. In such cases onlycap and unconfined displayed
-> nothing when read, but syslog unconditionally displayed star. This
-> doesn't work well with namespaces where the star could have been
-> unmapped. Besides the meaning of this star was different then a star
-> that could be written to this file. This was misleading.
-> 
-> This also brings syslog read/write functions on par with onlycap and
-> unconfined where it is possible to reset the value to NULL as should be
-> possible according to comment in smackfs.c describing smack_syslog_label
-> variable.
-> 
-> Before that the initial state was to allow (smack_syslog_label was
-> NULL), but after writing star to it the current had to be labeled star
-> as well to have an access, even thought reading the smackfs/syslog
-> returned the same result in both cases.
-> 
-> Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+On Thu, Jul 16, 2015 at 5:47 AM, Eric W. Biederman
+<ebiederm@xmission.com> wrote:
+> Seth Forshee <seth.forshee@canonical.com> writes:
+>
+>> Initially this will be used to eliminate the implicit MNT_NODEV
+>> flag for mounts from user namespaces. In the future it will also
+>> be used for translating ids and checking capabilities for
+>> filesystems mounted from user namespaces.
+>>
+>> s_user_ns is initialized in alloc_super() and is generally set to
+>> current_user_ns(). To avoid security and corruption issues, two
+>> additional mount checks are also added:
+>>
+>>  - do_new_mount() gains a check that the user has CAP_SYS_ADMIN
+>>    in current_user_ns().
+>>
+>>  - sget() will fail with EBUSY when the filesystem it's looking
+>>    for is already mounted from another user namespace.
+>>
+>> proc needs some special handling here. The user namespace of
+>> current isn't appropriate when forking as a result of clone (2)
+>> with CLONE_NEWPID|CLONE_NEWUSER, as it will make proc unmountable
+>> from within the new user namespace. Instead, the user namespace
+>> which owns the new pid namespace should be used. sget_userns() is
+>> added to allow passing of a user namespace other than that of
+>> current, and this is used by proc_mount(). sget() becomes a
+>> wrapper around sget_userns() which passes current_user_ns().
+>
+> From bits of the previous conversation.
+>
+> We need sget_userns(..., &init_user_ns) for sysfs.  The sysfs
+> xattrs can travel from one mount of sysfs to another via the sysfs
+> backing store.
+>
+> For tmpfs and any other filesystems we support mounting without
+> privilige that support xattrs.  We need to identify them and
+> see if userspace is taking advantage of the ability to set
+> xattrs and file caps (unlikely).  If they are we need to call
+> sget_userns(..., &init_user_ns) on those filesystems as well.
+>
+> Possibly/Probably we should just do that for all of the interesting
+> filesystems to start with and then change back to an ordinary old sget
+> after we have done the testing and confirmed we will not be introducing
+> userspace regressions.
 
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+Eric,
 
-> ---
->  security/smack/smackfs.c | 42 +++++++++++++++++++++++++++---------------
->  1 file changed, 27 insertions(+), 15 deletions(-)
-> 
-> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-> index 81a2888..89f847bba 100644
-> --- a/security/smack/smackfs.c
-> +++ b/security/smack/smackfs.c
-> @@ -2362,23 +2362,20 @@ static const struct file_operations smk_change_rule_ops = {
->  static ssize_t smk_read_syslog(struct file *filp, char __user *buf,
->  				size_t cn, loff_t *ppos)
->  {
-> -	struct smack_known *skp;
-> +	char *smack = "";
->  	ssize_t rc = -EINVAL;
->  	int asize;
->  
->  	if (*ppos != 0)
->  		return 0;
->  
-> -	if (smack_syslog_label == NULL)
-> -		skp = &smack_known_star;
-> -	else
-> -		skp = smack_syslog_label;
-> +	if (smack_syslog_label != NULL)
-> +		smack = smack_syslog_label->smk_known;
->  
-> -	asize = strlen(skp->smk_known) + 1;
-> +	asize = strlen(smack) + 1;
->  
->  	if (cn >= asize)
-> -		rc = simple_read_from_buffer(buf, cn, ppos, skp->smk_known,
-> -						asize);
-> +		rc = simple_read_from_buffer(buf, cn, ppos, smack, asize);
->  
->  	return rc;
->  }
-> @@ -2406,16 +2403,31 @@ static ssize_t smk_write_syslog(struct file *file, const char __user *buf,
->  	if (data == NULL)
->  		return -ENOMEM;
->  
-> -	if (copy_from_user(data, buf, count) != 0)
-> +	if (copy_from_user(data, buf, count) != 0) {
->  		rc = -EFAULT;
-> -	else {
-> -		skp = smk_import_entry(data, count);
-> -		if (IS_ERR(skp))
-> -			rc = PTR_ERR(skp);
-> -		else
-> -			smack_syslog_label = skp;
-> +		goto freeout;
->  	}
->  
-> +	/*
-> +	 * Clear the smack_syslog_label on invalid label errors. This means
-> +	 * that we can pass a null string to unset the syslog value.
-> +	 *
-> +	 * Importing will also reject a label beginning with '-',
-> +	 * so "-syslog" will also work.
-> +	 *
-> +	 * But do so only on invalid label, not on system errors.
-> +	 */
-> +	skp = smk_import_entry(data, count);
-> +	if (PTR_ERR(skp) == -EINVAL)
-> +		skp = NULL;
-> +	else if (IS_ERR(skp)) {
-> +		rc = PTR_ERR(skp);
-> +		goto freeout;
-> +	}
-> +
-> +	smack_syslog_label = skp;
-> +
-> +freeout:
->  	kfree(data);
->  	return rc;
->  }
-> -- 
-> 2.4.3
+Perhaps it is too soon to discuss here, but how do you envision
+handling of file system private mount options in user ns.
+
+For example, suppose that we get to a point where we can trust
+an ext4 loopback mount to be non vulnerable to exploits.
+That loopback mounted fs could very well have errors and so
+error=panic option would be very much undesired from unprivileged user mount.
+
+Do you think this would require extra flags/callbacks from VFS to
+file system code or would s_user_ns be sufficient?
+
+>
+> Eric
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
