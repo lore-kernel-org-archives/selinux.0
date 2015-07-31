@@ -1,275 +1,133 @@
-Date: Thu, 30 Jul 2015 16:49:09 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-Subject: Re: [PATCH v3 02/11] lsm: /proc/$PID/attr/label_map file and
- getprocattr_seq hook
-Message-ID: <20150730214909.GB13589@mail.hallyn.com>
-References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-3-git-send-email-l.pawelczyk@samsung.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t6V8BUbV012966
+ for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 04:11:30 -0400
+Received: by ykax123 with SMTP id x123so53814222yka.1
+ for <selinux@tycho.nsa.gov>; Fri, 31 Jul 2015 01:11:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1437732285-11524-3-git-send-email-l.pawelczyk@samsung.com>
-Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
- linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
- Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
- Jonathan Corbet <corbet@lwn.net>, havner@gmail.com,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
- Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
- James Morris <james.l.morris@oracle.com>,
- John Johansen <john.johansen@canonical.com>,
- Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
- Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Date: Fri, 31 Jul 2015 11:11:13 +0300
+Message-ID: <CAA2m6vdCmHf1=F=QrjCYEtxdEVMDtp7wKza=vd6Tpv-L9XTqHg@mail.gmail.com>
+Subject: Re: [PATCH 0/7] Initial support for user namespace owned mounts
+From: Amir Goldstein <amir@cellrox.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, Theodore Ts'o <tytso@mit.edu>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ SELinux-NSA <selinux@tycho.nsa.gov>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Alexander Viro <viro@zeniv.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 24, 2015 at 12:04:36PM +0200, Lukasz Pawelczyk wrote:
-> This commit adds a new proc attribute, label_map that is required by an
-> upcoming Smack namespace. In general it can be used to hold a map of
-> labels, e.g. to be used in namespaces.
-> 
-> Due to the nature of this file, the standard getprocattr hook might not
-> be enough to handle it. The map's output can in principle be greater
-> than page size to which the aforementioned hook is limited.
-> To handle this properly a getprocattr_seq LSM hook has been added that
-> makes it possible to handle any chosen proc attr by seq operations.
-> 
-> See the documentation in the patch below for the details about how to
-> use the hook.
-> 
-> Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+On Thu, Jul 30, 2015 at 6:33 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 7/30/2015 7:47 AM, Amir Goldstein wrote:
+>> On Thu, Jul 30, 2015 at 4:55 PM, Seth Forshee
+>> <seth.forshee@canonical.com> wrote:
+>>> On Thu, Jul 30, 2015 at 07:24:11AM +0300, Amir Goldstein wrote:
+>>>> On Tue, Jul 28, 2015 at 11:40 PM, Seth Forshee
+>>>> <seth.forshee@canonical.com> wrote:
+>>>>> On Wed, Jul 22, 2015 at 05:05:17PM -0700, Casey Schaufler wrote:
+>>>>>>> This is what I currently think you want for user ns mounts:
+>>>>>>>
+>>>>>>>  1. smk_root and smk_default are assigned the label of the backing
+>>>>>>>     device.
+>>>> Seth,
+>>>>
+>>>> There were 2 main concerns discussed in this thread:
+>>>> 1. trusting LSM labels outside the namespace
+>>>> 2. trusting the content of the image file/loopdev
+>>>>
+>>>> While your approach addresses the first concern, I suspect it may be placing
+>>>> an obstacle in a way for resolving the second concern.
+>>>>
+>>>> A viable security policy to mitigate the second concern could be:
+>>>> - Allow only trusted programs (e.g. mkfs, fsck) to write to 'Loopback' images
+>>>> - Allow mount only of 'Loopback' images
+>>>>
+>>>> This should allow the system as a whole to trust unprivileged mounts based on
+>>>> the trust of the entities that had raw access the the fs layout.
+>>> You don't really say what you mean by "trusted" programs. In a container
+>>> context I'd have to assume that you mean suid-root or similar programs
+>>> shared into the container by the host. In that case is any new kernel
+>>> functionality even required?
+>> Sorry I was not clear. I will try to explain better.
+>> I meant that the programs are "trusted" by the LSM security policy.
+>> I envisioned a system where unprivileged user is allowed to spawn
+>> a container which contains "trusted" programs (e.g. mkfs) that are labeled
+>> as 'FileSystemTools' by the admin of the host.
+>> FileSystemTools are allowed to write into Loopback labeled files.
+>
+> You could do this on a Smack based system. It would require
+> CAP_MAC_ADMIN and CAP_MAC_OVERRIDE to set up. You would need
+> to set some SMACK64EXEC labels on your FileSystemTools, and
+> they would have to be written as carefully as the would if they
+> had "more" privilege. You'd need to designate a repository for
+> your loopback files. On the whole, it would be unattractive.
+> I will pass on providing the details for fear someone will like
+> it well enough to implement.
+>
+>>> That also doesn't work for some of our use cases, where we'd like to be
+>>> able to do something like "mount -o loop foo.img /mnt/foo" in an
+>>> unprivileged container where foo.img is not created on the local machine
+>>> and not fully under control of the host environment.
+>> That use case will not be addressed by the policy I suggested,
+>> but the more common case of:
+>> - create a loopback file
+>> - mkfs
+>> - mount
+>> will be addressed.
+>>
+>> So if the (host) admin of the system trusts that unprivileged user cannot create
+>> a malicious fs layout using mkfs and fsck alone, then the system is
+>> relatively safe
+>> mounting (non fuse) file systems from loopback files.
+>> IMHO, this statement is going to be easier for Ted to sign.
+>
+> But that sort of defeats the purpose of unprivileged mounts.
+> Or rather, you're trying to place restrictions on what an
+> unprivileged user can do without calling the ability to
+> violate those restrictions "privilege".
 
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+I don't understand your concern.
+I am saying that LSM can come to the rescue, in a use case that
+many have been considering as unsolvable (i.e. the loopback tampering).
 
-> ---
->  fs/proc/base.c            | 81 +++++++++++++++++++++++++++++++++++++++++++----
->  include/linux/lsm_hooks.h | 15 +++++++++
->  include/linux/security.h  |  9 ++++++
->  security/security.c       |  8 +++++
->  4 files changed, 107 insertions(+), 6 deletions(-)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index aa50d1a..e5ac827 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -2338,20 +2338,77 @@ out:
->  }
->  
->  #ifdef CONFIG_SECURITY
-> +static int proc_pid_attr_open(struct inode *inode, struct file *file)
-> +{
-> +	const char *name = file->f_path.dentry->d_name.name;
-> +	const struct seq_operations *ops;
-> +	struct task_struct *task;
-> +	struct seq_file *seq;
-> +	int ret;
-> +
-> +	file->private_data = NULL;
-> +
-> +	task = get_proc_task(inode);
-> +	if (!task)
-> +		return -ESRCH;
-> +
-> +	/* don't use seq_ops if they are not provided by LSM */
-> +	ret = security_getprocattr_seq(task, name, &ops);
-> +	if (ret == -EOPNOTSUPP) {
-> +		put_task_struct(task);
-> +		return 0;
-> +	}
-> +	if (ret) {
-> +		put_task_struct(task);
-> +		return ret;
-> +	}
-> +
-> +	ret = seq_open(file, ops);
-> +	if (ret) {
-> +		put_task_struct(task);
-> +		return ret;
-> +	}
-> +
-> +	seq = file->private_data;
-> +	seq->private = task;
-> +
-> +	return 0;
-> +}
-> +
-> +static int proc_pid_attr_release(struct inode *inode, struct file *file)
-> +{
-> +	struct seq_file *seq;
-> +	struct task_struct *task;
-> +
-> +	/* don't use seq_ops if they were not provided by LSM */
-> +	if (file->private_data == NULL)
-> +		return 0;
-> +
-> +	seq = file->private_data;
-> +	task = seq->private;
-> +	put_task_struct(task);
-> +
-> +	return seq_release(inode, file);
-> +}
-> +
->  static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
->  				  size_t count, loff_t *ppos)
->  {
-> -	struct inode * inode = file_inode(file);
-> +	struct inode *inode = file_inode(file);
-> +	const char *name = file->f_path.dentry->d_name.name;
->  	char *p = NULL;
->  	ssize_t length;
-> -	struct task_struct *task = get_proc_task(inode);
-> +	struct task_struct *task;
-> +
-> +	/* use seq_ops if they were provided by LSM */
-> +	if (file->private_data)
-> +		return seq_read(file, buf, count, ppos);
->  
-> +	task = get_proc_task(inode);
->  	if (!task)
->  		return -ESRCH;
->  
-> -	length = security_getprocattr(task,
-> -				      (char*)file->f_path.dentry->d_name.name,
-> -				      &p);
-> +	length = security_getprocattr(task, (char *)name, &p);
->  	put_task_struct(task);
->  	if (length > 0)
->  		length = simple_read_from_buffer(buf, count, ppos, p, length);
-> @@ -2359,6 +2416,15 @@ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
->  	return length;
->  }
->  
-> +static loff_t proc_pid_attr_lseek(struct file *file, loff_t offset, int whence)
-> +{
-> +	/* use seq_ops if they were provided by LSM */
-> +	if (file->private_data)
-> +		return seq_lseek(file, offset, whence);
-> +
-> +	return generic_file_llseek(file, offset, whence);
-> +}
-> +
->  static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->  				   size_t count, loff_t *ppos)
->  {
-> @@ -2405,9 +2471,11 @@ out_no_task:
->  }
->  
->  static const struct file_operations proc_pid_attr_operations = {
-> +	.open		= proc_pid_attr_open,
-> +	.release	= proc_pid_attr_release,
->  	.read		= proc_pid_attr_read,
-> +	.llseek		= proc_pid_attr_lseek,
->  	.write		= proc_pid_attr_write,
-> -	.llseek		= generic_file_llseek,
->  };
->  
->  static const struct pid_entry attr_dir_stuff[] = {
-> @@ -2417,6 +2485,7 @@ static const struct pid_entry attr_dir_stuff[] = {
->  	REG("fscreate",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
->  	REG("keycreate",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
->  	REG("sockcreate", S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-> +	REG("label_map",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
->  };
->  
->  static int proc_attr_dir_readdir(struct file *file, struct dir_context *ctx)
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 228558c..d347e66 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -1208,6 +1208,18 @@
->   *	@name full extended attribute name to check against
->   *	LSM as a MAC label.
->   *
-> + * @getprocattr_seq:
-> + *	An alternative to the getprocattr, that makes it possible for an attr
-> + *	file to be handled by seq operations. If this function returns valid
-> + *	@ops for a specific @name, those operations will be used and
-> + *	getprocattr will not be called.
-> + *	A proper task for the file is then passed in seq_file->private.
-> + *	@p a task associated with the proc file.
-> + *	@name name of the attr file under /proc/$PID/attr/ to be handled.
-> + *	@ops (out) seq_operations to be used for @name.
-> + *	Return 0 if @name is to be handled by seq, EOPNOTSUPP if getprocattr()
-> + *	should be used. Other errors will be passed to user-space.
-> + *
->   * @secid_to_secctx:
->   *	Convert secid to security context.  If secdata is NULL the length of
->   *	the result will be returned in seclen, but no secdata will be returned.
-> @@ -1525,6 +1537,8 @@ union security_list_options {
->  
->  	void (*d_instantiate)(struct dentry *dentry, struct inode *inode);
->  
-> +	int (*getprocattr_seq)(struct task_struct *p, const char *name,
-> +			       const struct seq_operations **ops);
->  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
->  	int (*setprocattr)(struct task_struct *p, char *name, void *value,
->  				size_t size);
-> @@ -1774,6 +1788,7 @@ struct security_hook_heads {
->  	struct list_head sem_semop;
->  	struct list_head netlink_send;
->  	struct list_head d_instantiate;
-> +	struct list_head getprocattr_seq;
->  	struct list_head getprocattr;
->  	struct list_head setprocattr;
->  	struct list_head ismaclabel;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 1b0eccc..3090bb2 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -345,6 +345,8 @@ int security_sem_semctl(struct sem_array *sma, int cmd);
->  int security_sem_semop(struct sem_array *sma, struct sembuf *sops,
->  			unsigned nsops, int alter);
->  void security_d_instantiate(struct dentry *dentry, struct inode *inode);
-> +int security_getprocattr_seq(struct task_struct *p, const char *name,
-> +			     const struct seq_operations **ops);
->  int security_getprocattr(struct task_struct *p, char *name, char **value);
->  int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
->  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
-> @@ -1057,6 +1059,13 @@ static inline int security_sem_semop(struct sem_array *sma,
->  static inline void security_d_instantiate(struct dentry *dentry, struct inode *inode)
->  { }
->  
-> +static inline int security_getprocattr_seq(struct task_struct *p,
-> +					   const char *name,
-> +					   const struct seq_operations **ops)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +
->  static inline int security_getprocattr(struct task_struct *p, char *name, char **value)
->  {
->  	return -EINVAL;
-> diff --git a/security/security.c b/security/security.c
-> index 5e66388..e348e38 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1126,6 +1126,12 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode)
->  }
->  EXPORT_SYMBOL(security_d_instantiate);
->  
-> +int security_getprocattr_seq(struct task_struct *p, const char *name,
-> +			     const struct seq_operations **ops)
-> +{
-> +	return call_int_hook(getprocattr_seq, -EOPNOTSUPP, p, name, ops);
-> +}
-> +
->  int security_getprocattr(struct task_struct *p, char *name, char **value)
->  {
->  	return call_int_hook(getprocattr, -EINVAL, p, name, value);
-> @@ -1778,6 +1784,8 @@ struct security_hook_heads security_hook_heads = {
->  	.netlink_send =	LIST_HEAD_INIT(security_hook_heads.netlink_send),
->  	.d_instantiate =
->  		LIST_HEAD_INIT(security_hook_heads.d_instantiate),
-> +	.getprocattr_seq =
-> +		LIST_HEAD_INIT(security_hook_heads.getprocattr_seq),
->  	.getprocattr =	LIST_HEAD_INIT(security_hook_heads.getprocattr),
->  	.setprocattr =	LIST_HEAD_INIT(security_hook_heads.setprocattr),
->  	.ismaclabel =	LIST_HEAD_INIT(security_hook_heads.ismaclabel),
-> -- 
-> 2.4.3
+Yes, I am trying to place restrictions on what an unprivileged user can do.
+As it stands right now, user is about to gain the ability to mount FUSE.
+With some extra care on crafting the policy and without any extra code,
+user can gain the ability to mount "trusted loopback files".
+It does not solve all use cases, but it does solve a handful.
+
+Anyway, the concern I was raising was about the fact that if files inside
+the loopback mount inherit the label of the loopback file, this policy is
+going to be impossible to write.
+But Stephan has already proposed an alternative to this implicit inherit rule
+on [PATCH 6/7] thread, so I withdraw my concern.
+
+
+>
+>>
+>>> Agreed though that the "attack from below" problem for untrusted
+>>> filesystems is still an open question. At minimum we have fuse, which
+>>> has been designed to protect against this threat. Others have mentioned
+>>> on this thread that Ted had said something at kernel summit last year
+>>> about being willing to support ext4 mounts from unprivileged user
+>>> namespaces as well. I've added Ted to the Cc in case he wants to confirm
+>>> or deny this rumor.
+>>>
+>>>> Alas, if you choose to propagate the backing dev label to contained files,
+>>>> they would all share the designated 'Loopback' label and render the policy above
+>>>> useless.
+>>>>
+>>>> Any thoughts on how to reconcile this conflict?
+>>> I'm not seeing what the conflict is here - nothing you proposed says
+>>> anything about security labels in the filesystem, and nothing would
+>>> prevent a "trusted" program with CAP_MAC_ADMIN from setting whatever
+>>> label was desired on the backing device. Care to elaborate?
+>>>
+>>> Seth
+>
