@@ -1,78 +1,74 @@
-Date: Fri, 31 Jul 2015 22:48:16 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-Subject: Re: [PATCH v3 01/11] user_ns: 3 new LSM hooks for user namespace
- operations
-Message-ID: <20150801034816.GA5541@mail.hallyn.com>
-References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-2-git-send-email-l.pawelczyk@samsung.com>
- <20150730213059.GA13589@mail.hallyn.com>
- <1438334936.2081.6.camel@samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1438334936.2081.6.camel@samsung.com>
-Cc: linux-doc@vger.kernel.org, NeilBrown <neilb@suse.de>,
- linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
- Eric Dumazet <edumazet@google.com>, selinux@tycho.nsa.gov,
- Jonathan Corbet <corbet@lwn.net>, havner@gmail.com,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Jiri Slaby <jslaby@suse.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Alexey Dobriyan <adobriyan@gmail.com>, Kees Cook <keescook@chromium.org>,
- Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- Fabian Frederick <fabf@skynet.be>, Al Viro <viro@zeniv.linux.org.uk>,
- James Morris <james.l.morris@oracle.com>,
- John Johansen <john.johansen@canonical.com>,
- Greg KH <gregkh@linuxfoundation.org>, Oleg Nesterov <oleg@redhat.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-security-module@vger.kernel.org,
- Zefan Li <lizefan@huawei.com>, Joe Perches <joe@perches.com>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: Does it matter where .cil modules are build.
+To: Dan <dtdevore64@yahoo.com>, James Carter <jwcart2@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov
+References: <55BB0009.4030809@yahoo.com> <55BB827C.5020204@tycho.nsa.gov>
+ <55BBD9EE.7030508@yahoo.com>
+From: Miroslav Grepl <mgrepl@redhat.com>
+Message-ID: <55BF0863.4010304@redhat.com>
+Date: Mon, 3 Aug 2015 08:21:23 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <55BBD9EE.7030508@yahoo.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 31, 2015 at 11:28:56AM +0200, Lukasz Pawelczyk wrote:
-> On czw, 2015-07-30 at 16:30 -0500, Serge E. Hallyn wrote:
-> > On Fri, Jul 24, 2015 at 12:04:35PM +0200, Lukasz Pawelczyk wrote:
-> > > @@ -969,6 +982,7 @@ static int userns_install(struct nsproxy 
-> > > *nsproxy, struct ns_common *ns)
-> > >  {
-> > >  	struct user_namespace *user_ns = to_user_ns(ns);
-> > >  	struct cred *cred;
-> > > +	int err;
-> > >  
-> > >  	/* Don't allow gaining capabilities by reentering
-> > >  	 * the same user namespace.
-> > > @@ -986,6 +1000,10 @@ static int userns_install(struct nsproxy 
-> > > *nsproxy, struct ns_common *ns)
-> > >  	if (!ns_capable(user_ns, CAP_SYS_ADMIN))
-> > >  		return -EPERM;
-> > >  
-> > > +	err = security_userns_setns(nsproxy, user_ns);
-> > > +	if (err)
-> > > +		return err;
-> > 
-> > So at this point the LSM thinks current is in the new ns.  If
-> > prepare_creds() fails below, should it be informed of that?
-> > (Or am I over-thinking this?)
-> > 
-> > > +
-> > >  	cred = prepare_creds();
-> > >  	if (!cred)
-> > >  		return -ENOMEM;
+On 07/31/2015 10:26 PM, Dan wrote:
+> Yeah I'm just looking to build selinux policies to confine applications,
+> etc, with the cil language and nothing else, so when you say the policy
+> store is that the /var/lib/selinux/targeted/active/modules/400 directory?
 > 
-> Hmm, the use case for this hook I had in mind was just to allow or
-> disallow the operation based on the information passed in arguments.
-> Not to register the current in any way so LSM can think it is or isn't
-> in the new namespace.
-> 
-> I think that any other LSM check that would like to know in what
-> namespace the current is, would just check that from current's creds.
-> Not use some stale and duplicated information the above hook could have
-> registered.
-> 
-> I see no reason for this hook to change the LSM state, only to answer
-> the question: allowed/disallowed (eventually return an error cause it
-> is unable to give an answer which falls into the disallow category).
+> On 07/31/2015 10:13 AM, James Carter wrote:
+>> On 07/31/2015 12:56 AM, Dan wrote:
+>>> Hello everyone,
+>>>
+>>>       I have been reading up on the cil documentation and am starting
+>>> to get the
+>>> hang of it and have successfully built my first module. I have a a
+>>> module called
+>>> test.cil. Now my only question on is where exactly would I put this
+>>> module to
+>>> build it or does it not matter where you stick them at? I know when
+>>> you take the
+>>> .pp packages and convert them to .cil  they get stored in
+>>> /var/lib/selinux/targeted/active/modules/400, but I'm just using the
+>>> secilc
+>>> compiler and nothing else to build policy.
 
-How about renaming it "security_userns_may_setns()" for clarity?
+/var/lib/selinux is a default location for your module store. It can be
+changed in semanage.conf.
+
+Basically if you want to add a local policy module, just use
+
+# semodule -i mypol.cil
+
+This module will be loaded with the default priority for custom policies.
+
+# semodule --list-module=full |grep mypol
+400 mypol                    cil
+
+>>>
+>>
+>> If you are using the CIL compiler to build the whole policy, then it
+>> doesn't matter where the files are located. Just specify all of the
+>> files that are part of the policy on the command line for secilc.
+>>
+>> Do note that the CIL compiler does not build modules, it builds the
+>> complete policy, so if you are only building a module than it should
+>> go into the policy store. You should also use the policy store if you
+>> want to use the management functions of semanage.
+>>
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+
+
+-- 
+Miroslav Grepl
+Senior Software Engineer, SELinux Solutions
+Red Hat, Inc.
