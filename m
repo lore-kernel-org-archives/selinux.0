@@ -1,343 +1,134 @@
-Message-ID: <55BF7C60.8080203@tycho.nsa.gov>
-Date: Mon, 03 Aug 2015 10:36:16 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t73JLobM000729
+ for <selinux@tycho.nsa.gov>; Mon, 3 Aug 2015 15:21:51 -0400
+Received: by wibud3 with SMTP id ud3so127039290wib.0
+ for <selinux@tycho.nsa.gov>; Mon, 03 Aug 2015 12:21:46 -0700 (PDT)
+Received: from x250 (84-245-28-90.dsl.cambrium.nl. [84.245.28.90])
+ by smtp.gmail.com with ESMTPSA id gc4sm14985165wib.23.2015.08.03.12.21.45
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Mon, 03 Aug 2015 12:21:45 -0700 (PDT)
+Date: Mon, 3 Aug 2015 21:21:44 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: secilc bug
+Message-ID: <20150803192143.GE31031@x250>
+References: <CAHC9VhQu=U51b85U74xhP+x+4VCOrm9W8WVAw=vW6s0FdSNPxw@mail.gmail.com>
+ <alpine.LRH.2.11.1504131142390.774@namei.org>
+ <CAHC9VhSAVxo2wkOpMj1QcM-=HvBVhOvVGyTG-JGQHKJhn-rvYw@mail.gmail.com>
+ <alpine.LRH.2.11.1504241023280.13918@namei.org>
+ <CAHC9VhTGXTRi0=XbeB8b+LQVC+MDdk3PH38hYSafmV5CMrvi8Q@mail.gmail.com>
+ <553A6D3D.8020904@schaufler-ca.com>
+ <CAHC9VhQkYU990OKAySUnPn-XzoOUN=21AjOB76pbM7uVQX_0xQ@mail.gmail.com>
+ <alpine.LRH.2.11.1504271528350.16342@namei.org>
+ <1430265211.2218.13.camel@linux.vnet.ibm.com>
+ <20150502150259.GA15244@x131e>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] policycoreutils/semodule: update semodule to allow
- extracting modules
-References: <1438101513-37783-1-git-send-email-ykhodorkovskiy@tresys.com>
- <1438101513-37783-4-git-send-email-ykhodorkovskiy@tresys.com>
- <55BBD14C.7020100@tycho.nsa.gov>
-In-Reply-To: <55BBD14C.7020100@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="JBi0ZxuS5uaEhkUZ"
+In-Reply-To: <20150502150259.GA15244@x131e>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/31/2015 03:49 PM, Stephen Smalley wrote:
-> On 07/28/2015 12:38 PM, Yuli Khodorkovskiy wrote:
->> Add --extract/-E, --cil/-c, and --hll/-H to extract modules. If -c/-H
->> are not provided, the module will be output as HLL by default. Only
->> --cil or --hll (which will use the lang_ext in the semodule store) are valid
->> options to use with -E. The module is written to the current working directory
->> as <module_name>.<lang_ext>.
->>
->> If a module exists as HLL and is exported as CIL, it will first compile into
->> CIL and cache to the module store. Once compiled, exporting will
->> continue.
->
-> So, is it expected/desirable that this would fail on any
-> non-user-installed module unless the user specifies the particular
-> priority (e.g. -E apache -X 100)?  Or should it automatically try to
-> fallback in some way?
->
 
-I think the desired behavior would be to export the module at the highest 
-priority that it is available, since that that is what is going to be used. If a 
-particular priority level is specified then the operation should return the 
-module at that priority level or fail.
+--JBi0ZxuS5uaEhkUZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jim
-
-
->>
->> Examples:
->>
->> Extract the wireshark module in a .cil format. If the module only exists
->> as HLL on the system, the module will be compiled into CIL and placed
->> into the module store. This command will then write wireshark.cil to the CWD.
->>
->>      semodule --cil --extract wireshark
->>
->> Extract the wireshark module in HLL format. Since the original HLL file
->> was a policy package, a wireshark.pp will be written to the CWD.
->>
->>      semodule -E wireshark
->>
->> Extract the wireshark module as CIL and HLL and extract the puppet
->> module as CIL at priority 400.
->>
->>      semodule --hll -E wireshark --cil -E wireshark -X 400 --cil -E puppet
->>
->> Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
->> ---
->>   policycoreutils/semodule/semodule.8 |  14 ++++
->>   policycoreutils/semodule/semodule.c | 131 ++++++++++++++++++++++++++++++++++--
->>   2 files changed, 141 insertions(+), 4 deletions(-)
->>
->> diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
->> index dde0efb..9cd04e7 100644
->> --- a/policycoreutils/semodule/semodule.8
->> +++ b/policycoreutils/semodule/semodule.8
->> @@ -41,6 +41,11 @@ remove existing module
->>   .B  \-l,\-\-list-modules=[KIND]
->>   display list of installed modules (other than base)
->>   .TP
->> +.B  \-E,\-\-extract=MODULE_PKG
->> +Extract a module from the store as an HLL or CIL file to the current directory.
->> +A module is extracted as HLL by default. The name of the module written is
->> +<module-name>.<lang_ext>
->> +.TP
->>   .B  KIND:
->>   .TP
->>   standard
->> @@ -81,6 +86,12 @@ Use an alternate path for the policy store root
->>   .TP
->>   .B  \-v,\-\-verbose
->>   be verbose
->> +.TP
->> +.B  \-c,\-\-cil
->> +Extract module as a CIL file. This only affects the \-\-extract option.
->> +.TP
->> +.B  \-H,\-\-hll
->> +Extract module as an HLL file. This only affects the \-\-extract option.
->>
->>   .SH EXAMPLE
->>   .nf
->> @@ -108,6 +119,9 @@ $ semodule \-l full
->>   $ semodule \-B \-p "/tmp"
->>   # Set an alternate path for the policy store root
->>   $ semodule \-B \-S "/tmp/var/lib/selinux"
->> +# Write the HLL version of puppet and the CIL version of wireshark
->> +# modules at priority 400 to the current working directory
->> +$ semodule \-X 400 \-g wireshark \-\-cil \-g puppet \-\-hll
->>   .fi
->>
->>   .SH SEE ALSO
->> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
->> index baff057..f4b2749 100644
->> --- a/policycoreutils/semodule/semodule.c
->> +++ b/policycoreutils/semodule/semodule.c
->> @@ -20,16 +20,17 @@
->>   #include <sys/stat.h>
->>   #include <sys/types.h>
->>   #include <libgen.h>
->> +#include <limits.h>
->>
->>   #include <semanage/modules.h>
->>
->>   enum client_modes {
->> -	NO_MODE, INSTALL_M, REMOVE_M,
->> +	NO_MODE, INSTALL_M, REMOVE_M, EXTRACT_M, CIL_M, HLL_M,
->>   	LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M
->>   };
->>   /* list of modes in which one ought to commit afterwards */
->>   static const int do_commit[] = {
->> -	0, 1, 1,
->> +	0, 1, 1, 0, 0, 0,
->>   	0, 0, 0, 1, 1,
->>   };
->>
->> @@ -53,6 +54,7 @@ static uint16_t priority;
->>   static semanage_handle_t *sh = NULL;
->>   static char *store;
->>   static char *store_root;
->> +int extract_cil = 0;
->>
->>   extern char *optarg;
->>   extern int optind;
->> @@ -130,6 +132,7 @@ static void usage(char *progname)
->>   	printf("  -X,--priority=PRIORITY    set priority for following operations (1-999)\n");
->>   	printf("  -e,--enable=MODULE_NAME   enable module\n");
->>   	printf("  -d,--disable=MODULE_NAME  disable module\n");
->> +	printf("  -E,--extract=MODULE_NAME  extract module\n");
->>   	printf("Other options:\n");
->>   	printf("  -s,--store	   name of the store to operate on\n");
->>   	printf("  -N,-n,--noreload do not reload policy after commit\n");
->> @@ -140,6 +143,8 @@ static void usage(char *progname)
->>   	printf("  -C,--ignore-module-cache	Rebuild CIL modules compiled from HLL files\n");
->>   	printf("  -p,--path        use an alternate path for the policy root\n");
->>   	printf("  -S,--store-path  use an alternate path for the policy store root\n");
->> +	printf("  -c, --cil extract module as cil. This only affects module extraction.\n");
->> +	printf("  -H, --hll extract module as hll. This only affects module extraction.\n");
->>   }
->>
->>   /* Sets the global mode variable to new_mode, but only if no other
->> @@ -175,6 +180,9 @@ static void parse_command_line(int argc, char **argv)
->>   		{"base", required_argument, NULL, 'b'},
->>   		{"help", 0, NULL, 'h'},
->>   		{"install", required_argument, NULL, 'i'},
->> +		{"extract", required_argument, NULL, 'E'},
->> +		{"cil", 0, NULL, 'c'},
->> +		{"hll", 0, NULL, 'H'},
->>   		{"list-modules", optional_argument, NULL, 'l'},
->>   		{"verbose", 0, NULL, 'v'},
->>   		{"remove", required_argument, NULL, 'r'},
->> @@ -192,13 +200,15 @@ static void parse_command_line(int argc, char **argv)
->>   		{"store-path", required_argument, NULL, 'S'},
->>   		{NULL, 0, NULL, 0}
->>   	};
->> +	int extract_selected = 0;
->> +	int cil_hll_set = 0;
->>   	int i;
->>   	verbose = 0;
->>   	reload = 0;
->>   	no_reload = 0;
->>   	priority = 400;
->>   	while ((i =
->> -		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnNBDCPX:e:d:p:S:", opts,
->> +		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnNBDCPX:e:d:p:S:E:cH", opts,
->>   			    NULL)) != -1) {
->>   		switch (i) {
->>   		case 'b':
->> @@ -211,6 +221,18 @@ static void parse_command_line(int argc, char **argv)
->>   		case 'i':
->>   			set_mode(INSTALL_M, optarg);
->>   			break;
->> +		case 'E':
->> +			set_mode(EXTRACT_M, optarg);
->> +			extract_selected = 1;
->> +			break;
->> +		case 'c':
->> +			set_mode(CIL_M, NULL);
->> +			cil_hll_set = 1;
->> +			break;
->> +		case 'H':
->> +			set_mode(HLL_M, NULL);
->> +			cil_hll_set = 1;
->> +			break;
->>   		case 'l':
->>   			set_mode(LIST_M, optarg);
->>   			break;
->> @@ -281,10 +303,15 @@ static void parse_command_line(int argc, char **argv)
->>   		usage(argv[0]);
->>   		exit(1);
->>   	}
->> +	if (extract_selected == 0 && cil_hll_set == 1) {
->> +		fprintf(stderr, "--cil and --hll require a module to export with the --extract option.\n");
->> +		usage(argv[0]);
->> +		exit(1);
->> +	}
->>
->>   	if (optind < argc) {
->>   		int mode;
->> -		/* if -i/u/r was the last command treat any remaining
->> +		/* if -i/u/r/E was the last command treat any remaining
->>   		 * arguments as args. Will allow 'semodule -i *.pp' to
->>   		 * work as expected.
->>   		 */
->> @@ -293,6 +320,8 @@ static void parse_command_line(int argc, char **argv)
->>   			mode = INSTALL_M;
->>   		} else if (commands && commands[num_commands - 1].mode == REMOVE_M) {
->>   			mode = REMOVE_M;
->> +		} else if (commands && commands[num_commands - 1].mode == EXTRACT_M) {
->> +			mode = EXTRACT_M;
->>   		} else {
->>   			fprintf(stderr, "unknown additional arguments:\n");
->>   			while (optind < argc)
->> @@ -389,6 +418,100 @@ int main(int argc, char *argv[])
->>   				    semanage_module_install_file(sh, mode_arg);
->>   				break;
->>   			}
->> +		case EXTRACT_M:{
->> +				semanage_module_info_t *extract_info = NULL;
->> +				semanage_module_key_t *modkey = NULL;
->> +				void *data = NULL;
->> +				size_t data_len = 0;
->> +				char output_path[PATH_MAX];
->> +				const char *output_name = NULL;
->> +				const char *lang_ext = NULL;
->> +				int rlen;
->> +				FILE *output_fd = NULL;
->> +
->> +				result = semanage_module_key_create(sh, &modkey);
->> +				if (result != 0) {
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				result = semanage_module_key_set_name(sh, modkey, mode_arg);
->> +				if (result != 0) {
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				result  = semanage_module_key_set_priority(sh, modkey, priority);
->> +				if (result != 0) {
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				if (verbose) {
->> +					printf
->> +						("Attempting to extract module '%s':\n",
->> +							mode_arg);
->> +				}
->> +				result = semanage_module_extract(sh, modkey, extract_cil, &data, &data_len, &extract_info);
->> +				if (result != 0) {
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				if (extract_cil) {
->> +					lang_ext = "cil";
->> +				} else {
->> +					result = semanage_module_info_get_lang_ext(sh, extract_info, &lang_ext);
->> +					if (result != 0) {
->> +						goto cleanup_extract;
->> +					}
->> +				}
->> +
->> +				result = semanage_module_info_get_name(sh, extract_info, &output_name);
->> +				if (result != 0) {
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				rlen = snprintf(output_path, PATH_MAX, "%s.%s", output_name, lang_ext);
->> +				if (rlen < 0 || rlen >= PATH_MAX) {
->> +					fprintf(stderr, "%s: Failed to generate output path.\n", argv[0]);
->> +					result = -1;
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				if (access(output_path, F_OK) == 0) {
->> +					fprintf(stderr, "%s: %s is already extracted with extension %s.\n", argv[0], mode_arg, lang_ext);
->> +					result = -1;
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				output_fd = fopen(output_path, "w");
->> +				if (output_fd == NULL) {
->> +					fprintf(stderr, "%s: Unable to open %s\n", argv[0], output_path);
->> +					result = -1;
->> +					goto cleanup_extract;
->> +				}
->> +
->> +				if (fwrite(data, 1, data_len, output_fd) < data_len) {
->> +					fprintf(stderr, "%s: Unable to write to %s\n", argv[0], output_path);
->> +					result = -1;
->> +					goto cleanup_extract;
->> +				}
->> +cleanup_extract:
->> +				if (output_fd != NULL) {
->> +					fclose(output_fd);
->> +				}
->> +				if (data_len > 0) {
->> +					munmap(data, data_len);
->> +				}
->> +				semanage_module_info_destroy(sh, extract_info);
->> +				free(extract_info);
->> +				semanage_module_key_destroy(sh, modkey);
->> +				free(modkey);
->> +				break;
->> +			}
->> +		case CIL_M:
->> +				extract_cil = 1;
->> +				break;
->> +		case HLL_M:
->> +				extract_cil = 0;
->> +				break;
->>   		case REMOVE_M:{
->>   				if (verbose) {
->>   					printf
->>
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
+On Sat, May 02, 2015 at 05:02:59PM +0200, Dominick Grift wrote:
+> Today i hit an bug in secilc, when compiled by policy with some modules e=
+xcluded.
+>=20
+> My policy is rather complex, and so i find the issue hard to explain but =
+i will try:
+>=20
+> In my github.com/doverride/laptop policy (the auth.cil module to be preci=
+se) i have a auth_pam_config_object_type() macro that
+> essentially associates the calling type with the auth_pam_config_object_t=
+ype type attribute, which in turn is associated with
+> the auth_object_type attribute that is used to grant auth_admin() access =
+to all "auth object types"
+>=20
+> The auth_pam_config_object_type() macro is called in various modules for =
+various third party pam config files.
+>=20
+> For example, xserver maintains /etc/pam.d/xserver, which is associated wi=
+th xserver_pam_config_t, and xserver_pam_config_t is
+> associated with auth_pam_config_object_type.
+>=20
+> This is just one example.
+>=20
+> By excluding the xserver.cil module, the whole auth_pam_config_object_typ=
+e, and all rules associated with it vanishes.
+> I noticed today that on a system where i excluded xserver.cil i no longer=
+ had access to /etc/security/access.conf (which is
+> associated with pam_config_t, and pam_config_t is associated with auth_pa=
+m_config_object_type)
+>=20
+> By reincluding the xserver.cil module , the rules that allow auth_admin()=
+ to maintain auth_object_type files reappeared.
+>=20
+> To reproduce:
+>=20
+> clone my "laptop" policy and build it
+>=20
+> use "sesearch -A -s auth_admin_subject_type | grep auth_object_type" to c=
+onfirm that auth_admin_subject_type is allowed
+> to maintain file objects associated with auth_object_type
+>=20
+> Now exclude the xserver.cil module
+>=20
+> use above sesearch command again and notice how the rules granting auth_a=
+dmin_subject_type access to maintain file objects
+> associated with auth_object_type have vanished.
+>=20
+> P.S:
+> Another really strange thing i noticed is that i have a compiled policy w=
+ith a bunch of modules excluded that is bigger than
+> a policy with little or no modules excluded.
+>=20
 
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+I want to retract this. This was most likely a parens issue to begin with. =
+Today i hit a similar issue and i decided to dig a little deeper.
+Granted the issue i hit today was much simpler to track down.
+
+Anyhow it turned out to be a misplaced parens which resulted in secilc remo=
+ving a lot of policy that it thought was in one optional block.
+
+in reality they were many optional blocks but the first one wasnt closed pr=
+operly!
+
+Yes, the secilc warning about "open without close" or "close without open" =
+are annoying. but take my word for it.
+its much better to have secilc identify these issues then to have it not id=
+entify them and then when you decide to exclude a module
+a whole load of policy gets removed because secilc thought it was part of t=
+he single block!
+
+anyhow sorry for thinking this was a bug in secilc. it was my mistake. in m=
+y defense though: my policy is pretty complex and sometimes its not easy to=
+ identify the issue. Also parens arent that friendly to humans...
+
+--JBi0ZxuS5uaEhkUZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJVv79CAAoJENAR6kfG5xmcI2cMAKVBQYvLpCgxC5Tn/Hdrwjmh
+H1KNARBLZouZe4IbdsZlpI/7urWbzsK/q9Q8OY0XsKWXBUukPQsJ54JUNAOB/HK9
+G0NZomW4RvGV+h6WAfj4pulXnnC/59ZIAOHDRjjHXY75e1wYTSc13ty64vU9rRTK
+0qpt4aU9R+J1LsG9/5rCwnop+t8aoX6wiAEPFzx6be0B1JcS/t86meThMCgxo6AS
+Er0+V8bpTokv7RFI4JLLVvhhpTsiFepSrvvMBqwkPZ56/5SOPl6nGxZGxU525Wo9
+3pN1XTfQPPto23l8f/huRde/V+Gh8Bt6/TCrhdG39FPwP2tH4FXrKscEKuC03TIn
++G4xD4Z0dL8TQvAtIiyiLPYlkI4xNVHsfZrDdxEyER0JXqz2yV2OEy5IdEPcTRZ7
+rnY13KuSZ32/GtktnUmdAniVr/cEc6hmqiL/L3IcwzylzsvKtnuCnoCBa6GH0KSX
+cKsc1tXeFTyD8maxYdP3YC5nZG9iViR3/sQyTCHS3g==
+=SF5P
+-----END PGP SIGNATURE-----
+
+--JBi0ZxuS5uaEhkUZ--
