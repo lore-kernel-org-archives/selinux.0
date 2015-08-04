@@ -1,75 +1,78 @@
-Subject: Re: [PATCH] semanage_migrate_store: add -r <root> option for
- migrating inside chroots
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1438266154-23219-1-git-send-email-plautrba@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <55C0D6F2.1090308@tycho.nsa.gov>
-Date: Tue, 4 Aug 2015 11:14:58 -0400
-MIME-Version: 1.0
-In-Reply-To: <1438266154-23219-1-git-send-email-plautrba@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: support file_contexts.bin without file_contexts
+Date: Tue,  4 Aug 2015 11:26:11 -0400
+Message-Id: <1438701971-2659-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/30/2015 10:22 AM, Petr Lautrbach wrote:
-> -r, --root
->   Set an alternative root for the migration (default: /)
-> 
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Change the label_file backend in libselinux to support systems
+that only have file_contexts.bin files installed and do not ship
+a file_contexts file at all.  Only fail if neither file can be
+loaded.
 
-Thanks, applied.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/label_file.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-> ---
-> 
-> In Fedora, we used this option in early phase of adopting 2.4 userspace to
-> migrate SELinux modules in buildroots during build time. We don't use it anymore,
-> but it might be useful for some other deployments.
-> 
->  libsemanage/utils/semanage_migrate_store | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-> index 6443002..539f469 100755
-> --- a/libsemanage/utils/semanage_migrate_store
-> +++ b/libsemanage/utils/semanage_migrate_store
-> @@ -180,7 +180,7 @@ def rebuild_policy():
->  
->  
->  def oldroot_path():
-> -	return "/etc/selinux"
-> +	return "%s/etc/selinux" % ROOT
->  
->  def oldstore_path(store):
->  	return "%s/%s/modules/active" % (oldroot_path(), store)
-> @@ -192,7 +192,7 @@ def disabledmodules_path(store):
->  	return "%s/disabled" % newmodules_path(store)
->  
->  def newroot_path():
-> -	return PATH
-> +	return "%s%s" % (ROOT, PATH)
->  
->  def newstore_path(store):
->  	return "%s/%s/active" % (newroot_path(), store)
-> @@ -219,6 +219,8 @@ if __name__ == "__main__":
->  			  help="Disable rebuilding policy after migration (default: no)")
->  	parser.add_option("-P", "--path", dest="path",
->  			  help="Set path for the policy store (default: /var/lib/selinux)")
-> +	parser.add_option("-r", "--root", dest="root",
-> +			  help="Set an alternative root for the migration (default: /)")
->  
->  	(options, args) = parser.parse_args()
->  
-> @@ -231,6 +233,10 @@ if __name__ == "__main__":
->  	if PATH is None:
->  		PATH = "/var/lib/selinux"
->  
-> +	ROOT = options.root
-> +	if ROOT is None:
-> +		ROOT = ""
-> +
->  	# List of paths that go in the active 'root'
->  	TOPPATHS = [
->  		"commit_num",
-> 
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index b927681..3252523 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -418,21 +418,32 @@ static int process_file(const char *path, const char *suffix,
+ 	}
+ 
+ 	/* Open the specification file. */
+-	if ((fp = fopen(path, "r")) == NULL)
+-		return -1;
+-	__fsetlocking(fp, FSETLOCKING_BYCALLER);
++	fp = fopen(path, "r");
++	if (fp) {
++		__fsetlocking(fp, FSETLOCKING_BYCALLER);
+ 
+-	if (fstat(fileno(fp), &sb) < 0)
+-		return -1;
+-	if (!S_ISREG(sb.st_mode)) {
+-		errno = EINVAL;
+-		return -1;
++		if (fstat(fileno(fp), &sb) < 0)
++			return -1;
++		if (!S_ISREG(sb.st_mode)) {
++			errno = EINVAL;
++			return -1;
++		}
++	} else {
++		/*
++		 * Text file does not exist, so clear the timestamp
++		 * so that we will always pass the timestamp comparison
++		 * with the bin file in load_mmap().
++		 */
++		sb.st_mtime = 0;
+ 	}
+ 
+ 	rc = load_mmap(rec, path, &sb);
+ 	if (rc == 0)
+ 		goto out;
+ 
++	if (!fp)
++		return -1; /* no text or bin file */
++
+ 	/*
+ 	 * Then do detailed validation of the input and fill the spec array
+ 	 */
+@@ -446,7 +457,8 @@ static int process_file(const char *path, const char *suffix,
+ 
+ out:
+ 	free(line_buf);
+-	fclose(fp);
++	if (fp)
++		fclose(fp);
+ 	return rc;
+ }
+ 
+-- 
+2.1.0
