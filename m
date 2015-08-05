@@ -1,87 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t757FHjJ032256
- for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2015 03:15:17 -0400
-Received: from zmail21.collab.prod.int.phx2.redhat.com
- (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
- by mx6-phx2.redhat.com (8.14.4/8.14.4) with ESMTP id t757FFks003884
- for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2015 03:15:15 -0400
-Date: Wed, 5 Aug 2015 03:15:14 -0400 (EDT)
-From: Robert Kuska <rkuska@redhat.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <189579949.3453211.1438758914947.JavaMail.zimbra@redhat.com>
-In-Reply-To: <647927280.3452313.1438758780544.JavaMail.zimbra@redhat.com>
-Subject: [PATCH] sepolgen: convert cmp functions to key functions
+Subject: Re: How do you relabel all SELinux file contexts of an offline
+ system's file system?
+To: Jason Zaman <jason@perfinion.com>, Bond Masuda <bond.masuda@jlbond.com>
+References: <55C13DA1.2070601@jlbond.com>
+ <20150805065406.GA17019@meriadoc.omgwtfbbq>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <55C2036E.2060609@tycho.nsa.gov>
+Date: Wed, 5 Aug 2015 08:37:02 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20150805065406.GA17019@meriadoc.omgwtfbbq>
+Content-Type: text/plain; charset=windows-1252
+Cc: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In python3 it is needed to pass compare function as a key argument
-instead of directly passing compare function to sort function
+On 08/05/2015 02:54 AM, Jason Zaman wrote:
+> On Tue, Aug 04, 2015 at 03:33:05PM -0700, Bond Masuda wrote:
+>> Hello,
+>>
+>> Normally, if I need to ensure that all the SELinux file contexts are
+>> correct, I run:
+>>
+>> restorecon -R -v /
+>>
+>> However, in the current situation, I need to do that on a system that is
+>> offline, where I have it's root and entire file system mounted under
+>> /mnt. I tried:
+>>
+>> chroot /mnt /usr/sbin/restorecon -R -v /mnt
+>>
+>> hoping it would have the same effect, but it does not appear to. When I
+>> boot the offline system, it shows a lot of SELinux mislabelings.
+>>
+>> Is there a way to fix SELinux file contexts of another system while it
+>> is offline?
+>>
+>> Thanks for any help...
+>> -Bond
+> 
+> Look at setfiles, you want something like this:
+> 
+> setfiles -vr /mnt/ /etc/selinux/strict/contexts/files/file_contexts /mnt/
+> 
+> from setfiles(8):
+>        -r rootpath
+>               use an alternate root path.
 
-Signed-off-by: Robert Kuska <rkuska@redhat.com>
----
- sepolgen/src/sepolgen/output.py |  4 ++--
- sepolgen/src/sepolgen/util.py   | 23 +++++++++++++++++++++++
- 2 files changed, 25 insertions(+), 2 deletions(-)
+A couple of caveats:
 
-diff --git a/sepolgen/src/sepolgen/output.py b/sepolgen/src/sepolgen/output.py
-index d8daedb..e9a3b8c 100644
---- a/sepolgen/src/sepolgen/output.py
-+++ b/sepolgen/src/sepolgen/output.py
-@@ -131,7 +131,7 @@ def sort_filter(module):
-         rules = []
-         rules.extend(node.avrules())
-         rules.extend(node.interface_calls())
--        rules.sort(rule_cmp)
-+        rules.sort(key=util.cmp_to_key(rule_cmp))
- 
-         cur = None
-         sep_rules = []
-@@ -155,7 +155,7 @@ def sort_filter(module):
- 
-         ras = []
-         ras.extend(node.role_types())
--        ras.sort(role_type_cmp)
-+        ras.sort(key=util.cmp_to_key(role_type_cmp))
-         if len(ras):
-             comment = refpolicy.Comment()
-             comment.lines.append("============= ROLES ==============")
-diff --git a/sepolgen/src/sepolgen/util.py b/sepolgen/src/sepolgen/util.py
-index 16e7ca2..9ad7fbd 100644
---- a/sepolgen/src/sepolgen/util.py
-+++ b/sepolgen/src/sepolgen/util.py
-@@ -145,6 +145,29 @@ class Comparison():
-     def __ne__(self, other):
-         return self._compare(other, lambda a, b: a != b)
- 
-+if sys.version_info < (2,7):
-+    # cmp_to_key function is missing in python2.6
-+    def cmp_to_key(mycmp):
-+        'Convert a cmp= function into a key= function'
-+        class K:
-+            def __init__(self, obj, *args):
-+                self.obj = obj
-+            def __lt__(self, other):
-+                return mycmp(self.obj, other.obj) < 0
-+            def __gt__(self, other):
-+                return mycmp(self.obj, other.obj) > 0
-+            def __eq__(self, other):
-+                return mycmp(self.obj, other.obj) == 0
-+            def __le__(self, other):
-+                return mycmp(self.obj, other.obj) <= 0
-+            def __ge__(self, other):
-+                return mycmp(self.obj, other.obj) >= 0
-+            def __ne__(self, other):
-+                return mycmp(self.obj, other.obj) != 0
-+        return K
-+else:
-+    from functools import cmp_to_key
-+
- def cmp(first, second):
-     return (first > second) - (second > first)
- 
--- 
-2.4.3
+- If using the -r option of setfiles rather than chroot'ing to the root
+of the offline system, you want to specify the file_contexts file from
+the policy of the offline system, not the file_contexts of the host on
+which you are running, e.g setfiles -r
+/mnt/etc/selinux/targeted/contexts/files/file_contexts /mnt.
+
+- Not all of the contexts defined by the offline system's file_contexts
+may be valid under the policy of the host on which you are running (e.g.
+if they run different distributions or even different releases of the
+same distribution), which will normally prevent setting those contexts
+(the kernel won't recognize them).  If you have this issue, you'll need
+to run setfiles as root in a special domain, setfiles_mac_t, that is
+allowed to set contexts unknown to the host policy, and likely chrooted
+so that it doesn't ask the kernel whether the contexts are valid via
+/sys/fs/selinux/context.  That is how livecd-creator supported creating
+images for other releases.
+
+It would help to know what kinds of "mislabelings" you are encountering
+on the offline system when it is booted, e.g. what files were
+mislabeled, what contexts were they supposed to have and what contexts
+did they have, and were these cases where the host file_contexts
+differed from the offline system file_contexts.
