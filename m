@@ -1,84 +1,89 @@
-Subject: Re: [PATCH] sepolgen: convert cmp functions to key functions
-To: Robert Kuska <rkuska@redhat.com>, selinux@tycho.nsa.gov
-References: <189579949.3453211.1438758914947.JavaMail.zimbra@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <55C26229.8070801@tycho.nsa.gov>
-Date: Wed, 5 Aug 2015 15:21:13 -0400
-MIME-Version: 1.0
-In-Reply-To: <189579949.3453211.1438758914947.JavaMail.zimbra@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: test for file_contexts.bin format
+Date: Wed,  5 Aug 2015 16:26:08 -0400
+Message-Id: <1438806368-23238-1-git-send-email-sds@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/05/2015 03:15 AM, Robert Kuska wrote:
-> In python3 it is needed to pass compare function as a key argument
-> instead of directly passing compare function to sort function
-> 
-> Signed-off-by: Robert Kuska <rkuska@redhat.com>
+Check to see if the file whose path is passed to selabel_open() starts
+with the file_contexts.bin magic number, and if so, automatically
+treat it as a file_contexts.bin file.  This allows one to open
+file_contexts.bin formatted files without necessarily having a .bin
+file suffix.  This removes the need for the previously added
+.bin file suffix test.
 
-Thanks, applied.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/label_file.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-> ---
->  sepolgen/src/sepolgen/output.py |  4 ++--
->  sepolgen/src/sepolgen/util.py   | 23 +++++++++++++++++++++++
->  2 files changed, 25 insertions(+), 2 deletions(-)
-> 
-> diff --git a/sepolgen/src/sepolgen/output.py b/sepolgen/src/sepolgen/output.py
-> index d8daedb..e9a3b8c 100644
-> --- a/sepolgen/src/sepolgen/output.py
-> +++ b/sepolgen/src/sepolgen/output.py
-> @@ -131,7 +131,7 @@ def sort_filter(module):
->          rules = []
->          rules.extend(node.avrules())
->          rules.extend(node.interface_calls())
-> -        rules.sort(rule_cmp)
-> +        rules.sort(key=util.cmp_to_key(rule_cmp))
->  
->          cur = None
->          sep_rules = []
-> @@ -155,7 +155,7 @@ def sort_filter(module):
->  
->          ras = []
->          ras.extend(node.role_types())
-> -        ras.sort(role_type_cmp)
-> +        ras.sort(key=util.cmp_to_key(role_type_cmp))
->          if len(ras):
->              comment = refpolicy.Comment()
->              comment.lines.append("============= ROLES ==============")
-> diff --git a/sepolgen/src/sepolgen/util.py b/sepolgen/src/sepolgen/util.py
-> index 16e7ca2..9ad7fbd 100644
-> --- a/sepolgen/src/sepolgen/util.py
-> +++ b/sepolgen/src/sepolgen/util.py
-> @@ -145,6 +145,29 @@ class Comparison():
->      def __ne__(self, other):
->          return self._compare(other, lambda a, b: a != b)
->  
-> +if sys.version_info < (2,7):
-> +    # cmp_to_key function is missing in python2.6
-> +    def cmp_to_key(mycmp):
-> +        'Convert a cmp= function into a key= function'
-> +        class K:
-> +            def __init__(self, obj, *args):
-> +                self.obj = obj
-> +            def __lt__(self, other):
-> +                return mycmp(self.obj, other.obj) < 0
-> +            def __gt__(self, other):
-> +                return mycmp(self.obj, other.obj) > 0
-> +            def __eq__(self, other):
-> +                return mycmp(self.obj, other.obj) == 0
-> +            def __le__(self, other):
-> +                return mycmp(self.obj, other.obj) <= 0
-> +            def __ge__(self, other):
-> +                return mycmp(self.obj, other.obj) >= 0
-> +            def __ne__(self, other):
-> +                return mycmp(self.obj, other.obj) != 0
-> +        return K
-> +else:
-> +    from functools import cmp_to_key
-> +
->  def cmp(first, second):
->      return (first > second) - (second > first)
->  
-> 
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 3509394..04b3826 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -98,7 +98,7 @@ static int nodups_specs(struct saved_data *data, const char *path)
+ }
+ 
+ static int load_mmap(struct selabel_handle *rec, const char *path,
+-						    struct stat *sb)
++		     struct stat *sb, bool isbinary)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+ 	char mmap_path[PATH_MAX + 1];
+@@ -112,8 +112,8 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 	uint32_t i, magic, version;
+ 	uint32_t entry_len, stem_map_len, regex_array_len;
+ 
+-	len = strlen(path);
+-	if (len > 4 && !strcmp(&path[len-4], ".bin")) {
++	if (isbinary) {
++		len = strlen(path);
+ 		if (len >= sizeof(mmap_path))
+ 			return -1;
+ 		strcpy(mmap_path, path);
+@@ -413,6 +413,8 @@ static int process_file(const char *path, const char *suffix,
+ 	char *line_buf = NULL;
+ 	int rc;
+ 	char stack_path[PATH_MAX + 1];
++	bool isbinary = false;
++	uint32_t magic;
+ 
+ 	/* append the path suffix if we have one */
+ 	if (suffix) {
+@@ -436,6 +438,21 @@ static int process_file(const char *path, const char *suffix,
+ 			errno = EINVAL;
+ 			return -1;
+ 		}
++
++		if (fread(&magic, sizeof magic, 1, fp) != 1) {
++			errno = EINVAL;
++			fclose(fp);
++			return -1;
++		}
++
++		if (magic == SELINUX_MAGIC_COMPILED_FCONTEXT) {
++			/* file_contexts.bin format */
++			fclose(fp);
++			fp = NULL;
++			isbinary = true;
++		} else {
++			rewind(fp);
++		}
+ 	} else {
+ 		/*
+ 		 * Text file does not exist, so clear the timestamp
+@@ -445,7 +462,7 @@ static int process_file(const char *path, const char *suffix,
+ 		sb.st_mtime = 0;
+ 	}
+ 
+-	rc = load_mmap(rec, path, &sb);
++	rc = load_mmap(rec, path, &sb, isbinary);
+ 	if (rc == 0)
+ 		goto out;
+ 
+-- 
+2.1.0
