@@ -1,53 +1,96 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t756sC23030927
- for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2015 02:54:13 -0400
-Received: by pabxd6 with SMTP id xd6so10866280pab.2
- for <selinux@tycho.nsa.gov>; Tue, 04 Aug 2015 23:54:10 -0700 (PDT)
-Date: Wed, 5 Aug 2015 14:54:06 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Bond Masuda <bond.masuda@jlbond.com>
-Subject: Re: How do you relabel all SELinux file contexts of an offline
- system's file system?
-Message-ID: <20150805065406.GA17019@meriadoc.omgwtfbbq>
-References: <55C13DA1.2070601@jlbond.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t757A6xW032055
+ for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2015 03:10:07 -0400
+Received: from zmail21.collab.prod.int.phx2.redhat.com
+ (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
+ by mx3-phx2.redhat.com (8.13.8/8.13.8) with ESMTP id t7579jum023799
+ for <selinux@tycho.nsa.gov>; Wed, 5 Aug 2015 03:09:45 -0400
+Date: Wed, 5 Aug 2015 03:09:45 -0400 (EDT)
+From: Robert Kuska <rkuska@redhat.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <270866115.3451257.1438758585747.JavaMail.zimbra@redhat.com>
+In-Reply-To: <962744402.3450848.1438758485897.JavaMail.zimbra@redhat.com>
+Subject: [PATCH] sepolgen: Decode output from Popen in Python3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55C13DA1.2070601@jlbond.com>
-Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Aug 04, 2015 at 03:33:05PM -0700, Bond Masuda wrote:
-> Hello,
-> 
-> Normally, if I need to ensure that all the SELinux file contexts are
-> correct, I run:
-> 
-> restorecon -R -v /
-> 
-> However, in the current situation, I need to do that on a system that is
-> offline, where I have it's root and entire file system mounted under
-> /mnt. I tried:
-> 
-> chroot /mnt /usr/sbin/restorecon -R -v /mnt
-> 
-> hoping it would have the same effect, but it does not appear to. When I
-> boot the offline system, it shows a lot of SELinux mislabelings.
-> 
-> Is there a way to fix SELinux file contexts of another system while it
-> is offline?
-> 
-> Thanks for any help...
-> -Bond
+In Python3 output from Popen communicate function
+returns bytes, to handle output as a string it is needed
+to properly decode it.
 
-Look at setfiles, you want something like this:
+Signed-off-by: Robert Kuska <rkuska@redhat.com>
+---
+ sepolgen/src/sepolgen/audit.py |  7 +++++++
+ sepolgen/src/sepolgen/util.py  | 14 ++++++++++++++
+ 2 files changed, 21 insertions(+)
 
-setfiles -vr /mnt/ /etc/selinux/strict/contexts/files/file_contexts /mnt/
-
-from setfiles(8):
-       -r rootpath
-              use an alternate root path.
-
--- Jason
+diff --git a/sepolgen/src/sepolgen/audit.py b/sepolgen/src/sepolgen/audit.py
+index 83efac3..724d3ea 100644
+--- a/sepolgen/src/sepolgen/audit.py
++++ b/sepolgen/src/sepolgen/audit.py
+@@ -22,6 +22,7 @@ import sys
+ 
+ from . import refpolicy
+ from . import access
++from . import util
+ # Convenience functions
+ 
+ def get_audit_boot_msgs():
+@@ -42,6 +43,8 @@ def get_audit_boot_msgs():
+     boottime = time.strftime("%X", s)
+     output = subprocess.Popen(["/sbin/ausearch", "-m", "AVC,USER_AVC,MAC_POLICY_LOAD,DAEMON_START,SELINUX_ERR", "-ts", bootdate, boottime],
+                               stdout=subprocess.PIPE).communicate()[0]
++    if util.PY3:
++        output = util.decode_input(output)
+     return output
+ 
+ def get_audit_msgs():
+@@ -55,6 +58,8 @@ def get_audit_msgs():
+     import subprocess
+     output = subprocess.Popen(["/sbin/ausearch", "-m", "AVC,USER_AVC,MAC_POLICY_LOAD,DAEMON_START,SELINUX_ERR"],
+                               stdout=subprocess.PIPE).communicate()[0]
++    if util.PY3:
++        output = util.decode_input(output)
+     return output
+ 
+ def get_dmesg_msgs():
+@@ -66,6 +71,8 @@ def get_dmesg_msgs():
+     import subprocess
+     output = subprocess.Popen(["/bin/dmesg"],
+                               stdout=subprocess.PIPE).communicate()[0]
++    if util.PY3:
++        output = util.decode_input(output)
+     return output
+ 
+ # Classes representing audit messages
+diff --git a/sepolgen/src/sepolgen/util.py b/sepolgen/src/sepolgen/util.py
+index 4934bec..16e7ca2 100644
+--- a/sepolgen/src/sepolgen/util.py
++++ b/sepolgen/src/sepolgen/util.py
+@@ -103,6 +103,20 @@ def encode_input(text):
+         encoded_text = text.encode('utf-8')
+     return encoded_text
+ 
++def decode_input(text):
++    import locale
++    """Decode given text via preferred system encoding"""
++    # locale will often find out the correct encoding
++    encoding = locale.getpreferredencoding()
++    try:
++        decoded_text = text.decode(encoding)
++    except UnicodeError:
++    # if it fails to find correct encoding then ascii is used
++    # which may lead to UnicodeError if `text` contains non ascii signs
++    # utf-8 is our guess to fix the situation
++        decoded_text = text.decode('utf-8')
++    return decoded_text
++
+ class Comparison():
+     """Class used when implementing rich comparison.
+ 
+-- 
+2.4.3
