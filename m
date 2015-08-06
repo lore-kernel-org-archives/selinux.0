@@ -1,346 +1,154 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t76EUWJL018630
- for <selinux@tycho.nsa.gov>; Thu, 6 Aug 2015 10:30:34 -0400
-From: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Subject: [PATCH v2 3/3] policycoreutils/semodule: update semodule to allow
- extracting modules
-Date: Thu, 6 Aug 2015 10:30:14 -0400
-Message-ID: <1438871414-62292-4-git-send-email-ykhodorkovskiy@tresys.com>
-In-Reply-To: <1438871414-62292-1-git-send-email-ykhodorkovskiy@tresys.com>
-References: <1438871414-62292-1-git-send-email-ykhodorkovskiy@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t76EKbxr017900
+ for <selinux@tycho.nsa.gov>; Thu, 6 Aug 2015 10:20:37 -0400
+Received: by ioii16 with SMTP id i16so82549792ioi.0
+ for <selinux@tycho.nsa.gov>; Thu, 06 Aug 2015 07:20:35 -0700 (PDT)
+Date: Thu, 6 Aug 2015 09:20:29 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH 1/7] fs: Add user namesapace member to struct super_block
+Message-ID: <20150806142029.GB63559@ubuntu-hedt>
+References: <1436989569-69582-1-git-send-email-seth.forshee@canonical.com>
+ <1436989569-69582-2-git-send-email-seth.forshee@canonical.com>
+ <87a8uw95u8.fsf@x220.int.ebiederm.org>
+ <20150805210355.GA10680@ubuntu-hedt>
+ <87614tph6g.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87614tph6g.fsf@x220.int.ebiederm.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
+ Jeff Layton <jlayton@poochiereds.net>, Stephen Smalley <sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add --extract/-E, --cil/-c, and --hll/-H to extract modules. If -c/-H
-are not provided, the module will be output as HLL by default. Only
---cil or --hll (which will use the lang_ext in the semodule store) are valid
-options to use with -E. The module is written to the current working directory
-as <module_name>.<lang_ext>.
+On Wed, Aug 05, 2015 at 04:19:03PM -0500, Eric W. Biederman wrote:
+> Seth Forshee <seth.forshee@canonical.com> writes:
+> 
+> > On Wed, Jul 15, 2015 at 09:47:11PM -0500, Eric W. Biederman wrote:
+> >> Seth Forshee <seth.forshee@canonical.com> writes:
+> >> 
+> >> > Initially this will be used to eliminate the implicit MNT_NODEV
+> >> > flag for mounts from user namespaces. In the future it will also
+> >> > be used for translating ids and checking capabilities for
+> >> > filesystems mounted from user namespaces.
+> >> >
+> >> > s_user_ns is initialized in alloc_super() and is generally set to
+> >> > current_user_ns(). To avoid security and corruption issues, two
+> >> > additional mount checks are also added:
+> >> >
+> >> >  - do_new_mount() gains a check that the user has CAP_SYS_ADMIN
+> >> >    in current_user_ns().
+> >> >
+> >> >  - sget() will fail with EBUSY when the filesystem it's looking
+> >> >    for is already mounted from another user namespace.
+> >> >
+> >> > proc needs some special handling here. The user namespace of
+> >> > current isn't appropriate when forking as a result of clone (2)
+> >> > with CLONE_NEWPID|CLONE_NEWUSER, as it will make proc unmountable
+> >> > from within the new user namespace. Instead, the user namespace
+> >> > which owns the new pid namespace should be used. sget_userns() is
+> >> > added to allow passing of a user namespace other than that of
+> >> > current, and this is used by proc_mount(). sget() becomes a
+> >> > wrapper around sget_userns() which passes current_user_ns().
+> >> 
+> >> From bits of the previous conversation.
+> >> 
+> >> We need sget_userns(..., &init_user_ns) for sysfs.  The sysfs
+> >> xattrs can travel from one mount of sysfs to another via the sysfs
+> >> backing store.
+> >> 
+> >> For tmpfs and any other filesystems we support mounting without
+> >> privilige that support xattrs.  We need to identify them and
+> >> see if userspace is taking advantage of the ability to set
+> >> xattrs and file caps (unlikely).  If they are we need to call
+> >> sget_userns(..., &init_user_ns) on those filesystems as well.
+> >> 
+> >> Possibly/Probably we should just do that for all of the interesting
+> >> filesystems to start with and then change back to an ordinary old sget
+> >> after we have done the testing and confirmed we will not be introducing
+> >> userspace regressions.
+> >
+> > I was reviewing everything in preparation for sending v2 patches, and I
+> > realized that doing this has an undesirable side effect. In patch 2 the
+> > implicit nodev is removed for unprivileged mounts, and instead s_user_ns
+> > is used to block opening devices in these mounts. When we set s_user_ns
+> > to &init_user_ns, it becomes possible to open device nodes from
+> > unprivileged mounts of these filesystems.
+> >
+> > This doesn't pose a real problem today. The only filesystems it will
+> > affect is sysfs, tmpfs, and ramfs (no others need s_user_ns =
+> > &init_user_ns for user namespace mounts), and all of these aren't
+> > problems. sysfs is okay because kernfs doesn't (currently?) allow device
+> > nodes, and a user would require CAP_MKNOD to create any device nodes in
+> > a tmpfs or ramfs mount.
+> >
+> > But for sysfs in particular it does mean that we will need to make sure
+> > that there's no way that device nodes could start appearing in an
+> > unprivileged mount.
+> 
+> Good point about nodev.  
+> 
+> For tmpfs and ramfs and security labels the smack policy of allowing but
+> filtering security labels mean smack once it has those bits will not
+> care which user namespace ramfs and tmpfs live in.  The labels should
+> pretty much stay the same in any case.
 
-If a module exists as HLL and is exported as CIL, it will first compile into
-CIL and cache to the module store. Once compiled, exporting will
-continue.
+Smack does care which namespace ramfs and tmpfs are in. With the patch
+I've got right now, if s_user_ns != &init_user_ns and the label of an
+inode does not match that of the root inode then
+security_inode_permission() will return EACCES.
 
-If no priority is provided when extracting a module, then extraction at
-the default priority, 400, will be attempted. If the module does not
-exist at the default priority, then it will be exported at the highest
-existing priority.
+So if something with CAP_MAC_ADMIN is changing security labels in such a
+mount, suddenly those inodes might become inaccessible. And while it may
+be unlikely that anyone is doing this it's impossible for me to prove
+that's the case.
 
-Examples:
+> If the same class of handling will also apply to selinux and those are
+> the only two security modules that apply labels than we can leave tmpfs
+> and ramfs with the security labels of whomever mounted them.
 
-Extract the wireshark module in a .cil format. If the module only exists
-as HLL on the system, the module will be compiled into CIL and placed
-into the module store. This command will then write wireshark.cil to the CWD.
+For SELinux I now have a patch which applies mountpoint labeling to
+mounts for which s_user_ns != &init_user_ns. I'm less sure then with
+Smack how this behavior will differ from what happens today, but my
+understanding is that this means that the label of the mountpoint is
+used for all objects from that superblock. Afaik it does not have the
+Smack behavior of denying access to filesystem objects which have a
+different label in the backing store.
 
-    semodule --cil --extract wireshark
+> For sysfs things get a little more interesting.  Assuming tmpfs and
+> ramfs don't need s_user_ns == &init_user_ns, sysfs may be fine operating
+> with possibly invalid securitly labels set on a different mount of
+> selinux.  (I am wondering now how all of these labels work in the
+> context of nfs).
 
-Extract the wireshark module in HLL format. Since the original HLL file
-was a policy package, a wireshark.pp will be written to the CWD.
+If someone was using Smack to label sysfs then a mount with s_user_ns !=
+&init_user_ns is going to leave inaccessible anything without the same
+label as the process which performed the mount.
 
-    semodule -E wireshark
+Again with SELinux I'm less certain, but I think you could end up with a
+sysfs superblock that has mountpoint labeling, and thus any labels set
+in the mount in the init namespace would be ignored.
 
-Extract the wireshark module as CIL and HLL and extract the puppet
-module as CIL at priority 400.
+> The worst case for sysfs is that we come up with a cousin of
+> SB_I_NO_EXEC say SB_I_NO_DEV.
 
-    semodule --hll -E wireshark --cil -E wireshark -X 400 --cil -E puppet
+That idea occurred to me. Or else something that indicated to the
+security module that the filesystem has no user-controlled backing store
+which could be used to inject security labels, thus allowing us to set
+s_user_ns to a non-init namespace while still allowing standard MAC
+labeling behavior.
 
-Signed-off-by: Yuli Khodorkovskiy <ykhodorkovskiy@tresys.com>
----
- policycoreutils/semodule/semodule.8 |  14 ++++
- policycoreutils/semodule/semodule.c | 146 +++++++++++++++++++++++++++++++++++-
- 2 files changed, 156 insertions(+), 4 deletions(-)
+> But at the moment I am hoping that limited label storage in a user
+> namespace as you and Casey have been talking about winds up being the
+> norm and then we can follow the standard rules for setting s_user_ns and
+> still preserve the current label setting behavior.
 
-diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-index dde0efb..9cd04e7 100644
---- a/policycoreutils/semodule/semodule.8
-+++ b/policycoreutils/semodule/semodule.8
-@@ -41,6 +41,11 @@ remove existing module
- .B  \-l,\-\-list-modules=[KIND]
- display list of installed modules (other than base)
- .TP
-+.B  \-E,\-\-extract=MODULE_PKG
-+Extract a module from the store as an HLL or CIL file to the current directory.
-+A module is extracted as HLL by default. The name of the module written is
-+<module-name>.<lang_ext>
-+.TP
- .B  KIND:
- .TP
- standard
-@@ -81,6 +86,12 @@ Use an alternate path for the policy store root
- .TP
- .B  \-v,\-\-verbose     
- be verbose
-+.TP
-+.B  \-c,\-\-cil
-+Extract module as a CIL file. This only affects the \-\-extract option.
-+.TP
-+.B  \-H,\-\-hll
-+Extract module as an HLL file. This only affects the \-\-extract option.
- 
- .SH EXAMPLE
- .nf
-@@ -108,6 +119,9 @@ $ semodule \-l full
- $ semodule \-B \-p "/tmp"
- # Set an alternate path for the policy store root
- $ semodule \-B \-S "/tmp/var/lib/selinux"
-+# Write the HLL version of puppet and the CIL version of wireshark
-+# modules at priority 400 to the current working directory
-+$ semodule \-X 400 \-g wireshark \-\-cil \-g puppet \-\-hll
- .fi
- 
- .SH SEE ALSO
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index baff057..bcfaa2b 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -20,16 +20,17 @@
- #include <sys/stat.h>
- #include <sys/types.h>
- #include <libgen.h>
-+#include <limits.h>
- 
- #include <semanage/modules.h>
- 
- enum client_modes {
--	NO_MODE, INSTALL_M, REMOVE_M,
-+	NO_MODE, INSTALL_M, REMOVE_M, EXTRACT_M, CIL_M, HLL_M,
- 	LIST_M, RELOAD, PRIORITY_M, ENABLE_M, DISABLE_M
- };
- /* list of modes in which one ought to commit afterwards */
- static const int do_commit[] = {
--	0, 1, 1,
-+	0, 1, 1, 0, 0, 0,
- 	0, 0, 0, 1, 1,
- };
- 
-@@ -49,10 +50,12 @@ static int disable_dontaudit;
- static int preserve_tunables;
- static int ignore_module_cache;
- static uint16_t priority;
-+static int priority_set = 0;
- 
- static semanage_handle_t *sh = NULL;
- static char *store;
- static char *store_root;
-+int extract_cil = 0;
- 
- extern char *optarg;
- extern int optind;
-@@ -130,6 +133,7 @@ static void usage(char *progname)
- 	printf("  -X,--priority=PRIORITY    set priority for following operations (1-999)\n");
- 	printf("  -e,--enable=MODULE_NAME   enable module\n");
- 	printf("  -d,--disable=MODULE_NAME  disable module\n");
-+	printf("  -E,--extract=MODULE_NAME  extract module\n");
- 	printf("Other options:\n");
- 	printf("  -s,--store	   name of the store to operate on\n");
- 	printf("  -N,-n,--noreload do not reload policy after commit\n");
-@@ -140,6 +144,8 @@ static void usage(char *progname)
- 	printf("  -C,--ignore-module-cache	Rebuild CIL modules compiled from HLL files\n");
- 	printf("  -p,--path        use an alternate path for the policy root\n");
- 	printf("  -S,--store-path  use an alternate path for the policy store root\n");
-+	printf("  -c, --cil extract module as cil. This only affects module extraction.\n");
-+	printf("  -H, --hll extract module as hll. This only affects module extraction.\n");
- }
- 
- /* Sets the global mode variable to new_mode, but only if no other
-@@ -175,6 +181,9 @@ static void parse_command_line(int argc, char **argv)
- 		{"base", required_argument, NULL, 'b'},
- 		{"help", 0, NULL, 'h'},
- 		{"install", required_argument, NULL, 'i'},
-+		{"extract", required_argument, NULL, 'E'},
-+		{"cil", 0, NULL, 'c'},
-+		{"hll", 0, NULL, 'H'},
- 		{"list-modules", optional_argument, NULL, 'l'},
- 		{"verbose", 0, NULL, 'v'},
- 		{"remove", required_argument, NULL, 'r'},
-@@ -192,13 +201,15 @@ static void parse_command_line(int argc, char **argv)
- 		{"store-path", required_argument, NULL, 'S'},
- 		{NULL, 0, NULL, 0}
- 	};
-+	int extract_selected = 0;
-+	int cil_hll_set = 0;
- 	int i;
- 	verbose = 0;
- 	reload = 0;
- 	no_reload = 0;
- 	priority = 400;
- 	while ((i =
--		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnNBDCPX:e:d:p:S:", opts,
-+		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnNBDCPX:e:d:p:S:E:cH", opts,
- 			    NULL)) != -1) {
- 		switch (i) {
- 		case 'b':
-@@ -211,6 +222,18 @@ static void parse_command_line(int argc, char **argv)
- 		case 'i':
- 			set_mode(INSTALL_M, optarg);
- 			break;
-+		case 'E':
-+			set_mode(EXTRACT_M, optarg);
-+			extract_selected = 1;
-+			break;
-+		case 'c':
-+			set_mode(CIL_M, NULL);
-+			cil_hll_set = 1;
-+			break;
-+		case 'H':
-+			set_mode(HLL_M, NULL);
-+			cil_hll_set = 1;
-+			break;
- 		case 'l':
- 			set_mode(LIST_M, optarg);
- 			break;
-@@ -281,10 +304,15 @@ static void parse_command_line(int argc, char **argv)
- 		usage(argv[0]);
- 		exit(1);
- 	}
-+	if (extract_selected == 0 && cil_hll_set == 1) {
-+		fprintf(stderr, "--cil and --hll require a module to export with the --extract option.\n");
-+		usage(argv[0]);
-+		exit(1);
-+	}
- 
- 	if (optind < argc) {
- 		int mode;
--		/* if -i/u/r was the last command treat any remaining
-+		/* if -i/u/r/E was the last command treat any remaining
- 		 * arguments as args. Will allow 'semodule -i *.pp' to
- 		 * work as expected.
- 		 */
-@@ -293,6 +321,8 @@ static void parse_command_line(int argc, char **argv)
- 			mode = INSTALL_M;
- 		} else if (commands && commands[num_commands - 1].mode == REMOVE_M) {
- 			mode = REMOVE_M;
-+		} else if (commands && commands[num_commands - 1].mode == EXTRACT_M) {
-+			mode = EXTRACT_M;
- 		} else {
- 			fprintf(stderr, "unknown additional arguments:\n");
- 			while (optind < argc)
-@@ -389,6 +419,113 @@ int main(int argc, char *argv[])
- 				    semanage_module_install_file(sh, mode_arg);
- 				break;
- 			}
-+		case EXTRACT_M:{
-+				semanage_module_info_t *extract_info = NULL;
-+				semanage_module_key_t *modkey = NULL;
-+				uint16_t curr_priority;
-+				void *data = NULL;
-+				size_t data_len = 0;
-+				char output_path[PATH_MAX];
-+				const char *output_name = NULL;
-+				const char *lang_ext = NULL;
-+				int rlen;
-+				FILE *output_fd = NULL;
-+
-+				result = semanage_module_key_create(sh, &modkey);
-+				if (result != 0) {
-+					goto cleanup_extract;
-+				}
-+
-+				result = semanage_module_key_set_name(sh, modkey, mode_arg);
-+				if (result != 0) {
-+					goto cleanup_extract;
-+				}
-+
-+				if (priority_set == 0) {
-+					result = semanage_module_get_module_info(sh, modkey, &extract_info);
-+					if (result != 0) {
-+						goto cleanup_extract;
-+					}
-+
-+					semanage_module_info_get_priority(sh, extract_info, &curr_priority);
-+					printf("Module '%s' does not exist at the default priority '%d'. "
-+							"Extracting at highest existing priority '%d'.\n", mode_arg, priority, curr_priority);
-+					priority = curr_priority;
-+				}
-+
-+				result  = semanage_module_key_set_priority(sh, modkey, priority);
-+				if (result != 0) {
-+					goto cleanup_extract;
-+				}
-+
-+				if (verbose) {
-+					printf
-+						("Attempting to extract module '%s':\n",
-+							mode_arg);
-+				}
-+				result = semanage_module_extract(sh, modkey, extract_cil, &data, &data_len, &extract_info);
-+				if (result != 0) {
-+					goto cleanup_extract;
-+				}
-+
-+				if (extract_cil) {
-+					lang_ext = "cil";
-+				} else {
-+					result = semanage_module_info_get_lang_ext(sh, extract_info, &lang_ext);
-+					if (result != 0) {
-+						goto cleanup_extract;
-+					}
-+				}
-+
-+				result = semanage_module_info_get_name(sh, extract_info, &output_name);
-+				if (result != 0) {
-+					goto cleanup_extract;
-+				}
-+
-+				rlen = snprintf(output_path, PATH_MAX, "%s.%s", output_name, lang_ext);
-+				if (rlen < 0 || rlen >= PATH_MAX) {
-+					fprintf(stderr, "%s: Failed to generate output path.\n", argv[0]);
-+					result = -1;
-+					goto cleanup_extract;
-+				}
-+
-+				if (access(output_path, F_OK) == 0) {
-+					fprintf(stderr, "%s: %s is already extracted with extension %s.\n", argv[0], mode_arg, lang_ext);
-+					result = -1;
-+					goto cleanup_extract;
-+				}
-+
-+				output_fd = fopen(output_path, "w");
-+				if (output_fd == NULL) {
-+					fprintf(stderr, "%s: Unable to open %s\n", argv[0], output_path);
-+					result = -1;
-+					goto cleanup_extract;
-+				}
-+
-+				if (fwrite(data, 1, data_len, output_fd) < data_len) {
-+					fprintf(stderr, "%s: Unable to write to %s\n", argv[0], output_path);
-+					result = -1;
-+					goto cleanup_extract;
-+				}
-+cleanup_extract:
-+				if (output_fd != NULL) {
-+					fclose(output_fd);
-+				}
-+				if (data_len > 0) {
-+					munmap(data, data_len);
-+				}
-+				semanage_module_info_destroy(sh, extract_info);
-+				free(extract_info);
-+				semanage_module_key_destroy(sh, modkey);
-+				free(modkey);
-+				break;
-+			}
-+		case CIL_M:
-+				extract_cil = 1;
-+				break;
-+		case HLL_M:
-+				extract_cil = 0;
-+				break;
- 		case REMOVE_M:{
- 				if (verbose) {
- 					printf
-@@ -515,6 +652,7 @@ cleanup_list:
- 		case PRIORITY_M:{
- 				char *endptr = NULL;
- 				priority = (uint16_t)strtoul(mode_arg, &endptr, 10);
-+				priority_set = 1;
- 
- 				if ((result = semanage_set_default_priority(sh, priority)) != 0) {
- 					fprintf(stderr,
--- 
-1.9.3
+Unfortunately I'm afraid that's not going to work out.
+
+Seth
