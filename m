@@ -1,76 +1,84 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: fail hard on invalid property_contexts entries
-Date: Thu,  6 Aug 2015 14:55:20 -0400
-Message-Id: <1438887320-17995-1-git-send-email-sds@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7789vEL023438
+ for <selinux@tycho.nsa.gov>; Fri, 7 Aug 2015 04:09:57 -0400
+Received: by obbfr1 with SMTP id fr1so37318293obb.1
+ for <selinux@tycho.nsa.gov>; Fri, 07 Aug 2015 01:09:56 -0700 (PDT)
+MIME-Version: 1.0
+Sender: sven.j.vermeulen@gmail.com
+In-Reply-To: <1438871414-62292-1-git-send-email-ykhodorkovskiy@tresys.com>
+References: <1438871414-62292-1-git-send-email-ykhodorkovskiy@tresys.com>
+Date: Fri, 7 Aug 2015 10:09:56 +0200
+Message-ID: <CAPzO=NxAAr3QGYkxQ_rkyhRUQPGc6Gs0CKP5auTu6H-HLHaORA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] Add support for extracting modules
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fail hard on any error during property_contexts (or service_contexts)
-processing.  We want to catch any such errors early and not proceed
-with a potentially mislabeled system.
+Will you provide a patch to the reference policy to allow semanage_t
+to write into all kinds of directories?
 
-Also remove some obsoleted tests for NULL; they were necessary
-in earlier versions of the code where we were copying the strings
-at this point, but no longer.
+I personally see little value in this patch, as everything is readily
+accessible on the file system. Users who want to extract policies with
+semodule will now encounter policy issues where semanage_t is not
+allowed to write into the current working directory (depending where
+the user is at):
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libselinux/src/label_android_property.c | 24 +++++++-----------------
- 1 file changed, 7 insertions(+), 17 deletions(-)
+   allow semanage_t tmp_t : dir { ioctl read write getattr lock
+add_name remove_name search open } ;
+   allow semanage_t selinux_config_t : dir { ioctl read write getattr
+lock add_name remove_name search open } ;
+   allow semanage_t default_context_t : dir { ioctl read write getattr
+lock add_name remove_name search open } ;
+   allow semanage_t file_context_t : dir { ioctl read write getattr
+lock add_name remove_name search open } ;
+   allow semanage_t semanage_store_t : dir { ioctl read write create
+getattr setattr lock unlink link rename add_name remove_name reparent
+search rmdir open } ;
+   allow semanage_t semanage_tmp_t : dir { ioctl read write create
+getattr setattr lock unlink link rename add_name remove_name reparent
+search rmdir open } ;
+   allow semanage_t policy_config_t : dir { ioctl read write getattr
+lock add_name remove_name search open } ;
 
-diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
-index 4af9896..af06c4a 100644
---- a/libselinux/src/label_android_property.c
-+++ b/libselinux/src/label_android_property.c
-@@ -94,11 +94,12 @@ static int process_line(struct selabel_handle *rec,
- 	if (items <= 0)
- 		return items;
- 	if (items != 2) {
--		selinux_log(SELINUX_WARNING,
--			    "%s:  line %u is missing fields, skipping\n", path,
-+		selinux_log(SELINUX_ERROR,
-+			    "%s:  line %u is missing fields\n", path,
- 			    lineno);
- 		free(prop);
--		return 0;
-+		errno = EINVAL;
-+		return -1;
- 	}
- 
- 	if (pass == 0) {
-@@ -107,26 +108,15 @@ static int process_line(struct selabel_handle *rec,
- 	} else if (pass == 1) {
- 		/* On the second pass, process and store the specification in spec. */
- 		spec_arr[nspec].property_key = prop;
--		if (!spec_arr[nspec].property_key) {
--			selinux_log(SELINUX_WARNING,
--				    "%s:  out of memory at line %u on prop %s\n",
--				    path, lineno, prop);
--			return -1;
--		}
--
- 		spec_arr[nspec].lr.ctx_raw = context;
--		if (!spec_arr[nspec].lr.ctx_raw) {
--			selinux_log(SELINUX_WARNING,
--				    "%s:  out of memory at line %u on context %s\n",
--				    path, lineno, context);
--			return -1;
--		}
- 
- 		if (rec->validating) {
- 			if (selabel_validate(rec, &spec_arr[nspec].lr) < 0) {
--				selinux_log(SELINUX_WARNING,
-+				selinux_log(SELINUX_ERROR,
- 					    "%s:  line %u has invalid context %s\n",
- 					    path, lineno, spec_arr[nspec].lr.ctx_raw);
-+				errno = EINVAL;
-+				return -1;
- 			}
- 		}
- 	}
--- 
-2.1.0
+Wkr,
+  Sven Vermeulen
+
+On Thu, Aug 6, 2015 at 4:30 PM, Yuli Khodorkovskiy
+<ykhodorkovskiy@tresys.com> wrote:
+> This patchset adds support for extracting modules from the module store as hll
+> or cil to the current working directory. This also adds a function to the
+> libsemanage API to extract modules and fixes a memory leak discovered while
+> implementing this functionality.
+>
+> Changes from v1:
+> - Add fallback behavior if a module does not exist at the default priority when
+> extracting with semodule.
+>
+> Yuli Khodorkovskiy (3):
+>   libsemanage: Add ability to extract modules
+>   libsemanage: Fix null pointer dereference in
+>     semanage_module_key_destroy
+>   policycoreutils/semodule: update semodule to allow extracting modules
+>
+>  libsemanage/include/semanage/modules.h |  17 ++
+>  libsemanage/src/direct_api.c           | 310 ++++++++++++++++++++++-----------
+>  libsemanage/src/libsemanage.map        |   1 +
+>  libsemanage/src/modules.c              |  23 ++-
+>  libsemanage/src/policy.h               |   8 +
+>  libsemanage/src/semanageswig_python.i  |   5 +
+>  policycoreutils/semodule/semodule.8    |  14 ++
+>  policycoreutils/semodule/semodule.c    | 146 +++++++++++++++-
+>  8 files changed, 416 insertions(+), 108 deletions(-)
+>
+> --
+> 1.9.3
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
