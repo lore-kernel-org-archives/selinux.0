@@ -1,54 +1,43 @@
-Message-ID: <1439391982.11315.1.camel@redhat.com>
-Subject: Re: Incorrect check in pam_rootok
-From: Tomas Mraz <tmraz@redhat.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: "SELinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>
-Date: Wed, 12 Aug 2015 17:06:22 +0200
-In-Reply-To: <55CB511D.7020708@tresys.com>
-References: <55CB511D.7020708@tresys.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7CG1dNa028584
+ for <selinux@tycho.nsa.gov>; Wed, 12 Aug 2015 12:01:39 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, linux-mtd@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org,
+ John Johansen <john.johansen@canonical.com>,
+ Kentaro Takeda <takedakn@nttdata.co.jp>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ James Morris <james.l.morris@oracle.com>, Kees Cook <keescook@chromium.org>
+References: <1439240719-46850-1-git-send-email-seth.forshee@canonical.com>
+Date: Wed, 12 Aug 2015 10:54:44 -0500
+In-Reply-To: <1439240719-46850-1-git-send-email-seth.forshee@canonical.com>
+ (Seth Forshee's message of "Mon, 10 Aug 2015 16:05:11 -0500")
+Message-ID: <87oaica4e3.fsf@x220.int.ebiederm.org>
+MIME-Version: 1.0
+Content-Type: text/plain
+Subject: Re: [PATCH v2 0/7] Initial support for user namespace owned mounts
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On St, 2015-08-12 at 09:58 -0400, Christopher J. PeBenito wrote:
-> Working an issue here, we uncovered that PAM is checking the wrong
-> SELinux permission in the pam_rootok module; it checks the passwd
-> permission instead of the rootok permission.  This issue was reported
-> earlier this year[1] but no action has been taken.
-> 
-> This has been around since early 2013, when the code was changed from
-> the old checkPasswdAccess() to selinux_check_access(), but an impact to
-> users would be rare since most domains that have the rootok permission
-> also have the passwd permission.
-> 
-> [1] https://fedorahosted.org/linux-pam/ticket/37
-> 
-> diff --git a/modules/pam_rootok/pam_rootok.c
-> b/modules/pam_rootok/pam_rootok.c
-> index 70579e5..88bed0c 100644
-> --- a/modules/pam_rootok/pam_rootok.c
-> +++ b/modules/pam_rootok/pam_rootok.c
-> @@ -106,7 +106,7 @@ selinux_check_root (void)
->         return status;
->      }
-> 
-> -    status = selinux_check_access(user_context, user_context, "passwd",
-> "passwd", NULL);
-> +    status = selinux_check_access(user_context, user_context, "passwd",
-> "rootok", NULL);
-> 
->      selinux_set_callback(SELINUX_CB_LOG, old_callback);
->      freecon(user_context);
-> 
+Seth Forshee <seth.forshee@canonical.com> writes:
 
-Thank you for the heads-up. I committed the fix into the upstream git
-master branch.
+> This series adds support for the idea of superblocks owned by
+> unprivileged user namespaces. This is initially used to simplify the
+> MNT_NODEV handling for unpivileged mounts, and the ultimate goal is to
+> allow mounting of additional filesystem types from unprivileged
+> containers. As such these are the first in a larger set of patches, with
+> the full series (so far) available at:
+>
+>   git://kernel.ubuntu.com/sforshee/linux.git userns-mounts
 
--- 
-Tomas Mraz
-No matter how far down the wrong road you've gone, turn back.
-                                              Turkish proverb
-(You'll never know whether the road is wrong though.)
+Seth just a quick note to let you know this isn't forgotten.  I have a
+big pile of things to work through this week, so probably the first
+chance I will have to look at your updated patches is during the boring
+bits of Linux Plumbers Conf.
+
+Eric
