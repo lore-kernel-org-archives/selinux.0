@@ -1,107 +1,121 @@
-Subject: Re: How do you relabel all SELinux file contexts of an offline
- system's file system?
-To: Bond Masuda <bond.masuda@jlbond.com>, selinux@tycho.nsa.gov
-References: <55C13DA1.2070601@jlbond.com>
- <20150805065406.GA17019@meriadoc.omgwtfbbq> <55CA9B0E.9050109@jlbond.com>
- <55CABF6D.70408@jlbond.com> <55CB0CD0.4010603@jlbond.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <55CC9A6D.5040005@tycho.nsa.gov>
-Date: Thu, 13 Aug 2015 09:23:57 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7E6j6hO017867
+ for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2015 02:45:06 -0400
+Message-ID: <BLU436-SMTP8926E1E94C430CC9C28B0F9D7C0@phx.gbl>
+From: rowan <rowanPang_selinux@hotmail.com>
+To: <selinux@tycho.nsa.gov>
+References: 
+In-Reply-To: 
+Subject: selinux mls/mcs rang modify
+Date: Fri, 14 Aug 2015 14:45:05 +0800
 MIME-Version: 1.0
-In-Reply-To: <55CB0CD0.4010603@jlbond.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: multipart/alternative;
+ boundary="----=_NextPart_000_0121_01D0D69F.D1CC36B0"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/12/2015 05:07 AM, Bond Masuda wrote:
-> 
-> On 08/11/2015 08:37 PM, Bond Masuda wrote:
->> So, further troubleshooting this myself, I found these errors from
->> 'setfiles':
->>
->> /sbin/setfiles reset /usr/sbin/tzdata-update context
->> system_u:object_r:bin_t:s0->system_u:object_r:tzdata_exec_t:s0
->> /sbin/setfiles set context
->> /usr/sbin/tzdata-update->system_u:object_r:tzdata_exec_t:s0
->> failed:'Invalid argument'
->> /sbin/setfiles reset /sbin/pam_timestamp_check context
->> system_u:object_r:pam_timestamp_exec_t:s0->system_u:object_r:pam_exec_t:s0
->> /sbin/setfiles reset /sbin/shutdown context
->> system_u:object_r:bin_t:s0->system_u:object_r:shutdown_exec_t:s0
->> /sbin/setfiles set context
->> /sbin/shutdown->system_u:object_r:shutdown_exec_t:s0 failed:'Invalid
->> argument'
->> /sbin/setfiles reset /sbin/consoletype context
->> system_u:object_r:bin_t:s0->system_u:object_r:consoletype_exec_t:s0
->> /sbin/setfiles set context
->> /sbin/consoletype->system_u:object_r:consoletype_exec_t:s0
->> failed:'Invalid argument'
->>
->> I'm guessing this is because the "host" system doesn't have these types
->> in it's own policy? The "host" is a Fedora 21 system, while the system
->> mounted in /mnt/test is a CentOS6 system.
->>
->> Grepping the "types" above that give "invalid argument" on the host's
->> file_context* files indeed comes up empty.
->>
->> So, I'm guessing this is where I need to use runcon -t setfiles_mac_t to
->> run setfiles so it doesn't require the type to be one that is loaded in
->> the host's SELinux policy?
->>
->> How do I use runcon? I tried:
->>
-> 
-> Ok, figured this one out mostly, I think. Thanks to manpage
-> setfiles_selinux, I first had to set setfiles_mac_t to permissive with:
-> 
-> semanage permissive -a setfiles_mac_t
+------=_NextPart_000_0121_01D0D69F.D1CC36B0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-That suggests that setfiles_mac_t policy needs to be augmented with
-further allow rules; you can tell which ones based on ausearch -m AVC
--se setfiles_mac_t
+Dear all,
+
+         When do test, I use semanage change the mls/mcs range of selinux
+user 'system_u' from 's0-s0:c0.c1023' to 's0-s0:c0.c1020',cmd as bleow
+
+                   'semanage user -m -r s0-s0:c0.c1020 system_u'
+
+ 
+
+How do I change it back?
+
+ 
+
+Thanks
+
+rowan
 
 
-> Then, I ran the setfiles commands under runcon as:
-> 
-> runcon -t setfiles_mac_t -- chroot /mnt /sbin/setfiles -v -F -e /proc -e
-> /sys -e /dev -e /selinux
-> /etc/selinux/targeted/contexts/files/file_contexts /
-> 
-> This fixes the previous "invalid argument" errors from setfiles.
+------=_NextPart_000_0121_01D0D69F.D1CC36B0
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-I think those errors reflect a bug/gap in setfiles.  Usually setfiles
-validates and canonicalizes the contexts in file_contexts by writing
-them to /sys/fs/selinux/context (a pseudo file) and reading back the
-result.  This will fail if selinuxfs is mounted in your chroot and your
-host policy doesn't define the context.  If selinuxfs is not mounted in
-your chroot, then this will just create a regular file under
-/sys/fs/selinux/context containing the context and read it back again,
-so it will "pass".  I'm guessing that it was failing in enforcing mode
-because it wasn't allowed to create files under /sys/fs/selinux in the
-chroot.  I think we need a change to setfiles (e.g. a new option) to
-fully disable this validation/canonicalization.
-
- With
-> this process, there are still 2 labels that are wrong:
-> 
-> [root@localhost ~]# restorecon -v -n -r /
-> restorecon reset / context system_u:runcon -t setfiles_mac_t -- getfattr -n security.selinux /mnt/rootobject_r:mnt_t:s0->system_u:object_r:root_t:s0
-> restorecon reset /.autofsck context system_u:object_r:mnt_t:s0->system_u:object_r:etc_runtime_t:s0
-> 
-> I think the /.autofsck is getting created during boot, and maybe just
-> inheriting from /. So, the question is why is / (root) still labeled as
-> mnt_t instead of root_t ? When the system is still mounted under
-> /mnt/test, /mnt/test (where / of the system is mounted) is correctly
-> labeled as root_t, but this seems to change once unmounted and i boot
-> the offline system?
-> 
-> Any insights?
-
-No, that seems very strange.  How did you check the context of /mnt/root
-before unmounting it?  Try checking it this way:
-runcon -t setfiles_mac_t -- getfattr -n security.selinux /mnt/root
-
-And likewise, once you unmount and reboot the offline system, try it as:
-runcon -t setfiles_mac_t -- getfattr -n security.selinux /
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
+HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 15 =
+(filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	font-size:10.5pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle18
+	{mso-style-type:personal-reply;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DZH-CN =
+link=3D"#0563C1" vlink=3D"#954F72" =
+style=3D'text-justify-trim:punctuation'><div class=3DWordSection1><p =
+class=3DMsoNormal><span lang=3DEN-US>Dear all,<o:p></o:p></span></p><p =
+class=3DMsoNormal><span =
+lang=3DEN-US>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; When do =
+test, I use semanage change the mls/mcs range of selinux user =
+&#8216;system_u&#8217; from &#8216;s0-s0:c0.c1023&#8217; to =
+&#8216;s0-s0:c0.c1020&#8217;,cmd as bleow<o:p></o:p></span></p><p =
+class=3DMsoNormal><span =
+lang=3DEN-US>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &#8216;semanage user -m =
+-r s0-s0:c0.c1020 system_u&#8217;<o:p></o:p></span></p><p =
+class=3DMsoNormal><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoNormal style=3D'text-indent:21.0pt'><span lang=3DEN-US>How do =
+I change it back?<o:p></o:p></span></p><p class=3DMsoNormal><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal><span =
+lang=3DEN-US>Thanks<o:p></o:p></span></p><p class=3DMsoNormal><span =
+lang=3DEN-US>rowan<o:p></o:p></span></p></div></body></html>
+------=_NextPart_000_0121_01D0D69F.D1CC36B0--
