@@ -1,16 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7DKeu0J004442
- for <selinux@tycho.nsa.gov>; Thu, 13 Aug 2015 16:40:56 -0400
-From: Steve Grubb <sgrubb@redhat.com>
-To: Paul Moore <pmoore@redhat.com>
-Cc: linux-audit@redhat.com, Paul Osmialowski <p.osmialowsk@samsung.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: auditing kdbus service names
-Date: Thu, 13 Aug 2015 16:40:52 -0400
-Message-ID: <2836805.Af3VO2DWPn@x2>
-In-Reply-To: <1988863.rx1nHfWkfd@sifl>
-References: <3754565.WlII3JJvve@sifl> <18456537.MDqL7RWdSn@x2>
- <1988863.rx1nHfWkfd@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7EK0dmO002930
+ for <selinux@tycho.nsa.gov>; Fri, 14 Aug 2015 16:00:40 -0400
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [GIT PULL] SELinux patches for 4.3
+Date: Fri, 14 Aug 2015 16:00:33 -0400
+Message-ID: <10215896.YrxoRqX6qm@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,29 +14,68 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, August 12, 2015 10:48:10 PM Paul Moore wrote:
-> On Wednesday, August 12, 2015 05:38:14 PM Steve Grubb wrote:
-> > On Wednesday, August 12, 2015 08:40:34 AM Paul Moore wrote:
-> > > Hello all,
-> > > 
-> > > I'm currently working on a set of LSM hooks for the new kdbus IPC
-> > > mechanism
-> > > and one of the things that I believe we will need to add is a new audit
-> > > field for the kdbus service name (very similar to the old fashioned dbus
-> > > service name).  I was thinking "kdbus_svc" for the field name, any
-> > > objections?
-> > 
-> > What was used on the old dbus events?
-> 
-> The very generic "service" field name, see the "acquire_svc" example in the
-> URL below.  I believe there is some value in picking a new field name since
-> 1) the field name is too generic in my opinion and 2) kdbus != dbus.
+Hi James,
 
-In my book, they are the same. They are programs providing services on the 
-bus. One thing I noticed in the dbus events is that there are a number of user 
-controlled fields that are not escaped.
+A relatively big SELinux patchset compared to the last few releases, but the 
+vast majority of the changes are due to the new ioctl controls which allow 
+SELinux to control access to individual ioctls; a very welcome addition.  
+Beyond that, it's all just the usual bug fixes and cleanups, nothing 
+particularly spectacular or worrisome.
 
-Call it kdbus_svc if you want, but log it untrusted.
+The patchset passes the selinux-testsuite with flying colors, and as of a few 
+hours ago merged cleanly with the linux-security#next branch.
 
-Thanks,
--Steve
+Enjoy,
+-Paul
+
+---
+The following changes since commit 892e8cac99a71f6254f84fc662068d912e1943bf:
+
+  selinux: fix mprotect PROT_EXEC regression caused by mm change
+           (2015-07-10 16:45:29 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux next
+
+for you to fetch changes up to fda4d578ed0a7e1d116f56a15efea0e4ba78acad:
+
+  selinux: explicitly declare the role "base_r" (2015-07-13 13:32:00 -0400)
+
+----------------------------------------------------------------
+David Howells (1):
+      selinux: Create a common helper to determine an inode label [ver #3]
+
+Jeff Vander Stoep (2):
+      security: add ioctl specific auditing to lsm_audit
+      selinux: extended permissions for ioctls
+
+Laurent Bigonville (1):
+      selinux: explicitly declare the role "base_r"
+
+Stephen Smalley (2):
+      selinux: initialize sock security class to default value
+      selinux: Augment BUG_ON assertion for secclass_map.
+
+Waiman Long (1):
+      selinux: reduce locking overhead in inode_free_security()
+
+ include/linux/lsm_audit.h           |   7 +
+ scripts/selinux/mdp/mdp.c           |   1 +
+ security/lsm_audit.c                |  15 ++
+ security/selinux/avc.c              | 418 ++++++++++++++++++++++++++++++++--
+ security/selinux/hooks.c            | 147 ++++++++-----
+ security/selinux/include/avc.h      |   6 +
+ security/selinux/include/security.h |  32 ++-
+ security/selinux/ss/avtab.c         | 104 +++++++--
+ security/selinux/ss/avtab.h         |  33 ++-
+ security/selinux/ss/conditional.c   |  32 ++-
+ security/selinux/ss/conditional.h   |   6 +-
+ security/selinux/ss/policydb.c      |   5 +
+ security/selinux/ss/services.c      | 213 ++++++++++++++++--
+ security/selinux/ss/services.h      |   6 +
+ 14 files changed, 915 insertions(+), 110 deletions(-)
+
+-- 
+paul moore
+security @ redhat
