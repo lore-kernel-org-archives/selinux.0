@@ -1,10 +1,18 @@
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Message-id: <1440149407.2227.5.camel@samsung.com>
-Subject: Re: [PATCH v3 02/11] lsm: /proc/$PID/attr/label_map file and
- getprocattr_seq hook
-From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-To: Paul Moore <paul@paul-moore.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7LFum2j008920
+ for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2015 11:56:48 -0400
+Received: by oiev193 with SMTP id v193so44095262oie.3
+ for <selinux@tycho.nsa.gov>; Fri, 21 Aug 2015 08:56:46 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1437732285-11524-2-git-send-email-l.pawelczyk@samsung.com>
+References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
+ <1437732285-11524-2-git-send-email-l.pawelczyk@samsung.com>
+Date: Fri, 21 Aug 2015 11:56:46 -0400
+Message-ID: <CAHC9VhQycyUNTxuRUDGfcHkpv5G3O4k+gSn4Qth7S9vB3YNPEQ@mail.gmail.com>
+Subject: Re: [PATCH v3 01/11] user_ns: 3 new LSM hooks for user namespace
+ operations
+From: Paul Moore <paul@paul-moore.com>
+To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
 Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
  "Serge E. Hallyn" <serge@hallyn.com>, Al Viro <viro@zeniv.linux.org.uk>,
  Alexey Dobriyan <adobriyan@gmail.com>,
@@ -25,138 +33,268 @@ Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  havner@gmail.com
-Date: Fri, 21 Aug 2015 11:30:07 +0200
-In-reply-to: <CAHC9VhQy+qH09O1u6ZJPF226hx03j6h-dpuxHdykJjiiV6obbg@mail.gmail.com>
-References: <1437732285-11524-1-git-send-email-l.pawelczyk@samsung.com>
- <1437732285-11524-3-git-send-email-l.pawelczyk@samsung.com>
- <CAHC9VhQy+qH09O1u6ZJPF226hx03j6h-dpuxHdykJjiiV6obbg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On pią, 2015-08-21 at 01:14 -0400, Paul Moore wrote:
-> On Fri, Jul 24, 2015 at 6:04 AM, Lukasz Pawelczyk
-> <l.pawelczyk@samsung.com> wrote:
-> > This commit adds a new proc attribute, label_map that is required 
-> > by an
-> > upcoming Smack namespace. In general it can be used to hold a map 
-> > of
-> > labels, e.g. to be used in namespaces.
-> > 
-> > Due to the nature of this file, the standard getprocattr hook might 
-> > not
-> > be enough to handle it. The map's output can in principle be 
-> > greater
-> > than page size to which the aforementioned hook is limited.
-> > To handle this properly a getprocattr_seq LSM hook has been added 
-> > that
-> > makes it possible to handle any chosen proc attr by seq operations.
-> > 
-> > See the documentation in the patch below for the details about how 
-> > to
-> > use the hook.
-> > 
-> > Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-> > ---
-> >  fs/proc/base.c            | 81 
-> > +++++++++++++++++++++++++++++++++++++++++++----
-> >  include/linux/lsm_hooks.h | 15 +++++++++
-> >  include/linux/security.h  |  9 ++++++
-> >  security/security.c       |  8 +++++
-> >  4 files changed, 107 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/fs/proc/base.c b/fs/proc/base.c
-> > index aa50d1a..e5ac827 100644
-> > --- a/fs/proc/base.c
-> > +++ b/fs/proc/base.c
-> > @@ -2338,20 +2338,77 @@ out:
-> >  }
-> > 
-> >  #ifdef CONFIG_SECURITY
-> > +static int proc_pid_attr_open(struct inode *inode, struct file 
-> > *file)
-> > +{
-> > +       const char *name = file->f_path.dentry->d_name.name;
-> > +       const struct seq_operations *ops;
-> > +       struct task_struct *task;
-> > +       struct seq_file *seq;
-> > +       int ret;
-> > +
-> > +       file->private_data = NULL;
-> > +
-> > +       task = get_proc_task(inode);
-> > +       if (!task)
-> > +               return -ESRCH;
-> > +
-> > +       /* don't use seq_ops if they are not provided by LSM */
-> > +       ret = security_getprocattr_seq(task, name, &ops);
-> > +       if (ret == -EOPNOTSUPP) {
-> > +               put_task_struct(task);
-> > +               return 0;
-> > +       }
-> > +       if (ret) {
-> > +               put_task_struct(task);
-> > +               return ret;
-> > +       }
-> > +
-> > +       ret = seq_open(file, ops);
-> > +       if (ret) {
-> > +               put_task_struct(task);
-> > +               return ret;
-> > +       }
-> > +
-> > +       seq = file->private_data;
-> > +       seq->private = task;
-> > +
-> > +       return 0;
-> > +}
-> 
-> If you end up having to respin this patchset, you might consider
-> moving the "put_task_struct(...); return X;" code into a block at the
-> end of the function to simplify things a bit, for example:
+On Fri, Jul 24, 2015 at 6:04 AM, Lukasz Pawelczyk
+<l.pawelczyk@samsung.com> wrote:
+> This commit implements 3 new LSM hooks that provide the means for LSMs
+> to embed their own security context within user namespace, effectively
+> creating some sort of a user_ns related security namespace.
+>
+> The first one to take advantage of this mechanism is Smack.
+>
+> The hooks has been documented in the in the security.h below.
+>
+> Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  include/linux/lsm_hooks.h      | 28 ++++++++++++++++++++++++++++
+>  include/linux/security.h       | 23 +++++++++++++++++++++++
+>  include/linux/user_namespace.h |  4 ++++
+>  kernel/user.c                  |  3 +++
+>  kernel/user_namespace.c        | 18 ++++++++++++++++++
+>  security/security.c            | 28 ++++++++++++++++++++++++++++
+>  6 files changed, 104 insertions(+)
 
-I will do so, thanks.
+I'm not sure at this point in time we know what we want to do with
+SELinux and these hooks, if anything, but they look reasonable to me.
 
-> 
-> static int proc_pid_attr_open(struct inode *inode, struct file *file)
-> {
->        const char *name = file->f_path.dentry->d_name.name;
->        const struct seq_operations *ops;
->        struct task_struct *task;
->        struct seq_file *seq;
->        int ret;
-> 
->        file->private_data = NULL;
-> 
->        task = get_proc_task(inode);
->        if (!task)
->                return -ESRCH;
-> 
->        /* don't use seq_ops if they are not provided by LSM */
->        ret = security_getprocattr_seq(task, name, &ops);
->        if (ret == -EOPNOTSUPP) {
->                ret = 0;
->                goto put_task;
->        }
->        if (ret)
->                goto put_task;
-> 
->        ret = seq_open(file, ops);
->        if (ret)
->                goto put_task;
-> 
->        seq = file->private_data;
->        seq->private = task;
-> 
->        return 0;
-> 
-> put_task:
->        put_task_struct(task);
->        return ret;
-> }
-> 
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 9429f05..228558c 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1261,6 +1261,23 @@
+>   *     audit_rule_init.
+>   *     @rule contains the allocated rule
+>   *
+> + * @userns_create:
+> + *     Allocates and fills the security part of a new user namespace.
+> + *     @ns points to a newly created user namespace.
+> + *     Returns 0 or an error code.
+> + *
+> + * @userns_free:
+> + *     Deallocates the security part of a user namespace.
+> + *     @ns points to a user namespace about to be destroyed.
+> + *
+> + * @userns_setns:
+> + *     Run during a setns syscall to add a process to an already existing
+> + *     user namespace. Returning failure here will block the operation
+> + *     requested from userspace (setns() with CLONE_NEWUSER).
+> + *     @nsproxy contains nsproxy to which the user namespace will be assigned.
+> + *     @ns contains user namespace that is to be incorporated to the nsproxy.
+> + *     Returns 0 or an error code.
+> + *
+>   * @inode_notifysecctx:
+>   *     Notify the security module of what the security context of an inode
+>   *     should be.  Initializes the incore security context managed by the
+> @@ -1613,6 +1630,12 @@ union security_list_options {
+>                                 struct audit_context *actx);
+>         void (*audit_rule_free)(void *lsmrule);
+>  #endif /* CONFIG_AUDIT */
+> +
+> +#ifdef CONFIG_USER_NS
+> +       int (*userns_create)(struct user_namespace *ns);
+> +       void (*userns_free)(struct user_namespace *ns);
+> +       int (*userns_setns)(struct nsproxy *nsproxy, struct user_namespace *ns);
+> +#endif /* CONFIG_USER_NS */
+>  };
+>
+>  struct security_hook_heads {
+> @@ -1824,6 +1847,11 @@ struct security_hook_heads {
+>         struct list_head audit_rule_match;
+>         struct list_head audit_rule_free;
+>  #endif /* CONFIG_AUDIT */
+> +#ifdef CONFIG_USER_NS
+> +       struct list_head userns_create;
+> +       struct list_head userns_free;
+> +       struct list_head userns_setns;
+> +#endif /* CONFIG_USER_NS */
+>  };
+>
+>  /*
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 79d85dd..1b0eccc 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1584,6 +1584,29 @@ static inline void security_audit_rule_free(void *lsmrule)
+>  #endif /* CONFIG_SECURITY */
+>  #endif /* CONFIG_AUDIT */
+>
+> +#ifdef CONFIG_USER_NS
+> +int security_userns_create(struct user_namespace *ns);
+> +void security_userns_free(struct user_namespace *ns);
+> +int security_userns_setns(struct nsproxy *nsproxy, struct user_namespace *ns);
+> +
+> +#else
+> +
+> +static inline int security_userns_create(struct user_namespace *ns)
+> +{
+> +       return 0;
+> +}
+> +
+> +static inline void security_userns_free(struct user_namespace *ns)
+> +{ }
+> +
+> +static inline int security_userns_setns(struct nsproxy *nsproxy,
+> +                                       struct user_namespace *ns)
+> +{
+> +       return 0;
+> +}
+> +
+> +#endif /* CONFIG_USER_NS */
+> +
+>  #ifdef CONFIG_SECURITYFS
+>
+>  extern struct dentry *securityfs_create_file(const char *name, umode_t mode,
+> diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+> index 8297e5b..a9400cc 100644
+> --- a/include/linux/user_namespace.h
+> +++ b/include/linux/user_namespace.h
+> @@ -39,6 +39,10 @@ struct user_namespace {
+>         struct key              *persistent_keyring_register;
+>         struct rw_semaphore     persistent_keyring_register_sem;
+>  #endif
+> +
+> +#ifdef CONFIG_SECURITY
+> +       void *security;
+> +#endif
+>  };
+>
+>  extern struct user_namespace init_user_ns;
+> diff --git a/kernel/user.c b/kernel/user.c
+> index b069ccb..ce5419e 100644
+> --- a/kernel/user.c
+> +++ b/kernel/user.c
+> @@ -59,6 +59,9 @@ struct user_namespace init_user_ns = {
+>         .persistent_keyring_register_sem =
+>         __RWSEM_INITIALIZER(init_user_ns.persistent_keyring_register_sem),
+>  #endif
+> +#ifdef CONFIG_SECURITY
+> +       .security = NULL,
+> +#endif
+>  };
+>  EXPORT_SYMBOL_GPL(init_user_ns);
+>
+> diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+> index 4109f83..cadffb6 100644
+> --- a/kernel/user_namespace.c
+> +++ b/kernel/user_namespace.c
+> @@ -22,6 +22,7 @@
+>  #include <linux/ctype.h>
+>  #include <linux/projid.h>
+>  #include <linux/fs_struct.h>
+> +#include <linux/security.h>
+>
+>  static struct kmem_cache *user_ns_cachep __read_mostly;
+>  static DEFINE_MUTEX(userns_state_mutex);
+> @@ -108,6 +109,15 @@ int create_user_ns(struct cred *new)
+>
+>         set_cred_user_ns(new, ns);
+>
+> +#ifdef CONFIG_SECURITY
+> +       ret = security_userns_create(ns);
+> +       if (ret) {
+> +               ns_free_inum(&ns->ns);
+> +               kmem_cache_free(user_ns_cachep, ns);
+> +               return ret;
+> +       }
+> +#endif
+> +
+>  #ifdef CONFIG_PERSISTENT_KEYRINGS
+>         init_rwsem(&ns->persistent_keyring_register_sem);
+>  #endif
+> @@ -143,6 +153,9 @@ void free_user_ns(struct user_namespace *ns)
+>  #ifdef CONFIG_PERSISTENT_KEYRINGS
+>                 key_put(ns->persistent_keyring_register);
+>  #endif
+> +#ifdef CONFIG_SECURITY
+> +               security_userns_free(ns);
+> +#endif
+>                 ns_free_inum(&ns->ns);
+>                 kmem_cache_free(user_ns_cachep, ns);
+>                 ns = parent;
+> @@ -969,6 +982,7 @@ static int userns_install(struct nsproxy *nsproxy, struct ns_common *ns)
+>  {
+>         struct user_namespace *user_ns = to_user_ns(ns);
+>         struct cred *cred;
+> +       int err;
+>
+>         /* Don't allow gaining capabilities by reentering
+>          * the same user namespace.
+> @@ -986,6 +1000,10 @@ static int userns_install(struct nsproxy *nsproxy, struct ns_common *ns)
+>         if (!ns_capable(user_ns, CAP_SYS_ADMIN))
+>                 return -EPERM;
+>
+> +       err = security_userns_setns(nsproxy, user_ns);
+> +       if (err)
+> +               return err;
+> +
+>         cred = prepare_creds();
+>         if (!cred)
+>                 return -ENOMEM;
+> diff --git a/security/security.c b/security/security.c
+> index 595fffa..5e66388 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/mount.h>
+>  #include <linux/personality.h>
+>  #include <linux/backing-dev.h>
+> +#include <linux/user_namespace.h>
+>  #include <net/flow.h>
+>
+>  #define MAX_LSM_EVM_XATTR      2
+> @@ -1542,6 +1543,25 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
+>  }
+>  #endif /* CONFIG_AUDIT */
+>
+> +#ifdef CONFIG_USER_NS
+> +
+> +int security_userns_create(struct user_namespace *ns)
+> +{
+> +       return call_int_hook(userns_create, 0, ns);
+> +}
+> +
+> +void security_userns_free(struct user_namespace *ns)
+> +{
+> +       call_void_hook(userns_free, ns);
+> +}
+> +
+> +int security_userns_setns(struct nsproxy *nsproxy, struct user_namespace *ns)
+> +{
+> +       return call_int_hook(userns_setns, 0, nsproxy, ns);
+> +}
+> +
+> +#endif /* CONFIG_USER_NS */
+> +
+>  struct security_hook_heads security_hook_heads = {
+>         .binder_set_context_mgr =
+>                 LIST_HEAD_INIT(security_hook_heads.binder_set_context_mgr),
+> @@ -1886,4 +1906,12 @@ struct security_hook_heads security_hook_heads = {
+>         .audit_rule_free =
+>                 LIST_HEAD_INIT(security_hook_heads.audit_rule_free),
+>  #endif /* CONFIG_AUDIT */
+> +#ifdef CONFIG_USER_NS
+> +       .userns_create =
+> +               LIST_HEAD_INIT(security_hook_heads.userns_create),
+> +       .userns_free =
+> +               LIST_HEAD_INIT(security_hook_heads.userns_free),
+> +       .userns_setns =
+> +               LIST_HEAD_INIT(security_hook_heads.userns_setns),
+> +#endif /* CONFIG_USER_NS */
+>  };
+> --
+> 2.4.3
+>
+
+
+
 -- 
-Lukasz Pawelczyk
-Samsung R&D Institute Poland
-Samsung Electronics
+paul moore
+www.paul-moore.com
