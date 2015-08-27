@@ -1,79 +1,169 @@
-Date: Thu, 27 Aug 2015 21:37:00 +0200
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-To: David Howells <dhowells@redhat.com>
-Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>,
- Andy Lutomirski <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
- "Roberts, William C" <william.c.roberts@intel.com>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
- "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- "serge@hallyn.com" <serge@hallyn.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>,
- Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
- dwmw2@infradead.org, Ming Lei <ming.lei@canonical.com>,
- Joey Lee <jlee@suse.de>,
- =?utf-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
- Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
- Matthew Garrett <mjg59@srcf.ucam.org>,
- Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: Linux Firmware Signing
-Message-ID: <20150827193700.GE8051@wotan.suse.de>
-References: <476DC76E7D1DF2438D32BFADF679FC5601057D32@ORSMSX103.amr.corp.intel.com>
- <20150824225713.GJ8051@wotan.suse.de>
- <CAGXu5jLDHCgygaVNHpuvszN6SXNKAjRW83q3-D2ZfRpO4uAmdw@mail.gmail.com>
- <476DC76E7D1DF2438D32BFADF679FC5601058E78@ORSMSX103.amr.corp.intel.com>
- <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
- <1440462367.2737.4.camel@linux.vnet.ibm.com>
- <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
- <1440464705.2737.36.camel@linux.vnet.ibm.com>
- <14540.1440599584@warthog.procyon.org.uk>
- <31228.1440671938@warthog.procyon.org.uk>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7RMD5q9016505
+ for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2015 18:13:07 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+ by mail.jlbond.com (Postfix) with ESMTP id E529579BEA
+ for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2015 15:13:02 -0700 (PDT)
+Received: from mail.jlbond.com ([127.0.0.1])
+ by localhost (mail.jlbond.com [127.0.0.1]) (amavisd-new, port 10024)
+ with LMTP id gcEExtx28yJN for <selinux@tycho.nsa.gov>;
+ Thu, 27 Aug 2015 15:13:02 -0700 (PDT)
+Received: from [192.168.73.129] (wirelessgw.bbky.org [192.168.0.254])
+ by mail.jlbond.com (Postfix) with ESMTP id 6800879762
+ for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2015 15:13:02 -0700 (PDT)
+Message-ID: <55DF8B6E.5040400@jlbond.com>
+Date: Thu, 27 Aug 2015 15:13:02 -0700
+From: Bond Masuda <bond.masuda@jlbond.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <31228.1440671938@warthog.procyon.org.uk>
+To: selinux@tycho.nsa.gov
+Subject: Re: question about semanage fcontext and awareness of
+ file_contexts.local file
+References: <55D27178.9080503@jlbond.com> <55DB5F2D.6060900@tycho.nsa.gov>
+ <55DB60D8.8020400@jlbond.com> <55DB79DF.4050504@tycho.nsa.gov>
+ <55DCF039.4060001@jlbond.com> <55DDB74B.9050000@tycho.nsa.gov>
+In-Reply-To: <55DDB74B.9050000@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Aug 27, 2015 at 11:38:58AM +0100, David Howells wrote:
-> Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> 
-> > "PKCS#7: Add an optional authenticated attribute to hold firmware name"
-> > https://git.kernel.org/cgit/linux/kernel/git/dhowells/linux-fs.git/commit/?h=fwsign-pkcs7&id=1448377a369993f864915743cfb34772e730213good
-> > 
-> >         1.3.6.1.4.1.2312.16     Linux kernel
-> >         1.3.6.1.4.1.2312.16.2   - PKCS#7/CMS SignerInfo attribute types
-> >         1.3.6.1.4.1.2312.16.2.1   - firmwareName
-> > 
-> > I take it you are referring to this?
-> 
-> Yes.
-> 
-> > If we follow this model we'd then need something like:
-> > 
-> >         1.3.6.1.4.1.2312.16.2.2   - seLinuxPolicyName
-> > 
-> > That should mean each OID that has different file names would need to be
-> > explicit about and have a similar entry on the registry. I find that pretty
-> > redundant and would like to avoid that if possible.
-> 
-> firmwareName is easy for people to understand - it's the name the kernel asks
-> for and the filename of the blob.  seLinuxPolicyName is, I think, a lot more
-> tricky since a lot of people don't use SELinux, and most that do don't
-> understand it (most people that use it aren't even really aware of it).
-> 
-> If you can use the firmwareName as the SELinux/LSM key, I would suggest doing
-> so - even if you dress it up as a path (/lib/firmware/<firmwareName>).
+wanted to follow up on this thread so anyone in the future searching for 
+a solution to this problem can find this.
 
-It seems we don't have to worry about it now, and perhaps SELinux folks might
-go another route.
+basically, i'm installing a brand new system in a chroot environment. 
+one of our steps to complete the setup requires adding some custom file 
+contexts, and so I ran a command like:
 
-  Luis
+chroot /mnt/root semanage fcontext -a -t auditd_log_t "/audit(/.*)?"
+
+
+So, the curious thing is that I thought this command succeeded because I 
+was able to find the file:
+
+/mnt/root/etc/selinux/targeted/contexts/files/file_contexts.local
+
+But it turns out that file should not have been there as the semanage 
+command above fails (exit status = 1) and should have rolled back what 
+it was attempting to do. This appears to be a bug in my conversations 
+with Stephen Smalley.
+
+The reason why semanage fails is because I don't have /selinux in the 
+chroot environment, and semanage tries to reload the policy and can't 
+and then fails. However, it doesn't make sense for semanage to reload 
+the policy of the "host" since the command is meant to make changes to 
+the chroot environment of another system i'm installing. Turns out, the 
+solution is to use the -N (--noreload) option in semanage:
+
+chroot /mnt/root semanage fcontext -a -N -t auditd_log_t "/audit(/.*)?"
+
+
+This appears to do the job right and the problem I had that started this 
+thread is no longer.
+
+Hope that helps someone..
+-Bond
+
+On 08/26/2015 05:55 AM, Stephen Smalley wrote:
+> On 08/25/2015 06:46 PM, Bond Masuda wrote:
+>>
+>> On 08/24/2015 01:09 PM, Stephen Smalley wrote:
+>>> On 08/24/2015 02:22 PM, Bond Masuda wrote:
+>>>> On 08/24/2015 11:15 AM, Stephen Smalley wrote:
+>>>>> On 08/17/2015 07:42 PM, Bond Masuda wrote:
+>>>>>> We want to add some custom file contexts for certain directories, in
+>>>>>> particular we have /audit as a separate partition and run this:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>> To make sure auditd works. This is run with chroot because the system
+>>>>>> we're modifying is not running and mounted at /mnt/root. This creates
+>>>>>> the file_contexts.local file with this content:
+>>>>>>
+>>>>>> # This file is auto-generated by libsemanage
+>>>>>> # Do not edit directly.
+>>>>>>
+>>>>>> /audit(/.*)?    system_u:object_r:auditd_log_t:s0
+>>>>>>
+>>>>>> Later on, when we boot that system that was in /mnt/root, the
+>>>>>> file_contexts.local remains the same. However, if I run semanage to add
+>>>>>> another record, for example (this time, not in chroot):
+>>>>>>
+>>>>>> semanage fcontext -a -t httpd_sys_content_t "/data/www(/.*)?"
+>>>>>>
+>>>>>> It creates the content for httpd_sys_content_t in file_contexts.local,
+>>>>>> but overwrites the previous entry for auditd_log_t.
+>>>>>>
+>>>>>> If I add the auditd_log_t entry once again, _both_ entries are now
+>>>>>> present in file_contexts.local. So, it seems that the 1st time I run
+>>>>>> semanage fcontext -a _while_ the system is running, it is not aware of
+>>>>>> the content that was added when I ran semanage fcontext -a when the
+>>>>>> system was offline and mounted in /mnt/root.
+>>>>>>
+>>>>>> Does semanage maintain state somewhere other than in the
+>>>>>> file_contexts.local file? How can I make sure it is aware of the content
+>>>>>> in file_contexts.local that was created by semanage when it was run in
+>>>>>> chroot?
+>>>>> This sounds like a bug to me.  What version of libsemanage and
+>>>>> policycoreutils are you using, as this may be version-specific?
+>>>>>
+>>>>>
+>>>> The versions are:
+>>>>
+>>>> libsemanage-2.0.43-5.1.el6.x86_64
+>>>> libsemanage-python-2.0.43-5.1.el6.x86_64
+>>>> policycoreutils-2.0.83-24.el6.x86_64
+>>>> policycoreutils-python-2.0.83-24.el6.x86_64
+>>> So in that case, I'd expect that each semanage fcontext -a command would
+>>> generate a file_contexts.local file under
+>>> /etc/selinux/targeted/modules/active/ and under
+>>> /etc/selinux/targeted/contexts/files/.  The first one is the private
+>>> copy generated and used within the policy module store only, and the
+>>> latter is the public copy installed at the end of the transaction and
+>>> used by other programs like restorecon to look up file labels.  They
+>>> should be identical at the end of the semanage command.
+>>>
+>>> Is this reproducible?  If so, it would be interesting the compare the
+>>> two files before and after each of the semanage commands you ran.
+>> Stephen,
+>>
+>> Thanks for the info above. I didn't know the information was in two
+>> places. When running the semanage command in chroot to /mnt/root, I get
+>> a file in
+>> /mnt/root/etc/selinux/targeted/contexts/files/file_contexts.local, but I
+>> do *NOT* get /mnt/root/etc/selinux/targeted/modules/active. The contents
+>> of the "active" directory are:
+>>
+>> [root@localhost active]# ls -al
+>> total 9052
+>> drwx------. 3 root root    4096 Aug 25 14:35 .
+>> drwxr-xr-x. 3 root root      70 Aug 25 14:36 ..
+>> -rw-------. 1 root root  249117 Aug 25 14:35 base.pp
+>> -rw-------. 1 root root      32 Aug 25 14:35 commit_num
+>> -rw-------. 1 root root  290786 Aug 25 14:35 file_contexts
+>> -rw-r--r--. 1 root root    6405 Aug 25 14:35 file_contexts.homedirs
+>> -rw-------. 1 root root  296417 Aug 25 14:35 file_contexts.template
+>> -rw-------. 1 root root    5631 Aug 25 14:35 homedir_template
+>> drwx------. 2 root root    8192 Aug 25 14:35 modules
+>> -rw-------. 1 root root       0 Aug 25 14:35 netfilter_contexts
+>> -rw-r--r--. 1 root root 8380527 Aug 25 14:35 policy.kern
+>> -rw-------. 1 root root     106 Aug 25 14:35 seusers.final
+>> -rw-------. 1 root root     101 Aug 25 14:35 users_extra
+>>
+>>
+>> The contents of the "files" directory are:
+>>
+>> [root@localhost files]# ls -al
+>> total 304
+>> drwxr-xr-x. 2 root root     93 Aug 25 14:36 .
+>> drwxr-xr-x. 4 root root   4096 Aug 25 14:36 ..
+>> -rw-r--r--. 1 root root 290786 Aug 25 14:36 file_contexts
+>> -rw-r--r--. 1 root root   6405 Aug 25 14:36 file_contexts.homedirs
+>> -rw-r--r--. 1 root root    120 Aug 25 14:36 file_contexts.local
+>> -rw-r--r--. 1 root root    139 Aug 13 02:37 media
+>>
+>> So, is this a bug? Or, intended behavior due to some condition of
+>> running semanage in chroot?
+> It sounds like a bug. However, I can't reproduce it.  How did you set up
+> your chroot environment, including how are you handling /proc and
+> /selinux within the chroot?
