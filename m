@@ -1,10 +1,32 @@
-Date: Thu, 27 Aug 2015 12:07:34 +0100
+Date: Thu, 27 Aug 2015 21:36:05 +0200
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: David Howells <dhowells@redhat.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>,
+ Andy Lutomirski <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
+ "Roberts, William C" <william.c.roberts@intel.com>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
+ "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
+ "serge@hallyn.com" <serge@hallyn.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>,
+ "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
+ dwmw2@infradead.org, Ming Lei <ming.lei@canonical.com>,
+ Joey Lee <jlee@suse.de>,
+ =?utf-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
+ Gary Ching-Pang Lin <glin@suse.com>, Kyle McMartin <kyle@kernel.org>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Matthew Garrett <mjg59@srcf.ucam.org>,
+ Johannes Berg <johannes@sipsolutions.net>
 Subject: Re: Linux Firmware Signing
-Message-ID: <r9h37sqeo7j9npdm2g2pv5j4.1440673603779@email.android.com>
-References: <20150826232622.GC8051@wotan.suse.de>
- <20150824210234.GI8051@wotan.suse.de>
- <476DC76E7D1DF2438D32BFADF679FC5601057D32@ORSMSX103.amr.corp.intel.com>
- <20150824225713.GJ8051@wotan.suse.de>
+Message-ID: <20150827193605.GD8051@wotan.suse.de>
+References: <20150824225713.GJ8051@wotan.suse.de>
  <CAGXu5jLDHCgygaVNHpuvszN6SXNKAjRW83q3-D2ZfRpO4uAmdw@mail.gmail.com>
  <476DC76E7D1DF2438D32BFADF679FC5601058E78@ORSMSX103.amr.corp.intel.com>
  <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
@@ -12,158 +34,75 @@ References: <20150826232622.GC8051@wotan.suse.de>
  <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
  <14540.1440599584@warthog.procyon.org.uk>
- <31228.1440671938@warthog.procyon.org.uk>
- <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
-From: David Woodhouse <dwmw2@infradead.org>
-To: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>
-Cc: "Luis R. Rodriguez" <mcgrof@suse.com>, Mimi Zohar
- <zohar@linux.vnet.ibm.com>, Andy Lutomirski <luto@amacapital.net>, Kees
- Cook <keescook@chromium.org>, "Roberts,                         William C"
- <william.c.roberts@intel.com>, "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
- "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- "serge@hallyn.com" <serge@hallyn.com>, Vitaly
- Kuznetsov <vkuznets@redhat.com>, Paul Moore <paul@paul-moore.com>, Eric
- Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Stephen Smalley
- <sds@tycho.nsa.gov>, "Schaufler, Casey" <casey.schaufler@intel.com>, "Luis
- R. Rodriguez" <mcgrof@do-not-panic.com>, Dmitry Kasatkin
- <dmitry.kasatkin@gmail.com>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, Peter Jones <pjones@redhat.com>, Takashi Iwai
- <tiwai@suse.de>, Ming Lei <ming.lei@canonical.com>, Joey Lee
- <jlee@suse.de>, =?UTF-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
- Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
- Matthew Garrett <mjg59@srcf.ucam.org>, Johannes Berg
- <johannes@sipsolutions.net>
+ <20150826232622.GC8051@wotan.suse.de>
+ <CAHC9VhR9z2WVp+Q1hBkr5jduAH-J1DW12-k7U1eaQGgrP4c1Yw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="--_com.asus.email_1213558159979970"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhR9z2WVp+Q1hBkr5jduAH-J1DW12-k7U1eaQGgrP4c1Yw@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-----_com.asus.email_1213558159979970
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
+On Wed, Aug 26, 2015 at 10:35:19PM -0400, Paul Moore wrote:
+> On Wed, Aug 26, 2015 at 7:26 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> > On Wed, Aug 26, 2015 at 03:33:04PM +0100, David Howells wrote:
+> > Now let's review the SELinux stuff before we jump back into firmware / system
+> > data stuff again as there is a joint criteria to consider for all of these.
+> > For other people's refrence the enum you quote above was added through your
+> > patch pending on linux-next:
+> >
+> > "PKCS#7: Appropriately restrict authenticated attributes and content type"
+> >
+> > Based on what Roberts seems to want to do for SELinux policy files it would
+> > seems we may also need VERIFYING_SELINUX_POLICY. SELinux policy loading is
+> > unique in the at it uses its own fs and uses a load trigger node (sel_load_ops)
+> > to kick off  security_load_policy(data, count), so its not exactly a
+> > yet-another-API to read arbitrary files from the file system. Its policy files
+> > are also very distribution specific. Because of all this its not really
+> > suitable for /lib/firmware/ or sharing code even futher. It seems its a prime
+> > candidate already to make use of the system_verify_data() APIs you added David,
+> > provided the items below are taken care of as well.
+> 
+> One thing to keep in mind is that not only are SELinux policy files
+> distribution specific, they are machine specific as administrators
+> can, and do, customize the policy for their usage.  I really like the
+> idea of providing signed SELinux policies to the kernel but I question
+> how practical it will be for normal users/admins.
 
-QnkgcGFzc2luZyBpbiBhIGZkLi4uIG9yIGRvaW5nIHRoZSBmcyBsb29rdXAgZGlyZWN0bHkuIEJs
-b29keSBhdXRvY29ycmVjdC4gCgotLSAKQXBvbG9naWVzIGZvciBIVE1MIGFuZCB0b3AtcG9zdGlu
-ZzsgQW5kcm9pZCBlbWFpbCBpcyBicm9rZW4uCgotLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0t
-LS0tLS0tCkZyb206RGF2aWQgV29vZGhvdXNlIDxkd213MkBpbmZyYWRlYWQub3JnPgpTZW50OlRo
-dSwgMjcgQXVnIDIwMTUgMTE6NTc6MjMgKzAxMDAKVG86RGF2aWQgSG93ZWxscyA8ZGhvd2VsbHNA
-cmVkaGF0LmNvbT4KQ2M6Ikx1aXMgUi4gUm9kcmlndWV6IiA8bWNncm9mQHN1c2UuY29tPixkaG93
-ZWxsc0ByZWRoYXQuY29tLE1pbWkgWm9oYXIgPHpvaGFyQGxpbnV4LnZuZXQuaWJtLmNvbT4sQW5k
-eSBMdXRvbWlyc2tpIDxsdXRvQGFtYWNhcGl0YWwubmV0PixLZWVzIENvb2sgPGtlZXNjb29rQGNo
-cm9taXVtLm9yZz4sIlJvYmVydHMsICAgICAgICAgICAgICAgICAgICAgICAgIFdpbGxpYW0gQyIg
-PHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT4sbGludXgtc2VjdXJpdHktbW9kdWxlQHZnZXIu
-a2VybmVsLm9yZyxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnLGxpbnV4LXdpcmVsZXNzQHZn
-ZXIua2VybmVsLm9yZyxqYW1lcy5sLm1vcnJpc0BvcmFjbGUuY29tLHNlcmdlQGhhbGx5bi5jb20s
-Vml0YWx5IEt1em5ldHNvdiA8dmt1em5ldHNAcmVkaGF0LmNvbT4sUGF1bCBNb29yZSA8cGF1bEBw
-YXVsLW1vb3JlLmNvbT4sRXJpYyBQYXJpcyA8ZXBhcmlzQHBhcmlzcGxhY2Uub3JnPixzZWxpbnV4
-QHR5Y2hvLm5zYS5nb3YsU3RlcGhlbiBTbWFsbGV5IDxzZHNAdHljaG8ubnNhLmdvdj4sIlNjaGF1
-ZmxlciwgQ2FzZXkiIDxjYXNleS5zY2hhdWZsZXJAaW50ZWwuY29tPiwiTHVpcyBSLiBSb2RyaWd1
-ZXoiIDxtY2dyb2ZAZG8tbm90LXBhbmljLmNvbT4sRG1pdHJ5IEthc2F0a2luIDxkbWl0cnkua2Fz
-YXRraW5AZ21haWwuY29tPixHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRp
-b24ub3JnPixQZXRlciBKb25lcyA8cGpvbmVzQHJlZGhhdC5jb20+LFRha2FzaGkgSXdhaSA8dGl3
-YWlAc3VzZS5kZT4sZHdtdzJAaW5mcmFkZWFkLm9yZyxNaW5nIExlaSA8bWluZy5sZWlAY2Fub25p
-Y2FsLmNvbT4sSm9leSBMZWUgPGpsZWVAc3VzZS5kZT4sVm9qdMSbY2ggUGF2bMOtayA8dm9qdGVj
-aEBzdXNlLmNvbT4sS3lsZSBNY01hcnRpbiA8a3lsZUBrZXJuZWwub3JnPixTZXRoIEZvcnNoZWUg
-PHNldGguZm9yc2hlZUBjYW5vbmljYWwuY29tPixNYXR0aGV3IEdhcnJldHQgPG1qZzU5QHNyY2Yu
-dWNhbS5vcmc+LEpvaGFubmVzIEJlcmcgPGpvaGFubmVzQHNpcHNvbHV0aW9ucy5uZXQ+ClN1Ympl
-Y3Q6UmU6IExpbnV4IEZpcm13YXJlIFNpZ25pbmcKCj5TZWUgaHR0cDovL3d3dy5pbmZyYWRlYWQu
-b3JnL3Jwci5odG1sCj4KPgo+PiBMdWlzIFIuIFJvZHJpZ3VleiA8bWNncm9mQHN1c2UuY29tPiB3
-cm90ZToKPj4KPj4+ICJQS0NTIzc6IEFkZCBhbiBvcHRpb25hbCBhdXRoZW50aWNhdGVkIGF0dHJp
-YnV0ZSB0byBob2xkIGZpcm13YXJlIG5hbWUiCj4+PiBodHRwczovL2dpdC5rZXJuZWwub3JnL2Nn
-aXQvbGludXgva2VybmVsL2dpdC9kaG93ZWxscy9saW51eC1mcy5naXQvY29tbWl0Lz9oPWZ3c2ln
-bi1wa2NzNyZpZD0xNDQ4Mzc3YTM2OTk5M2Y4NjQ5MTU3NDNjZmIzNDc3MmU3MzAyMTNnb29kCj4+
-Pgo+Pj4gICAgICAgICAxLjMuNi4xLjQuMS4yMzEyLjE2ICAgICBMaW51eCBrZXJuZWwKPj4+ICAg
-ICAgICAgMS4zLjYuMS40LjEuMjMxMi4xNi4yICAgLSBQS0NTIzcvQ01TIFNpZ25lckluZm8gYXR0
-cmlidXRlIHR5cGVzCj4+PiAgICAgICAgIDEuMy42LjEuNC4xLjIzMTIuMTYuMi4xICAgLSBmaXJt
-d2FyZU5hbWUKPj4+Cj4+PiBJIHRha2UgaXQgeW91IGFyZSByZWZlcnJpbmcgdG8gdGhpcz8KPj4K
-Pj4gWWVzLgo+Pgo+Pj4gSWYgd2UgZm9sbG93IHRoaXMgbW9kZWwgd2UnZCB0aGVuIG5lZWQgc29t
-ZXRoaW5nIGxpa2U6Cj4+Pgo+Pj4gICAgICAgICAxLjMuNi4xLjQuMS4yMzEyLjE2LjIuMiAgIC0g
-c2VMaW51eFBvbGljeU5hbWUKPj4+Cj4+PiBUaGF0IHNob3VsZCBtZWFuIGVhY2ggT0lEIHRoYXQg
-aGFzIGRpZmZlcmVudCBmaWxlIG5hbWVzIHdvdWxkIG5lZWQgdG8gYmUKPj4+IGV4cGxpY2l0IGFi
-b3V0IGFuZCBoYXZlIGEgc2ltaWxhciBlbnRyeSBvbiB0aGUgcmVnaXN0cnkuIEkgZmluZCB0aGF0
-Cj4+PiBwcmV0dHkKPj4+IHJlZHVuZGFudCBhbmQgd291bGQgbGlrZSB0byBhdm9pZCB0aGF0IGlm
-IHBvc3NpYmxlLgo+Pgo+PiBmaXJtd2FyZU5hbWUgaXMgZWFzeSBmb3IgcGVvcGxlIHRvIHVuZGVy
-c3RhbmQgLSBpdCdzIHRoZSBuYW1lIHRoZSBrZXJuZWwKPj4gYXNrcwo+PiBmb3IgYW5kIHRoZSBm
-aWxlbmFtZSBvZiB0aGUgYmxvYi4gIHNlTGludXhQb2xpY3lOYW1lIGlzLCBJIHRoaW5rLCBhIGxv
-dAo+PiBtb3JlCj4+IHRyaWNreSBzaW5jZSBhIGxvdCBvZiBwZW9wbGUgZG9uJ3QgdXNlIFNFTGlu
-dXgsIGFuZCBtb3N0IHRoYXQgZG8gZG9uJ3QKPj4gdW5kZXJzdGFuZCBpdCAobW9zdCBwZW9wbGUg
-dGhhdCB1c2UgaXQgYXJlbid0IGV2ZW4gcmVhbGx5IGF3YXJlIG9mIGl0KS4KPj4KPj4gSWYgeW91
-IGNhbiB1c2UgdGhlIGZpcm13YXJlTmFtZSBhcyB0aGUgU0VMaW51eC9MU00ga2V5LCBJIHdvdWxk
-IHN1Z2dlc3QKPj4gZG9pbmcKPj4gc28gLSBldmVuIGlmIHlvdSBkcmVzcyBpdCB1cCBhcyBhIHBh
-dGggKC9saWIvZmlybXdhcmUvPGZpcm13YXJlTmFtZT4pLgo+Pgo+PiBEYXZpZAo+Pgo+Cj5JbiBj
-b252ZXJzYXRpb24gd2l0aCBNaW1pIGxhc3Qgd2VlayBzaGUgd2FzIHZlcnkga2VlbiBvbiB0aGUg
-bW9kZWwgd2hlcmUKPndlIGxvYWQgbW9kdWxlcyAmIGZpcm13YXJlIGluIHN1Y2ggYSBmYXNoaW9u
-IHRoYXQgdGhlIGtlcm5lbCBoYXMgYWNjZXNzIHRvCj50aGUgb3JpZ2luYWwgaW5vZGUgLS0gYnkg
-cGFzc2luZyBpbiBhIGYyZiwgb3IgaW4gdGhlIGZpcm13YXJlIGNhc2UgYnkKPmRvaW5nIHRoZSBy
-ZCBsb29rdXAgZGlyZWN0bHkuIFNvIHN1cmVseSB5b3UgaGF2ZSBhbGwgdGhlIFNFTGludXggbGFi
-ZWxsaW5nCj55b3UgbmVlZD8KPgo+LS0gCj5kd213Mgo+Cg==
-----_com.asus.email_1213558159979970
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: base64
+Yeah that makes it harder. Possible but harder.
 
-PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOjEycHQiPkJ5IHBhc3Np
-bmcgaW4gYSBmZC4uLiBvciBkb2luZyB0aGUgZnMgbG9va3VwIGRpcmVjdGx5LiBCbG9vZHkgYXV0
-b2NvcnJlY3QuIDxicj48YnI+LS0gPGJyPkFwb2xvZ2llcyBmb3IgSFRNTCBhbmQgdG9wLXBvc3Rp
-bmc7IEFuZHJvaWQgZW1haWwgaXMgYnJva2VuLjwvc3Bhbj48c3BhbiBzdHlsZT0iZm9udC1mYW1p
-bHk6IEFyaWFsOyI+PGJyPjxicj4tLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tPGJy
-PkZyb206RGF2aWQgV29vZGhvdXNlIDxkd213MkBpbmZyYWRlYWQub3JnPjxicj5TZW50OlRodSwg
-MjcgQXVnIDIwMTUgMTE6NTc6MjMgKzAxMDA8YnI+VG86RGF2aWQgSG93ZWxscyA8ZGhvd2VsbHNA
-cmVkaGF0LmNvbT48YnI+Q2M6Ikx1aXMgUi4gUm9kcmlndWV6IiA8bWNncm9mQHN1c2UuY29tPixk
-aG93ZWxsc0ByZWRoYXQuY29tLE1pbWkgWm9oYXIgPHpvaGFyQGxpbnV4LnZuZXQuaWJtLmNvbT4s
-QW5keSBMdXRvbWlyc2tpIDxsdXRvQGFtYWNhcGl0YWwubmV0PixLZWVzIENvb2sgPGtlZXNjb29r
-QGNocm9taXVtLm9yZz4sIlJvYmVydHMsICAgICAgICAgICAgICAgICAgICAgICAgIFdpbGxpYW0g
-QyIgPHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT4sbGludXgtc2VjdXJpdHktbW9kdWxlQHZn
-ZXIua2VybmVsLm9yZyxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnLGxpbnV4LXdpcmVsZXNz
-QHZnZXIua2VybmVsLm9yZyxqYW1lcy5sLm1vcnJpc0BvcmFjbGUuY29tLHNlcmdlQGhhbGx5bi5j
-b20sVml0YWx5IEt1em5ldHNvdiA8dmt1em5ldHNAcmVkaGF0LmNvbT4sUGF1bCBNb29yZSA8cGF1
-bEBwYXVsLW1vb3JlLmNvbT4sRXJpYyBQYXJpcyA8ZXBhcmlzQHBhcmlzcGxhY2Uub3JnPixzZWxp
-bnV4QHR5Y2hvLm5zYS5nb3YsU3RlcGhlbiBTbWFsbGV5IDxzZHNAdHljaG8ubnNhLmdvdj4sIlNj
-aGF1ZmxlciwgQ2FzZXkiIDxjYXNleS5zY2hhdWZsZXJAaW50ZWwuY29tPiwiTHVpcyBSLiBSb2Ry
-aWd1ZXoiIDxtY2dyb2ZAZG8tbm90LXBhbmljLmNvbT4sRG1pdHJ5IEthc2F0a2luIDxkbWl0cnku
-a2FzYXRraW5AZ21haWwuY29tPixHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5k
-YXRpb24ub3JnPixQZXRlciBKb25lcyA8cGpvbmVzQHJlZGhhdC5jb20+LFRha2FzaGkgSXdhaSA8
-dGl3YWlAc3VzZS5kZT4sZHdtdzJAaW5mcmFkZWFkLm9yZyxNaW5nIExlaSA8bWluZy5sZWlAY2Fu
-b25pY2FsLmNvbT4sSm9leSBMZWUgPGpsZWVAc3VzZS5kZT4sVm9qdMSbY2ggUGF2bMOtayA8dm9q
-dGVjaEBzdXNlLmNvbT4sS3lsZSBNY01hcnRpbiA8a3lsZUBrZXJuZWwub3JnPixTZXRoIEZvcnNo
-ZWUgPHNldGguZm9yc2hlZUBjYW5vbmljYWwuY29tPixNYXR0aGV3IEdhcnJldHQgPG1qZzU5QHNy
-Y2YudWNhbS5vcmc+LEpvaGFubmVzIEJlcmcgPGpvaGFubmVzQHNpcHNvbHV0aW9ucy5uZXQ+PGJy
-PlN1YmplY3Q6UmU6IExpbnV4IEZpcm13YXJlIFNpZ25pbmc8YnI+PGJyPjwvc3Bhbj5TZWUgaHR0
-cDovL3d3dy5pbmZyYWRlYWQub3JnL3Jwci5odG1sPGJyPjxicj48YnI+PiBMdWlzIFIuIFJvZHJp
-Z3VleiA8bWNncm9mQHN1c2UuY29tPiB3cm90ZTo8YnI+Pjxicj4+PiAiUEtDUyM3OiBBZGQgYW4g
-b3B0aW9uYWwgYXV0aGVudGljYXRlZCBhdHRyaWJ1dGUgdG8gaG9sZCBmaXJtd2FyZSBuYW1lIjxi
-cj4+PiBodHRwczovL2dpdC5rZXJuZWwub3JnL2NnaXQvbGludXgva2VybmVsL2dpdC9kaG93ZWxs
-cy9saW51eC1mcy5naXQvY29tbWl0Lz9oPWZ3c2lnbi1wa2NzNyZhbXA7aWQ9MTQ0ODM3N2EzNjk5
-OTNmODY0OTE1NzQzY2ZiMzQ3NzJlNzMwMjEzZ29vZDxicj4+Pjxicj4+PiAgICAgICAgIDEuMy42
-LjEuNC4xLjIzMTIuMTYgICAgIExpbnV4IGtlcm5lbDxicj4+PiAgICAgICAgIDEuMy42LjEuNC4x
-LjIzMTIuMTYuMiAgIC0gUEtDUyM3L0NNUyBTaWduZXJJbmZvIGF0dHJpYnV0ZSB0eXBlczxicj4+
-PiAgICAgICAgIDEuMy42LjEuNC4xLjIzMTIuMTYuMi4xICAgLSBmaXJtd2FyZU5hbWU8YnI+Pj48
-YnI+Pj4gSSB0YWtlIGl0IHlvdSBhcmUgcmVmZXJyaW5nIHRvIHRoaXM/PGJyPj48YnI+PiBZZXMu
-PGJyPj48YnI+Pj4gSWYgd2UgZm9sbG93IHRoaXMgbW9kZWwgd2UmIzM5O2QgdGhlbiBuZWVkIHNv
-bWV0aGluZyBsaWtlOjxicj4+Pjxicj4+PiAgICAgICAgIDEuMy42LjEuNC4xLjIzMTIuMTYuMi4y
-ICAgLSBzZUxpbnV4UG9saWN5TmFtZTxicj4+Pjxicj4+PiBUaGF0IHNob3VsZCBtZWFuIGVhY2gg
-T0lEIHRoYXQgaGFzIGRpZmZlcmVudCBmaWxlIG5hbWVzIHdvdWxkIG5lZWQgdG8gYmU8YnI+Pj4g
-ZXhwbGljaXQgYWJvdXQgYW5kIGhhdmUgYSBzaW1pbGFyIGVudHJ5IG9uIHRoZSByZWdpc3RyeS4g
-SSBmaW5kIHRoYXQ8YnI+Pj4gcHJldHR5PGJyPj4+IHJlZHVuZGFudCBhbmQgd291bGQgbGlrZSB0
-byBhdm9pZCB0aGF0IGlmIHBvc3NpYmxlLjxicj4+PGJyPj4gZmlybXdhcmVOYW1lIGlzIGVhc3kg
-Zm9yIHBlb3BsZSB0byB1bmRlcnN0YW5kIC0gaXQmIzM5O3MgdGhlIG5hbWUgdGhlIGtlcm5lbDxi
-cj4+IGFza3M8YnI+PiBmb3IgYW5kIHRoZSBmaWxlbmFtZSBvZiB0aGUgYmxvYi4gIHNlTGludXhQ
-b2xpY3lOYW1lIGlzLCBJIHRoaW5rLCBhIGxvdDxicj4+IG1vcmU8YnI+PiB0cmlja3kgc2luY2Ug
-YSBsb3Qgb2YgcGVvcGxlIGRvbiYjMzk7dCB1c2UgU0VMaW51eCwgYW5kIG1vc3QgdGhhdCBkbyBk
-b24mIzM5O3Q8YnI+PiB1bmRlcnN0YW5kIGl0IChtb3N0IHBlb3BsZSB0aGF0IHVzZSBpdCBhcmVu
-JiMzOTt0IGV2ZW4gcmVhbGx5IGF3YXJlIG9mIGl0KS48YnI+Pjxicj4+IElmIHlvdSBjYW4gdXNl
-IHRoZSBmaXJtd2FyZU5hbWUgYXMgdGhlIFNFTGludXgvTFNNIGtleSwgSSB3b3VsZCBzdWdnZXN0
-PGJyPj4gZG9pbmc8YnI+PiBzbyAtIGV2ZW4gaWYgeW91IGRyZXNzIGl0IHVwIGFzIGEgcGF0aCAo
-L2xpYi9maXJtd2FyZS88ZmlybXdhcmVOYW1lPikuPGJyPj48YnI+PiBEYXZpZDxicj4+PGJyPjxi
-cj5JbiBjb252ZXJzYXRpb24gd2l0aCBNaW1pIGxhc3Qgd2VlayBzaGUgd2FzIHZlcnkga2VlbiBv
-biB0aGUgbW9kZWwgd2hlcmU8YnI+d2UgbG9hZCBtb2R1bGVzICZhbXA7IGZpcm13YXJlIGluIHN1
-Y2ggYSBmYXNoaW9uIHRoYXQgdGhlIGtlcm5lbCBoYXMgYWNjZXNzIHRvPGJyPnRoZSBvcmlnaW5h
-bCBpbm9kZSAtLSBieSBwYXNzaW5nIGluIGEgZjJmLCBvciBpbiB0aGUgZmlybXdhcmUgY2FzZSBi
-eTxicj5kb2luZyB0aGUgcmQgbG9va3VwIGRpcmVjdGx5LiBTbyBzdXJlbHkgeW91IGhhdmUgYWxs
-IHRoZSBTRUxpbnV4IGxhYmVsbGluZzxicj55b3UgbmVlZD88YnI+PGJyPi0tIDxicj5kd213Mjxi
-cj48YnI+
-----_com.asus.email_1213558159979970--
+> Some of the Machine Owner Key (MOK) work would likely be necessary for
+> signed SELinux policies to be even remotely practical.
+
+Matthew, Peter and Gary are Cc'd, so they can feel free to chime in.
+
+There are other alternatives as well:
+
+ * Is there wide use of SELinux + IMA ? If so that may be another option.
+
+ * The kernel cert stuff can also allow for installing keys *later* which
+   could be trusted specifically for SELinux Policy files, but that'd
+   mean having to generate / sign these someway up in the food chain.
+
+These are all worth considering not just for SELinux but any other form of
+machine-specific data from files which might need to be fed to the kernel.
+
+Are there other use cases other than SELinux policy files?
+
+Anyway, its good we're reviewing this early before patches for SELinux
+policy file stuff for signing are brewed. The APIs will be there, but need
+to be advanced slightly for firmware signing anyway so there is time for
+you folks to think about what route you want to go. If you *do* determine
+you need it, it seems pretty easy to handle.
+
+> Assuming I'm understanding the firmwareName attribute idea correctly,
+> we don't need to worry about that from a SELinux policy point of view.
+> As others have already stated, the kernel just reads a binary blob
+> that is pushed into it by userspace using securityfs.
+
+Ah thanks, great, one less thing to think about. So it would just be
+the enum and OID that would be needed, should you guys go down the
+kernel signing route.
+
+  Luis
