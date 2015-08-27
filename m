@@ -1,5 +1,6 @@
-Message-ID: <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
-In-Reply-To: <31228.1440671938@warthog.procyon.org.uk>
+Date: Thu, 27 Aug 2015 12:07:34 +0100
+Subject: Re: Linux Firmware Signing
+Message-ID: <r9h37sqeo7j9npdm2g2pv5j4.1440673603779@email.android.com>
 References: <20150826232622.GC8051@wotan.suse.de>
  <20150824210234.GI8051@wotan.suse.de>
  <476DC76E7D1DF2438D32BFADF679FC5601057D32@ORSMSX103.amr.corp.intel.com>
@@ -12,87 +13,157 @@ References: <20150826232622.GC8051@wotan.suse.de>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
  <14540.1440599584@warthog.procyon.org.uk>
  <31228.1440671938@warthog.procyon.org.uk>
-Date: Thu, 27 Aug 2015 10:57:23 -0000
-Subject: Re: Linux Firmware Signing
-From: "David Woodhouse" <dwmw2@infradead.org>
-To: "David Howells" <dhowells@redhat.com>
-Cc: "Luis R. Rodriguez" <mcgrof@suse.com>, dhowells@redhat.com,
- "Mimi Zohar" <zohar@linux.vnet.ibm.com>,
- "Andy Lutomirski" <luto@amacapital.net>,
- "Kees Cook" <keescook@chromium.org>,
- "Roberts,                         William C" <william.c.roberts@intel.com>,
- "linux-security-module@vger.kernel.org"
+ <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
+From: David Woodhouse <dwmw2@infradead.org>
+To: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>
+Cc: "Luis R. Rodriguez" <mcgrof@suse.com>, Mimi Zohar
+ <zohar@linux.vnet.ibm.com>, Andy Lutomirski <luto@amacapital.net>, Kees
+ Cook <keescook@chromium.org>, "Roberts,                         William C"
+ <william.c.roberts@intel.com>, "linux-security-module@vger.kernel.org"
  <linux-security-module@vger.kernel.org>,
  linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
  "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- "serge@hallyn.com" <serge@hallyn.com>,
- "Vitaly Kuznetsov" <vkuznets@redhat.com>,
- "Paul Moore" <paul@paul-moore.com>,
- "Eric Paris" <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- "Stephen Smalley" <sds@tycho.nsa.gov>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
- "Dmitry Kasatkin" <dmitry.kasatkin@gmail.com>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Peter Jones" <pjones@redhat.com>, "Takashi Iwai" <tiwai@suse.de>,
- dwmw2@infradead.org, "Ming Lei" <ming.lei@canonical.com>,
- "Joey Lee" <jlee@suse.de>,
- =?utf-8?B?IlZvanTEm2NoIFBhdmzDrWsi?= <vojtech@suse.com>,
- "Kyle McMartin" <kyle@kernel.org>,
- "Seth Forshee" <seth.forshee@canonical.com>,
- "Matthew Garrett" <mjg59@srcf.ucam.org>,
- "Johannes Berg" <johannes@sipsolutions.net>
+ "serge@hallyn.com" <serge@hallyn.com>, Vitaly
+ Kuznetsov <vkuznets@redhat.com>, Paul Moore <paul@paul-moore.com>, Eric
+ Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Stephen Smalley
+ <sds@tycho.nsa.gov>, "Schaufler, Casey" <casey.schaufler@intel.com>, "Luis
+ R. Rodriguez" <mcgrof@do-not-panic.com>, Dmitry Kasatkin
+ <dmitry.kasatkin@gmail.com>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Peter Jones <pjones@redhat.com>, Takashi Iwai
+ <tiwai@suse.de>, Ming Lei <ming.lei@canonical.com>, Joey Lee
+ <jlee@suse.de>, =?UTF-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
+ Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
+ Matthew Garrett <mjg59@srcf.ucam.org>, Johannes Berg
+ <johannes@sipsolutions.net>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
+Content-Type: multipart/alternative;
+ boundary="--_com.asus.email_1213558159979970"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-See http://www.infradead.org/rpr.html
+----_com.asus.email_1213558159979970
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 
+QnkgcGFzc2luZyBpbiBhIGZkLi4uIG9yIGRvaW5nIHRoZSBmcyBsb29rdXAgZGlyZWN0bHkuIEJs
+b29keSBhdXRvY29ycmVjdC4gCgotLSAKQXBvbG9naWVzIGZvciBIVE1MIGFuZCB0b3AtcG9zdGlu
+ZzsgQW5kcm9pZCBlbWFpbCBpcyBicm9rZW4uCgotLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0t
+LS0tLS0tCkZyb206RGF2aWQgV29vZGhvdXNlIDxkd213MkBpbmZyYWRlYWQub3JnPgpTZW50OlRo
+dSwgMjcgQXVnIDIwMTUgMTE6NTc6MjMgKzAxMDAKVG86RGF2aWQgSG93ZWxscyA8ZGhvd2VsbHNA
+cmVkaGF0LmNvbT4KQ2M6Ikx1aXMgUi4gUm9kcmlndWV6IiA8bWNncm9mQHN1c2UuY29tPixkaG93
+ZWxsc0ByZWRoYXQuY29tLE1pbWkgWm9oYXIgPHpvaGFyQGxpbnV4LnZuZXQuaWJtLmNvbT4sQW5k
+eSBMdXRvbWlyc2tpIDxsdXRvQGFtYWNhcGl0YWwubmV0PixLZWVzIENvb2sgPGtlZXNjb29rQGNo
+cm9taXVtLm9yZz4sIlJvYmVydHMsICAgICAgICAgICAgICAgICAgICAgICAgIFdpbGxpYW0gQyIg
+PHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT4sbGludXgtc2VjdXJpdHktbW9kdWxlQHZnZXIu
+a2VybmVsLm9yZyxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnLGxpbnV4LXdpcmVsZXNzQHZn
+ZXIua2VybmVsLm9yZyxqYW1lcy5sLm1vcnJpc0BvcmFjbGUuY29tLHNlcmdlQGhhbGx5bi5jb20s
+Vml0YWx5IEt1em5ldHNvdiA8dmt1em5ldHNAcmVkaGF0LmNvbT4sUGF1bCBNb29yZSA8cGF1bEBw
+YXVsLW1vb3JlLmNvbT4sRXJpYyBQYXJpcyA8ZXBhcmlzQHBhcmlzcGxhY2Uub3JnPixzZWxpbnV4
+QHR5Y2hvLm5zYS5nb3YsU3RlcGhlbiBTbWFsbGV5IDxzZHNAdHljaG8ubnNhLmdvdj4sIlNjaGF1
+ZmxlciwgQ2FzZXkiIDxjYXNleS5zY2hhdWZsZXJAaW50ZWwuY29tPiwiTHVpcyBSLiBSb2RyaWd1
+ZXoiIDxtY2dyb2ZAZG8tbm90LXBhbmljLmNvbT4sRG1pdHJ5IEthc2F0a2luIDxkbWl0cnkua2Fz
+YXRraW5AZ21haWwuY29tPixHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRp
+b24ub3JnPixQZXRlciBKb25lcyA8cGpvbmVzQHJlZGhhdC5jb20+LFRha2FzaGkgSXdhaSA8dGl3
+YWlAc3VzZS5kZT4sZHdtdzJAaW5mcmFkZWFkLm9yZyxNaW5nIExlaSA8bWluZy5sZWlAY2Fub25p
+Y2FsLmNvbT4sSm9leSBMZWUgPGpsZWVAc3VzZS5kZT4sVm9qdMSbY2ggUGF2bMOtayA8dm9qdGVj
+aEBzdXNlLmNvbT4sS3lsZSBNY01hcnRpbiA8a3lsZUBrZXJuZWwub3JnPixTZXRoIEZvcnNoZWUg
+PHNldGguZm9yc2hlZUBjYW5vbmljYWwuY29tPixNYXR0aGV3IEdhcnJldHQgPG1qZzU5QHNyY2Yu
+dWNhbS5vcmc+LEpvaGFubmVzIEJlcmcgPGpvaGFubmVzQHNpcHNvbHV0aW9ucy5uZXQ+ClN1Ympl
+Y3Q6UmU6IExpbnV4IEZpcm13YXJlIFNpZ25pbmcKCj5TZWUgaHR0cDovL3d3dy5pbmZyYWRlYWQu
+b3JnL3Jwci5odG1sCj4KPgo+PiBMdWlzIFIuIFJvZHJpZ3VleiA8bWNncm9mQHN1c2UuY29tPiB3
+cm90ZToKPj4KPj4+ICJQS0NTIzc6IEFkZCBhbiBvcHRpb25hbCBhdXRoZW50aWNhdGVkIGF0dHJp
+YnV0ZSB0byBob2xkIGZpcm13YXJlIG5hbWUiCj4+PiBodHRwczovL2dpdC5rZXJuZWwub3JnL2Nn
+aXQvbGludXgva2VybmVsL2dpdC9kaG93ZWxscy9saW51eC1mcy5naXQvY29tbWl0Lz9oPWZ3c2ln
+bi1wa2NzNyZpZD0xNDQ4Mzc3YTM2OTk5M2Y4NjQ5MTU3NDNjZmIzNDc3MmU3MzAyMTNnb29kCj4+
+Pgo+Pj4gICAgICAgICAxLjMuNi4xLjQuMS4yMzEyLjE2ICAgICBMaW51eCBrZXJuZWwKPj4+ICAg
+ICAgICAgMS4zLjYuMS40LjEuMjMxMi4xNi4yICAgLSBQS0NTIzcvQ01TIFNpZ25lckluZm8gYXR0
+cmlidXRlIHR5cGVzCj4+PiAgICAgICAgIDEuMy42LjEuNC4xLjIzMTIuMTYuMi4xICAgLSBmaXJt
+d2FyZU5hbWUKPj4+Cj4+PiBJIHRha2UgaXQgeW91IGFyZSByZWZlcnJpbmcgdG8gdGhpcz8KPj4K
+Pj4gWWVzLgo+Pgo+Pj4gSWYgd2UgZm9sbG93IHRoaXMgbW9kZWwgd2UnZCB0aGVuIG5lZWQgc29t
+ZXRoaW5nIGxpa2U6Cj4+Pgo+Pj4gICAgICAgICAxLjMuNi4xLjQuMS4yMzEyLjE2LjIuMiAgIC0g
+c2VMaW51eFBvbGljeU5hbWUKPj4+Cj4+PiBUaGF0IHNob3VsZCBtZWFuIGVhY2ggT0lEIHRoYXQg
+aGFzIGRpZmZlcmVudCBmaWxlIG5hbWVzIHdvdWxkIG5lZWQgdG8gYmUKPj4+IGV4cGxpY2l0IGFi
+b3V0IGFuZCBoYXZlIGEgc2ltaWxhciBlbnRyeSBvbiB0aGUgcmVnaXN0cnkuIEkgZmluZCB0aGF0
+Cj4+PiBwcmV0dHkKPj4+IHJlZHVuZGFudCBhbmQgd291bGQgbGlrZSB0byBhdm9pZCB0aGF0IGlm
+IHBvc3NpYmxlLgo+Pgo+PiBmaXJtd2FyZU5hbWUgaXMgZWFzeSBmb3IgcGVvcGxlIHRvIHVuZGVy
+c3RhbmQgLSBpdCdzIHRoZSBuYW1lIHRoZSBrZXJuZWwKPj4gYXNrcwo+PiBmb3IgYW5kIHRoZSBm
+aWxlbmFtZSBvZiB0aGUgYmxvYi4gIHNlTGludXhQb2xpY3lOYW1lIGlzLCBJIHRoaW5rLCBhIGxv
+dAo+PiBtb3JlCj4+IHRyaWNreSBzaW5jZSBhIGxvdCBvZiBwZW9wbGUgZG9uJ3QgdXNlIFNFTGlu
+dXgsIGFuZCBtb3N0IHRoYXQgZG8gZG9uJ3QKPj4gdW5kZXJzdGFuZCBpdCAobW9zdCBwZW9wbGUg
+dGhhdCB1c2UgaXQgYXJlbid0IGV2ZW4gcmVhbGx5IGF3YXJlIG9mIGl0KS4KPj4KPj4gSWYgeW91
+IGNhbiB1c2UgdGhlIGZpcm13YXJlTmFtZSBhcyB0aGUgU0VMaW51eC9MU00ga2V5LCBJIHdvdWxk
+IHN1Z2dlc3QKPj4gZG9pbmcKPj4gc28gLSBldmVuIGlmIHlvdSBkcmVzcyBpdCB1cCBhcyBhIHBh
+dGggKC9saWIvZmlybXdhcmUvPGZpcm13YXJlTmFtZT4pLgo+Pgo+PiBEYXZpZAo+Pgo+Cj5JbiBj
+b252ZXJzYXRpb24gd2l0aCBNaW1pIGxhc3Qgd2VlayBzaGUgd2FzIHZlcnkga2VlbiBvbiB0aGUg
+bW9kZWwgd2hlcmUKPndlIGxvYWQgbW9kdWxlcyAmIGZpcm13YXJlIGluIHN1Y2ggYSBmYXNoaW9u
+IHRoYXQgdGhlIGtlcm5lbCBoYXMgYWNjZXNzIHRvCj50aGUgb3JpZ2luYWwgaW5vZGUgLS0gYnkg
+cGFzc2luZyBpbiBhIGYyZiwgb3IgaW4gdGhlIGZpcm13YXJlIGNhc2UgYnkKPmRvaW5nIHRoZSBy
+ZCBsb29rdXAgZGlyZWN0bHkuIFNvIHN1cmVseSB5b3UgaGF2ZSBhbGwgdGhlIFNFTGludXggbGFi
+ZWxsaW5nCj55b3UgbmVlZD8KPgo+LS0gCj5kd213Mgo+Cg==
+----_com.asus.email_1213558159979970
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: base64
 
-> Luis R. Rodriguez <mcgrof@suse.com> wrote:
->
->> "PKCS#7: Add an optional authenticated attribute to hold firmware name"
->> https://git.kernel.org/cgit/linux/kernel/git/dhowells/linux-fs.git/commit/?h=fwsign-pkcs7&id=1448377a369993f864915743cfb34772e730213good
->>
->>         1.3.6.1.4.1.2312.16     Linux kernel
->>         1.3.6.1.4.1.2312.16.2   - PKCS#7/CMS SignerInfo attribute types
->>         1.3.6.1.4.1.2312.16.2.1   - firmwareName
->>
->> I take it you are referring to this?
->
-> Yes.
->
->> If we follow this model we'd then need something like:
->>
->>         1.3.6.1.4.1.2312.16.2.2   - seLinuxPolicyName
->>
->> That should mean each OID that has different file names would need to be
->> explicit about and have a similar entry on the registry. I find that
->> pretty
->> redundant and would like to avoid that if possible.
->
-> firmwareName is easy for people to understand - it's the name the kernel
-> asks
-> for and the filename of the blob.  seLinuxPolicyName is, I think, a lot
-> more
-> tricky since a lot of people don't use SELinux, and most that do don't
-> understand it (most people that use it aren't even really aware of it).
->
-> If you can use the firmwareName as the SELinux/LSM key, I would suggest
-> doing
-> so - even if you dress it up as a path (/lib/firmware/<firmwareName>).
->
-> David
->
-
-In conversation with Mimi last week she was very keen on the model where
-we load modules & firmware in such a fashion that the kernel has access to
-the original inode -- by passing in a f2f, or in the firmware case by
-doing the rd lookup directly. So surely you have all the SELinux labelling
-you need?
-
--- 
-dwmw2
+PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBBcmlhbDsgZm9udC1zaXplOjEycHQiPkJ5IHBhc3Np
+bmcgaW4gYSBmZC4uLiBvciBkb2luZyB0aGUgZnMgbG9va3VwIGRpcmVjdGx5LiBCbG9vZHkgYXV0
+b2NvcnJlY3QuIDxicj48YnI+LS0gPGJyPkFwb2xvZ2llcyBmb3IgSFRNTCBhbmQgdG9wLXBvc3Rp
+bmc7IEFuZHJvaWQgZW1haWwgaXMgYnJva2VuLjwvc3Bhbj48c3BhbiBzdHlsZT0iZm9udC1mYW1p
+bHk6IEFyaWFsOyI+PGJyPjxicj4tLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tPGJy
+PkZyb206RGF2aWQgV29vZGhvdXNlIDxkd213MkBpbmZyYWRlYWQub3JnPjxicj5TZW50OlRodSwg
+MjcgQXVnIDIwMTUgMTE6NTc6MjMgKzAxMDA8YnI+VG86RGF2aWQgSG93ZWxscyA8ZGhvd2VsbHNA
+cmVkaGF0LmNvbT48YnI+Q2M6Ikx1aXMgUi4gUm9kcmlndWV6IiA8bWNncm9mQHN1c2UuY29tPixk
+aG93ZWxsc0ByZWRoYXQuY29tLE1pbWkgWm9oYXIgPHpvaGFyQGxpbnV4LnZuZXQuaWJtLmNvbT4s
+QW5keSBMdXRvbWlyc2tpIDxsdXRvQGFtYWNhcGl0YWwubmV0PixLZWVzIENvb2sgPGtlZXNjb29r
+QGNocm9taXVtLm9yZz4sIlJvYmVydHMsICAgICAgICAgICAgICAgICAgICAgICAgIFdpbGxpYW0g
+QyIgPHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT4sbGludXgtc2VjdXJpdHktbW9kdWxlQHZn
+ZXIua2VybmVsLm9yZyxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnLGxpbnV4LXdpcmVsZXNz
+QHZnZXIua2VybmVsLm9yZyxqYW1lcy5sLm1vcnJpc0BvcmFjbGUuY29tLHNlcmdlQGhhbGx5bi5j
+b20sVml0YWx5IEt1em5ldHNvdiA8dmt1em5ldHNAcmVkaGF0LmNvbT4sUGF1bCBNb29yZSA8cGF1
+bEBwYXVsLW1vb3JlLmNvbT4sRXJpYyBQYXJpcyA8ZXBhcmlzQHBhcmlzcGxhY2Uub3JnPixzZWxp
+bnV4QHR5Y2hvLm5zYS5nb3YsU3RlcGhlbiBTbWFsbGV5IDxzZHNAdHljaG8ubnNhLmdvdj4sIlNj
+aGF1ZmxlciwgQ2FzZXkiIDxjYXNleS5zY2hhdWZsZXJAaW50ZWwuY29tPiwiTHVpcyBSLiBSb2Ry
+aWd1ZXoiIDxtY2dyb2ZAZG8tbm90LXBhbmljLmNvbT4sRG1pdHJ5IEthc2F0a2luIDxkbWl0cnku
+a2FzYXRraW5AZ21haWwuY29tPixHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5k
+YXRpb24ub3JnPixQZXRlciBKb25lcyA8cGpvbmVzQHJlZGhhdC5jb20+LFRha2FzaGkgSXdhaSA8
+dGl3YWlAc3VzZS5kZT4sZHdtdzJAaW5mcmFkZWFkLm9yZyxNaW5nIExlaSA8bWluZy5sZWlAY2Fu
+b25pY2FsLmNvbT4sSm9leSBMZWUgPGpsZWVAc3VzZS5kZT4sVm9qdMSbY2ggUGF2bMOtayA8dm9q
+dGVjaEBzdXNlLmNvbT4sS3lsZSBNY01hcnRpbiA8a3lsZUBrZXJuZWwub3JnPixTZXRoIEZvcnNo
+ZWUgPHNldGguZm9yc2hlZUBjYW5vbmljYWwuY29tPixNYXR0aGV3IEdhcnJldHQgPG1qZzU5QHNy
+Y2YudWNhbS5vcmc+LEpvaGFubmVzIEJlcmcgPGpvaGFubmVzQHNpcHNvbHV0aW9ucy5uZXQ+PGJy
+PlN1YmplY3Q6UmU6IExpbnV4IEZpcm13YXJlIFNpZ25pbmc8YnI+PGJyPjwvc3Bhbj5TZWUgaHR0
+cDovL3d3dy5pbmZyYWRlYWQub3JnL3Jwci5odG1sPGJyPjxicj48YnI+PiBMdWlzIFIuIFJvZHJp
+Z3VleiA8bWNncm9mQHN1c2UuY29tPiB3cm90ZTo8YnI+Pjxicj4+PiAiUEtDUyM3OiBBZGQgYW4g
+b3B0aW9uYWwgYXV0aGVudGljYXRlZCBhdHRyaWJ1dGUgdG8gaG9sZCBmaXJtd2FyZSBuYW1lIjxi
+cj4+PiBodHRwczovL2dpdC5rZXJuZWwub3JnL2NnaXQvbGludXgva2VybmVsL2dpdC9kaG93ZWxs
+cy9saW51eC1mcy5naXQvY29tbWl0Lz9oPWZ3c2lnbi1wa2NzNyZhbXA7aWQ9MTQ0ODM3N2EzNjk5
+OTNmODY0OTE1NzQzY2ZiMzQ3NzJlNzMwMjEzZ29vZDxicj4+Pjxicj4+PiAgICAgICAgIDEuMy42
+LjEuNC4xLjIzMTIuMTYgICAgIExpbnV4IGtlcm5lbDxicj4+PiAgICAgICAgIDEuMy42LjEuNC4x
+LjIzMTIuMTYuMiAgIC0gUEtDUyM3L0NNUyBTaWduZXJJbmZvIGF0dHJpYnV0ZSB0eXBlczxicj4+
+PiAgICAgICAgIDEuMy42LjEuNC4xLjIzMTIuMTYuMi4xICAgLSBmaXJtd2FyZU5hbWU8YnI+Pj48
+YnI+Pj4gSSB0YWtlIGl0IHlvdSBhcmUgcmVmZXJyaW5nIHRvIHRoaXM/PGJyPj48YnI+PiBZZXMu
+PGJyPj48YnI+Pj4gSWYgd2UgZm9sbG93IHRoaXMgbW9kZWwgd2UmIzM5O2QgdGhlbiBuZWVkIHNv
+bWV0aGluZyBsaWtlOjxicj4+Pjxicj4+PiAgICAgICAgIDEuMy42LjEuNC4xLjIzMTIuMTYuMi4y
+ICAgLSBzZUxpbnV4UG9saWN5TmFtZTxicj4+Pjxicj4+PiBUaGF0IHNob3VsZCBtZWFuIGVhY2gg
+T0lEIHRoYXQgaGFzIGRpZmZlcmVudCBmaWxlIG5hbWVzIHdvdWxkIG5lZWQgdG8gYmU8YnI+Pj4g
+ZXhwbGljaXQgYWJvdXQgYW5kIGhhdmUgYSBzaW1pbGFyIGVudHJ5IG9uIHRoZSByZWdpc3RyeS4g
+SSBmaW5kIHRoYXQ8YnI+Pj4gcHJldHR5PGJyPj4+IHJlZHVuZGFudCBhbmQgd291bGQgbGlrZSB0
+byBhdm9pZCB0aGF0IGlmIHBvc3NpYmxlLjxicj4+PGJyPj4gZmlybXdhcmVOYW1lIGlzIGVhc3kg
+Zm9yIHBlb3BsZSB0byB1bmRlcnN0YW5kIC0gaXQmIzM5O3MgdGhlIG5hbWUgdGhlIGtlcm5lbDxi
+cj4+IGFza3M8YnI+PiBmb3IgYW5kIHRoZSBmaWxlbmFtZSBvZiB0aGUgYmxvYi4gIHNlTGludXhQ
+b2xpY3lOYW1lIGlzLCBJIHRoaW5rLCBhIGxvdDxicj4+IG1vcmU8YnI+PiB0cmlja3kgc2luY2Ug
+YSBsb3Qgb2YgcGVvcGxlIGRvbiYjMzk7dCB1c2UgU0VMaW51eCwgYW5kIG1vc3QgdGhhdCBkbyBk
+b24mIzM5O3Q8YnI+PiB1bmRlcnN0YW5kIGl0IChtb3N0IHBlb3BsZSB0aGF0IHVzZSBpdCBhcmVu
+JiMzOTt0IGV2ZW4gcmVhbGx5IGF3YXJlIG9mIGl0KS48YnI+Pjxicj4+IElmIHlvdSBjYW4gdXNl
+IHRoZSBmaXJtd2FyZU5hbWUgYXMgdGhlIFNFTGludXgvTFNNIGtleSwgSSB3b3VsZCBzdWdnZXN0
+PGJyPj4gZG9pbmc8YnI+PiBzbyAtIGV2ZW4gaWYgeW91IGRyZXNzIGl0IHVwIGFzIGEgcGF0aCAo
+L2xpYi9maXJtd2FyZS88ZmlybXdhcmVOYW1lPikuPGJyPj48YnI+PiBEYXZpZDxicj4+PGJyPjxi
+cj5JbiBjb252ZXJzYXRpb24gd2l0aCBNaW1pIGxhc3Qgd2VlayBzaGUgd2FzIHZlcnkga2VlbiBv
+biB0aGUgbW9kZWwgd2hlcmU8YnI+d2UgbG9hZCBtb2R1bGVzICZhbXA7IGZpcm13YXJlIGluIHN1
+Y2ggYSBmYXNoaW9uIHRoYXQgdGhlIGtlcm5lbCBoYXMgYWNjZXNzIHRvPGJyPnRoZSBvcmlnaW5h
+bCBpbm9kZSAtLSBieSBwYXNzaW5nIGluIGEgZjJmLCBvciBpbiB0aGUgZmlybXdhcmUgY2FzZSBi
+eTxicj5kb2luZyB0aGUgcmQgbG9va3VwIGRpcmVjdGx5LiBTbyBzdXJlbHkgeW91IGhhdmUgYWxs
+IHRoZSBTRUxpbnV4IGxhYmVsbGluZzxicj55b3UgbmVlZD88YnI+PGJyPi0tIDxicj5kd213Mjxi
+cj48YnI+
+----_com.asus.email_1213558159979970--
