@@ -1,169 +1,255 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t7RMD5q9016505
- for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2015 18:13:07 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
- by mail.jlbond.com (Postfix) with ESMTP id E529579BEA
- for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2015 15:13:02 -0700 (PDT)
-Received: from mail.jlbond.com ([127.0.0.1])
- by localhost (mail.jlbond.com [127.0.0.1]) (amavisd-new, port 10024)
- with LMTP id gcEExtx28yJN for <selinux@tycho.nsa.gov>;
- Thu, 27 Aug 2015 15:13:02 -0700 (PDT)
-Received: from [192.168.73.129] (wirelessgw.bbky.org [192.168.0.254])
- by mail.jlbond.com (Postfix) with ESMTP id 6800879762
- for <selinux@tycho.nsa.gov>; Thu, 27 Aug 2015 15:13:02 -0700 (PDT)
-Message-ID: <55DF8B6E.5040400@jlbond.com>
-Date: Thu, 27 Aug 2015 15:13:02 -0700
-From: Bond Masuda <bond.masuda@jlbond.com>
+Date: Thu, 27 Aug 2015 23:29:07 +0200
+From: "Luis R. Rodriguez" <mcgrof@suse.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: David Howells <dhowells@redhat.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>,
+ Andy Lutomirski <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
+ "Roberts,                         William C" <william.c.roberts@intel.com>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
+ "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
+ "serge@hallyn.com" <serge@hallyn.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>,
+ "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
+ Ming Lei <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>,
+ =?utf-8?B?IlZvanTEm2NoIFBhdmzDrWsi?= <vojtech@suse.com>,
+ Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
+ Matthew Garrett <mjg59@srcf.ucam.org>,
+ Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: Linux Firmware Signing
+Message-ID: <20150827212907.GF8051@wotan.suse.de>
+References: <20150824225713.GJ8051@wotan.suse.de>
+ <CAGXu5jLDHCgygaVNHpuvszN6SXNKAjRW83q3-D2ZfRpO4uAmdw@mail.gmail.com>
+ <476DC76E7D1DF2438D32BFADF679FC5601058E78@ORSMSX103.amr.corp.intel.com>
+ <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
+ <1440462367.2737.4.camel@linux.vnet.ibm.com>
+ <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
+ <1440464705.2737.36.camel@linux.vnet.ibm.com>
+ <14540.1440599584@warthog.procyon.org.uk>
+ <31228.1440671938@warthog.procyon.org.uk>
+ <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: question about semanage fcontext and awareness of
- file_contexts.local file
-References: <55D27178.9080503@jlbond.com> <55DB5F2D.6060900@tycho.nsa.gov>
- <55DB60D8.8020400@jlbond.com> <55DB79DF.4050504@tycho.nsa.gov>
- <55DCF039.4060001@jlbond.com> <55DDB74B.9050000@tycho.nsa.gov>
-In-Reply-To: <55DDB74B.9050000@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-wanted to follow up on this thread so anyone in the future searching for 
-a solution to this problem can find this.
+On Thu, Aug 27, 2015 at 10:57:23AM -0000, David Woodhouse wrote:
+> > Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> >
+> >> "PKCS#7: Add an optional authenticated attribute to hold firmware name"
+> >> https://git.kernel.org/cgit/linux/kernel/git/dhowells/linux-fs.git/commit/?h=fwsign-pkcs7&id=1448377a369993f864915743cfb34772e730213good
+> >>
+> >>         1.3.6.1.4.1.2312.16     Linux kernel
+> >>         1.3.6.1.4.1.2312.16.2   - PKCS#7/CMS SignerInfo attribute types
+> >>         1.3.6.1.4.1.2312.16.2.1   - firmwareName
+> >>
+> >> I take it you are referring to this?
+> >
+> > Yes.
+> >
+> >> If we follow this model we'd then need something like:
+> >>
+> >>         1.3.6.1.4.1.2312.16.2.2   - seLinuxPolicyName
+> >>
+> >> That should mean each OID that has different file names would need to be
+> >> explicit about and have a similar entry on the registry. I find that
+> >> pretty redundant and would like to avoid that if possible.
+> >
+> > firmwareName is easy for people to understand - it's the name the kernel
+> > asks for and the filename of the blob.  seLinuxPolicyName is, I think, a
+> > lot more tricky since a lot of people don't use SELinux, and most that do
+> > don't understand it (most people that use it aren't even really aware of
+> > it).
+> >
+> > If you can use the firmwareName as the SELinux/LSM key, I would suggest
+> > doing so - even if you dress it up as a path
+> > (/lib/firmware/<firmwareName>).
+> 
+> In conversation with Mimi last week she was very keen on the model where
+> we load modules & firmware in such a fashion that the kernel has access to
+> the original inode -- by passing in a fd,
 
-basically, i'm installing a brand new system in a chroot environment. 
-one of our steps to complete the setup requires adding some custom file 
-contexts, and so I ran a command like:
+Sure, so let's be specific to ensure what Mimi needs is there. I though there
+was work needed on modules but that seems covered and work then seems only
+needed for kexec and SELinux policy files (and a review of other possible file
+consumers in the kernel) for what you describe. I also went ahead and studied
+areas where we can share code now as I was looking at this code now, and also
+would like to recap on the idea of possibly just sharing the same LSM hook
+for all "read this special file from the fs in the kernel" cases. Details below.
 
-chroot /mnt/root semanage fcontext -a -t auditd_log_t "/audit(/.*)?"
+Fortnately the LSM hooks uses struct file and with this you can get the inode
+with this:
 
+	struct inode *inode = file_inode(file);
 
-So, the curious thing is that I thought this command succeeded because I 
-was able to find the file:
+For modules we have this LSM hook:
 
-/mnt/root/etc/selinux/targeted/contexts/files/file_contexts.local
+int (*kernel_module_from_file)(struct file *file);
 
-But it turns out that file should not have been there as the semanage 
-command above fails (exit status = 1) and should have rolled back what 
-it was attempting to do. This appears to be a bug in my conversations 
-with Stephen Smalley.
+This can be used for finit_module(). Its used as follows, the fd comes from
+finit_module() syscall.
 
-The reason why semanage fails is because I don't have /selinux in the 
-chroot environment, and semanage tries to reload the policy and can't 
-and then fails. However, it doesn't make sense for semanage to reload 
-the policy of the "host" since the command is meant to make changes to 
-the chroot environment of another system i'm installing. Turns out, the 
-solution is to use the -N (--noreload) option in semanage:
+SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
+{
+	...
+	err = copy_module_from_fd(fd, &info);                                   
+	if (err)                                                                
+		return err; 
+	...
+}
 
-chroot /mnt/root semanage fcontext -a -N -t auditd_log_t "/audit(/.*)?"
+static int copy_module_from_fd(int fd, struct load_info *info)
+{
+	struct fd f = fdget(fd);
+	...
+	err = security_kernel_module_from_file(f.file);                         
+	if (err)                                                                
+		goto out;
+}
 
+For firmware we have this LSM hook:
 
-This appears to do the job right and the problem I had that started this 
-thread is no longer.
+int (*kernel_fw_from_file)(struct file *file, char *buf, size_t size);  
 
-Hope that helps someone..
--Bond
+> or in the firmware case by doing the fs lookup directly.
 
-On 08/26/2015 05:55 AM, Stephen Smalley wrote:
-> On 08/25/2015 06:46 PM, Bond Masuda wrote:
->>
->> On 08/24/2015 01:09 PM, Stephen Smalley wrote:
->>> On 08/24/2015 02:22 PM, Bond Masuda wrote:
->>>> On 08/24/2015 11:15 AM, Stephen Smalley wrote:
->>>>> On 08/17/2015 07:42 PM, Bond Masuda wrote:
->>>>>> We want to add some custom file contexts for certain directories, in
->>>>>> particular we have /audit as a separate partition and run this:
->>>>>>
->>>>>>
->>>>>>
->>>>>> To make sure auditd works. This is run with chroot because the system
->>>>>> we're modifying is not running and mounted at /mnt/root. This creates
->>>>>> the file_contexts.local file with this content:
->>>>>>
->>>>>> # This file is auto-generated by libsemanage
->>>>>> # Do not edit directly.
->>>>>>
->>>>>> /audit(/.*)?    system_u:object_r:auditd_log_t:s0
->>>>>>
->>>>>> Later on, when we boot that system that was in /mnt/root, the
->>>>>> file_contexts.local remains the same. However, if I run semanage to add
->>>>>> another record, for example (this time, not in chroot):
->>>>>>
->>>>>> semanage fcontext -a -t httpd_sys_content_t "/data/www(/.*)?"
->>>>>>
->>>>>> It creates the content for httpd_sys_content_t in file_contexts.local,
->>>>>> but overwrites the previous entry for auditd_log_t.
->>>>>>
->>>>>> If I add the auditd_log_t entry once again, _both_ entries are now
->>>>>> present in file_contexts.local. So, it seems that the 1st time I run
->>>>>> semanage fcontext -a _while_ the system is running, it is not aware of
->>>>>> the content that was added when I ran semanage fcontext -a when the
->>>>>> system was offline and mounted in /mnt/root.
->>>>>>
->>>>>> Does semanage maintain state somewhere other than in the
->>>>>> file_contexts.local file? How can I make sure it is aware of the content
->>>>>> in file_contexts.local that was created by semanage when it was run in
->>>>>> chroot?
->>>>> This sounds like a bug to me.  What version of libsemanage and
->>>>> policycoreutils are you using, as this may be version-specific?
->>>>>
->>>>>
->>>> The versions are:
->>>>
->>>> libsemanage-2.0.43-5.1.el6.x86_64
->>>> libsemanage-python-2.0.43-5.1.el6.x86_64
->>>> policycoreutils-2.0.83-24.el6.x86_64
->>>> policycoreutils-python-2.0.83-24.el6.x86_64
->>> So in that case, I'd expect that each semanage fcontext -a command would
->>> generate a file_contexts.local file under
->>> /etc/selinux/targeted/modules/active/ and under
->>> /etc/selinux/targeted/contexts/files/.  The first one is the private
->>> copy generated and used within the policy module store only, and the
->>> latter is the public copy installed at the end of the transaction and
->>> used by other programs like restorecon to look up file labels.  They
->>> should be identical at the end of the semanage command.
->>>
->>> Is this reproducible?  If so, it would be interesting the compare the
->>> two files before and after each of the semanage commands you ran.
->> Stephen,
->>
->> Thanks for the info above. I didn't know the information was in two
->> places. When running the semanage command in chroot to /mnt/root, I get
->> a file in
->> /mnt/root/etc/selinux/targeted/contexts/files/file_contexts.local, but I
->> do *NOT* get /mnt/root/etc/selinux/targeted/modules/active. The contents
->> of the "active" directory are:
->>
->> [root@localhost active]# ls -al
->> total 9052
->> drwx------. 3 root root    4096 Aug 25 14:35 .
->> drwxr-xr-x. 3 root root      70 Aug 25 14:36 ..
->> -rw-------. 1 root root  249117 Aug 25 14:35 base.pp
->> -rw-------. 1 root root      32 Aug 25 14:35 commit_num
->> -rw-------. 1 root root  290786 Aug 25 14:35 file_contexts
->> -rw-r--r--. 1 root root    6405 Aug 25 14:35 file_contexts.homedirs
->> -rw-------. 1 root root  296417 Aug 25 14:35 file_contexts.template
->> -rw-------. 1 root root    5631 Aug 25 14:35 homedir_template
->> drwx------. 2 root root    8192 Aug 25 14:35 modules
->> -rw-------. 1 root root       0 Aug 25 14:35 netfilter_contexts
->> -rw-r--r--. 1 root root 8380527 Aug 25 14:35 policy.kern
->> -rw-------. 1 root root     106 Aug 25 14:35 seusers.final
->> -rw-------. 1 root root     101 Aug 25 14:35 users_extra
->>
->>
->> The contents of the "files" directory are:
->>
->> [root@localhost files]# ls -al
->> total 304
->> drwxr-xr-x. 2 root root     93 Aug 25 14:36 .
->> drwxr-xr-x. 4 root root   4096 Aug 25 14:36 ..
->> -rw-r--r--. 1 root root 290786 Aug 25 14:36 file_contexts
->> -rw-r--r--. 1 root root   6405 Aug 25 14:36 file_contexts.homedirs
->> -rw-r--r--. 1 root root    120 Aug 25 14:36 file_contexts.local
->> -rw-r--r--. 1 root root    139 Aug 13 02:37 media
->>
->> So, is this a bug? Or, intended behavior due to some condition of
->> running semanage in chroot?
-> It sounds like a bug. However, I can't reproduce it.  How did you set up
-> your chroot environment, including how are you handling /proc and
-> /selinux within the chroot?
+Right so now that firmware usermode helper is behind us (systemd ripped it) we
+do the fs lookup directly ourselves. One of my side goals with the extensible
+firmware API was also to allow for us to take a leap and let drivers
+skip completely the usermode helper so we can then phase that code to the
+only required remainign user: the dell-rbu driver. Anyway, once we have the
+path built up we use it as follows.
+
+static int fw_read_file(const char *path, void **_buf, size_t *_size)           
+{
+	struct file *file;
+	...
+	file = filp_open(path, O_RDONLY, 0);                                    
+	if (IS_ERR(file))                                                       
+		return PTR_ERR(file);  
+	...
+	rc = security_kernel_fw_from_file(file, buf, size);                     
+	if (rc)                                                                 
+		goto err_buf;  
+	...
+}
+
+I was under the impression that work was needed to add an LSM hook which would
+grant the LSM access to the file specific data for modules but that's already
+there with finit_module()! So Mimi needs is already there for modules as well
+now.
+
+We have no LSM hook for kexec, even though the kernel does have access to the
+fd, so if you wanted the struct file for an LSM it should be possible as the
+syscall for kexec is:
+
+SYSCALL_DEFINE5(kexec_file_load, int, kernel_fd, int, initrd_fd,                
+                unsigned long, cmdline_len, const char __user *, cmdline_ptr,   
+                unsigned long, flags) 
+{
+	...
+}
+
+I noted earlier however that kexec is currently an x86 thing only though, and
+Howells clarified that this is because we want kernel image signing as an
+option (its a Kconfig option), and only PE supports a built-in signing method.
+Its unclear to me who extends ELF and if its worthwhile to consider adding
+support there for a signing method. Howells noted that there are rumours other
+archs would support kexec, its unclear what they would use.
+
+Even though kexec remains x86 specific an LSM for it should easily be possible
+to add, but more on this below...
+
+> So surely you have all the SELinux labelling you need?
+
+SELinux uses: security_load_policy(data, len), refer to selinuxfs sel_load_ops.
+Since its write operation on its file_operation is sel_write_load() and that
+is as follows:
+
+static ssize_t sel_write_load(struct file *file, const char __user *buf,        
+			      size_t count, loff_t *ppos) 
+{
+	...
+}
+
+We should be able to add yet-another LSM hook here to let the kernel / LSM have
+access to the inode, is that LSM hook desirable ? But folks, before you answer
+note that there's a growing trend here! Its point 1 Kees had made earlier.  I
+was hesitant to go into details as I think fw signing needs to be baked first
+but.. since we're reviewing all these details now it seems logical to go down
+the rabbit hole further.
+
+Everywhere where we fetch a file from within the kernel either directly (say
+firmware load, 802.11 regulatory request) or from userspace request (SELinux
+policy load node) we end up having to sprinkle a new LSM hook. In fact for
+modules and kexec there were syscalls added too. There might be a possiblity
+for sharing some of these requests / code so some review is in order for it.
+
+Here's my review if we wanted to try sharing things, in consideration and
+review of:
+
+  * SELinux policy files
+  * modules
+  * firmware / system data (consider replacing CRDA)
+  * kexec
+
+----
+
+  * SELinux policy files:
+
+sel_write_load() is very specific, its part of the selinuxfs and it just
+uses copy_from_user() to dump the data from the file onto a vmalloc'd
+piece of memory. We don't exactly read arbitrary files from the fs then.
+If we *really* wanted to generalize things further we probably could
+but I'm not going to lead any discussion about design over selinuxfs,
+I'll let the folks behind it think about that themselves.
+
+  * modules
+  * firmware / system data
+
+modules + firmware: there seems to be some code sharing we could possibly do
+for both fw_read_file() and copy_module_from_fd(), note we are going to use
+different keys for vetting each of these. It may be possible to share the
+LSM hook here. All parties would just need to agree.
+
+  * kexec
+
+kexec works by reading files and setting up pointers for the different
+segments it needs for bootup, it does this for both the kernel and initrd
+if present. It however uses its own copy_file_from_fd() routine and no
+surprise here, there's code that can be shared as well. We'd be using
+a separate signature for kexec, so that'd be vetted on its own already.
+It may be possible to share the same LSM hook here, again all parties
+would just need to agree.
+
+----
+
+So conclusion:
+
+After fw signing gets baked (or I'll do that as I work with the system data
+helpers) there is possible work here to consolidate firmware's fw_read_file(),
+module's fw_read_file(), and kexec's copy_file_from_fd() into a core kernel
+tiny helper that gets it done right for all. If we really wanted to we could
+also just use the same LSM hook for all, this hook would surely have the
+struct file as Mimi wants as well. Unless I misunderstood things, at the
+Linux security summit it seemed folks thought this was reasonable and
+desirable. One of the gains then would be that the kernel can grow for
+different use cases and files can be fetched as needed but we wouldn't have to
+add yet-another-LSM hook for each new purpose, we'd just be sharing the same
+fetch / LSM hook. Please discuss and let me know if this still stands, I'll
+work towards any agreed upon direction with the fw signing code.
+
+And again, there may other parts of the kernel that do similar work, just
+as we found out about SELinux policy files. Those need to be identified
+and studied separatley. I guess we can use grammar to hunt these down.
+
+  Luis
