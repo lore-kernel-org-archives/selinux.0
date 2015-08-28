@@ -1,137 +1,57 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: Paul Moore <paul@paul-moore.com>, "Luis R. Rodriguez" <mcgrof@suse.com>
-CC: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
- Mimi Zohar <zohar@linux.vnet.ibm.com>, Andy Lutomirski
- <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>, "linux-wireless@vger.kernel.org"
- <linux-wireless@vger.kernel.org>, "james.l.morris@oracle.com"
- <james.l.morris@oracle.com>, "serge@hallyn.com" <serge@hallyn.com>, "Vitaly
- Kuznetsov" <vkuznets@redhat.com>, Eric Paris <eparis@parisplace.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, Stephen Smalley
- <sds@tycho.nsa.gov>, "Schaufler, Casey" <casey.schaufler@intel.com>, "Luis
- R. Rodriguez" <mcgrof@do-not-panic.com>, Dmitry Kasatkin
- <dmitry.kasatkin@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>, Ming Lei
- <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>,
- =?utf-8?B?Vm9qdGVjaCBQYXZsw61r?= <vojtech@suse.com>, Kyle McMartin
- <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
- Matthew Garrett <mjg59@srcf.ucam.org>,
- Johannes Berg <johannes@sipsolutions.net>
-Subject: RE: Linux Firmware Signing
-Date: Fri, 28 Aug 2015 11:20:10 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC560105ABD6@ORSMSX103.amr.corp.intel.com>
-References: <20150824225713.GJ8051@wotan.suse.de>
- <CAGXu5jLDHCgygaVNHpuvszN6SXNKAjRW83q3-D2ZfRpO4uAmdw@mail.gmail.com>
- <476DC76E7D1DF2438D32BFADF679FC5601058E78@ORSMSX103.amr.corp.intel.com>
- <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
- <1440462367.2737.4.camel@linux.vnet.ibm.com>
- <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
- <1440464705.2737.36.camel@linux.vnet.ibm.com>
- <14540.1440599584@warthog.procyon.org.uk>
- <31228.1440671938@warthog.procyon.org.uk>
- <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
- <20150827212907.GF8051@wotan.suse.de>
- <CAHC9VhQFDcMtvn1JU3E1rJ=9CCXT7ibUocgGS4tzfcy8oVUUMA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQFDcMtvn1JU3E1rJ=9CCXT7ibUocgGS4tzfcy8oVUUMA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: kernel access to device comm is kdevtmpfs
+To: "Roberts, William C" <william.c.roberts@intel.com>,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
+ SELinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+References: <476DC76E7D1DF2438D32BFADF679FC56010597CC@ORSMSX103.amr.corp.intel.com>
+ <55DDC373.8030509@tycho.nsa.gov> <20150826140659.GA26572@x250>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <55E0605F.7070002@tycho.nsa.gov>
+Date: Fri, 28 Aug 2015 09:21:35 -0400
 MIME-Version: 1.0
+In-Reply-To: <20150826140659.GA26572@x250>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
-> -----Original Message-----
-> From: Paul Moore [mailto:paul@paul-moore.com]
-> Sent: Thursday, August 27, 2015 4:57 PM
-> To: Luis R. Rodriguez
-> Cc: David Woodhouse; David Howells; Mimi Zohar; Andy Lutomirski; Kees Cook;
-> Roberts, William C; linux-security-module@vger.kernel.org; linux-
-> kernel@vger.kernel.org; linux-wireless@vger.kernel.org;
-> james.l.morris@oracle.com; serge@hallyn.com; Vitaly Kuznetsov; Eric Paris;
-> selinux@tycho.nsa.gov; Stephen Smalley; Schaufler, Casey; Luis R. Rodriguez;
-> Dmitry Kasatkin; Greg Kroah-Hartman; Peter Jones; Takashi Iwai; Ming Lei; Joey
-> Lee; Vojtěch Pavlík; Kyle McMartin; Seth Forshee; Matthew Garrett; Johannes
-> Berg
-> Subject: Re: Linux Firmware Signing
+On 08/26/2015 10:07 AM, Dominick Grift wrote:
+> On Wed, Aug 26, 2015 at 09:47:31AM -0400, Stephen Smalley wrote:
 > 
-> On Thu, Aug 27, 2015 at 5:29 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> > On Thu, Aug 27, 2015 at 10:57:23AM -0000, David Woodhouse wrote:
-> >
-> > SELinux uses: security_load_policy(data, len), refer to selinuxfs sel_load_ops.
-> > Since its write operation on its file_operation is sel_write_load()
-> > and that is as follows:
-> >
-> > static ssize_t sel_write_load(struct file *file, const char __user *buf,
-> >                               size_t count, loff_t *ppos) {
-> >         ...
-> > }
-> >
-> > We should be able to add yet-another LSM hook here to let the kernel /
-> > LSM have access to the inode, is that LSM hook desirable ? But folks,
-> > before you answer note that there's a growing trend here! Its point 1
-> > Kees had made earlier.  I was hesitant to go into details as I think
-> > fw signing needs to be baked first but.. since we're reviewing all
-> > these details now it seems logical to go down the rabbit hole further.
-> >
-> > Everywhere where we fetch a file from within the kernel either
-> > directly (say firmware load, 802.11 regulatory request) or from
-> > userspace request (SELinux policy load node) we end up having to
-> > sprinkle a new LSM hook. In fact for modules and kexec there were
-> > syscalls added too. There might be a possiblity for sharing some of these
-> requests / code so some review is in order for it.
-> >
-> > Here's my review if we wanted to try sharing things, in consideration
-> > and review of:
-> >
-> >   * SELinux policy files
-> >   * modules
-> >   * firmware / system data (consider replacing CRDA)
-> >   * kexec
-> >
-> > ----
-> >
-> >   * SELinux policy files:
-> >
-> > sel_write_load() is very specific, its part of the selinuxfs and it
-> > just uses copy_from_user() to dump the data from the file onto a
-> > vmalloc'd piece of memory. We don't exactly read arbitrary files from the fs
-> then.
-> > If we *really* wanted to generalize things further we probably could
-> > but I'm not going to lead any discussion about design over selinuxfs,
-> > I'll let the folks behind it think about that themselves.
+> <snip>
 > 
-> While I question the usefulness of a SELinux policy signature in the general case,
-> there are some situations where it might make sense, e.g. embedded systems
-> with no post-build customizations, and I'm not opposed to added a signature to
-> the policy file for that reason.
-
-Even triggered updates make sense, since you can at least have some form of trust
-of where that binary policy came from. 
-
-> However, I haven't given any serious thought yet to how we would structure the
-> new blob format so as to support both signed/unsigned policies as well as
-> existing policies which predate any PKCS #7 changes.
 > 
+>> Fedora has tried to work around this by defining name-based type
+>> transitions for the kernel domain on /dev to label the device nodes
+>> correctly on creation.  However, name-based type transitions aren't well
+>> suited to that purpose; they only support exact match (no prefix, glob,
+>> or regex matching), they only match the last component, and they were
+>> only intended to cover exceptional cases where regular type transitions
+>> weren't sufficiently granular and one couldn't modify the creating
+>> program to explicitly label the file based on file_contexts (so they
+>> aren't designed to scale well).  Maybe we could use genfs_contexts
+>> instead (i.e. add devtmpfs to the list of filesystems that have
+>> SE_SBGENFS set in sbsec->flags, then you can specify path prefixes
+>> relative to the root of devtmpfs and label them that way).
+> 
+> This sounds like a good idea to me.
 
-Huh, not following? Perhaps, I am not following what your laying down here.
-
- Right now there is no signing on the selinux policy file. We should be able
-to just use the firmware signing api's as is (I have not looked on linux-next yet)
-to unpack the blob. In the case of falling back to loading an unsigned blob, we could do it ala kernel
-module style. If it fails do to invalid format fall back to attempting to read it as a straight policy file.
-If it fails on signature verification, we could still unpack it and pass it on. So you would want to 
-be able to control if the signed unpacking from pkcs7 fails, whether or not its fatal.
-
-We would also likely want to convey this state, the ability to change this setting to userspace in a 
-Controlled fashion via selinuxfs. Ie I would want to know that I can load modules without valid signatures,
-And that my current policy file is in fact invalid or valid.
-
-
-> --
-> paul moore
-> www.paul-moore.com
+Unfortunately, I was wrong.  Merely setting SE_SBGENFS in sbsec->flags
+for devtmpfs filesystems does NOT enable genfs_context-based labeling of
+devtmpfs files, because devtmpfs is tmpfs-backed, and tmpfs, like ext4,
+calls security_inode_init_security() upon new inode creation to
+explicitly initialize the in-core inode security state and to obtain the
+xattr name/value pair.  That's why type transitions work for devtmpfs
+(and tmpfs).  Filesystems that use genfscon-based labeling (e.g. proc,
+sysfs, debugfs, pstore) do not support userspace file creation and
+therefore do not call that hook and their inode security state is
+initialized upon security_d_instantiate(), at which point we have a
+dentry and can therefore generate a path relative to the root.
+So we can't do this as a one-liner patch; it would be more involved.
+devtmpfs/tmpfs does ultimately call d_instantiate() ->
+security_d_instantiate(), but at that point the inode security state is
+already initialized in the usual way and we therefore don't do anything
+further with it.  We would need to rework the way inode security
+initialization works, and do it in a way that avoids weird side effects
+(e.g. if the policy defines a type transition, as in current Fedora
+policy, we don't want to override that with a genfscon-based lookup).
