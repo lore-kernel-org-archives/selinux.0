@@ -1,8 +1,9 @@
-Date: Sat, 29 Aug 2015 03:56:50 +0200
+Date: Sat, 29 Aug 2015 04:03:01 +0200
 From: "Luis R. Rodriguez" <mcgrof@suse.com>
-To: "Roberts, William C" <william.c.roberts@intel.com>
-Cc: Paul Moore <paul@paul-moore.com>, David Woodhouse <dwmw2@infradead.org>,
- David Howells <dhowells@redhat.com>, Mimi Zohar <zohar@linux.vnet.ibm.com>,
+To: Paul Moore <paul@paul-moore.com>
+Cc: "Roberts, William C" <william.c.roberts@intel.com>,
+ David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+ Mimi Zohar <zohar@linux.vnet.ibm.com>,
  Andy Lutomirski <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
  "linux-security-module@vger.kernel.org"
  <linux-security-module@vger.kernel.org>,
@@ -24,9 +25,8 @@ Cc: Paul Moore <paul@paul-moore.com>, David Woodhouse <dwmw2@infradead.org>,
  Matthew Garrett <mjg59@srcf.ucam.org>,
  Johannes Berg <johannes@sipsolutions.net>
 Subject: Re: Linux Firmware Signing
-Message-ID: <20150829015650.GL8051@wotan.suse.de>
-References: <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
- <1440462367.2737.4.camel@linux.vnet.ibm.com>
+Message-ID: <20150829020301.GM8051@wotan.suse.de>
+References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
  <14540.1440599584@warthog.procyon.org.uk>
@@ -35,59 +35,50 @@ References: <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
  <20150827212907.GF8051@wotan.suse.de>
  <CAHC9VhQFDcMtvn1JU3E1rJ=9CCXT7ibUocgGS4tzfcy8oVUUMA@mail.gmail.com>
  <476DC76E7D1DF2438D32BFADF679FC560105ABD6@ORSMSX103.amr.corp.intel.com>
+ <CAHC9VhRF-39ZbwawkM-aR+th2nRPEVF9-nR1NEHDPDmakpt4FQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC560105ABD6@ORSMSX103.amr.corp.intel.com>
+In-Reply-To: <CAHC9VhRF-39ZbwawkM-aR+th2nRPEVF9-nR1NEHDPDmakpt4FQ@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 28, 2015 at 11:20:10AM +0000, Roberts, William C wrote:
-> > -----Original Message-----
-> > From: Paul Moore [mailto:paul@paul-moore.com]
-> > 
-> > While I question the usefulness of a SELinux policy signature in the general case,
-> > there are some situations where it might make sense, e.g. embedded systems
-> > with no post-build customizations, and I'm not opposed to added a signature to
-> > the policy file for that reason.
+On Fri, Aug 28, 2015 at 06:26:05PM -0400, Paul Moore wrote:
+> On Fri, Aug 28, 2015 at 7:20 AM, Roberts, William C
+> <william.c.roberts@intel.com> wrote:
+> > Even triggered updates make sense, since you can at least have some form of trust
+> > of where that binary policy came from.
 > 
-> Even triggered updates make sense, since you can at least have some form of trust
-> of where that binary policy came from. 
+> It isn't always that simple, see my earlier comments about
+> customization and manipulation by the policy loading tools.
 
-The problem that Paul describes stems from the requirement of such trust
-needing post-boot / install / setup keys.  It may be possible for an
-environment to exist where there's a food chain that enables some CA's to
-easily hand out keys to each install, but that seems impractical. This is why
-Paul had mentioned the Machine Owner Key (MOK) thing.
+If the customization of the data is done in kernel then the kernel
+can *first* verify the file's signature prior to doing any data
+modification. If userspace does the modification then the signature
+stuff won't work unless the tool will have access to the MOK and can
+sign it pre-flight to the kernel selinuxfs.
 
-> > However, I haven't given any serious thought yet to how we would structure the
-> > new blob format so as to support both signed/unsigned policies as well as
-> > existing policies which predate any PKCS #7 changes.
-> > 
+> > Huh, not following? Perhaps, I am not following what your laying down here.
+> >
+> >  Right now there is no signing on the selinux policy file. We should be able
+> > to just use the firmware signing api's as is (I have not looked on linux-next yet)
+> > to unpack the blob.
 > 
-> Huh, not following? Perhaps, I am not following what your laying down here.
-> 
->  Right now there is no signing on the selinux policy file. We should be able
-> to just use the firmware signing api's as is (I have not looked on linux-next yet)
+> I haven't looked at the existing fw signing hook in any detail to be
+> able to comment on its use as a policy verification hook.  As long as
+> we preserve backwards compatibility and don't introduce a new
+> mechanism/API for loading SELinux policy I doubt I would have any
+> objections.
 
-Nitpick: its the system_verify_data() API, the fw signing stuff will make use
-of this API as well.
-
-> to unpack the blob.
-
-Nitpick: to verify the data.
-
-> In the case of falling back to loading an unsigned blob, we could do it ala kernel
-> module style. If it fails do to invalid format fall back to attempting to read it as a straight policy file.
-> If it fails on signature verification, we could still unpack it and pass it on. So you would want to 
-> be able to control if the signed unpacking from pkcs7 fails, whether or not its fatal.
-> 
-> We would also likely want to convey this state, the ability to change this setting to userspace in a 
-> Controlled fashion via selinuxfs. Ie I would want to know that I can load modules without valid signatures,
-> And that my current policy file is in fact invalid or valid.
-
-Sure that would work. Its how the module stuff can work in permissive mode.
-We'd embrace the same practice for permissive fw signing as well.
+You'd just have to implement a permissive model as we are with the
+fw signing. No radical customizations, except one thing to note is
+that on the fw signing side of things we're going to have the signature
+of the file *detached* in separate file. I think what you're alluding
+to is the issue of where that signature would be stuff in the SELinux
+policy file and its correct that you'd need to address that. You could
+just borrow the kernel's model and reader / sucker that strips out the
+signature. Another possibility would be two files but then I guess
+you'd need a trigger to annotate both are in place.
 
   Luis
