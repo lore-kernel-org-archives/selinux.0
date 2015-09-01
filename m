@@ -1,5 +1,27 @@
-MIME-Version: 1.0
-In-Reply-To: <55E60EAC.5010602@quarksecurity.com>
+Message-ID: <1441146100.27892.60.camel@redhat.com>
+Subject: Re: Linux Firmware Signing
+From: Eric Paris <eparis@redhat.com>
+To: Paul Moore <paul@paul-moore.com>, "Luis R. Rodriguez" <mcgrof@suse.com>
+Cc: "Roberts, William C" <william.c.roberts@intel.com>, David Woodhouse
+ <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>, Mimi Zohar
+ <zohar@linux.vnet.ibm.com>, Andy Lutomirski <luto@amacapital.net>, Kees
+ Cook <keescook@chromium.org>, "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+ <linux-kernel@vger.kernel.org>, "linux-wireless@vger.kernel.org"
+ <linux-wireless@vger.kernel.org>, "james.l.morris@oracle.com"
+ <james.l.morris@oracle.com>, "serge@hallyn.com" <serge@hallyn.com>, Vitaly
+ Kuznetsov <vkuznets@redhat.com>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>, "Schaufler,
+ Casey" <casey.schaufler@intel.com>, "Luis R. Rodriguez"
+ <mcgrof@do-not-panic.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Peter Jones
+ <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>, Ming Lei
+ <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>, Vojtech
+ =?ISO-8859-1?Q?Pavl=EDk?= <vojtech@suse.com>, Kyle McMartin
+ <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>, Matthew
+ Garrett <mjg59@srcf.ucam.org>, Johannes Berg <johannes@sipsolutions.net>
+Date: Tue, 01 Sep 2015 17:21:40 -0500
+In-Reply-To: <CAHC9VhTTRr7N2bqU-7jm2oG72t5wgqH_SmXk4icqs3h3_=EMzg@mail.gmail.com>
 References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
@@ -12,149 +34,82 @@ References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <CAHC9VhRF-39ZbwawkM-aR+th2nRPEVF9-nR1NEHDPDmakpt4FQ@mail.gmail.com>
  <20150829020301.GM8051@wotan.suse.de>
  <CAHC9VhTTRr7N2bqU-7jm2oG72t5wgqH_SmXk4icqs3h3_=EMzg@mail.gmail.com>
- <55E5B257.6070205@quarksecurity.com>
- <476DC76E7D1DF2438D32BFADF679FC560105E5D3@ORSMSX103.amr.corp.intel.com>
- <55E60EAC.5010602@quarksecurity.com>
-Date: Tue, 1 Sep 2015 15:17:40 -0700
-Message-ID: <CAFftDdoLNErSHpGOS7m3qfagEpyf_BFTELa6TP8nov+t-QOapg@mail.gmail.com>
-Subject: Re: Linux Firmware Signing
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Joshua Brindle <brindle@quarksecurity.com>
-Cc: "Roberts, William C" <william.c.roberts@intel.com>,
- Takashi Iwai <tiwai@suse.de>, Ming Lei <ming.lei@canonical.com>,
- David Howells <dhowells@redhat.com>, Peter Jones <pjones@redhat.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Matthew Garrett <mjg59@srcf.ucam.org>,
- Kees Cook <keescook@chromium.org>,
- =?UTF-8?Q?Vojtech_Pavl=C3=ADk?= <vojtech@suse.com>,
- Seth Forshee <seth.forshee@canonical.com>,
- "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Joey Lee <jlee@suse.de>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Kyle McMartin <kyle@kernel.org>,
- "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Andy Lutomirski <luto@amacapital.net>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Johannes Berg <johannes@sipsolutions.net>,
- David Woodhouse <dwmw2@infradead.org>
-Content-Type: multipart/alternative; boundary=001a1135dc781402b9051eb6eb41
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1135dc781402b9051eb6eb41
-Content-Type: text/plain; charset=UTF-8
+On Mon, 2015-08-31 at 22:52 -0400, Paul Moore wrote:
+> On Fri, Aug 28, 2015 at 10:03 PM, Luis R. Rodriguez <mcgrof@suse.com>
+> wrote:
+> > On Fri, Aug 28, 2015 at 06:26:05PM -0400, Paul Moore wrote:
+> > > On Fri, Aug 28, 2015 at 7:20 AM, Roberts, William C
+> > > <william.c.roberts@intel.com> wrote:
+> > > > Even triggered updates make sense, since you can at least have
+> > > > some form of trust
+> > > > of where that binary policy came from.
+> > > 
+> > > It isn't always that simple, see my earlier comments about
+> > > customization and manipulation by the policy loading tools.
+> > 
+> > If the customization of the data is done in kernel then the kernel
+> > can *first* verify the file's signature prior to doing any data
+> > modification. If userspace does the modification then the signature
+> > stuff won't work unless the tool will have access to the MOK and
+> > can
+> > sign it pre-flight to the kernel selinuxfs.
+> 
+> Yes, userspace does the modification.
+> 
+> > > > Huh, not following? Perhaps, I am not following what your
+> > > > laying down here.
+> > > > 
+> > > >  Right now there is no signing on the selinux policy file. We
+> > > > should be able
+> > > > to just use the firmware signing api's as is (I have not looked
+> > > > on linux-next yet)
+> > > > to unpack the blob.
+> > > 
+> > > I haven't looked at the existing fw signing hook in any detail to
+> > > be
+> > > able to comment on its use as a policy verification hook.  As
+> > > long as
+> > > we preserve backwards compatibility and don't introduce a new
+> > > mechanism/API for loading SELinux policy I doubt I would have any
+> > > objections.
+> > 
+> > You'd just have to implement a permissive model as we are with the
+> > fw signing. No radical customizations, except one thing to note is
+> > that on the fw signing side of things we're going to have the
+> > signature
+> > of the file *detached* in separate file. I think what you're
+> > alluding
+> > to is the issue of where that signature would be stuff in the
+> > SELinux
+> > policy file and its correct that you'd need to address that. You
+> > could
+> > just borrow the kernel's model and reader / sucker that strips out
+> > the
+> > signature. Another possibility would be two files but then I guess
+> > you'd need a trigger to annotate both are in place.
+> 
+> Yes, there are lots of way we could solve the signed policy format
+> issue, I just don't have one in mind at this moment.  Also, to be
+> honest, there are enough limitations to signing SELinux policies that
+> this isn't very high on my personal SELinux priority list.
 
-<snip>
+Hard for me to argue on your priorities.
 
-> Yes I would say this is low on my end. Especially if we can kill off
->> Reloadable policy support on Android, my need for this goes away 100%.
->>
->>
-> I'm not sure who "we" is as you are the only person I've heard advocating
-> for removing that support.
->
->
-Code support exists, but the ability to reload off of /data is on a
-per-device basis. OEMs as of now
-can override this. However, this shows a direction that may or may not be
-taken on reload from /data.
+I will point out for others interested, userspace does usually need to
+munge policy. It's typically only needed when the policy on disk is say
+v35, the toolchain understands v35+ but the kernel only understands
+v34. The userspace tools will downgrade the policy before it loads
+shoves in the blob.  If the kernel understands v35 and the policy is
+v35 you can (I think) actually use cat to load the policy.
 
-https://android-review.googlesource.com/#/c/168046/
-
-
-
-> The fact that there are so many userspace specific parts of the policy
->>> that never
->>> make it into the kernel precludes any meaningful verification anyway.
->>>
->>
->> Yes and no. On Android, if I was able to load a policy I could grant
->> myself capabilities that
->> We're not possible via the userspace portions, i.e. relabeling, etc.
->> Granted, not checking the
->> userspace portions Is not great. In an ideal world, everything is
->> checked. However, the main
->> reason to doing it in the kernel is where you want your trust to be. For
->> instance, If I trust that
->> userspace Loader, then I need to trust that + the kernel. In the case of
->> verifying the policy signature
->> In the kernel, I need to trust only the kernel.
->>
->
-> Especially on Android, userspace files are very important. Changing
-> seapp_contexts or property_contexts can easily get you a privilege
-> escalation to let you do whatever. Checking only the kernel binary is a
-> half-solution and should not even be considered.
-
-
-I disagree, we can leave it at that.
-
---001a1135dc781402b9051eb6eb41
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote"><div=
->&lt;snip&gt;=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:=
-0px 0px 0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,204);=
-border-left-style:solid;padding-left:1ex"><blockquote class=3D"gmail_quote"=
- style=3D"margin:0px 0px 0px 0.8ex;border-left-width:1px;border-left-color:=
-rgb(204,204,204);border-left-style:solid;padding-left:1ex"><blockquote clas=
-s=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left-width:1px;b=
-order-left-color:rgb(204,204,204);border-left-style:solid;padding-left:1ex"=
-><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border=
--left-width:1px;border-left-color:rgb(204,204,204);border-left-style:solid;=
-padding-left:1ex"></blockquote></blockquote>
-Yes I would say this is low on my end. Especially if we can kill off<br>
-Reloadable policy support on Android, my need for this goes away 100%.<br>
-<br>
-</blockquote>
-<br>
-I&#39;m not sure who &quot;we&quot; is as you are the only person I&#39;ve =
-heard advocating for removing that support.<br>
-<br></blockquote><div><br></div><div>Code support exists, but the ability t=
-o reload off of /data is on a per-device basis. OEMs as of now</div><div>ca=
-n override this. However, this shows a direction that may or may not be tak=
-en on reload from /data.</div><div>=C2=A0</div><div><a href=3D"https://andr=
-oid-review.googlesource.com/#/c/168046/">https://android-review.googlesourc=
-e.com/#/c/168046/</a><br></div><div><br></div><div>=C2=A0</div><blockquote =
-class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left-width:1=
-px;border-left-color:rgb(204,204,204);border-left-style:solid;padding-left:=
-1ex">
-<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
-left-width:1px;border-left-color:rgb(204,204,204);border-left-style:solid;p=
-adding-left:1ex"><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px =
-0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,204);border-l=
-eft-style:solid;padding-left:1ex">
-The fact that there are so many userspace specific parts of the policy that=
- never<br>
-make it into the kernel precludes any meaningful verification anyway.<br>
-</blockquote>
-<br>
-Yes and no. On Android, if I was able to load a policy I could grant myself=
- capabilities that<br>
-We&#39;re not possible via the userspace portions, i.e. relabeling, etc. Gr=
-anted, not checking the<br>
-userspace portions Is not great. In an ideal world, everything is checked. =
-However, the main<br>
-reason to doing it in the kernel is where you want your trust to be. For in=
-stance, If I trust that<br>
-userspace Loader, then I need to trust that + the kernel. In the case of ve=
-rifying the policy signature<br>
-In the kernel, I need to trust only the kernel.<br>
-</blockquote>
-<br>
-Especially on Android, userspace files are very important. Changing seapp_c=
-ontexts or property_contexts can easily get you a privilege escalation to l=
-et you do whatever. Checking only the kernel binary is a half-solution and =
-should not even be considered.</blockquote></div><br clear=3D"all"><div>I d=
-isagree, we can leave it at that.=C2=A0</div><div><br></div><div><br></div>=
-<div><br></div><div class=3D"gmail_signature"><br></div>
-</div></div>
-
---001a1135dc781402b9051eb6eb41--
+So certainly this is a perfectly reasonable restriction on some
+systems, but we have quite often run into user who don't update their
+kernel but do update their userspace and any signing would be pretty
+much impossible for them...
