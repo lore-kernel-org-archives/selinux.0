@@ -1,10 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t812q7Qp008181
- for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2015 22:52:07 -0400
-Received: by oigm66 with SMTP id m66so70551727oig.0
- for <selinux@tycho.nsa.gov>; Mon, 31 Aug 2015 19:52:05 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t81ED0wX021365
+ for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2015 10:13:01 -0400
+Received: by paczk9 with SMTP id zk9so30619656pac.0
+ for <selinux@tycho.nsa.gov>; Tue, 01 Sep 2015 07:12:58 -0700 (PDT)
+Message-ID: <55E5B257.6070205@quarksecurity.com>
+Date: Tue, 01 Sep 2015 10:12:39 -0400
+From: Joshua Brindle <brindle@quarksecurity.com>
 MIME-Version: 1.0
-In-Reply-To: <20150829020301.GM8051@wotan.suse.de>
+To: Paul Moore <paul@paul-moore.com>
+CC: "Luis R. Rodriguez" <mcgrof@suse.com>, Takashi Iwai <tiwai@suse.de>,
+ Ming Lei <ming.lei@canonical.com>, David Howells <dhowells@redhat.com>,
+ Peter Jones <pjones@redhat.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Matthew Garrett <mjg59@srcf.ucam.org>,
+ Kees Cook <keescook@chromium.org>,
+ =?ISO-8859-1?Q?Vojtech_Pavl=EDk?= <vojtech@suse.com>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ Johannes Berg <johannes@sipsolutions.net>, Joey Lee <jlee@suse.de>,
+ Kyle McMartin <kyle@kernel.org>,
+ "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Andy Lutomirski <luto@amacapital.net>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Linux Firmware Signing
 References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
@@ -16,85 +41,29 @@ References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <476DC76E7D1DF2438D32BFADF679FC560105ABD6@ORSMSX103.amr.corp.intel.com>
  <CAHC9VhRF-39ZbwawkM-aR+th2nRPEVF9-nR1NEHDPDmakpt4FQ@mail.gmail.com>
  <20150829020301.GM8051@wotan.suse.de>
-Date: Mon, 31 Aug 2015 22:52:05 -0400
-Message-ID: <CAHC9VhTTRr7N2bqU-7jm2oG72t5wgqH_SmXk4icqs3h3_=EMzg@mail.gmail.com>
-Subject: Re: Linux Firmware Signing
-From: Paul Moore <paul@paul-moore.com>
-To: "Luis R. Rodriguez" <mcgrof@suse.com>
-Cc: "Roberts, William C" <william.c.roberts@intel.com>,
- David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
- Mimi Zohar <zohar@linux.vnet.ibm.com>,
- Andy Lutomirski <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
- "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- "serge@hallyn.com" <serge@hallyn.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Eric Paris <eparis@parisplace.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
- Ming Lei <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>,
- =?UTF-8?Q?Vojtech_Pavl=C3=ADk?= <vojtech@suse.com>,
- Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
- Matthew Garrett <mjg59@srcf.ucam.org>,
- Johannes Berg <johannes@sipsolutions.net>
-Content-Type: text/plain; charset=UTF-8
+ <CAHC9VhTTRr7N2bqU-7jm2oG72t5wgqH_SmXk4icqs3h3_=EMzg@mail.gmail.com>
+In-Reply-To: <CAHC9VhTTRr7N2bqU-7jm2oG72t5wgqH_SmXk4icqs3h3_=EMzg@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 28, 2015 at 10:03 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> On Fri, Aug 28, 2015 at 06:26:05PM -0400, Paul Moore wrote:
->> On Fri, Aug 28, 2015 at 7:20 AM, Roberts, William C
->> <william.c.roberts@intel.com> wrote:
->> > Even triggered updates make sense, since you can at least have some form of trust
->> > of where that binary policy came from.
->>
->> It isn't always that simple, see my earlier comments about
->> customization and manipulation by the policy loading tools.
+Paul Moore wrote:
+<snip>
 >
-> If the customization of the data is done in kernel then the kernel
-> can *first* verify the file's signature prior to doing any data
-> modification. If userspace does the modification then the signature
-> stuff won't work unless the tool will have access to the MOK and can
-> sign it pre-flight to the kernel selinuxfs.
-
-Yes, userspace does the modification.
-
->> > Huh, not following? Perhaps, I am not following what your laying down here.
->> >
->> >  Right now there is no signing on the selinux policy file. We should be able
->> > to just use the firmware signing api's as is (I have not looked on linux-next yet)
->> > to unpack the blob.
->>
->> I haven't looked at the existing fw signing hook in any detail to be
->> able to comment on its use as a policy verification hook.  As long as
->> we preserve backwards compatibility and don't introduce a new
->> mechanism/API for loading SELinux policy I doubt I would have any
->> objections.
+> Yes, there are lots of way we could solve the signed policy format
+> issue, I just don't have one in mind at this moment.  Also, to be
+> honest, there are enough limitations to signing SELinux policies that
+> this isn't very high onmy personal SELinux priority list.
 >
-> You'd just have to implement a permissive model as we are with the
-> fw signing. No radical customizations, except one thing to note is
-> that on the fw signing side of things we're going to have the signature
-> of the file *detached* in separate file. I think what you're alluding
-> to is the issue of where that signature would be stuff in the SELinux
-> policy file and its correct that you'd need to address that. You could
-> just borrow the kernel's model and reader / sucker that strips out the
-> signature. Another possibility would be two files but then I guess
-> you'd need a trigger to annotate both are in place.
 
-Yes, there are lots of way we could solve the signed policy format
-issue, I just don't have one in mind at this moment.  Also, to be
-honest, there are enough limitations to signing SELinux policies that
-this isn't very high on my personal SELinux priority list.
+The fact that there are so many userspace specific parts of the policy 
+that never make it into the kernel precludes any meaningful verification 
+anyway.
 
--- 
-paul moore
-www.paul-moore.com
+And SELinux already has a mechanism for raising the integrity of a 
+process to do things like signature checking in userspace, the domain 
+transition. If someone wants validation of the SELinux policy they just 
+need to eliminate every domains ability to load policy except for a 
+trusted policy loader that does signature checking.
