@@ -1,8 +1,29 @@
-Date: Wed, 2 Sep 2015 02:09:15 +0200
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-To: Kees Cook <keescook@chromium.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
- Mimi Zohar <zohar@linux.vnet.ibm.com>,
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8238co7009331
+ for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2015 23:08:38 -0400
+Received: by ioii196 with SMTP id i196so5726788ioi.3
+ for <selinux@tycho.nsa.gov>; Tue, 01 Sep 2015 20:08:36 -0700 (PDT)
+MIME-Version: 1.0
+Sender: keescook@google.com
+In-Reply-To: <20150901234305.GU8051@wotan.suse.de>
+References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
+ <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
+ <1440464705.2737.36.camel@linux.vnet.ibm.com>
+ <14540.1440599584@warthog.procyon.org.uk>
+ <31228.1440671938@warthog.procyon.org.uk>
+ <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
+ <20150827212907.GF8051@wotan.suse.de>
+ <1440719673.2118.84.camel@linux.vnet.ibm.com>
+ <20150829021659.GN8051@wotan.suse.de>
+ <1441030735.2647.70.camel@linux.vnet.ibm.com>
+ <20150901234305.GU8051@wotan.suse.de>
+Date: Tue, 1 Sep 2015 20:08:35 -0700
+Message-ID: <CAGXu5j+_yHc1wbubzw4h=QFM=uyn1pCraGYCWS6LvgtS3-A+Qw@mail.gmail.com>
+Subject: Re: Linux Firmware Signing
+From: Kees Cook <keescook@chromium.org>
+To: "Luis R. Rodriguez" <mcgrof@suse.com>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>,
+ David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
  Andy Lutomirski <luto@amacapital.net>,
  "Roberts, William C" <william.c.roberts@intel.com>,
  "linux-security-module@vger.kernel.org"
@@ -20,113 +41,68 @@ Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
  Ming Lei <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>,
- =?utf-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
+ =?UTF-8?B?Vm9qdMSbY2ggUGF2bMOtaw==?= <vojtech@suse.com>,
  Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
  Matthew Garrett <mjg59@srcf.ucam.org>,
  Johannes Berg <johannes@sipsolutions.net>,
- Jay Schulist <jschlst@samba.org>, Daniel Borkmann <dborkman@redhat.com>,
+ Julia Lawall <julia.lawall@lip6.fr>, Jay Schulist <jschlst@samba.org>,
+ Daniel Borkmann <dborkman@redhat.com>,
  Alexei Starovoitov <ast@plumgrid.com>
-Subject: Re: Linux Firmware Signing
-Message-ID: <20150902000915.GW8051@wotan.suse.de>
-References: <476DC76E7D1DF2438D32BFADF679FC5601058E78@ORSMSX103.amr.corp.intel.com>
- <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
- <1440462367.2737.4.camel@linux.vnet.ibm.com>
- <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
- <1440464705.2737.36.camel@linux.vnet.ibm.com>
- <14540.1440599584@warthog.procyon.org.uk>
- <31228.1440671938@warthog.procyon.org.uk>
- <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
- <20150827212907.GF8051@wotan.suse.de>
- <CAGXu5jKF6CBAADoybZHRCzYAepcZYqpbck1gTAeV1p7iuOVAvw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAGXu5jKF6CBAADoybZHRCzYAepcZYqpbck1gTAeV1p7iuOVAvw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Sep 01, 2015 at 01:20:37PM -0700, Kees Cook wrote:
-> On Thu, Aug 27, 2015 at 2:29 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> > On Thu, Aug 27, 2015 at 10:57:23AM -0000, David Woodhouse wrote:
-> > Right so now that firmware usermode helper is behind us (systemd ripped it) we
-> > do the fs lookup directly ourselves. One of my side goals with the extensible
-> 
-> Totally agreed: nothing uses the usermode helper any more, so we
-> should ignore that moving forward.
+On Tue, Sep 1, 2015 at 4:43 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> On Mon, Aug 31, 2015 at 10:18:55AM -0400, Mimi Zohar wrote:
+>> > > eBPF/seccomp
+>
+> OK I knew nothing about this but I just looked into it, here are my notes:
+>
+>   * old BPF - how far do we want to go? This goes so far as to parsing
+>     user passed void __user *arg data through ioctls which typically
+>     gets copy_from_user()'d and eventually gets BPF_PROG_RUN().
+>
+>   * eBPF:
+>                              seccomp() & prctl_set_seccomp()
+>                                         |
+>                                         V
+>                              do_seccomp()
+>                                         |
+>                                         V
+>                              seccomp_set_mode_filter()
+>                                         |
+>                                         V
+>                              seccomp_prepare_user_filter()
+>                                         |
+>                                         V
+>         bpf_prog_create_from_user() (seccomp) \
+>         bpf_prog_create()                      > bpf_prepare_filter()
+>         sk_attach_filter()                    /
+>
+>     All approaches come from user passed data, nothing fd based.
+>
+>     For both old BPF and eBPF then:
+>
+>     If we wanted to be paranoid I suppose the Machine Owner Key (MOK)
+>     Paul had mentioned up could be used to vet for passed filters, or
+>     a new interface to enable fd based filters. This really would limit
+>     the dynamic nature of these features though.
+>
+>     eBPF / secccomp would not be the only place in the kernel that would have
+>     issues with user passed data, we have tons of places the same applies so
+>     implicating the old BPF / eBPF / seccomp approaches can easily implicate
+>     many other areas of the kernel, that's pretty huge but from the looks of
+>     it below you seem to enable that to be a possibility for us to consider.
 
-Great the patches I have in place for the system data helpers let us
-deprecate this and put that code in a dark corner.
+At the time (LSS 2014?) I argued that seccomp policies come from
+binaries, which are already being measured. And that policies only
+further restrict a process, so there seems to be to be little risk in
+continuing to leave them unmeasured.
 
-> > We have no LSM hook for kexec, even though the kernel does have access to the
-> > fd, so if you wanted the struct file for an LSM it should be possible as the
-> > syscall for kexec is:
-> 
-> I can send a patch to add this; it should be trivial. :) (It's not
-> high on my TODO list at the moment just because Chrome OS doesn't use
-> kexec.)
+-Kees
 
-If there are no users for it and since we are talking about bringing
-things together I'd prefer if we try to come up with a shared solution
-for that as it seems it can wait for kexec.
-
-> > Everywhere where we fetch a file from within the kernel either directly (say
-> > firmware load, 802.11 regulatory request) or from userspace request (SELinux
-> > policy load node) we end up having to sprinkle a new LSM hook. In fact for
-> > modules and kexec there were syscalls added too. There might be a possiblity
-> > for sharing some of these requests / code so some review is in order for it.
-> 
-> Those syscalls were needed because the original ones were designed a
-> long time ago. :)
-
-OK fine :)
-
-> > Here's my review if we wanted to try sharing things, in consideration and
-> > review of:
-> >
-> >   * SELinux policy files
-> >   * modules
-> >   * firmware / system data (consider replacing CRDA)
-> >   * kexec
-> >
-> > ----
-> >
-> >   * SELinux policy files:
-> >
-> > sel_write_load() is very specific, its part of the selinuxfs and it just
-> > uses copy_from_user() to dump the data from the file onto a vmalloc'd
-> > piece of memory. We don't exactly read arbitrary files from the fs then.
-> > If we *really* wanted to generalize things further we probably could
-> > but I'm not going to lead any discussion about design over selinuxfs,
-> > I'll let the folks behind it think about that themselves.
-> >
-> >   * modules
-> >   * firmware / system data
-> >
-> > modules + firmware: there seems to be some code sharing we could possibly do
-> > for both fw_read_file() and copy_module_from_fd(), note we are going to use
-> > different keys for vetting each of these. It may be possible to share the
-> > LSM hook here. All parties would just need to agree.
-> 
-> As long as the LSM know what kind of file it's loading, and has access
-> to the fd (and for IMA, the blob loaded from that fd), that should be
-> everything it needs. IMA has the name and blob, loadpin has the fd,
-> and a future signature-checking LSM could be able to look up signature
-> type from the load type, and split the key off (or fetch the key file)
-> itself.
-
-OK great, I think that instead of passing the actual routine name we should
-instead pass an enum type for to the LSM, that'd be easier to parse and we'd
-then have each case well documented. Each LSM then could add its own
-documetnation for this and can switch on it. If we went with a name we'd have
-to to use something like __func__ and then parse that, its not clear if we need
-to get that specific.
-
-> If we expect to stack signature checkers, we can optimize the
-> signature parsing/loading infrastructure then. But since we have
-> neither the sigchecking LSM nor multiple ones, we can leave that to
-> later.
-
-Sure.
-
-  Luis
+-- 
+Kees Cook
+Chrome OS Security
