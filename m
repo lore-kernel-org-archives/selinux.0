@@ -1,60 +1,28 @@
-Subject: Re: [PATCH v2 2/3] libsepol/cil: add ioctl whitelist support
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t82JWf1Q013084
+ for <selinux@tycho.nsa.gov>; Wed, 2 Sep 2015 15:32:42 -0400
+Received: by oixx17 with SMTP id x17so12279857oix.0
+ for <selinux@tycho.nsa.gov>; Wed, 02 Sep 2015 12:32:39 -0700 (PDT)
+MIME-Version: 1.0
 References: <1441025637-18267-1-git-send-email-slawrence@tresys.com>
  <1441025637-18267-3-git-send-email-slawrence@tresys.com>
  <55E73FF1.5040601@tycho.nsa.gov> <55E74747.1030106@tresys.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <55E74DD2.5000000@tycho.nsa.gov>
-Date: Wed, 2 Sep 2015 15:28:18 -0400
-MIME-Version: 1.0
 In-Reply-To: <55E74747.1030106@tresys.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+From: Jeffrey Vander Stoep <jeffv@google.com>
+Date: Wed, 02 Sep 2015 19:32:30 +0000
+Message-ID: <CABXk95D5KM9caJVAQ-w90b9j3HGS_YbFmxOevykE==P+ngs9LA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] libsepol/cil: add ioctl whitelist support
+To: Steve Lawrence <slawrence@tresys.com>,
+ James Carter <jwcart2@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a1137c390cb4bbc051ec8babd
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/02/2015 03:00 PM, Steve Lawrence wrote:
-> On 09/02/2015 02:29 PM, James Carter wrote:
->> On 08/31/2015 08:53 AM, Steve Lawrence wrote:
->>> Add three new extended avrule statements with the following syntax:
->>>
->>>     (allowx source_type target_type permissionx)
->>>     (auditallowx source_type target_type permissionx)
->>>     (dontauditx source_type target_type permissionx)
->>>
->>> source_type - type, typeattribute, or typealias
->>> target_type - type, typeattribute, typealias, or "self" keyword
->>> permissionx - named or anonymous permissionx statement, which has the
->>> syntax:
->>>
->>>     (permissionx name (kind object expression))
->>>
->>
->> Right now the permissionx name will be fully qualified, but we haven't
->> been doing that for identifiers that don't show up in the kernel policy
->> (classpermsets, named contexts, named ranges, named ip addrs, etc). So
->> it seems like you should exclude walking the permx symtab in
->> cil_fqn.c:__cil_fqn_qualify_blocks() like we do for these other symtabs.
->>
->
-> Yep, this should be excluded from being fully qualified. Will fix.
->
->> The other question I have (and I am willing to put this off for now
->> because I don't know how much work it would be and I don't want to delay
->> this any longer than I already have) is whether it would be possible to
->> factor out the common code from checkpolicy's policy_define.c and cil's
->> cil_binary.c into some common functions in libsepol.
->>
->
-> Unfortunately, there really isn't much in common between checkpolicy and
-> CIL for extended avrules. checkpolicy uses an av_ioctl_range_list to
-> keep track of the extended permissions. But since CIL supports more
-> complex expressions and because of expression code reuse, it was easier
-> to just use an ebitmap for evaluating/storing the extended permissions.
-> Additionally, checkpolicy adds extended avrules to the list of
-> avrule_t's, whereas CIL writes directly to the avtab. So they take
-> pretty different approaches to solving the same problem.
+--001a1137c390cb4bbc051ec8babd
+Content-Type: text/plain; charset=UTF-8
+
 >
 > Really, the only thing they have in common, which was copied directly
 > from policy_define.c, is the xperm_setrangebits function. Now that that
@@ -65,12 +33,18 @@ On 09/02/2015 03:00 PM, Steve Lawrence wrote:
 > would remove very much code.
 >
 
-OK. Don't worry about then.
+I'm considering rewriting the checkpolicy code to use an ebitmap. If/when I
+get around to it I'll certainly reuse as much from cil as possible.
 
-Jim
+--001a1137c390cb4bbc051ec8babd
+Content-Type: text/html; charset=UTF-8
 
+<div dir="ltr"><div class="gmail_quote"><blockquote class="gmail_quote" style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Really, the only thing they have in common, which was copied directly<br>
+from policy_define.c, is the xperm_setrangebits function. Now that that<br>
+function is in CIL/libsepol, it wouldn&#39;t be much effort to have<br>
+checkpolicy use that one and remove the one in policy_define, but I<br>
+think that&#39;s about all the refactoring we could do without maybe<br>
+rewriting policy_define.c to use ebitmaps, and I&#39;m not even sure that<br>
+would remove very much code.<br></blockquote><div><br></div><div>I&#39;m considering rewriting the checkpolicy code to use an ebitmap. If/when I get around to it I&#39;ll certainly reuse as much from cil as possible.</div></div></div>
 
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+--001a1137c390cb4bbc051ec8babd--
