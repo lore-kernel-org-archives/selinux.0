@@ -1,19 +1,19 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t823alwW011148
- for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2015 23:36:47 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t823jVJa011602
+ for <selinux@tycho.nsa.gov>; Tue, 1 Sep 2015 23:45:31 -0400
 Received: from /spool/local
- by e23smtp05.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ by e23smtp03.au.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
  Violators will be prosecuted
  for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
- Wed, 2 Sep 2015 13:36:11 +1000
-Message-ID: <1441164905.17898.86.camel@linux.vnet.ibm.com>
+ Wed, 2 Sep 2015 13:45:26 +1000
+Message-ID: <1441165462.17898.94.camel@linux.vnet.ibm.com>
 Subject: Re: Linux Firmware Signing
 From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: "Luis R. Rodriguez" <mcgrof@suse.com>
-Cc: Kees Cook <keescook@chromium.org>, David Woodhouse <dwmw2@infradead.org>,
- David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>,
- "Roberts, William C" <william.c.roberts@intel.com>,
- "linux-security-module@vger.kernel.org"
+To: Kees Cook <keescook@chromium.org>
+Cc: "Luis R. Rodriguez" <mcgrof@suse.com>, David Woodhouse
+ <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>, Andy
+ Lutomirski <luto@amacapital.net>, "Roberts, William C"
+ <william.c.roberts@intel.com>, "linux-security-module@vger.kernel.org"
  <linux-security-module@vger.kernel.org>, LKML
  <linux-kernel@vger.kernel.org>, linux-wireless
  <linux-wireless@vger.kernel.org>, "james.l.morris@oracle.com"
@@ -28,21 +28,23 @@ Cc: Kees Cook <keescook@chromium.org>, David Woodhouse <dwmw2@infradead.org>,
  <jlee@suse.de>, =?UTF-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
  Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
  Matthew Garrett <mjg59@srcf.ucam.org>, Johannes Berg
- <johannes@sipsolutions.net>, Jay Schulist <jschlst@samba.org>, Daniel
- Borkmann <dborkman@redhat.com>, Alexei Starovoitov <ast@plumgrid.com>
-Date: Tue, 01 Sep 2015 23:35:05 -0400
-In-Reply-To: <20150902000915.GW8051@wotan.suse.de>
-References: <476DC76E7D1DF2438D32BFADF679FC5601058E78@ORSMSX103.amr.corp.intel.com>
- <CAGXu5jJuwPfnQhu9u4-90UkmjWTBF_GLpJ7J1VaaT2D0d_-Mhg@mail.gmail.com>
- <1440462367.2737.4.camel@linux.vnet.ibm.com>
+ <johannes@sipsolutions.net>, Julia Lawall <julia.lawall@lip6.fr>, Jay
+ Schulist <jschlst@samba.org>, Daniel Borkmann <dborkman@redhat.com>,
+ Alexei Starovoitov <ast@plumgrid.com>
+Date: Tue, 01 Sep 2015 23:44:22 -0400
+In-Reply-To: <CAGXu5j+_yHc1wbubzw4h=QFM=uyn1pCraGYCWS6LvgtS3-A+Qw@mail.gmail.com>
+References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
  <14540.1440599584@warthog.procyon.org.uk>
  <31228.1440671938@warthog.procyon.org.uk>
  <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
  <20150827212907.GF8051@wotan.suse.de>
- <CAGXu5jKF6CBAADoybZHRCzYAepcZYqpbck1gTAeV1p7iuOVAvw@mail.gmail.com>
- <20150902000915.GW8051@wotan.suse.de>
+ <1440719673.2118.84.camel@linux.vnet.ibm.com>
+ <20150829021659.GN8051@wotan.suse.de>
+ <1441030735.2647.70.camel@linux.vnet.ibm.com>
+ <20150901234305.GU8051@wotan.suse.de>
+ <CAGXu5j+_yHc1wbubzw4h=QFM=uyn1pCraGYCWS6LvgtS3-A+Qw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -50,30 +52,55 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2015-09-02 at 02:09 +0200, Luis R. Rodriguez wrote:
-> On Tue, Sep 01, 2015 at 01:20:37PM -0700, Kees Cook wrote:
-> > On Thu, Aug 27, 2015 at 2:29 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> > As long as the LSM know what kind of file it's loading, and has access
-> > to the fd (and for IMA, the blob loaded from that fd), that should be
-> > everything it needs. IMA has the name and blob, loadpin has the fd,
-> > and a future signature-checking LSM could be able to look up signature
-> > type from the load type, and split the key off (or fetch the key file)
-> > itself.
+On Tue, 2015-09-01 at 20:08 -0700, Kees Cook wrote:
+> On Tue, Sep 1, 2015 at 4:43 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> > On Mon, Aug 31, 2015 at 10:18:55AM -0400, Mimi Zohar wrote:
+> >> > > eBPF/seccomp
+> >
+> > OK I knew nothing about this but I just looked into it, here are my notes:
+> >
+> >   * old BPF - how far do we want to go? This goes so far as to parsing
+> >     user passed void __user *arg data through ioctls which typically
+> >     gets copy_from_user()'d and eventually gets BPF_PROG_RUN().
+> >
+> >   * eBPF:
+> >                              seccomp() & prctl_set_seccomp()
+> >                                         |
+> >                                         V
+> >                              do_seccomp()
+> >                                         |
+> >                                         V
+> >                              seccomp_set_mode_filter()
+> >                                         |
+> >                                         V
+> >                              seccomp_prepare_user_filter()
+> >                                         |
+> >                                         V
+> >         bpf_prog_create_from_user() (seccomp) \
+> >         bpf_prog_create()                      > bpf_prepare_filter()
+> >         sk_attach_filter()                    /
+> >
+> >     All approaches come from user passed data, nothing fd based.
+> >
+> >     For both old BPF and eBPF then:
+> >
+> >     If we wanted to be paranoid I suppose the Machine Owner Key (MOK)
+> >     Paul had mentioned up could be used to vet for passed filters, or
+> >     a new interface to enable fd based filters. This really would limit
+> >     the dynamic nature of these features though.
+> >
+> >     eBPF / secccomp would not be the only place in the kernel that would have
+> >     issues with user passed data, we have tons of places the same applies so
+> >     implicating the old BPF / eBPF / seccomp approaches can easily implicate
+> >     many other areas of the kernel, that's pretty huge but from the looks of
+> >     it below you seem to enable that to be a possibility for us to consider.
+> 
+> At the time (LSS 2014?) I argued that seccomp policies come from
+> binaries, which are already being measured. And that policies only
+> further restrict a process, so there seems to be to be little risk in
+> continuing to leave them unmeasured.
 
-I assume "and for IMA, the blob loaded from that fd"  is referring to
-the file signature stored in the xattr.
-
-> OK great, I think that instead of passing the actual routine name we should
-> instead pass an enum type for to the LSM, that'd be easier to parse and we'd
-> then have each case well documented. Each LSM then could add its own
-> documetnation for this and can switch on it. If we went with a name we'd have
-> to to use something like __func__ and then parse that, its not clear if we need
-> to get that specific.
-
-Agreed.  IMA already defines an enumeration.
-
-/* IMA policy related functions */
-enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
-                 FIRMWARE_CHECK, POLICY_CHECK, POST_SETATTR };
+What do you mean by "measured"?  Who is doing the measurement?  Could
+someone detect a change in measurement?
 
 Mimi
