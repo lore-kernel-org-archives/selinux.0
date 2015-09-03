@@ -1,38 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t82NsctD030482
- for <selinux@tycho.nsa.gov>; Wed, 2 Sep 2015 19:54:38 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t83060qL031295
+ for <selinux@tycho.nsa.gov>; Wed, 2 Sep 2015 20:06:00 -0400
 Received: from /spool/local
- by e28smtp07.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ by e28smtp04.in.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
  Violators will be prosecuted
  for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
- Thu, 3 Sep 2015 05:24:32 +0530
-Message-ID: <1441238053.4172.3.camel@linux.vnet.ibm.com>
+ Thu, 3 Sep 2015 05:35:54 +0530
+Message-ID: <1441238736.4172.12.camel@linux.vnet.ibm.com>
 Subject: Re: Linux Firmware Signing
 From: Mimi Zohar <zohar@linux.vnet.ibm.com>
 To: "Luis R. Rodriguez" <mcgrof@suse.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
- Andy Lutomirski <luto@amacapital.net>, Kees Cook <keescook@chromium.org>,
+Cc: Kees Cook <keescook@chromium.org>, David Woodhouse <dwmw2@infradead.org>,
+ David Howells <dhowells@redhat.com>, Andy Lutomirski <luto@amacapital.net>,
  "Roberts, William C" <william.c.roberts@intel.com>,
  "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org,
- "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- "serge@hallyn.com" <serge@hallyn.com>, Vitaly
+ <linux-security-module@vger.kernel.org>, LKML
+ <linux-kernel@vger.kernel.org>, linux-wireless
+ <linux-wireless@vger.kernel.org>, "james.l.morris@oracle.com"
+ <james.l.morris@oracle.com>, "serge@hallyn.com" <serge@hallyn.com>, Vitaly
  Kuznetsov <vkuznets@redhat.com>, Paul Moore <paul@paul-moore.com>, Eric
- Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Stephen Smalley
- <sds@tycho.nsa.gov>, "Schaufler, Casey" <casey.schaufler@intel.com>, "Luis
- R. Rodriguez" <mcgrof@do-not-panic.com>, Dmitry Kasatkin
- <dmitry.kasatkin@gmail.com>, Greg Kroah-Hartman
+ Paris <eparis@parisplace.org>, SE Linux <selinux@tycho.nsa.gov>, Stephen
+ Smalley <sds@tycho.nsa.gov>, "Schaufler, Casey"
+ <casey.schaufler@intel.com>, "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Greg Kroah-Hartman
  <gregkh@linuxfoundation.org>, Peter Jones <pjones@redhat.com>, Takashi Iwai
  <tiwai@suse.de>, Ming Lei <ming.lei@canonical.com>, Joey Lee
- <jlee@suse.de>, =?UTF-8?Q?=22Vojt=C4=9Bch_Pavl=C3=ADk=22?=
- <vojtech@suse.com>, Kyle McMartin <kyle@kernel.org>, Seth Forshee
- <seth.forshee@canonical.com>, Matthew Garrett <mjg59@srcf.ucam.org>,
- Johannes Berg <johannes@sipsolutions.net>, Julia Lawall
- <julia.lawall@lip6.fr>, Jay Schulist <jschlst@samba.org>, Daniel Borkmann
- <dborkman@redhat.com>, Alexei Starovoitov <ast@plumgrid.com>
-Date: Wed, 02 Sep 2015 19:54:13 -0400
-In-Reply-To: <20150901234305.GU8051@wotan.suse.de>
+ <jlee@suse.de>, =?UTF-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
+ Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
+ Matthew Garrett <mjg59@srcf.ucam.org>, Johannes Berg
+ <johannes@sipsolutions.net>, Jay Schulist <jschlst@samba.org>, Daniel
+ Borkmann <dborkman@redhat.com>, Alexei Starovoitov <ast@plumgrid.com>
+Date: Wed, 02 Sep 2015 20:05:36 -0400
+In-Reply-To: <20150902184604.GB8051@wotan.suse.de>
 References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <CALCETrXWBBdOKz-fSdM7YVu_sWQbA3YsHPeZAkRmtj+eawqZGQ@mail.gmail.com>
  <1440464705.2737.36.camel@linux.vnet.ibm.com>
@@ -40,10 +39,10 @@ References: <1440462367.2737.4.camel@linux.vnet.ibm.com>
  <31228.1440671938@warthog.procyon.org.uk>
  <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
  <20150827212907.GF8051@wotan.suse.de>
- <1440719673.2118.84.camel@linux.vnet.ibm.com>
- <20150829021659.GN8051@wotan.suse.de>
- <1441030735.2647.70.camel@linux.vnet.ibm.com>
- <20150901234305.GU8051@wotan.suse.de>
+ <CAGXu5jKF6CBAADoybZHRCzYAepcZYqpbck1gTAeV1p7iuOVAvw@mail.gmail.com>
+ <20150902000915.GW8051@wotan.suse.de>
+ <1441164905.17898.86.camel@linux.vnet.ibm.com>
+ <20150902184604.GB8051@wotan.suse.de>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -51,107 +50,82 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2015-09-02 at 01:43 +0200, Luis R. Rodriguez wrote:
-> On Mon, Aug 31, 2015 at 10:18:55AM -0400, Mimi Zohar wrote:
-> > On Sat, 2015-08-29 at 04:16 +0200, Luis R. Rodriguez wrote:
-> > > On Thu, Aug 27, 2015 at 07:54:33PM -0400, Mimi Zohar wrote:
-> > > > On Thu, 2015-08-27 at 23:29 +0200, Luis R. Rodriguez wrote:
-
-> Right so there are different solutions to this problem, it will depend on the
-> distribution and solution they have in place for this. For instance maybe some
-> distros may be satisfied with the integrity of the initramfs for kexec *iff*
-> they can vet for the integrity of the components that build the initramfs on
-> the target system, or perhaps they distribute the initramfs used by some
-> systems so they use singing facilities trusted by the kernel, or in the IMA
-> case you do boot up vetting through xatrrs and IMA.
-> 
-> A lot of this means a lot of these signing facilities then should be optional
-> and work in a permissive mode. Part of my earlier work (already merged) on the firmware
-> signing stuff was to take out from module signing code the part that let it be
-> permissive with my goal to re-share the same strategy for other purposes. This
-> is accomplished by using the bool_enable_only module parameter, for instance fw
-> signing will use:
-> 
-> +static bool sysdata_sig_enforce = IS_ENABLED(CONFIG_SYSTEM_DATA_SIG_FORCE);
-> +#ifndef CONFIG_SYSTEM_DATA_SIG_FORCE
-> +module_param(sysdata_sig_enforce, bool_enable_only, 0644);
-> +#endif /* !CONFIG_SYSTEM_DATA_SIG_FORCE */
-> 
-> Technically it should also be possible to remove the #ifndef provided we can
-> all rest assured no bullets can be put through it. Anyway, that's the gist of
-> the permissive model copied from module signing. If we have a lot of similar
-> users it begs the question if we should somehow drivertize a generic interface
-> for these things so that the actual implemenation that deals with permissivity
-> is shared, its perhaps too early to do that now but something to keep in mind
-> as it does sound like we will have a bit of users of the same mechanisms /
-> strategy. Exactly how they need to be differentiated remains to be seen.
-
-Ok.  Each "hook" would require a separate config option to allow
-flexibility.  With this design, the decision for requiring signatures
-would be made at build.  Do we really want policy hard coded into the
-kernel?   (IMA is policy based.)
-
-> > > > initramfs, 
-> > > 
-> > > Hm, what code path?
+On Wed, 2015-09-02 at 20:46 +0200, Luis R. Rodriguez wrote:
+> On Tue, Sep 01, 2015 at 11:35:05PM -0400, Mimi Zohar wrote:
+> > > OK great, I think that instead of passing the actual routine name we should
+> > > instead pass an enum type for to the LSM, that'd be easier to parse and we'd
+> > > then have each case well documented. Each LSM then could add its own
+> > > documetnation for this and can switch on it. If we went with a name we'd have
+> > > to to use something like __func__ and then parse that, its not clear if we need
+> > > to get that specific.
 > > 
-> > In addition, the files within the initramfs should be measured and
-> > verified.   There isn't a need for a new hook, but for xattr support in
-> > CPIO.  I started adding that support last winter -
-> > http://lwn.net/Articles/630101/ .   Others have requested other changes,
-> > not related to xattrs, before bumping the CPIO magic number.   There
-> > should be a discussion as to what else needs to be done.
-> 
-> I see, thanks. Another way to do this is to copy the module signing
-> strategy and since the initramfs is linked in just peg the sinagure of the
-> blog at the end. This of course would mean you have to be permissive to
-> only enable folks who want this feature.
-
-At the same time the boot loader verifies the kernel signature, it could
-verify the the initramfs signature.  kexec should emulate whatever the
-boot loader's method for verifying the initramfs signature.
-
-> > > >  that have
-> > > > been or need to be addressed.  Since then, a new kexec syscall, file
-> > > > descriptor based, was upstreamed that appraises the image.  Until we can
-> > > > preserve the measurement list across kexec,
-> > > 
-> > > I'm sorry I do not follow, can you elaborate on what you mean by this.
-> > > Its not clear to me what you mean by the measurement list. Do you mean
-> > > all the above items?
-> >  
-> > A measurement is a hash of the file which is stored in the measurement
-> > list <securityfs>/ima/ascii_runtime_measurements and is used to extend
-> > the TPM (eg. PCR 10).   The measurement list, in conjunction with a
-> > quote of the TPM PCRs, can be used to remotely detect whether a system
-> > has been compromised.
-> 
-> I see thanks. In light of that its unclear why you'd want to "preserve"
-> the measurement list from one boot onto another.
-
-The TPM is reset on a hard reboot, not a soft one like kexec.  Without
-preserving the measurement list across kexec, we would not be able to
-validate the quote.
-
-> > > >.)  Lastly, measuring/appraising policies
-> > > > (eg. IMA, SELinux, Smack, iptables/ebtables) 
-> > > 
-> > > OK for each of these:
-> > > 
-> > > how do we load the data? 
+> > Agreed.  IMA already defines an enumeration.
 > > 
-> > I'm not real happy about it, but since we can't break the existing ABI
-> > of loading data into the kernel via a buffer, a stop gap method of
-> > signing and verifying a buffer would be needed.
+> > /* IMA policy related functions */
+> > enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
+> >                  FIRMWARE_CHECK, POLICY_CHECK, POST_SETATTR };
+> > 
 > 
-> Right so if such a solution were really desirable it would seem we'd be
-> wanting to change a histical approach to user <--> kernel interfaces.
-> This is a pretty significant change in paradigm. Is everyone on board?
+> We want something that is not only useful for IMA but any other LSM,
+> and FILE_CHECK seems very broad, not sure what BPRM_CHECK is even upon
+> inspecting kernel code. Likewise for POST_SETATTR. POLICY_CHECK might
+> be broad, perhaps its best we define then a generic set of enums to
+> which IMA can map them to then and let it decide. This would ensure
+> that the kernel defines each use caes for file inspection carefully,
+> documents and defines them and if an LSM wants to bunch a set together
+> it can do so easily with a switch statement to map set of generic
+> file checks in kernel to a group it already handles.
 
-Perhaps defining a common method and converting an example or two would
-make sense,  before making sure "everyone" is on board.   The IMA policy
-could be the first. Dmitry has already added support for verifying the
-policy's signature for those systems without an initramfs.  I can look
-into generalizing that solution.
+The names are based on the calling security hook.   For a description of
+each of these security hooks refer to include/linux/lsm_hooks.h.
+ 
+> For instance at least in the short term we'd try to unify:
+> 
+> security_kernel_fw_from_file()
+> security_kernel_module_from_file()
+> 
+> to perhaps:
+> 
+> security_kernel_from_file()
+> 
+> As far, as far as I can tell, the only ones we'd be ready to start
+> grouping immediately or with small amount of work rather soon:
+> 
+> /**
+>  *
+>  * enum security_filecheck - known kernel security file checks types
+>  *
+>  * @__SECURITY_FILECHECK_UNSPEC: attribute 0 reserved
+>  * @SECURITY_FILECHECK_MODULE: the file being processed is a Linux kernel module
+>  * @SECURITY_FILECHECK_SYSDATA: the file being processed is either a firmware
+>  *	file or a system data file read from /lib/firmware/* by firmware_class
+>  * @SECURITY_FILECHECK_KEXEC_KERNEL: the file being processed is a kernel file
+>  * 	used by kexec
+>  * @SECURITY_FILECHECK_KEXEC_INITRAMFS: the file being processed is an initramfs
+>  * 	used by kexec
+> 
+>  * The kernel reads files directly from the filesystem for a series of
+>  * operations.  The list of files the kernel reads from the filesystem are
+>  * limited and each type of file consumed may have a different format and
+>  * security vetting procedures. The kernel enables LSMs to vet for these files
+>  * through a shared LSM hook prior to consumption. This list documents the
+>  * different special kernel file types read by the kernel, it enables LSMs
+>  * to vet for each differently if needed.
+> enum security_filecheck {
+> 	SECURITY_FILECHECK_UNSPEC,
+> 	SECURITY_FILECHECK_MODULE,
+> 	SECURITY_FILECHECK_SYSDATA,
+> 	SECURITY_FILECHECK_KEXEC_KERNEL,
+> 	SECURITY_FILECHECK_KEXEC_INITRAMFS,
+> };
+> 
+> Provided the MOK thing or alternative gets addressed we could also soon add
+> something for SELinux policy files but that needs to be discussed further
+> it seems. If MOK is used would SECURITY_FILECHECK_POLICY_MOK be OK? Again
+> this would likely need further discussion, its why I didn't list it above.
 
-Mimi
+Oh, I'm really confused as to why MOK would be a separate hook.  I
+thought the discussion was about using a key in the UEFI MOK DB for
+verifying locally signed files.
+
+Mimi  
