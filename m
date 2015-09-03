@@ -1,97 +1,106 @@
-Date: Thu, 3 Sep 2015 14:40:14 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t83Crvri013686
+ for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2015 08:53:57 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com
+ (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ by mx1.redhat.com (Postfix) with ESMTPS id CD4CD8E3E9
+ for <selinux@tycho.nsa.gov>; Thu,  3 Sep 2015 12:53:54 +0000 (UTC)
+Received: from hulk.w.lan (dhcp-10-40-3-171.brq.redhat.com [10.40.3.171])
+ by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ t83Crrnk026494
+ (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2015 08:53:54 -0400
 Subject: Re: secilc: in segfault
-Message-ID: <20150903124013.GB2118@x250>
-References: <20150903094844.GA18832@x250>
- <55E83A89.5010208@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+References: <20150903094844.GA18832@x250> <55E83A89.5010208@tycho.nsa.gov>
+ <20150903124013.GB2118@x250>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <55E842DD.3080408@redhat.com>
+Date: Thu, 3 Sep 2015 14:53:49 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
-In-Reply-To: <55E83A89.5010208@tycho.nsa.gov>
+In-Reply-To: <20150903124013.GB2118@x250>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="2aSxfE7Hf796ipF2olctqVkXGwAfrEUER"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
---aVD9QWMuhilNxW9f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--2aSxfE7Hf796ipF2olctqVkXGwAfrEUER
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 03, 2015 at 08:18:17AM -0400, James Carter wrote:
-> On 09/03/2015 05:48 AM, Dominick Grift wrote:
-> >Anyone tried "secilc test/in_test.cil" lately? It dumps core here.
-> >
-> >$ secilc test/in_test.cil
-> >Segmentation fault (core dumped)
-> >
-> >
+On 09/03/2015 02:40 PM, Dominick Grift wrote:
+> On Thu, Sep 03, 2015 at 08:18:17AM -0400, James Carter wrote:
+>> On 09/03/2015 05:48 AM, Dominick Grift wrote:
+>>> Anyone tried "secilc test/in_test.cil" lately? It dumps core here.
+>>>
+>>> $ secilc test/in_test.cil
+>>> Segmentation fault (core dumped)
+
+Confirmed on Fedora 23, thanks for the report.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=3D1259730
+
+
+> It may just be my incompetence but i can't get current master branch
+> selinux user space to build on Fedora rawhide manually like so:
 >=20
-> It works for me for the current master branch of SELinux userspace instal=
-led
-> locally. What version are you using?
+> # cd selinux
+> # make LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64
 >=20
-> Jim
-
-It may just be my incompetence but i can't get current master branch
-selinux user space to build on Fedora rawhide manually like so:
-
-# cd selinux
-# make LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64
-
-I have installed all the build dependencies i believe
-
-This is what it is failing with here:
-
-cc1: all warnings being treated as errors
-Makefile:113: recipe for target 'direct_api.o' failed
-make[2]: *** [direct_api.o] Error 1
-make[2]: Leaving directory
-'/home/kcinimod/Workspace/selinux/libsemanage/src'
-Makefile:2: recipe for target 'all' failed
-make[1]: *** [all] Error 2
-make[1]: Leaving directory
-'/home/kcinimod/Workspace/selinux/libsemanage'
-Makefile:11: recipe for target 'all' failed
-make: *** [all] Error 1
-
+> I have installed all the build dependencies i believe
 >=20
+> This is what it is failing with here:
 >=20
-> --=20
-> James Carter <jwcart2@tycho.nsa.gov>
-> National Security Agency
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa=
-=2Egov.
+> cc1: all warnings being treated as errors
+> Makefile:113: recipe for target 'direct_api.o' failed
+> make[2]: *** [direct_api.o] Error 1
+> make[2]: Leaving directory
+> '/home/kcinimod/Workspace/selinux/libsemanage/src'
+> Makefile:2: recipe for target 'all' failed
+> make[1]: *** [all] Error 2
+> make[1]: Leaving directory
+> '/home/kcinimod/Workspace/selinux/libsemanage'
+> Makefile:11: recipe for target 'all' failed
+> make: *** [all] Error 1
+>=20
 
+This report seems to be little stripped so the important messages are
+missing. Nevertheless, according to README you should use install
+target. The following command works for me on Fedora 23:
+
+make DESTDIR=3D/home/plautrba/devel/build/selinux  install
+
+Petr
 --=20
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
-Dominick Grift
+Petr Lautrbach
 
---aVD9QWMuhilNxW9f
-Content-Type: application/pgp-signature
+
+
+--2aSxfE7Hf796ipF2olctqVkXGwAfrEUER
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJV6D+oAAoJENAR6kfG5xmcG0AMALjc428jOA7MQbDklVVObCJY
-l3aavCoSgxaDDoWSN0c+vXt8SjAWiuQ35MUoz4BsZjsEVUlpJl3BXAzjbRFuQMpv
-ctlT/5F4p86yFC6S/IHuTVkimLXDWxiom3/OQaiBBVZBtBZkc8u9UVDgAlO0VBFo
-xzkfbFJBtDVRsTp9g1yXmHw2XgdBe4bmyD5FBPoX3vgTu/1kPWTJzLSLze/LKlYb
-fCN/rv2Md2Mupvj2dOehhq/PocBEmpgnuFa/RGmrgl0LK80MJLVoJKzelPCE0FZG
-/pCNMyPEhSi80q8F/JJ1jj6SBuncnuNB/rWlaPcRN1XQgSozm6PHqp/Y4egrVZ4Z
-awbTY64sruHVa1j5Nh8UFvzsM1s3UTbmDF9SH1oXhKMi0yxFoQoNpryPWA74jUWy
-UrCMYoPhMYZRt4ErrWrzvYdfP1R7zh/tz67MwtIk+dh88IOaPm4RFxYrcNNiSXuO
-mbfL5sO2fyfPLxC9vD0aLoxI/T6PTEPwvNrv71Ng4w==
-=f+z9
+iQIcBAEBCAAGBQJV6ELgAAoJEGOorUuYLENzaiwQAJoP5SgZQnlwgidiivdf5dnW
+QzkjBxCcyvYF5ofbryKNx8WKY8rm3tXErG4/ga4IJznqOGRnGy9WzrqqraR0yhkc
+FVwlAnLku1jgPZ14h1CHZs5XNCYNmT/aG97kuN0Kh6XyEL+qn1Dxehf8L3fBP/Kl
+Zjd54AsXScevlLvi1zVp/C9R65tz9VenB/VWSwcuJmp7iuZpX5GG/QpyJjL3evqD
+VtDQMS2UYOUue2l6zjT2G845ZDo4bpZ0jt6q8r9qb8FCBQhirkX7Iy5AAs7mQ39d
+3tFAnetN9IyTtFXnO2r3B+n2kS1hVo3tOFXlsKOUhKyGfYZaZlq0P093WhZSRogw
+UQqc79z7LcHCMerF51YXptRnnoa3IaOr58ay3+G979Qr2BFR4y5jrR1SSrveen7p
+cTi3k842RNZunoCnMlEpvtzRFtnVHD8Aa00VIzTh9lPNCE2mmzPeYcPmVfQBbdNP
+kOnbNNIVYqQreFCOkEIFIijeOwwk6YB99+EEajrqxd+bDNPHikMepkSxesRzq9Qs
+PXN7PQMsMJHBHEaKWhVQbvFfsW0sD6Hj/GPcCtHk6ISi4zrYGG+NPLRx9GvCVzdL
+hJO0i6b1ye835aUNXmAZa8Rja6YzG6StnD+E8ywcHSU35v12UO5N/sYFtNM8Ct9U
+Ugr3ng5ejcFzxT6HlvHD
+=uyu3
 -----END PGP SIGNATURE-----
 
---aVD9QWMuhilNxW9f--
+--2aSxfE7Hf796ipF2olctqVkXGwAfrEUER--
