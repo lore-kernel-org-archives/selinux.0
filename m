@@ -1,87 +1,62 @@
-Date: Thu, 3 Sep 2015 15:20:42 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: secilc: in segfault
-Message-ID: <20150903132041.GD2118@x250>
-References: <20150903094844.GA18832@x250>
- <55E83A89.5010208@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t83FITv3025245
+ for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2015 11:18:30 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsemanage: save homedir_template in the policy store for
+ genhomedircon
+Date: Thu, 3 Sep 2015 11:18:01 -0400
+Message-ID: <1441293481-13903-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="x4pBfXISqBoDm8sr"
-In-Reply-To: <55E83A89.5010208@tycho.nsa.gov>
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+We don't currently store homedir_template in the policy store, which
+means genhomedircon only has a template file to use if the
+homedir_template was generated from the file contexts in the same
+transaction.  But homedir_template isn't always generated, as in the
+case with setsebool -P. In this and other cases, genhomedircon will not
+have a template file resulting in an empty file_contexts.homedir file.
 
---x4pBfXISqBoDm8sr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This commit changes this so that homedir_template is always stored in
+the policy store so it can be used by genhomedircon regardless of how
+policy was built. Also add the homedir_template file to the migration
+script.
 
-On Thu, Sep 03, 2015 at 08:18:17AM -0400, James Carter wrote:
-> On 09/03/2015 05:48 AM, Dominick Grift wrote:
-> >Anyone tried "secilc test/in_test.cil" lately? It dumps core here.
-> >
-> >$ secilc test/in_test.cil
-> >Segmentation fault (core dumped)
-> >
-> >
->=20
-> It works for me for the current master branch of SELinux userspace instal=
-led
-> locally. What version are you using?
->=20
-> Jim
->=20
+Signed-off by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsemanage/src/direct_api.c             | 1 -
+ libsemanage/utils/semanage_migrate_store | 3 ++-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Ok so that turns out to be a bug in Fedora. However.
-
-I can still get secilc to segfault on "in". I wonder if the following is
-or should be supported:
-
-The scenario is: I want to simplify my macros by using
-blockabstracts/inherits to provide a single point of failure
-
-As a matter of test i made these two changes:
-
-https://github.com/DefenSec/dssp/commit/85ba6f1848118e16b5544052dc5764663b2=
-72262
-https://github.com/DefenSec/dssp-contrib/commit/77442e1e4658df99d1ce7473233=
-8a9c4ad80a6a3
-
-However this makes secilc segfault, and i do not see why.
-
-I first thought it was because i was using "ARG1" in the blockabstract
-(see first commit). However that seems to not be the case.
-
-I am left wondering: what am i doing wrong here (obviously secilc should
-not segfault nevertheless)
-
---=20
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
-Dominick Grift
-
---x4pBfXISqBoDm8sr
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJV6EklAAoJENAR6kfG5xmcGW4L/iRREYTdydm/yX0xPIkaKn/l
-1BG4Z/dkkEKiWBHv+dldYbec4DGwrBtjjVjynntDHjscerxvdvOwEyfZWiEFHqky
-anMl/JAVpcxMsPs9xH1odPMBMu30XMB/ZYDw9gm3c5FRAOwEBY8fOe39uLSkGChm
-0xu/R8kND0nK9loLI9tHUVDcQGVWAbjeZ/VEzhKd6Wa7AIu+rWt95JMM4QcqcT3c
-L3q0yj2POjrpVSzG4M7QxoXfFN3TsJdJgXtAB5s7D+Nm2CtePSc7KFQByu6RZZqs
-Naow4sab429cEUo7z8d3rNbc42wFR3xwkScVY8ZvEomnLu6IAhnjrL0+4jurrsnd
-YvmQRtb8IAf9lZGhGjHuPuxOA7XU+ExI+5uTE9af3CVsALqfkKBgdUf3U9ISFU0A
-r25XYBE4seAN2jO1jxH9lF8DEhcTQY2SXH7YMxptnXIe976hJDmErPRvJ1rjBd3a
-A6Is5fJCWKk6MeNeRIEG6x/FWDCFnObYXlER42JGLg==
-=rv1c
------END PGP SIGNATURE-----
-
---x4pBfXISqBoDm8sr--
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 90a7b22..6e49cae 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -1415,7 +1415,6 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 
+ 	/* remove files that are automatically generated and no longer needed */
+ 	unlink(semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL));
+-	unlink(semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL));
+ 	unlink(semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA));
+ 
+ 	if (sh->do_rebuild || modified || bools_modified || fcontexts_modified) {
+diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
+index 539f469..297c71b 100755
+--- a/libsemanage/utils/semanage_migrate_store
++++ b/libsemanage/utils/semanage_migrate_store
+@@ -251,7 +251,8 @@ if __name__ == "__main__":
+ 		"disable_dontaudit",
+ 		"preserve_tunables",
+ 		"policy.kern",
+-		"file_contexts"]
++		"file_contexts",
++		"homedir_template"]
+ 
+ 
+ 	create_dir(newroot_path(), 0o755)
+-- 
+2.4.3
