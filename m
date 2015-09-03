@@ -1,54 +1,153 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t88BF5TO026523
- for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2015 07:15:05 -0400
-Received: by obqa2 with SMTP id a2so80112493obq.3
- for <selinux@tycho.nsa.gov>; Tue, 08 Sep 2015 04:15:03 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t83LEMna020943
+ for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2015 17:14:22 -0400
+Received: by igbni9 with SMTP id ni9so1882430igb.0
+ for <selinux@tycho.nsa.gov>; Thu, 03 Sep 2015 14:14:19 -0700 (PDT)
 MIME-Version: 1.0
-Sender: sven.j.vermeulen@gmail.com
-In-Reply-To: <CA+=dQ--oYEnzndkEFRWWxuX4t3n3sardYeLL5TWVJbzm=eLZPA@mail.gmail.com>
-References: <CA+=dQ--oYEnzndkEFRWWxuX4t3n3sardYeLL5TWVJbzm=eLZPA@mail.gmail.com>
-Date: Tue, 8 Sep 2015 13:15:03 +0200
-Message-ID: <CAPzO=Ny-Z42GZZBGuju8LWwGeNTWaGhs1hY8Xi1WihuLNqq6kg@mail.gmail.com>
-Subject: Re: Not able to enter root after enabling selinux
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-To: SELinux <selinux@tycho.nsa.gov>
+Sender: keescook@google.com
+In-Reply-To: <20150902213717.GJ8051@wotan.suse.de>
+References: <1440464705.2737.36.camel@linux.vnet.ibm.com>
+ <14540.1440599584@warthog.procyon.org.uk>
+ <31228.1440671938@warthog.procyon.org.uk>
+ <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
+ <20150827212907.GF8051@wotan.suse.de>
+ <CAGXu5jKF6CBAADoybZHRCzYAepcZYqpbck1gTAeV1p7iuOVAvw@mail.gmail.com>
+ <20150902000915.GW8051@wotan.suse.de>
+ <1441164905.17898.86.camel@linux.vnet.ibm.com>
+ <20150902184604.GB8051@wotan.suse.de>
+ <CAGXu5jKGbb3M-qhodp1DVzhxn3ckae+mD9_HBNp2PdVHXb893A@mail.gmail.com>
+ <20150902213717.GJ8051@wotan.suse.de>
+Date: Thu, 3 Sep 2015 14:14:18 -0700
+Message-ID: <CAGXu5jLCNaBd8GsVwCn_9jqnz247X6wG1dqyaSsLbc9DQ05kXQ@mail.gmail.com>
+Subject: Re: Linux Firmware Signing
+From: Kees Cook <keescook@chromium.org>
+To: "Luis R. Rodriguez" <mcgrof@suse.com>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>,
+ David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
+ Andy Lutomirski <luto@amacapital.net>,
+ "Roberts, William C" <william.c.roberts@intel.com>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ linux-wireless <linux-wireless@vger.kernel.org>,
+ "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
+ "serge@hallyn.com" <serge@hallyn.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>,
+ "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
+ Ming Lei <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>,
+ =?UTF-8?B?Vm9qdMSbY2ggUGF2bMOtaw==?= <vojtech@suse.com>,
+ Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
+ Matthew Garrett <mjg59@srcf.ucam.org>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ Alexei Starovoitov <ast@plumgrid.com>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Sep 8, 2015 at 12:16 PM, Divya Vyas <dvyas@mvista.com> wrote:
-> After I enabled selinux with default policy , I am not able to enter root
-> neither ssh it.
->
-> semanage login -l
->
-> Login Name                SELinux User
->
-> __default__               user_u
-> root                      root
-> system_u                  system_u
->
-> Which user I should login?
->
-> conifg file is :
->
-> SELINUX=enforcing
-> # SELINUXTYPE= can take one of these two values:
-> #     standard - Standard Security protection.
-> #     mls - Multi Level Security protection.
-> SELINUXTYPE=mls
+[removed bounced email addresses]
 
-Without error message and log events, it's difficult to help you out with this.
+On Wed, Sep 2, 2015 at 2:37 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+> On Wed, Sep 02, 2015 at 01:54:43PM -0700, Kees Cook wrote:
+>> On Wed, Sep 2, 2015 at 11:46 AM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
+>> > On Tue, Sep 01, 2015 at 11:35:05PM -0400, Mimi Zohar wrote:
+>> >> > OK great, I think that instead of passing the actual routine name we should
+>> >> > instead pass an enum type for to the LSM, that'd be easier to parse and we'd
+>> >> > then have each case well documented. Each LSM then could add its own
+>> >> > documetnation for this and can switch on it. If we went with a name we'd have
+>> >> > to to use something like __func__ and then parse that, its not clear if we need
+>> >> > to get that specific.
+>> >>
+>> >> Agreed.  IMA already defines an enumeration.
+>> >>
+>> >> /* IMA policy related functions */
+>> >> enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
+>> >>                  FIRMWARE_CHECK, POLICY_CHECK, POST_SETATTR };
+>> >>
+>> >
+>> > We want something that is not only useful for IMA but any other LSM,
+>> > and FILE_CHECK seems very broad, not sure what BPRM_CHECK is even upon
+>> > inspecting kernel code. Likewise for POST_SETATTR. POLICY_CHECK might
+>> > be broad, perhaps its best we define then a generic set of enums to
+>> > which IMA can map them to then and let it decide. This would ensure
+>> > that the kernel defines each use caes for file inspection carefully,
+>> > documents and defines them and if an LSM wants to bunch a set together
+>> > it can do so easily with a switch statement to map set of generic
+>> > file checks in kernel to a group it already handles.
+>> >
+>> > For instance at least in the short term we'd try to unify:
+>> >
+>> > security_kernel_fw_from_file()
+>> > security_kernel_module_from_file()
+>> >
+>> > to perhaps:
+>> >
+>> > security_kernel_from_file()
+>> >
+>> > As far, as far as I can tell, the only ones we'd be ready to start
+>> > grouping immediately or with small amount of work rather soon:
+>> >
+>> > /**
+>> >  *
+>> >  * enum security_filecheck - known kernel security file checks types
+>> >  *
+>> >  * @__SECURITY_FILECHECK_UNSPEC: attribute 0 reserved
+>> >  * @SECURITY_FILECHECK_MODULE: the file being processed is a Linux kernel module
+>> >  * @SECURITY_FILECHECK_SYSDATA: the file being processed is either a firmware
+>> >  *      file or a system data file read from /lib/firmware/* by firmware_class
+>>
+>> I'd prefer a distinct category for firmware, as it carries an
+>> implication that it is an executable blob of some sort (I know not all
+>> are, though).
+>
+> The ship has sailed in terms of folks using frimrware API for things
+> that are not-firmware per se. The first one I am aware of was the
+> EEPROM override for the p54 driver. The other similar one was CPU
+> microcode, but that's a bit more close to home with "firmware". We
+> could ask users on the new system data request API I am building
+> to describe the type of file being used, as I agree differentiating
+> this for security purposes might be important. So other than just
+> file type we could have sub type category, then we could have,
+>
+> SECURITY_FILECHECK_SYSDATA, and then:
 
-That being said, I notice you are going to use an MLS policy store.
-MLS is not a security model that is often used. Most distributions
-don't even support it properly (for instance, with Gentoo, we offer
-MLS but can't really support it) because there are more complexities
-to consider than with MCS or strict/targeted policies. Do you have a
-particular reason to use MLS? Did you try first with a different
-policy store/security model?
+I object to executable code being called data. :)
 
-Wkr,
-  Sven Vermeulen
+> SECURITY_FILE_SYSDATA_FW
+> SECURITY_FILE_SYSDATA_MICROCODE
+> SECURITY_FILE_SYSDATA_EEPROM
+> SECURITY_FILE_SYSDATA_POLICY (for 802.11 regulatory I suppose)
+
+The exception to the firmware loading is data, so the primary name
+should be firmware. Regardless, if we want distinct objects, just name
+them:
+
+SECURITY_FILE_FIRMWARE
+SECURITY_FILE_SYSDATA
+
+Do we need finer-grain sub types?
+
+>
+> If we do this then we could juse have:
+>
+> SECURITY_FILECHECK_KEXEC and on that have substypes:
+>
+> SECURITY_FILE_KEXEC_KERNEL
+> SECURITY_FILE_KEXEC_INITRAMFS
+>
+> Would that be desirable and help grow this to be easily extensible?
+>
+>   Luis
+
+-Kees
+
+-- 
+Kees Cook
+Chrome OS Security
