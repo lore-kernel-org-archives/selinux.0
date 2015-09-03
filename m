@@ -1,14 +1,14 @@
-Date: Thu, 3 Sep 2015 14:32:15 +0200
+Date: Thu, 3 Sep 2015 14:40:14 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: James Carter <jwcart2@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: secilc: in segfault
-Message-ID: <20150903123214.GA2118@x250>
+Message-ID: <20150903124013.GB2118@x250>
 References: <20150903094844.GA18832@x250>
  <55E83A89.5010208@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
+ protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
 In-Reply-To: <55E83A89.5010208@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -16,7 +16,7 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
---k1lZvvs/B4yU6o8G
+--aVD9QWMuhilNxW9f
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -36,10 +36,27 @@ led
 >=20
 > Jim
 
-It happens with both secilc-2.4-5.fc24.x86_64 as well as
-secilc-2.4-6.fc24.x86_64 (which was spun 2 day's ago by Fedora)
+It may just be my incompetence but i can't get current master branch
+selinux user space to build on Fedora rawhide manually like so:
 
-It does work with some old secilc i had laying around in my ~/bin
+# cd selinux
+# make LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64
+
+I have installed all the build dependencies i believe
+
+This is what it is failing with here:
+
+cc1: all warnings being treated as errors
+Makefile:113: recipe for target 'direct_api.o' failed
+make[2]: *** [direct_api.o] Error 1
+make[2]: Leaving directory
+'/home/kcinimod/Workspace/selinux/libsemanage/src'
+Makefile:2: recipe for target 'all' failed
+make[1]: *** [all] Error 2
+make[1]: Leaving directory
+'/home/kcinimod/Workspace/selinux/libsemanage'
+Makefile:11: recipe for target 'all' failed
+make: *** [all] Error 1
 
 >=20
 >=20
@@ -59,22 +76,22 @@ It does work with some old secilc i had laying around in my ~/bin
 http://keys.gnupg.net/pks/lookup?op=3Dvindex&search=3D0x314883A202DFF788
 Dominick Grift
 
---k1lZvvs/B4yU6o8G
+--aVD9QWMuhilNxW9f
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJV6D3JAAoJENAR6kfG5xmcdzQL/jlemH7wtZLvXRSQd8+9nQ2Y
-/pSSL4szRI2YQ8VOpDRn9kR8TTgF4UwEuoVhcC4XCNZPJC1DbBruX/uEaULWKJEK
-M+GWweBgY0ONs8NsfSDV7vfcpLLp1k+VcElooUPXgYge3ZfgLes418/xUUvHBNC9
-F3/8E4jO2fY45FNUbmPIjHWlwfiWnjacBf5VYzkxAZ9R8M0Jx+qekm2wIA+dJqqR
-Jr2BSNZLLg1KnTZMgkmP7cjP5BuEgRSwt7wIZJHWfNsFPLFiscRkJ0zT3Bddccnz
-eB/RJMRmabSy4PVUecGk7hUqhMTC+tllpF6l8zXGFxW8iKHVJAMZKam0wqn7FF1z
-eatm1OrTIQEWyYgYnqUIMuoUPAg4KkC6PO/k24o5uKBCjou1KKqo9YCQb9zeDnbq
-V9mljLb95tNgFD7oOgXTzWLvXwGcpTE6U31LKo9Iwm57oX4V1LyXGAB3pB0WNzM/
-yaWyyTiX199TK3i8wLntbNU9xKOduJgb/emWrbO4XQ==
-=wYpH
+iQGcBAEBCgAGBQJV6D+oAAoJENAR6kfG5xmcG0AMALjc428jOA7MQbDklVVObCJY
+l3aavCoSgxaDDoWSN0c+vXt8SjAWiuQ35MUoz4BsZjsEVUlpJl3BXAzjbRFuQMpv
+ctlT/5F4p86yFC6S/IHuTVkimLXDWxiom3/OQaiBBVZBtBZkc8u9UVDgAlO0VBFo
+xzkfbFJBtDVRsTp9g1yXmHw2XgdBe4bmyD5FBPoX3vgTu/1kPWTJzLSLze/LKlYb
+fCN/rv2Md2Mupvj2dOehhq/PocBEmpgnuFa/RGmrgl0LK80MJLVoJKzelPCE0FZG
+/pCNMyPEhSi80q8F/JJ1jj6SBuncnuNB/rWlaPcRN1XQgSozm6PHqp/Y4egrVZ4Z
+awbTY64sruHVa1j5Nh8UFvzsM1s3UTbmDF9SH1oXhKMi0yxFoQoNpryPWA74jUWy
+UrCMYoPhMYZRt4ErrWrzvYdfP1R7zh/tz67MwtIk+dh88IOaPm4RFxYrcNNiSXuO
+mbfL5sO2fyfPLxC9vD0aLoxI/T6PTEPwvNrv71Ng4w==
+=f+z9
 -----END PGP SIGNATURE-----
 
---k1lZvvs/B4yU6o8G--
+--aVD9QWMuhilNxW9f--
