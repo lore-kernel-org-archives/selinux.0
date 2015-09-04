@@ -1,70 +1,42 @@
-Subject: Re: [PATCH] libsemanage: store users_extra in the policy store
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-References: <1441305154-29073-1-git-send-email-slawrence@tresys.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <55E89F6E.5090303@tycho.nsa.gov>
-Date: Thu, 3 Sep 2015 15:28:46 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t843F5bh008052
+ for <selinux@tycho.nsa.gov>; Thu, 3 Sep 2015 23:15:05 -0400
+Received: by pacwi10 with SMTP id wi10so9944643pac.3
+ for <selinux@tycho.nsa.gov>; Thu, 03 Sep 2015 20:15:03 -0700 (PDT)
+Date: Fri, 4 Sep 2015 11:14:59 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Steve Lawrence <slawrence@tresys.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libsemanage: save homedir_template in the policy store
+ for genhomedircon
+Message-ID: <20150904031459.GA8559@meriadoc.omgwtfbbq>
+References: <1441293481-13903-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-In-Reply-To: <1441305154-29073-1-git-send-email-slawrence@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1441293481-13903-1-git-send-email-slawrence@tresys.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/03/2015 02:32 PM, Steve Lawrence wrote:
-> users_extra is needed by genhomedircon and when listing seusers, so it
-> must be kept in the policy store. Also move the FC_TMPL unlink() closer
-> to where the FC_TMPL is created; not a functional change, but eaiser to
-> follow.
+On Thu, Sep 03, 2015 at 11:18:01AM -0400, Steve Lawrence wrote:
+> We don't currently store homedir_template in the policy store, which
+> means genhomedircon only has a template file to use if the
+> homedir_template was generated from the file contexts in the same
+> transaction.  But homedir_template isn't always generated, as in the
+> case with setsebool -P. In this and other cases, genhomedircon will not
+> have a template file resulting in an empty file_contexts.homedir file.
 > 
-> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-Well, I actually acked the previous one, but this one's fine too.
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-> ---
->  libsemanage/src/direct_api.c             | 7 +++----
->  libsemanage/utils/semanage_migrate_store | 1 +
->  2 files changed, 4 insertions(+), 4 deletions(-)
+> This commit changes this so that homedir_template is always stored in
+> the policy store so it can be used by genhomedircon regardless of how
+> policy was built. Also add the homedir_template file to the migration
+> script.
 > 
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index 6e49cae..68dd0d1 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -1272,6 +1272,9 @@ static int semanage_direct_commit(semanage_handle_t * sh)
->  		if (retval < 0)
->  			goto cleanup;
->  
-> +		/* remove FC_TMPL now that it is now longer needed */
-> +		unlink(semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL));
-> +
->  		pfcontexts->dtable->drop_cache(pfcontexts->dbase);
->  
->  		/* SEUsers */
-> @@ -1413,10 +1416,6 @@ static int semanage_direct_commit(semanage_handle_t * sh)
->  	sepol_policydb_free(out);
->  	out = NULL;
->  
-> -	/* remove files that are automatically generated and no longer needed */
-> -	unlink(semanage_path(SEMANAGE_TMP, SEMANAGE_FC_TMPL));
-> -	unlink(semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA));
-> -
->  	if (sh->do_rebuild || modified || bools_modified || fcontexts_modified) {
->  		retval = semanage_install_sandbox(sh);
->  	}
-> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-> index 297c71b..b5eefaa 100755
-> --- a/libsemanage/utils/semanage_migrate_store
-> +++ b/libsemanage/utils/semanage_migrate_store
-> @@ -247,6 +247,7 @@ if __name__ == "__main__":
->  		"file_contexts.local",
->  		"seusers",
->  		"users.local",
-> +		"users_extra",
->  		"users_extra.local",
->  		"disable_dontaudit",
->  		"preserve_tunables",
-> 
+> Signed-off by: Steve Lawrence <slawrence@tresys.com>
+
+This does indeed fix my problem. Thanks for the quick fix!
+I have backported the patch to gentoo. It seems fairly important so i'd
+recommend any other distros on 2.4 do that too. I locked myself out of
+one of my machines once :(
+
+Tested by: Jason Zaman <jason@perfinion.com>
