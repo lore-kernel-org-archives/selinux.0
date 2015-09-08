@@ -1,24 +1,36 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t887EoK9011393
- for <selinux@tycho.nsa.gov>; Tue, 8 Sep 2015 03:14:50 -0400
-Received: by wicfx3 with SMTP id fx3so103644169wic.0
- for <selinux@tycho.nsa.gov>; Tue, 08 Sep 2015 00:14:46 -0700 (PDT)
-Date: Tue, 8 Sep 2015 09:14:44 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: kuangjiou <kuangjiou@huawei.com>
-Cc: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: Re: got some problems with the type_transition rules
-Message-ID: <20150908071443.GA4191@x250>
+From: kuangjiou <kuangjiou@huawei.com>
+To: Dominick Grift <dac.override@gmail.com>
+CC: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>, Stephen Smalley
+ <sds@tycho.nsa.gov>
+Subject: =?utf-8?B?562U5aSNOiBnb3Qgc29tZSBwcm9ibGVtcyB3aXRoIHRoZSB0eXBlX3RyYW5z?=
+ =?utf-8?Q?ition_rules?=
+Date: Tue, 8 Sep 2015 09:06:35 +0000
+Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB201F753E5@SZXEMI502-MBS.china.huawei.com>
 References: <60ABE64B4BE4AC45964F1A967BA76CB201F75356@SZXEMI502-MBS.china.huawei.com>
  <20150907161449.GA12835@x250>
  <60ABE64B4BE4AC45964F1A967BA76CB201F75392@SZXEMI502-MBS.china.huawei.com>
+ <20150908071443.GA4191@x250>
+In-Reply-To: <20150908071443.GA4191@x250>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; x-action=pgp-signed
-In-Reply-To: <60ABE64B4BE4AC45964F1A967BA76CB201F75392@SZXEMI502-MBS.china.huawei.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
+
+According to this webpage，
+http://selinuxproject.org/page/TypeRules
+
+Policy versions 25 and above also support a 'name transition' rule
+
+But the policy versions of my os is 26，I don't know why the type_trasition rule didn't work
+
+-----邮件原件-----
+发件人: Dominick Grift [mailto:dac.override@gmail.com] 
+发送时间: 2015年9月8日 15:15
+收件人: kuangjiou
+抄送: 'selinux@tycho.nsa.gov'
+主题: Re: got some problems with the type_transition rules
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
@@ -33,7 +45,7 @@ Not necessarely but in your case i think it does, yes.
 
 > 
 > -----邮件原件-----
-> 发件人: Dominick Grift [mailto:dac.override@gmail.com] 
+> 发件人: Dominick Grift [mailto:dac.override@gmail.com]
 > 发送时间: 2015年9月8日 0:15
 > 收件人: kuangjiou
 > 抄送: 'selinux@tycho.nsa.gov'
@@ -51,13 +63,14 @@ Not necessarely but in your case i think it does, yes.
 > > 
 > > 
 > > 
-> > But , every files that I creat in the tpm_dentry_t dentry , I will get 
-> > the stmfile_lst_t type, not just the file named 123
+> > But , every files that I creat in the tpm_dentry_t dentry , I will 
+> > get the stmfile_lst_t type, not just the file named 123
 > > 
 > > 
 > > 
 > > 2.       I add two type_tansition rules in my policy like this :
-> > filetrans_pattern(unconfined_t,tpm_dentry_t,stmfile_lst_t,file,"123")
+> > filetrans_pattern(unconfined_t,tpm_dentry_t,stmfile_lst_t,file,"123"
+> > )
 > > 
 > > filetrans_pattern(unconfined_t,tpm_dentry_t,trust_log_t,file,"456")
 > > 
@@ -68,12 +81,14 @@ Not necessarely but in your case i think it does, yes.
 > 
 > I would have a look at applicable type_transition rules with sesearch to see what is there.
 > 
-> sesearch -ASCT -s unconfined_t | grep type_transition | grep tpm_dentry_t
+> sesearch -ASCT -s unconfined_t | grep type_transition | grep 
+> tpm_dentry_t
 > 
 > > 
 > > 
 > > 
-> > libsepol.expand_terule_helper: conflicting TE rule for (unconfined_t, 
+> > libsepol.expand_terule_helper: conflicting TE rule for 
+> > (unconfined_t,
 > > tpm_dentry_t:file):  old was stmfile_lst_t, new is trust_log_t
 > > libsepol.expand_module: Error during expand
 > > libsemanage.semanage_expand_sandbox: Expand module failed
@@ -105,7 +120,7 @@ Not necessarely but in your case i think it does, yes.
 > http://keys.gnupg.net/pks/lookup?op=vindex&search=0x314883A202DFF788
 > Dominick Grift
 
-- -- 
+- --
 02DFF788
 4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
 http://keys.gnupg.net/pks/lookup?op=vindex&search=0x314883A202DFF788
