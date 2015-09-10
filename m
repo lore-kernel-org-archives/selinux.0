@@ -1,9 +1,9 @@
-Date: Wed, 9 Sep 2015 22:45:13 +0200
+Date: Thu, 10 Sep 2015 09:08:54 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: James Carter <jwcart2@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: secilc: in segfault
-Message-ID: <20150909204512.GC22288@x250>
+Message-ID: <20150910070853.GA26300@x250>
 References: <20150903094844.GA18832@x250> <55E83A89.5010208@tycho.nsa.gov>
  <20150903132041.GD2118@x250> <55F093C9.2080508@tycho.nsa.gov>
 MIME-Version: 1.0
@@ -20,16 +20,6 @@ Hash: SHA512
 On Wed, Sep 09, 2015 at 04:17:13PM -0400, James Carter wrote:
 <snip>
 
-> 
-> This doesn't appear to be ONLY because of the "in" block. It still segfaults
-> even with moving everything inside the block and removing the "in" block.
-> 
-> It looks like one problem is with the use of a blockinherit inside a macro.
-> Blocks and blockinherits are not allowed to be used in macros. As we were
-> fixing CIL's name resolution last Fall we came to the conclusion that
-> allowing both of these would provide little benefit while causing a lot of
-> potential problems. But we are open to a discussion if you can provide a
-> compelling use case.
 > 
 > Why not use something like this:
 > 
@@ -56,29 +46,20 @@ On Wed, Sep 09, 2015 at 04:17:13PM -0400, James Carter wrote:
 > (call auditctl.exec (some_type))
 > 
 
-Thanks, That looks fine to me. I will try this out tomorrow and see how it goes. I am
-not attached to any particular solution. Although I tried what, to me,
-felt natural and intuitive. Thanks for the suggestion.
+I tried your suggestion above in the following two commits:
 
-> 
-> Jim
-> 
-> >I first thought it was because i was using "ARG1" in the blockabstract
-> >(see first commit). However that seems to not be the case.
-> >
-> >I am left wondering: what am i doing wrong here (obviously secilc should
-> >not segfault nevertheless)
-> >
-> 
-> 
-> -- 
-> James Carter <jwcart2@tycho.nsa.gov>
-> National Security Agency
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+https://github.com/DefenSec/dssp/commit/ddb58e7832bf6a815c495f30ae8a4a4060d227b7
+https://github.com/DefenSec/dssp-contrib/commit/6ecb6b2f5830aaa7b3f3ec081af95ce0d71d06dc
+
+This time it "really" seems to segfault on "in" (i tried moving it out
+of there and that built)
+
+However I prefer to not put these "macros" in the existing blocks. I
+want to keep these macros in seperate $module/macros.cil files. Thus i
+depend on "in".
+
+This implementation also feels a bit limited and unintuitive but i suppose i could live
+with that.
 
 - -- 
 02DFF788
@@ -88,14 +69,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJV8JpUAAoJENAR6kfG5xmcF7EL/3RpgagwqZHgF8HdbQBhuQBU
-7uYaEBLDVgvDFTh8MZqPhNGXxmazCi/DYCL3XgFy96wCCjHG5Ea1HvHLWiy+kWcT
-3TunGCAKPbyCX1gHf1MyOgsbmXjdK2aIeOv3FoRiCoY+q1cZZ1F18ORSbd9Qfkcb
-Bfg4XEcwZNYcw0LQGjVnuuAIQthGHOisv1DSGcXP4HtVghEBNWwKKMji4dgGbpKP
-7AyBfnAux8gFyNLQZVeaCXnDz62iTxGVvKRfSEETx/JWrsqNV4XqhLpRcJcOZGEU
-4PLSUO/jz1wdG/CtC6/swq01D46BZwkwri5JrihXPEb2k2CFLjbvJ7Bie1LU1J1T
-0s8vPIV/gVFsCfKX3ilnTX4mFCXsoAlOntpgjfk9PkPwTTRpsYbXhJYy91llyuR0
-Deg3u9P2eO/yiEoPwpvB0kn7LEZN0vBiZSzCNW+NdVHy2pu2+uqanCUs4qUOj71E
-DnAEeXlPBGtVwWyMqfbcU+0Fc119HRJeynJDrDKuig==
-=JhA8
+iQGcBAEBCgAGBQJV8SyBAAoJENAR6kfG5xmcN3ML/iUukWuwzqYPWvd8VDYpIvSy
+mEb+636cQxskiY/6kiw2hFfQm7wrFWYNIyAB+DGGS4jobcKaJ136GqCVjab45kiq
+XzmPUs0GEuKLffVuQP02bTbpLLBEC0rtTV6ePpirudoF7ECGHW9mKZGTvWPVTp8N
+2wdX4za/qUiloDl33drKOemSUHP/vyn7yu7SMHQgJ0cTYdzA4rweGt3rZCS5W0CA
+tEq7CV4nInvNSDiqvNE9eCWAU9xsVV3KnML8LEoPUzd4Y1qYoMuZSkhFm4F0l6te
+eZ/s6NdU4LqIaBoBZTVYvNdR4OU5ijzjhmYdv7Qspg+tk7zzvsY7+0qjsXa6G/w7
+NEnh7aDuQ6+1QNbf65IaLETqg4Co6jYvfgCWIDk8me2OS6wCOiZWNkl7JTShXf5n
+DRgUGKUIvJ78Gp8n6q6l+iBNfg6r+kh2wOMRFeWvBJ/IMgObWZOEH3fnYiozcFen
+wV7fj5VDpbuZTEIXS/pv3Xk9J3yJ4TfpeJyMYIk6Dw==
+=ORb3
 -----END PGP SIGNATURE-----
