@@ -1,111 +1,130 @@
-Subject: Re: secilc: in segfault
-To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-References: <20150903094844.GA18832@x250> <55E83A89.5010208@tycho.nsa.gov>
- <20150903132041.GD2118@x250> <55F093C9.2080508@tycho.nsa.gov>
- <20150910070853.GA26300@x250>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8ADjTmV002351
+ for <selinux@tycho.nsa.gov>; Thu, 10 Sep 2015 09:45:29 -0400
 From: Steve Lawrence <slawrence@tresys.com>
-Message-ID: <55F187A5.8050207@tresys.com>
-Date: Thu, 10 Sep 2015 09:37:41 -0400
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: fix blockinherit copying segfault and add macro
+ restrictions
+Date: Thu, 10 Sep 2015 09:45:23 -0400
+Message-ID: <1441892723-24321-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-In-Reply-To: <20150910070853.GA26300@x250>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/10/2015 03:08 AM, Dominick Grift wrote:
-> On Wed, Sep 09, 2015 at 04:17:13PM -0400, James Carter wrote:
-> <snip>
-> 
-> 
->> Why not use something like this:
-> 
->> (block exec_blk
->> 	(blockabstract exec_blk)
->> 	(macro exec ((type ARG1))
->> 	       (call can_exec (ARG1 cmd_file))))
-> 
->> (block auditctl
->> 	(blockinherit exec_blk))
-> 
->> (call auditctl.exec (some_type))
-> 
->> instead of:
-> 
->> (block exec_blk
->> 	(blockabstract exec_blk)
->> 	(call can_exec (ARG1 cmd_file)))
-> 
->> (block auditctl
->>   	(macro exec ((type ARG1))
->> 		(blockinherit exec_blk)))
-> 
->> (call auditctl.exec (some_type))
-> 
-> 
-> I tried your suggestion above in the following two commits:
-> 
-> https://github.com/DefenSec/dssp/commit/ddb58e7832bf6a815c495f30ae8a4a4060d227b7
-> https://github.com/DefenSec/dssp-contrib/commit/6ecb6b2f5830aaa7b3f3ec081af95ce0d71d06dc
-> 
-> This time it "really" seems to segfault on "in" (i tried moving it out
-> of there and that built)
-> 
-> However I prefer to not put these "macros" in the existing blocks. I
-> want to keep these macros in seperate $module/macros.cil files. Thus i
-> depend on "in".
-> 
-> This implementation also feels a bit limited and unintuitive but i suppose i could live
-> with that.
+When we copy a blockinherit statement, we perform actions that assume
+the blockinherit statement was already resolved. However, this isn't the
+case if the statement was copied from a tunableif or an in-statement,
+since those are resolve before blockinherits and blocks.  So when
+copying a blockinherit that hasn't been resolved, ignore the code that
+associates blocks with the blockinherit; that will all be handled when
+the copied blockinherit is actually resolved later.
 
-The segfault is cause by the in-statement. I'll send a patch shortly.
+Additionally, restrict block, blockabstract, and blockinherit statements
+from appearing in macros. These statements are all resolved before
+macros due to ordering issues, so they must not appear inside macros.
+Note that in addition to doing the checks in build_ast, they are also
+done in resolve_ast. This is because an in-statement could copy a block
+statement into a macro, which we would not know about until after the
+in-statement was resolved.
 
-We don't allow block (and blockinherits/blockabstract) inside macros
-because of ordering issues. For example, say you had something like this:
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/cil/src/cil_build_ast.c   | 27 +++++++--------------------
+ libsepol/cil/src/cil_copy_ast.c    |  9 ++++++++-
+ libsepol/cil/src/cil_resolve_ast.c | 12 ++++++++++++
+ 3 files changed, 27 insertions(+), 21 deletions(-)
 
-  (block a
-    (blockinherit b)
-    (call m))
-
-  (block b
-    (macro m ()
-       ...)
-
-  (macro m ()
-    (blockinherit c))
-
-  (block c
-    (macro m ()
-       ...))
-
-If we performed the blockinherit b first, that would add b.m to block a.
-Then if we performed the call m, that would call that b.m that was added
-to a. So the global macro m would never be called.
-
-However, if we instead had
-
-  (block a
-    (call m)
-    (blockinherit b))
-
-and we performed the call m first, that would be equivalent to
-
-  (block a
-    (blockinherit c)
-    (blockinherit b))
-
-Which would result in the macros from b and c being merged into block a.
-So in once case the macro c.m isn't part of block a, but in the other
-case it is.
-
-Because of these ordering issues, it was decided to resolve all
-blockinherit statements before calls. This has the effect that we can't
-allow block, blockinherit, and blockabstract inside macros. This is a
-similar reason why we don't allow in-statements and macro statements
-inside of macros.
-
-The patch I send out will also include changes to properly restrict
-blocks from being defined inside macros.
-
-- Steve
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index e1e7dce..32ebee1 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -5750,27 +5750,14 @@ int __cil_build_ast_node_helper(struct cil_tree_node *parse_current, uint32_t *f
+ 	}
+ 
+ 	if (macro != NULL) {
+-		if (parse_current->data == CIL_KEY_MACRO) {
++		if (parse_current->data == CIL_KEY_MACRO ||
++			parse_current->data == CIL_KEY_TUNABLE ||
++			parse_current->data == CIL_KEY_IN ||
++			parse_current->data == CIL_KEY_BLOCK ||
++			parse_current->data == CIL_KEY_BLOCKINHERIT ||
++			parse_current->data == CIL_KEY_BLOCKABSTRACT) {
+ 			rc = SEPOL_ERR;
+-			cil_log(CIL_ERR, "Found macro at line %d of %s\n",
+-				parse_current->line, parse_current->path);
+-			cil_log(CIL_ERR, "Macros cannot be defined within macro statement\n");
+-			goto exit;
+-		}
+-
+-		if (parse_current->data == CIL_KEY_TUNABLE) {
+-			rc = SEPOL_ERR;
+-			cil_log(CIL_ERR, "Found tunable at line %d of %s\n",
+-				parse_current->line, parse_current->path);
+-			cil_log(CIL_ERR, "Tunables cannot be defined within macro statement\n");
+-			goto exit;
+-		}
+-
+-		if (parse_current->data == CIL_KEY_IN) {
+-			rc = SEPOL_ERR;
+-			cil_log(CIL_ERR, "Found in at line %d of %s\n",
+-				parse_current->line, parse_current->path);
+-			cil_log(CIL_ERR, "in-statements cannot be defined within macro statement\n");
++			cil_log(CIL_ERR, "%s is not allowed in macros (%s:%d)\n", (char *)parse_current->data, parse_current->path, parse_current->line);
+ 			goto exit;
+ 		}
+ 	}
+diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+index c611dbc..d488870 100644
+--- a/libsepol/cil/src/cil_copy_ast.c
++++ b/libsepol/cil/src/cil_copy_ast.c
+@@ -1972,7 +1972,14 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
+ 
+ 		if (new->flavor == CIL_BLOCKINHERIT) {
+ 			blockinherit = new->data;
+-			cil_list_append(blockinherit->block->bi_nodes, CIL_NODE, new);
++			// if a blockinherit statement is copied before blockinherit are
++			// resolved (like in an in-statement), the block will not have been
++			// resolved yet, so there's nothing to append yet. This is fine,
++			// the copied blockinherit statement will be handled later, as if
++			// it wasn't in an in-statement
++			if (blockinherit->block != NULL) {
++				cil_list_append(blockinherit->block->bi_nodes, CIL_NODE, new);
++			}
+ 		}
+ 
+ 		if (parent->cl_head == NULL) {
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index 0dfa732..5ff4534 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -3318,6 +3318,7 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+ 	struct cil_tree_node *optstack = args->optstack;
+ 	struct cil_tree_node *boolif = args->boolif;
+ 	struct cil_tree_node *blockstack = args->blockstack;
++	struct cil_tree_node *macro = args->macro;
+ 
+ 	if (node == NULL) {
+ 		goto exit;
+@@ -3340,6 +3341,17 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, __attribute__((unu
+ 		}
+ 	}
+ 
++	if (macro != NULL) {
++		if (node->flavor == CIL_BLOCKINHERIT ||
++			node->flavor == CIL_BLOCK ||
++			node->flavor == CIL_BLOCKABSTRACT ||
++			node->flavor == CIL_MACRO) {
++			cil_log(CIL_ERR, "%s statement is not allowed in macros (%s:%d)\n", cil_node_to_string(node), node->path, node->line);
++			rc = SEPOL_ERR;
++			goto exit;
++		}
++	}
++
+ 	if (boolif != NULL) {
+ 		if (!(node->flavor == CIL_CONDBLOCK ||
+ 			node->flavor == CIL_AVRULE ||
+-- 
+2.4.3
