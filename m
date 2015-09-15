@@ -1,332 +1,110 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8FCuru6020777
- for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2015 08:56:53 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsepol/cil: improve recursion detection
-Date: Tue, 15 Sep 2015 08:56:24 -0400
-Message-ID: <1442321784-27638-1-git-send-email-slawrence@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8FDXJk4024176
+ for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2015 09:33:19 -0400
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: Fix mmap memory release for file labeling
+Date: Tue, 15 Sep 2015 14:33:05 +0100
+Message-Id: <1442323985-4256-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add support for detecting recursive blockinherits, and print a trace of
-the detected loop. Output will look something like this upon detection:
+Ensure the mmap start address and length are not modified so the memory
+used can be released when selabel_close(3) is called.
 
-  Recursive blockinherit found:
-    test.cil:42: block a
-    test.cil:43: blockinherit b
-    test.cil:36: block b
-    test.cil:37: blockinherit c
-    test.cil:39: block c
-    test.cil:40: blockinherit a
-
-Additionally, improve support for detecting recursive macros/calls. Due
-to the way calls are copied, the existing code only detected recursion
-with call depth of three or more. Smaller depths, like
-
-  (macro m ()
-    (call m))
-
-were not detected and caused a segfault. The callstack that was used for
-this was not sufficient, so that is removed and replaced with a method
-similar to the block recursion detection. A similar trace is also
-displayed for recursive macros/calls.
-
-Also, cleanup sidorder, classorder, catorder, sensorder, and in lists at
-the end of resolve, fixing a potential memory leak if errors occur
-during resolve.
-
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libsepol/cil/src/cil_resolve_ast.c | 193 +++++++++++++++++++++++++++++--------
- 1 file changed, 155 insertions(+), 38 deletions(-)
+ libselinux/src/label_file.c | 12 ++++++------
+ libselinux/src/label_file.h | 14 ++++++++------
+ 2 files changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 0df5c63..79cece5 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -52,7 +52,6 @@ struct cil_args_resolve {
- 	enum cil_pass pass;
- 	uint32_t *changed;
- 	char *last_resolved_name;
--	struct cil_tree_node *callstack;
- 	struct cil_tree_node *optstack;
- 	struct cil_tree_node *boolif;
- 	struct cil_tree_node *macro;
-@@ -2210,6 +2209,70 @@ exit:
- 	return rc;
- }
- 
-+int cil_check_recursive_blockinherit(struct cil_tree_node *bi_node)
-+{
-+	struct cil_tree_node *curr = NULL;
-+	struct cil_blockinherit *bi = NULL;
-+	struct cil_block *block = NULL;
-+	struct cil_list_item *item = NULL;
-+	struct cil_list *trace = NULL;
-+	int rc = SEPOL_ERR;
-+
-+	bi = bi_node->data;
-+
-+	for (curr = bi_node->parent; curr != NULL; curr = curr->parent) {
-+		if (curr->flavor != CIL_BLOCK) {
-+			continue;
-+		}
-+
-+		block = curr->data;
-+
-+		if (block != bi->block) {
-+			continue;
-+		}
-+
-+		cil_log(CIL_ERR, "Recursive blockinherit found:\n");
-+
-+		cil_list_init(&trace, CIL_NODE);
-+
-+		for (curr = bi_node; curr != NULL; curr = curr->parent) {
-+			if (curr->flavor == CIL_BLOCK) {
-+				cil_list_prepend(trace, CIL_NODE, curr);
-+			} else {
-+				if (curr != bi_node) {
-+					cil_list_prepend(trace, CIL_NODE, NODE(((struct cil_blockinherit *)curr->data)->block));
-+				}
-+				cil_list_prepend(trace, CIL_NODE, curr);
-+			}
-+
-+			if (curr == NODE(block)) {
-+				break;
-+			}
-+		}
-+
-+		cil_list_for_each(item, trace) {
-+			curr = item->data;
-+			cil_log(CIL_ERR, "  %s:%d: ", curr->path, curr->line);
-+
-+			if (curr->flavor == CIL_BLOCK) {
-+				cil_log(CIL_ERR, "block %s\n", DATUM(curr->data)->name);
-+			} else {
-+				cil_log(CIL_ERR, "blockinherit %s\n", ((struct cil_blockinherit *)curr->data)->block_str);
-+			}
-+		}
-+
-+		cil_list_destroy(&trace, CIL_FALSE);
-+
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	rc = SEPOL_OK;
-+
-+exit:
-+	return rc;
-+}
-+
- int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_args)
- {
- 	struct cil_block *block = current->data;
-@@ -2233,6 +2296,11 @@ int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_arg
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 687d0a7..bf91885 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -159,8 +159,8 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
  	}
  
- 	cil_list_for_each(item, block->bi_nodes) {
-+		rc = cil_check_recursive_blockinherit(item->data);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+
- 		rc = cil_copy_ast(db, current, item->data);
- 		if (rc != SEPOL_OK) {
- 			cil_log(CIL_ERR, "Failed to copy block contents into blockinherit\n");
-@@ -2500,6 +2568,77 @@ exit:
- 	return rc;
- }
+ 	/* save where we mmap'd the file to cleanup on close() */
+-	mmap_area->addr = addr;
+-	mmap_area->len = len;
++	mmap_area->addr = mmap_area->next_addr = addr;
++	mmap_area->len = mmap_area->next_len = len;
+ 	mmap_area->next = data->mmap_areas;
+ 	data->mmap_areas = mmap_area;
  
-+int cil_check_recursive_call(struct cil_tree_node *call_node, struct cil_tree_node *macro_node)
-+{
-+	struct cil_tree_node *curr = NULL;
-+	struct cil_list *trace = NULL;
-+	struct cil_list_item *item = NULL;
-+	struct cil_call * call = NULL;
-+	struct cil_tree_node *terminating_node = NULL;
-+	int rc = SEPOL_ERR;
-+
-+	for (curr = call_node; curr != NULL; curr = curr->parent) {
-+		if (curr->flavor == CIL_CALL) {
-+			if (curr == call_node) {
-+				continue;
-+			}
-+
-+			call = curr->data;
-+			if (call->macro != macro_node->data) {
-+				continue;
-+			}
-+		} else if (curr->flavor == CIL_MACRO) {
-+			if (curr != macro_node) {
-+				rc = SEPOL_OK;
-+				goto exit;
-+			}
-+		} else {
-+			continue;
-+		}
-+
-+		cil_log(CIL_ERR, "Recursive macro call found:\n");
-+		cil_list_init(&trace, CIL_NODE);
-+
-+		terminating_node = curr;
-+
-+		for (curr = call_node; curr != terminating_node; curr = curr->parent) {
-+			if (curr->flavor == CIL_CALL) {
-+				if (curr != call_node) {
-+					cil_list_prepend(trace, CIL_NODE, NODE(((struct cil_call *)curr->data)->macro));
-+				}
-+				cil_list_prepend(trace, CIL_NODE, curr);
-+			}
-+		}
-+
-+		if (terminating_node->flavor == CIL_MACRO) {
-+			cil_list_prepend(trace, CIL_NODE, terminating_node);
-+		} else {
-+			call = terminating_node->data;
-+			cil_list_prepend(trace, CIL_NODE, NODE(call->macro));
-+		}
-+
-+		cil_list_for_each(item, trace) {
-+			curr = item->data;
-+			cil_log(CIL_ERR, "  %s:%d: ", curr->path, curr->line);
-+
-+			if (curr->flavor == CIL_MACRO) {
-+				cil_log(CIL_ERR, "macro %s\n", DATUM(curr->data)->name);
-+			} else {
-+				cil_log(CIL_ERR, "call %s\n", ((struct cil_call *)curr->data)->macro_str);
-+			}
-+		}
-+
-+		cil_list_destroy(&trace, CIL_FALSE);
-+
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	rc = SEPOL_OK;
-+exit:
-+	return rc;
-+}
-+
- int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+@@ -231,7 +231,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 
+ 		/* Check for stem_len wrap around. */
+ 		if (stem_len < UINT32_MAX) {
+-			buf = (char *)mmap_area->addr;
++			buf = (char *)mmap_area->next_addr;
+ 			/* Check if over-run before null check. */
+ 			rc = next_entry(NULL, mmap_area, (stem_len + 1));
+ 			if (rc < 0)
+@@ -317,7 +317,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 			goto err;
+ 		}
+ 
+-		spec->regex_str = (char *)mmap_area->addr;
++		spec->regex_str = (char *)mmap_area->next_addr;
+ 		rc = next_entry(NULL, mmap_area, entry_len);
+ 		if (rc < 0)
+ 			goto err;
+@@ -369,7 +369,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 			rc = -1;
+ 			goto err;
+ 		}
+-		spec->regex = (pcre *)mmap_area->addr;
++		spec->regex = (pcre *)mmap_area->next_addr;
+ 		rc = next_entry(NULL, mmap_area, entry_len);
+ 		if (rc < 0)
+ 			goto err;
+@@ -387,7 +387,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 			rc = -1;
+ 			goto err;
+ 		}
+-		spec->lsd.study_data = (void *)mmap_area->addr;
++		spec->lsd.study_data = (void *)mmap_area->next_addr;
+ 		spec->lsd.flags |= PCRE_EXTRA_STUDY_DATA;
+ 		rc = next_entry(NULL, mmap_area, entry_len);
+ 		if (rc < 0)
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index e6a687a..2492826 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -49,8 +49,10 @@ struct stem {
+ 
+ /* Where we map the file in during selabel_open() */
+ struct mmap_area {
+-	void *addr;	/* Start of area - gets incremented by next_entry() */
+-	size_t len;	/* Length - gets decremented by next_entry() */
++	void *addr;	/* Start addr + len used to release memory at close */
++	size_t len;
++	void *next_addr;	/* Incremented by next_entry() */
++	size_t next_len;	/* Decremented by next_entry() */
+ 	struct mmap_area *next;
+ };
+ 
+@@ -310,14 +312,14 @@ static inline int find_stem_from_spec(struct saved_data *data, const char *buf)
+  * current buffer). */
+ static inline int next_entry(void *buf, struct mmap_area *fp, size_t bytes)
  {
- 	struct cil_call *new_call = current->data;
-@@ -2736,6 +2875,12 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+-	if (bytes > fp->len)
++	if (bytes > fp->next_len)
+ 		return -1;
  
- 	if (new_call->copied == 0) {
- 		new_call->copied = 1;
-+
-+		rc = cil_check_recursive_call(current, macro_node);
-+		if (rc != SEPOL_OK) {
-+			goto exit;
-+		}
-+
- 		rc = cil_copy_ast(db, macro_node, current);
- 		if (rc != SEPOL_OK) {
- 			cil_log(CIL_ERR, "Failed to copy macro, rc: %d\n", rc);
-@@ -3509,7 +3654,6 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
- {
- 	int rc = SEPOL_ERR;
- 	struct cil_args_resolve *args = extra_args;
--	struct cil_tree_node *callstack = NULL;
- 	struct cil_tree_node *optstack = NULL;
- 	struct cil_tree_node *parent = NULL;
- 	struct cil_tree_node *blockstack = NULL;
-@@ -3519,36 +3663,18 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
- 		goto exit;
- 	}
+ 	if (buf)
+-		memcpy(buf, fp->addr, bytes);
++		memcpy(buf, fp->next_addr, bytes);
  
--	callstack = args->callstack;
- 	optstack = args->optstack;
- 	parent = current->parent;
- 	blockstack = args->blockstack;
- 
--	if (parent->flavor == CIL_CALL || parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
-+	if (parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
- 		/* push this node onto a stack */
- 		cil_tree_node_init(&new);
- 
- 		new->data = parent->data;
- 		new->flavor = parent->flavor;
- 
--		if (parent->flavor == CIL_CALL) {
--			if (callstack != NULL) {
--				struct cil_tree_node *curr = NULL;
--				struct cil_call *new_call = new->data;
--				for (curr = callstack->cl_head; curr != NULL;
--					curr = curr->cl_head) {
--					struct cil_call *curr_call = curr->data;
--					if (curr_call->macro == new_call->macro) {
--						cil_log(CIL_ERR, "Recursive macro call found\n");
--						rc = SEPOL_ERR;
--						goto exit;
--					}
--				}
--				callstack->parent = new;
--				new->cl_head = callstack;
--			}
--			args->callstack = new;
--		} else if (parent->flavor == CIL_OPTIONAL) {
-+		if (parent->flavor == CIL_OPTIONAL) {
- 			if (optstack != NULL) {
- 				optstack->parent = new;
- 				new->cl_head = optstack;
-@@ -3587,15 +3713,7 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
- 
- 	parent = current->parent;
- 
--	if (parent->flavor == CIL_CALL) {
--		/* pop off the stack */
--		struct cil_tree_node *callstack = args->callstack;
--		args->callstack = callstack->cl_head;
--		if (callstack->cl_head) {
--			callstack->cl_head->parent = NULL;
--		}
--		free(callstack);
--	} else if (parent->flavor == CIL_MACRO) {
-+	if (parent->flavor == CIL_MACRO) {
- 		args->macro = NULL;
- 	} else if (parent->flavor == CIL_OPTIONAL) {
- 		struct cil_tree_node *optstack;
-@@ -3645,7 +3763,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 	extra_args.pass = pass;
- 	extra_args.changed = &changed;
- 	extra_args.last_resolved_name = NULL;
--	extra_args.callstack = NULL;
- 	extra_args.optstack = NULL;
- 	extra_args.boolif= NULL;
- 	extra_args.macro = NULL;
-@@ -3737,12 +3854,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 
- 		/* reset the arguments */
- 		changed = 0;
--		while (extra_args.callstack != NULL) {
--			struct cil_tree_node *curr = extra_args.callstack;
--			struct cil_tree_node *next = curr->cl_head;
--			free(curr);
--			extra_args.callstack = next;
--		}
- 		while (extra_args.optstack != NULL) {
- 			struct cil_tree_node *curr = extra_args.optstack;
- 			struct cil_tree_node *next = curr->cl_head;
-@@ -3764,6 +3875,12 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
- 
- 	rc = SEPOL_OK;
- exit:
-+	__cil_ordered_lists_destroy(&extra_args.sidorder_lists);
-+	__cil_ordered_lists_destroy(&extra_args.classorder_lists);
-+	__cil_ordered_lists_destroy(&extra_args.catorder_lists);
-+	__cil_ordered_lists_destroy(&extra_args.sensitivityorder_lists);
-+	cil_list_destroy(&extra_args.in_list, CIL_FALSE);
-+
- 	return rc;
+-	fp->addr = (char *)fp->addr + bytes;
+-	fp->len -= bytes;
++	fp->next_addr = (char *)fp->next_addr + bytes;
++	fp->next_len -= bytes;
+ 	return 0;
  }
  
 -- 
