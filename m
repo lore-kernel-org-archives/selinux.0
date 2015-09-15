@@ -1,68 +1,333 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8FC8PlA017346
- for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2015 08:08:26 -0400
-Received: by wicfx3 with SMTP id fx3so25438027wic.1
- for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2015 05:08:23 -0700 (PDT)
-Date: Tue, 15 Sep 2015 14:08:21 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: Divya Vyas <dvyas@mvista.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: Policy disable error
-Message-ID: <20150915120820.GA18065@x250>
-References: <CA+=dQ-_wPGkCzK9EC0tdUbm+CTf2mLo9TY94fVaoJ5hCLR1gKw@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8FCuru6020777
+ for <selinux@tycho.nsa.gov>; Tue, 15 Sep 2015 08:56:53 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: improve recursion detection
+Date: Tue, 15 Sep 2015 08:56:24 -0400
+Message-ID: <1442321784-27638-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <CA+=dQ-_wPGkCzK9EC0tdUbm+CTf2mLo9TY94fVaoJ5hCLR1gKw@mail.gmail.com>
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+Add support for detecting recursive blockinherits, and print a trace of
+the detected loop. Output will look something like this upon detection:
 
-On Tue, Sep 15, 2015 at 05:25:58PM +0530, Divya Vyas wrote:
-> Hi,
-> 
-> I am getting below error while disabling the apache module policy
-> 
-> semodule -d apache
-> libsepol.context_from_record: type httpd_sys_content_t is not defined (No
-> such file or directory).
-> libsepol.context_from_record: could not create context structure (Invalid
-> argument).
-> libsemanage.validate_handler: invalid context
-> system_u:object_r:httpd_sys_content_t:s0 specified for htdocs/ [all files]
-> (Invalid argument).
-> libsemanage.dbase_llist_iterate: could not iterate over records (Invalid
-> argument).
-> semodule:  Failed!
+  Recursive blockinherit found:
+    test.cil:42: block a
+    test.cil:43: blockinherit b
+    test.cil:36: block b
+    test.cil:37: blockinherit c
+    test.cil:39: block c
+    test.cil:40: blockinherit a
 
-most likely a dependency issue. apache module is notorious for being
-essentially mandatory.
+Additionally, improve support for detecting recursive macros/calls. Due
+to the way calls are copied, the existing code only detected recursion
+with call depth of three or more. Smaller depths, like
 
-You would have to identity all modules that depends on the apache module
-and then disable those as well in the same transaction. Be warned that
-those modules in turn may have dependencies of their own.
+  (macro m ()
+    (call m))
 
-kind of like "dll hell" in a sense
+were not detected and caused a segfault. The callstack that was used for
+this was not sufficient, so that is removed and replaced with a method
+similar to the block recursion detection. A similar trace is also
+displayed for recursive macros/calls.
 
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Also, cleanup sidorder, classorder, catorder, sensorder, and in lists at
+the end of resolve, fixing a potential memory leak if errors occur
+during resolve.
 
-iQGcBAEBCgAGBQJV+AovAAoJENAR6kfG5xmcx4wL/jZrT5OvwN3xpWd+/fHl/unO
-fqowsf+h+IPHIJblVpsd9byMRqmVtka5I630/g9UMpdj/oGyeLFqiNSvwveVAdJV
-LymzJ7+OT8R8oSakSK5xI3cf2l6yx1q+vDNueJaoP8Ss9XSmNf/tefSOc66QKtNy
-1KIXSqaQLZwhT85QjtKjBD8KmQkxIMO4nMNBiBkQCbbqBlHfYYZummSdHfQt8xz7
-2e05ycc2lUrJLlztQUWXrHkFRqM7g5I6SKOoCJfed1uxWb3gVNPVJIDpJeDdDNmF
-UpDvmlq72JTUvv1qjJskiIIU4NMfV469B/3OyMIrdORkEzPgiNNnUdyTro8Pwnk2
-C2g8Ef57CCQC78tPeAMP57IJKMhq32fc+TBgNAyNfQqNvFMmGEdqTWFmImpv6ula
-yW1oSJa+6NBhvkB44LVqwh2GY0ei1dfQV1sOOLc6QARmMQm3glSrk500z/3s55eo
-opuPIJN4XGy1ODI8Yy9i+7dsFTxUFl8qqM37rfoNpQ==
-=sDw/
------END PGP SIGNATURE-----
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/cil/src/cil_resolve_ast.c | 193 +++++++++++++++++++++++++++++--------
+ 1 file changed, 155 insertions(+), 38 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index 0df5c63..79cece5 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -52,7 +52,6 @@ struct cil_args_resolve {
+ 	enum cil_pass pass;
+ 	uint32_t *changed;
+ 	char *last_resolved_name;
+-	struct cil_tree_node *callstack;
+ 	struct cil_tree_node *optstack;
+ 	struct cil_tree_node *boolif;
+ 	struct cil_tree_node *macro;
+@@ -2210,6 +2209,70 @@ exit:
+ 	return rc;
+ }
+ 
++int cil_check_recursive_blockinherit(struct cil_tree_node *bi_node)
++{
++	struct cil_tree_node *curr = NULL;
++	struct cil_blockinherit *bi = NULL;
++	struct cil_block *block = NULL;
++	struct cil_list_item *item = NULL;
++	struct cil_list *trace = NULL;
++	int rc = SEPOL_ERR;
++
++	bi = bi_node->data;
++
++	for (curr = bi_node->parent; curr != NULL; curr = curr->parent) {
++		if (curr->flavor != CIL_BLOCK) {
++			continue;
++		}
++
++		block = curr->data;
++
++		if (block != bi->block) {
++			continue;
++		}
++
++		cil_log(CIL_ERR, "Recursive blockinherit found:\n");
++
++		cil_list_init(&trace, CIL_NODE);
++
++		for (curr = bi_node; curr != NULL; curr = curr->parent) {
++			if (curr->flavor == CIL_BLOCK) {
++				cil_list_prepend(trace, CIL_NODE, curr);
++			} else {
++				if (curr != bi_node) {
++					cil_list_prepend(trace, CIL_NODE, NODE(((struct cil_blockinherit *)curr->data)->block));
++				}
++				cil_list_prepend(trace, CIL_NODE, curr);
++			}
++
++			if (curr == NODE(block)) {
++				break;
++			}
++		}
++
++		cil_list_for_each(item, trace) {
++			curr = item->data;
++			cil_log(CIL_ERR, "  %s:%d: ", curr->path, curr->line);
++
++			if (curr->flavor == CIL_BLOCK) {
++				cil_log(CIL_ERR, "block %s\n", DATUM(curr->data)->name);
++			} else {
++				cil_log(CIL_ERR, "blockinherit %s\n", ((struct cil_blockinherit *)curr->data)->block_str);
++			}
++		}
++
++		cil_list_destroy(&trace, CIL_FALSE);
++
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++
++	rc = SEPOL_OK;
++
++exit:
++	return rc;
++}
++
+ int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_args)
+ {
+ 	struct cil_block *block = current->data;
+@@ -2233,6 +2296,11 @@ int cil_resolve_blockinherit_copy(struct cil_tree_node *current, void *extra_arg
+ 	}
+ 
+ 	cil_list_for_each(item, block->bi_nodes) {
++		rc = cil_check_recursive_blockinherit(item->data);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
++
+ 		rc = cil_copy_ast(db, current, item->data);
+ 		if (rc != SEPOL_OK) {
+ 			cil_log(CIL_ERR, "Failed to copy block contents into blockinherit\n");
+@@ -2500,6 +2568,77 @@ exit:
+ 	return rc;
+ }
+ 
++int cil_check_recursive_call(struct cil_tree_node *call_node, struct cil_tree_node *macro_node)
++{
++	struct cil_tree_node *curr = NULL;
++	struct cil_list *trace = NULL;
++	struct cil_list_item *item = NULL;
++	struct cil_call * call = NULL;
++	struct cil_tree_node *terminating_node = NULL;
++	int rc = SEPOL_ERR;
++
++	for (curr = call_node; curr != NULL; curr = curr->parent) {
++		if (curr->flavor == CIL_CALL) {
++			if (curr == call_node) {
++				continue;
++			}
++
++			call = curr->data;
++			if (call->macro != macro_node->data) {
++				continue;
++			}
++		} else if (curr->flavor == CIL_MACRO) {
++			if (curr != macro_node) {
++				rc = SEPOL_OK;
++				goto exit;
++			}
++		} else {
++			continue;
++		}
++
++		cil_log(CIL_ERR, "Recursive macro call found:\n");
++		cil_list_init(&trace, CIL_NODE);
++
++		terminating_node = curr;
++
++		for (curr = call_node; curr != terminating_node; curr = curr->parent) {
++			if (curr->flavor == CIL_CALL) {
++				if (curr != call_node) {
++					cil_list_prepend(trace, CIL_NODE, NODE(((struct cil_call *)curr->data)->macro));
++				}
++				cil_list_prepend(trace, CIL_NODE, curr);
++			}
++		}
++
++		if (terminating_node->flavor == CIL_MACRO) {
++			cil_list_prepend(trace, CIL_NODE, terminating_node);
++		} else {
++			call = terminating_node->data;
++			cil_list_prepend(trace, CIL_NODE, NODE(call->macro));
++		}
++
++		cil_list_for_each(item, trace) {
++			curr = item->data;
++			cil_log(CIL_ERR, "  %s:%d: ", curr->path, curr->line);
++
++			if (curr->flavor == CIL_MACRO) {
++				cil_log(CIL_ERR, "macro %s\n", DATUM(curr->data)->name);
++			} else {
++				cil_log(CIL_ERR, "call %s\n", ((struct cil_call *)curr->data)->macro_str);
++			}
++		}
++
++		cil_list_destroy(&trace, CIL_FALSE);
++
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++
++	rc = SEPOL_OK;
++exit:
++	return rc;
++}
++
+ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ {
+ 	struct cil_call *new_call = current->data;
+@@ -2736,6 +2875,12 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 
+ 	if (new_call->copied == 0) {
+ 		new_call->copied = 1;
++
++		rc = cil_check_recursive_call(current, macro_node);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
++
+ 		rc = cil_copy_ast(db, macro_node, current);
+ 		if (rc != SEPOL_OK) {
+ 			cil_log(CIL_ERR, "Failed to copy macro, rc: %d\n", rc);
+@@ -3509,7 +3654,6 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+ {
+ 	int rc = SEPOL_ERR;
+ 	struct cil_args_resolve *args = extra_args;
+-	struct cil_tree_node *callstack = NULL;
+ 	struct cil_tree_node *optstack = NULL;
+ 	struct cil_tree_node *parent = NULL;
+ 	struct cil_tree_node *blockstack = NULL;
+@@ -3519,36 +3663,18 @@ int __cil_resolve_ast_first_child_helper(struct cil_tree_node *current, void *ex
+ 		goto exit;
+ 	}
+ 
+-	callstack = args->callstack;
+ 	optstack = args->optstack;
+ 	parent = current->parent;
+ 	blockstack = args->blockstack;
+ 
+-	if (parent->flavor == CIL_CALL || parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
++	if (parent->flavor == CIL_OPTIONAL || parent->flavor == CIL_BLOCK) {
+ 		/* push this node onto a stack */
+ 		cil_tree_node_init(&new);
+ 
+ 		new->data = parent->data;
+ 		new->flavor = parent->flavor;
+ 
+-		if (parent->flavor == CIL_CALL) {
+-			if (callstack != NULL) {
+-				struct cil_tree_node *curr = NULL;
+-				struct cil_call *new_call = new->data;
+-				for (curr = callstack->cl_head; curr != NULL;
+-					curr = curr->cl_head) {
+-					struct cil_call *curr_call = curr->data;
+-					if (curr_call->macro == new_call->macro) {
+-						cil_log(CIL_ERR, "Recursive macro call found\n");
+-						rc = SEPOL_ERR;
+-						goto exit;
+-					}
+-				}
+-				callstack->parent = new;
+-				new->cl_head = callstack;
+-			}
+-			args->callstack = new;
+-		} else if (parent->flavor == CIL_OPTIONAL) {
++		if (parent->flavor == CIL_OPTIONAL) {
+ 			if (optstack != NULL) {
+ 				optstack->parent = new;
+ 				new->cl_head = optstack;
+@@ -3587,15 +3713,7 @@ int __cil_resolve_ast_last_child_helper(struct cil_tree_node *current, void *ext
+ 
+ 	parent = current->parent;
+ 
+-	if (parent->flavor == CIL_CALL) {
+-		/* pop off the stack */
+-		struct cil_tree_node *callstack = args->callstack;
+-		args->callstack = callstack->cl_head;
+-		if (callstack->cl_head) {
+-			callstack->cl_head->parent = NULL;
+-		}
+-		free(callstack);
+-	} else if (parent->flavor == CIL_MACRO) {
++	if (parent->flavor == CIL_MACRO) {
+ 		args->macro = NULL;
+ 	} else if (parent->flavor == CIL_OPTIONAL) {
+ 		struct cil_tree_node *optstack;
+@@ -3645,7 +3763,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 	extra_args.pass = pass;
+ 	extra_args.changed = &changed;
+ 	extra_args.last_resolved_name = NULL;
+-	extra_args.callstack = NULL;
+ 	extra_args.optstack = NULL;
+ 	extra_args.boolif= NULL;
+ 	extra_args.macro = NULL;
+@@ -3737,12 +3854,6 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 
+ 		/* reset the arguments */
+ 		changed = 0;
+-		while (extra_args.callstack != NULL) {
+-			struct cil_tree_node *curr = extra_args.callstack;
+-			struct cil_tree_node *next = curr->cl_head;
+-			free(curr);
+-			extra_args.callstack = next;
+-		}
+ 		while (extra_args.optstack != NULL) {
+ 			struct cil_tree_node *curr = extra_args.optstack;
+ 			struct cil_tree_node *next = curr->cl_head;
+@@ -3764,6 +3875,12 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
+ 
+ 	rc = SEPOL_OK;
+ exit:
++	__cil_ordered_lists_destroy(&extra_args.sidorder_lists);
++	__cil_ordered_lists_destroy(&extra_args.classorder_lists);
++	__cil_ordered_lists_destroy(&extra_args.catorder_lists);
++	__cil_ordered_lists_destroy(&extra_args.sensitivityorder_lists);
++	cil_list_destroy(&extra_args.in_list, CIL_FALSE);
++
+ 	return rc;
+ }
+ 
+-- 
+2.4.3
