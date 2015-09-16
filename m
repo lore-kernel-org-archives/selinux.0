@@ -1,11 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8GK3eO0026669
- for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2015 16:03:45 -0400
-Received: by igbkq10 with SMTP id kq10so41969608igb.0
- for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2015 13:03:44 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8GK3eO1026669
+ for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2015 16:03:47 -0400
+Received: by igbkq10 with SMTP id kq10so41970282igb.0
+ for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2015 13:03:46 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
  Jeff Layton <jlayton@poochiereds.net>,
  "J. Bruce Fields" <bfields@fieldses.org>
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
@@ -13,9 +15,10 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
  Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v3 2/7] userns: Simpilify MNT_NODEV handling.
-Date: Wed, 16 Sep 2015 15:02:38 -0500
-Message-Id: <1442433764-80826-3-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v3 3/7] fs: Verify access of user towards block device file
+ when mounting
+Date: Wed, 16 Sep 2015 15:02:39 -0500
+Message-Id: <1442433764-80826-4-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1442433764-80826-1-git-send-email-seth.forshee@canonical.com>
 References: <1442433764-80826-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -23,122 +26,156 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+When mounting a filesystem on a block device there is currently
+no verification that the user has appropriate access to the
+device file passed to mount. This has not been an issue so far
+since the user in question has always been root, but this must
+be changed before allowing unprivileged users to mount in user
+namespaces.
 
-- Consolidate the testing if a device node may be opened in a new
-  function may_open_dev.
+To do this, a new version of lookup_bdev() is added named
+lookup_bdev_perm(). Both of these functions become wrappers
+around a common inner fucntion. The behavior of lookup_bdev() is
+unchanged, but calling lookup_bdev_perm() will fail if the user
+does not have the specified access rights to the supplied path.
+The permission check is skipped if the user has CAP_SYS_ADMIN to
+avoid any possible regressions in behavior.
 
-- Move the check for allowing access to device nodes on filesystems
-  not mounted in the initial user namespace from mount time to open
-  time and include it in may_open_dev.
+blkdev_get_by_path() is updated to use lookup_bdev_perm(). This
+is used by mount_bdev() and mount_mtd(), so this will cause
+mounts on block devices to fail when the user lacks the required
+permissions. Other calls to blkdev_get_by_path() will all happen
+with root privileges, so these calls will be unaffected.
 
-This set of changes removes the implicit adding of MNT_NODEV which
-simplifies the logic in fs/namespace.c and removes a potentially
-problematic user visible difference in how normal and unprivileged
-mount namespaces work.
-
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- fs/block_dev.c     |  2 +-
- fs/namei.c         |  9 ++++++++-
- fs/namespace.c     | 18 ++++--------------
- include/linux/fs.h |  1 +
- 4 files changed, 14 insertions(+), 16 deletions(-)
+ drivers/mtd/mtdsuper.c |  7 ++++++-
+ fs/block_dev.c         | 52 ++++++++++++++++++++++++++++++++++++++++----------
+ include/linux/fs.h     |  1 +
+ 3 files changed, 49 insertions(+), 11 deletions(-)
 
+diff --git a/drivers/mtd/mtdsuper.c b/drivers/mtd/mtdsuper.c
+index 20c02a3b7417..a3970b0506b9 100644
+--- a/drivers/mtd/mtdsuper.c
++++ b/drivers/mtd/mtdsuper.c
+@@ -125,6 +125,7 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
+ #ifdef CONFIG_BLOCK
+ 	struct block_device *bdev;
+ 	int ret, major;
++	int perm = 0;
+ #endif
+ 	int mtdnr;
+ 
+@@ -176,7 +177,11 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
+ 	/* try the old way - the hack where we allowed users to mount
+ 	 * /dev/mtdblock$(n) but didn't actually _use_ the blockdev
+ 	 */
+-	bdev = lookup_bdev(dev_name);
++	if (flags & FMODE_READ)
++		perm |= MAY_READ;
++	if (flags & FMODE_WRITE)
++		perm |= MAY_WRITE;
++	bdev = lookup_bdev_perm(dev_name, perm);
+ 	if (IS_ERR(bdev)) {
+ 		ret = PTR_ERR(bdev);
+ 		pr_debug("MTDSB: lookup_bdev() returned %d\n", ret);
 diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 22ea424ee741..26cee058dc02 100644
+index 26cee058dc02..d7b83e4ec138 100644
 --- a/fs/block_dev.c
 +++ b/fs/block_dev.c
-@@ -1730,7 +1730,7 @@ struct block_device *lookup_bdev(const char *pathname)
+@@ -1394,9 +1394,14 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ 					void *holder)
+ {
+ 	struct block_device *bdev;
++	int perm = 0;
+ 	int err;
+ 
+-	bdev = lookup_bdev(path);
++	if (mode & FMODE_READ)
++		perm |= MAY_READ;
++	if (mode & FMODE_WRITE)
++		perm |= MAY_WRITE;
++	bdev = lookup_bdev_perm(path, perm);
+ 	if (IS_ERR(bdev))
+ 		return bdev;
+ 
+@@ -1703,15 +1708,8 @@ int ioctl_by_bdev(struct block_device *bdev, unsigned cmd, unsigned long arg)
+ 
+ EXPORT_SYMBOL(ioctl_by_bdev);
+ 
+-/**
+- * lookup_bdev  - lookup a struct block_device by name
+- * @pathname:	special file representing the block device
+- *
+- * Get a reference to the blockdevice at @pathname in the current
+- * namespace if possible and return it.  Return ERR_PTR(error)
+- * otherwise.
+- */
+-struct block_device *lookup_bdev(const char *pathname)
++static struct block_device *__lookup_bdev(const char *pathname, int mask,
++					  bool check_perm)
+ {
+ 	struct block_device *bdev;
+ 	struct inode *inode;
+@@ -1726,6 +1724,11 @@ struct block_device *lookup_bdev(const char *pathname)
+ 		return ERR_PTR(error);
+ 
+ 	inode = d_backing_inode(path.dentry);
++	if (check_perm && !capable(CAP_SYS_ADMIN)) {
++		error = inode_permission(inode, mask);
++		if (error)
++			goto fail;
++	}
+ 	error = -ENOTBLK;
  	if (!S_ISBLK(inode->i_mode))
  		goto fail;
- 	error = -EACCES;
--	if (path.mnt->mnt_flags & MNT_NODEV)
-+	if (!may_open_dev(&path))
- 		goto fail;
- 	error = -ENOMEM;
- 	bdev = bd_acquire(inode);
-diff --git a/fs/namei.c b/fs/namei.c
-index 726d211db484..fcc5751d6395 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -2663,6 +2663,13 @@ int vfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
+@@ -1743,6 +1746,35 @@ fail:
+ 	bdev = ERR_PTR(error);
+ 	goto out;
  }
- EXPORT_SYMBOL(vfs_create);
- 
-+bool may_open_dev(const struct path *path)
-+{
-+	return !(path->mnt->mnt_flags & MNT_NODEV) &&
-+		((path->mnt->mnt_sb->s_user_ns == &init_user_ns) ||
-+		 (path->mnt->mnt_sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT));
-+}
 +
- static int may_open(struct path *path, int acc_mode, int flag)
- {
- 	struct dentry *dentry = path->dentry;
-@@ -2685,7 +2692,7 @@ static int may_open(struct path *path, int acc_mode, int flag)
- 		break;
- 	case S_IFBLK:
- 	case S_IFCHR:
--		if (path->mnt->mnt_flags & MNT_NODEV)
-+		if (!may_open_dev(path))
- 			return -EACCES;
- 		/*FALLTHRU*/
- 	case S_IFIFO:
-diff --git a/fs/namespace.c b/fs/namespace.c
-index d023a353dc63..da70f7c4ece1 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2177,13 +2177,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
- 	}
- 	if ((mnt->mnt.mnt_flags & MNT_LOCK_NODEV) &&
- 	    !(mnt_flags & MNT_NODEV)) {
--		/* Was the nodev implicitly added in mount? */
--		if ((mnt->mnt_ns->user_ns != &init_user_ns) &&
--		    !(sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT)) {
--			mnt_flags |= MNT_NODEV;
--		} else {
--			return -EPERM;
--		}
-+		return -EPERM;
- 	}
- 	if ((mnt->mnt.mnt_flags & MNT_LOCK_NOSUID) &&
- 	    !(mnt_flags & MNT_NOSUID)) {
-@@ -2396,13 +2390,6 @@ static int do_new_mount(struct path *path, const char *fstype, int flags,
- 			put_filesystem(type);
- 			return -EPERM;
- 		}
--		/* Only in special cases allow devices from mounts
--		 * created outside the initial user namespace.
--		 */
--		if (!(type->fs_flags & FS_USERNS_DEV_MOUNT)) {
--			flags |= MS_NODEV;
--			mnt_flags |= MNT_NODEV | MNT_LOCK_NODEV;
--		}
- 		if (type->fs_flags & FS_USERNS_VISIBLE) {
- 			if (!fs_fully_visible(type, &mnt_flags))
- 				return -EPERM;
-@@ -3238,6 +3225,9 @@ static bool fs_fully_visible(struct file_system_type *type, int *new_mnt_flags)
- 		mnt_flags = mnt->mnt.mnt_flags;
- 		if (mnt->mnt.mnt_sb->s_iflags & SB_I_NOEXEC)
- 			mnt_flags &= ~(MNT_LOCK_NOSUID | MNT_LOCK_NOEXEC);
-+		if (mnt->mnt.mnt_sb->s_user_ns != &init_user_ns &&
-+		    !(mnt->mnt.mnt_sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT))
-+			mnt_flags &= ~(MNT_LOCK_NODEV);
++/*
++ * lookup_bdev_perm - lookup a struct block_device by name and check for
++ *		      access rights
++ * @pathname:	special file representing the block device
++ * @mask:	rights to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
++ *
++ * Get a reference to the blockdevice at @pathname in the current
++ * namespace if possible, check for the specified rights to the device
++ * at @pathname, and return it.  Return ERR_PTR(error) otherwise.
++ */
++struct block_device *lookup_bdev_perm(const char *pathname, int mask)
++{
++	return __lookup_bdev(pathname, mask, true);
++}
++EXPORT_SYMBOL(lookup_bdev_perm);
++
++/**
++ * lookup_bdev  - lookup a struct block_device by name
++ * @pathname:	special file representing the block device
++ *
++ * Get a reference to the blockdevice at @pathname in the current
++ * namespace if possible and return it.  Return ERR_PTR(error)
++ * otherwise.
++ */
++struct block_device *lookup_bdev(const char *pathname)
++{
++	return __lookup_bdev(pathname, 0, false);
++}
+ EXPORT_SYMBOL(lookup_bdev);
  
- 		/* Verify the mount flags are equal to or more permissive
- 		 * than the proposed new mount.
+ int __invalidate_device(struct block_device *bdev, bool kill_dirty)
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 79c15ab2159d..5ec201e8308c 100644
+index 5ec201e8308c..d03c2061bdd2 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -1537,6 +1537,7 @@ extern void dentry_unhash(struct dentry *dentry);
-  */
- extern void inode_init_owner(struct inode *inode, const struct inode *dir,
- 			umode_t mode);
-+extern bool may_open_dev(const struct path *path);
- /*
-  * VFS FS_IOC_FIEMAP helper definitions.
-  */
+@@ -2383,6 +2383,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
+ #define BLKDEV_MAJOR_HASH_SIZE	255
+ extern const char *__bdevname(dev_t, char *buffer);
+ extern const char *bdevname(struct block_device *bdev, char *buffer);
++extern struct block_device *lookup_bdev_perm(const char *, int);
+ extern struct block_device *lookup_bdev(const char *);
+ extern void blkdev_show(struct seq_file *,off_t);
+ 
 -- 
 1.9.1
