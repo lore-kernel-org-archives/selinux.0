@@ -1,96 +1,80 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8HCpNTO025765
- for <selinux@tycho.nsa.gov>; Thu, 17 Sep 2015 08:51:23 -0400
-Received: by igbkq10 with SMTP id kq10so11472102igb.0
- for <selinux@tycho.nsa.gov>; Thu, 17 Sep 2015 05:50:57 -0700 (PDT)
-Date: Thu, 17 Sep 2015 07:50:20 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Subject: Re: [PATCH v3 6/7] Smack: Add support for unprivileged mounts from
- user namespaces
-Message-ID: <20150917125020.GB85188@ubuntu-hedt>
-References: <1442433764-80826-1-git-send-email-seth.forshee@canonical.com>
- <1442433764-80826-7-git-send-email-seth.forshee@canonical.com>
- <55F9D22E.8090902@schaufler-ca.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8HMGFqs004800
+ for <selinux@tycho.nsa.gov>; Thu, 17 Sep 2015 18:16:15 -0400
+Received: by obqa2 with SMTP id a2so24626609obq.3
+ for <selinux@tycho.nsa.gov>; Thu, 17 Sep 2015 15:16:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <55F9D22E.8090902@schaufler-ca.com>
+In-Reply-To: <87r3lxyif1.fsf@x220.int.ebiederm.org>
+References: <1442433764-80826-1-git-send-email-seth.forshee@canonical.com>
+ <1442433764-80826-3-git-send-email-seth.forshee@canonical.com>
+ <CALCETrXoAi91JN4VLD2ybPgkD_J26=2_N-fyCCjOPL5Swo7kGA@mail.gmail.com>
+ <87r3lxyif1.fsf@x220.int.ebiederm.org>
+From: Andy Lutomirski <luto@amacapital.net>
+Date: Thu, 17 Sep 2015 15:15:53 -0700
+Message-ID: <CALCETrVDr9KAPQp8RDVbdMHZzt19jAeJeq+6JDj5Jq3Yzmcs2Q@mail.gmail.com>
+Subject: Re: [PATCH v3 2/7] userns: Simpilify MNT_NODEV handling.
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Layton <jlayton@poochiereds.net>, SELinux-NSA <selinux@tycho.nsa.gov>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ linux-mtd@lists.infradead.org, Serge Hallyn <serge.hallyn@canonical.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Seth Forshee <seth.forshee@canonical.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Sep 16, 2015 at 01:33:50PM -0700, Casey Schaufler wrote:
-> On 9/16/2015 1:02 PM, Seth Forshee wrote:
-> > Security labels from unprivileged mounts cannot be trusted.
-> > Ideally for these mounts we would assign the objects in the
-> > filesystem the same label as the inode for the backing device
-> > passed to mount. Unfortunately it's currently impossible to
-> > determine which inode this is from the LSM mount hooks, so we
-> > settle for the label of the process doing the mount.
+On Sep 16, 2015 6:01 PM, "Eric W. Biederman" <ebiederm@xmission.com> wrote:
+>
+> Andy Lutomirski <luto@amacapital.net> writes:
+>
+> > On Wed, Sep 16, 2015 at 1:02 PM, Seth Forshee
+> > <seth.forshee@canonical.com> wrote:
+> >> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> >>
+> >> - Consolidate the testing if a device node may be opened in a new
+> >>   function may_open_dev.
+> >>
+> >> - Move the check for allowing access to device nodes on filesystems
+> >>   not mounted in the initial user namespace from mount time to open
+> >>   time and include it in may_open_dev.
+> >>
+> >> This set of changes removes the implicit adding of MNT_NODEV which
+> >> simplifies the logic in fs/namespace.c and removes a potentially
+> >> problematic user visible difference in how normal and unprivileged
+> >> mount namespaces work.
+> >>
+> >> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 > >
-> > This label is assigned to s_root, and also to smk_default to
-> > ensure that new inodes receive this label. The transmute property
-> > is also set on s_root to make this behavior more explicit, even
-> > though it is technically not necessary.
+> >> -               /* Only in special cases allow devices from mounts
+> >> -                * created outside the initial user namespace.
+> >> -                */
+> >> -               if (!(type->fs_flags & FS_USERNS_DEV_MOUNT)) {
+> >> -                       flags |= MS_NODEV;
+> >> -                       mnt_flags |= MNT_NODEV | MNT_LOCK_NODEV;
+> >> -               }
 > >
-> > If a filesystem has existing security labels, access to inodes is
-> > permitted if the label is the same as smk_root, otherwise access
-> > is denied. The SMACK64EXEC xattr is completely ignored.
-> >
-> > Explicit setting of security labels continues to require
-> > CAP_MAC_ADMIN in init_user_ns.
-> >
-> > Altogether, this ensures that filesystem objects are not
-> > accessible to subjects which cannot already access the backing
-> > store, that MAC is not violated for any objects in the fileystem
-> > which are already labeled, and that a user cannot use an
-> > unprivileged mount to gain elevated MAC privileges.
-> >
-> > sysfs, tmpfs, and ramfs are already mountable from user
-> > namespaces and support security labels. We can't rule out the
-> > possibility that these filesystems may already be used in mounts
-> > from user namespaces with security lables set from the init
-> > namespace, so failing to trust lables in these filesystems may
-> > introduce regressions. It is safe to trust labels from these
-> > filesystems, since the unprivileged user does not control the
-> > backing store and thus cannot supply security labels, so an
-> > explicit exception is made to trust labels from these
-> > filesystems.
-> >
-> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-> 
-> One coding comment below, otherwise looking good.
-> 
-> > ---
-> >  security/smack/smack.h     |  6 ++++++
-> >  security/smack/smack_lsm.c | 35 +++++++++++++++++++++++++++--------
-> >  2 files changed, 33 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/security/smack/smack.h b/security/smack/smack.h
-> > index fff0c612bbb7..070223960a2c 100644
-> > --- a/security/smack/smack.h
-> > +++ b/security/smack/smack.h
-> > @@ -91,8 +91,14 @@ struct superblock_smack {
-> >  	struct smack_known	*smk_hat;
-> >  	struct smack_known	*smk_default;
-> >  	int			smk_initialized;
-> > +	int			smk_flags;
-> 
-> How about deleting smk_initialized and using a bit
-> in smk_flags. A whole int for each seems excessive.
-> The smk_initialized field is only used in two places,
-> both in smack_set_mnt_opts.
+> > This is an ABI change.  It's probably okay, but I think the commit
+> > message should make it clear what's happening.
+>
+> You mean it should include in big flashing neon letters
+>             ***REGRESSION FIX***
+> ?
+>
+> It is longer in coming than I had hoped.  But that is part of the reason
+> I did not fix the security hole this way.  Getting the s_user_ns stuff
+> just so has been non-trivial.
+>
+> I do agree that because this is a user visible change we do need to keep
+> our eyes peeled for pieces of userspace software that may depend on the
+> exact details of the current behavior.
 
-Sure, I can do that.
+Yeah.  "Removes a potentially problematic user visible difference"
+sounds like the difference has been there forever.   If it needs to
+get backported, people will appreciate it.
 
-Thanks,
-Seth
+--Andy
