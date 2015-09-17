@@ -1,74 +1,124 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8H11l1M013705
- for <selinux@tycho.nsa.gov>; Wed, 16 Sep 2015 21:01:47 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8HCoR97025683
+ for <selinux@tycho.nsa.gov>; Thu, 17 Sep 2015 08:50:28 -0400
+Received: by igcpb10 with SMTP id pb10so11458096igc.1
+ for <selinux@tycho.nsa.gov>; Thu, 17 Sep 2015 05:50:25 -0700 (PDT)
+Date: Thu, 17 Sep 2015 07:49:21 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
 To: Andy Lutomirski <luto@amacapital.net>
-Cc: Seth Forshee <seth.forshee@canonical.com>,
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>,
  Serge Hallyn <serge.hallyn@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  Linux FS Devel <linux-fsdevel@vger.kernel.org>,
  LSM List <linux-security-module@vger.kernel.org>,
  SELinux-NSA <selinux@tycho.nsa.gov>,
- "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  linux-mtd@lists.infradead.org
+Subject: Re: [PATCH v3 5/7] fs: Treat foreign mounts as nosuid
+Message-ID: <20150917124921.GA85188@ubuntu-hedt>
 References: <1442433764-80826-1-git-send-email-seth.forshee@canonical.com>
- <1442433764-80826-3-git-send-email-seth.forshee@canonical.com>
- <CALCETrXoAi91JN4VLD2ybPgkD_J26=2_N-fyCCjOPL5Swo7kGA@mail.gmail.com>
-Date: Wed, 16 Sep 2015 19:54:26 -0500
-In-Reply-To: <CALCETrXoAi91JN4VLD2ybPgkD_J26=2_N-fyCCjOPL5Swo7kGA@mail.gmail.com>
- (Andy Lutomirski's message of "Wed, 16 Sep 2015 17:24:47 -0700")
-Message-ID: <87r3lxyif1.fsf@x220.int.ebiederm.org>
+ <1442433764-80826-6-git-send-email-seth.forshee@canonical.com>
+ <CALCETrUHUwYYdah-H48NY94xzxf7ws0rtEmegh+v6JZVByUPHQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH v3 2/7] userns: Simpilify MNT_NODEV handling.
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CALCETrUHUwYYdah-H48NY94xzxf7ws0rtEmegh+v6JZVByUPHQ@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Andy Lutomirski <luto@amacapital.net> writes:
-
+On Wed, Sep 16, 2015 at 01:57:10PM -0700, Andy Lutomirski wrote:
 > On Wed, Sep 16, 2015 at 1:02 PM, Seth Forshee
 > <seth.forshee@canonical.com> wrote:
->> From: "Eric W. Biederman" <ebiederm@xmission.com>
->>
->> - Consolidate the testing if a device node may be opened in a new
->>   function may_open_dev.
->>
->> - Move the check for allowing access to device nodes on filesystems
->>   not mounted in the initial user namespace from mount time to open
->>   time and include it in may_open_dev.
->>
->> This set of changes removes the implicit adding of MNT_NODEV which
->> simplifies the logic in fs/namespace.c and removes a potentially
->> problematic user visible difference in how normal and unprivileged
->> mount namespaces work.
->>
->> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->
->> -               /* Only in special cases allow devices from mounts
->> -                * created outside the initial user namespace.
->> -                */
->> -               if (!(type->fs_flags & FS_USERNS_DEV_MOUNT)) {
->> -                       flags |= MS_NODEV;
->> -                       mnt_flags |= MNT_NODEV | MNT_LOCK_NODEV;
->> -               }
->
-> This is an ABI change.  It's probably okay, but I think the commit
-> message should make it clear what's happening.
+> > From: Andy Lutomirski <luto@amacapital.net>
+> >
+> > If a process gets access to a mount from a different user
+> > namespace, that process should not be able to take advantage of
+> > setuid files or selinux entrypoints from that filesystem.  Prevent
+> > this by treating mounts from other mount namespaces and those not
+> > owned by current_user_ns() or an ancestor as nosuid.
+> >
+> > This will make it safer to allow more complex filesystems to be
+> > mounted in non-root user namespaces.
+> >
+> > This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
+> > setgid, and file capability bits can no longer be abused if code in
+> > a user namespace were to clear nosuid on an untrusted filesystem,
+> > but this patch, by itself, is insufficient to protect the system
+> > from abuse of files that, when execed, would increase MAC privilege.
+> >
+> > As a more concrete explanation, any task that can manipulate a
+> > vfsmount associated with a given user namespace already has
+> > capabilities in that namespace and all of its descendents.  If they
+> > can cause a malicious setuid, setgid, or file-caps executable to
+> > appear in that mount, then that executable will only allow them to
+> > elevate privileges in exactly the set of namespaces in which they
+> > are already privileges.
+> >
+> > On the other hand, if they can cause a malicious executable to
+> > appear with a dangerous MAC label, running it could change the
+> > caller's security context in a way that should not have been
+> > possible, even inside the namespace in which the task is confined.
+> >
+> > As a hardening measure, this would have made CVE-2014-5207 much
+> > more difficult to exploit.
+> >
+> > Signed-off-by: Andy Lutomirski <luto@amacapital.net>
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> > ---
+> >  fs/exec.c                |  2 +-
+> >  fs/namespace.c           | 13 +++++++++++++
+> >  include/linux/mount.h    |  1 +
+> >  security/commoncap.c     |  2 +-
+> >  security/selinux/hooks.c |  2 +-
+> >  5 files changed, 17 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/fs/exec.c b/fs/exec.c
+> > index b06623a9347f..ea7311d72cc3 100644
+> > --- a/fs/exec.c
+> > +++ b/fs/exec.c
+> > @@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
+> >         bprm->cred->euid = current_euid();
+> >         bprm->cred->egid = current_egid();
+> >
+> > -       if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+> > +       if (!mnt_may_suid(bprm->file->f_path.mnt))
+> >                 return;
+> >
+> >         if (task_no_new_privs(current))
+> > diff --git a/fs/namespace.c b/fs/namespace.c
+> > index da70f7c4ece1..2101ce7b96ab 100644
+> > --- a/fs/namespace.c
+> > +++ b/fs/namespace.c
+> > @@ -3276,6 +3276,19 @@ found:
+> >         return visible;
+> >  }
+> >
+> > +bool mnt_may_suid(struct vfsmount *mnt)
+> > +{
+> > +       /*
+> > +        * Foreign mounts (accessed via fchdir or through /proc
+> > +        * symlinks) are always treated as if they are nosuid.  This
+> > +        * prevents namespaces from trusting potentially unsafe
+> > +        * suid/sgid bits, file caps, or security labels that originate
+> > +        * in other namespaces.
+> > +        */
+> > +       return !(mnt->mnt_flags & MNT_NOSUID) && check_mnt(real_mount(mnt)) &&
+> > +              in_userns(current_user_ns(), mnt->mnt_sb->s_user_ns);
+> 
+> Is check_mnt correct here?  If I read it correctly, this means that,
+> if I just unshare my userns and do nothing else (and, in particular,
+> don't unshare my mount namespace), then everything will have
+> mnt_may_suid return false.
 
-You mean it should include in big flashing neon letters
-            ***REGRESSION FIX***
-?
+The condition in check_mnt is exactly the same as the condition that
+check_mnt replaces. If mnt_may_suid returned true before you unshared
+only your user namespace then it should also return true after unshare.
+The mount ns is the same as it was before so check_mnt returns true, and
+the new user namespace is a child of the previous one so in_userns also
+returns true.
 
-It is longer in coming than I had hoped.  But that is part of the reason
-I did not fix the security hole this way.  Getting the s_user_ns stuff
-just so has been non-trivial.
-
-I do agree that because this is a user visible change we do need to keep
-our eyes peeled for pieces of userspace software that may depend on the
-exact details of the current behavior.
-
-Eric
+Seth
