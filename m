@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8IJQkN9022354
- for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 15:26:46 -0400
-Received: by pacfv12 with SMTP id fv12so59480781pac.2
- for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 12:26:44 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8IJds0q023279
+ for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 15:39:54 -0400
+Received: by padhy16 with SMTP id hy16so58863341pad.1
+ for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 12:39:51 -0700 (PDT)
 From: Jeff Vander Stoep <jeffv@google.com>
 To: selinux@tycho.nsa.gov
 Cc: paul@paul-moore.com, eparis@parisplace.org, sds@tycho.nsa.gov,
  Jeff Vander Stoep <jeffv@google.com>
-Subject: [PATCH] selinux: do not check open perm on ftruncate call
-Date: Fri, 18 Sep 2015 12:26:39 -0700
-Message-Id: <1442604399-23238-1-git-send-email-jeffv@google.com>
+Subject: [PATCH v2] selinux: do not check open perm on ftruncate call
+Date: Fri, 18 Sep 2015 12:39:46 -0700
+Message-Id: <1442605186-24800-1-git-send-email-jeffv@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -17,12 +17,12 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Use the ATTR_FILE attribute to distinguish between truncate()
 and ftruncate() system calls. The two other cases where
-do_truncate is called with a filp (and therefore ATTR_FILE is set),
+do_truncate is called with a filp (and therefore ATTR_FILE is set)
 are for coredump files and for open(O_TRUNC). In both of those cases
 the open permission has already been checked during file open and
 therefore does not need to be repeated.
 
-Commit 95dbf739313f ("SELinux: check OPEN on truncate calls") fixed
+Commit 95dbf739313f ("SELinux: check OPEN on truncate calls")
 fixed a major issue where domains were allowed to truncate files
 without the open permission. However, it introduced a new bug where
 a domain with the write permission can no longer ftruncate files
@@ -31,6 +31,8 @@ file.
 
 Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
 ---
+V2 fixes mistakes in commit message
+
  security/selinux/hooks.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
