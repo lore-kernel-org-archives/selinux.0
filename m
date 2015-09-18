@@ -1,70 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8IDY2E5026821
- for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 09:34:03 -0400
-Subject: Re: remove unconfined user
-To: Divya Vyas <dvyas@mvista.com>, selinux <selinux@tycho.nsa.gov>
-References: <CA+=dQ-_64TQHHx5GWqByLSh=X=pWiLr4FXzEWH6w6C70c4DOxA@mail.gmail.com>
-From: Miroslav Grepl <mgrepl@redhat.com>
-Message-ID: <55FC12C6.6070801@redhat.com>
-Date: Fri, 18 Sep 2015 15:33:58 +0200
-MIME-Version: 1.0
-In-Reply-To: <CA+=dQ-_64TQHHx5GWqByLSh=X=pWiLr4FXzEWH6w6C70c4DOxA@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8IJQkN9022354
+ for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 15:26:46 -0400
+Received: by pacfv12 with SMTP id fv12so59480781pac.2
+ for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 12:26:44 -0700 (PDT)
+From: Jeff Vander Stoep <jeffv@google.com>
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, eparis@parisplace.org, sds@tycho.nsa.gov,
+ Jeff Vander Stoep <jeffv@google.com>
+Subject: [PATCH] selinux: do not check open perm on ftruncate call
+Date: Fri, 18 Sep 2015 12:26:39 -0700
+Message-Id: <1442604399-23238-1-git-send-email-jeffv@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/16/2015 11:00 AM, Divya Vyas wrote:
-> Hi,
-> 
-> I am running a minimum policy  with unconfined policy
-> 
-> id -Z
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> 
-> This leads to my http process running to unconfined type
-> 
-> ps -efZ | grep http
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 2357 1  0
-> 08:38 ? 00:00:00 /usr/sbin/httpd -k start
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2358 2357 
-> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2359 2357 
-> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2360 2357 
-> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2361 2357 
-> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 2458 2138  0
-> 08:43 pts/0 00:00:00 grep http
-> 
-> I want my http process to run in confined user type so that apache.pp
-> can be functional . I think it should run in httpd_exec_t type ? Am I
-> correct.
-> 
-> I want to add some rules in apache policy.
-> 
-> Thanks,
-> Divya
-> 
-> 
+Use the ATTR_FILE attribute to distinguish between truncate()
+and ftruncate() system calls. The two other cases where
+do_truncate is called with a filp (and therefore ATTR_FILE is set),
+are for coredump files and for open(O_TRUNC). In both of those cases
+the open permission has already been checked during file open and
+therefore does not need to be repeated.
 
-This is probably material for selinux@lists.fedoraproject.org. How do
-you start httpd?
+Commit 95dbf739313f ("SELinux: check OPEN on truncate calls") fixed
+fixed a major issue where domains were allowed to truncate files
+without the open permission. However, it introduced a new bug where
+a domain with the write permission can no longer ftruncate files
+without the open permission, even when they receive an already open
+file.
 
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+---
+ security/selinux/hooks.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f4be0a1..b32f1e1 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2934,7 +2934,8 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ 			ATTR_ATIME_SET | ATTR_MTIME_SET | ATTR_TIMES_SET))
+ 		return dentry_has_perm(cred, dentry, FILE__SETATTR);
+ 
+-	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE))
++	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE)
++			&& !(ia_valid & ATTR_FILE))
+ 		av |= FILE__OPEN;
+ 
+ 	return dentry_has_perm(cred, dentry, av);
 -- 
-Miroslav Grepl
-Senior Software Engineer, SELinux Solutions
-Red Hat, Inc.
+2.6.0.rc0.131.gf624c3d
