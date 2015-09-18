@@ -1,45 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8IDVrhg026714
- for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 09:31:53 -0400
-Subject: Re: http process running as initrc_t
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8IDY2E5026821
+ for <selinux@tycho.nsa.gov>; Fri, 18 Sep 2015 09:34:03 -0400
+Subject: Re: remove unconfined user
 To: Divya Vyas <dvyas@mvista.com>, selinux <selinux@tycho.nsa.gov>
-References: <CA+=dQ-95Sob03WHZzjvJiiYS3RnaqB+1O2iGg7YHW5CpGd0_WA@mail.gmail.com>
+References: <CA+=dQ-_64TQHHx5GWqByLSh=X=pWiLr4FXzEWH6w6C70c4DOxA@mail.gmail.com>
 From: Miroslav Grepl <mgrepl@redhat.com>
-Message-ID: <55FC1245.6040408@redhat.com>
-Date: Fri, 18 Sep 2015 15:31:49 +0200
-Mime-Version: 1.0
+Message-ID: <55FC12C6.6070801@redhat.com>
+Date: Fri, 18 Sep 2015 15:33:58 +0200
+MIME-Version: 1.0
+In-Reply-To: <CA+=dQ-_64TQHHx5GWqByLSh=X=pWiLr4FXzEWH6w6C70c4DOxA@mail.gmail.com>
 Content-Type: text/plain; charset=windows-1252
-In-Reply-To: <CA+=dQ-95Sob03WHZzjvJiiYS3RnaqB+1O2iGg7YHW5CpGd0_WA@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/16/2015 10:31 PM, Divya Vyas wrote:
+On 09/16/2015 11:00 AM, Divya Vyas wrote:
 > Hi,
 > 
-> run_init /usr/sbin/httpd -k start
+> I am running a minimum policy  with unconfined policy
 > 
-> leads to
-> system_u:system_r:initrc_t:s0   root      3977     1  0 19:57 ?       
-> 00:00:00 /usr/sbin/httpd -k start
-
-
-Which is correct. run_init runs a script with a context defined in
-/etc/selinux/POLICYTYPE/contexts/initrc_context. So if you run it
-directly this way, you get httpd_t running as initrc_t according to
-/etc/selinux/POLICYTYPE/contexts/initrc_context.
-
-You should run it using a service script to make sure all proper
-transitions will happen.
-
-
+> id -Z
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 > 
-> It should be httpd_t
+> This leads to my http process running to unconfined type
 > 
-> sesearch -ACT -t httpd_exec_t has the transition
-> type_transition initrc_t httpd_exec_t : process httpd_t;
+> ps -efZ | grep http
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 2357 1  0
+> 08:38 ? 00:00:00 /usr/sbin/httpd -k start
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2358 2357 
+> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2359 2357 
+> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2360 2357 
+> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 daemon 2361 2357 
+> 0 08:38 ? 00:00:00 /usr/sbin/httpd -k start
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 root 2458 2138  0
+> 08:43 pts/0 00:00:00 grep http
 > 
+> I want my http process to run in confined user type so that apache.pp
+> can be functional . I think it should run in httpd_exec_t type ? Am I
+> correct.
+> 
+> I want to add some rules in apache policy.
+> 
+> Thanks,
+> Divya
+> 
+> 
+
+This is probably material for selinux@lists.fedoraproject.org. How do
+you start httpd?
+
 > 
 > 
 > 
