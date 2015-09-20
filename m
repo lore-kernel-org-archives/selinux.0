@@ -1,908 +1,918 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8KA5YrC012927
- for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2015 06:05:34 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8KB0olf015541
+ for <selinux@tycho.nsa.gov>; Sun, 20 Sep 2015 07:00:50 -0400
 From: Richard Haines <richard_c_haines@btinternet.com>
 To: selinux@tycho.nsa.gov
-Subject: [RFC PATCH V2] libselinux: Add selabel_digest function
-Date: Sun, 20 Sep 2015 11:05:18 +0100
-Message-Id: <1442743518-4450-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: [RFC PATCH] libselinux: Add selinux_restorecon function
+Date: Sun, 20 Sep 2015 12:00:31 +0100
+Message-Id: <1442746831-8220-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-selabel_digest(3) if enabled by the SELABEL_OPT_DIGEST option during
-selabel_open(3) will return an SHA1 digest of the spec files, plus
-a list of the specfiles used to calculate the digest. There is a
-test utility supplied that will demonstrate the functionality.
+The selinux_restorecon(3) man page details this function that relies
+on the selabel_digest(3) function available from [1] that is not yet
+part of upstream libselinux.
 
-The use case for selabel_digest(3) is to implement an selinux_restorecon
-function based on the Android version that writes a hash of the
-file_contexts files to an extended attribute to enhance performance
-(see external/libselinux/src/android.c selinux_android_restorecon()).
+It has been built using the work from Android where an SHA1 hash
+of the specfiles is held in an extended attribute to enhance
+performance. Also contains components from policycoreutils/setfiles.
+
+There is a test utility that will demonstrate the functionality.
+
+[1] http://marc.info/?l=selinux&m=144274383217343&w=2
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
-V2 Changes:
-Minor general cleanups and updated as per comments from:
-http://marc.info/?l=selinux&m=144233357510422&w=2
+ libselinux/include/selinux/selinux.h     |  26 ++
+ libselinux/man/man3/selinux_restorecon.3 | 189 +++++++++++++
+ libselinux/src/Makefile                  |   2 +-
+ libselinux/src/selinux_restorecon.c      | 439 +++++++++++++++++++++++++++++++
+ libselinux/utils/Makefile                |   2 +
+ libselinux/utils/selinux_restorecon.c    | 170 ++++++++++++
+ 6 files changed, 827 insertions(+), 1 deletion(-)
+ create mode 100644 libselinux/man/man3/selinux_restorecon.3
+ create mode 100644 libselinux/src/selinux_restorecon.c
+ create mode 100644 libselinux/utils/selinux_restorecon.c
 
- libselinux/include/selinux/label.h      |  22 +++-
- libselinux/man/man3/selabel_digest.3    |  61 +++++++++++
- libselinux/man/man3/selabel_open.3      |   5 +
- libselinux/src/Makefile                 |   2 +-
- libselinux/src/label.c                  |  92 +++++++++++++++-
- libselinux/src/label_android_property.c |   8 +-
- libselinux/src/label_db.c               |  13 +++
- libselinux/src/label_file.c             |  43 +++++---
- libselinux/src/label_internal.h         |  29 ++++-
- libselinux/src/label_media.c            |   7 +-
- libselinux/src/label_support.c          |  81 +++++++++++++-
- libselinux/src/label_x.c                |   7 +-
- libselinux/utils/Makefile               |   2 +-
- libselinux/utils/selabel_digest.c       | 183 ++++++++++++++++++++++++++++++++
- 14 files changed, 531 insertions(+), 24 deletions(-)
- create mode 100644 libselinux/man/man3/selabel_digest.3
- create mode 100644 libselinux/utils/selabel_digest.c
-
-diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
-index 14793a1..02fa05b 100644
---- a/libselinux/include/selinux/label.h
-+++ b/libselinux/include/selinux/label.h
-@@ -49,8 +49,10 @@ struct selabel_handle;
- #define SELABEL_OPT_PATH	3
- /* select a subset of the search space as an optimization (file backend) */
- #define SELABEL_OPT_SUBSET	4
-+/* require a hash calculation on spec files */
-+#define SELABEL_OPT_DIGEST	5
- /* total number of options */
--#define SELABEL_NOPT		5
-+#define SELABEL_NOPT		6
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index 4beb170..57b6748 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -663,6 +663,32 @@ extern int selinux_lsetfilecon_default(const char *path);
+  */
+ extern void selinux_reset_config(void);
  
- /*
-  * Label operations
-@@ -106,6 +108,24 @@ int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
- int selabel_lookup_best_match_raw(struct selabel_handle *rec, char **con,
- 			      const char *key, const char **aliases, int type);
- 
-+/**
-+ * selabel_digest - Retrieve the SHA1 digest and the list of specfiles used to
-+ *		    generate the digest. The SELABEL_OPT_DIGEST option must
-+ *		    be set in selabel_open() to initiate the digest generation.
-+ * @handle: specifies backend instance to query
-+ * @digest: returns a pointer to the SHA1 digest.
-+ * @digest_len: returns DIGEST_SPECFILE_SIZE length.
-+ * @specfiles: a list of specfiles used in the SHA1 digest generation.
-+ *	       The list is NULL terminated and will hold a maximum of
-+ *	       DIGEST_FILES_MAX entries.
-+ * @num_specfiles: number of specfiles in the list.
-+ *
-+ * Return %0 on success, -%1 with @errno set on failure.
-+ */
-+int selabel_digest(struct selabel_handle *rec,
-+			    unsigned char **digest, int *digest_len,
-+			    char ***specfiles, int *num_specfiles);
 +
- enum selabel_cmp_result {
- 	SELABEL_SUBSET,
- 	SELABEL_EQUAL,
-diff --git a/libselinux/man/man3/selabel_digest.3 b/libselinux/man/man3/selabel_digest.3
++/* Force the checking of labels even if the stored SHA1
++ * digest matches the specfiles SHA1 digest. */
++#define SELINUX_RESTORECON_FORCE_CHECK			1
++/* Do not change file labels */
++#define SELINUX_RESTORECON_NOCHANGE			2
++/* If set change the files label to that in spec file.
++ * If not set only change the type component to that in spec file. */
++#define SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL	4
++/* Reset customizable types */
++#define SELINUX_RESTORECON_CHANGE_CUSTOMIZABLE		8
++/* Recurse through the directory path */
++#define SELINUX_RESTORECON_RECURSE			16
++/* Log changes and show specfiles SHA1 digest */
++#define SELINUX_RESTORECON_VERBOSE			32
++/* Set selabel_open(3) option SELABEL_OPT_VALIDATE */
++#define SELINUX_RESTORECON_VALIDATE			64
++/* Convert passed-in pathname to canonical pathname */
++#define SELINUX_RESTORECON_REALPATH			128
++/* Prevent descending into directories that have a different
++ * device number than the pathname from which the descent began */
++#define SELINUX_RESTORECON_XDEV				256
++
++extern int selinux_restorecon(const char **pathname_orig, const char *fc_path,
++					    unsigned int restorecon_flags);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
 new file mode 100644
-index 0000000..232091e
+index 0000000..30cbfd2
 --- /dev/null
-+++ b/libselinux/man/man3/selabel_digest.3
-@@ -0,0 +1,61 @@
-+.TH "selabel_digest" "3" "16 Sept 2015" "" "SELinux API documentation"
++++ b/libselinux/man/man3/selinux_restorecon.3
+@@ -0,0 +1,189 @@
++.TH "selinux_restorecon" "3" "13 Sept 2015" "Security Enhanced Linux" "SELinux API documentation"
++
 +.SH "NAME"
-+selabel_digest \- Return digest of specfiles and list of files used
++selinux_restorecon \- restore file(s) default SELinux security contexts
 +.
 +.SH "SYNOPSIS"
 +.B #include <selinux/selinux.h>
-+.br
-+.B #include <selinux/label.h>
 +.sp
-+.BI "int selabel_digest(struct selabel_handle *" hnd ,
-+.in +\w'int selabel_digest('u
-+.BI "unsigned char **" digest ,
-+.BI "int *" digest_len ,
++.BI "int selinux_restorecon(char **" pathname_list ,
++.in +\w'int selinux_restorecon('u
++.BI "const char *" fc_path ,
 +.br
-+.BI "char ***" specfiles,
-+.BI "int *" num_specfiles ");"
++.BI "unsigned int " restorecon_flags ");"
 +.in
 +.
 +.SH "DESCRIPTION"
-+.BR selabel_digest ()
-+performs an operation on the handle
-+.IR hnd ,
-+returning the results of the SHA1 digest pointed to by
-+.IR digest ,
-+whose length will be
-+.IR digest_len .
-+The list of specfiles used in the SHA1 digest calculation is returned in
-+.I specfiles
-+with the number of entries in
-+.IR num_specfiles .
++.BR selinux_restorecon ()
++restores file default security contexts based on:
 +.sp
-+To enable
-+.BR selabel_digest ()
-+to return this information the
-+.B SELABEL_OPT_DIGEST
-+option must be enable in
++.RS
++.IR pathname_list
++containing a list of one or more directories or files to be relabeled.
++.br
++If the
++.IR restorecon_flags
++.B SELINUX_RESTORECON_RECURSE
++has been set (for decending through directories), then for each
++.IR pathname_list
++entry specified
++.BR selinux_restorecon ()
++will write an SHA1 digest of the combined specfiles (see the
++.B NOTES
++section for details) to an extended attribute of
++.IR security.restorecon_last
++once the relabeling has been completed successfully. This digest will be
++checked should
++.BR selinux_restorecon ()
++be rerun
++with the
++.IR restorecon_flags
++.B SELINUX_RESTORECON_RECURSE
++flag set. If any of the specfiles had been updated, the digest
++will also be updated. However if the digest is the same, no relabeling checks
++will take place unless the
++.IR restorecon_flags
++.B SELINUX_RESTORECON_FORCE_CHECK
++flag is also set.
++.sp
++.IR fc_path
++containing an optional specfile to provide the file labeling
++details (see
++.BR selabel_file (5)
++for details of the file format).
++.br
++If set to
++.B NULL
++then the currently loaded policy specfiles will be used.
++.sp
++.IR restorecon_flags
++contains the labeling option/rules as follows:
++.sp
++.RS
++.B SELINUX_RESTORECON_FORCE_CHECK
++force the checking of labels even if the stored SHA1 digest matches the
++specfiles SHA1 digest.
++.sp
++.B SELINUX_RESTORECON_NOCHANGE
++don't change any file labels (passive check).
++.sp
++.B SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL
++if set, reset the files label to match the default specfile context
++(i.e. change user, role, type and range).
++.br
++If not set, then only reset the files "type" component of the context to
++match the default specfile context.
++.sp
++.B SELINUX_RESTORECON_CHANGE_CUSTOMIZABLE
++reset customized file labels (see
++.BR is_context_customizable (3))
++to match the default specfile context. Use the
++.B SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL
++flag to determine the components to change.
++.sp
++.B SELINUX_RESTORECON_VERBOSE
++show changes in file labels and display the SHA1 digests in hex format.
++.sp
++.B SELINUX_RESTORECON_RECURSE
++change file and directory labels recursively (descend directories)
++and if successful write an SHA1 digest of the combined specfiles to an
++extended attribute as described in the
++.B NOTES
++section.
++.sp
++.B SELINUX_RESTORECON_VALIDATE
++set the global
++.B SELABEL_OPT_VALIDATE
++option that will cause the security contexts in the specfiles to be
++validated against policy as described in
 +.BR selabel_open (3).
++.br
++Note that if custom context validation is required, the caller is responsible
++for setting this up as described in
++.BR selinux_set_callback (3).
 +.sp
-+The result of
-+.BR selabel_digest ()
-+must not be used after
-+.BR selabel_close (3).
++.B SELINUX_RESTORECON_REALPATH
++convert passed-in pathnames from
++.IR pathname_list
++to canonical pathnames using
++.BR realpath (3).
++.sp
++.B SELINUX_RESTORECON_XDEV
++prevent descending into directories that have a different device number than
++the
++.IR pathname_list
++entry from which the descent began.
++.RE
++.RE
 +.
 +.SH "RETURN VALUE"
 +On success, zero is returned.  On error, \-1 is returned and
 +.I errno
 +is set appropriately.
 +.
-+.SH "ERRORS"
-+.TP
-+.B EINVAL
-+No digest available (returned if
-+.B SELABEL_OPT_DIGEST
-+option not enabled).
-+.TP
-+.B ENOMEM
-+An attempt to allocate memory failed.
++.SH "NOTES"
++To improve performance when relabeling file systems recursively (e.g. the
++.IR restorecon_flags
++.B SELINUX_RESTORECON_RECURSE
++flag is set)
++.BR selinux_restorecon ()
++will write an SHA1 digest of the specfiles that are processed by
++.BR selabel_open (3)
++to an extended attribute named
++.IR security.restorecon_last
++for each entry in the
++.IR pathname_list
++(these are normally top level directories). Note that if an entry is a file,
++then this would also have this extended attribute added (it is therefore
++recomended that setting
++.B SELINUX_RESTORECON_RECURSE
++when relabeling a specific file should be avoided).
++.sp
++To check the extended attribute entry use
++.BR getfattr (1) ,
++for example:
++.sp
++.RS
++getfattr -e hex -n security.restorecon_last /
++.RE
++.sp
++The SHA1 digest is calculated by
++.BR selabel_open (3)
++concatenating the specfiles it reads during initialisation with the
++resulting digest and list of specfiles being retrieved by
++.BR selabel_digest (3).
++.sp
++The specfiles consist of the mandatory
++.I file_contexts
++file plus any subs, subs_dist, local and homedir entries (text or binary versions)
++as determined by any
++.BR selabel_open (3)
++options e.g.
++.BR SELABEL_OPT_BASEONLY .
++.sp
++Should any of the specfiles have changed, then when
++.BR selinux_restorecon ()
++is run again with the
++.B SELINUX_RESTORECON_RECURSE
++flag set, a new SHA1 digest will be calculated and all files will be automatically
++relabeled depending on the settings of the
++.B SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL
++and
++.B SELINUX_RESTORECON_CHANGE_CUSTOMIZABLE
++flags (provided
++.B SELINUX_RESTORECON_NOCHANGE
++is not set).
++.sp
++.B /sys
++and in-memory filesystems do not support the
++.IR security.restorecon_last
++extended attribute.
++.sp
++.BR selinux_restorecon ()
++does not check whether the mounted filesystems support the
++.B seclabel
++option.
 +.
 +.SH "SEE ALSO"
-+.BR selabel_open (3),
-+.BR selinux (8)
-diff --git a/libselinux/man/man3/selabel_open.3 b/libselinux/man/man3/selabel_open.3
-index 405b6ec..971ebc1 100644
---- a/libselinux/man/man3/selabel_open.3
-+++ b/libselinux/man/man3/selabel_open.3
-@@ -67,6 +67,11 @@ A non-null value for this option enables context validation.  By default,
- is used; a custom validation function can be provided via
- .BR selinux_set_callback (3).
- Note that an invalid context may not be treated as an error unless it is actually encountered during a lookup operation.
-+.TP
-+.B SELABEL_OPT_DIGEST
-+A non-null value for this option enables the generation of an SHA1 digest of
-+the spec files loaded as described in
-+.BR selabel_digest (3)
- .
- .SH "BACKENDS"
- .TP
++.BR restorecon (8),
++.BR setfiles (8)
 diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index a81acc7..2a0e889 100644
+index 2a0e889..e07c6bd 100644
 --- a/libselinux/src/Makefile
 +++ b/libselinux/src/Makefile
-@@ -111,7 +111,7 @@ $(LIBA): $(OBJS)
- 	$(RANLIB) $@
+@@ -72,7 +72,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+           -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
+           -Werror -Wno-aggregate-return -Wno-redundant-decls
  
- $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) -shared -o $@ $^ -lpcre -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
-+	$(CC) $(CFLAGS) -shared -o $@ $^ -lpcre -ldl -lcrypto $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
- 	ln -sf $@ $(TARGET) 
+-override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
++override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(EMFLAGS)
  
- $(LIBPC): $(LIBPC).in ../VERSION
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 222b6b3..f7c87d1 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -10,6 +10,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
+ SWIG_CFLAGS += -Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter \
+ 		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+new file mode 100644
+index 0000000..6f5313f
+--- /dev/null
++++ b/libselinux/src/selinux_restorecon.c
+@@ -0,0 +1,439 @@
++/*
++ * The majority of this code is from Android's
++ * external/libselinux/src/android.c and upstream
++ * selinux/policycoreutils/setfiles/restorecon.c
++ *
++ * See selinux_restorecon(3) for details.
++ */
++
++#include <unistd.h>
++#include <string.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdbool.h>
++#include <ctype.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <fts.h>
++#include <limits.h>
++#include <sys/types.h>
 +#include <sys/stat.h>
- #include <selinux/selinux.h>
- #include "callbacks.h"
- #include "label_internal.h"
-@@ -65,15 +66,21 @@ static char *selabel_sub(struct selabel_sub *ptr, const char *src)
- 	return NULL;
- }
- 
--struct selabel_sub *selabel_subs_init(const char *path, struct selabel_sub *list)
-+struct selabel_sub *selabel_subs_init(const char *path,
-+					    struct selabel_sub *list,
-+					    struct selabel_digest *digest)
- {
- 	char buf[1024];
- 	FILE *cfg = fopen(path, "r");
--	struct selabel_sub *sub;
-+	struct selabel_sub *sub = NULL;
-+	struct stat sb;
- 
- 	if (!cfg)
- 		return list;
- 
-+	if (fstat(fileno(cfg), &sb) < 0)
-+		return list;
++#include <sys/xattr.h>
++#include <sys/vfs.h>
++#include <linux/magic.h>
++#include <selinux/selinux.h>
++#include <selinux/context.h>
++#include <selinux/label.h>
 +
- 	while (fgets_unlocked(buf, sizeof(buf) - 1, cfg)) {
- 		char *ptr = NULL;
- 		char *src = buf;
-@@ -115,6 +122,10 @@ struct selabel_sub *selabel_subs_init(const char *path, struct selabel_sub *list
- 		sub->next = list;
- 		list = sub;
- 	}
++#include "callbacks.h"
++#include "selinux_internal.h"
 +
-+	if (digest_add_specfile(digest, cfg, NULL, sb.st_size, path) < 0)
-+		goto err;
++#define RESTORECON_LAST "security.restorecon_last"
 +
- out:
- 	fclose(cfg);
- 	return list;
-@@ -125,6 +136,64 @@ err:
- 	goto out;
- }
- 
-+static inline struct selabel_digest *selabel_is_digest_set
-+				    (const struct selinux_opt *opts,
-+				    unsigned n,
-+				    struct selabel_digest *entry)
++#define SYS_PATH "/sys"
++#define SYS_PREFIX SYS_PATH "/"
++
++static struct selabel_handle *fc_sehandle;
++
++#define NUM_SELABEL_OPTS 4
++static struct selinux_opt fc_opts[] = {
++	{ SELABEL_OPT_PATH, NULL },
++	{ SELABEL_OPT_BASEONLY, NULL },
++	{ SELABEL_OPT_VALIDATE, NULL },
++	{ SELABEL_OPT_DIGEST, NULL } };
++
++/*
++ * This is called if SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL is not set
++ * to check if the type components differ, updating newtypecon if so.
++ */
++static int compare_types(char *curcon, char *newcon, char **newtypecon)
 +{
-+	struct selabel_digest *digest = NULL;
++	int types_differ = 0;
++	context_t cona;
++	context_t conb;
++	int rc = 0;
 +
-+	while (n--) {
-+		if (opts[n].type == SELABEL_OPT_DIGEST &&
-+					    opts[n].value == (char *)1) {
-+			digest = malloc(sizeof(*digest));
-+			if (!digest)
++	cona = context_new(curcon);
++	if (!cona) {
++		rc = -1;
++		goto out;
++	}
++	conb = context_new(newcon);
++	if (!conb) {
++		context_free(cona);
++		rc = -1;
++		goto out;
++	}
++
++	types_differ = strcmp(context_type_get(cona), context_type_get(conb));
++	if (types_differ) {
++		rc |= context_user_set(conb, context_user_get(cona));
++		rc |= context_role_set(conb, context_role_get(cona));
++		rc |= context_range_set(conb, context_range_get(cona));
++		if (!rc) {
++			*newtypecon = strdup(context_str(conb));
++			if (!*newtypecon) {
++				rc = -1;
 +				goto err;
-+
-+			memset(digest, 0, sizeof(*digest));
-+
-+			digest->digest = malloc(DIGEST_SPECFILE_SIZE + 1);
-+			if (!digest->digest)
-+				goto err;
-+
-+			digest->specfile_list = calloc(DIGEST_FILES_MAX,
-+							    sizeof(char *));
-+			if (!digest->specfile_list)
-+				goto err;
-+
-+			entry = digest;
-+			return entry;
++			}
 +		}
 +	}
-+	return NULL;
 +
 +err:
-+	if (digest)
-+		free(digest->digest);
-+	if (digest->specfile_list)
-+		free(digest->specfile_list);
-+	free(digest);
-+	return NULL;
++	context_free(cona);
++	context_free(conb);
++out:
++	return rc;
 +}
 +
-+static void selabel_digest_fini(struct selabel_digest *ptr)
++static int restorecon_sb(const char *pathname, const struct stat *sb,
++				    bool nochange, bool verbose,
++				    bool customizable, bool changecontext)
 +{
-+	int i;
++	char *newcon = NULL;
++	char *curcon = NULL;
++	char *newtypecon = NULL;
++	int rc = 0;
++	bool updated = false;
 +
-+	if (ptr->digest)
-+		free(ptr->digest);
++	if (selabel_lookup_raw(fc_sehandle, &newcon, pathname, sb->st_mode) < 0)
++		return 0; /* no match, but not an error */
 +
-+	if (ptr->hashbuf)
-+		free(ptr->hashbuf);
++	if (lgetfilecon_raw(pathname, &curcon) < 0)
++		goto err;
 +
-+	if (ptr->specfile_list) {
-+		for (i = 0; ptr->specfile_list[i]; i++)
-+			free(ptr->specfile_list[i]);
-+		free(ptr->specfile_list);
++	if (strcmp(curcon, newcon) != 0) {
++		if (!customizable && (is_context_customizable(curcon) > 0)) {
++			if (verbose) {
++				selinux_log(SELINUX_INFO,
++				 "%s not reset as customized by admin to %s\n",
++							    pathname, curcon);
++					goto out;
++			}
++		}
++
++		if (!nochange && changecontext) {
++			if (lsetfilecon(pathname, newcon) < 0)
++				goto err;
++			updated = true;
++		} else if (nochange && changecontext) {
++			updated = true;
++		} else if (!changecontext) {
++			/* If types different then update newcon. */
++			rc = compare_types(curcon, newcon, &newtypecon);
++			if (rc)
++				goto err;
++
++			if (newtypecon) {
++				freecon(newcon);
++				newcon = newtypecon;
++				if (!nochange) {
++					if (lsetfilecon(pathname, newcon) < 0)
++						goto err;
++				}
++				updated = true;
++			}
++		}
++
++		if (verbose && updated)
++			selinux_log(SELINUX_INFO,
++				    "%s %s from %s to %s.\n",
++				    nochange ? "Would relabel" : "Relabeled",
++				    pathname, curcon, newcon);
 +	}
-+	free(ptr);
++
++out:
++	rc = 0;
++out1:
++	freecon(curcon);
++	freecon(newcon);
++	return rc;
++err:
++	selinux_log(SELINUX_ERROR,
++		    "Could not set context for %s:  %s\n",
++		    pathname, strerror(errno));
++	rc = -1;
++	goto out1;
 +}
 +
- /*
-  * Validation functions
-  */
-@@ -273,6 +342,7 @@ struct selabel_handle *selabel_open(unsigned int backend,
- 
- 	rec->subs = NULL;
- 	rec->dist_subs = NULL;
-+	rec->digest = selabel_is_digest_set(opts, nopts, rec->digest);
- 
- 	if ((*initfuncs[backend])(rec, opts, nopts)) {
- 		free(rec);
-@@ -378,10 +448,28 @@ enum selabel_cmp_result selabel_cmp(struct selabel_handle *h1,
- 	return h1->func_cmp(h1, h2);
- }
- 
-+int selabel_digest(struct selabel_handle *rec,
-+				    unsigned char **digest, int *digest_len,
-+				    char ***specfiles, int *num_specfiles)
++int selinux_restorecon(const char **pathname_list, const char *fc_path,
++					    unsigned int restorecon_flags)
 +{
-+	if (!rec->digest) {
++	bool force = (restorecon_flags &
++		   SELINUX_RESTORECON_FORCE_CHECK) ? true : false;
++	bool nochange = (restorecon_flags &
++		   SELINUX_RESTORECON_NOCHANGE) ? true : false;
++	bool customizable = (restorecon_flags &
++		   SELINUX_RESTORECON_CHANGE_CUSTOMIZABLE) ? true : false;
++	/* true = change file label to specfile entry,
++	 * false = only change type component. */
++	bool changecontext = (restorecon_flags &
++		   SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL) ? true : false;
++	bool verbose = (restorecon_flags &
++		   SELINUX_RESTORECON_VERBOSE) ? true : false;
++	bool recurse = (restorecon_flags &
++		   SELINUX_RESTORECON_RECURSE) ? true : false;
++	bool validate = (restorecon_flags &
++		   SELINUX_RESTORECON_VALIDATE) ? true : false;
++	bool userealpath = (restorecon_flags &
++		   SELINUX_RESTORECON_REALPATH) ? true : false;
++	bool xdev = (restorecon_flags &
++		   SELINUX_RESTORECON_XDEV) ? true : false;
++	bool issys;
++	bool setrestoreconlast = true;
++	struct stat sb;
++	struct statfs sfsb;
++	FTS *fts = NULL;
++	FTSENT *ftsent;
++	char *pathname = NULL;
++	char *paths[2] = { NULL , NULL };
++	int fts_flags = 0, error = 0, i;
++	char **specfiles = NULL;
++	unsigned char *digest = NULL;
++	int digest_len, num_specfiles;
++	unsigned char *xattr_value = NULL;
++	char *sha1_buf = NULL;
++	ssize_t size, entry;
++	dev_t dev_num = 0;
++
++	if (!pathname_list) {
++		selinux_log(SELINUX_ERROR, "No pathnames given.\n");
 +		errno = EINVAL;
 +		return -1;
 +	}
 +
-+	*digest = rec->digest->digest;
-+	*digest_len = DIGEST_SPECFILE_SIZE;
-+	*specfiles = rec->digest->specfile_list;
-+	*num_specfiles = rec->digest->specfile_cnt;
-+	return 0;
-+}
-+
- void selabel_close(struct selabel_handle *rec)
- {
- 	selabel_subs_fini(rec->subs);
- 	selabel_subs_fini(rec->dist_subs);
-+	if (rec->digest)
-+		selabel_digest_fini(rec->digest);
- 	rec->func_close(rec);
- 	free(rec->spec_file);
- 	free(rec);
-diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
-index af06c4a..1bee641 100644
---- a/libselinux/src/label_android_property.c
-+++ b/libselinux/src/label_android_property.c
-@@ -150,7 +150,6 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	/* Open the specification file. */
- 	if ((fp = fopen(path, "r")) == NULL)
- 		return -1;
--
- 	if (fstat(fileno(fp), &sb) < 0)
- 		goto finish;
- 	errno = EINVAL;
-@@ -199,7 +198,12 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 
- 	qsort(data->spec_arr, data->nspec, sizeof(struct spec), cmp);
- 
--	status = 0;
-+	status = digest_add_specfile(rec->digest, fp, NULL, sb.st_size, path);
-+	if (status)
-+		goto finish;
-+
-+	status = digest_gen_hash(rec->digest);
-+
- finish:
- 	fclose(fp);
- 	return status;
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index 6820ae3..18c5967 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -244,6 +244,7 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 	size_t		line_len = 0;
- 	unsigned int	line_num = 0;
- 	unsigned int	i;
-+	struct stat sb;
- 
- 	/*
- 	 * Initialize catalog data structure
-@@ -280,6 +281,12 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 		free(catalog);
- 		return NULL;
- 	}
-+	if (fstat(fileno(filp), &sb) < 0)
-+		return NULL;
-+	if (!S_ISREG(sb.st_mode)) {
-+		errno = EINVAL;
-+		return NULL;
-+	}
- 	rec->spec_file = strdup(path);
- 
- 	/*
-@@ -312,6 +319,12 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 	}
- 	free(line_buf);
- 
-+	if (digest_add_specfile(rec->digest, filp, NULL, sb.st_size, path) < 0)
-+		goto out_error;
-+
-+	if (digest_gen_hash(rec->digest) < 0)
-+		goto out_error;
-+
- 	fclose(filp);
- 
- 	return catalog;
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index bf91885..cb43cb9 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -98,7 +98,8 @@ static int nodups_specs(struct saved_data *data, const char *path)
- }
- 
- static int load_mmap(struct selabel_handle *rec, const char *path,
--		     struct stat *sb, bool isbinary)
-+				    struct stat *sb, bool isbinary,
-+				    struct selabel_digest *digest)
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	char mmap_path[PATH_MAX + 1];
-@@ -403,8 +404,12 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
- 
- 		data->nspec++;
- 	}
--	/* win */
--	rc = 0;
-+
-+	rc = digest_add_specfile(digest, NULL, addr, mmap_stat.st_size,
-+								    mmap_path);
-+	if (rc)
-+		goto err;
-+
- err:
- 	free(stem_map);
- 
-@@ -412,7 +417,8 @@ err:
- }
- 
- static int process_file(const char *path, const char *suffix,
--			  struct selabel_handle *rec, const char *prefix)
-+			  struct selabel_handle *rec,
-+			  const char *prefix, struct selabel_digest *digest)
- {
- 	FILE *fp;
- 	struct stat sb;
-@@ -474,7 +480,7 @@ static int process_file(const char *path, const char *suffix,
- 		sb.st_mtime = 0;
- 	}
- 
--	rc = load_mmap(rec, path, &sb, isbinary);
-+	rc = load_mmap(rec, path, &sb, isbinary, digest);
- 	if (rc == 0)
- 		goto out;
- 
-@@ -492,6 +498,8 @@ static int process_file(const char *path, const char *suffix,
- 			goto out;
- 	}
- 
-+	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, path);
-+
- out:
- 	free(line_buf);
- 	if (fp)
-@@ -524,14 +532,19 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 
- 	/* Process local and distribution substitution files */
- 	if (!path) {
--		rec->dist_subs = selabel_subs_init(selinux_file_context_subs_dist_path(), rec->dist_subs);
--		rec->subs = selabel_subs_init(selinux_file_context_subs_path(), rec->subs);
-+		rec->dist_subs =
-+		    selabel_subs_init(selinux_file_context_subs_dist_path(),
-+		    rec->dist_subs, rec->digest);
-+		rec->subs = selabel_subs_init(selinux_file_context_subs_path(),
-+		    rec->subs, rec->digest);
- 		path = selinux_file_context_path();
- 	} else {
- 		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", path);
--		rec->dist_subs = selabel_subs_init(subs_file, rec->dist_subs);
-+		rec->dist_subs = selabel_subs_init(subs_file, rec->dist_subs,
-+							    rec->digest);
- 		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
--		rec->subs = selabel_subs_init(subs_file, rec->subs);
-+		rec->subs = selabel_subs_init(subs_file, rec->subs,
-+							    rec->digest);
- 	}
- 
- 	rec->spec_file = strdup(path);
-@@ -539,7 +552,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	/*
- 	 * The do detailed validation of the input and fill the spec array
- 	 */
--	status = process_file(path, NULL, rec, prefix);
-+	status = process_file(path, NULL, rec, prefix, rec->digest);
- 	if (status)
- 		goto finish;
- 
-@@ -550,15 +563,21 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	}
- 
- 	if (!baseonly) {
--		status = process_file(path, "homedirs", rec, prefix);
-+		status = process_file(path, "homedirs", rec, prefix,
-+							    rec->digest);
- 		if (status && errno != ENOENT)
- 			goto finish;
- 
--		status = process_file(path, "local", rec, prefix);
-+		status = process_file(path, "local", rec, prefix,
-+							    rec->digest);
- 		if (status && errno != ENOENT)
- 			goto finish;
- 	}
- 
-+	status = digest_gen_hash(rec->digest);
-+	if (status)
-+		goto finish;
-+
- 	status = sort_specs(data);
- 
- finish:
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-index 6d00f5a..b35a1df 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -10,6 +10,8 @@
- 
- #include <stdlib.h>
- #include <stdarg.h>
-+#include <stdio.h>
-+#include <openssl/sha.h>
- #include <selinux/selinux.h>
- #include <selinux/label.h>
- #include "dso.h"
-@@ -43,8 +45,31 @@ struct selabel_sub {
- 	struct selabel_sub *next;
- };
- 
-+/*
-+ * Calculate an SHA1 hash of all the files used to build the specs.
-+ * The hash value is held in rec->digest if SELABEL_OPT_DIGEST set. To
-+ * calculate the hash the hashbuf will hold a concatenation of all the files
-+ * used. This is released once the value has been calculated.
-+ */
-+#define DIGEST_SPECFILE_SIZE SHA_DIGEST_LENGTH
-+#define DIGEST_FILES_MAX 8
-+struct selabel_digest {
-+	unsigned char *digest;	/* SHA1 digest of specfiles */
-+	unsigned char *hashbuf;	/* buffer to hold specfiles */
-+	size_t hashbuf_size;	/* buffer size */
-+	int specfile_cnt;	/* how many specfiles processed */
-+	char **specfile_list;	/* and their names */
-+};
-+
-+extern int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
-+						    char *from_addr,
-+						    size_t buf_len,
-+						    const char *path);
-+extern int digest_gen_hash(struct selabel_digest *digest);
-+
- extern struct selabel_sub *selabel_subs_init(const char *path,
--					     struct selabel_sub *list);
-+				    struct selabel_sub *list,
-+				    struct selabel_digest *digest);
- 
- struct selabel_lookup_rec {
- 	char * ctx_raw;
-@@ -83,6 +108,8 @@ struct selabel_handle {
- 	/* substitution support */
- 	struct selabel_sub *dist_subs;
- 	struct selabel_sub *subs;
-+	/* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
-+	struct selabel_digest *digest;
- };
- 
- /*
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index c589ca3..16a7ced 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -136,7 +136,12 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	}
- 	free(line_buf);
- 
--	status = 0;
-+	status = digest_add_specfile(rec->digest, fp, NULL, sb.st_size, path);
-+	if (status)
-+		goto finish;
-+
-+	status = digest_gen_hash(rec->digest);
-+
- finish:
- 	fclose(fp);
- 	return status;
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index b3ab8ab..42b4772 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -8,6 +8,8 @@
- #include <stdarg.h>
- #include <ctype.h>
- #include <string.h>
-+#include <stdio.h>
-+#include <errno.h>
- #include "label_internal.h"
- 
- /*
-@@ -15,8 +17,6 @@
-  * replace sscanf to read entries from spec files. The file and
-  * property services now use these.
-  */
--
--/* Read an entry from a spec file (e.g. file_contexts) */
- static inline int read_spec_entry(char **entry, char **ptr, int *len)
- {
- 	*entry = NULL;
-@@ -96,3 +96,80 @@ int hidden read_spec_entries(char *line_buf, int num_args, ...)
- 	va_end(ap);
- 	return items;
- }
-+
-+/* Once all the specfiles are in the hash_buf, generate the hash. */
-+int hidden digest_gen_hash(struct selabel_digest *digest)
-+{
-+	if (digest) {
-+		SHA1(digest->hashbuf, digest->hashbuf_size, digest->digest);
-+		free(digest->hashbuf);
-+		digest->hashbuf = NULL;
++	if (is_selinux_enabled() <= 0)
 +		return 0;
++
++	i = NUM_SELABEL_OPTS;
++	while (i--) {
++		switch (fc_opts[i].type) {
++		case SELABEL_OPT_PATH:
++			fc_opts[i].value = fc_path;
++			break;
++		case SELABEL_OPT_BASEONLY:
++			fc_opts[i].value = NULL;
++			break;
++		case SELABEL_OPT_VALIDATE:
++			fc_opts[i].value = (validate ? (char *)1 : NULL);
++			break;
++		case SELABEL_OPT_DIGEST:
++			fc_opts[i].value = (char *)1; /* Must request digest */
++			break;
++		}
 +	}
 +
-+	return -1;
-+}
++	fc_sehandle = selabel_open(SELABEL_CTX_FILE, fc_opts, NUM_SELABEL_OPTS);
++	if (!fc_sehandle) {
++		selinux_log(SELINUX_ERROR,
++			    "Error obtaining file context handle: %s\n",
++						    strerror(errno));
++		return -1;
++	}
 +
-+/**
-+ * digest_add_specfile - Add a specfile to the hashbuf and if gen_hash true
-+ *			 then generate the hash.
-+ * @digest: pointer to the selabel_digest struct
-+ * @fp: file pointer for fread(3) or NULL if not.
-+ * @from_addr: pointer at start of buffer for memcpy or NULL if not (used for
-+ *	       mmap(3) files).
-+ * @buf_len: length of buffer to copy.
-+ * @path: pointer to the specfile.
-+ *
-+ * Return %0 on success, -%1 with @errno set on failure.
-+ */
-+int hidden digest_add_specfile(struct selabel_digest *digest, FILE *fp,
-+				    char *from_addr, size_t buf_len,
-+				    const char *path)
-+{
-+	unsigned char *tmp_buf;
++	if (selabel_digest(fc_sehandle, &digest, &digest_len,
++				    &specfiles, &num_specfiles) < 0) {
++		selinux_log(SELINUX_ERROR,
++			    "Error reading specfiles digest: %s\n",
++						    strerror(errno));
++		selabel_close(fc_sehandle);
++		return -1;
++	}
 +
-+	if (digest) {
-+		if (digest->hashbuf_size + buf_len < digest->hashbuf_size) {
-+			errno = EOVERFLOW;
++	xattr_value = malloc(digest_len);
++	if (!xattr_value)
++		return -1;
++
++	if (verbose) {
++		sha1_buf = malloc(digest_len * 2 + 1);
++		if (!sha1_buf)
 +			return -1;
++
++		for (i = 0; i < digest_len; i++)
++			sprintf((&sha1_buf[i * 2]), "%02x", digest[i]);
++
++		selinux_log(SELINUX_INFO,
++			    "specfiles SHA1 digest: %s\n", sha1_buf);
++		selinux_log(SELINUX_INFO,
++			    "calculated using the following specfile(s):\n");
++		if (specfiles) {
++			for (i = 0; i < num_specfiles; i++)
++				selinux_log(SELINUX_INFO,
++					    "%s\n", specfiles[i]);
 +		}
-+		digest->hashbuf_size += buf_len;
++	}
 +
-+		tmp_buf = realloc(digest->hashbuf, digest->hashbuf_size);
-+		if (!tmp_buf)
-+			return -1;
++	if (xdev)
++		fts_flags = FTS_PHYSICAL | FTS_XDEV;
++	else
++		fts_flags = FTS_PHYSICAL;
 +
-+		digest->hashbuf = tmp_buf;
++	for (entry = 0; pathname_list[entry]; entry++) {
++		/* Need to reset as could have been set false */
++		setrestoreconlast = true;
 +
-+		if (fp) {
-+			rewind(fp);
-+			if (fread(digest->hashbuf +
-+					    (digest->hashbuf_size - buf_len),
-+					    1, buf_len, fp) != buf_len)
-+				return -1;
-+
-+			rewind(fp);
-+		} else if (from_addr) {
-+			tmp_buf = memcpy(digest->hashbuf +
-+					    (digest->hashbuf_size - buf_len),
-+					    from_addr, buf_len);
-+			if (!tmp_buf)
-+				return -1;
++		/* Convert passed-in pathname to canonical form if required. */
++		if (userealpath == true) {
++			pathname = realpath(pathname_list[entry], NULL);
++			if (!pathname) {
++				selinux_log(SELINUX_ERROR,
++				    "Could not get canonical path %s: %s.\n",
++				    pathname_list[entry], strerror(errno));
++				error = -1;
++				goto cleanup;
++			}
 +		} else {
-+			return -1;
++			pathname = strdup(pathname_list[entry]);
++			if (lstat(pathname, &sb) < 0) {
++				selinux_log(SELINUX_ERROR,
++				    "Could not stat: %s %s.\n",
++				    pathname_list[entry], strerror(errno));
++				error = -1;
++				goto cleanup;
++			}
 +		}
 +
-+		/* Now add path to list */
-+		digest->specfile_list[digest->specfile_cnt] = strdup(path);
-+		if (!digest->specfile_list[digest->specfile_cnt])
-+			return -1;
++		paths[0] = pathname;
++		issys = (!strcmp(pathname, SYS_PATH)
++			    || !strncmp(pathname, SYS_PREFIX,
++			    sizeof(SYS_PREFIX) - 1)) ? true : false;
 +
-+		digest->specfile_cnt++;
-+		if (digest->specfile_cnt > DIGEST_FILES_MAX) {
-+			errno = EOVERFLOW;
-+			return -1;
++		if (!recurse) {
++			error = restorecon_sb(pathname, &sb, nochange,
++					    verbose, customizable,
++					    changecontext);
++			goto cleanup;
++		}
++
++		/* Ignore /sys since it is regenerated on each boot. */
++		if (issys)
++			setrestoreconlast = false;
++
++		/* Ignore files on in-memory filesystems */
++		if (statfs(pathname, &sfsb) == 0) {
++			if (sfsb.f_type == RAMFS_MAGIC ||
++					    sfsb.f_type == TMPFS_MAGIC)
++				setrestoreconlast = false;
++		}
++
++		if (setrestoreconlast) {
++			size = getxattr(pathname, RESTORECON_LAST, xattr_value,
++								   digest_len);
++
++			if (size < 0 && errno == ENOTSUP)
++				continue;
++
++			if (verbose && size == digest_len) {
++				for (i = 0; i < digest_len; i++)
++					sprintf(&(sha1_buf[i * 2]), "%02x",
++							    xattr_value[i]);
++				selinux_log(SELINUX_INFO,
++					    "Entry: %s has SHA1 digest: %s\n",
++						   pathname, sha1_buf);
++			} else if (verbose && size != digest_len) {
++				selinux_log(SELINUX_INFO,
++				    "Entry: %s has no valid SHA1 digest\n",
++								    pathname);
++			}
++
++			if (!force && size == digest_len &&
++					   memcmp(digest, xattr_value,
++					   digest_len) == 0) {
++				selinux_log(SELINUX_INFO,
++					   "Skipping recursive entry: %s\n",
++					   pathname);
++				error = 0;
++				goto cleanup;
++			}
++		}
++
++		fts = fts_open(paths, fts_flags, NULL);
++		if (!fts) {
++			selinux_log(SELINUX_ERROR,
++				    "FTS open error: %s.\n", strerror(errno));
++			error = -1;
++			goto cleanup;
++		}
++
++		ftsent = fts_read(fts);
++		if (ftsent == NULL) {
++			selinux_log(SELINUX_ERROR,
++				    "FTS read error: %s.\n", strerror(errno));
++			error = -1;
++			goto cleanup;
++		}
++		/* Keep the inode of the first one. */
++		dev_num = ftsent->fts_statp->st_dev;
++
++		error = 0;
++		do {
++			/* Do not visit different device if XDEV flag set */
++			if (ftsent->fts_statp->st_dev != dev_num && xdev)
++				continue;
++
++			switch (ftsent->fts_info) {
++			case FTS_DC:
++				selinux_log(SELINUX_ERROR,
++					"Directory cycle on %s.\n",
++							    ftsent->fts_path);
++				errno = ELOOP;
++				error = -1;
++				(void) fts_close(fts);
++				goto cleanup;
++			case FTS_DP:
++				continue;
++			case FTS_DNR:
++				selinux_log(SELINUX_ERROR,
++					"Could not read %s: %s.\n",
++					    ftsent->fts_path, strerror(errno));
++				fts_set(fts, ftsent, FTS_SKIP);
++				continue;
++			case FTS_NS:
++				selinux_log(SELINUX_ERROR,
++					"Could not stat %s: %s.\n",
++					    ftsent->fts_path, strerror(errno));
++				fts_set(fts, ftsent, FTS_SKIP);
++				continue;
++			case FTS_ERR:
++				selinux_log(SELINUX_ERROR,
++					"Error on %s: %s.\n",
++					    ftsent->fts_path, strerror(errno));
++				fts_set(fts, ftsent, FTS_SKIP);
++				continue;
++			case FTS_D:
++				if (issys && !selabel_partial_match
++					    (fc_sehandle, ftsent->fts_path)) {
++					fts_set(fts, ftsent, FTS_SKIP);
++					continue;
++				}
++				/* fall through */
++			default:
++				error |= restorecon_sb(ftsent->fts_path,
++					    ftsent->fts_statp, nochange,
++					    verbose, customizable,
++					    changecontext);
++				break;
++			}
++		} while ((ftsent = fts_read(fts)) != NULL);
++
++		fts_close(fts);
++
++		/* Labeling successful. Mark top level directory completed. */
++		if (setrestoreconlast && !nochange && !error) {
++			error = setxattr(pathname, RESTORECON_LAST, digest,
++							    digest_len, 0);
++			if (!error && verbose)
++				selinux_log(SELINUX_INFO,
++					   "Updated SHA1 digest for: %s\n",
++							     pathname);
 +		}
 +	}
 +
-+	return 0;
++cleanup:
++	selabel_close(fc_sehandle);
++	free(pathname);
++	free(xattr_value);
++	if (verbose)
++		free(sha1_buf);
++	return error;
 +}
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index 3d13b23..309deae 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -163,7 +163,12 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	}
- 	free(line_buf);
- 
--	status = 0;
-+	status = digest_add_specfile(rec->digest, fp, NULL, sb.st_size, path);
-+	if (status)
-+		goto finish;
-+
-+	status = digest_gen_hash(rec->digest);
-+
- finish:
- 	fclose(fp);
- 	return status;
 diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index cac85c7..5dda66e 100644
+index 5dda66e..8068291 100644
 --- a/libselinux/utils/Makefile
 +++ b/libselinux/utils/Makefile
-@@ -28,7 +28,7 @@ LDLIBS += -L../src -lselinux -L$(LIBDIR)
+@@ -30,6 +30,8 @@ TARGETS=$(patsubst %.c,%,$(wildcard *.c))
  
- TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+ sefcontext_compile: LDLIBS += -lpcre -lcrypto ../src/libselinux.a -lsepol
  
--sefcontext_compile: LDLIBS += -lpcre ../src/libselinux.a -lsepol
-+sefcontext_compile: LDLIBS += -lpcre -lcrypto ../src/libselinux.a -lsepol
- 
++selinux_restorecon: LDLIBS += -lsepol
++
  ifeq ($(DISABLE_AVC),y)
  	UNUSED_TARGETS+=compute_av compute_create compute_member compute_relabel
-diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel_digest.c
+ endif
+diff --git a/libselinux/utils/selinux_restorecon.c b/libselinux/utils/selinux_restorecon.c
 new file mode 100644
-index 0000000..c9a3d63
+index 0000000..25ef9b5
 --- /dev/null
-+++ b/libselinux/utils/selabel_digest.c
-@@ -0,0 +1,183 @@
++++ b/libselinux/utils/selinux_restorecon.c
+@@ -0,0 +1,170 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
 +#include <getopt.h>
 +#include <errno.h>
++#include <sys/stat.h>
++#include <sepol/sepol.h>
 +#include <selinux/selinux.h>
-+#include <selinux/label.h>
 +
-+static int digest_len;
++static char *policyfile;
++
++static int validate_context(char **contextp)
++{
++	char *context = *contextp, *tmpcon;
++
++	if (policyfile) {
++		if (sepol_check_context(context) < 0) {
++			fprintf(stderr, "Invalid context %s\n", context);
++			exit(-1);
++		}
++	} else if (security_canonicalize_context_raw(context, &tmpcon) == 0) {
++		free(context);
++		*contextp = tmpcon;
++	} else if (errno != ENOENT) {
++		fprintf(stderr, "Validate context error: %s\n",
++						    strerror(errno));
++		exit(-1);
++	}
++
++	return 0;
++}
 +
 +static void usage(const char *progname)
 +{
 +	fprintf(stderr,
-+		"usage: %s -b backend [-d] [-v] [-B] [-f file]\n\n"
++		"\nusage: %s [-FnclRvrd] [-p policy] [-f specfile] "
++		"pathname ...\n"
 +		"Where:\n\t"
-+		"-b  The backend - \"file\", \"media\", \"x\", \"db\" or "
-+			"\"prop\"\n\t"
-+		"-v  Run \"cat <specfile_list> | openssl dgst -sha1 -hex\"\n\t"
-+		"    on the list of specfiles to compare the SHA1 digests.\n\t"
-+		"-B  Use base specfiles only (valid for \"-b file\" only).\n\t"
-+		"-f  Optional file containing the specs (defaults to\n\t"
-+		"    those used by loaded policy).\n\n",
++		"-F  Force the checking of labels even if the stored SHA1\n\t"
++		"    digest matches the specfiles SHA1 digest.\n\t"
++		"-n  Don't change any file labels (passive check).\n\t"
++		"-c  Reset customizable file label to match specfile.\n\t"
++		"-l  Reset file label to that in spec file. If this option\n\t"
++		"    is NOT set the default operation is to only reset the\n\t"
++		"    \"type\" component of the label to that in the "
++		"specfile.\n\t"
++		"-R  Recursively change files and directory labels.\n\t"
++		"-v  Show changes in file labels, Also specfiles used to calc\n\t"
++		"    SHA1 digest plus digest.\n\t"
++		"-r  Use realpath(3) to convert pathnames to canonical form.\n\t"
++		"-d  Prevent descending into directories that have a "
++		"different\n\t    device number than the pathname from  which "
++		"the descent began.\n\t"
++		"-p  Optional binary policy file (also sets the validate\n\t"
++		"    context option).\n\t"
++		"-f  Optional file contexts file (defaults to those used by\n\t"
++		"    loaded policy).\n\t"
++		"pathname  One or more paths to relabel.\n\n",
 +		progname);
-+	exit(1);
-+}
-+
-+static int run_check_digest(char *cmd, char *selabel_digest)
-+{
-+	FILE *fp;
-+	char files_digest[128];
-+	char *files_ptr;
-+	int rc = 0;
-+
-+	fp = popen(cmd, "r");
-+	if (!fp) {
-+		printf("Failed to run command line\n");
-+		return -1;
-+	}
-+
-+	/* Only expect one line "(stdin)= x.." so read and find first space */
-+	while (fgets(files_digest, sizeof(files_digest) - 1, fp) != NULL)
-+		;
-+
-+	files_ptr = strstr(files_digest, " ");
-+
-+	rc = strncmp(selabel_digest, files_ptr + 1, digest_len * 2);
-+	if (rc) {
-+		printf("Failed validation:\n\tselabel_digest: %s\n\t"
-+				    "files_digest:   %s\n",
-+				    selabel_digest, files_ptr + 1);
-+	} else {
-+		printf("Passed validation - digest: %s\n", selabel_digest);
-+	}
-+
-+	pclose(fp);
-+	return rc;
++	exit(-1);
 +}
 +
 +int main(int argc, char **argv)
 +{
-+	int backend = 0, rc, opt, i, validate = 0;
-+	char *baseonly = NULL, *file = NULL;
-+	char **specfiles = NULL;
-+	unsigned char *sha1_digest = NULL;
-+	int num_specfiles;
++	int rc, opt, i, num_paths, string_len;
++	char **paths = NULL;
++	unsigned int restorecon_flags = 0;
++	char *fc_name = NULL;
++	FILE *policystream;
 +
-+	char cmd_buf[4096];
-+	char *cmd_ptr;
-+	char *sha1_buf;
-+
-+	struct selabel_handle *hnd;
-+	struct selinux_opt selabel_option[] = {
-+		{ SELABEL_OPT_PATH, file },
-+		{ SELABEL_OPT_BASEONLY, baseonly },
-+		{ SELABEL_OPT_DIGEST, (char *)1 }
-+	};
-+
-+	if (argc < 3)
++	if (argc < 2)
 +		usage(argv[0]);
 +
-+	while ((opt = getopt(argc, argv, "b:Bvf:")) > 0) {
++	while ((opt = getopt(argc, argv, "FnclRvrdf:p:")) > 0) {
 +		switch (opt) {
-+		case 'b':
-+			if (!strcasecmp(optarg, "file")) {
-+				backend = SELABEL_CTX_FILE;
-+			} else if (!strcmp(optarg, "media")) {
-+				backend = SELABEL_CTX_MEDIA;
-+			} else if (!strcmp(optarg, "x")) {
-+				backend = SELABEL_CTX_X;
-+			} else if (!strcmp(optarg, "db")) {
-+				backend = SELABEL_CTX_DB;
-+			} else if (!strcmp(optarg, "prop")) {
-+				backend = SELABEL_CTX_ANDROID_PROP;
-+			} else {
-+				fprintf(stderr, "Unknown backend: %s\n",
-+								    optarg);
-+				usage(argv[0]);
-+			}
++		case 'F':
++			restorecon_flags |=
++				    SELINUX_RESTORECON_FORCE_CHECK;
 +			break;
-+		case 'B':
-+			baseonly = (char *)1;
++		case 'n':
++			restorecon_flags |= SELINUX_RESTORECON_NOCHANGE;
++			break;
++		case 'c':
++			restorecon_flags |=
++				   SELINUX_RESTORECON_CHANGE_CUSTOMIZABLE;
++			break;
++		case 'l':
++			restorecon_flags |=
++				   SELINUX_RESTORECON_CHANGE_USERROLETYPELEVEL;
++			break;
++		case 'R':
++			restorecon_flags |= SELINUX_RESTORECON_RECURSE;
 +			break;
 +		case 'v':
-+			validate = 1;
++			restorecon_flags |=  SELINUX_RESTORECON_VERBOSE;
++			break;
++		case 'r':
++			restorecon_flags |= SELINUX_RESTORECON_REALPATH;
++			break;
++		case 'd':
++			restorecon_flags |= SELINUX_RESTORECON_XDEV;
++			break;
++		case 'p':
++			policyfile = optarg;
++
++			policystream = fopen(policyfile, "r");
++			if (!policystream) {
++				fprintf(stderr,
++					"Error opening %s: %s\n",
++					policyfile, strerror(errno));
++				exit(-1);
++			}
++
++			if (sepol_set_policydb_from_file(policystream) < 0) {
++				fprintf(stderr,
++					"Error reading policy %s: %s\n",
++					policyfile, strerror(errno));
++				exit(-1);
++			}
++			fclose(policystream);
++			restorecon_flags |= SELINUX_RESTORECON_VALIDATE;
++			selinux_set_callback(SELINUX_CB_VALIDATE,
++				    (union selinux_callback)&validate_context);
 +			break;
 +		case 'f':
-+			file = optarg;
++			fc_name = optarg;
 +			break;
 +		default:
 +			usage(argv[0]);
 +		}
 +	}
 +
-+	memset(cmd_buf, 0, sizeof(cmd_buf));
++	/* Count paths */
++	for (i = optind, num_paths = 0; i < argc; i++, num_paths++)
++		;
 +
-+	selabel_option[0].value = file;
-+	selabel_option[1].value = baseonly;
++	if (num_paths) {
++		paths = calloc(num_paths + 1, sizeof(char *));
 +
-+	hnd = selabel_open(backend, selabel_option, 3);
-+	if (!hnd) {
-+		switch (errno) {
-+		case EOVERFLOW:
-+			fprintf(stderr, "ERROR Number of specfiles or specfile"
-+					" buffer caused an overflow.\n");
-+			break;
-+		default:
-+			fprintf(stderr, "ERROR: selabel_open: %s\n",
-+						    strerror(errno));
++		if (!paths) {
++			fprintf(stderr, "ERROR: calloc failed.\n");
++			exit(-1);
 +		}
-+		return -1;
-+	}
 +
-+	rc = selabel_digest(hnd, &sha1_digest, &digest_len, &specfiles,
-+							    &num_specfiles);
-+
-+	if (rc) {
-+		switch (errno) {
-+		case EINVAL:
-+			fprintf(stderr, "No digest available.\n");
-+			break;
-+		default:
-+			fprintf(stderr, "selabel_digest ERROR: %s\n",
-+						    strerror(errno));
++		for (i = optind, num_paths = 0; i < argc; i++, num_paths++) {
++			string_len = strlen(argv[i]) + 1;
++			paths[num_paths] = malloc(string_len);
++			if (!paths[num_paths]) {
++				fprintf(stderr, "ERROR: malloc failed.\n");
++				exit(-1);
++			}
++			strcpy(paths[num_paths], argv[i]);
 +		}
-+		goto err;
 +	}
 +
-+	sha1_buf = malloc(digest_len * 2 + 1);
-+	if (!sha1_buf) {
-+		fprintf(stderr, "Could not malloc buffer ERROR: %s\n",
++	rc = selinux_restorecon((const char **)paths, fc_name,
++					    restorecon_flags);
++
++	if (rc)
++		fprintf(stderr, "selinux_restorecon error: %s\n",
 +						    strerror(errno));
-+		rc = -1;
-+		goto err;
++
++	if (paths) {
++		for (i = 0; paths[i]; i++)
++			free(paths[i]);
++		free(paths);
 +	}
 +
-+	printf("SHA1 digest: ");
-+	for (i = 0; i < digest_len; i++)
-+		sprintf(&(sha1_buf[i * 2]), "%02x", sha1_digest[i]);
-+
-+	printf("%s\n", sha1_buf);
-+	printf("calculated using the following specfile(s):\n");
-+
-+	if (specfiles) {
-+		cmd_ptr = &cmd_buf[0];
-+		sprintf(cmd_ptr, "/usr/bin/cat ");
-+		cmd_ptr = &cmd_buf[0] + strlen(cmd_buf);
-+
-+		for (i = 0; i < num_specfiles; i++) {
-+			sprintf(cmd_ptr, "%s ", specfiles[i]);
-+			cmd_ptr += strlen(specfiles[i]) + 1;
-+			printf("%s\n", specfiles[i]);
-+		}
-+		sprintf(cmd_ptr, "| /usr/bin/openssl dgst -sha1 -hex");
-+
-+		if (validate)
-+			rc = run_check_digest(cmd_buf, sha1_buf);
-+	}
-+
-+	free(sha1_buf);
-+err:
-+	selabel_close(hnd);
 +	return rc;
 +}
 -- 
