@@ -1,30 +1,30 @@
-Subject: Re: how to run setsebool -P in chroot?
-To: Bond Masuda <bond.masuda@jlbond.com>, selinux@tycho.nsa.gov
-References: <CA+=dQ-8E2jMNN0i5=Bomp3g=hkFN=_qiQ3G5UtiXU8rNm6Ap1A@mail.gmail.com>
- <20150911134151.GA6297@x250> <55FC9E8B.8000604@jlbond.com>
+Subject: Re: How can i remove net_raw capability from unconfined?
+To: Gmail <pag.maurizio@gmail.com>, selinux@tycho.nsa.gov
+References: <004b01d0f3a7$2425cf10$6c716d30$@gmail.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56006495.8080003@tycho.nsa.gov>
-Date: Mon, 21 Sep 2015 16:12:05 -0400
+Message-ID: <56006546.5000507@tycho.nsa.gov>
+Date: Mon, 21 Sep 2015 16:15:02 -0400
 MIME-Version: 1.0
-In-Reply-To: <55FC9E8B.8000604@jlbond.com>
+In-Reply-To: <004b01d0f3a7$2425cf10$6c716d30$@gmail.com>
 Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/18/2015 07:30 PM, Bond Masuda wrote:
-> Hello,
+On 09/20/2015 09:20 AM, Gmail wrote:
+> Hi,
 > 
-> I'm trying to run setsebool in a chroot environment like:
+>  
 > 
-> chroot /mnt/test /usr/sbin/setsebool -P antivirus_can_scan_system 1
+> I need to understand how can i remove net_raw capability from
+> unconfined_t domain, someone can help me?
 > 
-> But I get:
-> 
-> setsebool:  SELinux is disabled.
-> 
-> I'm guessing this is because the environment is not running. Is there a
-> way around this? I need to be able to set some of the booleans this way.
+> I  need the source policy? Or can i remove another way? The systems are
+> RHEL 6 and RHEL 7.
 
-I would try using semanage boolean -N instead of setsebool -P.
+Yes, you would need to download the policy sources, modify the
+unconfined policy module, rebuild it, and install your modified version.
+
+It may be easier to instead define a new domain of your own that is
+allowed everything but net_raw.
