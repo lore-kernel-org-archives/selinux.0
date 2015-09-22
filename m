@@ -1,162 +1,121 @@
+Date: Tue, 22 Sep 2015 11:24:25 +1000
+From: Matthew Cengia <mattcen@cyber.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, russell@coker.com.au
 Subject: Re: overlayfs+selinux error: OPNOTSUPP
-To: Matthew Cengia <mattcen@cyber.com.au>, selinux@tycho.nsa.gov
+Message-ID: <20150922012425.GO22582@cyber.com.au>
 References: <20150921022517.GH22582@cyber.com.au>
- <56006BBA.4070602@tycho.nsa.gov>
-Cc: russell@coker.com.au, Matthew Cengia <mattcen@gmail.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56006CC7.2070605@tycho.nsa.gov>
-Date: Mon, 21 Sep 2015 16:47:03 -0400
+ <56006BBA.4070602@tycho.nsa.gov> <56006CC7.2070605@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <56006BBA.4070602@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature"; boundary="TOcFo/l1T3s1H/TJ"
+In-Reply-To: <56006CC7.2070605@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/21/2015 04:42 PM, Stephen Smalley wrote:
-> On 09/20/2015 10:25 PM, Matthew Cengia wrote:
->> NOTE: I originally sent this to LKML
->> (https://lkml.org/lkml/2015/9/17/888), but was directed here.
->>
->> Hi all,
->>
->> Please CC me directly when responding, as I'm not subscribed to the
->> mailing list.
->>
->>
->> Summary
->> -------
->> I deploy diskless Debian kiosks in prisons, for use by inmates.
->> As part of the Debian 7 to 8 upgrade, I want to enable SELinux.
->> My initrd uses overlayfs to combine a ro squashfs and a rw tmpfs.
->>
->> When I add SELinux into the mix, I get a lot of EOPNOTSUPP.
->>
->>
->> Long and boring history
->> -----------------------
->> I was happy with Debian 7 / Linux 3.16 / sysvinit / aufs.
->> Then, new hardware arrived, which needed a newer Xorg.
->> So I had to switch to Debian 8 / Linux 3.16.
->> Debian 8 defaults to systemd, so I went with that.
->>
->> I used to put $XDG_RUNTIME_DIR under a /tmp mounted -onoexec.
->> Systemd v215 is hard-coded to mount $XDG_RUNTIME_DIR as a dedicated tmpfs,
->> and provides no way to mount/remount it with -onoexec.
->>
->>     src/login/logind-user.c:336:user_mkdir_runtime_path()
->>
->> When I complained about this, regulars on #systemd on Freenode said:
->>
->>     Just use SELinux, already!
->>     -o noexec might break something, and it won't stop interpreters.
->>
->> ...which was mostly reasonable.
->> So adopting SELinux was reprioritized from "some day" to "right now!"
->>
->> aufs doesn't support SELinux, so I had to switch to overlayfs.
->> So now my target is Debian 8 / Linux 4.1 / systemd / overlayfs / SELinux.
->>
->>
->> Current problem
->> ---------------
->> When I built & booted that combination, hostnames didn't resolve.
->>
->> The initrd uses klibc ipconfig as a DHCP client,
->> then tries to create /etc/resolv.conf in the rootfs.
->> (This happens before switch_root.)
->>
->> When SELinux is enabled, resolv.conf can't be opened for writing.
->> The attached strace (output.txt) shows open(2) gets EOPNOTSUPP.
->>
->>
->> Tests completed
->> ---------------
->> This problem *ONLY* occurs in the initrd,
->> which is *BEFORE* the SELinux policy loads.
->> I'm not sure if this is relevant.
-> 
-> Yes, I believe it is.  Most likely culprit is:
-> security/selinux/hooks.c:
->    2890 static int selinux_inode_setxattr(struct dentry *dentry, const
-> char *name,
->    2891                                   const void *value, size_t
-> size, int flags)
->    2892 {
->    2893         struct inode *inode = dentry->d_inode;
->    2894         struct inode_security_struct *isec = inode->i_security;
->    2895         struct superblock_security_struct *sbsec;
->    2896         struct common_audit_data ad;
->    2897         u32 newsid, sid = current_sid();
->    2898         int rc = 0;
->    2899
->    2900         if (strcmp(name, XATTR_NAME_SELINUX))
->    2901                 return selinux_inode_setotherxattr(dentry, name);
->    2902
->    2903         sbsec = inode->i_sb->s_security;
->    2904         if (!(sbsec->flags & SBLABEL_MNT))
->    2905                 return -EOPNOTSUPP;
->                                ^^^^^^^^^^^^
-> That's to prevent setting SELinux attributes on a filesystem that does
-> not support labeling due to use of a context= mount or policy genfscon
-> rules to override any xattrs on the filesystem.  Maybe that should be
-> exempted if no policy is loaded (!ss_initialized).
-> 
-> At this point, I have to ask:  which is easier, patching systemd to do
-> what you want, loading policy earlier (in general, the earlier you load
-> SELinux policy, the better), or patching the kernel.
 
-BTW, IIUC, the reason that this manifests on an open(2) call is that
-overlayfs is trying to copy-up any xattrs from the lower filesystem to
-the upper filesystem when you touch the file, which triggers a
-vfs_getxattr on the lower filesystem and then a vfs_setxattr on the
-upper filesystem, and then we fail here.  Not something we would see on
-open(2) otherwise.
+--TOcFo/l1T3s1H/TJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
->>
->> This problem *DOES NOT* occur if the file/directory being written to
->> already exists in the read/write portion of the overlay mount before the
->> overlayfs is mounted. I've attached a script to demonstrate this.
->>
->> Booting the kernel with permissive=1 *DOES NOT* prevent the problem.
->>
->>
->> Test script
->> -----------
->> Attached is a script called 'bootstrap'.
->> When run on a Debian Jessie system with debootstrap, squashfs-tools, and kvm installed,
->> and selinux installed and enabled (even if it's in permissive mode),
->> 'bootstrap' will:
->>
->>  * Mount a tmpfs without -o nodev at /tmp/bootstrap/live, to build in;
->>  * Build an SOE in /tmp/bootstrap/live/;
->>  * Create a squashfs of the built system;
->>  * Leave the squashfs, kernel, and initrd in /tmp/bootstrap/live/boot/; and
->>  * Start up a VM using KVM to demonstrate the behaviour.
->>
->> The script that the initrd runs does several things, all of which are
->> detailed within the script, and in output.txt; look for lines
->> containing '-->'.
->>
->> output.txt contains a full KVM run of the system exhibiting the problem,
->> in which I've also run an 'strace touch' to demonstrate the failing
->> syscall.
->>
->>
->> Help?
->> -----
->> How can I set about debugging this problem further?
->> Has anybody dealt with this before?
->> How can I solve (or workaround) this problem?
->>
->>
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->>
-> 
+On 2015-09-21 16:47, Stephen Smalley wrote:
+[...]
+> >> This problem *ONLY* occurs in the initrd,
+> >> which is *BEFORE* the SELinux policy loads.
+> >> I'm not sure if this is relevant.
+> >=20
+> > Yes, I believe it is.  Most likely culprit is:
+> > security/selinux/hooks.c:
+> >    2890 static int selinux_inode_setxattr(struct dentry *dentry, const
+> > char *name,
+> >    2891                                   const void *value, size_t
+> > size, int flags)
+> >    2892 {
+> >    2893         struct inode *inode =3D dentry->d_inode;
+> >    2894         struct inode_security_struct *isec =3D inode->i_securit=
+y;
+> >    2895         struct superblock_security_struct *sbsec;
+> >    2896         struct common_audit_data ad;
+> >    2897         u32 newsid, sid =3D current_sid();
+> >    2898         int rc =3D 0;
+> >    2899
+> >    2900         if (strcmp(name, XATTR_NAME_SELINUX))
+> >    2901                 return selinux_inode_setotherxattr(dentry, name=
+);
+> >    2902
+> >    2903         sbsec =3D inode->i_sb->s_security;
+> >    2904         if (!(sbsec->flags & SBLABEL_MNT))
+> >    2905                 return -EOPNOTSUPP;
+> >                                ^^^^^^^^^^^^
+> > That's to prevent setting SELinux attributes on a filesystem that does
+> > not support labeling due to use of a context=3D mount or policy genfscon
+> > rules to override any xattrs on the filesystem.  Maybe that should be
+> > exempted if no policy is loaded (!ss_initialized).
+> >=20
+> > At this point, I have to ask:  which is easier, patching systemd to do
+> > what you want, loading policy earlier (in general, the earlier you load
+> > SELinux policy, the better), or patching the kernel.
+>=20
+> BTW, IIUC, the reason that this manifests on an open(2) call is that
+> overlayfs is trying to copy-up any xattrs from the lower filesystem to
+> the upper filesystem when you touch the file, which triggers a
+> vfs_getxattr on the lower filesystem and then a vfs_setxattr on the
+> upper filesystem, and then we fail here.  Not something we would see on
+> open(2) otherwise.
+
+Thanks for your response Stephen!
+
+Let me confirm I understand correctly. The problem doesn't occur when I
+write a file to the root of the overlay mountpoint. Are you saying this
+is because I'm not attempting to copy/set ant SELinux attributes on this
+file, but when I write something to /etc or /home, copy-up attempts and
+fails to write the SELinux attribute xattr?
+
+As for possible solutions: I'm not sure I want to contemplate patching
+systemd, so I'll leave that as a last resort.
+
+I'm happy to investigate loading the policy earlier; I'll need to talk
+to some Debian SELinux people to understand better how the policy gets
+loaded so I can duplicate that functionality into the initrd; I'm still
+getting my head around SELinux.
+
+Your final suggestion was a kernel change (!ss_initialized). Are you
+suggesting this is something you'd consider changing in mainline, or
+something I might want to patch for my specific instance? I want to
+avoid the latter, but if you think the former may be sensible, that'd be
+cool. Would that mean, however, that SELinux attributes may not be set
+correctly and that the files create wouldn't be accessible by everything
+that needs them after the policy has loaded?
+
+--=20
+Regards,
+Matthew Cengia
+
+--TOcFo/l1T3s1H/TJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iQJ8BAEBCgBmBQJWAK3JXxSAAAAAAC4AKGlzc3Vlci1mcHJAbm90YXRpb25zLm9w
+ZW5wZ3AuZmlmdGhob3JzZW1hbi5uZXRDMTlFRDFDRTdERThBODYxMjhGOEQwNEI5
+RDBCNTY1NTlCRjZBNTYyAAoJEJ0LVlWb9qVi/1QP/3cDzy/+H1gZDPd3HB3N8gu+
+9ieCMsjYuqTPuWmrtOpvgwOO22ltmeBTAb5+jXsdiwA0ynPffApzzKZeGsLhVWcH
+4tp+13SWwbXw1Lyd+awFyji5TZKV9Zssvh2dsnuISexDD7bc27kAUJBUAGpb40hs
+x6lx0Xz4DwB0uehUZ5a9fJ274faRwUlf2lozWqGkHRPmIW/xUftrlZMN9AWcLiYw
+jEOMwD5uG9zirYijD/6SlOt2kmMXLU9ikqNxaxHSbjNN5fQsXiHgdyUmKY+1KQyo
+H1pVFh1OyBpr49/3mHE7/pa5SKzX/wqbPAAKLJVjkOT/BJoJvdyQ1JSu/7gkLSbP
+u4OgFO0EmRL/umAHjMybX3MAgw3Amw2zyG+TTnxBBZKZt94j+ItDqul9jIKxPFwh
+Sj1uGpOOp98bxrtNmO0j2lSKxsiFP4yxwfhTdUGHkexHYZQF+kYT/gwxCC1XA4Qe
+5L/doc4xiFV8hT8WpnRhIJJSe4n4tFcYKcNa0AOvOV6Uvxz5wxaoFZ5WWUv5wcPJ
+xdH+g5vsMDWwyPnkqrE/7sYACdaq7igMCo//+tRBDtwk2vWV8lNB89uMOVnxDz6w
+hc0c5qWHkrFJCoPf3JPcBSggsWZ3QP/3I0X87C0JuqvZAqtZHEEurue5uoMwOlNP
+EfNGYbWVVo4giRjEExpx
+=Gcgx
+-----END PGP SIGNATURE-----
+
+--TOcFo/l1T3s1H/TJ--
