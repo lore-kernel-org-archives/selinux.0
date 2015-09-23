@@ -1,65 +1,84 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8NJWXHg022637
- for <selinux@tycho.nsa.gov>; Wed, 23 Sep 2015 15:32:33 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com
- (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
- by mx1.redhat.com (Postfix) with ESMTPS id C25392FAA64
- for <selinux@tycho.nsa.gov>; Wed, 23 Sep 2015 19:32:29 +0000 (UTC)
-Received: from sifl.localnet (vpn-59-26.rdu2.redhat.com [10.10.59.26])
- by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- t8NJWTvj010612
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
- for <selinux@tycho.nsa.gov>; Wed, 23 Sep 2015 15:32:29 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH] selinux: change
- CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE default
-Date: Wed, 23 Sep 2015 15:32:28 -0400
-Message-ID: <2085395.LGiPHuVovV@sifl>
-In-Reply-To: <20150921193434.11997.2963.stgit@localhost>
-References: <20150921193434.11997.2963.stgit@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8NKGKD6025821
+ for <selinux@tycho.nsa.gov>; Wed, 23 Sep 2015 16:16:20 -0400
+Received: by igbni9 with SMTP id ni9so35383410igb.0
+ for <selinux@tycho.nsa.gov>; Wed, 23 Sep 2015 13:16:18 -0700 (PDT)
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org,
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v4 0/7] Initial support for user namespace owned mounts
+Date: Wed, 23 Sep 2015 15:16:00 -0500
+Message-Id: <1443039368-55445-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Monday, September 21, 2015 03:34:34 PM Paul Moore wrote:
-> Change the SELinux checkreqprot default value to 0 so that SELinux
-> performs access control checking on the actual memory protections
-> used by the kernel and not those requested by the application.
-> 
-> Signed-off-by: Paul Moore <pmoore@redhat.com>
-> ---
->  security/selinux/Kconfig |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+This is the fourth revision of the patch series introducing the concept
+of superblocks owned by user namespaces, containing only trivial changes
+from the previous revision.
 
-FYI, I just merged this into selinux#next.
+These are the first in a larger set of patches, with the goal of
+eventually allowing some regular filesystem types to be mounted in
+unprivileged containers. The full series is available at:
 
-> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-> index bca1b74..8691e92 100644
-> --- a/security/selinux/Kconfig
-> +++ b/security/selinux/Kconfig
-> @@ -78,7 +78,7 @@ config SECURITY_SELINUX_CHECKREQPROT_VALUE
->  	int "NSA SELinux checkreqprot default value"
->  	depends on SECURITY_SELINUX
->  	range 0 1
-> -	default 1
-> +	default 0
->  	help
->  	  This option sets the default value for the 'checkreqprot' flag
->  	  that determines whether SELinux checks the protection requested
-> @@ -92,7 +92,7 @@ config SECURITY_SELINUX_CHECKREQPROT_VALUE
->  	  'checkreqprot=' boot parameter.  It may also be changed at runtime
->  	  via /selinux/checkreqprot if authorized by policy.
-> 
-> -	  If you are unsure how to answer this question, answer 1.
-> +	  If you are unsure how to answer this question, answer 0.
-> 
->  config SECURITY_SELINUX_POLICYDB_VERSION_MAX
->  	bool "NSA SELinux maximum supported policy format version"
+  git://kernel.ubuntu.com/sforshee/linux.git userns-mounts
 
--- 
-paul moore
-security @ redhat
+The strategy for this series is to do as much of the heavy lifting as
+possible in the vfs to minimize the need to handle edge cases in
+individual filesystems. The patches that follow lay some of the
+groundwork and fall into two groups:
+
+ 1. Patches 1-2 add s_user_ns to struct superblock and use it to
+    simplify MNT_NODEV handling.
+
+ 2. Patches 3-7 tighten down security for mounts with s_user_ns !=
+    &init_user_ns.
+
+Note that these patches only address security at the vfs level. As has
+been discussed previously, individual filesystems may still be
+vulnerable to attacks via malicious metadata in the backing store. The
+goal is to find a small set of filesystems which can be hardened from
+attacks from below. I am initially targeting fuse, which has been
+designed to resist such attacks, and ext4, which is so far standing up
+quite well to fuzzing.
+
+Changes since v3:
+ - Reword commit message for the MNT_NODEV handling changes to better
+   emphasize that it results in a user visible change in behavior.
+ - Consolidate smk_initialized into smk_flags as requested by Casey.
+
+Andy Lutomirski (1):
+  fs: Treat foreign mounts as nosuid
+
+Eric W. Biederman (1):
+  userns: Simpilify MNT_NODEV handling.
+
+Seth Forshee (5):
+  fs: Add user namesapace member to struct super_block
+  fs: Verify access of user towards block device file when mounting
+  fs: Limit file caps to the user namespace of the super block
+  Smack: Add support for unprivileged mounts from user namespaces
+  selinux: Add support for unprivileged mounts from user namespaces
+
+ drivers/mtd/mtdsuper.c         |  7 +++++-
+ fs/block_dev.c                 | 54 +++++++++++++++++++++++++++++++++---------
+ fs/exec.c                      |  2 +-
+ fs/namei.c                     |  9 ++++++-
+ fs/namespace.c                 | 34 +++++++++++++++-----------
+ fs/proc/root.c                 |  3 ++-
+ fs/super.c                     | 38 +++++++++++++++++++++++++----
+ include/linux/fs.h             | 11 ++++++++-
+ include/linux/mount.h          |  1 +
+ include/linux/user_namespace.h |  8 +++++++
+ kernel/user_namespace.c        | 14 +++++++++++
+ security/commoncap.c           |  4 +++-
+ security/selinux/hooks.c       | 25 ++++++++++++++++++-
+ security/smack/smack.h         |  8 ++++++-
+ security/smack/smack_lsm.c     | 41 +++++++++++++++++++++++---------
+ 15 files changed, 210 insertions(+), 49 deletions(-)
