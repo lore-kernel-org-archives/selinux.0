@@ -1,33 +1,32 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OMNiM8003011
- for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 18:23:44 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Serge Hallyn <serge.hallyn@canonical.com>,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OMYIpu003665
+ for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 18:34:18 -0400
+Subject: Re: [PATCH v4 6/7] Smack: Add support for unprivileged mounts from
+ user namespaces
+To: Seth Forshee <seth.forshee@canonical.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
+References: <1443039368-55445-1-git-send-email-seth.forshee@canonical.com>
+ <1443039368-55445-7-git-send-email-seth.forshee@canonical.com>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
  James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-References: <1443039368-55445-1-git-send-email-seth.forshee@canonical.com>
- <1443039368-55445-7-git-send-email-seth.forshee@canonical.com>
-Date: Thu, 24 Sep 2015 17:16:19 -0500
-In-Reply-To: <1443039368-55445-7-git-send-email-seth.forshee@canonical.com>
- (Seth Forshee's message of "Wed, 23 Sep 2015 15:16:06 -0500")
-Message-ID: <8737y3o43w.fsf@x220.int.ebiederm.org>
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Casey Schaufler <casey@schaufler-ca.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <56047A65.7090004@schaufler-ca.com>
+Date: Thu, 24 Sep 2015 15:34:13 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH v4 6/7] Smack: Add support for unprivileged mounts from
- user namespaces
+In-Reply-To: <1443039368-55445-7-git-send-email-seth.forshee@canonical.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Seth Forshee <seth.forshee@canonical.com> writes:
-
+On 9/23/2015 1:16 PM, Seth Forshee wrote:
 > Security labels from unprivileged mounts cannot be trusted.
 > Ideally for these mounts we would assign the objects in the
 > filesystem the same label as the inode for the backing device
@@ -63,12 +62,11 @@ Seth Forshee <seth.forshee@canonical.com> writes:
 > backing store and thus cannot supply security labels, so an
 > explicit exception is made to trust labels from these
 > filesystems.
-
-Casey can I get your ack on this patch?  Or do you still have concerns?
-
-Eric
-
+>
 > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+
 > ---
 >  security/smack/smack.h     |  8 +++++++-
 >  security/smack/smack_lsm.c | 41 ++++++++++++++++++++++++++++++-----------
