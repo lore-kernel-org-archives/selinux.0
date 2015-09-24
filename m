@@ -1,27 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OM0ZL4001316
- for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 18:00:35 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OM6xrG001866
+ for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 18:06:59 -0400
 From: ebiederm@xmission.com (Eric W. Biederman)
 To: Seth Forshee <seth.forshee@canonical.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>,
  Serge Hallyn <serge.hallyn@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
  Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
 References: <1443039368-55445-1-git-send-email-seth.forshee@canonical.com>
- <1443039368-55445-4-git-send-email-seth.forshee@canonical.com>
-Date: Thu, 24 Sep 2015 16:53:11 -0500
-In-Reply-To: <1443039368-55445-4-git-send-email-seth.forshee@canonical.com>
- (Seth Forshee's message of "Wed, 23 Sep 2015 15:16:03 -0500")
-Message-ID: <87si63o56g.fsf@x220.int.ebiederm.org>
+ <1443039368-55445-5-git-send-email-seth.forshee@canonical.com>
+Date: Thu, 24 Sep 2015 16:59:35 -0500
+In-Reply-To: <1443039368-55445-5-git-send-email-seth.forshee@canonical.com>
+ (Seth Forshee's message of "Wed, 23 Sep 2015 15:16:04 -0500")
+Message-ID: <87fv23o4vs.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [PATCH v4 3/7] fs: Verify access of user towards block device
- file when mounting
+Subject: Re: [PATCH v4 4/7] fs: Limit file caps to the user namespace of the
+ super block
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -29,173 +27,92 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Seth Forshee <seth.forshee@canonical.com> writes:
 
-> When mounting a filesystem on a block device there is currently
-> no verification that the user has appropriate access to the
-> device file passed to mount. This has not been an issue so far
-> since the user in question has always been root, but this must
-> be changed before allowing unprivileged users to mount in user
-> namespaces.
+> Capability sets attached to files must be ignored except in the
+> user namespaces where the mounter is privileged, i.e. s_user_ns
+> and its descendants. Otherwise a vector exists for gaining
+> privileges in namespaces where a user is not already privileged.
 >
-> To do this, a new version of lookup_bdev() is added named
-> lookup_bdev_perm(). Both of these functions become wrappers
-> around a common inner fucntion. The behavior of lookup_bdev() is
-> unchanged, but calling lookup_bdev_perm() will fail if the user
-> does not have the specified access rights to the supplied path.
-> The permission check is skipped if the user has CAP_SYS_ADMIN to
-> avoid any possible regressions in behavior.
->
-> blkdev_get_by_path() is updated to use lookup_bdev_perm(). This
-> is used by mount_bdev() and mount_mtd(), so this will cause
-> mounts on block devices to fail when the user lacks the required
-> permissions. Other calls to blkdev_get_by_path() will all happen
-> with root privileges, so these calls will be unaffected.
+> Add a new helper function, in_user_ns(), to test whether a user
+> namespace is the same as or a descendant of another namespace.
+> Use this helper to determine whether a file's capability set
+> should be applied to the caps constructed during exec.
 
-Good but buggy patch.
-
-In the mtd bits the flags are super flags, not file mode bits,
-which makes testing them against FMODE_READ and FMODE_WRITE is
-incorrect.
-
-Further it looks like quite a few more possibly all of the lookup_bdev
-instances could use inode level permission checking.
-
-Certainly code such as quotactl makes me wonder.
-
-Ugh.  Your code needs to be using __inode_permission and not
-inode_permission.
-
-The readability or writability of a device node has little or nothing to
-do with the readability/writability of the superblock.   So I don't see
-any reason we should be checking that.
+No issues with this but given that we always pass current_user_ns()
+we may want to simplify the users of in_user_ns by renaming it
+current_in_user_ns() and hard codeing current_user_ns().
 
 Eric
->
+
+
+> Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 > ---
->  drivers/mtd/mtdsuper.c |  7 ++++++-
->  fs/block_dev.c         | 52 ++++++++++++++++++++++++++++++++++++++++----------
->  include/linux/fs.h     |  1 +
->  3 files changed, 49 insertions(+), 11 deletions(-)
+>  include/linux/user_namespace.h |  8 ++++++++
+>  kernel/user_namespace.c        | 14 ++++++++++++++
+>  security/commoncap.c           |  2 ++
+>  3 files changed, 24 insertions(+)
 >
-> diff --git a/drivers/mtd/mtdsuper.c b/drivers/mtd/mtdsuper.c
-> index 20c02a3b7417..a3970b0506b9 100644
-> --- a/drivers/mtd/mtdsuper.c
-> +++ b/drivers/mtd/mtdsuper.c
-> @@ -125,6 +125,7 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
->  #ifdef CONFIG_BLOCK
->  	struct block_device *bdev;
->  	int ret, major;
-> +	int perm = 0;
->  #endif
->  	int mtdnr;
+> diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+> index 8297e5b341d8..a43faa727124 100644
+> --- a/include/linux/user_namespace.h
+> +++ b/include/linux/user_namespace.h
+> @@ -72,6 +72,8 @@ extern ssize_t proc_projid_map_write(struct file *, const char __user *, size_t,
+>  extern ssize_t proc_setgroups_write(struct file *, const char __user *, size_t, loff_t *);
+>  extern int proc_setgroups_show(struct seq_file *m, void *v);
+>  extern bool userns_may_setgroups(const struct user_namespace *ns);
+> +extern bool in_userns(const struct user_namespace *ns,
+> +		      const struct user_namespace *target_ns);
+>  #else
 >  
-> @@ -176,7 +177,11 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
->  	/* try the old way - the hack where we allowed users to mount
->  	 * /dev/mtdblock$(n) but didn't actually _use_ the blockdev
->  	 */
-> -	bdev = lookup_bdev(dev_name);
-> +	if (flags & FMODE_READ)
-> +		perm |= MAY_READ;
-> +	if (flags & FMODE_WRITE)
-> +		perm |= MAY_WRITE;
-> +	bdev = lookup_bdev_perm(dev_name, perm);
->  	if (IS_ERR(bdev)) {
->  		ret = PTR_ERR(bdev);
->  		pr_debug("MTDSB: lookup_bdev() returned %d\n", ret);
-> diff --git a/fs/block_dev.c b/fs/block_dev.c
-> index 46bd98482f71..7ca0f8911e97 100644
-> --- a/fs/block_dev.c
-> +++ b/fs/block_dev.c
-> @@ -1401,9 +1401,14 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
->  					void *holder)
+>  static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+> @@ -100,6 +102,12 @@ static inline bool userns_may_setgroups(const struct user_namespace *ns)
 >  {
->  	struct block_device *bdev;
-> +	int perm = 0;
->  	int err;
->  
-> -	bdev = lookup_bdev(path);
-> +	if (mode & FMODE_READ)
-> +		perm |= MAY_READ;
-> +	if (mode & FMODE_WRITE)
-> +		perm |= MAY_WRITE;
-> +	bdev = lookup_bdev_perm(path, perm);
->  	if (IS_ERR(bdev))
->  		return bdev;
->  
-> @@ -1710,15 +1715,8 @@ int ioctl_by_bdev(struct block_device *bdev, unsigned cmd, unsigned long arg)
->  
->  EXPORT_SYMBOL(ioctl_by_bdev);
->  
-> -/**
-> - * lookup_bdev  - lookup a struct block_device by name
-> - * @pathname:	special file representing the block device
-> - *
-> - * Get a reference to the blockdevice at @pathname in the current
-> - * namespace if possible and return it.  Return ERR_PTR(error)
-> - * otherwise.
-> - */
-> -struct block_device *lookup_bdev(const char *pathname)
-> +static struct block_device *__lookup_bdev(const char *pathname, int mask,
-> +					  bool check_perm)
->  {
->  	struct block_device *bdev;
->  	struct inode *inode;
-> @@ -1733,6 +1731,11 @@ struct block_device *lookup_bdev(const char *pathname)
->  		return ERR_PTR(error);
->  
->  	inode = d_backing_inode(path.dentry);
-> +	if (check_perm && !capable(CAP_SYS_ADMIN)) {
-> +		error = inode_permission(inode, mask);
-> +		if (error)
-> +			goto fail;
-> +	}
->  	error = -ENOTBLK;
->  	if (!S_ISBLK(inode->i_mode))
->  		goto fail;
-> @@ -1750,6 +1753,35 @@ fail:
->  	bdev = ERR_PTR(error);
->  	goto out;
+>  	return true;
 >  }
 > +
-> +/*
-> + * lookup_bdev_perm - lookup a struct block_device by name and check for
-> + *		      access rights
-> + * @pathname:	special file representing the block device
-> + * @mask:	rights to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
-> + *
-> + * Get a reference to the blockdevice at @pathname in the current
-> + * namespace if possible, check for the specified rights to the device
-> + * at @pathname, and return it.  Return ERR_PTR(error) otherwise.
-> + */
-> +struct block_device *lookup_bdev_perm(const char *pathname, int mask)
+> +static inline bool in_userns(const struct user_namespace *ns,
+> +			     const struct user_namespace *target_ns)
 > +{
-> +	return __lookup_bdev(pathname, mask, true);
+> +	return true;
 > +}
-> +EXPORT_SYMBOL(lookup_bdev_perm);
-> +
-> +/**
-> + * lookup_bdev  - lookup a struct block_device by name
-> + * @pathname:	special file representing the block device
-> + *
-> + * Get a reference to the blockdevice at @pathname in the current
-> + * namespace if possible and return it.  Return ERR_PTR(error)
-> + * otherwise.
-> + */
-> +struct block_device *lookup_bdev(const char *pathname)
-> +{
-> +	return __lookup_bdev(pathname, 0, false);
-> +}
->  EXPORT_SYMBOL(lookup_bdev);
+>  #endif
 >  
->  int __invalidate_device(struct block_device *bdev, bool kill_dirty)
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index 5ec201e8308c..d03c2061bdd2 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -2383,6 +2383,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
->  #define BLKDEV_MAJOR_HASH_SIZE	255
->  extern const char *__bdevname(dev_t, char *buffer);
->  extern const char *bdevname(struct block_device *bdev, char *buffer);
-> +extern struct block_device *lookup_bdev_perm(const char *, int);
->  extern struct block_device *lookup_bdev(const char *);
->  extern void blkdev_show(struct seq_file *,off_t);
+>  #endif /* _LINUX_USER_H */
+> diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+> index 88fefa68c516..69fbc377357b 100644
+> --- a/kernel/user_namespace.c
+> +++ b/kernel/user_namespace.c
+> @@ -945,6 +945,20 @@ bool userns_may_setgroups(const struct user_namespace *ns)
+>  	return allowed;
+>  }
+>  
+> +/*
+> + * Returns true if @ns is the same namespace as or a descendant of
+> + * @target_ns.
+> + */
+> +bool in_userns(const struct user_namespace *ns,
+> +	       const struct user_namespace *target_ns)
+> +{
+> +	for (; ns; ns = ns->parent) {
+> +		if (ns == target_ns)
+> +			return true;
+> +	}
+> +	return false;
+> +}
+> +
+>  static inline struct user_namespace *to_user_ns(struct ns_common *ns)
+>  {
+>  	return container_of(ns, struct user_namespace, ns);
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index 1832cf701c3d..400aa224b491 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -450,6 +450,8 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
+>  
+>  	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+>  		return 0;
+> +	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
+> +		return 0;
+>  
+>  	rc = get_vfs_caps_from_disk(bprm->file->f_path.dentry, &vcaps);
+>  	if (rc < 0) {
