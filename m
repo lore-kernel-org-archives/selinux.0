@@ -1,25 +1,26 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OM6xrG001866
- for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 18:06:59 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OMNiM8003011
+ for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 18:23:44 -0400
 From: ebiederm@xmission.com (Eric W. Biederman)
 To: Seth Forshee <seth.forshee@canonical.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Casey Schaufler <casey@schaufler-ca.com>,
  Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>,
  Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
 References: <1443039368-55445-1-git-send-email-seth.forshee@canonical.com>
- <1443039368-55445-5-git-send-email-seth.forshee@canonical.com>
-Date: Thu, 24 Sep 2015 16:59:35 -0500
-In-Reply-To: <1443039368-55445-5-git-send-email-seth.forshee@canonical.com>
- (Seth Forshee's message of "Wed, 23 Sep 2015 15:16:04 -0500")
-Message-ID: <87fv23o4vs.fsf@x220.int.ebiederm.org>
+ <1443039368-55445-7-git-send-email-seth.forshee@canonical.com>
+Date: Thu, 24 Sep 2015 17:16:19 -0500
+In-Reply-To: <1443039368-55445-7-git-send-email-seth.forshee@canonical.com>
+ (Seth Forshee's message of "Wed, 23 Sep 2015 15:16:06 -0500")
+Message-ID: <8737y3o43w.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [PATCH v4 4/7] fs: Limit file caps to the user namespace of the
- super block
+Subject: Re: [PATCH v4 6/7] Smack: Add support for unprivileged mounts from
+ user namespaces
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -27,92 +28,159 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Seth Forshee <seth.forshee@canonical.com> writes:
 
-> Capability sets attached to files must be ignored except in the
-> user namespaces where the mounter is privileged, i.e. s_user_ns
-> and its descendants. Otherwise a vector exists for gaining
-> privileges in namespaces where a user is not already privileged.
+> Security labels from unprivileged mounts cannot be trusted.
+> Ideally for these mounts we would assign the objects in the
+> filesystem the same label as the inode for the backing device
+> passed to mount. Unfortunately it's currently impossible to
+> determine which inode this is from the LSM mount hooks, so we
+> settle for the label of the process doing the mount.
 >
-> Add a new helper function, in_user_ns(), to test whether a user
-> namespace is the same as or a descendant of another namespace.
-> Use this helper to determine whether a file's capability set
-> should be applied to the caps constructed during exec.
+> This label is assigned to s_root, and also to smk_default to
+> ensure that new inodes receive this label. The transmute property
+> is also set on s_root to make this behavior more explicit, even
+> though it is technically not necessary.
+>
+> If a filesystem has existing security labels, access to inodes is
+> permitted if the label is the same as smk_root, otherwise access
+> is denied. The SMACK64EXEC xattr is completely ignored.
+>
+> Explicit setting of security labels continues to require
+> CAP_MAC_ADMIN in init_user_ns.
+>
+> Altogether, this ensures that filesystem objects are not
+> accessible to subjects which cannot already access the backing
+> store, that MAC is not violated for any objects in the fileystem
+> which are already labeled, and that a user cannot use an
+> unprivileged mount to gain elevated MAC privileges.
+>
+> sysfs, tmpfs, and ramfs are already mountable from user
+> namespaces and support security labels. We can't rule out the
+> possibility that these filesystems may already be used in mounts
+> from user namespaces with security lables set from the init
+> namespace, so failing to trust lables in these filesystems may
+> introduce regressions. It is safe to trust labels from these
+> filesystems, since the unprivileged user does not control the
+> backing store and thus cannot supply security labels, so an
+> explicit exception is made to trust labels from these
+> filesystems.
 
-No issues with this but given that we always pass current_user_ns()
-we may want to simplify the users of in_user_ns by renaming it
-current_in_user_ns() and hard codeing current_user_ns().
+Casey can I get your ack on this patch?  Or do you still have concerns?
 
 Eric
 
-
-> Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 > ---
->  include/linux/user_namespace.h |  8 ++++++++
->  kernel/user_namespace.c        | 14 ++++++++++++++
->  security/commoncap.c           |  2 ++
->  3 files changed, 24 insertions(+)
+>  security/smack/smack.h     |  8 +++++++-
+>  security/smack/smack_lsm.c | 41 ++++++++++++++++++++++++++++++-----------
+>  2 files changed, 37 insertions(+), 12 deletions(-)
 >
-> diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-> index 8297e5b341d8..a43faa727124 100644
-> --- a/include/linux/user_namespace.h
-> +++ b/include/linux/user_namespace.h
-> @@ -72,6 +72,8 @@ extern ssize_t proc_projid_map_write(struct file *, const char __user *, size_t,
->  extern ssize_t proc_setgroups_write(struct file *, const char __user *, size_t, loff_t *);
->  extern int proc_setgroups_show(struct seq_file *m, void *v);
->  extern bool userns_may_setgroups(const struct user_namespace *ns);
-> +extern bool in_userns(const struct user_namespace *ns,
-> +		      const struct user_namespace *target_ns);
->  #else
->  
->  static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-> @@ -100,6 +102,12 @@ static inline bool userns_may_setgroups(const struct user_namespace *ns)
->  {
->  	return true;
->  }
-> +
-> +static inline bool in_userns(const struct user_namespace *ns,
-> +			     const struct user_namespace *target_ns)
-> +{
-> +	return true;
-> +}
->  #endif
->  
->  #endif /* _LINUX_USER_H */
-> diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-> index 88fefa68c516..69fbc377357b 100644
-> --- a/kernel/user_namespace.c
-> +++ b/kernel/user_namespace.c
-> @@ -945,6 +945,20 @@ bool userns_may_setgroups(const struct user_namespace *ns)
->  	return allowed;
->  }
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index fff0c612bbb7..f95759015f29 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -90,9 +90,15 @@ struct superblock_smack {
+>  	struct smack_known	*smk_floor;
+>  	struct smack_known	*smk_hat;
+>  	struct smack_known	*smk_default;
+> -	int			smk_initialized;
+> +	int			smk_flags;
+>  };
 >  
 > +/*
-> + * Returns true if @ns is the same namespace as or a descendant of
-> + * @target_ns.
+> + * Superblock flags
 > + */
-> +bool in_userns(const struct user_namespace *ns,
-> +	       const struct user_namespace *target_ns)
-> +{
-> +	for (; ns; ns = ns->parent) {
-> +		if (ns == target_ns)
-> +			return true;
-> +	}
-> +	return false;
-> +}
+> +#define SMK_SB_INITIALIZED	0x01
+> +#define SMK_SB_UNTRUSTED	0x02
 > +
->  static inline struct user_namespace *to_user_ns(struct ns_common *ns)
->  {
->  	return container_of(ns, struct user_namespace, ns);
-> diff --git a/security/commoncap.c b/security/commoncap.c
-> index 1832cf701c3d..400aa224b491 100644
-> --- a/security/commoncap.c
-> +++ b/security/commoncap.c
-> @@ -450,6 +450,8 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
+>  struct socket_smack {
+>  	struct smack_known	*smk_out;	/* outbound label */
+>  	struct smack_known	*smk_in;	/* inbound label */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 996c88956438..621200f86b56 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -521,7 +521,7 @@ static int smack_sb_alloc_security(struct super_block *sb)
+>  	sbsp->smk_floor = &smack_known_floor;
+>  	sbsp->smk_hat = &smack_known_hat;
+>  	/*
+> -	 * smk_initialized will be zero from kzalloc.
+> +	 * SMK_SB_INITIALIZED will be zero from kzalloc.
+>  	 */
+>  	sb->s_security = sbsp;
 >  
->  	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
+> @@ -738,10 +738,10 @@ static int smack_set_mnt_opts(struct super_block *sb,
+>  	int num_opts = opts->num_mnt_opts;
+>  	int transmute = 0;
+>  
+> -	if (sp->smk_initialized)
+> +	if (sp->smk_flags & SMK_SB_INITIALIZED)
 >  		return 0;
-> +	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
-> +		return 0;
 >  
->  	rc = get_vfs_caps_from_disk(bprm->file->f_path.dentry, &vcaps);
->  	if (rc < 0) {
+> -	sp->smk_initialized = 1;
+> +	sp->smk_flags |= SMK_SB_INITIALIZED;
+>  
+>  	for (i = 0; i < num_opts; i++) {
+>  		switch (opts->mnt_opts_flags[i]) {
+> @@ -793,6 +793,17 @@ static int smack_set_mnt_opts(struct super_block *sb,
+>  		skp = smk_of_current();
+>  		sp->smk_root = skp;
+>  		sp->smk_default = skp;
+> +		/*
+> +		 * For a handful of fs types with no user-controlled
+> +		 * backing store it's okay to trust security labels
+> +		 * in the filesystem. The rest are untrusted.
+> +		 */
+> +		if (sb->s_user_ns != &init_user_ns &&
+> +		    sb->s_magic != SYSFS_MAGIC && sb->s_magic != TMPFS_MAGIC &&
+> +		    sb->s_magic != RAMFS_MAGIC) {
+> +			transmute = 1;
+> +			sp->smk_flags |= SMK_SB_UNTRUSTED;
+> +		}
+>  	}
+>  
+>  	/*
+> @@ -1175,6 +1186,7 @@ static int smack_inode_rename(struct inode *old_inode,
+>   */
+>  static int smack_inode_permission(struct inode *inode, int mask)
+>  {
+> +	struct superblock_smack *sbsp = inode->i_sb->s_security;
+>  	struct smk_audit_info ad;
+>  	int no_block = mask & MAY_NOT_BLOCK;
+>  	int rc;
+> @@ -1186,6 +1198,11 @@ static int smack_inode_permission(struct inode *inode, int mask)
+>  	if (mask == 0)
+>  		return 0;
+>  
+> +	if (sbsp->smk_flags & SMK_SB_UNTRUSTED) {
+> +		if (smk_of_inode(inode) != sbsp->smk_root)
+> +			return -EACCES;
+> +	}
+> +
+>  	/* May be droppable after audit */
+>  	if (no_block)
+>  		return -ECHILD;
+> @@ -3475,14 +3492,16 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+>  			if (rc >= 0)
+>  				transflag = SMK_INODE_TRANSMUTE;
+>  		}
+> -		/*
+> -		 * Don't let the exec or mmap label be "*" or "@".
+> -		 */
+> -		skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
+> -		if (IS_ERR(skp) || skp == &smack_known_star ||
+> -		    skp == &smack_known_web)
+> -			skp = NULL;
+> -		isp->smk_task = skp;
+> +		if (!(sbsp->smk_flags & SMK_SB_UNTRUSTED)) {
+> +			/*
+> +			 * Don't let the exec or mmap label be "*" or "@".
+> +			 */
+> +			skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
+> +			if (IS_ERR(skp) || skp == &smack_known_star ||
+> +			    skp == &smack_known_web)
+> +				skp = NULL;
+> +			isp->smk_task = skp;
+> +		}
+>  
+>  		skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
+>  		if (IS_ERR(skp) || skp == &smack_known_star ||
