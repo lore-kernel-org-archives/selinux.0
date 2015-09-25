@@ -1,63 +1,102 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8OLPQsQ031578
- for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 17:25:26 -0400
-Received: by qgt47 with SMTP id 47so55560265qgt.2
- for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 14:25:25 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Jeff Vander Stoep <jeffv@google.com>
-Cc: selinux@tycho.nsa.gov, eparis@parisplace.org, sds@tycho.nsa.gov
-Subject: Re: [PATCH v2] selinux: do not check open perm on ftruncate call
-Date: Thu, 24 Sep 2015 17:25:23 -0400
-Message-ID: <1515646.IArWl9jham@sifl>
-In-Reply-To: <1442605186-24800-1-git-send-email-jeffv@google.com>
-References: <1442605186-24800-1-git-send-email-jeffv@google.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8P2R2H6016327
+ for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 22:27:02 -0400
+Subject: Re: Cil Macros
+To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <56037F3F.4050200@yahoo.com> <5603EAA2.2080805@tycho.nsa.gov>
+ <56042C92.2020904@yahoo.com> <56042DF4.3020205@tycho.nsa.gov>
+From: Dan <dtdevore64@yahoo.com>
+Message-ID: <5604B0E8.7070409@yahoo.com>
+Date: Thu, 24 Sep 2015 22:26:48 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <56042DF4.3020205@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, September 18, 2015 12:39:46 PM Jeff Vander Stoep wrote:
-> Use the ATTR_FILE attribute to distinguish between truncate()
-> and ftruncate() system calls. The two other cases where
-> do_truncate is called with a filp (and therefore ATTR_FILE is set)
-> are for coredump files and for open(O_TRUNC). In both of those cases
-> the open permission has already been checked during file open and
-> therefore does not need to be repeated.
-> 
-> Commit 95dbf739313f ("SELinux: check OPEN on truncate calls")
-> fixed a major issue where domains were allowed to truncate files
-> without the open permission. However, it introduced a new bug where
-> a domain with the write permission can no longer ftruncate files
-> without the open permission, even when they receive an already open
-> file.
-> 
-> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-> ---
-> V2 fixes mistakes in commit message
-> 
->  security/selinux/hooks.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+Oh okay I understand now. Thanks for your help.
 
-Applied, thanks.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index f4be0a1..b32f1e1 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2934,7 +2934,8 @@ static int selinux_inode_setattr(struct dentry
-> *dentry, struct iattr *iattr) ATTR_ATIME_SET | ATTR_MTIME_SET |
-> ATTR_TIMES_SET))
->  		return dentry_has_perm(cred, dentry, FILE__SETATTR);
-> 
-> -	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE))
-> +	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE)
-> +			&& !(ia_valid & ATTR_FILE))
->  		av |= FILE__OPEN;
-> 
->  	return dentry_has_perm(cred, dentry, av);
-
--- 
-paul moore
-www.paul-moore.com
+On 09/24/2015 01:08 PM, James Carter wrote:
+> On 09/24/2015 01:02 PM, Dan wrote:
+>> The only thing I am confused on now is on what to put for the "ARG" 
+>> statements.
+>> Now when it says "ARG1" am I supposed to put my mytest_t type there 
+>> or just
+>> leave it as it says like ARG1? I took out the typeattributeset 
+>> statement like
+>> you said and tried to build it with the following, but it still 
+>> failed. Thanks.
+>>
+>> (macro mytest_t_domain_auto_trans ((type ARG1))
+>>    (call domain_trans (type ARG1))
+>>    (allow ARG1  mytest_t (process (exec read write getattr transition)))
+>> )
+>>
+>
+> You had the call right before: (call domain_trans (ARG1))
+>
+> ARG1 is just the parameter, so it is replaced in the call.
+> Somewhere else you would have (call mytest_t_domain_auto_trans 
+> (sometype_t)), and sometype_t will replace ARG1.
+>
+> Is this clearer?
+>
+> Jim
+>
+>>
+>>
+>> On 09/24/2015 08:20 AM, James Carter wrote:
+>>> On 09/24/2015 12:42 AM, Dan wrote:
+>>>> Hello everyone, I've been trying to play around with macros with 
+>>>> the CIL
+>>>> language and have come across some problems on how they work. I'm 
+>>>> just trying to
+>>>> simple create a macro that will do a type transition with a process 
+>>>> called
+>>>> mytest_t domain.
+>>>>
+>>>> Here is what I have so far:
+>>>>
+>>>>
+>>>>
+>>>>
+>>>> (macro mytest_t_domain_auto_trans ((ARG1))
+>>>>    (typeattributeset cil_gen_require application_domain_type)
+>>>>    (call domain_trans (ARG1))
+>>>>    (allow ARG1 mytest_t (process (exec read write getattr 
+>>>> transition)))
+>>>> )
+>>>>
+>>>
+>>> You are probably getting a message saying invalid syntax.
+>>> The macro definition needs to say what the argument is, like this:
+>>> (macro mytest_t_domain_auto_trans ((type ARG1))
+>>>
+>>> We use (typeattributeset cil_gen_require SOME_TYPE) when converting 
+>>> pp files
+>>> to cil to make optional blocks work when a type is required, but not 
+>>> used. I
+>>> don't think that you need it here.
+>>>
+>>> I hope that helps.
+>>>
+>>> Jim
+>>>
+>>>>
+>>>>
+>>>> ...but when I try to run it it obviously doesn't work. If anyone 
+>>>> has any input
+>>>> on what I am doing wrong I'm all ears. Thanks.
+>>>> _______________________________________________
+>>>> Selinux mailing list
+>>>> Selinux@tycho.nsa.gov
+>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>> To get help, send an email containing "help" to 
+>>>> Selinux-request@tycho.nsa.gov.
+>>>>
+>>>
+>>>
+>
+>
