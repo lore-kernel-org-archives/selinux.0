@@ -1,11 +1,9 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8PHOq6n012646
- for <selinux@tycho.nsa.gov>; Fri, 25 Sep 2015 13:24:52 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8PHYZvi013308
+ for <selinux@tycho.nsa.gov>; Fri, 25 Sep 2015 13:34:35 -0400
 From: ebiederm@xmission.com (Eric W. Biederman)
 To: Seth Forshee <seth.forshee@canonical.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
  Jeff Layton <jlayton@poochiereds.net>,
  "J. Bruce Fields" <bfields@fieldses.org>,
  Serge Hallyn <serge.hallyn@canonical.com>,
@@ -13,92 +11,151 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
 References: <1443039368-55445-1-git-send-email-seth.forshee@canonical.com>
- <1443039368-55445-4-git-send-email-seth.forshee@canonical.com>
- <87si63o56g.fsf@x220.int.ebiederm.org>
- <20150925124833.GA104990@ubuntu-hedt>
-Date: Fri, 25 Sep 2015 12:16:59 -0500
-In-Reply-To: <20150925124833.GA104990@ubuntu-hedt> (Seth Forshee's message of
- "Fri, 25 Sep 2015 07:48:33 -0500")
-Message-ID: <87si62ju5w.fsf@x220.int.ebiederm.org>
+ <1443039368-55445-2-git-send-email-seth.forshee@canonical.com>
+ <87vbazplja.fsf@x220.int.ebiederm.org>
+ <20150925125414.GC104990@ubuntu-hedt>
+Date: Fri, 25 Sep 2015 12:27:09 -0500
+In-Reply-To: <20150925125414.GC104990@ubuntu-hedt> (Seth Forshee's message of
+ "Fri, 25 Sep 2015 07:54:14 -0500")
+Message-ID: <87eghmjtoy.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: Re: [PATCH v4 3/7] fs: Verify access of user towards block device
- file when mounting
+Subject: Re: [PATCH v4 1/7] fs: Add user namesapace member to struct
+ super_block
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-Argh.  This looks like morning person meets night owl.
-
 Seth Forshee <seth.forshee@canonical.com> writes:
 
-> On Thu, Sep 24, 2015 at 04:53:11PM -0500, Eric W. Biederman wrote:
+> On Thu, Sep 24, 2015 at 04:14:33PM -0500, Eric W. Biederman wrote:
 >> Seth Forshee <seth.forshee@canonical.com> writes:
 >> 
->> > When mounting a filesystem on a block device there is currently
->> > no verification that the user has appropriate access to the
->> > device file passed to mount. This has not been an issue so far
->> > since the user in question has always been root, but this must
->> > be changed before allowing unprivileged users to mount in user
->> > namespaces.
+>> > Initially this will be used to eliminate the implicit MNT_NODEV
+>> > flag for mounts from user namespaces. In the future it will also
+>> > be used for translating ids and checking capabilities for
+>> > filesystems mounted from user namespaces.
 >> >
->> > To do this, a new version of lookup_bdev() is added named
->> > lookup_bdev_perm(). Both of these functions become wrappers
->> > around a common inner fucntion. The behavior of lookup_bdev() is
->> > unchanged, but calling lookup_bdev_perm() will fail if the user
->> > does not have the specified access rights to the supplied path.
->> > The permission check is skipped if the user has CAP_SYS_ADMIN to
->> > avoid any possible regressions in behavior.
+>> > s_user_ns is initialized in alloc_super() and is generally set to
+>> > current_user_ns(). To avoid security and corruption issues, two
+>> > additional mount checks are also added:
 >> >
->> > blkdev_get_by_path() is updated to use lookup_bdev_perm(). This
->> > is used by mount_bdev() and mount_mtd(), so this will cause
->> > mounts on block devices to fail when the user lacks the required
->> > permissions. Other calls to blkdev_get_by_path() will all happen
->> > with root privileges, so these calls will be unaffected.
+>> >  - do_new_mount() gains a check that the user has CAP_SYS_ADMIN
+>> >    in current_user_ns().
+>> >
+>> >  - sget() will fail with EBUSY when the filesystem it's looking
+>> >    for is already mounted from another user namespace.
+>> >
+>> > proc requires some special handling. The user namespace of
+>> > current isn't appropriate when forking as a result of clone (2)
+>> > with CLONE_NEWPID|CLONE_NEWUSER, as it will set s_user_ns to the
+>> > namespace of the parent and make proc unmountable in the new user
+>> > namespace. Instead, the user namespace which owns the new pid
+>> > namespace is used. sget_userns() is allowed to allow passing in
+>> > a namespace other than that of current, and sget becomes a
+>> > wrapper around sget_userns() which passes current_user_ns().
 >> 
->> Good but buggy patch.
+>> Minor nits below.  I have fixed them up.
 >> 
->> In the mtd bits the flags are super flags, not file mode bits,
->> which makes testing them against FMODE_READ and FMODE_WRITE is
->> incorrect.
->
-> Bah, yes. Fixed.
->
->> Further it looks like quite a few more possibly all of the lookup_bdev
->> instances could use inode level permission checking.
+>> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+>> > ---
+>> >  fs/namespace.c     |  3 +++
+>> >  fs/proc/root.c     |  3 ++-
+>> >  fs/super.c         | 38 +++++++++++++++++++++++++++++++++-----
+>> >  include/linux/fs.h |  9 ++++++++-
+>> >  4 files changed, 46 insertions(+), 7 deletions(-)
+>> >
+>> > diff --git a/fs/namespace.c b/fs/namespace.c
+>> > index 0570729c87fd..d023a353dc63 100644
+>> > --- a/fs/namespace.c
+>> > +++ b/fs/namespace.c
+>> > @@ -2381,6 +2381,9 @@ static int do_new_mount(struct path *path, const char *fstype, int flags,
+>> >  	struct vfsmount *mnt;
+>> >  	int err;
+>> >  
+>> > +	if (!ns_capable(current_user_ns(), CAP_SYS_ADMIN))
+>> > +		return -EPERM;
+>> > +
+>> >  	if (!fstype)
+>> >  		return -EINVAL;
+>> >  
+>> > diff --git a/fs/proc/root.c b/fs/proc/root.c
+>> > index 361ab4ee42fc..4b302cbf13f9 100644
+>> > --- a/fs/proc/root.c
+>> > +++ b/fs/proc/root.c
+>> > @@ -117,7 +117,8 @@ static struct dentry *proc_mount(struct file_system_type *fs_type,
+>> >  			return ERR_PTR(-EPERM);
+>> >  	}
+>> >  
+>> > -	sb = sget(fs_type, proc_test_super, proc_set_super, flags, ns);
+>> > +	sb = sget_userns(fs_type, proc_test_super, proc_set_super, flags,
+>> > +			 ns->user_ns, ns);
+>> >  	if (IS_ERR(sb))
+>> >  		return ERR_CAST(sb);
+>> >  
+>> > diff --git a/fs/super.c b/fs/super.c
+>> > index 954aeb80e202..42837da7d641 100644
+>> > --- a/fs/super.c
+>> > +++ b/fs/super.c
+>> > @@ -33,6 +33,7 @@
+>> >  #include <linux/cleancache.h>
+>> >  #include <linux/fsnotify.h>
+>> >  #include <linux/lockdep.h>
+>> > +#include <linux/user_namespace.h>
+>> >  #include "internal.h"
+>> >  
+>> >  
+>> > @@ -163,6 +164,7 @@ static void destroy_super(struct super_block *s)
+>> >  {
+>> >  	list_lru_destroy(&s->s_dentry_lru);
+>> >  	list_lru_destroy(&s->s_inode_lru);
+>> > +	put_user_ns(s->s_user_ns);
+>> >  	security_sb_free(s);
+>> >  	WARN_ON(!list_empty(&s->s_mounts));
+>> >  	kfree(s->s_subtype);
+>> > @@ -178,7 +180,8 @@ static void destroy_super(struct super_block *s)
+>> >   *	Allocates and initializes a new &struct super_block.  alloc_super()
+>> >   *	returns a pointer new superblock or %NULL if allocation had failed.
+>> >   */
+>> > -static struct super_block *alloc_super(struct file_system_type *type, int flags)
+>> > +static struct super_block *alloc_super(struct file_system_type *type, int flags,
+>> > +				       struct user_namespace *user_ns)
+>> >  {
+>> >  	struct super_block *s = kzalloc(sizeof(struct super_block),  GFP_USER);
+>> >  	static const struct super_operations default_op;
+>> > @@ -246,6 +249,8 @@ static struct super_block *alloc_super(struct file_system_type *type, int flags)
+>> >  	s->s_shrink.count_objects = super_cache_count;
+>> >  	s->s_shrink.batch = 1024;
+>> >  	s->s_shrink.flags = SHRINKER_NUMA_AWARE | SHRINKER_MEMCG_AWARE;
+>> > +
+>> > +	s->s_user_ns = get_user_ns(user_ns);
+>> >  	return s;
+>> >  
+>> >  fail:
+>> > @@ -442,17 +447,17 @@ void generic_shutdown_super(struct super_block *sb)
+>> >  EXPORT_SYMBOL(generic_shutdown_super);
+>> >  
+>> >  /**
+>> > - *	sget	-	find or create a superblock
+>> > + *	sget_userns -	find or create a superblock
+>> >   *	@type:	filesystem type superblock should belong to
+>> >   *	@test:	comparison callback
+>> >   *	@set:	setup callback
+>> >   *	@flags:	mount flags
 >> 
->> Certainly code such as quotactl makes me wonder.
+>> You don't mention the user namespace parameter here.  I have fixed that
+>> as.
+>> 
+>>   + *     @user_ns: User namespace you need CAP_SYS_ADMIN over to mount this fs.
 >
-> I opted to stick to places related to mounting, but let's take a look at
-> the other callers.
->
-> bcache calls it in the context of sysfs writes, and those attributes are
-> writable only by root. In that case the inode permission check will be
-> skipped anyway, so it makes no difference either way.
->
-> Device mapper calls it in dm_get_device, which is called from a bunch of
-> places. I had started trying to walk back through all the callers of
-> dm_get_device, but that rabbit hole got really deep really quickly so I
-> didn't feel confident that changing it wouldn't break anyone.
->
-> quotactl gave me pause, as it seems to have done for you too. I was
-> surprised that inode permissions aren't checked, but
-> check_quotactl_permission does get called before actually doing
-> anything. I fear that adding a check of inode permissions could end up
-> breaking someone.
+> Looks good, thanks. Seems I also missed it in alloc_super though.
 
-My gut feel on all of this is that we should act like may_open and have
-have a flag of 0 for access mode mean don't check permissions.
+FYI I have placed everything that I has made it through my review in my
+for-testing branch up on kernel.org.  So you can see what I have merged,
+and the build test bots can look and see if they find anything to
+complain about.
 
-That way we can change all of the callers of lookup_bdev to pass an
-additional argument and make it explicit what is going on but we don't
-actually have to change the callers to actually perform an additional
-check.
-
-Leaving stones unturned is a good way to introduce a security hole by
-accident so I don't want to leave dm_get_device unreviewed, but any
-changes can be in later patches.
+git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git for-testing
 
 Eric
