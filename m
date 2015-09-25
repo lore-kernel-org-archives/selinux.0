@@ -1,9 +1,9 @@
-Date: Fri, 25 Sep 2015 17:45:30 +0200
+Date: Fri, 25 Sep 2015 18:21:35 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: selinux network control question
-Message-ID: <20150925154528.GB29665@x250>
+Message-ID: <20150925162134.GC29665@x250>
 References: <20150925151543.GA29665@x250>
  <560567F4.8010800@tycho.nsa.gov>
 MIME-Version: 1.0
@@ -30,50 +30,10 @@ On Fri, Sep 25, 2015 at 11:27:48AM -0400, Stephen Smalley wrote:
 > > context reserved for unused isids?
 > 
 > netif SIDs are used by the egress/ingress permission checks (which are only active if using peer labeling).
-
-so netifcon is still useful (albeit only with peer labeling) ?
-
 > 
-> > 2.
-> > Above also applies to node labels (ie. nodes are no longer checked in
-> > any scenarion (secmark, netlabel, labeled-ipset)
-> > 
-> > The question is then why is the node isid still working. And why do i
-> > need to allow some processes to bind to nodes with the context
-> > associated with the node isid?
-> > 
-> > why is the node isid still used?
-> 
-> node SIDs are used in checks on bind(2) and for sendto/recvfrom checks (also only if using peer labeling).
->
 
-so nodecon is still useful (albeit with using peer labeling) ?
-
-What i do not understand and find inconsistent is: why do i need to
-allow processes that bind(2) to bind nodes associated with the
-context associated with the node isid regardless, but nodecon is not
-honored without using peer labeling 
-
-> > 3. packets are checked with secmark, and you can associate different
-> > packet types with different packets)
-> 
-> secmark allows local/internal labeling of packets via iptables and access control over them based on those labels.
->
-
-So only packet labels apply to secmark
-
-> > 4. peers are checked with netlabel, but you only need on peer type
-> > (ie. you can't associate different peer types with different peers)
-> 
-> peer labeling can be based on labeled IPSEC or netlabel.
-> NetLabel can only pass MLS labels across the network, although it can convey full contexts locally (see the selinux-testsuite for a configured example under tests/inet_socket or the SELinux Notebook for further examples).
-> Labeled IPSEC can pass full labels locally or across the network (ditto).
-
-So i only need a single "peer type" (the one associated with the peer isid)
-
-
-It is a bit confusing to me, the more because i do not use these
-technologies but i want to support them with my policy.
+Thanks, It is clear now. I was not paying attention, and after thinking
+about it some more and looking up some things it became clear.
 
 - -- 
 02DFF788
@@ -83,14 +43,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJWBWwUAAoJENAR6kfG5xmcQZ8L/20Dua/mYrwNgbdIlKgsD+Hz
-5511SyuGQ/Mx1tIXLJYIQsr46W5mpeMB0RqTcvIMAdQsKDE6MXE3omA8TQu+oPRl
-VpcKKFSHtOhTouD7MHRny/6KjVEB3YrPZZNOSMB+t8JpAF0s/yfkQf4yNYUY+S/O
-8jJMaklYNc7rKldPS8O6dz9WnCM0I00mBLwBuc+x5lhbF50Ja9ByNazepqAi6cOo
-Al/shGWiszpfNjaiYMOxuzDE5ErUN54OU6RtJHtcV+BKVhImHO1qFZa1ojJMiWzk
-zdQpqSGyhy195gkW0in0MSGX4E8Bp2LmLrD5cO6cJuCMb+n0L5F4sihT4e+2FUJF
-de8/jX2jnlAJkaHzu6P+Ubx1+DMmlQUWZ/ZuK0+Y5peJTbGN9fuz1Rt/Zy89cDzg
-LkIB2O1VT4DmbovGQfkKLBjvVUU07bijj96HQQTR86hHByRA6JCUwej07Yj51xBE
-NciKsz62tJyspKAjX0EF3d2BORY28KAueF11JZFr9Q==
-=TwuT
+iQGcBAEBCgAGBQJWBXSKAAoJENAR6kfG5xmcZxgL/jGeQBtQmUC2nZQpeZBZROvk
+IXfn8eWtrqu1lYX3BFtRs08R8jGYDVeUoWIx0qGwRGPHc+43/k4VJYLzokmRWNN8
+HCz0alXakwaM3ArL4O/y7hq2w9hYkVSF9+9wu1lYH8X0n50op9UrUWHLdORYe84m
+ib/UeoD7fF5AVLHqcKZQh7+pqcDmTZNLcYfncPX1tq8CtebV08Lk6txwPrG/muH2
+BJ0mYko+PUt48SwvV/KiHjcHEDHCuvk8ngik0ccD1Mv65SkNpq0v9uA8j/ZKEBA3
+aGwLe1JLFk68Ul5wMCZQzKO0NjUSV1cLpIwc8Dp6aqBIWXjmzzuntEVyLpxvEFMV
+x2c0zx55WxwQ7xeHKFaiD4DbHvmCwxuvlm4/IHigmbHFrLELQv/HHt2FTcRh38uQ
+17rvo0UNOoYp8ZgK08ysIwEEmmpJHAbl3qJFUFwmlTOkSOUu7xcVPK8Z0J8gG/YK
+9SWtEkOqRr2z8f+yQeZzQvfiNkmsY4tqWqWWWr1rGQ==
+=bngt
 -----END PGP SIGNATURE-----
