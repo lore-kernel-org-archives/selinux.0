@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8P2R2H6016327
- for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 22:27:02 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8P3KLsa019350
+ for <selinux@tycho.nsa.gov>; Thu, 24 Sep 2015 23:20:21 -0400
 Subject: Re: Cil Macros
 To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
 References: <56037F3F.4050200@yahoo.com> <5603EAA2.2080805@tycho.nsa.gov>
  <56042C92.2020904@yahoo.com> <56042DF4.3020205@tycho.nsa.gov>
 From: Dan <dtdevore64@yahoo.com>
-Message-ID: <5604B0E8.7070409@yahoo.com>
-Date: Thu, 24 Sep 2015 22:26:48 -0400
+Message-ID: <5604BD62.5090909@yahoo.com>
+Date: Thu, 24 Sep 2015 23:20:02 -0400
 MIME-Version: 1.0
 In-Reply-To: <56042DF4.3020205@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -16,7 +16,20 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Oh okay I understand now. Thanks for your help.
+Sorry for replying again but I wanted to paste my code in case anyone 
+wanted to see an example of a process transition with a domain using a 
+macro.
+
+(macro domain_auto_trans ((type ARG1) (type ARG2) (type ARG3))
+    (allow ARG1 ARG2 (file (read getattr execute open)))
+    (allow ARG1 ARG3 (process (transition)))
+    (allow ARG3 ARG2 (file (ioctl entrypoint read getattr lock execute 
+execute_no_trans open)))
+    (typetransition ARG1 ARG2 process ARG3)
+)
+
+(call domain_trans (staff_t mytest_exec_t mytest_t))
+
 
 On 09/24/2015 01:08 PM, James Carter wrote:
 > On 09/24/2015 01:02 PM, Dan wrote:
