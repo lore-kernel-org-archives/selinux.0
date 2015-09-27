@@ -1,51 +1,40 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8PMYjW0002140
- for <selinux@tycho.nsa.gov>; Fri, 25 Sep 2015 18:34:51 -0400
-Received: by lacdq2 with SMTP id dq2so57552323lac.1
- for <selinux@tycho.nsa.gov>; Fri, 25 Sep 2015 15:34:48 -0700 (PDT)
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Geliang Tang <geliangtang@163.com>
 To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>,
  James Morris <james.l.morris@oracle.com>,
  "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, selinux@tycho.nsa.gov,
+Cc: Geliang Tang <geliangtang@163.com>, selinux@tycho.nsa.gov,
  linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] selinux: use sprintf return value
-Date: Sat, 26 Sep 2015 00:34:19 +0200
-Message-Id: <1443220459-11042-6-git-send-email-linux@rasmusvillemoes.dk>
-In-Reply-To: <1443220459-11042-1-git-send-email-linux@rasmusvillemoes.dk>
-References: <1443220459-11042-1-git-send-email-linux@rasmusvillemoes.dk>
+Subject: [PATCH 1/2] selinux: ioctl_has_perm should be static
+Date: Sun, 27 Sep 2015 23:10:24 +0800
+Message-Id: <ff802942c34154cceee8ab2256d8c5ce6a665d21.1443366384.git.geliangtang@163.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-sprintf returns the number of characters printed (excluding '\0'), so
-we can use that and avoid duplicating the length computation.
+Fixes the following sparse warning:
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+ security/selinux/hooks.c:3242:5: warning: symbol 'ioctl_has_perm' was
+ not declared. Should it be static?
+
+Signed-off-by: Geliang Tang <geliangtang@163.com>
 ---
- security/selinux/ss/services.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index aa2bdcb20848..ebb5eb3c318c 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1218,13 +1218,10 @@ static int context_struct_to_string(struct context *context, char **scontext, u3
- 	/*
- 	 * Copy the user name, role name and type name into the context.
- 	 */
--	sprintf(scontextp, "%s:%s:%s",
-+	scontextp += sprintf(scontextp, "%s:%s:%s",
- 		sym_name(&policydb, SYM_USERS, context->user - 1),
- 		sym_name(&policydb, SYM_ROLES, context->role - 1),
- 		sym_name(&policydb, SYM_TYPES, context->type - 1));
--	scontextp += strlen(sym_name(&policydb, SYM_USERS, context->user - 1)) +
--		     1 + strlen(sym_name(&policydb, SYM_ROLES, context->role - 1)) +
--		     1 + strlen(sym_name(&policydb, SYM_TYPES, context->type - 1));
- 
- 	mls_sid_to_context(context, &scontextp);
- 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 84d21f9..5265c74 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3239,7 +3239,7 @@ static void selinux_file_free_security(struct file *file)
+  * Check whether a task has the ioctl permission and cmd
+  * operation to an inode.
+  */
+-int ioctl_has_perm(const struct cred *cred, struct file *file,
++static int ioctl_has_perm(const struct cred *cred, struct file *file,
+ 		u32 requested, u16 cmd)
+ {
+ 	struct common_audit_data ad;
 -- 
-2.1.3
+2.5.0
