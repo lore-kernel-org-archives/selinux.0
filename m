@@ -1,61 +1,54 @@
-Subject: [PATCH 5/5] SELinux: Check against union label for file operations
-From: David Howells <dhowells@redhat.com>
-To: linux-unionfs@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: mjg59@srcf.ucam.org, dwalsh@redhat.com, linux-kernel@vger.kernel.org,
- eparis@redhat.com, dhowells@redhat.com,
- linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- sds@tycho.nsa.gov
-Date: Mon, 28 Sep 2015 21:01:13 +0100
-Message-ID: <20150928200113.8141.56806.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20150928200018.8141.2982.stgit@warthog.procyon.org.uk>
-References: <20150928200018.8141.2982.stgit@warthog.procyon.org.uk>
+Subject: Re: [PATCH 0/5] selinux: minor cleanup suggestions
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>, "Serge E. Hallyn"
+ <serge@hallyn.com>
+References: <1443220459-11042-1-git-send-email-linux@rasmusvillemoes.dk>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <560AD173.80309@tycho.nsa.gov>
+Date: Tue, 29 Sep 2015 13:59:15 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <1443220459-11042-1-git-send-email-linux@rasmusvillemoes.dk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-File operations (eg. read, write) issued against a file that is attached to
-the lower layer of a union file needs to be checked against the union-layer
-label not the lower layer label.
+On 09/25/2015 06:34 PM, Rasmus Villemoes wrote:
+> A few random things I stumbled on.
+>
+> While I'm pretty sure of the change in 1/5, I'm also confused, because
+> the doc for the reverse security_sid_to_context state that
+> @scontext_len is set to "the length of the string", which one would
+> normally interpret as being what strlen() would give (i.e., without
+> the \0). However, security_sid_to_context_core clearly includes the \0
+> in the return value, and I think callers rely on that.
 
-The union label is stored in the file_security_struct rather than being
-retrieved from one of the inodes.
+It is historical; originally security_context_to_sid() required 
+@scontext to be NUL-terminated and @scontext_len to include the NUL byte 
+in the length, and security_sid_to_context() returned a NUL-terminated 
+@scontext and included the NUL byte in the returned length.  However, 
+when we switched SELinux to using xattrs rather than its own persistent 
+label mapping, security_context_to_sid() was changed to accept contexts 
+that did not already include the NUL because setfattr did not consider 
+the NUL to be part of the attribute value for strings.  So presently it 
+accepts either form, although we prefer them to be NUL-terminated and 
+canonicalize them to that form before returning to userspace.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
----
-
- security/selinux/hooks.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 522b070d9e2b..ecc883b6d463 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1682,6 +1682,7 @@ static int file_has_perm(const struct cred *cred,
- 			 struct file *file,
- 			 u32 av)
- {
-+	struct inode_security_struct *isec;
- 	struct file_security_struct *fsec = file->f_security;
- 	struct inode *inode = file_inode(file);
- 	struct common_audit_data ad;
-@@ -1702,8 +1703,15 @@ static int file_has_perm(const struct cred *cred,
- 
- 	/* av is zero if only checking access to the descriptor. */
- 	rc = 0;
--	if (av)
--		rc = inode_has_perm(cred, inode, av, &ad);
-+	if (av && likely(!IS_PRIVATE(inode))) {
-+		if (fsec->union_isid) {
-+			isec = inode->i_security;
-+			rc = avc_has_perm(sid, fsec->union_isid, isec->sclass,
-+					  av, &ad);
-+		}
-+		if (!rc)
-+			rc = inode_has_perm(cred, inode, av, &ad);
-+	}
- 
- out:
- 	return rc;
+>
+> Rasmus Villemoes (5):
+>    selinux: introduce security_context_str_to_sid
+>    selinux: remove pointless cast in selinux_inode_setsecurity()
+>    selinux: use kmemdup in security_sid_to_context_core()
+>    selinux: use kstrdup() in security_get_bools()
+>    selinux: use sprintf return value
+>
+>   security/selinux/hooks.c            | 14 +++++---------
+>   security/selinux/include/security.h |  2 ++
+>   security/selinux/selinuxfs.c        | 26 +++++++++-----------------
+>   security/selinux/ss/services.c      | 22 +++++++++-------------
+>   4 files changed, 25 insertions(+), 39 deletions(-)
+>
