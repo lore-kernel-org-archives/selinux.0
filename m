@@ -1,133 +1,101 @@
-Date: Wed, 30 Sep 2015 22:34:00 +0200
-From: "Luis R. Rodriguez" <mcgrof@suse.com>
-To: Kees Cook <keescook@chromium.org>
-Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>,
- David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
- Andy Lutomirski <luto@amacapital.net>,
- "Roberts, William C" <william.c.roberts@intel.com>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- linux-wireless <linux-wireless@vger.kernel.org>,
- "james.l.morris@oracle.com" <james.l.morris@oracle.com>,
- "serge@hallyn.com" <serge@hallyn.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>,
- Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- "Luis R. Rodriguez" <mcgrof@do-not-panic.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Peter Jones <pjones@redhat.com>, Takashi Iwai <tiwai@suse.de>,
- Ming Lei <ming.lei@canonical.com>, Joey Lee <jlee@suse.de>,
- =?utf-8?Q?Vojt=C4=9Bch_Pavl=C3=ADk?= <vojtech@suse.com>,
- Kyle McMartin <kyle@kernel.org>, Seth Forshee <seth.forshee@canonical.com>,
- Matthew Garrett <mjg59@srcf.ucam.org>,
- Johannes Berg <johannes@sipsolutions.net>,
- Alexei Starovoitov <ast@plumgrid.com>
-Subject: Re: Linux Firmware Signing
-Message-ID: <20150930203400.GC14464@wotan.suse.de>
-References: <31228.1440671938@warthog.procyon.org.uk>
- <36ddb60c1d22756234392a2d065a02cb.squirrel@twosheds.infradead.org>
- <20150827212907.GF8051@wotan.suse.de>
- <CAGXu5jKF6CBAADoybZHRCzYAepcZYqpbck1gTAeV1p7iuOVAvw@mail.gmail.com>
- <20150902000915.GW8051@wotan.suse.de>
- <1441164905.17898.86.camel@linux.vnet.ibm.com>
- <20150902184604.GB8051@wotan.suse.de>
- <CAGXu5jKGbb3M-qhodp1DVzhxn3ckae+mD9_HBNp2PdVHXb893A@mail.gmail.com>
- <20150902213717.GJ8051@wotan.suse.de>
- <CAGXu5jLCNaBd8GsVwCn_9jqnz247X6wG1dqyaSsLbc9DQ05kXQ@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8UNgN6o005231
+ for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 19:42:23 -0400
+Date: Wed, 30 Sep 2015 19:42:15 -0400
+From: Mike Snitzer <snitzer@redhat.com>
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
+ Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
+ when mounting
+Message-ID: <20150930234215.GA24127@redhat.com>
+References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
+ <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAGXu5jLCNaBd8GsVwCn_9jqnz247X6wG1dqyaSsLbc9DQ05kXQ@mail.gmail.com>
+In-Reply-To: <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Sep 03, 2015 at 02:14:18PM -0700, Kees Cook wrote:
-> [removed bounced email addresses]
-> 
-> On Wed, Sep 2, 2015 at 2:37 PM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> > On Wed, Sep 02, 2015 at 01:54:43PM -0700, Kees Cook wrote:
-> >> On Wed, Sep 2, 2015 at 11:46 AM, Luis R. Rodriguez <mcgrof@suse.com> wrote:
-> >> > On Tue, Sep 01, 2015 at 11:35:05PM -0400, Mimi Zohar wrote:
-> >> >> > OK great, I think that instead of passing the actual routine name we should
-> >> >> > instead pass an enum type for to the LSM, that'd be easier to parse and we'd
-> >> >> > then have each case well documented. Each LSM then could add its own
-> >> >> > documetnation for this and can switch on it. If we went with a name we'd have
-> >> >> > to to use something like __func__ and then parse that, its not clear if we need
-> >> >> > to get that specific.
-> >> >>
-> >> >> Agreed.  IMA already defines an enumeration.
-> >> >>
-> >> >> /* IMA policy related functions */
-> >> >> enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
-> >> >>                  FIRMWARE_CHECK, POLICY_CHECK, POST_SETATTR };
-> >> >>
-> >> >
-> >> > We want something that is not only useful for IMA but any other LSM,
-> >> > and FILE_CHECK seems very broad, not sure what BPRM_CHECK is even upon
-> >> > inspecting kernel code. Likewise for POST_SETATTR. POLICY_CHECK might
-> >> > be broad, perhaps its best we define then a generic set of enums to
-> >> > which IMA can map them to then and let it decide. This would ensure
-> >> > that the kernel defines each use caes for file inspection carefully,
-> >> > documents and defines them and if an LSM wants to bunch a set together
-> >> > it can do so easily with a switch statement to map set of generic
-> >> > file checks in kernel to a group it already handles.
-> >> >
-> >> > For instance at least in the short term we'd try to unify:
-> >> >
-> >> > security_kernel_fw_from_file()
-> >> > security_kernel_module_from_file()
-> >> >
-> >> > to perhaps:
-> >> >
-> >> > security_kernel_from_file()
-> >> >
-> >> > As far, as far as I can tell, the only ones we'd be ready to start
-> >> > grouping immediately or with small amount of work rather soon:
-> >> >
-> >> > /**
-> >> >  *
-> >> >  * enum security_filecheck - known kernel security file checks types
-> >> >  *
-> >> >  * @__SECURITY_FILECHECK_UNSPEC: attribute 0 reserved
-> >> >  * @SECURITY_FILECHECK_MODULE: the file being processed is a Linux kernel module
-> >> >  * @SECURITY_FILECHECK_SYSDATA: the file being processed is either a firmware
-> >> >  *      file or a system data file read from /lib/firmware/* by firmware_class
-> >>
-> >> I'd prefer a distinct category for firmware, as it carries an
-> >> implication that it is an executable blob of some sort (I know not all
-> >> are, though).
-> >
-> > The ship has sailed in terms of folks using frimrware API for things
-> > that are not-firmware per se. The first one I am aware of was the
-> > EEPROM override for the p54 driver. The other similar one was CPU
-> > microcode, but that's a bit more close to home with "firmware". We
-> > could ask users on the new system data request API I am building
-> > to describe the type of file being used, as I agree differentiating
-> > this for security purposes might be important. So other than just
-> > file type we could have sub type category, then we could have,
-> >
-> > SECURITY_FILECHECK_SYSDATA, and then:
-> 
-> I object to executable code being called data. :)
-> 
-> > SECURITY_FILE_SYSDATA_FW
-> > SECURITY_FILE_SYSDATA_MICROCODE
-> > SECURITY_FILE_SYSDATA_EEPROM
-> > SECURITY_FILE_SYSDATA_POLICY (for 802.11 regulatory I suppose)
-> 
-> The exception to the firmware loading is data, so the primary name
-> should be firmware. Regardless, if we want distinct objects, just name
-> them:
-> 
-> SECURITY_FILE_FIRMWARE
-> SECURITY_FILE_SYSDATA
-> 
-> Do we need finer-grain sub types?
+On Wed, Sep 30 2015 at  4:15pm -0400,
+Seth Forshee <seth.forshee@canonical.com> wrote:
 
-These two work for me.
+> When mounting a filesystem on a block device there is currently
+> no verification that the user has appropriate access to the
+> device file passed to mount. This has not been an issue so far
+> since the user in question has always been root, but this must
+> be changed before allowing unprivileged users to mount in user
+> namespaces.
+> 
+> To fix this, add an argument to lookup_bdev() to specify the
+> required permissions. If the mask of permissions is zero, or
+> if the user has CAP_SYS_ADMIN, the permission check is skipped,
+> otherwise the lookup fails if the user does not have the
+> specified access rights for the inode at the supplied path.
+> 
+> Callers associated with mounting are updated to pass permission
+> masks to lookup_bdev() so that these mounts will fail for an
+> unprivileged user who lacks permissions for the block device
+> inode. All other callers pass 0 to maintain their current
+> behaviors.
+> 
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> ---
+>  drivers/md/bcache/super.c |  2 +-
+>  drivers/md/dm-table.c     |  2 +-
+>  drivers/mtd/mtdsuper.c    |  6 +++++-
+>  fs/block_dev.c            | 18 +++++++++++++++---
+>  fs/quota/quota.c          |  2 +-
+>  include/linux/fs.h        |  2 +-
+>  6 files changed, 24 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> index e76ed003769e..35bb3ea4cbe2 100644
+> --- a/drivers/md/dm-table.c
+> +++ b/drivers/md/dm-table.c
+> @@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
+>  	BUG_ON(!t);
+>  
+>  	/* convert the path to a device */
+> -	bdev = lookup_bdev(path);
+> +	bdev = lookup_bdev(path, 0);
+>  	if (IS_ERR(bdev)) {
+>  		dev = name_to_dev_t(path);
+>  		if (!dev)
 
- Luis
+Given dm_get_device() is passed @mode why not have it do something like
+you did in blkdev_get_by_path()? e.g.:
+
+> diff --git a/fs/block_dev.c b/fs/block_dev.c
+> index 26cee058dc02..54d94cd64577 100644
+> --- a/fs/block_dev.c
+> +++ b/fs/block_dev.c
+> @@ -1394,9 +1394,14 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+>  					void *holder)
+>  {
+>  	struct block_device *bdev;
+> +	int perm = 0;
+>  	int err;
+>  
+> -	bdev = lookup_bdev(path);
+> +	if (mode & FMODE_READ)
+> +		perm |= MAY_READ;
+> +	if (mode & FMODE_WRITE)
+> +		perm |= MAY_WRITE;
+> +	bdev = lookup_bdev(path, perm);
+>  	if (IS_ERR(bdev))
+>  		return bdev;
+>  
