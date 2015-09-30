@@ -1,20 +1,19 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8UGhAoW005203
- for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 12:43:11 -0400
-Received: by qkcf65 with SMTP id f65so20195150qkc.3
- for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 09:43:09 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8UHBT9Z007825
+ for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 13:11:29 -0400
+Received: by qgez77 with SMTP id z77so41268446qge.1
+ for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 10:11:25 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+To: Geliang Tang <geliangtang@163.com>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  James Morris <james.l.morris@oracle.com>,
  "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
  linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] selinux: use sprintf return value
-Date: Wed, 30 Sep 2015 12:43:07 -0400
-Message-ID: <1536993.anFU3vzeka@sifl>
-In-Reply-To: <1443220459-11042-6-git-send-email-linux@rasmusvillemoes.dk>
-References: <1443220459-11042-1-git-send-email-linux@rasmusvillemoes.dk>
- <1443220459-11042-6-git-send-email-linux@rasmusvillemoes.dk>
+Subject: Re: [PATCH 1/2] selinux: ioctl_has_perm should be static
+Date: Wed, 30 Sep 2015 13:11:24 -0400
+Message-ID: <3451526.pn4qIvD1NX@sifl>
+In-Reply-To: <ff802942c34154cceee8ab2256d8c5ce6a665d21.1443366384.git.geliangtang@163.com>
+References: <ff802942c34154cceee8ab2256d8c5ce6a665d21.1443366384.git.geliangtang@163.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -22,38 +21,32 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Saturday, September 26, 2015 12:34:19 AM Rasmus Villemoes wrote:
-> sprintf returns the number of characters printed (excluding '\0'), so
-> we can use that and avoid duplicating the length computation.
+On Sunday, September 27, 2015 11:10:24 PM Geliang Tang wrote:
+> Fixes the following sparse warning:
 > 
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+>  security/selinux/hooks.c:3242:5: warning: symbol 'ioctl_has_perm' was
+>  not declared. Should it be static?
+> 
+> Signed-off-by: Geliang Tang <geliangtang@163.com>
 > ---
->  security/selinux/ss/services.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+>  security/selinux/hooks.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Applied, thank you.
+Applied, thanks.
 
-I just pushed all five of your patches to the SELinux next branch so they 
-should be included in the next linux-next release.
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index aa2bdcb20848..ebb5eb3c318c 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1218,13 +1218,10 @@ static int context_struct_to_string(struct context
-> *context, char **scontext, u3 /*
->  	 * Copy the user name, role name and type name into the context.
->  	 */
-> -	sprintf(scontextp, "%s:%s:%s",
-> +	scontextp += sprintf(scontextp, "%s:%s:%s",
->  		sym_name(&policydb, SYM_USERS, context->user - 1),
->  		sym_name(&policydb, SYM_ROLES, context->role - 1),
->  		sym_name(&policydb, SYM_TYPES, context->type - 1));
-> -	scontextp += strlen(sym_name(&policydb, SYM_USERS, context->user - 1)) +
-> -		     1 + strlen(sym_name(&policydb, SYM_ROLES, context->role - 1)) +
-> -		     1 + strlen(sym_name(&policydb, SYM_TYPES, context->type - 1));
-> 
->  	mls_sid_to_context(context, &scontextp);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 84d21f9..5265c74 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3239,7 +3239,7 @@ static void selinux_file_free_security(struct file
+> *file) * Check whether a task has the ioctl permission and cmd
+>   * operation to an inode.
+>   */
+> -int ioctl_has_perm(const struct cred *cred, struct file *file,
+> +static int ioctl_has_perm(const struct cred *cred, struct file *file,
+>  		u32 requested, u16 cmd)
+>  {
+>  	struct common_audit_data ad;
 
 -- 
 paul moore
