@@ -1,41 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8UF08jL028284
- for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 11:00:09 -0400
-Received: by laclj5 with SMTP id lj5so49633105lac.3
- for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 08:00:06 -0700 (PDT)
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- selinux@tycho.nsa.gov, Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 5/5] selinux: use sprintf return value
-References: <1443220459-11042-1-git-send-email-linux@rasmusvillemoes.dk>
- <1443220459-11042-6-git-send-email-linux@rasmusvillemoes.dk>
- <560AD5AF.4070400@tycho.nsa.gov>
-Date: Wed, 30 Sep 2015 17:00:04 +0200
-In-Reply-To: <560AD5AF.4070400@tycho.nsa.gov> (Stephen Smalley's message of
- "Tue, 29 Sep 2015 14:17:19 -0400")
-Message-ID: <87zj04j6kr.fsf@rasmusvillemoes.dk>
-MIME-Version: 1.0
-Content-Type: text/plain
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t8UKFj2e022992
+ for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 16:15:45 -0400
+Received: by ioii196 with SMTP id i196so61440251ioi.3
+ for <selinux@tycho.nsa.gov>; Wed, 30 Sep 2015 13:15:44 -0700 (PDT)
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org,
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH 0/5] User namespace mount updates
+Date: Wed, 30 Sep 2015 15:15:09 -0500
+Message-Id: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Sep 29 2015, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Hi Eric,
 
-> On 09/25/2015 06:34 PM, Rasmus Villemoes wrote:
->> sprintf returns the number of characters printed (excluding '\0'), so
->> we can use that and avoid duplicating the length computation.
->>
->> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
->
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Here's a batch of updates for the unprivileged user namespace mount
+patches based on your feedback. I think everything you mentioned should
+be addressed here.
 
-Thanks. I also like Joe's add-on suggestion (except I'd declare user,
-role, type as const char*).
+These are now based on your for-testing branch.
 
-Rasmus
+Updates include:
+ - Fix for incorrect use of flags argument in mount_mtd.
+ - Eliminate lookup_bdev_perm and instead add an access mode argument to
+   lookup_bdev.
+ - Use __inode_permission instead of inode_permission when checking for
+   rights towards a block device inode.
+ - Add a patch replacing in_user_ns with current_in_user_ns.
+ - Add a patch to handle Smack security labels consistently.
+
+Thanks,
+Seth
+
+Andy Lutomirski (1):
+  fs: Treat foreign mounts as nosuid
+
+Seth Forshee (4):
+  fs: Verify access of user towards block device file when mounting
+  selinux: Add support for unprivileged mounts from user namespaces
+  userns: Replace in_userns with current_in_userns
+  Smack: Handle labels consistently in untrusted mounts
+
+ drivers/md/bcache/super.c      |  2 +-
+ drivers/md/dm-table.c          |  2 +-
+ drivers/mtd/mtdsuper.c         |  6 +++++-
+ fs/block_dev.c                 | 18 +++++++++++++++---
+ fs/exec.c                      |  2 +-
+ fs/namespace.c                 | 13 +++++++++++++
+ fs/quota/quota.c               |  2 +-
+ include/linux/fs.h             |  2 +-
+ include/linux/mount.h          |  1 +
+ include/linux/user_namespace.h |  6 ++----
+ kernel/user_namespace.c        |  6 +++---
+ security/commoncap.c           |  4 ++--
+ security/selinux/hooks.c       | 25 ++++++++++++++++++++++++-
+ security/smack/smack_lsm.c     | 28 ++++++++++++++++++----------
+ 14 files changed, 88 insertions(+), 29 deletions(-)
