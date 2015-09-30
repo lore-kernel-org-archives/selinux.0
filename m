@@ -1,196 +1,198 @@
-Subject: Re: [PATCH v2] libselinux: flush the class/perm string mapping cache
- on policy reload
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1442938808-31924-1-git-send-email-sds@tycho.nsa.gov>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <560BE13D.6070302@redhat.com>
-Date: Wed, 30 Sep 2015 15:18:53 +0200
+Subject: Re: [PATCH 0/5] Security: Provide unioned file support
+To: David Howells <dhowells@redhat.com>, linux-unionfs@vger.kernel.org,
+ selinux@tycho.nsa.gov
+References: <20150928200018.8141.2982.stgit@warthog.procyon.org.uk>
+ <560AFCA6.3020001@tycho.nsa.gov>
+Cc: linux-fsdevel@vger.kernel.org, mjg59@srcf.ucam.org,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ eparis@redhat.com, Daniel J Walsh <dwalsh@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <560BF47D.5020506@tycho.nsa.gov>
+Date: Wed, 30 Sep 2015 10:41:01 -0400
 MIME-Version: 1.0
-In-Reply-To: <1442938808-31924-1-git-send-email-sds@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="BlMEnRXQNSqrG5U1aEJHKCHWqX5gDjgiE"
+In-Reply-To: <560AFCA6.3020001@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---BlMEnRXQNSqrG5U1aEJHKCHWqX5gDjgiE
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+On 09/29/2015 05:03 PM, Stephen Smalley wrote:
+> On 09/28/2015 04:00 PM, David Howells wrote:
+>>
+>> The attached patches provide security support for unioned files where the
+>> security involves an object-label-based LSM (such as SELinux) rather
+>> than a
+>> path-based LSM.
+>>
+>> [Note that a number of the bits that were in the original patch set
+>> are now
+>> upstream and I've rebased on Casey's changes to the security hook system]
+>>
+>> The patches can be broken down into two sets:
+>>
+>>   (1) A patch to add LSM hooks to handle copy up of a file, including
+>> label
+>>       determination/setting and xattr filtration and a patch to have
+>>       overlayfs call the hooks during the copy-up procedure.
+>>
+>>   (2) My SELinux implementations of these hooks.  I do three things:
+>>
+>>       (a) Don't copy up SELinux xattrs from the lower file to the upper
+>>            file.  It is assumed that the upper file will be created
+>> with the
+>>            attrs we want or the selinux_inode_copy_up() hook will set it
+>>            appropriately.
+>>
+>>      The reason there are two separate hooks here is that
+>>      selinux_inode_copy_up_xattr() might not ever be called if there
+>>      aren't actually any xattrs on the lower inode.
+>>
+>>       (b) I try to derive a label to be used by file operations by, in
+>> order
+>>            of preference: using the label on the union inode if there
+>> is one
+>>            (the normal overlayfs case); using the override label set
+>> on the
+>>            superblock, if provided; or trying to derive a new label by
+>> sid
+>>            transition operation.
+>>
+>>       (c) Using the label obtained in (b) in file_has_perm() rather than
+>>            using the label on the lower inode.
+>>
+>> Now the steps I have outlined in (b) and (c) seem to be at odds with what
+>> Dan Walsh and Stephen Smalley want - but I'm not sure I follow what that
+>> is, let alone how to do it:
+>>
+>>     Wanted to bring back the original proposal.  Stephen suggested that
+>>     we could change back to the MLS way of handling labels.
+>>
+>>     In MCS we base the MCS label of content created by a process on the
+>>     containing directory.  Which means that if a process running as
+>>     s0:c1,c2 creates content in a directory labeled s0, it will get
+>>     created as s0.
+>>
+>>     In MLS if a process running as s0:c1,c2 creates content in a
+>>     directory it labels it s0:c1,c2.  No matter what the label of the
+>>     directory is.  (Well actually if the directory is not ranged the
+>>     process will not be able to create the content.)
+>>
+>>     We changed the default for MCS in Rawhide for about a week, when I
+>>     realized this was a huge problem for containers sharing content.
+>>     Currently if you want two containers to share the same volume
+>>     mount, we label the content as svirt_sandbox_file_t:s0 If one
+>>     process running as s0:c1,c2 creates content it gets created as s0,
+>>     if the second container process is running as s0:c3,c4, it can
+>>     still read/write the content.  If we changed the default the object
+>>     would get created as s0:c1,c2 and process runing as s0:c3,c4 would
+>>     be blocked.
+>>
+>>     So I had it reverted back to the standard MCS Mode.
+>>
+>>     If we could get the default to be MLS mode on COW file systems and
+>>     MCS on Volumes, we would get the best of both worlds.
+>
+> How are you testing this?
+> I tried as follows:
+>
+> # Make sure we have a policy that is using xattrs to label overlay inodes.
+> $ seinfo --fs_use | grep overlay
+>     fs_use_xattr overlay system_u:object_r:fs_t:s0
+>
+> # Define some types for the different directories involved.
+> $ cat overlay.te
+> policy_module(overlay, 1.0)
+>
+> type lower_t;
+> files_type(lower_t)
+>
+> type upper_t;
+> files_type(upper_t)
+>
+> type work_t;
+> files_type(work_t)
+>
+> type merged_t;
+> files_type(merged_t)
+>
+> $ make -f /usr/share/selinux/devel/Makefile overlay.pp
+> $ sudo semodule -i overlay.pp
+>
+> # Create and label the different directories involved.
+> $ mkdir lower upper work merged
+> $ chcon -t lower_t lower
+> $ chcon -t upper_t upper
+> $ chcon -t work_t work
+> $ chcon -t merged_t merged
+>
+> # Populate lower
+> $ echo "lower" > lower/a
+> $ mkdir lower/b
+>
+> # Mount overlay
+> $ sudo mount -t overlay -o lowerdir=lower,upperdir=upper,workdir=work
+> merged
+>
+> # Look at the merged dir and labels.
+> $ ls -Z merged
+> unconfined_u:object_r:lower_t:s0 a
+> unconfined_u:object_r:lower_t:s0 b
+>
+> # Write/create some files/directories.
+> $ echo "foo" >> merged/a
+> $ mkdir merged/b/c
+> $ mkdir merged/c
+>
+> # Look again.
+> $ ls -ZR merged
+> merged:
+> unconfined_u:object_r:lower_t:s0 a  unconfined_u:object_r:upper_t:s0 c
+> unconfined_u:object_r:lower_t:s0 b
+>
+> merged/b:
+> unconfined_u:object_r:work_t:s0 c
+>
+> merged/b/c:
+>
+> $ ls -ZR upper
+> upper:
+>   unconfined_u:object_r:work_t:s0 a  unconfined_u:object_r:upper_t:s0 c
+>   unconfined_u:object_r:work_t:s0 b
+>
+> upper/b:
+> unconfined_u:object_r:work_t:s0 c
+>
+> upper/b/c:
+>
+> Note that the copied-up file (a) and directory (b) are labeled lower_t
+> in the overlay, but work_t in the upper dir, and neither of those is
+> really what we want IIUC.
+>
+> And that's just the labeling question.  Then there is the question of
+> what permission checks were applied during those copy-up operations and
+> whether the current process ends up needing write permissions to them all.
 
-On 09/22/2015 06:20 PM, Stephen Smalley wrote:
-> This improves the robustness of programs using selinux_check_access()
-> in the face of policy updates that alter the values of the class or
-> permissions that they are checking.  Otherwise, a policy update can
-> trigger false permission denials, as in
-> https://bugzilla.redhat.com/show_bug.cgi?id=3D1264051
+Also, the labels on the overlay inodes change if you umount and then 
+mount it again:
 
-Thank you, Stephen.
+$ sudo umount merged
+$ sudo mount -t overlay overlay -o 
+lowerdir=lower,upperdir=upper,workdir=work merged
+$ ls -ZR merged
+merged:
+  unconfined_u:object_r:work_t:s0 a  unconfined_u:object_r:upper_t:s0 c
+  unconfined_u:object_r:work_t:s0 b
 
-I've applied it to Fedora 23 and Rawhide and prepared scratch builds [1]
-and according to my testing it fixes the problem. So after a little more
-testing I'll push it to Fedoras.
+merged/b:
+unconfined_u:object_r:work_t:s0 c
 
-[1]
-http://koji.fedoraproject.org/koji/taskinfo?taskID=3D11276795
-http://koji.fedoraproject.org/koji/taskinfo?taskID=3D11275234
+merged/b/c:
 
-Petr
+merged/c:
 
-> Changes to the userspace class/permission definitions should still be
-> handled with care, as not all userspace object managers have been conve=
-rted
-> to use selinux_check_access() and even those that do use it are still n=
-ot
-> entirely safe against an interleaving of a policy reload and a call to
-> selinux_check_access().  The change does however address the issue in
-> the above bug and avoids the need to restart systemd.
->=20
-> This change restores the flush_class_cache() function that was removed =
-in
-> commit 435fae64a931 ("libselinux: Remove unused flush_class_cache metho=
-d")
-> because it had no users at the time, but makes it hidden to avoid expos=
-ing
-> it as part of the libselinux ABI.
->=20
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
-> v2 fixes various whitespace and style issues.
->=20
->  libselinux/src/checkAccess.c      | 27 ++++++++++++++++++++++-----
->  libselinux/src/selinux_internal.h |  2 ++
->  libselinux/src/stringrep.c        | 22 ++++++++++++++++++++++
->  3 files changed, 46 insertions(+), 5 deletions(-)
->=20
-> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.=
-c
-> index 29be16e..8de5747 100644
-> --- a/libselinux/src/checkAccess.c
-> +++ b/libselinux/src/checkAccess.c
-> @@ -10,11 +10,26 @@
->  static pthread_once_t once =3D PTHREAD_ONCE_INIT;
->  static int selinux_enabled;
-> =20
-> +static int avc_reset_callback(uint32_t event __attribute__((unused)),
-> +		      security_id_t ssid __attribute__((unused)),
-> +		      security_id_t tsid __attribute__((unused)),
-> +		      security_class_t tclass __attribute__((unused)),
-> +		      access_vector_t perms __attribute__((unused)),
-> +		      access_vector_t *out_retained __attribute__((unused)))
-> +{
-> +	flush_class_cache();
-> +	return 0;
-> +}
-> +
->  static void avc_init_once(void)
->  {
->  	selinux_enabled =3D is_selinux_enabled();
-> -	if (selinux_enabled =3D=3D 1)
-> -		avc_open(NULL, 0);
-> +	if (selinux_enabled =3D=3D 1) {
-> +		if (avc_open(NULL, 0))
-> +			return;
-> +		avc_add_callback(avc_reset_callback, AVC_CALLBACK_RESET,
-> +				 0, 0, 0, 0);
-> +	}
->  }
-> =20
->  int selinux_check_access(const char *scon, const char *tcon, const cha=
-r *class, const char *perm, void *aux) {
-> @@ -33,9 +48,11 @@ int selinux_check_access(const char *scon, const cha=
-r *tcon, const char *class,
->  	if (rc < 0)
->  		return rc;
-> =20
-> -       rc =3D avc_context_to_sid(tcon, &tcon_id);
-> -       if (rc < 0)
-> -	       return rc;
-> +	rc =3D avc_context_to_sid(tcon, &tcon_id);
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	(void) avc_netlink_check_nb();
-> =20
->         sclass =3D string_to_security_class(class);
->         if (sclass =3D=3D 0) {
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux=
-_internal.h
-> index 844e408..46566f6 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -102,6 +102,8 @@ hidden_proto(security_get_initial_context);
->  hidden_proto(security_get_initial_context_raw);
->  hidden_proto(selinux_reset_config);
-> =20
-> +hidden void flush_class_cache(void);
-> +
->  extern int load_setlocaldefs hidden;
->  extern int require_seusers hidden;
->  extern int selinux_page_size hidden;
-> diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-> index 9ae8248..2dbec2b 100644
-> --- a/libselinux/src/stringrep.c
-> +++ b/libselinux/src/stringrep.c
-> @@ -158,6 +158,28 @@ err1:
->  	return NULL;
->  }
-> =20
-> +hidden void flush_class_cache(void)
-> +{
-> +	struct discover_class_node *cur =3D discover_class_cache, *prev =3D N=
-ULL;
-> +	size_t i;
-> +
-> +	while (cur !=3D NULL) {
-> +		free(cur->name);
-> +
-> +		for (i =3D 0; i < MAXVECTORS; i++)
-> +			free(cur->perms[i]);
-> +
-> +		free(cur->perms);
-> +
-> +		prev =3D cur;
-> +		cur =3D cur->next;
-> +
-> +		free(prev);
-> +	}
-> +
-> +	discover_class_cache =3D NULL;
-> +}
-> +
->  security_class_t string_to_security_class(const char *s)
->  {
->  	struct discover_class_node *node;
->=20
-
-
-
-
-
---BlMEnRXQNSqrG5U1aEJHKCHWqX5gDjgiE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJWC+E9AAoJEGOorUuYLENzhssQAKgA1D/V2DiwekHt48AKLGCl
-0zILt1qKf6ctsKW/4+fvMQxHcIqFiskaCTsPSQxEVoVOqdO8CM2Ah+YzSfVnHjs8
-vVQKqFSgjUGP7GemEA9C2G9qceUgyBOp1VIVWWlXzhbX7te+IwdvTUJRS4v4/OVO
-7dDKuuERSWozZIZxhB+ReCy5Hu2AIwZt7KT82TmNRpLqhtePOTrUwxvVZLtNoX2N
-LoROc6HJMxRGyqgxwSc4VDO9t/MhLobKKNMqZ0B9J9DVQTTLCRjaY6/BqkHWgleL
-wF5bs2s2M4hcpy+Fb6zTfpntp4k+wu+b3Sq/vz9n3TCSgzI3OdMtFMDKmOT9z7ul
-kkoB+lBQd9qMKhHp5fK5sWXBRr70RfbVTisDPZ8h43o9sa4ACjMFmhUya9VtRoJM
-XPSVpOl3/knOXQvQ5LUryyxMkPlWOJXOF/VywgzwU33h7xALgJFlpmDZaAZCVflc
-1/A4YhOKex5WVVksbvv2oPn7Z16CLx/giHelN+RCDGxTeL5VbWQfo4kBzaJlUF5r
-4fuZrSY+lxkI1kbqoNlJX3XAdTv3BdZjiM8G8k+HZdI3Y4SFjCAxRHbI3pL/rs1x
-VcVcN5kPvRddDnALmHii5CHHZHCd1Mvlc2gozghY+zmND/Pjg6XSG1A3Jl0UGMWM
-lsxCYEy/YitVt39KBwxt
-=sUCF
------END PGP SIGNATURE-----
-
---BlMEnRXQNSqrG5U1aEJHKCHWqX5gDjgiE--
+It seems to me that either the copied-up files should be labeled upper_t 
+(i.e. from upperdir) or merged_t (i.e. from the overlay).  But certainly 
+not lower_t (which is supposed to be read-only to the container) or 
+work_t (which isn't supposed to be directly accessed by processes in the 
+first place).
