@@ -1,119 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91DevUi029378
- for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 09:40:57 -0400
-Date: Thu, 1 Oct 2015 09:40:52 -0400
-From: Mike Snitzer <snitzer@redhat.com>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Kent Overstreet <kent.overstreet@gmail.com>,
- Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
- Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
- when mounting
-Message-ID: <20151001134052.GB27818@redhat.com>
-References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
- <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
- <20150930234215.GA24127@redhat.com>
- <20151001125508.GA101875@ubuntu-hedt>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91FLXYM005194
+ for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 11:21:34 -0400
+Date: Thu, 1 Oct 2015 15:18:47 +0000 (UTC)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <212239354.5552563.1443712727654.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <560AF385.1090407@tycho.nsa.gov>
+References: <560AF385.1090407@tycho.nsa.gov>
+Subject: Re: [RFC PATCH V2] libselinux: Add selinux_restorecon function
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20151001125508.GA101875@ubuntu-hedt>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Oct 01 2015 at  8:55am -0400,
-Seth Forshee <seth.forshee@canonical.com> wrote:
 
-> On Wed, Sep 30, 2015 at 07:42:15PM -0400, Mike Snitzer wrote:
-> > On Wed, Sep 30 2015 at  4:15pm -0400,
-> > Seth Forshee <seth.forshee@canonical.com> wrote:
-> > 
-> > > When mounting a filesystem on a block device there is currently
-> > > no verification that the user has appropriate access to the
-> > > device file passed to mount. This has not been an issue so far
-> > > since the user in question has always been root, but this must
-> > > be changed before allowing unprivileged users to mount in user
-> > > namespaces.
-> > > 
-> > > To fix this, add an argument to lookup_bdev() to specify the
-> > > required permissions. If the mask of permissions is zero, or
-> > > if the user has CAP_SYS_ADMIN, the permission check is skipped,
-> > > otherwise the lookup fails if the user does not have the
-> > > specified access rights for the inode at the supplied path.
-> > > 
-> > > Callers associated with mounting are updated to pass permission
-> > > masks to lookup_bdev() so that these mounts will fail for an
-> > > unprivileged user who lacks permissions for the block device
-> > > inode. All other callers pass 0 to maintain their current
-> > > behaviors.
-> > > 
-> > > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-> > > ---
-> > >  drivers/md/bcache/super.c |  2 +-
-> > >  drivers/md/dm-table.c     |  2 +-
-> > >  drivers/mtd/mtdsuper.c    |  6 +++++-
-> > >  fs/block_dev.c            | 18 +++++++++++++++---
-> > >  fs/quota/quota.c          |  2 +-
-> > >  include/linux/fs.h        |  2 +-
-> > >  6 files changed, 24 insertions(+), 8 deletions(-)
-> > > 
-> > > diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-> > > index e76ed003769e..35bb3ea4cbe2 100644
-> > > --- a/drivers/md/dm-table.c
-> > > +++ b/drivers/md/dm-table.c
-> > > @@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
-> > >  	BUG_ON(!t);
-> > >  
-> > >  	/* convert the path to a device */
-> > > -	bdev = lookup_bdev(path);
-> > > +	bdev = lookup_bdev(path, 0);
-> > >  	if (IS_ERR(bdev)) {
-> > >  		dev = name_to_dev_t(path);
-> > >  		if (!dev)
-> > 
-> > Given dm_get_device() is passed @mode why not have it do something like
-> > you did in blkdev_get_by_path()? e.g.:
+
+
+
+
+> On Tuesday, 29 September 2015, 21:25, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 09/27/2015 08:06 AM, Richard Haines wrote:
+>>  The selinux_restorecon(3) man page details this function that relies
+>>  on the selabel_digest(3) function available from [1] (as not yet
+>>  part of upstream libselinux).
+>> 
+>>  It has been built using the work from Android where an SHA1 hash
+>>  of the specfiles is held in an extended attribute to enhance
+>>  performance. Also contains components from policycoreutils/setfiles.
+>> 
+>>  The utils/selinux_restorecon.c utility demonstrates the functionality.
+>> 
+>>  [1] http://marc.info/?l=selinux&m=144274383217343&w=2
+>> 
+>>  Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+
+>>  ---
+------------ snip --------------
+>>  +
+>>  +extern int selinux_restorecon(const char **pathname_list,
+>>  +                    const char **exclude_list,
+>>  +                    const char *fc_path,
+>>  +                    unsigned int restorecon_flags);
 > 
-> I only dealt with code related to mounting in this patch since that's
-> what I'm working on. I have it on my TODO list to consider converting
-> other callers of lookup_bdev. But if you're sure doing so makes sense
-> for dm_get_device and that it won't cause regressions then I could add a
-> patch for it.
 
-OK, dm_get_device() is called in DM device activation path (by tools
-like lvm2).
+> This is a more cumbersome interface for typical users than the Android one.
 
-After lookup_bdev() it goes on to call blkdev_get_by_dev() with this
-call chain: 
-  dm_get_device -> dm_get_table_device -> open_table_device -> blkdev_get_by_dev
+To make this easier would you prefer it to just take a single pathname and the
+flags (and maybe the fc_path as well, or add another interface to take it as
+discussed below)
 
-Not immediately clear to me why we'd need to augment blkdev_get_by_dev()
-to do this checking also.
+The only reason I put the exclude_list is to allow filesystems that don't have
+xattr support to be excluded by the caller. This could probably be resolved by
+always setting the FTS_XDEV flag with the caller ensuring they cover their
+relevant filesystems.
 
-However, thinking further: In a device stack (e.g. dm/lvm2, md, etc)
-new virtual block devices are created that layer ontop of the
-traditional block devices.  This level of indirection may cause your
-lookup_bdev() check to go on to succeed (if access constraints were not
-established on the upper level dm or md device?).  I'm just thinking
-outloud here: but have you verified your changes work as intended on
-devices created with either lvm2 or mdadm?
+---------------- snip ----------------------
 
-What layer establishes access rights to historically root-only
-priviledged block devices?  Is it user namespaces?
+>>  +    fc_sehandle = selabel_open(SELABEL_CTX_FILE, fc_opts, 
+> NUM_SELABEL_OPTS);
+>>  +    if (!fc_sehandle) {
+>>  +        selinux_log(SELINUX_ERROR,
+>>  +                "Error obtaining file context handle: %s\n",
+>>  +                            strerror(errno));
+>>  +        return -1;
+>>  +    }
+> 
+> Android only does this once, not on every call to restorecon.
+> Caller that wants to use selabel_open() itself with custom options can 
+> use selinux_android_set_sethandle() after selabel_open() call; 
 
-I haven't kept up with user namespaces as it relates to stacking block
-drivers like DM.  But I'm happy to come up to speed and at the same time
-help you verify all works as expected with DM blocks devices...
+> otherwise, callers don't ever have to specify selabel_open() args.
 
-Mike
+I could implement a similar interface to selinux_android_file_context_handle
+(I guess that is what you are referring to) that would also take the fc_path
+if this would be useful, it then keep selinux_restorecon simple and in line
+with Android.
+
+> 
