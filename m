@@ -1,77 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91G3Gl2008846
- for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 12:03:20 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Mike Snitzer <snitzer@redhat.com>
-Cc: Seth Forshee <seth.forshee@canonical.com>,
- Kent Overstreet <kent.overstreet@gmail.com>,
- Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
- Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
-References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
- <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
- <20150930234215.GA24127@redhat.com>
- <20151001125508.GA101875@ubuntu-hedt>
- <20151001134052.GB27818@redhat.com>
-Date: Thu, 01 Oct 2015 10:55:50 -0500
-In-Reply-To: <20151001134052.GB27818@redhat.com> (Mike Snitzer's message of
- "Thu, 1 Oct 2015 09:40:52 -0400")
-Message-ID: <87wpv6a8hl.fsf@x220.int.ebiederm.org>
+Subject: Re: newrole not working when built with LSPP_PRIV=y
+To: Laurent Bigonville <bigon@debian.org>, Daniel J Walsh <dwalsh@redhat.com>
+References: <560741F0.9090709@debian.org> <560AE811.7070008@tycho.nsa.gov>
+ <560CE5E5.9030405@debian.org>
+Cc: selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <560D7D1D.3020906@tycho.nsa.gov>
+Date: Thu, 1 Oct 2015 14:36:13 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
- when mounting
+In-Reply-To: <560CE5E5.9030405@debian.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Mike Snitzer <snitzer@redhat.com> writes:
+On 10/01/2015 03:51 AM, Laurent Bigonville wrote:
+>
+>
+> Le 29/09/15 21:35, Stephen Smalley a écrit :
+>> On 09/26/2015 09:10 PM, Laurent Bigonville wrote:
+>>> [...]
+>>>
+>>> The patch seems to break an other thing, it Fedora the newrole
+>>> executable is not setuid root, but it is granted a bunch of capabilities
+>>> explicitly, if I setuid this executable instead of granting these
+>>> capabilities, I get yet an other error:
+>>>
+>>> Sorry, newrole failed to drop capabilities: Operation not permitted
+>>>
+>>> So I guess something need to be fixed here.
+>>
+>> Yes, the current code just seems to be wrong here.  The setresuid()
+>> call will drop all capabilities if newrole is setuid-root and the
+>> caller is non-root, so it will end up dropping all capabilities
+>> immediately.  Then the attempt to further set the capabilities will
+>> fail (as above), as will any subsequent privileged operations.  As
+>> currently written, this can only work if not setuid-root and using
+>> file-caps.  And in that case, the setresuid() call doesn't make sense.
+>>
+>> Dan?
+>
+> Apparently libcapng has a capng_change_id(3) function that can be used
+> to "change the credentials retaining capabilities".
 
-> What layer establishes access rights to historically root-only
-> priviledged block devices?  Is it user namespaces?
+If you just delete the setresuid() call entirely from the 
+NAMESPACE_PRIV=y drop_capabilities() function, then it works (on top of 
+the Fedora patch you cited).  That function wasn't supposed to be doing 
+setresuid() in the first place; that is deferred to 
+transition_to_caller_uid(), _after_ pam_namespace has run.  I'm guessing 
+that pam_namespace is broken in Fedora.
 
-Block devices are weird.
-
-Mounts historically have not checked the permissions on the block
-devices because a mounter has CAP_SYS_ADMIN.
-
-Unprivileged users are allowes to read/write block devices if
-someone has given them permissions on the device node in the
-filesystem.
-
-The thinking with this patchset is to start performing the normal
-block device access permission checks when mounting filesystems
-when the mounter does not have the global CAP_SYS_ADMIN permission.
-
-The truth is we are not much past the point of realizing that there were
-no permission checks to use the actual block device passed in to mount,
-so we could still be missing something. There is a lot going on with dm,
-md, and lvm.  I don't know if the model of just look at the block device
-inode and perform the permission checks is good enough.
-
-> I haven't kept up with user namespaces as it relates to stacking block
-> drivers like DM.  But I'm happy to come up to speed and at the same time
-> help you verify all works as expected with DM blocks devices...
-
-We are just getting there.  But if you can help that would be great.
-The primary concern with dm is what happens when unprivileged users get
-ahold of the code, and what happens when evil users corrupt the on-disk
-format.
-
-In principle dm like loop should be safe to use if there are not bugs
-that make it unsafe for unprivileged users to access the code.
-
-The goal if possible is to run things like docker without needed to be
-root or even more fun to run docker in a container, and in general
-enable nested containers.
-
-Eric
+Note that the Fedora patch you cited has at least one bug; it reverts an 
+upstream fix to open stdin read/write to avoid breaking programs like 
+tmux that assume that if stdin is a tty, then it can be both read and 
+written.
