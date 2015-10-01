@@ -1,10 +1,8 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Cc: bigon@debian.org, dwalsh@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 2/3] policycoreutils/newrole: Set keepcaps around setresuid
- calls.
-Date: Thu,  1 Oct 2015 15:51:30 -0400
-Message-Id: <1443729091-9496-2-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH 3/3] Open stdin as read/write
+Date: Thu,  1 Oct 2015 15:51:31 -0400
+Message-Id: <1443729091-9496-3-git-send-email-sds@tycho.nsa.gov>
 In-Reply-To: <1443729091-9496-1-git-send-email-sds@tycho.nsa.gov>
 References: <1443729091-9496-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,64 +10,32 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Set the "keep capabilities" flag around the setresuid() calls in
-drop_capabilities() so that we do not simultaneously drop all
-capabilities (when newrole is setuid).
+From: Sven Vermeulen <sven.vermeulen@siphos.be>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+As per the discussion on the selinux development mailinglist, the tmux
+application expects the stdin to be writeable. Although perhaps not the most
+proper way, having newrole opening the descriptor in read/write keeps the
+behaviour in line with what applications expect.
+
+See also http://marc.info/?l=selinux&m=136518126930710&w=2
+
+Signed-off-by: Sven Vermeulen <sven.vermeulen@siphos.be>
 ---
- policycoreutils/newrole/newrole.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ policycoreutils/newrole/newrole.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrole/newrole.c
-index 55e8d39..af7198d 100644
+index af7198d..65a945d 100644
 --- a/policycoreutils/newrole/newrole.c
 +++ b/policycoreutils/newrole/newrole.c
-@@ -548,11 +548,22 @@ static int drop_capabilities(int full)
- 	capng_setpid(getpid());
- 	capng_clear(CAPNG_SELECT_CAPS);
- 
-+	if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) < 0) {
-+		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
-+		return -1;
-+	}
-+
- 	/* Change uid */
- 	if (setresuid(uid, uid, uid)) {
- 		fprintf(stderr, _("Error changing uid, aborting.\n"));
- 		return -1;
- 	}
-+
-+	if (prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0) {
-+		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
-+		return -1;
-+	}
-+
- 	if (! full) 
- 		capng_update(CAPNG_ADD, CAPNG_EFFECTIVE | CAPNG_PERMITTED, CAP_AUDIT_WRITE);
- 	return capng_apply(CAPNG_SELECT_CAPS);
-@@ -579,11 +590,22 @@ static int drop_capabilities(int full)
- 	capng_setpid(getpid());
- 	capng_clear(CAPNG_SELECT_CAPS);
- 
-+	if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) < 0) {
-+		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
-+		return -1;
-+	}
-+
- 	/* Change uid */
- 	if (setresuid(uid, uid, uid)) {
- 		fprintf(stderr, _("Error changing uid, aborting.\n"));
- 		return -1;
- 	}
-+
-+	if (prctl(PR_SET_KEEPCAPS, 0, 0, 0, 0) < 0) {
-+		fprintf(stderr, _("Error resetting KEEPCAPS, aborting\n"));
-+		return -1;
-+	}
-+
- 	if (! full) 
- 		capng_updatev(CAPNG_ADD, CAPNG_EFFECTIVE | CAPNG_PERMITTED, CAP_SYS_ADMIN , CAP_FOWNER , CAP_CHOWN, CAP_DAC_OVERRIDE, CAP_AUDIT_WRITE, -1);
- 	
+@@ -1249,7 +1249,7 @@ int main(int argc, char *argv[])
+ 			fprintf(stderr, _("Could not close descriptors.\n"));
+ 			goto err_close_pam;
+ 		}
+-		fd = open(ttyn, O_RDONLY | O_NONBLOCK);
++		fd = open(ttyn, O_RDWR | O_NONBLOCK);
+ 		if (fd != 0)
+ 			goto err_close_pam;
+ 		rc = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) & ~O_NONBLOCK);
 -- 
 2.1.0
