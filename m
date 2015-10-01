@@ -1,44 +1,93 @@
-Subject: Re: newrole not working when built with LSPP_PRIV=y
-To: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-References: <560741F0.9090709@debian.org> <560AE811.7070008@tycho.nsa.gov>
-From: Laurent Bigonville <bigon@debian.org>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <560CE5E5.9030405@debian.org>
-Date: Thu, 1 Oct 2015 09:51:01 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-In-Reply-To: <560AE811.7070008@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91CtcEg025625
+ for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 08:55:38 -0400
+Received: by ioiz6 with SMTP id z6so83631298ioi.2
+ for <selinux@tycho.nsa.gov>; Thu, 01 Oct 2015 05:55:36 -0700 (PDT)
+Date: Thu, 1 Oct 2015 07:55:08 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Mike Snitzer <snitzer@redhat.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
+ Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
+ when mounting
+Message-ID: <20151001125508.GA101875@ubuntu-hedt>
+References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
+ <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
+ <20150930234215.GA24127@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20150930234215.GA24127@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Wed, Sep 30, 2015 at 07:42:15PM -0400, Mike Snitzer wrote:
+> On Wed, Sep 30 2015 at  4:15pm -0400,
+> Seth Forshee <seth.forshee@canonical.com> wrote:
+> 
+> > When mounting a filesystem on a block device there is currently
+> > no verification that the user has appropriate access to the
+> > device file passed to mount. This has not been an issue so far
+> > since the user in question has always been root, but this must
+> > be changed before allowing unprivileged users to mount in user
+> > namespaces.
+> > 
+> > To fix this, add an argument to lookup_bdev() to specify the
+> > required permissions. If the mask of permissions is zero, or
+> > if the user has CAP_SYS_ADMIN, the permission check is skipped,
+> > otherwise the lookup fails if the user does not have the
+> > specified access rights for the inode at the supplied path.
+> > 
+> > Callers associated with mounting are updated to pass permission
+> > masks to lookup_bdev() so that these mounts will fail for an
+> > unprivileged user who lacks permissions for the block device
+> > inode. All other callers pass 0 to maintain their current
+> > behaviors.
+> > 
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> > ---
+> >  drivers/md/bcache/super.c |  2 +-
+> >  drivers/md/dm-table.c     |  2 +-
+> >  drivers/mtd/mtdsuper.c    |  6 +++++-
+> >  fs/block_dev.c            | 18 +++++++++++++++---
+> >  fs/quota/quota.c          |  2 +-
+> >  include/linux/fs.h        |  2 +-
+> >  6 files changed, 24 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> > index e76ed003769e..35bb3ea4cbe2 100644
+> > --- a/drivers/md/dm-table.c
+> > +++ b/drivers/md/dm-table.c
+> > @@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
+> >  	BUG_ON(!t);
+> >  
+> >  	/* convert the path to a device */
+> > -	bdev = lookup_bdev(path);
+> > +	bdev = lookup_bdev(path, 0);
+> >  	if (IS_ERR(bdev)) {
+> >  		dev = name_to_dev_t(path);
+> >  		if (!dev)
+> 
+> Given dm_get_device() is passed @mode why not have it do something like
+> you did in blkdev_get_by_path()? e.g.:
 
+I only dealt with code related to mounting in this patch since that's
+what I'm working on. I have it on my TODO list to consider converting
+other callers of lookup_bdev. But if you're sure doing so makes sense
+for dm_get_device and that it won't cause regressions then I could add a
+patch for it.
 
-Le 29/09/15 21:35, Stephen Smalley a écrit :
-> On 09/26/2015 09:10 PM, Laurent Bigonville wrote:
->> [...]
->>
->> The patch seems to break an other thing, it Fedora the newrole
->> executable is not setuid root, but it is granted a bunch of capabilities
->> explicitly, if I setuid this executable instead of granting these
->> capabilities, I get yet an other error:
->>
->> Sorry, newrole failed to drop capabilities: Operation not permitted
->>
->> So I guess something need to be fixed here.
->
-> Yes, the current code just seems to be wrong here.  The setresuid() 
-> call will drop all capabilities if newrole is setuid-root and the 
-> caller is non-root, so it will end up dropping all capabilities 
-> immediately.  Then the attempt to further set the capabilities will 
-> fail (as above), as will any subsequent privileged operations.  As 
-> currently written, this can only work if not setuid-root and using 
-> file-caps.  And in that case, the setresuid() call doesn't make sense.
->
-> Dan?
-
-Apparently libcapng has a capng_change_id(3) function that can be used 
-to "change the credentials retaining capabilities".
-
-Laurent Bigonville
+Thanks,
+Seth
