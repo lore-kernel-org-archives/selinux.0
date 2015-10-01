@@ -1,52 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91MWALo005322
- for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 18:32:12 -0400
-From: Paul Moore <pmoore@redhat.com>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: linux-audit@redhat.com, Paul Osmialowski <p.osmialowsk@samsung.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: auditing kdbus service names
-Date: Thu, 01 Oct 2015 18:32:05 -0400
-Message-ID: <22922684.UpyKycrUO2@sifl>
-In-Reply-To: <2836805.Af3VO2DWPn@x2>
-References: <3754565.WlII3JJvve@sifl> <1988863.rx1nHfWkfd@sifl>
- <2836805.Af3VO2DWPn@x2>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91N77ox007680
+ for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 19:07:07 -0400
+Date: Fri, 2 Oct 2015 01:07:00 +0200
+From: Jan Kara <jack@suse.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Mike Snitzer <snitzer@redhat.com>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
+ Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
+ when mounting
+Message-ID: <20151001230700.GA10087@quack.suse.cz>
+References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
+ <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
+ <20150930234215.GA24127@redhat.com>
+ <20151001125508.GA101875@ubuntu-hedt>
+ <20151001134052.GB27818@redhat.com>
+ <87wpv6a8hl.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87wpv6a8hl.fsf@x220.int.ebiederm.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, August 13, 2015 04:40:52 PM Steve Grubb wrote:
-> On Wednesday, August 12, 2015 10:48:10 PM Paul Moore wrote:
-> > On Wednesday, August 12, 2015 05:38:14 PM Steve Grubb wrote:
-> > > On Wednesday, August 12, 2015 08:40:34 AM Paul Moore wrote:
-> > > > Hello all,
-> > > > 
-> > > > I'm currently working on a set of LSM hooks for the new kdbus IPC
-> > > > mechanism and one of the things that I believe we will need to add is
-> > > > a new audit field for the kdbus service name (very similar to the old
-> > > > fashioned dbus service name).  I was thinking "kdbus_svc" for the
-> > > > field name, any objections?
-> > > 
-> > > What was used on the old dbus events?
-> > 
-> > The very generic "service" field name, see the "acquire_svc" example in
-> > the URL below.  I believe there is some value in picking a new field name
-> > since 1) the field name is too generic in my opinion and 2) kdbus != dbus.
-> 
-> In my book, they are the same. They are programs providing services on the
-> bus. One thing I noticed in the dbus events is that there are a number of
-> user controlled fields that are not escaped.
+On Thu 01-10-15 10:55:50, Eric W. Biederman wrote:
+> The goal if possible is to run things like docker without needed to be
+> root or even more fun to run docker in a container, and in general
+> enable nested containers.
 
-Following up on this ...
+Frankly at the filesystem side we are rather far from being able to safely
+mount untrusted device and I don't think we'll ever be robust enough to
+tolerate e.g. user changing the disk while fs is using it. So would this be
+FUSE-only thing or is someone still hoping that general purpose filesystems
+will be robust enough in future?
 
-Decided to just reuse "service" since the rest of the audit record will make 
-it obvious (new obj class/perms) that the record if for a kdbus event and not 
-a dbus event.  The next patchset will include the audit bits, I'll CC the 
-patchset here.
-
+								Honza
 -- 
-paul moore
-security @ redhat
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
