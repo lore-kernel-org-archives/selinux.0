@@ -1,52 +1,179 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t91N77ox007680
- for <selinux@tycho.nsa.gov>; Thu, 1 Oct 2015 19:07:07 -0400
-Date: Fri, 2 Oct 2015 01:07:00 +0200
-From: Jan Kara <jack@suse.cz>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Mike Snitzer <snitzer@redhat.com>,
- Seth Forshee <seth.forshee@canonical.com>,
- Kent Overstreet <kent.overstreet@gmail.com>,
- Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
- Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
- when mounting
-Message-ID: <20151001230700.GA10087@quack.suse.cz>
-References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
- <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
- <20150930234215.GA24127@redhat.com>
- <20151001125508.GA101875@ubuntu-hedt>
- <20151001134052.GB27818@redhat.com>
- <87wpv6a8hl.fsf@x220.int.ebiederm.org>
+From: "Roberts, William C" <william.c.roberts@intel.com>
+To: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel Cashman <dcashman@google.com>
+Subject: av_decision on audit callback
+Date: Fri, 2 Oct 2015 18:48:36 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC560107EEE9@ORSMSX103.amr.corp.intel.com>
+Content-Type: multipart/alternative;
+ boundary="_000_476DC76E7D1DF2438D32BFADF679FC560107EEE9ORSMSX103amrcor_"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <87wpv6a8hl.fsf@x220.int.ebiederm.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu 01-10-15 10:55:50, Eric W. Biederman wrote:
-> The goal if possible is to run things like docker without needed to be
-> root or even more fun to run docker in a container, and in general
-> enable nested containers.
+--_000_476DC76E7D1DF2438D32BFADF679FC560107EEE9ORSMSX103amrcor_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Frankly at the filesystem side we are rather far from being able to safely
-mount untrusted device and I don't think we'll ever be robust enough to
-tolerate e.g. user changing the disk while fs is using it. So would this be
-FUSE-only thing or is someone still hoping that general purpose filesystems
-will be robust enough in future?
+I would like to be able to gather the result of permissive mode per domain =
+from a check_access() call for the userspace object managers on Android.
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+>From what I can tell check_access() calls avc_has_perm with a NULL 5th argu=
+ment. That argument is for the struct avc_entry_ref.
+
+That structure has a pointer to an opaque type, avc_entry. Which contains s=
+truct av_decision.
+
+Which contains flags that have a permissive flag:
+
+struct av_decision {
+        access_vector_t allowed;
+        access_vector_t decided;
+        access_vector_t auditallow;
+        access_vector_t auditdeny;
+        unsigned int seqno;
+        unsigned int flags;
+};
+
+/* Definitions of av_decision.flags */
+#define SELINUX_AVD_FLAGS_PERMISSIVE    0x0001
+
+It looks like if check_access just passes this structure and then avc_has_p=
+erm() when it calls avc_audit, it could supply the av_decision structure to=
+ the avc_suppl_audit() call. We could then have an audit2 callback that tak=
+es this parameter.
+
+Is this mostly right, seem sane? Better way to do this?
+
+
+
+--_000_476DC76E7D1DF2438D32BFADF679FC560107EEE9ORSMSX103amrcor_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">I would like to be able to gather the result =
+of permissive mode per domain from a check_access() call for the userspace =
+object managers on Android.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">From what I can tell check_access() calls avc=
+_has_perm with a NULL 5th argument. That argument is for the struct avc_ent=
+ry_ref.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">That structure has a pointer to an opaque typ=
+e, avc_entry. Which contains struct av_decision.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">Which contains flags that have a permissive f=
+lag:<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">struct av_decision {<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ac=
+cess_vector_t allowed;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ac=
+cess_vector_t decided;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ac=
+cess_vector_t auditallow;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ac=
+cess_vector_t auditdeny;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; un=
+signed int seqno;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; un=
+signed int flags;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">};<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">/* Definitions of av_decision.flags */<o:p></=
+o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">#define SELINUX_AVD_FLAGS_PERMISSIVE&nbsp;&nb=
+sp;&nbsp; 0x0001<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">It looks like if check_access just passes thi=
+s structure and then avc_has_perm() when it calls avc_audit, it could suppl=
+y the av_decision structure to the avc_suppl_audit()
+ call. We could then have an audit2 callback that takes this parameter.<o:p=
+></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;">Is this mostly right, seem sane? Better way t=
+o do this?<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-autospace:none"><span style=3D"font-fa=
+mily:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_476DC76E7D1DF2438D32BFADF679FC560107EEE9ORSMSX103amrcor_--
