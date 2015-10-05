@@ -1,59 +1,56 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t95ER2av001450
+ for <selinux@tycho.nsa.gov>; Mon, 5 Oct 2015 10:27:02 -0400
+Received: by iofh134 with SMTP id h134so187448235iof.0
+ for <selinux@tycho.nsa.gov>; Mon, 05 Oct 2015 07:27:00 -0700 (PDT)
+Date: Mon, 5 Oct 2015 09:26:21 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Jan Kara <jack@suse.cz>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Mike Snitzer <snitzer@redhat.com>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
+ Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
+ when mounting
+Message-ID: <20151005142621.GB21639@ubuntu-hedt>
+References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
+ <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
+ <20150930234215.GA24127@redhat.com>
+ <20151001125508.GA101875@ubuntu-hedt>
+ <20151001134052.GB27818@redhat.com>
+ <87wpv6a8hl.fsf@x220.int.ebiederm.org>
+ <20151001230700.GA10087@quack.suse.cz>
 MIME-Version: 1.0
-In-Reply-To: <56128471.5050208@tycho.nsa.gov>
-References: <CAFJ0LnGC1F8oRT0OCdWBwLp-xX_s4DWN_p9=GdoG=84ZEod9Fw@mail.gmail.com>
- <56128471.5050208@tycho.nsa.gov>
-Date: Mon, 5 Oct 2015 09:39:19 -0700
-Message-ID: <CAFJ0LnEvvZ3bQLRfqmTV_NdhsqXnXMRnwMUA6mLOZVCTPPXChA@mail.gmail.com>
-Subject: Re: MAP_STACK and execstack
-From: Nick Kralevich <nnk@google.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux <Selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20151001230700.GA10087@quack.suse.cz>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Oct 5, 2015 at 7:08 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> To clarify, execstack is a check on mprotect() in addition to (not instead
-> of) execmem when the mapping is part of the stack.  execmem is always
-> required.
+On Fri, Oct 02, 2015 at 01:07:00AM +0200, Jan Kara wrote:
+> On Thu 01-10-15 10:55:50, Eric W. Biederman wrote:
+> > The goal if possible is to run things like docker without needed to be
+> > root or even more fun to run docker in a container, and in general
+> > enable nested containers.
+> 
+> Frankly at the filesystem side we are rather far from being able to safely
+> mount untrusted device and I don't think we'll ever be robust enough to
+> tolerate e.g. user changing the disk while fs is using it. So would this be
+> FUSE-only thing or is someone still hoping that general purpose filesystems
+> will be robust enough in future?
 
-Thank you for clarifying. This is good to know.
+FUSE will almost certainly be first. I've also been working with ext4,
+and I would like to see that eventually supported to some degree.
 
-> Since that time, /proc/pid/maps has been augmented to also identify thread
-> stacks, so the logic from show_map_vma could be reused for the execstack
-> check as well.
-
-This seems like a good idea.
-
-One other related concern:
-
-SELinux also has execheap. Like execstack, it's checked before parts
-of the heap are marked as executable.
-
-  if (vma->vm_start >= vma->vm_mm->start_brk &&
-      vma->vm_end <= vma->vm_mm->brk) {
-          rc = cred_has_perm(cred, cred, PROCESS__EXECHEAP);
-
-This assumes that the heap memory was allocated using brk/sbrk.
-However, many modern malloc implementations, including some malloc
-versions used in Android, allocate heap memory using mmap() and not
-brk/sbrk. brk/sbrk allocated memory is subject to an execheap
-permission check, whereas mmap() allocated memory doesn't require an
-execheap check. This has caused at least one bug where an app relied
-on making malloc() allocated memory executable, failing on one Android
-device but succeeding on a different device.
-
-I can see a few ways to solve this:
-
-1) Do nothing.
-2) Have userspace mark the memory as being part of the heap
-("MAP_HEAP"), and have SELinux enforce the execheap permission.
-3) Force the malloc implementations to always use brk/sbrk.
-4) Delete the execheap permission check from the kernel and always
-rely on execmem.
-
-Do others view this as a bug? If so, are there better solutions?
-
--- Nick
+Seth
