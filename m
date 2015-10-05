@@ -1,12 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t95Kg7pE000880
- for <selinux@tycho.nsa.gov>; Mon, 5 Oct 2015 16:42:07 -0400
-Subject: [RFC PATCH v2 4/5] selinux: introduce kdbus names into the policy
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t95Kg7pH000880
+ for <selinux@tycho.nsa.gov>; Mon, 5 Oct 2015 16:42:08 -0400
+Subject: [RFC PATCH v2 5/5] selinux: introduce kdbus access controls
 From: Paul Moore <pmoore@redhat.com>
 To: linux-security-module@vger.kernel.org
 Cc: linux-audit@redhat.com, selinux@tycho.nsa.gov
-Date: Mon, 05 Oct 2015 16:41:31 -0400
-Message-ID: <20151005204131.32023.62278.stgit@localhost>
+Date: Mon, 05 Oct 2015 16:41:37 -0400
+Message-ID: <20151005204137.32023.7198.stgit@localhost>
 In-Reply-To: <20151005203358.32023.88592.stgit@localhost>
 References: <20151005203358.32023.88592.stgit@localhost>
 MIME-Version: 1.0
@@ -16,304 +16,243 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-SELinux treats kdbus service names as objects and therefore needs a
-mechanism to map service names to security labels.  This patch adds
-support for loading kdbus name/label matches with the security policy.
+Add the SELinux access control implementation for the new kdbus LSM
+hooks using the new kdbus object class and the following permissions:
 
-The patch supports service name prefix matching to lessen the burden
-on the policy developers and reduce the size of the resulting policy.
+ [NOTE: permissions below are based on kdbus code from Aug 2015]
+
+ * kdbus:impersonate
+   Send a different security label to kdbus peers.
+ * kdbus:fakecreds
+   Send different DAC credentials to kdbus peers.
+ * kdbus:fakepids
+   Send a different PID to kdbus peers.
+ * kdbus:owner
+   Act as a kdbus bus owner.
+ * kdbus:privileged
+   Act as a privileged endpoint.
+ * kdbus:activator
+   Act as a kdbus activator.
+ * kdbus:monitor
+   Act as a kdbus monitor.
+ * kdbus:policy_holder
+   Act as a kdbus policy holder.
+ * kdbus:connect
+   Create a new kdbus connection.
+ * kdbus:own
+   Own a kdbus service name.
+ * kdbus:talk
+   Talk between two kdbus endpoints.
+ * kdbus:see
+   See another kdbus endpoint.
+ * kdbus:see_name
+   See a kdbus service name.
+ * kdbus:see_notification
+   See a kdbus notification.
 
 Signed-off-by: Paul Moore <pmoore@redhat.com>
 
 ---
 ChangeLog:
 - v2
- * Porting needed to work with ioctl xperms
+ * Add the selinux_kdbus_init_inode() hook
+ * Add some very basic info on the permissions to the description
+ * Add kdbus service name auditing in the AVC records
 - v1
  * Initial draft
 ---
- security/selinux/include/security.h |    5 ++
- security/selinux/ss/policydb.c      |   88 +++++++++++++++++++++++++++++------
- security/selinux/ss/policydb.h      |    3 +
- security/selinux/ss/services.c      |   38 +++++++++++++++
- 4 files changed, 116 insertions(+), 18 deletions(-)
+ security/selinux/hooks.c            |  152 +++++++++++++++++++++++++++++++++++
+ security/selinux/include/classmap.h |    4 +
+ 2 files changed, 154 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index eb9a549..3219b5d 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -36,13 +36,14 @@
- #define POLICYDB_VERSION_DEFAULT_TYPE	28
- #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
- #define POLICYDB_VERSION_XPERMS_IOCTL	30
-+#define POLICYDB_VERSION_KDBUS		31
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_XPERMS_IOCTL
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_KDBUS
- #endif
- 
- /* Mask for just the mount related flags */
-@@ -211,6 +212,8 @@ int security_fs_use(struct super_block *sb);
- int security_genfs_sid(const char *fstype, char *name, u16 sclass,
- 	u32 *sid);
- 
-+int security_kdbus_sid(const char *name, u32 *sid);
-+
- #ifdef CONFIG_NETLABEL
- int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 				   u32 *sid);
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 992a315..9be2e6d 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -76,81 +76,86 @@ static struct policydb_compat_info policydb_compat[] = {
- 	{
- 		.version	= POLICYDB_VERSION_BASE,
- 		.sym_num	= SYM_NUM - 3,
--		.ocon_num	= OCON_NUM - 1,
-+		.ocon_num	= OCON_NUM - 2,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_BOOL,
- 		.sym_num	= SYM_NUM - 2,
--		.ocon_num	= OCON_NUM - 1,
-+		.ocon_num	= OCON_NUM - 2,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_IPV6,
- 		.sym_num	= SYM_NUM - 2,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_NLCLASS,
- 		.sym_num	= SYM_NUM - 2,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_MLS,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_AVTAB,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_RANGETRANS,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_POLCAP,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_PERMISSIVE,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_BOUNDARY,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_FILENAME_TRANS,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_ROLETRANS,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_DEFAULT_TYPE,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_CONSTRAINT_NAMES,
- 		.sym_num	= SYM_NUM,
--		.ocon_num	= OCON_NUM,
-+		.ocon_num	= OCON_NUM - 1,
- 	},
- 	{
- 		.version	= POLICYDB_VERSION_XPERMS_IOCTL,
- 		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM - 1,
-+	},
-+	{
-+		.version	= POLICYDB_VERSION_KDBUS,
-+		.sym_num	= SYM_NUM,
- 		.ocon_num	= OCON_NUM,
- 	},
- };
-@@ -2111,7 +2116,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 	int i, j, rc;
- 	u32 nel, len;
- 	__le32 buf[3];
--	struct ocontext *l, *c;
-+	struct ocontext *l, *l2, *c;
- 	u32 nodebuf[8];
- 
- 	for (i = 0; i < info->ocon_num; i++) {
-@@ -2130,6 +2135,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				l->next = c;
- 			else
- 				p->ocontexts[i] = c;
-+			l2 = l;
- 			l = c;
- 
- 			switch (i) {
-@@ -2219,6 +2225,43 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 					goto out;
- 				break;
- 			}
-+			case OCON_KDBUS: {
-+				struct ocontext *iter, *last;
-+				u32 len2;
-+
-+				rc = next_entry(buf, fp, sizeof(u32));
-+				if (rc)
-+					goto out;
-+				len = le32_to_cpu(buf[0]);
-+				rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
-+				if (rc)
-+					goto out;
-+				rc = context_read_and_validate(&c->context[0], p, fp);
-+				if (rc) {
-+					kfree(c->u.name);
-+					goto out;
-+				}
-+
-+				/* sort by ->u.name length, longest first */
-+				last = NULL;
-+				iter = p->ocontexts[OCON_KDBUS];
-+				while (iter != c) {
-+					len2 = strlen(iter->u.name);
-+					if (len > len2) {
-+						if (l2)
-+							l2->next = NULL;
-+						c->next = iter;
-+						if (last == NULL)
-+							p->ocontexts[i] = c;
-+						else
-+							last->next = c;
-+						break;
-+					}
-+					last = iter;
-+					iter = iter->next;
-+				}
-+				break;
-+			}
- 			}
- 		}
- 	}
-@@ -3147,6 +3190,19 @@ static int ocontext_write(struct policydb *p, struct policydb_compat_info *info,
- 				if (rc)
- 					return rc;
- 				break;
-+			case OCON_KDBUS:
-+				len = strlen(c->u.name);
-+				buf[0] = cpu_to_le32(len);
-+				rc = put_entry(buf, sizeof(u32), 1, fp);
-+				if (rc)
-+					return rc;
-+				rc = put_entry(c->u.name, len, 1, fp);
-+				if (rc)
-+					return rc;
-+				rc = context_write(p, &c->context[0], fp);
-+				if (rc)
-+					return rc;
-+				break;
- 			}
- 		}
- 	}
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 725d594..ee9c120 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -222,7 +222,8 @@ struct genfs {
- #define OCON_NODE  4	/* nodes */
- #define OCON_FSUSE 5	/* fs_use */
- #define OCON_NODE6 6	/* IPv6 nodes */
--#define OCON_NUM   7
-+#define OCON_KDBUS 7	/* kdbus names */
-+#define OCON_NUM   8
- 
- /* The policy database */
- struct policydb {
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b7df12b..ada2d28 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2536,6 +2536,44 @@ int security_genfs_sid(const char *fstype,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 4d7e602..29341dd 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -9,8 +9,10 @@
+  *	      James Morris <jmorris@redhat.com>
+  *
+  *  Copyright (C) 2001,2002 Networks Associates Technology, Inc.
+- *  Copyright (C) 2003-2008 Red Hat, Inc., James Morris <jmorris@redhat.com>
+- *					   Eric Paris <eparis@redhat.com>
++ *  Copyright (C) 2003-2008,2015 Red Hat, Inc.
++ *					James Morris <jmorris@redhat.com>
++ *					Eric Paris <eparis@redhat.com>
++ *					Paul Moore <paul@paul-moore.com>
+  *  Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  *			    <dgoeddel@trustedcs.com>
+  *  Copyright (C) 2006, 2007, 2009 Hewlett-Packard Development Company, L.P.
+@@ -1987,6 +1989,143 @@ static int selinux_binder_transfer_file(struct task_struct *from,
+ 			    &ad);
  }
  
- /**
-+ * security_kdbus_sid - Obtain a SID for a kdbus name
-+ * @name: kdbus name
-+ * @sid: SID for the kdbus name
-+ *
-+ * Obtain a SID for the given kdbus service name.  Returns zero on success,
-+ * negative values on error.
-+ */
-+int security_kdbus_sid(const char *name, u32 *sid)
++static int selinux_kdbus_conn_new(const struct cred *creds,
++				  const struct kdbus_creds *fake_creds,
++				  const struct kdbus_pids *fake_pids,
++				  const char *fake_seclabel,
++				  bool owner, bool privileged,
++				  bool is_activator, bool is_monitor,
++				  bool is_policy_holder)
 +{
-+	int rc = 0;
-+	struct ocontext *c;
++	int rc;
++	u32 tsid = current_sid();
++	u32 av = KDBUS__CONNECT;
 +
-+	read_lock(&policy_rwlock);
++	if (fake_creds)
++		av |= KDBUS__FAKECREDS;
++	if (fake_pids)
++		av |= KDBUS__FAKEPIDS;
++	if (owner)
++		av |= KDBUS__OWNER;
++	if (privileged)
++		av |= KDBUS__PRIVILEGED;
++	if (is_activator)
++		av |= KDBUS__ACTIVATOR;
++	if (is_monitor)
++		av |= KDBUS__MONITOR;
++	if (is_policy_holder)
++		av |= KDBUS__POLICY_HOLDER;
 +
-+	c = policydb.ocontexts[OCON_KDBUS];
-+	while (c) {
-+		if (strncmp(c->u.name, name, strlen(c->u.name)) == 0)
-+			break;
-+		c = c->next;
++	rc = avc_has_perm(tsid, cred_sid(creds), SECCLASS_KDBUS, av, NULL);
++	if (rc)
++		return rc;
++
++	if (fake_seclabel) {
++		u32 sid;
++		if (security_context_to_sid(fake_seclabel,
++					    strlen(fake_seclabel),
++					    &sid, GFP_KERNEL))
++			return -EINVAL;
++
++		rc = avc_has_perm(tsid, sid,
++				  SECCLASS_KDBUS, KDBUS__IMPERSONATE, NULL);
 +	}
 +
-+	if (c) {
-+		if (!c->sid[0]) {
-+			rc = sidtab_context_to_sid(&sidtab,
-+						   &c->context[0], &c->sid[0]);
-+			if (rc)
-+				goto out;
-+		}
-+		*sid = c->sid[0];
-+	} else
-+		*sid = SECINITSID_UNLABELED;
-+
-+out:
-+	read_unlock(&policy_rwlock);
 +	return rc;
 +}
 +
-+/**
-  * security_fs_use - Determine how to handle labeling for a filesystem.
-  * @sb: superblock in question
-  */
++static int selinux_kdbus_own_name(const struct cred *creds, const char *name)
++{
++	int rc;
++	u32 name_sid;
++	struct common_audit_data ad;
++
++	rc = security_kdbus_sid(name, &name_sid);
++	if (rc)
++		return rc;
++
++	ad.type = LSM_AUDIT_DATA_KDBUS;
++	ad.u.kdbus_name = name;
++
++	return avc_has_perm(cred_sid(creds), name_sid,
++			    SECCLASS_KDBUS, KDBUS__OWN, &ad);
++}
++
++static int selinux_kdbus_conn_talk(const struct cred *creds,
++				   const struct cred *creds_to)
++{
++	return avc_has_perm(cred_sid(creds), cred_sid(creds_to),
++			    SECCLASS_KDBUS, KDBUS__TALK, NULL);
++}
++
++static int selinux_kdbus_conn_see(const struct cred *creds,
++				  const struct cred *creds_whom)
++{
++	return avc_has_perm(cred_sid(creds), cred_sid(creds_whom),
++			    SECCLASS_KDBUS, KDBUS__SEE, NULL);
++}
++
++static int selinux_kdbus_conn_see_name(const struct cred *creds,
++				       const char *name)
++{
++	int rc;
++	u32 name_sid;
++	struct common_audit_data ad;
++
++	rc = security_kdbus_sid(name, &name_sid);
++	if (rc)
++		return rc;
++
++	ad.type = LSM_AUDIT_DATA_KDBUS;
++	ad.u.kdbus_name = name;
++
++	return avc_has_perm(cred_sid(creds), name_sid,
++			    SECCLASS_KDBUS, KDBUS__SEE_NAME, &ad);
++}
++
++static int selinux_kdbus_conn_see_notification(const struct cred *creds)
++{
++	return avc_has_perm(SECINITSID_KERNEL, cred_sid(creds),
++			    SECCLASS_KDBUS, KDBUS__SEE_NOTIFICATION, NULL);
++}
++
++static int selinux_kdbus_proc_permission(const struct cred *creds,
++					 struct pid *pid)
++{
++	int rc;
++	struct task_struct *task;
++
++	rcu_read_lock();
++	task = pid_task(pid, PIDTYPE_PID);
++	rc = avc_has_perm(cred_sid(creds), task_sid(task),
++			  SECCLASS_PROCESS, PROCESS__GETATTR, NULL);
++	rcu_read_unlock();
++
++	return rc;
++}
++
++static int selinux_kdbus_init_inode(struct inode *inode,
++				    const struct cred *creds)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	u32 sid = cred_sid(creds);
++
++	/* XXX - this is very simple, e.g. no transitions, no special object
++	 *       class, etc. since this inode is basically an IPC socket ...
++	 *       however, is this too simple?  do we want transitions?  if we
++	 *       do, we should do the transition in kdbus_node_init() and not
++	 *       here so that endpoint is labeled correctly and not just this
++	 *       inode */
++
++	isec->inode = inode;
++	isec->task_sid = sid;
++	isec->sid = sid;
++	isec->sclass = SECCLASS_FILE;
++	isec->initialized = 1;
++
++	return 0;
++}
++
+ static int selinux_ptrace_access_check(struct task_struct *child,
+ 				     unsigned int mode)
+ {
+@@ -5888,6 +6027,15 @@ static struct security_operations selinux_ops = {
+ 	.binder_transfer_binder =	selinux_binder_transfer_binder,
+ 	.binder_transfer_file =		selinux_binder_transfer_file,
+ 
++	.kdbus_conn_new =		selinux_kdbus_conn_new,
++	.kdbus_own_name =		selinux_kdbus_own_name,
++	.kdbus_conn_talk =		selinux_kdbus_conn_talk,
++	.kdbus_conn_see_name = 		selinux_kdbus_conn_see_name,
++	.kdbus_conn_see =		selinux_kdbus_conn_see,
++	.kdbus_conn_see_notification =	selinux_kdbus_conn_see_notification,
++	.kdbus_proc_permission =	selinux_kdbus_proc_permission,
++	.kdbus_init_inode =		selinux_kdbus_init_inode,
++
+ 	.ptrace_access_check =		selinux_ptrace_access_check,
+ 	.ptrace_traceme =		selinux_ptrace_traceme,
+ 	.capget =			selinux_capget,
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index eccd61b..31e4435 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -153,5 +153,9 @@ struct security_class_mapping secclass_map[] = {
+ 	  { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+ 	{ "binder", { "impersonate", "call", "set_context_mgr", "transfer",
+ 		      NULL } },
++	{ "kdbus", { "impersonate", "fakecreds", "fakepids", "owner",
++		     "privileged", "activator", "monitor", "policy_holder",
++		     "connect", "own", "talk", "see", "see_name",
++		     "see_notification" } },
+ 	{ NULL }
+   };
