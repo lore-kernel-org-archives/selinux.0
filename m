@@ -1,83 +1,85 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t955k9YX032096
- for <selinux@tycho.nsa.gov>; Mon, 5 Oct 2015 01:46:09 -0400
-From: Sangwoo <sangwoo2.park@lge.com>
-To: paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- james.l.morris@oracle.com, serge@hallyn.com
-CC: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org, Sangwoo <sangwoo2.park@lge.com>
-Subject: [PATCH] security: selinux: Use a kmem_cache for allocation struct
- file_security_struct
-Date: Mon, 5 Oct 2015 14:45:41 +0900
-Message-ID: <1444023941-6482-1-git-send-email-sangwoo2.park@lge.com>
+Subject: Re: MAP_STACK and execstack
+To: Nick Kralevich <nnk@google.com>, SELinux <Selinux@tycho.nsa.gov>
+References: <CAFJ0LnGC1F8oRT0OCdWBwLp-xX_s4DWN_p9=GdoG=84ZEod9Fw@mail.gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <56128471.5050208@tycho.nsa.gov>
+Date: Mon, 5 Oct 2015 10:08:49 -0400
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <CAFJ0LnGC1F8oRT0OCdWBwLp-xX_s4DWN_p9=GdoG=84ZEod9Fw@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The size of struct file_security_struct is 16byte at my setup.
-But, the real allocation size for per each file_security_struct
-is 64bytes in my setup that kmalloc min size is 64bytes
-because ARCH_DMA_MINALIGN is 64.
+On 10/02/2015 04:44 PM, Nick Kralevich wrote:
+> Currently, SELinux implements the "execstack" capability using the
+> following code:
+>
+> security/selinux/hooks.c
+> function: selinux_file_mprotect()
+>
+> } else if (!vma->vm_file &&
+>                vma->vm_start <= vma->vm_mm->start_stack &&
+>                vma->vm_end >= vma->vm_mm->start_stack) {
+>      rc = current_has_perm(current, PROCESS__EXECSTACK);
+> }
+>
+> However, at least on Android, this check doesn't work for pthread
+> allocated stacks. Those stacks are allocated in libc via mmap(), and
+> aren't accounted for in the kernel as stack pages. As a result,
+> attempting to mprotect(PROT_EXEC) a pthread stack page requires the
+> "execmem" permission, not the "execstack" permission.
+>
+> "man mmap" defines MAP_STACK, which is currently a no-op in the kernel
+> indicating that the memory is intended to be used as a stack. In
+> theory, Android's libc could set this flag for memory intended to be
+> used as a stack, but doing so is useless if the kernel ignores it.
+>
+> Is there any reason why SELinux shouldn't use MAP_STACK to determine
+> whether the execmem or execstack capability is checked? In Android,
+> this would be a net security win, since nobody is granted execstack
+> today.
 
-This allocation is called every times at file allocation(alloc_file()).
-So, the total slack memory size(allocated size - request size)
-is increased exponentially.
+To clarify, execstack is a check on mprotect() in addition to (not 
+instead of) execmem when the mapping is part of the stack.  execmem is 
+always required.
 
-E.g) Min Kmalloc Size : 64bytes, Unit : bytes
-      Allocated Size | Request Size | Slack Size | Allocation Count
-    ---------------------------------------------------------------
-         770048      |    192512    |   577536   |      12032
+At the time execstack was added, /proc/pid/maps / show_map_vma only 
+identified the main process stack and the same logic was used to 
+identify it for the execstack check.
 
-At the result, this change reduce memory usage 42bytes per each
-file_security_struct
+Since that time, /proc/pid/maps has been augmented to also identify 
+thread stacks, so the logic from show_map_vma could be reused for the 
+execstack check as well.
 
-Signed-off-by: Sangwoo <sangwoo2.park@lge.com>
----
- security/selinux/hooks.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+Using MAP_STACK as the basis for the check seems less desirable, as it 
+is entirely at the discretion of the program (so can be easily omitted, 
+thereby making the check opt-in), is only passed on mmap() not 
+mprotect() and doesn't appear to be saved anywhere, so it isn't 
+available on mprotect() calls, and is ignored by the kernel.  The commit 
+that added it said:
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3f8d567..c20e082 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -126,6 +126,7 @@ int selinux_enabled = 1;
- #endif
- 
- static struct kmem_cache *sel_inode_cache;
-+static struct kmem_cache *file_security_cache;
- 
- /**
-  * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
-@@ -287,7 +288,7 @@ static int file_alloc_security(struct file *file)
- 	struct file_security_struct *fsec;
- 	u32 sid = current_sid();
- 
--	fsec = kzalloc(sizeof(struct file_security_struct), GFP_KERNEL);
-+	fsec = kmem_cache_zalloc(file_security_cache, GFP_KERNEL);
- 	if (!fsec)
- 		return -ENOMEM;
- 
-@@ -302,7 +303,7 @@ static void file_free_security(struct file *file)
- {
- 	struct file_security_struct *fsec = file->f_security;
- 	file->f_security = NULL;
--	kfree(fsec);
-+	kmem_cache_free(file_security_cache, fsec);
- }
- 
- static int superblock_alloc_security(struct super_block *sb)
-@@ -6086,6 +6087,9 @@ static __init int selinux_init(void)
- 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
- 					    sizeof(struct inode_security_struct),
- 					    0, SLAB_PANIC, NULL);
-+	file_security_cache = kmem_cache_create("selinux_file_security",
-+					    sizeof(struct file_security_struct),
-+					    0, SLAB_PANIC, NULL);
- 	avc_init();
- 
- 	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
--- 
-1.7.9.5
+commit cd98a04a59e2f94fa64d5bf1e26498d27427d5e7
+Author: Ingo Molnar <mingo@elte.hu>
+Date:   Wed Aug 13 18:02:18 2008 +0200
+
+     x86: add MAP_STACK mmap flag
+
+     as per this discussion:
+
+        http://lkml.org/lkml/2008/8/12/423
+
+     Pardo reported that 64-bit threaded apps, if their stacks exceed the
+     combined size of ~4GB, slow down drastically in pthread_create() - 
+because
+     glibc uses MAP_32BIT to allocate the stacks. The use of MAP_32BIT is
+     a legacy hack - to speed up context switching on certain early model
+     64-bit P4 CPUs.
+
+     So introduce a new flag to be used by glibc instead, to not constrain
+     64-bit apps like this.
+
+     glibc can switch to this new flag straight away - it will be ignored
+     by the kernel. If those old CPUs ever matter to anyone, support for
+     it can be implemented.
