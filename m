@@ -1,85 +1,52 @@
-Subject: Re: [PATCH] security: selinux: Use a kmem_cache for allocation struct
- file_security_struct
-To: Sangwoo <sangwoo2.park@lge.com>, paul@paul-moore.com,
- eparis@parisplace.org, james.l.morris@oracle.com, serge@hallyn.com
-References: <1444023941-6482-1-git-send-email-sangwoo2.park@lge.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56156461.3080000@tycho.nsa.gov>
-Date: Wed, 7 Oct 2015 14:28:49 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t97N8ml1015981
+ for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2015 19:08:50 -0400
+Subject: [RFC PATCH v3 0/5] kdbus LSM/SELinux hooks
+From: Paul Moore <pmoore@redhat.com>
+To: linux-security-module@vger.kernel.org, linux-audit@redhat.com,
+ selinux@tycho.nsa.gov
+Cc: Paul Osmialowski <p.osmialowsk@samsung.com>
+Date: Wed, 07 Oct 2015 19:08:16 -0400
+Message-ID: <20151007230615.7823.74519.stgit@localhost>
 MIME-Version: 1.0
-In-Reply-To: <1444023941-6482-1-git-send-email-sangwoo2.park@lge.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/05/2015 01:45 AM, Sangwoo wrote:
-> The size of struct file_security_struct is 16byte at my setup.
-> But, the real allocation size for per each file_security_struct
-> is 64bytes in my setup that kmalloc min size is 64bytes
-> because ARCH_DMA_MINALIGN is 64.
-> 
-> This allocation is called every times at file allocation(alloc_file()).
-> So, the total slack memory size(allocated size - request size)
-> is increased exponentially.
-> 
-> E.g) Min Kmalloc Size : 64bytes, Unit : bytes
->       Allocated Size | Request Size | Slack Size | Allocation Count
->     ---------------------------------------------------------------
->          770048      |    192512    |   577536   |      12032
-> 
-> At the result, this change reduce memory usage 42bytes per each
-> file_security_struct
-> 
-> Signed-off-by: Sangwoo <sangwoo2.park@lge.com>
+No real functional improvements since the v2 patchset earlier this
+week, the main update is rebasing on GregKH's current kdbus tree
+which is now 4.3-rc4 based and as a result brings the LSM stacking
+changes and SELinux ioctl/xperm additions.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+---
 
-> ---
->  security/selinux/hooks.c |    8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3f8d567..c20e082 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -126,6 +126,7 @@ int selinux_enabled = 1;
->  #endif
->  
->  static struct kmem_cache *sel_inode_cache;
-> +static struct kmem_cache *file_security_cache;
->  
->  /**
->   * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
-> @@ -287,7 +288,7 @@ static int file_alloc_security(struct file *file)
->  	struct file_security_struct *fsec;
->  	u32 sid = current_sid();
->  
-> -	fsec = kzalloc(sizeof(struct file_security_struct), GFP_KERNEL);
-> +	fsec = kmem_cache_zalloc(file_security_cache, GFP_KERNEL);
->  	if (!fsec)
->  		return -ENOMEM;
->  
-> @@ -302,7 +303,7 @@ static void file_free_security(struct file *file)
->  {
->  	struct file_security_struct *fsec = file->f_security;
->  	file->f_security = NULL;
-> -	kfree(fsec);
-> +	kmem_cache_free(file_security_cache, fsec);
->  }
->  
->  static int superblock_alloc_security(struct super_block *sb)
-> @@ -6086,6 +6087,9 @@ static __init int selinux_init(void)
->  	sel_inode_cache = kmem_cache_create("selinux_inode_security",
->  					    sizeof(struct inode_security_struct),
->  					    0, SLAB_PANIC, NULL);
-> +	file_security_cache = kmem_cache_create("selinux_file_security",
-> +					    sizeof(struct file_security_struct),
-> +					    0, SLAB_PANIC, NULL);
->  	avc_init();
->  
->  	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
-> 
+Paul Moore (5):
+      kdbus: add creator credentials to the endpoints
+      lsm: introduce hooks for kdbus
+      lsm: add support for auditing kdbus service names
+      selinux: introduce kdbus names into the policy
+      selinux: introduce kdbus access controls
+
+ include/linux/lsm_audit.h           |    2 
+ include/linux/lsm_hooks.h           |   63 ++++++++++++++
+ include/linux/security.h            |   71 ++++++++++++++++
+ ipc/kdbus/bus.c                     |   13 +--
+ ipc/kdbus/connection.c              |   73 +++++++++++------
+ ipc/kdbus/endpoint.c                |   14 +--
+ ipc/kdbus/endpoint.h                |    3 -
+ ipc/kdbus/fs.c                      |   10 ++
+ ipc/kdbus/message.c                 |   19 +++-
+ ipc/kdbus/metadata.c                |    6 -
+ ipc/kdbus/node.c                    |   11 +--
+ ipc/kdbus/node.h                    |    5 +
+ security/lsm_audit.c                |    4 +
+ security/security.c                 |   62 ++++++++++++++
+ security/selinux/hooks.c            |  153 +++++++++++++++++++++++++++++++++++
+ security/selinux/include/classmap.h |    4 +
+ security/selinux/include/security.h |    5 +
+ security/selinux/ss/policydb.c      |   88 ++++++++++++++++----
+ security/selinux/ss/policydb.h      |    3 -
+ security/selinux/ss/services.c      |   38 +++++++++
+ 20 files changed, 561 insertions(+), 86 deletions(-)
