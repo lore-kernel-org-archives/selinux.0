@@ -1,586 +1,172 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t97N8nmd015984
- for <selinux@tycho.nsa.gov>; Wed, 7 Oct 2015 19:08:50 -0400
-Subject: [RFC PATCH v3 2/5] lsm: introduce hooks for kdbus
-From: Paul Moore <pmoore@redhat.com>
-To: linux-security-module@vger.kernel.org, linux-audit@redhat.com,
- selinux@tycho.nsa.gov
-Cc: Paul Osmialowski <p.osmialowsk@samsung.com>
-Date: Wed, 07 Oct 2015 19:08:29 -0400
-Message-ID: <20151007230829.7823.14385.stgit@localhost>
-In-Reply-To: <20151007230615.7823.74519.stgit@localhost>
-References: <20151007230615.7823.74519.stgit@localhost>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t98Fg6fm018980
+ for <selinux@tycho.nsa.gov>; Thu, 8 Oct 2015 11:42:06 -0400
+Received: by iow1 with SMTP id 1so62621077iow.1
+ for <selinux@tycho.nsa.gov>; Thu, 08 Oct 2015 08:42:04 -0700 (PDT)
+Date: Thu, 8 Oct 2015 10:41:15 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Mike Snitzer <snitzer@redhat.com>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, dm-devel@redhat.com,
+ Neil Brown <neilb@suse.com>, David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [PATCH 1/5] fs: Verify access of user towards block device file
+ when mounting
+Message-ID: <20151008154115.GA88001@ubuntu-hedt>
+References: <1443644116-41366-1-git-send-email-seth.forshee@canonical.com>
+ <1443644116-41366-2-git-send-email-seth.forshee@canonical.com>
+ <20150930234215.GA24127@redhat.com>
+ <20151001125508.GA101875@ubuntu-hedt>
+ <20151001134052.GB27818@redhat.com>
+ <20151001144137.GC101875@ubuntu-hedt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20151001144137.GC101875@ubuntu-hedt>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add LSM access control hooks to kdbus; several new hooks are added and
-the existing security_file_receive() hook is reused.  The new hooks
-are listed below:
+On Thu, Oct 01, 2015 at 09:41:37AM -0500, Seth Forshee wrote:
+> On Thu, Oct 01, 2015 at 09:40:52AM -0400, Mike Snitzer wrote:
+> > On Thu, Oct 01 2015 at  8:55am -0400,
+> > Seth Forshee <seth.forshee@canonical.com> wrote:
+> > 
+> > > On Wed, Sep 30, 2015 at 07:42:15PM -0400, Mike Snitzer wrote:
+> > > > On Wed, Sep 30 2015 at  4:15pm -0400,
+> > > > Seth Forshee <seth.forshee@canonical.com> wrote:
+> > > > 
+> > > > > When mounting a filesystem on a block device there is currently
+> > > > > no verification that the user has appropriate access to the
+> > > > > device file passed to mount. This has not been an issue so far
+> > > > > since the user in question has always been root, but this must
+> > > > > be changed before allowing unprivileged users to mount in user
+> > > > > namespaces.
+> > > > > 
+> > > > > To fix this, add an argument to lookup_bdev() to specify the
+> > > > > required permissions. If the mask of permissions is zero, or
+> > > > > if the user has CAP_SYS_ADMIN, the permission check is skipped,
+> > > > > otherwise the lookup fails if the user does not have the
+> > > > > specified access rights for the inode at the supplied path.
+> > > > > 
+> > > > > Callers associated with mounting are updated to pass permission
+> > > > > masks to lookup_bdev() so that these mounts will fail for an
+> > > > > unprivileged user who lacks permissions for the block device
+> > > > > inode. All other callers pass 0 to maintain their current
+> > > > > behaviors.
+> > > > > 
+> > > > > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> > > > > ---
+> > > > >  drivers/md/bcache/super.c |  2 +-
+> > > > >  drivers/md/dm-table.c     |  2 +-
+> > > > >  drivers/mtd/mtdsuper.c    |  6 +++++-
+> > > > >  fs/block_dev.c            | 18 +++++++++++++++---
+> > > > >  fs/quota/quota.c          |  2 +-
+> > > > >  include/linux/fs.h        |  2 +-
+> > > > >  6 files changed, 24 insertions(+), 8 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> > > > > index e76ed003769e..35bb3ea4cbe2 100644
+> > > > > --- a/drivers/md/dm-table.c
+> > > > > +++ b/drivers/md/dm-table.c
+> > > > > @@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
+> > > > >  	BUG_ON(!t);
+> > > > >  
+> > > > >  	/* convert the path to a device */
+> > > > > -	bdev = lookup_bdev(path);
+> > > > > +	bdev = lookup_bdev(path, 0);
+> > > > >  	if (IS_ERR(bdev)) {
+> > > > >  		dev = name_to_dev_t(path);
+> > > > >  		if (!dev)
+> > > > 
+> > > > Given dm_get_device() is passed @mode why not have it do something like
+> > > > you did in blkdev_get_by_path()? e.g.:
+> > > 
+> > > I only dealt with code related to mounting in this patch since that's
+> > > what I'm working on. I have it on my TODO list to consider converting
+> > > other callers of lookup_bdev. But if you're sure doing so makes sense
+> > > for dm_get_device and that it won't cause regressions then I could add a
+> > > patch for it.
+> > 
+> > OK, dm_get_device() is called in DM device activation path (by tools
+> > like lvm2).
+> > 
+> > After lookup_bdev() it goes on to call blkdev_get_by_dev() with this
+> > call chain: 
+> >   dm_get_device -> dm_get_table_device -> open_table_device -> blkdev_get_by_dev
+> > 
+> > Not immediately clear to me why we'd need to augment blkdev_get_by_dev()
+> > to do this checking also.
+> > 
+> > However, thinking further: In a device stack (e.g. dm/lvm2, md, etc)
+> > new virtual block devices are created that layer ontop of the
+> > traditional block devices.  This level of indirection may cause your
+> > lookup_bdev() check to go on to succeed (if access constraints were not
+> > established on the upper level dm or md device?).  I'm just thinking
+> > outloud here: but have you verified your changes work as intended on
+> > devices created with either lvm2 or mdadm?
+> > 
+> > What layer establishes access rights to historically root-only
+> > priviledged block devices?  Is it user namespaces?
+> 
+> I'm going to start with this last question and work my way backwards.
+> 
+> Who determines access rights to the block devices varies to some degree.
+> Any normal user could unshare the user/mount namespaces and still see
+> all the block devices in /dev. If we're going to allow that user to then
+> mount block devices in their private namespaces, the kernel must verify
+> that the user has appropriate permissions for the block device inode.
+> That's the point of this patch. In a container context the host process
+> which sets up the container might share some block devices into the
+> container via bind mounts, in which case it would be responsible for
+> setting up access rights (both via inode permissions and potentially via
+> devcgroups). I also have some patches I'm working on for a loop psuedo
+> filesystem which would allow a container to allocate loop devices for
+> its own use (via the loop-control device), in which case the kernel
+> creates a device node in the loopfs filesystem from which the new loop
+> device was allocated, owned by the root user in the user namespace
+> associated with the loopfs superblock.
+> 
+> Obviously a DM block device is more complicated than a traditional block
+> device. This patch should ensure that if an unprivileged user tries to
+> mount a DM blkdev that it fails if the user lacks permissions for the DM
+> blkdev inode. There's also the blkdevs behind the DM blkdev, and I'm not
+> sure whether we need to additionally verify that the user has access to
+> those devices. Maybe it's enough that someone with access to them set up
+> the DM device, and someone with sufficient privileges gave that user
+> access to the DM device. Do you have any thoughts?
+> 
+> As for activating a DM device, I assume only root is permitted to do
+> this. In that case lookup_bdev will skip the inode permission check
+> even if a non-zero permission mask is passed.
 
- * security_kdbus_conn_new
-   Check if the current task is allowed to create a new kdbus
-   connection.
- * security_kdbus_own_name
-   Check if a connection is allowed to own a kdbus service name.
- * security_kdbus_conn_talk
-   Check if a connection is allowed to talk to a kdbus peer.
- * security_kdbus_conn_see
-   Check if a connection can see a kdbus peer.
- * security_kdbus_conn_see_name
-   Check if a connection can see a kdbus service name.
- * security_kdbus_conn_see_notification
-   Check if a connection can receive notifications.
- * security_kdbus_proc_permission
-   Check if a connection can access another task's pid namespace info.
- * security_kdbus_init_inode
-   Set the security label on a kdbusfs inode
+I've been looking into this more and doing some testing.
 
-Signed-off-by: Paul Moore <pmoore@redhat.com>
+As far as mounting goes, it ends up behaving as I expected. As long as
+the user has permission to access the inode for the DM block device, the
+device can be mounted. Access to the block devices behind the DM block
+device is not required. I think this makes sense - it's consistent with
+how read/write access to the DM block device works already independent
+of user namespaces.
 
----
-ChangeLog:
-- v3
- * Ported to the 4.3-rc4 based kdbus tree
-- v2
- * Implemented suggestions by Stephen Smalley
-   * call security_kdbus_conn_new() sooner
-   * reworked hook inside kdbus_conn_policy_own_name()
-   * fixed if-conditional in kdbus_conn_policy_talk()
-   * reworked hook inside kdbus_conn_policy_see_name_unlocked()
-   * reworked hook inside kdbus_conn_policy_see()
-   * reworked hook inside kdbus_conn_policy_see_notification()
-   * added the security_kdbus_init_inode() hook
-- v1
- * Initial draft
----
- include/linux/lsm_hooks.h |   63 +++++++++++++++++++++++++++++++++++++++
- include/linux/security.h  |   71 ++++++++++++++++++++++++++++++++++++++++++++
- ipc/kdbus/connection.c    |   73 +++++++++++++++++++++++++++++----------------
- ipc/kdbus/fs.c            |    6 ++++
- ipc/kdbus/message.c       |   19 +++++++++---
- ipc/kdbus/metadata.c      |    6 +---
- security/security.c       |   62 ++++++++++++++++++++++++++++++++++++++
- 7 files changed, 265 insertions(+), 35 deletions(-)
+One thing I noticed that might be a concern (I'm not sure) are ioctls on
+DM block devices. It looks to me like often these will be passed through
+to the underlying block device.
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index ec3a6ba..36d4e5d 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1138,6 +1138,45 @@
-  *	@file contains the struct file being transferred.
-  *	@to contains the task_struct for the receiving task.
-  *
-+ * @kdbus_conn_new
-+ *	Check if the current task is allowed to create a new kdbus connection.
-+ *	@creds credentials for the new connection
-+ *	@fake_creds kdbus faked credentials
-+ *	@fake_pids kdbus faked pids
-+ *	@fake_seclabel kdbus faked security label
-+ *	@owner kdbus owner
-+ *	@privileged kdbus privileged
-+ *	@is_activator kdbus activator boolean
-+ *	@is_monitor kdbus monitor boolean
-+ *	@is_policy_holder kdbus policy holder boolean
-+ * @kdbus_own_name
-+ *	Check if a connection is allowed to own a kdbus service name.
-+ *	@creds requestor's credentials
-+ *	@name service name
-+ * @kdbus_conn_talk
-+ *	Check if a connection is allowed to talk to a kdbus peer.
-+ *	@creds requestor's credentials
-+ *	@creds_peer peer credentials
-+ * @kdbus_conn_see
-+ *	Check if a connection can see a kdbus peer.
-+ *	@creds requestor's credentials
-+ *	@creds_peer peer credentials
-+ * @kdbus_conn_see_name
-+ *	Check if a connection can see a kdbus service name.
-+ *	@creds requestor's credentials
-+ *	@name service name
-+ * @kdbus_conn_see_notification
-+ *	Check if a connection can receive notifications.
-+ *	@creds requestor's credentials
-+ * @kdbus_proc_permission
-+ *	Check if a connection can access another task's pid namespace info.
-+ *	@cred requestor's credentials
-+ *	@pid target task's pid struct
-+ * @kdbus_init_inode
-+ *	Set the security label on a kdbusfs inode
-+ *	@inode kdbusfs inode
-+ *	@creds inode owner credentials
-+ *
-  * @ptrace_access_check:
-  *	Check permission before allowing the current process to trace the
-  *	@child process.
-@@ -1310,6 +1349,22 @@ union security_list_options {
- 					struct task_struct *to,
- 					struct file *file);
- 
-+	int (*kdbus_conn_new)(const struct cred *creds,
-+			      const struct kdbus_creds *fake_creds,
-+			      const struct kdbus_pids *fake_pids,
-+			      const char *fake_seclabel,
-+			      bool owner, bool privileged, bool is_activator,
-+			      bool is_monitor, bool is_policy_holder);
-+	int (*kdbus_own_name)(const struct cred *creds, const char *name);
-+	int (*kdbus_conn_talk)(const struct cred *creds,
-+			       const struct cred *creds_peer);
-+	int (*kdbus_conn_see)(const struct cred *creds,
-+			      const struct cred *creds_peer);
-+	int (*kdbus_conn_see_name)(const struct cred *creds, const char *name);
-+	int (*kdbus_conn_see_notification)(const struct cred *creds);
-+	int (*kdbus_proc_permission)(const struct cred *creds, struct pid *pid);
-+	int (*kdbus_init_inode)(struct inode *inode, const struct cred *creds);
-+
- 	int (*ptrace_access_check)(struct task_struct *child,
- 					unsigned int mode);
- 	int (*ptrace_traceme)(struct task_struct *parent);
-@@ -1620,6 +1675,14 @@ struct security_hook_heads {
- 	struct list_head binder_transaction;
- 	struct list_head binder_transfer_binder;
- 	struct list_head binder_transfer_file;
-+	struct list_head kdbus_conn_new;
-+	struct list_head kdbus_own_name;
-+	struct list_head kdbus_conn_talk;
-+	struct list_head kdbus_conn_see;
-+	struct list_head kdbus_conn_see_name;
-+	struct list_head kdbus_conn_see_notification;
-+	struct list_head kdbus_proc_permission;
-+	struct list_head kdbus_init_inode;
- 	struct list_head ptrace_access_check;
- 	struct list_head ptrace_traceme;
- 	struct list_head capget;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 2f4c1f7..68d83dd 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -53,6 +53,9 @@ struct msg_queue;
- struct xattr;
- struct xfrm_sec_ctx;
- struct mm_struct;
-+struct kdbus_creds;
-+struct kdbus_pids;
-+struct pid;
- 
- /* If capable should audit the security request */
- #define SECURITY_CAP_NOAUDIT 0
-@@ -189,6 +192,21 @@ int security_binder_transfer_binder(struct task_struct *from,
- 				    struct task_struct *to);
- int security_binder_transfer_file(struct task_struct *from,
- 				  struct task_struct *to, struct file *file);
-+int security_kdbus_conn_new(const struct cred *creds,
-+			    const struct kdbus_creds *fake_creds,
-+			    const struct kdbus_pids *fake_pids,
-+			    const char *fake_seclabel,
-+			    bool owner, bool privileged, bool is_activator,
-+			    bool is_monitor, bool is_policy_holder);
-+int security_kdbus_own_name(const struct cred *creds, const char *name);
-+int security_kdbus_conn_talk(const struct cred *creds,
-+			     const struct cred *creds_peer);
-+int security_kdbus_conn_see(const struct cred *creds,
-+			    const struct cred *creds_peer);
-+int security_kdbus_conn_see_name(const struct cred *creds, const char *name);
-+int security_kdbus_conn_see_notification(const struct cred *creds);
-+int security_kdbus_proc_permission(const struct cred *creds, struct pid *pid);
-+int security_kdbus_init_inode(struct inode *inode, const struct cred *creds);
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
- int security_ptrace_traceme(struct task_struct *parent);
- int security_capget(struct task_struct *target,
-@@ -402,6 +420,59 @@ static inline int security_binder_transfer_file(struct task_struct *from,
- 	return 0;
- }
- 
-+static inline int security_kdbus_conn_new(const struct cred *creds,
-+					  const struct kdbus_creds *fake_creds,
-+					  const struct kdbus_pids *fake_pids,
-+					  const char *fake_seclabel,
-+					  bool owner, bool privileged,
-+					  bool is_activator,
-+					  bool is_monitor,
-+					  bool is_policy_holder)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_own_name(const struct cred *creds,
-+					  const char *name)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_conn_talk(const struct cred *creds,
-+					   const struct cred *creds_peer)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_conn_see(const struct cred *creds,
-+					  const struct cred *creds_peer)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_conn_see_name(const struct cred *creds,
-+					       const char *name)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_conn_see_notification(const struct cred *creds)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_proc_permission)(const struct cred *creds,
-+						  struct pid *pid)
-+{
-+	return 0;
-+}
-+
-+static inline int security_kdbus_init_inode(struct inode *inode,
-+					    const struct *creds)
-+{
-+	return 0;
-+}
-+
- static inline int security_ptrace_access_check(struct task_struct *child,
- 					     unsigned int mode)
- {
-diff --git a/ipc/kdbus/connection.c b/ipc/kdbus/connection.c
-index ef63d65..1cb87b3 100644
---- a/ipc/kdbus/connection.c
-+++ b/ipc/kdbus/connection.c
-@@ -26,6 +26,7 @@
- #include <linux/path.h>
- #include <linux/poll.h>
- #include <linux/sched.h>
-+#include <linux/security.h>
- #include <linux/shmem_fs.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
-@@ -108,6 +109,14 @@ static struct kdbus_conn *kdbus_conn_new(struct kdbus_ep *ep,
- 	if (!owner && (creds || pids || seclabel))
- 		return ERR_PTR(-EPERM);
- 
-+	ret = security_kdbus_conn_new(get_cred(file->f_cred),
-+				      creds, pids, seclabel,
-+				      owner, privileged,
-+				      is_activator, is_monitor,
-+				      is_policy_holder);
-+	if (ret < 0)
-+		return ERR_PTR(ret);
-+
- 	ret = kdbus_sanitize_attach_flags(hello->attach_flags_send,
- 					  &attach_flags_send);
- 	if (ret < 0)
-@@ -1435,12 +1444,12 @@ bool kdbus_conn_policy_own_name(struct kdbus_conn *conn,
- 			return false;
- 	}
- 
--	if (conn->owner)
--		return true;
-+	if (!conn->owner &&
-+	    kdbus_policy_query(&conn->ep->bus->policy_db, conn_creds, name,
-+			       hash) < KDBUS_POLICY_OWN)
-+		return false;
- 
--	res = kdbus_policy_query(&conn->ep->bus->policy_db, conn_creds,
--				 name, hash);
--	return res >= KDBUS_POLICY_OWN;
-+	return (security_kdbus_own_name(conn_creds, name) == 0);
- }
- 
- /**
-@@ -1465,14 +1474,13 @@ bool kdbus_conn_policy_talk(struct kdbus_conn *conn,
- 					 to, KDBUS_POLICY_TALK))
- 		return false;
- 
--	if (conn->owner)
--		return true;
--	if (uid_eq(conn_creds->euid, to->cred->uid))
--		return true;
-+	if (!conn->owner && !uid_eq(conn_creds->euid, to->cred->uid) &&
-+	    !kdbus_conn_policy_query_all(conn, conn_creds,
-+					 &conn->ep->bus->policy_db, to,
-+					 KDBUS_POLICY_TALK))
-+		return false;
- 
--	return kdbus_conn_policy_query_all(conn, conn_creds,
--					   &conn->ep->bus->policy_db, to,
--					   KDBUS_POLICY_TALK);
-+	return (security_kdbus_conn_talk(conn_creds, to->cred) == 0);
- }
- 
- /**
-@@ -1491,19 +1499,19 @@ bool kdbus_conn_policy_see_name_unlocked(struct kdbus_conn *conn,
- 					 const struct cred *conn_creds,
- 					 const char *name)
- {
--	int res;
-+	if (!conn_creds)
-+		conn_creds = conn->cred;
- 
- 	/*
- 	 * By default, all names are visible on a bus. SEE policies can only be
- 	 * installed on custom endpoints, where by default no name is visible.
- 	 */
--	if (!conn->ep->user)
--		return true;
-+	if (conn->ep->user &&
-+	    kdbus_policy_query_unlocked(&conn->ep->policy_db, conn_creds, name,
-+					kdbus_strhash(name)) < KDBUS_POLICY_SEE)
-+		return false;
- 
--	res = kdbus_policy_query_unlocked(&conn->ep->policy_db,
--					  conn_creds ? : conn->cred,
--					  name, kdbus_strhash(name));
--	return res >= KDBUS_POLICY_SEE;
-+	return (security_kdbus_conn_see_name(conn_creds, name) == 0);
- }
- 
- static bool kdbus_conn_policy_see_name(struct kdbus_conn *conn,
-@@ -1523,6 +1531,9 @@ static bool kdbus_conn_policy_see(struct kdbus_conn *conn,
- 				  const struct cred *conn_creds,
- 				  struct kdbus_conn *whom)
- {
-+	if (!conn_creds)
-+		conn_creds = conn->cred;
-+
- 	/*
- 	 * By default, all names are visible on a bus, so a connection can
- 	 * always see other connections. SEE policies can only be installed on
-@@ -1530,10 +1541,13 @@ static bool kdbus_conn_policy_see(struct kdbus_conn *conn,
- 	 * peers from each other, unless you see at least _one_ name of the
- 	 * peer.
- 	 */
--	return !conn->ep->user ||
--	       kdbus_conn_policy_query_all(conn, conn_creds,
--					   &conn->ep->policy_db, whom,
--					   KDBUS_POLICY_SEE);
-+	if (conn->ep->user &&
-+	    !kdbus_conn_policy_query_all(conn, conn_creds,
-+					 &conn->ep->policy_db, whom,
-+					 KDBUS_POLICY_SEE))
-+		return false;
-+
-+	return (security_kdbus_conn_see(conn_creds, whom->cred) == 0);
- }
- 
- /**
-@@ -1551,6 +1565,9 @@ bool kdbus_conn_policy_see_notification(struct kdbus_conn *conn,
- 					const struct cred *conn_creds,
- 					const struct kdbus_msg *msg)
- {
-+	if (!conn_creds)
-+		conn_creds = conn->cred;
-+
- 	/*
- 	 * Depending on the notification type, broadcasted kernel notifications
- 	 * have to be filtered:
-@@ -1567,18 +1584,22 @@ bool kdbus_conn_policy_see_notification(struct kdbus_conn *conn,
- 	case KDBUS_ITEM_NAME_ADD:
- 	case KDBUS_ITEM_NAME_REMOVE:
- 	case KDBUS_ITEM_NAME_CHANGE:
--		return kdbus_conn_policy_see_name(conn, conn_creds,
--					msg->items[0].name_change.name);
-+		if (!kdbus_conn_policy_see_name(conn, conn_creds,
-+						msg->items[0].name_change.name))
-+			return false;
- 
- 	case KDBUS_ITEM_ID_ADD:
- 	case KDBUS_ITEM_ID_REMOVE:
--		return true;
-+		/* fall through for the LSM check */
-+		break;
- 
- 	default:
- 		WARN(1, "Invalid type for notification broadcast: %llu\n",
- 		     (unsigned long long)msg->items[0].type);
- 		return false;
- 	}
-+
-+	return (security_kdbus_conn_see_notification(conn_creds) == 0);
- }
- 
- /**
-diff --git a/ipc/kdbus/fs.c b/ipc/kdbus/fs.c
-index 68818a8..4e84e89 100644
---- a/ipc/kdbus/fs.c
-+++ b/ipc/kdbus/fs.c
-@@ -23,6 +23,7 @@
- #include <linux/namei.h>
- #include <linux/pagemap.h>
- #include <linux/sched.h>
-+#include <linux/security.h>
- #include <linux/slab.h>
- 
- #include "bus.h"
-@@ -192,6 +193,7 @@ static const struct inode_operations fs_inode_iops = {
- static struct inode *fs_inode_get(struct super_block *sb,
- 				  struct kdbus_node *node)
- {
-+	int ret;
- 	struct inode *inode;
- 
- 	inode = iget_locked(sb, node->id);
-@@ -200,6 +202,10 @@ static struct inode *fs_inode_get(struct super_block *sb,
- 	if (!(inode->i_state & I_NEW))
- 		return inode;
- 
-+	ret = security_kdbus_init_inode(inode, node->creds);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
- 	inode->i_private = kdbus_node_ref(node);
- 	inode->i_mapping->a_ops = &empty_aops;
- 	inode->i_mode = node->mode & S_IALLUGO;
-diff --git a/ipc/kdbus/message.c b/ipc/kdbus/message.c
-index ae565cd..acbe981 100644
---- a/ipc/kdbus/message.c
-+++ b/ipc/kdbus/message.c
-@@ -150,12 +150,17 @@ int kdbus_gaps_install(struct kdbus_gaps *gaps, struct kdbus_pool_slice *slice,
- 		for (i = 0; i < gaps->n_fds; ++i) {
- 			int fd;
- 
-+			ret = security_file_receive(gaps->fd_files[i]);
-+			if (ret) {
-+				incomplete_fds = true;
-+				fds[n_fds++] = -1;
-+				continue;
-+			}
-+
- 			fd = get_unused_fd_flags(O_CLOEXEC);
- 			if (fd < 0)
- 				incomplete_fds = true;
- 
--			WARN_ON(!gaps->fd_files[i]);
--
- 			fds[n_fds++] = fd < 0 ? -1 : fd;
- 		}
- 
-@@ -178,6 +183,13 @@ int kdbus_gaps_install(struct kdbus_gaps *gaps, struct kdbus_pool_slice *slice,
- 	for (i = 0; i < gaps->n_memfds; ++i) {
- 		int memfd;
- 
-+		ret = security_file_receive(gaps->memfd_files[i]);
-+		if (ret) {
-+			incomplete_fds = true;
-+			fds[n_fds++] = -1;
-+			continue;
-+		}
-+
- 		memfd = get_unused_fd_flags(O_CLOEXEC);
- 		if (memfd < 0) {
- 			incomplete_fds = true;
-@@ -194,9 +206,6 @@ int kdbus_gaps_install(struct kdbus_gaps *gaps, struct kdbus_pool_slice *slice,
- 		 * message.
- 		 */
- 
--		WARN_ON(!gaps->memfd_offsets[i]);
--		WARN_ON(!gaps->memfd_files[i]);
--
- 		kvec.iov_base = &memfd;
- 		kvec.iov_len = sizeof(memfd);
- 		ret = kdbus_pool_slice_copy_kvec(slice, gaps->memfd_offsets[i],
-diff --git a/ipc/kdbus/metadata.c b/ipc/kdbus/metadata.c
-index 71ca475..07c45d7 100644
---- a/ipc/kdbus/metadata.c
-+++ b/ipc/kdbus/metadata.c
-@@ -1182,11 +1182,9 @@ static unsigned int kdbus_proc_permission(const struct pid_namespace *pid_ns,
- 					  const struct cred *cred,
- 					  struct pid *target)
- {
--	if (pid_ns->hide_pid < 1)
--		return KDBUS_META_PROC_NORMAL;
--
- 	/* XXX: we need groups_search() exported for aux-groups */
--	if (gid_eq(cred->egid, pid_ns->pid_gid))
-+	if ((pid_ns->hide_pid < 1 || gid_eq(cred->egid, pid_ns->pid_gid)) &&
-+	    security_kdbus_proc_permission(cred, target) == 0)
- 		return KDBUS_META_PROC_NORMAL;
- 
- 	/*
-diff --git a/security/security.c b/security/security.c
-index 46f405c..1caf005 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -153,6 +153,55 @@ int security_binder_transfer_file(struct task_struct *from,
- 	return call_int_hook(binder_transfer_file, 0, from, to, file);
- }
- 
-+int security_kdbus_conn_new(const struct cred *creds,
-+			    const struct kdbus_creds *fake_creds,
-+			    const struct kdbus_pids *fake_pids,
-+			    const char *fake_seclabel,
-+			    bool owner, bool privileged, bool is_activator,
-+			    bool is_monitor, bool is_policy_holder)
-+{
-+	return call_int_hook(kdbus_conn_new, 0, creds, fake_creds, fake_pids,
-+			     fake_seclabel, owner, privileged,
-+			     is_activator, is_monitor, is_policy_holder);
-+}
-+
-+int security_kdbus_own_name(const struct cred *creds, const char *name)
-+{
-+	return call_int_hook(kdbus_own_name, 0, creds, name);
-+}
-+
-+int security_kdbus_conn_talk(const struct cred *creds,
-+			     const struct cred *creds_peer)
-+{
-+	return call_int_hook(kdbus_conn_talk, 0, creds, creds_peer);
-+}
-+
-+int security_kdbus_conn_see(const struct cred *creds,
-+			    const struct cred *creds_peer)
-+{
-+	return call_int_hook(kdbus_conn_see, 0, creds, creds_peer);
-+}
-+
-+int security_kdbus_conn_see_name(const struct cred *creds, const char *name)
-+{
-+	return call_int_hook(kdbus_conn_see_name, 0, creds, name);
-+}
-+
-+int security_kdbus_conn_see_notification(const struct cred *creds)
-+{
-+	return call_int_hook(kdbus_conn_see_notification, 0, creds);
-+}
-+
-+int security_kdbus_proc_permission(const struct cred *creds, struct pid *pid)
-+{
-+	return call_int_hook(kdbus_proc_permission, 0, creds, pid);
-+}
-+
-+int security_kdbus_init_inode(struct inode *inode, const struct cred *creds)
-+{
-+	return call_int_hook(kdbus_init_inode, 0, inode, creds);
-+}
-+
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode)
- {
- 	return call_int_hook(ptrace_access_check, 0, child, mode);
-@@ -1548,6 +1597,19 @@ struct security_hook_heads security_hook_heads = {
- 	.binder_transfer_file =
- 		LIST_HEAD_INIT(security_hook_heads.binder_transfer_file),
- 
-+	.kdbus_conn_new = LIST_HEAD_INIT(security_hook_heads.kdbus_conn_new),
-+	.kdbus_own_name = LIST_HEAD_INIT(security_hook_heads.kdbus_own_name),
-+	.kdbus_conn_talk = LIST_HEAD_INIT(security_hook_heads.kdbus_conn_talk),
-+	.kdbus_conn_see = LIST_HEAD_INIT(security_hook_heads.kdbus_conn_see),
-+	.kdbus_conn_see_name =
-+		LIST_HEAD_INIT(security_hook_heads.kdbus_conn_see_name),
-+	.kdbus_conn_see_notification =
-+		LIST_HEAD_INIT(security_hook_heads.kdbus_conn_see_notification),
-+	.kdbus_proc_permission =
-+		LIST_HEAD_INIT(security_hook_heads.kdbus_proc_permission),
-+	.kdbus_init_inode =
-+		LIST_HEAD_INIT(security_hook_heads.kdbus_init_inode),
-+
- 	.ptrace_access_check =
- 		LIST_HEAD_INIT(security_hook_heads.ptrace_access_check),
- 	.ptrace_traceme =
+It appears that all code paths which call dm_get_device originate with
+ioctls on /dev/mapper/control. Doing this requires CAP_SYS_ADMIN, in
+which case the permission check in lookup_bdev is skipped. So there's no
+benefit to having dm_get_device pass a permission mask to
+blkdev_get_by_path, nor is there any harm. It will only matter if at
+some point userns-root is allowed to set up DM devices.
+
+Seth
