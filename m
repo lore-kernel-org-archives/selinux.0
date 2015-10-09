@@ -1,26 +1,81 @@
-From: Paul Moore <pmoore@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-security-module@vger.kernel.org, linux-audit@redhat.com,
- selinux@tycho.nsa.gov, Paul Osmialowski <p.osmialowsk@samsung.com>
-Subject: Re: [RFC PATCH v3 1/5] kdbus: add creator credentials to the endpoints
-Date: Fri, 09 Oct 2015 10:57:35 -0400
-Message-ID: <5128068.A8lEG6G95r@sifl>
-In-Reply-To: <5617CFAB.1050607@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v3 3/5] lsm: add support for auditing kdbus service
+ names
+To: Paul Moore <pmoore@redhat.com>, linux-security-module@vger.kernel.org,
+ linux-audit@redhat.com, selinux@tycho.nsa.gov
 References: <20151007230615.7823.74519.stgit@localhost>
- <20151007230822.7823.96688.stgit@localhost> <5617CFAB.1050607@tycho.nsa.gov>
+ <20151007230835.7823.5818.stgit@localhost>
+Cc: Paul Osmialowski <p.osmialowsk@samsung.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5617D5E8.3000305@tycho.nsa.gov>
+Date: Fri, 9 Oct 2015 10:57:44 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20151007230835.7823.5818.stgit@localhost>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, October 09, 2015 10:31:07 AM Stephen Smalley wrote:
-> mode still remains
+On 10/07/2015 07:08 PM, Paul Moore wrote:
+> The kdbus service names will be recorded using 'service', similar to
+> the existing dbus audit records.
+>
+> Signed-off-by: Paul Moore <pmoore@redhat.com>
+>
+> ---
+> ChangeLog:
+> - v3
+>   * Ported to the 4.3-rc4 based kdbus tree
+> - v2
+>   * Initial draft
+> ---
+>   include/linux/lsm_audit.h |    2 ++
+>   security/lsm_audit.c      |    4 ++++
+>   2 files changed, 6 insertions(+)
+>
+> diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+> index ffb9c9d..d6a656f 100644
+> --- a/include/linux/lsm_audit.h
+> +++ b/include/linux/lsm_audit.h
+> @@ -59,6 +59,7 @@ struct common_audit_data {
+>   #define LSM_AUDIT_DATA_INODE	9
+>   #define LSM_AUDIT_DATA_DENTRY	10
+>   #define LSM_AUDIT_DATA_IOCTL_OP	11
+> +#define LSM_AUDIT_DATA_KDBUS	12
+>   	union 	{
+>   		struct path path;
+>   		struct dentry *dentry;
+> @@ -75,6 +76,7 @@ struct common_audit_data {
+>   #endif
+>   		char *kmod_name;
+>   		struct lsm_ioctlop_audit *op;
+> +		const char *kdbus_name;
+>   	} u;
+>   	/* this union contains LSM specific data */
+>   	union {
+> diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> index cccbf30..0a3dc1b 100644
+> --- a/security/lsm_audit.c
+> +++ b/security/lsm_audit.c
+> @@ -397,6 +397,10 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+>   		audit_log_format(ab, " kmod=");
+>   		audit_log_untrustedstring(ab, a->u.kmod_name);
+>   		break;
+> +	case LSM_AUDIT_DATA_KDBUS:
+> +		audit_log_format(ab, " service=");
 
-Yes it does, it looks like I went a little crazy with the Ctrl-K ... thanks 
-for the review, it will be fixed in the next draft.
+Not a major issue to me, but just wondering if this needs to be further 
+qualified to indicate it is a kdbus service.  service= is rather generic.
 
--- 
-paul moore
-security @ redhat
+> +		audit_log_untrustedstring(ab, a->u.kdbus_name);
+> +		break;
+>   	} /* switch (a->type) */
+>   }
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
