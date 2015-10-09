@@ -1,91 +1,60 @@
-Subject: Re: [RFC PATCH V2] libselinux: Add selinux_restorecon function
-To: Richard Haines <richard_c_haines@btinternet.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <560AF385.1090407@tycho.nsa.gov>
- <212239354.5552563.1443712727654.JavaMail.yahoo@mail.yahoo.com>
+Subject: Re: [RFC PATCH v3 5/5] selinux: introduce kdbus access controls
+To: Paul Moore <pmoore@redhat.com>
+References: <20151007230615.7823.74519.stgit@localhost>
+ <20151007230848.7823.68726.stgit@localhost> <5617D7D6.1090608@tycho.nsa.gov>
+ <4505777.oeeaHvkZzq@sifl>
+Cc: linux-security-module@vger.kernel.org, linux-audit@redhat.com,
+ selinux@tycho.nsa.gov, Paul Osmialowski <p.osmialowsk@samsung.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56181D68.5030700@tycho.nsa.gov>
-Date: Fri, 9 Oct 2015 16:02:48 -0400
+Message-ID: <561820CD.4050401@tycho.nsa.gov>
+Date: Fri, 9 Oct 2015 16:17:17 -0400
 MIME-Version: 1.0
-In-Reply-To: <212239354.5552563.1443712727654.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <4505777.oeeaHvkZzq@sifl>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/01/2015 11:18 AM, Richard Haines wrote:
->> On Tuesday, 29 September 2015, 21:25, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> On 09/27/2015 08:06 AM, Richard Haines wrote:
->>>   The selinux_restorecon(3) man page details this function that relies
->>>   on the selabel_digest(3) function available from [1] (as not yet
->>>   part of upstream libselinux).
->>>
->>>   It has been built using the work from Android where an SHA1 hash
->>>   of the specfiles is held in an extended attribute to enhance
->>>   performance. Also contains components from policycoreutils/setfiles.
->>>
->>>   The utils/selinux_restorecon.c utility demonstrates the functionality.
->>>
->>>   [1] http://marc.info/?l=selinux&m=144274383217343&w=2
->>>
->>>   Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->
->>>   ---
-> ------------ snip --------------
->>>   +
->>>   +extern int selinux_restorecon(const char **pathname_list,
->>>   +                    const char **exclude_list,
->>>   +                    const char *fc_path,
->>>   +                    unsigned int restorecon_flags);
+On 10/09/2015 11:39 AM, Paul Moore wrote:
+> On Friday, October 09, 2015 11:05:58 AM Stephen Smalley wrote:
+>> On 10/07/2015 07:08 PM, Paul Moore wrote:
+>>> +static int selinux_kdbus_init_inode(struct inode *inode,
+>>> +				    const struct cred *creds)
+>>> +{
+>>> +	struct inode_security_struct *isec = inode->i_security;
+>>> +	u32 sid = cred_sid(creds);
+>>> +
+>>> +	/* XXX - this is very simple, e.g. no transitions, no special object
+>>> +	 *       class, etc. since this inode is basically an IPC socket ...
+>>> +	 *       however, is this too simple?  do we want transitions?  if we
+>>> +	 *       do, we should do the transition in kdbus_node_init() and not
+>>> +	 *       here so that endpoint is labeled correctly and not just this
+>>> +	 *       inode */
+>>> +
+>>> +	isec->inode = inode;
+>>> +	isec->task_sid = sid;
+>>> +	isec->sid = sid;
+>>> +	isec->sclass = SECCLASS_FILE;
+>>> +	isec->initialized = 1;
 >>
+>> These are used for files exposed in the filesystem namespace, unlike
+>> sockets (sockfs can't be mounted by userspace, and the socket objects
+>> themselves have their own class, so there is no ambiguity).  Currently
+>> the only such files that are labeled with the same SID as the associated
+>> task are /proc files.  So if we label the kdbusfs files with the same
+>> SID, then you can't allow read/write to kdbusfs nodes owned by another
+>> task without also exposing its /proc/pid files in the same manner.
+>> Doubt we want that.  Probably should compute a transition from the task
+>> SID and the kdbusfs SID.
 >
->> This is a more cumbersome interface for typical users than the Android one.
+> Okay, that was one of my main concerns; your suggestion makes sense to me.
 >
-> To make this easier would you prefer it to just take a single pathname and the
-> flags (and maybe the fc_path as well, or add another interface to take it as
-> discussed below)
+> I'm also thinking that is we do a file transition using the task label and the
+> kdbusfs superblock label we should limit it to just the inode label and not
+> the kdbus endpoint as I suggested in the comment above (the bit about
+> kdbus_node_init()), yes?
 
-Yes, it would be preferably to keep the default interface simple, and 
-provide other interfaces to set non-default behaviors that go beyond 
-simple flags.
-
-> The only reason I put the exclude_list is to allow filesystems that don't have
-> xattr support to be excluded by the caller. This could probably be resolved by
-> always setting the FTS_XDEV flag with the caller ensuring they cover their
-> relevant filesystems.
-
-Well, setfiles does have the -e option, so providing a way to set an 
-exclude list makes sense; it just doesn't necessarily have to be part of 
-the default interface as opposed to a separate set_exclude_list 
-interface called before invoking restorecon.
-
->
-> ---------------- snip ----------------------
->
->>>   +    fc_sehandle = selabel_open(SELABEL_CTX_FILE, fc_opts,
->> NUM_SELABEL_OPTS);
->>>   +    if (!fc_sehandle) {
->>>   +        selinux_log(SELINUX_ERROR,
->>>   +                "Error obtaining file context handle: %s\n",
->>>   +                            strerror(errno));
->>>   +        return -1;
->>>   +    }
->>
->> Android only does this once, not on every call to restorecon.
->> Caller that wants to use selabel_open() itself with custom options can
->> use selinux_android_set_sethandle() after selabel_open() call;
->
->> otherwise, callers don't ever have to specify selabel_open() args.
->
-> I could implement a similar interface to selinux_android_file_context_handle
-> (I guess that is what you are referring to) that would also take the fc_path
-> if this would be useful, it then keep selinux_restorecon simple and in line
-> with Android.
-
-No, you would need an interface like set_sehandle(), which sets the 
-handle used internally by restorecon to a handle provided by the caller 
-(where that handle might originate from a direct selabel_open call by 
-the caller if it wants full control, or from a call to 
-selinux_android_file_context_handle if it just needs a reference to the 
-handle for use elsewhere).
+Yes, it only needs to be done for the inode, not the endpoint.
+Analogy with sockets:  Can I write to the socket file (kdbus file) bound 
+to the socket (endpoint)?  Can I connectto/sendto the socket (endpoint)?
