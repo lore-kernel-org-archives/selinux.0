@@ -1,71 +1,73 @@
-From: Paul Moore <pmoore@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-security-module@vger.kernel.org, linux-audit@redhat.com,
- selinux@tycho.nsa.gov, Paul Osmialowski <p.osmialowsk@samsung.com>
-Subject: Re: [RFC PATCH v3 5/5] selinux: introduce kdbus access controls
-Date: Fri, 09 Oct 2015 16:29:27 -0400
-Message-ID: <6100682.R2RFojQALf@sifl>
-In-Reply-To: <561820CD.4050401@tycho.nsa.gov>
-References: <20151007230615.7823.74519.stgit@localhost>
- <4505777.oeeaHvkZzq@sifl> <561820CD.4050401@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9A9A7bw024388
+ for <selinux@tycho.nsa.gov>; Sat, 10 Oct 2015 05:10:07 -0400
+Received: by pablk4 with SMTP id lk4so108757224pab.3
+ for <selinux@tycho.nsa.gov>; Sat, 10 Oct 2015 02:10:04 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: Fix parallel build with swig python
+Date: Sat, 10 Oct 2015 17:09:51 +0800
+Message-Id: <1444468191-15852-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, October 09, 2015 04:17:17 PM Stephen Smalley wrote:
-> On 10/09/2015 11:39 AM, Paul Moore wrote:
-> > On Friday, October 09, 2015 11:05:58 AM Stephen Smalley wrote:
-> >> On 10/07/2015 07:08 PM, Paul Moore wrote:
-> >>> +static int selinux_kdbus_init_inode(struct inode *inode,
-> >>> +				    const struct cred *creds)
-> >>> +{
-> >>> +	struct inode_security_struct *isec = inode->i_security;
-> >>> +	u32 sid = cred_sid(creds);
-> >>> +
-> >>> +	/* XXX - this is very simple, e.g. no transitions, no special object
-> >>> +	 *       class, etc. since this inode is basically an IPC socket ...
-> >>> +	 *       however, is this too simple?  do we want transitions?  if 
-we
-> >>> +	 *       do, we should do the transition in kdbus_node_init() and 
-not
-> >>> +	 *       here so that endpoint is labeled correctly and not just 
-this
-> >>> +	 *       inode */
-> >>> +
-> >>> +	isec->inode = inode;
-> >>> +	isec->task_sid = sid;
-> >>> +	isec->sid = sid;
-> >>> +	isec->sclass = SECCLASS_FILE;
-> >>> +	isec->initialized = 1;
-> >> 
-> >> These are used for files exposed in the filesystem namespace, unlike
-> >> sockets (sockfs can't be mounted by userspace, and the socket objects
-> >> themselves have their own class, so there is no ambiguity).  Currently
-> >> the only such files that are labeled with the same SID as the associated
-> >> task are /proc files.  So if we label the kdbusfs files with the same
-> >> SID, then you can't allow read/write to kdbusfs nodes owned by another
-> >> task without also exposing its /proc/pid files in the same manner.
-> >> Doubt we want that.  Probably should compute a transition from the task
-> >> SID and the kdbusfs SID.
-> > 
-> > Okay, that was one of my main concerns; your suggestion makes sense to me.
-> > 
-> > I'm also thinking that is we do a file transition using the task label and
-> > the kdbusfs superblock label we should limit it to just the inode label
-> > and not the kdbus endpoint as I suggested in the comment above (the bit
-> > about kdbus_node_init()), yes?
-> 
-> Yes, it only needs to be done for the inode, not the endpoint.
-> Analogy with sockets:  Can I write to the socket file (kdbus file) bound
-> to the socket (endpoint)?  Can I connectto/sendto the socket (endpoint)?
+Commit 966855d9a1f7b758 added selinux.py as a requirement for pywrap.
+This file is generated during the swig step but there is no explicit
+rule in the Makefile so parallel build fails. This adds another rule
+so the ordering is correct.
 
-Yep.
+jason@meriadoc ~/code/gentoo/selinux/libselinux $ make -j3 pywrap
+.... SNIP ....
+sed -e 's/@VERSION@/2.4/; s:@prefix@:/usr:; s:@libdir@:lib:; s:@includedir@:/usr/include:' < libselinux.pc.in > libselinux.pc
+bash exception.sh > selinuxswig_python_exception.i
+make[1]: *** No rule to make target 'selinux.py', needed by 'pywrap'.  Stop.
+make[1]: *** Waiting for unfinished jobs....
+make[1]: Leaving directory '/home/jason/code/gentoo/selinux/libselinux/src'
+Makefile:36: recipe for target 'pywrap' failed
+make: *** [pywrap] Error 2
 
-I'll make these changes and work to get another draft out next week.
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ libselinux/src/Makefile | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index a81acc7..feab561 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -29,11 +29,12 @@ LIBPC=libselinux.pc
+ SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+ SWIGRUBYIF= selinuxswig_ruby.i
+ SWIGCOUT= selinuxswig_wrap.c
++SWIGPYOUT= selinux.py
+ SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+ SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT))
+ SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT)) 
+ SWIGSO=$(PYPREFIX)_selinux.so
+-SWIGFILES=$(SWIGSO) selinux.py
++SWIGFILES=$(SWIGSO) $(SWIGPYOUT)
+ SWIGRUBYSO=$(RUBYPREFIX)_selinux.so
+ LIBSO=$(TARGET).$(LIBVERSION)
+ AUDIT2WHYLOBJ=$(PYPREFIX)audit2why.lo
+@@ -135,6 +136,8 @@ $(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
+ $(SWIGCOUT): $(SWIGIF)
+ 	$(SWIG) $<
+ 
++$(SWIGPYOUT): $(SWIGCOUT)
++
+ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+ 	$(SWIGRUBY) $<
+ 
+@@ -154,7 +157,7 @@ install-pywrap: pywrap
+ 	test -d $(PYLIBDIR)/site-packages/selinux || install -m 755 -d $(PYLIBDIR)/site-packages/selinux
+ 	install -m 755 $(SWIGSO) $(PYLIBDIR)/site-packages/selinux/_selinux.so
+ 	install -m 755 $(AUDIT2WHYSO) $(PYLIBDIR)/site-packages/selinux/audit2why.so
+-	install -m 644  selinux.py $(PYLIBDIR)/site-packages/selinux/__init__.py
++	install -m 644 $(SWIGPYOUT) $(PYLIBDIR)/site-packages/selinux/__init__.py
+ 
+ install-rubywrap: rubywrap
+ 	test -d $(RUBYINSTALL) || install -m 755 -d $(RUBYINSTALL) 
 -- 
-paul moore
-security @ redhat
+2.4.9
