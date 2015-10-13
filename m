@@ -1,52 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9CCTNOr022673
- for <selinux@tycho.nsa.gov>; Mon, 12 Oct 2015 08:29:23 -0400
-Date: Mon, 12 Oct 2015 12:26:21 +0000 (UTC)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Message-ID: <1884047573.3637566.1444652781647.JavaMail.yahoo@mail.yahoo.com>
-In-Reply-To: <56181972.8000901@tycho.nsa.gov>
-References: <56181972.8000901@tycho.nsa.gov>
-Subject: Re: [RFC PATCH V3] libselinux: Add selabel_digest function
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9DH5NJO004462
+ for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2015 13:05:23 -0400
+Received: by iofl186 with SMTP id l186so28109155iof.2
+ for <selinux@tycho.nsa.gov>; Tue, 13 Oct 2015 10:05:22 -0700 (PDT)
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org,
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 0/7] User namespace mount updates
+Date: Tue, 13 Oct 2015 12:04:13 -0500
+Message-Id: <1444755861-54997-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Hi Eric,
 
+Here's an update to the last round of patches for mounts in user
+namespaces. The only change since last time is to split up the patch to
+verify access towards block devices when mounting into several patches,
+one to update lookup_bdev and one patch each for the call sites which
+require updates.
 
+Thanks,
+Seth
 
+Andy Lutomirski (1):
+  fs: Treat foreign mounts as nosuid
 
+Seth Forshee (6):
+  block_dev: Support checking inode permissions in lookup_bdev()
+  block_dev: Check permissions towards block device inode when mounting
+  mtd: Check permissions towards mtd block device inode when mounting
+  selinux: Add support for unprivileged mounts from user namespaces
+  userns: Replace in_userns with current_in_userns
+  Smack: Handle labels consistently in untrusted mounts
 
-> On Friday, 9 October 2015, 20:46, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 09/30/2015 11:29 AM, Richard Haines wrote:
->>  selabel_digest(3) if enabled by the SELABEL_OPT_DIGEST option during
->>  selabel_open(3) will return an SHA1 digest of the spec files, plus
->>  a list of the specfiles used to calculate the digest. There is a
->>  test utility supplied that will demonstrate the functionality.
->> 
->>  The use case for selabel_digest(3) is to implement an selinux_restorecon
->>  function based on the Android version that writes a hash of the
->>  file_contexts files to an extended attribute to enhance performance
->>  (see external/libselinux/src/android.c selinux_android_restorecon()).
->> 
->>  Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> 
-> Seems sane to me.  Is there a reason it is still an RFC?
-
-> 
-
-No - Would you like it submitted without the RFC
-
->>  ---
->>  V2 Changes:
->>  Minor general cleanups and updated as per comments from:
->>  http://marc.info/?l=selinux&m=144233357510422&w=2
->>  V3 Changes:
->>  As per comments from: 
-
-> http://marc.info/?l=selinux&m=144355202127208&w=2
+ drivers/md/bcache/super.c      |  2 +-
+ drivers/md/dm-table.c          |  2 +-
+ drivers/mtd/mtdsuper.c         |  6 +++++-
+ fs/block_dev.c                 | 18 +++++++++++++++---
+ fs/exec.c                      |  2 +-
+ fs/namespace.c                 | 13 +++++++++++++
+ fs/quota/quota.c               |  2 +-
+ include/linux/fs.h             |  2 +-
+ include/linux/mount.h          |  1 +
+ include/linux/user_namespace.h |  6 ++----
+ kernel/user_namespace.c        |  6 +++---
+ security/commoncap.c           |  4 ++--
+ security/selinux/hooks.c       | 25 ++++++++++++++++++++++++-
+ security/smack/smack_lsm.c     | 28 ++++++++++++++++++----------
+ 14 files changed, 88 insertions(+), 29 deletions(-)
