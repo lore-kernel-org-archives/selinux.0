@@ -1,86 +1,75 @@
-Subject: Re: [PATCH v2 5/7] selinux: Add support for unprivileged mounts from
- user namespaces
-To: Seth Forshee <seth.forshee@canonical.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>, Paul Moore
- <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>
-References: <1444755861-54997-1-git-send-email-seth.forshee@canonical.com>
- <1444755861-54997-6-git-send-email-seth.forshee@canonical.com>
-Cc: linux-bcache@vger.kernel.org, Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>, dm-devel@redhat.com,
- linux-kernel@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>,
- linux-raid@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-mtd@lists.infradead.org,
- Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] libselinux: Fix parallel build with swig python
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
+References: <1444468191-15852-1-git-send-email-jason@perfinion.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <561D691D.9080209@tycho.nsa.gov>
-Date: Tue, 13 Oct 2015 16:27:09 -0400
+Message-ID: <561D6A7D.4050001@tycho.nsa.gov>
+Date: Tue, 13 Oct 2015 16:33:01 -0400
 MIME-Version: 1.0
-In-Reply-To: <1444755861-54997-6-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1444468191-15852-1-git-send-email-jason@perfinion.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/13/2015 01:04 PM, Seth Forshee wrote:
-> Security labels from unprivileged mounts in user namespaces must
-> be ignored. Force superblocks from user namespaces whose labeling
-> behavior is to use xattrs to use mountpoint labeling instead.
-> For the mountpoint label, default to converting the current task
-> context into a form suitable for file objects, but also allow the
-> policy writer to specify a different label through policy
-> transition rules.
+On 10/10/2015 05:09 AM, Jason Zaman wrote:
+> Commit 966855d9a1f7b758 added selinux.py as a requirement for pywrap.
+> This file is generated during the swig step but there is no explicit
+> rule in the Makefile so parallel build fails. This adds another rule
+> so the ordering is correct.
 >
-> Pieced together from code snippets provided by Stephen Smalley.
+> jason@meriadoc ~/code/gentoo/selinux/libselinux $ make -j3 pywrap
+> .... SNIP ....
+> sed -e 's/@VERSION@/2.4/; s:@prefix@:/usr:; s:@libdir@:lib:; s:@includedir@:/usr/include:' < libselinux.pc.in > libselinux.pc
+> bash exception.sh > selinuxswig_python_exception.i
+> make[1]: *** No rule to make target 'selinux.py', needed by 'pywrap'.  Stop.
+> make[1]: *** Waiting for unfinished jobs....
+> make[1]: Leaving directory '/home/jason/code/gentoo/selinux/libselinux/src'
+> Makefile:36: recipe for target 'pywrap' failed
+> make: *** [pywrap] Error 2
 >
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Thanks, applied.
 
 > ---
->   security/selinux/hooks.c | 23 +++++++++++++++++++++++
->   1 file changed, 23 insertions(+)
+>   libselinux/src/Makefile | 7 +++++--
+>   1 file changed, 5 insertions(+), 2 deletions(-)
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index de05207eb665..09be1dc21e58 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -756,6 +756,28 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->   			goto out;
->   		}
->   	}
-> +
-> +	/*
-> +	 * If this is a user namespace mount, no contexts are allowed
-> +	 * on the command line and security labels must be ignored.
-> +	 */
-> +	if (sb->s_user_ns != &init_user_ns) {
-> +		if (context_sid || fscontext_sid || rootcontext_sid ||
-> +		    defcontext_sid) {
-> +			rc = -EACCES;
-> +			goto out;
-> +		}
-> +		if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
-> +			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
-> +			rc = security_transition_sid(current_sid(), current_sid(),
-> +						     SECCLASS_FILE, NULL,
-> +						     &sbsec->mntpoint_sid);
-> +			if (rc)
-> +				goto out;
-> +		}
-> +		goto out_set_opts;
-> +	}
-> +
->   	/* sets the context of the superblock for the fs being mounted. */
->   	if (fscontext_sid) {
->   		rc = may_context_mount_sb_relabel(fscontext_sid, sbsec, cred);
-> @@ -824,6 +846,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->   		sbsec->def_sid = defcontext_sid;
->   	}
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index a81acc7..feab561 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -29,11 +29,12 @@ LIBPC=libselinux.pc
+>   SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+>   SWIGRUBYIF= selinuxswig_ruby.i
+>   SWIGCOUT= selinuxswig_wrap.c
+> +SWIGPYOUT= selinux.py
+>   SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+>   SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT))
+>   SWIGRUBYLOBJ:= $(patsubst %.c,%.lo,$(SWIGRUBYCOUT))
+>   SWIGSO=$(PYPREFIX)_selinux.so
+> -SWIGFILES=$(SWIGSO) selinux.py
+> +SWIGFILES=$(SWIGSO) $(SWIGPYOUT)
+>   SWIGRUBYSO=$(RUBYPREFIX)_selinux.so
+>   LIBSO=$(TARGET).$(LIBVERSION)
+>   AUDIT2WHYLOBJ=$(PYPREFIX)audit2why.lo
+> @@ -135,6 +136,8 @@ $(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
+>   $(SWIGCOUT): $(SWIGIF)
+>   	$(SWIG) $<
 >
-> +out_set_opts:
->   	rc = sb_finish_set_opts(sb);
->   out:
->   	mutex_unlock(&sbsec->lock);
+> +$(SWIGPYOUT): $(SWIGCOUT)
+> +
+>   $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+>   	$(SWIGRUBY) $<
+>
+> @@ -154,7 +157,7 @@ install-pywrap: pywrap
+>   	test -d $(PYLIBDIR)/site-packages/selinux || install -m 755 -d $(PYLIBDIR)/site-packages/selinux
+>   	install -m 755 $(SWIGSO) $(PYLIBDIR)/site-packages/selinux/_selinux.so
+>   	install -m 755 $(AUDIT2WHYSO) $(PYLIBDIR)/site-packages/selinux/audit2why.so
+> -	install -m 644  selinux.py $(PYLIBDIR)/site-packages/selinux/__init__.py
+> +	install -m 644 $(SWIGPYOUT) $(PYLIBDIR)/site-packages/selinux/__init__.py
+>
+>   install-rubywrap: rubywrap
+>   	test -d $(RUBYINSTALL) || install -m 755 -d $(RUBYINSTALL)
 >
