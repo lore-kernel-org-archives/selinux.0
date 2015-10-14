@@ -1,9 +1,9 @@
-Date: Wed, 14 Oct 2015 19:51:21 +0200
+Date: Wed, 14 Oct 2015 20:07:44 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
 Subject: Re: does load_policy default to loading the lowest polvers available?
-Message-ID: <20151014175121.GC15883@x250>
+Message-ID: <20151014180743.GD15883@x250>
 References: <561E63E0.1080609@tycho.nsa.gov> <20151014142952.GC5222@x250>
  <561E7840.50903@tycho.nsa.gov> <20151014154828.GA2909@x250>
  <561E7D47.7090306@tycho.nsa.gov> <20151014164145.GA11363@x250>
@@ -40,15 +40,21 @@ On Wed, Oct 14, 2015 at 01:40:10PM -0400, Stephen Smalley wrote:
 > question?
 > 
 
-# compute_av sys.id:sys.role:sd_machined.subj:s0
-  sys.id:sys.role:sd.subj:s0 system
-  allowed= { status start stop }
+Demo, proof (only 8 minutes long):
 
-So yes, the rules are there (but again that is obvious to me because it
-works sometimes but not most of the time) If the rules were absent then
-it would fail all the time.
+https://www.youtube.com/watch?v=iNOxp2d_ws0
 
+I demonstrates the inconsistency, also it proves that the rules are
+loaded
 
+> 
+> 
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
 - -- 
 02DFF788
@@ -58,14 +64,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJWHpYUAAoJENAR6kfG5xmcxhAL/18KZYziduq0hsUwo9kf/Vne
-puNoyO7kXgD7iKyMP1r4RSRZViacffnTIsdM1l8VreWMEeL5XugPdwQvNAnOyCMX
-hQVmEqpWXbCE636lsa7XLqkpskTDhTxJh3Cz74az7hQFmdMG7DMZm6qy1fMlo8hg
-cvAThoj79Kda1I7OodcvRRy2QuR0Q8XZZdREsH22hIT2GdiyR3dhVkGovyWIKKew
-cccSnj0G6uXUEQFm/d82zBlPCwz38jvpxse8FLrCFIyfS4VMK/PUO9207K/xfUjB
-IVjlVsfUGgFpz8yKTrU7cHhuKn6FafcLZJH/lOwXRTMIfjwYae/goBLfBQyrCjma
-yzqeH07xqXMke+9roU1lKSrjCiG1CTbeK5xCzykllP866qHOE8Xj399SpJqr7vb2
-LBNSE+AoLXKoVXBMsByBexOK8+iyHwWaKptU6ScemN38U0Mu1tpjHwOe5McMnFez
-h+m2KKF3Z8S12OlSHFO1dpeUUqPJeElZrpvJyA+G1w==
-=qwgA
+iQGcBAEBCgAGBQJWHpnrAAoJENAR6kfG5xmcpkUL/jLi74ktX9Fy9uzs1pG3DtKi
+67+455YxFjjpLvoZxezeGHQkMKRs16uOv1yb9J4zWzQ+veDUOasfmylmKlJxE8Zx
+oO7OcwAYv778Nr7PMPx90IFlYCz2plmk3S1rlx2HsoUyhxQbLh4xPV3apZtjlyle
+TpzNsL1muqukjplISSc6d46OkTbtmNirWFBKzZYL6mE+XGJrU/DaZMVqguQPVedP
+WWgE/R5nhr+0fqmT6chsZA7DCHfuy24fdRyMDu1pqip2RyfO1VR+5mWG/4MOSZn4
+cXCZ/rbV9peSNsUgDUtKgnNWlUUYD6WQEVpuqh0pMrP577KgFSXnwGlcsCziubeK
+2WPzSqTY+1j8rKiiWkIgtUi01S2CgpJvQ4EkDq4jZYr332Gk7gRQFQx1RLUukbdN
+EZYxtVn92nR+lhtdgChATKRIHM9LG61FZO1iXyjpKje1edH3CgBDgHAGVv3UoObe
+1Ruo3Mr1N3aSH6Wph64VEZReIneISKVMU8a1LTY23g==
+=TKEp
 -----END PGP SIGNATURE-----
