@@ -1,65 +1,122 @@
-Date: Thu, 15 Oct 2015 14:08:17 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: does load_policy default to loading the lowest polvers available?
-Message-ID: <20151015120816.GA19471@x250>
-References: <20151014203418.GA7159@x250>
- <942047750.1202558.1444910296027.JavaMail.yahoo@mail.yahoo.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9F5kngc000804
+ for <selinux@tycho.nsa.gov>; Thu, 15 Oct 2015 01:46:49 -0400
+Subject: Re: [PATCH v2 7/7] Smack: Handle labels consistently in untrusted
+ mounts
+To: Seth Forshee <seth.forshee@canonical.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>
+References: <1444755861-54997-1-git-send-email-seth.forshee@canonical.com>
+ <1444755861-54997-8-git-send-email-seth.forshee@canonical.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <561F3DC7.4070901@schaufler-ca.com>
+Date: Wed, 14 Oct 2015 22:46:47 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <942047750.1202558.1444910296027.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <1444755861-54997-8-git-send-email-seth.forshee@canonical.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On 10/13/2015 10:04 AM, Seth Forshee wrote:
+> The SMACK64, SMACK64EXEC, and SMACK64MMAP labels are all handled
+> differently in untrusted mounts. This is confusing and
+> potentically problematic. Change this to handle them all the same
+> way that SMACK64 is currently handled; that is, read the label
+> from disk and check it at use time. For SMACK64 and SMACK64MMAP
+> access is denied if the label does not match smk_root. To be
+> consistent with suid, a SMACK64EXEC label which does not match
+> smk_root will still allow execution of the file but will not run
+> with the label supplied in the xattr.
+>
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 
-On Thu, Oct 15, 2015 at 11:58:16AM +0000, Richard Haines wrote:
-> I'm not sure if this will resolve the problem but you say it only happens
-> on the workstation build. I assume then you may be loading X windows, therefore
-> try setting up a /etc/X11/xorg.conf.d file with the following:
-> 
-> Section "Module"
->         SubSection "extmod"
->                 Option "SELinux mode disabled"
->         EndSubSection
-> EndSection
-> 
-> If this works then the problems are:
-> 1) Your policy does not have an x_contexts file (I didn't see one in your CIL policy)
-> 2) The X windows object manager probably still looks for the xserver_object_manager
-> boolean to enable/disable X. If you add this to your policy and default to false
-> you will not need the above entry in xorg.conf.d.
-> 
+Aside from the one comment below (which I can be talked out of)
+this looks fine.
 
-Thanks for the suggestion, I already have that snippet, so this is not
-the issue. It would not make sense either because without the above
-things would consistently fail.
+> ---
+>  security/smack/smack_lsm.c | 28 ++++++++++++++++++----------
+>  1 file changed, 18 insertions(+), 10 deletions(-)
+>
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 621200f86b56..bee0b2652bf4 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -891,6 +891,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+>  	struct inode *inode = file_inode(bprm->file);
+>  	struct task_smack *bsp = bprm->cred->security;
+>  	struct inode_smack *isp;
+> +	struct superblock_smack *sbsp;
+>  	int rc;
+>  
+>  	if (bprm->cred_prepared)
+> @@ -900,6 +901,10 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+>  	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
+>  		return 0;
+>  
+> +	sbsp = inode->i_sb->s_security;
+> +	if (sbsp->smk_flags & SMK_SB_UNTRUSTED && isp->smk_task != sbsp->smk_root)
 
-This issue I have is inconsistent. One boot everything is fine , and the next
-the issue can happen.
+Call me old fashioned, but how about
 
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) && isp->smk_task != sbsp->smk_root)
 
-iQGcBAEBCgAGBQJWH5csAAoJENAR6kfG5xmcWh4L/0tZXzsAzk28D8blZeX+lp7O
-EraCItPr/chIIJ2Cq4nUtCOgYq5ebGR4InZZufsaT9JvOW+GqV3ktGydnfo9+odN
-wPcU+/jNW2vYNzVoTBy35E6bUSBWTzDSEUlyhJysQZEzmodf4VmiSRaLEUhaQxci
-EwDet5RQEQ3xBq9LXgw2YHKUkbiPGA35Rkz1atwLBVVJuHnbSeSAWwTx3AbQaKrF
-zK1OkqmwdPWgQ5b2Jq6nVgWjbCkjiaNvmTZjLCKJRx6tPWlAucsI9SVihO4vUL7n
-lKh2dK/Vci7GRtfP23VEh9p97phxNborXcvrGA6JQWOV0aAgL8pbg2t4ecMJw9qt
-RZSsyehWW1I1M7SKcFj5vRAwE/UDycK0uriHrgx2vvVhx8rtHE2HU/DFxKWDhi9Y
-bTE1olMTQH0cUZoePvymbsKVS6XKLKYPgL5lgiCu8mgTAdPJMZQGvrgg1l3H1Xv7
-G740LSaRbCMr+Mh2GV+auBK8ykjq3nrbWSJquQD+gQ==
-=NW+R
------END PGP SIGNATURE-----
+naked '&'s give me the willies. 
+
+> +		return 0;
+> +
+>  	if (bprm->unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
+>  		struct task_struct *tracer;
+>  		rc = 0;
+> @@ -1703,6 +1708,7 @@ static int smack_mmap_file(struct file *file,
+>  	struct task_smack *tsp;
+>  	struct smack_known *okp;
+>  	struct inode_smack *isp;
+> +	struct superblock_smack *sbsp;
+>  	int may;
+>  	int mmay;
+>  	int tmay;
+> @@ -1714,6 +1720,10 @@ static int smack_mmap_file(struct file *file,
+>  	isp = file_inode(file)->i_security;
+>  	if (isp->smk_mmap == NULL)
+>  		return 0;
+> +	sbsp = file_inode(file)->i_sb->s_security;
+> +	if (sbsp->smk_flags & SMK_SB_UNTRUSTED &&
+> +	    isp->smk_mmap != sbsp->smk_root)
+> +		return -EACCES;
+>  	mkp = isp->smk_mmap;
+>  
+>  	tsp = current_security();
+> @@ -3492,16 +3502,14 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+>  			if (rc >= 0)
+>  				transflag = SMK_INODE_TRANSMUTE;
+>  		}
+> -		if (!(sbsp->smk_flags & SMK_SB_UNTRUSTED)) {
+> -			/*
+> -			 * Don't let the exec or mmap label be "*" or "@".
+> -			 */
+> -			skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
+> -			if (IS_ERR(skp) || skp == &smack_known_star ||
+> -			    skp == &smack_known_web)
+> -				skp = NULL;
+> -			isp->smk_task = skp;
+> -		}
+> +		/*
+> +		 * Don't let the exec or mmap label be "*" or "@".
+> +		 */
+> +		skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
+> +		if (IS_ERR(skp) || skp == &smack_known_star ||
+> +		    skp == &smack_known_web)
+> +			skp = NULL;
+> +		isp->smk_task = skp;
+>  
+>  		skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
+>  		if (IS_ERR(skp) || skp == &smack_known_star ||
