@@ -1,213 +1,80 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9FFU8ID011944
- for <selinux@tycho.nsa.gov>; Thu, 15 Oct 2015 11:30:08 -0400
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: Fix selabel_open(3) services if no digest
- requested
-Date: Thu, 15 Oct 2015 16:29:54 +0100
-Message-Id: <1444922994-17404-1-git-send-email-richard_c_haines@btinternet.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9FJO6SD031196
+ for <selinux@tycho.nsa.gov>; Thu, 15 Oct 2015 15:24:11 -0400
+Received: by iofl186 with SMTP id l186so101228864iof.2
+ for <selinux@tycho.nsa.gov>; Thu, 15 Oct 2015 12:24:09 -0700 (PDT)
+Date: Thu, 15 Oct 2015 14:24:04 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Subject: Re: [PATCH v2 7/7] Smack: Handle labels consistently in untrusted
+ mounts
+Message-ID: <20151015192404.GC31612@ubuntu-hedt>
+References: <1444755861-54997-1-git-send-email-seth.forshee@canonical.com>
+ <1444755861-54997-8-git-send-email-seth.forshee@canonical.com>
+ <561F3DC7.4070901@schaufler-ca.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <561F3DC7.4070901@schaufler-ca.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If selabel_open is called with no request for a digest it will fail
-with ENOENT. This fixes all the labeling routines to resolve this
-problem. The utils/selabel_digest example has also been updated
-to allow calling selabel_open with and without digest requests to
-aid testing.
+On Wed, Oct 14, 2015 at 10:46:47PM -0700, Casey Schaufler wrote:
+> On 10/13/2015 10:04 AM, Seth Forshee wrote:
+> > The SMACK64, SMACK64EXEC, and SMACK64MMAP labels are all handled
+> > differently in untrusted mounts. This is confusing and
+> > potentically problematic. Change this to handle them all the same
+> > way that SMACK64 is currently handled; that is, read the label
+> > from disk and check it at use time. For SMACK64 and SMACK64MMAP
+> > access is denied if the label does not match smk_root. To be
+> > consistent with suid, a SMACK64EXEC label which does not match
+> > smk_root will still allow execution of the file but will not run
+> > with the label supplied in the xattr.
+> >
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> 
+> Aside from the one comment below (which I can be talked out of)
+> this looks fine.
+> 
+> > ---
+> >  security/smack/smack_lsm.c | 28 ++++++++++++++++++----------
+> >  1 file changed, 18 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> > index 621200f86b56..bee0b2652bf4 100644
+> > --- a/security/smack/smack_lsm.c
+> > +++ b/security/smack/smack_lsm.c
+> > @@ -891,6 +891,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+> >  	struct inode *inode = file_inode(bprm->file);
+> >  	struct task_smack *bsp = bprm->cred->security;
+> >  	struct inode_smack *isp;
+> > +	struct superblock_smack *sbsp;
+> >  	int rc;
+> >  
+> >  	if (bprm->cred_prepared)
+> > @@ -900,6 +901,10 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+> >  	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
+> >  		return 0;
+> >  
+> > +	sbsp = inode->i_sb->s_security;
+> > +	if (sbsp->smk_flags & SMK_SB_UNTRUSTED && isp->smk_task != sbsp->smk_root)
+> 
+> Call me old fashioned, but how about
+> 
+> 	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) && isp->smk_task != sbsp->smk_root)
+> 
+> naked '&'s give me the willies. 
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- libselinux/src/label_android_property.c |  2 +-
- libselinux/src/label_db.c               |  3 +--
- libselinux/src/label_file.c             |  4 +---
- libselinux/src/label_internal.h         |  2 +-
- libselinux/src/label_media.c            |  2 +-
- libselinux/src/label_support.c          | 10 ++++++----
- libselinux/src/label_x.c                |  2 +-
- libselinux/utils/selabel_digest.c       | 13 +++++++++----
- 8 files changed, 21 insertions(+), 17 deletions(-)
+That's fine by me.
 
-diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
-index b8fab79..712eecb 100644
---- a/libselinux/src/label_android_property.c
-+++ b/libselinux/src/label_android_property.c
-@@ -203,7 +203,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	if (status)
- 		goto finish;
- 
--	status = digest_gen_hash(rec->digest);
-+	digest_gen_hash(rec->digest);
- 
- finish:
- 	fclose(fp);
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index 18c5967..1155bcc 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -322,8 +322,7 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 	if (digest_add_specfile(rec->digest, filp, NULL, sb.st_size, path) < 0)
- 		goto out_error;
- 
--	if (digest_gen_hash(rec->digest) < 0)
--		goto out_error;
-+	digest_gen_hash(rec->digest);
- 
- 	fclose(filp);
- 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index cb43cb9..1a0c15f 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -574,9 +574,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 			goto finish;
- 	}
- 
--	status = digest_gen_hash(rec->digest);
--	if (status)
--		goto finish;
-+	digest_gen_hash(rec->digest);
- 
- 	status = sort_specs(data);
- 
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-index 45bbe6c..2aa7a7b 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -65,7 +65,7 @@ extern int digest_add_specfile(struct selabel_digest *digest, FILE *fp,
- 						    char *from_addr,
- 						    size_t buf_len,
- 						    const char *path);
--extern int digest_gen_hash(struct selabel_digest *digest);
-+extern void digest_gen_hash(struct selabel_digest *digest);
- 
- extern struct selabel_sub *selabel_subs_init(const char *path,
- 				    struct selabel_sub *list,
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index 16a7ced..622741b 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -140,7 +140,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	if (status)
- 		goto finish;
- 
--	status = digest_gen_hash(rec->digest);
-+	digest_gen_hash(rec->digest);
- 
- finish:
- 	fclose(fp);
-diff --git a/libselinux/src/label_support.c b/libselinux/src/label_support.c
-index 08757b2..ac52885 100644
---- a/libselinux/src/label_support.c
-+++ b/libselinux/src/label_support.c
-@@ -98,15 +98,16 @@ int hidden read_spec_entries(char *line_buf, int num_args, ...)
- }
- 
- /* Once all the specfiles are in the hash_buf, generate the hash. */
--int hidden digest_gen_hash(struct selabel_digest *digest)
-+void hidden digest_gen_hash(struct selabel_digest *digest)
- {
-+	/* If SELABEL_OPT_DIGEST not set then just return */
- 	if (!digest)
--		return -1;
-+		return;
- 
- 	SHA1(digest->hashbuf, digest->hashbuf_size, digest->digest);
- 	free(digest->hashbuf);
- 	digest->hashbuf = NULL;
--	return 0;
-+	return;
- }
- 
- /**
-@@ -127,8 +128,9 @@ int hidden digest_add_specfile(struct selabel_digest *digest, FILE *fp,
- {
- 	unsigned char *tmp_buf;
- 
-+	/* If SELABEL_OPT_DIGEST not set then just return */
- 	if (!digest)
--		return -1;
-+		return 0;
- 
- 	if (digest->hashbuf_size + buf_len < digest->hashbuf_size) {
- 		errno = EOVERFLOW;
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index 309deae..700def1 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -167,7 +167,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	if (status)
- 		goto finish;
- 
--	status = digest_gen_hash(rec->digest);
-+	digest_gen_hash(rec->digest);
- 
- finish:
- 	fclose(fp);
-diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel_digest.c
-index 16706b5..1e9fb34 100644
---- a/libselinux/utils/selabel_digest.c
-+++ b/libselinux/utils/selabel_digest.c
-@@ -11,13 +11,14 @@ static size_t digest_len;
- static void usage(const char *progname)
- {
- 	fprintf(stderr,
--		"usage: %s -b backend [-d] [-v] [-B] [-f file]\n\n"
-+		"usage: %s -b backend [-d] [-v] [-B] [-i] [-f file]\n\n"
- 		"Where:\n\t"
- 		"-b  The backend - \"file\", \"media\", \"x\", \"db\" or "
- 			"\"prop\"\n\t"
- 		"-v  Run \"cat <specfile_list> | openssl dgst -sha1 -hex\"\n\t"
- 		"    on the list of specfiles to compare the SHA1 digests.\n\t"
- 		"-B  Use base specfiles only (valid for \"-b file\" only).\n\t"
-+		"-i  Do not request a digest.\n\t"
- 		"-f  Optional file containing the specs (defaults to\n\t"
- 		"    those used by loaded policy).\n\n",
- 		progname);
-@@ -59,7 +60,7 @@ static int run_check_digest(char *cmd, char *selabel_digest)
- int main(int argc, char **argv)
- {
- 	int backend = 0, rc, opt, i, validate = 0;
--	char *baseonly = NULL, *file = NULL;
-+	char *baseonly = NULL, *file = NULL, *digest = (char *)1;
- 	char **specfiles = NULL;
- 	unsigned char *sha1_digest = NULL;
- 	size_t num_specfiles;
-@@ -72,13 +73,13 @@ int main(int argc, char **argv)
- 	struct selinux_opt selabel_option[] = {
- 		{ SELABEL_OPT_PATH, file },
- 		{ SELABEL_OPT_BASEONLY, baseonly },
--		{ SELABEL_OPT_DIGEST, (char *)1 }
-+		{ SELABEL_OPT_DIGEST, digest }
- 	};
- 
- 	if (argc < 3)
- 		usage(argv[0]);
- 
--	while ((opt = getopt(argc, argv, "b:Bvf:")) > 0) {
-+	while ((opt = getopt(argc, argv, "ib:Bvf:")) > 0) {
- 		switch (opt) {
- 		case 'b':
- 			if (!strcasecmp(optarg, "file")) {
-@@ -103,6 +104,9 @@ int main(int argc, char **argv)
- 		case 'v':
- 			validate = 1;
- 			break;
-+		case 'i':
-+			digest = NULL;
-+			break;
- 		case 'f':
- 			file = optarg;
- 			break;
-@@ -115,6 +119,7 @@ int main(int argc, char **argv)
- 
- 	selabel_option[0].value = file;
- 	selabel_option[1].value = baseonly;
-+	selabel_option[2].value = digest;
- 
- 	hnd = selabel_open(backend, selabel_option, 3);
- 	if (!hnd) {
--- 
-2.4.3
+Seth
