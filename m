@@ -1,80 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9FJO6SD031196
- for <selinux@tycho.nsa.gov>; Thu, 15 Oct 2015 15:24:11 -0400
-Received: by iofl186 with SMTP id l186so101228864iof.2
- for <selinux@tycho.nsa.gov>; Thu, 15 Oct 2015 12:24:09 -0700 (PDT)
-Date: Thu, 15 Oct 2015 14:24:04 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-fsdevel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-bcache@vger.kernel.org, dm-devel@redhat.com,
- linux-raid@vger.kernel.org, James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Subject: Re: [PATCH v2 7/7] Smack: Handle labels consistently in untrusted
- mounts
-Message-ID: <20151015192404.GC31612@ubuntu-hedt>
-References: <1444755861-54997-1-git-send-email-seth.forshee@canonical.com>
- <1444755861-54997-8-git-send-email-seth.forshee@canonical.com>
- <561F3DC7.4070901@schaufler-ca.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9HArHT7023063
+ for <selinux@tycho.nsa.gov>; Sat, 17 Oct 2015 06:53:17 -0400
+Received: by wicgb1 with SMTP id gb1so37520402wic.1
+ for <selinux@tycho.nsa.gov>; Sat, 17 Oct 2015 03:53:15 -0700 (PDT)
+Received: from x250 ([84.245.63.179])
+ by smtp.gmail.com with ESMTPSA id nd9sm6692059wic.0.2015.10.17.03.53.14
+ for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
+ Sat, 17 Oct 2015 03:53:14 -0700 (PDT)
+Date: Sat, 17 Oct 2015 12:53:13 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: did libselinux grow a new build dependency? (openssl-devel: openssl.h)
+Message-ID: <20151017105311.GA7010@x250>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <561F3DC7.4070901@schaufler-ca.com>
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Oct 14, 2015 at 10:46:47PM -0700, Casey Schaufler wrote:
-> On 10/13/2015 10:04 AM, Seth Forshee wrote:
-> > The SMACK64, SMACK64EXEC, and SMACK64MMAP labels are all handled
-> > differently in untrusted mounts. This is confusing and
-> > potentically problematic. Change this to handle them all the same
-> > way that SMACK64 is currently handled; that is, read the label
-> > from disk and check it at use time. For SMACK64 and SMACK64MMAP
-> > access is denied if the label does not match smk_root. To be
-> > consistent with suid, a SMACK64EXEC label which does not match
-> > smk_root will still allow execution of the file but will not run
-> > with the label supplied in the xattr.
-> >
-> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-> 
-> Aside from the one comment below (which I can be talked out of)
-> this looks fine.
-> 
-> > ---
-> >  security/smack/smack_lsm.c | 28 ++++++++++++++++++----------
-> >  1 file changed, 18 insertions(+), 10 deletions(-)
-> >
-> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index 621200f86b56..bee0b2652bf4 100644
-> > --- a/security/smack/smack_lsm.c
-> > +++ b/security/smack/smack_lsm.c
-> > @@ -891,6 +891,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
-> >  	struct inode *inode = file_inode(bprm->file);
-> >  	struct task_smack *bsp = bprm->cred->security;
-> >  	struct inode_smack *isp;
-> > +	struct superblock_smack *sbsp;
-> >  	int rc;
-> >  
-> >  	if (bprm->cred_prepared)
-> > @@ -900,6 +901,10 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
-> >  	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
-> >  		return 0;
-> >  
-> > +	sbsp = inode->i_sb->s_security;
-> > +	if (sbsp->smk_flags & SMK_SB_UNTRUSTED && isp->smk_task != sbsp->smk_root)
-> 
-> Call me old fashioned, but how about
-> 
-> 	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) && isp->smk_task != sbsp->smk_root)
-> 
-> naked '&'s give me the willies. 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
-That's fine by me.
+if so, would gnutls be affected in some way?
 
-Seth
+- -- 
+02DFF788
+4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
+https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
+Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJWIiiTAAoJENAR6kfG5xmcDecL/3X2VRp3dR0UXDQSXAayD9P+
+BEz+hJ9rhZTMoBdiDWvYVpsCVUL6ASIkKocGSvdV5cDfFPOs+wu3t8Xwo+KgNJqy
+rMoPGm4QwkZyw9T3lzSMU6oE7l99FiQMDO3I41iDx52GQr+dvSoTHs5eRlU6ldyk
+M9dSBIa/p9noQu3xCCWh8wVZSCLTC5b4PiCPwenyAecVZ3tJf7EOZssM4j7FPxnB
+ropmU7MGauYUImBbVHFLcBWULIRo8Awwqadcnne4sxugPeFH332HeRcgUKCHGiQU
+wovjWgGAKn/oC3tTTW9Tmo8F9rRC33BzP9P7p25MvMFiXPchid/iJiQG7k++qk/g
+9+p3vkhqvavff1eDG5pDKOh8hA+pcIzng91/NDGh5+8D+o1uvNxPPyQFHOhnn24p
+DhxRk2uD5oiiB7o85Yh3ZubmWLR6UiI/SiNsm9POSEr0QH+ePdg/fSuKGKHxoeF0
+DfZuIh4ZorjIQU4oGG+zg+kKB3XNwZph2UtshjUPEQ==
+=mhIs
+-----END PGP SIGNATURE-----
