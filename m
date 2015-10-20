@@ -1,335 +1,136 @@
-MIME-Version: 1.0
-In-Reply-To: <1526618308.525900.1445351998505.JavaMail.yahoo@mail.yahoo.com>
-References: <CAFftDdratpqGkyLp0m48YWo1iOw58sECd+NhQe1o4TqZQOSwcw@mail.gmail.com>
- <1526618308.525900.1445351998505.JavaMail.yahoo@mail.yahoo.com>
-Date: Tue, 20 Oct 2015 07:49:22 -0700
-Message-ID: <CAFftDdpub5p8h5S4cbi=sgWk8GB3DM48X33WYX6B054eQcKgDw@mail.gmail.com>
-Subject: Re: did libselinux grow a new build dependency? (openssl-devel:
- openssl.h)
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a1140ffba1adbf705228a5efe
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9KHI0eo024984
+ for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 13:18:00 -0400
+Received: by ykba4 with SMTP id a4so17439820ykb.3
+ for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 10:17:28 -0700 (PDT)
+Received: from urd.int.mimisbrunnr.net
+ (pool-71-121-222-212.bltmmd.fios.verizon.net. [71.121.222.212])
+ by smtp.gmail.com with ESMTPSA id j63sm2440269ywg.52.2015.10.20.10.17.27
+ for <selinux@tycho.nsa.gov>
+ (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
+ Tue, 20 Oct 2015 10:17:27 -0700 (PDT)
+From: Andrew Ruef <andrew@trailofbits.com>
+Content-Type: multipart/signed;
+ boundary="Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D";
+ protocol="application/pkcs7-signature"; micalg=sha1
+Subject: Static analysis to assist policy creation?
+Message-Id: <85D0FAC1-423C-49CF-801D-E5EB160A9834@trailofbits.com>
+Date: Tue, 20 Oct 2015 13:17:27 -0400
+To: selinux@tycho.nsa.gov
+Mime-Version: 1.0 (Mac OS X Mail 9.0 \(3094\))
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1140ffba1adbf705228a5efe
-Content-Type: text/plain; charset=UTF-8
 
-FYI you can take just 1 C and H file from crypt lib. You don't need it all.
-On Oct 20, 2015 8:42 AM, "Richard Haines" <richard_c_haines@btinternet.com>
-wrote:
-
->
-> On Tuesday, 20 October 2015, 15:00, William Roberts <
-> bill.c.roberts@gmail.com> wrote:
->
-> >
-> >
-> >
-> >On Oct 20, 2015 7:46 AM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
-> >>
-> >> On 10/20/2015 08:27 AM, Richard Haines wrote:
-> >>>
-> >>>
-> >>>
-> >>>
-> >>>
-> >>>> On Monday, 19 October 2015, 19:10, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> >>>>>
-> >>>>> On 10/18/2015 11:00 AM, Richard Haines wrote:
-> >>>>>
-> >>>>>
-> >>>>>>   On Sunday, 18 October 2015, 15:07, Dominick Grift
-> >>>>
-> >>>> <dac.override@gmail.com> wrote:
-> >>>>>
-> >>>>>
-> >>>>>>>   -----BEGIN PGP SIGNED MESSAGE-----
-> >>>>>>
-> >>>>>>   Hash: SHA512
-> >>>>>>
-> >>>>>>   On Sun, Oct 18, 2015 at 12:48:12PM +0000, Richard Haines wrote:
-> >>>>>>>
-> >>>>>>>     I added openssl to libselinux to support the new
-> >>>>
-> >>>> selabel_digest(3)
-> >>>>>>>
-> >>>>>>>     function.
-> >>>>>>>
-> >>>>>>>     I'm not aware of any issues between openssl and gnutls,
-> >>>>
-> >>>> however as
-> >>>>>>>
-> >>>>>>>
-> >>>>>>>     selabel_digest was only added last week I guess not much
-> testing.
-> >>>>>>>     Well apart from myself as I'm currently adding the
-> >>>>
-> >>>> selinux_restorecon
-> >>>>>>>
-> >>>>>>>     feature that makes use of it.
-> >>>>>>>
-> >>>>>>
-> >>>>>>   Thanks for clarifying, I am not hitting any issues with it just
-> >>>>>>   wondering if instead of openssl, gnutls could be used for this
-> and if
-> >>>>>
-> >>>>>
-> >>>>>>   so, if this should be somehow supported or not.
-> >>>>>
-> >>>>>
-> >>>>>   I tried using gnutls after I read your initial email, however I
-> >>>>>   could not find a way to generate the same digest as openssl
-> >>>>>   (I changed the SHA1 function to gnutls_hmac_fast(3) with various
-> >>>>>   algorithms and used the selabel_digest util to compare digests).
-> >>>>>   It could be that I should use some other function but I could
-> >>>>>
-> >>>>>   not find any useful info on this (including web searches).
-> >>>>>   If anyone knows how to resolve this please let me know.
-> >>>>>
-> >>>>>   I guess what is supported (openssl or gnutls) would be down to
-> >>>>>   the maintainers.
-> >>>>
-> >>>>
-> >>>> Wondering if dependency on openssl might be a license issue for Debian
-> >>>> or others.  Apparently openssl license is considered GPL-incompatible
-> >>>> [1] [2], and obviously libselinux is linked by a variety of
-> GPL-licensed
-> >>>> programs.  Fedora seems to view this as falling under the system
-> library
-> >>>> exception [3] but not clear that other distributions would view it
-> that
-> >>>> way.  On the other hand, using gnutls would be subject to the reverse
-> >>>> problem; it would make libselinux depend on a LGPL library, and that
-> >>>> could create issues for non-GPL programs that statically link
-> >>>> libselinux.  We might need to revert this change and revisit how to
-> >>>
-> >>>
-> >>>> solve this in a manner that avoids such issues.
-> >>>
-> >>>
-> >>>
-> >>> Would building with the Android mincrypt SHA functions help regarding
-> the
-> >>> licensing issues ??? I've attached a quick patch that seems to work
-> okay
-> >>> using Android system/core/libmincrypt/sha.c
-> >>
-> >>
-> >> That looks BSD-licensed and thus broadly compatible.  We would need to
-> amend libselinux/LICENSE to add that license information and we would need
-> to hide those functions from being exposed outside of the library.  Other
-> alternative would be to look for a public domain SHA implementation and use
-> that.
->
-> >>
->
-> I've found a simple implementation at
-> www.ghostscript.com/doc/jbig2dec/sha1.c
->
-> I'll try that first and if fails CryptLib will be next.
->
->
->
->
-> >>
-> >Will CryptLib work:
->
-> >http://unlicense.org/
->
->
-> >
-> >
-> >>
-> >> _______________________________________________
-> >> Selinux mailing list
-> >> Selinux@tycho.nsa.gov
-> >> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> >> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov
-> >.
-> >
-> >
-> >
->
-
---001a1140ffba1adbf705228a5efe
-Content-Type: text/html; charset=UTF-8
+--Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
 
-<p dir=3D"ltr">FYI you can take just 1 C and H file from crypt lib. You don=
-&#39;t need it all. </p>
-<div class=3D"gmail_quote">On Oct 20, 2015 8:42 AM, &quot;Richard Haines&qu=
-ot; &lt;<a href=3D"mailto:richard_c_haines@btinternet.com">richard_c_haines=
-@btinternet.com</a>&gt; wrote:<br type=3D"attribution"><blockquote class=3D=
-"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding=
--left:1ex"><br>
-On Tuesday, 20 October 2015, 15:00, William Roberts &lt;<a href=3D"mailto:b=
-ill.c.roberts@gmail.com">bill.c.roberts@gmail.com</a>&gt; wrote:<br>
-<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt;On Oct 20, 2015 7:46 AM, &quot;Stephen Smalley&quot; &lt;<a href=3D"mai=
-lto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt;&gt;<br>
-&gt;&gt; On 10/20/2015 08:27 AM, Richard Haines wrote:<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; On Monday, 19 October 2015, 19:10, Stephen Smalley &lt;<a =
-href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt; On 10/18/2015 11:00 AM, Richard Haines wrote:<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0On Sunday, 18 October 2015, 15:07, Dom=
-inick Grift<br>
-&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; &lt;<a href=3D"mailto:dac.override@gmail.com">dac.override=
-@gmail.com</a>&gt; wrote:<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0-----BEGIN PGP SIGNED MESSAGE-----=
-<br>
-&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0Hash: SHA512<br>
-&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0On Sun, Oct 18, 2015 at 12:48:12PM +00=
-00, Richard Haines wrote:<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0I added openssl to libselin=
-ux to support the new<br>
-&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; selabel_digest(3)<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0function.<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0I&#39;m not aware of any is=
-sues between openssl and gnutls,<br>
-&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; however as<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0selabel_digest was only add=
-ed last week I guess not much testing.<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0Well apart from myself as I=
-&#39;m currently adding the<br>
-&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; selinux_restorecon<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0feature that makes use of i=
-t.<br>
-&gt;&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0Thanks for clarifying, I am not hittin=
-g any issues with it just<br>
-&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0wondering if instead of openssl, gnutl=
-s could be used for this and if<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0so, if this should be somehow supporte=
-d or not.<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0I tried using gnutls after I read your ini=
-tial email, however I<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0could not find a way to generate the same =
-digest as openssl<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0(I changed the SHA1 function to gnutls_hma=
-c_fast(3) with various<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0algorithms and used the selabel_digest uti=
-l to compare digests).<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0It could be that I should use some other f=
-unction but I could<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0not find any useful info on this (includin=
-g web searches).<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0If anyone knows how to resolve this please=
- let me know.<br>
-&gt;&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0I guess what is supported (openssl or gnut=
-ls) would be down to<br>
-&gt;&gt;&gt;&gt;&gt;=C2=A0 =C2=A0the maintainers.<br>
-&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; Wondering if dependency on openssl might be a license issu=
-e for Debian<br>
-&gt;&gt;&gt;&gt; or others.=C2=A0 Apparently openssl license is considered =
-GPL-incompatible<br>
-&gt;&gt;&gt;&gt; [1] [2], and obviously libselinux is linked by a variety o=
-f GPL-licensed<br>
-&gt;&gt;&gt;&gt; programs.=C2=A0 Fedora seems to view this as falling under=
- the system library<br>
-&gt;&gt;&gt;&gt; exception [3] but not clear that other distributions would=
- view it that<br>
-&gt;&gt;&gt;&gt; way.=C2=A0 On the other hand, using gnutls would be subjec=
-t to the reverse<br>
-&gt;&gt;&gt;&gt; problem; it would make libselinux depend on a LGPL library=
-, and that<br>
-&gt;&gt;&gt;&gt; could create issues for non-GPL programs that statically l=
-ink<br>
-&gt;&gt;&gt;&gt; libselinux.=C2=A0 We might need to revert this change and =
-revisit how to<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;&gt; solve this in a manner that avoids such issues.<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt;<br>
-&gt;&gt;&gt; Would building with the Android mincrypt SHA functions help re=
-garding the<br>
-&gt;&gt;&gt; licensing issues ??? I&#39;ve attached a quick patch that seem=
-s to work okay<br>
-&gt;&gt;&gt; using Android system/core/libmincrypt/sha.c<br>
-&gt;&gt;<br>
-&gt;&gt;<br>
-&gt;&gt; That looks BSD-licensed and thus broadly compatible.=C2=A0 We woul=
-d need to amend libselinux/LICENSE to add that license information and we w=
-ould need to hide those functions from being exposed outside of the library=
-.=C2=A0 Other alternative would be to look for a public domain SHA implemen=
-tation and use that.<br>
-<br>
-&gt;&gt;<br>
-<br>
-I&#39;ve found a simple implementation at<br>
-<a href=3D"http://www.ghostscript.com/doc/jbig2dec/sha1.c" rel=3D"noreferre=
-r" target=3D"_blank">www.ghostscript.com/doc/jbig2dec/sha1.c</a><br>
-<br>
-I&#39;ll try that first and if fails CryptLib will be next.<br>
-<br>
-<br>
-<br>
-<br>
-&gt;&gt;<br>
-&gt;Will CryptLib work:<br>
-<br>
-&gt;<a href=3D"http://unlicense.org/" rel=3D"noreferrer" target=3D"_blank">=
-http://unlicense.org/</a><br>
-<br>
-<br>
-&gt;<br>
-&gt;<br>
-&gt;&gt;<br>
-&gt;&gt; _______________________________________________<br>
-&gt;&gt; Selinux mailing list<br>
-&gt;&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a>=
-<br>
-&gt;&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tych=
-o.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
-&gt;&gt; To get help, send an email containing &quot;help&quot; to <a href=
-=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>=
-<br>
-&gt;.<br>
-&gt;<br>
-&gt;<br>
-&gt;<br>
-</blockquote></div>
+Hello SELinux list,=20
 
---001a1140ffba1adbf705228a5efe--
+We=E2=80=99ve been thinking about creating a static (or potentially =
+concolic) analysis and testing infrastructure that would assist in the =
+creation of finer grained SELinux policies than audit2allow. We think =
+that some work can be done through alias analysis and domain specific =
+object (strings, memory regions/files, etc) analysis wholly statically, =
+but we=E2=80=99ve developed an extensive symbolic execution system for =
+C/binary programs that could also be applied.=20
+
+I=E2=80=99ve done some searching and asking around and it doesn=E2=80=99t =
+seem like there are any tools that do this. I=E2=80=99m aware of some =
+past projects that made use of static analysis tools to help create =
+security policies, like the IBM SWORD4J work. The IBM people seemed =
+really happy with those results and they have relayed that it really =
+helped their internal efforts for security labeling, so maybe there is =
+some hope for tools in this area.=20
+
+My question is two-fold
+
+1. Is there a history of using static analysis to create SELinux =
+policies that I haven=E2=80=99t found so far?
+
+2. Is there any interest in the community for such an effort today?
+
+Thank you,
+
+Andrew=
+
+--Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D
+Content-Disposition: attachment;
+	filename=smime.p7s
+Content-Type: application/pkcs7-signature;
+	name=smime.p7s
+Content-Transfer-Encoding: base64
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIILxTCCBW8w
+ggRXoAMCAQICEAO0N6kWgK5eZd5vbagxTIkwDQYJKoZIhvcNAQELBQAwZTELMAkGA1UEBhMCVVMx
+FTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTEkMCIGA1UE
+AxMbRGlnaUNlcnQgU0hBMiBBc3N1cmVkIElEIENBMB4XDTE0MTEwNDAwMDAwMFoXDTE1MTEwNDEy
+MDAwMFowgY4xCzAJBgNVBAYTAlVTMREwDwYDVQQIEwhOZXcgWW9yazERMA8GA1UEBxMITmV3IFlv
+cmsxHDAaBgNVBAoTE1RyYWlsIG9mIEJpdHMsIEluYy4xFDASBgNVBAMTC0FuZHJldyBSdWVmMSUw
+IwYJKoZIhvcNAQkBFhZhbmRyZXdAdHJhaWxvZmJpdHMuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOC
+AQ8AMIIBCgKCAQEAwCHLDmINfB2LBrKAADUbw92JMEZhjTNupww1uYk+Jfx/an9eVIGSX2HiaVKm
+UpOmnLWIYBkpn5Nny+U9xj2gSvZLGxxh3d+ypkHDwyKO7RbqDnuWQpaE6HolFLq0MOX1qEuFG8WT
+cU+FlLQI+TZB54ezzoo8KjmPFlEw8T9wOqG+/Ak7mnFJskkxXG64Ze2RGUh0TgJRT3ELx7NkVImq
+VptXc3Qgf+ku4zWhpstODJYfS3OO9yxJya3+S5c7bezZjO4AA/JjfPTTGGbc9fgGtmiWG83yPoGe
+MnxV7O4C13qQIOnJ9PWRFnpINu/3isxQ8IRRehV9JE9iHNy6qM3ovQIDAQABo4IB7zCCAeswHwYD
+VR0jBBgwFoAU5wIjgABP2Ne8lAvZP3Q5STI8inkwHQYDVR0OBBYEFKu8RjIwHV8HDbnxjYOvzloG
+5RKbMAwGA1UdEwEB/wQCMAAwIQYDVR0RBBowGIEWYW5kcmV3QHRyYWlsb2ZiaXRzLmNvbTAOBgNV
+HQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMEMGA1UdIAQ8MDowOAYK
+YIZIAYb9bAQBAjAqMCgGCCsGAQUFBwIBFhxodHRwczovL3d3dy5kaWdpY2VydC5jb20vQ1BTMIGI
+BgNVHR8EgYAwfjA9oDugOYY3aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0U0hBMkFz
+c3VyZWRJRENBLWcxLmNybDA9oDugOYY3aHR0cDovL2NybDQuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+U0hBMkFzc3VyZWRJRENBLWcxLmNybDB5BggrBgEFBQcBAQRtMGswJAYIKwYBBQUHMAGGGGh0dHA6
+Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBDBggrBgEFBQcwAoY3aHR0cDovL2NhY2VydHMuZGlnaWNlcnQu
+Y29tL0RpZ2lDZXJ0U0hBMkFzc3VyZWRJRENBLmNydDANBgkqhkiG9w0BAQsFAAOCAQEAJyO66OBa
+g4QsJZ7za0gkZQnbeK0dC9VDsRuZzCO7ylY3HWeZmkQ9u0e7836GHdlFEZ0IFkrkM/aY14ZJxc6q
+Q3oSRGSzszb0uVy+iUAdAjK67laoAa/eXh0J8cRqwQmdAcc0scSTjr7P58s6BMiBq0noPB4zj3yA
+B153wvpkPUi4Lue4pu3JLaFbLflUxvZrKAMMW29iJKp/ZHPoO+E99CudylI9mUFD3zYtb+p2hwaz
+YSumeTnMgdJ2ZsvuqI+b7wjQsffDE8cv7TC4YaBb8KrG2he2GfRFyczeqcMtBr5zL+cKHE4LIKc2
+L80aa71ZtIemwhW02sNjfqeY2fG6QTCCBk4wggU2oAMCAQICEASueWBmZpAaucV/pmxb3M0wDQYJ
+KoZIhvcNAQELBQAwZTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UE
+CxMQd3d3LmRpZ2ljZXJ0LmNvbTEkMCIGA1UEAxMbRGlnaUNlcnQgQXNzdXJlZCBJRCBSb290IENB
+MB4XDTEzMTEwNTEyMDAwMFoXDTI4MTEwNTEyMDAwMFowZTELMAkGA1UEBhMCVVMxFTATBgNVBAoT
+DERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTEkMCIGA1UEAxMbRGlnaUNl
+cnQgU0hBMiBBc3N1cmVkIElEIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3PgR
+Iz9qte/AJ3kbLQWHohBDMd8O1BUbT3ekIs4+jHDwvgeO3ScqvAEdtiwKyt1pWB9B7WoFH9pjeFke
+Iiwr+Lp+yTU7VvEffEJ+JbAjGcZFONc9RPkgfGCuHLBaGAS+jzv3qfCUmqYMY0m2QRdTQDK9T+ZQ
+elAfJUXo8Ymvzf9e/1Dz8BcR/73FifW9YrnY+45FBIVtmc3FSE39JqsCNkXqNtdfauIagkEK3OnZ
+9ZEXjsYhrTg8E+Yef2ac1U3ZRtr2z1KnfTskw7TBUTXGm+vU737kewPhRL16CzfgT8uCig1xGOSm
+4IksG/OyczzBsJKeGH29q33FfQihLMKfcwIDAQABo4IC+DCCAvQwEgYDVR0TAQH/BAgwBgEB/wIB
+ADAOBgNVHQ8BAf8EBAMCAYYwNAYIKwYBBQUHAQEEKDAmMCQGCCsGAQUFBzABhhhodHRwOi8vb2Nz
+cC5kaWdpY2VydC5jb20wgYEGA1UdHwR6MHgwOqA4oDaGNGh0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNv
+bS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcmwwOqA4oDaGNGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0
+LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcmwwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsG
+AQUFBwMEMIIBswYDVR0gBIIBqjCCAaYwggGiBgpghkgBhv1sAAIEMIIBkjAoBggrBgEFBQcCARYc
+aHR0cHM6Ly93d3cuZGlnaWNlcnQuY29tL0NQUzCCAWQGCCsGAQUFBwICMIIBVh6CAVIAQQBuAHkA
+IAB1AHMAZQAgAG8AZgAgAHQAaABpAHMAIABDAGUAcgB0AGkAZgBpAGMAYQB0AGUAIABjAG8AbgBz
+AHQAaQB0AHUAdABlAHMAIABhAGMAYwBlAHAAdABhAG4AYwBlACAAbwBmACAAdABoAGUAIABEAGkA
+ZwBpAEMAZQByAHQAIABDAFAALwBDAFAAUwAgAGEAbgBkACAAdABoAGUAIABSAGUAbAB5AGkAbgBn
+ACAAUABhAHIAdAB5ACAAQQBnAHIAZQBlAG0AZQBuAHQAIAB3AGgAaQBjAGgAIABsAGkAbQBpAHQA
+IABsAGkAYQBiAGkAbABpAHQAeQAgAGEAbgBkACAAYQByAGUAIABpAG4AYwBvAHIAcABvAHIAYQB0
+AGUAZAAgAGgAZQByAGUAaQBuACAAYgB5ACAAcgBlAGYAZQByAGUAbgBjAGUALjAdBgNVHQ4EFgQU
+5wIjgABP2Ne8lAvZP3Q5STI8inkwHwYDVR0jBBgwFoAUReuir/SSy4IxLVGLp6chnfNtyA8wDQYJ
+KoZIhvcNAQELBQADggEBAE7UiSe5/R2Hd34PKAWQ8QovyTs+vZOckMav+pFRhzJUa+jKwXFRXJmO
+tfrgYhmZpgeafBMn2+UCooQS2RX2CkRXxDSPbXMfOtagAT3e44LkRWuy6yX9gF4dOZC+W0L2zpFg
+4/mgVgxIEM4zaHvNk6vwastPWA+5e10bBIGepyLiV0kn7pKTCL5pCFMCOi5dyBn0UIBOAtmwXZG0
+k4f5lpaBVUCOZu2C2LsoX+1MYe0GWCgZUxFEvEcgKbIEbNiJVJk7ddtneCweknjGVT1YEhEybr1D
+DE0023vGQtvsvqubYUwGkuOO3yEqUFcEwGCiNdUknmY3CUnP1fhls+DibsIxggMZMIIDFQIBATB5
+MGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdp
+Y2VydC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IFNIQTIgQXNzdXJlZCBJRCBDQQIQA7Q3qRaArl5l
+3m9tqDFMiTAJBgUrDgMCGgUAoIIBdTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3
+DQEJBTEPFw0xNTEwMjAxNzE3MjhaMCMGCSqGSIb3DQEJBDEWBBSjRk4YWNPW42t8uGv2Mg1iZJc9
+1jCBiAYJKwYBBAGCNxAEMXsweTBlMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5j
+MRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSQwIgYDVQQDExtEaWdpQ2VydCBTSEEyIEFzc3Vy
+ZWQgSUQgQ0ECEAO0N6kWgK5eZd5vbagxTIkwgYoGCyqGSIb3DQEJEAILMXugeTBlMQswCQYDVQQG
+EwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSQw
+IgYDVQQDExtEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgQ0ECEAO0N6kWgK5eZd5vbagxTIkwDQYJ
+KoZIhvcNAQEBBQAEggEAQpBfHKX9ocjHdlPxrSPk5uK57Cf0aK1yyTxcQDYy+MUIWJY7Y+N1I++y
+wxXinZ5BM0w33nKr4Iz2WMRHRHwZ111PCNp/WBTi8Xnd60faanfoVrjj64Dyb8a2o1vagPgl8i9y
+gsuWxnof6TTtBC5/jCrZ7acAanoQW1tXvM6CZe62adzJw+WYEnixrQzqxAEOpFjm3Kp6rs5PGM+C
+WEm9Kt1pfZViASDXHsP2nVX4gzq1/wtpoqW2/CGfCi/1tsrKVyys9p4MYdEurnuQW1S5uajGVb3Z
+3O4A3TGq9s8Dr/M9z5AkgtJ/FgOqA87XPK9ZsVDl074zcVvT4WsQ6R8gZgAAAAAAAA==
+--Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D--
