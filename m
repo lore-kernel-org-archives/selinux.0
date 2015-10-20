@@ -1,257 +1,340 @@
-From: Paul Moore <pmoore@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9KCUdWc030211
+ for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 08:30:40 -0400
+Date: Tue, 20 Oct 2015 12:27:38 +0000 (UTC)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-security-module@vger.kernel.org, linux-audit@redhat.com,
- selinux@tycho.nsa.gov, Paul Osmialowski <p.osmialowsk@samsung.com>
-Subject: Re: [RFC PATCH v3 2/5] lsm: introduce hooks for kdbus
-Date: Mon, 19 Oct 2015 18:29:14 -0400
-Message-ID: <2112989.AEUouYpuBm@sifl>
-In-Reply-To: <5617D58C.2070402@tycho.nsa.gov>
-References: <20151007230615.7823.74519.stgit@localhost>
- <20151007230829.7823.14385.stgit@localhost> <5617D58C.2070402@tycho.nsa.gov>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Dominick Grift <dac.override@gmail.com>
+Message-ID: <44617616.392600.1445344058683.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <562531F6.8010609@tycho.nsa.gov>
+References: <562531F6.8010609@tycho.nsa.gov>
+Subject: Re: did libselinux grow a new build dependency? (openssl-devel:
+ openssl.h)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/mixed;
+ boundary="----=_Part_392599_2016510239.1445344058683"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, October 09, 2015 10:56:12 AM Stephen Smalley wrote:
-> On 10/07/2015 07:08 PM, Paul Moore wrote:
-> > diff --git a/ipc/kdbus/connection.c b/ipc/kdbus/connection.c
-> > index ef63d65..1cb87b3 100644
-> > --- a/ipc/kdbus/connection.c
-> > +++ b/ipc/kdbus/connection.c
-> > @@ -108,6 +109,14 @@ static struct kdbus_conn *kdbus_conn_new(struct
-> > kdbus_ep *ep,> 
-> >   	if (!owner && (creds || pids || seclabel))
-> >   	
-> >   		return ERR_PTR(-EPERM);
-> > 
-> > +	ret = security_kdbus_conn_new(get_cred(file->f_cred),
+------=_Part_392599_2016510239.1445344058683
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+
+
+
+
+> On Monday, 19 October 2015, 19:10, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 10/18/2015 11:00 AM, Richard Haines wrote:
+>> 
+>> 
+>>>  On Sunday, 18 October 2015, 15:07, Dominick Grift 
+> <dac.override@gmail.com> wrote:
+>> 
+>>>>  -----BEGIN PGP SIGNED MESSAGE-----
+>>>  Hash: SHA512
+>>> 
+>>>  On Sun, Oct 18, 2015 at 12:48:12PM +0000, Richard Haines wrote:
+>>>>    I added openssl to libselinux to support the new 
+> selabel_digest(3)
+>>>>    function.
+>>>> 
+>>>>    I'm not aware of any issues between openssl and gnutls, 
+> however as
+>>>> 
+>>>>    selabel_digest was only added last week I guess not much testing.
+>>>>    Well apart from myself as I'm currently adding the 
+> selinux_restorecon
+>>>>    feature that makes use of it.
+>>>> 
+>>> 
+>>>  Thanks for clarifying, I am not hitting any issues with it just
+>>>  wondering if instead of openssl, gnutls could be used for this and if
+>> 
+>>>  so, if this should be somehow supported or not.
+>> 
+>>  I tried using gnutls after I read your initial email, however I
+>>  could not find a way to generate the same digest as openssl
+>>  (I changed the SHA1 function to gnutls_hmac_fast(3) with various
+>>  algorithms and used the selabel_digest util to compare digests).
+>>  It could be that I should use some other function but I could
+>> 
+>>  not find any useful info on this (including web searches).
+>>  If anyone knows how to resolve this please let me know.
+>> 
+>>  I guess what is supported (openssl or gnutls) would be down to
+>>  the maintainers.
 > 
-> You only need to use get_cred() if saving a reference; otherwise, you'll
-> leak one here.
+> Wondering if dependency on openssl might be a license issue for Debian 
+> or others.  Apparently openssl license is considered GPL-incompatible 
+> [1] [2], and obviously libselinux is linked by a variety of GPL-licensed 
+> programs.  Fedora seems to view this as falling under the system library 
+> exception [3] but not clear that other distributions would view it that 
+> way.  On the other hand, using gnutls would be subject to the reverse 
+> problem; it would make libselinux depend on a LGPL library, and that 
+> could create issues for non-GPL programs that statically link 
+> libselinux.  We might need to revert this change and revisit how to 
 
-Yes, that was a typo on my part, thanks.
+> solve this in a manner that avoids such issues.
 
-> Also, do we want file->f_cred here or ep->bus->node.creds (the latter is
-> what is used by their own checks; the former is typically the same as
-> current cred IIUC).  For that matter, what about ep->node.creds vs ep->bus-
-> node.creds vs. ep->bus->domain->node.creds?  Can they differ?  Do we care?
 
-We don't want file->f_cred, per our previous discussions.  I was working on 
-this patchset in small chunks and while I added credential storing in the 
-nodes, I forgot to update the hooks before I hit send, my apologies.
+Would building with the Android mincrypt SHA functions help regarding the
+licensing issues ??? I've attached a quick patch that seems to work okay
+using Android system/core/libmincrypt/sha.c
 
-My current thinking is to pass both the endpoint and bus credentials, as I 
-believe they can differ.  Both the bus and the endpoint inherit their security 
-labels from their creator and while I don't have any specifics, I think it is 
-reasonable to imagine those two processes having different security labels.  
-Assuming we pass both credentials down to the LSM, I'm currently thinking of 
-the following SELinux access controls for this hook:
 
-  allow <current> bus_t:kdbus { connect };
-  allow <current> ep_t:kdbus { use privileged activator monitor policy };
-
-... besides the additional label, I added the kdbus:use permission and dropped 
-the kdbus:owner permission.  Considering that the endpoint label, ep_t, in the 
-examples above, could be different from the current process, it seemed 
-reasonable to want to control that interaction and I felt the fd:use 
-permission was the closest existing control so I reused the permission name.  
-I decided to drop the "owner" permission as it really wasn't the useful for 
-anything anymore, it simply indicates that the current task is the DAC owner 
-of the endpoint.
-
-> > @@ -1435,12 +1444,12 @@ bool kdbus_conn_policy_own_name(struct kdbus_conn
-> > *conn,> 
-> >   			return false;
-> >   	
-> >   	}
-> > 
-> > -	if (conn->owner)
-> > -		return true;
-> > +	if (!conn->owner &&
-> > +	    kdbus_policy_query(&conn->ep->bus->policy_db, conn_creds, name,
-> > +			       hash) < KDBUS_POLICY_OWN)
-> > +		return false;
-> > 
-> > -	res = kdbus_policy_query(&conn->ep->bus->policy_db, conn_creds,
-> > -				 name, hash);
-> > -	return res >= KDBUS_POLICY_OWN;
-> > +	return (security_kdbus_own_name(conn_creds, name) == 0);
 > 
-> Similar question here.  conn_creds is the credentials of the creator of
-> the connection, typically the client/sender, right?
-> conn->ep->bus->node.creds are the credentials of the bus owner, so don't
-> we want to ask "Can I own this name on this bus?".
-
-Yes, I think so.
-
->From a SELinux point of view I imagine we would want access controls along the 
-lines of the following:
-
-  allow current name_t:kdbus { own_name };
-  allow current bus_t:kdbus { own_name };
-
-... do we want to use different permissions?  I doubt it would matter much 
-either way.
-
-> Note that their policy checks are based on conn->ep->policy_db, i.e. the
-> policy associated with the endpoint, and conn->owner is only true if the
-> connection creator has the same uid as the bus.
-
-I don't think this is significant for us.
-
-> > @@ -1465,14 +1474,13 @@ bool kdbus_conn_policy_talk(struct kdbus_conn
-> > *conn,> 
-> >   					 to, KDBUS_POLICY_TALK))
-> >   		
-> >   		return false;
-> > 
-> > -	if (conn->owner)
-> > -		return true;
-> > -	if (uid_eq(conn_creds->euid, to->cred->uid))
-> > -		return true;
-> > +	if (!conn->owner && !uid_eq(conn_creds->euid, to->cred->uid) &&
-> > +	    !kdbus_conn_policy_query_all(conn, conn_creds,
-> > +					 &conn->ep->bus->policy_db, to,
-> > +					 KDBUS_POLICY_TALK))
-> > +		return false;
-> > 
-> > -	return kdbus_conn_policy_query_all(conn, conn_creds,
-> > -					   &conn->ep->bus->policy_db, to,
-> > -					   KDBUS_POLICY_TALK);
-> > +	return (security_kdbus_conn_talk(conn_creds, to->cred) == 0);
+> [1] http://www.gnu.org/licenses/license-list.en.html#OpenSSL
 > 
-> Here at least we have a notion of client and peer.  But we still aren't
-> considering conn->ep or conn->ep->bus, whereas they are querying both
-> policy dbs for their decision.  The parallel would be checking access to
-> the labels of both I suppose, unless we institute a control up front
-> over the relationship between the label of the endpoint and the label of
-> the bus.
-
-While accidental, as I forgot to update this patch as mentioned previously, I 
-think the differences between kdbus DAC and kdbus MAC is okay.  At this point 
-we've already authorized the individual nodes to connect to the bus and now we 
-are authorizing them to talk to each other; at this control point, it is the 
-interaction between the two nodes that we care about, I don't think we care 
-about what bus they use, do we?
-
-> > @@ -1491,19 +1499,19 @@ bool kdbus_conn_policy_see_name_unlocked(struct
-> > kdbus_conn *conn,> 
-> >   					 const struct cred *conn_creds,
-> >   					 const char *name)
-> >   
-> >   {
-> > 
-> > -	int res;
-> > +	if (!conn_creds)
-> > +		conn_creds = conn->cred;
-> > 
-> >   	/*
-> >   	
-> >   	 * By default, all names are visible on a bus. SEE policies can only be
-> >   	 * installed on custom endpoints, where by default no name is visible.
-> >   	 */
-> > 
-> > -	if (!conn->ep->user)
-> > -		return true;
-> > +	if (conn->ep->user &&
-> > +	    kdbus_policy_query_unlocked(&conn->ep->policy_db, conn_creds, name,
-> > +					kdbus_strhash(name)) < KDBUS_POLICY_SEE)
-> > +		return false;
-> > 
-> > -	res = kdbus_policy_query_unlocked(&conn->ep->policy_db,
-> > -					  conn_creds ? : conn->cred,
-> > -					  name, kdbus_strhash(name));
-> > -	return res >= KDBUS_POLICY_SEE;
-> > +	return (security_kdbus_conn_see_name(conn_creds, name) == 0);
+> [2] https://people.gnome.org/~markmc/openssl-and-the-gpl.html
 > 
-> Here they only define policy based on endpoints, not bus.  Not sure what
-> we want, but we need at least one of their creds.  Same for the rest.
-
-Once again, I'm not sure we care about the underlying bus at this point, do 
-we?  We've already authorized both the service and the client to connect to 
-the bus, now I think all we care about is can the client see the service name.  
-Do we really care about the label of the bus here?
-
-> > @@ -1530,10 +1541,13 @@ static bool kdbus_conn_policy_see(struct
-> > kdbus_conn *conn,> 
-> >   	 * peers from each other, unless you see at least _one_ name of the
-> >   	 * peer.
-> >   	 */
-> > 
-> > -	return !conn->ep->user ||
-> > -	       kdbus_conn_policy_query_all(conn, conn_creds,
-> > -					   &conn->ep->policy_db, whom,
-> > -					   KDBUS_POLICY_SEE);
-> > +	if (conn->ep->user &&
-> > +	    !kdbus_conn_policy_query_all(conn, conn_creds,
-> > +					 &conn->ep->policy_db, whom,
-> > +					 KDBUS_POLICY_SEE))
-> > +		return false;
-> > +
-> > +	return (security_kdbus_conn_see(conn_creds, whom->cred) == 0);
-> > 
-> >   }
-
-Very similar to the kdbus_conn_talk hook above, the credentials above still 
-look reasonable to me.
-
-> > @@ -1567,18 +1584,22 @@ bool kdbus_conn_policy_see_notification(struct
-> > kdbus_conn *conn,> 
-> >   	case KDBUS_ITEM_NAME_ADD:
-> >   	case KDBUS_ITEM_NAME_REMOVE:
-> > 
-> >   	case KDBUS_ITEM_NAME_CHANGE:
-> > -		return kdbus_conn_policy_see_name(conn, conn_creds,
-> > -					msg->items[0].name_change.name);
-> > +		if (!kdbus_conn_policy_see_name(conn, conn_creds,
-> > +						msg->items[0].name_change.name))
-> > +			return false;
-> > 
-> >   	case KDBUS_ITEM_ID_ADD:
-> > 
-> >   	case KDBUS_ITEM_ID_REMOVE:
-> > -		return true;
-> > +		/* fall through for the LSM check */
-> > +		break;
-> > 
-> >   	default:
-> >   		WARN(1, "Invalid type for notification broadcast: %llu\n",
-> >   		
-> >   		     (unsigned long long)msg->items[0].type);
-> >   		
-> >   		return false;
-> >   	
-> >   	}
-> > 
-> > +
-> > +	return (security_kdbus_conn_see_notification(conn_creds) == 0);
-> > 
-> >   }
-
-This also seems okay.
-
-> > diff --git a/ipc/kdbus/fs.c b/ipc/kdbus/fs.c
-> > index 68818a8..4e84e89 100644
-> > --- a/ipc/kdbus/fs.c
-> > +++ b/ipc/kdbus/fs.c
-> > @@ -200,6 +202,10 @@ static struct inode *fs_inode_get(struct super_block
-> > *sb,> 
-> >   	if (!(inode->i_state & I_NEW))
-> >   	
-> >   		return inode;
-> > 
-> > +	ret = security_kdbus_init_inode(inode, node->creds);
-> > +	if (ret)
-> > +		return ERR_PTR(ret);
 > 
-> Need to put the inode.
+> [3] 
+> https://fedoraproject.org/wiki/Licensing:FAQ?rd=Licensing/FAQ#What.27s_the_deal_with_the_OpenSSL_license.3F
+> )
+> 
+------=_Part_392599_2016510239.1445344058683
+Content-Type: text/x-patch
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename=0001-libselinux-Use-Android-mincrypt-for-selabel_digest-3.patch
+Content-ID: <9a3d8f4a-c77e-706e-0d8c-939572087062@yahoo.com>
 
-Thanks.  It looks like I need to make a call to iget_failed() before 
-returning.
+RnJvbSA2MjRjYjRlYzBiNzNjM2IzNGVkMGE4ZjI2ZjljN2MxMjJjNDQyNTBjIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBSaWNoYXJkIEhhaW5lcyA8cmljaGFyZF9jX2hhaW5lc0BidGlu
+dGVybmV0LmNvbT4KRGF0ZTogVHVlLCAyMCBPY3QgMjAxNSAxMzoxMzo0NyArMDEwMApTdWJqZWN0
+OiBbUEFUQ0hdIGxpYnNlbGludXg6IFVzZSBBbmRyb2lkIG1pbmNyeXB0IGZvciBzZWxhYmVsX2Rp
+Z2VzdCgzKQoKUmVwbGFjZSB0aGUgdXNlIG9mIG9wZW5zc2wgd2l0aCB0aGUgQW5kcm9pZCBtaW5j
+cnlwdCBTSEEKZnVuY3Rpb25zLiBIb3dldmVyIGxlYXZlIHV0aWwvc2VsYWJlbF9kaWdlc3Qgc3Rp
+bGwgY29tcGFyaW5nCnRoZSByZXN1bHQgd2l0aCB0aGUgb3BlbnNzbCBjb21tYW5kICJvcGVuc3Ns
+IGRnc3QgLXNoYTEgLWhleCAuLiIKClRoaXMgc2hvdWxkIHJlc29sdmUgYW55IGxpYnJhcnkgbGlj
+ZW5zaW5nIGlzc3VlcyAoaG9wZWZ1bGx5KS4KClNpZ25lZC1vZmYtYnk6IFJpY2hhcmQgSGFpbmVz
+IDxyaWNoYXJkX2NfaGFpbmVzQGJ0aW50ZXJuZXQuY29tPgotLS0KIGxpYnNlbGludXgvc3JjL01h
+a2VmaWxlICAgICAgICAgICAgICAgICB8ICAgMiArLQogbGlic2VsaW51eC9zcmMvbGFiZWxfaW50
+ZXJuYWwuaCAgICAgICAgIHwgICA0ICstCiBsaWJzZWxpbnV4L3NyYy9sYWJlbF9zdXBwb3J0LmMg
+ICAgICAgICAgfCAgIDIgKy0KIGxpYnNlbGludXgvc3JjL21pbmNyeXB0X2hhc2gtaW50ZXJuYWwu
+aCB8ICA2MyArKysrKysrKysrKysrCiBsaWJzZWxpbnV4L3NyYy9taW5jcnlwdF9zaGEuYyAgICAg
+ICAgICAgfCAxNTUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKIGxpYnNlbGludXgv
+c3JjL21pbmNyeXB0X3NoYS5oICAgICAgICAgICB8ICA1MiArKysrKysrKysrKwogbGlic2VsaW51
+eC91dGlscy9NYWtlZmlsZSAgICAgICAgICAgICAgIHwgICAyICstCiA3IGZpbGVzIGNoYW5nZWQs
+IDI3NSBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAwNjQ0IGxp
+YnNlbGludXgvc3JjL21pbmNyeXB0X2hhc2gtaW50ZXJuYWwuaAogY3JlYXRlIG1vZGUgMTAwNjQ0
+IGxpYnNlbGludXgvc3JjL21pbmNyeXB0X3NoYS5jCiBjcmVhdGUgbW9kZSAxMDA2NDQgbGlic2Vs
+aW51eC9zcmMvbWluY3J5cHRfc2hhLmgKCmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L3NyYy9NYWtl
+ZmlsZSBiL2xpYnNlbGludXgvc3JjL01ha2VmaWxlCmluZGV4IDhlMjIyM2UuLmZlYWI1NjEgMTAw
+NjQ0Ci0tLSBhL2xpYnNlbGludXgvc3JjL01ha2VmaWxlCisrKyBiL2xpYnNlbGludXgvc3JjL01h
+a2VmaWxlCkBAIC0xMTIsNyArMTEyLDcgQEAgJChMSUJBKTogJChPQkpTKQogCSQoUkFOTElCKSAk
+QAogCiAkKExJQlNPKTogJChMT0JKUykKLQkkKENDKSAkKENGTEFHUykgLXNoYXJlZCAtbyAkQCAk
+XiAtbHBjcmUgLWxkbCAtbGNyeXB0byAkKExERkxBR1MpIC1MJChMSUJESVIpIC1XbCwtc29uYW1l
+LCQoTElCU08pLC16LGRlZnMsLXoscmVscm8KKwkkKENDKSAkKENGTEFHUykgLXNoYXJlZCAtbyAk
+QCAkXiAtbHBjcmUgLWxkbCAkKExERkxBR1MpIC1MJChMSUJESVIpIC1XbCwtc29uYW1lLCQoTElC
+U08pLC16LGRlZnMsLXoscmVscm8KIAlsbiAtc2YgJEAgJChUQVJHRVQpIAogCiAkKExJQlBDKTog
+JChMSUJQQykuaW4gLi4vVkVSU0lPTgpkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMvbGFiZWxf
+aW50ZXJuYWwuaCBiL2xpYnNlbGludXgvc3JjL2xhYmVsX2ludGVybmFsLmgKaW5kZXggMmFhN2E3
+Yi4uNTFkMWFmYiAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC9zcmMvbGFiZWxfaW50ZXJuYWwuaAor
+KysgYi9saWJzZWxpbnV4L3NyYy9sYWJlbF9pbnRlcm5hbC5oCkBAIC0xMSw3ICsxMSw3IEBACiAj
+aW5jbHVkZSA8c3RkbGliLmg+CiAjaW5jbHVkZSA8c3RkYXJnLmg+CiAjaW5jbHVkZSA8c3RkaW8u
+aD4KLSNpbmNsdWRlIDxvcGVuc3NsL3NoYS5oPgorI2luY2x1ZGUgIm1pbmNyeXB0X3NoYS5oIgog
+I2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPgogI2luY2x1ZGUgPHNlbGludXgvbGFiZWwuaD4K
+ICNpbmNsdWRlICJkc28uaCIKQEAgLTUxLDcgKzUxLDcgQEAgc3RydWN0IHNlbGFiZWxfc3ViIHsK
+ICAqIGNhbGN1bGF0ZSB0aGUgaGFzaCB0aGUgaGFzaGJ1ZiB3aWxsIGhvbGQgYSBjb25jYXRlbmF0
+aW9uIG9mIGFsbCB0aGUgZmlsZXMKICAqIHVzZWQuIFRoaXMgaXMgcmVsZWFzZWQgb25jZSB0aGUg
+dmFsdWUgaGFzIGJlZW4gY2FsY3VsYXRlZC4KICAqLwotI2RlZmluZSBESUdFU1RfU1BFQ0ZJTEVf
+U0laRSBTSEFfRElHRVNUX0xFTkdUSAorI2RlZmluZSBESUdFU1RfU1BFQ0ZJTEVfU0laRSBTSEFf
+RElHRVNUX1NJWkUKICNkZWZpbmUgRElHRVNUX0ZJTEVTX01BWCA4CiBzdHJ1Y3Qgc2VsYWJlbF9k
+aWdlc3QgewogCXVuc2lnbmVkIGNoYXIgKmRpZ2VzdDsJLyogU0hBMSBkaWdlc3Qgb2Ygc3BlY2Zp
+bGVzICovCmRpZmYgLS1naXQgYS9saWJzZWxpbnV4L3NyYy9sYWJlbF9zdXBwb3J0LmMgYi9saWJz
+ZWxpbnV4L3NyYy9sYWJlbF9zdXBwb3J0LmMKaW5kZXggYWM1Mjg4NS4uZGFhMGZiYSAxMDA2NDQK
+LS0tIGEvbGlic2VsaW51eC9zcmMvbGFiZWxfc3VwcG9ydC5jCisrKyBiL2xpYnNlbGludXgvc3Jj
+L2xhYmVsX3N1cHBvcnQuYwpAQCAtMTA0LDcgKzEwNCw3IEBAIHZvaWQgaGlkZGVuIGRpZ2VzdF9n
+ZW5faGFzaChzdHJ1Y3Qgc2VsYWJlbF9kaWdlc3QgKmRpZ2VzdCkKIAlpZiAoIWRpZ2VzdCkKIAkJ
+cmV0dXJuOwogCi0JU0hBMShkaWdlc3QtPmhhc2hidWYsIGRpZ2VzdC0+aGFzaGJ1Zl9zaXplLCBk
+aWdlc3QtPmRpZ2VzdCk7CisJU0hBX2hhc2goZGlnZXN0LT5oYXNoYnVmLCBkaWdlc3QtPmhhc2hi
+dWZfc2l6ZSwgZGlnZXN0LT5kaWdlc3QpOwogCWZyZWUoZGlnZXN0LT5oYXNoYnVmKTsKIAlkaWdl
+c3QtPmhhc2hidWYgPSBOVUxMOwogCXJldHVybjsKZGlmZiAtLWdpdCBhL2xpYnNlbGludXgvc3Jj
+L21pbmNyeXB0X2hhc2gtaW50ZXJuYWwuaCBiL2xpYnNlbGludXgvc3JjL21pbmNyeXB0X2hhc2gt
+aW50ZXJuYWwuaApuZXcgZmlsZSBtb2RlIDEwMDY0NAppbmRleCAwMDAwMDAwLi42YzM0ZDFkCi0t
+LSAvZGV2L251bGwKKysrIGIvbGlic2VsaW51eC9zcmMvbWluY3J5cHRfaGFzaC1pbnRlcm5hbC5o
+CkBAIC0wLDAgKzEsNjMgQEAKKy8qCisgKiBDb3B5cmlnaHQgMjAwNyBUaGUgQW5kcm9pZCBPcGVu
+IFNvdXJjZSBQcm9qZWN0CisgKgorICogUmVkaXN0cmlidXRpb24gYW5kIHVzZSBpbiBzb3VyY2Ug
+YW5kIGJpbmFyeSBmb3Jtcywgd2l0aCBvciB3aXRob3V0CisgKiBtb2RpZmljYXRpb24sIGFyZSBw
+ZXJtaXR0ZWQgcHJvdmlkZWQgdGhhdCB0aGUgZm9sbG93aW5nIGNvbmRpdGlvbnMgYXJlIG1ldDoK
+KyAqICAgICAqIFJlZGlzdHJpYnV0aW9ucyBvZiBzb3VyY2UgY29kZSBtdXN0IHJldGFpbiB0aGUg
+YWJvdmUgY29weXJpZ2h0CisgKiAgICAgICBub3RpY2UsIHRoaXMgbGlzdCBvZiBjb25kaXRpb25z
+IGFuZCB0aGUgZm9sbG93aW5nIGRpc2NsYWltZXIuCisgKiAgICAgKiBSZWRpc3RyaWJ1dGlvbnMg
+aW4gYmluYXJ5IGZvcm0gbXVzdCByZXByb2R1Y2UgdGhlIGFib3ZlIGNvcHlyaWdodAorICogICAg
+ICAgbm90aWNlLCB0aGlzIGxpc3Qgb2YgY29uZGl0aW9ucyBhbmQgdGhlIGZvbGxvd2luZyBkaXNj
+bGFpbWVyIGluIHRoZQorICogICAgICAgZG9jdW1lbnRhdGlvbiBhbmQvb3Igb3RoZXIgbWF0ZXJp
+YWxzIHByb3ZpZGVkIHdpdGggdGhlIGRpc3RyaWJ1dGlvbi4KKyAqICAgICAqIE5laXRoZXIgdGhl
+IG5hbWUgb2YgR29vZ2xlIEluYy4gbm9yIHRoZSBuYW1lcyBvZiBpdHMgY29udHJpYnV0b3JzIG1h
+eQorICogICAgICAgYmUgdXNlZCB0byBlbmRvcnNlIG9yIHByb21vdGUgcHJvZHVjdHMgZGVyaXZl
+ZCBmcm9tIHRoaXMgc29mdHdhcmUKKyAqICAgICAgIHdpdGhvdXQgc3BlY2lmaWMgcHJpb3Igd3Jp
+dHRlbiBwZXJtaXNzaW9uLgorICoKKyAqIFRISVMgU09GVFdBUkUgSVMgUFJPVklERUQgQlkgR29v
+Z2xlIEluYy4gYGBBUyBJUycnIEFORCBBTlkgRVhQUkVTUyBPUgorICogSU1QTElFRCBXQVJSQU5U
+SUVTLCBJTkNMVURJTkcsIEJVVCBOT1QgTElNSVRFRCBUTywgVEhFIElNUExJRUQgV0FSUkFOVElF
+UyBPRgorICogTUVSQ0hBTlRBQklMSVRZIEFORCBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVS
+UE9TRSBBUkUgRElTQ0xBSU1FRC4gSU4gTk8KKyAqIEVWRU5UIFNIQUxMIEdvb2dsZSBJbmMuIEJF
+IExJQUJMRSBGT1IgQU5ZIERJUkVDVCwgSU5ESVJFQ1QsIElOQ0lERU5UQUwsCisgKiBTUEVDSUFM
+LCBFWEVNUExBUlksIE9SIENPTlNFUVVFTlRJQUwgREFNQUdFUyAoSU5DTFVESU5HLCBCVVQgTk9U
+IExJTUlURUQgVE8sCisgKiBQUk9DVVJFTUVOVCBPRiBTVUJTVElUVVRFIEdPT0RTIE9SIFNFUlZJ
+Q0VTOyBMT1NTIE9GIFVTRSwgREFUQSwgT1IgUFJPRklUUzsKKyAqIE9SIEJVU0lORVNTIElOVEVS
+UlVQVElPTikgSE9XRVZFUiBDQVVTRUQgQU5EIE9OIEFOWSBUSEVPUlkgT0YgTElBQklMSVRZLAor
+ICogV0hFVEhFUiBJTiBDT05UUkFDVCwgU1RSSUNUIExJQUJJTElUWSwgT1IgVE9SVCAoSU5DTFVE
+SU5HIE5FR0xJR0VOQ0UgT1IKKyAqIE9USEVSV0lTRSkgQVJJU0lORyBJTiBBTlkgV0FZIE9VVCBP
+RiBUSEUgVVNFIE9GIFRISVMgU09GVFdBUkUsIEVWRU4gSUYKKyAqIEFEVklTRUQgT0YgVEhFIFBP
+U1NJQklMSVRZIE9GIFNVQ0ggREFNQUdFLgorICovCisKKyNpZm5kZWYgTUlOQ1JZUFRfSEFTSF9J
+TlRFUk5BTF9IXworI2RlZmluZSBNSU5DUllQVF9IQVNIX0lOVEVSTkFMX0hfCisKKyNpbmNsdWRl
+IDxzdGRpbnQuaD4KKworI2lmZGVmIF9fY3BsdXNwbHVzCitleHRlcm4gIkMiIHsKKyNlbmRpZiAg
+Ly8gX19jcGx1c3BsdXMKKworc3RydWN0IEhBU0hfQ1RYOyAgLy8gZm9yd2FyZCBkZWNsCisKK3R5
+cGVkZWYgc3RydWN0IEhBU0hfVlRBQiB7CisgIHZvaWQgKCogY29uc3QgaW5pdCkoc3RydWN0IEhB
+U0hfQ1RYKik7CisgIHZvaWQgKCogY29uc3QgdXBkYXRlKShzdHJ1Y3QgSEFTSF9DVFgqLCBjb25z
+dCB2b2lkKiwgaW50KTsKKyAgY29uc3QgdWludDhfdCogKCogY29uc3QgZmluYWwpKHN0cnVjdCBI
+QVNIX0NUWCopOworICBjb25zdCB1aW50OF90KiAoKiBjb25zdCBoYXNoKShjb25zdCB2b2lkKiwg
+aW50LCB1aW50OF90Kik7CisgIGludCBzaXplOworfSBIQVNIX1ZUQUI7CisKK3R5cGVkZWYgc3Ry
+dWN0IEhBU0hfQ1RYIHsKKyAgY29uc3QgSEFTSF9WVEFCICogZjsKKyAgdWludDY0X3QgY291bnQ7
+CisgIHVpbnQ4X3QgYnVmWzY0XTsKKyAgdWludDMyX3Qgc3RhdGVbOF07ICAvLyB1cHRvIFNIQTIK
+K30gSEFTSF9DVFg7CisKKyNkZWZpbmUgSEFTSF9pbml0KGN0eCkgKGN0eCktPmYtPmluaXQoY3R4
+KQorI2RlZmluZSBIQVNIX3VwZGF0ZShjdHgsIGRhdGEsIGxlbikgKGN0eCktPmYtPnVwZGF0ZShj
+dHgsIGRhdGEsIGxlbikKKyNkZWZpbmUgSEFTSF9maW5hbChjdHgpIChjdHgpLT5mLT5maW5hbChj
+dHgpCisjZGVmaW5lIEhBU0hfaGFzaChkYXRhLCBsZW4sIGRpZ2VzdCkgKGN0eCktPmYtPmhhc2go
+ZGF0YSwgbGVuLCBkaWdlc3QpCisjZGVmaW5lIEhBU0hfc2l6ZShjdHgpIChjdHgpLT5mLT5zaXpl
+CisKKyNpZmRlZiBfX2NwbHVzcGx1cworfQorI2VuZGlmICAvLyBfX2NwbHVzcGx1cworCisjZW5k
+aWYgIC8vIE1JTkNSWVBUX0hBU0hfSU5URVJOQUxfSF8KZGlmZiAtLWdpdCBhL2xpYnNlbGludXgv
+c3JjL21pbmNyeXB0X3NoYS5jIGIvbGlic2VsaW51eC9zcmMvbWluY3J5cHRfc2hhLmMKbmV3IGZp
+bGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMC4uOTU0OGE0NwotLS0gL2Rldi9udWxsCisrKyBi
+L2xpYnNlbGludXgvc3JjL21pbmNyeXB0X3NoYS5jCkBAIC0wLDAgKzEsMTU1IEBACisvKiBzaGEu
+YworKioKKyoqIENvcHlyaWdodCAyMDEzLCBUaGUgQW5kcm9pZCBPcGVuIFNvdXJjZSBQcm9qZWN0
+CisqKgorKiogUmVkaXN0cmlidXRpb24gYW5kIHVzZSBpbiBzb3VyY2UgYW5kIGJpbmFyeSBmb3Jt
+cywgd2l0aCBvciB3aXRob3V0CisqKiBtb2RpZmljYXRpb24sIGFyZSBwZXJtaXR0ZWQgcHJvdmlk
+ZWQgdGhhdCB0aGUgZm9sbG93aW5nIGNvbmRpdGlvbnMgYXJlIG1ldDoKKyoqICAgICAqIFJlZGlz
+dHJpYnV0aW9ucyBvZiBzb3VyY2UgY29kZSBtdXN0IHJldGFpbiB0aGUgYWJvdmUgY29weXJpZ2h0
+CisqKiAgICAgICBub3RpY2UsIHRoaXMgbGlzdCBvZiBjb25kaXRpb25zIGFuZCB0aGUgZm9sbG93
+aW5nIGRpc2NsYWltZXIuCisqKiAgICAgKiBSZWRpc3RyaWJ1dGlvbnMgaW4gYmluYXJ5IGZvcm0g
+bXVzdCByZXByb2R1Y2UgdGhlIGFib3ZlIGNvcHlyaWdodAorKiogICAgICAgbm90aWNlLCB0aGlz
+IGxpc3Qgb2YgY29uZGl0aW9ucyBhbmQgdGhlIGZvbGxvd2luZyBkaXNjbGFpbWVyIGluIHRoZQor
+KiogICAgICAgZG9jdW1lbnRhdGlvbiBhbmQvb3Igb3RoZXIgbWF0ZXJpYWxzIHByb3ZpZGVkIHdp
+dGggdGhlIGRpc3RyaWJ1dGlvbi4KKyoqICAgICAqIE5laXRoZXIgdGhlIG5hbWUgb2YgR29vZ2xl
+IEluYy4gbm9yIHRoZSBuYW1lcyBvZiBpdHMgY29udHJpYnV0b3JzIG1heQorKiogICAgICAgYmUg
+dXNlZCB0byBlbmRvcnNlIG9yIHByb21vdGUgcHJvZHVjdHMgZGVyaXZlZCBmcm9tIHRoaXMgc29m
+dHdhcmUKKyoqICAgICAgIHdpdGhvdXQgc3BlY2lmaWMgcHJpb3Igd3JpdHRlbiBwZXJtaXNzaW9u
+LgorKioKKyoqIFRISVMgU09GVFdBUkUgSVMgUFJPVklERUQgQlkgR29vZ2xlIEluYy4gYGBBUyBJ
+UycnIEFORCBBTlkgRVhQUkVTUyBPUgorKiogSU1QTElFRCBXQVJSQU5USUVTLCBJTkNMVURJTkcs
+IEJVVCBOT1QgTElNSVRFRCBUTywgVEhFIElNUExJRUQgV0FSUkFOVElFUyBPRgorKiogTUVSQ0hB
+TlRBQklMSVRZIEFORCBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRSBBUkUgRElTQ0xB
+SU1FRC4gSU4gTk8KKyoqIEVWRU5UIFNIQUxMIEdvb2dsZSBJbmMuIEJFIExJQUJMRSBGT1IgQU5Z
+IERJUkVDVCwgSU5ESVJFQ1QsIElOQ0lERU5UQUwsCisqKiBTUEVDSUFMLCBFWEVNUExBUlksIE9S
+IENPTlNFUVVFTlRJQUwgREFNQUdFUyAoSU5DTFVESU5HLCBCVVQgTk9UIExJTUlURUQgVE8sCisq
+KiBQUk9DVVJFTUVOVCBPRiBTVUJTVElUVVRFIEdPT0RTIE9SIFNFUlZJQ0VTOyBMT1NTIE9GIFVT
+RSwgREFUQSwgT1IgUFJPRklUUzsKKyoqIE9SIEJVU0lORVNTIElOVEVSUlVQVElPTikgSE9XRVZF
+UiBDQVVTRUQgQU5EIE9OIEFOWSBUSEVPUlkgT0YgTElBQklMSVRZLAorKiogV0hFVEhFUiBJTiBD
+T05UUkFDVCwgU1RSSUNUIExJQUJJTElUWSwgT1IgVE9SVCAoSU5DTFVESU5HIE5FR0xJR0VOQ0Ug
+T1IKKyoqIE9USEVSV0lTRSkgQVJJU0lORyBJTiBBTlkgV0FZIE9VVCBPRiBUSEUgVVNFIE9GIFRI
+SVMgU09GVFdBUkUsIEVWRU4gSUYKKyoqIEFEVklTRUQgT0YgVEhFIFBPU1NJQklMSVRZIE9GIFNV
+Q0ggREFNQUdFLgorKi8KKworLy8gT3B0aW1pemVkIGZvciBtaW5pbWFsIGNvZGUgc2l6ZS4KKwor
+I2luY2x1ZGUgIm1pbmNyeXB0X3NoYS5oIgorCisjaW5jbHVkZSA8c3RkaW8uaD4KKyNpbmNsdWRl
+IDxzdHJpbmcuaD4KKyNpbmNsdWRlIDxzdGRpbnQuaD4KKworI2RlZmluZSByb2woYml0cywgdmFs
+dWUpICgoKHZhbHVlKSA8PCAoYml0cykpIHwgKCh2YWx1ZSkgPj4gKDMyIC0gKGJpdHMpKSkpCisK
+K3N0YXRpYyB2b2lkIFNIQTFfVHJhbnNmb3JtKFNIQV9DVFgqIGN0eCkgeworICAgIHVpbnQzMl90
+IFdbODBdOworICAgIHVpbnQzMl90IEEsIEIsIEMsIEQsIEU7CisgICAgdWludDhfdCogcCA9IGN0
+eC0+YnVmOworICAgIGludCB0OworCisgICAgZm9yKHQgPSAwOyB0IDwgMTY7ICsrdCkgeworICAg
+ICAgICB1aW50MzJfdCB0bXAgPSAgKnArKyA8PCAyNDsKKyAgICAgICAgdG1wIHw9ICpwKysgPDwg
+MTY7CisgICAgICAgIHRtcCB8PSAqcCsrIDw8IDg7CisgICAgICAgIHRtcCB8PSAqcCsrOworICAg
+ICAgICBXW3RdID0gdG1wOworICAgIH0KKworICAgIGZvcig7IHQgPCA4MDsgdCsrKSB7CisgICAg
+ICAgIFdbdF0gPSByb2woMSxXW3QtM10gXiBXW3QtOF0gXiBXW3QtMTRdIF4gV1t0LTE2XSk7Cisg
+ICAgfQorCisgICAgQSA9IGN0eC0+c3RhdGVbMF07CisgICAgQiA9IGN0eC0+c3RhdGVbMV07Cisg
+ICAgQyA9IGN0eC0+c3RhdGVbMl07CisgICAgRCA9IGN0eC0+c3RhdGVbM107CisgICAgRSA9IGN0
+eC0+c3RhdGVbNF07CisKKyAgICBmb3IodCA9IDA7IHQgPCA4MDsgdCsrKSB7CisgICAgICAgIHVp
+bnQzMl90IHRtcCA9IHJvbCg1LEEpICsgRSArIFdbdF07CisKKyAgICAgICAgaWYgKHQgPCAyMCkK
+KyAgICAgICAgICAgIHRtcCArPSAoRF4oQiYoQ15EKSkpICsgMHg1QTgyNzk5OTsKKyAgICAgICAg
+ZWxzZSBpZiAoIHQgPCA0MCkKKyAgICAgICAgICAgIHRtcCArPSAoQl5DXkQpICsgMHg2RUQ5RUJB
+MTsKKyAgICAgICAgZWxzZSBpZiAoIHQgPCA2MCkKKyAgICAgICAgICAgIHRtcCArPSAoKEImQyl8
+KEQmKEJ8QykpKSArIDB4OEYxQkJDREM7CisgICAgICAgIGVsc2UKKyAgICAgICAgICAgIHRtcCAr
+PSAoQl5DXkQpICsgMHhDQTYyQzFENjsKKworICAgICAgICBFID0gRDsKKyAgICAgICAgRCA9IEM7
+CisgICAgICAgIEMgPSByb2woMzAsQik7CisgICAgICAgIEIgPSBBOworICAgICAgICBBID0gdG1w
+OworICAgIH0KKworICAgIGN0eC0+c3RhdGVbMF0gKz0gQTsKKyAgICBjdHgtPnN0YXRlWzFdICs9
+IEI7CisgICAgY3R4LT5zdGF0ZVsyXSArPSBDOworICAgIGN0eC0+c3RhdGVbM10gKz0gRDsKKyAg
+ICBjdHgtPnN0YXRlWzRdICs9IEU7Cit9CisKK3N0YXRpYyBjb25zdCBIQVNIX1ZUQUIgU0hBX1ZU
+QUIgPSB7CisgICAgU0hBX2luaXQsCisgICAgU0hBX3VwZGF0ZSwKKyAgICBTSEFfZmluYWwsCisg
+ICAgU0hBX2hhc2gsCisgICAgU0hBX0RJR0VTVF9TSVpFCit9OworCit2b2lkIFNIQV9pbml0KFNI
+QV9DVFgqIGN0eCkgeworICAgIGN0eC0+ZiA9ICZTSEFfVlRBQjsKKyAgICBjdHgtPnN0YXRlWzBd
+ID0gMHg2NzQ1MjMwMTsKKyAgICBjdHgtPnN0YXRlWzFdID0gMHhFRkNEQUI4OTsKKyAgICBjdHgt
+PnN0YXRlWzJdID0gMHg5OEJBRENGRTsKKyAgICBjdHgtPnN0YXRlWzNdID0gMHgxMDMyNTQ3NjsK
+KyAgICBjdHgtPnN0YXRlWzRdID0gMHhDM0QyRTFGMDsKKyAgICBjdHgtPmNvdW50ID0gMDsKK30K
+KworCit2b2lkIFNIQV91cGRhdGUoU0hBX0NUWCogY3R4LCBjb25zdCB2b2lkKiBkYXRhLCBpbnQg
+bGVuKSB7CisgICAgaW50IGkgPSAoaW50KSAoY3R4LT5jb3VudCAmIDYzKTsKKyAgICBjb25zdCB1
+aW50OF90KiBwID0gKGNvbnN0IHVpbnQ4X3QqKWRhdGE7CisKKyAgICBjdHgtPmNvdW50ICs9IGxl
+bjsKKworICAgIHdoaWxlIChsZW4tLSkgeworICAgICAgICBjdHgtPmJ1ZltpKytdID0gKnArKzsK
+KyAgICAgICAgaWYgKGkgPT0gNjQpIHsKKyAgICAgICAgICAgIFNIQTFfVHJhbnNmb3JtKGN0eCk7
+CisgICAgICAgICAgICBpID0gMDsKKyAgICAgICAgfQorICAgIH0KK30KKworCitjb25zdCB1aW50
+OF90KiBTSEFfZmluYWwoU0hBX0NUWCogY3R4KSB7CisgICAgdWludDhfdCAqcCA9IGN0eC0+YnVm
+OworICAgIHVpbnQ2NF90IGNudCA9IGN0eC0+Y291bnQgKiA4OworICAgIGludCBpOworCisgICAg
+U0hBX3VwZGF0ZShjdHgsICh1aW50OF90KikiXHg4MCIsIDEpOworICAgIHdoaWxlICgoY3R4LT5j
+b3VudCAmIDYzKSAhPSA1NikgeworICAgICAgICBTSEFfdXBkYXRlKGN0eCwgKHVpbnQ4X3QqKSJc
+MCIsIDEpOworICAgIH0KKyAgICBmb3IgKGkgPSAwOyBpIDwgODsgKytpKSB7CisgICAgICAgIHVp
+bnQ4X3QgdG1wID0gKHVpbnQ4X3QpIChjbnQgPj4gKCg3IC0gaSkgKiA4KSk7CisgICAgICAgIFNI
+QV91cGRhdGUoY3R4LCAmdG1wLCAxKTsKKyAgICB9CisKKyAgICBmb3IgKGkgPSAwOyBpIDwgNTsg
+aSsrKSB7CisgICAgICAgIHVpbnQzMl90IHRtcCA9IGN0eC0+c3RhdGVbaV07CisgICAgICAgICpw
+KysgPSB0bXAgPj4gMjQ7CisgICAgICAgICpwKysgPSB0bXAgPj4gMTY7CisgICAgICAgICpwKysg
+PSB0bXAgPj4gODsKKyAgICAgICAgKnArKyA9IHRtcCA+PiAwOworICAgIH0KKworICAgIHJldHVy
+biBjdHgtPmJ1ZjsKK30KKworLyogQ29udmVuaWVuY2UgZnVuY3Rpb24gKi8KK2NvbnN0IHVpbnQ4
+X3QqIFNIQV9oYXNoKGNvbnN0IHZvaWQqIGRhdGEsIGludCBsZW4sIHVpbnQ4X3QqIGRpZ2VzdCkg
+eworICAgIFNIQV9DVFggY3R4OworICAgIFNIQV9pbml0KCZjdHgpOworICAgIFNIQV91cGRhdGUo
+JmN0eCwgZGF0YSwgbGVuKTsKKyAgICBtZW1jcHkoZGlnZXN0LCBTSEFfZmluYWwoJmN0eCksIFNI
+QV9ESUdFU1RfU0laRSk7CisgICAgcmV0dXJuIGRpZ2VzdDsKK30KZGlmZiAtLWdpdCBhL2xpYnNl
+bGludXgvc3JjL21pbmNyeXB0X3NoYS5oIGIvbGlic2VsaW51eC9zcmMvbWluY3J5cHRfc2hhLmgK
+bmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMC4uMzVjNGI4NgotLS0gL2Rldi9udWxs
+CisrKyBiL2xpYnNlbGludXgvc3JjL21pbmNyeXB0X3NoYS5oCkBAIC0wLDAgKzEsNTIgQEAKKy8q
+CisgKiBDb3B5cmlnaHQgMjAwNSBUaGUgQW5kcm9pZCBPcGVuIFNvdXJjZSBQcm9qZWN0CisgKgor
+ICogUmVkaXN0cmlidXRpb24gYW5kIHVzZSBpbiBzb3VyY2UgYW5kIGJpbmFyeSBmb3Jtcywgd2l0
+aCBvciB3aXRob3V0CisgKiBtb2RpZmljYXRpb24sIGFyZSBwZXJtaXR0ZWQgcHJvdmlkZWQgdGhh
+dCB0aGUgZm9sbG93aW5nIGNvbmRpdGlvbnMgYXJlIG1ldDoKKyAqICAgICAqIFJlZGlzdHJpYnV0
+aW9ucyBvZiBzb3VyY2UgY29kZSBtdXN0IHJldGFpbiB0aGUgYWJvdmUgY29weXJpZ2h0CisgKiAg
+ICAgICBub3RpY2UsIHRoaXMgbGlzdCBvZiBjb25kaXRpb25zIGFuZCB0aGUgZm9sbG93aW5nIGRp
+c2NsYWltZXIuCisgKiAgICAgKiBSZWRpc3RyaWJ1dGlvbnMgaW4gYmluYXJ5IGZvcm0gbXVzdCBy
+ZXByb2R1Y2UgdGhlIGFib3ZlIGNvcHlyaWdodAorICogICAgICAgbm90aWNlLCB0aGlzIGxpc3Qg
+b2YgY29uZGl0aW9ucyBhbmQgdGhlIGZvbGxvd2luZyBkaXNjbGFpbWVyIGluIHRoZQorICogICAg
+ICAgZG9jdW1lbnRhdGlvbiBhbmQvb3Igb3RoZXIgbWF0ZXJpYWxzIHByb3ZpZGVkIHdpdGggdGhl
+IGRpc3RyaWJ1dGlvbi4KKyAqICAgICAqIE5laXRoZXIgdGhlIG5hbWUgb2YgR29vZ2xlIEluYy4g
+bm9yIHRoZSBuYW1lcyBvZiBpdHMgY29udHJpYnV0b3JzIG1heQorICogICAgICAgYmUgdXNlZCB0
+byBlbmRvcnNlIG9yIHByb21vdGUgcHJvZHVjdHMgZGVyaXZlZCBmcm9tIHRoaXMgc29mdHdhcmUK
+KyAqICAgICAgIHdpdGhvdXQgc3BlY2lmaWMgcHJpb3Igd3JpdHRlbiBwZXJtaXNzaW9uLgorICoK
+KyAqIFRISVMgU09GVFdBUkUgSVMgUFJPVklERUQgQlkgR29vZ2xlIEluYy4gYGBBUyBJUycnIEFO
+RCBBTlkgRVhQUkVTUyBPUgorICogSU1QTElFRCBXQVJSQU5USUVTLCBJTkNMVURJTkcsIEJVVCBO
+T1QgTElNSVRFRCBUTywgVEhFIElNUExJRUQgV0FSUkFOVElFUyBPRgorICogTUVSQ0hBTlRBQklM
+SVRZIEFORCBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRSBBUkUgRElTQ0xBSU1FRC4g
+SU4gTk8KKyAqIEVWRU5UIFNIQUxMIEdvb2dsZSBJbmMuIEJFIExJQUJMRSBGT1IgQU5ZIERJUkVD
+VCwgSU5ESVJFQ1QsIElOQ0lERU5UQUwsCisgKiBTUEVDSUFMLCBFWEVNUExBUlksIE9SIENPTlNF
+UVVFTlRJQUwgREFNQUdFUyAoSU5DTFVESU5HLCBCVVQgTk9UIExJTUlURUQgVE8sCisgKiBQUk9D
+VVJFTUVOVCBPRiBTVUJTVElUVVRFIEdPT0RTIE9SIFNFUlZJQ0VTOyBMT1NTIE9GIFVTRSwgREFU
+QSwgT1IgUFJPRklUUzsKKyAqIE9SIEJVU0lORVNTIElOVEVSUlVQVElPTikgSE9XRVZFUiBDQVVT
+RUQgQU5EIE9OIEFOWSBUSEVPUlkgT0YgTElBQklMSVRZLAorICogV0hFVEhFUiBJTiBDT05UUkFD
+VCwgU1RSSUNUIExJQUJJTElUWSwgT1IgVE9SVCAoSU5DTFVESU5HIE5FR0xJR0VOQ0UgT1IKKyAq
+IE9USEVSV0lTRSkgQVJJU0lORyBJTiBBTlkgV0FZIE9VVCBPRiBUSEUgVVNFIE9GIFRISVMgU09G
+VFdBUkUsIEVWRU4gSUYKKyAqIEFEVklTRUQgT0YgVEhFIFBPU1NJQklMSVRZIE9GIFNVQ0ggREFN
+QUdFLgorICovCisjaWZuZGVmIE1JTkNSWVBUX1NIQTFfSF8KKyNkZWZpbmUgTUlOQ1JZUFRfU0hB
+MV9IXworCisjaW5jbHVkZSA8c3RkaW50Lmg+CisjaW5jbHVkZSAibWluY3J5cHRfaGFzaC1pbnRl
+cm5hbC5oIgorCisjaWZkZWYgX19jcGx1c3BsdXMKK2V4dGVybiAiQyIgeworI2VuZGlmIC8vIF9f
+Y3BsdXNwbHVzCisKK3R5cGVkZWYgSEFTSF9DVFggU0hBX0NUWDsKKwordm9pZCBTSEFfaW5pdChT
+SEFfQ1RYKiBjdHgpOwordm9pZCBTSEFfdXBkYXRlKFNIQV9DVFgqIGN0eCwgY29uc3Qgdm9pZCog
+ZGF0YSwgaW50IGxlbik7Citjb25zdCB1aW50OF90KiBTSEFfZmluYWwoU0hBX0NUWCogY3R4KTsK
+KworLy8gQ29udmVuaWVuY2UgbWV0aG9kLiBSZXR1cm5zIGRpZ2VzdCBhZGRyZXNzLgorLy8gTk9U
+RTogKmRpZ2VzdCBuZWVkcyB0byBob2xkIFNIQV9ESUdFU1RfU0laRSBieXRlcy4KK2NvbnN0IHVp
+bnQ4X3QqIFNIQV9oYXNoKGNvbnN0IHZvaWQqIGRhdGEsIGludCBsZW4sIHVpbnQ4X3QqIGRpZ2Vz
+dCk7CisKKyNkZWZpbmUgU0hBX0RJR0VTVF9TSVpFIDIwCisKKyNpZmRlZiBfX2NwbHVzcGx1cwor
+fQorI2VuZGlmIC8vIF9fY3BsdXNwbHVzCisKKyNlbmRpZiAgLy8gTUlOQ1JZUFRfU0hBMV9IXwpk
+aWZmIC0tZ2l0IGEvbGlic2VsaW51eC91dGlscy9NYWtlZmlsZSBiL2xpYnNlbGludXgvdXRpbHMv
+TWFrZWZpbGUKaW5kZXggNWRkYTY2ZS4uY2FjODVjNyAxMDA2NDQKLS0tIGEvbGlic2VsaW51eC91
+dGlscy9NYWtlZmlsZQorKysgYi9saWJzZWxpbnV4L3V0aWxzL01ha2VmaWxlCkBAIC0yOCw3ICsy
+OCw3IEBAIExETElCUyArPSAtTC4uL3NyYyAtbHNlbGludXggLUwkKExJQkRJUikKIAogVEFSR0VU
+Uz0kKHBhdHN1YnN0ICUuYywlLCQod2lsZGNhcmQgKi5jKSkKIAotc2VmY29udGV4dF9jb21waWxl
+OiBMRExJQlMgKz0gLWxwY3JlIC1sY3J5cHRvIC4uL3NyYy9saWJzZWxpbnV4LmEgLWxzZXBvbAor
+c2VmY29udGV4dF9jb21waWxlOiBMRExJQlMgKz0gLWxwY3JlIC4uL3NyYy9saWJzZWxpbnV4LmEg
+LWxzZXBvbAogCiBpZmVxICgkKERJU0FCTEVfQVZDKSx5KQogCVVOVVNFRF9UQVJHRVRTKz1jb21w
+dXRlX2F2IGNvbXB1dGVfY3JlYXRlIGNvbXB1dGVfbWVtYmVyIGNvbXB1dGVfcmVsYWJlbAotLSAK
+Mi40LjMKCg==
 
--- 
-paul moore
-security @ redhat
+------=_Part_392599_2016510239.1445344058683--
