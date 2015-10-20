@@ -1,136 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9KHI0eo024984
- for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 13:18:00 -0400
-Received: by ykba4 with SMTP id a4so17439820ykb.3
- for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 10:17:28 -0700 (PDT)
-Received: from urd.int.mimisbrunnr.net
- (pool-71-121-222-212.bltmmd.fios.verizon.net. [71.121.222.212])
- by smtp.gmail.com with ESMTPSA id j63sm2440269ywg.52.2015.10.20.10.17.27
- for <selinux@tycho.nsa.gov>
- (version=TLSv1 cipher=ECDHE-RSA-RC4-SHA bits=128/128);
- Tue, 20 Oct 2015 10:17:27 -0700 (PDT)
-From: Andrew Ruef <andrew@trailofbits.com>
-Content-Type: multipart/signed;
- boundary="Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D";
- protocol="application/pkcs7-signature"; micalg=sha1
-Subject: Static analysis to assist policy creation?
-Message-Id: <85D0FAC1-423C-49CF-801D-E5EB160A9834@trailofbits.com>
-Date: Tue, 20 Oct 2015 13:17:27 -0400
-To: selinux@tycho.nsa.gov
-Mime-Version: 1.0 (Mac OS X Mail 9.0 \(3094\))
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9KIjp4x031872
+ for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 14:45:51 -0400
+Received: by pasz6 with SMTP id z6so28939193pas.2
+ for <selinux@tycho.nsa.gov>; Tue, 20 Oct 2015 11:45:49 -0700 (PDT)
+Date: Wed, 21 Oct 2015 02:45:45 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Joshua Brindle <brindle@quarksecurity.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: did libselinux grow a new build dependency? (openssl-devel:
+ openssl.h)
+Message-ID: <20151020184545.GA5255@meriadoc>
+References: <20151018140730.GB19335@x250>
+ <1360366462.3121760.1445180447166.JavaMail.yahoo@mail.yahoo.com>
+ <562531F6.8010609@tycho.nsa.gov>
+ <562644AE.3080001@quarksecurity.com>
+ <5626452C.6010806@tycho.nsa.gov>
+ <56264829.5040609@quarksecurity.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <56264829.5040609@quarksecurity.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Tue, Oct 20, 2015 at 09:56:57AM -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On 10/20/2015 09:42 AM, Joshua Brindle wrote:
+> >> Stephen Smalley wrote:
+> >> <snip>
+> >>>
+> >>> Wondering if dependency on openssl might be a license issue for Debian
+> >>> or others. Apparently openssl license is considered GPL-incompatible [1]
+> >>> [2], and obviously libselinux is linked by a variety of GPL-licensed
+> >>> programs. Fedora seems to view this as falling under the system library
+> >>> exception [3] but not clear that other distributions would view it that
+> >>> way. On the other hand, using gnutls would be subject to the reverse
+> >>> problem; it would make libselinux depend on a LGPL library, and that
+> >>> could create issues for non-GPL programs that statically link
+> >>> libselinux. We might need to revert this change and revisit how to solve
+> >>> this in a manner that avoids such issues.
+> >>
+> >> LGPL explicitly allows non-GPL programs to link against an LGPL licensed
+> >> library without tainting the non-GPL program, which is the whole point
+> >> of the LGPL. Is there some other issue with static linking or something?
+> >
+> > Yes, that's the concern.
+> 
+> So, not static linking but a fully static binary that would pull gnutls 
+> into the binary?
+> 
+> What static binaries exist like that? It is not a great idea to carry 
+> around system level libraries statically.
 
---Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
+>From a quick look through Gentoo, we have a USE-flag to build busybox
+and LVM and a few other core tools statically which requres libselinux.a
+too.
 
-Hello SELinux list,=20
-
-We=E2=80=99ve been thinking about creating a static (or potentially =
-concolic) analysis and testing infrastructure that would assist in the =
-creation of finer grained SELinux policies than audit2allow. We think =
-that some work can be done through alias analysis and domain specific =
-object (strings, memory regions/files, etc) analysis wholly statically, =
-but we=E2=80=99ve developed an extensive symbolic execution system for =
-C/binary programs that could also be applied.=20
-
-I=E2=80=99ve done some searching and asking around and it doesn=E2=80=99t =
-seem like there are any tools that do this. I=E2=80=99m aware of some =
-past projects that made use of static analysis tools to help create =
-security policies, like the IBM SWORD4J work. The IBM people seemed =
-really happy with those results and they have relayed that it really =
-helped their internal efforts for security labeling, so maybe there is =
-some hope for tools in this area.=20
-
-My question is two-fold
-
-1. Is there a history of using static analysis to create SELinux =
-policies that I haven=E2=80=99t found so far?
-
-2. Is there any interest in the community for such an effort today?
-
-Thank you,
-
-Andrew=
-
---Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D
-Content-Disposition: attachment;
-	filename=smime.p7s
-Content-Type: application/pkcs7-signature;
-	name=smime.p7s
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIILxTCCBW8w
-ggRXoAMCAQICEAO0N6kWgK5eZd5vbagxTIkwDQYJKoZIhvcNAQELBQAwZTELMAkGA1UEBhMCVVMx
-FTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTEkMCIGA1UE
-AxMbRGlnaUNlcnQgU0hBMiBBc3N1cmVkIElEIENBMB4XDTE0MTEwNDAwMDAwMFoXDTE1MTEwNDEy
-MDAwMFowgY4xCzAJBgNVBAYTAlVTMREwDwYDVQQIEwhOZXcgWW9yazERMA8GA1UEBxMITmV3IFlv
-cmsxHDAaBgNVBAoTE1RyYWlsIG9mIEJpdHMsIEluYy4xFDASBgNVBAMTC0FuZHJldyBSdWVmMSUw
-IwYJKoZIhvcNAQkBFhZhbmRyZXdAdHJhaWxvZmJpdHMuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOC
-AQ8AMIIBCgKCAQEAwCHLDmINfB2LBrKAADUbw92JMEZhjTNupww1uYk+Jfx/an9eVIGSX2HiaVKm
-UpOmnLWIYBkpn5Nny+U9xj2gSvZLGxxh3d+ypkHDwyKO7RbqDnuWQpaE6HolFLq0MOX1qEuFG8WT
-cU+FlLQI+TZB54ezzoo8KjmPFlEw8T9wOqG+/Ak7mnFJskkxXG64Ze2RGUh0TgJRT3ELx7NkVImq
-VptXc3Qgf+ku4zWhpstODJYfS3OO9yxJya3+S5c7bezZjO4AA/JjfPTTGGbc9fgGtmiWG83yPoGe
-MnxV7O4C13qQIOnJ9PWRFnpINu/3isxQ8IRRehV9JE9iHNy6qM3ovQIDAQABo4IB7zCCAeswHwYD
-VR0jBBgwFoAU5wIjgABP2Ne8lAvZP3Q5STI8inkwHQYDVR0OBBYEFKu8RjIwHV8HDbnxjYOvzloG
-5RKbMAwGA1UdEwEB/wQCMAAwIQYDVR0RBBowGIEWYW5kcmV3QHRyYWlsb2ZiaXRzLmNvbTAOBgNV
-HQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMEMGA1UdIAQ8MDowOAYK
-YIZIAYb9bAQBAjAqMCgGCCsGAQUFBwIBFhxodHRwczovL3d3dy5kaWdpY2VydC5jb20vQ1BTMIGI
-BgNVHR8EgYAwfjA9oDugOYY3aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0U0hBMkFz
-c3VyZWRJRENBLWcxLmNybDA9oDugOYY3aHR0cDovL2NybDQuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-U0hBMkFzc3VyZWRJRENBLWcxLmNybDB5BggrBgEFBQcBAQRtMGswJAYIKwYBBQUHMAGGGGh0dHA6
-Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBDBggrBgEFBQcwAoY3aHR0cDovL2NhY2VydHMuZGlnaWNlcnQu
-Y29tL0RpZ2lDZXJ0U0hBMkFzc3VyZWRJRENBLmNydDANBgkqhkiG9w0BAQsFAAOCAQEAJyO66OBa
-g4QsJZ7za0gkZQnbeK0dC9VDsRuZzCO7ylY3HWeZmkQ9u0e7836GHdlFEZ0IFkrkM/aY14ZJxc6q
-Q3oSRGSzszb0uVy+iUAdAjK67laoAa/eXh0J8cRqwQmdAcc0scSTjr7P58s6BMiBq0noPB4zj3yA
-B153wvpkPUi4Lue4pu3JLaFbLflUxvZrKAMMW29iJKp/ZHPoO+E99CudylI9mUFD3zYtb+p2hwaz
-YSumeTnMgdJ2ZsvuqI+b7wjQsffDE8cv7TC4YaBb8KrG2he2GfRFyczeqcMtBr5zL+cKHE4LIKc2
-L80aa71ZtIemwhW02sNjfqeY2fG6QTCCBk4wggU2oAMCAQICEASueWBmZpAaucV/pmxb3M0wDQYJ
-KoZIhvcNAQELBQAwZTELMAkGA1UEBhMCVVMxFTATBgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UE
-CxMQd3d3LmRpZ2ljZXJ0LmNvbTEkMCIGA1UEAxMbRGlnaUNlcnQgQXNzdXJlZCBJRCBSb290IENB
-MB4XDTEzMTEwNTEyMDAwMFoXDTI4MTEwNTEyMDAwMFowZTELMAkGA1UEBhMCVVMxFTATBgNVBAoT
-DERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTEkMCIGA1UEAxMbRGlnaUNl
-cnQgU0hBMiBBc3N1cmVkIElEIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3PgR
-Iz9qte/AJ3kbLQWHohBDMd8O1BUbT3ekIs4+jHDwvgeO3ScqvAEdtiwKyt1pWB9B7WoFH9pjeFke
-Iiwr+Lp+yTU7VvEffEJ+JbAjGcZFONc9RPkgfGCuHLBaGAS+jzv3qfCUmqYMY0m2QRdTQDK9T+ZQ
-elAfJUXo8Ymvzf9e/1Dz8BcR/73FifW9YrnY+45FBIVtmc3FSE39JqsCNkXqNtdfauIagkEK3OnZ
-9ZEXjsYhrTg8E+Yef2ac1U3ZRtr2z1KnfTskw7TBUTXGm+vU737kewPhRL16CzfgT8uCig1xGOSm
-4IksG/OyczzBsJKeGH29q33FfQihLMKfcwIDAQABo4IC+DCCAvQwEgYDVR0TAQH/BAgwBgEB/wIB
-ADAOBgNVHQ8BAf8EBAMCAYYwNAYIKwYBBQUHAQEEKDAmMCQGCCsGAQUFBzABhhhodHRwOi8vb2Nz
-cC5kaWdpY2VydC5jb20wgYEGA1UdHwR6MHgwOqA4oDaGNGh0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNv
-bS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcmwwOqA4oDaGNGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0
-LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcmwwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsG
-AQUFBwMEMIIBswYDVR0gBIIBqjCCAaYwggGiBgpghkgBhv1sAAIEMIIBkjAoBggrBgEFBQcCARYc
-aHR0cHM6Ly93d3cuZGlnaWNlcnQuY29tL0NQUzCCAWQGCCsGAQUFBwICMIIBVh6CAVIAQQBuAHkA
-IAB1AHMAZQAgAG8AZgAgAHQAaABpAHMAIABDAGUAcgB0AGkAZgBpAGMAYQB0AGUAIABjAG8AbgBz
-AHQAaQB0AHUAdABlAHMAIABhAGMAYwBlAHAAdABhAG4AYwBlACAAbwBmACAAdABoAGUAIABEAGkA
-ZwBpAEMAZQByAHQAIABDAFAALwBDAFAAUwAgAGEAbgBkACAAdABoAGUAIABSAGUAbAB5AGkAbgBn
-ACAAUABhAHIAdAB5ACAAQQBnAHIAZQBlAG0AZQBuAHQAIAB3AGgAaQBjAGgAIABsAGkAbQBpAHQA
-IABsAGkAYQBiAGkAbABpAHQAeQAgAGEAbgBkACAAYQByAGUAIABpAG4AYwBvAHIAcABvAHIAYQB0
-AGUAZAAgAGgAZQByAGUAaQBuACAAYgB5ACAAcgBlAGYAZQByAGUAbgBjAGUALjAdBgNVHQ4EFgQU
-5wIjgABP2Ne8lAvZP3Q5STI8inkwHwYDVR0jBBgwFoAUReuir/SSy4IxLVGLp6chnfNtyA8wDQYJ
-KoZIhvcNAQELBQADggEBAE7UiSe5/R2Hd34PKAWQ8QovyTs+vZOckMav+pFRhzJUa+jKwXFRXJmO
-tfrgYhmZpgeafBMn2+UCooQS2RX2CkRXxDSPbXMfOtagAT3e44LkRWuy6yX9gF4dOZC+W0L2zpFg
-4/mgVgxIEM4zaHvNk6vwastPWA+5e10bBIGepyLiV0kn7pKTCL5pCFMCOi5dyBn0UIBOAtmwXZG0
-k4f5lpaBVUCOZu2C2LsoX+1MYe0GWCgZUxFEvEcgKbIEbNiJVJk7ddtneCweknjGVT1YEhEybr1D
-DE0023vGQtvsvqubYUwGkuOO3yEqUFcEwGCiNdUknmY3CUnP1fhls+DibsIxggMZMIIDFQIBATB5
-MGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdp
-Y2VydC5jb20xJDAiBgNVBAMTG0RpZ2lDZXJ0IFNIQTIgQXNzdXJlZCBJRCBDQQIQA7Q3qRaArl5l
-3m9tqDFMiTAJBgUrDgMCGgUAoIIBdTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3
-DQEJBTEPFw0xNTEwMjAxNzE3MjhaMCMGCSqGSIb3DQEJBDEWBBSjRk4YWNPW42t8uGv2Mg1iZJc9
-1jCBiAYJKwYBBAGCNxAEMXsweTBlMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5j
-MRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSQwIgYDVQQDExtEaWdpQ2VydCBTSEEyIEFzc3Vy
-ZWQgSUQgQ0ECEAO0N6kWgK5eZd5vbagxTIkwgYoGCyqGSIb3DQEJEAILMXugeTBlMQswCQYDVQQG
-EwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSQw
-IgYDVQQDExtEaWdpQ2VydCBTSEEyIEFzc3VyZWQgSUQgQ0ECEAO0N6kWgK5eZd5vbagxTIkwDQYJ
-KoZIhvcNAQEBBQAEggEAQpBfHKX9ocjHdlPxrSPk5uK57Cf0aK1yyTxcQDYy+MUIWJY7Y+N1I++y
-wxXinZ5BM0w33nKr4Iz2WMRHRHwZ111PCNp/WBTi8Xnd60faanfoVrjj64Dyb8a2o1vagPgl8i9y
-gsuWxnof6TTtBC5/jCrZ7acAanoQW1tXvM6CZe62adzJw+WYEnixrQzqxAEOpFjm3Kp6rs5PGM+C
-WEm9Kt1pfZViASDXHsP2nVX4gzq1/wtpoqW2/CGfCi/1tsrKVyys9p4MYdEurnuQW1S5uajGVb3Z
-3O4A3TGq9s8Dr/M9z5AkgtJ/FgOqA87XPK9ZsVDl074zcVvT4WsQ6R8gZgAAAAAAAA==
---Apple-Mail=_D6C6282A-83F8-4E84-B193-A608431A995D--
+-- Jason
