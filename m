@@ -1,14 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9QLFgiX009697
- for <selinux@tycho.nsa.gov>; Mon, 26 Oct 2015 17:15:45 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9QLFgia009697
+ for <selinux@tycho.nsa.gov>; Mon, 26 Oct 2015 17:15:49 -0400
 From: Andreas Gruenbacher <agruenba@redhat.com>
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  ocfs2-devel@oss.oracle.com
 Cc: Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH v3 4/7] selinux: Push dentry down from {dentry, path,
- file}_has_perm
-Date: Mon, 26 Oct 2015 22:15:25 +0100
-Message-Id: <1445894128-6765-5-git-send-email-agruenba@redhat.com>
+Subject: [PATCH v3 5/7] security: Add hook to invalidate inode security labels
+Date: Mon, 26 Oct 2015 22:15:26 +0100
+Message-Id: <1445894128-6765-6-git-send-email-agruenba@redhat.com>
 In-Reply-To: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
 References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -16,105 +15,237 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In dentry_has_perm, path_has_perm, and file_has_perm, push the dentry down
-to before avc_has_perm so that dentry_security can be used instead of
-inode_security.  Since inode_has_perm now takes a dentry, rename it to
-__dentry_has_perm.
+Add a hook to invalidate an inode's security label when the cached
+information becomes invalid.
+
+Implement the new hook in selinux: set a flag when a security label becomes
+invalid.  When hitting a security label which has been marked as invalid in
+inode_has_perm, try reloading the label.
+
+If an inode does not have any dentries attached, we cannot reload its
+security label because we cannot use the getxattr inode operation.  In that
+case, continue using the old, invalid label until a dentry becomes
+available.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 ---
- security/selinux/hooks.c | 29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ include/linux/lsm_hooks.h         |  6 ++++++
+ include/linux/security.h          |  5 +++++
+ security/security.c               |  8 ++++++++
+ security/selinux/hooks.c          | 30 ++++++++++++++++++++----------
+ security/selinux/include/objsec.h |  6 ++++++
+ 5 files changed, 45 insertions(+), 10 deletions(-)
 
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index ec3a6ba..945ae1d 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1261,6 +1261,10 @@
+  *	audit_rule_init.
+  *	@rule contains the allocated rule
+  *
++ * @inode_invalidate_secctx:
++ *	Notify the security module that it must revalidate the security context
++ *	of an inode.
++ *
+  * @inode_notifysecctx:
+  *	Notify the security module of what the security context of an inode
+  *	should be.  Initializes the incore security context managed by the
+@@ -1516,6 +1520,7 @@ union security_list_options {
+ 	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
+ 
++	void (*inode_invalidate_secctx)(struct inode *inode);
+ 	int (*inode_notifysecctx)(struct inode *inode, void *ctx, u32 ctxlen);
+ 	int (*inode_setsecctx)(struct dentry *dentry, void *ctx, u32 ctxlen);
+ 	int (*inode_getsecctx)(struct inode *inode, void **ctx, u32 *ctxlen);
+@@ -1757,6 +1762,7 @@ struct security_hook_heads {
+ 	struct list_head secid_to_secctx;
+ 	struct list_head secctx_to_secid;
+ 	struct list_head release_secctx;
++	struct list_head inode_invalidate_secctx;
+ 	struct list_head inode_notifysecctx;
+ 	struct list_head inode_setsecctx;
+ 	struct list_head inode_getsecctx;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 2f4c1f7..9692571 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -353,6 +353,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+ int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
+ 
++void security_inode_invalidate_secctx(struct inode *inode);
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
+ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+@@ -1093,6 +1094,10 @@ static inline void security_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+ 
++static inline void security_inode_invalidate_secctx(struct inode *inode)
++{
++}
++
+ static inline int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
+ {
+ 	return -EOPNOTSUPP;
+diff --git a/security/security.c b/security/security.c
+index 46f405c..e4371cd 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1161,6 +1161,12 @@ void security_release_secctx(char *secdata, u32 seclen)
+ }
+ EXPORT_SYMBOL(security_release_secctx);
+ 
++void security_inode_invalidate_secctx(struct inode *inode)
++{
++	call_void_hook(inode_invalidate_secctx, inode);
++}
++EXPORT_SYMBOL(security_inode_invalidate_secctx);
++
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
+ {
+ 	return call_int_hook(inode_notifysecctx, 0, inode, ctx, ctxlen);
+@@ -1763,6 +1769,8 @@ struct security_hook_heads security_hook_heads = {
+ 		LIST_HEAD_INIT(security_hook_heads.secctx_to_secid),
+ 	.release_secctx =
+ 		LIST_HEAD_INIT(security_hook_heads.release_secctx),
++	.inode_invalidate_secctx =
++		LIST_HEAD_INIT(security_hook_heads.inode_invalidate_secctx),
+ 	.inode_notifysecctx =
+ 		LIST_HEAD_INIT(security_hook_heads.inode_notifysecctx),
+ 	.inode_setsecctx =
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d6b4dc9..2a04729 100644
+index 2a04729..f93dafd 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -1621,56 +1621,54 @@ static int task_has_system(struct task_struct *tsk,
- 			    SECCLASS_SYSTEM, perms, NULL);
+@@ -820,7 +820,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 			goto out;
+ 
+ 		root_isec->sid = rootcontext_sid;
+-		root_isec->initialized = 1;
++		root_isec->initialized = LABEL_INITIALIZED;
+ 	}
+ 
+ 	if (defcontext_sid) {
+@@ -1308,11 +1308,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	unsigned len = 0;
+ 	int rc = 0;
+ 
+-	if (isec->initialized)
++	if (isec->initialized == LABEL_INITIALIZED)
+ 		goto out;
+ 
+ 	mutex_lock(&isec->lock);
+-	if (isec->initialized)
++	if (isec->initialized == LABEL_INITIALIZED)
+ 		goto out_unlock;
+ 
+ 	sbsec = inode->i_sb->s_security;
+@@ -1484,7 +1484,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		break;
+ 	}
+ 
+-	isec->initialized = 1;
++	isec->initialized = LABEL_INITIALIZED;
+ 
+ out_unlock:
+ 	mutex_unlock(&isec->lock);
+@@ -2777,7 +2777,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 		struct inode_security_struct *isec = inode->i_security;
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 		isec->sid = newsid;
+-		isec->initialized = 1;
++		isec->initialized = LABEL_INITIALIZED;
+ 	}
+ 
+ 	if (!ss_initialized || !(sbsec->flags & SBLABEL_MNT))
+@@ -3075,7 +3075,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
+-	isec->initialized = 1;
++	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	return;
+ }
+@@ -3169,7 +3169,7 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
+-	isec->initialized = 1;
++	isec->initialized = LABEL_INITIALIZED;
+ 	return 0;
  }
  
--/* Check whether a task has a particular permission to an inode.
--   The 'adp' parameter is optional and allows other audit
-+/* Check whether a task has a particular permission to a dentry's
-+   inode.  The 'adp' parameter is optional and allows other audit
-    data to be passed (e.g. the dentry). */
--static int inode_has_perm(const struct cred *cred,
--			  struct inode *inode,
--			  u32 perms,
--			  struct common_audit_data *adp)
-+static int __dentry_has_perm(const struct cred *cred,
-+			     struct dentry *dentry,
-+			     u32 perms,
-+			     struct common_audit_data *adp)
- {
- 	struct inode_security_struct *isec;
- 	u32 sid;
+@@ -3746,7 +3746,7 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	u32 sid = task_sid(p);
  
- 	validate_creds(cred);
- 
--	if (unlikely(IS_PRIVATE(inode)))
-+	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
- 		return 0;
- 
- 	sid = cred_sid(cred);
--	isec = inode_security(inode);
-+	isec = dentry_security(dentry);
- 
- 	return avc_has_perm(sid, isec->sid, isec->sclass, perms, adp);
+ 	isec->sid = sid;
+-	isec->initialized = 1;
++	isec->initialized = LABEL_INITIALIZED;
  }
  
--/* Same as inode_has_perm, but pass explicit audit data containing
-+/* Same as __dentry_has_perm, but pass explicit audit data containing
-    the dentry to help the auditing code to more easily generate the
-    pathname if needed. */
- static inline int dentry_has_perm(const struct cred *cred,
- 				  struct dentry *dentry,
- 				  u32 av)
- {
--	struct inode *inode = d_backing_inode(dentry);
- 	struct common_audit_data ad;
+ /* Returns error only if unable to parse addresses */
+@@ -4077,7 +4077,7 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 			return err;
+ 	}
  
- 	ad.type = LSM_AUDIT_DATA_DENTRY;
- 	ad.u.dentry = dentry;
--	return inode_has_perm(cred, inode, av, &ad);
-+	return __dentry_has_perm(cred, dentry, av, &ad);
+-	isec->initialized = 1;
++	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	if (sock->sk) {
+ 		sksec = sock->sk->sk_security;
+@@ -4268,7 +4268,7 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
+ 	isec = inode_security(SOCK_INODE(sock));
+ 	newisec->sclass = isec->sclass;
+ 	newisec->sid = isec->sid;
+-	newisec->initialized = 1;
++	newisec->initialized = LABEL_INITIALIZED;
+ 
+ 	return 0;
+ }
+@@ -5758,6 +5758,15 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
+ 	kfree(secdata);
  }
  
--/* Same as inode_has_perm, but pass explicit audit data containing
-+/* Same as __dentry_has_perm, but pass explicit audit data containing
-    the path to help the auditing code to more easily generate the
-    pathname if needed. */
- static inline int path_has_perm(const struct cred *cred,
- 				const struct path *path,
- 				u32 av)
- {
--	struct inode *inode = d_backing_inode(path->dentry);
- 	struct common_audit_data ad;
++static void selinux_inode_invalidate_secctx(struct inode *inode)
++{
++	struct inode_security_struct *isec = inode->i_security;
++
++	mutex_lock(&isec->lock);
++	isec->initialized = LABEL_INVALID;
++	mutex_unlock(&isec->lock);
++}
++
+ /*
+  *	called with inode->i_mutex locked
+  */
+@@ -5989,6 +5998,7 @@ static struct security_hook_list selinux_hooks[] = {
+ 	LSM_HOOK_INIT(secid_to_secctx, selinux_secid_to_secctx),
+ 	LSM_HOOK_INIT(secctx_to_secid, selinux_secctx_to_secid),
+ 	LSM_HOOK_INIT(release_secctx, selinux_release_secctx),
++	LSM_HOOK_INIT(inode_invalidate_secctx, selinux_inode_invalidate_secctx),
+ 	LSM_HOOK_INIT(inode_notifysecctx, selinux_inode_notifysecctx),
+ 	LSM_HOOK_INIT(inode_setsecctx, selinux_inode_setsecctx),
+ 	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 81fa718..a2ae054 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -37,6 +37,12 @@ struct task_security_struct {
+ 	u32 sockcreate_sid;	/* fscreate SID */
+ };
  
- 	ad.type = LSM_AUDIT_DATA_PATH;
- 	ad.u.path = *path;
--	return inode_has_perm(cred, inode, av, &ad);
-+	return __dentry_has_perm(cred, path->dentry, av, &ad);
- }
- 
- /* Check whether a task can use an open file descriptor to
-@@ -1686,7 +1684,6 @@ static int file_has_perm(const struct cred *cred,
- 			 u32 av)
- {
- 	struct file_security_struct *fsec = file->f_security;
--	struct inode *inode = file_inode(file);
- 	struct common_audit_data ad;
- 	u32 sid = cred_sid(cred);
- 	int rc;
-@@ -1706,7 +1703,7 @@ static int file_has_perm(const struct cred *cred,
- 	/* av is zero if only checking access to the descriptor. */
- 	rc = 0;
- 	if (av)
--		rc = inode_has_perm(cred, inode, av, &ad);
-+		rc = __dentry_has_perm(cred, file->f_path.dentry, av, &ad);
- 
- out:
- 	return rc;
++enum label_initialized {
++	LABEL_MISSING,		/* not initialized */
++	LABEL_INITIALIZED,	/* inizialized */
++	LABEL_INVALID		/* invalid */
++};
++
+ struct inode_security_struct {
+ 	struct inode *inode;	/* back pointer to inode object */
+ 	union {
 -- 
 2.5.0
