@@ -1,65 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9OIhsdu012331
- for <selinux@tycho.nsa.gov>; Sat, 24 Oct 2015 14:43:54 -0400
-Received: by wikq8 with SMTP id q8so115436145wik.1
- for <selinux@tycho.nsa.gov>; Sat, 24 Oct 2015 11:43:41 -0700 (PDT)
-Received: from iosakhe.localdomain
- (2a02-8428-04da-9800-7d98-5bb9-8168-a113.rev.sfr.net.
- [2a02:8428:4da:9800:7d98:5bb9:8168:a113])
- by smtp.gmail.com with ESMTPSA id p10sm29469708wjx.36.2015.10.24.11.43.39
- for <selinux@tycho.nsa.gov>
- (version=TLSv1.2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
- Sat, 24 Oct 2015 11:43:39 -0700 (PDT)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] sepolgen: Reset line numbers when parsing files
-Date: Sat, 24 Oct 2015 20:43:27 +0200
-Message-Id: <1445712207-23254-1-git-send-email-nicolas.iooss@m4x.org>
+MIME-Version: 1.0
+From: Elena Reshetova <elena.reshetova@gmail.com>
+Date: Mon, 26 Oct 2015 11:20:44 +0000
+Message-ID: <CALrft9-5ZFbJgiLZnXoeroAgqhZ+rmzCENXSgdqtyC5+_6pZ-w@mail.gmail.com>
+Subject: setoolsv4: tracking origin of a policy element
+To: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Cc: "filippo.bonazzi@aalto.fi" <filippo.bonazzi@aalto.fi>,
+ William Roberts <bill.c.roberts@gmail.com>
+Content-Type: multipart/alternative; boundary=001a11c3483089c37b0523002708
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When running sepolgen-ifgen on refpolicy (git master branch), the
-following messages show up:
+--001a11c3483089c37b0523002708
+Content-Type: text/plain; charset=UTF-8
 
-    /usr/share/selinux/refpolicy/include/kernel/selinux.if: Syntax error
-    on line 3369 gen_context [type=GEN_CONTEXT]
-    /usr/share/selinux/refpolicy/include/system/init.if: Syntax error on
-    line 188379 ' [type=SQUOTE]
-    /usr/share/selinux/refpolicy/include/system/init.if: Syntax error on
-    line 188385 ' [type=SQUOTE]
+Hi,
 
-The line numbers are incorrect because the lineno member of the lexer
-object is not resetted after each file has been processed.  After fixing
-this, the messages are nicer:
+While looking into the policy parser from setools v4, we noticed one thing
+that is missing: origin of a policy element. For example, given a certain
+rule or attribute, it would be great to know in what source file it was
+defined.
 
-    /usr/share/selinux/refpolicy/include/kernel/selinux.if: Syntax error
-    on line 43 gen_context [type=GEN_CONTEXT]
-    /usr/share/selinux/refpolicy/include/system/init.if: Syntax error on
-    line 1416 ' [type=SQUOTE]
-    /usr/share/selinux/refpolicy/include/system/init.if: Syntax error on
-    line 1422 ' [type=SQUOTE]
+In Android you can find this information by looking at produced policy.conf
+and its comment lines that indicate source file. However I don't know if it
+is the same for desktop selinux policy.
 
-As line 43 of kernel/selinux.if contains a genfscon statement with a
-gen_context component, the reported line numbers are now correct.
+Would it be acceptable to have this information as part of python class
+representing the parsed policy? It would be really useful for tools like
+policy linter, because it would be very much needed to point to the exact
+file where some improvements might be desirable.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- sepolgen/src/sepolgen/refparser.py | 1 +
- 1 file changed, 1 insertion(+)
+Best Regards,
+Elena.
 
-diff --git a/sepolgen/src/sepolgen/refparser.py b/sepolgen/src/sepolgen/refparser.py
-index b50112ccd900..3132c6fe7109 100644
---- a/sepolgen/src/sepolgen/refparser.py
-+++ b/sepolgen/src/sepolgen/refparser.py
-@@ -1003,6 +1003,7 @@ def parse(text, module=None, support=None, debug=False):
-     create_globals(module, support, debug)
-     global error, parser, lexer, success
- 
-+    lexer.lineno = 1
-     success = True
- 
-     try:
--- 
-2.6.2
+--001a11c3483089c37b0523002708
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div><div><div><div>Hi,<br><br></div>While looking in=
+to the policy parser from setools v4, we noticed one thing that is missing:=
+ origin of a policy element. For example, given a certain rule or attribute=
+, it would be great to know in what source file it was defined. <br><br></d=
+iv>In Android you can find this information by looking at produced policy.c=
+onf and its comment lines that indicate source file. However I don&#39;t kn=
+ow if it is the same for desktop selinux policy. <br><br></div>Would it be =
+acceptable to have this information as part of python class representing th=
+e parsed policy? It would be really useful for tools like policy linter, be=
+cause it would be very much needed to point to the exact file where some im=
+provements might be desirable. <br><br></div>Best Regards,<br></div>Elena.<=
+br></div>
+
+--001a11c3483089c37b0523002708--
