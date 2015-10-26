@@ -1,13 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9QLFgib009697
- for <selinux@tycho.nsa.gov>; Mon, 26 Oct 2015 17:15:51 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9QLFgie009697
+ for <selinux@tycho.nsa.gov>; Mon, 26 Oct 2015 17:15:55 -0400
 From: Andreas Gruenbacher <agruenba@redhat.com>
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  ocfs2-devel@oss.oracle.com
-Cc: Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH v3 6/7] selinux: Revalidate invalid inode security labels
-Date: Mon, 26 Oct 2015 22:15:27 +0100
-Message-Id: <1445894128-6765-7-git-send-email-agruenba@redhat.com>
+Cc: Andreas Gruenbacher <agruenba@redhat.com>,
+ Steven Whitehouse <swhiteho@redhat.com>,
+ Bob Peterson <rpeterso@redhat.com>, cluster-devel@redhat.com
+Subject: [PATCH v3 7/7] gfs2: Invalide security labels of inodes when they go
+ invalid
+Date: Mon, 26 Oct 2015 22:15:28 +0100
+Message-Id: <1445894128-6765-8-git-send-email-agruenba@redhat.com>
 In-Reply-To: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
 References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,106 +18,39 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When fetching inode's security label, check if they are still valid, and try
-reloading invalid labels.  Reloading will fail when we are in RCU context which
-doesn't allow sleeping, or when we can't find a dentry for the inode.
-(Reloading happens via iop->getxattr which takes a dentry parameter.)
+When gfs2 releases the glock of an inode, it must invalidate all
+information cached for that inode, including the page cache and acls.  Use
+the new security_inode_invalidate_secctx hook to also invalidate security
+labels in that case.  These items will be reread from disk when needed
+after reacquiring the glock.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Cc: Steven Whitehouse <swhiteho@redhat.com>
+Cc: Bob Peterson <rpeterso@redhat.com>
+Cc: cluster-devel@redhat.com
 ---
- security/selinux/hooks.c | 47 +++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 39 insertions(+), 8 deletions(-)
+ fs/gfs2/glops.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f93dafd..61aead9 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -241,22 +241,51 @@ static int inode_alloc_security(struct inode *inode)
- 	return 0;
- }
+diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
+index 1f6c9c3..0833076 100644
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -13,6 +13,7 @@
+ #include <linux/gfs2_ondisk.h>
+ #include <linux/bio.h>
+ #include <linux/posix_acl.h>
++#include <linux/security.h>
  
-+static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
-+
- /*
-- * Get the security label of a dentry's inode.
-+ * Get an inode's security label.  When the label has been marked as invalid,
-+ * try to reload it.  The @opt_dentry parameter should be set to a dentry of
-+ * the inode; when no dentry is available, set it to NULL instead.  The @rcu
-+ * parameter indicates when sleeping and thus reloading labels is not allowed;
-+ * in that case, this function will return ERR_PTR(-ECHILD).
-+ */
-+static struct inode_security_struct *__inode_security(struct inode *inode,
-+						      struct dentry *opt_dentry,
-+						      bool rcu)
-+{
-+	struct inode_security_struct *isec = inode->i_security;
-+
-+	if (isec->initialized == LABEL_INVALID) {
-+		if (rcu)
-+			return ERR_PTR(-ECHILD);
-+
-+		/*
-+		 * Try reloading the inode security label.  This will fail if
-+		 * @opt_dentry is NULL and no dentry for this inode can be
-+		 * found; in that case, we will continue using the old label.
-+		 */
-+		inode_doinit_with_dentry(inode, opt_dentry);
-+	}
-+	return isec;
-+}
-+
-+/*
-+ * Get the security label of a dentry's inode.  Function may block.
-  */
- static struct inode_security_struct *dentry_security(struct dentry *dentry)
- {
- 	struct inode *inode = d_backing_inode(dentry);
- 
--	return inode->i_security;
-+	return __inode_security(inode, dentry, false);
- }
- 
- /*
-- * Get the security label of an inode.
-+ * Get the security label of an inode.  Function may block.
-  */
- static struct inode_security_struct *inode_security(struct inode *inode)
- {
--	return inode->i_security;
-+	return __inode_security(inode, NULL, false);
- }
- 
- static void inode_free_rcu(struct rcu_head *head)
-@@ -362,8 +391,6 @@ static const char *labeling_behaviors[7] = {
- 	"uses native labeling",
- };
- 
--static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
--
- static inline int inode_doinit(struct inode *inode)
- {
- 	return inode_doinit_with_dentry(inode, NULL);
-@@ -2858,7 +2885,9 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
- 	ad.type = LSM_AUDIT_DATA_DENTRY;
- 	ad.u.dentry = dentry;
- 	sid = cred_sid(cred);
--	isec = inode_security(inode);
-+	isec = __inode_security(inode, NULL, rcu);
-+	if (IS_ERR(isec))
-+		return PTR_ERR(isec);
- 
- 	return avc_has_perm_flags(sid, isec->sid, isec->sclass, FILE__READ, &ad,
- 				  rcu ? MAY_NOT_BLOCK : 0);
-@@ -2910,7 +2939,9 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- 	perms = file_mask_to_av(inode->i_mode, mask);
- 
- 	sid = cred_sid(cred);
--	isec = inode_security(inode);
-+	isec = __inode_security(inode, NULL, flags & MAY_NOT_BLOCK);
-+	if (IS_ERR(isec))
-+		return PTR_ERR(isec);
- 
- 	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0, &avd);
- 	audited = avc_audit_required(perms, &avd, rc,
+ #include "gfs2.h"
+ #include "incore.h"
+@@ -262,6 +263,7 @@ static void inode_go_inval(struct gfs2_glock *gl, int flags)
+ 		if (ip) {
+ 			set_bit(GIF_INVALID, &ip->i_flags);
+ 			forget_all_cached_acls(&ip->i_inode);
++			security_inode_invalidate_secctx(&ip->i_inode);
+ 			gfs2_dir_hash_inval(ip);
+ 		}
+ 	}
 -- 
 2.5.0
