@@ -1,40 +1,46 @@
+Subject: Re: [PATCH v3 1/7] selinux: Remove unused variable in
+ selinux_inode_init_security
+To: Andreas Gruenbacher <agruenba@redhat.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ ocfs2-devel@oss.oracle.com
+References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
+ <1445894128-6765-2-git-send-email-agruenba@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux-testsuite: unix_socket: fix uninitialized sockaddr
- len arguments
-Date: Tue, 27 Oct 2015 08:59:49 -0400
-Message-Id: <1445950789-7356-1-git-send-email-sds@tycho.nsa.gov>
+Message-ID: <562F77E6.7000602@tycho.nsa.gov>
+Date: Tue, 27 Oct 2015 09:11:02 -0400
+MIME-Version: 1.0
+In-Reply-To: <1445894128-6765-2-git-send-email-agruenba@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- tests/unix_socket/server.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On 10/26/2015 05:15 PM, Andreas Gruenbacher wrote:
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 
-diff --git a/tests/unix_socket/server.c b/tests/unix_socket/server.c
-index 7cbebe3..f882930 100644
---- a/tests/unix_socket/server.c
-+++ b/tests/unix_socket/server.c
-@@ -102,6 +102,7 @@ main(int argc, char **argv)
- 			char peerlabel[256];
- 			socklen_t labellen = sizeof(peerlabel);
- 
-+			remotesunlen = sizeof(remotesun);
- 			newsock = accept(sock, (struct sockaddr *)&remotesun,
- 					 &remotesunlen);
- 			if (newsock < 0) {
-@@ -149,7 +150,7 @@ main(int argc, char **argv)
- 			memset(&msg, 0, sizeof(msg));
- 			msglabel[0] = 0;
- 			msg.msg_name = &remotesun;
--			msg.msg_namelen = remotesunlen;
-+			msg.msg_namelen = sizeof(remotesun);
- 			msg.msg_iov = &iov;
- 			msg.msg_iovlen = 1;
- 			msg.msg_control = &control;
--- 
-2.4.3
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>   security/selinux/hooks.c | 2 --
+>   1 file changed, 2 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e4369d8..fc8f626 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2756,13 +2756,11 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+>   				       void **value, size_t *len)
+>   {
+>   	const struct task_security_struct *tsec = current_security();
+> -	struct inode_security_struct *dsec;
+>   	struct superblock_security_struct *sbsec;
+>   	u32 sid, newsid, clen;
+>   	int rc;
+>   	char *context;
+>
+> -	dsec = dir->i_security;
+>   	sbsec = dir->i_sb->s_security;
+>
+>   	sid = tsec->sid;
+>
