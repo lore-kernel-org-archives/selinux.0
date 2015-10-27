@@ -1,56 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9QLFgie009697
- for <selinux@tycho.nsa.gov>; Mon, 26 Oct 2015 17:15:55 -0400
-From: Andreas Gruenbacher <agruenba@redhat.com>
-To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+Subject: Re: [PATCH v3 0/7] Inode security label invalidation
+To: Andreas Gruenbacher <agruenba@redhat.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  ocfs2-devel@oss.oracle.com
-Cc: Andreas Gruenbacher <agruenba@redhat.com>,
- Steven Whitehouse <swhiteho@redhat.com>,
- Bob Peterson <rpeterso@redhat.com>, cluster-devel@redhat.com
-Subject: [PATCH v3 7/7] gfs2: Invalide security labels of inodes when they go
- invalid
-Date: Mon, 26 Oct 2015 22:15:28 +0100
-Message-Id: <1445894128-6765-8-git-send-email-agruenba@redhat.com>
-In-Reply-To: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
 References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <562F6EE7.2090601@tycho.nsa.gov>
+Date: Tue, 27 Oct 2015 08:32:39 -0400
+MIME-Version: 1.0
+In-Reply-To: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When gfs2 releases the glock of an inode, it must invalidate all
-information cached for that inode, including the page cache and acls.  Use
-the new security_inode_invalidate_secctx hook to also invalidate security
-labels in that case.  These items will be reread from disk when needed
-after reacquiring the glock.
+On 10/26/2015 05:15 PM, Andreas Gruenbacher wrote:
+> Here is another version of the patch queue to make gfs2 and similar file
+> systems work with SELinux.  As suggested by Stephen Smalley [*], the relevant
+> uses of inode->security are wrapped in function calls that try to revalidate
+> invalid labels.
+>
+>    [*] http://marc.info/?l=linux-kernel&m=144416710207686&w=2
+>
+> The patches are looking good from my point of view; is there anything else that
+> needs addressing?
+>
+> Does SELinux have test suites that these patches could be tested agains?
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: Steven Whitehouse <swhiteho@redhat.com>
-Cc: Bob Peterson <rpeterso@redhat.com>
-Cc: cluster-devel@redhat.com
----
- fs/gfs2/glops.c | 2 ++
- 1 file changed, 2 insertions(+)
+git clone https://github.com/SELinuxProject/selinux-testsuite
+sudo yum install perl-Test perl-Test-Harness selinux-policy-devel gcc 
+libselinux-devel net-tools netlabel_tools iptables
+cd selinux-testsuite
+sudo make test
 
-diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
-index 1f6c9c3..0833076 100644
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -13,6 +13,7 @@
- #include <linux/gfs2_ondisk.h>
- #include <linux/bio.h>
- #include <linux/posix_acl.h>
-+#include <linux/security.h>
- 
- #include "gfs2.h"
- #include "incore.h"
-@@ -262,6 +263,7 @@ static void inode_go_inval(struct gfs2_glock *gl, int flags)
- 		if (ip) {
- 			set_bit(GIF_INVALID, &ip->i_flags);
- 			forget_all_cached_acls(&ip->i_inode);
-+			security_inode_invalidate_secctx(&ip->i_inode);
- 			gfs2_dir_hash_inval(ip);
- 		}
- 	}
--- 
-2.5.0
+>
+> Thanks,
+> Andreas
+>
+> Andreas Gruenbacher (7):
+>    selinux: Remove unused variable in selinux_inode_init_security
+>    selinux: Add accessor functions for inode->i_security
+>    selinux: Get rid of file_path_has_perm
+>    selinux: Push dentry down from {dentry,path,file}_has_perm
+>    security: Add hook to invalidate inode security labels
+>    selinux: Revalidate invalid inode security labels
+>    gfs2: Invalide security labels of inodes when they go invalid
+>
+>   fs/gfs2/glops.c                   |   2 +
+>   include/linux/lsm_hooks.h         |   6 ++
+>   include/linux/security.h          |   5 +
+>   security/security.c               |   8 ++
+>   security/selinux/hooks.c          | 213 ++++++++++++++++++++++----------------
+>   security/selinux/include/objsec.h |   6 ++
+>   6 files changed, 152 insertions(+), 88 deletions(-)
+>
