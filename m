@@ -1,215 +1,118 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9RH7eSE008673
- for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2015 13:07:40 -0400
-From: Andrew Perepechko <anserper@ya.ru>
-To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Andrew Perepechko <anserper@ya.ru>, andrew.perepechko@seagate.com
-Subject: [PATCH] selinux: export validatetrans decisions
-Date: Tue, 27 Oct 2015 20:07:23 +0300
-Message-Id: <1445965643-30900-1-git-send-email-anserper@ya.ru>
+Subject: Re: [PATCH v3 2/7] selinux: Add accessor functions for
+ inode->i_security
+To: Andreas Gruenbacher <agruenba@redhat.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ ocfs2-devel@oss.oracle.com, David Howells <dhowells@redhat.com>
+References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
+ <1445894128-6765-3-git-send-email-agruenba@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <562FB274.6080100@tycho.nsa.gov>
+Date: Tue, 27 Oct 2015 13:20:52 -0400
+MIME-Version: 1.0
+In-Reply-To: <1445894128-6765-3-git-send-email-agruenba@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Make validatetrans decisions available through selinuxfs.
-"/transition" is added to selinuxfs for this purpose.
-This functionality is needed by file system servers
-implemented in userspace or kernelspace without the VFS
-layer.
+On 10/26/2015 05:15 PM, Andreas Gruenbacher wrote:
+> Add functions dentry_security and inode_security for accessing
+> inode->i_security.  These functions initially don't do much, but they
+> will later be used to revalidate the security labels when necessary.
+>
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> ---
+>   security/selinux/hooks.c | 101 ++++++++++++++++++++++++++---------------------
+>   1 file changed, 57 insertions(+), 44 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index fc8f626..65e8689 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -241,6 +241,24 @@ static int inode_alloc_security(struct inode *inode)
+>   	return 0;
+>   }
+>
+> +/*
+> + * Get the security label of a dentry's inode.
+> + */
+> +static struct inode_security_struct *dentry_security(struct dentry *dentry)
+> +{
+> +	struct inode *inode = d_backing_inode(dentry);
+> +
+> +	return inode->i_security;
+> +}
+> +
+> +/*
+> + * Get the security label of an inode.
+> + */
+> +static struct inode_security_struct *inode_security(struct inode *inode)
+> +{
+> +	return inode->i_security;
+> +}
+> +
+>   static void inode_free_rcu(struct rcu_head *head)
+>   {
+>   	struct inode_security_struct *isec;
+<snip>
+> @@ -2207,7 +2222,6 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+>   	struct task_security_struct *new_tsec;
+>   	struct inode_security_struct *isec;
+>   	struct common_audit_data ad;
+> -	struct inode *inode = file_inode(bprm->file);
+>   	int rc;
+>
+>   	/* SELinux context only depends on initial program or script and not
+> @@ -2217,7 +2231,7 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+>
+>   	old_tsec = current_security();
+>   	new_tsec = bprm->cred->security;
+> -	isec = inode->i_security;
+> +	isec = dentry_security(bprm->file->f_path.dentry);
 
-Writing "$oldcontext $newcontext $tclass $taskcontext"
-to /transition is expected to return 0 if the transition
-is allowed and -EPERM otherwise.
+IIUC, this could change which inode label gets used when using overlayfs 
+(the overlay inode or the underlying inode).  Not sure whether the 
+current code is correct for overlayfs (overlayfs + SELinux support still 
+in progress).
 
-Signed-off-by: Andrew Perepechko <anserper@ya.ru>
-CC: andrew.perepechko@seagate.com
----
- security/selinux/hooks.c            |  2 +-
- security/selinux/include/security.h |  2 +-
- security/selinux/selinuxfs.c        | 81 +++++++++++++++++++++++++++++++++++++
- security/selinux/ss/services.c      | 20 +++++----
- 4 files changed, 95 insertions(+), 10 deletions(-)
+> @@ -3154,7 +3168,7 @@ out_nofree:
+>   static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+>   				     const void *value, size_t size, int flags)
+>   {
+> -	struct inode_security_struct *isec = inode->i_security;
+> +	struct inode_security_struct *isec = inode_security(inode);
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e4369d8..f40f4b4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3043,7 +3043,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
- 		return rc;
- 
- 	rc = security_validate_transition(isec->sid, newsid, sid,
--					  isec->sclass);
-+					  isec->sclass, 0);
- 	if (rc)
- 		return rc;
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 6a681d2..84dec31 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -183,7 +183,7 @@ int security_node_sid(u16 domain, void *addr, u32 addrlen,
- 	u32 *out_sid);
- 
- int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
--				 u16 tclass);
-+				 u16 tclass, int user);
- 
- int security_bounded_transition(u32 oldsid, u32 newsid);
- 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 5bed7716..eb487ff 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -116,6 +116,7 @@ enum sel_inos {
- 	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
- 	SEL_STATUS,	/* export current status using mmap() */
- 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
-+	SEL_TRANSITION,	/* compute validatetrans decision */
- 	SEL_INO_NEXT,	/* The next inode number to use */
- };
- 
-@@ -653,6 +654,85 @@ static const struct file_operations sel_checkreqprot_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
-+static ssize_t sel_write_transition(struct file *file, const char __user *buf,
-+				    size_t count, loff_t *ppos)
-+{
-+	char *oldcon = NULL, *newcon = NULL, *taskcon = NULL;
-+	char *req = NULL;
-+	u32 osid, nsid, tsid;
-+	u16 tclass;
-+	int rc;
-+
-+	rc = task_has_security(current, SECURITY__COMPUTE_AV);
-+	if (rc)
-+		goto out;
-+
-+	rc = -ENOMEM;
-+	if (count >= PAGE_SIZE - 1)
-+		goto out;
-+
-+	/* No partial writes. */
-+	rc = -EINVAL;
-+	if (*ppos != 0)
-+		goto out;
-+
-+	rc = -ENOMEM;
-+	req = kzalloc(count + 1, GFP_KERNEL);
-+	if (!req)
-+		goto out;
-+
-+	rc = -EFAULT;
-+	if (copy_from_user(req, buf, count))
-+		goto out;
-+
-+	rc = -ENOMEM;
-+	oldcon = kzalloc(count + 1, GFP_KERNEL);
-+	if (!oldcon)
-+		goto out;
-+
-+	newcon = kzalloc(count + 1, GFP_KERNEL);
-+	if (!newcon)
-+		goto out;
-+
-+	taskcon = kzalloc(count + 1, GFP_KERNEL);
-+	if (!taskcon)
-+		goto out;
-+
-+	rc = -EINVAL;
-+	if (sscanf(req, "%s %s %hu %s", oldcon, newcon, &tclass, taskcon) != 4)
-+		goto out;
-+
-+	rc = security_context_to_sid(oldcon, strlen(oldcon) + 1, &osid,
-+				     GFP_KERNEL);
-+	if (rc)
-+		goto out;
-+
-+	rc = security_context_to_sid(newcon, strlen(newcon) + 1, &nsid,
-+				     GFP_KERNEL);
-+	if (rc)
-+		goto out;
-+
-+	rc = security_context_to_sid(taskcon, strlen(taskcon) + 1, &tsid,
-+				     GFP_KERNEL);
-+	if (rc)
-+		goto out;
-+
-+	rc = security_validate_transition(osid, nsid, tsid, tclass, 1);
-+	if (!rc)
-+		rc = count;
-+out:
-+	kfree(req);
-+	kfree(oldcon);
-+	kfree(newcon);
-+	kfree(taskcon);
-+	return rc;
-+}
-+
-+static const struct file_operations sel_transition_ops = {
-+	.write		= sel_write_transition,
-+	.llseek		= generic_file_llseek,
-+};
-+
- /*
-  * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
-  */
-@@ -1767,6 +1847,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
- 		[SEL_STATUS] = {"status", &sel_handle_status_ops, S_IRUGO},
- 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
-+		[SEL_TRANSITION] = {"transition", &sel_transition_ops, S_IWUSR},
- 		/* last one */ {""}
- 	};
- 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b7df12b..d3058bf 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -750,7 +750,7 @@ static void context_struct_compute_av(struct context *scontext,
- 				 tclass, avd);
- }
- 
--static int security_validtrans_handle_fail(struct context *ocontext,
-+static void security_validtrans_audit_fail(struct context *ocontext,
- 					   struct context *ncontext,
- 					   struct context *tcontext,
- 					   u16 tclass)
-@@ -772,14 +772,10 @@ out:
- 	kfree(o);
- 	kfree(n);
- 	kfree(t);
--
--	if (!selinux_enforcing)
--		return 0;
--	return -EPERM;
- }
- 
- int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
--				 u16 orig_tclass)
-+				 u16 orig_tclass, int user)
- {
- 	struct context *ocontext;
- 	struct context *ncontext;
-@@ -832,8 +828,16 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 	while (constraint) {
- 		if (!constraint_expr_eval(ocontext, ncontext, tcontext,
- 					  constraint->expr)) {
--			rc = security_validtrans_handle_fail(ocontext, ncontext,
--							     tcontext, tclass);
-+			if (!user)
-+				security_validtrans_audit_fail(ocontext,
-+								ncontext,
-+								tcontext,
-+								tclass);
-+			if (!selinux_enforcing && !user)
-+				rc = 0;
-+			else
-+				rc = -EPERM;
-+
- 			goto out;
- 		}
- 		constraint = constraint->next;
--- 
-1.9.1
+Was it intentional to not do this for selinux_inode_getsecurity() and 
+selinux_inode_getsecid()?
+
+> @@ -3241,8 +3254,8 @@ int ioctl_has_perm(const struct cred *cred, struct file *file,
+>   {
+>   	struct common_audit_data ad;
+>   	struct file_security_struct *fsec = file->f_security;
+> -	struct inode *inode = file_inode(file);
+> -	struct inode_security_struct *isec = inode->i_security;
+> +	struct dentry *dentry = file->f_path.dentry;
+> +	struct inode_security_struct *isec = dentry_security(dentry);
+>   	struct lsm_ioctlop_audit ioctl;
+>   	u32 ssid = cred_sid(cred);
+>   	int rc;
+> @@ -3263,7 +3276,7 @@ int ioctl_has_perm(const struct cred *cred, struct file *file,
+>   			goto out;
+>   	}
+>
+> -	if (unlikely(IS_PRIVATE(inode)))
+> +	if (unlikely(IS_PRIVATE(dentry->d_inode)))
+>   		return 0;
+>
+>   	rc = avc_has_extended_perms(ssid, isec->sid, isec->sclass,
+> @@ -3506,7 +3519,7 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
+>   	struct inode_security_struct *isec;
+>
+>   	fsec = file->f_security;
+> -	isec = file_inode(file)->i_security;
+> +	isec = dentry_security(file->f_path.dentry);
+
+Similarly for these cases, switching from file_inode(file) to 
+d_backing_inode(dentry) could affect overlayfs interaction IIUC.  cc'd 
+David for clarification.
