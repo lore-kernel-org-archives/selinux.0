@@ -1,247 +1,203 @@
-From: Andrew Perepechko <anserper@ya.ru>
-To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- sds@tycho.nsa.gov
-Cc: Andrew Perepechko <anserper@ya.ru>, andrew.perepechko@seagate.com
-Subject: [PATCH v2] selinux: export validatetrans decisions
-Date: Tue, 27 Oct 2015 23:48:13 +0300
-Message-Id: <1445978893-17006-1-git-send-email-anserper@ya.ru>
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, William Roberts <william.c.roberts@intel.com>
+Subject: [PATCH v3] libselinux: label_file: fix memory leaks and uninitialized
+ jump
+Date: Tue, 27 Oct 2015 14:50:31 -0700
+Message-Id: <1445982631-26905-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Make validatetrans decisions available through selinuxfs.
-"/validatetrans" is added to selinuxfs for this purpose.
-This functionality is needed by file system servers
-implemented in userspace or kernelspace without the VFS
-layer.
+From: William Roberts <william.c.roberts@intel.com>
 
-Writing "$oldcontext $newcontext $tclass $taskcontext"
-to /validatetrans is expected to return 0 if the transition
-is allowed and -EPERM otherwise.
+Some error's were reported by valgrind (below) fix them. The test
+cases on which these leaks were detected:
 
-Signed-off-by: Andrew Perepechko <anserper@ya.ru>
-CC: andrew.perepechko@seagate.com
+1. properly formed file_contexts file.
+2. malformed file_contexts file, unknown type.
+3. malformed file_contexts file, type that fails on validate callback.
+4. malformed file_contexts file, invalid regex.
+5. malformed file_contexts file, invalid mode.
+
+==3819== Conditional jump or move depends on uninitialised value(s)
+==3819==    at 0x12A682: closef (label_file.c:577)
+==3819==    by 0x12A196: selabel_close (label.c:163)
+==3819==    by 0x10A2FD: cleanup (checkfc.c:218)
+==3819==    by 0x5089258: __run_exit_handlers (exit.c:82)
+==3819==    by 0x50892A4: exit (exit.c:104)
+==3819==    by 0x10A231: main (checkfc.c:361)
+==3819==  Uninitialised value was created by a heap allocation
+==3819==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3819==    by 0x4C2CF1F: realloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3819==    by 0x12BB31: process_file (label_file.h:273)
+==3819==    by 0x12A2BA: selabel_file_init (label_file.c:522)
+==3819==    by 0x12A0BB: selabel_open (label.c:88)
+==3819==    by 0x10A038: main (checkfc.c:292)
+==3819==
+==3819==
+==3819== HEAP SUMMARY:
+==3819==     in use at exit: 729 bytes in 19 blocks
+==3819==   total heap usage: 21,126 allocs, 21,107 frees, 923,854 bytes allocated
+==3819==
+==3819== 81 bytes in 1 blocks are definitely lost in loss record 1 of 2
+==3819==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==3819==    by 0x50D5839: strdup (strdup.c:42)
+==3819==    by 0x12A2A6: selabel_file_init (label_file.c:517)
+==3819==    by 0x12A0BB: selabel_open (label.c:88)
+==3819==    by 0x10A038: main (checkfc.c:292)
+==3819==
+
+==4238== 40 bytes in 1 blocks are definitely lost in loss record 1 of 6
+==4238==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4238==    by 0x12A1D2: selabel_file_init (label_file.c:886)
+==4238==    by 0x12A0BB: selabel_open (label.c:88)
+==4238==    by 0x10A038: main (checkfc.c:292)
+==4238==
+==4238== 81 bytes in 1 blocks are definitely lost in loss record 2 of 6
+==4238==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4238==    by 0x50D5839: strdup (strdup.c:42)
+==4238==    by 0x12A2A6: selabel_file_init (label_file.c:517)
+==4238==    by 0x12A0BB: selabel_open (label.c:88)
+==4238==    by 0x10A038: main (checkfc.c:292)
+==4238==
+==4238== 386 bytes in 24 blocks are definitely lost in loss record 3 of 6
+==4238==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4238==    by 0x50D5889: strndup (strndup.c:45)
+==4238==    by 0x12CDDF: read_spec_entries (label_support.c:37)
+==4238==    by 0x12B72D: process_file (label_file.h:392)
+==4238==    by 0x12A2BA: selabel_file_init (label_file.c:522)
+==4238==    by 0x12A0BB: selabel_open (label.c:88)
+==4238==    by 0x10A038: main (checkfc.c:292)
+==4238==
+==4238== 648 bytes in 18 blocks are definitely lost in loss record 4 of 6
+==4238==    at 0x4C2CC70: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4238==    by 0x117C9B: avtab_insert_node (avtab.c:105)
+==4238==    by 0x117C10: avtab_insert (avtab.c:163)
+==4238==    by 0x11880A: avtab_read_item (avtab.c:566)
+==4238==    by 0x118BD3: avtab_read (avtab.c:600)
+==4238==    by 0x125BDD: policydb_read (policydb.c:3854)
+==4238==    by 0x109F87: main (checkfc.c:273)
+==4238==
+==4238== 1,095 bytes in 12 blocks are definitely lost in loss record 5 of 6
+==4238==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4238==    by 0x12D8D1: pcre_compile2 (pcre_compile.c:9217)
+==4238==    by 0x12B239: compile_regex (label_file.h:357)
+==4238==    by 0x12B9C7: process_file (label_file.h:429)
+==4238==    by 0x12A2BA: selabel_file_init (label_file.c:522)
+==4238==    by 0x12A0BB: selabel_open (label.c:88)
+==4238==    by 0x10A038: main (checkfc.c:292)
+==4238==
+==4238== 1,296 bytes in 12 blocks are definitely lost in loss record 6 of 6
+==4238==    at 0x4C2AB80: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==4238==    by 0x13EBE5: pcre_study (pcre_study.c:1565)
+==4238==    by 0x12B25D: compile_regex (label_file.h:366)
+==4238==    by 0x12B9C7: process_file (label_file.h:429)
+==4238==    by 0x12A2BA: selabel_file_init (label_file.c:522)
+==4238==    by 0x12A0BB: selabel_open (label.c:88)
+==4238==    by 0x10A038: main (checkfc.c:292)
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- security/selinux/include/classmap.h |    2 +-
- security/selinux/include/security.h |    3 +
- security/selinux/selinuxfs.c        |   79 +++++++++++++++++++++++++++++++++++
- security/selinux/ss/services.c      |   41 ++++++++++++++----
- 4 files changed, 114 insertions(+), 11 deletions(-)
+ libselinux/src/label.c      |  1 +
+ libselinux/src/label_file.c |  5 ++++-
+ libselinux/src/label_file.h | 20 +++++++++++++-------
+ 3 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 5a4eef5..ef83c4b 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -21,7 +21,7 @@ struct security_class_mapping secclass_map[] = {
- 	  { "compute_av", "compute_create", "compute_member",
- 	    "check_context", "load_policy", "compute_relabel",
- 	    "compute_user", "setenforce", "setbool", "setsecparam",
--	    "setcheckreqprot", "read_policy", NULL } },
-+	    "setcheckreqprot", "read_policy", "validate_trans", NULL } },
- 	{ "process",
- 	  { "fork", "transition", "sigchld", "sigkill",
- 	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 223e9fd..38feb55 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -187,6 +187,9 @@ int security_node_sid(u16 domain, void *addr, u32 addrlen,
- int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 				 u16 tclass);
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index c656fda..963bfcb 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -338,6 +338,7 @@ struct selabel_handle *selabel_open(unsigned int backend,
+ 	rec->digest = selabel_is_digest_set(opts, nopts, rec->digest);
  
-+int security_validate_transition_user(u32 oldsid, u32 newsid, u32 tasksid,
-+				      u16 tclass);
-+
- int security_bounded_transition(u32 oldsid, u32 newsid);
- 
- int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c02da25..e460b4e 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -116,6 +116,7 @@ enum sel_inos {
- 	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
- 	SEL_STATUS,	/* export current status using mmap() */
- 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
-+	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
- 	SEL_INO_NEXT,	/* The next inode number to use */
- };
- 
-@@ -653,6 +654,83 @@ static const struct file_operations sel_checkreqprot_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
-+static ssize_t sel_write_validatetrans(struct file *file,
-+					const char __user *buf,
-+					size_t count, loff_t *ppos)
-+{
-+	char *oldcon = NULL, *newcon = NULL, *taskcon = NULL;
-+	char *req = NULL;
-+	u32 osid, nsid, tsid;
-+	u16 tclass;
-+	int rc;
-+
-+	rc = task_has_security(current, SECURITY__VALIDATE_TRANS);
-+	if (rc)
-+		goto out;
-+
-+	rc = -ENOMEM;
-+	if (count >= PAGE_SIZE)
-+		goto out;
-+
-+	/* No partial writes. */
-+	rc = -EINVAL;
-+	if (*ppos != 0)
-+		goto out;
-+
-+	rc = -ENOMEM;
-+	req = kzalloc(count + 1, GFP_KERNEL);
-+	if (!req)
-+		goto out;
-+
-+	rc = -EFAULT;
-+	if (copy_from_user(req, buf, count))
-+		goto out;
-+
-+	rc = -ENOMEM;
-+	oldcon = kzalloc(count + 1, GFP_KERNEL);
-+	if (!oldcon)
-+		goto out;
-+
-+	newcon = kzalloc(count + 1, GFP_KERNEL);
-+	if (!newcon)
-+		goto out;
-+
-+	taskcon = kzalloc(count + 1, GFP_KERNEL);
-+	if (!taskcon)
-+		goto out;
-+
-+	rc = -EINVAL;
-+	if (sscanf(req, "%s %s %hu %s", oldcon, newcon, &tclass, taskcon) != 4)
-+		goto out;
-+
-+	rc = security_context_str_to_sid(oldcon, &osid, GFP_KERNEL);
-+	if (rc)
-+		goto out;
-+
-+	rc = security_context_str_to_sid(newcon, &nsid, GFP_KERNEL);
-+	if (rc)
-+		goto out;
-+
-+	rc = security_context_str_to_sid(taskcon, &tsid, GFP_KERNEL);
-+	if (rc)
-+		goto out;
-+
-+	rc = security_validate_transition_user(osid, nsid, tsid, tclass);
-+	if (!rc)
-+		rc = count;
-+out:
-+	kfree(req);
-+	kfree(oldcon);
-+	kfree(newcon);
-+	kfree(taskcon);
-+	return rc;
-+}
-+
-+static const struct file_operations sel_validatetrans_ops = {
-+	.write		= sel_write_validatetrans,
-+	.llseek		= generic_file_llseek,
-+};
-+
- /*
-  * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
-  */
-@@ -1759,6 +1836,8 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
- 		[SEL_STATUS] = {"status", &sel_handle_status_ops, S_IRUGO},
- 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
-+		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_validatetrans_ops,
-+					S_IWUSR},
- 		/* last one */ {""}
- 	};
- 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ebb5eb3..527c90e 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -750,7 +750,7 @@ static void context_struct_compute_av(struct context *scontext,
- 				 tclass, avd);
- }
- 
--static int security_validtrans_handle_fail(struct context *ocontext,
-+static void security_validtrans_audit_fail(struct context *ocontext,
- 					   struct context *ncontext,
- 					   struct context *tcontext,
- 					   u16 tclass)
-@@ -772,14 +772,10 @@ out:
- 	kfree(o);
- 	kfree(n);
- 	kfree(t);
--
--	if (!selinux_enforcing)
--		return 0;
--	return -EPERM;
- }
- 
--int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
--				 u16 orig_tclass)
-+static int security_compute_validatetrans(u32 oldsid, u32 newsid, u32 tasksid,
-+					  u16 orig_tclass, bool user)
- {
- 	struct context *ocontext;
- 	struct context *ncontext;
-@@ -794,7 +790,10 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 
- 	read_lock(&policy_rwlock);
- 
--	tclass = unmap_class(orig_tclass);
-+	if (!user)
-+		tclass = unmap_class(orig_tclass);
-+	else
-+		tclass = orig_tclass;
- 
- 	if (!tclass || tclass > policydb.p_classes.nprim) {
- 		printk(KERN_ERR "SELinux: %s:  unrecognized class %d\n",
-@@ -832,8 +831,16 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 	while (constraint) {
- 		if (!constraint_expr_eval(ocontext, ncontext, tcontext,
- 					  constraint->expr)) {
--			rc = security_validtrans_handle_fail(ocontext, ncontext,
--							     tcontext, tclass);
-+			if (!user)
-+				security_validtrans_audit_fail(ocontext,
-+								ncontext,
-+								tcontext,
-+								tclass);
-+			if (!selinux_enforcing)
-+				rc = 0;
-+			else
-+				rc = -EPERM;
-+
- 			goto out;
- 		}
- 		constraint = constraint->next;
-@@ -844,6 +851,20 @@ out:
+ 	if ((*initfuncs[backend])(rec, opts, nopts)) {
++		free(rec->spec_file);
+ 		free(rec);
+ 		rec = NULL;
+ 	}
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 1a0c15f..071d902 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -507,6 +507,8 @@ out:
  	return rc;
  }
  
-+int security_validate_transition_user(u32 oldsid, u32 newsid, u32 tasksid,
-+					u16 tclass)
-+{
-+	return security_compute_validatetrans(oldsid, newsid, tasksid,
-+						tclass, true);
-+}
++static void closef(struct selabel_handle *rec);
 +
-+int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
-+				 u16 orig_tclass)
-+{
-+	return security_compute_validatetrans(oldsid, newsid, tasksid,
-+						orig_tclass, false);
-+}
+ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		unsigned n)
+ {
+@@ -580,7 +582,8 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 
+ finish:
+ 	if (status)
+-		free(data->spec_arr);
++		closef(rec);
 +
- /*
-  * security_bounded_transition - check whether the given
-  * transition is directed to bounded, or not.
+ 	return status;
+ }
+ 
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 2492826..beb1fc2 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -278,6 +278,7 @@ static inline int store_stem(struct saved_data *data, char *buf, int stem_len)
+ 	}
+ 	data->stem_arr[num].len = stem_len;
+ 	data->stem_arr[num].buf = buf;
++	data->stem_arr[num].from_mmap = 0;
+ 	data->num_stems++;
+ 
+ 	return num;
+@@ -425,6 +426,18 @@ static inline int process_line(struct selabel_handle *rec,
+ 	/* process and store the specification in spec. */
+ 	spec_arr[nspec].stem_id = find_stem_from_spec(data, regex);
+ 	spec_arr[nspec].regex_str = regex;
++
++	spec_arr[nspec].type_str = type;
++	spec_arr[nspec].mode = 0;
++
++	spec_arr[nspec].lr.ctx_raw = context;
++
++	/*
++	 * bump data->nspecs to cause closef() to cover it in its free
++	 * but do not bump nspec since it's used below.
++	 */
++	data->nspec++;
++
+ 	if (rec->validating &&
+ 			    compile_regex(data, &spec_arr[nspec], &errbuf)) {
+ 		COMPAT_LOG(SELINUX_ERROR,
+@@ -435,9 +448,6 @@ static inline int process_line(struct selabel_handle *rec,
+ 		return -1;
+ 	}
+ 
+-	/* Convert the type string to a mode format */
+-	spec_arr[nspec].type_str = type;
+-	spec_arr[nspec].mode = 0;
+ 	if (type) {
+ 		mode_t mode = string_to_mode(type);
+ 
+@@ -451,8 +461,6 @@ static inline int process_line(struct selabel_handle *rec,
+ 		spec_arr[nspec].mode = mode;
+ 	}
+ 
+-	spec_arr[nspec].lr.ctx_raw = context;
+-
+ 	/* Determine if specification has
+ 	 * any meta characters in the RE */
+ 	spec_hasMetaChars(&spec_arr[nspec]);
+@@ -460,8 +468,6 @@ static inline int process_line(struct selabel_handle *rec,
+ 	if (strcmp(context, "<<none>>") && rec->validating)
+ 		compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
+ 
+-	data->nspec = ++nspec;
+-
+ 	return 0;
+ }
+ 
 -- 
-1.7.1
+1.9.1
