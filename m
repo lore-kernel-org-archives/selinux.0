@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9S68U34028608
- for <selinux@tycho.nsa.gov>; Wed, 28 Oct 2015 02:08:31 -0400
-Date: Wed, 28 Oct 2015 17:08:02 +1100 (AEDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9S69LBA028642
+ for <selinux@tycho.nsa.gov>; Wed, 28 Oct 2015 02:09:21 -0400
+Date: Wed, 28 Oct 2015 17:09:10 +1100 (AEDT)
 From: James Morris <jmorris@namei.org>
 To: Andreas Gruenbacher <agruenba@redhat.com>
 cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
@@ -9,7 +9,7 @@ cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 Subject: Re: [PATCH v3 5/7] security: Add hook to invalidate inode security
  labels
 In-Reply-To: <1445894128-6765-6-git-send-email-agruenba@redhat.com>
-Message-ID: <alpine.LRH.2.20.1510281706240.23621@namei.org>
+Message-ID: <alpine.LRH.2.20.1510281708280.23621@namei.org>
 References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
  <1445894128-6765-6-git-send-email-agruenba@redhat.com>
 MIME-Version: 1.0
