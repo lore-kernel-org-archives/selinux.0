@@ -1,49 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9RMfnJo003560
- for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2015 18:41:55 -0400
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id A85961A1D8
- for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2015 23:41:34 +0100 (CET)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id 08JESUQAHvMD for <selinux@tycho.nsa.gov>;
- Tue, 27 Oct 2015 23:41:32 +0100 (CET)
-Received: from fornost.bigon.be (unknown
- [IPv6:2a02:578:85fc:1:226:18ff:fe08:6073])
- (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id D82B61A070
- for <selinux@tycho.nsa.gov>; Tue, 27 Oct 2015 23:41:31 +0100 (CET)
-From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] Load libsepol.so.1 instead of libsepol.so
-Date: Tue, 27 Oct 2015 23:41:31 +0100
-Message-Id: <1445985691-15518-1-git-send-email-bigon@debian.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9S68U34028608
+ for <selinux@tycho.nsa.gov>; Wed, 28 Oct 2015 02:08:31 -0400
+Date: Wed, 28 Oct 2015 17:08:02 +1100 (AEDT)
+From: James Morris <jmorris@namei.org>
+To: Andreas Gruenbacher <agruenba@redhat.com>
+cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ ocfs2-devel@oss.oracle.com
+Subject: Re: [PATCH v3 5/7] security: Add hook to invalidate inode security
+ labels
+In-Reply-To: <1445894128-6765-6-git-send-email-agruenba@redhat.com>
+Message-ID: <alpine.LRH.2.20.1510281706240.23621@namei.org>
+References: <1445894128-6765-1-git-send-email-agruenba@redhat.com>
+ <1445894128-6765-6-git-send-email-agruenba@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Laurent Bigonville <l.bigonville@edpnet.be>
+On Mon, 26 Oct 2015, Andreas Gruenbacher wrote:
 
-libsepol.so symlink is usually part of the development package, try to
-load the library directly instead.
----
- libsemanage/utils/semanage_migrate_store | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Add a hook to invalidate an inode's security label when the cached
+> information becomes invalid.
+> 
+> Implement the new hook in selinux: set a flag when a security label becomes
+> invalid.  When hitting a security label which has been marked as invalid in
+> inode_has_perm, try reloading the label.
+> 
+> If an inode does not have any dentries attached, we cannot reload its
+> security label because we cannot use the getxattr inode operation.  In that
+> case, continue using the old, invalid label until a dentry becomes
+> available.
+> 
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 
-diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-index b5eefaa..0ebd285 100755
---- a/libsemanage/utils/semanage_migrate_store
-+++ b/libsemanage/utils/semanage_migrate_store
-@@ -10,7 +10,7 @@ from optparse import OptionParser
- 
- import ctypes
- 
--sepol = ctypes.cdll.LoadLibrary('libsepol.so')
-+sepol = ctypes.cdll.LoadLibrary('libsepol.so.1')
- 
- try:
- 	import selinux
+
+Reviewed-by: James Morris <james.l.morris@oracle.com>
+
 -- 
-2.6.2
+James Morris
+<jmorris@namei.org>
