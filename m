@@ -1,81 +1,74 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9T2KNGO017452
- for <selinux@tycho.nsa.gov>; Wed, 28 Oct 2015 22:20:23 -0400
-Subject: Re: Macro help
-To: Steve Lawrence <slawrence@tresys.com>, selinux@tycho.nsa.gov
-References: <56314B29.7020007@yahoo.com> <5631621A.5070904@tresys.com>
-From: Dan <dtdevore64@yahoo.com>
-Message-ID: <5631825E.7040807@yahoo.com>
-Date: Wed, 28 Oct 2015 22:20:14 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9TAIvaK012169
+ for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2015 06:18:57 -0400
+Received: by oiao187 with SMTP id o187so26013307oia.3
+ for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2015 03:18:16 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <5631621A.5070904@tresys.com>
-Content-Type: text/plain; charset=windows-1252
+Date: Thu, 29 Oct 2015 19:18:16 +0900
+Message-ID: <CADFhUBEkRoBL2Cazn67oCXjYAaELgjg5ReFSHWTQ7gj960_xSQ@mail.gmail.com>
+Subject: [sandbox] init script of sandbox returns an improper return code in
+ status function
+From: Keigo Noha <knoha@redhat.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Yeah you were right, I can't believe I missed that simple mistake
-because I had another macro that had the parenthesis correct to look at
-but must have missed it. Thanks a lot man.
+Dear maintainers,
 
-On 10/28/2015 08:02 PM, Steve Lawrence wrote:
-> On 10/28/2015 06:24 PM, Dan wrote:
->> Hello everyone I have hit another bump with the cil macros. I am trying
->> to make a macro that covers the domain_type and domain_type_entry file
->> interfaces equivalent in Cil with macros that will confine a simple
->> shell script( and if anyone has any input to what I can do better or if
->> I am going about this in the wrong way please say so), but it says it
->> doesn't understand my "call usersubject_domain_type" line and won't
->> build for some reason. Here is what I have so far. Any help is much
->> appreciated, thanks.
->>
->>
->> (macro usersubject_domain_type ((type ARG1)) (type ARG2))
->>         (typeattributeset domain ARG2)
->>         (typeattributeset exec_type ARG1)
->>         (typeattributeset corenet_unlabeled_type ARG2)
->>         (typeattributeset entry_type ARG1)
->>         (typeattributeset file_type ARG1)
->>         (typeattributeset non_security_file_type ARG1)
->>         (typeattributeset non_auth_file_type ARG1)
->>
->>
->> (call usersubject_domain_type (myshell_exec_t myshell_t))
-> 
-> The parenthesis aren't quite correct in the macro parameter list. You're
-> closing the parameter list too early, so the macro defines only a single
-> parameter, ARG1, and the body of the macro only contains the definition
-> of a type called ARG2. Re-indenting what you have shows it more clearly:
-> 
->   (macro usersubject_domain_type ((type ARG1))
->     (type ARG2))
-> 
->   (typeattributeset domain ARG2)
->   (typeattributeset exec_type ARG1)
->   (typeattributeset corenet_unlabeled_type ARG2)
->   (typeattributeset entry_type ARG1)
->   (typeattributeset file_type ARG1)
->   (typeattributeset non_security_file_type ARG1)
->   (typeattributeset non_auth_file_type ARG1)
-> 
->   (call usersubject_domain_type (myshell_exec_t myshell_t))
-> 
-> So it's probably complaining that the macro requires one argument, but
-> you're passing in two. To fix this, you just need to move a parenthesis
-> around, e.g.:
-> 
->   (macro usersubject_domain_type ((type ARG1) (type ARG2))
->     (typeattributeset domain ARG2)
->     (typeattributeset exec_type ARG1)
->     (typeattributeset corenet_unlabeled_type ARG2)
->     (typeattributeset entry_type ARG1)
->     (typeattributeset file_type ARG1)
->     (typeattributeset non_security_file_type ARG1)
->     (typeattributeset non_auth_file_type ARG1)) ;notice the extra paren
-> here closing the maro
-> 
->   (call usersubject_domain_type (myshell_exec_t myshell_t))
-> 
-> - Steve
-> 
+I'm Keigo Noha in Red Hat.
+I made a patch for init script in sandbox.
+
+===========================
+
+Author: Keigo Noha <knoha@redhat.com>
+Date:   Wed Oct 28 17:21:02 2015 +0900
+
+    [sandbox] init script of sandbox returns an improper return code
+in status function
+    Previous sandbox's init script returns 0 only in status function.
+    This return code causes wrong service status report in
+system-config-services.
+
+    This fix will change the return code to return a proper code for
+system-config-services.
+
+    Signed-off-by: Keigo Noha <knoha@redhat.com>
+
+diff --git a/policycoreutils/sandbox/sandbox.init
+b/policycoreutils/sandbox/sandbox.init
+index 357a7b8..b3979bf 100644
+--- a/policycoreutils/sandbox/sandbox.init
++++ b/policycoreutils/sandbox/sandbox.init
+@@ -42,15 +42,12 @@ stop() {
+ }
+
+ status() {
+-        EXIT_CODE=0
+        if [ -f "$LOCKFILE" ]; then
+            echo "$base is running"
+-           EXIT_CODE=0
+        else
+            echo "$base is stopped"
+-           EXIT_CODE=3
+        fi
+-       exit $EXIT_CODE
++       exit 0
+ }
+
+ case "$1" in
+===========================
+
+Could you evaluate my patch and consider to merge to master branch?
+
+Best regards,
+Keigo
+
+=========================
+Keigo Noha
+Red Hat
+Global Support Services
+Senior Technical Support Engineer
+==========================
