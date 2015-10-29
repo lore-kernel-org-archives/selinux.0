@@ -1,13 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9T0lfPk011960
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9T0lfPm011960
  for <selinux@tycho.nsa.gov>; Wed, 28 Oct 2015 20:47:44 -0400
 From: Andreas Gruenbacher <agruenba@redhat.com>
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH v4 3/7] security: Make inode argument of inode_getsecid
- non-const
-Date: Thu, 29 Oct 2015 01:47:11 +0100
-Message-Id: <1446079635-22462-4-git-send-email-agruenba@redhat.com>
+Subject: [PATCH v4 6/7] selinux: Revalidate invalid inode security labels
+Date: Thu, 29 Oct 2015 01:47:14 +0100
+Message-Id: <1446079635-22462-7-git-send-email-agruenba@redhat.com>
 In-Reply-To: <1446079635-22462-1-git-send-email-agruenba@redhat.com>
 References: <1446079635-22462-1-git-send-email-agruenba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,189 +14,166 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Make the inode argument of the inode_getsecid hook non-const so that we
-can use it to revalidate invalid security labels.
+When fetching an inode's security label, check if it is still valid, and
+try reloading it if it is not. Reloading will fail when we are in RCU
+context which doesn't allow sleeping, or when we can't find a dentry for
+the inode.  (Reloading happens via iop->getxattr which takes a dentry
+parameter.)  When reloading fails, continue using the old, invalid
+label.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 ---
- include/linux/audit.h      | 8 ++++----
- include/linux/lsm_hooks.h  | 2 +-
- include/linux/security.h   | 4 ++--
- kernel/audit.c             | 2 +-
- kernel/audit.h             | 2 +-
- kernel/auditsc.c           | 6 +++---
- security/security.c        | 2 +-
- security/selinux/hooks.c   | 2 +-
- security/smack/smack_lsm.c | 2 +-
- 9 files changed, 15 insertions(+), 15 deletions(-)
+ security/selinux/hooks.c | 70 ++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 65 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index b2abc99..7a9e0d7 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -137,7 +137,7 @@ extern void __audit_getname(struct filename *name);
- extern void __audit_inode(struct filename *name, const struct dentry *dentry,
- 				unsigned int flags);
- extern void __audit_file(const struct file *);
--extern void __audit_inode_child(const struct inode *parent,
-+extern void __audit_inode_child(struct inode *parent,
- 				const struct dentry *dentry,
- 				const unsigned char type);
- extern void __audit_seccomp(unsigned long syscall, long signr, int code);
-@@ -202,7 +202,7 @@ static inline void audit_inode_parent_hidden(struct filename *name,
- 		__audit_inode(name, dentry,
- 				AUDIT_INODE_PARENT | AUDIT_INODE_HIDDEN);
- }
--static inline void audit_inode_child(const struct inode *parent,
-+static inline void audit_inode_child(struct inode *parent,
- 				     const struct dentry *dentry,
- 				     const unsigned char type) {
- 	if (unlikely(!audit_dummy_context()))
-@@ -359,7 +359,7 @@ static inline void __audit_inode(struct filename *name,
- 					const struct dentry *dentry,
- 					unsigned int flags)
- { }
--static inline void __audit_inode_child(const struct inode *parent,
-+static inline void __audit_inode_child(struct inode *parent,
- 					const struct dentry *dentry,
- 					const unsigned char type)
- { }
-@@ -373,7 +373,7 @@ static inline void audit_file(struct file *file)
- static inline void audit_inode_parent_hidden(struct filename *name,
- 				const struct dentry *dentry)
- { }
--static inline void audit_inode_child(const struct inode *parent,
-+static inline void audit_inode_child(struct inode *parent,
- 				     const struct dentry *dentry,
- 				     const unsigned char type)
- { }
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index bdd0a3a..4c48227 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1420,7 +1420,7 @@ union security_list_options {
- 					int flags);
- 	int (*inode_listsecurity)(struct inode *inode, char *buffer,
- 					size_t buffer_size);
--	void (*inode_getsecid)(const struct inode *inode, u32 *secid);
-+	void (*inode_getsecid)(struct inode *inode, u32 *secid);
- 
- 	int (*file_permission)(struct file *file, int mask);
- 	int (*file_alloc_security)(struct file *file);
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 9ee61b2..e79149a 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -273,7 +273,7 @@ int security_inode_killpriv(struct dentry *dentry);
- int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
- int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
- int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
--void security_inode_getsecid(const struct inode *inode, u32 *secid);
-+void security_inode_getsecid(struct inode *inode, u32 *secid);
- int security_file_permission(struct file *file, int mask);
- int security_file_alloc(struct file *file);
- void security_file_free(struct file *file);
-@@ -734,7 +734,7 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index dcac6dc..47dc704 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -241,11 +241,63 @@ static int inode_alloc_security(struct inode *inode)
  	return 0;
  }
  
--static inline void security_inode_getsecid(const struct inode *inode, u32 *secid)
-+static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
- {
- 	*secid = 0;
- }
-diff --git a/kernel/audit.c b/kernel/audit.c
-index 662c007..d20f674 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -1708,7 +1708,7 @@ static inline int audit_copy_fcaps(struct audit_names *name,
- 
- /* Copy inode data into an audit_names. */
- void audit_copy_inode(struct audit_names *name, const struct dentry *dentry,
--		      const struct inode *inode)
-+		      struct inode *inode)
- {
- 	name->ino   = inode->i_ino;
- 	name->dev   = inode->i_sb->s_dev;
-diff --git a/kernel/audit.h b/kernel/audit.h
-index dadf86a..400877b 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -207,7 +207,7 @@ extern u32 audit_ever_enabled;
- 
- extern void audit_copy_inode(struct audit_names *name,
- 			     const struct dentry *dentry,
--			     const struct inode *inode);
-+			     struct inode *inode);
- extern void audit_log_cap(struct audit_buffer *ab, char *prefix,
- 			  kernel_cap_t *cap);
- extern void audit_log_name(struct audit_context *context,
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index b86cc04..195ffae 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -1754,7 +1754,7 @@ void __audit_inode(struct filename *name, const struct dentry *dentry,
- 		   unsigned int flags)
- {
- 	struct audit_context *context = current->audit_context;
--	const struct inode *inode = d_backing_inode(dentry);
-+	struct inode *inode = d_backing_inode(dentry);
- 	struct audit_names *n;
- 	bool parent = flags & AUDIT_INODE_PARENT;
- 
-@@ -1848,12 +1848,12 @@ void __audit_file(const struct file *file)
-  * must be hooked prior, in order to capture the target inode during
-  * unsuccessful attempts.
++static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
++
++/*
++ * Try reloading inode security labels that have been marked as invalid.  The
++ * @may_sleep parameter indicates when sleeping and thus reloading labels is
++ * allowed; when set to false, returns ERR_PTR(-ECHILD) when the label is
++ * invalid.  The @opt_dentry parameter should be set to a dentry of the inode;
++ * when no dentry is available, set it to NULL instead.
++ */
++static int __inode_security_revalidate(struct inode *inode,
++				       struct dentry *opt_dentry,
++				       bool may_sleep)
++{
++	struct inode_security_struct *isec = inode->i_security;
++
++	might_sleep_if(may_sleep);
++
++	if (isec->initialized == LABEL_INVALID) {
++		if (!may_sleep)
++			return -ECHILD;
++
++		/*
++		 * Try reloading the inode security label.  This will fail if
++		 * @opt_dentry is NULL and no dentry for this inode can be
++		 * found; in that case, continue using the old label.
++		 */
++		inode_doinit_with_dentry(inode, opt_dentry);
++	}
++	return 0;
++}
++
++static void inode_security_revalidate(struct inode *inode)
++{
++	__inode_security_revalidate(inode, NULL, true);
++}
++
++static struct inode_security_struct *inode_security_novalidate(struct inode *inode)
++{
++	return inode->i_security;
++}
++
++static struct inode_security_struct *inode_security_rcu(struct inode *inode, bool rcu)
++{
++	int error;
++
++	error = __inode_security_revalidate(inode, NULL, !rcu);
++	if (error)
++		return ERR_PTR(error);
++	return inode->i_security;
++}
++
+ /*
+  * Get the security label of an inode.
   */
--void __audit_inode_child(const struct inode *parent,
-+void __audit_inode_child(struct inode *parent,
- 			 const struct dentry *dentry,
- 			 const unsigned char type)
+ static struct inode_security_struct *inode_security(struct inode *inode)
  {
- 	struct audit_context *context = current->audit_context;
--	const struct inode *inode = d_backing_inode(dentry);
-+	struct inode *inode = d_backing_inode(dentry);
- 	const char *dname = dentry->d_name.name;
- 	struct audit_names *n, *found_parent = NULL, *found_child = NULL;
- 
-diff --git a/security/security.c b/security/security.c
-index 73514c9..c5beb7e 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -721,7 +721,7 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
- }
- EXPORT_SYMBOL(security_inode_listsecurity);
- 
--void security_inode_getsecid(const struct inode *inode, u32 *secid)
-+void security_inode_getsecid(struct inode *inode, u32 *secid)
- {
- 	call_void_hook(inode_getsecid, inode, secid);
- }
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index adec2e2..a8f09af 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3182,7 +3182,7 @@ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t
- 	return len;
++	__inode_security_revalidate(inode, NULL, true);
+ 	return inode->i_security;
  }
  
--static void selinux_inode_getsecid(const struct inode *inode, u32 *secid)
-+static void selinux_inode_getsecid(struct inode *inode, u32 *secid)
+@@ -256,6 +308,7 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
  {
- 	struct inode_security_struct *isec = inode->i_security;
- 	*secid = isec->sid;
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 07d0344..db75cd1 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -1508,7 +1508,7 @@ static int smack_inode_listsecurity(struct inode *inode, char *buffer,
-  * @inode: inode to extract the info from
-  * @secid: where result will be saved
-  */
--static void smack_inode_getsecid(const struct inode *inode, u32 *secid)
-+static void smack_inode_getsecid(struct inode *inode, u32 *secid)
- {
- 	struct inode_smack *isp = inode->i_security;
+ 	struct inode *inode = d_backing_inode(dentry);
  
++	__inode_security_revalidate(inode, dentry, true);
+ 	return inode->i_security;
+ }
+ 
+@@ -362,8 +415,6 @@ static const char *labeling_behaviors[7] = {
+ 	"uses native labeling",
+ };
+ 
+-static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
+-
+ static inline int inode_doinit(struct inode *inode)
+ {
+ 	return inode_doinit_with_dentry(inode, NULL);
+@@ -1655,6 +1706,7 @@ static inline int dentry_has_perm(const struct cred *cred,
+ 
+ 	ad.type = LSM_AUDIT_DATA_DENTRY;
+ 	ad.u.dentry = dentry;
++	__inode_security_revalidate(inode, dentry, true);
+ 	return inode_has_perm(cred, inode, av, &ad);
+ }
+ 
+@@ -1670,6 +1722,7 @@ static inline int path_has_perm(const struct cred *cred,
+ 
+ 	ad.type = LSM_AUDIT_DATA_PATH;
+ 	ad.u.path = *path;
++	__inode_security_revalidate(inode, path->dentry, true);
+ 	return inode_has_perm(cred, inode, av, &ad);
+ }
+ 
+@@ -2874,7 +2927,9 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
+ 	ad.type = LSM_AUDIT_DATA_DENTRY;
+ 	ad.u.dentry = dentry;
+ 	sid = cred_sid(cred);
+-	isec = inode_security(inode);
++	isec = inode_security_rcu(inode, rcu);
++	if (IS_ERR(isec))
++		return PTR_ERR(isec);
+ 
+ 	return avc_has_perm_flags(sid, isec->sid, isec->sclass, FILE__READ, &ad,
+ 				  rcu ? MAY_NOT_BLOCK : 0);
+@@ -2926,7 +2981,9 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 	perms = file_mask_to_av(inode->i_mode, mask);
+ 
+ 	sid = cred_sid(cred);
+-	isec = inode_security(inode);
++	isec = inode_security_rcu(inode, flags & MAY_NOT_BLOCK);
++	if (IS_ERR(isec))
++		return PTR_ERR(isec);
+ 
+ 	rc = avc_has_perm_noaudit(sid, isec->sid, isec->sclass, perms, 0, &avd);
+ 	audited = avc_audit_required(perms, &avd, rc,
+@@ -3234,6 +3291,7 @@ static int selinux_file_permission(struct file *file, int mask)
+ 		/* No change since file_open check. */
+ 		return 0;
+ 
++	inode_security_revalidate(inode);
+ 	return selinux_revalidate_file_permission(file, mask);
+ }
+ 
+@@ -3539,6 +3597,7 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
+ 	 * new inode label or new policy.
+ 	 * This check is not redundant - do not remove.
+ 	 */
++	inode_security_revalidate(file_inode(file));
+ 	return file_path_has_perm(cred, file, open_file_to_av(file));
+ }
+ 
+@@ -4620,7 +4679,8 @@ static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
+ 
+ static void selinux_sock_graft(struct sock *sk, struct socket *parent)
+ {
+-	struct inode_security_struct *isec = inode_security(SOCK_INODE(parent));
++	struct inode_security_struct *isec =
++		inode_security_novalidate(SOCK_INODE(parent));
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+ 	if (sk->sk_family == PF_INET || sk->sk_family == PF_INET6 ||
 -- 
 2.5.0
