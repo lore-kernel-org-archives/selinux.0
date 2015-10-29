@@ -1,330 +1,129 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9TMqVf4004208
- for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2015 18:52:31 -0400
-Subject: Re: [PATCH v4 11/11] smack: documentation for the Smack namespace
-To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>,
- "David S. Miller" <davem@davemloft.net>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Al Viro <viro@zeniv.linux.org.uk>,
- Alexey Dobriyan <adobriyan@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Andy Lutomirski <luto@kernel.org>, Calvin Owens <calvinowens@fb.com>,
- David Howells <dhowells@redhat.com>,
- Eric Dumazet <edumazet@google.com>, Eric Paris <eparis@parisplace.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- James Morris <james.l.morris@oracle.com>, Jann Horn <jann@thejh.net>,
- Jiri Slaby <jslaby@suse.com>, Joe Perches <joe@perches.com>,
- John Johansen <john.johansen@canonical.com>,
- Jonathan Corbet <corbet@lwn.net>, Kees Cook <keescook@chromium.org>,
- Mauro Carvalho Chehab <mchehab@osg.samsung.com>,
- NeilBrown <neilb@suse.de>, Paul Moore <paul@paul-moore.com>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Tejun Heo <tj@kernel.org>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- containers@lists.linuxfoundation.org, linux-doc@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-References: <1444826525-9758-1-git-send-email-l.pawelczyk@samsung.com>
- <1444826525-9758-12-git-send-email-l.pawelczyk@samsung.com>
-Cc: Lukasz Pawelczyk <havner@gmail.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <5632A324.7000802@schaufler-ca.com>
-Date: Thu, 29 Oct 2015 15:52:20 -0700
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id t9TN9u4K005410
+ for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2015 19:09:56 -0400
+Received: by lbbes7 with SMTP id es7so39256103lbb.2
+ for <selinux@tycho.nsa.gov>; Thu, 29 Oct 2015 16:09:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1444826525-9758-12-git-send-email-l.pawelczyk@samsung.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <1446079635-22462-7-git-send-email-agruenba@redhat.com>
+References: <1446079635-22462-1-git-send-email-agruenba@redhat.com>
+ <1446079635-22462-7-git-send-email-agruenba@redhat.com>
+Date: Fri, 30 Oct 2015 00:09:53 +0100
+Message-ID: <CAHc6FU4pbPHpRMcLBGEHzwysTWDxP7G7Nt+q6_ESusLsFHfYOQ@mail.gmail.com>
+Subject: Re: [PATCH v4 6/7] selinux: Revalidate invalid inode security labels
+From: Andreas Gruenbacher <agruenba@redhat.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Andreas Gruenbacher <agruenba@redhat.com>,
+ LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/14/2015 5:42 AM, Lukasz Pawelczyk wrote:
-> Adds Documentation/smack-namespace.txt.
+David,
+
+On Thu, Oct 29, 2015 at 1:47 AM, Andreas Gruenbacher
+<agruenba@redhat.com> wrote:
+> When fetching an inode's security label, check if it is still valid, and
+> try reloading it if it is not. Reloading will fail when we are in RCU
+> context which doesn't allow sleeping, or when we can't find a dentry for
+> the inode.  (Reloading happens via iop->getxattr which takes a dentry
+> parameter.)  When reloading fails, continue using the old, invalid
+> label.
 >
-> Signed-off-by: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
-
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 > ---
->  Documentation/security/00-INDEX            |   2 +
->  Documentation/security/Smack-namespace.txt | 231 +++++++++++++++++++++++++++++
->  MAINTAINERS                                |   1 +
->  security/smack/Kconfig                     |   2 +
->  4 files changed, 236 insertions(+)
->  create mode 100644 Documentation/security/Smack-namespace.txt
+>  security/selinux/hooks.c | 70 ++++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 65 insertions(+), 5 deletions(-)
 >
-> diff --git a/Documentation/security/00-INDEX b/Documentation/security/00-INDEX
-> index 45c82fd..c03a220 100644
-> --- a/Documentation/security/00-INDEX
-> +++ b/Documentation/security/00-INDEX
-> @@ -6,6 +6,8 @@ SELinux.txt
->  	- how to get started with the SELinux security enhancement.
->  Smack.txt
->  	- documentation on the Smack Linux Security Module.
-> +Smack-namespace.txt
-> +	- documentation on the Smack namespace implementation.
->  Yama.txt
->  	- documentation on the Yama Linux Security Module.
->  apparmor.txt
-> diff --git a/Documentation/security/Smack-namespace.txt b/Documentation/security/Smack-namespace.txt
-> new file mode 100644
-> index 0000000..5304355
-> --- /dev/null
-> +++ b/Documentation/security/Smack-namespace.txt
-> @@ -0,0 +1,231 @@
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index dcac6dc..47dc704 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -241,11 +241,63 @@ static int inode_alloc_security(struct inode *inode)
+>         return 0;
+>  }
+>
+> +static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
 > +
-> +                                      "Quis custodiet ipsos custodes?"
-> +                                                 - Satires of Juvenal
+> +/*
+> + * Try reloading inode security labels that have been marked as invalid.  The
+> + * @may_sleep parameter indicates when sleeping and thus reloading labels is
+> + * allowed; when set to false, returns ERR_PTR(-ECHILD) when the label is
+> + * invalid.  The @opt_dentry parameter should be set to a dentry of the inode;
+> + * when no dentry is available, set it to NULL instead.
+> + */
+> +static int __inode_security_revalidate(struct inode *inode,
+> +                                      struct dentry *opt_dentry,
+> +                                      bool may_sleep)
+> +{
+> +       struct inode_security_struct *isec = inode->i_security;
 > +
+> +       might_sleep_if(may_sleep);
 > +
-> +--- What is a Smack namespace ---
+> +       if (isec->initialized == LABEL_INVALID) {
+> +               if (!may_sleep)
+> +                       return -ECHILD;
 > +
-> +Smack namespace was developed to make it possible for Smack to work
-> +nicely with Linux containers where there is a full operating system
-> +with its own init inside the namespace. Such a system working with
-> +Smack expects to have at least partially working SMACK_MAC_ADMIN to be
-> +able to change labels of processes and files. This is required to be
-> +able to securely start applications under the control of Smack and
-> +manage their access rights.
+> +               /*
+> +                * Try reloading the inode security label.  This will fail if
+> +                * @opt_dentry is NULL and no dentry for this inode can be
+> +                * found; in that case, continue using the old label.
+> +                */
+> +               inode_doinit_with_dentry(inode, opt_dentry);
+> +       }
+> +       return 0;
+> +}
 > +
-> +It was implemented using new LSM hooks added to the user namespace
-> +that were developed together with Smack namespace.
+> +static void inode_security_revalidate(struct inode *inode)
+> +{
+> +       __inode_security_revalidate(inode, NULL, true);
+> +}
 > +
+> +static struct inode_security_struct *inode_security_novalidate(struct inode *inode)
+> +{
+> +       return inode->i_security;
+> +}
 > +
-> +--- Design ideas ---
+> +static struct inode_security_struct *inode_security_rcu(struct inode *inode, bool rcu)
+> +{
+> +       int error;
 > +
-> +"Smack namespace" is rather "Smack labels namespace" as not the whole
-> +MAC is namespaced, only the labels. There is a great analogy between
-> +Smack labels namespace and the user namespace part that remaps UIDs.
+> +       error = __inode_security_revalidate(inode, NULL, !rcu);
+> +       if (error)
+> +               return ERR_PTR(error);
+> +       return inode->i_security;
+> +}
 > +
-> +The idea is to create a map of labels for a namespace so the namespace
-> +is only allowed to use those labels. Smack rules are always the same
-> +as in the init namespace (limited only by what labels are mapped) and
-> +cannot be manipulated from the child namespace. The map is actually
-> +only for labels' names. The underlying structures for labels remain
-> +the same. The filesystem also stores the "unmapped" labels from the
-> +init namespace.
-> +
-> +Let's say we have those labels in the init namespace:
-> +label1
-> +label2
-> +label3
-> +
-> +and those rules:
-> +label1 label2 rwx
-> +label1 label3 rwx
-> +label2 label3 rwx
-> +
-> +We create a map for a namespace:
-> +label1 -> mapped1
-> +label2 -> mapped2
-> +
-> +This means that 'label3' is completely invisible in the namespace. As if
-> +it didn't exist. All the rules that include it are ignored.
-> +
-> +Effectively in the namespace we have only one rule:
-> +mapped1 mapped2 rwx
-> +
-> +Which in reality is:
-> +label1 label2 rwx
-> +
-> +All requests to access an object with a 'label3' will be denied. If it
-> +ever comes to a situation where 'label3' would have to be printed
-> +(e.g. reading an exec or mmap label from a file to which we have
-> +access) then huh sign '?' will be printed instead.
-> +
-> +All the operations in the namespace on the remaining labels will have
-> +to be performed using their mapped names. Things like changing own
-> +process's label, changing filesystem label. Labels will also be
-> +printed with their mapped names.
-> +
-> +You cannot import new labels in a namespace. Every operation that
-> +would do so in an init namespace will return an error in the child
-> +namespace. You cannot assign an unmapped or not existing label to an
-> +object. You can only operate on labels that have been explicitly
-> +mapped.
-> +
-> +
-> +--- Capabilities ---
-> +
-> +Enabling Smack related capabilities (CAP_MAC_ADMIN and
-> +CAP_MAC_OVERRIDE) is main goal of Smack namespace, so it can work
-> +properly in the container. And those capabilities do work to some
-> +extent. In several places where capabilities are checked compatibility
-> +with Smack namespace has been introduced. Capabilities are of course
-> +limited to operate only on mapped labels.
-> +
-> +CAP_MAC_OVERRIDE works fully, will allow you to ignore Smack access
-> +rules, but only between objects that have labels mapped. So in the
-> +example above having this CAP will allow e.g. label2 to write to
-> +label1, but will not allow any access to label3.
-> +
-> +With CAP_MAC_ADMIN the following operations has been allowed inside
-> +the namespace:
-> +- setting and removing xattr on files, including the security.* ones
-> +- setting process's own label (/proc/self/attr/current)
-> +- mounting in a privileged Smack mode, which means one can specify
-> +  additional mount options like: smackfsdef, smackfsfloor etc.
-> +
-> +Again this is also allowed only on the mapped labels. Labels on the
-> +filesystem will be stored in unmapped form so they are preserved
-> +through reboots.
-> +
-> +Such a namespace construct allows e.g. systemd (with Smack support)
-> +working in a container to assign labels properly to daemons and other
-> +processes.
-> +
-> +
-> +--- Usage ---
-> +
-> +Smack namespace is written using LSM hooks inside user namespace. That
-> +means it's connected to it.
-> +
-> +To create a new Smack namespace you need to unshare() user namespace
-> +as usual. If that is all you do though, than there is no difference to
-> +what is now. To activate the Smack namespace you need to fill the
-> +labels' map. It is in a file /proc/$PID/attr/label_map.
-> +
-> +By default the map is empty and Smack namespaces are inactive (labels
-> +are taken directly from a parent namespace). It also means that the
-> +Smack capabilities will be inactive. After you fill the map it starts
-> +to take effect in the namespace and Smack capabilities (only on mapped
-> +labels) start to work.
-> +
-> +Due to the way Smack works only CAP_MAC_ADMIN from the parent
-> +namespace (init_user_ns for now, see the "Current limitations" below)
-> +is allowed to fill the map. That means that an unprivileged user is
-> +still allowed to create the user namespace but it will not be able to
-> +fill the labels' map (activate Smack namespace). An administrator
-> +intervention is required.
-> +
-> +The attr_map write format is:
-> +unmapped_label mapped_label
-> +
-> +When reading the file it shows an active map for a namespace the
-> +process in question is in in the format:
-> +unmapped_label -> mapped_label
-> +
-> +If the label_map file is empty it means the namespace is not mapped
-> +and Smack namespace is inactive (no mappings, MAC related capabilities
-> +behave as they did before, meaning they are active only in
-> +init_user_ns). For init_user_ns the map will always be empty.
-> +
-> +Writing to the map file is not disabled after the first write as it is
-> +in uid_map. For Smack we have no means to map ranges of labels, hence
-> +it can really be advantageous to be able to expand the map later
-> +on. But you can only add to the map. You cannot remove already mapped
-> +labels. You cannot change the already existing mappings. Also mappings
-> +has to be 1-1. All requests to create a map where either the unmapped
-> +or the mapped label already exists in the map will be denied.
-> +
-> +setns() with Smack namespace active has an additional check that the
-> +label of a process that is calling setns() has to be already mapped in
-> +the target Smack namespace for the call to succeed.
-> +
-> +
-> +--- Special labels ---
-> +
-> +Smack is using some special labels that have built-in rules. Things
-> +like floor '_', dash '^', star '*', etc. Those labels are not
-> +automatically mapped to the namespace. Moreover, you can choose to map
-> +a different label from the init namespace to behave e.g. like floor
-> +inside the namespace.
-> +
-> +Let's say we have no rules and those labels in the init namespace:
-> +_
-> +floor_to_be
-> +label
-> +
-> +Both 'label' and 'floor_to_be' can read objects with '_'. But they
-> +have no access rights to each other.
-> +
-> +Now let's create a map like this:
-> +_             ordinary_label
-> +floor_to_be   _
-> +label         mapped
-> +
-> +Right now label 'mapped' can read label '_' which means that
-> +effectively inside this namespace label 'label' has gained read access
-> +to the 'floor_to_be'. The label 'ordinary_label' is exactly it, an
-> +ordinary label that the built-in rules no longer apply to inside the
-> +namespace.
-> +
-> +To sum up, special labels in the namespace behave the same as in the
-> +init namespace. Not the original special labels though, but the ones
-> +we map to specials. This is the only case where a namespace can have
-> +access rights the init namespace does not have (like the 'label' to
-> +'floor_to_be' in the example above).
-> +
-> +Of course mappings like these are perfectly legal:
-> +_   _
-> +*   *
-> +^   ^
-> +
-> +
-> +--- Current limitations ---
-> +
-> +The Smack namespace is not hierarchical yet. It is currently not
-> +possible to fill a label_map of a nested user namespace (you can still
-> +create nested user namespace, it will just inherit its parent's map
-> +and won't have active Smack capabilities). When hierarchy will be
-> +implemented the process creating another namespace will be allowed to
-> +map only labels that it has permission to itself (those that it has in
-> +its own map).
-> +
-> +Special files inside the virtual smackfs needs to be reviewed whether
-> +it's beneficial to have some of their functionality namespaced as well
-> +(e.g. onlycap, syslog. ambient, etc). This would increase
-> +CAP_MAC_ADMIN privileges inside the namespace.
-> +
-> +
-> +--- Error codes ---
-> +
-> +While working in the namespace patches the error codes has been made
-> +to propagate properly from a place they occurred. New error codes has
-> +also been introduced for Smack in the context of namespace usage. This
-> +is a complete summary of error codes used throughout the Smack now:
-> +
-> +ENOMEM      and other system errors that might come from low level
-> +            kernel functions like memory allocations
-> +EOPNOTSUPP  means the underlying system operation is not
-> +            supported (eg. getxattr)
-> +EINVAL      means invalid syntax (e.g. empty label or one starting
-> +            with '-')
-> +EEXIST      when creating map means that a label is already mapped
-> +EBADR       is used for wrong namespace usage:
-> +            - trying to import a label inside a namespace (like trying
-> +              to use an unmapped label that would otherwise be imported)
-> +            - trying to create a Smack label map in the init namespace
-> +ENOENT      when failed to find a label we expected to exist (will not
-> +            be propagated to user-space)
-> +EPERM       means no permission to operate on an object, e.g. due to
-> +            insufficient capabilities or simply because the object
-> +            cannot be operated on in the current context
-> +EACCESS     when access has been denied due to Smack access checks
-> +            (including object being outside of a namespace)
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 797236b..c77be5a 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -9590,6 +9590,7 @@ W:	http://schaufler-ca.com
->  T:	git git://git.gitorious.org/smack-next/kernel.git
->  S:	Maintained
->  F:	Documentation/security/Smack.txt
-> +F:	Documentation/security/Smack-namespace.txt
->  F:	security/smack/
->  
->  DRIVERS FOR ADAPTIVE VOLTAGE SCALING (AVS)
-> diff --git a/security/smack/Kconfig b/security/smack/Kconfig
-> index b19a7fb..a6e0f3f 100644
-> --- a/security/smack/Kconfig
-> +++ b/security/smack/Kconfig
-> @@ -49,4 +49,6 @@ config SECURITY_SMACK_NS
->  	  This enables Smack namespace that makes it possible to map
->  	  specific labels within user namespace (analogously to mapping
->  	  UIDs) and to gain MAC capabilities over them.
-> +	  Documentation is availabile here:
-> +	  Documentation/security/Smack-namespace.txt
->  	  If you are unsure how to answer this question, answer N.
+>  /*
+>   * Get the security label of an inode.
+>   */
+>  static struct inode_security_struct *inode_security(struct inode *inode)
+>  {
+> +       __inode_security_revalidate(inode, NULL, true);
+>         return inode->i_security;
+>  }
+>
+> @@ -256,6 +308,7 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
+>  {
+>         struct inode *inode = d_backing_inode(dentry);
+>
+> +       __inode_security_revalidate(inode, dentry, true);
+>         return inode->i_security;
+>  }
+
+inode security labels are stored as xattrs. The xattr inode operations
+take dentry instead of inode arguments for filesystems like 9p and
+cifs. SELinux often only has an inode where it needs a dentry so it
+tries to find a dentry with d_find_alias(). Where it does have a
+dentry, it does pass that down though; see the second argument to
+__inode_security_revalidate. Normal filesystems then operate on the
+d_inode(dentry) of that dentry.
+
+That should work as long as d_inode and d_backing_inode remain the
+same, I assume that the plan is to change that eventually though.
+Then, backing_inode_security will have to lower the dentry, right? Ho
+will it have to do that?
+
+Thanks,
+Andreas
