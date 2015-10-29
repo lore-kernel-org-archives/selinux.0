@@ -1,240 +1,108 @@
-Subject: Re: [PATCH v3] selinux: export validatetrans decisions
-To: Andrew Perepechko <anserper@ya.ru>, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-References: <1446116502-4233-1-git-send-email-anserper@ya.ru>
-Cc: andrew.perepechko@seagate.com
+Subject: Re: [PATCH v4 2/7] security: Make inode argument of inode_getsecurity
+ non-const
+To: Andreas Gruenbacher <agruenba@redhat.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+References: <1446079635-22462-1-git-send-email-agruenba@redhat.com>
+ <1446079635-22462-3-git-send-email-agruenba@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56322162.9060406@tycho.nsa.gov>
-Date: Thu, 29 Oct 2015 09:38:42 -0400
+Message-ID: <5632352D.60809@tycho.nsa.gov>
+Date: Thu, 29 Oct 2015 11:03:09 -0400
 MIME-Version: 1.0
-In-Reply-To: <1446116502-4233-1-git-send-email-anserper@ya.ru>
+In-Reply-To: <1446079635-22462-3-git-send-email-agruenba@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/29/2015 07:01 AM, Andrew Perepechko wrote:
-> Make validatetrans decisions available through selinuxfs.
-> "/validatetrans" is added to selinuxfs for this purpose.
-> This functionality is needed by file system servers
-> implemented in userspace or kernelspace without the VFS
-> layer.
+On 10/28/2015 08:47 PM, Andreas Gruenbacher wrote:
+> Make the inode argument of the inode_getsecurity hook non-const so that
+> we can use it to revalidate invalid security labels.
 >
-> Writing "$oldcontext $newcontext $tclass $taskcontext"
-> to /validatetrans is expected to return 0 if the transition
-> is allowed and -EPERM otherwise.
->
-> Signed-off-by: Andrew Perepechko <anserper@ya.ru>
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-> CC: andrew.perepechko@seagate.com
 > ---
->   security/selinux/include/classmap.h |  2 +-
->   security/selinux/include/security.h |  3 ++
->   security/selinux/selinuxfs.c        | 80 +++++++++++++++++++++++++++++++++++++
->   security/selinux/ss/services.c      | 34 ++++++++++++----
->   4 files changed, 111 insertions(+), 8 deletions(-)
+>   include/linux/lsm_hooks.h  | 2 +-
+>   include/linux/security.h   | 4 ++--
+>   security/security.c        | 2 +-
+>   security/selinux/hooks.c   | 2 +-
+>   security/smack/smack_lsm.c | 2 +-
+>   5 files changed, 6 insertions(+), 6 deletions(-)
 >
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index 5a4eef5..ef83c4b 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -21,7 +21,7 @@ struct security_class_mapping secclass_map[] = {
->   	  { "compute_av", "compute_create", "compute_member",
->   	    "check_context", "load_policy", "compute_relabel",
->   	    "compute_user", "setenforce", "setbool", "setsecparam",
-> -	    "setcheckreqprot", "read_policy", NULL } },
-> +	    "setcheckreqprot", "read_policy", "validate_trans", NULL } },
->   	{ "process",
->   	  { "fork", "transition", "sigchld", "sigkill",
->   	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 223e9fd..38feb55 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -187,6 +187,9 @@ int security_node_sid(u16 domain, void *addr, u32 addrlen,
->   int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
->   				 u16 tclass);
->
-> +int security_validate_transition_user(u32 oldsid, u32 newsid, u32 tasksid,
-> +				      u16 tclass);
-> +
->   int security_bounded_transition(u32 oldsid, u32 newsid);
->
->   int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index c02da25..0dc407d 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -116,6 +116,7 @@ enum sel_inos {
->   	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
->   	SEL_STATUS,	/* export current status using mmap() */
->   	SEL_POLICY,	/* allow userspace to read the in kernel policy */
-> +	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
->   	SEL_INO_NEXT,	/* The next inode number to use */
->   };
->
-> @@ -653,6 +654,83 @@ static const struct file_operations sel_checkreqprot_ops = {
->   	.llseek		= generic_file_llseek,
->   };
->
-> +static ssize_t sel_write_validatetrans(struct file *file,
-> +					const char __user *buf,
-> +					size_t count, loff_t *ppos)
-> +{
-> +	char *oldcon = NULL, *newcon = NULL, *taskcon = NULL;
-> +	char *req = NULL;
-> +	u32 osid, nsid, tsid;
-> +	u16 tclass;
-> +	int rc;
-> +
-> +	rc = task_has_security(current, SECURITY__VALIDATE_TRANS);
-> +	if (rc)
-> +		goto out;
-> +
-> +	rc = -ENOMEM;
-> +	if (count >= PAGE_SIZE)
-> +		goto out;
-> +
-> +	/* No partial writes. */
-> +	rc = -EINVAL;
-> +	if (*ppos != 0)
-> +		goto out;
-> +
-> +	rc = -ENOMEM;
-> +	req = kzalloc(count + 1, GFP_KERNEL);
-> +	if (!req)
-> +		goto out;
-> +
-> +	rc = -EFAULT;
-> +	if (copy_from_user(req, buf, count))
-> +		goto out;
-> +
-> +	rc = -ENOMEM;
-> +	oldcon = kzalloc(count + 1, GFP_KERNEL);
-> +	if (!oldcon)
-> +		goto out;
-> +
-> +	newcon = kzalloc(count + 1, GFP_KERNEL);
-> +	if (!newcon)
-> +		goto out;
-> +
-> +	taskcon = kzalloc(count + 1, GFP_KERNEL);
-> +	if (!taskcon)
-> +		goto out;
-> +
-> +	rc = -EINVAL;
-> +	if (sscanf(req, "%s %s %hu %s", oldcon, newcon, &tclass, taskcon) != 4)
-> +		goto out;
-> +
-> +	rc = security_context_str_to_sid(oldcon, &osid, GFP_KERNEL);
-> +	if (rc)
-> +		goto out;
-> +
-> +	rc = security_context_str_to_sid(newcon, &nsid, GFP_KERNEL);
-> +	if (rc)
-> +		goto out;
-> +
-> +	rc = security_context_str_to_sid(taskcon, &tsid, GFP_KERNEL);
-> +	if (rc)
-> +		goto out;
-> +
-> +	rc = security_validate_transition_user(osid, nsid, tsid, tclass);
-> +	if (!rc)
-> +		rc = count;
-> +out:
-> +	kfree(req);
-> +	kfree(oldcon);
-> +	kfree(newcon);
-> +	kfree(taskcon);
-> +	return rc;
-> +}
-> +
-> +static const struct file_operations sel_transition_ops = {
-> +	.write		= sel_write_validatetrans,
-> +	.llseek		= generic_file_llseek,
-> +};
-> +
->   /*
->    * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
->    */
-> @@ -1759,6 +1837,8 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
->   		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
->   		[SEL_STATUS] = {"status", &sel_handle_status_ops, S_IRUGO},
->   		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
-> +		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
-> +					S_IWUGO},
->   		/* last one */ {""}
->   	};
->   	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index ebb5eb3..ebda973 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -778,8 +778,8 @@ out:
->   	return -EPERM;
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index ec3a6ba..bdd0a3a 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1413,7 +1413,7 @@ union security_list_options {
+>   	int (*inode_removexattr)(struct dentry *dentry, const char *name);
+>   	int (*inode_need_killpriv)(struct dentry *dentry);
+>   	int (*inode_killpriv)(struct dentry *dentry);
+> -	int (*inode_getsecurity)(const struct inode *inode, const char *name,
+> +	int (*inode_getsecurity)(struct inode *inode, const char *name,
+>   					void **buffer, bool alloc);
+>   	int (*inode_setsecurity)(struct inode *inode, const char *name,
+>   					const void *value, size_t size,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 2f4c1f7..9ee61b2 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -270,7 +270,7 @@ int security_inode_listxattr(struct dentry *dentry);
+>   int security_inode_removexattr(struct dentry *dentry, const char *name);
+>   int security_inode_need_killpriv(struct dentry *dentry);
+>   int security_inode_killpriv(struct dentry *dentry);
+> -int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc);
+> +int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
+>   int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+>   int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
+>   void security_inode_getsecid(const struct inode *inode, u32 *secid);
+> @@ -719,7 +719,7 @@ static inline int security_inode_killpriv(struct dentry *dentry)
+>   	return cap_inode_killpriv(dentry);
 >   }
 >
-> -int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
-> -				 u16 orig_tclass)
-> +static int security_compute_validatetrans(u32 oldsid, u32 newsid, u32 tasksid,
-> +					  u16 orig_tclass, bool user)
+> -static inline int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
+> +static inline int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
 >   {
->   	struct context *ocontext;
->   	struct context *ncontext;
-> @@ -794,11 +794,12 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
->
->   	read_lock(&policy_rwlock);
->
-> -	tclass = unmap_class(orig_tclass);
-> +	if (!user)
-> +		tclass = unmap_class(orig_tclass);
-> +	else
-> +		tclass = orig_tclass;
->
->   	if (!tclass || tclass > policydb.p_classes.nprim) {
-> -		printk(KERN_ERR "SELinux: %s:  unrecognized class %d\n",
-> -			__func__, tclass);
->   		rc = -EINVAL;
->   		goto out;
->   	}
-> @@ -832,8 +833,13 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
->   	while (constraint) {
->   		if (!constraint_expr_eval(ocontext, ncontext, tcontext,
->   					  constraint->expr)) {
-> -			rc = security_validtrans_handle_fail(ocontext, ncontext,
-> -							     tcontext, tclass);
-> +			if (user)
-> +				rc = -EPERM;
-> +			else
-> +				rc = security_validtrans_handle_fail(ocontext,
-> +								     ncontext,
-> +								     tcontext,
-> +								     tclass);
->   			goto out;
->   		}
->   		constraint = constraint->next;
-> @@ -844,6 +850,20 @@ out:
->   	return rc;
+>   	return -EOPNOTSUPP;
+>   }
+> diff --git a/security/security.c b/security/security.c
+> index 46f405c..73514c9 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -697,7 +697,7 @@ int security_inode_killpriv(struct dentry *dentry)
+>   	return call_int_hook(inode_killpriv, 0, dentry);
 >   }
 >
-> +int security_validate_transition_user(u32 oldsid, u32 newsid, u32 tasksid,
-> +					u16 tclass)
-> +{
-> +	return security_compute_validatetrans(oldsid, newsid, tasksid,
-> +						tclass, true);
-> +}
-> +
-> +int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
-> +				 u16 orig_tclass)
-> +{
-> +	return security_compute_validatetrans(oldsid, newsid, tasksid,
-> +						orig_tclass, false);
-> +}
-> +
->   /*
->    * security_bounded_transition - check whether the given
->    * transition is directed to bounded, or not.
+> -int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
+> +int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+>   {
+>   	if (unlikely(IS_PRIVATE(inode)))
+>   		return -EOPNOTSUPP;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index fc8f626..adec2e2 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3110,7 +3110,7 @@ static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
+>    *
+>    * Permission check is handled by selinux_inode_getxattr hook.
+>    */
+> -static int selinux_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
+> +static int selinux_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+>   {
+>   	u32 size;
+>   	int error;
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 996c889..07d0344 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -1435,7 +1435,7 @@ static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+>    *
+>    * Returns the size of the attribute or an error code
+>    */
+> -static int smack_inode_getsecurity(const struct inode *inode,
+> +static int smack_inode_getsecurity(struct inode *inode,
+>   				   const char *name, void **buffer,
+>   				   bool alloc)
+>   {
 >
