@@ -1,55 +1,106 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA1HOfFP002493
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA1HOfFN002493
  for <selinux@tycho.nsa.gov>; Sun, 1 Nov 2015 12:24:45 -0500
 From: Andreas Gruenbacher <agruenba@redhat.com>
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH v5 0/7] Inode security label invalidation
-Date: Sun,  1 Nov 2015 18:24:26 +0100
-Message-Id: <1446398673-886-1-git-send-email-agruenba@redhat.com>
+Subject: [PATCH v5 2/7] security: Make inode argument of inode_getsecurity
+ non-const
+Date: Sun,  1 Nov 2015 18:24:28 +0100
+Message-Id: <1446398673-886-3-git-send-email-agruenba@redhat.com>
+In-Reply-To: <1446398673-886-1-git-send-email-agruenba@redhat.com>
+References: <1446398673-886-1-git-send-email-agruenba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Here is another version of the patch queue to make gfs2 and similar file
-systems work with SELinux.  Previous posting:
+Make the inode argument of the inode_getsecurity hook non-const so that
+we can use it to revalidate invalid security labels.
 
-  http://www.spinics.net/lists/selinux/msg17969.html
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+---
+ include/linux/lsm_hooks.h  | 2 +-
+ include/linux/security.h   | 4 ++--
+ security/security.c        | 2 +-
+ security/selinux/hooks.c   | 2 +-
+ security/smack/smack_lsm.c | 2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
-Changes since the previous version:
-
- * Use inode_security_novalidate instead of inode_security on all the
-   SOCK_INODE(sock) inodes.
-
-This patch queue is also available here:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/agruen/linux.git selinux-wip
-
-Thanks,
-Andreas
-
-Andreas Gruenbacher (7):
-  selinux: Remove unused variable in selinux_inode_init_security
-  security: Make inode argument of inode_getsecurity non-const
-  security: Make inode argument of inode_getsecid non-const
-  selinux: Add accessor functions for inode->i_security
-  security: Add hook to invalidate inode security labels
-  selinux: Revalidate invalid inode security labels
-  gfs2: Invalide security labels of inodes when they go invalid
-
- fs/gfs2/glops.c                   |   2 +
- include/linux/audit.h             |   8 +-
- include/linux/lsm_hooks.h         |  10 +-
- include/linux/security.h          |  13 ++-
- kernel/audit.c                    |   2 +-
- kernel/audit.h                    |   2 +-
- kernel/auditsc.c                  |   6 +-
- security/security.c               |  12 ++-
- security/selinux/hooks.c          | 197 +++++++++++++++++++++++++++-----------
- security/selinux/include/objsec.h |   6 ++
- security/smack/smack_lsm.c        |   4 +-
- 11 files changed, 186 insertions(+), 76 deletions(-)
-
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index ec3a6ba..bdd0a3a 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1413,7 +1413,7 @@ union security_list_options {
+ 	int (*inode_removexattr)(struct dentry *dentry, const char *name);
+ 	int (*inode_need_killpriv)(struct dentry *dentry);
+ 	int (*inode_killpriv)(struct dentry *dentry);
+-	int (*inode_getsecurity)(const struct inode *inode, const char *name,
++	int (*inode_getsecurity)(struct inode *inode, const char *name,
+ 					void **buffer, bool alloc);
+ 	int (*inode_setsecurity)(struct inode *inode, const char *name,
+ 					const void *value, size_t size,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 2f4c1f7..9ee61b2 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -270,7 +270,7 @@ int security_inode_listxattr(struct dentry *dentry);
+ int security_inode_removexattr(struct dentry *dentry, const char *name);
+ int security_inode_need_killpriv(struct dentry *dentry);
+ int security_inode_killpriv(struct dentry *dentry);
+-int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc);
++int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
+ int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
+ void security_inode_getsecid(const struct inode *inode, u32 *secid);
+@@ -719,7 +719,7 @@ static inline int security_inode_killpriv(struct dentry *dentry)
+ 	return cap_inode_killpriv(dentry);
+ }
+ 
+-static inline int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
++static inline int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/security/security.c b/security/security.c
+index 46f405c..73514c9 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -697,7 +697,7 @@ int security_inode_killpriv(struct dentry *dentry)
+ 	return call_int_hook(inode_killpriv, 0, dentry);
+ }
+ 
+-int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
++int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+ {
+ 	if (unlikely(IS_PRIVATE(inode)))
+ 		return -EOPNOTSUPP;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index fc8f626..adec2e2 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3110,7 +3110,7 @@ static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
+  *
+  * Permission check is handled by selinux_inode_getxattr hook.
+  */
+-static int selinux_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc)
++static int selinux_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc)
+ {
+ 	u32 size;
+ 	int error;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 996c889..07d0344 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1435,7 +1435,7 @@ static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+  *
+  * Returns the size of the attribute or an error code
+  */
+-static int smack_inode_getsecurity(const struct inode *inode,
++static int smack_inode_getsecurity(struct inode *inode,
+ 				   const char *name, void **buffer,
+ 				   bool alloc)
+ {
 -- 
 2.5.0
