@@ -1,53 +1,37 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA1HOleM002534
- for <selinux@tycho.nsa.gov>; Sun, 1 Nov 2015 12:24:56 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA1HPkVS002700
+ for <selinux@tycho.nsa.gov>; Sun, 1 Nov 2015 12:25:47 -0500
+Received: by lbbes7 with SMTP id es7so74599266lbb.2
+ for <selinux@tycho.nsa.gov>; Sun, 01 Nov 2015 09:25:43 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhS2StXpnoA5Q99sFqKqdyTS8WR01e26Vn+eMTtMwckMBA@mail.gmail.com>
+References: <1446079635-22462-1-git-send-email-agruenba@redhat.com>
+ <1446079635-22462-7-git-send-email-agruenba@redhat.com>
+ <56323980.8040209@tycho.nsa.gov>
+ <CAHc6FU5xuWSXonVwux3cBrqYoMocfocR64wd0Qr55V+3w5CC-Q@mail.gmail.com>
+ <CAHC9VhS2StXpnoA5Q99sFqKqdyTS8WR01e26Vn+eMTtMwckMBA@mail.gmail.com>
+Date: Sun, 1 Nov 2015 18:25:43 +0100
+Message-ID: <CAHc6FU4wq9VRj6FtirOvWY4qjySesTOPcjrdVy3XjhwKA04qyQ@mail.gmail.com>
+Subject: Re: [PATCH v4 6/7] selinux: Revalidate invalid inode security labels
 From: Andreas Gruenbacher <agruenba@redhat.com>
-To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Andreas Gruenbacher <agruenba@redhat.com>, cluster-devel@redhat.com
-Subject: [PATCH v5 7/7] gfs2: Invalide security labels of inodes when they go
- invalid
-Date: Sun,  1 Nov 2015 18:24:33 +0100
-Message-Id: <1446398673-886-8-git-send-email-agruenba@redhat.com>
-In-Reply-To: <1446398673-886-1-git-send-email-agruenba@redhat.com>
-References: <1446398673-886-1-git-send-email-agruenba@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When gfs2 releases the glock of an inode, it must invalidate all
-information cached for that inode, including the page cache and acls.  Use
-the new security_inode_invalidate_secctx hook to also invalidate security
-labels in that case.  These items will be reread from disk when needed
-after reacquiring the glock.
+Paul,
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Acked-by: Bob Peterson <rpeterso@redhat.com>
-Acked-by: Steven Whitehouse <swhiteho@redhat.com>
-Cc: cluster-devel@redhat.com
----
- fs/gfs2/glops.c | 2 ++
- 1 file changed, 2 insertions(+)
+On Sun, Nov 1, 2015 at 1:52 PM, Paul Moore <paul@paul-moore.com> wrote:
+> If you want, you can just post a
+> "8/7" patch with the extra calls added and I'll apply that on top of
+> the v4 patchset.
 
-diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
-index 1f6c9c3..0833076 100644
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -13,6 +13,7 @@
- #include <linux/gfs2_ondisk.h>
- #include <linux/bio.h>
- #include <linux/posix_acl.h>
-+#include <linux/security.h>
- 
- #include "gfs2.h"
- #include "incore.h"
-@@ -262,6 +263,7 @@ static void inode_go_inval(struct gfs2_glock *gl, int flags)
- 		if (ip) {
- 			set_bit(GIF_INVALID, &ip->i_flags);
- 			forget_all_cached_acls(&ip->i_inode);
-+			security_inode_invalidate_secctx(&ip->i_inode);
- 			gfs2_dir_hash_inval(ip);
- 		}
- 	}
--- 
-2.5.0
+I've also added the additional Acked-by headers, it's easiest to just
+repost (I just did).
+
+Thanks,
+Andreas
