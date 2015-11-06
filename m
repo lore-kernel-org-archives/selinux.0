@@ -1,10 +1,10 @@
 From: Jan Stancek <jstancek@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, paul@paul-moore.com, jstancek@redhat.com
-Subject: [selinux-testsuite PATCH 3/4] mmap/mprotect_heap: make sure memory is
- allocated from heap
-Date: Fri,  6 Nov 2015 14:07:23 +0100
-Message-Id: <53398a996e0230fa07c82955624a474524bee50b.1446805443.git.jstancek@redhat.com>
+Subject: [selinux-testsuite PATCH 4/4] mmap/mprotect_file_private_execmod:
+ clear READ_IMPLIES_EXEC
+Date: Fri,  6 Nov 2015 14:07:24 +0100
+Message-Id: <c1be558e303328e7d4cc3d592789588da7de2f4a.1446805443.git.jstancek@redhat.com>
 In-Reply-To: <cover.1446805443.git.jstancek@redhat.com>
 References: <cover.1446805443.git.jstancek@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,54 +12,50 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This test failed on ppc64 with 64k pagesize because memory
-allocation used mmap() instead of advancing heap.
+If READ_IMPLIES_EXEC personality is set, mmap-ed area will have
+VM_EXEC vm_flag set, which causes selinux_file_mprotect() to
+skip check for FILE__EXECMOD.
 
-Use mallopt(M_MMAP_THRESHOLD,..) with large enough value
-to discourage use of mmap().
-
-Also set length in mprotect to pagesize, kernel silently aligns
-it to pagesize anyway.
+This caused that older (2.6.32) kernels on s390x always allowed
+mprotect to succeed.
 
 Signed-off-by: Jan Stancek <jstancek@redhat.com>
 Cc: Paul Moore <paul@paul-moore.com>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- tests/mmap/mprotect_heap.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ tests/mmap/mprotect_file_private_execmod.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/tests/mmap/mprotect_heap.c b/tests/mmap/mprotect_heap.c
-index 691299493c3f..8b4321d6fc0b 100644
---- a/tests/mmap/mprotect_heap.c
-+++ b/tests/mmap/mprotect_heap.c
-@@ -3,6 +3,7 @@
- #include <stdlib.h>
+diff --git a/tests/mmap/mprotect_file_private_execmod.c b/tests/mmap/mprotect_file_private_execmod.c
+index ade19811290a..6d6b995fc03c 100644
+--- a/tests/mmap/mprotect_file_private_execmod.c
++++ b/tests/mmap/mprotect_file_private_execmod.c
+@@ -4,6 +4,11 @@
  #include <errno.h>
+ #include <fcntl.h>
  #include <sys/mman.h>
-+#include <malloc.h>
- 
- int main(void)
- {
-@@ -10,13 +11,19 @@ int main(void)
- 	int rc;
- 	int pagesize = getpagesize();
- 
-+	rc = mallopt(M_MMAP_THRESHOLD, pagesize * 16);
-+	if (rc != 1) {
-+		fprintf(stderr, "mallopt failed: %d\n", rc);
-+		exit(1);
-+	}
++#include <sys/personality.h>
 +
- 	rc = posix_memalign(&ptr, pagesize, pagesize);
- 	if (rc) {
- 		fprintf(stderr, "posix_memalign failed: %d\n", rc);
++#ifndef READ_IMPLIES_EXEC
++#define READ_IMPLIES_EXEC 0x0400000
++#endif
+ 
+ int main(int argc, char **argv)
+ {
+@@ -16,6 +21,14 @@ int main(int argc, char **argv)
  		exit(1);
  	}
  
--	rc = mprotect(ptr, 4096, PROT_READ | PROT_EXEC);
-+	rc = mprotect(ptr, pagesize, PROT_READ | PROT_EXEC);
- 	if (rc < 0) {
- 		perror("mprotect");
- 		exit(1);
++	/* clear READ_IMPLIES_EXEC if present, because it skips
++	 * check for FILE__EXECMOD in selinux_file_mprotect() */
++	rc = personality(0xffffffff);
++	if ((rc != -1) && (rc & READ_IMPLIES_EXEC)) {
++		rc &= ~READ_IMPLIES_EXEC;
++		personality(rc);
++	}
++
+ 	fd = open(argv[1], O_RDONLY);
+ 	if (fd < 0) {
+ 		perror(argv[1]);
 -- 
 1.8.3.1
