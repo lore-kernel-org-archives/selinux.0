@@ -1,18 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6IPoHb028820
- for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 13:25:50 -0500
-Received: by qgad10 with SMTP id d10so98002708qga.3
- for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 10:25:39 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6J4NlU032113
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 14:04:24 -0500
+Received: by qgea14 with SMTP id a14so17292408qge.0
+ for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 11:04:11 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
-To: Jan Stancek <jstancek@redhat.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [selinux-testsuite PATCH 4/4] mmap/mprotect_file_private_execmod:
- clear READ_IMPLIES_EXEC
-Date: Fri, 06 Nov 2015 13:25:38 -0500
-Message-ID: <2549427.kUCr3OJkjq@sifl>
-In-Reply-To: <c1be558e303328e7d4cc3d592789588da7de2f4a.1446805443.git.jstancek@redhat.com>
-References: <cover.1446805443.git.jstancek@redhat.com>
- <c1be558e303328e7d4cc3d592789588da7de2f4a.1446805443.git.jstancek@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: Andrew Perepechko <anserper@ya.ru>, linux-security-module@vger.kernel.org,
+ sds@tycho.nsa.gov, andrew.perepechko@seagate.com
+Subject: Re: [PATCH v3] selinux: export validatetrans decisions
+Date: Fri, 06 Nov 2015 14:04:09 -0500
+Message-ID: <1515354.srH2yzrmdX@sifl>
+In-Reply-To: <1446116502-4233-1-git-send-email-anserper@ya.ru>
+References: <1446116502-4233-1-git-send-email-anserper@ya.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,55 +19,224 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, November 06, 2015 02:07:24 PM Jan Stancek wrote:
-> If READ_IMPLIES_EXEC personality is set, mmap-ed area will have
-> VM_EXEC vm_flag set, which causes selinux_file_mprotect() to
-> skip check for FILE__EXECMOD.
+On Thursday, October 29, 2015 02:01:42 PM Andrew Perepechko wrote:
+> Make validatetrans decisions available through selinuxfs.
+> "/validatetrans" is added to selinuxfs for this purpose.
+> This functionality is needed by file system servers
+> implemented in userspace or kernelspace without the VFS
+> layer.
 > 
-> This caused that older (2.6.32) kernels on s390x always allowed
-> mprotect to succeed.
+> Writing "$oldcontext $newcontext $tclass $taskcontext"
+> to /validatetrans is expected to return 0 if the transition
+> is allowed and -EPERM otherwise.
 > 
-> Signed-off-by: Jan Stancek <jstancek@redhat.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  tests/mmap/mprotect_file_private_execmod.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+> Signed-off-by: Andrew Perepechko <anserper@ya.ru>
+> CC: andrew.perepechko@seagate.com
 
-Merged, thanks.
+Added to the selinux#next queue, thanks.
 
-> diff --git a/tests/mmap/mprotect_file_private_execmod.c
-> b/tests/mmap/mprotect_file_private_execmod.c index
-> ade19811290a..6d6b995fc03c 100644
-> --- a/tests/mmap/mprotect_file_private_execmod.c
-> +++ b/tests/mmap/mprotect_file_private_execmod.c
-> @@ -4,6 +4,11 @@
->  #include <errno.h>
->  #include <fcntl.h>
->  #include <sys/mman.h>
-> +#include <sys/personality.h>
+> diff --git a/security/selinux/include/classmap.h
+> b/security/selinux/include/classmap.h index 5a4eef5..ef83c4b 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -21,7 +21,7 @@ struct security_class_mapping secclass_map[] = {
+>  	  { "compute_av", "compute_create", "compute_member",
+>  	    "check_context", "load_policy", "compute_relabel",
+>  	    "compute_user", "setenforce", "setbool", "setsecparam",
+> -	    "setcheckreqprot", "read_policy", NULL } },
+> +	    "setcheckreqprot", "read_policy", "validate_trans", NULL } },
+>  	{ "process",
+>  	  { "fork", "transition", "sigchld", "sigkill",
+>  	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
+> diff --git a/security/selinux/include/security.h
+> b/security/selinux/include/security.h index 223e9fd..38feb55 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -187,6 +187,9 @@ int security_node_sid(u16 domain, void *addr, u32
+> addrlen, int security_validate_transition(u32 oldsid, u32 newsid, u32
+> tasksid, u16 tclass);
+> 
+> +int security_validate_transition_user(u32 oldsid, u32 newsid, u32 tasksid,
+> +				      u16 tclass);
 > +
-> +#ifndef READ_IMPLIES_EXEC
-> +#define READ_IMPLIES_EXEC 0x0400000
-> +#endif
+>  int security_bounded_transition(u32 oldsid, u32 newsid);
 > 
->  int main(int argc, char **argv)
+>  int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index c02da25..0dc407d 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -116,6 +116,7 @@ enum sel_inos {
+>  	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
+>  	SEL_STATUS,	/* export current status using mmap() */
+>  	SEL_POLICY,	/* allow userspace to read the in kernel policy */
+> +	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
+>  	SEL_INO_NEXT,	/* The next inode number to use */
+>  };
+> 
+> @@ -653,6 +654,83 @@ static const struct file_operations
+> sel_checkreqprot_ops = { .llseek		= generic_file_llseek,
+>  };
+> 
+> +static ssize_t sel_write_validatetrans(struct file *file,
+> +					const char __user *buf,
+> +					size_t count, loff_t *ppos)
+> +{
+> +	char *oldcon = NULL, *newcon = NULL, *taskcon = NULL;
+> +	char *req = NULL;
+> +	u32 osid, nsid, tsid;
+> +	u16 tclass;
+> +	int rc;
+> +
+> +	rc = task_has_security(current, SECURITY__VALIDATE_TRANS);
+> +	if (rc)
+> +		goto out;
+> +
+> +	rc = -ENOMEM;
+> +	if (count >= PAGE_SIZE)
+> +		goto out;
+> +
+> +	/* No partial writes. */
+> +	rc = -EINVAL;
+> +	if (*ppos != 0)
+> +		goto out;
+> +
+> +	rc = -ENOMEM;
+> +	req = kzalloc(count + 1, GFP_KERNEL);
+> +	if (!req)
+> +		goto out;
+> +
+> +	rc = -EFAULT;
+> +	if (copy_from_user(req, buf, count))
+> +		goto out;
+> +
+> +	rc = -ENOMEM;
+> +	oldcon = kzalloc(count + 1, GFP_KERNEL);
+> +	if (!oldcon)
+> +		goto out;
+> +
+> +	newcon = kzalloc(count + 1, GFP_KERNEL);
+> +	if (!newcon)
+> +		goto out;
+> +
+> +	taskcon = kzalloc(count + 1, GFP_KERNEL);
+> +	if (!taskcon)
+> +		goto out;
+> +
+> +	rc = -EINVAL;
+> +	if (sscanf(req, "%s %s %hu %s", oldcon, newcon, &tclass, taskcon) != 4)
+> +		goto out;
+> +
+> +	rc = security_context_str_to_sid(oldcon, &osid, GFP_KERNEL);
+> +	if (rc)
+> +		goto out;
+> +
+> +	rc = security_context_str_to_sid(newcon, &nsid, GFP_KERNEL);
+> +	if (rc)
+> +		goto out;
+> +
+> +	rc = security_context_str_to_sid(taskcon, &tsid, GFP_KERNEL);
+> +	if (rc)
+> +		goto out;
+> +
+> +	rc = security_validate_transition_user(osid, nsid, tsid, tclass);
+> +	if (!rc)
+> +		rc = count;
+> +out:
+> +	kfree(req);
+> +	kfree(oldcon);
+> +	kfree(newcon);
+> +	kfree(taskcon);
+> +	return rc;
+> +}
+> +
+> +static const struct file_operations sel_transition_ops = {
+> +	.write		= sel_write_validatetrans,
+> +	.llseek		= generic_file_llseek,
+> +};
+> +
+>  /*
+>   * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
+>   */
+> @@ -1759,6 +1837,8 @@ static int sel_fill_super(struct super_block *sb, void
+> *data, int silent) [SEL_DENY_UNKNOWN] = {"deny_unknown",
+> &sel_handle_unknown_ops, S_IRUGO}, [SEL_STATUS] = {"status",
+> &sel_handle_status_ops, S_IRUGO},
+>  		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
+> +		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
+> +					S_IWUGO},
+>  		/* last one */ {""}
+>  	};
+>  	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index ebb5eb3..ebda973 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -778,8 +778,8 @@ out:
+>  	return -EPERM;
+>  }
+> 
+> -int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+> -				 u16 orig_tclass)
+> +static int security_compute_validatetrans(u32 oldsid, u32 newsid, u32
+> tasksid, +					  u16 orig_tclass, bool user)
 >  {
-> @@ -16,6 +21,14 @@ int main(int argc, char **argv)
->  		exit(1);
->  	}
+>  	struct context *ocontext;
+>  	struct context *ncontext;
+> @@ -794,11 +794,12 @@ int security_validate_transition(u32 oldsid, u32
+> newsid, u32 tasksid,
 > 
-> +	/* clear READ_IMPLIES_EXEC if present, because it skips
-> +	 * check for FILE__EXECMOD in selinux_file_mprotect() */
-> +	rc = personality(0xffffffff);
-> +	if ((rc != -1) && (rc & READ_IMPLIES_EXEC)) {
-> +		rc &= ~READ_IMPLIES_EXEC;
-> +		personality(rc);
-> +	}
+>  	read_lock(&policy_rwlock);
+> 
+> -	tclass = unmap_class(orig_tclass);
+> +	if (!user)
+> +		tclass = unmap_class(orig_tclass);
+> +	else
+> +		tclass = orig_tclass;
+> 
+>  	if (!tclass || tclass > policydb.p_classes.nprim) {
+> -		printk(KERN_ERR "SELinux: %s:  unrecognized class %d\n",
+> -			__func__, tclass);
+>  		rc = -EINVAL;
+>  		goto out;
+>  	}
+> @@ -832,8 +833,13 @@ int security_validate_transition(u32 oldsid, u32
+> newsid, u32 tasksid, while (constraint) {
+>  		if (!constraint_expr_eval(ocontext, ncontext, tcontext,
+>  					  constraint->expr)) {
+> -			rc = security_validtrans_handle_fail(ocontext, ncontext,
+> -							     tcontext, tclass);
+> +			if (user)
+> +				rc = -EPERM;
+> +			else
+> +				rc = security_validtrans_handle_fail(ocontext,
+> +								     ncontext,
+> +								     tcontext,
+> +								     tclass);
+>  			goto out;
+>  		}
+>  		constraint = constraint->next;
+> @@ -844,6 +850,20 @@ out:
+>  	return rc;
+>  }
+> 
+> +int security_validate_transition_user(u32 oldsid, u32 newsid, u32 tasksid,
+> +					u16 tclass)
+> +{
+> +	return security_compute_validatetrans(oldsid, newsid, tasksid,
+> +						tclass, true);
+> +}
 > +
->  	fd = open(argv[1], O_RDONLY);
->  	if (fd < 0) {
->  		perror(argv[1]);
+> +int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+> +				 u16 orig_tclass)
+> +{
+> +	return security_compute_validatetrans(oldsid, newsid, tasksid,
+> +						orig_tclass, false);
+> +}
+> +
+>  /*
+>   * security_bounded_transition - check whether the given
+>   * transition is directed to bounded, or not.
 
 -- 
 paul moore
