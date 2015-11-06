@@ -1,61 +1,32 @@
-From: Jan Stancek <jstancek@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6Fbra3014390
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 10:37:53 -0500
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ by mx1.redhat.com (Postfix) with ESMTPS id D37E4264B
+ for <selinux@tycho.nsa.gov>; Fri,  6 Nov 2015 15:37:36 +0000 (UTC)
+Received: from sifl.localnet (vpn-232-48.phx2.redhat.com [10.3.232.48])
+ by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ tA6FbZXa004271
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 10:37:36 -0500
+From: Paul Moore <pmoore@redhat.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, paul@paul-moore.com, jstancek@redhat.com
-Subject: [selinux-testsuite PATCH 4/4] mmap/mprotect_file_private_execmod:
- clear READ_IMPLIES_EXEC
-Date: Fri,  6 Nov 2015 14:07:24 +0100
-Message-Id: <c1be558e303328e7d4cc3d592789588da7de2f4a.1446805443.git.jstancek@redhat.com>
-In-Reply-To: <cover.1446805443.git.jstancek@redhat.com>
-References: <cover.1446805443.git.jstancek@redhat.com>
+Subject: New SELinux userspace release supporting extended ioctl permissions?
+Date: Fri, 06 Nov 2015 10:37:35 -0500
+Message-ID: <1852496.Nbh2u1K4Uk@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If READ_IMPLIES_EXEC personality is set, mmap-ed area will have
-VM_EXEC vm_flag set, which causes selinux_file_mprotect() to
-skip check for FILE__EXECMOD.
+Now that Linux 4.3 has been released with the extended ioctl permissions, are 
+we planning to make a new userspace release so that we can take advantage of 
+this new functionality?  I believe all the necessary patches have been merged, 
+no?
 
-This caused that older (2.6.32) kernels on s390x always allowed
-mprotect to succeed.
-
-Signed-off-by: Jan Stancek <jstancek@redhat.com>
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
----
- tests/mmap/mprotect_file_private_execmod.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/tests/mmap/mprotect_file_private_execmod.c b/tests/mmap/mprotect_file_private_execmod.c
-index ade19811290a..6d6b995fc03c 100644
---- a/tests/mmap/mprotect_file_private_execmod.c
-+++ b/tests/mmap/mprotect_file_private_execmod.c
-@@ -4,6 +4,11 @@
- #include <errno.h>
- #include <fcntl.h>
- #include <sys/mman.h>
-+#include <sys/personality.h>
-+
-+#ifndef READ_IMPLIES_EXEC
-+#define READ_IMPLIES_EXEC 0x0400000
-+#endif
- 
- int main(int argc, char **argv)
- {
-@@ -16,6 +21,14 @@ int main(int argc, char **argv)
- 		exit(1);
- 	}
- 
-+	/* clear READ_IMPLIES_EXEC if present, because it skips
-+	 * check for FILE__EXECMOD in selinux_file_mprotect() */
-+	rc = personality(0xffffffff);
-+	if ((rc != -1) && (rc & READ_IMPLIES_EXEC)) {
-+		rc &= ~READ_IMPLIES_EXEC;
-+		personality(rc);
-+	}
-+
- 	fd = open(argv[1], O_RDONLY);
- 	if (fd < 0) {
- 		perror(argv[1]);
 -- 
-1.8.3.1
+paul moore
+security @ redhat
