@@ -1,79 +1,80 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6IB9E4027819
- for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 13:11:09 -0500
-Received: by wmll128 with SMTP id l128so47671173wml.0
- for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 10:11:05 -0800 (PST)
-Date: Fri, 6 Nov 2015 19:11:03 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: Jeffrey Vander Stoep <jeffv@google.com>
-Cc: Paul Moore <pmoore@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-Subject: Re: New SELinux userspace release supporting extended ioctl
- permissions?
-Message-ID: <20151106181102.GB10239@x250>
-References: <1852496.Nbh2u1K4Uk@sifl> <20151106162635.GA10239@x250>
- <CABXk95Ae+pBH0LaQ+93N5mD7GDfPaAJNEQR4qo3VxX+SnFC07g@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6IFZjA028090
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 13:15:35 -0500
+Received: by oiad129 with SMTP id d129so70029371oia.0
+ for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 10:14:56 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Jan Stancek <jstancek@redhat.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [selinux-testsuite PATCH 3/4] mmap/mprotect_heap: make sure
+ memory is allocated from heap
+Date: Fri, 06 Nov 2015 13:14:54 -0500
+Message-ID: <1457848.Jk6pGUaKPb@sifl>
+In-Reply-To: <53398a996e0230fa07c82955624a474524bee50b.1446805443.git.jstancek@redhat.com>
+References: <cover.1446805443.git.jstancek@redhat.com>
+ <53398a996e0230fa07c82955624a474524bee50b.1446805443.git.jstancek@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <CABXk95Ae+pBH0LaQ+93N5mD7GDfPaAJNEQR4qo3VxX+SnFC07g@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-On Fri, Nov 06, 2015 at 09:51:08AM -0800, Jeffrey Vander Stoep wrote:
-> > Applying ioctl whitelisting on GNU/Linux systems looks to me pretty hard
-> > to do though. Many drivers, and their ioctls to support.
+On Friday, November 06, 2015 02:07:23 PM Jan Stancek wrote:
+> This test failed on ppc64 with 64k pagesize because memory
+> allocation used mmap() instead of advancing heap.
 > 
-> Agreed.
+> Use mallopt(M_MMAP_THRESHOLD,..) with large enough value
+> to discourage use of mmap().
 > 
-> On Android we use ioctl whitelisting only in a targeted manner. I
-> think the same approach could (should) be applied to GNU/Linux.
+> Also set length in mprotect to pagesize, kernel silently aligns
+> it to pagesize anyway.
 > 
-> The example that went out in the M release focused on restricting the
-> leakage of privacy sensitive information from socket ioctls. Apps are
-> blocked from using socket ioctls to access the wifi MAC address, wifi
-> SSID and layer 2 encryption protocol. I could see a similar policy
-> applied to the GNU/Linux browser. Ioctl policies on GPU access also
-> seem practical albeit device specific.
-
-Thanks. that prompted me to see what happened to the seandroid
-repository on bitbucket because it has been stale for a while now.
-
-found
-https://android.googlesource.com/platform/external/sepolicy/+/master/ioctl_macros
-
-That should be easy to implement on GNU/Linux indeed. Will try that soon
-
+> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  tests/mmap/mprotect_heap.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
-> Constructing a comprehensive list of ioctls and the
-> source/target/class sets that require access does not strike me as
-> practical. In many cases these ioctls are already properly restricted
-> via the ioctl permission.
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> diff --git a/tests/mmap/mprotect_heap.c b/tests/mmap/mprotect_heap.c
+> index 691299493c3f..8b4321d6fc0b 100644
+> --- a/tests/mmap/mprotect_heap.c
+> +++ b/tests/mmap/mprotect_heap.c
+> @@ -3,6 +3,7 @@
+>  #include <stdlib.h>
+>  #include <errno.h>
+>  #include <sys/mman.h>
+> +#include <malloc.h>
+> 
+>  int main(void)
+>  {
+> @@ -10,13 +11,19 @@ int main(void)
+>  	int rc;
+>  	int pagesize = getpagesize();
+> 
+> +	rc = mallopt(M_MMAP_THRESHOLD, pagesize * 16);
+> +	if (rc != 1) {
+> +		fprintf(stderr, "mallopt failed: %d\n", rc);
+> +		exit(1);
+> +	}
 
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Can you explain how you arrived at 16?  It looks a bit like a magic number to 
+me, which always gives me pause.  Based on a quick read of the man page, it 
+would seem like any value greater than "pagesize" would work, yes?
 
-iQGcBAEBCgAGBQJWPO0yAAoJENAR6kfG5xmcmoEL/0ldXc6lSpW/ztGGDPmgEZkc
-MqUi5l8bze1oyPiFVYlcXNe7ht9wHc8B6kZXH6k0XHOCpXO7hHO0PGp1hlb2JkHI
-qdEGGjPEPob0N7meDA8MV9WRXO2eTkBhJ0CU8mEtx9FjGplDqvWKpDi28SG+9h3S
-1WhEKbsSoqJ8jcd//X9IxVcFsQHLmu+HfNxyGYI33VdBxyqJWrVEq2OYyXdOYmM5
-MjCHb/oDLuzKhuKrejCl+ecHcAA6iCf2PYfS6PQAbfi7Fooa9r3gocrVmMzvjXR8
-TfNJeIceK+PclF7830ByPeInJ0FE1DxrZGGKMAnbYLAT4tFl5E9BzKEADJicLEqH
-2pRxAsYf1qMs5Zfxul/LQWhu3E9HBRRpnijVCmcnJ5PjCPVWUd5olcS2rKMtkBsf
-OC16SQO1Zsgv//xzumvGGTeyJEVR94Uoukh5uQnCjdJz9UZApIW/0wm/sbgnAEqz
-tclJiiE1oZqT1khg8uhRh/AAl91nptYqCmlYBplp0w==
-=+KkK
------END PGP SIGNATURE-----
+>  	rc = posix_memalign(&ptr, pagesize, pagesize);
+>  	if (rc) {
+>  		fprintf(stderr, "posix_memalign failed: %d\n", rc);
+>  		exit(1);
+>  	}
+> 
+> -	rc = mprotect(ptr, 4096, PROT_READ | PROT_EXEC);
+> +	rc = mprotect(ptr, pagesize, PROT_READ | PROT_EXEC);
+>  	if (rc < 0) {
+>  		perror("mprotect");
+>  		exit(1);
+
+-- 
+paul moore
+www.paul-moore.com
