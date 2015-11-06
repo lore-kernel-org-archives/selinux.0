@@ -1,68 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6HweF7026385
- for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 12:58:41 -0500
-Received: by obbww6 with SMTP id ww6so71991239obb.0
- for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 09:58:38 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <fbc99e6ee9a6bdbf27d6ff71d3548c20b4bbf23c.1446805443.git.jstancek@redhat.com>
-References: <cover.1446805443.git.jstancek@redhat.com>
- <fbc99e6ee9a6bdbf27d6ff71d3548c20b4bbf23c.1446805443.git.jstancek@redhat.com>
-Date: Fri, 6 Nov 2015 12:58:38 -0500
-Message-ID: <CAHC9VhQBOmybowY2H4rR3E6xoz-F21Ak3VQ61Y3O8GgwepjPsQ@mail.gmail.com>
-Subject: Re: [selinux-testsuite PATCH 1/4] tests/inet_socket: check 'ip xfrm
- policy ctx' support
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6I7wG2027399
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 13:07:58 -0500
+Received: by obdgf3 with SMTP id gf3so98323314obd.3
+ for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 10:07:55 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: Jan Stancek <jstancek@redhat.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [selinux-testsuite PATCH 2/4] inet_socket: secon: use current pid
+Date: Fri, 06 Nov 2015 13:07:53 -0500
+Message-ID: <8567804.nFH5H7f4bC@sifl>
+In-Reply-To: <29545986657bf9e30f1e66630c20db84d22ed66d.1446805443.git.jstancek@redhat.com>
+References: <cover.1446805443.git.jstancek@redhat.com>
+ <29545986657bf9e30f1e66630c20db84d22ed66d.1446805443.git.jstancek@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Nov 6, 2015 at 8:07 AM, Jan Stancek <jstancek@redhat.com> wrote:
-> Early RHEL6 distros like RHEL6.0 do not support "ctx" parameter,
-> which is causing test to fail:
->   Error: argument "ctx" is wrong: unknown
->
+On Friday, November 06, 2015 02:07:22 PM Jan Stancek wrote:
+> When running selinux-testsuite in automated environment,
+> such as Beaker, stdin is usually /dev/null. This causes
+> problem for inet_socket test:
+>   secon:  Couldn't read security context: Inappropriate ioctl for device
+> 
 > Signed-off-by: Jan Stancek <jstancek@redhat.com>
 > Cc: Paul Moore <paul@paul-moore.com>
 > Cc: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  tests/inet_socket/test | 31 +++++++++++++++++++------------
->  1 file changed, 19 insertions(+), 12 deletions(-)
->
-> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-> index 4deca746208c..4f6ee51cec5c 100755
-> --- a/tests/inet_socket/test
-> +++ b/tests/inet_socket/test
-> @@ -1,7 +1,14 @@
->  #!/usr/bin/perl
-> -
-> -use Test;
-> -BEGIN { plan tests => 20}
-> +use Test::More;
-> +
-> +BEGIN {
-> +    # check if ip xfrm supports ctx parameter
-> +    if (system("ip xfrm policy help 2>&1 | grep ctx") != 0) {
-> +        plan skip_all => "ctx not supported in ip xfrm policy";
-> +    } else {
-> +        plan tests => 20;
-> +    }
-> +}
->
->  $basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
->
-> @@ -17,7 +24,7 @@ sleep 1; # Give it a moment to initialize.
->
->  # Verify that authorized client can communicate with the server.
->  $result = system "runcon -t test_inet_client_t $basedir/client stream 65535";
-> -ok($result, 0);
-> +ok($result eq 0);
+>  tests/inet_socket/ipsec-load | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-My understanding of Perl is *very* basic - why this change (and the
-similar ones in this patch)?
+Looks good to me, merged.
+
+> diff --git a/tests/inet_socket/ipsec-load b/tests/inet_socket/ipsec-load
+> index ded6efb04722..b9d2c6e43544 100755
+> --- a/tests/inet_socket/ipsec-load
+> +++ b/tests/inet_socket/ipsec-load
+> @@ -3,8 +3,8 @@ echo 0 > /proc/sys/net/ipv4/conf/lo/disable_xfrm
+>  echo 0 > /proc/sys/net/ipv4/conf/lo/disable_policy
+>  ip xfrm policy flush
+>  ip xfrm state flush
+> -goodclientcon=`secon -u`:`secon -r`:test_inet_client_t:`secon -m`
+> -badclientcon=`secon -u`:`secon -r`:test_inet_bad_client_t:`secon -m`
+> +goodclientcon=`secon -u --pid $$`:`secon -r --pid
+> $$`:test_inet_client_t:`secon -m --pid $$` +badclientcon=`secon -u --pid
+> $$`:`secon -r --pid $$`:test_inet_bad_client_t:`secon -m --pid $$` ip xfrm
+> state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx $goodclientcon
+> auth md5 0123456789012345 ip xfrm state add src 127.0.0.1 dst 127.0.0.1
+> proto ah spi 0x250 ctx $badclientcon auth md5 0123456789012345 ip xfrm
+> policy add src 127.0.0.1 dst 127.0.0.1 proto tcp dir out ctx
+> "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level
+> required
 
 -- 
 paul moore
