@@ -1,18 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6IFZjA028090
- for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 13:15:35 -0500
-Received: by oiad129 with SMTP id d129so70029371oia.0
- for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 10:14:56 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6IPoHb028820
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 13:25:50 -0500
+Received: by qgad10 with SMTP id d10so98002708qga.3
+ for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 10:25:39 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: Jan Stancek <jstancek@redhat.com>
 Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [selinux-testsuite PATCH 3/4] mmap/mprotect_heap: make sure
- memory is allocated from heap
-Date: Fri, 06 Nov 2015 13:14:54 -0500
-Message-ID: <1457848.Jk6pGUaKPb@sifl>
-In-Reply-To: <53398a996e0230fa07c82955624a474524bee50b.1446805443.git.jstancek@redhat.com>
+Subject: Re: [selinux-testsuite PATCH 4/4] mmap/mprotect_file_private_execmod:
+ clear READ_IMPLIES_EXEC
+Date: Fri, 06 Nov 2015 13:25:38 -0500
+Message-ID: <2549427.kUCr3OJkjq@sifl>
+In-Reply-To: <c1be558e303328e7d4cc3d592789588da7de2f4a.1446805443.git.jstancek@redhat.com>
 References: <cover.1446805443.git.jstancek@redhat.com>
- <53398a996e0230fa07c82955624a474524bee50b.1446805443.git.jstancek@redhat.com>
+ <c1be558e303328e7d4cc3d592789588da7de2f4a.1446805443.git.jstancek@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,60 +20,55 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, November 06, 2015 02:07:23 PM Jan Stancek wrote:
-> This test failed on ppc64 with 64k pagesize because memory
-> allocation used mmap() instead of advancing heap.
+On Friday, November 06, 2015 02:07:24 PM Jan Stancek wrote:
+> If READ_IMPLIES_EXEC personality is set, mmap-ed area will have
+> VM_EXEC vm_flag set, which causes selinux_file_mprotect() to
+> skip check for FILE__EXECMOD.
 > 
-> Use mallopt(M_MMAP_THRESHOLD,..) with large enough value
-> to discourage use of mmap().
-> 
-> Also set length in mprotect to pagesize, kernel silently aligns
-> it to pagesize anyway.
+> This caused that older (2.6.32) kernels on s390x always allowed
+> mprotect to succeed.
 > 
 > Signed-off-by: Jan Stancek <jstancek@redhat.com>
 > Cc: Paul Moore <paul@paul-moore.com>
 > Cc: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  tests/mmap/mprotect_heap.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/tests/mmap/mprotect_heap.c b/tests/mmap/mprotect_heap.c
-> index 691299493c3f..8b4321d6fc0b 100644
-> --- a/tests/mmap/mprotect_heap.c
-> +++ b/tests/mmap/mprotect_heap.c
-> @@ -3,6 +3,7 @@
->  #include <stdlib.h>
+>  tests/mmap/mprotect_file_private_execmod.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+
+Merged, thanks.
+
+> diff --git a/tests/mmap/mprotect_file_private_execmod.c
+> b/tests/mmap/mprotect_file_private_execmod.c index
+> ade19811290a..6d6b995fc03c 100644
+> --- a/tests/mmap/mprotect_file_private_execmod.c
+> +++ b/tests/mmap/mprotect_file_private_execmod.c
+> @@ -4,6 +4,11 @@
 >  #include <errno.h>
+>  #include <fcntl.h>
 >  #include <sys/mman.h>
-> +#include <malloc.h>
+> +#include <sys/personality.h>
+> +
+> +#ifndef READ_IMPLIES_EXEC
+> +#define READ_IMPLIES_EXEC 0x0400000
+> +#endif
 > 
->  int main(void)
+>  int main(int argc, char **argv)
 >  {
-> @@ -10,13 +11,19 @@ int main(void)
->  	int rc;
->  	int pagesize = getpagesize();
-> 
-> +	rc = mallopt(M_MMAP_THRESHOLD, pagesize * 16);
-> +	if (rc != 1) {
-> +		fprintf(stderr, "mallopt failed: %d\n", rc);
-> +		exit(1);
-> +	}
-
-Can you explain how you arrived at 16?  It looks a bit like a magic number to 
-me, which always gives me pause.  Based on a quick read of the man page, it 
-would seem like any value greater than "pagesize" would work, yes?
-
->  	rc = posix_memalign(&ptr, pagesize, pagesize);
->  	if (rc) {
->  		fprintf(stderr, "posix_memalign failed: %d\n", rc);
+> @@ -16,6 +21,14 @@ int main(int argc, char **argv)
 >  		exit(1);
 >  	}
 > 
-> -	rc = mprotect(ptr, 4096, PROT_READ | PROT_EXEC);
-> +	rc = mprotect(ptr, pagesize, PROT_READ | PROT_EXEC);
->  	if (rc < 0) {
->  		perror("mprotect");
->  		exit(1);
+> +	/* clear READ_IMPLIES_EXEC if present, because it skips
+> +	 * check for FILE__EXECMOD in selinux_file_mprotect() */
+> +	rc = personality(0xffffffff);
+> +	if ((rc != -1) && (rc & READ_IMPLIES_EXEC)) {
+> +		rc &= ~READ_IMPLIES_EXEC;
+> +		personality(rc);
+> +	}
+> +
+>  	fd = open(argv[1], O_RDONLY);
+>  	if (fd < 0) {
+>  		perror(argv[1]);
 
 -- 
 paul moore
