@@ -1,61 +1,40 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6HXooE024500
- for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 12:33:50 -0500
-Received: by qgec40 with SMTP id c40so36237453qge.2
- for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 09:33:40 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Vladis Dronov <vdronov@redhat.com>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH v2] selinux: rate-limit unrecognized netlink message
- warnings in selinux_nlmsg_perm()
-Date: Fri, 06 Nov 2015 12:33:39 -0500
-Message-ID: <6523918.byncHZAcJK@sifl>
-In-Reply-To: <1446649357-8334-1-git-send-email-vdronov@redhat.com>
-References: <1446649357-8334-1-git-send-email-vdronov@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6HpQEc025992
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 12:51:27 -0500
+Received: by obdgf3 with SMTP id gf3so97948209obd.3
+ for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 09:51:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <20151106162635.GA10239@x250>
+References: <1852496.Nbh2u1K4Uk@sifl>
+	<20151106162635.GA10239@x250>
+Date: Fri, 6 Nov 2015 09:51:08 -0800
+Message-ID: <CABXk95Ae+pBH0LaQ+93N5mD7GDfPaAJNEQR4qo3VxX+SnFC07g@mail.gmail.com>
+Subject: Re: New SELinux userspace release supporting extended ioctl
+ permissions?
+From: Jeffrey Vander Stoep <jeffv@google.com>
+To: Paul Moore <pmoore@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, November 04, 2015 04:02:36 PM Vladis Dronov wrote:
-> Any process is able to send netlink messages with invalid types.
-> Make the warning rate-limited to prevent too much log spam.
-> 
-> The warning is supposed to help to find misbehaving programs, so
-> print the triggering command name and pid.
-> 
-> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
-> ---
->  security/selinux/hooks.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+> Applying ioctl whitelisting on GNU/Linux systems looks to me pretty hard
+> to do though. Many drivers, and their ioctls to support.
 
-Did you want the "Reported-by" tag included?  I'm also adding the SELinux list 
-back to the CC line.
+Agreed.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e4369d8..3d8087d 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4787,11 +4787,12 @@ static int selinux_nlmsg_perm(struct sock *sk,
-> struct sk_buff *skb) err = selinux_nlmsg_lookup(sksec->sclass,
-> nlh->nlmsg_type, &perm); if (err) {
->  		if (err == -EINVAL) {
-> -			printk(KERN_WARNING
-> -			       "SELinux: unrecognized netlink message:"
-> -			       " protocol=%hu nlmsg_type=%hu sclass=%s\n",
-> +			pr_warn_ratelimited("SELinux: unrecognized netlink"
-> +			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
-> +			       " from %s[%d]\n",
->  			       sk->sk_protocol, nlh->nlmsg_type,
-> -			       secclass_map[sksec->sclass - 1].name);
-> +			       secclass_map[sksec->sclass - 1].name,
-> +			       current->comm, current->pid);
->  			if (!selinux_enforcing || security_get_allow_unknown())
->  				err = 0;
->  		}
+On Android we use ioctl whitelisting only in a targeted manner. I
+think the same approach could (should) be applied to GNU/Linux.
 
--- 
-paul moore
-www.paul-moore.com
+The example that went out in the M release focused on restricting the
+leakage of privacy sensitive information from socket ioctls. Apps are
+blocked from using socket ioctls to access the wifi MAC address, wifi
+SSID and layer 2 encryption protocol. I could see a similar policy
+applied to the GNU/Linux browser. Ioctl policies on GPU access also
+seem practical albeit device specific.
+
+Constructing a comprehensive list of ioctls and the
+source/target/class sets that require access does not strike me as
+practical. In many cases these ioctls are already properly restricted
+via the ioctl permission.
