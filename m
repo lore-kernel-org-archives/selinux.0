@@ -1,9 +1,10 @@
 From: Jan Stancek <jstancek@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, paul@paul-moore.com, jstancek@redhat.com
-Subject: [selinux-testsuite PATCH 2/4] inet_socket: secon: use current pid
-Date: Fri,  6 Nov 2015 14:07:22 +0100
-Message-Id: <29545986657bf9e30f1e66630c20db84d22ed66d.1446805443.git.jstancek@redhat.com>
+Subject: [selinux-testsuite PATCH 3/4] mmap/mprotect_heap: make sure memory is
+ allocated from heap
+Date: Fri,  6 Nov 2015 14:07:23 +0100
+Message-Id: <53398a996e0230fa07c82955624a474524bee50b.1446805443.git.jstancek@redhat.com>
 In-Reply-To: <cover.1446805443.git.jstancek@redhat.com>
 References: <cover.1446805443.git.jstancek@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -11,32 +12,54 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When running selinux-testsuite in automated environment,
-such as Beaker, stdin is usually /dev/null. This causes
-problem for inet_socket test:
-  secon:  Couldn't read security context: Inappropriate ioctl for device
+This test failed on ppc64 with 64k pagesize because memory
+allocation used mmap() instead of advancing heap.
+
+Use mallopt(M_MMAP_THRESHOLD,..) with large enough value
+to discourage use of mmap().
+
+Also set length in mprotect to pagesize, kernel silently aligns
+it to pagesize anyway.
 
 Signed-off-by: Jan Stancek <jstancek@redhat.com>
 Cc: Paul Moore <paul@paul-moore.com>
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- tests/inet_socket/ipsec-load | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tests/mmap/mprotect_heap.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/tests/inet_socket/ipsec-load b/tests/inet_socket/ipsec-load
-index ded6efb04722..b9d2c6e43544 100755
---- a/tests/inet_socket/ipsec-load
-+++ b/tests/inet_socket/ipsec-load
-@@ -3,8 +3,8 @@ echo 0 > /proc/sys/net/ipv4/conf/lo/disable_xfrm
- echo 0 > /proc/sys/net/ipv4/conf/lo/disable_policy
- ip xfrm policy flush
- ip xfrm state flush
--goodclientcon=`secon -u`:`secon -r`:test_inet_client_t:`secon -m`
--badclientcon=`secon -u`:`secon -r`:test_inet_bad_client_t:`secon -m`
-+goodclientcon=`secon -u --pid $$`:`secon -r --pid $$`:test_inet_client_t:`secon -m --pid $$`
-+badclientcon=`secon -u --pid $$`:`secon -r --pid $$`:test_inet_bad_client_t:`secon -m --pid $$`
- ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx $goodclientcon auth md5 0123456789012345
- ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x250 ctx $badclientcon auth md5 0123456789012345
- ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto tcp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
+diff --git a/tests/mmap/mprotect_heap.c b/tests/mmap/mprotect_heap.c
+index 691299493c3f..8b4321d6fc0b 100644
+--- a/tests/mmap/mprotect_heap.c
++++ b/tests/mmap/mprotect_heap.c
+@@ -3,6 +3,7 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ #include <sys/mman.h>
++#include <malloc.h>
+ 
+ int main(void)
+ {
+@@ -10,13 +11,19 @@ int main(void)
+ 	int rc;
+ 	int pagesize = getpagesize();
+ 
++	rc = mallopt(M_MMAP_THRESHOLD, pagesize * 16);
++	if (rc != 1) {
++		fprintf(stderr, "mallopt failed: %d\n", rc);
++		exit(1);
++	}
++
+ 	rc = posix_memalign(&ptr, pagesize, pagesize);
+ 	if (rc) {
+ 		fprintf(stderr, "posix_memalign failed: %d\n", rc);
+ 		exit(1);
+ 	}
+ 
+-	rc = mprotect(ptr, 4096, PROT_READ | PROT_EXEC);
++	rc = mprotect(ptr, pagesize, PROT_READ | PROT_EXEC);
+ 	if (rc < 0) {
+ 		perror("mprotect");
+ 		exit(1);
 -- 
 1.8.3.1
