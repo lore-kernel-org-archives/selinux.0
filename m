@@ -1,40 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6HpQEc025992
- for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 12:51:27 -0500
-Received: by obdgf3 with SMTP id gf3so97948209obd.3
- for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 09:51:09 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA6HweF7026385
+ for <selinux@tycho.nsa.gov>; Fri, 6 Nov 2015 12:58:41 -0500
+Received: by obbww6 with SMTP id ww6so71991239obb.0
+ for <selinux@tycho.nsa.gov>; Fri, 06 Nov 2015 09:58:38 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20151106162635.GA10239@x250>
-References: <1852496.Nbh2u1K4Uk@sifl>
-	<20151106162635.GA10239@x250>
-Date: Fri, 6 Nov 2015 09:51:08 -0800
-Message-ID: <CABXk95Ae+pBH0LaQ+93N5mD7GDfPaAJNEQR4qo3VxX+SnFC07g@mail.gmail.com>
-Subject: Re: New SELinux userspace release supporting extended ioctl
- permissions?
-From: Jeffrey Vander Stoep <jeffv@google.com>
-To: Paul Moore <pmoore@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <fbc99e6ee9a6bdbf27d6ff71d3548c20b4bbf23c.1446805443.git.jstancek@redhat.com>
+References: <cover.1446805443.git.jstancek@redhat.com>
+ <fbc99e6ee9a6bdbf27d6ff71d3548c20b4bbf23c.1446805443.git.jstancek@redhat.com>
+Date: Fri, 6 Nov 2015 12:58:38 -0500
+Message-ID: <CAHC9VhQBOmybowY2H4rR3E6xoz-F21Ak3VQ61Y3O8GgwepjPsQ@mail.gmail.com>
+Subject: Re: [selinux-testsuite PATCH 1/4] tests/inet_socket: check 'ip xfrm
+ policy ctx' support
+From: Paul Moore <paul@paul-moore.com>
+To: Jan Stancek <jstancek@redhat.com>
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> Applying ioctl whitelisting on GNU/Linux systems looks to me pretty hard
-> to do though. Many drivers, and their ioctls to support.
+On Fri, Nov 6, 2015 at 8:07 AM, Jan Stancek <jstancek@redhat.com> wrote:
+> Early RHEL6 distros like RHEL6.0 do not support "ctx" parameter,
+> which is causing test to fail:
+>   Error: argument "ctx" is wrong: unknown
+>
+> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  tests/inet_socket/test | 31 +++++++++++++++++++------------
+>  1 file changed, 19 insertions(+), 12 deletions(-)
+>
+> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+> index 4deca746208c..4f6ee51cec5c 100755
+> --- a/tests/inet_socket/test
+> +++ b/tests/inet_socket/test
+> @@ -1,7 +1,14 @@
+>  #!/usr/bin/perl
+> -
+> -use Test;
+> -BEGIN { plan tests => 20}
+> +use Test::More;
+> +
+> +BEGIN {
+> +    # check if ip xfrm supports ctx parameter
+> +    if (system("ip xfrm policy help 2>&1 | grep ctx") != 0) {
+> +        plan skip_all => "ctx not supported in ip xfrm policy";
+> +    } else {
+> +        plan tests => 20;
+> +    }
+> +}
+>
+>  $basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
+>
+> @@ -17,7 +24,7 @@ sleep 1; # Give it a moment to initialize.
+>
+>  # Verify that authorized client can communicate with the server.
+>  $result = system "runcon -t test_inet_client_t $basedir/client stream 65535";
+> -ok($result, 0);
+> +ok($result eq 0);
 
-Agreed.
+My understanding of Perl is *very* basic - why this change (and the
+similar ones in this patch)?
 
-On Android we use ioctl whitelisting only in a targeted manner. I
-think the same approach could (should) be applied to GNU/Linux.
-
-The example that went out in the M release focused on restricting the
-leakage of privacy sensitive information from socket ioctls. Apps are
-blocked from using socket ioctls to access the wifi MAC address, wifi
-SSID and layer 2 encryption protocol. I could see a similar policy
-applied to the GNU/Linux browser. Ioctl policies on GPU access also
-seem practical albeit device specific.
-
-Constructing a comprehensive list of ioctls and the
-source/target/class sets that require access does not strike me as
-practical. In many cases these ioctls are already properly restricted
-via the ioctl permission.
+-- 
+paul moore
+www.paul-moore.com
