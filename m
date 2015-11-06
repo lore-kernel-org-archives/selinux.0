@@ -1,39 +1,90 @@
+Date: Fri, 6 Nov 2015 16:44:47 -0500 (EST)
+From: Jan Stancek <jstancek@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1815745045.4800143.1446846287294.JavaMail.zimbra@redhat.com>
+In-Reply-To: <CAHC9VhQBOmybowY2H4rR3E6xoz-F21Ak3VQ61Y3O8GgwepjPsQ@mail.gmail.com>
+References: <cover.1446805443.git.jstancek@redhat.com>
+ <fbc99e6ee9a6bdbf27d6ff71d3548c20b4bbf23c.1446805443.git.jstancek@redhat.com>
+ <CAHC9VhQBOmybowY2H4rR3E6xoz-F21Ak3VQ61Y3O8GgwepjPsQ@mail.gmail.com>
+Subject: Re: [selinux-testsuite PATCH 1/4] tests/inet_socket: check 'ip xfrm
+ policy ctx' support
 MIME-Version: 1.0
-Date: Sat, 7 Nov 2015 20:29:54 -0800
-Message-ID: <CAFJ0LnG+=byi92+d6EWyJDikgxxUjX8E1WAHbu4ZBix-65mMYw@mail.gmail.com>
-Subject: neverallow rules and self negation
-From: Nick Kralevich <nnk@google.com>
-To: SELinux <Selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Consider the following rules:
 
-  attribute foo;
-  type asdf, foo;
-  type asdf2, foo;
-  allow asdf self:dir search;
-  neverallow foo { foo -self }:dir search;
 
-This particular policy fails to compile with the following error:
 
-libsepol.report_failure: neverallow on line XXX of XXX (or line XXX of
-policy.conf) violated by allow asdf asdf:dir { search };
-libsepol.check_assertions: 1 neverallow failures occurred
 
-The intent of the neverallow rule is to prohibit cross domain access
-to some resource, but allow access within the same domain. Something
-like:
+----- Original Message -----
+> From: "Paul Moore" <paul@paul-moore.com>
+> To: "Jan Stancek" <jstancek@redhat.com>
+> Cc: selinux@tycho.nsa.gov, "Stephen Smalley" <sds@tycho.nsa.gov>
+> Sent: Friday, 6 November, 2015 6:58:38 PM
+> Subject: Re: [selinux-testsuite PATCH 1/4] tests/inet_socket: check 'ip xfrm policy ctx' support
+> 
+> On Fri, Nov 6, 2015 at 8:07 AM, Jan Stancek <jstancek@redhat.com> wrote:
+> > Early RHEL6 distros like RHEL6.0 do not support "ctx" parameter,
+> > which is causing test to fail:
+> >   Error: argument "ctx" is wrong: unknown
+> >
+> > Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> > Cc: Paul Moore <paul@paul-moore.com>
+> > Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  tests/inet_socket/test | 31 +++++++++++++++++++------------
+> >  1 file changed, 19 insertions(+), 12 deletions(-)
+> >
+> > diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+> > index 4deca746208c..4f6ee51cec5c 100755
+> > --- a/tests/inet_socket/test
+> > +++ b/tests/inet_socket/test
+> > @@ -1,7 +1,14 @@
+> >  #!/usr/bin/perl
+> > -
+> > -use Test;
+> > -BEGIN { plan tests => 20}
+> > +use Test::More;
+> > +
+> > +BEGIN {
+> > +    # check if ip xfrm supports ctx parameter
+> > +    if (system("ip xfrm policy help 2>&1 | grep ctx") != 0) {
+> > +        plan skip_all => "ctx not supported in ip xfrm policy";
+> > +    } else {
+> > +        plan tests => 20;
+> > +    }
+> > +}
+> >
+> >  $basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
+> >
+> > @@ -17,7 +24,7 @@ sleep 1; # Give it a moment to initialize.
+> >
+> >  # Verify that authorized client can communicate with the server.
+> >  $result = system "runcon -t test_inet_client_t $basedir/client stream
+> >  65535";
+> > -ok($result, 0);
+> > +ok($result eq 0);
+> 
+> My understanding of Perl is *very* basic - why this change (and the
+> similar ones in this patch)?
 
-  neverallow asdf { foo -asdf }:dir search;
-  neverallow asdf2 { foo -asdf2 }:dir search;
+I wanted to skip the test, but skip_all is supported only in Test::More
+framework. And arguments in ok() have slightly different meaning.
 
-1) Is the behavior described above a bug or working as intended?
-2) Is there a way to write a neverallow rule where the target uses
-"-self", and if so, what does it mean?
+In "Test" args are "ok($have, $expect);" [1]
+In "Test::More" args are "ok($got eq $expected, $test_name);" [2]
 
--- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+This change adapts parameters to "Test::More" style.
+
+[1] http://perldoc.perl.org/Test.html
+[2] http://perldoc.perl.org/Test/More.html
+
+> 
+> --
+> paul moore
+> www.paul-moore.com
+> 
