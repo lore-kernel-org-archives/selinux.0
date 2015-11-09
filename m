@@ -1,9 +1,9 @@
 Subject: Re: neverallow rules and self negation
 To: Nick Kralevich <nnk@google.com>, SELinux <Selinux@tycho.nsa.gov>
 References: <CAFJ0LnG+=byi92+d6EWyJDikgxxUjX8E1WAHbu4ZBix-65mMYw@mail.gmail.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5640ADF8.6090902@tycho.nsa.gov>
-Date: Mon, 9 Nov 2015 09:30:16 -0500
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5640ADA7.8030801@tycho.nsa.gov>
+Date: Mon, 9 Nov 2015 09:28:55 -0500
 MIME-Version: 1.0
 In-Reply-To: <CAFJ0LnG+=byi92+d6EWyJDikgxxUjX8E1WAHbu4ZBix-65mMYw@mail.gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -35,21 +35,10 @@ On 11/07/2015 11:29 PM, Nick Kralevich wrote:
 >    neverallow asdf2 { foo -asdf2 }:dir search;
 >
 > 1) Is the behavior described above a bug or working as intended?
-
-Self is a little special and I am not sure that anyone has ever considered using 
-self in a negation like that. I will have to take a look and see what it would 
-take to allow this usage.
-
 > 2) Is there a way to write a neverallow rule where the target uses
 > "-self", and if so, what does it mean?
->
 
-I think that it would mean what you intend it to mean.
-
-allow asdf self:dir search; # Allowed
-allow asdf asdf:dir search; # Allowed
-allow asdf asdf2:dir search; # Not allowed
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+It doesn't look to me as if "-self" has ever been supported correctly 
+either by the checkpolicy parser or by the libsepol neverallow/assertion 
+checker.  So, it's a bug, but not sure how involved a fix will be 
+(beyond just having checkpolicy reject it in the first place).
