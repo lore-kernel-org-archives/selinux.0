@@ -1,45 +1,47 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tA9DhSeU026528
- for <selinux@tycho.nsa.gov>; Mon, 9 Nov 2015 08:43:28 -0500
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (Postfix) with ESMTPS id ADFC819F240
- for <selinux@tycho.nsa.gov>; Mon,  9 Nov 2015 13:43:16 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-200-45.brq.redhat.com
- [10.40.200.45])
- by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- tA9DhFQc009620
- for <selinux@tycho.nsa.gov>; Mon, 9 Nov 2015 08:43:16 -0500
-From: Miroslav Grepl <mgrepl@redhat.com>
-Subject: get_default_context() hit the SIMPLE_TRANSACTION_LIMIT
-To: SELinux <selinux@tycho.nsa.gov>
-Message-ID: <5640A2F2.3080703@redhat.com>
-Date: Mon, 9 Nov 2015 14:43:14 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Re: get_default_context() hit the SIMPLE_TRANSACTION_LIMIT
+To: Miroslav Grepl <mgrepl@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
+ Paul Moore <paul@paul-moore.com>
+References: <5640A2F2.3080703@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5640ABE9.2060208@tycho.nsa.gov>
+Date: Mon, 9 Nov 2015 09:21:29 -0500
+MIME-Version: 1.0
+In-Reply-To: <5640A2F2.3080703@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-We are trying to get pam_selinux + systemd-user working on Fedora
-Rawhide to avoid systemd-user running with init_t. The problem is with
-init_t domain which is unconfined domain by default on Fedora.
+On 11/09/2015 08:43 AM, Miroslav Grepl wrote:
+> We are trying to get pam_selinux + systemd-user working on Fedora
+> Rawhide to avoid systemd-user running with init_t. The problem is with
+> init_t domain which is unconfined domain by default on Fedora.
+>
+>
+> echo -n system_u:system_r:init_t:s0 unconfined_u > /sys/fs/selinux/user
+> sh: echo: write error: Numerical result out of range
+>
+>
+> causes failsafe_context is used for SELinux user context as a result of
+> pam_selinux. With disabled unconfined.pp module it works as expected.
+>
+> The problem is also described here
+>
+> https://bugzilla.redhat.com/show_bug.cgi?id=1274345
 
+In the past, I have suggested not using security_compute_user() anymore 
+and taking a simplified version of this logic entirely to userspace,
+http://marc.info/?t=133054875600001&r=1&w=2
 
-echo -n system_u:system_r:init_t:s0 unconfined_u > /sys/fs/selinux/user
-sh: echo: write error: Numerical result out of range
-
-
-causes failsafe_context is used for SELinux user context as a result of
-pam_selinux. With disabled unconfined.pp module it works as expected.
-
-The problem is also described here
-
-https://bugzilla.redhat.com/show_bug.cgi?id=1274345
-
-
--- 
-Miroslav Grepl
-Senior Software Engineer, SELinux Solutions
-Red Hat, Inc.
+Obviously we could increase the kernel limit, but think about what the 
+get_ordered_context_list() code is doing:  it is asking the kernel to 
+compute the complete set of reachable contexts (which is this case is 
+huge because you are going from an unconfined domain to a user 
+authorized for the unconfined role) and then throwing away the vast 
+majority of the returned contexts because they don't match anything in 
+/etc/selinux/targeted/contexts/default_contexts or 
+/etc/selinux/targeted/contexts/users/<seuser> and then ultimately only 
+using the first (highest priority) context from the ordered list.  So 
+the kernel computation is mostly wasted.  Better to just cut it out 
+entirely.
