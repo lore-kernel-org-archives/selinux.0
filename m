@@ -1,9 +1,9 @@
-Message-id: <1447083624.2216.14.camel@samsung.com>
-Subject: Re: [PATCH v4 00/11] Smack namespace
-From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
-To: "David S. Miller" <davem@davemloft.net>,
+Date: Tue, 10 Nov 2015 04:16:25 +0000
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
  "Eric W. Biederman" <ebiederm@xmission.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Al Viro <viro@zeniv.linux.org.uk>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
  Alexey Dobriyan <adobriyan@gmail.com>,
  Andrew Morton <akpm@linux-foundation.org>,
  Andy Lutomirski <luto@kernel.org>, Calvin Owens <calvinowens@fb.com>,
@@ -22,56 +22,29 @@ To: "David S. Miller" <davem@davemloft.net>,
  Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
  containers@lists.linuxfoundation.org, linux-doc@vger.kernel.org,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Lukasz Pawelczyk <havner@gmail.com>
-Date: Mon, 09 Nov 2015 16:40:24 +0100
-In-reply-to: <1444826525-9758-1-git-send-email-l.pawelczyk@samsung.com>
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Lukasz Pawelczyk <havner@gmail.com>
+Subject: Re: [PATCH v4 03/11] lsm: add file opener's cred to a setprocattr
+ arguments
+Message-ID: <20151110041625.GA19875@ZenIV.linux.org.uk>
 References: <1444826525-9758-1-git-send-email-l.pawelczyk@samsung.com>
-Content-type: text/plain; charset=UTF-8
-MIME-version: 1.0
+ <1444826525-9758-4-git-send-email-l.pawelczyk@samsung.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1444826525-9758-4-git-send-email-l.pawelczyk@samsung.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If I understand correctly the security window for 4.4 has been closed
-now (as changes went to next).
+On Wed, Oct 14, 2015 at 02:41:57PM +0200, Lukasz Pawelczyk wrote:
+>  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+> -	int (*setprocattr)(struct task_struct *p, char *name, void *value,
+> -				size_t size);
+> +	int (*setprocattr)(struct task_struct *p, const struct cred *f_cred,
+> +			   char *name, void *value, size_t size);
 
-Anyway, I updated the series to the latest smack-for-4.4 branch.
-Including the new relabel-self interface that received namespace
-treatment as well. Also the RCU fix reported on the list has been
-included.
+*grumble*
 
-The latest version is available here:
-https://github.com/Havner/smack-namespace/tree/smack-namespace-current
-
-Also I've uploaded our Linux Test Project branch I use for Smack and
-Smack namespace testing (including regressions):
-https://github.com/Havner/ltp
-
-It has the basic smack tests rewritten to C. The ones that were scripts
-before. They are integrated with LTP framework.
-
-Inside testcases/kernel/security/smack/ns is a separate set of tests
-that share some common functions with the former, but are not otherwise
-integrated with LTP (yet). In this regard this is very much WIP.
-
-Those tests have an advantage though that they run a common set of
-tests in 6 Smack environments: no namespace, user namespace, user
-namespace + smack map. Each in a privileged and non-privileged
-scenario.
-
-To run them do the following:
-cd testcases/kernel/security/smack/ns
-make
-./smack_ns_run.sh
-
-smackfs has to be mounted in /smack (following the regular tests). 
-mount -o bind /sys/fs/smackfs /smack
-is enough.
-
-
--- 
-Lukasz Pawelczyk
-Samsung R&D Institute Poland
-Samsung Electronics
+Why the hell is that thing taking char *name - not even const char *?
