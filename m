@@ -1,59 +1,69 @@
-Subject: Re: setoolsv4: tracking origin of a policy element
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>, Elena Reshetova
- <elena.reshetova@gmail.com>,
- "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-References: <CALrft9-5ZFbJgiLZnXoeroAgqhZ+rmzCENXSgdqtyC5+_6pZ-w@mail.gmail.com>
- <562E2796.8000308@tresys.com>
-From: Filippo Bonazzi <filippo.bonazzi@aalto.fi>
-Message-ID: <5642110C.2080607@aalto.fi>
-Date: Tue, 10 Nov 2015 17:45:16 +0200
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAAN7Yar004777
+ for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2015 18:07:35 -0500
+Received: by igbhv6 with SMTP id hv6so11225522igb.0
+ for <selinux@tycho.nsa.gov>; Tue, 10 Nov 2015 15:07:25 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Vladis Dronov <vdronov@redhat.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2] selinux: rate-limit unrecognized netlink message
+ warnings in selinux_nlmsg_perm()
+Date: Tue, 10 Nov 2015 18:07:23 -0500
+Message-ID: <3886271.4xVUv1O130@sifl>
+In-Reply-To: <1446633352-5070-1-git-send-email-vdronov@redhat.com>
+References: <1446633352-5070-1-git-send-email-vdronov@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <562E2796.8000308@tresys.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
->> given a certain rule or attribute, it would be great to know in what source file it was defined.
-> Past versions of SETools supported that, but it has not yet been a priority for v4.
-Which previous version(s) of SETools supported origin file/line information?
+On Wednesday, November 04, 2015 11:35:51 AM Vladis Dronov wrote:
+> Any process is able to send netlink messages with invalid types.
+> Make the warning rate-limited to prevent too much log spam.
+> 
+> The warning is supposed to help to find misbehaving programs, so
+> print the triggering command name and pid.
+> 
+> Reported-by: Florian Weimer <fweimer@redhat.com>
+> Signed-off-by: Vladis Dronov <vdronov@redhat.com>
+> ---
+>  security/selinux/hooks.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e4369d8..3d8087d 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4787,11 +4787,12 @@ static int selinux_nlmsg_perm(struct sock *sk,
+> struct sk_buff *skb) err = selinux_nlmsg_lookup(sksec->sclass,
+> nlh->nlmsg_type, &perm); if (err) {
+>  		if (err == -EINVAL) {
+> -			printk(KERN_WARNING
+> -			       "SELinux: unrecognized netlink message:"
+> -			       " protocol=%hu nlmsg_type=%hu sclass=%s\n",
+> +			pr_warn_ratelimited("SELinux: unrecognized netlink"
+> +			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
+> +			       " from %s[%d]\n",
+>  			       sk->sk_protocol, nlh->nlmsg_type,
+> -			       secclass_map[sksec->sclass - 1].name);
+> +			       secclass_map[sksec->sclass - 1].name,
+> +			       current->comm, current->pid);
 
-I have scoured the setools3 libqpol source files for this, and I have
-found that the file/line information from the m4 synclines is parsed by
-Lex at libqpol/src/policy_scan.l:272-273. However, this information is
-only used in the yyerror and yywarn functions, and is not actually
-propagated in the policy.
+I should have looked at more closely at the actual changes earlier, but the 
+other issues with your posting distracted me ... while this isn't an audit 
+message, it tends to follow the audit-ish name=value format so let's stick 
+with that in this message, I would also suggest using task_pid_nr() so the 
+line should look something like this:
 
-Furthermore, I have searched the SELinux libsepol source files to see
-where that information could be saved, and I found that only the avrule
-data structure (libsepol/include/sepol/policydb/policydb.h:258) supports
-saving origin file/line information in the source_filename(:287) and
-source_line(:288) fields.
-All other rules, attributes, types etc. do not contain this information.
+  pr_warn_ratelimited("SELinux: unrecognized netlink"
+                      " message: protocol=%hu nlmsg_type=%hu sclass=%s"
+                      " pig=%d comm=%s\n",
+                      sk->sk_protocol, nlh->nlmsg_type,
+                      secclass_map[sksec->sclass - 1].name,
+                      task_pid_nr(current), current->comm);
 
-How could one then parse, save and expose origin file/line information
-for all or most policy elements?
-
-Thank you
-
-Filippo Bonazzi
-
-
-On 10/26/2015 03:16 PM, Christopher J. PeBenito wrote:
-> On 10/26/2015 7:20 AM, Elena Reshetova wrote:
->> While looking into the policy parser from setools v4, we noticed one
->> thing that is missing: origin of a policy element. For example, given a
->> certain rule or attribute, it would be great to know in what source file
->> it was defined.
->>
->> In Android you can find this information by looking at produced
->> policy.conf and its comment lines that indicate source file. However I
->> don't know if it is the same for desktop selinux policy.
->>
->> Would it be acceptable to have this information as part of python class
->> representing the parsed policy? It would be really useful for tools like
->> policy linter, because it would be very much needed to point to the
-> That would be acceptable.  Past versions of SETools supported that, but
-> it has not yet been a priority for v4.
->
+-- 
+paul moore
+www.paul-moore.com
