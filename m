@@ -1,6 +1,8 @@
-Date: Tue, 10 Nov 2015 04:16:25 +0000
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+Message-id: <1447150502.2216.15.camel@samsung.com>
+Subject: Re: [PATCH v4 03/11] lsm: add file opener's cred to a setprocattr
+ arguments
+From: Lukasz Pawelczyk <l.pawelczyk@samsung.com>
+To: Al Viro <viro@ZenIV.linux.org.uk>
 Cc: "David S. Miller" <davem@davemloft.net>,
  "Eric W. Biederman" <ebiederm@xmission.com>,
  "Serge E. Hallyn" <serge@hallyn.com>,
@@ -24,27 +26,37 @@ Cc: "David S. Miller" <davem@davemloft.net>,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Lukasz Pawelczyk <havner@gmail.com>
-Subject: Re: [PATCH v4 03/11] lsm: add file opener's cred to a setprocattr
- arguments
-Message-ID: <20151110041625.GA19875@ZenIV.linux.org.uk>
+Date: Tue, 10 Nov 2015 11:15:02 +0100
+In-reply-to: <20151110041625.GA19875@ZenIV.linux.org.uk>
 References: <1444826525-9758-1-git-send-email-l.pawelczyk@samsung.com>
  <1444826525-9758-4-git-send-email-l.pawelczyk@samsung.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1444826525-9758-4-git-send-email-l.pawelczyk@samsung.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+ <20151110041625.GA19875@ZenIV.linux.org.uk>
+Content-type: text/plain; charset=UTF-8
+MIME-version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Oct 14, 2015 at 02:41:57PM +0200, Lukasz Pawelczyk wrote:
->  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-> -	int (*setprocattr)(struct task_struct *p, char *name, void *value,
-> -				size_t size);
-> +	int (*setprocattr)(struct task_struct *p, const struct cred *f_cred,
-> +			   char *name, void *value, size_t size);
+On wto, 2015-11-10 at 04:16 +0000, Al Viro wrote:
+> On Wed, Oct 14, 2015 at 02:41:57PM +0200, Lukasz Pawelczyk wrote:
+> >  	int (*getprocattr)(struct task_struct *p, char *name, char
+> > **value);
+> > -	int (*setprocattr)(struct task_struct *p, char *name, void
+> > *value,
+> > -				size_t size);
+> > +	int (*setprocattr)(struct task_struct *p, const struct
+> > cred *f_cred,
+> > +			   char *name, void *value, size_t size);
+> 
+> *grumble*
+> 
+> Why the hell is that thing taking char *name - not even const char *?
 
-*grumble*
+I was wondering that myself. But as this is unrelated I decided not to
+change it. Do you want me to while at it?
 
-Why the hell is that thing taking char *name - not even const char *?
+
+
+
+-- 
