@@ -1,82 +1,51 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tADBqWT0023644
- for <selinux@tycho.nsa.gov>; Fri, 13 Nov 2015 06:52:32 -0500
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com
- (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
- by mx1.redhat.com (Postfix) with ESMTPS id 83F22A14E2
- for <selinux@tycho.nsa.gov>; Fri, 13 Nov 2015 11:52:21 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] sepolgen: Use key function in sort()
-Date: Fri, 13 Nov 2015 12:52:09 +0100
-Message-Id: <1447415529-7588-1-git-send-email-plautrba@redhat.com>
+From: Vladis Dronov <vdronov@redhat.com>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Vladis Dronov <vdronov@redhat.com>
+Subject: [PATCH v3] selinux: rate-limit unrecognized netlink message warnings
+ in selinux_nlmsg_perm()
+Date: Fri, 13 Nov 2015 15:14:19 +0100
+Message-Id: <1447424059-11174-1-git-send-email-vdronov@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In Py3.0, the cmp parameter in sort() function was removed and key keyword is
-available since Py2.4.
+Any process is able to send netlink messages with invalid types.
+Make the warning rate-limited to prevent too much log spam.
 
-Fixes: # cat avc.log | audit2allow -R
-Traceback (most recent call last):
-  File "/usr/bin/audit2allow", line 363, in <module>
-    app.main()
-  File "/usr/bin/audit2allow", line 351, in main
-    self.__output()
-  File "/usr/bin/audit2allow", line 308, in __output
-    g.set_gen_refpol(ifs, perm_maps)
-  File "/usr/lib64/python3.4/site-packages/sepolgen/policygen.py", line 101, in set_gen_refpol
-    self.ifgen = InterfaceGenerator(if_set, perm_maps)
-  File "/usr/lib64/python3.4/site-packages/sepolgen/policygen.py", line 353, in __init__
-    self.hack_check_ifs(ifs)
-  File "/usr/lib64/python3.4/site-packages/sepolgen/policygen.py", line 365, in hack_check_ifs
-    params.sort(param_comp)
-TypeError: must use keyword argument for key function
+The warning is supposed to help to find misbehaving programs, so
+print the triggering command name and pid.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Reported-by: Florian Weimer <fweimer@redhat.com>
+Signed-off-by: Vladis Dronov <vdronov@redhat.com>
 ---
- sepolgen/src/sepolgen/policygen.py | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ security/selinux/hooks.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sepolgen/src/sepolgen/policygen.py b/sepolgen/src/sepolgen/policygen.py
-index 4438a11..34c8401 100644
---- a/sepolgen/src/sepolgen/policygen.py
-+++ b/sepolgen/src/sepolgen/policygen.py
-@@ -36,8 +36,6 @@ from . import access
- from . import interfaces
- from . import matching
- from . import util
--if util.PY3:
--    from .util import cmp
- # Constants for the level of explanation from the generation
- # routines
- NO_EXPLANATION    = 0
-@@ -278,15 +276,12 @@ def explain_access(av, ml=None, verbosity=SHORT_EXPLANATION):
-         explain_interfaces()
-     return s
- 
--def param_comp(a, b):
--    return cmp(b.num, a.num)
--
- def call_interface(interface, av):
-     params = []
-     args = []
- 
-     params.extend(interface.params.values())
--    params.sort(param_comp)
-+    params.sort(key=lambda param: param.num, reverse=True)
- 
-     ifcall = refpolicy.InterfaceCall()
-     ifcall.ifname = interface.name
-@@ -321,7 +316,7 @@ class InterfaceGenerator:
-         for x in ifs.interfaces.values():
-             params = []
-             params.extend(x.params.values())
--            params.sort(param_comp)
-+            params.sort(key=lambda param: param.num, reverse=True)
-             for i in range(len(params)):
-                 # Check that the paramater position matches
-                 # the number (e.g., $1 is the first arg). This
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d0cfaa9..791fc46 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4785,11 +4785,12 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ 	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
+ 	if (err) {
+ 		if (err == -EINVAL) {
+-			printk(KERN_WARNING
+-			       "SELinux: unrecognized netlink message:"
+-			       " protocol=%hu nlmsg_type=%hu sclass=%s\n",
++			pr_warn_ratelimited("SELinux: unrecognized netlink"
++			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
++			       " pig=%d comm=%s\n",
+ 			       sk->sk_protocol, nlh->nlmsg_type,
+-			       secclass_map[sksec->sclass - 1].name);
++			       secclass_map[sksec->sclass - 1].name,
++			       task_pid_nr(current), current->comm);
+ 			if (!selinux_enforcing || security_get_allow_unknown())
+ 				err = 0;
+ 		}
 -- 
 2.6.2
