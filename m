@@ -1,10 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAHJPj8E021877
- for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 14:25:47 -0500
-Received: by wmvv187 with SMTP id v187so244304194wmv.1
- for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 11:25:37 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20151117192141.GD108807@ubuntu-hedt>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAHJRAsj021949
+ for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 14:27:10 -0500
+Subject: Re: [PATCH v3 0/7] User namespace mount updates
+To: Seth Forshee <seth.forshee@canonical.com>
 References: <1447778351-118699-1-git-send-email-seth.forshee@canonical.com>
  <20151117170556.GV22011@ZenIV.linux.org.uk>
  <20151117172551.GA108807@ubuntu-hedt>
@@ -12,13 +10,7 @@ References: <1447778351-118699-1-git-send-email-seth.forshee@canonical.com>
  <20151117183444.GB108807@ubuntu-hedt>
  <CAFLxGvx1UqJOhM3wqAGqT+TrkapeP1zkmg0a1K=DjySePx4mEA@mail.gmail.com>
  <20151117192141.GD108807@ubuntu-hedt>
-Date: Tue, 17 Nov 2015 21:25:37 +0200
-Message-ID: <CAE1zotLNq1v_ZegT9LyFsTiHWQnOAow+KKQFFvOYKUyRWPjfGA@mail.gmail.com>
-Subject: Re: [PATCH v3 0/7] User namespace mount updates
-From: Octavian Purdila <octavian.purdila@intel.com>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>,
- Al Viro <viro@zeniv.linux.org.uk>,
+Cc: Al Viro <viro@zeniv.linux.org.uk>,
  "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
  device-mapper development <dm-devel@redhat.com>,
  "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
@@ -27,42 +19,49 @@ Cc: Richard Weinberger <richard.weinberger@gmail.com>,
  LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov,
  Serge Hallyn <serge.hallyn@canonical.com>,
  Andy Lutomirski <luto@amacapital.net>,
- LKML <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@mit.edu>
-Content-Type: text/plain; charset=UTF-8
+ LKML <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@mit.edu>,
+ Octavian Purdila <octavian.purdila@intel.com>
+From: Richard Weinberger <richard@nod.at>
+Message-ID: <564B7F83.1050701@nod.at>
+Date: Tue, 17 Nov 2015 20:26:59 +0100
+MIME-Version: 1.0
+In-Reply-To: <20151117192141.GD108807@ubuntu-hedt>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Nov 17, 2015 at 9:21 PM, Seth Forshee
-<seth.forshee@canonical.com> wrote:
->
+Am 17.11.2015 um 20:21 schrieb Seth Forshee:
 > On Tue, Nov 17, 2015 at 08:12:31PM +0100, Richard Weinberger wrote:
-> > On Tue, Nov 17, 2015 at 7:34 PM, Seth Forshee
-> > <seth.forshee@canonical.com> wrote:
-> > > On Tue, Nov 17, 2015 at 05:55:06PM +0000, Al Viro wrote:
-> > >> On Tue, Nov 17, 2015 at 11:25:51AM -0600, Seth Forshee wrote:
-> > >>
-> > >> > Shortly after that I plan to follow with support for ext4. I've been
-> > >> > fuzzing ext4 for a while now and it has held up well, and I'm currently
-> > >> > working on hand-crafted attacks. Ted has commented privately (to others,
-> > >> > not to me personally) that he will fix bugs for such attacks, though I
-> > >> > haven't seen any public comments to that effect.
-> > >>
-> > >> _Static_ attacks, or change-image-under-mounted-fs attacks?
-> > >
-> > > Right now only static attacks, change-image-under-mounted-fs attacks
-> > > will be next.
-> >
-> > Do we *really* need to enable unprivileged mounting of kernel filesystems?
-> > What about just enabling fuse and implement ext4 and friends as fuse
-> > filesystems?
-> > Using the approaching Linux Kernel Libary[1] this is easy.
->
+>> On Tue, Nov 17, 2015 at 7:34 PM, Seth Forshee
+>> <seth.forshee@canonical.com> wrote:
+>>> On Tue, Nov 17, 2015 at 05:55:06PM +0000, Al Viro wrote:
+>>>> On Tue, Nov 17, 2015 at 11:25:51AM -0600, Seth Forshee wrote:
+>>>>
+>>>>> Shortly after that I plan to follow with support for ext4. I've been
+>>>>> fuzzing ext4 for a while now and it has held up well, and I'm currently
+>>>>> working on hand-crafted attacks. Ted has commented privately (to others,
+>>>>> not to me personally) that he will fix bugs for such attacks, though I
+>>>>> haven't seen any public comments to that effect.
+>>>>
+>>>> _Static_ attacks, or change-image-under-mounted-fs attacks?
+>>>
+>>> Right now only static attacks, change-image-under-mounted-fs attacks
+>>> will be next.
+>>
+>> Do we *really* need to enable unprivileged mounting of kernel filesystems?
+>> What about just enabling fuse and implement ext4 and friends as fuse
+>> filesystems?
+>> Using the approaching Linux Kernel Libary[1] this is easy.
+> 
 > I haven't looked at this project, but I'm guessing that programs must be
 > written specifically to make use of it? I.e. you can't just use the
 > mount syscall, and thus all existing software still doesn't work?
->
 
-The projects includes a lklfuse program that uses fuse to mount a
-fileystem image.
+You can easy bridge fuse and the LKL, I did already a hacky PoC. Worked nicely.
+Octavian's tree has some nice examples, and AFAIK he is currently working
+on a "mount any kernel fs via fuse" tool.
+
+Thanks,
+//richard
