@@ -1,23 +1,23 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAHGeCpp005521
- for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 11:40:22 -0500
-Received: by igvg19 with SMTP id g19so99527776igv.1
- for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 08:40:08 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAHGeCpo005521
+ for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 11:40:21 -0500
+Received: by ioir85 with SMTP id r85so24353516ioi.1
+ for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 08:40:13 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
+ Casey Schaufler <casey@schaufler-ca.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-Cc: Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org,
+ Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org,
  linux-bcache@vger.kernel.org, dm-devel@redhat.com,
  linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v3 4/7] fs: Treat foreign mounts as nosuid
-Date: Tue, 17 Nov 2015 10:39:07 -0600
-Message-Id: <1447778351-118699-5-git-send-email-seth.forshee@canonical.com>
+ selinux@tycho.nsa.gov, Seth Forshee <seth.forshee@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Subject: [PATCH v3 7/7] Smack: Handle labels consistently in untrusted mounts
+Date: Tue, 17 Nov 2015 10:39:10 -0600
+Message-Id: <1447778351-118699-8-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1447778351-118699-1-git-send-email-seth.forshee@canonical.com>
 References: <1447778351-118699-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -25,123 +25,88 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Andy Lutomirski <luto@amacapital.net>
+The SMACK64, SMACK64EXEC, and SMACK64MMAP labels are all handled
+differently in untrusted mounts. This is confusing and
+potentically problematic. Change this to handle them all the same
+way that SMACK64 is currently handled; that is, read the label
+from disk and check it at use time. For SMACK64 and SMACK64MMAP
+access is denied if the label does not match smk_root. To be
+consistent with suid, a SMACK64EXEC label which does not match
+smk_root will still allow execution of the file but will not run
+with the label supplied in the xattr.
 
-If a process gets access to a mount from a different user
-namespace, that process should not be able to take advantage of
-setuid files or selinux entrypoints from that filesystem.  Prevent
-this by treating mounts from other mount namespaces and those not
-owned by current_user_ns() or an ancestor as nosuid.
-
-This will make it safer to allow more complex filesystems to be
-mounted in non-root user namespaces.
-
-This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
-setgid, and file capability bits can no longer be abused if code in
-a user namespace were to clear nosuid on an untrusted filesystem,
-but this patch, by itself, is insufficient to protect the system
-from abuse of files that, when execed, would increase MAC privilege.
-
-As a more concrete explanation, any task that can manipulate a
-vfsmount associated with a given user namespace already has
-capabilities in that namespace and all of its descendents.  If they
-can cause a malicious setuid, setgid, or file-caps executable to
-appear in that mount, then that executable will only allow them to
-elevate privileges in exactly the set of namespaces in which they
-are already privileges.
-
-On the other hand, if they can cause a malicious executable to
-appear with a dangerous MAC label, running it could change the
-caller's security context in a way that should not have been
-possible, even inside the namespace in which the task is confined.
-
-As a hardening measure, this would have made CVE-2014-5207 much
-more difficult to exploit.
-
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- fs/exec.c                |  2 +-
- fs/namespace.c           | 13 +++++++++++++
- include/linux/mount.h    |  1 +
- security/commoncap.c     |  2 +-
- security/selinux/hooks.c |  2 +-
- 5 files changed, 17 insertions(+), 3 deletions(-)
+ security/smack/smack_lsm.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index b06623a9347f..ea7311d72cc3 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
- 	bprm->cred->euid = current_euid();
- 	bprm->cred->egid = current_egid();
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return;
- 
- 	if (task_no_new_privs(current))
-diff --git a/fs/namespace.c b/fs/namespace.c
-index da70f7c4ece1..2101ce7b96ab 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -3276,6 +3276,19 @@ found:
- 	return visible;
- }
- 
-+bool mnt_may_suid(struct vfsmount *mnt)
-+{
-+	/*
-+	 * Foreign mounts (accessed via fchdir or through /proc
-+	 * symlinks) are always treated as if they are nosuid.  This
-+	 * prevents namespaces from trusting potentially unsafe
-+	 * suid/sgid bits, file caps, or security labels that originate
-+	 * in other namespaces.
-+	 */
-+	return !(mnt->mnt_flags & MNT_NOSUID) && check_mnt(real_mount(mnt)) &&
-+	       in_userns(current_user_ns(), mnt->mnt_sb->s_user_ns);
-+}
-+
- static struct ns_common *mntns_get(struct task_struct *task)
- {
- 	struct ns_common *ns = NULL;
-diff --git a/include/linux/mount.h b/include/linux/mount.h
-index f822c3c11377..54a594d49733 100644
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
- extern struct vfsmount *mntget(struct vfsmount *mnt);
- extern struct vfsmount *mnt_clone_internal(struct path *path);
- extern int __mnt_is_readonly(struct vfsmount *mnt);
-+extern bool mnt_may_suid(struct vfsmount *mnt);
- 
- struct path;
- extern struct vfsmount *clone_private_mount(struct path *path);
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 400aa224b491..6243aef5860e 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -448,7 +448,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
- 	if (!file_caps_enabled)
- 		return 0;
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return 0;
- 	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
- 		return 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e4369d86e588..de05207eb665 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2171,7 +2171,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
- 			    const struct task_security_struct *new_tsec)
- {
- 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
--	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
-+	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 621200f86b56..9b7ff781df9a 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -891,6 +891,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+ 	struct inode *inode = file_inode(bprm->file);
+ 	struct task_smack *bsp = bprm->cred->security;
+ 	struct inode_smack *isp;
++	struct superblock_smack *sbsp;
  	int rc;
  
- 	if (!nnp && !nosuid)
+ 	if (bprm->cred_prepared)
+@@ -900,6 +901,11 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+ 	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
+ 		return 0;
+ 
++	sbsp = inode->i_sb->s_security;
++	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
++	    isp->smk_task != sbsp->smk_root)
++		return 0;
++
+ 	if (bprm->unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
+ 		struct task_struct *tracer;
+ 		rc = 0;
+@@ -1703,6 +1709,7 @@ static int smack_mmap_file(struct file *file,
+ 	struct task_smack *tsp;
+ 	struct smack_known *okp;
+ 	struct inode_smack *isp;
++	struct superblock_smack *sbsp;
+ 	int may;
+ 	int mmay;
+ 	int tmay;
+@@ -1714,6 +1721,10 @@ static int smack_mmap_file(struct file *file,
+ 	isp = file_inode(file)->i_security;
+ 	if (isp->smk_mmap == NULL)
+ 		return 0;
++	sbsp = file_inode(file)->i_sb->s_security;
++	if (sbsp->smk_flags & SMK_SB_UNTRUSTED &&
++	    isp->smk_mmap != sbsp->smk_root)
++		return -EACCES;
+ 	mkp = isp->smk_mmap;
+ 
+ 	tsp = current_security();
+@@ -3492,16 +3503,14 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+ 			if (rc >= 0)
+ 				transflag = SMK_INODE_TRANSMUTE;
+ 		}
+-		if (!(sbsp->smk_flags & SMK_SB_UNTRUSTED)) {
+-			/*
+-			 * Don't let the exec or mmap label be "*" or "@".
+-			 */
+-			skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
+-			if (IS_ERR(skp) || skp == &smack_known_star ||
+-			    skp == &smack_known_web)
+-				skp = NULL;
+-			isp->smk_task = skp;
+-		}
++		/*
++		 * Don't let the exec or mmap label be "*" or "@".
++		 */
++		skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
++		if (IS_ERR(skp) || skp == &smack_known_star ||
++		    skp == &smack_known_web)
++			skp = NULL;
++		isp->smk_task = skp;
+ 
+ 		skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
+ 		if (IS_ERR(skp) || skp == &smack_known_star ||
 -- 
 1.9.1
