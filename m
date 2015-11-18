@@ -1,10 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAI0DQSM012171
- for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 19:13:26 -0500
-Date: Wed, 18 Nov 2015 11:12:51 +1100 (AEDT)
-From: James Morris <jmorris@namei.org>
-To: Seth Forshee <seth.forshee@canonical.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAI0pmtm014262
+ for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 19:51:49 -0500
+Received: by iofh3 with SMTP id h3so37719670iof.3
+ for <selinux@tycho.nsa.gov>; Tue, 17 Nov 2015 16:51:41 -0800 (PST)
+Date: Tue, 17 Nov 2015 18:50:52 -0600
+From: Seth Forshee <seth.forshee@canonical.com>
+To: James Morris <jmorris@namei.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
  Casey Schaufler <casey@schaufler-ca.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
@@ -16,27 +18,33 @@ cc: "Eric W. Biederman" <ebiederm@xmission.com>,
  "Serge E. Hallyn" <serge@hallyn.com>
 Subject: Re: [PATCH v3 7/7] Smack: Handle labels consistently in untrusted
  mounts
-In-Reply-To: <1447778351-118699-8-git-send-email-seth.forshee@canonical.com>
-Message-ID: <alpine.LRH.2.20.1511181112090.1460@namei.org>
+Message-ID: <20151118005052.GA131992@ubuntu-hedt>
 References: <1447778351-118699-1-git-send-email-seth.forshee@canonical.com>
  <1447778351-118699-8-git-send-email-seth.forshee@canonical.com>
+ <alpine.LRH.2.20.1511181112090.1460@namei.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LRH.2.20.1511181112090.1460@namei.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 17 Nov 2015, Seth Forshee wrote:
+On Wed, Nov 18, 2015 at 11:12:51AM +1100, James Morris wrote:
+> On Tue, 17 Nov 2015, Seth Forshee wrote:
+> 
+> > +	sbsp = inode->i_sb->s_security;
+> > +	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
+> 
+> Where is SMK_SB_UNTRUSTED defined?
+> 
+> I can't see it in this patch series, mainline or security next.
 
-> +	sbsp = inode->i_sb->s_security;
-> +	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
+Eric's already applied a few of my patches to a branch in his tree,
+including the one that defines this. See the for-testing branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git,
+specifically
+https://git.kernel.org/cgit/linux/kernel/git/ebiederm/user-namespace.git/commit/?id=36979551f2345d4e20714c1fc53d6a15c87f8b64.
 
-Where is SMK_SB_UNTRUSTED defined?
-
-I can't see it in this patch series, mainline or security next.
-
-
--- 
-James Morris
-<jmorris@namei.org>
+Thanks,
+Seth
