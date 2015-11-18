@@ -1,72 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAIJXLcC030318
- for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2015 14:33:26 -0500
-Date: Wed, 18 Nov 2015 19:32:40 +0000
-From: Serge Hallyn <serge.hallyn@ubuntu.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Seth Forshee <seth.forshee@canonical.com>,
- Al Viro <viro@ZenIV.linux.org.uk>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- linux-bcache@vger.kernel.org, dm-devel@redhat.com,
- linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, Serge Hallyn <serge.hallyn@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/7] User namespace mount updates
-Message-ID: <20151118193240.GA26454@ubuntumail>
-References: <1447778351-118699-1-git-send-email-seth.forshee@canonical.com>
- <20151117170556.GV22011@ZenIV.linux.org.uk>
- <20151117172551.GA108807@ubuntu-hedt>
- <20151117175506.GW22011@ZenIV.linux.org.uk>
- <20151117183444.GB108807@ubuntu-hedt>
- <20151118191045.GB3434@thunk.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAIM9OCw011288
+ for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2015 17:09:25 -0500
+Received: by oies6 with SMTP id s6so34299394oie.1
+ for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2015 14:09:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20151118191045.GB3434@thunk.org>
+Date: Wed, 18 Nov 2015 17:09:22 -0500
+Message-ID: <CAMN686Hqhqa7D5Thxo5aUGNt+Mt3x+iyB7nCaWn9DFHkfct2ow@mail.gmail.com>
+Subject: Obtaining Default Context for SELinux Users
+From: Mike Palmiotto <mike.palmiotto@crunchydata.com>
+To: selinux@tycho.nsa.gov
+Cc: Joe Conway <joe.conway@crunchydata.com>,
+ Adam Brightwell <adam.brightwell@crunchydata.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting Theodore Ts'o (tytso@mit.edu):
-> On Tue, Nov 17, 2015 at 12:34:44PM -0600, Seth Forshee wrote:
-> > On Tue, Nov 17, 2015 at 05:55:06PM +0000, Al Viro wrote:
-> > > On Tue, Nov 17, 2015 at 11:25:51AM -0600, Seth Forshee wrote:
-> > > 
-> > > > Shortly after that I plan to follow with support for ext4. I've been
-> > > > fuzzing ext4 for a while now and it has held up well, and I'm currently
-> > > > working on hand-crafted attacks. Ted has commented privately (to others,
-> > > > not to me personally) that he will fix bugs for such attacks, though I
-> > > > haven't seen any public comments to that effect.
-> > > 
-> > > _Static_ attacks, or change-image-under-mounted-fs attacks?
-> > 
-> > Right now only static attacks, change-image-under-mounted-fs attacks
-> > will be next.
-> 
-> I will fix bugs about static attacks.  That is, it's interesting to me
-> that a buggy file system (no matter how it is created), not cause the
-> kernel to crash --- and privilege escalation attacks tend to be
-> strongly related to those bugs where we're not doing strong enough
-> checking.
-> 
-> Protecting against a malicious user which changes the image under the
-> file system is a whole other kettle of fish.  I am not at all user you
-> can do this without completely sacrificing performance or making the
-> code impossible to maintain.  So my comments do *not* extend to
-> protecting against a malicious user who is changing the block device
-> underneath the kernel.
+We're currently running into issues attempting to get a default
+context for a newly added SELinux user.
 
-Yup, thanks, Ted.  I think the only sane thing to do is work on making the
-mounted files immutable.  Guarding against under-mounted-writes seems
-crazy.  Well, actually it seems like a fascinating problem, and maybe
-solvable without fs changes, but not in scope here.
+The user has been added with semanage, and associated with a few
+roles. There are role declarations and allows (to and from the "scon"
+role) in place in the policy. We've also added entries to
+/etc/selinux/mls/contexts/{default_contexts,users/foo_u} to facilitate
+getting a default context for the SELinux user.
 
-> If you want to submit patches to make the kernel more robust against
-> these attacks, I'm certainly willing to look at the patches.  But I'm
-> certainly not guaranteeing that they will go in, and I'm certainly not
-> promising to fix all vulnerabilities that you might find that are
-> caused by a malicious block device.  Sorry, that's too much buying a
-> pig in a poke....
-> 
-> 						- Ted
-> 				
+The desire is to switch security labels based on the specified user's
+default context, like so:
+root:staff_r:staff_t:s0 -> foo_u:foo_r:foo_t:s0
+
+We're using a call to `get_default_context("foo_u",
+"root:staff_r:staff_t:s0", &new_context)` to get the default, but that
+doesn't seem to be finding working.
+
+In testing with a more verbose version of security_compute_user_raw,
+we noticed that the list of available contexts for foo_u are empty.
+This behavior has been noted for staff_u as well.
+
+Curious to know if there's something glaringly obvious that we're missing.
+
+Respectfully,
+Mike
