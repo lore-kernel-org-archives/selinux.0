@@ -1,58 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAJ0QOAd020204
- for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2015 19:26:25 -0500
-Received: by obbnk6 with SMTP id nk6so47664516obb.2
- for <selinux@tycho.nsa.gov>; Wed, 18 Nov 2015 16:26:15 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAJ7lsnR012839
+ for <selinux@tycho.nsa.gov>; Thu, 19 Nov 2015 02:47:54 -0500
+Date: Thu, 19 Nov 2015 18:47:00 +1100 (AEDT)
+From: James Morris <jmorris@namei.org>
+To: Richard Weinberger <richard.weinberger@gmail.com>
+cc: Al Viro <viro@zeniv.linux.org.uk>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
+ device-mapper development <dm-devel@redhat.com>,
+ "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
+ "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>,
+ LKML <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH v3 0/7] User namespace mount updates
+In-Reply-To: <CAFLxGvwwhXqVM71m1kEDTZk_YTKGtbJ3gWoXw3wRgcwDiC38Bg@mail.gmail.com>
+Message-ID: <alpine.LRH.2.20.1511191845510.10804@namei.org>
+References: <20151117172551.GA108807@ubuntu-hedt>
+ <20151117175506.GW22011@ZenIV.linux.org.uk> <564B79B1.3040207@gmail.com>
+ <20151117191606.GC108807@ubuntu-hedt> <564B941A.2070601@gmail.com>
+ <20151117213255.GE108807@ubuntu-hedt> <564C6DD4.6090308@gmail.com>
+ <20151118142238.GB134139@ubuntu-hedt>
+ <20151118145818.GC22011@ZenIV.linux.org.uk>
+ <20151118150512.GE134139@ubuntu-hedt>
+ <20151118151335.GD22011@ZenIV.linux.org.uk>
+ <CAFLxGvwwhXqVM71m1kEDTZk_YTKGtbJ3gWoXw3wRgcwDiC38Bg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAMN686Hqhqa7D5Thxo5aUGNt+Mt3x+iyB7nCaWn9DFHkfct2ow@mail.gmail.com>
-References: <CAMN686Hqhqa7D5Thxo5aUGNt+Mt3x+iyB7nCaWn9DFHkfct2ow@mail.gmail.com>
-Date: Wed, 18 Nov 2015 19:26:14 -0500
-Message-ID: <CAMN686ETg0+y=fae4q=W3azjDoOAoxvrLjGXGM_NQwTb0_5hBA@mail.gmail.com>
-Subject: Re: Obtaining Default Context for SELinux Users
-From: Mike Palmiotto <mike.palmiotto@crunchydata.com>
-To: selinux@tycho.nsa.gov
-Cc: Joe Conway <joe.conway@crunchydata.com>,
- Adam Brightwell <adam.brightwell@crunchydata.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Nov 18, 2015 at 5:09 PM, Mike Palmiotto
-<mike.palmiotto@crunchydata.com> wrote:
-> We're currently running into issues attempting to get a default
-> context for a newly added SELinux user.
->
-> The user has been added with semanage, and associated with a few
-> roles. There are role declarations and allows (to and from the "scon"
-> role) in place in the policy. We've also added entries to
-> /etc/selinux/mls/contexts/{default_contexts,users/foo_u} to facilitate
-> getting a default context for the SELinux user.
->
-> The desire is to switch security labels based on the specified user's
-> default context, like so:
-> root:staff_r:staff_t:s0 -> foo_u:foo_r:foo_t:s0
->
-> We're using a call to `get_default_context("foo_u",
-> "root:staff_r:staff_t:s0", &new_context)` to get the default, but that
-> doesn't seem to be finding working.
->
-> In testing with a more verbose version of security_compute_user_raw,
-> we noticed that the list of available contexts for foo_u are empty.
-> This behavior has been noted for staff_u as well.
->
-> Curious to know if there's something glaringly obvious that we're missing.
+On Wed, 18 Nov 2015, Richard Weinberger wrote:
 
-Other than this discussion (and previous discussions on using
-security_compute_user), of course:
-http://marc.info/?l=selinux&m=144707899910491&w=2
+> On Wed, Nov 18, 2015 at 4:13 PM, Al Viro <viro@zeniv.linux.org.uk> wrote:
+> > On Wed, Nov 18, 2015 at 09:05:12AM -0600, Seth Forshee wrote:
+> >
+> >> Yes, the host admin. I'm not talking about trusting the admin inside the
+> >> container at all.
+> >
+> > Then why not have the same host admin just plain mount it when setting the
+> > container up and be done with that?  From the host namespace, before spawning
+> > the docker instance or whatever framework you are using.  IDGI...
+> 
+> Because hosting companies sell containers as "full virtual machines"
+> and customers expect to be able mount stuff like disk images they upload.
 
-I'm still curious as to why the get_default_context mechanism is not
-finding any reachable contexts.
+I don't think this is a valid reason for merging functionality into the 
+kernel.
 
---Mike
 
->
-> Respectfully,
-> Mike
+-- 
+James Morris
+<jmorris@namei.org>
