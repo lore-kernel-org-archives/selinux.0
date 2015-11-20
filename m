@@ -1,58 +1,68 @@
-Subject: Re: [PATCH] policycoreutils: Require at least one argument for
- 'semanage permissive -d'
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1447745843-15057-1-git-send-email-plautrba@redhat.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <564E3E45.8080102@tycho.nsa.gov>
-Date: Thu, 19 Nov 2015 16:25:25 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAKHXdBh028617
+ for <selinux@tycho.nsa.gov>; Fri, 20 Nov 2015 12:33:41 -0500
+Date: Fri, 20 Nov 2015 11:33:29 -0600
+From: "Serge E. Hallyn" <serge.hallyn@ubuntu.com>
+To: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Seth Forshee <seth.forshee@canonical.com>,
+ Richard Weinberger <richard@nod.at>, Al Viro <viro@zeniv.linux.org.uk>,
+ "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
+ device-mapper development <dm-devel@redhat.com>,
+ "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
+ "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>,
+ LKML <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH v3 0/7] User namespace mount updates
+Message-ID: <20151120173329.GA20909@mail.hallyn.com>
+References: <20151117172551.GA108807@ubuntu-hedt>
+ <20151117175506.GW22011@ZenIV.linux.org.uk>
+ <20151117183444.GB108807@ubuntu-hedt>
+ <CAFLxGvx1UqJOhM3wqAGqT+TrkapeP1zkmg0a1K=DjySePx4mEA@mail.gmail.com>
+ <20151117192141.GD108807@ubuntu-hedt>
+ <CAE1zotLNq1v_ZegT9LyFsTiHWQnOAow+KKQFFvOYKUyRWPjfGA@mail.gmail.com>
+ <564B8A20.9090607@nod.at>
+ <CAE1zotJRp3=G2Vdud7kVbkToKe2YsTF3gXUnLCNzKV6F0oumdg@mail.gmail.com>
+ <20151119152347.GA45540@ubuntu-hedt>
+ <CAE1zot+G=SohXzuV6Gs7APdCo5pu9xLwE38kZKNUuWRnSh++BA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1447745843-15057-1-git-send-email-plautrba@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAE1zot+G=SohXzuV6Gs7APdCo5pu9xLwE38kZKNUuWRnSh++BA@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/17/2015 02:37 AM, Petr Lautrbach wrote:
-> Fixes: python ./semanage permissive -d
-> Traceback (most recent call last):
->    File "./semanage", line 925, in <module>
->      do_parser()
->    File "./semanage", line 904, in do_parser
->      args.func(args)
->    File "./semanage", line 708, in handlePermissive
->      OBJECT.delete(args.type)
->    File "/selinux.git/policycoreutils/semanage/seobject.py", line 479, in delete
->      for n in name.split():
-> AttributeError: 'NoneType' object has no attribute 'split'
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+On Thu, Nov 19, 2015 at 06:19:10PM +0200, Octavian Purdila wrote:
+> On Thu, Nov 19, 2015 at 5:23 PM, Seth Forshee
+> > And for the second:
+> >
+> >  stress-ng --class filesystem --seq 0 -v -t 60
+> >
+> > There really wasn't anything interesting in the lklfuse output for the
+> > first run, but for the second run I pasted the output here:
+> > http://paste.ubuntu.com/13346993/
+> 
+> lklfuse allocates a fixed 100MB to the kernel and this is probably not
+> enough. For the short term I can add a parameter to lklfuse that
+> allows the user to specify the amount of memory to allocate to lkl. A
+> better fix would probably be to dynamically adjust the memory size of
+> lkl. I am thinking of using the ballon virtio driver or the memory
+> hotplug infrastructure. Any other suggestions?
 
-Applied.
+Hi Octavian,
 
-Thanks,
-Jim
+Like Seth said this was very nice to install and run.  But I think I'm
+doing something wrong.  I cloned the lkl/linux git tree into a 9G ext4
+loopback file, both one mounted with lkl and one mounted as loopback.
+The results were worse than I expected - loopback was 0m10.078s for
+clone and 0m0.877s for rm -rf;  lkl was 5m5.625s for clone and 0m44.332s
+for rm -rf.  I assume this has to do with the 100MB buffer and subsequent
+thrashing?  How should I tune this to  make it perform better?
 
-> ---
->   policycoreutils/semanage/semanage | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-> index 8097208..ed48c11 100644
-> --- a/policycoreutils/semanage/semanage
-> +++ b/policycoreutils/semanage/semanage
-> @@ -721,7 +721,7 @@ def setupPermissiveParser(subparsers):
->       parser_add_noheading(permissiveParser, "permissive")
->       parser_add_noreload(permissiveParser, "permissive")
->       parser_add_store(permissiveParser, "permissive")
-> -    permissiveParser.add_argument('type', nargs='?', default=None, help=_('type'))
-> +    permissiveParser.add_argument('type', nargs='+', default=None, help=_('type'))
->       permissiveParser.set_defaults(func=handlePermissive)
->
->
->
+No crashes from this, though.
 
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+thanks,
+-serge
