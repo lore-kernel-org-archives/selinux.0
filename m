@@ -1,37 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAKLoQ0A017093
- for <selinux@tycho.nsa.gov>; Fri, 20 Nov 2015 16:50:26 -0500
-Received: by qgea14 with SMTP id a14so81878542qge.0
- for <selinux@tycho.nsa.gov>; Fri, 20 Nov 2015 13:49:10 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@tycho.nsa.gov, linux-audit@redhat.com
-Cc: linux-security-module@vger.kernel.org
-Subject: ANN: Experimental Fedora Rawhide kernels (selinux-next and audit-next)
-Date: Fri, 20 Nov 2015 16:49:08 -0500
-Message-ID: <8944982.Ef97cAsKlg@sifl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tALGRGRp011234
+ for <selinux@tycho.nsa.gov>; Sat, 21 Nov 2015 11:27:17 -0500
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: Fully expand neverallowxperm rules
+Date: Sat, 21 Nov 2015 16:26:48 +0000
+Message-Id: <1448123208-5557-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-For the past few weeks I've been building experimental Fedora Rawhide kernels 
-with all of the SELinux and audit kernel patches targeted for linux-next 
-included. It has worked out reasonably well, and with the exception of getting 
-a working Linux 4.4-rc1 build this week, it has proven to be relatively easy 
-to manage. If you would like to help with testing and don't mind the 
-instability that comes with development kernels, the Fedora COPR repository 
-link is below.
+Currently neverallowxperm rules will be resolved correctly when
+building policy, however they are not detectable when using tools
+such as an updated version of setools. This patch will allow
+these to be viewed in the same way as neverallow rules are in a
+text based kernel policy file (e.g. policy.conf).
 
-I've been doing at least one build each week, sometimes more, and I expect to 
-continue with that frequency. I also perform a quick sanity check on each 
-successful build, including running the SELinux and audit testsuites; however, 
-there may be times when the kernel is simply broken, so exercise caution and 
-please don't run these kernels on anything critical.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ libsepol/src/expand.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- * https://copr.fedoraproject.org/coprs/pcmoore/kernel-secnext
-
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 9047c6d..9cb7965 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1811,6 +1811,8 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ 		if (handle && handle->disable_dontaudit)
+ 			return EXPAND_RULE_SUCCESS;
+ 		spec = AVTAB_XPERMS_DONTAUDIT;
++	} else if (specified & AVRULE_XPERMS_NEVERALLOW) {
++		spec = AVTAB_XPERMS_NEVERALLOW;
+ 	} else {
+ 		assert(0);	/* unreachable */
+ 	}
+@@ -1948,7 +1950,7 @@ static int convert_and_expand_rule(sepol_handle_t * handle,
+ 
+ 	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
+ 		return EXPAND_RULE_SUCCESS;
+-	if (source_rule->specified & AVRULE_XPERMS_NEVERALLOW)
++	if (!do_neverallow && source_rule->specified & AVRULE_XPERMS_NEVERALLOW)
+ 		return EXPAND_RULE_SUCCESS;
+ 
+ 	ebitmap_init(&stypes);
 -- 
-paul moore
-www.paul-moore.com
+2.5.0
