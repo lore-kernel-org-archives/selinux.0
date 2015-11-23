@@ -1,147 +1,240 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tANFIK2v002516
- for <selinux@tycho.nsa.gov>; Mon, 23 Nov 2015 10:18:20 -0500
-Received: by oies6 with SMTP id s6so129552596oie.1
- for <selinux@tycho.nsa.gov>; Mon, 23 Nov 2015 07:18:15 -0800 (PST)
-MIME-Version: 1.0
-References: <1448123208-5557-1-git-send-email-richard_c_haines@btinternet.com>
-In-Reply-To: <1448123208-5557-1-git-send-email-richard_c_haines@btinternet.com>
-From: Jeffrey Vander Stoep <jeffv@google.com>
-Date: Mon, 23 Nov 2015 15:18:05 +0000
-Message-ID: <CABXk95DgzRp=HR+t15QjtCs-P3VUeYW38TUnnzebEBvQWw3N_g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Fully expand neverallowxperm rules
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=089e013a0112ece7b2052536bb12
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tANFZ9Tm004236
+ for <selinux@tycho.nsa.gov>; Mon, 23 Nov 2015 10:35:10 -0500
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 10B3D1A1D8
+ for <selinux@tycho.nsa.gov>; Mon, 23 Nov 2015 16:34:56 +0100 (CET)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id Sex4mjMIlsLL for <selinux@tycho.nsa.gov>;
+ Mon, 23 Nov 2015 16:34:50 +0100 (CET)
+Received: from [IPv6:2a02:578:85fc:1:c84e:489:bf64:5e4f] (unknown
+ [IPv6:2a02:578:85fc:1:c84e:489:bf64:5e4f])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id B46031A070
+ for <selinux@tycho.nsa.gov>; Mon, 23 Nov 2015 16:34:50 +0100 (CET)
+Subject: Re: (Userspace) AVC denial generated even if allowed by the policy?
+To: selinux@tycho.nsa.gov
+References: <5652636F.2060609@debian.org>
+From: Laurent Bigonville <bigon@debian.org>
+Message-ID: <56533218.7090601@debian.org>
+Date: Mon, 23 Nov 2015 16:34:48 +0100
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_Boundary-11444-1448292963-0001-2"
+In-Reply-To: <5652636F.2060609@debian.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e013a0112ece7b2052536bb12
-Content-Type: text/plain; charset=UTF-8
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-Acked-by: Jeff Vander Stoep <jeffv@google.com>
-
-On Sat, Nov 21, 2015 at 8:30 AM Richard Haines <
-richard_c_haines@btinternet.com> wrote:
-
-> Currently neverallowxperm rules will be resolved correctly when
-> building policy, however they are not detectable when using tools
-> such as an updated version of setools. This patch will allow
-> these to be viewed in the same way as neverallow rules are in a
-> text based kernel policy file (e.g. policy.conf).
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  libsepol/src/expand.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index 9047c6d..9cb7965 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -1811,6 +1811,8 @@ static int expand_avrule_helper(sepol_handle_t *
-> handle,
->                 if (handle && handle->disable_dontaudit)
->                         return EXPAND_RULE_SUCCESS;
->                 spec = AVTAB_XPERMS_DONTAUDIT;
-> +       } else if (specified & AVRULE_XPERMS_NEVERALLOW) {
-> +               spec = AVTAB_XPERMS_NEVERALLOW;
->         } else {
->                 assert(0);      /* unreachable */
->         }
-> @@ -1948,7 +1950,7 @@ static int convert_and_expand_rule(sepol_handle_t *
-> handle,
->
->         if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
->                 return EXPAND_RULE_SUCCESS;
-> -       if (source_rule->specified & AVRULE_XPERMS_NEVERALLOW)
-> +       if (!do_neverallow && source_rule->specified &
-> AVRULE_XPERMS_NEVERALLOW)
->                 return EXPAND_RULE_SUCCESS;
->
->         ebitmap_init(&stypes);
-> --
-> 2.5.0
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
->
-
---089e013a0112ece7b2052536bb12
-Content-Type: text/html; charset=UTF-8
+--=_Boundary-11444-1448292963-0001-2
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
+X-Mime-Autoconverted: from 8bit to quoted-printable by mime827
 
-<div dir=3D"ltr">Acked-by: Jeff Vander Stoep &lt;<a href=3D"mailto:jeffv@go=
-ogle.com" target=3D"_blank">jeffv@google.com</a>&gt;<br><br><div class=3D"g=
-mail_quote"><div dir=3D"ltr">On Sat, Nov 21, 2015 at 8:30 AM Richard Haines=
- &lt;<a href=3D"mailto:richard_c_haines@btinternet.com" target=3D"_blank">r=
-ichard_c_haines@btinternet.com</a>&gt; wrote:<br></div><blockquote class=3D=
-"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding=
--left:1ex">Currently neverallowxperm rules will be resolved correctly when<=
-br>
-building policy, however they are not detectable when using tools<br>
-such as an updated version of setools. This patch will allow<br>
-these to be viewed in the same way as neverallow rules are in a<br>
-text based kernel policy file (e.g. policy.conf).<br>
-<br>
-Signed-off-by: Richard Haines &lt;<a href=3D"mailto:richard_c_haines@btinte=
-rnet.com" target=3D"_blank">richard_c_haines@btinternet.com</a>&gt;<br>
----<br>
-=C2=A0libsepol/src/expand.c | 4 +++-<br>
-=C2=A01 file changed, 3 insertions(+), 1 deletion(-)<br>
-<br>
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c<br>
-index 9047c6d..9cb7965 100644<br>
---- a/libsepol/src/expand.c<br>
-+++ b/libsepol/src/expand.c<br>
-@@ -1811,6 +1811,8 @@ static int expand_avrule_helper(sepol_handle_t * hand=
-le,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (handle &amp;&am=
-p; handle-&gt;disable_dontaudit)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 return EXPAND_RULE_SUCCESS;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 spec =3D AVTAB_XPER=
-MS_DONTAUDIT;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0} else if (specified &amp; AVRULE_XPERMS_NEVERA=
-LLOW) {<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0spec =3D AVTAB_XPER=
-MS_NEVERALLOW;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 } else {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 assert(0);=C2=A0 =
-=C2=A0 =C2=A0 /* unreachable */<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
-@@ -1948,7 +1950,7 @@ static int convert_and_expand_rule(sepol_handle_t * h=
-andle,<br>
-<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!do_neverallow &amp;&amp; source_rule-&gt;s=
-pecified &amp; AVRULE_NEVERALLOW)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return EXPAND_RULE_=
-SUCCESS;<br>
--=C2=A0 =C2=A0 =C2=A0 =C2=A0if (source_rule-&gt;specified &amp; AVRULE_XPER=
-MS_NEVERALLOW)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (!do_neverallow &amp;&amp; source_rule-&gt;s=
-pecified &amp; AVRULE_XPERMS_NEVERALLOW)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return EXPAND_RULE_=
-SUCCESS;<br>
-<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 ebitmap_init(&amp;stypes);<br>
---<br>
-2.5.0<br>
-<br>
-_______________________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
-a.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
-.gov</a>.<br>
-</blockquote></div></div>
+Le 23/11/15 01:53, Laurent Bigonville a =C3=A9crit :
+> Hi,
+>
+> I'm still looking at adding SELinux support in the "at" daemon and I 
+> now have the following patch[0].
+>
+> With this patch, at seems to behave like the cron daemon, as explained=
+ 
+> in the commit log:
+>
+>     - When cron_userdomain_transition is set to off, a process for an
+>       unconfined user will transition to unconfined_cronjob_t. For 
+> confined
+>       user, the job is run as cronjob_t.
+>
+>     - When cron_userdomain_transition is set to on, the processes are =
+run
+>       under the user default context.
+>
+> But every time an AVC denial is generated (with 
+> cron_userdomain_transition set to off and the user running as staff_u,=
+ 
+> in permissive with unmodified refpolicy):
+>
+> avc:  denied  { entrypoint } for scontext=3Dstaff_u:staff_r:cronjob_t:=
+s0 
+> tcontext=3Dstaff_u:object_r:user_cron_spool_t:s0 tclass=3Dfile
+>
+> The job runs as (id -Z): staff_u:staff_r:cronjob_t:s0
+>
+> But audit2{allow,why} are saying that this is already allowed in the 
+> policy
+>
+> Setting the cron_userdomain_transition boolean to on, I have the 
+> following avc:
+>
+> avc:  denied  { entrypoint } for scontext=3Dstaff_u:sysadm_r:sysadm_t:=
+s0 
+> tcontext=3Dstaff_u:object_r:user_cron_spool_t:s0 tclass=3Dfile
+>
+> The job runs as (id -Z): staff_u:sysadm_r:sysadm_t:s0
+>
+> So as said it seems to work, but I'm not sure why this AVC denial is 
+> generated.
+>
+> sesearch shows:
+>
+> $ sesearch -ATSC  -t user_cron_spool_t -c file -p entrypoint
+> Found 6 semantic av rules:
+>    allow files_unconfined_type file_type : file { ioctl read write 
+> create getattr setattr lock relabelfrom relabelto append unlink link 
+> rename execute swapon quotaon mounton execute_no_trans entrypoint open=
+ 
+> audit_access } ;
+> DT allow unconfined_t user_cron_spool_t : file entrypoint ; [ 
+> cron_userdomain_transition ]
+> DT allow user_t user_cron_spool_t : file entrypoint ; [ 
+> cron_userdomain_transition ]
+> EF allow cronjob_t user_cron_spool_t : file entrypoint ; [ 
+> cron_userdomain_transition ]
+> DT allow staff_t user_cron_spool_t : file entrypoint ; [ 
+> cron_userdomain_transition ]
+> DT allow sysadm_t user_cron_spool_t : file entrypoint ; [ 
+> cron_userdomain_transition ]
+>
+> Did I overlooked something?
+>
+> Cheers,
+>
+> Laurent Bigonville
+>
+> [0] 
+> https://anonscm.debian.org/cgit/users/bigon/at.git/commit/?h=3Dselinux=
+&id=3D0112f006b74a36f7200e315575fd25d78e11b170
 
---089e013a0112ece7b2052536bb12--
+I'm attaching the patch to this mail for the people that cannot access 
+the website and FTR.
+
+Cheers,
+
+Laurent Bigonville
+
+
+--=_Boundary-11444-1448292963-0001-2
+Content-Type: text/x-patch; name="0001-Allow-the-user-cronjobs-to-run-in-their-userdomain.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-Allow-the-user-cronjobs-to-run-in-their-userdomain.patc";
+ filename*1="h"
+
+>From c8aa69e51d8781da782a50dbdf20b258288093d4 Mon Sep 17 00:00:00 2001
+From: Laurent Bigonville <bigon@bigon.be>
+Date: Mon, 23 Nov 2015 12:25:13 +0100
+Subject: [PATCH] Allow the user cronjobs to run in their userdomain
+
+When cron_userdomain_transition boolean is set to on, the user cronjobs
+are supposed to run in their domains. Without this patch the default
+context is not properly computed:
+
+    $ /usr/sbin/getdefaultcon user_u system_u:system_r:crond_t:s0
+    /usr/sbin/getdefaultcon: Invalid argument
+    $ /usr/sbin/getdefaultcon staff_u system_u:system_r:crond_t:s0
+    staff_u:sysadm_r:sysadm_t:s0
+
+With this patch applied:
+
+    $ /usr/sbin/getdefaultcon user_u system_u:system_r:crond_t:s0
+    user_u:user_r:user_t:s0
+    $ /usr/sbin/getdefaultcon staff_ system_u:system_r:crond_t:s0
+    staff_u:staff_r:staff_t:s0
+---
+ config/appconfig-mcs/staff_u_default_contexts      | 2 +-
+ config/appconfig-mcs/user_u_default_contexts       | 2 +-
+ config/appconfig-mls/staff_u_default_contexts      | 2 +-
+ config/appconfig-mls/user_u_default_contexts       | 2 +-
+ config/appconfig-standard/staff_u_default_contexts | 2 +-
+ config/appconfig-standard/user_u_default_contexts  | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/config/appconfig-mcs/staff_u_default_contexts b/config/appconfig-mcs/staff_u_default_contexts
+index 881a292..5606c4e 100644
+--- a/config/appconfig-mcs/staff_u_default_contexts
++++ b/config/appconfig-mcs/staff_u_default_contexts
+@@ -1,7 +1,7 @@
+ system_r:local_login_t:s0	staff_r:staff_t:s0 sysadm_r:sysadm_t:s0
+ system_r:remote_login_t:s0	staff_r:staff_t:s0
+ system_r:sshd_t:s0		staff_r:staff_t:s0 sysadm_r:sysadm_t:s0
+-system_r:crond_t:s0		staff_r:cronjob_t:s0
++system_r:crond_t:s0		staff_r:staff_t:s0 staff_r:cronjob_t:s0
+ system_r:xdm_t:s0		staff_r:staff_t:s0
+ staff_r:staff_su_t:s0		staff_r:staff_t:s0
+ staff_r:staff_sudo_t:s0		staff_r:staff_t:s0
+diff --git a/config/appconfig-mcs/user_u_default_contexts b/config/appconfig-mcs/user_u_default_contexts
+index cacbc93..56d6071 100644
+--- a/config/appconfig-mcs/user_u_default_contexts
++++ b/config/appconfig-mcs/user_u_default_contexts
+@@ -1,7 +1,7 @@
+ system_r:local_login_t:s0	user_r:user_t:s0
+ system_r:remote_login_t:s0	user_r:user_t:s0
+ system_r:sshd_t:s0		user_r:user_t:s0
+-system_r:crond_t:s0		user_r:cronjob_t:s0
++system_r:crond_t:s0		user_r:user_t:s0 user_r:cronjob_t:s0
+ system_r:xdm_t:s0		user_r:user_t:s0
+ user_r:user_su_t:s0		user_r:user_t:s0
+ user_r:user_sudo_t:s0		user_r:user_t:s0
+diff --git a/config/appconfig-mls/staff_u_default_contexts b/config/appconfig-mls/staff_u_default_contexts
+index 881a292..5606c4e 100644
+--- a/config/appconfig-mls/staff_u_default_contexts
++++ b/config/appconfig-mls/staff_u_default_contexts
+@@ -1,7 +1,7 @@
+ system_r:local_login_t:s0	staff_r:staff_t:s0 sysadm_r:sysadm_t:s0
+ system_r:remote_login_t:s0	staff_r:staff_t:s0
+ system_r:sshd_t:s0		staff_r:staff_t:s0 sysadm_r:sysadm_t:s0
+-system_r:crond_t:s0		staff_r:cronjob_t:s0
++system_r:crond_t:s0		staff_r:staff_t:s0 staff_r:cronjob_t:s0
+ system_r:xdm_t:s0		staff_r:staff_t:s0
+ staff_r:staff_su_t:s0		staff_r:staff_t:s0
+ staff_r:staff_sudo_t:s0		staff_r:staff_t:s0
+diff --git a/config/appconfig-mls/user_u_default_contexts b/config/appconfig-mls/user_u_default_contexts
+index cacbc93..56d6071 100644
+--- a/config/appconfig-mls/user_u_default_contexts
++++ b/config/appconfig-mls/user_u_default_contexts
+@@ -1,7 +1,7 @@
+ system_r:local_login_t:s0	user_r:user_t:s0
+ system_r:remote_login_t:s0	user_r:user_t:s0
+ system_r:sshd_t:s0		user_r:user_t:s0
+-system_r:crond_t:s0		user_r:cronjob_t:s0
++system_r:crond_t:s0		user_r:user_t:s0 user_r:cronjob_t:s0
+ system_r:xdm_t:s0		user_r:user_t:s0
+ user_r:user_su_t:s0		user_r:user_t:s0
+ user_r:user_sudo_t:s0		user_r:user_t:s0
+diff --git a/config/appconfig-standard/staff_u_default_contexts b/config/appconfig-standard/staff_u_default_contexts
+index c2a5ea8..300694c 100644
+--- a/config/appconfig-standard/staff_u_default_contexts
++++ b/config/appconfig-standard/staff_u_default_contexts
+@@ -1,7 +1,7 @@
+ system_r:local_login_t		staff_r:staff_t sysadm_r:sysadm_t
+ system_r:remote_login_t		staff_r:staff_t
+ system_r:sshd_t			staff_r:staff_t sysadm_r:sysadm_t
+-system_r:crond_t		staff_r:cronjob_t
++system_r:crond_t		staff_r:staff_t staff_r:cronjob_t
+ system_r:xdm_t			staff_r:staff_t
+ staff_r:staff_su_t		staff_r:staff_t
+ staff_r:staff_sudo_t		staff_r:staff_t
+diff --git a/config/appconfig-standard/user_u_default_contexts b/config/appconfig-standard/user_u_default_contexts
+index f5bfac3..63b7eec 100644
+--- a/config/appconfig-standard/user_u_default_contexts
++++ b/config/appconfig-standard/user_u_default_contexts
+@@ -1,7 +1,7 @@
+ system_r:local_login_t		user_r:user_t
+ system_r:remote_login_t		user_r:user_t
+ system_r:sshd_t			user_r:user_t
+-system_r:crond_t		user_r:cronjob_t
++system_r:crond_t		user_r:user_t user_r:cronjob_t
+ system_r:xdm_t			user_r:user_t
+ user_r:user_su_t		user_r:user_t
+ user_r:user_sudo_t		user_r:user_t
+-- 
+2.6.2
+
+
+--=_Boundary-11444-1448292963-0001-2--
