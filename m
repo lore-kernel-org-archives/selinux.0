@@ -1,43 +1,53 @@
-Subject: Re: (Userspace) AVC denial generated even if allowed by the policy?
-To: Laurent Bigonville <bigon@debian.org>
-References: <5652636F.2060609@debian.org> <56533D07.20508@tycho.nsa.gov>
- <56534C04.60306@debian.org> <56535E8B.9030805@tycho.nsa.gov>
- <565363AF.9030607@debian.org>
-Cc: Paul Moore <paul@paul-moore.com>, Selinux@tycho.nsa.gov
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <565377B4.9060303@tycho.nsa.gov>
-Date: Mon, 23 Nov 2015 15:31:48 -0500
-MIME-Version: 1.0
-In-Reply-To: <565363AF.9030607@debian.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+To: selinux@tycho.nsa.gov
+Cc: bigon@debian.org, paul@paul-moore.com, jeffv@google.com,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: fix bug in conditional rules handling
+Date: Mon, 23 Nov 2015 16:07:41 -0500
+Message-Id: <1448312861-3574-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/23/2015 02:06 PM, Laurent Bigonville wrote:
-> Le 23/11/15 19:44, Stephen Smalley a écrit :
->> On 11/23/2015 12:25 PM, Laurent Bigonville wrote:
->>> As you can see the results are different... So this seems to be
->>> regression at the kernel level.
->>
->> Well, that depends - are you loading the same policy into both? What
->> do you have in /etc/selinux/targeted/policy?  A policy.29 and a
->> policy.30?  What does your libsepol/checkpolicy support?
->>
->> Or, alternatively, are you toggling cron_userdomain_transition and
->> thereby changing the result?
->
-> It's the same policy loaded, for both kernel version (I'm just choosing
-> an other kernel in grub), I only have one policy file.
->
-> # ls /etc/selinux/refpolicy/policy/
-> policy.29
->
-> I've the latest released userspace (2.4), policydb.h shows max version
-> being 29.
->
-> The policyvers utility shows: 30 with 4.3 and 29 with 4.2
+commit fa1aa143ac4a ("selinux: extended permissions for ioctls") introduced
+a bug into the handling of conditional rules, skipping the processing
+entirely when the caller does not provide an extended permissions (xperms)
+structure.  Access checks from userspace using /sys/fs/selinux/access
+do not include such a structure since that interface does not presently
+expose extended permission information.  As a result, conditional rules
+were being ignored entirely on userspace access requests, producing
+denials when access was allowed by conditional rules in the policy.
+Fix the bug by only skipping computation of extended permissions
+in this situation, not the entire conditional rules processing.
 
-You are correct - this is a kernel bug.  Hidden on Fedora because these 
-rules are unconditional there...
+Reported-by: Laurent Bigonville <bigon@debian.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/ss/conditional.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 18643bf..456e1a9 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -638,7 +638,7 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
+ {
+ 	struct avtab_node *node;
+ 
+-	if (!ctab || !key || !avd || !xperms)
++	if (!ctab || !key || !avd)
+ 		return;
+ 
+ 	for (node = avtab_search_node(ctab, key); node;
+@@ -657,7 +657,7 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
+ 		if ((u16)(AVTAB_AUDITALLOW|AVTAB_ENABLED) ==
+ 		    (node->key.specified & (AVTAB_AUDITALLOW|AVTAB_ENABLED)))
+ 			avd->auditallow |= node->datum.u.data;
+-		if ((node->key.specified & AVTAB_ENABLED) &&
++		if (xperms && (node->key.specified & AVTAB_ENABLED) &&
+ 				(node->key.specified & AVTAB_XPERMS))
+ 			services_compute_xperms_drivers(xperms, node);
+ 	}
+-- 
+2.4.3
