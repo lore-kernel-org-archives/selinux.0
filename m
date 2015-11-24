@@ -1,36 +1,52 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAOJBebD025010
- for <selinux@tycho.nsa.gov>; Tue, 24 Nov 2015 14:11:40 -0500
-Message-ID: <DUB128-W116CD2BD4AFE8BA94BEB989C060@phx.gbl>
-From: David Binderman <dcb314@hotmail.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: libsepol bug report
-Date: Tue, 24 Nov 2015 19:11:17 +0000
-Content-Type: text/plain; charset="iso-8859-1"
+Subject: Re: [PATCH] libsepol: Fully expand neverallowxperm rules
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+References: <1448123208-5557-1-git-send-email-richard_c_haines@btinternet.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5654D912.2030806@tycho.nsa.gov>
+Date: Tue, 24 Nov 2015 16:39:30 -0500
 MIME-Version: 1.0
+In-Reply-To: <1448123208-5557-1-git-send-email-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello there,
+On 11/21/2015 11:26 AM, Richard Haines wrote:
+> Currently neverallowxperm rules will be resolved correctly when
+> building policy, however they are not detectable when using tools
+> such as an updated version of setools. This patch will allow
+> these to be viewed in the same way as neverallow rules are in a
+> text based kernel policy file (e.g. policy.conf).
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 
-./cil/src/cil_tree.c:1279:36: warning: duplicated 'if' condition [-Wduplicated-cond]
+Thanks, applied.
 
-Source code is
-
-            if (filecon->context_str != NULL) {
-                cil_log(CIL_INFO, " %s", filecon->context_str);
-            } else if (filecon->context != NULL) {
-                cil_tree_print_context(filecon->context);
-            } else if (filecon->context_str != NULL) {
-                cil_log(CIL_INFO, " %s", filecon->context_str);
-            }
-
-Two mentions of filecon->context_str. Suggest code rework.
-
-Regards
-
-David Binderman
-
- 		 	   		  
+> ---
+>   libsepol/src/expand.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 9047c6d..9cb7965 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1811,6 +1811,8 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+>   		if (handle && handle->disable_dontaudit)
+>   			return EXPAND_RULE_SUCCESS;
+>   		spec = AVTAB_XPERMS_DONTAUDIT;
+> +	} else if (specified & AVRULE_XPERMS_NEVERALLOW) {
+> +		spec = AVTAB_XPERMS_NEVERALLOW;
+>   	} else {
+>   		assert(0);	/* unreachable */
+>   	}
+> @@ -1948,7 +1950,7 @@ static int convert_and_expand_rule(sepol_handle_t * handle,
+>
+>   	if (!do_neverallow && source_rule->specified & AVRULE_NEVERALLOW)
+>   		return EXPAND_RULE_SUCCESS;
+> -	if (source_rule->specified & AVRULE_XPERMS_NEVERALLOW)
+> +	if (!do_neverallow && source_rule->specified & AVRULE_XPERMS_NEVERALLOW)
+>   		return EXPAND_RULE_SUCCESS;
+>
+>   	ebitmap_init(&stypes);
+>
