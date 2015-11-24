@@ -1,59 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAPCLhaV019902
- for <selinux@tycho.nsa.gov>; Wed, 25 Nov 2015 07:21:44 -0500
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com
- (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- by mx1.redhat.com (Postfix) with ESMTPS id 8E82D8F033
- for <selinux@tycho.nsa.gov>; Wed, 25 Nov 2015 12:21:25 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] policycoreutils: replace string.join() with str.join()
-Date: Wed, 25 Nov 2015 13:21:20 +0100
-Message-Id: <1448454080-30617-1-git-send-email-plautrba@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAPJ76QU017823
+ for <selinux@tycho.nsa.gov>; Wed, 25 Nov 2015 14:07:16 -0500
+Received: by vkha189 with SMTP id a189so18341402vkh.2
+ for <selinux@tycho.nsa.gov>; Tue, 24 Nov 2015 10:51:36 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, bigon@debian.org, jeffv@google.com
+Subject: Re: [PATCH] selinux: fix bug in conditional rules handling
+Date: Tue, 24 Nov 2015 13:51:34 -0500
+Message-ID: <1565543.7Ns8yjUNd2@sifl>
+In-Reply-To: <1448312861-3574-1-git-send-email-sds@tycho.nsa.gov>
+References: <1448312861-3574-1-git-send-email-sds@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fixes Python 3 error:
-  AttributeError: module 'string' has no attribute 'join'
+On Monday, November 23, 2015 04:07:41 PM Stephen Smalley wrote:
+> commit fa1aa143ac4a ("selinux: extended permissions for ioctls") introduced
+> a bug into the handling of conditional rules, skipping the processing
+> entirely when the caller does not provide an extended permissions (xperms)
+> structure.  Access checks from userspace using /sys/fs/selinux/access
+> do not include such a structure since that interface does not presently
+> expose extended permission information.  As a result, conditional rules
+> were being ignored entirely on userspace access requests, producing
+> denials when access was allowed by conditional rules in the policy.
+> Fix the bug by only skipping computation of extended permissions
+> in this situation, not the entire conditional rules processing.
+> 
+> Reported-by: Laurent Bigonville <bigon@debian.org>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/ss/conditional.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Based on a patch by Tomas Radej <tradej@redhat.com>
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- policycoreutils/semanage/seobject.py | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Merged into the SELinux stable branch, I'll push it to James tomorrow.
 
-diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-index d29dba5..c52be75 100644
---- a/policycoreutils/semanage/seobject.py
-+++ b/policycoreutils/semanage/seobject.py
-@@ -846,7 +846,7 @@ class seluserRecords(semanageRecords):
-     def __modify(self, name, roles=[], selevel="", serange="", prefix=""):
-         oldserole = ""
-         oldserange = ""
--        newroles = string.join(roles, ' ')
-+        newroles = " ".join(roles)
-         if prefix == "" and len(roles) == 0 and serange == "" and selevel == "":
-             if is_mls_enabled == 1:
-                 raise ValueError(_("Requires prefix, roles, level or range"))
-@@ -870,7 +870,7 @@ class seluserRecords(semanageRecords):
-         oldserange = semanage_user_get_mlsrange(u)
-         (rc, rlist) = semanage_user_get_roles(self.sh, u)
-         if rc >= 0:
--            oldserole = string.join(rlist, ' ')
-+            oldserole = " ".join(rlist)
- 
-         if (is_mls_enabled == 1) and (serange != ""):
-             semanage_user_set_mlsrange(self.sh, u, untranslate(serange))
-@@ -980,7 +980,7 @@ class seluserRecords(semanageRecords):
-             if rc < 0:
-                 raise ValueError(_("Could not list roles for user %s") % name)
- 
--            roles = string.join(rlist, ' ')
-+            roles = " ".join(rlist)
-             ddict[semanage_user_get_name(u)] = (semanage_user_get_prefix(u), semanage_user_get_mlslevel(u), semanage_user_get_mlsrange(u), roles)
- 
-         return ddict
+> diff --git a/security/selinux/ss/conditional.c
+> b/security/selinux/ss/conditional.c index 18643bf..456e1a9 100644
+> --- a/security/selinux/ss/conditional.c
+> +++ b/security/selinux/ss/conditional.c
+> @@ -638,7 +638,7 @@ void cond_compute_av(struct avtab *ctab, struct
+> avtab_key *key, {
+>  	struct avtab_node *node;
+> 
+> -	if (!ctab || !key || !avd || !xperms)
+> +	if (!ctab || !key || !avd)
+>  		return;
+> 
+>  	for (node = avtab_search_node(ctab, key); node;
+> @@ -657,7 +657,7 @@ void cond_compute_av(struct avtab *ctab, struct
+> avtab_key *key, if ((u16)(AVTAB_AUDITALLOW|AVTAB_ENABLED) ==
+>  		    (node->key.specified & (AVTAB_AUDITALLOW|AVTAB_ENABLED)))
+>  			avd->auditallow |= node->datum.u.data;
+> -		if ((node->key.specified & AVTAB_ENABLED) &&
+> +		if (xperms && (node->key.specified & AVTAB_ENABLED) &&
+>  				(node->key.specified & AVTAB_XPERMS))
+>  			services_compute_xperms_drivers(xperms, node);
+>  	}
+
 -- 
-2.6.3
+paul moore
+www.paul-moore.com
