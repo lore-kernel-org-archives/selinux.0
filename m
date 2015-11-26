@@ -1,16 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAPJ76QU017823
- for <selinux@tycho.nsa.gov>; Wed, 25 Nov 2015 14:07:16 -0500
-Received: by vkha189 with SMTP id a189so18341402vkh.2
- for <selinux@tycho.nsa.gov>; Tue, 24 Nov 2015 10:51:36 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, bigon@debian.org, jeffv@google.com
-Subject: Re: [PATCH] selinux: fix bug in conditional rules handling
-Date: Tue, 24 Nov 2015 13:51:34 -0500
-Message-ID: <1565543.7Ns8yjUNd2@sifl>
-In-Reply-To: <1448312861-3574-1-git-send-email-sds@tycho.nsa.gov>
-References: <1448312861-3574-1-git-send-email-sds@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tAQ0XseL013972
+ for <selinux@tycho.nsa.gov>; Wed, 25 Nov 2015 19:33:54 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [GIT PULL] SELinux fixes for 4.4 (#1)
+Date: Wed, 25 Nov 2015 19:33:41 -0500
+Message-ID: <3155281.PYyyu1IbYA@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,49 +14,39 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Monday, November 23, 2015 04:07:41 PM Stephen Smalley wrote:
-> commit fa1aa143ac4a ("selinux: extended permissions for ioctls") introduced
-> a bug into the handling of conditional rules, skipping the processing
-> entirely when the caller does not provide an extended permissions (xperms)
-> structure.  Access checks from userspace using /sys/fs/selinux/access
-> do not include such a structure since that interface does not presently
-> expose extended permission information.  As a result, conditional rules
-> were being ignored entirely on userspace access requests, producing
-> denials when access was allowed by conditional rules in the policy.
-> Fix the bug by only skipping computation of extended permissions
-> in this situation, not the entire conditional rules processing.
-> 
-> Reported-by: Laurent Bigonville <bigon@debian.org>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  security/selinux/ss/conditional.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Hi James,
 
-Merged into the SELinux stable branch, I'll push it to James tomorrow.
+A single SELinux fix for 4.4 that corrects a problem with SELinux's 
+conditional rules handling.  The fix is small, easily understood, and passes 
+the SELinux testsuite.  Please pull and send to Linus.
 
-> diff --git a/security/selinux/ss/conditional.c
-> b/security/selinux/ss/conditional.c index 18643bf..456e1a9 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -638,7 +638,7 @@ void cond_compute_av(struct avtab *ctab, struct
-> avtab_key *key, {
->  	struct avtab_node *node;
-> 
-> -	if (!ctab || !key || !avd || !xperms)
-> +	if (!ctab || !key || !avd)
->  		return;
-> 
->  	for (node = avtab_search_node(ctab, key); node;
-> @@ -657,7 +657,7 @@ void cond_compute_av(struct avtab *ctab, struct
-> avtab_key *key, if ((u16)(AVTAB_AUDITALLOW|AVTAB_ENABLED) ==
->  		    (node->key.specified & (AVTAB_AUDITALLOW|AVTAB_ENABLED)))
->  			avd->auditallow |= node->datum.u.data;
-> -		if ((node->key.specified & AVTAB_ENABLED) &&
-> +		if (xperms && (node->key.specified & AVTAB_ENABLED) &&
->  				(node->key.specified & AVTAB_XPERMS))
->  			services_compute_xperms_drivers(xperms, node);
->  	}
+As of a few minutes ago, selinux#upstream applied cleanly on top of linux-
+security#next.
+
+Thanks,
+-Paul
+
+---
+The following changes since commit 63205654c0e05e5ffa1c6eef2fbef21dcabd2185:
+
+  selinux: Use a kmem_cache for allocation struct file_security_struct
+           (2015-10-21 17:44:30 -0400)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux upstream
+
+for you to fetch changes up to f3bef67992e8698897b584616535803887c4a73e:
+
+  selinux: fix bug in conditional rules handling (2015-11-24 13:44:32 -0500)
+
+----------------------------------------------------------------
+Stephen Smalley (1):
+      selinux: fix bug in conditional rules handling
+
+ security/selinux/ss/conditional.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 -- 
 paul moore
-www.paul-moore.com
+security @ redhat
