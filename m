@@ -1,59 +1,71 @@
-Subject: Re: [PATCH] policycoreutils: replace string.join() with str.join()
+Subject: Re: [PATCH] policycoreutils: fix 'semanage permissive -l' subcommand
 To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1448454080-30617-1-git-send-email-plautrba@redhat.com>
+References: <1448891867-10905-1-git-send-email-plautrba@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <565E0515.8060201@tycho.nsa.gov>
-Date: Tue, 1 Dec 2015 15:37:41 -0500
+Message-ID: <565E053E.3040503@tycho.nsa.gov>
+Date: Tue, 1 Dec 2015 15:38:22 -0500
 MIME-Version: 1.0
-In-Reply-To: <1448454080-30617-1-git-send-email-plautrba@redhat.com>
+In-Reply-To: <1448891867-10905-1-git-send-email-plautrba@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/25/2015 07:21 AM, Petr Lautrbach wrote:
-> Fixes Python 3 error:
->    AttributeError: module 'string' has no attribute 'join'
+On 11/30/2015 08:57 AM, Petr Lautrbach wrote:
+> This reverts the commit 97d06737 which introduced a regression on '-l'
+> which started to require at least one argument and fixes the original
+> problem other way. A args.parser value is set now and handlePermissive
+> function uses it to print an usage message when args.type is not set.
 >
-> Based on a patch by Tomas Radej <tradej@redhat.com>
+> Fixes: semanage permissive -l
+>    usage: semanage permissive [-h] (-a | -d | -l) [-n] [-N] [-S STORE]
+>                               type [type ...]
+>    semanage permissive: error: the following arguments are required: type
+>
 > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
 Thanks, applied.
 
 > ---
->   policycoreutils/semanage/seobject.py | 6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
+>   policycoreutils/semanage/semanage | 16 +++++++++++-----
+>   1 file changed, 11 insertions(+), 5 deletions(-)
 >
-> diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-> index d29dba5..c52be75 100644
-> --- a/policycoreutils/semanage/seobject.py
-> +++ b/policycoreutils/semanage/seobject.py
-> @@ -846,7 +846,7 @@ class seluserRecords(semanageRecords):
->       def __modify(self, name, roles=[], selevel="", serange="", prefix=""):
->           oldserole = ""
->           oldserange = ""
-> -        newroles = string.join(roles, ' ')
-> +        newroles = " ".join(roles)
->           if prefix == "" and len(roles) == 0 and serange == "" and selevel == "":
->               if is_mls_enabled == 1:
->                   raise ValueError(_("Requires prefix, roles, level or range"))
-> @@ -870,7 +870,7 @@ class seluserRecords(semanageRecords):
->           oldserange = semanage_user_get_mlsrange(u)
->           (rc, rlist) = semanage_user_get_roles(self.sh, u)
->           if rc >= 0:
-> -            oldserole = string.join(rlist, ' ')
-> +            oldserole = " ".join(rlist)
+> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+> index ed48c11..7489955 100644
+> --- a/policycoreutils/semanage/semanage
+> +++ b/policycoreutils/semanage/semanage
+> @@ -700,12 +700,17 @@ def handlePermissive(args):
+>       OBJECT = object_dict['permissive']()
+>       OBJECT.set_reload(args.noreload)
 >
->           if (is_mls_enabled == 1) and (serange != ""):
->               semanage_user_set_mlsrange(self.sh, u, untranslate(serange))
-> @@ -980,7 +980,7 @@ class seluserRecords(semanageRecords):
->               if rc < 0:
->                   raise ValueError(_("Could not list roles for user %s") % name)
+> -    if args.action is "add":
+> -        OBJECT.add(args.type)
+>       if args.action is "list":
+>           OBJECT.list(args.noheading)
+> -    if args.action is "delete":
+> -        OBJECT.delete(args.type)
+> +    elif args.type != None:
+> +        if args.action is "add":
+> +            OBJECT.add(args.type)
+> +        if args.action is "delete":
+> +            OBJECT.delete(args.type)
+> +    else:
+> +        args.parser.print_usage(sys.stderr)
+> +        sys.stderr.write(_('semanage permissive: error: the following argument is required: type\n'))
+> +        sys.exit(1)
 >
-> -            roles = string.join(rlist, ' ')
-> +            roles = " ".join(rlist)
->               ddict[semanage_user_get_name(u)] = (semanage_user_get_prefix(u), semanage_user_get_mlslevel(u), semanage_user_get_mlsrange(u), roles)
 >
->           return ddict
+>   def setupPermissiveParser(subparsers):
+> @@ -721,8 +726,9 @@ def setupPermissiveParser(subparsers):
+>       parser_add_noheading(permissiveParser, "permissive")
+>       parser_add_noreload(permissiveParser, "permissive")
+>       parser_add_store(permissiveParser, "permissive")
+> -    permissiveParser.add_argument('type', nargs='+', default=None, help=_('type'))
+> +    permissiveParser.add_argument('type', nargs='?', default=None, help=_('type'))
+>       permissiveParser.set_defaults(func=handlePermissive)
+> +    permissiveParser.set_defaults(parser=permissiveParser)
+>
+>
+>   def handleDontaudit(args):
 >
