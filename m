@@ -1,71 +1,55 @@
-Subject: Re: [PATCH] policycoreutils: fix 'semanage permissive -l' subcommand
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1448891867-10905-1-git-send-email-plautrba@redhat.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <565E053E.3040503@tycho.nsa.gov>
-Date: Tue, 1 Dec 2015 15:38:22 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB1KeDY4027265
+ for <selinux@tycho.nsa.gov>; Tue, 1 Dec 2015 15:40:17 -0500
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: Remove duplicated 'if' condition in cil_tree
+Date: Tue, 1 Dec 2015 15:38:47 -0500
+Message-ID: <1449002327-32333-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-In-Reply-To: <1448891867-10905-1-git-send-email-plautrba@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/30/2015 08:57 AM, Petr Lautrbach wrote:
-> This reverts the commit 97d06737 which introduced a regression on '-l'
-> which started to require at least one argument and fixes the original
-> problem other way. A args.parser value is set now and handlePermissive
-> function uses it to print an usage message when args.type is not set.
+David Binderman wrote:
+> Hello there,
 >
-> Fixes: semanage permissive -l
->    usage: semanage permissive [-h] (-a | -d | -l) [-n] [-N] [-S STORE]
->                               type [type ...]
->    semanage permissive: error: the following arguments are required: type
+> ./cil/src/cil_tree.c:1279:36: warning: duplicated 'if' condition [-Wduplicated-cond]
 >
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> Source code is
+>
+>             if (filecon->context_str != NULL) {
+>                 cil_log(CIL_INFO, " %s", filecon->context_str);
+>             } else if (filecon->context != NULL) {
+>                 cil_tree_print_context(filecon->context);
+>             } else if (filecon->context_str != NULL) {
+>                 cil_log(CIL_INFO, " %s", filecon->context_str);
+>             }
+>
+> Two mentions of filecon->context_str. Suggest code rework.
 
-Thanks, applied.
+Reported-by: David Binderman <dcb314@hotmail.com>
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/cil/src/cil_tree.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-> ---
->   policycoreutils/semanage/semanage | 16 +++++++++++-----
->   1 file changed, 11 insertions(+), 5 deletions(-)
->
-> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-> index ed48c11..7489955 100644
-> --- a/policycoreutils/semanage/semanage
-> +++ b/policycoreutils/semanage/semanage
-> @@ -700,12 +700,17 @@ def handlePermissive(args):
->       OBJECT = object_dict['permissive']()
->       OBJECT.set_reload(args.noreload)
->
-> -    if args.action is "add":
-> -        OBJECT.add(args.type)
->       if args.action is "list":
->           OBJECT.list(args.noheading)
-> -    if args.action is "delete":
-> -        OBJECT.delete(args.type)
-> +    elif args.type != None:
-> +        if args.action is "add":
-> +            OBJECT.add(args.type)
-> +        if args.action is "delete":
-> +            OBJECT.delete(args.type)
-> +    else:
-> +        args.parser.print_usage(sys.stderr)
-> +        sys.stderr.write(_('semanage permissive: error: the following argument is required: type\n'))
-> +        sys.exit(1)
->
->
->   def setupPermissiveParser(subparsers):
-> @@ -721,8 +726,9 @@ def setupPermissiveParser(subparsers):
->       parser_add_noheading(permissiveParser, "permissive")
->       parser_add_noreload(permissiveParser, "permissive")
->       parser_add_store(permissiveParser, "permissive")
-> -    permissiveParser.add_argument('type', nargs='+', default=None, help=_('type'))
-> +    permissiveParser.add_argument('type', nargs='?', default=None, help=_('type'))
->       permissiveParser.set_defaults(func=handlePermissive)
-> +    permissiveParser.set_defaults(parser=permissiveParser)
->
->
->   def handleDontaudit(args):
->
+diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+index f641baa..8357a32 100644
+--- a/libsepol/cil/src/cil_tree.c
++++ b/libsepol/cil/src/cil_tree.c
+@@ -1302,9 +1302,7 @@ void cil_tree_print_node(struct cil_tree_node *node)
+ 			cil_log(CIL_INFO, "FILECON:");
+ 			cil_log(CIL_INFO, " %s %d", filecon->path_str, filecon->type);
+ 
+-			if (filecon->context_str != NULL) {
+-				cil_log(CIL_INFO, " %s", filecon->context_str);
+-			} else if (filecon->context != NULL) {
++			if (filecon->context != NULL) {
+ 				cil_tree_print_context(filecon->context);
+ 			} else if (filecon->context_str != NULL) {
+ 				cil_log(CIL_INFO, " %s", filecon->context_str);
+-- 
+2.4.3
