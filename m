@@ -1,83 +1,170 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2AVjKm014098
- for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 05:31:45 -0500
-Received: by wmww144 with SMTP id w144so50519368wmw.0
- for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 02:31:34 -0800 (PST)
-Received: from x250 ([84.245.63.179])
- by smtp.gmail.com with ESMTPSA id cw3sm2117653wjb.26.2015.12.02.02.31.34
- for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
- Wed, 02 Dec 2015 02:31:34 -0800 (PST)
-Date: Wed, 2 Dec 2015 11:31:32 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: continuation of systemd/SELinux discussion from Github
-Message-ID: <20151202103131.GB1028@x250>
-References: <20151202101801.GA1028@x250>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <20151202101801.GA1028@x250>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5on006458
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:05 -0500
+Received: by igcto18 with SMTP id to18so34138179igc.0
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:03 -0800 (PST)
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
+ dm-devel@redhat.com, Neil Brown <neilb@suse.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
+ linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH 01/19] block_dev: Support checking inode permissions in
+ lookup_bdev()
+Date: Wed,  2 Dec 2015 09:40:01 -0600
+Message-Id: <1449070821-73820-2-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
+References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+When looking up a block device by path no permission check is
+done to verify that the user has access to the block device inode
+at the specified path. In some cases it may be necessary to
+check permissions towards the inode, such as allowing
+unprivileged users to mount block devices in user namespaces.
 
-On Wed, Dec 02, 2015 at 11:18:01AM +0100, Dominick Grift wrote:
-> Let's continue the discussion here.
-> 
-> The last answered questionnaire is below, any further questions or
-> comments?:
-> 
+Add an argument to lookup_bdev() to optionally perform this
+permission check. A value of 0 skips the permission check and
+behaves the same as before. A non-zero value specifies the mask
+of access rights required towards the inode at the specified
+path. The check is always skipped if the user has CAP_SYS_ADMIN.
 
-I will start by adding a few comments.
+All callers of lookup_bdev() currently pass a mask of 0, so this
+patch results in no functional change. Subsequent patches will
+add permission checks where appropriate.
 
-I agree that the SELinux user space object manager support is a bit
-fragile and rough edged. (I actually recently sent a message to this
-list pointing this out)
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+---
+ drivers/md/bcache/super.c |  2 +-
+ drivers/md/dm-table.c     |  2 +-
+ drivers/mtd/mtdsuper.c    |  2 +-
+ fs/block_dev.c            | 13 ++++++++++---
+ fs/quota/quota.c          |  2 +-
+ include/linux/fs.h        |  2 +-
+ 6 files changed, 15 insertions(+), 8 deletions(-)
 
-Either something is wrong with that support or its documentation.
-
-I noticed that many developer focus a lot on uid=0, and forget that
-these day's you do not need access to uid=0 to ruin someones life.
-
-To me, from an SELinux perspective at least, a process is just a process
-regardless of the UID it is associated with.
-
-The most common use of SELinux is arguably distributions using it to
-enforce their policy on their customers hardware, This is fine but
-please remember that some customers which to be able to keep that
-discretion to them selves.
-
-I think that means in practice that one should keep that in mind at all
-times when something is implemented by not making any assumptions about
-whether something is useful or not when that is not appropriate.
-
-You may use access control for one this and I may use if for
-another. Your threat model may not align with my threat model.
-
-Let us not forget that SELinux is supposed to be a "flexible" MAC, this
-is one of the reasons why we use SELinux and not, say SMACK
-
-Thank you. That is all for now
-
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJWXsh/AAoJENAR6kfG5xmcM5sL/2m5mL9S947+4yy82L6SzC1g
-GV6vjG1D+FSwa0tMPXNTuYJcLC28TnHv8aYO6v6sadDW4nPsm1li4PxziScdGmzz
-/F1WeCaJ8hFXlJYCvVc4brlREiOiz08BlZob1SOpvsVDrgeYIsvI1CTKsRDQP86u
-5OsVDgLim5slcq5rFcYN1eAsDj7KpOw9ozyFg2qRWdACw/TageKu0FNnHr6GtCRG
-pva3Y4Pp3cmH+vaSiffciypuzy+wKbZdUbEaUp7QIIqHJ5IICbZ8qFw3mLZUtziW
-scglWAzrlfhsiwwVusPjPbhhZAcdRJtEPcve/dmfpQRFtImt2FeIWabjMa98QmnY
-HPH/2jZJIr/tGz/PIkT4SLsFRc3fl3LdV5lqLO5GGpvWxw0Xq1ke3TV5J8WCSitt
-lGnSdkzRqC9sasSOBS5cilUpYeOrq37LOwVLu12kamwxJpIYeBLnur/f6lcrQzSU
-OZDlpU3u59i3oyFbFauHe2p7wLbDKGxOpCEsv95Now==
-=5gZK
------END PGP SIGNATURE-----
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 679a093a3bf6..e8287b0d1dac 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1926,7 +1926,7 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
+ 				  sb);
+ 	if (IS_ERR(bdev)) {
+ 		if (bdev == ERR_PTR(-EBUSY)) {
+-			bdev = lookup_bdev(strim(path));
++			bdev = lookup_bdev(strim(path), 0);
+ 			mutex_lock(&bch_register_lock);
+ 			if (!IS_ERR(bdev) && bch_is_open(bdev))
+ 				err = "device already registered";
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 061152a43730..81c60b2495ed 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
+ 	BUG_ON(!t);
+ 
+ 	/* convert the path to a device */
+-	bdev = lookup_bdev(path);
++	bdev = lookup_bdev(path, 0);
+ 	if (IS_ERR(bdev)) {
+ 		dev = name_to_dev_t(path);
+ 		if (!dev)
+diff --git a/drivers/mtd/mtdsuper.c b/drivers/mtd/mtdsuper.c
+index 20c02a3b7417..b5b60e1af31c 100644
+--- a/drivers/mtd/mtdsuper.c
++++ b/drivers/mtd/mtdsuper.c
+@@ -176,7 +176,7 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
+ 	/* try the old way - the hack where we allowed users to mount
+ 	 * /dev/mtdblock$(n) but didn't actually _use_ the blockdev
+ 	 */
+-	bdev = lookup_bdev(dev_name);
++	bdev = lookup_bdev(dev_name, 0);
+ 	if (IS_ERR(bdev)) {
+ 		ret = PTR_ERR(bdev);
+ 		pr_debug("MTDSB: lookup_bdev() returned %d\n", ret);
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index f90d91efa1b4..3ebbde85d898 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1426,7 +1426,7 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ 	struct block_device *bdev;
+ 	int err;
+ 
+-	bdev = lookup_bdev(path);
++	bdev = lookup_bdev(path, 0);
+ 	if (IS_ERR(bdev))
+ 		return bdev;
+ 
+@@ -1736,12 +1736,14 @@ EXPORT_SYMBOL(ioctl_by_bdev);
+ /**
+  * lookup_bdev  - lookup a struct block_device by name
+  * @pathname:	special file representing the block device
++ * @mask:	rights to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
+  *
+  * Get a reference to the blockdevice at @pathname in the current
+  * namespace if possible and return it.  Return ERR_PTR(error)
+- * otherwise.
++ * otherwise.  If @mask is non-zero, check for access rights to the
++ * inode at @pathname.
+  */
+-struct block_device *lookup_bdev(const char *pathname)
++struct block_device *lookup_bdev(const char *pathname, int mask)
+ {
+ 	struct block_device *bdev;
+ 	struct inode *inode;
+@@ -1756,6 +1758,11 @@ struct block_device *lookup_bdev(const char *pathname)
+ 		return ERR_PTR(error);
+ 
+ 	inode = d_backing_inode(path.dentry);
++	if (mask != 0 && !capable(CAP_SYS_ADMIN)) {
++		error = __inode_permission(inode, mask);
++		if (error)
++			goto fail;
++	}
+ 	error = -ENOTBLK;
+ 	if (!S_ISBLK(inode->i_mode))
+ 		goto fail;
+diff --git a/fs/quota/quota.c b/fs/quota/quota.c
+index 3746367098fd..a40eaecbd5cc 100644
+--- a/fs/quota/quota.c
++++ b/fs/quota/quota.c
+@@ -733,7 +733,7 @@ static struct super_block *quotactl_block(const char __user *special, int cmd)
+ 
+ 	if (IS_ERR(tmp))
+ 		return ERR_CAST(tmp);
+-	bdev = lookup_bdev(tmp->name);
++	bdev = lookup_bdev(tmp->name, 0);
+ 	putname(tmp);
+ 	if (IS_ERR(bdev))
+ 		return ERR_CAST(bdev);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 8a17c5649ef2..879ec382fd88 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2373,7 +2373,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
+ #define BLKDEV_MAJOR_HASH_SIZE	255
+ extern const char *__bdevname(dev_t, char *buffer);
+ extern const char *bdevname(struct block_device *bdev, char *buffer);
+-extern struct block_device *lookup_bdev(const char *);
++extern struct block_device *lookup_bdev(const char *, int mask);
+ extern void blkdev_show(struct seq_file *,off_t);
+ 
+ #else
+-- 
+1.9.1
