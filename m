@@ -1,116 +1,152 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5op006458
- for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:12 -0500
-Received: by igl9 with SMTP id 9so113062152igl.0
- for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:01 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5or006458
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:15 -0500
+Received: by ioc74 with SMTP id 74so49321087ioc.2
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:07 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
+Cc: Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
- Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH 00/19] Support fuse mounts in user namespaces
-Date: Wed,  2 Dec 2015 09:40:00 -0600
-Message-Id: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
+ Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Andy Lutomirski <luto@amacapital.net>
+Subject: [PATCH 03/19] fs: Treat foreign mounts as nosuid
+Date: Wed,  2 Dec 2015 09:40:03 -0600
+Message-Id: <1449070821-73820-4-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
+References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-These patches implement support for mounting filesystems in user
-namespaces using fuse. I've sent the full set of patches this time
-because I feel that previous discussions could have benefited from more
-context. I've also dropped any patches from my previous postings not
-specifically required for fuse mounts.
+From: Andy Lutomirski <luto@amacapital.net>
 
-These are based on the patches in the for-testing branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git,
-but I've rebased them onto 4.4-rc3. I've pushed all of this to:
+If a process gets access to a mount from a different user
+namespace, that process should not be able to take advantage of
+setuid files or selinux entrypoints from that filesystem.  Prevent
+this by treating mounts from other mount namespaces and those not
+owned by current_user_ns() or an ancestor as nosuid.
 
- git://git.kernel.org/pub/scm/linux/kernel/git/sforshee/linux.git fuse-userns
+This will make it safer to allow more complex filesystems to be
+mounted in non-root user namespaces.
 
-The patches are organized into three high-level groups.
+This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
+setgid, and file capability bits can no longer be abused if code in
+a user namespace were to clear nosuid on an untrusted filesystem,
+but this patch, by itself, is insufficient to protect the system
+from abuse of files that, when execed, would increase MAC privilege.
 
-Patches 1-6 are related to security, adding restrictions for
-unprivileged mounts and updating the LSMs as needed. Patches 1-2
-(checking inode permissions for block device mounts) may not be strictly
-necessary for fuseblk mounts since fuse doesn't do any IO on the block
-device in the kernel, but it still seems like a good idea to fail the
-mount if the user doesn't have the required permissions for the inode
-(though this is a bit misleading with fuse since the mounts are done via
-a suid-root helper).
+As a more concrete explanation, any task that can manipulate a
+vfsmount associated with a given user namespace already has
+capabilities in that namespace and all of its descendents.  If they
+can cause a malicious setuid, setgid, or file-caps executable to
+appear in that mount, then that executable will only allow them to
+elevate privileges in exactly the set of namespaces in which they
+are already privileges.
 
-Patches 7-15 update most of the vfs to translate ids correctly and deal
-with inodes which may have invalid user/group ids. I've omitted patches
-for anything not used by fuse - quota, fs freezing, some helper
-functions, etc. - but if these are wanted for the sake of completeness I
-can include them.
+On the other hand, if they can cause a malicious executable to
+appear with a dangerous MAC label, running it could change the
+caller's security context in a way that should not have been
+possible, even inside the namespace in which the task is confined.
 
-Patches 16-19 update fuse to deal with mounts from non-init pid and user
-namespaces and enable mounting from user namespaces.
+As a hardening measure, this would have made CVE-2014-5207 much
+more difficult to exploit.
 
-Thanks,
-Seth
+Signed-off-by: Andy Lutomirski <luto@amacapital.net>
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: James Morris <james.l.morris@oracle.com>
+---
+ fs/exec.c                |  2 +-
+ fs/namespace.c           | 13 +++++++++++++
+ include/linux/mount.h    |  1 +
+ security/commoncap.c     |  2 +-
+ security/selinux/hooks.c |  2 +-
+ 5 files changed, 17 insertions(+), 3 deletions(-)
 
-Andy Lutomirski (1):
-  fs: Treat foreign mounts as nosuid
-
-Seth Forshee (18):
-  block_dev: Support checking inode permissions in lookup_bdev()
-  block_dev: Check permissions towards block device inode when mounting
-  selinux: Add support for unprivileged mounts from user namespaces
-  userns: Replace in_userns with current_in_userns
-  Smack: Handle labels consistently in untrusted mounts
-  fs: Check for invalid i_uid in may_follow_link()
-  cred: Reject inodes with invalid ids in set_create_file_as()
-  fs: Refuse uid/gid changes which don't map into s_user_ns
-  fs: Update posix_acl support to handle user namespace mounts
-  fs: Ensure the mounter of a filesystem is privileged towards its
-    inodes
-  fs: Don't remove suid for CAP_FSETID in s_user_ns
-  fs: Allow superblock owner to access do_remount_sb()
-  fs: Permit FIBMAP for users with CAP_SYS_RAWIO in s_user_ns
-  capabilities: Allow privileged user in s_user_ns to set file caps
-  fuse: Add support for pid namespaces
-  fuse: Support fuse filesystems outside of init_user_ns
-  fuse: Restrict allow_other to the superblock's namespace or a
-    descendant
-  fuse: Allow user namespace mounts
-
- drivers/md/bcache/super.c       |  2 +-
- drivers/md/dm-table.c           |  2 +-
- drivers/mtd/mtdsuper.c          |  2 +-
- fs/attr.c                       | 11 +++++
- fs/block_dev.c                  | 18 ++++++--
- fs/exec.c                       |  2 +-
- fs/fuse/cuse.c                  |  3 +-
- fs/fuse/dev.c                   | 26 +++++++++---
- fs/fuse/dir.c                   | 91 ++++++++++++++++++++++++++--------------
- fs/fuse/file.c                  | 22 +++++++---
- fs/fuse/fuse_i.h                | 18 +++++---
- fs/fuse/inode.c                 | 92 ++++++++++++++++++++++++++++++-----------
- fs/inode.c                      |  6 ++-
- fs/ioctl.c                      |  2 +-
- fs/namei.c                      |  2 +-
- fs/namespace.c                  | 17 +++++++-
- fs/posix_acl.c                  | 67 +++++++++++++++++++-----------
- fs/quota/quota.c                |  2 +-
- fs/xattr.c                      | 19 ++++++---
- include/linux/fs.h              |  2 +-
- include/linux/mount.h           |  1 +
- include/linux/posix_acl_xattr.h | 17 ++++++--
- include/linux/uidgid.h          | 10 +++++
- include/linux/user_namespace.h  |  6 +--
- kernel/capability.c             | 13 ++++--
- kernel/cred.c                   |  2 +
- kernel/user_namespace.c         |  6 +--
- security/commoncap.c            | 16 ++++---
- security/selinux/hooks.c        | 25 ++++++++++-
- security/smack/smack_lsm.c      | 29 ++++++++-----
- 30 files changed, 386 insertions(+), 145 deletions(-)
+diff --git a/fs/exec.c b/fs/exec.c
+index b06623a9347f..ea7311d72cc3 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
+ 	bprm->cred->euid = current_euid();
+ 	bprm->cred->egid = current_egid();
+ 
+-	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
++	if (!mnt_may_suid(bprm->file->f_path.mnt))
+ 		return;
+ 
+ 	if (task_no_new_privs(current))
+diff --git a/fs/namespace.c b/fs/namespace.c
+index da70f7c4ece1..2101ce7b96ab 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3276,6 +3276,19 @@ found:
+ 	return visible;
+ }
+ 
++bool mnt_may_suid(struct vfsmount *mnt)
++{
++	/*
++	 * Foreign mounts (accessed via fchdir or through /proc
++	 * symlinks) are always treated as if they are nosuid.  This
++	 * prevents namespaces from trusting potentially unsafe
++	 * suid/sgid bits, file caps, or security labels that originate
++	 * in other namespaces.
++	 */
++	return !(mnt->mnt_flags & MNT_NOSUID) && check_mnt(real_mount(mnt)) &&
++	       in_userns(current_user_ns(), mnt->mnt_sb->s_user_ns);
++}
++
+ static struct ns_common *mntns_get(struct task_struct *task)
+ {
+ 	struct ns_common *ns = NULL;
+diff --git a/include/linux/mount.h b/include/linux/mount.h
+index f822c3c11377..54a594d49733 100644
+--- a/include/linux/mount.h
++++ b/include/linux/mount.h
+@@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
+ extern struct vfsmount *mntget(struct vfsmount *mnt);
+ extern struct vfsmount *mnt_clone_internal(struct path *path);
+ extern int __mnt_is_readonly(struct vfsmount *mnt);
++extern bool mnt_may_suid(struct vfsmount *mnt);
+ 
+ struct path;
+ extern struct vfsmount *clone_private_mount(struct path *path);
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 400aa224b491..6243aef5860e 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -448,7 +448,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
+ 	if (!file_caps_enabled)
+ 		return 0;
+ 
+-	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
++	if (!mnt_may_suid(bprm->file->f_path.mnt))
+ 		return 0;
+ 	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
+ 		return 0;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d0cfaa9f19d0..a5b93df6553f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2171,7 +2171,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+ 			    const struct task_security_struct *new_tsec)
+ {
+ 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+-	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
++	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+ 	int rc;
+ 
+ 	if (!nnp && !nosuid)
+-- 
+1.9.1
