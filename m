@@ -1,71 +1,60 @@
-Date: Wed, 2 Dec 2015 22:42:29 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: continuation of systemd/SELinux discussion from Github
-Message-ID: <20151202214228.GF1028@x250>
-References: <20151202101801.GA1028@x250> <565F366E.3030403@tycho.nsa.gov>
- <20151202194715.GC1028@x250> <565F6167.5090507@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2M0a1w008209
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 17:01:44 -0500
+Received: by oies6 with SMTP id s6so35040309oie.1
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 13:59:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <565F6167.5090507@tycho.nsa.gov>
+In-Reply-To: <6a9c04a259806de434a2ae5ea3142a6bb8868906.1448973992.git.jstancek@redhat.com>
+References: <6a9c04a259806de434a2ae5ea3142a6bb8868906.1448973992.git.jstancek@redhat.com>
+Date: Wed, 2 Dec 2015 16:59:57 -0500
+Message-ID: <CAHC9VhQWSoai3tDXbZoSBW1p4bFKVy0hg1+pNhMFtaQ+VNomkg@mail.gmail.com>
+Subject: Re: [selinux-testsuite PATCH] net_socket: replace md5 with sha1 in
+ ipsec-load
+From: Paul Moore <paul@paul-moore.com>
+To: Jan Stancek <jstancek@redhat.com>
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On Tue, Dec 1, 2015 at 7:52 AM, Jan Stancek <jstancek@redhat.com> wrote:
+> ipsec-load is currently passing 'auth md5 0123456789012345' to ip xfrm,
+> which fails in FIPS mode:
+>   RTNETLINK answers: Function not implemented
+>
+> According to [1], md5 is not on list of compliant hashes for FIPS 140-2.
+> [1] http://csrc.nist.gov/publications/fips/fips140-2/fips1402annexa.pdf
+>
+> This patch is replacing 'md5' with 'sha1'.
+>
+> Signed-off-by: Jan Stancek <jstancek@redhat.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  tests/inet_socket/ipsec-load | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-On Wed, Dec 02, 2015 at 04:23:51PM -0500, Stephen Smalley wrote:
-> 
-> So there the systemd access controls wouldn't come into play.
-> 
-> For confined user roles, systemd-run --user <command> failed on Fedora 22
-> with:
-> 
-> Failed to start transient service unit: Access denied
-> 
-> and journalctl showed:
-> 
-> systemd[15007]: Can't send to audit system: USER_AVC avc:  denied  { start }
-> for auid=N uid=N gid=N path="/run/user/N/systemd/user/run-PID.service"
-> cmdline="systemd-run --user id"
-> scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:user_tmp_t:s0 tclass=service
-> 
-> So removing the systemd --user controls is a regression in the protection
-> being provided in Fedora, IIUC, although I'll let the Fedora SELinux
-> maintainers speak to that.
+Looks fine to me and passes on my test system.  Merged, thanks.
 
-Yes and my use case as well becuase like i suggested:
+> diff --git a/tests/inet_socket/ipsec-load b/tests/inet_socket/ipsec-load
+> index b9d2c6e43544..c72d4b9d2f95 100755
+> --- a/tests/inet_socket/ipsec-load
+> +++ b/tests/inet_socket/ipsec-load
+> @@ -5,7 +5,7 @@ ip xfrm policy flush
+>  ip xfrm state flush
+>  goodclientcon=`secon -u --pid $$`:`secon -r --pid $$`:test_inet_client_t:`secon -m --pid $$`
+>  badclientcon=`secon -u --pid $$`:`secon -r --pid $$`:test_inet_bad_client_t:`secon -m --pid $$`
+> -ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx $goodclientcon auth md5 0123456789012345
+> -ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x250 ctx $badclientcon auth md5 0123456789012345
+> +ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x200 ctx $goodclientcon auth sha1 0123456789012345
+> +ip xfrm state add src 127.0.0.1 dst 127.0.0.1 proto ah spi 0x250 ctx $badclientcon auth sha1 0123456789012345
+>  ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto tcp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
+>  ip xfrm policy add src 127.0.0.1 dst 127.0.0.1 proto udp dir out ctx "system_u:object_r:test_spd_t:s0" tmpl proto ah mode transport level required
+> --
+> 1.8.3.1
 
-any process that needs to be able to start any system-wide systemd user
-unit will be be able to start all of them
-
-currently this might not sound applicable to much but in the future
-there will be potentially many of those units and processes will then
-start using systemctl --user to control these units. So then this will
-be come an issue.
-
-Also keep in mind that users can maintain user units in ~/.config/systemd
-
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJWX2XAAAoJENAR6kfG5xmcrB0MAL8Lwgtm8qrSPpvsiqA/WF4T
-J36dx9HFaiu6DSu4/F69TDynvJluiTGPLLZwUUUrJWxl65LxFDhKIXl4fO3MQogv
-g5TlBI8dDxiMk0XYO8w32l6ucpGaMmc63ViP/QIfKv8jSXu1ZNZ7ozF1wPr/lahu
-aW7bziyHD9FJMKGGHwnj7mnHkKBTqI/m6EI8pyHTzo2rDZXuyzc2jaEGfgKzkuUp
-M6GPUGcPIewrMPw+/GduMORezZnmeWYVxl5cpEywf07Z11IYibVmLLPBPMkrt00Q
-GgaOrJ3iyYsD9ecbejCqOrlKtna7MRioY/lX8XeMwYMdkZ2Hl4e6lpaC90SI0rMM
-zzCGNhK/mXxfptpOhTQ7WqcF3HIDG4ipEQdvGXMrd1MYq3DzXkfbvrJOBsHybvJN
-jRJEpjRRgKiweaWcWYa6wv5Eax/VOn64snD0us2nurGiBzr8O87ff6Egk+MitX/d
-j3guYA/CfOyp1ZgP6LIHqJbU0eIQSbMSHqf/L5KCjQ==
-=Y4Ct
------END PGP SIGNATURE-----
+-- 
+paul moore
+www.paul-moore.com
