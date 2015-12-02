@@ -1,12 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5p0006458
- for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:22 -0500
-Received: by ioc74 with SMTP id 74so49321943ioc.2
- for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:08 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5p1006458
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:24 -0500
+Received: by ioc74 with SMTP id 74so49329363ioc.2
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:22 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
@@ -16,13 +14,11 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Seth Forshee <seth.forshee@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Subject: [PATCH 04/19] selinux: Add support for unprivileged mounts from user
- namespaces
-Date: Wed,  2 Dec 2015 09:40:04 -0600
-Message-Id: <1449070821-73820-5-git-send-email-seth.forshee@canonical.com>
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH 08/19] cred: Reject inodes with invalid ids in
+ set_create_file_as()
+Date: Wed,  2 Dec 2015 09:40:08 -0600
+Message-Id: <1449070821-73820-9-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -30,63 +26,27 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Security labels from unprivileged mounts in user namespaces must
-be ignored. Force superblocks from user namespaces whose labeling
-behavior is to use xattrs to use mountpoint labeling instead.
-For the mountpoint label, default to converting the current task
-context into a form suitable for file objects, but also allow the
-policy writer to specify a different label through policy
-transition rules.
-
-Pieced together from code snippets provided by Stephen Smalley.
+Using INVALID_[UG]ID for the LSM file creation context doesn't
+make sense, so return an error if the inode passed to
+set_create_file_as() has an invalid id.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: James Morris <james.l.morris@oracle.com>
 ---
- security/selinux/hooks.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ kernel/cred.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a5b93df6553f..5fedc36dd6b2 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -756,6 +756,28 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			goto out;
- 		}
- 	}
-+
-+	/*
-+	 * If this is a user namespace mount, no contexts are allowed
-+	 * on the command line and security labels must be ignored.
-+	 */
-+	if (sb->s_user_ns != &init_user_ns) {
-+		if (context_sid || fscontext_sid || rootcontext_sid ||
-+		    defcontext_sid) {
-+			rc = -EACCES;
-+			goto out;
-+		}
-+		if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
-+			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
-+			rc = security_transition_sid(current_sid(), current_sid(),
-+						     SECCLASS_FILE, NULL,
-+						     &sbsec->mntpoint_sid);
-+			if (rc)
-+				goto out;
-+		}
-+		goto out_set_opts;
-+	}
-+
- 	/* sets the context of the superblock for the fs being mounted. */
- 	if (fscontext_sid) {
- 		rc = may_context_mount_sb_relabel(fscontext_sid, sbsec, cred);
-@@ -824,6 +846,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		sbsec->def_sid = defcontext_sid;
- 	}
- 
-+out_set_opts:
- 	rc = sb_finish_set_opts(sb);
- out:
- 	mutex_unlock(&sbsec->lock);
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 71179a09c1d6..ff8606f77d90 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -689,6 +689,8 @@ EXPORT_SYMBOL(set_security_override_from_ctx);
+  */
+ int set_create_files_as(struct cred *new, struct inode *inode)
+ {
++	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
++		return -EINVAL;
+ 	new->fsuid = inode->i_uid;
+ 	new->fsgid = inode->i_gid;
+ 	return security_kernel_create_files_as(new, inode);
 -- 
 1.9.1
