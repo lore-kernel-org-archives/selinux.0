@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2FgWlH006648
- for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:35 -0500
-Received: by igcmv3 with SMTP id mv3so120229769igc.0
- for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:24 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2FgWlI006648
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:37 -0500
+Received: by igl9 with SMTP id 9so113072239igl.0
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:30 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>
@@ -15,10 +15,9 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH 09/19] fs: Refuse uid/gid changes which don't map into
- s_user_ns
-Date: Wed,  2 Dec 2015 09:40:09 -0600
-Message-Id: <1449070821-73820-10-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH 13/19] fs: Allow superblock owner to access do_remount_sb()
+Date: Wed,  2 Dec 2015 09:40:13 -0600
+Message-Id: <1449070821-73820-14-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,36 +25,39 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add checks to inode_change_ok to verify that uid and gid changes
-will map into the superblock's user namespace. If they do not
-fail with -EOVERFLOW. This cannot be overriden with ATTR_FORCE.
+Superblock level remounts are currently restricted to global
+CAP_SYS_ADMIN, as is the path for changing the root mount to
+read only on umount. Loosen both of these permission checks to
+also allow CAP_SYS_ADMIN in any namespace which is privileged
+towards the userns which originally mounted the filesystem.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
 ---
- fs/attr.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/namespace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/attr.c b/fs/attr.c
-index 6530ced19697..55b46e3aa888 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -42,6 +42,17 @@ int inode_change_ok(const struct inode *inode, struct iattr *attr)
- 			return error;
- 	}
- 
-+	/*
-+	 * Verify that uid/gid changes are valid in the target namespace
-+	 * of the superblock. This cannot be overriden using ATTR_FORCE.
-+	 */
-+	if (ia_valid & ATTR_UID &&
-+	    from_kuid(inode->i_sb->s_user_ns, attr->ia_uid) == (uid_t)-1)
-+		return -EOVERFLOW;
-+	if (ia_valid & ATTR_GID &&
-+	    from_kgid(inode->i_sb->s_user_ns, attr->ia_gid) == (gid_t)-1)
-+		return -EOVERFLOW;
-+
- 	/* If force is set do it anyway. */
- 	if (ia_valid & ATTR_FORCE)
- 		return 0;
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 18fc58760aec..b00a765895e7 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1510,7 +1510,7 @@ static int do_umount(struct mount *mnt, int flags)
+ 		 * Special case for "unmounting" root ...
+ 		 * we just try to remount it readonly.
+ 		 */
+-		if (!capable(CAP_SYS_ADMIN))
++		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		down_write(&sb->s_umount);
+ 		if (!(sb->s_flags & MS_RDONLY))
+@@ -2199,7 +2199,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
+ 	down_write(&sb->s_umount);
+ 	if (flags & MS_BIND)
+ 		err = change_mount_flags(path->mnt, flags);
+-	else if (!capable(CAP_SYS_ADMIN))
++	else if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 		err = -EPERM;
+ 	else
+ 		err = do_remount_sb(sb, flags, data, 0);
 -- 
 1.9.1
