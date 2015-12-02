@@ -1,19 +1,21 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2AI8B6013180
- for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 05:18:08 -0500
-Received: by wmec201 with SMTP id c201so245631379wme.0
- for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 02:18:04 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2AVjKm014098
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 05:31:45 -0500
+Received: by wmww144 with SMTP id w144so50519368wmw.0
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 02:31:34 -0800 (PST)
 Received: from x250 ([84.245.63.179])
- by smtp.gmail.com with ESMTPSA id c13sm29940244wmd.14.2015.12.02.02.18.03
+ by smtp.gmail.com with ESMTPSA id cw3sm2117653wjb.26.2015.12.02.02.31.34
  for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
- Wed, 02 Dec 2015 02:18:03 -0800 (PST)
-Date: Wed, 2 Dec 2015 11:18:01 +0100
+ Wed, 02 Dec 2015 02:31:34 -0800 (PST)
+Date: Wed, 2 Dec 2015 11:31:32 +0100
 From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: continuation of systemd/SELinux discussion from Github
-Message-ID: <20151202101801.GA1028@x250>
+Subject: Re: continuation of systemd/SELinux discussion from Github
+Message-ID: <20151202103131.GB1028@x250>
+References: <20151202101801.GA1028@x250>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+In-Reply-To: <20151202101801.GA1028@x250>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -22,58 +24,43 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-Let's continue the discussion here.
+On Wed, Dec 02, 2015 at 11:18:01AM +0100, Dominick Grift wrote:
+> Let's continue the discussion here.
+> 
+> The last answered questionnaire is below, any further questions or
+> comments?:
+> 
 
-The last answered questionnaire is below, any further questions or
-comments?:
+I will start by adding a few comments.
 
-- ----------------------------------------
+I agree that the SELinux user space object manager support is a bit
+fragile and rough edged. (I actually recently sent a message to this
+list pointing this out)
 
-        "systemd --user" concept is broken as we can see/read from this
-        thread from SELinux point of view.
+Either something is wrong with that support or its documentation.
 
-It was working fine except that it was trying to log to the audit system
-which unprivileged processes arent allowed to do.
+I noticed that many developer focus a lot on uid=0, and forget that
+these day's you do not need access to uid=0 to ruin someones life.
 
-        Are we able truly explain the enforcement here?
+To me, from an SELinux perspective at least, a process is just a process
+regardless of the UID it is associated with.
 
-I think i was able to at least identify some of it, but i probably have
-overlooked other compelling arguments:
+The most common use of SELinux is arguably distributions using it to
+enforce their policy on their customers hardware, This is fine but
+please remember that some customers which to be able to keep that
+discretion to them selves.
 
-Any processes that needs to be able to "control" any system-wide systemd
-user unit, will be able to "control" all system-wide systemd user units.
+I think that means in practice that one should keep that in mind at all
+times when something is implemented by not making any assumptions about
+whether something is useful or not when that is not appropriate.
 
-In practice that means that a process may be able to for example start a
-application even though it does not have access to execute that
-application by telling systemd --user do start that applications on its
-behalf
+You may use access control for one this and I may use if for
+another. Your threat model may not align with my threat model.
 
-A process may, for example, be able to use this to stop a sensitive
-process bypassing SELinux access control
+Let us not forget that SELinux is supposed to be a "flexible" MAC, this
+is one of the reasons why we use SELinux and not, say SMACK
 
-        And the point is if we have big benefits of this level of
-        isolation?
-
-With access control the benefits often depend on the requirements. but
-in general since selinux touts flexibility and one of the big benefits
-here is that we can contain access of processes to units actions.
-
-without this processes are potentially able to bypass selinux by telling
-systemd --user to do stuff on their behalf
-
-        Do we have real examples how it prevents possible security
-        flaws?
-
-No, and why should we? SELinux does not prevent possible security
-flaws. SELinux is Linux access control extension
-It enforces integrity and optional confidentiality or
-comparmentalization.
-
-        Do we talk about confined desktop here?
-
-No we are talking about a set of components that without SELinux access
-control extension potentionally allows processes
-to bypass SELinux access control restrictions in some cases
+Thank you. That is all for now
 
 - -- 
 02DFF788
@@ -83,14 +70,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJWXsVVAAoJENAR6kfG5xmcDvAMAMlHsXmvuSY3o9PTzoM51xek
-TLlg8dGB6jtlj6Yz7bqVacObaHRf7OF6meO3+/58Khq1xLVx0dUxR9HrX+ZqbIpd
-eI6NSJ+waSKm1dqRI6BFg4QOMNXoTXQcmijWNHoiduT2OXY0LpKuZtC1u0DJddx/
-rl6auNwCD7+sqpQMXTYlnutNzBCJ9wVhq8p4rsP0gs5VoSMjTW+PphRkfpIkPGFA
-cRO55BhTXXk2wp85ONhjJIvHjNP9Tky3tpH7ULPlqeyyG8BM+sKWtOdDdF1kqNjN
-MmuvA9F+fBEl2sOvBxBKVgtfTEPzeaqFmn4o0Su/A9ckM90ic2VFNHHXXqIdQJ8e
-Sqi30bG1G7avQf2ZbDCMhUBwE9uyigg99EXVyV/X6NDhYvURZa90vC9UizXhnbLz
-6oBkELyk1wt7/Qhqh4XH7nUD7i+G0my4rcgslFE1Qa1aGy8Xrj19xBvD53Z0de3l
-QFkDsKDQQelb5McEMPiGvpNIjgGTnt/H5opwqWMnKA==
-=/yJI
+iQGcBAEBCgAGBQJWXsh/AAoJENAR6kfG5xmcM5sL/2m5mL9S947+4yy82L6SzC1g
+GV6vjG1D+FSwa0tMPXNTuYJcLC28TnHv8aYO6v6sadDW4nPsm1li4PxziScdGmzz
+/F1WeCaJ8hFXlJYCvVc4brlREiOiz08BlZob1SOpvsVDrgeYIsvI1CTKsRDQP86u
+5OsVDgLim5slcq5rFcYN1eAsDj7KpOw9ozyFg2qRWdACw/TageKu0FNnHr6GtCRG
+pva3Y4Pp3cmH+vaSiffciypuzy+wKbZdUbEaUp7QIIqHJ5IICbZ8qFw3mLZUtziW
+scglWAzrlfhsiwwVusPjPbhhZAcdRJtEPcve/dmfpQRFtImt2FeIWabjMa98QmnY
+HPH/2jZJIr/tGz/PIkT4SLsFRc3fl3LdV5lqLO5GGpvWxw0Xq1ke3TV5J8WCSitt
+lGnSdkzRqC9sasSOBS5cilUpYeOrq37LOwVLu12kamwxJpIYeBLnur/f6lcrQzSU
+OZDlpU3u59i3oyFbFauHe2p7wLbDKGxOpCEsv95Now==
+=5gZK
 -----END PGP SIGNATURE-----
