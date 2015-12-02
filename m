@@ -1,170 +1,116 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5on006458
- for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:05 -0500
-Received: by igcto18 with SMTP id to18so34138179igc.0
- for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:03 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB2Fg5op006458
+ for <selinux@tycho.nsa.gov>; Wed, 2 Dec 2015 10:42:12 -0500
+Received: by igl9 with SMTP id 9so113062152igl.0
+ for <selinux@tycho.nsa.gov>; Wed, 02 Dec 2015 07:42:01 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Kent Overstreet <kent.overstreet@gmail.com>,
- Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
- dm-devel@redhat.com, Neil Brown <neilb@suse.com>,
- David Woodhouse <dwmw2@infradead.org>,
- Brian Norris <computersforpeace@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
- linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
  fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
  Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH 01/19] block_dev: Support checking inode permissions in
- lookup_bdev()
-Date: Wed,  2 Dec 2015 09:40:01 -0600
-Message-Id: <1449070821-73820-2-git-send-email-seth.forshee@canonical.com>
-In-Reply-To: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
-References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH 00/19] Support fuse mounts in user namespaces
+Date: Wed,  2 Dec 2015 09:40:00 -0600
+Message-Id: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When looking up a block device by path no permission check is
-done to verify that the user has access to the block device inode
-at the specified path. In some cases it may be necessary to
-check permissions towards the inode, such as allowing
-unprivileged users to mount block devices in user namespaces.
+These patches implement support for mounting filesystems in user
+namespaces using fuse. I've sent the full set of patches this time
+because I feel that previous discussions could have benefited from more
+context. I've also dropped any patches from my previous postings not
+specifically required for fuse mounts.
 
-Add an argument to lookup_bdev() to optionally perform this
-permission check. A value of 0 skips the permission check and
-behaves the same as before. A non-zero value specifies the mask
-of access rights required towards the inode at the specified
-path. The check is always skipped if the user has CAP_SYS_ADMIN.
+These are based on the patches in the for-testing branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git,
+but I've rebased them onto 4.4-rc3. I've pushed all of this to:
 
-All callers of lookup_bdev() currently pass a mask of 0, so this
-patch results in no functional change. Subsequent patches will
-add permission checks where appropriate.
+ git://git.kernel.org/pub/scm/linux/kernel/git/sforshee/linux.git fuse-userns
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
----
- drivers/md/bcache/super.c |  2 +-
- drivers/md/dm-table.c     |  2 +-
- drivers/mtd/mtdsuper.c    |  2 +-
- fs/block_dev.c            | 13 ++++++++++---
- fs/quota/quota.c          |  2 +-
- include/linux/fs.h        |  2 +-
- 6 files changed, 15 insertions(+), 8 deletions(-)
+The patches are organized into three high-level groups.
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 679a093a3bf6..e8287b0d1dac 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1926,7 +1926,7 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
- 				  sb);
- 	if (IS_ERR(bdev)) {
- 		if (bdev == ERR_PTR(-EBUSY)) {
--			bdev = lookup_bdev(strim(path));
-+			bdev = lookup_bdev(strim(path), 0);
- 			mutex_lock(&bch_register_lock);
- 			if (!IS_ERR(bdev) && bch_is_open(bdev))
- 				err = "device already registered";
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 061152a43730..81c60b2495ed 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
- 	BUG_ON(!t);
- 
- 	/* convert the path to a device */
--	bdev = lookup_bdev(path);
-+	bdev = lookup_bdev(path, 0);
- 	if (IS_ERR(bdev)) {
- 		dev = name_to_dev_t(path);
- 		if (!dev)
-diff --git a/drivers/mtd/mtdsuper.c b/drivers/mtd/mtdsuper.c
-index 20c02a3b7417..b5b60e1af31c 100644
---- a/drivers/mtd/mtdsuper.c
-+++ b/drivers/mtd/mtdsuper.c
-@@ -176,7 +176,7 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
- 	/* try the old way - the hack where we allowed users to mount
- 	 * /dev/mtdblock$(n) but didn't actually _use_ the blockdev
- 	 */
--	bdev = lookup_bdev(dev_name);
-+	bdev = lookup_bdev(dev_name, 0);
- 	if (IS_ERR(bdev)) {
- 		ret = PTR_ERR(bdev);
- 		pr_debug("MTDSB: lookup_bdev() returned %d\n", ret);
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index f90d91efa1b4..3ebbde85d898 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1426,7 +1426,7 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
- 	struct block_device *bdev;
- 	int err;
- 
--	bdev = lookup_bdev(path);
-+	bdev = lookup_bdev(path, 0);
- 	if (IS_ERR(bdev))
- 		return bdev;
- 
-@@ -1736,12 +1736,14 @@ EXPORT_SYMBOL(ioctl_by_bdev);
- /**
-  * lookup_bdev  - lookup a struct block_device by name
-  * @pathname:	special file representing the block device
-+ * @mask:	rights to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
-  *
-  * Get a reference to the blockdevice at @pathname in the current
-  * namespace if possible and return it.  Return ERR_PTR(error)
-- * otherwise.
-+ * otherwise.  If @mask is non-zero, check for access rights to the
-+ * inode at @pathname.
-  */
--struct block_device *lookup_bdev(const char *pathname)
-+struct block_device *lookup_bdev(const char *pathname, int mask)
- {
- 	struct block_device *bdev;
- 	struct inode *inode;
-@@ -1756,6 +1758,11 @@ struct block_device *lookup_bdev(const char *pathname)
- 		return ERR_PTR(error);
- 
- 	inode = d_backing_inode(path.dentry);
-+	if (mask != 0 && !capable(CAP_SYS_ADMIN)) {
-+		error = __inode_permission(inode, mask);
-+		if (error)
-+			goto fail;
-+	}
- 	error = -ENOTBLK;
- 	if (!S_ISBLK(inode->i_mode))
- 		goto fail;
-diff --git a/fs/quota/quota.c b/fs/quota/quota.c
-index 3746367098fd..a40eaecbd5cc 100644
---- a/fs/quota/quota.c
-+++ b/fs/quota/quota.c
-@@ -733,7 +733,7 @@ static struct super_block *quotactl_block(const char __user *special, int cmd)
- 
- 	if (IS_ERR(tmp))
- 		return ERR_CAST(tmp);
--	bdev = lookup_bdev(tmp->name);
-+	bdev = lookup_bdev(tmp->name, 0);
- 	putname(tmp);
- 	if (IS_ERR(bdev))
- 		return ERR_CAST(bdev);
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 8a17c5649ef2..879ec382fd88 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2373,7 +2373,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
- #define BLKDEV_MAJOR_HASH_SIZE	255
- extern const char *__bdevname(dev_t, char *buffer);
- extern const char *bdevname(struct block_device *bdev, char *buffer);
--extern struct block_device *lookup_bdev(const char *);
-+extern struct block_device *lookup_bdev(const char *, int mask);
- extern void blkdev_show(struct seq_file *,off_t);
- 
- #else
--- 
-1.9.1
+Patches 1-6 are related to security, adding restrictions for
+unprivileged mounts and updating the LSMs as needed. Patches 1-2
+(checking inode permissions for block device mounts) may not be strictly
+necessary for fuseblk mounts since fuse doesn't do any IO on the block
+device in the kernel, but it still seems like a good idea to fail the
+mount if the user doesn't have the required permissions for the inode
+(though this is a bit misleading with fuse since the mounts are done via
+a suid-root helper).
+
+Patches 7-15 update most of the vfs to translate ids correctly and deal
+with inodes which may have invalid user/group ids. I've omitted patches
+for anything not used by fuse - quota, fs freezing, some helper
+functions, etc. - but if these are wanted for the sake of completeness I
+can include them.
+
+Patches 16-19 update fuse to deal with mounts from non-init pid and user
+namespaces and enable mounting from user namespaces.
+
+Thanks,
+Seth
+
+Andy Lutomirski (1):
+  fs: Treat foreign mounts as nosuid
+
+Seth Forshee (18):
+  block_dev: Support checking inode permissions in lookup_bdev()
+  block_dev: Check permissions towards block device inode when mounting
+  selinux: Add support for unprivileged mounts from user namespaces
+  userns: Replace in_userns with current_in_userns
+  Smack: Handle labels consistently in untrusted mounts
+  fs: Check for invalid i_uid in may_follow_link()
+  cred: Reject inodes with invalid ids in set_create_file_as()
+  fs: Refuse uid/gid changes which don't map into s_user_ns
+  fs: Update posix_acl support to handle user namespace mounts
+  fs: Ensure the mounter of a filesystem is privileged towards its
+    inodes
+  fs: Don't remove suid for CAP_FSETID in s_user_ns
+  fs: Allow superblock owner to access do_remount_sb()
+  fs: Permit FIBMAP for users with CAP_SYS_RAWIO in s_user_ns
+  capabilities: Allow privileged user in s_user_ns to set file caps
+  fuse: Add support for pid namespaces
+  fuse: Support fuse filesystems outside of init_user_ns
+  fuse: Restrict allow_other to the superblock's namespace or a
+    descendant
+  fuse: Allow user namespace mounts
+
+ drivers/md/bcache/super.c       |  2 +-
+ drivers/md/dm-table.c           |  2 +-
+ drivers/mtd/mtdsuper.c          |  2 +-
+ fs/attr.c                       | 11 +++++
+ fs/block_dev.c                  | 18 ++++++--
+ fs/exec.c                       |  2 +-
+ fs/fuse/cuse.c                  |  3 +-
+ fs/fuse/dev.c                   | 26 +++++++++---
+ fs/fuse/dir.c                   | 91 ++++++++++++++++++++++++++--------------
+ fs/fuse/file.c                  | 22 +++++++---
+ fs/fuse/fuse_i.h                | 18 +++++---
+ fs/fuse/inode.c                 | 92 ++++++++++++++++++++++++++++++-----------
+ fs/inode.c                      |  6 ++-
+ fs/ioctl.c                      |  2 +-
+ fs/namei.c                      |  2 +-
+ fs/namespace.c                  | 17 +++++++-
+ fs/posix_acl.c                  | 67 +++++++++++++++++++-----------
+ fs/quota/quota.c                |  2 +-
+ fs/xattr.c                      | 19 ++++++---
+ include/linux/fs.h              |  2 +-
+ include/linux/mount.h           |  1 +
+ include/linux/posix_acl_xattr.h | 17 ++++++--
+ include/linux/uidgid.h          | 10 +++++
+ include/linux/user_namespace.h  |  6 +--
+ kernel/capability.c             | 13 ++++--
+ kernel/cred.c                   |  2 +
+ kernel/user_namespace.c         |  6 +--
+ security/commoncap.c            | 16 ++++---
+ security/selinux/hooks.c        | 25 ++++++++++-
+ security/smack/smack_lsm.c      | 29 ++++++++-----
+ 30 files changed, 386 insertions(+), 145 deletions(-)
