@@ -1,13 +1,14 @@
-Date: Wed, 2 Dec 2015 22:37:46 +0100
+Date: Wed, 2 Dec 2015 22:42:29 +0100
 From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
 Subject: Re: continuation of systemd/SELinux discussion from Github
-Message-ID: <20151202213745.GE1028@x250>
+Message-ID: <20151202214228.GF1028@x250>
 References: <20151202101801.GA1028@x250> <565F366E.3030403@tycho.nsa.gov>
- <20151202194715.GC1028@x250>
+ <20151202194715.GC1028@x250> <565F6167.5090507@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <20151202194715.GC1028@x250>
+In-Reply-To: <565F6167.5090507@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -16,44 +17,40 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-On Wed, Dec 02, 2015 at 08:47:15PM +0100, Dominick Grift wrote:
+On Wed, Dec 02, 2015 at 04:23:51PM -0500, Stephen Smalley wrote:
 > 
-> Those are good questions but i do not see how they are directly related
-> to the question whether systemd --user should be a selinux user space object
-> manager or not (in my view it obviously should but i am not trusted by
-> systemd maintainers, walsh is trusted and walsh gave systemd maintainers
-> the impression that systemd --user does not have to be an selinux object
-> manager) I strongly suspect that is wrong.
+> So there the systemd access controls wouldn't come into play.
 > 
+> For confined user roles, systemd-run --user <command> failed on Fedora 22
+> with:
+> 
+> Failed to start transient service unit: Access denied
+> 
+> and journalctl showed:
+> 
+> systemd[15007]: Can't send to audit system: USER_AVC avc:  denied  { start }
+> for auid=N uid=N gid=N path="/run/user/N/systemd/user/run-PID.service"
+> cmdline="systemd-run --user id"
+> scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023
+> tcontext=system_u:object_r:user_tmp_t:s0 tclass=service
+> 
+> So removing the systemd --user controls is a regression in the protection
+> being provided in Fedora, IIUC, although I'll let the Fedora SELinux
+> maintainers speak to that.
 
-The problem is that i sincerely do not know what to do, and i am worried
-about this. I would like confirmation about whether or not systemd
-- --user needs to be an object manager for consistency in selinux enabled
-systems.
+Yes and my use case as well becuase like i suggested:
 
-If someone can tell me with confidence that it does not then i will
-accept that. If someone can tell me with confidence that systemd --user
-needs to be an user space object manager because else it will "break
-selinux" then I am worried that redhat will not acknowledge that simply
-because its not on their agenda.
+any process that needs to be able to start any system-wide systemd user
+unit will be be able to start all of them
 
-It is going to take a long time before redhat will be able to produce
-any half useful support for systemd --user for confined users, and even
-when they get to that point i am afraid they will still leave that gap
-simply because i am afraid that its not an priority to them.
+currently this might not sound applicable to much but in the future
+there will be potentially many of those units and processes will then
+start using systemctl --user to control these units. So then this will
+be come an issue.
 
-In the mean time we might be stuck with this inconsistency.
+Also keep in mind that users can maintain user units in ~/.config/systemd
 
-All Mr. Walsh had to do was tell Mr. Poettering. Hold that commit for
-now while i double check whether its desired or not. Instead he gave the
-go-ahead to remove code I rely on in a blink of an eye.
-
-If he was right by determining that systemd --user does not need to be
-an selinux object manager then i will apologize to him.
-
-If it turns out that it really did not make sense for him to support the
-removal of that code then i am sincerely disappointed.
-
+- -- 
 02DFF788
 4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
 https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
@@ -61,14 +58,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCgAGBQJWX2SlAAoJENAR6kfG5xmcvd0L/1ZQP0uJoo931bXDIulR/xaY
-eH6cPytluJVETS9gNiQTFYVTIIWUdegjaDbE0cW/sHJCHiBcksPc9fXlv30vC4CL
-wad26KVMsRZLydxmM/K9IKak/AtRSu4tqmWK/UqXhBOGqMDWLYCJzcSebTC3w/wY
-+GlxBMuSczN1a6iSYUSak1fyn47SC1hekGIcd7HE3KEzqI1e+lodC+npV/fn0a6D
-9uefujVZZxGM8jxQcU1zaT0SoLNjC8UTMsGXRLc7BRkbE1OgJsE8xIkekPOGSw6k
-dsGC4WUMbC+ExU0gLltprdgmpxJpIMsI9jy8yO6PqXaEwbk0MxTcA2OlafChhfJ9
-yG0f5cfG6NW3CDQmVf/6WOYzqfE/KAaq8VomPpNRb2HXDPRnOIPbTuSLmMhSGBsB
-FuSmuKasrdE+XzfWOE3PM+XkpsDg5QJVsuyP8+t+hcSuSE1oqZeoXflhe5CZtJL8
-ma8tHOsZvWG2MzqY17NPgcEZMlqixWeebX+zQUVabA==
-=uhHm
+iQGcBAEBCgAGBQJWX2XAAAoJENAR6kfG5xmcrB0MAL8Lwgtm8qrSPpvsiqA/WF4T
+J36dx9HFaiu6DSu4/F69TDynvJluiTGPLLZwUUUrJWxl65LxFDhKIXl4fO3MQogv
+g5TlBI8dDxiMk0XYO8w32l6ucpGaMmc63ViP/QIfKv8jSXu1ZNZ7ozF1wPr/lahu
+aW7bziyHD9FJMKGGHwnj7mnHkKBTqI/m6EI8pyHTzo2rDZXuyzc2jaEGfgKzkuUp
+M6GPUGcPIewrMPw+/GduMORezZnmeWYVxl5cpEywf07Z11IYibVmLLPBPMkrt00Q
+GgaOrJ3iyYsD9ecbejCqOrlKtna7MRioY/lX8XeMwYMdkZ2Hl4e6lpaC90SI0rMM
+zzCGNhK/mXxfptpOhTQ7WqcF3HIDG4ipEQdvGXMrd1MYq3DzXkfbvrJOBsHybvJN
+jRJEpjRRgKiweaWcWYa6wv5Eax/VOn64snD0us2nurGiBzr8O87ff6Egk+MitX/d
+j3guYA/CfOyp1ZgP6LIHqJbU0eIQSbMSHqf/L5KCjQ==
+=Y4Ct
 -----END PGP SIGNATURE-----
