@@ -1,123 +1,129 @@
-Subject: Re: [PATCH 2/2] secilc/docs: Add documentation for neverallowx rules
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-References: <1448984310-17097-1-git-send-email-slawrence@tresys.com>
- <1448984310-17097-2-git-send-email-slawrence@tresys.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <565F550A.5030505@tycho.nsa.gov>
-Date: Wed, 2 Dec 2015 15:31:06 -0500
+Date: Wed, 2 Dec 2015 21:34:34 +0100
+From: Dominick Grift <dac.override@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: continuation of systemd/SELinux discussion from Github
+Message-ID: <20151202203433.GD1028@x250>
+References: <20151202101801.GA1028@x250>
+ <565F366E.3030403@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <1448984310-17097-2-git-send-email-slawrence@tresys.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+In-Reply-To: <565F366E.3030403@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/01/2015 10:38 AM, Steve Lawrence wrote:
-> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
 
-Applied.
+On Wed, Dec 02, 2015 at 01:20:30PM -0500, Stephen Smalley wrote:
+> On 12/02/2015 05:18 AM, Dominick Grift wrote:
+> >Let's continue the discussion here.
+> >
+> >The last answered questionnaire is below, any further questions or
+> >comments?:
+> >
+> >----------------------------------------
+> >
+> >         "systemd --user" concept is broken as we can see/read from this
+> >         thread from SELinux point of view.
+> >
+> >It was working fine except that it was trying to log to the audit system
+> >which unprivileged processes arent allowed to do.
+> 
+> What's the dbus solution for this issue?
 
-Thanks,
-Jim
+I vaguely recall XACE logging its avc denials to xorg.log.N instead of
+using the audit system, I might be wrong, and also since then xserver runs unprivileged so I am not sure if
+anything has changed and whether that still works ( I would need to try
+that out since i have XACE disabled ).
 
-> ---
->   secilc/docs/cil_access_vector_rules.xml            | 67 ++++++++++++++++++++++
->   .../docs/cil_class_and_permission_statements.xml   |  2 +-
->   2 files changed, 68 insertions(+), 1 deletion(-)
->
-> diff --git a/secilc/docs/cil_access_vector_rules.xml b/secilc/docs/cil_access_vector_rules.xml
-> index 985fc3d..e768558 100644
-> --- a/secilc/docs/cil_access_vector_rules.xml
-> +++ b/secilc/docs/cil_access_vector_rules.xml
-> @@ -448,4 +448,71 @@
->            </programlisting>
->         </sect2>
->
-> +      <sect2 id="neverallowx">
-> +         <title>neverallowx</title>
-> +         <para>Never allow access rights defined for extended permissions. This is a compiler enforced action that will stop compilation until the offending rules are modified.</para>
-> +         <para>Note that these rules can be over-ridden by the CIL compiler command line parameter <literal>-N</literal> or <literal>--disable-neverallow</literal> flags.</para>
-> +         <para><emphasis role="bold">Rule definition:</emphasis></para>
-> +         <programlisting><![CDATA[(neverallowx source_id target_id|self permissionx_id)]]></programlisting>
-> +         <para><emphasis role="bold">Where:</emphasis></para>
-> +         <informaltable frame="all">
-> +            <tgroup cols="2">
-> +            <colspec colwidth="2.25 *"/>
-> +            <colspec colwidth="6 *"/>
-> +               <tbody>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>neverallowx</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>The <literal>neverallowx</literal> keyword.</para>
-> +                  </entry>
-> +               </row>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>source_id</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>A single previously defined source <literal><link linkend="type">type</link></literal>, <literal><link linkend="typealias">typealias</link></literal> or <literal><link linkend="typeattribute">typeattribute</link></literal> identifier.</para>
-> +                  </entry>
-> +               </row>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>target_id</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>A single previously defined target <literal><link linkend="type">type</link></literal>, <literal><link linkend="typealias">typealias</link></literal> or <literal><link linkend="typeattribute">typeattribute</link></literal> identifier.</para>
-> +                     <para>The <literal>self</literal> keyword may be used instead to signify that source and target are the same.</para>
-> +                  </entry>
-> +               </row>
-> +               <row>
-> +                  <entry>
-> +                     <para><literal>permissionx_id</literal></para>
-> +                  </entry>
-> +                  <entry>
-> +                     <para>A single named or anonymous <literal><link linkend="permissionx">permissionx</link></literal>.</para>
-> +                  </entry>
-> +               </row>
-> +            </tbody></tgroup>
-> +         </informaltable>
-> +
-> +         <para><emphasis role="bold">Example:</emphasis></para>
-> +         <para>This example will not compile as <literal>type_3</literal> is not allowed to be a source type and ioctl range for the <literal><link linkend="allowx">allowx</link></literal> rule:</para>
-> +         <programlisting><![CDATA[
-> +(class property_service (ioctl))
-> +
-> +(block av_rules
-> +    (type type_1)
-> +    (type type_2)
-> +    (type type_3)
-> +    (typeattribute all_types)
-> +    (typeattributeset all_types ((all)))
-> +
-> +    (neverallowx type_3 all_types (ioctl property_service (range 0x2000 0x20FF)))
-> +    ; This rule will fail compilation:
-> +    (allowx type_3 self (ioctl property_service (0x20A0)))
-> +)]]>
-> +         </programlisting>
-> +      </sect2>
-> +
->      </sect1>
-> diff --git a/secilc/docs/cil_class_and_permission_statements.xml b/secilc/docs/cil_class_and_permission_statements.xml
-> index 20c3eb7..f4982e0 100644
-> --- a/secilc/docs/cil_class_and_permission_statements.xml
-> +++ b/secilc/docs/cil_class_and_permission_statements.xml
-> @@ -508,7 +508,7 @@
->
->         <sect2 id="permissionx">
->            <title>permissionx</title>
-> -         <para>Defines a named extended permission, which can be used in the <literal><link linkend="allowx">allowx</link></literal>, <literal><link linkend="auditallowx">auditallowx</link></literal>, and <literal><link linkend="dontauditx">dontauditx</link></literal> statements.</para>
-> +         <para>Defines a named extended permission, which can be used in the <literal><link linkend="allowx">allowx</link></literal>, <literal><link linkend="auditallowx">auditallowx</link></literal>, <literal><link linkend="dontauditx">dontauditx</link></literal>, and <literal><link linkend="neverallowx">neverallowx</link></literal> statements.</para>
->            <para><emphasis role="bold">Statement definition:</emphasis></para>
->            <programlisting><![CDATA[(permissionx permissionx_id (kind class_id (permission ... | expr ...)))]]></programlisting>
->            <para><emphasis role="bold">Where:</emphasis></para>
->
+I suppose an option for systemd --user would be to log avc denials to journal
+instead of audit
 
+> 
+> >
+> >         Are we able truly explain the enforcement here?
+> >
+> >I think i was able to at least identify some of it, but i probably have
+> >overlooked other compelling arguments:
+> >
+> >Any processes that needs to be able to "control" any system-wide systemd
+> >user unit, will be able to "control" all system-wide systemd user units.
+> >
+> >In practice that means that a process may be able to for example start a
+> >application even though it does not have access to execute that
+> >application by telling systemd --user do start that applications on its
+> >behalf
+> 
+> Can systemd-run --user be used to escape any of the following:
+> a) SELinux sandbox,
+> b) libvirt / svirt confinement,
+> c) newrole -r to a different, more restricted role or -l to a different
+> level,
+> d) runcon to a more restricted domain.
+> 
+> If so, then there is a problem with systemd --user not applying its own
+> access controls over its operations.
+> 
+> >
+> >A process may, for example, be able to use this to stop a sensitive
+> >process bypassing SELinux access control
+> >
+> >         And the point is if we have big benefits of this level of
+> >         isolation?
+> >
+> >With access control the benefits often depend on the requirements. but
+> >in general since selinux touts flexibility and one of the big benefits
+> >here is that we can contain access of processes to units actions.
+> >
+> >without this processes are potentially able to bypass selinux by telling
+> >systemd --user to do stuff on their behalf
+> >
+> >         Do we have real examples how it prevents possible security
+> >         flaws?
+> >
+> >No, and why should we? SELinux does not prevent possible security
+> >flaws. SELinux is Linux access control extension
+> >It enforces integrity and optional confidentiality or
+> >comparmentalization.
+> >
+> >         Do we talk about confined desktop here?
+> >
+> >No we are talking about a set of components that without SELinux access
+> >control extension potentionally allows processes
+> >to bypass SELinux access control restrictions in some cases
+> >
+> >_______________________________________________
+> >Selinux mailing list
+> >Selinux@tycho.nsa.gov
+> >To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> >To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> >
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+- -- 
+02DFF788
+4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
+https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
+Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCgAGBQJWX1XVAAoJENAR6kfG5xmcyDUL/ArLiJcoTl/mTJEr88xGE2yi
+EmE5vWjHQ87DpRg7A/lgUynxfzZ/mETNtS58yvHY0J8x9SnqnQvAlg5xrtIj+V1w
+FWCTGuqqaFw2EM0QY0FXruUHXWgg3eRiQRUgs9r7q5iOAvG4fM0DkVTOURc7XkgC
+OVdUPRDnRbNH5cGJvUWwUkRRQ+9Ohr4lMSU+J0pp3NkZN+TswTpptGjbc1SI6tXU
+4aRZ/CIEl22uTHNtI7/l67+cL6WnKaQ4iEcGmm2UMg33m0oH0FhRs5XspeEVq2ec
+zNk80g58v6dinu3YdEPapIp3KjNU9IJVrmlRzFl5kcOmSYmdS/xuethG8w+TV+5q
+Rs0bBT7dATOf06j0ZvcgQ+gaALTYwRXp94yK6V7e9AU+f6cFjhPMPyrQu8D1lUZO
+LszlO9BNhmONO+bjG3vcuW315l1W/MjYZAu7ZCPM7cAYayO3sd/BLe1TJlknPLWd
+/qv14mtfJPLK3TuABIiQW3LUjVbiQwwroW1wZjV/TA==
+=HGnK
+-----END PGP SIGNATURE-----
