@@ -1,107 +1,167 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB3Fox0V014865
- for <selinux@tycho.nsa.gov>; Thu, 3 Dec 2015 10:50:59 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: Brian Foster <bfoster@redhat.com>
-Cc: Niels de Vos <ndevos@redhat.com>, gluster-devel@gluster.org,
- Manikandan Selvaganesh <mselvaga@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: Steps needed to support SElinux over FUSE mounts
-Date: Thu, 03 Dec 2015 10:50:51 -0500
-Message-ID: <2074080.yv27hRHClr@sifl>
-In-Reply-To: <20151203153048.GA29002@bfoster.bfoster>
-References: <20151202120200.GO19804@ndevos-x240.usersys.redhat.com>
- <20151203142627.GD7004@ndevos-x240.usersys.redhat.com>
- <20151203153048.GA29002@bfoster.bfoster>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: continuation of systemd/SELinux discussion from Github
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <20151202101801.GA1028@x250> <565F366E.3030403@tycho.nsa.gov>
+ <20151202194715.GC1028@x250> <565F6167.5090507@tycho.nsa.gov>
+From: Miroslav Grepl <mgrepl@redhat.com>
+Message-ID: <56606797.1070609@redhat.com>
+Date: Thu, 3 Dec 2015 17:02:31 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <565F6167.5090507@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, December 03, 2015 10:30:49 AM Brian Foster wrote:
-> On Thu, Dec 03, 2015 at 03:26:27PM +0100, Niels de Vos wrote:
-> > On Wed, Dec 02, 2015 at 08:26:45PM -0500, Paul Moore wrote:
-> > > On Wednesday, December 02, 2015 01:02:00 PM Niels de Vos wrote:
-> > > > Hi,
-> > > > 
-> > > > At the moment it is not possible to set an SElinux context over a FUSE
-> > > > mount. This is because FUSE (in the kernel) does not support SElinux.
-> > > > I'll try to explain what we need to accomplish to get this working.
-> > > > 
-> > > > 1. make it possible for SElinux to check sub-filesystems
-> > > > 
-> > > >    Currently SElinux only can check if a filesystem supports SElinux,
-> > > >    based on the base filesystem. By default FUSE does not support
-> > > >    SElinux, so it is not possible for sub-filesystems to support it
-> > > >    either. When checking /proc/mounts a Gluster mount identifies
-> > > >    itself
-> > > >    with "fuse.glusterfs", which is <mainfs>.<subfs>.
-> > > >    
-> > > >    An experimental patch for the kernel has been attached to
-> > > >    https://bugzilla.redhat.com/1272868
-> > > 
-> > > I'm not very knowledgeable about gluster so I don't have much
-> > > constructive to say about any of the points below, and my comments in
-> > > the BZ above are still valid.  I will say that I didn't have much luck
-> > > getting a response from Eric, but I don't think that should stop
-> > > anything at this point; if the gluster folks are okay with everything
-> > > else, I have no problems with the proposed SELinux kernel bits (that
-> > > weren't already mentioned in the BZ).
-> > 
-> > The approach looks good, but did not have any success with our testing
-> > yet. The patch applied and running with the test-kernel does not make it
-> > possible yet to change the SElinux context with "chcon". Even mounting
-> > with the additional "seclabel" mount option does not help with that (but
-> > it looks like a no-op in the kernel sources anyway).
-> > 
-> >   # chcon -t home_user_t /mnt/README
-> >   chcon: failed to change context of ‘/mnt/README’ to
-> >   ‘system_u:object_r:home_user_t:s0’: Operation not supported> 
-> > Systemtap shows that the subtype is set correctly in the super_block at
-> > the time selinux_sb_kern_mount() is called. I'm not sure what else is
-> > needed to make this work. A suggestion what to check from a SElinux side
-> > is welcome. The audit.log does not contain anything relevant at the time
-> > of the mounting, maybe there is a way to enable more verbose logging of
-> > some kind?
+On 12/02/2015 10:23 PM, Stephen Smalley wrote:
+> On 12/02/2015 02:47 PM, Dominick Grift wrote:
+>> On Wed, Dec 02, 2015 at 01:20:30PM -0500, Stephen Smalley wrote:
+>>> On 12/02/2015 05:18 AM, Dominick Grift wrote:
+>>>> Let's continue the discussion here.
+>>>>
+>>>> The last answered questionnaire is below, any further questions or
+>>>> comments?:
+>>>>
+>>>> ----------------------------------------
+>>>>
+>>>>          "systemd --user" concept is broken as we can see/read from
+>>>> this
+>>>>          thread from SELinux point of view.
+>>>>
+>>>> It was working fine except that it was trying to log to the audit
+>>>> system
+>>>> which unprivileged processes arent allowed to do.
+>>
+>>> What's the dbus solution for this issue?
+>>
+>> Here is some chatter about the above i believe:
+>>
+>> https://bugs.freedesktop.org/show_bug.cgi?id=83856
 > 
-> I believe fuse modifications are required to enable SELinux support via
-> xattrs. I had posted some prototype patches a ways back:
+> The code is easier to follow. bus/audit.c:bus_audit_init() will only
+> open the audit socket if the process has CAP_AUDIT_WRITE.
+> bus/selinux.c:log_callback() will only try to send the message to audit
+> if the audit socket was opened, but will always send the message to
+> syslog regardless.  Thus, if the dbus-daemon instance has
+> CAP_AUDIT_WRITE, you get the messages logged to audit and syslog;
+> otherwise, you only get them in syslog.  This is the most general
+> approach, as it supports both privileged and unprivileged dbus-daemon
+> instances, including the case where the system-wide bus is running in a
+> container and does not have CAP_AUDIT_WRITE (even though it thinks it is
+> root / uid 0) and the case where the session bus has CAP_AUDIT_WRITE (if
+> one were to set cap_audit_write in the file capabilities on the
+> dbus-daemon executable, not recommended but possible), as well as the
+> more common cases of a system-wide bus with CAP_AUDIT_WRITE and a
+> session bus without it.  systemd should likely do something similar, but
+> using the journal.
 > 
-> http://sourceforge.net/p/fuse/mailman/fuse-devel/thread/1385389343-55663-1-g
-> it-send-email-bfoster%40redhat.com/#msg31678712
+>>
+>>
+>>>>
+>>>>          Are we able truly explain the enforcement here?
+>>>>
+>>>> I think i was able to at least identify some of it, but i probably have
+>>>> overlooked other compelling arguments:
+>>>>
+>>>> Any processes that needs to be able to "control" any system-wide
+>>>> systemd
+>>>> user unit, will be able to "control" all system-wide systemd user
+>>>> units.
+>>>>
+>>>> In practice that means that a process may be able to for example
+>>>> start a
+>>>> application even though it does not have access to execute that
+>>>> application by telling systemd --user do start that applications on its
+>>>> behalf
+>>
+>>> Can systemd-run --user be used to escape any of the following:
+>>> a) SELinux sandbox,
+>>> b) libvirt / svirt confinement,
+>>> c) newrole -r to a different, more restricted role or -l to a different
+>>> level,
+>>> d) runcon to a more restricted domain.
+>>
+>>> If so, then there is a problem with systemd --user not applying its own
+>>> access controls over its operations.
+>>
+>>
+>> I cannot answer above currently. I can tell you that obviously one needs
+>> to be able to talk to ones systemd --user instance to be able to tell it
+>> to do anything on ones behalf obviously. So by default all of the above
+>> will likely not work, since they most likely do not have the permissions
+>> to talk to systemd --user even if they were able to execute systemctl
+>> and/or systemd-run.
+>>
+>> But even then, things also depend on whether systemd --user runs in a
+>> private domain or the login user domain (in my policy it runs in a
+>> private domain except for unconfined users)
+>>
+>> Those are good questions but i do not see how they are directly related
+>> to the question whether systemd --user should be a selinux user space
+>> object
+>> manager or not (in my view it obviously should but i am not trusted by
+>> systemd maintainers, walsh is trusted and walsh gave systemd maintainers
+>> the impression that systemd --user does not have to be an selinux object
+>> manager) I strongly suspect that is wrong.
 > 
-> These patches basically add the ability for the userspace fs to enable
-> selinux in fuse, add the hooks for fuse to initialize security properly
-> on new inodes (fairly boilerplate if you take a look at some other linux
-> fs'), and add a notification mechanism to help userspace invalidate the
-> security context on remote context changes.
+> I cited those examples because they were applicable to the stock Fedora
+> policy and, if valid, would provide a rationale for restoring the
+> controls regardless of what one might believe about confining desktop
+> applications because they would indicate vulnerabilities or regressions
+> in functionality provided by Fedora.  That seemed more likely to be
+> convincing to the Fedora SELinux maintainers.
 > 
-> IIRC, the latter is required since otherwise the security context is
-> initialized on the in-memory inode once and never changed except via the
-> explicit chcon (setxattr?) path. Therefore, client A doesn't have any
-> clean way to notify the local kernel that the backend security context
-> has changed via a chcon on client B.
+> For sandbox, they don't appear to allow it to connect in the first place:
 > 
-> I also think an selinux policy update that enables selinux via xattrs
-> support for "fuse.glusterfs" filesystems is a requirement to actually
-> test any of this stuff. My understanding is that the kernel subtype
-> thing is a requirement to distinguish glusterfs from other types of fuse
-> filesystems, but the actual policy enablement for such fuse.glusterfs
-> fs' is part of the userspace selinux-policy package.
+> $ sandbox /bin/bash
+> bash-4.3$ systemd-run --user id
+> Failed to create bus connection: Permission denied
 > 
-> I have old, custom selinux-policy-3.12.1-95.fc21 rpm packages sitting
-> around here that you're welcome to, but they might be too old at this
-> point. I also might have prototype-level supporting code in glusterfs
-> for some of this stuff (e.g., xattr name translation, remote context
-> invalidation, etc.), but I'd have to dig around for that...
+> So there the systemd access controls wouldn't come into play.
 > 
-> Brian
+> For confined user roles, systemd-run --user <command> failed on Fedora
+> 22 with:
+> 
+> Failed to start transient service unit: Access denied
+> 
+> and journalctl showed:
+> 
+> systemd[15007]: Can't send to audit system: USER_AVC avc:  denied  {
+> start } for auid=N uid=N gid=N
+> path="/run/user/N/systemd/user/run-PID.service" cmdline="systemd-run
+> --user id" scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023
+> tcontext=system_u:object_r:user_tmp_t:s0 tclass=service
+> 
+> So removing the systemd --user controls is a regression in the
+> protection being provided in Fedora, IIUC, although I'll let the Fedora
+> SELinux maintainers speak to that.
 
-Brian is correct, some SELinux policy tweaks should be needed as well.  I'm 
-going to be traveling in a few hours without reliable network/email so I'm 
-CC'ing the SELinux list.
+First I would like to talk about non-working "systemd --user" because we
+lack a support of pam_selinux in F23. So if you allow confined users to
+start user services you will end up with unconfined_service_t. Which is
+wrong because of systemd --user is running as init_t. The object manager
+helps here indeed.
+
+We have pam_selinux support in F24 and theoretically you will end up
+with a correct user context. But without missing object manager you will
+be able to start user services under SELinux user context and under a
+user Linux identity.
+
+This is a reason why I told this is broken now. We have more regressions
+here. And I believe that first we would have systemd --user running with
+correct labeling. We have it working for unconfined users on the latest
+rawhide because we removed unconfined_domain attribute for init_t and
+added needed fixes.
+
+The second issue is missing object manager. It is strongly related to
+confined SELinux users who are defined by own restricted SELinux
+policies and still restricted by own Linux identity.
+
+If we have running 'systemd --user' with the correct user type
+pam_selinux support then we can experiment and make working SELinux
+object manager in systemd --user at all if it is used and requested widely.
 
 -- 
-paul moore
-security @ redhat
+Miroslav Grepl
+Senior Software Engineer, SELinux Solutions
+Red Hat, Inc.
