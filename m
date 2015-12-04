@@ -1,192 +1,137 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB5CHmlA029249
- for <selinux@tycho.nsa.gov>; Sat, 5 Dec 2015 07:17:48 -0500
-Received: by wmww144 with SMTP id w144so96335714wmw.0
- for <selinux@tycho.nsa.gov>; Sat, 05 Dec 2015 04:17:43 -0800 (PST)
-Received: from x250 ([84.245.63.179])
- by smtp.gmail.com with ESMTPSA id r74sm7682799wmb.2.2015.12.05.04.17.42
- for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
- Sat, 05 Dec 2015 04:17:42 -0800 (PST)
-Date: Sat, 5 Dec 2015 13:17:41 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: How i see SELinux succeed in GNU/Linux
-Message-ID: <20151205121740.GA21061@x250>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB4LvItD015022
+ for <selinux@tycho.nsa.gov>; Fri, 4 Dec 2015 16:57:19 -0500
+Date: Fri, 4 Dec 2015 15:57:07 -0600
+From: "Serge E. Hallyn" <serge.hallyn@ubuntu.com>
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ Miklos Szeredi <miklos@szeredi.hu>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 17/19] fuse: Support fuse filesystems outside of
+ init_user_ns
+Message-ID: <20151204215707.GA5699@mail.hallyn.com>
+References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
+ <1449070821-73820-18-git-send-email-seth.forshee@canonical.com>
+ <20151204200355.GH3624@mail.hallyn.com>
+ <20151204204122.GE147214@ubuntu-hedt>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20151204204122.GE147214@ubuntu-hedt>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On Fri, Dec 04, 2015 at 02:41:22PM -0600, Seth Forshee wrote:
+> On Fri, Dec 04, 2015 at 02:03:55PM -0600, Serge E. Hallyn wrote:
+> > Quoting Seth Forshee (seth.forshee@canonical.com):
+> > > Update fuse to translate uids and gids to/from the user namspace
+> > > of the process servicing requests on /dev/fuse. Any ids which do
+> > > not map into the namespace will result in errors. inodes will
+> > > also be marked bad when unmappable ids are received from the
+> > > userspace fuse process.
+> > > 
+> > > Currently no use cases are known for letting the userspace fuse
+> > > daemon switch namespaces after opening /dev/fuse. Given this
+> > > fact, and in order to keep the implementation as simple as
+> > > possible and ease security auditing, the user namespace from
+> > > which /dev/fuse is opened is used for all id translations. This
+> > > is required to be the same namespace as s_user_ns to maintain
+> > > behavior consistent with other filesystems which can be mounted
+> > > in user namespaces.
+> > > 
+> > > For cuse the namespace used for the connection is also simply
+> > > current_user_ns() at the time /dev/cuse is opened.
+> > > 
+> > > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> > > ---
+> > >  fs/fuse/cuse.c   |  3 +-
+> > >  fs/fuse/dev.c    | 13 +++++----
+> > >  fs/fuse/dir.c    | 81 ++++++++++++++++++++++++++++++++++-------------------
+> > >  fs/fuse/fuse_i.h | 14 ++++++----
+> > >  fs/fuse/inode.c  | 85 ++++++++++++++++++++++++++++++++++++++++++--------------
+> > >  5 files changed, 136 insertions(+), 60 deletions(-)
+> > > 
+> > > diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+> > > index eae2c11268bc..a10aca57bfe4 100644
+> > > --- a/fs/fuse/cuse.c
+> > > +++ b/fs/fuse/cuse.c
+> > > @@ -48,6 +48,7 @@
+> > >  #include <linux/stat.h>
+> > >  #include <linux/module.h>
+> > >  #include <linux/uio.h>
+> > > +#include <linux/user_namespace.h>
+> > >  
+> > >  #include "fuse_i.h"
+> > >  
+> > > @@ -498,7 +499,7 @@ static int cuse_channel_open(struct inode *inode, struct file *file)
+> > >  	if (!cc)
+> > >  		return -ENOMEM;
+> > >  
+> > > -	fuse_conn_init(&cc->fc);
+> > > +	fuse_conn_init(&cc->fc, current_user_ns());
+> > >  
+> > >  	fud = fuse_dev_alloc(&cc->fc);
+> > >  	if (!fud) {
+> > > diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+> > > index a4f6f30d6d86..11b4cb0a0e2f 100644
+> > > --- a/fs/fuse/dev.c
+> > > +++ b/fs/fuse/dev.c
+> > > @@ -127,8 +127,8 @@ static void __fuse_put_request(struct fuse_req *req)
+> > >  
+> > >  static void fuse_req_init_context(struct fuse_conn *fc, struct fuse_req *req)
+> > >  {
+> > > -	req->in.h.uid = from_kuid_munged(&init_user_ns, current_fsuid());
+> > > -	req->in.h.gid = from_kgid_munged(&init_user_ns, current_fsgid());
+> > > +	req->in.h.uid = from_kuid(fc->user_ns, current_fsuid());
+> > > +	req->in.h.gid = from_kgid(fc->user_ns, current_fsgid());
+> > >  	req->in.h.pid = pid_nr_ns(task_pid(current), fc->pid_ns);
+> > >  }
+> > >  
+> > > @@ -186,7 +186,8 @@ static struct fuse_req *__fuse_get_req(struct fuse_conn *fc, unsigned npages,
+> > >  	__set_bit(FR_WAITING, &req->flags);
+> > >  	if (for_background)
+> > >  		__set_bit(FR_BACKGROUND, &req->flags);
+> > > -	if (req->in.h.pid == 0) {
+> > > +	if (req->in.h.pid == 0 || req->in.h.uid == (uid_t)-1 ||
+> > > +	    req->in.h.gid == (gid_t)-1) {
+> > >  		fuse_put_request(fc, req);
+> > >  		return ERR_PTR(-EOVERFLOW);
+> > >  	}
+> > > @@ -1248,7 +1249,8 @@ static ssize_t fuse_dev_do_read(struct fuse_dev *fud, struct file *file,
+> > >  	struct fuse_in *in;
+> > >  	unsigned reqsize;
+> > >  
+> > > -	if (task_active_pid_ns(current) != fc->pid_ns)
+> > > +	if (task_active_pid_ns(current) != fc->pid_ns ||
+> > > +	    current_user_ns() != fc->user_ns)
+> > 
+> > Do you think this should be using current_in_user_ns(fc->user_ns) ?
+> > 
+> > Opening a file, forking (maybe unsharing) then acting on the file is
+> > pretty standard fare which this would break.
+> > 
+> > (same for pidns, i guess, as well as for write below)
+> 
+> I'd rather leave it as is. It might be okay, but even if current_user_ns
+> is a child of fc->user_ns it could end up seeing ids that aren't valid
+> for it's namespaces, and that might cause issues for filesystems which
+> aren't expecting it.
+> 
+> But if you have a use case for a process in a child namespace servicing
+> requests for a mount, I'd be willing to reconsider.
 
-How i see SELinux succeed on GNU/Linux
+I'm pretty sure we'll get such uses, i.e. opening a file, unsharing userns,
+and not mapping in any userids, to sandbox the program.  But we can address
+it when it happens, I think.
 
-I am going to respect my customers, and i am going to shove as little
-SELinux policy down their throat as possible.
-They will not feel as if theyre treated like children and they will
-actually already have some very little benefit (mmap zero will be
-blocked and a few other stuff that 9 out of 10 is not used and that
-actually makes sense to block) without almost ever noticing
-
-By default i am just going to install and enable a tiny policy that
-implements basic "top level" partitioning and a single process type that is almost
-unrestricted.
-The rules that make it unrestricted are in a separate module that can
-easily be excluded. As soon as someone decides to make use of my
-implementation that module gets excluded and the base will be almost fully
-locked down.
-Except for an extra process type to associate with the unlabeled
-isid. one user (system user), two roles (system role and object role)
-two process types (system type and invalid type), a bunch of object
-types to provide a solid top level partitioning
-
-I installed this tiny base policy with the purpose of making selinux
-accessible (i am bringing it closer to my audience, making as little
-decisions for them as possible). I know selinux is
-compelling and that security
-is a necessity and that depending on your requirements it can be complex
-matter or very simple.
-
-To give indication the base is about 50K
-
-My solution embraces selinux for what it is. I am not going to implement
-any abstraction only to make selinux look like something else (in the
-long run that will only add to the complexity of the matter).
-The only abstraction that is there to make selinux more wieldable. My
-solution will build on CIL.
-
-CIL is fine (i am dropping the I from CIL), but i am going have to find a way to deal with the
-parenthesis. Maybe provide a emacs mode or some other solution.
-
-By default my SELinux implementation does not provide much protection
-(that is my intent!) but it does provide a solid base to build on with
-relative ease. It makes SELinux accessible, all one needs to do is
-further configure it, and that will be relatively easy to do. The idea is that i don't have to
-shove selinux policy down peoples throat and that selinux will sell it
-self if i treat my customers with respect.
-
-If people decide to use my base to tackle security challenges, then i
-know that it was their decision (it was opt-in) and i can know that they will
-be more open to it. Next I am going to help them in a efficient and
-effective manner that shows respect by providing a nice no-nonsense
-infrastructure
-based on CIL (there will not be any semanage type stuff (not python-wise
-anyway) Every
-configuration detail will be in plain text files using the CIL language
-
-Technically enforcement is opt-out but practically it is opt-in
-
-There might be some example shell wrapper scripts to automate common
-things but they are optional (because we embrace GNU, and were not going
-to depend on Python in any way)
-
-I understand that abstraction in the long run, only adds extra
-stuff to learn (noise). So i keep the abstraction to a strict minimum.
-I know that the people that choose to use my SELinux implementation did
-so to address challenges so they will want to know what theyre doing,
-and they want
-to see what dinner is served before they eat it. (This is GNU/linux
-after all)
-
-I am going to embrace GNU/Linux for its versatility and flexibility so i
-know SELinux policy is going to be incompatible except to its
-environment if the policy was tailored to its environment. I cannot
-predict all possible use cases ever. Since i use CIL in a no -nonsense
-way, and since i dont force anything on anyone I dont have
-to achieve an impossible absolute compatibility. People can and should
-either modify or insert their own policy. I recognise that compatibility
-is not necessarily a good thing since in this case it may be synonymous
-to inefficient/ineffective
-
-I will provide add-on policy modules that are optional so that if people are
-willing to compromise they can choose to use my modules. These modules
-are obviously not as efficient and effective as they could be because
-they are based on use case assumptions, but since i do
-not shove them down anyones throat i can expect some leaniancy from my
-users. They know the drawbacks of generic policy. These modules
-can be mixed- and matched because CIL compiler actually provides a
-usuable way to deal with dependencies, and these modules
-are just text files that can be installed.
-
-People have a choice: they can create "incompatible" policy that is
-perfectly tailored to their needs providing optimal integrity,
-or they can go with a collection of generic modules that are less
-efficient and effective but "easier" to implement.
-
-Whatever they do, they are better off, because they are going to be
-doing profiling to some extend or another. They are going
-to implement what they need. They wont be installing policy for stuff
-they will never use. This makes things faster, smaller and
-easier to maintain overall.
-
-Optionally there is going to be an *opt-in* example/demo "mode" It will be
-abundantly clear that this is just to get one familiar with the matter
-and with some of its benefits. All it does it is a compilation of
-generic modules profiled in rough scenarios like: server , desktop,
-cloud etc)
-
-This is obviously an relatively inefficient and ineffective trade off, and everyone
-will know that, but it will atleast have some level of profiling based
-on assumptions.
-
-Ofcourse I am going to provide comprehensive
-documentation. Documentation that is not policy specific. It just
-applies, always.
-
-I am following up by campaigning. I know that SELinux sells it self but
-it could use a little extra push in the back. I will not have any
-unrealistic expectations.
-
-I am going to have to deal with negative reputation that previous policy
-implementations may have given SELinux. I will do so by admitting the mistakes
-made, explain the lessons learned, and then explaining how those lessons
-were implemented in a way to will inspire the nay-sayers to give it a
-second chance.
-
-The aim is not to just get people to "enable" SELinux (it will be enabled). The aim is to get
-people to actually "use" SELinux in a meaningful way, not because i like
-selinux but because i appreciate that this is the only sustainable
-way. We dont accept black boxes and meaningfull security cannot a "point and
-click/or a checkbox" in GNU/Linux. It is just unrealistic in my opinion.
-
-Do you not want to deal with the inevitable hassle of security? I do not like it
-and i did everything in my power to persuade you otherwise without
-shoving my policy down your troat, but i will
-respect your decision because it is your assets and your
-responsibility. (just don't expect any sympatity from me if your
-compromised assets
-were used to attack others and you have to answer for it)
-
-This roughly entails my vision of the near-perfect
-implementation. It is based on, i would like to believe, mutual respect
-and realism. It embraces GNU/Linux and SELinux
-
-My new mantra:
-
-SELinux Now! Not Tomorrow!
-
-
-P.S: Yes I am just a crazy amateur hobbyist but at least I am thinking about improvements.
-
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJWYtXfAAoJENAR6kfG5xmcqyQL/iyMpIBCeBOLJ2oqVODiJRM7
-/PL8Lw3uUHOj94PEcQ9oUZv7R9Wbi/vGzc52CRV59ueCUexUUrCy/8oTP24Md10E
-wCQTnjIyF5MBV9tAoJq3TLceqXZkyB7XZ1FrqhcD66I0s29BAdyDFGptFrrfBrYu
-bhKURA374o/VvhuhsC8BLP74F5nePNFf+uO9T4qpa2d/Owr1K5ONTLxiT1ZAq+WO
-lp0ch/DTI73JJfWNwGVlKlPQacW/Y4BCZzrl+popotJlZ0loWyqU+gvP7Cpb2ZAV
-6oQRgCZo8pVZpkwFZoYiUj5R0zBWSaYVpADuKWVZTlAx/eCgxDbtCuLE2EI2XMdW
-dkdsh7yedosbxldUYDN0CJdEewEwRAWYv1W1Di2KsPBHZn773dXb5cuDo8brHAzc
-alZpeoQb88PzPM5Ylr8xekL9nnAaA9y149/d3Y02iMpEgRBeaqgn0cfC9VVuP6ql
-B+oE/AyzbWeOE73cTA49TjqCnj447WIOM6l+qWEAOA==
-=kEm3
------END PGP SIGNATURE-----
+(sorry I need to re-read before acking the whole patch)
