@@ -1,59 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB4FtVIC017577
- for <selinux@tycho.nsa.gov>; Fri, 4 Dec 2015 10:55:31 -0500
-Received: by wmec201 with SMTP id c201so80405994wme.0
- for <selinux@tycho.nsa.gov>; Fri, 04 Dec 2015 07:55:20 -0800 (PST)
-Received: from x250 ([84.245.63.179])
- by smtp.gmail.com with ESMTPSA id a186sm4051772wmh.4.2015.12.04.07.55.20
- for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
- Fri, 04 Dec 2015 07:55:20 -0800 (PST)
-Date: Fri, 4 Dec 2015 16:55:18 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: continuation of systemd/SELinux discussion from Github
-Message-ID: <20151204155517.GB32650@x250>
-References: <20151202101801.GA1028@x250> <565F366E.3030403@tycho.nsa.gov>
- <20151202194715.GC1028@x250> <565F6167.5090507@tycho.nsa.gov>
- <56606797.1070609@redhat.com> <566069A6.9080701@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB4Fea3f016642
+ for <selinux@tycho.nsa.gov>; Fri, 4 Dec 2015 10:40:38 -0500
+Received: by igcmv3 with SMTP id mv3so38233864igc.0
+ for <selinux@tycho.nsa.gov>; Fri, 04 Dec 2015 07:40:26 -0800 (PST)
+Date: Fri, 4 Dec 2015 09:38:55 -0600
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Miklos Szeredi <miklos@szeredi.hu>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 17/19] fuse: Support fuse filesystems outside of
+ init_user_ns
+Message-ID: <20151204153855.GB147214@ubuntu-hedt>
+References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
+ <1449070821-73820-18-git-send-email-seth.forshee@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
-In-Reply-To: <566069A6.9080701@tycho.nsa.gov>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1449070821-73820-18-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
+On Wed, Dec 02, 2015 at 09:40:17AM -0600, Seth Forshee wrote:
+> @@ -155,11 +155,22 @@ static ino_t fuse_squash_ino(u64 ino64)
+>  	return ino;
+>  }
+>  
+> -void fuse_change_attributes_common(struct inode *inode, struct fuse_attr *attr,
+> -				   u64 attr_valid)
+> +int fuse_change_attributes_common(struct inode *inode, struct fuse_attr *attr,
+> +				  u64 attr_valid)
+>  {
+>  	struct fuse_conn *fc = get_fuse_conn(inode);
+>  	struct fuse_inode *fi = get_fuse_inode(inode);
+> +	kuid_t uid;
+> +	kgid_t gid;
+> +
+> +	uid = make_kuid(fc->user_ns, attr->uid);
+> +	gid = make_kgid(fc->user_ns, attr->gid);
+> +	if (!uid_valid(uid) || !gid_valid(gid)) {
+> +		make_bad_inode(inode);
+> +		return -EIO;
+> +	}
 
-Alright, as far as i am concerned this issue is resolved.
+Eric - I had kind of forgotten about this part until just now, but
+previously with these patches we had discussed how to handle ids from
+the filesystem that aren't valid in s_user_ns. My intention is to set
+the kuids in the inode to invalid, and in these patches I've updated the
+vfs so that it should be safe to do that. But at some point I think you
+had suggested marking the inodes bad, and I must have added this as a
+result. I guess we need to decide which way to go. I favor using invalid
+ids so that a user privileged in s_user_ns can still access the inode,
+change ownership, etc., but I'm interested to hear your opinion.
 
-I think i kind of understand a bit now the rationale. Looks like i was
-the one without vision.
-
-What i want does not exist today. Because compatibility is a must. Looks
-like there is some consensus that containers are going to be our
-saviour. I suppose i will be migrating to Gnome so that i can enjoy the
-privilege of xdg-app.
-
-Maybe tomorrow we will have some security ... until then here's hoping
-
-- -- 
-02DFF788
-4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCgAGBQJWYbdgAAoJENAR6kfG5xmcjEEL/1/+xf9afAxYrijN9yVxXcPz
-meTJm/GoJi9k4irqoBGS5rEyw7c9rp7VpQxD03WdaNh0t/dtPw2+Zalo2t7S7xkp
-wT5DF6gZ/cjV+MivLJTHJ1E3mwDFqp2JAiL0pyKzF3aLOp0D5bwtEjneKqDg0hd3
-xzQdJyrOi39zKcNCq4V1DT5xAs2zgALIlAD1EuAHp+nUSR5ZkRKQe6cMgR3fojAk
-IEdNatnxHGmqZtxN4AM73rFQmQOBgA/EgP8FuuFQJBzaGcSfrZKAw+m3PEAqZ52a
-jjMMgWobo/Vgu1iK7zGjv0fBQZ4cBVVn++zHWtVTIZz0rx5+RM5UeD1soOyit4tJ
-SXu985RdmWFnnwGHccUYBSn3FJgPOZb+sBOaZtIvF0MVb+m+PM/nnXP1GPRRjaMH
-jtTg4MXhnJeYKxrGVTrv29QfuRIPQnmgT9NsWf3BQRJt7kuNTkNRmxu8Ci8R4iQF
-USseomXb/4hTQwRJ3IX999a/ntaDzWLxq1OzpbTEDg==
-=wlp+
------END PGP SIGNATURE-----
+Thanks,
+Seth
