@@ -1,10 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB4NCIUh020598
- for <selinux@tycho.nsa.gov>; Fri, 4 Dec 2015 18:12:18 -0500
-Date: Fri, 4 Dec 2015 18:11:52 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB4Ni0Wp022492
+ for <selinux@tycho.nsa.gov>; Fri, 4 Dec 2015 18:44:00 -0500
+Date: Fri, 4 Dec 2015 17:43:49 -0600
+From: "Serge E. Hallyn" <serge.hallyn@ubuntu.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, Seth Forshee <seth.forshee@canonical.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
  "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
@@ -17,35 +17,39 @@ Cc: "Serge E. Hallyn" <serge@hallyn.com>,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 Subject: Re: [PATCH 14/19] fs: Permit FIBMAP for users with CAP_SYS_RAWIO in
  s_user_ns
-Message-ID: <20151204231152.GE18359@thunk.org>
+Message-ID: <20151204234348.GA6908@mail.hallyn.com>
 References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
  <1449070821-73820-15-git-send-email-seth.forshee@canonical.com>
  <20151204191143.GE3624@mail.hallyn.com>
  <20151204200528.GC18359@thunk.org>
  <20151204200736.GJ3624@mail.hallyn.com>
  <20151204204532.GG147214@ubuntu-hedt>
+ <20151204231152.GE18359@thunk.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20151204204532.GG147214@ubuntu-hedt>
+In-Reply-To: <20151204231152.GE18359@thunk.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Dec 04, 2015 at 02:45:32PM -0600, Seth Forshee wrote:
-> On Fri, Dec 04, 2015 at 02:07:36PM -0600, Serge E. Hallyn wrote:
-> > Heh, I was looking over http://www.gossamer-threads.com/lists/linux/kernel/103611
-> > a little while ago :)  The same question was asked 16 years ago.  Apparently
-> > the answer then was that it was easier than fixing the code.
+On Fri, Dec 04, 2015 at 06:11:52PM -0500, Theodore Ts'o wrote:
+> On Fri, Dec 04, 2015 at 02:45:32PM -0600, Seth Forshee wrote:
+> > On Fri, Dec 04, 2015 at 02:07:36PM -0600, Serge E. Hallyn wrote:
+> > > Heh, I was looking over http://www.gossamer-threads.com/lists/linux/kernel/103611
+> > > a little while ago :)  The same question was asked 16 years ago.  Apparently
+> > > the answer then was that it was easier than fixing the code.
+> > 
+> > So it seems then that either it still isn't safe and so unprivileged
+> > users shouldn't be allowed to do it at all, or else it's safe and we
+> > should drop the requirement completely. I can't say which is right,
+> > unfortunately.
 > 
-> So it seems then that either it still isn't safe and so unprivileged
-> users shouldn't be allowed to do it at all, or else it's safe and we
-> should drop the requirement completely. I can't say which is right,
-> unfortunately.
+> It may not have been safe 16 years agoo, but giving invalid arguments
+> to FIBMAP is safe for ext4 and ext2.  This is the sort of thing that
+> tools like trinity should and does test for, so I think it should be
+> fine to remove the root check for FIBMAP.
 
-It may not have been safe 16 years agoo, but giving invalid arguments
-to FIBMAP is safe for ext4 and ext2.  This is the sort of thing that
-tools like trinity should and does test for, so I think it should be
-fine to remove the root check for FIBMAP.
+Seth, can I tempt you into sending a standalone patch to remove that? :)
 
-							- Ted
+-serge
