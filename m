@@ -1,27 +1,23 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOq8001405
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:32 -0500
-Received: by iofh3 with SMTP id h3so3959152iof.3
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:20 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqI001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
+Received: by iofh3 with SMTP id h3so3967077iof.3
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:37 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
  Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
  dm-devel@redhat.com, linux-raid@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Seth Forshee <seth.forshee@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v2 03/18] fs: Treat foreign mounts as nosuid
-Date: Mon,  7 Dec 2015 15:21:12 -0600
-Message-Id: <1449523289-144238-4-git-send-email-seth.forshee@canonical.com>
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 13/18] fs: Allow superblock owner to access do_remount_sb()
+Date: Mon,  7 Dec 2015 15:21:22 -0600
+Message-Id: <1449523289-144238-14-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -29,125 +25,40 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Andy Lutomirski <luto@amacapital.net>
+Superblock level remounts are currently restricted to global
+CAP_SYS_ADMIN, as is the path for changing the root mount to
+read only on umount. Loosen both of these permission checks to
+also allow CAP_SYS_ADMIN in any namespace which is privileged
+towards the userns which originally mounted the filesystem.
 
-If a process gets access to a mount from a different user
-namespace, that process should not be able to take advantage of
-setuid files or selinux entrypoints from that filesystem.  Prevent
-this by treating mounts from other mount namespaces and those not
-owned by current_user_ns() or an ancestor as nosuid.
-
-This will make it safer to allow more complex filesystems to be
-mounted in non-root user namespaces.
-
-This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
-setgid, and file capability bits can no longer be abused if code in
-a user namespace were to clear nosuid on an untrusted filesystem,
-but this patch, by itself, is insufficient to protect the system
-from abuse of files that, when execed, would increase MAC privilege.
-
-As a more concrete explanation, any task that can manipulate a
-vfsmount associated with a given user namespace already has
-capabilities in that namespace and all of its descendents.  If they
-can cause a malicious setuid, setgid, or file-caps executable to
-appear in that mount, then that executable will only allow them to
-elevate privileges in exactly the set of namespaces in which they
-are already privileges.
-
-On the other hand, if they can cause a malicious executable to
-appear with a dangerous MAC label, running it could change the
-caller's security context in a way that should not have been
-possible, even inside the namespace in which the task is confined.
-
-As a hardening measure, this would have made CVE-2014-5207 much
-more difficult to exploit.
-
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: James Morris <james.l.morris@oracle.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/exec.c                |  2 +-
- fs/namespace.c           | 13 +++++++++++++
- include/linux/mount.h    |  1 +
- security/commoncap.c     |  2 +-
- security/selinux/hooks.c |  2 +-
- 5 files changed, 17 insertions(+), 3 deletions(-)
+ fs/namespace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index b06623a9347f..ea7311d72cc3 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1295,7 +1295,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
- 	bprm->cred->euid = current_euid();
- 	bprm->cred->egid = current_egid();
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return;
- 
- 	if (task_no_new_privs(current))
 diff --git a/fs/namespace.c b/fs/namespace.c
-index da70f7c4ece1..2101ce7b96ab 100644
+index 18fc58760aec..b00a765895e7 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -3276,6 +3276,19 @@ found:
- 	return visible;
- }
- 
-+bool mnt_may_suid(struct vfsmount *mnt)
-+{
-+	/*
-+	 * Foreign mounts (accessed via fchdir or through /proc
-+	 * symlinks) are always treated as if they are nosuid.  This
-+	 * prevents namespaces from trusting potentially unsafe
-+	 * suid/sgid bits, file caps, or security labels that originate
-+	 * in other namespaces.
-+	 */
-+	return !(mnt->mnt_flags & MNT_NOSUID) && check_mnt(real_mount(mnt)) &&
-+	       in_userns(current_user_ns(), mnt->mnt_sb->s_user_ns);
-+}
-+
- static struct ns_common *mntns_get(struct task_struct *task)
- {
- 	struct ns_common *ns = NULL;
-diff --git a/include/linux/mount.h b/include/linux/mount.h
-index f822c3c11377..54a594d49733 100644
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
- extern struct vfsmount *mntget(struct vfsmount *mnt);
- extern struct vfsmount *mnt_clone_internal(struct path *path);
- extern int __mnt_is_readonly(struct vfsmount *mnt);
-+extern bool mnt_may_suid(struct vfsmount *mnt);
- 
- struct path;
- extern struct vfsmount *clone_private_mount(struct path *path);
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 400aa224b491..6243aef5860e 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -448,7 +448,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
- 	if (!file_caps_enabled)
- 		return 0;
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return 0;
- 	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
- 		return 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d0cfaa9f19d0..a5b93df6553f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2171,7 +2171,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
- 			    const struct task_security_struct *new_tsec)
- {
- 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
--	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
-+	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
- 	int rc;
- 
- 	if (!nnp && !nosuid)
+@@ -1510,7 +1510,7 @@ static int do_umount(struct mount *mnt, int flags)
+ 		 * Special case for "unmounting" root ...
+ 		 * we just try to remount it readonly.
+ 		 */
+-		if (!capable(CAP_SYS_ADMIN))
++		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		down_write(&sb->s_umount);
+ 		if (!(sb->s_flags & MS_RDONLY))
+@@ -2199,7 +2199,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
+ 	down_write(&sb->s_umount);
+ 	if (flags & MS_BIND)
+ 		err = change_mount_flags(path->mnt, flags);
+-	else if (!capable(CAP_SYS_ADMIN))
++	else if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 		err = -EPERM;
+ 	else
+ 		err = do_remount_sb(sb, flags, data, 0);
 -- 
 1.9.1
