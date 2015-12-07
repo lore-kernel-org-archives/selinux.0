@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqK001405
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
-Received: by igl9 with SMTP id 9so83279984igl.0
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:45 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqC001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:32 -0500
+Received: by ioir85 with SMTP id r85so4072083ioi.1
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:44 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Miklos Szeredi <miklos@szeredi.hu>
@@ -16,9 +16,10 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 18/18] fuse: Allow user namespace mounts
-Date: Mon,  7 Dec 2015 15:21:27 -0600
-Message-Id: <1449523289-144238-19-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v2 17/18] fuse: Restrict allow_other to the superblock's
+ namespace or a descendant
+Date: Mon,  7 Dec 2015 15:21:26 -0600
+Message-Id: <1449523289-144238-18-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,32 +27,33 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
----
- fs/fuse/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Unprivileged users are normally restricted from mounting with the
+allow_other option by system policy, but this could be bypassed
+for a mount done with user namespace root permissions. In such
+cases allow_other should not allow users outside the userns
+to access the mount as doing so would give the unprivileged user
+the ability to manipulate processes it would otherwise be unable
+to manipulate. Restrict allow_other to apply to users in the same
+userns used at mount or a descendant of that namespace.
 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index b7bdfdac3521..2fd338c199ce 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -1201,7 +1201,7 @@ static void fuse_kill_sb_anon(struct super_block *sb)
- static struct file_system_type fuse_fs_type = {
- 	.owner		= THIS_MODULE,
- 	.name		= "fuse",
--	.fs_flags	= FS_HAS_SUBTYPE,
-+	.fs_flags	= FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
- 	.mount		= fuse_mount,
- 	.kill_sb	= fuse_kill_sb_anon,
- };
-@@ -1233,7 +1233,7 @@ static struct file_system_type fuseblk_fs_type = {
- 	.name		= "fuseblk",
- 	.mount		= fuse_mount_blk,
- 	.kill_sb	= fuse_kill_sb_blk,
--	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE,
-+	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
- };
- MODULE_ALIAS_FS("fuseblk");
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+---
+ fs/fuse/dir.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 8fd9fe4dcd43..24e4cdb554f1 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -1015,7 +1015,7 @@ int fuse_allow_current_process(struct fuse_conn *fc)
+ 	const struct cred *cred;
  
+ 	if (fc->flags & FUSE_ALLOW_OTHER)
+-		return 1;
++		return current_in_userns(fc->user_ns);
+ 
+ 	cred = current_cred();
+ 	if (uid_eq(cred->euid, fc->user_id) &&
 -- 
 1.9.1
