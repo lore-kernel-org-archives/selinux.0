@@ -1,13 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LOD6v001465
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:25:54 -0500
-Received: by iofh3 with SMTP id h3so3961414iof.3
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:25 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqF001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
+Received: by iouu10 with SMTP id u10so4195168iou.0
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:39 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
  Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
@@ -15,12 +16,11 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Seth Forshee <seth.forshee@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Subject: [PATCH v2 06/18] Smack: Handle labels consistently in untrusted mounts
-Date: Mon,  7 Dec 2015 15:21:15 -0600
-Message-Id: <1449523289-144238-7-git-send-email-seth.forshee@canonical.com>
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 14/18] capabilities: Allow privileged user in s_user_ns to
+ set security.* xattrs
+Date: Mon,  7 Dec 2015 15:21:23 -0600
+Message-Id: <1449523289-144238-15-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -28,89 +28,72 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The SMACK64, SMACK64EXEC, and SMACK64MMAP labels are all handled
-differently in untrusted mounts. This is confusing and
-potentically problematic. Change this to handle them all the same
-way that SMACK64 is currently handled; that is, read the label
-from disk and check it at use time. For SMACK64 and SMACK64MMAP
-access is denied if the label does not match smk_root. To be
-consistent with suid, a SMACK64EXEC label which does not match
-smk_root will still allow execution of the file but will not run
-with the label supplied in the xattr.
+A privileged user in s_user_ns will generally have the ability to
+manipulate the backing store and insert security.* xattrs into
+the filesystem directly. Therefore the kernel must be prepared to
+handle these xattrs from unprivileged mounts, and it makes little
+sense for commoncap to prevent writing these xattrs to the
+filesystem. The capability and LSM code have already been updated
+to appropriately handle xattrs from unprivileged mounts, so it
+is safe to loosen this restriction on setting xattrs.
+
+The exception to this logic is that writing xattrs to a mounted
+filesystem may also cause the LSM inode_post_setxattr or
+inode_setsecurity callbacks to be invoked. SELinux will deny the
+xattr update by virtue of applying mountpoint labeling to
+unprivileged userns mounts, and Smack will deny the writes for
+any user without global CAP_MAC_ADMIN, so loosening the
+capability check in commoncap is safe in this respect as well.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- security/smack/smack_lsm.c | 29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ security/commoncap.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 16cac04214e2..0e555f64ded0 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -921,6 +921,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
- 	struct inode *inode = file_inode(bprm->file);
- 	struct task_smack *bsp = bprm->cred->security;
- 	struct inode_smack *isp;
-+	struct superblock_smack *sbsp;
- 	int rc;
- 
- 	if (bprm->cred_prepared)
-@@ -930,6 +931,11 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
- 	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
- 		return 0;
- 
-+	sbsp = inode->i_sb->s_security;
-+	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
-+	    isp->smk_task != sbsp->smk_root)
-+		return 0;
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 2119421613f6..d6c80c19c449 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -653,15 +653,17 @@ int cap_bprm_secureexec(struct linux_binprm *bprm)
+ int cap_inode_setxattr(struct dentry *dentry, const char *name,
+ 		       const void *value, size_t size, int flags)
+ {
++	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
 +
- 	if (bprm->unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
- 		struct task_struct *tracer;
- 		rc = 0;
-@@ -1733,6 +1739,7 @@ static int smack_mmap_file(struct file *file,
- 	struct task_smack *tsp;
- 	struct smack_known *okp;
- 	struct inode_smack *isp;
-+	struct superblock_smack *sbsp;
- 	int may;
- 	int mmay;
- 	int tmay;
-@@ -1744,6 +1751,10 @@ static int smack_mmap_file(struct file *file,
- 	isp = file_inode(file)->i_security;
- 	if (isp->smk_mmap == NULL)
+ 	if (!strcmp(name, XATTR_NAME_CAPS)) {
+-		if (!capable(CAP_SETFCAP))
++		if (!ns_capable(user_ns, CAP_SETFCAP))
+ 			return -EPERM;
  		return 0;
-+	sbsp = file_inode(file)->i_sb->s_security;
-+	if (sbsp->smk_flags & SMK_SB_UNTRUSTED &&
-+	    isp->smk_mmap != sbsp->smk_root)
-+		return -EACCES;
- 	mkp = isp->smk_mmap;
+ 	}
  
- 	tsp = current_security();
-@@ -3532,16 +3543,14 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
- 			if (rc >= 0)
- 				transflag = SMK_INODE_TRANSMUTE;
- 		}
--		if (!(sbsp->smk_flags & SMK_SB_UNTRUSTED)) {
--			/*
--			 * Don't let the exec or mmap label be "*" or "@".
--			 */
--			skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
--			if (IS_ERR(skp) || skp == &smack_known_star ||
--			    skp == &smack_known_web)
--				skp = NULL;
--			isp->smk_task = skp;
--		}
-+		/*
-+		 * Don't let the exec or mmap label be "*" or "@".
-+		 */
-+		skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
-+		if (IS_ERR(skp) || skp == &smack_known_star ||
-+		    skp == &smack_known_web)
-+			skp = NULL;
-+		isp->smk_task = skp;
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
+-	    !capable(CAP_SYS_ADMIN))
++	    !ns_capable(user_ns, CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	return 0;
+ }
+@@ -679,15 +681,17 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
+  */
+ int cap_inode_removexattr(struct dentry *dentry, const char *name)
+ {
++	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
++
+ 	if (!strcmp(name, XATTR_NAME_CAPS)) {
+-		if (!capable(CAP_SETFCAP))
++		if (!ns_capable(user_ns, CAP_SETFCAP))
+ 			return -EPERM;
+ 		return 0;
+ 	}
  
- 		skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
- 		if (IS_ERR(skp) || skp == &smack_known_star ||
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
+-	    !capable(CAP_SYS_ADMIN))
++	    !ns_capable(user_ns, CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	return 0;
+ }
 -- 
 1.9.1
