@@ -1,59 +1,111 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB56HlGN010893
- for <selinux@tycho.nsa.gov>; Sat, 5 Dec 2015 01:17:50 -0500
-Received: by iouu10 with SMTP id u10so140090362iou.0
- for <selinux@tycho.nsa.gov>; Fri, 04 Dec 2015 22:17:30 -0800 (PST)
-Date: Sat, 5 Dec 2015 00:15:58 -0600
-From: Seth Forshee <seth.forshee@canonical.com>
-To: "Serge E. Hallyn" <serge.hallyn@ubuntu.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, "Serge E. Hallyn" <serge@hallyn.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 14/19] fs: Permit FIBMAP for users with CAP_SYS_RAWIO in
- s_user_ns
-Message-ID: <20151205061558.GA14580@ubuntu-hedt>
-References: <1449070821-73820-1-git-send-email-seth.forshee@canonical.com>
- <1449070821-73820-15-git-send-email-seth.forshee@canonical.com>
- <20151204191143.GE3624@mail.hallyn.com>
- <20151204200528.GC18359@thunk.org>
- <20151204200736.GJ3624@mail.hallyn.com>
- <20151204204532.GG147214@ubuntu-hedt>
- <20151204231152.GE18359@thunk.org>
- <20151204234348.GA6908@mail.hallyn.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7G0pIG008035
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 11:00:51 -0500
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: Validate extended avrules and permissionxs
+Date: Mon, 7 Dec 2015 11:00:44 -0500
+Message-ID: <1449504044-11175-1-git-send-email-slawrence@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20151204234348.GA6908@mail.hallyn.com>
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Dec 04, 2015 at 05:43:49PM -0600, Serge E. Hallyn wrote:
-> On Fri, Dec 04, 2015 at 06:11:52PM -0500, Theodore Ts'o wrote:
-> > On Fri, Dec 04, 2015 at 02:45:32PM -0600, Seth Forshee wrote:
-> > > On Fri, Dec 04, 2015 at 02:07:36PM -0600, Serge E. Hallyn wrote:
-> > > > Heh, I was looking over http://www.gossamer-threads.com/lists/linux/kernel/103611
-> > > > a little while ago :)  The same question was asked 16 years ago.  Apparently
-> > > > the answer then was that it was easier than fixing the code.
-> > > 
-> > > So it seems then that either it still isn't safe and so unprivileged
-> > > users shouldn't be allowed to do it at all, or else it's safe and we
-> > > should drop the requirement completely. I can't say which is right,
-> > > unfortunately.
-> > 
-> > It may not have been safe 16 years agoo, but giving invalid arguments
-> > to FIBMAP is safe for ext4 and ext2.  This is the sort of thing that
-> > tools like trinity should and does test for, so I think it should be
-> > fine to remove the root check for FIBMAP.
-> 
-> Seth, can I tempt you into sending a standalone patch to remove that? :)
+Classes used in extended avrules and permissionxs must have an "ioctl"
+permission. Add validation to ensure that is the case, or print an error
+message otherwise.
 
-Patch sent. I'll drop this patch in v2.
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/cil/src/cil_verify.c | 60 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index c2d5ce9..36ec45a 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -43,6 +43,7 @@
+ #include "cil_mem.h"
+ #include "cil_tree.h"
+ #include "cil_list.h"
++#include "cil_find.h"
+ 
+ #include "cil_verify.h"
+ 
+@@ -1226,6 +1227,59 @@ exit:
+ 	return rc;
+ }
+ 
++int __cil_verify_permissionx(struct cil_permissionx *permx, struct cil_tree_node *node)
++{
++	int rc;
++	struct cil_list *classes = NULL;
++	struct cil_list_item *item;
++	struct cil_class *class;
++	struct cil_symtab_datum *perm_datum;
++	char *kind_str;
++
++	switch (permx->kind) {
++		case CIL_PERMX_KIND_IOCTL:
++			kind_str = CIL_KEY_IOCTL;
++			break;
++		default:
++			cil_log(CIL_ERR, "Invalid permissionx kind (%d) at line %d of %s\n", permx->kind, node->line, node->path);
++			rc = SEPOL_ERR;
++			goto exit;
++	}
++
++	classes = cil_expand_class(permx->obj);
++
++	cil_list_for_each(item, classes) {
++		class = item->data;
++		rc = cil_symtab_get_datum(&class->perms, kind_str, &perm_datum);
++		if (rc == SEPOL_ENOENT) {
++			if (class->common != NULL) {
++				rc = cil_symtab_get_datum(&class->common->perms, kind_str, &perm_datum);
++			}
++
++			if (rc == SEPOL_ENOENT) {
++				cil_log(CIL_ERR, "Invalid permissionx at line %d of %s: %s is not a permission of class %s\n", node->line, node->path, kind_str, class->datum.name);
++				rc = SEPOL_ERR;
++				goto exit;
++			}
++		}
++	}
++
++	rc = SEPOL_OK;
++
++exit:
++	if (classes != NULL) {
++		cil_list_destroy(&classes, CIL_FALSE);
++	}
++
++	return rc;
++}
++
++int __cil_verify_avrulex(struct cil_tree_node *node)
++{
++	struct cil_avrule *avrulex = node->data;
++	return __cil_verify_permissionx(avrulex->perms.x.permx, node);
++}
++
+ int __cil_verify_class(struct cil_tree_node *node)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -1420,6 +1474,12 @@ int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, void *ex
+ 		case CIL_FSUSE:
+ 			rc = __cil_verify_fsuse(db, node);
+ 			break;
++		case CIL_AVRULEX:
++			rc = __cil_verify_avrulex(node);
++			break;
++		case CIL_PERMISSIONX:
++			rc = __cil_verify_permissionx(node->data, node);
++			break;
+ 		case CIL_RANGETRANSITION:
+ 			rc = SEPOL_OK;
+ 			break;
+-- 
+2.4.3
