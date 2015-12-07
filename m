@@ -1,40 +1,62 @@
-Subject: Re: chcat is using getlogin() function that sometimes returns
- null/empty string
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <5665C991.4030606@debian.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <5665E4A1.50108@tycho.nsa.gov>
-Date: Mon, 7 Dec 2015 14:57:21 -0500
-MIME-Version: 1.0
-In-Reply-To: <5665C991.4030606@debian.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqA001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:32 -0500
+Received: by ioc74 with SMTP id 74so4001820ioc.2
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:31 -0800 (PST)
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 09/18] fs: Refuse uid/gid changes which don't map into
+ s_user_ns
+Date: Mon,  7 Dec 2015 15:21:18 -0600
+Message-Id: <1449523289-144238-10-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
+References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/07/2015 01:01 PM, Laurent Bigonville wrote:
-> Hi,
->
-> So apparently gnome-terminal developers have decided to stop updating
-> utmp[0] file and this is breaking chcat -Ll with the following error:
->
-> Traceback (most recent call last):
->    File "/usr/bin/chcat", line 409, in <module>
->      sys.exit(listusercats(cmds))
->    File "/usr/bin/chcat", line 352, in listusercats
->      users.append(os.getlogin())
-> OSError: [Errno 2] No such file or directory
->
-> getlogin(3) manpage suggest to rely on the LOGNAME environment variable,
-> so maybe chcat should fallback to this if getlogin() is not returning
-> anything?
->
-> Cheers,
->
-> Laurent Bigonville
->
-> [0] https://bugzilla.gnome.org/show_bug.cgi?id=747046
+Add checks to inode_change_ok to verify that uid and gid changes
+will map into the superblock's user namespace. If they do not
+fail with -EOVERFLOW. This cannot be overriden with ATTR_FORCE.
 
-Maybe just use:
-pwd.getpwuid(os.getuid()).pw_name
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+---
+ fs/attr.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/fs/attr.c b/fs/attr.c
+index 6530ced19697..55b46e3aa888 100644
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -42,6 +42,17 @@ int inode_change_ok(const struct inode *inode, struct iattr *attr)
+ 			return error;
+ 	}
+ 
++	/*
++	 * Verify that uid/gid changes are valid in the target namespace
++	 * of the superblock. This cannot be overriden using ATTR_FORCE.
++	 */
++	if (ia_valid & ATTR_UID &&
++	    from_kuid(inode->i_sb->s_user_ns, attr->ia_uid) == (uid_t)-1)
++		return -EOVERFLOW;
++	if (ia_valid & ATTR_GID &&
++	    from_kgid(inode->i_sb->s_user_ns, attr->ia_gid) == (gid_t)-1)
++		return -EOVERFLOW;
++
+ 	/* If force is set do it anyway. */
+ 	if (ia_valid & ATTR_FORCE)
+ 		return 0;
+-- 
+1.9.1
