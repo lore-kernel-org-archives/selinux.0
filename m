@@ -1,124 +1,241 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNi6K001409
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:27:02 -0500
-Received: by iouu10 with SMTP id u10so4183542iou.0
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:13 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqH001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
+Received: by igcph11 with SMTP id ph11so83107039igc.1
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:41 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Miklos Szeredi <miklos@szeredi.hu>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
- Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 00/19] Support fuse mounts in user namespaces
-Date: Mon,  7 Dec 2015 15:21:09 -0600
-Message-Id: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Seth Forshee <seth.forshee@canonical.com>,
+ Miklos Szeredi <mszeredi@suse.cz>
+Subject: [PATCH v2 15/18] fuse: Add support for pid namespaces
+Date: Mon,  7 Dec 2015 15:21:24 -0600
+Message-Id: <1449523289-144238-16-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
+References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-These patches implement support for mounting filesystems in user
-namespaces using fuse. They are based on the patches in the for-testing
-branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git,
-but I've rebased them onto 4.4-rc3. I've pushed all of this to:
+If the userspace process servicing fuse requests is running in
+a pid namespace then pids passed via the fuse fd need to be
+translated relative to that namespace. Capture the pid namespace
+in use when the filesystem is mounted and use this for pid
+translation.
 
- git://git.kernel.org/pub/scm/linux/kernel/git/sforshee/linux.git fuse-userns
+Since no use case currently exists for changing namespaces all
+translations are done relative to the pid namespace in use when
+/dev/fuse is opened. Mounting or /dev/fuse IO from another
+namespace will return errors.
 
-The patches are organized into three high-level groups.
+Requests from processes whose pid cannot be translated into the
+target namespace are not permitted, except for requests
+allocated via fuse_get_req_nofail_nopages. For no-fail requests
+in.h.pid will be 0 if the pid translation fails.
 
-Patches 1-6 are related to security, adding restrictions for
-unprivileged mounts and updating the LSMs as needed. Patches 1-2
-(checking inode permissions for block device mounts) may not be strictly
-necessary for fuseblk mounts since fuse doesn't do any IO on the block
-device in the kernel, but it still seems like a good idea to fail the
-mount if the user doesn't have the required permissions for the inode
-(though this is a bit misleading with fuse since the mounts are done via
-a suid-root helper).
+File locking changes based on previous work done by Eric
+Biederman.
 
-Patches 7-14 update most of the vfs to translate ids correctly and deal
-with inodes which may have invalid user/group ids. I've omitted patches
-for anything not used by fuse - quota, fs freezing, some helper
-functions, etc. - but if these are wanted for the sake of completeness I
-can include them.
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Signed-off-by: Miklos Szeredi <mszeredi@suse.cz>
+---
+ fs/fuse/dev.c    | 19 +++++++++++++++----
+ fs/fuse/file.c   | 22 +++++++++++++++++-----
+ fs/fuse/fuse_i.h |  4 ++++
+ fs/fuse/inode.c  |  3 +++
+ 4 files changed, 39 insertions(+), 9 deletions(-)
 
-Patches 15-18 update fuse to deal with mounts from non-init pid and user
-namespaces and enable mounting from user namespaces.
-
-Changes since v1:
- - Drop patch for FIBMAP.
- - Use current_in_userns in fuse_allow_current_process.
- - Remove checks for uid/gid validity in fuse. Intead, ids from the
-   backing store which do not map into s_user_ns will result in invalid
-   ids in the vfs inode. Checks in the vfs will prevent unmappable ids
-   from being passed in from above.
- - Update a couple of commit messages to provide more detail about
-   changes.
-
-Thanks,
-Seth
-
-Andy Lutomirski (1):
-  fs: Treat foreign mounts as nosuid
-
-Seth Forshee (17):
-  block_dev: Support checking inode permissions in lookup_bdev()
-  block_dev: Check permissions towards block device inode when mounting
-  selinux: Add support for unprivileged mounts from user namespaces
-  userns: Replace in_userns with current_in_userns
-  Smack: Handle labels consistently in untrusted mounts
-  fs: Check for invalid i_uid in may_follow_link()
-  cred: Reject inodes with invalid ids in set_create_file_as()
-  fs: Refuse uid/gid changes which don't map into s_user_ns
-  fs: Update posix_acl support to handle user namespace mounts
-  fs: Ensure the mounter of a filesystem is privileged towards its
-    inodes
-  fs: Don't remove suid for CAP_FSETID in s_user_ns
-  fs: Allow superblock owner to access do_remount_sb()
-  capabilities: Allow privileged user in s_user_ns to set security.*
-    xattrs
-  fuse: Add support for pid namespaces
-  fuse: Support fuse filesystems outside of init_user_ns
-  fuse: Restrict allow_other to the superblock's namespace or a
-    descendant
-  fuse: Allow user namespace mounts
-
- drivers/md/bcache/super.c       |  2 +-
- drivers/md/dm-table.c           |  2 +-
- drivers/mtd/mtdsuper.c          |  2 +-
- fs/attr.c                       | 11 +++++++
- fs/block_dev.c                  | 18 +++++++++--
- fs/exec.c                       |  2 +-
- fs/fuse/cuse.c                  |  3 +-
- fs/fuse/dev.c                   | 26 ++++++++++++----
- fs/fuse/dir.c                   | 16 +++++-----
- fs/fuse/file.c                  | 22 +++++++++++---
- fs/fuse/fuse_i.h                | 10 +++++-
- fs/fuse/inode.c                 | 42 +++++++++++++++++---------
- fs/inode.c                      |  6 +++-
- fs/namei.c                      |  2 +-
- fs/namespace.c                  | 17 +++++++++--
- fs/posix_acl.c                  | 67 ++++++++++++++++++++++++++---------------
- fs/quota/quota.c                |  2 +-
- fs/xattr.c                      | 19 +++++++++---
- include/linux/fs.h              |  2 +-
- include/linux/mount.h           |  1 +
- include/linux/posix_acl_xattr.h | 17 ++++++++---
- include/linux/uidgid.h          | 10 ++++++
- include/linux/user_namespace.h  |  6 ++--
- kernel/capability.c             | 13 +++++---
- kernel/cred.c                   |  2 ++
- kernel/user_namespace.c         |  6 ++--
- security/commoncap.c            | 16 ++++++----
- security/selinux/hooks.c        | 25 ++++++++++++++-
- security/smack/smack_lsm.c      | 29 ++++++++++++------
- 29 files changed, 287 insertions(+), 109 deletions(-)
-
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index ebb5e37455a0..a4f6f30d6d86 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -19,6 +19,7 @@
+ #include <linux/pipe_fs_i.h>
+ #include <linux/swap.h>
+ #include <linux/splice.h>
++#include <linux/sched.h>
+ 
+ MODULE_ALIAS_MISCDEV(FUSE_MINOR);
+ MODULE_ALIAS("devname:fuse");
+@@ -124,11 +125,11 @@ static void __fuse_put_request(struct fuse_req *req)
+ 	atomic_dec(&req->count);
+ }
+ 
+-static void fuse_req_init_context(struct fuse_req *req)
++static void fuse_req_init_context(struct fuse_conn *fc, struct fuse_req *req)
+ {
+ 	req->in.h.uid = from_kuid_munged(&init_user_ns, current_fsuid());
+ 	req->in.h.gid = from_kgid_munged(&init_user_ns, current_fsgid());
+-	req->in.h.pid = current->pid;
++	req->in.h.pid = pid_nr_ns(task_pid(current), fc->pid_ns);
+ }
+ 
+ void fuse_set_initialized(struct fuse_conn *fc)
+@@ -181,10 +182,14 @@ static struct fuse_req *__fuse_get_req(struct fuse_conn *fc, unsigned npages,
+ 		goto out;
+ 	}
+ 
+-	fuse_req_init_context(req);
++	fuse_req_init_context(fc, req);
+ 	__set_bit(FR_WAITING, &req->flags);
+ 	if (for_background)
+ 		__set_bit(FR_BACKGROUND, &req->flags);
++	if (req->in.h.pid == 0) {
++		fuse_put_request(fc, req);
++		return ERR_PTR(-EOVERFLOW);
++	}
+ 
+ 	return req;
+ 
+@@ -274,7 +279,7 @@ struct fuse_req *fuse_get_req_nofail_nopages(struct fuse_conn *fc,
+ 	if (!req)
+ 		req = get_reserved_req(fc, file);
+ 
+-	fuse_req_init_context(req);
++	fuse_req_init_context(fc, req);
+ 	__set_bit(FR_WAITING, &req->flags);
+ 	__clear_bit(FR_BACKGROUND, &req->flags);
+ 	return req;
+@@ -1243,6 +1248,9 @@ static ssize_t fuse_dev_do_read(struct fuse_dev *fud, struct file *file,
+ 	struct fuse_in *in;
+ 	unsigned reqsize;
+ 
++	if (task_active_pid_ns(current) != fc->pid_ns)
++		return -EIO;
++
+  restart:
+ 	spin_lock(&fiq->waitq.lock);
+ 	err = -EAGAIN;
+@@ -1872,6 +1880,9 @@ static ssize_t fuse_dev_do_write(struct fuse_dev *fud,
+ 	struct fuse_req *req;
+ 	struct fuse_out_header oh;
+ 
++	if (task_active_pid_ns(current) != fc->pid_ns)
++		return -EIO;
++
+ 	if (nbytes < sizeof(struct fuse_out_header))
+ 		return -EINVAL;
+ 
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index e0faf8f2c868..a6c7484c94ee 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2061,7 +2061,8 @@ static int fuse_direct_mmap(struct file *file, struct vm_area_struct *vma)
+ 	return generic_file_mmap(file, vma);
+ }
+ 
+-static int convert_fuse_file_lock(const struct fuse_file_lock *ffl,
++static int convert_fuse_file_lock(struct fuse_conn *fc,
++				  const struct fuse_file_lock *ffl,
+ 				  struct file_lock *fl)
+ {
+ 	switch (ffl->type) {
+@@ -2076,7 +2077,14 @@ static int convert_fuse_file_lock(const struct fuse_file_lock *ffl,
+ 
+ 		fl->fl_start = ffl->start;
+ 		fl->fl_end = ffl->end;
+-		fl->fl_pid = ffl->pid;
++
++		/*
++		 * Convert pid into the caller's pid namespace. If the pid
++		 * does not map into the namespace fl_pid will get set to 0.
++		 */
++		rcu_read_lock();
++		fl->fl_pid = pid_vnr(find_pid_ns(ffl->pid, fc->pid_ns));
++		rcu_read_unlock();
+ 		break;
+ 
+ 	default:
+@@ -2125,7 +2133,7 @@ static int fuse_getlk(struct file *file, struct file_lock *fl)
+ 	args.out.args[0].value = &outarg;
+ 	err = fuse_simple_request(fc, &args);
+ 	if (!err)
+-		err = convert_fuse_file_lock(&outarg.lk, fl);
++		err = convert_fuse_file_lock(fc, &outarg.lk, fl);
+ 
+ 	return err;
+ }
+@@ -2137,7 +2145,8 @@ static int fuse_setlk(struct file *file, struct file_lock *fl, int flock)
+ 	FUSE_ARGS(args);
+ 	struct fuse_lk_in inarg;
+ 	int opcode = (fl->fl_flags & FL_SLEEP) ? FUSE_SETLKW : FUSE_SETLK;
+-	pid_t pid = fl->fl_type != F_UNLCK ? current->tgid : 0;
++	struct pid *pid = fl->fl_type != F_UNLCK ? task_tgid(current) : NULL;
++	pid_t pid_nr = pid_nr_ns(pid, fc->pid_ns);
+ 	int err;
+ 
+ 	if (fl->fl_lmops && fl->fl_lmops->lm_grant) {
+@@ -2149,7 +2158,10 @@ static int fuse_setlk(struct file *file, struct file_lock *fl, int flock)
+ 	if (fl->fl_flags & FL_CLOSE)
+ 		return 0;
+ 
+-	fuse_lk_fill(&args, file, fl, opcode, pid, flock, &inarg);
++	if (pid && pid_nr == 0)
++		return -EOVERFLOW;
++
++	fuse_lk_fill(&args, file, fl, opcode, pid_nr, flock, &inarg);
+ 	err = fuse_simple_request(fc, &args);
+ 
+ 	/* locking is restartable */
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index 405113101db8..143b595197b6 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -22,6 +22,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/poll.h>
+ #include <linux/workqueue.h>
++#include <linux/pid_namespace.h>
+ 
+ /** Max number of pages that can be used in a single read request */
+ #define FUSE_MAX_PAGES_PER_REQ 32
+@@ -456,6 +457,9 @@ struct fuse_conn {
+ 	/** The group id for this mount */
+ 	kgid_t group_id;
+ 
++	/** The pid namespace for this mount */
++	struct pid_namespace *pid_ns;
++
+ 	/** The fuse mount flags for this mount */
+ 	unsigned flags;
+ 
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 2913db2a5b99..2f31874ea9db 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -20,6 +20,7 @@
+ #include <linux/random.h>
+ #include <linux/sched.h>
+ #include <linux/exportfs.h>
++#include <linux/pid_namespace.h>
+ 
+ MODULE_AUTHOR("Miklos Szeredi <miklos@szeredi.hu>");
+ MODULE_DESCRIPTION("Filesystem in Userspace");
+@@ -609,6 +610,7 @@ void fuse_conn_init(struct fuse_conn *fc)
+ 	fc->connected = 1;
+ 	fc->attr_version = 1;
+ 	get_random_bytes(&fc->scramble_key, sizeof(fc->scramble_key));
++	fc->pid_ns = get_pid_ns(task_active_pid_ns(current));
+ }
+ EXPORT_SYMBOL_GPL(fuse_conn_init);
+ 
+@@ -617,6 +619,7 @@ void fuse_conn_put(struct fuse_conn *fc)
+ 	if (atomic_dec_and_test(&fc->count)) {
+ 		if (fc->destroy_req)
+ 			fuse_request_free(fc->destroy_req);
++		put_pid_ns(fc->pid_ns);
+ 		fc->release(fc);
+ 	}
+ }
 -- 
 1.9.1
