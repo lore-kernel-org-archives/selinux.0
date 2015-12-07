@@ -1,12 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqB001405
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOq4001405
  for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:32 -0500
-Received: by ioc74 with SMTP id 74so4002547ioc.2
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:33 -0800 (PST)
+Received: by igbxm8 with SMTP id xm8so2859743igb.1
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:21 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
  Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
@@ -14,11 +16,13 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
  linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 10/18] fs: Update posix_acl support to handle user
- namespace mounts
-Date: Mon,  7 Dec 2015 15:21:19 -0600
-Message-Id: <1449523289-144238-11-git-send-email-seth.forshee@canonical.com>
+ Seth Forshee <seth.forshee@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Subject: [PATCH v2 04/18] selinux: Add support for unprivileged mounts from
+ user namespaces
+Date: Mon,  7 Dec 2015 15:21:13 -0600
+Message-Id: <1449523289-144238-5-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,210 +30,63 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-ids in on-disk ACLs should be converted to s_user_ns instead of
-init_user_ns as is done now. This introduces the possibility for
-id mappings to fail, and when this happens syscalls will return
-EOVERFLOW.
+Security labels from unprivileged mounts in user namespaces must
+be ignored. Force superblocks from user namespaces whose labeling
+behavior is to use xattrs to use mountpoint labeling instead.
+For the mountpoint label, default to converting the current task
+context into a form suitable for file objects, but also allow the
+policy writer to specify a different label through policy
+transition rules.
+
+Pieced together from code snippets provided by Stephen Smalley.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by: James Morris <james.l.morris@oracle.com>
 ---
- fs/posix_acl.c                  | 67 ++++++++++++++++++++++++++---------------
- fs/xattr.c                      | 19 +++++++++---
- include/linux/posix_acl_xattr.h | 17 ++++++++---
- 3 files changed, 70 insertions(+), 33 deletions(-)
+ security/selinux/hooks.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/fs/posix_acl.c b/fs/posix_acl.c
-index 4adde1e2cbec..a29442eb4af8 100644
---- a/fs/posix_acl.c
-+++ b/fs/posix_acl.c
-@@ -595,59 +595,77 @@ EXPORT_SYMBOL_GPL(posix_acl_create);
- /*
-  * Fix up the uids and gids in posix acl extended attributes in place.
-  */
--static void posix_acl_fix_xattr_userns(
-+static int posix_acl_fix_xattr_userns(
- 	struct user_namespace *to, struct user_namespace *from,
- 	void *value, size_t size)
- {
- 	posix_acl_xattr_header *header = (posix_acl_xattr_header *)value;
- 	posix_acl_xattr_entry *entry = (posix_acl_xattr_entry *)(header+1), *end;
- 	int count;
--	kuid_t uid;
--	kgid_t gid;
-+	kuid_t kuid;
-+	uid_t uid;
-+	kgid_t kgid;
-+	gid_t gid;
- 
- 	if (!value)
--		return;
-+		return 0;
- 	if (size < sizeof(posix_acl_xattr_header))
--		return;
-+		return 0;
- 	if (header->a_version != cpu_to_le32(POSIX_ACL_XATTR_VERSION))
--		return;
-+		return 0;
- 
- 	count = posix_acl_xattr_count(size);
- 	if (count < 0)
--		return;
-+		return 0;
- 	if (count == 0)
--		return;
-+		return 0;
- 
- 	for (end = entry + count; entry != end; entry++) {
- 		switch(le16_to_cpu(entry->e_tag)) {
- 		case ACL_USER:
--			uid = make_kuid(from, le32_to_cpu(entry->e_id));
--			entry->e_id = cpu_to_le32(from_kuid(to, uid));
-+			kuid = make_kuid(from, le32_to_cpu(entry->e_id));
-+			if (!uid_valid(kuid))
-+				return -EOVERFLOW;
-+			uid = from_kuid(to, kuid);
-+			if (uid == (uid_t)-1)
-+				return -EOVERFLOW;
-+			entry->e_id = cpu_to_le32(uid);
- 			break;
- 		case ACL_GROUP:
--			gid = make_kgid(from, le32_to_cpu(entry->e_id));
--			entry->e_id = cpu_to_le32(from_kgid(to, gid));
-+			kgid = make_kgid(from, le32_to_cpu(entry->e_id));
-+			if (!gid_valid(kgid))
-+				return -EOVERFLOW;
-+			gid = from_kgid(to, kgid);
-+			if (gid == (gid_t)-1)
-+				return -EOVERFLOW;
-+			entry->e_id = cpu_to_le32(gid);
- 			break;
- 		default:
- 			break;
- 		}
- 	}
-+
-+	return 0;
- }
- 
--void posix_acl_fix_xattr_from_user(void *value, size_t size)
-+int
-+posix_acl_fix_xattr_from_user(struct user_namespace *target_ns, void *value,
-+			      size_t size)
- {
--	struct user_namespace *user_ns = current_user_ns();
--	if (user_ns == &init_user_ns)
--		return;
--	posix_acl_fix_xattr_userns(&init_user_ns, user_ns, value, size);
-+	struct user_namespace *source_ns = current_user_ns();
-+	if (source_ns == target_ns)
-+		return 0;
-+	return posix_acl_fix_xattr_userns(target_ns, source_ns, value, size);
- }
- 
--void posix_acl_fix_xattr_to_user(void *value, size_t size)
-+int
-+posix_acl_fix_xattr_to_user(struct user_namespace *source_ns, void *value,
-+			    size_t size)
- {
--	struct user_namespace *user_ns = current_user_ns();
--	if (user_ns == &init_user_ns)
--		return;
--	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, value, size);
-+	struct user_namespace *target_ns = current_user_ns();
-+	if (target_ns == source_ns)
-+		return 0;
-+	return posix_acl_fix_xattr_userns(target_ns, source_ns, value, size);
- }
- 
- /*
-@@ -782,7 +800,7 @@ posix_acl_xattr_get(const struct xattr_handler *handler,
- 	if (acl == NULL)
- 		return -ENODATA;
- 
--	error = posix_acl_to_xattr(&init_user_ns, acl, value, size);
-+	error = posix_acl_to_xattr(dentry->d_sb->s_user_ns, acl, value, size);
- 	posix_acl_release(acl);
- 
- 	return error;
-@@ -810,7 +828,8 @@ posix_acl_xattr_set(const struct xattr_handler *handler,
- 		return -EPERM;
- 
- 	if (value) {
--		acl = posix_acl_from_xattr(&init_user_ns, value, size);
-+		acl = posix_acl_from_xattr(dentry->d_sb->s_user_ns, value,
-+					   size);
- 		if (IS_ERR(acl))
- 			return PTR_ERR(acl);
- 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 9b932b95d74e..1268d8d5f74b 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -351,8 +351,12 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a5b93df6553f..5fedc36dd6b2 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -756,6 +756,28 @@ static int selinux_set_mnt_opts(struct super_block *sb,
  			goto out;
  		}
- 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_from_user(kvalue, size);
-+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)) {
-+			error = posix_acl_fix_xattr_from_user(d->d_sb->s_user_ns,
-+							      kvalue, size);
-+			if (error)
+ 	}
++
++	/*
++	 * If this is a user namespace mount, no contexts are allowed
++	 * on the command line and security labels must be ignored.
++	 */
++	if (sb->s_user_ns != &init_user_ns) {
++		if (context_sid || fscontext_sid || rootcontext_sid ||
++		    defcontext_sid) {
++			rc = -EACCES;
++			goto out;
++		}
++		if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
++			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
++			rc = security_transition_sid(current_sid(), current_sid(),
++						     SECCLASS_FILE, NULL,
++						     &sbsec->mntpoint_sid);
++			if (rc)
 +				goto out;
 +		}
++		goto out_set_opts;
++	}
++
+ 	/* sets the context of the superblock for the fs being mounted. */
+ 	if (fscontext_sid) {
+ 		rc = may_context_mount_sb_relabel(fscontext_sid, sbsec, cred);
+@@ -824,6 +846,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		sbsec->def_sid = defcontext_sid;
  	}
  
- 	error = vfs_setxattr(d, kname, kvalue, size, flags);
-@@ -452,9 +456,14 @@ getxattr(struct dentry *d, const char __user *name, void __user *value,
- 	error = vfs_getxattr(d, kname, kvalue, size);
- 	if (error > 0) {
- 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_to_user(kvalue, size);
--		if (size && copy_to_user(value, kvalue, error))
-+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)) {
-+			int ret;
-+			ret = posix_acl_fix_xattr_to_user(d->d_sb->s_user_ns,
-+							  kvalue, size);
-+			if (ret)
-+				error = ret;
-+		}
-+		if (error > 0 && size && copy_to_user(value, kvalue, error))
- 			error = -EFAULT;
- 	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
- 		/* The file system tried to returned a value bigger
-diff --git a/include/linux/posix_acl_xattr.h b/include/linux/posix_acl_xattr.h
-index 6f14ee295822..db63c57357b4 100644
---- a/include/linux/posix_acl_xattr.h
-+++ b/include/linux/posix_acl_xattr.h
-@@ -53,14 +53,23 @@ posix_acl_xattr_count(size_t size)
- }
- 
- #ifdef CONFIG_FS_POSIX_ACL
--void posix_acl_fix_xattr_from_user(void *value, size_t size);
--void posix_acl_fix_xattr_to_user(void *value, size_t size);
-+int posix_acl_fix_xattr_from_user(struct user_namespace *target_ns,
-+				  void *value, size_t size);
-+int posix_acl_fix_xattr_to_user(struct user_namespace *source_ns, void *value,
-+				size_t size);
- #else
--static inline void posix_acl_fix_xattr_from_user(void *value, size_t size)
-+static inline int
-+posix_acl_fix_xattr_from_user(struct user_namespace *target_ns, void *value,
-+			      size_t size)
- {
-+	return 0;
- }
--static inline void posix_acl_fix_xattr_to_user(void *value, size_t size)
-+
-+static inline int
-+posix_acl_fix_xattr_to_user(struct user_namespace *source_ns, void *value,
-+			    size_t size)
- {
-+	return 0;
- }
- #endif
- 
++out_set_opts:
+ 	rc = sb_finish_set_opts(sb);
+ out:
+ 	mutex_unlock(&sbsec->lock);
 -- 
 1.9.1
