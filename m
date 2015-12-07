@@ -1,111 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7G0pIG008035
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 11:00:51 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsepol/cil: Validate extended avrules and permissionxs
-Date: Mon, 7 Dec 2015 11:00:44 -0500
-Message-ID: <1449504044-11175-1-git-send-email-slawrence@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7I2D89019117
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 13:02:13 -0500
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 530471A1D8
+ for <selinux@tycho.nsa.gov>; Mon,  7 Dec 2015 19:01:58 +0100 (CET)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id zdTVTHLvLjLu for <selinux@tycho.nsa.gov>;
+ Mon,  7 Dec 2015 19:01:54 +0100 (CET)
+Received: from [10.20.80.62] (unknown [193.53.238.201])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 1F5311A070
+ for <selinux@tycho.nsa.gov>; Mon,  7 Dec 2015 19:01:54 +0100 (CET)
+To: selinux@tycho.nsa.gov
+From: Laurent Bigonville <bigon@debian.org>
+Subject: chcat is using getlogin() function that sometimes returns null/empty
+ string
+Message-ID: <5665C991.4030606@debian.org>
+Date: Mon, 7 Dec 2015 19:01:53 +0100
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Classes used in extended avrules and permissionxs must have an "ioctl"
-permission. Add validation to ensure that is the case, or print an error
-message otherwise.
+Hi,
 
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
----
- libsepol/cil/src/cil_verify.c | 60 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 60 insertions(+)
+So apparently gnome-terminal developers have decided to stop updating 
+utmp[0] file and this is breaking chcat -Ll with the following error:
 
-diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-index c2d5ce9..36ec45a 100644
---- a/libsepol/cil/src/cil_verify.c
-+++ b/libsepol/cil/src/cil_verify.c
-@@ -43,6 +43,7 @@
- #include "cil_mem.h"
- #include "cil_tree.h"
- #include "cil_list.h"
-+#include "cil_find.h"
- 
- #include "cil_verify.h"
- 
-@@ -1226,6 +1227,59 @@ exit:
- 	return rc;
- }
- 
-+int __cil_verify_permissionx(struct cil_permissionx *permx, struct cil_tree_node *node)
-+{
-+	int rc;
-+	struct cil_list *classes = NULL;
-+	struct cil_list_item *item;
-+	struct cil_class *class;
-+	struct cil_symtab_datum *perm_datum;
-+	char *kind_str;
-+
-+	switch (permx->kind) {
-+		case CIL_PERMX_KIND_IOCTL:
-+			kind_str = CIL_KEY_IOCTL;
-+			break;
-+		default:
-+			cil_log(CIL_ERR, "Invalid permissionx kind (%d) at line %d of %s\n", permx->kind, node->line, node->path);
-+			rc = SEPOL_ERR;
-+			goto exit;
-+	}
-+
-+	classes = cil_expand_class(permx->obj);
-+
-+	cil_list_for_each(item, classes) {
-+		class = item->data;
-+		rc = cil_symtab_get_datum(&class->perms, kind_str, &perm_datum);
-+		if (rc == SEPOL_ENOENT) {
-+			if (class->common != NULL) {
-+				rc = cil_symtab_get_datum(&class->common->perms, kind_str, &perm_datum);
-+			}
-+
-+			if (rc == SEPOL_ENOENT) {
-+				cil_log(CIL_ERR, "Invalid permissionx at line %d of %s: %s is not a permission of class %s\n", node->line, node->path, kind_str, class->datum.name);
-+				rc = SEPOL_ERR;
-+				goto exit;
-+			}
-+		}
-+	}
-+
-+	rc = SEPOL_OK;
-+
-+exit:
-+	if (classes != NULL) {
-+		cil_list_destroy(&classes, CIL_FALSE);
-+	}
-+
-+	return rc;
-+}
-+
-+int __cil_verify_avrulex(struct cil_tree_node *node)
-+{
-+	struct cil_avrule *avrulex = node->data;
-+	return __cil_verify_permissionx(avrulex->perms.x.permx, node);
-+}
-+
- int __cil_verify_class(struct cil_tree_node *node)
- {
- 	int rc = SEPOL_ERR;
-@@ -1420,6 +1474,12 @@ int __cil_verify_helper(struct cil_tree_node *node, uint32_t *finished, void *ex
- 		case CIL_FSUSE:
- 			rc = __cil_verify_fsuse(db, node);
- 			break;
-+		case CIL_AVRULEX:
-+			rc = __cil_verify_avrulex(node);
-+			break;
-+		case CIL_PERMISSIONX:
-+			rc = __cil_verify_permissionx(node->data, node);
-+			break;
- 		case CIL_RANGETRANSITION:
- 			rc = SEPOL_OK;
- 			break;
--- 
-2.4.3
+Traceback (most recent call last):
+   File "/usr/bin/chcat", line 409, in <module>
+     sys.exit(listusercats(cmds))
+   File "/usr/bin/chcat", line 352, in listusercats
+     users.append(os.getlogin())
+OSError: [Errno 2] No such file or directory
+
+getlogin(3) manpage suggest to rely on the LOGNAME environment variable, 
+so maybe chcat should fallback to this if getlogin() is not returning 
+anything?
+
+Cheers,
+
+Laurent Bigonville
+
+[0] https://bugzilla.gnome.org/show_bug.cgi?id=747046
