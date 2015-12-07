@@ -1,99 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqF001405
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
-Received: by iouu10 with SMTP id u10so4195168iou.0
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:39 -0800 (PST)
-From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 14/18] capabilities: Allow privileged user in s_user_ns to
- set security.* xattrs
-Date: Mon,  7 Dec 2015 15:21:23 -0600
-Message-Id: <1449523289-144238-15-git-send-email-seth.forshee@canonical.com>
-In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
-References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7M2xiZ005248
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 17:03:00 -0500
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 1D9E81A1D8
+ for <selinux@tycho.nsa.gov>; Mon,  7 Dec 2015 23:02:30 +0100 (CET)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id nJj4hW6VX7Vu for <selinux@tycho.nsa.gov>;
+ Mon,  7 Dec 2015 23:02:28 +0100 (CET)
+Received: from [IPv6:2a02:578:85fc:1::6b5] (unknown
+ [IPv6:2a02:578:85fc:1::6b5])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 37BB01A070
+ for <selinux@tycho.nsa.gov>; Mon,  7 Dec 2015 23:02:28 +0100 (CET)
+To: selinux@tycho.nsa.gov
+From: Laurent Bigonville <bigon@debian.org>
+Subject: New setools3 release
+Message-ID: <566601F3.2020307@debian.org>
+Date: Mon, 7 Dec 2015 23:02:27 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A privileged user in s_user_ns will generally have the ability to
-manipulate the backing store and insert security.* xattrs into
-the filesystem directly. Therefore the kernel must be prepared to
-handle these xattrs from unprivileged mounts, and it makes little
-sense for commoncap to prevent writing these xattrs to the
-filesystem. The capability and LSM code have already been updated
-to appropriately handle xattrs from unprivileged mounts, so it
-is safe to loosen this restriction on setting xattrs.
+Hi,
 
-The exception to this logic is that writing xattrs to a mounted
-filesystem may also cause the LSM inode_post_setxattr or
-inode_setsecurity callbacks to be invoked. SELinux will deny the
-xattr update by virtue of applying mountpoint labeling to
-unprivileged userns mounts, and Smack will deny the writes for
-any user without global CAP_MAC_ADMIN, so loosening the
-capability check in commoncap is safe in this respect as well.
+Are there any plans to do a new setools3 release?
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
----
- security/commoncap.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+The current version is not building with the userspace 2.4 so I was 
+wondering if somebody could roll a new release? Otherwise I'll take a 
+snapshot of the git repository.
 
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 2119421613f6..d6c80c19c449 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -653,15 +653,17 @@ int cap_bprm_secureexec(struct linux_binprm *bprm)
- int cap_inode_setxattr(struct dentry *dentry, const char *name,
- 		       const void *value, size_t size, int flags)
- {
-+	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
-+
- 	if (!strcmp(name, XATTR_NAME_CAPS)) {
--		if (!capable(CAP_SETFCAP))
-+		if (!ns_capable(user_ns, CAP_SETFCAP))
- 			return -EPERM;
- 		return 0;
- 	}
- 
- 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
- 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
--	    !capable(CAP_SYS_ADMIN))
-+	    !ns_capable(user_ns, CAP_SYS_ADMIN))
- 		return -EPERM;
- 	return 0;
- }
-@@ -679,15 +681,17 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
-  */
- int cap_inode_removexattr(struct dentry *dentry, const char *name)
- {
-+	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
-+
- 	if (!strcmp(name, XATTR_NAME_CAPS)) {
--		if (!capable(CAP_SETFCAP))
-+		if (!ns_capable(user_ns, CAP_SETFCAP))
- 			return -EPERM;
- 		return 0;
- 	}
- 
- 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
- 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
--	    !capable(CAP_SYS_ADMIN))
-+	    !ns_capable(user_ns, CAP_SYS_ADMIN))
- 		return -EPERM;
- 	return 0;
- }
--- 
-1.9.1
+Cheers,
+
+Laurent Bigonville
