@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqA001405
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:32 -0500
-Received: by ioc74 with SMTP id 74so4001820ioc.2
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:31 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqK001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
+Received: by igl9 with SMTP id 9so83279984igl.0
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:45 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Miklos Szeredi <miklos@szeredi.hu>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v2 09/18] fs: Refuse uid/gid changes which don't map into
- s_user_ns
-Date: Mon,  7 Dec 2015 15:21:18 -0600
-Message-Id: <1449523289-144238-10-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v2 18/18] fuse: Allow user namespace mounts
+Date: Mon,  7 Dec 2015 15:21:27 -0600
+Message-Id: <1449523289-144238-19-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,37 +26,32 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add checks to inode_change_ok to verify that uid and gid changes
-will map into the superblock's user namespace. If they do not
-fail with -EOVERFLOW. This cannot be overriden with ATTR_FORCE.
-
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/attr.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/fuse/inode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/attr.c b/fs/attr.c
-index 6530ced19697..55b46e3aa888 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -42,6 +42,17 @@ int inode_change_ok(const struct inode *inode, struct iattr *attr)
- 			return error;
- 	}
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index b7bdfdac3521..2fd338c199ce 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -1201,7 +1201,7 @@ static void fuse_kill_sb_anon(struct super_block *sb)
+ static struct file_system_type fuse_fs_type = {
+ 	.owner		= THIS_MODULE,
+ 	.name		= "fuse",
+-	.fs_flags	= FS_HAS_SUBTYPE,
++	.fs_flags	= FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
+ 	.mount		= fuse_mount,
+ 	.kill_sb	= fuse_kill_sb_anon,
+ };
+@@ -1233,7 +1233,7 @@ static struct file_system_type fuseblk_fs_type = {
+ 	.name		= "fuseblk",
+ 	.mount		= fuse_mount_blk,
+ 	.kill_sb	= fuse_kill_sb_blk,
+-	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE,
++	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
+ };
+ MODULE_ALIAS_FS("fuseblk");
  
-+	/*
-+	 * Verify that uid/gid changes are valid in the target namespace
-+	 * of the superblock. This cannot be overriden using ATTR_FORCE.
-+	 */
-+	if (ia_valid & ATTR_UID &&
-+	    from_kuid(inode->i_sb->s_user_ns, attr->ia_uid) == (uid_t)-1)
-+		return -EOVERFLOW;
-+	if (ia_valid & ATTR_GID &&
-+	    from_kgid(inode->i_sb->s_user_ns, attr->ia_gid) == (gid_t)-1)
-+		return -EOVERFLOW;
-+
- 	/* If force is set do it anyway. */
- 	if (ia_valid & ATTR_FORCE)
- 		return 0;
 -- 
 1.9.1
