@@ -1,25 +1,31 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOqH001405
- for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:33 -0500
-Received: by igcph11 with SMTP id ph11so83107039igc.1
- for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:41 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB7LNOq6001405
+ for <selinux@tycho.nsa.gov>; Mon, 7 Dec 2015 16:26:32 -0500
+Received: by ioc74 with SMTP id 74so3994642ioc.2
+ for <selinux@tycho.nsa.gov>; Mon, 07 Dec 2015 13:23:15 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Miklos Szeredi <miklos@szeredi.hu>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Alasdair Kergon <agk@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
+ dm-devel@redhat.com, Neil Brown <neilb@suse.com>,
+ David Woodhouse <dwmw2@infradead.org>,
+ Brian Norris <computersforpeace@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.com>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
- linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ Miklos Szeredi <miklos@szeredi.hu>, linux-bcache@vger.kernel.org,
  linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Seth Forshee <seth.forshee@canonical.com>,
- Miklos Szeredi <mszeredi@suse.cz>
-Subject: [PATCH v2 15/18] fuse: Add support for pid namespaces
-Date: Mon,  7 Dec 2015 15:21:24 -0600
-Message-Id: <1449523289-144238-16-git-send-email-seth.forshee@canonical.com>
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v2 01/18] block_dev: Support checking inode permissions in
+ lookup_bdev()
+Date: Mon,  7 Dec 2015 15:21:10 -0600
+Message-Id: <1449523289-144238-2-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 References: <1449523289-144238-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -27,215 +33,139 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If the userspace process servicing fuse requests is running in
-a pid namespace then pids passed via the fuse fd need to be
-translated relative to that namespace. Capture the pid namespace
-in use when the filesystem is mounted and use this for pid
-translation.
+When looking up a block device by path no permission check is
+done to verify that the user has access to the block device inode
+at the specified path. In some cases it may be necessary to
+check permissions towards the inode, such as allowing
+unprivileged users to mount block devices in user namespaces.
 
-Since no use case currently exists for changing namespaces all
-translations are done relative to the pid namespace in use when
-/dev/fuse is opened. Mounting or /dev/fuse IO from another
-namespace will return errors.
+Add an argument to lookup_bdev() to optionally perform this
+permission check. A value of 0 skips the permission check and
+behaves the same as before. A non-zero value specifies the mask
+of access rights required towards the inode at the specified
+path. The check is always skipped if the user has CAP_SYS_ADMIN.
 
-Requests from processes whose pid cannot be translated into the
-target namespace are not permitted, except for requests
-allocated via fuse_get_req_nofail_nopages. For no-fail requests
-in.h.pid will be 0 if the pid translation fails.
-
-File locking changes based on previous work done by Eric
-Biederman.
+All callers of lookup_bdev() currently pass a mask of 0, so this
+patch results in no functional change. Subsequent patches will
+add permission checks where appropriate.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Signed-off-by: Miklos Szeredi <mszeredi@suse.cz>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/fuse/dev.c    | 19 +++++++++++++++----
- fs/fuse/file.c   | 22 +++++++++++++++++-----
- fs/fuse/fuse_i.h |  4 ++++
- fs/fuse/inode.c  |  3 +++
- 4 files changed, 39 insertions(+), 9 deletions(-)
+ drivers/md/bcache/super.c |  2 +-
+ drivers/md/dm-table.c     |  2 +-
+ drivers/mtd/mtdsuper.c    |  2 +-
+ fs/block_dev.c            | 13 ++++++++++---
+ fs/quota/quota.c          |  2 +-
+ include/linux/fs.h        |  2 +-
+ 6 files changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index ebb5e37455a0..a4f6f30d6d86 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -19,6 +19,7 @@
- #include <linux/pipe_fs_i.h>
- #include <linux/swap.h>
- #include <linux/splice.h>
-+#include <linux/sched.h>
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 679a093a3bf6..e8287b0d1dac 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1926,7 +1926,7 @@ static ssize_t register_bcache(struct kobject *k, struct kobj_attribute *attr,
+ 				  sb);
+ 	if (IS_ERR(bdev)) {
+ 		if (bdev == ERR_PTR(-EBUSY)) {
+-			bdev = lookup_bdev(strim(path));
++			bdev = lookup_bdev(strim(path), 0);
+ 			mutex_lock(&bch_register_lock);
+ 			if (!IS_ERR(bdev) && bch_is_open(bdev))
+ 				err = "device already registered";
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 061152a43730..81c60b2495ed 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -380,7 +380,7 @@ int dm_get_device(struct dm_target *ti, const char *path, fmode_t mode,
+ 	BUG_ON(!t);
  
- MODULE_ALIAS_MISCDEV(FUSE_MINOR);
- MODULE_ALIAS("devname:fuse");
-@@ -124,11 +125,11 @@ static void __fuse_put_request(struct fuse_req *req)
- 	atomic_dec(&req->count);
- }
- 
--static void fuse_req_init_context(struct fuse_req *req)
-+static void fuse_req_init_context(struct fuse_conn *fc, struct fuse_req *req)
- {
- 	req->in.h.uid = from_kuid_munged(&init_user_ns, current_fsuid());
- 	req->in.h.gid = from_kgid_munged(&init_user_ns, current_fsgid());
--	req->in.h.pid = current->pid;
-+	req->in.h.pid = pid_nr_ns(task_pid(current), fc->pid_ns);
- }
- 
- void fuse_set_initialized(struct fuse_conn *fc)
-@@ -181,10 +182,14 @@ static struct fuse_req *__fuse_get_req(struct fuse_conn *fc, unsigned npages,
- 		goto out;
- 	}
- 
--	fuse_req_init_context(req);
-+	fuse_req_init_context(fc, req);
- 	__set_bit(FR_WAITING, &req->flags);
- 	if (for_background)
- 		__set_bit(FR_BACKGROUND, &req->flags);
-+	if (req->in.h.pid == 0) {
-+		fuse_put_request(fc, req);
-+		return ERR_PTR(-EOVERFLOW);
-+	}
- 
- 	return req;
- 
-@@ -274,7 +279,7 @@ struct fuse_req *fuse_get_req_nofail_nopages(struct fuse_conn *fc,
- 	if (!req)
- 		req = get_reserved_req(fc, file);
- 
--	fuse_req_init_context(req);
-+	fuse_req_init_context(fc, req);
- 	__set_bit(FR_WAITING, &req->flags);
- 	__clear_bit(FR_BACKGROUND, &req->flags);
- 	return req;
-@@ -1243,6 +1248,9 @@ static ssize_t fuse_dev_do_read(struct fuse_dev *fud, struct file *file,
- 	struct fuse_in *in;
- 	unsigned reqsize;
- 
-+	if (task_active_pid_ns(current) != fc->pid_ns)
-+		return -EIO;
-+
-  restart:
- 	spin_lock(&fiq->waitq.lock);
- 	err = -EAGAIN;
-@@ -1872,6 +1880,9 @@ static ssize_t fuse_dev_do_write(struct fuse_dev *fud,
- 	struct fuse_req *req;
- 	struct fuse_out_header oh;
- 
-+	if (task_active_pid_ns(current) != fc->pid_ns)
-+		return -EIO;
-+
- 	if (nbytes < sizeof(struct fuse_out_header))
- 		return -EINVAL;
- 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index e0faf8f2c868..a6c7484c94ee 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -2061,7 +2061,8 @@ static int fuse_direct_mmap(struct file *file, struct vm_area_struct *vma)
- 	return generic_file_mmap(file, vma);
- }
- 
--static int convert_fuse_file_lock(const struct fuse_file_lock *ffl,
-+static int convert_fuse_file_lock(struct fuse_conn *fc,
-+				  const struct fuse_file_lock *ffl,
- 				  struct file_lock *fl)
- {
- 	switch (ffl->type) {
-@@ -2076,7 +2077,14 @@ static int convert_fuse_file_lock(const struct fuse_file_lock *ffl,
- 
- 		fl->fl_start = ffl->start;
- 		fl->fl_end = ffl->end;
--		fl->fl_pid = ffl->pid;
-+
-+		/*
-+		 * Convert pid into the caller's pid namespace. If the pid
-+		 * does not map into the namespace fl_pid will get set to 0.
-+		 */
-+		rcu_read_lock();
-+		fl->fl_pid = pid_vnr(find_pid_ns(ffl->pid, fc->pid_ns));
-+		rcu_read_unlock();
- 		break;
- 
- 	default:
-@@ -2125,7 +2133,7 @@ static int fuse_getlk(struct file *file, struct file_lock *fl)
- 	args.out.args[0].value = &outarg;
- 	err = fuse_simple_request(fc, &args);
- 	if (!err)
--		err = convert_fuse_file_lock(&outarg.lk, fl);
-+		err = convert_fuse_file_lock(fc, &outarg.lk, fl);
- 
- 	return err;
- }
-@@ -2137,7 +2145,8 @@ static int fuse_setlk(struct file *file, struct file_lock *fl, int flock)
- 	FUSE_ARGS(args);
- 	struct fuse_lk_in inarg;
- 	int opcode = (fl->fl_flags & FL_SLEEP) ? FUSE_SETLKW : FUSE_SETLK;
--	pid_t pid = fl->fl_type != F_UNLCK ? current->tgid : 0;
-+	struct pid *pid = fl->fl_type != F_UNLCK ? task_tgid(current) : NULL;
-+	pid_t pid_nr = pid_nr_ns(pid, fc->pid_ns);
+ 	/* convert the path to a device */
+-	bdev = lookup_bdev(path);
++	bdev = lookup_bdev(path, 0);
+ 	if (IS_ERR(bdev)) {
+ 		dev = name_to_dev_t(path);
+ 		if (!dev)
+diff --git a/drivers/mtd/mtdsuper.c b/drivers/mtd/mtdsuper.c
+index 20c02a3b7417..b5b60e1af31c 100644
+--- a/drivers/mtd/mtdsuper.c
++++ b/drivers/mtd/mtdsuper.c
+@@ -176,7 +176,7 @@ struct dentry *mount_mtd(struct file_system_type *fs_type, int flags,
+ 	/* try the old way - the hack where we allowed users to mount
+ 	 * /dev/mtdblock$(n) but didn't actually _use_ the blockdev
+ 	 */
+-	bdev = lookup_bdev(dev_name);
++	bdev = lookup_bdev(dev_name, 0);
+ 	if (IS_ERR(bdev)) {
+ 		ret = PTR_ERR(bdev);
+ 		pr_debug("MTDSB: lookup_bdev() returned %d\n", ret);
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index f90d91efa1b4..3ebbde85d898 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1426,7 +1426,7 @@ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ 	struct block_device *bdev;
  	int err;
  
- 	if (fl->fl_lmops && fl->fl_lmops->lm_grant) {
-@@ -2149,7 +2158,10 @@ static int fuse_setlk(struct file *file, struct file_lock *fl, int flock)
- 	if (fl->fl_flags & FL_CLOSE)
- 		return 0;
+-	bdev = lookup_bdev(path);
++	bdev = lookup_bdev(path, 0);
+ 	if (IS_ERR(bdev))
+ 		return bdev;
  
--	fuse_lk_fill(&args, file, fl, opcode, pid, flock, &inarg);
-+	if (pid && pid_nr == 0)
-+		return -EOVERFLOW;
-+
-+	fuse_lk_fill(&args, file, fl, opcode, pid_nr, flock, &inarg);
- 	err = fuse_simple_request(fc, &args);
+@@ -1736,12 +1736,14 @@ EXPORT_SYMBOL(ioctl_by_bdev);
+ /**
+  * lookup_bdev  - lookup a struct block_device by name
+  * @pathname:	special file representing the block device
++ * @mask:	rights to check for (%MAY_READ, %MAY_WRITE, %MAY_EXEC)
+  *
+  * Get a reference to the blockdevice at @pathname in the current
+  * namespace if possible and return it.  Return ERR_PTR(error)
+- * otherwise.
++ * otherwise.  If @mask is non-zero, check for access rights to the
++ * inode at @pathname.
+  */
+-struct block_device *lookup_bdev(const char *pathname)
++struct block_device *lookup_bdev(const char *pathname, int mask)
+ {
+ 	struct block_device *bdev;
+ 	struct inode *inode;
+@@ -1756,6 +1758,11 @@ struct block_device *lookup_bdev(const char *pathname)
+ 		return ERR_PTR(error);
  
- 	/* locking is restartable */
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 405113101db8..143b595197b6 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -22,6 +22,7 @@
- #include <linux/rbtree.h>
- #include <linux/poll.h>
- #include <linux/workqueue.h>
-+#include <linux/pid_namespace.h>
+ 	inode = d_backing_inode(path.dentry);
++	if (mask != 0 && !capable(CAP_SYS_ADMIN)) {
++		error = __inode_permission(inode, mask);
++		if (error)
++			goto fail;
++	}
+ 	error = -ENOTBLK;
+ 	if (!S_ISBLK(inode->i_mode))
+ 		goto fail;
+diff --git a/fs/quota/quota.c b/fs/quota/quota.c
+index 3746367098fd..a40eaecbd5cc 100644
+--- a/fs/quota/quota.c
++++ b/fs/quota/quota.c
+@@ -733,7 +733,7 @@ static struct super_block *quotactl_block(const char __user *special, int cmd)
  
- /** Max number of pages that can be used in a single read request */
- #define FUSE_MAX_PAGES_PER_REQ 32
-@@ -456,6 +457,9 @@ struct fuse_conn {
- 	/** The group id for this mount */
- 	kgid_t group_id;
+ 	if (IS_ERR(tmp))
+ 		return ERR_CAST(tmp);
+-	bdev = lookup_bdev(tmp->name);
++	bdev = lookup_bdev(tmp->name, 0);
+ 	putname(tmp);
+ 	if (IS_ERR(bdev))
+ 		return ERR_CAST(bdev);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 8a17c5649ef2..879ec382fd88 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2373,7 +2373,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
+ #define BLKDEV_MAJOR_HASH_SIZE	255
+ extern const char *__bdevname(dev_t, char *buffer);
+ extern const char *bdevname(struct block_device *bdev, char *buffer);
+-extern struct block_device *lookup_bdev(const char *);
++extern struct block_device *lookup_bdev(const char *, int mask);
+ extern void blkdev_show(struct seq_file *,off_t);
  
-+	/** The pid namespace for this mount */
-+	struct pid_namespace *pid_ns;
-+
- 	/** The fuse mount flags for this mount */
- 	unsigned flags;
- 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 2913db2a5b99..2f31874ea9db 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -20,6 +20,7 @@
- #include <linux/random.h>
- #include <linux/sched.h>
- #include <linux/exportfs.h>
-+#include <linux/pid_namespace.h>
- 
- MODULE_AUTHOR("Miklos Szeredi <miklos@szeredi.hu>");
- MODULE_DESCRIPTION("Filesystem in Userspace");
-@@ -609,6 +610,7 @@ void fuse_conn_init(struct fuse_conn *fc)
- 	fc->connected = 1;
- 	fc->attr_version = 1;
- 	get_random_bytes(&fc->scramble_key, sizeof(fc->scramble_key));
-+	fc->pid_ns = get_pid_ns(task_active_pid_ns(current));
- }
- EXPORT_SYMBOL_GPL(fuse_conn_init);
- 
-@@ -617,6 +619,7 @@ void fuse_conn_put(struct fuse_conn *fc)
- 	if (atomic_dec_and_test(&fc->count)) {
- 		if (fc->destroy_req)
- 			fuse_request_free(fc->destroy_req);
-+		put_pid_ns(fc->pid_ns);
- 		fc->release(fc);
- 	}
- }
+ #else
 -- 
 1.9.1
