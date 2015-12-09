@@ -1,56 +1,48 @@
-Subject: Re: Behavior of mmap()ed files on setcon()?
-To: Nick Kralevich <nnk@google.com>, SELinux <Selinux@tycho.nsa.gov>
-References: <CAFJ0LnHx-BdUTYMDQCExksrZL5f2nw-=mL7kQh345OCyM1s3ww@mail.gmail.com>
+Subject: Re: Performance issues - huge amount of AVC misses
+To: Michal Marciniszyn <michal.marciniszyn@gooddata.com>,
+ Milos Malik <mmalik@redhat.com>
+References: <CAL8PO=1-23M4Mj8zwF+gqS4ythkR=-vJqJbiGzq=xWrKSc8Ddw@mail.gmail.com>
+ <671085597.26020826.1449655668740.JavaMail.zimbra@redhat.com>
+ <CAL8PO=1vpZ0=CL4LjpR8V4R2kpSsQ80dSUvSF74L=ct21UsKCA@mail.gmail.com>
+ <CAL8PO=0jLoHuqwsTuEC8GHK-V_s0OHx+dTOBFy3uHmOJRSuk7A@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56684178.4040409@tycho.nsa.gov>
-Date: Wed, 9 Dec 2015 09:58:00 -0500
+Message-ID: <56684354.6000305@tycho.nsa.gov>
+Date: Wed, 9 Dec 2015 10:05:56 -0500
 MIME-Version: 1.0
-In-Reply-To: <CAFJ0LnHx-BdUTYMDQCExksrZL5f2nw-=mL7kQh345OCyM1s3ww@mail.gmail.com>
+In-Reply-To: <CAL8PO=0jLoHuqwsTuEC8GHK-V_s0OHx+dTOBFy3uHmOJRSuk7A@mail.gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/08/2015 07:44 PM, Nick Kralevich wrote:
-> When a process performs a setcon() call, SELinux revalidates any open
-> file descriptors. Any file descriptors not allowed by the new context
-> are invalidated at setcon time.
-
-Not quite right.  SELinux does file descriptor revalidation on:
-a) use (e.g. read(), write(), etc),
-b) context-changing execve(),
-c) transfer (via local socket or binder).
-
-So for setcon(), there is no revalidation or invalidation at setcon 
-time, but subsequent read()/write() may fail if the descriptor is no 
-longer authorized for the new context.
-
-> Does the invalidation also occur for files which are mapped into memory,
-> but for which the file descriptor is no longer open? For example, if I
-> make the following sequence of calls
+On 12/09/2015 08:15 AM, Michal Marciniszyn wrote:
+> Hi,
 >
->    int fd = open("/some/file", O_RDWR);
->    char *memory = (char *) mmap(NULL, length, PROT_READ |
-> PROT_WRITE, MAP_PRIVATE, fd, 0);
->    close(fd);
->    setcon("u:r:new_domain:s0");
->    printf("%s", memory);
+> after increasing the cache, I do not see many reclaims, like couple of
+> them here and there. The cache size had to be increased to 2048 to get
+> ti this state.
 >
-> and new_domain isn't permitted to access /some/file, what will be the
-> behavior of the program above?
+> # avcstat 15
 >
-> I was told (but haven't verified) that access to the region of memory
-> will continued to be allowed even though the policy of new_domain
-> doesn't permit access.
+>      537645     537623         22         22         32         32
+>      942916     942912          4          4          0          0
+>      604466     604457          9          9          0          0
+>      451737     451730          7          7         16         16
+>      457669     457669          0          0          0          0
+>      519135     519133          2          2          0          0
+>      517288     517288          0          0          0          0
+>      380376     380376          0          0          0          0
+>      464272     464269          3          3          0          0
+>      531484     531482          2          2          0          0
+>     1422422    1422421          1          1          0          0
+>     1380932    1380932          0          0          0          0
+>      512999     512999          0          0          0          0
 >
-> Expected? Should I be digging more?
+>
+> Is it ok if I get longest chain length 13 in hash stats (It was higher
+> in the beginning - 19, but got to 13 after 2 hours)?
 
-Yes, that's expected.  First, SELinux does not in general implement 
-revocation of access to memory-mapped files; that was always a desired 
-TODO but problematic given the complete lack of support in Linux even 
-for revoke(2) semantics (despite repeated efforts on lkml).  Second, in 
-the case of setcon(), the caller is necessarily trusted to maintain 
-separation between the contexts (as noted in the man page); if you don't 
-trust it to properly sanitize its state prior to setcon(), you ought to 
-be using setexecon() + execve() instead.
+I wouldn't worry about that; it's insignificant compared to the cost of 
+an AVC miss.
