@@ -1,138 +1,225 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB9JfYPh029380
- for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2015 14:41:34 -0500
-From: "Higgs, Stephen" <Stephen.Higgs@icfi.com>
-To: Mike Palmiotto <mike.palmiotto@crunchydata.com>
-CC: Dominick Grift <dac.override@gmail.com>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: RE: mcs design help
-Date: Wed, 9 Dec 2015 19:41:17 +0000
-Message-ID: <319a4b07cb6049e88c734d0aa1dbc5fe@VNUCITEX02.ICFI.icfconsulting.com>
-References: <17785f5ed91b4948872f64fa18dfb31f@VNUCITEX02.ICFI.icfconsulting.com>
- <20151209184349.GA22046@x250>
- <8feb8506bdf043ebb449c1c52e7be787@VNUCITEX02.ICFI.icfconsulting.com>
- <CAMN686GFjnc7aT=13b-k16sbtPnBiNSsQ1ie-xWo3qtOh5wneA@mail.gmail.com>
-In-Reply-To: <CAMN686GFjnc7aT=13b-k16sbtPnBiNSsQ1ie-xWo3qtOh5wneA@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB9KmHpG001933
+ for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2015 15:48:17 -0500
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ by mx1.redhat.com (Postfix) with ESMTPS id 234D1C0A805C
+ for <selinux@tycho.nsa.gov>; Wed,  9 Dec 2015 20:47:53 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: Verify context input to funtions to make sure the
+ context field is not null.
+Date: Wed,  9 Dec 2015 21:47:45 +0100
+Message-Id: <1449694065-26728-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+From: Dan Walsh <dwalsh@redhat.com>
 
+Return errno EINVAL, to prevent segfault.
 
-> -----Original Message-----
-> From: Mike Palmiotto [mailto:mike.palmiotto@crunchydata.com]
-> Sent: Wednesday, December 09, 2015 2:21 PM
-> To: Higgs, Stephen
-> Cc: Dominick Grift; selinux@tycho.nsa.gov
-> Subject: Re: mcs design help
-> 
-> On Wed, Dec 9, 2015 at 1:49 PM, Higgs, Stephen <Stephen.Higgs@icfi.com>
-> wrote:
-> > Thank you, I should also clarify - the generic admin role (sysadm_r)
-> should not have access to the database files (this was the tricky part
-> for me, as the generic admin has a lot of rights), and I am implementing
-> a dbadm_r role that can only administer the database/files.
-> >
-> > If going with TE, would it mostly be a matter adding an explicit
-> constraint on domain transition to mysqld_t?
-> 
-> If you go the TE route, you'd be labeling your database files and
-> allowing the mysqld_t type permissions to it through interfaces/allow
-> rules.
-> You'd only associate dbadm_r with mysgld_t, so sysadm_r wouldn't have
-> those permissions.
-> 
-> But this brings me to another point...
-> 
-> Your design really depends upon which database files you're referring
-> to, exactly. Are these "database files" database-internal objects, or
-> actual external resource files?
-> There are should really be two types of admins (one for internal
-> database objects, and one for external, OS-level files/objects).
-> 
-> --Mike
-> 
-> >
-> > --Stpehen
-> >
-> >> -----Original Message-----
-> >> From: Dominick Grift [mailto:dac.override@gmail.com]
-> >> Sent: Wednesday, December 09, 2015 1:44 PM
-> >> To: Higgs, Stephen
-> >> Cc: selinux@tycho.nsa.gov
-> >> Subject: Re: mcs design help
-> >>
-> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> Hash: SHA512
-> >>
-> >> On Wed, Dec 09, 2015 at 06:22:17PM +0000, Higgs, Stephen wrote:
-> >> > Hi All,
-> >> >
-> >> > I'm looking for any implementation suggestions for my following the
-> >> following: on a database server that restricts logins to confined
-> >> users, allow selinux users with sysadm_r the ability to administer
-> >> most aspects of the system, but restrict access to some mysql
-> database files.
-> >> >
-> >> > I approached this by labeling the mysql database files with an mcs
-> >> category (c127), and then added a domain transition to the mysqld
-> >> process to run with a context that includes c127.  The confined login
-> >> was configured to initialize with s0:c0.  Finally (and I'm really not
-> >> sure this was the best way), I needed to ensure the administrator
-> >> could not disable/circumvent selinux so I added the following
-> >> restriction to the newrole and setenforce binaries (c0.c1023).
-> >> >
-> >> > My test user (also in the sudoers file) can do administrative
-> >> functions, cannot access the database files, and cannot disable
-> selinux.
-> >> Any suggestions on how to improve on what I have done?
-> >>
-> >> I would not use MCS for this but instead use TE
-> >>
-> >> Also i would leave sysadm_r:sysadm_t a generic admin, so i would
-> >> probably create a custom dbadm_r role.
-> >>
-> >> >
-> >> > --Stephen
-> >> >
-> >> > _______________________________________________
-> >> > Selinux mailing list
-> >> > Selinux@tycho.nsa.gov
-> >> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> >> > To get help, send an email containing "help" to Selinux-
-> >> request@tycho.nsa.gov.
-> >>
-> >> - --
-> >> 02DFF788
-> >> 4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
-> >> https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF78
-> >> 8
-> >> Dominick Grift
-> >> -----BEGIN PGP SIGNATURE-----
-> >> Version: GnuPG v2
-> >>
-> >> iQGcBAEBCgAGBQJWaHZhAAoJENAR6kfG5xmcGeUL/216fJ/2FJjDpW1U/n5BaN13
-> >> iUi6v5dH1RrMgaiY4poCJ7rrTn3Wpof7/KwMWjqjxsck9osmCrDvjBPwJuDwzbMe
-> >> lTUgi1uvcc10TAncWZgnNcf8Tut+TUeOGGIoQ2r7JZNZ5gK/xmNVdWexl8WPydcq
-> >> eS/vPtglah50MvQk2NowMHV+MLH2gan10WD0sMjAY/H/jq0gLQat4MyTbjQvhPWU
-> >> qQehPmy9O7rD2Vz71C801B7yQKEq5BJEwU+88a26Nq46qkRvsbTup6jC5fO14MjJ
-> >> ElOydUKb7kqAkOZLW+QYM9ZI316Qp9CiPsW6AJOe4Mdco9e9x9exPYgdcEI9i9+x
-> >> JuhmLK2IlfDS98J/6brLRgU8K38YJOc+qaYH1Y5XW3JgAL4djXA+BwhrOg84cgK5
-> >> 0BY1sC3xwmuvIZuQzAqhtHuM7FaXSaSQemga+oZEeNa8D5PcGxk0aEG+94SQcVg+
-> >> Gsy187V9lJ4J+LOQzJYN1kZC082CW+2jBYW/SgZGdQ==
-> >> =EKw1
-> >> -----END PGP SIGNATURE-----
-> >
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-
-> request@tycho.nsa.gov.
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libselinux/src/avc_sidtab.c           | 5 +++++
+ libselinux/src/canonicalize_context.c | 5 +++++
+ libselinux/src/check_context.c        | 5 +++++
+ libselinux/src/compute_av.c           | 5 +++++
+ libselinux/src/compute_create.c       | 5 +++++
+ libselinux/src/compute_member.c       | 5 +++++
+ libselinux/src/compute_relabel.c      | 5 +++++
+ libselinux/src/compute_user.c         | 5 +++++
+ libselinux/src/fsetfilecon.c          | 8 ++++++--
+ libselinux/src/lsetfilecon.c          | 9 +++++++--
+ libselinux/src/setfilecon.c           | 8 ++++++--
+ 11 files changed, 59 insertions(+), 6 deletions(-)
 
-Thanks Dominick and Mike, I get what you're saying; I'm going to give this some more thought.  The sysadm_r already has access to mysqld_t, but perhaps making a new type for labeling the database files in /var/lib/mysql/* is the way to go (start from a clean slate where nobody has access).
-
---Stephen
+diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
+index 9669264..a46cfa7 100644
+--- a/libselinux/src/avc_sidtab.c
++++ b/libselinux/src/avc_sidtab.c
+@@ -81,6 +81,11 @@ sidtab_context_to_sid(struct sidtab *s,
+ 	int hvalue, rc = 0;
+ 	struct sidtab_node *cur;
+ 
++	if (! ctx) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	*sid = NULL;
+ 	hvalue = sidtab_hash(ctx);
+ 
+diff --git a/libselinux/src/canonicalize_context.c b/libselinux/src/canonicalize_context.c
+index 7cf3139..9d8dc86 100644
+--- a/libselinux/src/canonicalize_context.c
++++ b/libselinux/src/canonicalize_context.c
+@@ -17,6 +17,11 @@ int security_canonicalize_context_raw(const char * con,
+ 	size_t size;
+ 	int fd, ret;
+ 
++	if (! con) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	if (!selinux_mnt) {
+ 		errno = ENOENT;
+ 		return -1;
+diff --git a/libselinux/src/check_context.c b/libselinux/src/check_context.c
+index 52063fa..9637dd7 100644
+--- a/libselinux/src/check_context.c
++++ b/libselinux/src/check_context.c
+@@ -14,6 +14,11 @@ int security_check_context_raw(const char * con)
+ 	char path[PATH_MAX];
+ 	int fd, ret;
+ 
++	if (! con) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	if (!selinux_mnt) {
+ 		errno = ENOENT;
+ 		return -1;
+diff --git a/libselinux/src/compute_av.c b/libselinux/src/compute_av.c
+index 937e5c3..e67b3d3 100644
+--- a/libselinux/src/compute_av.c
++++ b/libselinux/src/compute_av.c
+@@ -26,6 +26,11 @@ int security_compute_av_flags_raw(const char * scon,
+ 		return -1;
+ 	}
+ 
++	if ((! scon) || (! tcon)) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	snprintf(path, sizeof path, "%s/access", selinux_mnt);
+ 	fd = open(path, O_RDWR);
+ 	if (fd < 0)
+diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
+index 9559d42..7de721a 100644
+--- a/libselinux/src/compute_create.c
++++ b/libselinux/src/compute_create.c
+@@ -64,6 +64,11 @@ int security_compute_create_name_raw(const char * scon,
+ 		return -1;
+ 	}
+ 
++	if ((! scon) || (! tcon)) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	snprintf(path, sizeof path, "%s/create", selinux_mnt);
+ 	fd = open(path, O_RDWR);
+ 	if (fd < 0)
+diff --git a/libselinux/src/compute_member.c b/libselinux/src/compute_member.c
+index 1fc7e41..4ff2173 100644
+--- a/libselinux/src/compute_member.c
++++ b/libselinux/src/compute_member.c
+@@ -25,6 +25,11 @@ int security_compute_member_raw(const char * scon,
+ 		return -1;
+ 	}
+ 
++	if ((! scon) || (! tcon)) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	snprintf(path, sizeof path, "%s/member", selinux_mnt);
+ 	fd = open(path, O_RDWR);
+ 	if (fd < 0)
+diff --git a/libselinux/src/compute_relabel.c b/libselinux/src/compute_relabel.c
+index 4615aee..6a37acf 100644
+--- a/libselinux/src/compute_relabel.c
++++ b/libselinux/src/compute_relabel.c
+@@ -25,6 +25,11 @@ int security_compute_relabel_raw(const char * scon,
+ 		return -1;
+ 	}
+ 
++	if ((! scon) || (! tcon)) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	snprintf(path, sizeof path, "%s/relabel", selinux_mnt);
+ 	fd = open(path, O_RDWR);
+ 	if (fd < 0)
+diff --git a/libselinux/src/compute_user.c b/libselinux/src/compute_user.c
+index b37c5d3..3737c28 100644
+--- a/libselinux/src/compute_user.c
++++ b/libselinux/src/compute_user.c
+@@ -24,6 +24,11 @@ int security_compute_user_raw(const char * scon,
+ 		return -1;
+ 	}
+ 
++	if (! scon) {
++		errno = EINVAL;
++		return -1;
++	}
++
+ 	snprintf(path, sizeof path, "%s/user", selinux_mnt);
+ 	fd = open(path, O_RDWR);
+ 	if (fd < 0)
+diff --git a/libselinux/src/fsetfilecon.c b/libselinux/src/fsetfilecon.c
+index 52707d0..83c138e 100644
+--- a/libselinux/src/fsetfilecon.c
++++ b/libselinux/src/fsetfilecon.c
+@@ -9,8 +9,12 @@
+ 
+ int fsetfilecon_raw(int fd, const char * context)
+ {
+-	int rc = fsetxattr(fd, XATTR_NAME_SELINUX, context, strlen(context) + 1,
+-			 0);
++	int rc;
++	if (! context) {
++		errno = EINVAL;
++		return -1;
++	}
++	rc = fsetxattr(fd, XATTR_NAME_SELINUX, context, strlen(context) + 1, 0);
+ 	if (rc < 0 && errno == ENOTSUP) {
+ 		char * ccontext = NULL;
+ 		int err = errno;
+diff --git a/libselinux/src/lsetfilecon.c b/libselinux/src/lsetfilecon.c
+index 1d3b28a..278e42a 100644
+--- a/libselinux/src/lsetfilecon.c
++++ b/libselinux/src/lsetfilecon.c
+@@ -9,8 +9,13 @@
+ 
+ int lsetfilecon_raw(const char *path, const char * context)
+ {
+-	int rc = lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1,
+-			 0);
++	int rc;
++	if (! context) {
++		errno = EINVAL;
++		return -1;
++	}
++
++	rc = lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1, 0);
+ 	if (rc < 0 && errno == ENOTSUP) {
+ 		char * ccontext = NULL;
+ 		int err = errno;
+diff --git a/libselinux/src/setfilecon.c b/libselinux/src/setfilecon.c
+index d05969c..dddce3c 100644
+--- a/libselinux/src/setfilecon.c
++++ b/libselinux/src/setfilecon.c
+@@ -9,8 +9,12 @@
+ 
+ int setfilecon_raw(const char *path, const char * context)
+ {
+-	int rc = setxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1,
+-			0);
++	int rc;
++	if (! context) {
++		errno = EINVAL;
++		return -1;
++	}
++	rc = setxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1, 0);
+ 	if (rc < 0 && errno == ENOTSUP) {
+ 		char * ccontext = NULL;
+ 		int err = errno;
+-- 
+2.6.3
