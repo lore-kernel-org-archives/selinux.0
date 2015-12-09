@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB9KmHpG001933
- for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2015 15:48:17 -0500
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- by mx1.redhat.com (Postfix) with ESMTPS id 234D1C0A805C
- for <selinux@tycho.nsa.gov>; Wed,  9 Dec 2015 20:47:53 +0000 (UTC)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB9KqShN002352
+ for <selinux@tycho.nsa.gov>; Wed, 9 Dec 2015 15:52:33 -0500
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ by mx1.redhat.com (Postfix) with ESMTPS id ED4848E3E7
+ for <selinux@tycho.nsa.gov>; Wed,  9 Dec 2015 20:52:30 +0000 (UTC)
 From: Petr Lautrbach <plautrba@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: Verify context input to funtions to make sure the
- context field is not null.
-Date: Wed,  9 Dec 2015 21:47:45 +0100
-Message-Id: <1449694065-26728-1-git-send-email-plautrba@redhat.com>
+Subject: [PATCH] libselinux/man: Add information about thread specific on
+ setfscreatecon
+Date: Wed,  9 Dec 2015 21:52:10 +0100
+Message-Id: <1449694330-30280-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -18,208 +18,59 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Dan Walsh <dwalsh@redhat.com>
 
-Return errno EINVAL, to prevent segfault.
-
 Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 ---
- libselinux/src/avc_sidtab.c           | 5 +++++
- libselinux/src/canonicalize_context.c | 5 +++++
- libselinux/src/check_context.c        | 5 +++++
- libselinux/src/compute_av.c           | 5 +++++
- libselinux/src/compute_create.c       | 5 +++++
- libselinux/src/compute_member.c       | 5 +++++
- libselinux/src/compute_relabel.c      | 5 +++++
- libselinux/src/compute_user.c         | 5 +++++
- libselinux/src/fsetfilecon.c          | 8 ++++++--
- libselinux/src/lsetfilecon.c          | 9 +++++++--
- libselinux/src/setfilecon.c           | 8 ++++++--
- 11 files changed, 59 insertions(+), 6 deletions(-)
+ libselinux/man/man3/getfscreatecon.3   | 5 +++++
+ libselinux/man/man3/getkeycreatecon.3  | 4 ++++
+ libselinux/man/man3/getsockcreatecon.3 | 5 +++++
+ 3 files changed, 14 insertions(+)
 
-diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
-index 9669264..a46cfa7 100644
---- a/libselinux/src/avc_sidtab.c
-+++ b/libselinux/src/avc_sidtab.c
-@@ -81,6 +81,11 @@ sidtab_context_to_sid(struct sidtab *s,
- 	int hvalue, rc = 0;
- 	struct sidtab_node *cur;
- 
-+	if (! ctx) {
-+		errno = EINVAL;
-+		return -1;
-+	}
+diff --git a/libselinux/man/man3/getfscreatecon.3 b/libselinux/man/man3/getfscreatecon.3
+index e348d3b..8cc4df5 100644
+--- a/libselinux/man/man3/getfscreatecon.3
++++ b/libselinux/man/man3/getfscreatecon.3
+@@ -49,6 +49,11 @@ Signal handlers that perform a
+ must take care to
+ save, reset, and restore the fscreate context to avoid unexpected behavior.
+ .
 +
- 	*sid = NULL;
- 	hvalue = sidtab_hash(ctx);
- 
-diff --git a/libselinux/src/canonicalize_context.c b/libselinux/src/canonicalize_context.c
-index 7cf3139..9d8dc86 100644
---- a/libselinux/src/canonicalize_context.c
-+++ b/libselinux/src/canonicalize_context.c
-@@ -17,6 +17,11 @@ int security_canonicalize_context_raw(const char * con,
- 	size_t size;
- 	int fd, ret;
- 
-+	if (! con) {
-+		errno = EINVAL;
-+		return -1;
-+	}
++.br
++.B Note:
++Contexts are thread specific.
 +
- 	if (!selinux_mnt) {
- 		errno = ENOENT;
- 		return -1;
-diff --git a/libselinux/src/check_context.c b/libselinux/src/check_context.c
-index 52063fa..9637dd7 100644
---- a/libselinux/src/check_context.c
-+++ b/libselinux/src/check_context.c
-@@ -14,6 +14,11 @@ int security_check_context_raw(const char * con)
- 	char path[PATH_MAX];
- 	int fd, ret;
- 
-+	if (! con) {
-+		errno = EINVAL;
-+		return -1;
-+	}
+ .SH "RETURN VALUE"
+ On error \-1 is returned.
+ On success 0 is returned.
+diff --git a/libselinux/man/man3/getkeycreatecon.3 b/libselinux/man/man3/getkeycreatecon.3
+index 4d70f10..b51008d 100644
+--- a/libselinux/man/man3/getkeycreatecon.3
++++ b/libselinux/man/man3/getkeycreatecon.3
+@@ -48,6 +48,10 @@ Signal handlers that perform a
+ .BR setkeycreatecon ()
+ must take care to
+ save, reset, and restore the keycreate context to avoid unexpected behavior.
 +
- 	if (!selinux_mnt) {
- 		errno = ENOENT;
- 		return -1;
-diff --git a/libselinux/src/compute_av.c b/libselinux/src/compute_av.c
-index 937e5c3..e67b3d3 100644
---- a/libselinux/src/compute_av.c
-+++ b/libselinux/src/compute_av.c
-@@ -26,6 +26,11 @@ int security_compute_av_flags_raw(const char * scon,
- 		return -1;
- 	}
- 
-+	if ((! scon) || (! tcon)) {
-+		errno = EINVAL;
-+		return -1;
-+	}
++.br
++.B Note:
++Contexts are thread specific.
+ .
+ .SH "RETURN VALUE"
+ On error \-1 is returned.
+diff --git a/libselinux/man/man3/getsockcreatecon.3 b/libselinux/man/man3/getsockcreatecon.3
+index 4dd8f30..26086d9 100644
+--- a/libselinux/man/man3/getsockcreatecon.3
++++ b/libselinux/man/man3/getsockcreatecon.3
+@@ -49,6 +49,11 @@ Signal handlers that perform a
+ must take care to
+ save, reset, and restore the sockcreate context to avoid unexpected behavior.
+ .
 +
- 	snprintf(path, sizeof path, "%s/access", selinux_mnt);
- 	fd = open(path, O_RDWR);
- 	if (fd < 0)
-diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
-index 9559d42..7de721a 100644
---- a/libselinux/src/compute_create.c
-+++ b/libselinux/src/compute_create.c
-@@ -64,6 +64,11 @@ int security_compute_create_name_raw(const char * scon,
- 		return -1;
- 	}
- 
-+	if ((! scon) || (! tcon)) {
-+		errno = EINVAL;
-+		return -1;
-+	}
++.br
++.B Note:
++Contexts are thread specific.
 +
- 	snprintf(path, sizeof path, "%s/create", selinux_mnt);
- 	fd = open(path, O_RDWR);
- 	if (fd < 0)
-diff --git a/libselinux/src/compute_member.c b/libselinux/src/compute_member.c
-index 1fc7e41..4ff2173 100644
---- a/libselinux/src/compute_member.c
-+++ b/libselinux/src/compute_member.c
-@@ -25,6 +25,11 @@ int security_compute_member_raw(const char * scon,
- 		return -1;
- 	}
- 
-+	if ((! scon) || (! tcon)) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
- 	snprintf(path, sizeof path, "%s/member", selinux_mnt);
- 	fd = open(path, O_RDWR);
- 	if (fd < 0)
-diff --git a/libselinux/src/compute_relabel.c b/libselinux/src/compute_relabel.c
-index 4615aee..6a37acf 100644
---- a/libselinux/src/compute_relabel.c
-+++ b/libselinux/src/compute_relabel.c
-@@ -25,6 +25,11 @@ int security_compute_relabel_raw(const char * scon,
- 		return -1;
- 	}
- 
-+	if ((! scon) || (! tcon)) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
- 	snprintf(path, sizeof path, "%s/relabel", selinux_mnt);
- 	fd = open(path, O_RDWR);
- 	if (fd < 0)
-diff --git a/libselinux/src/compute_user.c b/libselinux/src/compute_user.c
-index b37c5d3..3737c28 100644
---- a/libselinux/src/compute_user.c
-+++ b/libselinux/src/compute_user.c
-@@ -24,6 +24,11 @@ int security_compute_user_raw(const char * scon,
- 		return -1;
- 	}
- 
-+	if (! scon) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
- 	snprintf(path, sizeof path, "%s/user", selinux_mnt);
- 	fd = open(path, O_RDWR);
- 	if (fd < 0)
-diff --git a/libselinux/src/fsetfilecon.c b/libselinux/src/fsetfilecon.c
-index 52707d0..83c138e 100644
---- a/libselinux/src/fsetfilecon.c
-+++ b/libselinux/src/fsetfilecon.c
-@@ -9,8 +9,12 @@
- 
- int fsetfilecon_raw(int fd, const char * context)
- {
--	int rc = fsetxattr(fd, XATTR_NAME_SELINUX, context, strlen(context) + 1,
--			 0);
-+	int rc;
-+	if (! context) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+	rc = fsetxattr(fd, XATTR_NAME_SELINUX, context, strlen(context) + 1, 0);
- 	if (rc < 0 && errno == ENOTSUP) {
- 		char * ccontext = NULL;
- 		int err = errno;
-diff --git a/libselinux/src/lsetfilecon.c b/libselinux/src/lsetfilecon.c
-index 1d3b28a..278e42a 100644
---- a/libselinux/src/lsetfilecon.c
-+++ b/libselinux/src/lsetfilecon.c
-@@ -9,8 +9,13 @@
- 
- int lsetfilecon_raw(const char *path, const char * context)
- {
--	int rc = lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1,
--			 0);
-+	int rc;
-+	if (! context) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
-+	rc = lsetxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1, 0);
- 	if (rc < 0 && errno == ENOTSUP) {
- 		char * ccontext = NULL;
- 		int err = errno;
-diff --git a/libselinux/src/setfilecon.c b/libselinux/src/setfilecon.c
-index d05969c..dddce3c 100644
---- a/libselinux/src/setfilecon.c
-+++ b/libselinux/src/setfilecon.c
-@@ -9,8 +9,12 @@
- 
- int setfilecon_raw(const char *path, const char * context)
- {
--	int rc = setxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1,
--			0);
-+	int rc;
-+	if (! context) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+	rc = setxattr(path, XATTR_NAME_SELINUX, context, strlen(context) + 1, 0);
- 	if (rc < 0 && errno == ENOTSUP) {
- 		char * ccontext = NULL;
- 		int err = errno;
+ .SH "RETURN VALUE"
+ On error \-1 is returned.
+ On success 0 is returned.
 -- 
 2.6.3
