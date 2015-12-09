@@ -1,59 +1,67 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tB8Imo5q025772
- for <selinux@tycho.nsa.gov>; Tue, 8 Dec 2015 13:48:50 -0500
-From: "Higgs, Stephen" <Stephen.Higgs@icfi.com>
-To: David Li <dlipubkey@gmail.com>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: RE: A newbie's question
-Date: Tue, 8 Dec 2015 18:48:45 +0000
-Message-ID: <56522b0c4e554eddbeebf7e6c34c5e1b@VNUCITEX02.ICFI.icfconsulting.com>
-References: <CAEuTsAwvF6MnFsGi65Hk3nrF1dciCB40FQ64=gRF7wqpQG-r7A@mail.gmail.com>
-In-Reply-To: <CAEuTsAwvF6MnFsGi65Hk3nrF1dciCB40FQ64=gRF7wqpQG-r7A@mail.gmail.com>
-Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
+Date: Tue, 8 Dec 2015 16:44:22 -0800
+Message-ID: <CAFJ0LnHx-BdUTYMDQCExksrZL5f2nw-=mL7kQh345OCyM1s3ww@mail.gmail.com>
+Subject: Behavior of mmap()ed files on setcon()?
+From: Nick Kralevich <nnk@google.com>
+To: SELinux <Selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a11426860338b8805266c6421
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> -----Original Message-----
-> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of David
-> Li
-> Sent: Tuesday, December 08, 2015 1:29 PM
-> To: selinux@tycho.nsa.gov
-> Subject: A newbie's question
-> 
-> Hi,
-> 
-> I thought I would post this question here in addition to the Fedora list
-> to get more help.
-> 
-> ----
-> 
-> Maybe this is just for my own clarifications; I am about to start
-> SELinux learning and development.  I have a stock Cento 7.1 install and
-> I am curious what''s difference between the following two:
-> 
-> 1. Enable SElinux and setenforce 1 on the stock install
-> 
-> vs.
-> 
-> 2. Build a reference policy RPM and install it on the box. Then do step
-> 1 as above.
-> 
-> Are there any differences in terms of ref policy? Would step 1 also have
-> the ref policy enabled by default too?
-> 
-> Thanks.
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-
-> request@tycho.nsa.gov.
+--001a11426860338b8805266c6421
+Content-Type: text/plain; charset=UTF-8
 
-CentOS 7.1 has the reference policy installed, but there could be a difference in version of the RPM reference policy and the version that is current for 7.1.
+When a process performs a setcon() call, SELinux revalidates any open file
+descriptors. Any file descriptors not allowed by the new context are
+invalidated at setcon time.
 
-The seinfo command is one way to show what is currently installed.
+Does the invalidation also occur for files which are mapped into memory,
+but for which the file descriptor is no longer open? For example, if I make
+the following sequence of calls
 
---Stephen
+  int fd = open("/some/file", O_RDWR);
+  char *memory = (char *) mmap(NULL, length, PROT_READ |
+PROT_WRITE, MAP_PRIVATE, fd, 0);
+  close(fd);
+  setcon("u:r:new_domain:s0");
+  printf("%s", memory);
+
+and new_domain isn't permitted to access /some/file, what will be the
+behavior of the program above?
+
+I was told (but haven't verified) that access to the region of memory will
+continued to be allowed even though the policy of new_domain doesn't permit
+access.
+
+Expected? Should I be digging more?
+
+-- 
+Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+
+--001a11426860338b8805266c6421
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>When a process performs a setcon() call, SELinux reva=
+lidates any open file descriptors. Any file descriptors not allowed by the =
+new context are invalidated at setcon time.</div><div><br></div><div>Does t=
+he invalidation also occur for files which are mapped into memory, but for =
+which the file descriptor is no longer open? For example, if I make the fol=
+lowing sequence of calls</div><div><br></div><div>=C2=A0 int fd =3D open(&q=
+uot;/some/file&quot;, O_RDWR);</div><div>=C2=A0 char *memory =3D (char *) m=
+map(NULL, length, PROT_READ | PROT_WRITE,=C2=A0MAP_PRIVATE, fd, 0);</div><d=
+iv>=C2=A0 close(fd);</div><div>=C2=A0 setcon(&quot;u:r:new_domain:s0&quot;)=
+;</div><div>=C2=A0 printf(&quot;%s&quot;, memory);</div><div><br></div><div=
+>and new_domain isn&#39;t permitted to access /some/file, what will be the =
+behavior of the program above?</div><div><br></div><div>I was told (but hav=
+en&#39;t verified) that access to the region of memory will continued to be=
+ allowed even though the policy of new_domain doesn&#39;t permit access.</d=
+iv><div><br></div><div>Expected? Should I be digging more?</div><div><br></=
+div><div>--=C2=A0<br></div><div class=3D"gmail_signature"><div>Nick Kralevi=
+ch | Android Security | <a href=3D"mailto:nnk@google.com" target=3D"_blank"=
+>nnk@google.com</a> | 650.214.4037</div></div>
+</div>
+
+--001a11426860338b8805266c6421--
