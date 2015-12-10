@@ -1,197 +1,64 @@
-Subject: Re: continuation of systemd/SELinux discussion from Github
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <20151202101801.GA1028@x250> <565F366E.3030403@tycho.nsa.gov>
- <20151202194715.GC1028@x250> <565F6167.5090507@tycho.nsa.gov>
- <56606797.1070609@redhat.com> <566069A6.9080701@tycho.nsa.gov>
-From: Miroslav Grepl <mgrepl@redhat.com>
-Message-ID: <56694408.60006@redhat.com>
-Date: Thu, 10 Dec 2015 10:21:12 +0100
-MIME-Version: 1.0
-In-Reply-To: <566069A6.9080701@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBAHS2Q4019654
+ for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2015 12:28:02 -0500
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ by mx1.redhat.com (Postfix) with ESMTPS id BC7E28C1A5
+ for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2015 17:27:56 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: Don't wrap rpm_execcon with DISABLE_RPM
+Date: Thu, 10 Dec 2015 18:27:48 +0100
+Message-Id: <1449768468-16765-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/03/2015 05:11 PM, Stephen Smalley wrote:
-> On 12/03/2015 11:02 AM, Miroslav Grepl wrote:
->> On 12/02/2015 10:23 PM, Stephen Smalley wrote:
->>> On 12/02/2015 02:47 PM, Dominick Grift wrote:
->>>> On Wed, Dec 02, 2015 at 01:20:30PM -0500, Stephen Smalley wrote:
->>>>> On 12/02/2015 05:18 AM, Dominick Grift wrote:
->>>>>> Let's continue the discussion here.
->>>>>>
->>>>>> The last answered questionnaire is below, any further questions or
->>>>>> comments?:
->>>>>>
->>>>>> ----------------------------------------
->>>>>>
->>>>>>           "systemd --user" concept is broken as we can see/read from
->>>>>> this
->>>>>>           thread from SELinux point of view.
->>>>>>
->>>>>> It was working fine except that it was trying to log to the audit
->>>>>> system
->>>>>> which unprivileged processes arent allowed to do.
->>>>
->>>>> What's the dbus solution for this issue?
->>>>
->>>> Here is some chatter about the above i believe:
->>>>
->>>> https://bugs.freedesktop.org/show_bug.cgi?id=83856
->>>
->>> The code is easier to follow. bus/audit.c:bus_audit_init() will only
->>> open the audit socket if the process has CAP_AUDIT_WRITE.
->>> bus/selinux.c:log_callback() will only try to send the message to audit
->>> if the audit socket was opened, but will always send the message to
->>> syslog regardless.  Thus, if the dbus-daemon instance has
->>> CAP_AUDIT_WRITE, you get the messages logged to audit and syslog;
->>> otherwise, you only get them in syslog.  This is the most general
->>> approach, as it supports both privileged and unprivileged dbus-daemon
->>> instances, including the case where the system-wide bus is running in a
->>> container and does not have CAP_AUDIT_WRITE (even though it thinks it is
->>> root / uid 0) and the case where the session bus has CAP_AUDIT_WRITE (if
->>> one were to set cap_audit_write in the file capabilities on the
->>> dbus-daemon executable, not recommended but possible), as well as the
->>> more common cases of a system-wide bus with CAP_AUDIT_WRITE and a
->>> session bus without it.  systemd should likely do something similar, but
->>> using the journal.
->>>
->>>>
->>>>
->>>>>>
->>>>>>           Are we able truly explain the enforcement here?
->>>>>>
->>>>>> I think i was able to at least identify some of it, but i probably
->>>>>> have
->>>>>> overlooked other compelling arguments:
->>>>>>
->>>>>> Any processes that needs to be able to "control" any system-wide
->>>>>> systemd
->>>>>> user unit, will be able to "control" all system-wide systemd user
->>>>>> units.
->>>>>>
->>>>>> In practice that means that a process may be able to for example
->>>>>> start a
->>>>>> application even though it does not have access to execute that
->>>>>> application by telling systemd --user do start that applications
->>>>>> on its
->>>>>> behalf
->>>>
->>>>> Can systemd-run --user be used to escape any of the following:
->>>>> a) SELinux sandbox,
->>>>> b) libvirt / svirt confinement,
->>>>> c) newrole -r to a different, more restricted role or -l to a
->>>>> different
->>>>> level,
->>>>> d) runcon to a more restricted domain.
->>>>
->>>>> If so, then there is a problem with systemd --user not applying its
->>>>> own
->>>>> access controls over its operations.
->>>>
->>>>
->>>> I cannot answer above currently. I can tell you that obviously one
->>>> needs
->>>> to be able to talk to ones systemd --user instance to be able to
->>>> tell it
->>>> to do anything on ones behalf obviously. So by default all of the above
->>>> will likely not work, since they most likely do not have the
->>>> permissions
->>>> to talk to systemd --user even if they were able to execute systemctl
->>>> and/or systemd-run.
->>>>
->>>> But even then, things also depend on whether systemd --user runs in a
->>>> private domain or the login user domain (in my policy it runs in a
->>>> private domain except for unconfined users)
->>>>
->>>> Those are good questions but i do not see how they are directly related
->>>> to the question whether systemd --user should be a selinux user space
->>>> object
->>>> manager or not (in my view it obviously should but i am not trusted by
->>>> systemd maintainers, walsh is trusted and walsh gave systemd
->>>> maintainers
->>>> the impression that systemd --user does not have to be an selinux
->>>> object
->>>> manager) I strongly suspect that is wrong.
->>>
->>> I cited those examples because they were applicable to the stock Fedora
->>> policy and, if valid, would provide a rationale for restoring the
->>> controls regardless of what one might believe about confining desktop
->>> applications because they would indicate vulnerabilities or regressions
->>> in functionality provided by Fedora.  That seemed more likely to be
->>> convincing to the Fedora SELinux maintainers.
->>>
->>> For sandbox, they don't appear to allow it to connect in the first
->>> place:
->>>
->>> $ sandbox /bin/bash
->>> bash-4.3$ systemd-run --user id
->>> Failed to create bus connection: Permission denied
->>>
->>> So there the systemd access controls wouldn't come into play.
->>>
->>> For confined user roles, systemd-run --user <command> failed on Fedora
->>> 22 with:
->>>
->>> Failed to start transient service unit: Access denied
->>>
->>> and journalctl showed:
->>>
->>> systemd[15007]: Can't send to audit system: USER_AVC avc:  denied  {
->>> start } for auid=N uid=N gid=N
->>> path="/run/user/N/systemd/user/run-PID.service" cmdline="systemd-run
->>> --user id" scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023
->>> tcontext=system_u:object_r:user_tmp_t:s0 tclass=service
->>>
->>> So removing the systemd --user controls is a regression in the
->>> protection being provided in Fedora, IIUC, although I'll let the Fedora
->>> SELinux maintainers speak to that.
->>
->> First I would like to talk about non-working "systemd --user" because we
->> lack a support of pam_selinux in F23. So if you allow confined users to
->> start user services you will end up with unconfined_service_t. Which is
->> wrong because of systemd --user is running as init_t. The object manager
->> helps here indeed.
->>
->> We have pam_selinux support in F24 and theoretically you will end up
->> with a correct user context. But without missing object manager you will
->> be able to start user services under SELinux user context and under a
->> user Linux identity.
->>
->> This is a reason why I told this is broken now. We have more regressions
->> here. And I believe that first we would have systemd --user running with
->> correct labeling. We have it working for unconfined users on the latest
->> rawhide because we removed unconfined_domain attribute for init_t and
->> added needed fixes.
->>
->> The second issue is missing object manager. It is strongly related to
->> confined SELinux users who are defined by own restricted SELinux
->> policies and still restricted by own Linux identity.
->>
->> If we have running 'systemd --user' with the correct user type
->> pam_selinux support then we can experiment and make working SELinux
->> object manager in systemd --user at all if it is used and requested
->> widely.
-> 
-> So, what is needed for correct systemd --user pam_selinux support still?
->  Has anything been done wrt eliminating usage of
-> security_compute_user()?  Are you blocked on that?
-> 
-> 
+a2737333 commit introduced a possibility to build libselinux without
+rpm_execcon() when DISABLE_RPM is set. However, it didn't cover SWIG
+bindings. With this commit the rpm_execcon() bindings are not created.
 
-Two parts here. I believe we will need to have it working also without
-pam_selinux changes. It means to have init_t running as a confined
-domain which we have with the latest rawhide.
+Fixes:
+ImportError: /usr/lib64/python3.5/site-packages/selinux/_selinux.so: undefined symbol: rpm_execcon
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libselinux/include/selinux/selinux.h | 2 ++
+ libselinux/src/Makefile              | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-The second part - eliminating usage of security_compute_user() is in our
-TODO and Petr will send a mail if we have something for a discussion or
-a patch.
-
-Thank you.
-
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index 4beb170..2262086 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -601,10 +601,12 @@ void fini_selinuxmnt(void);
+  * program, falling back to a new context with the specified type. */
+ extern int setexecfilecon(const char *filename, const char *fallback_type);
+ 
++#ifndef DISABLE_RPM
+ /* Execute a helper for rpm in an appropriate security context. */
+ extern int rpm_execcon(unsigned int verified,
+ 		       const char *filename,
+ 		       char *const argv[], char *const envp[]);
++#endif
+ 
+ /* Returns whether a file context is customizable, and should not 
+    be relabeled . */
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index feab561..79d50d2 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -85,9 +85,9 @@ ifneq (,$(filter i386,$(ARCH)))
+ TLSFLAGS += -mno-tls-direct-seg-refs
+ endif
+ 
+-SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
++SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./ $(EMFLAGS)
+ 
+-SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
++SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(EMFLAGS)
+ 
+ all: $(LIBA) $(LIBSO) $(LIBPC)
+ 
 -- 
-Miroslav Grepl
-Senior Software Engineer, SELinux Solutions
-Red Hat, Inc.
+2.6.3
