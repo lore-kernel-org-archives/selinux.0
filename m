@@ -1,48 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBAHrA6q021926
- for <selinux@tycho.nsa.gov>; Thu, 10 Dec 2015 12:53:17 -0500
-Subject: Re: Wrong audit message type when policy is reloaded
-References: <563CD0E4.4060105@debian.org> <563CD57E.8090004@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-To: linux-audit@redhat.com
-From: Laurent Bigonville <bigon@debian.org>
-Message-ID: <5669BBFD.6080505@debian.org>
-Date: Thu, 10 Dec 2015 18:53:01 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-In-Reply-To: <563CD57E.8090004@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBBGVtTp018105
+ for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2015 11:31:55 -0500
+Received: by mail-ig0-f174.google.com with SMTP id ph11so41972918igc.1
+ for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2015 08:31:35 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <56522b0c4e554eddbeebf7e6c34c5e1b@VNUCITEX02.ICFI.icfconsulting.com>
+References: <CAEuTsAwvF6MnFsGi65Hk3nrF1dciCB40FQ64=gRF7wqpQG-r7A@mail.gmail.com>
+ <56522b0c4e554eddbeebf7e6c34c5e1b@VNUCITEX02.ICFI.icfconsulting.com>
+From: David Li <dlipubkey@gmail.com>
+Date: Fri, 11 Dec 2015 08:31:15 -0800
+Message-ID: <CAEuTsAwOkM7icjryr03g_3Qi1BEUGM31WdMFkjZEQq5ELsV0BA@mail.gmail.com>
+Subject: Re: A newbie's question
+To: "Higgs, Stephen" <Stephen.Higgs@icfi.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I guess I should have CCed the linux-audit mailing list from the start.
+Hi Stephen,
 
-As said in my initial mail (see bellow) wheb SELinux user object manager 
-are reloading the policy, an audit message with a wrong type is logged 
-USER_AVC vs USER_MAC_POLICY_LOAD.
+If I install my own ref policy RPM on the Centos7 box, would that
+replace the existing or stock ref policy?
 
-Le 06/11/15 17:29, Stephen Smalley a écrit :
-> On 11/06/2015 11:10 AM, Laurent Bigonville wrote:
+David
+
+On Tue, Dec 8, 2015 at 10:48 AM, Higgs, Stephen <Stephen.Higgs@icfi.com> wrote:
+>> -----Original Message-----
+>> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of David
+>> Li
+>> Sent: Tuesday, December 08, 2015 1:29 PM
+>> To: selinux@tycho.nsa.gov
+>> Subject: A newbie's question
+>>
 >> Hi,
 >>
->> When the policy is reloaded, systemd and dbus are sending a USER_AVC
->> audit event instead of a USER_MAC_POLICY_LOAD one.
+>> I thought I would post this question here in addition to the Fedora list
+>> to get more help.
 >>
->> Looking at an other object manager (the xserver) it uses the following
->> code:
->> http://cgit.freedesktop.org/xorg/xserver/tree/Xext/xselinux_hooks.c#n300
+>> ----
 >>
->> Can we really link SELINUX_INFO to AUDIT_USER_MAC_POLICY_LOAD? Is there
->> a better way to achieve this?
+>> Maybe this is just for my own clarifications; I am about to start
+>> SELinux learning and development.  I have a stock Cento 7.1 install and
+>> I am curious what''s difference between the following two:
 >>
->> An downstream bug has been opened:
->> https://bugzilla.redhat.com/show_bug.cgi?id=1195330
+>> 1. Enable SElinux and setenforce 1 on the stock install
+>>
+>> vs.
+>>
+>> 2. Build a reference policy RPM and install it on the box. Then do step
+>> 1 as above.
+>>
+>> Are there any differences in terms of ref policy? Would step 1 also have
+>> the ref policy enabled by default too?
+>>
+>> Thanks.
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-
+>> request@tycho.nsa.gov.
 >
-> I think when they introduced the audit support, they should have added 
-> a new type value in libselinux for MAC_POLICY_LOAD, and then they 
-> could have handled this cleanly in their callback functions. That is 
-> what I would do.  I guess now we have to figure out how to do so 
-> compatibly...
+> CentOS 7.1 has the reference policy installed, but there could be a difference in version of the RPM reference policy and the version that is current for 7.1.
 >
+> The seinfo command is one way to show what is currently installed.
+>
+> --Stephen
 >
