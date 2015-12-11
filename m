@@ -1,53 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBBJtEkw005009
- for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2015 14:55:22 -0500
-Received: by qkdp187 with SMTP id p187so54952520qkd.1
- for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2015 11:55:10 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBBKaMnT008317
+ for <selinux@tycho.nsa.gov>; Fri, 11 Dec 2015 15:36:27 -0500
+Subject: Re: Exposing secid to secctx mapping to user-space
+To: Daniel Cashman <dcashman@android.com>, paul@paul-moore.com
+References: <566B17FB.6010405@android.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, eparis@parisplace.org,
+ james.l.morris@oracle.com, serge@hallyn.com,
+ linux-security-module@vger.kernel.org, jeffv@google.com,
+ nnk@google.com, arve@google.com, Casey Schaufler <casey@schaufler-ca.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <566B33B3.3040901@schaufler-ca.com>
+Date: Fri, 11 Dec 2015 12:36:03 -0800
 MIME-Version: 1.0
 In-Reply-To: <566B17FB.6010405@android.com>
-References: <566B17FB.6010405@android.com>
-Date: Fri, 11 Dec 2015 14:55:10 -0500
-Message-ID: <CAHC9VhRuVg_gwJbz_NA5ftUHT9gzFR8sx3AXmQkZViXwnq3Sow@mail.gmail.com>
-Subject: Re: Exposing secid to secctx mapping to user-space
-From: Paul Moore <paul@paul-moore.com>
-To: Daniel Cashman <dcashman@android.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
- linux-security-module@vger.kernel.org, jeffv@google.com,
- nnk@google.com, arve@google.com
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Dec 11, 2015 at 1:37 PM, Daniel Cashman <dcashman@android.com> wrote:
+On 12/11/2015 10:37 AM, Daniel Cashman wrote:
 > Hello,
 >
 > I would like to write a patch that would expose, via selinuxfs, the
 > mapping between secids in the kernel and security contexts to
 > user-space, but before doing so wanted to get some feedback as to
-> whether or not such an endeavor could have any support upstream.  The
+> whether or not such an endeavor could have any support upstream.
+
+Please abandon this.
+
+> The
 > direct motivation for this is the desire to communicate calling security
 > ids/contexts over binder IPC on android for use in a user-space object
 > manager.  Passing the security ids themselves would be simpler and more
 > efficient in the critical kernel path, but they currently have no
 > user-space meaning.
 
-In general we try to avoid exposing the secid tokens outside the
-kernel, I view them as an implementation hack designed to make it
-easier to manage and operate on the security labels in the kernel.  I
-suspect you will hear something very similar from Casey and the other
-Smack developers.  Another consideration is the long standing LSM
-stacking effort, they have several good reasons for wanting to abolish
-the secid token, propagating it to userspace would make that all but
-impossible.
+The security module infrastructure makes no guarantees about
+secids. A security module is not required to maintain a persistent
+relationship between the secid and a particular secctx. SELinux
+does maintain a persistent relationship, but I don't believe that
+there is any desire to commit to everything associated with exposing
+that.
 
-While I'm sympathetic to your desire for less complexity and better
-performance in passing security labels, from a kernel perspective I
-think we lose too much in exporting the secid tokens outside the LSM.
+Binder ought to have access to more than the secid of the processes
+and objects involved. Look into the possibilities there before you
+take this approach.
 
--- 
-paul moore
-www.paul-moore.com
+>
+> Thank You,
+> Dan
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
