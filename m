@@ -1,55 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBDMfRoU003246
- for <selinux@tycho.nsa.gov>; Sun, 13 Dec 2015 17:41:27 -0500
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id 603181A1D8
- for <selinux@tycho.nsa.gov>; Sun, 13 Dec 2015 23:40:44 +0100 (CET)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id I9Pz1DVKmwLp for <selinux@tycho.nsa.gov>;
- Sun, 13 Dec 2015 23:40:42 +0100 (CET)
-Received: from fornost.bigon.be (unknown [IPv6:2a02:578:85fc:1::6b5])
- (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id CD9901A070
- for <selinux@tycho.nsa.gov>; Sun, 13 Dec 2015 23:40:41 +0100 (CET)
-From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] policycoreutils/chcat: Add a fallback in case os.getlogin()
- returns nothing
-Date: Sun, 13 Dec 2015 23:40:40 +0100
-Message-Id: <1450046440-25449-1-git-send-email-bigon@bigon.be>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBDN7MS2004677
+ for <selinux@tycho.nsa.gov>; Sun, 13 Dec 2015 18:07:22 -0500
+Received: by qgew101 with SMTP id w101so34800845qge.2
+ for <selinux@tycho.nsa.gov>; Sun, 13 Dec 2015 15:06:58 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@tycho.nsa.gov, linux-audit@redhat.com
+Cc: linux-security-module@vger.kernel.org
+Subject: SELinux/audit kernel repo process changes
+Date: Sun, 13 Dec 2015 18:06:57 -0500
+Message-ID: <5186598.idHx68WrXE@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Laurent Bigonville <bigon@bigon.be>
+In an effort to make it a bit easier to maintain the kernel-secnext COPR I'm 
+making some slight changes to how I manage the SELinux and audit kernel 
+repositories.  The downside is that there is now going to be a regular rebase 
+as part of the release cycle, but at least it will be well defined and part of 
+the process, unlike the current reactionary rebases.
 
-Some teminal emulators (like the latest version of gnome-terminal) are
-not setting entries in the utmp file, this leads getlogin() to return an
-empty string.
+Starting with the next merge window, I'll be following the process below:
 
-Fallback to the name of the user running the chcat process.
----
- policycoreutils/scripts/chcat | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+1. When a new kernel is released, rebase the repository's upstream branch to 
+the tagged kernel release (or the latest LSM upstream branch in the case of 
+SELinux) and apply the next branch on top of the upstream branch.  Send a pull 
+request for the upstream branch to the next level maintainer.
 
-diff --git a/policycoreutils/scripts/chcat b/policycoreutils/scripts/chcat
-index ec527e5..472785c 100755
---- a/policycoreutils/scripts/chcat
-+++ b/policycoreutils/scripts/chcat
-@@ -372,7 +372,10 @@ def listcats():
- 
- def listusercats(users):
-     if len(users) == 0:
--        users.append(os.getlogin())
-+        try:
-+            users.append(os.getlogin())
-+        except:
-+            users.append(pwd.getpwuid(os.getuid()).pw_name)
- 
-     verify_users(users)
-     for u in users:
+2. Create a new branch, stable-X.XX, a copy of the upstream branch that was 
+sent during the merge window.
+
+3. Reset the next branch to the upstream branch that was sent during the merge 
+window.  At this point the upstream, next, and latest stable-X.XX branch 
+should be identical.
+
+4. Accept patches into both the stable-X.XX and next branches; as necessary, 
+send pull requests for stable-X.XX to the next level maintainer.  Continue 
+until the next kernel is released and the process repeats.
+
+As in the past, this process is subject to change, but I'm hopeful that this 
+approach should work for the foreseeable future.
+
 -- 
-2.6.4
+paul moore
+www.paul-moore.com
