@@ -1,59 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBMGxXmT001309
- for <selinux@tycho.nsa.gov>; Tue, 22 Dec 2015 11:59:36 -0500
-Date: Tue, 22 Dec 2015 16:59:19 +0000
-From: Huw Davies <huw@codeweavers.com>
-To: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, Paul Moore <pmoore@redhat.com>
-Subject: Re: [RFC PATCH 16/17] calipso: Add validation of CALIPSO option.
-Message-ID: <20151222165919.GA31791@merlot>
-References: <1450784813-18304-17-git-send-email-huw@codeweavers.com>
- <5679551C.4000105@stressinduktion.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBMHSlKT004372
+ for <selinux@tycho.nsa.gov>; Tue, 22 Dec 2015 12:28:49 -0500
+Subject: Re: [RFC PATCH 00/17] CALIPSO implementation
+To: Huw Davies <huw@codeweavers.com>, netdev@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <1450784813-18304-1-git-send-email-huw@codeweavers.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <56798845.6050703@schaufler-ca.com>
+Date: Tue, 22 Dec 2015 09:28:37 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5679551C.4000105@stressinduktion.org>
+In-Reply-To: <1450784813-18304-1-git-send-email-huw@codeweavers.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Dec 22, 2015 at 02:50:20PM +0100, Hannes Frederic Sowa wrote:
-> On 22.12.2015 12:46, Huw Davies wrote:
-> >  
-> > +/* CALIPSO RFC 5570 */
-> > +
-> > +static bool ipv6_hop_calipso(struct sk_buff *skb, int optoff)
-> > +{
-> > +	const unsigned char *nh = skb_network_header(skb);
-> > +
-> > +	if (nh[optoff + 1] < 8)
-> > +		goto drop;
-> > +
-> > +	if (nh[optoff + 6] * 4 + 8 > nh[optoff + 1])
-> > +		goto drop;
-> > +
-> > +	if (!calipso_validate(skb, nh + optoff))
-> > +		goto drop;
-> > +
-> > +	return true;
-> > +
-> > +drop:
-> > +	kfree_skb(skb);
-> > +	return false;
-> > +}
-> > +
-> 
-> Formally, if an extension header could not be processed, the packet
-> should be discarded and an icmp error parameter extension should be
-> send. I think we shouldn't let those packets pass here.
+On 12/22/2015 3:46 AM, Huw Davies wrote:
+> This patch series implements RFC 5570 - Common Architecture Label IPv6
+> Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
+> on IPv6 packets using a hop-by-hop option.  CALIPSO very similar to
+> its IPv4 cousin CIPSO and much of this series is based on that code.
 
-Thanks for your comments Hannes, I'm looking into your other
-suggestions.
+There's a one line change to the Smack code in 15/17 due to
+a change in the api, but I assume that there has been no
+attempt to verify that this works with Smack. It's not 100%
+clear that this won't break a Smack kernel, but I haven't
+tried it.
 
-I'm confused about this one.  AFAICS, this will drop packets that we
-can't process.  We don't send the icmp error, but I can certainly add
-that.  Is that what you mean?
+You'll need to provide sufficient information (or code!) so
+that security modules other than SELinux can use this. If
+you look at how Smack uses netlabel for IPv4 you will see
+that it differs substantially from the way SELinux uses it.
 
-Thanks,
-Huw.
+Thank you for tackling RFC 5570. The lack of something like
+this has put IPv6 at a real disadvantage.
+
+>
+> Most of this series involves adding support to NetLabel and adding a
+> CALIPSO module within IPv6, and as such is fairly self-contained.
+> There are however a few places where I've needed to add things to the
+> core networking stack, so I'd be particularly interested in hearing
+> comments about these:
+>
+> [PATCH 08/17] ipv6: Add ipv6_renew_options_kern() that accepts a kernel mem pointer.
+>   Hopefully not too controversial - adds a kernel memory version of
+>   ipv6_renew_options()
+>
+> [PATCH 12/17] ipv6: Allow request socks to contain IPv6 options.
+>   We need a way to set the IPv6 options on request sockets, just like
+>   we do for IPv4.  This is so that the LSM can ensure the SYN-ACK is
+>   correctly labelled.
+>
+> The series is based off v4.4-rc6.
+>
+> Thoughts about these and any of the other patches are most welcome.
+>
+> If anybody actually wants to play with this, then you'll need some patches
+> to netlabel-tools that are currently available on the 'calipso' branch at:
+> https://github.com/hdmdavies/netlabel_tools.git
+>
+> Thanks to Paul Moore for his guidance in getting this far.
+>
+> Huw.
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
