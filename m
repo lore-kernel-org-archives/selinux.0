@@ -1,66 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBNI7uVS014074
- for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 13:07:58 -0500
-Received: by mail-oi0-f41.google.com with SMTP id y66so127527874oig.0
- for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 10:07:43 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <56798845.6050703@schaufler-ca.com>
-References: <1450784813-18304-1-git-send-email-huw@codeweavers.com>
- <56798845.6050703@schaufler-ca.com>
-Date: Wed, 23 Dec 2015 13:07:42 -0500
-Message-ID: <CAHC9VhQDzu0Mw6zAYEbMjy9ROCxG6_O5PsxjDhDZzEyw5qxP6w@mail.gmail.com>
-Subject: Re: [RFC PATCH 00/17] CALIPSO implementation
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBNK5Vvn021622
+ for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 15:05:31 -0500
+Received: by mail-qk0-f169.google.com with SMTP id t125so164047517qkh.3
+ for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 12:05:25 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>, Huw Davies <huw@codeweavers.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+To: Marcelo Ricardo Leitner <mleitner@redhat.com>
+Cc: netdev@vger.kernel.org, cluster-devel@redhat.com, teigland@redhat.com,
+ Neil Horman <nhorman@tuxdriver.com>,
+ Vlad Yasevich <vyasevich@gmail.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Subject: Re: [PATCH net] sctp: label accepted/peeled off sockets
+Date: Wed, 23 Dec 2015 15:05:24 -0500
+Message-ID: <2896613.2hnUueFeeu@sifl>
+In-Reply-To: <339eee4a8d20118f871fda8a8b38591a60bea59b.1450895942.git.marcelo.leitner@gmail.com>
+References: <339eee4a8d20118f871fda8a8b38591a60bea59b.1450895942.git.marcelo.leitner@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Dec 22, 2015 at 12:28 PM, Casey Schaufler
-<casey@schaufler-ca.com> wrote:
-> On 12/22/2015 3:46 AM, Huw Davies wrote:
->> This patch series implements RFC 5570 - Common Architecture Label IPv6
->> Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
->> on IPv6 packets using a hop-by-hop option.  CALIPSO very similar to
->> its IPv4 cousin CIPSO and much of this series is based on that code.
->
-> There's a one line change to the Smack code in 15/17 due to
-> a change in the api, but I assume that there has been no
-> attempt to verify that this works with Smack. It's not 100%
-> clear that this won't break a Smack kernel, but I haven't
-> tried it.
->
-> You'll need to provide sufficient information (or code!) so
-> that security modules other than SELinux can use this. If
-> you look at how Smack uses netlabel for IPv4 you will see
-> that it differs substantially from the way SELinux uses it.
+On Wednesday, December 23, 2015 04:44:09 PM Marcelo Ricardo Leitner wrote:
+> From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+> 
+> Accepted or peeled off sockets were missing a security label (e.g.
+> SELinux) which means that socket was in "unlabeled" state.
+> 
+> This patch clones the sock's label from the parent sock and resolves the
+> issue (similar to AF_BLUETOOTH protocol family).
+> 
+> Cc: Paul Moore <pmoore@redhat.com>
+> Cc: David Teigland <teigland@redhat.com>
+> Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+> ---
+>  net/sctp/socket.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Smack is going to have some difficulties implementing CALIPSO due to
-some previous design decisions and inconsistencies between how Smack
-handles both IPv4 and IPv6 packet labeling today.  I think we can all
-agree that asking Huw to resolve these problems isn't quite fair,
-although asking Huw to make sure he doesn't break existing
-functionality *is* fair, and a requirement for patch acceptance.
+[NOTE: added the LSM and SELinux lists to the CC line as a FYI]
 
-Huw, I would suggest you ensure that the NetLabel/CALIPSO changes
-don't break the existing Smack code, and that everything is commented
-appropriately.  Adding CALIPSO support to the netlbl_cfg_*() functions
-in netlabel_kapi.c would also be a good idea, and shouldn't be too
-difficult (I should have commented on this earlier, my mistake).
-However, I think resolving the Smack IPv6 design issues is something
-best left to Casey and the rest of the Smack developers.
+Proper SCTP support is on the SELinux todo list, but in the meantime it looks 
+like the patch below should at least ensure that SCTP sockets inherit their 
+parent's label which is probably the best we can hope for right now.
 
-> Thank you for tackling RFC 5570. The lack of something like
-> this has put IPv6 at a real disadvantage.
+Acked-by: Paul Moore <paul@paul-moore.com>
 
-Agreed, thanks Huw for all the hard work you put into this
-implementation.  I started a similar effort on two separate occasions
-but never had the time to see it through to the end; I'm happy that
-someone was finally able to get it finished.
+> diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+> index
+> 400a14d744834c7a503b338bc68f5f8b5b5dae8e..b67162767b7957b3e9f4f7bf52ab51fc1
+> a3499c8 100644 --- a/net/sctp/socket.c
+> +++ b/net/sctp/socket.c
+> @@ -7202,6 +7202,8 @@ void sctp_copy_sock(struct sock *newsk, struct sock
+> *sk,
+> 
+>  	if (newsk->sk_flags & SK_FLAGS_TIMESTAMP)
+>  		net_enable_timestamp();
+> +
+> +	security_sk_clone(sk, newsk);
+>  }
+> 
+>  static inline void sctp_copy_descendant(struct sock *sk_to,
 
 -- 
 paul moore
