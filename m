@@ -1,48 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBMMTRW5028618
- for <selinux@tycho.nsa.gov>; Tue, 22 Dec 2015 17:29:29 -0500
-Date: Tue, 22 Dec 2015 22:29:22 +0000
-From: Huw Davies <huw@codeweavers.com>
-To: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, Paul Moore <pmoore@redhat.com>
-Subject: Re: [RFC PATCH 16/17] calipso: Add validation of CALIPSO option.
-Message-ID: <20151222222921.GA30207@merlot>
-References: <1450784813-18304-17-git-send-email-huw@codeweavers.com>
- <5679551C.4000105@stressinduktion.org>
- <20151222165919.GA31791@merlot>
- <5679C4FF.4050505@stressinduktion.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBNI7uVS014074
+ for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 13:07:58 -0500
+Received: by mail-oi0-f41.google.com with SMTP id y66so127527874oig.0
+ for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 10:07:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <5679C4FF.4050505@stressinduktion.org>
+In-Reply-To: <56798845.6050703@schaufler-ca.com>
+References: <1450784813-18304-1-git-send-email-huw@codeweavers.com>
+ <56798845.6050703@schaufler-ca.com>
+Date: Wed, 23 Dec 2015 13:07:42 -0500
+Message-ID: <CAHC9VhQDzu0Mw6zAYEbMjy9ROCxG6_O5PsxjDhDZzEyw5qxP6w@mail.gmail.com>
+Subject: Re: [RFC PATCH 00/17] CALIPSO implementation
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, Huw Davies <huw@codeweavers.com>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Dec 22, 2015 at 10:47:43PM +0100, Hannes Frederic Sowa wrote:
-> On 22.12.2015 17:59, Huw Davies wrote:
-> > I'm confused about this one.  AFAICS, this will drop packets that we
-> > can't process.  We don't send the icmp error, but I can certainly add
-> > that.  Is that what you mean?
-> 
-> Actually, the implementation of calipso_validate will accept the packets
-> because it defaults to return true if we don't compile the module. At
-> least we should drop the packet if it is not loaded. I am in favor of
-> adding the parameter problem icmp error. So, yes, I think it should be
-> added.
+On Tue, Dec 22, 2015 at 12:28 PM, Casey Schaufler
+<casey@schaufler-ca.com> wrote:
+> On 12/22/2015 3:46 AM, Huw Davies wrote:
+>> This patch series implements RFC 5570 - Common Architecture Label IPv6
+>> Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
+>> on IPv6 packets using a hop-by-hop option.  CALIPSO very similar to
+>> its IPv4 cousin CIPSO and much of this series is based on that code.
+>
+> There's a one line change to the Smack code in 15/17 due to
+> a change in the api, but I assume that there has been no
+> attempt to verify that this works with Smack. It's not 100%
+> clear that this won't break a Smack kernel, but I haven't
+> tried it.
+>
+> You'll need to provide sufficient information (or code!) so
+> that security modules other than SELinux can use this. If
+> you look at how Smack uses netlabel for IPv4 you will see
+> that it differs substantially from the way SELinux uses it.
 
-Yet the option value is 0x07, i.e. the two highest bits are both zero
-which according to:
-https://tools.ietf.org/html/rfc2460#section-4.2
-means we should just skip it.
+Smack is going to have some difficulties implementing CALIPSO due to
+some previous design decisions and inconsistencies between how Smack
+handles both IPv4 and IPv6 packet labeling today.  I think we can all
+agree that asking Huw to resolve these problems isn't quite fair,
+although asking Huw to make sure he doesn't break existing
+functionality *is* fair, and a requirement for patch acceptance.
 
-https://tools.ietf.org/html/rfc5570#section-5.1.1
-reaffirms that.
+Huw, I would suggest you ensure that the NetLabel/CALIPSO changes
+don't break the existing Smack code, and that everything is commented
+appropriately.  Adding CALIPSO support to the netlbl_cfg_*() functions
+in netlabel_kapi.c would also be a good idea, and shouldn't be too
+difficult (I should have commented on this earlier, my mistake).
+However, I think resolving the Smack IPv6 design issues is something
+best left to Casey and the rest of the Smack developers.
 
-In terms of sending an icmp on error while validating:
-https://tools.ietf.org/html/rfc5570#section-6.2.2
-is pretty conservative in that case too.  Most errors
-should just be silently dropped.
+> Thank you for tackling RFC 5570. The lack of something like
+> this has put IPv6 at a real disadvantage.
 
-Huw.
+Agreed, thanks Huw for all the hard work you put into this
+implementation.  I started a similar effort on two separate occasions
+but never had the time to see it through to the end; I'm happy that
+someone was finally able to get it finished.
+
+-- 
+paul moore
+www.paul-moore.com
