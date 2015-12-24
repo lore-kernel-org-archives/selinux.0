@@ -1,19 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBNK5Vvn021622
- for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 15:05:31 -0500
-Received: by mail-qk0-f169.google.com with SMTP id t125so164047517qkh.3
- for <selinux@tycho.nsa.gov>; Wed, 23 Dec 2015 12:05:25 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Marcelo Ricardo Leitner <mleitner@redhat.com>
-Cc: netdev@vger.kernel.org, cluster-devel@redhat.com, teigland@redhat.com,
- Neil Horman <nhorman@tuxdriver.com>,
- Vlad Yasevich <vyasevich@gmail.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-Subject: Re: [PATCH net] sctp: label accepted/peeled off sockets
-Date: Wed, 23 Dec 2015 15:05:24 -0500
-Message-ID: <2896613.2hnUueFeeu@sifl>
-In-Reply-To: <339eee4a8d20118f871fda8a8b38591a60bea59b.1450895942.git.marcelo.leitner@gmail.com>
-References: <339eee4a8d20118f871fda8a8b38591a60bea59b.1450895942.git.marcelo.leitner@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id tBOGPRqe021609
+ for <selinux@tycho.nsa.gov>; Thu, 24 Dec 2015 11:25:27 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [GIT PULL] SELinux patches for 4.5
+Date: Thu, 24 Dec 2015 11:25:01 -0500
+Message-ID: <1964478.KPgA55cFSS@sifl>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,46 +14,71 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wednesday, December 23, 2015 04:44:09 PM Marcelo Ricardo Leitner wrote:
-> From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> 
-> Accepted or peeled off sockets were missing a security label (e.g.
-> SELinux) which means that socket was in "unlabeled" state.
-> 
-> This patch clones the sock's label from the parent sock and resolves the
-> issue (similar to AF_BLUETOOTH protocol family).
-> 
-> Cc: Paul Moore <pmoore@redhat.com>
-> Cc: David Teigland <teigland@redhat.com>
-> Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> ---
->  net/sctp/socket.c | 2 ++
->  1 file changed, 2 insertions(+)
+Hi James,
 
-[NOTE: added the LSM and SELinux lists to the CC line as a FYI]
+Nine patches for v4.5; there are a handful of minor fixes (constify 
+parameters, warning rate-limits, etc.) but there are a couple of significant 
+patches that invalidate/revalidate inode labels (needed for gfs2) and make 
+validate_trans decisions visible via selinuxfs.  All the patches pass the 
+selinux-testsuite and have been included in the pcmoore/kernel-secnext Fedora 
+COPR repository[1] for some time now, all looks good.
 
-Proper SCTP support is on the SELinux todo list, but in the meantime it looks 
-like the patch below should at least ensure that SCTP sockets inherit their 
-parent's label which is probably the best we can hope for right now.
+As of about five minutes ago, selinux#upstream applied cleanly on top of 
+linux-security#next so I don't expect you should have any problems merging the 
+code.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+Happy holidays and merry merging,
+-Paul
 
-> diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-> index
-> 400a14d744834c7a503b338bc68f5f8b5b5dae8e..b67162767b7957b3e9f4f7bf52ab51fc1
-> a3499c8 100644 --- a/net/sctp/socket.c
-> +++ b/net/sctp/socket.c
-> @@ -7202,6 +7202,8 @@ void sctp_copy_sock(struct sock *newsk, struct sock
-> *sk,
-> 
->  	if (newsk->sk_flags & SK_FLAGS_TIMESTAMP)
->  		net_enable_timestamp();
-> +
-> +	security_sk_clone(sk, newsk);
->  }
-> 
->  static inline void sctp_copy_descendant(struct sock *sk_to,
+[1] https://copr.fedoraproject.org/coprs/pcmoore/kernel-secnext
+
+---
+The following changes since commit ebd68df3f24b318d391d15c458d6f43f340ba36a:
+
+  Sync to Linus v4.4-rc2 for LSM developers. (2015-11-23 22:46:28 +1100)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux upstream
+
+for you to fetch changes up to 76319946f321e30872dd72af7de867cb26e7a373:
+
+  selinux: rate-limit netlink message warnings in selinux_nlmsg_perm() 
+(2015-12-24 11:09:41 -0500)
+
+----------------------------------------------------------------
+Andreas Gruenbacher (7):
+      selinux: Remove unused variable in selinux_inode_init_security
+      security: Make inode argument of inode_getsecurity non-const
+      security: Make inode argument of inode_getsecid non-const
+      selinux: Add accessor functions for inode->i_security
+      security: Add hook to invalidate inode security labels
+      selinux: Revalidate invalid inode security labels
+      gfs2: Invalid security labels of inodes when they go invalid
+
+Andrew Perepechko (1):
+      selinux: export validatetrans decisions
+
+Vladis Dronov (1):
+      selinux: rate-limit netlink message warnings in selinux_nlmsg_perm()
+
+ fs/gfs2/glops.c                     |   2 +
+ include/linux/audit.h               |   8 +-
+ include/linux/lsm_hooks.h           |  10 +-
+ include/linux/security.h            |  13 ++-
+ kernel/audit.c                      |   2 +-
+ kernel/audit.h                      |   2 +-
+ kernel/auditsc.c                    |   6 +-
+ security/security.c                 |  12 ++-
+ security/selinux/hooks.c            | 206 ++++++++++++++++++++++++----------
+ security/selinux/include/classmap.h |   2 +-
+ security/selinux/include/objsec.h   |   6 ++
+ security/selinux/include/security.h |   3 +
+ security/selinux/selinuxfs.c        |  80 ++++++++++++++
+ security/selinux/ss/services.c      |  34 ++++--
+ security/smack/smack_lsm.c          |   4 +-
+ 15 files changed, 302 insertions(+), 88 deletions(-)
 
 -- 
 paul moore
-www.paul-moore.com
+security @ redhat
