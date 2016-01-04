@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u04I4dZf013560
- for <selinux@tycho.nsa.gov>; Mon, 4 Jan 2016 13:04:40 -0500
-Received: by mail-ig0-f178.google.com with SMTP id ik10so192510igb.1
- for <selinux@tycho.nsa.gov>; Mon, 04 Jan 2016 10:04:38 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u04I4gpH013588
+ for <selinux@tycho.nsa.gov>; Mon, 4 Jan 2016 13:04:42 -0500
+Received: by mail-ig0-f180.google.com with SMTP id ik10so192927igb.1
+ for <selinux@tycho.nsa.gov>; Mon, 04 Jan 2016 10:04:40 -0800 (PST)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>
@@ -15,10 +15,10 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH RESEND v2 12/18] fs: Don't remove suid for CAP_FSETID in
- s_user_ns
-Date: Mon,  4 Jan 2016 12:03:51 -0600
-Message-Id: <1451930639-94331-13-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH RESEND v2 13/18] fs: Allow superblock owner to access
+ do_remount_sb()
+Date: Mon,  4 Jan 2016 12:03:52 -0600
+Message-Id: <1451930639-94331-14-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
 References: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,28 +26,40 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Expand the check in should_remove_suid() to keep privileges for
-CAP_FSETID in s_user_ns rather than init_user_ns.
+Superblock level remounts are currently restricted to global
+CAP_SYS_ADMIN, as is the path for changing the root mount to
+read only on umount. Loosen both of these permission checks to
+also allow CAP_SYS_ADMIN in any namespace which is privileged
+towards the userns which originally mounted the filesystem.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/namespace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/inode.c b/fs/inode.c
-index 01c036fe1950..3e7c74da9304 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1684,7 +1684,8 @@ int should_remove_suid(struct dentry *dentry)
- 	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
- 		kill |= ATTR_KILL_SGID;
- 
--	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
-+	if (unlikely(kill && !ns_capable(dentry->d_sb->s_user_ns, CAP_FSETID) &&
-+		     S_ISREG(mode)))
- 		return kill;
- 
- 	return 0;
+diff --git a/fs/namespace.c b/fs/namespace.c
+index 18fc58760aec..b00a765895e7 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1510,7 +1510,7 @@ static int do_umount(struct mount *mnt, int flags)
+ 		 * Special case for "unmounting" root ...
+ 		 * we just try to remount it readonly.
+ 		 */
+-		if (!capable(CAP_SYS_ADMIN))
++		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		down_write(&sb->s_umount);
+ 		if (!(sb->s_flags & MS_RDONLY))
+@@ -2199,7 +2199,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
+ 	down_write(&sb->s_umount);
+ 	if (flags & MS_BIND)
+ 		err = change_mount_flags(path->mnt, flags);
+-	else if (!capable(CAP_SYS_ADMIN))
++	else if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 		err = -EPERM;
+ 	else
+ 		err = do_remount_sb(sb, flags, data, 0);
 -- 
 1.9.1
