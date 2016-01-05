@@ -1,72 +1,84 @@
-From: Andreas Gruenbacher <agruenba@redhat.com>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH] selinux: Inode label revalidation performance fix
-Date: Tue,  5 Jan 2016 23:12:33 +0100
-Message-Id: <1452031953-497-1-git-send-email-agruenba@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u05MbvLx014104
+ for <selinux@tycho.nsa.gov>; Tue, 5 Jan 2016 17:37:57 -0500
+Received: from localhost (localhost [127.0.0.1])
+ by smtp.zero.jp (Postfix) with ESMTP id 4EE2B418FBA
+ for <selinux@tycho.nsa.gov>; Wed,  6 Jan 2016 07:37:36 +0900 (JST)
+Received: from smtp.zero.jp ([127.0.0.1])
+ by localhost (smtp.zero.jp [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XzBWk16M8mjh for <selinux@tycho.nsa.gov>;
+ Wed,  6 Jan 2016 07:37:36 +0900 (JST)
+Received: from [192.168.1.7] (KD124214163184.ppp-bb.dion.ne.jp
+ [124.214.163.184])
+ by smtp.gmoserver.jp (Postfix) with ESMTPSA id 3AF80418FB8
+ for <selinux@tycho.nsa.gov>; Wed,  6 Jan 2016 07:37:36 +0900 (JST)
+Message-ID: <568C45AF.2080902@honto.info>
+Date: Wed, 06 Jan 2016 07:37:35 +0900
+From: omok <omok@honto.info>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: Re: CIL Wiki Translate
+References: <CAEKGoSEEx8djUXUMJ60PqO6-wxEXUo3beK2Rj4=AbJXsvAWDWA@mail.gmail.com>
+ <568C082A.1060504@tycho.nsa.gov>
+In-Reply-To: <568C082A.1060504@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Commit 5d226df4 has introduced a performance regression of about
-10% in the UnixBench pipe benchmark.  It turns out that the call
-to inode_security in selinux_file_permission can be moved below
-the zero-mask test and that inode_security_revalidate can be
-removed entirely, which brings us back to roughly the original
-performance.
+Dear Sir,
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- security/selinux/hooks.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+Thanks for that information.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 40e071a..f8110cf 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -273,11 +273,6 @@ static int __inode_security_revalidate(struct inode *inode,
- 	return 0;
- }
- 
--static void inode_security_revalidate(struct inode *inode)
--{
--	__inode_security_revalidate(inode, NULL, true);
--}
--
- static struct inode_security_struct *inode_security_novalidate(struct inode *inode)
- {
- 	return inode->i_security;
-@@ -3277,19 +3272,19 @@ static int selinux_file_permission(struct file *file, int mask)
- {
- 	struct inode *inode = file_inode(file);
- 	struct file_security_struct *fsec = file->f_security;
--	struct inode_security_struct *isec = inode_security(inode);
-+	struct inode_security_struct *isec;
- 	u32 sid = current_sid();
- 
- 	if (!mask)
- 		/* No permission to check.  Existence test. */
- 		return 0;
- 
-+	isec = inode_security(inode);
- 	if (sid == fsec->sid && fsec->isid == isec->sid &&
- 	    fsec->pseqno == avc_policy_seqno())
- 		/* No change since file_open check. */
- 		return 0;
- 
--	inode_security_revalidate(inode);
- 	return selinux_revalidate_file_permission(file, mask);
- }
- 
-@@ -3595,7 +3590,6 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
- 	 * new inode label or new policy.
- 	 * This check is not redundant - do not remove.
- 	 */
--	inode_security_revalidate(file_inode(file));
- 	return file_path_has_perm(cred, file, open_file_to_av(file));
- }
- 
+ > Thanks for your interest in CIL and your work!
+
+I surprised about CIL and I know many of Japanese people don't know
+how it will work, then I decided to translate it.
+
+ > The wiki at https://github.com/SELinuxProject/cil/wiki is largely
+ > obsolete
+I translated it, but I didn't know that wiki is obsolete. :-(
+
+ > The most current documentation is at
+ > https://github.com/SELinuxProject/selinux/tree/master/secilc/docs.
+
+Thanks. :-)
+
+I'll translate it to Japanese and share that on my website.
+Also share CIL information on several article.
+
+Kind Regards,
+
+OMO
+
+James Carter wrote on 2016/01/06 03:15:
+>
+> Which wiki are you referring to?
+>
+> The wiki at https://github.com/SELinuxProject/cil/wiki is largely
+> obsolete (though I do notice that we are still referring to it in
+> secilc's readme) and I am not sure of its license status.
+>
+> The most current documentation is at
+> https://github.com/SELinuxProject/selinux/tree/master/secilc/docs. That
+> documentation is released under a FreeBSD license and you are free to
+> upload and share that (and any translation) from your website under that
+> license.
+>
+> Thanks for your interest in CIL and your work!
+> Jim
+>
+>> Kind Regards,
+>>
+>> OMO
+>>
+>
+>
+
+
 -- 
-2.7.0
+Kazuki Omo: omok@honto.info
+CISSP #366942
+https://www.facebook.com/omokazuki
+http://www.lids.org
