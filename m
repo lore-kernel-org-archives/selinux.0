@@ -1,58 +1,350 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u089r02L028019
- for <selinux@tycho.nsa.gov>; Fri, 8 Jan 2016 04:53:00 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u089r02P028019
+ for <selinux@tycho.nsa.gov>; Fri, 8 Jan 2016 04:53:05 -0500
 From: Huw Davies <huw@codeweavers.com>
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
  selinux@tycho.nsa.gov
-Subject: [RFC PATCH v2 01/18] netlabel: Mark rcu pointers with __rcu.
-Date: Fri,  8 Jan 2016 09:52:37 +0000
-Message-Id: <1452246774-13241-2-git-send-email-huw@codeweavers.com>
+Subject: [RFC PATCH v2 18/18] netlabel: Implement CALIPSO config functions for
+ SMACK.
+Date: Fri,  8 Jan 2016 09:52:54 +0000
+Message-Id: <1452246774-13241-19-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This fixes sparse errors of the form:
-  incompatible types in comparison expression (different address spaces)
+SMACK uses similar functions to control CIPSO, these are
+the equivalent functions for CALIPSO and follow exactly
+the same semantics.
 
-This patch also removes unnecessary initialization of static variables
-to NULL.
+int netlbl_cfg_calipso_add(struct calipso_doi *doi_def,
+                           struct netlbl_audit *audit_info)
+    Adds a CALIPSO doi.
+
+void netlbl_cfg_calipso_del(u32 doi, struct netlbl_audit *audit_info)
+    Removes a CALIPSO doi.
+
+int netlbl_cfg_calipso_map_add(u32 doi, const char *domain,
+                               const struct in6_addr *addr,
+                               const struct in6_addr *mask,
+                               struct netlbl_audit *audit_info)
+    Creates a mapping between a domain and a CALIPSO doi.  If
+    addr and mask are non-NULL this creates an address-selector
+    type mapping.
+
+This also extends netlbl_cfg_map_del() to remove IPv6 address-selector
+mappings.
 
 Signed-off-by: Huw Davies <huw@codeweavers.com>
 ---
- net/netlabel/netlabel_domainhash.c | 4 ++--
- net/netlabel/netlabel_unlabeled.c  | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/netlabel.h             |  26 +++++++
+ net/netlabel/netlabel_domainhash.c |  66 ++++++++++++++++++
+ net/netlabel/netlabel_domainhash.h |   8 +++
+ net/netlabel/netlabel_kapi.c       | 138 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 238 insertions(+)
 
+diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+index 4970161..aceff67 100644
+--- a/include/net/netlabel.h
++++ b/include/net/netlabel.h
+@@ -445,6 +445,14 @@ int netlbl_cfg_cipsov4_map_add(u32 doi,
+ 			       const struct in_addr *addr,
+ 			       const struct in_addr *mask,
+ 			       struct netlbl_audit *audit_info);
++int netlbl_cfg_calipso_add(struct calipso_doi *doi_def,
++			   struct netlbl_audit *audit_info);
++void netlbl_cfg_calipso_del(u32 doi, struct netlbl_audit *audit_info);
++int netlbl_cfg_calipso_map_add(u32 doi,
++			       const char *domain,
++			       const struct in6_addr *addr,
++			       const struct in6_addr *mask,
++			       struct netlbl_audit *audit_info);
+ /*
+  * LSM security attribute operations
+  */
+@@ -561,6 +569,24 @@ static inline int netlbl_cfg_cipsov4_map_add(u32 doi,
+ {
+ 	return -ENOSYS;
+ }
++static inline int netlbl_cfg_calipso_add(struct calipso_doi *doi_def,
++					 struct netlbl_audit *audit_info)
++{
++	return -ENOSYS;
++}
++static inline void netlbl_cfg_calipso_del(u32 doi,
++					  struct netlbl_audit *audit_info)
++{
++	return;
++}
++static inline int netlbl_cfg_calipso_map_add(u32 doi,
++					     const char *domain,
++					     const struct in6_addr *addr,
++					     const struct in6_addr *mask,
++					     struct netlbl_audit *audit_info)
++{
++	return -ENOSYS;
++}
+ static inline int netlbl_catmap_walk(struct netlbl_lsm_catmap *catmap,
+ 				     u32 offset)
+ {
 diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
-index f0cb92f..d4d6640 100644
+index 52791a0..ec7ac70 100644
 --- a/net/netlabel/netlabel_domainhash.c
 +++ b/net/netlabel/netlabel_domainhash.c
-@@ -55,8 +55,8 @@ struct netlbl_domhsh_tbl {
- static DEFINE_SPINLOCK(netlbl_domhsh_lock);
- #define netlbl_domhsh_rcu_deref(p) \
- 	rcu_dereference_check(p, lockdep_is_held(&netlbl_domhsh_lock))
--static struct netlbl_domhsh_tbl *netlbl_domhsh = NULL;
--static struct netlbl_dom_map *netlbl_domhsh_def = NULL;
-+static struct netlbl_domhsh_tbl __rcu *netlbl_domhsh;
-+static struct netlbl_dom_map __rcu *netlbl_domhsh_def;
+@@ -721,6 +721,72 @@ remove_af4_failure:
+ 	return -ENOENT;
+ }
  
++#if IS_ENABLED(CONFIG_IPV6)
++/**
++ * netlbl_domhsh_remove_af6 - Removes an address selector entry
++ * @domain: the domain
++ * @addr: IPv6 address
++ * @mask: IPv6 address mask
++ * @audit_info: NetLabel audit information
++ *
++ * Description:
++ * Removes an individual address selector from a domain mapping and potentially
++ * the entire mapping if it is empty.  Returns zero on success, negative values
++ * on failure.
++ *
++ */
++int netlbl_domhsh_remove_af6(const char *domain,
++			     const struct in6_addr *addr,
++			     const struct in6_addr *mask,
++			     struct netlbl_audit *audit_info)
++{
++	struct netlbl_dom_map *entry_map;
++	struct netlbl_af6list *entry_addr;
++	struct netlbl_af4list *iter4;
++	struct netlbl_af6list *iter6;
++	struct netlbl_domaddr6_map *entry;
++
++	rcu_read_lock();
++
++	if (domain)
++		entry_map = netlbl_domhsh_search(domain, AF_INET6);
++	else
++		entry_map = netlbl_domhsh_search_def(domain, AF_INET6);
++	if (entry_map == NULL ||
++	    entry_map->def.type != NETLBL_NLTYPE_ADDRSELECT)
++		goto remove_af6_failure;
++
++	spin_lock(&netlbl_domhsh_lock);
++	entry_addr = netlbl_af6list_remove(addr, mask,
++					   &entry_map->def.addrsel->list6);
++	spin_unlock(&netlbl_domhsh_lock);
++
++	if (entry_addr == NULL)
++		goto remove_af6_failure;
++	netlbl_af4list_foreach_rcu(iter4, &entry_map->def.addrsel->list4)
++		goto remove_af6_single_addr;
++	netlbl_af6list_foreach_rcu(iter6, &entry_map->def.addrsel->list6)
++		goto remove_af6_single_addr;
++	/* the domain mapping is empty so remove it from the mapping table */
++	netlbl_domhsh_remove_entry(entry_map, audit_info);
++
++remove_af6_single_addr:
++	rcu_read_unlock();
++	/* yick, we can't use call_rcu here because we don't have a rcu head
++	 * pointer but hopefully this should be a rare case so the pause
++	 * shouldn't be a problem */
++	synchronize_rcu();
++	entry = netlbl_domhsh_addr6_entry(entry_addr);
++	calipso_doi_putdef(entry->def.calipso);
++	kfree(entry);
++	return 0;
++
++remove_af6_failure:
++	rcu_read_unlock();
++	return -ENOENT;
++}
++#endif /* IPv6 */
++
+ /**
+  * netlbl_domhsh_remove - Removes an entry from the domain hash table
+  * @domain: the domain to remove
+diff --git a/net/netlabel/netlabel_domainhash.h b/net/netlabel/netlabel_domainhash.h
+index b7ddb6e..1f92477 100644
+--- a/net/netlabel/netlabel_domainhash.h
++++ b/net/netlabel/netlabel_domainhash.h
+@@ -93,6 +93,10 @@ int netlbl_domhsh_remove_af4(const char *domain,
+ 			     const struct in_addr *addr,
+ 			     const struct in_addr *mask,
+ 			     struct netlbl_audit *audit_info);
++int netlbl_domhsh_remove_af6(const char *domain,
++			     const struct in6_addr *addr,
++			     const struct in6_addr *mask,
++			     struct netlbl_audit *audit_info);
+ int netlbl_domhsh_remove(const char *domain, u16 family,
+ 			 struct netlbl_audit *audit_info);
+ int netlbl_domhsh_remove_default(u16 family, struct netlbl_audit *audit_info);
+@@ -102,6 +106,10 @@ struct netlbl_dommap_def *netlbl_domhsh_getentry_af4(const char *domain,
+ #if IS_ENABLED(CONFIG_IPV6)
+ struct netlbl_dommap_def *netlbl_domhsh_getentry_af6(const char *domain,
+ 						   const struct in6_addr *addr);
++int netlbl_domhsh_remove_af6(const char *domain,
++			     const struct in6_addr *addr,
++			     const struct in6_addr *mask,
++			     struct netlbl_audit *audit_info);
+ #endif /* IPv6 */
+ 
+ int netlbl_domhsh_walk(u32 *skip_bkt,
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index d534731..21c2153 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -80,6 +80,11 @@ int netlbl_cfg_map_del(const char *domain,
+ 		case AF_INET:
+ 			return netlbl_domhsh_remove_af4(domain, addr, mask,
+ 							audit_info);
++#if IS_ENABLED(CONFIG_IPV6)
++		case AF_INET6:
++			return netlbl_domhsh_remove_af6(domain, addr, mask,
++							audit_info);
++#endif /* IPv6 */
+ 		default:
+ 			return -EPFNOSUPPORT;
+ 		}
+@@ -403,6 +408,139 @@ out_entry:
+ 	return ret_val;
+ }
+ 
++/**
++ * netlbl_cfg_calipso_add - Add a new CALIPSO DOI definition
++ * @doi_def: CALIPSO DOI definition
++ * @audit_info: NetLabel audit information
++ *
++ * Description:
++ * Add a new CALIPSO DOI definition as defined by @doi_def.  Returns zero on
++ * success and negative values on failure.
++ *
++ */
++int netlbl_cfg_calipso_add(struct calipso_doi *doi_def,
++			   struct netlbl_audit *audit_info)
++{
++#if IS_ENABLED(CONFIG_IPV6)
++	return calipso_doi_add(doi_def, audit_info);
++#else /* IPv6 */
++	return -ENOSYS;
++#endif /* IPv6 */
++}
++
++/**
++ * netlbl_cfg_calipso_del - Remove an existing CALIPSO DOI definition
++ * @doi: CALIPSO DOI
++ * @audit_info: NetLabel audit information
++ *
++ * Description:
++ * Remove an existing CALIPSO DOI definition matching @doi.  Returns zero on
++ * success and negative values on failure.
++ *
++ */
++void netlbl_cfg_calipso_del(u32 doi, struct netlbl_audit *audit_info)
++{
++#if IS_ENABLED(CONFIG_IPV6)
++	calipso_doi_remove(doi, audit_info);
++#endif /* IPv6 */
++}
++
++/**
++ * netlbl_cfg_calipso_map_add - Add a new CALIPSO DOI mapping
++ * @doi: the CALIPSO DOI
++ * @domain: the domain mapping to add
++ * @addr: IP address
++ * @mask: IP address mask
++ * @audit_info: NetLabel audit information
++ *
++ * Description:
++ * Add a new NetLabel/LSM domain mapping for the given CALIPSO DOI to the
++ * NetLabel subsystem.  A @domain value of NULL adds a new default domain
++ * mapping.  Returns zero on success, negative values on failure.
++ *
++ */
++int netlbl_cfg_calipso_map_add(u32 doi,
++			       const char *domain,
++			       const struct in6_addr *addr,
++			       const struct in6_addr *mask,
++			       struct netlbl_audit *audit_info)
++{
++#if IS_ENABLED(CONFIG_IPV6)
++	int ret_val = -ENOMEM;
++	struct calipso_doi *doi_def;
++	struct netlbl_dom_map *entry;
++	struct netlbl_domaddr_map *addrmap = NULL;
++	struct netlbl_domaddr6_map *addrinfo = NULL;
++
++	doi_def = calipso_doi_getdef(doi);
++	if (doi_def == NULL)
++		return -ENOENT;
++
++	entry = kzalloc(sizeof(*entry), GFP_ATOMIC);
++	if (entry == NULL)
++		goto out_entry;
++	entry->family = AF_INET6;
++	if (domain != NULL) {
++		entry->domain = kstrdup(domain, GFP_ATOMIC);
++		if (entry->domain == NULL)
++			goto out_domain;
++	}
++
++	if (addr == NULL && mask == NULL) {
++		entry->def.calipso = doi_def;
++		entry->def.type = NETLBL_NLTYPE_CALIPSO;
++	} else if (addr != NULL && mask != NULL) {
++		addrmap = kzalloc(sizeof(*addrmap), GFP_ATOMIC);
++		if (addrmap == NULL)
++			goto out_addrmap;
++		INIT_LIST_HEAD(&addrmap->list4);
++		INIT_LIST_HEAD(&addrmap->list6);
++
++		addrinfo = kzalloc(sizeof(*addrinfo), GFP_ATOMIC);
++		if (addrinfo == NULL)
++			goto out_addrinfo;
++		addrinfo->def.calipso = doi_def;
++		addrinfo->def.type = NETLBL_NLTYPE_CALIPSO;
++		addrinfo->list.addr = *addr;
++		addrinfo->list.addr.s6_addr32[0] &= mask->s6_addr32[0];
++		addrinfo->list.addr.s6_addr32[1] &= mask->s6_addr32[1];
++		addrinfo->list.addr.s6_addr32[2] &= mask->s6_addr32[2];
++		addrinfo->list.addr.s6_addr32[3] &= mask->s6_addr32[3];
++		addrinfo->list.mask = *mask;
++		addrinfo->list.valid = 1;
++		ret_val = netlbl_af6list_add(&addrinfo->list, &addrmap->list6);
++		if (ret_val != 0)
++			goto cfg_calipso_map_add_failure;
++
++		entry->def.addrsel = addrmap;
++		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
++	} else {
++		ret_val = -EINVAL;
++		goto out_addrmap;
++	}
++
++	ret_val = netlbl_domhsh_add(entry, audit_info);
++	if (ret_val != 0)
++		goto cfg_calipso_map_add_failure;
++
++	return 0;
++
++cfg_calipso_map_add_failure:
++	kfree(addrinfo);
++out_addrinfo:
++	kfree(addrmap);
++out_addrmap:
++	kfree(entry->domain);
++out_domain:
++	kfree(entry);
++out_entry:
++	calipso_doi_putdef(doi_def);
++	return ret_val;
++#else /* IPv6 */
++	return -ENOSYS;
++#endif /* IPv6 */
++}
++
  /*
-  * Domain Hash Table Helper Functions
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index b038092..a323815 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -116,8 +116,8 @@ struct netlbl_unlhsh_walk_arg {
- static DEFINE_SPINLOCK(netlbl_unlhsh_lock);
- #define netlbl_unlhsh_rcu_deref(p) \
- 	rcu_dereference_check(p, lockdep_is_held(&netlbl_unlhsh_lock))
--static struct netlbl_unlhsh_tbl *netlbl_unlhsh = NULL;
--static struct netlbl_unlhsh_iface *netlbl_unlhsh_def = NULL;
-+static struct netlbl_unlhsh_tbl __rcu *netlbl_unlhsh;
-+static struct netlbl_unlhsh_iface __rcu *netlbl_unlhsh_def;
- 
- /* Accept unlabeled packets flag */
- static u8 netlabel_unlabel_acceptflg = 0;
+  * Security Attribute Functions
+  */
 -- 
 1.8.0
