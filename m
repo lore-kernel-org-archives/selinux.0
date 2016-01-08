@@ -1,242 +1,117 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u089rgXc028052
- for <selinux@tycho.nsa.gov>; Fri, 8 Jan 2016 04:53:45 -0500
-From: Huw Davies <huw@codeweavers.com>
-To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-Subject: [RFC PATCH v2 07/18] netlabel: Add support for removing a CALIPSO DOI.
-Date: Fri,  8 Jan 2016 09:52:43 +0000
-Message-Id: <1452246774-13241-8-git-send-email-huw@codeweavers.com>
+Subject: Re: Labeling nsfs filesystem
+To: Stephen Smalley <sds@tycho.nsa.gov>, Nicolas Iooss
+ <nicolas.iooss@m4x.org>, <selinux@tycho.nsa.gov>
+References: <568ECC43.40500@m4x.org> <568ED656.5030106@tycho.nsa.gov>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <568FB2FA.3010702@tresys.com>
+Date: Fri, 8 Jan 2016 08:00:42 -0500
+MIME-Version: 1.0
+In-Reply-To: <568ED656.5030106@tycho.nsa.gov>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Remove a specified DOI through the NLBL_CALIPSO_C_REMOVE command.
-It requires the attribute:
- NLBL_CALIPSO_A_DOI.
+On 1/7/2016 4:19 PM, Stephen Smalley wrote:
+> On 01/07/2016 03:36 PM, Nicolas Iooss wrote:
+>> Hello,
+>>
+>> Since Linux 3.19 targets of /proc/PID/ns/* symlinks have lived in a fs
+>> separated from /proc, named nsfs [1].  These targets are used to enter
+>> the namespace of another process by using setns() syscall [2].  On old
+>> kernels, they were labeled with procfs default type (for example
+>> "getfilecon /proc/self/ns/uts" returned system_u:object_r:proc_t:s0).
+>> When using a recent kernel with a policy without nsfs support, the
+>> inodes are not labeled, as reported for example in Fedora bug #1234757
+>> [3].  As I encounter this issue on my systems, I asked yesterday on the
+>> refpolicy ML how nsfs inodes should be labeled [4].
+>>
+>> After digging a little bit about the possibilities, here is a summary of
+>> the options I have considered so far.
+>>
+>> Option 1: define a new type to label nsfs inodes, nsfs_t.  This works as
+>> expected (c.f. [5] for more details).
+>>
+>> Option 2: "fs_use_task nsfs gen_context(system_u:object_r:fs_t,s0);".
+>> Even though this works well for /proc/self/ns/*, this behaves in a weird
+>> way with other processes in the initial namespaces. Here is a shell
+>> session with such a configuration (on a system running in permissive
+>> mode):
+>>
+>>    # runcon system_u:system_r:init_t sleep 1000000&
+>>    [1] 26633
+>>    # ls -lZ /proc/26633/ns/uts
+>>    lrwxrwxrwx. 1 root root system_u:system_r:init_t 0 Jan  7 19:49
+>>    /proc/26633/ns/uts -> uts:[4026531838]
+>>    # getfilecon /proc/26633/ns/uts
+>>    /proc/26633/ns/uts sysadm_u:sysadm_r:sysadm_t
+>>    # runcon user_u:user_r:user_t getfilecon /proc/26633/ns/uts
+>>    /proc/26633/ns/uts user_u:user_r:user_t
+>>
+>> In short, nsfs inodes get created with the context of the running task.
+>> This is because the inodes do not exist before getfilecon() opens them
+>> (c.f. ns_get_path() function in fs/nsfs.c [6] and
+>> inode_doinit_with_dentry() in security/selinux/hooks.c, which does
+>> "isec->sid = current_sid()" in SECURITY_FS_USE_TASK case [7]).  This
+>> issue does not appear with Docker and the network namespace used by
+>> systemd services for PrivateNetwork feature because a file descriptor to
+>> the network namespace is kept open, so the inode is created by the task
+>> "owning" the namespace and its label is stable.
+>>
+>>
+>> Option 3: do not add anything in the policy and add
+>> "security_task_to_inode(task, inode);" right after the inode
+>> initialization in ns_get_path() (line 90 of [6]), which is what /proc
+>> uses to make /proc/PID inodes have the context of their tasks.  Then
+>> "getfilecon /proc/PID/ns/uts" returns the context of task PID (and not
+>> the context that is used by getfilecon command), but as this inode is
+>> per-namespace and not per-task, there can be situations like this:
+>>
+>>    # id -Z ; getfilecon /proc/self/ns/uts
+>>    sysadm_u:sysadm_r:sysadm_t
+>>    /proc/self/ns/uts sysadm_u:sysadm_r:sysadm_t
+>>
+>>    # runcon 'user_u:user_r:user_t' bash -c 'exec 3</proc/self/ns/uts &&
+>>    sleep 100000' & P=$!
+>>    [1] 803
+>>
+>>    # ls -lZ "/proc/$P/fd/3"
+>>    lr-x------. 1 root root user_u:user_r:user_t 64 Jan  6 23:17
+>>    /proc/803/fd/3 -> uts:[4026531838]
+>>
+>>    # getfilecon "/proc/$P/fd/3" "/proc/$P/ns/uts"
+>>    /proc/803/fd/3   user_u:user_r:user_t
+>>    /proc/803/ns/uts user_u:user_r:user_t
+>>
+>>    # getfilecon /proc/self/ns/uts
+>>    /proc/self/ns/uts user_u:user_r:user_t
+>>
+>>    # fg
+>>    ^C
+>>    # getfilecon /proc/self/ns/uts
+>>    /proc/self/ns/uts sysadm_u:sysadm_r:sysadm_t
+>>
+>> So in fact each /proc/self/ns/* symlink target is labeled accordingly to
+>> the first process which opened it.  I do not know whether this behaviour
+>> fits with the "real world usage" of namespaces (e.g. with containers) or
+>> can be considered as a side effect which can be ignored.
+>>
+>>
+>> Option 4 (not tested): add a sid field to struct ns_common and make
+>> every namespace labeled from the process which creates it, maybe with a
+>> type transition mechanism. This would be quite heavy to handle.
+>>
+>>
+>> How should nsfs be handled in the kernel and in SELinux policy?
+> 
+> Only option 1 makes sense to me.
 
-Signed-off-by: Huw Davies <huw@codeweavers.com>
----
- include/net/netlabel.h          |  1 +
- net/ipv6/calipso.c              | 48 +++++++++++++++++++++
- net/netlabel/netlabel_calipso.c | 92 +++++++++++++++++++++++++++++++++++++++++
- net/netlabel/netlabel_calipso.h |  1 +
- 4 files changed, 142 insertions(+)
+I don't understand the usage of nsfs which makes this confusing, but why
+doesn't option 3 make sense?  Since it's under a particular /proc/pid
+entry, doesn't it make sense to label the object as the domain's type?
 
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index 2653d3a..2c0513b 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -237,6 +237,7 @@ struct netlbl_calipso_ops {
- 	int (*doi_add)(struct calipso_doi *doi_def,
- 		       struct netlbl_audit *audit_info);
- 	void (*doi_free)(struct calipso_doi *doi_def);
-+	int (*doi_remove)(u32 doi, struct netlbl_audit *audit_info);
- 	struct calipso_doi *(*doi_getdef)(u32 doi);
- 	void (*doi_putdef)(struct calipso_doi *doi_def);
- 	int (*doi_walk)(u32 *skip_cnt,
-diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
-index fa17c7a..d7df7a4 100644
---- a/net/ipv6/calipso.c
-+++ b/net/ipv6/calipso.c
-@@ -163,6 +163,53 @@ static void calipso_doi_free_rcu(struct rcu_head *entry)
- }
- 
- /**
-+ * calipso_doi_remove - Remove an existing DOI from the CALIPSO protocol engine
-+ * @doi: the DOI value
-+ * @audit_secid: the LSM secid to use in the audit message
-+ *
-+ * Description:
-+ * Removes a DOI definition from the CALIPSO engine.  The NetLabel routines will
-+ * be called to release their own LSM domain mappings as well as our own
-+ * domain list.  Returns zero on success and negative values on failure.
-+ *
-+ */
-+static int calipso_doi_remove(u32 doi, struct netlbl_audit *audit_info)
-+{
-+	int ret_val;
-+	struct calipso_doi *doi_def;
-+	struct audit_buffer *audit_buf;
-+
-+	spin_lock(&calipso_doi_list_lock);
-+	doi_def = calipso_doi_search(doi);
-+	if (!doi_def) {
-+		spin_unlock(&calipso_doi_list_lock);
-+		ret_val = -ENOENT;
-+		goto doi_remove_return;
-+	}
-+	if (!atomic_dec_and_test(&doi_def->refcount)) {
-+		spin_unlock(&calipso_doi_list_lock);
-+		ret_val = -EBUSY;
-+		goto doi_remove_return;
-+	}
-+	list_del_rcu(&doi_def->list);
-+	spin_unlock(&calipso_doi_list_lock);
-+
-+	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
-+	ret_val = 0;
-+
-+doi_remove_return:
-+	audit_buf = netlbl_audit_start(AUDIT_MAC_CALIPSO_DEL, audit_info);
-+	if (audit_buf) {
-+		audit_log_format(audit_buf,
-+				 " calipso_doi=%u res=%u",
-+				 doi, ret_val == 0 ? 1 : 0);
-+		audit_log_end(audit_buf);
-+	}
-+
-+	return ret_val;
-+}
-+
-+/**
-  * calipso_doi_getdef - Returns a reference to a valid DOI definition
-  * @doi: the DOI value
-  *
-@@ -253,6 +300,7 @@ doi_walk_return:
- static const struct netlbl_calipso_ops ops = {
- 	.doi_add          = calipso_doi_add,
- 	.doi_free         = calipso_doi_free,
-+	.doi_remove       = calipso_doi_remove,
- 	.doi_getdef       = calipso_doi_getdef,
- 	.doi_putdef       = calipso_doi_putdef,
- 	.doi_walk         = calipso_doi_walk,
-diff --git a/net/netlabel/netlabel_calipso.c b/net/netlabel/netlabel_calipso.c
-index be9f7db..91a5267 100644
---- a/net/netlabel/netlabel_calipso.c
-+++ b/net/netlabel/netlabel_calipso.c
-@@ -53,6 +53,12 @@ struct netlbl_calipso_doiwalk_arg {
- 	u32 seq;
- };
- 
-+/* Argument struct for netlbl_domhsh_walk() */
-+struct netlbl_domhsh_walk_arg {
-+	struct netlbl_audit *audit_info;
-+	u32 doi;
-+};
-+
- /* NetLabel Generic NETLINK CALIPSO family */
- static struct genl_family netlbl_calipso_gnl_family = {
- 	.id = GENL_ID_GENERATE,
-@@ -261,6 +267,64 @@ static int netlbl_calipso_listall(struct sk_buff *skb,
- 	return skb->len;
- }
- 
-+/**
-+ * netlbl_calipso_remove_cb - netlbl_calipso_remove() callback for REMOVE
-+ * @entry: LSM domain mapping entry
-+ * @arg: the netlbl_domhsh_walk_arg structure
-+ *
-+ * Description:
-+ * This function is intended for use by netlbl_calipso_remove() as the callback
-+ * for the netlbl_domhsh_walk() function; it removes LSM domain map entries
-+ * which are associated with the CALIPSO DOI specified in @arg.  Returns zero on
-+ * success, negative values on failure.
-+ *
-+ */
-+static int netlbl_calipso_remove_cb(struct netlbl_dom_map *entry, void *arg)
-+{
-+	struct netlbl_domhsh_walk_arg *cb_arg = arg;
-+
-+	if (entry->def.type == NETLBL_NLTYPE_CALIPSO &&
-+	    entry->def.calipso->doi == cb_arg->doi)
-+		return netlbl_domhsh_remove_entry(entry, cb_arg->audit_info);
-+
-+	return 0;
-+}
-+
-+/**
-+ * netlbl_calipso_remove - Handle a REMOVE message
-+ * @skb: the NETLINK buffer
-+ * @info: the Generic NETLINK info block
-+ *
-+ * Description:
-+ * Process a user generated REMOVE message and respond accordingly.  Returns
-+ * zero on success, negative values on failure.
-+ *
-+ */
-+static int netlbl_calipso_remove(struct sk_buff *skb, struct genl_info *info)
-+{
-+	int ret_val = -EINVAL;
-+	struct netlbl_domhsh_walk_arg cb_arg;
-+	struct netlbl_audit audit_info;
-+	u32 skip_bkt = 0;
-+	u32 skip_chain = 0;
-+
-+	if (!info->attrs[NLBL_CALIPSO_A_DOI])
-+		return -EINVAL;
-+
-+	netlbl_netlink_auditinfo(skb, &audit_info);
-+	cb_arg.doi = nla_get_u32(info->attrs[NLBL_CALIPSO_A_DOI]);
-+	cb_arg.audit_info = &audit_info;
-+	ret_val = netlbl_domhsh_walk(&skip_bkt, &skip_chain,
-+				     netlbl_calipso_remove_cb, &cb_arg);
-+	if (ret_val == 0 || ret_val == -ENOENT) {
-+		ret_val = calipso_doi_remove(cb_arg.doi, &audit_info);
-+		if (ret_val == 0)
-+			atomic_dec(&netlabel_mgmt_protocount);
-+	}
-+
-+	return ret_val;
-+}
-+
- /* NetLabel Generic NETLINK Command Definitions
-  */
- 
-@@ -273,6 +337,13 @@ static const struct genl_ops netlbl_calipso_ops[] = {
- 	.dumpit = NULL,
- 	},
- 	{
-+	.cmd = NLBL_CALIPSO_C_REMOVE,
-+	.flags = GENL_ADMIN_PERM,
-+	.policy = calipso_genl_policy,
-+	.doit = netlbl_calipso_remove,
-+	.dumpit = NULL,
-+	},
-+	{
- 	.cmd = NLBL_CALIPSO_C_LIST,
- 	.flags = 0,
- 	.policy = calipso_genl_policy,
-@@ -367,6 +438,27 @@ void calipso_doi_free(struct calipso_doi *doi_def)
- }
- 
- /**
-+ * calipso_doi_remove - Remove an existing DOI from the CALIPSO protocol engine
-+ * @doi: the DOI value
-+ * @audit_secid: the LSM secid to use in the audit message
-+ *
-+ * Description:
-+ * Removes a DOI definition from the CALIPSO engine.  The NetLabel routines will
-+ * be called to release their own LSM domain mappings as well as our own
-+ * domain list.  Returns zero on success and negative values on failure.
-+ *
-+ */
-+int calipso_doi_remove(u32 doi, struct netlbl_audit *audit_info)
-+{
-+	int ret_val = -ENOMSG;
-+	const struct netlbl_calipso_ops *ops = netlbl_calipso_ops_get();
-+
-+	if (ops)
-+		ret_val = ops->doi_remove(doi, audit_info);
-+	return ret_val;
-+}
-+
-+/**
-  * calipso_doi_getdef - Returns a reference to a valid DOI definition
-  * @doi: the DOI value
-  *
-diff --git a/net/netlabel/netlabel_calipso.h b/net/netlabel/netlabel_calipso.h
-index 5d86752..b864480 100644
---- a/net/netlabel/netlabel_calipso.h
-+++ b/net/netlabel/netlabel_calipso.h
-@@ -124,6 +124,7 @@ static inline int netlbl_calipso_genl_init(void)
- int calipso_doi_add(struct calipso_doi *doi_def,
- 		    struct netlbl_audit *audit_info);
- void calipso_doi_free(struct calipso_doi *doi_def);
-+int calipso_doi_remove(u32 doi, struct netlbl_audit *audit_info);
- struct calipso_doi *calipso_doi_getdef(u32 doi);
- void calipso_doi_putdef(struct calipso_doi *doi_def);
- int calipso_doi_walk(u32 *skip_cnt,
 -- 
-1.8.0
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
