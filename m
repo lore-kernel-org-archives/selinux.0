@@ -1,67 +1,151 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u083Ch68003357
- for <selinux@tycho.nsa.gov>; Thu, 7 Jan 2016 22:12:44 -0500
-Received: by mail-wm0-f50.google.com with SMTP id f206so119954062wmf.0
- for <selinux@tycho.nsa.gov>; Thu, 07 Jan 2016 19:12:15 -0800 (PST)
-MIME-Version: 1.0
-From: Mark Steele <mark@control-alt-del.org>
-Date: Thu, 7 Jan 2016 22:11:35 -0500
-Message-ID: <CAB5=j_rdr6mEPctVLSrL06RG8Nj9hNO=4khcE0Aayn4HsK4UkA@mail.gmail.com>
-Subject: Preventing packet sniffing
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a114435e8364cd70528c9f42f
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u089r02O028019
+ for <selinux@tycho.nsa.gov>; Fri, 8 Jan 2016 04:53:01 -0500
+From: Huw Davies <huw@codeweavers.com>
+To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: [RFC PATCH v2 12/18] ipv6: Allow request socks to contain IPv6
+ options.
+Date: Fri,  8 Jan 2016 09:52:48 +0000
+Message-Id: <1452246774-13241-13-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a114435e8364cd70528c9f42f
-Content-Type: text/plain; charset=UTF-8
+If set, these will that precedence over the parent's options during
+both sending and child creation.  If they're not set, the parent's
+options (if any) will be used.
 
-Hi all,
+This is to allow the security_inet_conn_request() hook to modify the
+IPv6 options in just the same way that it already may do for IPv4.
 
-I would like to know what a good approach might be to prevent packet
-sniffing on a local node from being able to see the network traffic related
-to an application.
+Signed-off-by: Huw Davies <huw@codeweavers.com>
+---
+ include/net/inet_sock.h |  7 ++++++-
+ net/dccp/ipv6.c         | 12 +++++++++---
+ net/ipv4/tcp_input.c    |  3 +++
+ net/ipv6/tcp_ipv6.c     | 12 +++++++++---
+ 4 files changed, 27 insertions(+), 7 deletions(-)
 
-Would iptables (secmark/connsecmark) do the trick to prevent tools like
-tcpdump from being able to see these packets? Are there alternative
-approaches that would be better for handling this?
-
-Thanks in advance!
-
-
-Mark Steele
-CISSP, GPEN, GCIA, CSM
-mark@control-alt-del.org
-
-LinkedIn: https://ca.linkedin.com/in/markrsteele
-Github: https://github.com/marksteele
-Personal: http://www.control-alt-del.org
-
---001a114435e8364cd70528c9f42f
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div>Hi all,</div><div><br></div><div>I would like to know=
- what a good approach might be to prevent packet sniffing on a local node f=
-rom being able to see the network traffic related to an application.</div><=
-div><br></div><div>Would iptables (secmark/connsecmark) do the trick to pre=
-vent tools like tcpdump from being able to see these packets? Are there alt=
-ernative approaches that would be better for handling this?</div><div><br><=
-/div><div>Thanks in advance!<br></div><div><br></div><br clear=3D"all"><div=
-><div class=3D"gmail_signature"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=
-=3D"ltr"><div style=3D"font-size:small">Mark Steele</div><div style=3D"font=
--size:small">CISSP, GPEN, GCIA, CSM</div><div style=3D"font-size:small"><a =
-href=3D"mailto:mark@control-alt-del.org" target=3D"_blank">mark@control-alt=
--del.org</a><br></div><div style=3D"font-size:small"><br></div><div><font s=
-ize=3D"2">LinkedIn: <a href=3D"https://ca.linkedin.com/in/markrsteele" targ=
-et=3D"_blank">https://ca.linkedin.com/in/markrsteele</a></font><br></div><d=
-iv style=3D"font-size:small">Github: <a href=3D"https://github.com/markstee=
-le" target=3D"_blank">https://github.com/marksteele</a></div><div><font siz=
-e=3D"2">Personal: <a href=3D"http://www.control-alt-del.org" target=3D"_bla=
-nk">http://www.control-alt-del.org</a></font></div><div style=3D"font-size:=
-small"></div></div></div></div></div></div>
-</div>
-
---001a114435e8364cd70528c9f42f--
+diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
+index 625bdf9..39bbe8d 100644
+--- a/include/net/inet_sock.h
++++ b/include/net/inet_sock.h
+@@ -96,7 +96,12 @@ struct inet_request_sock {
+ 	u32                     ir_mark;
+ 	union {
+ 		struct ip_options_rcu	*opt;
+-		struct sk_buff		*pktopts;
++#if IS_ENABLED(CONFIG_IPV6)
++		struct {
++			struct ipv6_txoptions	*ipv6_opt;
++			struct sk_buff		*pktopts;
++		};
++#endif
+ 	};
+ };
+ 
+diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
+index 9c6d050..8bb1c3a 100644
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -216,14 +216,17 @@ static int dccp_v6_send_response(const struct sock *sk, struct request_sock *req
+ 	skb = dccp_make_response(sk, dst, req);
+ 	if (skb != NULL) {
+ 		struct dccp_hdr *dh = dccp_hdr(skb);
++		struct ipv6_txoptions *opt;
+ 
+ 		dh->dccph_checksum = dccp_v6_csum_finish(skb,
+ 							 &ireq->ir_v6_loc_addr,
+ 							 &ireq->ir_v6_rmt_addr);
+ 		fl6.daddr = ireq->ir_v6_rmt_addr;
+ 		rcu_read_lock();
+-		err = ip6_xmit(sk, skb, &fl6, rcu_dereference(np->opt),
+-			       np->tclass);
++		opt = ireq->ipv6_opt;
++		if (!opt)
++			opt = rcu_dereference(np->opt);
++		err = ip6_xmit(sk, skb, &fl6, opt, np->tclass);
+ 		rcu_read_unlock();
+ 		err = net_xmit_eval(err);
+ 	}
+@@ -236,6 +239,7 @@ done:
+ static void dccp_v6_reqsk_destructor(struct request_sock *req)
+ {
+ 	dccp_feat_list_purge(&dccp_rsk(req)->dreq_featneg);
++	kfree(inet_rsk(req)->ipv6_opt);
+ 	kfree_skb(inet_rsk(req)->pktopts);
+ }
+ 
+@@ -494,7 +498,9 @@ static struct sock *dccp_v6_request_recv_sock(const struct sock *sk,
+ 	 * Yes, keeping reference count would be much more clever, but we make
+ 	 * one more one thing there: reattach optmem to newsk.
+ 	 */
+-	opt = rcu_dereference(np->opt);
++	opt = ireq->ipv6_opt;
++	if (!opt)
++		opt = rcu_dereference(np->opt);
+ 	if (opt) {
+ 		opt = ipv6_dup_options(newsk, opt);
+ 		RCU_INIT_POINTER(newnp->opt, opt);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 2d656ee..af91a95 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -6094,6 +6094,9 @@ struct request_sock *inet_reqsk_alloc(const struct request_sock_ops *ops,
+ 
+ 		kmemcheck_annotate_bitfield(ireq, flags);
+ 		ireq->opt = NULL;
++#if IS_ENABLED(CONFIG_IPV6)
++		ireq->pktopts = NULL;
++#endif
+ 		atomic64_set(&ireq->ir_cookie, 0);
+ 		ireq->ireq_state = TCP_NEW_SYN_RECV;
+ 		write_pnet(&ireq->ireq_net, sock_net(sk_listener));
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index 6b8a8a9..a9041b2 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -443,6 +443,7 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
+ {
+ 	struct inet_request_sock *ireq = inet_rsk(req);
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
++	struct ipv6_txoptions *opt;
+ 	struct flowi6 *fl6 = &fl->u.ip6;
+ 	struct sk_buff *skb;
+ 	int err = -ENOMEM;
+@@ -462,8 +463,10 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
+ 		if (np->repflow && ireq->pktopts)
+ 			fl6->flowlabel = ip6_flowlabel(ipv6_hdr(ireq->pktopts));
+ 
+-		err = ip6_xmit(sk, skb, fl6, rcu_dereference(np->opt),
+-			       np->tclass);
++		opt = ireq->ipv6_opt;
++		if (!opt)
++			opt = rcu_dereference(np->opt);
++		err = ip6_xmit(sk, skb, fl6, opt, np->tclass);
+ 		err = net_xmit_eval(err);
+ 	}
+ 
+@@ -474,6 +477,7 @@ done:
+ 
+ static void tcp_v6_reqsk_destructor(struct request_sock *req)
+ {
++	kfree(inet_rsk(req)->ipv6_opt);
+ 	kfree_skb(inet_rsk(req)->pktopts);
+ }
+ 
+@@ -1101,7 +1105,9 @@ static struct sock *tcp_v6_syn_recv_sock(const struct sock *sk, struct sk_buff *
+ 	   but we make one more one thing there: reattach optmem
+ 	   to newsk.
+ 	 */
+-	opt = rcu_dereference(np->opt);
++	opt = ireq->ipv6_opt;
++	if (!opt)
++		opt = rcu_dereference(np->opt);
+ 	if (opt) {
+ 		opt = ipv6_dup_options(newsk, opt);
+ 		RCU_INIT_POINTER(newnp->opt, opt);
+-- 
+1.8.0
