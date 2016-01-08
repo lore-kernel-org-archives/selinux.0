@@ -1,56 +1,77 @@
-Subject: Re: Labeling nsfs filesystem
-To: Stephen Smalley <sds@tycho.nsa.gov>, Nicolas Iooss
- <nicolas.iooss@m4x.org>, <selinux@tycho.nsa.gov>
-References: <568ECC43.40500@m4x.org> <568ED656.5030106@tycho.nsa.gov>
- <568FB2FA.3010702@tresys.com> <568FC404.1030307@tycho.nsa.gov>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Message-ID: <568FC6BA.2060505@tresys.com>
-Date: Fri, 8 Jan 2016 09:24:58 -0500
-MIME-Version: 1.0
-In-Reply-To: <568FC404.1030307@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u08EVA6K019105
+ for <selinux@tycho.nsa.gov>; Fri, 8 Jan 2016 09:31:10 -0500
+Subject: Re: ANN: SELinux Userspace Release 20160107-rc1
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, <selinux@tycho.nsa.gov>
+References: <568E8AA5.5030501@tresys.com> <568EE3C3.4060907@m4x.org>
+From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <568FC820.4010405@tresys.com>
+Date: Fri, 8 Jan 2016 09:30:56 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <568EE3C3.4060907@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 1/8/2016 9:13 AM, Stephen Smalley wrote:
-> On 01/08/2016 08:00 AM, Christopher J. PeBenito wrote:
->> On 1/7/2016 4:19 PM, Stephen Smalley wrote:
->>> On 01/07/2016 03:36 PM, Nicolas Iooss wrote:
->>>> Hello,
->>>>
->>>> Since Linux 3.19 targets of /proc/PID/ns/* symlinks have lived in a fs
->>>> separated from /proc, named nsfs [1].  These targets are used to enter
->>>> the namespace of another process by using setns() syscall [2].  On old
->>>> kernels, they were labeled with procfs default type (for example
->>>> "getfilecon /proc/self/ns/uts" returned system_u:object_r:proc_t:s0).
->>>> When using a recent kernel with a policy without nsfs support, the
->>>> inodes are not labeled, as reported for example in Fedora bug #1234757
->>>> [3].  As I encounter this issue on my systems, I asked yesterday on the
->>>> refpolicy ML how nsfs inodes should be labeled [4].
->>>>
->>>> After digging a little bit about the possibilities, here is a
->>>> summary of
->>>> the options I have considered so far.
->>>>
->>>> Option 1: define a new type to label nsfs inodes, nsfs_t.  This
->>>> works as
->>>> expected (c.f. [5] for more details).
-[...]
->>> Only option 1 makes sense to me.
+On 01/07/2016 05:16 PM, Nicolas Iooss wrote:
+> On 01/07/2016 04:56 PM, Steve Lawrence wrote:
+>> A release candidate for SELinux Userspace is now available at:
 >>
->> I don't understand the usage of nsfs which makes this confusing, but why
->> doesn't option 3 make sense?  Since it's under a particular /proc/pid
->> entry, doesn't it make sense to label the object as the domain's type?
+>> https://github.com/SELinuxProject/selinux/wiki/Releases
+>>
+>> This has been tagged as 20160107-rc1 in the git repository.
+>>
+>> Please give at a test and let us know if there are any issues.
+>>
+>> Thanks,
+>> - Steve
 > 
-> The symlink is under a particular /proc/pid directory, but the target is
-> per-namespace, not per-process.
+> Hello,
+> 
+> As I am updating my packages to test this -rc1, I encountered three very
+> minor problems with secilc:
+> 
+> 1. The README says "libsepol >= 2.4", which seems not to be true.  I get
+> this error when compiling secilc with libsepol 2.4:
+> 
+>   secilc.c:298:7: error: too few arguments to function
+>   ‘cil_filecons_to_string’
+>     rc = cil_filecons_to_string(db, &fc_buf, &fc_size);
+>          ^
+>   In file included from secilc.c:40:0:
+>   /usr/include/sepol/cil/cil.h:47:12: note: declared here
+>     extern int cil_filecons_to_string(cil_db_t *db, sepol_policydb_t
+>   *sepol_db, char **o
+>               ^
+>   <builtin>: recipe for target 'secilc.o' failed
+>   make: *** [secilc.o] Error 1
+> 
+> The build is fine with libsepol 2.5-rc1, so I guess the dependency only
+> needs to be updated in the README file.
+> 
+> 2. "make" does not build the man page.  This is because it defaults to
+> the first defined target in the Makefile, which is secilc, not "all",
+> unlike the other SELinux projects.  I was a little bit surprised that
+> "make" did not behave like "make all" but I guess this is not a big
+> deal.  Feel free not to "fix" this.
+> 
+> 3. While reading the Makefile, I found that "man" target was missing
+> from the .PHONY line [2] and I do not know the precise consequences of
+> an incomplete .PHONY target.  Anyway "make all && make install" works fine.
+> 
+> Thanks,
+> Nicolas
+> 
+> [1]
+> https://github.com/SELinuxProject/selinux/blob/secilc-2.5-rc1/secilc/README#L14
+> [2]
+> https://github.com/SELinuxProject/selinux/blob/secilc-2.5-rc1/secilc/Makefile#L49
+> 
 
-In that case, I agree with the genfscon approach.  I originally thought
-it was per-process.
+Thanks for testing. You're correct on all counts. I'll send a patch to
+fix these issues shortly.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+Thanks,
+- Steve
