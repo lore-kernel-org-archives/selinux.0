@@ -1,49 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u08NCDp9029012
- for <selinux@tycho.nsa.gov>; Fri, 8 Jan 2016 18:12:13 -0500
-Received: by mail-ob0-f179.google.com with SMTP id bx1so339341098obb.0
- for <selinux@tycho.nsa.gov>; Fri, 08 Jan 2016 15:12:12 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <568ED656.5030106@tycho.nsa.gov>
-References: <568ECC43.40500@m4x.org>
-	<568ED656.5030106@tycho.nsa.gov>
-Date: Fri, 8 Jan 2016 18:12:11 -0500
-Message-ID: <CAHC9VhQ6c5VrRK3m7mB=+Myexsr9RbTjfSdf+qcWx_J+9B8iUA@mail.gmail.com>
-Subject: Re: Labeling nsfs filesystem
-From: Paul Moore <paul@paul-moore.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u0B9Uv73006631
+ for <selinux@tycho.nsa.gov>; Mon, 11 Jan 2016 04:30:57 -0500
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ by mx1.redhat.com (Postfix) with ESMTPS id 22A8EC09FAA9
+ for <selinux@tycho.nsa.gov>; Mon, 11 Jan 2016 09:30:55 +0000 (UTC)
+From: Lukas Vrabec <lvrabec@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/2] Add description of missing newrole parameter -p in
+ newrole man page.
+Date: Mon, 11 Jan 2016 10:30:40 +0100
+Message-Id: <1452504641-26411-1-git-send-email-lvrabec@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jan 7, 2016 at 4:19 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 01/07/2016 03:36 PM, Nicolas Iooss wrote:
->>
->> Hello,
->>
->> Since Linux 3.19 targets of /proc/PID/ns/* symlinks have lived in a fs
->> separated from /proc, named nsfs [1].  These targets are used to enter
->> the namespace of another process by using setns() syscall [2].  On old
->> kernels, they were labeled with procfs default type (for example
->> "getfilecon /proc/self/ns/uts" returned system_u:object_r:proc_t:s0).
->> When using a recent kernel with a policy without nsfs support, the
->> inodes are not labeled, as reported for example in Fedora bug #1234757
->> [3].  As I encounter this issue on my systems, I asked yesterday on the
->> refpolicy ML how nsfs inodes should be labeled [4].
->>
->> After digging a little bit about the possibilities, here is a summary of
->> the options I have considered so far.
->>
->> Option 1: define a new type to label nsfs inodes, nsfs_t.  This works as
->> expected (c.f. [5] for more details) ...
->
-> Only option 1 makes sense to me.
+Signed-off-by: Lukas Vrabec <lvrabec@redhat.com>
+---
+ policycoreutils/newrole/newrole.1 | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Agreed.
-
+diff --git a/policycoreutils/newrole/newrole.1 b/policycoreutils/newrole/newrole.1
+index c47bc52..3bd57e7 100644
+--- a/policycoreutils/newrole/newrole.1
++++ b/policycoreutils/newrole/newrole.1
+@@ -8,6 +8,7 @@ newrole \- run a shell with a new SELinux role
+ [\fB-t\fR|\fB--type\fR]
+ \fITYPE\fR
+ [\fB-l\fR|\fB--level\fR]
++[\fB-p\fR|\fB--preserve-environment\fR]
+ \fILEVEL\fR [-- [\fIARGS\fR]...]
+ .SH DESCRIPTION
+ .PP
+@@ -38,7 +39,12 @@ specified by
+ If
+ \fILEVEL\fR
+ is a range, the new context will have the sensitivity level and clearance
+-specified by that range.
++specified by that range.  If the
++.B -p
++or
++.B --preserve-environment
++option is specified, then shell with new SELinux context will preserve environment variables,
++otherwise new minimal enviroment is created.
+ .PP
+ Additional arguments
+ .I ARGS
 -- 
-paul moore
-www.paul-moore.com
+2.5.0
