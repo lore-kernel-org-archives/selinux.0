@@ -1,82 +1,44 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u0VAbIJT020323
- for <selinux@tycho.nsa.gov>; Sun, 31 Jan 2016 05:37:18 -0500
-Received: from iosakhe.localdomain (32.206.133.77.rev.sfr.net [77.133.206.32])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id D27635648D1
- for <selinux@tycho.nsa.gov>; Sun, 31 Jan 2016 11:37:13 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 3/3] libsemanage: move modinfo_tmp definition before goto
- cleanup
-Date: Sun, 31 Jan 2016 11:36:38 +0100
-Message-Id: <1454236598-1829-3-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1454236598-1829-1-git-send-email-nicolas.iooss@m4x.org>
-References: <1454236598-1829-1-git-send-email-nicolas.iooss@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u119adQ2012554
+ for <selinux@tycho.nsa.gov>; Mon, 1 Feb 2016 04:36:39 -0500
+Received: by mail-pa0-f44.google.com with SMTP id cy9so79243295pac.0
+ for <selinux@tycho.nsa.gov>; Mon, 01 Feb 2016 01:36:37 -0800 (PST)
+Received: from localhost ([2404:e800:e600:38b:2d44:6189:65ef:57eb])
+ by smtp.gmail.com with ESMTPSA id r77sm7816267pfa.47.2016.02.01.01.36.34
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Mon, 01 Feb 2016 01:36:35 -0800 (PST)
+Date: Mon, 1 Feb 2016 17:36:33 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: genhomedircon uid template
+Message-ID: <20160201093633.GB21978@meriadoc.perfinion.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In semanage_direct_set_module_info() and semanage_direct_list_all()
-functions, when modinfo_tmp variable gets initialized, a branch to
-"cleanup" label may have already been taken.  This leads to this
-variable being possibly used uninitialized in these functions.
+Hi all,
 
-This is reported by clang:
+XDG_RUNTIME_DIR is usually /run/user/$UID but there is no way to label
+that in an fcontext file. It used to be /run/user/USER which is easy but
+not UID.
 
-    direct_api.c:2491:41: error: variable 'modinfo_tmp' may be
-    uninitialized when used here [-Werror,-Wconditional-uninitialized]
-            ret = semanage_module_info_destroy(sh, modinfo_tmp);
-                                                   ^~~~~~~~~~~
-    direct_api.c:2334:2: note: variable 'modinfo_tmp' is declared here
-            semanage_module_info_t *modinfo_tmp = NULL;
-            ^
+What template keyword should be used for such an entry? UID? USERID?
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsemanage/src/direct_api.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+USERID is perhaps more obvious but has to be replaced before USER but
+that should be doable.
+https://github.com/SELinuxProject/selinux/blob/master/libsemanage/src/genhomedircon.c#L76
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index dd621d99295e..7c84bcea629b 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -2136,6 +2136,7 @@ static int semanage_direct_set_module_info(semanage_handle_t *sh,
- 	char fn[PATH_MAX];
- 	const char *path = NULL;
- 	int enabled = 0;
-+	semanage_module_info_t *modinfo_tmp = NULL;
- 
- 	semanage_module_key_t modkey;
- 	ret = semanage_module_key_init(sh, &modkey);
-@@ -2144,8 +2145,6 @@ static int semanage_direct_set_module_info(semanage_handle_t *sh,
- 		goto cleanup;
- 	}
- 
--	semanage_module_info_t *modinfo_tmp = NULL;
--
- 	/* check transaction */
- 	if (!sh->is_in_transaction) {
- 		if (semanage_begin_transaction(sh) < 0) {
-@@ -2316,6 +2315,8 @@ static int semanage_direct_list_all(semanage_handle_t *sh,
- 
- 	uint16_t priority = 0;
- 
-+	semanage_module_info_t *modinfo_tmp = NULL;
-+
- 	semanage_module_info_t modinfo;
- 	ret = semanage_module_info_init(sh, &modinfo);
- 	if (ret != 0) {
-@@ -2323,8 +2324,6 @@ static int semanage_direct_list_all(semanage_handle_t *sh,
- 		goto cleanup;
- 	}
- 
--	semanage_module_info_t *modinfo_tmp = NULL;
--
- 	if (sh->is_in_transaction) {
- 		toplevel = semanage_path(SEMANAGE_TMP, SEMANAGE_MODULES);
- 	} else {
--- 
-2.7.0
+UID does not conflict with USER but this line exists in refpol which
+is problematic:
+contrib/fetchmail.fc:13:/var/mail/\.fetchmail-UIDL-cache -- gen_context(system_u:object_r:fetchmail_uidl_cache_t,s0)
+
+This could also be used for several fcontexts in kerberos. It stores the
+tickets in /tmp/krbcc_UID for example.
+
+If we choose a template name I can put together a patch to add it.
+
+-- Jason
