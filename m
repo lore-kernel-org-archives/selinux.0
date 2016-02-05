@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u15Kuq2J031606
- for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2016 15:56:52 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u15Kuq2K031606
+ for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2016 15:56:54 -0500
 Received: from iosakhe.localdomain (32.206.133.77.rev.sfr.net [77.133.206.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 953FE5647AE
- for <selinux@tycho.nsa.gov>; Fri,  5 Feb 2016 21:56:49 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id BF3F05647AE
+ for <selinux@tycho.nsa.gov>; Fri,  5 Feb 2016 21:56:48 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 3/3] libsemanage: tests: do not overwrite CFLAGS and LDFLAGS
-Date: Fri,  5 Feb 2016 21:55:51 +0100
-Message-Id: <1454705751-1448-3-git-send-email-nicolas.iooss@m4x.org>
+Subject: [PATCH 2/3] policycoreutils: sepolicy: do not overwrite CFLAGS
+Date: Fri,  5 Feb 2016 21:55:50 +0100
+Message-Id: <1454705751-1448-2-git-send-email-nicolas.iooss@m4x.org>
 In-Reply-To: <1454705751-1448-1-git-send-email-nicolas.iooss@m4x.org>
 References: <1454705751-1448-1-git-send-email-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,39 +18,27 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-libsemanage/tests/Makefile currently overwrites CFLAGS and LDFLAGS
-contents.  This makes building with custom flags (e.g. with address
-sanitizer) harder.  Append flags to these variables instead.
+sepolicy Makefile overwrites CFLAGS value, which prevents compiling its
+Python module with custom compilation flags.  Modify it to append flags
+to CFLAGS instead, like other policycoreutils programs do.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsemanage/tests/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ policycoreutils/sepolicy/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index 59067acc6ab4..fec96ffd282b 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -11,9 +11,9 @@ LIBS = ../src/libsemanage.a ../../libselinux/src/libselinux.a ../../libsepol/src
+diff --git a/policycoreutils/sepolicy/Makefile b/policycoreutils/sepolicy/Makefile
+index 45edb0c2a499..099a8a057fe1 100644
+--- a/policycoreutils/sepolicy/Makefile
++++ b/policycoreutils/sepolicy/Makefile
+@@ -11,7 +11,7 @@ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
+ BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
+ SHAREDIR ?= $(PREFIX)/share/sandbox
+-override CFLAGS = -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
++override CFLAGS += -I$(PREFIX)/include -DPACKAGE="policycoreutils" -Wall -Werror -Wextra -W  -DSHARED -shared
  
- EXECUTABLE = libsemanage-tests
- CC = gcc
--CFLAGS = -c -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
-+CFLAGS += -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
- INCLUDE = -I$(TESTSRC) -I$(TESTSRC)/../include
--LDFLAGS = -lcunit -lustr -lbz2 -laudit
-+LDFLAGS += -lcunit -lustr -lbz2 -laudit
- OBJECTS = $(SOURCES:.c=.o) 
+ BASHCOMPLETIONS=sepolicy-bash-completion.sh
  
- all: $(EXECUTABLE) 
-@@ -22,7 +22,7 @@ $(EXECUTABLE): $(OBJECTS)
- 	$(CC) $(OBJECTS) $(LIBS) $(LDFLAGS) -o $@
- 
- %.o: %.c
--	$(CC) $(CFLAGS) $(INCLUDE) $*.c -o $*.o
-+	$(CC) $(CFLAGS) $(INCLUDE) -c $*.c -o $*.o
- 
- clean distclean: 
- 	rm -rf $(OBJECTS) $(EXECUTABLE)
 -- 
 2.7.0
