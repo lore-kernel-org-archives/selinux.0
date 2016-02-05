@@ -1,70 +1,222 @@
-Subject: Re: selinux_set_callback() problem
-To: Russell Coker <russell@coker.com.au>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <201602050832.20068.russell@coker.com.au>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56B4E9F1.8070904@tycho.nsa.gov>
-Date: Fri, 5 Feb 2016 13:29:05 -0500
-MIME-Version: 1.0
-In-Reply-To: <201602050832.20068.russell@coker.com.au>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u15Kuia2031596
+ for <selinux@tycho.nsa.gov>; Fri, 5 Feb 2016 15:56:45 -0500
+Received: from iosakhe.localdomain (32.206.133.77.rev.sfr.net [77.133.206.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id EA9965647AE
+ for <selinux@tycho.nsa.gov>; Fri,  5 Feb 2016 21:56:39 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/3] policycoreutils: sepolicy: rename policy global variable
+Date: Fri,  5 Feb 2016 21:55:49 +0100
+Message-Id: <1454705751-1448-1-git-send-email-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/04/2016 04:32 PM, Russell Coker wrote:
-> type=USER_AVC msg=audit(1454447396.743:48359): pid=1 uid=0 auid=4294967295
-> ses=4294967295 subj=system_u:system_r:init_t:s0 msg='avc:  denied  { status }
-> for auid=0 uid=0 gid=0 path="/lib/systemd/system/reboot.target"
-> cmdline="reboot" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:systemd_unit_file_t:SystemLow tclass=service
-> exe="/lib/systemd/systemd" sauid=0 hostname=? addr=? terminal=?'
->
-> I'm seeing entries like the above from the Debian/Jessie systemd in audit.log.
-> Below is the relevant code from the systemd source:
->
-> _printf_(2, 3) static int log_callback(int type, const char *fmt, ...) {
->          va_list ap;
->
-> #ifdef HAVE_AUDIT
->          if (get_audit_fd() >= 0) {
->                  _cleanup_free_ char *buf = NULL;
->                  int r;
->
->                  va_start(ap, fmt);
->                  r = vasprintf(&buf, fmt, ap);
->                  va_end(ap);
->
->                  if (r >= 0) {
->                          audit_log_user_avc_message(get_audit_fd(),
-> AUDIT_USER_AVC, buf,
-> NULL, NULL, NULL, 0);
->                          return 0;
->                  }
->          }
-> #endif
->
->          va_start(ap, fmt);
->          log_metav(LOG_USER | LOG_INFO, __FILE__, __LINE__, __FUNCTION__, fmt,
-> ap);
->          va_end(ap);
->
->          return 0;
-> }
->
-> Then the following line is in the access_init() function to enable it:
->
-> selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) log_callback);
->
-> Any suggestions as to where I should start working on this?
->
-> Sorry if it's a newbie question, I haven't worked on SE Linux library code for
-> a while.
+Variable policy is both a global variable and a parameter to some
+functions in policycoreutils/sepolicy/search.c.  This makes the building
+fail when using -Wshadow -Werror compilation flags.
 
-What exactly is the problem?  Is it that the scontext has a raw context 
-and the tcontext has a translated context?  Or is it that it was denied 
-when it should have been allowed?
+Fix this by renaming the global variable global_policy.  This does not
+change the API of the Python module.
 
-The callback itself is obviously being executed or you wouldn't have the 
-audit message at all.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ policycoreutils/sepolicy/info.c   | 20 ++++++++++----------
+ policycoreutils/sepolicy/policy.c | 10 +++++-----
+ policycoreutils/sepolicy/policy.h |  2 +-
+ policycoreutils/sepolicy/search.c | 26 +++++++++++++-------------
+ 4 files changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/policycoreutils/sepolicy/info.c b/policycoreutils/sepolicy/info.c
+index 17f5732f2d5c..bbb6844d0b5a 100644
+--- a/policycoreutils/sepolicy/info.c
++++ b/policycoreutils/sepolicy/info.c
+@@ -1318,31 +1318,31 @@ PyObject* info( int type, const char *name)
+ 	switch(type) {
+ 	/* display requested info */
+ 	case TYPE:
+-		output = get_types(name, policy);
++		output = get_types(name, global_policy);
+ 		break;
+ 	case ATTRIBUTE:
+-		output = get_attribs(name, policy);
++		output = get_attribs(name, global_policy);
+ 		break;
+ 	case ROLE:
+-		output = get_roles(name, policy);
++		output = get_roles(name, global_policy);
+ 		break;
+ 	case USER:
+-		output = get_users(name, policy);
++		output = get_users(name, global_policy);
+ 		break;
+ 	case CLASS:
+-		output = get_classes(name, policy);
++		output = get_classes(name, global_policy);
+ 		break;
+ 	case BOOLEAN:
+-		output = get_booleans(name, policy);
++		output = get_booleans(name, global_policy);
+ 		break;
+ 	case PORT:
+-		output = get_ports(name, policy);
++		output = get_ports(name, global_policy);
+ 		break;
+ 	case SENS:
+-		output = get_sens(name, policy);
++		output = get_sens(name, global_policy);
+ 		break;
+ 	case CATS:
+-		output = get_cats(name, policy);
++		output = get_cats(name, global_policy);
+ 		break;
+ 	default:
+ 		errno = EINVAL;
+@@ -1357,7 +1357,7 @@ PyObject *wrap_info(PyObject *UNUSED(self), PyObject *args){
+     int type;
+     const char *name;
+     
+-    if (!policy) {
++    if (!global_policy) {
+ 	    PyErr_SetString(PyExc_RuntimeError,"Policy not loaded");
+ 	    return NULL;
+     }
+diff --git a/policycoreutils/sepolicy/policy.c b/policycoreutils/sepolicy/policy.c
+index 2a9e1c7cc7a8..b7e3536f7314 100644
+--- a/policycoreutils/sepolicy/policy.c
++++ b/policycoreutils/sepolicy/policy.c
+@@ -33,7 +33,7 @@
+ #endif
+ 
+ #include "policy.h"
+-apol_policy_t *policy = NULL;
++apol_policy_t *global_policy = NULL;
+ 
+ /* other */
+ #include <errno.h>
+@@ -53,8 +53,8 @@ PyObject *wrap_policy(PyObject *UNUSED(self), PyObject *args){
+     if (!PyArg_ParseTuple(args, "z", &policy_file))
+ 	    return NULL;
+ 
+-    if (policy) 
+-	    apol_policy_destroy(&policy);
++    if (global_policy)
++	    apol_policy_destroy(&global_policy);
+ 
+     int policy_load_options = 0;
+ 	    
+@@ -66,9 +66,9 @@ PyObject *wrap_policy(PyObject *UNUSED(self), PyObject *args){
+     }
+     apol_vector_destroy(&mod_paths);
+     
+-    policy = apol_policy_create_from_policy_path(pol_path, policy_load_options, NULL, NULL);
++    global_policy = apol_policy_create_from_policy_path(pol_path, policy_load_options, NULL, NULL);
+     apol_policy_path_destroy(&pol_path);
+-    if (!policy) {
++    if (!global_policy) {
+ 	    PyErr_SetString(PyExc_RuntimeError,strerror(errno));
+ 	    return NULL;
+     }
+diff --git a/policycoreutils/sepolicy/policy.h b/policycoreutils/sepolicy/policy.h
+index d59452a81485..ffac497dccd0 100644
+--- a/policycoreutils/sepolicy/policy.h
++++ b/policycoreutils/sepolicy/policy.h
+@@ -1,5 +1,5 @@
+ #include <apol/policy.h>
+-extern apol_policy_t *policy;
++extern apol_policy_t *global_policy;
+ extern PyObject *wrap_info(PyObject *self, PyObject *args);
+ extern void init_info (PyObject *m);
+ extern PyObject *wrap_search(PyObject *self, PyObject *args);
+diff --git a/policycoreutils/sepolicy/search.c b/policycoreutils/sepolicy/search.c
+index d9a5aec60c89..d608006d4469 100644
+--- a/policycoreutils/sepolicy/search.c
++++ b/policycoreutils/sepolicy/search.c
+@@ -914,23 +914,23 @@ PyObject* search(bool allow,
+ 		cmd_opts.perm_vector = apol_vector_create(free);
+ 		cmd_opts.permlist = strdup(permlist);
+ 	}
+-	if (!cmd_opts.semantic && qpol_policy_has_capability(apol_policy_get_qpol(policy), QPOL_CAP_SYN_RULES)) {
+-		if (qpol_policy_build_syn_rule_table(apol_policy_get_qpol(policy))) {
++	if (!cmd_opts.semantic && qpol_policy_has_capability(apol_policy_get_qpol(global_policy), QPOL_CAP_SYN_RULES)) {
++		if (qpol_policy_build_syn_rule_table(apol_policy_get_qpol(global_policy))) {
+ 			PyErr_SetString(PyExc_RuntimeError,"Query failed");
+ 			goto cleanup;
+ 		}
+ 	}
+ 
+ 	/* if syntactic rules are not available always do semantic search */
+-	if (!qpol_policy_has_capability(apol_policy_get_qpol(policy), QPOL_CAP_SYN_RULES)) {
++	if (!qpol_policy_has_capability(apol_policy_get_qpol(global_policy), QPOL_CAP_SYN_RULES)) {
+ 		cmd_opts.semantic = 1;
+ 	}
+ 
+ 	/* supress line numbers if doing semantic search or not available */
+-	if (cmd_opts.semantic || !qpol_policy_has_capability(apol_policy_get_qpol(policy), QPOL_CAP_LINE_NUMBERS)) {
++	if (cmd_opts.semantic || !qpol_policy_has_capability(apol_policy_get_qpol(global_policy), QPOL_CAP_LINE_NUMBERS)) {
+ 		cmd_opts.lineno = 0;
+ 	}
+-	if (perform_av_query(policy, &cmd_opts, &v)) {
++	if (perform_av_query(global_policy, &cmd_opts, &v)) {
+ 		goto cleanup;
+ 	}
+ 	output = PyList_New(0);
+@@ -938,36 +938,36 @@ PyObject* search(bool allow,
+ 		goto cleanup;
+ 
+ 	if (v) {
+-		get_av_results(policy, v, output);
++		get_av_results(global_policy, v, output);
+ 	}
+ 
+ 	apol_vector_destroy(&v);
+-	if (perform_te_query(policy, &cmd_opts, &v)) {
++	if (perform_te_query(global_policy, &cmd_opts, &v)) {
+ 		goto cleanup;
+ 	}
+ 	if (v) {
+-		get_te_results(policy, v, output);
++		get_te_results(global_policy, v, output);
+ 	}
+ 
+ 	if (cmd_opts.all || cmd_opts.type) {
+ 		apol_vector_destroy(&v);
+-		if (perform_ft_query(policy, &cmd_opts, &v)) {
++		if (perform_ft_query(global_policy, &cmd_opts, &v)) {
+ 			goto cleanup;
+ 		}
+ 
+ 		if (v) {
+-			get_ft_results(policy, v, output);
++			get_ft_results(global_policy, v, output);
+ 		}
+ 	}
+ 
+ 	if (cmd_opts.all || cmd_opts.role_allow) {
+ 		apol_vector_destroy(&v);
+-		if (perform_ra_query(policy, &cmd_opts, &v)) {
++		if (perform_ra_query(global_policy, &cmd_opts, &v)) {
+ 			goto cleanup;
+ 		}
+ 
+ 		if (v) {
+-			get_ra_results(policy, v, output);
++			get_ra_results(global_policy, v, output);
+ 		}
+ 	}
+ 
+@@ -1016,7 +1016,7 @@ PyObject *wrap_search(PyObject *UNUSED(self), PyObject *args){
+     int transition = Dict_ContainsInt(dict, "transition");
+     int role_allow = Dict_ContainsInt(dict, "role_allow");
+ 
+-    if (!policy) {
++    if (!global_policy) {
+ 	    PyErr_SetString(PyExc_RuntimeError,"Policy not loaded");
+ 	    return NULL;
+     }
+-- 
+2.7.0
