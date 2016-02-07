@@ -1,241 +1,153 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u16AwGkw011761
- for <selinux@tycho.nsa.gov>; Sat, 6 Feb 2016 05:58:16 -0500
-Received: from mail-lf0-f42.google.com (mail-lf0-f42.google.com
- [209.85.215.42])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 4B7135647B4
- for <selinux@tycho.nsa.gov>; Sat,  6 Feb 2016 11:58:12 +0100 (CET)
-Received: by mail-lf0-f42.google.com with SMTP id j78so71559477lfb.1
- for <selinux@tycho.nsa.gov>; Sat, 06 Feb 2016 02:58:12 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u17Ju23A022041
+ for <selinux@tycho.nsa.gov>; Sun, 7 Feb 2016 14:56:02 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: Huw Davies <huw@codeweavers.com>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH v2 02/18] netlabel: Add an address family to domain
+ hash entries.
+Date: Sun, 07 Feb 2016 14:55:54 -0500
+Message-ID: <6071141.OZEtCjc0a7@sifl>
+In-Reply-To: <1452246774-13241-3-git-send-email-huw@codeweavers.com>
+References: <1452246774-13241-3-git-send-email-huw@codeweavers.com>
 MIME-Version: 1.0
-In-Reply-To: <201602061258.00611.russell@coker.com.au>
-References: <201602050832.20068.russell@coker.com.au>
- <56B4E9F1.8070904@tycho.nsa.gov>
- <201602061258.00611.russell@coker.com.au>
-Date: Sat, 6 Feb 2016 11:58:11 +0100
-Message-ID: <CAJfZ7=ktGwNiHc7WWBLp6J7HOXszMoB2F9MQuEDFqu7N9fj1qw@mail.gmail.com>
-Subject: Re: selinux_set_callback() problem
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: Russell Coker <russell@coker.com.au>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a113fc1be00d876052b17d815
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113fc1be00d876052b17d815
-Content-Type: text/plain; charset=UTF-8
+On Friday, January 08, 2016 09:52:38 AM Huw Davies wrote:
+> The reason is to allow different labelling protocols for
+> different address families with the same domain.
+> 
+> This requires the addition of an address family attribute
+> in the netlink communication protocol.  It is used in several
+> messages:
+> 
+> NLBL_MGMT_C_ADD and NLBL_MGMT_C_ADDDEF take it as an optional
+> attribute for the unlabelled protocol.  It may be one of AF_INET,
+> AF_INET6 and AF_UNSPEC (to specify both address families).  If is
+> it missing, it defaults to AF_UNSPEC.
+> 
+> NLBL_MGMT_C_LISTALL and NLBL_MGMT_C_LISTDEF return it as part of
+> the enumeration of each item.  Addtionally, it may be sent to
+> LISTDEF to specify which address family to return.
+> 
+> Signed-off-by: Huw Davies <huw@codeweavers.com>
 
-On Sat, Feb 6, 2016 at 2:58 AM, Russell Coker <russell@coker.com.au> wrote:
+...
 
-> On Sat, 6 Feb 2016 05:29:05 AM Stephen Smalley wrote:
-> > On 02/04/2016 04:32 PM, Russell Coker wrote:
-> > > type=USER_AVC msg=audit(1454447396.743:48359): pid=1 uid=0
-> > > auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0
-> > > msg='avc:  denied  { status } for auid=0 uid=0 gid=0
-> > > path="/lib/systemd/system/reboot.target"
-> > > cmdline="reboot"
-> > > scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> > > tcontext=system_u:object_r:systemd_unit_file_t:SystemLow tclass=service
-> > > exe="/lib/systemd/systemd" sauid=0 hostname=? addr=? terminal=?'
-> > >
-> > > I'm seeing entries like the above from the Debian/Jessie systemd in
-> > > audit.log. Below is the relevant code from the systemd source:
-> > >
-> > > _printf_(2, 3) static int log_callback(int type, const char *fmt, ...)
-> {
-> > >
-> > >          va_list ap;
-> > >
-> > > #ifdef HAVE_AUDIT
-> > >
-> > >          if (get_audit_fd() >= 0) {
-> > >
-> > >                  _cleanup_free_ char *buf = NULL;
-> > >                  int r;
-> > >
-> > >                  va_start(ap, fmt);
-> > >                  r = vasprintf(&buf, fmt, ap);
-> > >                  va_end(ap);
-> > >
-> > >                  if (r >= 0) {
-> > >
-> > >                          audit_log_user_avc_message(get_audit_fd(),
-> > >
-> > > AUDIT_USER_AVC, buf,
-> > > NULL, NULL, NULL, 0);
-> > >
-> > >                          return 0;
-> > >
-> > >                  }
-> > >
-> > >          }
-> > >
-> > > #endif
-> > >
-> > >          va_start(ap, fmt);
-> > >          log_metav(LOG_USER | LOG_INFO, __FILE__, __LINE__,
-> __FUNCTION__,
-> > >          fmt,
-> > >
-> > > ap);
-> > >
-> > >          va_end(ap);
-> > >
-> > >          return 0;
-> > >
-> > > }
-> > >
-> > > Then the following line is in the access_init() function to enable it:
-> > >
-> > > selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback)
-> > > log_callback);
-> > >
-> > > Any suggestions as to where I should start working on this?
-> > >
-> > > Sorry if it's a newbie question, I haven't worked on SE Linux library
-> > > code for a while.
-> >
-> > What exactly is the problem?  Is it that the scontext has a raw context
-> > and the tcontext has a translated context?  Or is it that it was denied
-> > when it should have been allowed?
-> >
-> > The callback itself is obviously being executed or you wouldn't have the
-> > audit message at all.
->
-> The problem is a translated context which breaks audit2allow.  Even if it
-> didn't break audit2allow it wouldn't be a good thing to have as the text
-> representations can (in theory at least) change.
+> -static struct netlbl_dom_map *netlbl_domhsh_search_def(const char *domain)
+> +static struct netlbl_dom_map *netlbl_domhsh_search_def(const char *domain,
+> +						       u16 family)
+>  {
+>  	struct netlbl_dom_map *entry;
+> 
+> -	entry = netlbl_domhsh_search(domain);
+> +	entry = netlbl_domhsh_search(domain, family);
+>  	if (entry == NULL) {
+> -		entry = netlbl_domhsh_rcu_deref(netlbl_domhsh_def);
+> -		if (entry != NULL && !entry->valid)
+> -			entry = NULL;
+> +		if (family == AF_INET || family == AF_UNSPEC) {
+> +			entry = netlbl_domhsh_rcu_deref(netlbl_domhsh_def_ipv4);
+> +			if (entry != NULL && !entry->valid)
+> +				entry = NULL;
 
+If entry is non-NULL and valid, why not return immediately?
 
-In systemd git log, there is
-https://github.com/systemd/systemd/commit/24154879845c6aa68a82d3a606f037e9df7527e0
-which seems to fix this issue for systemd >=226. Nevertheless there may
-have been a regression since then. Which version of systemd are you using?
+> +		}
+> +		if (entry == NULL &&
+> +		    (family == AF_INET6 || family == AF_UNSPEC)) {
+> +			entry = netlbl_domhsh_rcu_deref(netlbl_domhsh_def_ipv6);
+> +			if (entry != NULL && !entry->valid)
+> +				entry = NULL;
+> +		}
+>  	}
 
--- Nicolas
+...
 
---001a113fc1be00d876052b17d815
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+> @@ -264,13 +285,19 @@ static int netlbl_domhsh_validate(const struct
+> netlbl_dom_map *entry) if (entry == NULL)
+>  		return -EINVAL;
+> 
+> +	if (entry->family != AF_INET && entry->family != AF_INET6)
+> +		if (entry->def.type != NETLBL_NLTYPE_UNLABELED ||
+> +		    entry->family != AF_UNSPEC)
+> +			return -EINVAL;
 
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On S=
-at, Feb 6, 2016 at 2:58 AM, Russell Coker <span dir=3D"ltr">&lt;<a href=3D"=
-mailto:russell@coker.com.au" target=3D"_blank">russell@coker.com.au</a>&gt;=
-</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px=
- 0px 0.8ex;border-left-width:1px;border-left-color:rgb(204,204,204);border-=
-left-style:solid;padding-left:1ex"><div class=3D""><div class=3D"h5">On Sat=
-, 6 Feb 2016 05:29:05 AM Stephen Smalley wrote:<br>
-&gt; On 02/04/2016 04:32 PM, Russell Coker wrote:<br>
-&gt; &gt; type=3DUSER_AVC msg=3Daudit(1454447396.743:48359): pid=3D1 uid=3D=
-0<br>
-&gt; &gt; auid=3D4294967295 ses=3D4294967295 subj=3Dsystem_u:system_r:init_=
-t:s0<br>
-&gt; &gt; msg=3D&#39;avc:=C2=A0 denied=C2=A0 { status } for auid=3D0 uid=3D=
-0 gid=3D0<br>
-&gt; &gt; path=3D&quot;/lib/systemd/system/reboot.target&quot;<br>
-&gt; &gt; cmdline=3D&quot;reboot&quot;<br>
-&gt; &gt; scontext=3Dunconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023<=
-br>
-&gt; &gt; tcontext=3Dsystem_u:object_r:systemd_unit_file_t:SystemLow tclass=
-=3Dservice<br>
-&gt; &gt; exe=3D&quot;/lib/systemd/systemd&quot; sauid=3D0 hostname=3D? add=
-r=3D? terminal=3D?&#39;<br>
-&gt; &gt;<br>
-&gt; &gt; I&#39;m seeing entries like the above from the Debian/Jessie syst=
-emd in<br>
-&gt; &gt; audit.log. Below is the relevant code from the systemd source:<br=
->
-&gt; &gt;<br>
-&gt; &gt; _printf_(2, 3) static int log_callback(int type, const char *fmt,=
- ...) {<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 va_list ap;<br>
-&gt; &gt;<br>
-&gt; &gt; #ifdef HAVE_AUDIT<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (get_audit_fd() &gt;=3D 0) {=
-<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 _cl=
-eanup_free_ char *buf =3D NULL;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 int=
- r;<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 va_=
-start(ap, fmt);<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 r =
-=3D vasprintf(&amp;buf, fmt, ap);<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 va_=
-end(ap);<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if =
-(r &gt;=3D 0) {<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 audit_log_user_avc_message(get_audit_fd(),<br>
-&gt; &gt;<br>
-&gt; &gt; AUDIT_USER_AVC, buf,<br>
-&gt; &gt; NULL, NULL, NULL, 0);<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 return 0;<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<b=
-r>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
-&gt; &gt;<br>
-&gt; &gt; #endif<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 va_start(ap, fmt);<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 log_metav(LOG_USER | LOG_INFO, =
-__FILE__, __LINE__, __FUNCTION__,<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 fmt,<br>
-&gt; &gt;<br>
-&gt; &gt; ap);<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 va_end(ap);<br>
-&gt; &gt;<br>
-&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return 0;<br>
-&gt; &gt;<br>
-&gt; &gt; }<br>
-&gt; &gt;<br>
-&gt; &gt; Then the following line is in the access_init() function to enabl=
-e it:<br>
-&gt; &gt;<br>
-&gt; &gt; selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback)<br>
-&gt; &gt; log_callback);<br>
-&gt; &gt;<br>
-&gt; &gt; Any suggestions as to where I should start working on this?<br>
-&gt; &gt;<br>
-&gt; &gt; Sorry if it&#39;s a newbie question, I haven&#39;t worked on SE L=
-inux library<br>
-&gt; &gt; code for a while.<br>
-&gt;<br>
-&gt; What exactly is the problem?=C2=A0 Is it that the scontext has a raw c=
-ontext<br>
-&gt; and the tcontext has a translated context?=C2=A0 Or is it that it was =
-denied<br>
-&gt; when it should have been allowed?<br>
-&gt;<br>
-&gt; The callback itself is obviously being executed or you wouldn&#39;t ha=
-ve the<br>
-&gt; audit message at all.<br>
-<br>
-</div></div>The problem is a translated context which breaks audit2allow.=
-=C2=A0 Even if it<br>
-didn&#39;t break audit2allow it wouldn&#39;t be a good thing to have as the=
- text<br>
-representations can (in theory at least) change.</blockquote><div><br></div=
-><div>In systemd git log, there is <a href=3D"https://github.com/systemd/sy=
-stemd/commit/24154879845c6aa68a82d3a606f037e9df7527e0">https://github.com/s=
-ystemd/systemd/commit/24154879845c6aa68a82d3a606f037e9df7527e0</a> which se=
-ems to fix this issue for systemd &gt;=3D226. Nevertheless there may have b=
-een a regression since then. Which version of systemd are you using?<br></d=
-iv><div><br></div><div>-- Nicolas</div></div></div></div>
+There really is no need for a nested if-then in the above code, granted the 
+combined conditional would be a bit more complex, but I would rather see that 
+than this.
 
---001a113fc1be00d876052b17d815--
+> @@ -385,9 +415,10 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+>  	rcu_read_lock();
+>  	spin_lock(&netlbl_domhsh_lock);
+>  	if (entry->domain != NULL)
+> -		entry_old = netlbl_domhsh_search(entry->domain);
+> +		entry_old = netlbl_domhsh_search(entry->domain, entry->family);
+>  	else
+> -		entry_old = netlbl_domhsh_search_def(entry->domain);
+> +		entry_old = netlbl_domhsh_search_def(entry->domain,
+> +						     entry->family);
+>  	if (entry_old == NULL) {
+>  		entry->valid = 1;
+> 
+> @@ -397,7 +428,37 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+>  				    &rcu_dereference(netlbl_domhsh)->tbl[bkt]);
+>  		} else {
+>  			INIT_LIST_HEAD(&entry->list);
+> -			rcu_assign_pointer(netlbl_domhsh_def, entry);
+> +			switch (entry->family) {
+> +				struct netlbl_dom_map *entry2;
+
+I'm not a fan of declaring variable here, move it up to the top of the 
+function, or if you must, make it local to the AF_UNSPEC case below.  Also, 
+while I'm being nit-picky, I dislike numbers in variable names unless we are 
+dealing with something that honestly uses numbers as part of the name, e.g. 
+ipv6, rename "entry2" to "entry_b" (or something along those lines) please.
+
+> +			case AF_INET:
+> +				rcu_assign_pointer(netlbl_domhsh_def_ipv4,
+> +						   entry);
+> +				break;
+> +			case AF_INET6:
+> +				rcu_assign_pointer(netlbl_domhsh_def_ipv6,
+> +						   entry);
+> +				break;
+> +			case AF_UNSPEC:
+> +				if (entry->def.type != NETLBL_NLTYPE_UNLABELED)
+> +					return -EINVAL;
+> +				entry2 = kzalloc(sizeof(*entry2), GFP_ATOMIC);
+> +				if (!entry2)
+> +					return -ENOMEM;
+> +				entry2->family = AF_INET6;
+> +				entry2->def.type = NETLBL_NLTYPE_UNLABELED;
+> +				entry2->valid = 1;
+> +				entry->family = AF_INET;
+> +				rcu_assign_pointer(netlbl_domhsh_def_ipv4,
+> +						   entry);
+> +				rcu_assign_pointer(netlbl_domhsh_def_ipv6,
+> +						   entry2);
+> +				break;
+> +			default:
+> +				/* Already checked in
+> +				 * netlbl_domhsh_validate()
+> +				 */
+
+Another style point - unless were talking about function header comment 
+blocks, don't place a multi-line comment terminator on a separate line.  For 
+example, instead of the above, so something like this:
+
+  /* already checked in
+   * netlbl_domhsh_validate() */
+
+> +				return -EINVAL;
+> +			}
+>  		}
+
+-- 
+paul moore
+security @ redhat
