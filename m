@@ -1,68 +1,81 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u17JuXdA022125
- for <selinux@tycho.nsa.gov>; Sun, 7 Feb 2016 14:56:38 -0500
-From: Paul Moore <pmoore@redhat.com>
-To: Huw Davies <huw@codeweavers.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH v2 08/18] ipv6: Add ipv6_renew_options_kern() that
- accepts a kernel mem pointer.
-Date: Sun, 07 Feb 2016 14:56:05 -0500
-Message-ID: <2213519.F62jx6DkRd@sifl>
-In-Reply-To: <1452246774-13241-9-git-send-email-huw@codeweavers.com>
-References: <1452246774-13241-9-git-send-email-huw@codeweavers.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u18GcMvH024528
+ for <selinux@tycho.nsa.gov>; Mon, 8 Feb 2016 11:38:23 -0500
+Received: by mail-wm0-f45.google.com with SMTP id c200so24103287wme.0
+ for <selinux@tycho.nsa.gov>; Mon, 08 Feb 2016 08:38:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Mark Steele <mark@control-alt-del.org>
+Date: Mon, 8 Feb 2016 11:37:20 -0500
+Message-ID: <CAB5=j_pWWH=qEpDoFF6NZgo9hxkVG6neuJ0R9E7oWT8TX3qYYg@mail.gmail.com>
+Subject: Policy feedback
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a114435e8f22627052b44d290
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, January 08, 2016 09:52:44 AM Huw Davies wrote:
-> The functionality is equivalent to ipv6_renew_options() except
-> that the newopt pointer is in kernel, not user, memory
-> 
-> The kernel memory implementation will be used by the CALIPSO network
-> labelling engine, which needs to be able to set IPv6 hop-by-hop
-> options.
-> 
-> Signed-off-by: Huw Davies <huw@codeweavers.com>
+--001a114435e8f22627052b44d290
+Content-Type: text/plain; charset=UTF-8
 
-...
+Hello list,
 
-> +/**
-> + * ipv6_renew_options_kern - replace a specific ext hdr with a new one.
-> + *
-> + * @sk: sock from which to allocate memory
-> + * @opt: original options
-> + * @newtype: option type to replace in @opt
-> + * @newopt: new option of type @newtype to replace (kernel-mem)
-> + * @newoptlen: length of @newopt
-> + *
-> + * See ipv6_renew_options().  The difference is that @newopt is
-> + * kernel memory, rather than user memory.
-> + */
-> +struct ipv6_txoptions *
-> +ipv6_renew_options_kern(struct sock *sk, struct ipv6_txoptions *opt,
-> +			int newtype, struct ipv6_opt_hdr *newopt,
-> +			int newoptlen)
-> +{
-> +	struct ipv6_txoptions *ret_val;
-> +	const mm_segment_t old_fs = get_fs();
-> +
-> +	set_fs(KERNEL_DS);
-> +	ret_val = ipv6_renew_options(sk, opt, newtype,
-> +				     (struct ipv6_opt_hdr __user *)newopt,
-> +				     newoptlen);
-> +	set_fs(old_fs);
-> +	return ret_val;
-> +}
+I've written my first SELinux policy, and was wondering if this was the
+right place to ask for feedback for newly written policy. Apologies in
+advance if it isn't.
 
-I should preface this by saying that I don't have a strong opinion on this 
-either way, and given where the code lives it is really up to DaveM, but I 
-wonder if it might be better to create ipv6_renew_options_kern() as the common 
-helper function that is called by ipv6_renew_options().
+The policy can be viewed here:
 
--- 
-paul moore
-security @ redhat
+https://github.com/marksteele/cinched/tree/master/policy
+
+The goal of the policy is to confine a service into a domain, and lock it
+down as much as possible.
+
+What I appear to have accomplished thus far is that only the sysadm_t type
+is allowed to transition into the domain via an executable, and only via
+that transition can the service access it's files.
+
+If anyone spots something that looks off, please feel free to get in touch.
+
+Regards,
+
+Mark Steele
+CISSP, GPEN, GCIA, CSM
+mark@control-alt-del.org
+
+LinkedIn: https://ca.linkedin.com/in/markrsteele
+Github: https://github.com/marksteele
+Personal: http://www.control-alt-del.org
+
+--001a114435e8f22627052b44d290
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello list,<div><br></div><div>I&#39;ve written my first S=
+ELinux policy, and was wondering if this was the right place to ask for fee=
+dback for newly written policy. Apologies in advance if it isn&#39;t.</div>=
+<div><br></div><div>The policy can be viewed here:</div><div><br></div><div=
+><a href=3D"https://github.com/marksteele/cinched/tree/master/policy">https=
+://github.com/marksteele/cinched/tree/master/policy</a><br></div><div><br><=
+/div><div>The goal of the policy is to confine a service into a domain, and=
+ lock it down as much as possible.=C2=A0</div><div><br></div><div>What I ap=
+pear to have accomplished thus far is that only the sysadm_t type is allowe=
+d to transition into the domain via an executable, and only via that transi=
+tion can the service access it&#39;s files.</div><div><br></div><div>If any=
+one spots something that looks off, please feel free to get in touch.</div>=
+<div><br></div><div>Regards,</div><div><br clear=3D"all"><div><div class=3D=
+"gmail_signature"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div s=
+tyle=3D"font-size:small">Mark Steele</div><div style=3D"font-size:small">CI=
+SSP, GPEN, GCIA, CSM</div><div style=3D"font-size:small"><a href=3D"mailto:=
+mark@control-alt-del.org" target=3D"_blank">mark@control-alt-del.org</a><br=
+></div><div style=3D"font-size:small"><br></div><div><font size=3D"2">Linke=
+dIn: <a href=3D"https://ca.linkedin.com/in/markrsteele" target=3D"_blank">h=
+ttps://ca.linkedin.com/in/markrsteele</a></font><br></div><div style=3D"fon=
+t-size:small">Github: <a href=3D"https://github.com/marksteele" target=3D"_=
+blank">https://github.com/marksteele</a></div><div><font size=3D"2">Persona=
+l: <a href=3D"http://www.control-alt-del.org" target=3D"_blank">http://www.=
+control-alt-del.org</a></font></div><div style=3D"font-size:small"></div></=
+div></div></div></div></div>
+</div></div>
+
+--001a114435e8f22627052b44d290--
