@@ -1,81 +1,104 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u18GcMvH024528
- for <selinux@tycho.nsa.gov>; Mon, 8 Feb 2016 11:38:23 -0500
-Received: by mail-wm0-f45.google.com with SMTP id c200so24103287wme.0
- for <selinux@tycho.nsa.gov>; Mon, 08 Feb 2016 08:38:01 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u18NDc1i021529
+ for <selinux@tycho.nsa.gov>; Mon, 8 Feb 2016 18:13:48 -0500
+Received: by mail-vk0-f46.google.com with SMTP id e185so106096088vkb.1
+ for <selinux@tycho.nsa.gov>; Mon, 08 Feb 2016 15:13:38 -0800 (PST)
 MIME-Version: 1.0
-From: Mark Steele <mark@control-alt-del.org>
-Date: Mon, 8 Feb 2016 11:37:20 -0500
-Message-ID: <CAB5=j_pWWH=qEpDoFF6NZgo9hxkVG6neuJ0R9E7oWT8TX3qYYg@mail.gmail.com>
-Subject: Policy feedback
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a114435e8f22627052b44d290
+In-Reply-To: <CAB5=j_pWWH=qEpDoFF6NZgo9hxkVG6neuJ0R9E7oWT8TX3qYYg@mail.gmail.com>
+References: <CAB5=j_pWWH=qEpDoFF6NZgo9hxkVG6neuJ0R9E7oWT8TX3qYYg@mail.gmail.com>
+Date: Mon, 8 Feb 2016 18:13:37 -0500
+Message-ID: <CAGNxgPjNyp5LPEgD353eWj6cy1uYqVOJx_3Ud1tbbUphSitr7g@mail.gmail.com>
+Subject: Re: Policy feedback
+From: Spencer Shimko <spencer@quarksecurity.com>
+To: Mark Steele <mark@control-alt-del.org>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a114435e8f22627052b44d290
-Content-Type: text/plain; charset=UTF-8
+On Mon, Feb 8, 2016 at 11:37 AM, Mark Steele <mark@control-alt-del.org> wrote:
+> Hello list,
+>
+> I've written my first SELinux policy, and was wondering if this was the
+> right place to ask for feedback for newly written policy. Apologies in
+> advance if it isn't.
+>
+> The policy can be viewed here:
+>
+> https://github.com/marksteele/cinched/tree/master/policy
+>
+> The goal of the policy is to confine a service into a domain, and lock it
+> down as much as possible.
+>
+> What I appear to have accomplished thus far is that only the sysadm_t type
+> is allowed to transition into the domain via an executable, and only via
+> that transition can the service access it's files.
+>
+> If anyone spots something that looks off, please feel free to get in touch.
 
-Hello list,
+Good call on sending out a request for input on custom policy. I don't
+see that often.
 
-I've written my first SELinux policy, and was wondering if this was the
-right place to ask for feedback for newly written policy. Apologies in
-advance if it isn't.
+Typically security requirements and overall functional goals drive the
+policy itself. My response below lacks that context, but is based on
+the solutions I've been contributing to over the years. Please
+consider it based on that fact.
 
-The policy can be viewed here:
+1. The raw requires block at the top is an indication of not calling
+interfaces provided by other modules, rather using auto2allow without
+reviewing and converting its output to reference policy interface
+calls. All of the subsequent allow rules references the types in the
+requires block should be addressed by using the appropriate
+interfaces.
 
-https://github.com/marksteele/cinched/tree/master/policy
+2. The fs_associate calls are indicative of the need to call
+files_type() or similar interfaces.
 
-The goal of the policy is to confine a service into a domain, and lock it
-down as much as possible.
+3. Some rules indicate you disabled audit messages, which is useful
+sometimes. But the rules you're adding are likely not necessary, such
+as:
+allow cinched_service_t chkpwd_t:process { siginh noatsecure rlimitinh };
 
-What I appear to have accomplished thus far is that only the sysadm_t type
-is allowed to transition into the domain via an executable, and only via
-that transition can the service access it's files.
+4. Some are concerning, and while they might be necessary, they should
+be considered carefully given their ability to r/w console devices:
+allow cinched_service_t devpts_t:chr_file { read write getattr open ioctl };
 
-If anyone spots something that looks off, please feel free to get in touch.
+5. The ability r/w etc files is suspect, particularly given the other
+perms indicating this daemon is performing auth. In "normal" policies,
+if you can clobber etc_t, you can overwrite PAM auth files:
+files_manage_etc_files(cinched_service_t)
 
-Regards,
+6. Logs should only be O_APPEND, the perms granted allow truncation, e.g.:
+manage_files_pattern(cinched_service_t, cinched_log_t, cinched_log_t)
 
-Mark Steele
-CISSP, GPEN, GCIA, CSM
-mark@control-alt-del.org
+7. The network perms are way too excessive for most use cases. Label
+all packets via SECMARK, drop the rest.
 
-LinkedIn: https://ca.linkedin.com/in/markrsteele
-Github: https://github.com/marksteele
-Personal: http://www.control-alt-del.org
+There might  be other issues but the above are based on a quick
+cursory review of the module you linked to.
 
---001a114435e8f22627052b44d290
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Thanks,
+--Spencer
 
-<div dir=3D"ltr">Hello list,<div><br></div><div>I&#39;ve written my first S=
-ELinux policy, and was wondering if this was the right place to ask for fee=
-dback for newly written policy. Apologies in advance if it isn&#39;t.</div>=
-<div><br></div><div>The policy can be viewed here:</div><div><br></div><div=
-><a href=3D"https://github.com/marksteele/cinched/tree/master/policy">https=
-://github.com/marksteele/cinched/tree/master/policy</a><br></div><div><br><=
-/div><div>The goal of the policy is to confine a service into a domain, and=
- lock it down as much as possible.=C2=A0</div><div><br></div><div>What I ap=
-pear to have accomplished thus far is that only the sysadm_t type is allowe=
-d to transition into the domain via an executable, and only via that transi=
-tion can the service access it&#39;s files.</div><div><br></div><div>If any=
-one spots something that looks off, please feel free to get in touch.</div>=
-<div><br></div><div>Regards,</div><div><br clear=3D"all"><div><div class=3D=
-"gmail_signature"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div s=
-tyle=3D"font-size:small">Mark Steele</div><div style=3D"font-size:small">CI=
-SSP, GPEN, GCIA, CSM</div><div style=3D"font-size:small"><a href=3D"mailto:=
-mark@control-alt-del.org" target=3D"_blank">mark@control-alt-del.org</a><br=
-></div><div style=3D"font-size:small"><br></div><div><font size=3D"2">Linke=
-dIn: <a href=3D"https://ca.linkedin.com/in/markrsteele" target=3D"_blank">h=
-ttps://ca.linkedin.com/in/markrsteele</a></font><br></div><div style=3D"fon=
-t-size:small">Github: <a href=3D"https://github.com/marksteele" target=3D"_=
-blank">https://github.com/marksteele</a></div><div><font size=3D"2">Persona=
-l: <a href=3D"http://www.control-alt-del.org" target=3D"_blank">http://www.=
-control-alt-del.org</a></font></div><div style=3D"font-size:small"></div></=
-div></div></div></div></div>
-</div></div>
-
---001a114435e8f22627052b44d290--
+Spencer Shimko
+Quark Security, Inc
+quarksecurity.com
+>
+> Regards,
+>
+> Mark Steele
+> CISSP, GPEN, GCIA, CSM
+> mark@control-alt-del.org
+>
+> LinkedIn: https://ca.linkedin.com/in/markrsteele
+> Github: https://github.com/marksteele
+> Personal: http://www.control-alt-del.org
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
