@@ -1,76 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1AErcFK001155
- for <selinux@tycho.nsa.gov>; Wed, 10 Feb 2016 09:53:38 -0500
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id 10C001A1D5
- for <selinux@tycho.nsa.gov>; Wed, 10 Feb 2016 15:53:34 +0100 (CET)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id ck-LpBQqDFMP for <selinux@tycho.nsa.gov>;
- Wed, 10 Feb 2016 15:53:30 +0100 (CET)
-Received: from [10.20.187.159] (unknown [193.53.238.201])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 7D9181A1B0
- for <selinux@tycho.nsa.gov>; Wed, 10 Feb 2016 15:53:30 +0100 (CET)
-Subject: Re: Copying/setting security.selinux xattr explicitly
-To: selinux@tycho.nsa.gov
-References: <56BB17FC.70507@debian.org> <56BB4997.5080403@tycho.nsa.gov>
-From: Laurent Bigonville <bigon@debian.org>
-Message-ID: <56BB4EE9.1080309@debian.org>
-Date: Wed, 10 Feb 2016 15:53:29 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-In-Reply-To: <56BB4997.5080403@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1BEqbLg031281
+ for <selinux@tycho.nsa.gov>; Thu, 11 Feb 2016 09:52:41 -0500
+Date: Thu, 11 Feb 2016 14:52:34 +0000
+From: Huw Davies <huw@codeweavers.com>
+To: Paul Moore <pmoore@redhat.com>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH v2 08/18] ipv6: Add ipv6_renew_options_kern() that
+ accepts a kernel mem pointer.
+Message-ID: <20160211145233.GA31695@merlot>
+References: <1452246774-13241-9-git-send-email-huw@codeweavers.com>
+ <2213519.F62jx6DkRd@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <2213519.F62jx6DkRd@sifl>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le 10/02/16 15:30, Stephen Smalley a écrit :
-> On 02/10/2016 05:59 AM, Laurent Bigonville wrote:
->> Hello,
->>
->> I've a question concerning copying the security.selinux xattr 
->> explicitly.
->>
->> In you opinion what should happen in an implementation if it cannot be
->> reset security.selinux on the target file?
->>
->> Apparently GNU cp -a ignore failures (while cp --preserve=context 
->> fails).
->>
->> In some python helper function (_copyxattr(), see
->> https://bugs.python.org/issue14082), it will return an exception if the
->> copy of any of the xattr is failing, there is no special case for
->> security.selinux.
->>
->> What do you think should be the behavior here?
->
-> The rationale for the difference in behavior between cp -a and cp 
-> --preserve=context is that cp -a usage predates SELinux (and extended 
-> attributes) and treating the inability to set the SELinux attribute on 
-> the destination file as a hard failure would have broken many existing 
-> uses of cp -a.
->
-> That is in fact generally true for all extended attributes, since 
-> trying to set any of them could fail due to lack of permission (except 
-> perhaps user.*) or due to lack of extended attribute support in the 
-> destination filesystem.
->
-> Looking at the patches in the bug/issue you cited, it looks like they 
-> actually ignore errno.EPERM, errno.ENOTSUP, and errno.ENODATA.  So the 
-> only one they don't ignore that SELinux might return would be 
-> errno.EACCES.
->
-> I'm a bit unclear on the intended semantics of shutil.copy2(), as on 
-> the one hand they say it is supposed to be like cp -p (which does not 
-> copy extended attributes at all) but on the other hand they now say 
-> that it copies all metadata that it can.
->
-Not too sure either.
+On Sun, Feb 07, 2016 at 02:56:05PM -0500, Paul Moore wrote:
+> On Friday, January 08, 2016 09:52:44 AM Huw Davies wrote:
+> > The functionality is equivalent to ipv6_renew_options() except
+> > that the newopt pointer is in kernel, not user, memory
+> > 
+> > The kernel memory implementation will be used by the CALIPSO network
+> > labelling engine, which needs to be able to set IPv6 hop-by-hop
+> > options.
+> > 
+> > Signed-off-by: Huw Davies <huw@codeweavers.com>
+> 
+> ...
+> 
+> > +/**
+> > + * ipv6_renew_options_kern - replace a specific ext hdr with a new one.
+> > + *
+> > + * @sk: sock from which to allocate memory
+> > + * @opt: original options
+> > + * @newtype: option type to replace in @opt
+> > + * @newopt: new option of type @newtype to replace (kernel-mem)
+> > + * @newoptlen: length of @newopt
+> > + *
+> > + * See ipv6_renew_options().  The difference is that @newopt is
+> > + * kernel memory, rather than user memory.
+> > + */
+> > +struct ipv6_txoptions *
+> > +ipv6_renew_options_kern(struct sock *sk, struct ipv6_txoptions *opt,
+> > +			int newtype, struct ipv6_opt_hdr *newopt,
+> > +			int newoptlen)
+> > +{
+> > +	struct ipv6_txoptions *ret_val;
+> > +	const mm_segment_t old_fs = get_fs();
+> > +
+> > +	set_fs(KERNEL_DS);
+> > +	ret_val = ipv6_renew_options(sk, opt, newtype,
+> > +				     (struct ipv6_opt_hdr __user *)newopt,
+> > +				     newoptlen);
+> > +	set_fs(old_fs);
+> > +	return ret_val;
+> > +}
+> 
+> I should preface this by saying that I don't have a strong opinion on this 
+> either way, and given where the code lives it is really up to DaveM, but I 
+> wonder if it might be better to create ipv6_renew_options_kern() as the common 
+> helper function that is called by ipv6_renew_options().
 
-I've proposed them to either ignore error when the xattr is 
-security.selinux or ignore EACCES errors altogether.
+Ok, I'll leave this as it as for v3, and the network guys can shout if
+they want me to change it.
 
-See: https://bugs.python.org/issue26328
+Huw.
