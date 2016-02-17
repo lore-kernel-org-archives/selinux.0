@@ -1,114 +1,155 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1HE7YSk022614
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1HE7YSl022614
  for <selinux@tycho.nsa.gov>; Wed, 17 Feb 2016 09:07:35 -0500
 From: Huw Davies <huw@codeweavers.com>
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
  selinux@tycho.nsa.gov
-Subject: [RFC PATCH v3 08/19] ipv6: Add ipv6_renew_options_kern() that accepts
- a kernel mem pointer.
-Date: Wed, 17 Feb 2016 13:21:58 +0000
-Message-Id: <1455715329-9601-9-git-send-email-huw@codeweavers.com>
+Subject: [RFC PATCH v3 17/19] calipso: Add validation of CALIPSO option.
+Date: Wed, 17 Feb 2016 13:22:07 +0000
+Message-Id: <1455715329-9601-18-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The functionality is equivalent to ipv6_renew_options() except
-that the newopt pointer is in kernel, not user, memory
-
-The kernel memory implementation will be used by the CALIPSO network
-labelling engine, which needs to be able to set IPv6 hop-by-hop
-options.
+We check lengths, checksum and the DOI.  We leave checking of the
+level and categories for the socket layer.
 
 Signed-off-by: Huw Davies <huw@codeweavers.com>
 ---
- include/net/ipv6.h |  6 ++++++
- net/ipv6/exthdrs.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+ include/net/calipso.h |  6 ++++++
+ net/ipv6/calipso.c    | 42 ++++++++++++++++++++++++++++++++++++++++++
+ net/ipv6/exthdrs.c    | 27 +++++++++++++++++++++++++++
+ 3 files changed, 75 insertions(+)
 
-diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-index 6570f37..b03b957 100644
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -304,6 +304,12 @@ struct ipv6_txoptions *ipv6_renew_options(struct sock *sk,
- 					  int newtype,
- 					  struct ipv6_opt_hdr __user *newopt,
- 					  int newoptlen);
-+struct ipv6_txoptions *
-+ipv6_renew_options_kern(struct sock *sk,
-+			struct ipv6_txoptions *opt,
-+			int newtype,
-+			struct ipv6_opt_hdr *newopt,
-+			int newoptlen);
- struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
- 					  struct ipv6_txoptions *opt);
- 
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index ea7c4d6..d5fd3e7 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -758,6 +758,27 @@ static int ipv6_renew_option(void *ohdr,
- 	return 0;
+diff --git a/include/net/calipso.h b/include/net/calipso.h
+index 38dbb47..85404e2 100644
+--- a/include/net/calipso.h
++++ b/include/net/calipso.h
+@@ -65,6 +65,7 @@ struct calipso_doi {
+ #ifdef CONFIG_NETLABEL
+ int __init calipso_init(void);
+ void calipso_exit(void);
++bool calipso_validate(const struct sk_buff *skb, const unsigned char *option);
+ #else
+ static inline int __init calipso_init(void)
+ {
+@@ -74,6 +75,11 @@ static inline int __init calipso_init(void)
+ static inline void calipso_exit(void)
+ {
  }
- 
-+/**
-+ * ipv6_renew_options - replace a specific ext hdr with a new one.
-+ *
-+ * @sk: sock from which to allocate memory
-+ * @opt: original options
-+ * @newtype: option type to replace in @opt
-+ * @newopt: new option of type @newtype to replace (user-mem)
-+ * @newoptlen: length of @newopt
-+ *
-+ * Returns a new set of options which is a copy of @opt with the
-+ * option type @newtype replaced with @newopt.
-+ *
-+ * @opt may be NULL, in which case a new set of options is returned
-+ * containing just @newopt.
-+ *
-+ * @newopt may be NULL, in which case the specified option type is
-+ * not copied into the new set of options.
-+ *
-+ * The new set of options is allocated from the socket option memory
-+ * buffer of @sk.
-+ */
- struct ipv6_txoptions *
- ipv6_renew_options(struct sock *sk, struct ipv6_txoptions *opt,
- 		   int newtype,
-@@ -830,6 +851,34 @@ out:
- 	return ERR_PTR(err);
- }
- 
-+/**
-+ * ipv6_renew_options_kern - replace a specific ext hdr with a new one.
-+ *
-+ * @sk: sock from which to allocate memory
-+ * @opt: original options
-+ * @newtype: option type to replace in @opt
-+ * @newopt: new option of type @newtype to replace (kernel-mem)
-+ * @newoptlen: length of @newopt
-+ *
-+ * See ipv6_renew_options().  The difference is that @newopt is
-+ * kernel memory, rather than user memory.
-+ */
-+struct ipv6_txoptions *
-+ipv6_renew_options_kern(struct sock *sk, struct ipv6_txoptions *opt,
-+			int newtype, struct ipv6_opt_hdr *newopt,
-+			int newoptlen)
++static inline bool calipso_validate(const struct sk_buff *skb,
++				    const unsigned char *option)
 +{
-+	struct ipv6_txoptions *ret_val;
-+	const mm_segment_t old_fs = get_fs();
++	return true;
++}
+ #endif /* CONFIG_NETLABEL */
+ 
+ #endif /* _CALIPSO_H */
+diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
+index fa371a8..b8bcf9f 100644
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -321,6 +321,48 @@ doi_walk_return:
+ }
+ 
+ /**
++ * calipso_validate - Validate a CALIPSO option
++ * @skb: the packet
++ * @option: the start of the option
++ *
++ * Description:
++ * This routine is called to validate a CALIPSO option.
++ * If the option is valid then a zero value is returned.  If the
++ * option is invalid then a non-zero value is returned and
++ * representing the offset to the offending portion of the option.
++ *
++ * The caller should have already checked that the length of the
++ * option (including the TLV header) is >= 10 and that the catmap
++ * length is consistent with the option length.
++ *
++ * We leave checks on the level and categories to the socket layer.
++ */
++bool calipso_validate(const struct sk_buff *skb, const unsigned char *option)
++{
++	struct calipso_doi *doi_def;
++	int ret_val;
++	u16 crc, len = option[1] + 2;
++	static const u8 zero[2];
 +
-+	set_fs(KERNEL_DS);
-+	ret_val = ipv6_renew_options(sk, opt, newtype,
-+				     (struct ipv6_opt_hdr __user *)newopt,
-+				     newoptlen);
-+	set_fs(old_fs);
++	/* The original CRC runs over the option including the TLV header
++	 * with the CRC-16 field (at offset 8) zeroed out. */
++	crc = crc_ccitt(0xffff, option, 8);
++	crc = crc_ccitt(crc, zero, sizeof(zero));
++	if (len > 10)
++		crc = crc_ccitt(crc, option + 10, len - 10);
++	crc = ~crc;
++	if (option[8] != (crc & 0xff) || option[9] != ((crc >> 8) & 0xff))
++		return false;
++
++	rcu_read_lock();
++	doi_def = calipso_doi_search(get_unaligned_be32(option + 2));
++	ret_val = !!doi_def;
++	rcu_read_unlock();
++
 +	return ret_val;
 +}
 +
- struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
- 					  struct ipv6_txoptions *opt)
- {
++/**
+  * calipso_map_cat_hton - Perform a category mapping from host to network
+  * @doi_def: the DOI definition
+  * @secattr: the security attributes
+diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
+index d5fd3e7..0f69cab 100644
+--- a/net/ipv6/exthdrs.c
++++ b/net/ipv6/exthdrs.c
+@@ -43,6 +43,7 @@
+ #include <net/ndisc.h>
+ #include <net/ip6_route.h>
+ #include <net/addrconf.h>
++#include <net/calipso.h>
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+ #include <net/xfrm.h>
+ #endif
+@@ -603,6 +604,28 @@ drop:
+ 	return false;
+ }
+ 
++/* CALIPSO RFC 5570 */
++
++static bool ipv6_hop_calipso(struct sk_buff *skb, int optoff)
++{
++	const unsigned char *nh = skb_network_header(skb);
++
++	if (nh[optoff + 1] < 8)
++		goto drop;
++
++	if (nh[optoff + 6] * 4 + 8 > nh[optoff + 1])
++		goto drop;
++
++	if (!calipso_validate(skb, nh + optoff))
++		goto drop;
++
++	return true;
++
++drop:
++	kfree_skb(skb);
++	return false;
++}
++
+ static const struct tlvtype_proc tlvprochopopt_lst[] = {
+ 	{
+ 		.type	= IPV6_TLV_ROUTERALERT,
+@@ -612,6 +635,10 @@ static const struct tlvtype_proc tlvprochopopt_lst[] = {
+ 		.type	= IPV6_TLV_JUMBO,
+ 		.func	= ipv6_hop_jumbo,
+ 	},
++	{
++		.type	= IPV6_TLV_CALIPSO,
++		.func	= ipv6_hop_calipso,
++	},
+ 	{ -1, }
+ };
+ 
 -- 
 2.7.0
