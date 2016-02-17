@@ -1,310 +1,114 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1HE7T3F022536
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1HE7T3G022536
  for <selinux@tycho.nsa.gov>; Wed, 17 Feb 2016 09:07:29 -0500
 From: Huw Davies <huw@codeweavers.com>
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
  selinux@tycho.nsa.gov
-Subject: [RFC PATCH v3 13/19] calipso: Allow request sockets to be relabelled
- by the lsm.
-Date: Wed, 17 Feb 2016 13:22:03 +0000
-Message-Id: <1455715329-9601-14-git-send-email-huw@codeweavers.com>
+Subject: [RFC PATCH v3 00/19] CALIPSO Implementation
+Date: Wed, 17 Feb 2016 13:21:50 +0000
+Message-Id: <1455715329-9601-1-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Request sockets need to have a label that takes into account the
-incoming connection as well as their parent's label.  This is used
-for the outgoing SYN-ACK and for their child full-socket.
+This patch series implements RFC 5570 - Common Architecture Label IPv6
+Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
+on IPv6 packets using a hop-by-hop option.  CALIPSO is very similar to
+its IPv4 cousin CIPSO and much of this series is based on that code.
 
-Signed-off-by: Huw Davies <huw@codeweavers.com>
----
- include/net/netlabel.h          |  6 +++
- net/ipv6/calipso.c              | 86 +++++++++++++++++++++++++++++++++++++++++
- net/netlabel/netlabel_calipso.c | 40 +++++++++++++++++++
- net/netlabel/netlabel_calipso.h |  4 ++
- net/netlabel/netlabel_kapi.c    | 39 +++++++++++++++----
- security/selinux/netlabel.c     |  2 +-
- 6 files changed, 168 insertions(+), 9 deletions(-)
+If anybody actually wants to play with this, then you'll need some patches
+to netlabel-tools that are currently available on the 'calipso' branch at:
+https://github.com/hdmdavies/netlabel_tools.git .  The protocol has changed
+very slightly from the v2 patches, so please update to the latest.
 
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index 918a604..a2408c3 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -229,6 +229,8 @@ struct netlbl_lsm_secattr {
-  * @sock_getattr: retrieve the socket's attr
-  * @sock_setattr: set the socket's attr
-  * @sock_delattr: remove the socket's attr
-+ * @req_setattr: set the req socket's attr
-+ * @req_delattr: remove the req socket's attr
-  *
-  * Description:
-  * This structure is filled out by the CALIPSO engine and passed
-@@ -252,6 +254,10 @@ struct netlbl_calipso_ops {
- 			    const struct calipso_doi *doi_def,
- 			    const struct netlbl_lsm_secattr *secattr);
- 	void (*sock_delattr)(struct sock *sk);
-+	int (*req_setattr)(struct request_sock *req,
-+			   const struct calipso_doi *doi_def,
-+			   const struct netlbl_lsm_secattr *secattr);
-+	void (*req_delattr)(struct request_sock *req);
- };
- 
- /*
-diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
-index 959db52..067a564 100644
---- a/net/ipv6/calipso.c
-+++ b/net/ipv6/calipso.c
-@@ -889,6 +889,90 @@ done:
- 	txopt_put(txopts);
- }
- 
-+/* request sock functions.
-+ */
-+
-+/**
-+ * calipso_req_setattr - Add a CALIPSO option to a connection request socket
-+ * @req: the connection request socket
-+ * @doi_def: the CALIPSO DOI to use
-+ * @secattr: the specific security attributes of the socket
-+ *
-+ * Description:
-+ * Set the CALIPSO option on the given socket using the DOI definition and
-+ * security attributes passed to the function.  Returns zero on success and
-+ * negative values on failure.
-+ *
-+ */
-+static int calipso_req_setattr(struct request_sock *req,
-+			       const struct calipso_doi *doi_def,
-+			       const struct netlbl_lsm_secattr *secattr)
-+{
-+	struct ipv6_txoptions *txopts;
-+	struct inet_request_sock *req_inet = inet_rsk(req);
-+	struct ipv6_opt_hdr *old, *new;
-+	struct sock *sk = sk_to_full_sk(req_to_sk(req));
-+
-+	if (req_inet->ipv6_opt && req_inet->ipv6_opt->hopopt)
-+		old = req_inet->ipv6_opt->hopopt;
-+	else
-+		old = NULL;
-+
-+	new = calipso_opt_insert(old, doi_def, secattr);
-+	if (IS_ERR(new))
-+		return PTR_ERR(new);
-+
-+	txopts = ipv6_renew_options_kern(sk, req_inet->ipv6_opt, IPV6_HOPOPTS,
-+					 new, new ? ipv6_optlen(new) : 0);
-+
-+	kfree(new);
-+
-+	if (IS_ERR(txopts))
-+		return PTR_ERR(txopts);
-+
-+	txopts = xchg(&req_inet->ipv6_opt, txopts);
-+	if (txopts) {
-+		atomic_sub(txopts->tot_len, &sk->sk_omem_alloc);
-+		txopt_put(txopts);
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * calipso_req_delattr - Delete the CALIPSO option from a request socket
-+ * @reg: the request socket
-+ *
-+ * Description:
-+ * Removes the CALIPSO option from a request socket, if present.
-+ *
-+ */
-+static void calipso_req_delattr(struct request_sock *req)
-+{
-+	struct inet_request_sock *req_inet = inet_rsk(req);
-+	struct ipv6_opt_hdr *new;
-+	struct ipv6_txoptions *txopts;
-+	struct sock *sk = sk_to_full_sk(req_to_sk(req));
-+
-+	if (!req_inet->ipv6_opt || !req_inet->ipv6_opt->hopopt)
-+		return;
-+
-+	if (calipso_opt_del(req_inet->ipv6_opt->hopopt, &new))
-+		return; /* Nothing to do */
-+
-+	txopts = ipv6_renew_options_kern(sk, req_inet->ipv6_opt, IPV6_HOPOPTS,
-+					 new, new ? ipv6_optlen(new) : 0);
-+
-+	if (!IS_ERR(txopts)) {
-+		txopts = xchg(&req_inet->ipv6_opt, txopts);
-+		if (txopts) {
-+			atomic_sub(txopts->tot_len, &sk->sk_omem_alloc);
-+			txopt_put(txopts);
-+		}
-+	}
-+	kfree(new);
-+}
-+
- static const struct netlbl_calipso_ops ops = {
- 	.doi_add          = calipso_doi_add,
- 	.doi_free         = calipso_doi_free,
-@@ -899,6 +983,8 @@ static const struct netlbl_calipso_ops ops = {
- 	.sock_getattr     = calipso_sock_getattr,
- 	.sock_setattr     = calipso_sock_setattr,
- 	.sock_delattr     = calipso_sock_delattr,
-+	.req_setattr      = calipso_req_setattr,
-+	.req_delattr      = calipso_req_delattr,
- };
- 
- /**
-diff --git a/net/netlabel/netlabel_calipso.c b/net/netlabel/netlabel_calipso.c
-index 6f9c658..79519e3 100644
---- a/net/netlabel/netlabel_calipso.c
-+++ b/net/netlabel/netlabel_calipso.c
-@@ -578,3 +578,43 @@ void calipso_sock_delattr(struct sock *sk)
- 	if (ops)
- 		ops->sock_delattr(sk);
- }
-+
-+/**
-+ * calipso_req_setattr - Add a CALIPSO option to a connection request socket
-+ * @req: the connection request socket
-+ * @doi_def: the CALIPSO DOI to use
-+ * @secattr: the specific security attributes of the socket
-+ *
-+ * Description:
-+ * Set the CALIPSO option on the given socket using the DOI definition and
-+ * security attributes passed to the function.  Returns zero on success and
-+ * negative values on failure.
-+ *
-+ */
-+int calipso_req_setattr(struct request_sock *req,
-+			const struct calipso_doi *doi_def,
-+			const struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val = -ENOMSG;
-+	const struct netlbl_calipso_ops *ops = netlbl_calipso_ops_get();
-+
-+	if (ops)
-+		ret_val = ops->req_setattr(req, doi_def, secattr);
-+	return ret_val;
-+}
-+
-+/**
-+ * calipso_req_delattr - Delete the CALIPSO option from a request socket
-+ * @reg: the request socket
-+ *
-+ * Description:
-+ * Removes the CALIPSO option from a request socket, if present.
-+ *
-+ */
-+void calipso_req_delattr(struct request_sock *req)
-+{
-+	const struct netlbl_calipso_ops *ops = netlbl_calipso_ops_get();
-+
-+	if (ops)
-+		ops->req_delattr(req);
-+}
-diff --git a/net/netlabel/netlabel_calipso.h b/net/netlabel/netlabel_calipso.h
-index 49bc116..1372fdd 100644
---- a/net/netlabel/netlabel_calipso.h
-+++ b/net/netlabel/netlabel_calipso.h
-@@ -133,5 +133,9 @@ int calipso_sock_setattr(struct sock *sk,
- 			 const struct calipso_doi *doi_def,
- 			 const struct netlbl_lsm_secattr *secattr);
- void calipso_sock_delattr(struct sock *sk);
-+int calipso_req_setattr(struct request_sock *req,
-+			const struct calipso_doi *doi_def,
-+			const struct netlbl_lsm_secattr *secattr);
-+void calipso_req_delattr(struct request_sock *req);
- 
- #endif
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index ed35ad9..71ebef0 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -1054,12 +1054,13 @@ int netlbl_req_setattr(struct request_sock *req,
- {
- 	int ret_val;
- 	struct netlbl_dommap_def *entry;
-+	struct inet_request_sock *ireq = inet_rsk(req);
- 
- 	rcu_read_lock();
- 	switch (req->rsk_ops->family) {
- 	case AF_INET:
- 		entry = netlbl_domhsh_getentry_af4(secattr->domain,
--						   inet_rsk(req)->ir_rmt_addr);
-+						   ireq->ir_rmt_addr);
- 		if (entry == NULL) {
- 			ret_val = -ENOENT;
- 			goto req_setattr_return;
-@@ -1070,9 +1071,7 @@ int netlbl_req_setattr(struct request_sock *req,
- 						       entry->cipso, secattr);
- 			break;
- 		case NETLBL_NLTYPE_UNLABELED:
--			/* just delete the protocols we support for right now
--			 * but we could remove other protocols if needed */
--			cipso_v4_req_delattr(req);
-+			netlbl_req_delattr(req);
- 			ret_val = 0;
- 			break;
- 		default:
-@@ -1081,9 +1080,24 @@ int netlbl_req_setattr(struct request_sock *req,
- 		break;
- #if IS_ENABLED(CONFIG_IPV6)
- 	case AF_INET6:
--		/* since we don't support any IPv6 labeling protocols right
--		 * now we can optimize everything away until we do */
--		ret_val = 0;
-+		entry = netlbl_domhsh_getentry_af6(secattr->domain,
-+						   &ireq->ir_v6_rmt_addr);
-+		if (entry == NULL) {
-+			ret_val = -ENOENT;
-+			goto req_setattr_return;
-+		}
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_CALIPSO:
-+			ret_val = calipso_req_setattr(req,
-+						      entry->calipso, secattr);
-+			break;
-+		case NETLBL_NLTYPE_UNLABELED:
-+			netlbl_req_delattr(req);
-+			ret_val = 0;
-+			break;
-+		default:
-+			ret_val = -ENOENT;
-+		}
- 		break;
- #endif /* IPv6 */
- 	default:
-@@ -1105,7 +1119,16 @@ req_setattr_return:
- */
- void netlbl_req_delattr(struct request_sock *req)
- {
--	cipso_v4_req_delattr(req);
-+	switch (req->rsk_ops->family) {
-+	case AF_INET:
-+		cipso_v4_req_delattr(req);
-+		break;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case AF_INET6:
-+		calipso_req_delattr(req);
-+		break;
-+#endif /* IPv6 */
-+	}
- }
- 
- /**
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 2477a75..ca220c3 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -284,7 +284,7 @@ int selinux_netlbl_inet_conn_request(struct request_sock *req, u16 family)
- 	int rc;
- 	struct netlbl_lsm_secattr secattr;
- 
--	if (family != PF_INET)
-+	if (family != PF_INET && family != PF_INET6)
- 		return 0;
- 
- 	netlbl_secattr_init(&secattr);
+This patch series is based off v4.5-rc4.
+
+Thanks to Paul Moore, Hannes Frederic Sowa, Casey Schaufler and Julia
+Lawall for their comments so far.
+
+Changes between v3 and v2:
+
+* Change CALIPSO_MAP_PASS to 2.
+* Move calipso_init() before ipv6_sysctl_register().
+* Rewrite calipso_tlv_len() to check for overflows.
+* Simplify calispo_opt_find().
+* Simplify calipso_opt_insert().
+* Use calipso_tlv_len() in calipso_sock_getattr().
+* Simplify calipso_skbuff_setattr().
+* Return early from netlbl_domhsh_search_def() when a match is found.
+* Remove nested if from netlbl_domhsh_validate().
+* Don't return from netlbl_domhsh_add() with lock held.
+* Various style changes.
+* Rebased to v4.5-rc4.
+
+Changes between v2 and v1:
+
+* Simplify ipv6_renew_options_kern() to use set_fs(KERNEL_DS).
+  Thanks to Hannes Frederic Sowa for suggesting this.
+* Use the parent socket to account for the listener socket
+  option's memory usage.  Again, thanks for Hannes for this.
+* Added netlbl_cfg_calipso_* functions for SMACK.
+* Rebased to v4.4-rc8.
+
+Huw Davies (19):
+  netlabel: Mark rcu pointers with __rcu.
+  netlabel: Add an address family to domain hash entries.
+  netlabel: Initial support for the CALIPSO netlink protocol.
+  netlabel: Add support for querying a CALIPSO DOI.
+  netlabel: Add support for enumerating the CALIPSO DOI list.
+  netlabel: Add support for creating a CALIPSO protocol domain mapping.
+  netlabel: Add support for removing a CALIPSO DOI.
+  ipv6: Add ipv6_renew_options_kern() that accepts a kernel mem pointer.
+  netlabel: Move bitmap manipulation functions to the NetLabel core.
+  calipso: Set the calipso socket label to match the secattr.
+  netlabel: Prevent setsockopt() from changing the hop-by-hop option.
+  ipv6: Allow request socks to contain IPv6 options.
+  calipso: Allow request sockets to be relabelled by the lsm.
+  ipv6: constify the skb pointer of ipv6_find_tlv().
+  calipso: Allow the lsm to label the skbuff directly.
+  netlabel: Pass a family parameter to netlbl_skbuff_err().
+  calipso: Add validation of CALIPSO option.
+  calipso: Add a label cache.
+  netlabel: Implement CALIPSO config functions for SMACK.
+
+ include/net/calipso.h               |   91 +++
+ include/net/inet_sock.h             |    7 +-
+ include/net/ipv6.h                  |   10 +-
+ include/net/netlabel.h              |  101 ++-
+ include/uapi/linux/audit.h          |    2 +
+ include/uapi/linux/in6.h            |    1 +
+ net/dccp/ipv6.c                     |   12 +-
+ net/ipv4/cipso_ipv4.c               |   88 +--
+ net/ipv4/tcp_input.c                |    3 +
+ net/ipv6/Makefile                   |    1 +
+ net/ipv6/af_inet6.c                 |    9 +-
+ net/ipv6/calipso.c                  | 1474 +++++++++++++++++++++++++++++++++++
+ net/ipv6/exthdrs.c                  |   76 ++
+ net/ipv6/exthdrs_core.c             |    2 +-
+ net/ipv6/ipv6_sockglue.c            |    1 -
+ net/ipv6/sysctl_net_ipv6.c          |   19 +
+ net/ipv6/tcp_ipv6.c                 |   12 +-
+ net/netlabel/Kconfig                |    1 +
+ net/netlabel/Makefile               |    2 +-
+ net/netlabel/netlabel_calipso.c     |  740 ++++++++++++++++++
+ net/netlabel/netlabel_calipso.h     |  151 ++++
+ net/netlabel/netlabel_domainhash.c  |  293 +++++--
+ net/netlabel/netlabel_domainhash.h  |   17 +-
+ net/netlabel/netlabel_kapi.c        |  385 ++++++++-
+ net/netlabel/netlabel_mgmt.c        |   85 +-
+ net/netlabel/netlabel_mgmt.h        |   27 +-
+ net/netlabel/netlabel_unlabeled.c   |    5 +-
+ net/netlabel/netlabel_user.c        |    5 +
+ security/selinux/hooks.c            |   21 +-
+ security/selinux/include/netlabel.h |    4 +-
+ security/selinux/netlabel.c         |   36 +-
+ security/smack/smack_lsm.c          |    2 +-
+ 32 files changed, 3480 insertions(+), 203 deletions(-)
+ create mode 100644 include/net/calipso.h
+ create mode 100644 net/ipv6/calipso.c
+ create mode 100644 net/netlabel/netlabel_calipso.c
+ create mode 100644 net/netlabel/netlabel_calipso.h
+
 -- 
 2.7.0
