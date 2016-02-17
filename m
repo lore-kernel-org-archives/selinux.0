@@ -1,61 +1,114 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1HE7YSg022614
- for <selinux@tycho.nsa.gov>; Wed, 17 Feb 2016 09:07:34 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1HE7YSk022614
+ for <selinux@tycho.nsa.gov>; Wed, 17 Feb 2016 09:07:35 -0500
 From: Huw Davies <huw@codeweavers.com>
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
  selinux@tycho.nsa.gov
-Subject: [RFC PATCH v3 11/19] netlabel: Prevent setsockopt() from changing the
- hop-by-hop option.
-Date: Wed, 17 Feb 2016 13:22:01 +0000
-Message-Id: <1455715329-9601-12-git-send-email-huw@codeweavers.com>
+Subject: [RFC PATCH v3 08/19] ipv6: Add ipv6_renew_options_kern() that accepts
+ a kernel mem pointer.
+Date: Wed, 17 Feb 2016 13:21:58 +0000
+Message-Id: <1455715329-9601-9-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If a socket has a netlabel in place then don't let setsockopt() alter
-the socket's IPv6 hop-by-hop option.  This is in the same spirit as
-the existing check for IPv4.
+The functionality is equivalent to ipv6_renew_options() except
+that the newopt pointer is in kernel, not user, memory
+
+The kernel memory implementation will be used by the CALIPSO network
+labelling engine, which needs to be able to set IPv6 hop-by-hop
+options.
 
 Signed-off-by: Huw Davies <huw@codeweavers.com>
 ---
- security/selinux/netlabel.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ include/net/ipv6.h |  6 ++++++
+ net/ipv6/exthdrs.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
 
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 5470f32..2477a75 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -410,6 +410,21 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+diff --git a/include/net/ipv6.h b/include/net/ipv6.h
+index 6570f37..b03b957 100644
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -304,6 +304,12 @@ struct ipv6_txoptions *ipv6_renew_options(struct sock *sk,
+ 					  int newtype,
+ 					  struct ipv6_opt_hdr __user *newopt,
+ 					  int newoptlen);
++struct ipv6_txoptions *
++ipv6_renew_options_kern(struct sock *sk,
++			struct ipv6_txoptions *opt,
++			int newtype,
++			struct ipv6_opt_hdr *newopt,
++			int newoptlen);
+ struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
+ 					  struct ipv6_txoptions *opt);
+ 
+diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
+index ea7c4d6..d5fd3e7 100644
+--- a/net/ipv6/exthdrs.c
++++ b/net/ipv6/exthdrs.c
+@@ -758,6 +758,27 @@ static int ipv6_renew_option(void *ohdr,
+ 	return 0;
  }
  
- /**
-+ * selinux_netlbl_option - Is this a NetLabel option
-+ * @level: the socket level or protocol
-+ * @optname: the socket option name
++/**
++ * ipv6_renew_options - replace a specific ext hdr with a new one.
 + *
-+ * Description:
-+ * Returns true if @level and @optname refer to a NetLabel option.
-+ * Helper for selinux_netlbl_socket_setsockopt().
++ * @sk: sock from which to allocate memory
++ * @opt: original options
++ * @newtype: option type to replace in @opt
++ * @newopt: new option of type @newtype to replace (user-mem)
++ * @newoptlen: length of @newopt
++ *
++ * Returns a new set of options which is a copy of @opt with the
++ * option type @newtype replaced with @newopt.
++ *
++ * @opt may be NULL, in which case a new set of options is returned
++ * containing just @newopt.
++ *
++ * @newopt may be NULL, in which case the specified option type is
++ * not copied into the new set of options.
++ *
++ * The new set of options is allocated from the socket option memory
++ * buffer of @sk.
 + */
-+static inline int selinux_netlbl_option(int level, int optname)
+ struct ipv6_txoptions *
+ ipv6_renew_options(struct sock *sk, struct ipv6_txoptions *opt,
+ 		   int newtype,
+@@ -830,6 +851,34 @@ out:
+ 	return ERR_PTR(err);
+ }
+ 
++/**
++ * ipv6_renew_options_kern - replace a specific ext hdr with a new one.
++ *
++ * @sk: sock from which to allocate memory
++ * @opt: original options
++ * @newtype: option type to replace in @opt
++ * @newopt: new option of type @newtype to replace (kernel-mem)
++ * @newoptlen: length of @newopt
++ *
++ * See ipv6_renew_options().  The difference is that @newopt is
++ * kernel memory, rather than user memory.
++ */
++struct ipv6_txoptions *
++ipv6_renew_options_kern(struct sock *sk, struct ipv6_txoptions *opt,
++			int newtype, struct ipv6_opt_hdr *newopt,
++			int newoptlen)
 +{
-+	return (level == IPPROTO_IP && optname == IP_OPTIONS) ||
-+		(level == IPPROTO_IPV6 && optname == IPV6_HOPOPTS);
++	struct ipv6_txoptions *ret_val;
++	const mm_segment_t old_fs = get_fs();
++
++	set_fs(KERNEL_DS);
++	ret_val = ipv6_renew_options(sk, opt, newtype,
++				     (struct ipv6_opt_hdr __user *)newopt,
++				     newoptlen);
++	set_fs(old_fs);
++	return ret_val;
 +}
 +
-+/**
-  * selinux_netlbl_socket_setsockopt - Do not allow users to remove a NetLabel
-  * @sock: the socket
-  * @level: the socket level or protocol
-@@ -431,7 +446,7 @@ int selinux_netlbl_socket_setsockopt(struct socket *sock,
- 	struct sk_security_struct *sksec = sk->sk_security;
- 	struct netlbl_lsm_secattr secattr;
- 
--	if (level == IPPROTO_IP && optname == IP_OPTIONS &&
-+	if (selinux_netlbl_option(level, optname) &&
- 	    (sksec->nlbl_state == NLBL_LABELED ||
- 	     sksec->nlbl_state == NLBL_CONNLABELED)) {
- 		netlbl_secattr_init(&secattr);
+ struct ipv6_txoptions *ipv6_fixup_options(struct ipv6_txoptions *opt_space,
+ 					  struct ipv6_txoptions *opt)
+ {
 -- 
 2.7.0
