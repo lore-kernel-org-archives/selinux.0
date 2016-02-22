@@ -1,116 +1,48 @@
-Subject: Re: [PATCH] libselinux: selinux_restorecon.3 man page corrections.
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-References: <1456068929-20352-1-git-send-email-richard_c_haines@btinternet.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56CB2642.2080009@tycho.nsa.gov>
-Date: Mon, 22 Feb 2016 10:16:18 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1MJrb1X022836
+ for <selinux@tycho.nsa.gov>; Mon, 22 Feb 2016 14:53:40 -0500
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [GIT PULL] SELinux fixes for 4.5 (#2)
+Date: Mon, 22 Feb 2016 14:53:33 -0500
+Message-ID: <2013440.Fs5UDgiGs4@sifl>
 MIME-Version: 1.0
-In-Reply-To: <1456068929-20352-1-git-send-email-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/21/2016 10:35 AM, Richard Haines wrote:
-> Fix typo's and clarify usage.
->
-> Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+Hi James,
 
-Thanks, applied.
+One more straightforward patch to fix a problem with the inode invalidation 
+changes.  The fix passes the selinux-testsuite and applies cleanly on top of 
+your current linux-security#next branch; please apply.
 
-> ---
->   libselinux/man/man3/selinux_restorecon.3 | 32 ++++++++++++++++++++------------
->   1 file changed, 20 insertions(+), 12 deletions(-)
->
-> diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
-> index 152b29c..0293c4d 100644
-> --- a/libselinux/man/man3/selinux_restorecon.3
-> +++ b/libselinux/man/man3/selinux_restorecon.3
-> @@ -6,7 +6,7 @@ selinux_restorecon \- restore file(s) default SELinux security contexts
->   .SH "SYNOPSIS"
->   .B #include <selinux/restorecon.h>
->   .sp
-> -.BI "int selinux_restorecon(const char **" pathname ,
-> +.BI "int selinux_restorecon(const char *" pathname ,
->   .in +\w'int selinux_restorecon('u
->   .br
->   .BI "unsigned int " restorecon_flags ");"
-> @@ -14,7 +14,10 @@ selinux_restorecon \- restore file(s) default SELinux security contexts
->   .
->   .SH "DESCRIPTION"
->   .BR selinux_restorecon ()
-> -restores file default security contexts based on:
-> +restores file default security contexts on filesystems that support extended
-> +attributes (see
-> +.BR xattr (7)),
-> +based on:
->   .sp
->   .RS
->   .IR pathname
-> @@ -40,7 +43,7 @@ flag set. If any of the specfiles had been updated, the digest
->   will also be updated. However if the digest is the same, no relabeling checks
->   will take place (unless the
->   .B SELINUX_RESTORECON_IGNORE_DIGEST
-> -is set).
-> +flag is set).
->   .sp
->   .IR restorecon_flags
->   contains the labeling option/rules as follows:
-> @@ -53,7 +56,7 @@ specfiles SHA1 digest. The specfiles digest will be written to the
->   .IR security.restorecon_last
->   extended attribute once relabeling has been completed successfully provided the
->   .B SELINUX_RESTORECON_NOCHANGE
-> -has not been set.
-> +flag has not been set.
->   .sp
->   .B SELINUX_RESTORECON_NOCHANGE
->   don't change any file labels (passive check) or update the digest in the
-> @@ -62,7 +65,7 @@ extended attribute.
->   .sp
->   .B SELINUX_RESTORECON_SET_SPECFILE_CTX
->   If set, reset the files label to match the default specfile context.
-> -if not set only reset the files "type" component of the context to match the
-> +If not set only reset the files "type" component of the context to match the
->   default specfile context.
->   .br
->
-> @@ -114,8 +117,8 @@ to set the handle to be used by
->   .sp
->   If the
->   .I pathname
-> -is a directory path, then it is possible to set files/directories to be exluded
-> -from the path by calling
-> +is a directory path, then it is possible to set files/directories to be
-> +excluded from the path by calling
->   .BR selinux_restorecon_set_exclude_list (3)
->   with a
->   .B NULL
-> @@ -177,15 +180,20 @@ is not set).
->   .B /sys
->   and in-memory filesystems do not support the
->   .IR security.restorecon_last
-> -extended attribute.
-> +extended attribute and are automatically excluded from any relabeling checks.
->   .sp
->   .BR selinux_restorecon ()
-> -does not check whether the mounted filesystems support the
-> +does not check whether mounted filesystems support the
->   .B seclabel
-> -option. These should be set by the caller by
-> +option (i.e. support extended attributes as described in
-> +.BR xattr (7)).
-> +To exclude these filesystems from any relabeling checks
->   .BR selinux_restorecon_set_exclude_list (3)
-> -in the
-> -.IR exclude_list .
-> +should be called prior to
-> +.BR selinux_restorecon ()
-> +with a NULL terminated
-> +.IR exclude_list
-> +of these filesystems.
->   .
->   .SH "SEE ALSO"
->   .BR selinux_restorecon_set_sehandle (3),
->
+-Paul
+
+---
+The following changes since commit b197367ed1ba81b0d26f7e7f76f61731ac6e5842:
+
+  selinux: Inode label revalidation performance fix
+           (2016-01-08 16:24:27 -0500)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-4.5
+
+for you to fetch changes up to e817c2f33efb4aa7f02c98dfab9a5f8ff383ea7e:
+
+  selinux: Don't sleep inside inode_getsecid hook (2016-02-19 16:29:19 -0500)
+
+----------------------------------------------------------------
+Andreas Gruenbacher (1):
+      selinux: Don't sleep inside inode_getsecid hook
+
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+-- 
+paul moore
+security @ redhat
