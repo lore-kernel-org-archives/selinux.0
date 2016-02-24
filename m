@@ -1,113 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1O8pmUh017891
- for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 03:51:49 -0500
-Received: from tenisvw (tenisvw.dc1.sios.com [10.20.0.16])
- by tenpost4.dc1.sios.com (Postfix) with ESMTP id 6699C23600F8
- for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 17:51:42 +0900 (JST)
-Received: from mail-io0-f177.google.com (mail-io0-f177.google.com
- [209.85.223.177])
- by tenpost3.dc1.sios.com (Postfix) with ESMTP id A3F8B23600F8
- for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 17:51:41 +0900 (JST)
-Received: by mail-io0-f177.google.com with SMTP id 9so26221448iom.1
- for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 00:51:41 -0800 (PST)
+Subject: Re: [PATCH 1/2] libselinux: procattr: return error on invalid pid_t
+ input.
+To: Daniel Cashman <dcashman@android.com>, selinux@tycho.nsa.gov
+References: <1456259040-13721-1-git-send-email-dcashman@android.com>
+ <1456259040-13721-2-git-send-email-dcashman@android.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <56CDBC4D.4060109@tycho.nsa.gov>
+Date: Wed, 24 Feb 2016 09:21:01 -0500
 MIME-Version: 1.0
-In-Reply-To: <568C45AF.2080902@honto.info>
-References: <CAEKGoSEEx8djUXUMJ60PqO6-wxEXUo3beK2Rj4=AbJXsvAWDWA@mail.gmail.com>
- <568C082A.1060504@tycho.nsa.gov> <568C45AF.2080902@honto.info>
-Date: Wed, 24 Feb 2016 17:51:40 +0900
-Message-ID: <CAEKGoSFxkz-s_t153svxxrLAZQfCRZEA92naPvZJnfxRhk_iDQ@mail.gmail.com>
-Subject: Re: CIL Wiki Translate
-From: =?UTF-8?B?6Z2i5ZKM5q+F?= <ka-omo@sios.com>
-To: omok <omok@honto.info>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1456259040-13721-2-git-send-email-dcashman@android.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Folks,
+On 02/23/2016 03:23 PM, Daniel Cashman wrote:
+> From: dcashman <dcashman@android.com>
+>
+> Signed-off-by: Daniel Cashman <dcashman@android.com>
 
-Finally I finish to translate CIL Reference Guide to Japanese.
-I shared the .html file on
+Thanks, applied.
 
-https://oss.sios.com/security/CIL_Reference_Guide_ja.html.
-
-Also I'll start the article "how to use CIL on Fedora" soon.
-
-Kind Regards,
-
-OMO
-
-2016-01-06 7:37 GMT+09:00 omok <omok@honto.info>:
-> Dear Sir,
+> ---
+>   libselinux/src/procattr.c | 7 +++++--
+>   1 file changed, 5 insertions(+), 2 deletions(-)
 >
-> Thanks for that information.
+> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> index 527a0a5..c20f003 100644
+> --- a/libselinux/src/procattr.c
+> +++ b/libselinux/src/procattr.c
+> @@ -70,9 +70,9 @@ static int openattr(pid_t pid, const char *attr, int flags)
+>   	char *path;
+>   	pid_t tid;
 >
->> Thanks for your interest in CIL and your work!
+> -	if (pid > 0)
+> +	if (pid > 0) {
+>   		rc = asprintf(&path, "/proc/%d/attr/%s", pid, attr);
+> -	else {
+> +	} else if (pid == 0) {
+>   		rc = asprintf(&path, "/proc/thread-self/attr/%s", attr);
+>   		if (rc < 0)
+>   			return -1;
+> @@ -82,6 +82,9 @@ static int openattr(pid_t pid, const char *attr, int flags)
+>   		free(path);
+>   		tid = gettid();
+>   		rc = asprintf(&path, "/proc/self/task/%d/attr/%s", tid, attr);
+> +	} else {
+> +		errno = EINVAL;
+> +		return -1;
+>   	}
+>   	if (rc < 0)
+>   		return -1;
 >
-> I surprised about CIL and I know many of Japanese people don't know
-> how it will work, then I decided to translate it.
->
->> The wiki at https://github.com/SELinuxProject/cil/wiki is largely
->> obsolete
-> I translated it, but I didn't know that wiki is obsolete. :-(
->
->> The most current documentation is at
->> https://github.com/SELinuxProject/selinux/tree/master/secilc/docs.
->
-> Thanks. :-)
->
-> I'll translate it to Japanese and share that on my website.
-> Also share CIL information on several article.
->
-> Kind Regards,
->
-> OMO
->
-> James Carter wrote on 2016/01/06 03:15:
->>
->>
->> Which wiki are you referring to?
->>
->> The wiki at https://github.com/SELinuxProject/cil/wiki is largely
->> obsolete (though I do notice that we are still referring to it in
->> secilc's readme) and I am not sure of its license status.
->>
->> The most current documentation is at
->> https://github.com/SELinuxProject/selinux/tree/master/secilc/docs. That
->> documentation is released under a FreeBSD license and you are free to
->> upload and share that (and any translation) from your website under that
->> license.
->>
->> Thanks for your interest in CIL and your work!
->> Jim
->>
->>> Kind Regards,
->>>
->>> OMO
->>>
->>
->>
->
->
-> --
-> Kazuki Omo: omok@honto.info
-> CISSP #366942
-> https://www.facebook.com/omokazuki
-> http://www.lids.org
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
-
-
-
--- 
-Kazuki Omo: ka-omo@sios.com
-Senior Architect
-OSS Business Planning Dept.
-CISSP #366942
-Tel: +81364015149
