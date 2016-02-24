@@ -1,105 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1NLMWqF001734
- for <selinux@tycho.nsa.gov>; Tue, 23 Feb 2016 16:22:36 -0500
-Received: by mail-vk0-f42.google.com with SMTP id e185so174167203vkb.1
- for <selinux@tycho.nsa.gov>; Tue, 23 Feb 2016 13:22:35 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1O8pmUh017891
+ for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 03:51:49 -0500
+Received: from tenisvw (tenisvw.dc1.sios.com [10.20.0.16])
+ by tenpost4.dc1.sios.com (Postfix) with ESMTP id 6699C23600F8
+ for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 17:51:42 +0900 (JST)
+Received: from mail-io0-f177.google.com (mail-io0-f177.google.com
+ [209.85.223.177])
+ by tenpost3.dc1.sios.com (Postfix) with ESMTP id A3F8B23600F8
+ for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 17:51:41 +0900 (JST)
+Received: by mail-io0-f177.google.com with SMTP id 9so26221448iom.1
+ for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 00:51:41 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <56CCC13F.3060709@android.com>
-References: <1456259040-13721-1-git-send-email-dcashman@android.com>
- <1456259040-13721-2-git-send-email-dcashman@android.com>
- <1456259040-13721-3-git-send-email-dcashman@android.com>
- <56CCC13F.3060709@android.com>
-Date: Tue, 23 Feb 2016 13:22:34 -0800
-Message-ID: <CAFJ0LnH=zQuJ6mSBSQu4XBjQ-jHnOpKveh7TwE55WLxfj5KGXQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libselinux: procattr: return einval for <= 0 pid args.
-From: Nick Kralevich <nnk@google.com>
-To: Daniel Cashman <dcashman@android.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Jeffrey Vander Stoep <jeffv@google.com>,
- Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <568C45AF.2080902@honto.info>
+References: <CAEKGoSEEx8djUXUMJ60PqO6-wxEXUo3beK2Rj4=AbJXsvAWDWA@mail.gmail.com>
+ <568C082A.1060504@tycho.nsa.gov> <568C45AF.2080902@honto.info>
+Date: Wed, 24 Feb 2016 17:51:40 +0900
+Message-ID: <CAEKGoSFxkz-s_t153svxxrLAZQfCRZEA92naPvZJnfxRhk_iDQ@mail.gmail.com>
+Subject: Re: CIL Wiki Translate
+From: =?UTF-8?B?6Z2i5ZKM5q+F?= <ka-omo@sios.com>
+To: omok <omok@honto.info>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks for proposing this patch Dan.
+Folks,
 
-As you said, the current API feels error prone, as it has two entirely
-different behaviors depending on whether the pid is zero or non-zero.
-Your patch corrects this error prone API and clearly separates out a
-query by PID vs a query of the process itself.
+Finally I finish to translate CIL Reference Guide to Japanese.
+I shared the .html file on
 
-This patch helps provide robustness against bugs similar to:
+https://oss.sios.com/security/CIL_Reference_Guide_ja.html.
 
-  https://code.google.com/p/google-security-research/issues/detail?id=727
-  https://code.google.com/p/android/issues/detail?id=200617
+Also I'll start the article "how to use CIL on Fedora" soon.
 
-(note that the Android code in question was reviewed by Stephen,
-myself, and others within Google, and we all missed this particular
-bug)
+Kind Regards,
 
-I would recommend the upstream SELinux community accept the patch,
-even at the potential expense of breaking compatibility with other
-apps.
+OMO
 
--- Nick
-
-On Tue, Feb 23, 2016 at 12:29 PM, Daniel Cashman <dcashman@android.com> wrote:
-> On 02/23/2016 12:24 PM, Daniel Cashman wrote:
->> From: dcashman <dcashman@android.com>
+2016-01-06 7:37 GMT+09:00 omok <omok@honto.info>:
+> Dear Sir,
+>
+> Thanks for that information.
+>
+>> Thanks for your interest in CIL and your work!
+>
+> I surprised about CIL and I know many of Japanese people don't know
+> how it will work, then I decided to translate it.
+>
+>> The wiki at https://github.com/SELinuxProject/cil/wiki is largely
+>> obsolete
+> I translated it, but I didn't know that wiki is obsolete. :-(
+>
+>> The most current documentation is at
+>> https://github.com/SELinuxProject/selinux/tree/master/secilc/docs.
+>
+> Thanks. :-)
+>
+> I'll translate it to Japanese and share that on my website.
+> Also share CIL information on several article.
+>
+> Kind Regards,
+>
+> OMO
+>
+> James Carter wrote on 2016/01/06 03:15:
 >>
->> getpidcon documentation does not specify that a pid of 0 refers to the
->> current process, and getcon exists specifically to provide this
->> functionality, and getpidcon(getpid()) would provide it as well.
->> Disallow pid values <= 0 that may lead to unintended behavior in
->> userspace object managers.
 >>
->> Signed-off-by: Daniel Cashman <dcashman@android.com>
-
-Acked-by: Nick Kralevich <nnk@google.com>
-
->> ---
->>  libselinux/src/procattr.c | 14 ++++++++++++--
->>  1 file changed, 12 insertions(+), 2 deletions(-)
+>> Which wiki are you referring to?
 >>
->> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
->> index c20f003..eee4612 100644
->> --- a/libselinux/src/procattr.c
->> +++ b/libselinux/src/procattr.c
->> @@ -306,11 +306,21 @@ static int setprocattrcon(const char * context,
->>  #define getpidattr_def(fn, attr) \
->>       int get##fn##_raw(pid_t pid, char **c)  \
->>       { \
->> -             return getprocattrcon_raw(c, pid, #attr); \
->> +             if (pid <= 0) { \
->> +                     errno = EINVAL; \
->> +                     return -1; \
->> +             } else { \
->> +                     return getprocattrcon_raw(c, pid, #attr); \
->> +             } \
->>       } \
->>       int get##fn(pid_t pid, char **c)        \
->>       { \
->> -             return getprocattrcon(c, pid, #attr); \
->> +             if (pid <= 0) { \
->> +                     errno = EINVAL; \
->> +                     return -1; \
->> +             } else { \
->> +                     return getprocattrcon(c, pid, #attr); \
->> +             } \
->>       }
+>> The wiki at https://github.com/SELinuxProject/cil/wiki is largely
+>> obsolete (though I do notice that we are still referring to it in
+>> secilc's readme) and I am not sure of its license status.
 >>
->>  all_selfattr_def(con, current)
+>> The most current documentation is at
+>> https://github.com/SELinuxProject/selinux/tree/master/secilc/docs. That
+>> documentation is released under a FreeBSD license and you are free to
+>> upload and share that (and any translation) from your website under that
+>> license.
+>>
+>> Thanks for your interest in CIL and your work!
+>> Jim
+>>
+>>> Kind Regards,
+>>>
+>>> OMO
+>>>
+>>
 >>
 >
-> I need to point out explicitly that this change would, of course, break
-> the existing ABI and result in a change in behavior for applications
-> relying on getpidcon(0,) calls to be the same as getcon().
 >
-> Thanks,
-> Dan
+> --
+> Kazuki Omo: omok@honto.info
+> CISSP #366942
+> https://www.facebook.com/omokazuki
+> http://www.lids.org
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
 
 
 
 -- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+Kazuki Omo: ka-omo@sios.com
+Senior Architect
+OSS Business Planning Dept.
+CISSP #366942
+Tel: +81364015149
