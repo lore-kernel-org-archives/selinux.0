@@ -1,81 +1,43 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u1OLIFQI001800
- for <selinux@tycho.nsa.gov>; Wed, 24 Feb 2016 16:18:16 -0500
-Received: from localhost (localhost [127.0.0.1])
- by smtp.zero.jp (Postfix) with ESMTP id CC2134070CB
- for <selinux@tycho.nsa.gov>; Thu, 25 Feb 2016 06:18:10 +0900 (JST)
-Received: from smtp.zero.jp ([127.0.0.1])
- by localhost (smtp.zero.jp [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id d-iFiKrIzbEz for <selinux@tycho.nsa.gov>;
- Thu, 25 Feb 2016 06:18:10 +0900 (JST)
-Received: from [192.168.1.7] (KD124214163184.ppp-bb.dion.ne.jp
- [124.214.163.184])
- by smtp.gmoserver.jp (Postfix) with ESMTPSA id B8F7B4070C7
- for <selinux@tycho.nsa.gov>; Thu, 25 Feb 2016 06:18:10 +0900 (JST)
-Message-ID: <56CE1E0F.5090507@honto.info>
-Date: Thu, 25 Feb 2016 06:18:07 +0900
-From: omok <omok@honto.info>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: CIL Wiki Translate
-References: <CAEKGoSEEx8djUXUMJ60PqO6-wxEXUo3beK2Rj4=AbJXsvAWDWA@mail.gmail.com>
- <568C082A.1060504@tycho.nsa.gov>
-In-Reply-To: <568C082A.1060504@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Message-ID: <1456423369.3702.42.camel@redhat.com>
+Subject: Strange AVC with latest rawhide kernel.
+From: Daniel J Walsh <dwalsh@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+ pmoore@redhat.com, mgrepl@redhat.com
+Cc: selinux@tycho.nsa.gov
+Date: Thu, 25 Feb 2016 13:02:49 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Folks,
+audit2allow -wla
+type=AVC msg=audit(1456422969.279:1434): avc:  denied  { entrypoint }
+for  pid=23847 comm="exe" path="/usr/bin/bash" dev="dm-2" ino=25165968
+scontext=system_u:system_r:svirt_lxc_net_t:s0:c337,c895
+tcontext=system_u:object_r:svirt_sandbox_file_t:s0:c337,c895
+tclass=file permissive=0
+	Was caused by:
+		Unknown - would be allowed by active policy
+		Possible mismatch between this policy and the one under
+which the audit message was generated.
 
-Finally I finish to translate CIL Reference Guide to Japanese.
-I shared the .html file on
+		Possible mismatch between current in-memory boolean
+settings vs. permanent ones.
 
-https://oss.sios.com/security/CIL_Reference_Guide_ja.html.
+When trying to run a docker container on Rawhide, I am seeing this AVC.
+The policy as audit2allow -w shows allows svirt_sandbox_file_t as an
+entrypoint for svirt_lxc_net_t.
 
-Also I'll start the article "how to use CIL on Fedora" soon.
+# sesearch -A -s svirt_lxc_net_t -t svirt_sandbox_file_t -c file -p
+entrypoint
+Found 1 semantic av rules:
+   allow svirt_sandbox_domain file_type : file entrypoint ; 
 
-Kind Regards,
+But when I run try to start the container, docker blocks the access.  I
+don't see any constraints that would block this, and don't think
+NO_NEW_PRIV is enabled any way, and I don't think it would be involved
+here. 
 
-OMO
-
-James Carter wrote on 2016年01月06日 03:15:
-> On 01/04/2016 08:29 PM, 面和毅 wrote:
->> Folks,
->>
->> Sorry if this ML is not good place to ask.
->>
->> I just translated CIL Wiki to Japanese.
->> So I want to make sure that can I upload/share that translated
->> document on my web site?
->>
->
-> Which wiki are you referring to?
->
-> The wiki at https://github.com/SELinuxProject/cil/wiki is largely
-> obsolete (though I do notice that we are still referring to it in
-> secilc's readme) and I am not sure of its license status.
->
-> The most current documentation is at
-> https://github.com/SELinuxProject/selinux/tree/master/secilc/docs. That
-> documentation is released under a FreeBSD license and you are free to
-> upload and share that (and any translation) from your website under that
-> license.
->
-> Thanks for your interest in CIL and your work!
-> Jim
->
->> Kind Regards,
->>
->> OMO
->>
->
->
-
-
--- 
-Kazuki Omo: omok@honto.info
-CISSP #366942
-https://www.facebook.com/omokazuki
-http://www.lids.org
+Any idea why SELinux is blocking the access?
