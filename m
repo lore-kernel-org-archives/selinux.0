@@ -1,10 +1,10 @@
-Message-ID: <1456432101.3702.67.camel@redhat.com>
+Message-ID: <1456432571.3702.69.camel@redhat.com>
 Subject: Re: Strange AVC with latest rawhide kernel.
 From: Daniel J Walsh <dwalsh@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
  pmoore@redhat.com, mgrepl@redhat.com
 Cc: selinux@tycho.nsa.gov
-Date: Thu, 25 Feb 2016 15:28:21 -0500
+Date: Thu, 25 Feb 2016 15:36:11 -0500
 In-Reply-To: <56CF5A54.7020600@tycho.nsa.gov>
 References: <1456423369.3702.42.camel@redhat.com>
  <56CF4574.3030709@tycho.nsa.gov> <1456426779.3702.52.camel@redhat.com>
@@ -34,21 +34,29 @@ On Thu, 2016-02-25 at 14:47 -0500, Stephen Smalley wrote:
 > do 
 > anything about typebounds.  We should probably update libsepol 
 > compute_av (for that, and eventually for xperms).
-> 
 
-That would make sense, and then when I blew it away everything works
-again.  
+Eric is right.  I added the following policy and got the error again.
 
-So if I do a typebounds on docker_t svirt_lxc_net_t, I have to make
-sure docker_t can use svirt_sandbox_file_t as an entrypoint?
+policy_module(mypol, 1.0)
 
-BTW we have a problem with type bounds, which only allows one.  We
-would like to be able to say
-
-typebounds unconfined_t svirt_lxc_net_t;
+require {
+	type svirt_lxc_net_t;
+	type docker_t;
+}
 typebounds docker_t svirt_lxc_net_t;
 
-This would allow runc and docker to transition to svirt_lxc_net_t, if
-the user specified prctl(NO_NEW_PRIVS)
 
-Currently typebounds only allows one instance.
+Then I added this policy and it worked.
+
+policy_module(mypol, 1.0)
+
+require {
+	type svirt_lxc_net_t;
+	type docker_t;
+	type svirt_sandbox_file_t;
+}
+allow docker_t svirt_sandbox_file_t:file entrypoint;
+typebounds docker_t svirt_lxc_net_t;
+
+So typebounds removed the entrypoint access from svirt_lxc_net_t, but
+none of the tools realized this.
