@@ -1,10 +1,10 @@
-Message-ID: <1456429012.3702.56.camel@redhat.com>
+Message-ID: <1456429021.31341.34.camel@redhat.com>
 Subject: Re: Strange AVC with latest rawhide kernel.
-From: Daniel J Walsh <dwalsh@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
  pmoore@redhat.com, mgrepl@redhat.com
 Cc: selinux@tycho.nsa.gov
-Date: Thu, 25 Feb 2016 14:36:52 -0500
+Date: Thu, 25 Feb 2016 14:37:01 -0500
 In-Reply-To: <56CF523A.7000503@tycho.nsa.gov>
 References: <1456423369.3702.42.camel@redhat.com>
  <56CF4574.3030709@tycho.nsa.gov> <1456426779.3702.52.camel@redhat.com>
@@ -15,6 +15,11 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
+
+You added a type bounds right before this broke...  Does the parent
+type have entrypoint? If not, maybe that's where it got stripped...
+
+-Eric
 
 On Thu, 2016-02-25 at 14:12 -0500, Stephen Smalley wrote:
 > On 02/25/2016 01:59 PM, Daniel J Walsh wrote:
@@ -101,14 +106,3 @@ On Thu, 2016-02-25 at 14:12 -0500, Stephen Smalley wrote:
 > (in between execute_no_trans and execmod).  Your policy is what?
 > 
 > 
-
-rpm -q selinux-policy
-selinux-policy-3.13.1-171.fc24.noarch
-
-Ok I rm -rf /var/lib/selinux
-dnf -y reinstall selinux-policy selinux-policy-targeted docker-selinux
-
-And everything is working again.  
-
-I have no idea what was going on, but maybe their was something screwed
-up somewhere and I was loading a different policy then I was examining.
