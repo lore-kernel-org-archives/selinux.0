@@ -4,8 +4,8 @@ To: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
 References: <1456423369.3702.42.camel@redhat.com>
 Cc: selinux@tycho.nsa.gov
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <56CF429E.3050907@tycho.nsa.gov>
-Date: Thu, 25 Feb 2016 13:06:22 -0500
+Message-ID: <56CF4574.3030709@tycho.nsa.gov>
+Date: Thu, 25 Feb 2016 13:18:28 -0500
 MIME-Version: 1.0
 In-Reply-To: <1456423369.3702.42.camel@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -45,4 +45,5 @@ On 02/25/2016 01:02 PM, Daniel J Walsh wrote:
 >
 > Any idea why SELinux is blocking the access?
 
-kernel version?
+Also, what does compute_av report for that (scontext, tcontext, tclass) 
+triple?
