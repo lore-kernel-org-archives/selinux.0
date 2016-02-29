@@ -1,94 +1,59 @@
-Subject: Re: Strange AVC with latest rawhide kernel.
-To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@redhat.com>, pmoore@redhat.com
-References: <1456423369.3702.42.camel@redhat.com>
- <56CF4574.3030709@tycho.nsa.gov> <1456426779.3702.52.camel@redhat.com>
- <56CF523A.7000503@tycho.nsa.gov> <1456429021.31341.34.camel@redhat.com>
- <56CF5A54.7020600@tycho.nsa.gov> <1456432571.3702.69.camel@redhat.com>
-Cc: selinux@tycho.nsa.gov
-From: Miroslav Grepl <mgrepl@redhat.com>
-Message-ID: <56D41917.70608@redhat.com>
-Date: Mon, 29 Feb 2016 11:10:31 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <1456432571.3702.69.camel@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: only mount /proc if necessary
+Date: Mon, 29 Feb 2016 11:10:23 -0500
+Message-Id: <1456762223-8702-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/25/16 21:36, Daniel J Walsh wrote:
-> On Thu, 2016-02-25 at 14:47 -0500, Stephen Smalley wrote:
->> On 02/25/2016 02:37 PM, Eric Paris wrote:
->>>
->>> You added a type bounds right before this broke...  Does the parent
->>> type have entrypoint? If not, maybe that's where it got stripped...
->> That would match the behavior he described (although he should get
->> an 
->> audit message of the form op=security_compute_av reason=bounds.. in 
->> audit.log or dmesg in that case).  The kernel automatically reduces 
->> permissions as required by typebounds.  The corresponding logic
->> never 
->> made its way into the libsepol compute_av code, so audit2why
->> wouldn't 
->> know about it, and sesearch merely searches for TE rules; it doesn't
->> do 
->> anything about typebounds.  We should probably update libsepol 
->> compute_av (for that, and eventually for xperms).
-> 
-> Eric is right.  I added the following policy and got the error again.
-> 
-> policy_module(mypol, 1.0)
-> 
-> require {
-> 	type svirt_lxc_net_t;
-> 	type docker_t;
-> }
-> typebounds docker_t svirt_lxc_net_t;
-> 
-> 
-> Then I added this policy and it worked.
-> 
-> policy_module(mypol, 1.0)
-> 
-> require {
-> 	type svirt_lxc_net_t;
-> 	type docker_t;
-> 	type svirt_sandbox_file_t;
-> }
-> allow docker_t svirt_sandbox_file_t:file entrypoint;
-> typebounds docker_t svirt_lxc_net_t;
+Commit 9df498884665d ("libselinux: Mount procfs before checking
+/proc/filesystems") changed selinuxfs_exists() to always try
+mounting /proc before reading /proc/filesystems.  However, this is
+unnecessary if /proc is already mounted and can produce avc denials
+if the process is not allowed to perform the mount.  Check first
+to see if /proc is already present and only try the mount if it is not.
 
-Were you looking for SELINUX_ERR in audit.log? This is a design of
-typebounds -> bounding domains need to have required bounded permissions.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/init.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-So I have
-
-type bounded_t;
-type bounding_t;
-
-an I am getting
-
-type=SELINUX_ERR msg=audit(1456737948.283:273): op=security_compute_av
-reason=bounds scontext=system_u:system_r:bounded_t:s0-s0:c0.c1023
-tcontext=system_u:object_r:bin_t:s0 tclass=file perms=entrypoint
-
-in my test because I am missing
-
-allow bounding_t bin_t:file entrypoint;
-
-It is also a reason why it is so hard to make sandbox working with
-typebounds. Of course it is more about the current policy language and
-his limitations and we will challenge them also here.
-
-> 
-> So typebounds removed the entrypoint access from svirt_lxc_net_t, but
-> none of the tools realized this.
-> 
-
-
-
+diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+index 3db4de0..3530594 100644
+--- a/libselinux/src/init.c
++++ b/libselinux/src/init.c
+@@ -12,6 +12,7 @@
+ #include <stdint.h>
+ #include <limits.h>
+ #include <sys/mount.h>
++#include <linux/magic.h>
+ 
+ #include "dso.h"
+ #include "policy.h"
+@@ -57,13 +58,19 @@ static int verify_selinuxmnt(const char *mnt)
+ 
+ int selinuxfs_exists(void)
+ {
+-	int exists = 0, mnt_rc = 0;
++	int exists = 0, mnt_rc = -1, rc;
++	struct statfs sb;
+ 	FILE *fp = NULL;
+ 	char *buf = NULL;
+ 	size_t len;
+ 	ssize_t num;
+ 
+-	mnt_rc = mount("proc", "/proc", "proc", 0, 0);
++	do {
++		rc = statfs("/proc", &sb);
++	} while (rc < 0 && errno == EINTR);
++
++	if (rc == 0 && ((uint32_t)sb.f_type != (uint32_t)PROC_SUPER_MAGIC))
++		mnt_rc = mount("proc", "/proc", "proc", 0, 0);
+ 
+ 	fp = fopen("/proc/filesystems", "r");
+ 	if (!fp) {
 -- 
-Miroslav Grepl
-Senior Software Engineer, SELinux Solutions
-Red Hat, Inc.
+2.4.3
