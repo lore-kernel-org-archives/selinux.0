@@ -1,77 +1,43 @@
-Subject: Re: Strange AVC with latest rawhide kernel.
-To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-References: <1456423369.3702.42.camel@redhat.com>
- <56CF4574.3030709@tycho.nsa.gov> <1456426779.3702.52.camel@redhat.com>
- <56CF523A.7000503@tycho.nsa.gov> <1456429021.31341.34.camel@redhat.com>
- <56CF5A54.7020600@tycho.nsa.gov> <1456432101.3702.67.camel@redhat.com>
- <56CF6A08.6010305@tycho.nsa.gov> <1456491264.3481.2.camel@redhat.com>
- <CAHC9VhQwrmbH7UONJET6XOwfqJvn46fe9WXgkFOP-JDd4ss1uw@mail.gmail.com>
- <56D07421.3090301@tycho.nsa.gov> <1456504426.3481.44.camel@redhat.com>
- <56D0AC79.8040600@tycho.nsa.gov> <1456518652.3481.51.camel@redhat.com>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <56D47178.3010006@tycho.nsa.gov>
-Date: Mon, 29 Feb 2016 11:27:36 -0500
+Subject: Re: [PATCH 2/2] libselinux: procattr: return einval for <= 0 pid args.
+To: Nick Kralevich <nnk@google.com>, Daniel Cashman <dcashman@android.com>
+References: <1456259040-13721-1-git-send-email-dcashman@android.com>
+ <1456259040-13721-2-git-send-email-dcashman@android.com>
+ <1456259040-13721-3-git-send-email-dcashman@android.com>
+ <56CCC13F.3060709@android.com>
+ <CAFJ0LnH=zQuJ6mSBSQu4XBjQ-jHnOpKveh7TwE55WLxfj5KGXQ@mail.gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Jeffrey Vander Stoep <jeffv@google.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <56D481FC.9010009@tycho.nsa.gov>
+Date: Mon, 29 Feb 2016 12:38:04 -0500
 MIME-Version: 1.0
-In-Reply-To: <1456518652.3481.51.camel@redhat.com>
+In-Reply-To: <CAFJ0LnH=zQuJ6mSBSQu4XBjQ-jHnOpKveh7TwE55WLxfj5KGXQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/26/2016 03:30 PM, Daniel J Walsh wrote:
-> On Fri, 2016-02-26 at 14:50 -0500, James Carter wrote:
->> On 02/26/2016 11:33 AM, Daniel J Walsh wrote:
->>>
->>>
->>> BTW I turned on the expand-check=1 in semanage.conf and semodule -B
->>> went nuts and crashed.
->>>
->>> On this policy.
->>>
->>> policy_module(mypol, 1.0)
->>>
->>> require {
->>> 	type svirt_lxc_net_t;
->>> 	type docker_t;
->>> 	type svirt_sandbox_file_t;
->>> 	type unconfined_t;
->>> }
->>> allow unconfined_t svirt_sandbox_file_t:file entrypoint;
->>> allow docker_t svirt_sandbox_file_t:file entrypoint;
->>> typebounds unconfined_t docker_t;
->>> typebounds docker_t svirt_lxc_net_t;
->>>
->>>
->> I thought that maybe the toolchain couldn't handle an A bounds B
->> bounds C
->> relationship, but current versions handle that just fine and even
->> versions back
->> in June before I refactored the bounds checking could handle it. I
->> only checked
->> with checkpolicy and secilc, so there is a chance that something
->> particular with
->> modules caused this.
->>
->> I tried your module on Fedora 23 and the first bounds check fails.
->> Nothing crazy
->> happened though. I don't currently have a rawhide machine to try it
->> on.
->>
+On 02/23/2016 04:22 PM, Nick Kralevich wrote:
+> Thanks for proposing this patch Dan.
 >
-> I guess unconfined_t also needs docker_exec_t as an entrypoint.
+> As you said, the current API feels error prone, as it has two entirely
+> different behaviors depending on whether the pid is zero or non-zero.
+> Your patch corrects this error prone API and clearly separates out a
+> query by PID vs a query of the process itself.
 >
-> Still crashes.  Here is the output and strace.
-> # strace -o /tmp/strace semodule -B 2> /tmp/out
+> This patch helps provide robustness against bugs similar to:
 >
+>    https://code.google.com/p/google-security-research/issues/detail?id=727
+>    https://code.google.com/p/android/issues/detail?id=200617
+>
+> (note that the Android code in question was reviewed by Stephen,
+> myself, and others within Google, and we all missed this particular
+> bug)
+>
+> I would recommend the upstream SELinux community accept the patch,
+> even at the potential expense of breaking compatibility with other
+> apps.
 
-Is your policy available somewhere, so I can try to reproduce this?
-
-Jim
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+As I haven't heard or seen of anything that would break with this 
+change, I've merged this patch.  You'll need to apply it separately to 
+Android libselinux since that is still a fork.
