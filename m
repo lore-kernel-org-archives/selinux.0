@@ -1,60 +1,35 @@
-Subject: Re: Linux sandbox and the -i option
-To: Stephen Smalley <sds@tycho.nsa.gov>, w.chimiak@ieee.org,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <56D599AE.3050009@gmail.com> <56D6F06B.2070904@tycho.nsa.gov>
-From: Miroslav Grepl <mgrepl@redhat.com>
-Message-ID: <56D83371.8060509@redhat.com>
-Date: Thu, 3 Mar 2016 13:52:01 +0100
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u23JtN4K018868
+ for <selinux@tycho.nsa.gov>; Thu, 3 Mar 2016 14:55:23 -0500
+Received: by mail-qk0-f170.google.com with SMTP id o6so12692733qkc.2
+ for <selinux@tycho.nsa.gov>; Thu, 03 Mar 2016 11:55:21 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@tycho.nsa.gov, linux-audit@redhat.com
+Subject: Slight changes to the SELinux and audit kernel repository process
+Date: Thu, 03 Mar 2016 14:55:19 -0500
+Message-ID: <1668280.yoEPKDfd9Y@sifl>
 MIME-Version: 1.0
-In-Reply-To: <56D6F06B.2070904@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/02/2016 02:53 PM, Stephen Smalley wrote:
-> On 03/01/2016 08:31 AM, Bill wrote:
->> Is anyone else having issues with the
->> % sandbox -i [path]
->> not working?  What happens is the context is incorrectly done.
->>
->> %ls -Zd /tmp/.sandbox_home_[whatever]
->> gives
->> unconfined_u:object_r:sandbox_file_t:s0:cxx,cyyy .
->> BUT
->> %ls -Z [path] is
->> gives
->> unconfined_u:object_r:mozilla_home_t:s0 [path]
->>
->> This causes all sorts of read/write issues.
->>
->> I guess I can write a script to do the
->> chcon, but that is a bit painful and you have to hunt
->> for the correct sandbox directory (not optimal at all).
->>
->> Any suggestions?
-> 
-> I think this is really a question for the fedora selinux list and/or a
-> redhat bugzilla, but regardless, you need to provide more information
-> (e.g. distro version, package version, etc).
+Hello all,
 
-Yes, could you please ask on selinux@lists.fedoraproject.org with
-package details?
+Starting with this merge window I'm making some slight changes to the kernel 
+repository process.  The short version is that I'm doing away with the 
+'upstream' branch, and sending pull requests directly from the 'next' and 
+'stable-X.YY' branches.  I expect this shouldn't have much impact on anyone 
+and it should get back the commit ID consistency we lost with the most recent 
+changes.
 
-Thank you.
+You can find more detail at the link below if you are interested:
 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
+ * http://www.paul-moore.com/blog/d/2016/03/kernel-repo-process.html
 
+-Paul
 
 -- 
-Miroslav Grepl
-Senior Software Engineer, SELinux Solutions
-Red Hat, Inc.
+paul moore
+www.paul-moore.com
