@@ -1,153 +1,85 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u25EkmX8032482
- for <selinux@tycho.nsa.gov>; Sat, 5 Mar 2016 09:46:48 -0500
-Date: Sat, 5 Mar 2016 14:43:51 +0000 (UTC)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Message-ID: <121365621.6063900.1457189031805.JavaMail.yahoo@mail.yahoo.com>
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC56011F6F39@ORSMSX103.amr.corp.intel.com>
-References: <476DC76E7D1DF2438D32BFADF679FC56011F6F39@ORSMSX103.amr.corp.intel.com>
-Subject: Re: initial_sid context via libsepol
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u24Mr8SO024851
+ for <selinux@tycho.nsa.gov>; Fri, 4 Mar 2016 17:53:08 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
+ linux-fsdevel@vger.kernel.org, fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+References: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
+ <1451930639-94331-12-git-send-email-seth.forshee@canonical.com>
+ <20160303170201.GA30224@ubuntu-hedt>
+Date: Fri, 04 Mar 2016 16:43:06 -0600
+In-Reply-To: <20160303170201.GA30224@ubuntu-hedt> (Seth Forshee's message of
+ "Thu, 3 Mar 2016 11:02:01 -0600")
+Message-ID: <87twkl50g5.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="----=_Part_6063899_1646389404.1457189031805"
+Content-Type: text/plain
+Subject: Re: [PATCH RESEND v2 11/18] fs: Ensure the mounter of a filesystem is
+ privileged towards its inodes
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-------=_Part_6063899_1646389404.1457189031805
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Seth Forshee <seth.forshee@canonical.com> writes:
 
-
-
-
-
-On Friday, 4 March 2016, 21:18, "Roberts, William C" <william.c.roberts@int=
-el.com> wrote:
-
-
+> On Mon, Jan 04, 2016 at 12:03:50PM -0600, Seth Forshee wrote:
+>> The mounter of a filesystem should be privileged towards the
+>> inodes of that filesystem. Extend the checks in
+>> inode_owner_or_capable() and capable_wrt_inode_uidgid() to
+>> permit access by users priviliged in the user namespace of the
+>> inode's superblock.
 >
+> Eric - I've discovered a problem related to this patch. The patches
+> you've already applied to your testing branch make it so that s_user_ns
+> can be an unprivileged user for proc and kernfs-based mounts. In some
+> cases DAC is the only thing protecting files in these mounts (ignoring
+> MAC), and with this patch an unprivileged user could bypass DAC.
 >
->=20
->=20
->How can one obtain the same value as /sys/fs/selinux/initial_contexts/file=
- via libsepol?
->=20
->I=E2=80=99ve been digging around libsepol and its not quite clear to me.
->=20
->It looks as though the record is here:
->                context_struct_t *a =3D &((policydb_t *)pol.db)->ocontexts=
-[OCON_ISID]->context[0];
->                context_struct_t *b =3D &((policydb_t *)pol.db)->ocontexts=
-[OCON_ISID]->context[1];
->=20
->                printf("%u\n", a->type);
->                printf("%u\n",b->type);
->=20
->Prints:
->185
->0
->=20
->Not sure if this is right, and how to format the context struct to a strin=
-g. I didn=E2=80=99t see any helpers.
+> There's a simple solution - always set s_user_ns to &init_user_ns for
+> those filesystems. I think this is the right thing to do, since the
+> backing store behind these filesystems are really kernel objects.  But
+> this would break the assumption behind your patch "userns: Simpilify
+> MNT_NODEV handling" and cause a regression in mounting behavior.
 >
+> I've come up with several possible solutions for this conflict.
+>
+>  1. Drop this patch and keep on setting s_user_ns to unprivilged users.
+>     This would be unfortunate because I think this patch does make sense
+>     for most filesystems.
+>  2. Restrict this patch so that a user privileged towards s_user_ns is
+>     only privileged towards the super blocks inodes if s_user_ns has a
+>     mapping for both i_uid and i_gid. This is better than (1) but still
+>     not ideal in my mind.
+>  3. Drop your patch and maintain the current MNT_NODEV behavior.
+>  4. Add a new s_iflags flag to indicate a super block is from an
+>     unprivileged mount, and use this in your patch instead of s_user_ns.
+>
+> Any preference, or any other ideas?
 
->
-I've attached an example, hope it's useful
->
->=20
->Thanks,
->Bill
->_______________________________________________
->Selinux mailing list
->Selinux@tycho.nsa.gov
->To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->To get help, send an email containing "help" to Selinux-request@tycho.nsa.=
-gov.
->
->
-------=_Part_6063899_1646389404.1457189031805
-Content-Type: text/x-csrc
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=display-initial-sid-info.c
-Content-ID: <c5ba2fc9-7c97-de81-dfff-78f46a173b20@yahoo.com>
+In general this is only an issue if uids and gids on the filesystem
+do not map into the user namespace.
 
-LyogZ2NjIGRpc3BsYXktaW5pdGlhbC1zaWQtaW5mby5jIC1vIGRpc3BsYXktaW5pdGlhbC1zaWQt
-aW5mbyAtbHNlbGludXggL3Vzci9saWI2NC9saWJzZXBvbC5hICovCgojaW5jbHVkZSA8c3RkaW8u
-aD4KI2luY2x1ZGUgPHN0cmluZy5oPgojaW5jbHVkZSA8ZmNudGwuaD4KI2luY2x1ZGUgPHN5cy9t
-bWFuLmg+CiNpbmNsdWRlIDxzeXMvc3RhdC5oPgojaW5jbHVkZSA8dW5pc3RkLmg+CiNpbmNsdWRl
-IDxzZXBvbC9wb2xpY3lkYi9wb2xpY3lkYi5oPgoKLyogbG9hZF9wb2xpY3kgdGFrZW4gZnJvbSBz
-ZXBvbGljeS1hbmFseXplLmMgKi8KaW50IGxvYWRfcG9saWN5KGNoYXIgKmZpbGVuYW1lLCBwb2xp
-Y3lkYl90ICpwb2xpY3lkYiwgc3RydWN0IHBvbGljeV9maWxlICpwZikKewoJaW50IGZkOwoJc3Ry
-dWN0IHN0YXQgc2I7Cgl2b2lkICptYXA7CglpbnQgcmV0OwoKCWZkID0gb3BlbihmaWxlbmFtZSwg
-T19SRE9OTFkpOwoJaWYgKGZkIDwgMCkgewoJCWZwcmludGYoc3RkZXJyLCAiQ2FuJ3Qgb3BlbiAn
-JXMnOiAgJXNcbiIsIGZpbGVuYW1lLCBzdHJlcnJvcihlcnJubykpOwoJCXJldHVybiAxOwoJfQoJ
-aWYgKGZzdGF0KGZkLCAmc2IpIDwgMCkgewoJCWZwcmludGYoc3RkZXJyLCAiQ2FuJ3Qgc3RhdCAn
-JXMnOiAgJXNcbiIsIGZpbGVuYW1lLCBzdHJlcnJvcihlcnJubykpOwoJCWNsb3NlKGZkKTsKCQly
-ZXR1cm4gMTsKCX0KCW1hcCA9IG1tYXAoTlVMTCwgc2Iuc3Rfc2l6ZSwgUFJPVF9SRUFEIHwgUFJP
-VF9XUklURSwgTUFQX1BSSVZBVEUsIGZkLCAwKTsKCWlmIChtYXAgPT0gTUFQX0ZBSUxFRCkgewoJ
-CWZwcmludGYoc3RkZXJyLCAiQ2FuJ3QgbW1hcCAnJXMnOiAgJXNcbiIsIGZpbGVuYW1lLCBzdHJl
-cnJvcihlcnJubykpOwoJCWNsb3NlKGZkKTsKCQlyZXR1cm4gMTsKCX0KCglwb2xpY3lfZmlsZV9p
-bml0KHBmKTsKCXBmLT50eXBlID0gUEZfVVNFX01FTU9SWTsKCXBmLT5kYXRhID0gbWFwOwoJcGYt
-PmxlbiA9IHNiLnN0X3NpemU7CglpZiAocG9saWN5ZGJfaW5pdChwb2xpY3lkYikpIHsKCQlmcHJp
-bnRmKHN0ZGVyciwgIkNvdWxkIG5vdCBpbml0aWFsaXplIHBvbGljeWRiIVxuIik7CgkJY2xvc2Uo
-ZmQpOwoJCW11bm1hcChtYXAsIHNiLnN0X3NpemUpOwoJCXJldHVybiAxOwoJfQoJcmV0ID0gcG9s
-aWN5ZGJfcmVhZChwb2xpY3lkYiwgcGYsIDApOwoJaWYgKHJldCkgewoJCWZwcmludGYoc3RkZXJy
-LCAiZXJyb3IocykgZW5jb3VudGVyZWQgd2hpbGUgcGFyc2luZyBjb25maWd1cmF0aW9uXG4iKTsK
-CQljbG9zZShmZCk7CgkJbXVubWFwKG1hcCwgc2Iuc3Rfc2l6ZSk7CgkJcmV0dXJuIDE7Cgl9Cgly
-ZXR1cm4gMDsKfQoKLyogVGhlIGluaXRpYWwgU0lEIG5hbWVzIGFyZSBub3QgYXZhaWxhYmxlIHdo
-ZW4gbG9hZGluZyBhIGJpbmFyeSBwb2xpY3kuCiAqIFRoZXkgbmVlZCB0byBiZSB0YWtlbiBmcm9t
-IHRoZSBwb2xpY3kgJ2luaXRpYWxfc2lkcycgZmlsZS4gSG93ZXZlcgogKiB0aGV5IHRlbmQgdG8g
-YmUgY29tbW9uIHNvIHNldG9vbHMgdXNlcyBhIHRhYmxlIGxpa2UgdGhpczoKKi8Kc3RhdGljIGNv
-bnN0IGNoYXIgKmNvbnN0IHNpZG5hbWVzW10gPSB7CgkvKiBJJ3ZlIG1hZGUgdGhlbSBwcmludCBu
-ZWF0ICYgdGlkeSwgdGlkeSAmIG5lYXQgISEhKi8KCSJrZXJuZWwgICAgICAgICAiLAoJInNlY3Vy
-aXR5ICAgICAgICIsCgkidW5sYWJlbGVkICAgICAgIiwKCSJmcyAgICAgICAgICAgICAiLAoJImZp
-bGUgICAgICAgICAgICIsCgkiZmlsZV9sYWJlbHMgICAgIiwKCSJpbml0ICAgICAgICAgICAiLAoJ
-ImFueV9zb2NrZXQgICAgICIsCgkicG9ydCAgICAgICAgICAgIiwKCSJuZXRpZiAgICAgICAgICAi
-LAoJIm5ldG1zZyAgICAgICAgICIsCgkibm9kZSAgICAgICAgICAgIiwKCSJpZ21wX3BhY2tldCAg
-ICAiLAoJImljbXBfc29ja2V0ICAgICIsCgkidGNwX3NvY2tldCAgICAgIiwKCSJzeXNjdGxfbW9k
-cHJvYmUiLAoJInN5c2N0bCAgICAgICAgICIsCgkic3lzY3RsX2ZzICAgICAgIiwKCSJzeXNjdGxf
-a2VybmVsICAiLAoJInN5c2N0bF9uZXQgICAgICIsCgkic3lzY3RsX25ldF91bml4IiwKCSJzeXNj
-dGxfdm0gICAgICAiLAoJInN5c2N0bF9kZXYgICAgICIsCgkia21vZCAgICAgICAgICAgIiwKCSJw
-b2xpY3kgICAgICAgICAiLAoJInNjbXBfcGFja2V0ICAgICIsCgkiZGV2bnVsbCAgICAgICAgIgp9
-OwoKLyogVGhpcyBpcyByZXdvcmtlZCBmcm9tIGxpYnNlcG9sL3NyYy9tbHMuYyBtbHNfY29tcHV0
-ZV9jb250ZXh0X2xlbigpIHRvIHByaW50IHRoZSBNTFMgY29tcG9uZW50cy4KICogQmVzdCBzZWVu
-IG9uIC9ldGMvc2VsaW51eC9tbHMvcG9saWN5L3BvbGljeS4yOQogKi8Kdm9pZCBtbHNfcHJpbnQo
-Y29uc3QgcG9saWN5ZGJfdCAqcG9saWN5ZGIsIG9jb250ZXh0X3QgKmN1cikKewoJdW5zaWduZWQg
-aW50IGksIGwsIHJhbmdlOwoJZWJpdG1hcF9ub2RlX3QgKmNub2RlOwoKCWlmICghcG9saWN5ZGIt
-Pm1scykKCQlyZXR1cm47CgoJZm9yIChsID0gMDsgbCA8IDI7IGwrKykgewoJCXJhbmdlID0gMDsK
-CQlwcmludGYoIjolcyIsIHBvbGljeWRiLT5wX3NlbnNfdmFsX3RvX25hbWVbY3VyLT5jb250ZXh0
-WzBdLnJhbmdlLmxldmVsW2xdLnNlbnMgLSAxXSk7CgoJCWViaXRtYXBfZm9yX2VhY2hfYml0KCZj
-dXItPmNvbnRleHRbMF0ucmFuZ2UubGV2ZWxbbF0uY2F0LCBjbm9kZSwgaSkgewoJCQlpZiAoZWJp
-dG1hcF9ub2RlX2dldF9iaXQoY25vZGUsIGkpKSB7CgkJCQlpZiAocmFuZ2UpIHsKCQkJCQlyYW5n
-ZSsrOwoJCQkJCWNvbnRpbnVlOwoJCQkJfQoKCQkJCXByaW50ZigiOiVzIiwgcG9saWN5ZGItPnBf
-Y2F0X3ZhbF90b19uYW1lW2ldKTsKCQkJCXJhbmdlKys7CgkJCX0gZWxzZSB7CgkJCQlpZiAocmFu
-Z2UgPiAxKQoJCQkJCXByaW50ZigiLCVzIixwb2xpY3lkYi0+cF9jYXRfdmFsX3RvX25hbWVbaSAt
-IDFdKTsKCgkJCQlyYW5nZSA9IDA7CgkJCX0KCQl9CgkJLyogSGFuZGxlIGNhc2Ugd2hlcmUgbGFz
-dCBjYXRlZ29yeSBpcyB0aGUgZW5kIG9mIHJhbmdlICovCgkJaWYgKHJhbmdlID4gMSkKCQkJcHJp
-bnRmKCIuJXMiLHBvbGljeWRiLT5wX2NhdF92YWxfdG9fbmFtZVtpIC0gMV0pOwoKCQlpZiAobCA9
-PSAwKSB7CgkJCWlmIChtbHNfbGV2ZWxfZXEoJmN1ci0+Y29udGV4dFswXS5yYW5nZS5sZXZlbFsw
-XSwgJmN1ci0+Y29udGV4dFswXS5yYW5nZS5sZXZlbFsxXSkpCgkJCQlicmVhazsKCQl9Cgl9Cn0K
-CmludCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikKewoJY2hhciAqcG9saWN5OwoJc3RydWN0
-IHBvbGljeV9maWxlIHBmOwoJcG9saWN5ZGJfdCBwb2xpY3lkYjsKCW9jb250ZXh0X3QgKmN1cjsK
-CWludCBlbnRyeSA9IDA7CgoJaWYgKGFyZ2MgPCAyKSB7CgkJcHJpbnRmKCJOZWVkIGJpbmFyeSBw
-b2xpY3kgZmlsZTpcbiIpOwoJCXByaW50ZigiXHQlcyBwb2xpY3lfZmlsZVxuIiwgYXJndlswXSk7
-CgkJZXhpdCgxKTsKCX0KCglwb2xpY3kgPSBhcmd2WzFdOwoJaWYgKGxvYWRfcG9saWN5KHBvbGlj
-eSwgJnBvbGljeWRiLCAmcGYpKQoJCWV4aXQoMSk7CgoJLyogQ291bnQgZW50cmllcyAqLwoJZm9y
-IChjdXIgPSBwb2xpY3lkYi5vY29udGV4dHNbT0NPTl9JU0lEXTsgY3VyICE9IE5VTEw7IGN1ciA9
-IGN1ci0+bmV4dCkKCQllbnRyeSsrOwoKCXByaW50ZigiVGhlcmUgYXJlICVkIGluaXRpYWwgc2lk
-cyBpbiB0aGUgcG9saWN5XG5cbiIsIGVudHJ5KTsKCgllbnRyeSA9IDA7CglwcmludGYoIlNJRCAg
-TmFtZSAgICAgICAgICAgICBDb250ZXh0XG4iKTsKCWZvciAoY3VyID0gcG9saWN5ZGIub2NvbnRl
-eHRzW09DT05fSVNJRF07IGN1ciAhPSBOVUxMOyBjdXIgPSBjdXItPm5leHQpIHsKCQlwcmludGYo
-IiUyZCAgICVzICAlczolczolcyIsCgkJCSAgICBjdXItPnNpZFswXSwKCQkJICAgIHNpZG5hbWVz
-W2VudHJ5XSwKCQkJICAgIHBvbGljeWRiLnBfdXNlcl92YWxfdG9fbmFtZVtjdXItPmNvbnRleHRb
-MF0udXNlciAtIDFdLAoJCQkgICAgcG9saWN5ZGIucF9yb2xlX3ZhbF90b19uYW1lW2N1ci0+Y29u
-dGV4dFswXS5yb2xlIC0gMV0sCgkJCSAgICBwb2xpY3lkYi5wX3R5cGVfdmFsX3RvX25hbWVbY3Vy
-LT5jb250ZXh0WzBdLnR5cGUgLSAxXSk7CgoJCW1sc19wcmludCgmcG9saWN5ZGIsIGN1cik7CgkJ
-cHJpbnRmKCJcbiIpOwoJCWVudHJ5Kys7Cgl9CgoJZXhpdCgwKTsKfQo=
+Therefore the general fix is to limit the logic of checking for
+capabilities in s_user_ns if we are dealing with INVALID_UID and
+INVALID_GID.  For proc and kernfs that should never be the case
+so the problem becomes a non-issue.
 
-------=_Part_6063899_1646389404.1457189031805--
+Further I would look at limiting that relaxation to just
+inode_change_ok.  So that we can easily wrap that check per filesystem
+and deny the relaxation for proc and kernfs.  proc and kernfs already
+have wrappers for .setattr so denying changes when !uid_vaid and
+!gid_valid would be a trivial addition, and ensure calamity does
+not ensure.
+
+Furthmore by limiting any additional to inode_change_ok we keep
+the work of the additional tests off of the fast paths.
+
+Eric
