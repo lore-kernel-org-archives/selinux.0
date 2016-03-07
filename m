@@ -1,207 +1,66 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u27FiJt5024613
- for <selinux@tycho.nsa.gov>; Mon, 7 Mar 2016 10:44:20 -0500
-Date: Mon, 7 Mar 2016 15:41:14 +0000 (UTC)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Message-ID: <767708561.7764421.1457365274229.JavaMail.yahoo@mail.yahoo.com>
-In-Reply-To: <121365621.6063900.1457189031805.JavaMail.yahoo@mail.yahoo.com>
-References: <121365621.6063900.1457189031805.JavaMail.yahoo@mail.yahoo.com>
 Subject: Re: initial_sid context via libsepol
+To: Richard Haines <richard_c_haines@btinternet.com>,
+ "Roberts, William C" <william.c.roberts@intel.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <121365621.6063900.1457189031805.JavaMail.yahoo@mail.yahoo.com>
+ <767708561.7764421.1457365274229.JavaMail.yahoo@mail.yahoo.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <56DDCBF6.6010605@tycho.nsa.gov>
+Date: Mon, 7 Mar 2016 13:44:06 -0500
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="----=_Part_7764420_647436133.1457365274229"
+In-Reply-To: <767708561.7764421.1457365274229.JavaMail.yahoo@mail.yahoo.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-------=_Part_7764420_647436133.1457365274229
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-
-
-
-
-
-> On Saturday, 5 March 2016, 14:48, Richard Haines <richard_c_haines@btinte=
-rnet.com> wrote:
-> >=20
->=20
->=20
->=20
-> On Friday, 4 March 2016, 21:18, "Roberts, William C"=20
-> <william.c.roberts@intel.com> wrote:
->=20
->=20
->>=20
->>=20
->>=20
->>=20
->> How can one obtain the same value as /sys/fs/selinux/initial_contexts/fi=
-le=20
-> via libsepol?
->>=20
->> I=E2=80=99ve been digging around libsepol and its not quite clear to me.
->>=20
->> It looks as though the record is here:
->>                 context_struct_t *a =3D &((policydb_t=20
-> *)pol.db)->ocontexts[OCON_ISID]->context[0];
->>                 context_struct_t *b =3D &((policydb_t=20
-> *)pol.db)->ocontexts[OCON_ISID]->context[1];
->>=20
->>                 printf("%u\n", a->type);
->>                 printf("%u\n",b->type);
->>=20
->> Prints:
->> 185
->> 0
->>=20
->> Not sure if this is right, and how to format the context struct to a str=
-ing.=20
-> I didn=E2=80=99t see any helpers.
->>=20
->=20
->>=20
-
-> I've attached an example, hope it's useful
-
-I've updated the example with more detail and display SID name using SID va=
-lue not counter.
->=20
->>=20
->>=20
->> Thanks,
->> Bill
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to=20
-> Selinux-request@tycho.nsa.gov.
->>=20
->>=20
->=20
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to=20
-> Selinux-request@tycho.nsa.gov.
+On 03/07/2016 10:41 AM, Richard Haines wrote:
 >
-------=_Part_7764420_647436133.1457365274229
-Content-Type: text/x-csrc
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename=display-initial-sid-info.c
-Content-ID: <93733aba-66cf-c8bc-5d0f-567b1dc885e9@yahoo.com>
+>
+>
+>
+>
+>> On Saturday, 5 March 2016, 14:48, Richard Haines <richard_c_haines@btinternet.com> wrote:
+>>>
+>>
+>>
+>>
+>> On Friday, 4 March 2016, 21:18, "Roberts, William C"
+>> <william.c.roberts@intel.com> wrote:
+>>
+>>
+>>>
+>>>
+>>>
+>>>
+>>> How can one obtain the same value as /sys/fs/selinux/initial_contexts/file
+>> via libsepol?
+>>>
+>>> I’ve been digging around libsepol and its not quite clear to me.
+>>>
+>>> It looks as though the record is here:
+>>>                  context_struct_t *a = &((policydb_t
+>> *)pol.db)->ocontexts[OCON_ISID]->context[0];
+>>>                  context_struct_t *b = &((policydb_t
+>> *)pol.db)->ocontexts[OCON_ISID]->context[1];
+>>>
+>>>                  printf("%u\n", a->type);
+>>>                  printf("%u\n",b->type);
+>>>
+>>> Prints:
+>>> 185
+>>> 0
+>>>
+>>> Not sure if this is right, and how to format the context struct to a string.
+>> I didn’t see any helpers.
+>>>
+>>
+>>>
+>
+>> I've attached an example, hope it's useful
+>
+> I've updated the example with more detail and display SID name using SID value not counter.
+>
 
-LyogZ2NjIGRpc3BsYXktaW5pdGlhbC1zaWQtaW5mby5jIC1vIGRpc3BsYXktaW5pdGlhbC1zaWQt
-aW5mbyBsaWJzZXBvbC5hICovCgojaW5jbHVkZSA8c3RkaW8uaD4KI2luY2x1ZGUgPHN0cmluZy5o
-PgojaW5jbHVkZSA8ZmNudGwuaD4KI2luY2x1ZGUgPHN5cy9tbWFuLmg+CiNpbmNsdWRlIDxzeXMv
-c3RhdC5oPgojaW5jbHVkZSA8dW5pc3RkLmg+CiNpbmNsdWRlIDxzdGRib29sLmg+CiNpbmNsdWRl
-IDxzZXBvbC9wb2xpY3lkYi9wb2xpY3lkYi5oPgoKLyogbG9hZF9wb2xpY3kgdGFrZW4gZnJvbSBz
-ZXBvbGljeS1hbmFseXplLmMgKi8KaW50IGxvYWRfcG9saWN5KGNoYXIgKmZpbGVuYW1lLCBwb2xp
-Y3lkYl90ICpwb2xpY3lkYiwgc3RydWN0IHBvbGljeV9maWxlICpwZikKewoJaW50IGZkOwoJc3Ry
-dWN0IHN0YXQgc2I7Cgl2b2lkICptYXA7CglpbnQgcmV0OwoKCWZkID0gb3BlbihmaWxlbmFtZSwg
-T19SRE9OTFkpOwoJaWYgKGZkIDwgMCkgewoJCWZwcmludGYoc3RkZXJyLCAiQ2FuJ3Qgb3BlbiAn
-JXMnOiAgJXNcbiIsIGZpbGVuYW1lLCBzdHJlcnJvcihlcnJubykpOwoJCXJldHVybiAxOwoJfQoJ
-aWYgKGZzdGF0KGZkLCAmc2IpIDwgMCkgewoJCWZwcmludGYoc3RkZXJyLCAiQ2FuJ3Qgc3RhdCAn
-JXMnOiAgJXNcbiIsIGZpbGVuYW1lLCBzdHJlcnJvcihlcnJubykpOwoJCWNsb3NlKGZkKTsKCQly
-ZXR1cm4gMTsKCX0KCW1hcCA9IG1tYXAoTlVMTCwgc2Iuc3Rfc2l6ZSwgUFJPVF9SRUFEIHwgUFJP
-VF9XUklURSwgTUFQX1BSSVZBVEUsIGZkLCAwKTsKCWlmIChtYXAgPT0gTUFQX0ZBSUxFRCkgewoJ
-CWZwcmludGYoc3RkZXJyLCAiQ2FuJ3QgbW1hcCAnJXMnOiAgJXNcbiIsIGZpbGVuYW1lLCBzdHJl
-cnJvcihlcnJubykpOwoJCWNsb3NlKGZkKTsKCQlyZXR1cm4gMTsKCX0KCglwb2xpY3lfZmlsZV9p
-bml0KHBmKTsKCXBmLT50eXBlID0gUEZfVVNFX01FTU9SWTsKCXBmLT5kYXRhID0gbWFwOwoJcGYt
-PmxlbiA9IHNiLnN0X3NpemU7CglpZiAocG9saWN5ZGJfaW5pdChwb2xpY3lkYikpIHsKCQlmcHJp
-bnRmKHN0ZGVyciwgIkNvdWxkIG5vdCBpbml0aWFsaXplIHBvbGljeWRiIVxuIik7CgkJY2xvc2Uo
-ZmQpOwoJCW11bm1hcChtYXAsIHNiLnN0X3NpemUpOwoJCXJldHVybiAxOwoJfQoJcmV0ID0gcG9s
-aWN5ZGJfcmVhZChwb2xpY3lkYiwgcGYsIDApOwoJaWYgKHJldCkgewoJCWZwcmludGYoc3RkZXJy
-LCAiZXJyb3IocykgZW5jb3VudGVyZWQgd2hpbGUgcGFyc2luZyBjb25maWd1cmF0aW9uXG4iKTsK
-CQljbG9zZShmZCk7CgkJbXVubWFwKG1hcCwgc2Iuc3Rfc2l6ZSk7CgkJcmV0dXJuIDE7Cgl9Cgly
-ZXR1cm4gMDsKfQoKLyogVGhlIGluaXRpYWwgU0lEIG5hbWVzIGFyZSBub3QgY3VycmVudGx5IGF2
-YWlsYWJsZSBpbiBhIGJpbmFyeSBwb2xpY3kgKE1hcmNoICcxNikuCiAqIFRoZXkgcmVhbGx5IG5l
-ZWQgdG8gYmUgdGFrZW4gZnJvbSB0aGUgcG9saWN5ICdpbml0aWFsX3NpZHMnIGZpbGUuIEhvd2V2
-ZXIgZm9yIHRoZQogKiBSZWZlcmVuY2UgUG9saWN5IHRoZXkgdGVuZCB0byBiZSBjb21tb24gc28g
-c2V0b29scyB1c2VzIGEgdGFibGUgbGlrZSB0aGUgb25lIGJlbG93LgogKgogKiBXQVJOSU5HOiBJ
-ZiB5b3UgaGF2ZSBhIGN1c3RvbSBrZXJuZWwvcG9saWN5IHRoYXQgY2hhbmdlcyB0aGVzZSwgdGhl
-biB1cGRhdGUKICogdGhpcyB0YWJsZSAoZS5nLiBYZW4gaGFzIGEgZGlmZmVyZW50IHNldCBhcyBz
-aG93biBpbiB0aGUgJ3hlbl9zaWRuYW1lcycgdGFibGUpLgogKgogKiBOb3RlIDE6IFRoZSBrZXJu
-ZWwgYnVpbGRzIHRoZSAvc3lzL2ZzL3NlbGludXgvaW5pdGlhbF9jb250ZXh0cyBlbnRyaWVzIHVz
-aW5nIHRoZQogKiAgICAgICAgIGNvbnRlbnRzIG9mIHRoZSBrZXJuZWwncyBzZWN1cml0eS9zZWxp
-bnV4L2luY2x1ZGUvaW5pdGlhbF9zaWRfdG9fc3RyaW5nLmgKICogICAgICAgICBmaWxlIChzZWUg
-a2VybmVsIHNvdXJjZSBzZWN1cml0eS9zZWxpbnV4L3NlbGludXhmcy5jIGFuZCBzcy9zZXJ2aWNl
-cy5jKS4KICogICAgICAgICBUaGUgJ2luaXRpYWxfc2lkX3RvX3N0cmluZy5oJyBmaWxlIGNhbiBi
-ZSBnZW5lcmF0ZWQgYnkgdGhlIFJlZmVyZW5jZQogKiAgICAgICAgIFBvbGljeSBzb3VyY2UgYnVp
-bGQgc2NyaXB0IHBvbGljeS9mbGFzay9mbGFzay5weSBhcyBpdCBidWlsZHMgdXNlcnNwYWNlCiAq
-ICAgICAgICAgYW5kIGtlcm5lbCBoZWFkZXJzIGJhc2VkIG9uIHBvbGljeSAoaG93ZXZlciBtb3N0
-IG9mIHRoZSBoZWFkZXJzIGl0CiAqICAgICAgICAgZ2VuZXJhdGVzIGFyZSBub3QgcmVxdWlyZWQg
-YnkgbmV3ZXIga2VybmVscyBvciBTRUxpbnV4IHVzZXJzcGFjZSBzZXJ2aWNlcykuCiAqCiAqIE5v
-dGUgMjogVGhlcmUgaXMgYSBUb0RvIGZvciAiRHluYW1pYyBkaXNjb3Zlcnkgb2YgaW5pdGlhbCBT
-SURzIiBhdDoKICogICAgICAgICAgICBodHRwczovL2dpdGh1Yi5jb20vU0VMaW51eFByb2plY3Qv
-c2VsaW51eC93aWtpL0tlcm5lbC1Ub2RvCiovCnN0YXRpYyBjb25zdCBjaGFyICpjb25zdCBsaW51
-eF9zaWRuYW1lc1tdID0gewoJLyogSSd2ZSBtYWRlIHRoZW0gcHJpbnQgbmVhdCAmIHRpZHksIHRp
-ZHkgJiBuZWF0ICEhISovCiAgICAgICAgIm51bGwiLAoJImtlcm5lbCAgICAgICAgICIsCgkic2Vj
-dXJpdHkgICAgICAgIiwKCSJ1bmxhYmVsZWQgICAgICAiLAoJImZzICAgICAgICAgICAgICIsCgki
-ZmlsZSAgICAgICAgICAgIiwKCSJmaWxlX2xhYmVscyAgICAiLAoJImluaXQgICAgICAgICAgICIs
-CgkiYW55X3NvY2tldCAgICAgIiwKCSJwb3J0ICAgICAgICAgICAiLAoJIm5ldGlmICAgICAgICAg
-ICIsCgkibmV0bXNnICAgICAgICAgIiwKCSJub2RlICAgICAgICAgICAiLAoJImlnbXBfcGFja2V0
-ICAgICIsCgkiaWNtcF9zb2NrZXQgICAgIiwKCSJ0Y3Bfc29ja2V0ICAgICAiLAoJInN5c2N0bF9t
-b2Rwcm9iZSIsCgkic3lzY3RsICAgICAgICAgIiwKCSJzeXNjdGxfZnMgICAgICAiLAoJInN5c2N0
-bF9rZXJuZWwgICIsCgkic3lzY3RsX25ldCAgICAgIiwKCSJzeXNjdGxfbmV0X3VuaXgiLAoJInN5
-c2N0bF92bSAgICAgICIsCgkic3lzY3RsX2RldiAgICAgIiwKCSJrbW9kICAgICAgICAgICAiLAoJ
-InBvbGljeSAgICAgICAgICIsCgkic2NtcF9wYWNrZXQgICAgIiwKCSJkZXZudWxsICAgICAgICAi
-Cn07CgpzdGF0aWMgY29uc3QgY2hhciAqY29uc3QgeGVuX3NpZG5hbWVzW10gPSB7CiAgICAgICAg
-Im51bGwiLAoJInhlbiAgICAgICIsCgkiZG9tMCAgICAgIiwKCSJkb21pbyAgICAiLAoJImRvbXhl
-biAgICIsCgkidW5sYWJlbGVkIiwKCSJzZWN1cml0eSAiLAoJImlvcG9ydCAgICIsCgkiaW9tZW0g
-ICAgIiwKCSJpcnEgICAgICAiLAoJImRldmljZSAgICIKfTsKCi8qIFRoaXMgaXMgcmV3b3JrZWQg
-ZnJvbSBsaWJzZXBvbC9zcmMvbWxzLmMgbWxzX2NvbXB1dGVfY29udGV4dF9sZW4oKSB0byBwcmlu
-dCB0aGUgTUxTIGNvbXBvbmVudHMuCiAqIEJlc3Qgc2VlbiB1c2luZyBNTFMgcG9saWN5IGUuZy4g
-L2V0Yy9zZWxpbnV4L21scy9wb2xpY3kvcG9saWN5LjI5CiAqLwp2b2lkIG1sc19wcmludChjb25z
-dCBwb2xpY3lkYl90ICpwb2xpY3lkYiwgb2NvbnRleHRfdCAqY3VyKQp7Cgl1bnNpZ25lZCBpbnQg
-aSwgbCwgcmFuZ2U7CgllYml0bWFwX25vZGVfdCAqY25vZGU7CgoJaWYgKCFwb2xpY3lkYi0+bWxz
-KQoJCXJldHVybjsKCglmb3IgKGwgPSAwOyBsIDwgMjsgbCsrKSB7CgkJcmFuZ2UgPSAwOwoJCXBy
-aW50ZigiOiVzIiwgcG9saWN5ZGItPnBfc2Vuc192YWxfdG9fbmFtZVtjdXItPmNvbnRleHRbMF0u
-cmFuZ2UubGV2ZWxbbF0uc2VucyAtIDFdKTsKCgkJZWJpdG1hcF9mb3JfZWFjaF9iaXQoJmN1ci0+
-Y29udGV4dFswXS5yYW5nZS5sZXZlbFtsXS5jYXQsIGNub2RlLCBpKSB7CgkJCWlmIChlYml0bWFw
-X25vZGVfZ2V0X2JpdChjbm9kZSwgaSkpIHsKCQkJCWlmIChyYW5nZSkgewoJCQkJCXJhbmdlKys7
-CgkJCQkJY29udGludWU7CgkJCQl9CgoJCQkJcHJpbnRmKCI6JXMiLCBwb2xpY3lkYi0+cF9jYXRf
-dmFsX3RvX25hbWVbaV0pOwoJCQkJcmFuZ2UrKzsKCQkJfSBlbHNlIHsKCQkJCWlmIChyYW5nZSA+
-IDEpCgkJCQkJcHJpbnRmKCIsJXMiLHBvbGljeWRiLT5wX2NhdF92YWxfdG9fbmFtZVtpIC0gMV0p
-OwoKCQkJCXJhbmdlID0gMDsKCQkJfQoJCX0KCQkvKiBIYW5kbGUgY2FzZSB3aGVyZSBsYXN0IGNh
-dGVnb3J5IGlzIHRoZSBlbmQgb2YgcmFuZ2UgKi8KCQlpZiAocmFuZ2UgPiAxKQoJCQlwcmludGYo
-Ii4lcyIsIHBvbGljeWRiLT5wX2NhdF92YWxfdG9fbmFtZVtpIC0gMV0pOwoKCQlpZiAobCA9PSAw
-KSB7CgkJCWlmIChtbHNfbGV2ZWxfZXEoJmN1ci0+Y29udGV4dFswXS5yYW5nZS5sZXZlbFswXSwg
-JmN1ci0+Y29udGV4dFswXS5yYW5nZS5sZXZlbFsxXSkpCgkJCQlicmVhazsKCQl9Cgl9Cn0KCmlu
-dCBtYWluKGludCBhcmdjLCBjaGFyICoqYXJndikKewoJY2hhciAqcG9saWN5OwoJc3RydWN0IHBv
-bGljeV9maWxlIHBmOwoJcG9saWN5ZGJfdCBwb2xpY3lkYjsKCW9jb250ZXh0X3QgKmN1cjsKCWlu
-dCBlbnRyeSA9IDA7Cglib29sIGhhdmVfbmFtZXMgPSBmYWxzZTsKCglpZiAoYXJnYyA8IDIpIHsK
-CQlwcmludGYoIk5lZWQgYmluYXJ5IHBvbGljeSBmaWxlOlxuIik7CgkJcHJpbnRmKCJcdCVzIHBv
-bGljeV9maWxlXG4iLCBhcmd2WzBdKTsKCQlleGl0KDEpOwoJfQoKCXBvbGljeSA9IGFyZ3ZbMV07
-CglpZiAobG9hZF9wb2xpY3kocG9saWN5LCAmcG9saWN5ZGIsICZwZikpCgkJZXhpdCgxKTsKCgkv
-KiBDb3VudCBlbnRyaWVzIGFuZCBjaGVjayBpZiBmaXJzdCBlbnRyeSBoYXMgYSBuYW1lIHByZXNl
-bnQgaW4gcG9saWN5LAoJICogaWYgc28gYWxsIGVudHJpZXMgd291bGQgYmUgbmFtZWQuIEhvd2V2
-ZXIsIGN1cnJlbnRseSB0aGVzZSBhcmUgbm90CgkgKiBwcmVzZW50IGluIGEgYmluYXJ5IHBvbGlj
-eSkKCSAqLwoJZm9yIChjdXIgPSBwb2xpY3lkYi5vY29udGV4dHNbT0NPTl9JU0lEXTsgY3VyICE9
-IE5VTEw7IGN1ciA9IGN1ci0+bmV4dCkgewoJCWlmIChlbnRyeSA9PSAwICYmIGN1ci0+dS5uYW1l
-KQoJCQloYXZlX25hbWVzID0gdHJ1ZTsKCQllbnRyeSsrOwoJfQoKCXByaW50ZigiXG5UaGVyZSBh
-cmUgJWQgaW5pdGlhbCBzaWRzIGluIHRoaXMgJXMgcG9saWN5LlxuIiwgZW50cnksIHBvbGljeWRi
-LnRhcmdldF9wbGF0Zm9ybSA/ICJYZW4iIDogIlNFTGludXgiKTsKCXByaW50ZigiVGhlIElTSUQg
-XCJOYW1lXCIgaGFzIGJlZW4gZXh0cmFjdGVkIGZyb20gJXMuXG5cbiIsCgkJCSAgICBoYXZlX25h
-bWVzID8gInRoZSBwb2xpY3kiIDogImFuIGludGVybmFsIGxpc3QgdGhhdCBtYXkgYmUgaW5jb3Jy
-ZWN0Iik7CgoJcHJpbnRmKCJTSUQgICAgICAgICAgTmFtZSAgICAgICAgICAgICBDb250ZXh0XG4i
-KTsKCWZvciAoY3VyID0gcG9saWN5ZGIub2NvbnRleHRzW09DT05fSVNJRF0sIGVudHJ5ID0gMDsg
-Y3VyICE9IE5VTEw7IGN1ciA9IGN1ci0+bmV4dCkgewoJCXByaW50ZigiMHglMDh4ICAgJXMgICVz
-OiVzOiVzIiwKCQkgICAgY3VyLT5zaWRbMF0sCgkJICAgIC8qIEluaXRpYWwgU0lEIG5hbWVzIGFy
-ZSBub3QgaW4gcG9saWN5IGJ1dCBjaGVjayBqdXN0IGluIGNhc2UsIGVsc2UgdXNlIHRoZSBsaXN0
-IGZvciB0aGUgcGxhdGZvcm0gKi8KCQkgICAgY3VyLT51Lm5hbWUgPyBjdXItPnUubmFtZSA6IHBv
-bGljeWRiLnRhcmdldF9wbGF0Zm9ybSA/IHhlbl9zaWRuYW1lc1tjdXItPnNpZFswXV0gOiBsaW51
-eF9zaWRuYW1lc1tjdXItPnNpZFswXV0sCgkJICAgIHBvbGljeWRiLnBfdXNlcl92YWxfdG9fbmFt
-ZVtjdXItPmNvbnRleHRbMF0udXNlciAtIDFdLAoJCSAgICBwb2xpY3lkYi5wX3JvbGVfdmFsX3Rv
-X25hbWVbY3VyLT5jb250ZXh0WzBdLnJvbGUgLSAxXSwKCQkgICAgcG9saWN5ZGIucF90eXBlX3Zh
-bF90b19uYW1lW2N1ci0+Y29udGV4dFswXS50eXBlIC0gMV0pOwoKCQltbHNfcHJpbnQoJnBvbGlj
-eWRiLCBjdXIpOwoJCXByaW50ZigiXG4iKTsKCX0KCglleGl0KDApOwp9Cg==
-
-------=_Part_7764420_647436133.1457365274229--
+Any particular reason you didn't use sepol_sid_to_context()?
