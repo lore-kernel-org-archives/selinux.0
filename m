@@ -1,50 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2AJRoLT008824
- for <selinux@tycho.nsa.gov>; Thu, 10 Mar 2016 14:27:50 -0500
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com
- (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
- by mx1.redhat.com (Postfix) with ESMTPS id 41569C1F65
- for <selinux@tycho.nsa.gov>; Thu, 10 Mar 2016 19:27:45 +0000 (UTC)
-Received: from dhcp-10-19-62-196.boston.devel.redhat.com
- (dhcp-25-88.bos.redhat.com [10.18.25.88])
- by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- u2AJRiUV020671
- for <selinux@tycho.nsa.gov>; Thu, 10 Mar 2016 14:27:45 -0500
-To: SELinux <selinux@tycho.nsa.gov>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Subject: We have a pretty big bug between SELinux and the User Namespace
-Message-ID: <56E1CAB0.9020002@redhat.com>
-Date: Thu, 10 Mar 2016 14:27:44 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u29H7cF5014192
+ for <selinux@tycho.nsa.gov>; Wed, 9 Mar 2016 12:07:38 -0500
+Received: by mail-oi0-f52.google.com with SMTP id r187so40375088oih.3
+ for <selinux@tycho.nsa.gov>; Wed, 09 Mar 2016 09:07:35 -0800 (PST)
+Date: Wed, 9 Mar 2016 11:07:26 -0600
+From: Seth Forshee <seth.forshee@canonical.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-bcache@vger.kernel.org, dm-devel@redhat.com,
+ linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
+ Linux-Fsdevel <linux-fsdevel@vger.kernel.org>,
+ fuse-devel <fuse-devel@lists.sourceforge.net>,
+ LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH RESEND v2 16/18] fuse: Support fuse filesystems outside
+ of init_user_ns
+Message-ID: <20160309170726.GB28779@ubuntu-hedt>
+References: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
+ <1451930639-94331-17-git-send-email-seth.forshee@canonical.com>
+ <20160309112923.GF8655@tucsk> <20160309141840.GC23399@ubuntu-xps13>
+ <CAJfpegv5JmB15yHpjYxVeOYdWWkoLMftr9-e_iS93Y_7m=t4Zw@mail.gmail.com>
+ <20160309152505.GA28779@ubuntu-hedt>
+ <CAJfpegv5KR_Hi-79a8oyb+R+tv9W3RYqy5pngUKSyauVNk2ScQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAJfpegv5KR_Hi-79a8oyb+R+tv9W3RYqy5pngUKSyauVNk2ScQ@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-But our people have limited time to work on it, it has been back 
-burner-ed since last summer.
+On Wed, Mar 09, 2016 at 04:51:42PM +0100, Miklos Szeredi wrote:
+> On Wed, Mar 9, 2016 at 4:25 PM, Seth Forshee <seth.forshee@canonical.com> wrote:
+> > On Wed, Mar 09, 2016 at 03:48:22PM +0100, Miklos Szeredi wrote:
+> 
+> >> Can't we use current_cred()->uid/gid? Or fsuid/fsgid maybe?
+> >
+> > That would be a departure from the current behavior in the !allow_other
+> > case for unprivileged users. Since those mounts are done by an suid
+> > helper all of those ids would be root in the userns, wouldn't they?
+> 
+> Well, actually this is what the helper does:
+> 
+>     sprintf(d, "fd=%i,rootmode=%o,user_id=%u,group_id=%u",
+>         fd, rootmode, getuid(), getgid());
 
-https://bugzilla.redhat.com/show_bug.cgi?id=1236256
+Sorry, I was thinking of euid. So this may not be a problem.
 
-Basically User Namespace introduces a new concept of Namespaced 
-capabilities.  SELinux currently blocks the use of all capabilities
-and does not differentiate.  If someone is looking to cut their teeth on 
-Kernel and Security work, I think it would be a good project
-to try to differentiate in policy and the kernel between the two 
-Capabilities.
+> So it just uses the current uid/gid.  Apparently no reason to do this
+> in userland, we could just as well set these in the kernel.  Except
+> for possible backward compatibility problems for things not using the
+> helper.
+> 
+> BUT if the mount is unprivileged or it's a userns mount, or anything
+> previously not possible, then we are not constrained by the backward
+> compatibility issues, and can go with the saner solution.
+> 
+> Does that not make sense?
 
-The current problem I am seeing is with a confined user.  staff_t does 
-not have any capabilities, but when he runs Chrome, it uses
-usernamespace to isolate the chrome_sandbox and protect the host. Non 
-privilege users on Fedora are allowed to setup User Namespaces
-but some of the activity of setting up the User Namespace requires 
-Namespaced SYS_ADMIN.  Since SELinux blocks SYS_ADMIN for staff_t
-I can not run Chrome with out temporarily setenforce 0, or adding 
-SYS_ADMIN to staff_t.  Neither is an attractive solution.
+But we generally do want backwards compatibility, and we want userspace
+software to be able to expect the same behavior whether or not it's
+running in a user namespaced container. Obviously we can't always have
+things 100% identical, but we shouldn't break things unless we really
+need to.
 
-Wearing my best Tom Sawyer hat, white washing this fence would be fun.
+However it may be that this isn't actually going to break assumptions of
+existing software like I had feared. My preference is still to not
+change any userspace-visible behaviors since we never know what software
+might have made assumptions based on those behaviors. But if you're
+confident that it won't break anything I'm willing to give it a try.
 
-Anyone want to take a shot?
+> >> When we have true unprivileged mounts, the user_id/group_id options
+> >> become redundant anyway and we can just use the current credentials.
+> >
+> > True, but we don't yet have that.
+> 
+> What's missing?
 
-Dan
+A user must still be privileged to mount, even if only towards their own
+user and mount namespaces. Maybe that's what you meant though and I just
+misunderstood.
+
+Thanks,
+Seth
