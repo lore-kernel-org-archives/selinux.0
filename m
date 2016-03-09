@@ -1,64 +1,165 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u29D7l11015602
- for <selinux@tycho.nsa.gov>; Wed, 9 Mar 2016 08:07:49 -0500
-Received: by mail-wm0-f52.google.com with SMTP id p65so70110366wmp.0
- for <selinux@tycho.nsa.gov>; Wed, 09 Mar 2016 05:07:46 -0800 (PST)
-Date: Wed, 9 Mar 2016 14:08:55 +0100
-From: Miklos Szeredi <miklos@szeredi.hu>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH RESEND v2 18/18] fuse: Allow user namespace mounts
-Message-ID: <20160309130855.GH8655@tucsk>
-References: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
- <1451930639-94331-19-git-send-email-seth.forshee@canonical.com>
+Subject: Re: initial_sid context via libsepol
+To: William Roberts <bill.c.roberts@gmail.com>
+References: <121365621.6063900.1457189031805.JavaMail.yahoo@mail.yahoo.com>
+ <767708561.7764421.1457365274229.JavaMail.yahoo@mail.yahoo.com>
+ <56DDCBF6.6010605@tycho.nsa.gov> <56DDE54F.4050208@tycho.nsa.gov>
+ <CAFftDdrQaU2jaoTLEbExHL_Qyrqg3XFvpfs=cLsNnxC690yv9A@mail.gmail.com>
+ <56DED6C6.4000407@tycho.nsa.gov>
+ <CAFftDdq_g07J-0LufxQM+5Bjxmk_LuVhAZ+aXU0zwu=GSjtwVg@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <56E02EAE.3090505@tycho.nsa.gov>
+Date: Wed, 9 Mar 2016 09:09:50 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1451930639-94331-19-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <CAFftDdq_g07J-0LufxQM+5Bjxmk_LuVhAZ+aXU0zwu=GSjtwVg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Jan 04, 2016 at 12:03:57PM -0600, Seth Forshee wrote:
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+On 03/09/2016 12:18 AM, William Roberts wrote:
+>
+> On Mar 8, 2016 05:41, "Stephen Smalley" <sds@tycho.nsa.gov
+> <mailto:sds@tycho.nsa.gov>> wrote:
+>  >
+>  > On 03/07/2016 08:32 PM, William Roberts wrote:
+>  >>
+>  >>
+>  >>
+>  >> On Mon, Mar 7, 2016 at 12:32 PM, Stephen Smalley <sds@tycho.nsa.gov
+> <mailto:sds@tycho.nsa.gov>
+>  >> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>> wrote:
+>  >>
+>  >>     On 03/07/2016 01:44 PM, Stephen Smalley wrote:
+>  >>
+>  >>         On 03/07/2016 10:41 AM, Richard Haines wrote:
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>                 On Saturday, 5 March 2016, 14:48, Richard Haines
+>  >>                 <richard_c_haines@btinternet.com
+> <mailto:richard_c_haines@btinternet.com>
+>  >>                 <mailto:richard_c_haines@btinternet.com
+> <mailto:richard_c_haines@btinternet.com>>> wrote:
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>                 On Friday, 4 March 2016, 21:18, "Roberts, William C"
+>  >>                 <william.c.roberts@intel.com
+> <mailto:william.c.roberts@intel.com>
+>  >>                 <mailto:william.c.roberts@intel.com
+> <mailto:william.c.roberts@intel.com>>> wrote:
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>                     How can one obtain the same value as
+>  >>                     /sys/fs/selinux/initial_contexts/file
+>  >>
+>  >>                 via libsepol?
+>  >>
+>  >>
+>  >>                     I’ve been digging around libsepol and its not quite
+>  >>                     clear to me.
+>  >>
+>  >>                     It looks as though the record is here:
+>  >>                                       context_struct_t *a =
+> &((policydb_t
+>  >>
+>  >>                 *)pol.db)->ocontexts[OCON_ISID]->context[0];
+>  >>
+>  >>                                       context_struct_t *b =
+> &((policydb_t
+>  >>
+>  >>                 *)pol.db)->ocontexts[OCON_ISID]->context[1];
+>  >>
+>  >>
+>  >>                                       printf("%u\n", a->type);
+>  >>                                       printf("%u\n",b->type);
+>  >>
+>  >>                     Prints:
+>  >>                     185
+>  >>                     0
+>  >>
+>  >>                     Not sure if this is right, and how to format the
+>  >>                     context struct to a
+>  >>                     string.
+>  >>
+>  >>                 I didn’t see any helpers.
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>
+>  >>                 I've attached an example, hope it's useful
+>  >>
+>  >>
+>  >>             I've updated the example with more detail and display SID
+>  >>             name using
+>  >>             SID value not counter.
+>  >>
+>  >>
+>  >>         Any particular reason you didn't use sepol_sid_to_context()?
+>  >>
+>  >>
+>  >>     I guess context_to_string() on the context structure would work
+>  >>     better for your purposes.   sepol_sid_to_context() would require
+>  >>     loading the sidtab via policydb_load_isids() and setting the
+>  >>     internal policydb to the one you loaded via sepol_set_policydb().
+>  >>
+>  >>
+>  >>
+>  >> Seems as though its not exported api, but it does indeed print
+> something:
+>  >> code:
+>  >> char *s;
+>  >> size_t len;
+>  >> context_struct_t *a = &((policydb_t
+>  >> *)pol.db)->ocontexts[OCON_ISID]->context[0];
+>  >>
+>  >> int rc = context_to_string(pol.handle, (policydb_t *)pol.db, a, &s,
+> &len);
+>  >>
+>  >> printf("rc: %d\n", rc);
+>  >> printf("con: %s\n", s);
+>  >>
+>  >> prints:
+>  >>    rc: 0
+>  >>    con: u:object_r:null_device:s0
+>  >>
+>  >> However, I am after the initial sid for file, which this isn't it... is
+>  >> it in the ocontexts array under a different index?
+>  >
+>  >
+>  > ocontext[OCON_ISID] points to the head of a linked list of initial
+> SIDs, with the values in ->sid[0] and the context structures in
+> ->context[0].  Richard's sample program showed you how to walk it and
+> print out all the entries.  The symbolic names themselves aren't in the
+> policydb, as he noted; you can grab it from the kernel source
+> (linux/security/selinux/include/initial_sid_to_string.h) or from the
+> refpolicy (run make in refpolicy/policy/flask and grab
+> kernel/initial_sid_to_string.h).
+>
+> I was hoping there was something I was missing between what you were
+> posting and Richards sample. Looks like it's all by ordinal, so
+> (conjecturing here) initial sid ordering must match the kernel header
+> ordering as far as I can tell, is that right?
+>
+> Something must remap it in the kernel from initial sid to class.
+>
+> I was hoping there would be a clean way to grab this from the policy for
+> use in fs_config tools under build, but just hard coding the default
+> context string seems to be the best approach.
 
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-
-> ---
->  fs/fuse/inode.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-> index b7bdfdac3521..2fd338c199ce 100644
-> --- a/fs/fuse/inode.c
-> +++ b/fs/fuse/inode.c
-> @@ -1201,7 +1201,7 @@ static void fuse_kill_sb_anon(struct super_block *sb)
->  static struct file_system_type fuse_fs_type = {
->  	.owner		= THIS_MODULE,
->  	.name		= "fuse",
-> -	.fs_flags	= FS_HAS_SUBTYPE,
-> +	.fs_flags	= FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
->  	.mount		= fuse_mount,
->  	.kill_sb	= fuse_kill_sb_anon,
->  };
-> @@ -1233,7 +1233,7 @@ static struct file_system_type fuseblk_fs_type = {
->  	.name		= "fuseblk",
->  	.mount		= fuse_mount_blk,
->  	.kill_sb	= fuse_kill_sb_blk,
-> -	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE,
-> +	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
->  };
->  MODULE_ALIAS_FS("fuseblk");
->  
-> -- 
-> 1.9.1
-> 
+I don't know what you are doing, but the initial SID context is not what 
+you want for fs_config.  You want the result of selabel_lookup(), just 
+as is done by system/extras/ext4_utils to label files in the generated 
+images.
