@@ -1,82 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2EKwjnX018364
- for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2016 16:58:46 -0400
-Received: by mail-oi0-f68.google.com with SMTP id r187so11848200oih.2
- for <selinux@tycho.nsa.gov>; Mon, 14 Mar 2016 13:58:44 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160309170726.GB28779@ubuntu-hedt>
-References: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
- <1451930639-94331-17-git-send-email-seth.forshee@canonical.com>
- <20160309112923.GF8655@tucsk> <20160309141840.GC23399@ubuntu-xps13>
- <CAJfpegv5JmB15yHpjYxVeOYdWWkoLMftr9-e_iS93Y_7m=t4Zw@mail.gmail.com>
- <20160309152505.GA28779@ubuntu-hedt>
- <CAJfpegv5KR_Hi-79a8oyb+R+tv9W3RYqy5pngUKSyauVNk2ScQ@mail.gmail.com>
- <20160309170726.GB28779@ubuntu-hedt>
-Date: Mon, 14 Mar 2016 21:58:43 +0100
-Message-ID: <CAJfpegvTuR-LZAVxeJAmojs=gcrM-t5dd-QyZM-bOYMYLRL6Dg@mail.gmail.com>
-Subject: Re: [PATCH RESEND v2 16/18] fuse: Support fuse filesystems outside of
- init_user_ns
-From: Miklos Szeredi <miklos@szeredi.hu>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2FCAlE4030360
+ for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2016 08:10:48 -0400
+From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+To: Andy Lutomirski <luto@amacapital.net>,
+ Seth Forshee <seth.forshee@canonical.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>, <devel@openvz.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Kernel Mailing List <linux-kernel@vger.kernel.org>,
- linux-bcache@vger.kernel.org, dm-devel@redhat.com,
- linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
- Linux-Fsdevel <linux-fsdevel@vger.kernel.org>,
- fuse-devel <fuse-devel@lists.sourceforge.net>,
- LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+ linux-security-module@vger.kernel.org, linux-mtd@lists.infradead.org,
+ selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
+ Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+ Konstantin Khorenko <khorenko@virtuozzo.com>,
+ Pavel Emelyanov <xemul@virtuozzo.com>
+Subject: [PATCH] fs: remove excess check for in_userns
+Date: Tue, 15 Mar 2016 15:09:00 +0300
+Message-Id: <1458043740-14229-1-git-send-email-ptikhomirov@virtuozzo.com>
+In-Reply-To: <1451930639-94331-4-git-send-email-seth.forshee@canonical.com>
+References: <1451930639-94331-4-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Mar 9, 2016 at 6:07 PM, Seth Forshee <seth.forshee@canonical.com> wrote:
-> On Wed, Mar 09, 2016 at 04:51:42PM +0100, Miklos Szeredi wrote:
->> On Wed, Mar 9, 2016 at 4:25 PM, Seth Forshee <seth.forshee@canonical.com> wrote:
->> > On Wed, Mar 09, 2016 at 03:48:22PM +0100, Miklos Szeredi wrote:
->>
->> >> Can't we use current_cred()->uid/gid? Or fsuid/fsgid maybe?
->> >
->> > That would be a departure from the current behavior in the !allow_other
->> > case for unprivileged users. Since those mounts are done by an suid
->> > helper all of those ids would be root in the userns, wouldn't they?
->>
->> Well, actually this is what the helper does:
->>
->>     sprintf(d, "fd=%i,rootmode=%o,user_id=%u,group_id=%u",
->>         fd, rootmode, getuid(), getgid());
->
-> Sorry, I was thinking of euid. So this may not be a problem.
->
->> So it just uses the current uid/gid.  Apparently no reason to do this
->> in userland, we could just as well set these in the kernel.  Except
->> for possible backward compatibility problems for things not using the
->> helper.
->>
->> BUT if the mount is unprivileged or it's a userns mount, or anything
->> previously not possible, then we are not constrained by the backward
->> compatibility issues, and can go with the saner solution.
->>
->> Does that not make sense?
->
-> But we generally do want backwards compatibility, and we want userspace
-> software to be able to expect the same behavior whether or not it's
-> running in a user namespaced container. Obviously we can't always have
-> things 100% identical, but we shouldn't break things unless we really
-> need to.
->
-> However it may be that this isn't actually going to break assumptions of
-> existing software like I had feared. My preference is still to not
-> change any userspace-visible behaviors since we never know what software
-> might have made assumptions based on those behaviors. But if you're
-> confident that it won't break anything I'm willing to give it a try.
+If in_userns returns false mnt_may_suid also returns false, and we
+will reach second(removed) if-check only in case it does not trigger,
+so remove it.
 
-I'm quite confident it won't make a difference.
+Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+---
+ security/commoncap.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-Thanks,
-Miklos
+diff --git a/security/commoncap.c b/security/commoncap.c
+index ca0c04ae..82f930c 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -445,8 +445,6 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
+ 
+ 	if (!mnt_may_suid(bprm->file->f_path.mnt))
+ 		return 0;
+-	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
+-		return 0;
+ 
+ 	dentry = dget(bprm->file->f_dentry);
+ 
+-- 
+1.9.3
