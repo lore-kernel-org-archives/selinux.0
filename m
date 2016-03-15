@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2FEJmvV031731
- for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2016 10:19:48 -0400
-Message-ID: <56E819F9.70605@virtuozzo.com>
-Date: Tue, 15 Mar 2016 17:19:37 +0300
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2FEK9s8032157
+ for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2016 10:20:09 -0400
+Message-ID: <56E81A0D.9090803@virtuozzo.com>
+Date: Tue, 15 Mar 2016 17:19:57 +0300
 From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
 MIME-Version: 1.0
 To: Seth Forshee <seth.forshee@canonical.com>
@@ -38,7 +38,7 @@ On 03/15/2016 04:45 PM, Seth Forshee wrote:
 > test they're doing so to answer different questions, so we should have
 > the test in both places (or something along those lines).
 
-Ok, that is reasonable. But from my POW the edge between the meaning of 
+Ok, that is reasonable. But from my POV the edge between the meaning of 
 those checks is quiet blurred.
 
 Thanks!
