@@ -1,53 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2FEK9s8032157
- for <selinux@tycho.nsa.gov>; Tue, 15 Mar 2016 10:20:09 -0400
-Message-ID: <56E81A0D.9090803@virtuozzo.com>
-Date: Tue, 15 Mar 2016 17:19:57 +0300
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2HFSKCo001331
+ for <selinux@tycho.nsa.gov>; Thu, 17 Mar 2016 11:28:21 -0400
+Date: Thu, 17 Mar 2016 15:25:15 +0000 (UTC)
+From: Richard Haines <richard_c_haines@btinternet.com>
+Reply-To: Richard Haines <richard_c_haines@btinternet.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Message-ID: <1198187673.578619.1458228315066.JavaMail.yahoo@mail.yahoo.com>
+Subject: Problem building CIL module with new class
 MIME-Version: 1.0
-To: Seth Forshee <seth.forshee@canonical.com>
-CC: Andy Lutomirski <luto@amacapital.net>, "Eric W. Biederman"
- <ebiederm@xmission.com>, <devel@openvz.org>, Serge Hallyn
- <serge.hallyn@canonical.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- <linux-security-module@vger.kernel.org>,
- <linux-mtd@lists.infradead.org>, <selinux@tycho.nsa.gov>,
- <linux-fsdevel@vger.kernel.org>, Konstantin Khorenko
- <khorenko@virtuozzo.com>, Pavel Emelyanov <xemul@virtuozzo.com>
-Subject: Re: [PATCH] fs: remove excess check for in_userns
-References: <1451930639-94331-4-git-send-email-seth.forshee@canonical.com>
- <1458043740-14229-1-git-send-email-ptikhomirov@virtuozzo.com>
- <20160315134545.GB27754@ubuntu-xps13>
-In-Reply-To: <20160315134545.GB27754@ubuntu-xps13>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset=UTF-8
+References: <1198187673.578619.1458228315066.JavaMail.yahoo.ref@mail.yahoo.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Using Fedora 23 targeted policy.
 
+Problem: When adding a new class via the CIL module listed below, the allow
+rule is not being resolved if the new class references a common set of
+permissions.
 
-On 03/15/2016 04:45 PM, Seth Forshee wrote:
-> On Tue, Mar 15, 2016 at 03:09:00PM +0300, Pavel Tikhomirov wrote:
->> If in_userns returns false mnt_may_suid also returns false, and we
->> will reach second(removed) if-check only in case it does not trigger,
->> so remove it.
->
-> We had a somewhat lengthy discussion previously where one of the
-> conclusions was that we'd have that check in both places even though
-> it's redundant. Iirc the reason was that though they're doing the same
-> test they're doing so to answer different questions, so we should have
-> the test in both places (or something along those lines).
+Viewing with apol shows that the new class has been allocated the unique and
+common permissions, however the allow rule is missing.
 
-Ok, that is reasonable. But from my POV the edge between the meaning of 
-those checks is quiet blurred.
+Note 1: If the 'all' expression is replaced in the 'classpermissionset' with
+the actual permissions, then the allow rule is resolved.
 
-Thanks!
+Note 2: If I use the latest 2.5 libsepol with the
+(classorder (unordered sctp_socket)) statement I get the same result.
 
->
-> Thanks,
-> Seth
->
+The example CIL policy module is:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(classorder (proxy sctp_socket))  ; 'proxy' is the last class defined in F-23
+                                                                  ; and required when using libsepol 2.4
 
--- 
-Best regards, Tikhomirov Pavel
-Software Developer, Virtuozzo.
+(classcommon sctp_socket socket)
+(class sctp_socket (node_bind name_connect association bindx_add bindx_rem
+connectx peeloff set_addr set_params))
+
+(classpermission sctp_socket_all_perms)
+(classpermissionset sctp_socket_all_perms (sctp_socket (all)))
+
+(allow unconfined_t self sctp_socket_all_perms)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+And is built with the following command:
+
+semodule --priority 400 -i sctp_test_module.cil
+
+Any ideas !!!
+Richard
