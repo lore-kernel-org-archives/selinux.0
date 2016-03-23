@@ -1,54 +1,61 @@
-Date: Tue, 22 Mar 2016 15:28:17 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Colin King <colin.king@canonical.com>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E . Hallyn" <serge@hallyn.com>, Nick Kralevich <nnk@google.com>,
- Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: fix memory leak on node_ptr on error return path
-Message-ID: <20160322202817.GA9459@mail.hallyn.com>
-References: <1458601213-5835-1-git-send-email-colin.king@canonical.com>
+Subject: Re: selinux-query
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ Naina Emmanuel <nemmanuel1992@gmail.com>, selinux@tycho.nsa.gov
+References: <CAN=9EoR_QojJRY6egdWUQQHemEwxBKNdQE+6Lc7TdHboPeKDEQ@mail.gmail.com>
+ <CAN=9EoQn6o+YY=jfxQJ_HOQbxv1=7a_brQkEyQ-+YpBOBv=VZA@mail.gmail.com>
+ <56F1A180.8080104@tycho.nsa.gov>
+From: Miroslav Grepl <mgrepl@redhat.com>
+Message-ID: <56F24A34.6060404@redhat.com>
+Date: Wed, 23 Mar 2016 08:48:04 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1458601213-5835-1-git-send-email-colin.king@canonical.com>
+In-Reply-To: <56F1A180.8080104@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting Colin King (colin.king@canonical.com):
-> From: Colin Ian King <colin.king@canonical.com>
+On 03/22/2016 08:48 PM, Stephen Smalley wrote:
+> On 03/22/2016 01:51 PM, Naina Emmanuel wrote:
+>> Good evening!
+>> i am working on selinux, centos 7... i have downloaded some .te files
+>> from the internet (squid.te, ftp.te, rpc.te, samba.te .. etc)
+>> but when i compile these .te file through #make -f
+>> /usr/share/selinux/devel/include/MakeFile but shows error in all
+>> mentioned .te files
+>> not even getting installed through #semodule -i ftp.pp   (for all
+>> mentioned .te files) plz help me regarding this..
+>> thanks in advanced
 > 
-> node_ptr is not being free'd if the list allocation fails, fix
-> this by kfree'ing it before exiting on the error path.
+> Please show the actual commands that you ran, and the actual error
+> output from those commands.
 > 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> However, downloading random .te files from the Internet and expecting
+> them to build or install on your system is probably not a good strategy.
+>  On CentOS, you should be able to download the .src.rpm file for
+> selinux-policy-targeted and work with the files it contains in order to
+> ensure that they match your base policy.
 
-Hi,
+Even more if you want to replace a module shipped by a distribution
+policy and you will miss some definitions which are used in other
+modules, you will also fail.
 
-I'm not very familiar with this code any more, but are you sure
-this is needed and doesn't cause a new bug?  It *looks* like
-the avtab_insert_nonunique() actually inserts the node_ptr
-into the policydb, and the policydb is the one that should
-eventually free it.
+So I would go with .src.rpm how Stephen wrote above. You can ask on
+selinux@lists.fedoraproject.org for more details.
 
-> ---
->  security/selinux/ss/conditional.c | 1 +
->  1 file changed, 1 insertion(+)
+Thanks.
+
 > 
-> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index 456e1a9..5d010ef 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -332,6 +332,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
->  	list = kzalloc(sizeof(struct cond_av_list), GFP_KERNEL);
->  	if (!list) {
->  		rc = -ENOMEM;
-> +		kfree(node_ptr);
->  		goto err;
->  	}
->  
-> -- 
-> 2.7.3
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
+
+
+-- 
+Miroslav Grepl
+Senior Software Engineer, SELinux Solutions
+Red Hat, Inc.
