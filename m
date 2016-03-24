@@ -7,8 +7,8 @@ References: <56F2D938.8030909@gmail.com> <56F2E136.6090304@gmail.com>
  <56F3E833.4090504@redhat.com> <56F3EA88.1020703@gmail.com>
  <56F3EBEF.7050808@redhat.com>
 From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <56F3F324.6030108@gmail.com>
-Date: Thu, 24 Mar 2016 15:01:08 +0100
+Message-ID: <56F3FA39.6080003@gmail.com>
+Date: Thu, 24 Mar 2016 15:31:21 +0100
 MIME-Version: 1.0
 In-Reply-To: <56F3EBEF.7050808@redhat.com>
 Content-Type: text/plain; charset=windows-1252
@@ -86,10 +86,18 @@ On 03/24/2016 02:30 PM, Miroslav Grepl wrote:
 >> 
 > 
 
-Heres a brief screencast that attempts to explain the issue
+This:
 
-https://www.youtube.com/watch?v=kx0zEreMjTA
+> $ compute_av sys.id:sys.role:sshd.sshd.subj:s0
+> wheel.id:wheel.role:wheel.subj:s0-s0:c0.c1023 process allowed= {
+> transition signal dyntransition } auditdeny { fork sigchld sigkill
+> sigstop signull signal ptrace getsched setsched getsession getpgid
+> setpgid getcap setcap share getattr setexec setfscreate setrlimit
+> setcurrent execmem execstack execheap setkeycreate setsockcreate
+> 0xc0000000 }
 
+what is "0xc0000000"? am i missing av perms for process? They seem to
+be complete above
 
 - -- 
 Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
@@ -98,14 +106,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCAAGBQJW8/MfAAoJECV0jlU3+UdpUi0L/0Tppj4qTkief2gYenLz9FI/
-1fyrXJXmyzphLU7texSu4N6u9YsYqcBql7fkFoV6lB6IwPSyp/gN6d7yI5bdIPbJ
-ouKXX8+3j4hwazomWxbuvy7N7/+Mnk87PWe4W8Q4VK5RxDETHfqGzQtGI4dVbfJB
-eCYHGGhcRxlCYdJ4GOLetxWk7qcPhVtn7FH/SqmC985iBYAK4SZilb6Xequ2kqGc
-OrNG/zBXdGhGgcqOh99hP1HoVirk7QEu8sTmUoaIl/3dTQnGSBDBoQr0w4G38M3l
-FDWGjyoT5kmxOD3V74ecUDBEe7rIcmOiDSsQoUFirnR7ysj00vI/IAU05XNKbpUd
-7/1f4kKis7VpNZN5YHqXxTImtOG4yBARY9jtWlFuCe5IsdN1Ltg/tmYXMUCZ+FhZ
-JpuwRfWw/RpXOqF3PLi1AX/6Zd0Kv5lXO3D3xxeUh9qxjOYGbcr/DbeoYZFRAdJ+
-ZGDIKX03QBHgEW1TWIrpVeg7pTgyZDnnyqbTkGMVlQ==
-=/Kur
+iQGcBAEBCAAGBQJW8/o0AAoJECV0jlU3+UdpOR8L/AwQbFwlE2yJWMdYoph/Vxar
+W40GmPJYadcr6ne75ibMoJ1NAvrrAd4GuDQcivqKA0VcS4M4MkAWqv+9fu0Jx0dC
+oLshUEpBhdhoNGMhffFqbpq4BkKfvtxL4mHdfox72jUh9QPeolFu2sHje2kaVoYT
+5vZWBj6HM6u1seo+lDgOvOZFNWA34H99tFn4lRjJWXhXxCVnKCvDW1gX885LI0pA
+D3a58aW34PFQobOU+BVXp3YBgC/OtORMRC4Tz+tcygqOQlFHnBVXTZZrvftemG0S
+YsH9vB3QfpbQCzvs4M1+UPpjL1PFredgip1LOtys61yuqdat7vyOt8CHj80jUluy
+AtuLCZUL6XCFm+2R5HOH29IkidaMifbOu4niUCxTPm+e65YT/rm7605eyqEoX/Zv
+LGrh/+xlezXG8CeGMQ54qDfhTa7R3hIjmURq4CSEoQeuXglMI0CU6EFG1lZIJfcj
+HUt3KIEW9b6P7asPcXgIpsPPzMUJyFCrrb7GeEw8UQ==
+=tzlS
 -----END PGP SIGNATURE-----
