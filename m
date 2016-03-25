@@ -1,103 +1,146 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2PDgV3V003603
- for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2016 09:42:31 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com
- (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
- by mx1.redhat.com (Postfix) with ESMTPS id 01FBD3B716
- for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2016 13:42:27 +0000 (UTC)
-Received: from dhcp-10-19-62-196.boston.devel.redhat.com
- (vpn-232-132.phx2.redhat.com [10.3.232.132])
- by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- u2PDgQr7004824
- for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2016 09:42:27 -0400
-To: SELinux <selinux@tycho.nsa.gov>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Just sent a small patch to github to fix the selinuxfs man pages.
-Message-ID: <56F54042.9090506@redhat.com>
-Date: Fri, 25 Mar 2016 09:42:26 -0400
+Subject: Re: strange pam_selinux behavior
+To: Daniel J Walsh <dwalsh@redhat.com>, Miroslav Grepl <mgrepl@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <56F2D938.8030909@gmail.com> <56F2E136.6090304@gmail.com>
+ <56F2E276.9070702@gmail.com> <56F2E999.1070904@tycho.nsa.gov>
+ <56F2E9F0.7040905@gmail.com> <56F2F163.5060309@gmail.com>
+ <56F3E833.4090504@redhat.com> <56F3EA88.1020703@gmail.com>
+ <56F3EBEF.7050808@redhat.com> <56F3FA39.6080003@gmail.com>
+ <56F4512A.8080507@redhat.com>
+From: Dominick Grift <dac.override@gmail.com>
+Message-ID: <56F56129.3080509@gmail.com>
+Date: Fri, 25 Mar 2016 17:02:49 +0100
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------020607010708040308050000"
+In-Reply-To: <56F4512A.8080507@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------020607010708040308050000
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-A few man pages still refer to selinuxfs being mounted at /selinux, I 
-changed these references to /sys/fs/selinux
+On 03/24/2016 09:42 PM, Daniel J Walsh wrote:
+> 
+> 
+> On 03/24/2016 10:31 AM, Dominick Grift wrote: On 03/24/2016 02:30
+> PM, Miroslav Grepl wrote:
+>>>> On 03/24/2016 02:24 PM, Dominick Grift wrote:
+>>>>> On 03/24/2016 02:14 PM, Miroslav Grepl wrote:
+>>>>> 
+>>>>> <snip>
+>>>>> 
+>>>>>>> added the access vector back in but that seems to not
+>>>>>>> make any differenc e.
+>>>>>> So you are still getting the same error message, right?
+>>>>> 
+>>>>> not quite right:
+>>>>> 
+>>>>> It now longer shows this: "Failed to translate security
+>>>>> class context"
+>>>>> 
+>>>>> So that part seems to have been fixed by adding the access 
+>>>>> vector
+>>>>> 
+>>>>> however this error is still the same:
+>>>>> 
+>>>>>> pam_selinux(sshd:session): Security context 
+>>>>>> wheel.id:wheel.role:wheel.subj:s0-s0:c0.c1023 is not
+>>>>>> allowed for wheel.id:wheel.role:wheel.s
+>>>>>> ubj:s0-s0:c0.c1023 Mar 24 13:43:03 void sshd[14723]:
+>>>>>> pam_selinux(sshd:session): Unable to get valid context
+>>>>>> for kcinimod
+>>>>> So looking at the code:
+>>>>> 
+>>>>>> src_context = context_new (src); dst_context =
+>>>>>> context_new (dst); context_range_set(dst_context, 
+>>>>>> context_range_get(src_context)); if (debug)
+>>>>>> pam_syslog(pamh, LOG_NOTICE, "Checking if %s mls range
+>>>>>> valid for  %s", dst, context_str(dst_context)); retval =
+>>>>>> security_compute_av(context_str(dst_context), dst, class,
+>>>>>> bit, &avd); context_free(src_context); 
+>>>>>> context_free(dst_context); if (retval || ((bit &
+>>>>>> avd.allowed) != bit)) return 0; return 1;
+>>>>> it appears that security_compute_av returns bad. But i
+>>>>> can't figure out how to reproduce that with "compute_av":
+>>>>> 
+>>>>> # compute_av wheel.id:wheel.role:wheel.subj:s0-s0:c0.c1023 
+>>>>> wheel.id:wheel.role:wheel.subj:s0-s0:c0.c1023 process
+>>>>> 
+>>>>> allowed = { fork sigchld sigkill signull signal getsched 
+>>>>> setsched setpgid getattr setfscreate }
+>>>>> 
+>>>>> This works fine with stock fedora policy BTW. this seems to
+>>>>> be a DSSP specific issue. I am wondering if my policy has a
+>>>>> bug somewhere...
+>>>> That's my point. If it is a bug in your policy or there is a
+>>>> bug related to CIL. I can try to install your DSSP policy and
+>>>> check it.
+>>>> 
+>>>>> 
+>>>>> 
+> This:
+> 
+>>>> $ compute_av sys.id:sys.role:sshd.sshd.subj:s0 
+>>>> wheel.id:wheel.role:wheel.subj:s0-s0:c0.c1023 process
+>>>> allowed= { transition signal dyntransition } auditdeny { fork
+>>>> sigchld sigkill sigstop signull signal ptrace getsched
+>>>> setsched getsession getpgid setpgid getcap setcap share
+>>>> getattr setexec setfscreate setrlimit setcurrent execmem
+>>>> execstack execheap setkeycreate setsockcreate 0xc0000000 }
+> what is "0xc0000000"? am i missing av perms for process? They seem
+> to be complete above
+> 
+> -- Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B
+> 6B02 
+> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+>
+> 
+Dominick Grift
+>> _______________________________________________ Selinux mailing
+>> list Selinux@tycho.nsa.gov To unsubscribe, send email to
+>> Selinux-leave@tycho.nsa.gov. To get help, send an email
+>> containing "help" to Selinux-request@tycho.nsa.gov.
+>> 
+>> 
+> I think this check is checking contains.
+> 
+> class context { translate contains }
+> 
+> 
+> 
+> The idea was you could run a system that only went up to Secret
+> level, then if a user attempted to login as TopSecret he would be
+> blocked.  I think that is what this check is all about.
+> 
+> 
+> 
 
---------------020607010708040308050000
-Content-Type: text/x-patch;
- name="0001-Fix-location-of-selinuxfs-mount-point.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="0001-Fix-location-of-selinuxfs-mount-point.patch"
+I set out to try mcstransd again today. After doing to searching i
+found a clue about the requirement to add accesscheck=1 to
+setrans.conf to at least enable checking of the translate av perm.
 
->From d600fbf110bd73a57ff5a6a99e0f14eaac4483a4 Mon Sep 17 00:00:00 2001
-From: Dan Walsh <dwalsh@redhat.com>
-Date: Fri, 25 Mar 2016 09:29:32 -0400
-Subject: [PATCH] Fix location of selinuxfs  mount point
+So i added a few auditallow rules that should catch at least some
+checks however: nothing shows up in the logs.
 
----
- libselinux/man/man3/security_disable.3    | 2 +-
- libselinux/man/man3/selinux_status_open.3 | 4 ++--
- libselinux/man/man8/avcstat.8             | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+Either i am overlooking something or the mcstransd object manager is
+broken
+- -- 
+Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
 
-diff --git a/libselinux/man/man3/security_disable.3 b/libselinux/man/man3/security_disable.3
-index c75ce0d..072923c 100644
---- a/libselinux/man/man3/security_disable.3
-+++ b/libselinux/man/man3/security_disable.3
-@@ -12,7 +12,7 @@ security_disable \- disable the SELinux kernel code at runtime
- disables the SELinux kernel code, unregisters selinuxfs from
- .IR /proc/filesystems ,
- and then unmounts
--.IR /selinux .
-+.IR /sys/fs/selinux .
- .sp
- This function can only be called at runtime and prior to the initial policy
- load. After the initial policy load, the SELinux kernel code cannot be disabled,
-diff --git a/libselinux/man/man3/selinux_status_open.3 b/libselinux/man/man3/selinux_status_open.3
-index f779dd9..2d44be5 100644
---- a/libselinux/man/man3/selinux_status_open.3
-+++ b/libselinux/man/man3/selinux_status_open.3
-@@ -23,7 +23,7 @@ without invocation of system calls
- .SH "DESCRIPTION"
- Linux 2.6.37 or later provides a SELinux kernel status page; being mostly
- placed on
--.I /selinux/status
-+.I /sys/fs/selinux/status
- entry. It enables userspace applications to mmap this page with read-only
- mode, then it informs some status without system call invocations.
- .sp
-@@ -38,7 +38,7 @@ without system-call invocation or worker thread for monitoring.
- .BR selinux_status_open ()
- tries to
- .BR open (2)
--.I /selinux/status
-+.I /sys/fs/selinux/status
- and
- .BR mmap (2)
- it in read-only mode. The file-descriptor and pointer to the page shall
-diff --git a/libselinux/man/man8/avcstat.8 b/libselinux/man/man8/avcstat.8
-index 204687d..2c4bce1 100644
---- a/libselinux/man/man8/avcstat.8
-+++ b/libselinux/man/man8/avcstat.8
-@@ -25,7 +25,7 @@ Display the cumulative values.
- .TP
- .B \-f
- Specifies the location of the AVC statistics file, defaulting to
--.IR /selinux/avc/cache_stats .
-+.IR /sys/fs/selinux/avc/cache_stats .
- .
- .SH AUTHOR
- This manual page was written by Dan Walsh <dwalsh@redhat.com>.
--- 
-2.7.3
-
-
---------------020607010708040308050000--
+iQGcBAEBCAAGBQJW9WEkAAoJECV0jlU3+UdpOuwL/3G0e9fnBRI+u0L/VEa0G1nA
+5NgixnksqoZcE396/2AusUCSsSMC2TdxlDBAWQ6wi35nE9tGITcOaUDOQlQqlDJ5
+5HE8oZpCLCwpUnfYqI4/+7aGNGUoLuU4ZDzvow/H0o9OQbCwgzVkcFCZDb8tOxpO
+T2xd7LdbcqaUY9CP4LoPJIGkXoXrzpzBd/EjI/NydtsLKYK4ylQ7STwWSoVEeoYY
+UG1aPcQ47QYIXjiAl8X/f0RUHn9CT4aPKQhvYrevnESHT+MA2s3uiXILPqB278FA
+P64iGlAWdiETTblXHYsQFFR6ozqa0k9JbnvYLAnGHSGTu51Ncmcr6xr24HSH8UYI
+qq0JZAOjKtzdovsel96hDJTcDPSHBF6J04ZCW74MyYYQTPsl+dPyWzjn30Ypsx0b
+wRVww65gkY7LDPbcUXla9ljY3DSQG90audj+MLu76VwkJv7yvhSTE/uhmErqLxQS
+IsDH2NaAMNFycgLM1raaVyAZ0ioNmQCkNmn6tYJfcw==
+=JhRW
+-----END PGP SIGNATURE-----
