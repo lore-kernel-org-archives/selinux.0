@@ -1,12 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2PI3jdI032616
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2PI3jdH032616
  for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2016 14:03:45 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] policycoreutils/hll/pp: Warn if module name different
- from filenames
-Date: Fri, 25 Mar 2016 14:04:54 -0400
-Message-Id: <1458929095-25819-3-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 1/3] libsepol: Add function to check if module name matches
+ filename
+Date: Fri, 25 Mar 2016 14:04:53 -0400
+Message-Id: <1458929095-25819-2-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1458929095-25819-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1458929095-25819-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,89 +14,93 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Since CIL treats files as modules and does not have a separate
-module statement it can cause confusion when a Refpolicy module
-has a name that is not the same as its base filename because
-older SELinux userspaces will refer to the module by its module
-name, but CIL will refer to the module by its filename.
-
-When converting a policy package to CIL warn if the module name is
-different from the pp filename or the CIL filename.
+The function sepol_module_check_name_matches_filename() compares
+the module name with a filename (after stripping off path and file
+extension) and returns 0 if they match. The function
+sepol_module_get_name() returns the name of the module.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- policycoreutils/hll/pp/pp.c | 29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ libsepol/include/sepol/module.h |  3 +++
+ libsepol/src/libsepol.map.in    |  2 ++
+ libsepol/src/module.c           | 36 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 41 insertions(+)
 
-diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
-index 866734f..22cef0d 100644
---- a/policycoreutils/hll/pp/pp.c
-+++ b/policycoreutils/hll/pp/pp.c
-@@ -28,6 +28,7 @@
+diff --git a/libsepol/include/sepol/module.h b/libsepol/include/sepol/module.h
+index ff27f96..4e31d6e 100644
+--- a/libsepol/include/sepol/module.h
++++ b/libsepol/include/sepol/module.h
+@@ -82,5 +82,8 @@ extern int sepol_expand_module(sepol_handle_t * handle,
+ 			       sepol_policydb_t * base,
+ 			       sepol_policydb_t * out, int verbose, int check);
  
- #include <sepol/module.h>
- #include <sepol/module_to_cil.h>
-+#include <sepol/policydb/module.h>
++char *sepol_module_get_name(sepol_policydb_t *module);
++int sepol_module_check_name_matches_filename(sepol_policydb_t *module, const char *path);
++
+ __END_DECLS
+ #endif
+diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+index 0a46b09..db2241b 100644
+--- a/libsepol/src/libsepol.map.in
++++ b/libsepol/src/libsepol.map.in
+@@ -48,5 +48,7 @@ LIBSEPOL_1.1 {
+ 	sepol_ppfile_to_module_package;
+ 	sepol_module_package_to_cil;
+ 	sepol_module_policydb_to_cil;
++	sepol_module_get_name;
++	sepol_module_check_name_matches_filename;
+   local: *;
+ } LIBSEPOL_1.0;
+diff --git a/libsepol/src/module.c b/libsepol/src/module.c
+index 1665ede..ce514d5 100644
+--- a/libsepol/src/module.c
++++ b/libsepol/src/module.c
+@@ -30,6 +30,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <limits.h>
++#include <libgen.h>
  
- char *progname;
- 
-@@ -68,6 +69,8 @@ int main(int argc, char **argv)
- 		{ NULL, 0, NULL, 0 }
- 	};
- 	struct sepol_module_package *mod_pkg = NULL;
-+	char *ifile = NULL;
-+	char *ofile = NULL;
- 	FILE *in = NULL;
- 	FILE *out = NULL;
- 	int outfd = -1;
-@@ -89,9 +92,10 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (argc >= optind + 1 && strcmp(argv[1], "-") != 0) {
--		in = fopen(argv[1], "rb");
-+		ifile = argv[1];
-+		in = fopen(ifile, "rb");
- 		if (in == NULL) {
--			log_err("Failed to open %s: %s", argv[1], strerror(errno));
-+			log_err("Failed to open %s: %s", ifile, strerror(errno));
- 			rc = -1;
- 			goto exit;
- 		}
-@@ -100,9 +104,10 @@ int main(int argc, char **argv)
- 	}
- 
- 	if (argc >= optind + 2 && strcmp(argv[2], "-") != 0) {
--		out = fopen(argv[2], "w");
-+		ofile = argv[2];
-+		out = fopen(ofile, "w");
- 		if (out == NULL) {
--			log_err("Failed to open %s: %s", argv[2], strerror(errno));
-+			log_err("Failed to open %s: %s", ofile, strerror(errno));
- 			rc = -1;
- 			goto exit;
- 		}
-@@ -122,6 +127,22 @@ int main(int argc, char **argv)
- 	fclose(in);
- 	in = NULL;
- 
-+	if (ifile) {
-+		rc = sepol_module_check_name_matches_filename(mod_pkg->policy, ifile);
-+		if (rc != 0) {
-+			fprintf(stderr,	"Module name %s does not match pp file %s\n",
-+				sepol_module_get_name(mod_pkg->policy), ifile);
-+		}
+ #define SEPOL_PACKAGE_SECTION_FC 0xf97cff90
+ #define SEPOL_PACKAGE_SECTION_SEUSER 0x97cff91
+@@ -1006,3 +1007,38 @@ int sepol_expand_module(sepol_handle_t * handle,
+ {
+ 	return expand_module(handle, &base->p, &out->p, verbose, check);
+ }
++
++char *sepol_module_get_name(sepol_policydb_t *module)
++{
++	return module->p.name;
++}
++
++int sepol_module_check_name_matches_filename(sepol_policydb_t *module, const char *path)
++{
++	char *filepath, *filename, *separator;
++	int rc = -1;
++
++	if (module->p.policy_type == POLICY_BASE)
++		return 0;
++
++	filepath = strdup(path);
++	filename = basename(filepath);
++
++	if (strcmp(module->p.name, filename) != 0) {
++		separator = strrchr(filename, '.');
++		if (separator == NULL)
++			goto exit;
++
++		*separator = '\0';
++
++		if (strcmp(module->p.name, filename) != 0)
++			goto exit;
 +	}
 +
-+	if (ofile) {
-+		rc = sepol_module_check_name_matches_filename(mod_pkg->policy, ofile);
-+		if (rc != 0) {
-+			fprintf(stderr,	"Module name %s does not match cil file %s\n",
-+				sepol_module_get_name(mod_pkg->policy), ofile);
-+		}
-+	}
++	rc = 0;
 +
- 	rc = sepol_module_package_to_cil(out, mod_pkg);
- 	if (rc != 0) {
- 		goto exit;
++exit:
++	free(filepath);
++
++	return rc;
++}
 -- 
 2.5.5
