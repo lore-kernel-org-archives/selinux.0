@@ -1,95 +1,132 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2PKVuDW002222
- for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2016 16:31:57 -0400
-Received: by mail-oi0-f49.google.com with SMTP id n80so13404863oig.1
- for <selinux@tycho.nsa.gov>; Fri, 25 Mar 2016 13:31:50 -0700 (PDT)
-Date: Fri, 25 Mar 2016 15:31:48 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Kernel Mailing List <linux-kernel@vger.kernel.org>,
- linux-bcache@vger.kernel.org, dm-devel@redhat.com,
- linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
- Linux-Fsdevel <linux-fsdevel@vger.kernel.org>,
- fuse-devel <fuse-devel@lists.sourceforge.net>,
- LSM <linux-security-module@vger.kernel.org>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH RESEND v2 16/18] fuse: Support fuse filesystems outside
- of init_user_ns
-Message-ID: <20160325203148.GA4055@ubuntu-xps13>
-References: <1451930639-94331-1-git-send-email-seth.forshee@canonical.com>
- <1451930639-94331-17-git-send-email-seth.forshee@canonical.com>
- <20160309112923.GF8655@tucsk> <20160309141840.GC23399@ubuntu-xps13>
- <CAJfpegv5JmB15yHpjYxVeOYdWWkoLMftr9-e_iS93Y_7m=t4Zw@mail.gmail.com>
- <20160309152505.GA28779@ubuntu-hedt>
- <CAJfpegv5KR_Hi-79a8oyb+R+tv9W3RYqy5pngUKSyauVNk2ScQ@mail.gmail.com>
- <20160309170726.GB28779@ubuntu-hedt>
- <CAJfpegvTuR-LZAVxeJAmojs=gcrM-t5dd-QyZM-bOYMYLRL6Dg@mail.gmail.com>
+Subject: Re: [PATCH 2/3] policycoreutils/hll/pp: Warn if module name different
+ from filenames
+To: James Carter <jwcart2@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov
+References: <1458929095-25819-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1458929095-25819-3-git-send-email-jwcart2@tycho.nsa.gov>
+ <56F58767.9050707@tycho.nsa.gov> <56F589FD.5000308@tycho.nsa.gov>
+From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <56F6EC06.2010706@redhat.com>
+Date: Sat, 26 Mar 2016 16:07:34 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAJfpegvTuR-LZAVxeJAmojs=gcrM-t5dd-QyZM-bOYMYLRL6Dg@mail.gmail.com>
+In-Reply-To: <56F589FD.5000308@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Mar 14, 2016 at 09:58:43PM +0100, Miklos Szeredi wrote:
-> On Wed, Mar 9, 2016 at 6:07 PM, Seth Forshee <seth.forshee@canonical.com> wrote:
-> > On Wed, Mar 09, 2016 at 04:51:42PM +0100, Miklos Szeredi wrote:
-> >> On Wed, Mar 9, 2016 at 4:25 PM, Seth Forshee <seth.forshee@canonical.com> wrote:
-> >> > On Wed, Mar 09, 2016 at 03:48:22PM +0100, Miklos Szeredi wrote:
-> >>
-> >> >> Can't we use current_cred()->uid/gid? Or fsuid/fsgid maybe?
-> >> >
-> >> > That would be a departure from the current behavior in the !allow_other
-> >> > case for unprivileged users. Since those mounts are done by an suid
-> >> > helper all of those ids would be root in the userns, wouldn't they?
-> >>
-> >> Well, actually this is what the helper does:
-> >>
-> >>     sprintf(d, "fd=%i,rootmode=%o,user_id=%u,group_id=%u",
-> >>         fd, rootmode, getuid(), getgid());
-> >
-> > Sorry, I was thinking of euid. So this may not be a problem.
-> >
-> >> So it just uses the current uid/gid.  Apparently no reason to do this
-> >> in userland, we could just as well set these in the kernel.  Except
-> >> for possible backward compatibility problems for things not using the
-> >> helper.
-> >>
-> >> BUT if the mount is unprivileged or it's a userns mount, or anything
-> >> previously not possible, then we are not constrained by the backward
-> >> compatibility issues, and can go with the saner solution.
-> >>
-> >> Does that not make sense?
-> >
-> > But we generally do want backwards compatibility, and we want userspace
-> > software to be able to expect the same behavior whether or not it's
-> > running in a user namespaced container. Obviously we can't always have
-> > things 100% identical, but we shouldn't break things unless we really
-> > need to.
-> >
-> > However it may be that this isn't actually going to break assumptions of
-> > existing software like I had feared. My preference is still to not
-> > change any userspace-visible behaviors since we never know what software
-> > might have made assumptions based on those behaviors. But if you're
-> > confident that it won't break anything I'm willing to give it a try.
-> 
-> I'm quite confident it won't make a difference.
 
-I was just about to go make these changes and discovered that the
-user_id and group_id options are already mandatory, due to this check at
-the bottom of parse_fuse_opt():
 
-        if (!d->fd_present || !d->rootmode_present ||
-            !d->user_id_present || !d->group_id_present)
-                return 0;
-
-So I'll simply drop those two lines which supply default values for
-these options.
-
-Thanks,
-Seth
+On 03/25/2016 02:57 PM, James Carter wrote:
+> On 03/25/2016 02:45 PM, Stephen Smalley wrote:
+>> On 03/25/2016 02:04 PM, James Carter wrote:
+>>> Since CIL treats files as modules and does not have a separate
+>>> module statement it can cause confusion when a Refpolicy module
+>>> has a name that is not the same as its base filename because
+>>> older SELinux userspaces will refer to the module by its module
+>>> name, but CIL will refer to the module by its filename.
+>>>
+>>> When converting a policy package to CIL warn if the module name is
+>>> different from the pp filename or the CIL filename.
+>>>
+>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>>> ---
+>>>   policycoreutils/hll/pp/pp.c | 29 +++++++++++++++++++++++++----
+>>>   1 file changed, 25 insertions(+), 4 deletions(-)
+>>>
+>>> diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
+>>> index 866734f..22cef0d 100644
+>>> --- a/policycoreutils/hll/pp/pp.c
+>>> +++ b/policycoreutils/hll/pp/pp.c
+>>> @@ -28,6 +28,7 @@
+>>>
+>>>   #include <sepol/module.h>
+>>>   #include <sepol/module_to_cil.h>
+>>> +#include <sepol/policydb/module.h>
+>>>
+>>>   char *progname;
+>>>
+>>> @@ -68,6 +69,8 @@ int main(int argc, char **argv)
+>>>           { NULL, 0, NULL, 0 }
+>>>       };
+>>>       struct sepol_module_package *mod_pkg = NULL;
+>>> +    char *ifile = NULL;
+>>> +    char *ofile = NULL;
+>>>       FILE *in = NULL;
+>>>       FILE *out = NULL;
+>>>       int outfd = -1;
+>>> @@ -89,9 +92,10 @@ int main(int argc, char **argv)
+>>>       }
+>>>
+>>>       if (argc >= optind + 1 && strcmp(argv[1], "-") != 0) {
+>>> -        in = fopen(argv[1], "rb");
+>>> +        ifile = argv[1];
+>>> +        in = fopen(ifile, "rb");
+>>>           if (in == NULL) {
+>>> -            log_err("Failed to open %s: %s", argv[1], 
+>>> strerror(errno));
+>>> +            log_err("Failed to open %s: %s", ifile, strerror(errno));
+>>>               rc = -1;
+>>>               goto exit;
+>>>           }
+>>> @@ -100,9 +104,10 @@ int main(int argc, char **argv)
+>>>       }
+>>>
+>>>       if (argc >= optind + 2 && strcmp(argv[2], "-") != 0) {
+>>> -        out = fopen(argv[2], "w");
+>>> +        ofile = argv[2];
+>>> +        out = fopen(ofile, "w");
+>>>           if (out == NULL) {
+>>> -            log_err("Failed to open %s: %s", argv[2], 
+>>> strerror(errno));
+>>> +            log_err("Failed to open %s: %s", ofile, strerror(errno));
+>>>               rc = -1;
+>>>               goto exit;
+>>>           }
+>>> @@ -122,6 +127,22 @@ int main(int argc, char **argv)
+>>>       fclose(in);
+>>>       in = NULL;
+>>>
+>>> +    if (ifile) {
+>>> +        rc = 
+>>> sepol_module_check_name_matches_filename(mod_pkg->policy, ifile);
+>>> +        if (rc != 0) {
+>>> +            fprintf(stderr,    "Module name %s does not match pp 
+>>> file %s\n",
+>>> +                sepol_module_get_name(mod_pkg->policy), ifile);
+>>> +        }
+>>> +    }
+>>> +
+>>> +    if (ofile) {
+>>> +        rc = 
+>>> sepol_module_check_name_matches_filename(mod_pkg->policy, ofile);
+>>> +        if (rc != 0) {
+>>> +            fprintf(stderr,    "Module name %s does not match cil 
+>>> file %s\n",
+>>> +                sepol_module_get_name(mod_pkg->policy), ofile);
+>>> +        }
+>>> +    }
+>>
+>> So what, if anything, should the user take away from such warnings?  We
+>> likely ought to prefix them with "Warning:" or similar to indicate that
+>> it is non-fatal.  And perhaps tell them which name will need to be used
+>> for subsequent commands.
+>>
+>
+> What they need to take away is that the module is going to be referred 
+> to by its filename from now on, so telling them that would be helpful. 
+> I originally had prefixed the message with "Warning:", but I thought 
+> that might be too strong and scary.
+>
+> Jim
+>
+Why not make it fatal. Is there any reason a user would ever want to do 
+this, I would think this is almost always a mistake.
+>>> +
+>>>       rc = sepol_module_package_to_cil(out, mod_pkg);
+>>>       if (rc != 0) {
+>>>           goto exit;
+>>>
+>
+>
