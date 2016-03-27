@@ -1,132 +1,86 @@
-Subject: Re: [PATCH 2/3] policycoreutils/hll/pp: Warn if module name different
- from filenames
-To: James Carter <jwcart2@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
- selinux@tycho.nsa.gov
-References: <1458929095-25819-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1458929095-25819-3-git-send-email-jwcart2@tycho.nsa.gov>
- <56F58767.9050707@tycho.nsa.gov> <56F589FD.5000308@tycho.nsa.gov>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <56F6EC06.2010706@redhat.com>
-Date: Sat, 26 Mar 2016 16:07:34 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2R0dYDi011566
+ for <selinux@tycho.nsa.gov>; Sat, 26 Mar 2016 20:39:34 -0400
+Received: by mail-qg0-f46.google.com with SMTP id c67so51151907qgc.1
+ for <selinux@tycho.nsa.gov>; Sat, 26 Mar 2016 17:39:32 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <56F589FD.5000308@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+From: Amir Eaman <amir.imen@gmail.com>
+Date: Sat, 26 Mar 2016 20:39:13 -0400
+Message-ID: <CA+D4ZVpm660vuxgQSYQH_QU5re=mvczEK=8L3L+DAbtcNAHh9g@mail.gmail.com>
+Subject: Fedora 23 error when using policy generator
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a11c13a6498ae97052efd0774
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+--001a11c13a6498ae97052efd0774
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
+When I press apply button in the last step for policy generator on Fedora
+23 the following error is issued. What should I do?
+=E2=80=8B
 
-On 03/25/2016 02:57 PM, James Carter wrote:
-> On 03/25/2016 02:45 PM, Stephen Smalley wrote:
->> On 03/25/2016 02:04 PM, James Carter wrote:
->>> Since CIL treats files as modules and does not have a separate
->>> module statement it can cause confusion when a Refpolicy module
->>> has a name that is not the same as its base filename because
->>> older SELinux userspaces will refer to the module by its module
->>> name, but CIL will refer to the module by its filename.
->>>
->>> When converting a policy package to CIL warn if the module name is
->>> different from the pp filename or the CIL filename.
->>>
->>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->>> ---
->>>   policycoreutils/hll/pp/pp.c | 29 +++++++++++++++++++++++++----
->>>   1 file changed, 25 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
->>> index 866734f..22cef0d 100644
->>> --- a/policycoreutils/hll/pp/pp.c
->>> +++ b/policycoreutils/hll/pp/pp.c
->>> @@ -28,6 +28,7 @@
->>>
->>>   #include <sepol/module.h>
->>>   #include <sepol/module_to_cil.h>
->>> +#include <sepol/policydb/module.h>
->>>
->>>   char *progname;
->>>
->>> @@ -68,6 +69,8 @@ int main(int argc, char **argv)
->>>           { NULL, 0, NULL, 0 }
->>>       };
->>>       struct sepol_module_package *mod_pkg = NULL;
->>> +    char *ifile = NULL;
->>> +    char *ofile = NULL;
->>>       FILE *in = NULL;
->>>       FILE *out = NULL;
->>>       int outfd = -1;
->>> @@ -89,9 +92,10 @@ int main(int argc, char **argv)
->>>       }
->>>
->>>       if (argc >= optind + 1 && strcmp(argv[1], "-") != 0) {
->>> -        in = fopen(argv[1], "rb");
->>> +        ifile = argv[1];
->>> +        in = fopen(ifile, "rb");
->>>           if (in == NULL) {
->>> -            log_err("Failed to open %s: %s", argv[1], 
->>> strerror(errno));
->>> +            log_err("Failed to open %s: %s", ifile, strerror(errno));
->>>               rc = -1;
->>>               goto exit;
->>>           }
->>> @@ -100,9 +104,10 @@ int main(int argc, char **argv)
->>>       }
->>>
->>>       if (argc >= optind + 2 && strcmp(argv[2], "-") != 0) {
->>> -        out = fopen(argv[2], "w");
->>> +        ofile = argv[2];
->>> +        out = fopen(ofile, "w");
->>>           if (out == NULL) {
->>> -            log_err("Failed to open %s: %s", argv[2], 
->>> strerror(errno));
->>> +            log_err("Failed to open %s: %s", ofile, strerror(errno));
->>>               rc = -1;
->>>               goto exit;
->>>           }
->>> @@ -122,6 +127,22 @@ int main(int argc, char **argv)
->>>       fclose(in);
->>>       in = NULL;
->>>
->>> +    if (ifile) {
->>> +        rc = 
->>> sepol_module_check_name_matches_filename(mod_pkg->policy, ifile);
->>> +        if (rc != 0) {
->>> +            fprintf(stderr,    "Module name %s does not match pp 
->>> file %s\n",
->>> +                sepol_module_get_name(mod_pkg->policy), ifile);
->>> +        }
->>> +    }
->>> +
->>> +    if (ofile) {
->>> +        rc = 
->>> sepol_module_check_name_matches_filename(mod_pkg->policy, ofile);
->>> +        if (rc != 0) {
->>> +            fprintf(stderr,    "Module name %s does not match cil 
->>> file %s\n",
->>> +                sepol_module_get_name(mod_pkg->policy), ofile);
->>> +        }
->>> +    }
->>
->> So what, if anything, should the user take away from such warnings?  We
->> likely ought to prefix them with "Warning:" or similar to indicate that
->> it is non-fatal.  And perhaps tell them which name will need to be used
->> for subsequent commands.
->>
->
-> What they need to take away is that the module is going to be referred 
-> to by its filename from now on, so telling them that would be helpful. 
-> I originally had prefixed the message with "Warning:", but I thought 
-> that might be too strong and scary.
->
-> Jim
->
-Why not make it fatal. Is there any reason a user would ever want to do 
-this, I would think this is almost always a mistake.
->>> +
->>>       rc = sepol_module_package_to_cil(out, mod_pkg);
->>>       if (rc != 0) {
->>>           goto exit;
->>>
->
->
+> Failed to retrieve rpm info for selinux-policy
+> Traceback (most recent call last):
+>   File "/usr/lib/python-exec/python2.7/sepolicy", line 643, in <module>
+>     args.func(args)
+>   File "/usr/lib/python-exec/python2.7/sepolicy", line 517, in generate
+>     print mypolicy.generate(args.path)
+>   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 13=
+70, in generate
+>     out +=3D "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
+>   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 12=
+19, in write_spec
+>     fd.write(self.generate_spec())
+>   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 11=
+81, in generate_spec
+>     selinux_policyver =3D get_rpm_nvr_list("selinux-policy")[1]
+> TypeError: 'NoneType' object has no attribute '__getitem__'
+
+=E2=80=8B
+
+--
+
+--001a11c13a6498ae97052efd0774
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-size:small">Hi,=
+<br></div><div class=3D"gmail_default" style=3D"font-size:small">When I pre=
+ss apply button in the last step for policy generator on Fedora 23 the foll=
+owing error is issued. What should I do?<br clear=3D"all"></div><div class=
+=3D"gmail_default" style=3D"font-size:small">=E2=80=8B<pre>&gt; Failed to r=
+etrieve rpm info for selinux-policy
+&gt; Traceback (most recent call last):
+&gt;   File &quot;/usr/lib/python-exec/python2.7/sepolicy&quot;, line 643, =
+in &lt;module&gt;
+&gt;     args.func(args)
+&gt;   File &quot;/usr/lib/python-exec/python2.7/sepolicy&quot;, line 517, =
+in generate
+&gt;     print mypolicy.generate(args.path)
+&gt;   File &quot;/usr/lib64/python2.7/site-packages/sepolicy/generate.py&q=
+uot;, line 1370, in generate
+&gt;     out +=3D &quot;%s # %s\n&quot; % (self.write_spec(out_dir), _(&quo=
+t;Spec file&quot;))
+&gt;   File &quot;/usr/lib64/python2.7/site-packages/sepolicy/generate.py&q=
+uot;, line 1219, in write_spec
+&gt;     fd.write(self.generate_spec())
+&gt;   File &quot;/usr/lib64/python2.7/site-packages/sepolicy/generate.py&q=
+uot;, line 1181, in generate_spec
+&gt;     selinux_policyver =3D get_rpm_nvr_list(&quot;selinux-policy&quot;)=
+[1]
+&gt; TypeError: &#39;NoneType&#39; object has no attribute &#39;__getitem__=
+&#39;</pre>=E2=80=8B</div><br>-- <br><div class=3D"gmail_signature"><div di=
+r=3D"ltr"><div><div dir=3D"ltr"><div><div dir=3D"ltr"><div><div dir=3D"ltr"=
+><div><div dir=3D"ltr"><div><div dir=3D"ltr"><div><img src=3D"https://docs.=
+google.com/uc?export=3Ddownload&amp;id=3D0B7YVMWSp9Xl-TE04Wk9ubUV4NU0&amp;r=
+evid=3D0B7YVMWSp9Xl-NFhsWmxQeWVTOWwzY1A4V05NNUEraXdCS0UwPQ" width=3D"143" h=
+eight=3D"67"><br></div></div></div></div></div></div></div></div></div></di=
+v></div></div></div>
+</div>
+
+--001a11c13a6498ae97052efd0774--
