@@ -1,67 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2SDWHJJ010509
- for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2016 09:32:20 -0400
-Date: Mon, 28 Mar 2016 13:29:15 +0000 (UTC)
-From: Richard Haines <richard_c_haines@btinternet.com>
-Reply-To: Richard Haines <richard_c_haines@btinternet.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Dominick Grift <dac.override@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- Eric Paris <eparis@parisplace.org>
-Message-ID: <768212085.1911631.1459171755950.JavaMail.yahoo@mail.yahoo.com>
-In-Reply-To: <56F93129.6020408@tycho.nsa.gov>
-References: <56F93129.6020408@tycho.nsa.gov>
-Subject: Re: CIL: invalid protocol (dccp portcon)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2SFAjpg001565
+ for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2016 11:10:46 -0400
+Subject: [PATCH] netlabel: fix a problem with netlbl_secattr_catmap_setrng()
+From: Paul Moore <pmoore@redhat.com>
+To: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Janak Desai <Janak.Desai@gtri.gatech.edu>
+Date: Mon, 28 Mar 2016 11:10:38 -0400
+Message-ID: <145917783800.9565.7759086668991534988.stgit@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+From: Janak Desai <Janak.Desai@gtri.gatech.edu>
 
+We try to be clever and set large chunks of the bitmap at once, when
+possible; unfortunately we weren't very clever when we wrote the code
+and messed up the if-conditional.  Fix this bug and restore proper
+operation.
 
+Signed-off-by: Janak Desai <Janak.Desai@gtri.gatech.edu>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ net/netlabel/netlabel_kapi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-
-> On Monday, 28 March 2016, 14:26, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 03/28/2016 08:53 AM, Dominick Grift wrote:
->> 
->>  I was adding support for syslog ports, and /etc/services indicated to
->>  me that syslog(_tls) has support for dccp protocol. So tried to add
->>  that support in.
->> 
->>  However when trying to specify a portcon, secilc tells me dccp is an
->>  invalid protocol.
->> 
->>  e.g.
->> 
->>  (portcon "dccp" 6514 port_obj_context)
-> 
-> Doesn't appear to be supported by the selinux userspace presently (even
-> apart from CIL).  Not sure why.  Looking back, I see the original
-> "SELinux support for DCCP" RFC thread, which included a (now dead) 
-> link
-> to patches for userspace support, but I don't see any indication that
-
-> they were ever submitted.
-
-The only valid portcon protocol types supported by the kernel and policy
-statements are "tcp" and "udp". I did some time ago send RFC patches
-(kernel & CIL) to add "dccp" and "sctp" but these died. Adding support
-for a dccp portcon statement would not be difficult as there is SELinux
-support already for the protocol (policycoreutils is a pain though as
-lots of language files !!!).
-> 
-> 
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to 
-> Selinux-request@tycho.nsa.gov.
-> 
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index 28cddc8..1325776 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -677,7 +677,7 @@ int netlbl_catmap_setrng(struct netlbl_lsm_catmap **catmap,
+ 	u32 spot = start;
+ 
+ 	while (rc == 0 && spot <= end) {
+-		if (((spot & (BITS_PER_LONG - 1)) != 0) &&
++		if (((spot & (BITS_PER_LONG - 1)) == 0) &&
+ 		    ((end - spot) > BITS_PER_LONG)) {
+ 			rc = netlbl_catmap_setlong(catmap,
+ 						   spot,
