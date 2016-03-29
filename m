@@ -1,61 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2SJgCgf001026
- for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2016 15:42:16 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- by mx1.redhat.com (Postfix) with ESMTPS id DEB7364385
- for <selinux@tycho.nsa.gov>; Mon, 28 Mar 2016 19:42:14 +0000 (UTC)
-Subject: [PATCH] selinux: simply inode label states to INVALID and INITIALIZED
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Mon, 28 Mar 2016 15:42:13 -0400
-Message-ID: <145919413391.2232.14686465186592932882.stgit@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2T8YHVV012649
+ for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2016 04:35:57 -0400
+Subject: Re: Fedora 23 error when using policy generator
+To: Amir Eaman <amir.imen@gmail.com>, selinux@tycho.nsa.gov
+References: <CA+D4ZVpm660vuxgQSYQH_QU5re=mvczEK=8L3L+DAbtcNAHh9g@mail.gmail.com>
+ <CA+D4ZVpHWM_hS_Ld8n00yJ_A_aO517WJp1mDrW+kXJvdeJo=mw@mail.gmail.com>
+From: Miroslav Grepl <mgrepl@redhat.com>
+Message-ID: <56FA3DEE.40801@redhat.com>
+Date: Tue, 29 Mar 2016 10:33:50 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CA+D4ZVpHWM_hS_Ld8n00yJ_A_aO517WJp1mDrW+kXJvdeJo=mw@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <paul@paul-moore.com>
+On 03/27/2016 05:29 AM, Amir Eaman wrote:
+> The exact error is: in Fedora 23
+> 
+> root@localhost selinux-master]# *selinux-polgengui***
+> 
+>     Failed to retrieve rpm info for selinux-policy 
+>     Traceback (most recent call last): 
+>       File "/bin/selinux-polgengui", line 360, in forward 
+>         self.generate_policy() 
+>       File "/bin/selinux-polgengui", line 506, in generate_policy 
+>         self.info <http://self.info>(my_policy.generate(outputdir)) 
+>       File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py",
+>     line 1382, in generate 
+>         out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file")) 
+>       File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py",
+>     line 1228, in write_spec 
+>         fd.write(self.generate_spec()) 
+>       File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py",
+>     line 1190, in generate_spec 
+>         selinux_policyver = get_rpm_nvr_list("selinux-policy")[1] 
+>     TypeError: 'NoneType' object has no attribute '__getitem__'
+> 
+> 
+> On Sat, Mar 26, 2016 at 8:39 PM, Amir Eaman <amir.imen@gmail.com
+> <mailto:amir.imen@gmail.com>> wrote:
+> 
+>     Hi,
+>     When I press apply button in the last step for policy generator on
+>     Fedora 23 the following error is issued. What should I do?
+>     ​
+> 
+>     > Failed to retrieve rpm info for selinux-policy
+>     > Traceback (most recent call last):
+>     >   File "/usr/lib/python-exec/python2.7/sepolicy", line 643, in <module>
+>     >     args.func(args)
+>     >   File "/usr/lib/python-exec/python2.7/sepolicy", line 517, in generate
+>     >     print mypolicy.generate(args.path)
+>     >   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1370, in generate
+>     >     out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
+>     >   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1219, in write_spec
+>     >     fd.write(self.generate_spec())
+>     >   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1181, in generate_spec
+>     >     selinux_policyver = get_rpm_nvr_list("selinux-policy")[1]
+>     > TypeError: 'NoneType' object has no attribute '__getitem__'
 
-There really is no need for LABEL_MISSING as we really only care if
-the inode's label is INVALID or INITIALIZED.  Also adjust the
-revalidate code to reload the label whenever the label is not
-INITIALIZED so we are less sensitive to label state in the future.
+Could you please open a new Fedora bug - https://bugzilla.redhat.com/.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c          |    2 +-
- security/selinux/include/objsec.h |    5 ++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+Thank you.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ec1a1a8..837c566 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -259,7 +259,7 @@ static int __inode_security_revalidate(struct inode *inode,
- 
- 	might_sleep_if(may_sleep);
- 
--	if (isec->initialized == LABEL_INVALID) {
-+	if (isec->initialized != LABEL_INITIALIZED) {
- 		if (!may_sleep)
- 			return -ECHILD;
- 
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index a2ae054..c21e135 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -38,9 +38,8 @@ struct task_security_struct {
- };
- 
- enum label_initialized {
--	LABEL_MISSING,		/* not initialized */
--	LABEL_INITIALIZED,	/* inizialized */
--	LABEL_INVALID		/* invalid */
-+	LABEL_INVALID,		/* invalid or not initialized */
-+	LABEL_INITIALIZED	/* initialized */
- };
- 
- struct inode_security_struct {
+> 
+>     ​
+> 
+>     -- 
+> 
+> 
+> 
+> 
+> -- 
+> 
+> 
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
+
+
+-- 
+Miroslav Grepl
+Senior Software Engineer, SELinux Solutions
+Red Hat, Inc.
