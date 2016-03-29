@@ -1,91 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2T8YHVV012649
- for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2016 04:35:57 -0400
-Subject: Re: Fedora 23 error when using policy generator
-To: Amir Eaman <amir.imen@gmail.com>, selinux@tycho.nsa.gov
-References: <CA+D4ZVpm660vuxgQSYQH_QU5re=mvczEK=8L3L+DAbtcNAHh9g@mail.gmail.com>
- <CA+D4ZVpHWM_hS_Ld8n00yJ_A_aO517WJp1mDrW+kXJvdeJo=mw@mail.gmail.com>
-From: Miroslav Grepl <mgrepl@redhat.com>
-Message-ID: <56FA3DEE.40801@redhat.com>
-Date: Tue, 29 Mar 2016 10:33:50 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <CA+D4ZVpHWM_hS_Ld8n00yJ_A_aO517WJp1mDrW+kXJvdeJo=mw@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u2TErE71006594
+ for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2016 10:53:14 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com
+ (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ by mx1.redhat.com (Postfix) with ESMTPS id 2F45C7F08D
+ for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2016 14:53:10 +0000 (UTC)
+Received: from dhcp-10-19-62-196.boston.devel.redhat.com
+ (dhcp-25-88.bos.redhat.com [10.18.25.88])
+ by int-mx10.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ u2TEr9IE023792
+ for <selinux@tycho.nsa.gov>; Tue, 29 Mar 2016 10:53:09 -0400
+To: SELinux <selinux@tycho.nsa.gov>
+From: Daniel J Walsh <dwalsh@redhat.com>
+Subject: On Fedora 24 I am seeing something strange with CIL
+Message-ID: <56FA96D5.4010806@redhat.com>
+Date: Tue, 29 Mar 2016 10:53:09 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/27/2016 05:29 AM, Amir Eaman wrote:
-> The exact error is: in Fedora 23
-> 
-> root@localhost selinux-master]# *selinux-polgengui***
-> 
->     Failed to retrieve rpm info for selinux-policy 
->     Traceback (most recent call last): 
->       File "/bin/selinux-polgengui", line 360, in forward 
->         self.generate_policy() 
->       File "/bin/selinux-polgengui", line 506, in generate_policy 
->         self.info <http://self.info>(my_policy.generate(outputdir)) 
->       File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py",
->     line 1382, in generate 
->         out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file")) 
->       File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py",
->     line 1228, in write_spec 
->         fd.write(self.generate_spec()) 
->       File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py",
->     line 1190, in generate_spec 
->         selinux_policyver = get_rpm_nvr_list("selinux-policy")[1] 
->     TypeError: 'NoneType' object has no attribute '__getitem__'
-> 
-> 
-> On Sat, Mar 26, 2016 at 8:39 PM, Amir Eaman <amir.imen@gmail.com
-> <mailto:amir.imen@gmail.com>> wrote:
-> 
->     Hi,
->     When I press apply button in the last step for policy generator on
->     Fedora 23 the following error is issued. What should I do?
->     ​
-> 
->     > Failed to retrieve rpm info for selinux-policy
->     > Traceback (most recent call last):
->     >   File "/usr/lib/python-exec/python2.7/sepolicy", line 643, in <module>
->     >     args.func(args)
->     >   File "/usr/lib/python-exec/python2.7/sepolicy", line 517, in generate
->     >     print mypolicy.generate(args.path)
->     >   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1370, in generate
->     >     out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
->     >   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1219, in write_spec
->     >     fd.write(self.generate_spec())
->     >   File "/usr/lib64/python2.7/site-packages/sepolicy/generate.py", line 1181, in generate_spec
->     >     selinux_policyver = get_rpm_nvr_list("selinux-policy")[1]
->     > TypeError: 'NoneType' object has no attribute '__getitem__'
+When I compile and install this policy
 
-Could you please open a new Fedora bug - https://bugzilla.redhat.com/.
+---------------------------------------------------------------
+# cat /tmp/container.te
+policy_module(container, 1.0)
 
-Thank you.
+virt_sandbox_domain_template(container)
 
-> 
->     ​
-> 
->     -- 
-> 
-> 
-> 
-> 
-> -- 
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+----------------------------------------------------------------
+I end up with mknod capability.
 
+sesearch -A -s container_t -t container_t  -c capability
+Found 1 semantic av rules:
+    allow container_t container_t : capability mknod ;
 
--- 
-Miroslav Grepl
-Senior Software Engineer, SELinux Solutions
-Red Hat, Inc.
+But I didn't add mknod to the policy.
+
+grep mknod tmp/container.tmp
+     class capability { chown dac_override dac_read_search fowner fsetid 
+kill setgid setuid setpcap linux_immutable net_bind_service 
+net_broadcast net_admin net_raw ipc_lock ipc_owner sys_module sys_rawio 
+sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource 
+sys_time sys_tty_config mknod lease audit_write audit_control setfcap };
+
+Any ideas?
