@@ -1,15 +1,15 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u32KOh4P016637
- for <selinux@tycho.nsa.gov>; Sat, 2 Apr 2016 16:24:43 -0400
-Received: by mail-pf0-f175.google.com with SMTP id e128so93581170pfe.3
- for <selinux@tycho.nsa.gov>; Sat, 02 Apr 2016 13:24:42 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u33LvXIQ021853
+ for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2016 17:57:33 -0400
+Received: by mail-pa0-f47.google.com with SMTP id tt10so129946512pab.3
+ for <selinux@tycho.nsa.gov>; Sun, 03 Apr 2016 14:57:32 -0700 (PDT)
 From: Jeff Vander Stoep <jeffv@google.com>
 To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, sds@tycho.nsa.gov, nnk@google.com,
+Cc: paul@paul-moore.com, sds@tycho.nsa.gov,
  Jeff Vander Stoep <jeffv@google.com>
-Subject: [PATCH] selinux: restrict kernel module loading
-Date: Fri,  1 Apr 2016 15:40:39 -0700
-Message-Id: <1459550439-29408-1-git-send-email-jeffv@google.com>
+Subject: [PATCH v2] selinux: restrict kernel module loading
+Date: Sun,  3 Apr 2016 14:57:00 -0700
+Message-Id: <1459720620-7987-1-git-send-email-jeffv@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -27,19 +27,23 @@ allow foo bar_file:system module_load;
 
 Similarly restrictions are enforced on kernel module loading when
 calling the init_module syscall. The hook checks that source
-type has permission module_load for the kernel target type.
+type has permission module_load with itself as the target object
+because the kernel module is sourced from the calling process.
 Example for init_module:
 
-allow foo kernel:system module_load;
+allow foo foo:system module_load;
 
 Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
 ---
+v2: The target type for init_module changed from SECINITSID_KERNEL
+to the same type as the source.
+
  security/selinux/hooks.c            | 52 +++++++++++++++++++++++++++++++++++++
  security/selinux/include/classmap.h |  2 +-
  2 files changed, 53 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3fa3ca5..5bc4875 100644
+index 3fa3ca5..f870c4d 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
 @@ -3719,6 +3719,57 @@ static int selinux_kernel_module_request(char *kmod_name)
@@ -57,7 +61,7 @@ index 3fa3ca5..5bc4875 100644
 +
 +	/* init_module */
 +	if (file == NULL) {
-+		rc = avc_has_perm(sid, SECINITSID_KERNEL, SECCLASS_SYSTEM,
++		rc = avc_has_perm(sid, sid, SECCLASS_SYSTEM,
 +					SYSTEM__MODULE_LOAD, NULL);
 +		goto out;
 +	}
