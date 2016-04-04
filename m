@@ -1,129 +1,87 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u33LvXIQ021853
- for <selinux@tycho.nsa.gov>; Sun, 3 Apr 2016 17:57:33 -0400
-Received: by mail-pa0-f47.google.com with SMTP id tt10so129946512pab.3
- for <selinux@tycho.nsa.gov>; Sun, 03 Apr 2016 14:57:32 -0700 (PDT)
-From: Jeff Vander Stoep <jeffv@google.com>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, sds@tycho.nsa.gov,
- Jeff Vander Stoep <jeffv@google.com>
-Subject: [PATCH v2] selinux: restrict kernel module loading
-Date: Sun,  3 Apr 2016 14:57:00 -0700
-Message-Id: <1459720620-7987-1-git-send-email-jeffv@google.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u34J4TWr026462
+ for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2016 15:04:42 -0400
+From: John Gomez <john.gomez@sensato.co>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Project Status?
+Date: Mon, 4 Apr 2016 19:04:40 +0000
+Message-ID: <CB0ECF84-34C5-4546-BD86-9F7D23D2DC49@sensato.co>
+Content-Type: multipart/alternative;
+ boundary="_000_CB0ECF8434C54546BD869F7D23D2DC49sensatoco_"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Utilize existing kernel_read_file hook on kernel module load.
-Add module_load permission to the system class.
+--_000_CB0ECF8434C54546BD869F7D23D2DC49sensatoco_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 
-Enforces restrictions on kernel module origin when calling the
-finit_module syscall. The hook checks that source type has
-permission module_load for the target type.
-Example for finit_module:
+SGkg4oCTDQoNCklzIHRoaXMgcHJvamVjdCBzdGlsbCBhY3RpdmU/DQoNCkpvaG4gR29tZXosIENF
+Tw0KU2Vuc2F0bw0KDQooZSkgSm9obi5Hb21lekBzZW5zYXRvLmNvDQoocCkgODQ0LjczNi43Mjg2
+DQoodykgd3d3LnNlbnNhdG8uY28NCg0KU2Vuc2F0byBoYXMgYmVlbiBuYW1lZCBvbmUgb2YgdGhl
+IHRvcCA1MDAgbW9zdCBpbm5vdmF0aXZlIEN5YmVyc2VjdXJpdHkgY29tcGFuaWVzIGluIHRoZSB3
+b3JsZC4NCg0K
 
-allow foo bar_file:system module_load;
+--_000_CB0ECF8434C54546BD869F7D23D2DC49sensatoco_
+Content-Type: text/html; charset="utf-8"
+Content-ID: <A17CAA612EF3F0428987D2F35553837C@namprd11.prod.outlook.com>
+Content-Transfer-Encoding: base64
 
-Similarly restrictions are enforced on kernel module loading when
-calling the init_module syscall. The hook checks that source
-type has permission module_load with itself as the target object
-because the kernel module is sourced from the calling process.
-Example for init_module:
+PGh0bWwgeG1sbnM6bz0idXJuOnNjaGVtYXMtbWljcm9zb2Z0LWNvbTpvZmZpY2U6b2ZmaWNlIiB4
+bWxuczp3PSJ1cm46c2NoZW1hcy1taWNyb3NvZnQtY29tOm9mZmljZTp3b3JkIiB4bWxuczptPSJo
+dHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL29mZmljZS8yMDA0LzEyL29tbWwiIHhtbG5zPSJo
+dHRwOi8vd3d3LnczLm9yZy9UUi9SRUMtaHRtbDQwIj4NCjxoZWFkPg0KPG1ldGEgaHR0cC1lcXVp
+dj0iQ29udGVudC1UeXBlIiBjb250ZW50PSJ0ZXh0L2h0bWw7IGNoYXJzZXQ9dXRmLTgiPg0KPG1l
+dGEgbmFtZT0iVGl0bGUiIGNvbnRlbnQ9IiI+DQo8bWV0YSBuYW1lPSJLZXl3b3JkcyIgY29udGVu
+dD0iIj4NCjxtZXRhIG5hbWU9IkdlbmVyYXRvciIgY29udGVudD0iTWljcm9zb2Z0IFdvcmQgMTUg
+KGZpbHRlcmVkIG1lZGl1bSkiPg0KPHN0eWxlPjwhLS0NCi8qIEZvbnQgRGVmaW5pdGlvbnMgKi8N
+CkBmb250LWZhY2UNCgl7Zm9udC1mYW1pbHk6IkNhbWJyaWEgTWF0aCI7DQoJcGFub3NlLTE6MiA0
+IDUgMyA1IDQgNiAzIDIgNDt9DQpAZm9udC1mYWNlDQoJe2ZvbnQtZmFtaWx5OkNhbGlicmk7DQoJ
+cGFub3NlLTE6MiAxNSA1IDIgMiAyIDQgMyAyIDQ7fQ0KLyogU3R5bGUgRGVmaW5pdGlvbnMgKi8N
+CnAuTXNvTm9ybWFsLCBsaS5Nc29Ob3JtYWwsIGRpdi5Nc29Ob3JtYWwNCgl7bWFyZ2luOjBpbjsN
+CgltYXJnaW4tYm90dG9tOi4wMDAxcHQ7DQoJZm9udC1zaXplOjEyLjBwdDsNCglmb250LWZhbWls
+eTpDYWxpYnJpO30NCmE6bGluaywgc3Bhbi5Nc29IeXBlcmxpbmsNCgl7bXNvLXN0eWxlLXByaW9y
+aXR5Ojk5Ow0KCWNvbG9yOiMwNTYzQzE7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQph
+OnZpc2l0ZWQsIHNwYW4uTXNvSHlwZXJsaW5rRm9sbG93ZWQNCgl7bXNvLXN0eWxlLXByaW9yaXR5
+Ojk5Ow0KCWNvbG9yOiM5NTRGNzI7DQoJdGV4dC1kZWNvcmF0aW9uOnVuZGVybGluZTt9DQpzcGFu
+LkVtYWlsU3R5bGUxNw0KCXttc28tc3R5bGUtdHlwZTpwZXJzb25hbC1jb21wb3NlOw0KCWZvbnQt
+ZmFtaWx5OkNhbGlicmk7DQoJY29sb3I6d2luZG93dGV4dDt9DQpzcGFuLm1zb0lucw0KCXttc28t
+c3R5bGUtdHlwZTpleHBvcnQtb25seTsNCgltc28tc3R5bGUtbmFtZToiIjsNCgl0ZXh0LWRlY29y
+YXRpb246dW5kZXJsaW5lOw0KCWNvbG9yOnRlYWw7fQ0KLk1zb0NocERlZmF1bHQNCgl7bXNvLXN0
+eWxlLXR5cGU6ZXhwb3J0LW9ubHk7DQoJZm9udC1mYW1pbHk6Q2FsaWJyaTt9DQpAcGFnZSBXb3Jk
+U2VjdGlvbjENCgl7c2l6ZTo4LjVpbiAxMS4waW47DQoJbWFyZ2luOjEuMGluIDEuMGluIDEuMGlu
+IDEuMGluO30NCmRpdi5Xb3JkU2VjdGlvbjENCgl7cGFnZTpXb3JkU2VjdGlvbjE7fQ0KLS0+PC9z
+dHlsZT4NCjwvaGVhZD4NCjxib2R5IGJnY29sb3I9IndoaXRlIiBsYW5nPSJFTi1VUyIgbGluaz0i
+IzA1NjNDMSIgdmxpbms9IiM5NTRGNzIiPg0KPGRpdiBjbGFzcz0iV29yZFNlY3Rpb24xIj4NCjxw
+IGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTEuMHB0Ij5IaSDigJM8
+bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0i
+Zm9udC1zaXplOjExLjBwdCI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9
+Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQiPklzIHRoaXMgcHJvamVj
+dCBzdGlsbCBhY3RpdmU/PG86cD48L286cD48L3NwYW4+PC9wPg0KPHAgY2xhc3M9Ik1zb05vcm1h
+bCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMS4wcHQiPjxvOnA+Jm5ic3A7PC9vOnA+PC9zcGFu
+PjwvcD4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXpl
+OjEwLjVwdDtjb2xvcjpibGFjayI+Sm9obiBHb21leiwgQ0VPPG86cD48L286cD48L3NwYW4+PC9w
+Pg0KPC9kaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQt
+c2l6ZToxMC41cHQ7Y29sb3I6YmxhY2siPlNlbnNhdG88bzpwPjwvbzpwPjwvc3Bhbj48L3A+DQo8
+L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0iZm9udC1zaXpl
+OjEwLjVwdDtjb2xvcjpibGFjayI+PG86cD4mbmJzcDs8L286cD48L3NwYW4+PC9wPg0KPC9kaXY+
+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05vcm1hbCI+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMC41
+cHQ7Y29sb3I6YmxhY2siPihlKSBKb2huLkdvbWV6QHNlbnNhdG8uY288bzpwPjwvbzpwPjwvc3Bh
+bj48L3A+DQo8L2Rpdj4NCjxkaXY+DQo8cCBjbGFzcz0iTXNvTm9ybWFsIj48c3BhbiBzdHlsZT0i
+Zm9udC1zaXplOjEwLjVwdDtjb2xvcjpibGFjayI+KHApIDg0NC43MzYuNzI4NjxvOnA+PC9vOnA+
+PC9zcGFuPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxzcGFuIHN0
+eWxlPSJmb250LXNpemU6MTAuNXB0O2NvbG9yOmJsYWNrIj4odykmbmJzcDt3d3cuc2Vuc2F0by5j
+bzxvOnA+PC9vOnA+PC9zcGFuPjwvcD4NCjwvZGl2Pg0KPGRpdj4NCjxwIGNsYXNzPSJNc29Ob3Jt
+YWwiPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTAuNXB0O2NvbG9yOmJsYWNrIj48bzpwPiZuYnNw
+OzwvbzpwPjwvc3Bhbj48L3A+DQo8L2Rpdj4NCjxkaXY+DQo8ZGl2Pg0KPHAgY2xhc3M9Ik1zb05v
+cm1hbCI+PGk+PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZToxMC4wcHQ7Zm9udC1mYW1pbHk6SGVsdmV0
+aWNhO2NvbG9yOiNGRjg4MEQiPlNlbnNhdG8mbmJzcDtoYXMgYmVlbiBuYW1lZCBvbmUgb2YmbmJz
+cDt0aGUgdG9wIDUwMCBtb3N0Jm5ic3A7aW5ub3ZhdGl2ZSBDeWJlcnNlY3VyaXR5Jm5ic3A7Y29t
+cGFuaWVzIGluIHRoZSB3b3JsZC48L3NwYW4+PC9pPjxzcGFuIHN0eWxlPSJmb250LXNpemU6MTAu
+MHB0O2ZvbnQtZmFtaWx5OkhlbHZldGljYTtjb2xvcjpibGFjayI+PG86cD48L286cD48L3NwYW4+
+PC9wPg0KPC9kaXY+DQo8L2Rpdj4NCjxwIGNsYXNzPSJNc29Ob3JtYWwiPjxvOnA+Jm5ic3A7PC9v
+OnA+PC9wPg0KPC9kaXY+DQo8L2JvZHk+DQo8L2h0bWw+DQo=
 
-allow foo foo:system module_load;
-
-Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
----
-v2: The target type for init_module changed from SECINITSID_KERNEL
-to the same type as the source.
-
- security/selinux/hooks.c            | 52 +++++++++++++++++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 +-
- 2 files changed, 53 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3fa3ca5..f870c4d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3719,6 +3719,57 @@ static int selinux_kernel_module_request(char *kmod_name)
- 			    SYSTEM__MODULE_REQUEST, &ad);
- }
- 
-+static int selinux_kernel_module_from_file(struct file *file)
-+{
-+	struct common_audit_data ad;
-+	struct inode_security_struct *isec;
-+	struct file_security_struct *fsec;
-+	struct inode *inode;
-+	u32 sid = current_sid();
-+	int rc;
-+
-+	/* init_module */
-+	if (file == NULL) {
-+		rc = avc_has_perm(sid, sid, SECCLASS_SYSTEM,
-+					SYSTEM__MODULE_LOAD, NULL);
-+		goto out;
-+	}
-+
-+	/* finit_module */
-+	ad.type = LSM_AUDIT_DATA_PATH;
-+	ad.u.path = file->f_path;
-+
-+	inode = file_inode(file);
-+	isec = inode->i_security;
-+	fsec = file->f_security;
-+
-+	if (sid != fsec->sid) {
-+		rc = avc_has_perm(sid, fsec->sid, SECCLASS_FD, FD__USE, &ad);
-+		if (rc)
-+			goto out;
-+	}
-+
-+	rc = avc_has_perm(sid, isec->sid, SECCLASS_SYSTEM,
-+				SYSTEM__MODULE_LOAD, &ad);
-+out:
-+	return rc;
-+}
-+
-+static selinux_kernel_read_file(struct file *file, enum kernel_read_file_id id)
-+{
-+	int rc = 0;
-+
-+	switch (id) {
-+	case READING_MODULE:
-+		rc = selinux_kernel_module_from_file(file);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return rc;
-+}
-+
- static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
- {
- 	return current_has_perm(p, PROCESS__SETPGID);
-@@ -6022,6 +6073,7 @@ static struct security_hook_list selinux_hooks[] = {
- 	LSM_HOOK_INIT(kernel_act_as, selinux_kernel_act_as),
- 	LSM_HOOK_INIT(kernel_create_files_as, selinux_kernel_create_files_as),
- 	LSM_HOOK_INIT(kernel_module_request, selinux_kernel_module_request),
-+	LSM_HOOK_INIT(kernel_read_file, selinux_kernel_read_file),
- 	LSM_HOOK_INIT(task_setpgid, selinux_task_setpgid),
- 	LSM_HOOK_INIT(task_getpgid, selinux_task_getpgid),
- 	LSM_HOOK_INIT(task_getsid, selinux_task_getsid),
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index ef83c4b..8fbd138 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -32,7 +32,7 @@ struct security_class_mapping secclass_map[] = {
- 	    "setsockcreate", NULL } },
- 	{ "system",
- 	  { "ipc_info", "syslog_read", "syslog_mod",
--	    "syslog_console", "module_request", NULL } },
-+	    "syslog_console", "module_request", "module_load", NULL } },
- 	{ "capability",
- 	  { "chown", "dac_override", "dac_read_search",
- 	    "fowner", "fsetid", "kill", "setgid", "setuid", "setpcap",
--- 
-2.8.0.rc3.226.g39d4020
+--_000_CB0ECF8434C54546BD869F7D23D2DC49sensatoco_--
