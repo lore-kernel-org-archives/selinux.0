@@ -1,217 +1,174 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u34LQ85k028762
+ for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2016 17:26:09 -0400
+Subject: Re: On Fedora 24 I am seeing something strange with CIL
+To: Steve Lawrence <slawrence@tresys.com>,
+ Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+References: <56FA96D5.4010806@redhat.com> <56FAC2BB.1070202@redhat.com>
+ <5702BD5D.50104@gmail.com> <5702C4A7.4040602@redhat.com>
+ <5702C5C2.9050008@gmail.com> <5702CF67.80200@tresys.com>
+ <5702D220.1010906@tresys.com>
+From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <5702DBEB.8030207@redhat.com>
+Date: Mon, 4 Apr 2016 17:26:03 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTQUTAUByVGrrFLxm_w8xzx8cvvrKYscnkRzs7b4fVDsg@mail.gmail.com>
-References: <1459550439-29408-1-git-send-email-jeffv@google.com>
- <CAHC9VhTQUTAUByVGrrFLxm_w8xzx8cvvrKYscnkRzs7b4fVDsg@mail.gmail.com>
-Date: Mon, 4 Apr 2016 13:45:31 -0700
-Message-ID: <CAFftDdrefc7BP=bbbh-+-3k3hmYGu0pK6jtoDTcu2Rh9qbLOMg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: restrict kernel module loading
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Jeff Vander Stoep <jeffv@google.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a113f1e16454e2c052faecf9c
+In-Reply-To: <5702D220.1010906@tresys.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113f1e16454e2c052faecf9c
-Content-Type: text/plain; charset=UTF-8
 
-On Sat, Apr 2, 2016 at 8:31 AM, Paul Moore <paul@paul-moore.com> wrote:
 
-> On Fri, Apr 1, 2016 at 6:40 PM, Jeff Vander Stoep <jeffv@google.com>
-> wrote:
-> > Utilize existing kernel_read_file hook on kernel module load.
-> > Add module_load permission to the system class.
-> >
-> > Enforces restrictions on kernel module origin when calling the
-> > finit_module syscall. The hook checks that source type has
-> > permission module_load for the target type.
-> > Example for finit_module:
-> >
-> > allow foo bar_file:system module_load;
-> >
-> > Similarly restrictions are enforced on kernel module loading when
-> > calling the init_module syscall. The hook checks that source
-> > type has permission module_load for the kernel target type.
-> > Example for init_module:
-> >
-> > allow foo kernel:system module_load;
-> >
-> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-> > ---
-> >  security/selinux/hooks.c            | 52
-> +++++++++++++++++++++++++++++++++++++
-> >  security/selinux/include/classmap.h |  2 +-
-> >  2 files changed, 53 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 3fa3ca5..5bc4875 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -3719,6 +3719,57 @@ static int selinux_kernel_module_request(char
-> *kmod_name)
-> >                             SYSTEM__MODULE_REQUEST, &ad);
-> >  }
-> >
-> > +static int selinux_kernel_module_from_file(struct file *file)
-> > +{
-> > +       struct common_audit_data ad;
-> > +       struct inode_security_struct *isec;
-> > +       struct file_security_struct *fsec;
-> > +       struct inode *inode;
-> > +       u32 sid = current_sid();
-> > +       int rc;
-> > +
-> > +       /* init_module */
-> > +       if (file == NULL) {
-> > +               rc = avc_has_perm(sid, SECINITSID_KERNEL,
-> SECCLASS_SYSTEM,
-> > +                                       SYSTEM__MODULE_LOAD, NULL);
-> > +               goto out;
-> > +       }
+On 04/04/2016 04:44 PM, Steve Lawrence wrote:
+> On 04/04/2016 04:32 PM, Steve Lawrence wrote:
+>> On 04/04/2016 03:51 PM, Dominick Grift wrote:
+>>> On 04/04/2016 09:46 PM, Daniel J Walsh wrote:
+>>>
+>>>
+>>>> On 04/04/2016 03:15 PM, Dominick Grift wrote: On 03/29/2016 08:00
+>>>> PM, Daniel J Walsh wrote:
+>>>>>>> I investigated this a little further.
+>>>>>>>
+>>>> manage_chr_files_pattern(svirt_sandbox_domain,
+>>>> svirt_sandbox_file_t, svirt_sandbox_file_t)
+>>>> define(`manage_chr_files_pattern',` allow $1 self:capability
+>>>> mknod; allow $1 $2:dir rw_dir_perms; allow $1 $3:chr_file
+>>>> manage_chr_file_perms; ')
+>>>>> Ok Makes sense but why didn't this come up with the
+>>>>> svirt_sandbox_domain attribute as opposed to container_t?  Maybe
+>>>>> this is a change in cil.
+>>>>> I guess I should not make this the default for
+>>>>> svirt_sandbox_domain, and only add it for specific domains.
+>>>>> Thanks Dominick.
+>>> Yes that may indeed well be a CIL thing. CIL does optimization, and
+>>> this may make policy analysis a bit different. So yes, be careful when
+>>> using type attributes to query the policy. Because CIL may have "moved
+>>> rules around" for the sake of efficiency. Best to alway's, atleast
+>>> also check the rules associated with the type.
+>>>
+>> I think this is actually the expected behavior. The issue here is that a
+>> typeattribute is used with the 'self' keyword. When this happens, the
+>> avrule is expanded to the individual rules. For example:
+>>
+>>    allow attr self : file read;
+>>
+>> becomes:
+>>
+>>    allow type1 type1 : file read;
+>>    allow type2 type2 : file read;
+>>
+>> The original avrule never makes it into the policy. Using the -d flag
+>> with sesearch will show this is the case. I don't know if 'self' with
+>> typeattributes is a kernel limitation or not, but both CIL and
+>> checkpolicy have the same behavior.
+>>
+> Ah, actually, I think the binary policy/kernel does not have a concept
+> of 'self' at all. Once put in the binary, this
 >
-> I don't think the object type is correct here; in this case, the
-> object is the kernel module being loaded, and with init_module() that
-> kernel module is coming from the calling process, not the kernel.  It
-> seems like the following would be more appropriate:
+>    allow type1 self : file read;
 >
->   avc_has_perm(sid, sid, SECCLASS_SYSTEM, SYSTEM__MODULE_LOAD, NULL);
+> becomes
 >
+>    allow type1 type1 : file read;
+>
+> So 'self' is essentially replaced with the source type. However, you
+> cannot do this replacement when source is an attribute because this
+>
+>    allow attr self : file read;
+>
+> and this
+>
+>    allow attr attr : file read;
+>
+> have very different meanings. So since the kernel has no concept of
+> self, attributes with self must be expanded.
+>
+That makes sense, so it probably worked the same was as before, anyways 
+I was confused,
+and now I have a fix to get what I want which is a container process 
+with no caps.
 
-
-Paul your saying you prefer this:
-
-allow foo self:system module_load;
-
-to this:
-
-allow foo kernel:system module_load;
-
-?
-
-IMHO, the target would be the kernel since its what is being affected by a
-module sourced from foo.
-
-Bill
-
-
-> --
-> paul moore
-> www.paul-moore.com
+>>>>>>> If I write a policy file like
+>>>>>>>
+>>>>>>> ===============================================
+>>>>>>> policy_module(container, 1.0) gen_require(` attribute
+>>>>>>> svirt_sandbox_domain; ')
+>>>>>>>
+>>>>>>> type foobar_t; domain_type(foobar_t) typeattribute foobar_t
+>>>>>>> svirt_sandbox_domain;
+>>>>>>> ===============================================
+>>>>>>>
+>>>>>>> I get
+>>>>>>>
+>>>>>>>
+>>>>>>> sesearch -A -s foobar_t  | grep capa allow foobar_t foobar_t
+>>>>>>> : capability mknod ;
+>>>>>>>
+>>>>>>> If I remove the typeattribute line foobar_t no longer has
+>>>>>>> mknod.
+>>>>>>>
+>>>>>>> I think this is a compiler problem.
+>>>>>>>
+>>>>>>> On 03/29/2016 10:53 AM, Daniel J Walsh wrote:
+>>>>>>>> When I compile and install this policy
+>>>>>>>>
+>>>>>>>> ---------------------------------------------------------------
+>>>>>>>> # cat /tmp/container.te policy_module(container, 1.0)
+>>>>>>>>
+>>>>>>>> virt_sandbox_domain_template(container)
+>>>>>>>>
+>>>>>>>> ----------------------------------------------------------------
+>>>>>>>>
+>>>>>>>>
+>>> I end up with mknod capability.
+>>>>>>>> sesearch -A -s container_t -t container_t  -c capability
+>>>>>>>> Found 1 semantic av rules: allow container_t container_t :
+>>>>>>>> capability mknod ;
+>>>>>>>>
+>>>>>>>> But I didn't add mknod to the policy.
+>>>>>>>>
+>>>>>>>> grep mknod tmp/container.tmp class capability { chown
+>>>>>>>> dac_override dac_read_search fowner fsetid kill setgid
+>>>>>>>> setuid setpcap linux_immutable net_bind_service
+>>>>>>>> net_broadcast net_admin net_raw ipc_lock ipc_owner
+>>>>>>>> sys_module sys_rawio sys_chroot sys_ptrace sys_pacct
+>>>>>>>> sys_admin sys_boot sys_nice sys_resource sys_time
+>>>>>>>> sys_tty_config mknod lease audit_write audit_control
+>>>>>>>> setfcap };
+>>>>>>>>
+>>>>>>>> Any ideas?
+>>>>>>> _______________________________________________ Selinux
+>>>>>>> mailing list Selinux@tycho.nsa.gov To unsubscribe, send email
+>>>>>>> to Selinux-leave@tycho.nsa.gov. To get help, send an email
+>>>>>>> containing "help" to Selinux-request@tycho.nsa.gov.
+>>>> -- Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B
+>>>> 6B02
+>>>> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+>>>
+>>> Dominick Grift
+>>>>> _______________________________________________ Selinux mailing
+>>>>> list Selinux@tycho.nsa.gov To unsubscribe, send email to
+>>>>> Selinux-leave@tycho.nsa.gov. To get help, send an email
+>>>>> containing "help" to Selinux-request@tycho.nsa.gov.
+>>>
+>>> _______________________________________________
+>>> Selinux mailing list
+>>> Selinux@tycho.nsa.gov
+>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
 > _______________________________________________
 > Selinux mailing list
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 >
-
-
-
--- 
-Respectfully,
-
-William C Roberts
-
---001a113f1e16454e2c052faecf9c
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">On Sat, Apr 2, 2016 at 8:31 AM, Paul Moore <span dir=3D"ltr">&lt;<a hre=
-f=3D"mailto:paul@paul-moore.com" target=3D"_blank">paul@paul-moore.com</a>&=
-gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 =
-0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><=
-div class=3D"h5">On Fri, Apr 1, 2016 at 6:40 PM, Jeff Vander Stoep &lt;<a h=
-ref=3D"mailto:jeffv@google.com">jeffv@google.com</a>&gt; wrote:<br>
-&gt; Utilize existing kernel_read_file hook on kernel module load.<br>
-&gt; Add module_load permission to the system class.<br>
-&gt;<br>
-&gt; Enforces restrictions on kernel module origin when calling the<br>
-&gt; finit_module syscall. The hook checks that source type has<br>
-&gt; permission module_load for the target type.<br>
-&gt; Example for finit_module:<br>
-&gt;<br>
-&gt; allow foo bar_file:system module_load;<br>
-&gt;<br>
-&gt; Similarly restrictions are enforced on kernel module loading when<br>
-&gt; calling the init_module syscall. The hook checks that source<br>
-&gt; type has permission module_load for the kernel target type.<br>
-&gt; Example for init_module:<br>
-&gt;<br>
-&gt; allow foo kernel:system module_load;<br>
-&gt;<br>
-&gt; Signed-off-by: Jeff Vander Stoep &lt;<a href=3D"mailto:jeffv@google.co=
-m">jeffv@google.com</a>&gt;<br>
-&gt; ---<br>
-&gt;=C2=A0 security/selinux/hooks.c=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 | 52 +++++++++++++++++++++++++++++++++++++<br>
-&gt;=C2=A0 security/selinux/include/classmap.h |=C2=A0 2 +-<br>
-&gt;=C2=A0 2 files changed, 53 insertions(+), 1 deletion(-)<br>
-&gt;<br>
-&gt; diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c<br>
-&gt; index 3fa3ca5..5bc4875 100644<br>
-&gt; --- a/security/selinux/hooks.c<br>
-&gt; +++ b/security/selinux/hooks.c<br>
-&gt; @@ -3719,6 +3719,57 @@ static int selinux_kernel_module_request(char *=
-kmod_name)<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0SYSTEM__MODULE_REQUEST, &amp;ad);<br>
-&gt;=C2=A0 }<br>
-&gt;<br>
-&gt; +static int selinux_kernel_module_from_file(struct file *file)<br>
-&gt; +{<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct common_audit_data ad;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct inode_security_struct *isec;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct file_security_struct *fsec;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0struct inode *inode;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0u32 sid =3D current_sid();<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0int rc;<br>
-&gt; +<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0/* init_module */<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0if (file =3D=3D NULL) {<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0rc =3D avc_has=
-_perm(sid, SECINITSID_KERNEL, SECCLASS_SYSTEM,<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0SYSTE=
-M__MODULE_LOAD, NULL);<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto out;<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
-<br>
-</div></div>I don&#39;t think the object type is correct here; in this case=
-, the<br>
-object is the kernel module being loaded, and with init_module() that<br>
-kernel module is coming from the calling process, not the kernel.=C2=A0 It<=
-br>
-seems like the following would be more appropriate:<br>
-<br>
-=C2=A0 avc_has_perm(sid, sid, SECCLASS_SYSTEM, SYSTEM__MODULE_LOAD, NULL);<=
-br></blockquote><div><br></div><div><br></div><div>Paul your saying you pre=
-fer this:</div><div><br></div><div>allow foo self:system module_load;</div>=
-<div><br></div><div>to this:</div><div><br></div><div>allow foo kernel:syst=
-em module_load;</div><div>=C2=A0</div><div>?</div><div><br></div><div>IMHO,=
- the target would be the kernel since its what is being affected by a modul=
-e sourced from foo.</div><div><br></div><div>Bill</div><div><br></div><bloc=
-kquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #cc=
-c solid;padding-left:1ex">
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
---<br>
-paul moore<br>
-<a href=3D"http://www.paul-moore.com" rel=3D"noreferrer" target=3D"_blank">=
-www.paul-moore.com</a><br>
-</font></span><div class=3D"HOEnZb"><div class=3D"h5">_____________________=
-__________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>
-</div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
-<div class=3D"gmail_signature">Respectfully,<br><br>William C Roberts<br><b=
-r></div>
-</div></div>
-
---001a113f1e16454e2c052faecf9c--
+>
