@@ -1,40 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u34Mr14B016254
- for <selinux@tycho.nsa.gov>; Mon, 4 Apr 2016 18:53:01 -0400
-Received: by mail-io0-f178.google.com with SMTP id g185so167989987ioa.2
- for <selinux@tycho.nsa.gov>; Mon, 04 Apr 2016 15:52:59 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1459806504-16135-2-git-send-email-danielj@mellanox.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u35E4hT0031182
+ for <selinux@tycho.nsa.gov>; Tue, 5 Apr 2016 10:04:45 -0400
+From: Daniel Jurgens <danielj@mellanox.com>
+To: James Morris <jmorris@namei.org>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [RFC PATCH 0/7] SELinux support for Infiniband RDMA
+Date: Tue, 5 Apr 2016 14:04:40 +0000
+Message-ID: <DB5PR05MB111189C7DA2031DA58CA33AAC49E0@DB5PR05MB1111.eurprd05.prod.outlook.com>
 References: <1459806504-16135-1-git-send-email-danielj@mellanox.com>
- <1459806504-16135-2-git-send-email-danielj@mellanox.com>
-Date: Tue, 5 Apr 2016 01:52:58 +0300
-Message-ID: <CAJ3xEMjFfcju=wCsSqsw=RDeXz=TfTg9XLaA95vMYxGJv5mP7w@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/7] security: Add LSM hooks for Infiniband security
-From: Or Gerlitz <gerlitz.or@gmail.com>
-To: Dan Jurgens <danielj@mellanox.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-Content-Type: text/plain; charset=UTF-8
+ <alpine.LRH.2.20.1604051110390.9906@namei.org>
+ <DB5PR05MB111126C8AB59CDA4674A068BC49E0@DB5PR05MB1111.eurprd05.prod.outlook.com>
+ <alpine.LRH.2.20.1604051154500.16241@namei.org>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Apr 5, 2016 at 12:48 AM, Dan Jurgens <danielj@mellanox.com> wrote:
-
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -8,6 +8,7 @@
->   * Copyright (C) 2001 Silicon Graphics, Inc. (Trust Technology Group)
->   * Copyright (C) 2015 Intel Corporation.
->   * Copyright (C) 2015 Casey Schaufler <casey@schaufler-ca.com>
-> + * Copyright (C) 2016 Mellanox Techonologies. <danielj@mellanox.com>
-
-Hi Dan,
-
-I don't see the point to use personal copyright credits in our
-upstream development. AFAIK, we don't do that for the NIC side
-patches, if you don't mind, lets avoid that.
-
-Or.
+On 4/4/2016 8:55 PM, James Morris wrote:
+> On Tue, 5 Apr 2016, Daniel Jurgens wrote:
+> 
+>> On 4/4/2016 8:13 PM, James Morris wrote:
+>>> On Tue, 5 Apr 2016, Dan Jurgens wrote:
+>>>
+>>>> From: Daniel Jurgens <danielj@mellanox.com>
+>>>>
+>>>> Currently there is no way to provide granular access control to an Infiniband
+>>>> fabric.  By providing an ability to restrict user access to specific virtual
+>>>> subfabrics administrators can limit access to bandwidth and isolate users on
+>>>> the fabric.
+>>>
+>>> Where are the LSM hooks placed?
+>>>
+>>>
+>>>
+>> The LSM hooks are defined in patch 1/7 of this series.  There are 4 that
+>> will be called from ib_core, and one that's implemented by ib_core to be
+>> called by a security module if the policy or enforcement setting change
+>> (infiniband_flush).  That call from SELinux is added in patch 3/7 of
+>> this series.
+> 
+> Can you post the ib_core patches, too?
+> 
+> 
+Yes, I'll post them soon.
