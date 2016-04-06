@@ -1,72 +1,100 @@
-Date: Thu, 7 Apr 2016 00:14:45 +0200
+Date: Thu, 7 Apr 2016 01:45:32 +0200
 From: Florian Westphal <fw@strlen.de>
 To: Paul Moore <paul@paul-moore.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, linux-security-module@vger.kernel.org,
+Cc: Florian Westphal <fw@strlen.de>, Paolo Abeni <pabeni@redhat.com>,
+ linux-security-module@vger.kernel.org,
  "David S. Miller" <davem@davemloft.net>,
  James Morris <james.l.morris@oracle.com>,
  Andreas Gruenbacher <agruenba@redhat.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Florian Westphal <fw@strlen.de>,
- netdev@vger.kernel.org, selinux@tycho.nsa.gov
+ Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ selinux@tycho.nsa.gov
 Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
-Message-ID: <20160406221445.GA26807@breakpoint.cc>
+Message-ID: <20160406234532.GA731@breakpoint.cc>
 References: <cover.1459934322.git.pabeni@redhat.com>
  <CAHC9VhS6aJdPR6xTH2-ehikS5qvj6jFbZAUtzoBXp+WC9Ugi=Q@mail.gmail.com>
+ <20160406221445.GA26807@breakpoint.cc>
+ <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhS6aJdPR6xTH2-ehikS5qvj6jFbZAUtzoBXp+WC9Ugi=Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Paul Moore <paul@paul-moore.com> wrote:
-> On Wed, Apr 6, 2016 at 5:51 AM, Paolo Abeni <pabeni@redhat.com> wrote:
-> > Currently, selinux always registers iptables POSTROUTING hooks regarless of
-> > the running policy needs for any action to be performed by them.
-> >
-> > Even the socket_sock_rcv_skb() is always registered, but it can result in a no-op
-> > depending on the current policy configuration.
-> >
-> > The above invocations in the kernel datapath are cause of measurable
-> > overhead in networking performance test.
-> >
-> > This patch series adds explicit notification for netlabel status change
-> > (other relevant status change, like xfrm and secmark, are already notified to
-> > LSM) and use this information in selinux to register the above hooks only when
-> > the current status makes them relevant, deregistering them when no-op
-> >
-> > Avoiding the LSM hooks overhead, in netperf UDP_STREAM test with small packets,
-> > gives about 5% performance improvement on rx and about 8% on tx.
+> On Wed, Apr 6, 2016 at 6:14 PM, Florian Westphal <fw@strlen.de> wrote:
+> > netfilter hooks are per namespace -- so there is hook unregister when
+> > netns is destroyed.
 > 
-> [NOTE: added the SELinux mailing list to the CC line, please include
-> when submitting SELinux patches]
+> Looking around, I see the global and per-namespace registration
+> functions (nf_register_hook and nf_register_net_hook, respectively),
+> but I'm looking to see if/how newly created namespace inherit
+> netfilter hooks from the init network namespace ... if you can create
+> a network namespace and dodge the SELinux hooks, that isn't a good
+> thing from a SELinux point of view, although it might be a plus
+> depending on where you view Paolo's original patches ;)
+
+Heh :-)
+
+If you use nf_register_net_hook, the hook is only registered in the
+namespace.
+
+If you use nf_register_hook, the hook is put on a global list and
+registed in all existing namespaces.
+
+New namespaces will have the hook added as well (see
+netfilter_net_init -> nf_register_hook_list in netfilter/core.c )
+
+Since nf_register_hook is used it should be impossible to get a netns
+that doesn't call these hooks.
+
+> > Do you think it makes sense to rework the patch to delay registering
+> > of the netfiler hooks until the system is in a state where they're
+> > needed, without the 'unregister' aspect?
 > 
-> While I appreciate the patch and the work that went into development
-> and testing, I'm going to reject this patch on the grounds that it
-> conflicts with work we've just started thinking about which should
-> bring some tangible security benefit.
+> I would need to see the patch to say for certain, but in principle
+> that seems perfectly reasonable and I think would satisfy both the
+> netdev and SELinux camps - good suggestion.  My main goal is to drop
+> the selinux_nf_ip_init() entirely so it can't be used as a ROP gadget.
 > 
-> The recent addition of post-init read only memory opens up some
-> interesting possibilities for SELinux and LSMs in general, the thing
-> which we've just started looking at is marking the LSM hook structure
-> read only after init.  There are some complicating factors for
-> SELinux, but I'm confident those can be resolved, and from what I can
-> tell marking the hooks read only will have no effect on other LSMs.
-> While marking the LSM hook structure doesn't directly affect the
-> SELinux netfilter hooks, once we remove the ability to deregister the
-> LSM hooks we will have no need to support deregistering netfilter
-> hooks and I expect we will drop that functionality as well to help
-> decrease the risk of tampering.
+> We might even be able to trim the secmark_active and peerlbl_active
+> checks in the SELinux netfilter hooks (an earlier attempt at
+> optimization; contrary to popular belief, I do care about SELinux
+> performance), although that would mean that enabling the network
+> access controls would be one way ... I guess you can disregard that
+> last bit, I'm thinking aloud again.
 
-netfilter hooks are per namespace -- so there is hook unregister when
-netns is destroyed.
+One way is fine I think.
 
-Do you think it makes sense to rework the patch to delay registering
-of the netfiler hooks until the system is in a state where they're
-needed, without the 'unregister' aspect?
+> > Ideally this would even be per netns -- in perfect world we would
+> > be able to make it so that a new netns are created with an empty
+> > hook list.
+> 
+> In general SELinux doesn't care about namespaces, for reasons that are
+> sorta beyond the scope of this conversation, so I would like to stick
+> to a all or nothing approach to enabling the SELinux netfilter hooks
+> across namespaces.  Perhaps we can revisit this at a later time, but
+> let's keep it simple right now.
 
-Ideally this would even be per netns -- in perfect world we would
-be able to make it so that a new netns are created with an empty
-hook list.
+Okay, I'd prefer to stick to your recommendation anyway wrt. to selinux
+(Casey, I read your comment regarding smack. Noted, we don't want to
+break smack either...)
 
-Thanks.
+I think that in this case the entire question is:
+
+In your experience, how likely is a config where
+selinux is enabled BUT the hooks are not needed (i.e., where we hit the
+
+if (!selinux_policycap_netpeer)
+    return NF_ACCEPT;
+
+if (!secmark_active && !peerlbl_active)
+   return NF_ACCEPT;
+
+tests inside the hooks)?  If such setups are uncommon we should just
+drop this idea or at least put it on the back burner until the more expensive
+netfilter hooks (conntrack, cough) are out of the way.
+
+Thanks,
+Florian
