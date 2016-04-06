@@ -1,51 +1,105 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36Iak1a019147
- for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 14:36:46 -0400
-Received: by mail-oi0-f68.google.com with SMTP id v126so8464231oia.3
- for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 11:36:44 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160406.142316.1728426867290841888.davem@davemloft.net>
-References: <CAHC9VhS6aJdPR6xTH2-ehikS5qvj6jFbZAUtzoBXp+WC9Ugi=Q@mail.gmail.com>
- <1459951424.5425.12.camel@redhat.com>
- <CAHC9VhQS+LfPbj0UuKFiVCW7LKthJmgOt08MvCiwKjTZZYstxA@mail.gmail.com>
- <20160406.142316.1728426867290841888.davem@davemloft.net>
-Date: Wed, 6 Apr 2016 14:36:43 -0400
-Message-ID: <CAHC9VhT0444cEDKsfww7Yj22svSFOfY4ersVhh8up9ZrZ_8rng@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
-From: Paul Moore <paul@paul-moore.com>
-To: David Miller <davem@davemloft.net>
-Cc: pabeni@redhat.com, linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>, agruenba@redhat.com,
- Stephen Smalley <sds@tycho.nsa.gov>, fw@strlen.de,
- netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [RFC][PATCH] selinux: distinguish non-init user namespace
+ capability checks
+To: Stephen Smalley <stephen.smalley@gmail.com>, selinux
+ <selinux@tycho.nsa.gov>
+References: <1459958221.7680.2.camel@gmail.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <570559FF.1050207@tresys.com>
+Date: Wed, 6 Apr 2016 14:48:31 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <1459958221.7680.2.camel@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Apr 6, 2016 at 2:23 PM, David Miller <davem@davemloft.net> wrote:
-> From: Paul Moore <paul@paul-moore.com>
-> Date: Wed, 6 Apr 2016 10:07:27 -0400
->
->> "While marking the LSM hook structure doesn't directly affect the
->> SELinux netfilter hooks, once we remove the ability to deregister the
->> LSM hooks we will have no need to support deregistering netfilter
->> hooks and I expect we will drop that functionality as well to help
->> decrease the risk of tampering."
->
-> This is not a reasonable postiion.
->
-> The performance implications are non-trivial for using netfilter hooks
-> when they aren't actually needed.
+On 4/6/2016 11:57 AM, Stephen Smalley wrote:
+> Distinguish capability checks against a target associated
+> with the init user namespace versus capability checks against
+> a target associated with a non-init user namespace by defining
+> and using separate security classes for the latter.
+> 
+> This is needed to support e.g. Chrome usage of user namespaces
+> for the Chrome sandbox without needing to allow Chrome to also
+> exercise capabilities on targets in the init user namespace.
 
-With all due respect, I think you've taken what I consider to be some
-unreasonable positions when it comes to the network stack and LSMs in
-the past.  We have different perspectives and different priorities as
-a result, from my perspective the security advantage gained by
-eliminating the ability to disable SELinux at runtime is more
-important.
+Is there any reason not to define a new pair of commons (cap, cap2) in
+refpolicy?  This is more of a question of what you did in the below
+hunks vs. the refpolicy patch you had in the other email which didn't
+have commons.
+
+
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index 8fbd138..1f1f4b2 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -12,6 +12,18 @@
+>  #define COMMON_IPC_PERMS "create", "destroy", "getattr", "setattr", "read", \
+>  	    "write", "associate", "unix_read", "unix_write"
+>  
+> +#define COMMON_CAP_PERMS  "chown", "dac_override", "dac_read_search", \
+> +	    "fowner", "fsetid", "kill", "setgid", "setuid", "setpcap", \
+> +	    "linux_immutable", "net_bind_service", "net_broadcast", \
+> +	    "net_admin", "net_raw", "ipc_lock", "ipc_owner", "sys_module", \
+> +	    "sys_rawio", "sys_chroot", "sys_ptrace", "sys_pacct", "sys_admin", \
+> +	    "sys_boot", "sys_nice", "sys_resource", "sys_time", \
+> +	    "sys_tty_config", "mknod", "lease", "audit_write", \
+> +	    "audit_control", "setfcap"
+> +
+> +#define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> +		"wake_alarm", "block_suspend", "audit_read"
+> +
+>  /*
+>   * Note: The name for any socket class should be suffixed by "socket",
+>   *	 and doesn't contain more than one substr of "socket".
+> @@ -34,14 +46,7 @@ struct security_class_mapping secclass_map[] = {
+>  	  { "ipc_info", "syslog_read", "syslog_mod",
+>  	    "syslog_console", "module_request", "module_load", NULL } },
+>  	{ "capability",
+> -	  { "chown", "dac_override", "dac_read_search",
+> -	    "fowner", "fsetid", "kill", "setgid", "setuid", "setpcap",
+> -	    "linux_immutable", "net_bind_service", "net_broadcast",
+> -	    "net_admin", "net_raw", "ipc_lock", "ipc_owner", "sys_module",
+> -	    "sys_rawio", "sys_chroot", "sys_ptrace", "sys_pacct", "sys_admin",
+> -	    "sys_boot", "sys_nice", "sys_resource", "sys_time",
+> -	    "sys_tty_config", "mknod", "lease", "audit_write",
+> -	    "audit_control", "setfcap", NULL } },
+> +	  { COMMON_CAP_PERMS, NULL } },
+>  	{ "filesystem",
+>  	  { "mount", "remount", "unmount", "getattr",
+>  	    "relabelfrom", "relabelto", "associate", "quotamod",
+> @@ -150,12 +155,15 @@ struct security_class_mapping secclass_map[] = {
+>  	{ "memprotect", { "mmap_zero", NULL } },
+>  	{ "peer", { "recv", NULL } },
+>  	{ "capability2",
+> -	  { "mac_override", "mac_admin", "syslog", "wake_alarm", "block_suspend",
+> -	    "audit_read", NULL } },
+> +	  { COMMON_CAP2_PERMS, NULL } },
+>  	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
+>  	{ "tun_socket",
+>  	  { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+>  	{ "binder", { "impersonate", "call", "set_context_mgr", "transfer",
+>  		      NULL } },
+> +	{ "cap_userns",
+> +	  { COMMON_CAP_PERMS, NULL } },
+> +	{ "cap2_userns",
+> +	  { COMMON_CAP2_PERMS, NULL } },
+>  	{ NULL }
+>    };
+> -- 
+> 2.8.0
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
+
 
 -- 
-paul moore
-www.paul-moore.com
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
