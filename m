@@ -1,64 +1,68 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36N4sf7018486
- for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 19:04:54 -0400
-Received: by mail-yw0-f169.google.com with SMTP id g3so75963837ywa.3
- for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 16:04:53 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36NFP2J020857
+ for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 19:15:25 -0400
+Received: by mail-ob0-f196.google.com with SMTP id js7so2258252obc.0
+ for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 16:15:24 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1459972627.5403.2.camel@gmail.com>
-References: <1459972627.5403.2.camel@gmail.com>
-Date: Wed, 6 Apr 2016 16:04:52 -0700
-Message-ID: <CAFJ0LnEKrd9-n7gzZDx1mwuqFSx66+k-3bu0zym_CQ3k9rGz9Q@mail.gmail.com>
-Subject: Re: [RFC][PATCH] selinux: apply execstack check on thread stacks
-From: Nick Kralevich <nnk@google.com>
-To: Stephen Smalley <stephen.smalley@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>
+In-Reply-To: <20160406221445.GA26807@breakpoint.cc>
+References: <cover.1459934322.git.pabeni@redhat.com>
+ <CAHC9VhS6aJdPR6xTH2-ehikS5qvj6jFbZAUtzoBXp+WC9Ugi=Q@mail.gmail.com>
+ <20160406221445.GA26807@breakpoint.cc>
+Date: Wed, 6 Apr 2016 19:15:23 -0400
+Message-ID: <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+From: Paul Moore <paul@paul-moore.com>
+To: Florian Westphal <fw@strlen.de>
+Cc: Paolo Abeni <pabeni@redhat.com>, linux-security-module@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ James Morris <james.l.morris@oracle.com>,
+ Andreas Gruenbacher <agruenba@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks!
+On Wed, Apr 6, 2016 at 6:14 PM, Florian Westphal <fw@strlen.de> wrote:
+> netfilter hooks are per namespace -- so there is hook unregister when
+> netns is destroyed.
 
-On Wed, Apr 6, 2016 at 12:57 PM, Stephen Smalley
-<stephen.smalley@gmail.com> wrote:
-> The execstack check was only being applied on the main
-> process stack.  Thread stacks allocated via mmap were
-> only subject to the execmem permission check.  Augment
-> the check to apply to the current thread stack as well.
-> Note that this does NOT prevent making a different thread's
-> stack executable.
->
-> Suggested-by: Nick Kralevich <nnk@google.com>
+Looking around, I see the global and per-namespace registration
+functions (nf_register_hook and nf_register_net_hook, respectively),
+but I'm looking to see if/how newly created namespace inherit
+netfilter hooks from the init network namespace ... if you can create
+a network namespace and dodge the SELinux hooks, that isn't a good
+thing from a SELinux point of view, although it might be a plus
+depending on where you view Paolo's original patches ;)
 
-Acked-By: Nick Kralevich <nnk@google.com>
+> Do you think it makes sense to rework the patch to delay registering
+> of the netfiler hooks until the system is in a state where they're
+> needed, without the 'unregister' aspect?
 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  security/selinux/hooks.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index a9ca5ee..0271be4 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3465,8 +3465,9 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
->                     vma->vm_end <= vma->vm_mm->brk) {
->                         rc = cred_has_perm(cred, cred, PROCESS__EXECHEAP);
->                 } else if (!vma->vm_file &&
-> -                          vma->vm_start <= vma->vm_mm->start_stack &&
-> -                          vma->vm_end >= vma->vm_mm->start_stack) {
-> +                          ((vma->vm_start <= vma->vm_mm->start_stack &&
-> +                            vma->vm_end >= vma->vm_mm->start_stack) ||
-> +                           vma_is_stack_for_task(vma, current))) {
->                         rc = current_has_perm(current, PROCESS__EXECSTACK);
->                 } else if (vma->vm_file && vma->anon_vma) {
->                         /*
-> --
-> 2.8.0
->
+I would need to see the patch to say for certain, but in principle
+that seems perfectly reasonable and I think would satisfy both the
+netdev and SELinux camps - good suggestion.  My main goal is to drop
+the selinux_nf_ip_init() entirely so it can't be used as a ROP gadget.
 
+We might even be able to trim the secmark_active and peerlbl_active
+checks in the SELinux netfilter hooks (an earlier attempt at
+optimization; contrary to popular belief, I do care about SELinux
+performance), although that would mean that enabling the network
+access controls would be one way ... I guess you can disregard that
+last bit, I'm thinking aloud again.
 
+> Ideally this would even be per netns -- in perfect world we would
+> be able to make it so that a new netns are created with an empty
+> hook list.
+
+In general SELinux doesn't care about namespaces, for reasons that are
+sorta beyond the scope of this conversation, so I would like to stick
+to a all or nothing approach to enabling the SELinux netfilter hooks
+across namespaces.  Perhaps we can revisit this at a later time, but
+let's keep it simple right now.
 
 -- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+paul moore
+www.paul-moore.com
