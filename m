@@ -1,86 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36K7jbq009780
- for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 16:07:45 -0400
-Received: by mail-oi0-f66.google.com with SMTP id q133so8821210oib.1
- for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 13:07:43 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36N4sf7018486
+ for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 19:04:54 -0400
+Received: by mail-yw0-f169.google.com with SMTP id g3so75963837ywa.3
+ for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 16:04:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20160406.153955.2244652846180310527.davem@davemloft.net>
-References: <CAHC9VhQS+LfPbj0UuKFiVCW7LKthJmgOt08MvCiwKjTZZYstxA@mail.gmail.com>
- <20160406.142316.1728426867290841888.davem@davemloft.net>
- <CAHC9VhT0444cEDKsfww7Yj22svSFOfY4ersVhh8up9ZrZ_8rng@mail.gmail.com>
- <20160406.153955.2244652846180310527.davem@davemloft.net>
-Date: Wed, 6 Apr 2016 16:07:43 -0400
-Message-ID: <CAHC9VhTCGL5PZoRxbQ4kkTR28CF5xzw+z2yrLJVfYP=Km55sdg@mail.gmail.com>
-Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
-From: Paul Moore <paul@paul-moore.com>
-To: David Miller <davem@davemloft.net>
-Cc: pabeni@redhat.com, linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>, agruenba@redhat.com,
- Stephen Smalley <sds@tycho.nsa.gov>, fw@strlen.de,
- netdev@vger.kernel.org, selinux@tycho.nsa.gov
+In-Reply-To: <1459972627.5403.2.camel@gmail.com>
+References: <1459972627.5403.2.camel@gmail.com>
+Date: Wed, 6 Apr 2016 16:04:52 -0700
+Message-ID: <CAFJ0LnEKrd9-n7gzZDx1mwuqFSx66+k-3bu0zym_CQ3k9rGz9Q@mail.gmail.com>
+Subject: Re: [RFC][PATCH] selinux: apply execstack check on thread stacks
+From: Nick Kralevich <nnk@google.com>
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Apr 6, 2016 at 3:39 PM, David Miller <davem@davemloft.net> wrote:
-> From: Paul Moore <paul@paul-moore.com>
-> Date: Wed, 6 Apr 2016 14:36:43 -0400
+Thanks!
+
+On Wed, Apr 6, 2016 at 12:57 PM, Stephen Smalley
+<stephen.smalley@gmail.com> wrote:
+> The execstack check was only being applied on the main
+> process stack.  Thread stacks allocated via mmap were
+> only subject to the execmem permission check.  Augment
+> the check to apply to the current thread stack as well.
+> Note that this does NOT prevent making a different thread's
+> stack executable.
 >
->> On Wed, Apr 6, 2016 at 2:23 PM, David Miller <davem@davemloft.net> wrote:
->>> From: Paul Moore <paul@paul-moore.com>
->>> Date: Wed, 6 Apr 2016 10:07:27 -0400
->>>
->>>> "While marking the LSM hook structure doesn't directly affect the
->>>> SELinux netfilter hooks, once we remove the ability to deregister the
->>>> LSM hooks we will have no need to support deregistering netfilter
->>>> hooks and I expect we will drop that functionality as well to help
->>>> decrease the risk of tampering."
->>>
->>> This is not a reasonable postiion.
->>>
->>> The performance implications are non-trivial for using netfilter hooks
->>> when they aren't actually needed.
->>
->> With all due respect, I think you've taken what I consider to be some
->> unreasonable positions when it comes to the network stack and LSMs in
->> the past.  We have different perspectives and different priorities as
->> a result, from my perspective the security advantage gained by
->> eliminating the ability to disable SELinux at runtime is more
->> important.
+> Suggested-by: Nick Kralevich <nnk@google.com>
+
+Acked-By: Nick Kralevich <nnk@google.com>
+
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/hooks.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 >
-> SELinux folks seem to get rather upset to people outright disabling
-> the facility, but many users still do exactly that.
-
-My opinion is that SELinux isn't for everyone; I think it would be
-great if everyone enabled it, but I recognize that it isn't the best
-fit for everyone's needs.  If users want to disable it in order to
-better meet their needs, who am I to argue?
-
-Or perhaps I should be upset?  I dunno, please tell me how I should
-feel.  Like most people, I *love* when I'm told how I should react.
-
-> In my opinion, it's uncompromising positions like the one you are
-> having here is part of the reason that issue will continue.
-
-Once again, I suspect this all a matter of perspective; from my point
-of view the SELinux code has compromised quite a lot, especially in
-the case of the networking controls.
-
-> It is not AND, it's an OR, people want choice, and if you don't give
-> it to them they will find a way to achieve what they want with or
-> without your help.  And you might not like what they come up with.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index a9ca5ee..0271be4 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3465,8 +3465,9 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+>                     vma->vm_end <= vma->vm_mm->brk) {
+>                         rc = cred_has_perm(cred, cred, PROCESS__EXECHEAP);
+>                 } else if (!vma->vm_file &&
+> -                          vma->vm_start <= vma->vm_mm->start_stack &&
+> -                          vma->vm_end >= vma->vm_mm->start_stack) {
+> +                          ((vma->vm_start <= vma->vm_mm->start_stack &&
+> +                            vma->vm_end >= vma->vm_mm->start_stack) ||
+> +                           vma_is_stack_for_task(vma, current))) {
+>                         rc = current_has_perm(current, PROCESS__EXECSTACK);
+>                 } else if (vma->vm_file && vma->anon_vma) {
+>                         /*
+> --
+> 2.8.0
 >
-> If distributions are turning SELinux on by default, then we have to
-> care about whather netfilter performance should suffer for facilities
-> which are unused.
 
-I think you've made your point known, and I believe I've been clear
-about the reasoning behind my decision as well.  I would suggest we
-leave it at that until/unless someone has something constructive to
-add to the conversation.
+
 
 -- 
-paul moore
-www.paul-moore.com
+Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
