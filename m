@@ -1,112 +1,86 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36K1t8o008319
- for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 16:01:55 -0400
-Received: by mail-pa0-f53.google.com with SMTP id td3so39311241pab.2
- for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 13:01:53 -0700 (PDT)
-Message-ID: <1459972910.5403.5.camel@gmail.com>
-Subject: [RFC][PATCH]  selinux-testsuite: Add test for execstack on thread
- stack
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Date: Wed, 06 Apr 2016 13:01:50 -0700
-In-Reply-To: <1459972627.5403.2.camel@gmail.com>
-References: <1459972627.5403.2.camel@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u36K7jbq009780
+ for <selinux@tycho.nsa.gov>; Wed, 6 Apr 2016 16:07:45 -0400
+Received: by mail-oi0-f66.google.com with SMTP id q133so8821210oib.1
+ for <selinux@tycho.nsa.gov>; Wed, 06 Apr 2016 13:07:43 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20160406.153955.2244652846180310527.davem@davemloft.net>
+References: <CAHC9VhQS+LfPbj0UuKFiVCW7LKthJmgOt08MvCiwKjTZZYstxA@mail.gmail.com>
+ <20160406.142316.1728426867290841888.davem@davemloft.net>
+ <CAHC9VhT0444cEDKsfww7Yj22svSFOfY4ersVhh8up9ZrZ_8rng@mail.gmail.com>
+ <20160406.153955.2244652846180310527.davem@davemloft.net>
+Date: Wed, 6 Apr 2016 16:07:43 -0400
+Message-ID: <CAHC9VhTCGL5PZoRxbQ4kkTR28CF5xzw+z2yrLJVfYP=Km55sdg@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+From: Paul Moore <paul@paul-moore.com>
+To: David Miller <davem@davemloft.net>
+Cc: pabeni@redhat.com, linux-security-module@vger.kernel.org,
+ James Morris <james.l.morris@oracle.com>, agruenba@redhat.com,
+ Stephen Smalley <sds@tycho.nsa.gov>, fw@strlen.de,
+ netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Test execstack permission checking for thread stacks.
-This depends on the corresponding kernel patch to apply
-the check for thread stacks in addition to the main process
-stack.
+On Wed, Apr 6, 2016 at 3:39 PM, David Miller <davem@davemloft.net> wrote:
+> From: Paul Moore <paul@paul-moore.com>
+> Date: Wed, 6 Apr 2016 14:36:43 -0400
+>
+>> On Wed, Apr 6, 2016 at 2:23 PM, David Miller <davem@davemloft.net> wrote:
+>>> From: Paul Moore <paul@paul-moore.com>
+>>> Date: Wed, 6 Apr 2016 10:07:27 -0400
+>>>
+>>>> "While marking the LSM hook structure doesn't directly affect the
+>>>> SELinux netfilter hooks, once we remove the ability to deregister the
+>>>> LSM hooks we will have no need to support deregistering netfilter
+>>>> hooks and I expect we will drop that functionality as well to help
+>>>> decrease the risk of tampering."
+>>>
+>>> This is not a reasonable postiion.
+>>>
+>>> The performance implications are non-trivial for using netfilter hooks
+>>> when they aren't actually needed.
+>>
+>> With all due respect, I think you've taken what I consider to be some
+>> unreasonable positions when it comes to the network stack and LSMs in
+>> the past.  We have different perspectives and different priorities as
+>> a result, from my perspective the security advantage gained by
+>> eliminating the ability to disable SELinux at runtime is more
+>> important.
+>
+> SELinux folks seem to get rather upset to people outright disabling
+> the facility, but many users still do exactly that.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- tests/mmap/Makefile                |  2 ++
- tests/mmap/mprotect_stack_thread.c | 33 +++++++++++++++++++++++++++++++++
- tests/mmap/test                    |  8 +++++++-
- 3 files changed, 42 insertions(+), 1 deletion(-)
- create mode 100644 tests/mmap/mprotect_stack_thread.c
+My opinion is that SELinux isn't for everyone; I think it would be
+great if everyone enabled it, but I recognize that it isn't the best
+fit for everyone's needs.  If users want to disable it in order to
+better meet their needs, who am I to argue?
 
-diff --git a/tests/mmap/Makefile b/tests/mmap/Makefile
-index f2f486c..e330f3e 100644
---- a/tests/mmap/Makefile
-+++ b/tests/mmap/Makefile
-@@ -1,5 +1,7 @@
- TARGETS=$(patsubst %.c,%,$(wildcard *.c))
- 
-+LDLIBS += -lpthread
-+
- all: $(TARGETS)
- 
- clean:
-diff --git a/tests/mmap/mprotect_stack_thread.c b/tests/mmap/mprotect_stack_thread.c
-new file mode 100644
-index 0000000..457b294
---- /dev/null
-+++ b/tests/mmap/mprotect_stack_thread.c
-@@ -0,0 +1,33 @@
-+#include <unistd.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <sys/mman.h>
-+#include <pthread.h>
-+
-+static void *test_thread(void *p)
-+{
-+	char buf[4096];
-+	int rc;
-+	void *ptr;
-+	long pagesize = sysconf(_SC_PAGESIZE);
-+
-+	ptr = (void *) (((unsigned long) buf) & ~(pagesize - 1));
-+
-+	rc = mprotect(ptr, pagesize, PROT_READ | PROT_WRITE | PROT_EXEC);
-+	if (rc < 0) {
-+		perror("mprotect");
-+		exit(1);
-+	}
-+	return NULL;
-+}
-+
-+int main(void)
-+{
-+	pthread_t thread;
-+
-+	pthread_create(&thread, NULL, test_thread, NULL);
-+	pthread_join(thread, NULL);
-+	exit(0);
-+}
-+
-diff --git a/tests/mmap/test b/tests/mmap/test
-index 6b1de55..89badda 100755
---- a/tests/mmap/test
-+++ b/tests/mmap/test
-@@ -1,7 +1,7 @@
- #!/usr/bin/perl
- 
- use Test;
--BEGIN { plan tests => 30}
-+BEGIN { plan tests => 32}
- 
- $basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
- 
-@@ -68,6 +68,12 @@ ok($result, 0);
- $result = system "runcon -t test_execmem_t $basedir/mprotect_stack 2>&1";
- ok($result);
- 
-+# Test success and failure for thread execstack, independent of execmem.
-+$result = system "runcon -t test_execstack_t $basedir/mprotect_stack_thread";
-+ok($result, 0);
-+$result = system "runcon -t test_execmem_t $basedir/mprotect_stack_thread 2>&1";
-+ok($result);
-+
- # Test success and failure for file execute on mmap w/ file shared mapping.
- $result = system "runcon -t test_file_rwx_t $basedir/mmap_file_shared $basedir/temp_file";
- ok($result, 0);
--- 
-2.8.0
+Or perhaps I should be upset?  I dunno, please tell me how I should
+feel.  Like most people, I *love* when I'm told how I should react.
+
+> In my opinion, it's uncompromising positions like the one you are
+> having here is part of the reason that issue will continue.
+
+Once again, I suspect this all a matter of perspective; from my point
+of view the SELinux code has compromised quite a lot, especially in
+the case of the networking controls.
+
+> It is not AND, it's an OR, people want choice, and if you don't give
+> it to them they will find a way to achieve what they want with or
+> without your help.  And you might not like what they come up with.
+>
+> If distributions are turning SELinux on by default, then we have to
+> care about whather netfilter performance should suffer for facilities
+> which are unused.
+
+I think you've made your point known, and I believe I've been clear
+about the reasoning behind my decision as well.  I would suggest we
+leave it at that until/unless someone has something constructive to
+add to the conversation.
+
+-- 
+paul moore
+www.paul-moore.com
