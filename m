@@ -1,45 +1,57 @@
-Subject: Re: [RFC][PATCH] selinux: distinguish non-init user namespace
- capability checks
-To: Stephen Smalley <stephen.smalley@gmail.com>
-References: <1459958221.7680.2.camel@gmail.com> <570559FF.1050207@tresys.com>
- <CAB9W1A3pcuV14u+kD0rYTQYYoKydocTDdLav4V6Xp1quD_nohw@mail.gmail.com>
-CC: selinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Message-ID: <57055C9C.5050706@tresys.com>
-Date: Wed, 6 Apr 2016 14:59:40 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAB9W1A3pcuV14u+kD0rYTQYYoKydocTDdLav4V6Xp1quD_nohw@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
+Date: Wed, 06 Apr 2016 15:39:55 -0400 (EDT)
+Message-Id: <20160406.153955.2244652846180310527.davem@davemloft.net>
+To: paul@paul-moore.com
+Cc: pabeni@redhat.com, linux-security-module@vger.kernel.org,
+ james.l.morris@oracle.com, agruenba@redhat.com, sds@tycho.nsa.gov,
+ fw@strlen.de, netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <CAHC9VhT0444cEDKsfww7Yj22svSFOfY4ersVhh8up9ZrZ_8rng@mail.gmail.com>
+References: <CAHC9VhQS+LfPbj0UuKFiVCW7LKthJmgOt08MvCiwKjTZZYstxA@mail.gmail.com>
+ <20160406.142316.1728426867290841888.davem@davemloft.net>
+ <CAHC9VhT0444cEDKsfww7Yj22svSFOfY4ersVhh8up9ZrZ_8rng@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 4/6/2016 2:55 PM, Stephen Smalley wrote:
-> On Wed, Apr 6, 2016 at 11:48 AM, Christopher J. PeBenito
-> <cpebenito@tresys.com> wrote:
->> On 4/6/2016 11:57 AM, Stephen Smalley wrote:
->>> Distinguish capability checks against a target associated
->>> with the init user namespace versus capability checks against
->>> a target associated with a non-init user namespace by defining
->>> and using separate security classes for the latter.
->>>
->>> This is needed to support e.g. Chrome usage of user namespaces
->>> for the Chrome sandbox without needing to allow Chrome to also
->>> exercise capabilities on targets in the init user namespace.
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 6 Apr 2016 14:36:43 -0400
+
+> On Wed, Apr 6, 2016 at 2:23 PM, David Miller <davem@davemloft.net> wrote:
+>> From: Paul Moore <paul@paul-moore.com>
+>> Date: Wed, 6 Apr 2016 10:07:27 -0400
 >>
->> Is there any reason not to define a new pair of commons (cap, cap2) in
->> refpolicy?  This is more of a question of what you did in the below
->> hunks vs. the refpolicy patch you had in the other email which didn't
->> have commons.
+>>> "While marking the LSM hook structure doesn't directly affect the
+>>> SELinux netfilter hooks, once we remove the ability to deregister the
+>>> LSM hooks we will have no need to support deregistering netfilter
+>>> hooks and I expect we will drop that functionality as well to help
+>>> decrease the risk of tampering."
+>>
+>> This is not a reasonable postiion.
+>>
+>> The performance implications are non-trivial for using netfilter hooks
+>> when they aren't actually needed.
 > 
-> Ah, good point.  Just wasn't thinking very hard about the refpolicy patch ;)
-> That should work.
+> With all due respect, I think you've taken what I consider to be some
+> unreasonable positions when it comes to the network stack and LSMs in
+> the past.  We have different perspectives and different priorities as
+> a result, from my perspective the security advantage gained by
+> eliminating the ability to disable SELinux at runtime is more
+> important.
 
-In that case, I've got a local patch for refpolicy, using commons, ready
-to go when this patch set starts making its way upstream.
+SELinux folks seem to get rather upset to people outright disabling
+the facility, but many users still do exactly that.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+In my opinion, it's uncompromising positions like the one you are
+having here is part of the reason that issue will continue.
+
+It is not AND, it's an OR, people want choice, and if you don't give
+it to them they will find a way to achieve what they want with or
+without your help.  And you might not like what they come up with.
+
+If distributions are turning SELinux on by default, then we have to
+care about whather netfilter performance should suffer for facilities
+which are unused.
