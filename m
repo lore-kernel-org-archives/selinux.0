@@ -1,171 +1,70 @@
-MIME-Version: 1.0
-In-Reply-To: <CAFftDdouyxwppEM9KXqjrez0deN4k8CXztFUrisAYM3poDJFPg@mail.gmail.com>
-References: <1459886787-19858-1-git-send-email-jeffv@google.com>
- <8908738.EEDhGzQ6mK@sifl>
- <CABXk95DTRN2gFKTpS6XQXhVaVJKHZ=5YiDQOrOfXFxZ_puvLTg@mail.gmail.com>
- <CAN1YQdHyo9gJXVcsbSuP7h0Gi2C8ox6mXCofEZZpV5dtO1fkUg@mail.gmail.com>
- <CAFftDdouyxwppEM9KXqjrez0deN4k8CXztFUrisAYM3poDJFPg@mail.gmail.com>
-Date: Wed, 6 Apr 2016 06:16:35 -0700
-Message-ID: <CAFftDdps15z=+LcmwT+1kavf8g4b0PcHwjgD088qArTE-Wg0gw@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: restrict kernel module loading
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Dennis Sherrell <sherrellconsulting@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- Jeff Vander Stoep <jeffv@google.com>, Paul Moore <paul@paul-moore.com>
-Content-Type: multipart/alternative; boundary=047d7b3a953e7850e3052fd0c530
+Message-ID: <1459951424.5425.12.camel@redhat.com>
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+From: Paolo Abeni <pabeni@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: linux-security-module@vger.kernel.org, "David S. Miller"
+ <davem@davemloft.net>, James Morris <james.l.morris@oracle.com>, Andreas
+ Gruenbacher <agruenba@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Florian Westphal <fw@strlen.de>,
+ netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Date: Wed, 06 Apr 2016 16:03:44 +0200
+In-Reply-To: <CAHC9VhS6aJdPR6xTH2-ehikS5qvj6jFbZAUtzoBXp+WC9Ugi=Q@mail.gmail.com>
+References: <cover.1459934322.git.pabeni@redhat.com>
+ <CAHC9VhS6aJdPR6xTH2-ehikS5qvj6jFbZAUtzoBXp+WC9Ugi=Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---047d7b3a953e7850e3052fd0c530
-Content-Type: text/plain; charset=UTF-8
+On Wed, 2016-04-06 at 08:33 -0400, Paul Moore wrote:
+> On Wed, Apr 6, 2016 at 5:51 AM, Paolo Abeni <pabeni@redhat.com> wrote:
+> > Currently, selinux always registers iptables POSTROUTING hooks regarless of
+> > the running policy needs for any action to be performed by them.
+> >
+> > Even the socket_sock_rcv_skb() is always registered, but it can result in a no-op
+> > depending on the current policy configuration.
+> >
+> > The above invocations in the kernel datapath are cause of measurable
+> > overhead in networking performance test.
+> >
+> > This patch series adds explicit notification for netlabel status change
+> > (other relevant status change, like xfrm and secmark, are already notified to
+> > LSM) and use this information in selinux to register the above hooks only when
+> > the current status makes them relevant, deregistering them when no-op
+> >
+> > Avoiding the LSM hooks overhead, in netperf UDP_STREAM test with small packets,
+> > gives about 5% performance improvement on rx and about 8% on tx.
+> 
+> [NOTE: added the SELinux mailing list to the CC line, please include
+> when submitting SELinux patches]
+> 
+> While I appreciate the patch and the work that went into development
+> and testing, I'm going to reject this patch on the grounds that it
+> conflicts with work we've just started thinking about which should
+> bring some tangible security benefit.
+> 
+> The recent addition of post-init read only memory opens up some
+> interesting possibilities for SELinux and LSMs in general, the thing
+> which we've just started looking at is marking the LSM hook structure
+> read only after init.  There are some complicating factors for
+> SELinux, but I'm confident those can be resolved, and from what I can
+> tell marking the hooks read only will have no effect on other LSMs.
+> While marking the LSM hook structure doesn't directly affect the
+> SELinux netfilter hooks, once we remove the ability to deregister the
+> LSM hooks we will have no need to support deregistering netfilter
+> hooks and I expect we will drop that functionality as well to help
+> decrease the risk of tampering.
 
-On Apr 6, 2016 5:42 AM, "William Roberts" <bill.c.roberts@gmail.com> wrote:
->
->
-> On Apr 6, 2016 03:01, "Dennis Sherrell" <sherrellconsulting@gmail.com>
-wrote:
-> >
-> > Hello Jeff,
-> >
-> > We are a Wireless Consulting Firm conducting research for a U.S. Health
-and Human Services Grant. We require Secure Mobile Devices. How much is a
-license for Google Android SELinux and where do i go for the config?
->
-> It's all open source in the aosp (Android Open Source Project) project.
-There is essentially two paths you can go, Android branding and non Android
-branding. An example of non-Android branded devices would be Amazon's
-Kindle line or the Silent circle black phone. Also there are popular
-aftermarket software ROMs based on aosp, like Cyanogenmod.
->
-> If you want branding, then you have to go through Google since they own
-the brand, they have various programs for that. This page might help
-provide more detail: https://source.android.com/compatibility/index.html
->
-> The only parts that are generally not available in the open are the
-proprietary drivers that bridge Android to the hardware.
->
-> You can download aosp at
-https://source.android.com/source/downloading.html
->
+What if we drops the selinux hook related changes in the second patch
+(the on-demand socket_sock_rcv_skb() [de-]registration)?
 
-FYI This question is off topic to the thread and mailing list. In the
-future post a new topic to the seandroid mailing list.
+The patch will not conflict with the LSM hook structure becoming
+read-only, we still retain the ability of registering/de-registering the
+netfilter hooks, and that will still affect positively the tx network
+performance.
 
-> >
-> > Dennis Sherrell
-> > Sherrell Consulting
-> > Company #136601
-> > Wireless Security Consultant
-> > Cisco Certified Wireless Specialist
-> > DISA Mobile Device Administartor
-> >
-> >
-> > On Tue, Apr 5, 2016, 1:33 PM Jeffrey Vander Stoep <jeffv@google.com>
-wrote:
-> >>>
-> >>> You're missing the return type :)  No need to resend, I fixed it when
-merging
-> >>> your patch, see the selinux#next branch.
-> >>
-> >>
-> >> Thanks for catching that.
-> >>
-> >> _______________________________________________
-> >> Selinux mailing list
-> >> Selinux@tycho.nsa.gov
-> >> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> >> To get help, send an email containing "help" to
-Selinux-request@tycho.nsa.gov.
-> >
-> >
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to
-Selinux-request@tycho.nsa.gov.
+Regards,
 
---047d7b3a953e7850e3052fd0c530
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"><br>
-On Apr 6, 2016 5:42 AM, &quot;William Roberts&quot; &lt;<a href=3D"mailto:b=
-ill.c.roberts@gmail.com">bill.c.roberts@gmail.com</a>&gt; wrote:<br>
-&gt;<br>
-&gt;<br>
-&gt; On Apr 6, 2016 03:01, &quot;Dennis Sherrell&quot; &lt;<a href=3D"mailt=
-o:sherrellconsulting@gmail.com">sherrellconsulting@gmail.com</a>&gt; wrote:=
-<br>
-&gt; &gt;<br>
-&gt; &gt; Hello Jeff,<br>
-&gt; &gt;<br>
-&gt; &gt; We are a Wireless Consulting Firm conducting research for a U.S. =
-Health and Human Services Grant. We require Secure Mobile Devices. How much=
- is a license for Google Android SELinux and where do i go for the config?<=
-br>
-&gt;<br>
-&gt; It&#39;s all open source in the aosp (Android Open Source Project) pro=
-ject. There is essentially two paths you can go, Android branding and non A=
-ndroid branding. An example of non-Android branded devices would be Amazon&=
-#39;s Kindle line or the Silent circle black phone. Also there are popular =
-aftermarket software ROMs based on aosp, like Cyanogenmod.<br>
-&gt;<br>
-&gt; If you want branding, then you have to go through Google since they ow=
-n the brand, they have various programs for that. This page might help prov=
-ide more detail: <a href=3D"https://source.android.com/compatibility/index.=
-html">https://source.android.com/compatibility/index.html</a><br>
-&gt;<br>
-&gt; The only parts that are generally not available in the open are the pr=
-oprietary drivers that bridge Android to the hardware.<br>
-&gt;<br>
-&gt; You can download aosp at <a href=3D"https://source.android.com/source/=
-downloading.html">https://source.android.com/source/downloading.html</a><br=
->
-&gt;</p>
-<p dir=3D"ltr">FYI This question is off topic to the thread and mailing lis=
-t. In the future post a new topic to the seandroid mailing list.</p>
-<p dir=3D"ltr">&gt; &gt;<br>
-&gt; &gt; Dennis Sherrell<br>
-&gt; &gt; Sherrell Consulting<br>
-&gt; &gt; Company #136601<br>
-&gt; &gt; Wireless Security Consultant<br>
-&gt; &gt; Cisco Certified Wireless Specialist<br>
-&gt; &gt; DISA Mobile Device Administartor<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; On Tue, Apr 5, 2016, 1:33 PM=C2=A0Jeffrey Vander Stoep &lt;<a hre=
-f=3D"mailto:jeffv@google.com">jeffv@google.com</a>&gt; wrote:<br>
-&gt; &gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt; You&#39;re missing the return type :)=C2=A0 No need to re=
-send, I fixed it when merging<br>
-&gt; &gt;&gt;&gt; your patch, see the selinux#next branch.<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;&gt; Thanks for catching that.<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;&gt; _______________________________________________<br>
-&gt; &gt;&gt; Selinux mailing list<br>
-&gt; &gt;&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.go=
-v</a><br>
-&gt; &gt;&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave=
-@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
-&gt; &gt;&gt; To get help, send an email containing &quot;help&quot; to <a =
-href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov=
-</a>.<br>
-&gt; &gt;<br>
-&gt; &gt;<br>
-&gt; &gt; _______________________________________________<br>
-&gt; &gt; Selinux mailing list<br>
-&gt; &gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a=
-><br>
-&gt; &gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tyc=
-ho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
-&gt; &gt; To get help, send an email containing &quot;help&quot; to <a href=
-=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>=
-.<br>
-</p>
-
---047d7b3a953e7850e3052fd0c530--
+Paolo
