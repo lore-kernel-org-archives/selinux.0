@@ -1,127 +1,126 @@
-Subject: Re: [PATCH 1/2 v2] policycoreutils/hll/pp: Warn if module name
- different than output filename
-To: Thomas Hurd <toml.hurd@gmail.com>
-References: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1460041566-7173-2-git-send-email-jwcart2@tycho.nsa.gov>
- <CAHut7+0yD-cGAEMAkYMuiHqG4wT0-EX5b9iJzEWnSnAasyDPzw@mail.gmail.com>
-Cc: selinux@tycho.nsa.gov
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5706A12D.3080105@tycho.nsa.gov>
-Date: Thu, 7 Apr 2016 14:04:29 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u37ItnnB012546
+ for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2016 14:55:49 -0400
+Received: by mail-qg0-f65.google.com with SMTP id f105so8059301qge.3
+ for <selinux@tycho.nsa.gov>; Thu, 07 Apr 2016 11:55:31 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Florian Westphal <fw@strlen.de>
+Cc: Paolo Abeni <pabeni@redhat.com>, linux-security-module@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ James Morris <james.l.morris@oracle.com>,
+ Andreas Gruenbacher <agruenba@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+Date: Thu, 07 Apr 2016 14:55:29 -0400
+Message-ID: <2239567.jkCk1gtQAE@sifl>
+In-Reply-To: <20160406234532.GA731@breakpoint.cc>
+References: <cover.1459934322.git.pabeni@redhat.com>
+ <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
+ <20160406234532.GA731@breakpoint.cc>
 MIME-Version: 1.0
-In-Reply-To: <CAHut7+0yD-cGAEMAkYMuiHqG4wT0-EX5b9iJzEWnSnAasyDPzw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/07/2016 12:41 PM, Thomas Hurd wrote:
-> On Thu, Apr 7, 2016 at 11:06 AM, James Carter <jwcart2@tycho.nsa.gov> wrote:
->>
->> Since CIL treats files as modules and does not have a separate
->> module statement it can cause confusion when a Refpolicy module
->> has a name that is not the same as its base filename because older
->> SELinux userspaces will refer to the module by its module name while
->> a CIL-based userspace will refer to it by its filename.
->>
->> Because of this, provide a warning message when converting a policy
->> package to CIL and the output filename is different than the module
->> name.
->>
->> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->> ---
->>   policycoreutils/hll/pp/pp.c | 28 ++++++++++++++++++++++++----
->>   1 file changed, 24 insertions(+), 4 deletions(-)
->>
->> diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
->> index 866734f..8621b50 100644
->> --- a/policycoreutils/hll/pp/pp.c
->> +++ b/policycoreutils/hll/pp/pp.c
->> @@ -28,6 +28,7 @@
->>
->>   #include <sepol/module.h>
->>   #include <sepol/module_to_cil.h>
->> +#include <sepol/policydb/module.h>
->>
->>   char *progname;
->>
->> @@ -68,6 +69,8 @@ int main(int argc, char **argv)
->>                  { NULL, 0, NULL, 0 }
->>          };
->>          struct sepol_module_package *mod_pkg = NULL;
->> +       char *ifile = NULL;
->> +       char *ofile = NULL;
->>          FILE *in = NULL;
->>          FILE *out = NULL;
->>          int outfd = -1;
->> @@ -89,20 +92,23 @@ int main(int argc, char **argv)
->>          }
->>
->>          if (argc >= optind + 1 && strcmp(argv[1], "-") != 0) {
->> -               in = fopen(argv[1], "rb");
->> +               ifile = argv[1];
->> +               in = fopen(ifile, "rb");
->>                  if (in == NULL) {
->> -                       log_err("Failed to open %s: %s", argv[1], strerror(errno));
->> +                       log_err("Failed to open %s: %s", ifile, strerror(errno));
->>                          rc = -1;
->>                          goto exit;
->>                  }
->>          } else {
->> +               ifile = "stdin";
->>                  in = stdin;
->>          }
->>
->>          if (argc >= optind + 2 && strcmp(argv[2], "-") != 0) {
->> -               out = fopen(argv[2], "w");
->> +               ofile = argv[2];
->> +               out = fopen(ofile, "w");
->>                  if (out == NULL) {
->> -                       log_err("Failed to open %s: %s", argv[2], strerror(errno));
->> +                       log_err("Failed to open %s: %s", ofile, strerror(errno));
->>                          rc = -1;
->>                          goto exit;
->>                  }
->> @@ -122,6 +128,20 @@ int main(int argc, char **argv)
->>          fclose(in);
->>          in = NULL;
->>
->> +       if (ofile) {
->> +               char *mod_name = mod_pkg->policy->p.name;
->> +               char *cil_path = strdup(ofile);
+On Thursday, April 07, 2016 01:45:32 AM Florian Westphal wrote:
+> Paul Moore <paul@paul-moore.com> wrote:
+> > On Wed, Apr 6, 2016 at 6:14 PM, Florian Westphal <fw@strlen.de> wrote:
+> > > netfilter hooks are per namespace -- so there is hook unregister when
+> > > netns is destroyed.
+> > 
+> > Looking around, I see the global and per-namespace registration
+> > functions (nf_register_hook and nf_register_net_hook, respectively),
+> > but I'm looking to see if/how newly created namespace inherit
+> > netfilter hooks from the init network namespace ... if you can create
+> > a network namespace and dodge the SELinux hooks, that isn't a good
+> > thing from a SELinux point of view, although it might be a plus
+> > depending on where you view Paolo's original patches ;)
+> 
+> Heh :-)
+> 
+> If you use nf_register_net_hook, the hook is only registered in the
+> namespace.
+> 
+> If you use nf_register_hook, the hook is put on a global list and
+> registed in all existing namespaces.
+> 
+> New namespaces will have the hook added as well (see
+> netfilter_net_init -> nf_register_hook_list in netfilter/core.c )
 >
-> Check if strdup fails here and also in the checkmodule patch?
+> Since nf_register_hook is used it should be impossible to get a netns
+> that doesn't call these hooks.
 
-Yes, I do need to do that. Thanks.
+Great, thanks.
+ 
+> > > Do you think it makes sense to rework the patch to delay registering
+> > > of the netfiler hooks until the system is in a state where they're
+> > > needed, without the 'unregister' aspect?
+> > 
+> > I would need to see the patch to say for certain, but in principle
+> > that seems perfectly reasonable and I think would satisfy both the
+> > netdev and SELinux camps - good suggestion.  My main goal is to drop
+> > the selinux_nf_ip_init() entirely so it can't be used as a ROP gadget.
+> > 
+> > We might even be able to trim the secmark_active and peerlbl_active
+> > checks in the SELinux netfilter hooks (an earlier attempt at
+> > optimization; contrary to popular belief, I do care about SELinux
+> > performance), although that would mean that enabling the network
+> > access controls would be one way ... I guess you can disregard that
+> > last bit, I'm thinking aloud again.
+> 
+> One way is fine I think.
 
-Jim
+Yes, just disregard my second paragraph above.
+ 
+> > > Ideally this would even be per netns -- in perfect world we would
+> > > be able to make it so that a new netns are created with an empty
+> > > hook list.
+> > 
+> > In general SELinux doesn't care about namespaces, for reasons that are
+> > sorta beyond the scope of this conversation, so I would like to stick
+> > to a all or nothing approach to enabling the SELinux netfilter hooks
+> > across namespaces.  Perhaps we can revisit this at a later time, but
+> > let's keep it simple right now.
+> 
+> Okay, I'd prefer to stick to your recommendation anyway wrt. to selinux
+> (Casey, I read your comment regarding smack. Noted, we don't want to
+> break smack either...)
+> 
+> I think that in this case the entire question is:
+> 
+> In your experience, how likely is a config where selinux is enabled BUT the
+> hooks are not needed (i.e., where we hit the
+> 
+> if (!selinux_policycap_netpeer)
+>     return NF_ACCEPT;
+> 
+> if (!secmark_active && !peerlbl_active)
+>    return NF_ACCEPT;
+> 
+> tests inside the hooks)?  If such setups are uncommon we should just
+> drop this idea or at least put it on the back burner until the more
+> expensive netfilter hooks (conntrack, cough) are out of the way.
 
->
->> +               char *cil_name = basename(cil_path);
->> +               char *separator = strrchr(cil_name, '.');
->> +               if (separator) {
->> +                       *separator = '\0';
->> +               }
->> +               if (strcmp(mod_name, cil_name) != 0) {
->> +                       fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", ifile, cil_name, mod_name);
->> +               }
->> +               free(cil_path);
->> +       }
->> +
->>          rc = sepol_module_package_to_cil(out, mod_pkg);
->>          if (rc != 0) {
->>                  goto exit;
->> --
->> 2.5.5
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+A few years ago I would have said that it is relatively uncommon for admins to 
+enable the SELinux network access controls; it was typically just 
+government/intelligence agencies who had very strict access control 
+requirements and represented a small portion of SELinux users.  However, over 
+the past few years I've been fielding more and more questions from admins/devs 
+in the virtualization space who are interested in some of these capabilities; 
+it isn't clear to me how many of these people are switching it on, but there 
+is definitely more interest than I have seen in the past and the interested is 
+centered around some rather common use cases.
 
+So, to summarize, I don't know ;)
+
+If you've got bigger sources of overhead, my opinion would be to go tackle 
+those first.  Perhaps I can even find the time to work on the 
+SELinux/netfilter stuff while you are off slaying the bigger dragons, no 
+promises at the moment.
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+paul moore
+www.paul-moore.com
