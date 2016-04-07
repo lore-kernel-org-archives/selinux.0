@@ -1,82 +1,51 @@
-Subject: Re: [PATCH 2/2 v2] checkpolicy: Warn if module name different than
- output filename
-To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1460041566-7173-3-git-send-email-jwcart2@tycho.nsa.gov>
- <57067C93.3040000@redhat.com> <5706B65D.1000906@tycho.nsa.gov>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <5706B8E3.1030407@redhat.com>
-Date: Thu, 7 Apr 2016 15:45:39 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u37L2mGl012618
+ for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2016 17:02:48 -0400
+From: Daniel Jurgens <danielj@mellanox.com>
+To: "leon@leon.nu" <leon@leon.nu>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [RFC PATCH v2 09/13] ib/core: Enforce PKey security when
+ modifying QPs
+Date: Thu, 7 Apr 2016 21:02:43 +0000
+Message-ID: <DB5PR05MB11113874870EBBE896E0D601C4900@DB5PR05MB1111.eurprd05.prod.outlook.com>
+References: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
+ <1459985638-37233-10-git-send-email-danielj@mellanox.com>
+ <20160407163100.GA5808@leon.nu>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <5706B65D.1000906@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 4/7/2016 11:31 AM, Leon Romanovsky wrote:
+> On Thu, Apr 07, 2016 at 02:33:54AM +0300, Dan Jurgens wrote:
+> 
+>> +	if (sec->qp == sec->qp->real_qp) {
+>> +		/* The caller of this function holds the QP security
+>> +		 * mutex so this list traversal is safe
+>> +		*/
+> 
+> Did the comment below pass checkpatch.pl?
 
+It did.
 
-On 04/07/2016 03:34 PM, James Carter wrote:
-> On 04/07/2016 11:28 AM, Daniel J Walsh wrote:
->>
->>
->> On 04/07/2016 11:06 AM, James Carter wrote:
->>> Since CIL treats files as modules and does not have a separate
->>> module statement it can cause confusion when a Refpolicy module
->>> has a name that is different than its base filename because older
->>> SELinux userspaces will refer to the module by its module name while
->>> a CIL-based userspace will refer to it by its filename.
->>>
->>> Because of this, provide a warning message when compiling a module and
->>> the output filename is different than the module name.
->>>
->>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->>> ---
->>>   checkpolicy/checkmodule.c | 15 +++++++++++++++
->>>   1 file changed, 15 insertions(+)
->>>
->>> diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
->>> index 5957d29..d807620 100644
->>> --- a/checkpolicy/checkmodule.c
->>> +++ b/checkpolicy/checkmodule.c
->>> @@ -19,6 +19,7 @@
->>>   #include <stdio.h>
->>>   #include <errno.h>
->>>   #include <sys/mman.h>
->>> +#include <libgen.h>
->>>   #include <sepol/module_to_cil.h>
->>>   #include <sepol/policydb/policydb.h>
->>> @@ -258,6 +259,20 @@ int main(int argc, char **argv)
->>>           }
->>>       }
->>> +    if (policy_type != POLICY_BASE && outfile) {
->>> +        char *mod_name = modpolicydb.name;
->>> +        char *out_path = strdup(outfile);
->>> +        char *out_name = basename(out_path);
->>> +        char *separator = strrchr(out_name, '.');
->>> +        if (separator) {
->>> +            *separator = '\0';
->>> +        }
->>> +        if (strcmp(mod_name, out_name) != 0) {
->>> +            fprintf(stderr,    "Warning: SELinux userspace will 
->>> refer to the
->>> module from %s as %s rather than as %s\n", file, out_name, mod_name);
->>> +        }
->>> +        free(out_path);
->>> +    }
->>> +
->>>       if (modpolicydb.policy_type == POLICY_BASE && !cil) {
->>>           /* Verify that we can successfully expand the base module. */
->>>           policydb_t kernpolicydb;
->> Why not fail rather then warn.  Don't let me do stupid things...
->
-> I am willing to do that for checkmodule if that is what everyone 
-> wants. I wouldn't want to do it for pp since that could cause problems 
-> for current systems. Just as a note, Fedora's passenger module has 
-> "passanger" as the policy name in its policy_module statement.
->
-> Jim
->
->
-And if it blew up someone would have fixed it.  :^)
+>> +		list_for_each_entry(shared_qp_sec,
+>> +				    &sec->shared_qp_list,
+>> +				    shared_qp_list) {
+> 
+> Is this list always needed to be protected by lock?
+> In general, I prefer to see lock/unlock operations near protected code.
+> Otherwise, it is hard to follow all lock/unlock paths.
+
+The mutex is required, and I'm not sure how to push it lower safely.
+Consider the situation where a QP is being modified concurrently with an
+open_shared_qp. Unless the lock is held the entire time for each
+operation open_shared_qp could check permission using a ib_qp_security
+struct in a partially modified state, i.e. there could be a mix of new
+and old settings for the port/pkey index/alternate path.  Shared QPs use
+the port and pkey setting for the underlying real QP with the shared qp
+q_security.
