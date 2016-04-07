@@ -1,71 +1,65 @@
-Message-ID: <1460015954.13054.23.camel@redhat.com>
-Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
-From: Paolo Abeni <pabeni@redhat.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: linux-security-module@vger.kernel.org, "David S. Miller"
- <davem@davemloft.net>, James Morris <james.l.morris@oracle.com>, Paul Moore
- <paul@paul-moore.com>, Andreas Gruenbacher <agruenba@redhat.com>, Stephen
- Smalley <sds@tycho.nsa.gov>, Florian Westphal <fw@strlen.de>,
- netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Thu, 07 Apr 2016 09:59:14 +0200
-In-Reply-To: <570582FC.7030807@schaufler-ca.com>
-References: <cover.1459934322.git.pabeni@redhat.com>
- <570582FC.7030807@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u37F4mpo018217
+ for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2016 11:04:48 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 2/2 v2] checkpolicy: Warn if module name different than output
+ filename
+Date: Thu,  7 Apr 2016 11:06:06 -0400
+Message-Id: <1460041566-7173-3-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
+References: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi Casey,
+Since CIL treats files as modules and does not have a separate
+module statement it can cause confusion when a Refpolicy module
+has a name that is different than its base filename because older
+SELinux userspaces will refer to the module by its module name while
+a CIL-based userspace will refer to it by its filename.
 
-On Wed, 2016-04-06 at 14:43 -0700, Casey Schaufler wrote:
-> On 4/6/2016 2:51 AM, Paolo Abeni wrote:
-> > Currently, selinux always registers iptables POSTROUTING hooks regarless of
-> > the running policy needs for any action to be performed by them.
-> >
-> > Even the socket_sock_rcv_skb() is always registered, but it can result in a no-op
-> > depending on the current policy configuration.
-> >
-> > The above invocations in the kernel datapath are cause of measurable
-> > overhead in networking performance test.
-> >
-> > This patch series adds explicit notification for netlabel status change 
-> > (other relevant status change, like xfrm and secmark, are already notified to
-> > LSM) and use this information in selinux to register the above hooks only when
-> > the current status makes them relevant, deregistering them when no-op
-> >
-> > Avoiding the LSM hooks overhead, in netperf UDP_STREAM test with small packets,
-> > gives about 5% performance improvement on rx and about 8% on tx.
-> >
-> > Paolo Abeni (2):
-> >   security: add hook for netlabel status change notification
-> >   selinux: implement support for dynamic net hook [de-]registration
+Because of this, provide a warning message when compiling a module and
+the output filename is different than the module name.
 
-Thank you for the feedback. The patch series is an RFC, so it's still
-rough and not yet well tested in all possible scenarios.
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ checkpolicy/checkmodule.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-> Did you consider the fact that netlabel and the LSM socket
-> hooks are used by Smack as well as SELinux? 
-
-Actually yes. The patch series itself is explicitly targeted at reducing
-some overhead introduced by selinux in network loads (I'm sorry, now I
-see that the last sentence in the cover letter is misleading), and it
-tries to achieve that result without affecting others LSM users.
-
-The first patch in the series just introduces an optional LSM hook
-(netlbl_changed) that is invoked every time the
-'netlabel_mgmt_protocount' values is changed. It do not modify the
-behavior nor meaning of any of the existing hooks and/or netlabel APIs.
-It's up to the security module to leverage (or not) the new one.
-
-> Did you measure the impact that your changes have on Smack? 
-
-Actually I didn't. This is one of the reasons I posted the patch as RFC.
-As per design security modules not implementing 'netlbl_changed' should
-not be affected. Am I missing something ?
-
-Regards,
-
-Paolo
+diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+index 5957d29..d807620 100644
+--- a/checkpolicy/checkmodule.c
++++ b/checkpolicy/checkmodule.c
+@@ -19,6 +19,7 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <sys/mman.h>
++#include <libgen.h>
+ 
+ #include <sepol/module_to_cil.h>
+ #include <sepol/policydb/policydb.h>
+@@ -258,6 +259,20 @@ int main(int argc, char **argv)
+ 		}
+ 	}
+ 
++	if (policy_type != POLICY_BASE && outfile) {
++		char *mod_name = modpolicydb.name;
++		char *out_path = strdup(outfile);
++		char *out_name = basename(out_path);
++		char *separator = strrchr(out_name, '.');
++		if (separator) {
++			*separator = '\0';
++		}
++		if (strcmp(mod_name, out_name) != 0) {
++			fprintf(stderr,	"Warning: SELinux userspace will refer to the module from %s as %s rather than as %s\n", file, out_name, mod_name);
++		}
++		free(out_path);
++	}
++
+ 	if (modpolicydb.policy_type == POLICY_BASE && !cil) {
+ 		/* Verify that we can successfully expand the base module. */
+ 		policydb_t kernpolicydb;
+-- 
+2.5.5
