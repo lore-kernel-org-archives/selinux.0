@@ -1,105 +1,183 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u388PZPo005723
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 04:25:35 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 672E546E
- for <selinux@tycho.nsa.gov>; Fri,  8 Apr 2016 08:25:32 +0000 (UTC)
-Received: from hulk.lan (ovpn-204-100.brq.redhat.com [10.40.204.100])
- by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- u388PS4r002196
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 04:25:30 -0400
-Subject: Re: [PATCH 0/2 v2] Warn if module name different than output filename
-To: selinux@tycho.nsa.gov
-References: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <57076AF2.6090507@redhat.com>
-Date: Fri, 8 Apr 2016 10:25:22 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u37KsGks009914
+ for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2016 16:54:16 -0400
+Received: by mail-ig0-f195.google.com with SMTP id qu10so13810569igc.1
+ for <selinux@tycho.nsa.gov>; Thu, 07 Apr 2016 13:54:15 -0700 (PDT)
+Date: Thu, 7 Apr 2016 23:44:56 +0300
+From: Leon Romanovsky <leon@leon.nu>
+To: Dan Jurgens <danielj@mellanox.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-rdma@vger.kernel.org, yevgenyp@mellanox.com
+Subject: Re: [RFC PATCH v2 11/13] ib/core: Enforce Infiniband device SMI
+ security
+Message-ID: <20160407204456.GB12844@leon.nu>
+Reply-To: leon@leon.nu
+References: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
+ <1459985638-37233-12-git-send-email-danielj@mellanox.com>
 MIME-Version: 1.0
-In-Reply-To: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="M4GSXogoPdfJDOA5jWHKx8BlmdWTjgult"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
+In-Reply-To: <1459985638-37233-12-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---M4GSXogoPdfJDOA5jWHKx8BlmdWTjgult
-Content-Type: text/plain; charset=windows-1252
+
+--jho1yZJdad60DJr+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On 04/07/2016 05:06 PM, James Carter wrote:
-> Since CIL treats files as modules and does not have a separate
-> module statement it can cause confusion when a Refpolicy module
-> has a name that is not the same as its base filename because older
-> SELinux userspaces will refer to the module by its module name while
-> a CIL-based userspace will refer to it by its filename.
+On Thu, Apr 07, 2016 at 02:33:56AM +0300, Dan Jurgens wrote:
+> From: Daniel Jurgens <danielj@mellanox.com>
 >=20
-> Because of this, provide a warning message when converting a policy
-> package to CIL or compiling a module and the output filename is differe=
-nt
-> than the module name.
-
-Would it be feasible to use a module statement name as a new base name
-for CIL module instead of the original base pp filename, and warn users
-that the new output filename is different from the original?
-
-It would help to have same installed module names in 'semodule -l' list
-in older and current userspace.
-
-
+> During MAD and snoop agent registration for SMI QPs check that the
+> calling process has permission to access the SMI.
 >=20
-> Changes from v1:
-> - Added a "Warning:" prefix
-> - Removed checks against the input filename
-> - Since there are now only two checks and the base filename is used in =
-the
-> warning message, it no longer made sense to create common helper functi=
-ons
-> in libsepol.
+> When sending and receiving MADs check that the agent has access to the
+> SMI if it's on an SMI QP.  Because security policy can change it's
+> possible permission was allowed when creating the agent, but no longer
+> is.
 >=20
-> James Carter (2):
->   policycoreutils/hll/pp: Warn if module name different than output
->     filename
->   checkpolicy: Warn if module name different than output filename
+> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+> Reviewed-by: Eli Cohen <eli@mellanox.com>
+> ---
+>  drivers/infiniband/core/mad.c |   52 +++++++++++++++++++++++++++++++++++=
++++++-
+>  1 files changed, 51 insertions(+), 1 deletions(-)
 >=20
->  checkpolicy/checkmodule.c   | 15 +++++++++++++++
->  policycoreutils/hll/pp/pp.c | 28 ++++++++++++++++++++++++----
->  2 files changed, 39 insertions(+), 4 deletions(-)
+> diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
+> index 907f8ee..b5f42ad 100644
+> --- a/drivers/infiniband/core/mad.c
+> +++ b/drivers/infiniband/core/mad.c
+> @@ -349,6 +349,21 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib=
+_device *device,
+>  		goto error3;
+>  	}
+> =20
+> +	if (qp_type =3D=3D IB_QPT_SMI) {
+> +		ret2 =3D security_ibdev_smi(device->name,
+> +					  port_num,
+> +					  &mad_agent_priv->agent);
+> +		if (ret2) {
+> +			dev_err(&device->dev,
+> +				"%s: Access Denied. Err: %d\n",
+
+Please convert it to lower case.
+Can malicious user flood the system with this print?
+
+> +				__func__,
+> +				ret2);
+> +
+> +			ret =3D ERR_PTR(ret2);
+> +			goto error4;
+> +		}
+> +	}
+> +
+>  	if (mad_reg_req) {
+>  		reg_req =3D kmemdup(mad_reg_req, sizeof *reg_req, GFP_KERNEL);
+>  		if (!reg_req) {
+> @@ -535,6 +550,22 @@ struct ib_mad_agent *ib_register_mad_snoop(struct ib=
+_device *device,
+>  		goto error2;
+>  	}
+> =20
+> +	if (qp_type =3D=3D IB_QPT_SMI) {
+> +		err =3D security_ibdev_smi(device->name,
+> +					 port_num,
+> +					 &mad_snoop_priv->agent);
+> +
+> +		if (err) {
+> +			dev_err(&device->dev,
+> +				"%s: Access Denied. Err: %d\n",
+
+The same as above.
+
+> +				__func__,
+> +				err);
+> +
+> +			ret =3D ERR_PTR(err);
+> +			goto error3;
+> +		}
+> +	}
+> +
+>  	/* Now, fill in the various structures */
+>  	mad_snoop_priv->qp_info =3D &port_priv->qp_info[qpn];
+>  	mad_snoop_priv->agent.device =3D device;
+> @@ -1248,6 +1279,7 @@ int ib_post_send_mad(struct ib_mad_send_buf *send_b=
+uf,
+> =20
+>  	/* Walk list of send WRs and post each on send list */
+>  	for (; send_buf; send_buf =3D next_send_buf) {
+> +		int err =3D 0;
+> =20
+>  		mad_send_wr =3D container_of(send_buf,
+>  					   struct ib_mad_send_wr_private,
+> @@ -1255,6 +1287,16 @@ int ib_post_send_mad(struct ib_mad_send_buf *send_=
+buf,
+>  		mad_agent_priv =3D mad_send_wr->mad_agent_priv;
+>  		pkey_index =3D mad_send_wr->send_wr.pkey_index;
+> =20
+> +		if (mad_agent_priv->agent.qp->qp_type =3D=3D IB_QPT_SMI)
+> +			err =3D security_ibdev_smi(mad_agent_priv->agent.device->name,
+> +						 mad_agent_priv->agent.port_num,
+> +						 &mad_agent_priv->agent);
+> +
+> +		if (err) {
+> +			ret =3D err;
+> +			goto error;
+> +		}
+> +
+>  		ret =3D ib_security_enforce_mad_agent_pkey_access(
+>  					mad_agent_priv->agent.device,
+>  					mad_agent_priv->agent.port_num,
+> @@ -1997,7 +2039,15 @@ static void ib_mad_complete_recv(struct ib_mad_age=
+nt_private *mad_agent_priv,
+>  	struct ib_mad_send_wr_private *mad_send_wr;
+>  	struct ib_mad_send_wc mad_send_wc;
+>  	unsigned long flags;
+> -	int ret;
+> +	int ret =3D 0;
+> +
+> +	if (mad_agent_priv->agent.qp->qp_type =3D=3D IB_QPT_SMI)
+> +		ret =3D security_ibdev_smi(mad_agent_priv->agent.device->name,
+> +					 mad_agent_priv->agent.port_num,
+> +					 &mad_agent_priv->agent);
+> +
+> +	if (ret)
+> +		goto security_error;
+> =20
+>  	ret =3D ib_security_enforce_mad_agent_pkey_access(
+>  					      mad_agent_priv->agent.device,
+> --=20
+> 1.7.1
 >=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-rdma" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-
---=20
-Petr Lautrbach
-
-
-
---M4GSXogoPdfJDOA5jWHKx8BlmdWTjgult
+--jho1yZJdad60DJr+
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v1
 
-iQIcBAEBCAAGBQJXB2r3AAoJEGOorUuYLENzf6EP/Avkjn0htWs76h7PxJYEaMZy
-E86Lcrahi7L1gJgPDxx0eW8qUQ0AANwaUABdPCIF9+1x5lypAHpBugwtpu9Zl6/l
-VnO9XQ5QYjXXtjRI3Xn5Tk7+TYUnXpReCUlcduoEXHRlp5aHw42M1TVa/zu9t/CR
-z5wYsAOW0YKT/E8kpW+9slqp0RbL5wptd85WPwJS6tG1PPyWAhOX2N0/aaH/8PIZ
-piQUTkodh123DFQkd2VhoAQMAm5diZ2KeUpJ/CWjlqwd3EFkpwxUGkOmRr5M6Rob
-kIzzjxpUabhGNUxkiX5lu8niqrGvNbrnnMUWbQLMaoIQC/f9m99QvYFUmPqdlyej
-9bvALuOUkEooN3/NsrygHXk3frUc9CyMTs9xWuvitKZ3Fi4/HBFOUF4yB/Jo9lfW
-RXyxOuiTn+cRO9lTwq1HEG/4HynF8DT390w5m+OOEUQ3UQl+24VWY5zQj7VcncbI
-SKKHMhSPGkDNlZP0XXFzgwBMsGYZp2ohWba/PSdYpz6MSOhsrYzNizZk5KNT4T9Q
-0YjqyLppRjePXpT4OngUOzg4SJ8pP6LseaZ/cD7nZTMVhMHBKHl4kh/LEWKrTGVZ
-OGQ+Vr83j70TRQAA2pVmxKvUPneLj22yyIsuUFq30m+2cYwIndY8WaXYkjt014tA
-4GKfeWa3zEL8sakpym2S
-=dnQA
+iQIcBAEBAgAGBQJXBsbIAAoJEORje4g2clinncUQAIGrRlCkJfxExQuOUhmSItee
+2ARnQdlp+/FVCDpinLdLmQpthssZvwEu+iZ2DxJkygdOaO5gYft+XcWzSDtn/D7D
+/BDveG8PmJCa+EvD8Fcw00SP0ZMh9Dad5oZfJjTpYnDodcLTlAM7AbuquKI+aVTv
+Ods34ONGJLI8R+bbswvBaMB/HEGWigAfs94soBV/4w3qtP2elvjtOt38ZzDO/SCg
+h7D8Zr+X/kFX0tT3zRkR4eX6LJyaq9VgC5oNcUh9PSlmDWhpfDSralXXaoMylt59
+xWRd/8+aw9neF7tCMHUi9jgxRrRUQqWAjCKQZzhhlSZtDhYuNYmhV6IQyWrMfJky
+R12mFmeA4KkpDv065gruk0bvLM25Bhd1zCc3cQhQ2/BRnH4A2xF109KJLXHMjBt3
+hcOp652jakQfl5p4AcpZlnfd5kTJ9EZWNsBhlBvu88DpvqmzwVhpN31ObL/Y4Q/R
+z9Vu93Btt9DUSInPS1DtJmN2Wr5yhRBIPETO/Jt+TWKW0D08Q1Ot2bQWX3AO4jhi
+8CPrhTKhyp3s+s4gJCjbQnUsmYwB8meyt/P+7vEV1ebmFQWmZJqp/3ZcsI3BcSLH
+LJlE37xwPb8hHFVn5RAuE0HuvCwYuqrTRSinlniOqeoUTDr/DrsF4zvcovN9FhA+
+NGfMAKTo3GwFjahFwUsu
+=4cY+
 -----END PGP SIGNATURE-----
 
---M4GSXogoPdfJDOA5jWHKx8BlmdWTjgult--
+--jho1yZJdad60DJr+--
