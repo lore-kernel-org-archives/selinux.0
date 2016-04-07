@@ -1,139 +1,115 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u37FOtpG023203
- for <selinux@tycho.nsa.gov>; Thu, 7 Apr 2016 11:25:02 -0400
-Received: by mail-yw0-f195.google.com with SMTP id k197so7477131ywe.2
- for <selinux@tycho.nsa.gov>; Thu, 07 Apr 2016 08:24:54 -0700 (PDT)
-Date: Thu, 7 Apr 2016 18:09:58 +0300
-From: Leon Romanovsky <leon@leon.nu>
-To: Dan Jurgens <danielj@mellanox.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com
-Subject: Re: [RFC PATCH v2 08/13] ib/core: IB cache enhancements to support
- Infiniband security
-Message-ID: <20160407150958.GB20789@leon.nu>
-Reply-To: leon@leon.nu
-References: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
- <1459985638-37233-9-git-send-email-danielj@mellanox.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="wzJLGUyc3ArbnUjN"
-In-Reply-To: <1459985638-37233-9-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1460041566-7173-2-git-send-email-jwcart2@tycho.nsa.gov>
+References: <1460041566-7173-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1460041566-7173-2-git-send-email-jwcart2@tycho.nsa.gov>
+Date: Thu, 7 Apr 2016 12:41:28 -0400
+Message-ID: <CAHut7+0yD-cGAEMAkYMuiHqG4wT0-EX5b9iJzEWnSnAasyDPzw@mail.gmail.com>
+Subject: Re: [PATCH 1/2 v2] policycoreutils/hll/pp: Warn if module name
+ different than output filename
+From: Thomas Hurd <toml.hurd@gmail.com>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
---wzJLGUyc3ArbnUjN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Apr 07, 2016 at 02:33:53AM +0300, Dan Jurgens wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
->=20
-> Cache the subnet prefix and add a function to access it. Enforcing
-> security requires frequent queries of the subnet prefix and the pkeys in
-> the pkey table.
->=20
-> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> Reviewed-by: Eli Cohen <eli@mellanox.com>
+On Thu, Apr 7, 2016 at 11:06 AM, James Carter <jwcart2@tycho.nsa.gov> wrote:
+>
+> Since CIL treats files as modules and does not have a separate
+> module statement it can cause confusion when a Refpolicy module
+> has a name that is not the same as its base filename because older
+> SELinux userspaces will refer to the module by its module name while
+> a CIL-based userspace will refer to it by its filename.
+>
+> Because of this, provide a warning message when converting a policy
+> package to CIL and the output filename is different than the module
+> name.
+>
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 > ---
->  drivers/infiniband/core/cache.c     |   36 +++++++++++++++++++++++++++++=
-+++++-
->  drivers/infiniband/core/core_priv.h |    3 ++
->  include/rdma/ib_verbs.h             |    1 +
->  3 files changed, 39 insertions(+), 1 deletions(-)
->=20
-> diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/ca=
-che.c
-> index cb00d59..83cf528 100644
-> --- a/drivers/infiniband/core/cache.c
-> +++ b/drivers/infiniband/core/cache.c
-> @@ -925,6 +925,26 @@ int ib_get_cached_pkey(struct ib_device *device,
->  }
->  EXPORT_SYMBOL(ib_get_cached_pkey);
-> =20
-> +int ib_get_cached_subnet_prefix(struct ib_device *device,
-> +				u8                port_num,
-> +				u64              *sn_pfx)
-> +{
-> +	unsigned long flags;
-> +	int ret =3D 0;
-> +	int p =3D port_num - rdma_start_port(device);
-> +
-> +	if (port_num < rdma_start_port(device) ||
-> +	    port_num > rdma_end_port(device))
-> +		return -EINVAL;
-> +
-> +	read_lock_irqsave(&device->cache.lock, flags);
-> +	*sn_pfx =3D device->cache.subnet_prefix_cache[p];
-> +	read_unlock_irqrestore(&device->cache.lock, flags);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
-> +
->  int ib_find_cached_pkey(struct ib_device *device,
->  			u8                port_num,
->  			u16               pkey,
-> @@ -1101,6 +1121,8 @@ static void ib_cache_update(struct ib_device *devic=
-e,
-> =20
->  	device->cache.lmc_cache[port - rdma_start_port(device)] =3D tprops->lmc;
-> =20
-> +	device->cache.subnet_prefix_cache[port - rdma_start_port(device)] =3D
-> +							tprops->subnet_prefix;
->  	write_unlock_irq(&device->cache.lock);
-> =20
->  	kfree(gid_cache);
-> @@ -1159,8 +1181,19 @@ int ib_cache_setup_one(struct ib_device *device)
->  					  (rdma_end_port(device) -
->  					   rdma_start_port(device) + 1),
->  					  GFP_KERNEL);
-> +
-> +	device->cache.subnet_prefix_cache =3D kcalloc((rdma_end_port(device) -
-> +						     rdma_start_port(device) + 1),
-> +						    sizeof(*device->cache.subnet_prefix_cache),
-> +						    GFP_KERNEL);
-> +
->  	if (!device->cache.pkey_cache ||
-> -	    !device->cache.lmc_cache) {
-> +	    !device->cache.lmc_cache ||
-> +	    !device->cache.subnet_prefix_cache) {
-> +		kfree(device->cache.pkey_cache);
-> +		kfree(device->cache.lmc_cache);
-> +		kfree(device->cache.subnet_prefix_cache);
-> +
->  		pr_warn("Couldn't allocate cache for %s\n", device->name);
+>  policycoreutils/hll/pp/pp.c | 28 ++++++++++++++++++++++++----
+>  1 file changed, 24 insertions(+), 4 deletions(-)
+>
+> diff --git a/policycoreutils/hll/pp/pp.c b/policycoreutils/hll/pp/pp.c
+> index 866734f..8621b50 100644
+> --- a/policycoreutils/hll/pp/pp.c
+> +++ b/policycoreutils/hll/pp/pp.c
+> @@ -28,6 +28,7 @@
+>
+>  #include <sepol/module.h>
+>  #include <sepol/module_to_cil.h>
+> +#include <sepol/policydb/module.h>
+>
+>  char *progname;
+>
+> @@ -68,6 +69,8 @@ int main(int argc, char **argv)
+>                 { NULL, 0, NULL, 0 }
+>         };
+>         struct sepol_module_package *mod_pkg = NULL;
+> +       char *ifile = NULL;
+> +       char *ofile = NULL;
+>         FILE *in = NULL;
+>         FILE *out = NULL;
+>         int outfd = -1;
+> @@ -89,20 +92,23 @@ int main(int argc, char **argv)
+>         }
+>
+>         if (argc >= optind + 1 && strcmp(argv[1], "-") != 0) {
+> -               in = fopen(argv[1], "rb");
+> +               ifile = argv[1];
+> +               in = fopen(ifile, "rb");
+>                 if (in == NULL) {
+> -                       log_err("Failed to open %s: %s", argv[1], strerror(errno));
+> +                       log_err("Failed to open %s: %s", ifile, strerror(errno));
+>                         rc = -1;
+>                         goto exit;
+>                 }
+>         } else {
+> +               ifile = "stdin";
+>                 in = stdin;
+>         }
+>
+>         if (argc >= optind + 2 && strcmp(argv[2], "-") != 0) {
+> -               out = fopen(argv[2], "w");
+> +               ofile = argv[2];
+> +               out = fopen(ofile, "w");
+>                 if (out == NULL) {
+> -                       log_err("Failed to open %s: %s", argv[2], strerror(errno));
+> +                       log_err("Failed to open %s: %s", ofile, strerror(errno));
+>                         rc = -1;
+>                         goto exit;
+>                 }
+> @@ -122,6 +128,20 @@ int main(int argc, char **argv)
+>         fclose(in);
+>         in = NULL;
+>
+> +       if (ofile) {
+> +               char *mod_name = mod_pkg->policy->p.name;
+> +               char *cil_path = strdup(ofile);
 
-Please remove this print. You won't miss failure in memory allocation.
+Check if strdup fails here and also in the checkmodule patch?
 
->  		return -ENOMEM;
->  	}
-> @@ -1204,6 +1237,7 @@ void ib_cache_release_one(struct ib_device *device)
->  	gid_table_release_one(device);
-
---wzJLGUyc3ArbnUjN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBAgAGBQJXBnhGAAoJEORje4g2clinJu8P/0WBIGizz2r0C1P6MT8KDLLz
-ED5qeZ9yhpXZEy12gLrJ+u25qieXvaayFbMY8kxpYlQhImwwIaXRmRYnbKebHvKg
-0/4KyN65jRnEFLAnf0iGSoJE8wzKZWpGHObS3dU4iP1rV/lQR+fX07HFDQIjMtwM
-CTDzQGilY+0X71Fp2rBPZi2FSufoEhdZYy2zVQQ7y7Edq0j8ovMgx2aNQ4NfXmAn
-ZLkAcjBxJ+VZycj+aWayztckKz0UuffNqiT4QsKP5Oi8kq7CUGijYYW6zPswKpjD
-NYBgGjSa2eqGihZIMNZwCtaiAsfTN+Bz5QHwOfMj82Ia8tEOgwylJocG1aeSBw0b
-tujRHcSAkvj2x7H95DT4Ehdp5C9X8GVS3Rr267OA1UASQ+6fPqgdveWh44Yg9pfs
-z6QHFH4XbnkJXup4j3iHsSDU8yxKtNzAFX6YVLZH8DUMfEJBFSfgF5x/Iv7i+m73
-Sw97kHjtxFJEGTJbrjJcD/tdjW5XXzk9JD4YdmvimIMwBkAlfyxJtOLNsgG4iwPd
-IUK+gEbPSTrB9u8+94GZ1pvfYqTENg2uOLuMxba3j/yt++K7Ke2/KoHxHjk6TnZf
-xK4f8rJJEn6D04svqK+hiTM3ACqxbVjqQRFIKFUga0BNm7itaRgG3tuFvJeciIJF
-UySdFc9yE7wn9lJbSrTj
-=rFVX
------END PGP SIGNATURE-----
-
---wzJLGUyc3ArbnUjN--
+> +               char *cil_name = basename(cil_path);
+> +               char *separator = strrchr(cil_name, '.');
+> +               if (separator) {
+> +                       *separator = '\0';
+> +               }
+> +               if (strcmp(mod_name, cil_name) != 0) {
+> +                       fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", ifile, cil_name, mod_name);
+> +               }
+> +               free(cil_path);
+> +       }
+> +
+>         rc = sepol_module_package_to_cil(out, mod_pkg);
+>         if (rc != 0) {
+>                 goto exit;
+> --
+> 2.5.5
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
