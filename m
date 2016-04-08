@@ -1,47 +1,132 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G5ufv020952
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:00 -0400
-Received: by mail-pa0-f65.google.com with SMTP id hb4so9370037pac.1
- for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:05:58 -0700 (PDT)
-Received: from localhost ([2404:e800:e600:38b:5121:e6bd:6ddf:d757])
- by smtp.gmail.com with ESMTPSA id m10sm19700078pfi.32.2016.04.08.09.05.55
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 08 Apr 2016 09:05:56 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G6God021115
+ for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:16 -0400
+Received: by mail-pa0-f66.google.com with SMTP id hb4so9370408pac.1
+ for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:06:13 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: genhomedircon USERID and USERNAME patches
-Date: Sat,  9 Apr 2016 00:05:28 +0800
-Message-Id: <1460131535-15688-1-git-send-email-jason@perfinion.com>
-In-Reply-To: <20160201093633.GB21978@meriadoc.perfinion.com>
+Subject: [PATCH 1/7] genhomedircon: factor out common replacement code
+Date: Sat,  9 Apr 2016 00:05:29 +0800
+Message-Id: <1460131535-15688-2-git-send-email-jason@perfinion.com>
+In-Reply-To: <1460131535-15688-1-git-send-email-jason@perfinion.com>
 References: <20160201093633.GB21978@meriadoc.perfinion.com>
+ <1460131535-15688-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi all,
+All the write_*_contexts() methods use exactly the same code.
+This splits it off into a common helper function.
+---
+ libsemanage/src/genhomedircon.c | 69 ++++++++++++++---------------------------
+ 1 file changed, 23 insertions(+), 46 deletions(-)
 
-I finally finished adding more templates to genhomedircon and a lot of general
-cleanups.
-
-The first few patches refactor the templating functions so they are smaller and
-easier to add new. All the common bits were taken out and they all take the
-user_entry_t struct instead of passing args one by one.
-
-The last three patches add the new templating types. I went with %{USERID} and
-%{USERNAME}. They now have a clear start and end unlike USER in the past and $
-is end of line in regexes so % seems safer. The matcher for USER now
-specifically excludes any line that has the new patterns in it too so there can
-be no conflict. It appears to work in the testing I have done with adding
-strange fcontexts. make test passes in the repo too but i have not run the full
-selinux-testsuite.
-
-%{USERNAME} defaults to ".*" in the fallback just like USER originally did
-%{USERID} defaults to "[0-9]+" for the fallback.
-
-Another thing I noticed was that HOME_DIR's fallback is "[^/]*", should it be +
-instead of *? I dont think it makes a huge difference because then it should
-match HOME_ROOT but it still seems wrong.
-
--- Jason
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 1a9e87e..a95ab16 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -548,23 +548,11 @@ static int check_line(genhomedircon_settings_t * s, Ustr *line)
+ 	return result;
+ }
+ 
+-static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
+-				  semanage_list_t * tpl, const char *user,
+-				  const char *seuser, const char *home,
+-				  const char *role_prefix, const char *level)
++static int write_replacements(genhomedircon_settings_t * s, FILE * out,
++			      semanage_list_t * tpl, replacement_pair_t *repl)
+ {
+-	replacement_pair_t repl[] = {
+-		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
+-		{.search_for = TEMPLATE_HOME_DIR,.replace_with = home},
+-		{.search_for = TEMPLATE_ROLE,.replace_with = role_prefix},
+-		{.search_for = TEMPLATE_LEVEL,.replace_with = level},
+-		{NULL, NULL}
+-	};
+ 	Ustr *line = USTR_NULL;
+ 
+-	if (fprintf(out, COMMENT_USER_HOME_CONTEXT, user) < 0)
+-		return STATUS_ERR;
+-
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+ 		if (!line)
+@@ -582,6 +570,25 @@ static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
+ 	return STATUS_ERR;
+ }
+ 
++static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
++				  semanage_list_t * tpl, const char *user,
++				  const char *seuser, const char *home,
++				  const char *role_prefix, const char *level)
++{
++	replacement_pair_t repl[] = {
++		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
++		{.search_for = TEMPLATE_HOME_DIR,.replace_with = home},
++		{.search_for = TEMPLATE_ROLE,.replace_with = role_prefix},
++		{.search_for = TEMPLATE_LEVEL,.replace_with = level},
++		{NULL, NULL}
++	};
++
++	if (fprintf(out, COMMENT_USER_HOME_CONTEXT, user) < 0)
++		return STATUS_ERR;
++
++	return write_replacements(s, out, tpl, repl);
++}
++
+ static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
+ 				   semanage_list_t * tpl, char *homedir)
+ {
+@@ -589,23 +596,8 @@ static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
+ 		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
+ 		{NULL, NULL}
+ 	};
+-	Ustr *line = USTR_NULL;
+-
+-	for (; tpl; tpl = tpl->next) {
+-		line = replace_all(tpl->data, repl);
+-		if (!line)
+-			goto fail;
+-		if (check_line(s, line) == STATUS_SUCCESS) {
+-			if (!ustr_io_putfileline(&line, out))
+-				goto fail;
+-		}
+-		ustr_sc_free(&line);
+-	}
+-	return STATUS_SUCCESS;
+ 
+-      fail:
+-	ustr_sc_free(&line);
+-	return STATUS_ERR;
++	return write_replacements(s, out, tpl, repl);
+ }
+ 
+ static int write_user_context(genhomedircon_settings_t * s, FILE * out,
+@@ -618,23 +610,8 @@ static int write_user_context(genhomedircon_settings_t * s, FILE * out,
+ 		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
+ 		{NULL, NULL}
+ 	};
+-	Ustr *line = USTR_NULL;
+-
+-	for (; tpl; tpl = tpl->next) {
+-		line = replace_all(tpl->data, repl);
+-		if (!line)
+-			goto fail;
+-		if (check_line(s, line) == STATUS_SUCCESS) {
+-			if (!ustr_io_putfileline(&line, out))
+-				goto fail;
+-		}
+-		ustr_sc_free(&line);
+-	}
+-	return STATUS_SUCCESS;
+ 
+-      fail:
+-	ustr_sc_free(&line);
+-	return STATUS_ERR;
++	return write_replacements(s, out, tpl, repl);
+ }
+ 
+ static int user_sort_func(semanage_user_t ** arg1, semanage_user_t ** arg2)
+-- 
+2.7.3
