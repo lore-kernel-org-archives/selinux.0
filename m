@@ -1,14 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G6LBF021119
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:21 -0400
-Received: by mail-pf0-f194.google.com with SMTP id q129so9764528pfb.3
- for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:06:18 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G6LBG021119
+ for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:24 -0400
+Received: by mail-pa0-f66.google.com with SMTP id zy2so9376094pac.2
+ for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:06:22 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/7] genhomedircon: move fallback user to
- genhomedircon_user_entry_t
-Date: Sat,  9 Apr 2016 00:05:30 +0800
-Message-Id: <1460131535-15688-3-git-send-email-jason@perfinion.com>
+Subject: [PATCH 3/7] genhomedircon: rename FALLBACK #defines consistent with
+ struct
+Date: Sat,  9 Apr 2016 00:05:31 +0800
+Message-Id: <1460131535-15688-4-git-send-email-jason@perfinion.com>
 In-Reply-To: <1460131535-15688-1-git-send-email-jason@perfinion.com>
 References: <20160201093633.GB21978@meriadoc.perfinion.com>
  <1460131535-15688-1-git-send-email-jason@perfinion.com>
@@ -17,82 +17,76 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The fallback user is used in all the write functions, making it use a
-struct allows us to have everything consistent between normal and
-fallback users.
 ---
- libsemanage/src/genhomedircon.c | 38 ++++++++++++++++++++------------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ libsemanage/src/genhomedircon.c | 27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
 diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index a95ab16..3289954 100644
+index 3289954..61f503f 100644
 --- a/libsemanage/src/genhomedircon.c
 +++ b/libsemanage/src/genhomedircon.c
-@@ -83,17 +83,6 @@
- #define FALLBACK_USER_LEVEL "s0"
+@@ -78,9 +78,10 @@
+ #define TEMPLATE_SEUSER "system_u"
+ #define TEMPLATE_LEVEL "s0"
+ 
+-#define FALLBACK_USER "user_u"
+-#define FALLBACK_USER_PREFIX "user"
+-#define FALLBACK_USER_LEVEL "s0"
++#define FALLBACK_SENAME "user_u"
++#define FALLBACK_PREFIX "user"
++#define FALLBACK_LEVEL "s0"
++#define FALLBACK_NAME ".*"
  #define DEFAULT_LOGIN "__default__"
  
--typedef struct {
--	const char *fcfilepath;
--	int usepasswd;
--	const char *homedir_template_path;
--	char *fallback_user;
--	char *fallback_user_prefix;
--	char *fallback_user_level;
--	semanage_handle_t *h_semanage;
--	sepol_policydb_t *policydb;
--} genhomedircon_settings_t;
--
  typedef struct user_entry {
- 	char *name;
- 	char *sename;
-@@ -104,6 +93,15 @@ typedef struct user_entry {
- } genhomedircon_user_entry_t;
+@@ -750,14 +751,14 @@ static int setup_fallback_user(genhomedircon_settings_t * s)
+ 			if (semanage_user_query(s->h_semanage, key, &u) < 0)
+ 			{
+ 				prefix = name;
+-				level = FALLBACK_USER_LEVEL;
++				level = FALLBACK_LEVEL;
+ 			}
+ 			else
+ 			{
+ 				prefix = semanage_user_get_prefix(u);
+ 				level = semanage_user_get_mlslevel(u);
+ 				if (!level)
+-					level = FALLBACK_USER_LEVEL;
++					level = FALLBACK_LEVEL;
+ 			}
  
- typedef struct {
-+	const char *fcfilepath;
-+	int usepasswd;
-+	const char *homedir_template_path;
-+	genhomedircon_user_entry_t *fallback;
-+	semanage_handle_t *h_semanage;
-+	sepol_policydb_t *policydb;
-+} genhomedircon_settings_t;
-+
-+typedef struct {
- 	const char *search_for;
- 	const char *replace_with;
- } replacement_pair_t;
-@@ -1045,10 +1043,16 @@ int semanage_genhomedircon(semanage_handle_t * sh,
- 	s.fcfilepath = semanage_final_path(SEMANAGE_FINAL_TMP,
- 					   SEMANAGE_FC_HOMEDIRS);
+ 			if (set_fallback_user(s, seuname, prefix, level) != 0)
+@@ -842,10 +843,10 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
+ 			prefix = semanage_user_get_prefix(*u);
+ 			level = semanage_user_get_mlslevel(*u);
+ 			if (!level)
+-				level = FALLBACK_USER_LEVEL;
++				level = FALLBACK_LEVEL;
+ 		} else {
+ 			prefix = name;
+-			level = FALLBACK_USER_LEVEL;
++			level = FALLBACK_LEVEL;
+ 		}
  
--	s.fallback_user = strdup(FALLBACK_USER);
--	s.fallback_user_prefix = strdup(FALLBACK_USER_PREFIX);
--	s.fallback_user_level = strdup(FALLBACK_USER_LEVEL);
--	if (s.fallback_user == NULL || s.fallback_user_prefix == NULL || s.fallback_user_level == NULL) {
-+	s.fallback = calloc(1, sizeof(genhomedircon_user_entry_t));
-+	if (s.fallback == NULL) {
-+		retval = STATUS_ERR;
-+		goto done;
-+	}
-+
-+	s.fallback->sename = strdup(FALLBACK_USER);
-+	s.fallback->prefix = strdup(FALLBACK_USER_PREFIX);
-+	s.fallback->level = strdup(FALLBACK_USER_LEVEL);
-+	if (s.fallback->sename == NULL || s.fallback->prefix == NULL || s.fallback->level == NULL) {
+ 		retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
+@@ -1049,10 +1050,14 @@ int semanage_genhomedircon(semanage_handle_t * sh,
+ 		goto done;
+ 	}
+ 
+-	s.fallback->sename = strdup(FALLBACK_USER);
+-	s.fallback->prefix = strdup(FALLBACK_USER_PREFIX);
+-	s.fallback->level = strdup(FALLBACK_USER_LEVEL);
+-	if (s.fallback->sename == NULL || s.fallback->prefix == NULL || s.fallback->level == NULL) {
++	s.fallback->name = strdup(FALLBACK_NAME);
++	s.fallback->sename = strdup(FALLBACK_SENAME);
++	s.fallback->prefix = strdup(FALLBACK_PREFIX);
++	s.fallback->level = strdup(FALLBACK_LEVEL);
++	if (s.fallback->name == NULL
++	 || s.fallback->sename == NULL
++	 || s.fallback->prefix == NULL
++	 || s.fallback->level == NULL) {
  		retval = STATUS_ERR;
  		goto done;
  	}
-@@ -1072,9 +1076,7 @@ done:
- 	if (out != NULL)
- 		fclose(out);
- 
--	free(s.fallback_user);
--	free(s.fallback_user_prefix);
--	free(s.fallback_user_level);
-+	pop_user_entry(&(s.fallback));
- 	ignore_free();
- 
- 	return retval;
 -- 
 2.7.3
