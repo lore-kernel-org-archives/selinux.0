@@ -1,70 +1,47 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38F1FTi004320
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 11:01:15 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G5ufv020952
+ for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:00 -0400
+Received: by mail-pa0-f65.google.com with SMTP id hb4so9370037pac.1
+ for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:05:58 -0700 (PDT)
+Received: from localhost ([2404:e800:e600:38b:5121:e6bd:6ddf:d757])
+ by smtp.gmail.com with ESMTPSA id m10sm19700078pfi.32.2016.04.08.09.05.55
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Fri, 08 Apr 2016 09:05:56 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2 v3] checkpolicy: Fail if module name different than output
- base filename
-Date: Fri,  8 Apr 2016 11:02:33 -0400
-Message-Id: <1460127753-29728-3-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1460127753-29728-1-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1460127753-29728-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: genhomedircon USERID and USERNAME patches
+Date: Sat,  9 Apr 2016 00:05:28 +0800
+Message-Id: <1460131535-15688-1-git-send-email-jason@perfinion.com>
+In-Reply-To: <20160201093633.GB21978@meriadoc.perfinion.com>
+References: <20160201093633.GB21978@meriadoc.perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Since CIL treats files as modules and does not have a separate
-module statement it can cause confusion when a Refpolicy module
-has a name that is different than its base filename because older
-SELinux userspaces will refer to the module by its module name while
-a CIL-based userspace will refer to it by its filename.
+Hi all,
 
-Because of this, have checkmodule fail when compiling a module and
-the output base filename is different than the module name.
+I finally finished adding more templates to genhomedircon and a lot of general
+cleanups.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- checkpolicy/checkmodule.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+The first few patches refactor the templating functions so they are smaller and
+easier to add new. All the common bits were taken out and they all take the
+user_entry_t struct instead of passing args one by one.
 
-diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
-index 5957d29..418f77b 100644
---- a/checkpolicy/checkmodule.c
-+++ b/checkpolicy/checkmodule.c
-@@ -19,6 +19,7 @@
- #include <stdio.h>
- #include <errno.h>
- #include <sys/mman.h>
-+#include <libgen.h>
- 
- #include <sepol/module_to_cil.h>
- #include <sepol/policydb/policydb.h>
-@@ -258,6 +259,25 @@ int main(int argc, char **argv)
- 		}
- 	}
- 
-+	if (policy_type != POLICY_BASE && outfile) {
-+		char *mod_name = modpolicydb.name;
-+		char *out_path = strdup(outfile);
-+		if (out_path == NULL) {
-+			fprintf(stderr, "%s:  out of memory\n", argv[0]);
-+			exit(1);
-+		}
-+		char *out_name = basename(out_path);
-+		char *separator = strrchr(out_name, '.');
-+		if (separator) {
-+			*separator = '\0';
-+		}
-+		if (strcmp(mod_name, out_name) != 0) {
-+			fprintf(stderr,	"%s:  Module name %s is different than the output base filename %s\n", argv[0], mod_name, out_name);
-+			exit(1);
-+		}
-+		free(out_path);
-+	}
-+
- 	if (modpolicydb.policy_type == POLICY_BASE && !cil) {
- 		/* Verify that we can successfully expand the base module. */
- 		policydb_t kernpolicydb;
--- 
-2.5.5
+The last three patches add the new templating types. I went with %{USERID} and
+%{USERNAME}. They now have a clear start and end unlike USER in the past and $
+is end of line in regexes so % seems safer. The matcher for USER now
+specifically excludes any line that has the new patterns in it too so there can
+be no conflict. It appears to work in the testing I have done with adding
+strange fcontexts. make test passes in the repo too but i have not run the full
+selinux-testsuite.
+
+%{USERNAME} defaults to ".*" in the fallback just like USER originally did
+%{USERID} defaults to "[0-9]+" for the fallback.
+
+Another thing I noticed was that HOME_DIR's fallback is "[^/]*", should it be +
+instead of *? I dont think it makes a huge difference because then it should
+match HOME_ROOT but it still seems wrong.
+
+-- Jason
