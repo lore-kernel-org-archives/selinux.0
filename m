@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G6Zm2021132
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:35 -0400
-Received: by mail-pa0-f68.google.com with SMTP id zy2so9376308pac.2
- for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:06:32 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G6Zm3021132
+ for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:39 -0400
+Received: by mail-pa0-f67.google.com with SMTP id hb4so9370959pac.1
+ for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:06:36 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 5/7] genhomedircon: Add uid and gid to struct user_entry
-Date: Sat,  9 Apr 2016 00:05:33 +0800
-Message-Id: <1460131535-15688-6-git-send-email-jason@perfinion.com>
+Subject: [PATCH 6/7] genhomedircon: make USERID, USERNAME context lists
+Date: Sat,  9 Apr 2016 00:05:34 +0800
+Message-Id: <1460131535-15688-7-git-send-email-jason@perfinion.com>
 In-Reply-To: <1460131535-15688-1-git-send-email-jason@perfinion.com>
 References: <20160201093633.GB21978@meriadoc.perfinion.com>
  <1460131535-15688-1-git-send-email-jason@perfinion.com>
@@ -17,116 +17,86 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 ---
- libsemanage/src/genhomedircon.c | 34 ++++++++++++++++++++++++++++++----
- 1 file changed, 30 insertions(+), 4 deletions(-)
+ libsemanage/src/genhomedircon.c | 34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
 diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 495f084..ae4a261 100644
+index ae4a261..60c9d27 100644
 --- a/libsemanage/src/genhomedircon.c
 +++ b/libsemanage/src/genhomedircon.c
-@@ -82,10 +82,13 @@
- #define FALLBACK_PREFIX "user"
- #define FALLBACK_LEVEL "s0"
- #define FALLBACK_NAME ".*"
-+#define FALLBACK_UIDGID "[0-9]+"
- #define DEFAULT_LOGIN "__default__"
+@@ -73,8 +73,13 @@
+    which are searched for and replaced */
+ #define TEMPLATE_HOME_ROOT "HOME_ROOT"
+ #define TEMPLATE_HOME_DIR "HOME_DIR"
++/* these are legacy */
+ #define TEMPLATE_USER "USER"
+ #define TEMPLATE_ROLE "ROLE"
++/* new names */
++#define TEMPLATE_USERNAME "%{USERNAME}"
++#define TEMPLATE_USERID "%{USERID}"
++
+ #define TEMPLATE_SEUSER "system_u"
+ #define TEMPLATE_LEVEL "s0"
  
- typedef struct user_entry {
- 	char *name;
-+	char *uid;
-+	char *gid;
- 	char *sename;
- 	char *prefix;
- 	char *home;
-@@ -627,11 +630,13 @@ static int name_user_cmp(char *key, semanage_user_t ** val)
+@@ -463,8 +468,23 @@ static int HOME_DIR_PRED(const char *string)
+ 	return semanage_is_prefix(string, TEMPLATE_HOME_DIR);
  }
  
- static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
--			   const char *sen, const char *pre, const char *h,
--			   const char *l)
-+			   const char *u, const char *g, const char *sen,
-+			   const char *pre, const char *h, const char *l)
- {
- 	genhomedircon_user_entry_t *temp = NULL;
- 	char *name = NULL;
-+	char *uid = NULL;
-+	char *gid = NULL;
- 	char *sename = NULL;
- 	char *prefix = NULL;
- 	char *home = NULL;
-@@ -643,6 +648,12 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 	name = strdup(n);
- 	if (!name)
- 		goto cleanup;
-+	uid = strdup(u);
-+	if (!uid)
-+		goto cleanup;
-+	gid = strdup(g);
-+	if (!gid)
-+		goto cleanup;
- 	sename = strdup(sen);
- 	if (!sename)
- 		goto cleanup;
-@@ -657,6 +668,8 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 		goto cleanup;
- 
- 	temp->name = name;
-+	temp->uid = uid;
-+	temp->gid = gid;
- 	temp->sename = sename;
- 	temp->prefix = prefix;
- 	temp->home = home;
-@@ -668,6 +681,8 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 
-       cleanup:
- 	free(name);
-+	free(uid);
-+	free(gid);
- 	free(sename);
- 	free(prefix);
- 	free(home);
-@@ -686,6 +701,8 @@ static void pop_user_entry(genhomedircon_user_entry_t ** list)
- 	temp = *list;
- 	*list = temp->next;
- 	free(temp->name);
-+	free(temp->uid);
-+	free(temp->gid);
- 	free(temp->sename);
- 	free(temp->prefix);
- 	free(temp->home);
-@@ -737,7 +754,8 @@ static int setup_fallback_user(genhomedircon_settings_t * s)
- 					level = FALLBACK_LEVEL;
- 			}
- 
--			if (push_user_entry(&(s->fallback), FALLBACK_NAME, 0, 0,
-+			if (push_user_entry(&(s->fallback), FALLBACK_NAME,
-+					    FALLBACK_UIDGID, FALLBACK_UIDGID,
- 					    seuname, prefix, "", level) != 0)
- 				errors = STATUS_ERR;
- 			semanage_user_key_free(key);
-@@ -767,6 +785,8 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- 	const char *seuname = NULL;
- 	const char *prefix = NULL;
- 	const char *level = NULL;
-+	char uid[10];
-+	char gid[10];
- 	struct passwd pwstorage, *pwent = NULL;
- 	unsigned int i;
- 	long rbuflen;
-@@ -851,7 +871,13 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- 		}
- 		if (ignore(pwent->pw_dir))
- 			continue;
--		if (push_user_entry(&head, name, seuname,
++/* new names */
++static int USERNAME_CONTEXT_PRED(const char *string)
++{
++	return (int)(strstr(string, TEMPLATE_USERNAME) != NULL);
++}
 +
-+		if (snprintf(uid, sizeof(uid), "%d", pwent->pw_uid) < 0
-+		 || snprintf(gid, sizeof(gid), "%d", pwent->pw_gid) < 0) {
-+			*errors = STATUS_ERR;
-+			goto cleanup;
-+		}
-+		if (push_user_entry(&head, name, uid, gid, seuname,
- 				    prefix, pwent->pw_dir, level) != STATUS_SUCCESS) {
- 			*errors = STATUS_ERR;
- 			break;
++static int USERID_CONTEXT_PRED(const char *string)
++{
++	return (int)(strstr(string, TEMPLATE_USERID) != NULL);
++}
++
++/* This will never match USER if USERNAME or USERID are found. */
+ static int USER_CONTEXT_PRED(const char *string)
+ {
++	if (USERNAME_CONTEXT_PRED(string) || USERID_CONTEXT_PRED(string))
++		return 0;
++
+ 	return (int)(strstr(string, TEMPLATE_USER) != NULL);
+ }
+ 
+@@ -943,16 +963,24 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
+ {
+ 	semanage_list_t *homedirs = NULL;
+ 	semanage_list_t *h = NULL;
+-	semanage_list_t *user_context_tpl = NULL;
+ 	semanage_list_t *homedir_context_tpl = NULL;
+ 	semanage_list_t *homeroot_context_tpl = NULL;
++	semanage_list_t *username_context_tpl = NULL;
++	semanage_list_t *userid_context_tpl = NULL;
++	semanage_list_t *user_context_tpl = NULL;
+ 	int retval = STATUS_SUCCESS;
+ 
+ 	homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
+ 	homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
++	username_context_tpl = make_template(s, &USERNAME_CONTEXT_PRED);
++	userid_context_tpl = make_template(s, &USERID_CONTEXT_PRED);
+ 	user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
+ 
+-	if (!homedir_context_tpl && !homeroot_context_tpl && !user_context_tpl)
++	if (!homedir_context_tpl
++	 && !homeroot_context_tpl
++	 && !userid_context_tpl
++	 && !username_context_tpl
++	 && !user_context_tpl)
+ 		goto done;
+ 
+ 	if (write_file_context_header(out) != STATUS_SUCCESS) {
+@@ -1021,6 +1049,8 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
+ done:
+ 	/* Cleanup */
+ 	semanage_list_destroy(&homedirs);
++	semanage_list_destroy(&username_context_tpl);
++	semanage_list_destroy(&userid_context_tpl);
+ 	semanage_list_destroy(&user_context_tpl);
+ 	semanage_list_destroy(&homedir_context_tpl);
+ 	semanage_list_destroy(&homeroot_context_tpl);
 -- 
 2.7.3
