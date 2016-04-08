@@ -1,113 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38G6Zm4021132
- for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:06:43 -0400
-Received: by mail-pa0-f66.google.com with SMTP id hb4so9371070pac.1
- for <selinux@tycho.nsa.gov>; Fri, 08 Apr 2016 09:06:40 -0700 (PDT)
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 7/7] genhomedircon: write contexts for username and userid
-Date: Sat,  9 Apr 2016 00:05:35 +0800
-Message-Id: <1460131535-15688-8-git-send-email-jason@perfinion.com>
-In-Reply-To: <1460131535-15688-1-git-send-email-jason@perfinion.com>
-References: <20160201093633.GB21978@meriadoc.perfinion.com>
- <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u38GNwpC025728
+ for <selinux@tycho.nsa.gov>; Fri, 8 Apr 2016 12:23:58 -0400
+Subject: Re: [PATCH net-next] security: drop the unused hook skb_owned_by
+To: Paolo Abeni <pabeni@redhat.com>, linux-security-module@vger.kernel.org
+References: <25cbac8df32da8527bac7187f606e6351862702d.1460110723.git.pabeni@redhat.com>
+Cc: James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Kees Cook <keescook@chromium.org>, Paul Moore <pmoore@redhat.com>,
+ linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <5707DB19.6010702@schaufler-ca.com>
+Date: Fri, 8 Apr 2016 09:23:54 -0700
+MIME-Version: 1.0
+In-Reply-To: <25cbac8df32da8527bac7187f606e6351862702d.1460110723.git.pabeni@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
----
- libsemanage/src/genhomedircon.c | 51 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 49 insertions(+), 2 deletions(-)
+On 4/8/2016 3:20 AM, Paolo Abeni wrote:
+> The skb_owned_by hook was added with the commit ca10b9e9a8ca
+> ("selinux: add a skb_owned_by() hook") and later removed
+> when said commit was reverted.
+>
+> Later on, when switching to list of hooks, a field named
+> 'skb_owned_by' was included into the security_hook_head struct,
+> but without any users nor caller.
+>
+> This commit removes the said left-over field.
+>
+> Fixes: b1d9e6b0646d ("LSM: Switch to lists of hooks")
+> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 60c9d27..66ab307 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -625,6 +625,34 @@ static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
- 	return write_replacements(s, out, tpl, repl);
- }
- 
-+static int write_username_context(genhomedircon_settings_t * s, FILE * out,
-+				  semanage_list_t * tpl,
-+				  const genhomedircon_user_entry_t *user)
-+{
-+	replacement_pair_t repl[] = {
-+		{.search_for = TEMPLATE_USERNAME,.replace_with = user->name},
-+		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
-+		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
-+		{NULL, NULL}
-+	};
-+
-+	return write_replacements(s, out, tpl, repl);
-+}
-+
-+static int write_userid_context(genhomedircon_settings_t * s, FILE * out,
-+				  semanage_list_t * tpl,
-+				  const genhomedircon_user_entry_t *user)
-+{
-+	replacement_pair_t repl[] = {
-+		{.search_for = TEMPLATE_USERID,.replace_with = user->uid},
-+		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
-+		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
-+		{NULL, NULL}
-+	};
-+
-+	return write_replacements(s, out, tpl, repl);
-+}
-+
- static int write_user_context(genhomedircon_settings_t * s, FILE * out,
- 			      semanage_list_t * tpl, const genhomedircon_user_entry_t *user)
- {
-@@ -926,6 +954,8 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- }
- 
- static int write_gen_home_dir_context(genhomedircon_settings_t * s, FILE * out,
-+				      semanage_list_t * username_context_tpl,
-+				      semanage_list_t * userid_context_tpl,
- 				      semanage_list_t * user_context_tpl,
- 				      semanage_list_t * homedir_context_tpl)
- {
-@@ -940,6 +970,10 @@ static int write_gen_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- 	for (; users; pop_user_entry(&users)) {
- 		if (write_home_dir_context(s, out, homedir_context_tpl, users))
- 			goto err;
-+		if (write_username_context(s, out, username_context_tpl, users))
-+			goto err;
-+		if (write_userid_context(s, out, userid_context_tpl, users))
-+			goto err;
- 		if (write_user_context(s, out, user_context_tpl, users))
- 			goto err;
- 	}
-@@ -1033,14 +1067,27 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
- 			s->fallback->home = NULL;
- 		}
- 	}
--	if (user_context_tpl) {
-+	if (user_context_tpl || userid_context_tpl || username_context_tpl) {
-+		if (write_username_context(s, out, username_context_tpl,
-+					   s->fallback) != STATUS_SUCCESS) {
-+			retval = STATUS_ERR;
-+			goto done;
-+		}
-+
-+		if (write_userid_context(s, out, userid_context_tpl,
-+					 s->fallback) != STATUS_SUCCESS) {
-+			retval = STATUS_ERR;
-+			goto done;
-+		}
-+
- 		if (write_user_context(s, out, user_context_tpl,
- 				       s->fallback) != STATUS_SUCCESS) {
- 			retval = STATUS_ERR;
- 			goto done;
- 		}
- 
--		if (write_gen_home_dir_context(s, out, user_context_tpl,
-+		if (write_gen_home_dir_context(s, out, username_context_tpl,
-+					       userid_context_tpl, user_context_tpl,
- 					       homedir_context_tpl) != STATUS_SUCCESS) {
- 			retval = STATUS_ERR;
- 		}
--- 
-2.7.3
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+
+> ---
+>  include/linux/lsm_hooks.h | 1 -
+>  security/security.c       | 1 -
+>  2 files changed, 2 deletions(-)
+>
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index cdee11c..ae25378 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1804,7 +1804,6 @@ struct security_hook_heads {
+>  	struct list_head tun_dev_attach_queue;
+>  	struct list_head tun_dev_attach;
+>  	struct list_head tun_dev_open;
+> -	struct list_head skb_owned_by;
+>  #endif	/* CONFIG_SECURITY_NETWORK */
+>  #ifdef CONFIG_SECURITY_NETWORK_XFRM
+>  	struct list_head xfrm_policy_alloc_security;
+> diff --git a/security/security.c b/security/security.c
+> index 3644b03..554c3fb 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1848,7 +1848,6 @@ struct security_hook_heads security_hook_heads = {
+>  	.tun_dev_attach =
+>  		LIST_HEAD_INIT(security_hook_heads.tun_dev_attach),
+>  	.tun_dev_open =	LIST_HEAD_INIT(security_hook_heads.tun_dev_open),
+> -	.skb_owned_by =	LIST_HEAD_INIT(security_hook_heads.skb_owned_by),
+>  #endif	/* CONFIG_SECURITY_NETWORK */
+>  #ifdef CONFIG_SECURITY_NETWORK_XFRM
+>  	.xfrm_policy_alloc_security =
