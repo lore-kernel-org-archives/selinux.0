@@ -1,43 +1,39 @@
-Subject: Re: [PATCH] Android.mk: Add -D_GNU_SOURCE to common_cflags
-To: Nick Kralevich <nnk@google.com>, selinux@tycho.nsa.gov
-References: <1459984522-76969-1-git-send-email-nnk@google.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <570BFF88.1050804@tycho.nsa.gov>
-Date: Mon, 11 Apr 2016 15:48:24 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3BKBxhl021780
+ for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2016 16:11:59 -0400
+Date: Mon, 11 Apr 2016 14:11:55 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Dan Jurgens <danielj@mellanox.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-rdma@vger.kernel.org, yevgenyp@mellanox.com
+Subject: Re: [RFC PATCH v2 00/13] SELinux support for Infiniband RDMA
+Message-ID: <20160411201155.GC371@obsidianresearch.com>
+References: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
 MIME-Version: 1.0
-In-Reply-To: <1459984522-76969-1-git-send-email-nnk@google.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/06/2016 07:15 PM, Nick Kralevich wrote:
-> Other build scripts define -D_GNU_SOURCE. The Android build
-> system should too.
-> 
-> Fixes the following warning:
-> 
-> external/selinux/libsepol/cil/src/cil_mem.c:109:7: warning: implicit
->   declaration of function 'vasprintf' is invalid in C99
->   [-Wimplicit-function-declaration]
+On Thu, Apr 07, 2016 at 02:33:45AM +0300, Dan Jurgens wrote:
 
-Thanks, applied.
+> Currently there is no way to provide granular access control to an Infiniband
+> fabric.  By providing an ability to restrict user access to specific virtual
+> subfabrics administrators can limit access to bandwidth and isolate users on
+> the fabric.
 
-> ---
->  libsepol/Android.mk | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/libsepol/Android.mk b/libsepol/Android.mk
-> index a43b343..5d2c96b 100644
-> --- a/libsepol/Android.mk
-> +++ b/libsepol/Android.mk
-> @@ -64,6 +64,7 @@ cil_src_files := \
->  	cil/src/cil_verify.c
->  
->  common_cflags := \
-> +	-D_GNU_SOURCE \
->  	-Wall -W -Wundef \
->  	-Wshadow -Wmissing-noreturn \
->  	-Wmissing-format-attribute
-> 
+Do you actually have a concrete use case for this?
+
+This seems superficially similar to netlabel, which I guess targets a
+certain niche, but I'm really wondering with all the other container
+patches if this was supposed to be done with namespaces...
+
+> An Infiniband device (ibdev) is labeled by name and port number.  There is a
+> single access vector for ibdevs as well, called "smi".
+
+This is called an End Port (SMI is something else in the IB
+spec). Please use the standard terminology.
+
+Jason
