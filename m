@@ -1,53 +1,128 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3C5M5u3015985
- for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2016 01:22:05 -0400
-Received: by mail-wm0-f66.google.com with SMTP id y144so2376973wmd.0
- for <selinux@tycho.nsa.gov>; Mon, 11 Apr 2016 22:22:03 -0700 (PDT)
-Subject: Re: [RFC PATCH v2 00/13] SELinux support for Infiniband RDMA
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
- Daniel Jurgens <danielj@mellanox.com>
-References: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
- <20160411201155.GC371@obsidianresearch.com>
- <DB5PR05MB111168B6670B36F12979705BC4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160411221210.GA5861@obsidianresearch.com>
- <DB5PR05MB1111E6A72480FF78AAB12747C4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160411231250.GB5861@obsidianresearch.com>
- <DB5PR05MB1111F04641E58609E51A9630C4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160412000621.GD5861@obsidianresearch.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-From: Hal Rosenstock <hal@dev.mellanox.co.il>
-Message-ID: <570C85F7.5010101@dev.mellanox.co.il>
-Date: Tue, 12 Apr 2016 01:21:59 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160412000621.GD5861@obsidianresearch.com>
-Content-Type: text/plain; charset=windows-1252
+Message-ID: <1460451162.5965.16.camel@redhat.com>
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+From: Paolo Abeni <pabeni@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Florian Westphal <fw@strlen.de>, linux-security-module@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>, James Morris
+ <james.l.morris@oracle.com>, Andreas Gruenbacher <agruenba@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Date: Tue, 12 Apr 2016 10:52:42 +0200
+In-Reply-To: <2239567.jkCk1gtQAE@sifl>
+References: <cover.1459934322.git.pabeni@redhat.com>
+ <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
+ <20160406234532.GA731@breakpoint.cc> <2239567.jkCk1gtQAE@sifl>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 4/11/2016 8:06 PM, Jason Gunthorpe wrote:
-> On Mon, Apr 11, 2016 at 11:35:57PM +0000, Daniel Jurgens wrote:
+On Thu, 2016-04-07 at 14:55 -0400, Paul Moore wrote:
+> On Thursday, April 07, 2016 01:45:32 AM Florian Westphal wrote:
+> > Paul Moore <paul@paul-moore.com> wrote:
+> > > On Wed, Apr 6, 2016 at 6:14 PM, Florian Westphal <fw@strlen.de> wrote:
+> > > > netfilter hooks are per namespace -- so there is hook unregister when
+> > > > netns is destroyed.
+> > > 
+> > > Looking around, I see the global and per-namespace registration
+> > > functions (nf_register_hook and nf_register_net_hook, respectively),
+> > > but I'm looking to see if/how newly created namespace inherit
+> > > netfilter hooks from the init network namespace ... if you can create
+> > > a network namespace and dodge the SELinux hooks, that isn't a good
+> > > thing from a SELinux point of view, although it might be a plus
+> > > depending on where you view Paolo's original patches ;)
+> > 
+> > Heh :-)
+> > 
+> > If you use nf_register_net_hook, the hook is only registered in the
+> > namespace.
+> > 
+> > If you use nf_register_hook, the hook is put on a global list and
+> > registed in all existing namespaces.
+> > 
+> > New namespaces will have the hook added as well (see
+> > netfilter_net_init -> nf_register_hook_list in netfilter/core.c )
+> >
+> > Since nf_register_hook is used it should be impossible to get a netns
+> > that doesn't call these hooks.
 > 
->> OK, I'll change idbev to ibendport and smi to qp0, or qpzero if the
->> SELinux user space code doesn't allow numbers in access vector identifiers.
+> Great, thanks.
+>  
+> > > > Do you think it makes sense to rework the patch to delay registering
+> > > > of the netfiler hooks until the system is in a state where they're
+> > > > needed, without the 'unregister' aspect?
+> > > 
+> > > I would need to see the patch to say for certain, but in principle
+> > > that seems perfectly reasonable and I think would satisfy both the
+> > > netdev and SELinux camps - good suggestion.  My main goal is to drop
+> > > the selinux_nf_ip_init() entirely so it can't be used as a ROP gadget.
+> > > 
+> > > We might even be able to trim the secmark_active and peerlbl_active
+> > > checks in the SELinux netfilter hooks (an earlier attempt at
+> > > optimization; contrary to popular belief, I do care about SELinux
+> > > performance), although that would mean that enabling the network
+> > > access controls would be one way ... I guess you can disregard that
+> > > last bit, I'm thinking aloud again.
+> > 
+> > One way is fine I think.
 > 
-> Do you know why you'd want to access control qp0 but leave qp1 open?
+> Yes, just disregard my second paragraph above.
+>  
+> > > > Ideally this would even be per netns -- in perfect world we would
+> > > > be able to make it so that a new netns are created with an empty
+> > > > hook list.
+> > > 
+> > > In general SELinux doesn't care about namespaces, for reasons that are
+> > > sorta beyond the scope of this conversation, so I would like to stick
+> > > to a all or nothing approach to enabling the SELinux netfilter hooks
+> > > across namespaces.  Perhaps we can revisit this at a later time, but
+> > > let's keep it simple right now.
+> > 
+> > Okay, I'd prefer to stick to your recommendation anyway wrt. to selinux
+> > (Casey, I read your comment regarding smack. Noted, we don't want to
+> > break smack either...)
+> > 
+> > I think that in this case the entire question is:
+> > 
+> > In your experience, how likely is a config where selinux is enabled BUT the
+> > hooks are not needed (i.e., where we hit the
+> > 
+> > if (!selinux_policycap_netpeer)
+> >     return NF_ACCEPT;
+> > 
+> > if (!secmark_active && !peerlbl_active)
+> >    return NF_ACCEPT;
+> > 
+> > tests inside the hooks)?  If such setups are uncommon we should just
+> > drop this idea or at least put it on the back burner until the more
+> > expensive netfilter hooks (conntrack, cough) are out of the way.
+> 
+> A few years ago I would have said that it is relatively uncommon for admins to 
+> enable the SELinux network access controls; it was typically just 
+> government/intelligence agencies who had very strict access control 
+> requirements and represented a small portion of SELinux users.  However, over 
+> the past few years I've been fielding more and more questions from admins/devs 
+> in the virtualization space who are interested in some of these capabilities; 
+> it isn't clear to me how many of these people are switching it on, but there 
+> is definitely more interest than I have seen in the past and the interested is 
+> centered around some rather common use cases.
+> 
+> So, to summarize, I don't know ;)
+> 
+> If you've got bigger sources of overhead, my opinion would be to go tackle 
+> those first.  Perhaps I can even find the time to work on the 
+> SELinux/netfilter stuff while you are off slaying the bigger dragons, no 
+> promises at the moment.
 
-Wouldn't QP1 require different access control than QP0 due to SA clients
-on every end node ?
+Double checking if I got the above correctly.
 
--- Hal
+Will be ok if we post a v2 version of this series, removing the hooks
+de-registration bits, but preserving the selinux nf-hooks and
+socket_sock_rcv_skb() on-demand/delayed registration ? Will that fit
+with the post-init read only memory usage that you are planning ?
 
-> Still seems kinda strange.
-> 
-> Jason
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-rdma" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Regards,
+
+Paolo
