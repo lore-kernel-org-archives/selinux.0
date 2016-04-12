@@ -1,50 +1,43 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3CE8HLL009500
- for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2016 10:08:19 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 55ECA47048
- for <selinux@tycho.nsa.gov>; Tue, 12 Apr 2016 14:08:14 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: Fix typo in sefcontext_compile.8
-Date: Tue, 12 Apr 2016 16:07:56 +0200
-Message-Id: <1460470076-2823-1-git-send-email-plautrba@redhat.com>
+Subject: Re: genhomedircon USERID and USERNAME patches
+To: Stephen Smalley <sds@tycho.nsa.gov>, Nicolas Iooss <nicolas.iooss@m4x.org>,
+ Jason Zaman <jason@perfinion.com>, selinux <selinux@tycho.nsa.gov>
+References: <20160201093633.GB21978@meriadoc.perfinion.com>
+ <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ <CAJfZ7=mZnyW8-+BH02VJX7fBONyJTOHjHmkqByidz8cWw37Lcg@mail.gmail.com>
+ <570CF09E.10100@tycho.nsa.gov>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <570D079B.40106@tresys.com>
+Date: Tue, 12 Apr 2016 10:35:07 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <570CF09E.10100@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The man page contains 'prce' instead of 'pcre'
+On 4/12/2016 8:57 AM, Stephen Smalley wrote:
+> On 04/11/2016 05:44 PM, Nicolas Iooss wrote:
+>> On Fri, Apr 8, 2016 at 6:05 PM, Jason Zaman <jason@perfinion.com
+>> <mailto:jason@perfinion.com>> wrote:
 
-Reported-by: Milos Malik <mmalik@redhat.com>
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libselinux/man/man8/sefcontext_compile.8 | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>> By the way, by grep'ing HOME_DIR in refpolicy I got a hit in a support
+>> script, "support/genhomedircon" [1]. This script is invoked only when
+>> building modular policy and I have not found an easy way to
+>> invoke semanage_genhomedircon() from either the command line or a Python
+>> script. Does this script needs to be updated or is there a way to use
+>> libsemanage implementation instead?
 
-diff --git a/libselinux/man/man8/sefcontext_compile.8 b/libselinux/man/man8/sefcontext_compile.8
-index b77ff3a..4eae173 100644
---- a/libselinux/man/man8/sefcontext_compile.8
-+++ b/libselinux/man/man8/sefcontext_compile.8
-@@ -13,14 +13,14 @@ sefcontext_compile \- compile file context regular expression files
- .SH "DESCRIPTION"
- .B sefcontext_compile
- is used to compile file context regular expressions into
--.BR prce (3)
-+.BR pcre (3)
- format.
- .sp
- The compiled file is used by libselinux file labeling functions.
- .sp
- By default
- .B sefcontext_compile
--writes the compiled prce file with the
-+writes the compiled pcre file with the
- .B .bin
- suffix appended (e.g. \fIinputfile\fB.bin\fR).
- .SH OPTIONS
+>> [1] https://github.com/TresysTechnology/refpolicy/blob/master/support/genhomedircon
+> 
+> I believe the script is obsolete under modular policy (only used on
+> monolithic builds), and you can trigger semanage_genhomedircon() just by
+> running semodule -Bn.  /usr/sbin/genhomedircon is a symlink to semodule,
+> and semodule runs as if invoked with -Bn when called under that name.
+
+Right, the script that refpolicy has is only used on monolithic builds.
+
 -- 
-2.7.3
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
