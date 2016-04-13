@@ -5,11 +5,12 @@ References: <20160201093633.GB21978@meriadoc.perfinion.com>
  <CAJfZ7=mZnyW8-+BH02VJX7fBONyJTOHjHmkqByidz8cWw37Lcg@mail.gmail.com>
  <570CF09E.10100@tycho.nsa.gov> <570D079B.40106@tresys.com>
  <570E74FA.8060600@gmail.com> <570E7B15.6090906@tycho.nsa.gov>
+ <570E7D73.5060302@gmail.com>
 From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <570E7D73.5060302@gmail.com>
-Date: Wed, 13 Apr 2016 19:10:11 +0200
+Message-ID: <570E7F5A.8060006@gmail.com>
+Date: Wed, 13 Apr 2016 19:18:18 +0200
 MIME-Version: 1.0
-In-Reply-To: <570E7B15.6090906@tycho.nsa.gov>
+In-Reply-To: <570E7D73.5060302@gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -19,43 +20,50 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA256
 
-On 04/13/2016 07:00 PM, Stephen Smalley wrote:
-> On 04/13/2016 12:34 PM, Dominick Grift wrote:
->> On 04/12/2016 04:35 PM, Christopher J. PeBenito wrote:
->> 
->>> Right, the script that refpolicy has is only used on
->>> monolithic builds.
->> 
->> 
->> As I recall, last time i tried it, it was not working on a 
->> redhat-based system. Probably bit-rot has set in. There is also
->> some hard-coding going on in there i believe.
->> 
->> Someone with c-skills should rewrite it in c, make it truly
->> portable. That way it can be used with both monolithic as well as
->> modular policy (i don't mean binary-based module policy here but
->> text-based module policy that otherwise does not require the
->> presence of semodule)
+On 04/13/2016 07:10 PM, Dominick Grift wrote:
+> On 04/13/2016 07:00 PM, Stephen Smalley wrote:
+>> On 04/13/2016 12:34 PM, Dominick Grift wrote:
+>>> On 04/12/2016 04:35 PM, Christopher J. PeBenito wrote:
+>>> 
+>>>> Right, the script that refpolicy has is only used on 
+>>>> monolithic builds.
+>>> 
+>>> 
+>>> As I recall, last time i tried it, it was not working on a 
+>>> redhat-based system. Probably bit-rot has set in. There is
+>>> also some hard-coding going on in there i believe.
+>>> 
+>>> Someone with c-skills should rewrite it in c, make it truly 
+>>> portable. That way it can be used with both monolithic as well
+>>> as modular policy (i don't mean binary-based module policy here
+>>> but text-based module policy that otherwise does not require
+>>> the presence of semodule)
 > 
-> Even CIL-based modules are installed via semodule and managed via 
-> libsemanage, and libsemanage already contains a C implementation
-> of genhomedircon.
+>> Even CIL-based modules are installed via semodule and managed via
+>>  libsemanage, and libsemanage already contains a C
+>> implementation of genhomedircon.
 > 
 > 
+> 
+> Let me correct that:
+> 
+> "Even CIL-based modules can be installed via semodule and managed
+> via libsemanage, and libsemanage already contains a C
+> implementation of genhomedircon."
+> 
+> 
+> that is not my point though. My point is: since we need a working 
+> genhomedircon for monolithic policy, we might cease the opportunity
+> to also support text-based module policy which can be installed
+> via semodule and managed via libsemanage, but does not strictly
+> require that .
+> 
 
-Let me correct that:
-
-"Even CIL-based modules can be installed via semodule and managed via
-libsemanage, and libsemanage already contains a C implementation of
-genhomedircon."
+Make that "seize" instead (i think)
 
 
-that is not my point though. My point is: since we need a working
-genhomedircon for monolithic policy, we might cease the opportunity to
-also support text-based module policy which can be installed via
-semodule and managed via libsemanage, but does not strictly require that
-.
-
+> 
+> 
 
 - -- 
 Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
@@ -64,14 +72,14 @@ Dominick Grift
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCAAGBQJXDn1vAAoJECV0jlU3+UdpkP4MAIhmW/ghl9/pVBVSX+56lZEB
-ns9znLpwUSv50kcYDh9e8lfWrIOlJGgXD86D2pnCU2AjJbxvBWaEQpPw0Z0c+Vmy
-M8NvBTqm763mTZ2ANgGFjWpE0cAOAFIHBmfNhacl6fyUwVLfxZA/locUh9SJIsqd
-AhSx+lt9t2uMxB7W2PoCf6Bwpz+fQDbnD+3vaU5ZIcu/sNYGYd4Pmf4jYl38QR1P
-vxCIrj4OTJrT7w0A0/J98d7jBnLsvvb63Jjm+5HP3PP5mHn0DGu6/qEBKJcuYWPP
-tyRIVzlvreRrrVoF6u9BtgDD7+/1XXco20yoQanXCr2fhox5OkW8/TerK9KEcbwE
-a4MZyDPlTrpthprznvSSaCo5uK6xCoaIBR9GjBlU3L/CUzI6ZioEoVwX9wxMpskA
-TGtYRJyCVlrxYCy7ec/qEBY3vTg61DsTwq2fL84F+11NoJofIBuY2AwqQ5WpJmwN
-WRtkEVQWqtxE1cybXhiQX0UIlBt3uqcHO6+Xr5TYSQ==
-=u/g3
+iQGcBAEBCAAGBQJXDn9WAAoJECV0jlU3+UdpivkL/RjKc+zFM5OAY6tt9Ev0fMr4
+hSOgfzjrGjjzbX8j/orAz+gk0IJ7+2GDYzA4i9EUH8cFIE04Nd7ldEWRDnhxJJ0C
+zHmKt2YOTLCgRW38RCQlX9cUU8ABuqjPlv/PUXPAspGbvnkAnH0SwRwQBJTlTH7w
+usaGy+3Dl0rnrGhPvAs2fA1kBL0KlxQRIf+fcqJlU9Nt+OCOj7ufv13IulttMk1b
+6HGq5jzhhhpSWhLwO/Mn7NSXmSobzl/U5xdjWyqEpsN0urcm1JIqwZIrsBSkn0+r
+hc/5VIf5ckjLZepLTCV/FF1MisuZHcepgYCtjjVo9h1PuweB/Y5QlLCyJFyAofD/
+e9TRhiCyzCb3cmfytKo8hxngAjOBq/h2fdFbpYz1d0meBXl4YKwHpSr3xmx+bIBX
+pDP7dHewwPcqSq12J7eszAtnw9NbIxUhOZF8ERyOi82pZR/TlXW05GBr1OKjDz8D
+w83DYzURyIh14xfqYPzDSxMgdzncLEgShx0jQR6SxQ==
+=TpcH
 -----END PGP SIGNATURE-----
