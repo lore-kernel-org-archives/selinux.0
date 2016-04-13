@@ -1,11 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3DJHqbZ032165
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3DJHqba032165
  for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2016 15:17:52 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] libsepol/cil: Improve type bounds check reporting
-Date: Wed, 13 Apr 2016 15:19:16 -0400
-Message-Id: <1460575157-5846-3-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 3/3] libsepol/cil: Cleanup neverallow checking and fail if
+ bounds checking fails
+Date: Wed, 13 Apr 2016 15:19:17 -0400
+Message-Id: <1460575157-5846-4-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1460575157-5846-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1460575157-5846-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,80 +14,155 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-There are three improvements.
+For both neverallow and bounds checking keep neverallow and bounds
+failures separate from program faults.
 
-When calling cil_find_matching_avrule_in_ast(), one parameter specifies
-whether to return a match of the exact same (not a duplicate) rule.
-Since the target passed in is created and not actually in the tree
-by making this parameter true an extra comparison can be avoided.
-
-Currently, when printing a bounds violation trace, every match except
-for the last one has only the parents of the rule printed. Only the
-last rule has both its parents and the actual rule printed. Now the
-parents and rule are printed for each match. This has the additional
-benefit that if a match is not found (there should always be a match)
-a seg fault will not occur.
-
-To reduce the amount of error reporting, only print a trace of a
-matching rule if it is different from the previous one.
+Have secilc exit with an error (and fail to build a binary policy)
+when bounds checks fail.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/cil/src/cil_binary.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ libsepol/cil/src/cil_binary.c | 55 ++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 27 deletions(-)
 
 diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 5d7e52e..1f89bd1 100644
+index 1f89bd1..8233dfd 100644
 --- a/libsepol/cil/src/cil_binary.c
 +++ b/libsepol/cil/src/cil_binary.c
-@@ -4577,6 +4577,7 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
- 		if (bad) {
- 			avtab_ptr_t cur;
- 			struct cil_avrule target;
-+			struct cil_tree_node *n1 = NULL;
+@@ -4383,10 +4383,9 @@ exit:
+ 	return rc;
+ }
  
-                         target.is_extended = 0;
- 			target.rule_kind = CIL_AVRULE_ALLOWED;
-@@ -4588,7 +4589,6 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
- 			for (cur = bad; cur; cur = cur->next) {
- 				struct cil_list_item *i2;
- 				struct cil_list *matching;
--				struct cil_tree_node *n;
+-static int cil_check_neverallow(const struct cil_db *db, policydb_t *pdb, struct cil_tree_node *node)
++static int cil_check_neverallow(const struct cil_db *db, policydb_t *pdb, struct cil_tree_node *node, int *violation)
+ {
+-	int rc = SEPOL_ERR;
+-	int ret = CIL_FALSE;
++	int rc = SEPOL_OK;
+ 	struct cil_avrule *cil_rule = node->data;
+ 	struct cil_symtab_datum *tgt = cil_rule->tgt;
+ 	uint32_t kind;
+@@ -4425,11 +4424,11 @@ static int cil_check_neverallow(const struct cil_db *db, policydb_t *pdb, struct
  
- 				rc = cil_avrule_from_sepol(pdb, cur, &target, type_value_to_cil, class_value_to_cil, perm_value_to_cil);
+ 		rc = check_assertion(pdb, rule);
+ 		if (rc == CIL_TRUE) {
++			*violation = CIL_TRUE;
+ 			rc = __cil_print_neverallow_failure(db, node);
+ 			if (rc != SEPOL_OK) {
+ 				goto exit;
+ 			}
+-			ret = CIL_TRUE;
+ 		}
+ 
+ 	} else {
+@@ -4447,12 +4446,11 @@ static int cil_check_neverallow(const struct cil_db *db, policydb_t *pdb, struct
+ 			rule->xperms = item->data;
+ 			rc = check_assertion(pdb, rule);
+ 			if (rc == CIL_TRUE) {
++				*violation = CIL_TRUE;
+ 				rc = __cil_print_neverallow_failure(db, node);
  				if (rc != SEPOL_OK) {
-@@ -4597,7 +4597,7 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
- 				}
- 				__cil_print_rule("  ", "allow", &target);
- 				cil_list_init(&matching, CIL_NODE);
--				rc = cil_find_matching_avrule_in_ast(db->ast->root, CIL_AVRULE, &target, matching, CIL_FALSE);
-+				rc = cil_find_matching_avrule_in_ast(db->ast->root, CIL_AVRULE, &target, matching, CIL_TRUE);
- 				if (rc) {
- 					cil_log(CIL_ERR, "Error occurred while checking type bounds\n");
- 					cil_list_destroy(&matching, CIL_FALSE);
-@@ -4605,14 +4605,17 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
- 					bounds_destroy_bad(bad);
  					goto exit;
  				}
--
- 				cil_list_for_each(i2, matching) {
--					__cil_print_parents("    ", (struct cil_tree_node *)i2->data);
-+					struct cil_tree_node *n2 = i2->data;
-+					struct cil_avrule *r2 = n2->data;
-+					if (n1 == n2) {
-+						cil_log(CIL_ERR, "    <See previous>\n");
-+					} else {
-+						n1 = n2;
-+						__cil_print_parents("    ", n2);
-+						__cil_print_rule("      ", "allow", r2);
-+					}
- 				}
--				i2 = matching->tail;
--				n = i2->data;
--				__cil_print_rule("      ", "allow", n->data);
--				cil_log(CIL_ERR,"\n");
- 				cil_list_destroy(&matching, CIL_FALSE);
- 				cil_list_destroy(&target.perms.classperms, CIL_TRUE);
+-				ret = CIL_TRUE;
+-				goto exit;
  			}
+ 		}
+ 	}
+@@ -4469,34 +4467,23 @@ exit:
+ 	rule->xperms = NULL;
+ 	__cil_destroy_sepol_avrules(rule);
+ 
+-	if (rc) {
+-		return rc;
+-	} else {
+-		return ret;
+-	}
++	return rc;
+ }
+ 
+-static int cil_check_neverallows(const struct cil_db *db, policydb_t *pdb, struct cil_list *neverallows)
++static int cil_check_neverallows(const struct cil_db *db, policydb_t *pdb, struct cil_list *neverallows, int *violation)
+ {
+ 	int rc = SEPOL_OK;
+-	int ret = CIL_FALSE;
+ 	struct cil_list_item *item;
+ 
+ 	cil_list_for_each(item, neverallows) {
+-		rc = cil_check_neverallow(db, pdb, item->data);
+-		if (rc < 0) {
++		rc = cil_check_neverallow(db, pdb, item->data, violation);
++		if (rc != SEPOL_OK) {
+ 			goto exit;
+-		} else if (rc > 0) {
+-			ret = CIL_TRUE;
+ 		}
+ 	}
+ 
+ exit:
+-	if (rc || ret) {
+-		return SEPOL_ERR;
+-	} else {
+-		return SEPOL_OK;
+-	}
++	return rc;
+ }
+ 
+ static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t class, uint32_t data, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
+@@ -4551,7 +4538,7 @@ exit:
+ 	return rc;
+ }
+ 
+-static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void *type_value_to_cil, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[])
++static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void *type_value_to_cil, struct cil_class *class_value_to_cil[], struct cil_perm **perm_value_to_cil[], int *violation)
+ {
+ 	int rc = SEPOL_OK;
+ 	int i;
+@@ -4579,6 +4566,8 @@ static int cil_check_type_bounds(const struct cil_db *db, policydb_t *pdb, void
+ 			struct cil_avrule target;
+ 			struct cil_tree_node *n1 = NULL;
+ 
++			*violation = CIL_TRUE;
++
+                         target.is_extended = 0;
+ 			target.rule_kind = CIL_AVRULE_ALLOWED;
+ 			target.src_str = NULL;
+@@ -4759,20 +4748,32 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+ 	__cil_set_conditional_state_and_flags(pdb);
+ 
+ 	if (db->disable_neverallow != CIL_TRUE) {
++		int violation = CIL_FALSE;
+ 		cil_log(CIL_INFO, "Checking Neverallows\n");
+-		rc = cil_check_neverallows(db, pdb, neverallows);
++		rc = cil_check_neverallows(db, pdb, neverallows, &violation);
+ 		if (rc != SEPOL_OK) goto exit;
+ 
+ 		cil_log(CIL_INFO, "Checking User Bounds\n");
+-		bounds_check_users(NULL, pdb);
++		rc = bounds_check_users(NULL, pdb);
++		if (rc) {
++			violation = CIL_TRUE;
++		}
+ 
+ 		cil_log(CIL_INFO, "Checking Role Bounds\n");
+-		bounds_check_roles(NULL, pdb);
++		rc = bounds_check_roles(NULL, pdb);
++		if (rc) {
++			violation = CIL_TRUE;
++		}
+ 
+ 		cil_log(CIL_INFO, "Checking Type Bounds\n");
+-		rc = cil_check_type_bounds(db, pdb, type_value_to_cil, class_value_to_cil, perm_value_to_cil);
++		rc = cil_check_type_bounds(db, pdb, type_value_to_cil, class_value_to_cil, perm_value_to_cil, &violation);
+ 		if (rc != SEPOL_OK) goto exit;
+ 
++		if (violation == CIL_TRUE) {
++			rc = SEPOL_ERR;
++			goto exit;
++		}
++
+ 	}
+ 
+ 	rc = SEPOL_OK;
 -- 
 2.5.5
