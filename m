@@ -1,36 +1,37 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3DGltpo027692
- for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2016 12:47:57 -0400
-From: "Hefty, Sean" <sean.hefty@intel.com>
-To: Hal Rosenstock <hal@dev.mellanox.co.il>, Jason Gunthorpe
- <jgunthorpe@obsidianresearch.com>, Daniel Jurgens <danielj@mellanox.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
- <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: RE: [RFC PATCH v2 00/13] SELinux support for Infiniband RDMA
-Date: Wed, 13 Apr 2016 16:47:48 +0000
-Message-ID: <1828884A29C6694DAF28B7E6B8A82373AB041285@ORSMSX109.amr.corp.intel.com>
-References: <1459985638-37233-1-git-send-email-danielj@mellanox.com>
- <20160411201155.GC371@obsidianresearch.com>
- <DB5PR05MB111168B6670B36F12979705BC4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160411221210.GA5861@obsidianresearch.com>
- <DB5PR05MB1111E6A72480FF78AAB12747C4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160411231250.GB5861@obsidianresearch.com>
- <DB5PR05MB1111F04641E58609E51A9630C4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160412000621.GD5861@obsidianresearch.com>
- <570C85F7.5010101@dev.mellanox.co.il>
- <1828884A29C6694DAF28B7E6B8A82373AB040ABA@ORSMSX109.amr.corp.intel.com>
- <570DD3F5.2060302@dev.mellanox.co.il>
-In-Reply-To: <570DD3F5.2060302@dev.mellanox.co.il>
-Content-Type: text/plain; charset="Windows-1252"
+Subject: Re: genhomedircon USERID and USERNAME patches
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+References: <20160201093633.GB21978@meriadoc.perfinion.com>
+ <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ <CAJfZ7=mZnyW8-+BH02VJX7fBONyJTOHjHmkqByidz8cWw37Lcg@mail.gmail.com>
+ <570CF09E.10100@tycho.nsa.gov> <570D079B.40106@tresys.com>
+ <570E74FA.8060600@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <570E7B15.6090906@tycho.nsa.gov>
+Date: Wed, 13 Apr 2016 13:00:05 -0400
 MIME-Version: 1.0
+In-Reply-To: <570E74FA.8060600@gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> Former (multicast modifications of fabric) also requires restricting
-> arbitrary UD QPs as well as QP1 as SA access is QPn (n > 0) <-> QP1.
+On 04/13/2016 12:34 PM, Dominick Grift wrote:
+> On 04/12/2016 04:35 PM, Christopher J. PeBenito wrote:
+> 
+>> Right, the script that refpolicy has is only used on monolithic
+>> builds.
+> 
+> 
+> As I recall, last time i tried it, it was not working on a
+> redhat-based system. Probably bit-rot has set in. There is also some
+> hard-coding going on in there i believe.
+> 
+> Someone with c-skills should rewrite it in c, make it truly portable.
+> That way it can be used with both monolithic as well as modular policy
+> (i don't mean binary-based module policy here but text-based module
+> policy that otherwise does not require the presence of semodule)
 
-The SA could have an option to ignore all requests that do not originate QP1, then protect access to QP1 on the client nodes.
+Even CIL-based modules are installed via semodule and managed via
+libsemanage, and libsemanage already contains a C implementation of
+genhomedircon.
