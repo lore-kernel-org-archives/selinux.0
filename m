@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3E0RPAp008094
- for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2016 20:27:25 -0400
-Date: Wed, 13 Apr 2016 20:27:19 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3E0VRou009124
+ for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2016 20:31:30 -0400
+Date: Wed, 13 Apr 2016 20:31:27 -0400
 From: Ira Weiny <ira.weiny@intel.com>
 To: "Hefty, Sean" <sean.hefty@intel.com>
 Cc: Hal Rosenstock <hal@dev.mellanox.co.il>,
@@ -13,9 +13,8 @@ Cc: Hal Rosenstock <hal@dev.mellanox.co.il>,
  "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
  Yevgeny Petrilin <yevgenyp@mellanox.com>
 Subject: Re: [RFC PATCH v2 00/13] SELinux support for Infiniband RDMA
-Message-ID: <20160414002718.GA6660@rhel>
-References: <DB5PR05MB111168B6670B36F12979705BC4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
- <20160411221210.GA5861@obsidianresearch.com>
+Message-ID: <20160414003127.GA7534@rhel>
+References: <20160411221210.GA5861@obsidianresearch.com>
  <DB5PR05MB1111E6A72480FF78AAB12747C4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
  <20160411231250.GB5861@obsidianresearch.com>
  <DB5PR05MB1111F04641E58609E51A9630C4940@DB5PR05MB1111.eurprd05.prod.outlook.com>
@@ -24,9 +23,10 @@ References: <DB5PR05MB111168B6670B36F12979705BC4940@DB5PR05MB1111.eurprd05.prod.
  <1828884A29C6694DAF28B7E6B8A82373AB040ABA@ORSMSX109.amr.corp.intel.com>
  <570DD3F5.2060302@dev.mellanox.co.il>
  <1828884A29C6694DAF28B7E6B8A82373AB041285@ORSMSX109.amr.corp.intel.com>
+ <20160414002718.GA6660@rhel>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1828884A29C6694DAF28B7E6B8A82373AB041285@ORSMSX109.amr.corp.intel.com>
+In-Reply-To: <20160414002718.GA6660@rhel>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
