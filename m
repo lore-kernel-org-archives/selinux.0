@@ -1,239 +1,165 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3DMUVdC014789
- for <selinux@tycho.nsa.gov>; Wed, 13 Apr 2016 18:30:31 -0400
-From: Daniel Jurgens <danielj@mellanox.com>
-To: Paul Moore <pmoore@redhat.com>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: Re: [RFC PATCH] selinux: always return a value from the
- netport/netnode/netif caches
-Date: Wed, 13 Apr 2016 22:30:26 +0000
-Message-ID: <AM2PR05MB11056C527FE5F93ECA9D332AC4960@AM2PR05MB1105.eurprd05.prod.outlook.com>
-References: <146058346288.11989.9543589385643222847.stgit@localhost>
-Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
+In-Reply-To: <CAHC9VhRGLbjN-U0-_Cx1j7Wmuz1u0JT1o4U0uf5aQeYLXamUpA@mail.gmail.com>
+References: <CADs1-60DRNHOU2-k93oOTRRmYk4YtXP=af6cRhsK=Kwd+_t_3A@mail.gmail.com>
+ <570E99A8.5000101@tycho.nsa.gov> <570E9E79.9000105@tycho.nsa.gov>
+ <CAHC9VhRGLbjN-U0-_Cx1j7Wmuz1u0JT1o4U0uf5aQeYLXamUpA@mail.gmail.com>
+Date: Thu, 14 Apr 2016 01:33:52 +0100
+Message-ID: <CADs1-60rr4GRZeu2v8mBWMOYbjcq5mhHRCOM8ohREcV=g9j0pA@mail.gmail.com>
+Subject: Re: Failure in sel_netport_sid_slow()
+From: Greg <gkubok@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=94eb2c05231e7db3ae0530670c6f
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 4/13/2016 4:43 PM, Paul Moore wrote:
-> From: Paul Moore <paul@paul-moore.com>
-> 
-> Even if we are under memory pressure and can't allocate a new cache
-> node we can still return the port/node/iface value we looked up from
-> the policy.
-> 
-> Reported-by: Greg <gkubok@gmail.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/netif.c   |   35 +++++++++++++----------------------
->  security/selinux/netnode.c |   31 +++++++++++++++++--------------
->  security/selinux/netport.c |   19 ++++++++-----------
->  3 files changed, 38 insertions(+), 47 deletions(-)
-> 
-> diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-> index e607b44..5c3bfa4 100644
-> --- a/security/selinux/netif.c
-> +++ b/security/selinux/netif.c
-> @@ -91,18 +91,16 @@ static inline struct sel_netif *sel_netif_find(const struct net *ns,
->   * zero on success, negative values on failure.
->   *
->   */
-> -static int sel_netif_insert(struct sel_netif *netif)
-> +static void sel_netif_insert(struct sel_netif *netif)
->  {
->  	int idx;
->  
->  	if (sel_netif_total >= SEL_NETIF_HASH_MAX)
-> -		return -ENOSPC;
-> +		return;
->  
->  	idx = sel_netif_hashfn(netif->nsec.ns, netif->nsec.ifindex);
->  	list_add_rcu(&netif->list, &sel_netif_hash[idx]);
->  	sel_netif_total++;
-> -
-> -	return 0;
->  }
->  
->  /**
-> @@ -135,7 +133,7 @@ static void sel_netif_destroy(struct sel_netif *netif)
->   */
->  static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
->  {
-> -	int ret;
-> +	int ret = 0;
->  	struct sel_netif *netif;
->  	struct sel_netif *new = NULL;
->  	struct net_device *dev;
-> @@ -155,34 +153,27 @@ static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
->  	netif = sel_netif_find(ns, ifindex);
+--94eb2c05231e7db3ae0530670c6f
+Content-Type: text/plain; charset=UTF-8
 
-I know this is out of context for this patch, but isn't this find
-redundant?  It was already checked in sel_netif_sid.
+On 13 April 2016 at 22:36, Paul Moore <paul@paul-moore.com> wrote:
 
->  	if (netif != NULL) {
->  		*sid = netif->nsec.sid;
-> -		ret = 0;
->  		goto out;
->  	}
-> -	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> -	if (new == NULL) {
-> -		ret = -ENOMEM;
-> +	ret = security_netif_sid(dev->name, sid);
-> +	if (ret != 0) {
-> +		printk(KERN_WARNING
-> +		       "SELinux: failure in sel_netif_sid_slow(),"
-> +		       " unable to determine network interface label (%d)\n",
-> +		       ifindex);
->  		goto out;
->  	}
-> -	ret = security_netif_sid(dev->name, &new->nsec.sid);
-> -	if (ret != 0)
-> +	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> +	if (new == NULL)
->  		goto out;
->  	new->nsec.ns = ns;
->  	new->nsec.ifindex = ifindex;
-> -	ret = sel_netif_insert(new);
-> -	if (ret != 0)
-> -		goto out;
-> -	*sid = new->nsec.sid;
-> +	new->nsec.sid = *sid;
-> +	sel_netif_insert(new);
->  
->  out:
->  	spin_unlock_bh(&sel_netif_lock);
->  	dev_put(dev);
-> -	if (unlikely(ret)) {
-> -		printk(KERN_WARNING
-> -		       "SELinux: failure in sel_netif_sid_slow(),"
-> -		       " unable to determine network interface label (%d)\n",
-> -		       ifindex);
-> -		kfree(new);
-> -	}
->  	return ret;
->  }
->  
-> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> index da923f8..b752bd2 100644
-> --- a/security/selinux/netnode.c
-> +++ b/security/selinux/netnode.c
-> @@ -199,7 +199,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
->   */
->  static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
->  {
-> -	int ret = -ENOMEM;
-> +	int ret;
->  	struct sel_netnode *node;
->  	struct sel_netnode *new = NULL;
->  
-> @@ -210,39 +210,42 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
->  		spin_unlock_bh(&sel_netnode_lock);
->  		return 0;
->  	}
-> -	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> -	if (new == NULL)
-> -		goto out;
->  	switch (family) {
->  	case PF_INET:
->  		ret = security_node_sid(PF_INET,
->  					addr, sizeof(struct in_addr), sid);
-> -		new->nsec.addr.ipv4 = *(__be32 *)addr;
->  		break;
->  	case PF_INET6:
->  		ret = security_node_sid(PF_INET6,
->  					addr, sizeof(struct in6_addr), sid);
-> -		new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
->  		break;
->  	default:
->  		BUG();
->  		ret = -EINVAL;
->  	}
-> -	if (ret != 0)
-> +	if (ret != 0) {
-> +		printk(KERN_WARNING
-> +		       "SELinux: failure in sel_netnode_sid_slow(),"
-> +		       " unable to determine network node label\n");
->  		goto out;
-> -
-> +	}
-> +	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> +	if (new == NULL)
-> +		goto out;
-> +	switch (family) {
-> +	case PF_INET:
-> +		new->nsec.addr.ipv4 = *(__be32 *)addr;
-> +		break;
-> +	case PF_INET6:
-> +		new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
-> +		break;
-> +	}
->  	new->nsec.family = family;
->  	new->nsec.sid = *sid;
->  	sel_netnode_insert(new);
->  
->  out:
->  	spin_unlock_bh(&sel_netnode_lock);
-> -	if (unlikely(ret)) {
-> -		printk(KERN_WARNING
-> -		       "SELinux: failure in sel_netnode_sid_slow(),"
-> -		       " unable to determine network node label\n");
-> -		kfree(new);
-> -	}
->  	return ret;
->  }
->  
-> diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-> index 3311cc3..189c293 100644
-> --- a/security/selinux/netport.c
-> +++ b/security/selinux/netport.c
-> @@ -147,7 +147,7 @@ static void sel_netport_insert(struct sel_netport *port)
->   */
->  static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
->  {
-> -	int ret = -ENOMEM;
-> +	int ret;
->  	struct sel_netport *port;
->  	struct sel_netport *new = NULL;
->  
-> @@ -158,13 +158,16 @@ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
->  		spin_unlock_bh(&sel_netport_lock);
->  		return 0;
->  	}
-> +	ret = security_port_sid(protocol, pnum, sid);
-> +	if (ret != 0) {
-> +		printk(KERN_WARNING
-> +		       "SELinux: failure in sel_netport_sid_slow(),"
-> +		       " unable to determine network port label\n");
-> +		goto out;
-> +	}
->  	new = kzalloc(sizeof(*new), GFP_ATOMIC);
->  	if (new == NULL)
->  		goto out;
-> -	ret = security_port_sid(protocol, pnum, sid);
-> -	if (ret != 0)
-> -		goto out;
-> -
->  	new->psec.port = pnum;
->  	new->psec.protocol = protocol;
->  	new->psec.sid = *sid;
-> @@ -172,12 +175,6 @@ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
->  
->  out:
->  	spin_unlock_bh(&sel_netport_lock);
-> -	if (unlikely(ret)) {
-> -		printk(KERN_WARNING
-> -		       "SELinux: failure in sel_netport_sid_slow(),"
-> -		       " unable to determine network port label\n");
-> -		kfree(new);
-> -	}
->  	return ret;
->  }
->  
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+> On Wed, Apr 13, 2016 at 3:31 PM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > Looking at the sel_netport_sid_slow() code, I don't see why we need to
+> > fail hard if the kzalloc() of the new node fails; we just won't be able
+> > to cache the result but can still obtain and return the SID.  Paul, do
+> > you see any reason we can't just move up the call to security_port_sid()
+> > and only fail if that fails?  In the common case, that won't require
+> > memory allocation at all (only needs it if it hasn't previously mapped
+> > the resulting context to a SID).  In the same manner, we do not fail
+> > just because we cannot add an entry to the AVC.  The same should apply
+> > to netnode and netif caches.
+>
+> Sounds reasonable to me, I'll post a RFC patch in just a minute ... it
+> will be RFC because it will be completely untested, once I've had a
+> chance to test it I'll merge it.
+>
+> > That said, it seems hard to envision that kzalloc() failing and being
+> > able to complete the bind() operation at all, but maybe it is a
+> > transient failure.
+>
+> Agreed, although it might be that the rest of the allocations in the
+> network stack are done with something other than GFP_ATOMIC, not sure
+> off the top of my head.
+
+
+It doesn't appear to be a memory constrain. My initial report was from an
+EC2 instance with 4GiB memory, a "t2.medium" (but plenty left, JupyterHub's
+footprint is minimal, overall ~3.1GiB still spare after everything is
+started). I also just tried on a new "m4.4xlarge" with 64GiB memory, same
+problem.
+
+It's very difficult to replicate outside of the first run of the 2 Ansible
+roles on a fresh instance. On one instance, I was able to replicate it 4
+more times after rebooting, by either running just a couple of last tasks
+from role 1, and the first task from role 2, or by running equivalent
+commands directly (*). But, I can't replicate it anymore (despite more
+reboots, resetting SE bools etc), and unable to replicate on any other
+identical instances, so it's 100% repeatable when I build brand new
+instance and run the 2 roles for the first time (without any additional
+waits), but after that, very hard to trigger.
+
+(*) I ran something like this, where first parentheses pair corresponds
+with last 2 tasks of role 1, and second pair with first task of role 2, and
+I run them in parallel to simulate second role starting while first is
+still finishing or at least systemd still starting the service --
+"(sss_cache -E && systemctl restart sssd oddjobd; systemctl restart
+jupyterhub) & (setsebool -P httpd_can_network_connect 1 && setsebool -P
+httpd_can_network_relay 1)". Initially I thought SSS might have something
+to do with this, but not sure anymore.
+
+I also added "strace" to the systemd unit definition for JupyterHub and
+spun new instances, but as "strace" adds quite a lot of overhead and
+therefore time/delay, everything suddenly just works, so I can't witness
+the ENOMEM in a trace unfortunately. For sanity I tried yet another build
+with "strace" removed again, and the issue is back.
+
+If you're changing it to soft failure, that will save the bind in user
+space and it'll silently succeed I'm assuming, but based on the above, the
+root cause that triggers this in the first place might be something
+different than not enough system memory.
+
+Thanks,
+
+Greg.
+
+--94eb2c05231e7db3ae0530670c6f
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On 1=
+3 April 2016 at 22:36, Paul Moore <span dir=3D"ltr">&lt;<a href=3D"mailto:p=
+aul@paul-moore.com" target=3D"_blank">paul@paul-moore.com</a>&gt;</span> wr=
+ote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex=
+;border-left-width:1px;border-left-color:rgb(204,204,204);border-left-style=
+:solid;padding-left:1ex"><span class=3D"">On Wed, Apr 13, 2016 at 3:31 PM, =
+Stephen Smalley &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov<=
+/a>&gt; wrote:<br>
+&gt; Looking at the sel_netport_sid_slow() code, I don&#39;t see why we nee=
+d to<br>
+&gt; fail hard if the kzalloc() of the new node fails; we just won&#39;t be=
+ able<br>
+&gt; to cache the result but can still obtain and return the SID.=C2=A0 Pau=
+l, do<br>
+&gt; you see any reason we can&#39;t just move up the call to security_port=
+_sid()<br>
+&gt; and only fail if that fails?=C2=A0 In the common case, that won&#39;t =
+require<br>
+&gt; memory allocation at all (only needs it if it hasn&#39;t previously ma=
+pped<br>
+&gt; the resulting context to a SID).=C2=A0 In the same manner, we do not f=
+ail<br>
+&gt; just because we cannot add an entry to the AVC.=C2=A0 The same should =
+apply<br>
+&gt; to netnode and netif caches.<br>
+<br>
+</span>Sounds reasonable to me, I&#39;ll post a RFC patch in just a minute =
+... it<br>
+will be RFC because it will be completely untested, once I&#39;ve had a<br>
+chance to test it I&#39;ll merge it.<br>
+<span class=3D""><br>
+&gt; That said, it seems hard to envision that kzalloc() failing and being<=
+br>
+&gt; able to complete the bind() operation at all, but maybe it is a<br>
+&gt; transient failure.<br>
+<br>
+</span>Agreed, although it might be that the rest of the allocations in the=
+<br>
+network stack are done with something other than GFP_ATOMIC, not sure<br>
+off the top of my head.=C2=A0</blockquote><div><br></div><div>It doesn&#39;=
+t appear to be a memory constrain. My initial report was from an EC2 instan=
+ce with 4GiB memory, a &quot;t2.medium&quot; (but plenty left, JupyterHub&#=
+39;s footprint is minimal, overall ~3.1GiB still spare after everything is =
+started). I also just tried on a new &quot;m4.4xlarge&quot; with 64GiB memo=
+ry, same problem.<div><br></div><div>It&#39;s very difficult to replicate o=
+utside of the first run of the 2 Ansible roles on a fresh instance. On one =
+instance, I was able to replicate it 4 more times after rebooting, by eithe=
+r running just a couple of last tasks from role 1, and the first task from =
+role 2, or by running equivalent commands directly (*). But, I can&#39;t re=
+plicate it anymore (despite more reboots, resetting SE bools etc), and unab=
+le to replicate on any other identical instances, so it&#39;s 100% repeatab=
+le when I build brand new instance and run the 2 roles for the first time (=
+without any additional waits), but after that, very hard to trigger.</div><=
+/div><div><br></div><div>(*) I ran something like this, where first parenth=
+eses pair corresponds with last 2 tasks of role 1, and second pair with fir=
+st task of role 2, and I run them in parallel to simulate second role start=
+ing while first is still finishing or at least systemd still starting the s=
+ervice -- &quot;(sss_cache -E &amp;&amp; systemctl restart sssd oddjobd; sy=
+stemctl restart jupyterhub) &amp; (setsebool -P httpd_can_network_connect 1=
+ &amp;&amp; setsebool -P httpd_can_network_relay 1)&quot;. Initially I thou=
+ght SSS might have something to do with this, but not sure anymore.</div><d=
+iv><br></div><div>I also added &quot;strace&quot; to the systemd unit defin=
+ition for JupyterHub and spun new instances, but as &quot;strace&quot; adds=
+ quite a lot of overhead and therefore time/delay, everything suddenly just=
+ works, so I can&#39;t witness the ENOMEM in a trace unfortunately. For san=
+ity I tried yet another build with &quot;strace&quot; removed again, and th=
+e issue is back.</div><div><br></div><div>If you&#39;re changing it to soft=
+ failure, that will save the bind in user space and it&#39;ll silently succ=
+eed I&#39;m assuming, but based on the above, the root cause that triggers =
+this in the first place might be something different than not enough system=
+ memory.</div><div><br></div><div>Thanks,</div><div><br></div><div>Greg.</d=
+iv></div></div></div>
+
+--94eb2c05231e7db3ae0530670c6f--
