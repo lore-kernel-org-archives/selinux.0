@@ -1,45 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3ELwwhk019648
- for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2016 17:58:58 -0400
-Date: Thu, 14 Apr 2016 17:58:50 -0400
-From: Ira Weiny <ira.weiny@intel.com>
-To: Daniel Jurgens <danielj@mellanox.com>
-Cc: "Hefty, Sean" <sean.hefty@intel.com>,
- Hal Rosenstock <hal@dev.mellanox.co.il>,
- Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: Re: [RFC PATCH v2 00/13] SELinux support for Infiniband RDMA
-Message-ID: <20160414215849.GA15322@rhel.sc.intel.com>
-References: <20160412000621.GD5861@obsidianresearch.com>
- <570C85F7.5010101@dev.mellanox.co.il>
- <1828884A29C6694DAF28B7E6B8A82373AB040ABA@ORSMSX109.amr.corp.intel.com>
- <570DD3F5.2060302@dev.mellanox.co.il>
- <1828884A29C6694DAF28B7E6B8A82373AB041285@ORSMSX109.amr.corp.intel.com>
- <20160414002718.GA6660@rhel>
- <1828884A29C6694DAF28B7E6B8A82373AB041706@ORSMSX109.amr.corp.intel.com>
- <AM2PR05MB1105E03BDEE8ED9552C8EDE7C4970@AM2PR05MB1105.eurprd05.prod.outlook.com>
- <20160414162604.GA9697@rhel.sc.intel.com>
- <AM2PR05MB11059E1985CE6544FAE4BA00C4970@AM2PR05MB1105.eurprd05.prod.outlook.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3EMrwF4032289
+ for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2016 18:53:59 -0400
+Received: by mail-oi0-f47.google.com with SMTP id w85so108422553oiw.0
+ for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2016 15:53:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <AM2PR05MB11059E1985CE6544FAE4BA00C4970@AM2PR05MB1105.eurprd05.prod.outlook.com>
+In-Reply-To: <1460451162.5965.16.camel@redhat.com>
+References: <cover.1459934322.git.pabeni@redhat.com>
+ <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
+ <20160406234532.GA731@breakpoint.cc> <2239567.jkCk1gtQAE@sifl>
+ <1460451162.5965.16.camel@redhat.com>
+Date: Thu, 14 Apr 2016 18:53:54 -0400
+Message-ID: <CAHC9VhSgWAoWgywOZOvT76jCcHuEywjFu5CKJo9D0k+66RbFCA@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
+From: Paul Moore <paul@paul-moore.com>
+To: Paolo Abeni <pabeni@redhat.com>, Casey Schaufler <casey@schaufler-ca.com>
+Cc: Florian Westphal <fw@strlen.de>, linux-security-module@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ James Morris <james.l.morris@oracle.com>,
+ Andreas Gruenbacher <agruenba@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> > 
-> > If you do add a check on every packet in the mad stack I would like time to
-> > evaluate how that will affect the mad interface for performance.
-> 
-> I don't anticipate a large performance impact, due to caching of
-> security ID's.  I can try to quantify it though.  I don't know of any
-> MAD performance tests off hand, do have a recommendation?
+On Tue, Apr 12, 2016 at 4:52 AM, Paolo Abeni <pabeni@redhat.com> wrote:
+> Will be ok if we post a v2 version of this series, removing the hooks
+> de-registration bits, but preserving the selinux nf-hooks and
+> socket_sock_rcv_skb() on-demand/delayed registration ? Will that fit
+> with the post-init read only memory usage that you are planning ?
 
-Unfortunately I don't have any that are public.
+The work Florian and and I were talking about would be limited just to
+the netfilter hooks, the LSM hooks, e.g. socket_sock_rcv_skb() and
+friends, would remain as they are today.  What what we discussing was
+defaulting to not registering the netfilter hooks until it became
+necessary due to a labeled networking configuration or the
+always_check_network policy capability; the registration of the
+netfilter hooks would be permanent, you could not unregister the hooks
+at that point, you would need to reboot.  Does that make sense?
 
-Ira
+As far as Casey's concerns, I don't think the work we are talking
+about for the v2 patchset would have any effect on the socket/sock
+security blobs as you really can't manage those adequately from the
+netfilter hooks; you most likely will reference them and perhaps even
+update the data within, but not allocate or free the blobs.  Besides,
+even in some weird case you were alloc/free'ing security blobs in the
+netfilter hooks, we can deal with that on a per-LSM basis if/when the
+full fledged stacking patches are merged; everything we are talking
+about is a hidden implementation detail so changing it in the future
+shouldn't be a problem.
+
+-- 
+paul moore
+www.paul-moore.com
