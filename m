@@ -1,70 +1,45 @@
-From: Paul Moore <pmoore@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH] selinux: always return a value from the
- netport/netnode/netif caches
-Date: Thu, 14 Apr 2016 14:49:30 -0400
-Message-ID: <1577626.0S0ufBum6K@sifl>
-In-Reply-To: <570FA495.8040401@tycho.nsa.gov>
-References: <146058346288.11989.9543589385643222847.stgit@localhost>
- <570FA495.8040401@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3ELwwhk019648
+ for <selinux@tycho.nsa.gov>; Thu, 14 Apr 2016 17:58:58 -0400
+Date: Thu, 14 Apr 2016 17:58:50 -0400
+From: Ira Weiny <ira.weiny@intel.com>
+To: Daniel Jurgens <danielj@mellanox.com>
+Cc: "Hefty, Sean" <sean.hefty@intel.com>,
+ Hal Rosenstock <hal@dev.mellanox.co.il>,
+ Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [RFC PATCH v2 00/13] SELinux support for Infiniband RDMA
+Message-ID: <20160414215849.GA15322@rhel.sc.intel.com>
+References: <20160412000621.GD5861@obsidianresearch.com>
+ <570C85F7.5010101@dev.mellanox.co.il>
+ <1828884A29C6694DAF28B7E6B8A82373AB040ABA@ORSMSX109.amr.corp.intel.com>
+ <570DD3F5.2060302@dev.mellanox.co.il>
+ <1828884A29C6694DAF28B7E6B8A82373AB041285@ORSMSX109.amr.corp.intel.com>
+ <20160414002718.GA6660@rhel>
+ <1828884A29C6694DAF28B7E6B8A82373AB041706@ORSMSX109.amr.corp.intel.com>
+ <AM2PR05MB1105E03BDEE8ED9552C8EDE7C4970@AM2PR05MB1105.eurprd05.prod.outlook.com>
+ <20160414162604.GA9697@rhel.sc.intel.com>
+ <AM2PR05MB11059E1985CE6544FAE4BA00C4970@AM2PR05MB1105.eurprd05.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <AM2PR05MB11059E1985CE6544FAE4BA00C4970@AM2PR05MB1105.eurprd05.prod.outlook.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, April 14, 2016 10:09:25 AM Stephen Smalley wrote:
-> On 04/13/2016 05:37 PM, Paul Moore wrote:
-> > From: Paul Moore <paul@paul-moore.com>
 > > 
-> > Even if we are under memory pressure and can't allocate a new cache
-> > node we can still return the port/node/iface value we looked up from
-> > the policy.
-> > 
-> > Reported-by: Greg <gkubok@gmail.com>
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> > 
-> >  security/selinux/netif.c   |   35 +++++++++++++----------------------
-> >  security/selinux/netnode.c |   31 +++++++++++++++++--------------
-> >  security/selinux/netport.c |   19 ++++++++-----------
-> >  3 files changed, 38 insertions(+), 47 deletions(-)
-> > 
-> > diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-> > index e607b44..5c3bfa4 100644
-> > --- a/security/selinux/netif.c
-> > +++ b/security/selinux/netif.c
-> > @@ -91,18 +91,16 @@ static inline struct sel_netif *sel_netif_find(const
-> > struct net *ns,> 
-> >   * zero on success, negative values on failure.
-> >   *
-> >   */
-> > 
-> > -static int sel_netif_insert(struct sel_netif *netif)
-> > +static void sel_netif_insert(struct sel_netif *netif)
-> > 
-> >  {
-> >  
-> >  	int idx;
-> >  	
-> >  	if (sel_netif_total >= SEL_NETIF_HASH_MAX)
-> > 
-> > -		return -ENOSPC;
-> > +		return;
+> > If you do add a check on every packet in the mad stack I would like time to
+> > evaluate how that will affect the mad interface for performance.
 > 
-> This will leak netif (new in the caller).  Looks like the other
-> sel_*_insert() functions handle freeing of the entry if we hit the limit.
+> I don't anticipate a large performance impact, due to caching of
+> security ID's.  I can try to quantify it though.  I don't know of any
+> MAD performance tests off hand, do have a recommendation?
 
-Yes, good catch.
+Unfortunately I don't have any that are public.
 
-For a while now I thought we would be better off if we consolidated the 
-different network object caches into one small cache implementation with 
-object specific callouts (hash, match, etc.) and cache instances.  There is so 
-much duplicated code between these three and there really is no need for it.  
-Perhaps I'll play with that this weekend if I get some time.
-
--- 
-paul moore
-security @ redhat
+Ira
