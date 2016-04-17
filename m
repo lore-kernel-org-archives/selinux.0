@@ -1,76 +1,89 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3FFsYwq007628
- for <selinux@tycho.nsa.gov>; Fri, 15 Apr 2016 11:54:34 -0400
-Subject: Re: [RFC PATCH 0/2] selinux: avoid nf hooks overhead when not needed
-To: Paolo Abeni <pabeni@redhat.com>, Paul Moore <paul@paul-moore.com>
-References: <cover.1459934322.git.pabeni@redhat.com>
- <CAHC9VhSZP1QxT-pQeHAW9m1xmyDsbFeA=9b8SdeWgS0RiDTOBA@mail.gmail.com>
- <20160406234532.GA731@breakpoint.cc> <2239567.jkCk1gtQAE@sifl>
- <1460451162.5965.16.camel@redhat.com>
- <CAHC9VhSgWAoWgywOZOvT76jCcHuEywjFu5CKJo9D0k+66RbFCA@mail.gmail.com>
- <1460713133.7410.2.camel@redhat.com>
-Cc: Florian Westphal <fw@strlen.de>, linux-security-module@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- James Morris <james.l.morris@oracle.com>,
- Andreas Gruenbacher <agruenba@redhat.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
- selinux@tycho.nsa.gov
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <57110EB2.5050408@schaufler-ca.com>
-Date: Fri, 15 Apr 2016 08:54:26 -0700
+Subject: Re: genhomedircon USERID and USERNAME patches
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <20160201093633.GB21978@meriadoc.perfinion.com>
+ <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ <CAJfZ7=mZnyW8-+BH02VJX7fBONyJTOHjHmkqByidz8cWw37Lcg@mail.gmail.com>
+ <570CF09E.10100@tycho.nsa.gov> <570D079B.40106@tresys.com>
+ <570E74FA.8060600@gmail.com> <570E7B15.6090906@tycho.nsa.gov>
+ <570E7D73.5060302@gmail.com> <570E7F5A.8060006@gmail.com>
+ <570E8F36.3060609@gmail.com>
+From: Dominick Grift <dac.override@gmail.com>
+Message-ID: <5713619B.3090604@gmail.com>
+Date: Sun, 17 Apr 2016 12:12:43 +0200
 MIME-Version: 1.0
-In-Reply-To: <1460713133.7410.2.camel@redhat.com>
+In-Reply-To: <570E8F36.3060609@gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 4/15/2016 2:38 AM, Paolo Abeni wrote:
-> On Thu, 2016-04-14 at 18:53 -0400, Paul Moore wrote:
->> On Tue, Apr 12, 2016 at 4:52 AM, Paolo Abeni <pabeni@redhat.com> wrote:
->>> Will be ok if we post a v2 version of this series, removing the hooks
->>> de-registration bits, but preserving the selinux nf-hooks and
->>> socket_sock_rcv_skb() on-demand/delayed registration ? Will that fit
->>> with the post-init read only memory usage that you are planning ?
->> The work Florian and and I were talking about would be limited just to
->> the netfilter hooks, the LSM hooks, e.g. socket_sock_rcv_skb() and
->> friends, would remain as they are today.  What what we discussing was
->> defaulting to not registering the netfilter hooks until it became
->> necessary due to a labeled networking configuration or the
->> always_check_network policy capability; the registration of the
->> netfilter hooks would be permanent, you could not unregister the hooks
->> at that point, you would need to reboot.  Does that make sense?
-> Yes, AFAIC it makes sense. I'll try to follow this route for an eventual
-> v2.
->
->> As far as Casey's concerns, I don't think the work we are talking
->> about for the v2 patchset would have any effect on the socket/sock
->> security blobs as you really can't manage those adequately from the
->> netfilter hooks; you most likely will reference them and perhaps even
->> update the data within, but not allocate or free the blobs.  Besides,
->> even in some weird case you were alloc/free'ing security blobs in the
->> netfilter hooks, we can deal with that on a per-LSM basis if/when the
->> full fledged stacking patches are merged; everything we are talking
->> about is a hidden implementation detail so changing it in the future
->> shouldn't be a problem.
-> Casey, are you ok with the above?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-Yes. My concern is with the security module hooks. Altering
-the netfilter hooks is a separate issue, and I don't have
-trouble with that.
+On 04/13/2016 08:25 PM, Dominick Grift wrote:
+> On 04/13/2016 07:18 PM, Dominick Grift wrote:
+> 
+>>> Let me correct that:
+> 
+>>> "Even CIL-based modules can be installed via semodule and 
+>>> managed via libsemanage, and libsemanage already contains a C 
+>>> implementation of genhomedircon."
+> 
+> 
+>>> that is not my point though. My point is: since we need a
+>>> working genhomedircon for monolithic policy, we might cease
+>>> the opportunity to also support text-based module policy which
+>>> can be installed via semodule and managed via libsemanage, but
+>>> does not strictly require that .
+> 
+> 
+>> Make that "seize" instead (i think)
+> 
+> 
+> I just realized that i do not have to bring CIL into the equation 
+> here. We can keep it nice, simple and to the point. Refpolicy 
+> genhomedircon needs to be updated (and needs just a general review
+> to make it work again on modern distributions) as well to make this
+> new functionality also work with monolithic policy.
+> 
+> Also since were on the discussion of genhomedircon, I might be
+> wrong here, but I believe genhomedircon cannot currently deal with
+> %group entries in seusers.
+> 
+> 
 
-I also would not expect to see an LSM doing blob allocation
-during socket delivery, but hey, it *is* networking code,
-and stranger things happen all the time.
+I think we should also generate file context specs for user mail spool
+(is currently not done AFAIK in common module policy).
 
-> Thank you,
->
-> Paolo
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+But if genhomedircon would not hardcode keywords and identifiers, then
+i could accept them through the command line options and map it to
+some hardcoded initial identifiers where/if needed
+
+then one could specify on the command line the keyword, and any other
+identifiers. So that is a bit more flexible so that when in the future
+we get other instances where we need to generate contexts for some
+location we dont have to edit the script we can just pass it some
+additional new options. But yes then i suppose it would need to be a
+standalone script. Added value there is that we then no longer have to
+maintain to genhomedircon instances, one for libsemanage and one for
+monolitic policy and text-based module policy.
+
+- -- 
+Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJXE2GXAAoJECV0jlU3+UdpHjML/0WTMGgEjjkgPuLduoOTxGjA
+VBiiAOSIrrwh//TxXbbVxy1G46AHAD8SxBfC8TRCnAYMP01EVHpst7lLwXP4aDvH
+a0Nhv7NV3nfdKCMuYKcXmGjPvkMD2u5v2JOpQjAM4s1AHxCm5irKq7rHZLeWfuVO
+Ry4s0tQNRme8niHcr7I9jk50+ijxrUyKgh2CZQw0dmJ80nGCDXrbmGRYQYVY6Aw7
+yNGhu7eoMbXd9yN5k9UAtT+kvLuD9gxahfokKECNqqLwWzf7ttP5idkDS8GQLYVM
+OfogT6TKeQznqnU5y3ojTEVHy+2tjwjntVX4OSeBVietWH1Sulrv0SX0YhqjiYbQ
+NE4GZi67JvExGXbGKSitMg6kSmivguUVIb7DAVviLW5FrHPWGZMybRFf/LtyZ3Ay
++GCgIFpeMn0933B4T6O6fZozcqpD66aFF9DWNvtQ2p9hIWzFNdxGwgg0B1gJJ0CO
+eVReqMaR+15C1xiAoZz/C6Pa0r+qzTM8+0GorwEQ5A==
+=ggrX
+-----END PGP SIGNATURE-----
