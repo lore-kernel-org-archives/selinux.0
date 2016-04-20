@@ -1,77 +1,178 @@
-Subject: Re: [PATCH 5/6] libsepol/cil: Remove path field from cil_tree_node
- struct
-To: Steve Lawrence <slawrence@tresys.com>, selinux@tycho.nsa.gov
-References: <1461075965-17161-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1461075965-17161-6-git-send-email-jwcart2@tycho.nsa.gov>
- <571796AD.3090000@tresys.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5717DA37.3010408@tycho.nsa.gov>
-Date: Wed, 20 Apr 2016 15:36:23 -0400
-MIME-Version: 1.0
-In-Reply-To: <571796AD.3090000@tresys.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3KKo1ws012228
+ for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2016 16:50:01 -0400
+Received: by mail-pf0-f179.google.com with SMTP id e128so21748955pfe.3
+ for <selinux@tycho.nsa.gov>; Wed, 20 Apr 2016 13:49:59 -0700 (PDT)
+From: Jeff Vander Stoep <jeffv@google.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, Jeff Vander Stoep <jeffv@google.com>
+Subject: [PATCH] Fix extended permissions neverallow checking
+Date: Wed, 20 Apr 2016 13:49:49 -0700
+Message-Id: <1461185389-3133-1-git-send-email-jeffv@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/20/2016 10:48 AM, Steve Lawrence wrote:
-> On 04/19/2016 10:26 AM, James Carter wrote:
->> Remove path field from cil_tree_node struct and all references
->> to it in CIL. This will reduce memory usage by 5%.
->>
->> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->> ---
->>   libsepol/cil/src/cil_binary.c    | 14 +++++++++++++-
->>   libsepol/cil/src/cil_build_ast.c |  2 --
->>   libsepol/cil/src/cil_copy_ast.c  |  1 -
->>   libsepol/cil/src/cil_parser.c    | 23 +++++++++++------------
->>   libsepol/cil/src/cil_tree.c      |  1 -
->>   libsepol/cil/src/cil_tree.h      |  1 -
->>   6 files changed, 24 insertions(+), 18 deletions(-)
->>
->> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
->> index 0a98ecd..9db42d5 100644
->> --- a/libsepol/cil/src/cil_binary.c
->> +++ b/libsepol/cil/src/cil_binary.c
->> @@ -4227,6 +4227,9 @@ exit:
->>   static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *node)
->>   {
->>   	avrule_t *avrule;
->> +	struct cil_tree_node *source_node;
->> +	char *source_path;
->> +	int is_cil;
->>
->>   	avrule = cil_malloc(sizeof(avrule_t));
->>   	avrule->specified = kind;
->> @@ -4235,8 +4238,17 @@ static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *no
->>   	__cil_init_sepol_type_set(&avrule->ttypes);
->>   	avrule->perms = NULL;
->>   	avrule->line = node->line;
->> -	avrule->source_filename = node->path;
->> +
->> +	avrule->source_filename = NULL;
->>   	avrule->source_line = node->line;
->> +	source_node = cil_tree_get_next_path(node, &source_path, &is_cil);
->> +	if (source_node) {
->> +		avrule->source_filename = source_path;
->> +		if (!is_cil) {
->> +			avrule->source_line = node->hll_line;
->
-> Can we not use ->line instead of ->hll_live when is_cil is true?
->
+Commit 99fc177b "Add neverallow support for ioctl extended permissions"
+first checks to see if the ioctl permission is granted, then checks to
+see if the same source/target violates a neverallowed ioctl command.
+Unfortunately this does not address the case where the ioctl permission
+and extended permissions are granted on different attributes. Example,
+the following will incorrectly cause a neverallow violation.
 
-Actually, neither source_filename nor source_line will be used because CIL is 
-using its own functions to print error messages.
+allow untrusted_app self:tcp_socket ioctl;
+allowxperm domain domain:tcp_socket unpriv_sock_ioctls;
+neverallowxperm untrusted_app domain:tcp_socket ~unpriv_sock_ioctls;
 
->> +		}
->> +	}
->> +
->>   	avrule->next = NULL;
->>   	return avrule;
->>   }
+The fix is to enumerate over the source and target attributes when
+looking for extended permission violations.
 
+Note: The bug this addresses incorrectly asserts that a violation has
+occurred. Actual neverallow violations are always caught.
 
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+---
+ libsepol/src/assertion.c | 93 +++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 60 insertions(+), 33 deletions(-)
+
+diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+index fbf397f..f4429ad 100644
+--- a/libsepol/src/assertion.c
++++ b/libsepol/src/assertion.c
+@@ -147,36 +147,49 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
+ 	avtab_key_t tmp_key;
+ 	avtab_extended_perms_t *xperms;
+ 	avtab_extended_perms_t error;
++	ebitmap_t *sattr = &p->type_attr_map[k->source_type - 1];
++	ebitmap_t *tattr = &p->type_attr_map[k->target_type - 1];
++	ebitmap_node_t *snode, *tnode;
++	unsigned int i, j;
+ 	int rc = 1;
+ 	int ret = 0;
+ 
+ 	memcpy(&tmp_key, k, sizeof(avtab_key_t));
+ 	tmp_key.specified = AVTAB_XPERMS_ALLOWED;
+ 
+-	for (node = avtab_search_node(avtab, &tmp_key);
+-	     node;
+-	     node = avtab_search_node_next(node, tmp_key.specified)) {
+-		xperms = node->datum.xperms;
+-		if ((xperms->specified != AVTAB_XPERMS_IOCTLFUNCTION)
+-				&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
++	ebitmap_for_each_bit(sattr, snode, i) {
++		if (!ebitmap_node_get_bit(snode, i))
+ 			continue;
++		ebitmap_for_each_bit(tattr, tnode, j) {
++			if (!ebitmap_node_get_bit(tnode, j))
++				continue;
++			tmp_key.source_type = i + 1;
++			tmp_key.target_type = j + 1;
++			for (node = avtab_search_node(avtab, &tmp_key);
++			     node;
++			     node = avtab_search_node_next(node, tmp_key.specified)) {
++				xperms = node->datum.xperms;
++				if ((xperms->specified != AVTAB_XPERMS_IOCTLFUNCTION)
++						&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
++					continue;
+ 
+-		rc = check_extended_permissions(avrule->xperms, xperms);
+-		/* failure on the extended permission check_extended_permissionss */
+-		if (rc) {
+-			extended_permissions_violated(&error, avrule->xperms, xperms);
+-			ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of policy.conf) violated by\n"
+-					"allowxperm %s %s:%s %s;",
+-					avrule->source_line, avrule->source_filename, avrule->line,
+-					p->p_type_val_to_name[stype],
+-					p->p_type_val_to_name[ttype],
+-					p->p_class_val_to_name[curperm->tclass - 1],
+-					sepol_extended_perms_to_string(&error));
+-
+-			rc = 0;
+-			ret++;
++				rc = check_extended_permissions(avrule->xperms, xperms);
++				/* failure on the extended permission check_extended_permissionss */
++				if (rc) {
++					extended_permissions_violated(&error, avrule->xperms, xperms);
++					ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of policy.conf) violated by\n"
++							"allowxperm %s %s:%s %s;",
++							avrule->source_line, avrule->source_filename, avrule->line,
++							p->p_type_val_to_name[stype],
++							p->p_type_val_to_name[ttype],
++							p->p_class_val_to_name[curperm->tclass - 1],
++							sepol_extended_perms_to_string(&error));
++
++					rc = 0;
++					ret++;
++				}
++			}
+ 		}
+-
+ 	}
+ 
+ 	/* failure on the regular permissions */
+@@ -319,28 +332,42 @@ oom:
+  *    granted
+  */
+ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab,
+-						avtab_key_t *k)
++						avtab_key_t *k, policydb_t *p)
+ {
+ 	avtab_ptr_t node;
+ 	avtab_key_t tmp_key;
+ 	avtab_extended_perms_t *xperms;
+ 	av_extended_perms_t *neverallow_xperms = avrule->xperms;
++	ebitmap_t *sattr = &p->type_attr_map[k->source_type - 1];
++	ebitmap_t *tattr = &p->type_attr_map[k->target_type - 1];
++	ebitmap_node_t *snode, *tnode;
++	unsigned int i, j;
+ 	int rc = 1;
+ 
+ 	memcpy(&tmp_key, k, sizeof(avtab_key_t));
+ 	tmp_key.specified = AVTAB_XPERMS_ALLOWED;
+ 
+-	for (node = avtab_search_node(avtab, &tmp_key);
+-	     node;
+-	     node = avtab_search_node_next(node, tmp_key.specified)) {
+-		xperms = node->datum.xperms;
+-		if ((xperms->specified != AVTAB_XPERMS_IOCTLFUNCTION)
+-				&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
++	ebitmap_for_each_bit(sattr, snode, i) {
++		if (!ebitmap_node_get_bit(snode, i))
+ 			continue;
+-
+-		rc = check_extended_permissions(neverallow_xperms, xperms);
+-		if (rc)
+-			break;
++		ebitmap_for_each_bit(tattr, tnode, j) {
++			if (!ebitmap_node_get_bit(tnode, j))
++				continue;
++			tmp_key.source_type = i + 1;
++			tmp_key.target_type = j + 1;
++			for (node = avtab_search_node(avtab, &tmp_key);
++			     node;
++			     node = avtab_search_node_next(node, tmp_key.specified)) {
++				xperms = node->datum.xperms;
++
++				if ((xperms->specified != AVTAB_XPERMS_IOCTLFUNCTION)
++						&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
++					continue;
++				rc = check_extended_permissions(neverallow_xperms, xperms);
++				if (rc)
++					break;
++			}
++		}
+ 	}
+ 
+ 	return rc;
+@@ -386,7 +413,7 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
+ 		goto exit;
+ 
+ 	if (avrule->specified == AVRULE_XPERMS_NEVERALLOW) {
+-		rc = check_assertion_extended_permissions(avrule, avtab, k);
++		rc = check_assertion_extended_permissions(avrule, avtab, k, p);
+ 		if (rc == 0)
+ 			goto exit;
+ 	}
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.8.0.rc3.226.g39d4020
