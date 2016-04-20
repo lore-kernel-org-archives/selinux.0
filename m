@@ -1,66 +1,164 @@
-From: Steve Lawrence <slawrence@tresys.com>
-Subject: Re: [PATCH 5/6] libsepol/cil: Remove path field from cil_tree_node
- struct
-To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 1/6] libsepol/cil: Add high-level language line marking
+ support
+To: Steve Lawrence <slawrence@tresys.com>, selinux@tycho.nsa.gov
 References: <1461075965-17161-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1461075965-17161-6-git-send-email-jwcart2@tycho.nsa.gov>
-Message-ID: <571796AD.3090000@tresys.com>
-Date: Wed, 20 Apr 2016 10:48:13 -0400
+ <1461075965-17161-2-git-send-email-jwcart2@tycho.nsa.gov>
+ <57179571.8060008@tresys.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <5717CD2A.40100@tycho.nsa.gov>
+Date: Wed, 20 Apr 2016 14:40:42 -0400
 MIME-Version: 1.0
-In-Reply-To: <1461075965-17161-6-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset="windows-1252"
+In-Reply-To: <57179571.8060008@tresys.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/19/2016 10:26 AM, James Carter wrote:
-> Remove path field from cil_tree_node struct and all references
-> to it in CIL. This will reduce memory usage by 5%.
-> 
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-> ---
->  libsepol/cil/src/cil_binary.c    | 14 +++++++++++++-
->  libsepol/cil/src/cil_build_ast.c |  2 --
->  libsepol/cil/src/cil_copy_ast.c  |  1 -
->  libsepol/cil/src/cil_parser.c    | 23 +++++++++++------------
->  libsepol/cil/src/cil_tree.c      |  1 -
->  libsepol/cil/src/cil_tree.h      |  1 -
->  6 files changed, 24 insertions(+), 18 deletions(-)
-> 
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index 0a98ecd..9db42d5 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -4227,6 +4227,9 @@ exit:
->  static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *node)
->  {
->  	avrule_t *avrule;
-> +	struct cil_tree_node *source_node;
-> +	char *source_path;
-> +	int is_cil;
->  
->  	avrule = cil_malloc(sizeof(avrule_t));
->  	avrule->specified = kind;
-> @@ -4235,8 +4238,17 @@ static avrule_t *__cil_init_sepol_avrule(uint32_t kind, struct cil_tree_node *no
->  	__cil_init_sepol_type_set(&avrule->ttypes);
->  	avrule->perms = NULL;
->  	avrule->line = node->line;
-> -	avrule->source_filename = node->path;
-> +
-> +	avrule->source_filename = NULL;
->  	avrule->source_line = node->line;
-> +	source_node = cil_tree_get_next_path(node, &source_path, &is_cil);
-> +	if (source_node) {
-> +		avrule->source_filename = source_path;
-> +		if (!is_cil) {
-> +			avrule->source_line = node->hll_line;
+On 04/20/2016 10:42 AM, Steve Lawrence wrote:
+> On 04/19/2016 10:26 AM, James Carter wrote:
+>> Adds support for tracking original file and line numbers for
+>> better error reporting when a high-level language is translated
+>> into CIL.
+>>
+>> This adds a field called "hll_line" to struct cil_tree_node which
+>> increases memory usage by 5%.
+>>
+>> Syntax:
+>>
+>> ;;* lm(s|x) LINENO FILENAME
+>> (CIL STATEMENTS)
+>> ;;* lme
+>>
+>> lms is used when each of the following CIL statements corresponds
+>> to a line in the original file.
+>>
+>> lmx is used when the following CIL statements are all expanded
+>> from a single high-level language line.
+>>
+>> lme ends a line mark block.
+>>
+>> Example:
+>>
+>> ;;* lms 1 foo.hll
+>> (CIL-1)
+>> (CIL-2)
+>> ;;* lme
+>> ;;* lmx 10 bar.hll
+>> (CIL-3)
+>> (CIL-4)
+>> ;;* lms 100 baz.hll
+>> (CIL-5)
+>> (CIL-6)
+>> ;;* lme
+>> (CIL-7)
+>> ;;* lme
+>>
+>> CIL-1 is from line   1 of foo.hll
+>> CIL-2 is from line   2 of foo.hll
+>> CIL-3 is from line  10 of bar.hll
+>> CIL-4 is from line  10 of bar.hll
+>> CIL-5 is from line 100 of baz.hll
+>> CIL-6 is from line 101 of baz.hll
+>> CIL-7 is from line  10 of bar.hll
+>>
+>> Based on work originally done by Yuli Khodorkovskiy of Tresys.
+>>
+>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>> ---
+>>   libsepol/cil/src/cil.c           |  19 +++-
+>>   libsepol/cil/src/cil_build_ast.c |  29 ++++-
+>>   libsepol/cil/src/cil_build_ast.h |   2 +
+>>   libsepol/cil/src/cil_copy_ast.c  |  19 ++++
+>>   libsepol/cil/src/cil_flavor.h    |   1 +
+>>   libsepol/cil/src/cil_internal.h  |   9 ++
+>>   libsepol/cil/src/cil_lexer.h     |   6 +-
+>>   libsepol/cil/src/cil_lexer.l     |  14 +--
+>>   libsepol/cil/src/cil_parser.c    | 226 ++++++++++++++++++++++++++++++++-------
+>>   libsepol/cil/src/cil_tree.c      |   3 +-
+>>   libsepol/cil/src/cil_tree.h      |   1 +
+>>   11 files changed, 278 insertions(+), 51 deletions(-)
+>>
+>> diff --git a/libsepol/cil/src/cil_lexer.l b/libsepol/cil/src/cil_lexer.l
+>> index 8e4c207..6da79c4 100644
+>> --- a/libsepol/cil/src/cil_lexer.l
+>> +++ b/libsepol/cil/src/cil_lexer.l
+>> @@ -50,15 +50,16 @@ symbol		({digit}|{alpha}|{spec_char})+
+>>   white		[ \t]
+>>   newline		[\n\r]
+>>   qstring		\"[^"\n]*\"
+>> -comment		;[^\n]*
+>> +comment		;[^;*\n]*
+>
+> This causes comments that aren't line markers but contain semicolons and
+> asterisks to be treated oddly. For example, this
+>
+>    ; foo ; bar * baz
+>
+> should just be a comment, but ends up causing a error during parsing, I
+> think because of the asterisk. Something like a negative lookahead might
+> fix it (i.e. match semicolon not followed by ";*") but I think flex
+> regexs are pretty limited and do not look to support that. Maybe just
+> do something like this?
+>
+> hll_lm     ;;\*[^\n]*
+> comment    ;[^\n]*
+>
+> The comment regex would match both normal comments and hll linemarkers,
+> so putting hll_lm first would break the tie. This would probably mean
+> you would have to parse the hll_lm token manually rather than using
+> cil_lexer_next, which is a bit of a pain in C...
+>
+> Perhaps we could choose a line marker that isn't as easily confused with
+> comments?
+>
 
-Can we not use ->line instead of ->hll_live when is_cil is true?
+I would be fine with going with something different if you have any preferences, 
+but I think that I can make this work.
 
-> +		}
-> +	}
-> +
->  	avrule->next = NULL;
->  	return avrule;
->  }
+
+If I do this:
+hll_lm          ;;\*
+comment		;
+
+Then I can consume any comment in a while loop in the parser.
+
+
+>>
+>>   %%
+>> -{newline}	line++;
+>> +{newline}	line++; return NEWLINE;
+>> +";;*"		value=yytext; return HLL_LINEMARK;
+>>   {comment}	value=yytext; return COMMENT;
+>>   "("		value=yytext; return OPAREN;
+>> -")"		value=yytext; return CPAREN;	
+>> +")"		value=yytext; return CPAREN;
+>>   {symbol}	value=yytext; return SYMBOL;
+>> -{white}		//cil_log(CIL_INFO, "white, ");
+>> +{white}		;
+>>   {qstring}	value=yytext; return QSTRING;
+>>   <<EOF>>		return END_OF_FILE;
+>>   .		value=yytext; return UNKNOWN;
+>> @@ -73,7 +74,7 @@ int cil_lexer_setup(char *buffer, uint32_t size)
+>>   	}
+>>
+>>   	line = 1;
+>> -	
+>> +
+>>   	return SEPOL_OK;
+>>   }
+>>
+>> @@ -87,7 +88,6 @@ int cil_lexer_next(struct token *tok)
+>>   	tok->type = yylex();
+>>   	tok->value = value;
+>>   	tok->line = line;
+>> -	
+>> +
+>>   	return SEPOL_OK;
+>>   }
+>> -
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
