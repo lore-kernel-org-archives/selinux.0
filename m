@@ -1,162 +1,195 @@
-Subject: Re: [PATCH 1/6] libsepol/cil: Add high-level language line marking
- support
+Subject: Re: [PATCH 3/6] libsepol/cil: Add cil_tree_log() and supporting
+ functions
 To: Steve Lawrence <slawrence@tresys.com>, selinux@tycho.nsa.gov
 References: <1461075965-17161-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1461075965-17161-2-git-send-email-jwcart2@tycho.nsa.gov>
- <57179571.8060008@tresys.com>
+ <1461075965-17161-4-git-send-email-jwcart2@tycho.nsa.gov>
+ <57179680.2080100@tresys.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5717CD2A.40100@tycho.nsa.gov>
-Date: Wed, 20 Apr 2016 14:40:42 -0400
+Message-ID: <5717D41F.1060808@tycho.nsa.gov>
+Date: Wed, 20 Apr 2016 15:10:23 -0400
 MIME-Version: 1.0
-In-Reply-To: <57179571.8060008@tresys.com>
+In-Reply-To: <57179680.2080100@tresys.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/20/2016 10:42 AM, Steve Lawrence wrote:
+On 04/20/2016 10:47 AM, Steve Lawrence wrote:
 > On 04/19/2016 10:26 AM, James Carter wrote:
->> Adds support for tracking original file and line numbers for
->> better error reporting when a high-level language is translated
->> into CIL.
+>> Provide more detailed log messages containing all relevant CIL and
+>> high-level language source file information through cil_tree_log().
 >>
->> This adds a field called "hll_line" to struct cil_tree_node which
->> increases memory usage by 5%.
+>> cil_tree_log() uses two new functions: cil_tree_get_next_path() and
+>> cil_tree_get_cil_path().
 >>
->> Syntax:
+>> cil_tree_get_next_path() traverses up the parse tree or AST until
+>> it finds the next CIL or high-level language source information nodes.
+>> It will return the path and whether or not the path is for a CIL file.
 >>
->> ;;* lm(s|x) LINENO FILENAME
->> (CIL STATEMENTS)
->> ;;* lme
+>> cil_tree_get_cil_path() uses cil_tree_get_next_path() to return
+>> the CIL path.
 >>
->> lms is used when each of the following CIL statements corresponds
->> to a line in the original file.
->>
->> lmx is used when the following CIL statements are all expanded
->> from a single high-level language line.
->>
->> lme ends a line mark block.
->>
->> Example:
->>
->> ;;* lms 1 foo.hll
->> (CIL-1)
->> (CIL-2)
->> ;;* lme
->> ;;* lmx 10 bar.hll
->> (CIL-3)
->> (CIL-4)
->> ;;* lms 100 baz.hll
->> (CIL-5)
->> (CIL-6)
->> ;;* lme
->> (CIL-7)
->> ;;* lme
->>
->> CIL-1 is from line   1 of foo.hll
->> CIL-2 is from line   2 of foo.hll
->> CIL-3 is from line  10 of bar.hll
->> CIL-4 is from line  10 of bar.hll
->> CIL-5 is from line 100 of baz.hll
->> CIL-6 is from line 101 of baz.hll
->> CIL-7 is from line  10 of bar.hll
->>
->> Based on work originally done by Yuli Khodorkovskiy of Tresys.
+>> Example cil_tree_log() message:
+>>      Problem at line 21 of policy.cil (from line 11 of foo.hll) (from line 2 of bar.hll)
 >>
 >> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 >> ---
->>   libsepol/cil/src/cil.c           |  19 +++-
->>   libsepol/cil/src/cil_build_ast.c |  29 ++++-
->>   libsepol/cil/src/cil_build_ast.h |   2 +
->>   libsepol/cil/src/cil_copy_ast.c  |  19 ++++
->>   libsepol/cil/src/cil_flavor.h    |   1 +
->>   libsepol/cil/src/cil_internal.h  |   9 ++
->>   libsepol/cil/src/cil_lexer.h     |   6 +-
->>   libsepol/cil/src/cil_lexer.l     |  14 +--
->>   libsepol/cil/src/cil_parser.c    | 226 ++++++++++++++++++++++++++++++++-------
->>   libsepol/cil/src/cil_tree.c      |   3 +-
->>   libsepol/cil/src/cil_tree.h      |   1 +
->>   11 files changed, 278 insertions(+), 51 deletions(-)
+>>   libsepol/cil/src/cil_tree.c | 76 +++++++++++++++++++++++++++++++++++++++++++++
+>>   libsepol/cil/src/cil_tree.h |  4 +++
+>>   2 files changed, 80 insertions(+)
 >>
->> diff --git a/libsepol/cil/src/cil_lexer.l b/libsepol/cil/src/cil_lexer.l
->> index 8e4c207..6da79c4 100644
->> --- a/libsepol/cil/src/cil_lexer.l
->> +++ b/libsepol/cil/src/cil_lexer.l
->> @@ -50,15 +50,16 @@ symbol		({digit}|{alpha}|{spec_char})+
->>   white		[ \t]
->>   newline		[\n\r]
->>   qstring		\"[^"\n]*\"
->> -comment		;[^\n]*
->> +comment		;[^;*\n]*
->
-> This causes comments that aren't line markers but contain semicolons and
-> asterisks to be treated oddly. For example, this
->
->    ; foo ; bar * baz
->
-> should just be a comment, but ends up causing a error during parsing, I
-> think because of the asterisk. Something like a negative lookahead might
-> fix it (i.e. match semicolon not followed by ";*") but I think flex
-> regexs are pretty limited and do not look to support that. Maybe just
-> do something like this?
->
-> hll_lm     ;;\*[^\n]*
-> comment    ;[^\n]*
->
-> The comment regex would match both normal comments and hll linemarkers,
-> so putting hll_lm first would break the tie. This would probably mean
-> you would have to parse the hll_lm token manually rather than using
-> cil_lexer_next, which is a bit of a pain in C...
->
-> Perhaps we could choose a line marker that isn't as easily confused with
-> comments?
->
-
-I would be fine with going with something different if you have any preferences, 
-but I think that I can make this work.
-
-
-If I do this:
-hll_lm          ;;\*
-comment		;
-
-Then I can consume any comment in a while loop in the parser.
-
-
->>
->>   %%
->> -{newline}	line++;
->> +{newline}	line++; return NEWLINE;
->> +";;*"		value=yytext; return HLL_LINEMARK;
->>   {comment}	value=yytext; return COMMENT;
->>   "("		value=yytext; return OPAREN;
->> -")"		value=yytext; return CPAREN;	
->> +")"		value=yytext; return CPAREN;
->>   {symbol}	value=yytext; return SYMBOL;
->> -{white}		//cil_log(CIL_INFO, "white, ");
->> +{white}		;
->>   {qstring}	value=yytext; return QSTRING;
->>   <<EOF>>		return END_OF_FILE;
->>   .		value=yytext; return UNKNOWN;
->> @@ -73,7 +74,7 @@ int cil_lexer_setup(char *buffer, uint32_t size)
->>   	}
->>
->>   	line = 1;
->> -	
->> +
->>   	return SEPOL_OK;
+>> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+>> index 6e56dd1..1ccf9f5 100644
+>> --- a/libsepol/cil/src/cil_tree.c
+>> +++ b/libsepol/cil/src/cil_tree.c
+>> @@ -59,6 +59,82 @@ __attribute__((noreturn)) __attribute__((format (printf, 1, 2))) void cil_tree_e
+>>   	exit(1);
 >>   }
 >>
->> @@ -87,7 +88,6 @@ int cil_lexer_next(struct token *tok)
->>   	tok->type = yylex();
->>   	tok->value = value;
->>   	tok->line = line;
->> -	
+>> +struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **path, int* is_cil)
+>> +{
+>> +	if (!node) {
+>> +		return NULL;
+>> +	}
 >> +
->>   	return SEPOL_OK;
->>   }
->> -
+>> +	node = node->parent;
+>> +
+>> +	while (node) {
+>> +		if (node->flavor == CIL_SRC_INFO) {
+>> +			/* AST */
+>> +			struct cil_src_info *info = node->data;
+>> +			*path = info->path;
+>> +			*is_cil = info->is_cil;
+>> +			return node;
+>> +		} else if (node->flavor == CIL_NODE && node->data == NULL) {
+>> +			if (node->cl_head->data == CIL_KEY_SRC_INFO) {
+>> +				/* Parse Tree */
+>> +				*path = node->cl_head->next->next->data;
+>> +				*is_cil = (node->cl_head->next->data == CIL_KEY_SRC_CIL);
+>> +				return node;
+>> +			}
+>> +		}
+>> +		node = node->parent;
+>> +	}
+>> +
+>> +	return NULL;
+>> +}
+>> +
+>> +char *cil_tree_get_cil_path(struct cil_tree_node *node)
+>> +{
+>> +	char *path = NULL;
+>> +	int is_cil;
+>> +
+>> +	while (node) {
+>> +		node = cil_tree_get_next_path(node, &path, &is_cil);
+>> +		if (node && is_cil) {
+>> +			return path;
+>> +		}
+>> +	}
+>> +
+>> +	return NULL;
+>> +}
+>
+> Do we need to take into account things like copies from macro calls and
+> block inherits here? For example, say you inherit a block from another
+> CIL file. Right now, it looks like this just traverses up the current
+> node parents until it reaches a node with src_cil node, which isn't
+> necessarily the CIL file the blockinherit content came from. So the
+> path/line for a CIL statment will look like is was from what it was
+> copied into rather than where it was copied from.
+>
+
+You are right. We do need to take these into account.
+
+>> +
+>> +__attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *node, enum cil_log_level lvl, const char* msg, ...)
+>> +{
+>> +	va_list ap;
+>> +
+>> +	va_start(ap, msg);
+>> +	cil_vlog(lvl, msg, ap);
+>> +	va_end(ap);
+>> +
+>> +	if (node) {
+>> +		char *path = NULL;
+>> +		int is_cil;
+>> +		unsigned hll_line = node->hll_line;
+>> +
+>> +		path = cil_tree_get_cil_path(node);
+>> +
+>> +		if (path != NULL) {
+>
+> In what cases would path be NULL? Seems like there should always be a
+> cil path.
+
+The root node does not have a path. I currently print it out just to help 
+distinguish between multiple traces.
+
+Like:
+neverallow check failed at line 66 of hll_test.cil
+   (neverallow TYPE self (CLASS (PERM1)))
+     <root>
+     blockinherit at line 49 of hll_test.cil (from line 500 of e.hll)
+     allow at line 43 of hll_test.cil (from line 402 of e.hll)
+       (allow TYPE self (CLASS (PERM1)))
+     <root>
+     block at line 53 of hll_test.cil (from line 600 of f.hll)
+     blockinherit at line 54 of hll_test.cil (from line 601 of f.hll)
+     allow at line 43 of hll_test.cil (from line 402 of f.hll)
+       (allow TYPE self (CLASS (PERM1)))
+
+>
+>> +			cil_log(lvl, " at line %d of %s", node->line, path);
+>> +		}
+>> +
+>> +		while (node) {
+>> +			node = cil_tree_get_next_path(node, &path, &is_cil);
+>> +			if (node && !is_cil) {
+>> +				cil_log(lvl," (from line %d of %s)", hll_line, path);
+>
+> Minor, but it might be worth condensing this a bit. If there were
+> multiple levels of HLL includes (which I could easily imagine in some
+> complex HLLs) this could get pretty long and difficult to read. Perhaps
+> just something like this?
+>
+> foo.cil:10 > foo.hll:11 > bar.hll:12
+>
+> vs
+>
+> at line 10 of foo.cil (from line 12 of foo.hll) (from line 12 of bar.hll)
+>
+
+That's a good idea.
+
+>> +				path = NULL;
+>> +				hll_line = node->hll_line;
+>> +			}
+>> +		}
+>> +	}
+>> +
+>> +	cil_log(lvl,"\n");
+>> +}
+>> +
+>>   int cil_tree_init(struct cil_tree **tree)
+>>   {
+>>   	struct cil_tree *new_tree = cil_malloc(sizeof(*new_tree));
+>> diff --git a/libsepol/cil/src/cil_tree.h b/libsepol/cil/src/cil_tree.h
+>> index 43d6b98..318eecd 100644
+>> --- a/libsepol/cil/src/cil_tree.h
+>> +++ b/libsepol/cil/src/cil_tree.h
+>> @@ -51,6 +51,10 @@ struct cil_tree_node {
+>>   	void *data;
+>>   };
+>>
+>> +struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **path, int* is_cil);
+>> +char *cil_tree_get_cil_path(struct cil_tree_node *node);
+>> +__attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *node, enum cil_log_level lvl, const char* msg, ...);
+>> +
+>>   int cil_tree_init(struct cil_tree **tree);
+>>   void cil_tree_destroy(struct cil_tree **tree);
+>>   void cil_tree_subtree_destroy(struct cil_tree_node *node);
+>>
 
 
 -- 
