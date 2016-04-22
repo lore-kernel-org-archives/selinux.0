@@ -1,16 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFd3xQ004296
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:09 -0400
-Received: by mail-oi0-f53.google.com with SMTP id r78so120771014oie.0
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:07 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFdlDS004476
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:47 -0400
+Received: by mail-oi0-f52.google.com with SMTP id r78so120776181oie.0
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:17 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
  Miklos Szeredi <mszeredi@redhat.com>,
  Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
@@ -19,11 +16,11 @@ Cc: Richard Weinberger <richard.weinberger@gmail.com>,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>,
- Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v3 06/21] fs: Treat foreign mounts as nosuid
-Date: Fri, 22 Apr 2016 10:38:23 -0500
-Message-Id: <1461339521-123191-7-git-send-email-seth.forshee@canonical.com>
+ cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v3 11/21] cred: Reject inodes with invalid ids in
+ set_create_file_as()
+Date: Fri, 22 Apr 2016 10:38:28 -0500
+Message-Id: <1461339521-123191-12-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -31,132 +28,28 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Andy Lutomirski <luto@amacapital.net>
+Using INVALID_[UG]ID for the LSM file creation context doesn't
+make sense, so return an error if the inode passed to
+set_create_file_as() has an invalid id.
 
-If a process gets access to a mount from a different user
-namespace, that process should not be able to take advantage of
-setuid files or selinux entrypoints from that filesystem.  Prevent
-this by treating mounts from other mount namespaces and those not
-owned by current_user_ns() or an ancestor as nosuid.
-
-This will make it safer to allow more complex filesystems to be
-mounted in non-root user namespaces.
-
-This does not remove the need for MNT_LOCK_NOSUID.  The setuid,
-setgid, and file capability bits can no longer be abused if code in
-a user namespace were to clear nosuid on an untrusted filesystem,
-but this patch, by itself, is insufficient to protect the system
-from abuse of files that, when execed, would increase MAC privilege.
-
-As a more concrete explanation, any task that can manipulate a
-vfsmount associated with a given user namespace already has
-capabilities in that namespace and all of its descendents.  If they
-can cause a malicious setuid, setgid, or file-caps executable to
-appear in that mount, then that executable will only allow them to
-elevate privileges in exactly the set of namespaces in which they
-are already privileges.
-
-On the other hand, if they can cause a malicious executable to
-appear with a dangerous MAC label, running it could change the
-caller's security context in a way that should not have been
-possible, even inside the namespace in which the task is confined.
-
-As a hardening measure, this would have made CVE-2014-5207 much
-more difficult to exploit.
-
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: James Morris <james.l.morris@oracle.com>
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/exec.c                |  2 +-
- fs/namespace.c           | 13 +++++++++++++
- include/linux/mount.h    |  1 +
- security/commoncap.c     |  8 +++++++-
- security/selinux/hooks.c |  2 +-
- 5 files changed, 23 insertions(+), 3 deletions(-)
+ kernel/cred.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index c4010b8207a1..706088dd0cb1 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1391,7 +1391,7 @@ static void bprm_fill_uid(struct linux_binprm *bprm)
- 	bprm->cred->euid = current_euid();
- 	bprm->cred->egid = current_egid();
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return;
- 
- 	if (task_no_new_privs(current))
-diff --git a/fs/namespace.c b/fs/namespace.c
-index c133318bec35..6e9db4c166b4 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -3284,6 +3284,19 @@ found:
- 	return visible;
- }
- 
-+bool mnt_may_suid(struct vfsmount *mnt)
-+{
-+	/*
-+	 * Foreign mounts (accessed via fchdir or through /proc
-+	 * symlinks) are always treated as if they are nosuid.  This
-+	 * prevents namespaces from trusting potentially unsafe
-+	 * suid/sgid bits, file caps, or security labels that originate
-+	 * in other namespaces.
-+	 */
-+	return !(mnt->mnt_flags & MNT_NOSUID) && check_mnt(real_mount(mnt)) &&
-+	       in_userns(current_user_ns(), mnt->mnt_sb->s_user_ns);
-+}
-+
- static struct ns_common *mntns_get(struct task_struct *task)
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 0c0cd8a62285..5f264fb5737d 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -689,6 +689,8 @@ EXPORT_SYMBOL(set_security_override_from_ctx);
+  */
+ int set_create_files_as(struct cred *new, struct inode *inode)
  {
- 	struct ns_common *ns = NULL;
-diff --git a/include/linux/mount.h b/include/linux/mount.h
-index f822c3c11377..54a594d49733 100644
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -81,6 +81,7 @@ extern void mntput(struct vfsmount *mnt);
- extern struct vfsmount *mntget(struct vfsmount *mnt);
- extern struct vfsmount *mnt_clone_internal(struct path *path);
- extern int __mnt_is_readonly(struct vfsmount *mnt);
-+extern bool mnt_may_suid(struct vfsmount *mnt);
- 
- struct path;
- extern struct vfsmount *clone_private_mount(struct path *path);
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 8912ef117faa..a306c5d90709 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -453,8 +453,14 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
- 	if (!file_caps_enabled)
- 		return 0;
- 
--	if (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID)
-+	if (!mnt_may_suid(bprm->file->f_path.mnt))
- 		return 0;
-+
-+	/*
-+	 * This check is redundant with mnt_may_suid() but is kept to make
-+	 * explicit that capability bits are limited to s_user_ns and its
-+	 * descendants.
-+	 */
- 	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
- 		return 0;
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 912deee3f01e..1350167635cb 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2234,7 +2234,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
- 			    const struct task_security_struct *new_tsec)
- {
- 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
--	int nosuid = (bprm->file->f_path.mnt->mnt_flags & MNT_NOSUID);
-+	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
- 	int rc;
- 
- 	if (!nnp && !nosuid)
++	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
++		return -EINVAL;
+ 	new->fsuid = inode->i_uid;
+ 	new->fsgid = inode->i_gid;
+ 	return security_kernel_create_files_as(new, inode);
 -- 
 1.9.1
