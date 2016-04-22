@@ -1,14 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFd3xS004296
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:11 -0400
-Received: by mail-ob0-f175.google.com with SMTP id tz8so50753334obc.0
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:08 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFcxa5004148
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:05 -0400
+Received: by mail-oi0-f54.google.com with SMTP id k142so120564808oib.1
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:01 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ "J. Bruce Fields" <bfields@fieldses.org>, Tejun Heo <tj@kernel.org>,
+ Li Zefan <lizefan@huawei.com>, Johannes Weiner <hannes@cmpxchg.org>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
  Miklos Szeredi <mszeredi@redhat.com>,
@@ -18,13 +20,11 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Subject: [PATCH v3 07/21] selinux: Add support for unprivileged mounts from
- user namespaces
-Date: Fri, 22 Apr 2016 10:38:24 -0500
-Message-Id: <1461339521-123191-8-git-send-email-seth.forshee@canonical.com>
+ cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v3 03/21] fs: Allow sysfs and cgroupfs to share super blocks
+ between user namespaces
+Date: Fri, 22 Apr 2016 10:38:20 -0500
+Message-Id: <1461339521-123191-4-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -32,63 +32,93 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Security labels from unprivileged mounts in user namespaces must
-be ignored. Force superblocks from user namespaces whose labeling
-behavior is to use xattrs to use mountpoint labeling instead.
-For the mountpoint label, default to converting the current task
-context into a form suitable for file objects, but also allow the
-policy writer to specify a different label through policy
-transition rules.
+Both of these filesystems already have use cases for mounting the
+same super block from multiple user namespaces. For sysfs this
+happens when using criu for snapshotting a container, where sysfs
+is mounted in the containers network ns but the hosts user ns.
+The cgroup filesystem shares the same super block for all mounts
+of the same hierarchy regardless of the namespace.
 
-Pieced together from code snippets provided by Stephen Smalley.
+As a result, the restriction on mounting a super block from a
+single user namespace creates regressions for existing uses of
+these filesystems. For these specific filesystems this
+restriction isn't really necessary since the backing store is
+objects in kernel memory and thus the ids assigned from inodes
+is not subject to translation relative to s_user_ns.
+
+Add a new filesystem flag, FS_USERNS_SHARE_SB, which when set
+causes sget_userns() to skip the check of s_user_ns. Set this
+flag for the sysfs and cgroup filesystems to fix the
+regressions.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: James Morris <james.l.morris@oracle.com>
 ---
- security/selinux/hooks.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ fs/super.c         | 3 ++-
+ fs/sysfs/mount.c   | 3 ++-
+ include/linux/fs.h | 1 +
+ kernel/cgroup.c    | 4 ++--
+ 4 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1350167635cb..33beed3ac589 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -820,6 +820,28 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 			goto out;
- 		}
- 	}
-+
-+	/*
-+	 * If this is a user namespace mount, no contexts are allowed
-+	 * on the command line and security labels must be ignored.
-+	 */
-+	if (sb->s_user_ns != &init_user_ns) {
-+		if (context_sid || fscontext_sid || rootcontext_sid ||
-+		    defcontext_sid) {
-+			rc = -EACCES;
-+			goto out;
-+		}
-+		if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
-+			sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
-+			rc = security_transition_sid(current_sid(), current_sid(),
-+						     SECCLASS_FILE, NULL,
-+						     &sbsec->mntpoint_sid);
-+			if (rc)
-+				goto out;
-+		}
-+		goto out_set_opts;
-+	}
-+
- 	/* sets the context of the superblock for the fs being mounted. */
- 	if (fscontext_sid) {
- 		rc = may_context_mount_sb_relabel(fscontext_sid, sbsec, cred);
-@@ -888,6 +910,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		sbsec->def_sid = defcontext_sid;
- 	}
+diff --git a/fs/super.c b/fs/super.c
+index 092a7828442e..ead156b44bf8 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -472,7 +472,8 @@ retry:
+ 		hlist_for_each_entry(old, &type->fs_supers, s_instances) {
+ 			if (!test(old, data))
+ 				continue;
+-			if (user_ns != old->s_user_ns) {
++			if (!(type->fs_flags & FS_USERNS_SHARE_SB) &&
++			    user_ns != old->s_user_ns) {
+ 				spin_unlock(&sb_lock);
+ 				if (s) {
+ 					up_write(&s->s_umount);
+diff --git a/fs/sysfs/mount.c b/fs/sysfs/mount.c
+index f3db82071cfb..9555accd4322 100644
+--- a/fs/sysfs/mount.c
++++ b/fs/sysfs/mount.c
+@@ -59,7 +59,8 @@ static struct file_system_type sysfs_fs_type = {
+ 	.name		= "sysfs",
+ 	.mount		= sysfs_mount,
+ 	.kill_sb	= sysfs_kill_sb,
+-	.fs_flags	= FS_USERNS_VISIBLE | FS_USERNS_MOUNT,
++	.fs_flags	= FS_USERNS_VISIBLE | FS_USERNS_MOUNT |
++			  FS_USERNS_SHARE_SB,
+ };
  
-+out_set_opts:
- 	rc = sb_finish_set_opts(sb);
- out:
- 	mutex_unlock(&sbsec->lock);
+ int __init sysfs_init(void)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index be0f8023e28c..66a639ec1bc4 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1988,6 +1988,7 @@ struct file_system_type {
+ #define FS_USERNS_MOUNT		8	/* Can be mounted by userns root */
+ #define FS_USERNS_DEV_MOUNT	16 /* A userns mount does not imply MNT_NODEV */
+ #define FS_USERNS_VISIBLE	32	/* FS must already be visible */
++#define FS_USERNS_SHARE_SB	64	/* Allow sharing sb between userns-es */
+ #define FS_RENAME_DOES_D_MOVE	32768	/* FS will handle d_move() during rename() internally. */
+ 	struct dentry *(*mount) (struct file_system_type *, int,
+ 		       const char *, void *);
+diff --git a/kernel/cgroup.c b/kernel/cgroup.c
+index 671dc05c0b0f..9c9aa27e531a 100644
+--- a/kernel/cgroup.c
++++ b/kernel/cgroup.c
+@@ -2247,14 +2247,14 @@ static struct file_system_type cgroup_fs_type = {
+ 	.name = "cgroup",
+ 	.mount = cgroup_mount,
+ 	.kill_sb = cgroup_kill_sb,
+-	.fs_flags = FS_USERNS_MOUNT,
++	.fs_flags = FS_USERNS_MOUNT | FS_USERNS_SHARE_SB,
+ };
+ 
+ static struct file_system_type cgroup2_fs_type = {
+ 	.name = "cgroup2",
+ 	.mount = cgroup_mount,
+ 	.kill_sb = cgroup_kill_sb,
+-	.fs_flags = FS_USERNS_MOUNT,
++	.fs_flags = FS_USERNS_MOUNT | FS_USERNS_SHARE_SB,
+ };
+ 
+ static char *cgroup_path_ns_locked(struct cgroup *cgrp, char *buf, size_t buflen,
 -- 
 1.9.1
