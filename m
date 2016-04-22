@@ -1,116 +1,154 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFdCRB004343
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:12 -0400
-Received: by mail-oi0-f51.google.com with SMTP id p188so136859130oih.2
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:10 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFcxa3004148
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:05 -0400
+Received: by mail-oi0-f42.google.com with SMTP id r78so120765764oie.0
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:38:56 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <mszeredi@redhat.com>,
- Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
- linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
+To: "Eric W. Biederman" <ebiederm@xmission.com>, linux-bcache@vger.kernel.org,
  dm-devel@redhat.com, linux-raid@vger.kernel.org,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v3 08/21] userns: Replace in_userns with current_in_userns
-Date: Fri, 22 Apr 2016 10:38:25 -0500
-Message-Id: <1461339521-123191-9-git-send-email-seth.forshee@canonical.com>
-In-Reply-To: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
-References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
+ fuse-devel@lists.sourceforge.net, cgroups@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <mszeredi@redhat.com>,
+ Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, linux-kernel@vger.kernel.org,
+ Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v3 00/21] Support fuse mounts in user namespaces
+Date: Fri, 22 Apr 2016 10:38:17 -0500
+Message-Id: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-All current callers of in_userns pass current_user_ns as the
-first argument. Simplify by replacing in_userns with
-current_in_userns which checks whether current_user_ns is in the
-namespace supplied as an argument.
+Hi Eric,
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: James Morris <james.l.morris@oracle.com>
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+Sorry that it's taken a while to get this update sent out. In part
+that's because of a few problems I found, which resulted in some new
+patches.
+
+I wanted to point out one problem in particular because I'm not fully
+settled on the solution. It turns out that for the sysfs and cgroup
+filesystems we already have use cases where a super block is mounted
+from multiple user namespaces. With sysfs this is done when criu is used
+to snapshot a container; it will mount sysfs in the container's network
+namespace but the host's user namespace. cgroup fs uses the same super
+block for all mounts of a given hierarchy, and the addition of cgroup
+namespaces makes this possible from within non-init user namepsaces. So
+the check in sget_userns() which forbids mounting an existing super
+block in a different user namespace causes regressions, and really it's
+not necessary for these filesystems since ids in the inodes aren't
+subect to translation relative to s_user_ns.
+
+I've tried several ways to fix this. The one I'm sending here is to
+exempt these filesystems from this requirement, which is the simplest
+solution. The down side is that I couldn't find any existing property of
+these file systems to use for excluding them, so I'm using a new file
+system flag. My second-best option was to change kernfs_test_super() to
+return false if the existing super block is in a different user
+namespace. This is also pretty simple and works fine for sysfs, but
+cgroups require some updating in order to get its internal reference
+counting to work out.
+
+These patches are based on the for-testing branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/user-namespace.git
+with everything rebased onto 4.6-rc4. I've also pushed everything to:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/sforshee/linux.git fuse-userns
+
+Changes since v2:
+
+ - Add patch from Pavel Tikhomirov to fix a potential memory leak in
+   sget_userns().
+ - Add a patch to fix a bug in the fs_fully_visible() MNT_LOCK_NODEV
+   handling which was introduced by "userns: Simpilify MNT_NODEV
+   handling."
+ - Drop patch to make root in s_user_ns capable towards that superblock
+   and replace it with a patch to allow root in s_user_ns to change
+   ownership of inodes with invalid ids.
+ - Use make_k[ug]id() in fuse_fillattr() instead of copying ids from
+   inode.
+ - Remove unnecessary initialization of user_id and group_id in fuse
+   mount options.
+ - Add a comment to get_file_caps() to indicate that the duplicate
+   in_userns() check is intentional.
+ - Fix incorrect statements in commit message of "fuse: Add support for
+   pid namespaces"
+ - Added acks.
+
+Thanks,
+Seth
+
 ---
- fs/namespace.c                 | 2 +-
- include/linux/user_namespace.h | 6 ++----
- kernel/user_namespace.c        | 6 +++---
- security/commoncap.c           | 2 +-
- 4 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 6e9db4c166b4..0ad8e4a4f50b 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -3294,7 +3294,7 @@ bool mnt_may_suid(struct vfsmount *mnt)
- 	 * in other namespaces.
- 	 */
- 	return !(mnt->mnt_flags & MNT_NOSUID) && check_mnt(real_mount(mnt)) &&
--	       in_userns(current_user_ns(), mnt->mnt_sb->s_user_ns);
-+	       current_in_userns(mnt->mnt_sb->s_user_ns);
- }
- 
- static struct ns_common *mntns_get(struct task_struct *task)
-diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index a43faa727124..9217169c64cb 100644
---- a/include/linux/user_namespace.h
-+++ b/include/linux/user_namespace.h
-@@ -72,8 +72,7 @@ extern ssize_t proc_projid_map_write(struct file *, const char __user *, size_t,
- extern ssize_t proc_setgroups_write(struct file *, const char __user *, size_t, loff_t *);
- extern int proc_setgroups_show(struct seq_file *m, void *v);
- extern bool userns_may_setgroups(const struct user_namespace *ns);
--extern bool in_userns(const struct user_namespace *ns,
--		      const struct user_namespace *target_ns);
-+extern bool current_in_userns(const struct user_namespace *target_ns);
- #else
- 
- static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
-@@ -103,8 +102,7 @@ static inline bool userns_may_setgroups(const struct user_namespace *ns)
- 	return true;
- }
- 
--static inline bool in_userns(const struct user_namespace *ns,
--			     const struct user_namespace *target_ns)
-+static inline bool current_in_userns(const struct user_namespace *target_ns)
- {
- 	return true;
- }
-diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index dee3be5445da..68f594212759 100644
---- a/kernel/user_namespace.c
-+++ b/kernel/user_namespace.c
-@@ -942,10 +942,10 @@ bool userns_may_setgroups(const struct user_namespace *ns)
-  * Returns true if @ns is the same namespace as or a descendant of
-  * @target_ns.
-  */
--bool in_userns(const struct user_namespace *ns,
--	       const struct user_namespace *target_ns)
-+bool current_in_userns(const struct user_namespace *target_ns)
- {
--	for (; ns; ns = ns->parent) {
-+	struct user_namespace *ns;
-+	for (ns = current_user_ns(); ns; ns = ns->parent) {
- 		if (ns == target_ns)
- 			return true;
- 	}
-diff --git a/security/commoncap.c b/security/commoncap.c
-index a306c5d90709..e657227d221e 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -461,7 +461,7 @@ static int get_file_caps(struct linux_binprm *bprm, bool *effective, bool *has_c
- 	 * explicit that capability bits are limited to s_user_ns and its
- 	 * descendants.
- 	 */
--	if (!in_userns(current_user_ns(), bprm->file->f_path.mnt->mnt_sb->s_user_ns))
-+	if (!current_in_userns(bprm->file->f_path.mnt->mnt_sb->s_user_ns))
- 		return 0;
- 
- 	rc = get_vfs_caps_from_disk(bprm->file->f_path.dentry, &vcaps);
--- 
-1.9.1
+Andy Lutomirski (1):
+  fs: Treat foreign mounts as nosuid
+
+Pavel Tikhomirov (1):
+  fs: fix a posible leak of allocated superblock
+
+Seth Forshee (19):
+  fs: Remove check of s_user_ns for existing mounts in
+    fs_fully_visible()
+  fs: Allow sysfs and cgroupfs to share super blocks between user
+    namespaces
+  block_dev: Support checking inode permissions in lookup_bdev()
+  block_dev: Check permissions towards block device inode when mounting
+  selinux: Add support for unprivileged mounts from user namespaces
+  userns: Replace in_userns with current_in_userns
+  Smack: Handle labels consistently in untrusted mounts
+  fs: Check for invalid i_uid in may_follow_link()
+  cred: Reject inodes with invalid ids in set_create_file_as()
+  fs: Refuse uid/gid changes which don't map into s_user_ns
+  fs: Update posix_acl support to handle user namespace mounts
+  fs: Allow superblock owner to change ownership of inodes with
+    unmappable ids
+  fs: Don't remove suid for CAP_FSETID in s_user_ns
+  fs: Allow superblock owner to access do_remount_sb()
+  capabilities: Allow privileged user in s_user_ns to set security.*
+    xattrs
+  fuse: Add support for pid namespaces
+  fuse: Support fuse filesystems outside of init_user_ns
+  fuse: Restrict allow_other to the superblock's namespace or a
+    descendant
+  fuse: Allow user namespace mounts
+
+ drivers/md/bcache/super.c       |  2 +-
+ drivers/md/dm-table.c           |  2 +-
+ drivers/mtd/mtdsuper.c          |  2 +-
+ fs/attr.c                       | 58 ++++++++++++++++++++++++++++++-----
+ fs/block_dev.c                  | 18 +++++++++--
+ fs/exec.c                       |  2 +-
+ fs/fuse/cuse.c                  |  3 +-
+ fs/fuse/dev.c                   | 26 ++++++++++++----
+ fs/fuse/dir.c                   | 16 +++++-----
+ fs/fuse/file.c                  | 22 +++++++++++---
+ fs/fuse/fuse_i.h                | 10 +++++-
+ fs/fuse/inode.c                 | 40 +++++++++++++++---------
+ fs/inode.c                      |  3 +-
+ fs/kernfs/inode.c               |  2 ++
+ fs/namei.c                      |  2 +-
+ fs/namespace.c                  | 20 +++++++++---
+ fs/posix_acl.c                  | 67 ++++++++++++++++++++++++++---------------
+ fs/proc/base.c                  |  2 ++
+ fs/proc/generic.c               |  3 ++
+ fs/proc/proc_sysctl.c           |  2 ++
+ fs/quota/quota.c                |  2 +-
+ fs/super.c                      |  7 ++++-
+ fs/sysfs/mount.c                |  3 +-
+ fs/xattr.c                      | 19 +++++++++---
+ include/linux/fs.h              |  3 +-
+ include/linux/mount.h           |  1 +
+ include/linux/posix_acl_xattr.h | 17 ++++++++---
+ include/linux/uidgid.h          | 10 ++++++
+ include/linux/user_namespace.h  |  6 ++--
+ kernel/cgroup.c                 |  4 +--
+ kernel/cred.c                   |  2 ++
+ kernel/user_namespace.c         |  6 ++--
+ security/commoncap.c            | 22 ++++++++++----
+ security/selinux/hooks.c        | 25 ++++++++++++++-
+ security/smack/smack_lsm.c      | 29 ++++++++++++------
+ 35 files changed, 339 insertions(+), 119 deletions(-)
