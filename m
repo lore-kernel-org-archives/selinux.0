@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFdlDe004476
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:49 -0400
-Received: by mail-oi0-f48.google.com with SMTP id x201so120342725oif.3
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:33 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3MFdlDW004476
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 11:39:47 -0400
+Received: by mail-ob0-f169.google.com with SMTP id bg3so50698016obb.1
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 08:39:11 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Miklos Szeredi <miklos@szeredi.hu>
+ Casey Schaufler <casey@schaufler-ca.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
@@ -17,10 +17,12 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v3 21/21] fuse: Allow user namespace mounts
-Date: Fri, 22 Apr 2016 10:38:38 -0500
-Message-Id: <1461339521-123191-22-git-send-email-seth.forshee@canonical.com>
+ cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Subject: [PATCH v3 09/21] Smack: Handle labels consistently in untrusted mounts
+Date: Fri, 22 Apr 2016 10:38:26 -0500
+Message-Id: <1461339521-123191-10-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -28,33 +30,89 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
----
- fs/fuse/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The SMACK64, SMACK64EXEC, and SMACK64MMAP labels are all handled
+differently in untrusted mounts. This is confusing and
+potentically problematic. Change this to handle them all the same
+way that SMACK64 is currently handled; that is, read the label
+from disk and check it at use time. For SMACK64 and SMACK64MMAP
+access is denied if the label does not match smk_root. To be
+consistent with suid, a SMACK64EXEC label which does not match
+smk_root will still allow execution of the file but will not run
+with the label supplied in the xattr.
 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 0a771145d853..254f1944ee98 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -1199,7 +1199,7 @@ static void fuse_kill_sb_anon(struct super_block *sb)
- static struct file_system_type fuse_fs_type = {
- 	.owner		= THIS_MODULE,
- 	.name		= "fuse",
--	.fs_flags	= FS_HAS_SUBTYPE,
-+	.fs_flags	= FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
- 	.mount		= fuse_mount,
- 	.kill_sb	= fuse_kill_sb_anon,
- };
-@@ -1231,7 +1231,7 @@ static struct file_system_type fuseblk_fs_type = {
- 	.name		= "fuseblk",
- 	.mount		= fuse_mount_blk,
- 	.kill_sb	= fuse_kill_sb_blk,
--	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE,
-+	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
- };
- MODULE_ALIAS_FS("fuseblk");
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ security/smack/smack_lsm.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index aa17198cd5f2..ca564590cc1b 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -919,6 +919,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+ 	struct inode *inode = file_inode(bprm->file);
+ 	struct task_smack *bsp = bprm->cred->security;
+ 	struct inode_smack *isp;
++	struct superblock_smack *sbsp;
+ 	int rc;
  
+ 	if (bprm->cred_prepared)
+@@ -928,6 +929,11 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+ 	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
+ 		return 0;
+ 
++	sbsp = inode->i_sb->s_security;
++	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
++	    isp->smk_task != sbsp->smk_root)
++		return 0;
++
+ 	if (bprm->unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
+ 		struct task_struct *tracer;
+ 		rc = 0;
+@@ -1725,6 +1731,7 @@ static int smack_mmap_file(struct file *file,
+ 	struct task_smack *tsp;
+ 	struct smack_known *okp;
+ 	struct inode_smack *isp;
++	struct superblock_smack *sbsp;
+ 	int may;
+ 	int mmay;
+ 	int tmay;
+@@ -1736,6 +1743,10 @@ static int smack_mmap_file(struct file *file,
+ 	isp = file_inode(file)->i_security;
+ 	if (isp->smk_mmap == NULL)
+ 		return 0;
++	sbsp = file_inode(file)->i_sb->s_security;
++	if (sbsp->smk_flags & SMK_SB_UNTRUSTED &&
++	    isp->smk_mmap != sbsp->smk_root)
++		return -EACCES;
+ 	mkp = isp->smk_mmap;
+ 
+ 	tsp = current_security();
+@@ -3546,16 +3557,14 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+ 			if (rc >= 0)
+ 				transflag = SMK_INODE_TRANSMUTE;
+ 		}
+-		if (!(sbsp->smk_flags & SMK_SB_UNTRUSTED)) {
+-			/*
+-			 * Don't let the exec or mmap label be "*" or "@".
+-			 */
+-			skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
+-			if (IS_ERR(skp) || skp == &smack_known_star ||
+-			    skp == &smack_known_web)
+-				skp = NULL;
+-			isp->smk_task = skp;
+-		}
++		/*
++		 * Don't let the exec or mmap label be "*" or "@".
++		 */
++		skp = smk_fetch(XATTR_NAME_SMACKEXEC, inode, dp);
++		if (IS_ERR(skp) || skp == &smack_known_star ||
++		    skp == &smack_known_web)
++			skp = NULL;
++		isp->smk_task = skp;
+ 
+ 		skp = smk_fetch(XATTR_NAME_SMACKMMAP, inode, dp);
+ 		if (IS_ERR(skp) || skp == &smack_known_star ||
 -- 
 1.9.1
