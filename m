@@ -1,13 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3N65MDJ007341
- for <selinux@tycho.nsa.gov>; Sat, 23 Apr 2016 02:05:22 -0400
-Received: by mail-pa0-f66.google.com with SMTP id zy2so12078199pac.2
- for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 23:05:19 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3N65Sgg007355
+ for <selinux@tycho.nsa.gov>; Sat, 23 Apr 2016 02:05:28 -0400
+Received: by mail-pa0-f66.google.com with SMTP id zy2so12078432pac.2
+ for <selinux@tycho.nsa.gov>; Fri, 22 Apr 2016 23:05:24 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 1/8] genhomedircon: factor out common replacement code
-Date: Sat, 23 Apr 2016 14:04:52 +0800
-Message-Id: <1461391499-20593-2-git-send-email-jason@perfinion.com>
+Subject: [PATCH v2 2/8] genhomedircon: move fallback user to
+ genhomedircon_user_entry_t
+Date: Sat, 23 Apr 2016 14:04:53 +0800
+Message-Id: <1461391499-20593-3-git-send-email-jason@perfinion.com>
 In-Reply-To: <1461391499-20593-1-git-send-email-jason@perfinion.com>
 References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
  <1461391499-20593-1-git-send-email-jason@perfinion.com>
@@ -16,120 +17,84 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-All the write_*_contexts() methods use exactly the same code.
-This splits it off into a common helper function.
+The fallback user is used in all the write functions, making it use a
+struct allows us to have everything consistent between normal and
+fallback users.
 
 Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- libsemanage/src/genhomedircon.c | 70 ++++++++++++++---------------------------
- 1 file changed, 24 insertions(+), 46 deletions(-)
+ libsemanage/src/genhomedircon.c | 38 ++++++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
 diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 1a9e87e..09c2a10 100644
+index 09c2a10..1e35b7e 100644
 --- a/libsemanage/src/genhomedircon.c
 +++ b/libsemanage/src/genhomedircon.c
-@@ -548,23 +548,12 @@ static int check_line(genhomedircon_settings_t * s, Ustr *line)
- 	return result;
- }
+@@ -83,17 +83,6 @@
+ #define FALLBACK_USER_LEVEL "s0"
+ #define DEFAULT_LOGIN "__default__"
  
--static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
--				  semanage_list_t * tpl, const char *user,
--				  const char *seuser, const char *home,
--				  const char *role_prefix, const char *level)
-+static int write_replacements(genhomedircon_settings_t * s, FILE * out,
-+			      const semanage_list_t * tpl,
-+			      const replacement_pair_t *repl)
- {
--	replacement_pair_t repl[] = {
--		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
--		{.search_for = TEMPLATE_HOME_DIR,.replace_with = home},
--		{.search_for = TEMPLATE_ROLE,.replace_with = role_prefix},
--		{.search_for = TEMPLATE_LEVEL,.replace_with = level},
--		{NULL, NULL}
--	};
- 	Ustr *line = USTR_NULL;
- 
--	if (fprintf(out, COMMENT_USER_HOME_CONTEXT, user) < 0)
--		return STATUS_ERR;
+-typedef struct {
+-	const char *fcfilepath;
+-	int usepasswd;
+-	const char *homedir_template_path;
+-	char *fallback_user;
+-	char *fallback_user_prefix;
+-	char *fallback_user_level;
+-	semanage_handle_t *h_semanage;
+-	sepol_policydb_t *policydb;
+-} genhomedircon_settings_t;
 -
- 	for (; tpl; tpl = tpl->next) {
- 		line = replace_all(tpl->data, repl);
- 		if (!line)
-@@ -582,6 +571,25 @@ static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- 	return STATUS_ERR;
- }
+ typedef struct user_entry {
+ 	char *name;
+ 	char *sename;
+@@ -104,6 +93,15 @@ typedef struct user_entry {
+ } genhomedircon_user_entry_t;
  
-+static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
-+				  semanage_list_t * tpl, const char *user,
-+				  const char *seuser, const char *home,
-+				  const char *role_prefix, const char *level)
-+{
-+	replacement_pair_t repl[] = {
-+		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
-+		{.search_for = TEMPLATE_HOME_DIR,.replace_with = home},
-+		{.search_for = TEMPLATE_ROLE,.replace_with = role_prefix},
-+		{.search_for = TEMPLATE_LEVEL,.replace_with = level},
-+		{NULL, NULL}
-+	};
+ typedef struct {
++	const char *fcfilepath;
++	int usepasswd;
++	const char *homedir_template_path;
++	genhomedircon_user_entry_t *fallback;
++	semanage_handle_t *h_semanage;
++	sepol_policydb_t *policydb;
++} genhomedircon_settings_t;
 +
-+	if (fprintf(out, COMMENT_USER_HOME_CONTEXT, user) < 0)
-+		return STATUS_ERR;
++typedef struct {
+ 	const char *search_for;
+ 	const char *replace_with;
+ } replacement_pair_t;
+@@ -1046,10 +1044,16 @@ int semanage_genhomedircon(semanage_handle_t * sh,
+ 	s.fcfilepath = semanage_final_path(SEMANAGE_FINAL_TMP,
+ 					   SEMANAGE_FC_HOMEDIRS);
+ 
+-	s.fallback_user = strdup(FALLBACK_USER);
+-	s.fallback_user_prefix = strdup(FALLBACK_USER_PREFIX);
+-	s.fallback_user_level = strdup(FALLBACK_USER_LEVEL);
+-	if (s.fallback_user == NULL || s.fallback_user_prefix == NULL || s.fallback_user_level == NULL) {
++	s.fallback = calloc(1, sizeof(genhomedircon_user_entry_t));
++	if (s.fallback == NULL) {
++		retval = STATUS_ERR;
++		goto done;
++	}
 +
-+	return write_replacements(s, out, tpl, repl);
-+}
-+
- static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
- 				   semanage_list_t * tpl, char *homedir)
- {
-@@ -589,23 +597,8 @@ static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
- 		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
- 		{NULL, NULL}
- 	};
--	Ustr *line = USTR_NULL;
--
--	for (; tpl; tpl = tpl->next) {
--		line = replace_all(tpl->data, repl);
--		if (!line)
--			goto fail;
--		if (check_line(s, line) == STATUS_SUCCESS) {
--			if (!ustr_io_putfileline(&line, out))
--				goto fail;
--		}
--		ustr_sc_free(&line);
--	}
--	return STATUS_SUCCESS;
++	s.fallback->sename = strdup(FALLBACK_USER);
++	s.fallback->prefix = strdup(FALLBACK_USER_PREFIX);
++	s.fallback->level = strdup(FALLBACK_USER_LEVEL);
++	if (s.fallback->sename == NULL || s.fallback->prefix == NULL || s.fallback->level == NULL) {
+ 		retval = STATUS_ERR;
+ 		goto done;
+ 	}
+@@ -1073,9 +1077,7 @@ done:
+ 	if (out != NULL)
+ 		fclose(out);
  
--      fail:
--	ustr_sc_free(&line);
--	return STATUS_ERR;
-+	return write_replacements(s, out, tpl, repl);
- }
+-	free(s.fallback_user);
+-	free(s.fallback_user_prefix);
+-	free(s.fallback_user_level);
++	pop_user_entry(&(s.fallback));
+ 	ignore_free();
  
- static int write_user_context(genhomedircon_settings_t * s, FILE * out,
-@@ -618,23 +611,8 @@ static int write_user_context(genhomedircon_settings_t * s, FILE * out,
- 		{.search_for = TEMPLATE_SEUSER,.replace_with = seuser},
- 		{NULL, NULL}
- 	};
--	Ustr *line = USTR_NULL;
--
--	for (; tpl; tpl = tpl->next) {
--		line = replace_all(tpl->data, repl);
--		if (!line)
--			goto fail;
--		if (check_line(s, line) == STATUS_SUCCESS) {
--			if (!ustr_io_putfileline(&line, out))
--				goto fail;
--		}
--		ustr_sc_free(&line);
--	}
--	return STATUS_SUCCESS;
- 
--      fail:
--	ustr_sc_free(&line);
--	return STATUS_ERR;
-+	return write_replacements(s, out, tpl, repl);
- }
- 
- static int user_sort_func(semanage_user_t ** arg1, semanage_user_t ** arg2)
+ 	return retval;
 -- 
 2.7.3
