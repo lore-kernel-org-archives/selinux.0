@@ -1,12 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJak0A011587
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:37:19 -0400
-Received: by mail-ig0-f182.google.com with SMTP id g8so25529250igr.0
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:37:18 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJl0oT014885
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:47:00 -0400
+Received: by mail-oi0-f41.google.com with SMTP id x19so26696306oix.2
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:46:59 -0700 (PDT)
+Date: Mon, 25 Apr 2016 15:54:51 -0500
 From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Miklos Szeredi <miklos@szeredi.hu>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
@@ -17,44 +19,87 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v4 21/21] fuse: Allow user namespace mounts
-Date: Tue, 26 Apr 2016 14:36:34 -0500
-Message-Id: <1461699396-33000-22-git-send-email-seth.forshee@canonical.com>
-In-Reply-To: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
-References: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
+ cgroups@vger.kernel.org
+Subject: Re: [PATCH v3 14/21] fs: Allow superblock owner to change ownership
+ of inodes with unmappable ids
+Message-ID: <20160425205451.GA22516@ubuntu-hedt>
+References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
+ <1461339521-123191-15-git-send-email-seth.forshee@canonical.com>
+ <20160425203047.GA29927@mail.hallyn.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160425203047.GA29927@mail.hallyn.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
----
- fs/fuse/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On Mon, Apr 25, 2016 at 03:30:47PM -0500, Serge E. Hallyn wrote:
+> Quoting Seth Forshee (seth.forshee@canonical.com):
+> > In a userns mount some on-disk inodes may have ids which do not
+> > map into s_user_ns, in which case the in-kernel inodes are owned
+> > by invalid users. The superblock owner should be able to change
+> > attributes of these inodes but cannot. However it is unsafe to
+> > grant the superblock owner privileged access to all inodes in the
+> > superblock since proc, sysfs, etc. use DAC to protect files which
+> > may not belong to s_user_ns. The problem is restricted to only
+> > inodes where the owner or group is an invalid user.
+> > 
+> > We can work around this by allowing users with CAP_CHOWN in
+> > s_user_ns to change an invalid owner or group id, so long as the
+> > other id is either invalid or mappable in s_user_ns. After
+> > changing ownership the user will be privileged towards the inode
+> > and thus able to change other attributes.
+> > 
+> > As an precaution, checks for invalid ids are added to the proc
+> > and kernfs setattr interfaces. These filesystems are not expected
+> > to have inodes with invalid ids, but if it does happen any
+> > setattr operations will return -EPERM.
+> > 
+> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> 
+> Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+> 
+> bug a request below,
+> 
+> > ---
+> >  fs/attr.c             | 47 +++++++++++++++++++++++++++++++++++++++--------
+> >  fs/kernfs/inode.c     |  2 ++
+> >  fs/proc/base.c        |  2 ++
+> >  fs/proc/generic.c     |  3 +++
+> >  fs/proc/proc_sysctl.c |  2 ++
+> >  5 files changed, 48 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/fs/attr.c b/fs/attr.c
+> > index 3cfaaac4a18e..a8b0931654a5 100644
+> > --- a/fs/attr.c
+> > +++ b/fs/attr.c
+> > @@ -16,6 +16,43 @@
+> >  #include <linux/evm.h>
+> >  #include <linux/ima.h>
+> >  
+> > +static bool chown_ok(const struct inode *inode, kuid_t uid)
+> > +{
+> > +	struct user_namespace *user_ns;
+> > +
+> > +	if (uid_eq(current_fsuid(), inode->i_uid) && uid_eq(uid, inode->i_uid))
+> > +		return true;
+> > +	if (capable_wrt_inode_uidgid(inode, CAP_CHOWN))
+> > +		return true;
+> > +
+> > +	user_ns = inode->i_sb->s_user_ns;
+> > +	if (!uid_valid(inode->i_uid) &&
+> > +	    (!gid_valid(inode->i_gid) || kgid_has_mapping(user_ns, inode->i_gid)) &&
+> 
+> This confused me to no end :)  Perhaps a "is_unmapped_valid_gid()" helper
+> would make it clearer what this is meant to do?  Or else maybe a comment
+> above chown_ok(), explaining that
+> 
+> 1. for a blockdev, the uid is converted at inode read so that it is
+> either mapped or invalid
+> 2. for sysfs / etc, uid can be valid but not mapped into the userns
 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 0a771145d853..254f1944ee98 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -1199,7 +1199,7 @@ static void fuse_kill_sb_anon(struct super_block *sb)
- static struct file_system_type fuse_fs_type = {
- 	.owner		= THIS_MODULE,
- 	.name		= "fuse",
--	.fs_flags	= FS_HAS_SUBTYPE,
-+	.fs_flags	= FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
- 	.mount		= fuse_mount,
- 	.kill_sb	= fuse_kill_sb_anon,
- };
-@@ -1231,7 +1231,7 @@ static struct file_system_type fuseblk_fs_type = {
- 	.name		= "fuseblk",
- 	.mount		= fuse_mount_blk,
- 	.kill_sb	= fuse_kill_sb_blk,
--	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE,
-+	.fs_flags	= FS_REQUIRES_DEV | FS_HAS_SUBTYPE | FS_USERNS_MOUNT,
- };
- MODULE_ALIAS_FS("fuseblk");
- 
--- 
-2.7.4
+Even with a helper a comment is probably helpful to explain why. I'll do
+that first, then see if a helper would make things any clearer.
+Honestly, I had to think about the helper name you proposed for a minute
+before it made sense even though I already understood the code ;-)
