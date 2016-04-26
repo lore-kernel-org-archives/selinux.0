@@ -1,200 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3PKUqcX018487
- for <selinux@tycho.nsa.gov>; Mon, 25 Apr 2016 16:30:52 -0400
-Date: Mon, 25 Apr 2016 15:30:47 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <mszeredi@redhat.com>,
- Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
- linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org
-Subject: Re: [PATCH v3 14/21] fs: Allow superblock owner to change ownership
- of inodes with unmappable ids
-Message-ID: <20160425203047.GA29927@mail.hallyn.com>
-References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
- <1461339521-123191-15-git-send-email-seth.forshee@canonical.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QBS8h3022956
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 07:28:08 -0400
+Received: by mail-wm0-f46.google.com with SMTP id n3so3096441wmn.0
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 04:28:03 -0700 (PDT)
+Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
+ by smtp.gmail.com with ESMTPSA id jo6sm28390538wjb.48.2016.04.26.04.28.00
+ for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
+ Tue, 26 Apr 2016 04:28:01 -0700 (PDT)
+To: selinux@tycho.nsa.gov
+From: Dominick Grift <dac.override@gmail.com>
+Subject: trying to understand a cronie issue anno 2008
+Message-ID: <017f000a-3ecc-1e01-514f-a6106cfca8b9@gmail.com>
+Date: Tue, 26 Apr 2016 13:28:00 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1461339521-123191-15-git-send-email-seth.forshee@canonical.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting Seth Forshee (seth.forshee@canonical.com):
-> In a userns mount some on-disk inodes may have ids which do not
-> map into s_user_ns, in which case the in-kernel inodes are owned
-> by invalid users. The superblock owner should be able to change
-> attributes of these inodes but cannot. However it is unsafe to
-> grant the superblock owner privileged access to all inodes in the
-> superblock since proc, sysfs, etc. use DAC to protect files which
-> may not belong to s_user_ns. The problem is restricted to only
-> inodes where the owner or group is an invalid user.
-> 
-> We can work around this by allowing users with CAP_CHOWN in
-> s_user_ns to change an invalid owner or group id, so long as the
-> other id is either invalid or mappable in s_user_ns. After
-> changing ownership the user will be privileged towards the inode
-> and thus able to change other attributes.
-> 
-> As an precaution, checks for invalid ids are added to the proc
-> and kernfs setattr interfaces. These filesystems are not expected
-> to have inodes with invalid ids, but if it does happen any
-> setattr operations will return -EPERM.
-> 
-> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 
-bug a request below,
+I am trying to understand an issue
 
-> ---
->  fs/attr.c             | 47 +++++++++++++++++++++++++++++++++++++++--------
->  fs/kernfs/inode.c     |  2 ++
->  fs/proc/base.c        |  2 ++
->  fs/proc/generic.c     |  3 +++
->  fs/proc/proc_sysctl.c |  2 ++
->  5 files changed, 48 insertions(+), 8 deletions(-)
-> 
-> diff --git a/fs/attr.c b/fs/attr.c
-> index 3cfaaac4a18e..a8b0931654a5 100644
-> --- a/fs/attr.c
-> +++ b/fs/attr.c
-> @@ -16,6 +16,43 @@
->  #include <linux/evm.h>
->  #include <linux/ima.h>
->  
-> +static bool chown_ok(const struct inode *inode, kuid_t uid)
-> +{
-> +	struct user_namespace *user_ns;
-> +
-> +	if (uid_eq(current_fsuid(), inode->i_uid) && uid_eq(uid, inode->i_uid))
-> +		return true;
-> +	if (capable_wrt_inode_uidgid(inode, CAP_CHOWN))
-> +		return true;
-> +
-> +	user_ns = inode->i_sb->s_user_ns;
-> +	if (!uid_valid(inode->i_uid) &&
-> +	    (!gid_valid(inode->i_gid) || kgid_has_mapping(user_ns, inode->i_gid)) &&
+https://bugzilla.redhat.com/show_bug.cgi?id=426704#c20
 
-This confused me to no end :)  Perhaps a "is_unmapped_valid_gid()" helper
-would make it clearer what this is meant to do?  Or else maybe a comment
-above chown_ok(), explaining that
+"Suggestion:  load_user() to pass NULL if pw is NULL, and change
+get_security_context() to handle a NULL name by directly calling
+get_default_context() on "system_u" rather than calling
+getseuserbyname at all. Then we don't need a system_u entry in seusers."
 
-1. for a blockdev, the uid is converted at inode read so that it is
-either mapped or invalid
-2. for sysfs / etc, uid can be valid but not mapped into the userns
+Is the suggestion above about hard coding "system_u"?
 
-> +	    ns_capable(user_ns, CAP_CHOWN))
-> +		return true;
-> +
-> +	return false;
-> +}
-> +
-> +static bool chgrp_ok(const struct inode *inode, kgid_t gid)
-> +{
-> +	struct user_namespace *user_ns;
-> +
-> +	if (uid_eq(current_fsuid(), inode->i_uid) &&
-> +	    (in_group_p(gid) || gid_eq(gid, inode->i_gid)))
-> +		return true;
-> +	if (capable_wrt_inode_uidgid(inode, CAP_CHOWN))
-> +		return true;
-> +
-> +	user_ns = inode->i_sb->s_user_ns;
-> +	if (!gid_valid(inode->i_gid) &&
-> +	    (!uid_valid(inode->i_uid) || kuid_has_mapping(user_ns, inode->i_uid)) &&
-> +	    ns_capable(user_ns, CAP_CHOWN))
-> +		return true;
-> +
-> +	return false;
-> +}
-> +
->  /**
->   * inode_change_ok - check if attribute changes to an inode are allowed
->   * @inode:	inode to check
-> @@ -58,17 +95,11 @@ int inode_change_ok(const struct inode *inode, struct iattr *attr)
->  		return 0;
->  
->  	/* Make sure a caller can chown. */
-> -	if ((ia_valid & ATTR_UID) &&
-> -	    (!uid_eq(current_fsuid(), inode->i_uid) ||
-> -	     !uid_eq(attr->ia_uid, inode->i_uid)) &&
-> -	    !capable_wrt_inode_uidgid(inode, CAP_CHOWN))
-> +	if ((ia_valid & ATTR_UID) && !chown_ok(inode, attr->ia_uid))
->  		return -EPERM;
->  
->  	/* Make sure caller can chgrp. */
-> -	if ((ia_valid & ATTR_GID) &&
-> -	    (!uid_eq(current_fsuid(), inode->i_uid) ||
-> -	    (!in_group_p(attr->ia_gid) && !gid_eq(attr->ia_gid, inode->i_gid))) &&
-> -	    !capable_wrt_inode_uidgid(inode, CAP_CHOWN))
-> +	if ((ia_valid & ATTR_GID) && !chgrp_ok(inode, attr->ia_gid))
->  		return -EPERM;
->  
->  	/* Make sure a caller can chmod. */
-> diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-> index 16405ae88d2d..2e97a337ee5f 100644
-> --- a/fs/kernfs/inode.c
-> +++ b/fs/kernfs/inode.c
-> @@ -117,6 +117,8 @@ int kernfs_iop_setattr(struct dentry *dentry, struct iattr *iattr)
->  
->  	if (!kn)
->  		return -EINVAL;
-> +	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
-> +		return -EPERM;
->  
->  	mutex_lock(&kernfs_mutex);
->  	error = inode_change_ok(inode, iattr);
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index b1755b23893e..648d623e2158 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -711,6 +711,8 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr)
->  
->  	if (attr->ia_valid & ATTR_MODE)
->  		return -EPERM;
-> +	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
-> +		return -EPERM;
->  
->  	error = inode_change_ok(inode, attr);
->  	if (error)
-> diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-> index ff3ffc76a937..1461570c552c 100644
-> --- a/fs/proc/generic.c
-> +++ b/fs/proc/generic.c
-> @@ -105,6 +105,9 @@ static int proc_notify_change(struct dentry *dentry, struct iattr *iattr)
->  	struct proc_dir_entry *de = PDE(inode);
->  	int error;
->  
-> +	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
-> +		return -EPERM;
-> +
->  	error = inode_change_ok(inode, iattr);
->  	if (error)
->  		return error;
-> diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-> index fe5b6e6c4671..f5d575157194 100644
-> --- a/fs/proc/proc_sysctl.c
-> +++ b/fs/proc/proc_sysctl.c
-> @@ -752,6 +752,8 @@ static int proc_sys_setattr(struct dentry *dentry, struct iattr *attr)
->  
->  	if (attr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID))
->  		return -EPERM;
-> +	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
-> +		return -EPERM;
->  
->  	error = inode_change_ok(inode, attr);
->  	if (error)
-> -- 
-> 1.9.1
+Also about:
+
+"Then we don't need a system_u entry in seusers."
+
+We seem to have the above anyway, even with the system_u hard coded.
+Wondering whether it was left in for some other reason?
+
+Cronie refuses to run in an environment where system_u is not
+available when system_u is hard coded like that (i believe):
+
+https://git.fedorahosted.org/cgit/cronie.git/commit/?id=e5280235809844f5
+4d5956ec281472b63dcfc3f4
+
+- -- 
+Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJXH1C7AAoJECV0jlU3+UdpE7kMAK2pbticmAvp5FKELXOoO+hX
+eP0CvSFMHa34upu2AH4FJeJIv3JgJagLbBtRLPjJ9otRZbq6zh7HIPUJ9ltk+SI6
+QwBAxr0/DDUhKNRU01v1A6S/FFAyt7m+YUZ1YUI7UHgFDkH0ox0F+XLuzwH8WbGy
+YI1S+DONV46gW55GluBO7N7th44kunpAZ0slU4GpLzjfz+ScS0Y6GG/Fdnnb0hTz
+M1/UeOi0bEqvUjJhTpvUiy5yu/xDPVhZ36cuBOG9hbTuBO7CIJvc0EnxXYBBIyPw
+bwvPxUTumUTOsHSUFVJ9s61MCIZwzOngwIYPK9qs3EivgWC5Xg3jzOsVlxjBRMWZ
+JVT1hO3gq0V9OqkmOFYH0hd0E9Q/bhqlXlOXXp89S2BJfhIUjtqq3tWbayO5wVMg
+aUSyobadvn2XF35jt+gPXfoiTO0SC8VXJ905V5M9KNv0lKlu0wpo7/oQ3YUrO82/
+GIwZhZAoYsT0afXNbZPYfzi2MpZUzTK4xzlyJlJFvQ==
+=6/EC
+-----END PGP SIGNATURE-----
