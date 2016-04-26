@@ -1,105 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJl0oT014885
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:47:00 -0400
-Received: by mail-oi0-f41.google.com with SMTP id x19so26696306oix.2
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:46:59 -0700 (PDT)
-Date: Mon, 25 Apr 2016 15:54:51 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <mszeredi@redhat.com>,
- Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
- linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org
-Subject: Re: [PATCH v3 14/21] fs: Allow superblock owner to change ownership
- of inodes with unmappable ids
-Message-ID: <20160425205451.GA22516@ubuntu-hedt>
-References: <1461339521-123191-1-git-send-email-seth.forshee@canonical.com>
- <1461339521-123191-15-git-send-email-seth.forshee@canonical.com>
- <20160425203047.GA29927@mail.hallyn.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QKvAlE032507
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 16:57:10 -0400
+Received: by mail-oi0-f53.google.com with SMTP id x201so28648710oif.3
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 13:57:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160425203047.GA29927@mail.hallyn.com>
+In-Reply-To: <46d242c8-ca4c-dfea-a93f-73bdc57db1cd@tycho.nsa.gov>
+References: <1460137920-17190-1-git-send-email-sds@tycho.nsa.gov>
+ <1976950.a3EgWPGDNc@sifl>
+ <46d242c8-ca4c-dfea-a93f-73bdc57db1cd@tycho.nsa.gov>
+Date: Tue, 26 Apr 2016 16:57:08 -0400
+Message-ID: <CAHC9VhTBTEm6rP0_9+h1oPH6Rqugq+tuWhQV4ekA=ee7YHUeFQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: distinguish non-init user namespace capability
+ checks
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>,
+ "Christopher J. PeBenito" <cpebenito@tresys.com>,
+ Miroslav Grepl <mgrepl@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Apr 25, 2016 at 03:30:47PM -0500, Serge E. Hallyn wrote:
-> Quoting Seth Forshee (seth.forshee@canonical.com):
-> > In a userns mount some on-disk inodes may have ids which do not
-> > map into s_user_ns, in which case the in-kernel inodes are owned
-> > by invalid users. The superblock owner should be able to change
-> > attributes of these inodes but cannot. However it is unsafe to
-> > grant the superblock owner privileged access to all inodes in the
-> > superblock since proc, sysfs, etc. use DAC to protect files which
-> > may not belong to s_user_ns. The problem is restricted to only
-> > inodes where the owner or group is an invalid user.
-> > 
-> > We can work around this by allowing users with CAP_CHOWN in
-> > s_user_ns to change an invalid owner or group id, so long as the
-> > other id is either invalid or mappable in s_user_ns. After
-> > changing ownership the user will be privileged towards the inode
-> > and thus able to change other attributes.
-> > 
-> > As an precaution, checks for invalid ids are added to the proc
-> > and kernfs setattr interfaces. These filesystems are not expected
-> > to have inodes with invalid ids, but if it does happen any
-> > setattr operations will return -EPERM.
-> > 
-> > Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-> 
-> Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
-> 
-> bug a request below,
-> 
-> > ---
-> >  fs/attr.c             | 47 +++++++++++++++++++++++++++++++++++++++--------
-> >  fs/kernfs/inode.c     |  2 ++
-> >  fs/proc/base.c        |  2 ++
-> >  fs/proc/generic.c     |  3 +++
-> >  fs/proc/proc_sysctl.c |  2 ++
-> >  5 files changed, 48 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/fs/attr.c b/fs/attr.c
-> > index 3cfaaac4a18e..a8b0931654a5 100644
-> > --- a/fs/attr.c
-> > +++ b/fs/attr.c
-> > @@ -16,6 +16,43 @@
-> >  #include <linux/evm.h>
-> >  #include <linux/ima.h>
-> >  
-> > +static bool chown_ok(const struct inode *inode, kuid_t uid)
-> > +{
-> > +	struct user_namespace *user_ns;
-> > +
-> > +	if (uid_eq(current_fsuid(), inode->i_uid) && uid_eq(uid, inode->i_uid))
-> > +		return true;
-> > +	if (capable_wrt_inode_uidgid(inode, CAP_CHOWN))
-> > +		return true;
-> > +
-> > +	user_ns = inode->i_sb->s_user_ns;
-> > +	if (!uid_valid(inode->i_uid) &&
-> > +	    (!gid_valid(inode->i_gid) || kgid_has_mapping(user_ns, inode->i_gid)) &&
-> 
-> This confused me to no end :)  Perhaps a "is_unmapped_valid_gid()" helper
-> would make it clearer what this is meant to do?  Or else maybe a comment
-> above chown_ok(), explaining that
-> 
-> 1. for a blockdev, the uid is converted at inode read so that it is
-> either mapped or invalid
-> 2. for sysfs / etc, uid can be valid but not mapped into the userns
+On Tue, Apr 26, 2016 at 4:06 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 04/26/2016 03:51 PM, Paul Moore wrote:
+>> On Friday, April 08, 2016 01:52:00 PM Stephen Smalley wrote:
+>>> Distinguish capability checks against a target associated
+>>> with the init user namespace versus capability checks against
+>>> a target associated with a non-init user namespace by defining
+>>> and using separate security classes for the latter.
+>>>
+>>> This is needed to support e.g. Chrome usage of user namespaces
+>>> for the Chrome sandbox without needing to allow Chrome to also
+>>> exercise capabilities on targets in the init user namespace.
+>>>
+>>> Suggested-by: Dan Walsh <dwalsh@redhat.com>
+>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>> ---
+>>>  security/selinux/hooks.c            | 14 +++++++-------
+>>>  security/selinux/include/classmap.h | 28 ++++++++++++++++++----------
+>>>  2 files changed, 25 insertions(+), 17 deletions(-)
+>>
+>> Applied, thanks.
+>
+> I pushed the test for these new checks to a branch of selinux-testsuite
+> (#userns) because the test can't be used without a corresponding update
+> to policy to define the new classes, so I will wait to merge to master
+> until rawhide gets the new class definitions.  Also, I'll need to make
+> the test code conditional on kernel version so that it won't fail on
+> kernels that predate the support.  Will this change be in 4.7?
 
-Even with a helper a comment is probably helpful to explain why. I'll do
-that first, then see if a helper would make things any clearer.
-Honestly, I had to think about the helper name you proposed for a minute
-before it made sense even though I already understood the code ;-)
+I merged the code into the selinux#next branch so barring any
+linux-next blowups, yes, I'll submit this with the 4.7 patches.
+
+-- 
+paul moore
+www.paul-moore.com
