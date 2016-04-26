@@ -1,12 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJak05011587
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:37:12 -0400
-Received: by mail-io0-f173.google.com with SMTP id 190so20534046iow.1
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:37:11 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJak06011587
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:37:13 -0400
+Received: by mail-io0-f169.google.com with SMTP id d62so26320887iof.2
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:37:12 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
  Miklos Szeredi <mszeredi@redhat.com>,
@@ -17,9 +19,10 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v4 16/21] fs: Allow superblock owner to access do_remount_sb()
-Date: Tue, 26 Apr 2016 14:36:29 -0500
-Message-Id: <1461699396-33000-17-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v4 17/21] capabilities: Allow privileged user in s_user_ns to
+ set security.* xattrs
+Date: Tue, 26 Apr 2016 14:36:30 -0500
+Message-Id: <1461699396-33000-18-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
 References: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -27,40 +30,72 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Superblock level remounts are currently restricted to global
-CAP_SYS_ADMIN, as is the path for changing the root mount to
-read only on umount. Loosen both of these permission checks to
-also allow CAP_SYS_ADMIN in any namespace which is privileged
-towards the userns which originally mounted the filesystem.
+A privileged user in s_user_ns will generally have the ability to
+manipulate the backing store and insert security.* xattrs into
+the filesystem directly. Therefore the kernel must be prepared to
+handle these xattrs from unprivileged mounts, and it makes little
+sense for commoncap to prevent writing these xattrs to the
+filesystem. The capability and LSM code have already been updated
+to appropriately handle xattrs from unprivileged mounts, so it
+is safe to loosen this restriction on setting xattrs.
+
+The exception to this logic is that writing xattrs to a mounted
+filesystem may also cause the LSM inode_post_setxattr or
+inode_setsecurity callbacks to be invoked. SELinux will deny the
+xattr update by virtue of applying mountpoint labeling to
+unprivileged userns mounts, and Smack will deny the writes for
+any user without global CAP_MAC_ADMIN, so loosening the
+capability check in commoncap is safe in this respect as well.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/namespace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/commoncap.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 0ad8e4a4f50b..575e3f8b34fd 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1510,7 +1510,7 @@ static int do_umount(struct mount *mnt, int flags)
- 		 * Special case for "unmounting" root ...
- 		 * we just try to remount it readonly.
- 		 */
--		if (!capable(CAP_SYS_ADMIN))
-+		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+diff --git a/security/commoncap.c b/security/commoncap.c
+index e657227d221e..12477afaa8ed 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -664,15 +664,17 @@ int cap_bprm_secureexec(struct linux_binprm *bprm)
+ int cap_inode_setxattr(struct dentry *dentry, const char *name,
+ 		       const void *value, size_t size, int flags)
+ {
++	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
++
+ 	if (!strcmp(name, XATTR_NAME_CAPS)) {
+-		if (!capable(CAP_SETFCAP))
++		if (!ns_capable(user_ns, CAP_SETFCAP))
  			return -EPERM;
- 		down_write(&sb->s_umount);
- 		if (!(sb->s_flags & MS_RDONLY))
-@@ -2207,7 +2207,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
- 	down_write(&sb->s_umount);
- 	if (flags & MS_BIND)
- 		err = change_mount_flags(path->mnt, flags);
--	else if (!capable(CAP_SYS_ADMIN))
-+	else if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
- 		err = -EPERM;
- 	else
- 		err = do_remount_sb(sb, flags, data, 0);
+ 		return 0;
+ 	}
+ 
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
+-	    !capable(CAP_SYS_ADMIN))
++	    !ns_capable(user_ns, CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	return 0;
+ }
+@@ -690,15 +692,17 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
+  */
+ int cap_inode_removexattr(struct dentry *dentry, const char *name)
+ {
++	struct user_namespace *user_ns = dentry->d_sb->s_user_ns;
++
+ 	if (!strcmp(name, XATTR_NAME_CAPS)) {
+-		if (!capable(CAP_SETFCAP))
++		if (!ns_capable(user_ns, CAP_SETFCAP))
+ 			return -EPERM;
+ 		return 0;
+ 	}
+ 
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
+-	    !capable(CAP_SYS_ADMIN))
++	    !ns_capable(user_ns, CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 	return 0;
+ }
 -- 
 2.7.4
