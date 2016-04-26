@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJUoHH010214
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:30:50 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJUoHP010214
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:30:54 -0400
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>
@@ -15,10 +15,9 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v4 02/21] fs: Remove check of s_user_ns for existing mounts in
- fs_fully_visible()
-Date: Tue, 26 Apr 2016 14:30:25 -0500
-Message-Id: <1461699046-30485-3-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v4 16/21] fs: Allow superblock owner to access do_remount_sb()
+Date: Tue, 26 Apr 2016 14:30:39 -0500
+Message-Id: <1461699046-30485-17-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461699046-30485-1-git-send-email-seth.forshee@canonical.com>
 References: <1461699046-30485-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -26,32 +25,40 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-fs_fully_visible() ignores MNT_LOCK_NODEV when FS_USERS_DEV_MOUNT
-is not set for the filesystem, but there is a bug in the logic
-that may cause mounting to fail. It is doing this only when the
-existing mount is not in init_user_ns but should check the new
-mount instead. But the new mount is always in a non-init
-namespace when fs_fully_visible() is called, so that condition
-can simply be removed.
+Superblock level remounts are currently restricted to global
+CAP_SYS_ADMIN, as is the path for changing the root mount to
+read only on umount. Loosen both of these permission checks to
+also allow CAP_SYS_ADMIN in any namespace which is privileged
+towards the userns which originally mounted the filesystem.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/namespace.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/namespace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/fs/namespace.c b/fs/namespace.c
-index f20c82f91ecb..c133318bec35 100644
+index 0ad8e4a4f50b..575e3f8b34fd 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
-@@ -3234,8 +3234,7 @@ static bool fs_fully_visible(struct file_system_type *type, int *new_mnt_flags)
- 		mnt_flags = mnt->mnt.mnt_flags;
- 		if (mnt->mnt.mnt_sb->s_iflags & SB_I_NOEXEC)
- 			mnt_flags &= ~(MNT_LOCK_NOSUID | MNT_LOCK_NOEXEC);
--		if (mnt->mnt.mnt_sb->s_user_ns != &init_user_ns &&
--		    !(mnt->mnt.mnt_sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT))
-+		if (!(mnt->mnt.mnt_sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT))
- 			mnt_flags &= ~(MNT_LOCK_NODEV);
- 
- 		/* Verify the mount flags are equal to or more permissive
+@@ -1510,7 +1510,7 @@ static int do_umount(struct mount *mnt, int flags)
+ 		 * Special case for "unmounting" root ...
+ 		 * we just try to remount it readonly.
+ 		 */
+-		if (!capable(CAP_SYS_ADMIN))
++		if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 		down_write(&sb->s_umount);
+ 		if (!(sb->s_flags & MS_RDONLY))
+@@ -2207,7 +2207,7 @@ static int do_remount(struct path *path, int flags, int mnt_flags,
+ 	down_write(&sb->s_umount);
+ 	if (flags & MS_BIND)
+ 		err = change_mount_flags(path->mnt, flags);
+-	else if (!capable(CAP_SYS_ADMIN))
++	else if (!ns_capable(sb->s_user_ns, CAP_SYS_ADMIN))
+ 		err = -EPERM;
+ 	else
+ 		err = do_remount_sb(sb, flags, data, 0);
 -- 
 2.7.4
