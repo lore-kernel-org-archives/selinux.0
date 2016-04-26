@@ -1,67 +1,68 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QBS8h3022956
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 07:28:08 -0400
-Received: by mail-wm0-f46.google.com with SMTP id n3so3096441wmn.0
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 04:28:03 -0700 (PDT)
-Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id jo6sm28390538wjb.48.2016.04.26.04.28.00
- for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
- Tue, 26 Apr 2016 04:28:01 -0700 (PDT)
-To: selinux@tycho.nsa.gov
-From: Dominick Grift <dac.override@gmail.com>
-Subject: trying to understand a cronie issue anno 2008
-Message-ID: <017f000a-3ecc-1e01-514f-a6106cfca8b9@gmail.com>
-Date: Tue, 26 Apr 2016 13:28:00 +0200
+Subject: Re: trying to understand a cronie issue anno 2008
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov,
+ Daniel J Walsh <dwalsh@redhat.com>
+References: <017f000a-3ecc-1e01-514f-a6106cfca8b9@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <571F6A25.6050802@tycho.nsa.gov>
+Date: Tue, 26 Apr 2016 09:16:21 -0400
 MIME-Version: 1.0
+In-Reply-To: <017f000a-3ecc-1e01-514f-a6106cfca8b9@gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+On 04/26/2016 07:28 AM, Dominick Grift wrote:
+> 
+> I am trying to understand an issue
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=426704#c20
+> 
+> "Suggestion:  load_user() to pass NULL if pw is NULL, and change
+> get_security_context() to handle a NULL name by directly calling
+> get_default_context() on "system_u" rather than calling
+> getseuserbyname at all. Then we don't need a system_u entry in seusers."
+> 
+> Is the suggestion above about hard coding "system_u"?
 
+No, it is about skipping the getseuserbyname() call when dealing with
+system cron jobs.  "system_u" was already hardcoded as the lookup key
+for determining the context of system cron jobs.
+https://bugzilla.redhat.com/show_bug.cgi?id=426704#c19 explained the
+background.
 
-I am trying to understand an issue
+> 
+> Also about:
+> 
+> "Then we don't need a system_u entry in seusers."
+> 
+> We seem to have the above anyway, even with the system_u hard coded.
+> Wondering whether it was left in for some other reason?
 
-https://bugzilla.redhat.com/show_bug.cgi?id=426704#c20
+Not that I know of.
 
-"Suggestion:  load_user() to pass NULL if pw is NULL, and change
-get_security_context() to handle a NULL name by directly calling
-get_default_context() on "system_u" rather than calling
-getseuserbyname at all. Then we don't need a system_u entry in seusers."
+> Cronie refuses to run in an environment where system_u is not
+> available when system_u is hard coded like that (i believe):
+> 
+> https://git.fedorahosted.org/cgit/cronie.git/commit/?id=e5280235809844f5
+> 4d5956ec281472b63dcfc3f4
 
-Is the suggestion above about hard coding "system_u"?
+There are two different issues here:
 
-Also about:
+1) Requiring system_u to be mapped in the seusers configuration, which
+maps Linux usernames to SELinux users (and ranges).  This was what the
+above bug was about.  We shouldn't require a system_u entry in seusers
+because it isn't a Linux username.  It was a bug in vixie-cron that it
+was performing a getseuserbyname() call on "system_u"; it should have
+only done a get_default_context() on it (as in the original SELinux cron
+patch, before seusers was introduced).
 
-"Then we don't need a system_u entry in seusers."
-
-We seem to have the above anyway, even with the system_u hard coded.
-Wondering whether it was left in for some other reason?
-
-Cronie refuses to run in an environment where system_u is not
-available when system_u is hard coded like that (i believe):
-
-https://git.fedorahosted.org/cgit/cronie.git/commit/?id=e5280235809844f5
-4d5956ec281472b63dcfc3f4
-
-- -- 
-Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJXH1C7AAoJECV0jlU3+UdpE7kMAK2pbticmAvp5FKELXOoO+hX
-eP0CvSFMHa34upu2AH4FJeJIv3JgJagLbBtRLPjJ9otRZbq6zh7HIPUJ9ltk+SI6
-QwBAxr0/DDUhKNRU01v1A6S/FFAyt7m+YUZ1YUI7UHgFDkH0ox0F+XLuzwH8WbGy
-YI1S+DONV46gW55GluBO7N7th44kunpAZ0slU4GpLzjfz+ScS0Y6GG/Fdnnb0hTz
-M1/UeOi0bEqvUjJhTpvUiy5yu/xDPVhZ36cuBOG9hbTuBO7CIJvc0EnxXYBBIyPw
-bwvPxUTumUTOsHSUFVJ9s61MCIZwzOngwIYPK9qs3EivgWC5Xg3jzOsVlxjBRMWZ
-JVT1hO3gq0V9OqkmOFYH0hd0E9Q/bhqlXlOXXp89S2BJfhIUjtqq3tWbayO5wVMg
-aUSyobadvn2XF35jt+gPXfoiTO0SC8VXJ905V5M9KNv0lKlu0wpo7/oQ3YUrO82/
-GIwZhZAoYsT0afXNbZPYfzi2MpZUzTK4xzlyJlJFvQ==
-=6/EC
------END PGP SIGNATURE-----
+2) Requiring the system_u user to be defined in the users portion of the
+SELinux kernel policy.  That was always required by the cron SELinux
+patch in order to look up the context for system cron jobs.  The commit
+you reference above appears to eliminate that as well, which is good, as
+long as it yields the right behavior.  One question I have is what
+happens if one restarts cronie manually; historically there have been
+issues with the correct user identity being assigned but that is
+probably no longer an issue with systemd.
