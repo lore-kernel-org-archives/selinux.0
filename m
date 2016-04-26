@@ -1,59 +1,98 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QKvAlE032507
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 16:57:10 -0400
-Received: by mail-oi0-f53.google.com with SMTP id x201so28648710oif.3
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 13:57:09 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QM3v8J016196
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 18:03:57 -0400
+Received: from mail-lf0-f54.google.com (mail-lf0-f54.google.com
+ [209.85.215.54])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 091AA56489B
+ for <selinux@tycho.nsa.gov>; Wed, 27 Apr 2016 00:03:46 +0200 (CEST)
+Received: by mail-lf0-f54.google.com with SMTP id j11so35115027lfb.1
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:03:45 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <46d242c8-ca4c-dfea-a93f-73bdc57db1cd@tycho.nsa.gov>
-References: <1460137920-17190-1-git-send-email-sds@tycho.nsa.gov>
- <1976950.a3EgWPGDNc@sifl>
- <46d242c8-ca4c-dfea-a93f-73bdc57db1cd@tycho.nsa.gov>
-Date: Tue, 26 Apr 2016 16:57:08 -0400
-Message-ID: <CAHC9VhTBTEm6rP0_9+h1oPH6Rqugq+tuWhQV4ekA=ee7YHUeFQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: distinguish non-init user namespace capability
- checks
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Dan Walsh <dwalsh@redhat.com>,
- "Christopher J. PeBenito" <cpebenito@tresys.com>,
- Miroslav Grepl <mgrepl@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1461391499-20593-1-git-send-email-jason@perfinion.com>
+References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ <1461391499-20593-1-git-send-email-jason@perfinion.com>
+Date: Wed, 27 Apr 2016 00:03:45 +0200
+Message-ID: <CAJfZ7=ktBsGVOqm8y6MQnwa-tiXrjrB_vB1cLFNuMg9a2Z9pfQ@mail.gmail.com>
+Subject: Re: genhomedircon USERID and USERNAME patches v2
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: Jason Zaman <jason@perfinion.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a114b15928ce39b05316a7723
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Apr 26, 2016 at 4:06 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 04/26/2016 03:51 PM, Paul Moore wrote:
->> On Friday, April 08, 2016 01:52:00 PM Stephen Smalley wrote:
->>> Distinguish capability checks against a target associated
->>> with the init user namespace versus capability checks against
->>> a target associated with a non-init user namespace by defining
->>> and using separate security classes for the latter.
->>>
->>> This is needed to support e.g. Chrome usage of user namespaces
->>> for the Chrome sandbox without needing to allow Chrome to also
->>> exercise capabilities on targets in the init user namespace.
->>>
->>> Suggested-by: Dan Walsh <dwalsh@redhat.com>
->>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>> ---
->>>  security/selinux/hooks.c            | 14 +++++++-------
->>>  security/selinux/include/classmap.h | 28 ++++++++++++++++++----------
->>>  2 files changed, 25 insertions(+), 17 deletions(-)
->>
->> Applied, thanks.
+--001a114b15928ce39b05316a7723
+Content-Type: text/plain; charset=UTF-8
+
+On Sat, Apr 23, 2016 at 8:04 AM, Jason Zaman <jason@perfinion.com> wrote:
+
+> Version 2 of the genhomedircon patches. These fix a few issues
+> that Nicolas Iooss found.
 >
-> I pushed the test for these new checks to a branch of selinux-testsuite
-> (#userns) because the test can't be used without a corresponding update
-> to policy to define the new classes, so I will wait to merge to master
-> until rawhide gets the new class definitions.  Also, I'll need to make
-> the test code conditional on kernel version so that it won't fail on
-> kernels that predate the support.  Will this change be in 4.7?
+> Changes from v1:
+>
+> - Changed the fallback for the username to "[^/]+" instead of
+>     "[^/]*" or ".*"
+> - Made args const in write_replacements()
+> - Combined the %{USERNAME} and %{USERID} replacements into one
+>     method so they both get called together. This means that
+>     fcontexts like "%{USERNAME}-%{USERID}" become eg "root-0"
+>     as expected.
+> - I left the gid param in the struct for now. genhomedircon
+>     does not generate things for eg "%wheel" which I will look
+>     into later.
+>
 
-I merged the code into the selinux#next branch so barring any
-linux-next blowups, yes, I'll submit this with the 4.7 patches.
+Hello,
+I have read these patches and tested them on my system. They seem to work
+fine: I added some corner-case file context patterns to my policy (mixing
+USER, %{USERNAME}, %{USERID}, ROLE and system_u) and checked the content of
+/etc/selinux/.../contexts/files/file_contexts.homedirs, the result of
+"matchpathcon" (on existing and non-existing paths) and the behavior of
+systemd-logind (which labels correctly the files). This set of patches
+looks good to me.
 
--- 
-paul moore
-www.paul-moore.com
+Thanks,
+Nicolas
+
+--001a114b15928ce39b05316a7723
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On S=
+at, Apr 23, 2016 at 8:04 AM, Jason Zaman <span dir=3D"ltr">&lt;<a href=3D"m=
+ailto:jason@perfinion.com" target=3D"_blank">jason@perfinion.com</a>&gt;</s=
+pan> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0p=
+x 0.8ex;border-left-width:1px;border-left-style:solid;border-left-color:rgb=
+(204,204,204);padding-left:1ex">Version 2 of the genhomedircon patches. The=
+se fix a few issues<br>
+that Nicolas Iooss found.<br>
+<br>
+Changes from v1:<br>
+<br>
+- Changed the fallback for the username to &quot;[^/]+&quot; instead of<br>
+=C2=A0 =C2=A0 &quot;[^/]*&quot; or &quot;.*&quot;<br>
+- Made args const in write_replacements()<br>
+- Combined the %{USERNAME} and %{USERID} replacements into one<br>
+=C2=A0 =C2=A0 method so they both get called together. This means that<br>
+=C2=A0 =C2=A0 fcontexts like &quot;%{USERNAME}-%{USERID}&quot; become eg &q=
+uot;root-0&quot;<br>
+=C2=A0 =C2=A0 as expected.<br>
+- I left the gid param in the struct for now. genhomedircon<br>
+=C2=A0 =C2=A0 does not generate things for eg &quot;%wheel&quot; which I wi=
+ll look<br>
+=C2=A0 =C2=A0 into later.<br></blockquote><div><br></div><div>Hello,</div><=
+div>I have read these patches and tested them on my system. They seem to wo=
+rk fine: I added some corner-case file context patterns to my policy (mixin=
+g USER, %{USERNAME}, %{USERID}, ROLE and system_u) and checked the content =
+of /etc/selinux/.../contexts/files/file_contexts.homedirs, the result of &q=
+uot;matchpathcon&quot; (on existing and non-existing paths) and the behavio=
+r of systemd-logind (which labels correctly the files). This set of patches=
+ looks good to me.</div><div><br></div><div>Thanks,</div><div>Nicolas</div>=
+</div><br></div></div>
+
+--001a114b15928ce39b05316a7723--
