@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJakxk011587
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:36:48 -0400
-Received: by mail-io0-f175.google.com with SMTP id 190so20523479iow.1
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:36:47 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJakxl011587
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:36:49 -0400
+Received: by mail-io0-f178.google.com with SMTP id d62so26310055iof.2
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:36:48 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
  Alexander Viro <viro@zeniv.linux.org.uk>
@@ -17,9 +17,10 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v4 01/21] fs: fix a posible leak of allocated superblock
-Date: Tue, 26 Apr 2016 14:36:14 -0500
-Message-Id: <1461699396-33000-2-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v4 02/21] fs: Remove check of s_user_ns for existing mounts in
+ fs_fully_visible()
+Date: Tue, 26 Apr 2016 14:36:15 -0500
+Message-Id: <1461699396-33000-3-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
 References: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -27,39 +28,32 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+fs_fully_visible() ignores MNT_LOCK_NODEV when FS_USERS_DEV_MOUNT
+is not set for the filesystem, but there is a bug in the logic
+that may cause mounting to fail. It is doing this only when the
+existing mount is not in init_user_ns but should check the new
+mount instead. But the new mount is always in a non-init
+namespace when fs_fully_visible() is called, so that condition
+can simply be removed.
 
-We probably need to fix superblock leak in patch (v4 "fs: Add user
-namesapace member to struct super_block"):
-
-Imagine posible code path in sget_userns: we iterate through
-type->fs_supers and do not find suitable sb, we drop sb_lock to
-allocate s and go to retry. After we dropped sb_lock some other
-task from different userns takes sb_lock, it is already in retry
-stage and has s allocated, so it puts its s in type->fs_supers
-list. So in retry we will find these sb in list and check it has
-a different userns, and finally we will return without freeing s.
-
-Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Acked-by: Seth Forshee <seth.forshee@canonical.com>
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 ---
- fs/super.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/namespace.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 829841e0ae7e..092a7828442e 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -474,6 +474,10 @@ retry:
- 				continue;
- 			if (user_ns != old->s_user_ns) {
- 				spin_unlock(&sb_lock);
-+				if (s) {
-+					up_write(&s->s_umount);
-+					destroy_super(s);
-+				}
- 				return ERR_PTR(-EBUSY);
- 			}
- 			if (!grab_super(old))
+diff --git a/fs/namespace.c b/fs/namespace.c
+index f20c82f91ecb..c133318bec35 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3234,8 +3234,7 @@ static bool fs_fully_visible(struct file_system_type *type, int *new_mnt_flags)
+ 		mnt_flags = mnt->mnt.mnt_flags;
+ 		if (mnt->mnt.mnt_sb->s_iflags & SB_I_NOEXEC)
+ 			mnt_flags &= ~(MNT_LOCK_NOSUID | MNT_LOCK_NOEXEC);
+-		if (mnt->mnt.mnt_sb->s_user_ns != &init_user_ns &&
+-		    !(mnt->mnt.mnt_sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT))
++		if (!(mnt->mnt.mnt_sb->s_type->fs_flags & FS_USERNS_DEV_MOUNT))
+ 			mnt_flags &= ~(MNT_LOCK_NODEV);
+ 
+ 		/* Verify the mount flags are equal to or more permissive
 -- 
 2.7.4
