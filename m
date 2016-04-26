@@ -1,11 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJak02011587
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:37:08 -0400
-Received: by mail-io0-f181.google.com with SMTP id 190so20532030iow.1
- for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:37:07 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJak03011587
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:37:10 -0400
+Received: by mail-io0-f182.google.com with SMTP id u185so30183434iod.3
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 12:37:09 -0700 (PDT)
 From: Seth Forshee <seth.forshee@canonical.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  Richard Weinberger <richard.weinberger@gmail.com>,
  Austin S Hemmelgarn <ahferroin7@gmail.com>,
@@ -17,10 +18,10 @@ Cc: Serge Hallyn <serge.hallyn@canonical.com>,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
-Subject: [PATCH v4 13/21] fs: Update posix_acl support to handle user
- namespace mounts
-Date: Tue, 26 Apr 2016 14:36:26 -0500
-Message-Id: <1461699396-33000-14-git-send-email-seth.forshee@canonical.com>
+Subject: [PATCH v4 14/21] fs: Allow superblock owner to change ownership of
+ inodes with unmappable ids
+Date: Tue, 26 Apr 2016 14:36:27 -0500
+Message-Id: <1461699396-33000-15-git-send-email-seth.forshee@canonical.com>
 In-Reply-To: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
 References: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -28,210 +29,171 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-ids in on-disk ACLs should be converted to s_user_ns instead of
-init_user_ns as is done now. This introduces the possibility for
-id mappings to fail, and when this happens syscalls will return
-EOVERFLOW.
+In a userns mount some on-disk inodes may have ids which do not
+map into s_user_ns, in which case the in-kernel inodes are owned
+by invalid users. The superblock owner should be able to change
+attributes of these inodes but cannot. However it is unsafe to
+grant the superblock owner privileged access to all inodes in the
+superblock since proc, sysfs, etc. use DAC to protect files which
+may not belong to s_user_ns. The problem is restricted to only
+inodes where the owner or group is an invalid user.
+
+We can work around this by allowing users with CAP_CHOWN in
+s_user_ns to change an invalid owner or group id, so long as the
+other id is either invalid or mappable in s_user_ns. After
+changing ownership the user will be privileged towards the inode
+and thus able to change other attributes.
+
+As an precaution, checks for invalid ids are added to the proc
+and kernfs setattr interfaces. These filesystems are not expected
+to have inodes with invalid ids, but if it does happen any
+setattr operations will return -EPERM.
 
 Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
 Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 ---
- fs/posix_acl.c                  | 67 ++++++++++++++++++++++++++---------------
- fs/xattr.c                      | 19 +++++++++---
- include/linux/posix_acl_xattr.h | 17 ++++++++---
- 3 files changed, 70 insertions(+), 33 deletions(-)
+ fs/attr.c             | 62 ++++++++++++++++++++++++++++++++++++++++++++-------
+ fs/kernfs/inode.c     |  2 ++
+ fs/proc/base.c        |  2 ++
+ fs/proc/generic.c     |  3 +++
+ fs/proc/proc_sysctl.c |  2 ++
+ 5 files changed, 63 insertions(+), 8 deletions(-)
 
-diff --git a/fs/posix_acl.c b/fs/posix_acl.c
-index 711dd5170376..dac2842dd4cb 100644
---- a/fs/posix_acl.c
-+++ b/fs/posix_acl.c
-@@ -595,59 +595,77 @@ EXPORT_SYMBOL_GPL(posix_acl_create);
- /*
-  * Fix up the uids and gids in posix acl extended attributes in place.
-  */
--static void posix_acl_fix_xattr_userns(
-+static int posix_acl_fix_xattr_userns(
- 	struct user_namespace *to, struct user_namespace *from,
- 	void *value, size_t size)
- {
- 	posix_acl_xattr_header *header = (posix_acl_xattr_header *)value;
- 	posix_acl_xattr_entry *entry = (posix_acl_xattr_entry *)(header+1), *end;
- 	int count;
--	kuid_t uid;
--	kgid_t gid;
-+	kuid_t kuid;
-+	uid_t uid;
-+	kgid_t kgid;
-+	gid_t gid;
+diff --git a/fs/attr.c b/fs/attr.c
+index 3cfaaac4a18e..06bb3f401559 100644
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -16,6 +16,58 @@
+ #include <linux/evm.h>
+ #include <linux/ima.h>
  
- 	if (!value)
--		return;
-+		return 0;
- 	if (size < sizeof(posix_acl_xattr_header))
--		return;
-+		return 0;
- 	if (header->a_version != cpu_to_le32(POSIX_ACL_XATTR_VERSION))
--		return;
-+		return 0;
- 
- 	count = posix_acl_xattr_count(size);
- 	if (count < 0)
--		return;
-+		return 0;
- 	if (count == 0)
--		return;
-+		return 0;
- 
- 	for (end = entry + count; entry != end; entry++) {
- 		switch(le16_to_cpu(entry->e_tag)) {
- 		case ACL_USER:
--			uid = make_kuid(from, le32_to_cpu(entry->e_id));
--			entry->e_id = cpu_to_le32(from_kuid(to, uid));
-+			kuid = make_kuid(from, le32_to_cpu(entry->e_id));
-+			if (!uid_valid(kuid))
-+				return -EOVERFLOW;
-+			uid = from_kuid(to, kuid);
-+			if (uid == (uid_t)-1)
-+				return -EOVERFLOW;
-+			entry->e_id = cpu_to_le32(uid);
- 			break;
- 		case ACL_GROUP:
--			gid = make_kgid(from, le32_to_cpu(entry->e_id));
--			entry->e_id = cpu_to_le32(from_kgid(to, gid));
-+			kgid = make_kgid(from, le32_to_cpu(entry->e_id));
-+			if (!gid_valid(kgid))
-+				return -EOVERFLOW;
-+			gid = from_kgid(to, kgid);
-+			if (gid == (gid_t)-1)
-+				return -EOVERFLOW;
-+			entry->e_id = cpu_to_le32(gid);
- 			break;
- 		default:
- 			break;
- 		}
- 	}
++static bool chown_ok(const struct inode *inode, kuid_t uid)
++{
++	struct user_namespace *user_ns;
 +
-+	return 0;
- }
++	if (uid_eq(current_fsuid(), inode->i_uid) && uid_eq(uid, inode->i_uid))
++		return true;
++	if (capable_wrt_inode_uidgid(inode, CAP_CHOWN))
++		return true;
++
++	/*
++	 * Inode uids/gids are of type kuid_t/kgid_t. As such, they can be
++	 * a) INVALID_UID/INVALID_GID, b) valid and mappable into
++	 * i_sb->s_user_ns, or c) valid but not mappable into
++	 * i_sb->s_user_ns.
++	 *
++	 * For filesystems on user-supplied media ids will either be (a) or
++	 * (b), so we permit CAP_CHOWN in s_user_ns to change INVALID_UID if
++	 * the gid meets these conditions (and vice versa for INVALID_GID).
++	 *
++	 * For psuedo-filesystems like proc or sysfs ids will be either (b)
++	 * or (c), so these conditions do not permit namespace-root to chown
++	 * in those filesystems.
++	 */
++	user_ns = inode->i_sb->s_user_ns;
++	if (!uid_valid(inode->i_uid) &&
++	    (!gid_valid(inode->i_gid) || kgid_has_mapping(user_ns, inode->i_gid)) &&
++	    ns_capable(user_ns, CAP_CHOWN))
++		return true;
++
++	return false;
++}
++
++static bool chgrp_ok(const struct inode *inode, kgid_t gid)
++{
++	struct user_namespace *user_ns;
++
++	if (uid_eq(current_fsuid(), inode->i_uid) &&
++	    (in_group_p(gid) || gid_eq(gid, inode->i_gid)))
++		return true;
++	if (capable_wrt_inode_uidgid(inode, CAP_CHOWN))
++		return true;
++
++	/* Logic here is the same as in chown_ok(); see comment there. */
++	user_ns = inode->i_sb->s_user_ns;
++	if (!gid_valid(inode->i_gid) &&
++	    (!uid_valid(inode->i_uid) || kuid_has_mapping(user_ns, inode->i_uid)) &&
++	    ns_capable(user_ns, CAP_CHOWN))
++		return true;
++
++	return false;
++}
++
+ /**
+  * inode_change_ok - check if attribute changes to an inode are allowed
+  * @inode:	inode to check
+@@ -58,17 +110,11 @@ int inode_change_ok(const struct inode *inode, struct iattr *attr)
+ 		return 0;
  
--void posix_acl_fix_xattr_from_user(void *value, size_t size)
-+int
-+posix_acl_fix_xattr_from_user(struct user_namespace *target_ns, void *value,
-+			      size_t size)
- {
--	struct user_namespace *user_ns = current_user_ns();
--	if (user_ns == &init_user_ns)
--		return;
--	posix_acl_fix_xattr_userns(&init_user_ns, user_ns, value, size);
-+	struct user_namespace *source_ns = current_user_ns();
-+	if (source_ns == target_ns)
-+		return 0;
-+	return posix_acl_fix_xattr_userns(target_ns, source_ns, value, size);
- }
- 
--void posix_acl_fix_xattr_to_user(void *value, size_t size)
-+int
-+posix_acl_fix_xattr_to_user(struct user_namespace *source_ns, void *value,
-+			    size_t size)
- {
--	struct user_namespace *user_ns = current_user_ns();
--	if (user_ns == &init_user_ns)
--		return;
--	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, value, size);
-+	struct user_namespace *target_ns = current_user_ns();
-+	if (target_ns == source_ns)
-+		return 0;
-+	return posix_acl_fix_xattr_userns(target_ns, source_ns, value, size);
- }
- 
- /*
-@@ -780,7 +798,7 @@ posix_acl_xattr_get(const struct xattr_handler *handler,
- 	if (acl == NULL)
- 		return -ENODATA;
- 
--	error = posix_acl_to_xattr(&init_user_ns, acl, value, size);
-+	error = posix_acl_to_xattr(dentry->d_sb->s_user_ns, acl, value, size);
- 	posix_acl_release(acl);
- 
- 	return error;
-@@ -806,7 +824,8 @@ posix_acl_xattr_set(const struct xattr_handler *handler,
+ 	/* Make sure a caller can chown. */
+-	if ((ia_valid & ATTR_UID) &&
+-	    (!uid_eq(current_fsuid(), inode->i_uid) ||
+-	     !uid_eq(attr->ia_uid, inode->i_uid)) &&
+-	    !capable_wrt_inode_uidgid(inode, CAP_CHOWN))
++	if ((ia_valid & ATTR_UID) && !chown_ok(inode, attr->ia_uid))
  		return -EPERM;
  
- 	if (value) {
--		acl = posix_acl_from_xattr(&init_user_ns, value, size);
-+		acl = posix_acl_from_xattr(dentry->d_sb->s_user_ns, value,
-+					   size);
- 		if (IS_ERR(acl))
- 			return PTR_ERR(acl);
+ 	/* Make sure caller can chgrp. */
+-	if ((ia_valid & ATTR_GID) &&
+-	    (!uid_eq(current_fsuid(), inode->i_uid) ||
+-	    (!in_group_p(attr->ia_gid) && !gid_eq(attr->ia_gid, inode->i_gid))) &&
+-	    !capable_wrt_inode_uidgid(inode, CAP_CHOWN))
++	if ((ia_valid & ATTR_GID) && !chgrp_ok(inode, attr->ia_gid))
+ 		return -EPERM;
  
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 4861322e28e8..c541121945cd 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -330,8 +330,12 @@ setxattr(struct dentry *d, const char __user *name, const void __user *value,
- 			goto out;
- 		}
- 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_from_user(kvalue, size);
-+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)) {
-+			error = posix_acl_fix_xattr_from_user(d->d_sb->s_user_ns,
-+							      kvalue, size);
-+			if (error)
-+				goto out;
-+		}
- 	}
+ 	/* Make sure a caller can chmod. */
+diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
+index 16405ae88d2d..2e97a337ee5f 100644
+--- a/fs/kernfs/inode.c
++++ b/fs/kernfs/inode.c
+@@ -117,6 +117,8 @@ int kernfs_iop_setattr(struct dentry *dentry, struct iattr *iattr)
  
- 	error = vfs_setxattr(d, kname, kvalue, size, flags);
-@@ -427,9 +431,14 @@ getxattr(struct dentry *d, const char __user *name, void __user *value,
- 	error = vfs_getxattr(d, kname, kvalue, size);
- 	if (error > 0) {
- 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_to_user(kvalue, size);
--		if (size && copy_to_user(value, kvalue, error))
-+		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0)) {
-+			int ret;
-+			ret = posix_acl_fix_xattr_to_user(d->d_sb->s_user_ns,
-+							  kvalue, size);
-+			if (ret)
-+				error = ret;
-+		}
-+		if (error > 0 && size && copy_to_user(value, kvalue, error))
- 			error = -EFAULT;
- 	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
- 		/* The file system tried to returned a value bigger
-diff --git a/include/linux/posix_acl_xattr.h b/include/linux/posix_acl_xattr.h
-index e5e8ec40278d..5dec6b10951a 100644
---- a/include/linux/posix_acl_xattr.h
-+++ b/include/linux/posix_acl_xattr.h
-@@ -49,14 +49,23 @@ posix_acl_xattr_count(size_t size)
- }
+ 	if (!kn)
+ 		return -EINVAL;
++	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
++		return -EPERM;
  
- #ifdef CONFIG_FS_POSIX_ACL
--void posix_acl_fix_xattr_from_user(void *value, size_t size);
--void posix_acl_fix_xattr_to_user(void *value, size_t size);
-+int posix_acl_fix_xattr_from_user(struct user_namespace *target_ns,
-+				  void *value, size_t size);
-+int posix_acl_fix_xattr_to_user(struct user_namespace *source_ns, void *value,
-+				size_t size);
- #else
--static inline void posix_acl_fix_xattr_from_user(void *value, size_t size)
-+static inline int
-+posix_acl_fix_xattr_from_user(struct user_namespace *target_ns, void *value,
-+			      size_t size)
- {
-+	return 0;
- }
--static inline void posix_acl_fix_xattr_to_user(void *value, size_t size)
+ 	mutex_lock(&kernfs_mutex);
+ 	error = inode_change_ok(inode, iattr);
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index b1755b23893e..648d623e2158 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -711,6 +711,8 @@ int proc_setattr(struct dentry *dentry, struct iattr *attr)
+ 
+ 	if (attr->ia_valid & ATTR_MODE)
+ 		return -EPERM;
++	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
++		return -EPERM;
+ 
+ 	error = inode_change_ok(inode, attr);
+ 	if (error)
+diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+index ff3ffc76a937..1461570c552c 100644
+--- a/fs/proc/generic.c
++++ b/fs/proc/generic.c
+@@ -105,6 +105,9 @@ static int proc_notify_change(struct dentry *dentry, struct iattr *iattr)
+ 	struct proc_dir_entry *de = PDE(inode);
+ 	int error;
+ 
++	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
++		return -EPERM;
 +
-+static inline int
-+posix_acl_fix_xattr_to_user(struct user_namespace *source_ns, void *value,
-+			    size_t size)
- {
-+	return 0;
- }
- #endif
+ 	error = inode_change_ok(inode, iattr);
+ 	if (error)
+ 		return error;
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index fe5b6e6c4671..f5d575157194 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -752,6 +752,8 @@ static int proc_sys_setattr(struct dentry *dentry, struct iattr *attr)
  
+ 	if (attr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID))
+ 		return -EPERM;
++	if (!uid_valid(inode->i_uid) || !gid_valid(inode->i_gid))
++		return -EPERM;
+ 
+ 	error = inode_change_ok(inode, attr);
+ 	if (error)
 -- 
 2.7.4
