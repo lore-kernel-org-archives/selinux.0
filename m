@@ -1,107 +1,82 @@
-Subject: Re: trying to understand a cronie issue anno 2008
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- Daniel J Walsh <dwalsh@redhat.com>
-References: <017f000a-3ecc-1e01-514f-a6106cfca8b9@gmail.com>
- <571F6A25.6050802@tycho.nsa.gov>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <c71ed8f5-d036-7b49-39bb-10589620cb5a@gmail.com>
-Date: Tue, 26 Apr 2016 15:40:36 +0200
-MIME-Version: 1.0
-In-Reply-To: <571F6A25.6050802@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3QJUoHL010214
+ for <selinux@tycho.nsa.gov>; Tue, 26 Apr 2016 15:30:52 -0400
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <mszeredi@redhat.com>,
+ Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+ linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ cgroups@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>
+Subject: [PATCH v4 10/21] fs: Check for invalid i_uid in may_follow_link()
+Date: Tue, 26 Apr 2016 14:30:33 -0500
+Message-Id: <1461699046-30485-11-git-send-email-seth.forshee@canonical.com>
+In-Reply-To: <1461699046-30485-1-git-send-email-seth.forshee@canonical.com>
+References: <1461699046-30485-1-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Filesystem uids which don't map into a user namespace may result
+in inode->i_uid being INVALID_UID. A symlink and its parent
+could have different owners in the filesystem can both get
+mapped to INVALID_UID, which may result in following a symlink
+when this would not have otherwise been permitted when protected
+symlinks are enabled.
 
-On 04/26/2016 03:16 PM, Stephen Smalley wrote:
-> On 04/26/2016 07:28 AM, Dominick Grift wrote:
->> 
->> I am trying to understand an issue
->> 
->> https://bugzilla.redhat.com/show_bug.cgi?id=426704#c20
->> 
->> "Suggestion:  load_user() to pass NULL if pw is NULL, and change 
->> get_security_context() to handle a NULL name by directly calling 
->> get_default_context() on "system_u" rather than calling 
->> getseuserbyname at all. Then we don't need a system_u entry in
->> seusers."
->> 
->> Is the suggestion above about hard coding "system_u"?
-> 
-> No, it is about skipping the getseuserbyname() call when dealing
-> with system cron jobs.  "system_u" was already hardcoded as the
-> lookup key for determining the context of system cron jobs. 
-> https://bugzilla.redhat.com/show_bug.cgi?id=426704#c19 explained
-> the background.
-> 
->> 
->> Also about:
->> 
->> "Then we don't need a system_u entry in seusers."
->> 
->> We seem to have the above anyway, even with the system_u hard
->> coded. Wondering whether it was left in for some other reason?
-> 
-> Not that I know of.
-> 
->> Cronie refuses to run in an environment where system_u is not 
->> available when system_u is hard coded like that (i believe):
->> 
->> https://git.fedorahosted.org/cgit/cronie.git/commit/?id=e528023580984
-4f5
->>
->> 
-4d5956ec281472b63dcfc3f4
-> 
-> There are two different issues here:
-> 
-> 1) Requiring system_u to be mapped in the seusers configuration,
-> which maps Linux usernames to SELinux users (and ranges).  This was
-> what the above bug was about.  We shouldn't require a system_u
-> entry in seusers because it isn't a Linux username.  It was a bug
-> in vixie-cron that it was performing a getseuserbyname() call on
-> "system_u"; it should have only done a get_default_context() on it
-> (as in the original SELinux cron patch, before seusers was
-> introduced).
-> 
-> 2) Requiring the system_u user to be defined in the users portion
-> of the SELinux kernel policy.  That was always required by the cron
-> SELinux patch in order to look up the context for system cron jobs.
-> The commit you reference above appears to eliminate that as well,
-> which is good, as long as it yields the right behavior.  One
-> question I have is what happens if one restarts cronie manually;
-> historically there have been issues with the correct user identity
-> being assigned but that is probably no longer an issue with
-> systemd.
-> 
-> 
+Add a new helper function, uid_valid_eq(), and use this to
+validate that the ids in may_follow_link() are both equal and
+valid. Also add an equivalent helper for gids, which is
+currently unused.
 
-Thank you. Since cronie is a redhat endeavor i suppose this is good
-time to get rid of that remaining system_u since we now indeed have
-systemd.
+Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
+---
+ fs/namei.c             |  2 +-
+ include/linux/uidgid.h | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-I will be removing the system entry from my seusers to see where that
-gets me.
-
-- -- 
-Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-Dominick Grift
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJXH2/PAAoJECV0jlU3+UdpepwL/1YmbF/nVHPY0Oq2NVag0Rkd
-iR2FDrJh1jyuSd/2Iu7esNgBZ+ikTYO3hpdKxJJxy5Xo99qPQgpVTWe4aVKUvE41
-wRVzdb29eLGMfGYkKS8lVkze52C+IIi5dX558UxVXwiFbB8wuqqT/OmRztF+9foE
-i2MOc6nQSJwMeQAre1LdjS5DSeVvWW4sf+9xfDTkLTHCEO8pxCRbNybexxwmlDX0
-EBt8pBa7Fzkr3zRy/FSMq4pqdj+pYqK7+oI+I9n/7HtBJ4nSx/HOULt0FOKuZlS7
-JUUrOQtjfIgHygvwl4TMvlZGnf+Wp4Qynarmve4rxWej9u1dSTX+5e6984XU7G+k
-/EUTqx/+gXDlnPwPWfwhpf10yGWl6wqYIhRNRKAq54hd/JHP+tejEmqliY3IZ5ll
-9UJ/1l365fhmtBd6VJP8JLTr5CB2k9yiMylF/6kYNxpbTMGzKDf7pfdEME7h+ONu
-vrXF604JG4QGmqC/I3YVsOwwI5gKhLuw/J4ySfZX1A==
-=0X1C
------END PGP SIGNATURE-----
+diff --git a/fs/namei.c b/fs/namei.c
+index a29094c6f4a1..6fe8b0d8ca90 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -915,7 +915,7 @@ static inline int may_follow_link(struct nameidata *nd)
+ 		return 0;
+ 
+ 	/* Allowed if parent directory and link owner match. */
+-	if (uid_eq(parent->i_uid, inode->i_uid))
++	if (uid_valid_eq(parent->i_uid, inode->i_uid))
+ 		return 0;
+ 
+ 	if (nd->flags & LOOKUP_RCU)
+diff --git a/include/linux/uidgid.h b/include/linux/uidgid.h
+index 03835522dfcb..e09529fe2668 100644
+--- a/include/linux/uidgid.h
++++ b/include/linux/uidgid.h
+@@ -117,6 +117,16 @@ static inline bool gid_valid(kgid_t gid)
+ 	return __kgid_val(gid) != (gid_t) -1;
+ }
+ 
++static inline bool uid_valid_eq(kuid_t left, kuid_t right)
++{
++	return uid_eq(left, right) && uid_valid(left);
++}
++
++static inline bool gid_valid_eq(kgid_t left, kgid_t right)
++{
++	return gid_eq(left, right) && gid_valid(left);
++}
++
+ #ifdef CONFIG_USER_NS
+ 
+ extern kuid_t make_kuid(struct user_namespace *from, uid_t uid);
+-- 
+2.7.4
