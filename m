@@ -1,107 +1,66 @@
-Subject: Re: [PATCH v2 2/8] genhomedircon: move fallback user to
- genhomedircon_user_entry_t
-To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
-References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
- <1461391499-20593-1-git-send-email-jason@perfinion.com>
- <1461391499-20593-3-git-send-email-jason@perfinion.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b8ccf4b3-15b0-d50c-be4b-20c30a1a3af4@tycho.nsa.gov>
-Date: Fri, 29 Apr 2016 12:54:44 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3TH47Qm014309
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 13:04:10 -0400
+Received: by mail-wm0-f68.google.com with SMTP id e201so6284702wme.2
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 10:04:08 -0700 (PDT)
+Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
+ by smtp.gmail.com with ESMTPSA id cf6sm15701311wjc.12.2016.04.29.10.04.06
+ for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
+ Fri, 29 Apr 2016 10:04:06 -0700 (PDT)
+To: selinux@tycho.nsa.gov
+From: Dominick Grift <dac.override@gmail.com>
+Subject: userspace object managers get confused if an update changes object
+ classes and access vectors
+Message-ID: <d7fef34c-0b38-63f3-4a37-464930a03806@gmail.com>
+Date: Fri, 29 Apr 2016 19:04:06 +0200
 MIME-Version: 1.0
-In-Reply-To: <1461391499-20593-3-git-send-email-jason@perfinion.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/23/2016 02:04 AM, Jason Zaman wrote:
-> The fallback user is used in all the write functions, making it use a
-> struct allows us to have everything consistent between normal and
-> fallback users.
-> 
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
 
-When you split a patch into a series, the goal is to ensure that the
-code remains in a working state after each patch in the series.
-Otherwise, git bisect will often find broken states in the future.
-So, we have two options:
-1. You can refactor this patch set so that it does compile after each
-patch (currently breaks on this one at least).
-2. I can squash them all into one logical change.
 
-> ---
->  libsemanage/src/genhomedircon.c | 38 ++++++++++++++++++++------------------
->  1 file changed, 20 insertions(+), 18 deletions(-)
-> 
-> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-> index 09c2a10..1e35b7e 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-> @@ -83,17 +83,6 @@
->  #define FALLBACK_USER_LEVEL "s0"
->  #define DEFAULT_LOGIN "__default__"
->  
-> -typedef struct {
-> -	const char *fcfilepath;
-> -	int usepasswd;
-> -	const char *homedir_template_path;
-> -	char *fallback_user;
-> -	char *fallback_user_prefix;
-> -	char *fallback_user_level;
-> -	semanage_handle_t *h_semanage;
-> -	sepol_policydb_t *policydb;
-> -} genhomedircon_settings_t;
-> -
->  typedef struct user_entry {
->  	char *name;
->  	char *sename;
-> @@ -104,6 +93,15 @@ typedef struct user_entry {
->  } genhomedircon_user_entry_t;
->  
->  typedef struct {
-> +	const char *fcfilepath;
-> +	int usepasswd;
-> +	const char *homedir_template_path;
-> +	genhomedircon_user_entry_t *fallback;
-> +	semanage_handle_t *h_semanage;
-> +	sepol_policydb_t *policydb;
-> +} genhomedircon_settings_t;
-> +
-> +typedef struct {
->  	const char *search_for;
->  	const char *replace_with;
->  } replacement_pair_t;
-> @@ -1046,10 +1044,16 @@ int semanage_genhomedircon(semanage_handle_t * sh,
->  	s.fcfilepath = semanage_final_path(SEMANAGE_FINAL_TMP,
->  					   SEMANAGE_FC_HOMEDIRS);
->  
-> -	s.fallback_user = strdup(FALLBACK_USER);
-> -	s.fallback_user_prefix = strdup(FALLBACK_USER_PREFIX);
-> -	s.fallback_user_level = strdup(FALLBACK_USER_LEVEL);
-> -	if (s.fallback_user == NULL || s.fallback_user_prefix == NULL || s.fallback_user_level == NULL) {
-> +	s.fallback = calloc(1, sizeof(genhomedircon_user_entry_t));
-> +	if (s.fallback == NULL) {
-> +		retval = STATUS_ERR;
-> +		goto done;
-> +	}
-> +
-> +	s.fallback->sename = strdup(FALLBACK_USER);
-> +	s.fallback->prefix = strdup(FALLBACK_USER_PREFIX);
-> +	s.fallback->level = strdup(FALLBACK_USER_LEVEL);
-> +	if (s.fallback->sename == NULL || s.fallback->prefix == NULL || s.fallback->level == NULL) {
->  		retval = STATUS_ERR;
->  		goto done;
->  	}
-> @@ -1073,9 +1077,7 @@ done:
->  	if (out != NULL)
->  		fclose(out);
->  
-> -	free(s.fallback_user);
-> -	free(s.fallback_user_prefix);
-> -	free(s.fallback_user_level);
-> +	pop_user_entry(&(s.fallback));
->  	ignore_free();
->  
->  	return retval;
-> 
+I have mentioned this before (probably a few times), and i am not sure
+if this issue is actually what i think it is but i will once again
+mention this issue i observed many times.
+
+Excuse me if i am wrong here.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1331668
+
+https://github.com/fedora-selinux/selinux-policy/commit/971e97a2b8cbcc14
+3fc82badfaaf7900b4760399
+
+When you change (user space?) access vectors then user space object
+managers get confused and stop working. This is now becoming an issue
+since core components are object managers (systemd/dbus)
+
+So basically there is no way for distributions to add/remove access
+vectors without breaking the running system.
+
+The only solution is immediately switch to permissive mode and to
+reboot the system after such an update. And you might not even be able
+to cleanly shutdown due to these confused components
+
+- -- 
+Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJXI5QBAAoJECV0jlU3+UdpK6gMAI5Z411M+tp+x9H9N1tSFNdU
+MRbVLJG1McRNSHzZfYSf1YcxEX3q4Qnewzn+470WtCskdDiRiQlUnGgdxC53UdYr
+0mxci47agkbcUkm5533xGIfhdv2oNDD/0G6dVKSX09ioy2OF1Gc4piQ0FdcXLbBK
+CxvbF1YYRFsinN1avjIbshDrsHsBfOaQxKULLOgnHHDml2jwna2twWw5SGvUtiq2
+YeOo+k74MVn9+JCOUPbbrmmPortdgWFuxaAwKNurcahlwms74HHLL+2knRJ5u6R1
+jLLGuGlX0zEM/8aA7CKM8xEk8JP/ZmYxcsIeXC+L1u04oK4/fWZ63YhleQcYcj+L
+GNAg7pLcNltkbGioLWZZdJCcM7M9mO/O9gNe0PowKK9znQPVzx4yxEHTG1ks+jEy
+1+l0V/ggXSuqFcD6TaxG07VKH27MuAJxtECvdZ5Rdtl5C9qrz93PRr+Hr1GKO3v7
+Ip6k1PQi96aq8wQQUv8O+tGm85T7uBcZltdzLL1ysg==
+=GfNX
+-----END PGP SIGNATURE-----
