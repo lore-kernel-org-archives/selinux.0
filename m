@@ -1,69 +1,138 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3TC1EDn005244
- for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 08:01:14 -0400
-Received: by mail-pa0-f68.google.com with SMTP id zy2so14438801pac.2
- for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 05:01:12 -0700 (PDT)
-Date: Fri, 29 Apr 2016 20:01:08 +0800
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3TC4vKR005947
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 08:04:57 -0400
+Received: by mail-pf0-f193.google.com with SMTP id e190so14254040pfe.0
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 05:04:55 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH v2 5/8] genhomedircon: Add uid and gid to struct user_entry
-Message-ID: <20160429120108.GA24508@meriadoc>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH v3 5/8] genhomedircon: Add uid and gid to struct user_entry
+Date: Fri, 29 Apr 2016 20:04:51 +0800
+Message-Id: <1461931491-25420-1-git-send-email-jason@perfinion.com>
+In-Reply-To: <1460131535-15688-1-git-send-email-jason@perfinion.com>
 References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
- <1461391499-20593-1-git-send-email-jason@perfinion.com>
- <1461391499-20593-6-git-send-email-jason@perfinion.com>
- <4a2931ae-680d-71f3-36d8-51077e93a761@tycho.nsa.gov>
- <20160428175337.GA26112@meriadoc>
- <289e173b-e19f-4de2-d862-c5736bbcffa7@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <289e173b-e19f-4de2-d862-c5736bbcffa7@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Apr 28, 2016 at 02:13:30PM -0400, Stephen Smalley wrote:
-> On 04/28/2016 01:53 PM, Jason Zaman wrote:
-> > On Wed, Apr 27, 2016 at 01:04:25PM -0400, Stephen Smalley wrote:
-> >> On 04/23/2016 02:04 AM, Jason Zaman wrote:
-> >>> +		if (snprintf(uid, sizeof(uid), "%d", pwent->pw_uid) < 0
-> >>> +		 || snprintf(gid, sizeof(gid), "%d", pwent->pw_gid) < 0) {
-> >>
-> >> Should you be using %u instead of %d?
-> > yes, its unsigned, will fix.
-> > 
-> >> Also, snprintf returns >= size if the output was truncated, not < 0.
-> > 
-> >>From the man page:
-> > RETURN VALUE
-> > [...] Thus, a return value of size or more means that the output was truncated.
-> > If an output error is encountered, a negative value is returned.
-> > 
-> > I definitely need to check <0. but do I *also* need to check >= size? I
-> > dont think that can ever happen since 10chars+NULL fits fine.
-> 
-> I don't think either case is actually possible here (< 0 should only
-> occur with printf or fprintf variants, not s*printf, and as you note,
-> the truncation case should be covered).
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ libsemanage/src/genhomedircon.c | 40 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
-So I think this is correct but i noticed a few more things in the man
-page so I am just going to be cautious and check them all anyway.
-
-1) glibc changed bahaviour:
-"The glibc implementation of the functions snprintf() and vsnprintf()
-conforms to the C99 standard, that is, behaves as described above, since
-glibc  version  2.1.   Until  glibc 2.0.6, they would return -1 when the
-output was truncated."
-
-2) it looks like there might possibly be locale issues for some of the
-stranger ones? i dont think it'd be an issue but having the check doesnt
-exactly harm anything since genhomedircon is only run once when building
-a policy. This also raises the issue of if there are locale issues
-should semodule and friends be checking/resetting LANG/LC_NUMERIC for
-sanity early on?
-
-I'm going to send v3 of this patch with these fixes. Do you want me to
-re-send the whole set or is just this one enough?
-
--- Jason
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 1a7882c..41fd7ff 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -82,10 +82,13 @@
+ #define FALLBACK_PREFIX "user"
+ #define FALLBACK_LEVEL "s0"
+ #define FALLBACK_NAME ".*"
++#define FALLBACK_UIDGID "[0-9]+"
+ #define DEFAULT_LOGIN "__default__"
+ 
+ typedef struct user_entry {
+ 	char *name;
++	char *uid;
++	char *gid;
+ 	char *sename;
+ 	char *prefix;
+ 	char *home;
+@@ -628,11 +631,13 @@ static int name_user_cmp(char *key, semanage_user_t ** val)
+ }
+ 
+ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
+-			   const char *sen, const char *pre, const char *h,
+-			   const char *l)
++			   const char *u, const char *g, const char *sen,
++			   const char *pre, const char *h, const char *l)
+ {
+ 	genhomedircon_user_entry_t *temp = NULL;
+ 	char *name = NULL;
++	char *uid = NULL;
++	char *gid = NULL;
+ 	char *sename = NULL;
+ 	char *prefix = NULL;
+ 	char *home = NULL;
+@@ -644,6 +649,12 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
+ 	name = strdup(n);
+ 	if (!name)
+ 		goto cleanup;
++	uid = strdup(u);
++	if (!uid)
++		goto cleanup;
++	gid = strdup(g);
++	if (!gid)
++		goto cleanup;
+ 	sename = strdup(sen);
+ 	if (!sename)
+ 		goto cleanup;
+@@ -658,6 +669,8 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
+ 		goto cleanup;
+ 
+ 	temp->name = name;
++	temp->uid = uid;
++	temp->gid = gid;
+ 	temp->sename = sename;
+ 	temp->prefix = prefix;
+ 	temp->home = home;
+@@ -669,6 +682,8 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
+ 
+       cleanup:
+ 	free(name);
++	free(uid);
++	free(gid);
+ 	free(sename);
+ 	free(prefix);
+ 	free(home);
+@@ -687,6 +702,8 @@ static void pop_user_entry(genhomedircon_user_entry_t ** list)
+ 	temp = *list;
+ 	*list = temp->next;
+ 	free(temp->name);
++	free(temp->uid);
++	free(temp->gid);
+ 	free(temp->sename);
+ 	free(temp->prefix);
+ 	free(temp->home);
+@@ -738,7 +755,8 @@ static int setup_fallback_user(genhomedircon_settings_t * s)
+ 					level = FALLBACK_LEVEL;
+ 			}
+ 
+-			if (push_user_entry(&(s->fallback), FALLBACK_NAME, 0, 0,
++			if (push_user_entry(&(s->fallback), FALLBACK_NAME,
++					    FALLBACK_UIDGID, FALLBACK_UIDGID,
+ 					    seuname, prefix, "", level) != 0)
+ 				errors = STATUS_ERR;
+ 			semanage_user_key_free(key);
+@@ -768,6 +786,8 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
+ 	const char *seuname = NULL;
+ 	const char *prefix = NULL;
+ 	const char *level = NULL;
++	char uid[11];
++	char gid[11];
+ 	struct passwd pwstorage, *pwent = NULL;
+ 	unsigned int i;
+ 	long rbuflen;
+@@ -852,7 +872,19 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
+ 		}
+ 		if (ignore(pwent->pw_dir))
+ 			continue;
+-		if (push_user_entry(&head, name, seuname,
++
++		len = snprintf(uid, sizeof(uid), "%u", pwent->pw_uid);
++		if (len < 0 || len >= sizeof(uid)) {
++			*errors = STATUS_ERR;
++			goto cleanup;
++		}
++		len = snprintf(gid, sizeof(gid), "%u", pwent->pw_gid);
++		if (len < 0 || len >= sizeof(gid)) {
++			*errors = STATUS_ERR;
++			goto cleanup;
++		}
++
++		if (push_user_entry(&head, name, uid, gid, seuname,
+ 				    prefix, pwent->pw_dir, level) != STATUS_SUCCESS) {
+ 			*errors = STATUS_ERR;
+ 			break;
+-- 
+2.7.3
