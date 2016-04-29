@@ -1,138 +1,198 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3TC4vKR005947
- for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 08:04:57 -0400
-Received: by mail-pf0-f193.google.com with SMTP id e190so14254040pfe.0
- for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 05:04:55 -0700 (PDT)
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH v3 5/8] genhomedircon: Add uid and gid to struct user_entry
-Date: Fri, 29 Apr 2016 20:04:51 +0800
-Message-Id: <1461931491-25420-1-git-send-email-jason@perfinion.com>
-In-Reply-To: <1460131535-15688-1-git-send-email-jason@perfinion.com>
-References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
+Subject: Re: Trying to setup a type bounds from unconfined_t and docekr_t to
+ svirt_lxc_net_t
+To: Miroslav Grepl <mgrepl@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
+ James Carter <jwcart2@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>,
+ Joshua Brindle <brindle@quarksecurity.com>,
+ Paul Moore <paul@paul-moore.com>
+References: <805268ee-75d6-4c43-7014-2dc7dd5ae01e@redhat.com>
+ <5e794e74-a733-f3e1-e47a-06ca2abc2f19@tycho.nsa.gov>
+ <f1c8b9e7-31f7-a288-415b-82eb45021420@redhat.com>
+ <865845d6-a79f-e2e2-389d-48378525881b@tycho.nsa.gov>
+ <4fba413b-8558-c03d-0ce6-d83e8c047b6c@redhat.com>
+ <9f618ce8-7e46-e564-fa6b-317aa501a04e@tycho.nsa.gov>
+ <25c300b6-b804-594b-9147-fb1bd3670a25@redhat.com>
+ <768cddb7-9f6b-0b58-0a8f-db189377013f@tycho.nsa.gov>
+ <57231903.4020700@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <9b62a17b-21e2-1bfb-6323-4255838ede6a@tycho.nsa.gov>
+Date: Fri, 29 Apr 2016 08:21:38 -0400
+MIME-Version: 1.0
+In-Reply-To: <57231903.4020700@redhat.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Jason Zaman <jason@perfinion.com>
----
- libsemanage/src/genhomedircon.c | 40 ++++++++++++++++++++++++++++++++++++----
- 1 file changed, 36 insertions(+), 4 deletions(-)
+On 04/29/2016 04:19 AM, Miroslav Grepl wrote:
+> On 04/28/2016 08:36 PM, Stephen Smalley wrote:
+>> On 04/28/2016 02:07 PM, Daniel J Walsh wrote:
+>>>
+>>>
+>>> On 04/28/2016 01:59 PM, Stephen Smalley wrote:
+>>>> On 04/28/2016 01:35 PM, Daniel J Walsh wrote:
+>>>>>
+>>>>> On 04/28/2016 01:31 PM, Stephen Smalley wrote:
+>>>>>> On 04/28/2016 12:20 PM, Daniel J Walsh wrote:
+>>>>>>> On 04/28/2016 11:21 AM, Stephen Smalley wrote:
+>>>>>>>> On 04/28/2016 09:15 AM, Daniel J Walsh wrote:
+>>>>>>>>>> typebounds unconfined_t docker_t; # docker_t is an unconfined
+>>>>>>>>>> domain
+>>>>>>>>>>
+>>>>>>>>>> typebounds docker_t spc_t;  #spc_t is an unconfined domain
+>>>>>>>>>>
+>>>>>>>>>> typeboulds docker_t docker_lxc_net_t;
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> docker, rkt, systemd-nspawn, runc are all executing
+>>>>>>>>>> setexeccon(svirt_lxc_net_t)
+>>>>>>>>>>
+>>>>>>>>>> For container domains.
+>>>>>>>>>>
+>>>>>>>>>> Everything works fine until I turn on expand_check in
+>>>>>>>>>> semanage.conf,
+>>>>>>>>>> which we have been asked to do in Rawhide.
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> Attached is the current Rawhide docker policy.  And here is the
+>>>>>>>>>> output
+>>>>>>>>>> from semodule -i before it crashes, with a segfault.
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> Had to add this rule to make it a little quieter, which is caused
+>>>>>>>>>> by a
+>>>>>>>>>> rule in policy that says we allow all daemons to connecto spc_t;
+>>>>>>>>>>
+>>>>>>>>>> gen_require(`
+>>>>>>>>>> type unconfined_t;
+>>>>>>>>>> attribute daemon;
+>>>>>>>>>> ')
+>>>>>>>>>>
+>>>>>>>>>> allow daemon unconfined_t:unix_stream_socket  connectto;
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> Why does typebounds care about when a domain is the target of an
+>>>>>>>>>> access,
+>>>>>>>>>> I think it should only remove options when it is the source.
+>>>>>>>>>>
+>>>>>>>>>> Otherwise we end up having to loosen the policy to make this work.
+>>>>>>>>>>
+>>>>>>>>>> As long as docker_t does not have any more "allow docker_t" rules
+>>>>>>>>>> then
+>>>>>>>>>> "allow unconfined_t", shouldn't this be ok?
+>>>>>>>>>>
+>>>>>>>>>> It seems that some or the optional code blocks are causing
+>>>>>>>>>> problems also.
+>>>>>>>> I agree that typebounds is not very usable in its current form,
+>>>>>>>> but I'm
+>>>>>>>> not entirely clear on how to fix it.
+>>>>>>>>
+>>>>>>>> Dropping the target bounds logic is possible; it was actually
+>>>>>>>> implemented a while back by KaiGai (see the archives) but reverted
+>>>>>>>> because of a side effect on /proc/pid file access.  Without the
+>>>>>>>> target
+>>>>>>>> bounds logic, you had to allow the parent domain to access all child
+>>>>>>>> domains' /proc/pid files in order for the child to access their own.
+>>>>>>>> That however could be worked around in policy, so possibly we could
+>>>>>>>> revive those patches.
+>>>>>>>>
+>>>>>>>> However, I don't think that solves all of the problems.  For example,
+>>>>>>>> even with source bounds, I can't allow a child permissions to self
+>>>>>>>> or to
+>>>>>>>> its entrypoint file type or to its tmp file type without allowing
+>>>>>>>> those
+>>>>>>>> permissions to the parent, which may unnecessarily escalate the
+>>>>>>>> privileges of the parent or expose the parent to risk.
+>>>>>>>>
+>>>>>>>> We might need more semantics in the policy about inter-type
+>>>>>>>> relationships in order to truly evaluate bounds in a manner that
+>>>>>>>> permits
+>>>>>>>> such usage.  Patches/proposals welcome.
+>>>>>>>>
+>>>>>>>> The other approach would be to use fork()+setcon()+execve() rather
+>>>>>>>> than
+>>>>>>>> fork()+setexeccon()+execve() in the callers.  Then you aren't
+>>>>>>>> subject to
+>>>>>>>> typebounds at all (NNP only restricts exec-based transitions).
+>>>>>>> The entrypoints are alot simpler to fix.  I think just eliminating the
+>>>>>>> target checks would
+>>>>>>> go along way to making this a lot tighter policy.
+>>>>>>>
+>>>>>>> I have no problem with allowing parent domain access to child domains
+>>>>>>> self fields.  I think this
+>>>>>>> make some sense.  This seems a lot more secure that allowing any
+>>>>>>> domain
+>>>>>>> that can communicate
+>>>>>>> with the child to be able to communicate with the parent.
+>>>>>>>
+>>>>>>> With the way it works now, I can not even figure out how to
+>>>>>>> increase the
+>>>>>>> privs of unconfined_t or
+>>>>>>> other confined domains to actually make it work.
+>>>>>> Ok, let's assume that we change the libsepol and kernel logic to drop
+>>>>>> the target bounds checks.  What else remains to make this work?
+>>>>> Looking at the output from the semodule command, I see some other
+>>>>> strange errors like this.
+>>>>>
+>>>>>    (allow docker_t cluster_pid (sock_file (write getattr append open)))
+>>>>>
+>>>>>
+>>>>> I have no idea why it would complain about this.  Other then potentially
+>>>>> problems caused by optional policy?
+>>>> $ sesearch -A -s docker_t -t cluster_pid -c sock_file
+>>>> Found 1 semantic av rules:
+>>>>     allow daemon cluster_pid : sock_file { write getattr append open } ;
+>>>>
+>>>> $ sesearch -A -s unconfined_t -t cluster_pid -c sock_file
+>>>> <no output>
+>>>>
+>>>> So that is a legitimate violation of the bound and would be denied by
+>>>> the kernel if it were attempted.  Either you need to allow it to
+>>>> unconfined_t or tighten up that rule so that docker_t isn't included
+>>>> (why should all daemon domains be allowed to do that?).
+>>>>
+>>>> _______________________________________________
+>>>> Selinux mailing list
+>>>> Selinux@tycho.nsa.gov
+>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>>> To get help, send an email containing "help" to
+>>>> Selinux-request@tycho.nsa.gov.
+>>>>
+>>>>
+>>> allow files_unconfined_type file_type:{ dir lnk_file sock_file fifo_file
+>>> blk_file } *;
+>>>
+>>> So unless cluster_pid refers to something that is not a file_type, then
+>>> I think unconfined_t can do it.
+>>> No idea why this is allowed.
+>>>
+>>> seinfo -acluster_pid -x
+>>>    cluster_pid
+>>>       dlm_controld_var_run_t
+>>>       fenced_var_run_t
+>>>       foghorn_var_run_t
+>>>       gfs_controld_var_run_t
+>>>       haproxy_var_run_t
+>>>       groupd_var_run_t
+>>>       qdiskd_var_run_t
+>>>       cluster_var_run_t
+>>
+>> Hmm...that would appear to be a bug in the libsepol hierarchy checker,
+>> and also in setools3 since it didn't find the match.  Just tried
+>> setools4 and it did find the matching rules:
+>> $ ./sesearch -A -s unconfined_t -t cluster_pid -c sock_file
+>> allow domain pidfile:sock_file { write getattr open append };
+>> allow files_unconfined_type file_type:sock_file { rename open execute
+>> execmod setattr read lock create quotaon getattr mounton write
+>> relabelfrom ioctl link relabelto unlink swapon audit_access append };
+> 
+> Ok so it is a bug in libsepol as you said because it should work
+> correctly if we talk about unconfined domains.
+> 
+> cluster_pid refers only to file_type types.
 
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 1a7882c..41fd7ff 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -82,10 +82,13 @@
- #define FALLBACK_PREFIX "user"
- #define FALLBACK_LEVEL "s0"
- #define FALLBACK_NAME ".*"
-+#define FALLBACK_UIDGID "[0-9]+"
- #define DEFAULT_LOGIN "__default__"
- 
- typedef struct user_entry {
- 	char *name;
-+	char *uid;
-+	char *gid;
- 	char *sename;
- 	char *prefix;
- 	char *home;
-@@ -628,11 +631,13 @@ static int name_user_cmp(char *key, semanage_user_t ** val)
- }
- 
- static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
--			   const char *sen, const char *pre, const char *h,
--			   const char *l)
-+			   const char *u, const char *g, const char *sen,
-+			   const char *pre, const char *h, const char *l)
- {
- 	genhomedircon_user_entry_t *temp = NULL;
- 	char *name = NULL;
-+	char *uid = NULL;
-+	char *gid = NULL;
- 	char *sename = NULL;
- 	char *prefix = NULL;
- 	char *home = NULL;
-@@ -644,6 +649,12 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 	name = strdup(n);
- 	if (!name)
- 		goto cleanup;
-+	uid = strdup(u);
-+	if (!uid)
-+		goto cleanup;
-+	gid = strdup(g);
-+	if (!gid)
-+		goto cleanup;
- 	sename = strdup(sen);
- 	if (!sename)
- 		goto cleanup;
-@@ -658,6 +669,8 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 		goto cleanup;
- 
- 	temp->name = name;
-+	temp->uid = uid;
-+	temp->gid = gid;
- 	temp->sename = sename;
- 	temp->prefix = prefix;
- 	temp->home = home;
-@@ -669,6 +682,8 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 
-       cleanup:
- 	free(name);
-+	free(uid);
-+	free(gid);
- 	free(sename);
- 	free(prefix);
- 	free(home);
-@@ -687,6 +702,8 @@ static void pop_user_entry(genhomedircon_user_entry_t ** list)
- 	temp = *list;
- 	*list = temp->next;
- 	free(temp->name);
-+	free(temp->uid);
-+	free(temp->gid);
- 	free(temp->sename);
- 	free(temp->prefix);
- 	free(temp->home);
-@@ -738,7 +755,8 @@ static int setup_fallback_user(genhomedircon_settings_t * s)
- 					level = FALLBACK_LEVEL;
- 			}
- 
--			if (push_user_entry(&(s->fallback), FALLBACK_NAME, 0, 0,
-+			if (push_user_entry(&(s->fallback), FALLBACK_NAME,
-+					    FALLBACK_UIDGID, FALLBACK_UIDGID,
- 					    seuname, prefix, "", level) != 0)
- 				errors = STATUS_ERR;
- 			semanage_user_key_free(key);
-@@ -768,6 +786,8 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- 	const char *seuname = NULL;
- 	const char *prefix = NULL;
- 	const char *level = NULL;
-+	char uid[11];
-+	char gid[11];
- 	struct passwd pwstorage, *pwent = NULL;
- 	unsigned int i;
- 	long rbuflen;
-@@ -852,7 +872,19 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- 		}
- 		if (ignore(pwent->pw_dir))
- 			continue;
--		if (push_user_entry(&head, name, seuname,
-+
-+		len = snprintf(uid, sizeof(uid), "%u", pwent->pw_uid);
-+		if (len < 0 || len >= sizeof(uid)) {
-+			*errors = STATUS_ERR;
-+			goto cleanup;
-+		}
-+		len = snprintf(gid, sizeof(gid), "%u", pwent->pw_gid);
-+		if (len < 0 || len >= sizeof(gid)) {
-+			*errors = STATUS_ERR;
-+			goto cleanup;
-+		}
-+
-+		if (push_user_entry(&head, name, uid, gid, seuname,
- 				    prefix, pwent->pw_dir, level) != STATUS_SUCCESS) {
- 			*errors = STATUS_ERR;
- 			break;
--- 
-2.7.3
+Yes, see my patch, "libsepol: fix type bounds checking for attributes"
+(not yet pushed upstream).
+The seg fault Dan is encountering was also fixed earlier by the series
+"libsepol/cil: Fixes to neverallow and bounds checking", which was
+already committed upstream.
