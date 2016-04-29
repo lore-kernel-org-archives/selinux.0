@@ -1,52 +1,48 @@
-Subject: Re: [PATCH 2/2] libsepol: fix type bounds checking for attributes
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1461873759-29136-1-git-send-email-sds@tycho.nsa.gov>
- <1461873759-29136-2-git-send-email-sds@tycho.nsa.gov>
-Cc: jwcart2@tycho.ns.gov
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3THjjDi023416
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 13:45:45 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5723977A.6080306@tycho.nsa.gov>
-Date: Fri, 29 Apr 2016 13:18:50 -0400
-MIME-Version: 1.0
-In-Reply-To: <1461873759-29136-2-git-send-email-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol/cil: Do not add an attribute as a type in the
+ attr_type_map
+Date: Fri, 29 Apr 2016 13:47:19 -0400
+Message-Id: <1461952039-18483-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/28/2016 04:02 PM, Stephen Smalley wrote:
-> The type bounds / hierarchy checker was incorrectly handling
-> rules with attributes as the target type, causing it to trigger
-> violations if the parent type lacked a rule directly to the same
-> attribute even if the parent had all the permissions to the
-> types associated with that attribute.  Skip the degenerate
-> case and only check for the individual types.
->
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->   libsepol/src/hierarchy.c | 2 ++
->   1 file changed, 2 insertions(+)
->
-> diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-> index ba65978..79db3a6 100644
-> --- a/libsepol/src/hierarchy.c
-> +++ b/libsepol/src/hierarchy.c
-> @@ -318,6 +318,8 @@ static int bounds_check_rule(sepol_handle_t *handle, policydb_t *p,
->   					       &avtab_key, data);
->   			if (!d) continue;
->   			td = p->type_val_to_struct[i];
-> +			if (!td || td->flavor == TYPE_ATTRIB)
-> +				continue;
->   			if (td && td->bounds) {
->   				avtab_key.target_type = td->bounds;
->   				d = bounds_not_covered(global_avtab, cur_avtab,
->
+The attribute to type map is used to get all of the types that are
+asociated with an attribute. To make neverallow and bounds checking
+easier it was convienent to map a type to itself. However, CIL was
+wrongly mapping an attribute to itself in addition to the types
+associated with it. This caused type bounds checking to fail if the
+parent was granted a permission through one attribute while the child
+was granted the permission through another attribute.
 
-There shouldn't be any attributes here. CIL is wrongly including the attribute 
-itself in the attr_type_map. Patch coming.
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ libsepol/cil/src/cil_binary.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-Jim
-
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index b8437c9..1cd12d2 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -609,9 +609,11 @@ int __cil_typeattr_bitmap_init(policydb_t *pdb)
+ 			rc = SEPOL_ERR;
+ 			goto exit;
+ 		}
+-		if (ebitmap_set_bit(&pdb->attr_type_map[i], i, 1)) {
+-			rc = SEPOL_ERR;
+-			goto exit;
++		if (pdb->type_val_to_struct[i] && pdb->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
++			if (ebitmap_set_bit(&pdb->attr_type_map[i], i, 1)) {
++				rc = SEPOL_ERR;
++				goto exit;
++			}
+ 		}
+ 
+ 	}
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.5.5
