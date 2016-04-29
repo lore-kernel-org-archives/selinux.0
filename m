@@ -1,78 +1,107 @@
+Subject: Re: [PATCH v2 2/8] genhomedircon: move fallback user to
+ genhomedircon_user_entry_t
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
+References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ <1461391499-20593-1-git-send-email-jason@perfinion.com>
+ <1461391499-20593-3-git-send-email-jason@perfinion.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, dwalsh@redhat.com, jwcart2@tycho.nsa.gov,
- brindle@quarksecurity.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v2] selinux: Only apply bounds checking to source types
-Date: Fri, 29 Apr 2016 12:29:57 -0400
-Message-Id: <1461947397-4478-1-git-send-email-sds@tycho.nsa.gov>
+Message-ID: <b8ccf4b3-15b0-d50c-be4b-20c30a1a3af4@tycho.nsa.gov>
+Date: Fri, 29 Apr 2016 12:54:44 -0400
+MIME-Version: 1.0
+In-Reply-To: <1461391499-20593-3-git-send-email-jason@perfinion.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The current bounds checking of both source and target types
-requires allowing any domain that has access to the child
-domain to also have the same permissions to the parent, which
-is undesirable.  Drop the target bounds checking.
+On 04/23/2016 02:04 AM, Jason Zaman wrote:
+> The fallback user is used in all the write functions, making it use a
+> struct allows us to have everything consistent between normal and
+> fallback users.
+> 
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
 
-KaiGai Kohei originally removed all use of target bounds in
-commit 7d52a155e38d ("selinux: remove dead code in
-type_attribute_bounds_av()") but this was reverted in
-commit 2ae3ba39389b ("selinux: libsepol: remove dead code in
-check_avtab_hierarchy_callback()") because it would have
-required explicitly allowing the parent any permissions
-to the child that the child is allowed to itself.
+When you split a patch into a series, the goal is to ensure that the
+code remains in a working state after each patch in the series.
+Otherwise, git bisect will often find broken states in the future.
+So, we have two options:
+1. You can refactor this patch set so that it does compile after each
+patch (currently breaks on this one at least).
+2. I can squash them all into one logical change.
 
-This change in contrast retains the logic for the case where both
-source and target types are bounded, thereby allowing access
-if the parent of the source is allowed the corresponding
-permissions to the parent of the target.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
-v2 retains the logic for the case where both source and target
-types are bounded as described above, and amends the patch
-description to explain the difference from KaiGai's earlier attempt.
-
- security/selinux/ss/services.c | 22 ++++------------------
- 1 file changed, 4 insertions(+), 18 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 89df646..ca42265 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -573,28 +573,14 @@ static void type_attribute_bounds_av(struct context *scontext,
- 		masked = ~lo_avd.allowed & avd->allowed;
- 	}
- 
--	if (target->bounds) {
--		memset(&lo_avd, 0, sizeof(lo_avd));
--
--		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
--		lo_tcontext.type = target->bounds;
--
--		context_struct_compute_av(scontext,
--					  &lo_tcontext,
--					  tclass,
--					  &lo_avd,
--					  NULL);
--		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
--			return;		/* no masked permission */
--		masked = ~lo_avd.allowed & avd->allowed;
--	}
--
- 	if (source->bounds && target->bounds) {
- 		memset(&lo_avd, 0, sizeof(lo_avd));
-+
- 		/*
--		 * lo_scontext and lo_tcontext are already
--		 * set up.
-+		 * lo_scontext is already set up above.
- 		 */
-+		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
-+		lo_tcontext.type = target->bounds;
- 
- 		context_struct_compute_av(&lo_scontext,
- 					  &lo_tcontext,
--- 
-2.5.5
+> ---
+>  libsemanage/src/genhomedircon.c | 38 ++++++++++++++++++++------------------
+>  1 file changed, 20 insertions(+), 18 deletions(-)
+> 
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+> index 09c2a10..1e35b7e 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -83,17 +83,6 @@
+>  #define FALLBACK_USER_LEVEL "s0"
+>  #define DEFAULT_LOGIN "__default__"
+>  
+> -typedef struct {
+> -	const char *fcfilepath;
+> -	int usepasswd;
+> -	const char *homedir_template_path;
+> -	char *fallback_user;
+> -	char *fallback_user_prefix;
+> -	char *fallback_user_level;
+> -	semanage_handle_t *h_semanage;
+> -	sepol_policydb_t *policydb;
+> -} genhomedircon_settings_t;
+> -
+>  typedef struct user_entry {
+>  	char *name;
+>  	char *sename;
+> @@ -104,6 +93,15 @@ typedef struct user_entry {
+>  } genhomedircon_user_entry_t;
+>  
+>  typedef struct {
+> +	const char *fcfilepath;
+> +	int usepasswd;
+> +	const char *homedir_template_path;
+> +	genhomedircon_user_entry_t *fallback;
+> +	semanage_handle_t *h_semanage;
+> +	sepol_policydb_t *policydb;
+> +} genhomedircon_settings_t;
+> +
+> +typedef struct {
+>  	const char *search_for;
+>  	const char *replace_with;
+>  } replacement_pair_t;
+> @@ -1046,10 +1044,16 @@ int semanage_genhomedircon(semanage_handle_t * sh,
+>  	s.fcfilepath = semanage_final_path(SEMANAGE_FINAL_TMP,
+>  					   SEMANAGE_FC_HOMEDIRS);
+>  
+> -	s.fallback_user = strdup(FALLBACK_USER);
+> -	s.fallback_user_prefix = strdup(FALLBACK_USER_PREFIX);
+> -	s.fallback_user_level = strdup(FALLBACK_USER_LEVEL);
+> -	if (s.fallback_user == NULL || s.fallback_user_prefix == NULL || s.fallback_user_level == NULL) {
+> +	s.fallback = calloc(1, sizeof(genhomedircon_user_entry_t));
+> +	if (s.fallback == NULL) {
+> +		retval = STATUS_ERR;
+> +		goto done;
+> +	}
+> +
+> +	s.fallback->sename = strdup(FALLBACK_USER);
+> +	s.fallback->prefix = strdup(FALLBACK_USER_PREFIX);
+> +	s.fallback->level = strdup(FALLBACK_USER_LEVEL);
+> +	if (s.fallback->sename == NULL || s.fallback->prefix == NULL || s.fallback->level == NULL) {
+>  		retval = STATUS_ERR;
+>  		goto done;
+>  	}
+> @@ -1073,9 +1077,7 @@ done:
+>  	if (out != NULL)
+>  		fclose(out);
+>  
+> -	free(s.fallback_user);
+> -	free(s.fallback_user_prefix);
+> -	free(s.fallback_user_level);
+> +	pop_user_entry(&(s.fallback));
+>  	ignore_free();
+>  
+>  	return retval;
+> 
