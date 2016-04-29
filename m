@@ -1,87 +1,78 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3TJq5CK021623
- for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 15:52:05 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsepol: Only apply bounds checking to source types in rules
-Date: Fri, 29 Apr 2016 15:53:40 -0400
-Message-Id: <1461959620-26532-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: Re: userspace object managers get confused if an update changes
+ object classes and access vectors
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov,
+ Lukas Vrabec <lvrabec@redhat.com>, Miroslav Grepl <mgrepl@redhat.com>,
+ Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul@paul-moore.com>
+References: <d7fef34c-0b38-63f3-4a37-464930a03806@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <385dc3db-6bfc-9724-0a51-6fe8530bd292@tycho.nsa.gov>
+Date: Fri, 29 Apr 2016 15:53:51 -0400
+MIME-Version: 1.0
+In-Reply-To: <d7fef34c-0b38-63f3-4a37-464930a03806@gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The current bounds checking of both source and target types
-requires allowing any domain that has access to the child domain
-to also have the same permissions to the parent, which is undesirable.
-Drop the target bounds expansion and checking.
+On 04/29/2016 01:04 PM, Dominick Grift wrote:
+> 
+> I have mentioned this before (probably a few times), and i am not sure
+> if this issue is actually what i think it is but i will once again
+> mention this issue i observed many times.
+> 
+> Excuse me if i am wrong here.
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=1331668
+> 
+> https://github.com/fedora-selinux/selinux-policy/commit/971e97a2b8cbcc14
+> 3fc82badfaaf7900b4760399
+> 
+> When you change (user space?) access vectors then user space object
+> managers get confused and stop working. This is now becoming an issue
+> since core components are object managers (systemd/dbus)
+> 
+> So basically there is no way for distributions to add/remove access
+> vectors without breaking the running system.
+> 
+> The only solution is immediately switch to permissive mode and to
+> reboot the system after such an update. And you might not even be able
+> to cleanly shutdown due to these confused components
 
-Making this change fully functional requires a corresponding kernel
-change; this change only allows one to build policies that would
-otherwise violate the bounds checking on target type.  The kernel
-change is required to allow the permissions at runtime.
+(cc'd redhat folks so they can provide more context on what the actual
+bug/issue was, since it wasn't entirely clear to me from the bugzilla or
+commit above)
 
-Based on patch by Stephen Smalley.
+In general, the safest approach is to only add permissions at the end of
+an existing class or add new classes at the end of the current list of
+classes.  That avoids perturbing the values of any existing permission
+or class and thus shouldn't cause any breakage.  It looks like the
+commit you referenced was adding/removing permissions at the end of the
+class though, so I'm not clear on what broke there. There is something
+very odd there though - I don't understand how Fedora policy got into a
+state where those permissions weren't defined in the first place, or why
+they are inconsistent in their order with upstream refpolicy.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/src/hierarchy.c | 37 -------------------------------------
- 1 file changed, 37 deletions(-)
+The fact that userspace code is using the system class at all is a bug
+that has previously been pointed out; userspace needs to use its own
+classes and not share one with the kernel.  The kernel recently took
+another permission from that class, so there is a conflict looming.
 
-diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
-index 6f73195..b24b39e 100644
---- a/libsepol/src/hierarchy.c
-+++ b/libsepol/src/hierarchy.c
-@@ -121,18 +121,6 @@ static int bounds_expand_rule(sepol_handle_t *handle, policydb_t *p,
- 		}
- 	}
- 
--	if (ebitmap_get_bit(&p->attr_type_map[tgt - 1], parent - 1)) {
--		avtab_key.target_type = parent;
--		ebitmap_for_each_bit(&p->attr_type_map[src - 1], tnode, i) {
--			if (!ebitmap_node_get_bit(tnode, i))
--				continue;
--			avtab_key.source_type = i + 1;
--			rc = bounds_insert_rule(handle, avtab, global, other,
--						&avtab_key, &datum);
--			if (rc) goto exit;
--		}
--	}
--
- exit:
- 	return rc;
- }
-@@ -329,31 +317,6 @@ static int bounds_check_rule(sepol_handle_t *handle, policydb_t *p,
- 			if (rc) goto exit;
- 		}
- 	}
--	if (ebitmap_get_bit(&p->attr_type_map[tgt - 1], child - 1)) {
--		avtab_key.target_type = parent;
--		ebitmap_for_each_bit(&p->attr_type_map[src - 1], tnode, i) {
--			if (!ebitmap_node_get_bit(tnode, i))
--				continue;
--			avtab_key.source_type = i + 1;
--			if (avtab_key.source_type == child) {
--				/* Checked above */
--				continue;
--			}
--			d = bounds_not_covered(global_avtab, cur_avtab,
--					       &avtab_key, data);
--			if (!d) continue;
--			td = p->type_val_to_struct[i];
--			if (td && td->bounds) {
--				avtab_key.source_type = td->bounds;
--				d = bounds_not_covered(global_avtab, cur_avtab,
--						       &avtab_key, data);
--				if (!d) continue;
--			}
--			(*numbad)++;
--			rc = bounds_add_bad(handle, i+1, child, class, d, bad);
--			if (rc) goto exit;
--		}
--	}
- 
- exit:
- 	return rc;
--- 
-2.5.5
+For userspace, selinux commit b408d72ca9104cb0c1bc4e154d8732cc7c0a9190
+was intended to help with these kinds of changes, but as noted in the
+commit description, there is still the potential interleaving of a
+policy reload and a call to selinux_check_access() that could cause
+problems.
+
+The kernel is presently the only component fully safe against arbitrary
+changes to class/permission definitions at runtime, and that is because
+it can atomically update its class/permission mappings with the policy
+reload transaction.  I think making userspace fully safe would require
+introducing a new selinuxfs interface (e.g. /sys/fs/selinux/access2)
+that takes and returns class and permission strings rather than values,
+so that the kernel can internally handle the mapping and ensure it is
+updated atomic with policy reloads too.  And one would then need to
+rework the userspace AVC and selinux_check_access() to use that
+interface, and convert any remaining userspace components that are still
+using something other than selinux_check_access() for SELinux permission
+checking.
