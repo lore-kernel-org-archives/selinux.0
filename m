@@ -1,64 +1,45 @@
-Subject: Re: [PATCH] libsepol/cil: Do not add an attribute as a type in the
- attr_type_map
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1461952039-18483-1-git-send-email-jwcart2@tycho.nsa.gov>
- <5acf1c2c-3472-e747-071b-5641389e3a69@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5723A929.9080608@tycho.nsa.gov>
-Date: Fri, 29 Apr 2016 14:34:17 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u3TJNm3s014873
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 15:23:49 -0400
+Received: by mail-pa0-f67.google.com with SMTP id i5so13477481pag.3
+ for <selinux@tycho.nsa.gov>; Fri, 29 Apr 2016 12:23:18 -0700 (PDT)
+Date: Sat, 30 Apr 2016 03:23:14 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH v2 2/8] genhomedircon: move fallback user to
+ genhomedircon_user_entry_t
+Message-ID: <20160429192314.GA14636@meriadoc.perfinion.com>
+References: <1460131535-15688-1-git-send-email-jason@perfinion.com>
+ <1461391499-20593-1-git-send-email-jason@perfinion.com>
+ <1461391499-20593-3-git-send-email-jason@perfinion.com>
+ <b8ccf4b3-15b0-d50c-be4b-20c30a1a3af4@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <5acf1c2c-3472-e747-071b-5641389e3a69@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <b8ccf4b3-15b0-d50c-be4b-20c30a1a3af4@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/29/2016 02:26 PM, Stephen Smalley wrote:
-> On 04/29/2016 01:47 PM, James Carter wrote:
->> The attribute to type map is used to get all of the types that are
->> asociated with an attribute. To make neverallow and bounds checking
->> easier it was convienent to map a type to itself. However, CIL was
->> wrongly mapping an attribute to itself in addition to the types
->> associated with it. This caused type bounds checking to fail if the
->> parent was granted a permission through one attribute while the child
->> was granted the permission through another attribute.
->>
->> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+On Fri, Apr 29, 2016 at 12:54:44PM -0400, Stephen Smalley wrote:
+> On 04/23/2016 02:04 AM, Jason Zaman wrote:
+> > The fallback user is used in all the write functions, making it use a
+> > struct allows us to have everything consistent between normal and
+> > fallback users.
+> > 
+> > Signed-off-by: Jason Zaman <jason@perfinion.com>
+> 
+> When you split a patch into a series, the goal is to ensure that the
+> code remains in a working state after each patch in the series.
+> Otherwise, git bisect will often find broken states in the future.
+> So, we have two options:
+> 1. You can refactor this patch set so that it does compile after each
+> patch (currently breaks on this one at least).
+> 2. I can squash them all into one logical change.
 
-Applied.
+The best is squashing 2-4 into one then. The others are pretty self
+contained. 2-4 was a really big change so I split it up even tho it
+broke the build but if you'd prefer squashing them thats not a problem.
 
-Jim
-
->
->> ---
->>   libsepol/cil/src/cil_binary.c | 8 +++++---
->>   1 file changed, 5 insertions(+), 3 deletions(-)
->>
->> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
->> index b8437c9..1cd12d2 100644
->> --- a/libsepol/cil/src/cil_binary.c
->> +++ b/libsepol/cil/src/cil_binary.c
->> @@ -609,9 +609,11 @@ int __cil_typeattr_bitmap_init(policydb_t *pdb)
->>   			rc = SEPOL_ERR;
->>   			goto exit;
->>   		}
->> -		if (ebitmap_set_bit(&pdb->attr_type_map[i], i, 1)) {
->> -			rc = SEPOL_ERR;
->> -			goto exit;
->> +		if (pdb->type_val_to_struct[i] && pdb->type_val_to_struct[i]->flavor != TYPE_ATTRIB) {
->> +			if (ebitmap_set_bit(&pdb->attr_type_map[i], i, 1)) {
->> +				rc = SEPOL_ERR;
->> +				goto exit;
->> +			}
->>   		}
->>
->>   	}
->>
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+-- Jason
