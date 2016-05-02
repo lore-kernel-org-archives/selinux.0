@@ -1,132 +1,88 @@
-Subject: Re: [PATCH] Fix multiple spelling errors
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <1462126683-15704-1-git-send-email-bigon@debian.org>
+Subject: Re: userspace object managers get confused if an update changes
+ object classes and access vectors
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov,
+ Lukas Vrabec <lvrabec@redhat.com>, Miroslav Grepl <mgrepl@redhat.com>,
+ Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul@paul-moore.com>
+References: <d7fef34c-0b38-63f3-4a37-464930a03806@gmail.com>
+ <385dc3db-6bfc-9724-0a51-6fe8530bd292@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8d7c0af6-0dad-ec90-54f7-7e42ce87bce3@tycho.nsa.gov>
-Date: Mon, 2 May 2016 08:46:29 -0400
+Message-ID: <8c37e15e-67c2-5310-6522-bca44805bced@tycho.nsa.gov>
+Date: Mon, 2 May 2016 09:14:45 -0400
 MIME-Version: 1.0
-In-Reply-To: <1462126683-15704-1-git-send-email-bigon@debian.org>
+In-Reply-To: <385dc3db-6bfc-9724-0a51-6fe8530bd292@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/01/2016 02:18 PM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
+On 04/29/2016 03:53 PM, Stephen Smalley wrote:
+> On 04/29/2016 01:04 PM, Dominick Grift wrote:
+>>
+>> I have mentioned this before (probably a few times), and i am not sure
+>> if this issue is actually what i think it is but i will once again
+>> mention this issue i observed many times.
+>>
+>> Excuse me if i am wrong here.
+>>
+>> https://bugzilla.redhat.com/show_bug.cgi?id=1331668
+>>
+>> https://github.com/fedora-selinux/selinux-policy/commit/971e97a2b8cbcc14
+>> 3fc82badfaaf7900b4760399
+>>
+>> When you change (user space?) access vectors then user space object
+>> managers get confused and stop working. This is now becoming an issue
+>> since core components are object managers (systemd/dbus)
+>>
+>> So basically there is no way for distributions to add/remove access
+>> vectors without breaking the running system.
+>>
+>> The only solution is immediately switch to permissive mode and to
+>> reboot the system after such an update. And you might not even be able
+>> to cleanly shutdown due to these confused components
 > 
-> Thanks to the lintian utility from Debian
+> (cc'd redhat folks so they can provide more context on what the actual
+> bug/issue was, since it wasn't entirely clear to me from the bugzilla or
+> commit above)
+> 
+> In general, the safest approach is to only add permissions at the end of
+> an existing class or add new classes at the end of the current list of
+> classes.  That avoids perturbing the values of any existing permission
+> or class and thus shouldn't cause any breakage.  It looks like the
+> commit you referenced was adding/removing permissions at the end of the
+> class though, so I'm not clear on what broke there. There is something
+> very odd there though - I don't understand how Fedora policy got into a
+> state where those permissions weren't defined in the first place, or why
+> they are inconsistent in their order with upstream refpolicy.
 
-Thanks, applied.
+I looked a bit more closely at this bug, and it appears to me that the
+issue was simply that they added definitions for start and stop
+_without_ allowing those permissions for any confined domains that
+needed them.  So then SELinux correctly denied those permissions and the
+system stopped working.  That's operating as intended, not a bug in
+SELinux or anything to do with the potential race in class/permission
+lookup and policy reload.
 
-> ---
->  libselinux/man/man3/avc_add_callback.3   | 4 ++--
->  libselinux/man/man3/avc_has_perm.3       | 2 +-
->  libselinux/man/man3/is_selinux_enabled.3 | 2 +-
->  libsemanage/include/semanage/handle.h    | 2 +-
->  libsemanage/src/database.h               | 2 +-
->  libsepol/cil/src/cil_find.c              | 2 +-
->  policycoreutils/sandbox/seunshare.8      | 2 +-
->  7 files changed, 8 insertions(+), 8 deletions(-)
+> The fact that userspace code is using the system class at all is a bug
+> that has previously been pointed out; userspace needs to use its own
+> classes and not share one with the kernel.  The kernel recently took
+> another permission from that class, so there is a conflict looming.
 > 
-> diff --git a/libselinux/man/man3/avc_add_callback.3 b/libselinux/man/man3/avc_add_callback.3
-> index dbfe72d..bdbbadf 100644
-> --- a/libselinux/man/man3/avc_add_callback.3
-> +++ b/libselinux/man/man3/avc_add_callback.3
-> @@ -57,7 +57,7 @@ and will cause any SID to match.
->  .I callback
->  is the callback function provided by the userspace object manager.  The
->  .I event
-> -argument indicates the security event which occured; the remaining arguments
-> +argument indicates the security event which occurred; the remaining arguments
->  are interpreted according to the event as described below.  The return value
->  of the callback should be zero on success, \-1 on error with
->  .I errno
-> @@ -175,7 +175,7 @@ If the userspace AVC is running in threaded mode, callbacks registered via
->  may be executed in the context of the netlink handler thread.  This will likely introduce synchronization issues requiring the use of locks.  See
->  .BR avc_init (3).
->  
-> -Support for dynamic revocation and retained permissions is mostly unimplemented in the SELinux kernel module.  The only security event that currently gets excercised is
-> +Support for dynamic revocation and retained permissions is mostly unimplemented in the SELinux kernel module.  The only security event that currently gets exercised is
->  .BR AVC_CALLBACK_RESET .
->  .
->  .SH "AUTHOR"
-> diff --git a/libselinux/man/man3/avc_has_perm.3 b/libselinux/man/man3/avc_has_perm.3
-> index 7353952..3e9fca8 100644
-> --- a/libselinux/man/man3/avc_has_perm.3
-> +++ b/libselinux/man/man3/avc_has_perm.3
-> @@ -108,7 +108,7 @@ for the first time.
->  Using an uninitialized structure will produce undefined behavior.
->  .
->  .SH "RETURN VALUE"
-> -If requested permissions are granted, zero is returned.  If requested permissions are denied or an error occured, \-1 is returned and
-> +If requested permissions are granted, zero is returned.  If requested permissions are denied or an error occurred, \-1 is returned and
->  .I errno
->  is set appropriately.
->  
-> diff --git a/libselinux/man/man3/is_selinux_enabled.3 b/libselinux/man/man3/is_selinux_enabled.3
-> index f02052c..b2df562 100644
-> --- a/libselinux/man/man3/is_selinux_enabled.3
-> +++ b/libselinux/man/man3/is_selinux_enabled.3
-> @@ -3,7 +3,7 @@
->  is_selinux_enabled \- check whether SELinux is enabled
->  .
->  .SH "NAME"
-> -is_selinux_mls_enabled \- check whether SELinux is enabled for (Multi Level Securty) MLS 
-> +is_selinux_mls_enabled \- check whether SELinux is enabled for (Multi Level Security) MLS
->  .
->  .SH "SYNOPSIS"
->  .B #include <selinux/selinux.h>
-> diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-> index 6cad529..c816590 100644
-> --- a/libsemanage/include/semanage/handle.h
-> +++ b/libsemanage/include/semanage/handle.h
-> @@ -130,7 +130,7 @@ int semanage_commit(semanage_handle_t *);
->  #define SEMANAGE_CAN_READ 1
->  #define SEMANAGE_CAN_WRITE 2
->  /* returns SEMANAGE_CAN_READ or SEMANAGE_CAN_WRITE if the store is readable
-> - * or writable, respectively. <0 if an error occured */
-> + * or writable, respectively. <0 if an error occurred */
->  int semanage_access_check(semanage_handle_t * sh);
->  
->  /* returns 0 if not connected, 1 if connected */
-> diff --git a/libsemanage/src/database.h b/libsemanage/src/database.h
-> index e460379..6a4a164 100644
-> --- a/libsemanage/src/database.h
-> +++ b/libsemanage/src/database.h
-> @@ -148,7 +148,7 @@ typedef struct dbase_table {
->  	 * This function must be invoked before using
->  	 * any of the database functions above. It may be invoked
->  	 * multiple times, and will update the cache if a commit
-> -	 * occured between invocations */
-> +	 * occurred between invocations */
->  	int (*cache) (struct semanage_handle * handle, dbase_t * dbase);
->  
->  	/* Forgets all changes that haven't been written
-> diff --git a/libsepol/cil/src/cil_find.c b/libsepol/cil/src/cil_find.c
-> index 8e0688c..4134242 100644
-> --- a/libsepol/cil/src/cil_find.c
-> +++ b/libsepol/cil/src/cil_find.c
-> @@ -383,7 +383,7 @@ int cil_find_matching_avrule_in_ast(struct cil_tree_node *current, enum cil_flav
->  
->  	rc = cil_tree_walk(current, __cil_find_matching_avrule_in_ast, NULL, NULL, &args);
->  	if (rc) {
-> -		cil_log(CIL_ERR, "An error occured while searching for avrule in AST\n");
-> +		cil_log(CIL_ERR, "An error occurred while searching for avrule in AST\n");
->  	}
->  
->  	return rc;
-> diff --git a/policycoreutils/sandbox/seunshare.8 b/policycoreutils/sandbox/seunshare.8
-> index 76b75c8..9e105a1 100644
-> --- a/policycoreutils/sandbox/seunshare.8
-> +++ b/policycoreutils/sandbox/seunshare.8
-> @@ -25,7 +25,7 @@ Allow apps executed within the namespace to use capabilities.  Default is no cap
->  Kill all processes with matching MCS level.
->  .TP
->  \fB\-Z\ context
-> -Use alternate SELinux context while runing the executable.
-> +Use alternate SELinux context while running the executable.
->  .TP
->  \fB\-v\fR
->  Verbose output
+> For userspace, selinux commit b408d72ca9104cb0c1bc4e154d8732cc7c0a9190
+> was intended to help with these kinds of changes, but as noted in the
+> commit description, there is still the potential interleaving of a
+> policy reload and a call to selinux_check_access() that could cause
+> problems.
 > 
+> The kernel is presently the only component fully safe against arbitrary
+> changes to class/permission definitions at runtime, and that is because
+> it can atomically update its class/permission mappings with the policy
+> reload transaction.  I think making userspace fully safe would require
+> introducing a new selinuxfs interface (e.g. /sys/fs/selinux/access2)
+> that takes and returns class and permission strings rather than values,
+> so that the kernel can internally handle the mapping and ensure it is
+> updated atomic with policy reloads too.  And one would then need to
+> rework the userspace AVC and selinux_check_access() to use that
+> interface, and convert any remaining userspace components that are still
+> using something other than selinux_check_access() for SELinux permission
+> checking.
