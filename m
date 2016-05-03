@@ -1,35 +1,20 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u43KQpOe002705
+ for <selinux@tycho.nsa.gov>; Tue, 3 May 2016 16:26:51 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, dwalsh@redhat.com, jwcart2@tycho.nsa.gov,
- brindle@quarksecurity.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v3] selinux: Only apply bounds checking to source types
-Date: Tue,  3 May 2016 13:48:20 -0400
-Message-Id: <1462297700-31193-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: Change logic of bounds checking
+Date: Tue,  3 May 2016 16:28:32 -0400
+Message-Id: <1462307312-4220-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The current bounds checking of both source and target types
-requires allowing any domain that has access to the child
-domain to also have the same permissions to the parent, which
-is undesirable.  Drop the target bounds checking.
+Change logic of bounds checking to match kernel's bound checking.
 
-KaiGai Kohei originally removed all use of target bounds in
-commit 7d52a155e38d ("selinux: remove dead code in
-type_attribute_bounds_av()") but this was reverted in
-commit 2ae3ba39389b ("selinux: libsepol: remove dead code in
-check_avtab_hierarchy_callback()") because it would have
-required explicitly allowing the parent any permissions
-to the child that the child is allowed to itself.
-
-This change in contrast retains the logic for the case where both
-source and target types are bounded, thereby allowing access
-if the parent of the source is allowed the corresponding
-permissions to the parent of the target.  Further, this change
-reworks the logic such that we only perform a single computation
-for each case and there is no ambiguity as to how to resolve
-a bounds violation.
+The following explanation is taken from Stephen Smalley's kernel
+patch.
 
 Under the new logic, if the source type and target types are both
 bounded, then the parent of the source type must be allowed the same
@@ -96,86 +81,44 @@ The old logic would have required:
 	allow D A:unix_stream_socket <permissions>;
 to also be allowed in policy.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
-v3 fixes an ambiguity introduced by v2, which would have allowed
-the bounds constraint when the target type is bounded to be resolved
-in two different ways.  v3 should also yield more efficient code since
-we now only have to perform a single compute_av call.
+ libsepol/src/hierarchy.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-While this is a change in logic, it is "compatible" in the sense that
-it only allows what would have been previously denied (example 4 above),
-and I am not aware of anyone relying on the previous behavior.
-selinux-testsuite still passes since it does not exercise the bounded
-target type case.
-
- security/selinux/ss/services.c | 36 +++++++++---------------------------
- 1 file changed, 9 insertions(+), 27 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 89df646..48babec 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -553,33 +553,23 @@ static void type_attribute_bounds_av(struct context *scontext,
- 				    scontext->type - 1);
- 	BUG_ON(!source);
+diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
+index b24b39e..778541a 100644
+--- a/libsepol/src/hierarchy.c
++++ b/libsepol/src/hierarchy.c
+@@ -301,20 +301,21 @@ static int bounds_check_rule(sepol_handle_t *handle, policydb_t *p,
+ 		ebitmap_for_each_bit(&p->attr_type_map[tgt - 1], tnode, i) {
+ 			if (!ebitmap_node_get_bit(tnode, i))
+ 				continue;
+-			avtab_key.target_type = i + 1;
+-			d = bounds_not_covered(global_avtab, cur_avtab,
+-					       &avtab_key, data);
+-			if (!d) continue;
+ 			td = p->type_val_to_struct[i];
+ 			if (td && td->bounds) {
+ 				avtab_key.target_type = td->bounds;
+ 				d = bounds_not_covered(global_avtab, cur_avtab,
+ 						       &avtab_key, data);
+-				if (!d) continue;
++			} else {
++				avtab_key.target_type = i + 1;
++				d = bounds_not_covered(global_avtab, cur_avtab,
++						       &avtab_key, data);
++			}
++			if (d) {
++				(*numbad)++;
++				rc = bounds_add_bad(handle, child, i+1, class, d, bad);
++				if (rc) goto exit;
+ 			}
+-			(*numbad)++;
+-			rc = bounds_add_bad(handle, child, i+1, class, d, bad);
+-			if (rc) goto exit;
+ 		}
+ 	}
  
-+	if (!source->bounds)
-+		return;
-+
- 	target = flex_array_get_ptr(policydb.type_val_to_struct_array,
- 				    tcontext->type - 1);
- 	BUG_ON(!target);
- 
--	if (source->bounds) {
--		memset(&lo_avd, 0, sizeof(lo_avd));
--
--		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
--		lo_scontext.type = source->bounds;
-+	memset(&lo_avd, 0, sizeof(lo_avd));
- 
--		context_struct_compute_av(&lo_scontext,
--					  tcontext,
--					  tclass,
--					  &lo_avd,
--					  NULL);
--		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
--			return;		/* no masked permission */
--		masked = ~lo_avd.allowed & avd->allowed;
--	}
-+	memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
-+	lo_scontext.type = source->bounds;
- 
- 	if (target->bounds) {
--		memset(&lo_avd, 0, sizeof(lo_avd));
--
- 		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
- 		lo_tcontext.type = target->bounds;
- 
--		context_struct_compute_av(scontext,
-+		context_struct_compute_av(&lo_scontext,
- 					  &lo_tcontext,
- 					  tclass,
- 					  &lo_avd,
-@@ -587,17 +577,9 @@ static void type_attribute_bounds_av(struct context *scontext,
- 		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
- 			return;		/* no masked permission */
- 		masked = ~lo_avd.allowed & avd->allowed;
--	}
--
--	if (source->bounds && target->bounds) {
--		memset(&lo_avd, 0, sizeof(lo_avd));
--		/*
--		 * lo_scontext and lo_tcontext are already
--		 * set up.
--		 */
--
-+	} else {
- 		context_struct_compute_av(&lo_scontext,
--					  &lo_tcontext,
-+					  tcontext,
- 					  tclass,
- 					  &lo_avd,
- 					  NULL);
 -- 
 2.5.5
