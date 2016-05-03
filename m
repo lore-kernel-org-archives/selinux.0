@@ -1,25 +1,23 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u43G2AqC003773
- for <selinux@tycho.nsa.gov>; Tue, 3 May 2016 12:02:12 -0400
-Received: by mail-oi0-f48.google.com with SMTP id x19so31594540oix.2
- for <selinux@tycho.nsa.gov>; Tue, 03 May 2016 09:02:04 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u43GDnnE006277
+ for <selinux@tycho.nsa.gov>; Tue, 3 May 2016 12:13:49 -0400
+Received: by mail-yw0-f173.google.com with SMTP id t10so26241829ywa.0
+ for <selinux@tycho.nsa.gov>; Tue, 03 May 2016 09:13:48 -0700 (PDT)
 MIME-Version: 1.0
 In-Reply-To: <1462291125-28934-1-git-send-email-sds@tycho.nsa.gov>
 References: <1462291125-28934-1-git-send-email-sds@tycho.nsa.gov>
-From: enh <enh@google.com>
-Date: Tue, 3 May 2016 09:01:43 -0700
-Message-ID: <CAJgzZorJ=XVWLNvDMSaEGMdjK66GcyT0G5uumLZFMRtUGR_iHQ@mail.gmail.com>
+Date: Tue, 3 May 2016 09:13:47 -0700
+Message-ID: <CAFJ0LnEh1xctyg_JZRk-kHyU6Ykvqg09fbGKejJ8vcESxKTOOQ@mail.gmail.com>
 Subject: Re: [PATCH] libsepol, checkpolicy,
  secilc: Replace #ifdef DARWIN with __APPLE__.
+From: Nick Kralevich <nnk@google.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Nick Kralevich <nnk@google.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Elliott Hughes <enh@google.com>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
-
-lgtm. thanks!
 
 On Tue, May 3, 2016 at 8:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > As per discussion in https://android-review.googlesource.com/#/c/221980,
@@ -27,6 +25,9 @@ On Tue, May 3, 2016 at 8:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > DARWIN for building on MacOS X.
 >
 > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+Acked-By: Nick Kralevich <nnk@google.com>
+
 > ---
 >  checkpolicy/Android.mk      | 4 ----
 >  checkpolicy/checkpolicy.c   | 2 +-
@@ -205,5 +206,4 @@ On Tue, May 3, 2016 at 8:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
 
 -- 
-Elliott Hughes - http://who/enh - http://jessies.org/~enh/
-Android native code/tools questions? Mail me/drop by/add me as a reviewer.
+Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
