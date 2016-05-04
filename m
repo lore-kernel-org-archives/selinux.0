@@ -1,63 +1,47 @@
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: ANN: SETools 4.0.0
-To: "SELinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>, refpolicy
- <refpolicy@oss.tresys.com>
-Message-ID: <9184a310-f2bf-3b52-f5ed-1784d95a462b@tresys.com>
-Date: Wed, 4 May 2016 10:08:33 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u44Fe7LK008923
+ for <selinux@tycho.nsa.gov>; Wed, 4 May 2016 11:40:07 -0400
+Received: by mail-pa0-f54.google.com with SMTP id iv1so25368238pac.2
+ for <selinux@tycho.nsa.gov>; Wed, 04 May 2016 08:39:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Date: Wed, 4 May 2016 11:39:44 -0400
+Message-ID: <CAMyQ4FwP25QU3EvAfw0oLQuH1x05S6G8a=F7G9vnsk2duJyCvg@mail.gmail.com>
+Subject: SELinux build errors
+From: David Merritt <david.d.merritt@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Tresys is pleased to announce the release of SETools 4.0.0:
+platform: CentOS 7 x64
 
-https://github.com/TresysTechnology/setools/releases/tag/4.0.0
+from:
 
-SETools has been reimplemented in Python. The following tools were
-reimplemented:
+https://github.com/SELinuxProject/selinux
 
-* apol
-* sediff
-* seinfo
-* sesearch
+git clone https://github.com/SELinuxProject/selinux.git
 
-The following tools were added:
+cd selinux
 
-* sedta (command line domain transition analysis)
-* seinfoflow (command line information flow analysis)
+make DESTDIR=~/obj install install-pywrap
 
-For an overview of the user interface changes since SETools 3.x, see the
-related wiki page
-<https://github.com/TresysTechnology/setools/wiki/Changes-Since-SETools-v3>.
+yields:
 
-This release requires libsepol-2.5, which is unfortunately not available
-yet on some distributions.
-
-
-Warning: If you use this to replace SETools 3.x on your system, it will
-break the couple of tools from sepolgen/policycoreutils that depend on
-SETools (e.g. sepolicy) since libqpol/libapol C libraries and their
-corresponding Python wrappers are no longer provided.
-
-
-The major changes since the 4.0.0-beta release are:
-
-* Completed apol
-* Implemented v30 policy support (xperm rules; initial contribution from
-Richard Haines)
-* Implemented Xen policy support (initial contribution from Richard Haines)
-* Added man pages
-
-
-If you would like to help, planned features and bugs are listed in
-SETools' GitHub issue tracker:
-
-https://github.com/TresysTechnology/setools/issues
-
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-www.tresys.com | oss.tresys.com
+.
+.
+.
+make[2]: Entering directory `/root/Desktop/selinux/libsepol/src'
+cc -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
+-I. -I../include -D_GNU_SOURCE -I../cil/include -fPIC -c -o
+../cil/src/cil_lexer.o ../cil/src/cil_lexer.c
+<stdout>: In function ‘cil_yy_scan_bytes’:
+<stdout>:1567:17: error: comparison between signed and unsigned
+integer expressions [-Werror=sign-compare]
+cc1: all warnings being treated as errors
+make[2]: *** [../cil/src/cil_lexer.o] Error 1
+make[2]: Leaving directory `/root/Desktop/selinux/libsepol/src'
+make[1]: *** [install] Error 2
+make[1]: Leaving directory `/root/Desktop/selinux/libsepol'
+make: *** [install] Error 1
