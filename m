@@ -1,54 +1,152 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u44KdQa0014889
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u44KdQa3014889
  for <selinux@tycho.nsa.gov>; Wed, 4 May 2016 16:39:26 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 0/6 v2] libsepol/cil: Add high-level language line marking
- support
-Date: Wed,  4 May 2016 16:41:00 -0400
-Message-Id: <1462394466-25076-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 3/6 v2] libsepol/cil: Add cil_tree_log() and supporting
+ functions
+Date: Wed,  4 May 2016 16:41:03 -0400
+Message-Id: <1462394466-25076-4-git-send-email-jwcart2@tycho.nsa.gov>
+In-Reply-To: <1462394466-25076-1-git-send-email-jwcart2@tycho.nsa.gov>
+References: <1462394466-25076-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This patch set adds support for tracking original file and line numbers for better
-error reporting when a high-level language is translated into CIL. It then uses
-that support to provide better error reporting for neverallow rules after
-generating CIL with checkpolicy or checkmodule. (Unfortunately, the original line
-number information is not saved in the pp file, so there is no benefit for policy
-modules.)
+Provide more detailed log messages containing all relevant CIL and
+high-level language source file information through cil_tree_log().
 
-Changes in V2:
-- Only ";;*" at the beginning of a line indicates an HL line mark.
-- When cil_tree_get_next_path() encounters a call or blockinherit it will
-continue searching the AST from the associated macro or block.
+cil_tree_log() uses two new functions: cil_tree_get_next_path() and
+cil_tree_get_cil_path().
 
-James Carter (6):
-  libsepol/cil: Add high-level language line marking support
-  libsepol/cil: Store CIL filename in parse tree and AST
-  libsepol/cil: Add cil_tree_log() and supporting functions
-  libsepol/cil: Replace cil_log() calls with cil_tree_log()
-  libsepol/cil: Remove path field from cil_tree_node struct
-  libsepol: When generating CIL use HLL line mark for neverallows
+cil_tree_get_next_path() traverses up the parse tree or AST until
+it finds the next CIL or high-level language source information nodes.
+It will return the path and whether or not the path is for a CIL file.
 
- libsepol/cil/src/cil.c             |  22 ++-
- libsepol/cil/src/cil_binary.c      |  45 +++---
- libsepol/cil/src/cil_build_ast.c   | 294 +++++++++++++++----------------------
- libsepol/cil/src/cil_build_ast.h   |   2 +
- libsepol/cil/src/cil_copy_ast.c    |  24 ++-
- libsepol/cil/src/cil_flavor.h      |   1 +
- libsepol/cil/src/cil_fqn.c         |   2 +-
- libsepol/cil/src/cil_internal.h    |   9 ++
- libsepol/cil/src/cil_lexer.h       |   6 +-
- libsepol/cil/src/cil_lexer.l       |  15 +-
- libsepol/cil/src/cil_parser.c      | 259 +++++++++++++++++++++++++++-----
- libsepol/cil/src/cil_resolve_ast.c |  51 +++----
- libsepol/cil/src/cil_tree.c        |  96 +++++++++++-
- libsepol/cil/src/cil_tree.h        |   6 +-
- libsepol/cil/src/cil_verify.c      |  83 +++++------
- libsepol/src/module_to_cil.c       |   8 +
- 16 files changed, 590 insertions(+), 333 deletions(-)
+cil_tree_get_cil_path() uses cil_tree_get_next_path() to return
+the CIL path.
 
+Example cil_tree_log() message:
+    Problem at line 21 of policy.cil (from line 11 of foo.hll) (from line 2 of bar.hll)
+
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ libsepol/cil/src/cil_tree.c | 86 +++++++++++++++++++++++++++++++++++++++++++++
+ libsepol/cil/src/cil_tree.h |  4 +++
+ 2 files changed, 90 insertions(+)
+
+diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+index 6e56dd1..ef82143 100644
+--- a/libsepol/cil/src/cil_tree.c
++++ b/libsepol/cil/src/cil_tree.c
+@@ -59,6 +59,92 @@ __attribute__((noreturn)) __attribute__((format (printf, 1, 2))) void cil_tree_e
+ 	exit(1);
+ }
+ 
++struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **path, int* is_cil)
++{
++	if (!node) {
++		return NULL;
++	}
++
++	node = node->parent;
++
++	while (node) {
++		if (node->flavor == CIL_NODE && node->data == NULL) {
++			if (node->cl_head->data == CIL_KEY_SRC_INFO) {
++				/* Parse Tree */
++				*path = node->cl_head->next->next->data;
++				*is_cil = (node->cl_head->next->data == CIL_KEY_SRC_CIL);
++				return node;
++			}
++			node = node->parent;
++		} else if (node->flavor == CIL_SRC_INFO) {
++				/* AST */
++				struct cil_src_info *info = node->data;
++				*path = info->path;
++				*is_cil = info->is_cil;
++				return node;
++		} else {
++			if (node->flavor == CIL_CALL) {
++				struct cil_call *call = node->data;
++				node = NODE(call->macro);
++			} else if (node->flavor == CIL_BLOCKINHERIT) {
++				struct cil_blockinherit *inherit = node->data;
++				node = NODE(inherit->block);
++			} else {
++				node = node->parent;
++			}
++		}
++	}
++
++	return NULL;
++}
++
++char *cil_tree_get_cil_path(struct cil_tree_node *node)
++{
++	char *path = NULL;
++	int is_cil;
++
++	while (node) {
++		node = cil_tree_get_next_path(node, &path, &is_cil);
++		if (node && is_cil) {
++			return path;
++		}
++	}
++
++	return NULL;
++}
++
++__attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *node, enum cil_log_level lvl, const char* msg, ...)
++{
++	va_list ap;
++
++	va_start(ap, msg);
++	cil_vlog(lvl, msg, ap);
++	va_end(ap);
++
++	if (node) {
++		char *path = NULL;
++		int is_cil;
++		unsigned hll_line = node->hll_line;
++
++		path = cil_tree_get_cil_path(node);
++
++		if (path != NULL) {
++			cil_log(lvl, " at line %d of %s", node->line, path);
++		}
++
++		while (node) {
++			node = cil_tree_get_next_path(node, &path, &is_cil);
++			if (node && !is_cil) {
++				cil_log(lvl," (from line %d of %s)", hll_line, path);
++				path = NULL;
++				hll_line = node->hll_line;
++			}
++		}
++	}
++
++	cil_log(lvl,"\n");
++}
++
+ int cil_tree_init(struct cil_tree **tree)
+ {
+ 	struct cil_tree *new_tree = cil_malloc(sizeof(*new_tree));
+diff --git a/libsepol/cil/src/cil_tree.h b/libsepol/cil/src/cil_tree.h
+index 43d6b98..318eecd 100644
+--- a/libsepol/cil/src/cil_tree.h
++++ b/libsepol/cil/src/cil_tree.h
+@@ -51,6 +51,10 @@ struct cil_tree_node {
+ 	void *data;
+ };
+ 
++struct cil_tree_node *cil_tree_get_next_path(struct cil_tree_node *node, char **path, int* is_cil);
++char *cil_tree_get_cil_path(struct cil_tree_node *node);
++__attribute__((format (printf, 3, 4))) void cil_tree_log(struct cil_tree_node *node, enum cil_log_level lvl, const char* msg, ...);
++
+ int cil_tree_init(struct cil_tree **tree);
+ void cil_tree_destroy(struct cil_tree **tree);
+ void cil_tree_subtree_destroy(struct cil_tree_node *node);
 -- 
 2.5.5
