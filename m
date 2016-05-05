@@ -1,88 +1,62 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u45BkqKX009130
+ for <selinux@tycho.nsa.gov>; Thu, 5 May 2016 07:46:52 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id C55501A21E
+ for <selinux@tycho.nsa.gov>; Thu,  5 May 2016 13:46:48 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id T6xgyQS4_Rx3 for <selinux@tycho.nsa.gov>;
+ Thu,  5 May 2016 13:46:45 +0200 (CEST)
+Received: from [IPv6:2a02:578:85fc:1::6b5] (unknown
+ [IPv6:2a02:578:85fc:1::6b5])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 134971A218
+ for <selinux@tycho.nsa.gov>; Thu,  5 May 2016 13:46:45 +0200 (CEST)
+To: selinux@tycho.nsa.gov
+From: Laurent Bigonville <bigon@debian.org>
+Subject: Licence of the new setools icons
+Message-ID: <ed0f0b63-8fc6-a136-b5c9-950f1abca19b@debian.org>
+Date: Thu, 5 May 2016 13:46:44 +0200
 MIME-Version: 1.0
-Date: Wed, 4 May 2016 23:32:59 -0700
-Message-ID: <CAN=9EoTdFQFWLNakFYFKEW5co8HV3ewbK9KGtB_Zk21AZYTgMA@mail.gmail.com>
-Subject: Selinux Docker issues
-From: Naina Emmanuel <nemmanuel1992@gmail.com>
-To: Vit Mojzis <vmojzis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- jwcart2@tycho.nsa.gov, david.d.merritt@gmail.com, selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a113ffd646d60cf053212836e
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113ffd646d60cf053212836e
-Content-Type: text/plain; charset=UTF-8
+Hello,
 
-Good Morning,
-I am working on docker and its securituy through SElinux, I am facing some
-problems and have some Questions to ask...
+setools(4) includes a new set of icons. The COPYING file included in the 
+same directory states:
 
-Q1: If for the containers, we have MLS policy to be configured
-SelinuxType=mls in /etc/selinux/config,  then on the host for other modules
-we have targeted policy, how can take these two different types
-simultaneously ?
+===
 
-Q2: Docker is running on my Centos7, still it is giving unconfined_t label
-on docker process, (policy is configured as selinuxtype=mls and
-selinux=permissive)
+Icons are sourced from the Koloria Free Icons Set
 
-Q3: In targeted rpm package i have found namespace.te and cgroup.te, if
-docker works on mls, then why these policy modules are given in targeted
-rpm?
+Terms of Use
+* Koloria Icon Set can be used in open source or commercial projects for 
+free.
+* When you mention Koloria Icon Set, please refer to this[1] 
+page/download link.
+* Do not sell the package on graphic stock sites -- this pack is 
+intended to be
+   free. You may include the icons in your commercial 
+themes/designs/creations.
+* Do not claim to be the author of this icon set.
 
-Q4: Where is mls policy is located? As we have .te policy for targeted
+[1] http://www.graphicrating.com/2012/06/14/koloria-free-icons-set/
 
+===
 
-please guide me in these regard
+This doesn't seems free (as in freedom) as the license doesn't give 
+right to modify the icons.
 
-Thanks in advance
+This will make it difficult to include setools in some distro (Debian, 
+Fedora,...).
 
+Couldn't the icons already present in the Qt icons theme be used 
+instead? Most of them should have equivalent.
 
-
-
-
-*Engr. Naina Emmanuel*
-*Linux Essential Certified (LEPDC)*
-*Cisco Certified Network Associate (CCNA)*
-
-*Computer Engineering Department, UET Taxila*
-
-*Information Security, CS Department, CIIT Islamabad*
-
---001a113ffd646d60cf053212836e
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div class=3D"gmail_signature"><div dir=3D"ltr"><div =
-dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"=
-ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div>Good Morning,</div><div>I am wo=
-rking on docker and its securituy through SElinux, I am facing some problem=
-s and have some Questions to ask...</div><div><br></div><div>Q1: If for the=
- containers, we have MLS policy to be configured SelinuxType=3Dmls in /etc/=
-selinux/config, =C2=A0then on the host for other modules we have targeted p=
-olicy, how can take these two different types simultaneously ?=C2=A0</div><=
-div><br></div><div>Q2: Docker is running on my Centos7, still it is giving =
-unconfined_t label on docker process, (policy is configured as selinuxtype=
-=3Dmls and selinux=3Dpermissive)</div><div><br></div><div>Q3: In targeted r=
-pm package i have found namespace.te and cgroup.te, if docker works on mls,=
- then why these policy modules are given in targeted rpm?</div><div><br></d=
-iv><div>Q4: Where is mls policy is located? As we have .te policy for targe=
-ted=C2=A0</div><div><br></div><div><br></div><div>please guide me in these =
-regard</div><div><br></div><div>Thanks in advance</div><font size=3D"4"><di=
-v><br></div><div style=3D"font-weight:bold"><font size=3D"4"><b><br></b></f=
-ont></div><div style=3D"font-weight:bold"><font size=3D"4"><b><br></b></fon=
-t></div><div style=3D"font-weight:bold"><font size=3D"4"><b><br></b></font>=
-</div><div style=3D"font-weight:bold"><font size=3D"4"><b><br></b></font></=
-div><font color=3D"#666666" style=3D"font-weight:bold"><i>Engr. Naina Emman=
-uel</i></font></font><div><b style=3D"color:rgb(102,102,102);font-size:smal=
-l">Linux Essential Certified (LEPDC)</b><font color=3D"#666666" size=3D"2">=
-<b><br></b></font></div><div><font color=3D"#666666" size=3D"2"><b>Cisco Ce=
-rtified Network Associate (CCNA)</b></font></div><div><b style=3D"color:rgb=
-(102,102,102);font-size:small">Computer Engineering Department, UET Taxila<=
-br></b></div><div><b style=3D"color:rgb(102,102,102);font-size:small">Infor=
-mation Security, CS Department, CIIT Islamabad<br></b></div></div></div></d=
-iv></div></div></div></div></div></div></div>
-</div>
-
---001a113ffd646d60cf053212836e--
+Laurent Bigonville
