@@ -1,58 +1,78 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u45Kgehp013386
- for <selinux@tycho.nsa.gov>; Thu, 5 May 2016 16:42:41 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 6/6 v3] libsepol: When generating CIL use HLL line mark for
- neverallows
-Date: Thu,  5 May 2016 16:44:19 -0400
-Message-Id: <1462481059-12437-7-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1462481059-12437-1-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1462481059-12437-1-git-send-email-jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u45MQEKX006649
+ for <selinux@tycho.nsa.gov>; Thu, 5 May 2016 18:26:14 -0400
+Received: by mail-qk0-f171.google.com with SMTP id r184so51396857qkc.1
+ for <selinux@tycho.nsa.gov>; Thu, 05 May 2016 15:26:11 -0700 (PDT)
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [GIT PULL] SELinux patches for 4.7
+Date: Thu, 05 May 2016 18:26:09 -0400
+Message-ID: <2920315.ICEJRqPiXG@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When converting pp files to CIL or generating CIL using checkpolicy
-or checkmodule use CIL's HLL line mark annotations to record the
-original file and line numbers for neverallow rules so that CIL can
-produce more informative error messages. (Unfortunately, the original
-line number information is not saved in pp files, so there is no benefit
-for policy modules.)
+Hi James,
 
-This is only done for neverallow rules currently.
+A good chunk of SELinux patches for 4.7, eleven in total.  Of the eleven, two 
+are bug fixes, six are performance improvements relating to the inode label 
+revalidation code, and three introduce improved functionality: kernel module 
+loading restrictions, better handling for userns capability checks, and 
+execstack checking on thread stacks.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+All the patches pass the selinux-testsuite, have been in the pcmoore/kernel-
+secnext builds, and as of a few minutes ago applied cleanly on top of linux-
+security#next.  Please apply.
+
+-Paul
+
 ---
- libsepol/src/module_to_cil.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+The following changes since commit 9735a22799b9214d17d3c231fe377fc852f042e9:
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 38f0dc3..b9a4af7 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -1073,6 +1073,10 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
- 	struct type_set *ts;
- 
- 	for (avrule = avrule_list; avrule != NULL; avrule = avrule->next) {
-+		if (avrule->specified == AVRULE_NEVERALLOW && avrule->source_filename) {
-+			cil_println(0, ";;* lmx %lu %s\n",avrule->source_line, avrule->source_filename);
-+		}
-+
- 		ts = &avrule->stypes;
- 		rc = process_typeset(indent, pdb, ts, attr_list, &snames, &num_snames);
- 		if (rc != 0) {
-@@ -1103,6 +1107,10 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
- 
- 		names_destroy(&snames, &num_snames);
- 		names_destroy(&tnames, &num_tnames);
-+
-+		if (avrule->specified == AVRULE_NEVERALLOW && avrule->source_filename) {
-+			cil_println(0, ";;* lme\n");
-+		}
- 	}
- 
- 	return 0;
+  Linux 4.6-rc2 (2016-04-03 09:09:40 -0500)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-4.7
+
+for you to fetch changes up to c2316dbf124257ae19fd2e29cb5ec51060649d38:
+
+  selinux: apply execstack check on thread stacks (2016-04-26 15:47:57 -0400)
+
+----------------------------------------------------------------
+Janak Desai (1):
+      netlabel: fix a problem with netlbl_secattr_catmap_setrng()
+
+Jeff Vander Stoep (1):
+      selinux: restrict kernel module loading
+
+Paul Moore (6):
+      selinux: don't revalidate inodes in selinux_socket_getpeersec_dgram()
+      selinux: simply inode label states to INVALID and INITIALIZED
+      selinux: consolidate the ptrace parent lookup code
+      selinux: don't revalidate an inode's label when explicitly setting it
+      selinux: delay inode label lookup as long as possible
+      selinux: check ss_initialized before revalidating an inode label
+
+Prarit Bhargava (1):
+      selinux: Change bool variable name to index.
+
+Stephen Smalley (2):
+      selinux: distinguish non-init user namespace capability checks
+      selinux: apply execstack check on thread stacks
+
+ net/netlabel/netlabel_kapi.c           |   2 +-
+ security/selinux/hooks.c               | 144 +++++++++++++++++++++---------
+ security/selinux/include/classmap.h    |  30 ++++---
+ security/selinux/include/conditional.h |   2 +-
+ security/selinux/include/objsec.h      |   5 +-
+ security/selinux/ss/services.c         |   6 +-
+ 6 files changed, 128 insertions(+), 61 deletions(-)
+
 -- 
-2.5.5
+paul moore
+security @ redhat
