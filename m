@@ -1,57 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u45C3Cu9013308
- for <selinux@tycho.nsa.gov>; Thu, 5 May 2016 08:03:15 -0400
-Received: from iosakhe.localdomain (32.206.133.77.rev.sfr.net [77.133.206.32])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 97A98564835
- for <selinux@tycho.nsa.gov>; Thu,  5 May 2016 14:03:04 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] sepolgen: remove additional files when cleaning
-Date: Thu,  5 May 2016 14:02:39 +0200
-Message-Id: <1462449760-9072-3-git-send-email-nicolas.iooss@m4x.org>
-In-Reply-To: <1462449760-9072-1-git-send-email-nicolas.iooss@m4x.org>
-References: <1462449760-9072-1-git-send-email-nicolas.iooss@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u45CkiVC023598
+ for <selinux@tycho.nsa.gov>; Thu, 5 May 2016 08:46:44 -0400
+Subject: Re: Licence of the new setools icons
+To: Laurent Bigonville <bigon@debian.org>, <selinux@tycho.nsa.gov>
+References: <ed0f0b63-8fc6-a136-b5c9-950f1abca19b@debian.org>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Message-ID: <0f85ca94-14ab-5637-de0b-3e61380de26e@tresys.com>
+Date: Thu, 5 May 2016 08:46:28 -0400
+MIME-Version: 1.0
+In-Reply-To: <ed0f0b63-8fc6-a136-b5c9-950f1abca19b@debian.org>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Remove the files created by Python 3 and refpolicy building process.
+On 5/5/2016 7:46 AM, Laurent Bigonville wrote:
+> Hello,
+> 
+> setools(4) includes a new set of icons. The COPYING file included in the
+> same directory states:
+> 
+> ===
+> 
+> Icons are sourced from the Koloria Free Icons Set
+> 
+> Terms of Use
+> * Koloria Icon Set can be used in open source or commercial projects for
+> free.
+> * When you mention Koloria Icon Set, please refer to this[1]
+> page/download link.
+> * Do not sell the package on graphic stock sites -- this pack is
+> intended to be
+>   free. You may include the icons in your commercial
+> themes/designs/creations.
+> * Do not claim to be the author of this icon set.
+> 
+> [1] http://www.graphicrating.com/2012/06/14/koloria-free-icons-set/
+> 
+> ===
+> 
+> This doesn't seems free (as in freedom) as the license doesn't give
+> right to modify the icons.
+> 
+> This will make it difficult to include setools in some distro (Debian,
+> Fedora,...).
+> 
+> Couldn't the icons already present in the Qt icons theme be used
+> instead? Most of them should have equivalent.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- sepolgen/src/sepolgen/Makefile | 3 +--
- sepolgen/tests/Makefile        | 3 +++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+If the licensing is a problem, then I can look into replacing the icons
+with the Qt icons (patches welcome).
 
-diff --git a/sepolgen/src/sepolgen/Makefile b/sepolgen/src/sepolgen/Makefile
-index 9ac765151478..d3aa7715c488 100644
---- a/sepolgen/src/sepolgen/Makefile
-+++ b/sepolgen/src/sepolgen/Makefile
-@@ -11,5 +11,4 @@ install: all
- clean:
- 	rm -f parser.out parsetab.py
- 	rm -f *~ *.pyc
--
--
-+	rm -rf __pycache__
-diff --git a/sepolgen/tests/Makefile b/sepolgen/tests/Makefile
-index 924a9bed6bcd..e17eef229ff3 100644
---- a/sepolgen/tests/Makefile
-+++ b/sepolgen/tests/Makefile
-@@ -4,8 +4,11 @@ clean:
- 	rm -f *~ *.pyc
- 	rm -f parser.out parsetab.py
- 	rm -f out.txt
-+	rm -f module_compile_test.fc
-+	rm -f module_compile_test.if
- 	rm -f module_compile_test.pp
- 	rm -f output
-+	rm -rf __pycache__ tmp
- 
- test:
- 	$(PYTHON) run-tests.py
+
 -- 
-2.8.2
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
