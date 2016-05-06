@@ -1,245 +1,184 @@
-Subject: Re: [PATCH] libsepol: Change which attributes CIL keeps in the binary
- policy
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- William Roberts <bill.c.roberts@gmail.com>
-References: <1462561003-2629-1-git-send-email-jwcart2@tycho.nsa.gov>
- <CAFftDdrdT1+=HHUFhVpQb6hmHbZswa=XEe=jXJysx87ixcOrwA@mail.gmail.com>
- <CAFftDdpeO4C7nH6coQ-ZXrab+eCWjkVo8bv=SHQ-5mMe_o_Rdg@mail.gmail.com>
- <CAFftDdra7ygQKTszajTpevP3+3tnsm7OedHpdG6SPCeYkTufDg@mail.gmail.com>
- <476DC76E7D1DF2438D32BFADF679FC560122936D@ORSMSX103.amr.corp.intel.com>
- <476DC76E7D1DF2438D32BFADF679FC5601229385@ORSMSX103.amr.corp.intel.com>
- <56cd77c0-d264-7ee3-9742-2b5c2aa118b8@tycho.nsa.gov>
- <476DC76E7D1DF2438D32BFADF679FC56012293A7@ORSMSX103.amr.corp.intel.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <8fcfe440-2192-c61a-2ab8-62fa0f877f97@tycho.nsa.gov>
-Date: Fri, 6 May 2016 16:13:04 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u46MxZn5002505
+ for <selinux@tycho.nsa.gov>; Fri, 6 May 2016 18:59:36 -0400
+Received: by mail-ob0-f179.google.com with SMTP id dm5so58977354obc.1
+ for <selinux@tycho.nsa.gov>; Fri, 06 May 2016 15:59:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC56012293A7@ORSMSX103.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <1455715329-9601-18-git-send-email-huw@codeweavers.com>
+References: <1455715329-9601-18-git-send-email-huw@codeweavers.com>
+Date: Fri, 6 May 2016 18:59:32 -0400
+Message-ID: <CAHC9VhTRp8bHgwxZ2YNj=pa2a4PtO=8jJT1siG99GiFYnwm53Q@mail.gmail.com>
+Subject: Re: [RFC PATCH v3 17/19] calipso: Add validation of CALIPSO option.
+From: Paul Moore <paul@paul-moore.com>
+To: Huw Davies <huw@codeweavers.com>
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, Paul Moore <pmoore@redhat.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/06/2016 04:06 PM, Roberts, William C wrote:
+On Wed, Feb 17, 2016 at 8:22 AM, Huw Davies <huw@codeweavers.com> wrote:
+> We check lengths, checksum and the DOI.  We leave checking of the
+> level and categories for the socket layer.
 >
+> Signed-off-by: Huw Davies <huw@codeweavers.com>
+> ---
+>  include/net/calipso.h |  6 ++++++
+>  net/ipv6/calipso.c    | 42 ++++++++++++++++++++++++++++++++++++++++++
+>  net/ipv6/exthdrs.c    | 27 +++++++++++++++++++++++++++
+>  3 files changed, 75 insertions(+)
 >
->> -----Original Message-----
->> From: James Carter [mailto:jwcart2@tycho.nsa.gov]
->> Sent: Friday, May 6, 2016 12:47 PM
->> To: Roberts, William C <william.c.roberts@intel.com>; William Roberts
->> <bill.c.roberts@gmail.com>
->> Cc: selinux@tycho.nsa.gov
->> Subject: Re: [PATCH] libsepol: Change which attributes CIL keeps in the binary
->> policy
->>
->> On 05/06/2016 03:39 PM, Roberts, William C wrote:
->>>
->>>
->>>> -----Original Message-----
->>>> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of
->>>> Roberts, William C
->>>> Sent: Friday, May 6, 2016 12:25 PM
->>>> To: William Roberts <bill.c.roberts@gmail.com>; James Carter
->>>> <jwcart2@tycho.nsa.gov>
->>>> Cc: selinux@tycho.nsa.gov
->>>> Subject: RE: [PATCH] libsepol: Change which attributes CIL keeps in
->>>> the binary policy
->>>>
->>>>
->>>>
->>>> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of
->>>> William Roberts
->>>> Sent: Friday, May 6, 2016 12:16 PM
->>>> To: James Carter <jwcart2@tycho.nsa.gov>
->>>> Cc: selinux@tycho.nsa.gov
->>>> Subject: Re: [PATCH] libsepol: Change which attributes CIL keeps in
->>>> the binary policy
->>>>
->>>>
->>>> On May 6, 2016 11:58 AM, "James Carter" <jwcart2@tycho.nsa.gov> wrote:
->>>>>
->>>>> The removal of attributes that are only used in neverallow rules is
->>>>> hindering AOSP adoption of the CIL compiler. This is because AOSP
->>>>> extracts neverallow rules from its policy.conf for use in the
->>>>> Android compatibility test suite. These neverallow rules are applied
->>>>> against the binary policy being tested to check for a violation. Any
->>>>> neverallow rules with an attribute that has been removed cannot be
->> checked.
->>>>>
->>>>> Now attributes are kept unless they are not used in any allow rule
->>>>> and they are auto-generated or named "cil_gen_require" or do not
->>>>> have any types associated with them.
->>>>
->>>> I see now, you’re keeping them unless they are generated or marked.
->>>
->>> I'm still not convinced  this does what's on the tin. In the case of
->>> AOSP, the Attributes are not used in any allow rules, they are not
->>> auto-generated or named cil_gen_require And they will not have any types
->> associated with them. So I see them being discarded.
->>>
->>
->> If they don't have types associated with them, then I misunderstood the problem
->> and we will have to keep the attributes without types around.
+> diff --git a/include/net/calipso.h b/include/net/calipso.h
+> index 38dbb47..85404e2 100644
+> --- a/include/net/calipso.h
+> +++ b/include/net/calipso.h
+> @@ -65,6 +65,7 @@ struct calipso_doi {
+>  #ifdef CONFIG_NETLABEL
+>  int __init calipso_init(void);
+>  void calipso_exit(void);
+> +bool calipso_validate(const struct sk_buff *skb, const unsigned char *option);
+>  #else
+>  static inline int __init calipso_init(void)
+>  {
+> @@ -74,6 +75,11 @@ static inline int __init calipso_init(void)
+>  static inline void calipso_exit(void)
+>  {
+>  }
+> +static inline bool calipso_validate(const struct sk_buff *skb,
+> +                                   const unsigned char *option)
+> +{
+> +       return true;
+> +}
+>  #endif /* CONFIG_NETLABEL */
 >
-> This is pretty much all my understanding on this issue is from this link:
+>  #endif /* _CALIPSO_H */
+> diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
+> index fa371a8..b8bcf9f 100644
+> --- a/net/ipv6/calipso.c
+> +++ b/net/ipv6/calipso.c
+> @@ -321,6 +321,48 @@ doi_walk_return:
+>  }
 >
-> Per sds:
-> https://android-review.googlesource.com/#/c/145034/
->
-> "CIL also deletes unused attributes from the kernel policy, which is a problem for the Android neverallow checking.  It considers an attribute that is only referenced by a neverallow rule to be unused since neverallows are not included in the kernel policy, so this drops data_file_type from the kernel policy.  But we then would lose checking of the various neverallows on data_file_type by CTS." - sds
->
-> Looking through the policy in file.te:
->
-> file.te:151:type app_data_file, file_type, data_file_type;
-> file.te:153:type system_app_data_file, file_type, data_file_type, mlstrustedobject;
-> file.te:169:type asec_apk_file, file_type, data_file_type, mlstrustedobject;
-> file.te:171:type asec_public_file, file_type, data_file_type;
-> file.te:173:type asec_image_file, file_type, data_file_type;
-> file.te:175:type backup_data_file, file_type, data_file_type, mlstrustedobject;
->
-> Data file type does have type associations, but it does NOT have allow rules.
->
-> So when this gets generated to cil, how is indicated in cil intermediary not
-> to discard that data_file_type attribute?
->
+>  /**
+> + * calipso_validate - Validate a CALIPSO option
+> + * @skb: the packet
+> + * @option: the start of the option
+> + *
+> + * Description:
+> + * This routine is called to validate a CALIPSO option.
+> + * If the option is valid then a zero value is returned.  If the
+> + * option is invalid then a non-zero value is returned and
+> + * representing the offset to the offending portion of the option.
+> + *
+> + * The caller should have already checked that the length of the
+> + * option (including the TLV header) is >= 10 and that the catmap
+> + * length is consistent with the option length.
+> + *
+> + * We leave checks on the level and categories to the socket layer.
+> + */
+> +bool calipso_validate(const struct sk_buff *skb, const unsigned char *option)
+> +{
+> +       struct calipso_doi *doi_def;
+> +       int ret_val;
+> +       u16 crc, len = option[1] + 2;
+> +       static const u8 zero[2];
+> +
+> +       /* The original CRC runs over the option including the TLV header
+> +        * with the CRC-16 field (at offset 8) zeroed out. */
+> +       crc = crc_ccitt(0xffff, option, 8);
+> +       crc = crc_ccitt(crc, zero, sizeof(zero));
+> +       if (len > 10)
+> +               crc = crc_ccitt(crc, option + 10, len - 10);
+> +       crc = ~crc;
 
-It is not named "gen_require_attr", not a generated type with "_typeattr_" in 
-the middle, and it does have types associated with it, so 
-cil_typeattribute_used() will return CIL_TRUE and it will be kept.
+I should have caught this in the v2 patchset when I mentioned it with
+respect to the CRC generation, but why not simply do 'crc =
+~crc_cccitt(...);'?
 
-Jim
+Also, while I'm looking at this, why not do the CRC verification in
+ipv6_hop_calipso()?  The only thing we should need to do here is the
+DOI lookup/verification so that we still work correctly when
+CONFIG_NETLABEL=n; all the core protocol stuff, e.g. length and
+checksum validation, should be done in the core stack functions, e.g.
+ipv6_hop_calipso().
 
->>
->> Jim
->>
->>> I would imagine that a match on cil_gen_require, would yield the same result as
->> cil_attr->used.
->>> Perhaps that if cil_gen_require causes a discard, the name is bad?
->>>
->>> Can you perhaps tell me I am idiot and maybe find a more clear way to describe
->> this.
->>>>
->>>>>
->>>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
->>>>> ---
->>>>>  libsepol/cil/src/cil_post.c  | 27 +++++++++++++++++++++++++++
->>>>> libsepol/src/module_to_cil.c |  8 +++++---
->>>>>  2 files changed, 32 insertions(+), 3 deletions(-)
->>>>>
->>>>> diff --git a/libsepol/cil/src/cil_post.c
->>>>> b/libsepol/cil/src/cil_post.c index a694b33..f8447c9 100644
->>>>> --- a/libsepol/cil/src/cil_post.c
->>>>> +++ b/libsepol/cil/src/cil_post.c
->>>>> @@ -47,6 +47,9 @@
->>>>>  #include "cil_verify.h"
->>>>>  #include "cil_symtab.h"
->>>>>
->>>>> +#define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in
->>>>> +libsepol/src/module_to_cil.c */ #define TYPEATTR_INFIX "_typeattr_"
->>>>> +/* Also in libsepol/src/module_to_cil.c */
->>>>> +
->>>>>  static int __cil_expr_to_bitmap(struct cil_list *expr, ebitmap_t
->>>>> *out, int max, struct cil_db *db);  static int
->>>>> __cil_expr_list_to_bitmap(struct cil_list *expr_list, ebitmap_t
->>>>> *out, int max, struct cil_db *db);
->>>>>
->>>>> @@ -1186,6 +1189,27 @@ exit:
->>>>>         return SEPOL_ERR;
->>>>>  }
->>>>>
->>>>> +static int cil_typeattribute_used(struct cil_typeattribute
->>>>> +*cil_attr) {
->>>>> +       if (cil_attr->used) {
->>>>> +               return CIL_TRUE;
->>>>> +       }
->>>>> +
->>>>> +       if (strcmp(DATUM(cil_attr)->name, GEN_REQUIRE_ATTR) == 0) {
->>>>> +               return CIL_FALSE;
->>>> Just by reading this patch with 0 knowledge of cil, I would imagine
->>>> this would be CIL_TRUE on a match with GEN_REQUIRED_ATTR. Especially
->>>> since cardinality 0 below returns false.
->>>>> +       }
->>>>> +
->>>>> +       if (strstr(DATUM(cil_attr)->name,TYPEATTR_INFIX) != NULL) {
->>>>> +               return CIL_FALSE;
->>>>> +       }
->>>>> +
->>>>> +       if (ebitmap_cardinality(cil_attr->types) == 0) {
->>>>> +               return CIL_FALSE;
->>>>> +       }
->>>>> +
->>>>> +       return CIL_TRUE;
->>>>> +}
->>>>> +
->>>>>  static int __cil_post_db_attr_helper(struct cil_tree_node *node,
->>>>> uint32_t *finished, void *extra_args)  {
->>>>>         int rc = SEPOL_ERR;
->>>>> @@ -1208,6 +1232,9 @@ static int __cil_post_db_attr_helper(struct
->>>>> cil_tree_node *node, uint32_t *finis
->>>>>                 if (attr->types == NULL) {
->>>>>                         rc = __evaluate_type_expression(attr, db);
->>>>>                         if (rc != SEPOL_OK) goto exit;
->>>>> +                       if (cil_typeattribute_used(attr)) {
->>>>> +                               attr->used = CIL_TRUE;
->>>>> +                       }
->>>>>                 }
->>>>>                 break;
->>>>>         }
->>>>> diff --git a/libsepol/src/module_to_cil.c
->>>>> b/libsepol/src/module_to_cil.c index b9a4af7..bcbb4de 100644
->>>>> --- a/libsepol/src/module_to_cil.c
->>>>> +++ b/libsepol/src/module_to_cil.c
->>>>> @@ -58,7 +58,9 @@ FILE *out_file;
->>>>>  #define STACK_SIZE 16
->>>>>  #define DEFAULT_LEVEL "systemlow"
->>>>>  #define DEFAULT_OBJECT "object_r"
->>>>> -#define GEN_REQUIRE_ATTR "cil_gen_require"
->>>>> +#define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in
->>>>> +libsepol/cil/src/cil_post.c */ #define TYPEATTR_INFIX "_typeattr_"
->>>>> +/* Also in libsepol/cil/src/cil_post.c */ #define ROLEATTR_INFIX
->> "_roleattr_"
->>>>>
->>>>>  __attribute__ ((format(printf, 1, 2)))  static void log_err(const
->>>>> char *fmt, ...) @@ -626,9 +628,9 @@ static int
->>>>> set_to_cil_attr(struct policydb *pdb, int is_type, char ***names,
->>>>> uin
->>>>>         num_attrs++;
->>>>>
->>>>>         if (is_type) {
->>>>> -               attr_infix = "_typeattr_";
->>>>> +               attr_infix = TYPEATTR_INFIX;
->>>>>         } else {
->>>>> -               attr_infix = "_roleattr_";
->>>>> +               attr_infix = ROLEATTR_INFIX;
->>>>>         }
->>>>>
->>>>>         len = strlen(pdb->name) + strlen(attr_infix) +
->>>>> num_digits(num_attrs) + 1;
->>>>> --
->>>>> 2.5.5
->>>>>
->>>>> _______________________________________________
->>>>> Selinux mailing list
->>>>> Selinux@tycho.nsa.gov
->>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>>> To get help, send an email containing "help" to Selinux-
->> request@tycho.nsa.gov.
->>>>
->>>> _______________________________________________
->>>> Selinux mailing list
->>>> Selinux@tycho.nsa.gov
->>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>> To get help, send an email containing "help" to Selinux-
->> request@tycho.nsa.gov.
->>
->>
->> --
->> James Carter <jwcart2@tycho.nsa.gov>
->> National Security Agency
-
+> +       if (option[8] != (crc & 0xff) || option[9] != ((crc >> 8) & 0xff))
+> +               return false;
+> +
+> +       rcu_read_lock();
+> +       doi_def = calipso_doi_search(get_unaligned_be32(option + 2));
+> +       ret_val = !!doi_def;
+> +       rcu_read_unlock();
+> +
+> +       return ret_val;
+> +}
+> +
+> +/**
+>   * calipso_map_cat_hton - Perform a category mapping from host to network
+>   * @doi_def: the DOI definition
+>   * @secattr: the security attributes
+> diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
+> index d5fd3e7..0f69cab 100644
+> --- a/net/ipv6/exthdrs.c
+> +++ b/net/ipv6/exthdrs.c
+> @@ -43,6 +43,7 @@
+>  #include <net/ndisc.h>
+>  #include <net/ip6_route.h>
+>  #include <net/addrconf.h>
+> +#include <net/calipso.h>
+>  #if IS_ENABLED(CONFIG_IPV6_MIP6)
+>  #include <net/xfrm.h>
+>  #endif
+> @@ -603,6 +604,28 @@ drop:
+>         return false;
+>  }
+>
+> +/* CALIPSO RFC 5570 */
+> +
+> +static bool ipv6_hop_calipso(struct sk_buff *skb, int optoff)
+> +{
+> +       const unsigned char *nh = skb_network_header(skb);
+> +
+> +       if (nh[optoff + 1] < 8)
+> +               goto drop;
+> +
+> +       if (nh[optoff + 6] * 4 + 8 > nh[optoff + 1])
+> +               goto drop;
+> +
+> +       if (!calipso_validate(skb, nh + optoff))
+> +               goto drop;
+> +
+> +       return true;
+> +
+> +drop:
+> +       kfree_skb(skb);
+> +       return false;
+> +}
+> +
+>  static const struct tlvtype_proc tlvprochopopt_lst[] = {
+>         {
+>                 .type   = IPV6_TLV_ROUTERALERT,
+> @@ -612,6 +635,10 @@ static const struct tlvtype_proc tlvprochopopt_lst[] = {
+>                 .type   = IPV6_TLV_JUMBO,
+>                 .func   = ipv6_hop_jumbo,
+>         },
+> +       {
+> +               .type   = IPV6_TLV_CALIPSO,
+> +               .func   = ipv6_hop_calipso,
+> +       },
+>         { -1, }
+>  };
+>
+> --
+> 2.7.0
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+paul moore
+www.paul-moore.com
