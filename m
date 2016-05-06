@@ -1,75 +1,112 @@
-Subject: Re: [PATCH 0/6 v3] libsepol/cil: Add high-level language line marking
- support
-To: Steve Lawrence <slawrence@tresys.com>, selinux@tycho.nsa.gov
-References: <1462481059-12437-1-git-send-email-jwcart2@tycho.nsa.gov>
- <232fa568-8a05-91e4-9785-c3d945282d08@tresys.com>
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u46It5h7009954
+ for <selinux@tycho.nsa.gov>; Fri, 6 May 2016 14:55:05 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <89bfe20a-22ed-06f2-8885-52d056adecb8@tycho.nsa.gov>
-Date: Fri, 6 May 2016 09:46:22 -0400
-MIME-Version: 1.0
-In-Reply-To: <232fa568-8a05-91e4-9785-c3d945282d08@tresys.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: Change which attributes CIL keeps in the binary
+ policy
+Date: Fri,  6 May 2016 14:56:43 -0400
+Message-Id: <1462561003-2629-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/06/2016 08:34 AM, Steve Lawrence wrote:
-> On 05/05/2016 04:44 PM, James Carter wrote:
->> This patch set adds support for tracking original file and line numbers for better
->> error reporting when a high-level language is translated into CIL. It then uses
->> that support to provide better error reporting for neverallow rules after
->> generating CIL with checkpolicy or checkmodule. (Unfortunately, the original line
->> number information is not saved in the pp file, so there is no benefit for policy
->> modules.)
->>
->> Changes in V2:
->> - Only ";;*" at the beginning of a line indicates an HL line mark.
->> - When cil_tree_get_next_path() encounters a call or blockinherit it will
->> continue searching the AST from the associated macro or block.
->>
->> Changes in V3:
->> - Changed the format of the message printed by cil_tree_log():
->>   Before:
->>     Problem at line 21 of policy.cil (from line 11 of foo.hll) (from line 2 of bar.hll)
->>   Now:
->>     Problem at policy.cil:21 from foo.hll:11 from bar.hll:2
->>
->> James Carter (6):
->>   libsepol/cil: Add high-level language line marking support
->>   libsepol/cil: Store CIL filename in parse tree and AST
->>   libsepol/cil: Add cil_tree_log() and supporting functions
->>   libsepol/cil: Replace cil_log() calls with cil_tree_log()
->>   libsepol/cil: Remove path field from cil_tree_node struct
->>   libsepol: When generating CIL use HLL line mark for neverallows
->
-> Acked-by: Steve Lawrence <slawrence@tresys.com>
+The removal of attributes that are only used in neverallow rules is
+hindering AOSP adoption of the CIL compiler. This is because AOSP
+extracts neverallow rules from its policy.conf for use in the Android
+compatibility test suite. These neverallow rules are applied against
+the binary policy being tested to check for a violation. Any neverallow
+rules with an attribute that has been removed cannot be checked.
 
-Thanks for the review.
+Now attributes are kept unless they are not used in any allow rule and
+they are auto-generated or named "cil_gen_require" or do not have any
+types associated with them.
 
-Applied.
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ libsepol/cil/src/cil_post.c  | 27 +++++++++++++++++++++++++++
+ libsepol/src/module_to_cil.c |  8 +++++---
+ 2 files changed, 32 insertions(+), 3 deletions(-)
 
->
->>  libsepol/cil/src/cil.c             |  22 ++-
->>  libsepol/cil/src/cil_binary.c      |  45 +++---
->>  libsepol/cil/src/cil_build_ast.c   | 294 +++++++++++++++----------------------
->>  libsepol/cil/src/cil_build_ast.h   |   2 +
->>  libsepol/cil/src/cil_copy_ast.c    |  24 ++-
->>  libsepol/cil/src/cil_flavor.h      |   1 +
->>  libsepol/cil/src/cil_fqn.c         |   2 +-
->>  libsepol/cil/src/cil_internal.h    |   9 ++
->>  libsepol/cil/src/cil_lexer.h       |   6 +-
->>  libsepol/cil/src/cil_lexer.l       |  15 +-
->>  libsepol/cil/src/cil_parser.c      | 259 +++++++++++++++++++++++++++-----
->>  libsepol/cil/src/cil_resolve_ast.c |  51 +++----
->>  libsepol/cil/src/cil_tree.c        |  96 +++++++++++-
->>  libsepol/cil/src/cil_tree.h        |   6 +-
->>  libsepol/cil/src/cil_verify.c      |  83 +++++------
->>  libsepol/src/module_to_cil.c       |   8 +
->>  16 files changed, 590 insertions(+), 333 deletions(-)
->>
-
-
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index a694b33..f8447c9 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -47,6 +47,9 @@
+ #include "cil_verify.h"
+ #include "cil_symtab.h"
+ 
++#define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
++#define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/src/module_to_cil.c */
++
+ static int __cil_expr_to_bitmap(struct cil_list *expr, ebitmap_t *out, int max, struct cil_db *db);
+ static int __cil_expr_list_to_bitmap(struct cil_list *expr_list, ebitmap_t *out, int max, struct cil_db *db);
+ 
+@@ -1186,6 +1189,27 @@ exit:
+ 	return SEPOL_ERR;
+ }
+ 
++static int cil_typeattribute_used(struct cil_typeattribute *cil_attr)
++{
++	if (cil_attr->used) {
++		return CIL_TRUE;
++	}
++
++	if (strcmp(DATUM(cil_attr)->name, GEN_REQUIRE_ATTR) == 0) {
++		return CIL_FALSE;
++	}
++
++	if (strstr(DATUM(cil_attr)->name,TYPEATTR_INFIX) != NULL) {
++		return CIL_FALSE;
++	}
++
++	if (ebitmap_cardinality(cil_attr->types) == 0) {
++		return CIL_FALSE;
++	}
++
++	return CIL_TRUE;
++}
++
+ static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -1208,6 +1232,9 @@ static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finis
+ 		if (attr->types == NULL) {
+ 			rc = __evaluate_type_expression(attr, db);
+ 			if (rc != SEPOL_OK) goto exit;
++			if (cil_typeattribute_used(attr)) {
++				attr->used = CIL_TRUE;
++			}
+ 		}
+ 		break;
+ 	}
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index b9a4af7..bcbb4de 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -58,7 +58,9 @@ FILE *out_file;
+ #define STACK_SIZE 16
+ #define DEFAULT_LEVEL "systemlow"
+ #define DEFAULT_OBJECT "object_r"
+-#define GEN_REQUIRE_ATTR "cil_gen_require"
++#define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/cil/src/cil_post.c */
++#define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/cil/src/cil_post.c */
++#define ROLEATTR_INFIX "_roleattr_"
+ 
+ __attribute__ ((format(printf, 1, 2)))
+ static void log_err(const char *fmt, ...)
+@@ -626,9 +628,9 @@ static int set_to_cil_attr(struct policydb *pdb, int is_type, char ***names, uin
+ 	num_attrs++;
+ 
+ 	if (is_type) {
+-		attr_infix = "_typeattr_";
++		attr_infix = TYPEATTR_INFIX;
+ 	} else {
+-		attr_infix = "_roleattr_";
++		attr_infix = ROLEATTR_INFIX;
+ 	}
+ 
+ 	len = strlen(pdb->name) + strlen(attr_infix) + num_digits(num_attrs) + 1;
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.5.5
