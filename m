@@ -1,183 +1,98 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u46MxZn5002505
- for <selinux@tycho.nsa.gov>; Fri, 6 May 2016 18:59:36 -0400
-Received: by mail-ob0-f179.google.com with SMTP id dm5so58977354obc.1
- for <selinux@tycho.nsa.gov>; Fri, 06 May 2016 15:59:33 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u46N7sRA004745
+ for <selinux@tycho.nsa.gov>; Fri, 6 May 2016 19:07:54 -0400
+Received: by mail-ob0-f169.google.com with SMTP id dm5so59047452obc.1
+ for <selinux@tycho.nsa.gov>; Fri, 06 May 2016 16:07:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1455715329-9601-18-git-send-email-huw@codeweavers.com>
-References: <1455715329-9601-18-git-send-email-huw@codeweavers.com>
-Date: Fri, 6 May 2016 18:59:32 -0400
-Message-ID: <CAHC9VhTRp8bHgwxZ2YNj=pa2a4PtO=8jJT1siG99GiFYnwm53Q@mail.gmail.com>
-Subject: Re: [RFC PATCH v3 17/19] calipso: Add validation of CALIPSO option.
+In-Reply-To: <1455715329-9601-1-git-send-email-huw@codeweavers.com>
+References: <1455715329-9601-1-git-send-email-huw@codeweavers.com>
+Date: Fri, 6 May 2016 19:07:51 -0400
+Message-ID: <CAHC9VhRJSHyJdKUOTG6r3T5sveVh6ACHKpavH=Ke5oO4Fsa+EA@mail.gmail.com>
+Subject: Re: [RFC PATCH v3 00/19] CALIPSO Implementation
 From: Paul Moore <paul@paul-moore.com>
-To: Huw Davies <huw@codeweavers.com>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, Paul Moore <pmoore@redhat.com>
+To: Huw Davies <huw@codeweavers.com>, netdev@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 17, 2016 at 8:22 AM, Huw Davies <huw@codeweavers.com> wrote:
-> We check lengths, checksum and the DOI.  We leave checking of the
-> level and categories for the socket layer.
+On Wed, Feb 17, 2016 at 8:21 AM, Huw Davies <huw@codeweavers.com> wrote:
+> This patch series implements RFC 5570 - Common Architecture Label IPv6
+> Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
+> on IPv6 packets using a hop-by-hop option.  CALIPSO is very similar to
+> its IPv4 cousin CIPSO and much of this series is based on that code.
 >
-> Signed-off-by: Huw Davies <huw@codeweavers.com>
-> ---
->  include/net/calipso.h |  6 ++++++
->  net/ipv6/calipso.c    | 42 ++++++++++++++++++++++++++++++++++++++++++
->  net/ipv6/exthdrs.c    | 27 +++++++++++++++++++++++++++
->  3 files changed, 75 insertions(+)
+> If anybody actually wants to play with this, then you'll need some patches
+> to netlabel-tools that are currently available on the 'calipso' branch at:
+> https://github.com/hdmdavies/netlabel_tools.git .  The protocol has changed
+> very slightly from the v2 patches, so please update to the latest.
 >
-> diff --git a/include/net/calipso.h b/include/net/calipso.h
-> index 38dbb47..85404e2 100644
-> --- a/include/net/calipso.h
-> +++ b/include/net/calipso.h
-> @@ -65,6 +65,7 @@ struct calipso_doi {
->  #ifdef CONFIG_NETLABEL
->  int __init calipso_init(void);
->  void calipso_exit(void);
-> +bool calipso_validate(const struct sk_buff *skb, const unsigned char *option);
->  #else
->  static inline int __init calipso_init(void)
->  {
-> @@ -74,6 +75,11 @@ static inline int __init calipso_init(void)
->  static inline void calipso_exit(void)
->  {
->  }
-> +static inline bool calipso_validate(const struct sk_buff *skb,
-> +                                   const unsigned char *option)
-> +{
-> +       return true;
-> +}
->  #endif /* CONFIG_NETLABEL */
+> This patch series is based off v4.5-rc4.
 >
->  #endif /* _CALIPSO_H */
-> diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
-> index fa371a8..b8bcf9f 100644
-> --- a/net/ipv6/calipso.c
-> +++ b/net/ipv6/calipso.c
-> @@ -321,6 +321,48 @@ doi_walk_return:
->  }
+> Thanks to Paul Moore, Hannes Frederic Sowa, Casey Schaufler and Julia
+> Lawall for their comments so far.
 >
->  /**
-> + * calipso_validate - Validate a CALIPSO option
-> + * @skb: the packet
-> + * @option: the start of the option
-> + *
-> + * Description:
-> + * This routine is called to validate a CALIPSO option.
-> + * If the option is valid then a zero value is returned.  If the
-> + * option is invalid then a non-zero value is returned and
-> + * representing the offset to the offending portion of the option.
-> + *
-> + * The caller should have already checked that the length of the
-> + * option (including the TLV header) is >= 10 and that the catmap
-> + * length is consistent with the option length.
-> + *
-> + * We leave checks on the level and categories to the socket layer.
-> + */
-> +bool calipso_validate(const struct sk_buff *skb, const unsigned char *option)
-> +{
-> +       struct calipso_doi *doi_def;
-> +       int ret_val;
-> +       u16 crc, len = option[1] + 2;
-> +       static const u8 zero[2];
-> +
-> +       /* The original CRC runs over the option including the TLV header
-> +        * with the CRC-16 field (at offset 8) zeroed out. */
-> +       crc = crc_ccitt(0xffff, option, 8);
-> +       crc = crc_ccitt(crc, zero, sizeof(zero));
-> +       if (len > 10)
-> +               crc = crc_ccitt(crc, option + 10, len - 10);
-> +       crc = ~crc;
+> Changes between v3 and v2:
+>
+> * Change CALIPSO_MAP_PASS to 2.
+> * Move calipso_init() before ipv6_sysctl_register().
+> * Rewrite calipso_tlv_len() to check for overflows.
+> * Simplify calispo_opt_find().
+> * Simplify calipso_opt_insert().
+> * Use calipso_tlv_len() in calipso_sock_getattr().
+> * Simplify calipso_skbuff_setattr().
+> * Return early from netlbl_domhsh_search_def() when a match is found.
+> * Remove nested if from netlbl_domhsh_validate().
+> * Don't return from netlbl_domhsh_add() with lock held.
+> * Various style changes.
+> * Rebased to v4.5-rc4.
+>
+> Changes between v2 and v1:
+>
+> * Simplify ipv6_renew_options_kern() to use set_fs(KERNEL_DS).
+>   Thanks to Hannes Frederic Sowa for suggesting this.
+> * Use the parent socket to account for the listener socket
+>   option's memory usage.  Again, thanks for Hannes for this.
+> * Added netlbl_cfg_calipso_* functions for SMACK.
+> * Rebased to v4.4-rc8.
+>
+> Huw Davies (19):
+>   netlabel: Mark rcu pointers with __rcu.
+>   netlabel: Add an address family to domain hash entries.
+>   netlabel: Initial support for the CALIPSO netlink protocol.
+>   netlabel: Add support for querying a CALIPSO DOI.
+>   netlabel: Add support for enumerating the CALIPSO DOI list.
+>   netlabel: Add support for creating a CALIPSO protocol domain mapping.
+>   netlabel: Add support for removing a CALIPSO DOI.
+>   ipv6: Add ipv6_renew_options_kern() that accepts a kernel mem pointer.
+>   netlabel: Move bitmap manipulation functions to the NetLabel core.
+>   calipso: Set the calipso socket label to match the secattr.
+>   netlabel: Prevent setsockopt() from changing the hop-by-hop option.
+>   ipv6: Allow request socks to contain IPv6 options.
+>   calipso: Allow request sockets to be relabelled by the lsm.
+>   ipv6: constify the skb pointer of ipv6_find_tlv().
+>   calipso: Allow the lsm to label the skbuff directly.
+>   netlabel: Pass a family parameter to netlbl_skbuff_err().
+>   calipso: Add validation of CALIPSO option.
+>   calipso: Add a label cache.
+>   netlabel: Implement CALIPSO config functions for SMACK.
 
-I should have caught this in the v2 patchset when I mentioned it with
-respect to the CRC generation, but why not simply do 'crc =
-~crc_cccitt(...);'?
+Other than the small nit I just mentioned with respect to CALIPSO
+option validation code, this all looks reasonable to me.  I know you
+are in the process of doing interop with Solaris TX folks, assuming
+that goes well I think we are ready to throw this into linux-next with
+an eye towards v4.8.  For the past several weeks I've been including
+this patchset in my Fedora COPR test kernels (located below), others
+are welcome to try it out if they like.
 
-Also, while I'm looking at this, why not do the CRC verification in
-ipv6_hop_calipso()?  The only thing we should need to do here is the
-DOI lookup/verification so that we still work correctly when
-CONFIG_NETLABEL=n; all the core protocol stuff, e.g. length and
-checksum validation, should be done in the core stack functions, e.g.
-ipv6_hop_calipso().
-
-> +       if (option[8] != (crc & 0xff) || option[9] != ((crc >> 8) & 0xff))
-> +               return false;
-> +
-> +       rcu_read_lock();
-> +       doi_def = calipso_doi_search(get_unaligned_be32(option + 2));
-> +       ret_val = !!doi_def;
-> +       rcu_read_unlock();
-> +
-> +       return ret_val;
-> +}
-> +
-> +/**
->   * calipso_map_cat_hton - Perform a category mapping from host to network
->   * @doi_def: the DOI definition
->   * @secattr: the security attributes
-> diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-> index d5fd3e7..0f69cab 100644
-> --- a/net/ipv6/exthdrs.c
-> +++ b/net/ipv6/exthdrs.c
-> @@ -43,6 +43,7 @@
->  #include <net/ndisc.h>
->  #include <net/ip6_route.h>
->  #include <net/addrconf.h>
-> +#include <net/calipso.h>
->  #if IS_ENABLED(CONFIG_IPV6_MIP6)
->  #include <net/xfrm.h>
->  #endif
-> @@ -603,6 +604,28 @@ drop:
->         return false;
->  }
->
-> +/* CALIPSO RFC 5570 */
-> +
-> +static bool ipv6_hop_calipso(struct sk_buff *skb, int optoff)
-> +{
-> +       const unsigned char *nh = skb_network_header(skb);
-> +
-> +       if (nh[optoff + 1] < 8)
-> +               goto drop;
-> +
-> +       if (nh[optoff + 6] * 4 + 8 > nh[optoff + 1])
-> +               goto drop;
-> +
-> +       if (!calipso_validate(skb, nh + optoff))
-> +               goto drop;
-> +
-> +       return true;
-> +
-> +drop:
-> +       kfree_skb(skb);
-> +       return false;
-> +}
-> +
->  static const struct tlvtype_proc tlvprochopopt_lst[] = {
->         {
->                 .type   = IPV6_TLV_ROUTERALERT,
-> @@ -612,6 +635,10 @@ static const struct tlvtype_proc tlvprochopopt_lst[] = {
->                 .type   = IPV6_TLV_JUMBO,
->                 .func   = ipv6_hop_jumbo,
->         },
-> +       {
-> +               .type   = IPV6_TLV_CALIPSO,
-> +               .func   = ipv6_hop_calipso,
-> +       },
->         { -1, }
->  };
->
-> --
-> 2.7.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+DaveM, what is your take on this?  I'm happy to get this into
+linux-next via the SELinux tree, but it does touch some core network
+code (the IPv6 option handling, much in the same way as CIPSO touched
+the IPv4 option handling) and I don't want to push this if you aren't
+okay with it.  Of course if you want to take this via your tree that's
+fine with me too.
 
 -- 
 paul moore
