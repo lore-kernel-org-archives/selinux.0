@@ -1,39 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u45NFJhU017043
- for <selinux@tycho.nsa.gov>; Thu, 5 May 2016 19:15:19 -0400
-Date: Fri, 6 May 2016 09:15:14 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <pmoore@redhat.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [GIT PULL] SELinux patches for 4.7
-In-Reply-To: <2920315.ICEJRqPiXG@sifl>
-Message-ID: <alpine.LRH.2.20.1605060914580.30180@namei.org>
-References: <2920315.ICEJRqPiXG@sifl>
+Subject: Re: [PATCH 0/6 v3] libsepol/cil: Add high-level language line marking
+ support
+To: James Carter <jwcart2@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+References: <1462481059-12437-1-git-send-email-jwcart2@tycho.nsa.gov>
+From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <232fa568-8a05-91e4-9785-c3d945282d08@tresys.com>
+Date: Fri, 6 May 2016 08:34:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1462481059-12437-1-git-send-email-jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 5 May 2016, Paul Moore wrote:
+On 05/05/2016 04:44 PM, James Carter wrote:
+> This patch set adds support for tracking original file and line numbers for better
+> error reporting when a high-level language is translated into CIL. It then uses
+> that support to provide better error reporting for neverallow rules after
+> generating CIL with checkpolicy or checkmodule. (Unfortunately, the original line
+> number information is not saved in the pp file, so there is no benefit for policy
+> modules.)
+> 
+> Changes in V2:
+> - Only ";;*" at the beginning of a line indicates an HL line mark.
+> - When cil_tree_get_next_path() encounters a call or blockinherit it will
+> continue searching the AST from the associated macro or block.
+> 
+> Changes in V3:
+> - Changed the format of the message printed by cil_tree_log():
+>   Before:
+>     Problem at line 21 of policy.cil (from line 11 of foo.hll) (from line 2 of bar.hll)
+>   Now:
+>     Problem at policy.cil:21 from foo.hll:11 from bar.hll:2
+> 
+> James Carter (6):
+>   libsepol/cil: Add high-level language line marking support
+>   libsepol/cil: Store CIL filename in parse tree and AST
+>   libsepol/cil: Add cil_tree_log() and supporting functions
+>   libsepol/cil: Replace cil_log() calls with cil_tree_log()
+>   libsepol/cil: Remove path field from cil_tree_node struct
+>   libsepol: When generating CIL use HLL line mark for neverallows
 
-> The following changes since commit 9735a22799b9214d17d3c231fe377fc852f042e9:
-> 
->   Linux 4.6-rc2 (2016-04-03 09:09:40 -0500)
-> 
-> are available in the git repository at:
-> 
->   git://git.infradead.org/users/pcmoore/selinux stable-4.7
-> 
-> for you to fetch changes up to c2316dbf124257ae19fd2e29cb5ec51060649d38:
-> 
->   selinux: apply execstack check on thread stacks (2016-04-26 15:47:57 -0400)
-> 
+Acked-by: Steve Lawrence <slawrence@tresys.com>
 
-Pulled.
-
-
--- 
-James Morris
-<jmorris@namei.org>
+>  libsepol/cil/src/cil.c             |  22 ++-
+>  libsepol/cil/src/cil_binary.c      |  45 +++---
+>  libsepol/cil/src/cil_build_ast.c   | 294 +++++++++++++++----------------------
+>  libsepol/cil/src/cil_build_ast.h   |   2 +
+>  libsepol/cil/src/cil_copy_ast.c    |  24 ++-
+>  libsepol/cil/src/cil_flavor.h      |   1 +
+>  libsepol/cil/src/cil_fqn.c         |   2 +-
+>  libsepol/cil/src/cil_internal.h    |   9 ++
+>  libsepol/cil/src/cil_lexer.h       |   6 +-
+>  libsepol/cil/src/cil_lexer.l       |  15 +-
+>  libsepol/cil/src/cil_parser.c      | 259 +++++++++++++++++++++++++++-----
+>  libsepol/cil/src/cil_resolve_ast.c |  51 +++----
+>  libsepol/cil/src/cil_tree.c        |  96 +++++++++++-
+>  libsepol/cil/src/cil_tree.h        |   6 +-
+>  libsepol/cil/src/cil_verify.c      |  83 +++++------
+>  libsepol/src/module_to_cil.c       |   8 +
+>  16 files changed, 590 insertions(+), 333 deletions(-)
+> 
