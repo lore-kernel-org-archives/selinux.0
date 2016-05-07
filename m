@@ -1,99 +1,118 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u46N7sRA004745
- for <selinux@tycho.nsa.gov>; Fri, 6 May 2016 19:07:54 -0400
-Received: by mail-ob0-f169.google.com with SMTP id dm5so59047452obc.1
- for <selinux@tycho.nsa.gov>; Fri, 06 May 2016 16:07:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1455715329-9601-1-git-send-email-huw@codeweavers.com>
-References: <1455715329-9601-1-git-send-email-huw@codeweavers.com>
-Date: Fri, 6 May 2016 19:07:51 -0400
-Message-ID: <CAHC9VhRJSHyJdKUOTG6r3T5sveVh6ACHKpavH=Ke5oO4Fsa+EA@mail.gmail.com>
-Subject: Re: [RFC PATCH v3 00/19] CALIPSO Implementation
-From: Paul Moore <paul@paul-moore.com>
-To: Huw Davies <huw@codeweavers.com>, netdev@vger.kernel.org,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAN=9EoTdFQFWLNakFYFKEW5co8HV3ewbK9KGtB_Zk21AZYTgMA@mail.gmail.com>
+References: <CAN=9EoTdFQFWLNakFYFKEW5co8HV3ewbK9KGtB_Zk21AZYTgMA@mail.gmail.com>
+Date: Sat, 7 May 2016 00:51:21 -0700
+Message-ID: <CAN=9EoTpqTGGLy0Gk_UjHF4q5+hwasUJqtfpoFdgwHWnDGyg+g@mail.gmail.com>
+Subject: Re: Selinux Docker issues
+From: Naina Emmanuel <nemmanuel1992@gmail.com>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov,
+ jwcart2@tycho.nsa.gov, david.d.merritt@gmail.com,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=f46d042a0bdd61e9b405323bd754
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 17, 2016 at 8:21 AM, Huw Davies <huw@codeweavers.com> wrote:
-> This patch series implements RFC 5570 - Common Architecture Label IPv6
-> Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
-> on IPv6 packets using a hop-by-hop option.  CALIPSO is very similar to
-> its IPv4 cousin CIPSO and much of this series is based on that code.
->
-> If anybody actually wants to play with this, then you'll need some patches
-> to netlabel-tools that are currently available on the 'calipso' branch at:
-> https://github.com/hdmdavies/netlabel_tools.git .  The protocol has changed
-> very slightly from the v2 patches, so please update to the latest.
->
-> This patch series is based off v4.5-rc4.
->
-> Thanks to Paul Moore, Hannes Frederic Sowa, Casey Schaufler and Julia
-> Lawall for their comments so far.
->
-> Changes between v3 and v2:
->
-> * Change CALIPSO_MAP_PASS to 2.
-> * Move calipso_init() before ipv6_sysctl_register().
-> * Rewrite calipso_tlv_len() to check for overflows.
-> * Simplify calispo_opt_find().
-> * Simplify calipso_opt_insert().
-> * Use calipso_tlv_len() in calipso_sock_getattr().
-> * Simplify calipso_skbuff_setattr().
-> * Return early from netlbl_domhsh_search_def() when a match is found.
-> * Remove nested if from netlbl_domhsh_validate().
-> * Don't return from netlbl_domhsh_add() with lock held.
-> * Various style changes.
-> * Rebased to v4.5-rc4.
->
-> Changes between v2 and v1:
->
-> * Simplify ipv6_renew_options_kern() to use set_fs(KERNEL_DS).
->   Thanks to Hannes Frederic Sowa for suggesting this.
-> * Use the parent socket to account for the listener socket
->   option's memory usage.  Again, thanks for Hannes for this.
-> * Added netlbl_cfg_calipso_* functions for SMACK.
-> * Rebased to v4.4-rc8.
->
-> Huw Davies (19):
->   netlabel: Mark rcu pointers with __rcu.
->   netlabel: Add an address family to domain hash entries.
->   netlabel: Initial support for the CALIPSO netlink protocol.
->   netlabel: Add support for querying a CALIPSO DOI.
->   netlabel: Add support for enumerating the CALIPSO DOI list.
->   netlabel: Add support for creating a CALIPSO protocol domain mapping.
->   netlabel: Add support for removing a CALIPSO DOI.
->   ipv6: Add ipv6_renew_options_kern() that accepts a kernel mem pointer.
->   netlabel: Move bitmap manipulation functions to the NetLabel core.
->   calipso: Set the calipso socket label to match the secattr.
->   netlabel: Prevent setsockopt() from changing the hop-by-hop option.
->   ipv6: Allow request socks to contain IPv6 options.
->   calipso: Allow request sockets to be relabelled by the lsm.
->   ipv6: constify the skb pointer of ipv6_find_tlv().
->   calipso: Allow the lsm to label the skbuff directly.
->   netlabel: Pass a family parameter to netlbl_skbuff_err().
->   calipso: Add validation of CALIPSO option.
->   calipso: Add a label cache.
->   netlabel: Implement CALIPSO config functions for SMACK.
+--f46d042a0bdd61e9b405323bd754
+Content-Type: text/plain; charset=UTF-8
 
-Other than the small nit I just mentioned with respect to CALIPSO
-option validation code, this all looks reasonable to me.  I know you
-are in the process of doing interop with Solaris TX folks, assuming
-that goes well I think we are ready to throw this into linux-next with
-an eye towards v4.8.  For the past several weeks I've been including
-this patchset in my Fedora COPR test kernels (located below), others
-are welcome to try it out if they like.
+I have configured mls with permissive mode in centos7, but on reboot it
+leaves some of the services as labelled and some as unlabeled.... Even
+docker running as unconfined_t
+When I configure mls with enforcing mode my system doesn't get boot and
+stops working!
 
-DaveM, what is your take on this?  I'm happy to get this into
-linux-next via the SELinux tree, but it does touch some core network
-code (the IPv6 option handling, much in the same way as CIPSO touched
-the IPv4 option handling) and I don't want to push this if you aren't
-okay with it.  Of course if you want to take this via your tree that's
-fine with me too.
+How can we solve this issue??
 
--- 
-paul moore
-www.paul-moore.com
+Thanks in advance
+
+Engr. Naina Emmanuel
+On May 5, 2016 11:32 AM, "Naina Emmanuel" <nemmanuel1992@gmail.com> wrote:
+
+> Good Morning,
+> I am working on docker and its securituy through SElinux, I am facing some
+> problems and have some Questions to ask...
+>
+> Q1: If for the containers, we have MLS policy to be configured
+> SelinuxType=mls in /etc/selinux/config,  then on the host for other modules
+> we have targeted policy, how can take these two different types
+> simultaneously ?
+>
+> Q2: Docker is running on my Centos7, still it is giving unconfined_t label
+> on docker process, (policy is configured as selinuxtype=mls and
+> selinux=permissive)
+>
+> Q3: In targeted rpm package i have found namespace.te and cgroup.te, if
+> docker works on mls, then why these policy modules are given in targeted
+> rpm?
+>
+> Q4: Where is mls policy is located? As we have .te policy for targeted
+>
+>
+> please guide me in these regard
+>
+> Thanks in advance
+>
+>
+>
+>
+>
+> *Engr. Naina Emmanuel*
+> *Linux Essential Certified (LEPDC)*
+> *Cisco Certified Network Associate (CCNA)*
+>
+> *Computer Engineering Department, UET Taxila*
+>
+> *Information Security, CS Department, CIIT Islamabad*
+>
+
+--f46d042a0bdd61e9b405323bd754
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<p dir=3D"ltr">I have configured mls with permissive mode in centos7, but o=
+n reboot it leaves some of the services as labelled and some as unlabeled..=
+.. Even docker running as unconfined_t<br>
+When I configure mls with enforcing mode my system doesn&#39;t get boot and=
+ stops working!</p>
+<p dir=3D"ltr">How can we solve this issue??</p>
+<p dir=3D"ltr">Thanks in advance</p>
+<p dir=3D"ltr">Engr. Naina Emmanuel</p>
+<div class=3D"gmail_quote">On May 5, 2016 11:32 AM, &quot;Naina Emmanuel&qu=
+ot; &lt;<a href=3D"mailto:nemmanuel1992@gmail.com">nemmanuel1992@gmail.com<=
+/a>&gt; wrote:<br type=3D"attribution"><blockquote class=3D"gmail_quote" st=
+yle=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div =
+dir=3D"ltr"><div><div><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><d=
+iv dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=
+=3D"ltr"><div>Good Morning,</div><div>I am working on docker and its securi=
+tuy through SElinux, I am facing some problems and have some Questions to a=
+sk...</div><div><br></div><div>Q1: If for the containers, we have MLS polic=
+y to be configured SelinuxType=3Dmls in /etc/selinux/config, =C2=A0then on =
+the host for other modules we have targeted policy, how can take these two =
+different types simultaneously ?=C2=A0</div><div><br></div><div>Q2: Docker =
+is running on my Centos7, still it is giving unconfined_t label on docker p=
+rocess, (policy is configured as selinuxtype=3Dmls and selinux=3Dpermissive=
+)</div><div><br></div><div>Q3: In targeted rpm package i have found namespa=
+ce.te and cgroup.te, if docker works on mls, then why these policy modules =
+are given in targeted rpm?</div><div><br></div><div>Q4: Where is mls policy=
+ is located? As we have .te policy for targeted=C2=A0</div><div><br></div><=
+div><br></div><div>please guide me in these regard</div><div><br></div><div=
+>Thanks in advance</div><font size=3D"4"><div><br></div><div style=3D"font-=
+weight:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font-we=
+ight:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font-weig=
+ht:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font-weight=
+:bold"><font size=3D"4"><b><br></b></font></div><font color=3D"#666666" sty=
+le=3D"font-weight:bold"><i>Engr. Naina Emmanuel</i></font></font><div><b st=
+yle=3D"color:rgb(102,102,102);font-size:small">Linux Essential Certified (L=
+EPDC)</b><font color=3D"#666666" size=3D"2"><b><br></b></font></div><div><f=
+ont color=3D"#666666" size=3D"2"><b>Cisco Certified Network Associate (CCNA=
+)</b></font></div><div><b style=3D"color:rgb(102,102,102);font-size:small">=
+Computer Engineering Department, UET Taxila<br></b></div><div><b style=3D"c=
+olor:rgb(102,102,102);font-size:small">Information Security, CS Department,=
+ CIIT Islamabad<br></b></div></div></div></div></div></div></div></div></di=
+v></div></div>
+</div>
+</blockquote></div>
+
+--f46d042a0bdd61e9b405323bd754--
