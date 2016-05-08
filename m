@@ -1,118 +1,108 @@
-MIME-Version: 1.0
-In-Reply-To: <CAN=9EoTdFQFWLNakFYFKEW5co8HV3ewbK9KGtB_Zk21AZYTgMA@mail.gmail.com>
-References: <CAN=9EoTdFQFWLNakFYFKEW5co8HV3ewbK9KGtB_Zk21AZYTgMA@mail.gmail.com>
-Date: Sat, 7 May 2016 00:51:21 -0700
-Message-ID: <CAN=9EoTpqTGGLy0Gk_UjHF4q5+hwasUJqtfpoFdgwHWnDGyg+g@mail.gmail.com>
-Subject: Re: Selinux Docker issues
-From: Naina Emmanuel <nemmanuel1992@gmail.com>
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov,
- jwcart2@tycho.nsa.gov, david.d.merritt@gmail.com,
- Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=f46d042a0bdd61e9b405323bd754
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4879pfi023733
+ for <selinux@tycho.nsa.gov>; Sun, 8 May 2016 03:09:51 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+ by zimbra.inuits.be (Postfix) with ESMTP id 86462440BC
+ for <selinux@tycho.nsa.gov>; Sun,  8 May 2016 09:09:49 +0200 (CEST)
+From: roidelapluie@inuits.eu
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux,
+ libsemanage: respect CC and PKG_CONFIG environment variable
+Date: Sun,  8 May 2016 09:09:42 +0200
+Message-Id: <1462691382-10841-1-git-send-email-roidelapluie@inuits.eu>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---f46d042a0bdd61e9b405323bd754
-Content-Type: text/plain; charset=UTF-8
+From: Julien Pivotto <roidelapluie@inuits.eu>
 
-I have configured mls with permissive mode in centos7, but on reboot it
-leaves some of the services as labelled and some as unlabeled.... Even
-docker running as unconfined_t
-When I configure mls with enforcing mode my system doesn't get boot and
-stops working!
+Compilation tools respects certain environment variables, like CC.
+However, in libselinux and libsemanage, they are not respected
+everywhere. This command fixes respect for those variables, falling back
+to the previous hardcoded values if not specified.
+---
+ libselinux/src/Makefile      | 5 +++--
+ libselinux/src/exception.sh  | 2 +-
+ libsemanage/src/Makefile     | 5 +++--
+ libsemanage/src/exception.sh | 2 +-
+ 4 files changed, 8 insertions(+), 6 deletions(-)
 
-How can we solve this issue??
-
-Thanks in advance
-
-Engr. Naina Emmanuel
-On May 5, 2016 11:32 AM, "Naina Emmanuel" <nemmanuel1992@gmail.com> wrote:
-
-> Good Morning,
-> I am working on docker and its securituy through SElinux, I am facing some
-> problems and have some Questions to ask...
->
-> Q1: If for the containers, we have MLS policy to be configured
-> SelinuxType=mls in /etc/selinux/config,  then on the host for other modules
-> we have targeted policy, how can take these two different types
-> simultaneously ?
->
-> Q2: Docker is running on my Centos7, still it is giving unconfined_t label
-> on docker process, (policy is configured as selinuxtype=mls and
-> selinux=permissive)
->
-> Q3: In targeted rpm package i have found namespace.te and cgroup.te, if
-> docker works on mls, then why these policy modules are given in targeted
-> rpm?
->
-> Q4: Where is mls policy is located? As we have .te policy for targeted
->
->
-> please guide me in these regard
->
-> Thanks in advance
->
->
->
->
->
-> *Engr. Naina Emmanuel*
-> *Linux Essential Certified (LEPDC)*
-> *Cisco Certified Network Associate (CCNA)*
->
-> *Computer Engineering Department, UET Taxila*
->
-> *Information Security, CS Department, CIIT Islamabad*
->
-
---f46d042a0bdd61e9b405323bd754
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr">I have configured mls with permissive mode in centos7, but o=
-n reboot it leaves some of the services as labelled and some as unlabeled..=
-.. Even docker running as unconfined_t<br>
-When I configure mls with enforcing mode my system doesn&#39;t get boot and=
- stops working!</p>
-<p dir=3D"ltr">How can we solve this issue??</p>
-<p dir=3D"ltr">Thanks in advance</p>
-<p dir=3D"ltr">Engr. Naina Emmanuel</p>
-<div class=3D"gmail_quote">On May 5, 2016 11:32 AM, &quot;Naina Emmanuel&qu=
-ot; &lt;<a href=3D"mailto:nemmanuel1992@gmail.com">nemmanuel1992@gmail.com<=
-/a>&gt; wrote:<br type=3D"attribution"><blockquote class=3D"gmail_quote" st=
-yle=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div =
-dir=3D"ltr"><div><div><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><d=
-iv dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=
-=3D"ltr"><div>Good Morning,</div><div>I am working on docker and its securi=
-tuy through SElinux, I am facing some problems and have some Questions to a=
-sk...</div><div><br></div><div>Q1: If for the containers, we have MLS polic=
-y to be configured SelinuxType=3Dmls in /etc/selinux/config, =C2=A0then on =
-the host for other modules we have targeted policy, how can take these two =
-different types simultaneously ?=C2=A0</div><div><br></div><div>Q2: Docker =
-is running on my Centos7, still it is giving unconfined_t label on docker p=
-rocess, (policy is configured as selinuxtype=3Dmls and selinux=3Dpermissive=
-)</div><div><br></div><div>Q3: In targeted rpm package i have found namespa=
-ce.te and cgroup.te, if docker works on mls, then why these policy modules =
-are given in targeted rpm?</div><div><br></div><div>Q4: Where is mls policy=
- is located? As we have .te policy for targeted=C2=A0</div><div><br></div><=
-div><br></div><div>please guide me in these regard</div><div><br></div><div=
->Thanks in advance</div><font size=3D"4"><div><br></div><div style=3D"font-=
-weight:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font-we=
-ight:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font-weig=
-ht:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font-weight=
-:bold"><font size=3D"4"><b><br></b></font></div><font color=3D"#666666" sty=
-le=3D"font-weight:bold"><i>Engr. Naina Emmanuel</i></font></font><div><b st=
-yle=3D"color:rgb(102,102,102);font-size:small">Linux Essential Certified (L=
-EPDC)</b><font color=3D"#666666" size=3D"2"><b><br></b></font></div><div><f=
-ont color=3D"#666666" size=3D"2"><b>Cisco Certified Network Associate (CCNA=
-)</b></font></div><div><b style=3D"color:rgb(102,102,102);font-size:small">=
-Computer Engineering Department, UET Taxila<br></b></div><div><b style=3D"c=
-olor:rgb(102,102,102);font-size:small">Information Security, CS Department,=
- CIIT Islamabad<br></b></div></div></div></div></div></div></div></div></di=
-v></div></div>
-</div>
-</blockquote></div>
-
---f46d042a0bdd61e9b405323bd754--
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index d0021ae..ac9a5d6 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -5,6 +5,7 @@ PYTHON ?= python
+ PYPREFIX ?= $(notdir $(PYTHON))
+ RUBY ?= ruby
+ RUBYPREFIX ?= $(notdir $(RUBY))
++PKG_CONFIG ?= pkg-config
+ 
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+@@ -12,11 +13,11 @@ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+ PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
+-PYINC ?= $(shell pkg-config --cflags $(PYPREFIX))
++PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+ RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+ RUBYPLATFORM ?= $(shell $(RUBY) -e 'print RUBY_PLATFORM')
+-RUBYINC ?= $(shell pkg-config --cflags ruby)
++RUBYINC ?= $(shell $(PKG_CONFIG) --cflags ruby)
+ RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
+ LIBBASE ?= $(shell basename $(LIBDIR))
+ 
+diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+index b7cff7e..a58bf3f 100755
+--- a/libselinux/src/exception.sh
++++ b/libselinux/src/exception.sh
+@@ -15,6 +15,6 @@ echo "
+ ;;
+ esac
+ }
+-gcc -x c -c -I../include - -aux-info temp.aux < ../include/selinux/selinux.h
++${CC:-gcc} -x c -c -I../include - -aux-info temp.aux < ../include/selinux/selinux.h
+ for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except $i ; done 
+ rm -f -- temp.aux -.o
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index d1fcc0b..b0711a7 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -5,6 +5,7 @@ PYTHON ?= python
+ PYPREFIX ?= $(notdir $(PYTHON))
+ RUBY ?= ruby
+ RUBYPREFIX ?= $(notdir $(RUBY))
++PKG_CONFIG ?= pkg-config
+ 
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+@@ -12,11 +13,11 @@ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+ PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
+-PYINC ?= $(shell pkg-config --cflags $(PYPREFIX))
++PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+ RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+ RUBYPLATFORM ?= $(shell $(RUBY) -e 'print RUBY_PLATFORM')
+-RUBYINC ?= $(shell pkg-config --cflags ruby-$(RUBYLIBVER))
++RUBYINC ?= $(shell $(PKG_CONFIG) --cflags ruby-$(RUBYLIBVER))
+ RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
+ 
+ LIBBASE=$(shell basename $(LIBDIR))
+diff --git a/libsemanage/src/exception.sh b/libsemanage/src/exception.sh
+index 94619d2..d18959c 100644
+--- a/libsemanage/src/exception.sh
++++ b/libsemanage/src/exception.sh
+@@ -9,6 +9,6 @@ echo "
+ }
+ "
+ }
+-gcc -x c -c -I../include - -aux-info temp.aux < ../include/semanage/semanage.h
++${CC:-gcc} -x c -c -I../include - -aux-info temp.aux < ../include/semanage/semanage.h
+ for i in `awk '/extern int/ { print $6 }' temp.aux`; do except $i ; done
+ rm -f -- temp.aux -.o
+-- 
+2.6.1
