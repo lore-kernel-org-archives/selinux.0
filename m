@@ -1,491 +1,1504 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4AFNWDA026528
- for <selinux@tycho.nsa.gov>; Tue, 10 May 2016 11:23:32 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4AFOfov026730
+ for <selinux@tycho.nsa.gov>; Tue, 10 May 2016 11:24:41 -0400
 From: Richard Haines <richard_c_haines@btinternet.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] libselinux: Add setfiles support to selinux_restorecon(3)
-Date: Tue, 10 May 2016 16:23:18 +0100
-Message-Id: <1462893798-9559-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: [PATCH 3/3] policycoreutils: setfiles - Modify to use
+ selinux_restorecon
+Date: Tue, 10 May 2016 16:24:26 +0100
+Message-Id: <1462893866-9614-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add additional error handling, flags, xdev and alt_rootpath
-support for setfiles(8) functionality.
+Modify setfiles and restorecon to make use of the libselinux
+selinux_restorecon* set of functions.
+
+The output from these commands should be much the same as before
+with some minor wording changes, the only exceptions being:
+1) The -p option does not output the percentage, just * for every
+1000 files (but does state approx file count if mass relabel
+and verbose).
+2) Does not report warnings on paths without default labels.
+3) A -I option has been added to ignore the digest (see man pages).
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/include/selinux/restorecon.h            |  17 +++
- libselinux/man/man3/selinux_restorecon.3           |  13 +++
- .../man/man3/selinux_restorecon_set_alt_rootpath.3 |  34 ++++++
- libselinux/src/selinux_restorecon.c                | 126 +++++++++++++++++----
- libselinux/utils/selinux_restorecon.c              |  28 ++++-
- 5 files changed, 197 insertions(+), 21 deletions(-)
- create mode 100644 libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
+ policycoreutils/setfiles/restore.c    | 665 ++++------------------------------
+ policycoreutils/setfiles/restore.h    |  49 +--
+ policycoreutils/setfiles/restorecon.8 |  74 +++-
+ policycoreutils/setfiles/setfiles.8   |  75 +++-
+ policycoreutils/setfiles/setfiles.c   | 188 +++++-----
+ 5 files changed, 334 insertions(+), 717 deletions(-)
 
-diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-index 0b93b0c..6b3e0f1 100644
---- a/libselinux/include/selinux/restorecon.h
-+++ b/libselinux/include/selinux/restorecon.h
-@@ -50,6 +50,14 @@ extern int selinux_restorecon(const char *pathname,
-  * If there is a different context that matched the inode,
-  * then use the first context that matched. */
- #define SELINUX_RESTORECON_ADD_ASSOC			256
-+/* Abort on errors during the file tree walk. */
-+#define SELINUX_RESTORECON_ABORT_ON_ERROR		512
-+/* Log any label changes to syslog. */
-+#define SELINUX_RESTORECON_SYSLOG_CHANGES		1024
-+/* Log what spec matched each file. */
-+#define SELINUX_RESTORECON_LOG_MATCHES			2048
-+/* Ignore files that do not exist. */
-+#define SELINUX_RESTORECON_IGNORE_NOENTRY		4096
+diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
+index 2a7cfa3..d9546b3 100644
+--- a/policycoreutils/setfiles/restore.c
++++ b/policycoreutils/setfiles/restore.c
+@@ -1,646 +1,139 @@
+ #include "restore.h"
+ #include <glob.h>
+-#include <selinux/context.h>
  
- /**
-  * selinux_restorecon_set_sehandle - Set the global fc handle.
-@@ -77,6 +85,15 @@ extern struct selabel_handle *selinux_restorecon_default_handle(void);
-  */
- extern void selinux_restorecon_set_exclude_list(const char **exclude_list);
+-#define SKIP -2
+-#define ERR -1
+-#define MAX_EXCLUDES 1000
++char **exclude_list;
++int exclude_count;
  
-+/**
-+ * selinux_restorecon_set_alt_rootpath - Use alternate rootpath.
-+ *					 directories that are to be excluded
-+ *					 from relabeling.
-+ * @alt_rootpath: containing the alternate rootpath to be used. The path MUST
-+ *		  NOT be terminated with a '/'. The path MUST NOT be only '/'.
-+ */
-+extern void selinux_restorecon_set_alt_rootpath(const char *alt_rootpath);
+-/*
+- * The hash table of associations, hashed by inode number.
+- * Chaining is used for collisions, with elements ordered
+- * by inode number in each bucket.  Each hash bucket has a dummy 
+- * header.
+- */
+-#define HASH_BITS 16
+-#define HASH_BUCKETS (1 << HASH_BITS)
+-#define HASH_MASK (HASH_BUCKETS-1)
+-
+-/*
+- * An association between an inode and a context.
+- */
+-typedef struct file_spec {
+-	ino_t ino;		/* inode number */
+-	char *con;		/* matched context */
+-	char *file;		/* full pathname */
+-	struct file_spec *next;	/* next association in hash bucket chain */
+-} file_spec_t;
+-
+-struct edir {
+-	char *directory;
+-	size_t size;
+-};
+-
+-
+-static file_spec_t *fl_head;
+-static int filespec_add(ino_t ino, const security_context_t con, const char *file);
+-struct restore_opts *r_opts = NULL;
+-static void filespec_destroy(void);
+-static void filespec_eval(void);
+-static int excludeCtr = 0;
+-static struct edir excludeArray[MAX_EXCLUDES];
+-
+-void remove_exclude(const char *directory)
+-{
+-	int i = 0;
+-	for (i = 0; i < excludeCtr; i++) {
+-		if (strcmp(directory, excludeArray[i].directory) == 0) {
+-			free(excludeArray[i].directory);
+-			if (i != excludeCtr-1)
+-				excludeArray[i] = excludeArray[excludeCtr-1];
+-			excludeCtr--;
+-			return;
+-		}
+-	}
+-	return;
+-}
++struct restore_opts *r_opts;
+ 
+ void restore_init(struct restore_opts *opts)
+-{	
++{
+ 	r_opts = opts;
+ 	struct selinux_opt selinux_opts[] = {
+ 		{ SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
+-		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path }
++		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path },
++		{ SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
+ 	};
+-	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 2);
 +
- #ifdef __cplusplus
++	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
+ 	if (!r_opts->hnd) {
+ 		perror(r_opts->selabel_opt_path);
+ 		exit(1);
+-	}	
+-}
+-
+-void restore_finish()
+-{
+-	int i;
+-	for (i = 0; i < excludeCtr; i++) {
+-		free(excludeArray[i].directory);
+ 	}
  }
- #endif
-diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
-index bbb6721..1d79f91 100644
---- a/libselinux/man/man3/selinux_restorecon.3
-+++ b/libselinux/man/man3/selinux_restorecon.3
-@@ -106,6 +106,19 @@ entry from which the descent began.
- .B SELINUX_RESTORECON_ADD_ASSOC
- attempt to add an association between an inode and a context. If there is a
- different context that matched the inode, then use the first context that matched.
-+.sp
-+.B SELINUX_RESTORECON_ABORT_ON_ERROR
-+abort on errors during the file tree walk.
-+.sp
-+.B SELINUX_RESTORECON_SYSLOG_CHANGES
-+log any label changes to
-+.BR syslog (3).
-+.sp
-+.B SELINUX_RESTORECON_LOG_MATCHES
-+log what specfile context matched each file.
-+.sp
-+.B SELINUX_RESTORECON_IGNORE_NOENTRY
-+ignore files that do not exist.
- .RE
- .sp
- The behavior regarding the checking and updating of the SHA1 digest described
-diff --git a/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3 b/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
-new file mode 100644
-index 0000000..79223eb
---- /dev/null
-+++ b/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
-@@ -0,0 +1,34 @@
-+.TH "selinux_restorecon_set_alt_rootpath" "3" "28 April 2016" "Security Enhanced Linux" "SELinux API documentation"
-+
-+.SH "NAME"
-+selinux_restorecon_set_alt_rootpath \- set an alternate rootpath.
-+.
-+.SH "SYNOPSIS"
-+.B #include <selinux/restorecon.h>
-+.sp
-+.BI "void selinux_restorecon_set_alt_rootpath(const char *" alt_rootpath ");"
-+.in +\w'void selinux_restorecon_set_alt_rootpath('u
-+.
-+.SH "DESCRIPTION"
-+.BR selinux_restorecon_set_alt_rootpath ()
-+passes to
-+.BR selinux_restorecon (3)
-+a pointer containing an alternate rootpath
-+.IR alt_rootpath .
-+.br
-+The path MUST NOT be terminated with a trailing '/'.
-+.br
-+The path MUST NOT be '/' (i.e. the root path).
-+.sp
-+.BR selinux_restorecon_set_alt_rootpath ()
-+must be called prior to
-+.BR selinux_restorecon (3).
-+.
-+.SH "SEE ALSO"
-+.BR selinux_restorecon (3),
-+.br
-+.BR selinux_restorecon_set_sehandle (3),
-+.br
-+.BR selinux_restorecon_default_handle (3),
-+.br
-+.BR selinux_restorecon_set_exclude_list (3)
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 2794659..11ae8a0 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -22,6 +22,7 @@
- #include <sys/vfs.h>
- #include <linux/magic.h>
- #include <libgen.h>
-+#include <syslog.h>
- #include <selinux/selinux.h>
- #include <selinux/context.h>
- #include <selinux/label.h>
-@@ -39,6 +40,8 @@ static struct selabel_handle *fc_sehandle = NULL;
- static unsigned char *fc_digest = NULL;
- static size_t fc_digest_len = 0;
- static const char **fc_exclude_list = NULL;
-+static const char *rootpath = NULL;
-+static int rootpathlen;
- static size_t fc_count = 0;
- #define STAR_COUNT 1000
  
-@@ -47,12 +50,16 @@ struct rest_flags {
- 	bool nochange;
- 	bool verbose;
- 	bool progress;
--	bool specctx;
-+	bool set_specctx;
- 	bool add_assoc;
--	bool ignore;
-+	bool ignore_digest;
- 	bool recurse;
- 	bool userealpath;
- 	bool xdev;
-+	bool abort_on_error;
-+	bool syslog_changes;
-+	bool log_matches;
-+	bool ignore_enoent;
+-static int match(const char *name, struct stat *sb, char **con)
++void restore_finish(void)
+ {
+-	if (!(r_opts->hard_links) && !S_ISDIR(sb->st_mode) && (sb->st_nlink > 1)) {
+-		fprintf(stderr, "Warning! %s refers to a file with more than one hard link, not fixing hard links.\n",
+-					name);
+-		return -1;
+-	}
+-	
+-	if (NULL != r_opts->rootpath) {
+-		if (0 != strncmp(r_opts->rootpath, name, r_opts->rootpathlen)) {
+-			fprintf(stderr, "%s:  %s is not located in %s\n",
+-				r_opts->progname, name, r_opts->rootpath);
+-			return -1;
+-		}
+-		name += r_opts->rootpathlen;
+-	}
+-
+-	if (r_opts->rootpath != NULL && name[0] == '\0')
+-		/* this is actually the root dir of the alt root */
+-		return selabel_lookup_raw(r_opts->hnd, con, "/", sb->st_mode);
+-	else
+-		return selabel_lookup_raw(r_opts->hnd, con, name, sb->st_mode);
+-}
+-static int restore(FTSENT *ftsent, int recurse)
+-{
+-	char *my_file = strdupa(ftsent->fts_path);
+-	int ret = -1;
+-	security_context_t curcon = NULL, newcon = NULL;
+-	float progress;
+-	if (match(my_file, ftsent->fts_statp, &newcon) < 0) {
+-		if ((errno == ENOENT) && ((!recurse) || (r_opts->verbose)))
+-			fprintf(stderr, "%s:  Warning no default label for %s\n", r_opts->progname, my_file);
+-
+-		/* Check for no matching specification. */
+-		return (errno == ENOENT) ? 0 : -1;
+-	}
+-
+-	if (r_opts->progress) {
+-		r_opts->count++;
+-		if (r_opts->count % STAR_COUNT == 0) {
+-			if (r_opts->progress == 1) {
+-				fprintf(stdout, "\r%luk", (size_t) r_opts->count / STAR_COUNT );
+-			} else {
+-				if (r_opts->nfile > 0) {
+-					progress = (r_opts->count < r_opts->nfile) ? (100.0 * r_opts->count / r_opts->nfile) : 100;
+-					fprintf(stdout, "\r%-.1f%%", progress);
+-				}
+-			}
+-			fflush(stdout);
+-		}
+-	}
+-
+-	/*
+-	 * Try to add an association between this inode and
+-	 * this specification.  If there is already an association
+-	 * for this inode and it conflicts with this specification,
+-	 * then use the last matching specification.
+-	 */
+-	if (r_opts->add_assoc) {
+-		ret = filespec_add(ftsent->fts_statp->st_ino, newcon, my_file);
+-		if (ret < 0)
+-			goto err;
+-
+-		if (ret > 0)
+-			/* There was already an association and it took precedence. */
+-			goto out;
+-	}
+-
+-	if (r_opts->debug) {
+-		printf("%s:  %s matched by %s\n", r_opts->progname, my_file, newcon);
+-	}
+-
+-	/*
+-	 * Do not relabel if their is no default specification for this file
+-	 */
+-
+-	if (strcmp(newcon, "<<none>>") == 0) {
+-		goto out;
+-	}
+-
+-	/* Get the current context of the file. */
+-	ret = lgetfilecon_raw(ftsent->fts_accpath, &curcon);
+-	if (ret < 0) {
+-		if (errno == ENODATA) {
+-			curcon = NULL;
+-		} else {
+-			fprintf(stderr, "%s get context on %s failed: '%s'\n",
+-				r_opts->progname, my_file, strerror(errno));
+-			goto err;
+-		}
+-	}
+-
+-	/* lgetfilecon returns number of characters and ret needs to be reset
+-	 * to 0.
+-	 */
+-	ret = 0;
+-
+-	/*
+-	 * Do not relabel the file if the file is already labeled according to
+-	 * the specification.
+-	 */
+-	if (curcon && (strcmp(curcon, newcon) == 0)) {
+-		goto out;
+-	}
+-
+-	if (!r_opts->force && curcon && (is_context_customizable(curcon) > 0)) {
+-		if (r_opts->verbose > 1) {
+-			fprintf(stderr,
+-				"%s: %s not reset customized by admin to %s\n",
+-				r_opts->progname, my_file, curcon);
+-		}
+-		goto out;
+-	}
+-
+-	/*
+-	 *  Do not change label unless this is a force or the type is different
+-	 */
+-	if (!r_opts->force && curcon) {
+-		int types_differ = 0;
+-		context_t cona;
+-		context_t conb;
+-		int err = 0;
+-		cona = context_new(curcon);
+-		if (! cona) {
+-			goto out;
+-		}
+-		conb = context_new(newcon);
+-		if (! conb) {
+-			context_free(cona);
+-			goto out;
+-		}
+-
+-		types_differ = strcmp(context_type_get(cona), context_type_get(conb));
+-		if (types_differ) {
+-			err |= context_user_set(conb, context_user_get(cona));
+-			err |= context_role_set(conb, context_role_get(cona));
+-			err |= context_range_set(conb, context_range_get(cona));
+-			if (!err) {
+-				freecon(newcon);
+-				newcon = strdup(context_str(conb));
+-			}
+-		}
+-		context_free(cona);
+-		context_free(conb);
+-
+-		if (!types_differ || err) {
+-			goto out;
+-		}
+-	}
+-
+-	if (r_opts->verbose) {
+-		printf("%s reset %s context %s->%s\n",
+-		       r_opts->progname, my_file, curcon ?: "", newcon);
+-	}
+-
+-	if (r_opts->logging && r_opts->change) {
+-		if (curcon)
+-			syslog(LOG_INFO, "relabeling %s from %s to %s\n",
+-			       my_file, curcon, newcon);
+-		else
+-			syslog(LOG_INFO, "labeling %s to %s\n",
+-			       my_file, newcon);
+-	}
+-
+-	if (r_opts->outfile)
+-		fprintf(r_opts->outfile, "%s\n", my_file);
+-
+-	/*
+-	 * Do not relabel the file if -n was used.
+-	 */
+-	if (!r_opts->change)
+-		goto out;
++	int i;
+ 
+-	/*
+-	 * Relabel the file to the specified context.
+-	 */
+-	ret = lsetfilecon(ftsent->fts_accpath, newcon);
+-	if (ret) {
+-		fprintf(stderr, "%s set context %s->%s failed:'%s'\n",
+-			r_opts->progname, my_file, newcon, strerror(errno));
+-		goto skip;
+-	}
+-	ret = 0;
+-out:
+-	freecon(curcon);
+-	freecon(newcon);
+-	return ret;
+-skip:
+-	freecon(curcon);
+-	freecon(newcon);
+-	return SKIP;
+-err:
+-	freecon(curcon);
+-	freecon(newcon);
+-	return ERR;
+-}
+-/*
+- * Apply the last matching specification to a file.
+- * This function is called by fts on each file during
+- * the directory traversal.
+- */
+-static int apply_spec(FTSENT *ftsent, int recurse)
+-{
+-	if (ftsent->fts_info == FTS_DNR) {
+-		fprintf(stderr, "%s:  unable to read directory %s\n",
+-			r_opts->progname, ftsent->fts_path);
+-		return SKIP;
+-	}
+-	
+-	int rc = restore(ftsent, recurse);
+-	if (rc == ERR) {
+-		if (!r_opts->abort_on_error)
+-			return SKIP;
++	if (exclude_list) {
++		for (i = 0; exclude_list[i]; i++)
++			free(exclude_list[i]);
++		free(exclude_list);
+ 	}
+-	return rc;
+ }
+ 
+-#include <sys/statvfs.h>
+-
+-static int process_one(char *name, int recurse_this_path)
++int process_glob(char *name, struct restore_opts *opts)
+ {
+-	int rc = 0;
+-	const char *namelist[2] = {name, NULL};
+-	dev_t dev_num = 0;
+-	FTS *fts_handle = NULL;
+-	FTSENT *ftsent = NULL;
+-
+-	if (r_opts == NULL){
+-		fprintf(stderr,
+-			"Must call initialize first!");
+-		goto err;
+-	}
+-
+-	fts_handle = fts_open((char **)namelist, r_opts->fts_flags, NULL);
+-	if (fts_handle  == NULL) {
+-		fprintf(stderr,
+-			"%s: error while labeling %s:  %s\n",
+-			r_opts->progname, namelist[0], strerror(errno));
+-		goto err;
+-	}
+-
++	glob_t globbuf;
++	size_t i = 0;
++	int len, rc, errors;
++	unsigned int restorecon_flags = 0;
+ 
+-	ftsent = fts_read(fts_handle);
+-	if (ftsent == NULL) {
+-		fprintf(stderr,
+-			"%s: error while labeling %s:  %s\n",
+-			r_opts->progname, namelist[0], strerror(errno));
+-		goto err;
+-	}
++	r_opts = opts;
++	memset(&globbuf, 0, sizeof(globbuf));
+ 
+-	/* Keep the inode of the first one. */
+-	dev_num = ftsent->fts_statp->st_dev;
++	errors = glob(name, GLOB_TILDE | GLOB_PERIOD |
++			  GLOB_NOCHECK | GLOB_BRACE, NULL, &globbuf);
++	if (errors)
++		return errors;
+ 
+-	do {
+-		rc = 0;
+-		/* Skip the post order nodes. */
+-		if (ftsent->fts_info == FTS_DP)
+-			continue;
+-		/* If the XDEV flag is set and the device is different */
+-		if (ftsent->fts_statp->st_dev != dev_num &&
+-		    FTS_XDEV == (r_opts->fts_flags & FTS_XDEV))
+-			continue;
+-		if (excludeCtr > 0) {
+-			if (exclude(ftsent->fts_path)) {
+-				fts_set(fts_handle, ftsent, FTS_SKIP);
+-				continue;
+-			}
+-		}
++	restorecon_flags = r_opts->nochange | r_opts->verbose |
++			   r_opts->progress | r_opts->set_specctx  |
++			   r_opts->add_assoc | r_opts->ignore_digest |
++			   r_opts->recurse | r_opts->userealpath |
++			   r_opts->xdev | r_opts->abort_on_error |
++			   r_opts->syslog_changes | r_opts->log_matches |
++			   r_opts->ignore_enoent;
+ 
+-		rc = apply_spec(ftsent, recurse_this_path);
+-		if (rc == SKIP)
+-			fts_set(fts_handle, ftsent, FTS_SKIP);
+-		if (rc == ERR)
+-			goto err;
+-		if (!recurse_this_path)
+-			break;
+-	} while ((ftsent = fts_read(fts_handle)) != NULL);
++	/* Use setfiles/restorecon own handle */
++	selinux_restorecon_set_sehandle(r_opts->hnd);
+ 
+-out:
+-	if (r_opts->add_assoc) {
+-		if (!r_opts->quiet)
+-			filespec_eval();
+-		filespec_destroy();
+-	}
+-	if (fts_handle)
+-		fts_close(fts_handle);
+-	return rc;
++	if (r_opts->rootpath)
++		selinux_restorecon_set_alt_rootpath(r_opts->rootpath);
+ 
+-err:
+-	rc = -1;
+-	goto out;
+-}
+-
+-int process_glob(char *name, int recurse) {
+-	glob_t globbuf;
+-	size_t i = 0;
+-	int errors;
+-	memset(&globbuf, 0, sizeof(globbuf));
+-	errors = glob(name, GLOB_TILDE | GLOB_PERIOD | GLOB_NOCHECK | GLOB_BRACE, NULL, &globbuf);
+-	if (errors) 
+-		return errors;
++	if (exclude_list)
++		selinux_restorecon_set_exclude_list
++						 ((const char **)exclude_list);
+ 
+ 	for (i = 0; i < globbuf.gl_pathc; i++) {
+-		int len = strlen(globbuf.gl_pathv[i]) -2;
++		len = strlen(globbuf.gl_pathv[i]) - 2;
+ 		if (len > 0 && strcmp(&globbuf.gl_pathv[i][len--], "/.") == 0)
+ 			continue;
+ 		if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
+ 			continue;
+-		int rc = process_one_realpath(globbuf.gl_pathv[i], recurse);
++		rc = selinux_restorecon(globbuf.gl_pathv[i], restorecon_flags);
+ 		if (rc < 0)
+ 			errors = rc;
+ 	}
++
+ 	globfree(&globbuf);
+ 	return errors;
+ }
+ 
+-int process_one_realpath(char *name, int recurse)
++void add_exclude(const char *directory)
+ {
+-	int rc = 0;
+-	char *p;
+-	struct stat64 sb;
+-
+-	if (r_opts == NULL){
+-		fprintf(stderr,
+-			"Must call initialize first!");
+-		return -1;
+-	}
+-
+-	if (!r_opts->expand_realpath) {
+-		return process_one(name, recurse);
+-	} else {
+-		rc = lstat64(name, &sb);
+-		if (rc < 0) {
+-			if (r_opts->ignore_enoent && errno == ENOENT)
+-				return 0;
+-			fprintf(stderr, "%s:  lstat(%s) failed:  %s\n",
+-				r_opts->progname, name,	strerror(errno));
+-			return -1;
+-		}
+-
+-		if (S_ISLNK(sb.st_mode)) {
+-			char path[PATH_MAX + 1];
+-
+-			rc = realpath_not_final(name, path);
+-			if (rc < 0)
+-				return rc;
+-			rc = process_one(path, 0);
+-			if (rc < 0)
+-				return rc;
+-
+-			p = realpath(name, NULL);
+-			if (p) {
+-				rc = process_one(p, recurse);
+-				free(p);
+-			}
+-			return rc;
+-		} else {
+-			p = realpath(name, NULL);
+-			if (!p) {
+-				fprintf(stderr, "realpath(%s) failed %s\n", name,
+-					strerror(errno));
+-				return -1;
+-			}
+-			rc = process_one(p, recurse);
+-			free(p);
+-			return rc;
+-		}
+-	}
+-}
+-
+-int exclude(const char *file)
+-{
+-	int i = 0;
+-	for (i = 0; i < excludeCtr; i++) {
+-		if (strncmp
+-		    (file, excludeArray[i].directory,
+-		     excludeArray[i].size) == 0) {
+-			if (file[excludeArray[i].size] == 0
+-			    || file[excludeArray[i].size] == '/') {
+-				return 1;
+-			}
+-		}
+-	}
+-	return 0;
+-}
+-
+-int add_exclude(const char *directory)
+-{
+-	size_t len = 0;
++	char **tmp_list;
+ 
+ 	if (directory == NULL || directory[0] != '/') {
+ 		fprintf(stderr, "Full path required for exclude: %s.\n",
+-			directory);
+-		return 1;
+-	}
+-	if (excludeCtr == MAX_EXCLUDES) {
+-		fprintf(stderr, "Maximum excludes %d exceeded.\n",
+-			MAX_EXCLUDES);
+-		return 1;
+-	}
+-
+-	len = strlen(directory);
+-	while (len > 1 && directory[len - 1] == '/') {
+-		len--;
++			    directory);
++		exit(-1);
+ 	}
+-	excludeArray[excludeCtr].directory = strndup(directory, len);
+ 
+-	if (excludeArray[excludeCtr].directory == NULL) {
+-		fprintf(stderr, "Out of memory.\n");
+-		return 1;
+-	}
+-	excludeArray[excludeCtr++].size = len;
+-
+-	return 0;
+-}
+-
+-/*
+- * Evaluate the association hash table distribution.
+- */
+-static void filespec_eval(void)
+-{
+-	file_spec_t *fl;
+-	int h, used, nel, len, longest;
+-
+-	if (!fl_head)
+-		return;
+-
+-	used = 0;
+-	longest = 0;
+-	nel = 0;
+-	for (h = 0; h < HASH_BUCKETS; h++) {
+-		len = 0;
+-		for (fl = fl_head[h].next; fl; fl = fl->next) {
+-			len++;
+-		}
+-		if (len)
+-			used++;
+-		if (len > longest)
+-			longest = len;
+-		nel += len;
+-	}
+-
+-	if (r_opts->verbose > 1)
+-		printf
+-		    ("%s:  hash table stats: %d elements, %d/%d buckets used, longest chain length %d\n",
+-		     __FUNCTION__, nel, used, HASH_BUCKETS, longest);
+-}
+-
+-/*
+- * Destroy the association hash table.
+- */
+-static void filespec_destroy(void)
+-{
+-	file_spec_t *fl, *tmp;
+-	int h;
+-
+-	if (!fl_head)
+-		return;
+-
+-	for (h = 0; h < HASH_BUCKETS; h++) {
+-		fl = fl_head[h].next;
+-		while (fl) {
+-			tmp = fl;
+-			fl = fl->next;
+-			freecon(tmp->con);
+-			free(tmp->file);
+-			free(tmp);
+-		}
+-		fl_head[h].next = NULL;
+-	}
+-	free(fl_head);
+-	fl_head = NULL;
+-}
+-/*
+- * Try to add an association between an inode and a context.
+- * If there is a different context that matched the inode,
+- * then use the first context that matched.
+- */
+-static int filespec_add(ino_t ino, const security_context_t con, const char *file)
+-{
+-	file_spec_t *prevfl, *fl;
+-	int h, ret;
+-	struct stat64 sb;
+-
+-	if (!fl_head) {
+-		fl_head = malloc(sizeof(file_spec_t) * HASH_BUCKETS);
+-		if (!fl_head)
+-			goto oom;
+-		memset(fl_head, 0, sizeof(file_spec_t) * HASH_BUCKETS);
++	/* Add another two entries, one for directory, and the other to
++	 * terminate the list.
++	 */
++	tmp_list = realloc(exclude_list, sizeof(char *) * (exclude_count + 2));
++	if (!tmp_list) {
++		fprintf(stderr, "realloc failed while excluding %s.\n",
++			    directory);
++		exit(-1);
+ 	}
++	exclude_list = tmp_list;
+ 
+-	h = (ino + (ino >> HASH_BITS)) & HASH_MASK;
+-	for (prevfl = &fl_head[h], fl = fl_head[h].next; fl;
+-	     prevfl = fl, fl = fl->next) {
+-		if (ino == fl->ino) {
+-			ret = lstat64(fl->file, &sb);
+-			if (ret < 0 || sb.st_ino != ino) {
+-				freecon(fl->con);
+-				free(fl->file);
+-				fl->file = strdup(file);
+-				if (!fl->file)
+-					goto oom;
+-				fl->con = strdup(con);
+-				if (!fl->con)
+-					goto oom;
+-				return 1;
+-			}
+-
+-			if (strcmp(fl->con, con) == 0)
+-				return 1;
+-
+-			fprintf(stderr,
+-				"%s:  conflicting specifications for %s and %s, using %s.\n",
+-				__FUNCTION__, file, fl->file, fl->con);
+-			free(fl->file);
+-			fl->file = strdup(file);
+-			if (!fl->file)
+-				goto oom;
+-			return 1;
+-		}
+-
+-		if (ino > fl->ino)
+-			break;
++	exclude_list[exclude_count] = strdup(directory);
++	if (!exclude_list[exclude_count]) {
++		fprintf(stderr, "strdup failed while excluding %s.\n",
++			    directory);
++		exit(-1);
+ 	}
+-
+-	fl = malloc(sizeof(file_spec_t));
+-	if (!fl)
+-		goto oom;
+-	fl->ino = ino;
+-	fl->con = strdup(con);
+-	if (!fl->con)
+-		goto oom_freefl;
+-	fl->file = strdup(file);
+-	if (!fl->file)
+-		goto oom_freefl;
+-	fl->next = prevfl->next;
+-	prevfl->next = fl;
+-	return 0;
+-      oom_freefl:
+-	free(fl);
+-      oom:
+-	fprintf(stderr,
+-		"%s:  insufficient memory for file label entry for %s\n",
+-		__FUNCTION__, file);
+-	return -1;
++	exclude_count++;
++	exclude_list[exclude_count] = NULL;
+ }
+ 
+ #include <sys/utsname.h>
+-int file_system_count(char *name) {
++#include <sys/statvfs.h>
++int file_system_count(char *name)
++{
+ 	struct statvfs statvfs_buf;
+ 	int nfile = 0;
++
+ 	memset(&statvfs_buf, 0, sizeof(statvfs_buf));
+-	if (!statvfs(name, &statvfs_buf)) {
++
++	if (!statvfs(name, &statvfs_buf))
+ 		nfile = statvfs_buf.f_files - statvfs_buf.f_ffree;
+-	}
++
+ 	return nfile;
+ }
+ 
+ /*
+-   Search /proc/mounts for all file systems that do not support extended
+-   attributes and add them to the exclude directory table.  File systems
+-   that support security labels have the seclabel option, return total file count
++ * Search /proc/mounts for all file systems that do not support extended
++ * attributes and add them to the exclude directory table.  File systems
++ * that support security labels have the seclabel option, return total
++ * file count.
+ */
+-int exclude_non_seclabel_mounts()
++int exclude_non_seclabel_mounts(void)
+ {
+ 	struct utsname uts;
+ 	FILE *fp;
+@@ -650,6 +143,7 @@ int exclude_non_seclabel_mounts()
+ 	char *mount_info[4];
+ 	char *buf = NULL, *item;
+ 	int nfile = 0;
++
+ 	/* Check to see if the kernel supports seclabel */
+ 	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.30") < 0)
+ 		return 0;
+@@ -673,15 +167,13 @@ int exclude_non_seclabel_mounts()
+ 		}
+ 		if (index < 3) {
+ 			fprintf(stderr,
+-				"/proc/mounts record \"%s\" has incorrect format.\n",
+-				buf);
++			  "/proc/mounts record \"%s\" has incorrect format.\n",
++			  buf);
+ 			continue;
+ 		}
+ 
+-		/* remove pre-existing entry */
+-		remove_exclude(mount_info[1]);
+-
+ 		item = strtok(mount_info[3], ",");
++
+ 		while (item != NULL) {
+ 			if (strcmp(item, "seclabel") == 0) {
+ 				found = 1;
+@@ -701,4 +193,3 @@ int exclude_non_seclabel_mounts()
+ 	/* return estimated #Files + 5% for directories and hard links */
+ 	return nfile * 1.05;
+ }
+-
+diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
+index b55de81..46b32c4 100644
+--- a/policycoreutils/setfiles/restore.h
++++ b/policycoreutils/setfiles/restore.h
+@@ -12,45 +12,48 @@
+ #include <sepol/sepol.h>
+ #include <selinux/selinux.h>
+ #include <selinux/label.h>
++#include <selinux/restorecon.h>
+ #include <stdlib.h>
+ #include <limits.h>
+ #include <stdint.h>
+ 
+-#define STAR_COUNT 1024
++/*
++ * STAR_COUNT is also defined in libselinux/src/selinux_restorecon.c where it
++ * is used to output "*" for each number of files processed. Defined here for
++ * inclusion in man pages.
++*/
++#define STAR_COUNT 1000
+ 
+ /* Things that need to be init'd */
+ struct restore_opts {
+-	int add_assoc; /* Track inode associations for conflict detection. */
+-	int progress;
+-	uint64_t count;  /* Number of files processed so far */
+-	uint64_t nfile;  /* Estimated total number of files */
+-	int debug;
+-	int change;
+-	int hard_links;
+-	int verbose;
+-	int logging;
+-	int ignore_enoent;
++	unsigned int nochange;
++	unsigned int verbose;
++	unsigned int progress;
++	unsigned int set_specctx;
++	unsigned int add_assoc;
++	unsigned int ignore_digest;
++	unsigned int recurse;
++	unsigned int userealpath;
++	unsigned int xdev;
++	unsigned int abort_on_error;
++	unsigned int syslog_changes;
++	unsigned int log_matches;
++	unsigned int ignore_enoent;
+ 	char *rootpath;
+-	int rootpathlen;
+ 	char *progname;
+-	FILE *outfile;
+-	int force;
+ 	struct selabel_handle *hnd;
+-	int expand_realpath;  /* Expand paths via realpath. */
+-	int abort_on_error; /* Abort the file tree walk upon an error. */
+-	int quiet;
+-	int fts_flags; /* Flags to fts, e.g. follow links, follow mounts */
+ 	const char *selabel_opt_validate;
+ 	const char *selabel_opt_path;
++	const char *selabel_opt_digest;
++	uint64_t nfile;  /* Estimated total number of files */
++	int debug;
++	FILE *outfile;
  };
  
- static void restorecon_init(void)
-@@ -67,13 +74,15 @@ static void restorecon_init(void)
+ void restore_init(struct restore_opts *opts);
+ void restore_finish(void);
+-int add_exclude(const char *directory);
+-int exclude(const char *path);
+-void remove_exclude(const char *directory);
+-int process_one_realpath(char *name, int recurse);
+-int process_glob(char *name, int recurse);
++void add_exclude(const char *directory);
++int process_glob(char *name, struct restore_opts *opts);
+ int exclude_non_seclabel_mounts(void);
  
- static pthread_once_t fc_once = PTHREAD_ONCE_INIT;
+ #endif
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index 900def5..efdf064 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -1,13 +1,13 @@
+-.TH "restorecon" "8" "2002031409" "" ""
++.TH "restorecon" "8" "07 May 2016" "" ""
+ .SH "NAME"
+ restorecon \- restore file(s) default SELinux security contexts.
+ 
+ .SH "SYNOPSIS"
+ .B restorecon
+-.I [\-R] [\-n] [\-p] [\-v] [\-e directory] pathname...
++.I [\-R] [\-n] [\-p] [\-v] [\-I] [\-e directory] pathname...
+ .P
+ .B restorecon
+-.I \-f infilename [\-e directory] [\-R] [\-n] [\-p] [\-v] [\-F]
++.I \-f infilename [\-e directory] [\-R] [\-n] [\-p] [\-v] [\-F] [\-I]
+ 
+ .SH "DESCRIPTION"
+ This manual page describes the
+@@ -49,6 +49,12 @@ display usage information and exit.
+ .B \-i
+ ignore files that do not exist.
+ .TP
++.B \-I
++ignore digest, force checking of labels even if the stored SHA1 digest
++matches the specfiles SHA1 digest (see the
++.B NOTES
++section for details).
++.TP
+ .B \-n
+ don't change any file labels (passive check).  To display the files whose labels would be changed, add \-v.
+ .TP
+@@ -56,15 +62,27 @@ don't change any file labels (passive check).  To display the files whose labels
+ Deprecated, SELinux policy will probably block this access.  Use shell redirection to save list of files with incorrect context in filename.
+ .TP
+ .B \-p
+-show progress by printing * every STAR_COUNT files.  (If you relabel the entire OS, this will show you the percentage complete.)
++show progress by printing * every STAR_COUNT files. Note that the
++.B \-p
++and
++.B \-v
++options are mutually exclusive.
+ .TP
+ .B \-R, \-r
+ change files and directories file labels recursively (descend directories).
+ .br
+-.B Note: restorecon reports warnings on paths without default labels only if called non-recursively or in verbose mode.
+ .TP
+ .B \-v
+-show changes in file labels, if type or role are going to be changed.
++show changes in file labels. Note that the
++.B \-v
++and
++.B \-p
++options are mutually exclusive.
++.TP
++.B \-W
++display warnings about entries that had no matching files by outputting the
++.BR selabel_stats (3)
++results.
+ .TP
+ .B \-0
+ the separator for the input items is assumed to be the null character
+@@ -81,9 +99,49 @@ produces input suitable for this mode.
+ .SH "ARGUMENTS"
+ .B pathname...
+ The pathname for the file(s) to be relabeled.
+-.SH NOTE
+-restorecon does not follow symbolic links and by default it does not
++.SH "NOTES"
++.IP "1." 4
++.B restorecon
++does not follow symbolic links and by default it does not
+ operate recursively on directories.
++.IP "2." 4
++If the
++.B pathname
++specifies the root directory and the
++.B \-vR
++or
++.B \-vr
++options are set, then a message will display the approximate amount of files to relabel.
++.br
++If the audit system is running, then an audit event is automatically logged
++stating that a "mass relabel" took place using the message label
++.BR FS_RELABEL .
++.IP "3." 4
++To improve performance when relabeling file systems recursively (i.e. the
++.B \-R
++or
++.B \-r
++option is set),
++.B restorecon
++will write an SHA1 digest of the default specfiles set to an extended
++attribute named
++.IR security.restorecon_last
++to the directory specified in each
++.B pathname...
++once the relabeling has been completed successfully. This digest will be
++checked should
++.B restorecon
++be rerun with the same
++.B pathname
++parameters. See
++.BR selinux_restorecon (3)
++for further details.
++.sp
++The
++.B \-I
++option will ignore the SHA1 digest and provided the
++.B \-n
++option is NOT set, files will be relabeled as required.
+ 
+ .SH "AUTHOR"
+ This man page was written by Dan Walsh <dwalsh@redhat.com>.
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index 57067d2..38d64ce 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -1,10 +1,10 @@
+-.TH "setfiles" "8" "2002031409" "" ""
++.TH "setfiles" "8" "07 May 2016" "" ""
+ .SH "NAME"
+ setfiles \- set SELinux file security contexts.
+ 
+ .SH "SYNOPSIS"
+ .B setfiles
+-.I [\-c policy] [\-d] [\-l] [\-n] [\-e directory] [\-o filename] [\-p] [\-q] [\-s] [\-v] [\-W] [\-F] spec_file pathname...
++.I [\-c policy] [\-d] [\-l] [\-n] [\-e directory] [\-o filename] [\-p] [\-q] [\-s] [\-v] [\-W] [\-F] [\-I] spec_file pathname...
+ .SH "DESCRIPTION"
+ This manual page describes the
+ .BR setfiles
+@@ -50,6 +50,12 @@ display usage information and exit.
+ .B \-i
+ ignore files that do not exist.
+ .TP
++.B \-I
++ignore digest, force checking of labels even if the stored SHA1 digest
++matches the specfiles SHA1 digest (see the
++.B NOTES
++section for details).
++.TP
+ .B \-l
+ log changes in file labels to syslog.
+ .TP
+@@ -60,23 +66,37 @@ don't change any file labels (passive check).
+ Deprecated, SELinux policy will probably block this access.  Use shell redirection to save list of files with incorrect context in filename.
+ .TP
+ .B \-p
+-show progress by printing * every STAR_COUNT files.  (If you relabel the entire OS, this will show you the percentage complete.)
++show progress by printing * every STAR_COUNT files. Note that the
++.B \-p
++and
++.B \-v
++options are mutually exclusive.
+ .TP 
+ .B \-q
+-suppress non-error output.
++Deprecated, was only used to stop printing inode association parameters.
+ .TP 
+ .B \-r rootpath
+-use an alternate root path.
++use an alternate root path. Used in meta-selinux for OpenEmbedded/Yocto builds
++to label files under
++.B rootpath
++as if they were at /
+ .TP 
+ .B \-s
+ take a list of files from standard input instead of using a pathname from the
+ command line (equivalent to \-f \-).
+ .TP
+ .B \-v
+-show changes in file labels.
++show changes in file labels and output any inode association parameters.
++Note that the
++.B \-v
++and
++.B \-p
++options are mutually exclusive.
+ .TP 
+ .B \-W
+-display warnings about entries that had no matching files.
++display warnings about entries that had no matching files by outputting the
++.BR selabel_stats (3)
++results.
+ .TP 
+ .B \-0
+ the separator for the input items is assumed to be the null character
+@@ -121,6 +141,47 @@ or the
+ .B \-s
+ option is used.
+ 
++.SH "NOTES"
++.IP "1." 4
++.B setfiles
++follows symbolic links and operates recursively on directories.
++.IP "2." 4
++If the
++.B pathname
++specifies the root directory and the
++.B \-v
++option is set, then a message will display the approximate amount of files to relabel.
++.br
++If the audit system is running, then an audit event is automatically logged
++stating that a "mass relabel" took place using the message label
++.BR FS_RELABEL .
++.IP "3." 4
++To improve performance when relabeling file systems recursively
++.B setfiles
++will write an SHA1 digest of the
++.B spec_file
++set to an extended attribute named
++.IR security.restorecon_last
++to the directory specified in each
++.B pathname...
++once the relabeling has been completed successfully. This digest will be
++checked should
++.B setfiles
++be rerun
++with the same
++.B spec_file
++and
++.B pathname
++parameters. See
++.BR selinux_restorecon (3)
++for further details.
++.sp
++The
++.B \-I
++option will ignore the SHA1 digest and provided the
++.B \-n
++option is NOT set, files will be relabeled as required.
++
+ .SH "AUTHOR"
+ This man page was written by Russell Coker <russell@coker.com.au>.
+ The program was written by Stephen Smalley <sds@epoch.ncsc.mil>
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 9ac3ebd..6e65359 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -15,13 +15,11 @@
+ #endif
+ #endif
  
 -
- static int check_excluded(const char *file)
- {
- 	int i;
-+	size_t len;
+-/* cmdline opts*/
+-
+-static char *policyfile = NULL;
+-static int warn_no_match = 0;
+-static int null_terminated = 0;
++static char *policyfile;
++static int warn_no_match;
++static int null_terminated;
+ static struct restore_opts r_opts;
++static int nerr;
  
- 	for (i = 0; fc_exclude_list[i]; i++) {
--		if (strcmp(file, fc_exclude_list[i]) == 0)
-+		len = strlen(fc_exclude_list[i]);
-+		/* Check if 'file' is in an excluded directory. */
-+		if (strncmp(file, fc_exclude_list[i], len) == 0)
- 				return 1;
+ #define STAT_BLOCK_SIZE 1
+ 
+@@ -45,22 +43,20 @@ void usage(const char *const name)
+ {
+ 	if (iamrestorecon) {
+ 		fprintf(stderr,
+-			"usage:  %s [-iFnprRv0] [-e excludedir] pathname...\n"
+-			"usage:  %s [-iFnprRv0] [-e excludedir] -f filename\n",
++			"usage:  %s [-iIFnprRv0] [-e excludedir] pathname...\n"
++			"usage:  %s [-iIFnprRv0] [-e excludedir] -f filename\n",
+ 			name, name);
+ 	} else {
+ 		fprintf(stderr,
+-			"usage:  %s [-dilnpqvFW] [-e excludedir] [-r alt_root_path] spec_file pathname...\n"
+-			"usage:  %s [-dilnpqvFW] [-e excludedir] [-r alt_root_path] spec_file -f filename\n"
+-			"usage:  %s -s [-dilnpqvFW] spec_file\n"
++			"usage:  %s [-diIlnpqvFW] [-e excludedir] [-r alt_root_path] spec_file pathname...\n"
++			"usage:  %s [-diIlnpqvFW] [-e excludedir] [-r alt_root_path] spec_file -f filename\n"
++			"usage:  %s -s [-diIlnpqvFW] spec_file\n"
+ 			"usage:  %s -c policyfile spec_file\n",
+ 			name, name, name, name);
  	}
- 	return 0;
-@@ -360,10 +369,29 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 	char *newcon = NULL;
- 	char *curcon = NULL;
- 	char *newtypecon = NULL;
--	int rc = 0;
-+	int rc;
- 	bool updated = false;
-+	const char *tmp_pathname = pathname;
-+
-+	if (rootpath) {
-+		if (strncmp(rootpath, tmp_pathname, rootpathlen) != 0) {
-+			selinux_log(SELINUX_ERROR,
-+				    "%s is not located in alt_rootpath %s\n",
-+				    tmp_pathname, rootpath);
-+			return -1;
-+		}
-+		tmp_pathname += rootpathlen;
+ 	exit(-1);
+ }
+ 
+-static int nerr = 0;
+-
+ void inc_err(void)
+ {
+ 	nerr++;
+@@ -70,24 +66,21 @@ void inc_err(void)
+ 	}
+ }
+ 
+-
+-
+ void set_rootpath(const char *arg)
+ {
+-	int len;
++	if (strlen(arg) == 1 && strncmp(arg, "/", 1) == 0) {
++		fprintf(stderr, "%s:  invalid alt_rootpath: %s\n",
++			r_opts.progname, arg);
++		exit(-1);
 +	}
  
--	if (selabel_lookup_raw(fc_sehandle, &newcon, pathname, sb->st_mode) < 0)
-+	if (rootpath != NULL && tmp_pathname[0] == '\0')
-+		/* this is actually the root dir of the alt root. */
-+		rc = selabel_lookup_raw(fc_sehandle, &newcon, "/",
-+						    sb->st_mode);
-+	else
-+		rc = selabel_lookup_raw(fc_sehandle, &newcon, tmp_pathname,
-+						    sb->st_mode);
-+
-+	if (rc < 0)
- 		return 0; /* no match, but not an error */
+ 	r_opts.rootpath = strdup(arg);
+-	if (NULL == r_opts.rootpath) {
+-		fprintf(stderr, "%s:  insufficient memory for r_opts.rootpath\n",
++	if (!r_opts.rootpath) {
++		fprintf(stderr,
++			"%s:  insufficient memory for r_opts.rootpath\n",
+ 			r_opts.progname);
+ 		exit(-1);
+ 	}
+-
+-	/* trim trailing /, if present */
+-	len = strlen(r_opts.rootpath);
+-	while (len && ('/' == r_opts.rootpath[len - 1]))
+-		r_opts.rootpath[--len] = 0;
+-	r_opts.rootpathlen = len;
+ }
  
- 	if (flags->add_assoc) {
-@@ -385,6 +413,10 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 		}
+ int canoncon(char **contextp)
+@@ -113,7 +106,7 @@ int canoncon(char **contextp)
+ 
+ #ifndef USE_AUDIT
+ static void maybe_audit_mass_relabel(int mass_relabel __attribute__((unused)),
+-				     int mass_relabel_errs __attribute__((unused)))
++				int mass_relabel_errs __attribute__((unused)))
+ {
+ #else
+ static void maybe_audit_mass_relabel(int mass_relabel, int mass_relabel_errs)
+@@ -132,11 +125,14 @@ static void maybe_audit_mass_relabel(int mass_relabel, int mass_relabel_errs)
  	}
  
-+	if (flags->log_matches)
-+		selinux_log(SELINUX_INFO, "%s matched by %s\n",
-+			    pathname, newcon);
-+
- 	if (lgetfilecon_raw(pathname, &curcon) < 0) {
- 		if (errno != ENODATA)
- 			goto err;
-@@ -401,7 +433,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 	rc = audit_log_user_message(audit_fd, AUDIT_FS_RELABEL,
+-				    "op=mass relabel", NULL, NULL, NULL, !mass_relabel_errs);
++				    "op=mass relabel",
++				    NULL, NULL, NULL, !mass_relabel_errs);
+ 	if (rc <= 0) {
+ 		fprintf(stderr, "Error sending audit message: %s.\n",
+ 			strerror(errno));
+-		/* exit(-1); -- don't exit atm. as fix for eff_cap isn't in most kernels */
++		/* exit(-1); -- don't exit atm. as fix for eff_cap isn't
++		 * in most kernels.
++		 */
  	}
+ 	audit_close(audit_fd);
+ #endif
+@@ -150,30 +146,19 @@ int main(int argc, char **argv)
+ 	int use_input_file = 0;
+ 	char *buf = NULL;
+ 	size_t buf_len;
+-	int recurse; /* Recursive descent. */
+ 	const char *base;
+ 	int mass_relabel = 0, errors = 0;
+-	const char *ropts = "e:f:hilno:pqrsvFRW0";
+-	const char *sopts = "c:de:f:hilno:pqr:svFR:W0";
++	const char *ropts = "e:f:hiIlno:pqrsvFRW0";
++	const char *sopts = "c:de:f:hiIlno:pqr:svFR:W0";
+ 	const char *opts;
+-	
+-	memset(&r_opts, 0, sizeof(r_opts));
  
- 	if (strcmp(curcon, newcon) != 0) {
--		if (!flags->specctx && curcon &&
-+		if (!flags->set_specctx && curcon &&
- 				    (is_context_customizable(curcon) > 0)) {
- 			if (flags->verbose) {
- 				selinux_log(SELINUX_INFO,
-@@ -411,7 +443,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 	/* Initialize variables */
+-	r_opts.progress = 0;
+-	r_opts.count = 0;
+-	r_opts.nfile = 0;
+-	r_opts.debug = 0;
+-	r_opts.change = 1;
+-	r_opts.verbose = 0;
+-	r_opts.logging = 0;
+-	r_opts.rootpath = NULL;
+-	r_opts.rootpathlen = 0;
+-	r_opts.outfile = NULL;
+-	r_opts.force = 0;
+-	r_opts.hard_links = 1;
+-
++	memset(&r_opts, 0, sizeof(r_opts));
+ 	altpath = NULL;
++	null_terminated = 0;
++	warn_no_match = 0;
++	policyfile = NULL;
++	nerr = 0;
+ 
+ 	r_opts.progname = strdup(argv[0]);
+ 	if (!r_opts.progname) {
+@@ -181,48 +166,52 @@ int main(int argc, char **argv)
+ 		exit(-1);
+ 	}
+ 	base = basename(r_opts.progname);
+-	
++
+ 	if (!strcmp(base, SETFILES)) {
+-		/* 
+-		 * setfiles:  
++		/*
++		 * setfiles:
+ 		 * Recursive descent,
+-		 * Does not expand paths via realpath, 
+-		 * Aborts on errors during the file tree walk, 
++		 * Does not expand paths via realpath,
++		 * Aborts on errors during the file tree walk,
+ 		 * Try to track inode associations for conflict detection,
+ 		 * Does not follow mounts,
+-		 * Validates all file contexts at init time. 
++		 * Validates all file contexts at init time.
+ 		 */
+ 		iamrestorecon = 0;
+-		recurse = 1;
+-		r_opts.expand_realpath = 0;
+-		r_opts.abort_on_error = 1;
+-		r_opts.add_assoc = 1;
+-		r_opts.fts_flags = FTS_PHYSICAL | FTS_XDEV;
++		r_opts.recurse = SELINUX_RESTORECON_RECURSE;
++		r_opts.userealpath = 0; /* SELINUX_RESTORECON_REALPATH */
++		r_opts.abort_on_error = SELINUX_RESTORECON_ABORT_ON_ERROR;
++		r_opts.add_assoc = SELINUX_RESTORECON_ADD_ASSOC;
++		/* FTS_PHYSICAL and FTS_NOCHDIR are always set by selinux_restorecon(3) */
++		r_opts.xdev = SELINUX_RESTORECON_XDEV;
+ 		ctx_validate = 1;
+ 		opts = sopts;
+ 	} else {
+ 		/*
+-		 * restorecon:  
++		 * restorecon:
+ 		 * No recursive descent unless -r/-R,
+-		 * Expands paths via realpath, 
++		 * Expands paths via realpath,
+ 		 * Do not abort on errors during the file tree walk,
+ 		 * Do not try to track inode associations for conflict detection,
+ 		 * Follows mounts,
+-		 * Does lazy validation of contexts upon use. 
++		 * Does lazy validation of contexts upon use.
+ 		 */
+-		if (strcmp(base, RESTORECON) && !r_opts.quiet) 
+-			printf("Executed with an unrecognized name (%s), defaulting to %s behavior.\n", base, RESTORECON);
++		if (strcmp(base, RESTORECON))
++			fprintf(stderr, "Executed with unrecognized name (%s), defaulting to %s behavior.\n",
++				base, RESTORECON);
++
+ 		iamrestorecon = 1;
+-		recurse = 0;
+-		r_opts.expand_realpath = 1;
++		r_opts.recurse = 0;
++		r_opts.userealpath = SELINUX_RESTORECON_REALPATH;
+ 		r_opts.abort_on_error = 0;
+ 		r_opts.add_assoc = 0;
+-		r_opts.fts_flags = FTS_PHYSICAL;
++		r_opts.xdev = 0;
+ 		ctx_validate = 0;
+ 		opts = ropts;
+ 
+ 		/* restorecon only:  silent exit if no SELinux.
+-		   Allows unconditional execution by scripts. */
++		 * Allows unconditional execution by scripts.
++		 */
+ 		if (is_selinux_enabled() <= 0)
+ 			exit(0);
+ 	}
+@@ -266,37 +255,39 @@ int main(int argc, char **argv)
+ 				break;
  			}
- 		}
- 
--		if (!flags->specctx && curcon) {
-+		if (!flags->set_specctx && curcon) {
- 			/* If types different then update newcon. */
- 			rc = compare_types(curcon, newcon, &newtypecon);
- 			if (rc)
-@@ -436,6 +468,16 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
- 				    "%s %s from %s to %s\n",
- 				    updated ? "Relabeled" : "Would relabel",
- 				    pathname, curcon, newcon);
-+
-+		if (flags->syslog_changes && !flags->nochange) {
-+			if (curcon)
-+				syslog(LOG_INFO,
-+					    "relabeling %s from %s to %s\n",
-+					    pathname, curcon, newcon);
-+			else
-+				syslog(LOG_INFO, "labeling %s to %s\n",
-+					    pathname, newcon);
-+		}
- 	}
- 
- out:
-@@ -468,11 +510,11 @@ int selinux_restorecon(const char *pathname_orig,
- 		    SELINUX_RESTORECON_VERBOSE) ? true : false;
- 	flags.progress = (restorecon_flags &
- 		    SELINUX_RESTORECON_PROGRESS) ? true : false;
--	flags.specctx = (restorecon_flags &
-+	flags.set_specctx = (restorecon_flags &
- 		    SELINUX_RESTORECON_SET_SPECFILE_CTX) ? true : false;
- 	flags.add_assoc = (restorecon_flags &
- 		   SELINUX_RESTORECON_ADD_ASSOC) ? true : false;
--	flags.ignore = (restorecon_flags &
-+	flags.ignore_digest = (restorecon_flags &
- 		    SELINUX_RESTORECON_IGNORE_DIGEST) ? true : false;
- 	flags.recurse = (restorecon_flags &
- 		    SELINUX_RESTORECON_RECURSE) ? true : false;
-@@ -480,6 +522,14 @@ int selinux_restorecon(const char *pathname_orig,
- 		   SELINUX_RESTORECON_REALPATH) ? true : false;
- 	flags.xdev = (restorecon_flags &
- 		   SELINUX_RESTORECON_XDEV) ? true : false;
-+	flags.abort_on_error = (restorecon_flags &
-+		   SELINUX_RESTORECON_ABORT_ON_ERROR) ? true : false;
-+	flags.syslog_changes = (restorecon_flags &
-+		   SELINUX_RESTORECON_SYSLOG_CHANGES) ? true : false;
-+	flags.log_matches = (restorecon_flags &
-+		   SELINUX_RESTORECON_LOG_MATCHES) ? true : false;
-+	flags.ignore_enoent = (restorecon_flags &
-+		   SELINUX_RESTORECON_IGNORE_NOENTRY) ? true : false;
- 
- 	bool issys;
- 	bool setrestoreconlast = true; /* TRUE = set xattr RESTORECON_LAST
-@@ -494,6 +544,7 @@ int selinux_restorecon(const char *pathname_orig,
- 	int error, sverrno;
- 	char *xattr_value = NULL;
- 	ssize_t size;
-+	dev_t dev_num = 0;
- 
- 	if (flags.verbose && flags.progress)
- 		flags.verbose = false;
-@@ -545,8 +596,17 @@ int selinux_restorecon(const char *pathname_orig,
- 			    sizeof(SYS_PREFIX) - 1)) ? true : false;
- 
- 	if (lstat(pathname, &sb) < 0) {
--		error = -1;
--		goto cleanup;
-+		if (flags.ignore_enoent && errno == ENOENT) {
-+			free(pathdnamer);
-+			free(pathname);
-+			return 0;
-+		} else {
-+			selinux_log(SELINUX_ERROR,
-+				    "lstat(%s) failed: %s\n",
-+				    pathname, strerror(errno));
-+			error = -1;
-+			goto cleanup;
-+		}
- 	}
- 
- 	/* Ignore restoreconlast if not a directory */
-@@ -572,7 +632,7 @@ int selinux_restorecon(const char *pathname_orig,
- 		size = getxattr(pathname, RESTORECON_LAST, xattr_value,
- 							    fc_digest_len);
- 
--		if (!flags.ignore && size == fc_digest_len &&
-+		if (!flags.ignore_digest && size == fc_digest_len &&
- 			    memcmp(fc_digest, xattr_value, fc_digest_len)
- 								    == 0) {
- 			selinux_log(SELINUX_INFO,
-@@ -589,13 +649,22 @@ int selinux_restorecon(const char *pathname_orig,
- 		fts_flags = FTS_PHYSICAL | FTS_NOCHDIR;
- 
- 	fts = fts_open(paths, fts_flags, NULL);
--	if (!fts) {
--		error = -1;
--		goto cleanup;
--	}
-+	if (!fts)
-+		goto fts_err;
-+
-+	ftsent = fts_read(fts);
-+	if (!ftsent)
-+		goto fts_err;
-+
-+	/* Keep the inode of the first device. */
-+	dev_num = ftsent->fts_statp->st_dev;
- 
- 	error = 0;
--	while ((ftsent = fts_read(fts)) != NULL) {
-+	do {
-+		/* If the XDEV flag is set and the device is different */
-+		if (flags.xdev && ftsent->fts_statp->st_dev != dev_num)
-+			continue;
-+
- 		switch (ftsent->fts_info) {
- 		case FTS_DC:
- 			selinux_log(SELINUX_ERROR,
-@@ -644,9 +713,12 @@ int selinux_restorecon(const char *pathname_orig,
- 
- 			error |= restorecon_sb(ftsent->fts_path,
- 					       ftsent->fts_statp, &flags);
-+
-+			if (error && flags.abort_on_error)
-+				goto out;
+ 		case 'e':
+-			remove_exclude(optarg);
+ 			if (lstat(optarg, &sb) < 0 && errno != EACCES) {
+ 				fprintf(stderr, "Can't stat exclude path \"%s\", %s - ignoring.\n",
+ 					optarg, strerror(errno));
+ 				break;
+ 			}
+-			if (add_exclude(optarg))
+-				exit(-1);
++			add_exclude(optarg);
  			break;
- 		}
--	}
-+	} while ((ftsent = fts_read(fts)) != NULL);
- 
- 	/* Labeling successful. Mark the top level directory as completed. */
- 	if (setrestoreconlast && !flags.nochange && !error) {
-@@ -672,12 +744,14 @@ cleanup:
- 	free(pathname);
- 	free(xattr_value);
- 	return error;
-+
- oom:
- 	sverrno = errno;
- 	selinux_log(SELINUX_ERROR, "%s:  Out of memory\n", __func__);
- 	errno = sverrno;
- 	error = -1;
- 	goto cleanup;
-+
- realpatherr:
- 	sverrno = errno;
- 	selinux_log(SELINUX_ERROR,
-@@ -686,6 +760,13 @@ realpatherr:
- 	errno = sverrno;
- 	error = -1;
- 	goto cleanup;
-+
-+fts_err:
-+	selinux_log(SELINUX_ERROR,
-+		    "fts error while labeling %s: %s\n",
-+		    paths[0], strerror(errno));
-+	error = -1;
-+	goto cleanup;
- }
- 
- /* selinux_restorecon_set_sehandle(3) is called to set the global fc handle */
-@@ -757,3 +838,10 @@ void selinux_restorecon_set_exclude_list(const char **exclude_list)
- {
- 	fc_exclude_list = exclude_list;
- }
-+
-+/* selinux_restorecon_set_alt_rootpath(3) sets an alternate rootpath. */
-+void selinux_restorecon_set_alt_rootpath(const char *alt_rootpath)
-+{
-+	rootpath = alt_rootpath;
-+	rootpathlen = strlen(rootpath);
-+}
-diff --git a/libselinux/utils/selinux_restorecon.c b/libselinux/utils/selinux_restorecon.c
-index 2552d63..da59fcd 100644
---- a/libselinux/utils/selinux_restorecon.c
-+++ b/libselinux/utils/selinux_restorecon.c
-@@ -37,7 +37,7 @@ static int validate_context(char **contextp)
- static void usage(const char *progname)
- {
- 	fprintf(stderr,
--		"\nusage: %s [-FCnRrdeia] [-v|-P] [-p policy] [-f specfile] "
-+		"\nusage: %s [-FCnRrdeiIaAsl] [-v|-P] [-x alt_rootpath] [-p policy] [-f specfile] "
- 		"pathname ...\n"
- 		"Where:\n\t"
- 		"-F  Set the label to that in specfile.\n\t"
-@@ -57,9 +57,14 @@ static void usage(const char *progname)
- 		"-e  Exclude this file/directory (add multiple -e entries).\n\t"
- 		"-i  Do not set SELABEL_OPT_DIGEST option when calling "
- 		" selabel_open(3).\n\t"
-+		"-I  Ignore files that do not exist.\n\t"
- 		"-a  Add an association between an inode and a context.\n\t"
- 		"    If there is a different context that matched the inode,\n\t"
- 		"    then use the first context that matched.\n\t"
-+		"-A  Abort on errors during the file tree walk.\n\t"
-+		"-s  Log any label changes to syslog(3).\n\t"
-+		"-l  Log what specfile context matched each file.\n\t"
-+		"-x  Set alternate rootpath.\n\t"
- 		"-p  Optional binary policy file (also sets validate context "
- 		"option).\n\t"
- 		"-f  Optional file contexts file.\n\t"
-@@ -101,6 +106,7 @@ int main(int argc, char **argv)
- 	int opt, i;
- 	unsigned int restorecon_flags = 0;
- 	char *path = NULL, *digest = NULL, *validate = NULL;
-+	char *alt_rootpath = NULL;
- 	FILE *policystream;
- 	bool ignore_digest = false, require_selinux = true;
- 	bool verbose = false, progress = false;
-@@ -118,7 +124,7 @@ int main(int argc, char **argv)
- 	exclude_list = NULL;
- 	exclude_count = 0;
- 
--	while ((opt = getopt(argc, argv, "iFCnRvPrdae:f:p:")) > 0) {
-+	while ((opt = getopt(argc, argv, "iIFCnRvPrdaAsle:f:p:x:")) > 0) {
- 		switch (opt) {
- 		case 'F':
- 			restorecon_flags |=
-@@ -190,9 +196,24 @@ int main(int argc, char **argv)
+ 		case 'f':
+ 			use_input_file = 1;
+ 			input_filename = optarg;
+-			break;			
++			break;
+ 		case 'd':
+ 			if (iamrestorecon)
+ 				usage(argv[0]);
+ 			r_opts.debug = 1;
++			r_opts.log_matches = SELINUX_RESTORECON_LOG_MATCHES;
+ 			break;
  		case 'i':
- 			ignore_digest = true;
- 			break;
+-			r_opts.ignore_enoent = 1;
++			r_opts.ignore_enoent = SELINUX_RESTORECON_IGNORE_NOENTRY;
++			break;
 +		case 'I':
-+			restorecon_flags |= SELINUX_RESTORECON_IGNORE_NOENTRY;
-+			break;
- 		case 'a':
- 			restorecon_flags |= SELINUX_RESTORECON_ADD_ASSOC;
++			r_opts.ignore_digest = SELINUX_RESTORECON_IGNORE_DIGEST;
  			break;
-+		case 'A':
-+			restorecon_flags |= SELINUX_RESTORECON_ABORT_ON_ERROR;
-+			break;
-+		case 's':
-+			restorecon_flags |= SELINUX_RESTORECON_SYSLOG_CHANGES;
-+			break;
-+		case 'l':
-+			restorecon_flags |= SELINUX_RESTORECON_LOG_MATCHES;
-+			break;
-+		case 'x':
-+			alt_rootpath = optarg;
-+			break;
- 		default:
+ 		case 'l':
+-			r_opts.logging = 1;
++			r_opts.syslog_changes = SELINUX_RESTORECON_SYSLOG_CHANGES;
+ 			break;
+ 		case 'F':
+-			r_opts.force = 1;
++			r_opts.set_specctx = SELINUX_RESTORECON_SET_SPECFILE_CTX;
+ 			break;
+ 		case 'n':
+-			r_opts.change = 0;
++			r_opts.nochange = SELINUX_RESTORECON_NOCHANGE;
+ 			break;
+-		case 'o':
++		case 'o': /* Deprecated */
+ 			if (strcmp(optarg, "-") == 0) {
+ 				r_opts.outfile = stdout;
+ 				break;
+@@ -312,15 +303,24 @@ int main(int argc, char **argv)
+ 			__fsetlocking(r_opts.outfile, FSETLOCKING_BYCALLER);
+ 			break;
+ 		case 'q':
+-			r_opts.quiet = 1;
++			/* Deprecated - Was only used to say whether print
++			 * filespec_eval() params. Now uses verbose flag.
++			 */
+ 			break;
+ 		case 'R':
+ 		case 'r':
+ 			if (iamrestorecon) {
+-				recurse = 1;
++				r_opts.recurse = SELINUX_RESTORECON_RECURSE;
+ 				break;
+ 			}
+-			if (NULL != r_opts.rootpath) {
++
++			if (lstat(optarg, &sb) < 0 && errno != EACCES) {
++				fprintf(stderr, "Can't stat alt_root_path \"%s\", %s\n",
++					optarg, strerror(errno));
++				exit(-1);
++			}
++
++			if (r_opts.rootpath) {
+ 				fprintf(stderr,
+ 					"%s: only one -r can be specified\n",
+ 					argv[0]);
+@@ -337,9 +337,9 @@ int main(int argc, char **argv)
+ 			if (r_opts.progress) {
+ 				fprintf(stderr,
+ 					"Progress and Verbose mutually exclusive\n");
+-				exit(-1);
++				usage(argv[0]);
+ 			}
+-			r_opts.verbose++;
++			r_opts.verbose = SELINUX_RESTORECON_VERBOSE;
+ 			break;
+ 		case 'p':
+ 			if (r_opts.verbose) {
+@@ -347,10 +347,10 @@ int main(int argc, char **argv)
+ 					"Progress and Verbose mutually exclusive\n");
+ 				usage(argv[0]);
+ 			}
+-			r_opts.progress++;
++			r_opts.progress = SELINUX_RESTORECON_PROGRESS;
+ 			break;
+ 		case 'W':
+-			warn_no_match = 1;
++			warn_no_match = 1; /* Print selabel_stats() */
+ 			break;
+ 		case '0':
+ 			null_terminated = 1;
+@@ -364,8 +364,9 @@ int main(int argc, char **argv)
+ 	for (i = optind; i < argc; i++) {
+ 		if (!strcmp(argv[i], "/")) {
+ 			mass_relabel = 1;
+-			if (r_opts.progress)
+-				r_opts.progress++;
++			if (r_opts.verbose && r_opts.recurse)
++				printf("Mass relabeling of approximately %ld files.\n",
++					r_opts.nfile);
+ 		}
+ 	}
+ 
+@@ -384,8 +385,9 @@ int main(int argc, char **argv)
+ 		}
+ 
+ 		/* Use our own invalid context checking function so that
+-		   we can support either checking against the active policy or
+-		   checking against a binary policy file. */
++		 * we can support either checking against the active policy or
++		 * checking against a binary policy file.
++		 */
+ 		selinux_set_callback(SELINUX_CB_VALIDATE,
+ 				     (union selinux_callback)&canoncon);
+ 
+@@ -406,6 +408,7 @@ int main(int argc, char **argv)
+ 
+ 	/* Load the file contexts configuration and check it. */
+ 	r_opts.selabel_opt_validate = (ctx_validate ? (char *)1 : NULL);
++	r_opts.selabel_opt_digest = (r_opts.ignore_digest ? NULL : (char *)1);
+ 	r_opts.selabel_opt_path = altpath;
+ 
+ 	if (nerr)
+@@ -416,10 +419,13 @@ int main(int argc, char **argv)
+ 		FILE *f = stdin;
+ 		ssize_t len;
+ 		int delim;
++
+ 		if (strcmp(input_filename, "-") != 0)
+ 			f = fopen(input_filename, "r");
++
+ 		if (f == NULL) {
+-			fprintf(stderr, "Unable to open %s: %s\n", input_filename,
++			fprintf(stderr, "Unable to open %s: %s\n",
++				input_filename,
+ 				strerror(errno));
  			usage(argv[0]);
  		}
-@@ -247,6 +268,9 @@ int main(int argc, char **argv)
- 		selinux_restorecon_set_exclude_list
- 						 ((const char **)exclude_list);
- 
-+	if (alt_rootpath)
-+		selinux_restorecon_set_alt_rootpath(alt_rootpath);
+@@ -430,15 +436,15 @@ int main(int argc, char **argv)
+ 			buf[len - 1] = 0;
+ 			if (!strcmp(buf, "/"))
+ 				mass_relabel = 1;
+-			errors |= process_glob(buf, recurse) < 0;
++			errors |= process_glob(buf, &r_opts) < 0;
+ 		}
+ 		if (strcmp(input_filename, "-") != 0)
+ 			fclose(f);
+ 	} else {
+ 		for (i = optind; i < argc; i++)
+-			errors |= process_glob(argv[i], recurse) < 0;
++			errors |= process_glob(argv[i], &r_opts) < 0;
+ 	}
+-	
 +
- 	/* Call restorecon for each path in list */
- 	for (i = optind; i < argc; i++) {
- 		if (selinux_restorecon(argv[i], restorecon_flags) < 0) {
+ 	maybe_audit_mass_relabel(mass_relabel, errors);
+ 
+ 	if (warn_no_match)
+@@ -450,7 +456,5 @@ int main(int argc, char **argv)
+ 	if (r_opts.outfile)
+ 		fclose(r_opts.outfile);
+ 
+-	if (r_opts.progress && r_opts.count >= STAR_COUNT)
+-		printf("\n");
+-	exit(errors ? -1: 0);
++	exit(errors ? -1 : 0);
+ }
 -- 
 2.5.5
