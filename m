@@ -1,135 +1,91 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: bigon@debian.org, 823184-forwarded@bugs.debian.org, ben.shelton@ni.com,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] Avoid mounting /proc outside of selinux_init_load_policy().
-Date: Fri, 13 May 2016 12:31:10 -0400
-Message-Id: <1463157070-31643-1-git-send-email-sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4GAp4oI008544
+ for <selinux@tycho.nsa.gov>; Mon, 16 May 2016 06:51:04 -0400
+Subject: Re: [PATCH] policycoreutils: fix the extract example in semodule.8
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <1462865989-19741-1-git-send-email-plautrba@redhat.com>
+ <5adb4684-4503-9f5c-2657-3c84fa4d1514@m4x.org>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <ec899032-388e-8ad2-5f58-03e5e052646b@redhat.com>
+Date: Mon, 16 May 2016 12:50:57 +0200
+MIME-Version: 1.0
+In-Reply-To: <5adb4684-4503-9f5c-2657-3c84fa4d1514@m4x.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="NSGV1rid3esqS3Ev2x9hjOqfiwrBXVdot"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Temporarily mounting /proc within selinuxfs_exists() can cause
-problems since it can be called by a libselinux constructor and
-therefore may be invoked by every program linked with libselinux.
-Since this was only motivated originally by a situation where
-selinuxfs_exists() was called from selinux_init_load_policy()
-before /proc was mounted, fix it in selinux_init_load_policy() instead.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--NSGV1rid3esqS3Ev2x9hjOqfiwrBXVdot
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-This reverts commit 5a8d8c499b2ef80eaa7b5abe2ec68d7101e613bf
-("libselinux: only mount /proc if necessary") and
-commit 9df498884665d79474b79f0f30d1cd67df11bd3e
-("libselinux: Mount procfs before checking /proc/filesystems").
+On 05/10/2016 07:04 PM, Nicolas Iooss wrote:
+> On 05/10/2016 09:39 AM, Petr Lautrbach wrote:
+>> The man page's example suggested to use -g instead of -E
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>>  policycoreutils/semodule/semodule.8 | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/sem=
+odule/semodule.8
+>> index 6db390c..e5b54b3 100644
+>> --- a/policycoreutils/semodule/semodule.8
+>> +++ b/policycoreutils/semodule/semodule.8
+>> @@ -121,7 +121,7 @@ $ semodule \-B \-p "/tmp"
+>>  $ semodule \-B \-S "/tmp/var/lib/selinux"
+>>  # Write the HLL version of puppet and the CIL version of wireshark
+>>  # modules at priority 400 to the current working directory
+>> -$ semodule \-X 400 \-g wireshark \-\-cil \-g puppet \-\-hll
+>> +$ semodule \-X 400 \-E wireshark \-\-cil \-E puppet \-\-hll
+>=20
+> Actually this command extracts the HLL version of wireshark and the CIL=
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libselinux/src/init.c        | 27 +++------------------------
- libselinux/src/load_policy.c | 15 ++++++++++-----
- 2 files changed, 13 insertions(+), 29 deletions(-)
+> version of puppet (it creates wireshark.pp and puppet.cil on my system
+> with checkpolicy 2.5).  In order to do what the comment suggests, the
+> --cil and --hll flags need to be set before the -E options: semodule -X=
 
-diff --git a/libselinux/src/init.c b/libselinux/src/init.c
-index 3530594..3c687a2 100644
---- a/libselinux/src/init.c
-+++ b/libselinux/src/init.c
-@@ -11,8 +11,6 @@
- #include <sys/vfs.h>
- #include <stdint.h>
- #include <limits.h>
--#include <sys/mount.h>
--#include <linux/magic.h>
- 
- #include "dso.h"
- #include "policy.h"
-@@ -58,26 +56,15 @@ static int verify_selinuxmnt(const char *mnt)
- 
- int selinuxfs_exists(void)
- {
--	int exists = 0, mnt_rc = -1, rc;
--	struct statfs sb;
-+	int exists = 0;
- 	FILE *fp = NULL;
- 	char *buf = NULL;
- 	size_t len;
- 	ssize_t num;
- 
--	do {
--		rc = statfs("/proc", &sb);
--	} while (rc < 0 && errno == EINTR);
--
--	if (rc == 0 && ((uint32_t)sb.f_type != (uint32_t)PROC_SUPER_MAGIC))
--		mnt_rc = mount("proc", "/proc", "proc", 0, 0);
--
- 	fp = fopen("/proc/filesystems", "r");
--	if (!fp) {
--		exists = 1; /* Fail as if it exists */
--		goto out;
--	}
--
-+	if (!fp)
-+		return 1; /* Fail as if it exists */
- 	__fsetlocking(fp, FSETLOCKING_BYCALLER);
- 
- 	num = getline(&buf, &len, fp);
-@@ -91,14 +78,6 @@ int selinuxfs_exists(void)
- 
- 	free(buf);
- 	fclose(fp);
--
--out:
--#ifndef MNT_DETACH
--#define MNT_DETACH 2
--#endif
--	if (mnt_rc == 0)
--		umount2("/proc", MNT_DETACH);
--
- 	return exists;
- }
- hidden_def(selinuxfs_exists)
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index 21ee58b..4f39fc7 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -17,6 +17,10 @@
- #include "policy.h"
- #include <limits.h>
- 
-+#ifndef MNT_DETACH
-+#define MNT_DETACH 2
-+#endif
-+
- int security_load_policy(void *data, size_t len)
- {
- 	char path[PATH_MAX];
-@@ -348,11 +352,6 @@ int selinux_init_load_policy(int *enforce)
- 		fclose(cfg);
- 		free(buf);
- 	}
--#ifndef MNT_DETACH
--#define MNT_DETACH 2
--#endif
--	if (rc == 0)
--		umount2("/proc", MNT_DETACH);
- 
- 	/* 
- 	 * Determine the final desired mode.
-@@ -400,11 +399,17 @@ int selinux_init_load_policy(int *enforce)
- 			/* Only emit this error if selinux was not disabled */
- 			fprintf(stderr, "Mount failed for selinuxfs on %s:  %s\n", SELINUXMNT, strerror(errno));
- 		}
-+
-+		if (rc == 0)
-+			umount2("/proc", MNT_DETACH);
-                 
- 		goto noload;
- 	}
- 	set_selinuxmnt(mntpoint);
- 
-+	if (rc == 0)
-+		umount2("/proc", MNT_DETACH);
-+
- 	/*
- 	 * Note:  The following code depends on having selinuxfs 
- 	 * already mounted and selinuxmnt set above.
--- 
-2.5.5
+> 400 --cil -E wireshark --hll -E puppet.
+>=20
+> -- Nicolas
+>=20
+
+I overlooked that. Thanks.
+
+I'll prepare another patch.
+
+Petr
+--=20
+Petr Lautrbach
+
+
+
+--NSGV1rid3esqS3Ev2x9hjOqfiwrBXVdot
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJXOaYRAAoJEGOorUuYLENzFWAQAI1jeDFfr6NXXOeB+7U5IfRL
+wTuFC85oZ31R30CNqTWb6eHQEMXr5Q0mFgcIkAkPvnSewYFHbuwORu7uFY/t96Ro
+AZrbNjqNR2uErDD//9WbysItr43whEyNYexAna5gFwkFp7UGOBo0Aap5yJE5zo8G
+JD91fv6/WkH+xEPGHbWsCD/9FblkvAg6Wp41on4y6wef7y2fcW1iZuFF48k6JiUg
+JaIJ8ovJ42OL+flYt+MypxUBPxqnK4vrYd0VkfnBIn2/wSHVAXH4tbC3kKPMiheo
+2Y1ePQUYjouRYe+ZfDfVUUP/c4TH+fW7kHHzLaNv2o15rC+ORMEG0Eaz+b2r6MSX
+LIFQdmsvZeu6wRhF5Oc2PdLbDPp40nZOrjPiC98KEie17FToP9UoY97qaB921L11
+A0CliXQaO0Y3ibLH2yvm1Ddsm2L9Nwa+4toK/wbyzHYMybFtp1F+ER+1nsGc1WSy
+zJAXr9fMJCdT4LQapvK68ashC0zl5CmPs7wqhFoBhYgcGtVnu920wZBNT3ehKJIg
+//cgZMZzmr+k3sixx//8YyXUsS6MpeavcnjB9dkSqLjGxt6F5GqXvSBwHgmhLXc5
+5hB0C0mXE6X7mzHPZw7xwkpW2iy3rrrm/rf8xaMXE5ojvACxBRjL36aHtjjzSBnT
+MOuIeQihIItqXWECAQuc
+=+BdQ
+-----END PGP SIGNATURE-----
+
+--NSGV1rid3esqS3Ev2x9hjOqfiwrBXVdot--
