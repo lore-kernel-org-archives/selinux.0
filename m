@@ -1,35 +1,41 @@
-Subject: Re: [PATCH] libsemanage: Support overriding Makefile RANLIB
-To: Julien Pivotto <roidelapluie@inuits.eu>, selinux@tycho.nsa.gov
-References: <1463083074-8550-1-git-send-email-roidelapluie@inuits.eu>
+Subject: Re: [PATCH] checkpolicy: Fix checkmodule output message
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+References: <1463414965-5639-1-git-send-email-plautrba@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <275bef17-ad49-1880-5085-b7f2cae7bb17@tycho.nsa.gov>
-Date: Mon, 16 May 2016 16:46:34 -0400
+Message-ID: <0d491e44-9766-5616-ef40-38468b4ce292@tycho.nsa.gov>
+Date: Mon, 16 May 2016 16:46:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <1463083074-8550-1-git-send-email-roidelapluie@inuits.eu>
+In-Reply-To: <1463414965-5639-1-git-send-email-plautrba@redhat.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Applied.
+On 05/16/2016 12:09 PM, Petr Lautrbach wrote:
+> Originally checkmodule stated that it wrote to the input file instead of
+> to the output file.
 
-On 05/12/2016 03:57 PM, Julien Pivotto wrote:
+Thanks, applied.
+
+> 
+> Reported-By: Milos Malik <mmalik@redhat.com>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 > ---
->  libsemanage/src/Makefile | 2 +-
+>  checkpolicy/checkmodule.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index d1fcc0b..71eadd6 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -61,7 +61,7 @@ SWIG_CFLAGS += -Wno-error -Wno-unused-but-set-variable -Wno-unused-variable -Wno
->  		-Wno-unused-parameter
+> diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+> index 418f77b..53cc5a0 100644
+> --- a/checkpolicy/checkmodule.c
+> +++ b/checkpolicy/checkmodule.c
+> @@ -314,7 +314,7 @@ int main(int argc, char **argv)
 >  
->  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
-> -RANLIB=ranlib
-> +RANLIB ?= ranlib
+>  		if (!cil) {
+>  			printf("%s:  writing binary representation (version %d) to %s\n",
+> -				   argv[0], policyvers, file);
+> +				   argv[0], policyvers, outfile);
 >  
->  SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
->  
+>  			if (write_binary_policy(&modpolicydb, outfp) != 0) {
+>  				fprintf(stderr, "%s:  error writing %s\n", argv[0], outfile);
 > 
