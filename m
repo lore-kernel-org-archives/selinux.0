@@ -1,46 +1,51 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4HFRkMC016291
- for <selinux@tycho.nsa.gov>; Tue, 17 May 2016 11:27:46 -0400
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id 7FEC01A1BB
- for <selinux@tycho.nsa.gov>; Tue, 17 May 2016 17:27:42 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id VeBYZM016wlS for <selinux@tycho.nsa.gov>;
- Tue, 17 May 2016 17:27:40 +0200 (CEST)
-Received: from valinor.bigon.be (unknown [193.53.238.201])
- (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 4D1DC1A0D9
- for <selinux@tycho.nsa.gov>; Tue, 17 May 2016 17:27:40 +0200 (CEST)
-From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] semodule: Fix the --list-modules=full example in the manpage
-Date: Tue, 17 May 2016 17:27:39 +0200
-Message-Id: <1463498859-5911-1-git-send-email-bigon@debian.org>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: ANN: SETools 4.0.1
+To: "SELinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>, refpolicy
+ <refpolicy@oss.tresys.com>
+Message-ID: <3e8df2a5-67f3-a8b0-1139-1d87ed2b60c1@tresys.com>
+Date: Tue, 17 May 2016 13:52:10 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Laurent Bigonville <bigon@bigon.be>
+Tresys is pleased to announce the release of SETools 4.0.1:
 
----
- policycoreutils/semodule/semodule.8 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+https://github.com/TresysTechnology/setools/releases/tag/4.0.1
 
-diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-index 68e95ab..7b07c45 100644
---- a/policycoreutils/semodule/semodule.8
-+++ b/policycoreutils/semodule/semodule.8
-@@ -116,7 +116,7 @@ $ semodule \-d alsa
- # Install a module at a specific priority.
- $ semodule \-X 100 \-i alsa.pp
- # List all modules.
--$ semodule \-l full
-+$ semodule \-\-list-modules=full
- # Set an alternate path for the policy root
- $ semodule \-B \-p "/tmp"
- # Set an alternate path for the policy store root
+This is primarily a bugfix release.  Changes since 4.0.0:
+
+Library:
+* Fixed a compile error on 32bit systems.
+* Changed domain transition analysis output to use lists instead
+  of generators.  This fixes a display problem in apol's DTA browser.
+
+Apol:
+* Replaced icons with stock Qt icons to remove license issues
+  for some distributions.
+
+Sesearch:
+* Changed xperm options to bring in line with sediff, e.g. --allowx
+  changed to --allowxperm.  Python's argument parser will still detect
+  --allowx as an abbreviation of --allowxperm, so compatibility is
+  preserved.
+
+This release requires libsepol-2.5, which is unfortunately not available
+yet on some distributions.
+
+Warning: If you use this to replace SETools 3.x on your system, it will
+break the couple of tools from sepolgen/policycoreutils that depend on
+SETools (e.g. sepolicy) since libqpol/libapol C libraries and their
+corresponding Python wrappers are no longer provided.
+
+If you would like to help, planned features and bugs are listed in
+SETools' GitHub issue tracker:
+
+https://github.com/TresysTechnology/setools/issues
+
 -- 
-2.8.1
+Chris PeBenito
+Tresys Technology, LLC
+www.tresys.com | oss.tresys.com
