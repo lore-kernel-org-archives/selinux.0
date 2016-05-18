@@ -1,85 +1,198 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4HNwcCI020547
- for <selinux@tycho.nsa.gov>; Tue, 17 May 2016 19:58:38 -0400
-Received: by mail-oi0-f44.google.com with SMTP id x19so51434823oix.2
- for <selinux@tycho.nsa.gov>; Tue, 17 May 2016 16:58:36 -0700 (PDT)
-Date: Tue, 17 May 2016 18:58:34 -0500
-From: Seth Forshee <seth.forshee@canonical.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jeff Layton <jlayton@poochiereds.net>,
- "J. Bruce Fields" <bfields@fieldses.org>, Tejun Heo <tj@kernel.org>,
- Li Zefan <lizefan@huawei.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Miklos Szeredi <mszeredi@redhat.com>,
- Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
- linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
- dm-devel@redhat.com, linux-raid@vger.kernel.org,
- linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org
-Subject: Re: [PATCH v4 03/21] fs: Allow sysfs and cgroupfs to share super
- blocks between user namespaces
-Message-ID: <20160517235834.GA104031@ubuntu-hedt>
-References: <1461699046-30485-1-git-send-email-seth.forshee@canonical.com>
- <1461699046-30485-4-git-send-email-seth.forshee@canonical.com>
- <87shxgxqai.fsf@x220.int.ebiederm.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4IEBCDS015208
+ for <selinux@tycho.nsa.gov>; Wed, 18 May 2016 10:11:16 -0400
+Received: by mail-wm0-f53.google.com with SMTP id n129so187078289wmn.1
+ for <selinux@tycho.nsa.gov>; Wed, 18 May 2016 07:11:14 -0700 (PDT)
+Received: from sopos-ntb.usersys.redhat.com ([213.175.37.12])
+ by smtp.gmail.com with ESMTPSA id d79sm29808130wmi.23.2016.05.18.07.11.12
+ for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
+ Wed, 18 May 2016 07:11:12 -0700 (PDT)
+Subject: Re: [PATCH] semodule: Fix the --list-modules=full example in the
+ manpage
+To: selinux@tycho.nsa.gov
+References: <1463498859-5911-1-git-send-email-bigon@debian.org>
+ <d0b9cdf7-a58f-5639-805b-721412d1ed76@redhat.com>
+ <627d6669-9b12-890f-0498-ec24c878daf8@redhat.com>
+From: =?UTF-8?B?RGFsaWJvciBQb3Nww63FoWls?= <dapospis@redhat.com>
+Message-ID: <92325396-8412-373c-b146-38b270f416f4@redhat.com>
+Date: Wed, 18 May 2016 16:11:11 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <87shxgxqai.fsf@x220.int.ebiederm.org>
+In-Reply-To: <627d6669-9b12-890f-0498-ec24c878daf8@redhat.com>
+Content-Type: multipart/alternative;
+ boundary="------------454B326B5EECEA7BAE6E6C60"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, May 17, 2016 at 05:39:33PM -0500, Eric W. Biederman wrote:
-> Seth Forshee <seth.forshee@canonical.com> writes:
-> 
-> > Both of these filesystems already have use cases for mounting the
-> > same super block from multiple user namespaces. For sysfs this
-> > happens when using criu for snapshotting a container, where sysfs
-> > is mnounted in the containers network ns but the hosts user ns.
-> > The cgroup filesystem shares the same super block for all mounts
-> > of the same hierarchy regardless of the namespace.
-> >
-> > As a result, the restriction on mounting a super block from a
-> > single user namespace creates regressions for existing uses of
-> > these filesystems. For these specific filesystems this
-> > restriction isn't really necessary since the backing store is
-> > objects in kernel memory and thus the ids assigned from inodes
-> > is not subject to translation relative to s_user_ns.
-> >
-> > Add a new filesystem flag, FS_USERNS_SHARE_SB, which when set
-> > causes sget_userns() to skip the check of s_user_ns. Set this
-> > flag for the sysfs and cgroup filesystems to fix the
-> > regressions.
-> 
-> So this one needs to be sget_userns(..., &init_user_ns, ...).
-> And not a new special case.
+This is a multi-part message in MIME format.
+--------------454B326B5EECEA7BAE6E6C60
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This is actually what I wanted to do, but based on a previous discussion
-where I had suggested doing this (for a different reason) I came away
-thinking you did not want it that way. So I'm happy with that change.
+*Date: *Wed May 18 2016 12:00:11 GMT+0200 (CEST)
+> *Date: *Wed May 18 2016 09:57:47 GMT+0200 (CEST)
+>> On 05/17/2016 05:27 PM, Laurent Bigonville wrote:
+>>> From: Laurent Bigonville<bigon@bigon.be>
+>>>
+>>> ---
+>>>   policycoreutils/semodule/semodule.8 | 2 +-
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+>>> index 68e95ab..7b07c45 100644
+>>> --- a/policycoreutils/semodule/semodule.8
+>>> +++ b/policycoreutils/semodule/semodule.8
+>>> @@ -116,7 +116,7 @@ $ semodule \-d alsa
+>>>   # Install a module at a specific priority.
+>>>   $ semodule \-X 100 \-i alsa.pp
+>>>   # List all modules.
+>>> -$ semodule \-l full
+>>> +$ semodule \-\-list-modules=full
+>> It works without " " before full:
+>>
+>> $ semodule -lfull
+>>
+>> What about:
+>>
+>> policycoreutils/semodule/semodule.8:
+>>
+>>   .TP
+>> -.B  \-l,\-\-list-modules=[KIND]
+>> +.B  \-l[KIND],\-\-list-modules[=KIND]
+>>   display list of installed modules (other than base)
+>>
+>>   # List all modules.
+>> -$ semodule \-l full
+>> +$ semodule \-lfull
+> Wouldn't it be more natural to use 'all' instead of 'full' to express listing of all modules? I would expect 'full' as an option to some kind of formatting, like displaying full details.
+After discussion with Petr the 'full' kind makes sens. Actually I haven't tried it I just read the documentation which does not say much about this. Maybe it would be good to extend documentation to better describe 'full' kind, not just say it lists all modules. I would suggest something like 'long/detailed listing of (all) modules', similarly to ls -l.
+>>   # Set an alternate path for the policy root
+>>
+>>
+>> policycoreutils/semodule/semodule.c:
+>>
+>>          printf("  -r,--remove=MODULE_NAME   remove existing module\n");
+>> -       printf("  -l,--list-modules=[KIND]  display list of installed
+>> modules\n");
+>> +       printf("  -l[KIND],--list-modules[=KIND]  display list of
+>> installed modules\n");
+>>          printf("     KIND:  standard  list highest priority, enabled
+>> modules\n");
+>>
+>>
+>>
+>>
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email toSelinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" toSelinux-request@tycho.nsa.gov.
+>
 
-But if we do that it violates some of the assumptions of the patch to
-rework MNT_NODEV on your testing branch (and also those behind patch 2
-in this series). Something will need to be changed there to prevent a
-regression in mount behavior when a user ns tries to mount without
-MNT_NODEV when the mount inherited from its parent has it set.
 
-> Apologies for not catching this earlier.
+--------------454B326B5EECEA7BAE6E6C60
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 7bit
 
-Actually this is a more recent patch, so you possibly hadn't seen it
-before.
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  </head>
+  <body text="#000000" bgcolor="#FFFFFF">
+    <b>Date: </b>Wed May 18 2016 12:00:11 GMT+0200 (CEST)<br>
+    <blockquote
+      cite="mid:627d6669-9b12-890f-0498-ec24c878daf8@redhat.com"
+      type="cite">
+      <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+      <b>Date: </b>Wed May 18 2016 09:57:47 GMT+0200 (CEST)<br>
+      <blockquote
+        cite="mid:d0b9cdf7-a58f-5639-805b-721412d1ed76@redhat.com"
+        type="cite">
+        <pre wrap="">On 05/17/2016 05:27 PM, Laurent Bigonville wrote:
+</pre>
+        <blockquote type="cite">
+          <pre wrap="">From: Laurent Bigonville <a moz-do-not-send="true" class="moz-txt-link-rfc2396E" href="mailto:bigon@bigon.be">&lt;bigon@bigon.be&gt;</a>
 
-> I am looking at folding all of this into the patch that introduces
-> sget_userns so that even bisects won't have regresssions.
+---
+ policycoreutils/semodule/semodule.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-That's fine with me.
+diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+index 68e95ab..7b07c45 100644
+--- a/policycoreutils/semodule/semodule.8
++++ b/policycoreutils/semodule/semodule.8
+@@ -116,7 +116,7 @@ $ semodule \-d alsa
+ # Install a module at a specific priority.
+ $ semodule \-X 100 \-i alsa.pp
+ # List all modules.
+-$ semodule \-l full
++$ semodule \-\-list-modules=full
+</pre>
+        </blockquote>
+        <pre wrap="">It works without " " before full:
 
-Thanks,
-Seth
+$ semodule -lfull
+
+What about:
+
+policycoreutils/semodule/semodule.8:
+
+ .TP
+-.B  \-l,\-\-list-modules=[KIND]
++.B  \-l[KIND],\-\-list-modules[=KIND]
+ display list of installed modules (other than base)
+
+ # List all modules.
+-$ semodule \-l full
++$ semodule \-lfull</pre>
+      </blockquote>
+      Wouldn't it be more natural to use 'all' instead of 'full' to
+      express listing of all modules? I would expect 'full' as an option
+      to some kind of formatting, like displaying full details.<br>
+    </blockquote>
+    After discussion with Petr the 'full' kind makes sens. Actually I
+    haven't tried it I just read the documentation which does not say
+    much about this. Maybe it would be good to extend documentation to
+    better describe 'full' kind, not just say it lists all modules. I
+    would suggest something like 'long/detailed listing of (all)
+    modules', similarly to ls -l.<br>
+    <blockquote
+      cite="mid:627d6669-9b12-890f-0498-ec24c878daf8@redhat.com"
+      type="cite">
+      <blockquote
+        cite="mid:d0b9cdf7-a58f-5639-805b-721412d1ed76@redhat.com"
+        type="cite">
+        <pre wrap=""> # Set an alternate path for the policy root
+
+
+policycoreutils/semodule/semodule.c:
+
+        printf("  -r,--remove=MODULE_NAME   remove existing module\n");
+-       printf("  -l,--list-modules=[KIND]  display list of installed
+modules\n");
++       printf("  -l[KIND],--list-modules[=KIND]  display list of
+installed modules\n");
+        printf("     KIND:  standard  list highest priority, enabled
+modules\n");
+
+
+
+</pre>
+        <br>
+        <fieldset class="mimeAttachmentHeader"></fieldset>
+        <br>
+        <pre wrap="">_______________________________________________
+Selinux mailing list
+<a moz-do-not-send="true" class="moz-txt-link-abbreviated" href="mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a>
+To unsubscribe, send email to <a moz-do-not-send="true" class="moz-txt-link-abbreviated" href="mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
+To get help, send an email containing "help" to <a moz-do-not-send="true" class="moz-txt-link-abbreviated" href="mailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.</pre>
+      </blockquote>
+      <br>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------454B326B5EECEA7BAE6E6C60--
