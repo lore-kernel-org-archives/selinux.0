@@ -1,8 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4IFunhT003781
- for <selinux@tycho.nsa.gov>; Wed, 18 May 2016 11:56:49 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Seth Forshee <seth.forshee@canonical.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4IGGLwU008316
+ for <selinux@tycho.nsa.gov>; Wed, 18 May 2016 12:16:21 -0400
+Received: by mail-oi0-f44.google.com with SMTP id v145so84535599oie.0
+ for <selinux@tycho.nsa.gov>; Wed, 18 May 2016 09:16:20 -0700 (PDT)
+Date: Wed, 18 May 2016 11:16:18 -0500
+From: Seth Forshee <seth.forshee@canonical.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  Jeff Layton <jlayton@poochiereds.net>,
@@ -19,81 +22,60 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
  fuse-devel@lists.sourceforge.net,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  cgroups@vger.kernel.org
+Subject: Re: [PATCH v4 03/21] fs: Allow sysfs and cgroupfs to share super
+ blocks between user namespaces
+Message-ID: <20160518161618.GC129218@ubuntu-hedt>
 References: <1461699046-30485-1-git-send-email-seth.forshee@canonical.com>
  <1461699046-30485-4-git-send-email-seth.forshee@canonical.com>
  <87shxgxqai.fsf@x220.int.ebiederm.org>
  <20160517235834.GA104031@ubuntu-hedt>
-Date: Wed, 18 May 2016 10:45:31 -0500
-In-Reply-To: <20160517235834.GA104031@ubuntu-hedt> (Seth Forshee's message of
- "Tue, 17 May 2016 18:58:34 -0500")
-Message-ID: <8760ubs738.fsf@x220.int.ebiederm.org>
+ <8760ubs738.fsf@x220.int.ebiederm.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH v4 03/21] fs: Allow sysfs and cgroupfs to share super
- blocks between user namespaces
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <8760ubs738.fsf@x220.int.ebiederm.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Seth Forshee <seth.forshee@canonical.com> writes:
+On Wed, May 18, 2016 at 10:45:31AM -0500, Eric W. Biederman wrote:
+> > But if we do that it violates some of the assumptions of the patch to
+> > rework MNT_NODEV on your testing branch (and also those behind patch 2
+> > in this series). Something will need to be changed there to prevent a
+> > regression in mount behavior when a user ns tries to mount without
+> > MNT_NODEV when the mount inherited from its parent has it set.
+> 
+> Thank you for pointing that out.  I will look into that.
+> 
+> I believe I know exactly what you are talking about.  Of the choices I
+> think it is better to a minor localized change in the fs_fully_visible
+> logic than it is to cause problems elsewhere.
 
-> On Tue, May 17, 2016 at 05:39:33PM -0500, Eric W. Biederman wrote:
->> Seth Forshee <seth.forshee@canonical.com> writes:
->> 
->> > Both of these filesystems already have use cases for mounting the
->> > same super block from multiple user namespaces. For sysfs this
->> > happens when using criu for snapshotting a container, where sysfs
->> > is mnounted in the containers network ns but the hosts user ns.
->> > The cgroup filesystem shares the same super block for all mounts
->> > of the same hierarchy regardless of the namespace.
->> >
->> > As a result, the restriction on mounting a super block from a
->> > single user namespace creates regressions for existing uses of
->> > these filesystems. For these specific filesystems this
->> > restriction isn't really necessary since the backing store is
->> > objects in kernel memory and thus the ids assigned from inodes
->> > is not subject to translation relative to s_user_ns.
->> >
->> > Add a new filesystem flag, FS_USERNS_SHARE_SB, which when set
->> > causes sget_userns() to skip the check of s_user_ns. Set this
->> > flag for the sysfs and cgroup filesystems to fix the
->> > regressions.
->> 
->> So this one needs to be sget_userns(..., &init_user_ns, ...).
->> And not a new special case.
->
-> This is actually what I wanted to do, but based on a previous discussion
-> where I had suggested doing this (for a different reason) I came away
-> thinking you did not want it that way. So I'm happy with that change.
+Agreed.
 
-Yeah.  Somedays it seems like there are a lot of pieces in play here.
-The security labels on sysfs seems to be a very compelling case.
+> >> Apologies for not catching this earlier.
+> >
+> > Actually this is a more recent patch, so you possibly hadn't seen it
+> > before.
+> >
+> >> I am looking at folding all of this into the patch that introduces
+> >> sget_userns so that even bisects won't have regresssions.
+> >
+> > That's fine with me.
+> 
+> And thank you for keeping everything as separate patches.  That is at
+> least helping me catch up.  Even if I don't agree that these things
+> should be separate come merge time.
 
-> But if we do that it violates some of the assumptions of the patch to
-> rework MNT_NODEV on your testing branch (and also those behind patch 2
-> in this series). Something will need to be changed there to prevent a
-> regression in mount behavior when a user ns tries to mount without
-> MNT_NODEV when the mount inherited from its parent has it set.
+Honestly I probably would have squashed some of them into that first
+patch myself if you hadn't already applied it to your testing branch, so
+that's all just luck.
 
-Thank you for pointing that out.  I will look into that.
+Keep in mind that I also have that patch for mqueue that isn't in this
+series, and I haven't yet checked to see if the 4.7 merges introduce
+anything which is going to require updating these patches. I was
+planning to wait and send out updates after -rc1, but if you want that
+stuff sooner just let me know.
 
-I believe I know exactly what you are talking about.  Of the choices I
-think it is better to a minor localized change in the fs_fully_visible
-logic than it is to cause problems elsewhere.
-
->> Apologies for not catching this earlier.
->
-> Actually this is a more recent patch, so you possibly hadn't seen it
-> before.
->
->> I am looking at folding all of this into the patch that introduces
->> sget_userns so that even bisects won't have regresssions.
->
-> That's fine with me.
-
-And thank you for keeping everything as separate patches.  That is at
-least helping me catch up.  Even if I don't agree that these things
-should be separate come merge time.
-
-Eric
+Thanks,
+Seth
