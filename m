@@ -1,29 +1,33 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4KIC1ZD015993
- for <selinux@tycho.nsa.gov>; Fri, 20 May 2016 14:12:01 -0400
-Received: from apxexsophos02.apex.local (localhost.localdomain [127.0.0.1])
- by localhost (Email Security Appliance) with SMTP id 9B4E225794B_73F536AB
- for <selinux@tycho.nsa.gov>; Fri, 20 May 2016 18:11:54 +0000 (GMT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4KJ6385026080
+ for <selinux@tycho.nsa.gov>; Fri, 20 May 2016 15:06:03 -0400
+Received: from apxexsophos01.apex.local (localhost.localdomain [127.0.0.1])
+ by localhost (Email Security Appliance) with SMTP id A214F257A79_73F5FFBB
+ for <selinux@tycho.nsa.gov>; Fri, 20 May 2016 19:05:31 +0000 (GMT)
 Received: from APXEXCASHT01.APEX.LOCAL (apxexcasht01 [10.1.60.50])
- by apxexsophos02.apex.local (Sophos Email Appliance) with ESMTP id
- 8A844254D08_73F536AF
- for <selinux@tycho.nsa.gov>; Fri, 20 May 2016 18:11:54 +0000 (GMT)
+ by apxexsophos01.apex.local (Sophos Email Appliance) with ESMTP id
+ 88A4E254C92_73F5FFBF
+ for <selinux@tycho.nsa.gov>; Fri, 20 May 2016 19:05:31 +0000 (GMT)
 From: "Jesse M. Bacon" <jesse.bacon@ce.apexsystemsinc.com>
 To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: libsepol will not compile
-Date: Fri, 20 May 2016 18:11:52 +0000
-Message-ID: <1463767911810.39859@ce.apexsystemsinc.com>
+Subject: Fw: libsepol will not compile
+Date: Fri, 20 May 2016 19:05:29 +0000
+Message-ID: <1463771129308.79509@ce.apexsystemsinc.com>
+References: <1463767911810.39859@ce.apexsystemsinc.com>
+In-Reply-To: <1463767911810.39859@ce.apexsystemsinc.com>
 Content-Type: multipart/alternative;
- boundary="_000_146376791181039859ceapexsystemsinccom_"
+ boundary="_000_146377112930879509ceapexsystemsinccom_"
 MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_000_146376791181039859ceapexsystemsinccom_
+--_000_146377112930879509ceapexsystemsinccom_
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+
+?
 
 Tycho,
 
@@ -166,8 +170,14 @@ ou are not the intended recipient, you should immediately stop reading this=
  message and delete it from your system. Any unauthorized reading, distribu=
 tion, copying or other use of this communication (or its attachments) is st=
 rictly prohibited.
+This e-mail communication (including any attachments) may contain confident=
+ial information intended solely for the use of the intended recipient. If y=
+ou are not the intended recipient, you should immediately stop reading this=
+ message and delete it from your system. Any unauthorized reading, distribu=
+tion, copying or other use of this communication (or its attachments) is st=
+rictly prohibited.
 
---_000_146376791181039859ceapexsystemsinccom_
+--_000_146377112930879509ceapexsystemsinccom_
 Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
@@ -180,8 +190,14 @@ argin-bottom: 0px; }--></style>
 </head>
 <body dir=3D"ltr" style=3D"font-size:12pt;color:#000000;background-color:#F=
 FFFFF;font-family:Calibri,Arial,Helvetica,sans-serif;">
-<p>Tycho,<br>
+<p>&#8203;<br>
 </p>
+<div dir=3D"ltr" style=3D"font-size:12pt; color:#000000; background-color:#=
+FFFFFF; font-family:Calibri,Arial,Helvetica,sans-serif">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr">
+<div><span style=3D"font-size: 12pt;">Tycho,</span></div>
+</div>
+<div>
 <p><br>
 </p>
 <p>I am having an issue with SELinux. &nbsp;We have servers currently deplo=
@@ -227,52 +243,52 @@ br>
 </p>
 <p><br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">Forgive me, I'm a beginner, I've never written a driver or kernel mo=
-dule, and I don't know what that means. &nbsp;The RedHat guide for SELinux =
-provides a gist for MLS. &nbsp;I can work through
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>Forgive me, I'm a beginner, I've never written a driver or kernel module, =
+and I don't know what that means. &nbsp;The RedHat guide for SELinux provid=
+es a gist for MLS. &nbsp;I can work through
  that and will. &nbsp;I am concerned that there will be no way to get this =
 running given the OS and the documentation and a clean source build. &nbsp;=
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;"><br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+><br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">In order to get e more current version of SELinux and gcc I will hav=
-e to go to RHEL7. &nbsp;RHEL7 features grub2 and I still have to figure out=
- how to audit that at boot time and additionally
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>In order to get e more current version of SELinux and gcc I will have to g=
+o to RHEL7. &nbsp;RHEL7 features grub2 and I still have to figure out how t=
+o audit that at boot time and additionally
  there is a use after free vulnerability that has me worried about access c=
 ontrol credentials getting snooped. &nbsp;I can't let that happen and RedHa=
 t says the vulnerability does not affect RHEL 6.7. &nbsp;That I believe, is=
  a separate&nbsp;issue.&nbsp;</p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;"><br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+><br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">There are a lot of appliances affected by this, I will need help wri=
-ting configuration scripts to get them all into MLS mode and enforcing.<br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>There are a lot of appliances affected by this, I will need help writing c=
+onfiguration scripts to get them all into MLS mode and enforcing.<br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;"><br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+><br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">Please forgive me if this isn't proper forum for this. &nbsp; &nbsp;=
- &nbsp;<br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>Please forgive me if this isn't proper forum for this. &nbsp; &nbsp; &nbsp=
+;<br>
 </p>
 <p><br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">My system is unable to create the MLS context when I run the chcat -=
-l&nbsp;command using the RedHat supplied packages<br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>My system is unable to create the MLS context when I run the chcat -l&nbsp=
+;command using the RedHat supplied packages<br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">&quot;&quot;&quot;</p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">libsepol.mls_from_string: &nbsp;invalid MLS context s0-s0:Salaries (=
-No such file or directory)<br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>&quot;&quot;&quot;</p>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>libsepol.mls_from_string: &nbsp;invalid MLS context s0-s0:Salaries (No suc=
+h file or directory)<br>
 </p>
-<p style=3D"font-family: Calibri, Arial, Helvetica, sans-serif; font-size: =
-16px;">&quot;&quot;&quot;<br>
+<p style=3D"font-family:Calibri,Arial,Helvetica,sans-serif; font-size:16px"=
+>&quot;&quot;&quot;<br>
 </p>
 <p><br>
 </p>
@@ -346,6 +362,17 @@ t purpose.</div>
 </div>
 <p><br>
 </p>
+<i><span style=3D"font-size:7.5pt; font-family:&quot;Verdana&quot;,&quot;sa=
+ns-serif&quot;; color:#3E69A7">This e-mail communication (including any att=
+achments) may contain confidential information intended solely for the use =
+of the intended recipient. If you are not the intended
+ recipient, you should immediately stop reading this message and delete it =
+from your system. Any unauthorized reading, distribution, copying or other =
+use of this communication (or its attachments) is strictly prohibited.</spa=
+n></i>
+<h5></h5>
+</div>
+</div>
 <i><span style=3D"font-size:7.5pt;font-family:&quot;Verdana&quot;,&quot;san=
 s-serif&quot;;
 color:#3E69A7">This e-mail communication (including any attachments) may co=
@@ -359,4 +386,4 @@ n></i>
 </body>
 </html>
 
---_000_146376791181039859ceapexsystemsinccom_--
+--_000_146377112930879509ceapexsystemsinccom_--
