@@ -1,94 +1,61 @@
-Subject: Re: libsepol will not compile
-To: "Jesse M. Bacon" <jesse.bacon@ce.apexsystemsinc.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <1463767911810.39859@ce.apexsystemsinc.com>
+Subject: Re: [PATCH] semodule: Fix the --list-modules=full example in the
+ manpage
+To: Petr Lautrbach <plautrba@redhat.com>,
+ Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <1463498859-5911-1-git-send-email-bigon@debian.org>
+ <d0b9cdf7-a58f-5639-805b-721412d1ed76@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b16667b4-bb8c-6756-6d9a-915b917c34ac@tycho.nsa.gov>
-Date: Fri, 20 May 2016 15:13:57 -0400
+Message-ID: <6a2dd3fa-1b9d-f2a8-a39d-7b72ac9570a0@tycho.nsa.gov>
+Date: Fri, 20 May 2016 15:48:16 -0400
 MIME-Version: 1.0
-In-Reply-To: <1463767911810.39859@ce.apexsystemsinc.com>
+In-Reply-To: <d0b9cdf7-a58f-5639-805b-721412d1ed76@redhat.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/20/2016 02:11 PM, Jesse M. Bacon wrote:
-> I am having an issue with SELinux.  We have servers currently deployed
-> with Red Hat Enterprise Linux on them and they required enhanced access
-> controls.  I have already recommended that we use SELinux to increase
-> the security of our access controls for users and files.  I am
-> attempting to work through a book on SELinux in order to make
-> recommendations about how it can be leveraged on these systems.  The
-> book exercises lead me to an example where I am running "chcat -l --
-> +Salaries myuser".
+On 05/18/2016 03:57 AM, Petr Lautrbach wrote:
+> On 05/17/2016 05:27 PM, Laurent Bigonville wrote:
+>> From: Laurent Bigonville <bigon@bigon.be>
+>> 
+>> --- policycoreutils/semodule/semodule.8 | 2 +- 1 file changed, 1
+>> insertion(+), 1 deletion(-)
+>> 
+>> diff --git a/policycoreutils/semodule/semodule.8
+>> b/policycoreutils/semodule/semodule.8 index 68e95ab..7b07c45
+>> 100644 --- a/policycoreutils/semodule/semodule.8 +++
+>> b/policycoreutils/semodule/semodule.8 @@ -116,7 +116,7 @@ $
+>> semodule \-d alsa # Install a module at a specific priority. $
+>> semodule \-X 100 \-i alsa.pp # List all modules. -$ semodule \-l
+>> full +$ semodule \-\-list-modules=full
 > 
 > 
-> RHEL 6.7 is unable to create the security context.  I am in mls mode.
->   I grabbed a source version of the most recent build of SELinux so that
-> I could build libsepol and semanage from source and see if that made a
-> difference.  I found that RedHat had a bug report where semanage is
-> faulty within their distribution and that a patch had been issued and
-> everything but it looks like the patch is for Fedora.
+> It works without " " before full:
 > 
->  
+> $ semodule -lfull
 > 
-> Reference:
+> What about:
 > 
-> https://bugzilla.redhat.com/show_bug.cgi?id=1048524
+> policycoreutils/semodule/semodule.8:
 > 
+> .TP -.B  \-l,\-\-list-modules=[KIND] +.B
+> \-l[KIND],\-\-list-modules[=KIND] display list of installed modules
+> (other than base)
 > 
-> The latest version of SELinux requires a compiler in excess of what
-> ships with RHEL 6.7.  I upgraded to the 6.1 version of gcc and installed
-> all the dependencies and crossed my fingers and ran make.
->  Unfortunately libsepol cannot compile because:
-> 
-> """
-> 
-> util.c:127: error: 'low_bit' may be used uninitialized in this function
-> 
-> """
-> 
-> I can't get any of it to compile even when I set the LIBDIR to lib64 and
-> run make with --disable-multilib.
+> # List all modules. -$ semodule \-l full +$ semodule \-lfull # Set
+> an alternate path for the policy root
 > 
 > 
-> Forgive me, I'm a beginner, I've never written a driver or kernel
-> module, and I don't know what that means.  The RedHat guide for SELinux
-> provides a gist for MLS.  I can work through that and will.  I am
-> concerned that there will be no way to get this running given the OS and
-> the documentation and a clean source build.  
+> policycoreutils/semodule/semodule.c:
 > 
-> 
-> In order to get e more current version of SELinux and gcc I will have to
-> go to RHEL7.  RHEL7 features grub2 and I still have to figure out how to
-> audit that at boot time and additionally there is a use after free
-> vulnerability that has me worried about access control credentials
-> getting snooped.  I can't let that happen and RedHat says the
-> vulnerability does not affect RHEL 6.7.  That I believe, is a
-> separate issue. 
-> 
-> 
-> There are a lot of appliances affected by this, I will need help writing
-> configuration scripts to get them all into MLS mode and enforcing.
-> 
-> 
-> Please forgive me if this isn't proper forum for this.      
-> 
-> 
-> My system is unable to create the MLS context when I run the chcat
-> -l command using the RedHat supplied packages
-> 
-> """
-> 
-> libsepol.mls_from_string:  invalid MLS context s0-s0:Salaries (No such
-> file or directory)
+> printf("  -r,--remove=MODULE_NAME   remove existing module\n"); -
+> printf("  -l,--list-modules=[KIND]  display list of installed 
+> modules\n"); +       printf("  -l[KIND],--list-modules[=KIND]
+> display list of installed modules\n"); printf("     KIND:  standard
+> list highest priority, enabled modules\n");
 
-I don't think you need to upgrade your SELinux userspace or compiler or
-RHEL version if you just want to use SELinux on existing systems.  I
-certainly wouldn't start there.
-
-Your problem could be as simple as not running mcstrans, the label
-translation daemon, which would normally handle mapping something like
-Salaries to a value understood by libsepol and the kernel. Do you have
-mcstrans installed and running?
+That works for me.  Someone want to spin an actual patch?  Although
+the -l argument handling is somewhat odd and non-standard; if it
+wasn't already in place, I think I'd have advocated for a separate
+option flag if you want the full/long listing.
