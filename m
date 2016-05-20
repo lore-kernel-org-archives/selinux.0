@@ -1,211 +1,300 @@
-Subject: Re: [PATCH] Fix neverallowxperm checking on attributes
-To: Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov
-References: <1463608393-37966-1-git-send-email-jeffv@google.com>
+Subject: Re: [PATCH 1/3] libselinux: Evaluate inodes in selinux_restorecon(3)
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+References: <1462893734-9509-1-git-send-email-richard_c_haines@btinternet.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b6c4daa2-3cde-9995-3642-bfdc3b7dd95b@tycho.nsa.gov>
-Date: Thu, 19 May 2016 14:37:10 -0400
+Message-ID: <08abe881-e195-92d0-fa20-87eadaccf645@tycho.nsa.gov>
+Date: Fri, 20 May 2016 12:26:25 -0400
 MIME-Version: 1.0
-In-Reply-To: <1463608393-37966-1-git-send-email-jeffv@google.com>
+In-Reply-To: <1462893734-9509-1-git-send-email-richard_c_haines@btinternet.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/18/2016 05:53 PM, Jeff Vander Stoep wrote:
-> The following test incorrectly asserts a neverallowxperm failure.
+On 05/10/2016 11:22 AM, Richard Haines wrote:
+> This patch transfers matchpathcon.c inode evaluation services to
+> selinux_restorecon.c and modifies them to also support setfiles(8)
+> inode services.
 > 
-> 	attribute test1_attr1;
-> 	attribute test1_attr2;
-> 	type test1_type1, test1_attr1, test1_attr2;
+> The overall objective is to modify restorecon(8) and setfiles(8)
+> to use selinux_restorecon(3) services and then, when ready
+> remove the deprecated matchpathcon services from libselinux.
 > 
-> 	allow test1_type1 test1_attr1:socket ioctl;
-> 	allowxperm test1_type1 test1_attr2:socket ioctl { 1 };
-> 	neverallowxperm test1_attr1 test1_attr1:socket ioctl { 0 }
-> 
-> To handle attributes correctly, the neverallowxperm checking has been
-> modified. Now when the ioctl permission is granted on an avtab entry
-> that matches an avrule neverallowxperm entry, the assertion checking
-> first determines the matching source/target/class sets between the
-> avtab entry and the neverallowxperm entry. Only the matching sets are
-> enumerated over to determine if the neverallowed extended permissions
-> exist and if they are granted. This is similar to how
-> report_assertion_avtab_matches() reports neverallow failures.
-> 
-> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-
-Thanks, applied.
-
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  libsepol/src/assertion.c | 117 ++++++++++++++++++++++++++++++++++++++---------
->  1 file changed, 95 insertions(+), 22 deletions(-)
+>  libselinux/include/selinux/restorecon.h  |   4 +
+>  libselinux/man/man3/selinux_restorecon.3 |   5 +-
+>  libselinux/src/matchpathcon.c            | 139 +------------
+>  libselinux/src/selinux_restorecon.c      | 333 ++++++++++++++++++++++++++++---
+>  libselinux/utils/selinux_restorecon.c    |  14 +-
+>  5 files changed, 330 insertions(+), 165 deletions(-)
 > 
-> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-> index f4429ad..a4be880 100644
-> --- a/libsepol/src/assertion.c
-> +++ b/libsepol/src/assertion.c
-> @@ -147,8 +147,8 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
->  	avtab_key_t tmp_key;
->  	avtab_extended_perms_t *xperms;
->  	avtab_extended_perms_t error;
-> -	ebitmap_t *sattr = &p->type_attr_map[k->source_type - 1];
-> -	ebitmap_t *tattr = &p->type_attr_map[k->target_type - 1];
-> +	ebitmap_t *sattr = &p->type_attr_map[stype];
-> +	ebitmap_t *tattr = &p->type_attr_map[ttype];
->  	ebitmap_node_t *snode, *tnode;
->  	unsigned int i, j;
->  	int rc = 1;
-> @@ -174,14 +174,14 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
->  					continue;
+> diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
+> index ba1232e..0b93b0c 100644
+> --- a/libselinux/include/selinux/restorecon.h
+> +++ b/libselinux/include/selinux/restorecon.h
+> @@ -46,6 +46,10 @@ extern int selinux_restorecon(const char *pathname,
+>  /* Prevent descending into directories that have a different
+>   * device number than the pathname from which the descent began */
+>  #define SELINUX_RESTORECON_XDEV				128
+> +/* Attempt to add an association between an inode and a context.
+> + * If there is a different context that matched the inode,
+> + * then use the first context that matched. */
+> +#define SELINUX_RESTORECON_ADD_ASSOC			256
+
+IIRC, the (original) behavior in setfiles was to use the higher priority
+entry, i.e. the last matching specification in file_contexts, in the
+case of a conflict.  Not sure if that is still the case.
+
 >  
->  				rc = check_extended_permissions(avrule->xperms, xperms);
-> -				/* failure on the extended permission check_extended_permissionss */
-> +				/* failure on the extended permission check_extended_permissions */
->  				if (rc) {
->  					extended_permissions_violated(&error, avrule->xperms, xperms);
->  					ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of policy.conf) violated by\n"
->  							"allowxperm %s %s:%s %s;",
->  							avrule->source_line, avrule->source_filename, avrule->line,
-> -							p->p_type_val_to_name[stype],
-> -							p->p_type_val_to_name[ttype],
-> +							p->p_type_val_to_name[i],
-> +							p->p_type_val_to_name[j],
->  							p->p_class_val_to_name[curperm->tclass - 1],
->  							sepol_extended_perms_to_string(&error));
+>  /**
+>   * selinux_restorecon_set_sehandle - Set the global fc handle.
+> diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
+> index 0293c4d..bbb6721 100644
+> --- a/libselinux/man/man3/selinux_restorecon.3
+> +++ b/libselinux/man/man3/selinux_restorecon.3
+> @@ -68,7 +68,6 @@ If set, reset the files label to match the default specfile context.
+>  If not set only reset the files "type" component of the context to match the
+>  default specfile context.
+>  .br
+> -
+>  .sp
+>  .B SELINUX_RESTORECON_RECURSE
+>  change file and directory labels recursively (descend directories)
+> @@ -103,6 +102,10 @@ prevent descending into directories that have a different device number than
+>  the
+>  .I pathname
+>  entry from which the descent began.
+> +.sp
+> +.B SELINUX_RESTORECON_ADD_ASSOC
+> +attempt to add an association between an inode and a context. If there is a
+> +different context that matched the inode, then use the first context that matched.
+
+Ditto.
+
+>  .RE
+>  .sp
+>  The behavior regarding the checking and updating of the SHA1 digest described
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+> index 5b495a0..6020737 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -12,7 +12,7 @@ static __thread struct selabel_handle *hnd;
+>  /*
+>   * An array for mapping integers to contexts
+>   */
+> -static __thread char **con_array;
+> +__thread char **con_array;
+
+We should keep it static and provide helpers to access it if necessary
+from other files.  But see below.
+
+>  static __thread int con_array_size;
+>  static __thread int con_array_used;
 >  
-> @@ -317,29 +317,19 @@ oom:
+> @@ -131,27 +131,11 @@ void set_matchpathcon_flags(unsigned int flags)
+>  	notrans = flags & MATCHPATHCON_NOTRANS;
 >  }
 >  
->  /*
-> - * If the ioctl permission is granted in check_assertion_avtab_match for the
-> - * source/target/class matching the current avrule neverallow, a lookup is
-> - * performed to determine if extended permissions exist for the source/target/class.
-> - *
-> - * Four scenarios of interest:
-> - * 1. PASS - the ioctl permission is not granted for this source/target/class
-> - *    This case is handled in check_assertion_avtab_match
-> - * 2. PASS - The ioctl permission is granted AND the extended permission
-> - *    is NOT granted
-> - * 3. FAIL - The ioctl permission is granted AND no extended permissions
-> - *    exist
-> - * 4. FAIL - The ioctl permission is granted AND the extended permission is
-> - *    granted
-> + * Look up the extended permissions in avtab and verify that neverallowed
-> + * permissions are not granted.
->   */
-> -static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab,
-> +static int check_assertion_extended_permissions_avtab(avrule_t *avrule, avtab_t *avtab,
-> +						unsigned int stype, unsigned int ttype,
->  						avtab_key_t *k, policydb_t *p)
+> -/*
+> - * An association between an inode and a 
+> - * specification.  
+> - */
+> -typedef struct file_spec {
+> -	ino_t ino;		/* inode number */
+> -	int specind;		/* index of specification in spec */
+> -	char *file;		/* full pathname for diagnostic messages about conflicts */
+> -	struct file_spec *next;	/* next association in hash bucket chain */
+> -} file_spec_t;
+> -
+> -/*
+> - * The hash table of associations, hashed by inode number.
+> - * Chaining is used for collisions, with elements ordered
+> - * by inode number in each bucket.  Each hash bucket has a dummy 
+> - * header.
+> - */
+> -#define HASH_BITS 16
+> -#define HASH_BUCKETS (1 << HASH_BITS)
+> -#define HASH_MASK (HASH_BUCKETS-1)
+> -static file_spec_t *fl_head;
+> +/* Ensure add_assoc and verbose are false when calling from matchpathcon */
+> +extern int restorecon_filespec_add1(ino_t ino, int specind, const char *con,
+> +			    const char *file, bool add_assoc, bool verbose);
+> +extern void restorecon_filespec_eval(bool add_assoc, bool verbose);
+> +extern void restorecon_filespec_destroy(bool add_assoc);
+
+These should go in a private header, e.g. restorecon_internal.h, that is
+included by both restorecon.c and this file.  But see below.
+
+>
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+> index 17ed6fe..2794659 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -42,6 +42,19 @@ static const char **fc_exclude_list = NULL;
+>  static size_t fc_count = 0;
+>  #define STAR_COUNT 1000
+>  
+> +/* restorecon_flags for passing to restorecon_sb() */
+> +struct rest_flags {
+> +	bool nochange;
+> +	bool verbose;
+> +	bool progress;
+> +	bool specctx;
+> +	bool add_assoc;
+> +	bool ignore;
+> +	bool recurse;
+> +	bool userealpath;
+> +	bool xdev;
+> +};
+> +
+>  static void restorecon_init(void)
 >  {
->  	avtab_ptr_t node;
->  	avtab_key_t tmp_key;
->  	avtab_extended_perms_t *xperms;
->  	av_extended_perms_t *neverallow_xperms = avrule->xperms;
-> -	ebitmap_t *sattr = &p->type_attr_map[k->source_type - 1];
-> -	ebitmap_t *tattr = &p->type_attr_map[k->target_type - 1];
-> +	ebitmap_t *sattr = &p->type_attr_map[stype];
-> +	ebitmap_t *tattr = &p->type_attr_map[ttype];
->  	ebitmap_node_t *snode, *tnode;
->  	unsigned int i, j;
->  	int rc = 1;
-> @@ -373,6 +363,89 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
->  	return rc;
+>  	struct selabel_handle *sehandle = NULL;
+> @@ -66,6 +79,239 @@ static int check_excluded(const char *file)
+>  	return 0;
 >  }
 >  
 > +/*
-> + * When the ioctl permission is granted on an avtab entry that matches an
-> + * avrule neverallowxperm entry, enumerate over the matching
-> + * source/target/class sets to determine if the extended permissions exist
-> + * and if the neverallowed ioctls are granted.
+> + * Support filespec services for selinux_restorecon(3) and matchpathcon(3).
+> + * The matchpathcon services are deprecated and at some stage will be removed,
+> + * the matchpathcon specific code here can then also be removed.
 > + *
-> + * Four scenarios of interest:
-> + * 1. PASS - the ioctl permission is not granted for this source/target/class
-> + *    This case is handled in check_assertion_avtab_match
-> + * 2. PASS - The ioctl permission is granted AND the extended permission
-> + *    is NOT granted
-> + * 3. FAIL - The ioctl permission is granted AND no extended permissions
-> + *    exist
-> + * 4. FAIL - The ioctl permission is granted AND the extended permission is
-> + *    granted
+> + * selinux_restorecon(3) uses filespec services when the
+> + * SELINUX_RESTORECON_ADD_ASSOC flag is set for adding associations between
+> + * an inode and a context.
 > + */
-> +static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab,
-> +						avtab_key_t *k, policydb_t *p)
+> +
+> +/* Support for matchpathcon myprint() */
+> +extern int myprintf_compat;
+> +extern void __attribute__ ((format(printf, 1, 2)))
+> +(*myprintf) (const char *fmt, ...);
+> +#define COMPAT_LOG(type, fmt...) if (myprintf_compat)	  \
+> +		myprintf(fmt);				  \
+> +	else						  \
+> +		selinux_log(type, fmt);
+
+I hate the idea of carrying compat goo into a new file and function.
+Also, these are defined in label_internal.h so you can include that
+rather than redefining them here.
+
+> +
+> +/* Reference the con_array specified in matchpathcon.c */
+> +extern __thread char **con_array;
+> +
+> +int restorecon_filespec_add(ino_t ino, const char *con,
+> +			    const char *file, bool add_assoc, bool verbose);
+> +int restorecon_filespec_add1(ino_t ino, int specind, const char *con,
+> +			    const char *file, bool add_assoc, bool verbose);
+> +void restorecon_filespec_eval(bool add_assoc, bool verbose);
+> +void restorecon_filespec_destroy(bool add_assoc);
+
+Belong in an internal header.
+
+> +
+> +/*
+> + * Hold an association between an inode and a context or specification.
+> + */
+> +typedef struct file_spec {
+> +	ino_t ino;	/* inode number */
+> +	int specind;	/* index of specification in spec (matchpathcon) */
+> +	char *con;	/* matched context (selinux_restorecon)*/
+> +	char *file;	/* full pathname */
+> +	struct file_spec *next;	/* next association in hash bucket chain */
+> +} file_spec_t;
+
+I'm trying to remember the history of filespec_add and friends.
+First they existed only in setfiles.  Then I ported them to libselinux
+as matchpathcon_filespec_*() and rewrote setfiles to use them.  Then a
+revised implementation was added back to setfiles as part of the
+conversion to selabel_open() and friends, and the matchpathcon versions
+were just left for ABI compatibility but unused.  So I am unsure about
+moving these over to restorecon.
+
+> +
+> +/*
+> + * The hash table of associations, hashed by inode number.
+> + * Chaining is used for collisions, with elements ordered
+> + * by inode number in each bucket.  Each hash bucket has
+> + * a dummy header.
+> + */
+> +#define HASH_BITS 16
+> +#define HASH_BUCKETS (1 << HASH_BITS)
+> +#define HASH_MASK (HASH_BUCKETS-1)
+> +static file_spec_t *fl_head;
+> +
+> +/*
+> + * Try to add an association between an inode and a context.
+> + * If there is a different context that matched the inode,
+> + * then use the first context that matched.
+> + */
+> +int hidden restorecon_filespec_add(ino_t ino, const char *con,
+> +			    const char *file, bool add_assoc, bool verbose)
 > +{
-> +	ebitmap_t src_matches, tgt_matches, matches;
-> +	unsigned int i, j;
-> +	ebitmap_node_t *snode, *tnode;
-> +	class_perm_node_t *cp;
-> +	int rc;
-> +	int ret = 1;
-> +
-> +	ebitmap_init(&src_matches);
-> +	ebitmap_init(&tgt_matches);
-> +	ebitmap_init(&matches);
-> +	rc = ebitmap_and(&src_matches, &avrule->stypes.types,
-> +			 &p->attr_type_map[k->source_type - 1]);
-> +	if (rc)
-> +		goto oom;
-> +
-> +	if (ebitmap_length(&src_matches) == 0)
-> +		goto exit;
-> +
-> +	if (avrule->flags == RULE_SELF) {
-> +		rc = ebitmap_and(&matches, &p->attr_type_map[k->source_type - 1],
-> +				&p->attr_type_map[k->target_type - 1]);
-> +		if (rc)
-> +			goto oom;
-> +		rc = ebitmap_and(&tgt_matches, &avrule->stypes.types, &matches);
-> +		if (rc)
-> +			goto oom;
-> +	} else {
-> +		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types,
-> +				&p->attr_type_map[k->target_type -1]);
-> +		if (rc)
-> +			goto oom;
-> +	}
-> +
-> +	if (ebitmap_length(&tgt_matches) == 0)
-> +		goto exit;
-> +
-> +	for (cp = avrule->perms; cp; cp = cp->next) {
-> +		if (cp->tclass != k->target_class)
-> +			continue;
-> +		ebitmap_for_each_bit(&src_matches, snode, i) {
-> +			if (!ebitmap_node_get_bit(snode, i))
-> +				continue;
-> +			ebitmap_for_each_bit(&tgt_matches, tnode, j) {
-> +				if (!ebitmap_node_get_bit(tnode, j))
-> +					continue;
-> +
-> +				ret = check_assertion_extended_permissions_avtab(
-> +						avrule, avtab, i, j, k, p);
-> +				if (ret)
-> +					goto exit;
-> +			}
-> +		}
-> +	}
-> +	goto exit;
-> +
-> +oom:
-> +	ERR(NULL, "Out of memory - unable to check neverallows");
-> +
-> +exit:
-> +	ebitmap_destroy(&src_matches);
-> +	ebitmap_destroy(&tgt_matches);
-> +	ebitmap_destroy(&matches);
-> +	return ret;
+> +	return restorecon_filespec_add1(ino, -1, con, file, add_assoc, verbose);
+
+What does -1 mean?
+
 > +}
->  
->  static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *args)
->  {
-> @@ -382,7 +455,7 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
->  	avrule_t *avrule = a->avrule;
->  	avtab_t *avtab = a->avtab;
->  
-> -	if (k->specified != AVTAB_ALLOWED && k->specified != AVTAB_XPERMS_ALLOWED)
-> +	if (k->specified != AVTAB_ALLOWED)
->  		goto exit;
->  
->  	if (!match_any_class_permissions(avrule->perms, k->target_class, d->data))
-> 
+> +
+> +int hidden restorecon_filespec_add1(ino_t ino, int specind,
+> +				    const char *con,
+> +				    const char *file, bool add_assoc,
+> +				    bool verbose __attribute__((unused)))
+> +{
+> +	file_spec_t *prevfl, *fl;
+> +	int h, ret;
+> +	struct stat64 sb;
+> +
+> +	if (!fl_head) {
+> +		fl_head = malloc(sizeof(file_spec_t) * HASH_BUCKETS);
+> +		if (!fl_head)
+> +			goto oom;
+> +		memset(fl_head, 0, sizeof(file_spec_t) * HASH_BUCKETS);
+> +	}
+> +
+> +	h = (ino + (ino >> HASH_BITS)) & HASH_MASK;
+> +	for (prevfl = &fl_head[h], fl = fl_head[h].next; fl;
+> +	     prevfl = fl, fl = fl->next) {
+> +		if (ino == fl->ino) {
+> +			ret = lstat64(fl->file, &sb);
+> +			if (ret < 0 || sb.st_ino != ino) {
+> +				if (add_assoc)
+> +					free(fl->con);
+> +				free(fl->file);
+> +				fl->file = strdup(file);
+> +				if (!fl->file)
+> +					goto oom;
+> +
+> +				if (add_assoc) {
+> +					fl->con = strdup(con);
+> +					if (!fl->con)
+> +						goto oom;
+> +					return 1;
+> +				} else {
+> +					return fl->specind;
+> +				}
+> +			}
+> +
+> +			if (add_assoc) {
+> +				if (strcmp(fl->con, con) == 0)
+> +					return 1;
+> +
+> +				selinux_log(SELINUX_ERROR,
+> +					"%s:  conflicting specifications for %s and %s, using %s.\n",
+> +					__func__, file, fl->file, fl->con);
+> +				free(fl->file);
+> +				fl->file = strdup(file);
+> +				if (!fl->file)
+> +					goto oom;
+> +				return 1;
+> +			} else {
+> +				if (!strcmp(con_array[fl->specind],
+> +					    con_array[specind]))
+
+What happens when specind was passed as -1 above?
+
+Maybe we ought to just leave the matchpathcon ones alone (aside from
+deprecating and ultimately removing them), and bring over the versions
+added to setfiles when it was converted to using selabel_open().
