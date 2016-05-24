@@ -1,68 +1,102 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4O82dxu017532
- for <selinux@tycho.nsa.gov>; Tue, 24 May 2016 04:02:39 -0400
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 269D6C09725F
- for <selinux@tycho.nsa.gov>; Tue, 24 May 2016 08:02:37 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] policycoreutils/semodule: Fix the documentation of -l,--list
-Date: Tue, 24 May 2016 10:02:29 +0200
-Message-Id: <1464076949-27068-1-git-send-email-plautrba@redhat.com>
-In-Reply-To: <6a2dd3fa-1b9d-f2a8-a39d-7b72ac9570a0@tycho.nsa.gov>
-References: <6a2dd3fa-1b9d-f2a8-a39d-7b72ac9570a0@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u4OFtsfH030664
+ for <selinux@tycho.nsa.gov>; Tue, 24 May 2016 11:55:54 -0400
+Received: by mail-wm0-f65.google.com with SMTP id n129so7491332wmn.1
+ for <selinux@tycho.nsa.gov>; Tue, 24 May 2016 08:55:52 -0700 (PDT)
+Date: Tue, 24 May 2016 16:55:26 +0100
+From: Djalal Harouni <tixxdz@gmail.com>
+To: Seth Forshee <seth.forshee@canonical.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Serge Hallyn <serge.hallyn@canonical.com>,
+ Richard Weinberger <richard.weinberger@gmail.com>,
+ Austin S Hemmelgarn <ahferroin7@gmail.com>,
+ Miklos Szeredi <mszeredi@redhat.com>,
+ Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+ linux-kernel@vger.kernel.org, linux-bcache@vger.kernel.org,
+ dm-devel@redhat.com, linux-raid@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ fuse-devel@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ cgroups@vger.kernel.org
+Subject: Re: [PATCH v4 10/21] fs: Check for invalid i_uid in may_follow_link()
+Message-ID: <20160524155526.GB2830@dztty.fritz.box>
+References: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
+ <1461699396-33000-11-git-send-email-seth.forshee@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1461699396-33000-11-git-send-email-seth.forshee@canonical.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-It wasn't clear how to use -l option with full/standard KIND and the
-example in semodule.8 man page was wrong.
+On Tue, Apr 26, 2016 at 02:36:23PM -0500, Seth Forshee wrote:
+> Filesystem uids which don't map into a user namespace may result
+> in inode->i_uid being INVALID_UID. A symlink and its parent
+> could have different owners in the filesystem can both get
+> mapped to INVALID_UID, which may result in following a symlink
+> when this would not have otherwise been permitted when protected
+> symlinks are enabled.
+> 
+> Add a new helper function, uid_valid_eq(), and use this to
+> validate that the ids in may_follow_link() are both equal and
+> valid. Also add an equivalent helper for gids, which is
+> currently unused.
+> 
+> Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
+> Acked-by: Serge Hallyn <serge.hallyn@canonical.com>
 
-Based on a patch by Laurent Bigonville <bigon@bigon.be>
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- policycoreutils/semodule/semodule.8 | 4 ++--
- policycoreutils/semodule/semodule.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+Reviewed-by: Djalal Harouni <tixxdz@opendz.org>
 
-diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-index 68e95ab..0c5fdf7 100644
---- a/policycoreutils/semodule/semodule.8
-+++ b/policycoreutils/semodule/semodule.8
-@@ -38,7 +38,7 @@ deprecated, alias for --install
- .B  \-r,\-\-remove=MODULE_NAME
- remove existing module
- .TP
--.B  \-l,\-\-list-modules=[KIND]
-+.B  \-l[KIND],\-\-list-modules[=KIND]
- display list of installed modules (other than base)
- .TP
- .B  \-E,\-\-extract=MODULE_PKG
-@@ -116,7 +116,7 @@ $ semodule \-d alsa
- # Install a module at a specific priority.
- $ semodule \-X 100 \-i alsa.pp
- # List all modules.
--$ semodule \-l full
-+$ semodule \-\-list=full
- # Set an alternate path for the policy root
- $ semodule \-B \-p "/tmp"
- # Set an alternate path for the policy store root
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index bcfaa2b..63900f4 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -127,7 +127,7 @@ static void usage(char *progname)
- 	printf("  -B, --build		    build and reload policy\n");
- 	printf("  -i,--install=MODULE_PKG   install a new module\n");
- 	printf("  -r,--remove=MODULE_NAME   remove existing module\n");
--	printf("  -l,--list-modules=[KIND]  display list of installed modules\n");
-+	printf("  -l[KIND],--list-modules[=KIND]  display list of installed modules\n");
- 	printf("     KIND:  standard  list highest priority, enabled modules\n");
- 	printf("            full      list all modules\n");
- 	printf("  -X,--priority=PRIORITY    set priority for following operations (1-999)\n");
+
+> ---
+>  fs/namei.c             |  2 +-
+>  include/linux/uidgid.h | 10 ++++++++++
+>  2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/namei.c b/fs/namei.c
+> index a29094c6f4a1..6fe8b0d8ca90 100644
+> --- a/fs/namei.c
+> +++ b/fs/namei.c
+> @@ -915,7 +915,7 @@ static inline int may_follow_link(struct nameidata *nd)
+>  		return 0;
+>  
+>  	/* Allowed if parent directory and link owner match. */
+> -	if (uid_eq(parent->i_uid, inode->i_uid))
+> +	if (uid_valid_eq(parent->i_uid, inode->i_uid))
+>  		return 0;
+>  
+>  	if (nd->flags & LOOKUP_RCU)
+> diff --git a/include/linux/uidgid.h b/include/linux/uidgid.h
+> index 03835522dfcb..e09529fe2668 100644
+> --- a/include/linux/uidgid.h
+> +++ b/include/linux/uidgid.h
+> @@ -117,6 +117,16 @@ static inline bool gid_valid(kgid_t gid)
+>  	return __kgid_val(gid) != (gid_t) -1;
+>  }
+>  
+> +static inline bool uid_valid_eq(kuid_t left, kuid_t right)
+> +{
+> +	return uid_eq(left, right) && uid_valid(left);
+> +}
+> +
+> +static inline bool gid_valid_eq(kgid_t left, kgid_t right)
+> +{
+> +	return gid_eq(left, right) && gid_valid(left);
+> +}
+> +
+>  #ifdef CONFIG_USER_NS
+>  
+>  extern kuid_t make_kuid(struct user_namespace *from, uid_t uid);
+> -- 
+> 2.7.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 -- 
-2.7.4
+Djalal Harouni
+http://opendz.org
