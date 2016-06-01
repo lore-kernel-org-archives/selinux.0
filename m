@@ -1,91 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u526nQco022431
- for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2016 02:49:26 -0400
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id C55561A1BB
- for <selinux@tycho.nsa.gov>; Thu,  2 Jun 2016 08:49:21 +0200 (CEST)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id e7kGqPwKlXZP for <selinux@tycho.nsa.gov>;
- Thu,  2 Jun 2016 08:49:18 +0200 (CEST)
-Received: from fornost.bigon.be (unknown
- [IPv6:2a02:578:85fc:0:2440:d764:9b75:61a9])
- (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 9B7F61A0D9
- for <selinux@tycho.nsa.gov>; Thu,  2 Jun 2016 08:49:18 +0200 (CEST)
-From: Laurent Bigonville <bigon@debian.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] Sort object files for deterministic linking order
-Date: Thu,  2 Jun 2016 08:49:18 +0200
-Message-Id: <1464850158-16461-1-git-send-email-bigon@debian.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u51Ll8qv022486
+ for <selinux@tycho.nsa.gov>; Wed, 1 Jun 2016 17:47:08 -0400
+Received: by mail-vk0-f49.google.com with SMTP id a6so46282139vkg.3
+ for <selinux@tycho.nsa.gov>; Wed, 01 Jun 2016 14:46:44 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <7e716b38-f59b-eff3-152a-4f005b45abd9@tycho.nsa.gov>
+References: <1464616742-29271-1-git-send-email-agruenba@redhat.com>
+ <1464616742-29271-2-git-send-email-agruenba@redhat.com>
+ <2748270d-1c74-b5c8-c9f2-85d898c065e1@tycho.nsa.gov>
+ <CAHc6FU7z5bo44radMsKcadxqqhEqRpbfGGeUtR+CohJBMUfzKg@mail.gmail.com>
+ <7e716b38-f59b-eff3-152a-4f005b45abd9@tycho.nsa.gov>
+Date: Wed, 1 Jun 2016 23:46:44 +0200
+Message-ID: <CAHc6FU67zwdQ6zEjNuDZZpjOsXRYWB0AEWV4orssvgZNpusv-A@mail.gmail.com>
+Subject: Re: [RFC 1/2] selinux: Stop looking up dentries from inodes
+From: Andreas Gruenbacher <agruenba@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Laurent Bigonville <bigon@bigon.be>
+On Wed, Jun 1, 2016 at 3:44 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 05/31/2016 11:22 AM, Andreas Gruenbacher wrote:
+>> With that fixed, could you possibly put this change to test?
+>
+> Falls over during boot in generic_getxattr(), which still needs a
+> non-NULL dentry in the work.selinux branch.
 
-This patch is part of the Debian effort to make the build reproducible
+dentry->d_sb needs to be changed to inode->i_sb there.
 
-Thank to Reiner Herrmann <reiner@reiner-h.de> for the patches
+> Is there a reason that this being done separately from work.xattr?
 
-Signed-off-by: Laurent Bigonville <bigon@bigon.be>
----
- libselinux/src/Makefile  | 2 +-
- libsemanage/src/Makefile | 2 +-
- libsepol/src/Makefile    | 8 ++++----
- 3 files changed, 6 insertions(+), 6 deletions(-)
+I don't know how much work.xattr will shift still (and what I can
+still add there), and this change is unrelated, at least so far.
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index ac9a5d6..d94163e 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -49,7 +49,7 @@ ifeq ($(DISABLE_BOOL),y)
- endif
- 
- GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
--SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(wildcard *.c))
-+SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
- 
- MAX_STACK_SIZE=32768
- 
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index d6c3f0f..96ee652 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -52,7 +52,7 @@ SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
- LIBSO=$(TARGET).$(LIBVERSION)
- 
- GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i
--SRCS= $(filter-out $(GENERATED),$(wildcard *.c))
-+SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
- 
- OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
- LOBJS= $(patsubst %.c,%.lo,$(SRCS)) conf-scan.lo conf-parse.lo
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index c0c3274..b0c901f 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -18,15 +18,15 @@ TARGET=libsepol.so
- LIBPC=libsepol.pc
- LIBMAP=libsepol.map
- LIBSO=$(TARGET).$(LIBVERSION)
--OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
--LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
-+OBJS= $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
-+LOBJS= $(patsubst %.c,%.lo,$(sort $(wildcard *.c)))
- CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
- 
- override CFLAGS += -I. -I../include -D_GNU_SOURCE
- 
- ifneq ($(DISABLE_CIL),y)
--OBJS += $(sort $(patsubst %.c,%.o,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
--LOBJS += $(sort $(patsubst %.c,%.lo,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
-+OBJS += $(sort $(patsubst %.c,%.o,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
-+LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
- override CFLAGS += -I$(CILDIR)/include
- endif
- 
--- 
-2.8.1
+> Also, if we aren't going to call d_find_alias() there, we can likely
+> also drop the dget() and dput().
+
+Ah, yes. I'll remove those, thanks.
+
+Andreas
