@@ -1,51 +1,72 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u530JLxL029374
- for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2016 20:19:21 -0400
-Received: by mail-qg0-f48.google.com with SMTP id q32so4618793qgq.3
- for <selinux@tycho.nsa.gov>; Thu, 02 Jun 2016 17:19:20 -0700 (PDT)
-From: Joshua Brindle <brindle@quarksecurity.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: [PATCH] Modify audit2why analyze function to use loaded policy
-Date: Thu,  2 Jun 2016 20:19:12 -0400
-Message-Id: <1464913152-28265-1-git-send-email-brindle@quarksecurity.com>
+Message-ID: <1464903850.5939.178.camel@edumazet-glaptop3.roam.corp.google.com>
+Subject: Re: Possible problem with e6afc8ac ("udp: remove headers from UDP
+ packets before queueing")
+From: Eric Dumazet <eric.dumazet@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: samanthakumar@google.com, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, netdev@vger.kernel.org, Stephen Smalley
+ <sds@tycho.nsa.gov>
+Date: Thu, 02 Jun 2016 14:44:10 -0700
+In-Reply-To: <CAHC9VhQAiTRWMN-vNDXgAni2MhsyEYP8f2mZDY63xrx=5SxenQ@mail.gmail.com>
+References: <CAHC9VhS0oH8p55_3yOcQGJWx8WmokHW=kSrKOM6tKPM1XoPjGA@mail.gmail.com>
+ <1464808695.5939.167.camel@edumazet-glaptop3.roam.corp.google.com>
+ <0b1fde4f-57ef-8c5e-147f-10c4a51fb2b0@tycho.nsa.gov>
+ <CAHC9VhQAiTRWMN-vNDXgAni2MhsyEYP8f2mZDY63xrx=5SxenQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Class and perms should come from the policy being used for analysis,
-not the system policy so use sepol_ interfaces
+On Thu, 2016-06-02 at 17:36 -0400, Paul Moore wrote:
+> On Wed, Jun 1, 2016 at 4:44 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 06/01/2016 03:18 PM, Eric Dumazet wrote:
+> >> On Wed, 2016-06-01 at 15:01 -0400, Paul Moore wrote:
+> >>> Hello,
+> >>>
+> >>> I'm currently trying to debug a problem with 4.7-rc1 and labeled
+> >>> networking over UDP.  I'm having some difficulty with the latest
+> >>> 4.7-rc1 builds on my test system at the moment so I haven't been able
+> >>> to concisely identify the problem, but looking through the commits in
+> >>> 4.7-rc1 I think there may be a problem with the following:
+> >>>
+> >>>   commit e6afc8ace6dd5cef5e812f26c72579da8806f5ac
+> >>>   Author: samanthakumar <samanthakumar@google.com>
+> >>>   Date:   Tue Apr 5 12:41:15 2016 -0400
+> >>>
+> >>>    udp: remove headers from UDP packets before queueing
+> >>>
+> >>>    Remove UDP transport headers before queueing packets for reception.
+> >>>    This change simplifies a follow-up patch to add MSG_PEEK support.
+> >>>
+> >>>    Signed-off-by: Sam Kumar <samanthakumar@google.com>
+> >>>    Signed-off-by: Willem de Bruijn <willemb@google.com>
+> >>>    Signed-off-by: David S. Miller <davem@davemloft.net>
+> >>>
+> >>> ... it appears that this commit changes things so that sk_filter() is
+> >>> only called when sk->sk_filter is not NULL.  While this is fine for
+> >>> the traditional socket filter case, it causes problems with LSMs that
+> >>> make use of security_sock_rcv_skb() to enforce per-packet access
+> >>> controls.
+> >>>
+> >>> Hopefully I'll get 4.7-rc1 booting soon and I can do a proper
+> >>> bisection test around this patch, but I wanted to mention this now in
+> >>> case others are seeing the same problem.
+> >>
+> >> Thanks for the report. Please try following fix.
+> >>
+> >> sk_filter() got additional features like the skb_pfmemalloc() things and
+> >> security_sock_rcv_skb()
+> >
+> > This resolved the SELinux regression for me.
+> >
+> > Tested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> 
+> The patch works for me too.  Eric, are you going to send this to DaveM
+> (assuming he isn't listening in on this thread and picking it up
+> himself)?
+> 
+> Tested-by: Paul Moore <paul@paul-moore.com>
 
-Change-Id: Ia0590ed2514249fd98810a8d4fe87f8bf5280561
----
- libselinux/src/audit2why.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-index 12745b3..abe1701 100644
---- a/libselinux/src/audit2why.c
-+++ b/libselinux/src/audit2why.c
-@@ -343,8 +343,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
- 	if (rc < 0)
- 		RETURN(BADTCON)
- 
--	tclass = string_to_security_class(tclassstr);
--	if (!tclass)
-+	rc = sepol_string_to_security_class(tclassstr, &tclass);
-+	if (rc < 0)
- 		RETURN(BADTCLASS)
- 
- 	/* Convert the permission list to an AV. */
-@@ -365,8 +365,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
- 		permstr = PyString_AsString( strObj );
- #endif
- 		
--		perm = string_to_av_perm(tclass, permstr);
--		if (!perm)
-+		rc = sepol_string_to_av_perm(tclass, permstr, &perm);
-+		if (rc < 0)
- 			RETURN(BADPERM)
- 
- 		av |= perm;
--- 
-2.1.0
+I am going to send the official patch right away, thanks !
