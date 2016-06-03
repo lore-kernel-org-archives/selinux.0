@@ -1,51 +1,50 @@
-Subject: Re: [RFC 1/2] selinux: Stop looking up dentries from inodes
-To: Andreas Gruenbacher <agruenba@redhat.com>
-References: <1464616742-29271-1-git-send-email-agruenba@redhat.com>
- <1464616742-29271-2-git-send-email-agruenba@redhat.com>
- <2748270d-1c74-b5c8-c9f2-85d898c065e1@tycho.nsa.gov>
- <CAHc6FU7z5bo44radMsKcadxqqhEqRpbfGGeUtR+CohJBMUfzKg@mail.gmail.com>
- <7e716b38-f59b-eff3-152a-4f005b45abd9@tycho.nsa.gov>
- <CAHc6FU67zwdQ6zEjNuDZZpjOsXRYWB0AEWV4orssvgZNpusv-A@mail.gmail.com>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <83f00c59-e7e0-40db-0bcf-c3ef7654d5c4@tycho.nsa.gov>
-Date: Fri, 3 Jun 2016 09:06:45 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAHc6FU67zwdQ6zEjNuDZZpjOsXRYWB0AEWV4orssvgZNpusv-A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u53F9Yee015535
+ for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2016 11:09:40 -0400
+Received: by mail-qt0-f171.google.com with SMTP id d51so11989268qte.2
+ for <selinux@tycho.nsa.gov>; Fri, 03 Jun 2016 08:09:36 -0700 (PDT)
+From: Joshua Brindle <brindle@quarksecurity.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: [PATCH 2/2] Correctly detect unknown classes in
+ sepol_string_to_security_class
+Date: Fri,  3 Jun 2016 11:09:26 -0400
+Message-Id: <1464966566-14597-2-git-send-email-brindle@quarksecurity.com>
+In-Reply-To: <1464966566-14597-1-git-send-email-brindle@quarksecurity.com>
+References: <1464966566-14597-1-git-send-email-brindle@quarksecurity.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/01/2016 05:46 PM, Andreas Gruenbacher wrote:
-> On Wed, Jun 1, 2016 at 3:44 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 05/31/2016 11:22 AM, Andreas Gruenbacher wrote:
->>> With that fixed, could you possibly put this change to test?
->>
->> Falls over during boot in generic_getxattr(), which still needs a
->> non-NULL dentry in the work.selinux branch.
-> 
-> dentry->d_sb needs to be changed to inode->i_sb there.
-> 
->> Is there a reason that this being done separately from work.xattr?
-> 
-> I don't know how much work.xattr will shift still (and what I can
-> still add there), and this change is unrelated, at least so far.
-> 
->> Also, if we aren't going to call d_find_alias() there, we can likely
->> also drop the dget() and dput().
-> 
-> Ah, yes. I'll remove those, thanks.
+Bail before running off the end of the class index
 
-Looks like you lost the assignment for dentry entirely when you removed
-the dget/dput.  Still need to set it to opt_dentry or just use
-opt_dentry directly.
+Change-Id: I47c4eaac3c7d789f8d85047e34e37e3f0bb38b3a
+Signed-off-by: Joshua Brindle <brindle@quarksecurity.com>
+---
+ libsepol/src/services.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-BTW, SELinux will presently never call getxattr for 9p or cifs; those
-filesystem types are not configured for xattrs in policy because they do
-not truly support labeling (and if they did, we would probably use
-SECURITY_LSM_NATIVE_LABELS => SECURITY_FS_USE_NATIVE as with nfsv4
-rather than FS_USE_XATTR).  Just because they support xattrs does not
-mean that they support security labeling.
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index d64a8e8..8679545 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -1155,7 +1155,7 @@ int hidden sepol_string_to_security_class(const char *class_name,
+ 	char *class = NULL;
+ 	sepol_security_class_t id;
+ 
+-	for (id = 1;; id++) {
++	for (id = 1; id < policydb->p_classes.nprim; id++) {
+ 		class = policydb->p_class_val_to_name[id - 1];
+ 		if (class == NULL) {
+ 			ERR(NULL, "could not convert %s to class id", class_name);
+@@ -1166,6 +1166,8 @@ int hidden sepol_string_to_security_class(const char *class_name,
+ 			return STATUS_SUCCESS;
+ 		}
+ 	}
++	ERR(NULL, "unrecognized class %s", class_name);
++	return -EINVAL;
+ }
+ 
+ /*
+-- 
+2.1.0
