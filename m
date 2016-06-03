@@ -1,37 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u52LpwNU011523
- for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2016 17:51:58 -0400
-Received: by mail-qg0-f52.google.com with SMTP id 52so3342772qgy.0
- for <selinux@tycho.nsa.gov>; Thu, 02 Jun 2016 14:51:39 -0700 (PDT)
-Message-ID: <5750AA67.9030806@quarksecurity.com>
-Date: Thu, 02 Jun 2016 17:51:35 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u530JLxL029374
+ for <selinux@tycho.nsa.gov>; Thu, 2 Jun 2016 20:19:21 -0400
+Received: by mail-qg0-f48.google.com with SMTP id q32so4618793qgq.3
+ for <selinux@tycho.nsa.gov>; Thu, 02 Jun 2016 17:19:20 -0700 (PDT)
 From: Joshua Brindle <brindle@quarksecurity.com>
-MIME-Version: 1.0
-To: John Chludzinski <john.chludzinski@vivaldi.net>
-CC: Selinux <selinux@tycho.nsa.gov>
-Subject: Re: XWindows and CLIP?
-References: <1223101c554790d34307b1736bbca1fa@mail.vivaldi.net>
-In-Reply-To: <1223101c554790d34307b1736bbca1fa@mail.vivaldi.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux <selinux@tycho.nsa.gov>
+Subject: [PATCH] Modify audit2why analyze function to use loaded policy
+Date: Thu,  2 Jun 2016 20:19:12 -0400
+Message-Id: <1464913152-28265-1-git-send-email-brindle@quarksecurity.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-John Chludzinski wrote:
-> What are the issues with XWindows and CLIP? Why is CLIP XWindow-less?
+Class and perms should come from the policy being used for analysis,
+not the system policy so use sepol_ interfaces
 
-CLIP strives to be a minimal system suited to secure solutions and does 
-not come with software not necessary for such systems (e.g., cross 
-domain solutions).
+Change-Id: Ia0590ed2514249fd98810a8d4fe87f8bf5280561
+---
+ libselinux/src/audit2why.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> Is there something inherently unsecure with the XWindow client/server
-> model?
-
-Xorg manages interactions between programs running under X itself and is 
-therefore an object manager (similar to how an RDBMS is an object 
-manager that manages rows and tables).
-
-There is work to extend SELinux controls to Xorg (XACE) but without 
-using XACE and X SELinux policy you cannot meaningfully manage 
-information flow between X applications uses SELinux.
+diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+index 12745b3..abe1701 100644
+--- a/libselinux/src/audit2why.c
++++ b/libselinux/src/audit2why.c
+@@ -343,8 +343,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+ 	if (rc < 0)
+ 		RETURN(BADTCON)
+ 
+-	tclass = string_to_security_class(tclassstr);
+-	if (!tclass)
++	rc = sepol_string_to_security_class(tclassstr, &tclass);
++	if (rc < 0)
+ 		RETURN(BADTCLASS)
+ 
+ 	/* Convert the permission list to an AV. */
+@@ -365,8 +365,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+ 		permstr = PyString_AsString( strObj );
+ #endif
+ 		
+-		perm = string_to_av_perm(tclass, permstr);
+-		if (!perm)
++		rc = sepol_string_to_av_perm(tclass, permstr, &perm);
++		if (rc < 0)
+ 			RETURN(BADPERM)
+ 
+ 		av |= perm;
+-- 
+2.1.0
