@@ -1,26 +1,64 @@
-Date: Thu, 02 Jun 2016 21:23:40 -0700 (PDT)
-Message-Id: <20160602.212340.551938578461360246.davem@davemloft.net>
-To: eric.dumazet@gmail.com
-Cc: paul@paul-moore.com, samanthakumar@google.com,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, sds@tycho.nsa.gov
-Subject: Re: Possible problem with e6afc8ac ("udp: remove headers from UDP
- packets before queueing")
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <1464922706.5939.186.camel@edumazet-glaptop3.roam.corp.google.com>
-References: <1464904363.5939.185.camel@edumazet-glaptop3.roam.corp.google.com>
- <20160602.183151.2030076167275348260.davem@davemloft.net>
- <1464922706.5939.186.camel@edumazet-glaptop3.roam.corp.google.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u53Cu1qY028058
+ for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2016 08:56:05 -0400
+Received: by mail-qg0-f42.google.com with SMTP id q32so10980393qgq.3
+ for <selinux@tycho.nsa.gov>; Fri, 03 Jun 2016 05:55:52 -0700 (PDT)
+Received: from strange.local ([50.253.7.1])
+ by smtp.googlemail.com with ESMTPSA id 127sm1463211qhg.49.2016.06.03.05.55.51
+ for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
+ Fri, 03 Jun 2016 05:55:51 -0700 (PDT)
+Message-ID: <57517E56.4090909@quarksecurity.com>
+Date: Fri, 03 Jun 2016 08:55:50 -0400
+From: Joshua Brindle <brindle@quarksecurity.com>
+MIME-Version: 1.0
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] Modify audit2why analyze function to use loaded policy
+References: <1464913152-28265-1-git-send-email-brindle@quarksecurity.com>
+In-Reply-To: <1464913152-28265-1-git-send-email-brindle@quarksecurity.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Date: Thu, 02 Jun 2016 19:58:26 -0700
+Joshua Brindle wrote:
+> Class and perms should come from the policy being used for analysis,
+> not the system policy so use sepol_ interfaces
+>
 
-> Arg, I totally messed up the patch title :(
+Hrm, this solved my original problem which was that I was getting the 
+wrong answer back from audit2why (classes in my policy that weren't in 
+the system policy can back with BADTCLASS instead of a more appropriate 
+answer) but now I have a segfault so I'll try to track that down.
 
-I noticed it was odd, but it's not a big deal.
+> Change-Id: Ia0590ed2514249fd98810a8d4fe87f8bf5280561
+> ---
+>   libselinux/src/audit2why.c | 8 ++++----
+>   1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+> index 12745b3..abe1701 100644
+> --- a/libselinux/src/audit2why.c
+> +++ b/libselinux/src/audit2why.c
+> @@ -343,8 +343,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+>   	if (rc<  0)
+>   		RETURN(BADTCON)
+>
+> -	tclass = string_to_security_class(tclassstr);
+> -	if (!tclass)
+> +	rc = sepol_string_to_security_class(tclassstr,&tclass);
+> +	if (rc<  0)
+>   		RETURN(BADTCLASS)
+>
+>   	/* Convert the permission list to an AV. */
+> @@ -365,8 +365,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+>   		permstr = PyString_AsString( strObj );
+>   #endif
+>   		
+> -		perm = string_to_av_perm(tclass, permstr);
+> -		if (!perm)
+> +		rc = sepol_string_to_av_perm(tclass, permstr,&perm);
+> +		if (rc<  0)
+>   			RETURN(BADPERM)
+>
+>   		av |= perm;
