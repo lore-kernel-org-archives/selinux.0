@@ -1,64 +1,51 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u53Cu1qY028058
- for <selinux@tycho.nsa.gov>; Fri, 3 Jun 2016 08:56:05 -0400
-Received: by mail-qg0-f42.google.com with SMTP id q32so10980393qgq.3
- for <selinux@tycho.nsa.gov>; Fri, 03 Jun 2016 05:55:52 -0700 (PDT)
-Received: from strange.local ([50.253.7.1])
- by smtp.googlemail.com with ESMTPSA id 127sm1463211qhg.49.2016.06.03.05.55.51
- for <selinux@tycho.nsa.gov> (version=TLSv1/SSLv3 cipher=OTHER);
- Fri, 03 Jun 2016 05:55:51 -0700 (PDT)
-Message-ID: <57517E56.4090909@quarksecurity.com>
-Date: Fri, 03 Jun 2016 08:55:50 -0400
-From: Joshua Brindle <brindle@quarksecurity.com>
+Subject: Re: [RFC 1/2] selinux: Stop looking up dentries from inodes
+To: Andreas Gruenbacher <agruenba@redhat.com>
+References: <1464616742-29271-1-git-send-email-agruenba@redhat.com>
+ <1464616742-29271-2-git-send-email-agruenba@redhat.com>
+ <2748270d-1c74-b5c8-c9f2-85d898c065e1@tycho.nsa.gov>
+ <CAHc6FU7z5bo44radMsKcadxqqhEqRpbfGGeUtR+CohJBMUfzKg@mail.gmail.com>
+ <7e716b38-f59b-eff3-152a-4f005b45abd9@tycho.nsa.gov>
+ <CAHc6FU67zwdQ6zEjNuDZZpjOsXRYWB0AEWV4orssvgZNpusv-A@mail.gmail.com>
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <83f00c59-e7e0-40db-0bcf-c3ef7654d5c4@tycho.nsa.gov>
+Date: Fri, 3 Jun 2016 09:06:45 -0400
 MIME-Version: 1.0
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Modify audit2why analyze function to use loaded policy
-References: <1464913152-28265-1-git-send-email-brindle@quarksecurity.com>
-In-Reply-To: <1464913152-28265-1-git-send-email-brindle@quarksecurity.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <CAHc6FU67zwdQ6zEjNuDZZpjOsXRYWB0AEWV4orssvgZNpusv-A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Joshua Brindle wrote:
-> Class and perms should come from the policy being used for analysis,
-> not the system policy so use sepol_ interfaces
->
+On 06/01/2016 05:46 PM, Andreas Gruenbacher wrote:
+> On Wed, Jun 1, 2016 at 3:44 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 05/31/2016 11:22 AM, Andreas Gruenbacher wrote:
+>>> With that fixed, could you possibly put this change to test?
+>>
+>> Falls over during boot in generic_getxattr(), which still needs a
+>> non-NULL dentry in the work.selinux branch.
+> 
+> dentry->d_sb needs to be changed to inode->i_sb there.
+> 
+>> Is there a reason that this being done separately from work.xattr?
+> 
+> I don't know how much work.xattr will shift still (and what I can
+> still add there), and this change is unrelated, at least so far.
+> 
+>> Also, if we aren't going to call d_find_alias() there, we can likely
+>> also drop the dget() and dput().
+> 
+> Ah, yes. I'll remove those, thanks.
 
-Hrm, this solved my original problem which was that I was getting the 
-wrong answer back from audit2why (classes in my policy that weren't in 
-the system policy can back with BADTCLASS instead of a more appropriate 
-answer) but now I have a segfault so I'll try to track that down.
+Looks like you lost the assignment for dentry entirely when you removed
+the dget/dput.  Still need to set it to opt_dentry or just use
+opt_dentry directly.
 
-> Change-Id: Ia0590ed2514249fd98810a8d4fe87f8bf5280561
-> ---
->   libselinux/src/audit2why.c | 8 ++++----
->   1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
-> index 12745b3..abe1701 100644
-> --- a/libselinux/src/audit2why.c
-> +++ b/libselinux/src/audit2why.c
-> @@ -343,8 +343,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
->   	if (rc<  0)
->   		RETURN(BADTCON)
->
-> -	tclass = string_to_security_class(tclassstr);
-> -	if (!tclass)
-> +	rc = sepol_string_to_security_class(tclassstr,&tclass);
-> +	if (rc<  0)
->   		RETURN(BADTCLASS)
->
->   	/* Convert the permission list to an AV. */
-> @@ -365,8 +365,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
->   		permstr = PyString_AsString( strObj );
->   #endif
->   		
-> -		perm = string_to_av_perm(tclass, permstr);
-> -		if (!perm)
-> +		rc = sepol_string_to_av_perm(tclass, permstr,&perm);
-> +		if (rc<  0)
->   			RETURN(BADPERM)
->
->   		av |= perm;
+BTW, SELinux will presently never call getxattr for 9p or cifs; those
+filesystem types are not configured for xattrs in policy because they do
+not truly support labeling (and if they did, we would probably use
+SECURITY_LSM_NATIVE_LABELS => SECURITY_FS_USE_NATIVE as with nfsv4
+rather than FS_USE_XATTR).  Just because they support xattrs does not
+mean that they support security labeling.
