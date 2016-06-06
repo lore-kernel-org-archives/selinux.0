@@ -1,70 +1,97 @@
-Subject: Re: [PATCH] policycoreutils/semodule: Fix the documentation of
- -l,--list
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <6a2dd3fa-1b9d-f2a8-a39d-7b72ac9570a0@tycho.nsa.gov>
- <1464076949-27068-1-git-send-email-plautrba@redhat.com>
+Subject: Re: [PATCH] policycoreutils: fix typos in semanage manpages
+To: Philipp Gesang <philipp.gesang@intra2net.com>, Selinux@tycho.nsa.gov
+References: <1464362001-5636-1-git-send-email-philipp.gesang@intra2net.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <5e86e3dc-0ec4-3dff-5412-414a614e04c4@tycho.nsa.gov>
-Date: Mon, 6 Jun 2016 13:12:13 -0400
+Message-ID: <fedff3a2-13d9-a934-388c-43f5f4552eba@tycho.nsa.gov>
+Date: Mon, 6 Jun 2016 13:12:36 -0400
 MIME-Version: 1.0
-In-Reply-To: <1464076949-27068-1-git-send-email-plautrba@redhat.com>
+In-Reply-To: <1464362001-5636-1-git-send-email-philipp.gesang@intra2net.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/24/2016 04:02 AM, Petr Lautrbach wrote:
-> It wasn't clear how to use -l option with full/standard KIND and the
-> example in semodule.8 man page was wrong.
->
-> Based on a patch by Laurent Bigonville <bigon@bigon.be>
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+On 05/27/2016 11:13 AM, Philipp Gesang wrote:
+> Signed-off-by: Philipp Gesang <philipp.gesang@intra2net.com>
 
 Applied.
 
 Thanks,
 
 > ---
->  policycoreutils/semodule/semodule.8 | 4 ++--
->  policycoreutils/semodule/semodule.c | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
+>  policycoreutils/semanage/semanage-dontaudit.8 | 2 +-
+>  policycoreutils/semanage/semanage-export.8    | 2 +-
+>  policycoreutils/semanage/semanage-import.8    | 2 +-
+>  policycoreutils/semanage/semanage-interface.8 | 2 +-
+>  policycoreutils/semanage/semanage-port.8      | 2 +-
+>  5 files changed, 5 insertions(+), 5 deletions(-)
 >
-> diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
-> index 68e95ab..0c5fdf7 100644
-> --- a/policycoreutils/semodule/semodule.8
-> +++ b/policycoreutils/semodule/semodule.8
-> @@ -38,7 +38,7 @@ deprecated, alias for --install
->  .B  \-r,\-\-remove=MODULE_NAME
->  remove existing module
+> diff --git a/policycoreutils/semanage/semanage-dontaudit.8 b/policycoreutils/semanage/semanage-dontaudit.8
+> index 122780d..3d29911 100644
+> --- a/policycoreutils/semanage/semanage-dontaudit.8
+> +++ b/policycoreutils/semanage/semanage-dontaudit.8
+> @@ -8,7 +8,7 @@
+>  semanage is used to configure certain elements of
+>  SELinux policy without requiring modification to or recompilation
+>  from policy sources.  semanage dontaudit toggles whether or not dontaudit rules will be in the policy.  Policy writers use dontaudit rules to cause
+> -confined applications to use alternative paths.  Dontaudit rules are denied but not reported in the logs.  Some times dontaudit rules can cause bugs in applications but policy writers will not relize it since the AVC is not audited.  Turning off dontaudit rules with this command to see if the kernel is blocking an access.
+> +confined applications to use alternative paths.  Dontaudit rules are denied but not reported in the logs.  Some times dontaudit rules can cause bugs in applications but policy writers will not realize it since the AVC is not audited.  Turning off dontaudit rules with this command to see if the kernel is blocking an access.
+>
+>  .SH "OPTIONS"
 >  .TP
-> -.B  \-l,\-\-list-modules=[KIND]
-> +.B  \-l[KIND],\-\-list-modules[=KIND]
->  display list of installed modules (other than base)
+> diff --git a/policycoreutils/semanage/semanage-export.8 b/policycoreutils/semanage/semanage-export.8
+> index 469b1bb..d688224 100644
+> --- a/policycoreutils/semanage/semanage-export.8
+> +++ b/policycoreutils/semanage/semanage-export.8
+> @@ -7,7 +7,7 @@
+>  .SH "DESCRIPTION"
+>  semanage is used to configure certain elements of
+>  SELinux policy without requiring modification to or recompilation
+> -from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a hole group of semanage commands within a file and apply them to a machine in a single transaction.
+> +from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a whole group of semanage commands within a file and apply them to a machine in a single transaction.
+>
+>  .SH "OPTIONS"
 >  .TP
->  .B  \-E,\-\-extract=MODULE_PKG
-> @@ -116,7 +116,7 @@ $ semodule \-d alsa
->  # Install a module at a specific priority.
->  $ semodule \-X 100 \-i alsa.pp
->  # List all modules.
-> -$ semodule \-l full
-> +$ semodule \-\-list=full
->  # Set an alternate path for the policy root
->  $ semodule \-B \-p "/tmp"
->  # Set an alternate path for the policy store root
-> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-> index bcfaa2b..63900f4 100644
-> --- a/policycoreutils/semodule/semodule.c
-> +++ b/policycoreutils/semodule/semodule.c
-> @@ -127,7 +127,7 @@ static void usage(char *progname)
->  	printf("  -B, --build		    build and reload policy\n");
->  	printf("  -i,--install=MODULE_PKG   install a new module\n");
->  	printf("  -r,--remove=MODULE_NAME   remove existing module\n");
-> -	printf("  -l,--list-modules=[KIND]  display list of installed modules\n");
-> +	printf("  -l[KIND],--list-modules[=KIND]  display list of installed modules\n");
->  	printf("     KIND:  standard  list highest priority, enabled modules\n");
->  	printf("            full      list all modules\n");
->  	printf("  -X,--priority=PRIORITY    set priority for following operations (1-999)\n");
+> diff --git a/policycoreutils/semanage/semanage-import.8 b/policycoreutils/semanage/semanage-import.8
+> index 5437de3..4a9b3e7 100644
+> --- a/policycoreutils/semanage/semanage-import.8
+> +++ b/policycoreutils/semanage/semanage-import.8
+> @@ -7,7 +7,7 @@
+>  .SH "DESCRIPTION"
+>  semanage is used to configure certain elements of
+>  SELinux policy without requiring modification to or recompilation
+> -from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a hole group of semanage commands within a file and apply them to a machine in a single transaction.
+> +from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a whole group of semanage commands within a file and apply them to a machine in a single transaction.
+>
+>  .SH "OPTIONS"
+>  .TP
+> diff --git a/policycoreutils/semanage/semanage-interface.8 b/policycoreutils/semanage/semanage-interface.8
+> index d318bb8..fe8b250 100644
+> --- a/policycoreutils/semanage/semanage-interface.8
+> +++ b/policycoreutils/semanage/semanage-interface.8
+> @@ -52,7 +52,7 @@ MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login ma
+>
+>  .SH EXAMPLE
+>  .nf
+> -list all interface defitions
+> +list all interface definitions
+>  # semanage interface \-l
+>
+>  .SH "SEE ALSO"
+> diff --git a/policycoreutils/semanage/semanage-port.8 b/policycoreutils/semanage/semanage-port.8
+> index 3f067c5..5a6a57f 100644
+> --- a/policycoreutils/semanage/semanage-port.8
+> +++ b/policycoreutils/semanage/semanage-port.8
+> @@ -53,7 +53,7 @@ Protocol for the specified port (tcp|udp) or internet protocol version for the s
+>
+>  .SH EXAMPLE
+>  .nf
+> -List all port defitions
+> +List all port definitions
+>  # semanage port \-l
+>  Allow Apache to listen on tcp port 81
+>  # semanage port \-a \-t http_port_t \-p tcp 81
 >
 
 
