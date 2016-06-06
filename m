@@ -1,58 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u56MHP9G020031
- for <selinux@tycho.nsa.gov>; Mon, 6 Jun 2016 18:17:26 -0400
-Received: by mail-qg0-f54.google.com with SMTP id 93so49786060qgx.2
- for <selinux@tycho.nsa.gov>; Mon, 06 Jun 2016 15:17:22 -0700 (PDT)
-Content-Type: text/plain; charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Subject: Re: Problem building CLIP ISO
-From: Brandon Whalen <brandon@quarksecurity.com>
-In-Reply-To: <17ff81b08dae0262ca3caa4ee4c4e516@mail.vivaldi.net>
-Date: Mon, 6 Jun 2016 18:17:21 -0400
-Cc: clip@oss.tresys.com, selinux@tycho.nsa.gov
-Message-Id: <9A09501E-CDD5-42FB-BE54-16ED300427E5@quarksecurity.com>
-References: <17ff81b08dae0262ca3caa4ee4c4e516@mail.vivaldi.net>
-To: John Chludzinski <john.chludzinski@vivaldi.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u56L73Fa010883
+ for <selinux@tycho.nsa.gov>; Mon, 6 Jun 2016 17:07:03 -0400
+Date: Mon, 06 Jun 2016 14:06:57 -0700 (PDT)
+Message-Id: <20160606.140657.1714281987390130104.davem@davemloft.net>
+To: pmoore@redhat.com
+Cc: netdev@vger.kernel.org, maninder1.s@samsung.com, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Subject: Re: [PATCH] netlabel: add address family checks to netlbl_{sock,
+ req}_delattr()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <CAGH-Kgsftoux6aaJg6c5WCX1sTSpaGoyDN_Y0Od+9Qh+87FD4w@mail.gmail.com>
+References: <146524175890.8042.12012703565205416569.stgit@localhost>
+ <CAGH-Kgsftoux6aaJg6c5WCX1sTSpaGoyDN_Y0Od+9Qh+87FD4w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> On Jun 6, 2016, at 5:45 PM, John Chludzinski <john.chludzinski@vivaldi.net> wrote:
-> 
-> I ran:
-> 
-> $ git clone -b CLIP_RHEL_7.0_Final https://github.com/TresysTechnology/clip.git
-> 
-> As root, I ran:
-> 
-> $ ./bootstrap.sh
-> 
-> and got ...
-> 
-> <username> cannot register with any organizations.
-> 
-> So I tried:
-> 
-> $ subscription-manager register --username <username> --password <passwor> --auto-attach
-> 
-> and got ...
-> 
-> <username> cannot register with any organizations.
-> 
-> 
-> What’s
-> the solution?
-> 
+From: Paul Moore <pmoore@redhat.com>
+Date: Mon, 6 Jun 2016 15:37:56 -0400
 
-I’ve added the clip mailing list to this thread John. Please use the CLIP mailing list and not the SELinux one for these types of questions in the future. The two groups work together but people don’t always watch both.
-
-Did you look at the boostrap.sh script to see what it is doing?
-
+> On Mon, Jun 6, 2016 at 3:35 PM, Paul Moore <pmoore@redhat.com> wrote:
+>> From: Paul Moore <paul@paul-moore.com>
+>>
+>> It seems risky to always rely on the caller to ensure the socket's
+>> address family is correct before passing it to the NetLabel kAPI,
+>> especially since we see at least one LSM which didn't. Add address
+>> family checks to the *_delattr() functions to help prevent future
+>> problems.
+>>
+>> Cc: <stable@vger.kernel.org>
+>> Reported-by: Maninder Singh <maninder1.s@samsung.com>
+>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+>> ---
+>>  net/netlabel/netlabel_kapi.c |   12 ++++++++++--
+>>  1 file changed, 10 insertions(+), 2 deletions(-)
 > 
-> ---John
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> DaveM, since this is such a trivial fix I'm adding it into my
+> selinux#next branch right now, but if you would prefer to carry it via
+> netdev#next let me know.
+
+That's fine.
