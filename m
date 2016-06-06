@@ -1,97 +1,86 @@
-Subject: Re: [PATCH] policycoreutils: fix typos in semanage manpages
-To: Philipp Gesang <philipp.gesang@intra2net.com>, Selinux@tycho.nsa.gov
-References: <1464362001-5636-1-git-send-email-philipp.gesang@intra2net.com>
+Subject: Re: [PATCH] Sort object files for deterministic linking order
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <1464850158-16461-1-git-send-email-bigon@debian.org>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <fedff3a2-13d9-a934-388c-43f5f4552eba@tycho.nsa.gov>
-Date: Mon, 6 Jun 2016 13:12:36 -0400
+Message-ID: <0eb952c6-cac0-7c7b-4e09-424645732fc7@tycho.nsa.gov>
+Date: Mon, 6 Jun 2016 13:12:57 -0400
 MIME-Version: 1.0
-In-Reply-To: <1464362001-5636-1-git-send-email-philipp.gesang@intra2net.com>
+In-Reply-To: <1464850158-16461-1-git-send-email-bigon@debian.org>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/27/2016 11:13 AM, Philipp Gesang wrote:
-> Signed-off-by: Philipp Gesang <philipp.gesang@intra2net.com>
+On 06/02/2016 02:49 AM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
+>
+> This patch is part of the Debian effort to make the build reproducible
+>
+> Thank to Reiner Herrmann <reiner@reiner-h.de> for the patches
+>
+> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 
 Applied.
 
 Thanks,
 
 > ---
->  policycoreutils/semanage/semanage-dontaudit.8 | 2 +-
->  policycoreutils/semanage/semanage-export.8    | 2 +-
->  policycoreutils/semanage/semanage-import.8    | 2 +-
->  policycoreutils/semanage/semanage-interface.8 | 2 +-
->  policycoreutils/semanage/semanage-port.8      | 2 +-
->  5 files changed, 5 insertions(+), 5 deletions(-)
+>  libselinux/src/Makefile  | 2 +-
+>  libsemanage/src/Makefile | 2 +-
+>  libsepol/src/Makefile    | 8 ++++----
+>  3 files changed, 6 insertions(+), 6 deletions(-)
 >
-> diff --git a/policycoreutils/semanage/semanage-dontaudit.8 b/policycoreutils/semanage/semanage-dontaudit.8
-> index 122780d..3d29911 100644
-> --- a/policycoreutils/semanage/semanage-dontaudit.8
-> +++ b/policycoreutils/semanage/semanage-dontaudit.8
-> @@ -8,7 +8,7 @@
->  semanage is used to configure certain elements of
->  SELinux policy without requiring modification to or recompilation
->  from policy sources.  semanage dontaudit toggles whether or not dontaudit rules will be in the policy.  Policy writers use dontaudit rules to cause
-> -confined applications to use alternative paths.  Dontaudit rules are denied but not reported in the logs.  Some times dontaudit rules can cause bugs in applications but policy writers will not relize it since the AVC is not audited.  Turning off dontaudit rules with this command to see if the kernel is blocking an access.
-> +confined applications to use alternative paths.  Dontaudit rules are denied but not reported in the logs.  Some times dontaudit rules can cause bugs in applications but policy writers will not realize it since the AVC is not audited.  Turning off dontaudit rules with this command to see if the kernel is blocking an access.
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index ac9a5d6..d94163e 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -49,7 +49,7 @@ ifeq ($(DISABLE_BOOL),y)
+>  endif
 >
->  .SH "OPTIONS"
->  .TP
-> diff --git a/policycoreutils/semanage/semanage-export.8 b/policycoreutils/semanage/semanage-export.8
-> index 469b1bb..d688224 100644
-> --- a/policycoreutils/semanage/semanage-export.8
-> +++ b/policycoreutils/semanage/semanage-export.8
-> @@ -7,7 +7,7 @@
->  .SH "DESCRIPTION"
->  semanage is used to configure certain elements of
->  SELinux policy without requiring modification to or recompilation
-> -from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a hole group of semanage commands within a file and apply them to a machine in a single transaction.
-> +from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a whole group of semanage commands within a file and apply them to a machine in a single transaction.
+>  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
+> -SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(wildcard *.c))
+> +SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
 >
->  .SH "OPTIONS"
->  .TP
-> diff --git a/policycoreutils/semanage/semanage-import.8 b/policycoreutils/semanage/semanage-import.8
-> index 5437de3..4a9b3e7 100644
-> --- a/policycoreutils/semanage/semanage-import.8
-> +++ b/policycoreutils/semanage/semanage-import.8
-> @@ -7,7 +7,7 @@
->  .SH "DESCRIPTION"
->  semanage is used to configure certain elements of
->  SELinux policy without requiring modification to or recompilation
-> -from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a hole group of semanage commands within a file and apply them to a machine in a single transaction.
-> +from policy sources.  semanage import and export can be used to extract the SELinux modifications from one machine and apply them to another. You can put a whole group of semanage commands within a file and apply them to a machine in a single transaction.
+>  MAX_STACK_SIZE=32768
 >
->  .SH "OPTIONS"
->  .TP
-> diff --git a/policycoreutils/semanage/semanage-interface.8 b/policycoreutils/semanage/semanage-interface.8
-> index d318bb8..fe8b250 100644
-> --- a/policycoreutils/semanage/semanage-interface.8
-> +++ b/policycoreutils/semanage/semanage-interface.8
-> @@ -52,7 +52,7 @@ MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login ma
+> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> index d6c3f0f..96ee652 100644
+> --- a/libsemanage/src/Makefile
+> +++ b/libsemanage/src/Makefile
+> @@ -52,7 +52,7 @@ SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
+>  LIBSO=$(TARGET).$(LIBVERSION)
 >
->  .SH EXAMPLE
->  .nf
-> -list all interface defitions
-> +list all interface definitions
->  # semanage interface \-l
+>  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i
+> -SRCS= $(filter-out $(GENERATED),$(wildcard *.c))
+> +SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
 >
->  .SH "SEE ALSO"
-> diff --git a/policycoreutils/semanage/semanage-port.8 b/policycoreutils/semanage/semanage-port.8
-> index 3f067c5..5a6a57f 100644
-> --- a/policycoreutils/semanage/semanage-port.8
-> +++ b/policycoreutils/semanage/semanage-port.8
-> @@ -53,7 +53,7 @@ Protocol for the specified port (tcp|udp) or internet protocol version for the s
+>  OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
+>  LOBJS= $(patsubst %.c,%.lo,$(SRCS)) conf-scan.lo conf-parse.lo
+> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> index c0c3274..b0c901f 100644
+> --- a/libsepol/src/Makefile
+> +++ b/libsepol/src/Makefile
+> @@ -18,15 +18,15 @@ TARGET=libsepol.so
+>  LIBPC=libsepol.pc
+>  LIBMAP=libsepol.map
+>  LIBSO=$(TARGET).$(LIBVERSION)
+> -OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
+> -LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
+> +OBJS= $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
+> +LOBJS= $(patsubst %.c,%.lo,$(sort $(wildcard *.c)))
+>  CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
 >
->  .SH EXAMPLE
->  .nf
-> -List all port defitions
-> +List all port definitions
->  # semanage port \-l
->  Allow Apache to listen on tcp port 81
->  # semanage port \-a \-t http_port_t \-p tcp 81
+>  override CFLAGS += -I. -I../include -D_GNU_SOURCE
+>
+>  ifneq ($(DISABLE_CIL),y)
+> -OBJS += $(sort $(patsubst %.c,%.o,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
+> -LOBJS += $(sort $(patsubst %.c,%.lo,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
+> +OBJS += $(sort $(patsubst %.c,%.o,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
+> +LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
+>  override CFLAGS += -I$(CILDIR)/include
+>  endif
+>
 >
 
 
