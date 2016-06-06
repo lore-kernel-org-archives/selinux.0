@@ -1,89 +1,62 @@
-Subject: Re: [PATCH] Sort object files for deterministic linking order
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <1464850158-16461-1-git-send-email-bigon@debian.org>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <0eb952c6-cac0-7c7b-4e09-424645732fc7@tycho.nsa.gov>
-Date: Mon, 6 Jun 2016 13:12:57 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u56Ja1fh029715
+ for <selinux@tycho.nsa.gov>; Mon, 6 Jun 2016 15:36:02 -0400
+Subject: [PATCH] netlabel: add address family checks to netlbl_{sock,
+ req}_delattr()
+From: Paul Moore <pmoore@redhat.com>
+To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org
+Cc: maninder1.s@samsung.com, selinux@tycho.nsa.gov
+Date: Mon, 06 Jun 2016 15:35:58 -0400
+Message-ID: <146524175890.8042.12012703565205416569.stgit@localhost>
 MIME-Version: 1.0
-In-Reply-To: <1464850158-16461-1-git-send-email-bigon@debian.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/02/2016 02:49 AM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
->
-> This patch is part of the Debian effort to make the build reproducible
->
-> Thank to Reiner Herrmann <reiner@reiner-h.de> for the patches
->
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+From: Paul Moore <paul@paul-moore.com>
 
-Applied.
+It seems risky to always rely on the caller to ensure the socket's
+address family is correct before passing it to the NetLabel kAPI,
+especially since we see at least one LSM which didn't. Add address
+family checks to the *_delattr() functions to help prevent future
+problems.
 
-Thanks,
+Cc: <stable@vger.kernel.org>
+Reported-by: Maninder Singh <maninder1.s@samsung.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ net/netlabel/netlabel_kapi.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-> ---
->  libselinux/src/Makefile  | 2 +-
->  libsemanage/src/Makefile | 2 +-
->  libsepol/src/Makefile    | 8 ++++----
->  3 files changed, 6 insertions(+), 6 deletions(-)
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index ac9a5d6..d94163e 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -49,7 +49,7 @@ ifeq ($(DISABLE_BOOL),y)
->  endif
->
->  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
-> -SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(wildcard *.c))
-> +SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
->
->  MAX_STACK_SIZE=32768
->
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index d6c3f0f..96ee652 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -52,7 +52,7 @@ SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
->  LIBSO=$(TARGET).$(LIBVERSION)
->
->  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i
-> -SRCS= $(filter-out $(GENERATED),$(wildcard *.c))
-> +SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
->
->  OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
->  LOBJS= $(patsubst %.c,%.lo,$(SRCS)) conf-scan.lo conf-parse.lo
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index c0c3274..b0c901f 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -18,15 +18,15 @@ TARGET=libsepol.so
->  LIBPC=libsepol.pc
->  LIBMAP=libsepol.map
->  LIBSO=$(TARGET).$(LIBVERSION)
-> -OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
-> -LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
-> +OBJS= $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
-> +LOBJS= $(patsubst %.c,%.lo,$(sort $(wildcard *.c)))
->  CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
->
->  override CFLAGS += -I. -I../include -D_GNU_SOURCE
->
->  ifneq ($(DISABLE_CIL),y)
-> -OBJS += $(sort $(patsubst %.c,%.o,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
-> -LOBJS += $(sort $(patsubst %.c,%.lo,$(wildcard $(CILDIR)/src/*.c) $(CIL_GENERATED)))
-> +OBJS += $(sort $(patsubst %.c,%.o,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
-> +LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
->  override CFLAGS += -I$(CILDIR)/include
->  endif
->
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index 1325776..bd007a9 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -824,7 +824,11 @@ socket_setattr_return:
+  */
+ void netlbl_sock_delattr(struct sock *sk)
+ {
+-	cipso_v4_sock_delattr(sk);
++	switch (sk->sk_family) {
++	case AF_INET:
++		cipso_v4_sock_delattr(sk);
++		break;
++	}
+ }
+ 
+ /**
+@@ -987,7 +991,11 @@ req_setattr_return:
+ */
+ void netlbl_req_delattr(struct request_sock *req)
+ {
+-	cipso_v4_req_delattr(req);
++	switch (req->rsk_ops->family) {
++	case AF_INET:
++		cipso_v4_req_delattr(req);
++		break;
++	}
+ }
+ 
+ /**
