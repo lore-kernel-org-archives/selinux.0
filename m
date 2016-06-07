@@ -1,45 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u56L73Fa010883
- for <selinux@tycho.nsa.gov>; Mon, 6 Jun 2016 17:07:03 -0400
-Date: Mon, 06 Jun 2016 14:06:57 -0700 (PDT)
-Message-Id: <20160606.140657.1714281987390130104.davem@davemloft.net>
-To: pmoore@redhat.com
-Cc: netdev@vger.kernel.org, maninder1.s@samsung.com, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-Subject: Re: [PATCH] netlabel: add address family checks to netlbl_{sock,
- req}_delattr()
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <CAGH-Kgsftoux6aaJg6c5WCX1sTSpaGoyDN_Y0Od+9Qh+87FD4w@mail.gmail.com>
-References: <146524175890.8042.12012703565205416569.stgit@localhost>
- <CAGH-Kgsftoux6aaJg6c5WCX1sTSpaGoyDN_Y0Od+9Qh+87FD4w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u57DY2cM003430
+ for <selinux@tycho.nsa.gov>; Tue, 7 Jun 2016 09:34:10 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Date: Tue, 07 Jun 2016 09:33:50 -0400
+From: John Chludzinski <john.chludzinski@vivaldi.net>
+To: Brandon Whalen <brandon@quarksecurity.com>
+Cc: clip@oss.tresys.com, selinux@tycho.nsa.gov
+Subject: Re: Problem building CLIP ISO
+In-Reply-To: <9A09501E-CDD5-42FB-BE54-16ED300427E5@quarksecurity.com>
+References: <17ff81b08dae0262ca3caa4ee4c4e516@mail.vivaldi.net>
+ <9A09501E-CDD5-42FB-BE54-16ED300427E5@quarksecurity.com>
+Message-ID: <0511adc58271fee860d444145cc050d3@mail.vivaldi.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <pmoore@redhat.com>
-Date: Mon, 6 Jun 2016 15:37:56 -0400
+I get to line 141 in bootstrap.sh:
 
-> On Mon, Jun 6, 2016 at 3:35 PM, Paul Moore <pmoore@redhat.com> wrote:
->> From: Paul Moore <paul@paul-moore.com>
->>
->> It seems risky to always rely on the caller to ensure the socket's
->> address family is correct before passing it to the NetLabel kAPI,
->> especially since we see at least one LSM which didn't. Add address
->> family checks to the *_delattr() functions to help prevent future
->> problems.
->>
->> Cc: <stable@vger.kernel.org>
->> Reported-by: Maninder Singh <maninder1.s@samsung.com>
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
->> ---
->>  net/netlabel/netlabel_kapi.c |   12 ++++++++++--
->>  1 file changed, 10 insertions(+), 2 deletions(-)
+/usr/bin/sudo /usr/bin/subscription-manager status | grep -q "Current" 
+|| /usr/bin/sudo /usr/bin/subscription-manager --auto-attach register
+
+
+
+On 2016-06-06 18:17, Brandon Whalen wrote:
+>> On Jun 6, 2016, at 5:45 PM, John Chludzinski 
+>> <john.chludzinski@vivaldi.net> wrote:
+>> 
+>> I ran:
+>> 
+>> $ git clone -b CLIP_RHEL_7.0_Final 
+>> https://github.com/TresysTechnology/clip.git
+>> 
+>> As root, I ran:
+>> 
+>> $ ./bootstrap.sh
+>> 
+>> and got ...
+>> 
+>> <username> cannot register with any organizations.
+>> 
+>> So I tried:
+>> 
+>> $ subscription-manager register --username <username> --password 
+>> <passwor> --auto-attach
+>> 
+>> and got ...
+>> 
+>> <username> cannot register with any organizations.
+>> 
+>> 
+>> What’s
+>> the solution?
+>> 
 > 
-> DaveM, since this is such a trivial fix I'm adding it into my
-> selinux#next branch right now, but if you would prefer to carry it via
-> netdev#next let me know.
-
-That's fine.
+> I’ve added the clip mailing list to this thread John. Please use the
+> CLIP mailing list and not the SELinux one for these types of questions
+> in the future. The two groups work together but people don’t always
+> watch both.
+> 
+> Did you look at the boostrap.sh script to see what it is doing?
+> 
+>> 
+>> ---John
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to 
+>> Selinux-request@tycho.nsa.gov.
