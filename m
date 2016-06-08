@@ -1,16 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u57L0Woj031741
- for <selinux@tycho.nsa.gov>; Tue, 7 Jun 2016 17:00:32 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Date: Tue, 07 Jun 2016 17:00:15 -0400
-From: John Chludzinski <john.chludzinski@vivaldi.net>
-To: Michael Napolitano <mnapolitano@tresys.com>
-Cc: Brandon Whalen <brandon@quarksecurity.com>, selinux@tycho.nsa.gov,
- clip@oss.tresys.com
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u58EAOwq026632
+ for <selinux@tycho.nsa.gov>; Wed, 8 Jun 2016 10:10:25 -0400
+From: Michael Napolitano <mnapolitano@tresys.com>
+To: John Chludzinski <john.chludzinski@vivaldi.net>
+CC: Brandon Whalen <brandon@quarksecurity.com>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>, "clip@oss.tresys.com" <clip@oss.tresys.com>
 Subject: RE: [Clip] Problem building CLIP ISO
-In-Reply-To: <1B1248A9FF092147A781D1BFB389C4FAC5B2A0@Exchange10.columbia.tresys.com>
+Date: Wed, 8 Jun 2016 14:09:33 +0000
+Message-ID: <1B1248A9FF092147A781D1BFB389C4FAC5B448@Exchange10.columbia.tresys.com>
 References: <17ff81b08dae0262ca3caa4ee4c4e516@mail.vivaldi.net>
  <9A09501E-CDD5-42FB-BE54-16ED300427E5@quarksecurity.com>
  <0511adc58271fee860d444145cc050d3@mail.vivaldi.net>
@@ -18,11 +15,25 @@ References: <17ff81b08dae0262ca3caa4ee4c4e516@mail.vivaldi.net>
  <1B1248A9FF092147A781D1BFB389C4FAC5B20C@Exchange10.columbia.tresys.com>
  <7c06486c50b8f263f16ee6cb5dd9de3f@mail.vivaldi.net>
  <1B1248A9FF092147A781D1BFB389C4FAC5B2A0@Exchange10.columbia.tresys.com>
-Message-ID: <54e85e7d11bcc9f3180b53642d7737a7@mail.vivaldi.net>
+ <54e85e7d11bcc9f3180b53642d7737a7@mail.vivaldi.net>
+In-Reply-To: <54e85e7d11bcc9f3180b53642d7737a7@mail.vivaldi.net>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
+
+I havn't heard back from RedHat yet, but your issue might also be due to using RHEL7 workstation. You should be using the server version for building CLIP.
+
+-Mike
+
+-----Original Message-----
+From: John Chludzinski [mailto:john.chludzinski@vivaldi.net] 
+Sent: Tuesday, June 07, 2016 5:00 PM
+To: Michael Napolitano
+Cc: Brandon Whalen; selinux@tycho.nsa.gov; clip@oss.tresys.com
+Subject: RE: [Clip] Problem building CLIP ISO
 
 Do you know when this might be remedied?
 
@@ -32,7 +43,7 @@ Do you know when this might be remedied?
 
 
 On 2016-06-07 13:12, Michael Napolitano wrote:
-> RedHat is currently experiencing issues. Once they are back up and
+> RedHat is currently experiencing issues. Once they are back up and 
 > running, that should clear up the error you're seeing.
 > 
 > -Mike
@@ -46,7 +57,7 @@ On 2016-06-07 13:12, Michael Napolitano wrote:
 > Tried below a second time and got:
 > 
 > 
-> $ subscription-manager register --username <username> --password
+> $ subscription-manager register --username <username> --password 
 > <password> --auto-attach
 > 
 > Registering to: subscription.rhsm.redhat.com:443/subscription
@@ -66,21 +77,22 @@ On 2016-06-07 13:12, Michael Napolitano wrote:
 > 
 > Failed loading plugin: spacewalk
 > RHEL optional channel is disabled...enabling
-> Error: rhel-7-server-optional-rpms is not a valid repository ID. Use
+> Error: rhel-7-server-optional-rpms is not a valid repository ID. Use 
 > --list option to see valid repositories.
 > 
 > ---John
 > 
 > 
 > On 2016-06-07 09:51, Michael Napolitano wrote:
->> The bootstrap is attempting to subscribe your machine to the RedHat
->> network. The username and password that you are entering need to be
+>> The bootstrap is attempting to subscribe your machine to the RedHat 
+>> network. The username and password that you are entering need to be 
 >> valid RedHat network credentials.
 >> 
 >> -Mike
 >> 
 >> -----Original Message-----
->> From: clip-bounces@oss.tresys.com [mailto:clip-bounces@oss.tresys.com]
+>> From: clip-bounces@oss.tresys.com 
+>> [mailto:clip-bounces@oss.tresys.com]
 >> On Behalf Of John Chludzinski
 >> Sent: Tuesday, June 07, 2016 9:40 AM
 >> To: Brandon Whalen
@@ -120,17 +132,18 @@ On 2016-06-07 13:12, Michael Napolitano wrote:
 >>> 
 >>> /usr/bin/sudo /usr/bin/subscription-manager status | grep -q 
 >>> "Current"
->>> || /usr/bin/sudo /usr/bin/subscription-manager --auto-attach register
+>>> || /usr/bin/sudo /usr/bin/subscription-manager --auto-attach 
+>>> || register
 >>> 
 >>> 
 >>> 
 >>> On 2016-06-06 18:17, Brandon Whalen wrote:
->>>>> On Jun 6, 2016, at 5:45 PM, John Chludzinski
+>>>>> On Jun 6, 2016, at 5:45 PM, John Chludzinski 
 >>>>> <john.chludzinski@vivaldi.net> wrote:
 >>>>> 
 >>>>> I ran:
 >>>>> 
->>>>> $ git clone -b CLIP_RHEL_7.0_Final
+>>>>> $ git clone -b CLIP_RHEL_7.0_Final 
 >>>>> https://github.com/TresysTechnology/clip.git
 >>>>> 
 >>>>> As root, I ran:
@@ -143,7 +156,7 @@ On 2016-06-07 13:12, Michael Napolitano wrote:
 >>>>> 
 >>>>> So I tried:
 >>>>> 
->>>>> $ subscription-manager register --username <username> --password
+>>>>> $ subscription-manager register --username <username> --password 
 >>>>> <passwor> --auto-attach
 >>>>> 
 >>>>> and got ...
@@ -155,9 +168,9 @@ On 2016-06-07 13:12, Michael Napolitano wrote:
 >>>>> the solution?
 >>>>> 
 >>>> 
->>>> I’ve added the clip mailing list to this thread John. Please use the
->>>> CLIP mailing list and not the SELinux one for these types of
->>>> questions in the future. The two groups work together but people
+>>>> I’ve added the clip mailing list to this thread John. Please use 
+>>>> the CLIP mailing list and not the SELinux one for these types of 
+>>>> questions in the future. The two groups work together but people 
 >>>> don’t always watch both.
 >>>> 
 >>>> Did you look at the boostrap.sh script to see what it is doing?
@@ -168,7 +181,7 @@ On 2016-06-07 13:12, Michael Napolitano wrote:
 >>>>> Selinux mailing list
 >>>>> Selinux@tycho.nsa.gov
 >>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>>> To get help, send an email containing "help" to
+>>>>> To get help, send an email containing "help" to 
 >>>>> Selinux-request@tycho.nsa.gov.
 >>> 
 >>> _______________________________________________
