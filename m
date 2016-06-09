@@ -1,91 +1,76 @@
-Date: Thu, 9 Jun 2016 09:55:39 +0200
-From: David Sterba <dsterba@suse.cz>
-To: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
- Colin Cross <ccross@android.com>, Arnd Bergmann <arnd@arndb.de>,
- pvfs2-developers@beowulf-underground.org,
- Kees Cook <keescook@chromium.org>, Matt Fleming <matt@codeblueprint.co.uk>,
- "David S. Miller" <davem@davemloft.net>,
- Boaz Harrosh <ooo@electrozaur.com>, Anton Vorontsov <anton@enomsg.org>,
- Joel Becker <jlbec@evilplan.org>, Chris Mason <clm@fb.com>,
- Josef Bacik <jbacik@fb.com>, "J. Bruce Fields" <bfields@fieldses.org>,
- Eric Van Hensbergen <ericvh@gmail.com>, Firo Yang <firogm@gmail.com>,
- Hal Rosenstock <hal.rosenstock@gmail.com>,
- Konstantin Khlebnikov <koct9i@gmail.com>,
- Prasad Joshi <prasadjoshi.linux@gmail.com>,
- Hugh Dickins <hughd@google.com>, "Serge E. Hallyn" <serge@hallyn.com>,
- Nadia Yvette Chambers <nyc@holomorphy.com>,
- Peter Hurley <peter@hurleysoftware.com>,
- Sean Hefty <sean.hefty@intel.com>, Tony Luck <tony.luck@intel.com>,
- Latchesar Ionkov <lucho@ionkov.net>, Josh Triplett <josh@joshtriplett.org>,
- Alexei Starovoitov <ast@kernel.org>, Felipe Balbi <balbi@kernel.org>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Robert Richter <rric@kernel.org>,
- Dave Kleikamp <shaggy@kernel.org>, linux-mm@kvack.org,
- Ryusuke Konishi <konishi.ryusuke@lab.ntt.co.jp>,
- Thomas Gleixner <tglx@linutronix.de>,
- Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Julia Lawall <Julia.Lawall@lip6.fr>, y2038@lists.linaro.org,
- samba-technical@lists.samba.org, oprofile-list@lists.sf.net,
- fuse-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net,
- linux-f2fs-devel@lists.sourceforge.net,
- v9fs-developer@lists.sourceforge.net, Joern Engel <joern@logfs.org>,
- logfs@logfs.org, Matthew Garrett <matthew.garrett@nebula.com>,
- Anna Schumaker <anna.schumaker@netapp.com>,
- Mike Marshall <hubcap@omnibond.com>, osd-dev@open-osd.org,
- James Morris <james.l.morris@oracle.com>, ocfs2-devel@oss.oracle.com,
- Jeremy Kerr <jk@ozlabs.org>, Eric Paris <eparis@parisplace.org>,
- Paul Moore <paul@paul-moore.com>, Jeff Layton <jlayton@poochiereds.net>,
- Benny Halevy <bhalevy@primarydata.com>,
- Trond Myklebust <trond.myklebust@primarydata.com>,
- cluster-devel@redhat.com, David Howells <dhowells@redhat.com>,
- Doug Ledford <dledford@redhat.com>, Bob Peterson <rpeterso@redhat.com>,
- Steven Whitehouse <swhiteho@redhat.com>,
- Steve French <sfrench@samba.org>, Chao Yu <chao2.yu@samsung.com>,
- Changman Lee <cm224.lee@samsung.com>,
- Ron Minnich <rminnich@sandia.gov>, Mark Fasheh <MFasheh@suse.com>,
- Michal Hocko <MHocko@suse.com>, Miklos Szeredi <miklos@szeredi.hu>,
- Ian Kent <raven@themaw.net>, Stephen Smalley <sds@tycho.nsa.gov>,
- selinux@tycho.nsa.gov, autofs@vger.kernel.org,
- linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
- linux-efi@vger.kernel.org, linux-nfs@vger.kernel.org,
- linux-nilfs@vger.kernel.org, linux-rdma@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org,
- netdev@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 04/21] fs: Replace CURRENT_TIME with current_fs_time()
- for inode timestamps
-Message-ID: <20160609075539.GF3905@suse.cz>
-Reply-To: dsterba@suse.cz
+Subject: Re: [PATCH 04/21] fs: Replace CURRENT_TIME with current_fs_time() for
+ inode timestamps
+To: Deepa Dinamani <deepa.kernel@gmail.com>, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org
 References: <1465448705-25055-1-git-send-email-deepa.kernel@gmail.com>
  <1465448705-25055-5-git-send-email-deepa.kernel@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>,
+ Al Viro <viro@zeniv.linux.org.uk>,
+ Linus Torvalds <torvalds@linux-foundation.org>, y2038@lists.linaro.org,
+ Steve French <sfrench@samba.org>, linux-cifs@vger.kernel.org,
+ samba-technical@lists.samba.org, Joern Engel <joern@logfs.org>,
+ Prasad Joshi <prasadjoshi.linux@gmail.com>, logfs@logfs.org,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Julia Lawall <Julia.Lawall@lip6.fr>,
+ David Howells <dhowells@redhat.com>, Firo Yang <firogm@gmail.com>,
+ Jaegeuk Kim <jaegeuk@kernel.org>, Changman Lee <cm224.lee@samsung.com>,
+ Chao Yu <chao2.yu@samsung.com>, linux-f2fs-devel@lists.sourceforge.net,
+ Michal Hocko <mhocko@suse.com>, Konstantin Khlebnikov <koct9i@gmail.com>,
+ Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ Trond Myklebust <trond.myklebust@primarydata.com>,
+ Anna Schumaker <anna.schumaker@netapp.com>,
+ "David S. Miller" <davem@davemloft.net>, linux-nfs@vger.kernel.org,
+ netdev@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+ cluster-devel@redhat.com, Mark Fasheh <mfasheh@suse.com>,
+ Joel Becker <jlbec@evilplan.org>, ocfs2-devel@oss.oracle.com,
+ Anton Vorontsov <anton@enomsg.org>, Colin Cross <ccross@android.com>,
+ Kees Cook <keescook@chromium.org>, Tony Luck <tony.luck@intel.com>,
+ Chris Mason <clm@fb.com>, Josef Bacik <jbacik@fb.com>,
+ David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
+ Miklos Szeredi <miklos@szeredi.hu>, fuse-devel@lists.sourceforge.net,
+ Felipe Balbi <balbi@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ linux-usb@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
+ Sean Hefty <sean.hefty@intel.com>,
+ Hal Rosenstock <hal.rosenstock@gmail.com>, linux-rdma@vger.kernel.org,
+ Robert Richter <rric@kernel.org>, oprofile-list@lists.sf.net,
+ Alexei Starovoitov <ast@kernel.org>, Hugh Dickins <hughd@google.com>,
+ linux-mm@kvack.org, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ linux-security-module@vger.kernel.org,
+ Eric Van Hensbergen <ericvh@gmail.com>,
+ Ron Minnich <rminnich@sandia.gov>, Latchesar Ionkov <lucho@ionkov.net>,
+ v9fs-developer@lists.sourceforge.net, Ian Kent <raven@themaw.net>,
+ autofs@vger.kernel.org, Matthew Garrett <matthew.garrett@nebula.com>,
+ Jeremy Kerr <jk@ozlabs.org>, Matt Fleming <matt@codeblueprint.co.uk>,
+ linux-efi@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>,
+ Josh Triplett <josh@joshtriplett.org>, Boaz Harrosh <ooo@electrozaur.com>,
+ Benny Halevy <bhalevy@primarydata.com>, osd-dev@open-osd.org,
+ Mike Marshall <hubcap@omnibond.com>,
+ pvfs2-developers@beowulf-underground.org,
+ Nadia Yvette Chambers <nyc@holomorphy.com>, Dave Kleikamp
+ <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net,
+ Ryusuke Konishi <konishi.ryusuke@lab.ntt.co.jp>,
+ linux-nilfs@vger.kernel.org
+From: Steven Whitehouse <swhiteho@redhat.com>
+Message-ID: <575944D4.4010009@redhat.com>
+Date: Thu, 9 Jun 2016 11:28:36 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <1465448705-25055-5-git-send-email-deepa.kernel@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jun 08, 2016 at 10:04:48PM -0700, Deepa Dinamani wrote:
-> CURRENT_TIME macro is not appropriate for filesystems as it
-> doesn't use the right granularity for filesystem timestamps.
-> Use current_fs_time() instead.
-> 
-> CURRENT_TIME is also not y2038 safe.
-> 
-> This is also in preparation for the patch that transitions
-> vfs timestamps to use 64 bit time and hence make them
-> y2038 safe. As part of the effort current_fs_time() will be
-> extended to do range checks. Hence, it is necessary for all
-> file system timestamps to use current_fs_time(). Also,
-> current_fs_time() will be transitioned along with vfs to be
-> y2038 safe.
-> 
-> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-> Cc: David Sterba <dsterba@suse.com>
+Hi,
 
-for the btrfs bits
+GFS2 bits:
+Acked-by: Steven Whitehouse <swhiteho@redhat.com>
 
-Reviewed-by: David Sterba <dsterba@suse.com>
+Steve.
