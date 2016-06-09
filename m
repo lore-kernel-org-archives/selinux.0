@@ -1,40 +1,131 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u59J1Epu021884
- for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2016 15:01:14 -0400
-Date: Thu, 09 Jun 2016 12:01:08 -0700 (PDT)
-Message-Id: <20160609.120108.214498005489658934.davem@davemloft.net>
-To: pmoore@redhat.com
-Cc: linux-s390@vger.kernel.org, netdev@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] iucv: properly clone LSM attributes to newly created
- child sockets
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <CAGH-Kgs-jg381WW818NKhdCkd06yXSRrgN0+A4migVM6FwUSVg@mail.gmail.com>
-References: <146547719343.9258.4899338680484754606.stgit@localhost>
- <CAGH-Kgs-jg381WW818NKhdCkd06yXSRrgN0+A4migVM6FwUSVg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+MIME-Version: 1.0
+Sender: linus971@gmail.com
+In-Reply-To: <1465448705-25055-5-git-send-email-deepa.kernel@gmail.com>
+References: <1465448705-25055-1-git-send-email-deepa.kernel@gmail.com>
+ <1465448705-25055-5-git-send-email-deepa.kernel@gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 9 Jun 2016 12:08:04 -0700
+Message-ID: <CA+55aFzceGREzGEJda8qt6gv6=iE_yDbM+mO2dJJa0wbu-o-Ww@mail.gmail.com>
+Subject: Re: [PATCH 04/21] fs: Replace CURRENT_TIME with current_fs_time() for
+ inode timestamps
+To: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>,
+ Al Viro <viro@zeniv.linux.org.uk>, y2038@lists.linaro.org,
+ Steve French <sfrench@samba.org>,
+ "linux-cifs@vger.kernel.org" <linux-cifs@vger.kernel.org>,
+ samba-technical@lists.samba.org, Joern Engel <joern@logfs.org>,
+ Prasad Joshi <prasadjoshi.linux@gmail.com>, logfs@logfs.org,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Julia Lawall <Julia.Lawall@lip6.fr>,
+ David Howells <dhowells@redhat.com>, Firo Yang <firogm@gmail.com>,
+ Jaegeuk Kim <jaegeuk@kernel.org>, Changman Lee <cm224.lee@samsung.com>,
+ Chao Yu <chao2.yu@samsung.com>,
+ "Linux F2FS DEV, Mailing List" <linux-f2fs-devel@lists.sourceforge.net>,
+ Michal Hocko <mhocko@suse.com>, Konstantin Khlebnikov <koct9i@gmail.com>,
+ Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+ "J. Bruce Fields" <bfields@fieldses.org>,
+ Jeff Layton <jlayton@poochiereds.net>,
+ Trond Myklebust <trond.myklebust@primarydata.com>,
+ Anna Schumaker <anna.schumaker@netapp.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+ Network Development <netdev@vger.kernel.org>,
+ Steven Whitehouse <swhiteho@redhat.com>,
+ Bob Peterson <rpeterso@redhat.com>,
+ cluster-devel <cluster-devel@redhat.com>,
+ Mark Fasheh <mfasheh@suse.com>, Joel Becker <jlbec@evilplan.org>,
+ ocfs2-devel@oss.oracle.com, Anton Vorontsov <anton@enomsg.org>,
+ Colin Cross <ccross@android.com>, Kees Cook <keescook@chromium.org>,
+ Tony Luck <tony.luck@intel.com>, Chris Mason <clm@fb.com>,
+ Josef Bacik <jbacik@fb.com>, David Sterba <dsterba@suse.com>,
+ linux-btrfs <linux-btrfs@vger.kernel.org>,
+ Miklos Szeredi <miklos@szeredi.hu>,
+ "open list:FUSE: FILESYSTEM..." <fuse-devel@lists.sourceforge.net>,
+ Felipe Balbi <balbi@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ USB list <linux-usb@vger.kernel.org>,
+ Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>,
+ Hal Rosenstock <hal.rosenstock@gmail.com>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Robert Richter <rric@kernel.org>,
+ "oprofile-list@lists.sf.net" <oprofile-list@lists.sf.net>,
+ Alexei Starovoitov <ast@kernel.org>, Hugh Dickins <hughd@google.com>,
+ linux-mm <linux-mm@kvack.org>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ Eric Van Hensbergen <ericvh@gmail.com>,
+ Ron Minnich <rminnich@sandia.gov>, Latchesar Ionkov <lucho@ionkov.net>,
+ V9FS Developers <v9fs-developer@lists.sourceforge.net>,
+ Ian Kent <raven@themaw.net>, autofs mailing list <autofs@vger.kernel.org>,
+ Matthew Garrett <matthew.garrett@nebula.com>,
+ Jeremy Kerr <jk@ozlabs.org>, Matt Fleming <matt@codeblueprint.co.uk>,
+ "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
+ Peter Hurley <peter@hurleysoftware.com>,
+ Josh Triplett <josh@joshtriplett.org>, Boaz Harrosh <ooo@electrozaur.com>,
+ Benny Halevy <bhalevy@primarydata.com>,
+ open-osd <osd-dev@open-osd.org>, Mike Marshall <hubcap@omnibond.com>,
+ pvfs2-developers@beowulf-underground.org,
+ Nadia Yvette Chambers <nyc@holomorphy.com>,
+ Dave Kleikamp <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net,
+ Ryusuke Konishi <konishi.ryusuke@lab.ntt.co.jp>,
+ linux-nilfs@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <pmoore@redhat.com>
-Date: Thu, 9 Jun 2016 09:01:52 -0400
+On Wed, Jun 8, 2016 at 10:04 PM, Deepa Dinamani <deepa.kernel@gmail.com> wrote:
+> CURRENT_TIME macro is not appropriate for filesystems as it
+> doesn't use the right granularity for filesystem timestamps.
+> Use current_fs_time() instead.
 
-> On Thu, Jun 9, 2016 at 8:59 AM, Paul Moore <pmoore@redhat.com> wrote:
->> From: Paul Moore <paul@paul-moore.com>
->>
->> Much like we had to do for AF_BLUETOOTH and AF_ALG, make sure we
->> properly clone the parent socket's LSM attributes to newly created
->> child sockets.
->>
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
->> ---
->>  net/iucv/af_iucv.c |    5 ++++-
->>  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> Another small, and obvious, fix so I'm going to merge it into
-> selinux#next now, but if anyone has an objection please let me know.
+Again - using the inode instead fo the syuperblock in tghis patch
+would have made the patch much more obvious (it could have been 99%
+generated with the sed-script I sent out a week or two ago), and it
+would have made it unnecessary to add these kinds of things:
 
-This is fine.
+> diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+> index e9f5043..85c12f0 100644
+> --- a/drivers/usb/core/devio.c
+> +++ b/drivers/usb/core/devio.c
+> @@ -2359,6 +2359,7 @@ static long usbdev_do_ioctl(struct file *file, unsigned int cmd,
+>  {
+>         struct usb_dev_state *ps = file->private_data;
+>         struct inode *inode = file_inode(file);
+> +       struct super_block *sb = inode->i_sb;
+>         struct usb_device *dev = ps->dev;
+>         int ret = -ENOTTY;
+
+where we add a new variable just because the calling convention was wrong.
+
+It's not even 100% obvious that a filesystem has to have one single
+time representation, so making the time function about the entity
+whose time is set is also conceptually a much better model, never mind
+that it is just what every single user seems to want anyway.
+
+So I'd *much* rather see
+
++       inode->i_atime = inode->i_mtime = inode->i_ctime =
+current_fs_time(inode);
+
+over seeing either of these two variants::
+
++       inode->i_atime = inode->i_mtime = inode->i_ctime =
+current_fs_time(inode->i_sb);
++       ret->i_atime = ret->i_mtime = ret->i_ctime = current_fs_time(sb);
+
+because the first of those variants (grep for current_fs_time() in the
+current git tree, and notice that it's the common one) we have the
+pointless "let's chase a pointer in every caller"
+
+And while it's true that the second variant is natural for *some*
+situations, I've yet to find one where it wasn't equally sane to just
+pass in the inode instead.
+
+                     Linus
