@@ -1,76 +1,53 @@
-Subject: Re: [PATCH 04/21] fs: Replace CURRENT_TIME with current_fs_time() for
- inode timestamps
-To: Deepa Dinamani <deepa.kernel@gmail.com>, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <1465448705-25055-1-git-send-email-deepa.kernel@gmail.com>
- <1465448705-25055-5-git-send-email-deepa.kernel@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Gleixner <tglx@linutronix.de>,
- Al Viro <viro@zeniv.linux.org.uk>,
- Linus Torvalds <torvalds@linux-foundation.org>, y2038@lists.linaro.org,
- Steve French <sfrench@samba.org>, linux-cifs@vger.kernel.org,
- samba-technical@lists.samba.org, Joern Engel <joern@logfs.org>,
- Prasad Joshi <prasadjoshi.linux@gmail.com>, logfs@logfs.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Julia Lawall <Julia.Lawall@lip6.fr>,
- David Howells <dhowells@redhat.com>, Firo Yang <firogm@gmail.com>,
- Jaegeuk Kim <jaegeuk@kernel.org>, Changman Lee <cm224.lee@samsung.com>,
- Chao Yu <chao2.yu@samsung.com>, linux-f2fs-devel@lists.sourceforge.net,
- Michal Hocko <mhocko@suse.com>, Konstantin Khlebnikov <koct9i@gmail.com>,
- Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
- "J. Bruce Fields" <bfields@fieldses.org>,
- Jeff Layton <jlayton@poochiereds.net>,
- Trond Myklebust <trond.myklebust@primarydata.com>,
- Anna Schumaker <anna.schumaker@netapp.com>,
- "David S. Miller" <davem@davemloft.net>, linux-nfs@vger.kernel.org,
- netdev@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
- cluster-devel@redhat.com, Mark Fasheh <mfasheh@suse.com>,
- Joel Becker <jlbec@evilplan.org>, ocfs2-devel@oss.oracle.com,
- Anton Vorontsov <anton@enomsg.org>, Colin Cross <ccross@android.com>,
- Kees Cook <keescook@chromium.org>, Tony Luck <tony.luck@intel.com>,
- Chris Mason <clm@fb.com>, Josef Bacik <jbacik@fb.com>,
- David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org,
- Miklos Szeredi <miklos@szeredi.hu>, fuse-devel@lists.sourceforge.net,
- Felipe Balbi <balbi@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- linux-usb@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
- Sean Hefty <sean.hefty@intel.com>,
- Hal Rosenstock <hal.rosenstock@gmail.com>, linux-rdma@vger.kernel.org,
- Robert Richter <rric@kernel.org>, oprofile-list@lists.sf.net,
- Alexei Starovoitov <ast@kernel.org>, Hugh Dickins <hughd@google.com>,
- linux-mm@kvack.org, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- linux-security-module@vger.kernel.org,
- Eric Van Hensbergen <ericvh@gmail.com>,
- Ron Minnich <rminnich@sandia.gov>, Latchesar Ionkov <lucho@ionkov.net>,
- v9fs-developer@lists.sourceforge.net, Ian Kent <raven@themaw.net>,
- autofs@vger.kernel.org, Matthew Garrett <matthew.garrett@nebula.com>,
- Jeremy Kerr <jk@ozlabs.org>, Matt Fleming <matt@codeblueprint.co.uk>,
- linux-efi@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>,
- Josh Triplett <josh@joshtriplett.org>, Boaz Harrosh <ooo@electrozaur.com>,
- Benny Halevy <bhalevy@primarydata.com>, osd-dev@open-osd.org,
- Mike Marshall <hubcap@omnibond.com>,
- pvfs2-developers@beowulf-underground.org,
- Nadia Yvette Chambers <nyc@holomorphy.com>, Dave Kleikamp
- <shaggy@kernel.org>, jfs-discussion@lists.sourceforge.net,
- Ryusuke Konishi <konishi.ryusuke@lab.ntt.co.jp>,
- linux-nilfs@vger.kernel.org
-From: Steven Whitehouse <swhiteho@redhat.com>
-Message-ID: <575944D4.4010009@redhat.com>
-Date: Thu, 9 Jun 2016 11:28:36 +0100
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u59D0Gfp002903
+ for <selinux@tycho.nsa.gov>; Thu, 9 Jun 2016 09:00:17 -0400
+Subject: [PATCH] iucv: properly clone LSM attributes to newly created child
+ sockets
+From: Paul Moore <pmoore@redhat.com>
+To: linux-s390@vger.kernel.org
+Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Date: Thu, 09 Jun 2016 08:59:53 -0400
+Message-ID: <146547719343.9258.4899338680484754606.stgit@localhost>
 MIME-Version: 1.0
-In-Reply-To: <1465448705-25055-5-git-send-email-deepa.kernel@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
+From: Paul Moore <paul@paul-moore.com>
 
-GFS2 bits:
-Acked-by: Steven Whitehouse <swhiteho@redhat.com>
+Much like we had to do for AF_BLUETOOTH and AF_ALG, make sure we
+properly clone the parent socket's LSM attributes to newly created
+child sockets.
 
-Steve.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ net/iucv/af_iucv.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index fc3598a..a0d1e36 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -22,6 +22,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/init.h>
+ #include <linux/poll.h>
++#include <linux/security.h>
+ #include <net/sock.h>
+ #include <asm/ebcdic.h>
+ #include <asm/cpcmd.h>
+@@ -530,8 +531,10 @@ static void iucv_sock_close(struct sock *sk)
+ 
+ static void iucv_sock_init(struct sock *sk, struct sock *parent)
+ {
+-	if (parent)
++	if (parent) {
+ 		sk->sk_type = parent->sk_type;
++		security_sk_clone(parent, sk);
++	}
+ }
+ 
+ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio, int kern)
