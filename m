@@ -1,48 +1,164 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDbIP0013705
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDbIP1013705
  for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 09:37:19 -0400
 From: Huw Davies <huw@codeweavers.com>
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
  selinux@tycho.nsa.gov
-Subject: [PATCH v4 14/19] ipv6: constify the skb pointer of ipv6_find_tlv().
-Date: Mon, 20 Jun 2016 14:36:54 +0100
-Message-Id: <1466429819-12707-15-git-send-email-huw@codeweavers.com>
+Subject: [PATCH v4 16/19] netlabel: Pass a family parameter to
+ netlbl_skbuff_err().
+Date: Mon, 20 Jun 2016 14:36:56 +0100
+Message-Id: <1466429819-12707-17-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+This makes it possible to route the error to the appropriate
+labelling engine.  CALIPSO is far less verbose than CIPSO
+when encountering a bogus packet, so there is no need for a
+CALIPSO error handler.
+
 Signed-off-by: Huw Davies <huw@codeweavers.com>
 ---
- include/net/ipv6.h      | 2 +-
- net/ipv6/exthdrs_core.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ include/net/netlabel.h              |  2 +-
+ net/netlabel/netlabel_kapi.c        | 11 ++++++++---
+ security/selinux/hooks.c            |  6 +++---
+ security/selinux/include/netlabel.h |  4 +++-
+ security/selinux/netlabel.c         |  6 +++---
+ security/smack/smack_lsm.c          |  2 +-
+ 6 files changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-index 22c7a37..3e59785 100644
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -945,7 +945,7 @@ enum {
- int ipv6_find_hdr(const struct sk_buff *skb, unsigned int *offset, int target,
- 		  unsigned short *fragoff, int *fragflg);
+diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+index e0e4ce8..d8a46a8 100644
+--- a/include/net/netlabel.h
++++ b/include/net/netlabel.h
+@@ -488,7 +488,7 @@ int netlbl_skbuff_setattr(struct sk_buff *skb,
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+ 			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr);
+-void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway);
++void netlbl_skbuff_err(struct sk_buff *skb, u16 family, int error, int gateway);
  
--int ipv6_find_tlv(struct sk_buff *skb, int offset, int type);
-+int ipv6_find_tlv(const struct sk_buff *skb, int offset, int type);
- 
- struct in6_addr *fl6_update_dst(struct flowi6 *fl6,
- 				const struct ipv6_txoptions *opt,
-diff --git a/net/ipv6/exthdrs_core.c b/net/ipv6/exthdrs_core.c
-index 9508a20..305e2ed 100644
---- a/net/ipv6/exthdrs_core.c
-+++ b/net/ipv6/exthdrs_core.c
-@@ -112,7 +112,7 @@ int ipv6_skip_exthdr(const struct sk_buff *skb, int start, u8 *nexthdrp,
- }
- EXPORT_SYMBOL(ipv6_skip_exthdr);
- 
--int ipv6_find_tlv(struct sk_buff *skb, int offset, int type)
-+int ipv6_find_tlv(const struct sk_buff *skb, int offset, int type)
+ /*
+  * LSM label mapping cache operations
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index bace474..35df8f5 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -1250,6 +1250,7 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+ /**
+  * netlbl_skbuff_err - Handle a LSM error on a sk_buff
+  * @skb: the packet
++ * @family: the family
+  * @error: the error code
+  * @gateway: true if host is acting as a gateway, false otherwise
+  *
+@@ -1259,10 +1260,14 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+  * according to the packet's labeling protocol.
+  *
+  */
+-void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway)
++void netlbl_skbuff_err(struct sk_buff *skb, u16 family, int error, int gateway)
  {
- 	const unsigned char *nh = skb_network_header(skb);
- 	int packet_len = skb_tail_pointer(skb) - skb_network_header(skb);
+-	if (cipso_v4_optptr(skb))
+-		cipso_v4_error(skb, error, gateway);
++	switch (family) {
++	case AF_INET:
++		if (cipso_v4_optptr(skb))
++			cipso_v4_error(skb, error, gateway);
++		break;
++	}
+ }
+ 
+ /**
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 93eed8f..0324493 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4539,13 +4539,13 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 		err = selinux_inet_sys_rcv_skb(sock_net(sk), skb->skb_iif,
+ 					       addrp, family, peer_sid, &ad);
+ 		if (err) {
+-			selinux_netlbl_err(skb, err, 0);
++			selinux_netlbl_err(skb, family, err, 0);
+ 			return err;
+ 		}
+ 		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
+ 				   PEER__RECV, &ad);
+ 		if (err) {
+-			selinux_netlbl_err(skb, err, 0);
++			selinux_netlbl_err(skb, family, err, 0);
+ 			return err;
+ 		}
+ 	}
+@@ -4911,7 +4911,7 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb,
+ 		err = selinux_inet_sys_rcv_skb(dev_net(indev), indev->ifindex,
+ 					       addrp, family, peer_sid, &ad);
+ 		if (err) {
+-			selinux_netlbl_err(skb, err, 1);
++			selinux_netlbl_err(skb, family, err, 1);
+ 			return NF_DROP;
+ 		}
+ 	}
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 8c59b8f..75686d5 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -40,7 +40,8 @@
+ #ifdef CONFIG_NETLABEL
+ void selinux_netlbl_cache_invalidate(void);
+ 
+-void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway);
++void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error,
++			int gateway);
+ 
+ void selinux_netlbl_sk_security_free(struct sk_security_struct *sksec);
+ void selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec);
+@@ -72,6 +73,7 @@ static inline void selinux_netlbl_cache_invalidate(void)
+ }
+ 
+ static inline void selinux_netlbl_err(struct sk_buff *skb,
++				      u16 family,
+ 				      int error,
+ 				      int gateway)
+ {
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index ca220c3..dfca50d 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -151,9 +151,9 @@ void selinux_netlbl_cache_invalidate(void)
+  * present on the packet, NetLabel is smart enough to only act when it should.
+  *
+  */
+-void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway)
++void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error, int gateway)
+ {
+-	netlbl_skbuff_err(skb, error, gateway);
++	netlbl_skbuff_err(skb, family, error, gateway);
+ }
+ 
+ /**
+@@ -405,7 +405,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 		return 0;
+ 
+ 	if (nlbl_sid != SECINITSID_UNLABELED)
+-		netlbl_skbuff_err(skb, rc, 0);
++		netlbl_skbuff_err(skb, family, rc, 0);
+ 	return rc;
+ }
+ 
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 11f7901..292fdea 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3992,7 +3992,7 @@ access_check:
+ 		rc = smk_bu_note("IPv4 delivery", skp, ssp->smk_in,
+ 					MAY_WRITE, rc);
+ 		if (rc != 0)
+-			netlbl_skbuff_err(skb, rc, 0);
++			netlbl_skbuff_err(skb, sk->sk_family, rc, 0);
+ 		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	case PF_INET6:
 -- 
 2.7.4
