@@ -1,48 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KFghE9032238
- for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 11:42:44 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com
- (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 5C86EB1CA0
- for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 15:42:15 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: David King <dking@redhat.com>
-Subject: [PATCH 1/2] libselinux: man: Explain how to free policy type from
- selinux_getpolicytype()
-Date: Mon, 20 Jun 2016 17:41:53 +0200
-Message-Id: <1466437314-9813-1-git-send-email-plautrba@redhat.com>
+Subject: Re: [PATCH 1/2] Modify audit2why analyze function to use loaded policy
+To: Joshua Brindle <brindle@quarksecurity.com>, selinux <selinux@tycho.nsa.gov>
+References: <1464966566-14597-1-git-send-email-brindle@quarksecurity.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <3e33ffae-4cee-9c5f-0e81-71bfe738be7a@tycho.nsa.gov>
+Date: Mon, 20 Jun 2016 16:33:41 -0400
+MIME-Version: 1.0
+In-Reply-To: <1464966566-14597-1-git-send-email-brindle@quarksecurity.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: David King <dking@redhat.com>
+On 06/03/2016 11:09 AM, Joshua Brindle wrote:
+> Class and perms should come from the policy being used for analysis,
+> not the system policy so use sepol_ interfaces
+> 
+> Change-Id: Ia0590ed2514249fd98810a8d4fe87f8bf5280561
+> Signed-off-by: Joshua Brindle <brindle@quarksecurity.com>
+> ---
+>  libselinux/src/audit2why.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
-Additionally, fix a typo.
+Thanks, applied.
 
-Signed-off-by: David King <dking@redhat.com>
----
- libselinux/man/man3/selinux_getpolicytype.3 | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/libselinux/man/man3/selinux_getpolicytype.3 b/libselinux/man/man3/selinux_getpolicytype.3
-index c947e2c..b219d42 100644
---- a/libselinux/man/man3/selinux_getpolicytype.3
-+++ b/libselinux/man/man3/selinux_getpolicytype.3
-@@ -13,7 +13,10 @@ Reads the contents of the
- .I /etc/selinux/config
- file to determine the SELinux policy used on the system, and sets
- .I \%policytype
--accordinly.
-+accordingly. Free
-+.I \%policytype
-+with
-+.BR free (3).
- .
- .SH "RETURN VALUE"
- On success, zero is returned.
--- 
-2.7.4
+> 
+> diff --git a/libselinux/src/audit2why.c b/libselinux/src/audit2why.c
+> index 12745b3..abe1701 100644
+> --- a/libselinux/src/audit2why.c
+> +++ b/libselinux/src/audit2why.c
+> @@ -343,8 +343,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+>  	if (rc < 0)
+>  		RETURN(BADTCON)
+>  
+> -	tclass = string_to_security_class(tclassstr);
+> -	if (!tclass)
+> +	rc = sepol_string_to_security_class(tclassstr, &tclass);
+> +	if (rc < 0)
+>  		RETURN(BADTCLASS)
+>  
+>  	/* Convert the permission list to an AV. */
+> @@ -365,8 +365,8 @@ static PyObject *analyze(PyObject *self __attribute__((unused)) , PyObject *args
+>  		permstr = PyString_AsString( strObj );
+>  #endif
+>  		
+> -		perm = string_to_av_perm(tclass, permstr);
+> -		if (!perm)
+> +		rc = sepol_string_to_av_perm(tclass, permstr, &perm);
+> +		if (rc < 0)
+>  			RETURN(BADPERM)
+>  
+>  		av |= perm;
+> 
