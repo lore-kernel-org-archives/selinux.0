@@ -1,34 +1,35 @@
-Subject: Re: Protect Xen Virtualization via SElinux.
-To: Jason Long <hack3rcon@yahoo.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <785947670.864078.1466342123305.JavaMail.yahoo.ref@mail.yahoo.com>
- <785947670.864078.1466342123305.JavaMail.yahoo@mail.yahoo.com>
+Subject: Re: Selectively assigning SELinux policies to permissive and
+ enforcement mode
+To: Taeho Kgil <taeho.kgil@gmail.com>, selinux@tycho.nsa.gov
+References: <CAEe7Eb1Mo0FSHkrHZxM1s0z3ckOBfuahhak4HakoDdtGUFd9vQ@mail.gmail.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <84f4eb19-85ee-17db-a7c6-64dd2ec1a021@tycho.nsa.gov>
-Date: Mon, 20 Jun 2016 08:44:10 -0400
+Message-ID: <525a0ff1-ac22-286a-3f2b-e5c38168c5fc@tycho.nsa.gov>
+Date: Mon, 20 Jun 2016 08:54:24 -0400
 MIME-Version: 1.0
-In-Reply-To: <785947670.864078.1466342123305.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <CAEe7Eb1Mo0FSHkrHZxM1s0z3ckOBfuahhak4HakoDdtGUFd9vQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/19/2016 09:15 AM, Jason Long wrote:
-> Hello.
-> How can I protect my Xen VM via SElinux? Can you show me some useful examples?
+On 06/19/2016 07:16 PM, Taeho Kgil wrote:
+> Hi SELinux community, 
+> 
+> I'm relatively new to this mailing list and not sure if this is the
+> appropriate place to raise this question. 
+> 
+> I am trying to see if we can selectively assign policies to permissive
+> and enforcement. Is this a possible capability available today?
 
-I'm not entirely sure what you are asking, but possible answers:
+Yes, SELinux permissive domains allow you to do this.  On Linux
+distributions, you can configure specific domains to be permissive via
+the semanage permissive command, see:
+https://selinuxproject.org/page/PermissiveDomainRecipe
 
-1. If you want to apply SELinux-like controls over Xen virtual machines
-(domains), then you can use Xen Security Modules and the Flask security
-module (commonly abbreviated XSM/Flask) to define and enforce a policy
-over the hypervisor objects and operations.
-
-2. If you want to use SELinux to harden the Xen domain-0 or specific
-domUs, you can just enable it in those domains and configure your policy
-accordingly.
-
-If you want a worked example of applying both XSM/Flask and SELinux,
-have a look at OpenXT,
-http://openxt.org/
+On Android, you can achieve the same effect by adding a permissive
+declaration for the domain to the corresponding .te file under
+external/sepolicy (or system/sepolicy in master) or your
+device/<vendor>/<product>/sepolicy directory, and then rebuilding your
+image.  Of course, for your final production image, there must not be
+any permissive domains, or it will fail the CTS.
