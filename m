@@ -1,48 +1,34 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5JFFht4005721
- for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2016 11:15:44 -0400
-Sender: sven.vermeulen@siphos.be
-Received: by mail-oi0-f52.google.com with SMTP id p204so179380700oih.3
- for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2016 08:15:35 -0700 (PDT)
+Subject: Re: Protect Xen Virtualization via SElinux.
+To: Jason Long <hack3rcon@yahoo.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <785947670.864078.1466342123305.JavaMail.yahoo.ref@mail.yahoo.com>
+ <785947670.864078.1466342123305.JavaMail.yahoo@mail.yahoo.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <84f4eb19-85ee-17db-a7c6-64dd2ec1a021@tycho.nsa.gov>
+Date: Mon, 20 Jun 2016 08:44:10 -0400
 MIME-Version: 1.0
-From: Sven Vermeulen <sven.vermeulen@siphos.be>
-Date: Sun, 19 Jun 2016 17:15:34 +0200
-Message-ID: <CAPzO=NzdEVwf+BZKopVjoi2z2L4=VOnbeGGrbum0Uxe=D_W8qQ@mail.gmail.com>
-Subject: When/how to use "delete" in CIL?
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <785947670.864078.1466342123305.JavaMail.yahoo@mail.yahoo.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi all
+On 06/19/2016 09:15 AM, Jason Long wrote:
+> Hello.
+> How can I protect my Xen VM via SElinux? Can you show me some useful examples?
 
-I'm going through the information at
-https://github.com/SELinuxProject/cil/wiki to try some new things that
-CIL offers. One of the documented "features" is to delete rules from
-the final policy using the "(delete ...)" statement.
+I'm not entirely sure what you are asking, but possible answers:
 
-However, when I try to use that, I always get the failure "Error:
-Unknown keyword delete".
+1. If you want to apply SELinux-like controls over Xen virtual machines
+(domains), then you can use Xen Security Modules and the Flask security
+module (commonly abbreviated XSM/Flask) to define and enforce a policy
+over the hypervisor objects and operations.
 
-The test.cil file is pretty simple:
-(delete (allow sysadm_t rsync_etc_t (file (read))))
+2. If you want to use SELinux to harden the Xen domain-0 or specific
+domUs, you can just enable it in those domains and configure your policy
+accordingly.
 
-~# semodule -i test.cil
-Error: Unknown keyword delete
-semodule:  Failed!
-
-I considered that it might only work when it builds everything
-together with secilc, so I tried that as well:
-
-~$ secilc -c 29 /var/lib/selinux/mcs/active/modules/400/*/cil test.cil
-Error: Unknown keyword delete
-Failed to compile cildb: -1
-
-Perhaps this keyword is not part of the final CIL construction? That
-wiki page above is from before it got merged in the main userspace,
-but I didn't find a more up-to-date version of that information.
-
-Wkr,
-  Sven Vermeulen
+If you want a worked example of applying both XSM/Flask and SELinux,
+have a look at OpenXT,
+http://openxt.org/
