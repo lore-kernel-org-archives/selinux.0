@@ -1,55 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDA0gn010294
- for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 09:10:00 -0400
-Subject: Re: When/how to use "delete" in CIL?
-To: Sven Vermeulen <sven.vermeulen@siphos.be>, SELinux <selinux@tycho.nsa.gov>
-References: <CAPzO=NzdEVwf+BZKopVjoi2z2L4=VOnbeGGrbum0Uxe=D_W8qQ@mail.gmail.com>
-From: Steve Lawrence <slawrence@tresys.com>
-Message-ID: <26ba8db8-25a7-f43e-20f0-71ace256f8f3@tresys.com>
-Date: Mon, 20 Jun 2016 09:09:03 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAPzO=NzdEVwf+BZKopVjoi2z2L4=VOnbeGGrbum0Uxe=D_W8qQ@mail.gmail.com>
-Content-Type: text/plain; charset="windows-1252"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDb5Wc013695
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 09:37:05 -0400
+From: Huw Davies <huw@codeweavers.com>
+To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Subject: [PATCH v4 01/19] netlabel: Mark rcu pointers with __rcu.
+Date: Mon, 20 Jun 2016 14:36:41 +0100
+Message-Id: <1466429819-12707-2-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/19/2016 11:15 AM, Sven Vermeulen wrote:
-> Hi all
-> 
-> I'm going through the information at
-> https://github.com/SELinuxProject/cil/wiki to try some new things that
-> CIL offers. One of the documented "features" is to delete rules from
-> the final policy using the "(delete ...)" statement.
-> 
-> However, when I try to use that, I always get the failure "Error:
-> Unknown keyword delete".
-> 
-> The test.cil file is pretty simple:
-> (delete (allow sysadm_t rsync_etc_t (file (read))))
-> 
-> ~# semodule -i test.cil
-> Error: Unknown keyword delete
-> semodule:  Failed!
-> 
-> I considered that it might only work when it builds everything
-> together with secilc, so I tried that as well:
-> 
-> ~$ secilc -c 29 /var/lib/selinux/mcs/active/modules/400/*/cil test.cil
-> Error: Unknown keyword delete
-> Failed to compile cildb: -1
-> 
-> Perhaps this keyword is not part of the final CIL construction? That
-> wiki page above is from before it got merged in the main userspace,
-> but I didn't find a more up-to-date version of that information.
-> 
+This fixes sparse errors of the form:
+  incompatible types in comparison expression (different address spaces)
 
-Unfortunately, some of the features described in that CIL wiki page
-(e.g. delete, filter, transform) were never implemented.
+Signed-off-by: Huw Davies <huw@codeweavers.com>
+---
+ net/netlabel/netlabel_domainhash.c | 4 ++--
+ net/netlabel/netlabel_unlabeled.c  | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-More up to date documentation is available here:
-
-https://github.com/SELinuxProject/selinux/tree/master/secilc/docs
-
-- Steve
+diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
+index ada6742..d4d6640 100644
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -55,8 +55,8 @@ struct netlbl_domhsh_tbl {
+ static DEFINE_SPINLOCK(netlbl_domhsh_lock);
+ #define netlbl_domhsh_rcu_deref(p) \
+ 	rcu_dereference_check(p, lockdep_is_held(&netlbl_domhsh_lock))
+-static struct netlbl_domhsh_tbl *netlbl_domhsh;
+-static struct netlbl_dom_map *netlbl_domhsh_def;
++static struct netlbl_domhsh_tbl __rcu *netlbl_domhsh;
++static struct netlbl_dom_map __rcu *netlbl_domhsh_def;
+ 
+ /*
+  * Domain Hash Table Helper Functions
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 9eaa9a1..ca590d2 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -116,8 +116,8 @@ struct netlbl_unlhsh_walk_arg {
+ static DEFINE_SPINLOCK(netlbl_unlhsh_lock);
+ #define netlbl_unlhsh_rcu_deref(p) \
+ 	rcu_dereference_check(p, lockdep_is_held(&netlbl_unlhsh_lock))
+-static struct netlbl_unlhsh_tbl *netlbl_unlhsh;
+-static struct netlbl_unlhsh_iface *netlbl_unlhsh_def;
++static struct netlbl_unlhsh_tbl __rcu *netlbl_unlhsh;
++static struct netlbl_unlhsh_iface __rcu *netlbl_unlhsh_def;
+ 
+ /* Accept unlabeled packets flag */
+ static u8 netlabel_unlabel_acceptflg;
+-- 
+2.7.4
