@@ -1,74 +1,106 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5K0HIXT025030
- for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2016 20:17:18 -0400
-Received: by mail-it0-f44.google.com with SMTP id z189so34506803itg.0
- for <selinux@tycho.nsa.gov>; Sun, 19 Jun 2016 17:17:16 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAEe7Eb1Mo0FSHkrHZxM1s0z3ckOBfuahhak4HakoDdtGUFd9vQ@mail.gmail.com>
-References: <CAEe7Eb1Mo0FSHkrHZxM1s0z3ckOBfuahhak4HakoDdtGUFd9vQ@mail.gmail.com>
-Date: Sun, 19 Jun 2016 17:17:15 -0700
-Message-ID: <CAFftDdpUoHLOKybBhZXnbB+1-Ldr1khBYPnVsaci3x3L+bUqkw@mail.gmail.com>
-Subject: Re: Selectively assigning SELinux policies to permissive and
- enforcement mode
-From: William Roberts <bill.c.roberts@gmail.com>
-To: Taeho Kgil <taeho.kgil@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a113f62d2736a4d0535aaa030
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KBA09C027171
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 07:10:00 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id CB68EC0578C7
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 11:09:56 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: add selinux_snapperd_contexts_path()
+Date: Mon, 20 Jun 2016 13:09:51 +0200
+Message-Id: <1466420991-7209-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113f62d2736a4d0535aaa030
-Content-Type: text/plain; charset=UTF-8
+Snapper needs a way how to set a proper selinux context on btrfs
+subvolumes originating in snapshot create command. Fs can't handle it on
+its own so snapper will enforce .snapshots subvolume relabeling
+according to a file returned by selinux_snapperd_contexts_path().
 
-You could set enforcing mode to on via set enforce, which enables it
-globally, and then set various domains in permissive to get a mixed blend
-of enforcing and non-enforcing.
-On Jun 19, 2016 16:21, "Taeho Kgil" <taeho.kgil@gmail.com> wrote:
+The format of the file will be similar to other contexts file:
 
-> Hi SELinux community,
->
-> I'm relatively new to this mailing list and not sure if this is the
-> appropriate place to raise this question.
->
-> I am trying to see if we can selectively assign policies to permissive and
-> enforcement. Is this a possible capability available today?
->
-> Thanks
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
->
+snapperd_data = system_u:object_r:snapperd_data_t:s0
 
---001a113f62d2736a4d0535aaa030
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Fixes:
+https://bugzilla.redhat.com/show_bug.cgi?id=1247530
+https://bugzilla.redhat.com/show_bug.cgi?id=1247532
 
-<p dir=3D"ltr">You could set enforcing mode to on via set enforce, which en=
-ables it globally, and then set various domains in permissive to get a mixe=
-d blend of enforcing and non-enforcing.</p>
-<div class=3D"gmail_quote">On Jun 19, 2016 16:21, &quot;Taeho Kgil&quot; &l=
-t;<a href=3D"mailto:taeho.kgil@gmail.com">taeho.kgil@gmail.com</a>&gt; wrot=
-e:<br type=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"margi=
-n:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">=
-Hi SELinux community,=C2=A0<div><br></div><div>I&#39;m relatively new to th=
-is mailing list and not sure if this is the appropriate place to raise this=
- question.=C2=A0</div><div><br></div><div>I
- am trying to see if we can selectively assign policies to permissive=20
-and enforcement. Is this a possible capability available today?</div><div><=
-br></div><div>Thanks</div></div>
-<br>_______________________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br></blo=
-ckquote></div>
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libselinux/include/selinux/selinux.h |  1 +
+ libselinux/src/file_path_suffixes.h  |  1 +
+ libselinux/src/selinux_config.c      | 10 +++++++++-
+ libselinux/src/selinux_internal.h    |  1 +
+ 4 files changed, 12 insertions(+), 1 deletion(-)
 
---001a113f62d2736a4d0535aaa030--
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index 2262086..3d8673f 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -544,6 +544,7 @@ extern const char *selinux_lxc_contexts_path(void);
+ extern const char *selinux_x_context_path(void);
+ extern const char *selinux_sepgsql_context_path(void);
+ extern const char *selinux_openssh_contexts_path(void);
++extern const char *selinux_snapperd_contexts_path(void);
+ extern const char *selinux_systemd_contexts_path(void);
+ extern const char *selinux_contexts_path(void);
+ extern const char *selinux_securetty_types_path(void);
+diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
+index d1f9b48..95b228b 100644
+--- a/libselinux/src/file_path_suffixes.h
++++ b/libselinux/src/file_path_suffixes.h
+@@ -24,6 +24,7 @@ S_(BINPOLICY, "/policy/policy")
+     S_(VIRTUAL_IMAGE, "/contexts/virtual_image_context")
+     S_(LXC_CONTEXTS, "/contexts/lxc_contexts")
+     S_(OPENSSH_CONTEXTS, "/contexts/openssh_contexts")
++    S_(SNAPPERD_CONTEXTS, "/contexts/snapperd_contexts")
+     S_(SYSTEMD_CONTEXTS, "/contexts/systemd_contexts")
+     S_(FILE_CONTEXT_SUBS, "/contexts/files/file_contexts.subs")
+     S_(FILE_CONTEXT_SUBS_DIST, "/contexts/files/file_contexts.subs_dist")
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index bec5f3b..c519a77 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -50,7 +50,8 @@
+ #define BOOLEAN_SUBS      27
+ #define OPENSSH_CONTEXTS  28
+ #define SYSTEMD_CONTEXTS  29
+-#define NEL               30
++#define SNAPPERD_CONTEXTS 30
++#define NEL               31
+ 
+ /* Part of one-time lazy init */
+ static pthread_once_t once = PTHREAD_ONCE_INIT;
+@@ -499,6 +500,13 @@ const char *selinux_openssh_contexts_path(void)
+ 
+ hidden_def(selinux_openssh_contexts_path)
+ 
++const char *selinux_snapperd_contexts_path(void)
++{
++    return get_path(SNAPPERD_CONTEXTS);
++}
++
++hidden_def(selinux_snapperd_contexts_path)
++
+ const char *selinux_systemd_contexts_path(void)
+ {
+ 	return get_path(SYSTEMD_CONTEXTS);
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 46566f6..9b9145c 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -84,6 +84,7 @@ hidden_proto(selinux_mkload_policy)
+     hidden_proto(selinux_x_context_path)
+     hidden_proto(selinux_sepgsql_context_path)
+     hidden_proto(selinux_openssh_contexts_path)
++    hidden_proto(selinux_snapperd_contexts_path)
+     hidden_proto(selinux_systemd_contexts_path)
+     hidden_proto(selinux_path)
+     hidden_proto(selinux_check_passwd_access)
+-- 
+2.7.4
