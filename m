@@ -1,35 +1,55 @@
-Subject: Re: Selectively assigning SELinux policies to permissive and
- enforcement mode
-To: Taeho Kgil <taeho.kgil@gmail.com>, selinux@tycho.nsa.gov
-References: <CAEe7Eb1Mo0FSHkrHZxM1s0z3ckOBfuahhak4HakoDdtGUFd9vQ@mail.gmail.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <525a0ff1-ac22-286a-3f2b-e5c38168c5fc@tycho.nsa.gov>
-Date: Mon, 20 Jun 2016 08:54:24 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDA0gn010294
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 09:10:00 -0400
+Subject: Re: When/how to use "delete" in CIL?
+To: Sven Vermeulen <sven.vermeulen@siphos.be>, SELinux <selinux@tycho.nsa.gov>
+References: <CAPzO=NzdEVwf+BZKopVjoi2z2L4=VOnbeGGrbum0Uxe=D_W8qQ@mail.gmail.com>
+From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <26ba8db8-25a7-f43e-20f0-71ace256f8f3@tresys.com>
+Date: Mon, 20 Jun 2016 09:09:03 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAEe7Eb1Mo0FSHkrHZxM1s0z3ckOBfuahhak4HakoDdtGUFd9vQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAPzO=NzdEVwf+BZKopVjoi2z2L4=VOnbeGGrbum0Uxe=D_W8qQ@mail.gmail.com>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/19/2016 07:16 PM, Taeho Kgil wrote:
-> Hi SELinux community, 
+On 06/19/2016 11:15 AM, Sven Vermeulen wrote:
+> Hi all
 > 
-> I'm relatively new to this mailing list and not sure if this is the
-> appropriate place to raise this question. 
+> I'm going through the information at
+> https://github.com/SELinuxProject/cil/wiki to try some new things that
+> CIL offers. One of the documented "features" is to delete rules from
+> the final policy using the "(delete ...)" statement.
 > 
-> I am trying to see if we can selectively assign policies to permissive
-> and enforcement. Is this a possible capability available today?
+> However, when I try to use that, I always get the failure "Error:
+> Unknown keyword delete".
+> 
+> The test.cil file is pretty simple:
+> (delete (allow sysadm_t rsync_etc_t (file (read))))
+> 
+> ~# semodule -i test.cil
+> Error: Unknown keyword delete
+> semodule:  Failed!
+> 
+> I considered that it might only work when it builds everything
+> together with secilc, so I tried that as well:
+> 
+> ~$ secilc -c 29 /var/lib/selinux/mcs/active/modules/400/*/cil test.cil
+> Error: Unknown keyword delete
+> Failed to compile cildb: -1
+> 
+> Perhaps this keyword is not part of the final CIL construction? That
+> wiki page above is from before it got merged in the main userspace,
+> but I didn't find a more up-to-date version of that information.
+> 
 
-Yes, SELinux permissive domains allow you to do this.  On Linux
-distributions, you can configure specific domains to be permissive via
-the semanage permissive command, see:
-https://selinuxproject.org/page/PermissiveDomainRecipe
+Unfortunately, some of the features described in that CIL wiki page
+(e.g. delete, filter, transform) were never implemented.
 
-On Android, you can achieve the same effect by adding a permissive
-declaration for the domain to the corresponding .te file under
-external/sepolicy (or system/sepolicy in master) or your
-device/<vendor>/<product>/sepolicy directory, and then rebuilding your
-image.  Of course, for your final production image, there must not be
-any permissive domains, or it will fail the CTS.
+More up to date documentation is available here:
+
+https://github.com/SELinuxProject/selinux/tree/master/secilc/docs
+
+- Steve
