@@ -1,164 +1,150 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDbIP1013705
- for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 09:37:19 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KDbIP2013705
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 09:37:20 -0400
 From: Huw Davies <huw@codeweavers.com>
 To: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
  selinux@tycho.nsa.gov
-Subject: [PATCH v4 16/19] netlabel: Pass a family parameter to
- netlbl_skbuff_err().
-Date: Mon, 20 Jun 2016 14:36:56 +0100
-Message-Id: <1466429819-12707-17-git-send-email-huw@codeweavers.com>
+Subject: [PATCH v4 12/19] ipv6: Allow request socks to contain IPv6 options.
+Date: Mon, 20 Jun 2016 14:36:52 +0100
+Message-Id: <1466429819-12707-13-git-send-email-huw@codeweavers.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This makes it possible to route the error to the appropriate
-labelling engine.  CALIPSO is far less verbose than CIPSO
-when encountering a bogus packet, so there is no need for a
-CALIPSO error handler.
+If set, these will take precedence over the parent's options during
+both sending and child creation.  If they're not set, the parent's
+options (if any) will be used.
+
+This is to allow the security_inet_conn_request() hook to modify the
+IPv6 options in just the same way that it already may do for IPv4.
 
 Signed-off-by: Huw Davies <huw@codeweavers.com>
 ---
- include/net/netlabel.h              |  2 +-
- net/netlabel/netlabel_kapi.c        | 11 ++++++++---
- security/selinux/hooks.c            |  6 +++---
- security/selinux/include/netlabel.h |  4 +++-
- security/selinux/netlabel.c         |  6 +++---
- security/smack/smack_lsm.c          |  2 +-
- 6 files changed, 19 insertions(+), 12 deletions(-)
+ include/net/inet_sock.h |  7 ++++++-
+ net/dccp/ipv6.c         | 12 +++++++++---
+ net/ipv4/tcp_input.c    |  3 +++
+ net/ipv6/tcp_ipv6.c     | 12 +++++++++---
+ 4 files changed, 27 insertions(+), 7 deletions(-)
 
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index e0e4ce8..d8a46a8 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -488,7 +488,7 @@ int netlbl_skbuff_setattr(struct sk_buff *skb,
- int netlbl_skbuff_getattr(const struct sk_buff *skb,
- 			  u16 family,
- 			  struct netlbl_lsm_secattr *secattr);
--void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway);
-+void netlbl_skbuff_err(struct sk_buff *skb, u16 family, int error, int gateway);
+diff --git a/include/net/inet_sock.h b/include/net/inet_sock.h
+index 012b1f9..236a810 100644
+--- a/include/net/inet_sock.h
++++ b/include/net/inet_sock.h
+@@ -97,7 +97,12 @@ struct inet_request_sock {
+ 	u32                     ir_mark;
+ 	union {
+ 		struct ip_options_rcu	*opt;
+-		struct sk_buff		*pktopts;
++#if IS_ENABLED(CONFIG_IPV6)
++		struct {
++			struct ipv6_txoptions	*ipv6_opt;
++			struct sk_buff		*pktopts;
++		};
++#endif
+ 	};
+ };
  
- /*
-  * LSM label mapping cache operations
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index bace474..35df8f5 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -1250,6 +1250,7 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
- /**
-  * netlbl_skbuff_err - Handle a LSM error on a sk_buff
-  * @skb: the packet
-+ * @family: the family
-  * @error: the error code
-  * @gateway: true if host is acting as a gateway, false otherwise
-  *
-@@ -1259,10 +1260,14 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
-  * according to the packet's labeling protocol.
-  *
-  */
--void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway)
-+void netlbl_skbuff_err(struct sk_buff *skb, u16 family, int error, int gateway)
- {
--	if (cipso_v4_optptr(skb))
--		cipso_v4_error(skb, error, gateway);
-+	switch (family) {
-+	case AF_INET:
-+		if (cipso_v4_optptr(skb))
-+			cipso_v4_error(skb, error, gateway);
-+		break;
-+	}
- }
+diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
+index 4663a01..3381748 100644
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -216,14 +216,17 @@ static int dccp_v6_send_response(const struct sock *sk, struct request_sock *req
+ 	skb = dccp_make_response(sk, dst, req);
+ 	if (skb != NULL) {
+ 		struct dccp_hdr *dh = dccp_hdr(skb);
++		struct ipv6_txoptions *opt;
  
- /**
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 93eed8f..0324493 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4539,13 +4539,13 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		err = selinux_inet_sys_rcv_skb(sock_net(sk), skb->skb_iif,
- 					       addrp, family, peer_sid, &ad);
- 		if (err) {
--			selinux_netlbl_err(skb, err, 0);
-+			selinux_netlbl_err(skb, family, err, 0);
- 			return err;
- 		}
- 		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
- 				   PEER__RECV, &ad);
- 		if (err) {
--			selinux_netlbl_err(skb, err, 0);
-+			selinux_netlbl_err(skb, family, err, 0);
- 			return err;
- 		}
+ 		dh->dccph_checksum = dccp_v6_csum_finish(skb,
+ 							 &ireq->ir_v6_loc_addr,
+ 							 &ireq->ir_v6_rmt_addr);
+ 		fl6.daddr = ireq->ir_v6_rmt_addr;
+ 		rcu_read_lock();
+-		err = ip6_xmit(sk, skb, &fl6, rcu_dereference(np->opt),
+-			       np->tclass);
++		opt = ireq->ipv6_opt;
++		if (!opt)
++			opt = rcu_dereference(np->opt);
++		err = ip6_xmit(sk, skb, &fl6, opt, np->tclass);
+ 		rcu_read_unlock();
+ 		err = net_xmit_eval(err);
  	}
-@@ -4911,7 +4911,7 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb,
- 		err = selinux_inet_sys_rcv_skb(dev_net(indev), indev->ifindex,
- 					       addrp, family, peer_sid, &ad);
- 		if (err) {
--			selinux_netlbl_err(skb, err, 1);
-+			selinux_netlbl_err(skb, family, err, 1);
- 			return NF_DROP;
- 		}
+@@ -236,6 +239,7 @@ done:
+ static void dccp_v6_reqsk_destructor(struct request_sock *req)
+ {
+ 	dccp_feat_list_purge(&dccp_rsk(req)->dreq_featneg);
++	kfree(inet_rsk(req)->ipv6_opt);
+ 	kfree_skb(inet_rsk(req)->pktopts);
+ }
+ 
+@@ -494,7 +498,9 @@ static struct sock *dccp_v6_request_recv_sock(const struct sock *sk,
+ 	 * Yes, keeping reference count would be much more clever, but we make
+ 	 * one more one thing there: reattach optmem to newsk.
+ 	 */
+-	opt = rcu_dereference(np->opt);
++	opt = ireq->ipv6_opt;
++	if (!opt)
++		opt = rcu_dereference(np->opt);
+ 	if (opt) {
+ 		opt = ipv6_dup_options(newsk, opt);
+ 		RCU_INIT_POINTER(newnp->opt, opt);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index c124c3c..f76b4ae 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -6148,6 +6148,9 @@ struct request_sock *inet_reqsk_alloc(const struct request_sock_ops *ops,
+ 
+ 		kmemcheck_annotate_bitfield(ireq, flags);
+ 		ireq->opt = NULL;
++#if IS_ENABLED(CONFIG_IPV6)
++		ireq->pktopts = NULL;
++#endif
+ 		atomic64_set(&ireq->ir_cookie, 0);
+ 		ireq->ireq_state = TCP_NEW_SYN_RECV;
+ 		write_pnet(&ireq->ireq_net, sock_net(sk_listener));
+diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
+index f443c6b..cb7407f 100644
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -443,6 +443,7 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
+ {
+ 	struct inet_request_sock *ireq = inet_rsk(req);
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
++	struct ipv6_txoptions *opt;
+ 	struct flowi6 *fl6 = &fl->u.ip6;
+ 	struct sk_buff *skb;
+ 	int err = -ENOMEM;
+@@ -463,8 +464,10 @@ static int tcp_v6_send_synack(const struct sock *sk, struct dst_entry *dst,
+ 			fl6->flowlabel = ip6_flowlabel(ipv6_hdr(ireq->pktopts));
+ 
+ 		rcu_read_lock();
+-		err = ip6_xmit(sk, skb, fl6, rcu_dereference(np->opt),
+-			       np->tclass);
++		opt = ireq->ipv6_opt;
++		if (!opt)
++			opt = rcu_dereference(np->opt);
++		err = ip6_xmit(sk, skb, fl6, opt, np->tclass);
+ 		rcu_read_unlock();
+ 		err = net_xmit_eval(err);
  	}
-diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-index 8c59b8f..75686d5 100644
---- a/security/selinux/include/netlabel.h
-+++ b/security/selinux/include/netlabel.h
-@@ -40,7 +40,8 @@
- #ifdef CONFIG_NETLABEL
- void selinux_netlbl_cache_invalidate(void);
+@@ -476,6 +479,7 @@ done:
  
--void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway);
-+void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error,
-+			int gateway);
- 
- void selinux_netlbl_sk_security_free(struct sk_security_struct *sksec);
- void selinux_netlbl_sk_security_reset(struct sk_security_struct *sksec);
-@@ -72,6 +73,7 @@ static inline void selinux_netlbl_cache_invalidate(void)
- }
- 
- static inline void selinux_netlbl_err(struct sk_buff *skb,
-+				      u16 family,
- 				      int error,
- 				      int gateway)
+ static void tcp_v6_reqsk_destructor(struct request_sock *req)
  {
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index ca220c3..dfca50d 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -151,9 +151,9 @@ void selinux_netlbl_cache_invalidate(void)
-  * present on the packet, NetLabel is smart enough to only act when it should.
-  *
-  */
--void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway)
-+void selinux_netlbl_err(struct sk_buff *skb, u16 family, int error, int gateway)
- {
--	netlbl_skbuff_err(skb, error, gateway);
-+	netlbl_skbuff_err(skb, family, error, gateway);
++	kfree(inet_rsk(req)->ipv6_opt);
+ 	kfree_skb(inet_rsk(req)->pktopts);
  }
  
- /**
-@@ -405,7 +405,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
- 		return 0;
- 
- 	if (nlbl_sid != SECINITSID_UNLABELED)
--		netlbl_skbuff_err(skb, rc, 0);
-+		netlbl_skbuff_err(skb, family, rc, 0);
- 	return rc;
- }
- 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 11f7901..292fdea 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -3992,7 +3992,7 @@ access_check:
- 		rc = smk_bu_note("IPv4 delivery", skp, ssp->smk_in,
- 					MAY_WRITE, rc);
- 		if (rc != 0)
--			netlbl_skbuff_err(skb, rc, 0);
-+			netlbl_skbuff_err(skb, sk->sk_family, rc, 0);
- 		break;
- #if IS_ENABLED(CONFIG_IPV6)
- 	case PF_INET6:
+@@ -1112,7 +1116,9 @@ static struct sock *tcp_v6_syn_recv_sock(const struct sock *sk, struct sk_buff *
+ 	   but we make one more one thing there: reattach optmem
+ 	   to newsk.
+ 	 */
+-	opt = rcu_dereference(np->opt);
++	opt = ireq->ipv6_opt;
++	if (!opt)
++		opt = rcu_dereference(np->opt);
+ 	if (opt) {
+ 		opt = ipv6_dup_options(newsk, opt);
+ 		RCU_INIT_POINTER(newnp->opt, opt);
 -- 
 2.7.4
