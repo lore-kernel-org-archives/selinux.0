@@ -1,55 +1,48 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: brindle@quarksecurity.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libsepol: rewrite sepol_string_to_security_class to use
- hashtab_search
-Date: Mon, 20 Jun 2016 16:35:46 -0400
-Message-Id: <1466454946-5713-1-git-send-email-sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KLUXdK011857
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 17:30:33 -0400
+Received: by mail-ob0-f170.google.com with SMTP id mu6so1787892obc.3
+ for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 14:30:31 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <6359b965-b5df-6f13-c536-97b396084625@tycho.nsa.gov>
+References: <1466420991-7209-1-git-send-email-plautrba@redhat.com>
+ <6359b965-b5df-6f13-c536-97b396084625@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 20 Jun 2016 17:30:30 -0400
+Message-ID: <CAHC9VhRks3p4d=x0Dia94JsVypncJ5bxmW62vv+KGHFcEHOy0w@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: add selinux_snapperd_contexts_path()
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/src/services.c | 24 +++++++++---------------
- 1 file changed, 9 insertions(+), 15 deletions(-)
+On Mon, Jun 20, 2016 at 9:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 06/20/2016 07:09 AM, Petr Lautrbach wrote:
+>> Snapper needs a way how to set a proper selinux context on btrfs
+>> subvolumes originating in snapshot create command. Fs can't handle it on
+>> its own so snapper will enforce .snapshots subvolume relabeling
+>> according to a file returned by selinux_snapperd_contexts_path().
+>>
+>> The format of the file will be similar to other contexts file:
+>>
+>> snapperd_data = system_u:object_r:snapperd_data_t:s0
+>>
+>> Fixes:
+>> https://bugzilla.redhat.com/show_bug.cgi?id=1247530
+>> https://bugzilla.redhat.com/show_bug.cgi?id=1247532
+>
+> Seems like there is a kernel bug here, if btrfs snapshots are being
+> created in unlabeled_t initially?  I understand and agree that
+> ultimately something in userspace will have to assign a specific label,
+> but they shouldn't be defaulting to unlabeled_t.
 
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 665fcaa..d2b80b4 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -1152,22 +1152,16 @@ int hidden sepol_compute_av(sepol_security_id_t ssid,
- int hidden sepol_string_to_security_class(const char *class_name,
- 			sepol_security_class_t *tclass)
- {
--	char *class = NULL;
--	sepol_security_class_t id;
--
--	for (id = 1; id <= policydb->p_classes.nprim; id++) {
--		class = policydb->p_class_val_to_name[id - 1];
--		if (class == NULL) {
--			ERR(NULL, "could not convert %s to class id", class_name);
--			return STATUS_ERR;
--		}
--		if ((strcmp(class, class_name)) == 0) {
--			*tclass = id;
--			return STATUS_SUCCESS;
--		}
-+	class_datum_t *tclass_datum;
-+
-+	tclass_datum = hashtab_search(policydb->p_classes.table,
-+				      (hashtab_key_t) class_name);
-+	if (!tclass_datum) {
-+		ERR(NULL, "unrecognized class %s", class_name);
-+		return STATUS_ERR;
- 	}
--	ERR(NULL, "unrecognized class %s", class_name);
--	return -EINVAL;
-+	*tclass = tclass_datum->s.value;
-+	return STATUS_SUCCESS;
- }
- 
- /*
+It's been too long since I've looked at this, but from what I recall
+the btrfs snapshots are a real mess from a SELinux perspective and
+setting an initial label was not an easy thing to do.
+
 -- 
-2.5.5
+paul moore
+www.paul-moore.com
