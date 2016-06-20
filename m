@@ -1,52 +1,55 @@
-Subject: Re: [PATCH] Correctly detect unknown classes in
- sepol_string_to_security_class
-To: Joshua Brindle <brindle@quarksecurity.com>, selinux@tycho.nsa.gov
-References: <1464966566-14597-2-git-send-email-brindle@quarksecurity.com>
- <1464967076-24170-1-git-send-email-brindle@quarksecurity.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <10cfe4a6-2d75-e821-3ed5-fff8704dde17@tycho.nsa.gov>
-Date: Mon, 20 Jun 2016 16:34:22 -0400
-MIME-Version: 1.0
-In-Reply-To: <1464967076-24170-1-git-send-email-brindle@quarksecurity.com>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Cc: brindle@quarksecurity.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: rewrite sepol_string_to_security_class to use
+ hashtab_search
+Date: Mon, 20 Jun 2016 16:35:46 -0400
+Message-Id: <1466454946-5713-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/03/2016 11:17 AM, Joshua Brindle wrote:
-> Bail before running off the end of the class index
-> 
-> Change-Id: I47c4eaac3c7d789f8d85047e34e37e3f0bb38b3a
-> Signed-off-by: Joshua Brindle <brindle@quarksecurity.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/services.c | 24 +++++++++---------------
+ 1 file changed, 9 insertions(+), 15 deletions(-)
 
-Applied this one and then rewrote it to use hashtab_search().
-Not sure why it wasn't that way in the first place.
-
-> ---
->  libsepol/src/services.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index d64a8e8..665fcaa 100644
-> --- a/libsepol/src/services.c
-> +++ b/libsepol/src/services.c
-> @@ -1155,7 +1155,7 @@ int hidden sepol_string_to_security_class(const char *class_name,
->  	char *class = NULL;
->  	sepol_security_class_t id;
->  
-> -	for (id = 1;; id++) {
-> +	for (id = 1; id <= policydb->p_classes.nprim; id++) {
->  		class = policydb->p_class_val_to_name[id - 1];
->  		if (class == NULL) {
->  			ERR(NULL, "could not convert %s to class id", class_name);
-> @@ -1166,6 +1166,8 @@ int hidden sepol_string_to_security_class(const char *class_name,
->  			return STATUS_SUCCESS;
->  		}
->  	}
-> +	ERR(NULL, "unrecognized class %s", class_name);
-> +	return -EINVAL;
->  }
->  
->  /*
-> 
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index 665fcaa..d2b80b4 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -1152,22 +1152,16 @@ int hidden sepol_compute_av(sepol_security_id_t ssid,
+ int hidden sepol_string_to_security_class(const char *class_name,
+ 			sepol_security_class_t *tclass)
+ {
+-	char *class = NULL;
+-	sepol_security_class_t id;
+-
+-	for (id = 1; id <= policydb->p_classes.nprim; id++) {
+-		class = policydb->p_class_val_to_name[id - 1];
+-		if (class == NULL) {
+-			ERR(NULL, "could not convert %s to class id", class_name);
+-			return STATUS_ERR;
+-		}
+-		if ((strcmp(class, class_name)) == 0) {
+-			*tclass = id;
+-			return STATUS_SUCCESS;
+-		}
++	class_datum_t *tclass_datum;
++
++	tclass_datum = hashtab_search(policydb->p_classes.table,
++				      (hashtab_key_t) class_name);
++	if (!tclass_datum) {
++		ERR(NULL, "unrecognized class %s", class_name);
++		return STATUS_ERR;
+ 	}
+-	ERR(NULL, "unrecognized class %s", class_name);
+-	return -EINVAL;
++	*tclass = tclass_datum->s.value;
++	return STATUS_SUCCESS;
+ }
+ 
+ /*
+-- 
+2.5.5
