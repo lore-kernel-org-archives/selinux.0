@@ -1,48 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5KLUXdK011857
- for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 17:30:33 -0400
-Received: by mail-ob0-f170.google.com with SMTP id mu6so1787892obc.3
- for <selinux@tycho.nsa.gov>; Mon, 20 Jun 2016 14:30:31 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5L9Smj8023660
+ for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2016 05:28:48 -0400
+Date: Tue, 21 Jun 2016 09:26:01 +0000 (UTC)
+From: Jason Long <hack3rcon@yahoo.com>
+Reply-To: Jason Long <hack3rcon@yahoo.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <287968083.1732087.1466501161282.JavaMail.yahoo@mail.yahoo.com>
+In-Reply-To: <219ac57d-1542-92ac-d125-6e60a61d2271@tycho.nsa.gov>
+References: <785947670.864078.1466342123305.JavaMail.yahoo.ref@mail.yahoo.com>
+ <785947670.864078.1466342123305.JavaMail.yahoo@mail.yahoo.com>
+ <84f4eb19-85ee-17db-a7c6-64dd2ec1a021@tycho.nsa.gov>
+ <1273112690.1326939.1466435174668.JavaMail.yahoo@mail.yahoo.com>
+ <219ac57d-1542-92ac-d125-6e60a61d2271@tycho.nsa.gov>
+Subject: Re: Protect Xen Virtualization via SElinux.
 MIME-Version: 1.0
-In-Reply-To: <6359b965-b5df-6f13-c536-97b396084625@tycho.nsa.gov>
-References: <1466420991-7209-1-git-send-email-plautrba@redhat.com>
- <6359b965-b5df-6f13-c536-97b396084625@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 20 Jun 2016 17:30:30 -0400
-Message-ID: <CAHC9VhRks3p4d=x0Dia94JsVypncJ5bxmW62vv+KGHFcEHOy0w@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: add selinux_snapperd_contexts_path()
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Jun 20, 2016 at 9:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 06/20/2016 07:09 AM, Petr Lautrbach wrote:
->> Snapper needs a way how to set a proper selinux context on btrfs
->> subvolumes originating in snapshot create command. Fs can't handle it on
->> its own so snapper will enforce .snapshots subvolume relabeling
->> according to a file returned by selinux_snapperd_contexts_path().
->>
->> The format of the file will be similar to other contexts file:
->>
->> snapperd_data = system_u:object_r:snapperd_data_t:s0
->>
->> Fixes:
->> https://bugzilla.redhat.com/show_bug.cgi?id=1247530
->> https://bugzilla.redhat.com/show_bug.cgi?id=1247532
->
-> Seems like there is a kernel bug here, if btrfs snapshots are being
-> created in unlabeled_t initially?  I understand and agree that
-> ultimately something in userspace will have to assign a specific label,
-> but they shouldn't be defaulting to unlabeled_t.
+I can't find any example :( Can you show me some urls?
 
-It's been too long since I've looked at this, but from what I recall
-the btrfs snapshots are a real mess from a SELinux perspective and
-setting an initial label was not an easy thing to do.
 
--- 
-paul moore
-www.paul-moore.com
+
+On Monday, June 20, 2016 7:45 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On 06/20/2016 11:06 AM, Jason Long wrote:
+> Can you show me some examples for both ?
+
+I already pointed you to OpenXT; it is a worked example of both.
+
+
+> On Monday, June 20, 2016 5:13 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 06/19/2016 09:15 AM, Jason Long wrote:
+> 
+>> Hello.
+>> How can I protect my Xen VM via SElinux? Can you show me some useful examples?
+> 
+> I'm not entirely sure what you are asking, but possible answers:
+> 
+> 1. If you want to apply SELinux-like controls over Xen virtual machines
+> (domains), then you can use Xen Security Modules and the Flask security
+> module (commonly abbreviated XSM/Flask) to define and enforce a policy
+> over the hypervisor objects and operations.
+> 
+> 2. If you want to use SELinux to harden the Xen domain-0 or specific
+> domUs, you can just enable it in those domains and configure your policy
+> accordingly.
+> 
+> If you want a worked example of applying both XSM/Flask and SELinux,
+> have a look at OpenXT,
+> http://openxt.org/
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+
+> 
