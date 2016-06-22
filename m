@@ -1,58 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5LJYaBt032692
- for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2016 15:34:36 -0400
-Received: by mail-oi0-f50.google.com with SMTP id u201so385322oie.0
- for <selinux@tycho.nsa.gov>; Tue, 21 Jun 2016 12:33:40 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20160621095548.GA19213@merlot.physics.ox.ac.uk>
-References: <1466429819-12707-1-git-send-email-huw@codeweavers.com>
- <20160621.053928.1340819307282355897.davem@davemloft.net>
- <20160621095548.GA19213@merlot.physics.ox.ac.uk>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 21 Jun 2016 15:33:39 -0400
-Message-ID: <CAHC9VhT53P2+B3SkiWkvpczpVE=MjJ85EkL4A+MKEtbKwpXONw@mail.gmail.com>
-Subject: Re: [PATCH v4 00/19] CALIPSO Implementation
-To: Huw Davies <huw@codeweavers.com>, David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+From: Ravi Kumar <nxp.ravi@gmail.com>
+Date: Wed, 22 Jun 2016 23:05:33 +0530
+Message-ID: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
+Subject: New rules on restrict kernel module loading
+To: seandroid-list@tycho.nsa.gov
+Cc: Selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=089e0122e9bc58fca60535e15d20
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 21, 2016 at 5:55 AM, Huw Davies <huw@codeweavers.com> wrote:
-> On Tue, Jun 21, 2016 at 05:39:28AM -0400, David Miller wrote:
->> From: Huw Davies <huw@codeweavers.com>
->> Date: Mon, 20 Jun 2016 14:36:40 +0100
->>
->> > This patch series implements RFC 5570 - Common Architecture Label IPv6
->> > Security Option (CALIPSO).  Its goal is to set MLS sensitivity labels
->> > on IPv6 packets using a hop-by-hop option.  CALIPSO is very similar to
->> > its IPv4 cousin CIPSO and much of this series is based on that code.
->>
->> What tree do you expect to integrate this?
->
-> My understanding is that Paul Moore is happy to take them
-> in via the SELinux tree.  However, these patches do touch
-> some core networking code, such as the IPv6 option handling
-> code (in a similar manner to the way CIPSO touched the IPv4
-> option code), so if you have any comments on those aspects
-> that would be good to hear.
+--089e0122e9bc58fca60535e15d20
+Content-Type: text/plain; charset=UTF-8
 
-Huw is correct.  I haven't yet gone through this latest patchset,
-although I've reviewed the previous versions and provided feedback;
-the v3 revision looked pretty good to me and I'm assuming I won't find
-any showstoppers in the v4 revision.
+Hi team ,
 
-I'm happy to push this upstream via the SELinux tree, but only with an
-implicit ACK from DaveM since it does touch of the core stack (in ways
-comparable to what we did for CIPSO and IPv4).  If DaveM would prefer
-to merge these patches via the netdev tree, that's fine too, I'll take
-a closer look later this week and send my ACKs.
+I see some new changes  both in kernel and sepolicy project on restricting
+the load of kernel module  .
 
-DaveM, let me know how you want to proceed with this patchset.
+https://android-review.googlesource.com/#/c/213758/ -- kernel change  on
+check for moudle_load request  by Jeff
+https://android-review.googlesource.com/#/c/214021/-- sepolicy change
+adding the neverallow  on module_load request  by Jeff .
 
--- 
-paul moore
-www.paul-moore.com
+As most of the  SoC /OEM has there own KO  which are loaded on run-time
+detection an mostly running in system_app/system_server/platfrom_app  are
+there any special guideline here .
+
+As an good example  wlan.ko  .
+
+
+Regard,
+Ravi
+
+--089e0122e9bc58fca60535e15d20
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hi team ,=C2=A0</div><div><br></div>I see some new ch=
+anges =C2=A0both in kernel and sepolicy project on restricting the load of =
+kernel module =C2=A0.=C2=A0<div><br></div><div><a href=3D"https://android-r=
+eview.googlesource.com/#/c/213758/">https://android-review.googlesource.com=
+/#/c/213758/</a> -- kernel change =C2=A0on check for moudle_load request =
+=C2=A0by Jeff=C2=A0<br></div><div><a href=3D"https://android-review.googles=
+ource.com/#/c/214021/--">https://android-review.googlesource.com/#/c/214021=
+/--</a> sepolicy change adding the neverallow =C2=A0on module_load request =
+=C2=A0by Jeff .<br></div><div><br></div><div>As most of the =C2=A0SoC /OEM =
+has there own KO =C2=A0which are loaded on run-time detection an mostly run=
+ning in system_app/system_server/platfrom_app =C2=A0are there any special g=
+uideline here .=C2=A0</div><div><br></div><div>As an good example =C2=A0wla=
+n.ko =C2=A0.</div><div><br></div><div><br></div><div>Regard,</div><div>Ravi=
+=C2=A0</div></div>
+
+--089e0122e9bc58fca60535e15d20--
