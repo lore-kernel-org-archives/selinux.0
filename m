@@ -1,104 +1,114 @@
+Subject: Re: abnormal SELinux context labels
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <05514320-f873-9b48-455e-e6c7caff4135@jlbond.com>
+ <a17a0faf-5a36-2f01-423c-d26566b226e0@tycho.nsa.gov>
+From: Bond Masuda <bond.masuda@jlbond.com>
+Message-ID: <e3fd9ef1-fb2d-9ce0-4bca-e4b4c0476c7a@jlbond.com>
+Date: Wed, 22 Jun 2016 12:05:40 -0700
 MIME-Version: 1.0
-References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
-In-Reply-To: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
-From: Jeffrey Vander Stoep <jeffv@google.com>
-Date: Wed, 22 Jun 2016 19:02:19 +0000
-Message-ID: <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
-Subject: Re: New rules on restrict kernel module loading
-To: Ravi Kumar <nxp.ravi@gmail.com>, seandroid-list@tycho.nsa.gov
-Cc: SELinux <Selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a11c04ca83a42750535e29484
+In-Reply-To: <a17a0faf-5a36-2f01-423c-d26566b226e0@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c04ca83a42750535e29484
-Content-Type: text/plain; charset=UTF-8
 
-selinux@tycho.nsa.gov to bcc
 
-Hi Ravi,
-
-The intent is not to restrict which processes may load modules, but to
-place restrictions on the origin of the module itself. Modules, like the
-kernel, should live on a verity protected partition.
-
-If you want system apps to load a kernel module from the system partition
-you just need to add an allow rule. e.g.
-
-# system_app loads /system/lib/module/wlan.ko
-allow system_app system_file:system module_load;
-
-Similar rules may be added for platform_app or system_server.
-
-On Wed, Jun 22, 2016 at 10:43 AM Ravi Kumar <nxp.ravi@gmail.com> wrote:
-
-> Hi team ,
+On 06/22/2016 11:54 AM, Stephen Smalley wrote:
+> On 06/22/2016 02:05 PM, Bond Masuda wrote:
+>> I'm installing CentOS 7 in a chroot'd environment to build new images of
+>> CentOS 7 for a private cloud environment. I've done this successfully
+>> before with CentOS 6 (with help from this list) and we have an automated
+>> process of doing that now. I'm now porting our process to do similarly
+>> for CentOS 7. However, after our process is complete, certain
+>> directories/symlinks have abnormal SELinux contexts assigned to them.
+>> This causes the system to fail to boot since we have SELinux enforcing
+>> by default and one of the problematic symlinks is /lib64.
+>>
+>> Here is what we see in the CentOS 7 build tree root directory, right
+>> after a fresh install of CentOS 7 from the full updates repo:
+>>
+>> |# ls -alZ /
+>> dr-xr-xr-x. root root system_u:object_r:root_t:s0      .
+>> dr-xr-xr-x. root root system_u:object_r:root_t:s0      ..
+>> drwxr-xr-x. root root system_u:object_r:auditd_log_t:s0 audit
+>> lrwxrwxrwx. root root system_u:object_r:bin_t:s0       bin -> usr/bin
+>> dr-xr-xr-x. root root system_u:object_r:boot_t:s0      boot
+>> drwxr-xr-x. root root unconfined_u:object_r:unlabeled_t:s0 dev
+>> drwxr-xr-x. root root system_u:object_r:etc_t:s0       etc
+>> drwxr-xr-x. root root system_u:object_r:home_root_t:s0 home
+>> lrwxrwxrwx. root root /usr/lib                         lib -> usr/lib
+>> lrwxrwxrwx. root root /usr/lib                         lib64 -> usr/lib64
+>> drwxr-xr-x. root root system_u:object_r:mnt_t:s0       media
+>> drwxr-xr-x. root root system_u:object_r:mnt_t:s0       mnt
+>> drwxr-xr-x. root root system_u:object_r:usr_t:s0       opt
+>> drwxr-xr-x. root root unconfined_u:object_r:unlabeled_t:s0 proc
+>> dr-xr-x---. root root system_u:object_r:admin_home_t:s0 root
+>> drwxr-xr-x. root root /var/run                         run
+>> lrwxrwxrwx. root root system_u:object_r:bin_t:s0       sbin -> usr/sbin
+>> drwxr-xr-x. root root system_u:object_r:var_t:s0       srv
+>> drwxr-xr-x. root root unconfined_u:object_r:unlabeled_t:s0 sys
+>> drwxrwxrwt. root root system_u:object_r:tmp_t:s0       tmp
+>> drwxr-xr-x. root root system_u:object_r:usr_t:s0       usr
+>> drwxr-xr-x. root root system_u:object_r:var_t:s0       var
+>>
+>> |As you can see, the SELinux context for "lib", is "/usr/lib"!!! and
+>> similarly, for "lib64", it is "/usr/lib" ... those are not even valid
+>> context labels!
+>>
+>> How can an invalid string like "/usr/lib" even be assigned as a SELinux
+>> label in the first place?
+>>
+>> I can workaround this with a manual fix using 'chcon
+>> system_u:object_r:type_label:s0 path', but I'm just wondering how this
+>> can happen in the first place? When I try to manually reproduce the
+>> invalid label, I get this:
+>>
+>> # chcon /usr/lib lib
+>> chcon: invalid context: /usr/lib
+>>
+>> Any insights would be appreciated...
+>> Bond
+> I'm assuming you are running the labeling process in a domain that has
+> CAP_MAC_ADMIN and mac_admin in SELinux policy, e.g. setfiles_mac_t or
+> livecd_t.
 >
-> I see some new changes  both in kernel and sepolicy project on restricting
-> the load of kernel module  .
+> You would have done that in order to allow it to set labels on files
+> that may not be defined in the build host policy.
 >
-> https://android-review.googlesource.com/#/c/213758/ -- kernel change  on
-> check for moudle_load request  by Jeff
-> https://android-review.googlesource.com/#/c/214021/-- sepolicy change
-> adding the neverallow  on module_load request  by Jeff .
+> A process with that permission can set any arbitrary string value it
+> wants as the security.selinux attribute; by design, SELinux on the build
+> host OS will ignore it and just treat it as if it has the unlabeled context.
 >
-> As most of the  SoC /OEM has there own KO  which are loaded on run-time
-> detection an mostly running in system_app/system_server/platfrom_app  are
-> there any special guideline here .
+> So if there is a bug in your labeling program such that it is passing a
+> pathname rather than a label, then you would get the results you are seeing.
 >
-> As an good example  wlan.ko  .
+> When you try to do it by hand above, you are presumably not running in a
+> domain with mac_admin permission, and therefore it won't let you set an
+> unknown value.
 >
 >
-> Regard,
-> Ravi
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
+Hi Stephen,
 
---001a11c04ca83a42750535e29484
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+You are correct, and I guess that explains why the invalid labels can be 
+set. Thank you for pointing that out.
 
-<div dir=3D"ltr"><a href=3D"mailto:selinux@tycho.nsa.gov">selinux@tycho.nsa=
-.gov</a>=C2=A0to bcc<div><br></div><div>Hi Ravi,</div><div><br></div><div>T=
-he intent is not to restrict which processes may load modules, but to place=
- restrictions on the origin of the module itself. Modules, like the kernel,=
- should live on a verity protected partition.</div><div><br></div><div>If y=
-ou want system apps to load a kernel module from the system partition you j=
-ust need to add an allow rule. e.g.</div><div><br></div><div># system_app l=
-oads /system/lib/module/wlan.ko</div><div>allow system_app system_file:syst=
-em module_load;<br><br>Similar rules may be added for platform_app or syste=
-m_server.=C2=A0<br><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Wed, =
-Jun 22, 2016 at 10:43 AM Ravi Kumar &lt;<a href=3D"mailto:nxp.ravi@gmail.co=
-m">nxp.ravi@gmail.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_qu=
-ote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex=
-"><div dir=3D"ltr"><div>Hi team ,=C2=A0</div><div><br></div>I see some new =
-changes =C2=A0both in kernel and sepolicy project on restricting the load o=
-f kernel module =C2=A0.=C2=A0<div><br></div><div><a href=3D"https://android=
--review.googlesource.com/#/c/213758/" target=3D"_blank">https://android-rev=
-iew.googlesource.com/#/c/213758/</a> -- kernel change =C2=A0on check for mo=
-udle_load request =C2=A0by Jeff=C2=A0<br></div><div><a href=3D"https://andr=
-oid-review.googlesource.com/#/c/214021/--" target=3D"_blank">https://androi=
-d-review.googlesource.com/#/c/214021/--</a> sepolicy change adding the neve=
-rallow =C2=A0on module_load request =C2=A0by Jeff .<br></div><div><br></div=
-><div>As most of the =C2=A0SoC /OEM has there own KO =C2=A0which are loaded=
- on run-time detection an mostly running in system_app/system_server/platfr=
-om_app =C2=A0are there any special guideline here .=C2=A0</div><div><br></d=
-iv><div>As an good example =C2=A0wlan.ko =C2=A0.</div><div><br></div><div><=
-br></div><div>Regard,</div><div>Ravi=C2=A0</div></div>
-_______________________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
-a.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
-.gov</a>.</blockquote></div></div></div>
+Here is the process we use to set the labels:
 
---001a11c04ca83a42750535e29484--
+1. semanage permissive -a setfiles_mac_t
+2. runcon -t setfiles_mac_t -- chroot /var/tmp/buildroot /sbin/setfiles 
+-v -F -e /proc -e /sys -e /dev -e /selinux 
+/etc/selinux/targeted/contexts/files/<some_fcontext_file> 
+/path_to_filesystem.
+
+The above is iterated through each fcontext file and each file system.
+3. semanage permissive -d setfiles_mac_t
+
+So, do you think this is a problem with the version of setfiles in 
+CentOS7 or perhaps bad input from one of the fcontext files?
+
+Also, should it matter, the "host" is Fedora 23 Linux.
+
+Thanks,
+Bond
