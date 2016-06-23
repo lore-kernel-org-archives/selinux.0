@@ -1,42 +1,37 @@
 Subject: Re: New rules on restrict kernel module loading
-To: Ravi Kumar <nxp.ravi@gmail.com>, Jeffrey Vander Stoep <jeffv@google.com>
+To: Jeffrey Vander Stoep <jeffv@google.com>, Ravi Kumar <nxp.ravi@gmail.com>,
+ seandroid-list@tycho.nsa.gov
 References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
  <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
- <CACikiw0XhrE5+2R-AKHztPjtrAyUUq=uGG28A4vb-E+LYtY_og@mail.gmail.com>
-Cc: seandroid-list@tycho.nsa.gov, SELinux <Selinux@tycho.nsa.gov>
+Cc: SELinux <Selinux@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <d23e0ebd-866e-af74-209b-21f0b9d68bec@tycho.nsa.gov>
-Date: Thu, 23 Jun 2016 13:20:00 -0400
+Message-ID: <395eab36-6606-ff45-ee57-959538a58d65@tycho.nsa.gov>
+Date: Thu, 23 Jun 2016 13:23:21 -0400
 MIME-Version: 1.0
-In-Reply-To: <CACikiw0XhrE5+2R-AKHztPjtrAyUUq=uGG28A4vb-E+LYtY_og@mail.gmail.com>
+In-Reply-To: <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/23/2016 01:01 PM, Ravi Kumar wrote:
-> Hi Jeffrey,
-> I tried to do the same , 
-> added the allow rule in system_server as 
-> / allow system_server system_file:system module_load;/
+On 06/22/2016 03:02 PM, Jeffrey Vander Stoep wrote:
+> selinux@tycho.nsa.gov <mailto:selinux@tycho.nsa.gov> to bcc
 > 
-> But still seeing issue  as of the wlan.ko is a symlink as below  
-> wlan.ko -> /system/lib/modules/vendor_wlan.ko 
+> Hi Ravi,
 > 
-> Wlan.ko   or  vendor_wlan.ko are with   u:object_r:system_file:s0
+> The intent is not to restrict which processes may load modules, but to
+> place restrictions on the origin of the module itself. Modules, like the
+> kernel, should live on a verity protected partition.
 > 
-> But still  i see there is some issue where it show up this denial .
+> If you want system apps to load a kernel module from the system
+> partition you just need to add an allow rule. e.g.
 > 
-> W WifiStateMachin: type=1400 audit(0.0:2074): avc: denied { module_load
-> } for scontext=u:r:system_server:s0 tcontext=u:r:system_server:s0
-> tclass=system permissive=0
-> in the above denial  i see the tcontext as system_server.
+> # system_app loads /system/lib/module/wlan.ko
+> allow system_app system_file:system module_load;
 > 
-> I had not debugged much into will do  but looks like there is some thing
-> which we are missing . 
+> Similar rules may be added for platform_app or system_server. 
 
-hardware/libhardware_legacy/wifi/wifi.c needs to be updated to use
-open() + finit_module() rather than load_file() + init_module().
-
-And bionic needs to export finit_module?
+Actually, that probably won't work for any app domains, as they can't
+pass the sys_module capability check.  So hopefully you only truly need
+it for system_server.
