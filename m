@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5NK7Kes005491
- for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2016 16:07:20 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5NKDa70006283
+ for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2016 16:13:37 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,9 +8,9 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
  Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH 06/12] selinux: Add IB End Port SMP access vector
-Date: Thu, 23 Jun 2016 22:52:52 +0300
-Message-Id: <1466711578-64398-7-git-send-email-danielj@mellanox.com>
+Subject: [PATCH 11/12] IB/core: Enforce Infiniband device SMI security
+Date: Thu, 23 Jun 2016 22:52:57 +0300
+Message-Id: <1466711578-64398-12-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
 References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,225 +20,103 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Add a type for Infiniband end ports and an access vector for subnet
-management packets. Implement the ib_end_port_smp hook to check that the
-caller has permission to send and receive SMPs on the end port specified
-by the device name and port.  Add interface to query the SID for a IB
-end port, which walks the IB_END_PORT ocontexts to find an entry for the
-given name and port.
+During MAD and snoop agent registration for SMI QPs check that the
+calling process has permission to access the SMI.
+
+When sending and receiving MADs check that the agent has access to the
+SMI if it's on an SMI QP.  Because security policy can change it's
+possible permission was allowed when creating the agent, but no longer
+is.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 Reviewed-by: Eli Cohen <eli@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
 ---
- include/linux/lsm_audit.h                        | 32 +++++++++++-------
- security/selinux/hooks.c                         | 27 +++++++++++++++
- security/selinux/include/classmap.h              |  2 ++
- security/selinux/include/initial_sid_to_string.h |  1 +
- security/selinux/include/security.h              |  2 ++
- security/selinux/ss/services.c                   | 43 ++++++++++++++++++++++++
- 6 files changed, 95 insertions(+), 12 deletions(-)
+ drivers/infiniband/core/mad.c | 44 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 43 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-index 8ff7eae..acf6de7 100644
---- a/include/linux/lsm_audit.h
-+++ b/include/linux/lsm_audit.h
-@@ -21,6 +21,7 @@
- #include <linux/path.h>
- #include <linux/key.h>
- #include <linux/skbuff.h>
-+#include <rdma/ib_verbs.h>
+diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
+index 975b472..684dcac 100644
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -345,6 +345,16 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
+ 		goto error3;
+ 	}
  
- struct lsm_network_audit {
- 	int netif;
-@@ -50,21 +51,27 @@ struct lsm_pkey_audit {
- 	u16	pkey;
- };
- 
-+struct lsm_ib_end_port_audit {
-+	char	dev_name[IB_DEVICE_NAME_MAX];
-+	u8	port;
-+};
-+
- /* Auxiliary data to use in generating the audit record. */
- struct common_audit_data {
- 	char type;
--#define LSM_AUDIT_DATA_PATH	1
--#define LSM_AUDIT_DATA_NET	2
--#define LSM_AUDIT_DATA_CAP	3
--#define LSM_AUDIT_DATA_IPC	4
--#define LSM_AUDIT_DATA_TASK	5
--#define LSM_AUDIT_DATA_KEY	6
--#define LSM_AUDIT_DATA_NONE	7
--#define LSM_AUDIT_DATA_KMOD	8
--#define LSM_AUDIT_DATA_INODE	9
--#define LSM_AUDIT_DATA_DENTRY	10
--#define LSM_AUDIT_DATA_IOCTL_OP	11
--#define LSM_AUDIT_DATA_PKEY	12
-+#define LSM_AUDIT_DATA_PATH		1
-+#define LSM_AUDIT_DATA_NET		2
-+#define LSM_AUDIT_DATA_CAP		3
-+#define LSM_AUDIT_DATA_IPC		4
-+#define LSM_AUDIT_DATA_TASK		5
-+#define LSM_AUDIT_DATA_KEY		6
-+#define LSM_AUDIT_DATA_NONE		7
-+#define LSM_AUDIT_DATA_KMOD		8
-+#define LSM_AUDIT_DATA_INODE		9
-+#define LSM_AUDIT_DATA_DENTRY		10
-+#define LSM_AUDIT_DATA_IOCTL_OP		11
-+#define LSM_AUDIT_DATA_PKEY		12
-+#define LSM_AUDIT_DATA_IB_END_PORT	13
- 	union 	{
- 		struct path path;
- 		struct dentry *dentry;
-@@ -82,6 +89,7 @@ struct common_audit_data {
- 		char *kmod_name;
- 		struct lsm_ioctlop_audit *op;
- 		struct lsm_pkey_audit *pkey;
-+		struct lsm_ib_end_port_audit *ib_end_port;
- 	} u;
- 	/* this union contains LSM specific data */
- 	union {
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5a40b10..fc44542 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6056,6 +6056,32 @@ static int selinux_ib_mad_agent_pkey_access(u64 subnet_prefix, u16 pkey_val,
- 					mad_agent->m_security);
- }
- 
-+static int selinux_ib_end_port_smp(const char *dev_name, u8 port,
-+				   struct ib_mad_agent *mad_agent)
-+{
-+	struct common_audit_data ad;
-+	int err;
-+	u32 sid = 0;
-+	struct ib_security_struct *sec = mad_agent->m_security;
-+	struct lsm_ib_end_port_audit ib_end_port;
-+
-+	err = security_ib_end_port_sid(dev_name, port, &sid);
-+
-+	if (err)
-+		goto out;
-+
-+	ad.type = LSM_AUDIT_DATA_IB_END_PORT;
-+	strncpy(ib_end_port.dev_name, dev_name, sizeof(ib_end_port.dev_name));
-+	ib_end_port.port = port;
-+	ad.u.ib_end_port = &ib_end_port;
-+	err = avc_has_perm(sec->sid, sid,
-+			   SECCLASS_INFINIBAND_END_PORT,
-+			   INFINIBAND_END_PORT__SMP, &ad);
-+
-+out:
-+	return err;
-+}
-+
- static int selinux_ib_qp_alloc_security(struct ib_qp_security *qp_sec)
- {
- 	struct ib_security_struct *sec;
-@@ -6289,6 +6315,7 @@ static struct security_hook_list selinux_hooks[] = {
- 	LSM_HOOK_INIT(ib_qp_pkey_access, selinux_ib_qp_pkey_access),
- 	LSM_HOOK_INIT(ib_mad_agent_pkey_access,
- 		      selinux_ib_mad_agent_pkey_access),
-+	LSM_HOOK_INIT(ib_end_port_smp, selinux_ib_end_port_smp),
- 	LSM_HOOK_INIT(ib_qp_alloc_security,
- 		      selinux_ib_qp_alloc_security),
- 	LSM_HOOK_INIT(ib_qp_free_security,
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index d42dd4d..21972c8 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -167,5 +167,7 @@ struct security_class_mapping secclass_map[] = {
- 	  { COMMON_CAP2_PERMS, NULL } },
- 	{ "infiniband_pkey",
- 	  { "access", NULL } },
-+	{ "infiniband_end_port",
-+	  { "smp", NULL } },
- 	{ NULL }
-   };
-diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
-index 8f2eefc..ba47169 100644
---- a/security/selinux/include/initial_sid_to_string.h
-+++ b/security/selinux/include/initial_sid_to_string.h
-@@ -30,5 +30,6 @@ static const char *initial_sid_to_string[] =
-     "scmp_packet",
-     "devnull",
-     "pkey",
-+    "ib_end_port",
- };
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 8f1a66e..f5d9d4e 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -182,6 +182,8 @@ int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
- 
- int security_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
- 
-+int security_ib_end_port_sid(const char *dev_name, u8 port, u32 *out_sid);
-+
- int security_netif_sid(char *name, u32 *if_sid);
- 
- int security_node_sid(u16 domain, void *addr, u32 addrlen,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 49701a5..9afabee 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -53,6 +53,7 @@
- #include <linux/flex_array.h>
- #include <linux/vmalloc.h>
- #include <net/netlabel.h>
-+#include <rdma/ib_verbs.h>
- 
- #include "flask.h"
- #include "avc.h"
-@@ -2270,6 +2271,48 @@ out:
- }
- 
- /**
-+ * security_ib_end_port_sid - Obtain the SID for a subnet management interface.
-+ * @dev_name: device name
-+ * @port: port number
-+ * @out_sid: security identifier
-+ */
-+int security_ib_end_port_sid(const char *dev_name, u8 port, u32 *out_sid)
-+{
-+	struct ocontext *c;
-+	int rc = 0;
-+
-+	read_lock(&policy_rwlock);
-+
-+	c = policydb.ocontexts[OCON_IB_END_PORT];
-+	while (c) {
-+		if (c->u.ib_end_port.port == port &&
-+		    !strncmp(c->u.ib_end_port.dev_name,
-+			    dev_name,
-+			    IB_DEVICE_NAME_MAX))
-+			break;
-+
-+		c = c->next;
-+	}
-+
-+	if (c) {
-+		if (!c->sid[0]) {
-+			rc = sidtab_context_to_sid(&sidtab,
-+						   &c->context[0],
-+						   &c->sid[0]);
-+			if (rc)
-+				goto out;
++	if (qp_type == IB_QPT_SMI) {
++		ret2 = security_ib_end_port_smp(device->name,
++						port_num,
++						&mad_agent_priv->agent);
++		if (ret2) {
++			ret = ERR_PTR(ret2);
++			goto error4;
 +		}
-+		*out_sid = c->sid[0];
-+	} else {
-+		*out_sid = SECINITSID_IB_END_PORT;
 +	}
 +
-+out:
-+	read_unlock(&policy_rwlock);
-+	return rc;
-+}
+ 	if (mad_reg_req) {
+ 		reg_req = kmemdup(mad_reg_req, sizeof *reg_req, GFP_KERNEL);
+ 		if (!reg_req) {
+@@ -531,6 +541,17 @@ struct ib_mad_agent *ib_register_mad_snoop(struct ib_device *device,
+ 		goto error2;
+ 	}
+ 
++	if (qp_type == IB_QPT_SMI) {
++		err = security_ib_end_port_smp(device->name,
++					       port_num,
++					       &mad_snoop_priv->agent);
 +
-+/**
-  * security_netif_sid - Obtain the SID for a network interface.
-  * @name: interface name
-  * @if_sid: interface SID
++		if (err) {
++			ret = ERR_PTR(err);
++			goto error3;
++		}
++	}
++
+ 	/* Now, fill in the various structures */
+ 	mad_snoop_priv->qp_info = &port_priv->qp_info[qpn];
+ 	mad_snoop_priv->agent.device = device;
+@@ -1244,6 +1265,7 @@ int ib_post_send_mad(struct ib_mad_send_buf *send_buf,
+ 
+ 	/* Walk list of send WRs and post each on send list */
+ 	for (; send_buf; send_buf = next_send_buf) {
++		int err = 0;
+ 
+ 		mad_send_wr = container_of(send_buf,
+ 					   struct ib_mad_send_wr_private,
+@@ -1251,6 +1273,17 @@ int ib_post_send_mad(struct ib_mad_send_buf *send_buf,
+ 		mad_agent_priv = mad_send_wr->mad_agent_priv;
+ 		pkey_index = mad_send_wr->send_wr.pkey_index;
+ 
++		if (mad_agent_priv->agent.qp->qp_type == IB_QPT_SMI)
++			err = security_ib_end_port_smp(
++					mad_agent_priv->agent.device->name,
++					mad_agent_priv->agent.port_num,
++					&mad_agent_priv->agent);
++
++		if (err) {
++			ret = err;
++			goto error;
++		}
++
+ 		ret = ib_security_ma_pkey_access(mad_agent_priv->agent.device,
+ 						 mad_agent_priv->agent.port_num,
+ 						 pkey_index,
+@@ -1992,7 +2025,16 @@ static void ib_mad_complete_recv(struct ib_mad_agent_private *mad_agent_priv,
+ 	struct ib_mad_send_wr_private *mad_send_wr;
+ 	struct ib_mad_send_wc mad_send_wc;
+ 	unsigned long flags;
+-	int ret;
++	int ret = 0;
++
++	if (mad_agent_priv->agent.qp->qp_type == IB_QPT_SMI)
++		ret = security_ib_end_port_smp(
++					mad_agent_priv->agent.device->name,
++					mad_agent_priv->agent.port_num,
++					&mad_agent_priv->agent);
++
++	if (ret)
++		goto security_error;
+ 
+ 	ret = ib_security_ma_pkey_access(mad_agent_priv->agent.device,
+ 					 mad_agent_priv->agent.port_num,
 -- 
 1.8.3.1
