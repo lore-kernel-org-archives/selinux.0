@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5NJvdsq003324
- for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2016 15:57:39 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5NJwTpb003423
+ for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2016 15:58:30 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,10 +8,10 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
  Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH 05/12] selinux: Implement Infiniband PKey "Access" access
- vector
-Date: Thu, 23 Jun 2016 22:52:51 +0300
-Message-Id: <1466711578-64398-6-git-send-email-danielj@mellanox.com>
+Subject: [PATCH 08/12] IB/core: IB cache enhancements to support Infiniband
+ security
+Date: Thu, 23 Jun 2016 22:52:54 +0300
+Message-Id: <1466711578-64398-9-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
 References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,201 +21,112 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Add a type and access vector for PKeys. Implement the qp_pkey_access
-and mad_agent_pkey_access hooks to check that the caller has
-permission to access the PKey on the given subnet prefix.  Add an
-interface to get the PKey SID. Walk the PKey ocontexts to find an entry
-for the given subnet prefix and pkey.
+Cache the subnet prefix and add a function to access it. Enforcing
+security requires frequent queries of the subnet prefix and the pkeys in
+the pkey table.
+
+Also removed an unneded pr_warn about memory allocation failure.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 Reviewed-by: Eli Cohen <eli@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
 ---
- include/linux/lsm_audit.h                        |  7 ++++
- security/selinux/hooks.c                         | 41 ++++++++++++++++++++++++
- security/selinux/include/classmap.h              |  2 ++
- security/selinux/include/initial_sid_to_string.h |  1 +
- security/selinux/include/security.h              |  2 ++
- security/selinux/ss/services.c                   | 41 ++++++++++++++++++++++++
- 6 files changed, 94 insertions(+)
+ drivers/infiniband/core/cache.c     | 35 +++++++++++++++++++++++++++++++++--
+ drivers/infiniband/core/core_priv.h |  3 +++
+ include/rdma/ib_verbs.h             |  1 +
+ 3 files changed, 37 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-index ffb9c9d..8ff7eae 100644
---- a/include/linux/lsm_audit.h
-+++ b/include/linux/lsm_audit.h
-@@ -45,6 +45,11 @@ struct lsm_ioctlop_audit {
- 	u16 cmd;
- };
+diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
+index c2e257d..4894e21 100644
+--- a/drivers/infiniband/core/cache.c
++++ b/drivers/infiniband/core/cache.c
+@@ -926,6 +926,25 @@ int ib_get_cached_pkey(struct ib_device *device,
+ }
+ EXPORT_SYMBOL(ib_get_cached_pkey);
  
-+struct lsm_pkey_audit {
-+	u64	subnet_prefix;
-+	u16	pkey;
-+};
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx)
++{
++	unsigned long flags;
++	int p = port_num - rdma_start_port(device);
 +
- /* Auxiliary data to use in generating the audit record. */
- struct common_audit_data {
- 	char type;
-@@ -59,6 +64,7 @@ struct common_audit_data {
- #define LSM_AUDIT_DATA_INODE	9
- #define LSM_AUDIT_DATA_DENTRY	10
- #define LSM_AUDIT_DATA_IOCTL_OP	11
-+#define LSM_AUDIT_DATA_PKEY	12
- 	union 	{
- 		struct path path;
- 		struct dentry *dentry;
-@@ -75,6 +81,7 @@ struct common_audit_data {
- #endif
- 		char *kmod_name;
- 		struct lsm_ioctlop_audit *op;
-+		struct lsm_pkey_audit *pkey;
- 	} u;
- 	/* this union contains LSM specific data */
- 	union {
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 4f13ea4..5a40b10 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6018,6 +6018,44 @@ static void selinux_unregister_ib_flush_callback(void)
- 	mutex_unlock(&ib_flush_mutex);
++	if (port_num < rdma_start_port(device) ||
++	    port_num > rdma_end_port(device))
++		return -EINVAL;
++
++	read_lock_irqsave(&device->cache.lock, flags);
++	*sn_pfx = device->cache.subnet_prefix_cache[p];
++	read_unlock_irqrestore(&device->cache.lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
++
+ int ib_find_cached_pkey(struct ib_device *device,
+ 			u8                port_num,
+ 			u16               pkey,
+@@ -1102,6 +1121,8 @@ static void ib_cache_update(struct ib_device *device,
+ 
+ 	device->cache.lmc_cache[port - rdma_start_port(device)] = tprops->lmc;
+ 
++	device->cache.subnet_prefix_cache[port - rdma_start_port(device)] =
++							tprops->subnet_prefix;
+ 	write_unlock_irq(&device->cache.lock);
+ 
+ 	kfree(gid_cache);
+@@ -1160,9 +1181,18 @@ int ib_cache_setup_one(struct ib_device *device)
+ 					  (rdma_end_port(device) -
+ 					   rdma_start_port(device) + 1),
+ 					  GFP_KERNEL);
++
++	device->cache.subnet_prefix_cache = kcalloc((rdma_end_port(device) -
++						     rdma_start_port(device) + 1),
++						    sizeof(*device->cache.subnet_prefix_cache),
++						    GFP_KERNEL);
++
+ 	if (!device->cache.pkey_cache ||
+-	    !device->cache.lmc_cache) {
+-		pr_warn("Couldn't allocate cache for %s\n", device->name);
++	    !device->cache.lmc_cache ||
++	    !device->cache.subnet_prefix_cache) {
++		kfree(device->cache.pkey_cache);
++		kfree(device->cache.lmc_cache);
++		kfree(device->cache.subnet_prefix_cache);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -1205,6 +1235,7 @@ void ib_cache_release_one(struct ib_device *device)
+ 	gid_table_release_one(device);
+ 	kfree(device->cache.pkey_cache);
+ 	kfree(device->cache.lmc_cache);
++	kfree(device->cache.subnet_prefix_cache);
  }
  
-+static int selinux_pkey_access(u64 subnet_prefix, u16 pkey_val, void *security)
-+{
-+	struct common_audit_data ad;
-+	int err;
-+	u32 sid = 0;
-+	struct ib_security_struct *sec = security;
-+	struct lsm_pkey_audit pkey;
-+
-+	err = security_pkey_sid(subnet_prefix, pkey_val, &sid);
-+
-+	if (err)
-+		goto out;
-+
-+	ad.type = LSM_AUDIT_DATA_PKEY;
-+	pkey.subnet_prefix = subnet_prefix;
-+	pkey.pkey = pkey_val;
-+	ad.u.pkey = &pkey;
-+	err = avc_has_perm(sec->sid, sid,
-+			   SECCLASS_INFINIBAND_PKEY,
-+			   INFINIBAND_PKEY__ACCESS, &ad);
-+out:
-+	return err;
-+}
-+
-+static int selinux_ib_qp_pkey_access(u64 subnet_prefix, u16 pkey_val,
-+				     struct ib_qp_security *qp_sec)
-+{
-+	return selinux_pkey_access(subnet_prefix, pkey_val,
-+				   qp_sec->q_security);
-+}
-+
-+static int selinux_ib_mad_agent_pkey_access(u64 subnet_prefix, u16 pkey_val,
-+					    struct ib_mad_agent *mad_agent)
-+{
-+	return selinux_pkey_access(subnet_prefix, pkey_val,
-+					mad_agent->m_security);
-+}
-+
- static int selinux_ib_qp_alloc_security(struct ib_qp_security *qp_sec)
- {
- 	struct ib_security_struct *sec;
-@@ -6248,6 +6286,9 @@ static struct security_hook_list selinux_hooks[] = {
- 		      selinux_register_ib_flush_callback),
- 	LSM_HOOK_INIT(unregister_ib_flush_callback,
- 		      selinux_unregister_ib_flush_callback),
-+	LSM_HOOK_INIT(ib_qp_pkey_access, selinux_ib_qp_pkey_access),
-+	LSM_HOOK_INIT(ib_mad_agent_pkey_access,
-+		      selinux_ib_mad_agent_pkey_access),
- 	LSM_HOOK_INIT(ib_qp_alloc_security,
- 		      selinux_ib_qp_alloc_security),
- 	LSM_HOOK_INIT(ib_qp_free_security,
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 1f1f4b2..d42dd4d 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -165,5 +165,7 @@ struct security_class_mapping secclass_map[] = {
- 	  { COMMON_CAP_PERMS, NULL } },
- 	{ "cap2_userns",
- 	  { COMMON_CAP2_PERMS, NULL } },
-+	{ "infiniband_pkey",
-+	  { "access", NULL } },
- 	{ NULL }
-   };
-diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
-index a59b64e..8f2eefc 100644
---- a/security/selinux/include/initial_sid_to_string.h
-+++ b/security/selinux/include/initial_sid_to_string.h
-@@ -29,5 +29,6 @@ static const char *initial_sid_to_string[] =
-     "policy",
-     "scmp_packet",
-     "devnull",
-+    "pkey",
+ void ib_cache_cleanup_one(struct ib_device *device)
+diff --git a/drivers/infiniband/core/core_priv.h b/drivers/infiniband/core/core_priv.h
+index 19d499d..ce826e4 100644
+--- a/drivers/infiniband/core/core_priv.h
++++ b/drivers/infiniband/core/core_priv.h
+@@ -153,4 +153,7 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
+ int ib_nl_handle_ip_res_resp(struct sk_buff *skb,
+ 			     struct netlink_callback *cb);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx);
+ #endif /* _CORE_PRIV_H */
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index e522acb..c00b6b1 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -1637,6 +1637,7 @@ struct ib_cache {
+ 	struct ib_pkey_cache  **pkey_cache;
+ 	struct ib_gid_table   **gid_cache;
+ 	u8                     *lmc_cache;
++	u64                    *subnet_prefix_cache;
  };
  
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index a7e6ed2..8f1a66e 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -180,6 +180,8 @@ int security_get_user_sids(u32 callsid, char *username,
- 
- int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
- 
-+int security_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
-+
- int security_netif_sid(char *name, u32 *if_sid);
- 
- int security_node_sid(u16 domain, void *addr, u32 addrlen,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 89df646..49701a5 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2229,6 +2229,47 @@ out:
- }
- 
- /**
-+ * security_pkey_sid - Obtain the SID for a pkey.
-+ * @subnet_prefix: Subnet Prefix
-+ * @pkey_num: pkey number
-+ * @out_sid: security identifier
-+ */
-+int security_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid)
-+{
-+	struct ocontext *c;
-+	int rc = 0;
-+
-+	read_lock(&policy_rwlock);
-+
-+	c = policydb.ocontexts[OCON_PKEY];
-+	while (c) {
-+		if (c->u.pkey.low_pkey <= pkey_num &&
-+		    c->u.pkey.high_pkey >= pkey_num &&
-+		    c->u.pkey.subnet_prefix == subnet_prefix)
-+			break;
-+
-+		c = c->next;
-+	}
-+
-+	if (c) {
-+		if (!c->sid[0]) {
-+			rc = sidtab_context_to_sid(&sidtab,
-+						   &c->context[0],
-+						   &c->sid[0]);
-+			if (rc)
-+				goto out;
-+		}
-+		*out_sid = c->sid[0];
-+	} else {
-+		*out_sid = SECINITSID_PKEY;
-+	}
-+
-+out:
-+	read_unlock(&policy_rwlock);
-+	return rc;
-+}
-+
-+/**
-  * security_netif_sid - Obtain the SID for a network interface.
-  * @name: interface name
-  * @if_sid: interface SID
+ struct ib_dma_mapping_ops {
 -- 
 1.8.3.1
