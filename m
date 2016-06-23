@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5NJuwqA003223
- for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2016 15:57:00 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5NJv5dF003270
+ for <selinux@tycho.nsa.gov>; Thu, 23 Jun 2016 15:57:07 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,9 +8,11 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
  Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH 00/12] SELinux support for Infiniband RDMA
-Date: Thu, 23 Jun 2016 22:52:46 +0300
-Message-Id: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
+Subject: [PATCH 03/12] selinux: Implement Infiniband flush callback
+Date: Thu, 23 Jun 2016 22:52:49 +0300
+Message-Id: <1466711578-64398-4-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
+References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -18,127 +20,103 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-This patch series was submitted previously as an RFC.  The 3rd version was
-posted on 19 Apr 2016 with the subject "[RFC PATCH v3 NN/MM] SELinux support
-for Infiniband RDMA".
+Because access for infiniband is enforced in the setup phase of a
+connection there must be a way to notify ib_core if the policy or
+enforcement setting have changed.
 
-Currently there is no way to provide granular access control to an Infiniband
-fabric.  By providing an ability to restrict user access to specific virtual
-subfabrics administrators can limit access to bandwidth and isolate users on
-the fabric.
+Added register and unregister_ib_flush_callback hooks so infiniband can
+setup notification of policy and enforment changes.  In the AVC reset
+callback function call the ib_flush callback if it's registered. Also
+renamed the callback function, the previous name was 'net' specific.
 
-The approach for controlling access for Infiniband is to control access to
-partitions.  A partition is similar in concept to a VLAN where each data packet
-carries the partition key (PKey) in its header and isolation is enforced by
-the hardware.  The partition key is not a cryptographic key, it's a 16 bit
-number identifying the partition.  By controlling access to PKeys users can be
-isolated on the fabric.
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Eli Cohen <eli@mellanox.com>
+---
+ security/selinux/hooks.c | 36 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 2 deletions(-)
 
-All Infiniband fabrics must have a subnet manager.  The subnet manager
-provisions the partitions and configures the end nodes.  Each end port has a
-PKey table containing all the partitions it can access.  In order to enforce
-access to partitions the subnet management interface (SMI) must also be
-controlled to prevent unauthorized changes to the fabric configuration. 
-
-In order to support this there must be a capability to provide security
-contexts for two new types of objects - PKeys and SMIs.
-
-A PKey label consists of a subnet prefix and a range of PKey values and is
-similar to the labeling mechanism for netports.  Infiniband end port can
-reside on a different subnet, labeling the PKey values for specific subnet
-prefixes provides the user maximum flexibility. There is a single access
-vector for PKeys, called "access".
-
-An Infiniband end port (ib_end_port) is labeled by name and port number. There
-is a single access vector for ib_end_ports as well, called "smp".
-
-Because RDMA allows for kernel bypass all enforcement must be done during
-connection setup.  To communicate over RDMA requires a send and receive queue
-called a queue pair (QP).  During the creation of a QP it is initialized
-before it can be used to send or receive data.  During initialization the user
-must provide the PKey and port the QP will use, at this time access can be
-enforced.
-
-Because there is a possibility that the enforcement settings or security
-policy can change, a means of notifying the ib_core module of such changes is
-required.  To facilitate this two LSM hooks are provided, ib_core will
-register and unregister a callback function at init and cleanup respectively.
-SELinux will call the callback as appropriate if it has been registered.
-When the callback is called ib_core will recheck the PKey access for all
-existing QPs.
-
-Because frequent accesses to the same PKey's SID is expected a cache is
-implemented which is very similar to the netport cache.
-
-In order to properly enforce security when changes to the PKey table or
-security policy or enforcement occur ib_core must track which QPs are using
-each port, pkey index, and alternate path for every IB device.  This makes
-operations that used to be atomic transactional.
-
-When modifying a QP ib_core must associate it with the PKey index, port,
-and alternate path specified.  If the QP was already associated with different
-settings the QP is added to the new list prior to the modify attempt.  If
-the modify succeeds then the old listing is removed.  If the modify fails
-the new listing is removed and the old listing remains unchanged.
-
-When destroying a QP the ib_qp structure is freed by the hardware driver
-if the destroy is successful.  This requires storing security related
-information in a separate structure. When a destroy request is in process
-the ib_qp structure is in an undefined state so if there are changes to the
-security policy or PKey table the security checks cannot reset the QP if it
-doesn't have permission for the new setting.  If the destroy fails security
-for that QP must be enforced again, and its status in the list restored. 
-If the destroy succeeds the security info can be cleaned up and freed.
-
-There are a number of locks required to protect the QP security structure and
-the QP to device/port/pkey index lists.  If multiple locks are required the
-safe locking order is qp security structure mutex first, followed by any list
-locks needed, which are sorted first by port followed by pkey index.
-
-Daniel Jurgens (12):
-  security: Add LSM hooks for Infiniband security
-  selinux: Create policydb version for Infiniband support
-  selinux: Implement Infiniband flush callback
-  selinux: Allocate and free infiniband security hooks
-  selinux: Implement Infiniband PKey "Access" access vector
-  selinux: Add IB End Port SMP access vector
-  selinux: Add a cache for quicker retreival of PKey SIDs
-  IB/core: IB cache enhancements to support Infiniband security
-  IB/core: Enforce PKey security on QPs
-  IB/core: Enforce PKey security on management datagrams
-  IB/core: Enforce Infiniband device SMI security
-  IB/core: Implement the Infiniband flush callback.
-
- drivers/infiniband/core/Makefile                 |   3 +-
- drivers/infiniband/core/cache.c                  |  56 +-
- drivers/infiniband/core/core_priv.h              |  93 ++++
- drivers/infiniband/core/device.c                 |  59 +++
- drivers/infiniband/core/mad.c                    | 105 +++-
- drivers/infiniband/core/security.c               | 641 +++++++++++++++++++++++
- drivers/infiniband/core/uverbs_cmd.c             |  20 +-
- drivers/infiniband/core/verbs.c                  |  29 +-
- include/linux/lsm_audit.h                        |  37 +-
- include/linux/lsm_hooks.h                        |  71 +++
- include/linux/security.h                         |  63 +++
- include/rdma/ib_mad.h                            |   1 +
- include/rdma/ib_verbs.h                          |  49 ++
- security/Kconfig                                 |   9 +
- security/security.c                              |  83 +++
- security/selinux/Makefile                        |   2 +-
- security/selinux/hooks.c                         | 160 +++++-
- security/selinux/include/classmap.h              |   4 +
- security/selinux/include/initial_sid_to_string.h |   2 +
- security/selinux/include/objsec.h                |  11 +
- security/selinux/include/pkey.h                  |  31 ++
- security/selinux/include/security.h              |   7 +-
- security/selinux/pkey.c                          | 243 +++++++++
- security/selinux/ss/policydb.c                   | 129 ++++-
- security/selinux/ss/policydb.h                   |  27 +-
- security/selinux/ss/services.c                   |  84 +++
- 26 files changed, 1963 insertions(+), 56 deletions(-)
- create mode 100644 drivers/infiniband/core/security.c
- create mode 100644 security/selinux/include/pkey.h
- create mode 100644 security/selinux/pkey.c
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a86d537..6a8841d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -94,6 +94,9 @@
+ #include "audit.h"
+ #include "avc_ss.h"
+ 
++static void (*ib_flush_callback)(void);
++static DEFINE_MUTEX(ib_flush_mutex);
++
+ /* SECMARK reference count */
+ static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
+ 
+@@ -159,13 +162,17 @@ static int selinux_peerlbl_enabled(void)
+ 	return (selinux_policycap_alwaysnetwork || netlbl_enabled() || selinux_xfrm_enabled());
+ }
+ 
+-static int selinux_netcache_avc_callback(u32 event)
++static int selinux_cache_avc_callback(u32 event)
+ {
+ 	if (event == AVC_CALLBACK_RESET) {
+ 		sel_netif_flush();
+ 		sel_netnode_flush();
+ 		sel_netport_flush();
+ 		synchronize_net();
++		mutex_lock(&ib_flush_mutex);
++		if (ib_flush_callback)
++			ib_flush_callback();
++		mutex_unlock(&ib_flush_mutex);
+ 	}
+ 	return 0;
+ }
+@@ -5993,6 +6000,23 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+ 
+ #endif
+ 
++#ifdef CONFIG_SECURITY_INFINIBAND
++static void selinux_register_ib_flush_callback(void (*callback)(void))
++{
++	mutex_lock(&ib_flush_mutex);
++	ib_flush_callback = callback;
++	mutex_unlock(&ib_flush_mutex);
++}
++
++static void selinux_unregister_ib_flush_callback(void)
++{
++	mutex_lock(&ib_flush_mutex);
++	ib_flush_callback = NULL;
++	mutex_unlock(&ib_flush_mutex);
++}
++
++#endif
++
+ static struct security_hook_list selinux_hooks[] = {
+ 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
+ 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+@@ -6174,6 +6198,12 @@ static struct security_hook_list selinux_hooks[] = {
+ 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
+ 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
+ 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
++#ifdef CONFIG_SECURITY_INFINIBAND
++	LSM_HOOK_INIT(register_ib_flush_callback,
++		      selinux_register_ib_flush_callback),
++	LSM_HOOK_INIT(unregister_ib_flush_callback,
++		      selinux_unregister_ib_flush_callback),
++#endif
+ 
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+ 	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
+@@ -6233,9 +6263,11 @@ static __init int selinux_init(void)
+ 					    0, SLAB_PANIC, NULL);
+ 	avc_init();
+ 
++	ib_flush_callback = NULL;
++
+ 	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
+ 
+-	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
++	if (avc_add_callback(selinux_cache_avc_callback, AVC_CALLBACK_RESET))
+ 		panic("SELinux: Unable to register AVC netcache callback\n");
+ 
+ 	if (selinux_enforcing)
 -- 
 1.8.3.1
