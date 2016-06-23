@@ -1,156 +1,108 @@
+Subject: Re: [PATCH] libselinux: add selinux_snapperd_contexts_path()
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov,
+ Paul Moore <paul@paul-moore.com>
+References: <1466420991-7209-1-git-send-email-plautrba@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <debd2301-6a60-c6ea-20ec-c9e3e3f41872@tycho.nsa.gov>
+Date: Thu, 23 Jun 2016 13:04:49 -0400
 MIME-Version: 1.0
-In-Reply-To: <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
-References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
- <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
-From: Ravi Kumar <nxp.ravi@gmail.com>
-Date: Thu, 23 Jun 2016 22:31:27 +0530
-Message-ID: <CACikiw0XhrE5+2R-AKHztPjtrAyUUq=uGG28A4vb-E+LYtY_og@mail.gmail.com>
-Subject: Re: New rules on restrict kernel module loading
-To: Jeffrey Vander Stoep <jeffv@google.com>
-Cc: seandroid-list@tycho.nsa.gov, SELinux <Selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=089e0115ff3043422e0535f5019d
+In-Reply-To: <1466420991-7209-1-git-send-email-plautrba@redhat.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---089e0115ff3043422e0535f5019d
-Content-Type: text/plain; charset=UTF-8
+On 06/20/2016 07:09 AM, Petr Lautrbach wrote:
+> Snapper needs a way how to set a proper selinux context on btrfs
+> subvolumes originating in snapshot create command. Fs can't handle it on
+> its own so snapper will enforce .snapshots subvolume relabeling
+> according to a file returned by selinux_snapperd_contexts_path().
+> 
+> The format of the file will be similar to other contexts file:
+> 
+> snapperd_data = system_u:object_r:snapperd_data_t:s0
+> 
+> Fixes:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1247530
+> https://bugzilla.redhat.com/show_bug.cgi?id=1247532
 
-Hi Jeffrey,
-I tried to do the same ,
-added the allow rule in system_server as
-* allow system_server system_file:system module_load;*
+Thanks, applied.  I would recommend that a bug be opened against the
+kernel / btrfs about the fact that the inodes are initially unlabeled,
+as otherwise snapper will always need permissions to relabel unlabeled
+files and generally we would prefer that unlabeled be inaccessible.
 
-But still seeing issue  as of the wlan.ko is a symlink as below
-wlan.ko -> /system/lib/modules/vendor_wlan.ko
-
-Wlan.ko   or  vendor_wlan.ko are with   u:object_r:system_file:s0
-
-But still  i see there is some issue where it show up this denial .
-
-W WifiStateMachin: type=1400 audit(0.0:2074): avc: denied { module_load }
-for scontext=u:r:system_server:s0 tcontext=u:r:system_server:s0
-tclass=system permissive=0
-in the above denial  i see the tcontext as system_server.
-
-I had not debugged much into will do  but looks like there is some thing
-which we are missing .
-
-Regards,
-Ravi
-
-
-On Thu, Jun 23, 2016 at 12:32 AM, Jeffrey Vander Stoep <jeffv@google.com>
-wrote:
-
-> selinux@tycho.nsa.gov to bcc
->
-> Hi Ravi,
->
-> The intent is not to restrict which processes may load modules, but to
-> place restrictions on the origin of the module itself. Modules, like the
-> kernel, should live on a verity protected partition.
->
-> If you want system apps to load a kernel module from the system partition
-> you just need to add an allow rule. e.g.
->
-> # system_app loads /system/lib/module/wlan.ko
-> allow system_app system_file:system module_load;
->
-> Similar rules may be added for platform_app or system_server.
->
-> On Wed, Jun 22, 2016 at 10:43 AM Ravi Kumar <nxp.ravi@gmail.com> wrote:
->
->> Hi team ,
->>
->> I see some new changes  both in kernel and sepolicy project on
->> restricting the load of kernel module  .
->>
->> https://android-review.googlesource.com/#/c/213758/ -- kernel change  on
->> check for moudle_load request  by Jeff
->> https://android-review.googlesource.com/#/c/214021/-- sepolicy change
->> adding the neverallow  on module_load request  by Jeff .
->>
->> As most of the  SoC /OEM has there own KO  which are loaded on run-time
->> detection an mostly running in system_app/system_server/platfrom_app  are
->> there any special guideline here .
->>
->> As an good example  wlan.ko  .
->>
->>
->> Regard,
->> Ravi
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to
->> Selinux-request@tycho.nsa.gov.
->
->
-
---089e0115ff3043422e0535f5019d
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi Jeffrey,<div>I tried to do the same ,=C2=A0</div><div><=
-div>added the allow rule in system_server as=C2=A0</div><div><span style=3D=
-"font-size:12.8px"><i>=C2=A0allow system_server system_file:system module_l=
-oad;</i></span></div></div><div><br></div><div>But still seeing issue =C2=
-=A0as of the wlan.ko is a symlink as below =C2=A0<br></div><div><div>wlan.k=
-o -&gt; /system/lib/modules/vendor_wlan.ko=C2=A0<br></div></div><div><br></=
-div><div>Wlan.ko =C2=A0 or =C2=A0vendor_wlan.ko are with =C2=A0=C2=A0u:obje=
-ct_r:system_file:s0</div><div><br></div><div>But still =C2=A0i see there is=
- some issue where it show up this denial .</div><div><br></div><div>W WifiS=
-tateMachin: type=3D1400 audit(0.0:2074): avc: denied { module_load } for sc=
-ontext=3Du:r:system_server:s0 tcontext=3Du:r:system_server:s0 tclass=3Dsyst=
-em permissive=3D0<br></div><div>in the above denial =C2=A0i see the tcontex=
-t as system_server.</div><div><br></div><div>I had not debugged much into w=
-ill do =C2=A0but looks like there is some thing which we are missing .=C2=
-=A0</div><div><br></div><div>Regards,</div><div>Ravi</div><div><br></div></=
-div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Thu, Jun 2=
-3, 2016 at 12:32 AM, Jeffrey Vander Stoep <span dir=3D"ltr">&lt;<a href=3D"=
-mailto:jeffv@google.com" target=3D"_blank">jeffv@google.com</a>&gt;</span> =
-wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bord=
-er-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr"><a href=3D"mailto=
-:selinux@tycho.nsa.gov" target=3D"_blank">selinux@tycho.nsa.gov</a>=C2=A0to=
- bcc<div><br></div><div>Hi Ravi,</div><div><br></div><div>The intent is not=
- to restrict which processes may load modules, but to place restrictions on=
- the origin of the module itself. Modules, like the kernel, should live on =
-a verity protected partition.</div><div><br></div><div>If you want system a=
-pps to load a kernel module from the system partition you just need to add =
-an allow rule. e.g.</div><div><br></div><div># system_app loads /system/lib=
-/module/wlan.ko</div><div>allow system_app system_file:system module_load;<=
-br><br>Similar rules may be added for platform_app or system_server.=C2=A0<=
-br><br><div class=3D"gmail_quote"><div><div class=3D"h5"><div dir=3D"ltr">O=
-n Wed, Jun 22, 2016 at 10:43 AM Ravi Kumar &lt;<a href=3D"mailto:nxp.ravi@g=
-mail.com" target=3D"_blank">nxp.ravi@gmail.com</a>&gt; wrote:<br></div></di=
-v></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border=
--left:1px #ccc solid;padding-left:1ex"><div><div class=3D"h5"><div dir=3D"l=
-tr"><div>Hi team ,=C2=A0</div><div><br></div>I see some new changes =C2=A0b=
-oth in kernel and sepolicy project on restricting the load of kernel module=
- =C2=A0.=C2=A0<div><br></div><div><a href=3D"https://android-review.googles=
-ource.com/#/c/213758/" target=3D"_blank">https://android-review.googlesourc=
-e.com/#/c/213758/</a> -- kernel change =C2=A0on check for moudle_load reque=
-st =C2=A0by Jeff=C2=A0<br></div><div><a href=3D"https://android-review.goog=
-lesource.com/#/c/214021/--" target=3D"_blank">https://android-review.google=
-source.com/#/c/214021/--</a> sepolicy change adding the neverallow =C2=A0on=
- module_load request =C2=A0by Jeff .<br></div><div><br></div><div>As most o=
-f the =C2=A0SoC /OEM has there own KO =C2=A0which are loaded on run-time de=
-tection an mostly running in system_app/system_server/platfrom_app =C2=A0ar=
-e there any special guideline here .=C2=A0</div><div><br></div><div>As an g=
-ood example =C2=A0wlan.ko =C2=A0.</div><div><br></div><div><br></div><div>R=
-egard,</div><div>Ravi=C2=A0</div></div></div></div>
-_______________________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
-a.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
-.gov</a>.</blockquote></div></div></div>
-</blockquote></div><br></div>
-
---089e0115ff3043422e0535f5019d--
+> 
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> ---
+>  libselinux/include/selinux/selinux.h |  1 +
+>  libselinux/src/file_path_suffixes.h  |  1 +
+>  libselinux/src/selinux_config.c      | 10 +++++++++-
+>  libselinux/src/selinux_internal.h    |  1 +
+>  4 files changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+> index 2262086..3d8673f 100644
+> --- a/libselinux/include/selinux/selinux.h
+> +++ b/libselinux/include/selinux/selinux.h
+> @@ -544,6 +544,7 @@ extern const char *selinux_lxc_contexts_path(void);
+>  extern const char *selinux_x_context_path(void);
+>  extern const char *selinux_sepgsql_context_path(void);
+>  extern const char *selinux_openssh_contexts_path(void);
+> +extern const char *selinux_snapperd_contexts_path(void);
+>  extern const char *selinux_systemd_contexts_path(void);
+>  extern const char *selinux_contexts_path(void);
+>  extern const char *selinux_securetty_types_path(void);
+> diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
+> index d1f9b48..95b228b 100644
+> --- a/libselinux/src/file_path_suffixes.h
+> +++ b/libselinux/src/file_path_suffixes.h
+> @@ -24,6 +24,7 @@ S_(BINPOLICY, "/policy/policy")
+>      S_(VIRTUAL_IMAGE, "/contexts/virtual_image_context")
+>      S_(LXC_CONTEXTS, "/contexts/lxc_contexts")
+>      S_(OPENSSH_CONTEXTS, "/contexts/openssh_contexts")
+> +    S_(SNAPPERD_CONTEXTS, "/contexts/snapperd_contexts")
+>      S_(SYSTEMD_CONTEXTS, "/contexts/systemd_contexts")
+>      S_(FILE_CONTEXT_SUBS, "/contexts/files/file_contexts.subs")
+>      S_(FILE_CONTEXT_SUBS_DIST, "/contexts/files/file_contexts.subs_dist")
+> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+> index bec5f3b..c519a77 100644
+> --- a/libselinux/src/selinux_config.c
+> +++ b/libselinux/src/selinux_config.c
+> @@ -50,7 +50,8 @@
+>  #define BOOLEAN_SUBS      27
+>  #define OPENSSH_CONTEXTS  28
+>  #define SYSTEMD_CONTEXTS  29
+> -#define NEL               30
+> +#define SNAPPERD_CONTEXTS 30
+> +#define NEL               31
+>  
+>  /* Part of one-time lazy init */
+>  static pthread_once_t once = PTHREAD_ONCE_INIT;
+> @@ -499,6 +500,13 @@ const char *selinux_openssh_contexts_path(void)
+>  
+>  hidden_def(selinux_openssh_contexts_path)
+>  
+> +const char *selinux_snapperd_contexts_path(void)
+> +{
+> +    return get_path(SNAPPERD_CONTEXTS);
+> +}
+> +
+> +hidden_def(selinux_snapperd_contexts_path)
+> +
+>  const char *selinux_systemd_contexts_path(void)
+>  {
+>  	return get_path(SYSTEMD_CONTEXTS);
+> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+> index 46566f6..9b9145c 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -84,6 +84,7 @@ hidden_proto(selinux_mkload_policy)
+>      hidden_proto(selinux_x_context_path)
+>      hidden_proto(selinux_sepgsql_context_path)
+>      hidden_proto(selinux_openssh_contexts_path)
+> +    hidden_proto(selinux_snapperd_contexts_path)
+>      hidden_proto(selinux_systemd_contexts_path)
+>      hidden_proto(selinux_path)
+>      hidden_proto(selinux_check_passwd_access)
+> 
