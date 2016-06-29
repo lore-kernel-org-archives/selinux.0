@@ -1,88 +1,162 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5THY2SF013546
- for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2016 13:34:02 -0400
-Received: by mail-ob0-f175.google.com with SMTP id ru5so35459704obc.1
- for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2016 10:33:45 -0700 (PDT)
+Subject: Re: New rules on restrict kernel module loading
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ Paul Moore <paul@paul-moore.com>
+References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
+ <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
+ <a9d56ad9-36ba-e1b7-1da4-bbe055ddd1c6@gmail.com>
+ <9e898e22-0580-2e1b-4f84-27e63f0ca9b9@tycho.nsa.gov>
+ <93f091ed-6a9c-b582-6717-e124bff190d6@gmail.com>
+ <793fb1d0-dd7d-62c4-bcae-30842d52478a@tycho.nsa.gov>
+ <8c7fea79-36a4-51e1-f284-5d8586186416@tycho.nsa.gov>
+From: Dominick Grift <dac.override@gmail.com>
+Message-ID: <0dd20e28-4a3c-25ee-879e-8ea88981da57@gmail.com>
+Date: Wed, 29 Jun 2016 20:57:22 +0200
 MIME-Version: 1.0
-In-Reply-To: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
-References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 29 Jun 2016 13:33:44 -0400
-Message-ID: <CAHC9VhRKFmZ+thwqbq8JnGbj04+Uex4JM0CS=umjfUQB90k0VQ@mail.gmail.com>
-Subject: Re: [PATCH 00/12] SELinux support for Infiniband RDMA
-To: Dan Jurgens <danielj@mellanox.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: chrisw@sous-sol.org, Eric Paris <eparis@parisplace.org>,
- dledford@redhat.com, sean.hefty@intel.com, hal.rosenstock@gmail.com,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <8c7fea79-36a4-51e1-f284-5d8586186416@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Lu8bHDAJpE14T8gmoSBuSO43eInRFWEE2"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jun 23, 2016 at 3:52 PM, Dan Jurgens <danielj@mellanox.com> wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
->
-> This patch series was submitted previously as an RFC.  The 3rd version was
-> posted on 19 Apr 2016 with the subject "[RFC PATCH v3 NN/MM] SELinux support
-> for Infiniband RDMA".
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Lu8bHDAJpE14T8gmoSBuSO43eInRFWEE2
+Content-Type: multipart/mixed; boundary="LsnT4eOTgeTkxdRqtAiMrK8DRNVKOGjcM"
+From: Dominick Grift <dac.override@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ Paul Moore <paul@paul-moore.com>
+Message-ID: <0dd20e28-4a3c-25ee-879e-8ea88981da57@gmail.com>
+Subject: Re: New rules on restrict kernel module loading
+References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
+ <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
+ <a9d56ad9-36ba-e1b7-1da4-bbe055ddd1c6@gmail.com>
+ <9e898e22-0580-2e1b-4f84-27e63f0ca9b9@tycho.nsa.gov>
+ <93f091ed-6a9c-b582-6717-e124bff190d6@gmail.com>
+ <793fb1d0-dd7d-62c4-bcae-30842d52478a@tycho.nsa.gov>
+ <8c7fea79-36a4-51e1-f284-5d8586186416@tycho.nsa.gov>
+In-Reply-To: <8c7fea79-36a4-51e1-f284-5d8586186416@tycho.nsa.gov>
 
-Hi Dan,
+--LsnT4eOTgeTkxdRqtAiMrK8DRNVKOGjcM
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thanks for sticking with this patchset, I'm working through it right
-now and I have a question on the overall design (below).
+On 06/29/2016 03:41 PM, Stephen Smalley wrote:
+> On 06/29/2016 09:33 AM, Stephen Smalley wrote:
+>> On 06/29/2016 05:36 AM, Dominick Grift wrote:
+>>> On 06/28/2016 02:54 PM, Stephen Smalley wrote:
+>>>> On 06/28/2016 07:02 AM, Dominick Grift wrote:
+>>>>> On 06/22/2016 09:02 PM, Jeffrey Vander Stoep wrote:
+>>>>>> selinux@tycho.nsa.gov to bcc
+>>>>>>
+>>>>>> Hi Ravi,
+>>>>>>
+>>>>>> The intent is not to restrict which processes may load modules,
+>>>>>> but to place restrictions on the origin of the module itself.
+>>>>>> Modules, like the kernel, should live on a verity protected
+>>>>>> partition.
+>>>>>>
+>>>>>> If you want system apps to load a kernel module from the system
+>>>>>> partition you just need to add an allow rule. e.g.
+>>>>>>
+>>>>>> # system_app loads /system/lib/module/wlan.ko allow system_app
+>>>>>> system_file:system module_load;
+>>>>>>
+>>>>>> Similar rules may be added for platform_app or system_server.
+>>>>>>
+>>>>>
+>>>>> In Fedora rawhide i see these where the target is "self". example:
+>>>>>
+>>>>> allow kmod self:system module_load;
+>>>>>
+>>>>> is that intended?
+>>>>
+>>>> That's the fallback when using init_module() rather than
+>>>> finit_module() to load modules, since the kernel does not see the fi=
+le
+>>>> when using init_module().  With init_module(), userspace loads the
+>>>> module from the file into memory and passes a (pointer, len) pair to=
 
-> Because RDMA allows for kernel bypass all enforcement must be done during
-> connection setup.  To communicate over RDMA requires a send and receive queue
-> called a queue pair (QP).  During the creation of a QP it is initialized
-> before it can be used to send or receive data.  During initialization the user
-> must provide the PKey and port the QP will use, at this time access can be
-> enforced.
->
-> Because there is a possibility that the enforcement settings or security
-> policy can change, a means of notifying the ib_core module of such changes is
-> required.  To facilitate this two LSM hooks are provided, ib_core will
-> register and unregister a callback function at init and cleanup respectively.
-> SELinux will call the callback as appropriate if it has been registered.
-> When the callback is called ib_core will recheck the PKey access for all
-> existing QPs.
+>>>> the kernel; with finit_module(), userspace opens the module file and=
 
-...
+>>>> passes the open file descriptor to the kernel.  Ideally, one would
+>>>> convert all users of init_module() to finit_module(), then remove an=
+y
+>>>> self:system module_load permissions and only allow it for specific
+>>>> file types.
+>>>>
+>>>
+>>> I suspect that something is broken here then (although i might be wro=
+ng)
+>>>
+>>> systemd-udevd seems to be using finit_module() but selinux still chec=
+ks
+>>> "self" instead of a module file type. (whereas i would have expected =
+the
+>>> latter)
+>>
+>> I don't see how that is possible, given the code in question.  I'd
+>> recommend checking that it is actually using finit_module() and not
+>> falling back to init_module().
+>=20
+> BTW, you should be able to just check the SYSCALL audit record to see
+> what system call was invoked upon the denial.  ausearch -m AVC -i will
+> show you any related SYSCALL records for any avc denial and will map th=
+e
+> architecture + system call numbers to string names.  So if you have an
+> audit.log containing the denial in question, you should be able to
+> easily tell whether it was init_module or finit_module.
 
-> In order to properly enforce security when changes to the PKey table or
-> security policy or enforcement occur ib_core must track which QPs are using
-> each port, pkey index, and alternate path for every IB device.  This makes
-> operations that used to be atomic transactional.
->
-> When modifying a QP ib_core must associate it with the PKey index, port,
-> and alternate path specified.  If the QP was already associated with different
-> settings the QP is added to the new list prior to the modify attempt.  If
-> the modify succeeds then the old listing is removed.  If the modify fails
-> the new listing is removed and the old listing remains unchanged.
->
-> When destroying a QP the ib_qp structure is freed by the hardware driver
-> if the destroy is successful.  This requires storing security related
-> information in a separate structure. When a destroy request is in process
-> the ib_qp structure is in an undefined state so if there are changes to the
-> security policy or PKey table the security checks cannot reset the QP if it
-> doesn't have permission for the new setting.  If the destroy fails security
-> for that QP must be enforced again, and its status in the list restored.
-> If the destroy succeeds the security info can be cleaned up and freed.
+Confirmed. It falls back to init_module. We do not know why, but i think
+it does not really matter, and that we should always take into account
+this fall back scenario. So i do not believe i will be able to drop the
+init_module support anytime soon.
 
-Perhaps I'll end up answering this for myself as I work my way through
-the patches, but hopefully you are handling the case where a destroy
-operation fails and the QP needs to be revalidated?
+Thanks again
 
-I'm also wondering if QP revalidation on a security policy change is
-worth the trouble; we've historically not been able to provide any
-revoke guarantees so I'm not sure if it is worth a lot of added
-complexity to gain this functionality just for Infiniband.  That said,
-it would be *nice* to have revalidation/revocation working, even if
-only for IB.  It may be that we need similar code to handle the
-various corner cases, so we may be stuck with the complexity anyway, I
-just thought it was worth bringing up as a topic of discussion.
+>=20
+>>
+>>>
+>>> I see that there is no selinux test-suite test implemented for this
+>>> functionality.
+>>
+>> Can't really do that until the permission is defined in the Fedora
+>> policy.  Otherwise, it will always be allowed due to the allow-unknown=
 
--- 
-paul moore
-www.paul-moore.com
+>> default in Fedora.
+>>
+>>
+>=20
+
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
+2
+Dominick Grift
+
+
+--LsnT4eOTgeTkxdRqtAiMrK8DRNVKOGjcM--
+
+--Lu8bHDAJpE14T8gmoSBuSO43eInRFWEE2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJXdBoSAAoJECV0jlU3+Udp7aIL/AsLXhmp/WFCbXVdtxZMDEdO
+lnPEBP29qD3DoXkDYK0gzS2wRjQpi/KEiyAcPSQJoiySW1MvEFfDkXYlr63DIzyY
+22Ts7a+QHU6eZeRF4Ufged0/7akrPxgdDBUx3MuBdfkIC3+PK0JEmOrXjFUzHnS6
+a1ejXnbEydqh5ZrnlO3twhSyJHeKd5TnjTmQroQ02d6xF6FSiucO39jTQ3RIUJOw
+df8yt6Nfiec/Tp54+46hccH27ZFcTB5vxpSIl8qBmVi+TGTEYfk41wblQFwB4ZVH
+BzkIApBO33Rnoz5/42ohr6trF/57RqwYccVtiVkWfn128oJEd27G0Xscm8g8LI0O
+4BLdLtRf35QyP7lreJBewNjB8h7qoBYEXjlFSnhApGEFWZuYfV8ooyWI88DoynHj
+v3b9x29l5pRdC+lTG9M27NsxfRPrN7irsJryOqi5jo2clqJSoPr9nRz4B6nTRKAG
+iB8omOMvDf1UtATE5TG/1W/ZHezt17coLRJ57A4etw==
+=SZWc
+-----END PGP SIGNATURE-----
+
+--Lu8bHDAJpE14T8gmoSBuSO43eInRFWEE2--
