@@ -1,113 +1,164 @@
-Subject: Re: New rules on restrict kernel module loading
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
- <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
- <a9d56ad9-36ba-e1b7-1da4-bbe055ddd1c6@gmail.com>
- <9e898e22-0580-2e1b-4f84-27e63f0ca9b9@tycho.nsa.gov>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <93f091ed-6a9c-b582-6717-e124bff190d6@gmail.com>
-Date: Wed, 29 Jun 2016 11:36:10 +0200
-MIME-Version: 1.0
-In-Reply-To: <9e898e22-0580-2e1b-4f84-27e63f0ca9b9@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="MpmJMkveKthGddLrB7eFprh1GmhWnGXxo"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u5TC5vNv006501
+ for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2016 08:05:57 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 1BCEE80500
+ for <selinux@tycho.nsa.gov>; Wed, 29 Jun 2016 12:05:54 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] policycoreutils: fix [-s STORE] typos in semanage
+Date: Wed, 29 Jun 2016 14:05:42 +0200
+Message-Id: <1467201942-2693-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---MpmJMkveKthGddLrB7eFprh1GmhWnGXxo
-Content-Type: multipart/mixed; boundary="iv8wFD30aSQ3QQ6k23jbIVNT9oNV5sg1k"
-From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Message-ID: <93f091ed-6a9c-b582-6717-e124bff190d6@gmail.com>
-Subject: Re: New rules on restrict kernel module loading
-References: <CACikiw1N2Cm0gaL2YvHW8738TudyFPgxgJQtZYp8mNOk7bEdCQ@mail.gmail.com>
- <CABXk95C1RzFk3LAJZjjqmmMhQh33qy2AiGgL0wOewr7p==msEg@mail.gmail.com>
- <a9d56ad9-36ba-e1b7-1da4-bbe055ddd1c6@gmail.com>
- <9e898e22-0580-2e1b-4f84-27e63f0ca9b9@tycho.nsa.gov>
-In-Reply-To: <9e898e22-0580-2e1b-4f84-27e63f0ca9b9@tycho.nsa.gov>
+semanage and semanage man pages used wrong usage of
+[-S STORE] in synopsis
 
---iv8wFD30aSQ3QQ6k23jbIVNT9oNV5sg1k
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ policycoreutils/semanage/semanage             | 14 +++++++-------
+ policycoreutils/semanage/semanage-boolean.8   |  2 +-
+ policycoreutils/semanage/semanage-fcontext.8  |  2 +-
+ policycoreutils/semanage/semanage-interface.8 |  2 +-
+ policycoreutils/semanage/semanage-login.8     |  2 +-
+ policycoreutils/semanage/semanage-node.8      |  2 +-
+ policycoreutils/semanage/semanage-port.8      |  2 +-
+ policycoreutils/semanage/semanage-user.8      |  2 +-
+ 8 files changed, 14 insertions(+), 14 deletions(-)
 
-On 06/28/2016 02:54 PM, Stephen Smalley wrote:
-> On 06/28/2016 07:02 AM, Dominick Grift wrote:
->> On 06/22/2016 09:02 PM, Jeffrey Vander Stoep wrote:
->>> selinux@tycho.nsa.gov to bcc
->>>
->>> Hi Ravi,
->>>
->>> The intent is not to restrict which processes may load modules,
->>> but to place restrictions on the origin of the module itself.
->>> Modules, like the kernel, should live on a verity protected
->>> partition.
->>>
->>> If you want system apps to load a kernel module from the system
->>> partition you just need to add an allow rule. e.g.
->>>
->>> # system_app loads /system/lib/module/wlan.ko allow system_app
->>> system_file:system module_load;
->>>
->>> Similar rules may be added for platform_app or system_server.
->>>
->>
->> In Fedora rawhide i see these where the target is "self". example:
->>
->> allow kmod self:system module_load;
->>
->> is that intended?
->=20
-> That's the fallback when using init_module() rather than
-> finit_module() to load modules, since the kernel does not see the file
-> when using init_module().  With init_module(), userspace loads the
-> module from the file into memory and passes a (pointer, len) pair to
-> the kernel; with finit_module(), userspace opens the module file and
-> passes the open file descriptor to the kernel.  Ideally, one would
-> convert all users of init_module() to finit_module(), then remove any
-> self:system module_load permissions and only allow it for specific
-> file types.
->=20
-
-I suspect that something is broken here then (although i might be wrong)
-
-systemd-udevd seems to be using finit_module() but selinux still checks
-"self" instead of a module file type. (whereas i would have expected the
-latter)
-
-I see that there is no selinux test-suite test implemented for this
-functionality.
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
-
-
---iv8wFD30aSQ3QQ6k23jbIVNT9oNV5sg1k--
-
---MpmJMkveKthGddLrB7eFprh1GmhWnGXxo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJXc5aOAAoJECV0jlU3+UdpbmIL/iw+HK0ZpNyz2btExQ5JDk5j
-mnebIlzXO/MZmNSZCjDdgVjlEzL/JPvAWhSVIwM1Xw+d68QBJRcIbt/GeF2loN21
-Wzlv8zeFzPv11mvt5Tv/ECWq8ZJOb4+2iixMuifyfwzmub5E7Y4n9hiVIvdxS9Ed
-V8Y/icB263AQXmXZhM+8Yr0dtWLiSVWMnN3SEQUyE5eVUu6N9aMP4zXcppFA946A
-5687Vss2x8klPzebrzuV5XE9mWbrrN3UJj8XqA7LUGHNzWx+bpc5Hc37eP7bNjx5
-5AnKzpCI34XoDg0LtrDj/bDLGvMl0C23T6Ho6jYXAOf6+hJ+KGcC1reFqF1nNu0I
-/BnIjAGVHWeeCeUW3Ajc6MrLLt73FkW7caheA3BCkxxBJpl3XsQTioZQamfuxa8J
-BcCOINt0aeKxU4jHFqpUaj0DkLzZ/MeknZrJaFj37aIt9MHDmsSmar589RkuU1RI
-fIv217P+wbk97Ly0tTsaEKGnbaJS0Xr0mxNJsKbCEA==
-=gJQk
------END PGP SIGNATURE-----
-
---MpmJMkveKthGddLrB7eFprh1GmhWnGXxo--
+diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+index 7489955..954411d 100644
+--- a/policycoreutils/semanage/semanage
++++ b/policycoreutils/semanage/semanage
+@@ -45,25 +45,25 @@ except IOError:
+         __builtin__.__dict__['_'] = unicode
+ 
+ # define custom usages for selected main actions
+-usage_login = "semanage login [-h] [-n] [-N] [-s STORE] ["
++usage_login = "semanage login [-h] [-n] [-N] [-S STORE] ["
+ usage_login_dict = {' --add': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --modify': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --delete': ('LOGIN',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+ 
+-usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-s STORE] ["
++usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
+ usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC', ')',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC', ')',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC )',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+ 
+-usage_user = "semanage user [-h] [-n] [-N] [-s STORE] ["
++usage_user = "semanage user [-h] [-n] [-N] [-S STORE] ["
+ usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name'')'), ' --delete': ('selinux_name',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+ 
+-usage_port = "semanage port [-h] [-n] [-N] [-s STORE] ["
++usage_port = "semanage port [-h] [-n] [-N] [-S STORE] ["
+ usage_port_dict = {' --add': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_name', '|', 'port_range', ')'), ' --modify': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_name', '|', 'port_range', ')'), ' --delete': ('-p PROTOCOL', '(', 'port_name', '|', 'port_range', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+ 
+-usage_node = "semanage node [-h] [-n] [-N] [-s STORE] ["
++usage_node = "semanage node [-h] [-n] [-N] [-S STORE] ["
+ usage_node_dict = {' --add': ('-M NETMASK', '-p PROTOCOL', '-t TYPE', '-r RANGE', 'node'), ' --modify': ('-M NETMASK', '-p PROTOCOL', '-t TYPE', '-r RANGE', 'node'), ' --delete': ('-M NETMASK', '-p PROTOCOL', 'node'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+ 
+-usage_interface = "semanage interface [-h] [-n] [-N] [-s STORE] ["
++usage_interface = "semanage interface [-h] [-n] [-N] [-S STORE] ["
+ usage_interface_dict = {' --add': ('-t TYPE', '-r RANGE', 'interface'), ' --modify': ('-t TYPE', '-r RANGE', 'interface'), ' --delete': ('interface',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+ 
+-usage_boolean = "semanage boolean [-h] [-n] [-N] [-s STORE] ["
++usage_boolean = "semanage boolean [-h] [-n] [-N] [-S STORE] ["
+ usage_boolean_dict = {' --modify': ('(', '--on', '|', '--off', ')', 'boolean'), ' --list': ('-C',), '  --extract': ('',), ' --deleteall': ('',)}
+ 
+ import sepolicy
+diff --git a/policycoreutils/semanage/semanage-boolean.8 b/policycoreutils/semanage/semanage-boolean.8
+index 6eb6b69..0c48587 100644
+--- a/policycoreutils/semanage/semanage-boolean.8
++++ b/policycoreutils/semanage/semanage-boolean.8
+@@ -2,7 +2,7 @@
+ .SH "NAME"
+ semanage\-boolean \- SELinux Policy Management boolean tool
+ .SH "SYNOPSIS"
+-.B semanage boolean [\-h] [\-n] [\-N] [\-s STORE] [  \-\-extract  | \-\-deleteall  | \-\-list [\-C] | \-\-modify ( \-\-on | \-\-off ) boolean  ]
++.B semanage boolean [\-h] [\-n] [\-N] [\-S STORE] [  \-\-extract  | \-\-deleteall  | \-\-list [\-C] | \-\-modify ( \-\-on | \-\-off ) boolean  ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of
+diff --git a/policycoreutils/semanage/semanage-fcontext.8 b/policycoreutils/semanage/semanage-fcontext.8
+index 7bbb0af..07c2831 100644
+--- a/policycoreutils/semanage/semanage-fcontext.8
++++ b/policycoreutils/semanage/semanage-fcontext.8
+@@ -3,7 +3,7 @@
+ semanage\-fcontext \- SELinux Policy Management file context tool
+ 
+ .SH "SYNOPSIS"
+-.B semanage fcontext [\-h] [\-n] [\-N] [\-s STORE] [ \-\-add ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ) | \-\-delete ( \-t TYPE \-f FTYPE | \-e EQUAL ) FILE_SPEC ) | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ) ]
++.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ) | \-\-delete ( \-t TYPE \-f FTYPE | \-e EQUAL ) FILE_SPEC ) | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ) ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of
+diff --git a/policycoreutils/semanage/semanage-interface.8 b/policycoreutils/semanage/semanage-interface.8
+index fe8b250..fbab4b9 100644
+--- a/policycoreutils/semanage/semanage-interface.8
++++ b/policycoreutils/semanage/semanage-interface.8
+@@ -2,7 +2,7 @@
+ .SH "NAME"
+ .B semanage\-interface \- SELinux Policy Management network interface tool
+ .SH "SYNOPSIS"
+-.B semanage interface [\-h] [\-n] [\-N] [\-s STORE] [ \-\-add \-t TYPE \-r RANGE interface | \-\-delete interface | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-t TYPE \-r RANGE interface ]
++.B semanage interface [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add \-t TYPE \-r RANGE interface | \-\-delete interface | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-t TYPE \-r RANGE interface ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of
+diff --git a/policycoreutils/semanage/semanage-login.8 b/policycoreutils/semanage/semanage-login.8
+index 7cc5fde..a2397a0 100644
+--- a/policycoreutils/semanage/semanage-login.8
++++ b/policycoreutils/semanage/semanage-login.8
+@@ -2,7 +2,7 @@
+ .SH "NAME"
+ .B semanage\-login \- SELinux Policy Management linux user to SELinux User mapping tool
+ .SH "SYNOPSIS"
+-.B semanage login [\-h] [\-n] [\-N] [\-s STORE] [ \-\-add \-s SEUSER \-r RANGE LOGIN | \-\-delete LOGIN | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-s SEUSER \-r RANGE LOGIN ]
++.B semanage login [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add \-s SEUSER \-r RANGE LOGIN | \-\-delete LOGIN | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-s SEUSER \-r RANGE LOGIN ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of
+diff --git a/policycoreutils/semanage/semanage-node.8 b/policycoreutils/semanage/semanage-node.8
+index 0a2160d..e0b0e56 100644
+--- a/policycoreutils/semanage/semanage-node.8
++++ b/policycoreutils/semanage/semanage-node.8
+@@ -2,7 +2,7 @@
+ .SH "NAME"
+ .B semanage\-node \- SELinux Policy Management node mapping tool
+ .SH "SYNOPSIS"
+-.B semanage node [\-h] [\-n] [\-N] [\-s STORE] [ \-\-add \-M NETMASK \-p PROTOCOL \-t TYPE \-r RANGE node | \-\-delete \-M NETMASK \-p PROTOCOL node | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-M NETMASK \-p PROTOCOL \-t TYPE \-r RANGE node ]
++.B semanage node [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add \-M NETMASK \-p PROTOCOL \-t TYPE \-r RANGE node | \-\-delete \-M NETMASK \-p PROTOCOL node | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-M NETMASK \-p PROTOCOL \-t TYPE \-r RANGE node ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of
+diff --git a/policycoreutils/semanage/semanage-port.8 b/policycoreutils/semanage/semanage-port.8
+index 5a6a57f..666120e 100644
+--- a/policycoreutils/semanage/semanage-port.8
++++ b/policycoreutils/semanage/semanage-port.8
+@@ -2,7 +2,7 @@
+ .SH "NAME"
+ .B semanage\-port \- SELinux Policy Management port mapping tool
+ .SH "SYNOPSIS"
+-.B semanage port [\-h] [\-n] [\-N] [\-s STORE] [ \-\-add \-t TYPE \-p PROTOCOL \-r RANGE port_name | port_range | \-\-delete \-p PROTOCOL port_name | port_range | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-t TYPE \-p PROTOCOL \-r RANGE port_name | port_range ]
++.B semanage port [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add \-t TYPE \-p PROTOCOL \-r RANGE port_name | port_range | \-\-delete \-p PROTOCOL port_name | port_range | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify \-t TYPE \-p PROTOCOL \-r RANGE port_name | port_range ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of SELinux policy without requiring modification to or recompilation from policy sources.  semanage port controls the port number to port type definitions.
+diff --git a/policycoreutils/semanage/semanage-user.8 b/policycoreutils/semanage/semanage-user.8
+index 0e29334..2df03dd 100644
+--- a/policycoreutils/semanage/semanage-user.8
++++ b/policycoreutils/semanage/semanage-user.8
+@@ -2,7 +2,7 @@
+ .SH "NAME"
+ .B semanage\-user \- SELinux Policy Management SELinux User mapping tool
+ .SH "SYNOPSIS"
+-.B  semanage user [\-h] [\-n] [\-N] [\-s STORE] [ \-\-add ( \-L LEVEL \-R ROLES \-r RANGE \-s SEUSER selinux_name) | \-\-delete selinux_name | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-L LEVEL \-R ROLES \-r RANGE \-s SEUSER selinux_name ) ]
++.B  semanage user [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-L LEVEL \-R ROLES \-r RANGE \-s SEUSER selinux_name) | \-\-delete selinux_name | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-L LEVEL \-R ROLES \-r RANGE \-s SEUSER selinux_name ) ]
+ 
+ .SH "DESCRIPTION"
+ semanage is used to configure certain elements of
+-- 
+1.8.3.1
