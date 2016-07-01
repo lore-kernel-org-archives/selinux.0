@@ -1,82 +1,53 @@
-Subject: Fwd: SElinux user tools 2.5 change
-References: <35737536-B901-44F9-8336-509CDA386932@wal-mart.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, James Carter <jwcart2@tycho.nsa.gov>,
+Subject: Re: Fwd: SElinux user tools 2.5 change
+To: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ James Carter <jwcart2@tycho.nsa.gov>,
  Miroslav Grepl <mgrepl@redhat.com>, Lukas Vrabec <lvrabec@redhat.com>,
  SELinux <selinux@tycho.nsa.gov>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <909baadb-ae53-d6c7-be85-c9d645def448@redhat.com>
-Date: Thu, 30 Jun 2016 14:47:55 -0700
+References: <35737536-B901-44F9-8336-509CDA386932@wal-mart.com>
+ <909baadb-ae53-d6c7-be85-c9d645def448@redhat.com>
+From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <cb19890b-f5eb-6d1f-5a7b-543ff6b435b3@tresys.com>
+Date: Thu, 30 Jun 2016 22:19:37 -0400
 MIME-Version: 1.0
-In-Reply-To: <35737536-B901-44F9-8336-509CDA386932@wal-mart.com>
-Content-Type: multipart/alternative;
- boundary="------------D3563183CE03FD10B21CEE76"
+In-Reply-To: <909baadb-ae53-d6c7-be85-c9d645def448@redhat.com>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------D3563183CE03FD10B21CEE76
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+On 06/30/2016 05:47 PM, Daniel J Walsh wrote:
+>   A customer is asking:
+> 
+> The SELinux userspace tools version 2.5 introduced a change to remove the 
+> semodule version from the semodule �l output.  This poses problems for people 
+> (like us) who are using configuration management tools like Puppet to manage 
+> SELinux modules � how is Puppet supposed to know which version of the module is 
+> installed?  Should it try to load the module every time?
+> 
+> I have raised the issue with Puppet as 
+> https://tickets.puppetlabs.com/browse/PUP-5649 but I believe the real question 
+> should be, how is a config management system supposed to know which version of a 
+> module to try to install?
+> 
+> Thanks for any assistance you can provide with this, and we will continue to run 
+> in enforcing mode by default for RHEL 7+.
 
-  A customer is asking:
+I would argue version numbers have never really meant anything. Nothing
+forced you to update the module version when you made changes aside from
+convention. So you could easily have two version 1.0's that are
+completely different.
 
-The SELinux userspace tools version 2.5 introduced a change to remove 
-the semodule version from the semodule –l output.  This poses problems 
-for people (like us) who are using configuration management tools like 
-Puppet to manage SELinux modules – how is Puppet supposed to know which 
-version of the module is installed?  Should it try to load the module 
-every time?
+I imagine puppet and other configuration managers have some concept of
+hash verification to determine what files are installed on the target
+machine, and if they need to be updated to something else (similar to
+git). That, to me, seems the better and more conclusive way to ensure
+that the right modules are installed.
 
-I have raised the issue with Puppet as 
-https://tickets.puppetlabs.com/browse/PUP-5649 but I believe the real 
-question should be, how is a config management system supposed to know 
-which version of a module to try to install?
+There is currently no API to get the hash of a module, but one could
+manually hash the files that are in the policy store. If we need a more
+user friendly method, I imagine it wouldn't be too difficult to add some
+kind of hash to semodule -l output. Do either of those options seem
+reasonable?
 
-Thanks for any assistance you can provide with this, and we will 
-continue to run in enforcing mode by default for RHEL 7+.
-
-
-
---------------D3563183CE03FD10B21CEE76
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-<html>
-  <head>
-
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <div class="moz-forward-container"><span style="font-size:11.0pt"><o:p></o:p></span>
-      <div class="WordSection1">
-        <p class="MsoNormal"><span style="font-size:11.0pt"><o:p> A
-              customer is asking:</o:p></span></p>
-        <p class="MsoNormal"><span style="font-size:11.0pt">The SELinux
-            userspace tools version 2.5 introduced a change to remove
-            the semodule version from the semodule –l output.  This
-            poses problems for people (like us) who are using
-            configuration management tools like Puppet to manage SELinux
-            modules – how is Puppet supposed to know which version of
-            the module is installed?  Should it try to load the module
-            every time?<o:p></o:p></span></p>
-        <p class="MsoNormal"><span style="font-size:11.0pt"><o:p> </o:p></span></p>
-        <p class="MsoNormal"><span style="font-size:11.0pt">I have
-            raised the issue with Puppet as
-            <a moz-do-not-send="true"
-              href="https://tickets.puppetlabs.com/browse/PUP-5649">https://tickets.puppetlabs.com/browse/PUP-5649</a>
-            but I believe the real question should be, how is a config
-            management system supposed to know which version of a module
-            to try to install?<o:p></o:p></span></p>
-        <p class="MsoNormal"><span style="font-size:11.0pt"><o:p> </o:p></span></p>
-        <p class="MsoNormal"><span style="font-size:11.0pt">Thanks for
-            any assistance you can provide with this, and we will
-            continue to run in enforcing mode by default for RHEL 7+.<o:p></o:p></span></p>
-        <br>
-      </div>
-    </div>
-  </body>
-</html>
-
---------------D3563183CE03FD10B21CEE76--
+- Steve
