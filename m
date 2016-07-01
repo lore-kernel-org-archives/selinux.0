@@ -1,8 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u61LGFBG029688
- for <selinux@tycho.nsa.gov>; Fri, 1 Jul 2016 17:16:15 -0400
-Subject: Re: [PATCH 04/12] selinux: Allocate and free infiniband security hooks
-To: Daniel Jurgens <danielj@mellanox.com>, Paul Moore <pmoore@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u61MFAQp003314
+ for <selinux@tycho.nsa.gov>; Fri, 1 Jul 2016 18:15:10 -0400
+Received: by mail-oi0-f53.google.com with SMTP id f189so128652981oig.3
+ for <selinux@tycho.nsa.gov>; Fri, 01 Jul 2016 15:15:09 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <DB6PR0501MB226138FF74D031F6BD1C48C6C4250@DB6PR0501MB2261.eurprd05.prod.outlook.com>
 References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
  <1466711578-64398-5-git-send-email-danielj@mellanox.com>
  <CAGH-KgvtN8T7e5bKq0jJZvSzrGfFwA2VpmPf5gJuqdLZi6odEw@mail.gmail.com>
@@ -13,7 +15,13 @@ References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
  <CAGH-Kgtz7pXNJrcc-OOwGyefzm5MpsVqjyZ+UaR9pefoNMWiwg@mail.gmail.com>
  <4bdbd27c-ff4a-db87-a550-cd187cbc07c6@schaufler-ca.com>
  <DB6PR0501MB226138FF74D031F6BD1C48C6C4250@DB6PR0501MB2261.eurprd05.prod.outlook.com>
-Cc: "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+From: Paul Moore <pmoore@redhat.com>
+Date: Fri, 1 Jul 2016 18:15:07 -0400
+Message-ID: <CAGH-KguSnb7mCTEmEMRKn_NgpDtSpgttB877GNCKywg1pJhfzQ@mail.gmail.com>
+Subject: Re: [PATCH 04/12] selinux: Allocate and free infiniband security hooks
+To: Daniel Jurgens <danielj@mellanox.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
  "paul@paul-moore.com" <paul@paul-moore.com>,
  "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
  "eparis@parisplace.org" <eparis@parisplace.org>,
@@ -25,18 +33,13 @@ Cc: "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
  <linux-security-module@vger.kernel.org>,
  "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
  Yevgeny Petrilin <yevgenyp@mellanox.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <b3ddd8ac-3917-ddf5-6c57-979a24dcbd20@schaufler-ca.com>
-Date: Fri, 1 Jul 2016 14:16:14 -0700
-MIME-Version: 1.0
-In-Reply-To: <DB6PR0501MB226138FF74D031F6BD1C48C6C4250@DB6PR0501MB2261.eurprd05.prod.outlook.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 7/1/2016 1:46 PM, Daniel Jurgens wrote:
+On Fri, Jul 1, 2016 at 4:46 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
 > On 7/1/2016 3:13 PM, Casey Schaufler wrote:
 >> On 7/1/2016 12:17 PM, Paul Moore wrote:
 >>> On Fri, Jul 1, 2016 at 2:59 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
@@ -73,6 +76,11 @@ On 7/1/2016 1:46 PM, Daniel Jurgens wrote:
 >> Don't worry about it at this point. Patches pending.
 >> If I have to change modules to accommodate the
 >> infrastructure I'm not afraid to do so.
-> So I should revert to void* blobs?  I just want to be clear before making the change.
 >
-Whichever you're really comfortable with.
+> So I should revert to void* blobs?  I just want to be clear before making the change.
+
+Yes.
+
+-- 
+paul moore
+security @ redhat
