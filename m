@@ -1,89 +1,97 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u636tlrJ020552
- for <selinux@tycho.nsa.gov>; Sun, 3 Jul 2016 02:55:47 -0400
-Received: by mail-pf0-f196.google.com with SMTP id 66so13615353pfy.1
- for <selinux@tycho.nsa.gov>; Sat, 02 Jul 2016 23:55:45 -0700 (PDT)
-Received: from localhost ([2404:e800:e600:9ab:55de:35ce:f10:570b])
- by smtp.gmail.com with ESMTPSA id i187sm1410331pfc.62.2016.07.02.23.55.42
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Sat, 02 Jul 2016 23:55:43 -0700 (PDT)
-Date: Sun, 3 Jul 2016 14:55:41 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: Add openrc_contexts functions
-Message-ID: <20160703065541.GA27969@meriadoc.perfinion.com>
-References: <1467526922-19922-1-git-send-email-jason@perfinion.com>
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Paul Moore <pmoore@redhat.com>
+CC: "chrisw@sous-sol.org" <chrisw@sous-sol.org>, "paul@paul-moore.com"
+ <paul@paul-moore.com>, "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
+ "eparis@parisplace.org" <eparis@parisplace.org>, "dledford@redhat.com"
+ <dledford@redhat.com>, "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH 05/12] selinux: Implement Infiniband PKey "Access" access
+ vector
+Date: Fri, 1 Jul 2016 18:21:54 +0000
+Message-ID: <DB6PR0501MB2261BC286E974CFE76B1E901C4250@DB6PR0501MB2261.eurprd05.prod.outlook.com>
+References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
+ <1466711578-64398-6-git-send-email-danielj@mellanox.com>
+ <CAGH-KgtNiMrLVz_fMG22WcpAL3EQq9ike=EYHfxbBa4Sg2-R8A@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1467526922-19922-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I completely screwed up this patch, please ignore it. I missed another
-header file.
+On 7/1/2016 11:29 AM, Paul Moore wrote:
+> On Thu, Jun 23, 2016 at 3:52 PM, Dan Jurgens <danielj@mellanox.com> wrote:
+>> From: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> Add a type and access vector for PKeys. Implement the qp_pkey_access
+>> and mad_agent_pkey_access hooks to check that the caller has
+>> permission to access the PKey on the given subnet prefix.  Add an
+>> interface to get the PKey SID. Walk the PKey ocontexts to find an entry
+>> for the given subnet prefix and pkey.
+>>
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>> Reviewed-by: Eli Cohen <eli@mellanox.com>
+>> ---
+>>  include/linux/lsm_audit.h                        |  7 ++++
+>>  security/selinux/hooks.c                         | 41 ++++++++++++++++++++++++
+>>  security/selinux/include/classmap.h              |  2 ++
+>>  security/selinux/include/initial_sid_to_string.h |  1 +
+>>  security/selinux/include/security.h              |  2 ++
+>>  security/selinux/ss/services.c                   | 41 ++++++++++++++++++++++++
+>>  6 files changed, 94 insertions(+)
+>>
+>> diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+>> index ffb9c9d..8ff7eae 100644
+>> --- a/include/linux/lsm_audit.h
+>> +++ b/include/linux/lsm_audit.h
+>> @@ -45,6 +45,11 @@ struct lsm_ioctlop_audit {
+>>         u16 cmd;
+>>  };
+>>
+>> +struct lsm_pkey_audit {
+>> +       u64     subnet_prefix;
+>> +       u16     pkey;
+>> +};
+>> +
+>>  /* Auxiliary data to use in generating the audit record. */
+>>  struct common_audit_data {
+>>         char type;
+>> @@ -59,6 +64,7 @@ struct common_audit_data {
+>>  #define LSM_AUDIT_DATA_INODE   9
+>>  #define LSM_AUDIT_DATA_DENTRY  10
+>>  #define LSM_AUDIT_DATA_IOCTL_OP        11
+>> +#define LSM_AUDIT_DATA_PKEY    12
+>>         union   {
+>>                 struct path path;
+>>                 struct dentry *dentry;
+>> @@ -75,6 +81,7 @@ struct common_audit_data {
+>>  #endif
+>>                 char *kmod_name;
+>>                 struct lsm_ioctlop_audit *op;
+>> +               struct lsm_pkey_audit *pkey;
+>>         } u;
+>>         /* this union contains LSM specific data */
+>>         union {
+> Please correct me if I'm wrong, but I don't recall seeing any code in
+> the patchset which actually logs the extra IB information in the audit
+> record, did I miss it?
+I didn't make any changes to the audit logging.  The messages look like this.
+[245259.895597] audit: type=1400 audit(1467392186.710:631): avc:  denied  { access } for  pid=27519 comm="ib_write_bw" scontext=root:sysadm_r:sysadm_t:s0 tcontext=system_u:object_r:staff_allowed_pkey_t:s0 tclass=infiniband_pkey permissive=1
 
-On Sun, Jul 03, 2016 at 02:22:02PM +0800, Jason Zaman wrote:
-> ---
->  libselinux/src/file_path_suffixes.h |  1 +
->  libselinux/src/selinux_config.c     | 10 +++++++++-
->  libselinux/src/selinux_internal.h   |  1 +
->  3 files changed, 11 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
-> index 95b228b..2d3ca49 100644
-> --- a/libselinux/src/file_path_suffixes.h
-> +++ b/libselinux/src/file_path_suffixes.h
-> @@ -23,6 +23,7 @@ S_(BINPOLICY, "/policy/policy")
->      S_(VIRTUAL_DOMAIN, "/contexts/virtual_domain_context")
->      S_(VIRTUAL_IMAGE, "/contexts/virtual_image_context")
->      S_(LXC_CONTEXTS, "/contexts/lxc_contexts")
-> +    S_(OPENRC_CONTEXTS, "/contexts/openrc_contexts")
->      S_(OPENSSH_CONTEXTS, "/contexts/openssh_contexts")
->      S_(SNAPPERD_CONTEXTS, "/contexts/snapperd_contexts")
->      S_(SYSTEMD_CONTEXTS, "/contexts/systemd_contexts")
-> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-> index c519a77..88bcc85 100644
-> --- a/libselinux/src/selinux_config.c
-> +++ b/libselinux/src/selinux_config.c
-> @@ -51,7 +51,8 @@
->  #define OPENSSH_CONTEXTS  28
->  #define SYSTEMD_CONTEXTS  29
->  #define SNAPPERD_CONTEXTS 30
-> -#define NEL               31
-> +#define OPENRC_CONTEXTS   31
-> +#define NEL               32
->  
->  /* Part of one-time lazy init */
->  static pthread_once_t once = PTHREAD_ONCE_INIT;
-> @@ -493,6 +494,13 @@ const char *selinux_lxc_contexts_path(void)
->  
->  hidden_def(selinux_lxc_contexts_path)
->  
-> +const char *selinux_openrc_contexts_path(void)
-> +{
-> +    return get_path(OPENRC_CONTEXTS);
-> +}
-> +
-> +hidden_def(selinux_openrc_contexts_path)
-> +
->  const char *selinux_openssh_contexts_path(void)
->  {
->      return get_path(OPENSSH_CONTEXTS);
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-> index 9b9145c..3d5c9fb 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -83,6 +83,7 @@ hidden_proto(selinux_mkload_policy)
->      hidden_proto(selinux_media_context_path)
->      hidden_proto(selinux_x_context_path)
->      hidden_proto(selinux_sepgsql_context_path)
-> +    hidden_proto(selinux_openrc_contexts_path)
->      hidden_proto(selinux_openssh_contexts_path)
->      hidden_proto(selinux_snapperd_contexts_path)
->      hidden_proto(selinux_systemd_contexts_path)
-> -- 
-> 2.7.3
-> 
+> I wondered about this earlier in the patchset when we were discussing
+> the policy format, and I'm still wondering; perhaps you can help me
+> understand IB a bit better ...
+>
+> From what I gather, the partition key is the IB security boundary, not
+> the subnet, is that true?  If so, why are we including the subnet with
+> the partition key value/label?  I understand the low/high pkey range
+> as a way of simplifying the policy, but I don't quite understand the
+> point of tying the subnet to the partition key label.  Would you ever
+> want to have multiple labels for a single partition key, or should it
+> be a single label for the partition key regardless of the subnet?
+>
+Each subnet can have a different partition configuration and a node can be on multiple subnets.  By specifying the subnet prefix along with the pkey value the user has flexibility to have different policy for different subnets, instead of a global PKey space that would require coordinating the partition configuration across all subnets.
