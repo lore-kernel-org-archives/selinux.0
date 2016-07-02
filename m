@@ -1,57 +1,50 @@
-Subject: Re: Fwd: SElinux user tools 2.5 change
-To: Steve Lawrence <slawrence@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- James Carter <jwcart2@tycho.nsa.gov>,
- Miroslav Grepl <mgrepl@redhat.com>, Lukas Vrabec <lvrabec@redhat.com>,
- SELinux <selinux@tycho.nsa.gov>
-References: <35737536-B901-44F9-8336-509CDA386932@wal-mart.com>
- <909baadb-ae53-d6c7-be85-c9d645def448@redhat.com>
- <cb19890b-f5eb-6d1f-5a7b-543ff6b435b3@tresys.com>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <801569d0-26ea-0038-90c6-65945fa8935a@redhat.com>
-Date: Sat, 2 Jul 2016 05:43:09 -0700
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u62JJQYi022528
+ for <selinux@tycho.nsa.gov>; Sat, 2 Jul 2016 15:19:26 -0400
+Received: by mail-oi0-f67.google.com with SMTP id s17so17844388oih.1
+ for <selinux@tycho.nsa.gov>; Sat, 02 Jul 2016 12:19:24 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cb19890b-f5eb-6d1f-5a7b-543ff6b435b3@tresys.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <462d0e88-db82-80e3-b109-fb1f48f49167@tycho.nsa.gov>
+References: <20160701105328.6faa126f@free-electrons.com>
+ <462d0e88-db82-80e3-b109-fb1f48f49167@tycho.nsa.gov>
+From: Sven Vermeulen <sven.j.vermeulen@gmail.com>
+Date: Sat, 2 Jul 2016 21:19:23 +0200
+Message-ID: <CAPzO=Nyb1EJFoshYUs5irQDZE2J9vZWKSDi5T_QjtCzt_Tqk0Q@mail.gmail.com>
+Subject: Re: [BUG libselinux] Use nftw() instead of fts()
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Fri, Jul 1, 2016 at 3:17 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 07/01/2016 04:53 AM, Thomas Petazzoni wrote:
+>> The recent versions of libselinux use the fts() function in
+>> src/selinux_restorecon.c. This function is BSD-only, and therefore not
+>> available in the musl C library, and only available optionally in the
+>> uClibc C library.
+[...]
+> selinux userspace has been using fts() since 2009 (commit
+> cce17290670ed7e1803ca6da660225ac01931d0c), when policycoreutils/setfiles
+> was converted from nftw() to fts().  libselinux usage is newer, but
+> src/selinux_restorecon.c is essentially a library function version of
+> setfiles.
+>
+> Not saying that it would be impossible to switch (back) to nftw(), but I
+> guess we'd have to understand the cost/benefit tradeoff there.  If fts()
+> isn't available or well supported, why hasn't this previously been an
+> issue for policycoreutils/setfiles?
 
+Do you know why the code was switched from nftw() to the fts-style
+functions? The commit message doesn't really say so, instead focusing
+on the compatibility and showing that there is no performance impact
+associated with it.
 
-On 06/30/2016 07:19 PM, Steve Lawrence wrote:
-> On 06/30/2016 05:47 PM, Daniel J Walsh wrote:
->>    A customer is asking:
->>
->> The SELinux userspace tools version 2.5 introduced a change to remove the
->> semodule version from the semodule –l output.  This poses problems for people
->> (like us) who are using configuration management tools like Puppet to manage
->> SELinux modules – how is Puppet supposed to know which version of the module is
->> installed?  Should it try to load the module every time?
->>
->> I have raised the issue with Puppet as
->> https://tickets.puppetlabs.com/browse/PUP-5649 but I believe the real question
->> should be, how is a config management system supposed to know which version of a
->> module to try to install?
->>
->> Thanks for any assistance you can provide with this, and we will continue to run
->> in enforcing mode by default for RHEL 7+.
-> I would argue version numbers have never really meant anything. Nothing
-> forced you to update the module version when you made changes aside from
-> convention. So you could easily have two version 1.0's that are
-> completely different.
->
-> I imagine puppet and other configuration managers have some concept of
-> hash verification to determine what files are installed on the target
-> machine, and if they need to be updated to something else (similar to
-> git). That, to me, seems the better and more conclusive way to ensure
-> that the right modules are installed.
->
-> There is currently no API to get the hash of a module, but one could
-> manually hash the files that are in the policy store. If we need a more
-> user friendly method, I imagine it wouldn't be too difficult to add some
-> kind of hash to semodule -l output. Do either of those options seem
-> reasonable?
->
-> - Steve
-I can suggest that to the customer and get a change into semanage/semodule.
+I think the main benefit here would be to allow musl- and ucLibc
+systems to use libselinux. I did a quick check to see if Android's
+libselinux port had to work around it as well, but apparently bionic
+uses the fts-style functions as well.
+
+Wkr,
+  Sven Vermeulen
