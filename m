@@ -1,17 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u66CD2mO032650
- for <selinux@tycho.nsa.gov>; Wed, 6 Jul 2016 08:13:02 -0400
-Date: Wed, 6 Jul 2016 13:12:57 +0100
-From: "Richard W.M. Jones" <rjones@redhat.com>
-To: Jason Zaman <jason@perfinion.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: If autorelabel, force permissive mode.
-Message-ID: <20160706121257.GS16797@redhat.com>
-References: <1467798202-6412-1-git-send-email-rjones@redhat.com>
- <20160706112942.GA21226@meriadoc.perfinion.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u66KVS5n027222
+ for <selinux@tycho.nsa.gov>; Wed, 6 Jul 2016 16:31:28 -0400
+Received: by mail-qk0-f178.google.com with SMTP id t127so325438021qkf.1
+ for <selinux@tycho.nsa.gov>; Wed, 06 Jul 2016 13:31:27 -0700 (PDT)
+From: Paul Moore <pmoore@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: [GIT PULL] SELinux patches for 4.8
+Date: Wed, 06 Jul 2016 16:31:25 -0400
+Message-ID: <3578981.542aY96mi8@sifl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160706112942.GA21226@meriadoc.perfinion.com>
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -22,67 +21,112 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Wed, Jul 06, 2016 at 07:29:42PM +0800, Jason Zaman wrote:
-> On Wed, Jul 06, 2016 at 10:43:21AM +0100, Richard W.M. Jones wrote:
-> > The autorelabel feature has been broken in Fedora for a while.
-> > virt-builder relies on this feature to enable SELinux in guests since
-> > we are unable to set filesystem labels when generating the image.  So
-> > it comes down to me to try to fix this.  There was a discussion on the
-> > Fedora development list which explains the background and the reasons
-> > why autorelabel is broken:
-> > 
-> > http://thread.gmane.org/gmane.linux.redhat.fedora.devel/220453
-> > 
-> > The plan to fix autorelabel (also formulated in the above thread) is
-> > in two parts:
-> > 
-> > (1) [This patch] If the autorelabel condition is detected when loading
-> > policy very early during boot, we set SELinux to permissive mode
-> > (overriding the contents of /etc/selinux/config and the command line).
-> 
-> Can't you just set enforcing=0 on the kernel commandline for the first
-> boot?
+Hi James,
 
-For virt-builder, no.  We create automated images that must
-boot themselves without manual intervention.
+A big set of SELinux related patches for 4.8, 25 in total, although 19 are due 
+to the new RFC5570/CALIPSO implementation.  Beyond the CALIPSO patches (all 
+the patches from Huw Davies) we have improvements to the SELinux bounded 
+domain transitions, fixes for AF_UICV sockets and NetLabel, and a small type 
+mismatch correction.
 
-However even ignoring my use case, I don't think it's a good idea
-anyway.  If /.autorelabel is set, then the labels on the filesystem
-are known to be wrong.  You shouldn't be making enforcement decisions
-based on labels which you know are wrong.
+All these patches pass the selinux-testsuite and have been included in the 
+pcmoore/kernel-secnext COPR kernel builds for some time.  The CALIPSO patches 
+have also been tested against Solaris TX for interoperability and I've cleared 
+them with DaveM for merging via the SELinux tree.  Please apply.
 
-> This patch sounds a bit dangerous. If anyone can touch /.autorelabel
-> later on the machine will be in permissive mode on next reboot.
+Thanks,
+-Paul
 
-If someone can create files in / then I suspect you've got other
-problems.  In any case it will then immediately jump to the generator
-and relabel in a (very) minimal environment and reboot.  After this
-second boot it'll be back to enforcing (or whatever is requested by
-/etc/selinux/config).
+---
+The following changes since commit b937190c40de0f6f07f592042e3097b16c6b0130:
 
-> Also we dont use /.autorelabel in gentoo (not sure about arch or
-> debian) so something like this would just make the machine always in
-> permissive mode since there is no service to delete the file.
+  LSM: LoadPin: provide enablement CONFIG (2016-05-17 20:10:30 +1000)
 
-As I noted, I made this patch against the downstream fedora-selinux
-git.  That repository says to send patches here.
+are available in the git repository at:
 
-> There are also many times other than first install when you would want
-> to relabel, if /home is moved to another HDD then you might want to
-> relabel but the machine would be completely fine in enforcing mode.
-> 
-> This sounds like you want permissive for *only* the very first boot and
-> never again but the way of doing it leaves that open. At the very least
-> I'd make it check for (/.autorelabel && (security.selinux xattr is
-> completely missing on /))
+  git://git.infradead.org/users/pcmoore/selinux stable-4.8
 
-The way autorelabel is documented to work, users can set it any time,
-not just on first boot.  The labels can be wrong, not unset.
+for you to fetch changes up to 3f09354ac84c6904787189d85fb306bf60f714b8:
 
-Rich.
+  netlabel: Implement CALIPSO config functions for SMACK.
+    (2016-06-27 15:06:18 -0400)
+
+----------------------------------------------------------------
+Heinrich Schuchardt (1):
+      selinux: fix type mismatch
+
+Huw Davies (19):
+      netlabel: Mark rcu pointers with __rcu.
+      netlabel: Add an address family to domain hash entries.
+      netlabel: Initial support for the CALIPSO netlink protocol.
+      netlabel: Add support for querying a CALIPSO DOI.
+      netlabel: Add support for enumerating the CALIPSO DOI list.
+      netlabel: Add support for creating a CALIPSO protocol domain mapping.
+      netlabel: Add support for removing a CALIPSO DOI.
+      ipv6: Add ipv6_renew_options_kern() that accepts a kernel mem pointer.
+      netlabel: Move bitmap manipulation functions to the NetLabel core.
+      calipso: Set the calipso socket label to match the secattr.
+      netlabel: Prevent setsockopt() from changing the hop-by-hop option.
+      ipv6: Allow request socks to contain IPv6 options.
+      calipso: Allow request sockets to be relabelled by the lsm.
+      ipv6: constify the skb pointer of ipv6_find_tlv().
+      calipso: Allow the lsm to label the skbuff directly.
+      netlabel: Pass a family parameter to netlbl_skbuff_err().
+      calipso: Add validation of CALIPSO option.
+      calipso: Add a label cache.
+      netlabel: Implement CALIPSO config functions for SMACK.
+
+Paul Moore (4):
+      netlabel: add address family checks to netlbl_{sock,req}_delattr()
+      iucv: properly clone LSM attributes to newly created child sockets
+      selinux: import NetLabel category bitmaps correctly
+      netlabel: handle sparse category maps in netlbl_catmap_getlong()
+
+Stephen Smalley (1):
+      selinux: Only apply bounds checking to source types
+
+ include/net/calipso.h               |   91 +++
+ include/net/inet_sock.h             |    7 +-
+ include/net/ipv6.h                  |   10 +-
+ include/net/netlabel.h              |  101 ++-
+ include/uapi/linux/audit.h          |    2 +
+ include/uapi/linux/in6.h            |    1 +
+ net/dccp/ipv6.c                     |   12 +-
+ net/ipv4/cipso_ipv4.c               |   88 +--
+ net/ipv4/tcp_input.c                |    3 +
+ net/ipv6/Makefile                   |    1 +
+ net/ipv6/af_inet6.c                 |    9 +-
+ net/ipv6/calipso.c                  | 1473 +++++++++++++++++++++++++++++++++
+ net/ipv6/exthdrs.c                  |   76 ++
+ net/ipv6/exthdrs_core.c             |    2 +-
+ net/ipv6/ipv6_sockglue.c            |    1 -
+ net/ipv6/sysctl_net_ipv6.c          |   19 +
+ net/ipv6/tcp_ipv6.c                 |   12 +-
+ net/iucv/af_iucv.c                  |    5 +-
+ net/netlabel/Kconfig                |    1 +
+ net/netlabel/Makefile               |    2 +-
+ net/netlabel/netlabel_calipso.c     |  740 ++++++++++++++++++
+ net/netlabel/netlabel_calipso.h     |  151 ++++
+ net/netlabel/netlabel_domainhash.c  |  293 +++++--
+ net/netlabel/netlabel_domainhash.h  |   17 +-
+ net/netlabel/netlabel_kapi.c        |  394 +++++++++-
+ net/netlabel/netlabel_mgmt.c        |   85 +-
+ net/netlabel/netlabel_mgmt.h        |   27 +-
+ net/netlabel/netlabel_unlabeled.c   |    5 +-
+ net/netlabel/netlabel_user.c        |    5 +
+ security/selinux/hooks.c            |   21 +-
+ security/selinux/include/netlabel.h |    4 +-
+ security/selinux/netlabel.c         |   36 +-
+ security/selinux/selinuxfs.c        |    2 +-
+ security/selinux/ss/ebitmap.c       |    2 +-
+ security/selinux/ss/services.c      |   70 +-
+ security/smack/smack_lsm.c          |    2 +-
+ 36 files changed, 3511 insertions(+), 259 deletions(-)
+ create mode 100644 include/net/calipso.h
+ create mode 100644 net/ipv6/calipso.c
+ create mode 100644 net/netlabel/netlabel_calipso.c
+ create mode 100644 net/n
 
 -- 
-Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-Read my programming and virtualization blog: http://rwmj.wordpress.com
-libguestfs lets you edit virtual machines.  Supports shell scripting,
-bindings from many languages.  http://libguestfs.org
+paul moore
+security @ redhat
