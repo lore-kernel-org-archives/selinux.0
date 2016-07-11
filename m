@@ -1,18 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u683PKgV006116
- for <selinux@tycho.nsa.gov>; Thu, 7 Jul 2016 23:25:20 -0400
-From: Russell Coker <russell@coker.com.au>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6BBxfIQ028963
+ for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2016 07:59:45 -0400
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com
+ (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id D83CA77348
+ for <selinux@tycho.nsa.gov>; Mon, 11 Jul 2016 11:59:33 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: If autorelabel, force permissive mode.
-Date: Fri, 8 Jul 2016 13:24:46 +1000
-References: <1467798202-6412-1-git-send-email-rjones@redhat.com>
- <20160707135017.GA23053@meriadoc.perfinion.com>
- <20160707205614.GA26165@redhat.com>
-In-Reply-To: <20160707205614.GA26165@redhat.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201607081324.46839.russell@coker.com.au>
+Subject: [PATCH] libsepol: Add missing return to sepol_node_query()
+Date: Mon, 11 Jul 2016 13:59:27 +0200
+Message-Id: <1468238367-31812-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -23,31 +22,30 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Fri, 8 Jul 2016 06:56:14 AM Richard W.M. Jones wrote:
-> On Thu, Jul 07, 2016 at 09:50:17PM +0800, Jason Zaman wrote:
-> > Doesn't Android set the labels on the /system disk image during build?
-> > Maybe virt-builder can copy that? This would also speed up initial
-> > deployment of new images.
-> 
-> Well this is the real problem.  Because the guest policy is a binary
-> blob, and because the binary blobs are not (necessarily) compatible
-> across kernel versions, we cannot just load the policy blob of the
-> guest into our kernel, so we cannot label guests properly.  Sure be
-> nice if policy wasn't stored in this way.
+Due to the missing return in sepol_node_query(), the function always
+set *response to NULL whenever a protocol was SEPOL_PROTO_IP6
 
-While virt-builder is one case that needs special attention the important fact 
-is that autorelabel has never worked as well as it should have.  There has 
-never been a guarantee that an autorelabel operation would complete 
-successfully in the face of the wrong combination of mislabeled files.  It 
-might be a good idea to copy the Android build process to virt-builder for 
-other reasons but even so the design Richard proposes is worth having 
-regardless.
+Fixes:
+sudo semanage node -a -M ::1 -p ipv6 -t node_t ::1
+sudo semanage node -m -M ::1 -p ipv6 -t node_t ::1
+[1]    12968 segmentation fault (core dumped)  semanage node -m -M ::1 -p ipv6 -t node_t ::1
 
-Also the way that the reboot was managed was never that great, especially on a 
-systemd system.  I can't recall how much of that is my responsibility.
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libsepol/src/nodes.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I'd like to get this in Debian.
-
+diff --git a/libsepol/src/nodes.c b/libsepol/src/nodes.c
+index 50cf21d..820346d 100644
+--- a/libsepol/src/nodes.c
++++ b/libsepol/src/nodes.c
+@@ -273,6 +273,7 @@ int sepol_node_query(sepol_handle_t * handle,
+ 							   c, SEPOL_PROTO_IP6,
+ 							   response) < 0)
+ 						goto err;
++					return STATUS_SUCCESS;
+ 				}
+ 			}
+ 			break;
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+1.8.3.1
