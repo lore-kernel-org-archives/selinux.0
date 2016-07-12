@@ -1,22 +1,15 @@
-From: Daniel Jurgens <danielj@mellanox.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "chrisw@sous-sol.org"
- <chrisw@sous-sol.org>, "paul@paul-moore.com" <paul@paul-moore.com>,
- "eparis@parisplace.org" <eparis@parisplace.org>, "dledford@redhat.com"
- <dledford@redhat.com>, "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>
-CC: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 05/12] selinux: Implement Infiniband PKey "Access" access
- vector
-Date: Mon, 11 Jul 2016 19:03:26 +0000
-Message-ID: <DB6PR0501MB2261B291887EF0431AD5701BC43F0@DB6PR0501MB2261.eurprd05.prod.outlook.com>
-References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
- <1466711578-64398-6-git-send-email-danielj@mellanox.com>
- <1c637b46-7352-b369-4891-4b695ff80b3b@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6CFwx47024073
+ for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2016 11:59:01 -0400
+From: Todd Rinaldo <toddr@cpanel.net>
+Content-Type: multipart/signed;
+ boundary="Apple-Mail=_0D8FE5EF-3213-4DD6-9F07-B107B6E4190C";
+ protocol="application/pgp-signature"; micalg=pgp-sha512
+Date: Tue, 12 Jul 2016 10:58:56 -0500
+Subject: Inconsistent RSS on Red Hat 7 but not 6.
+To: selinux@tycho.nsa.gov
+Message-Id: <D13ED7AE-0CB2-4D6B-8BB2-6C78F16FB46B@cpanel.net>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -27,33 +20,58 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On 7/11/2016 9:45 AM, Stephen Smalley wrote:
-> On 06/23/2016 03:52 PM, Dan Jurgens wrote:
->> diff --git a/security/selinux/include/initial_sid_to_string.h b/security/selinux/include/initial_sid_to_string.h
->> index a59b64e..8f2eefc 100644
->> --- a/security/selinux/include/initial_sid_to_string.h
->> +++ b/security/selinux/include/initial_sid_to_string.h
->> @@ -29,5 +29,6 @@ static const char *initial_sid_to_string[] =
->>      "policy",
->>      "scmp_packet",
->>      "devnull",
->> +    "pkey",
-> I don't think we can/should add any more initial SIDs until we have
-> dynamic discovery support for them.  At present, we'll have problems
-> with old kernel with new policy and with new kernel with old policy when
-> the number of initial SIDs changes.
->
->> +	if (c) {
->> +		if (!c->sid[0]) {
->> +			rc = sidtab_context_to_sid(&sidtab,
->> +						   &c->context[0],
->> +						   &c->sid[0]);
->> +			if (rc)
->> +				goto out;
->> +		}
->> +		*out_sid = c->sid[0];
->> +	} else {
->> +		*out_sid = SECINITSID_PKEY;
-> Could we just use SECINITSID_UNLABELED as the default?
->
-I don't see why that would be a problem.  I'll take the same comment for the "[PATCH 06/12] selinux: Add IB End Port SMP access vector".
+
+--Apple-Mail=_0D8FE5EF-3213-4DD6-9F07-B107B6E4190C
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=us-ascii
+
+We keep metrics on our binaries with respect to how much memory they =
+take up at startup time. So for instance if you run ./a.pl --basemem, it =
+grabs the VmRSS value out of /proc/$$/status and exits.
+
+When we added Red Hat 7 support to our product, we noticed that this =
+value was VERY unstable. After much poking, I accidentally discovered =
+that this was a side effect of having selinux enabled when doing the =
+check.
+
+When I disable selinux in /etc/selinux/config and reboot, I found that =
+./a.pl --basemem became much more stable.
+
+I am guessing something changed between Red Hat 6 and 7 which caused =
+libselinux to map differently into the address space. I'm however not =
+ruling out a libc change. Can anyone shed light on this or point me to =
+something that would indicate why? For reference, this is libselinux =
+2.2.2 vs 2.0.94.
+
+Thanks,
+Todd Rinaldo
+
+
+--Apple-Mail=_0D8FE5EF-3213-4DD6-9F07-B107B6E4190C
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP using GPGMail
+
+-----BEGIN PGP SIGNATURE-----
+Comment: GPGTools - https://gpgtools.org
+
+iQIcBAEBCgAGBQJXhRPAAAoJEBNP/Wq+e4WNrSgP/0bNByYXdg5saeOk3wuRvX1w
+mgUz4uIC8X+4VL4CAb8P7UbjzLGdvLj/IWZK+0d5FeyO6FGUDpus+s2HtAIhtEG4
+WJqPPD9Qmovz/hYFHrWaXyGtDBAUNDB0nwWH2svgwbTfCHNncxWXUaf9VfMgGD1Z
+uEIZ4nu9Jo5ls5m5ePhyGPhjY7FDS7UiOXF5rHjxvk5pj9Z734DZZsAWQvuJeydO
+0iFsNxLKLWm0W7fTpLuAMN4FSFlBOnBk62sW1c4AT8djVSEswdMrPhRCfxgTwPyx
+Fx/wEbb2Q6SDCXh8Lvg6av96sMrn70gnc5NOchneNzjC1jyEvt3LoXcGyb5REZsq
+srOc1vfSkOU5k4ac0zHfZ4SV/hgf4KYoDazVY7FqcM6M0fCN3+PX1HVLf7rF5iRL
+GvlCBJ683E5Db6Y8XBhqPzE4zYaXwqay6DjwGvk1y3cLQwvAL5ZDm98rjHDgB8Aw
+uEjplYGBgIFfTdT0nJiKLcbhMaN3SvqNtRUL6YQZ/OaQrOcxCV+Nvjj57Ptdri9L
++yN3XjbecdWAIr4OICwcIHsXlqp9rLP4wjF0fRe6zT7XLgmgG0q7RSNJR1Eq8HnY
+wBLwafZj4E7C3RkoquzLq8RRsmgwKve0gH00Hn8P6SgAS98KHX2EHzsY0cyD3WDF
+EmbR1+8r0FIc5uZbLq+L
+=CT57
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_0D8FE5EF-3213-4DD6-9F07-B107B6E4190C--
