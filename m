@@ -1,11 +1,11 @@
-Subject: Re: [PATCH] open_init_pty: Do not error on EINTR
-To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
-References: <1467526822-19491-1-git-send-email-jason@perfinion.com>
+Subject: Re: Inconsistent RSS on Red Hat 7 but not 6.
+To: Todd Rinaldo <toddr@cpanel.net>, selinux@tycho.nsa.gov
+References: <D13ED7AE-0CB2-4D6B-8BB2-6C78F16FB46B@cpanel.net>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <0198022e-7890-b09c-50ff-cbdffb93eac4@tycho.nsa.gov>
-Date: Tue, 12 Jul 2016 15:38:01 -0400
+Message-ID: <035700d1-4630-cd1a-5e8b-d4b9d1a3f5be@tycho.nsa.gov>
+Date: Tue, 12 Jul 2016 15:44:36 -0400
 MIME-Version: 1.0
-In-Reply-To: <1467526822-19491-1-git-send-email-jason@perfinion.com>
+In-Reply-To: <D13ED7AE-0CB2-4D6B-8BB2-6C78F16FB46B@cpanel.net>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -17,32 +17,25 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On 07/03/2016 02:20 AM, Jason Zaman wrote:
-> There is a signal handler so that the select returns EINTR when the
-> child exits. EINTR is used to then clean up and flush the remaining
-> buffers. It should not error.
+On 07/12/2016 11:58 AM, Todd Rinaldo wrote:
+> We keep metrics on our binaries with respect to how much memory
+> they take up at startup time. So for instance if you run ./a.pl
+> --basemem, it grabs the VmRSS value out of /proc/$$/status and
+> exits.
 > 
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
+> When we added Red Hat 7 support to our product, we noticed that
+> this value was VERY unstable. After much poking, I accidentally
+> discovered that this was a side effect of having selinux enabled
+> when doing the check.
+> 
+> When I disable selinux in /etc/selinux/config and reboot, I found
+> that ./a.pl --basemem became much more stable.
+> 
+> I am guessing something changed between Red Hat 6 and 7 which
+> caused libselinux to map differently into the address space. I'm
+> however not ruling out a libc change. Can anyone shed light on this
+> or point me to something that would indicate why? For reference,
+> this is libselinux 2.2.2 vs 2.0.94.
 
-Thanks, applied.
-
-> ---
->  policycoreutils/run_init/open_init_pty.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/policycoreutils/run_init/open_init_pty.c b/policycoreutils/run_init/open_init_pty.c
-> index 37805bf..6e25ea3 100644
-> --- a/policycoreutils/run_init/open_init_pty.c
-> +++ b/policycoreutils/run_init/open_init_pty.c
-> @@ -327,8 +327,9 @@ int main(int argc, char *argv[])
->  			break;
->  		}
->  
-> +		errno = 0;
->  		int select_rc = select(pty_master + 1, &readfds, &writefds, NULL, NULL);
-> -		if (select_rc < 0) {
-> +		if (select_rc < 0 && errno != EINTR) {
->  			perror("select()");
->  			exit(EX_IOERR);
->  		}
-> 
+Can you provide more details, e.g a reproducer without needing your
+particular binaries or a.pl?
