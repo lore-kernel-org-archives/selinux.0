@@ -1,9 +1,5 @@
-Date: Wed, 13 Jul 2016 20:31:24 +0100
-From: "Richard W.M. Jones" <rjones@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Jason Zaman <jason@perfinion.com>, SELinux <selinux@tycho.nsa.gov>
 Subject: Re: [PATCH] libselinux: If autorelabel, force permissive mode.
-Message-ID: <20160713193124.GX16797@redhat.com>
+To: "Richard W.M. Jones" <rjones@redhat.com>
 References: <1467798202-6412-1-git-send-email-rjones@redhat.com>
  <20160706112942.GA21226@meriadoc.perfinion.com>
  <20160706121257.GS16797@redhat.com>
@@ -14,9 +10,14 @@ References: <1467798202-6412-1-git-send-email-rjones@redhat.com>
  <489b58fb-1fad-2456-67bd-8e88f9e8a16d@tycho.nsa.gov>
  <20160712180107.GQ16797@redhat.com>
  <d7f0e492-53f2-2826-66bc-d1edb1f3f125@tycho.nsa.gov>
+ <20160713193124.GX16797@redhat.com>
+Cc: Jason Zaman <jason@perfinion.com>, SELinux <selinux@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <c6aa0de6-a45a-50ac-bc3f-05ba333a8930@tycho.nsa.gov>
+Date: Wed, 13 Jul 2016 15:50:55 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <d7f0e492-53f2-2826-66bc-d1edb1f3f125@tycho.nsa.gov>
+In-Reply-To: <20160713193124.GX16797@redhat.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -27,56 +28,65 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Tue, Jul 12, 2016 at 02:25:41PM -0400, Stephen Smalley wrote:
-> On 07/12/2016 02:01 PM, Richard W.M. Jones wrote:
-> > On Tue, Jul 12, 2016 at 01:22:55PM -0400, Stephen Smalley wrote:
-> >> On 07/07/2016 04:56 PM, Richard W.M. Jones wrote:
-> >>> On Thu, Jul 07, 2016 at 09:50:17PM +0800, Jason Zaman wrote:
-> >>>> Doesn't Android set the labels on the /system disk image during build?
-> >>>> Maybe virt-builder can copy that? This would also speed up initial
-> >>>> deployment of new images.
-> >>>
-> >>> Well this is the real problem.  Because the guest policy is a binary
-> >>> blob, and because the binary blobs are not (necessarily) compatible
-> >>> across kernel versions, we cannot just load the policy blob of the
-> >>> guest into our kernel, so we cannot label guests properly.  Sure be
-> >>> nice if policy wasn't stored in this way.
-> >>
-> >> Just to clarify, it is not necessary to load the guest policy into the
-> >> host kernel in order to set labels on the guest filesystem.  SELinux
-> >> long ago introduced support for setting foreign/unknown labels on files
-> >> by processes with the appropriate permissions, and that mechanism was
-> >> used by livecd creator IIRC - it was also intended for use by rpm for
-> >> labeling files before the corresponding policy module was installed but
-> >> they never took advantage of it.
-> > 
-> > IME you cannot set any label unless SELinux is enabled in the
-> > appliance kernel, but even assuming this is really possible, how do
-> > you know what label should you set?  Really we just want to do
-> > "restorecon -R /" but that has proven to be impossible.
+On 07/13/2016 03:31 PM, Richard W.M. Jones wrote:
+> On Tue, Jul 12, 2016 at 02:25:41PM -0400, Stephen Smalley wrote:
+>> On 07/12/2016 02:01 PM, Richard W.M. Jones wrote:
+>>> On Tue, Jul 12, 2016 at 01:22:55PM -0400, Stephen Smalley wrote:
+>>>> On 07/07/2016 04:56 PM, Richard W.M. Jones wrote:
+>>>>> On Thu, Jul 07, 2016 at 09:50:17PM +0800, Jason Zaman wrote:
+>>>>>> Doesn't Android set the labels on the /system disk image during build?
+>>>>>> Maybe virt-builder can copy that? This would also speed up initial
+>>>>>> deployment of new images.
+>>>>>
+>>>>> Well this is the real problem.  Because the guest policy is a binary
+>>>>> blob, and because the binary blobs are not (necessarily) compatible
+>>>>> across kernel versions, we cannot just load the policy blob of the
+>>>>> guest into our kernel, so we cannot label guests properly.  Sure be
+>>>>> nice if policy wasn't stored in this way.
+>>>>
+>>>> Just to clarify, it is not necessary to load the guest policy into the
+>>>> host kernel in order to set labels on the guest filesystem.  SELinux
+>>>> long ago introduced support for setting foreign/unknown labels on files
+>>>> by processes with the appropriate permissions, and that mechanism was
+>>>> used by livecd creator IIRC - it was also intended for use by rpm for
+>>>> labeling files before the corresponding policy module was installed but
+>>>> they never took advantage of it.
+>>>
+>>> IME you cannot set any label unless SELinux is enabled in the
+>>> appliance kernel, but even assuming this is really possible, how do
+>>> you know what label should you set?  Really we just want to do
+>>> "restorecon -R /" but that has proven to be impossible.
+>>
+>> Hmm...the kernel certainly supports setting labels as long as the
+>> filesystem xattr support is enabled, and setfiles used to work even if
+>> SELinux is disabled, but admittedly we don't test on SELinux-disabled
+>> very often.
+>>
+>> For SELinux-enabled, something like:
+>> runcon -t setfiles_mac_t -- chroot /mnt /sbin/setfiles -v -F -e /proc -e
+>> /sys -e /dev -e /selinux
+>> /etc/selinux/targeted/contexts/files/file_contexts /
+>> has been reported to work in the past.  The process needs CAP_MAC_ADMIN
+>> in its effective capability set and it needs to be in a domain that is
+>> allowed mac_admin by policy (hence the runcon -t setfiles_mac_t above).
 > 
-> Hmm...the kernel certainly supports setting labels as long as the
-> filesystem xattr support is enabled, and setfiles used to work even if
-> SELinux is disabled, but admittedly we don't test on SELinux-disabled
-> very often.
-> 
-> For SELinux-enabled, something like:
-> runcon -t setfiles_mac_t -- chroot /mnt /sbin/setfiles -v -F -e /proc -e
-> /sys -e /dev -e /selinux
-> /etc/selinux/targeted/contexts/files/file_contexts /
-> has been reported to work in the past.  The process needs CAP_MAC_ADMIN
-> in its effective capability set and it needs to be in a domain that is
-> allowed mac_admin by policy (hence the runcon -t setfiles_mac_t above).
+> Thanks - can confirm this works even with SELinux disabled in the
+> appliance kernel.  I think this is the approach we will take, and it
+> also means we don't need /.autorelabel to be fixed now.
 
-Thanks - can confirm this works even with SELinux disabled in the
-appliance kernel.  I think this is the approach we will take, and it
-also means we don't need /.autorelabel to be fixed now.
+Hmm...I think we still want to fix autorelabel regardless, just
+hopefully either without the need to switch to permissive mode at all or
+a tighter binding between switching to permissive and triggering the
+relabeling and reboot sequence.
 
-Rich.
-
--- 
-Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
-Read my programming and virtualization blog: http://rwmj.wordpress.com
-virt-p2v converts physical machines to virtual machines.  Boot with a
-live CD or over the network (PXE) and turn machines into KVM guests.
-http://libguestfs.org/virt-v2v
+In Android, there is a notion of a recursive restorecon on upgrades that
+is automatically triggered when the file_contexts configuration changes.
+ That works by saving a hash of the file_contexts configuration(s) in an
+xattr on the top-level directory of the mount and checking whether it
+has changed.  But in that case everything happens from the init process
+(based on init.rc configuration files), and SELinux is always enabled
+and enforcing in Android, so we don't have to deal with scenarios where
+the user has temporarily disabled SELinux and then re-enables it, and
+init has all the permissions it needs.  The support for performing the
+recursive restorecon however is now available in libselinux, so it could
+be triggered directly by systemd.
