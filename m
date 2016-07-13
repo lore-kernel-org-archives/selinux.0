@@ -1,24 +1,22 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6CKTRwo025311
- for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2016 16:29:32 -0400
-Received: by mail-oi0-f68.google.com with SMTP id w143so2476635oiw.2
- for <selinux@tycho.nsa.gov>; Tue, 12 Jul 2016 13:28:57 -0700 (PDT)
+Date: Wed, 13 Jul 2016 20:31:24 +0100
+From: "Richard W.M. Jones" <rjones@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Jason Zaman <jason@perfinion.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: If autorelabel, force permissive mode.
+Message-ID: <20160713193124.GX16797@redhat.com>
+References: <1467798202-6412-1-git-send-email-rjones@redhat.com>
+ <20160706112942.GA21226@meriadoc.perfinion.com>
+ <20160706121257.GS16797@redhat.com>
+ <CAPzO=Nzh7Rd124+WbsTcLw1zTKBKJ9BR6+HLA16qCFGXx8x7+w@mail.gmail.com>
+ <CAFftDdoP7T8nb5SYyKiGhoyc8_E2kLoA1WmajtP55yNNoW93dQ@mail.gmail.com>
+ <20160707135017.GA23053@meriadoc.perfinion.com>
+ <20160707205614.GA26165@redhat.com>
+ <489b58fb-1fad-2456-67bd-8e88f9e8a16d@tycho.nsa.gov>
+ <20160712180107.GQ16797@redhat.com>
+ <d7f0e492-53f2-2826-66bc-d1edb1f3f125@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <1c637b46-7352-b369-4891-4b695ff80b3b@tycho.nsa.gov>
-References: <1466711578-64398-1-git-send-email-danielj@mellanox.com>
- <1466711578-64398-6-git-send-email-danielj@mellanox.com>
- <1c637b46-7352-b369-4891-4b695ff80b3b@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 12 Jul 2016 16:28:56 -0400
-Message-ID: <CAHC9VhSO4w-FK=9j7HgjzO4bGNRiajweWUBAWE3hMX0u0rOMxA@mail.gmail.com>
-Subject: Re: [PATCH 05/12] selinux: Implement Infiniband PKey "Access" access
- vector
-To: Dan Jurgens <danielj@mellanox.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: chrisw@sous-sol.org, Eric Paris <eparis@parisplace.org>,
- dledford@redhat.com, sean.hefty@intel.com, hal.rosenstock@gmail.com,
- linux-rdma@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <d7f0e492-53f2-2826-66bc-d1edb1f3f125@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -29,14 +27,56 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Mon, Jul 11, 2016 at 10:46 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> I don't think we can/should add any more initial SIDs until we have
-> dynamic discovery support for them.  At present, we'll have problems
-> with old kernel with new policy and with new kernel with old policy when
-> the number of initial SIDs changes.
+On Tue, Jul 12, 2016 at 02:25:41PM -0400, Stephen Smalley wrote:
+> On 07/12/2016 02:01 PM, Richard W.M. Jones wrote:
+> > On Tue, Jul 12, 2016 at 01:22:55PM -0400, Stephen Smalley wrote:
+> >> On 07/07/2016 04:56 PM, Richard W.M. Jones wrote:
+> >>> On Thu, Jul 07, 2016 at 09:50:17PM +0800, Jason Zaman wrote:
+> >>>> Doesn't Android set the labels on the /system disk image during build?
+> >>>> Maybe virt-builder can copy that? This would also speed up initial
+> >>>> deployment of new images.
+> >>>
+> >>> Well this is the real problem.  Because the guest policy is a binary
+> >>> blob, and because the binary blobs are not (necessarily) compatible
+> >>> across kernel versions, we cannot just load the policy blob of the
+> >>> guest into our kernel, so we cannot label guests properly.  Sure be
+> >>> nice if policy wasn't stored in this way.
+> >>
+> >> Just to clarify, it is not necessary to load the guest policy into the
+> >> host kernel in order to set labels on the guest filesystem.  SELinux
+> >> long ago introduced support for setting foreign/unknown labels on files
+> >> by processes with the appropriate permissions, and that mechanism was
+> >> used by livecd creator IIRC - it was also intended for use by rpm for
+> >> labeling files before the corresponding policy module was installed but
+> >> they never took advantage of it.
+> > 
+> > IME you cannot set any label unless SELinux is enabled in the
+> > appliance kernel, but even assuming this is really possible, how do
+> > you know what label should you set?  Really we just want to do
+> > "restorecon -R /" but that has proven to be impossible.
+> 
+> Hmm...the kernel certainly supports setting labels as long as the
+> filesystem xattr support is enabled, and setfiles used to work even if
+> SELinux is disabled, but admittedly we don't test on SELinux-disabled
+> very often.
+> 
+> For SELinux-enabled, something like:
+> runcon -t setfiles_mac_t -- chroot /mnt /sbin/setfiles -v -F -e /proc -e
+> /sys -e /dev -e /selinux
+> /etc/selinux/targeted/contexts/files/file_contexts /
+> has been reported to work in the past.  The process needs CAP_MAC_ADMIN
+> in its effective capability set and it needs to be in a domain that is
+> allowed mac_admin by policy (hence the runcon -t setfiles_mac_t above).
 
-Seems like a reasonable policy to me.
+Thanks - can confirm this works even with SELinux disabled in the
+appliance kernel.  I think this is the approach we will take, and it
+also means we don't need /.autorelabel to be fixed now.
+
+Rich.
 
 -- 
-paul moore
-www.paul-moore.com
+Richard Jones, Virtualization Group, Red Hat http://people.redhat.com/~rjones
+Read my programming and virtualization blog: http://rwmj.wordpress.com
+virt-p2v converts physical machines to virtual machines.  Boot with a
+live CD or over the network (PXE) and turn machines into KVM guests.
+http://libguestfs.org/virt-v2v
