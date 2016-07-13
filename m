@@ -1,23 +1,19 @@
-Subject: Re: [PATCH] libselinux: If autorelabel, force permissive mode.
-To: "Richard W.M. Jones" <rjones@redhat.com>
-References: <1467798202-6412-1-git-send-email-rjones@redhat.com>
- <20160706112942.GA21226@meriadoc.perfinion.com>
- <20160706121257.GS16797@redhat.com>
- <CAPzO=Nzh7Rd124+WbsTcLw1zTKBKJ9BR6+HLA16qCFGXx8x7+w@mail.gmail.com>
- <CAFftDdoP7T8nb5SYyKiGhoyc8_E2kLoA1WmajtP55yNNoW93dQ@mail.gmail.com>
- <20160707135017.GA23053@meriadoc.perfinion.com>
- <20160707205614.GA26165@redhat.com>
- <489b58fb-1fad-2456-67bd-8e88f9e8a16d@tycho.nsa.gov>
- <20160712180107.GQ16797@redhat.com>
- <d7f0e492-53f2-2826-66bc-d1edb1f3f125@tycho.nsa.gov>
- <20160713193124.GX16797@redhat.com>
-Cc: Jason Zaman <jason@perfinion.com>, SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c6aa0de6-a45a-50ac-bc3f-05ba333a8930@tycho.nsa.gov>
-Date: Wed, 13 Jul 2016 15:50:55 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160713193124.GX16797@redhat.com>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6DKtAHG009052
+ for <selinux@tycho.nsa.gov>; Wed, 13 Jul 2016 16:55:10 -0400
+Received: from int-mx10.intmail.prod.int.phx2.redhat.com
+ (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 44CE07CDE7
+ for <selinux@tycho.nsa.gov>; Wed, 13 Jul 2016 20:54:53 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 2/2] policycoreutils: Remove unused autoconf files from po/
+Date: Wed, 13 Jul 2016 22:52:49 +0200
+Message-Id: <1468443169-29229-2-git-send-email-plautrba@redhat.com>
+In-Reply-To: <1468443169-29229-1-git-send-email-plautrba@redhat.com>
+References: <1468443169-29229-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -28,65 +24,623 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On 07/13/2016 03:31 PM, Richard W.M. Jones wrote:
-> On Tue, Jul 12, 2016 at 02:25:41PM -0400, Stephen Smalley wrote:
->> On 07/12/2016 02:01 PM, Richard W.M. Jones wrote:
->>> On Tue, Jul 12, 2016 at 01:22:55PM -0400, Stephen Smalley wrote:
->>>> On 07/07/2016 04:56 PM, Richard W.M. Jones wrote:
->>>>> On Thu, Jul 07, 2016 at 09:50:17PM +0800, Jason Zaman wrote:
->>>>>> Doesn't Android set the labels on the /system disk image during build?
->>>>>> Maybe virt-builder can copy that? This would also speed up initial
->>>>>> deployment of new images.
->>>>>
->>>>> Well this is the real problem.  Because the guest policy is a binary
->>>>> blob, and because the binary blobs are not (necessarily) compatible
->>>>> across kernel versions, we cannot just load the policy blob of the
->>>>> guest into our kernel, so we cannot label guests properly.  Sure be
->>>>> nice if policy wasn't stored in this way.
->>>>
->>>> Just to clarify, it is not necessary to load the guest policy into the
->>>> host kernel in order to set labels on the guest filesystem.  SELinux
->>>> long ago introduced support for setting foreign/unknown labels on files
->>>> by processes with the appropriate permissions, and that mechanism was
->>>> used by livecd creator IIRC - it was also intended for use by rpm for
->>>> labeling files before the corresponding policy module was installed but
->>>> they never took advantage of it.
->>>
->>> IME you cannot set any label unless SELinux is enabled in the
->>> appliance kernel, but even assuming this is really possible, how do
->>> you know what label should you set?  Really we just want to do
->>> "restorecon -R /" but that has proven to be impossible.
->>
->> Hmm...the kernel certainly supports setting labels as long as the
->> filesystem xattr support is enabled, and setfiles used to work even if
->> SELinux is disabled, but admittedly we don't test on SELinux-disabled
->> very often.
->>
->> For SELinux-enabled, something like:
->> runcon -t setfiles_mac_t -- chroot /mnt /sbin/setfiles -v -F -e /proc -e
->> /sys -e /dev -e /selinux
->> /etc/selinux/targeted/contexts/files/file_contexts /
->> has been reported to work in the past.  The process needs CAP_MAC_ADMIN
->> in its effective capability set and it needs to be in a domain that is
->> allowed mac_admin by policy (hence the runcon -t setfiles_mac_t above).
-> 
-> Thanks - can confirm this works even with SELinux disabled in the
-> appliance kernel.  I think this is the approach we will take, and it
-> also means we don't need /.autorelabel to be fixed now.
+None of *.in and POTFILES* files is used in current build process.
 
-Hmm...I think we still want to fix autorelabel regardless, just
-hopefully either without the need to switch to permissive mode at all or
-a tighter binding between switching to permissive and triggering the
-relabeling and reboot sequence.
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ policycoreutils/po/Makefile.in    | 218 ------------------------------------
+ policycoreutils/po/Makefile.in.in | 230 --------------------------------------
+ policycoreutils/po/POTFILES       |  72 ------------
+ policycoreutils/po/POTFILES.in    |  60 ----------
+ 4 files changed, 580 deletions(-)
+ delete mode 100644 policycoreutils/po/Makefile.in
+ delete mode 100644 policycoreutils/po/Makefile.in.in
+ delete mode 100644 policycoreutils/po/POTFILES
+ delete mode 100644 policycoreutils/po/POTFILES.in
 
-In Android, there is a notion of a recursive restorecon on upgrades that
-is automatically triggered when the file_contexts configuration changes.
- That works by saving a hash of the file_contexts configuration(s) in an
-xattr on the top-level directory of the mount and checking whether it
-has changed.  But in that case everything happens from the init process
-(based on init.rc configuration files), and SELinux is always enabled
-and enforcing in Android, so we don't have to deal with scenarios where
-the user has temporarily disabled SELinux and then re-enables it, and
-init has all the permissions it needs.  The support for performing the
-recursive restorecon however is now available in libselinux, so it could
-be triggered directly by systemd.
+diff --git a/policycoreutils/po/Makefile.in b/policycoreutils/po/Makefile.in
+deleted file mode 100644
+index aaf485d..0000000
+--- a/policycoreutils/po/Makefile.in
++++ /dev/null
+@@ -1,218 +0,0 @@
+-# Makefile for program source directory in GNU NLS utilities package.
+-# Copyright (C) 1995, 1996, 1997 by Ulrich Drepper <drepper@gnu.ai.mit.edu>
+-#
+-# This file file be copied and used freely without restrictions.  It can
+-# be used in projects which are not available under the GNU Public License
+-# but which still want to provide support for the GNU gettext functionality.
+-# Please note that the actual code is *not* freely available.
+-
+-PACKAGE = policycoreutils
+-VERSION = 1.1
+-
+-SHELL = /bin/sh
+-
+-
+-srcdir = .
+-top_srcdir = ..
+-
+-
+-prefix = /usr
+-exec_prefix = ${prefix}
+-datadir = $(prefix)/share
+-localedir = $(datadir)/locale
+-gnulocaledir = $(prefix)/share/locale
+-gettextsrcdir = $(prefix)/share/gettext/po
+-subdir = po
+-
+-INSTALL = /usr/bin/install -c
+-INSTALL_DATA = ${INSTALL} -m 644
+-MKINSTALLDIRS = mkdir -p
+-
+-CC = gcc
+-GENCAT = 
+-GMSGFMT = PATH=../src:$$PATH /usr/bin/msgfmt
+-MSGFMT = /usr/bin/msgfmt
+-XGETTEXT = PATH=../src:$$PATH /usr/bin/xgettext
+-MSGMERGE = PATH=../src:$$PATH msgmerge
+-
+-DEFS = -DHAVE_CONFIG_H
+-CFLAGS = -g -O2
+-CPPFLAGS = 
+-
+-INCLUDES = -I.. -I$(top_srcdir)/intl
+-
+-COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)
+-
+-POFILES =  da.po de.po es.po et.po fr.po gl.po id.po it.po ko.po nl.po pl.po pt_BR.po ru.po sv.po
+-GMOFILES =  da.gmo de.gmo es.gmo et.gmo fr.gmo gl.gmo id.gmo it.gmo ko.gmo nl.gmo pl.gmo pt_BR.gmo ru.gmo sv.gmo
+-DISTFILES = Makefile.in.in POTFILES.in $(PACKAGE).pot \
+-$(POFILES) $(GMOFILES) $(SOURCES)
+-
+-POTFILES = \
+-
+-CATALOGS =  #da.gmo de.gmo es.gmo et.gmo fr.gmo gl.gmo id.gmo it.gmo ko.gmo nl.gmo pl.gmo pt_BR.gmo ru.gmo sv.gmo
+-CATOBJEXT = .gmo
+-INSTOBJEXT = .mo
+-
+-.SUFFIXES:
+-.SUFFIXES: .c .o .po .pox .gmo .mo .msg .cat
+-
+-.c.o:
+-	$(COMPILE) $<
+-
+-.po.pox:
+-	$(MAKE) $(PACKAGE).pot
+-	$(MSGMERGE) $< $(srcdir)/$(PACKAGE).pot -o $*.pox
+-
+-.po.mo:
+-	$(MSGFMT) -o $@ $<
+-
+-.po.gmo:
+-	file=$(srcdir)/`echo $* | sed 's,.*/,,'`.gmo \
+-	  && rm -f $$file && $(GMSGFMT) -o $$file $<
+-
+-.po.cat:
+-	sed -f ../intl/po2msg.sed < $< > $*.msg \
+-	  && rm -f $@ && $(GENCAT) $@ $*.msg
+-
+-
+-all: all-yes
+-
+-all-yes: $(CATALOGS)
+-all-no:
+-
+-$(srcdir)/$(PACKAGE).pot: $(POTFILES)
+-	$(XGETTEXT) --default-domain=$(PACKAGE) --directory=$(top_srcdir) \
+-	  --add-comments --keyword=_ --keyword=N_ \
+-	  --files-from=$(srcdir)/POTFILES.in \
+-	&& test ! -f $(PACKAGE).po \
+-	   || ( rm -f $(srcdir)/$(PACKAGE).pot \
+-		&& mv $(PACKAGE).po $(srcdir)/$(PACKAGE).pot )
+-
+-install: install-exec install-data
+-install-exec:
+-install-data: install-data-yes
+-install-data-no: all
+-install-data-yes: all
+-	$(MKINSTALLDIRS) $(DESTDIR)$(datadir); 
+-	for cat in $(CATALOGS); do \
+-	  cat=`basename $$cat`; \
+-	  case "$$cat" in \
+-	    *.gmo) destdir=$(DESTDIR)$(gnulocaledir);; \
+-	    *)     destdir=$(DESTDIR)$(localedir);; \
+-	  esac; \
+-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  dir=$$destdir/$$lang/LC_MESSAGES; \
+-	  echo $dir \
+-	  $(MKINSTALLDIRS) $$dir; \
+-	  if test -r $$cat; then \
+-	    $(INSTALL_DATA) $$cat $$dir/$(PACKAGE)$(INSTOBJEXT); \
+-	    echo "installing $$cat as $$dir/$(PACKAGE)$(INSTOBJEXT)"; \
+-	  else \
+-	    $(INSTALL_DATA) $(srcdir)/$$cat $$dir/$(PACKAGE)$(INSTOBJEXT); \
+-	    echo "installing $(srcdir)/$$cat as" \
+-		 "$$dir/$(PACKAGE)$(INSTOBJEXT)"; \
+-	  fi; \
+-	  if test -r $$cat.m; then \
+-	    $(INSTALL_DATA) $$cat.m $$dir/$(PACKAGE)$(INSTOBJEXT).m; \
+-	    echo "installing $$cat.m as $$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
+-	  else \
+-	    if test -r $(srcdir)/$$cat.m ; then \
+-	      $(INSTALL_DATA) $(srcdir)/$$cat.m \
+-		$$dir/$(PACKAGE)$(INSTOBJEXT).m; \
+-	      echo "installing $(srcdir)/$$cat as" \
+-		   "$$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
+-	    else \
+-	      true; \
+-	    fi; \
+-	  fi; \
+-	done
+-	if test "$(PACKAGE)" = "gettext"; then \
+-	  $(MKINSTALLDIRS) $(DESTDIR)$(gettextsrcdir); \
+-	  $(INSTALL_DATA) $(srcdir)/Makefile.in.in \
+-			  $(DESTDIR)$(gettextsrcdir)/Makefile.in.in; \
+-	else \
+-	  : ; \
+-	fi
+-
+-# Define this as empty until I found a useful application.
+-installcheck:
+-
+-uninstall:
+-	catalogs='$(CATALOGS)'; \
+-	for cat in $$catalogs; do \
+-	  cat=`basename $$cat`; \
+-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT); \
+-	  rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT).m; \
+-	  rm -f $(DESTDIR)$(gnulocaledir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT); \
+-	  rm -f $(DESTDIR)$(gnulocaledir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT).m; \
+-	done
+-
+-check: all
+-
+-dvi info tags TAGS ID:
+-
+-mostlyclean:
+-	rm -f core core.* *.pox $(PACKAGE).po *.old.po 
+-	rm -fr *.o
+-
+-clean: mostlyclean
+-	rm -f *.gmo
+-
+-distclean: clean
+-	rm -f Makefile Makefile.in POTFILES *.mo *.msg *.cat *.cat.m
+-
+-maintainer-clean: distclean
+-	@echo "This command is intended for maintainers to use;"
+-	@echo "it deletes files that may require special tools to rebuild."
+-	rm -f $(GMOFILES)
+-
+-distdir = ../$(PACKAGE)-$(VERSION)/$(subdir)
+-dist distdir: update-po $(DISTFILES)
+-	dists="$(DISTFILES)"; \
+-	for file in $$dists; do \
+-	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+-	    || cp -p $(srcdir)/$$file $(distdir); \
+-	done
+-
+-update-po: Makefile
+-	$(MAKE) $(PACKAGE).pot
+-	PATH=`pwd`/../src:$$PATH; \
+-	cd $(srcdir); \
+-	catalogs='$(CATALOGS)'; \
+-	for cat in $$catalogs; do \
+-	  cat=`basename $$cat`; \
+-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  mv $$lang.po $$lang.old.po; \
+-	  echo "$$lang:"; \
+-	  if $(MSGMERGE) $$lang.old.po $(PACKAGE).pot -o $$lang.po; then \
+-	    rm -f $$lang.old.po; \
+-	  else \
+-	    echo "msgmerge for $$cat failed!"; \
+-	    rm -f $$lang.po; \
+-	    mv $$lang.old.po $$lang.po; \
+-	  fi; \
+-	done
+-
+-POTFILES: POTFILES.in
+-	( if test 'x$(srcdir)' != 'x.'; then \
+-	    posrcprefix='$(top_srcdir)/'; \
+-	  else \
+-	    posrcprefix="../"; \
+-	  fi; \
+-	  rm -f $@-t $@ \
+-	    && (sed -e '/^#/d' -e '/^[ 	]*$$/d' \
+-		    -e "s@.*@	$$posrcprefix& \\\\@" < $(srcdir)/$@.in \
+-		| sed -e '$$s/\\$$//') > $@-t \
+-	    && chmod a-w $@-t \
+-	    && mv $@-t $@ )
+-
+-Makefile: Makefile.in.in ../config.status POTFILES
+-	cd .. \
+-	  && CONFIG_FILES=$(subdir)/$@.in CONFIG_HEADERS= \
+-	       $(SHELL) ./config.status
+-
+-# Tell versions [3.59,3.63) of GNU make not to export all variables.
+-# Otherwise a system limit (for SysV at least) may be exceeded.
+-.NOEXPORT:
+diff --git a/policycoreutils/po/Makefile.in.in b/policycoreutils/po/Makefile.in.in
+deleted file mode 100644
+index c4539ac..0000000
+--- a/policycoreutils/po/Makefile.in.in
++++ /dev/null
+@@ -1,230 +0,0 @@
+-# Makefile for program source directory in GNU NLS utilities package.
+-# Copyright (C) 1995, 1996, 1997 by Ulrich Drepper <drepper@gnu.ai.mit.edu>
+-#
+-# This file file be copied and used freely without restrictions.  It can
+-# be used in projects which are not available under the GNU Public License
+-# but which still want to provide support for the GNU gettext functionality.
+-# Please note that the actual code is *not* freely available.
+-
+-PACKAGE = @PACKAGE@
+-VERSION = @VERSION@
+-
+-SHELL = /bin/sh
+-@SET_MAKE@
+-
+-srcdir = @srcdir@
+-top_srcdir = @top_srcdir@
+-VPATH = @srcdir@
+-
+-prefix = @prefix@
+-exec_prefix = @exec_prefix@
+-datadir = $(prefix)/@DATADIRNAME@
+-localedir = $(datadir)/locale
+-gnulocaledir = $(prefix)/share/locale
+-gettextsrcdir = $(prefix)/share/gettext/po
+-subdir = po
+-
+-INSTALL = @INSTALL@
+-INSTALL_DATA = @INSTALL_DATA@
+-MKINSTALLDIRS = @MKINSTALLDIRS@
+-
+-CC = @CC@
+-GENCAT = @GENCAT@
+-GMSGFMT = PATH=../src:$$PATH @GMSGFMT@
+-MSGFMT = @MSGFMT@
+-XGETTEXT = PATH=../src:$$PATH @XGETTEXT@
+-MSGMERGE = PATH=../src:$$PATH msgmerge
+-
+-DEFS = @DEFS@
+-CFLAGS = @CFLAGS@
+-CPPFLAGS = @CPPFLAGS@
+-
+-INCLUDES = -I.. -I$(top_srcdir)/intl
+-
+-COMPILE = $(CC) -c $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) $(XCFLAGS)
+-
+-POFILES = @POFILES@
+-GMOFILES = @GMOFILES@
+-DISTFILES = Makefile.in.in POTFILES.in $(PACKAGE).pot \
+-$(POFILES) $(GMOFILES) $(SOURCES)
+-
+-POTFILES = \
+-
+-CATALOGS = @CATALOGS@
+-CATOBJEXT = @CATOBJEXT@
+-INSTOBJEXT = @INSTOBJEXT@
+-
+-.SUFFIXES:
+-.SUFFIXES: .c .o .po .pox .gmo .mo .msg .cat
+-
+-.c.o:
+-	$(COMPILE) $<
+-
+-.po.pox:
+-	$(MAKE) $(PACKAGE).pot
+-	$(MSGMERGE) $< $(srcdir)/$(PACKAGE).pot -o $*.pox
+-
+-.po.mo:
+-	$(MSGFMT) -o $@ $<
+-
+-.po.gmo:
+-	file=$(srcdir)/`echo $* | sed 's,.*/,,'`.gmo \
+-	  && rm -f $$file && $(GMSGFMT) -o $$file $<
+-
+-.po.cat:
+-	sed -f ../intl/po2msg.sed < $< > $*.msg \
+-	  && rm -f $@ && $(GENCAT) $@ $*.msg
+-
+-
+-all: all-@USE_NLS@
+-
+-all-yes: $(CATALOGS)
+-all-no:
+-
+-$(srcdir)/$(PACKAGE).pot: $(POTFILES)
+-	$(XGETTEXT) --default-domain=$(PACKAGE) --directory=$(top_srcdir) \
+-	  --add-comments --keyword=_ --keyword=N_ \
+-	  --files-from=$(srcdir)/POTFILES.in \
+-	&& test ! -f $(PACKAGE).po \
+-	   || ( rm -f $(srcdir)/$(PACKAGE).pot \
+-		&& mv $(PACKAGE).po $(srcdir)/$(PACKAGE).pot )
+-
+-install: install-exec install-data
+-install-exec:
+-install-data: install-data-@USE_NLS@
+-install-data-no: all
+-install-data-yes: all
+-	if test -x "$(MKINSTALLDIRS)"; then \
+-	  $(MKINSTALLDIRS) $(DESTDIR)$(datadir); \
+-	else \
+-	  $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(datadir); \
+-	fi
+-	@catalogs='$(CATALOGS)'; \
+-	for cat in $$catalogs; do \
+-	  cat=`basename $$cat`; \
+-	  case "$$cat" in \
+-	    *.gmo) destdir=$(DESTDIR)$(gnulocaledir);; \
+-	    *)     destdir=$(DESTDIR)$(localedir);; \
+-	  esac; \
+-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  dir=$$destdir/$$lang/LC_MESSAGES; \
+-	  if test -r "$(MKINSTALLDIRS)"; then \
+-	    $(MKINSTALLDIRS) $$dir; \
+-	  else \
+-	    $(SHELL) $(top_srcdir)/mkinstalldirs $$dir; \
+-	  fi; \
+-	  if test -r $$cat; then \
+-	    $(INSTALL_DATA) $$cat $$dir/$(PACKAGE)$(INSTOBJEXT); \
+-	    echo "installing $$cat as $$dir/$(PACKAGE)$(INSTOBJEXT)"; \
+-	  else \
+-	    $(INSTALL_DATA) $(srcdir)/$$cat $$dir/$(PACKAGE)$(INSTOBJEXT); \
+-	    echo "installing $(srcdir)/$$cat as" \
+-		 "$$dir/$(PACKAGE)$(INSTOBJEXT)"; \
+-	  fi; \
+-	  if test -r $$cat.m; then \
+-	    $(INSTALL_DATA) $$cat.m $$dir/$(PACKAGE)$(INSTOBJEXT).m; \
+-	    echo "installing $$cat.m as $$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
+-	  else \
+-	    if test -r $(srcdir)/$$cat.m ; then \
+-	      $(INSTALL_DATA) $(srcdir)/$$cat.m \
+-		$$dir/$(PACKAGE)$(INSTOBJEXT).m; \
+-	      echo "installing $(srcdir)/$$cat as" \
+-		   "$$dir/$(PACKAGE)$(INSTOBJEXT).m"; \
+-	    else \
+-	      true; \
+-	    fi; \
+-	  fi; \
+-	done
+-	if test "$(PACKAGE)" = "gettext"; then \
+-	  if test -x "$(MKINSTALLDIRS)"; then \
+-	    $(MKINSTALLDIRS) $(DESTDIR)$(gettextsrcdir); \
+-	  else \
+-	    $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(gettextsrcdir); \
+-	  fi; \
+-	  $(INSTALL_DATA) $(srcdir)/Makefile.in.in \
+-			  $(DESTDIR)$(gettextsrcdir)/Makefile.in.in; \
+-	else \
+-	  : ; \
+-	fi
+-
+-# Define this as empty until I found a useful application.
+-installcheck:
+-
+-uninstall:
+-	catalogs='$(CATALOGS)'; \
+-	for cat in $$catalogs; do \
+-	  cat=`basename $$cat`; \
+-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT); \
+-	  rm -f $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT).m; \
+-	  rm -f $(DESTDIR)$(gnulocaledir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT); \
+-	  rm -f $(DESTDIR)$(gnulocaledir)/$$lang/LC_MESSAGES/$(PACKAGE)$(INSTOBJEXT).m; \
+-	done
+-
+-check: all
+-
+-dvi info tags TAGS ID:
+-
+-mostlyclean:
+-	rm -f core core.* *.pox $(PACKAGE).po *.old.po 
+-	rm -fr *.o
+-
+-clean: mostlyclean
+-	rm -f *.gmo
+-
+-distclean: clean
+-	rm -f Makefile Makefile.in POTFILES *.mo *.msg *.cat *.cat.m
+-
+-maintainer-clean: distclean
+-	@echo "This command is intended for maintainers to use;"
+-	@echo "it deletes files that may require special tools to rebuild."
+-	rm -f $(GMOFILES)
+-
+-distdir = ../$(PACKAGE)-$(VERSION)/$(subdir)
+-dist distdir: update-po $(DISTFILES)
+-	dists="$(DISTFILES)"; \
+-	for file in $$dists; do \
+-	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+-	    || cp -p $(srcdir)/$$file $(distdir); \
+-	done
+-
+-update-po: Makefile
+-	$(MAKE) $(PACKAGE).pot
+-	PATH=`pwd`/../src:$$PATH; \
+-	cd $(srcdir); \
+-	catalogs='$(CATALOGS)'; \
+-	for cat in $$catalogs; do \
+-	  cat=`basename $$cat`; \
+-	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  mv $$lang.po $$lang.old.po; \
+-	  echo "$$lang:"; \
+-	  if $(MSGMERGE) $$lang.old.po $(PACKAGE).pot -o $$lang.po; then \
+-	    rm -f $$lang.old.po; \
+-	  else \
+-	    echo "msgmerge for $$cat failed!"; \
+-	    rm -f $$lang.po; \
+-	    mv $$lang.old.po $$lang.po; \
+-	  fi; \
+-	done
+-
+-POTFILES: POTFILES.in
+-	( if test 'x$(srcdir)' != 'x.'; then \
+-	    posrcprefix='$(top_srcdir)/'; \
+-	  else \
+-	    posrcprefix="../"; \
+-	  fi; \
+-	  rm -f $@-t $@ \
+-	    && (sed -e '/^#/d' -e '/^[ 	]*$$/d' \
+-		    -e "s@.*@	$$posrcprefix& \\\\@" < $(srcdir)/$@.in \
+-		| sed -e '$$s/\\$$//') > $@-t \
+-	    && chmod a-w $@-t \
+-	    && mv $@-t $@ )
+-
+-Makefile: Makefile.in.in ../config.status POTFILES
+-	cd .. \
+-	  && CONFIG_FILES=$(subdir)/$@.in CONFIG_HEADERS= \
+-	       $(SHELL) ./config.status
+-
+-# Tell versions [3.59,3.63) of GNU make not to export all variables.
+-# Otherwise a system limit (for SysV at least) may be exceeded.
+-.NOEXPORT:
+diff --git a/policycoreutils/po/POTFILES b/policycoreutils/po/POTFILES
+deleted file mode 100644
+index bcb9e99..0000000
+--- a/policycoreutils/po/POTFILES
++++ /dev/null
+@@ -1,72 +0,0 @@
+-	../run_init/open_init_pty.c
+-	../run_init/run_init.c
+-	../semodule_link/semodule_link.c
+-	../audit2allow/audit2allow
+-	../semanage/seobject.py
+-	../setsebool/setsebool.c
+-	../newrole/newrole.c
+-	../load_policy/load_policy.c
+-	../sestatus/sestatus.c
+-	../semodule/semodule.c
+-	../setfiles/setfiles.c
+-	../semodule_package/semodule_package.c
+-	../semodule_deps/semodule_deps.c
+-	../semodule_expand/semodule_expand.c
+-	../scripts/chcat
+-	../scripts/fixfiles
+-	../restorecond/stringslist.c
+-	../restorecond/restorecond.h
+-	../restorecond/utmpwatcher.h
+-	../restorecond/stringslist.h
+-	../restorecond/restorecond.c
+-	../restorecond/utmpwatcher.c
+-	../gui/booleansPage.py
+-	../gui/fcontextPage.py
+-	../gui/loginsPage.py
+-	../gui/mappingsPage.py
+-	../gui/modulesPage.py
+-	../gui/polgen.glade
+-	../gui/polgengui.py
+-	../gui/polgen.py
+-	../gui/portsPage.py
+-	../gui/selinux.tbl
+-	../gui/semanagePage.py
+-	../gui/statusPage.py
+-	../gui/system-config-selinux.glade
+-	../gui/system-config-selinux.py
+-	../gui/usersPage.py
+-	../gui/templates/executable.py
+-	../gui/templates/__init__.py
+-	../gui/templates/network.py
+-	../gui/templates/rw.py
+-	../gui/templates/script.py
+-	../gui/templates/semodule.py
+-	../gui/templates/tmp.py
+-	../gui/templates/user.py
+-	../gui/templates/var_lib.py
+-	../gui/templates/var_log.py
+-	../gui/templates/var_run.py
+-	../gui/templates/var_spool.py
+-	../sepolicy/info.c
+-	../sepolicy/search.c
+-	../sepolicy/sepolicy.py
+-	../sepolicy/sepolicy/communicate.py
+-	../sepolicy/sepolicy/__init__.py
+-	../sepolicy/sepolicy/network.py
+-	../sepolicy/sepolicy/generate.py
+-	../sepolicy/sepolicy/sepolicy.glade
+-	../sepolicy/sepolicy/gui.py
+-	../sepolicy/sepolicy/manpage.py
+-	../sepolicy/sepolicy/transition.py
+-	../sepolicy/sepolicy/templates/executable.py
+-	../sepolicy/sepolicy/templates/__init__.py
+-	../sepolicy/sepolicy/templates/network.py
+-	../sepolicy/sepolicy/templates/rw.py
+-	../sepolicy/sepolicy/templates/script.py
+-	../sepolicy/sepolicy/templates/semodule.py
+-	../sepolicy/sepolicy/templates/tmp.py
+-	../sepolicy/sepolicy/templates/user.py
+-	../sepolicy/sepolicy/templates/var_lib.py
+-	../sepolicy/sepolicy/templates/var_log.py
+-	../sepolicy/sepolicy/templates/var_run.py
+-	../sepolicy/sepolicy/templates/var_spool.py
+diff --git a/policycoreutils/po/POTFILES.in b/policycoreutils/po/POTFILES.in
+deleted file mode 100644
+index aca0474..0000000
+--- a/policycoreutils/po/POTFILES.in
++++ /dev/null
+@@ -1,60 +0,0 @@
+-run_init/open_init_pty.c
+-run_init/run_init.c
+-semodule_link/semodule_link.c
+-audit2allow/audit2allow
+-semanage/seobject.py
+-setsebool/setsebool.c
+-newrole/newrole.c
+-load_policy/load_policy.c
+-sestatus/sestatus.c
+-semodule/semodule.c
+-setfiles/setfiles.c
+-semodule_package/semodule_package.c
+-semodule_deps/semodule_deps.c
+-semodule_expand/semodule_expand.c
+-scripts/chcat
+-scripts/fixfiles
+-restorecond/stringslist.c
+-restorecond/restorecond.h
+-restorecond/utmpwatcher.h
+-restorecond/stringslist.h
+-restorecond/restorecond.c
+-restorecond/utmpwatcher.c
+-gui/booleansPage.py
+-gui/fcontextPage.py
+-gui/loginsPage.py
+-gui/mappingsPage.py
+-gui/modulesPage.py
+-gui/polgen.glade
+-gui/polgengui.py
+-gui/portsPage.py
+-gui/selinux.tbl
+-gui/semanagePage.py
+-gui/statusPage.py
+-gui/system-config-selinux.glade
+-gui/system-config-selinux.py
+-gui/usersPage.py
+-secon/secon.c
+-sepolicy/info.c
+-sepolicy/search.c
+-sepolicy/sepolicy.py
+-sepolicy/sepolicy/communicate.py
+-sepolicy/sepolicy/__init__.py
+-sepolicy/sepolicy/network.py
+-sepolicy/sepolicy/generate.py
+-sepolicy/sepolicy/sepolicy.glade
+-sepolicy/sepolicy/gui.py
+-sepolicy/sepolicy/manpage.py
+-sepolicy/sepolicy/transition.py
+-sepolicy/sepolicy/templates/executable.py
+-sepolicy/sepolicy/templates/__init__.py
+-sepolicy/sepolicy/templates/network.py
+-sepolicy/sepolicy/templates/rw.py
+-sepolicy/sepolicy/templates/script.py
+-sepolicy/sepolicy/templates/semodule.py
+-sepolicy/sepolicy/templates/tmp.py
+-sepolicy/sepolicy/templates/user.py
+-sepolicy/sepolicy/templates/var_lib.py
+-sepolicy/sepolicy/templates/var_log.py
+-sepolicy/sepolicy/templates/var_run.py
+-sepolicy/sepolicy/templates/var_spool.py
+-- 
+2.7.4
