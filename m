@@ -1,27 +1,19 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6EM6GEu025074
- for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 18:06:16 -0400
-Received: by mail-oi0-f68.google.com with SMTP id u68so7795105oie.3
- for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 15:06:14 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6EMHrrU026230
+ for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 18:17:53 -0400
+Received: by mail-oi0-f65.google.com with SMTP id c199so7811314oig.1
+ for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 15:17:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <4722982b-1541-20f4-c256-68a93dff7cf9@schaufler-ca.com>
-References: <1468512050-26272-1-git-send-email-javier@osg.samsung.com>
- <adc7dca8-9685-c9f0-7d61-d3537963cf6f@schaufler-ca.com>
- <3f0053fa-8824-f86f-e04f-16ad1204abc7@osg.samsung.com>
- <37a0011d-b32f-d24b-3771-f6eb6cae5342@schaufler-ca.com>
- <CAHC9VhSgTSEKhis2j6vBKa1Wejg65BLmMOC40iyCwMWjerV_Xw@mail.gmail.com>
- <4722982b-1541-20f4-c256-68a93dff7cf9@schaufler-ca.com>
+In-Reply-To: <1468524562-30981-1-git-send-email-william.c.roberts@intel.com>
+References: <1468524562-30981-1-git-send-email-william.c.roberts@intel.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 14 Jul 2016 18:06:13 -0400
-Message-ID: <CAHC9VhTEN_f0SGB652mt3hjB4j_ZD+bXtnuPyMYpwep9pUjo3w@mail.gmail.com>
-Subject: Re: [PATCH] security: Use IS_ENABLED() instead of checking for
- built-in or module
-To: Casey Schaufler <casey@schaufler-ca.com>,
- Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, "Serge E. Hallyn" <serge@hallyn.com>,
- linux-security-module@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- James Morris <james.l.morris@oracle.com>
+Date: Thu, 14 Jul 2016 18:17:32 -0400
+Message-ID: <CAHC9VhReO7tLcB=K6KbGpH_inzMCLVLHmYWibNFGVku27Y=kFw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: print leading 0x on ioctlcmd audits
+To: william.c.roberts@intel.com
+Cc: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
+ Stephen Smalley <sds@tycho.nsa.gov>, sgrubb@redhat.com,
+ linux-audit@redhat.com
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -33,42 +25,48 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Thu, Jul 14, 2016 at 4:54 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 7/14/2016 12:57 PM, Paul Moore wrote:
->> On Thu, Jul 14, 2016 at 12:30 PM, Casey Schaufler
->> <casey@schaufler-ca.com> wrote:
->>> On 7/14/2016 9:20 AM, Javier Martinez Canillas wrote:
->>>> Hello Casey,
->>>>
->>>> On 07/14/2016 12:17 PM, Casey Schaufler wrote:
->>>>> On 7/14/2016 9:00 AM, Javier Martinez Canillas wrote:
->>>>>> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
->>>>>> built-in or as a module, use that macro instead of open coding the same.
->>>>> Why?
->>>>
->>>> Why not? We have a macro for this so why is better to open coding it?
->>>
->>> Unless there is a real advantage to IS_ENABLED() over ifdef there
->>> is no value in making the change. Any change can introduce a problem,
->>> so we don't make changes based on "why not". It's called code churn.
->>
->> I think the IS_ENABLED() macro makes the code more readable by helping
->> abstract away some of the Kconfig/module details; not to mention it
->> provides some insulation from Kconfig changes (although I suppose it
->> is doubtful this will be a real issue anytime soon).
->>
->> Javier, if you want to respin this patch without the Smack changes
->> I'll merge it into the SELinux tree (not for the v4.8 merge window,
->> but for the next merge window).  However, if Casey changes his mind
->> and ACKs this patch, I'll go ahead and merge the original patch.
+On Thu, Jul 14, 2016 at 3:29 PM,  <william.c.roberts@intel.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 >
-> Don't let me stand in the way. If you think it's worth
-> doing go ahead and add my ACK.
+> ioctlcmd is currently printing hex numbers, but their is no leading
+> 0x. Thus things like ioctlcmd=1234 are misleading, as the base is
+> not evident.
+>
+> Correct this by adding 0x as a prefix, so ioctlcmd=1234 becomes ioctlcmd=0x1234.
+>
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  security/lsm_audit.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-I think it's a reasonable patch and I'm at that point in the day where
-I'm looking for distractions so I just added it to the selinux#next
-queue; once the merge window closes I'll rotate this into my next
-branch.
+NOTE: adding Steve Grubb and the audit mailing list to the CC line
+
+Like it or not, I believe the general standard/convention when it
+comes to things like this is to leave off the "0x" prefix; the idea
+being that is saves precious space in the audit logs and the value is
+only ever going to be in hex anyway.
+
+> diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> index cccbf30..82e4dbb 100644
+> --- a/security/lsm_audit.c
+> +++ b/security/lsm_audit.c
+> @@ -257,7 +257,7 @@ static void dump_common_audit_data(struct audit_buffer *ab,
+>                         audit_log_format(ab, " ino=%lu", inode->i_ino);
+>                 }
+>
+> -               audit_log_format(ab, " ioctlcmd=%hx", a->u.op->cmd);
+> +               audit_log_format(ab, " ioctlcmd=0x%hx", a->u.op->cmd);
+>                 break;
+>         }
+>         case LSM_AUDIT_DATA_DENTRY: {
+> --
+> 1.9.1
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
 -- 
 paul moore
