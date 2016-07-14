@@ -1,25 +1,28 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6EKtDgG016698
- for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 16:55:13 -0400
-Subject: Re: [PATCH] security: Use IS_ENABLED() instead of checking for
- built-in or module
-To: Paul Moore <paul@paul-moore.com>,
- Javier Martinez Canillas <javier@osg.samsung.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6EM6GEu025074
+ for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 18:06:16 -0400
+Received: by mail-oi0-f68.google.com with SMTP id u68so7795105oie.3
+ for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 15:06:14 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <4722982b-1541-20f4-c256-68a93dff7cf9@schaufler-ca.com>
 References: <1468512050-26272-1-git-send-email-javier@osg.samsung.com>
  <adc7dca8-9685-c9f0-7d61-d3537963cf6f@schaufler-ca.com>
  <3f0053fa-8824-f86f-e04f-16ad1204abc7@osg.samsung.com>
  <37a0011d-b32f-d24b-3771-f6eb6cae5342@schaufler-ca.com>
  <CAHC9VhSgTSEKhis2j6vBKa1Wejg65BLmMOC40iyCwMWjerV_Xw@mail.gmail.com>
+ <4722982b-1541-20f4-c256-68a93dff7cf9@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 14 Jul 2016 18:06:13 -0400
+Message-ID: <CAHC9VhTEN_f0SGB652mt3hjB4j_ZD+bXtnuPyMYpwep9pUjo3w@mail.gmail.com>
+Subject: Re: [PATCH] security: Use IS_ENABLED() instead of checking for
+ built-in or module
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Javier Martinez Canillas <javier@osg.samsung.com>
 Cc: linux-kernel@vger.kernel.org, "Serge E. Hallyn" <serge@hallyn.com>,
  linux-security-module@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
  James Morris <james.l.morris@oracle.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <4722982b-1541-20f4-c256-68a93dff7cf9@schaufler-ca.com>
-Date: Thu, 14 Jul 2016 13:54:48 -0700
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSgTSEKhis2j6vBKa1Wejg65BLmMOC40iyCwMWjerV_Xw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -30,30 +33,43 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On 7/14/2016 12:57 PM, Paul Moore wrote:
-> On Thu, Jul 14, 2016 at 12:30 PM, Casey Schaufler
-> <casey@schaufler-ca.com> wrote:
->> On 7/14/2016 9:20 AM, Javier Martinez Canillas wrote:
->>> Hello Casey,
+On Thu, Jul 14, 2016 at 4:54 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 7/14/2016 12:57 PM, Paul Moore wrote:
+>> On Thu, Jul 14, 2016 at 12:30 PM, Casey Schaufler
+>> <casey@schaufler-ca.com> wrote:
+>>> On 7/14/2016 9:20 AM, Javier Martinez Canillas wrote:
+>>>> Hello Casey,
+>>>>
+>>>> On 07/14/2016 12:17 PM, Casey Schaufler wrote:
+>>>>> On 7/14/2016 9:00 AM, Javier Martinez Canillas wrote:
+>>>>>> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
+>>>>>> built-in or as a module, use that macro instead of open coding the same.
+>>>>> Why?
+>>>>
+>>>> Why not? We have a macro for this so why is better to open coding it?
 >>>
->>> On 07/14/2016 12:17 PM, Casey Schaufler wrote:
->>>> On 7/14/2016 9:00 AM, Javier Martinez Canillas wrote:
->>>>> The IS_ENABLED() macro checks if a Kconfig symbol has been enabled either
->>>>> built-in or as a module, use that macro instead of open coding the same.
->>>> Why?
->>> Why not? We have a macro for this so why is better to open coding it?
->> Unless there is a real advantage to IS_ENABLED() over ifdef there
->> is no value in making the change. Any change can introduce a problem,
->> so we don't make changes based on "why not". It's called code churn.
-> I think the IS_ENABLED() macro makes the code more readable by helping
-> abstract away some of the Kconfig/module details; not to mention it
-> provides some insulation from Kconfig changes (although I suppose it
-> is doubtful this will be a real issue anytime soon).
+>>> Unless there is a real advantage to IS_ENABLED() over ifdef there
+>>> is no value in making the change. Any change can introduce a problem,
+>>> so we don't make changes based on "why not". It's called code churn.
+>>
+>> I think the IS_ENABLED() macro makes the code more readable by helping
+>> abstract away some of the Kconfig/module details; not to mention it
+>> provides some insulation from Kconfig changes (although I suppose it
+>> is doubtful this will be a real issue anytime soon).
+>>
+>> Javier, if you want to respin this patch without the Smack changes
+>> I'll merge it into the SELinux tree (not for the v4.8 merge window,
+>> but for the next merge window).  However, if Casey changes his mind
+>> and ACKs this patch, I'll go ahead and merge the original patch.
 >
-> Javier, if you want to respin this patch without the Smack changes
-> I'll merge it into the SELinux tree (not for the v4.8 merge window,
-> but for the next merge window).  However, if Casey changes his mind
-> and ACKs this patch, I'll go ahead and merge the original patch.
+> Don't let me stand in the way. If you think it's worth
+> doing go ahead and add my ACK.
 
-Don't let me stand in the way. If you think it's worth
-doing go ahead and add my ACK.
+I think it's a reasonable patch and I'm at that point in the day where
+I'm looking for distractions so I just added it to the selinux#next
+queue; once the merge window closes I'll rotate this into my next
+branch.
+
+-- 
+paul moore
+www.paul-moore.com
