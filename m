@@ -1,20 +1,19 @@
-MIME-Version: 1.0
-In-Reply-To: <CAFftDdoHOeGdwfK79aviHmFr4JxE1rX0z0vcfZZtbtvv2TL9ew@mail.gmail.com>
-References: <1468524562-30981-1-git-send-email-william.c.roberts@intel.com>
- <CAHC9VhReO7tLcB=K6KbGpH_inzMCLVLHmYWibNFGVku27Y=kFw@mail.gmail.com>
- <CAFftDdoHOeGdwfK79aviHmFr4JxE1rX0z0vcfZZtbtvv2TL9ew@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 14 Jul 2016 16:33:31 -0700
-Message-ID: <CAFftDdoHASP4V0=q6mvOmFMtOBYhgw1S7Js=fMtYQPEFr9ryxw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: print leading 0x on ioctlcmd audits
-To: Paul Moore <paul@paul-moore.com>
-Cc: William Roberts <william.c.roberts@intel.com>,
- Steve Grubb <sgrubb@redhat.com>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-audit@redhat.com" <linux-audit@redhat.com>
-Content-Type: multipart/alternative; boundary=94eb2c05f5e00c164c0537a0ee84
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6EMvTkC030247
+ for <selinux@tycho.nsa.gov>; Thu, 14 Jul 2016 18:57:29 -0400
+From: Dan Jurgens <danielj@mellanox.com>
+To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
+ eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
+ hal.rosenstock@gmail.com
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
+ Daniel Jurgens <danielj@mellanox.com>
+Subject: [PATCH v2 1/9] IB/core: IB cache enhancements to support Infiniband
+ security
+Date: Fri, 15 Jul 2016 01:56:43 +0300
+Message-Id: <1468537011-20407-2-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1468537011-20407-1-git-send-email-danielj@mellanox.com>
+References: <1468537011-20407-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -25,207 +24,120 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
---94eb2c05f5e00c164c0537a0ee84
-Content-Type: text/plain; charset=UTF-8
+From: Daniel Jurgens <danielj@mellanox.com>
 
-On Thu, Jul 14, 2016 at 4:18 PM, William Roberts <bill.c.roberts@gmail.com>
-wrote:
+Cache the subnet prefix and add a function to access it. Enforcing
+security requires frequent queries of the subnet prefix and the pkeys in
+the pkey table.
 
->
->
-> On Thu, Jul 14, 2016 at 3:17 PM, Paul Moore <paul@paul-moore.com> wrote:
->
->> On Thu, Jul 14, 2016 at 3:29 PM,  <william.c.roberts@intel.com> wrote:
->> > From: William Roberts <william.c.roberts@intel.com>
->> >
->> > ioctlcmd is currently printing hex numbers, but their is no leading
->> > 0x. Thus things like ioctlcmd=1234 are misleading, as the base is
->> > not evident.
->> >
->> > Correct this by adding 0x as a prefix, so ioctlcmd=1234 becomes
->> ioctlcmd=0x1234.
->> >
->> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
->> > ---
->> >  security/lsm_audit.c | 2 +-
->> >  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> NOTE: adding Steve Grubb and the audit mailing list to the CC line
->>
->> Like it or not, I believe the general standard/convention when it
->> comes to things like this is to leave off the "0x" prefix; the idea
->> being that is saves precious space in the audit logs and the value is
->> only ever going to be in hex anyway.
->>
->
-> Is it always in hex, what about pid?
->
+Also removed an unneded pr_warn about memory allocation failure.
 
-Outside of escaped untrusted input, everything I see is printed in base10.
-But if its convention that "you should just know", I am fine
-with that too, its just that it wasn't self evident in the logs, and the
-first time I encountered it their was no documentation or tooling
-supporting it.
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Eli Cohen <eli@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
 
+---
+v2:
+- In ib_get_cached_subnet_prefix wait to initialize p until after
+  validation.  Yuval Shaia
+---
+ drivers/infiniband/core/cache.c     |   36 +++++++++++++++++++++++++++++++++-
+ drivers/infiniband/core/core_priv.h |    3 ++
+ include/rdma/ib_verbs.h             |    1 +
+ 3 files changed, 38 insertions(+), 2 deletions(-)
 
->
->>
->> > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
->> > index cccbf30..82e4dbb 100644
->> > --- a/security/lsm_audit.c
->> > +++ b/security/lsm_audit.c
->> > @@ -257,7 +257,7 @@ static void dump_common_audit_data(struct
->> audit_buffer *ab,
->> >                         audit_log_format(ab, " ino=%lu", inode->i_ino);
->> >                 }
->> >
->> > -               audit_log_format(ab, " ioctlcmd=%hx", a->u.op->cmd);
->> > +               audit_log_format(ab, " ioctlcmd=0x%hx", a->u.op->cmd);
->> >                 break;
->> >         }
->> >         case LSM_AUDIT_DATA_DENTRY: {
->> > --
->> > 1.9.1
->> >
->> > _______________________________________________
->> > Selinux mailing list
->> > Selinux@tycho.nsa.gov
->> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> > To get help, send an email containing "help" to
->> Selinux-request@tycho.nsa.gov.
->>
->> --
->> paul moore
->> www.paul-moore.com
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to
->> Selinux-request@tycho.nsa.gov.
->>
->
->
->
-> --
-> Respectfully,
->
-> William C Roberts
->
->
-
-
+diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
+index 0409667..8a44894 100644
+--- a/drivers/infiniband/core/cache.c
++++ b/drivers/infiniband/core/cache.c
+@@ -932,6 +932,26 @@ int ib_get_cached_pkey(struct ib_device *device,
+ }
+ EXPORT_SYMBOL(ib_get_cached_pkey);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx)
++{
++	unsigned long flags;
++	int p;
++
++	if (port_num < rdma_start_port(device) ||
++	    port_num > rdma_end_port(device))
++		return -EINVAL;
++
++	p = port_num - rdma_start_port(device);
++	read_lock_irqsave(&device->cache.lock, flags);
++	*sn_pfx = device->cache.subnet_prefix_cache[p];
++	read_unlock_irqrestore(&device->cache.lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
++
+ int ib_find_cached_pkey(struct ib_device *device,
+ 			u8                port_num,
+ 			u16               pkey,
+@@ -1108,6 +1128,8 @@ static void ib_cache_update(struct ib_device *device,
+ 
+ 	device->cache.lmc_cache[port - rdma_start_port(device)] = tprops->lmc;
+ 
++	device->cache.subnet_prefix_cache[port - rdma_start_port(device)] =
++							tprops->subnet_prefix;
+ 	write_unlock_irq(&device->cache.lock);
+ 
+ 	kfree(gid_cache);
+@@ -1166,9 +1188,18 @@ int ib_cache_setup_one(struct ib_device *device)
+ 					  (rdma_end_port(device) -
+ 					   rdma_start_port(device) + 1),
+ 					  GFP_KERNEL);
++
++	device->cache.subnet_prefix_cache =
++		kcalloc((rdma_end_port(device) - rdma_start_port(device) + 1),
++			sizeof(*device->cache.subnet_prefix_cache),
++			GFP_KERNEL);
++
+ 	if (!device->cache.pkey_cache ||
+-	    !device->cache.lmc_cache) {
+-		pr_warn("Couldn't allocate cache for %s\n", device->name);
++	    !device->cache.lmc_cache ||
++	    !device->cache.subnet_prefix_cache) {
++		kfree(device->cache.pkey_cache);
++		kfree(device->cache.lmc_cache);
++		kfree(device->cache.subnet_prefix_cache);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -1211,6 +1242,7 @@ void ib_cache_release_one(struct ib_device *device)
+ 	gid_table_release_one(device);
+ 	kfree(device->cache.pkey_cache);
+ 	kfree(device->cache.lmc_cache);
++	kfree(device->cache.subnet_prefix_cache);
+ }
+ 
+ void ib_cache_cleanup_one(struct ib_device *device)
+diff --git a/drivers/infiniband/core/core_priv.h b/drivers/infiniband/core/core_priv.h
+index 19d499d..ce826e4 100644
+--- a/drivers/infiniband/core/core_priv.h
++++ b/drivers/infiniband/core/core_priv.h
+@@ -153,4 +153,7 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
+ int ib_nl_handle_ip_res_resp(struct sk_buff *skb,
+ 			     struct netlink_callback *cb);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx);
+ #endif /* _CORE_PRIV_H */
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 156673a..205ea09 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -1709,6 +1709,7 @@ struct ib_cache {
+ 	struct ib_pkey_cache  **pkey_cache;
+ 	struct ib_gid_table   **gid_cache;
+ 	u8                     *lmc_cache;
++	u64                    *subnet_prefix_cache;
+ };
+ 
+ struct ib_dma_mapping_ops {
 -- 
-Respectfully,
-
-William C Roberts
-
---94eb2c05f5e00c164c0537a0ee84
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">On Thu, Jul 14, 2016 at 4:18 PM, William Roberts <span dir=3D"ltr">&lt;=
-<a href=3D"mailto:bill.c.roberts@gmail.com" target=3D"_blank">bill.c.robert=
-s@gmail.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" styl=
-e=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><div di=
-r=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quote"><sp=
-an class=3D"">On Thu, Jul 14, 2016 at 3:17 PM, Paul Moore <span dir=3D"ltr"=
->&lt;<a href=3D"mailto:paul@paul-moore.com" target=3D"_blank">paul@paul-moo=
-re.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"=
-margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">On Thu, Jul =
-14, 2016 at 3:29 PM,=C2=A0 &lt;<a href=3D"mailto:william.c.roberts@intel.co=
-m" target=3D"_blank">william.c.roberts@intel.com</a>&gt; wrote:<br>
-&gt; From: William Roberts &lt;<a href=3D"mailto:william.c.roberts@intel.co=
-m" target=3D"_blank">william.c.roberts@intel.com</a>&gt;<br>
-&gt;<br>
-&gt; ioctlcmd is currently printing hex numbers, but their is no leading<br=
->
-&gt; 0x. Thus things like ioctlcmd=3D1234 are misleading, as the base is<br=
->
-&gt; not evident.<br>
-&gt;<br>
-&gt; Correct this by adding 0x as a prefix, so ioctlcmd=3D1234 becomes ioct=
-lcmd=3D0x1234.<br>
-&gt;<br>
-&gt; Signed-off-by: William Roberts &lt;<a href=3D"mailto:william.c.roberts=
-@intel.com" target=3D"_blank">william.c.roberts@intel.com</a>&gt;<br>
-&gt; ---<br>
-&gt;=C2=A0 security/lsm_audit.c | 2 +-<br>
-&gt;=C2=A0 1 file changed, 1 insertion(+), 1 deletion(-)<br>
-<br>
-NOTE: adding Steve Grubb and the audit mailing list to the CC line<br>
-<br>
-Like it or not, I believe the general standard/convention when it<br>
-comes to things like this is to leave off the &quot;0x&quot; prefix; the id=
-ea<br>
-being that is saves precious space in the audit logs and the value is<br>
-only ever going to be in hex anyway.<br></blockquote><div><br></div></span>=
-<div>Is it always in hex, what about pid?</div></div></div></div></blockquo=
-te><div><br></div><div>Outside of escaped untrusted input, everything I see=
- is printed in base10. But if its convention that &quot;you should just kno=
-w&quot;, I am fine<br>with that too, its just that it wasn&#39;t self evide=
-nt in the logs, and the first time I encountered it their was no documentat=
-ion or tooling</div><div>supporting it.</div><div><br></div><blockquote cla=
-ss=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pa=
-dding-left:1ex"><div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"g=
-mail_quote"><div><div class=3D"h5"><div>=C2=A0</div><blockquote class=3D"gm=
-ail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-le=
-ft:1ex">
-<br>
-&gt; diff --git a/security/lsm_audit.c b/security/lsm_audit.c<br>
-&gt; index cccbf30..82e4dbb 100644<br>
-&gt; --- a/security/lsm_audit.c<br>
-&gt; +++ b/security/lsm_audit.c<br>
-&gt; @@ -257,7 +257,7 @@ static void dump_common_audit_data(struct audit_bu=
-ffer *ab,<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0audit_log_format(ab, &quot; ino=3D%lu&quot;, inode-&gt;=
-i_ino);<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
-&gt;<br>
-&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0audit_log_form=
-at(ab, &quot; ioctlcmd=3D%hx&quot;, a-&gt;u.op-&gt;cmd);<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0audit_log_form=
-at(ab, &quot; ioctlcmd=3D0x%hx&quot;, a-&gt;u.op-&gt;cmd);<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0break;<br=
->
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0case LSM_AUDIT_DATA_DENTRY: {<br>
-<span><font color=3D"#888888">&gt; --<br>
-&gt; 1.9.1<br>
-&gt;<br>
-&gt; _______________________________________________<br>
-&gt; Selinux mailing list<br>
-&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tyc=
-ho.nsa.gov</a><br>
-&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.ns=
-a.gov" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
-&gt; To get help, send an email containing &quot;help&quot; to <a href=3D"m=
-ailto:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tych=
-o.nsa.gov</a>.<br>
-<br>
---<br>
-paul moore<br>
-<a href=3D"http://www.paul-moore.com" rel=3D"noreferrer" target=3D"_blank">=
-www.paul-moore.com</a><br>
-_______________________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
-a.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
-.gov</a>.<br>
-</font></span></blockquote></div></div></div><span class=3D"HOEnZb"><font c=
-olor=3D"#888888"><br><br clear=3D"all"><div><br></div>-- <br><div data-smar=
-tmail=3D"gmail_signature">Respectfully,<br><br>William C Roberts<br><br></d=
-iv>
-</font></span></div></div>
-</blockquote></div><br><br clear=3D"all"><div><br></div>-- <br><div class=
-=3D"gmail_signature" data-smartmail=3D"gmail_signature">Respectfully,<br><b=
-r>William C Roberts<br><br></div>
-</div></div>
-
---94eb2c05f5e00c164c0537a0ee84--
+1.7.1
