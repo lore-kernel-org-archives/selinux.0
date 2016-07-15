@@ -1,16 +1,34 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
- linux-audit@redhat.com
-Subject: Re: [PATCH] selinux: print leading 0x on ioctlcmd audits
-Date: Fri, 15 Jul 2016 14:54:23 -0400
-Message-ID: <1613578.6STCXkp1CU@x2>
-In-Reply-To: <CAHC9VhReO7tLcB=K6KbGpH_inzMCLVLHmYWibNFGVku27Y=kFw@mail.gmail.com>
-References: <1468524562-30981-1-git-send-email-william.c.roberts@intel.com>
- <CAHC9VhReO7tLcB=K6KbGpH_inzMCLVLHmYWibNFGVku27Y=kFw@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6FIubal009407
+ for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2016 14:56:37 -0400
+Received: by mail-wm0-f46.google.com with SMTP id f65so36277268wmi.0
+ for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2016 11:56:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Sender: keescook@google.com
+In-Reply-To: <CALAqxLW6kzj06jsurWb=3YLAa7r__+5aEAfKH50zcpt0s_u-Aw@mail.gmail.com>
+References: <1468603460-17034-1-git-send-email-john.stultz@linaro.org>
+ <CAFJ0LnEBDjZyHb1cBr6Wck9c_z1ATcfnmWtOTYBS2F0TEK5_vA@mail.gmail.com>
+ <CALAqxLW6kzj06jsurWb=3YLAa7r__+5aEAfKH50zcpt0s_u-Aw@mail.gmail.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Fri, 15 Jul 2016 11:56:33 -0700
+Message-ID: <CAGXu5jKPu2pwgPdGmRdTad3eLrDPYSkj8u2VT7CCk5zNSexQTw@mail.gmail.com>
+Subject: Re: [RFC][PATCH 1/2 v2] proc: Relax /proc/<tid>/timerslack_ns
+ capability requirements
+To: John Stultz <john.stultz@linaro.org>, James Morris <jmorris@namei.org>,
+ Casey Schaufler <casey@schaufler-ca.com>
+Cc: Nick Kralevich <nnk@google.com>, lkml <linux-kernel@vger.kernel.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Arjan van de Ven <arjan@linux.intel.com>,
+ Oren Laadan <orenl@cellrox.com>, Ruchi Kandoi <kandoiruchi@google.com>,
+ Rom Lemarchand <romlem@android.com>, Todd Kjos <tkjos@google.com>,
+ Colin Cross <ccross@android.com>, Dmitry Shmidt <dimitrysh@google.com>,
+ Elliott Hughes <enh@google.com>,
+ Android Kernel Team <kernel-team@android.com>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -21,49 +39,69 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Thursday, July 14, 2016 6:17:32 PM EDT Paul Moore wrote:
-> Re: [PATCH] selinux: print leading 0x on ioctlcmd audits
-> From:	Paul Moore <paul@paul-moore.com>
-> To:	william.c.roberts@intel.com
-> CC:	selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, Stephen Smalley
-> <sds@tycho.nsa.gov>, Me, linux-audit@redhat.com Date:	Yesterday 6:17 PM
-> 
-> On Thu, Jul 14, 2016 at 3:29 PM,  <william.c.roberts@intel.com> wrote:
-> > From: William Roberts <william.c.roberts@intel.com>
-> > 
-> > ioctlcmd is currently printing hex numbers, but their is no leading
-> > 0x. Thus things like ioctlcmd=1234 are misleading, as the base is
-> > not evident.
-> > 
-> > Correct this by adding 0x as a prefix, so ioctlcmd=1234 becomes
-> > ioctlcmd=0x1234.
-> > 
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > ---
-> > security/lsm_audit.c | 2 +-
-> > 1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> NOTE: adding Steve Grubb and the audit mailing list to the CC line
-> 
-> Like it or not, I believe the general standard/convention when it
-> comes to things like this is to leave off the "0x" prefix; the idea
-> being that is saves precious space in the audit logs and the value is
-> only ever going to be in hex anyway.
+On Fri, Jul 15, 2016 at 11:42 AM, John Stultz <john.stultz@linaro.org> wrote:
+> On Fri, Jul 15, 2016 at 10:51 AM, Nick Kralevich <nnk@google.com> wrote:
+>> On Fri, Jul 15, 2016 at 10:24 AM, John Stultz <john.stultz@linaro.org> wrote:
+>>> +       if (!capable(CAP_SYS_NICE))
+>>> +               return -EPERM;
+>>> +
+>>
+>> Since you're going the LSM route (from your second patch of this
+>
+> Well, you suggested it, so I sent out an RFC. I'm not married to it yet. :)
+>
+>
+>> series), the capability check above should be moved to the LSM hook in
+>> security/commoncap.c.  Only one security call to
+>> security_task_settimerslack is needed, which will cover the standard
+>> capabilities check as well as the SELinux check.
+>
+> Huh. Ok. I was looking at the implementation of nice(), which does:
+>
+>  if (increment < 0 && !can_nice(current, nice))
+>                 return -EPERM;
+> retval = security_task_setnice(current, nice);
+> if (retval)
+> ...
+>
+> Which made it seem like standard checks are done first, then finer
+> grain lsm checks second.
 
-We normally like the 0x prefix on anything that is hex so that stroul can figure 
-it out itself. And since AVC's should in theory be rare or occassional, log 
-space is not a concern.
+I'm on the fence about this: it can be argued that if it's a cap check
+it should live in the commoncap.c checks, but most of our cap checks
+for these kinds of access controls are directly in the function, prior
+the the security_* calls. I've added James and Casey who may have a
+more well constructed rationale for doing this one way or the other.
 
-That said, what is this ioctlcmd field name? Is this the ioctl number? As in 
-syscall arg a1? If so, it should be hooked up to the interpretation for that.
+> (...and now you can guess where my accidental "current" usage in the
+> next patch came from :)
+>
+>
+>>
+>>>         p = get_proc_task(inode);
+>>>         if (!p)
+>>>                 return -ESRCH;
+>>>
+>>
+>> Per your patch #2, you'd call security_task_settimerslack here. This
+>> would call into the capability LSM hook you added in
+>> security/commoncap.c
+>
+> Though I was hoping to keep the CAP_SYS_PTRACE -> CAP_SYS_NICE change
+> first, then add the LSM hooks, as it makes the needed ABI change more
+> obvious. I worry swapping it around with the LSM hook being added
+> first makes it significantly less obvious, as (at least for me) the
+> security_task_* functions get indirect and difficult to follow quickly
+> ("wait, why are we checking SETSCHED for nice?").
+>
+> A side curiosity: why does "git grep PROCESS__SETSCHED" miss the
+> definition? Is the av_permissions.h file somehow caught by .gitignore?
+>
+> thanks
+> -john
 
-Also, we have a field dictionary with some basic info about each field used in 
-audit events:
+-Kees
 
-http://people.redhat.com/sgrubb/audit/field-dictionary.txt
-
-This is important so that people don't make up new ones that do the same 
-thing. The ioctlcmd field name should be recorded. Are there more that need 
-documenting?
-
--Steve
+-- 
+Kees Cook
+Chrome OS & Brillo Security
