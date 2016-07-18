@@ -1,32 +1,14 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6FKKfS4020805
- for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2016 16:20:41 -0400
-Received: by mail-yw0-f179.google.com with SMTP id v186so50359271ywd.0
- for <selinux@tycho.nsa.gov>; Fri, 15 Jul 2016 13:20:40 -0700 (PDT)
+From: Inamdar Sharif <isharif@nvidia.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+CC: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Subject: RE: [PATCH] Extend checkpolicy pathname matching.
+Date: Mon, 18 Jul 2016 09:29:14 +0000
+Message-ID: <e9ad0ee8d6894e8493bb099ad2e9b753@bgmail101.nvidia.com>
+References: <1468511275-23946-1-git-send-email-sds@tycho.nsa.gov>
+In-Reply-To: <1468511275-23946-1-git-send-email-sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <CALAqxLWsjdzNeR3qB5gQhL1GHt1ukxTGzi7yjN2TDETLbyWKJw@mail.gmail.com>
-References: <1468603460-17034-1-git-send-email-john.stultz@linaro.org>
- <CAFJ0LnGaKDEozyZnfrdC9a+c83UWhTg2Vrw0Xe+=eb2CO=h4yg@mail.gmail.com>
- <CALAqxLWsjdzNeR3qB5gQhL1GHt1ukxTGzi7yjN2TDETLbyWKJw@mail.gmail.com>
-From: Nick Kralevich <nnk@google.com>
-Date: Fri, 15 Jul 2016 13:20:38 -0700
-Message-ID: <CAFJ0LnHHCxza7DZBWax3XuO1QH+YQCzBWecA2s2QaM9PCq_Ciw@mail.gmail.com>
-Subject: Re: [RFC][PATCH 1/2 v2] proc: Relax /proc/<tid>/timerslack_ns
- capability requirements
-To: John Stultz <john.stultz@linaro.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Kees Cook <keescook@chromium.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Arjan van de Ven <arjan@linux.intel.com>,
- Oren Laadan <orenl@cellrox.com>, Ruchi Kandoi <kandoiruchi@google.com>,
- Rom Lemarchand <romlem@android.com>, Todd Kjos <tkjos@google.com>,
- Colin Cross <ccross@android.com>, Dmitry Shmidt <dimitrysh@google.com>,
- Elliott Hughes <enh@google.com>,
- Android Kernel Team <kernel-team@android.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -37,18 +19,49 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Fri, Jul 15, 2016 at 1:03 PM, John Stultz <john.stultz@linaro.org> wrote:
-> On Fri, Jul 15, 2016 at 12:55 PM, Nick Kralevich <nnk@google.com> wrote:
->> This should also have a similar LSM check for reads. For the SELinux
->> implementation, this can map to the PROCESS__GETSCHED permission.
->
-> Ok. I'll wire that in as well.
->
-> Would adding both selinux_task_get and set methods in the same patch
-> be ok? Or would folks prefer they be split into two?
+Thanks Stephen. That works.
 
-I would prefer 1 patch.
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Thursday, July 14, 2016 9:18 PM
+To: selinux@tycho.nsa.gov
+Cc: Inamdar Sharif; seandroid-list@tycho.nsa.gov; Stephen Smalley
+Subject: [PATCH] Extend checkpolicy pathname matching.
 
+checkpolicy currently imposes arbitrary limits on pathnames used in genfscon and other statements.  This prevents specifying certain paths in /proc such as those containing comma (,) characters.
 
--- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+Generalize the PATH, QPATH, and FILENAME patterns to support most legal pathnames.
+
+For simplicity, we do not support pathnames containing newlines or quotes.
+
+Reported-by: Inamdar Sharif <isharif@nvidia.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ checkpolicy/policy_scan.l | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l index 22da338..2f7f221 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -249,9 +249,9 @@ high |
+ HIGH				{ return(HIGH); }
+ low |
+ LOW				{ return(LOW); }
+-"/"({alnum}|[_\.\-/])*	        { return(PATH); }
+-\""/"[ !#-~]*\" 		{ return(QPATH); }
+-\"({alnum}|[_\.\-\+\~\: ])+\"	{ return(FILENAME); }
++"/"[^ \n\r\t\f]*	        { return(PATH); }
++\""/"[^\"\n]*\" 		{ return(QPATH); }
++\"[^"/"\"\n]+\"	{ return(FILENAME); }
+ {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
+ {digit}+|0x{hexval}+            { return(NUMBER); }
+ {alnum}*{letter}{alnum}*        { return(FILESYSTEM); }
+--
+2.5.5
+
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------
