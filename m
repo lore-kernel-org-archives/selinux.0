@@ -1,14 +1,13 @@
-From: Inamdar Sharif <isharif@nvidia.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-CC: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: RE: [PATCH] Extend checkpolicy pathname matching.
-Date: Mon, 18 Jul 2016 09:29:14 +0000
-Message-ID: <e9ad0ee8d6894e8493bb099ad2e9b753@bgmail101.nvidia.com>
-References: <1468511275-23946-1-git-send-email-sds@tycho.nsa.gov>
-In-Reply-To: <1468511275-23946-1-git-send-email-sds@tycho.nsa.gov>
+Subject: Re: RFC Fuzzing SE Linux interfaces
+To: "Roberts, William C" <william.c.roberts@intel.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <476DC76E7D1DF2438D32BFADF679FC56012586EE@ORSMSX103.amr.corp.intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <2d10b437-22a0-15f8-d53f-b7c7adbcd4a5@tycho.nsa.gov>
+Date: Mon, 18 Jul 2016 09:21:18 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC56012586EE@ORSMSX103.amr.corp.intel.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -19,49 +18,26 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-Thanks Stephen. That works.
+On 07/15/2016 04:18 PM, Roberts, William C wrote:
+>  
+> 
+> A quick google search didn’t yield much, neither did a grep of the
+> selinux-testsuite, but is their currently any fuzzing work being done on
+> the selinux interfaces?
 
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Thursday, July 14, 2016 9:18 PM
-To: selinux@tycho.nsa.gov
-Cc: Inamdar Sharif; seandroid-list@tycho.nsa.gov; Stephen Smalley
-Subject: [PATCH] Extend checkpolicy pathname matching.
+Not AFAIK.  There are general system call fuzzers for Linux such trinity
+and syzkaller; if you want to do full fledged fuzzing, you probably want
+to use one of those frameworks rather than rolling your own in
+selinux-testsuite.  On the other hand, if you just want to write some
+specific tests of the selinuxfs and /proc/pid/attr interfaces and add
+them to selinux-testsuite, that's fine too.
 
-checkpolicy currently imposes arbitrary limits on pathnames used in genfscon and other statements.  This prevents specifying certain paths in /proc such as those containing comma (,) characters.
+> Also, I noticed that the test suite has some ToDo’s and I didn’t see
+> tests surrounding ioctlcmd there, are their some implemented?
 
-Generalize the PATH, QPATH, and FILENAME patterns to support most legal pathnames.
+Not implemented yet, but they are mentioned in the ToDo list:
+$ grep ioctl ToDo
+ioctl: Test new ioctl whitelisting feature.
 
-For simplicity, we do not support pathnames containing newlines or quotes.
-
-Reported-by: Inamdar Sharif <isharif@nvidia.com>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- checkpolicy/policy_scan.l | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l index 22da338..2f7f221 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -249,9 +249,9 @@ high |
- HIGH				{ return(HIGH); }
- low |
- LOW				{ return(LOW); }
--"/"({alnum}|[_\.\-/])*	        { return(PATH); }
--\""/"[ !#-~]*\" 		{ return(QPATH); }
--\"({alnum}|[_\.\-\+\~\: ])+\"	{ return(FILENAME); }
-+"/"[^ \n\r\t\f]*	        { return(PATH); }
-+\""/"[^\"\n]*\" 		{ return(QPATH); }
-+\"[^"/"\"\n]+\"	{ return(FILENAME); }
- {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
- {digit}+|0x{hexval}+            { return(NUMBER); }
- {alnum}*{letter}{alnum}*        { return(FILESYSTEM); }
---
-2.5.5
-
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+You'll need Fedora 24 or newer in order to have the corresponding
+libsepol/checkpolicy support.
