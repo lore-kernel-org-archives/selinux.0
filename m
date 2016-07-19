@@ -1,30 +1,20 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6IKhMoQ013924
- for <selinux@tycho.nsa.gov>; Mon, 18 Jul 2016 16:43:22 -0400
-Received: by mail-wm0-f43.google.com with SMTP id f126so117857324wma.1
- for <selinux@tycho.nsa.gov>; Mon, 18 Jul 2016 13:43:19 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6JEoASl004927
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2016 10:50:10 -0400
+Received: by mail-oi0-f45.google.com with SMTP id l65so28721335oib.1
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jul 2016 07:50:09 -0700 (PDT)
 MIME-Version: 1.0
-Sender: keescook@google.com
-In-Reply-To: <1468872671-9002-2-git-send-email-john.stultz@linaro.org>
-References: <1468872671-9002-1-git-send-email-john.stultz@linaro.org>
- <1468872671-9002-2-git-send-email-john.stultz@linaro.org>
-From: Kees Cook <keescook@chromium.org>
-Date: Mon, 18 Jul 2016 13:43:17 -0700
-Message-ID: <CAGXu5jL1XPRRBQm8XKPbta3XL=eYrtoCxZssmwsfE6-KwCzS8A@mail.gmail.com>
-Subject: Re: [RFC][PATCH 2/2 v3] security: Add
- task_settimerslack/task_gettimerslack LSM hook
-To: John Stultz <john.stultz@linaro.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Arjan van de Ven <arjan@linux.intel.com>,
- Oren Laadan <orenl@cellrox.com>, Ruchi Kandoi <kandoiruchi@google.com>,
- Rom Lemarchand <romlem@android.com>, Todd Kjos <tkjos@google.com>,
- Colin Cross <ccross@android.com>, Nick Kralevich <nnk@google.com>,
- Dmitry Shmidt <dimitrysh@google.com>, Elliott Hughes <enh@google.com>,
- Android Kernel Team <kernel-team@android.com>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5601258B6E@ORSMSX103.amr.corp.intel.com>
+References: <476DC76E7D1DF2438D32BFADF679FC56012586EE@ORSMSX103.amr.corp.intel.com>
+ <2d10b437-22a0-15f8-d53f-b7c7adbcd4a5@tycho.nsa.gov>
+ <476DC76E7D1DF2438D32BFADF679FC5601258B6E@ORSMSX103.amr.corp.intel.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 19 Jul 2016 10:50:07 -0400
+Message-ID: <CAHC9VhR9ismubvEV1jfqVHKrsBDwDSmedyONRGmox5D0dp805g@mail.gmail.com>
+Subject: Re: RFC Fuzzing SE Linux interfaces
+To: "Roberts, William C" <william.c.roberts@intel.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -36,221 +26,48 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Mon, Jul 18, 2016 at 1:11 PM, John Stultz <john.stultz@linaro.org> wrote:
-> As requested, this patch implements a task_settimerslack and
-> task_gettimerslack LSM hooks so that the /proc/<tid>/timerslack_ns
-> interface can have finer grained security policies applied to it.
+On Mon, Jul 18, 2016 at 1:07 PM, Roberts, William C
+<william.c.roberts@intel.com> wrote:
+>> -----Original Message-----
+>> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+>> Sent: Monday, July 18, 2016 6:21 AM
+>> To: Roberts, William C <william.c.roberts@intel.com>; selinux@tycho.nsa.gov
+>> Subject: Re: RFC Fuzzing SE Linux interfaces
+>>
+>> On 07/15/2016 04:18 PM, Roberts, William C wrote:
+>> >
+>> >
+>> > A quick google search didn’t yield much, neither did a grep of the
+>> > selinux-testsuite, but is their currently any fuzzing work being done
+>> > on the selinux interfaces?
+>>
+>> Not AFAIK.  There are general system call fuzzers for Linux such trinity and
+>> syzkaller; if you want to do full fledged fuzzing, you probably want to use one of
+>> those frameworks rather than rolling your own in selinux-testsuite.  On the other
 >
-> I've kept the CAP_SYS_NICE check in the timerslack_ns_write/show
-> functions, as hiding it in the LSM hook seems too opaque, and doesn't
-> seem like a widely enough adopted practice.
+> I planned on using one of the frameworks, not sure which yet. I didn't plan on adding
+> Any fuzzing tests into selinux-testsuite. However, if I find issues, I'll likely take the malformed
+> Input and create a test case on that one, that way we can at least detect regressions on
+> Known bad inputs.
 
-Yeah, I think this does make it more readable in the end.
+Yes, fuzzing doesn't belong in selinux-testsuite; I want to keep that
+as a relatively simple testsuite that is reasonably self-contained and
+can be run easily and quickly.  Think regression testing.
 
+>> hand, if you just want to write some specific tests of the selinuxfs and
+>> /proc/pid/attr interfaces and add them to selinux-testsuite, that's fine too.
+>>
+>> > Also, I noticed that the test suite has some ToDo’s and I didn’t see
+>> > tests surrounding ioctlcmd there, are their some implemented?
+>>
+>> Not implemented yet, but they are mentioned in the ToDo list:
+>> $ grep ioctl ToDo
+>> ioctl: Test new ioctl whitelisting feature.
 >
-> Don't really know what I'm doing here, so close review would be
-> appreciated!
->
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: "Serge E. Hallyn" <serge@hallyn.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> CC: Arjan van de Ven <arjan@linux.intel.com>
-> Cc: Oren Laadan <orenl@cellrox.com>
-> Cc: Ruchi Kandoi <kandoiruchi@google.com>
-> Cc: Rom Lemarchand <romlem@android.com>
-> Cc: Todd Kjos <tkjos@google.com>
-> Cc: Colin Cross <ccross@android.com>
-> Cc: Nick Kralevich <nnk@google.com>
-> Cc: Dmitry Shmidt <dimitrysh@google.com>
-> Cc: Elliott Hughes <enh@google.com>
-> Cc: Android Kernel Team <kernel-team@android.com>
-> Cc: linux-security-module@vger.kernel.org
-> Cc: selinux@tycho.nsa.gov
-> Signed-off-by: John Stultz <john.stultz@linaro.org>
+> IMHO we should probably not take new features without a tests.
 
-Acked-by: Kees Cook <keescook@chromium.org>
-
--Kees
-
-> ---
-> v2:
->  * Initial swing at adding settimerslack LSM hook
-> v3:
->  * Fix current/p switchup bug noted by NickK
->  * Add gettimerslack hook suggested by NickK
->
->  fs/proc/base.c            | 10 ++++++++++
->  include/linux/lsm_hooks.h | 13 +++++++++++++
->  include/linux/security.h  | 12 ++++++++++++
->  security/security.c       | 14 ++++++++++++++
->  security/selinux/hooks.c  | 12 ++++++++++++
->  5 files changed, 61 insertions(+)
->
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index c94abae..cc66aa8 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -2286,6 +2286,12 @@ static ssize_t timerslack_ns_write(struct file *file, const char __user *buf,
->                 goto out;
->         }
->
-> +       err = security_task_settimerslack(p, slack_ns);
-> +       if (err) {
-> +               count = err;
-> +               goto out;
-> +       }
-> +
->         task_lock(p);
->         if (slack_ns == 0)
->                 p->timer_slack_ns = p->default_timer_slack_ns;
-> @@ -2314,6 +2320,10 @@ static int timerslack_ns_show(struct seq_file *m, void *v)
->                 goto out;
->         }
->
-> +       ret = security_task_gettimerslack(p);
-> +       if (ret)
-> +               goto out;
-> +
->         task_lock(p);
->         seq_printf(m, "%llu\n", p->timer_slack_ns);
->         task_unlock(p);
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 7ae3976..290483e 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -627,6 +627,15 @@
->   *     Check permission before moving memory owned by process @p.
->   *     @p contains the task_struct for process.
->   *     Return 0 if permission is granted.
-> + * @task_settimerslack:
-> + *     Check permission before setting timerslack value of @p to @slack.
-> + *     @p contains the task_struct of a process.
-> + *     @slack contains the new slack value.
-> + *     Return 0 if permission is granted.
-> + * @task_gettimerslack:
-> + *     Check permission before returning the timerslack value of @p.
-> + *     @p contains the task_struct of a process.
-> + *     Return 0 if permission is granted.
->   * @task_kill:
->   *     Check permission before sending signal @sig to @p.  @info can be NULL,
->   *     the constant 1, or a pointer to a siginfo structure.  If @info is 1 or
-> @@ -1473,6 +1482,8 @@ union security_list_options {
->         int (*task_setscheduler)(struct task_struct *p);
->         int (*task_getscheduler)(struct task_struct *p);
->         int (*task_movememory)(struct task_struct *p);
-> +       int (*task_settimerslack)(struct task_struct *p, u64 slack);
-> +       int (*task_gettimerslack)(struct task_struct *p);
->         int (*task_kill)(struct task_struct *p, struct siginfo *info,
->                                 int sig, u32 secid);
->         int (*task_wait)(struct task_struct *p);
-> @@ -1732,6 +1743,8 @@ struct security_hook_heads {
->         struct list_head task_setscheduler;
->         struct list_head task_getscheduler;
->         struct list_head task_movememory;
-> +       struct list_head task_settimerslack;
-> +       struct list_head task_gettimerslack;
->         struct list_head task_kill;
->         struct list_head task_wait;
->         struct list_head task_prctl;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 14df373..ab70f47 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -325,6 +325,8 @@ int security_task_setrlimit(struct task_struct *p, unsigned int resource,
->  int security_task_setscheduler(struct task_struct *p);
->  int security_task_getscheduler(struct task_struct *p);
->  int security_task_movememory(struct task_struct *p);
-> +int security_task_settimerslack(struct task_struct *p, u64 slack);
-> +int security_task_gettimerslack(struct task_struct *p);
->  int security_task_kill(struct task_struct *p, struct siginfo *info,
->                         int sig, u32 secid);
->  int security_task_wait(struct task_struct *p);
-> @@ -950,6 +952,16 @@ static inline int security_task_movememory(struct task_struct *p)
->         return 0;
->  }
->
-> +static inline int security_task_settimerslack(struct task_struct *p, u64 slack)
-> +{
-> +       return 0;
-> +}
-> +
-> +static inline int security_task_gettimerslack(struct task_struct *p)
-> +{
-> +       return 0;
-> +}
-> +
->  static inline int security_task_kill(struct task_struct *p,
->                                      struct siginfo *info, int sig,
->                                      u32 secid)
-> diff --git a/security/security.c b/security/security.c
-> index 7095693..4ced236 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -977,6 +977,16 @@ int security_task_movememory(struct task_struct *p)
->         return call_int_hook(task_movememory, 0, p);
->  }
->
-> +int security_task_settimerslack(struct task_struct *p, u64 slack)
-> +{
-> +       return call_int_hook(task_settimerslack, 0, p, slack);
-> +}
-> +
-> +int security_task_gettimerslack(struct task_struct *p)
-> +{
-> +       return call_int_hook(task_gettimerslack, 0, p);
-> +}
-> +
->  int security_task_kill(struct task_struct *p, struct siginfo *info,
->                         int sig, u32 secid)
->  {
-> @@ -1720,6 +1730,10 @@ struct security_hook_heads security_hook_heads = {
->                 LIST_HEAD_INIT(security_hook_heads.task_getscheduler),
->         .task_movememory =
->                 LIST_HEAD_INIT(security_hook_heads.task_movememory),
-> +       .task_settimerslack =
-> +               LIST_HEAD_INIT(security_hook_heads.task_settimerslack),
-> +       .task_gettimerslack =
-> +               LIST_HEAD_INIT(security_hook_heads.task_gettimerslack),
->         .task_kill =    LIST_HEAD_INIT(security_hook_heads.task_kill),
->         .task_wait =    LIST_HEAD_INIT(security_hook_heads.task_wait),
->         .task_prctl =   LIST_HEAD_INIT(security_hook_heads.task_prctl),
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index a86d537..aac9599 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3849,6 +3849,16 @@ static int selinux_task_movememory(struct task_struct *p)
->         return current_has_perm(p, PROCESS__SETSCHED);
->  }
->
-> +static int selinux_task_settimerslack(struct task_struct *p, u64 slack)
-> +{
-> +       return current_has_perm(p, PROCESS__SETSCHED);
-> +}
-> +
-> +static int selinux_task_gettimerslack(struct task_struct *p)
-> +{
-> +       return current_has_perm(p, PROCESS__GETSCHED);
-> +}
-> +
->  static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
->                                 int sig, u32 secid)
->  {
-> @@ -6092,6 +6102,8 @@ static struct security_hook_list selinux_hooks[] = {
->         LSM_HOOK_INIT(task_setscheduler, selinux_task_setscheduler),
->         LSM_HOOK_INIT(task_getscheduler, selinux_task_getscheduler),
->         LSM_HOOK_INIT(task_movememory, selinux_task_movememory),
-> +       LSM_HOOK_INIT(task_settimerslack, selinux_task_settimerslack),
-> +       LSM_HOOK_INIT(task_gettimerslack, selinux_task_gettimerslack),
->         LSM_HOOK_INIT(task_kill, selinux_task_kill),
->         LSM_HOOK_INIT(task_wait, selinux_task_wait),
->         LSM_HOOK_INIT(task_to_inode, selinux_task_to_inode),
-> --
-> 1.9.1
->
-
-
+Yes, that is something I'm getting stricter about.
 
 -- 
-Kees Cook
-Chrome OS & Brillo Security
+paul moore
+www.paul-moore.com
