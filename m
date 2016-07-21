@@ -1,34 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6L7PgC2022579
- for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2016 03:25:43 -0400
-Received: by mail-lf0-f50.google.com with SMTP id f93so54017720lfi.2
- for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2016 00:25:19 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6LCMRBM022434
+ for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2016 08:22:27 -0400
+Subject: Re: redis - selinux
+To: =?UTF-8?Q?Kamil_Boraty=c5=84ski?= <kboratynski@linsec.pl>,
+ selinux@tycho.nsa.gov
+References: <C8680873-CCF4-4613-A4F0-DF34CF783389@linsec.pl>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <66a76555-aa80-2400-6ed8-160d82ec25b6@redhat.com>
+Date: Thu, 21 Jul 2016 14:22:21 +0200
 MIME-Version: 1.0
-In-Reply-To: <20160720125201.GA52079@ubuntu-hedt>
-References: <1461699396-33000-1-git-send-email-seth.forshee@canonical.com>
- <1461699396-33000-19-git-send-email-seth.forshee@canonical.com>
- <CA+2rt426_pshAauQizcxkfAq16vmEpB4sJ4genW_ucosH3j=zQ@mail.gmail.com>
- <20160720125201.GA52079@ubuntu-hedt>
-From: Miklos Szeredi <mszeredi@redhat.com>
-Date: Thu, 21 Jul 2016 09:25:17 +0200
-Message-ID: <CAOssrKfJrQuf_exBVGtn-EBOBnRhhNWe+2P=VkEqtp3qmGYiFA@mail.gmail.com>
-Subject: Re: [PATCH v4 18/21] fuse: Add support for pid namespaces
-To: Seth Forshee <seth.forshee@canonical.com>
-Cc: Sheng Yang <sheng@yasker.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
- Miklos Szeredi <miklos@szeredi.hu>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Serge Hallyn <serge.hallyn@canonical.com>,
- Richard Weinberger <richard.weinberger@gmail.com>,
- Austin S Hemmelgarn <ahferroin7@gmail.com>,
- Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
- kernel list <linux-kernel@vger.kernel.org>,
- linux-bcache@vger.kernel.org, dm-devel@redhat.com,
- linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- fuse-devel@lists.sourceforge.net,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- cgroups@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <C8680873-CCF4-4613-A4F0-DF34CF783389@linsec.pl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
@@ -39,32 +21,173 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
  <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On Wed, Jul 20, 2016 at 2:52 PM, Seth Forshee
-<seth.forshee@canonical.com> wrote:
+On 07/20/2016 11:34 PM, Kamil Boratyński wrote:
+> It looks like SELinux policies block the connection betweeen Redis servers.
+> It is needed for replication purposes.
 
-> It sounds like we need to remove the restriction on accessing the
-> filesystem from a different pid namespace. I don't think this poses a
-> security problem. However there's no pid mapping that is usable by the
-> userspace fuse process, so what do we put in the fuse request? Probably
-> the only candidates are 0 and 0xffffffff.
+It's already reported in Red Hat bugzilla - 
+https://bugzilla.redhat.com/show_bug.cgi?id=1348471
+and seems like it will be fixed in the next RHEL-7 release.
+
+Petr
+
+> * sealert
+>> root@redis-2 ~]# sealert -a /var/log/audit/audit.log
+>>   3% done'list' object has no attribute 'split'
+>> 103% done
+>> found 1 alerts in /var/log/audit/audit.log
+>> --------------------------------------------------------------------------------
+>>
+>> SELinux is preventing /usr/bin/redis-server from name_connect access on the tcp_socket port 6379.
+>>
+>> *****  Plugin catchall (100. confidence) suggests   **************************
+>>
+>> If you believe that redis-server should be allowed name_connect access on the port 6379 tcp_socket by default.
+>> Then you should report this as a bug.
+>> You can generate a local policy module to allow this access.
+>> Do
+>> allow this access for now by executing:
+>> # grep redis-server /var/log/audit/audit.log | audit2allow -M mypol
+>> # semodule -i mypol.pp
+>>
+>>
+>> Additional Information:
+>> Source Context                system_u:system_r:redis_t:s0
+>> Target Context                system_u:object_r:redis_port_t:s0
+>> Target Objects                port 6379 [ tcp_socket ]
+>> Source                        redis-server
+>> Source Path                   /usr/bin/redis-server
+>> Port                          6379
+>> Host                          <Unknown>
+>> Source RPM Packages           redis-2.8.19-2.el7.x86_64
+>> Target RPM Packages
+>> Policy RPM                    selinux-policy-3.13.1-60.el7_2.7.noarch
+>> Selinux Enabled               True
+>> Policy Type                   targeted
+>> Enforcing Mode                Enforcing
+>> Host Name                     redis-2
+>> Platform                      Linux redis-2 3.10.0-327.22.2.el7.x86_64 #1 SMP
+>>                               Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64
+>> Alert Count                   250
+>> First Seen                    2016-07-20 21:14:59 UTC
+>> Last Seen                     2016-07-20 21:26:05 UTC
+>> Local ID                      90314588-4f75-485a-bce4-3b8b1742fe8f
+>>
+>> Raw Audit Messages
+>> type=AVC msg=audit(1469049965.377:1214): avc:  denied  { name_connect } for  pid=5668 comm="redis-server" dest=6379 scontext=system_u:system_r:redis_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket
+>>
+>>
+>> type=SYSCALL msg=audit(1469049965.377:1214): arch=x86_64 syscall=connect success=no exit=EACCES a0=5 a1=7f6e8c010df0 a2=10 a3=7fff1db82944 items=0 ppid=1 pid=5668 auid=4294967295 uid=995 gid=993 euid=995 suid=995 fsuid=995 egid=993 sgid=993 fsgid=993 tty=(none) ses=4294967295 comm=redis-server exe=/usr/bin/redis-server subj=system_u:system_r:redis_t:s0 key=(null)
+>>
+>> Hash: redis-server,redis_t,redis_port_t,tcp_socket,name_connect
+>>
+>> [root@redis-2 ~]#
 >
-> So a question for the fuse developers - is one value or the other
-> preferrable for fuse_in_header.pid when the pid cannot be mapped, and is
-> this going to cause problems for any fuse filesystems? I suspect that
-> few filesystems actually look at the pid anyway, and already for a
-> filesystem mounted in a pid namespace the values being given to
-> userspace won't be correct for the namespace of the fuse process.
-
-pid = 0 sounds good.
-
-The pid from the request is used for example to get the auxiliary
-group list by libfuse (fuse_req_getgroups()).   That's not used by all
-filesystems and it will return an error in case it can't find the proc
-entry (which it won't for pid == 0).
-
-It would be nice if we could transfer the group list through the
-userspace/kernel protocol, since then it wouldn't depend on proc and
-on being in the same pid namespace.  But that's another story.
-
-Thanks,
-Miklos
+>
+>
+> * sestatus
+>> [root@redis-2 ~]# sestatus
+>> SELinux status:                 enabled
+>> SELinuxfs mount:                /sys/fs/selinux
+>> SELinux root directory:         /etc/selinux
+>> Loaded policy name:             targeted
+>> Current mode:                   enforcing
+>> Mode from config file:          enforcing
+>> Policy MLS status:              enabled
+>> Policy deny_unknown status:     allowed
+>> Max kernel policy version:      28
+>> [root@redis-2 ~]#
+>> Policy Type
+>
+> * kernel-version
+>> [root@redis-2 ~]# uname -a
+>> Linux redis-2 3.10.0-327.22.2.el7.x86_64 #1 SMP Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+>> [root@redis-2 ~]#
+>
+>
+> * checkpolicy version:
+>> [root@redis-2 ~]# checkpolicy --version
+>> 29 (compatibility range 29-15)
+>> [root@redis-2 ~]#
+>
+> * libselinux-version:
+>> [root@redis-2 ~]# yum info installed libselinux
+>> Loaded plugins: fastestmirror
+>> Installed Packages
+>> Name        : libselinux
+>> Arch        : x86_64
+>> Version     : 2.2.2
+>> Release     : 6.el7
+>> Size        : 159 k
+>> Repo        : installed
+>> From repo   : anaconda
+>> Summary     : SELinux library and simple utilities
+>> URL         : http://oss.tresys.com/git/selinux.git
+>> License     : Public Domain
+>> Description : Security-enhanced Linux is a feature of the Linux? kernel and a number
+>>             : of utilities with enhanced security functionality designed to add
+>>             : mandatory access controls to Linux.  The Security-enhanced Linux
+>>             : kernel contains new architectural components originally developed to
+>>             : improve the security of the Flask operating system. These
+>>             : architectural components provide general support for the enforcement
+>>             : of many kinds of mandatory access control policies, including those
+>>             : based on the concepts of Type Enforcement?, Role-based Access
+>>             : Control, and Multi-level Security.
+>>             :
+>>             : libselinux provides an API for SELinux applications to get and set
+>>             : process and file security contexts and to obtain security policy
+>>             : decisions.  Required for any applications that use the SELinux API.
+>>
+>> [root@redis-2 ~]#
+>
+> * libsemanage:
+>> [root@redis-2 ~]# yum info installed libsemanage
+>> Loaded plugins: fastestmirror
+>> Installed Packages
+>> Name        : libsemanage
+>> Arch        : x86_64
+>> Version     : 2.1.10
+>> Release     : 18.el7
+>> Size        : 220 k
+>> Repo        : installed
+>> From repo   : anaconda
+>> Summary     : SELinux binary policy manipulation library
+>> URL         : http://oss.tresys.com/git/selinux.git
+>> License     : LGPLv2+
+>> Description : Security-enhanced Linux is a feature of the Linux? kernel and a number
+>>             : of utilities with enhanced security functionality designed to add
+>>             : mandatory access controls to Linux.  The Security-enhanced Linux
+>>             : kernel contains new architectural components originally developed to
+>>             : improve the security of the Flask operating system. These
+>>             : architectural components provide general support for the enforcement
+>>             : of many kinds of mandatory access control policies, including those
+>>             : based on the concepts of Type Enforcement?, Role-based Access
+>>             : Control, and Multi-level Security.
+>>             :
+>>             : libsemanage provides an API for the manipulation of SELinux binary
+>>             : policies. It is used by checkpolicy (the policy compiler) and similar
+>>             : tools, as well as by programs like load_policy that need to perform
+>>             : specific transformations on binary policies such as customizing policy
+>>             : boolean settings.
+>>
+>> [root@redis-2 ~]#
+>
+> * policy:
+>> [root@redis-2 ~]# grep redis-server /var/log/audit/audit.log | audit2allow
+>> #============= redis_t ==============
+>> allow redis_t redis_port_t:tcp_socket name_connect;
+>> [root@redis-2 ~]#
+>
+> In case of any further questions, feel free to ask me.
+> I think it would be nice to have a boolean value for this.
+>
+> — K.
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
