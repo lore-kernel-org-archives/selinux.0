@@ -1,193 +1,98 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6LCMRBM022434
- for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2016 08:22:27 -0400
-Subject: Re: redis - selinux
-To: =?UTF-8?Q?Kamil_Boraty=c5=84ski?= <kboratynski@linsec.pl>,
- selinux@tycho.nsa.gov
-References: <C8680873-CCF4-4613-A4F0-DF34CF783389@linsec.pl>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <66a76555-aa80-2400-6ed8-160d82ec25b6@redhat.com>
-Date: Thu, 21 Jul 2016 14:22:21 +0200
-MIME-Version: 1.0
-In-Reply-To: <C8680873-CCF4-4613-A4F0-DF34CF783389@linsec.pl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6LKOYis017525
+ for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2016 16:24:34 -0400
+Received: by mail-pf0-f173.google.com with SMTP id x72so33565657pfd.2
+ for <selinux@tycho.nsa.gov>; Thu, 21 Jul 2016 13:24:32 -0700 (PDT)
+From: John Stultz <john.stultz@linaro.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, Kees Cook <keescook@chromium.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Arjan van de Ven <arjan@linux.intel.com>,
+ Oren Laadan <orenl@cellrox.com>, Ruchi Kandoi <kandoiruchi@google.com>,
+ Rom Lemarchand <romlem@android.com>, Todd Kjos <tkjos@google.com>,
+ Colin Cross <ccross@android.com>, Nick Kralevich <nnk@google.com>,
+ Dmitry Shmidt <dimitrysh@google.com>, Elliott Hughes <enh@google.com>,
+ James Morris <jmorris@namei.org>,
+ Android Kernel Team <kernel-team@android.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: [PATCH 2/2 v4] proc: Add LSM hook checks to /proc/<tid>/timerslack_ns
+Date: Thu, 21 Jul 2016 13:24:27 -0700
+Message-Id: <1469132667-17377-2-git-send-email-john.stultz@linaro.org>
+In-Reply-To: <1469132667-17377-1-git-send-email-john.stultz@linaro.org>
+References: <1469132667-17377-1-git-send-email-john.stultz@linaro.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
-List-Unsubscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/options/selinux>,
- <mailto:selinux-request@tycho.nsa.gov?subject=unsubscribe>
-List-Archive: <http://prometheus.infosec.tycho.ncsc.mil/pipermail/selinux/>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
-List-Subscribe: <http://prometheus.infosec.tycho.ncsc.mil/mailman/listinfo/selinux>,
- <mailto:selinux-request@tycho.nsa.gov?subject=subscribe>
 
-On 07/20/2016 11:34 PM, Kamil Boratyński wrote:
-> It looks like SELinux policies block the connection betweeen Redis servers.
-> It is needed for replication purposes.
+As requested, this patch checks the existing LSM hooks
+task_getscheduler/task_setscheduler when reading or modifying
+the task's timerslack value.
 
-It's already reported in Red Hat bugzilla - 
-https://bugzilla.redhat.com/show_bug.cgi?id=1348471
-and seems like it will be fixed in the next RHEL-7 release.
+Previous versions added new get/settimerslack LSM hooks, but
+since they checked the same PROCESS__SET/GETSCHED values as
+existing hooks, it was suggested we just use the existing ones.
 
-Petr
+Cc: Kees Cook <keescook@chromium.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+CC: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Oren Laadan <orenl@cellrox.com>
+Cc: Ruchi Kandoi <kandoiruchi@google.com>
+Cc: Rom Lemarchand <romlem@android.com>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Colin Cross <ccross@android.com>
+Cc: Nick Kralevich <nnk@google.com>
+Cc: Dmitry Shmidt <dimitrysh@google.com>
+Cc: Elliott Hughes <enh@google.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Android Kernel Team <kernel-team@android.com>
+Cc: linux-security-module@vger.kernel.org
+Cc: selinux@tycho.nsa.gov
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+---
+v2:
+ * Initial swing at adding settimerslack LSM hook
+v3:
+ * Fix current/p switchup bug noted by NickK
+ * Add gettimerslack hook suggested by NickK
+v4:
+ * Dropped adding get/settimerslack LSM hooks, and
+   just reuse the get/setscheduler ones.
 
-> * sealert
->> root@redis-2 ~]# sealert -a /var/log/audit/audit.log
->>   3% done'list' object has no attribute 'split'
->> 103% done
->> found 1 alerts in /var/log/audit/audit.log
->> --------------------------------------------------------------------------------
->>
->> SELinux is preventing /usr/bin/redis-server from name_connect access on the tcp_socket port 6379.
->>
->> *****  Plugin catchall (100. confidence) suggests   **************************
->>
->> If you believe that redis-server should be allowed name_connect access on the port 6379 tcp_socket by default.
->> Then you should report this as a bug.
->> You can generate a local policy module to allow this access.
->> Do
->> allow this access for now by executing:
->> # grep redis-server /var/log/audit/audit.log | audit2allow -M mypol
->> # semodule -i mypol.pp
->>
->>
->> Additional Information:
->> Source Context                system_u:system_r:redis_t:s0
->> Target Context                system_u:object_r:redis_port_t:s0
->> Target Objects                port 6379 [ tcp_socket ]
->> Source                        redis-server
->> Source Path                   /usr/bin/redis-server
->> Port                          6379
->> Host                          <Unknown>
->> Source RPM Packages           redis-2.8.19-2.el7.x86_64
->> Target RPM Packages
->> Policy RPM                    selinux-policy-3.13.1-60.el7_2.7.noarch
->> Selinux Enabled               True
->> Policy Type                   targeted
->> Enforcing Mode                Enforcing
->> Host Name                     redis-2
->> Platform                      Linux redis-2 3.10.0-327.22.2.el7.x86_64 #1 SMP
->>                               Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64
->> Alert Count                   250
->> First Seen                    2016-07-20 21:14:59 UTC
->> Last Seen                     2016-07-20 21:26:05 UTC
->> Local ID                      90314588-4f75-485a-bce4-3b8b1742fe8f
->>
->> Raw Audit Messages
->> type=AVC msg=audit(1469049965.377:1214): avc:  denied  { name_connect } for  pid=5668 comm="redis-server" dest=6379 scontext=system_u:system_r:redis_t:s0 tcontext=system_u:object_r:redis_port_t:s0 tclass=tcp_socket
->>
->>
->> type=SYSCALL msg=audit(1469049965.377:1214): arch=x86_64 syscall=connect success=no exit=EACCES a0=5 a1=7f6e8c010df0 a2=10 a3=7fff1db82944 items=0 ppid=1 pid=5668 auid=4294967295 uid=995 gid=993 euid=995 suid=995 fsuid=995 egid=993 sgid=993 fsgid=993 tty=(none) ses=4294967295 comm=redis-server exe=/usr/bin/redis-server subj=system_u:system_r:redis_t:s0 key=(null)
->>
->> Hash: redis-server,redis_t,redis_port_t,tcp_socket,name_connect
->>
->> [root@redis-2 ~]#
->
->
->
-> * sestatus
->> [root@redis-2 ~]# sestatus
->> SELinux status:                 enabled
->> SELinuxfs mount:                /sys/fs/selinux
->> SELinux root directory:         /etc/selinux
->> Loaded policy name:             targeted
->> Current mode:                   enforcing
->> Mode from config file:          enforcing
->> Policy MLS status:              enabled
->> Policy deny_unknown status:     allowed
->> Max kernel policy version:      28
->> [root@redis-2 ~]#
->> Policy Type
->
-> * kernel-version
->> [root@redis-2 ~]# uname -a
->> Linux redis-2 3.10.0-327.22.2.el7.x86_64 #1 SMP Thu Jun 23 17:05:11 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
->> [root@redis-2 ~]#
->
->
-> * checkpolicy version:
->> [root@redis-2 ~]# checkpolicy --version
->> 29 (compatibility range 29-15)
->> [root@redis-2 ~]#
->
-> * libselinux-version:
->> [root@redis-2 ~]# yum info installed libselinux
->> Loaded plugins: fastestmirror
->> Installed Packages
->> Name        : libselinux
->> Arch        : x86_64
->> Version     : 2.2.2
->> Release     : 6.el7
->> Size        : 159 k
->> Repo        : installed
->> From repo   : anaconda
->> Summary     : SELinux library and simple utilities
->> URL         : http://oss.tresys.com/git/selinux.git
->> License     : Public Domain
->> Description : Security-enhanced Linux is a feature of the Linux? kernel and a number
->>             : of utilities with enhanced security functionality designed to add
->>             : mandatory access controls to Linux.  The Security-enhanced Linux
->>             : kernel contains new architectural components originally developed to
->>             : improve the security of the Flask operating system. These
->>             : architectural components provide general support for the enforcement
->>             : of many kinds of mandatory access control policies, including those
->>             : based on the concepts of Type Enforcement?, Role-based Access
->>             : Control, and Multi-level Security.
->>             :
->>             : libselinux provides an API for SELinux applications to get and set
->>             : process and file security contexts and to obtain security policy
->>             : decisions.  Required for any applications that use the SELinux API.
->>
->> [root@redis-2 ~]#
->
-> * libsemanage:
->> [root@redis-2 ~]# yum info installed libsemanage
->> Loaded plugins: fastestmirror
->> Installed Packages
->> Name        : libsemanage
->> Arch        : x86_64
->> Version     : 2.1.10
->> Release     : 18.el7
->> Size        : 220 k
->> Repo        : installed
->> From repo   : anaconda
->> Summary     : SELinux binary policy manipulation library
->> URL         : http://oss.tresys.com/git/selinux.git
->> License     : LGPLv2+
->> Description : Security-enhanced Linux is a feature of the Linux? kernel and a number
->>             : of utilities with enhanced security functionality designed to add
->>             : mandatory access controls to Linux.  The Security-enhanced Linux
->>             : kernel contains new architectural components originally developed to
->>             : improve the security of the Flask operating system. These
->>             : architectural components provide general support for the enforcement
->>             : of many kinds of mandatory access control policies, including those
->>             : based on the concepts of Type Enforcement?, Role-based Access
->>             : Control, and Multi-level Security.
->>             :
->>             : libsemanage provides an API for the manipulation of SELinux binary
->>             : policies. It is used by checkpolicy (the policy compiler) and similar
->>             : tools, as well as by programs like load_policy that need to perform
->>             : specific transformations on binary policies such as customizing policy
->>             : boolean settings.
->>
->> [root@redis-2 ~]#
->
-> * policy:
->> [root@redis-2 ~]# grep redis-server /var/log/audit/audit.log | audit2allow
->> #============= redis_t ==============
->> allow redis_t redis_port_t:tcp_socket name_connect;
->> [root@redis-2 ~]#
->
-> In case of any further questions, feel free to ask me.
-> I think it would be nice to have a boolean value for this.
->
-> — K.
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
+ fs/proc/base.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index c94abae..02f8389 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2286,6 +2286,12 @@ static ssize_t timerslack_ns_write(struct file *file, const char __user *buf,
+ 		goto out;
+ 	}
+ 
++	err = security_task_setscheduler(p);
++	if (err) {
++		count = err;
++		goto out;
++	}
++
+ 	task_lock(p);
+ 	if (slack_ns == 0)
+ 		p->timer_slack_ns = p->default_timer_slack_ns;
+@@ -2314,6 +2320,10 @@ static int timerslack_ns_show(struct seq_file *m, void *v)
+ 		goto out;
+ 	}
+ 
++	err = security_task_getscheduler(p);
++	if (err)
++		goto out;
++
+ 	task_lock(p);
+ 	seq_printf(m, "%llu\n", p->timer_slack_ns);
+ 	task_unlock(p);
+-- 
+1.9.1
