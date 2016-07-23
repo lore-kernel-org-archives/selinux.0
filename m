@@ -1,36 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6MNIxH7004155
- for <selinux@tycho.nsa.gov>; Fri, 22 Jul 2016 19:18:59 -0400
-Subject: Re: rpm running with MLS range?
-To: Miroslav Grepl <mgrepl@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-References: <b479402e-d234-676b-ea5e-33c7d966729f@redhat.com>
-From: Chris PeBenito <pebenito@ieee.org>
-Message-ID: <80236005-3c53-0ffa-2d3e-550d766a581c@ieee.org>
-Date: Fri, 22 Jul 2016 19:19:03 -0400
-MIME-Version: 1.0
-In-Reply-To: <b479402e-d234-676b-ea5e-33c7d966729f@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u6N8h4Jc022613
+ for <selinux@tycho.nsa.gov>; Sat, 23 Jul 2016 04:43:04 -0400
+Received: from process-dkim-sign-daemon.mr25p46im-ztdg02111301.me.com by
+ mr25p46im-ztdg02111301.me.com
+ (Oracle Communications Messaging Server 7.0.5.38.0 64bit (built Feb 26 2016))
+ id <0OAR00400ELA5J00@mr25p46im-ztdg02111301.me.com> for selinux@tycho.nsa.gov;
+ Sat, 23 Jul 2016 08:42:44 +0000 (GMT)
+Received: from [10.12.81.21]
+ (CPE-121-208-137-188.eqmp1.cha.bigpond.net.au [121.208.137.188])
+ by mr25p46im-ztdg02111301.me.com
+ (Oracle Communications Messaging Server 7.0.5.38.0 64bit (built Feb 26 2016))
+ with ESMTPSA id <0OAR004DDEV58100@mr25p46im-ztdg02111301.me.com> for
+ selinux@tycho.nsa.gov; Sat, 23 Jul 2016 08:42:44 +0000 (GMT)
+From: ileyd <ileyd@icloud.com>
+Content-type: multipart/alternative;
+ boundary=Apple-Mail-A258E4D5-1AC0-4338-90F0-5425D03CCCE9
+MIME-version: 1.0 (1.0)
+Date: Sat, 23 Jul 2016 18:42:41 +1000
+Subject: Is there any SELinux support for labelled printing like with Trusted
+ Extensions?
+Message-id: <43A9A938-AD9A-483C-8392-38AB64D87A2C@icloud.com>
+To: selinux@tycho.nsa.gov
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/22/16 09:41, Miroslav Grepl wrote:
-> Hi folks,
-> we define a MLS range for some directories in the policy and because we
-> have a SELinux support in rpm, we can end up with AVC msgs like
->
-> type=AVC msg=audit(1461664028.583:784): avc:  denied  { relabelto } for
-> pid=14322 comm="yum" name="libvirt" dev="dm-0" ino=670147
-> scontext=root:system_r:rpm_t:s0
-> tcontext=system_u:object_r:virt_cache_t:s0-s15:c0.c1023 tclass=dir
->
-> Does it make sense to have rpm_t running with a range or should we think
-> about a new MLS attribute for "file ( relableto )"?
 
-Normally package managers aren't processing sensitive (in the MLS sense) 
-data.  Creating objects higher than system low is an exceptional case, 
-so I'd go with a new MLS exception (attribute).
+--Apple-Mail-A258E4D5-1AC0-4338-90F0-5425D03CCCE9
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Chris PeBenito
+Hi,
+
+Is there any support for labelled printing with SELinux like described here?=
+
+
+https://docs.oracle.com/cd/E53394_01/html/E54841/manageprint-19.html#scrollt=
+oc
+
+Kind Regards,
+ileyd=
+
+--Apple-Mail-A258E4D5-1AC0-4338-90F0-5425D03CCCE9
+Content-Type: text/html;
+	charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"></head><body dir="auto"><div><div style="direction: inherit;">Hi,</div><div style="direction: inherit;"><br></div><div style="direction: inherit;">Is there any support for labelled printing with SELinux like described here?</div><div style="direction: inherit;"><br></div><div style="direction: inherit;"><a href="https://docs.oracle.com/cd/E53394_01/html/E54841/manageprint-19.html#scrolltoc">https://docs.oracle.com/cd/E53394_01/html/E54841/manageprint-19.html#scrolltoc</a></div><div style="direction: inherit;"><br></div></div><div><div style="direction: inherit;">Kind Regards,</div><div style="direction: inherit;">ileyd</div></div></body></html>
+--Apple-Mail-A258E4D5-1AC0-4338-90F0-5425D03CCCE9--
