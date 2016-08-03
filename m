@@ -1,32 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u73CvZfE013568
- for <selinux@tycho.nsa.gov>; Wed, 3 Aug 2016 08:57:36 -0400
-From: Colin Powers <Colin.Powers@nexor.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: Should port 3269 be ldap_port_t?
-Date: Wed, 3 Aug 2016 12:48:13 +0000
-Message-ID: <DB6PR0301MB2568DA47381B2C302EEC7D9F9E060@DB6PR0301MB2568.eurprd03.prod.outlook.com>
-Content-Type: text/plain; charset="us-ascii"
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH] module_to_cil: fix possible use of initialized value
+Date: Wed,  3 Aug 2016 14:37:04 -0700
+Message-Id: <1470260224-761-1-git-send-email-william.c.roberts@intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi all,
+From: William Roberts <william.c.roberts@intel.com>
 
-First of all apologies if something has changed in this area recently, I have checked on a RHEL 7 machine and noticed the omission.
+Correct errors like these reported by gcc:
 
-LDAP is associated with the following ports:
-- 389 for plain LDAP
-- 686 for LDAPS
-- 3268 for Global Catalog
-- 3269 for Global Catalog over LDAPS
+module_to_cil.c: In function ‘block_to_cil’:
+module_to_cil.c:229:20: error: ‘attr_list’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
+  struct list_node *curr = (*attr_list)->head;
 
-All of these ports are ldap_port_t except 3269 which is not given any special type.
+Usages of attr_list_destroy() were called when list_init()
+fails. Just bail early on failure.
 
-Because of this, my Apache set-up was unable to perform LDAP authorisation while in enforcing. Obviously I can fix the issue with semanage, but should 3269 be ldap_port_t out of the box?
+stack_init() and stack_destroy() also suffered from the
+aforementioned issue.
 
-Cheers
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/module_to_cil.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Colin Powers
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index b9a4af7..9d0d064 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -1307,7 +1307,7 @@ static int cond_list_to_cil(int indent, struct policydb *pdb, struct cond_node *
+ 
+ 	rc = list_init(&attr_list);
+ 	if (rc != 0) {
+-		goto exit;
++		return rc;
+ 	}
+ 
+ 	for (cond = cond_list; cond != NULL; cond = cond->next) {
+@@ -3488,7 +3488,7 @@ static int block_to_cil(struct policydb *pdb, struct avrule_block *block, struct
+ 
+ 	rc = list_init(&attr_list);
+ 	if (rc != 0) {
+-		goto exit;
++		return rc;
+ 	}
+ 
+ 	rc = typealiases_to_cil(indent, pdb, block, stack);
+@@ -3635,7 +3635,7 @@ static int blocks_to_cil(struct policydb *pdb)
+ 
+ 	rc = stack_init(&stack);
+ 	if (rc != 0) {
+-		goto exit;
++		return rc;
+ 	}
+ 
+ 	block = pdb->global;
+@@ -3703,7 +3703,7 @@ static int linked_blocks_to_cil(struct policydb *pdb)
+ 
+ 	rc = stack_init(&stack);
+ 	if (rc != 0) {
+-		goto exit;
++		return rc;
+ 	}
+ 
+ 	block = pdb->global;
+-- 
+1.9.1
