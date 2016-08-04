@@ -1,52 +1,81 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74D0OQT005531
- for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 09:00:25 -0400
-Subject: Re: [PATCH] libselinux/utils/Makefile: Fix in tree compilation
-To: Laurent Bigonville <bigon@debian.org>, <selinux@tycho.nsa.gov>
-References: <1470314646-29805-1-git-send-email-bigon@debian.org>
-From: Steve Lawrence <slawrence@tresys.com>
-Message-ID: <49c99a05-aba8-18ab-e9cb-df96b5aa2af7@tresys.com>
-Date: Thu, 4 Aug 2016 09:00:10 -0400
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH v3] module_to_cil: fix possible use of initialized value
+Date: Thu,  4 Aug 2016 09:47:04 -0700
+Message-Id: <1470329224-17870-1-git-send-email-william.c.roberts@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <1470314646-29805-1-git-send-email-bigon@debian.org>
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/04/2016 08:44 AM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
-> 
-> Some tools need the sepol/sepol.h header
+From: William Roberts <william.c.roberts@intel.com>
 
-Applied. Thanks!
+Correct errors like these reported by gcc:
 
-- Steve
+module_to_cil.c: In function ‘block_to_cil’:
+module_to_cil.c:229:20: error: ‘attr_list’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
+  struct list_node *curr = (*attr_list)->head;
 
-> ---
->  libselinux/utils/Makefile | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> index cf7af52..8497cb4 100644
-> --- a/libselinux/utils/Makefile
-> +++ b/libselinux/utils/Makefile
-> @@ -3,6 +3,7 @@ PREFIX ?= $(DESTDIR)/usr
->  LIBDIR ?= $(PREFIX)/lib
->  USRBINDIR ?= $(PREFIX)/sbin
->  SBINDIR ?= $(DESTDIR)/sbin
-> +INCLUDEDIR ?= $(PREFIX)/include
->  
->  MAX_STACK_SIZE=8192
->  CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissing-include-dirs \
-> @@ -23,7 +24,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
->            -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
->            -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
->            -Werror -Wno-aggregate-return -Wno-redundant-decls
-> -override CFLAGS += -I../include -D_GNU_SOURCE $(EMFLAGS)
-> +override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(EMFLAGS)
->  LDLIBS += -L../src -lselinux -L$(LIBDIR)
->  
->  TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-> 
+Usages of attr_list_destroy() were called when list_init()
+fails.
+
+stack_init() and stack_destroy() also suffered from the
+aforementioned issue.
+
+To correct the issue, initialize stack and list variables to
+NULL.
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/module_to_cil.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index b9a4af7..c74f357 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -1303,11 +1303,11 @@ static int cond_list_to_cil(int indent, struct policydb *pdb, struct cond_node *
+ {
+ 	int rc = -1;
+ 	struct cond_node *cond;
+-	struct list *attr_list;
++	struct list *attr_list = NULL;
+ 
+ 	rc = list_init(&attr_list);
+ 	if (rc != 0) {
+-		goto exit;
++		goto exit;;
+ 	}
+ 
+ 	for (cond = cond_list; cond != NULL; cond = cond->next) {
+@@ -3482,7 +3482,7 @@ static int block_to_cil(struct policydb *pdb, struct avrule_block *block, struct
+ {
+ 	int rc = -1;
+ 	struct avrule_decl *decl;
+-	struct list *attr_list;
++	struct list *attr_list = NULL;
+ 
+ 	decl = block->branch_list;
+ 
+@@ -3631,7 +3631,7 @@ static int blocks_to_cil(struct policydb *pdb)
+ 	int rc = -1;
+ 	struct avrule_block *block;
+ 	int indent = 0;
+-	struct stack *stack;
++	struct stack *stack = NULL;
+ 
+ 	rc = stack_init(&stack);
+ 	if (rc != 0) {
+@@ -3699,7 +3699,7 @@ static int linked_blocks_to_cil(struct policydb *pdb)
+ 	// Since it is linked, all optional blocks have been resolved
+ 	int rc = -1;
+ 	struct avrule_block *block;
+-	struct stack *stack;
++	struct stack *stack = NULL;
+ 
+ 	rc = stack_init(&stack);
+ 	if (rc != 0) {
+-- 
+1.9.1
