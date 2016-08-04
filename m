@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74IYMKV011354
- for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 14:34:27 -0400
-Received: by mail-pa0-f66.google.com with SMTP id ez1so17903635pab.3
- for <selinux@tycho.nsa.gov>; Thu, 04 Aug 2016 11:34:25 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74IYMKW011354
+ for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 14:34:29 -0400
+Received: by mail-pa0-f65.google.com with SMTP id q2so17934449pap.0
+ for <selinux@tycho.nsa.gov>; Thu, 04 Aug 2016 11:34:28 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 02/12] seobject: use sorted() instead of .sort()
-Date: Fri,  5 Aug 2016 02:33:55 +0800
-Message-Id: <1470335645-24224-3-git-send-email-jason@perfinion.com>
+Subject: [PATCH 03/12] semanage: misc style issues
+Date: Fri,  5 Aug 2016 02:33:56 +0800
+Message-Id: <1470335645-24224-4-git-send-email-jason@perfinion.com>
 In-Reply-To: <1470335645-24224-1-git-send-email-jason@perfinion.com>
 References: <1470335645-24224-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,191 +15,132 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-2to3 wanted to wrap all the .keys() calls in list() but doing sorted()
-directly is better.
+Unused imports
+== None should be is None
 
 Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- policycoreutils/semanage/seobject.py | 68 ++++++++++++------------------------
- 1 file changed, 22 insertions(+), 46 deletions(-)
+ policycoreutils/semanage/semanage         |  5 +++--
+ policycoreutils/semanage/seobject.py      | 15 +++++----------
+ policycoreutils/semanage/test-semanage.py |  3 ---
+ 3 files changed, 8 insertions(+), 15 deletions(-)
 
+diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+index 954411d..e6e3a49 100644
+--- a/policycoreutils/semanage/semanage
++++ b/policycoreutils/semanage/semanage
+@@ -23,6 +23,7 @@
+ #
+ #
+ 
++import traceback
+ import argparse
+ import seobject
+ import sys
+@@ -111,7 +112,7 @@ class SetExportFile(argparse.Action):
+                 try:
+                     sys.stdout = open(values, 'w')
+                 except:
+-                    sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
++                    sys.stderr.write(traceback.format_exc())
+                     sys.exit(1)
+         setattr(namespace, self.dest, values)
+ 
+@@ -702,7 +703,7 @@ def handlePermissive(args):
+ 
+     if args.action is "list":
+         OBJECT.list(args.noheading)
+-    elif args.type != None:
++    elif args.type is not None:
+         if args.action is "add":
+             OBJECT.add(args.type)
+         if args.action is "delete":
 diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-index 863d4a5..66ff00e 100644
+index 66ff00e..5100720 100644
 --- a/policycoreutils/semanage/seobject.py
 +++ b/policycoreutils/semanage/seobject.py
-@@ -716,21 +716,17 @@ class loginRecords(semanageRecords):
-     def customized(self):
-         l = []
-         ddict = self.get_all(True)
--        keys = ddict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             l.append("-a -s %s -r '%s' %s" % (ddict[k][0], ddict[k][1], k))
-         return l
+@@ -23,14 +23,11 @@
  
-     def list(self, heading=1, locallist=0):
-         ddict = self.get_all(locallist)
-         ldict = self.get_all_logins()
--        lkeys = ldict.keys()
--        keys = ddict.keys()
-+        lkeys = sorted(ldict.keys())
-+        keys = sorted(ddict.keys())
-         if len(keys) == 0 and len(lkeys) == 0:
-             return
--        keys.sort()
--        lkeys.sort()
+ import pwd
+ import grp
+-import string
+ import selinux
+-import tempfile
+ import os
+ import re
+ import sys
+ import stat
+-import shutil
+ from semanage import *
+ PROGNAME = "policycoreutils"
+ import sepolicy
+@@ -129,9 +126,9 @@ except:
+                 message += " role=" + serole
+             if oldserole != "":
+                 message += " old_role=" + oldserole
+-            if serange != "" and serange != None:
++            if serange != "" and serange is not None:
+                 message += " MLSRange=" + serange
+-            if oldserange != "" and oldserange != None:
++            if oldserange != "" and oldserange is not None:
+                 message += " old_MLSRange=" + oldserange
+             self.log_list.append(message)
  
-         if is_mls_enabled == 1:
-             if heading:
-@@ -988,18 +984,15 @@ class seluserRecords(semanageRecords):
-     def customized(self):
-         l = []
-         ddict = self.get_all(True)
--        keys = ddict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             l.append("-a -L %s -r %s -R '%s' %s" % (ddict[k][1], ddict[k][2], ddict[k][3], k))
-         return l
+@@ -416,7 +413,7 @@ class dontauditClass(semanageRecords):
+         if dontaudit not in ["on", "off"]:
+             raise ValueError(_("dontaudit requires either 'on' or 'off'"))
+         self.begin()
+-        rc = semanage_set_disable_dontaudit(self.sh, dontaudit == "off")
++        semanage_set_disable_dontaudit(self.sh, dontaudit == "off")
+         self.commit()
  
-     def list(self, heading=1, locallist=0):
-         ddict = self.get_all(locallist)
--        keys = ddict.keys()
--        if len(keys) == 0:
-+        if len(ddict) == 0:
-             return
--        keys.sort()
-+        keys = sorted(ddict.keys())
  
-         if is_mls_enabled == 1:
-             if heading:
-@@ -1251,9 +1244,7 @@ class portRecords(semanageRecords):
-     def customized(self):
-         l = []
-         ddict = self.get_all(True)
--        keys = ddict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             if k[0] == k[1]:
-                 l.append("-a -t %s -p %s %s" % (ddict[k][0], k[2], k[0]))
-             else:
-@@ -1262,10 +1253,9 @@ class portRecords(semanageRecords):
+@@ -459,7 +456,6 @@ class permissiveRecords(semanageRecords):
+             print(t)
  
-     def list(self, heading=1, locallist=0):
-         ddict = self.get_all_by_type(locallist)
--        keys = ddict.keys()
--        if len(keys) == 0:
-+        if len(ddict) == 0:
-             return
--        keys.sort()
-+        keys = sorted(ddict.keys())
+     def add(self, type):
+-        import glob
+         try:
+             import sepolgen.module as module
+         except ImportError:
+@@ -830,7 +826,6 @@ class seluserRecords(semanageRecords):
+         self.mylog.log("seuser", sename=name, serole=",".join(roles), serange=serange)
  
-         if heading:
-             print("%-30s %-8s %s\n" % (_("SELinux Port Type"), _("Proto"), _("Port Number")))
-@@ -1488,18 +1478,15 @@ class nodeRecords(semanageRecords):
-     def customized(self):
-         l = []
-         ddict = self.get_all(True)
--        keys = ddict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             l.append("-a -M %s -p %s -t %s %s" % (k[1], k[2], ddict[k][2], k[0]))
-         return l
+     def add(self, name, roles, selevel, serange, prefix):
+-        serole = " ".join(roles)
+         try:
+             self.begin()
+             self.__add(name, roles, selevel, serange, prefix)
+@@ -1897,7 +1892,7 @@ class fcontextRecords(semanageRecords):
+         if setype != "<<none>>":
+             con = semanage_fcontext_get_con(fcontext)
  
-     def list(self, heading=1, locallist=0):
-         ddict = self.get_all(locallist)
--        keys = ddict.keys()
--        if len(keys) == 0:
-+        if len(ddict) == 0:
-             return
--        keys.sort()
-+        keys = sorted(ddict.keys())
+-            if con == None:
++            if con is None:
+                 con = self.createcon(target)
  
-         if heading:
-             print("%-18s %-18s %-5s %-5s\n" % ("IP Address", "Netmask", "Protocol", "Context"))
-@@ -1679,18 +1666,15 @@ class interfaceRecords(semanageRecords):
-     def customized(self):
-         l = []
-         ddict = self.get_all(True)
--        keys = ddict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             l.append("-a -t %s %s" % (ddict[k][2], k))
-         return l
+             if (is_mls_enabled == 1) and (serange != ""):
+@@ -2071,7 +2066,7 @@ class booleanRecords(semanageRecords):
+             self.current_booleans = []
+             ptype = None
  
-     def list(self, heading=1, locallist=0):
-         ddict = self.get_all(locallist)
--        keys = ddict.keys()
--        if len(keys) == 0:
-+        if len(ddict) == 0:
-             return
--        keys.sort()
-+        keys = sorted(ddict.keys())
+-        if self.store == None or self.store == ptype:
++        if self.store is None or self.store == ptype:
+             self.modify_local = True
+         else:
+             self.modify_local = False
+diff --git a/policycoreutils/semanage/test-semanage.py b/policycoreutils/semanage/test-semanage.py
+index 10c4d8f..12ffc98 100644
+--- a/policycoreutils/semanage/test-semanage.py
++++ b/policycoreutils/semanage/test-semanage.py
+@@ -1,8 +1,5 @@
+ import unittest
+-import os
+-import shutil
+ import sys
+-from tempfile import mkdtemp
+ from subprocess import Popen, PIPE
  
-         if heading:
-             print("%-30s %s\n" % (_("SELinux Interface"), _("Context")))
-@@ -2031,9 +2015,7 @@ class fcontextRecords(semanageRecords):
-     def customized(self):
-         l = []
-         fcon_dict = self.get_all(True)
--        keys = fcon_dict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(fcon_dict.keys()):
-             if fcon_dict[k]:
-                 l.append("-a -f %s -t %s '%s'" % (file_type_str_to_option[k[1]], fcon_dict[k][2], k[0]))
- 
-@@ -2044,12 +2026,10 @@ class fcontextRecords(semanageRecords):
- 
-     def list(self, heading=1, locallist=0):
-         fcon_dict = self.get_all(locallist)
--        keys = fcon_dict.keys()
--        if len(keys) != 0:
--            keys.sort()
-+        if len(fcon_dict) != 0:
-             if heading:
-                 print("%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context")))
--            for k in keys:
-+            for k in sorted(fcon_dict.keys()):
-                 if fcon_dict[k]:
-                     if is_mls_enabled:
-                         print("%-50s %-18s %s:%s:%s:%s " % (k[0], k[1], fcon_dict[k][0], fcon_dict[k][1], fcon_dict[k][2], translate(fcon_dict[k][3], False)))
-@@ -2223,9 +2203,7 @@ class booleanRecords(semanageRecords):
-     def customized(self):
-         l = []
-         ddict = self.get_all(True)
--        keys = ddict.keys()
--        keys.sort()
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             if ddict[k]:
-                 l.append("-m -%s %s" % (ddict[k][2], k))
-         return l
-@@ -2234,18 +2212,16 @@ class booleanRecords(semanageRecords):
-         on_off = (_("off"), _("on"))
-         if use_file:
-             ddict = self.get_all(locallist)
--            keys = ddict.keys()
--            for k in keys:
-+            for k in sorted(ddict.keys()):
-                 if ddict[k]:
-                     print("%s=%s" % (k, ddict[k][2]))
-             return
-         ddict = self.get_all(locallist)
--        keys = ddict.keys()
--        if len(keys) == 0:
-+        if len(ddict) == 0:
-             return
- 
-         if heading:
-             print("%-30s %s  %s %s\n" % (_("SELinux boolean"), _("State"), _("Default"), _("Description")))
--        for k in keys:
-+        for k in sorted(ddict.keys()):
-             if ddict[k]:
-                 print("%-30s (%-5s,%5s)  %s" % (k, on_off[selinux.security_get_boolean_active(k)], on_off[ddict[k][2]], self.get_desc(k)))
+ import argparse
 -- 
 2.7.3
