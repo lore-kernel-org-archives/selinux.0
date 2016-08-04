@@ -1,44 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74CXURu002525
- for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 08:33:30 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 22FBFC057EC6
- for <selinux@tycho.nsa.gov>; Thu,  4 Aug 2016 12:33:25 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74CiFrG003617
+ for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 08:44:15 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id F380C1A1AE
+ for <selinux@tycho.nsa.gov>; Thu,  4 Aug 2016 14:44:09 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id TmVXvtSJsjIR for <selinux@tycho.nsa.gov>;
+ Thu,  4 Aug 2016 14:44:07 +0200 (CEST)
+Received: from valinor.bigon.be (unknown [193.53.238.201])
+ (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id CA1201A1A1
+ for <selinux@tycho.nsa.gov>; Thu,  4 Aug 2016 14:44:06 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] policycoreutils: semodule - remove 'q' from getopt string
-Date: Thu,  4 Aug 2016 14:33:18 +0200
-Message-Id: <1470313998-28458-1-git-send-email-plautrba@redhat.com>
+Subject: [PATCH] libselinux/utils/Makefile: Fix in tree compilation
+Date: Thu,  4 Aug 2016 14:44:06 +0200
+Message-Id: <1470314646-29805-1-git-send-email-bigon@debian.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Users are confused that this option is not documented or that
-'semodule -q' doesn't show:
+From: Laurent Bigonville <bigon@bigon.be>
 
-semodule: invalid option -- 'q'
-
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Some tools need the sepol/sepol.h header
 ---
- policycoreutils/semodule/semodule.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libselinux/utils/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index 63900f4..ce048bc 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -209,7 +209,7 @@ static void parse_command_line(int argc, char **argv)
- 	no_reload = 0;
- 	priority = 400;
- 	while ((i =
--		getopt_long(argc, argv, "s:b:hi:l::vqr:u:RnNBDCPX:e:d:p:S:E:cH", opts,
-+		getopt_long(argc, argv, "s:b:hi:l::vr:u:RnNBDCPX:e:d:p:S:E:cH", opts,
- 			    NULL)) != -1) {
- 		switch (i) {
- 		case 'b':
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index cf7af52..8497cb4 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -3,6 +3,7 @@ PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
+ USRBINDIR ?= $(PREFIX)/sbin
+ SBINDIR ?= $(DESTDIR)/sbin
++INCLUDEDIR ?= $(PREFIX)/include
+ 
+ MAX_STACK_SIZE=8192
+ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissing-include-dirs \
+@@ -23,7 +24,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+           -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
+           -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
+           -Werror -Wno-aggregate-return -Wno-redundant-decls
+-override CFLAGS += -I../include -D_GNU_SOURCE $(EMFLAGS)
++override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(EMFLAGS)
+ LDLIBS += -L../src -lselinux -L$(LIBDIR)
+ 
+ TARGETS=$(patsubst %.c,%,$(wildcard *.c))
 -- 
-1.8.3.1
+2.8.1
