@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74IYfoG011370
- for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 14:34:41 -0400
-Received: by mail-pf0-f193.google.com with SMTP id y134so18686451pfg.3
- for <selinux@tycho.nsa.gov>; Thu, 04 Aug 2016 11:34:39 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u74IYmrk011375
+ for <selinux@tycho.nsa.gov>; Thu, 4 Aug 2016 14:34:48 -0400
+Received: by mail-pf0-f193.google.com with SMTP id y134so18686607pfg.3
+ for <selinux@tycho.nsa.gov>; Thu, 04 Aug 2016 11:34:46 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 07/12] sepolicy: dont alias sepolicy.search and sepolicy.info
-Date: Fri,  5 Aug 2016 02:34:00 +0800
-Message-Id: <1470335645-24224-8-git-send-email-jason@perfinion.com>
+Subject: [PATCH 09/12] policycoreutils: gettext compat for py2 and 3
+Date: Fri,  5 Aug 2016 02:34:02 +0800
+Message-Id: <1470335645-24224-10-git-send-email-jason@perfinion.com>
 In-Reply-To: <1470335645-24224-1-git-send-email-jason@perfinion.com>
 References: <1470335645-24224-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,231 +15,771 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Install gettext the same way everywhere and have fallbacks to use
+str/unicode depending on python version.
 ---
- policycoreutils/sepolicy/sepolicy/booleans.py    |  7 ++---
- policycoreutils/sepolicy/sepolicy/communicate.py |  6 ++---
- policycoreutils/sepolicy/sepolicy/gui.py         |  1 -
- policycoreutils/sepolicy/sepolicy/manpage.py     | 34 +++++++++++-------------
- policycoreutils/sepolicy/sepolicy/network.py     |  4 +--
- policycoreutils/sepolicy/sepolicy/transition.py  |  8 +++---
- 6 files changed, 24 insertions(+), 36 deletions(-)
+ policycoreutils/gui/booleansPage.py            | 22 +++++++++++++---------
+ policycoreutils/gui/domainsPage.py             | 21 +++++++++++++--------
+ policycoreutils/gui/fcontextPage.py            | 22 +++++++++++++---------
+ policycoreutils/gui/loginsPage.py              | 21 +++++++++++++--------
+ policycoreutils/gui/mappingsPage.py            | 21 +++++++++++++--------
+ policycoreutils/gui/modulesPage.py             | 21 +++++++++++++--------
+ policycoreutils/gui/polgengui.py               | 22 +++++++++++++---------
+ policycoreutils/gui/portsPage.py               | 25 +++++++++++++------------
+ policycoreutils/gui/semanagePage.py            | 21 +++++++++++++--------
+ policycoreutils/gui/statusPage.py              | 24 ++++++++++++++++--------
+ policycoreutils/gui/system-config-selinux.py   | 22 +++++++++++++---------
+ policycoreutils/gui/usersPage.py               | 22 +++++++++++++++-------
+ policycoreutils/sandbox/sandbox                | 15 ++++++++-------
+ policycoreutils/scripts/chcat                  | 13 ++++++++++---
+ policycoreutils/semanage/semanage              |  4 ++--
+ policycoreutils/semanage/seobject.py           | 23 ++++++++++++++++-------
+ policycoreutils/sepolicy/sepolicy.py           | 21 +++++++++++++--------
+ policycoreutils/sepolicy/sepolicy/__init__.py  | 23 ++++++++++++++---------
+ policycoreutils/sepolicy/sepolicy/generate.py  | 22 +++++++++++++---------
+ policycoreutils/sepolicy/sepolicy/gui.py       | 21 +++++++++++++--------
+ policycoreutils/sepolicy/sepolicy/interface.py | 22 +++++++++++++---------
+ 21 files changed, 263 insertions(+), 165 deletions(-)
 
-diff --git a/policycoreutils/sepolicy/sepolicy/booleans.py b/policycoreutils/sepolicy/sepolicy/booleans.py
-index 56bef26..cf5f1ff 100644
---- a/policycoreutils/sepolicy/sepolicy/booleans.py
-+++ b/policycoreutils/sepolicy/sepolicy/booleans.py
-@@ -21,20 +21,17 @@
- #
- #
- import sepolicy
--import sys
--search = sepolicy.search
--info = sepolicy.info
+diff --git a/policycoreutils/gui/booleansPage.py b/policycoreutils/gui/booleansPage.py
+index 507a79d..7057ff4 100644
+--- a/policycoreutils/gui/booleansPage.py
++++ b/policycoreutils/gui/booleansPage.py
+@@ -40,18 +40,22 @@ DISABLED = 2
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ from glob import fnmatch
+ 
+diff --git a/policycoreutils/gui/domainsPage.py b/policycoreutils/gui/domainsPage.py
+index 9992d00..8f113ce 100644
+--- a/policycoreutils/gui/domainsPage.py
++++ b/policycoreutils/gui/domainsPage.py
+@@ -32,17 +32,22 @@ from semanagePage import *
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
  
- def expand_attribute(attribute):
-     try:
--        return info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
-+        return sepolicy.info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
-     except RuntimeError:
-         return [attribute]
+ class domainsPage(semanagePage):
+diff --git a/policycoreutils/gui/fcontextPage.py b/policycoreutils/gui/fcontextPage.py
+index c8d6ba8..2b95099 100644
+--- a/policycoreutils/gui/fcontextPage.py
++++ b/policycoreutils/gui/fcontextPage.py
+@@ -47,18 +47,22 @@ class context:
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
  
- def get_types(src, tclass, perm):
--    allows = search([sepolicy.ALLOW], {sepolicy.SOURCE: src, sepolicy.CLASS: tclass, sepolicy.PERMS: perm})
-+    allows = sepolicy.search([sepolicy.ALLOW], {sepolicy.SOURCE: src, sepolicy.CLASS: tclass, sepolicy.PERMS: perm})
-     if not allows:
-         raise TypeError("The %s type is not allowed to %s any types" % (src, ",".join(perm)))
+ class fcontextPage(semanagePage):
+diff --git a/policycoreutils/gui/loginsPage.py b/policycoreutils/gui/loginsPage.py
+index 982e252..8e0b7a2 100644
+--- a/policycoreutils/gui/loginsPage.py
++++ b/policycoreutils/gui/loginsPage.py
+@@ -30,17 +30,22 @@ from semanagePage import *
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
-diff --git a/policycoreutils/sepolicy/sepolicy/communicate.py b/policycoreutils/sepolicy/sepolicy/communicate.py
-index 9939c23..b96c4b9 100755
---- a/policycoreutils/sepolicy/sepolicy/communicate.py
-+++ b/policycoreutils/sepolicy/sepolicy/communicate.py
-@@ -22,8 +22,6 @@
- #
- import sepolicy
+ 
+ class loginsPage(semanagePage):
+diff --git a/policycoreutils/gui/mappingsPage.py b/policycoreutils/gui/mappingsPage.py
+index 1429bf7..3b4ceb6 100644
+--- a/policycoreutils/gui/mappingsPage.py
++++ b/policycoreutils/gui/mappingsPage.py
+@@ -28,17 +28,22 @@ import seobject
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ 
+ class loginsPage:
+diff --git a/policycoreutils/gui/modulesPage.py b/policycoreutils/gui/modulesPage.py
+index 3b83e45..c7c7848 100644
+--- a/policycoreutils/gui/modulesPage.py
++++ b/policycoreutils/gui/modulesPage.py
+@@ -32,17 +32,22 @@ from subprocess import Popen, PIPE
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ 
+ class modulesPage(semanagePage):
+diff --git a/policycoreutils/gui/polgengui.py b/policycoreutils/gui/polgengui.py
+index 1c349a7..1f97ada 100644
+--- a/policycoreutils/gui/polgengui.py
++++ b/policycoreutils/gui/polgengui.py
+@@ -58,18 +58,22 @@ def get_all_modules():
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ gnome.program_init("SELinux Policy Generation Tool", "5")
+ 
+diff --git a/policycoreutils/gui/portsPage.py b/policycoreutils/gui/portsPage.py
+index 8e74ac0..7e7a653 100644
+--- a/policycoreutils/gui/portsPage.py
++++ b/policycoreutils/gui/portsPage.py
+@@ -30,21 +30,22 @@ from semanagePage import *
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+-TYPE_COL = 0
+-PROTOCOL_COL = 1
+-MLS_COL = 2
+-PORT_COL = 3
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ 
+ class portsPage(semanagePage):
+diff --git a/policycoreutils/gui/semanagePage.py b/policycoreutils/gui/semanagePage.py
+index 5d7f2cf..d07ce27 100644
+--- a/policycoreutils/gui/semanagePage.py
++++ b/policycoreutils/gui/semanagePage.py
+@@ -28,17 +28,22 @@ import seobject
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ 
+ def idle_func():
+diff --git a/policycoreutils/gui/statusPage.py b/policycoreutils/gui/statusPage.py
+index 991d8f3..de27752 100644
+--- a/policycoreutils/gui/statusPage.py
++++ b/policycoreutils/gui/statusPage.py
+@@ -23,6 +23,7 @@ import os
+ import gobject
  import sys
--search = sepolicy.search
--info = sepolicy.info
+ import tempfile
++import selinux
+ 
+ INSTALLPATH = '/usr/share/system-config-selinux'
+ sys.path.append(INSTALLPATH)
+@@ -40,15 +41,22 @@ RELABELFILE = "/.autorelabel"
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+-import selinux
+ try:
+-    gettext.install(PROGNAME, localedir="/usr/share/locale", unicode=1)
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
++    gettext.install(PROGNAME,
++                    localedir="/usr/share/locale",
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
  
- def usage(parser, msg):
-@@ -36,13 +34,13 @@ def usage(parser, msg):
+ class statusPage:
+diff --git a/policycoreutils/gui/system-config-selinux.py b/policycoreutils/gui/system-config-selinux.py
+index 7d342d0..8d2be13 100644
+--- a/policycoreutils/gui/system-config-selinux.py
++++ b/policycoreutils/gui/system-config-selinux.py
+@@ -47,18 +47,22 @@ import selinux
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
- def expand_attribute(attribute):
+ gnome.program_init("SELinux Management Tool", "5")
+ 
+diff --git a/policycoreutils/gui/usersPage.py b/policycoreutils/gui/usersPage.py
+index abf8d3b..eb978ea 100644
+--- a/policycoreutils/gui/usersPage.py
++++ b/policycoreutils/gui/usersPage.py
+@@ -30,14 +30,22 @@ from semanagePage import *
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
+-    gettext.install(PROGNAME, localedir="/usr/share/locale", unicode=1)
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
++    gettext.install(PROGNAME,
++                    localedir="/usr/share/locale",
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ 
+ class usersPage(semanagePage):
+diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+index 9e0024f..4f5128a 100644
+--- a/policycoreutils/sandbox/sandbox
++++ b/policycoreutils/sandbox/sandbox
+@@ -35,18 +35,19 @@ from tempfile import mkdtemp
+ import pwd
+ import sepolicy
+ 
+-PROGNAME = "policycoreutils"
+ SEUNSHARE = "/usr/sbin/seunshare"
+ SANDBOXSH = "/usr/share/sandbox/sandboxX.sh"
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+-
++PROGNAME = "policycoreutils"
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    codeset='utf-8')
+-except IOError:
++                    codeset='utf-8',
++                    **kwargs)
++except:
      try:
--        return info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
-+        return sepolicy.info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
-     except RuntimeError:
-         return [attribute]
+         import builtins
+         builtins.__dict__['_'] = str
+diff --git a/policycoreutils/scripts/chcat b/policycoreutils/scripts/chcat
+index 267390e..2269ee0 100755
+--- a/policycoreutils/scripts/chcat
++++ b/policycoreutils/scripts/chcat
+@@ -30,11 +30,18 @@ import string
+ import getopt
+ import selinux
+ import seobject
+-import gettext
+ 
++PROGNAME = "policycoreutils"
+ try:
+-    gettext.install('policycoreutils')
+-except IOError:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
++    gettext.install(PROGNAME,
++                    localedir="/usr/share/locale",
++                    codeset='utf-8',
++                    **kwargs)
++except:
+     try:
+         import builtins
+         builtins.__dict__['_'] = str
+diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+index e6e3a49..d945243 100644
+--- a/policycoreutils/semanage/semanage
++++ b/policycoreutils/semanage/semanage
+@@ -27,9 +27,9 @@ import traceback
+ import argparse
+ import seobject
+ import sys
+-import gettext
+ PROGNAME = "policycoreutils"
+ try:
++    import gettext
+     kwargs = {}
+     if sys.version_info < (3,):
+         kwargs['unicode'] = True
+@@ -37,7 +37,7 @@ try:
+                     localedir="/usr/share/locale",
+                     codeset='utf-8',
+                     **kwargs)
+-except IOError:
++except:
+     try:
+         import builtins
+         builtins.__dict__['_'] = str
+diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+index 2cc56d9..bd261df 100644
+--- a/policycoreutils/semanage/seobject.py
++++ b/policycoreutils/semanage/seobject.py
+@@ -34,13 +34,22 @@ import sepolicy
+ sepolicy.gen_bool_dict()
+ from IPy import IP
+ 
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+-
+-import gettext
+-translation = gettext.translation(PROGNAME, localedir="/usr/share/locale", fallback=True)
+-_ = translation.ugettext
++try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
++    gettext.install(PROGNAME,
++                    localedir="/usr/share/locale",
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ import syslog
+ 
+diff --git a/policycoreutils/sepolicy/sepolicy.py b/policycoreutils/sepolicy/sepolicy.py
+index 7d57f6e..3e502a7 100755
+--- a/policycoreutils/sepolicy/sepolicy.py
++++ b/policycoreutils/sepolicy/sepolicy.py
+@@ -27,18 +27,23 @@ import selinux
+ import sepolicy
+ from sepolicy import get_os_version, get_conditionals, get_conditionals_format_text
+ import argparse
+-import gettext
+ PROGNAME = "policycoreutils"
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ usage = "sepolicy generate [-h] [-n NAME] [-p PATH] ["
+ usage_dict = {' --newtype': ('-t [TYPES [TYPES ...]]',), ' --customize': ('-d DOMAIN', '-a  ADMIN_DOMAIN', "[ -w WRITEPATHS ]",), ' --admin_user': ('[-r TRANSITION_ROLE ]', "[ -w WRITEPATHS ]",), ' --application': ('COMMAND', "[ -w WRITEPATHS ]",), ' --cgi': ('COMMAND', "[ -w WRITEPATHS ]",), ' --confined_admin': ('-a  ADMIN_DOMAIN', "[ -w WRITEPATHS ]",), ' --dbus': ('COMMAND', "[ -w WRITEPATHS ]",), ' --desktop_user': ('', "[ -w WRITEPATHS ]",), ' --inetd': ('COMMAND', "[ -w WRITEPATHS ]",), ' --init': ('COMMAND', "[ -w WRITEPATHS ]",), ' --sandbox': ("[ -w WRITEPATHS ]",), ' --term_user': ("[ -w WRITEPATHS ]",), ' --x_user': ("[ -w WRITEPATHS ]",)}
+diff --git a/policycoreutils/sepolicy/sepolicy/__init__.py b/policycoreutils/sepolicy/sepolicy/__init__.py
+index 6aec4c0..c8d3b90 100644
+--- a/policycoreutils/sepolicy/sepolicy/__init__.py
++++ b/policycoreutils/sepolicy/sepolicy/__init__.py
+@@ -6,8 +6,6 @@
+ from . import _policy
+ import selinux
+ import glob
+-PROGNAME = "policycoreutils"
+-import gettext
+ import sepolgen.defaults as defaults
+ import sepolgen.interfaces as interfaces
+ import sys
+@@ -15,16 +13,23 @@ import os
+ import re
+ import gzip
+ 
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
++PROGNAME = "policycoreutils"
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ TYPE = _policy.TYPE
+ ROLE = _policy.ROLE
+diff --git a/policycoreutils/sepolicy/sepolicy/generate.py b/policycoreutils/sepolicy/sepolicy/generate.py
+index 2d83702..00361c6 100644
+--- a/policycoreutils/sepolicy/sepolicy/generate.py
++++ b/policycoreutils/sepolicy/sepolicy/generate.py
+@@ -53,18 +53,22 @@ import sepolgen.defaults as defaults
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
+-
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
  
- def get_types(src, tclass, perm):
--    allows = search([sepolicy.ALLOW], {sepolicy.SOURCE: src, sepolicy.CLASS: tclass, sepolicy.PERMS: perm})
-+    allows = sepolicy.search([sepolicy.ALLOW], {sepolicy.SOURCE: src, sepolicy.CLASS: tclass, sepolicy.PERMS: perm})
-     if not allows:
-         raise ValueError("The %s type is not allowed to %s any types" % (src, ",".join(perm)))
- 
+ def get_rpm_nvr_from_header(hdr):
 diff --git a/policycoreutils/sepolicy/sepolicy/gui.py b/policycoreutils/sepolicy/sepolicy/gui.py
-index 60a4d83..0ffe9ee 100644
+index 0ffe9ee..7f1888c 100644
 --- a/policycoreutils/sepolicy/sepolicy/gui.py
 +++ b/policycoreutils/sepolicy/sepolicy/gui.py
-@@ -37,7 +37,6 @@ from selinux import DISABLED, PERMISSIVE, ENFORCING
- import sepolicy.network
- import sepolicy.manpage
+@@ -39,20 +39,25 @@ import sepolicy.manpage
  import dbus
--import time
  import os
  import re
- import gettext
-diff --git a/policycoreutils/sepolicy/sepolicy/manpage.py b/policycoreutils/sepolicy/sepolicy/manpage.py
-index a3ffd45..7365f93 100755
---- a/policycoreutils/sepolicy/sepolicy/manpage.py
-+++ b/policycoreutils/sepolicy/sepolicy/manpage.py
-@@ -27,8 +27,6 @@ __all__ = ['ManPage', 'HTMLManPages', 'manpage_domains', 'manpage_roles', 'gen_d
- import string
- import selinux
- import sepolicy
--from sepolicy import *
+-import gettext
+ import unicodedata
+ 
+ PROGNAME = "policycoreutils"
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
+ 
+ reverse_file_type_str = {}
+ for f in sepolicy.file_type_str:
+diff --git a/policycoreutils/sepolicy/sepolicy/interface.py b/policycoreutils/sepolicy/sepolicy/interface.py
+index 85f7351..c2cb971 100644
+--- a/policycoreutils/sepolicy/sepolicy/interface.py
++++ b/policycoreutils/sepolicy/sepolicy/interface.py
+@@ -33,18 +33,22 @@ __all__ = ['get_all_interfaces', 'get_interfaces_from_xml', 'get_admin', 'get_us
+ ## I18N
+ ##
+ PROGNAME = "policycoreutils"
 -
- import commands
- import os
- import time
-@@ -47,7 +45,7 @@ def gen_modules_dict(path="/usr/share/selinux/devel/policy.xml"):
-     import xml.etree.ElementTree
-     modules_dict = {}
-     try:
--        tree = xml.etree.ElementTree.fromstring(policy_xml(path))
-+        tree = xml.etree.ElementTree.fromstring(sepolicy.policy_xml(path))
-         for l in tree.findall("layer"):
-             for m in l.findall("module"):
-                 name = m.get("name")
-@@ -76,7 +74,7 @@ def get_all_users_info():
-     users = []
-     users_range = {}
-     allusers = []
--    allusers_info = info(USER)
-+    allusers_info = sepolicy.info(sepolicy.USER)
- 
-     for d in allusers_info:
-         allusers.append(d['name'])
-@@ -105,7 +103,7 @@ def gen_domains():
-     if domains:
-         return domains
-     domains = []
--    for d in get_all_domains():
-+    for d in sepolicy.get_all_domains():
-         found = False
-         domain = d[:-2]
- #		if domain + "_exec_t" not in get_entrypoints():
-@@ -114,7 +112,7 @@ def gen_domains():
-             continue
-         domains.append(domain)
- 
--    for role in get_all_roles():
-+    for role in sepolicy.get_all_roles():
-         if role[:-2] in domains or role == "system_r":
-             continue
-         domains.append(role[:-2])
-@@ -404,17 +402,17 @@ class ManPage:
-         self.html = html
-         self.source_files = source_files
-         self.root = root
--        self.portrecs = gen_port_dict()[0]
-+        self.portrecs = sepolicy.gen_port_dict()[0]
-         self.domains = gen_domains()
--        self.all_domains = get_all_domains()
--        self.all_attributes = get_all_attributes()
--        self.all_bools = get_all_bools()
--        self.all_port_types = get_all_port_types()
--        self.all_roles = get_all_roles()
-+        self.all_domains = sepolicy.get_all_domains()
-+        self.all_attributes = sepolicy.get_all_attributes()
-+        self.all_bools = sepolicy.get_all_bools()
-+        self.all_port_types = sepolicy.get_all_port_types()
-+        self.all_roles = sepolicy.get_all_roles()
-         self.all_users = get_all_users_info()[0]
-         self.all_users_range = get_all_users_info()[1]
--        self.all_file_types = get_all_file_types()
--        self.role_allows = get_all_role_allows()
-+        self.all_file_types = sepolicy.get_all_file_types()
-+        self.role_allows = sepolicy.get_all_role_allows()
-         self.types = _gen_types()
- 
-         if self.source_files:
-@@ -422,7 +420,7 @@ class ManPage:
-         else:
-             self.fcpath = self.root + selinux.selinux_file_context_path()
- 
--        self.fcdict = get_fcdict(self.fcpath)
-+        self.fcdict = sepolicy.get_fcdict(self.fcpath)
- 
-         if not os.path.exists(path):
-             os.makedirs(path)
-@@ -433,9 +431,9 @@ class ManPage:
-             self.xmlpath = self.root + "policy.xml"
-         else:
-             self.xmlpath = self.root + "/usr/share/selinux/devel/policy.xml"
--        self.booleans_dict = gen_bool_dict(self.xmlpath)
-+        self.booleans_dict = sepolicy.gen_bool_dict(self.xmlpath)
- 
--        self.domainname, self.short_name = gen_short_name(domainname)
-+        self.domainname, self.short_name = sepolicy.gen_short_name(domainname)
- 
-         self.type = self.domainname + "_t"
-         self._gen_bools()
-@@ -466,7 +464,7 @@ class ManPage:
-                     types.append(t + "_t")
- 
-         for t in types:
--            domainbools, bools = get_bools(t)
-+            domainbools, bools = sepolicy.get_bools(t)
-             self.bools += bools
-             self.domainbools += domainbools
- 
-diff --git a/policycoreutils/sepolicy/sepolicy/network.py b/policycoreutils/sepolicy/sepolicy/network.py
-index 1ca3158..c4d95da 100755
---- a/policycoreutils/sepolicy/sepolicy/network.py
-+++ b/policycoreutils/sepolicy/sepolicy/network.py
-@@ -21,12 +21,10 @@
- #
- #
- import sepolicy
--search = sepolicy.search
--info = sepolicy.info
+-import gettext
+-gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+-gettext.textdomain(PROGNAME)
+ try:
++    import gettext
++    kwargs = {}
++    if sys.version_info < (3,):
++        kwargs['unicode'] = True
+     gettext.install(PROGNAME,
+                     localedir="/usr/share/locale",
+-                    unicode=False,
+-                    codeset='utf-8')
+-except IOError:
+-    import __builtin__
+-    __builtin__.__dict__['_'] = unicode
++                    codeset='utf-8',
++                    **kwargs)
++except:
++    try:
++        import builtins
++        builtins.__dict__['_'] = str
++    except ImportError:
++        import __builtin__
++        __builtin__.__dict__['_'] = unicode
  
  
- def get_types(src, tclass, perm):
--    allows = search([sepolicy.ALLOW], {sepolicy.SOURCE: src, sepolicy.CLASS: tclass, sepolicy.PERMS: perm})
-+    allows = sepolicy.search([sepolicy.ALLOW], {sepolicy.SOURCE: src, sepolicy.CLASS: tclass, sepolicy.PERMS: perm})
-     nlist = []
-     if allows:
-         for i in map(lambda y: y[sepolicy.TARGET], filter(lambda x: set(perm).issubset(x[sepolicy.PERMS]), allows)):
-diff --git a/policycoreutils/sepolicy/sepolicy/transition.py b/policycoreutils/sepolicy/sepolicy/transition.py
-index a8edb69..ad53cef 100755
---- a/policycoreutils/sepolicy/sepolicy/transition.py
-+++ b/policycoreutils/sepolicy/sepolicy/transition.py
-@@ -21,18 +21,16 @@
- #
- #
- import sepolicy
--search = sepolicy.search
--info = sepolicy.info
--__all__ = ['setrans', ]
-+__all__ = ['setrans']
- 
- 
- def _entrypoint(src):
--    trans = search([sepolicy.ALLOW], {sepolicy.SOURCE: src})
-+    trans = sepolicy.search([sepolicy.ALLOW], {sepolicy.SOURCE: src})
-     return map(lambda y: y[sepolicy.TARGET], filter(lambda x: "entrypoint" in x[sepolicy.PERMS], trans))
- 
- 
- def _get_trans(src):
--    return search([sepolicy.TRANSITION], {sepolicy.SOURCE: src, sepolicy.CLASS: "process"})
-+    return sepolicy.search([sepolicy.TRANSITION], {sepolicy.SOURCE: src, sepolicy.CLASS: "process"})
- 
- 
- class setrans:
+ def get_interfaces_from_xml(path):
 -- 
 2.7.3
