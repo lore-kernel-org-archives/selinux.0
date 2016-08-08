@@ -1,21 +1,32 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u788DY2Q011193
- for <selinux@tycho.nsa.gov>; Mon, 8 Aug 2016 04:13:34 -0400
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id C8DBD8E3E5
- for <selinux@tycho.nsa.gov>; Mon,  8 Aug 2016 08:13:31 +0000 (UTC)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u788KT1l011906
+ for <selinux@tycho.nsa.gov>; Mon, 8 Aug 2016 04:20:29 -0400
+Received: from zmail26.collab.prod.int.phx2.redhat.com
+ (zmail26.collab.prod.int.phx2.redhat.com [10.5.83.33])
+ by mx6-phx2.redhat.com (8.14.4/8.14.4) with ESMTP id u788KRgr003334
+ for <selinux@tycho.nsa.gov>; Mon, 8 Aug 2016 04:20:27 -0400
+Date: Mon, 8 Aug 2016 04:20:25 -0400 (EDT)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] setroubleshoot: Fix sealert message for capability2
-Date: Mon,  8 Aug 2016 10:13:26 +0200
-Message-Id: <1470644006-8191-1-git-send-email-vmojzis@redhat.com>
+Message-ID: <191872440.3506154.1470644425890.JavaMail.zimbra@redhat.com>
+In-Reply-To: <1470644006-8191-1-git-send-email-vmojzis@redhat.com>
+References: <1470644006-8191-1-git-send-email-vmojzis@redhat.com>
+Subject: Re: [PATCH] setroubleshoot: Fix sealert message for capability2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
+
+Please disregard this patch. I accidentally sent it to the wrong address.
+
+----- Original Message -----
+From: "Vit Mojzis" <vmojzis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: plautrba@redhat.com, "Vit Mojzis" <vmojzis@redhat.com>
+Sent: Monday, August 8, 2016 10:13:26 AM
+Subject: [PATCH] setroubleshoot: Fix sealert message for capability2
 
 Sealert didn't know "capability2" class which caused capability2
 denials (e.g. block_suspend) to be reported as "access" denials.
@@ -38,6 +49,8 @@ diff --git a/framework/src/setroubleshoot/signature.py b/framework/src/setrouble
 index 77ecc35..1f60c74 100755
 --- a/framework/src/setroubleshoot/signature.py
 +++ b/framework/src/setroubleshoot/signature.py
+
+
 @@ -212,6 +212,7 @@ class_dict['process'] = _("process")
  class_dict['filesystem'] = _("filesystem")
  class_dict['node'] = _("node")
