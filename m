@@ -1,33 +1,39 @@
-Subject: Re: Any way to label /proc/self/mem with a different type then the
- process type.
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-References: <8f97fb23-65b5-bef5-bbae-f6139a2766f4@redhat.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6db760db-7b20-9fb9-29df-07b4a46b0ace@tycho.nsa.gov>
-Date: Mon, 8 Aug 2016 14:32:22 -0400
+Subject: Re: Python3 support in policycoreutils
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
+References: <1470335645-24224-1-git-send-email-jason@perfinion.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <abef4d0f-0376-eaf1-5eec-a343095abd10@tycho.nsa.gov>
+Date: Mon, 8 Aug 2016 15:59:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <8f97fb23-65b5-bef5-bbae-f6139a2766f4@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1470335645-24224-1-git-send-email-jason@perfinion.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/08/2016 01:41 PM, Daniel J Walsh wrote:
-> I have been requested by some container people to make this only
-> readable not writable to prevent certain types of attacks on the
-> 
-> kernel.  No idea if this is a good idea or not.
+On 08/04/2016 02:33 PM, Jason Zaman wrote:
+> Hi all,
+>
+> This updates almost everything to be compatible with both python2 and 3.
+> It still uses setools3 tho and the C module. I have a work in progress for
+> updating sepolicy to use setools4 but those will come later.
+>
+> -- Jason
 
-Would require a kernel change.  Support for per-file labeling of
-/proc/pid came up previously in SE for Android, so the SE for Android
-todo list has an item here:
+Applied series.
 
-Extend SELinux /proc/pid labeling support to support derived types on
-specific /proc/pid files based on both the associated task context and
-the file name, e.g. name-based type transitions. This would allow
-applying different restrictions to different /proc/pid files of the same
-process via SELinux.
+Thanks.
 
-Probably should go on the SELinux kernel todo list.
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
