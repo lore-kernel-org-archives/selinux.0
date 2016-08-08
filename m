@@ -1,52 +1,37 @@
-From: william.c.roberts@intel.com
-To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: [PATCH] libsepol: fix invalid read when policy file is corrupt
-Date: Mon,  8 Aug 2016 09:44:14 -0700
-Message-Id: <1470674654-13930-1-git-send-email-william.c.roberts@intel.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u78HDVGr006219
+ for <selinux@tycho.nsa.gov>; Mon, 8 Aug 2016 13:13:31 -0400
+Received: by mail-oi0-f49.google.com with SMTP id 4so245679829oih.2
+ for <selinux@tycho.nsa.gov>; Mon, 08 Aug 2016 10:13:18 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <alpine.LRH.2.20.1608082343260.2935@namei.org>
+References: <CAHC9VhR8=FY163YTFanL7vnRg4W831Hm5mzefUBe+P6aCjmwsQ@mail.gmail.com>
+ <alpine.LRH.2.20.1608082343260.2935@namei.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 8 Aug 2016 13:13:17 -0400
+Message-ID: <CAHC9VhQjE-66WuHGpn+wNPaY98G_-_L=3H8G3Hc71b_rooRRKw@mail.gmail.com>
+Subject: Re: Request for a rebase of the linux-security tree
+To: James Morris <jmorris@namei.org>
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+On Mon, Aug 8, 2016 at 9:43 AM, James Morris <jmorris@namei.org> wrote:
+> On Mon, 8 Aug 2016, Paul Moore wrote:
+>
+>> Hi James,
+>>
+>> Assuming no objections from anyone, can you rebase the linux-security
+>> tree to v4.8-rc1 so I can merge the SELinux/overlayfs patches into
+>> -next?
+>
+> Yep, sure.
 
-AFL Found this bug:
-==6523== Invalid read of size 8
-==6523==    at 0x4166B4: type_set_expand (expand.c:2508)
-==6523==    by 0x43A0B8: policydb_role_cache (policydb.c:790)
-==6523==    by 0x41CD70: hashtab_map (hashtab.c:235)
-==6523==    by 0x43AC9E: policydb_index_others (policydb.c:1103)
-==6523==    by 0x441B14: policydb_read (policydb.c:3888)
-==6523==    by 0x442A1F: sepol_policydb_read (policydb_public.c:174)
-==6523==    by 0x407ED4: init (check_seapp.c:885)
-==6523==    by 0x408D97: main (check_seapp.c:1231)
+Great, thanks.
 
-This occurs when the type_val_to_struct[] mapping array
-doesn't contain the type indicated in the ebitmap.
-
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libsepol/src/expand.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 9cb7965..4d3c623 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2505,6 +2505,14 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
- 		/* First go through the types and OR all the attributes to types */
- 		ebitmap_for_each_bit(&set->types, tnode, i) {
- 			if (ebitmap_node_get_bit(tnode, i)) {
-+
-+				/*
-+				 * invalid policies might have more types set in the ebitmap than
-+				 * what's available in the type_val_to_struct mapping
-+				 */
-+				if (i > p->p_types.nprim - 1)
-+						return -1;
-+
- 				if (p->type_val_to_struct[i]->flavor ==
- 				    TYPE_ATTRIB) {
- 					if (ebitmap_union
 -- 
-1.9.1
+paul moore
+www.paul-moore.com
