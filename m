@@ -1,37 +1,131 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u78HDVGr006219
- for <selinux@tycho.nsa.gov>; Mon, 8 Aug 2016 13:13:31 -0400
-Received: by mail-oi0-f49.google.com with SMTP id 4so245679829oih.2
- for <selinux@tycho.nsa.gov>; Mon, 08 Aug 2016 10:13:18 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.20.1608082343260.2935@namei.org>
-References: <CAHC9VhR8=FY163YTFanL7vnRg4W831Hm5mzefUBe+P6aCjmwsQ@mail.gmail.com>
- <alpine.LRH.2.20.1608082343260.2935@namei.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 8 Aug 2016 13:13:17 -0400
-Message-ID: <CAHC9VhQjE-66WuHGpn+wNPaY98G_-_L=3H8G3Hc71b_rooRRKw@mail.gmail.com>
-Subject: Re: Request for a rebase of the linux-security tree
-To: James Morris <jmorris@namei.org>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH] libsepol: fix memory leak in expand.c
+Date: Mon,  8 Aug 2016 10:28:21 -0700
+Message-Id: <1470677301-20065-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Aug 8, 2016 at 9:43 AM, James Morris <jmorris@namei.org> wrote:
-> On Mon, 8 Aug 2016, Paul Moore wrote:
->
->> Hi James,
->>
->> Assuming no objections from anyone, can you rebase the linux-security
->> tree to v4.8-rc1 so I can merge the SELinux/overlayfs patches into
->> -next?
->
-> Yep, sure.
+From: William Roberts <william.c.roberts@intel.com>
 
-Great, thanks.
+ebitmap_set_bit() can possible allocate nodes, however, the bail early
+style of type_set_expand() could leave internal ebitmaps allocated
+but not free'd.
 
+Modify type_set_expand() so that it free's all allocated ebitmaps
+before returning the error code to the calling routine.
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/expand.c | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 4d3c623..0ad57f5 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2497,6 +2497,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 	unsigned int i;
+ 	ebitmap_t types, neg_types;
+ 	ebitmap_node_t *tnode;
++	int rc =-1;
+ 
+ 	ebitmap_init(&types);
+ 	ebitmap_init(t);
+@@ -2511,7 +2512,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 				 * what's available in the type_val_to_struct mapping
+ 				 */
+ 				if (i > p->p_types.nprim - 1)
+-						return -1;
++					goto err_types;
+ 
+ 				if (p->type_val_to_struct[i]->flavor ==
+ 				    TYPE_ATTRIB) {
+@@ -2519,11 +2520,11 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 					    (&types,
+ 					     &p->type_val_to_struct[i]->
+ 					     types)) {
+-						return -1;
++						goto err_types;
+ 					}
+ 				} else {
+ 					if (ebitmap_set_bit(&types, i, 1)) {
+-						return -1;
++						goto err_types;
+ 					}
+ 				}
+ 			}
+@@ -2531,7 +2532,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 	} else {
+ 		/* No expansion of attributes, just copy the set as is. */
+ 		if (ebitmap_cpy(&types, &set->types))
+-			return -1;
++			goto err_types;
+ 	}
+ 
+ 	/* Now do the same thing for negset */
+@@ -2543,11 +2544,11 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 				if (ebitmap_union
+ 				    (&neg_types,
+ 				     &p->type_val_to_struct[i]->types)) {
+-					return -1;
++					goto err_neg;
+ 				}
+ 			} else {
+ 				if (ebitmap_set_bit(&neg_types, i, 1)) {
+-					return -1;
++					goto err_neg;
+ 				}
+ 			}
+ 		}
+@@ -2562,7 +2563,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 			    p->type_val_to_struct[i]->flavor == TYPE_ATTRIB)
+ 				continue;
+ 			if (ebitmap_set_bit(t, i, 1))
+-				return -1;
++				goto err_neg;
+ 		}
+ 		goto out;
+ 	}
+@@ -2571,7 +2572,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 		if (ebitmap_node_get_bit(tnode, i)
+ 		    && (!ebitmap_get_bit(&neg_types, i)))
+ 			if (ebitmap_set_bit(t, i, 1))
+-				return -1;
++				goto err_neg;
+ 	}
+ 
+ 	if (set->flags & TYPE_COMP) {
+@@ -2583,20 +2584,23 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 			}
+ 			if (ebitmap_get_bit(t, i)) {
+ 				if (ebitmap_set_bit(t, i, 0))
+-					return -1;
++					goto err_neg;
+ 			} else {
+ 				if (ebitmap_set_bit(t, i, 1))
+-					return -1;
++					goto err_neg;
+ 			}
+ 		}
+ 	}
+ 
+-      out:
++	  out:
++	rc = 0;
+ 
+-	ebitmap_destroy(&types);
++	  err_neg:
+ 	ebitmap_destroy(&neg_types);
++	  err_types:
++	ebitmap_destroy(&types);
+ 
+-	return 0;
++	return rc;
+ }
+ 
+ static int copy_neverallow(policydb_t * dest_pol, uint32_t * typemap,
 -- 
-paul moore
-www.paul-moore.com
+1.9.1
