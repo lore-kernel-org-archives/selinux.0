@@ -1,290 +1,136 @@
-Subject: Re: [PATCH] semanage: add auditing of changes in records
-To: Miroslav Vadkerti <mvadkert@redhat.com>, selinux@tycho.nsa.gov
-References: <[PATCH 1/2] semanage: add auditing of changes in records>
- <1469546125-19448-1-git-send-email-mvadkert@redhat.com>
-Cc: linux-audit@redhat.com
+Subject: Re: [PATCH] policycoreutils: Don't use subprocess.getstatusoutput()
+ in Python 2 code
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+References: <1470145228-21229-1-git-send-email-plautrba@redhat.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <e8efbbbc-7c6c-df86-c0ed-de88d9654592@tycho.nsa.gov>
-Date: Tue, 9 Aug 2016 16:21:34 -0400
+Message-ID: <2fe25e08-288d-cc7d-06ea-94206b4bb519@tycho.nsa.gov>
+Date: Tue, 9 Aug 2016 16:22:18 -0400
 MIME-Version: 1.0
-In-Reply-To: <1469546125-19448-1-git-send-email-mvadkert@redhat.com>
+In-Reply-To: <1470145228-21229-1-git-send-email-plautrba@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/26/2016 11:15 AM, Miroslav Vadkerti wrote:
-> Common Criteria requirement FMT_MSA.1 needs any configuration change
-> that affect enforcement of policy to be audited. This patch adds
-> auditing of changes in security context mappings for network ports,
-> interfaces, nodes and file contexts.
+On 08/02/2016 09:40 AM, Petr Lautrbach wrote:
+> The commit 7574a50f tried to improve compatibility with Python 3. It changed
+> the code to use subprocess.getstatusoutput() instead of
+> commands.getstatusoutput(). Unfortunately subprocess.getstatusoutput() is not
+> available in Python 2. This patch changes how getstatusoutput() is imported so
+> the code works on Python 2 and Python 3.
 >
-> A new function log_change is introduced that audits additions,
-> modification and removal of the mappings via the USER_MAC_CONFIG_CHANGE
-> audit event.
+> Fixes:
+> $ chcat -d something
+> Traceback (most recent call last):
+>   File "/usr/bin/chcat", line 432, in <module>
+>     sys.exit(chcat_replace(["s0"], cmds, login_ind))
+>   File "/usr/bin/chcat", line 271, in chcat_replace
+>     rc = subprocess.getstatusoutput(cmd)
+> AttributeError: 'module' object has no attribute 'getstatusoutput'
 >
-> The format of the audit events was discussed with the audit userspace
-> maintainer.
->
-> This patch resolves: https://bugzilla.redhat.com/show_bug.cgi?id=829175
->
-> Signed-off-by: Miroslav Vadkerti <mvadkert@redhat.com>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
 Applied.
 
 Thanks,
 Jim
 
-
 > ---
->  policycoreutils/semanage/seobject.py | 75 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 75 insertions(+)
+>  policycoreutils/sandbox/start |  8 +++++---
+>  policycoreutils/scripts/chcat | 17 ++++++++++-------
+>  2 files changed, 15 insertions(+), 10 deletions(-)
 >
-> diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-> index 3b0b108..7d6caa3 100644
-> --- a/policycoreutils/semanage/seobject.py
-> +++ b/policycoreutils/semanage/seobject.py
-> @@ -82,6 +82,21 @@ file_type_str_to_option = {"all files": "a",
->                             "socket file": "s",
->                             "symbolic link": "l",
->                             "named pipe": "p"}
-> +
-> +proto_to_audit = {"tcp": 17,
-> +                  "udp": 6,
-> +                  "ipv4": 4,
-> +                  "ipv6": 41}
-> +
-> +ftype_to_audit = {"": "any",
-> +                  "b": "block",
-> +                  "c": "char",
-> +                  "d": "dir",
-> +                  "f": "file",
-> +                  "l": "symlink",
-> +                  "p": "pipe",
-> +                  "s": "socket"}
-> +
+> diff --git a/policycoreutils/sandbox/start b/policycoreutils/sandbox/start
+> index fc406e1..7f83532 100644
+> --- a/policycoreutils/sandbox/start
+> +++ b/policycoreutils/sandbox/start
+> @@ -1,10 +1,12 @@
+>  #! /usr/bin/python -Es
+> -import gtk
+> -import subprocess
+> +try:
+> +    from subprocess import getstatusoutput
+> +except ImportError:
+> +    from commands import getstatusoutput
+>  import sys
+>  rc = [-1, '']
 >  try:
->      import audit
->
-> @@ -90,6 +105,7 @@ try:
->          def __init__(self):
->              self.audit_fd = audit.audit_open()
->              self.log_list = []
-> +            self.log_change_list = []
->
->          def log(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->
-> @@ -109,10 +125,17 @@ try:
->          def log_remove(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->              self.log_list.append([self.audit_fd, audit.AUDIT_ROLE_REMOVE, sys.argv[0], str(msg), name, 0, sename, serole, serange, oldsename, oldserole, oldserange, "", "", ""])
->
-> +        def log_change(self, msg):
-> +            self.log_change_list.append([self.audit_fd, audit.AUDIT_USER_MAC_CONFIG_CHANGE, str(msg), "semanage", "", "", ""])
-> +
->          def commit(self, success):
->              for l in self.log_list:
->                  audit.audit_log_semanage_message(*(l + [success]))
-> +            for l in self.log_change_list:
-> +                audit.audit_log_user_comm_message(*(l + [success]))
-> +
->              self.log_list = []
-> +            self.log_change_list = []
+> -    rc = subprocess.getstatusoutput(sys.argv[1])
+> +    rc = getstatusoutput(sys.argv[1])
 >  except:
->      class logger:
+>      pass
+>  if rc[0] == 0:
+> diff --git a/policycoreutils/scripts/chcat b/policycoreutils/scripts/chcat
+> index 267390e..f33a0ea 100755
+> --- a/policycoreutils/scripts/chcat
+> +++ b/policycoreutils/scripts/chcat
+> @@ -22,7 +22,10 @@
+>  #                                        02111-1307  USA
+>  #
+>  #
+> -import subprocess
+> +try:
+> +    from subprocess import getstatusoutput
+> +except ImportError:
+> +    from commands import getstatusoutput
+>  import sys
+>  import os
+>  import pwd
+> @@ -92,7 +95,7 @@ def chcat_user_add(newcat, users):
+>              cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
+>          else:
+>              cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
+> -        rc = subprocess.getstatusoutput(cmd)
+> +        rc = getstatusoutput(cmd)
+>          if rc[0] != 0:
+>              print(rc[1])
+>              errors += 1
+> @@ -131,7 +134,7 @@ def chcat_add(orig, newcat, objects, login_ind):
+>          else:
+>              cat_string = cat
+>          cmd = 'chcon -l %s:%s %s' % (sensitivity, cat_string, f)
+> -        rc = subprocess.getstatusoutput(cmd)
+> +        rc = getstatusoutput(cmd)
+>          if rc[0] != 0:
+>              print(rc[1])
+>              errors += 1
+> @@ -172,7 +175,7 @@ def chcat_user_remove(newcat, users):
+>              cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
+>          else:
+>              cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
+> -        rc = subprocess.getstatusoutput(cmd)
+> +        rc = getstatusoutput(cmd)
+>          if rc[0] != 0:
+>              print(rc[1])
+>              errors += 1
+> @@ -217,7 +220,7 @@ def chcat_remove(orig, newcat, objects, login_ind):
+>              cmd = 'chcon -l %s %s' % (sensitivity, f)
+>          else:
+>              cmd = 'chcon -l %s:%s %s' % (sensitivity, cat, f)
+> -        rc = subprocess.getstatusoutput(cmd)
+> +        rc = getstatusoutput(cmd)
+>          if rc[0] != 0:
+>              print(rc[1])
+>              errors += 1
+> @@ -245,7 +248,7 @@ def chcat_user_replace(newcat, users):
+>              cmd = "semanage login -a -r %s -s %s %s" % (new_serange, user[0], u)
+>          else:
+>              cmd = "semanage login -m -r %s -s %s %s" % (new_serange, user[0], u)
+> -        rc = subprocess.getstatusoutput(cmd)
+> +        rc = getstatusoutput(cmd)
+>          if rc[0] != 0:
+>              print(rc[1])
+>              errors += 1
+> @@ -268,7 +271,7 @@ def chcat_replace(newcat, objects, login_ind):
+>      for f in objects:
+>          cmd = "%s %s" % (cmd, f)
 >
-> @@ -138,6 +161,9 @@ except:
->          def log_remove(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->              self.log(msg, name, sename, serole, serange, oldsename, oldserole, oldserange)
->
-> +        def log_change(self, msg):
-> +            self.log_list.append(" %s" % msg)
-> +
->          def commit(self, success):
->              if success == 1:
->                  message = "Successful: "
-> @@ -155,6 +181,9 @@ class nulllogger:
->      def log_remove(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->          pass
->
-> +    def log_change(self, msg):
-> +        pass
-> +
->      def commit(self, success):
->          pass
->
-> @@ -1109,6 +1138,8 @@ class portRecords(semanageRecords):
->          semanage_port_key_free(k)
->          semanage_port_free(p)
->
-> +        self.mylog.log_change("resrc=port op=add lport=%s proto=%s tcontext=%s:%s:%s:%s" % (port, proto_to_audit[proto], "system_u", "object_r", type, serange))
-> +
->      def add(self, port, proto, serange, type):
->          self.begin()
->          self.__add(port, proto, serange, type)
-> @@ -1150,6 +1181,8 @@ class portRecords(semanageRecords):
->          semanage_port_key_free(k)
->          semanage_port_free(p)
->
-> +        self.mylog.log_change("resrc=port op=modify lport=%s proto=%s tcontext=%s:%s:%s:%s" % (port, proto_to_audit[proto], "system_u", "object_r", setype, serange))
-> +
->      def modify(self, port, proto, serange, setype):
->          self.begin()
->          self.__modify(port, proto, serange, setype)
-> @@ -1168,6 +1201,7 @@ class portRecords(semanageRecords):
->              low = semanage_port_get_low(port)
->              high = semanage_port_get_high(port)
->              port_str = "%s-%s" % (low, high)
-> +
->              (k, proto_d, low, high) = self.__genkey(port_str, proto_str)
->              if rc < 0:
->                  raise ValueError(_("Could not create a key for %s") % port_str)
-> @@ -1177,6 +1211,11 @@ class portRecords(semanageRecords):
->                  raise ValueError(_("Could not delete the port %s") % port_str)
->              semanage_port_key_free(k)
->
-> +            if low == high:
-> +                port_str = low
-> +
-> +            self.mylog.log_change("resrc=port op=delete lport=%s proto=%s" % (port_str, proto_to_audit[proto_str]))
-> +
->          self.commit()
->
->      def __delete(self, port, proto):
-> @@ -1199,6 +1238,8 @@ class portRecords(semanageRecords):
->
->          semanage_port_key_free(k)
->
-> +        self.mylog.log_change("resrc=port op=delete lport=%s proto=%s" % (port, proto_to_audit[proto]))
-> +
->      def delete(self, port, proto):
->          self.begin()
->          self.__delete(port, proto)
-> @@ -1380,6 +1421,8 @@ class nodeRecords(semanageRecords):
->          semanage_node_key_free(k)
->          semanage_node_free(node)
->
-> +        self.mylog.log_change("resrc=node op=add laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, proto_to_audit[self.protocol[proto]], "system_u", "object_r", ctype, serange))
-> +
->      def add(self, addr, mask, proto, serange, ctype):
->          self.begin()
->          self.__add(addr, mask, proto, serange, ctype)
-> @@ -1421,6 +1464,8 @@ class nodeRecords(semanageRecords):
->          semanage_node_key_free(k)
->          semanage_node_free(node)
->
-> +        self.mylog.log_change("resrc=node op=modify laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, proto_to_audit[self.protocol[proto]], "system_u", "object_r", setype, serange))
-> +
->      def modify(self, addr, mask, proto, serange, setype):
->          self.begin()
->          self.__modify(addr, mask, proto, serange, setype)
-> @@ -1452,6 +1497,8 @@ class nodeRecords(semanageRecords):
->
->          semanage_node_key_free(k)
->
-> +        self.mylog.log_change("resrc=node op=delete laddr=%s netmask=%s proto=%s" % (addr, mask, proto_to_audit[self.protocol[proto]]))
-> +
->      def delete(self, addr, mask, proto):
->          self.begin()
->          self.__delete(addr, mask, proto)
-> @@ -1581,6 +1628,8 @@ class interfaceRecords(semanageRecords):
->          semanage_iface_key_free(k)
->          semanage_iface_free(iface)
->
-> +        self.mylog.log_change("resrc=interface op=add netif=%s tcontext=%s:%s:%s:%s" % (interface, "system_u", "object_r", ctype, serange))
-> +
->      def add(self, interface, serange, ctype):
->          self.begin()
->          self.__add(interface, serange, ctype)
-> @@ -1618,6 +1667,8 @@ class interfaceRecords(semanageRecords):
->          semanage_iface_key_free(k)
->          semanage_iface_free(iface)
->
-> +        self.mylog.log_change("resrc=interface op=modify netif=%s tcontext=%s:%s:%s:%s" % (interface, "system_u", "object_r", setype, serange))
-> +
->      def modify(self, interface, serange, setype):
->          self.begin()
->          self.__modify(interface, serange, setype)
-> @@ -1646,6 +1697,8 @@ class interfaceRecords(semanageRecords):
->
->          semanage_iface_key_free(k)
->
-> +        self.mylog.log_change("resrc=interface op=delete netif=%s" % interface)
-> +
->      def delete(self, interface):
->          self.begin()
->          self.__delete(interface)
-> @@ -1775,6 +1828,8 @@ class fcontextRecords(semanageRecords):
->                  if i.startswith(target + "/"):
->                      raise ValueError(_("File spec %s conflicts with equivalency rule '%s %s'") % (target, i, fdict[i]))
->
-> +        self.mylog.log_change("resrc=fcontext op=add-equal %s %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv_string("tglob", substitute, 0)))
-> +
->          self.equiv[target] = substitute
->          self.equal_ind = True
->          self.commit()
-> @@ -1785,6 +1840,9 @@ class fcontextRecords(semanageRecords):
->              raise ValueError(_("Equivalence class for %s does not exists") % target)
->          self.equiv[target] = substitute
->          self.equal_ind = True
-> +
-> +        self.mylog.log_change("resrc=fcontext op=modify-equal %s %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv_string("tglob", substitute, 0)))
-> +
->          self.commit()
->
->      def createcon(self, target, seuser="system_u"):
-> @@ -1879,6 +1937,11 @@ class fcontextRecords(semanageRecords):
->          semanage_fcontext_key_free(k)
->          semanage_fcontext_free(fcontext)
->
-> +        if not seuser:
-> +            seuser = "system_u"
-> +
-> +        self.mylog.log_change("resrc=fcontext op=add %s ftype=%s tcontext=%s:%s:%s:%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype], seuser, "object_r", type, serange))
-> +
->      def add(self, target, type, ftype="", serange="", seuser="system_u"):
->          self.begin()
->          self.__add(target, type, ftype, serange, seuser)
-> @@ -1939,6 +2002,11 @@ class fcontextRecords(semanageRecords):
->          semanage_fcontext_key_free(k)
->          semanage_fcontext_free(fcontext)
->
-> +        if not seuser:
-> +            seuser = "system_u"
-> +
-> +        self.mylog.log_change("resrc=fcontext op=modify %s ftype=%s tcontext=%s:%s:%s:%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype], seuser, "object_r", type, serange))
-> +
->      def modify(self, target, setype, ftype, serange, seuser):
->          self.begin()
->          self.__modify(target, setype, ftype, serange, seuser)
-> @@ -1964,6 +2032,8 @@ class fcontextRecords(semanageRecords):
->                  raise ValueError(_("Could not delete the file context %s") % target)
->              semanage_fcontext_key_free(k)
->
-> +            self.mylog.log_change("resrc=fcontext op=delete %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype_str]))
-> +
->          self.equiv = {}
->          self.equal_ind = True
->          self.commit()
-> @@ -1972,6 +2042,9 @@ class fcontextRecords(semanageRecords):
->          if target in self.equiv.keys():
->              self.equiv.pop(target)
->              self.equal_ind = True
-> +
-> +            self.mylog.log_change("resrc=fcontext op=delete-equal %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype]))
-> +
->              return
->
->          (rc, k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
-> @@ -1996,6 +2069,8 @@ class fcontextRecords(semanageRecords):
->
->          semanage_fcontext_key_free(k)
->
-> +        self.mylog.log_change("resrc=fcontext op=delete %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype]))
-> +
->      def delete(self, target, ftype):
->          self.begin()
->          self.__delete(target, ftype)
+> -    rc = subprocess.getstatusoutput(cmd)
+> +    rc = getstatusoutput(cmd)
+>      if rc[0] != 0:
+>          print(rc[1])
+>          errors += 1
 >
 
 
