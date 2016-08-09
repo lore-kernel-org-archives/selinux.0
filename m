@@ -1,67 +1,61 @@
-Subject: Re: [PATCH] policycoreutils: 'fixfiles check' should not change
- anything
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1470749055-22365-1-git-send-email-plautrba@redhat.com>
+Subject: Re: [PATCH] libsepol: fix memory leak in expand.c
+To: "Roberts, William C" <william.c.roberts@intel.com>,
+ "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>,
+ "'seandroid-list@tycho.nsa.gov'" <seandroid-list@tycho.nsa.gov>,
+ "'sds@tycho.nsa.gov'" <sds@tycho.nsa.gov>
+References: <1470677301-20065-1-git-send-email-william.c.roberts@intel.com>
+ <476DC76E7D1DF2438D32BFADF679FC56012805C4@ORSMSX103.amr.corp.intel.com>
+ <476DC76E7D1DF2438D32BFADF679FC56012812D9@ORSMSX103.amr.corp.intel.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <81e52662-d82b-d339-9024-e019b539cf0d@tycho.nsa.gov>
-Date: Tue, 9 Aug 2016 16:24:01 -0400
+Message-ID: <a6d7d4f7-98fe-ef24-1648-1ebc20fbaf11@tycho.nsa.gov>
+Date: Tue, 9 Aug 2016 16:26:35 -0400
 MIME-Version: 1.0
-In-Reply-To: <1470749055-22365-1-git-send-email-plautrba@redhat.com>
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC56012812D9@ORSMSX103.amr.corp.intel.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/09/2016 09:24 AM, Petr Lautrbach wrote:
-> -n was not being passed down to restorecon properly in the code path
-> for -C and -N
+On 08/09/2016 12:12 PM, Roberts, William C wrote:
+> <snip>
+>>>
+>>> -      out:
+>>> +	  out:
+>>> +	rc = 0;
+>>>
+>>> -	ebitmap_destroy(&types);
+>>> +	  err_neg:
+>>>  	ebitmap_destroy(&neg_types);
+>>> +	  err_types:
+>>> +	ebitmap_destroy(&types);
+>>>
+>>> -	return 0;
+>>> +	return rc;
+>>>  }
 >
-> Patch-by: Dan Callaghan <dcallagh@redhat.com>
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> I just noticed the indenting on the label changed, I went through the
+> File and it has:
+> 1. labels with 7 leading spaces
+> 2. labels left justified
+>
+> Which one is the way you want them, left justified?
 
-Applied.
+I think the left justified ones are from me, your patches matches with the 
+common usage, so I applied it.
 
 Thanks,
 Jim
 
-> ---
->  policycoreutils/scripts/fixfiles | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
 >
-> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-> index 5c29eb9..fa43a53 100755
-> --- a/policycoreutils/scripts/fixfiles
-> +++ b/policycoreutils/scripts/fixfiles
-> @@ -150,8 +150,9 @@ fi
->  #
->  newer() {
->      DATE=$1
-> +    shift
->      for m in `echo $FILESYSTEMSRW`; do
-> -	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} -i -0 -f -
-> +	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} $* -i -0 -f -
->      done;
+> Bill
 >
->  }
-> @@ -190,7 +191,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
->  		  esac; \
->  	       fi; \
->  	    done | \
-> -	${RESTORECON} ${VERBOSE} -i -f - -R `exclude_dirs`; \
-> +	${RESTORECON} ${VERBOSE} -i -f - -R $* `exclude_dirs`; \
->  	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
->  fi
->  }
-> @@ -222,7 +223,7 @@ if [ ! -z "$PREFC" ]; then
->      exit $?
->  fi
->  if [ ! -z "$BOOTTIME" ]; then
-> -    newer $BOOTTIME
-> +    newer $BOOTTIME $*
->      exit $?
->  fi
->  [ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 >
 
 
