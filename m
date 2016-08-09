@@ -1,54 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u78MuYJG014252
- for <selinux@tycho.nsa.gov>; Mon, 8 Aug 2016 18:56:35 -0400
-Received: by mail-oi0-f47.google.com with SMTP id 4so257103699oih.2
- for <selinux@tycho.nsa.gov>; Mon, 08 Aug 2016 15:56:31 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <6db760db-7b20-9fb9-29df-07b4a46b0ace@tycho.nsa.gov>
-References: <8f97fb23-65b5-bef5-bbae-f6139a2766f4@redhat.com>
- <6db760db-7b20-9fb9-29df-07b4a46b0ace@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 8 Aug 2016 18:56:30 -0400
-Message-ID: <CAHC9VhTp_7P0YFgxGHyHWHME6ni-QBDF8taN+=utCz8dUEnnDg@mail.gmail.com>
-Subject: Re: Any way to label /proc/self/mem with a different type then the
- process type.
-To: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u79FBNji015497
+ for <selinux@tycho.nsa.gov>; Tue, 9 Aug 2016 11:11:23 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 119B97DD39
+ for <selinux@tycho.nsa.gov>; Tue,  9 Aug 2016 13:24:31 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] policycoreutils: 'fixfiles check' should not change anything
+Date: Tue,  9 Aug 2016 15:24:15 +0200
+Message-Id: <1470749055-22365-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Aug 8, 2016 at 2:32 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 08/08/2016 01:41 PM, Daniel J Walsh wrote:
->> I have been requested by some container people to make this only
->> readable not writable to prevent certain types of attacks on the
->>
->> kernel.  No idea if this is a good idea or not.
->
-> Would require a kernel change.  Support for per-file labeling of
-> /proc/pid came up previously in SE for Android, so the SE for Android
-> todo list has an item here:
->
-> Extend SELinux /proc/pid labeling support to support derived types on
-> specific /proc/pid files based on both the associated task context and
-> the file name, e.g. name-based type transitions. This would allow
-> applying different restrictions to different /proc/pid files of the same
-> process via SELinux.
->
-> Probably should go on the SELinux kernel todo list.
+-n was not being passed down to restorecon properly in the code path
+for -C and -N
 
-Added.
+Patch-by: Dan Callaghan <dcallagh@redhat.com>
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ policycoreutils/scripts/fixfiles | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-FWIW, at some point this year when I've got a few hours to burn I'm
-probably going to setup a mirror of the SELinux kernel repo in the
-GitHub and start tracking these things as GitHub issues instead of the
-wiki.  I've been doing this for audit and it has been working
-reasonably well and provides for more history/discussion than the wiki
-approach we are currently using.  Unfortunately it doesn't solve the
-problem of being short a few kernel devs :)
-
+diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+index 5c29eb9..fa43a53 100755
+--- a/policycoreutils/scripts/fixfiles
++++ b/policycoreutils/scripts/fixfiles
+@@ -150,8 +150,9 @@ fi
+ #
+ newer() {
+     DATE=$1
++    shift
+     for m in `echo $FILESYSTEMSRW`; do
+-	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} -i -0 -f -
++	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} $* -i -0 -f -
+     done;
+ 
+ }
+@@ -190,7 +191,7 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
+ 		  esac; \
+ 	       fi; \
+ 	    done | \
+-	${RESTORECON} ${VERBOSE} -i -f - -R `exclude_dirs`; \
++	${RESTORECON} ${VERBOSE} -i -f - -R $* `exclude_dirs`; \
+ 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
+ fi
+ }
+@@ -222,7 +223,7 @@ if [ ! -z "$PREFC" ]; then
+     exit $?
+ fi
+ if [ ! -z "$BOOTTIME" ]; then
+-    newer $BOOTTIME
++    newer $BOOTTIME $*
+     exit $?
+ fi
+ [ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
 -- 
-paul moore
-www.paul-moore.com
+1.8.3.1
