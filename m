@@ -1,43 +1,45 @@
-Subject: Re: [PATCH] libselinux/ChangeLog: Fix the author of the last
- libselinux change
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1470835732-9875-1-git-send-email-plautrba@redhat.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <8b92b3a7-daab-341f-4259-e2d8708f42a7@tycho.nsa.gov>
-Date: Wed, 10 Aug 2016 10:30:42 -0400
-MIME-Version: 1.0
-In-Reply-To: <1470835732-9875-1-git-send-email-plautrba@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
+ sds@tycho.nsa.gov
+Subject: [PATCH 4/5] genfs_read: fix use heap-use-after-free
+Date: Wed, 10 Aug 2016 14:51:21 -0700
+Message-Id: <1470865882-22435-4-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1470865882-22435-1-git-send-email-william.c.roberts@intel.com>
+References: <1470865882-22435-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/10/2016 09:28 AM, Petr Lautrbach wrote:
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+From: William Roberts <william.c.roberts@intel.com>
 
-Applied.
+The newc variable is calloc'd and assigned to a new
+owner during a loop. After the first assignment of newc
+to newgenfs->head, the subsequent iteration could fail
+before the newc is reseated with a new heap allocation
+pointer. When the subsequent iteration fails, the
+newc variable is freed. Later, an attempt it made to
+free the same pointer assigned to newgenfs->head.
 
-Thanks,
-Jim
+To correct this, clear newc after every loop iteration.
 
-> ---
->  libselinux/ChangeLog | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/libselinux/ChangeLog b/libselinux/ChangeLog
-> index 675403f..c3e84bb 100644
-> --- a/libselinux/ChangeLog
-> +++ b/libselinux/ChangeLog
-> @@ -1,4 +1,4 @@
-> -	* Fix in tree compilation of utils that depend on libsepol, from Petr Lautrbach.
-> +	* Fix in tree compilation of utils that depend on libsepol, from Laurent Bigonville.
->  	* Change the location of _selinux.so, from Petr Lautrbach.
->  	* Clarify is_selinux_mls_enabled() description, from David King.
->  	* Explain how to free policy type from selinux_getpolicytype(), from David King.
->
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/policydb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 6a80f94..971793d 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -2812,6 +2812,8 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
+ 				l->next = newc;
+ 			else
+ 				newgenfs->head = newc;
++			/* clear newc after a new owner has the pointer */
++			newc = NULL;
+ 		}
+ 	}
+ 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+1.9.1
