@@ -1,64 +1,44 @@
-Subject: Re: [PATCH] libsepol: fix memory leak in expand.c
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>,
- "'seandroid-list@tycho.nsa.gov'" <seandroid-list@tycho.nsa.gov>,
- "'sds@tycho.nsa.gov'" <sds@tycho.nsa.gov>
-References: <1470677301-20065-1-git-send-email-william.c.roberts@intel.com>
- <476DC76E7D1DF2438D32BFADF679FC56012805C4@ORSMSX103.amr.corp.intel.com>
- <476DC76E7D1DF2438D32BFADF679FC56012812D9@ORSMSX103.amr.corp.intel.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <a6d7d4f7-98fe-ef24-1648-1ebc20fbaf11@tycho.nsa.gov>
-Date: Tue, 9 Aug 2016 16:26:35 -0400
-MIME-Version: 1.0
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC56012812D9@ORSMSX103.amr.corp.intel.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7A8dJhh031090
+ for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2016 04:39:19 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 11D7AC0586CA
+ for <selinux@tycho.nsa.gov>; Wed, 10 Aug 2016 08:39:14 +0000 (UTC)
+From: Miroslav Vadkerti <mvadkert@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] semanage: swap tcp and udp protocol numbers
+Date: Wed, 10 Aug 2016 10:39:10 +0200
+Message-Id: <1470818350-3637-1-git-send-email-mvadkert@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/09/2016 12:12 PM, Roberts, William C wrote:
-> <snip>
->>>
->>> -      out:
->>> +	  out:
->>> +	rc = 0;
->>>
->>> -	ebitmap_destroy(&types);
->>> +	  err_neg:
->>>  	ebitmap_destroy(&neg_types);
->>> +	  err_types:
->>> +	ebitmap_destroy(&types);
->>>
->>> -	return 0;
->>> +	return rc;
->>>  }
->
-> I just noticed the indenting on the label changed, I went through the
-> File and it has:
-> 1. labels with 7 leading spaces
-> 2. labels left justified
->
-> Which one is the way you want them, left justified?
+The tcp/udp protocol numbers were accidentaly swapped in
+the original patch 'semanage: add auditing of changes in records'.
 
-I think the left justified ones are from me, your patches matches with the 
-common usage, so I applied it.
+Signed-off-by: Miroslav Vadkerti <mvadkert@redhat.com>
+---
+ policycoreutils/semanage/seobject.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks,
-Jim
-
->
-> Bill
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
-
-
+diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+index 317b421..786ed0e 100644
+--- a/policycoreutils/semanage/seobject.py
++++ b/policycoreutils/semanage/seobject.py
+@@ -88,8 +88,8 @@ file_type_str_to_option = {"all files": "a",
+                            "symbolic link": "l",
+                            "named pipe": "p"}
+ 
+-proto_to_audit = {"tcp": 17,
+-                  "udp": 6,
++proto_to_audit = {"tcp": 6,
++                  "udp": 17,
+                   "ipv4": 4,
+                   "ipv6": 41}
+ 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+1.8.3.1
