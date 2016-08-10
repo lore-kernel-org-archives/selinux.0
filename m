@@ -1,10 +1,11 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
  sds@tycho.nsa.gov
-Subject: [PATCH v2 1/5] libsepol: fix invalid access of NULL on
- type_val_to_struct
-Date: Wed, 10 Aug 2016 15:35:56 -0700
-Message-Id: <1470868560-31328-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v2 3/5] ebitmap: detect invalid bitmap
+Date: Wed, 10 Aug 2016 15:35:58 -0700
+Message-Id: <1470868560-31328-3-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1470868560-31328-1-git-send-email-william.c.roberts@intel.com>
+References: <1470868560-31328-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -12,30 +13,31 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-In type_set_expand:
-When nprim, the table index counter, is greater than the value of initizalized
-entries in the type_val_to_struct[] array, detect this as invalid
-and return an error.
+When count is 0 and the highbit is not zero, the ebitmap is not
+valid and the internal node is not allocated. This causes issues
+when routines, like mls_context_isvalid() attempt to use the
+ebitmap_for_each_bit() and ebitmap_node_get_bit() as they assume
+a highbit > 0 will have a node allocated.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libsepol/src/expand.c | 4 ++++
+ libsepol/src/ebitmap.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 0ad57f5..e6d3ef1 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2514,6 +2514,10 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
- 				if (i > p->p_types.nprim - 1)
- 					goto err_types;
- 
-+				if (!p->type_val_to_struct[i]) {
-+					goto err_types;
-+				}
+diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+index 58f2fc4..fe8beb8 100644
+--- a/libsepol/src/ebitmap.c
++++ b/libsepol/src/ebitmap.c
+@@ -394,6 +394,10 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 		     e->highbit, MAPSIZE);
+ 		goto bad;
+ 	}
 +
- 				if (p->type_val_to_struct[i]->flavor ==
- 				    TYPE_ATTRIB) {
- 					if (ebitmap_union
++	if (e->highbit && !count)
++		goto bad;
++
+ 	l = NULL;
+ 	for (i = 0; i < count; i++) {
+ 		rc = next_entry(buf, fp, sizeof(uint32_t));
 -- 
 1.9.1
