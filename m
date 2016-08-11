@@ -1,45 +1,50 @@
-Subject: Re: Restricting network communications of mounted filesystems
-To: Colin Powers <Colin.Powers@nexor.com>,
- "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-References: <DB6PR0301MB25686B836200CDD7728F63829E1E0@DB6PR0301MB2568.eurprd03.prod.outlook.com>
+Subject: Re: [PATCH] selinux-testsuite: Add test for execstack on thread
+ stacks.
+To: Paul Moore <pmoore@redhat.com>
+References: <1469717017-19818-1-git-send-email-sds@tycho.nsa.gov>
+ <CAHC9VhTQfcMR8_RCo_hxEjOMsDi_cTrgCO2udPWQAqrVnU6pVg@mail.gmail.com>
+ <7a9c9bda-b7e0-274e-2634-8850cc292a0a@tycho.nsa.gov>
+ <CAGH-KgupZpTL60HGNSe_AfiNM8WzkXEpiWTyMia8mJrqNfxmmQ@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <e3fe3e6a-a03f-cc2f-0b98-e2b192586199@tycho.nsa.gov>
-Date: Thu, 11 Aug 2016 11:52:13 -0400
+Message-ID: <755f448a-7fd7-c676-90d4-517a4fcda226@tycho.nsa.gov>
+Date: Thu, 11 Aug 2016 13:32:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <DB6PR0301MB25686B836200CDD7728F63829E1E0@DB6PR0301MB2568.eurprd03.prod.outlook.com>
+In-Reply-To: <CAGH-KgupZpTL60HGNSe_AfiNM8WzkXEpiWTyMia8mJrqNfxmmQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/11/2016 10:31 AM, Colin Powers wrote:
-> Hi folks,
+On 07/29/2016 10:05 AM, Paul Moore wrote:
+> On Fri, Jul 29, 2016 at 9:45 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 07/29/2016 09:39 AM, Paul Moore wrote:
+>>> On Thu, Jul 28, 2016 at 10:43 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>> Test execstack permission checking for thread stacks.
+>>>> The test is conditional on Linux >= 4.7.
+>>>>
+>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>> ---
+>>>> Revised to make it conditional on the kernel version in which
+>>>> the corresponding change was merged, so it passes on old and new kernels.
+>>>>
+>>>>  tests/mmap/Makefile                |  2 ++
+>>>>  tests/mmap/mprotect_stack_thread.c | 58 ++++++++++++++++++++++++++++++++++++++
+>>>>  tests/mmap/test                    |  8 +++++-
+>>>>  3 files changed, 67 insertions(+), 1 deletion(-)
+>>>>  create mode 100644 tests/mmap/mprotect_stack_thread.c
+>>>
+>>> With v4.7 released, and the newly added conditionals, I see no reason
+>>> not to merge this patch (as well as the userns cap test) into the
+>>> master branch.  Can you think of any reason why not?
+>>
+>> No, that's why I re-spun these patches.  Should be good to go.  I
+>> force-pushed the updated patches to the branches, so they should be
+>> available to merge or cherry-pick there.
 > 
-> I have a question about the way network communications of mounted filesystems works with SELinux. I wonder if anyone could provide some insight or a link to somewhere with more information.
-> 
-> So let's say I have a RHEL6 machine with two network interfaces and I want to be very selective about which process can access which network interface.
-> 
-> I can use iptables SECMARK to label all traffic on eth0 as my_eth0_packet_t and all traffic on eth1 as my_eth1_packet_t, then grant send/recv permissions appropriately.
-> 
-> But let's say I want to be able to mount CIFS shares only using eth0. Does iptables SECMARK work in this scenario?
-> If so, what process is actually doing the network communications - what SELinux type do I need to grant permission to send/recv my_eth0_packet_t?
-> If not - how does the network comms work in this scenario and what are the options to achieve my goal of limiting traffic to eth0?
+> Okay, great.  Just a reminder, you've got write access to that repo,
+> and since you seem like a trustworthy guy I would say just go ahead a
+> do the merge yourself ;)
 
-Disclaimer: I don't really know how CIFS works, so take this with a
-grain of salt.
-
-Looking at the kernel code, fs/cifs/connect.c calls __sock_create(),
-passing 1 for the last argument (kern), so its socket is created as a
-kernel-internal socket rather than a user socket. The socket is
-therefore labeled with the kernel SID/context rather than any particular
-userspace process context, and can be reused for multiple processes.
-
-The socket layer access control checks are completely skipped on such
-sockets (sock_has_perm handles this case specially).  The packet layer
-access control checks are still applied, but they will always be between
-the kernel context and the packet context.
-
-So I don't think you can enforce this restriction for CIFS traffic on a
-per-process basis currently.
+Applied them both.
