@@ -1,45 +1,26 @@
-From: william.c.roberts@intel.com
-To: selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
- sds@tycho.nsa.gov
-Subject: [PATCH v2 4/5] genfs_read: fix use heap-use-after-free
-Date: Wed, 10 Aug 2016 15:35:59 -0700
-Message-Id: <1470868560-31328-4-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <1470868560-31328-1-git-send-email-william.c.roberts@intel.com>
-References: <1470868560-31328-1-git-send-email-william.c.roberts@intel.com>
+From: Colin Powers <Colin.Powers@nexor.com>
+To: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Subject: Restricting network communications of mounted filesystems
+Date: Thu, 11 Aug 2016 14:31:03 +0000
+Message-ID: <DB6PR0301MB25686B836200CDD7728F63829E1E0@DB6PR0301MB2568.eurprd03.prod.outlook.com>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+Hi folks,
 
-The newc variable is calloc'd and assigned to a new
-owner during a loop. After the first assignment of newc
-to newgenfs->head, the subsequent iteration could fail
-before the newc is reseated with a new heap allocation
-pointer. When the subsequent iteration fails, the
-newc variable is freed. Later, an attempt it made to
-free the same pointer assigned to newgenfs->head.
+I have a question about the way network communications of mounted filesystems works with SELinux. I wonder if anyone could provide some insight or a link to somewhere with more information.
 
-To correct this, clear newc after every loop iteration.
+So let's say I have a RHEL6 machine with two network interfaces and I want to be very selective about which process can access which network interface.
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libsepol/src/policydb.c | 2 ++
- 1 file changed, 2 insertions(+)
+I can use iptables SECMARK to label all traffic on eth0 as my_eth0_packet_t and all traffic on eth1 as my_eth1_packet_t, then grant send/recv permissions appropriately.
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 6a80f94..971793d 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -2812,6 +2812,8 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
- 				l->next = newc;
- 			else
- 				newgenfs->head = newc;
-+			/* clear newc after a new owner has the pointer */
-+			newc = NULL;
- 		}
- 	}
- 
--- 
-1.9.1
+But let's say I want to be able to mount CIFS shares only using eth0. Does iptables SECMARK work in this scenario?
+If so, what process is actually doing the network communications - what SELinux type do I need to grant permission to send/recv my_eth0_packet_t?
+If not - how does the network comms work in this scenario and what are the options to achieve my goal of limiting traffic to eth0?
+
+Cheers
+Colin Powers
