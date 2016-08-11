@@ -1,170 +1,74 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux-testsuite: mmap: test personality(READ_IMPLIES_EXEC)
-Date: Thu, 11 Aug 2016 13:52:13 -0400
-Message-Id: <1470937933-2194-1-git-send-email-sds@tycho.nsa.gov>
+Subject: Re: [PATCH V3 0/4] Update setfiles/restorecon to support
+ selinux_restorecon
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+References: <1469522556-3022-1-git-send-email-richard_c_haines@btinternet.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <89dbfc4c-1a9e-b4d3-8dc4-cca788e331bf@tycho.nsa.gov>
+Date: Thu, 11 Aug 2016 14:53:56 -0400
+MIME-Version: 1.0
+In-Reply-To: <1469522556-3022-1-git-send-email-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add a couple of tests to confirm that SELinux exec* checking
-is applied when the program calls personality(READ_IMPLIES_EXEC)
-and then calls mmap() or mprotect() without explicit PROT_EXEC.
+On 07/26/2016 04:42 AM, Richard Haines wrote:
+> These patches:
+> 1) Add additional services to selinux_restorecon(3) so that setfiles(8)
+> functionality can be supported.
+> 2) Modify setfiles(8), restorecon(8) and restorecond(8) to make use of the
+> new libselinux functions.
+>
+> I've supported all options except -q of the current restorecon(8) and
+> setfiles(8) in selinux_restorecon_* services.
+>
+> The output from these commands should be much the same as before
+> with some minor wording changes, the only exceptions being that the
+> following options have been added (see man pages for details):
+> 1) -I to ignore the digest on directories.
+> 2) -m to ignore reading /proc/mounts.
+>
+> Changes for V2
+> 1) All requested changes have been completed as per [1], [2] and [3].
+> 2) As selinux_restorecon_set_alt_rootpath(3) and
+> selinux_restorecon_set_exclude_list(3) now allocate memory etc. they return
+> errors (they were void).
+>
+> Changes for V3
+> 1) All requested changes have been completed as per [4], [5] and [6].
+> 2) Reverted selinux_restorecon_set_exclude_list(3) to void as already released.
+> 3) Included patch 4/4 for restorecond.
+>
+> Richard Haines (4):
+>   libselinux: Evaluate inodes in selinux_restorecon(3)
+>   libselinux: Add setfiles support to selinux_restorecon(3)
+>   policycoreutils: setfiles - Modify to use selinux_restorecon
+>   policycoreutils: restorecond - Modify to use selinux_restorecon
+>
+>  libselinux/include/selinux/restorecon.h            | 105 ++-
+>  libselinux/man/man3/selinux_restorecon.3           |  85 ++-
+>  .../man/man3/selinux_restorecon_set_alt_rootpath.3 |  35 +
+>  .../man/man3/selinux_restorecon_set_exclude_list.3 |   9 +-
+>  .../man/man3/selinux_restorecon_set_sehandle.3     |   4 +-
+>  libselinux/src/selinux_restorecon.c                | 738 ++++++++++++++++++---
+>  libselinux/utils/selinux_restorecon.c              |  52 +-
+>  policycoreutils/restorecond/restorecond.c          |  45 +-
+>  policycoreutils/restorecond/restorecond.h          |   2 +
+>  policycoreutils/restorecond/watch.c                |  25 +-
+>  policycoreutils/setfiles/restore.c                 | 719 ++------------------
+>  policycoreutils/setfiles/restore.h                 |  52 +-
+>  policycoreutils/setfiles/restorecon.8              |  85 ++-
+>  policycoreutils/setfiles/setfiles.8                |  86 ++-
+>  policycoreutils/setfiles/setfiles.c                | 214 +++---
+>  15 files changed, 1271 insertions(+), 985 deletions(-)
+>  create mode 100644 libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
+>
 
-This presumes that /sys/fs/selinux/checkreqprot == 0; otherwise,
-these tests will fail.
+Applied.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- tests/mmap/mmap_file_shared.c | 35 +++++++++++++++++++++++++++--------
- tests/mmap/mprotect_stack.c   | 28 +++++++++++++++++++++++++---
- tests/mmap/test               | 14 +++++++++++++-
- 3 files changed, 65 insertions(+), 12 deletions(-)
+Thanks,
 
-diff --git a/tests/mmap/mmap_file_shared.c b/tests/mmap/mmap_file_shared.c
-index e64ec5f..ad349a4 100644
---- a/tests/mmap/mmap_file_shared.c
-+++ b/tests/mmap/mmap_file_shared.c
-@@ -4,25 +4,44 @@
- #include <errno.h>
- #include <fcntl.h>
- #include <sys/mman.h>
-+#include <sys/personality.h>
-+
-+void usage(const char *progname)
-+{
-+	fprintf(stderr, "usage: %s [-r] file\n", progname);
-+	exit(1);
-+}
- 
- int main(int argc, char **argv)
- {
- 	char *ptr;
--	int fd;
-+	int fd, opt, prot = PROT_READ | PROT_WRITE | PROT_EXEC;
- 
--	if (argc != 2) {
--		fprintf(stderr, "usage: %s file\n", argv[0]);
--		exit(1);
-+	while ((opt = getopt(argc, argv, "r")) != -1) {
-+		switch (opt) {
-+		case 'r':
-+			if (personality(READ_IMPLIES_EXEC) == -1) {
-+				perror("personality");
-+				exit(1);
-+			}
-+			prot &= ~PROT_EXEC;
-+			break;
-+		default:
-+			usage(argv[0]);
-+			break;
-+		}
- 	}
- 
--	fd = open(argv[1], O_RDWR);
-+	if ((argc - optind) != 1)
-+		usage(argv[0]);
-+
-+	fd = open(argv[optind], O_RDWR);
- 	if (fd < 0) {
--		perror(argv[1]);
-+		perror(argv[optind]);
- 		exit(1);
- 	}
- 
--	ptr = mmap(NULL, 4096, PROT_READ | PROT_WRITE | PROT_EXEC,
--		   MAP_SHARED, fd, 0);
-+	ptr = mmap(NULL, 4096, prot, MAP_SHARED, fd, 0);
- 	if (ptr == MAP_FAILED) {
- 		perror("mmap");
- 		close(fd);
-diff --git a/tests/mmap/mprotect_stack.c b/tests/mmap/mprotect_stack.c
-index 0d5a628..002bf58 100644
---- a/tests/mmap/mprotect_stack.c
-+++ b/tests/mmap/mprotect_stack.c
-@@ -3,17 +3,39 @@
- #include <stdlib.h>
- #include <errno.h>
- #include <sys/mman.h>
-+#include <sys/personality.h>
- 
--int main(void)
-+void usage(const char *progname)
-+{
-+	fprintf(stderr, "usage: %s [-r]\n", progname);
-+	exit(1);
-+}
-+
-+int main(int argc, char **argv)
- {
- 	char buf[4096];
--	int rc;
-+	int rc, opt, prot = PROT_READ | PROT_WRITE | PROT_EXEC;
- 	void *ptr;
- 	long pagesize = sysconf(_SC_PAGESIZE);
- 
-+	while ((opt = getopt(argc, argv, "r")) != -1) {
-+		switch (opt) {
-+		case 'r':
-+			if (personality(READ_IMPLIES_EXEC) == -1) {
-+				perror("personality");
-+				exit(1);
-+			}
-+			prot &= ~PROT_EXEC;
-+			break;
-+		default:
-+			usage(argv[0]);
-+			break;
-+		}
-+	}
-+
- 	ptr = (void *) (((unsigned long) buf) & ~(pagesize - 1));
- 
--	rc = mprotect(ptr, pagesize, PROT_READ | PROT_WRITE | PROT_EXEC);
-+	rc = mprotect(ptr, pagesize, prot);
- 	if (rc < 0) {
- 		perror("mprotect");
- 		exit(1);
-diff --git a/tests/mmap/test b/tests/mmap/test
-index 6711ba7..1e16db0 100755
---- a/tests/mmap/test
-+++ b/tests/mmap/test
-@@ -1,7 +1,7 @@
- #!/usr/bin/perl
- 
- use Test;
--BEGIN { plan tests => 40}
-+BEGIN { plan tests => 44}
- 
- $basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
- 
-@@ -68,6 +68,12 @@ ok($result, 0);
- $result = system "runcon -t test_execmem_t $basedir/mprotect_stack 2>&1";
- ok($result);
- 
-+# Repeat tests using personality(READ_IMPLIES_EXEC) instead of explicit PROT_EXEC.
-+$result = system "runcon -t test_execstack_t -- $basedir/mprotect_stack -r";
-+ok($result, 0);
-+$result = system "runcon -t test_execmem_t -- $basedir/mprotect_stack -r 2>&1";
-+ok($result);
-+
- # Test success and failure for thread execstack, independent of execmem.
- $result = system "runcon -t test_execstack_t $basedir/mprotect_stack_thread pass";
- ok($result, 0);
-@@ -80,6 +86,12 @@ ok($result, 0);
- $result = system "runcon -t test_file_rw_t $basedir/mmap_file_shared $basedir/temp_file 2>&1";
- ok($result);
- 
-+# Repeat tests using personality(READ_IMPLIES_EXEC) instead of explicit PROT_EXEC.
-+$result = system "runcon -t test_file_rwx_t -- $basedir/mmap_file_shared -r $basedir/temp_file";
-+ok($result, 0);
-+$result = system "runcon -t test_file_rw_t -- $basedir/mmap_file_shared -r $basedir/temp_file 2>&1";
-+ok($result);
-+
- # Test success and failure for file execute on mprotect w/ file shared mapping.
- $result = system "runcon -t test_file_rwx_t $basedir/mprotect_file_shared $basedir/temp_file";
- ok($result, 0);
 -- 
-2.7.4
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
