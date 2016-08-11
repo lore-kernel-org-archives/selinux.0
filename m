@@ -1,50 +1,51 @@
-Subject: Re: [PATCH] selinux-testsuite: Add test for execstack on thread
- stacks.
-To: Paul Moore <pmoore@redhat.com>
-References: <1469717017-19818-1-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhTQfcMR8_RCo_hxEjOMsDi_cTrgCO2udPWQAqrVnU6pVg@mail.gmail.com>
- <7a9c9bda-b7e0-274e-2634-8850cc292a0a@tycho.nsa.gov>
- <CAGH-KgupZpTL60HGNSe_AfiNM8WzkXEpiWTyMia8mJrqNfxmmQ@mail.gmail.com>
-Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 2/2] semanage: fix modify action in node and interface
+To: Miroslav Vadkerti <mvadkert@redhat.com>, selinux@tycho.nsa.gov
+References: <1469464627-2159-1-git-send-email-mvadkert@redhat.com>
+ <1469464627-2159-2-git-send-email-mvadkert@redhat.com>
+Cc: linux-audit@redhat.com
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <755f448a-7fd7-c676-90d4-517a4fcda226@tycho.nsa.gov>
-Date: Thu, 11 Aug 2016 13:32:59 -0400
+Message-ID: <2a0c13c6-a491-c046-0abe-a1176ff0f116@tycho.nsa.gov>
+Date: Thu, 11 Aug 2016 13:33:35 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAGH-KgupZpTL60HGNSe_AfiNM8WzkXEpiWTyMia8mJrqNfxmmQ@mail.gmail.com>
+In-Reply-To: <1469464627-2159-2-git-send-email-mvadkert@redhat.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/29/2016 10:05 AM, Paul Moore wrote:
-> On Fri, Jul 29, 2016 at 9:45 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 07/29/2016 09:39 AM, Paul Moore wrote:
->>> On Thu, Jul 28, 2016 at 10:43 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>> Test execstack permission checking for thread stacks.
->>>> The test is conditional on Linux >= 4.7.
->>>>
->>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>>> ---
->>>> Revised to make it conditional on the kernel version in which
->>>> the corresponding change was merged, so it passes on old and new kernels.
->>>>
->>>>  tests/mmap/Makefile                |  2 ++
->>>>  tests/mmap/mprotect_stack_thread.c | 58 ++++++++++++++++++++++++++++++++++++++
->>>>  tests/mmap/test                    |  8 +++++-
->>>>  3 files changed, 67 insertions(+), 1 deletion(-)
->>>>  create mode 100644 tests/mmap/mprotect_stack_thread.c
->>>
->>> With v4.7 released, and the newly added conditionals, I see no reason
->>> not to merge this patch (as well as the userns cap test) into the
->>> master branch.  Can you think of any reason why not?
->>
->> No, that's why I re-spun these patches.  Should be good to go.  I
->> force-pushed the updated patches to the branches, so they should be
->> available to merge or cherry-pick there.
+On 07/25/2016 12:37 PM, Miroslav Vadkerti wrote:
+> The modify actions of security context mappings for
+> interface and node actully called add action.
 > 
-> Okay, great.  Just a reminder, you've got write access to that repo,
-> and since you seem like a trustworthy guy I would say just go ahead a
-> do the merge yourself ;)
+> Signed-off-by: Miroslav Vadkerti <mvadkert@redhat.com>
 
-Applied them both.
+Thanks, applied.
+
+> ---
+>  policycoreutils/semanage/semanage | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+> index 954411d..b199ebe 100644
+> --- a/policycoreutils/semanage/semanage
+> +++ b/policycoreutils/semanage/semanage
+> @@ -524,7 +524,7 @@ def handleInterface(args):
+>      if args.action is "add":
+>          OBJECT.add(args.interface, args.range, args.type)
+>      if args.action is "modify":
+> -        OBJECT.add(args.interface, args.range, args.type)
+> +        OBJECT.modify(args.interface, args.range, args.type)
+>      if args.action is "delete":
+>          OBJECT.delete(args.interface)
+>      if args.action is "list":
+> @@ -607,7 +607,7 @@ def handleNode(args):
+>      if args.action is "add":
+>          OBJECT.add(args.node, args.netmask, args.proto, args.range, args.type)
+>      if args.action is "modify":
+> -        OBJECT.add(args.node, args.netmask, args.proto, args.range, args.type)
+> +        OBJECT.modify(args.node, args.netmask, args.proto, args.range, args.type)
+>      if args.action is "delete":
+>          OBJECT.delete(args.node, args.netmask, args.proto)
+>      if args.action is "list":
+> 
