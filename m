@@ -1,23 +1,43 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
  sds@tycho.nsa.gov
-Subject: Fix AFL Found Bugs in libsepol
-Date: Mon, 15 Aug 2016 08:59:07 -0700
-Message-Id: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v3 1/7] libsepol: fix invalid access of NULL on
+ type_val_to_struct
+Date: Mon, 15 Aug 2016 08:59:08 -0700
+Message-Id: <1471276754-25266-2-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
+References: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-With the patches mentioned below, I have been able to run the
-AFL fuzzer for 3 days without issue. I didn't get much feedback
-in v2 of the patchset, but these should address the issues
-in that series.
+From: William Roberts <william.c.roberts@intel.com>
 
-[PATCH v3 1/7] libsepol: fix invalid access of NULL on
-[PATCH v3 2/7] libsepol: ensure key is valid before doing search
-[PATCH v3 3/7] ebitmap: detect invalid bitmap
-[PATCH v3 4/7] genfs_read: fix use heap-use-after-free
-[PATCH v3 5/7] libsepol: fix overflow and 0 length allocations
-[PATCH v3 6/7] libsepol: bound attr_type_map access by nprim
-[PATCH v3 7/7] libsepol: fix unitialized jmp and invalid dereference
+In type_set_expand:
+When nprim, the table index counter, is greater than the value of initizalized
+entries in the type_val_to_struct[] array, detect this as invalid
+and return an error.
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/expand.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 0ad57f5..e6d3ef1 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2514,6 +2514,10 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 				if (i > p->p_types.nprim - 1)
+ 					goto err_types;
+ 
++				if (!p->type_val_to_struct[i]) {
++					goto err_types;
++				}
++
+ 				if (p->type_val_to_struct[i]->flavor ==
+ 				    TYPE_ATTRIB) {
+ 					if (ebitmap_union
+-- 
+1.9.1
