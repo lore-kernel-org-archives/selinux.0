@@ -1,45 +1,60 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, "jwcart2@tycho.nsa.gov"
- <jwcart2@tycho.nsa.gov>, "seandroid-list@tycho.nsa.gov"
- <seandroid-list@tycho.nsa.gov>, "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-Subject: RE: Fix AFL Found Bugs in libsepol
-Date: Mon, 15 Aug 2016 16:18:48 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC5601283EEE@ORSMSX103.amr.corp.intel.com>
-References: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: [PATCH] semanage: correct fcontext auditing
+To: Miroslav Vadkerti <mvadkert@redhat.com>, selinux@tycho.nsa.gov
+References: <1471010236-27524-1-git-send-email-mvadkert@redhat.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <8be530be-2f00-7c6f-ce5d-7d7b4ac20dfb@tycho.nsa.gov>
+Date: Mon, 15 Aug 2016 14:29:07 -0400
 MIME-Version: 1.0
+In-Reply-To: <1471010236-27524-1-git-send-email-mvadkert@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 08/12/2016 09:57 AM, Miroslav Vadkerti wrote:
+> For modify action actually audit the selinux type, i.e. use setype
+> variable.
+>
+> For deleting equal fcontext rules do not audit ftype, as the ftype value
+> for equal rules makes little sense.
+>
+> Signed-off-by: Miroslav Vadkerti <mvadkert@redhat.com>
+
+Applied.
+
+Thanks,
+Jim
+
+> ---
+>  policycoreutils/semanage/seobject.py | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+> index 786ed0e..8d3088c 100644
+> --- a/policycoreutils/semanage/seobject.py
+> +++ b/policycoreutils/semanage/seobject.py
+> @@ -1992,7 +1992,7 @@ class fcontextRecords(semanageRecords):
+>          if not seuser:
+>              seuser = "system_u"
+>
+> -        self.mylog.log_change("resrc=fcontext op=modify %s ftype=%s tcontext=%s:%s:%s:%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype], seuser, "object_r", type, serange))
+> +        self.mylog.log_change("resrc=fcontext op=modify %s ftype=%s tcontext=%s:%s:%s:%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype], seuser, "object_r", setype, serange))
+>
+>      def modify(self, target, setype, ftype, serange, seuser):
+>          self.begin()
+> @@ -2030,7 +2030,7 @@ class fcontextRecords(semanageRecords):
+>              self.equiv.pop(target)
+>              self.equal_ind = True
+>
+> -            self.mylog.log_change("resrc=fcontext op=delete-equal %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype]))
+> +            self.mylog.log_change("resrc=fcontext op=delete-equal %s" % (audit.audit_encode_nv_string("tglob", target, 0)))
+>
+>              return
+>
+>
 
 
-> -----Original Message-----
-> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of
-> william.c.roberts@intel.com
-> Sent: Monday, August 15, 2016 8:59 AM
-> To: selinux@tycho.nsa.gov; jwcart2@tycho.nsa.gov; seandroid-
-> list@tycho.nsa.gov; sds@tycho.nsa.gov
-> Subject: Fix AFL Found Bugs in libsepol
-> 
-> With the patches mentioned below, I have been able to run the AFL fuzzer for 3
-> days without issue. I didn't get much feedback in v2 of the patchset, but these
-> should address the issues in that series.
-
-As well as fix a few more issues found along the way.
-
-> 
-> [PATCH v3 1/7] libsepol: fix invalid access of NULL on [PATCH v3 2/7] libsepol:
-> ensure key is valid before doing search [PATCH v3 3/7] ebitmap: detect invalid
-> bitmap [PATCH v3 4/7] genfs_read: fix use heap-use-after-free [PATCH v3 5/7]
-> libsepol: fix overflow and 0 length allocations [PATCH v3 6/7] libsepol: bound
-> attr_type_map access by nprim [PATCH v3 7/7] libsepol: fix unitialized jmp and
-> invalid dereference
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
