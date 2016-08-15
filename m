@@ -1,9 +1,9 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
  sds@tycho.nsa.gov
-Subject: [PATCH v3 4/7] genfs_read: fix use heap-use-after-free
-Date: Mon, 15 Aug 2016 08:59:11 -0700
-Message-Id: <1471276754-25266-5-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v3 3/7] ebitmap: detect invalid bitmap
+Date: Mon, 15 Aug 2016 08:59:10 -0700
+Message-Id: <1471276754-25266-4-git-send-email-william.c.roberts@intel.com>
 In-Reply-To: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
 References: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,33 +13,31 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-The newc variable is calloc'd and assigned to a new
-owner during a loop. After the first assignment of newc
-to newgenfs->head, the subsequent iteration could fail
-before the newc is reseated with a new heap allocation
-pointer. When the subsequent iteration fails, the
-newc variable is freed. Later, an attempt it made to
-free the same pointer assigned to newgenfs->head.
-
-To correct this, clear newc after every loop iteration.
+When count is 0 and the highbit is not zero, the ebitmap is not
+valid and the internal node is not allocated. This causes issues
+when routines, like mls_context_isvalid() attempt to use the
+ebitmap_for_each_bit() and ebitmap_node_get_bit() as they assume
+a highbit > 0 will have a node allocated.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libsepol/src/policydb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ libsepol/src/ebitmap.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 6a80f94..971793d 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -2812,6 +2812,8 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
- 				l->next = newc;
- 			else
- 				newgenfs->head = newc;
-+			/* clear newc after a new owner has the pointer */
-+			newc = NULL;
- 		}
+diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+index 58f2fc4..fe8beb8 100644
+--- a/libsepol/src/ebitmap.c
++++ b/libsepol/src/ebitmap.c
+@@ -394,6 +394,10 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+ 		     e->highbit, MAPSIZE);
+ 		goto bad;
  	}
- 
++
++	if (e->highbit && !count)
++		goto bad;
++
+ 	l = NULL;
+ 	for (i = 0; i < count; i++) {
+ 		rc = next_entry(buf, fp, sizeof(uint32_t));
 -- 
 1.9.1
