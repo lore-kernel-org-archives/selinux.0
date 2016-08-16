@@ -1,90 +1,76 @@
-From: kuangjiou <kuangjiou@huawei.com>
-To: "Selinux@tycho.nsa.gov" <Selinux@tycho.nsa.gov>
-Subject: unsubscribe
-Date: Tue, 16 Aug 2016 06:44:36 +0000
-Message-ID: <60ABE64B4BE4AC45964F1A967BA76CB2223A532C@SZXEMI502-MBS.china.huawei.com>
-Content-Type: multipart/alternative;
- boundary="_000_60ABE64B4BE4AC45964F1A967BA76CB2223A532CSZXEMI502MBSchi_"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7G7WOU8005572
+ for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 03:32:24 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id B8D92C04B30A
+ for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 07:32:21 +0000 (UTC)
+Received: from localhost.localdomain ([10.40.2.164])
+ by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ u7G7WKAO005397
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 03:32:21 -0400
+To: selinux@tycho.nsa.gov
+From: Vit Mojzis <vmojzis@redhat.com>
+Subject: [Bug report] Semanage fcontext with incorrect regexp
+Message-ID: <e64bf30c-083c-d3ab-c2a2-864b65a2b445@redhat.com>
+Date: Tue, 16 Aug 2016 09:32:19 +0200
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_000_60ABE64B4BE4AC45964F1A967BA76CB2223A532CSZXEMI502MBSchi_
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+When given invalid regexp, semanage reports error, but adds the invalid 
+context to "/etc/selinux/targeted/contexts/files/file_contexts.local", 
+which breaks the system (won't boot in enforcing mode). The new context 
+doesn't show up on "#semanage fcontext -l -C" and cannot be removed by 
+"semanage fcontext --delete".
 
-unsubscribe
+Investigation on Fedora version of libsemanage showed that 
+"file_contexts.local" is not backed up before the new version is 
+installed into the system and therefore cannot be restored after failure.
+For more details see: https://bugzilla.redhat.com/show_bug.cgi?id=1362041
 
---_000_60ABE64B4BE4AC45964F1A967BA76CB2223A532CSZXEMI502MBSchi_
-Content-Type: text/html; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+# semanage fcontext -a -t httpd_exec_t "(/.*)?"
+         specfiles SHA1 digest: 980289cabd78157523679695fd2e4fd0a5b5ff05
+         calculated using the following specfile(s):
+/etc/selinux/targeted/contexts/files/file_contexts.subs_dist
+         /etc/selinux/targeted/contexts/files/file_contexts.subs
+         /etc/selinux/targeted/contexts/files/file_contexts
+/etc/selinux/targeted/contexts/files/file_contexts.homedirs
+         /etc/selinux/targeted/contexts/files/file_contexts.local
+         libsemanage.semanage_exec_prog: Child process 
+/sbin/sefcontext_compile did not exit cleanly. (No such file or directory).
+         libsemanage.sefcontext_compile: sefcontext_compile returned 
+error code -1. Compiling 
+/etc/selinux/targeted/contexts/files/file_contexts.local (No such file 
+or directory).
+         specfiles SHA1 digest: 5097e1780892f53aedb6d30d5d61206a159a20e7
+         calculated using the following specfile(s):
+/etc/selinux/targeted/contexts/files/file_contexts.subs_dist
+         /etc/selinux/targeted/contexts/files/file_contexts.subs
+         /etc/selinux/targeted/contexts/files/file_contexts.bin
+/etc/selinux/targeted/contexts/files/file_contexts.homedirs
+         /etc/selinux/targeted/contexts/files/file_contexts.local
+         libsemanage.semanage_exec_prog: Child process 
+/sbin/sefcontext_compile did not exit cleanly. (No such file or directory).
+         libsemanage.sefcontext_compile: sefcontext_compile returned 
+error code -1. Compiling 
+/etc/selinux/targeted/contexts/files/file_contexts.local (No such file 
+or directory).
+         FileNotFoundError: [Errno 2] No such file or directory
+# semanage fcontext -l -C
+     -
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
-//www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
->
-<meta name=3D"Generator" content=3D"Microsoft Word 12 (filtered medium)">
-<style><!--
-/* Font Definitions */
-@font-face
-	{font-family:\5B8B\4F53;
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:"\@\5B8B\4F53";
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	text-align:justify;
-	text-justify:inter-ideograph;
-	font-size:10.5pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;}
-/* Page Definitions */
-@page WordSection1
-	{size:612.0pt 792.0pt;
-	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]-->
-</head>
-<body lang=3D"ZH-CN" link=3D"blue" vlink=3D"purple" style=3D"text-justify-t=
-rim:punctuation">
-<div class=3D"WordSection1">
-<p class=3D"MsoNormal"><span lang=3D"EN-US">unsubscribe<o:p></o:p></span></=
-p>
-</div>
-</body>
-</html>
+# cat /etc/selinux/targeted/contexts/files/file_contexts.local
+         # This file is auto-generated by libsemanage
+         # Do not edit directly.
 
---_000_60ABE64B4BE4AC45964F1A967BA76CB2223A532CSZXEMI502MBSchi_--
+         (/.*)?    system_u:object_r:httpd_exec_t:s0
+
+# semanage fcontext -d -t httpd_exec_t "(/.*)?"
+         ValueError: File context for (/.*)? is not defined
