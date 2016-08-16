@@ -1,93 +1,405 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7GBELqk028634
- for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 07:14:21 -0400
-Received: from int-mx14.intmail.prod.int.phx2.redhat.com
- (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 2C594A24FC
- for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 11:14:14 +0000 (UTC)
-Received: from rhel-at-redhat.localdomain ([10.40.2.167])
- by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- u7GBECk7012999
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
- for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 07:14:13 -0400
-Subject: Re: libselinux Python wrapper and SWIG 3.0.10
-To: selinux@tycho.nsa.gov
-References: <a87a04a3-f175-0869-ac5e-654ac9206f5e@m4x.org>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <4c1b6808-fdc3-8495-bc79-a17c8fdc7a81@redhat.com>
-Date: Tue, 16 Aug 2016 13:14:12 +0200
+Subject: Re: [PATCH v3 5/7] libsepol: fix overflow and 0 length allocations
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+References: <1471276754-25266-1-git-send-email-william.c.roberts@intel.com>
+ <1471276754-25266-6-git-send-email-william.c.roberts@intel.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <9ca86776-3817-1c5d-dca4-7490cd70212d@tycho.nsa.gov>
+Date: Tue, 16 Aug 2016 09:10:12 -0400
 MIME-Version: 1.0
-In-Reply-To: <a87a04a3-f175-0869-ac5e-654ac9206f5e@m4x.org>
+In-Reply-To: <1471276754-25266-6-git-send-email-william.c.roberts@intel.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/16/2016 12:57 PM, Nicolas Iooss wrote:
-> Hello all,
+On 08/15/2016 11:59 AM, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 >
-> The last SWIG release (3.0.10, release in June) introduced an
-> incompatibility in the way the Python wrapper loads its C module, as
-> described in SWIG ChangeLog [1]. This breaks "import selinux" on systems
-> running Arch Linux:
+> Throughout libsepol, values taken from sepolicy are used in
+> places where length == 0 or length == <saturated> matter,
+> find and fix these.
 >
->     $ python
->     Python 3.5.2 (default, Jun 28 2016, 08:46:01)
->     [GCC 6.1.1 20160602] on linux
->     Type "help", "copyright", "credits" or "license" for more information.
->     >>> import selinux
->     Traceback (most recent call last):
->     File "/usr/lib/python3.5/site-packages/selinux/__init__.py", line
-> 18, in swig_import_helper
->         return importlib.import_module(mname)
->       File "/usr/lib/python3.5/importlib/__init__.py", line 126, in
-> import_module
->         return _bootstrap._gcd_import(name[level:], package, level)
->       File "<frozen importlib._bootstrap>", line 986, in _gcd_import
->       File "<frozen importlib._bootstrap>", line 969, in _find_and_load
->       File "<frozen importlib._bootstrap>", line 956, in
-> _find_and_load_unlocked
->     ImportError: No module named '_selinux'
+> Also, correct any type mismatches noticed along the way.
 >
-> As far as I understand, SWIG no longer supports that its generated
-> Python module is renamed "__init__.py": the generated function
-> swig_import_helper() tries to import _selinux right outside of the
-> selinux module instead of importing "selinux._selinux" (cf. [2] for the
-> code of this function). When I replace "return
-> importlib.import_module(mname)" with "return
-> importlib.import_module('selinux._selinux')" it works as expected.
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  libsepol/src/conditional.c    |  3 ++-
+>  libsepol/src/context.c        | 16 ++++++++-----
+>  libsepol/src/context_record.c | 52 ++++++++++++++++++++++++-------------------
+>  libsepol/src/module.c         | 13 +++++++++++
+>  libsepol/src/module_to_cil.c  |  4 +++-
+>  libsepol/src/policydb.c       | 52 ++++++++++++++++++++++++++++++++++++++++---
+>  libsepol/src/private.h        |  3 +++
+>  7 files changed, 110 insertions(+), 33 deletions(-)
 >
-> In short, renaming selinux.py to __init__.py in install-pywrap target
-> [3] no longer works. The most simple way to fix this seems to be to keep
-> the SWIG-generated selinux.py named selinux.py and to create a new
-> __init__.py file in $(PYLIBDIR)/site-packages/selinux/ with "from
-> selinux.selinux import *" in it. Would such a fix be acceptable?
 
 
-There's another fix [1] already applied in the master tree which changes 
-the location of _selinux.so to $(PYLIBDIR)/site-packages/ so that it can 
-be found by the generated importlib.import_module(mname).
-
-[1] 
-https://github.com/SELinuxProject/selinux/commit/a9604c30a5e2f71007d31aa6ba41cf7b95d94822
-
-Petr
-
+> diff --git a/libsepol/src/context_record.c b/libsepol/src/context_record.c
+> index ac2884a..fdf60a0 100644
+> --- a/libsepol/src/context_record.c
+> +++ b/libsepol/src/context_record.c
+> @@ -5,6 +5,7 @@
 >
-> Thanks,
-> Nicolas
+>  #include "context_internal.h"
+>  #include "debug.h"
+> +#include "private.h"
 >
-> [1] https://github.com/swig/swig/blob/rel-3.0.10/CHANGES.current
-> [2]
-> https://github.com/swig/swig/blob/rel-3.0.10/Source/Modules/python.cxx#L822-L873
-> [3]
-> https://github.com/SELinuxProject/selinux/blob/libselinux-2.5/libselinux/src/Makefile#L160
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>  struct sepol_context {
 >
+> @@ -284,39 +285,44 @@ int sepol_context_to_string(sepol_handle_t * handle,
+>  {
+>
+>  	int rc;
+> -	const int user_sz = strlen(con->user);
+> -	const int role_sz = strlen(con->role);
+> -	const int type_sz = strlen(con->type);
+> -	const int mls_sz = (con->mls) ? strlen(con->mls) : 0;
+> -	const int total_sz = user_sz + role_sz + type_sz +
+> -	    mls_sz + ((con->mls) ? 3 : 2);
+> -
+> -	char *str = (char *)malloc(total_sz + 1);
+> -	if (!str)
+> -		goto omem;
+> +	char *str = NULL;
+> +	const size_t user_sz = strlen(con->user);
+> +	const size_t role_sz = strlen(con->role);
+> +	const size_t type_sz = strlen(con->type);
+> +	const size_t mls_sz = (con->mls) ? strlen(con->mls) : 0;
+> +	const size_t total_sz = user_sz + role_sz + type_sz +
+> +	    mls_sz + ((con->mls) ? 3 : 2) + 1;
+> +
+> +	if (zero_or_saturated(total_sz)) {
+> +		ERR(handle, "invalid size");
+> +		goto err;
+> +	}
+>
+> +	str = (char *)malloc(total_sz);
+
+Before, total_sz + 1 was malloc'd, so it made sense to check for saturation, but 
+you add the 1 to total_sz before checking for saturation.
+
+This case is also different in that multiple string lengths are being added, so 
+overflow would be the real concern here, but I don't think that it is possible 
+to overflow because of limits in checkpolicy (8K) and xattrs (64K).
+
+Jim
+
+> +	if (!str) {
+> +		ERR(handle, "out of memory");
+> +		goto err;
+> +	}
+>  	if (con->mls) {
+> -		rc = snprintf(str, total_sz + 1, "%s:%s:%s:%s",
+> +		rc = snprintf(str, total_sz, "%s:%s:%s:%s",
+>  			      con->user, con->role, con->type, con->mls);
+> -		if (rc < 0 || (rc >= total_sz + 1)) {
+> -			ERR(handle, "print error");
+> -			goto err;
+> -		}
+>  	} else {
+> -		rc = snprintf(str, total_sz + 1, "%s:%s:%s",
+> +		rc = snprintf(str, total_sz, "%s:%s:%s",
+>  			      con->user, con->role, con->type);
+> -		if (rc < 0 || (rc >= total_sz + 1)) {
+> -			ERR(handle, "print error");
+> -			goto err;
+> -		}
+> +	}
+> +
+> +	/*
+> +	 * rc is >= 0 on the size_t cast and is safe to promote
+> +	 * to an unsigned value.
+> +	 */
+> +	if (rc < 0 || (size_t)rc >= total_sz) {
+> +		ERR(handle, "print error");
+> +		goto err;
+>  	}
+>
+>  	*str_ptr = str;
+>  	return STATUS_SUCCESS;
+>
+> -      omem:
+> -	ERR(handle, "out of memory");
+> -
+>        err:
+>  	ERR(handle, "could not convert context to string");
+>  	free(str);
+> diff --git a/libsepol/src/module.c b/libsepol/src/module.c
+> index 1665ede..f25df95 100644
+> --- a/libsepol/src/module.c
+> +++ b/libsepol/src/module.c
+> @@ -30,6 +30,7 @@
+>  #include <stdio.h>
+>  #include <stdlib.h>
+>  #include <limits.h>
+> +#include <inttypes.h>
+>
+>  #define SEPOL_PACKAGE_SECTION_FC 0xf97cff90
+>  #define SEPOL_PACKAGE_SECTION_SEUSER 0x97cff91
+> @@ -793,6 +794,12 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
+>  				goto cleanup;
+>  			}
+>  			len = le32_to_cpu(buf[0]);
+> +			if (zero_or_saturated(len)) {
+> +				ERR(file->handle,
+> +				    "invalid module name length: 0x%"PRIx32,
+> +				    len);
+> +				goto cleanup;
+> +			}
+>  			*name = malloc(len + 1);
+>  			if (!*name) {
+>  				ERR(file->handle, "out of memory");
+> @@ -814,6 +821,12 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
+>  				goto cleanup;
+>  			}
+>  			len = le32_to_cpu(buf[0]);
+> +			if (zero_or_saturated(len)) {
+> +				ERR(file->handle,
+> +				    "invalid module version length: 0x%"PRIx32,
+> +				    len);
+> +				goto cleanup;
+> +			}
+>  			*version = malloc(len + 1);
+>  			if (!*version) {
+>  				ERR(file->handle, "out of memory");
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 36f3b7d..fc65019 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -47,6 +47,8 @@
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/util.h>
+>
+> +#include "private.h"
+> +
+>  #ifdef __GNUC__
+>  #  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+>  #else
+> @@ -124,7 +126,7 @@ static int get_line(char **start, char *end, char **line)
+>
+>  	for (len = 0; p < end && *p != '\n' && *p != '\0'; p++, len++);
+>
+> -	if (len == 0) {
+> +	if (zero_or_saturated(len)) {
+>  		rc = 0;
+>  		goto exit;
+>  	}
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 971793d..604e022 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -1911,6 +1911,9 @@ static int perm_read(policydb_t * p
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	perdatum->s.value = le32_to_cpu(buf[1]);
+>
+>  	key = malloc(len + 1);
+> @@ -1949,6 +1952,9 @@ static int common_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	comdatum->s.value = le32_to_cpu(buf[1]);
+>
+>  	if (symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE))
+> @@ -2092,7 +2098,11 @@ static int class_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+>  	len2 = le32_to_cpu(buf[1]);
+> +	if (is_saturated(len2))
+> +		goto bad;
+>  	cladatum->s.value = le32_to_cpu(buf[2]);
+>
+>  	if (symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE))
+> @@ -2199,6 +2209,9 @@ static int role_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	role->s.value = le32_to_cpu(buf[1]);
+>  	if (policydb_has_boundary_feature(p))
+>  		role->bounds = le32_to_cpu(buf[2]);
+> @@ -2287,6 +2300,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[pos]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	typdatum->s.value = le32_to_cpu(buf[++pos]);
+>  	if (policydb_has_boundary_feature(p)) {
+>  		uint32_t properties;
+> @@ -2447,6 +2463,8 @@ int filename_trans_read(filename_trans_t **t, struct policy_file *fp)
+>  		if (rc < 0)
+>  			return -1;
+>  		len = le32_to_cpu(buf[0]);
+> +		if (zero_or_saturated(len))
+> +			return -1;
+>
+>  		name = calloc(len + 1, sizeof(*name));
+>  		if (!name)
+> @@ -2556,6 +2574,9 @@ static int ocontext_read_xen(struct policydb_compat_info *info,
+>  				if (rc < 0)
+>  					return -1;
+>  				len = le32_to_cpu(buf[0]);
+> +				if (zero_or_saturated(len))
+> +					return -1;
+> +
+>  				c->u.name = malloc(len + 1);
+>  				if (!c->u.name)
+>  					return -1;
+> @@ -2618,6 +2639,8 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
+>  				if (rc < 0)
+>  					return -1;
+>  				len = le32_to_cpu(buf[0]);
+> +				if (zero_or_saturated(len))
+> +					return -1;
+>  				c->u.name = malloc(len + 1);
+>  				if (!c->u.name)
+>  					return -1;
+> @@ -2659,6 +2682,8 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
+>  					return -1;
+>  				c->v.behavior = le32_to_cpu(buf[0]);
+>  				len = le32_to_cpu(buf[1]);
+> +				if (zero_or_saturated(len))
+> +					return -1;
+>  				c->u.name = malloc(len + 1);
+>  				if (!c->u.name)
+>  					return -1;
+> @@ -2719,7 +2744,7 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
+>  	uint32_t buf[1];
+>  	size_t nel, nel2, len, len2;
+>  	genfs_t *genfs_p, *newgenfs, *genfs;
+> -	unsigned int i, j;
+> +	size_t i, j;
+>  	ocontext_t *l, *c, *newc = NULL;
+>  	int rc;
+>
+> @@ -2733,6 +2758,8 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
+>  		if (rc < 0)
+>  			goto bad;
+>  		len = le32_to_cpu(buf[0]);
+> +		if (zero_or_saturated(len))
+> +			goto bad;
+>  		newgenfs = calloc(1, sizeof(genfs_t));
+>  		if (!newgenfs)
+>  			goto bad;
+> @@ -2778,6 +2805,8 @@ static int genfs_read(policydb_t * p, struct policy_file *fp)
+>  			if (rc < 0)
+>  				goto bad;
+>  			len = le32_to_cpu(buf[0]);
+> +			if (zero_or_saturated(len))
+> +				goto bad;
+>  			newc->u.name = malloc(len + 1);
+>  			if (!newc->u.name) {
+>  				goto bad;
+> @@ -2877,6 +2906,9 @@ static int user_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	usrdatum->s.value = le32_to_cpu(buf[1]);
+>  	if (policydb_has_boundary_feature(p))
+>  		usrdatum->bounds = le32_to_cpu(buf[2]);
+> @@ -2960,6 +2992,9 @@ static int sens_read(policydb_t * p
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	levdatum->isalias = le32_to_cpu(buf[1]);
+>
+>  	key = malloc(len + 1);
+> @@ -3003,6 +3038,9 @@ static int cat_read(policydb_t * p
+>  		goto bad;
+>
+>  	len = le32_to_cpu(buf[0]);
+> +	if(zero_or_saturated(len))
+> +		goto bad;
+> +
+>  	catdatum->s.value = le32_to_cpu(buf[1]);
+>  	catdatum->isalias = le32_to_cpu(buf[2]);
+>
+> @@ -3339,6 +3377,8 @@ static int filename_trans_rule_read(filename_trans_rule_t ** r, struct policy_fi
+>  			return -1;
+>
+>  		len = le32_to_cpu(buf[0]);
+> +		if (zero_or_saturated(len))
+> +			return -1;
+>
+>  		ftr->name = malloc(len + 1);
+>  		if (!ftr->name)
+> @@ -3580,6 +3620,8 @@ static int scope_read(policydb_t * p, int symnum, struct policy_file *fp)
+>  	if (rc < 0)
+>  		goto cleanup;
+>  	key_len = le32_to_cpu(buf[0]);
+> +	if (zero_or_saturated(key_len))
+> +		goto cleanup;
+>  	key = malloc(key_len + 1);
+>  	if (!key)
+>  		goto cleanup;
+> @@ -3664,8 +3706,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  	}
+>
+>  	len = buf[1];
+> -	if (len > POLICYDB_STRING_MAX_LENGTH) {
+> -		ERR(fp->handle, "policydb string length too long ");
+> +	if (len == 0 || len > POLICYDB_STRING_MAX_LENGTH) {
+> +		ERR(fp->handle, "policydb string length %s ", len ? "too long" : "zero");
+>  		return POLICYDB_ERROR;
+>  	}
+>
+> @@ -3798,6 +3840,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  			goto bad;
+>  		}
+>  		len = le32_to_cpu(buf[0]);
+> +		if (zero_or_saturated(len))
+> +			goto bad;
+>  		if ((p->name = malloc(len + 1)) == NULL) {
+>  			goto bad;
+>  		}
+> @@ -3809,6 +3853,8 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  			goto bad;
+>  		}
+>  		len = le32_to_cpu(buf[0]);
+> +		if (zero_or_saturated(len))
+> +			goto bad;
+>  		if ((p->version = malloc(len + 1)) == NULL) {
+>  			goto bad;
+>  		}
+> diff --git a/libsepol/src/private.h b/libsepol/src/private.h
+> index 9c700c9..0beb4d4 100644
+> --- a/libsepol/src/private.h
+> +++ b/libsepol/src/private.h
+> @@ -45,6 +45,9 @@
+>
+>  #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
+>
+> +#define is_saturated(x) (x == (typeof(x))-1)
+> +#define zero_or_saturated(x) ((x == 0) || is_saturated(x))
+> +
+>  /* Policy compatibility information. */
+>  struct policydb_compat_info {
+>  	unsigned int type;
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
