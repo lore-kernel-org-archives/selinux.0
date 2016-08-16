@@ -1,29 +1,52 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, jwcart2@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
  sds@tycho.nsa.gov
-Subject: Fix AFL Found Bugs in libsepol v4
-Date: Tue, 16 Aug 2016 10:28:30 -0700
-Message-Id: <1471368517-20552-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v4 2/7] libsepol: ensure key is valid before doing search
+Date: Tue, 16 Aug 2016 10:28:32 -0700
+Message-Id: <1471368517-20552-3-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1471368517-20552-1-git-send-email-william.c.roberts@intel.com>
+References: <1471368517-20552-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-So the delta between v3 and v4 is addressing the comments
-on "fix overflow and 0 length allocations", and also move that
-patch to the end of the series. Take up to where you have
-issues as each patch can stand on its own.
+From: William Roberts <william.c.roberts@intel.com>
 
-[PATCH v4 1/7] libsepol: fix invalid access of NULL on
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/mls.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-[PATCH v4 2/7] libsepol: ensure key is valid before doing search
-
-[PATCH v4 3/7] ebitmap: detect invalid bitmap
-
-[PATCH v4 4/7] genfs_read: fix use heap-use-after-free
-
-[PATCH v4 5/7] libsepol: bound attr_type_map access by nprim
-
-[PATCH v4 6/7] libsepol: fix unitialized jmp and invalid dereference
-
-[PATCH v4 7/7] libsepol: fix overflow and 0 length allocations
+diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
+index 1e84bb7..2dc5f2b 100644
+--- a/libsepol/src/mls.c
++++ b/libsepol/src/mls.c
+@@ -262,6 +262,7 @@ int mls_context_isvalid(const policydb_t * p, const context_struct_t * c)
+ 	user_datum_t *usrdatum;
+ 	unsigned int i, l;
+ 	ebitmap_node_t *cnode;
++	hashtab_key_t key;
+ 
+ 	if (!p->mls)
+ 		return 1;
+@@ -279,11 +280,12 @@ int mls_context_isvalid(const policydb_t * p, const context_struct_t * c)
+ 		if (!c->range.level[l].sens
+ 		    || c->range.level[l].sens > p->p_levels.nprim)
+ 			return 0;
+-		levdatum = (level_datum_t *) hashtab_search(p->p_levels.table,
+-							    p->
+-							    p_sens_val_to_name
+-							    [c->range.level[l].
+-							     sens - 1]);
++
++		key = p->p_sens_val_to_name[c->range.level[l].sens - 1];
++		if (!key)
++			return 0;
++
++		levdatum = (level_datum_t *) hashtab_search(p->p_levels.table, key);
+ 		if (!levdatum)
+ 			return 0;
+ 
+-- 
+1.9.1
