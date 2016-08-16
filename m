@@ -1,48 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7GBDjJM028595
- for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 07:13:45 -0400
-Received: by mail-pa0-f66.google.com with SMTP id vy10so5137217pac.0
- for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 04:13:38 -0700 (PDT)
-Date: Tue, 16 Aug 2016 19:13:34 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7GBELqk028634
+ for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 07:14:21 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 2C594A24FC
+ for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 11:14:14 +0000 (UTC)
+Received: from rhel-at-redhat.localdomain ([10.40.2.167])
+ by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ u7GBECk7012999
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Tue, 16 Aug 2016 07:14:13 -0400
 Subject: Re: libselinux Python wrapper and SWIG 3.0.10
-Message-ID: <20160816111334.GA13313@meriadoc.perfinion.com>
+To: selinux@tycho.nsa.gov
 References: <a87a04a3-f175-0869-ac5e-654ac9206f5e@m4x.org>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <4c1b6808-fdc3-8495-bc79-a17c8fdc7a81@redhat.com>
+Date: Tue, 16 Aug 2016 13:14:12 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <a87a04a3-f175-0869-ac5e-654ac9206f5e@m4x.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Aug 16, 2016 at 12:57:39PM +0200, Nicolas Iooss wrote:
+On 08/16/2016 12:57 PM, Nicolas Iooss wrote:
 > Hello all,
-> 
+>
 > The last SWIG release (3.0.10, release in June) introduced an
 > incompatibility in the way the Python wrapper loads its C module, as
 > described in SWIG ChangeLog [1]. This breaks "import selinux" on systems
 > running Arch Linux:
-
-This should be fixed in the git repo already, just gotta apply that patch.
-
-commit a9604c30a5e2f71007d31aa6ba41cf7b95d94822
-Author: Petr Lautrbach <plautrba@redhat.com>
-Date:   Mon Jun 27 16:46:13 2016
-
-    libselinux: Change the location of _selinux.so
-    
-    There was a change in swig-3.10 to use importlib instead of imp. While
-    the implementation with imp looked for _selinux.so also into the same directory
-    as __init__.py is, a new module with importlib searchs only standard paths.
-    It means that we need to move _selinux.so from $(PYLIBDIR)/site-packages/selinux/
-    to $(PYLIBDIR)/site-packages/.
-
--- Jason
-
-
+>
 >     $ python
 >     Python 3.5.2 (default, Jun 28 2016, 08:46:01)
 >     [GCC 6.1.1 20160602] on linux
@@ -60,7 +51,7 @@ Date:   Mon Jun 27 16:46:13 2016
 >       File "<frozen importlib._bootstrap>", line 956, in
 > _find_and_load_unlocked
 >     ImportError: No module named '_selinux'
-> 
+>
 > As far as I understand, SWIG no longer supports that its generated
 > Python module is renamed "__init__.py": the generated function
 > swig_import_helper() tries to import _selinux right outside of the
@@ -68,16 +59,27 @@ Date:   Mon Jun 27 16:46:13 2016
 > code of this function). When I replace "return
 > importlib.import_module(mname)" with "return
 > importlib.import_module('selinux._selinux')" it works as expected.
-> 
+>
 > In short, renaming selinux.py to __init__.py in install-pywrap target
 > [3] no longer works. The most simple way to fix this seems to be to keep
 > the SWIG-generated selinux.py named selinux.py and to create a new
 > __init__.py file in $(PYLIBDIR)/site-packages/selinux/ with "from
 > selinux.selinux import *" in it. Would such a fix be acceptable?
-> 
+
+
+There's another fix [1] already applied in the master tree which changes 
+the location of _selinux.so to $(PYLIBDIR)/site-packages/ so that it can 
+be found by the generated importlib.import_module(mname).
+
+[1] 
+https://github.com/SELinuxProject/selinux/commit/a9604c30a5e2f71007d31aa6ba41cf7b95d94822
+
+Petr
+
+>
 > Thanks,
 > Nicolas
-> 
+>
 > [1] https://github.com/swig/swig/blob/rel-3.0.10/CHANGES.current
 > [2]
 > https://github.com/swig/swig/blob/rel-3.0.10/Source/Modules/python.cxx#L822-L873
@@ -88,3 +90,4 @@ Date:   Mon Jun 27 16:46:13 2016
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
 > To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
