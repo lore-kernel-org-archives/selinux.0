@@ -1,289 +1,129 @@
-Subject: Re: [PATCH] semanage: add auditing of changes in records
-To: Miroslav Vadkerti <mvadkert@redhat.com>, selinux@tycho.nsa.gov
-References: <[PATCH 1/2] semanage: add auditing of changes in records>
- <1469546125-19448-1-git-send-email-mvadkert@redhat.com>
-Cc: linux-audit@redhat.com
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9fb4df19-da7c-0b43-4549-3ff5cb218926@tycho.nsa.gov>
-Date: Wed, 17 Aug 2016 14:50:24 -0400
-MIME-Version: 1.0
-In-Reply-To: <1469546125-19448-1-git-send-email-mvadkert@redhat.com>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Cc: vmojzis@redhat.com, richard_c_haines@btinternet.com,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux, sefcontext_compile: handle NULL pcre study data
+Date: Wed, 17 Aug 2016 15:15:38 -0400
+Message-Id: <1471461338-13426-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/26/2016 11:15 AM, Miroslav Vadkerti wrote:
-> Common Criteria requirement FMT_MSA.1 needs any configuration change
-> that affect enforcement of policy to be audited. This patch adds
-> auditing of changes in security context mappings for network ports,
-> interfaces, nodes and file contexts.
-> 
-> A new function log_change is introduced that audits additions,
-> modification and removal of the mappings via the USER_MAC_CONFIG_CHANGE
-> audit event.
-> 
-> The format of the audit events was discussed with the audit userspace
-> maintainer.
+pcre_study() can return a NULL result if no additional information
+could be determined for the pattern.  Thus, sefcontext_compile
+needs to correctly handle the case where the study data is NULL
+when generating file_contexts.bin, and libselinux needs to correctly
+handle it when loading file_contexts.bin.  Fix them both.
 
-This broke semanage fcontext -D.
+This change enables:
+semanage fcontext -a -t httpd_exec_t "(/.*)?"
+to succeed, since the regex itself is valid but there is no
+additional information produced by pcre_study().
 
-#semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
-#semanage fcontext -D
-KeyError: all files
+Reported-by: Vit Mojzis <vmojzis@redhat.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/label_file.c           | 25 ++++++++++++++-----------
+ libselinux/src/label_file.h           |  9 ++++++---
+ libselinux/utils/sefcontext_compile.c | 21 +++++++++++++--------
+ 3 files changed, 33 insertions(+), 22 deletions(-)
 
-
-> 
-> This patch resolves: https://bugzilla.redhat.com/show_bug.cgi?id=829175
-> 
-> Signed-off-by: Miroslav Vadkerti <mvadkert@redhat.com>
-> ---
->  policycoreutils/semanage/seobject.py | 75 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 75 insertions(+)
-> 
-> diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-> index 3b0b108..7d6caa3 100644
-> --- a/policycoreutils/semanage/seobject.py
-> +++ b/policycoreutils/semanage/seobject.py
-> @@ -82,6 +82,21 @@ file_type_str_to_option = {"all files": "a",
->                             "socket file": "s",
->                             "symbolic link": "l",
->                             "named pipe": "p"}
-> +
-> +proto_to_audit = {"tcp": 17,
-> +                  "udp": 6,
-> +                  "ipv4": 4,
-> +                  "ipv6": 41}
-> +
-> +ftype_to_audit = {"": "any",
-> +                  "b": "block",
-> +                  "c": "char",
-> +                  "d": "dir",
-> +                  "f": "file",
-> +                  "l": "symlink",
-> +                  "p": "pipe",
-> +                  "s": "socket"}
-> +
->  try:
->      import audit
->  
-> @@ -90,6 +105,7 @@ try:
->          def __init__(self):
->              self.audit_fd = audit.audit_open()
->              self.log_list = []
-> +            self.log_change_list = []
->  
->          def log(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->  
-> @@ -109,10 +125,17 @@ try:
->          def log_remove(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->              self.log_list.append([self.audit_fd, audit.AUDIT_ROLE_REMOVE, sys.argv[0], str(msg), name, 0, sename, serole, serange, oldsename, oldserole, oldserange, "", "", ""])
->  
-> +        def log_change(self, msg):
-> +            self.log_change_list.append([self.audit_fd, audit.AUDIT_USER_MAC_CONFIG_CHANGE, str(msg), "semanage", "", "", ""])
-> +
->          def commit(self, success):
->              for l in self.log_list:
->                  audit.audit_log_semanage_message(*(l + [success]))
-> +            for l in self.log_change_list:
-> +                audit.audit_log_user_comm_message(*(l + [success]))
-> +
->              self.log_list = []
-> +            self.log_change_list = []
->  except:
->      class logger:
->  
-> @@ -138,6 +161,9 @@ except:
->          def log_remove(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->              self.log(msg, name, sename, serole, serange, oldsename, oldserole, oldserange)
->  
-> +        def log_change(self, msg):
-> +            self.log_list.append(" %s" % msg)
-> +
->          def commit(self, success):
->              if success == 1:
->                  message = "Successful: "
-> @@ -155,6 +181,9 @@ class nulllogger:
->      def log_remove(self, msg, name="", sename="", serole="", serange="", oldsename="", oldserole="", oldserange=""):
->          pass
->  
-> +    def log_change(self, msg):
-> +        pass
-> +
->      def commit(self, success):
->          pass
->  
-> @@ -1109,6 +1138,8 @@ class portRecords(semanageRecords):
->          semanage_port_key_free(k)
->          semanage_port_free(p)
->  
-> +        self.mylog.log_change("resrc=port op=add lport=%s proto=%s tcontext=%s:%s:%s:%s" % (port, proto_to_audit[proto], "system_u", "object_r", type, serange))
-> +
->      def add(self, port, proto, serange, type):
->          self.begin()
->          self.__add(port, proto, serange, type)
-> @@ -1150,6 +1181,8 @@ class portRecords(semanageRecords):
->          semanage_port_key_free(k)
->          semanage_port_free(p)
->  
-> +        self.mylog.log_change("resrc=port op=modify lport=%s proto=%s tcontext=%s:%s:%s:%s" % (port, proto_to_audit[proto], "system_u", "object_r", setype, serange))
-> +
->      def modify(self, port, proto, serange, setype):
->          self.begin()
->          self.__modify(port, proto, serange, setype)
-> @@ -1168,6 +1201,7 @@ class portRecords(semanageRecords):
->              low = semanage_port_get_low(port)
->              high = semanage_port_get_high(port)
->              port_str = "%s-%s" % (low, high)
-> +
->              (k, proto_d, low, high) = self.__genkey(port_str, proto_str)
->              if rc < 0:
->                  raise ValueError(_("Could not create a key for %s") % port_str)
-> @@ -1177,6 +1211,11 @@ class portRecords(semanageRecords):
->                  raise ValueError(_("Could not delete the port %s") % port_str)
->              semanage_port_key_free(k)
->  
-> +            if low == high:
-> +                port_str = low
-> +
-> +            self.mylog.log_change("resrc=port op=delete lport=%s proto=%s" % (port_str, proto_to_audit[proto_str]))
-> +
->          self.commit()
->  
->      def __delete(self, port, proto):
-> @@ -1199,6 +1238,8 @@ class portRecords(semanageRecords):
->  
->          semanage_port_key_free(k)
->  
-> +        self.mylog.log_change("resrc=port op=delete lport=%s proto=%s" % (port, proto_to_audit[proto]))
-> +
->      def delete(self, port, proto):
->          self.begin()
->          self.__delete(port, proto)
-> @@ -1380,6 +1421,8 @@ class nodeRecords(semanageRecords):
->          semanage_node_key_free(k)
->          semanage_node_free(node)
->  
-> +        self.mylog.log_change("resrc=node op=add laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, proto_to_audit[self.protocol[proto]], "system_u", "object_r", ctype, serange))
-> +
->      def add(self, addr, mask, proto, serange, ctype):
->          self.begin()
->          self.__add(addr, mask, proto, serange, ctype)
-> @@ -1421,6 +1464,8 @@ class nodeRecords(semanageRecords):
->          semanage_node_key_free(k)
->          semanage_node_free(node)
->  
-> +        self.mylog.log_change("resrc=node op=modify laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, proto_to_audit[self.protocol[proto]], "system_u", "object_r", setype, serange))
-> +
->      def modify(self, addr, mask, proto, serange, setype):
->          self.begin()
->          self.__modify(addr, mask, proto, serange, setype)
-> @@ -1452,6 +1497,8 @@ class nodeRecords(semanageRecords):
->  
->          semanage_node_key_free(k)
->  
-> +        self.mylog.log_change("resrc=node op=delete laddr=%s netmask=%s proto=%s" % (addr, mask, proto_to_audit[self.protocol[proto]]))
-> +
->      def delete(self, addr, mask, proto):
->          self.begin()
->          self.__delete(addr, mask, proto)
-> @@ -1581,6 +1628,8 @@ class interfaceRecords(semanageRecords):
->          semanage_iface_key_free(k)
->          semanage_iface_free(iface)
->  
-> +        self.mylog.log_change("resrc=interface op=add netif=%s tcontext=%s:%s:%s:%s" % (interface, "system_u", "object_r", ctype, serange))
-> +
->      def add(self, interface, serange, ctype):
->          self.begin()
->          self.__add(interface, serange, ctype)
-> @@ -1618,6 +1667,8 @@ class interfaceRecords(semanageRecords):
->          semanage_iface_key_free(k)
->          semanage_iface_free(iface)
->  
-> +        self.mylog.log_change("resrc=interface op=modify netif=%s tcontext=%s:%s:%s:%s" % (interface, "system_u", "object_r", setype, serange))
-> +
->      def modify(self, interface, serange, setype):
->          self.begin()
->          self.__modify(interface, serange, setype)
-> @@ -1646,6 +1697,8 @@ class interfaceRecords(semanageRecords):
->  
->          semanage_iface_key_free(k)
->  
-> +        self.mylog.log_change("resrc=interface op=delete netif=%s" % interface)
-> +
->      def delete(self, interface):
->          self.begin()
->          self.__delete(interface)
-> @@ -1775,6 +1828,8 @@ class fcontextRecords(semanageRecords):
->                  if i.startswith(target + "/"):
->                      raise ValueError(_("File spec %s conflicts with equivalency rule '%s %s'") % (target, i, fdict[i]))
->  
-> +        self.mylog.log_change("resrc=fcontext op=add-equal %s %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv_string("tglob", substitute, 0)))
-> +
->          self.equiv[target] = substitute
->          self.equal_ind = True
->          self.commit()
-> @@ -1785,6 +1840,9 @@ class fcontextRecords(semanageRecords):
->              raise ValueError(_("Equivalence class for %s does not exists") % target)
->          self.equiv[target] = substitute
->          self.equal_ind = True
-> +
-> +        self.mylog.log_change("resrc=fcontext op=modify-equal %s %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv_string("tglob", substitute, 0)))
-> +
->          self.commit()
->  
->      def createcon(self, target, seuser="system_u"):
-> @@ -1879,6 +1937,11 @@ class fcontextRecords(semanageRecords):
->          semanage_fcontext_key_free(k)
->          semanage_fcontext_free(fcontext)
->  
-> +        if not seuser:
-> +            seuser = "system_u"
-> +
-> +        self.mylog.log_change("resrc=fcontext op=add %s ftype=%s tcontext=%s:%s:%s:%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype], seuser, "object_r", type, serange))
-> +
->      def add(self, target, type, ftype="", serange="", seuser="system_u"):
->          self.begin()
->          self.__add(target, type, ftype, serange, seuser)
-> @@ -1939,6 +2002,11 @@ class fcontextRecords(semanageRecords):
->          semanage_fcontext_key_free(k)
->          semanage_fcontext_free(fcontext)
->  
-> +        if not seuser:
-> +            seuser = "system_u"
-> +
-> +        self.mylog.log_change("resrc=fcontext op=modify %s ftype=%s tcontext=%s:%s:%s:%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype], seuser, "object_r", type, serange))
-> +
->      def modify(self, target, setype, ftype, serange, seuser):
->          self.begin()
->          self.__modify(target, setype, ftype, serange, seuser)
-> @@ -1964,6 +2032,8 @@ class fcontextRecords(semanageRecords):
->                  raise ValueError(_("Could not delete the file context %s") % target)
->              semanage_fcontext_key_free(k)
->  
-> +            self.mylog.log_change("resrc=fcontext op=delete %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype_str]))
-> +
->          self.equiv = {}
->          self.equal_ind = True
->          self.commit()
-> @@ -1972,6 +2042,9 @@ class fcontextRecords(semanageRecords):
->          if target in self.equiv.keys():
->              self.equiv.pop(target)
->              self.equal_ind = True
-> +
-> +            self.mylog.log_change("resrc=fcontext op=delete-equal %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype]))
-> +
->              return
->  
->          (rc, k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
-> @@ -1996,6 +2069,8 @@ class fcontextRecords(semanageRecords):
->  
->          semanage_fcontext_key_free(k)
->  
-> +        self.mylog.log_change("resrc=fcontext op=delete %s ftype=%s" % (audit.audit_encode_nv_string("tglob", target, 0), ftype_to_audit[ftype]))
-> +
->      def delete(self, target, ftype):
->          self.begin()
->          self.__delete(target, ftype)
-> 
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 071d902..c89bb35 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -388,18 +388,21 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 			rc = -1;
+ 			goto err;
+ 		}
+-		spec->lsd.study_data = (void *)mmap_area->next_addr;
+-		spec->lsd.flags |= PCRE_EXTRA_STUDY_DATA;
+-		rc = next_entry(NULL, mmap_area, entry_len);
+-		if (rc < 0)
+-			goto err;
+ 
+-		/* Check that study data lengths match. */
+-		rc = pcre_fullinfo(spec->regex, &spec->lsd,
+-				    PCRE_INFO_STUDYSIZE, &len);
+-		if (rc < 0 || len != entry_len) {
+-			rc = -1;
+-			goto err;
++		if (entry_len) {
++			spec->lsd.study_data = (void *)mmap_area->next_addr;
++			spec->lsd.flags |= PCRE_EXTRA_STUDY_DATA;
++			rc = next_entry(NULL, mmap_area, entry_len);
++			if (rc < 0)
++				goto err;
++
++			/* Check that study data lengths match. */
++			rc = pcre_fullinfo(spec->regex, &spec->lsd,
++					   PCRE_INFO_STUDYSIZE, &len);
++			if (rc < 0 || len != entry_len) {
++				rc = -1;
++				goto err;
++			}
+ 		}
+ 
+ 		data->nspec++;
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 72fed1f..6d1e890 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -80,9 +80,12 @@ struct saved_data {
+ 
+ static inline pcre_extra *get_pcre_extra(struct spec *spec)
+ {
+-	if (spec->from_mmap)
+-		return &spec->lsd;
+-	else
++	if (spec->from_mmap) {
++		if (spec->lsd.study_data)
++			return &spec->lsd;
++		else
++			return NULL;
++	} else
+ 		return spec->sd;
+ }
+ 
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index d2578b6..fd6fb78 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -228,10 +228,13 @@ static int write_binary_file(struct saved_data *data, int fd)
+ 		if (len != to_write)
+ 			goto err;
+ 
+-		/* determine the size of the pcre study info */
+-		rc = pcre_fullinfo(re, sd, PCRE_INFO_STUDYSIZE, &size);
+-		if (rc < 0)
+-			goto err;
++		if (sd) {
++			/* determine the size of the pcre study info */
++			rc = pcre_fullinfo(re, sd, PCRE_INFO_STUDYSIZE, &size);
++			if (rc < 0)
++				goto err;
++		} else
++			size = 0;
+ 
+ 		/* write the number of bytes in the pcre study data */
+ 		to_write = size;
+@@ -239,10 +242,12 @@ static int write_binary_file(struct saved_data *data, int fd)
+ 		if (len != 1)
+ 			goto err;
+ 
+-		/* write the actual pcre study data as a char array */
+-		len = fwrite(sd->study_data, 1, to_write, bin_file);
+-		if (len != to_write)
+-			goto err;
++		if (sd) {
++			/* write the actual pcre study data as a char array */
++			len = fwrite(sd->study_data, 1, to_write, bin_file);
++			if (len != to_write)
++				goto err;
++		}
+ 	}
+ 
+ 	rc = 0;
+-- 
+2.7.4
