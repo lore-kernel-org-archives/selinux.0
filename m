@@ -1,44 +1,50 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7ICu2NF023158
- for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2016 08:56:05 -0400
-Received: by mail-oi0-f52.google.com with SMTP id l203so20884442oib.1
- for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2016 05:56:00 -0700 (PDT)
+Subject: Re: [PATCH] semanage: fix error message for fcontext -m
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+References: <1471519081-26417-1-git-send-email-mvadkert@redhat.com>
+ <a910016c-e086-cb75-464b-a17b992167e8@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <9102ff8e-a7bc-7941-3ed8-70a80cd31ecc@tycho.nsa.gov>
+Date: Thu, 18 Aug 2016 09:01:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <20160818055627.GH1304@madcap2.tricolour.ca>
-References: <1469544870-11574-1-git-send-email-jeffv@google.com>
- <CAHC9VhS=odoi8NFFGP36VAMcL_Gbbin+0pyTj-MNcsPZKit0GQ@mail.gmail.com>
- <20160818055627.GH1304@madcap2.tricolour.ca>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 18 Aug 2016 08:55:59 -0400
-Message-ID: <CAHC9VhS9i3ezg=buaB5FCeJDnDtE2qUBx4tr1yfdBPXOuODMjQ@mail.gmail.com>
-Subject: Re: [PATCH] security: lsm_audit: print pid and tid
-To: Richard Guy Briggs <rgb@redhat.com>
-Cc: Jeff Vander Stoep <jeffv@google.com>, sgrubb@redhat.com,
- linux-audit@redhat.com, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <a910016c-e086-cb75-464b-a17b992167e8@gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Aug 18, 2016 at 1:56 AM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> On 2016-08-17 16:58, Paul Moore wrote:
->> However, as far as I can see, the biggest problem with this patch is
->> that it adds a field in the middle of a record which will likely cause
->> the audit userspace tools to explode (or so I've been warned in the
->> past).  Steve, what say you about the userspace?
->
-> Adding fields in the middle isn't necessarily a problem if it doesn't
-> confuse the existing scanner, which can skip over fields about which it
-> does not care.  I've carefully added fields in the middle in the past,
-> trying my best to group it logically with the rest of the information as
-> has been requested, I think: subject, action, object, result.
+On 08/18/2016 07:51 AM, Dominick Grift wrote:
+> On 08/18/2016 01:18 PM, Miroslav Vadkerti wrote:
+>> The type must be a file of device type, not a port type.
+>> 
+>> Signed-off-by: Miroslav Vadkerti <mvadkert@redhat.com> --- 
+>> policycoreutils/semanage/seobject.py | 2 +- 1 file changed, 1
+>> insertion(+), 1 deletion(-)
+>> 
+>> diff --git a/policycoreutils/semanage/seobject.py
+>> b/policycoreutils/semanage/seobject.py index a6681f0..a34d20d
+>> 100644 --- a/policycoreutils/semanage/seobject.py +++
+>> b/policycoreutils/semanage/seobject.py @@ -1937,7 +1937,7 @@
+>> class fcontextRecords(semanageRecords): if serange == "" and
+>> setype == "" and seuser == "": raise ValueError(_("Requires
+>> setype, serange or seuser")) if setype and setype not in
+>> self.valid_types: -            raise ValueError(_("Type %s is
+>> invalid, must be a port type") % setype) +            raise
+>> ValueError(_("Type %s is invalid, must be a file or device type")
+>> % setype)
+>> 
+>> self.validate(target)
+>> 
+>> 
+> 
+> Hard-coded reference policy specific type attributes in seobject 
+> (self.valid_types)
 
-I've ranted about this before so I won't do it again here, but
-ultimately the problem is that the guidance for userspace
-applications/libraries has been that you can expect certain fields in
-specific locations.
+That's true, but not introduced by this patch.
+Another example where we need some kind of key=value configuration
+mapping that can be read by semanage/seobject rather than hardcoding
+them.  Preferably automatically generated during refpolicy build so
+that we don't have to manually keep it in sync.
 
--- 
-paul moore
-www.paul-moore.com
+For example,
+valid_fcontext_type_attributes=file_type,device_type
