@@ -1,109 +1,404 @@
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhR9A6cZT5OxXTf1wyD+z+Er8EXX1Bzz4G5PA6s-=HZ1ag@mail.gmail.com>
-References: <1471290132-26336-1-git-send-email-william.c.roberts@intel.com>
- <CAHC9VhR9A6cZT5OxXTf1wyD+z+Er8EXX1Bzz4G5PA6s-=HZ1ag@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 18 Aug 2016 17:27:41 -0700
-Message-ID: <CAFftDdquOxV-1jU9Ra5s85KRfq4KOOHzor7if=SfcbR2Sgc=qw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: drop SECURITY_SELINUX_POLICYDB_VERSION_MAX
-To: Paul Moore <paul@paul-moore.com>
-Cc: William Roberts <william.c.roberts@intel.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=94eb2c19da5c43dc19053a61c44d
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7J3jWYS022466
+ for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2016 23:45:32 -0400
+Received: by mail-pa0-f68.google.com with SMTP id ez1so2744530pab.3
+ for <selinux@tycho.nsa.gov>; Thu, 18 Aug 2016 20:45:27 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/3] audit2allow: remove audit2why so it gets symlinked
+Date: Fri, 19 Aug 2016 11:45:15 +0800
+Message-Id: <1471578317-22785-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---94eb2c19da5c43dc19053a61c44d
-Content-Type: text/plain; charset=UTF-8
+audit2why is supposed to be a symlink to audit2allow. There are instead
+2 files in the repo so the makefile has not been replacing audit2why.
 
-On Aug 18, 2016 17:07, "Paul Moore" <paul@paul-moore.com> wrote:
->
-> On Mon, Aug 15, 2016 at 3:42 PM,  <william.c.roberts@intel.com> wrote:
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > Remove the SECURITY_SELINUX_POLICYDB_VERSION_MAX Kconfig option
-> >
-> > Per: https://github.com/SELinuxProject/selinux/wiki/Kernel-Todo
-> >
-> > This was only needed on Fedora 3 and 4 and just causes issues now,
-> > so drop it.
-> >
-> > The MAX and MIN should just be whatever the kernel can support.
-> >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > ---
-> >  security/selinux/Kconfig            | 38
--------------------------------------
-> >  security/selinux/include/security.h |  4 ----
-> >  2 files changed, 42 deletions(-)
->
-> Merged, thanks for the help!
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ policycoreutils/audit2allow/audit2why | 365 +---------------------------------
+ 1 file changed, 1 insertion(+), 364 deletions(-)
+ mode change 100644 => 120000 policycoreutils/audit2allow/audit2why
 
-I plan on tinkering with some of the things on that list, hopefully I can
-help whittle it down.
->
-> --
-> paul moore
-> www.paul-moore.com
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-Selinux-request@tycho.nsa.gov.
-
---94eb2c19da5c43dc19053a61c44d
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"></p>
-<p dir=3D"ltr">On Aug 18, 2016 17:07, &quot;Paul Moore&quot; &lt;<a href=3D=
-"mailto:paul@paul-moore.com">paul@paul-moore.com</a>&gt; wrote:<br>
-&gt;<br>
-&gt; On Mon, Aug 15, 2016 at 3:42 PM,=C2=A0 &lt;<a href=3D"mailto:william.c=
-.roberts@intel.com">william.c.roberts@intel.com</a>&gt; wrote:<br>
-&gt; &gt; From: William Roberts &lt;<a href=3D"mailto:william.c.roberts@int=
-el.com">william.c.roberts@intel.com</a>&gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Remove the SECURITY_SELINUX_POLICYDB_VERSION_MAX Kconfig option<b=
-r>
-&gt; &gt;<br>
-&gt; &gt; Per: <a href=3D"https://github.com/SELinuxProject/selinux/wiki/Ke=
-rnel-Todo">https://github.com/SELinuxProject/selinux/wiki/Kernel-Todo</a><b=
-r>
-&gt; &gt;<br>
-&gt; &gt; This was only needed on Fedora 3 and 4 and just causes issues now=
-,<br>
-&gt; &gt; so drop it.<br>
-&gt; &gt;<br>
-&gt; &gt; The MAX and MIN should just be whatever the kernel can support.<b=
-r>
-&gt; &gt;<br>
-&gt; &gt; Signed-off-by: William Roberts &lt;<a href=3D"mailto:william.c.ro=
-berts@intel.com">william.c.roberts@intel.com</a>&gt;<br>
-&gt; &gt; ---<br>
-&gt; &gt;=C2=A0 security/selinux/Kconfig=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 | 38 -------------------------------------<br>
-&gt; &gt;=C2=A0 security/selinux/include/security.h |=C2=A0 4 ----<br>
-&gt; &gt;=C2=A0 2 files changed, 42 deletions(-)<br>
-&gt;<br>
-&gt; Merged, thanks for the help!</p>
-<p dir=3D"ltr">I plan on tinkering with some of the things on that list, ho=
-pefully I can help whittle it down.<br>
-&gt;<br>
-&gt; --<br>
-&gt; paul moore<br>
-&gt; <a href=3D"http://www.paul-moore.com">www.paul-moore.com</a><br>
-&gt; _______________________________________________<br>
-&gt; Selinux mailing list<br>
-&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.ns=
-a.gov">Selinux-leave@tycho.nsa.gov</a>.<br>
-&gt; To get help, send an email containing &quot;help&quot; to <a href=3D"m=
-ailto:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>=
-</p>
-
---94eb2c19da5c43dc19053a61c44d--
+diff --git a/policycoreutils/audit2allow/audit2why b/policycoreutils/audit2allow/audit2why
+deleted file mode 100644
+index b1489ed..0000000
+--- a/policycoreutils/audit2allow/audit2why
++++ /dev/null
+@@ -1,364 +0,0 @@
+-#! /usr/bin/python -Es
+-# Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+-# Authors: Dan Walsh <dwalsh@redhat.com>
+-#
+-# Copyright (C) 2006-2013  Red Hat
+-# see file 'COPYING' for use and warranty information
+-#
+-# This program is free software; you can redistribute it and/or
+-# modify it under the terms of the GNU General Public License as
+-# published by the Free Software Foundation; version 2 only
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-# GNU General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+-#
+-
+-import sys
+-import os
+-
+-import sepolgen.audit as audit
+-import sepolgen.policygen as policygen
+-import sepolgen.interfaces as interfaces
+-import sepolgen.output as output
+-import sepolgen.objectmodel as objectmodel
+-import sepolgen.defaults as defaults
+-import sepolgen.module as module
+-from sepolgen.sepolgeni18n import _
+-import selinux.audit2why as audit2why
+-import locale
+-try:
+-    locale.setlocale(locale.LC_ALL, '')
+-except:
+-    pass
+-
+-
+-class AuditToPolicy:
+-    VERSION = "%prog .1"
+-    SYSLOG = "/var/log/messages"
+-
+-    def __init__(self):
+-        self.__options = None
+-        self.__parser = None
+-        self.__avs = None
+-
+-    def __parse_options(self):
+-        from optparse import OptionParser
+-
+-        parser = OptionParser(version=self.VERSION)
+-        parser.add_option("-b", "--boot", action="store_true", dest="boot", default=False,
+-                          help="audit messages since last boot conflicts with -i")
+-        parser.add_option("-a", "--all", action="store_true", dest="audit", default=False,
+-                          help="read input from audit log - conflicts with -i")
+-        parser.add_option("-p", "--policy", dest="policy", default=None, help="Policy file to use for analysis")
+-        parser.add_option("-d", "--dmesg", action="store_true", dest="dmesg", default=False,
+-                          help="read input from dmesg - conflicts with --all and --input")
+-        parser.add_option("-i", "--input", dest="input",
+-                          help="read input from <input> - conflicts with -a")
+-        parser.add_option("-l", "--lastreload", action="store_true", dest="lastreload", default=False,
+-                          help="read input only after the last reload")
+-        parser.add_option("-r", "--requires", action="store_true", dest="requires", default=False,
+-                          help="generate require statements for rules")
+-        parser.add_option("-m", "--module", dest="module",
+-                          help="set the module name - implies --requires")
+-        parser.add_option("-M", "--module-package", dest="module_package",
+-                          help="generate a module package - conflicts with -o and -m")
+-        parser.add_option("-o", "--output", dest="output",
+-                          help="append output to <filename>, conflicts with -M")
+-        parser.add_option("-D", "--dontaudit", action="store_true",
+-                          dest="dontaudit", default=False,
+-                          help="generate policy with dontaudit rules")
+-        parser.add_option("-R", "--reference", action="store_true", dest="refpolicy",
+-                          default=True, help="generate refpolicy style output")
+-
+-        parser.add_option("-N", "--noreference", action="store_false", dest="refpolicy",
+-                          default=False, help="do not generate refpolicy style output")
+-        parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+-                          default=False, help="explain generated output")
+-        parser.add_option("-e", "--explain", action="store_true", dest="explain_long",
+-                          default=False, help="fully explain generated output")
+-        parser.add_option("-t", "--type", help="only process messages with a type that matches this regex",
+-                          dest="type")
+-        parser.add_option("--perm-map", dest="perm_map", help="file name of perm map")
+-        parser.add_option("--interface-info", dest="interface_info", help="file name of interface information")
+-        parser.add_option("--debug", dest="debug", action="store_true", default=False,
+-                          help="leave generated modules for -M")
+-        parser.add_option("-w", "--why", dest="audit2why", action="store_true", default=(os.path.basename(sys.argv[0]) == "audit2why"),
+-                          help="Translates SELinux audit messages into a description of why the access was denied")
+-
+-        options, args = parser.parse_args()
+-
+-        # Make -d, -a, and -i conflict
+-        if options.audit is True or options.boot:
+-            if options.input is not None:
+-                sys.stderr.write("error: --all/--boot conflicts with --input\n")
+-            if options.dmesg is True:
+-                sys.stderr.write("error: --all/--boot conflicts with --dmesg\n")
+-        if options.input is not None and options.dmesg is True:
+-            sys.stderr.write("error: --input conflicts with --dmesg\n")
+-
+-        # Turn on requires generation if a module name is given. Also verify
+-        # the module name.
+-        if options.module:
+-            name = options.module
+-        else:
+-            name = options.module_package
+-        if name:
+-            options.requires = True
+-            if not module.is_valid_name(name):
+-                sys.stderr.write('error: module names must begin with a letter, optionally followed by letters, numbers, "-", "_", "."\n')
+-                sys.exit(2)
+-
+-        # Make -M and -o conflict
+-        if options.module_package:
+-            if options.output:
+-                sys.stderr.write("error: --module-package conflicts with --output\n")
+-                sys.exit(2)
+-            if options.module:
+-                sys.stderr.write("error: --module-package conflicts with --module\n")
+-                sys.exit(2)
+-
+-        self.__options = options
+-
+-    def __read_input(self):
+-        parser = audit.AuditParser(last_load_only=self.__options.lastreload)
+-
+-        filename = None
+-        messages = None
+-        f = None
+-
+-        # Figure out what input we want
+-        if self.__options.input is not None:
+-            filename = self.__options.input
+-        elif self.__options.dmesg:
+-            messages = audit.get_dmesg_msgs()
+-        elif self.__options.audit:
+-            try:
+-                messages = audit.get_audit_msgs()
+-            except OSError as e:
+-                sys.stderr.write('could not run ausearch - "%s"\n' % str(e))
+-                sys.exit(1)
+-        elif self.__options.boot:
+-            try:
+-                messages = audit.get_audit_boot_msgs()
+-            except OSError as e:
+-                sys.stderr.write('could not run ausearch - "%s"\n' % str(e))
+-                sys.exit(1)
+-        else:
+-            # This is the default if no input is specified
+-            f = sys.stdin
+-
+-        # Get the input
+-        if filename is not None:
+-            try:
+-                f = open(filename)
+-            except IOError as e:
+-                sys.stderr.write('could not open file %s - "%s"\n' % (filename, str(e)))
+-                sys.exit(1)
+-
+-        if f is not None:
+-            parser.parse_file(f)
+-            f.close()
+-
+-        if messages is not None:
+-            parser.parse_string(messages)
+-
+-        self.__parser = parser
+-
+-    def __process_input(self):
+-        if self.__options.type:
+-            avcfilter = audit.AVCTypeFilter(self.__options.type)
+-            self.__avs = self.__parser.to_access(avcfilter)
+-            csfilter = audit.ComputeSidTypeFilter(self.__options.type)
+-            self.__role_types = self.__parser.to_role(csfilter)
+-        else:
+-            self.__avs = self.__parser.to_access()
+-            self.__role_types = self.__parser.to_role()
+-
+-    def __load_interface_info(self):
+-        # Load interface info file
+-        if self.__options.interface_info:
+-            fn = self.__options.interface_info
+-        else:
+-            fn = defaults.interface_info()
+-        try:
+-            fd = open(fn)
+-        except:
+-            sys.stderr.write("could not open interface info [%s]\n" % fn)
+-            sys.exit(1)
+-
+-        ifs = interfaces.InterfaceSet()
+-        ifs.from_file(fd)
+-        fd.close()
+-
+-        # Also load perm maps
+-        if self.__options.perm_map:
+-            fn = self.__options.perm_map
+-        else:
+-            fn = defaults.perm_map()
+-        try:
+-            fd = open(fn)
+-        except:
+-            sys.stderr.write("could not open perm map [%s]\n" % fn)
+-            sys.exit(1)
+-
+-        perm_maps = objectmodel.PermMappings()
+-        perm_maps.from_file(fd)
+-
+-        return (ifs, perm_maps)
+-
+-    def __output_modulepackage(self, writer, generator):
+-        generator.set_module_name(self.__options.module_package)
+-        filename = self.__options.module_package + ".te"
+-        packagename = self.__options.module_package + ".pp"
+-
+-        try:
+-            fd = open(filename, "w")
+-        except IOError as e:
+-            sys.stderr.write("could not write output file: %s\n" % str(e))
+-            sys.exit(1)
+-
+-        writer.write(generator.get_module(), fd)
+-        fd.close()
+-
+-        mc = module.ModuleCompiler()
+-
+-        try:
+-            mc.create_module_package(filename, self.__options.refpolicy)
+-        except RuntimeError as e:
+-            print(e)
+-            sys.exit(1)
+-
+-        sys.stdout.write(_("******************** IMPORTANT ***********************\n"))
+-        sys.stdout.write((_("To make this policy package active, execute:" +
+-                            "\n\nsemodule -i %s\n\n") % packagename))
+-
+-    def __output_audit2why(self):
+-        import selinux
+-        import seobject
+-        for i in self.__parser.avc_msgs:
+-            rc = i.type
+-            data = i.data
+-            if rc >= 0:
+-                print("%s\n\tWas caused by:" % i.message)
+-            if rc == audit2why.ALLOW:
+-                print("\t\tUnknown - would be allowed by active policy")
+-                print("\t\tPossible mismatch between this policy and the one under which the audit message was generated.\n")
+-                print("\t\tPossible mismatch between current in-memory boolean settings vs. permanent ones.\n")
+-                continue
+-            if rc == audit2why.DONTAUDIT:
+-                print("\t\tUnknown - should be dontaudit'd by active policy")
+-                print("\t\tPossible mismatch between this policy and the one under which the audit message was generated.\n")
+-                print("\t\tPossible mismatch between current in-memory boolean settings vs. permanent ones.\n")
+-                continue
+-            if rc == audit2why.BOOLEAN:
+-                if len(data) > 1:
+-                    print("\tOne of the following booleans was set incorrectly.")
+-                    for b in data:
+-                        print("\tDescription:\n\t%s\n" % seobject.boolean_desc(b[0]))
+-                        print("\tAllow access by executing:\n\t# setsebool -P %s %d" % (b[0], b[1]))
+-                else:
+-                    print("\tThe boolean %s was set incorrectly. " % (data[0][0]))
+-                    print("\tDescription:\n\t%s\n" % seobject.boolean_desc(data[0][0]))
+-                    print("\tAllow access by executing:\n\t# setsebool -P %s %d" % (data[0][0], data[0][1]))
+-                continue
+-
+-            if rc == audit2why.TERULE:
+-                print("\t\tMissing type enforcement (TE) allow rule.\n")
+-                print("\t\tYou can use audit2allow to generate a loadable module to allow this access.\n")
+-                continue
+-
+-            if rc == audit2why.CONSTRAINT:
+-                print()  # !!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access.\n"
+-                print("#Constraint rule: \n\t" + data[0])
+-                for reason in data[1:]:
+-                    print("#\tPossible cause is the source %s and target %s are different.\n\b" % reason)
+-
+-            if rc == audit2why.RBAC:
+-                print("\t\tMissing role allow rule.\n")
+-                print("\t\tAdd an allow rule for the role pair.\n")
+-                continue
+-
+-        audit2why.finish()
+-        return
+-
+-    def __output(self):
+-
+-        if self.__options.audit2why:
+-            try:
+-                return self.__output_audit2why()
+-            except RuntimeError as e:
+-                print(e)
+-                sys.exit(1)
+-
+-        g = policygen.PolicyGenerator()
+-
+-        g.set_gen_dontaudit(self.__options.dontaudit)
+-
+-        if self.__options.module:
+-            g.set_module_name(self.__options.module)
+-
+-        # Interface generation
+-        if self.__options.refpolicy:
+-            ifs, perm_maps = self.__load_interface_info()
+-            g.set_gen_refpol(ifs, perm_maps)
+-
+-        # Explanation
+-        if self.__options.verbose:
+-            g.set_gen_explain(policygen.SHORT_EXPLANATION)
+-        if self.__options.explain_long:
+-            g.set_gen_explain(policygen.LONG_EXPLANATION)
+-
+-        # Requires
+-        if self.__options.requires:
+-            g.set_gen_requires(True)
+-
+-        # Generate the policy
+-        g.add_access(self.__avs)
+-        g.add_role_types(self.__role_types)
+-
+-        # Output
+-        writer = output.ModuleWriter()
+-
+-        # Module package
+-        if self.__options.module_package:
+-            self.__output_modulepackage(writer, g)
+-        else:
+-            # File or stdout
+-            if self.__options.module:
+-                g.set_module_name(self.__options.module)
+-
+-            if self.__options.output:
+-                fd = open(self.__options.output, "a")
+-            else:
+-                fd = sys.stdout
+-            writer.write(g.get_module(), fd)
+-
+-    def main(self):
+-        try:
+-            self.__parse_options()
+-            if self.__options.policy:
+-                audit2why.init(self.__options.policy)
+-            else:
+-                audit2why.init()
+-
+-            self.__read_input()
+-            self.__process_input()
+-            self.__output()
+-        except KeyboardInterrupt:
+-            sys.exit(0)
+-        except ValueError as e:
+-            print(e)
+-            sys.exit(1)
+-        except IOError as e:
+-            print(e)
+-            sys.exit(1)
+-
+-if __name__ == "__main__":
+-    app = AuditToPolicy()
+-    app.main()
+diff --git a/policycoreutils/audit2allow/audit2why b/policycoreutils/audit2allow/audit2why
+new file mode 120000
+index 0000000..9cddcf5
+--- /dev/null
++++ b/policycoreutils/audit2allow/audit2why
+@@ -0,0 +1 @@
++audit2allow
+\ No newline at end of file
+-- 
+2.7.3
