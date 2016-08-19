@@ -1,131 +1,138 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>, "jwcart2@tycho.nsa.gov" <jwcart2@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Subject: RE: [PATCH 1/2] libsepol: calloc all the *_to_val_structs
-Date: Fri, 19 Aug 2016 15:13:05 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC5601285D6F@ORSMSX103.amr.corp.intel.com>
+Subject: Re: [PATCH 2/2] libsepol: port str_read from kernel
+To: William Roberts <bill.c.roberts@gmail.com>
 References: <1471553689-14551-1-git-send-email-william.c.roberts@intel.com>
- <a430d903-acb2-e3cc-30b8-701f9b0d4951@tycho.nsa.gov>
-In-Reply-To: <a430d903-acb2-e3cc-30b8-701f9b0d4951@tycho.nsa.gov>
-Content-Type: text/plain; charset="utf-8"
+ <1471553689-14551-2-git-send-email-william.c.roberts@intel.com>
+ <566e5aed-5e18-db1a-eb20-dce5694b67fc@tycho.nsa.gov>
+ <CAFftDdoAHwVPyrCQXJ97vzcAYC3WNkDJNpy3DP0W2FkW8mTmMQ@mail.gmail.com>
+Cc: William Roberts <william.c.roberts@intel.com>,
+ James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <8ec65984-0d79-342a-775f-98fe30606329@tycho.nsa.gov>
+Date: Fri, 19 Aug 2016 11:26:01 -0400
 MIME-Version: 1.0
+In-Reply-To: <CAFftDdoAHwVPyrCQXJ97vzcAYC3WNkDJNpy3DP0W2FkW8mTmMQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Friday, August 19, 2016 6:06 AM
-> To: Roberts, William C <william.c.roberts@intel.com>; selinux@tycho.nsa.gov;
-> jwcart2@tycho.nsa.gov; seandroid-list@tycho.nsa.gov
-> Subject: Re: [PATCH 1/2] libsepol: calloc all the *_to_val_structs
+On 08/19/2016 10:54 AM, William Roberts wrote:
+> On Aug 19, 2016 06:12, "Stephen Smalley" <sds@tycho.nsa.gov
+> <mailto:sds@tycho.nsa.gov>> wrote:
+>>
+>> On 08/18/2016 04:54 PM, william.c.roberts@intel.com
+> <mailto:william.c.roberts@intel.com> wrote:
+>> > From: William Roberts <william.c.roberts@intel.com
+> <mailto:william.c.roberts@intel.com>>
+>> >
+>> > Rather than duplicating the following sequence:
+>> > 1. Read len from file
+>> > 2. alloc up space based on 1
+>> > 3. read the contents into the buffer from 2
+>> > 4. null terminate the buffer from 2
+>> >
+>> > Use the str_read() function that is in the kernel, which
+>> > collapses steps 2 and 4. This not only reduces redundant
+>> > code, but also has the side-affect of providing a central
+>> > check on zero_or_saturated lengths from step 1 when
+>> > generating string values.
+>> >
+>> > Signed-off-by: William Roberts <william.c.roberts@intel.com
+> <mailto:william.c.roberts@intel.com>>
+>> > ---
+>> >  libsepol/src/conditional.c |  9 +------
+>> >  libsepol/src/module.c      | 66
+> ++++++++++++++++++++++------------------------
+>> >  libsepol/src/policydb.c    | 10 +------
+>> >  libsepol/src/private.h     |  1 +
+>> >  libsepol/src/services.c    | 33 +++++++++++++++++++++++
+>> >  5 files changed, 68 insertions(+), 51 deletions(-)
+>> >
+>> > diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+>> > index 8680eb2..e1bc961 100644
+>> > --- a/libsepol/src/conditional.c
+>> > +++ b/libsepol/src/conditional.c
+>> > @@ -589,15 +589,8 @@ int cond_read_bool(policydb_t * p,
+>> >               goto err;
+>> >
+>> >       len = le32_to_cpu(buf[2]);
+>> > -     if (zero_or_saturated(len))
+>> > +     if (str_read(&key, fp, len))
+>> >               goto err;
+>> > -     key = malloc(len + 1);
+>> > -     if (!key)
+>> > -             goto err;
+>> > -     rc = next_entry(key, fp, len);
+>> > -     if (rc < 0)
+>> > -             goto err;
+>> > -     key[len] = 0;
+>> >
+>> >       if (p->policy_type != POLICY_KERN &&
+>> >           p->policyvers >= MOD_POLICYDB_VERSION_TUNABLE_SEP) {
+>> > diff --git a/libsepol/src/module.c b/libsepol/src/module.c
+>> > index f25df95..a9d7c54 100644
+>> > --- a/libsepol/src/module.c
+>> > +++ b/libsepol/src/module.c
+>> > @@ -793,26 +793,26 @@ int sepol_module_package_info(struct
+> sepol_policy_file *spf, int *type,
+>> >                                   i);
+>> >                               goto cleanup;
+>> >                       }
+>> > +
+>> >                       len = le32_to_cpu(buf[0]);
+>> > -                     if (zero_or_saturated(len)) {
+>> > -                             ERR(file->handle,
+>> > -                                 "invalid module name length:
+> 0x%"PRIx32,
+>> > -                                 len);
+>> > -                             goto cleanup;
+>> > -                     }
+>> > -                     *name = malloc(len + 1);
+>> > -                     if (!*name) {
+>> > -                             ERR(file->handle, "out of memory");
+>> > -                             goto cleanup;
+>> > -                     }
+>> > -                     rc = next_entry(*name, file, len);
+>> > -                     if (rc < 0) {
+>> > -                             ERR(file->handle,
+>> > -                                 "cannot get module name string (at
+> section %u)",
+>> > -                                 i);
+>> > +                     if (str_read(name, file, len)) {
+>> > +                             switch(rc) {
+>> > +                             case EINVAL:
+>> > +                                     ERR(file->handle,
+>> > +                                             "invalid module name
+> length: 0x%"PRIx32,
+>> > +                                             len);
+>> > +                                     break;
+>> > +                             case ENOMEM:
+>> > +                                     ERR(file->handle, "out of
+> memory");
+>> > +                                     break;
+>> > +                             default:
+>> > +                                     ERR(file->handle,
+>> > +                                             "cannot get module
+> name string (at section %u)",
+>> > +                                             i);
+>> > +                             }
+>>
+>> 1) You didn't set rc = str_read(), so you can't switch on it above.
 > 
-> On 08/18/2016 04:54 PM, william.c.roberts@intel.com wrote:
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > The usage patterns between these structures seem similair to
-> > role_val_to_struct usages. Calloc these up to prevent any unitialized
-> > usages.
-> >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > ---
-> >  libsepol/src/mls.c      | 2 +-
-> >  libsepol/src/policydb.c | 6 +++---
-> >  libsepol/src/users.c    | 9 ++++++++-
-> >  3 files changed, 12 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c index
-> > 2dc5f2b..8047d91 100644
-> > --- a/libsepol/src/mls.c
-> > +++ b/libsepol/src/mls.c
-> > @@ -312,7 +312,7 @@ int mls_context_isvalid(const policydb_t * p, const
-> context_struct_t * c)
-> >  	if (!c->user || c->user > p->p_users.nprim)
-> >  		return 0;
-> >  	usrdatum = p->user_val_to_struct[c->user - 1];
-> > -	if (!mls_range_contains(usrdatum->exp_range, c->range))
-> > +	if (!usrdatum || !mls_range_contains(usrdatum->exp_range, c->range))
-> >  		return 0;	/* user may not be associated with range */
-> >
-> >  	return 1;
-> > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c index
-> > c225ac6..5f888d3 100644
-> > --- a/libsepol/src/policydb.c
-> > +++ b/libsepol/src/policydb.c
-> > @@ -1074,7 +1074,7 @@ int policydb_index_others(sepol_handle_t *
-> > handle,
-> >
-> >  	free(p->user_val_to_struct);
-> >  	p->user_val_to_struct = (user_datum_t **)
-> > -	    malloc(p->p_users.nprim * sizeof(user_datum_t *));
-> > +	    calloc(p->p_users.nprim, sizeof(user_datum_t *));
-> >  	if (!p->user_val_to_struct)
-> >  		return -1;
-> >
-> > @@ -4006,12 +4006,12 @@ int policydb_reindex_users(policydb_t * p)
-> >  		free(p->sym_val_to_name[i]);
-> >
-> >  	p->user_val_to_struct = (user_datum_t **)
-> > -	    malloc(p->p_users.nprim * sizeof(user_datum_t *));
-> > +	    calloc(p->p_users.nprim, sizeof(user_datum_t *));
-> >  	if (!p->user_val_to_struct)
-> >  		return -1;
-> >
-> >  	p->sym_val_to_name[i] = (char **)
-> > -	    malloc(p->symtab[i].nprim * sizeof(char *));
-> > +	    calloc(p->symtab[i].nprim, sizeof(char *));
-> >  	if (!p->sym_val_to_name[i])
-> >  		return -1;
-> >
-> > diff --git a/libsepol/src/users.c b/libsepol/src/users.c index
-> > ce54c2b..3ffb166 100644
-> > --- a/libsepol/src/users.c
-> > +++ b/libsepol/src/users.c
-> > @@ -19,12 +19,17 @@ static int user_to_record(sepol_handle_t * handle,
-> >
-> >  	const char *name = policydb->p_user_val_to_name[user_idx];
-> >  	user_datum_t *usrdatum = policydb->user_val_to_struct[user_idx];
-> > -	ebitmap_t *roles = &(usrdatum->roles.roles);
-> > +	ebitmap_t *roles;
-> >  	ebitmap_node_t *rnode;
-> >  	unsigned bit;
-> >
-> >  	sepol_user_t *tmp_record = NULL;
-> >
-> > +	if (!usrdatum)
-> > +		goto err;
-> > +
-> > +	roles = &(usrdatum->roles.roles);
-> > +
-> >  	if (sepol_user_create(handle, &tmp_record) < 0)
-> >  		goto err;
-> >
-> > @@ -234,6 +239,7 @@ int sepol_user_modify(sepol_handle_t * handle,
-> >  		if (!tmp_ptr)
-> >  			goto omem;
-> >  		policydb->user_val_to_struct = tmp_ptr;
-> > +		policydb->user_val_to_struct[policydb->p_users.nprim] = NULL;
-> >
-> >  		tmp_ptr = realloc(policydb->sym_val_to_name[SYM_USERS],
-> >  				  (policydb->p_users.nprim +
-> > @@ -241,6 +247,7 @@ int sepol_user_modify(sepol_handle_t * handle,
-> >  		if (!tmp_ptr)
-> >  			goto omem;
-> >  		policydb->sym_val_to_name[SYM_USERS] = tmp_ptr;
-> > +		policydb->p_user_val_to_name[policydb->p_users.nprim] =
-> NULL;
+> It's a new gnuc extension ;-p
 > 
-> This one is wrong.
+>> 2) Using positive values for errors is likely to confuse matters when
+>> interacting with the existing code, which always uses negative values
+>> (either -errno as a legacy of common code with the kernel or -1).
+>> 3) I think this overcomplicates the error handling / reporting.  If
+>> str_read() were to set errno and return -1 instead, then you could just
+>> include strerror(errno) in a single error message.  Or you can just
+>> always report the most general error message.  But it isn't worth a
+>> switch statement.
 > 
-> >
-> >  		/* Need to copy the user name */
-> >  		name = strdup(cname);
-> >
+> Yeah I had all those thoughts, wasn't sure the best way considering the
+> conflict on -1 vs -errno. If you're OK with setting errno let's use that.
 
-After looking at the email and the patch again, that’s just a context hunk, I see no + or - next it,
-And I verified it still exists in my source tree. I never touched that hunk or  am I missing
-Some subtle interaction?
+Yes, setting errno is fine with me.  Not even necessary if the malloc fails.
