@@ -1,40 +1,112 @@
-Subject: Re: [PATCH 3/3] audit2allow: tests should use local copy not system
-To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
-References: <1471578317-22785-1-git-send-email-jason@perfinion.com>
- <1471578317-22785-3-git-send-email-jason@perfinion.com>
- <20160819035625.GA32245@meriadoc.perfinion.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8ae49217-601e-9794-0a4e-6b9b4f329d50@tycho.nsa.gov>
-Date: Fri, 19 Aug 2016 10:46:25 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160819035625.GA32245@meriadoc.perfinion.com>
-Content-Type: text/plain; charset=utf-8
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7JEkXi1025596
+ for <selinux@tycho.nsa.gov>; Fri, 19 Aug 2016 10:46:33 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: Change which attributes CIL keeps in the binary
+ policy
+Date: Fri, 19 Aug 2016 10:46:58 -0400
+Message-Id: <1471618018-28718-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/18/2016 11:56 PM, Jason Zaman wrote:
-> On Fri, Aug 19, 2016 at 11:45:17AM +0800, Jason Zaman wrote:
->> The tests currently just executed "audit2allow" which meant search in
->> $PATH. They should instead test the one in the pwd. The files in the
->> repo are not executable so prefix with "python" also.
-> 
-> Additionally, this test doesnt actually work that well. I get these
-> denials and an error: "No SELinux Policy installed"
-> 
-> allow staff_t policy_config_t:dir { getattr open read search };
-> allow staff_t policy_config_t:file { getattr open read };
-> allow staff_t security_t:security read_policy;
-> 
-> And if I grant them I get a ton of messages about unknown types. Gentoo
-> installs modules only as needed so I dont have smb_t and several others.
-> 
-> Can we switch these tests to use some minimal pre-built policy instead
-> of reading the system one? I recall one of the other tests doing that
-> but cant seem to find the policy file right now.
+The removal of attributes that are only used in neverallow rules is
+hindering AOSP adoption of the CIL compiler. This is because AOSP
+extracts neverallow rules from its policy.conf for use in the Android
+compatibility test suite. These neverallow rules are applied against
+the binary policy being tested to check for a violation. Any neverallow
+rules with an attribute that has been removed cannot be checked.
 
-I'd be fine with that, and that seems easy enough to do for audit2allow
-(versus e.g. semanage, where it seems more problematic).  libsepol has
-test policies for its tests (but there is some longstanding breakage
-there for certain tests).
+Now attributes are kept unless they are not used in any allow rule and
+they are auto-generated or named "cil_gen_require" or do not have any
+types associated with them.
+
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ libsepol/cil/src/cil_post.c  | 27 +++++++++++++++++++++++++++
+ libsepol/src/module_to_cil.c |  8 +++++---
+ 2 files changed, 32 insertions(+), 3 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index a694b33..f8447c9 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -47,6 +47,9 @@
+ #include "cil_verify.h"
+ #include "cil_symtab.h"
+ 
++#define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/src/module_to_cil.c */
++#define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/src/module_to_cil.c */
++
+ static int __cil_expr_to_bitmap(struct cil_list *expr, ebitmap_t *out, int max, struct cil_db *db);
+ static int __cil_expr_list_to_bitmap(struct cil_list *expr_list, ebitmap_t *out, int max, struct cil_db *db);
+ 
+@@ -1186,6 +1189,27 @@ exit:
+ 	return SEPOL_ERR;
+ }
+ 
++static int cil_typeattribute_used(struct cil_typeattribute *cil_attr)
++{
++	if (cil_attr->used) {
++		return CIL_TRUE;
++	}
++
++	if (strcmp(DATUM(cil_attr)->name, GEN_REQUIRE_ATTR) == 0) {
++		return CIL_FALSE;
++	}
++
++	if (strstr(DATUM(cil_attr)->name,TYPEATTR_INFIX) != NULL) {
++		return CIL_FALSE;
++	}
++
++	if (ebitmap_cardinality(cil_attr->types) == 0) {
++		return CIL_FALSE;
++	}
++
++	return CIL_TRUE;
++}
++
+ static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -1208,6 +1232,9 @@ static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finis
+ 		if (attr->types == NULL) {
+ 			rc = __evaluate_type_expression(attr, db);
+ 			if (rc != SEPOL_OK) goto exit;
++			if (cil_typeattribute_used(attr)) {
++				attr->used = CIL_TRUE;
++			}
+ 		}
+ 		break;
+ 	}
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index fc65019..508a861 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -60,7 +60,9 @@ FILE *out_file;
+ #define STACK_SIZE 16
+ #define DEFAULT_LEVEL "systemlow"
+ #define DEFAULT_OBJECT "object_r"
+-#define GEN_REQUIRE_ATTR "cil_gen_require"
++#define GEN_REQUIRE_ATTR "cil_gen_require" /* Also in libsepol/cil/src/cil_post.c */
++#define TYPEATTR_INFIX "_typeattr_"        /* Also in libsepol/cil/src/cil_post.c */
++#define ROLEATTR_INFIX "_roleattr_"
+ 
+ __attribute__ ((format(printf, 1, 2)))
+ static void log_err(const char *fmt, ...)
+@@ -628,9 +630,9 @@ static int set_to_cil_attr(struct policydb *pdb, int is_type, char ***names, uin
+ 	num_attrs++;
+ 
+ 	if (is_type) {
+-		attr_infix = "_typeattr_";
++		attr_infix = TYPEATTR_INFIX;
+ 	} else {
+-		attr_infix = "_roleattr_";
++		attr_infix = ROLEATTR_INFIX;
+ 	}
+ 
+ 	len = strlen(pdb->name) + strlen(attr_infix) + num_digits(num_attrs) + 1;
+-- 
+2.7.4
