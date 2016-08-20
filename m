@@ -1,71 +1,58 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7JL3XAB003865
- for <selinux@tycho.nsa.gov>; Fri, 19 Aug 2016 17:03:33 -0400
-Date: Fri, 19 Aug 2016 23:03:27 +0200
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Jason Zaman <jason@perfinion.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: sepolicy and setools4
-Message-ID: <20160819210326.fyfxoz6y3sk24rfw@rhel-at-redhat.localdomain>
-References: <20160819153528.GA21357@meriadoc.perfinion.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160819153528.GA21357@meriadoc.perfinion.com>
+From: Kashif ali <kashif.ali.9498@gmail.com>
+Date: Fri, 19 Aug 2016 17:54:42 -0700
+Message-ID: <CAFC8oadn76ZLU2T0BAJyrceAzuVAtB+Yincvt7m7=29kbOrFNg@mail.gmail.com>
+Subject: (How to ) Change the context of user
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=94eb2c1244b6a88ed1053a7642df
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 19, 2016 at 11:35:28PM +0800, Jason Zaman wrote:
-> Hi all,
-> 
-> I've been trying to finally get rid of the last users of setools3 since
-> its basically on life support. I have a lot of things fixed locally but
-> not quite in good enough shape to submit.
-> 
-> Sepolicy currently is the thing that uses setools3 and everything else
-> mostly goes via sepolicy. It boils down to sepolicy.info() and
-> sepolicy.search() which are C-wrappers to setools3. Those two methods
-> have a very open-ended and confusing API, and are just very thin
-> wrappers around setools. It seems to me that we'd be better off updating
-> most things that use it to instead use setools4 directly.
-> 
-> I have fixed .info() already (although still untested) so .search() is
-> the main problem. It takes dictionaries of stuff and returns
-> dictionaries of stuff and what exactly is in the dictionaries is not
-> that clear.
-> 
-> How many users outside of the tree are there for sepolicy directly? If
-> the only users are in the tree, I'd much rather kill off
-> sepolicy.search() and go directly to setools. Is that an option?
-> 
-> slawrence mentioned on IRC that setroubleshoot might use sepolicy but
-> wasnt entirely sure. Even if it does, does it use .search() and .info()?
-> or does it only use all the other methods from it?
+--94eb2c1244b6a88ed1053a7642df
+Content-Type: text/plain; charset=UTF-8
 
-It uses search(), info() and few other methods as well.
+Hi
+  * I'm facing a problem while changing the context of root user in
+selinux, Selinux is in enforced and targeted policy. By default Selinux
+assign user =>"unconfined_u:unconfiend_r:unconfined_t:"
+context for the user i have changed the selinux mapped root user
+"unconifined_u" into "system_u" for root user with the help of command
+=>"semanage login -a -s system_u root"
+after executing this command the root user context is changed into
+"system_u:unconfined_r:unconfined_t:".
 
-However there are already two branches. One is considered as stable for
-and uses python2. I'd expect that this branch will depend on
-setools3 and SELinux userspace <= 2.5.
+* Now i have changed the root user role and domain type so i execute this
+command
+=>"newrole -r system_r -t initrc_t:"
+and change the root user context into "system_u:system_r:initrc_t:" but
+this change is temporary after rebooting the system the context of root
+user is changed back to "system_u:unconfined_r:unconfined_t:"
 
-As for the second development branch, I'd say that it can be simply
-ported to use setools4 directly instead of sepolicy.
+* what i need is to change the root user context permanently into
+"system_u:system_r:initrc_t:".
 
-Petr
+--94eb2c1244b6a88ed1053a7642df
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
+<div dir=3D"ltr">Hi<div>=C2=A0 * I&#39;m facing a problem while changing th=
+e context of root user in selinux, Selinux is in enforced and targeted poli=
+cy. By default Selinux assign user =3D&gt;&quot;unconfined_u:unconfiend_r:u=
+nconfined_t:&quot;=C2=A0</div><div>context for the user i have changed the =
+selinux mapped root user &quot;unconifined_u&quot; into &quot;system_u&quot=
+; for root user with the help of command=C2=A0</div><div>=3D&gt;&quot;seman=
+age login -a -s system_u root&quot;=C2=A0</div><div>after executing this co=
+mmand the root user context is changed into &quot;system_u:unconfined_r:unc=
+onfined_t:&quot;.</div><div><br></div><div>* Now i have changed the root us=
+er role and domain type so i execute this command=C2=A0</div><div>=3D&gt;&q=
+uot;newrole -r system_r -t initrc_t:&quot;=C2=A0</div><div>and change the r=
+oot user context into &quot;system_u:system_r:initrc_t:&quot; but this chan=
+ge is temporary after rebooting the system the context of root user is chan=
+ged back to &quot;system_u:unconfined_r:unconfined_t:&quot;</div><div><br><=
+/div><div>* what i need is to change the root user context permanently into=
+ &quot;system_u:system_r:initrc_t:&quot;.</div><div><br></div></div>
 
-> -- Jason
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-
--- 
-Petr Lautrbach
-SELinux Solutions
-Red Hat
-
-Better technology. Faster innovation. Powered by community collaboration.
-See how it works at redhat.com.
+--94eb2c1244b6a88ed1053a7642df--
