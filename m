@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7LHHlKn016346
- for <selinux@tycho.nsa.gov>; Sun, 21 Aug 2016 13:17:47 -0400
-Message-ID: <1471799849.2544.2.camel@trentalancia.net>
-Subject: [PATCH v2] Differentiate between Unix Stream Socket and Sequential
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7LHWnrU017931
+ for <selinux@tycho.nsa.gov>; Sun, 21 Aug 2016 13:32:49 -0400
+Message-ID: <1471800708.2544.5.camel@trentalancia.net>
+Subject: Re: [PATCH] Differentiate between Unix Stream Socket and Sequential
  Packet Socket
 From: Guido Trentalancia <guido@trentalancia.net>
 To: Paul Moore <paul@paul-moore.com>
 Cc: selinux@tycho.nsa.gov
-Date: Sun, 21 Aug 2016 19:17:29 +0200
+Date: Sun, 21 Aug 2016 19:31:48 +0200
 In-Reply-To: <CAHC9VhQOTQNsNT7T53qE5g1pK8BN270ZAFyUJ0xAnzsbPg57YA@mail.gmail.com>
 References: <1471709886.22998.1.camel@trentalancia.net>
  <CAHC9VhRouoqqrq_Vn1A3wh7kwvodUK-j7xR3=uwep7t0Ktdh3w@mail.gmail.com>
@@ -22,38 +22,41 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Modify the SELinux kernel code so that it is able to classify sockets with
-the new AF_ALG namespace (used for the user-space interface to the kernel
-Crypto API).
+Hello Paul.
 
-A companion patch has been created for the Reference Policy and it will be
-posted to its mailing list, once this patch is merged.
+On Sat, 20/08/2016 at 23.24 -0400, Paul Moore wrote:
+> On Sat, Aug 20, 2016 at 3:09 PM, Guido Trentalancia
+> <guido@trentalancia.net> wrote:
+> > 
+> > Hello Paul!
+> > 
+> > The message subject used in the Reference Policy mailing list is:
+> > "Update the lvm module" and it's one of the most recent posting.
+> > 
+> > I haven't tried yet reproducing the problem outside of the system
+> > bootup.
+> > 
+> > I believe it happens when cryptsetup uses the user-space interface
+> > to the kernel Crypto API.
+> > 
+> > Do you have any idea on the reason why the class is being marked as
+> > "socket" instead of "unix_stream_socket" (for sequential packet
+> > socket)?
+> 
+> Thanks for the pointer to the thread; that helped.
+> 
+> As far as the socket class is concerned, I wonder if cryptsetup is
+> using an AF_ALG socket?  Some quick Googling of the cryptsetup source
+> repo indicates this may be the case.  We don't currently have a
+> specific object class for the AF_ALG socket family so it would appear
+> as the generic socket class.
 
-Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
----
- security/selinux/hooks.c            |    5 +++--
- security/selinux/include/classmap.h |    2 ++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+There has been a misunderstanding between the socket namespace and
+style. Indeed, I was missing something !
 
---- linux-4.7.1-orig/security/selinux/hooks.c	2016-08-21 18:20:52.788066467 +0200
-+++ linux-4.7.1/security/selinux/hooks.c	2016-08-21 18:23:48.603479911 +0200
-@@ -1316,6 +1315,8 @@ static inline u16 socket_type_to_securit
- 		return SECCLASS_KEY_SOCKET;
- 	case PF_APPLETALK:
- 		return SECCLASS_APPLETALK_SOCKET;
-+	case PF_ALG:
-+		return SECCLASS_ALG_SOCKET;
- 	}
- 
- 	return SECCLASS_SOCKET;
---- linux-4.7.1-orig/security/selinux/include/classmap.h	2016-08-18 17:39:50.639133429 +0200
-+++ linux-4.7.1/security/selinux/include/classmap.h	2016-08-21 18:30:00.306088371 +0200
-@@ -144,6 +144,8 @@ struct security_class_mapping secclass_m
- 	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "appletalk_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "alg_socket",
-+	  { COMMON_SOCK_PERMS, "connectto", NULL } },
- 	{ "packet",
- 	  { "send", "recv", "relabelto", "forward_in", "forward_out", NULL } },
- 	{ "key",
+I have now posted a new version of the patch (v2) which should properly
+classify the new socket type.
+
+Best regards,
+
+Guido
