@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7LHWnrU017931
- for <selinux@tycho.nsa.gov>; Sun, 21 Aug 2016 13:32:49 -0400
-Message-ID: <1471800708.2544.5.camel@trentalancia.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7LHWuJQ017936
+ for <selinux@tycho.nsa.gov>; Sun, 21 Aug 2016 13:32:56 -0400
+Message-ID: <1471800773.2544.7.camel@trentalancia.net>
 Subject: Re: [PATCH] Differentiate between Unix Stream Socket and Sequential
  Packet Socket
 From: Guido Trentalancia <guido@trentalancia.net>
 To: Paul Moore <paul@paul-moore.com>
 Cc: selinux@tycho.nsa.gov
-Date: Sun, 21 Aug 2016 19:31:48 +0200
+Date: Sun, 21 Aug 2016 19:32:53 +0200
 In-Reply-To: <CAHC9VhQOTQNsNT7T53qE5g1pK8BN270ZAFyUJ0xAnzsbPg57YA@mail.gmail.com>
 References: <1471709886.22998.1.camel@trentalancia.net>
  <CAHC9VhRouoqqrq_Vn1A3wh7kwvodUK-j7xR3=uwep7t0Ktdh3w@mail.gmail.com>
