@@ -1,73 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7KJFk4T027766
- for <selinux@tycho.nsa.gov>; Sat, 20 Aug 2016 15:15:46 -0400
-In-Reply-To: <CAGH-KguvJZVLAUYQP_iFk2KG7DDFe9kGADWK_dkbGPHuStjpcQ@mail.gmail.com>
-References: <1471709886.22998.1.camel@trentalancia.net>
- <CAHC9VhRouoqqrq_Vn1A3wh7kwvodUK-j7xR3=uwep7t0Ktdh3w@mail.gmail.com>
- <89E5C3EA-9794-4496-A195-1C997A5BBF44@trentalancia.net>
- <CAGH-KguvJZVLAUYQP_iFk2KG7DDFe9kGADWK_dkbGPHuStjpcQ@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7L2L297032185
+ for <selinux@tycho.nsa.gov>; Sat, 20 Aug 2016 22:21:02 -0400
+Received: by mail-ua0-f175.google.com with SMTP id n59so138144608uan.2
+ for <selinux@tycho.nsa.gov>; Sat, 20 Aug 2016 19:20:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: [PATCH] Differentiate between Unix Stream Socket and Sequential
- Packet Socket
-From: Guido Trentalancia <guido@trentalancia.net>
-Date: Sat, 20 Aug 2016 21:09:50 +0200
-To: Paul Moore <pmoore@redhat.com>
-CC: Paul Moore <paul@paul-moore.com>, selinux@tycho.nsa.gov
-Message-ID: <43BE5B4F-9AE4-4EDB-825A-F1C15042B385@trentalancia.net>
+From: Kashif ali <kashif.ali.9498@gmail.com>
+Date: Sun, 21 Aug 2016 07:20:57 +0500
+Message-ID: <CAFC8oac4Ut1Qm9R_KY2-XHatmeq-m+VoraEbwGYbGdCTi+xYcA@mail.gmail.com>
+Subject: docker daemon type label issue
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a114950dcf63073053a8b9492
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello Paul!
+--001a114950dcf63073053a8b9492
+Content-Type: text/plain; charset=UTF-8
 
-The message subject used in the Reference Policy mailing list is: "Update the lvm module" and it's one of the most recent posting. 
+Hi
+* When i run my docker daemon with on port for communication with client
+with the help of this command
+=> "docker daemon -H localhost:2376 --selinux-enabled &"
+   then the docker daemon have following label
+   "root:unconfined_r:unconfined_t:s0-s0:c0.c1023 2535 pts/0 00:00:00
+dockerd"
 
-I haven't tried yet reproducing the problem outside of the system bootup.
+*  Root user is running in the following context
+"root:unconfined_r:unconfined_t:"
 
-I believe it happens when cryptsetup uses the user-space interface to the kernel Crypto API.
+* is there anything i am missing why docker daemon don't have docker_t
+label on it,
+  i know as docker daemon is started by unconfined_t domain and
+unconfined_t domain   have no domain transition then in which context the
+docker daemon should start and     as i read if init_t start the process
+then docker daemon will have docker_t label on it so   how can i run docker
+daemon with init_t context
 
-Do you have any idea on the reason why the class is being marked as "socket" instead of "unix_stream_socket" (for sequential packet socket)? 
+--001a114950dcf63073053a8b9492
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Best regards, 
+<div dir=3D"ltr">Hi<div>* When i run my docker daemon with on port for comm=
+unication with client with the help of this command=C2=A0<br>=3D&gt; &quot;=
+docker daemon -H localhost:2376 --selinux-enabled &amp;&quot;<br>=C2=A0 =C2=
+=A0then the docker daemon have following label</div><div>=C2=A0 =C2=A0&quot=
+;root:unconfined_r:<wbr>unconfined_t:s0-s0:c0.c1023 2535 pts/0 00:00:00 doc=
+kerd&quot;</div><div><br>* =C2=A0Root user is running in the following cont=
+ext &quot;root:unconfined_r:unconfined_<wbr>t:&quot;</div><div>=C2=A0 =C2=
+=A0</div><div>* is there anything i am missing why docker daemon don&#39;t =
+have docker_t label on it,=C2=A0</div><div>=C2=A0 i know as docker daemon i=
+s started by unconfined_t domain and unconfined_t domain =C2=A0 have no dom=
+ain transition then in which context the docker daemon should start and =C2=
+=A0 =C2=A0 as i read if init_t start the process then docker daemon will ha=
+ve docker_t label on it so =C2=A0 how can i run docker daemon with init_t c=
+ontext=C2=A0<br><br></div></div>
 
-Guido 
-
-On the 20th august 2016 20:44:45 CEST, Paul Moore <pmoore@redhat.com> wrote:
->On Sat, Aug 20, 2016 at 1:39 PM, Guido Trentalancia
-><guido@trentalancia.net> wrote:
->> Hello Paul,
->>
->> thanks for getting back on this.
->>
->> The patch follows a recent discussion with Christopher PeBenito on
->the Reference Policy mailing list.
->
->Which patch/thread (what was the subject line)?  I have seen a lot of
->patches and discussion between you and Chris lately (thanks for your
->contributions!) but I haven't followed them very closely.
->
->> Christopher suggested to modify the actual code.
->>
->> I suppose it provides a better insight during code analysis on the
->type of socket connections being made and a more fine-grained control
->of permissions being granted or denied to the policy designer.
->
->The only value I can see to this change would be if we needed to
->differentiate between AF_UNIX stream and seqpacket connections, and to
->be honest I don't see the difference being that important.  As I said
->before, we need to understand what you are trying to solve and how it
->is only possible with this change.  The unspecified problem you are
->seeing below wont be resolved by this patch (as you already
->mentioned).
->
->> For some reason however, I have seen code using the SOCK_SEQPACKET
->type and executed immediately after policy load (possibly from
->initramfs, before switchroot) showing up in the log files as using an
->unspecified socket type. I have explained already to Christopher that
->this patch won't change such behavior...
->
->Yes, that should be unrelated to this change.  Are you able to
->reproduce the above problem reliably?
+--001a114950dcf63073053a8b9492--
