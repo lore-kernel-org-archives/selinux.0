@@ -1,124 +1,111 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7MMb26L031965
- for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2016 18:37:03 -0400
-Received: by mail-oi0-f65.google.com with SMTP id e80so1150159oig.2
- for <selinux@tycho.nsa.gov>; Mon, 22 Aug 2016 15:37:01 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7N9WsBn029220
+ for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2016 05:32:54 -0400
+Received: by mail-ua0-f175.google.com with SMTP id 74so234975872uau.0
+ for <selinux@tycho.nsa.gov>; Tue, 23 Aug 2016 02:32:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1471899875.19333.3.camel@trentalancia.net>
-References: <1471709886.22998.1.camel@trentalancia.net>
- <CAHC9VhRouoqqrq_Vn1A3wh7kwvodUK-j7xR3=uwep7t0Ktdh3w@mail.gmail.com>
- <89E5C3EA-9794-4496-A195-1C997A5BBF44@trentalancia.net>
- <CAGH-KguvJZVLAUYQP_iFk2KG7DDFe9kGADWK_dkbGPHuStjpcQ@mail.gmail.com>
- <43BE5B4F-9AE4-4EDB-825A-F1C15042B385@trentalancia.net>
- <CAHC9VhQOTQNsNT7T53qE5g1pK8BN270ZAFyUJ0xAnzsbPg57YA@mail.gmail.com>
- <1471799849.2544.2.camel@trentalancia.net>
- <1471870947.2354.1.camel@trentalancia.net>
- <1471899875.19333.3.camel@trentalancia.net>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 22 Aug 2016 18:36:59 -0400
-Message-ID: <CAHC9VhQKE3+9KEkPHv4TadChOMsoHovm0pSYwwkAMYY33fDbPw@mail.gmail.com>
-Subject: Re: [PATCH v4] Classify AF_ALG sockets
-To: Guido Trentalancia <guido@trentalancia.net>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160821034954.GA19749@meriadoc.perfinion.com>
+References: <CAFC8oac4Ut1Qm9R_KY2-XHatmeq-m+VoraEbwGYbGdCTi+xYcA@mail.gmail.com>
+ <20160821034954.GA19749@meriadoc.perfinion.com>
+From: Kashif ali <kashif.ali.9498@gmail.com>
+Date: Tue, 23 Aug 2016 14:32:51 +0500
+Message-ID: <CAFC8oacbbWqMb2OGGKLN+9mCSHHjiN5V97OGGAQ0gWbfhMv=Eg@mail.gmail.com>
+Subject: Re: docker daemon type label issue
+To: Jason Zaman <jason@perfinion.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=94eb2c000d70471b39053ab9d9ea
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Aug 22, 2016 at 5:04 PM, Guido Trentalancia
-<guido@trentalancia.net> wrote:
-> Modify the SELinux kernel code so that it is able to classify sockets with
-> the new AF_ALG namespace (used for the user-space interface to the kernel
-> Crypto API).
->
-> A companion patch has been created for the Reference Policy and it will be
-> posted to its mailing list, once this patch is merged.
->
-> Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
-> ---
->  security/selinux/hooks.c            |    5 +++++
->  security/selinux/include/classmap.h |    2 ++
->  security/selinux/include/security.h |    2 ++
->  security/selinux/ss/services.c      |    3 +++
->  4 files changed, 12 insertions(+)
+--94eb2c000d70471b39053ab9d9ea
+Content-Type: text/plain; charset=UTF-8
 
-You are still missing the policy capability code for
-security/selinux/selinuxfs.c.  I think it would also be a good idea to
-write a test for this and add it to the selinux-testsuite; not only
-will this help us confirm this code works as expected, but it will
-demonstrate what the new policy would look like and help establish a
-regression test for future use.
+thanks jason it was very helpful
 
- * https://github.com/SELinuxProject/selinux-testsuite
+On Sun, Aug 21, 2016 at 8:49 AM, Jason Zaman <jason@perfinion.com> wrote:
 
-> diff -pru linux-4.7.2-orig/security/selinux/hooks.c linux-4.7.2/security/selinux/hooks.c
-> --- linux-4.7.2-orig/security/selinux/hooks.c   2016-08-22 22:31:27.737767819 +0200
-> +++ linux-4.7.2/security/selinux/hooks.c        2016-08-22 22:40:29.102526024 +0200
-> @@ -1315,6 +1315,11 @@ static inline u16 socket_type_to_securit
->                 return SECCLASS_KEY_SOCKET;
->         case PF_APPLETALK:
->                 return SECCLASS_APPLETALK_SOCKET;
-> +       case PF_ALG:
-> +               if (selinux_policycap_algsocket)
-> +                       return SECCLASS_ALG_SOCKET;
-> +               else
-> +                       return SECCLASS_SOCKET;
->         }
+> On Sun, Aug 21, 2016 at 07:20:57AM +0500, Kashif ali wrote:
+> > Hi
+> > * When i run my docker daemon with on port for communication with client
+> > with the help of this command
+> > => "docker daemon -H localhost:2376 --selinux-enabled &"
+> >    then the docker daemon have following label
+> >    "root:unconfined_r:unconfined_t:s0-s0:c0.c1023 2535 pts/0 00:00:00
+> > dockerd"
+> >
+> > *  Root user is running in the following context
+> > "root:unconfined_r:unconfined_t:"
+> >
+> > * is there anything i am missing why docker daemon don't have docker_t
+> > label on it,
+> >   i know as docker daemon is started by unconfined_t domain and
+> > unconfined_t domain   have no domain transition then in which context the
+> > docker daemon should start and     as i read if init_t start the process
+> > then docker daemon will have docker_t label on it so   how can i run
+> docker
+> > daemon with init_t context
 >
->         return SECCLASS_SOCKET;
-> diff -pru linux-4.7.2-orig/security/selinux/include/classmap.h linux-4.7.2/security/selinux/include/classmap.h
-> --- linux-4.7.2-orig/security/selinux/include/classmap.h        2016-08-22 22:31:27.754768030 +0200
-> +++ linux-4.7.2/security/selinux/include/classmap.h     2016-08-22 22:32:14.795355585 +0200
-> @@ -144,6 +144,8 @@ struct security_class_mapping secclass_m
->           { COMMON_SOCK_PERMS, NULL } },
->         { "appletalk_socket",
->           { COMMON_SOCK_PERMS, NULL } },
-> +       { "alg_socket",
-> +         { COMMON_SOCK_PERMS, NULL } },
->         { "packet",
->           { "send", "recv", "relabelto", "forward_in", "forward_out", NULL } },
->         { "key",
-> diff -pru linux-4.7.2-orig/security/selinux/include/security.h linux-4.7.2/security/selinux/include/security.h
-> --- linux-4.7.2-orig/security/selinux/include/security.h        2016-03-14 05:28:54.000000000 +0100
-> +++ linux-4.7.2/security/selinux/include/security.h     2016-08-22 22:53:57.911660238 +0200
-> @@ -75,6 +75,7 @@ enum {
->         POLICYDB_CAPABILITY_OPENPERM,
->         POLICYDB_CAPABILITY_REDHAT1,
->         POLICYDB_CAPABILITY_ALWAYSNETWORK,
-> +       POLICYDB_CAPABILITY_ALGSOCKET,
->         __POLICYDB_CAPABILITY_MAX
->  };
->  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-> @@ -82,6 +83,7 @@ enum {
->  extern int selinux_policycap_netpeer;
->  extern int selinux_policycap_openperm;
->  extern int selinux_policycap_alwaysnetwork;
-> +extern int selinux_policycap_algsocket;
+> You want to run docker in the docker_t domain? then just set a domtrans
+> so it will transition to docker. you do not have to go via system_u or
+> init_t for that. you can also use "runcon -t docker_t docker daemon..."
+> if there is no transition.
+> Are you on redhat? you might want to ask on their mailing list, they'd
+> be a better help probably.
 >
->  /*
->   * type_datum properties
-> diff -pru linux-4.7.2-orig/security/selinux/ss/services.c linux-4.7.2/security/selinux/ss/services.c
-> --- linux-4.7.2-orig/security/selinux/ss/services.c     2016-08-05 21:27:22.275588616 +0200
-> +++ linux-4.7.2/security/selinux/ss/services.c  2016-08-22 22:56:58.616187510 +0200
-> @@ -73,6 +73,7 @@
->  int selinux_policycap_netpeer;
->  int selinux_policycap_openperm;
->  int selinux_policycap_alwaysnetwork;
-> +int selinux_policycap_algsocket;
+> -- Jason
 >
->  static DEFINE_RWLOCK(policy_rwlock);
->
-> @@ -2016,6 +2017,8 @@ static void security_load_policycaps(voi
->                                                   POLICYDB_CAPABILITY_OPENPERM);
->         selinux_policycap_alwaysnetwork = ebitmap_get_bit(&policydb.policycaps,
->                                                   POLICYDB_CAPABILITY_ALWAYSNETWORK);
-> +       selinux_policycap_algsocket = ebitmap_get_bit(&policydb.policycaps,
-> +                                                 POLICYDB_CAPABILITY_ALGSOCKET);
->  }
->
->  static int security_preserve_bools(struct policydb *p);
 
--- 
-paul moore
-www.paul-moore.com
+--94eb2c000d70471b39053ab9d9ea
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">thanks jason it was very helpful</div><div class=3D"gmail_=
+extra"><br><div class=3D"gmail_quote">On Sun, Aug 21, 2016 at 8:49 AM, Jaso=
+n Zaman <span dir=3D"ltr">&lt;<a href=3D"mailto:jason@perfinion.com" target=
+=3D"_blank">jason@perfinion.com</a>&gt;</span> wrote:<br><blockquote class=
+=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padd=
+ing-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On Sun, Aug 21, 2016 =
+at 07:20:57AM +0500, Kashif ali wrote:<br>
+&gt; Hi<br>
+&gt; * When i run my docker daemon with on port for communication with clie=
+nt<br>
+&gt; with the help of this command<br>
+&gt; =3D&gt; &quot;docker daemon -H localhost:2376 --selinux-enabled &amp;&=
+quot;<br>
+&gt;=C2=A0 =C2=A0 then the docker daemon have following label<br>
+&gt;=C2=A0 =C2=A0 &quot;root:unconfined_r:unconfined_<wbr>t:s0-s0:c0.c1023 =
+2535 pts/0 00:00:00<br>
+&gt; dockerd&quot;<br>
+&gt;<br>
+&gt; *=C2=A0 Root user is running in the following context<br>
+&gt; &quot;root:unconfined_r:unconfined_<wbr>t:&quot;<br>
+&gt;<br>
+&gt; * is there anything i am missing why docker daemon don&#39;t have dock=
+er_t<br>
+&gt; label on it,<br>
+&gt;=C2=A0 =C2=A0i know as docker daemon is started by unconfined_t domain =
+and<br>
+&gt; unconfined_t domain=C2=A0 =C2=A0have no domain transition then in whic=
+h context the<br>
+&gt; docker daemon should start and=C2=A0 =C2=A0 =C2=A0as i read if init_t =
+start the process<br>
+&gt; then docker daemon will have docker_t label on it so=C2=A0 =C2=A0how c=
+an i run docker<br>
+&gt; daemon with init_t context<br>
+<br>
+</div></div>You want to run docker in the docker_t domain? then just set a =
+domtrans<br>
+so it will transition to docker. you do not have to go via system_u or<br>
+init_t for that. you can also use &quot;runcon -t docker_t docker daemon...=
+&quot;<br>
+if there is no transition.<br>
+Are you on redhat? you might want to ask on their mailing list, they&#39;d<=
+br>
+be a better help probably.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+-- Jason<br>
+</font></span></blockquote></div><br></div>
+
+--94eb2c000d70471b39053ab9d9ea--
