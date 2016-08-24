@@ -1,12 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7OEC09H031520
- for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2016 10:12:00 -0400
-Message-ID: <1472047913.4446.7.camel@trentalancia.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7OECXob031571
+ for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2016 10:12:33 -0400
+Message-ID: <1472047943.4446.9.camel@trentalancia.net>
 Subject: [PATCH v2] Build the SELinux testsuite on systems using the
  Reference Policy
 From: Guido Trentalancia <guido@trentalancia.net>
 To: selinux@tycho.nsa.gov
-Date: Wed, 24 Aug 2016 16:11:53 +0200
+Date: Wed, 24 Aug 2016 16:12:23 +0200
 In-Reply-To: <1472042396.4446.4.camel@trentalancia.net>
 References: <1472042396.4446.4.camel@trentalancia.net>
 Content-Type: text/plain; charset="UTF-8"
