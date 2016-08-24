@@ -1,42 +1,45 @@
-To: Selinux@tycho.nsa.gov
-From: Ralf Spenneberg <ralf@os-t.de>
-Subject: Embedded SELinux: SELinux via NFS with different policies on client
- and server
-Message-ID: <f805c577-6238-d99d-bd9d-5e1f63f6371e@os-t.de>
-Date: Wed, 24 Aug 2016 14:14:36 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7OCe768020197
+ for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2016 08:40:07 -0400
+Message-ID: <1472042396.4446.4.camel@trentalancia.net>
+Subject: [PATCH] Build the SELinux testsuite on systems using the Reference
+ Policy
+From: Guido Trentalancia <guido@trentalancia.net>
+To: selinux@tycho.nsa.gov
+Date: Wed, 24 Aug 2016 14:39:56 +0200
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi
+Fix the Makefile in the policy subdirectory of the SELinux testsuite
+so that it builds correctly on the standard Reference Policy which
+does not have the same booleans available on Red Hat.
 
-we are working on SELinux in the embedded area. For development we are
-using a nfsroot based approach. We successfully setup the nfs server
-supporting security labels and are able to boot from the share using
-nfsroot. We would like to label the files from the server so the relabel
-process on the client may be omitted.
-The embedded device requires a different policy that the nfs-server.  We
-are basing our policy on the refpolicy-2.20151208 and only compile the
-required modules.
+Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
+---
+ policy/Makefile |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-When setting any label on the server the client always displays
-unlabeled_t. The same happens if we set the label on the client. The
-server displays unlabeled_t. Is there a way that both might agree on the
-same label?
-By the way: The server is x86_64 (kernel 4.5.7) while the client is
-armv7l 32bit (3.12.10).
-
-But since the labels are stored in text this should not pose any
-problems, does it?
-
-Kind regards,
-
-Ralf
-
--- 
-OpenSource Training Ralf Spenneberg     http://www.os-t.de
-Am Bahnhof 3-5                          48565 Steinfurt         Germany
-Fon: +49(0)2552 638 755                 Fax: +49(0)2552 638 757
+--- selinux-testsuite-git-23082016-orig/policy/Makefile	2016-08-23 20:50:08.527633728 +0200
++++ selinux-testsuite-git-23082016/policy/Makefile	2016-08-24 14:38:08.987455031 +0200
+@@ -68,7 +68,7 @@ load_rhel: all
+ 
+ load_general: all
+ 	# General policy load
+-	/usr/sbin/setsebool allow_domain_fd_use=0
++	/usr/sbin/getsebool -a | grep -q allow_domain_fd_use && /usr/sbin/setsebool allow_domain_fd_use=0
+ 	$(SEMODULE) -i test_policy/test_policy.pp
+ 
+ unload_rhel:
+@@ -77,7 +77,7 @@ unload_rhel:
+ 
+ unload_general:
+ 	# General policy unload
+-	/usr/sbin/setsebool allow_domain_fd_use=1
++	/usr/sbin/getsebool -a | grep -q allow_domain_fd_use && /usr/sbin/setsebool allow_domain_fd_use=1
+ 	$(SEMODULE) -r test_policy
+ 
+ clean:
