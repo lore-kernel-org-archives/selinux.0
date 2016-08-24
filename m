@@ -1,170 +1,89 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7OCrP5Q021828
- for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2016 08:53:25 -0400
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] libselinux: Ignore restorecon_last in
- selinux_restorecon(3)
-Date: Wed, 24 Aug 2016 13:53:10 +0100
-Message-Id: <1472043190-28871-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: Re: Embedded SELinux: SELinux via NFS with different policies on
+ client and server
+To: Selinux@tycho.nsa.gov
+References: <f805c577-6238-d99d-bd9d-5e1f63f6371e@os-t.de>
+ <87af2abc-ebfc-ffaf-7c7e-850c0cf566e9@tycho.nsa.gov>
+From: Ralf Spenneberg <ralf@os-t.de>
+Message-ID: <3e9096f8-fc7b-9284-f144-27564b9183f1@os-t.de>
+Date: Wed, 24 Aug 2016 14:54:51 +0200
+MIME-Version: 1.0
+In-Reply-To: <87af2abc-ebfc-ffaf-7c7e-850c0cf566e9@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Update selinux_restorecon(3) to allow the "security.restorecon_last"
-extended attribute to be ignored.
+Am 24.08.2016 um 14:48 schrieb Stephen Smalley:
+> On 08/24/2016 08:14 AM, Ralf Spenneberg wrote:
+>> Hi
+>>
+>> we are working on SELinux in the embedded area. For development we are
+>> using a nfsroot based approach. We successfully setup the nfs server
+>> supporting security labels and are able to boot from the share using
+>> nfsroot. We would like to label the files from the server so the relabel
+>> process on the client may be omitted.
+>> The embedded device requires a different policy that the nfs-server.  We
+>> are basing our policy on the refpolicy-2.20151208 and only compile the
+>> required modules.
+>>
+>> When setting any label on the server the client always displays
+>> unlabeled_t. The same happens if we set the label on the client. The
+>> server displays unlabeled_t. Is there a way that both might agree on the
+>> same label?
+>> By the way: The server is x86_64 (kernel 4.5.7) while the client is
+>> armv7l 32bit (3.12.10).
+>>
+>> But since the labels are stored in text this should not pose any
+>> problems, does it?
+> 
+> Correct.  You said that they require a different policy.  Is one running
+> a MLS-enabled (MCS or MLS) policy, while the other is not?  Or is the
+> user/role/type you are using in the label defined in both policies?
+> 
+> Look at your dmesg output on both the client and server for messages
+> from SELinux, e.g.
+> SELinux: inode=... on dev=... was found to have an invalid context=...
+> This indicates you may need to relabel the inode or the filesystem in
+> question.
+> 
+Well, somehow the kernel messages might indicate this:
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- libselinux/include/selinux/restorecon.h  |  4 ++++
- libselinux/man/man3/selinux_restorecon.3 | 20 +++++++++++++++++---
- libselinux/src/selinux_restorecon.c      |  9 ++++++++-
- libselinux/utils/selinux_restorecon.c    |  9 +++++++--
- 4 files changed, 36 insertions(+), 6 deletions(-)
+On the server:
+]$ ls -lZ /test/
+insgesamt 56
+-rw-------. 1 root root system_u:object_r:unlabeled_t:s0 55138 24. Aug
+13:35 audit.log
+-rw-r--r--. 1 root root system_u:object_r:bin_t:s0           0 23. Aug
+10:45 test
+-rw-r--r--. 1 root root system_u:object_r:bin_t:s0           0 24. Aug
+13:39 test2
 
-diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-index e6db8f9..563ae94 100644
---- a/libselinux/include/selinux/restorecon.h
-+++ b/libselinux/include/selinux/restorecon.h
-@@ -91,6 +91,10 @@ extern int selinux_restorecon(const char *pathname,
-  * mounts to be excluded from relabeling checks.
-  */
- #define SELINUX_RESTORECON_IGNORE_MOUNTS		0x2000
-+/*
-+ * Do not check or update RESTORECON_LAST extended attribute.
-+ */
-+#define SELINUX_RESTORECON_IGNORE_XATTR			0x4000
- 
- /**
-  * selinux_restorecon_set_sehandle - Set the global fc handle.
-diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
-index ad8acdc..0849faa 100644
---- a/libselinux/man/man3/selinux_restorecon.3
-+++ b/libselinux/man/man3/selinux_restorecon.3
-@@ -43,6 +43,8 @@ flag set. If any of the specfiles had been updated, the digest
- will also be updated. However if the digest is the same, no relabeling checks
- will take place (unless the
- .B SELINUX_RESTORECON_IGNORE_DIGEST
-+or the
-+.B SELINUX_RESTORECON_IGNORE_XATTR
- flag is set).
- .sp
- .IR restorecon_flags
-@@ -58,6 +60,14 @@ extended attribute once relabeling has been completed successfully provided the
- .B SELINUX_RESTORECON_NOCHANGE
- flag has not been set.
- .sp
-+.B SELINUX_RESTORECON_IGNORE_XATTR
-+do not check or update any directory SHA1 digests. Use this option to
-+effectively disable usage of the
-+.IR security.restorecon_last
-+extended attribute. Note that setting this flag will override the
-+.B SELINUX_RESTORECON_IGNORE_DIGEST
-+flag.
-+.sp
- .B SELINUX_RESTORECON_NOCHANGE
- don't change any file labels (passive check) or update the digest in the
- .IR security.restorecon_last
-@@ -214,10 +224,14 @@ relabeled depending on the settings of the
- .B SELINUX_RESTORECON_SET_SPECFILE_CTX
- flag (provided
- .B SELINUX_RESTORECON_NOCHANGE
--is not set).
-+or the
-+.B SELINUX_RESTORECON_IGNORE_XATTR
-+are not set).
- .IP "5." 4
--.B /sys
--and in-memory filesystems do not support the
-+.B RAMFS
-+and
-+.B TMPFS
-+filesystems do not support the
- .IR security.restorecon_last
- extended attribute and are automatically excluded from any relabeling checks.
- .IP "6." 4
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index d49fb15..1618a88 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -86,6 +86,7 @@ struct rest_flags {
- 	bool syslog_changes;
- 	bool log_matches;
- 	bool ignore_noent;
-+	bool ignore_xattr;
- };
- 
- static void restorecon_init(void)
-@@ -673,6 +674,8 @@ int selinux_restorecon(const char *pathname_orig,
- 		   SELINUX_RESTORECON_LOG_MATCHES) ? true : false;
- 	flags.ignore_noent = (restorecon_flags &
- 		   SELINUX_RESTORECON_IGNORE_NOENTRY) ? true : false;
-+	flags.ignore_xattr = (restorecon_flags &
-+		   SELINUX_RESTORECON_IGNORE_XATTR) ? true : false;
- 	ignore_mounts = (restorecon_flags &
- 		   SELINUX_RESTORECON_IGNORE_MOUNTS) ? true : false;
- 
-@@ -698,7 +701,7 @@ int selinux_restorecon(const char *pathname_orig,
- 	if (!fc_sehandle)
- 		return -1;
- 
--	if (fc_digest_len) {
-+	if (fc_digest_len && !flags.ignore_xattr) {
- 		xattr_value = malloc(fc_digest_len);
- 		if (!xattr_value)
- 			return -1;
-@@ -777,6 +780,10 @@ int selinux_restorecon(const char *pathname_orig,
- 			setrestoreconlast = false;
- 	}
- 
-+	/* Ignore restoreconlast if told to do so */
-+	if (flags.ignore_xattr)
-+		setrestoreconlast = false;
-+
- 	if (setrestoreconlast) {
- 		size = getxattr(pathname, RESTORECON_LAST, xattr_value,
- 							    fc_digest_len);
-diff --git a/libselinux/utils/selinux_restorecon.c b/libselinux/utils/selinux_restorecon.c
-index 7aea81f..1bed0f1 100644
---- a/libselinux/utils/selinux_restorecon.c
-+++ b/libselinux/utils/selinux_restorecon.c
-@@ -37,7 +37,7 @@ static int validate_context(char **contextp)
- static void usage(const char *progname)
- {
- 	fprintf(stderr,
--		"\nusage: %s [-FCnRrdmiIaAsl] [-e dir] [-v|-P]\n"
-+		"\nusage: %s [-FCcnRrdmiIaAsl] [-e dir] [-v|-P]\n"
- 		"[-x alt_rootpath] [-p policy] [-f specfile] pathname ...\n"
- 		"\nWhere:\n\t"
- 		"-F  Set the label to that in specfile.\n\t"
-@@ -45,6 +45,7 @@ static void usage(const char *progname)
- 		"label to that\n\t    in the specfile.\n\t"
- 		"-C  Check labels even if the stored SHA1 digest matches\n\t"
- 		"    the specfiles SHA1 digest.\n\t"
-+		"-c  Do not check or update SHA1 digests.\n\t"
- 		"-n  Don't change any file labels (passive check).\n\t"
- 		"-R  Recursively change file and directory labels.\n\t"
- 		"-v  Show changes in file labels (-v and -P are mutually "
-@@ -127,7 +128,7 @@ int main(int argc, char **argv)
- 	exclude_list = NULL;
- 	exclude_count = 0;
- 
--	while ((opt = getopt(argc, argv, "iIFCnRvPrdaAslme:f:p:x:")) > 0) {
-+	while ((opt = getopt(argc, argv, "iIFCcnRvPrdaAslme:f:p:x:")) > 0) {
- 		switch (opt) {
- 		case 'F':
- 			restorecon_flags |=
-@@ -137,6 +138,10 @@ int main(int argc, char **argv)
- 			restorecon_flags |=
- 					SELINUX_RESTORECON_IGNORE_DIGEST;
- 			break;
-+		case 'c':
-+			restorecon_flags |=
-+					SELINUX_RESTORECON_IGNORE_XATTR;
-+			break;
- 		case 'n':
- 			restorecon_flags |= SELINUX_RESTORECON_NOCHANGE;
- 			break;
+On the client:
+/ # mount.nfs4  10.42.0.33:/ /test
+SELinux: initialized (dev 0:20, type nfs4), uses native labeling
+/ # ls -lZ /test
+nfs_setsecurity() system_u:object_r:bin_t:s0 27
+security_inode_notifysecctx() -22
+nfs_setsecurity() system_u:object_r:bin_t:s0 27
+security_inode_notifysecctx() -22
+-rw-------    1     55138 Aug 24  2016 system_u:object_r:unlabeled_t
+audit.log
+-rw-r--r--    1         0 Aug 23  2016 system_u:object_r:unlabeled_t    test
+-rw-r--r--    1         0 Aug 24  2016 system_u:object_r:unlabeled_t
+test2
+
+So I am getting the nfs_setsecurity messages referring to the
+security_inode_notifysecctx.
+
+Looking at the output of the client apparently no MLS is used (missing :s0)
+I will look into it and get back to you asap. Thanks a lot for the pointer.
+
+Kind regards,
+
+Ralf
+
 -- 
-2.7.4
+OpenSource Training Ralf Spenneberg     http://www.os-t.de
+Am Bahnhof 3-5                          48565 Steinfurt         Germany
+Fon: +49(0)2552 638 755                 Fax: +49(0)2552 638 757
