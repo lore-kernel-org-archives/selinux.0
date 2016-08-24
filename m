@@ -1,209 +1,105 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7OCtRnH022130
- for <selinux@tycho.nsa.gov>; Wed, 24 Aug 2016 08:55:27 -0400
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] policycoreutils: setfiles - Add option to ignore
- restorecon_last
-Date: Wed, 24 Aug 2016 13:55:16 +0100
-Message-Id: <1472043316-28973-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: Re: Embedded SELinux: SELinux via NFS with different policies on
+ client and server
+To: Selinux@tycho.nsa.gov
+References: <f805c577-6238-d99d-bd9d-5e1f63f6371e@os-t.de>
+ <87af2abc-ebfc-ffaf-7c7e-850c0cf566e9@tycho.nsa.gov>
+ <3e9096f8-fc7b-9284-f144-27564b9183f1@os-t.de>
+From: Ralf Spenneberg <ralf@os-t.de>
+Message-ID: <e4c8694a-7981-db14-b51c-213d57da2b91@os-t.de>
+Date: Wed, 24 Aug 2016 15:59:58 +0200
+MIME-Version: 1.0
+In-Reply-To: <3e9096f8-fc7b-9284-f144-27564b9183f1@os-t.de>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add -x option to restorecon(8) and setfiles(8) to ignore the
-"security.restorecon_last" extended attribute.
+Hi Stephen,
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- policycoreutils/setfiles/restore.c    |  5 +++--
- policycoreutils/setfiles/restore.h    |  2 ++
- policycoreutils/setfiles/restorecon.8 | 14 ++++++++++++--
- policycoreutils/setfiles/setfiles.8   | 12 +++++++++++-
- policycoreutils/setfiles/setfiles.c   | 19 ++++++++++++-------
- 5 files changed, 40 insertions(+), 12 deletions(-)
+thanks a lot again. It worked like a charm.
+Even the labeling from the host using setfiles and the alternate root
+path worked well.
 
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index cf04e96..8ecb087 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -7,7 +7,7 @@
- #include <glob.h>
- 
- char **exclude_list;
--int exclude_count;
-+static int exclude_count;
- 
- struct restore_opts *r_opts;
- 
-@@ -35,7 +35,8 @@ void restore_init(struct restore_opts *opts)
- 			   r_opts->recurse | r_opts->userealpath |
- 			   r_opts->xdev | r_opts->abort_on_error |
- 			   r_opts->syslog_changes | r_opts->log_matches |
--			   r_opts->ignore_noent | r_opts->ignore_mounts;
-+			   r_opts->ignore_noent | r_opts->ignore_mounts |
-+			   r_opts->ignore_xattr;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
- 	selinux_restorecon_set_sehandle(r_opts->hnd);
-diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-index bafb662..ad652bb 100644
---- a/policycoreutils/setfiles/restore.h
-+++ b/policycoreutils/setfiles/restore.h
-@@ -40,6 +40,7 @@ struct restore_opts {
- 	unsigned int log_matches;
- 	unsigned int ignore_noent;
- 	unsigned int ignore_mounts;
-+	unsigned int ignore_xattr;
- 	/* restorecon_flags holds | of above for restore_init() */
- 	unsigned int restorecon_flags;
- 	char *rootpath;
-@@ -56,5 +57,6 @@ void restore_init(struct restore_opts *opts);
- void restore_finish(void);
- void add_exclude(const char *directory);
- int process_glob(char *name, struct restore_opts *opts);
-+extern char **exclude_list;
- 
- #endif
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index 4851f0f..e913e53 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -4,10 +4,10 @@ restorecon \- restore file(s) default SELinux security contexts.
- 
- .SH "SYNOPSIS"
- .B restorecon
--.I [\-R] [\-m] [\-n] [\-p] [\-v] [\-I] [\-e directory] pathname...
-+.I [\-R] [\-m] [\-n] [\-p] [\-v] [\-I] [\-x] [\-e directory] pathname...
- .P
- .B restorecon
--.I \-f infilename [\-e directory] [\-R] [\-m] [\-n] [\-p] [\-v] [\-F] [\-I]
-+.I \-f infilename [\-e directory] [\-R] [\-m] [\-n] [\-p] [\-v] [\-F] [\-I] [\-x]
- 
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -56,6 +56,14 @@ there are no errors. See the
- .B NOTES
- section for further details.
- .TP
-+.B \-x
-+do not check or update any directory SHA1 digests. Use this option to
-+effectively disable usage of the
-+.IR security.restorecon_last
-+extended attribute. Note that using this option will override the
-+.B \-I
-+option.
-+.TP
- .B \-m
- do not read
- .B /proc/mounts
-@@ -151,6 +159,8 @@ option will ignore the SHA1 digest from each directory specified in
- .B pathname...
- and provided the
- .B \-n
-+option is NOT set and the
-+.B \-x
- option is NOT set and recursive mode is set, files will be relabeled as
- required with the digest then being updated provided there are no errors.
- 
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index 35e38b2..b90f381 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -4,7 +4,7 @@ setfiles \- set SELinux file security contexts.
- 
- .SH "SYNOPSIS"
- .B setfiles
--.I [\-c policy] [\-d] [\-l] [\-m] [\-n] [\-e directory] [\-o filename] [\-p] [\-q] [\-s] [\-v] [\-W] [\-F] [\-I] spec_file pathname...
-+.I [\-c policy] [\-d] [\-l] [\-m] [\-n] [\-e directory] [\-o filename] [\-p] [\-q] [\-s] [\-v] [\-W] [\-F] [\-I] [\-x] spec_file pathname...
- .SH "DESCRIPTION"
- This manual page describes the
- .BR setfiles
-@@ -57,6 +57,14 @@ there are no errors. See the
- .B NOTES
- section for further details.
- .TP
-+.B \-x
-+do not check or update any directory SHA1 digests. Use this option to
-+effectively disable usage of the
-+.IR security.restorecon_last
-+extended attribute. Note that using this option will override the
-+.B \-I
-+option.
-+.TP
- .B \-l
- log changes in file labels to syslog.
- .TP
-@@ -190,6 +198,8 @@ option will ignore the SHA1 digest from each directory specified in
- .B pathname...
- and provided the
- .B \-n
-+option is NOT set and the
-+.B \-x
- option is NOT set, files will be relabeled as required with the digest then
- being updated provided there are no errors.
- 
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index b700228..cf71d21 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -42,14 +42,14 @@ void usage(const char *const name)
- {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iIFmnprRv0] [-e excludedir] pathname...\n"
--			"usage:  %s [-iIFmnprRv0] [-e excludedir] -f filename\n",
-+			"usage:  %s [-iIFmnprRvx0] [-e excludedir] pathname...\n"
-+			"usage:  %s [-iIFmnprRvx0] [-e excludedir] -f filename\n",
- 			name, name);
- 	} else {
- 		fprintf(stderr,
--			"usage:  %s [-diIlmnpqvFW] [-e excludedir] [-r alt_root_path] spec_file pathname...\n"
--			"usage:  %s [-diIlmnpqvFW] [-e excludedir] [-r alt_root_path] spec_file -f filename\n"
--			"usage:  %s -s [-diIlmnpqvFW] spec_file\n"
-+			"usage:  %s [-diIlmnpqvxFW] [-e excludedir] [-r alt_root_path] spec_file pathname...\n"
-+			"usage:  %s [-diIlmnpqvxFW] [-e excludedir] [-r alt_root_path] spec_file -f filename\n"
-+			"usage:  %s -s [-diIlmnpqvxFW] spec_file\n"
- 			"usage:  %s -c policyfile spec_file\n",
- 			name, name, name, name);
- 	}
-@@ -147,8 +147,8 @@ int main(int argc, char **argv)
- 	size_t buf_len;
- 	const char *base;
- 	int mass_relabel = 0, errors = 0;
--	const char *ropts = "e:f:hiIlmno:pqrsvFRW0";
--	const char *sopts = "c:de:f:hiIlmno:pqr:svFR:W0";
-+	const char *ropts = "e:f:hiIlmno:pqrsvxFRW0";
-+	const char *sopts = "c:de:f:hiIlmno:pqr:svxFR:W0";
- 	const char *opts;
- 
- 	/* Initialize variables */
-@@ -184,6 +184,7 @@ int main(int argc, char **argv)
- 		/* FTS_PHYSICAL and FTS_NOCHDIR are always set by selinux_restorecon(3) */
- 		r_opts.xdev = SELINUX_RESTORECON_XDEV;
- 		r_opts.ignore_mounts = 0; /* SELINUX_RESTORECON_IGNORE_MOUNTS */
-+		r_opts.ignore_xattr = 0; /* SELINUX_RESTORECON_IGNORE_XATTR */
- 		ctx_validate = 1;
- 		opts = sopts;
- 	} else {
-@@ -207,6 +208,7 @@ int main(int argc, char **argv)
- 		r_opts.add_assoc = 0;
- 		r_opts.xdev = 0;
- 		r_opts.ignore_mounts = 0;
-+		r_opts.ignore_xattr = 0;
- 		ctx_validate = 0;
- 		opts = ropts;
- 
-@@ -356,6 +358,9 @@ int main(int argc, char **argv)
- 			}
- 			r_opts.progress = SELINUX_RESTORECON_PROGRESS;
- 			break;
-+		case 'x':
-+			r_opts.ignore_xattr = SELINUX_RESTORECON_IGNORE_XATTR;
-+			break;
- 		case 'W':
- 			warn_no_match = 1; /* Print selabel_stats() */
- 			break;
+Now the fun starts (generating policies ;-)
+
+Kind regards,
+
+Ralf
+
+
+Am 24.08.2016 um 14:54 schrieb Ralf Spenneberg:
+> Am 24.08.2016 um 14:48 schrieb Stephen Smalley:
+>> On 08/24/2016 08:14 AM, Ralf Spenneberg wrote:
+>>> Hi
+>>>
+>>> we are working on SELinux in the embedded area. For development we are
+>>> using a nfsroot based approach. We successfully setup the nfs server
+>>> supporting security labels and are able to boot from the share using
+>>> nfsroot. We would like to label the files from the server so the relabel
+>>> process on the client may be omitted.
+>>> The embedded device requires a different policy that the nfs-server.  We
+>>> are basing our policy on the refpolicy-2.20151208 and only compile the
+>>> required modules.
+>>>
+>>> When setting any label on the server the client always displays
+>>> unlabeled_t. The same happens if we set the label on the client. The
+>>> server displays unlabeled_t. Is there a way that both might agree on the
+>>> same label?
+>>> By the way: The server is x86_64 (kernel 4.5.7) while the client is
+>>> armv7l 32bit (3.12.10).
+>>>
+>>> But since the labels are stored in text this should not pose any
+>>> problems, does it?
+>>
+>> Correct.  You said that they require a different policy.  Is one running
+>> a MLS-enabled (MCS or MLS) policy, while the other is not?  Or is the
+>> user/role/type you are using in the label defined in both policies?
+>>
+>> Look at your dmesg output on both the client and server for messages
+>> from SELinux, e.g.
+>> SELinux: inode=... on dev=... was found to have an invalid context=...
+>> This indicates you may need to relabel the inode or the filesystem in
+>> question.
+>>
+> Well, somehow the kernel messages might indicate this:
+> 
+> On the server:
+> ]$ ls -lZ /test/
+> insgesamt 56
+> -rw-------. 1 root root system_u:object_r:unlabeled_t:s0 55138 24. Aug
+> 13:35 audit.log
+> -rw-r--r--. 1 root root system_u:object_r:bin_t:s0           0 23. Aug
+> 10:45 test
+> -rw-r--r--. 1 root root system_u:object_r:bin_t:s0           0 24. Aug
+> 13:39 test2
+> 
+> On the client:
+> / # mount.nfs4  10.42.0.33:/ /test
+> SELinux: initialized (dev 0:20, type nfs4), uses native labeling
+> / # ls -lZ /test
+> nfs_setsecurity() system_u:object_r:bin_t:s0 27
+> security_inode_notifysecctx() -22
+> nfs_setsecurity() system_u:object_r:bin_t:s0 27
+> security_inode_notifysecctx() -22
+> -rw-------    1     55138 Aug 24  2016 system_u:object_r:unlabeled_t
+> audit.log
+> -rw-r--r--    1         0 Aug 23  2016 system_u:object_r:unlabeled_t    test
+> -rw-r--r--    1         0 Aug 24  2016 system_u:object_r:unlabeled_t
+> test2
+> 
+> So I am getting the nfs_setsecurity messages referring to the
+> security_inode_notifysecctx.
+> 
+> Looking at the output of the client apparently no MLS is used (missing :s0)
+> I will look into it and get back to you asap. Thanks a lot for the pointer.
+> 
+> Kind regards,
+> 
+> Ralf
+> 
+
 -- 
-2.7.4
+OpenSource Training Ralf Spenneberg     http://www.os-t.de
+Am Bahnhof 3-5                          48565 Steinfurt         Germany
+Fon: +49(0)2552 638 755                 Fax: +49(0)2552 638 757
