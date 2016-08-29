@@ -1,64 +1,35 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7RCiQTW022887
- for <selinux@tycho.nsa.gov>; Sat, 27 Aug 2016 08:44:26 -0400
-Message-ID: <1472301855.5566.1.camel@trentalancia.net>
-Subject: [PATCH] libsepol: Produce more meaningful error messages for
- conflicting type rules
-From: Guido Trentalancia <guido@trentalancia.net>
-To: selinux@tycho.nsa.gov
-Date: Sat, 27 Aug 2016 14:44:15 +0200
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+To: Selinux@tycho.nsa.gov
+From: Ralf Spenneberg <ralf@os-t.de>
+Subject: DBus
+Message-ID: <de5a0b64-266d-3a58-ecee-a6b56690181d@os-t.de>
+Date: Mon, 29 Aug 2016 07:53:32 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Produce more meaningful error messages when conflicting type
-rules are found by libsepol.
+Hi,
+we have played around with dbus and SELinux on embedded platforms. The
+only available documentation appears to be the dbus manpage.
+Unfortunately the example concerning the associate given in this manpage
+is not correct:
+<associate own="org.freedesktop.Foobar" context="foo_t"/>
+This should associate the ownership of the dbus service
+org.freedesktop.Foobar to the selinux domain foo_t.
+Actually you have to specify the full security context:
+<associate own="org.freedesktop.Foobar"
+context="system_u:object_r:foo_t:s0"/>
 
-Fixes Debian bug #832331 (https://bugs.debian.org/832331).
+I just thought that I mention it on this mailing list as well. A bug has
+been posted at
+https://bugs.freedesktop.org/show_bug.cgi?id=97528
 
-Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
----
- cil/src/cil_binary.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Kind regards,
+Ralf
 
---- libsepol-2.5/cil/src/cil_binary.c	2016-02-23 17:31:41.000000000 +0100
-+++ libsepol-2.5-conflicting_type_rules/cil/src/cil_binary.c	2016-08-27 14:31:44.307988662 +0200
-@@ -973,7 +973,7 @@ avtab_datum_t *cil_cond_av_list_search(a
- 	return NULL;
- }
- 
--int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t src, uint32_t tgt, uint32_t obj, uint32_t res, cond_node_t *cond_node, enum cil_flavor cond_flavor)
-+int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t src, uint32_t tgt, uint32_t obj, uint32_t res, struct cil_type_rule *cil_rule, cond_node_t *cond_node, enum cil_flavor cond_flavor)
- {
- 	int rc = SEPOL_OK;
- 	avtab_key_t avtab_key;
-@@ -1008,7 +1008,7 @@ int __cil_insert_type_rule(policydb_t *p
- 		 * non-duplicate rule using the same key.
- 		 */
- 		if (existing->datum.data != res) {
--			cil_log(CIL_ERR, "Conflicting type rules\n");
-+			cil_log(CIL_ERR, "Conflicting type rules (scontext=%s tcontext=%s tclass=%s result=%s)\n", cil_rule->src_str, cil_rule->tgt_str, cil_rule->obj_str, cil_rule->result_str);
- 			rc = SEPOL_ERR;
- 		}
- 		goto exit;
-@@ -1034,7 +1034,7 @@ int __cil_insert_type_rule(policydb_t *p
- 			search_datum = cil_cond_av_list_search(&avtab_key, other_list);
- 			if (search_datum == NULL) {
- 				if (existing->datum.data != res) {
--					cil_log(CIL_ERR, "Conflicting type rules\n");
-+					cil_log(CIL_ERR, "Conflicting type rules (scontext=%s tcontext=%s tclass=%s result=%s)\n", cil_rule->src_str, cil_rule->tgt_str, cil_rule->obj_str, cil_rule->result_str);
- 					rc = SEPOL_ERR;
- 					goto exit;
- 				}
-@@ -1093,7 +1093,7 @@ int __cil_type_rule_to_avtab(policydb_t
- 				rc = __cil_get_sepol_class_datum(pdb, DATUM(c->data), &sepol_obj);
- 				if (rc != SEPOL_OK) goto exit;
- 
--				rc = __cil_insert_type_rule(pdb, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value, sepol_result->s.value, cond_node, cond_flavor);
-+				rc = __cil_insert_type_rule(pdb, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value, sepol_result->s.value, cil_rule, cond_node, cond_flavor);
- 				if (rc != SEPOL_OK) goto exit;
- 			}
- 		}
+-- 
+OpenSource Training Ralf Spenneberg     http://www.os-t.de
+Am Bahnhof 3-5                          48565 Steinfurt         Germany
+Fon: +49(0)2552 638 755                 Fax: +49(0)2552 638 757
