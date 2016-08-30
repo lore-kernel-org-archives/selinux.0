@@ -1,75 +1,106 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7UF4N6k006161
+ for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 11:04:23 -0400
+From: Steve Grubb <sgrubb@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov,
+ linux-audit@redhat.com
+Subject: Re: [PATCH] security: lsm_audit: print pid and tid
+Date: Tue, 30 Aug 2016 11:03:53 -0400
+Message-ID: <1761452.xxMEsoZRlS@x2>
+In-Reply-To: <CAHC9VhS=odoi8NFFGP36VAMcL_Gbbin+0pyTj-MNcsPZKit0GQ@mail.gmail.com>
+References: <1469544870-11574-1-git-send-email-jeffv@google.com>
+ <CAHC9VhS=odoi8NFFGP36VAMcL_Gbbin+0pyTj-MNcsPZKit0GQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20160830074607.GN594@leon.nu>
-References: <1469800416-125043-1-git-send-email-danielj@mellanox.com>
- <CAHC9VhS1Tg3qr2Nncd_eq_eUXrf-wMickoeoF978Q7L+gN7J1g@mail.gmail.com>
- <VI1PR0501MB24297FF784A085DC0AAE2C1EC4E10@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <CAHC9VhTEOvZ76dNJp35WEhr+r84eZZ6_ZmuaznGLakzZGcXhUw@mail.gmail.com>
- <20160830074607.GN594@leon.nu>
-From: Or Gerlitz <gerlitz.or@gmail.com>
-Date: Tue, 30 Aug 2016 18:02:44 +0300
-Message-ID: <CAJ3xEMh=DLafFGu4WCBDMidWUOaEPjsWN_kBE2ofU1GrhDoVxg@mail.gmail.com>
-Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
-To: Leon Romanovsky <leonro@mellanox.com>,
- Daniel Jurgens <danielj@mellanox.com>
-Cc: Paul Moore <paul@paul-moore.com>,
- "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- "dledford@redhat.com" <dledford@redhat.com>,
- "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Aug 30, 2016 at 10:46 AM, Leon Romanovsky <leon@kernel.org> wrote:
-> On Mon, Aug 29, 2016 at 08:00:32PM -0400, Paul Moore wrote:
->> On Mon, Aug 29, 2016 at 5:48 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
->> > On 8/29/2016 4:40 PM, Paul Moore wrote:
->> >> On Fri, Jul 29, 2016 at 9:53 AM, Dan Jurgens <danielj@mellanox.com> wrote:
->> >>> From: Daniel Jurgens <danielj@mellanox.com>
->> >> ...
->> >>
->> >>> Daniel Jurgens (9):
->> >>>   IB/core: IB cache enhancements to support Infiniband security
->> >>>   IB/core: Enforce PKey security on QPs
->> >>>   selinux lsm IB/core: Implement LSM notification system
->> >>>   IB/core: Enforce security on management datagrams
->> >>>   selinux: Create policydb version for Infiniband support
->> >>>   selinux: Allocate and free infiniband security hooks
->> >>>   selinux: Implement Infiniband PKey "Access" access vector
->> >>>   selinux: Add IB Port SMP access vector
->> >>>   selinux: Add a cache for quicker retreival of PKey SIDs
->> >> Hi Daniel,
->> >>
->> >> My apologies for such a long delay in responding to this latest
->> >> patchset; conferences, travel, and vacation have made for a very busy
->> >> August.  After you posted the v2 patchset we had an off-list
->> >> discussion regarding testing the SELinux/IB integration; unfortunately
->> >> we realized that IB hardware would be needed to test this (no IB
->> >> loopback device), but we agreed that having tests would be beneficial.
->> >>
->> >> Have you done any work yet towards adding SELinux/IB tests to the
->> >> selinux-testsuite project?
->> >>
->> >> * https://github.com/SELinuxProject/selinux-testsuite
->> >
->> > Hi Paul, I've not started doing that yet.  I've been waiting for feedback of any kind from the RDMA list.  I thought the test updates would be more appropriate around the time I'm submitting the changes to the user space utilities to allow labeling the new types.
+On Wednesday, August 17, 2016 4:58:02 PM EDT Paul Moore wrote:
+> On Tue, Jul 26, 2016 at 10:54 AM, Jeff Vander Stoep <jeffv@google.com> wrote:
+> > dump_common_audit_data() currently contains a field for pid, but the
+> > value printed is actually the thread ID, tid. Update this value to
+> > return the task group ID. Add a new field for tid. With this change
+> > the values printed by audit now match the values returned by the
+> > getpid() and gettid() syscalls.
+> > 
+> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+> > ---
+> > 
+> >  security/lsm_audit.c | 7 +++++--
+> >  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> Hi Jeff,
+> 
+> Have you tested this against the audit-testsuite[1]?  We don't have an
+> explicit PID test yet, but at least two of the tests do test it as a
+> side effect.
+> 
+> Steve, I don't see the thread ID listed in the field dictionary, are
+> you okay with using "tid" for this?
 
->> Okay, no problem.  I just want the tests in place and functional when
->> we merge the kernel code.
+Yes. Can someone add both?
 
-> Hi Paul,
-> IMHO, you can use Soft RoCE (RXE) [1] for it.
+> However, as far as I can see, the biggest problem with this patch is
+> that it adds a field in the middle of a record which will likely cause
+> the audit userspace tools to explode (or so I've been warned in the
+> past).  Steve, what say you about the userspace?
 
-If I got it right, little if not nothing of this patch set is
-applicable to RoCE ports, this is about IB ports, Daniel, can you
-comment?
+This is OK. After picking out pid, search utiliies scan for comm. They will 
+just skip over the new field. If fields that we normally search change order, 
+then we have a problem.
 
-Or.
+So, ACK on my end.
+
+-Steve
+
+> [1] https://github.com/linux-audit/audit-testsuite
+> [2]
+> https://github.com/linux-audit/audit-documentation/blob/master/specs/fields
+> /field-dictionary.csv
+> > diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+> > index cccbf30..57f26c1 100644
+> > --- a/security/lsm_audit.c
+> > +++ b/security/lsm_audit.c
+> > @@ -220,7 +220,8 @@ static void dump_common_audit_data(struct audit_buffer
+> > *ab,> 
+> >          */
+> >         
+> >         BUILD_BUG_ON(sizeof(a->u) > sizeof(void *)*2);
+> > 
+> > -       audit_log_format(ab, " pid=%d comm=", task_pid_nr(current));
+> > +       audit_log_format(ab, " pid=%d tid=%d comm=", task_tgid_vnr(tsk),
+> > +                       task_pid_vnr(tsk));
+> > 
+> >         audit_log_untrustedstring(ab, memcpy(comm, current->comm,
+> >         sizeof(comm)));
+> >         
+> >         switch (a->type) {
+> > 
+> > @@ -294,10 +295,12 @@ static void dump_common_audit_data(struct
+> > audit_buffer *ab,> 
+> >         case LSM_AUDIT_DATA_TASK: {
+> >         
+> >                 struct task_struct *tsk = a->u.tsk;
+> >                 if (tsk) {
+> > 
+> > -                       pid_t pid = task_pid_nr(tsk);
+> > +                       pid_t pid = task_tgid_vnr(tsk);
+> > 
+> >                         if (pid) {
+> >                         
+> >                                 char comm[sizeof(tsk->comm)];
+> >                                 audit_log_format(ab, " opid=%d ocomm=",
+> >                                 pid);
+> > 
+> > +                               audit_log_format(ab, " opid=%d otid=%d
+> > ocomm=", +                                               pid,
+> > task_pid_vnr(tsk));> 
+> >                                 audit_log_untrustedstring(ab,
+> >                                 
+> >                                     memcpy(comm, tsk->comm,
+> >                                     sizeof(comm)));
+> >                         
+> >                         }
