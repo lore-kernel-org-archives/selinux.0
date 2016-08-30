@@ -1,21 +1,13 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7UKPcB8011789
- for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 16:25:38 -0400
-Received: from [10.255.0.12] (unknown [10.255.0.12])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client CN "Paul Bolton", Issuer "M0NOC" (verified OK))
- by tbhext01.m0noc.net (Postfix) with ESMTPSA id 3sP0Q76svgz2ZYPs
- for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 21:25:35 +0100 (BST)
 Subject: Re: SELinux MLS Policies
-To: selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 References: <01e601d202e0$7aaf62d0$700e2870$@a.bolton@m0noc.net>
- <20160830192617.3jwikiwshwish3c3@rhel-at-redhat.localdomain>
+ <dcfa502a-a210-2815-33a7-825d905e4be6@tycho.nsa.gov>
 From: Paul Bolton <paul.a.bolton@m0noc.net>
-Message-ID: <89b246bc-42c1-d568-9e2a-b3d602d2bf50@m0noc.net>
-Date: Tue, 30 Aug 2016 21:25:33 +0100
+Message-ID: <612965bc-952f-9f95-ca14-7c8a8c6e7b6e@m0noc.net>
+Date: Tue, 30 Aug 2016 21:52:56 +0100
 MIME-Version: 1.0
-In-Reply-To: <20160830192617.3jwikiwshwish3c3@rhel-at-redhat.localdomain>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <dcfa502a-a210-2815-33a7-825d905e4be6@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -23,40 +15,38 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
 
-On 30/08/16 20:26, Petr Lautrbach wrote:
+On 30/08/16 20:19, Stephen Smalley wrote:
+> On 08/30/2016 01:03 PM, Paul Bolton wrote:
+>>
+>> Why is the target context for evaluation kernel_t and not devlog_t?
+>> Surely it should be devlog_t and therefore pass the constraint rule as a
+>> trusted object?
 > 
-> On RHEL and CentOS should sufficient to:
+> sendto is a permission check between the two socket labels, not to be
+> confused with the file label.  When you send on a local/Unix socket, you
+> need write permission to the socket file (if using the file namespace;
+> if using the abstract namespace, there is no equivalent check) and you
+> need sendto to the peer socket (which typically will be labeled the same
+> as the receiving process).  So the receiving process is running in
+> kernel_t, or was at the time it created the socket.
 > 
-> 1. install selinux-policy-mls package
-> 2. set SELinux to permissive and mls type
-> 3. run fixfiles -F onboot
-> 4. reboot
-> 5. if everything went fine and the filesystem is correctly relabeled,
-> switch back to enforcing
+> There are two separate kernel objects when dealing with Unix sockets -
+> the file and the socket itself.
 > 
-> and if you want to login as root using ssh, you need to turn
-> ssh_sysadm_login boolean on
 > 
 
-Thanks for the suggestion. Unfortunately that is pretty much what I
-originally did, which is why I thought I'll give the reference policy a
-go since getting the source is easier.
+Thanks for the explanation.
 
-The main difference with the original vendor setup was that I touched
-/.autorelabel rather than run fixfiles (which I think does the same
-thing). Result is that at (5) cannot log in as root, normal or staff_u
-on the console, normal user or a staff_u user over the net. I don't want
-to allow root over the net.
+So, I guess in my example AVC, after a bit of digging to get the CentOS
+src patches, where we have the following added to sshd.te, it is the
+mls_process_write_all_levels() that clears that AVC.
 
-I've just retested as you have mentioned and the same results.
-
-I'll have another look at the vendor supplied mls setup tomorrow (this
-one didn't have the /dev/log issue), but does have other AVC's listed.
-
-So, looks like I have two challenges-
-a. figure out why the vendor setup doesn't appear to work, and
-b. understand the /dev/log. etc changes from reference policy to vendor
-policy.
+policy-rhel-7.2-base.patch:
+-- snip --
++mls_trusted_object(sshd_t)
++mls_process_write_all_levels(sshd_t)
++mls_dbus_send_all_levels(sshd_t)
+-- snip --
 
 -- 
 Paul
