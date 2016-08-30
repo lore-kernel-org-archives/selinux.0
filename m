@@ -1,68 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7UJnHBM007190
- for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 15:49:17 -0400
-Received: by mail-oi0-f66.google.com with SMTP id b22so2722691oii.3
- for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 12:48:43 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7UKIVh6010854
+ for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 16:18:31 -0400
+Received: by mail-oi0-f66.google.com with SMTP id s207so2796039oie.0
+ for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 13:18:09 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1472574491-31233-1-git-send-email-william.c.roberts@intel.com>
-References: <1472574491-31233-1-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1761452.xxMEsoZRlS@x2>
+References: <1469544870-11574-1-git-send-email-jeffv@google.com>
+ <CAHC9VhS=odoi8NFFGP36VAMcL_Gbbin+0pyTj-MNcsPZKit0GQ@mail.gmail.com>
+ <1761452.xxMEsoZRlS@x2>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 30 Aug 2016 15:48:42 -0400
-Message-ID: <CAHC9VhTmpk-o-vHzoW_czBHy_GJmf29DBe7kposuObCsDiEzJQ@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: fix overflow and 0 length allocations
-To: william.c.roberts@intel.com
-Cc: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov,
- Stephen Smalley <sds@tycho.nsa.gov>
+Date: Tue, 30 Aug 2016 16:18:08 -0400
+Message-ID: <CAHC9VhQ4c8FfgBBpDCqYLKVh5uO2wquVBaLF4MfwPzvFO5PTpg@mail.gmail.com>
+Subject: Re: [PATCH] security: lsm_audit: print pid and tid
+To: Steve Grubb <sgrubb@redhat.com>
+Cc: Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov,
+ linux-audit@redhat.com
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Aug 30, 2016 at 12:28 PM,  <william.c.roberts@intel.com> wrote:
-> From: William Roberts <william.c.roberts@intel.com>
+On Tue, Aug 30, 2016 at 11:03 AM, Steve Grubb <sgrubb@redhat.com> wrote:
+> On Wednesday, August 17, 2016 4:58:02 PM EDT Paul Moore wrote:
+>> On Tue, Jul 26, 2016 at 10:54 AM, Jeff Vander Stoep <jeffv@google.com> wrote:
+>> > dump_common_audit_data() currently contains a field for pid, but the
+>> > value printed is actually the thread ID, tid. Update this value to
+>> > return the task group ID. Add a new field for tid. With this change
+>> > the values printed by audit now match the values returned by the
+>> > getpid() and gettid() syscalls.
+>> >
+>> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+>> > ---
+>> >
+>> >  security/lsm_audit.c | 7 +++++--
+>> >  1 file changed, 5 insertions(+), 2 deletions(-)
+>>
+>> Hi Jeff,
+>>
+>> Have you tested this against the audit-testsuite[1]?  We don't have an
+>> explicit PID test yet, but at least two of the tests do test it as a
+>> side effect.
+>>
+>> Steve, I don't see the thread ID listed in the field dictionary, are
+>> you okay with using "tid" for this?
 >
-> Throughout the SE Linux LSM, values taken from sepolicy are
-> used in places where length == 0 or length == <saturated>
-> matter, find and fix these.
->
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  security/selinux/ss/conditional.c | 2 ++
->  security/selinux/ss/policydb.c    | 3 +++
->  2 files changed, 5 insertions(+)
+> Yes. Can someone add both?
 
-Merged after I fixed the "SELinux" bit in the patch description.
+Yes, I'll add "tid" to the field DB once we commit the kernel patch.
 
-> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index 456e1a9..34afead 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -242,6 +242,8 @@ int cond_read_bool(struct policydb *p, struct hashtab *h, void *fp)
->                 goto err;
+>> However, as far as I can see, the biggest problem with this patch is
+>> that it adds a field in the middle of a record which will likely cause
+>> the audit userspace tools to explode (or so I've been warned in the
+>> past).  Steve, what say you about the userspace?
 >
->         len = le32_to_cpu(buf[2]);
-> +       if (((len == 0) || (len == (u32)-1)))
-> +               goto err;
+> This is OK. After picking out pid, search utiliies scan for comm. They will
+> just skip over the new field. If fields that we normally search change order,
+> then we have a problem.
 >
->         rc = -ENOMEM;
->         key = kmalloc(len + 1, GFP_KERNEL);
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 4b24385..8c661f0 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -1094,6 +1094,9 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
->         int rc;
->         char *str;
->
-> +       if ((len == 0) || (len == (u32)-1))
-> +               return -EINVAL;
-> +
->         str = kmalloc(len + 1, flags);
->         if (!str)
->                 return -ENOMEM;
-> --
-> 1.9.1
+> So, ACK on my end.
+
+Okay, thanks.  If we blow up your userspace I'll remind you of this
+conversation ;)
 
 -- 
 paul moore
