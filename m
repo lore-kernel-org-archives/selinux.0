@@ -1,42 +1,120 @@
-From: Daniel Jurgens <danielj@mellanox.com>
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-CC: Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
- "chrisw@sous-sol.org" <chrisw@sous-sol.org>, Stephen Smalley
- <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- "dledford@redhat.com" <dledford@redhat.com>, "sean.hefty@intel.com"
- <sean.hefty@intel.com>, "hal.rosenstock@gmail.com"
- <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
- <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
-Date: Tue, 30 Aug 2016 19:10:12 +0000
-Message-ID: <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
-References: <1469800416-125043-1-git-send-email-danielj@mellanox.com>
- <CAHC9VhS1Tg3qr2Nncd_eq_eUXrf-wMickoeoF978Q7L+gN7J1g@mail.gmail.com>
- <VI1PR0501MB24297FF784A085DC0AAE2C1EC4E10@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <CAHC9VhTEOvZ76dNJp35WEhr+r84eZZ6_ZmuaznGLakzZGcXhUw@mail.gmail.com>
- <20160830074607.GN594@leon.nu>
- <CAHC9VhRUmbsuV40rRpG+LeNUgY7rVqOkt-fxTMAFDRRdLvEkug@mail.gmail.com>
- <VI1PR0501MB242949202A1DA23E5C8E1E8AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160830184633.GE7586@obsidianresearch.com>
- <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160830185548.GA9768@obsidianresearch.com>
-Content-Type: text/plain; charset="us-ascii"
+Subject: Re: SELinux MLS Policies
+To: Paul Bolton <paul.a.bolton@m0noc.net>, selinux@tycho.nsa.gov
+References: <01e601d202e0$7aaf62d0$700e2870$@a.bolton@m0noc.net>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <dcfa502a-a210-2815-33a7-825d905e4be6@tycho.nsa.gov>
+Date: Tue, 30 Aug 2016 15:19:48 -0400
 MIME-Version: 1.0
+In-Reply-To: <01e601d202e0$7aaf62d0$700e2870$@a.bolton@m0noc.net>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 8/30/2016 1:56 PM, Jason Gunthorpe wrote:
->
-> Are subsystems usually SELinux enabled in such a piecemeal way?
->
-> Are you sure the 'partition' SELinux label should not be more general
-> to cover more of the similar RDMA cases?
->
-> Jason
->
-In order to label something you have to be able to describe something unique about an instance of it, like a Subnet Prefix/PKey value pair.  What other thing could we label more generally to control access to a partition/VLAN?
+On 08/30/2016 01:03 PM, Paul Bolton wrote:
+> First, apologies if this is the wrong SELinux list to post such
+> questions; as you can guess I’m new to SELinux development.
+> 
+>  
+> 
+> I’m looking at getting a base MLS policy running on a fully patched
+> CentOS 7.2 build which I will then customise; currently as a learning
+> exercise.
+> 
+>  
+> 
+> Unfortunately I’m having a few problems (usually it works out-of-the-box
+> on distros I’ve used, but not in this case), so I hope someone on the
+> list can give me a push in the right direction.
+> 
+>  
+> 
+> Bottom line is that if I try to use the vendor supplied version the
+> system is unusable if set to enforcing (I’ve used MLS before, so I do
+> mean unusable in this case).
+> 
+>  
+> 
+> I’ve now downloaded the latest reference policy, compiled it for mls and
+> systemd including updating the broken labelling due to /bin and /sbin
+> being symlinks. Things look better but there are still many errors.
+> 
+>  
+> 
+> One group in particular puzzles me (hopefully due to some
+> misunderstanding on my part).
+> 
+>  
+> 
+> I get AVC’s for a number of critical files relating to systemd sockets
+> and /dev/log, for example. e.g.
+> 
+>  
+> 
+> -- snip --
+> 
+> type=AVC msg=audit(1472476843.913:1124): avc:  denied  { sendto } for 
+> pid=11015 comm="sshd" path="/dev/log"
+> scontext=system_u:system_r:sshd_t:s0-s15:c0.c1023
+> tcontext=system_u:system_r:kernel_t:s15:c0.c1023 tclass=unix_dgram_socket
+> 
+>  
+> 
+>         Was caused by:
+> 
+>  
+> 
+> #Constraint rule:
+> 
+>  
+> 
+>         mlsconstrain unix_dgram_socket { sendto } ((l1 eq l2 -Fail-)  or
+> (t1=sshd_t  eq TYPE_ENTRY -Fail-) { POLICY_SOURCE: mlsnetwriteranged } 
+> and (l1 dom l2 -Fail-)  and (l1 domby h2 -Pass-)  or (t1=sshd_t  eq
+> TYPE_ENTRY -Fail-) { POLICY_SOURCE: mlsnetwritetoclr }  and (h1 dom L2
+> -Pass-)  and (l1 domby l2 -Pass-)  or (t1=sshd_t  eq TYPE_ENTRY -Fail-)
+> { POLICY_SOURCE: mlsnetwrite }  or (t2=kernel_t  eq TYPE_ENTRY -Fail-) {
+> POLICY_SOURCE: mlstrustedobject } ); Constraint DENIED
+> 
+>  
+> 
+> #       Possible cause is the source level (s0-s15:c0.c1023) and target
+> level (s15:c0.c1023) are different.
+> 
+> -- snip --
+> 
+>  
+> 
+> Now, given that /dev/log is labelled as a devlog_t:
+> 
+>  
+> 
+> # ls -lZ /dev/log
+> 
+> srw-rw-rw-. root root system_u:object_r:devlog_t:s15:c0.c1023 /dev/log
+> 
+>  
+> 
+> And according to logging.te, this is a trusted object:
+> 
+>  
+> 
+> mls_trusted_object(devlog_t)
+> 
+>  
+> 
+> Why is the target context for evaluation kernel_t and not devlog_t?
+> Surely it should be devlog_t and therefore pass the constraint rule as a
+> trusted object?
+
+sendto is a permission check between the two socket labels, not to be
+confused with the file label.  When you send on a local/Unix socket, you
+need write permission to the socket file (if using the file namespace;
+if using the abstract namespace, there is no equivalent check) and you
+need sendto to the peer socket (which typically will be labeled the same
+as the receiving process).  So the receiving process is running in
+kernel_t, or was at the time it created the socket.
+
+There are two separate kernel objects when dealing with Unix sockets -
+the file and the socket itself.
