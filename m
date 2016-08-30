@@ -1,68 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7UKIVh6010854
- for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 16:18:31 -0400
-Received: by mail-oi0-f66.google.com with SMTP id s207so2796039oie.0
- for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 13:18:09 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7UKPcB8011789
+ for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 16:25:38 -0400
+Received: from [10.255.0.12] (unknown [10.255.0.12])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client CN "Paul Bolton", Issuer "M0NOC" (verified OK))
+ by tbhext01.m0noc.net (Postfix) with ESMTPSA id 3sP0Q76svgz2ZYPs
+ for <selinux@tycho.nsa.gov>; Tue, 30 Aug 2016 21:25:35 +0100 (BST)
+Subject: Re: SELinux MLS Policies
+To: selinux@tycho.nsa.gov
+References: <01e601d202e0$7aaf62d0$700e2870$@a.bolton@m0noc.net>
+ <20160830192617.3jwikiwshwish3c3@rhel-at-redhat.localdomain>
+From: Paul Bolton <paul.a.bolton@m0noc.net>
+Message-ID: <89b246bc-42c1-d568-9e2a-b3d602d2bf50@m0noc.net>
+Date: Tue, 30 Aug 2016 21:25:33 +0100
 MIME-Version: 1.0
-In-Reply-To: <1761452.xxMEsoZRlS@x2>
-References: <1469544870-11574-1-git-send-email-jeffv@google.com>
- <CAHC9VhS=odoi8NFFGP36VAMcL_Gbbin+0pyTj-MNcsPZKit0GQ@mail.gmail.com>
- <1761452.xxMEsoZRlS@x2>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 30 Aug 2016 16:18:08 -0400
-Message-ID: <CAHC9VhQ4c8FfgBBpDCqYLKVh5uO2wquVBaLF4MfwPzvFO5PTpg@mail.gmail.com>
-Subject: Re: [PATCH] security: lsm_audit: print pid and tid
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov,
- linux-audit@redhat.com
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20160830192617.3jwikiwshwish3c3@rhel-at-redhat.localdomain>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Aug 30, 2016 at 11:03 AM, Steve Grubb <sgrubb@redhat.com> wrote:
-> On Wednesday, August 17, 2016 4:58:02 PM EDT Paul Moore wrote:
->> On Tue, Jul 26, 2016 at 10:54 AM, Jeff Vander Stoep <jeffv@google.com> wrote:
->> > dump_common_audit_data() currently contains a field for pid, but the
->> > value printed is actually the thread ID, tid. Update this value to
->> > return the task group ID. Add a new field for tid. With this change
->> > the values printed by audit now match the values returned by the
->> > getpid() and gettid() syscalls.
->> >
->> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
->> > ---
->> >
->> >  security/lsm_audit.c | 7 +++++--
->> >  1 file changed, 5 insertions(+), 2 deletions(-)
->>
->> Hi Jeff,
->>
->> Have you tested this against the audit-testsuite[1]?  We don't have an
->> explicit PID test yet, but at least two of the tests do test it as a
->> side effect.
->>
->> Steve, I don't see the thread ID listed in the field dictionary, are
->> you okay with using "tid" for this?
->
-> Yes. Can someone add both?
 
-Yes, I'll add "tid" to the field DB once we commit the kernel patch.
 
->> However, as far as I can see, the biggest problem with this patch is
->> that it adds a field in the middle of a record which will likely cause
->> the audit userspace tools to explode (or so I've been warned in the
->> past).  Steve, what say you about the userspace?
->
-> This is OK. After picking out pid, search utiliies scan for comm. They will
-> just skip over the new field. If fields that we normally search change order,
-> then we have a problem.
->
-> So, ACK on my end.
+On 30/08/16 20:26, Petr Lautrbach wrote:
+> 
+> On RHEL and CentOS should sufficient to:
+> 
+> 1. install selinux-policy-mls package
+> 2. set SELinux to permissive and mls type
+> 3. run fixfiles -F onboot
+> 4. reboot
+> 5. if everything went fine and the filesystem is correctly relabeled,
+> switch back to enforcing
+> 
+> and if you want to login as root using ssh, you need to turn
+> ssh_sysadm_login boolean on
+> 
 
-Okay, thanks.  If we blow up your userspace I'll remind you of this
-conversation ;)
+Thanks for the suggestion. Unfortunately that is pretty much what I
+originally did, which is why I thought I'll give the reference policy a
+go since getting the source is easier.
+
+The main difference with the original vendor setup was that I touched
+/.autorelabel rather than run fixfiles (which I think does the same
+thing). Result is that at (5) cannot log in as root, normal or staff_u
+on the console, normal user or a staff_u user over the net. I don't want
+to allow root over the net.
+
+I've just retested as you have mentioned and the same results.
+
+I'll have another look at the vendor supplied mls setup tomorrow (this
+one didn't have the /dev/log issue), but does have other AVC's listed.
+
+So, looks like I have two challenges-
+a. figure out why the vendor setup doesn't appear to work, and
+b. understand the /dev/log. etc changes from reference policy to vendor
+policy.
 
 -- 
-paul moore
-www.paul-moore.com
+Paul
+----
+http://blog.m0noc.com/ | https://keybase.io/m0noc
+4329 E4C5 71F3 58B2 2246  D04D 25DA 39C2 3876 FE3D
