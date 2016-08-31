@@ -1,43 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7V7s4Xg015402
- for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2016 03:54:04 -0400
-Subject: Re: SELinux MLS Policies
-To: ileyd <ileyd@icloud.com>, selinux@tycho.nsa.gov
-References: <"01e601d202e0$7aaf62d0$700e2870$@a.bolton"@m0noc.net>
- <dcfa502a-a210-2815-33a7-825d905e4be6@tycho.nsa.gov>
- <612965bc-952f-9f95-ca14-7c8a8c6e7b6e@m0noc.net>
- <9D586F02-4DA2-450A-9E31-541A97D554BE@icloud.com>
-From: Paul Bolton <paul.a.bolton@m0noc.net>
-Message-ID: <d63bb241-6166-57cc-475b-131f509fafbf@m0noc.net>
-Date: Wed, 31 Aug 2016 08:53:51 +0100
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u7VApVwn001185
+ for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2016 06:51:31 -0400
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 01053824
+ for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2016 10:51:29 +0000 (UTC)
+Received: from [10.40.2.196] ([10.40.2.196])
+ by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ u7VApSL5031943
+ for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2016 06:51:28 -0400
+Subject: Re: Creating a new port type
+To: selinux@tycho.nsa.gov
+References: <578825cb-5d96-1d51-c89e-40d7ee5cad03@gmail.com>
+From: Lukas Vrabec <lvrabec@redhat.com>
+Message-ID: <efaaf380-5195-8d8f-9555-21bc6bf87663@redhat.com>
+Date: Wed, 31 Aug 2016 12:51:27 +0200
 MIME-Version: 1.0
-In-Reply-To: <9D586F02-4DA2-450A-9E31-541A97D554BE@icloud.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <578825cb-5d96-1d51-c89e-40d7ee5cad03@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Hi Ian,
+
+Blog by Dan Walsh will helps you.
+
+http://danwalsh.livejournal.com/10607.html
+
+Lukas.
 
 
-On 31/08/16 07:37, ileyd wrote:
-> 
-> Have you managed to correct the incorrect labelling of /etc?  When I've tried to use the MLS policy on RHEL/CentOS 7-7.2, that has stopped logins from working when running in enforcing mode.
-> 
-
-So if I turn off the dontaudit rules that issue shows up with
-unix_chkpwd and mls_constrain AVCs. Admittedly I did notice it was at
-s15 but thought that was intentional. Though, as most of the files in
-/etc are at s0 that doesn't sound right.
-
-Anyway, changing /etc to s0 allows logins to work; and looks more like
-what I would expect an out-of-the-box MLS system to look like.
-
-Thanks for the advice.
+On 08/30/2016 11:46 PM, Ian Pilcher wrote:
+> I am attempting to write my first SELinux policy module (for the
+> Logitech Media Server/squeezeboxserver).  I would like to add a new
+> port type (slim_devices_port_t) for TCP and UDP 3483.
+>
+> I haven't been able to find an example of how to do this, except for
+> stunnel.te, and the comments in that file don't lead me to believe that
+> it is the right way to do things.
+>
+> Any pointers to examples or documentation would be appreciated.
+>
+> Thanks!
+>
 
 
 -- 
-Paul
-----
-http://blog.m0noc.com/ | https://keybase.io/m0noc
-4329 E4C5 71F3 58B2 2246  D04D 25DA 39C2 3876 FE3D
+Lukas Vrabec
+SELinux Solutions
+Red Hat, Inc.
