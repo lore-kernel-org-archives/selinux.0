@@ -1,81 +1,53 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u81Cd9DZ006987
- for <selinux@tycho.nsa.gov>; Thu, 1 Sep 2016 08:39:09 -0400
-Message-ID: <1472733544.2072.1.camel@trentalancia.net>
-Subject: Re: [PATCH v5] Build the SELinux testsuite on systems using the
- Reference Policy
-From: Guido Trentalancia <guido@trentalancia.net>
-To: selinux@tycho.nsa.gov
-Date: Thu, 01 Sep 2016 14:39:04 +0200
-In-Reply-To: <45a21bc9-2d32-eab2-b2cb-43bff68d6dbe@tycho.nsa.gov>
-References: <1472042396.4446.4.camel@trentalancia.net>
- <1472047913.4446.7.camel@trentalancia.net>
- <ea82b422-2aa4-9bbb-dc56-d1cfb05bff20@tycho.nsa.gov>
- <1472233238.14055.0.camel@trentalancia.net>
- <0957f1f6-2687-6dd0-b42d-e92f6d5ce21b@tycho.nsa.gov>
- <1472233820.14055.1.camel@trentalancia.net>
- <1ad0ffb1-fccf-d024-7bc1-62cfc4adc97b@tycho.nsa.gov>
- <1472236590.14055.3.camel@trentalancia.net>
- <45a21bc9-2d32-eab2-b2cb-43bff68d6dbe@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Date: Thu, 1 Sep 2016 10:34:18 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Daniel Jurgens <danielj@mellanox.com>
+Cc: Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+Message-ID: <20160901163418.GA6479@obsidianresearch.com>
+References: <CAHC9VhS1Tg3qr2Nncd_eq_eUXrf-wMickoeoF978Q7L+gN7J1g@mail.gmail.com>
+ <VI1PR0501MB24297FF784A085DC0AAE2C1EC4E10@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <CAHC9VhTEOvZ76dNJp35WEhr+r84eZZ6_ZmuaznGLakzZGcXhUw@mail.gmail.com>
+ <20160830074607.GN594@leon.nu>
+ <CAHC9VhRUmbsuV40rRpG+LeNUgY7rVqOkt-fxTMAFDRRdLvEkug@mail.gmail.com>
+ <VI1PR0501MB242949202A1DA23E5C8E1E8AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830184633.GE7586@obsidianresearch.com>
+ <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830185548.GA9768@obsidianresearch.com>
+ <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello Stephen.
+On Tue, Aug 30, 2016 at 07:10:12PM +0000, Daniel Jurgens wrote:
+> On 8/30/2016 1:56 PM, Jason Gunthorpe wrote:
+> >
+> > Are subsystems usually SELinux enabled in such a piecemeal way?
+> >
+> > Are you sure the 'partition' SELinux label should not be more general
+> > to cover more of the similar RDMA cases?
 
-Thanks very much for applying the patch.
+> In order to label something you have to be able to describe
+> something unique about an instance of it, like a Subnet Prefix/PKey
+> value pair.  What other thing could we label more generally to
+> control access to a partition/VLAN?
 
-Guido
+IP prefix / vlan #? How does it work in net?
 
-On Thu, 01/09/2016 at 08.38 -0400, Stephen Smalley wrote:
-> On 08/26/2016 02:36 PM, Guido Trentalancia wrote:
-> > 
-> > Sorry about that ! I did not test it properly because I was hitting
-> > a
-> > problem with the policy...
-> > 
-> > The following one should work, although it's slightly noisy...
-> > 
-> > Fix the Makefile in the policy subdirectory of the SELinux
-> > testsuite
-> > so that it builds correctly on the standard Reference Policy which
-> > does not have the same booleans available on Red Hat.
-> > 
-> > Previous versions were not working within the Makefile.
-> > 
-> > Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
-> 
-> Thanks, applied.
+Shouldn't you at least have a plan for how this will expand to cover
+the whole subsystem??
 
-
-> > 
-> > ---
-> >  policy/Makefile |    4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > --- selinux-testsuite-git-23082016-orig/policy/Makefile	2016
-> > -08-23 20:50:08.527633728 +0200
-> > +++ selinux-testsuite-git-23082016/policy/Makefile	2016-08-
-> > 26 20:33:01.677418513 +0200
-> > @@ -68,7 +69,7 @@ load_rhel: all
-> >  
-> >  load_general: all
-> >  	# General policy load
-> > -	/usr/sbin/setsebool allow_domain_fd_use=0
-> > +	@-/usr/sbin/setsebool allow_domain_fd_use=0
-> >  	$(SEMODULE) -i test_policy/test_policy.pp
-> >  
-> >  unload_rhel:
-> > @@ -77,7 +78,7 @@ unload_rhel:
-> >  
-> >  unload_general:
-> >  	# General policy unload
-> > -	/usr/sbin/setsebool allow_domain_fd_use=1
-> > +	@-/usr/sbin/setsebool allow_domain_fd_use=1
-> >  	$(SEMODULE) -r test_policy
-> >  
-> >  clean:
-> > 
+Jason
