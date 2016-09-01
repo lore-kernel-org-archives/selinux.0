@@ -1,57 +1,68 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u811d5An003766
- for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2016 21:39:05 -0400
-Received: by mail-oi0-f41.google.com with SMTP id p186so61418411oia.2
- for <selinux@tycho.nsa.gov>; Wed, 31 Aug 2016 18:39:04 -0700 (PDT)
+Subject: Re: [PATCH v5] Build the SELinux testsuite on systems using the
+ Reference Policy
+To: Guido Trentalancia <guido@trentalancia.net>, selinux@tycho.nsa.gov
+References: <1472042396.4446.4.camel@trentalancia.net>
+ <1472047913.4446.7.camel@trentalancia.net>
+ <ea82b422-2aa4-9bbb-dc56-d1cfb05bff20@tycho.nsa.gov>
+ <1472233238.14055.0.camel@trentalancia.net>
+ <0957f1f6-2687-6dd0-b42d-e92f6d5ce21b@tycho.nsa.gov>
+ <1472233820.14055.1.camel@trentalancia.net>
+ <1ad0ffb1-fccf-d024-7bc1-62cfc4adc97b@tycho.nsa.gov>
+ <1472236590.14055.3.camel@trentalancia.net>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <45a21bc9-2d32-eab2-b2cb-43bff68d6dbe@tycho.nsa.gov>
+Date: Thu, 1 Sep 2016 08:38:02 -0400
 MIME-Version: 1.0
-In-Reply-To: <1469800416-125043-6-git-send-email-danielj@mellanox.com>
-References: <1469800416-125043-1-git-send-email-danielj@mellanox.com>
- <1469800416-125043-6-git-send-email-danielj@mellanox.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 31 Aug 2016 21:39:03 -0400
-Message-ID: <CAHC9VhTF3erdxu+P3rZ3dn4dE+p4vgbyhKk1CmTwK333o-=-8g@mail.gmail.com>
-Subject: Re: [PATCH v3 5/9] selinux: Create policydb version for Infiniband
- support
-To: Dan Jurgens <danielj@mellanox.com>
-Cc: chrisw@sous-sol.org, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, dledford@redhat.com,
- sean.hefty@intel.com, hal.rosenstock@gmail.com, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-rdma@vger.kernel.org,
- yevgenyp@mellanox.com
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1472236590.14055.3.camel@trentalancia.net>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 29, 2016 at 9:53 AM, Dan Jurgens <danielj@mellanox.com> wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
->
-> Support for Infiniband requires the addition of two new object contexts,
-> one for infiniband PKeys and another IB Ports. Added handlers to read
-> and write the new ocontext types when reading or writing a binary policy
-> representation.
->
-> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> Reviewed-by: Eli Cohen <eli@mellanox.com>
->
+On 08/26/2016 02:36 PM, Guido Trentalancia wrote:
+> Sorry about that ! I did not test it properly because I was hitting a
+> problem with the policy...
+> 
+> The following one should work, although it's slightly noisy...
+> 
+> Fix the Makefile in the policy subdirectory of the SELinux testsuite
+> so that it builds correctly on the standard Reference Policy which
+> does not have the same booleans available on Red Hat.
+> 
+> Previous versions were not working within the Makefile.
+> 
+> Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
+
+Thanks, applied.
+
 > ---
-> v2:
-> - Shorten ib_end_port to ib_port. Paul Moore
-> - Added bounds checking to port number. Paul Moore
-> - Eliminated {} in OCON_PKEY case statement.  Yuval Shaia
-
-Nit picky, but you still have some curly braces in ocontext_read()
-that aren't strictly necessary.
-
-> v3:
-> - ib_port -> ib_endport. Paul Moore
->
->  security/selinux/include/security.h |   3 +-
->  security/selinux/ss/policydb.c      | 130 +++++++++++++++++++++++++++++++-----
->  security/selinux/ss/policydb.h      |  27 +++++---
->  3 files changed, 136 insertions(+), 24 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
+>  policy/Makefile |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- selinux-testsuite-git-23082016-orig/policy/Makefile	2016-08-23 20:50:08.527633728 +0200
+> +++ selinux-testsuite-git-23082016/policy/Makefile	2016-08-26 20:33:01.677418513 +0200
+> @@ -68,7 +69,7 @@ load_rhel: all
+>  
+>  load_general: all
+>  	# General policy load
+> -	/usr/sbin/setsebool allow_domain_fd_use=0
+> +	@-/usr/sbin/setsebool allow_domain_fd_use=0
+>  	$(SEMODULE) -i test_policy/test_policy.pp
+>  
+>  unload_rhel:
+> @@ -77,7 +78,7 @@ unload_rhel:
+>  
+>  unload_general:
+>  	# General policy unload
+> -	/usr/sbin/setsebool allow_domain_fd_use=1
+> +	@-/usr/sbin/setsebool allow_domain_fd_use=1
+>  	$(SEMODULE) -r test_policy
+>  
+>  clean:
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
