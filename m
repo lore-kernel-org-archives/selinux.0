@@ -1,177 +1,95 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u86DrjD0007265
- for <selinux@tycho.nsa.gov>; Tue, 6 Sep 2016 09:53:45 -0400
-From: Gary Tierney <gary.tierney@gmx.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u86ELb0Y011029
+ for <selinux@tycho.nsa.gov>; Tue, 6 Sep 2016 10:21:37 -0400
+Message-ID: <1473171653.17158.9.camel@trentalancia.net>
+Subject: Re: [PATCH] libsepol: Produce more meaningful error messages for
+ conflicting type rules
+From: Guido Trentalancia <guido@trentalancia.net>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] genhomedircon: remove hardcoded refpolicy strings
-Date: Tue,  6 Sep 2016 14:48:21 +0100
-Message-Id: <1473169701-9179-2-git-send-email-gary.tierney@gmx.com>
-In-Reply-To: <1473169701-9179-1-git-send-email-gary.tierney@gmx.com>
-References: <1473169701-9179-1-git-send-email-gary.tierney@gmx.com>
+Date: Tue, 06 Sep 2016 16:20:53 +0200
+In-Reply-To: <1472301855.5566.1.camel@trentalancia.net>
+References: <1472301855.5566.1.camel@trentalancia.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Removes the "system_u" and "s0" string literals from refpolicy and
-replaces the seuser and range in each homedir, uid, and username context
-specification for every user.
+Hello.
 
-Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
----
- libsemanage/src/genhomedircon.c | 79 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 66 insertions(+), 13 deletions(-)
+I received no feedback on this.
 
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index cce3884..cca97f6 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -20,6 +20,7 @@
-  *  02110-1301  USA
-  */
- 
-+#include <selinux/context.h>
- #include <semanage/handle.h>
- #include <semanage/seusers_policy.h>
- #include <semanage/users_policy.h>
-@@ -82,9 +83,6 @@
- #define TEMPLATE_USERNAME "%{USERNAME}"
- #define TEMPLATE_USERID "%{USERID}"
- 
--#define TEMPLATE_SEUSER "system_u"
--#define TEMPLATE_LEVEL "s0"
--
- #define FALLBACK_SENAME "user_u"
- #define FALLBACK_PREFIX "user"
- #define FALLBACK_LEVEL "s0"
-@@ -92,6 +90,8 @@
- #define FALLBACK_UIDGID "[0-9]+"
- #define DEFAULT_LOGIN "__default__"
- 
-+#define CONTEXT_NONE "<<none>>"
-+
- typedef struct user_entry {
- 	char *name;
- 	char *uid;
-@@ -599,14 +599,72 @@ static int write_replacements(genhomedircon_settings_t * s, FILE * out,
- 	return STATUS_ERR;
- }
- 
-+static int write_user_replacements(genhomedircon_settings_t *s, FILE *out,
-+			  semanage_list_t *tpl, const replacement_pair_t *repl,
-+			  const genhomedircon_user_entry_t *user)
-+{
-+	Ustr *line = USTR_NULL;
-+	context_t context = NULL;
-+
-+	for (; tpl; tpl = tpl->next) {
-+		line = replace_all(tpl->data, repl);
-+		if (!line) {
-+			goto fail;
-+		}
-+
-+		const char *old_context_str = extract_context(line);
-+		if (!old_context_str) {
-+			goto fail;
-+		}
-+
-+		if (strcmp(old_context_str, CONTEXT_NONE) == 0) {
-+			if (check_line(s, line) &&
-+			    !ustr_io_putfileline(&line, out)) {
-+				goto fail;
-+			}
-+
-+			continue;
-+		}
-+
-+		context = context_new(old_context_str);
-+		if (!context) {
-+			goto fail;
-+		}
-+
-+		if (context_user_set(context, user->sename) != 0 ||
-+		    context_range_set(context, user->level) != 0) {
-+			goto fail;
-+		}
-+
-+		const char *new_context_str = context_str(context);
-+		if (!ustr_replace_cstr(&line, old_context_str,
-+				       new_context_str, 1)) {
-+			goto fail;
-+		}
-+
-+		if (check_line(s, line) == STATUS_SUCCESS) {
-+			if (!ustr_io_putfileline(&line, out)) {
-+				goto fail;
-+			}
-+		}
-+
-+		ustr_sc_free(&line);
-+		context_free(context);
-+	}
-+
-+	return STATUS_SUCCESS;
-+fail:
-+	ustr_sc_free(&line);
-+	context_free(context);
-+	return STATUS_ERR;
-+}
-+
- static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- 				  semanage_list_t * tpl, const genhomedircon_user_entry_t *user)
- {
- 	replacement_pair_t repl[] = {
--		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
- 		{.search_for = TEMPLATE_HOME_DIR,.replace_with = user->home},
- 		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
--		{.search_for = TEMPLATE_LEVEL,.replace_with = user->level},
- 		{NULL, NULL}
- 	};
- 
-@@ -618,7 +676,7 @@ static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- 			return STATUS_ERR;
- 	}
- 
--	return write_replacements(s, out, tpl, repl);
-+	return write_user_replacements(s, out, tpl, repl, user);
- }
- 
- static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
-@@ -640,11 +698,10 @@ static int write_username_context(genhomedircon_settings_t * s, FILE * out,
- 		{.search_for = TEMPLATE_USERNAME,.replace_with = user->name},
- 		{.search_for = TEMPLATE_USERID,.replace_with = user->uid},
- 		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
--		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
- 		{NULL, NULL}
- 	};
- 
--	return write_replacements(s, out, tpl, repl);
-+	return write_user_replacements(s, out, tpl, repl, user);
- }
- 
- static int write_user_context(genhomedircon_settings_t * s, FILE * out,
-@@ -653,11 +710,10 @@ static int write_user_context(genhomedircon_settings_t * s, FILE * out,
- 	replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_USER,.replace_with = user->name},
- 		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
--		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
- 		{NULL, NULL}
- 	};
- 
--	return write_replacements(s, out, tpl, repl);
-+	return write_user_replacements(s, out, tpl, repl, user);
- }
- 
- static int seuser_sort_func(const void *arg1, const void *arg2)
-@@ -1074,9 +1130,6 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
- 		if (strcmp(name, DEFAULT_LOGIN) == 0)
- 			continue;
- 
--		if (strcmp(name, TEMPLATE_SEUSER) == 0)
--			continue;
--
- 		/* find the user structure given the name */
- 		u = bsearch(seuname, user_list, nusers, sizeof(semanage_user_t *),
- 			    (int (*)(const void *, const void *))
--- 
-2.7.4
+I still believe it is a very useful patch, because at the moment it is
+very hard to track down the error from the error message.
+
+Guido
+
+On Sat, 27/08/2016 at 14.44 +0200, Guido Trentalancia wrote:
+> Produce more meaningful error messages when conflicting type
+> rules are found by libsepol.
+> 
+> Fixes Debian bug #832331 (https://bugs.debian.org/832331).
+> 
+> Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
+> ---
+>  cil/src/cil_binary.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> --- libsepol-2.5/cil/src/cil_binary.c	2016-02-23
+> 17:31:41.000000000 +0100
+> +++ libsepol-2.5-conflicting_type_rules/cil/src/cil_binary.c	2
+> 016-08-27 14:31:44.307988662 +0200
+> @@ -973,7 +973,7 @@ avtab_datum_t *cil_cond_av_list_search(a
+>  	return NULL;
+>  }
+>  
+> -int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t
+> src, uint32_t tgt, uint32_t obj, uint32_t res, cond_node_t
+> *cond_node, enum cil_flavor cond_flavor)
+> +int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t
+> src, uint32_t tgt, uint32_t obj, uint32_t res, struct cil_type_rule
+> *cil_rule, cond_node_t *cond_node, enum cil_flavor cond_flavor)
+>  {
+>  	int rc = SEPOL_OK;
+>  	avtab_key_t avtab_key;
+> @@ -1008,7 +1008,7 @@ int __cil_insert_type_rule(policydb_t *p
+>  		 * non-duplicate rule using the same key.
+>  		 */
+>  		if (existing->datum.data != res) {
+> -			cil_log(CIL_ERR, "Conflicting type
+> rules\n");
+> +			cil_log(CIL_ERR, "Conflicting type rules
+> (scontext=%s tcontext=%s tclass=%s result=%s)\n", cil_rule->src_str,
+> cil_rule->tgt_str, cil_rule->obj_str, cil_rule->result_str);
+>  			rc = SEPOL_ERR;
+>  		}
+>  		goto exit;
+> @@ -1034,7 +1034,7 @@ int __cil_insert_type_rule(policydb_t *p
+>  			search_datum =
+> cil_cond_av_list_search(&avtab_key, other_list);
+>  			if (search_datum == NULL) {
+>  				if (existing->datum.data != res) {
+> -					cil_log(CIL_ERR,
+> "Conflicting type rules\n");
+> +					cil_log(CIL_ERR,
+> "Conflicting type rules (scontext=%s tcontext=%s tclass=%s
+> result=%s)\n", cil_rule->src_str, cil_rule->tgt_str, cil_rule-
+> >obj_str, cil_rule->result_str);
+>  					rc = SEPOL_ERR;
+>  					goto exit;
+>  				}
+> @@ -1093,7 +1093,7 @@ int __cil_type_rule_to_avtab(policydb_t
+>  				rc =
+> __cil_get_sepol_class_datum(pdb, DATUM(c->data), &sepol_obj);
+>  				if (rc != SEPOL_OK) goto exit;
+>  
+> -				rc = __cil_insert_type_rule(pdb,
+> kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value,
+> sepol_result->s.value, cond_node, cond_flavor);
+> +				rc = __cil_insert_type_rule(pdb,
+> kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value,
+> sepol_result->s.value, cil_rule, cond_node, cond_flavor);
+>  				if (rc != SEPOL_OK) goto exit;
+>  			}
+>  		}
