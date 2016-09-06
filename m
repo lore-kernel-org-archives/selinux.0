@@ -1,155 +1,384 @@
-Subject: Re: [PATCH 0/3] Make libsepol tests pass again
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20160827092149.9277-1-nicolas.iooss@m4x.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <477c34f7-306f-9c80-f0e7-51e5f436692d@tycho.nsa.gov>
-Date: Tue, 6 Sep 2016 11:16:49 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160827092149.9277-1-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=utf-8
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov,
+ jwcart2@tycho.nsa.gov
+Subject: [PATCH] libselinux: clean up process file
+Date: Tue,  6 Sep 2016 08:51:06 -0700
+Message-Id: <1473177066-25068-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/27/2016 05:21 AM, Nicolas Iooss wrote:
-> Hello,
-> 
-> A few months ago I saw that "make -C libsepol test" succeeded even
-> though it displayed what looked like a failure:
-> 
->     ./libsepol-tests
->          CUnit - A unit testing framework for C - Version 2.1-3
->          http://cunit.sourceforge.net/
->     Suite: cond
->       Test: cond_expr_equal ...passed
->     Suite: linker
->       Test: linker_indexes ...passed
->       Test: linker_types ...passed
->       Test: linker_roles ...
->     role o1_b_role_1 has 0 types, 1 expected
->     role o1_b_role_1 has 0 types, 1 expected
->     role o1_m1_role_1 has 0 types, 1 expected
->     sym g_b_role_2 has 1 decls, 2 expected
->     Role o1_b_role_2 had type o1_b_type_1 not in types array
->     role o1_b_role_2 has 0 types, 1 expected
->     Role g_b_role_4 had type g_m1_type_2 not in types array
->     role g_b_role_4 has 0 types, 1 expected
->     role o3_b_role_1 has 0 types, 1 expected
->     role o3_b_role_1 has 0 types, 1 expected
->     role o4_b_role_1 has 0 types, 1 expected
->     Role o4_b_role_1 had type g_m1_type_1 not in types array
-> 
->     FAILED
->         1. test-common.c:216  - found == len
->         2. test-common.c:216  - found == len
->         3. test-common.c:216  - found == len
->         4. test-common.c:43  - scope->decl_ids_len == len
->         5. test-common.c:52  - found == 1
->         6. test-common.c:213  - new == 1
->         7. test-common.c:216  - found == len
->         8. test-common.c:213  - new == 1
->         9. test-common.c:216  - found == len
->         10. test-common.c:216  - found == len
->         11. test-common.c:216  - found == len
->         12. test-common.c:216  - found == len
->         13. test-common.c:213  - new == 1
->       Test: linker_cond ...passed
->     Suite: expander
->       Test: expander_indexes ...passed
->       Test: expander_attr_mapping ...passed
->       Test: expander_role_mapping ...passed
->       Test: expander_user_mapping ...passed
->       Test: expander_alias ...passed
->     Suite: deps
->       Test: deps_modreq_global ...passed
->       Test: deps_modreq_opt ...passed
->     Suite: downgrade
->       Test: downgrade ...passed
-> 
->     Run Summary:    Type  Total    Ran Passed Failed Inactive
->                   suites      5      5    n/a      0        0
->                    tests     13     13     12      1        0
->                  asserts   1269   1269   1256     13      n/a
->     Elapsed time =    1.420 seconds
-> 
-> I can see 3 reasons behind such a failure report:
-> 
-> * there is a bug somewhere in libsepol and the tests detect it,
-> * the tests are out-dated and they need to be either removed or updated, or
-> * my test system is configured in a way that make the tests fail even
->   though they should not.
-> 
-> Moreover, even though the tests are failing, it is quite disturbing that
-> "make test" is succeeding.  This is because the CUnit tests only exit
-> with a failed error code when an error occured in the CUnit framework,
-> not in tests.  The last patch of this series fixes this.
-> 
-> As I did not understood anything at first when I read the code of
-> libsepol tests, I wrote some code to dump some tables of the loaded
-> policy (p->symtab[SYM_ROLES], and
-> p->decl_val_to_struct[...]->symtab[SYM_ROLES])
-> Here is an extract of this dump:
-> 
->     p->p_roles[object_r]: scope 2 {1, 9, 14},
->         types { }
->     p->p_roles[g_b_role_1]: scope 2 {1},
->         types { g_b_type_1 },
->         dominates g_b_role_1
->     p->p_roles[o1_b_role_1]: scope 2 {2},
->         types { o1_b_type_1 }
->     p->p_roles[o3_b_role_1]: scope 2 {4, 12},
->         types { o3_b_type_1 o3_m1_type_1 }
->     p->p_roles[o4_b_role_1]: scope 2 {5, 9, 14},
->         types { g_m1_type_1 g_m1_type_2 g_m2_type_1 },
->         dominates o4_b_role_1
->     p->p_roles[g_b_role_3]: scope 2 {1, 9, 14},
->         types { g_b_type_2 g_m1_type_2 g_m2_type_2 },
->         dominates g_b_role_3
->     p->p_roles[g_b_role_2]: scope 2 {1},
->         types { g_b_type_2 g_m1_type_1 },
->         dominates g_b_role_2
->     p->p_roles[o1_b_role_2]: scope 2 {2, 9},
->         types { o1_b_type_1 g_m1_type_1 },
->         dominates o1_b_role_2
-> [...]
->     decl[2]->p_roles[o1_b_role_1]: scope 2 {2},
->         types { }, dominates o1_b_role_1
->     decl[2]->p_roles[o1_b_role_2]: scope 2 {2, 9},
->         types { }, dominates o1_b_role_2
->     decl[4]->p_roles[o3_b_role_1]: scope 2 {4, 12},
->         types { }, dominates o3_b_role_1
->     decl[5]->p_roles[o4_b_role_1]: scope 2 {5, 9, 14},
->         types { }, dominates o4_b_role_1
-> 
-> It seems strange that "p->p_roles" hashmap handles all role-types
-> associations but that the domination information lies in
-> "p->decl_val_to_struct[scope-1]->p_roles" for roles in optional blocks.
-> This association is performed in define_role_types() function in
-> checkpolicy/policy_define.c.  Using the "local role" (result of
-> get_local_role function) there fixes most asserion failures.  This is
-> what the first patch does.
-> 
-> Afterwards the only failure which remains is:
-> 
->     sym g_b_role_2 has 1 decls, 2 expected
-> 
-> Even though g_b_role_2 is used both in
-> tests/policies/test-linker/small-base.conf and
-> tests/policies/test-linker/module1.conf, it seems to only exists in the
-> scope of the base policy.  The second patch updates the test
-> accordingly.
-> 
-> 
-> Nicolas Iooss (3):
->   checkpolicy: add types associated to a role in the current scope when
->     parsing
->   libsepol: tests: fix g_b_role_2 test
->   libsepol: make "make test" fails when a CUnit test fails
-> 
->  checkpolicy/policy_define.c        |  1 +
->  libsepol/tests/libsepol-tests.c    | 11 +++++++----
->  libsepol/tests/test-linker-roles.c |  3 +--
->  3 files changed, 9 insertions(+), 6 deletions(-)
+From: William Roberts <william.c.roberts@intel.com>
 
-Thanks, applied all three.
+The current process_file() code will open the file
+twice on the case of a binary file, correct this.
+
+The general flow through process_file() was a bit
+difficult to read, streamline the routine to be
+more readable.
+
+Detailed statistics of before and after:
+
+Source lines of code reported by cloc on modified files:
+before: 1090
+after: 1102
+
+Object size difference:
+before: 195530 bytes
+after:  195563 bytes
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libselinux/src/label_file.c | 264 ++++++++++++++++++++++++--------------------
+ libselinux/src/label_file.h |   1 +
+ 2 files changed, 147 insertions(+), 118 deletions(-)
+
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index c89bb35..26b1b87 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -97,62 +97,44 @@ static int nodups_specs(struct saved_data *data, const char *path)
+ 	return rc;
+ }
+ 
+-static int load_mmap(struct selabel_handle *rec, const char *path,
+-				    struct stat *sb, bool isbinary,
+-				    struct selabel_digest *digest)
++static int process_text_file(FILE *fp, const char *prefix, struct selabel_handle *rec)
++{
++	/*
++	 * Then do detailed validation of the input and fill the spec array
++	 */
++	int rc;
++	size_t line_len;
++	unsigned lineno = 0;
++	char *line_buf = NULL;
++	struct saved_data *data = (struct saved_data *)rec->data;
++
++	while (getline(&line_buf, &line_len, fp) > 0) {
++		rc = process_line(rec, data->path, prefix, line_buf, ++lineno);
++		if (rc)
++			goto out;
++	}
++	rc = 0;
++out:
++	free(line_buf);
++	return rc;
++}
++
++static int load_mmap(FILE *fp, size_t len, struct selabel_handle *rec)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+-	char mmap_path[PATH_MAX + 1];
+-	int mmapfd;
+ 	int rc;
+-	struct stat mmap_stat;
+ 	char *addr, *str_buf;
+-	size_t len;
+ 	int *stem_map;
+ 	struct mmap_area *mmap_area;
+ 	uint32_t i, magic, version;
+ 	uint32_t entry_len, stem_map_len, regex_array_len;
+ 
+-	if (isbinary) {
+-		len = strlen(path);
+-		if (len >= sizeof(mmap_path))
+-			return -1;
+-		strcpy(mmap_path, path);
+-	} else {
+-		rc = snprintf(mmap_path, sizeof(mmap_path), "%s.bin", path);
+-		if (rc >= (int)sizeof(mmap_path))
+-			return -1;
+-	}
+-
+-	mmapfd = open(mmap_path, O_RDONLY | O_CLOEXEC);
+-	if (mmapfd < 0)
+-		return -1;
+-
+-	rc = fstat(mmapfd, &mmap_stat);
+-	if (rc < 0) {
+-		close(mmapfd);
+-		return -1;
+-	}
+-
+-	/* if mmap is old, ignore it */
+-	if (mmap_stat.st_mtime < sb->st_mtime) {
+-		close(mmapfd);
+-		return -1;
+-	}
+-
+-	/* ok, read it in... */
+-	len = mmap_stat.st_size;
+-	len += (sysconf(_SC_PAGE_SIZE) - 1);
+-	len &= ~(sysconf(_SC_PAGE_SIZE) - 1);
+-
+ 	mmap_area = malloc(sizeof(*mmap_area));
+ 	if (!mmap_area) {
+-		close(mmapfd);
+ 		return -1;
+ 	}
+ 
+-	addr = mmap(NULL, len, PROT_READ, MAP_PRIVATE, mmapfd, 0);
+-	close(mmapfd);
++	addr = mmap(NULL, len, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
+ 	if (addr == MAP_FAILED) {
+ 		free(mmap_area);
+ 		perror("mmap");
+@@ -306,7 +288,7 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 		if (strcmp(spec->lr.ctx_raw, "<<none>>") && rec->validating) {
+ 			if (selabel_validate(rec, &spec->lr) < 0) {
+ 				selinux_log(SELINUX_ERROR,
+-					    "%s: context %s is invalid\n", mmap_path, spec->lr.ctx_raw);
++					    "%s: context %s is invalid\n", data->path, spec->lr.ctx_raw);
+ 				goto err;
+ 			}
+ 		}
+@@ -408,105 +390,150 @@ static int load_mmap(struct selabel_handle *rec, const char *path,
+ 		data->nspec++;
+ 	}
+ 
+-	rc = digest_add_specfile(digest, NULL, addr, mmap_stat.st_size,
+-								    mmap_path);
+-	if (rc)
+-		goto err;
+-
+ err:
+ 	free(stem_map);
+ 
+ 	return rc;
+ }
+ 
+-static int process_file(const char *path, const char *suffix,
+-			  struct selabel_handle *rec,
+-			  const char *prefix, struct selabel_digest *digest)
+-{
+-	FILE *fp;
++struct file_details {
++	const char *suffix;
+ 	struct stat sb;
+-	unsigned int lineno;
+-	size_t line_len = 0;
+-	char *line_buf = NULL;
++};
++
++static char *rolling_append(char *current, const char *suffix, size_t max)
++{
++	size_t size;
++	size_t suffix_size;
++	size_t current_size;
++
++	if (!suffix)
++		return current;
++
++	/*
++	 * Overflow check that the following
++	 * arithmatec will not overflow or
++	 */
++	current_size = strlen(current);
++	suffix_size = strlen(suffix);
++
++	size = current_size + suffix_size;
++	if (size < current_size || size < suffix_size)
++		return NULL;
++
++	/* ensure space for the '.' and the '\0' characters. */
++	if (size >= (SIZE_MAX - 2))
++		return NULL;
++
++	size += 2;
++
++	if (size > max)
++		return NULL;
++
++	/* Append any given suffix */
++	char *to = stpcpy(&current[current_size], ".");
++	strcat(to, suffix);
++
++	return current;
++}
++
++static bool fcontext_is_binary(FILE *fp)
++{
++	uint32_t magic;
++
++	size_t len = fread(&magic, sizeof(magic), 1, fp);
++	rewind(fp);
++
++	return (len && (magic == SELINUX_MAGIC_COMPILED_FCONTEXT));
++}
++
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++
++static FILE *open_file(const char *path, const char *suffix,
++        char **save_path, struct stat *sb)
++{
++	unsigned i;
+ 	int rc;
+ 	char stack_path[PATH_MAX + 1];
+-	bool isbinary = false;
+-	uint32_t magic;
+ 
+-	/* append the path suffix if we have one */
+-	if (suffix) {
+-		rc = snprintf(stack_path, sizeof(stack_path),
+-					    "%s.%s", path, suffix);
+-		if (rc >= (int)sizeof(stack_path)) {
+-			errno = ENAMETOOLONG;
+-			return -1;
+-		}
+-		path = stack_path;
++	struct file_details *found = NULL;
++	char found_path[sizeof(stack_path)];
++
++	/*
++	 * Rolling append of suffix. Try to open with path.suffix then the
++	 * next as path.suffix.suffix and so forth.
++	 */
++	struct file_details fdetails[2] = {
++			{ .suffix = suffix },
++			{ .suffix = "bin" }
++	};
++
++	rc = snprintf(stack_path, sizeof(stack_path), "%s", path);
++	if (rc >= (int) sizeof(stack_path)) {
++		errno = ENAMETOOLONG;
++		return NULL;
+ 	}
+ 
+-	/* Open the specification file. */
+-	fp = fopen(path, "r");
+-	if (fp) {
+-		__fsetlocking(fp, FSETLOCKING_BYCALLER);
++	for (i = 0; i < ARRAY_SIZE(fdetails); i++) {
+ 
+-		if (fstat(fileno(fp), &sb) < 0)
+-			return -1;
+-		if (!S_ISREG(sb.st_mode)) {
+-			errno = EINVAL;
+-			return -1;
+-		}
++		/* This handles the case if suffix is null */
++		path = rolling_append(stack_path, fdetails[i].suffix,
++		        sizeof(stack_path));
++		if (!path)
++			return NULL;
+ 
+-		magic = 0;
+-		if (fread(&magic, sizeof magic, 1, fp) != 1) {
+-			if (ferror(fp)) {
+-				errno = EINVAL;
+-				fclose(fp);
+-				return -1;
+-			}
+-			clearerr(fp);
++		rc = stat(path, &fdetails[i].sb);
++		if (rc)
++			continue;
++
++		/* first file thing found, just take it */
++		if (!found) {
++			strcpy(found_path, path);
++			found = &fdetails[i];
++			continue;
+ 		}
+ 
+-		if (magic == SELINUX_MAGIC_COMPILED_FCONTEXT) {
+-			/* file_contexts.bin format */
+-			fclose(fp);
+-			fp = NULL;
+-			isbinary = true;
+-		} else {
+-			rewind(fp);
++		/* next possible finds, keep picking the newest file */
++		if (fdetails[i].sb.st_mtime > found->sb.st_mtime) {
++			found = &fdetails[i];
++			strcpy(found_path, path);
+ 		}
+-	} else {
+-		/*
+-		 * Text file does not exist, so clear the timestamp
+-		 * so that we will always pass the timestamp comparison
+-		 * with the bin file in load_mmap().
+-		 */
+-		sb.st_mtime = 0;
+ 	}
+ 
+-	rc = load_mmap(rec, path, &sb, isbinary, digest);
+-	if (rc == 0)
+-		goto out;
++	if (!found) {
++		errno = ENOENT;
++		return NULL;
++	}
++	*save_path = strdup(found_path);
++	if (!*save_path)
++		return NULL;
+ 
+-	if (!fp)
+-		return -1; /* no text or bin file */
++	memcpy(sb, &found->sb, sizeof(*sb));
++	return fopen(found_path, "r");
++}
+ 
+-	/*
+-	 * Then do detailed validation of the input and fill the spec array
+-	 */
+-	lineno = 0;
+-	rc = 0;
+-	while (getline(&line_buf, &line_len, fp) > 0) {
+-		rc = process_line(rec, path, prefix, line_buf, ++lineno);
+-		if (rc)
+-			goto out;
+-	}
++static int process_file(const char *path, const char *suffix,
++			  struct selabel_handle *rec,
++			  const char *prefix, struct selabel_digest *digest)
++{
++	FILE *fp;
++	struct stat sb;
++	int rc;
++	struct saved_data *data = (struct saved_data *)rec->data;
+ 
+-	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, path);
++	fp = open_file(path, suffix, &data->path, &sb);
++	if (fp == NULL)
++		return -1;
+ 
++	rc = fcontext_is_binary(fp) ?
++			load_mmap(fp, sb.st_size, rec) :
++			process_text_file(fp, prefix, rec);
++	if (rc < 0)
++		goto out;
++
++	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, path);
+ out:
+-	free(line_buf);
+-	if (fp)
+-		fclose(fp);
++	fclose(fp);
+ 	return rc;
+ }
+ 
+@@ -634,6 +661,7 @@ static void closef(struct selabel_handle *rec)
+ 		area = area->next;
+ 		free(last_area);
+ 	}
++	free(data->path);
+ 	free(data);
+ }
+ 
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 6d1e890..fe5dc60 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -76,6 +76,7 @@ struct saved_data {
+ 	int num_stems;
+ 	int alloc_stems;
+ 	struct mmap_area *mmap_areas;
++	char *path;
+ };
+ 
+ static inline pcre_extra *get_pcre_extra(struct spec *spec)
+-- 
+1.9.1
