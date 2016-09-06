@@ -1,73 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u87AYTU0004638
- for <selinux@tycho.nsa.gov>; Wed, 7 Sep 2016 06:34:29 -0400
-Received: from process-dkim-sign-daemon.mr25p46im-ztdg02111301.me.com by
- mr25p46im-ztdg02111301.me.com
- (Oracle Communications Messaging Server 7.0.5.38.0 64bit (built Feb 26 2016))
- id <0OD400600QHYAD00@mr25p46im-ztdg02111301.me.com> for selinux@tycho.nsa.gov;
- Wed, 07 Sep 2016 10:34:08 +0000 (GMT)
-Content-type: text/plain; charset=us-ascii
-From: ileyd <ileyd@icloud.com>
-MIME-version: 1.0 (1.0)
-Subject: Re: SELinux MLS Policies
-Date: Wed, 07 Sep 2016 20:19:36 +1000
-Message-id: <F2AB24C8-E99E-45B2-9C58-B9312BD26CB9@icloud.com>
-References: <"01e601d202e0$7aaf62d0$700e2870$@a.bolton"@m0noc.net>
- <dcfa502a-a210-2815-33a7-825d905e4be6@tycho.nsa.gov>
- <612965bc-952f-9f95-ca14-7c8a8c6e7b6e@m0noc.net>
- <9D586F02-4DA2-450A-9E31-541A97D554BE@icloud.com>
- <d63bb241-6166-57cc-475b-131f509fafbf@m0noc.net>
- <64786c70-3f89-4bc1-fdc8-fa0897784e58@redhat.com>
-Cc: Paul Bolton <paul.a.bolton@m0noc.net>, selinux@tycho.nsa.gov
-In-reply-to: <64786c70-3f89-4bc1-fdc8-fa0897784e58@redhat.com>
-To: Petr Lautrbach <plautrba@redhat.com>
+Date: Tue, 6 Sep 2016 15:55:48 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Daniel Jurgens <danielj@mellanox.com>
+Cc: Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+Message-ID: <20160906215548.GA27225@obsidianresearch.com>
+References: <CAHC9VhRUmbsuV40rRpG+LeNUgY7rVqOkt-fxTMAFDRRdLvEkug@mail.gmail.com>
+ <VI1PR0501MB242949202A1DA23E5C8E1E8AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830184633.GE7586@obsidianresearch.com>
+ <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830185548.GA9768@obsidianresearch.com>
+ <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160901163418.GA6479@obsidianresearch.com>
+ <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+ <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Tue, Sep 06, 2016 at 08:35:56PM +0000, Daniel Jurgens wrote:
 
-> On 7 Sep 2016, at 7:03 PM, Petr Lautrbach <plautrba@redhat.com> wrote:
-> 
->> On 08/31/2016 09:53 AM, Paul Bolton wrote:
->> 
->> 
->>> On 31/08/16 07:37, ileyd wrote:
->>> 
->>> Have you managed to correct the incorrect labelling of /etc?  When I've tried to use the MLS policy on RHEL/CentOS 7-7.2, that has stopped logins from working when running in enforcing mode.
->> 
->> So if I turn off the dontaudit rules that issue shows up with
->> unix_chkpwd and mls_constrain AVCs. Admittedly I did notice it was at
->> s15 but thought that was intentional. Though, as most of the files in
->> /etc are at s0 that doesn't sound right.
->> 
->> Anyway, changing /etc to s0 allows logins to work; and looks more like
->> what I would expect an out-of-the-box MLS system to look like.
->> 
->> Thanks for the advice.
-> 
-> This is a bug in initscripts.
-> 
-> /usr/lib/systemd/rhel-import-state copies files from initrd to a
-> filesystem during boot but doesn't reset level on the copied files.
-> Since dracut is running as ks15, copied files  inherits s15 level. The
-> fix is quite easy:
-> 
-> --- /usr/lib/systemd/rhel-import-state.bug      2016-09-07
-> 04:44:45.413231227 -0400
-> +++ /usr/lib/systemd/rhel-import-state  2016-09-07 04:44:51.645274588 -0400
-> @@ -7,5 +7,5 @@
-> 
-> # run restorecon on the copied files
-> if [ -e /sys/fs/selinux/enforce -a -x /usr/sbin/restorecon ]; then
-> -    find . -mindepth 1 -print0 | { cd / && xargs --null restorecon -i; }
-> +    find . -mindepth 1 -print0 | { cd / && xargs --null restorecon -i -F; }
-> fi
-> 
-> 
-> Petr
-> -- 
-> Petr Lautrbach
-> 
-> 
-Thanks for sharing that!
+> I think to control access to a VLAN for RoCE there would have to
+> labels for GIDs, since that's how you select which VLAN to use.
+
+Since people are talking about using GIDs for containers adding a GID
+constraint for all technologies makes sense to me..
+
+But rocev1 (at least mlx4) does not use vlan ids from the GID, the
+vlan id is set directly in the id, so it still seems to need direct
+containment. I also see vlan related stuff in the iwarp providers, so
+they probably have a similar requirement.
+
+> required.  RDMA device handle labeling isn't granular enough for
+> what I'm trying to accomplish.  We want users with different levels
+> of permission to be able to use the same device, but restrict who
+> they can communicate with by isolating them to separate partitions.
+
+Sure, but maybe you should use the (device handle:pkey/vlan_id) as your
+labeling tuple not (Subnet Prefix, pkey)
+
+Jason
