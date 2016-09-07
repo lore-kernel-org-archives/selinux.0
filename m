@@ -5,8 +5,8 @@ References: <1473235726-62661-1-git-send-email-jdanis@android.com>
  <6e3c6657-f3fb-6b94-6175-1d4fc5b3094e@tycho.nsa.gov>
 Cc: Janis Danisevskis <jdanis@google.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c8429384-fdf3-db89-5792-af9daf89bbde@tycho.nsa.gov>
-Date: Wed, 7 Sep 2016 14:38:45 -0400
+Message-ID: <0b5df61a-790c-bc70-e966-c3edf5bf5c84@tycho.nsa.gov>
+Date: Wed, 7 Sep 2016 15:29:47 -0400
 MIME-Version: 1.0
 In-Reply-To: <6e3c6657-f3fb-6b94-6175-1d4fc5b3094e@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
@@ -115,6 +115,9 @@ On 09/07/2016 02:25 PM, Stephen Smalley wrote:
 > This and similar statements are the cause of your uninitialised variable
 > use warnings.  entry_len needs to be a uint32_t here.  size_t is 64 bits
 > on 64-bit architectures.  Same for info_len.
+
+Oops, sorry, never mind about info_len.  That one stays as size_t.
+
 > 
 >> +struct regex_data * regex_data_create(void) {
 >> +	struct regex_data * dummy = (struct regex_data*) malloc(
@@ -150,7 +153,5 @@ On 09/07/2016 02:25 PM, Stephen Smalley wrote:
 > compiled regexes was only necessary when the regexes were compiled at
 > runtime, but you have introduced a memory allocation for regex_data even
 > for the mmap'd file that needs to be freed.
-
-And if you move your regex_data_free() call up, you need to make sure
-you don't call any _free() functions on anything other than your
-top-level data structure if it is from_mmap.
+> 
+> 
