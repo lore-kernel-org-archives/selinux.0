@@ -3,8 +3,8 @@ In-Reply-To: <6b698bdd-6927-37ed-1bee-86e0474adb58@tycho.nsa.gov>
 References: <1473235726-62661-1-git-send-email-jdanis@android.com>
  <6b698bdd-6927-37ed-1bee-86e0474adb58@tycho.nsa.gov>
 From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 7 Sep 2016 08:37:23 -0700
-Message-ID: <CAFftDdr6AUdVHShTi8vJA6DsBBeDHkmgYzXdd2EfKTH5E2k2uw@mail.gmail.com>
+Date: Wed, 7 Sep 2016 09:40:43 -0700
+Message-ID: <CAFftDdrCthjfBKTQKL=eUctbK9GSZ=cUtqg5Dr5PhE9V1_+xZw@mail.gmail.com>
 Subject: Re: [PATCH 1/2] libselinux: add support for pcre2
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Janis Danisevskis <jdanis@android.com>,
@@ -35,6 +35,9 @@ On Wed, Sep 7, 2016 at 8:02 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > Shouldn't the pcre variant be encoded in some manner in the
 > file_contexts.bin file so that libselinux can tell immediately whether
 > it is supported?
+
+Don't we have that in pcre_version()?
+
 >
 >> Also, for pcre2 the persistent format is architecture dependant.
 >> Stored precompiled regular expressions can only be used on the
@@ -51,21 +54,18 @@ On Wed, Sep 7, 2016 at 8:02 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >
 > The #ifdef maze makes it very hard to read and maintain this code; that
 > needs to be refactored.
+
+Perhaps set up some function pointers and hide the regex structure to be opaque
+to the rest of selinux. This makes me think, should we just dlopen the
+correct version of libpcre based on pcre_version()? Not sure how you
+feel about dlopen calls....
+
 >
 > valgrind is reporting numerous errors, including both use of
 > uninitialised values and memory leaks with both patches applied.  Try:
 > make DESTDIR=~/obj CFLAGS+=-g clean install
 > LD_LIBRARY_PATH=~/obj/lib valgrind --leak-check=full
 > ~/obj/usr/sbin/matchpathcon /etc
-
-The leak patch was only applied and tested as part of the Android build,
-I am OK with that one being squashed down, there is no point in it being
-separate. I can send an email from my @intel once I get my VM back
-online.
-
-I would through ASAN options into CFLAGS and build with that, its a bit faster
-than valgrind.
-
 >
 > On x86_64.
 >
