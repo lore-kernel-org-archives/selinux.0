@@ -4,8 +4,8 @@ To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
  <seandroid-list@tycho.nsa.gov>, "jwcart2@tycho.nsa.gov"
  <jwcart2@tycho.nsa.gov>
 Subject: RE: [PATCH v2] libselinux: clean up process file
-Date: Thu, 8 Sep 2016 19:06:50 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC560128FA01@ORSMSX103.amr.corp.intel.com>
+Date: Thu, 8 Sep 2016 19:20:21 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC560128FA30@ORSMSX103.amr.corp.intel.com>
 References: <1473206821-30222-1-git-send-email-william.c.roberts@intel.com>
  <513c68e1-06e5-570d-3106-cf033b1e3040@tycho.nsa.gov>
 In-Reply-To: <513c68e1-06e5-570d-3106-cf033b1e3040@tycho.nsa.gov>
@@ -138,10 +138,6 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 > > -		close(mmapfd);
 > >  		return -1;
 > >  	}
-
-I just noticed this, I made this a single line if and didn't drop the braces, this
-Will be in v3
-
 > >
 > > -	addr = mmap(NULL, len, PROT_READ, MAP_PRIVATE, mmapfd, 0);
 > > -	close(mmapfd);
@@ -239,6 +235,9 @@ Will be in v3
 > Simpler as:
 > 	char *to = current + current_size;
 > 	*to++ = '.';
+
+I don't think this is simpler, but ill do it.
+
 > 
 > > +	strcat(to, suffix);
 > > +
@@ -273,6 +272,11 @@ Will be in v3
 > 
 > Ew, what is this?  C99 magic.  Probably just make it PATH_MAX and be done with
 > it.
+
+You already have C99 magic with mixed code and data declarations, so I don't see the problem.
+https://gcc.gnu.org/onlinedocs/gcc/Mixed-Declarations.html
+https://gcc.gnu.org/onlinedocs/gcc/Variable-Length.html
+
 > 
 > > +	struct file_details *found = NULL;
 > > +
@@ -288,6 +292,30 @@ Will be in v3
 > > +	rc = snprintf(stack_path, sizeof(stack_path), "%s", path);
 > 
 > What does gcc yield as sizeof(stack_path) here since it is dynamically sized?
+
+Sizeof works as expected on these. In this case len is optimized out since its static,
+But even in the case of a pure dynamic stack allocation, size of still works correctly:
+
+Here's a sample for completeness:
+$ ./go 1 2 3
+boo: 4096
+boo: 4
+
+CODE:
+#include <stdio.h>
+#include <linux/limits.h>
+
+void foo(int len) {
+        char boo[len];
+        printf ("boo: %lu\n", sizeof(boo));
+}
+
+int main(int argc, char*argv[]) {
+        foo(PATH_MAX);
+        foo(argc);
+        return 0;
+}
+
 > 
 > > +	if (rc >= (int) sizeof(stack_path)) {
 > > +		errno = ENAMETOOLONG;
@@ -392,6 +420,10 @@ Will be in v3
 > I think this is wrong elsewhere too but technically these only need to be
 > PATH_MAX since that includes the NUL terminator and also avoids unnecessarily
 > crossing another page boundary.
+
+Sure we can drop these, it felt dirty but they were there already, so I wasn't sure
+about them.
+
 > 
 > > +
 > > +	fp = open_file(path, suffix, found_path, sizeof(found_path), &sb);
