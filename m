@@ -1,449 +1,62 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>, "seandroid-list@tycho.nsa.gov"
- <seandroid-list@tycho.nsa.gov>, "jwcart2@tycho.nsa.gov"
- <jwcart2@tycho.nsa.gov>
-Subject: RE: [PATCH v2] libselinux: clean up process file
-Date: Thu, 8 Sep 2016 19:20:21 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC560128FA30@ORSMSX103.amr.corp.intel.com>
-References: <1473206821-30222-1-git-send-email-william.c.roberts@intel.com>
- <513c68e1-06e5-570d-3106-cf033b1e3040@tycho.nsa.gov>
-In-Reply-To: <513c68e1-06e5-570d-3106-cf033b1e3040@tycho.nsa.gov>
-Content-Type: text/plain; charset="utf-8"
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+CC: "ira.weiny" <ira.weiny@intel.com>, Liran Liss <liranl@mellanox.com>, "Paul
+ Moore" <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>, Stephen Smalley
+ <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>, "sean.hefty@intel.com"
+ <sean.hefty@intel.com>, "hal.rosenstock@gmail.com"
+ <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+Date: Thu, 8 Sep 2016 18:59:13 +0000
+Message-ID: <VI1PR0501MB2429AAD28BD78334C1FE0E5AC4FB0@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+References: <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160901163418.GA6479@obsidianresearch.com>
+ <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+ <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160906215548.GA27225@obsidianresearch.com>
+ <20160908000134.GC4515@phlsvsds.ph.intel.com>
+ <DB6PR0501MB2422EA34EED4EE35EE7B1D28C4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
+ <20160908161948.GA21614@obsidianresearch.com>
+ <DB6PR0501MB24227FF5BE230C826615111FC4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
+ <20160908183611.GD21614@obsidianresearch.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Thursday, September 8, 2016 8:15 AM
-> To: Roberts, William C <william.c.roberts@intel.com>; selinux@tycho.nsa.gov;
-> seandroid-list@tycho.nsa.gov; jwcart2@tycho.nsa.gov
-> Subject: Re: [PATCH v2] libselinux: clean up process file
-> 
-> On 09/06/2016 08:07 PM, william.c.roberts@intel.com wrote:
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > The current process_file() code will open the file twice on the case
-> > of a binary file, correct this.
-> >
-> > The general flow through process_file() was a bit difficult to read,
-> > streamline the routine to be more readable.
-> >
-> > Detailed statistics of before and after:
-> >
-> > Source lines of code reported by cloc on modified files:
-> > before: 735
-> > after: 740
-> >
-> > Object size difference:
-> > before: 195530 bytes
-> > after:  195529 bytes
-> >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > ---
-> >  libselinux/src/label_file.c | 263
-> > ++++++++++++++++++++++++--------------------
-> >  1 file changed, 145 insertions(+), 118 deletions(-)
-> >
-> > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> > index c89bb35..6839a77 100644
-> > --- a/libselinux/src/label_file.c
-> > +++ b/libselinux/src/label_file.c
-> > @@ -97,62 +97,43 @@ static int nodups_specs(struct saved_data *data, const
-> char *path)
-> >  	return rc;
-> >  }
-> >
-> > -static int load_mmap(struct selabel_handle *rec, const char *path,
-> > -				    struct stat *sb, bool isbinary,
-> > -				    struct selabel_digest *digest)
-> > +static int process_text_file(FILE *fp, const char *prefix, struct
-> > +selabel_handle *rec, const char *path) {
-> > +	/*
-> > +	 * Then do detailed validation of the input and fill the spec array
-> > +	 */
-> 
-> You can drop this comment; it is no longer helpful/relevant.
-> 
-> > +	int rc;
-> > +	size_t line_len;
-> > +	unsigned lineno = 0;
-> > +	char *line_buf = NULL;
-> > +
-> > +	while (getline(&line_buf, &line_len, fp) > 0) {
-> > +		rc = process_line(rec, path, prefix, line_buf, ++lineno);
-> > +		if (rc)
-> > +			goto out;
-> > +	}
-> > +	rc = 0;
-> > +out:
-> > +	free(line_buf);
-> > +	return rc;
-> > +}
-> > +
-> > +static int load_mmap(FILE *fp, size_t len, struct selabel_handle
-> > +*rec, const char *path)
-> >  {
-> >  	struct saved_data *data = (struct saved_data *)rec->data;
-> > -	char mmap_path[PATH_MAX + 1];
-> > -	int mmapfd;
-> >  	int rc;
-> > -	struct stat mmap_stat;
-> >  	char *addr, *str_buf;
-> > -	size_t len;
-> >  	int *stem_map;
-> >  	struct mmap_area *mmap_area;
-> >  	uint32_t i, magic, version;
-> >  	uint32_t entry_len, stem_map_len, regex_array_len;
-> >
-> > -	if (isbinary) {
-> > -		len = strlen(path);
-> > -		if (len >= sizeof(mmap_path))
-> > -			return -1;
-> > -		strcpy(mmap_path, path);
-> > -	} else {
-> > -		rc = snprintf(mmap_path, sizeof(mmap_path), "%s.bin", path);
-> > -		if (rc >= (int)sizeof(mmap_path))
-> > -			return -1;
-> > -	}
-> > -
-> > -	mmapfd = open(mmap_path, O_RDONLY | O_CLOEXEC);
-> > -	if (mmapfd < 0)
-> > -		return -1;
-> > -
-> > -	rc = fstat(mmapfd, &mmap_stat);
-> > -	if (rc < 0) {
-> > -		close(mmapfd);
-> > -		return -1;
-> > -	}
-> > -
-> > -	/* if mmap is old, ignore it */
-> > -	if (mmap_stat.st_mtime < sb->st_mtime) {
-> > -		close(mmapfd);
-> > -		return -1;
-> > -	}
-> > -
-> > -	/* ok, read it in... */
-> > -	len = mmap_stat.st_size;
-> > -	len += (sysconf(_SC_PAGE_SIZE) - 1);
-> > -	len &= ~(sysconf(_SC_PAGE_SIZE) - 1);
-> > -
-> >  	mmap_area = malloc(sizeof(*mmap_area));
-> >  	if (!mmap_area) {
-> > -		close(mmapfd);
-> >  		return -1;
-> >  	}
-> >
-> > -	addr = mmap(NULL, len, PROT_READ, MAP_PRIVATE, mmapfd, 0);
-> > -	close(mmapfd);
-> > +	addr = mmap(NULL, len, PROT_READ, MAP_PRIVATE, fileno(fp), 0);
-> >  	if (addr == MAP_FAILED) {
-> >  		free(mmap_area);
-> >  		perror("mmap");
-> > @@ -306,7 +287,7 @@ static int load_mmap(struct selabel_handle *rec, const
-> char *path,
-> >  		if (strcmp(spec->lr.ctx_raw, "<<none>>") && rec->validating) {
-> >  			if (selabel_validate(rec, &spec->lr) < 0) {
-> >  				selinux_log(SELINUX_ERROR,
-> > -					    "%s: context %s is invalid\n",
-> mmap_path, spec->lr.ctx_raw);
-> > +					    "%s: context %s is invalid\n", path,
-> spec->lr.ctx_raw);
-> >  				goto err;
-> >  			}
-> >  		}
-> > @@ -408,105 +389,151 @@ static int load_mmap(struct selabel_handle *rec,
-> const char *path,
-> >  		data->nspec++;
-> >  	}
-> >
-> > -	rc = digest_add_specfile(digest, NULL, addr, mmap_stat.st_size,
-> > -								    mmap_path);
-> > -	if (rc)
-> > -		goto err;
-> > -
-> 
-> We should explicitly set rc = 0 here.
-> 
-> >  err:
-> 
-> And maybe this should be out: since it is the only exit path and not only for
-> errors.
-> 
-> >  	free(stem_map);
-> >
-> >  	return rc;
-> >  }
-> >
-> > -static int process_file(const char *path, const char *suffix,
-> > -			  struct selabel_handle *rec,
-> > -			  const char *prefix, struct selabel_digest *digest)
-> > -{
-> > -	FILE *fp;
-> > +struct file_details {
-> > +	const char *suffix;
-> >  	struct stat sb;
-> > -	unsigned int lineno;
-> > -	size_t line_len = 0;
-> > -	char *line_buf = NULL;
-> > -	int rc;
-> > -	char stack_path[PATH_MAX + 1];
-> > -	bool isbinary = false;
-> > +};
-> > +
-> > +static char *rolling_append(char *current, const char *suffix, size_t
-> > +max) {
-> > +	size_t size;
-> > +	size_t suffix_size;
-> > +	size_t current_size;
-> > +
-> > +	if (!suffix)
-> > +		return current;
-> > +
-> > +	/*
-> > +	 * Overflow check that the following
-> > +	 * arithmatec will not overflow or
-> > +	 */
-> 
-> I think you can drop the comment, or if not, fix the spelling and drop the trailing
-> or.
-> 
-> > +	current_size = strlen(current);
-> > +	suffix_size = strlen(suffix);
-> > +
-> > +	size = current_size + suffix_size;
-> > +	if (size < current_size || size < suffix_size)
-> > +		return NULL;
-> > +
-> > +	/* ensure space for the '.' and the '\0' characters. */
-> > +	if (size >= (SIZE_MAX - 2))
-> > +		return NULL;
-> > +
-> > +	size += 2;
-> > +
-> > +	if (size > max)
-> > +		return NULL;
-> > +
-> > +	/* Append any given suffix */
-> > +	char *to = stpcpy(&current[current_size], ".");
-> 
-> Simpler as:
-> 	char *to = current + current_size;
-> 	*to++ = '.';
-
-I don't think this is simpler, but ill do it.
-
-> 
-> > +	strcat(to, suffix);
-> > +
-> > +	return current;
-> > +}
-> > +
-> > +static bool fcontext_is_binary(FILE *fp) {
-> >  	uint32_t magic;
-> >
-> > -	/* append the path suffix if we have one */
-> > -	if (suffix) {
-> > -		rc = snprintf(stack_path, sizeof(stack_path),
-> > -					    "%s.%s", path, suffix);
-> > -		if (rc >= (int)sizeof(stack_path)) {
-> > -			errno = ENAMETOOLONG;
-> > -			return -1;
-> > -		}
-> > -		path = stack_path;
-> > +	size_t len = fread(&magic, sizeof(magic), 1, fp);
-> > +	rewind(fp);
-> > +
-> > +	return (len && (magic == SELINUX_MAGIC_COMPILED_FCONTEXT));
-> > +}
-> > +
-> > +#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-> > +
-> > +static FILE *open_file(const char *path, const char *suffix,
-> > +        char *save_path, size_t len, struct stat *sb) {
-> > +	unsigned i;
-> > +	int rc;
-> > +	char stack_path[len];
-> 
-> Ew, what is this?  C99 magic.  Probably just make it PATH_MAX and be done with
-> it.
-
-You already have C99 magic with mixed code and data declarations, so I don't see the problem.
-https://gcc.gnu.org/onlinedocs/gcc/Mixed-Declarations.html
-https://gcc.gnu.org/onlinedocs/gcc/Variable-Length.html
-
-> 
-> > +	struct file_details *found = NULL;
-> > +
-> > +	/*
-> > +	 * Rolling append of suffix. Try to open with path.suffix then the
-> > +	 * next as path.suffix.suffix and so forth.
-> > +	 */
-> > +	struct file_details fdetails[2] = {
-> > +			{ .suffix = suffix },
-> > +			{ .suffix = "bin" }
-> > +	};
-> > +
-> > +	rc = snprintf(stack_path, sizeof(stack_path), "%s", path);
-> 
-> What does gcc yield as sizeof(stack_path) here since it is dynamically sized?
-
-Sizeof works as expected on these. In this case len is optimized out since its static,
-But even in the case of a pure dynamic stack allocation, size of still works correctly:
-
-Here's a sample for completeness:
-$ ./go 1 2 3
-boo: 4096
-boo: 4
-
-CODE:
-#include <stdio.h>
-#include <linux/limits.h>
-
-void foo(int len) {
-        char boo[len];
-        printf ("boo: %lu\n", sizeof(boo));
-}
-
-int main(int argc, char*argv[]) {
-        foo(PATH_MAX);
-        foo(argc);
-        return 0;
-}
-
-> 
-> > +	if (rc >= (int) sizeof(stack_path)) {
-> > +		errno = ENAMETOOLONG;
-> > +		return NULL;
-> >  	}
-> >
-> > -	/* Open the specification file. */
-> > -	fp = fopen(path, "r");
-> > -	if (fp) {
-> > -		__fsetlocking(fp, FSETLOCKING_BYCALLER);
-> > +	for (i = 0; i < ARRAY_SIZE(fdetails); i++) {
-> >
-> > -		if (fstat(fileno(fp), &sb) < 0)
-> > -			return -1;
-> > -		if (!S_ISREG(sb.st_mode)) {
-> > -			errno = EINVAL;
-> > -			return -1;
-> > -		}
-> > +		/* This handles the case if suffix is null */
-> > +		path = rolling_append(stack_path, fdetails[i].suffix,
-> > +		        sizeof(stack_path));
-> > +		if (!path)
-> > +			return NULL;
-> >
-> > -		magic = 0;
-> > -		if (fread(&magic, sizeof magic, 1, fp) != 1) {
-> > -			if (ferror(fp)) {
-> > -				errno = EINVAL;
-> > -				fclose(fp);
-> > -				return -1;
-> > -			}
-> > -			clearerr(fp);
-> > -		}
-> > +		rc = stat(path, &fdetails[i].sb);
-> > +		if (rc)
-> > +			continue;
-> >
-> > -		if (magic == SELINUX_MAGIC_COMPILED_FCONTEXT) {
-> > -			/* file_contexts.bin format */
-> > -			fclose(fp);
-> > -			fp = NULL;
-> > -			isbinary = true;
-> > -		} else {
-> > -			rewind(fp);
-> > +		/* first file thing found, just take it */
-> > +		if (!found) {
-> > +			strcpy(save_path, path);
-> > +			found = &fdetails[i];
-> > +			continue;
-> >  		}
-> > -	} else {
-> > +
-> >  		/*
-> > -		 * Text file does not exist, so clear the timestamp
-> > -		 * so that we will always pass the timestamp comparison
-> > -		 * with the bin file in load_mmap().
-> > +		 * Keep picking the newest file found. Where "newest"
-> > +		 * includes equality. This provides a precedence on
-> > +		 * secondary suffixes even when the timestamp is the
-> > +		 * same. Ie choose file_contexts.bin over file_contexts
-> > +		 * even if the time stamp is the same.
-> >  		 */
-> > -		sb.st_mtime = 0;
-> > +		if (fdetails[i].sb.st_mtime >= found->sb.st_mtime) {
-> > +			found = &fdetails[i];
-> > +			strcpy(save_path, path);
-> > +		}
-> >  	}
-> >
-> > -	rc = load_mmap(rec, path, &sb, isbinary, digest);
-> > -	if (rc == 0)
-> > -		goto out;
-> > +	if (!found) {
-> > +		errno = ENOENT;
-> > +		return NULL;
-> > +	}
-> >
-> > -	if (!fp)
-> > -		return -1; /* no text or bin file */
-> > +	memcpy(sb, &found->sb, sizeof(*sb));
-> > +	return fopen(save_path, "r");
-> > +}
-> >
-> > -	/*
-> > -	 * Then do detailed validation of the input and fill the spec array
-> > -	 */
-> > -	lineno = 0;
-> > -	rc = 0;
-> > -	while (getline(&line_buf, &line_len, fp) > 0) {
-> > -		rc = process_line(rec, path, prefix, line_buf, ++lineno);
-> > -		if (rc)
-> > -			goto out;
-> > -	}
-> > +static int process_file(const char *path, const char *suffix,
-> > +			  struct selabel_handle *rec,
-> > +			  const char *prefix, struct selabel_digest *digest) {
-> > +	int rc;
-> > +	struct stat sb;
-> > +	FILE *fp = NULL;
-> > +	char found_path[PATH_MAX + 1];
-> 
-> I think this is wrong elsewhere too but technically these only need to be
-> PATH_MAX since that includes the NUL terminator and also avoids unnecessarily
-> crossing another page boundary.
-
-Sure we can drop these, it felt dirty but they were there already, so I wasn't sure
-about them.
-
-> 
-> > +
-> > +	fp = open_file(path, suffix, found_path, sizeof(found_path), &sb);
-> > +	if (fp == NULL)
-> > +		return -1;
-> >
-> > -	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, path);
-> > +	rc = fcontext_is_binary(fp) ?
-> > +			load_mmap(fp, sb.st_size, rec, found_path) :
-> > +			process_text_file(fp, prefix, rec, found_path);
-> > +	if (rc < 0)
-> > +		goto out;
-> >
-> > +	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
-> >  out:
-> > -	free(line_buf);
-> > -	if (fp)
-> > -		fclose(fp);
-> > +	fclose(fp);
-> >  	return rc;
-> >  }
-> >
-> >
+On 9/8/2016 1:36 PM, Jason Gunthorpe wrote:
+> On Thu, Sep 08, 2016 at 04:44:36PM +0000, Daniel Jurgens wrote:
+>
+>> Net has variety of means of enforcement, one of which is controlling
+>> access to ports <tcp/udp,port number>, which is the most like what
+>> I'm doing here.
+> No, the analog the tcp/udp,port number is <ib, service_id> 
+I should have been clearer here.  From the SELinux perspective this scheme is very similar to net ports.
+>> It will work like any other SELinux policy.  You label the things
+>> you want to control with a type and setup rules about which
+>> roles/types can interact with them and how.  I'm sure the default
+>> policy from distros will be to not restrict access.  Policy is
+>> loaded into the kernel, the disk and filesystem has nothing to do
+> Eh? I thought the main utility of selinux was using the labels written
+> to the filesystem to constrain access, eg I might label
+> /usr/bin/apache in a way that gets the <tcp,80> policy applied to it.
+Filesystems can be labeled, but so can other things without a filesystem representation.
+>> with this aside from it being where the policy is stored before
+>> being loaded.  What is this dynamic injector you are talking about?
+> The container projects (eg docker) somehow setup selinux on the
+> fly for each container. I'm not sure how.
+SELinux policy is modular and can be changed or updated while running, I'm not very familiar with docker so I'm not sure what they do regarding SELinux.  I'm also not sure it's relevant to the issues at hand.
+>
+>> Assume you have machines on one subnet (0xfe80::) one has a device
+>> called mlx5_0, the another mlx4_0 and you want to grant access to
+>> system administrators.
+> So do this in userspace? Why should the kernel do the translation?
+I'm still not clear on what translation you are talking about.  To look up a label for something the kernel uses the same attributes the policy writer used to create the label.  In this patch set when modify_qp is called there is a search of all the labels for pkeys for one that matches subnet prefix for the relevant port and the pkey number.
