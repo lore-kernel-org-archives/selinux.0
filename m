@@ -1,51 +1,83 @@
-Subject: Re: [PATCH v2] libselinux: clean up process file
-To: "Roberts, William C" <william.c.roberts@intel.com>,
+Date: Thu, 8 Sep 2016 13:32:35 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Daniel Jurgens <danielj@mellanox.com>
+Cc: "ira.weiny" <ira.weiny@intel.com>, Liran Liss <liranl@mellanox.com>,
+ Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
  "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- "jwcart2@tycho.nsa.gov" <jwcart2@tycho.nsa.gov>
-References: <1473206821-30222-1-git-send-email-william.c.roberts@intel.com>
- <513c68e1-06e5-570d-3106-cf033b1e3040@tycho.nsa.gov>
- <476DC76E7D1DF2438D32BFADF679FC560128FA5C@ORSMSX103.amr.corp.intel.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6844a077-03c2-48ad-3e97-12572f1d5b68@tycho.nsa.gov>
-Date: Thu, 8 Sep 2016 15:40:36 -0400
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+Message-ID: <20160908193235.GA1868@obsidianresearch.com>
+References: <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+ <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160906215548.GA27225@obsidianresearch.com>
+ <20160908000134.GC4515@phlsvsds.ph.intel.com>
+ <DB6PR0501MB2422EA34EED4EE35EE7B1D28C4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
+ <20160908161948.GA21614@obsidianresearch.com>
+ <DB6PR0501MB24227FF5BE230C826615111FC4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
+ <20160908183611.GD21614@obsidianresearch.com>
+ <VI1PR0501MB2429AAD28BD78334C1FE0E5AC4FB0@VI1PR0501MB2429.eurprd05.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC560128FA5C@ORSMSX103.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <VI1PR0501MB2429AAD28BD78334C1FE0E5AC4FB0@VI1PR0501MB2429.eurprd05.prod.outlook.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/08/2016 03:30 PM, Roberts, William C wrote:
-> <snip>
-> 
->>>> +	/* Append any given suffix */
->>>> +	char *to = stpcpy(&current[current_size], ".");
->>>
->>> Simpler as:
->>> 	char *to = current + current_size;
->>> 	*to++ = '.';
->>
->> I don't think this is simpler, but I'll do it.
-> 
-> Doing that as is gets us this:
-> ==26050== Conditional jump or move depends on uninitialised value(s)
-> ==26050==    at 0x4C2DD9A: strcat (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-> ==26050==    by 0x4E4B6D8: rolling_append (label_file.c:429)
-> ==26050==    by 0x4E4B8A3: open_file (label_file.c:472)
-> ==26050==    by 0x4E4BAC6: process_file (label_file.c:519)
-> ==26050==    by 0x4E4BE6D: init (label_file.c:582)
-> ==26050==    by 0x4E4D02B: selabel_file_init (label_file.c:965)
-> ==26050==    by 0x4E481F5: selabel_open (label.c:340)
-> ==26050==    by 0x4E513E0: matchpathcon_init_prefix (matchpathcon.c:322)
-> ==26050==    by 0x4E51725: matchpathcon (matchpathcon.c:413)
-> ==26050==    by 0x400D86: printmatchpathcon (matchpathcon.c:26)
-> ==26050==    by 0x40141F: main (matchpathcon.c:196)
-> 
-> Because strcat() needs to fastforward to the null byte, this would need to
-> change to an strcpy.
+On Thu, Sep 08, 2016 at 06:59:13PM +0000, Daniel Jurgens wrote:
 
-Yes, sorry - switch the strcat() to strcpy() too.  Simpler and more
-efficient, and if you had to append further components, you could use
-stpcpy() rather than strcpy() each time until the last one.
+> >> Net has variety of means of enforcement, one of which is controlling
+> >> access to ports <tcp/udp,port number>, which is the most like what
+> >> I'm doing here.
+> > No, the analog the tcp/udp,port number is <ib, service_id> 
+
+> I should have been clearer here.  From the SELinux perspective this
+> scheme is very similar to net ports.
+
+It really isn't. net ports and service_ids are global things that do
+not need machine-specific customizations while subnet prefix or device
+name/port are both machine-local information.
+
+> >> with this aside from it being where the policy is stored before
+> >> being loaded.  What is this dynamic injector you are talking about?
+> > The container projects (eg docker) somehow setup selinux on the
+> > fly for each container. I'm not sure how.
+
+> SELinux policy is modular and can be changed or updated while
+> running, I'm not very familiar with docker so I'm not sure what they
+> do regarding SELinux.  I'm also not sure it's relevant to the issues
+> at hand.
+
+docker and the like would seem to be the #1 user of this kind of
+feature, it goes hand in hand with the ipoib namespace work that does
+a similar (but less complete thing). This is a great way to create a
+container and constrain it to a single pkey/vlan/ipoib device, which
+would be the basic capability needed to sensibly rdma and containers
+together.
+
+This is why thinking about how to fully support the pkey/vlan concept
+across all the rdma drivers seems so critical.
+
+I'm surprised this isn't your use case. Again, I wish you'd think more
+broadly before designing new uapis. selinux enabling the rdma
+subsystem is a whole new uapi aspect for rdma that we have to live
+with forever.
+
+> >> called mlx5_0, the another mlx4_0 and you want to grant access to
+> >> system administrators.
+> > So do this in userspace? Why should the kernel do the translation?
+
+> I'm still not clear on what translation you are talking about.
+
+Converting the subnet prefix to a list of physical ports.
+
+Jason
