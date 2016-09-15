@@ -1,125 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8FEdqKD022025
- for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 10:39:52 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8FEdqKE022025
+ for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 10:39:56 -0400
 Received: from int-mx13.intmail.prod.int.phx2.redhat.com
  (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 382408B13E
- for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 14:39:49 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id DA0749D0DB
+ for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 14:39:54 +0000 (UTC)
 From: Petr Lautrbach <plautrba@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/3] sandbox: tests - use sandbox from cwd
-Date: Thu, 15 Sep 2016 16:39:27 +0200
-Message-Id: <1473950369-2547-1-git-send-email-plautrba@redhat.com>
+Subject: [PATCH 2/3] sandbox: tests - close stdout of p1
+Date: Thu, 15 Sep 2016 16:39:28 +0200
+Message-Id: <1473950369-2547-2-git-send-email-plautrba@redhat.com>
+In-Reply-To: <1473950369-2547-1-git-send-email-plautrba@redhat.com>
+References: <1473950369-2547-1-git-send-email-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The tests executed sandbox from $PATH while they should test sandbox in
-cwd. At the same time, tests should be run using the same python as is
-used by make to run them.
+p1.stdout should be closed after it's connected to p2 according to
+https://docs.python.org/3/library/subprocess.html#replacing-shell-pipeline
+
+Fixes:
+$ make PYTHON=python3 test
+Verify that we can read file descriptors handed to sandbox ...
+/usr/lib64/python3.5/unittest/case.py:638: ResourceWarning: unclosed
+file <_io.BufferedReader name=4>
+  testMethod()
 
 Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 ---
- policycoreutils/sandbox/test_sandbox.py | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ policycoreutils/sandbox/test_sandbox.py | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/policycoreutils/sandbox/test_sandbox.py b/policycoreutils/sandbox/test_sandbox.py
-index 6f54d0c..d5368c2 100644
+index d5368c2..98c04a7 100644
 --- a/policycoreutils/sandbox/test_sandbox.py
 +++ b/policycoreutils/sandbox/test_sandbox.py
-@@ -1,6 +1,7 @@
- import unittest
- import os
- import shutil
-+import sys
- from tempfile import mkdtemp
- from subprocess import Popen, PIPE
- 
-@@ -26,63 +27,63 @@ class SandboxTests(unittest.TestCase):
-     def test_simple_success(self):
+@@ -28,6 +28,7 @@ class SandboxTests(unittest.TestCase):
          "Verify that we can read file descriptors handed to sandbox"
          p1 = Popen(['cat', '/etc/passwd'], stdout=PIPE)
--        p2 = Popen(['sandbox', 'grep', 'root'], stdin=p1.stdout, stdout=PIPE)
-+        p2 = Popen([sys.executable, 'sandbox', 'grep', 'root'], stdin=p1.stdout, stdout=PIPE)
+         p2 = Popen([sys.executable, 'sandbox', 'grep', 'root'], stdin=p1.stdout, stdout=PIPE)
++        p1.stdout.close()
          out, err = p2.communicate()
          self.assertTrue(b'root' in out)
  
-     def test_cant_kill(self):
-         "Verify that we cannot send kill signal in the sandbox"
-         pid = os.getpid()
--        p = Popen(['sandbox', 'kill', '-HUP', str(pid)], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', 'kill', '-HUP', str(pid)], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertDenied(err)
- 
-     def test_cant_ping(self):
-         "Verify that we can't ping within the sandbox"
--        p = Popen(['sandbox', 'ping', '-c 1 ', '127.0.0.1'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', 'ping', '-c 1 ', '127.0.0.1'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertDenied(err)
- 
-     def test_cant_mkdir(self):
-         "Verify that we can't mkdir within the sandbox"
--        p = Popen(['sandbox', 'mkdir', '~/test'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', 'mkdir', '~/test'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertFailure(p.returncode)
- 
-     def test_cant_list_homedir(self):
-         "Verify that we can't list homedir within the sandbox"
--        p = Popen(['sandbox', 'ls', '~'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', 'ls', '~'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertFailure(p.returncode)
- 
-     def test_cant_send_mail(self):
-         "Verify that we can't send mail within the sandbox"
--        p = Popen(['sandbox', 'mail'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', 'mail'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertDenied(err)
- 
-     def test_cant_sudo(self):
-         "Verify that we can't run sudo within the sandbox"
--        p = Popen(['sandbox', 'sudo'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', 'sudo'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertFailure(p.returncode)
- 
-     def test_mount(self):
-         "Verify that we mount a file system"
--        p = Popen(['sandbox', '-M', 'id'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', '-M', 'id'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertSuccess(p.returncode, err)
- 
-     def test_set_level(self):
-         "Verify that we set level a file system"
--        p = Popen(['sandbox', '-l', 's0', 'id'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', '-l', 's0', 'id'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         self.assertSuccess(p.returncode, err)
- 
-     def test_homedir(self):
-         "Verify that we set homedir a file system"
-         homedir = mkdtemp(dir=".", prefix=".sandbox_test")
--        p = Popen(['sandbox', '-H', homedir, '-M', 'id'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', '-H', homedir, '-M', 'id'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         shutil.rmtree(homedir)
-         self.assertSuccess(p.returncode, err)
-@@ -90,7 +91,7 @@ class SandboxTests(unittest.TestCase):
-     def test_tmpdir(self):
-         "Verify that we set tmpdir a file system"
-         tmpdir = mkdtemp(dir="/tmp", prefix=".sandbox_test")
--        p = Popen(['sandbox', '-T', tmpdir, '-M', 'id'], stdout=PIPE, stderr=PIPE)
-+        p = Popen([sys.executable, 'sandbox', '-T', tmpdir, '-M', 'id'], stdout=PIPE, stderr=PIPE)
-         out, err = p.communicate()
-         shutil.rmtree(tmpdir)
-         self.assertSuccess(p.returncode, err)
 -- 
 1.8.3.1
