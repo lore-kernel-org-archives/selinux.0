@@ -1,9 +1,9 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov,
  jwcart2@tycho.nsa.gov
-Subject: [PATCH v2] libselinux: correct error path to always try text
-Date: Thu, 15 Sep 2016 16:07:37 -0700
-Message-Id: <1473980857-10199-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v3] libselinux: correct error path to always try text
+Date: Thu, 15 Sep 2016 16:13:58 -0700
+Message-Id: <1473981238-11051-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -27,11 +27,11 @@ was for simplicity.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/src/label_file.c | 42 ++++++++++++++++++++++++++++--------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+ libselinux/src/label_file.c | 41 +++++++++++++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
 
 diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 9faecdb..a03a5ce 100644
+index 9faecdb..0dee059 100644
 --- a/libselinux/src/label_file.c
 +++ b/libselinux/src/label_file.c
 @@ -447,7 +447,7 @@ static bool fcontext_is_binary(FILE *fp)
@@ -56,7 +56,7 @@ index 9faecdb..a03a5ce 100644
  
  		/* This handles the case if suffix is null */
  		path = rolling_append(stack_path, fdetails[i].suffix,
-@@ -515,24 +519,34 @@ static int process_file(const char *path, const char *suffix,
+@@ -515,24 +519,33 @@ static int process_file(const char *path, const char *suffix,
  			  const char *prefix, struct selabel_digest *digest)
  {
  	int rc;
@@ -86,9 +86,8 @@ index 9faecdb..a03a5ce 100644
 +		rc = fcontext_is_binary(fp) ?
 +				load_mmap(fp, sb.st_size, rec, found_path) :
 +				process_text_file(fp, prefix, rec, found_path);
-+		if (!rc) {
++		if (!rc)
 +			rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
-+		}
  
 -	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
 -out:
