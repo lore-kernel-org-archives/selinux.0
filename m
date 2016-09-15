@@ -1,57 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8DLJvLY005444
- for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2016 17:19:57 -0400
-Received: by mail-oi0-f67.google.com with SMTP id y2so230959oie.0
- for <selinux@tycho.nsa.gov>; Tue, 13 Sep 2016 14:19:55 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8F7FRFu009437
+ for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 03:15:27 -0400
+Received: by mail-pa0-f50.google.com with SMTP id oz2so8874789pac.2
+ for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 00:15:26 -0700 (PDT)
+Received: from localhost ([2404:e800:e600:57b:3049:5fba:8733:eb29])
+ by smtp.gmail.com with ESMTPSA id g24sm42581935pfk.56.2016.09.15.00.15.23
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Thu, 15 Sep 2016 00:15:24 -0700 (PDT)
+Date: Thu, 15 Sep 2016 15:15:22 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: NFSv4.2 unlabeled_t on mountpoints
+Message-ID: <20160915071522.GA6893@meriadoc.perfinion.com>
 MIME-Version: 1.0
-In-Reply-To: <1473493428-26786-1-git-send-email-weiyj.lk@gmail.com>
-References: <1473493428-26786-1-git-send-email-weiyj.lk@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 13 Sep 2016 17:19:54 -0400
-Message-ID: <CAHC9VhRRcv_tU6H4rD=oLXg698yeaCEgC-kd=yOLzoaF6zSWdw@mail.gmail.com>
-Subject: Re: [PATCH -next] SELinux: fix error return code in policydb_read()
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- William Roberts <william.c.roberts@intel.com>,
- Wei Yongjun <weiyongjun1@huawei.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, Sep 10, 2016 at 3:43 AM, Wei Yongjun <weiyj.lk@gmail.com> wrote:
-> From: Wei Yongjun <weiyongjun1@huawei.com>
->
-> Fix to return error code -EINVAL from the error handling case instead
-> of 0(rc is overwrite to 0 when policyvers >= POLICYDB_VERSION_ROLETRANS),
-> as done elsewhere in this function.
->
-> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-> ---
->  security/selinux/ss/policydb.c | 1 +
->  1 file changed, 1 insertion(+)
+Hi All,
 
-Nice catch, thanks for the patch; it has been merged into the
-selinux#next branch.
+I have kerberized NFSv4 between my laptop and server and when I use
+vers=4.2 I cannot access the mount. It looks like the fcontext needs to
+be invalidated or re-checked or something but I'm not familiar with
+kernel internals so not sure how to fix it (If someone can point me to
+the place, I'd love to get my hands dirty).
 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 8c661f0..ace6838 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -2417,6 +2417,7 @@ int policydb_read(struct policydb *p, void *fp)
->                 } else
->                         tr->tclass = p->process_class;
->
-> +               rc = -EINVAL;
->                 if (!policydb_role_isvalid(p, tr->role) ||
->                     !policydb_type_isvalid(p, tr->type) ||
->                     !policydb_class_isvalid(p, tr->tclass) ||
->
+Steps to repro:
+kinit works fine
+mount /home/jason/bregalad works fine, the fstab line is:
+bregalad.perfinion.com:/jason /home/jason/bregalad nfs4 noauto,users,vers=4.2,sec=krb5p,rw,intr,soft,timeo=100,_netdev,fsc 0 0
 
--- 
-paul moore
-www.paul-moore.com
+Once mounted as my normal user:
+$ ls -aldZ /home/jason/bregalad
+ls: cannot access /home/jason/bregalad: Permission denied
+
+I get the following denial:
+type=AVC msg=audit(1473923050.591:1577): avc:  denied  { getattr } for  pid=7630 comm="ls" path="/home/jason/bregalad" dev="0:55" ino=4 scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
+type=SYSCALL msg=audit(1473923050.591:1577): arch=c000003e syscall=6 success=no exit=-13 a0=399b2bc22f2 a1=7a03d6e960 a2=7a03d6e960 a3=7a02aa8d7b items=1 ppid=6440 pid=7630 auid=1000 uid=1000 gid=100 euid=1000 suid=1000 fsuid=1000 egid=100 sgid=100 fsgid=100 tty=pts3 ses=5 comm="ls" exe="/bin/ls" subj=staff_u:staff_r:staff_t:s0-s0:c0.c1023 key=(null)
+type=CWD msg=audit(1473923050.591:1577):  cwd="/home/jason"
+type=PATH msg=audit(1473923050.591:1577): item=0 name="/home/jason/bregalad" inode=4 dev=00:37 mode=040711 ouid=1000 ogid=100 rdev=00:00 obj=system_u:object_r:unlabeled_t:s0 nametype=NORMAL
+type=PROCTITLE msg=audit(1473923050.591:1577): proctitle=6C73002D46002D2D636F6C6F723D6175746F002D616C645A002F686F6D652F6A61736F6E2F62726567616C6164
+
+If I ls with sysadm_t (which has permissions for unlabeled_t) then the
+fcontext swaps to what it should be and everything works after that as
+staff_t too. I have not had issues with other dirs/files inside the NFS
+mount, only the mountpoint has this issue. 
+
+As root / sysadm_t: # ls -aldZ /home/jason/bregalad
+drwx--x--x. 50 jason users staff_u:object_r:user_home_dir_t:s0 84 Sep 13 22:38 /home/jason/bregalad/
+As jason / staff_t: $ ls -aldZ /home/jason/bregalad
+drwx--x--x. 50 jason users staff_u:object_r:user_home_dir_t:s0 84 Sep 13 22:38 /home/jason/bregalad/
+
+$ uname -a
+Linux meriadoc 4.7.2-hardened-r1 #1 SMP PREEMPT Sat Sep 3 11:27:29 SGT 2016 x86_64 Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz GenuineIntel GNU/Linux
+I'm on gentoo hardened but dont think GRSec is responsible here. I also had the same problem back on 4.4.
+
+Is there anything else that can help track this down?
+-- Jason
