@@ -1,62 +1,89 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8F7FRFu009437
- for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 03:15:27 -0400
-Received: by mail-pa0-f50.google.com with SMTP id oz2so8874789pac.2
- for <selinux@tycho.nsa.gov>; Thu, 15 Sep 2016 00:15:26 -0700 (PDT)
-Received: from localhost ([2404:e800:e600:57b:3049:5fba:8733:eb29])
- by smtp.gmail.com with ESMTPSA id g24sm42581935pfk.56.2016.09.15.00.15.23
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Thu, 15 Sep 2016 00:15:24 -0700 (PDT)
-Date: Thu, 15 Sep 2016 15:15:22 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: NFSv4.2 unlabeled_t on mountpoints
-Message-ID: <20160915071522.GA6893@meriadoc.perfinion.com>
-MIME-Version: 1.0
+Date: Wed, 14 Sep 2016 21:52:57 -0400
+From: "ira.weiny" <ira.weiny@intel.com>
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Cc: Daniel Jurgens <danielj@mellanox.com>, Liran Liss <liranl@mellanox.com>,
+ Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+Message-ID: <20160915015250.GA13038@phlsvsds.ph.intel.com>
+References: <20160901163418.GA6479@obsidianresearch.com>
+ <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+ <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160906215548.GA27225@obsidianresearch.com>
+ <20160908000134.GC4515@phlsvsds.ph.intel.com>
+ <DB6PR0501MB2422EA34EED4EE35EE7B1D28C4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
+ <20160908161948.GA21614@obsidianresearch.com>
+ <20160908191457.GB26402@phlsvsds.ph.intel.com>
+ <20160908193512.GB1868@obsidianresearch.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20160908193512.GB1868@obsidianresearch.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi All,
+On Thu, Sep 08, 2016 at 01:35:12PM -0600, Jason Gunthorpe wrote:
+> On Thu, Sep 08, 2016 at 03:14:57PM -0400, ira.weiny wrote:
+> > On Thu, Sep 08, 2016 at 10:19:48AM -0600, Jason Gunthorpe wrote:
+> > > On Thu, Sep 08, 2016 at 02:12:48PM +0000, Daniel Jurgens wrote:
+> > > 
+> > > > It would have to include the port, but idea of using a device name
+> > > > for this is pretty ugly.  <subnet_prefix,pkey> makes it very easy to
+> > > > write a policy that can be deployed widely.  <device,port,pkey/vlan>
+> > > > could require many different policies depending on the configuration
+> > > > of each machine.
+> > > 
+> > > What does net do? Should we have a way to unformly label the rdma ports?
+> > 
+> > Uniformly label them on the local node or across a cluster?
+> 
+> However we want. If the argument comes down to 'we stupidly choose to
+> call our devices mlx5_0', then lets allow the admin rename that to
+> 'rdma0' and a cluster wide config file will apply uniformly. This
+> approach applies to all configuration related to rdma, not just
+> SELinux.
 
-I have kerberized NFSv4 between my laptop and server and when I use
-vers=4.2 I cannot access the mount. It looks like the fcontext needs to
-be invalidated or re-checked or something but I'm not familiar with
-kernel internals so not sure how to fix it (If someone can point me to
-the place, I'd love to get my hands dirty).
+I'm not sure I like the idea of trying to use "rdmaX".  It seems like this has
+been a confusion point for things like drives and NICs in the past.  (Where the
+order of device discovery is an issue.)
 
-Steps to repro:
-kinit works fine
-mount /home/jason/bregalad works fine, the fstab line is:
-bregalad.perfinion.com:/jason /home/jason/bregalad nfs4 noauto,users,vers=4.2,sec=krb5p,rw,intr,soft,timeo=100,_netdev,fsc 0 0
+But I guess with more network types coming online we may have to have something
+generic.
 
-Once mounted as my normal user:
-$ ls -aldZ /home/jason/bregalad
-ls: cannot access /home/jason/bregalad: Permission denied
+That said in the netdev world not all things are called eth0.  Some are called
+wlanX, etc...
 
-I get the following denial:
-type=AVC msg=audit(1473923050.591:1577): avc:  denied  { getattr } for  pid=7630 comm="ls" path="/home/jason/bregalad" dev="0:55" ino=4 scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
-type=SYSCALL msg=audit(1473923050.591:1577): arch=c000003e syscall=6 success=no exit=-13 a0=399b2bc22f2 a1=7a03d6e960 a2=7a03d6e960 a3=7a02aa8d7b items=1 ppid=6440 pid=7630 auid=1000 uid=1000 gid=100 euid=1000 suid=1000 fsuid=1000 egid=100 sgid=100 fsgid=100 tty=pts3 ses=5 comm="ls" exe="/bin/ls" subj=staff_u:staff_r:staff_t:s0-s0:c0.c1023 key=(null)
-type=CWD msg=audit(1473923050.591:1577):  cwd="/home/jason"
-type=PATH msg=audit(1473923050.591:1577): item=0 name="/home/jason/bregalad" inode=4 dev=00:37 mode=040711 ouid=1000 ogid=100 rdev=00:00 obj=system_u:object_r:unlabeled_t:s0 nametype=NORMAL
-type=PROCTITLE msg=audit(1473923050.591:1577): proctitle=6C73002D46002D2D636F6C6F723D6175746F002D616C645A002F686F6D652F6A61736F6E2F62726567616C6164
+Does anyone know why do they have names based on network type?
 
-If I ls with sysadm_t (which has permissions for unlabeled_t) then the
-fcontext swaps to what it should be and everything works after that as
-staff_t too. I have not had issues with other dirs/files inside the NFS
-mount, only the mountpoint has this issue. 
+So I could see where having a global "name" for a subnet would be nice...  But
+isn't something like that called a domain name?  Does SELinux work in
+conjunction with domain names in the netdev stack?
 
-As root / sysadm_t: # ls -aldZ /home/jason/bregalad
-drwx--x--x. 50 jason users staff_u:object_r:user_home_dir_t:s0 84 Sep 13 22:38 /home/jason/bregalad/
-As jason / staff_t: $ ls -aldZ /home/jason/bregalad
-drwx--x--x. 50 jason users staff_u:object_r:user_home_dir_t:s0 84 Sep 13 22:38 /home/jason/bregalad/
+This may be a bit off topic but has anyone thought about adding GID specific
+DNS record types?
 
-$ uname -a
-Linux meriadoc 4.7.2-hardened-r1 #1 SMP PREEMPT Sat Sep 3 11:27:29 SGT 2016 x86_64 Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz GenuineIntel GNU/Linux
-I'm on gentoo hardened but dont think GRSec is responsible here. I also had the same problem back on 4.4.
+I have experimented with just putting a GID in an IPv6 record and things I
+tried work quite well.  Should we have a method to map a domain name to a
+subnet prefix?
 
-Is there anything else that can help track this down?
--- Jason
+If the domain name mapped to a subnet prefix it would imply a set of port GIDs
+on IB/OPA devices and if it mapped to an IPv4/v6 subnet it would be
+iwarp/roce/usnic.
+
+For this series and others the kernel could continue to use the correct
+"subnet" information and user space could translate as appropriate?
+
+Would this series work looking at a "subnet prefix" of an IPv6 address in RoCE?
+
+Ira
