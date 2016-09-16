@@ -1,151 +1,66 @@
+Subject: Re: [PATCH] Change semantic of -r in sefcontext_compile
+To: Janis Danisevskis <jdanis@android.com>, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov, jwcart2@tycho.nsa.gov
+References: <1474031328-29743-1-git-send-email-jdanis@android.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1fa3c006-bfa9-357e-7f88-1c8dfa50a0d2@tycho.nsa.gov>
+Date: Fri, 16 Sep 2016 10:41:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <da997806-a400-6fc8-b736-a7aca1b1dea9@tycho.nsa.gov>
-References: <1473981238-11051-1-git-send-email-william.c.roberts@intel.com>
- <da997806-a400-6fc8-b736-a7aca1b1dea9@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 16 Sep 2016 07:38:17 -0700
-Message-ID: <CAFftDdpM5n74y3P4YhJByE4wL5kyjCy1-mfeycDUTMz5gjZtjA@mail.gmail.com>
-Subject: Re: [PATCH v3] libselinux: correct error path to always try text
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: William Roberts <william.c.roberts@intel.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- James Carter <jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1474031328-29743-1-git-send-email-jdanis@android.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Sep 16, 2016 at 7:30 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 09/15/2016 07:13 PM, william.c.roberts@intel.com wrote:
->> From: William Roberts <william.c.roberts@intel.com>
->>
->> patch 5e15a52aaa cleans up the process_file() but introduced
->> a bug. If the binary file cannot be opened, always attempt
->> to fall back to the textual file, this was not occurring.
->>
->> The logic should be:
->> 1. Open the newest file based on base path + suffix vs
->>    base_path + suffix + ".bin".
->> 2. If anything fails, attempt base_path + suffix.
->>
->> In the case that the file_contexts was the newest file and
->> used for processing fails, it will attempt the same failure
->> recovery, which will fail. It was decided to keep it this
->> was for simplicity.
->
-> I don't like the approach.  What we want is:
-> - if .bin file exists and is not older, try to load it,
-> - if any of the above fails (i.e. .bin file does not exist, is older, or
-> cannot be loaded for any reason), then load the text file.
+On 09/16/2016 09:08 AM, Janis Danisevskis wrote:
+> This patch reestablishes the default behavior of sefcontext_compile
+> to include precompiled regular expressions in the output. If linked
+> against PCRE2 the flag "-r" now causes the precompiled regular
+> expressions to be omitted from the output.
 
-Functionally that's what it does, you just don't like the implementation.
+I thought your original rationale was more compelling.  If we add
+detection of the relevant arch properties, then we can do this.
+Otherwise, I don't think we should.
 
->
-> We shouldn't try loading the text file twice.
-
-It get's a lot more clunky if we go that route, ill take another stab and send
-something out this afternoon.
-
->
-> Also, attached is checkpatch output for your patch.  Please fix.
-
-I tried using checkpatch yesterday, but Ill have to DL the whole linux tree
-to get it to work, do you know if theirs a stand-alone version anywhere? I
-am almost out of disk space at the moment, waiting on a new drive.
-
->
->>
->> Signed-off-by: William Roberts <william.c.roberts@intel.com>
->> ---
->>  libselinux/src/label_file.c | 41 +++++++++++++++++++++++++++--------------
->>  1 file changed, 27 insertions(+), 14 deletions(-)
->>
->> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
->> index 9faecdb..0dee059 100644
->> --- a/libselinux/src/label_file.c
->> +++ b/libselinux/src/label_file.c
->> @@ -447,7 +447,7 @@ static bool fcontext_is_binary(FILE *fp)
->>  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
->>
->>  static FILE *open_file(const char *path, const char *suffix,
->> -                    char *save_path, size_t len, struct stat *sb)
->> +                    char *save_path, size_t len, struct stat *sb, bool force_text)
->>  {
->>       unsigned int i;
->>       int rc;
->> @@ -469,7 +469,11 @@ static FILE *open_file(const char *path, const char *suffix,
->>               return NULL;
->>       }
->>
->> -     for (i = 0; i < ARRAY_SIZE(fdetails); i++) {
->> +     size_t array_size = ARRAY_SIZE(fdetails);
->> +     if (force_text)
->> +             array_size--;
->> +
->> +     for (i = 0; i < array_size; i++) {
->>
->>               /* This handles the case if suffix is null */
->>               path = rolling_append(stack_path, fdetails[i].suffix,
->> @@ -515,24 +519,33 @@ static int process_file(const char *path, const char *suffix,
->>                         const char *prefix, struct selabel_digest *digest)
->>  {
->>       int rc;
->> +     unsigned int i;
->>       struct stat sb;
->>       FILE *fp = NULL;
->>       char found_path[PATH_MAX];
->>
->> -     fp = open_file(path, suffix, found_path, sizeof(found_path), &sb);
->> -     if (fp == NULL)
->> -             return -1;
->> +     /*
->> +      * first path open the newest modified file, if it fails, the second
->> +      * pass falls through to the plain text file.
->> +      */
->> +     for(i=0; i < 2; i++) {
->> +             fp = open_file(path, suffix, found_path, sizeof(found_path), &sb,
->> +                             i > 0);
->> +             if (fp == NULL)
->> +                     return -1;
->>
->> -     rc = fcontext_is_binary(fp) ?
->> -                     load_mmap(fp, sb.st_size, rec, found_path) :
->> -                     process_text_file(fp, prefix, rec, found_path);
->> -     if (rc < 0)
->> -             goto out;
->> +             rc = fcontext_is_binary(fp) ?
->> +                             load_mmap(fp, sb.st_size, rec, found_path) :
->> +                             process_text_file(fp, prefix, rec, found_path);
->> +             if (!rc)
->> +                     rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
->>
->> -     rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
->> -out:
->> -     fclose(fp);
->> -     return rc;
->> +             fclose(fp);
->> +
->> +             if(!rc)
->> +                     return 0;
->> +     }
->> +     return -1;
->>  }
->>
->>  static void closef(struct selabel_handle *rec);
->>
->
->
-> _______________________________________________
-> Seandroid-list mailing list
-> Seandroid-list@tycho.nsa.gov
-> To unsubscribe, send email to Seandroid-list-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Seandroid-list-request@tycho.nsa.gov.
-
-
-
--- 
-Respectfully,
-
-William C Roberts
+> ---
+>  libselinux/utils/sefcontext_compile.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
+> 
+> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+> index 770ec4c..c1284d5 100644
+> --- a/libselinux/utils/sefcontext_compile.c
+> +++ b/libselinux/utils/sefcontext_compile.c
+> @@ -263,12 +263,10 @@ static void usage(const char *progname)
+>  	    "         will be fc_file with the .bin suffix appended.\n\t"
+>  	    "-p       Optional binary policy file that will be used to\n\t"
+>  	    "         validate contexts defined in the fc_file.\n\t"
+> -	    "-r       Include precompiled regular expressions in the output.\n\t"
+> +	    "-r       Omit precompiled regular expressions in the output.\n\t"
+>  	    "         (PCRE2 only. Compiled PCRE2 regular expressions are\n\t"
+>  	    "         not portable across architectures. When linked against\n\t"
+>  	    "         PCRE this flag is ignored)\n\t"
+> -	    "         Omit precompiled regular expressions (only meaningful\n\t"
+> -	    "         when using PCRE2 regular expression back-end).\n\t"
+>  	    "fc_file  The text based file contexts file to be processed.\n",
+>  	    progname);
+>  		exit(EXIT_FAILURE);
+> @@ -278,7 +276,7 @@ int main(int argc, char *argv[])
+>  {
+>  	const char *path = NULL;
+>  	const char *out_file = NULL;
+> -	int do_write_precompregex = 0;
+> +	int do_write_precompregex = 1;
+>  	char stack_path[PATH_MAX + 1];
+>  	char *tmp = NULL;
+>  	int fd, rc, opt;
+> @@ -299,7 +297,7 @@ int main(int argc, char *argv[])
+>  			policy_file = optarg;
+>  			break;
+>  		case 'r':
+> -			do_write_precompregex = 1;
+> +			do_write_precompregex = 0;
+>  			break;
+>  		default:
+>  			usage(argv[0]);
+> 
