@@ -1,118 +1,113 @@
 MIME-Version: 1.0
-In-Reply-To: <f43aad14-f573-2b24-8293-b51a2e111324@tycho.nsa.gov>
-References: <1474031328-29743-1-git-send-email-jdanis@android.com>
- <1fa3c006-bfa9-357e-7f88-1c8dfa50a0d2@tycho.nsa.gov>
- <CAFftDdrwgiFBsA182ZT-q=9P3Vi01E4jq0EY=C2vc6usFr_kyA@mail.gmail.com>
- <f43aad14-f573-2b24-8293-b51a2e111324@tycho.nsa.gov>
+In-Reply-To: <CAFftDdosKbQGw6XqkRJJjx7yjCWHNkKUM2faTjr2EDnK8C7NJw@mail.gmail.com>
+References: <1473981238-11051-1-git-send-email-william.c.roberts@intel.com>
+ <da997806-a400-6fc8-b736-a7aca1b1dea9@tycho.nsa.gov>
+ <8bdcbbeb-5497-c6ec-0d29-2be57cd57f2e@tycho.nsa.gov>
+ <CAFftDdp9eoM5nR1MuUjdWJ1XXGonisd0eF8xT=FzTLufS_RFZg@mail.gmail.com>
+ <CAFftDdqFa_Pps5bTWfQv_sPJg6SuFKZj63Je_SM42VYXfML53w@mail.gmail.com>
+ <012f1855-bae3-c8ae-6426-6caf68447e6b@tycho.nsa.gov>
+ <CAFftDdosKbQGw6XqkRJJjx7yjCWHNkKUM2faTjr2EDnK8C7NJw@mail.gmail.com>
 From: William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 16 Sep 2016 08:20:06 -0700
-Message-ID: <CAFftDdrr+bVQ41kATRNCjme8g5QvL4W91g8j0AumkdWiq=QgBQ@mail.gmail.com>
-Subject: Re: [PATCH] Change semantic of -r in sefcontext_compile
+Date: Fri, 16 Sep 2016 10:06:33 -0700
+Message-ID: <CAFftDdqfEGbfpksDmh6QRjz1V8_nN+b9t4zjXt9kZ0Ft+orkpQ@mail.gmail.com>
+Subject: Re: [PATCH v3] libselinux: correct error path to always try text
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Carter <jwcart2@tycho.nsa.gov>, seandroid-list@tycho.nsa.gov,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Janis Danisevskis <jdanis@android.com>
-Content-Type: multipart/alternative; boundary=001a1144dfd05233a6053ca17fb9
+Cc: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1144dfd05233a6053ca17fb9
-Content-Type: text/plain; charset=UTF-8
-
-On Sep 16, 2016 08:12, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+On Fri, Sep 16, 2016 at 8:04 AM, William Roberts
+<bill.c.roberts@gmail.com> wrote:
+> On Fri, Sep 16, 2016 at 8:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 09/16/2016 10:44 AM, William Roberts wrote:
+>>> On Fri, Sep 16, 2016 at 7:41 AM, William Roberts
+>>> <bill.c.roberts@gmail.com> wrote:
+>>>> On Fri, Sep 16, 2016 at 7:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>>> On 09/16/2016 10:30 AM, Stephen Smalley wrote:
+>>>>>> On 09/15/2016 07:13 PM, william.c.roberts@intel.com wrote:
+>>>>>>> From: William Roberts <william.c.roberts@intel.com>
+>>>>>>>
+>>>>>>> patch 5e15a52aaa cleans up the process_file() but introduced
+>>>>>>> a bug. If the binary file cannot be opened, always attempt
+>>>>>>> to fall back to the textual file, this was not occurring.
+>>>>>>>
+>>>>>>> The logic should be:
+>>>>>>> 1. Open the newest file based on base path + suffix vs
+>>>>>>>    base_path + suffix + ".bin".
+>>>>>>> 2. If anything fails, attempt base_path + suffix.
+>>>>>>>
+>>>>>>> In the case that the file_contexts was the newest file and
+>>>>>>> used for processing fails, it will attempt the same failure
+>>>>>>> recovery, which will fail. It was decided to keep it this
+>>>>>>> was for simplicity.
+>>>>>>
+>>>>>> I don't like the approach.  What we want is:
+>>>>>> - if .bin file exists and is not older, try to load it,
+>>>>>> - if any of the above fails (i.e. .bin file does not exist, is older, or
+>>>>>> cannot be loaded for any reason), then load the text file.
+>>>>>>
+>>>>>> We shouldn't try loading the text file twice.
+>>>>>>
+>>>>>> Also, attached is checkpatch output for your patch.  Please fix.
+>>>>>
+>>>>> Also, there is a further wrinkle: Android passes in file_contexts.bin as
+>>>>> the SELABEL_OPT_PATH, so that is the base path.  Under the old logic
+>>>>> (before your original clean up patch), we would open that file, detect
+>>>>> that it is binary, and then load it.  Under the current logic, we'll
+>>>>> open file_contexts.bin, then try to open file_contexts.bin.bin (which
+>>>>> will fail), and then use the first one.
+>>>>
+>>>> Not true, I don't try to open it, I try to stat it.
+>>>
+>>> My code never assumes file suffix == type
+>>>
+>>>>
+>>>>>
+>>>>> Wondering if we just need to revert.
+>>>>
+>>>> If you want to revert I have no problem with that, but I provided IMO
+>>>> a valid fix.
+>>>> Since I won't likely have a next version patch out till after you go
+>>>> home today, I
+>>>> would support reverting.
+>>
+>> Unfortunately it is now entangled with Janis' patch.  Let's do this: fix
+>> the coding style issues I sent to you from checkpatch, and we'll take
+>> this one.  Then we'll look to avoid the extraneous load in a subsequent
+>> patch.
 >
-> On 09/16/2016 11:08 AM, William Roberts wrote:
-> > On Fri, Sep 16, 2016 at 7:41 AM, Stephen Smalley <sds@tycho.nsa.gov>
-wrote:
-> >> On 09/16/2016 09:08 AM, Janis Danisevskis wrote:
-> >>> This patch reestablishes the default behavior of sefcontext_compile
-> >>> to include precompiled regular expressions in the output. If linked
-> >>> against PCRE2 the flag "-r" now causes the precompiled regular
-> >>> expressions to be omitted from the output.
-> >>
-> >> I thought your original rationale was more compelling.  If we add
-> >> detection of the relevant arch properties, then we can do this.
-> >> Otherwise, I don't think we should.
-> >
-> > I was assuming based on the thread earlier that those patches would be
-coming.
-> > If we cant detect and compile on the current "undefined behavior"
-> > case, then this
-> > needs to stay as is.
-> >
-> > But I thought someone had a list of PCRE things that can be checked for
-"arch",
-> > so its just a matter of encoding those, assuming that list is correct.
-> >
-> > Binary file_contexts only make sense if you compile in the regex info,
-else
-> > just use the textual representation.
+> Fine by me, i'm running to an appointment, I wont have that patch out to
+> probably 3-4pm your time.
+
+BTW did you not get v3 of this patch?
+
+I also thought about the additional load attempt even on "textual"
+files, and I would
+argue we keep it with a slight modification. The boolean flag passed
+to open_file should really
+by called, choose oldest file and invert the time comparison logic.
+This way, if one file
+is corrupted, we always attempt to load the other file. Also, all of
+this code is agnostic to
+file extension determining content type. This code, with that change
+would work in the
+case file_contexts is newer and corrupted, it will try to fall back on
+binary file.
+
+
 >
-> That was my thought originally, but Janis did say that it was still
-> faster, and Android presently only ships file_contexts.bin, so we can't
-> just break that.
-
-I'm not saying that we break anything, but I think we should really
-scrutinize the decision to keep binary fc's on Android. The only way it
-could be faster at the moment is mmap and pcre2. We need to get some raw
-numbers of pcre2 textual vs binary load times. If it's within 30% I'll have
-that gap closed soon. It also takes up about 3 times the disk space for
-binary.
-
---001a1144dfd05233a6053ca17fb9
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"></p>
-<p dir=3D"ltr">On Sep 16, 2016 08:12, &quot;Stephen Smalley&quot; &lt;<a hr=
-ef=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt;<br>
-&gt; On 09/16/2016 11:08 AM, William Roberts wrote:<br>
-&gt; &gt; On Fri, Sep 16, 2016 at 7:41 AM, Stephen Smalley &lt;<a href=3D"m=
-ailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt; &gt;&gt; On 09/16/2016 09:08 AM, Janis Danisevskis wrote:<br>
-&gt; &gt;&gt;&gt; This patch reestablishes the default behavior of sefconte=
-xt_compile<br>
-&gt; &gt;&gt;&gt; to include precompiled regular expressions in the output.=
- If linked<br>
-&gt; &gt;&gt;&gt; against PCRE2 the flag &quot;-r&quot; now causes the prec=
-ompiled regular<br>
-&gt; &gt;&gt;&gt; expressions to be omitted from the output.<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;&gt; I thought your original rationale was more compelling.=C2=A0 =
-If we add<br>
-&gt; &gt;&gt; detection of the relevant arch properties, then we can do thi=
-s.<br>
-&gt; &gt;&gt; Otherwise, I don&#39;t think we should.<br>
-&gt; &gt;<br>
-&gt; &gt; I was assuming based on the thread earlier that those patches wou=
-ld be coming.<br>
-&gt; &gt; If we cant detect and compile on the current &quot;undefined beha=
-vior&quot;<br>
-&gt; &gt; case, then this<br>
-&gt; &gt; needs to stay as is.<br>
-&gt; &gt;<br>
-&gt; &gt; But I thought someone had a list of PCRE things that can be check=
-ed for &quot;arch&quot;,<br>
-&gt; &gt; so its just a matter of encoding those, assuming that list is cor=
-rect.<br>
-&gt; &gt;<br>
-&gt; &gt; Binary file_contexts only make sense if you compile in the regex =
-info, else<br>
-&gt; &gt; just use the textual representation.<br>
-&gt;<br>
-&gt; That was my thought originally, but Janis did say that it was still<br=
+> --
+> Respectfully,
 >
-&gt; faster, and Android presently only ships file_contexts.bin, so we can&=
-#39;t<br>
-&gt; just break that.</p>
-<p dir=3D"ltr">I&#39;m not saying that we break anything, but I think we sh=
-ould really scrutinize the decision to keep binary fc&#39;s on Android. The=
- only way it could be faster at the moment is mmap and pcre2. We need to ge=
-t some raw numbers of pcre2 textual vs binary load times. If it&#39;s withi=
-n 30% I&#39;ll have that gap closed soon. It also takes up about 3 times th=
-e disk space for binary.</p>
+> William C Roberts
 
---001a1144dfd05233a6053ca17fb9--
+
+
+-- 
+Respectfully,
+
+William C Roberts
