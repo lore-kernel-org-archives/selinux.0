@@ -1,50 +1,71 @@
-Subject: Re: sandox -X not working with recent Xephyr
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov,
- Petr Lautrbach <plautrba@redhat.com>
-References: <940febc8-d309-bab6-9797-11c07cf722fb@debian.org>
+Subject: Re: [PATCH] sandbox: Use GObject introspection binding instead of
+ pygtk2
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <20160918154609.8168-1-bigon@debian.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <de735099-3871-b9b6-a4cc-8dc67b36e58e@tycho.nsa.gov>
-Date: Mon, 19 Sep 2016 10:39:45 -0400
+Message-ID: <d6ef6230-c1c6-448e-2952-ac038a5a3fda@tycho.nsa.gov>
+Date: Mon, 19 Sep 2016 10:58:10 -0400
 MIME-Version: 1.0
-In-Reply-To: <940febc8-d309-bab6-9797-11c07cf722fb@debian.org>
+In-Reply-To: <20160918154609.8168-1-bigon@debian.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/18/2016 02:39 PM, Laurent Bigonville wrote:
-> Hi,
+On 09/18/2016 11:46 AM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
 > 
-> It seems that sandbox -X is not working anymore on debian.
+> sandbox command is also now using GTK 3.0
 > 
-> Xephyr (1.18.4) is giving me the following error:
+> This patch comes from Fedora patch set
+
+Need a Signed-off-by.  If you can extract the actual original patch with
+its author and signed-off-by, that's preferable.
+
+> ---
+>  policycoreutils/sandbox/sandbox | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
 > 
-> _XSERVTransmkdir: ERROR: euid != 0,directory /tmp/.X11-unix will not be
-> created.
+> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+> index 9f200d5..726ba9b 100644
+> --- a/policycoreutils/sandbox/sandbox
+> +++ b/policycoreutils/sandbox/sandbox
+> @@ -111,16 +111,18 @@ def copyfile(file, srcdir, dest):
+>  def savefile(new, orig, X_ind):
+>      copy = False
+>      if(X_ind):
+> -        import gtk
+> -        dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_INFO,
+> -                                gtk.BUTTONS_YES_NO,
+> +        import gi
+> +        gi.require_version('Gtk', '3.0')
+> +        from gi.repository import Gtk
+> +        dlg = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO,
+> +                                Gtk.ButtonsType.YES_NO,
+>                                  _("Do you want to save changes to '%s' (Y/N): ") % orig)
+>          dlg.set_title(_("Sandbox Message"))
+> -        dlg.set_position(gtk.WIN_POS_MOUSE)
+> +        dlg.set_position(Gtk.WindowPosition.MOUSE)
+>          dlg.show_all()
+>          rc = dlg.run()
+>          dlg.destroy()
+> -        if rc == gtk.RESPONSE_YES:
+> +        if rc == Gtk.ResponseType.YES:
+>              copy = True
+>      else:
+>          try:
+> @@ -452,8 +454,10 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
+>                      if self.__options.dpi:
+>                          dpi = self.__options.dpi
+>                      else:
+> -                        import gtk
+> -                        dpi = str(gtk.settings_get_default().props.gtk_xft_dpi / 1024)
+> +                        import gi
+> +                        gi.require_version('Gtk', '3.0')
+> +                        from gi.repository import Gtk
+> +                        dpi = str(Gtk.Settings.get_default().props.gtk_xft_dpi / 1024)
+>  
+>                      xmodmapfile = self.__homedir + "/.xmodmap"
+>                      xd = open(xmodmapfile, "w")
 > 
-> The X socket is not created inside the sandbox and then the application
-> can obviously not connect to it.
-> 
-> I'm not sure how this could be fixed, maybe let's seunshare create that
-> directory?
-
-I don't see this error on Fedora, which also has Xephyr 1.18.4, so maybe
-they have a fix?
-
-That is using the Fedora policycoreutils-sandbox package, which yields a
-functioning sandbox -X, e.g. sandbox -X firefox works correctly.
-
-However, if I install sandbox from upstream, e.g.
-
-cd selinux
-sudo make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel
-
-then sandbox -X firefox fails immediately, and I have the following in
-the audit log:
-type=SELINUX_ERR msg=audit(1474295659.424:2189):
-op=security_bounded_transition seresult=denied
-oldcontext=unconfined_u:unconfined_r:sandbox_x_t:s0:c658,c1002
-newcontext=unconfined_u:unconfined_r:sandbox_x_client_t:s0:c658,c1002
-
-So I guess there are other patches in the Fedora package that are needed?
