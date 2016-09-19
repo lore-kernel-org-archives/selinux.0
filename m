@@ -1,53 +1,121 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8JCW91e011610
- for <selinux@tycho.nsa.gov>; Mon, 19 Sep 2016 08:32:09 -0400
-Subject: Re: [PATCH] sandbox: Use dbus-launch instead of dbus-run-session
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <20160918223226.23000-1-bigon@debian.org>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <dd210548-2467-f538-cdc5-93bfb566ac16@redhat.com>
-Date: Mon, 19 Sep 2016 14:31:35 +0200
+Subject: Re: [PATCH v5] libselinux: correct error path to always try text
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov, jwcart2@tycho.nsa.gov
+References: <1474054636-9318-1-git-send-email-william.c.roberts@intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <cfcfbb93-7012-94f3-d7b8-fead91a703b3@tycho.nsa.gov>
+Date: Mon, 19 Sep 2016 10:19:17 -0400
 MIME-Version: 1.0
-In-Reply-To: <20160918223226.23000-1-bigon@debian.org>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <1474054636-9318-1-git-send-email-william.c.roberts@intel.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/19/2016 12:32 AM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
+On 09/16/2016 03:37 PM, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 > 
-> According to dbus upstream: "dbus-launch is fairly horrible code,
-> complicated by the historical need for it to support X11 autolaunching,
-> so the D-Bus maintainers would like to move it out of the critical path
-> and minimize its use."
+> patch 5e15a52aaa cleans up the process_file() routine,
+> but introduced a bug. If the binary file cannot be
+> opened, always attempt to fall back to the textual file,
+> this was not occurring.
 > 
-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=836289
+> The logic should be:
+> 1. Open the newest file between base path + suffix and
+>    base_path + suffix + ".bin"
+> 2. If anything fails, attempt to load the oldest file.
+> 
+> The result, with a concrete example, would be:
+> If file_contexts is the newest file, and it cannot be
+> processed, the code will fall back to file_contexts.bin
+> and vice versa.
+> 
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
-dbus-run-session was introduced in dbus-1.8.0. This change would break
-systems with older dbus, e.g., rhel-7 ships dbus-1.6.12.
-
-Would it make sense to do a test whether dbus-run-session is available
-or not?
-
-Petr
+Thanks, applied.
 
 > ---
->  policycoreutils/sandbox/sandbox | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libselinux/src/label_file.c | 47 ++++++++++++++++++++++++++++++---------------
+>  1 file changed, 32 insertions(+), 15 deletions(-)
 > 
-> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
-> index 726ba9b..f537dc6 100644
-> --- a/policycoreutils/sandbox/sandbox
-> +++ b/policycoreutils/sandbox/sandbox
-> @@ -285,7 +285,7 @@ class Sandbox:
->  /usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
->  %s &
->  WM_PID=$!
-> -dbus-launch --exit-with-session %s
-> +dbus-run-session -- %s
->  kill -TERM $WM_PID  2> /dev/null
->  """ % (command, wm, command))
->          fd.close()
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 9faecdb..ff6bc94 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -447,7 +447,7 @@ static bool fcontext_is_binary(FILE *fp)
+>  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+>  
+>  static FILE *open_file(const char *path, const char *suffix,
+> -		       char *save_path, size_t len, struct stat *sb)
+> +	       char *save_path, size_t len, struct stat *sb, bool open_oldest)
+>  {
+>  	unsigned int i;
+>  	int rc;
+> @@ -493,9 +493,15 @@ static FILE *open_file(const char *path, const char *suffix,
+>  		 * includes equality. This provides a precedence on
+>  		 * secondary suffixes even when the timestamp is the
+>  		 * same. Ie choose file_contexts.bin over file_contexts
+> -		 * even if the time stamp is the same.
+> +		 * even if the time stamp is the same. Invert this logic
+> +		 * on open_oldest set to true. The idea is that if the
+> +		 * newest file failed to process, we can attempt to
+> +		 * process the oldest. The logic here is subtle and depends
+> +		 * on the array ordering in fdetails for the case when time
+> +		 * stamps are the same.
+>  		 */
+> -		if (fdetails[i].sb.st_mtime >= found->sb.st_mtime) {
+> +		if (open_oldest ^
+> +			(fdetails[i].sb.st_mtime >= found->sb.st_mtime)) {
+>  			found = &fdetails[i];
+>  			strcpy(save_path, path);
+>  		}
+> @@ -515,24 +521,35 @@ static int process_file(const char *path, const char *suffix,
+>  			  const char *prefix, struct selabel_digest *digest)
+>  {
+>  	int rc;
+> +	unsigned int i;
+>  	struct stat sb;
+>  	FILE *fp = NULL;
+>  	char found_path[PATH_MAX];
+>  
+> -	fp = open_file(path, suffix, found_path, sizeof(found_path), &sb);
+> -	if (fp == NULL)
+> -		return -1;
+> +	/*
+> +	 * On the first pass open the newest modified file. If it fails to
+> +	 * process, then the second pass shall open the oldest file. If both
+> +	 * passes fail, then it's a fatal error.
+> +	 */
+> +	for (i = 0; i < 2; i++) {
+> +		fp = open_file(path, suffix, found_path, sizeof(found_path),
+> +			&sb, i > 0);
+> +		if (fp == NULL)
+> +			return -1;
+>  
+> -	rc = fcontext_is_binary(fp) ?
+> -			load_mmap(fp, sb.st_size, rec, found_path) :
+> -			process_text_file(fp, prefix, rec, found_path);
+> -	if (rc < 0)
+> -		goto out;
+> +		rc = fcontext_is_binary(fp) ?
+> +				load_mmap(fp, sb.st_size, rec, found_path) :
+> +				process_text_file(fp, prefix, rec, found_path);
+> +		if (!rc)
+> +			rc = digest_add_specfile(digest, fp, NULL, sb.st_size,
+> +				found_path);
+>  
+> -	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
+> -out:
+> -	fclose(fp);
+> -	return rc;
+> +		fclose(fp);
+> +
+> +		if (!rc)
+> +			return 0;
+> +	}
+> +	return -1;
+>  }
+>  
+>  static void closef(struct selabel_handle *rec);
 > 
