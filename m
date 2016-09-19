@@ -1,121 +1,50 @@
-Subject: Re: [PATCH v5] libselinux: correct error path to always try text
-To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov, jwcart2@tycho.nsa.gov
-References: <1474054636-9318-1-git-send-email-william.c.roberts@intel.com>
+Subject: Re: sandox -X not working with recent Xephyr
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov,
+ Petr Lautrbach <plautrba@redhat.com>
+References: <940febc8-d309-bab6-9797-11c07cf722fb@debian.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <cfcfbb93-7012-94f3-d7b8-fead91a703b3@tycho.nsa.gov>
-Date: Mon, 19 Sep 2016 10:19:17 -0400
+Message-ID: <de735099-3871-b9b6-a4cc-8dc67b36e58e@tycho.nsa.gov>
+Date: Mon, 19 Sep 2016 10:39:45 -0400
 MIME-Version: 1.0
-In-Reply-To: <1474054636-9318-1-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <940febc8-d309-bab6-9797-11c07cf722fb@debian.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/16/2016 03:37 PM, william.c.roberts@intel.com wrote:
-> From: William Roberts <william.c.roberts@intel.com>
+On 09/18/2016 02:39 PM, Laurent Bigonville wrote:
+> Hi,
 > 
-> patch 5e15a52aaa cleans up the process_file() routine,
-> but introduced a bug. If the binary file cannot be
-> opened, always attempt to fall back to the textual file,
-> this was not occurring.
+> It seems that sandbox -X is not working anymore on debian.
 > 
-> The logic should be:
-> 1. Open the newest file between base path + suffix and
->    base_path + suffix + ".bin"
-> 2. If anything fails, attempt to load the oldest file.
+> Xephyr (1.18.4) is giving me the following error:
 > 
-> The result, with a concrete example, would be:
-> If file_contexts is the newest file, and it cannot be
-> processed, the code will fall back to file_contexts.bin
-> and vice versa.
+> _XSERVTransmkdir: ERROR: euid != 0,directory /tmp/.X11-unix will not be
+> created.
 > 
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> The X socket is not created inside the sandbox and then the application
+> can obviously not connect to it.
+> 
+> I'm not sure how this could be fixed, maybe let's seunshare create that
+> directory?
 
-Thanks, applied.
+I don't see this error on Fedora, which also has Xephyr 1.18.4, so maybe
+they have a fix?
 
-> ---
->  libselinux/src/label_file.c | 47 ++++++++++++++++++++++++++++++---------------
->  1 file changed, 32 insertions(+), 15 deletions(-)
-> 
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 9faecdb..ff6bc94 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -447,7 +447,7 @@ static bool fcontext_is_binary(FILE *fp)
->  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
->  
->  static FILE *open_file(const char *path, const char *suffix,
-> -		       char *save_path, size_t len, struct stat *sb)
-> +	       char *save_path, size_t len, struct stat *sb, bool open_oldest)
->  {
->  	unsigned int i;
->  	int rc;
-> @@ -493,9 +493,15 @@ static FILE *open_file(const char *path, const char *suffix,
->  		 * includes equality. This provides a precedence on
->  		 * secondary suffixes even when the timestamp is the
->  		 * same. Ie choose file_contexts.bin over file_contexts
-> -		 * even if the time stamp is the same.
-> +		 * even if the time stamp is the same. Invert this logic
-> +		 * on open_oldest set to true. The idea is that if the
-> +		 * newest file failed to process, we can attempt to
-> +		 * process the oldest. The logic here is subtle and depends
-> +		 * on the array ordering in fdetails for the case when time
-> +		 * stamps are the same.
->  		 */
-> -		if (fdetails[i].sb.st_mtime >= found->sb.st_mtime) {
-> +		if (open_oldest ^
-> +			(fdetails[i].sb.st_mtime >= found->sb.st_mtime)) {
->  			found = &fdetails[i];
->  			strcpy(save_path, path);
->  		}
-> @@ -515,24 +521,35 @@ static int process_file(const char *path, const char *suffix,
->  			  const char *prefix, struct selabel_digest *digest)
->  {
->  	int rc;
-> +	unsigned int i;
->  	struct stat sb;
->  	FILE *fp = NULL;
->  	char found_path[PATH_MAX];
->  
-> -	fp = open_file(path, suffix, found_path, sizeof(found_path), &sb);
-> -	if (fp == NULL)
-> -		return -1;
-> +	/*
-> +	 * On the first pass open the newest modified file. If it fails to
-> +	 * process, then the second pass shall open the oldest file. If both
-> +	 * passes fail, then it's a fatal error.
-> +	 */
-> +	for (i = 0; i < 2; i++) {
-> +		fp = open_file(path, suffix, found_path, sizeof(found_path),
-> +			&sb, i > 0);
-> +		if (fp == NULL)
-> +			return -1;
->  
-> -	rc = fcontext_is_binary(fp) ?
-> -			load_mmap(fp, sb.st_size, rec, found_path) :
-> -			process_text_file(fp, prefix, rec, found_path);
-> -	if (rc < 0)
-> -		goto out;
-> +		rc = fcontext_is_binary(fp) ?
-> +				load_mmap(fp, sb.st_size, rec, found_path) :
-> +				process_text_file(fp, prefix, rec, found_path);
-> +		if (!rc)
-> +			rc = digest_add_specfile(digest, fp, NULL, sb.st_size,
-> +				found_path);
->  
-> -	rc = digest_add_specfile(digest, fp, NULL, sb.st_size, found_path);
-> -out:
-> -	fclose(fp);
-> -	return rc;
-> +		fclose(fp);
-> +
-> +		if (!rc)
-> +			return 0;
-> +	}
-> +	return -1;
->  }
->  
->  static void closef(struct selabel_handle *rec);
-> 
+That is using the Fedora policycoreutils-sandbox package, which yields a
+functioning sandbox -X, e.g. sandbox -X firefox works correctly.
+
+However, if I install sandbox from upstream, e.g.
+
+cd selinux
+sudo make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel
+
+then sandbox -X firefox fails immediately, and I have the following in
+the audit log:
+type=SELINUX_ERR msg=audit(1474295659.424:2189):
+op=security_bounded_transition seresult=denied
+oldcontext=unconfined_u:unconfined_r:sandbox_x_t:s0:c658,c1002
+newcontext=unconfined_u:unconfined_r:sandbox_x_client_t:s0:c658,c1002
+
+So I guess there are other patches in the Fedora package that are needed?
