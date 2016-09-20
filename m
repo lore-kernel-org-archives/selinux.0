@@ -1,87 +1,85 @@
-Subject: Re: [RFC] mmap file_contexts and property_contexts:
-To: William Roberts <bill.c.roberts@gmail.com>,
- Jason Zaman <jason@perfinion.com>
-References: <1474321526-26208-1-git-send-email-william.c.roberts@intel.com>
- <CAPuKSJb7wj7CrZKMh8snwHAr00Hr+8OKhFjoGGq-uEbHA=v9KQ@mail.gmail.com>
- <CAFftDdr4PAa1P=9AOZzDB23HX5bHuOmgjY-S+nzAv+BvXjnoGw@mail.gmail.com>
- <CAPuKSJbKOAO1eRRD-=f6Zx0XoQOT3xVNGD7qLvBPXSWZJef00g@mail.gmail.com>
- <CAFftDdoLn_DNz50+YfYXDDjKi9wex+wo78kcHpMrGmJparGBmw@mail.gmail.com>
-Cc: seandroid-list@tycho.nsa.gov, selinux@tycho.nsa.gov
+Subject: Re: sandox -X not working with recent Xephyr
+To: Petr Lautrbach <plautrba@redhat.com>
+References: <940febc8-d309-bab6-9797-11c07cf722fb@debian.org>
+ <de735099-3871-b9b6-a4cc-8dc67b36e58e@tycho.nsa.gov>
+ <20160919180219.tbmq7yx66wkbk3if@rhel-at-redhat.localdomain>
+ <c8e7f2ad-72eb-2175-5916-e5054e431e48@tycho.nsa.gov>
+Cc: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <f39c114f-08d0-61e4-bd80-bbbc31eec97c@tycho.nsa.gov>
-Date: Tue, 20 Sep 2016 08:47:57 -0400
+Message-ID: <45d0fdf5-48ad-242c-fa77-314bdf052bb7@tycho.nsa.gov>
+Date: Tue, 20 Sep 2016 08:49:48 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdoLn_DNz50+YfYXDDjKi9wex+wo78kcHpMrGmJparGBmw@mail.gmail.com>
+In-Reply-To: <c8e7f2ad-72eb-2175-5916-e5054e431e48@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/20/2016 02:27 AM, William Roberts wrote:
-> On Sep 19, 2016 22:25, "Jason Zaman" <jason@perfinion.com> wrote:
->>
->> On 20 Sep 2016 12:50 pm, "William Roberts" <bill.c.roberts@gmail.com>
-> wrote:
->>>
->>> On Sep 19, 2016 21:16, "Jason Zaman" <jason@perfinion.com> wrote:
+On 09/19/2016 02:26 PM, Stephen Smalley wrote:
+> On 09/19/2016 02:02 PM, Petr Lautrbach wrote:
+>> On Mon, Sep 19, 2016 at 10:39:45AM -0400, Stephen Smalley wrote:
+>>> On 09/18/2016 02:39 PM, Laurent Bigonville wrote:
+>>>> Hi,
 >>>>
->>>> On 20 Sep 2016 5:47 am, <william.c.roberts@intel.com> wrote:
->>>>>
->>>>> From: William Roberts <william.c.roberts@intel.com>
->>>>>
->>>>> THIS IS WIP...
->>>>>
->>>>> Rather than using stdio and making copies, just mmap the files
->>>>> and use the pointers in place. The affect of this change, is that
->>>>> text file load time is now faster than binary load time by 4.7%
->>>>> when testing with a file_contexts file from the Android tree. Note
->>>>> that the Android doesn't use monstrous regexs.
->>>>>
->>>>> Times are the average of 3 runs.
->>>>>
->>>>> BEFORE:
->>>>> Text file allocs: 114803
->>>>> Text file load time: 0.266101
->>>>> Bin file allocs: 93073
->>>>> Bin file load time: 0.248757667
->>>>>
->>>>> AFTER:
->>>>> Text file allocs: 103933
->>>>> Text file load time: 0.236192667
->>>>> Bin file allocs: 87645
->>>>> Bin file load time: .247607333
+>>>> It seems that sandbox -X is not working anymore on debian.
 >>>>
->>>> Do you have the scripts that generated these stats so I can play with
-> it too? These stats are from android right? Do you also have a comparison
-> for refpolicy too?
->>>
->>> For generating these I used checkfc.c from the Android tree. I used
-> valgrind to measure allocations and clock to measure the time in
-> selabel_open().
->>
->> Okay cool I'll fetch that and give it a whirl when I get time.
->>
+>>>> Xephyr (1.18.4) is giving me the following error:
 >>>>
->>>> I haven't looked that closely yet but just realised, will this need
-> new perms because of the mmap? If it does, can you send a patch to
-> refpolicy?
+>>>> _XSERVTransmkdir: ERROR: euid != 0,directory /tmp/.X11-unix will not be
+>>>> created.
+>>>>
+>>>> The X socket is not created inside the sandbox and then the application
+>>>> can obviously not connect to it.
+>>>>
+>>>> I'm not sure how this could be fixed, maybe let's seunshare create that
+>>>> directory?
 >>>
->>> I'm confused, mmap is not a permission, even if it was the binary path
-> already was doing an mmap, so the permission would have been there. We're
-> just making it so it always mmaps.
+>>> I don't see this error on Fedora, which also has Xephyr 1.18.4, so maybe
+>>> they have a fix?
+>>>
+>>> That is using the Fedora policycoreutils-sandbox package, which yields a
+>>> functioning sandbox -X, e.g. sandbox -X firefox works correctly.
+>>>
+>>> However, if I install sandbox from upstream, e.g.
+>>>
+>>> cd selinux
+>>> sudo make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel
+>>>
+>>> then sandbox -X firefox fails immediately, and I have the following in
+>>> the audit log:
+>>> type=SELINUX_ERR msg=audit(1474295659.424:2189):
+>>> op=security_bounded_transition seresult=denied
+>>> oldcontext=unconfined_u:unconfined_r:sandbox_x_t:s0:c658,c1002
+>>> newcontext=unconfined_u:unconfined_r:sandbox_x_client_t:s0:c658,c1002
 >>
->> Yeah but mmap needs execute perms sometimes (always?). I am out so just
-> wanted to send an email before I forgot. If it was mmaping already then
-> there is nothing to worry about :).
+>> It's most likely not related. Same error can be seen in stock Fedora.
+>>
+>>> So I guess there are other patches in the Fedora package that are needed?
+>>
+>> It's this patch
+>> https://github.com/fedora-selinux/selinux/commit/2540625875ebdfe0ef48798437288e8a07aa853d
+>>
+>> But the patch bellow works too:
+>>
+>> --- a/policycoreutils/sandbox/sandboxX.sh
+>> +++ b/policycoreutils/sandbox/sandboxX.sh
+>> @@ -20,7 +20,7 @@ cat > ~/.config/openbox/rc.xml << EOF
+>>  </openbox_config>
+>>  EOF
+>>  
+>> -(/usr/bin/Xephyr -resizeable -title "$TITLE" -terminate -screen $SCREENSIZE -dpi $DPI -nolisten tcp -displayfd 5 5>&1 2>/dev/null) | while read D; do
+>> +(/usr/bin/Xephyr -resizeable -title "$TITLE" -screen $SCREENSIZE -dpi $DPI -nolisten tcp -displayfd 5 5>&1 2>/dev/null) | while read D; do
+>>      export DISPLAY=:$D
+>>      cat > ~/seremote << __EOF
+>>  #!/bin/sh
+>>
+>>
+>>
+>> I'm not sure which one is correct.
 > 
-> Mmap would only need execute if you attempted to set the prot bits to
-> execute it use mprotect to change the mapping. Then things like execmod
-> might come I to play if the mapping was ever writable.
+> I don't know either, but the one above does work and seems simpler, so
+> let's go with that one.
 
-The only case where mmap without PROT_EXEC would require execute would
-be if the process has READ_IMPLIES_EXEC set in its personality.
-Typically only for programs with the executable stack flag set.
-
-Anyway, it is already mmap'ing file_contexts.bin so there shouldn't be
-an issue here.
+So, if you could re-spin that with a proper subject and signed-off-by,
+that would be great.
