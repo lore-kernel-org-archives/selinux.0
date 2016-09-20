@@ -1,70 +1,73 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>,
- "'seandroid-list@tycho.nsa.gov'" <seandroid-list@tycho.nsa.gov>,
- "'sds@tycho.nsa.gov'" <sds@tycho.nsa.gov>, "'jdanis@google.com'"
- <jdanis@google.com>
-Subject: RE: [RFC] mmap file_contexts and property_contexts:
-Date: Tue, 20 Sep 2016 22:33:32 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC561CD0DE2B@ORSMSX103.amr.corp.intel.com>
-References: <1474321526-26208-1-git-send-email-william.c.roberts@intel.com>
- <476DC76E7D1DF2438D32BFADF679FC561CD0B1D9@ORSMSX103.amr.corp.intel.com>
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC561CD0B1D9@ORSMSX103.amr.corp.intel.com>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8KNhcM9031534
+ for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2016 19:43:38 -0400
+Received: by mail-yw0-f173.google.com with SMTP id t67so26770372ywg.3
+ for <selinux@tycho.nsa.gov>; Tue, 20 Sep 2016 16:43:35 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20160906200221.GE28416@obsidianresearch.com>
+References: <CAHC9VhTEOvZ76dNJp35WEhr+r84eZZ6_ZmuaznGLakzZGcXhUw@mail.gmail.com>
+ <20160830074607.GN594@leon.nu>
+ <CAHC9VhRUmbsuV40rRpG+LeNUgY7rVqOkt-fxTMAFDRRdLvEkug@mail.gmail.com>
+ <VI1PR0501MB242949202A1DA23E5C8E1E8AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830184633.GE7586@obsidianresearch.com>
+ <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830185548.GA9768@obsidianresearch.com>
+ <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160901163418.GA6479@obsidianresearch.com>
+ <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 20 Sep 2016 19:43:34 -0400
+Message-ID: <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
+ Daniel Jurgens <danielj@mellanox.com>
+Cc: Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-<snip>
+On Tue, Sep 6, 2016 at 4:02 PM, Jason Gunthorpe
+<jgunthorpe@obsidianresearch.com> wrote:
+> On Thu, Sep 01, 2016 at 02:06:46PM -0400, Paul Moore wrote:
+>
+>> Jason and/or Daniel, I think it would be helpful if you could explain
+>> both the InifiniBand and IP based approaches for those of us who know
+>> SELinux, but not necessarily the RDMA and InfiniBand portions of this
+>> discussion.  Be verbose and explain it as if we were idiots (I get
+>> called that enough, it must be true).
+>
+> Well, I'm not really familiar with SELinux, I know a little bit about
+> how labels are applied in the netstack, but not that much...
+>
+> The RDMA subsystem supports 4 different networking standards, and they
+> each have their own objects..
 
-> > -----Original Message-----
-> > From: Roberts, William C
-> > Sent: Monday, September 19, 2016 2:45 PM
-> > To: selinux@tycho.nsa.gov; seandroid-list@tycho.nsa.gov;
-> > sds@tycho.nsa.gov; jdanis@google.com
-> > Cc: Roberts, William C <william.c.roberts@intel.com>
-> > Subject: [RFC] mmap file_contexts and property_contexts:
-> >
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > THIS IS WIP...
-> >
-> > Rather than using stdio and making copies, just mmap the files and use
-> > the pointers in place. The affect of this change, is that text file
-> > load time is now faster than binary load time by 4.7% when testing
-> > with a file_contexts file from the Android tree. Note that the Android doesn't
-> use monstrous regexs.
-> >
-> > Times are the average of 3 runs.
-> >
-> > BEFORE:
-> > Text file allocs: 114803
-> > Text file load time: 0.266101
-> > Bin file allocs: 93073
-> > Bin file load time: 0.248757667
-> >
-> > AFTER:
-> > Text file allocs: 103933
-> > Text file load time: 0.236192667
-> > Bin file allocs: 87645
-> > Bin file load time: .247607333
+All right, I'm done traveling for a bit and it seems like this
+discussion has settled into a stalemate so let's try to pick things
+back up and sort this out.
 
-Another potential issue, is that mmaping with textfiles also has the sideffect
-of mapping in all the spaces or tabs, etc used, between fields, so on files with
-heavy whitespace, it could be really memory intensive. 
+Starting we a better RDMA education for me.
 
-I think Janis's patch that has -r option is a more useful way to go. Without precompiled
-Regex's its essentially a textfile without the whitespace, and it automatically would
-get pulled into the mmap interface.
+So far the discussion has been around providing access controls at the
+transport layer, are there any RDMA entities that are transport
+agnostic that might be better suited for what we are trying to do?  Or
+is it simply that the RDMA layer is tied so tightly to the underlying
+transport that we can't separate the two and have to consider them as
+one?
 
-I'm abandoning this, since we already get this functionality, without the negatives.
-Janis, IIRC, you are re-configuring your patch so -r omits pre-compiled regex's (submitted
-I believe on the list and awaiting other patches) and adding an arch string so we can
-Detect when we need to recompile the regular expressions if they are supplied but
-unusable.
-
-I think we may want to investigate to have the "omit pre-compiled regex's" work on PCRE
-library variants as well, but I doubt it would be used since Android is moving to PCRE2.
-
-<snip>
+-- 
+paul moore
+www.paul-moore.com
