@@ -1,85 +1,115 @@
-Subject: Re: sandox -X not working with recent Xephyr
-To: Petr Lautrbach <plautrba@redhat.com>
-References: <940febc8-d309-bab6-9797-11c07cf722fb@debian.org>
- <de735099-3871-b9b6-a4cc-8dc67b36e58e@tycho.nsa.gov>
- <20160919180219.tbmq7yx66wkbk3if@rhel-at-redhat.localdomain>
- <c8e7f2ad-72eb-2175-5916-e5054e431e48@tycho.nsa.gov>
-Cc: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+Subject: Re: [RFC] mmap file_contexts and property_contexts:
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov, jdanis@google.com
+References: <1474321526-26208-1-git-send-email-william.c.roberts@intel.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <45d0fdf5-48ad-242c-fa77-314bdf052bb7@tycho.nsa.gov>
-Date: Tue, 20 Sep 2016 08:49:48 -0400
+Message-ID: <4318ab67-9b45-e44f-c013-1882e5e6a984@tycho.nsa.gov>
+Date: Tue, 20 Sep 2016 08:55:50 -0400
 MIME-Version: 1.0
-In-Reply-To: <c8e7f2ad-72eb-2175-5916-e5054e431e48@tycho.nsa.gov>
+In-Reply-To: <1474321526-26208-1-git-send-email-william.c.roberts@intel.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/19/2016 02:26 PM, Stephen Smalley wrote:
-> On 09/19/2016 02:02 PM, Petr Lautrbach wrote:
->> On Mon, Sep 19, 2016 at 10:39:45AM -0400, Stephen Smalley wrote:
->>> On 09/18/2016 02:39 PM, Laurent Bigonville wrote:
->>>> Hi,
->>>>
->>>> It seems that sandbox -X is not working anymore on debian.
->>>>
->>>> Xephyr (1.18.4) is giving me the following error:
->>>>
->>>> _XSERVTransmkdir: ERROR: euid != 0,directory /tmp/.X11-unix will not be
->>>> created.
->>>>
->>>> The X socket is not created inside the sandbox and then the application
->>>> can obviously not connect to it.
->>>>
->>>> I'm not sure how this could be fixed, maybe let's seunshare create that
->>>> directory?
->>>
->>> I don't see this error on Fedora, which also has Xephyr 1.18.4, so maybe
->>> they have a fix?
->>>
->>> That is using the Fedora policycoreutils-sandbox package, which yields a
->>> functioning sandbox -X, e.g. sandbox -X firefox works correctly.
->>>
->>> However, if I install sandbox from upstream, e.g.
->>>
->>> cd selinux
->>> sudo make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel
->>>
->>> then sandbox -X firefox fails immediately, and I have the following in
->>> the audit log:
->>> type=SELINUX_ERR msg=audit(1474295659.424:2189):
->>> op=security_bounded_transition seresult=denied
->>> oldcontext=unconfined_u:unconfined_r:sandbox_x_t:s0:c658,c1002
->>> newcontext=unconfined_u:unconfined_r:sandbox_x_client_t:s0:c658,c1002
->>
->> It's most likely not related. Same error can be seen in stock Fedora.
->>
->>> So I guess there are other patches in the Fedora package that are needed?
->>
->> It's this patch
->> https://github.com/fedora-selinux/selinux/commit/2540625875ebdfe0ef48798437288e8a07aa853d
->>
->> But the patch bellow works too:
->>
->> --- a/policycoreutils/sandbox/sandboxX.sh
->> +++ b/policycoreutils/sandbox/sandboxX.sh
->> @@ -20,7 +20,7 @@ cat > ~/.config/openbox/rc.xml << EOF
->>  </openbox_config>
->>  EOF
->>  
->> -(/usr/bin/Xephyr -resizeable -title "$TITLE" -terminate -screen $SCREENSIZE -dpi $DPI -nolisten tcp -displayfd 5 5>&1 2>/dev/null) | while read D; do
->> +(/usr/bin/Xephyr -resizeable -title "$TITLE" -screen $SCREENSIZE -dpi $DPI -nolisten tcp -displayfd 5 5>&1 2>/dev/null) | while read D; do
->>      export DISPLAY=:$D
->>      cat > ~/seremote << __EOF
->>  #!/bin/sh
->>
->>
->>
->> I'm not sure which one is correct.
+On 09/19/2016 05:45 PM, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 > 
-> I don't know either, but the one above does work and seems simpler, so
-> let's go with that one.
+> THIS IS WIP...
+> 
+> Rather than using stdio and making copies, just mmap the files
+> and use the pointers in place. The affect of this change, is that
+> text file load time is now faster than binary load time by 4.7%
+> when testing with a file_contexts file from the Android tree. Note
+> that the Android doesn't use monstrous regexs.
+> 
+> Times are the average of 3 runs.
+> 
+> BEFORE:
+> Text file allocs: 114803
+> Text file load time: 0.266101
+> Bin file allocs: 93073
+> Bin file load time: 0.248757667
+> 
+> AFTER:
+> Text file allocs: 103933
+> Text file load time: 0.236192667
+> Bin file allocs: 87645
+> Bin file load time: .247607333
+> 
+> THINGS TO DO:
+> 1. What's arm performance like?
+> 2. What interfaces to backends are busted by this (if any)?
+> 3. Test Android Properties
+> 4. Im pretty sure this breaks sefcontext_compile, fix.
+> 5. Test with PCRE2 enabled.
+> 6. Spell check this message!
+> 7. Run checkpatch
+> 
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  libselinux/src/label.c                  |   2 -
+>  libselinux/src/label_android_property.c |  22 ++---
+>  libselinux/src/label_file.c             | 140 +++++++++++++++++++-------------
+>  libselinux/src/label_file.h             |  66 +++++++++------
+>  libselinux/src/label_internal.h         |   3 +-
+>  libselinux/src/label_support.c          |  79 ++++++++----------
+>  6 files changed, 172 insertions(+), 140 deletions(-)
+> 
 
-So, if you could re-spin that with a proper subject and signed-off-by,
-that would be great.
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 7156825..4dc440e 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -96,43 +96,64 @@ static int nodups_specs(struct saved_data *data, const char *path)
+>  	return rc;
+>  }
+>  
+> -static int process_text_file(FILE *fp, const char *prefix,
+> -			     struct selabel_handle *rec, const char *path)
+> +static inline struct saved_data *rec_to_data(struct selabel_handle *rec)
+> +{
+> +	return (struct saved_data *)rec->data;
+> +}
+> +
+> +static char *mmap_area_get_line(struct mmap_area *area)
+> +{
+> +	size_t len = area->next_len;
+> +	if (!len)
+> +		return NULL;
+> +
+> +	char *start = area->next_addr;
+> +	char *end = memchr(start, '\n', len);
+> +
+> +	/* the file may not end with a newline */
+> +	if (!end)
+> +		end = (char *)area->next_addr + len - 1;
+> +
+> +	*end = '\0';
+
+Couldn't this clobber the last character in the file if the file does
+not end with a newline?
+
+> +	/* len includes null byte */
+> +	len = end - start;
+> +
+> +	area->next_len -= len + 1;
+> +	area->next_addr = ++end;
+> +	return start;
+> +}
+> +
+> +static int process_text_file(const char *path, const char *prefix,
+> +		struct selabel_handle *rec)
+>  {
+>  	int rc;
+> -	size_t line_len;
+>  	unsigned int lineno = 0;
+> -	char *line_buf = NULL;
+> +	char *line_buf;
+> +	struct mmap_area *areas = rec_to_data(rec)->mmap_areas;
+> +
+> +	/* mmap_area_get_line() and process_line() require mutable string pointers */
+> +	rc = mprotect(areas->addr, areas->len, PROT_READ | PROT_WRITE);
+
+Just map it with PROT_READ|PROT_WRITE in the beginning.
