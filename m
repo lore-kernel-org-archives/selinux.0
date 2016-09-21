@@ -1,72 +1,67 @@
-Subject: Re: [PATCH v2] sandbox: Use GObject introspection binding instead of
- pygtk2
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <20160919180113.5525-1-bigon@debian.org>
+Subject: Re: [PATCH] sandbox: do not run xmodmap in a new X session
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+References: <45d0fdf5-48ad-242c-fa77-314bdf052bb7@tycho.nsa.gov>
+ <1474472393-2208-1-git-send-email-plautrba@redhat.com>
+ <2ad227ec-827a-f1f1-eceb-2290effc3cdf@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <43157b8f-aeb3-2d1a-1bd5-cd5894c777a4@tycho.nsa.gov>
-Date: Wed, 21 Sep 2016 12:35:13 -0400
+Message-ID: <93b64c45-d155-1ff5-3956-bbf9cbd3d405@tycho.nsa.gov>
+Date: Wed, 21 Sep 2016 12:35:43 -0400
 MIME-Version: 1.0
-In-Reply-To: <20160919180113.5525-1-bigon@debian.org>
+In-Reply-To: <2ad227ec-827a-f1f1-eceb-2290effc3cdf@redhat.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/19/2016 02:01 PM, Laurent Bigonville wrote:
-> From: Petr Lautrbach <plautrba@redhat.com>
+On 09/21/2016 12:00 PM, Petr Lautrbach wrote:
+> On 09/21/2016 05:39 PM, Petr Lautrbach wrote:
+>> xmodmap causes Xephyr X server to reset itself when it's run before wm
+>> and even right after wm. It causes termination of the server as we use
+>> -terminate. The -terminate option seems be important enough in order not
+>> to left running the server when the last client connection is closed.
+>>
+>> This patch drops the execution of xmodmap from .sandboxrc until there's
+>> a better solution.
+>>
 > 
-> sandbox command is also now using GTK 3.0
+> Note that when I only removed -terminate from Xephyr command line,
+> xmodmap didn't modify keymaps anyway.
 > 
-> This patch comes from Fedora patch set
-> 
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+> And using the Fedora patch with "-terminate -reset" is the same as just
+> drop "-terminate" as "-reset" overrides "-terminate" option and -reset
+> is used by default.
 
-Thanks, applied.
+Thanks for investigating it further.  Applied.
 
-> ---
->  policycoreutils/sandbox/sandbox | 18 +++++++++++-------
->  1 file changed, 11 insertions(+), 7 deletions(-)
 > 
-> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
-> index 9f200d5..726ba9b 100644
-> --- a/policycoreutils/sandbox/sandbox
-> +++ b/policycoreutils/sandbox/sandbox
-> @@ -111,16 +111,18 @@ def copyfile(file, srcdir, dest):
->  def savefile(new, orig, X_ind):
->      copy = False
->      if(X_ind):
-> -        import gtk
-> -        dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_INFO,
-> -                                gtk.BUTTONS_YES_NO,
-> +        import gi
-> +        gi.require_version('Gtk', '3.0')
-> +        from gi.repository import Gtk
-> +        dlg = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO,
-> +                                Gtk.ButtonsType.YES_NO,
->                                  _("Do you want to save changes to '%s' (Y/N): ") % orig)
->          dlg.set_title(_("Sandbox Message"))
-> -        dlg.set_position(gtk.WIN_POS_MOUSE)
-> +        dlg.set_position(Gtk.WindowPosition.MOUSE)
->          dlg.show_all()
->          rc = dlg.run()
->          dlg.destroy()
-> -        if rc == gtk.RESPONSE_YES:
-> +        if rc == Gtk.ResponseType.YES:
->              copy = True
->      else:
->          try:
-> @@ -452,8 +454,10 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
->                      if self.__options.dpi:
->                          dpi = self.__options.dpi
->                      else:
-> -                        import gtk
-> -                        dpi = str(gtk.settings_get_default().props.gtk_xft_dpi / 1024)
-> +                        import gi
-> +                        gi.require_version('Gtk', '3.0')
-> +                        from gi.repository import Gtk
-> +                        dpi = str(Gtk.Settings.get_default().props.gtk_xft_dpi / 1024)
->  
->                      xmodmapfile = self.__homedir + "/.xmodmap"
->                      xd = open(xmodmapfile, "w")
+> 
+> 
+> 
+> 
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>>  policycoreutils/sandbox/sandbox | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+>> index 726ba9b..4ed57c1 100644
+>> --- a/policycoreutils/sandbox/sandbox
+>> +++ b/policycoreutils/sandbox/sandbox
+>> @@ -282,7 +282,7 @@ class Sandbox:
+>>                  command += "'%s' " % p
+>>              fd.write("""#! /bin/sh
+>>  #TITLE: %s
+>> -/usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
+>> +# /usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
+>>  %s &
+>>  WM_PID=$!
+>>  dbus-launch --exit-with-session %s
+>>
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 > 
