@@ -1,42 +1,91 @@
-Subject: Re: selinux 2.6-rc1 release planned 9/30
-To: William Roberts <bill.c.roberts@gmail.com>,
- Janis Danisevskis <jdanis@google.com>
-References: <883e1b35-467e-e3dd-5baa-1822ab003829@tycho.nsa.gov>
- <CAFftDdqgu0dNoetJXiRCVZ6uK_Qd4U+0xo2jTj=pscQAy48UWw@mail.gmail.com>
- <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
-Cc: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <93d8efc2-3a4c-48d6-4452-7a9304eb98d7@tycho.nsa.gov>
-Date: Wed, 21 Sep 2016 12:41:57 -0400
+From: "Roberts, William C" <william.c.roberts@intel.com>
+To: "'seandroid-list@tycho.nsa.gov'" <seandroid-list@tycho.nsa.gov>,
+ "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>, "'sds@tycho.nsa.gov'"
+ <sds@tycho.nsa.gov>
+Subject: unlocked stdio
+Date: Wed, 21 Sep 2016 19:53:15 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC561CD0E4B8@ORSMSX103.amr.corp.intel.com>
+Content-Type: multipart/alternative;
+ boundary="_000_476DC76E7D1DF2438D32BFADF679FC561CD0E4B8ORSMSX103amrcor_"
 MIME-Version: 1.0
-In-Reply-To: <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/21/2016 11:52 AM, Stephen Smalley wrote:
-> On 09/21/2016 11:40 AM, William Roberts wrote:
->> I'd like to see the -r flip change in by then, so no official release
->> is cut with that behavior.
->>
->> Also, I was looking at the help output for -r, and its quite
->> confusing, I cant tell if -r includes or omits, verbatim output:
->>
->> -r       Include precompiled regular expressions in the output.
->>         (PCRE2 only. Compiled PCRE2 regular expressions are
->>         not portable across architectures. When linked against
->>         PCRE this flag is ignored)
->>         Omit precompiled regular expressions (only meaningful
->>         when using PCRE2 regular expression back-end).
->> fc_file  The text based file contexts file to be processed.
-> 
-> Yes, Janis actually posted a patch to fix that as well, but it presumes
-> the prior patch to change the -r behavior.  So we can take those two
-> patches once we have the arch detection and fallback patch in place.
+--_000_476DC76E7D1DF2438D32BFADF679FC561CD0E4B8ORSMSX103amrcor_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Actually, I'm wrong: the two patches were two different options, one of
-which switched the default and the other left the default unchanged and
-fixed the usage message.  So I'll apply the latter now until the arch
-detection is in place.
+What was the purpose of using unlocked stdio in libselinux? Bionic doesn't =
+support it, is it really necessary?
+
+Bill
+
+
+--_000_476DC76E7D1DF2438D32BFADF679FC561CD0E4B8ORSMSX103amrcor_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">What was the purpose of using unlocked stdio in libs=
+elinux? Bionic doesn&#8217;t support it, is it really necessary?<o:p></o:p>=
+</p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Bill<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_476DC76E7D1DF2438D32BFADF679FC561CD0E4B8ORSMSX103amrcor_--
