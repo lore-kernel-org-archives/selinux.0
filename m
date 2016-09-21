@@ -1,65 +1,72 @@
-Date: Wed, 21 Sep 2016 12:16:27 -0400
-From: "ira.weiny" <ira.weiny@intel.com>
-To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-Cc: Daniel Jurgens <danielj@mellanox.com>, Liran Liss <liranl@mellanox.com>,
- Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>,
- "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- "dledford@redhat.com" <dledford@redhat.com>,
- "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
-Message-ID: <20160921161626.GA27837@phlsvsds.ph.intel.com>
-References: <20160906200221.GE28416@obsidianresearch.com>
- <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160906215548.GA27225@obsidianresearch.com>
- <20160908000134.GC4515@phlsvsds.ph.intel.com>
- <DB6PR0501MB2422EA34EED4EE35EE7B1D28C4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
- <20160908161948.GA21614@obsidianresearch.com>
- <DB6PR0501MB24227FF5BE230C826615111FC4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
- <20160908183611.GD21614@obsidianresearch.com>
- <VI1PR0501MB2429AAD28BD78334C1FE0E5AC4FB0@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160908193235.GA1868@obsidianresearch.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20160908193235.GA1868@obsidianresearch.com>
+Subject: Re: [PATCH v2] sandbox: Use GObject introspection binding instead of
+ pygtk2
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <20160919180113.5525-1-bigon@debian.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <43157b8f-aeb3-2d1a-1bd5-cd5894c777a4@tycho.nsa.gov>
+Date: Wed, 21 Sep 2016 12:35:13 -0400
+MIME-Version: 1.0
+In-Reply-To: <20160919180113.5525-1-bigon@debian.org>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Sep 08, 2016 at 01:32:35PM -0600, Jason Gunthorpe wrote:
-> On Thu, Sep 08, 2016 at 06:59:13PM +0000, Daniel Jurgens wrote:
+On 09/19/2016 02:01 PM, Laurent Bigonville wrote:
+> From: Petr Lautrbach <plautrba@redhat.com>
 > 
-> > >> Net has variety of means of enforcement, one of which is controlling
-> > >> access to ports <tcp/udp,port number>, which is the most like what
-> > >> I'm doing here.
-> > > No, the analog the tcp/udp,port number is <ib, service_id> 
+> sandbox command is also now using GTK 3.0
 > 
-> > I should have been clearer here.  From the SELinux perspective this
-> > scheme is very similar to net ports.
+> This patch comes from Fedora patch set
 > 
-> It really isn't. net ports and service_ids are global things that do
-> not need machine-specific customizations while subnet prefix or device
-> name/port are both machine-local information.
+> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 
-I agree that service_ids are more analogous to net ports.
+Thanks, applied.
 
-However, subnet prefixes are _not_ machine-local.  They are controlled by the
-Admin of the fabric by a central entity (the SM).  This is more helpful than in
-ethernet where if you configure the wrong port with the wrong subnet things
-just don't work.  In IB I can physically plug my network into any IB port I
-want and the system is _told_ which "subnet" that port belongs to.  (OPA is the
-same way.)
-
-So for IB/OPA a subnet prefix is a really good way to ID which network (subnet)
-you want to use.  Unfortunately, I'm not sure how to translate that to
-iwarp/roce seamlessly except to have some concept of "domain" as I mentioned in
-my other email.
-
-Ira
+> ---
+>  policycoreutils/sandbox/sandbox | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
+> 
+> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+> index 9f200d5..726ba9b 100644
+> --- a/policycoreutils/sandbox/sandbox
+> +++ b/policycoreutils/sandbox/sandbox
+> @@ -111,16 +111,18 @@ def copyfile(file, srcdir, dest):
+>  def savefile(new, orig, X_ind):
+>      copy = False
+>      if(X_ind):
+> -        import gtk
+> -        dlg = gtk.MessageDialog(None, 0, gtk.MESSAGE_INFO,
+> -                                gtk.BUTTONS_YES_NO,
+> +        import gi
+> +        gi.require_version('Gtk', '3.0')
+> +        from gi.repository import Gtk
+> +        dlg = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO,
+> +                                Gtk.ButtonsType.YES_NO,
+>                                  _("Do you want to save changes to '%s' (Y/N): ") % orig)
+>          dlg.set_title(_("Sandbox Message"))
+> -        dlg.set_position(gtk.WIN_POS_MOUSE)
+> +        dlg.set_position(Gtk.WindowPosition.MOUSE)
+>          dlg.show_all()
+>          rc = dlg.run()
+>          dlg.destroy()
+> -        if rc == gtk.RESPONSE_YES:
+> +        if rc == Gtk.ResponseType.YES:
+>              copy = True
+>      else:
+>          try:
+> @@ -452,8 +454,10 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
+>                      if self.__options.dpi:
+>                          dpi = self.__options.dpi
+>                      else:
+> -                        import gtk
+> -                        dpi = str(gtk.settings_get_default().props.gtk_xft_dpi / 1024)
+> +                        import gi
+> +                        gi.require_version('Gtk', '3.0')
+> +                        from gi.repository import Gtk
+> +                        dpi = str(Gtk.Settings.get_default().props.gtk_xft_dpi / 1024)
+>  
+>                      xmodmapfile = self.__homedir + "/.xmodmap"
+>                      xd = open(xmodmapfile, "w")
+> 
