@@ -1,67 +1,42 @@
-Subject: Re: [PATCH] sandbox: do not run xmodmap in a new X session
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <45d0fdf5-48ad-242c-fa77-314bdf052bb7@tycho.nsa.gov>
- <1474472393-2208-1-git-send-email-plautrba@redhat.com>
- <2ad227ec-827a-f1f1-eceb-2290effc3cdf@redhat.com>
+Subject: Re: selinux 2.6-rc1 release planned 9/30
+To: William Roberts <bill.c.roberts@gmail.com>,
+ Janis Danisevskis <jdanis@google.com>
+References: <883e1b35-467e-e3dd-5baa-1822ab003829@tycho.nsa.gov>
+ <CAFftDdqgu0dNoetJXiRCVZ6uK_Qd4U+0xo2jTj=pscQAy48UWw@mail.gmail.com>
+ <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <93b64c45-d155-1ff5-3956-bbf9cbd3d405@tycho.nsa.gov>
-Date: Wed, 21 Sep 2016 12:35:43 -0400
+Message-ID: <93d8efc2-3a4c-48d6-4452-7a9304eb98d7@tycho.nsa.gov>
+Date: Wed, 21 Sep 2016 12:41:57 -0400
 MIME-Version: 1.0
-In-Reply-To: <2ad227ec-827a-f1f1-eceb-2290effc3cdf@redhat.com>
+In-Reply-To: <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/21/2016 12:00 PM, Petr Lautrbach wrote:
-> On 09/21/2016 05:39 PM, Petr Lautrbach wrote:
->> xmodmap causes Xephyr X server to reset itself when it's run before wm
->> and even right after wm. It causes termination of the server as we use
->> -terminate. The -terminate option seems be important enough in order not
->> to left running the server when the last client connection is closed.
+On 09/21/2016 11:52 AM, Stephen Smalley wrote:
+> On 09/21/2016 11:40 AM, William Roberts wrote:
+>> I'd like to see the -r flip change in by then, so no official release
+>> is cut with that behavior.
 >>
->> This patch drops the execution of xmodmap from .sandboxrc until there's
->> a better solution.
+>> Also, I was looking at the help output for -r, and its quite
+>> confusing, I cant tell if -r includes or omits, verbatim output:
 >>
+>> -r       Include precompiled regular expressions in the output.
+>>         (PCRE2 only. Compiled PCRE2 regular expressions are
+>>         not portable across architectures. When linked against
+>>         PCRE this flag is ignored)
+>>         Omit precompiled regular expressions (only meaningful
+>>         when using PCRE2 regular expression back-end).
+>> fc_file  The text based file contexts file to be processed.
 > 
-> Note that when I only removed -terminate from Xephyr command line,
-> xmodmap didn't modify keymaps anyway.
-> 
-> And using the Fedora patch with "-terminate -reset" is the same as just
-> drop "-terminate" as "-reset" overrides "-terminate" option and -reset
-> is used by default.
+> Yes, Janis actually posted a patch to fix that as well, but it presumes
+> the prior patch to change the -r behavior.  So we can take those two
+> patches once we have the arch detection and fallback patch in place.
 
-Thanks for investigating it further.  Applied.
-
-> 
-> 
-> 
-> 
-> 
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->> ---
->>  policycoreutils/sandbox/sandbox | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
->> index 726ba9b..4ed57c1 100644
->> --- a/policycoreutils/sandbox/sandbox
->> +++ b/policycoreutils/sandbox/sandbox
->> @@ -282,7 +282,7 @@ class Sandbox:
->>                  command += "'%s' " % p
->>              fd.write("""#! /bin/sh
->>  #TITLE: %s
->> -/usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
->> +# /usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
->>  %s &
->>  WM_PID=$!
->>  dbus-launch --exit-with-session %s
->>
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+Actually, I'm wrong: the two patches were two different options, one of
+which switched the default and the other left the default unchanged and
+fixed the usage message.  So I'll apply the latter now until the arch
+detection is in place.
