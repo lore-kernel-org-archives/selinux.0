@@ -1,35 +1,69 @@
-Subject: Re: selinux 2.6-rc1 release planned 9/30
-To: William Roberts <bill.c.roberts@gmail.com>,
- Janis Danisevskis <jdanis@google.com>
-References: <883e1b35-467e-e3dd-5baa-1822ab003829@tycho.nsa.gov>
- <CAFftDdqgu0dNoetJXiRCVZ6uK_Qd4U+0xo2jTj=pscQAy48UWw@mail.gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
-Date: Wed, 21 Sep 2016 11:52:58 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8LG14vm030549
+ for <selinux@tycho.nsa.gov>; Wed, 21 Sep 2016 12:01:04 -0400
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 0C9F26587C
+ for <selinux@tycho.nsa.gov>; Wed, 21 Sep 2016 16:00:59 +0000 (UTC)
+Received: from rhel-at-redhat.localdomain ([10.40.2.167])
+ by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ u8LG0vS5004685
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Wed, 21 Sep 2016 12:00:58 -0400
+Subject: Re: [PATCH] sandbox: do not run xmodmap in a new X session
+To: selinux@tycho.nsa.gov
+References: <45d0fdf5-48ad-242c-fa77-314bdf052bb7@tycho.nsa.gov>
+ <1474472393-2208-1-git-send-email-plautrba@redhat.com>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <2ad227ec-827a-f1f1-eceb-2290effc3cdf@redhat.com>
+Date: Wed, 21 Sep 2016 18:00:57 +0200
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdqgu0dNoetJXiRCVZ6uK_Qd4U+0xo2jTj=pscQAy48UWw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1474472393-2208-1-git-send-email-plautrba@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/21/2016 11:40 AM, William Roberts wrote:
-> I'd like to see the -r flip change in by then, so no official release
-> is cut with that behavior.
+On 09/21/2016 05:39 PM, Petr Lautrbach wrote:
+> xmodmap causes Xephyr X server to reset itself when it's run before wm
+> and even right after wm. It causes termination of the server as we use
+> -terminate. The -terminate option seems be important enough in order not
+> to left running the server when the last client connection is closed.
 > 
-> Also, I was looking at the help output for -r, and its quite
-> confusing, I cant tell if -r includes or omits, verbatim output:
+> This patch drops the execution of xmodmap from .sandboxrc until there's
+> a better solution.
 > 
-> -r       Include precompiled regular expressions in the output.
->         (PCRE2 only. Compiled PCRE2 regular expressions are
->         not portable across architectures. When linked against
->         PCRE this flag is ignored)
->         Omit precompiled regular expressions (only meaningful
->         when using PCRE2 regular expression back-end).
-> fc_file  The text based file contexts file to be processed.
 
-Yes, Janis actually posted a patch to fix that as well, but it presumes
-the prior patch to change the -r behavior.  So we can take those two
-patches once we have the arch detection and fallback patch in place.
+Note that when I only removed -terminate from Xephyr command line,
+xmodmap didn't modify keymaps anyway.
+
+And using the Fedora patch with "-terminate -reset" is the same as just
+drop "-terminate" as "-reset" overrides "-terminate" option and -reset
+is used by default.
+
+
+
+
+
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> ---
+>  policycoreutils/sandbox/sandbox | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+> index 726ba9b..4ed57c1 100644
+> --- a/policycoreutils/sandbox/sandbox
+> +++ b/policycoreutils/sandbox/sandbox
+> @@ -282,7 +282,7 @@ class Sandbox:
+>                  command += "'%s' " % p
+>              fd.write("""#! /bin/sh
+>  #TITLE: %s
+> -/usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
+> +# /usr/bin/test -r ~/.xmodmap && /usr/bin/xmodmap ~/.xmodmap
+>  %s &
+>  WM_PID=$!
+>  dbus-launch --exit-with-session %s
+> 
