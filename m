@@ -1,122 +1,181 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8MFIW5F015315
- for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 11:18:37 -0400
-Received: by mail-pa0-f66.google.com with SMTP id oz2so3803335pac.0
- for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 08:18:14 -0700 (PDT)
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 5/7] sepolicy: make info() use setools4 api
-Date: Thu, 22 Sep 2016 23:17:31 +0800
-Message-Id: <1474557453-14379-6-git-send-email-jason@perfinion.com>
-In-Reply-To: <1474557453-14379-1-git-send-email-jason@perfinion.com>
-References: <1474557453-14379-1-git-send-email-jason@perfinion.com>
+Subject: Re: [PATCH v2 1/1] genhomedircon: remove hardcoded refpolicy strings
+To: Gary Tierney <gary.tierney@gmx.com>, selinux@tycho.nsa.gov
+References: <1474501947-7314-1-git-send-email-gary.tierney@gmx.com>
+ <1474501947-7314-2-git-send-email-gary.tierney@gmx.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <0675c188-becd-d27c-7b3b-c392b1bd9510@tycho.nsa.gov>
+Date: Thu, 22 Sep 2016 12:05:11 -0400
+MIME-Version: 1.0
+In-Reply-To: <1474501947-7314-2-git-send-email-gary.tierney@gmx.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Also make it return generators instead of an explicit list.
+On 09/21/2016 07:52 PM, Gary Tierney wrote:
+> Removes the "system_u" and "s0" string literals from refpolicy and
+> replaces the seuser and range in each homedir, uid, and username context
+> specification for every user.
+> 
+> Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
 
-Signed-off-by: Jason Zaman <jason@perfinion.com>
----
- policycoreutils/sepolicy/sepolicy/__init__.py | 85 ++++++++++++++++++++++++++-
- 1 file changed, 83 insertions(+), 2 deletions(-)
+Thanks, applied.
 
-diff --git a/policycoreutils/sepolicy/sepolicy/__init__.py b/policycoreutils/sepolicy/sepolicy/__init__.py
-index 319cb34..a3ab10c 100644
---- a/policycoreutils/sepolicy/sepolicy/__init__.py
-+++ b/policycoreutils/sepolicy/sepolicy/__init__.py
-@@ -164,8 +164,89 @@ except ValueError as e:
- 
- 
- def info(setype, name=None):
--    dict_list = _policy.info(setype, name)
--    return dict_list
-+    if setype == TYPE:
-+        q = setools.TypeQuery(_pol)
-+        if name:
-+            q.name = name
-+
-+        return ({
-+            'aliases': map(str, x.aliases()),
-+            'name': str(x),
-+            'permissive': bool(x.ispermissive),
-+        } for x in q.results())
-+
-+    elif setype == ROLE:
-+        q = setools.RoleQuery(_pol)
-+        if name:
-+            q.name = name
-+
-+        return ({
-+            'name': str(x),
-+            'roles': map(str, x.expand()),
-+            'types': map(str, x.types()),
-+        } for x in q.results())
-+
-+    elif setype == ATTRIBUTE:
-+        q = setools.TypeAttributeQuery(_pol)
-+        if name:
-+            q.name = name
-+
-+        return ({
-+            'name': str(x),
-+            'types': map(str, x.expand()),
-+        } for x in q.results())
-+
-+    elif setype == PORT:
-+        q = setools.PortconQuery(_pol)
-+        if name:
-+            ports = [int(i) for i in name.split("-")]
-+            if len(ports) == 2:
-+                q.ports = ports
-+            elif len(ports) == 1:
-+                q.ports = (ports[0], ports[0])
-+
-+        return ({
-+            'high': x.ports.high,
-+            'protocol': str(x.protocol),
-+            'range': str(x.context.range_),
-+            'type': str(x.context.type_),
-+            'low': x.ports.low,
-+        } for x in q.results())
-+
-+    elif setype == USER:
-+        q = setools.UserQuery(_pol)
-+        if name:
-+            q.name = name
-+
-+        return ({
-+            'range': str(x.mls_range),
-+            'name': str(x),
-+            'roles': map(str, x.roles),
-+            'level': str(x.mls_level),
-+        } for x in q.results())
-+
-+    elif setype == BOOLEAN:
-+        q = setools.BoolQuery(_pol)
-+        if name:
-+            q.name = name
-+
-+        return ({
-+            'name': str(x),
-+            'state': x.state,
-+        } for x in q.results())
-+
-+    elif setype == TCLASS:
-+        q = setools.ObjClassQuery(_pol)
-+        if name:
-+            q.name = name
-+
-+        return ({
-+            'name': str(x),
-+            'permlist': list(x.perms),
-+        } for x in q.results())
-+
-+    else:
-+        raise ValueError("Invalid type")
- 
- 
- def search(types, info={}):
--- 
-2.7.3
+> ---
+>  libsemanage/src/genhomedircon.c | 87 +++++++++++++++++++++++++++++++++++------
+>  1 file changed, 74 insertions(+), 13 deletions(-)
+> 
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+> index cce3884..3fc9e7a 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -82,9 +82,6 @@
+>  #define TEMPLATE_USERNAME "%{USERNAME}"
+>  #define TEMPLATE_USERID "%{USERID}"
+>  
+> -#define TEMPLATE_SEUSER "system_u"
+> -#define TEMPLATE_LEVEL "s0"
+> -
+>  #define FALLBACK_SENAME "user_u"
+>  #define FALLBACK_PREFIX "user"
+>  #define FALLBACK_LEVEL "s0"
+> @@ -92,6 +89,8 @@
+>  #define FALLBACK_UIDGID "[0-9]+"
+>  #define DEFAULT_LOGIN "__default__"
+>  
+> +#define CONTEXT_NONE "<<none>>"
+> +
+>  typedef struct user_entry {
+>  	char *name;
+>  	char *uid;
+> @@ -599,14 +598,81 @@ static int write_replacements(genhomedircon_settings_t * s, FILE * out,
+>  	return STATUS_ERR;
+>  }
+>  
+> +static int write_contexts(genhomedircon_settings_t *s, FILE *out,
+> +			  semanage_list_t *tpl, const replacement_pair_t *repl,
+> +			  const genhomedircon_user_entry_t *user)
+> +{
+> +	Ustr *line = USTR_NULL;
+> +	sepol_context_t *context = NULL;
+> +	char *new_context_str = NULL;
+> +
+> +	for (; tpl; tpl = tpl->next) {
+> +		line = replace_all(tpl->data, repl);
+> +		if (!line) {
+> +			goto fail;
+> +		}
+> +
+> +		const char *old_context_str = extract_context(line);
+> +		if (!old_context_str) {
+> +			goto fail;
+> +		}
+> +
+> +		if (strcmp(old_context_str, CONTEXT_NONE) == 0) {
+> +			if (check_line(s, line) == STATUS_SUCCESS &&
+> +			    !ustr_io_putfileline(&line, out)) {
+> +				goto fail;
+> +			}
+> +
+> +			continue;
+> +		}
+> +
+> +		sepol_handle_t *sepolh = s->h_semanage->sepolh;
+> +
+> +		if (sepol_context_from_string(sepolh, old_context_str,
+> +					      &context) < 0) {
+> +			goto fail;
+> +		}
+> +
+> +		if (sepol_context_set_user(sepolh, context, user->sename) < 0 ||
+> +		    sepol_context_set_mls(sepolh, context, user->level) < 0) {
+> +			goto fail;
+> +		}
+> +
+> +		if (sepol_context_to_string(sepolh, context,
+> +					    &new_context_str) < 0) {
+> +			goto fail;
+> +		}
+> +
+> +		if (!ustr_replace_cstr(&line, old_context_str,
+> +				       new_context_str, 1)) {
+> +			goto fail;
+> +		}
+> +
+> +		if (check_line(s, line) == STATUS_SUCCESS) {
+> +			if (!ustr_io_putfileline(&line, out)) {
+> +				goto fail;
+> +			}
+> +		}
+> +
+> +		ustr_sc_free(&line);
+> +		sepol_context_free(context);
+> +		free(new_context_str);
+> +	}
+> +
+> +	return STATUS_SUCCESS;
+> +fail:
+> +	ustr_sc_free(&line);
+> +	sepol_context_free(context);
+> +	free(new_context_str);
+> +	return STATUS_ERR;
+> +}
+> +
+>  static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
+>  				  semanage_list_t * tpl, const genhomedircon_user_entry_t *user)
+>  {
+>  	replacement_pair_t repl[] = {
+> -		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
+>  		{.search_for = TEMPLATE_HOME_DIR,.replace_with = user->home},
+>  		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
+> -		{.search_for = TEMPLATE_LEVEL,.replace_with = user->level},
+>  		{NULL, NULL}
+>  	};
+>  
+> @@ -618,7 +684,7 @@ static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
+>  			return STATUS_ERR;
+>  	}
+>  
+> -	return write_replacements(s, out, tpl, repl);
+> +	return write_contexts(s, out, tpl, repl, user);
+>  }
+>  
+>  static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
+> @@ -640,11 +706,10 @@ static int write_username_context(genhomedircon_settings_t * s, FILE * out,
+>  		{.search_for = TEMPLATE_USERNAME,.replace_with = user->name},
+>  		{.search_for = TEMPLATE_USERID,.replace_with = user->uid},
+>  		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
+> -		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
+>  		{NULL, NULL}
+>  	};
+>  
+> -	return write_replacements(s, out, tpl, repl);
+> +	return write_contexts(s, out, tpl, repl, user);
+>  }
+>  
+>  static int write_user_context(genhomedircon_settings_t * s, FILE * out,
+> @@ -653,11 +718,10 @@ static int write_user_context(genhomedircon_settings_t * s, FILE * out,
+>  	replacement_pair_t repl[] = {
+>  		{.search_for = TEMPLATE_USER,.replace_with = user->name},
+>  		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
+> -		{.search_for = TEMPLATE_SEUSER,.replace_with = user->sename},
+>  		{NULL, NULL}
+>  	};
+>  
+> -	return write_replacements(s, out, tpl, repl);
+> +	return write_contexts(s, out, tpl, repl, user);
+>  }
+>  
+>  static int seuser_sort_func(const void *arg1, const void *arg2)
+> @@ -1074,9 +1138,6 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
+>  		if (strcmp(name, DEFAULT_LOGIN) == 0)
+>  			continue;
+>  
+> -		if (strcmp(name, TEMPLATE_SEUSER) == 0)
+> -			continue;
+> -
+>  		/* find the user structure given the name */
+>  		u = bsearch(seuname, user_list, nusers, sizeof(semanage_user_t *),
+>  			    (int (*)(const void *, const void *))
+> 
