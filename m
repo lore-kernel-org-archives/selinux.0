@@ -1,131 +1,281 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8N9NcwH026981
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 05:23:38 -0400
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com
- (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id C2E37C05490D
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 09:23:29 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8MNHS05003316
+ for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 19:17:32 -0400
+Received: by mail-ua0-f179.google.com with SMTP id u68so16772756uau.0
+ for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 16:17:23 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1474573685-124428-1-git-send-email-bowgotsai@google.com>
+References: <1474573685-124428-1-git-send-email-bowgotsai@google.com>
+From: Bowgo Tsai <bowgotsai@google.com>
+Date: Thu, 22 Sep 2016 16:17:22 -0700
+Message-ID: <CAMFYTWedPzHCoGx=jM6-L1AV8OReLOsvhxSpouLhvfJcCy0YXQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsepol, checkpolicy: Update Android.mk
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsemanage: use pp module headers as a source for a module
- name
-Date: Fri, 23 Sep 2016 11:23:20 +0200
-Message-Id: <1474622600-22721-1-git-send-email-plautrba@redhat.com>
+Cc: bowgotsai <bowgotsai@google.com>, Jeffrey Vander Stoep <jeffv@google.com>,
+ Daniel Cashman <dcashman@google.com>
+Content-Type: multipart/alternative; boundary=001a114d7dde313305053d20dd97
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When a user installs a module, the filename is used as the module name.
-This change was introduced with CIL language where a module name is not
-stored in the module itself. It means that when a pp module has
-different filename and stored module name, the filename is used instead
-of the stored module name. It brings problems with compatibility for
-scripts and modules which were built and used on older system and were
-migrated to the new userspace.
+--001a114d7dde313305053d20dd97
+Content-Type: text/plain; charset=UTF-8
 
-This patch changes the behavior of semanage_direct_install_file() which
-is used by 'semodule -i' so that when a module with pp language
-extension is installed, it tries to get and use a stored module name
-instead of a filename.
++Jeffrey and Daniel
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libsemanage/src/direct_api.c | 62 +++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 61 insertions(+), 1 deletion(-)
+On Thu, Sep 22, 2016 at 12:48 PM, Bowgo Tsai <bowgotsai@google.com> wrote:
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 2187b65..f98d3d1 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -363,6 +363,48 @@ static int semanage_direct_begintrans(semanage_handle_t * sh)
- 
- /********************* utility functions *********************/
- 
-+/* Takes a module stored in 'module_data' and parses its headers.
-+ * Sets reference variables 'module_name' to module's name, and
-+ * 'version' to module's version.  The caller is responsible for
-+ * free()ing 'module_name', and 'version'; they will be
-+ * set to NULL upon entering this function.  Returns 0 on success, -1
-+ * if out of memory, or -2 if data did not represent a module.
-+ */
-+static int parse_module_headers(semanage_handle_t * sh, char *module_data,
-+                               size_t data_len, char **module_name,
-+                               char **version)
-+{
-+       struct sepol_policy_file *pf;
-+       int file_type;
-+       *module_name = *version = NULL;
-+
-+       if (sepol_policy_file_create(&pf)) {
-+               ERR(sh, "Out of memory!");
-+               return -1;
-+       }
-+       sepol_policy_file_set_mem(pf, module_data, data_len);
-+       sepol_policy_file_set_handle(pf, sh->sepolh);
-+       if (module_data == NULL ||
-+           data_len == 0 ||
-+           sepol_module_package_info(pf, &file_type, module_name,
-+                                     version) == -1) {
-+               sepol_policy_file_free(pf);
-+               ERR(sh, "Could not parse module data.");
-+               return -2;
-+       }
-+       sepol_policy_file_free(pf);
-+       if (file_type != SEPOL_POLICY_MOD) {
-+               if (file_type == SEPOL_POLICY_BASE)
-+                       ERR(sh,
-+                           "Received a base module, expected a non-base module.");
-+               else
-+                       ERR(sh, "Data did not represent a module.");
-+               return -2;
-+       }
-+
-+       return 0;
-+}
-+
- #include <stdlib.h>
- #include <bzlib.h>
- #include <string.h>
-@@ -1524,7 +1566,9 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
- 	char *path = NULL;
- 	char *filename;
- 	char *lang_ext = NULL;
-+	char *module_name = NULL;
- 	char *separator;
-+	char *version = NULL;
- 
- 	if ((data_len = map_file(sh, install_filename, &data, &compressed)) <= 0) {
- 		ERR(sh, "Unable to read file %s\n", install_filename);
-@@ -1564,10 +1608,26 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
- 		lang_ext = separator + 1;
- 	}
- 
--	retval = semanage_direct_install(sh, data, data_len, filename, lang_ext);
-+	if (strcmp(lang_ext, "pp") != 0)
-+		module_name = strdup(filename);
-+	else {
-+		if (parse_module_headers(sh, data, data_len, &module_name, &version) != 0) {
-+			free(module_name);
-+			module_name = strdup(filename);
-+		}
-+		free(version);
-+	}
-+	if (module_name == NULL) {
-+		ERR(sh, "No memory available for module_name.\n");
-+		retval = -1;
-+		goto cleanup;
-+	}
-+
-+	retval = semanage_direct_install(sh, data, data_len, module_name, lang_ext);
- 
- cleanup:
- 	if (data_len > 0) munmap(data, data_len);
-+	free(module_name);
- 	free(path);
- 
- 	return retval;
+> From: bowgotsai <bowgotsai@google.com>
+>
+> ---
+>  checkpolicy/Android.mk | 11 ++---------
+>  libsepol/Android.mk    | 16 ++++++++--------
+>  2 files changed, 10 insertions(+), 17 deletions(-)
+>
+> diff --git a/checkpolicy/Android.mk b/checkpolicy/Android.mk
+> index 3b7ff8a..ee2f158 100644
+> --- a/checkpolicy/Android.mk
+> +++ b/checkpolicy/Android.mk
+> @@ -18,13 +18,6 @@ common_includes := \
+>         $(LOCAL_PATH)/../libsepol/src/ \
+>
+>  ##
+> -# "-x c" forces the lex/yacc files to be compiled as c the build system
+> -# otherwise forces them to be c++. Need to also add an explicit -std
+> because the
+> -# build system will soon default C++ to -std=c++11.
+> -yacc_flags := -x c -std=gnu89
+> -
+> -
+> -##
+>  # checkpolicy
+>  #
+>  include $(CLEAR_VARS)
+> @@ -32,7 +25,7 @@ include $(CLEAR_VARS)
+>  LOCAL_MODULE := checkpolicy
+>  LOCAL_MODULE_TAGS := optional
+>  LOCAL_C_INCLUDES := $(common_includes)
+> -LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
+> +LOCAL_CFLAGS := $(common_cflags)
+>  LOCAL_SRC_FILES := $(common_src_files) checkpolicy.c
+>  LOCAL_STATIC_LIBRARIES := libsepol
+>  LOCAL_YACCFLAGS := -v
+> @@ -49,7 +42,7 @@ include $(CLEAR_VARS)
+>  LOCAL_MODULE := checkmodule
+>  LOCAL_MODULE_TAGS := optional
+>  LOCAL_C_INCLUDES := $(common_includes)
+> -LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
+> +LOCAL_CFLAGS := $(common_cflags)
+>  LOCAL_SRC_FILES := $(common_src_files) checkmodule.c
+>  LOCAL_STATIC_LIBRARIES := libsepol
+>  LOCAL_YACCFLAGS := -v
+> diff --git a/libsepol/Android.mk b/libsepol/Android.mk
+> index 6d89f17..e9cfeef 100644
+> --- a/libsepol/Android.mk
+> +++ b/libsepol/Android.mk
+> @@ -81,6 +81,7 @@ common_includes := \
+>  # build system will soon default C++ to -std=c++11.
+>  yacc_flags := -x c -std=gnu89
+>
+> +
+>  ##
+>  # libsepol.so
+>  #
+> @@ -88,12 +89,11 @@ include $(CLEAR_VARS)
+>
+>  LOCAL_MODULE := libsepol
+>  LOCAL_MODULE_TAGS := optional
+> -LOCAL_COPY_HEADERS_TO := sepol
+> -LOCAL_COPY_HEADERS := include/sepol/handle.h include/sepol/policydb.h
+> cil/include/cil/cil.h
+>  LOCAL_C_INCLUDES := $(common_includes)
+> -LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
+> +LOCAL_CFLAGS := $(common_cflags)
+> +LOCAL_CPPFLAGS := $(yacc_flags)
+>  LOCAL_SRC_FILES := $(common_src_files) $(cil_src_files)
+> -LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+> +LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
+>
+>  include $(BUILD_HOST_SHARED_LIBRARY)
+>
+> @@ -105,9 +105,10 @@ include $(CLEAR_VARS)
+>  LOCAL_MODULE := libsepol
+>  LOCAL_MODULE_TAGS := optional
+>  LOCAL_C_INCLUDES := $(common_includes)
+> -LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
+> +LOCAL_CFLAGS := $(common_cflags)
+> +LOCAL_CPPFLAGS := $(yacc_flags)
+>  LOCAL_SRC_FILES := $(common_src_files) $(cil_src_files)
+> -LOCAL_MODULE_CLASS := STATIC_LIBRARIES
+> +LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
+>
+>  include $(BUILD_HOST_STATIC_LIBRARY)
+>
+> @@ -122,7 +123,6 @@ LOCAL_C_INCLUDES := $(common_includes)
+>  LOCAL_CFLAGS := $(common_cflags)
+>  LOCAL_SRC_FILES := utils/chkcon.c
+>  LOCAL_SHARED_LIBRARIES := libsepol
+> -LOCAL_MODULE_CLASS := EXECUTABLES
+>
+>  include $(BUILD_HOST_EXECUTABLE)
+>
+> @@ -133,6 +133,6 @@ LOCAL_MODULE_TAGES := optional
+>  LOCAL_C_INCLUDES := $(common_includes)
+>  LOCAL_CFLAGS := $(common_cflags)
+>  LOCAL_SRC_FILES := $(common_src_files)
+> -LOCAL_MODULE_CLASS := STATIC_LIBRARIES
+> +LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
+>
+>  include $(BUILD_STATIC_LIBRARY)
+> --
+> 2.8.0.rc3.226.g39d4020
+>
+>
+
+
 -- 
-1.8.3.1
+
+Bowgo Tsai |  Engineer |  bowgotsai@google.com |  +886 (2) 8729-6364
+<%2B886287296364>
+
+--001a114d7dde313305053d20dd97
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">+Jeffrey and Daniel</div><div class=3D"gmail_extra"><br><d=
+iv class=3D"gmail_quote">On Thu, Sep 22, 2016 at 12:48 PM, Bowgo Tsai <span=
+ dir=3D"ltr">&lt;<a href=3D"mailto:bowgotsai@google.com" target=3D"_blank">=
+bowgotsai@google.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_qu=
+ote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex=
+">From: bowgotsai &lt;<a href=3D"mailto:bowgotsai@google.com">bowgotsai@goo=
+gle.com</a>&gt;<br>
+<br>
+---<br>
+=C2=A0checkpolicy/Android.mk | 11 ++---------<br>
+=C2=A0libsepol/Android.mk=C2=A0 =C2=A0 | 16 ++++++++--------<br>
+=C2=A02 files changed, 10 insertions(+), 17 deletions(-)<br>
+<br>
+diff --git a/checkpolicy/Android.mk b/checkpolicy/Android.mk<br>
+index 3b7ff8a..ee2f158 100644<br>
+--- a/checkpolicy/Android.mk<br>
++++ b/checkpolicy/Android.mk<br>
+@@ -18,13 +18,6 @@ common_includes :=3D \<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 $(LOCAL_PATH)/../libsepol/src/ \<br>
+<br>
+=C2=A0##<br>
+-# &quot;-x c&quot; forces the lex/yacc files to be compiled as c the build=
+ system<br>
+-# otherwise forces them to be c++. Need to also add an explicit -std becau=
+se the<br>
+-# build system will soon default C++ to -std=3Dc++11.<br>
+-yacc_flags :=3D -x c -std=3Dgnu89<br>
+-<br>
+-<br>
+-##<br>
+=C2=A0# checkpolicy<br>
+=C2=A0#<br>
+=C2=A0include $(CLEAR_VARS)<br>
+@@ -32,7 +25,7 @@ include $(CLEAR_VARS)<br>
+=C2=A0LOCAL_MODULE :=3D checkpolicy<br>
+=C2=A0LOCAL_MODULE_TAGS :=3D optional<br>
+=C2=A0LOCAL_C_INCLUDES :=3D $(common_includes)<br>
+-LOCAL_CFLAGS :=3D $(yacc_flags) $(common_cflags)<br>
++LOCAL_CFLAGS :=3D $(common_cflags)<br>
+=C2=A0LOCAL_SRC_FILES :=3D $(common_src_files) checkpolicy.c<br>
+=C2=A0LOCAL_STATIC_LIBRARIES :=3D libsepol<br>
+=C2=A0LOCAL_YACCFLAGS :=3D -v<br>
+@@ -49,7 +42,7 @@ include $(CLEAR_VARS)<br>
+=C2=A0LOCAL_MODULE :=3D checkmodule<br>
+=C2=A0LOCAL_MODULE_TAGS :=3D optional<br>
+=C2=A0LOCAL_C_INCLUDES :=3D $(common_includes)<br>
+-LOCAL_CFLAGS :=3D $(yacc_flags) $(common_cflags)<br>
++LOCAL_CFLAGS :=3D $(common_cflags)<br>
+=C2=A0LOCAL_SRC_FILES :=3D $(common_src_files) checkmodule.c<br>
+=C2=A0LOCAL_STATIC_LIBRARIES :=3D libsepol<br>
+=C2=A0LOCAL_YACCFLAGS :=3D -v<br>
+diff --git a/libsepol/Android.mk b/libsepol/Android.mk<br>
+index 6d89f17..e9cfeef 100644<br>
+--- a/libsepol/Android.mk<br>
++++ b/libsepol/Android.mk<br>
+@@ -81,6 +81,7 @@ common_includes :=3D \<br>
+=C2=A0# build system will soon default C++ to -std=3Dc++11.<br>
+=C2=A0yacc_flags :=3D -x c -std=3Dgnu89<br>
+<br>
++<br>
+=C2=A0##<br>
+=C2=A0# libsepol.so<br>
+=C2=A0#<br>
+@@ -88,12 +89,11 @@ include $(CLEAR_VARS)<br>
+<br>
+=C2=A0LOCAL_MODULE :=3D libsepol<br>
+=C2=A0LOCAL_MODULE_TAGS :=3D optional<br>
+-LOCAL_COPY_HEADERS_TO :=3D sepol<br>
+-LOCAL_COPY_HEADERS :=3D include/sepol/handle.h include/sepol/policydb.h ci=
+l/include/cil/cil.h<br>
+=C2=A0LOCAL_C_INCLUDES :=3D $(common_includes)<br>
+-LOCAL_CFLAGS :=3D $(yacc_flags) $(common_cflags)<br>
++LOCAL_CFLAGS :=3D $(common_cflags)<br>
++LOCAL_CPPFLAGS :=3D $(yacc_flags)<br>
+=C2=A0LOCAL_SRC_FILES :=3D $(common_src_files) $(cil_src_files)<br>
+-LOCAL_MODULE_CLASS :=3D SHARED_LIBRARIES<br>
++LOCAL_EXPORT_C_INCLUDE_DIRS :=3D $(LOCAL_PATH)/include<br>
+<br>
+=C2=A0include $(BUILD_HOST_SHARED_LIBRARY)<br>
+<br>
+@@ -105,9 +105,10 @@ include $(CLEAR_VARS)<br>
+=C2=A0LOCAL_MODULE :=3D libsepol<br>
+=C2=A0LOCAL_MODULE_TAGS :=3D optional<br>
+=C2=A0LOCAL_C_INCLUDES :=3D $(common_includes)<br>
+-LOCAL_CFLAGS :=3D $(yacc_flags) $(common_cflags)<br>
++LOCAL_CFLAGS :=3D $(common_cflags)<br>
++LOCAL_CPPFLAGS :=3D $(yacc_flags)<br>
+=C2=A0LOCAL_SRC_FILES :=3D $(common_src_files) $(cil_src_files)<br>
+-LOCAL_MODULE_CLASS :=3D STATIC_LIBRARIES<br>
++LOCAL_EXPORT_C_INCLUDE_DIRS :=3D $(LOCAL_PATH)/include<br>
+<br>
+=C2=A0include $(BUILD_HOST_STATIC_LIBRARY)<br>
+<br>
+@@ -122,7 +123,6 @@ LOCAL_C_INCLUDES :=3D $(common_includes)<br>
+=C2=A0LOCAL_CFLAGS :=3D $(common_cflags)<br>
+=C2=A0LOCAL_SRC_FILES :=3D utils/chkcon.c<br>
+=C2=A0LOCAL_SHARED_LIBRARIES :=3D libsepol<br>
+-LOCAL_MODULE_CLASS :=3D EXECUTABLES<br>
+<br>
+=C2=A0include $(BUILD_HOST_EXECUTABLE)<br>
+<br>
+@@ -133,6 +133,6 @@ LOCAL_MODULE_TAGES :=3D optional<br>
+=C2=A0LOCAL_C_INCLUDES :=3D $(common_includes)<br>
+=C2=A0LOCAL_CFLAGS :=3D $(common_cflags)<br>
+=C2=A0LOCAL_SRC_FILES :=3D $(common_src_files)<br>
+-LOCAL_MODULE_CLASS :=3D STATIC_LIBRARIES<br>
++LOCAL_EXPORT_C_INCLUDE_DIRS :=3D $(LOCAL_PATH)/include<br>
+<br>
+=C2=A0include $(BUILD_STATIC_LIBRARY)<br>
+<span class=3D"HOEnZb"><font color=3D"#888888">--<br>
+2.8.0.rc3.226.g39d4020<br>
+<br>
+</font></span></blockquote></div><br><br clear=3D"all"><div><br></div>-- <b=
+r><div class=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div di=
+r=3D"ltr"><div><div dir=3D"ltr"><div><div dir=3D"ltr"><div><div dir=3D"ltr"=
+><div><div dir=3D"ltr"><div><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"l=
+tr"><div dir=3D"ltr"><br><table cellspacing=3D"0" cellpadding=3D"0" style=
+=3D"font-family:Times"><tbody><tr style=3D"color:rgb(85,85,85);font-family:=
+sans-serif;font-size:small"><td nowrap style=3D"font-family:arial;border-to=
+p-style:solid;border-top-color:rgb(213,15,37);border-top-width:2px">Bowgo T=
+sai |</td><td nowrap style=3D"font-family:arial;border-top-style:solid;bord=
+er-top-color:rgb(51,105,232);border-top-width:2px">=C2=A0Engineer |</td><td=
+ nowrap style=3D"font-family:arial;border-top-style:solid;border-top-color:=
+rgb(0,153,57);border-top-width:2px">=C2=A0<a href=3D"mailto:bowgotsai@googl=
+e.com" target=3D"_blank">bowgotsai@google.com</a>=C2=A0|</td><td nowrap sty=
+le=3D"font-family:arial;border-top-style:solid;border-top-color:rgb(238,178=
+,17);border-top-width:2px">=C2=A0<a href=3D"tel:%2B886287296364" value=3D"+=
+886287296364" style=3D"color:rgb(17,85,204);font-family:arial,sans-serif;fo=
+nt-size:12.8000001907349px;white-space:normal" target=3D"_blank">+886 (2) 8=
+729-6364</a></td></tr></tbody></table><br><div><font face=3D"Times" size=3D=
+"3" style=3D"color:rgb(136,136,136);background-color:rgb(255,255,255)"></fo=
+nt></div></div></div></div></div></div></div></div></div></div></div></div>=
+</div></div></div></div>
+</div>
+
+--001a114d7dde313305053d20dd97--
