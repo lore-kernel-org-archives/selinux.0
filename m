@@ -1,68 +1,436 @@
-From: Liran Liss <liranl@mellanox.com>
-To: "ira.weiny" <ira.weiny@intel.com>, Jason Gunthorpe
- <jgunthorpe@obsidianresearch.com>
-CC: Daniel Jurgens <danielj@mellanox.com>, Paul Moore <paul@paul-moore.com>,
- Leon Romanovsky <leon@kernel.org>, "chrisw@sous-sol.org"
- <chrisw@sous-sol.org>, Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris
- <eparis@parisplace.org>, "dledford@redhat.com" <dledford@redhat.com>,
- "sean.hefty@intel.com" <sean.hefty@intel.com>, "hal.rosenstock@gmail.com"
- <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
- <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: RE: [PATCH v3 0/9] SELinux support for Infiniband RDMA
-Date: Thu, 22 Sep 2016 15:04:37 +0000
-Message-ID: <VI1PR0501MB218937796728388A3FE0E0C9B1C90@VI1PR0501MB2189.eurprd05.prod.outlook.com>
-References: <20160906200221.GE28416@obsidianresearch.com>
- <VI1PR0501MB24290102DD3246F0CA965746C4F90@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160906215548.GA27225@obsidianresearch.com>
- <20160908000134.GC4515@phlsvsds.ph.intel.com>
- <DB6PR0501MB2422EA34EED4EE35EE7B1D28C4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
- <20160908161948.GA21614@obsidianresearch.com>
- <DB6PR0501MB24227FF5BE230C826615111FC4FB0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
- <20160908183611.GD21614@obsidianresearch.com>
- <VI1PR0501MB2429AAD28BD78334C1FE0E5AC4FB0@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160908193235.GA1868@obsidianresearch.com>
- <20160921161626.GA27837@phlsvsds.ph.intel.com>
-In-Reply-To: <20160921161626.GA27837@phlsvsds.ph.intel.com>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8MFI2iC015286
+ for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 11:18:02 -0400
+Received: by mail-pf0-f194.google.com with SMTP id q2so3941243pfj.0
+ for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 08:18:00 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/7] sepolicy: rearrange vars together at the top
+Date: Thu, 22 Sep 2016 23:17:27 +0800
+Message-Id: <1474557453-14379-2-git-send-email-jason@perfinion.com>
+In-Reply-To: <1474557453-14379-1-git-send-email-jason@perfinion.com>
+References: <1474557453-14379-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> From: ira.weiny [mailto:ira.weiny@intel.com]
+This has no functional or code changes other than grouping lines
+together for clarity.
 
-> >
-> > It really isn't. net ports and service_ids are global things that do
-> > not need machine-specific customizations while subnet prefix or device
-> > name/port are both machine-local information.
-> 
-> I agree that service_ids are more analogous to net ports.
-> 
-> However, subnet prefixes are _not_ machine-local.  They are controlled by the
-> Admin of the fabric by a central entity (the SM).  This is more helpful than in
-> ethernet where if you configure the wrong port with the wrong subnet things
-> just don't work.  In IB I can physically plug my network into any IB port I want
-> and the system is _told_ which "subnet" that port belongs to.  (OPA is the same
-> way.)
-> 
-> So for IB/OPA a subnet prefix is a really good way to ID which network (subnet)
-> you want to use.  Unfortunately, I'm not sure how to translate that to
-> iwarp/roce seamlessly except to have some concept of "domain" as I mentioned
-> in my other email.
-> 
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ policycoreutils/sepolicy/sepolicy/__init__.py | 229 ++++++++++++--------------
+ 1 file changed, 106 insertions(+), 123 deletions(-)
 
-Exactly. The identity of both the "domain" (the subnet ID) and the "label" stem from a central entity - the SM.
-It would be very natural to have IB/OPA subnet policies that are configured in all hosts and the SM. These policies are automatically enforced for any port connected to the subnet.
-
-Not everything needs to be related to IP interfaces.
-I can envision multiple jobs in the cluster, running on distinct partitions using distinct security tags, without configuring IP interfaces on these partitions.
-Partition security is a useful and an effective measure that is applicable to IB/OPA networks. That's it.
-
-Ethernet VLANs are a totally different thing --- SELinux *already* handles them for Ethernet interfaces.
-There is nothing special from an admin's point of view regarding how SELinux applies to RDMA over Ethernet (RoCE/iWarp). RDMA is just another transport, and any Ethernet L2 policies should apply to it seamlessly.
-
---Liran
+diff --git a/policycoreutils/sepolicy/sepolicy/__init__.py b/policycoreutils/sepolicy/sepolicy/__init__.py
+index c8d3b90..4d9d6ad 100644
+--- a/policycoreutils/sepolicy/sepolicy/__init__.py
++++ b/policycoreutils/sepolicy/sepolicy/__init__.py
+@@ -51,6 +51,112 @@ TRANSITION = 'transition'
+ ROLE_ALLOW = 'role_allow'
+ 
+ 
++# Autofill for adding files *************************
++DEFAULT_DIRS = {}
++DEFAULT_DIRS["/etc"] = "etc_t"
++DEFAULT_DIRS["/tmp"] = "tmp_t"
++DEFAULT_DIRS["/usr/lib/systemd/system"] = "unit_file_t"
++DEFAULT_DIRS["/lib/systemd/system"] = "unit_file_t"
++DEFAULT_DIRS["/etc/systemd/system"] = "unit_file_t"
++DEFAULT_DIRS["/var/cache"] = "var_cache_t"
++DEFAULT_DIRS["/var/lib"] = "var_lib_t"
++DEFAULT_DIRS["/var/log"] = "log_t"
++DEFAULT_DIRS["/var/run"] = "var_run_t"
++DEFAULT_DIRS["/run"] = "var_run_t"
++DEFAULT_DIRS["/run/lock"] = "var_lock_t"
++DEFAULT_DIRS["/var/run/lock"] = "var_lock_t"
++DEFAULT_DIRS["/var/spool"] = "var_spool_t"
++DEFAULT_DIRS["/var/www"] = "content_t"
++
++file_type_str = {}
++file_type_str["a"] = _("all files")
++file_type_str["f"] = _("regular file")
++file_type_str["d"] = _("directory")
++file_type_str["c"] = _("character device")
++file_type_str["b"] = _("block device")
++file_type_str["s"] = _("socket file")
++file_type_str["l"] = _("symbolic link")
++file_type_str["p"] = _("named pipe")
++
++trans_file_type_str = {}
++trans_file_type_str[""] = "a"
++trans_file_type_str["--"] = "f"
++trans_file_type_str["-d"] = "d"
++trans_file_type_str["-c"] = "c"
++trans_file_type_str["-b"] = "b"
++trans_file_type_str["-s"] = "s"
++trans_file_type_str["-l"] = "l"
++trans_file_type_str["-p"] = "p"
++
++# cache the lookup results
++file_equiv_modified = None
++file_equiv = None
++local_files = None
++fcdict = None
++methods = []
++all_types = None
++user_types = None
++role_allows = None
++portrecs = None
++portrecsbynum = None
++all_domains = None
++roles = None
++selinux_user_list = None
++login_mappings = None
++file_types = None
++port_types = None
++bools = None
++all_attributes = None
++booleans = None
++booleans_dict = None
++
++
++def get_installed_policy(root="/"):
++    try:
++        path = root + selinux.selinux_binary_policy_path()
++        policies = glob.glob("%s.*" % path)
++        policies.sort()
++        return policies[-1]
++    except:
++        pass
++    raise ValueError(_("No SELinux Policy installed"))
++
++
++def policy(policy_file):
++    global all_domains
++    global all_attributes
++    global bools
++    global all_types
++    global role_allows
++    global users
++    global roles
++    global file_types
++    global port_types
++    all_domains = None
++    all_attributes = None
++    bools = None
++    all_types = None
++    role_allows = None
++    users = None
++    roles = None
++    file_types = None
++    port_types = None
++    global _pol
++
++    try:
++        _policy.policy(policy_file)
++    except:
++        raise ValueError(_("Failed to read %s policy file") % policy_file)
++
++
++try:
++    policy_file = get_installed_policy()
++    policy(policy_file)
++except ValueError as e:
++    if selinux.is_selinux_enabled() == 1:
++        raise e
++
++
+ def info(setype, name=None):
+     dict_list = _policy.info(setype, name)
+     return dict_list
+@@ -107,26 +213,6 @@ def get_conditionals_format_text(cond):
+ def get_types_from_attribute(attribute):
+     return info(ATTRIBUTE, attribute)[0]["types"]
+ 
+-file_type_str = {}
+-file_type_str["a"] = _("all files")
+-file_type_str["f"] = _("regular file")
+-file_type_str["d"] = _("directory")
+-file_type_str["c"] = _("character device")
+-file_type_str["b"] = _("block device")
+-file_type_str["s"] = _("socket file")
+-file_type_str["l"] = _("symbolic link")
+-file_type_str["p"] = _("named pipe")
+-
+-trans_file_type_str = {}
+-trans_file_type_str[""] = "a"
+-trans_file_type_str["--"] = "f"
+-trans_file_type_str["-d"] = "d"
+-trans_file_type_str["-c"] = "c"
+-trans_file_type_str["-b"] = "b"
+-trans_file_type_str["-s"] = "s"
+-trans_file_type_str["-l"] = "l"
+-trans_file_type_str["-p"] = "p"
+-
+ 
+ def get_file_types(setype):
+     flist = []
+@@ -209,18 +295,14 @@ def find_file(reg):
+ 
+ 
+ def find_all_files(domain, exclude_list=[]):
+-    all_entrypoints = []
+     executable_files = get_entrypoints(domain)
+     for exe in executable_files.keys():
+         if exe.endswith("_exec_t") and exe not in exclude_list:
+             for path in executable_files[exe]:
+                 for f in find_file(path):
+                     return f
+-                    #all_entrypoints.append(f)
+     return None
+ 
+-#return all_entrypoints
+-
+ 
+ def find_entrypoint_path(exe, exclude_list=[]):
+     fcdict = get_fcdict()
+@@ -243,8 +325,6 @@ def read_file_equiv(edict, fc_path, modify):
+         edict[f[0]] = {"equiv": f[1], "modify": modify}
+     return edict
+ 
+-file_equiv_modified = None
+-
+ 
+ def get_file_equiv_modified(fc_path=selinux.selinux_file_context_path()):
+     global file_equiv_modified
+@@ -254,8 +334,6 @@ def get_file_equiv_modified(fc_path=selinux.selinux_file_context_path()):
+     file_equiv_modified = read_file_equiv(file_equiv_modified, fc_path + ".subs", modify=True)
+     return file_equiv_modified
+ 
+-file_equiv = None
+-
+ 
+ def get_file_equiv(fc_path=selinux.selinux_file_context_path()):
+     global file_equiv
+@@ -265,8 +343,6 @@ def get_file_equiv(fc_path=selinux.selinux_file_context_path()):
+     file_equiv = read_file_equiv(file_equiv, fc_path + ".subs_dist", modify=False)
+     return file_equiv
+ 
+-local_files = None
+-
+ 
+ def get_local_file_paths(fc_path=selinux.selinux_file_context_path()):
+     global local_files
+@@ -291,8 +367,6 @@ def get_local_file_paths(fc_path=selinux.selinux_file_context_path()):
+             pass
+     return local_files
+ 
+-fcdict = None
+-
+ 
+ def get_fcdict(fc_path=selinux.selinux_file_context_path()):
+     global fcdict
+@@ -431,19 +505,6 @@ def get_entrypoints(setype):
+     return mpaths
+ 
+ 
+-def get_installed_policy(root="/"):
+-    try:
+-        path = root + selinux.selinux_binary_policy_path()
+-        policies = glob.glob("%s.*" % path)
+-        policies.sort()
+-        return policies[-1]
+-    except:
+-        pass
+-    raise ValueError(_("No SELinux Policy installed"))
+-
+-methods = []
+-
+-
+ def get_methods():
+     global methods
+     if len(methods) > 0:
+@@ -464,8 +525,6 @@ def get_methods():
+     methods.sort()
+     return methods
+ 
+-all_types = None
+-
+ 
+ def get_all_types():
+     global all_types
+@@ -473,8 +532,6 @@ def get_all_types():
+         all_types = map(lambda x: x['name'], info(TYPE))
+     return all_types
+ 
+-user_types = None
+-
+ 
+ def get_user_types():
+     global user_types
+@@ -482,8 +539,6 @@ def get_user_types():
+         user_types = info(ATTRIBUTE, "userdomain")[0]["types"]
+     return user_types
+ 
+-role_allows = None
+-
+ 
+ def get_all_role_allows():
+     global role_allows
+@@ -513,9 +568,6 @@ def get_all_entrypoint_domains():
+                 all_domains.append(m[0])
+     return all_domains
+ 
+-portrecs = None
+-portrecsbynum = None
+-
+ 
+ def gen_interfaces():
+     import commands
+@@ -558,8 +610,6 @@ def gen_port_dict():
+ 
+     return (portrecs, portrecsbynum)
+ 
+-all_domains = None
+-
+ 
+ def get_all_domains():
+     global all_domains
+@@ -567,8 +617,6 @@ def get_all_domains():
+         all_domains = info(ATTRIBUTE, "domain")[0]["types"]
+     return all_domains
+ 
+-roles = None
+-
+ 
+ def get_all_roles():
+     global roles
+@@ -579,8 +627,6 @@ def get_all_roles():
+     roles.sort()
+     return roles
+ 
+-selinux_user_list = None
+-
+ 
+ def get_selinux_users():
+     global selinux_user_list
+@@ -590,8 +636,6 @@ def get_selinux_users():
+             x['range'] = "".join(x['range'].split(" "))
+     return selinux_user_list
+ 
+-login_mappings = None
+-
+ 
+ def get_login_mappings():
+     global login_mappings
+@@ -616,8 +660,6 @@ def get_all_users():
+     users.sort()
+     return users
+ 
+-file_types = None
+-
+ 
+ def get_all_file_types():
+     global file_types
+@@ -627,8 +669,6 @@ def get_all_file_types():
+     file_types.sort()
+     return file_types
+ 
+-port_types = None
+-
+ 
+ def get_all_port_types():
+     global port_types
+@@ -638,8 +678,6 @@ def get_all_port_types():
+     port_types.sort()
+     return port_types
+ 
+-bools = None
+-
+ 
+ def get_all_bools():
+     global bools
+@@ -655,23 +693,6 @@ def prettyprint(f, trim):
+ def markup(f):
+     return f
+ 
+-# Autofill for adding files *************************
+-DEFAULT_DIRS = {}
+-DEFAULT_DIRS["/etc"] = "etc_t"
+-DEFAULT_DIRS["/tmp"] = "tmp_t"
+-DEFAULT_DIRS["/usr/lib/systemd/system"] = "unit_file_t"
+-DEFAULT_DIRS["/lib/systemd/system"] = "unit_file_t"
+-DEFAULT_DIRS["/etc/systemd/system"] = "unit_file_t"
+-DEFAULT_DIRS["/var/cache"] = "var_cache_t"
+-DEFAULT_DIRS["/var/lib"] = "var_lib_t"
+-DEFAULT_DIRS["/var/log"] = "log_t"
+-DEFAULT_DIRS["/var/run"] = "var_run_t"
+-DEFAULT_DIRS["/run"] = "var_run_t"
+-DEFAULT_DIRS["/run/lock"] = "var_lock_t"
+-DEFAULT_DIRS["/var/run/lock"] = "var_lock_t"
+-DEFAULT_DIRS["/var/spool"] = "var_spool_t"
+-DEFAULT_DIRS["/var/www"] = "content_t"
+-
+ 
+ def get_description(f, markup=markup):
+ 
+@@ -765,8 +786,6 @@ def get_description(f, markup=markup):
+ 
+     return txt + "treat the files as %s data." % prettyprint(f, "_t")
+ 
+-all_attributes = None
+-
+ 
+ def get_all_attributes():
+     global all_attributes
+@@ -775,38 +794,6 @@ def get_all_attributes():
+     return all_attributes
+ 
+ 
+-def policy(policy_file):
+-    global all_domains
+-    global all_attributes
+-    global bools
+-    global all_types
+-    global role_allows
+-    global users
+-    global roles
+-    global file_types
+-    global port_types
+-    all_domains = None
+-    all_attributes = None
+-    bools = None
+-    all_types = None
+-    role_allows = None
+-    users = None
+-    roles = None
+-    file_types = None
+-    port_types = None
+-    try:
+-        _policy.policy(policy_file)
+-    except:
+-        raise ValueError(_("Failed to read %s policy file") % policy_file)
+-
+-try:
+-    policy_file = get_installed_policy()
+-    policy(policy_file)
+-except ValueError as e:
+-    if selinux.is_selinux_enabled() == 1:
+-        raise e
+-
+-
+ def _dict_has_perms(dict, perms):
+     for perm in perms:
+         if perm not in dict[PERMS]:
+@@ -849,8 +836,6 @@ def get_bools(setype):
+                     bools.append((b[0], enabled))
+     return (domainbools, bools)
+ 
+-booleans = None
+-
+ 
+ def get_all_booleans():
+     global booleans
+@@ -858,8 +843,6 @@ def get_all_booleans():
+         booleans = selinux.security_get_boolean_names()[1]
+     return booleans
+ 
+-booleans_dict = None
+-
+ 
+ def policy_xml(path="/usr/share/selinux/devel/policy.xml"):
+     try:
+-- 
+2.7.3
