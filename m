@@ -1,99 +1,118 @@
-Subject: Re: [PATCH] libselinux: Add openrc_contexts functions
-To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
-References: <1474555437-7557-1-git-send-email-jason@perfinion.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <171ac740-198d-101d-7993-1cf02ef16c12@tycho.nsa.gov>
-Date: Thu, 22 Sep 2016 13:34:25 -0400
-MIME-Version: 1.0
-In-Reply-To: <1474555437-7557-1-git-send-email-jason@perfinion.com>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8MJmDWh014410
+ for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 15:48:14 -0400
+Received: by mail-pa0-f43.google.com with SMTP id hm5so32269415pac.0
+ for <selinux@tycho.nsa.gov>; Thu, 22 Sep 2016 12:48:11 -0700 (PDT)
+From: Bowgo Tsai <bowgotsai@google.com>
+To: selinux@tycho.nsa.gov
+Cc: bowgotsai <bowgotsai@google.com>
+Subject: [PATCH 1/2] libsepol, checkpolicy: Update Android.mk
+Date: Fri, 23 Sep 2016 03:48:05 +0800
+Message-Id: <1474573685-124428-1-git-send-email-bowgotsai@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/22/2016 10:43 AM, Jason Zaman wrote:
-> The file will initially contain:
-> run_init=run_init_t
-> There can not be any spaces around the = since OpenRC's existing config
-> files and the methods it uses require it.
-> 
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
+From: bowgotsai <bowgotsai@google.com>
 
-Thanks, applied.  I think however that we can dispense with a bunch of
-these hidden_def/hidden_proto declarations; they are only needed for
-exported functions that are also called internally by libselinux.  Seems
-like that is wrong for several of these functions.
+---
+ checkpolicy/Android.mk | 11 ++---------
+ libsepol/Android.mk    | 16 ++++++++--------
+ 2 files changed, 10 insertions(+), 17 deletions(-)
 
-> ---
->  libselinux/include/selinux/selinux.h |  1 +
->  libselinux/src/file_path_suffixes.h  |  1 +
->  libselinux/src/selinux_config.c      | 10 +++++++++-
->  libselinux/src/selinux_internal.h    |  1 +
->  4 files changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-> index 3d8673f..45dd6ca 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -543,6 +543,7 @@ extern const char *selinux_virtual_image_context_path(void);
->  extern const char *selinux_lxc_contexts_path(void);
->  extern const char *selinux_x_context_path(void);
->  extern const char *selinux_sepgsql_context_path(void);
-> +extern const char *selinux_openrc_contexts_path(void);
->  extern const char *selinux_openssh_contexts_path(void);
->  extern const char *selinux_snapperd_contexts_path(void);
->  extern const char *selinux_systemd_contexts_path(void);
-> diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
-> index 95b228b..2d3ca49 100644
-> --- a/libselinux/src/file_path_suffixes.h
-> +++ b/libselinux/src/file_path_suffixes.h
-> @@ -23,6 +23,7 @@ S_(BINPOLICY, "/policy/policy")
->      S_(VIRTUAL_DOMAIN, "/contexts/virtual_domain_context")
->      S_(VIRTUAL_IMAGE, "/contexts/virtual_image_context")
->      S_(LXC_CONTEXTS, "/contexts/lxc_contexts")
-> +    S_(OPENRC_CONTEXTS, "/contexts/openrc_contexts")
->      S_(OPENSSH_CONTEXTS, "/contexts/openssh_contexts")
->      S_(SNAPPERD_CONTEXTS, "/contexts/snapperd_contexts")
->      S_(SYSTEMD_CONTEXTS, "/contexts/systemd_contexts")
-> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-> index c519a77..88bcc85 100644
-> --- a/libselinux/src/selinux_config.c
-> +++ b/libselinux/src/selinux_config.c
-> @@ -51,7 +51,8 @@
->  #define OPENSSH_CONTEXTS  28
->  #define SYSTEMD_CONTEXTS  29
->  #define SNAPPERD_CONTEXTS 30
-> -#define NEL               31
-> +#define OPENRC_CONTEXTS   31
-> +#define NEL               32
->  
->  /* Part of one-time lazy init */
->  static pthread_once_t once = PTHREAD_ONCE_INIT;
-> @@ -493,6 +494,13 @@ const char *selinux_lxc_contexts_path(void)
->  
->  hidden_def(selinux_lxc_contexts_path)
->  
-> +const char *selinux_openrc_contexts_path(void)
-> +{
-> +    return get_path(OPENRC_CONTEXTS);
-> +}
-> +
-> +hidden_def(selinux_openrc_contexts_path)
-> +
->  const char *selinux_openssh_contexts_path(void)
->  {
->      return get_path(OPENSSH_CONTEXTS);
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-> index 9b9145c..3d5c9fb 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -83,6 +83,7 @@ hidden_proto(selinux_mkload_policy)
->      hidden_proto(selinux_media_context_path)
->      hidden_proto(selinux_x_context_path)
->      hidden_proto(selinux_sepgsql_context_path)
-> +    hidden_proto(selinux_openrc_contexts_path)
->      hidden_proto(selinux_openssh_contexts_path)
->      hidden_proto(selinux_snapperd_contexts_path)
->      hidden_proto(selinux_systemd_contexts_path)
-> 
+diff --git a/checkpolicy/Android.mk b/checkpolicy/Android.mk
+index 3b7ff8a..ee2f158 100644
+--- a/checkpolicy/Android.mk
++++ b/checkpolicy/Android.mk
+@@ -18,13 +18,6 @@ common_includes := \
+ 	$(LOCAL_PATH)/../libsepol/src/ \
+ 
+ ##
+-# "-x c" forces the lex/yacc files to be compiled as c the build system
+-# otherwise forces them to be c++. Need to also add an explicit -std because the
+-# build system will soon default C++ to -std=c++11.
+-yacc_flags := -x c -std=gnu89
+-
+-
+-##
+ # checkpolicy
+ #
+ include $(CLEAR_VARS)
+@@ -32,7 +25,7 @@ include $(CLEAR_VARS)
+ LOCAL_MODULE := checkpolicy
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_C_INCLUDES := $(common_includes) 
+-LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
++LOCAL_CFLAGS := $(common_cflags)
+ LOCAL_SRC_FILES := $(common_src_files) checkpolicy.c
+ LOCAL_STATIC_LIBRARIES := libsepol
+ LOCAL_YACCFLAGS := -v
+@@ -49,7 +42,7 @@ include $(CLEAR_VARS)
+ LOCAL_MODULE := checkmodule
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_C_INCLUDES := $(common_includes) 
+-LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
++LOCAL_CFLAGS := $(common_cflags)
+ LOCAL_SRC_FILES := $(common_src_files) checkmodule.c
+ LOCAL_STATIC_LIBRARIES := libsepol
+ LOCAL_YACCFLAGS := -v
+diff --git a/libsepol/Android.mk b/libsepol/Android.mk
+index 6d89f17..e9cfeef 100644
+--- a/libsepol/Android.mk
++++ b/libsepol/Android.mk
+@@ -81,6 +81,7 @@ common_includes := \
+ # build system will soon default C++ to -std=c++11.
+ yacc_flags := -x c -std=gnu89
+ 
++
+ ##
+ # libsepol.so
+ #
+@@ -88,12 +89,11 @@ include $(CLEAR_VARS)
+ 
+ LOCAL_MODULE := libsepol
+ LOCAL_MODULE_TAGS := optional
+-LOCAL_COPY_HEADERS_TO := sepol
+-LOCAL_COPY_HEADERS := include/sepol/handle.h include/sepol/policydb.h cil/include/cil/cil.h
+ LOCAL_C_INCLUDES := $(common_includes) 
+-LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
++LOCAL_CFLAGS := $(common_cflags)
++LOCAL_CPPFLAGS := $(yacc_flags)
+ LOCAL_SRC_FILES := $(common_src_files) $(cil_src_files)
+-LOCAL_MODULE_CLASS := SHARED_LIBRARIES
++LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
+ 
+ include $(BUILD_HOST_SHARED_LIBRARY)
+ 
+@@ -105,9 +105,10 @@ include $(CLEAR_VARS)
+ LOCAL_MODULE := libsepol
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_C_INCLUDES := $(common_includes) 
+-LOCAL_CFLAGS := $(yacc_flags) $(common_cflags)
++LOCAL_CFLAGS := $(common_cflags)
++LOCAL_CPPFLAGS := $(yacc_flags)
+ LOCAL_SRC_FILES := $(common_src_files) $(cil_src_files)
+-LOCAL_MODULE_CLASS := STATIC_LIBRARIES
++LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
+ 
+ include $(BUILD_HOST_STATIC_LIBRARY)
+ 
+@@ -122,7 +123,6 @@ LOCAL_C_INCLUDES := $(common_includes)
+ LOCAL_CFLAGS := $(common_cflags)
+ LOCAL_SRC_FILES := utils/chkcon.c
+ LOCAL_SHARED_LIBRARIES := libsepol
+-LOCAL_MODULE_CLASS := EXECUTABLES
+ 
+ include $(BUILD_HOST_EXECUTABLE)
+ 
+@@ -133,6 +133,6 @@ LOCAL_MODULE_TAGES := optional
+ LOCAL_C_INCLUDES := $(common_includes)
+ LOCAL_CFLAGS := $(common_cflags)
+ LOCAL_SRC_FILES := $(common_src_files)
+-LOCAL_MODULE_CLASS := STATIC_LIBRARIES
++LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_PATH)/include
+ 
+ include $(BUILD_STATIC_LIBRARY)
+-- 
+2.8.0.rc3.226.g39d4020
