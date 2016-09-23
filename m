@@ -1,148 +1,83 @@
-Subject: Re: [PATCH] libsemanage: use pp module headers as a source for a
- module name
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1474622600-22721-1-git-send-email-plautrba@redhat.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <cde8f8f7-002a-d5d9-57d3-d8978c98b8aa@tycho.nsa.gov>
-Date: Fri, 23 Sep 2016 11:31:51 -0400
 MIME-Version: 1.0
-In-Reply-To: <1474622600-22721-1-git-send-email-plautrba@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <57E534DE.9070500@quarksecurity.com>
+References: <CAFftDdqDxr6jqC7t1imRrQ7dMJEsZh--L0CrWOCzgYUfwNeZyA@mail.gmail.com>
+ <CAFftDdoXEo9Q7bRrr-AeHFX7eauKGeWzqRW-m_Z=hfXUT_JFUA@mail.gmail.com>
+ <CABXk95BAor2Y7nvOZkkwEsc=8xgoa63x89WQtCbXDvzu_Pch_A@mail.gmail.com>
+ <CAFftDdqr_DXtkaTkUApdsp7Nq5bm3FrUEq2xRDkc6b7Omx5RxQ@mail.gmail.com>
+ <57E534DE.9070500@quarksecurity.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Fri, 23 Sep 2016 08:42:05 -0700
+Message-ID: <CAFftDdqs21PprRVRYfMjHXH2Qe7x3eYz8cR2M-bLbTso9HdnoQ@mail.gmail.com>
+Subject: Re: Killing The Android libselinux Fork (available)
+To: Joshua Brindle <brindle@quarksecurity.com>
+Cc: Jeff Vander Stoep <jeffv@google.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Daniel Cashman <dcashman@android.com>,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/23/2016 05:23 AM, Petr Lautrbach wrote:
-> When a user installs a module, the filename is used as the module name.
-> This change was introduced with CIL language where a module name is not
-> stored in the module itself. It means that when a pp module has
-> different filename and stored module name, the filename is used instead
-> of the stored module name. It brings problems with compatibility for
-> scripts and modules which were built and used on older system and were
-> migrated to the new userspace.
+On Fri, Sep 23, 2016 at 6:57 AM, Joshua Brindle
+<brindle@quarksecurity.com> wrote:
+> William Roberts wrote:
+>>
+>> On Sep 22, 2016 9:18 PM, "Jeffrey Vander Stoep"<jeffv@google.com>  wrote:
+>>>
+>>> Remember to test on the Mac build. About a year ago I moved the host side
+>>
+>> tools over to upstream libselinux, but had to revert because it broke the
+>> Mac build in multiple places. Since then Richard Haines has done a lot of
+>> work to reduce the diff between upstream and the Android fork. Hopefully
+>> that will reduce your effort.
+>>
+>> Yeah I'm quite concerned about the Mac build, does anyone on here have
+>> access to a Mac for testing?
 >
-> This patch changes the behavior of semanage_direct_install_file() which
-> is used by 'semodule -i' so that when a module with pp language
-> extension is installed, it tries to get and use a stored module name
-> instead of a filename.
 >
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> I do, let me know when you have a branch you need looked at and I'll try to
+> get to it.
 
-I am not in favor of this for several reasons:
-1) There would be conflicts if a module name is the same as a different module's 
-file name.
-2) It would be confusing to have some modules referred to by their module name 
-and other modules by their file name.
-3) In practice, very few modules use a module name that is different from their 
-file name.
+Feel free to test the fork-kill branch from my github, you should find
+the details
+below from a previous message in the thread.
 
-In April checkmodule was modified to fail compiling a module when the module 
-name was different from the file name and pp (which does pp to CIL conversion) 
-will give a warning message when converting a pp file to CIL. Is that not 
-sufficient?
+<snip>
 
-Jim
+>>>>> The work is available here:
+>>>>> https://github.com/williamcroberts/selinux/tree/fork-kill
+>>>>>
+>>>>> Currently to Build:
+>>>>> 1. remove external/libselinux
+>>>>> 2. apply this patch to bionic if not present:
+>>>>> https://android-review.googlesource.com/#/c/276918
+>>>>> 3. either set external/selinux to my fork-kill branch or merge selinux
+>>>>> upstream master into external/selinux and apply the two patches listed
+>>>>> below:
+>>>>>
+>>>>> Patches that matter ( I don't know how to make pretty little git
+>>
+>> summaries):
+>>>>>
+>>>>> commit e017f48acd2791a6aa62b4ed0c0b44256b26651f
+>>>>> Author: William Roberts<william.c.roberts@intel.com>
+>>>>> Date:   Wed Sep 21 16:06:37 2016 -0700
+>>>>> libselinux: add The Android fork files
+>>>>>
+>>>>> commit f40d7facbcaf1337f37b5630b98806fd25b1dbf9
+>>>>> Author: William Roberts<william.c.roberts@intel.com>
+>>>>> Date:   Wed Sep 21 16:00:34 2016 -0700
+>>>>> libselinux: rectify the Android fork
+>>>>>
+>>>>> The goal would be to upstream commit f40d7facb and leave
+>>>>> commit e017f48ac on the Android tree.
+>>>>>
+>>>>> I am going to do some further testing tomorrow, and plan on submitting
+>>>>> the upstream patch f40d7facbc on Monday. If anyone wants to leave
+>>>>> preliminary feedback, or has a specific thing they want tested, let me
+>>
 
-
-> ---
->  libsemanage/src/direct_api.c | 62 +++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 61 insertions(+), 1 deletion(-)
->
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index 2187b65..f98d3d1 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -363,6 +363,48 @@ static int semanage_direct_begintrans(semanage_handle_t * sh)
->
->  /********************* utility functions *********************/
->
-> +/* Takes a module stored in 'module_data' and parses its headers.
-> + * Sets reference variables 'module_name' to module's name, and
-> + * 'version' to module's version.  The caller is responsible for
-> + * free()ing 'module_name', and 'version'; they will be
-> + * set to NULL upon entering this function.  Returns 0 on success, -1
-> + * if out of memory, or -2 if data did not represent a module.
-> + */
-> +static int parse_module_headers(semanage_handle_t * sh, char *module_data,
-> +                               size_t data_len, char **module_name,
-> +                               char **version)
-> +{
-> +       struct sepol_policy_file *pf;
-> +       int file_type;
-> +       *module_name = *version = NULL;
-> +
-> +       if (sepol_policy_file_create(&pf)) {
-> +               ERR(sh, "Out of memory!");
-> +               return -1;
-> +       }
-> +       sepol_policy_file_set_mem(pf, module_data, data_len);
-> +       sepol_policy_file_set_handle(pf, sh->sepolh);
-> +       if (module_data == NULL ||
-> +           data_len == 0 ||
-> +           sepol_module_package_info(pf, &file_type, module_name,
-> +                                     version) == -1) {
-> +               sepol_policy_file_free(pf);
-> +               ERR(sh, "Could not parse module data.");
-> +               return -2;
-> +       }
-> +       sepol_policy_file_free(pf);
-> +       if (file_type != SEPOL_POLICY_MOD) {
-> +               if (file_type == SEPOL_POLICY_BASE)
-> +                       ERR(sh,
-> +                           "Received a base module, expected a non-base module.");
-> +               else
-> +                       ERR(sh, "Data did not represent a module.");
-> +               return -2;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
->  #include <stdlib.h>
->  #include <bzlib.h>
->  #include <string.h>
-> @@ -1524,7 +1566,9 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
->  	char *path = NULL;
->  	char *filename;
->  	char *lang_ext = NULL;
-> +	char *module_name = NULL;
->  	char *separator;
-> +	char *version = NULL;
->
->  	if ((data_len = map_file(sh, install_filename, &data, &compressed)) <= 0) {
->  		ERR(sh, "Unable to read file %s\n", install_filename);
-> @@ -1564,10 +1608,26 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
->  		lang_ext = separator + 1;
->  	}
->
-> -	retval = semanage_direct_install(sh, data, data_len, filename, lang_ext);
-> +	if (strcmp(lang_ext, "pp") != 0)
-> +		module_name = strdup(filename);
-> +	else {
-> +		if (parse_module_headers(sh, data, data_len, &module_name, &version) != 0) {
-> +			free(module_name);
-> +			module_name = strdup(filename);
-> +		}
-> +		free(version);
-> +	}
-> +	if (module_name == NULL) {
-> +		ERR(sh, "No memory available for module_name.\n");
-> +		retval = -1;
-> +		goto cleanup;
-> +	}
-> +
-> +	retval = semanage_direct_install(sh, data, data_len, module_name, lang_ext);
->
->  cleanup:
->  	if (data_len > 0) munmap(data, data_len);
-> +	free(module_name);
->  	free(path);
->
->  	return retval;
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+<snip>
