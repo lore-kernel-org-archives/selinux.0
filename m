@@ -1,77 +1,48 @@
-Subject: Re: setools4 support
-To: Stephen Smalley <sds@tycho.nsa.gov>, Jason Zaman <jason@perfinion.com>,
- selinux@tycho.nsa.gov
-References: <1474557453-14379-1-git-send-email-jason@perfinion.com>
- <dab0152e-1976-5eab-b834-6c1b572ff4bc@tycho.nsa.gov>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8NHP1kr016040
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 13:25:01 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 0CD9072673
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 17:24:22 +0000 (UTC)
 From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <22ff72d8-7d98-d35a-e193-52beb64e80e8@redhat.com>
-Date: Fri, 23 Sep 2016 19:11:55 +0200
-MIME-Version: 1.0
-In-Reply-To: <dab0152e-1976-5eab-b834-6c1b572ff4bc@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/2] sandbox: do not try setup directories without -X or -M
+Date: Fri, 23 Sep 2016 19:24:15 +0200
+Message-Id: <20160923172416.25050-1-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/23/2016 07:07 PM, Stephen Smalley wrote:
-> On 09/22/2016 11:17 AM, Jason Zaman wrote:
->> Hi all,
->>
->> I finally got everything updated to use setools4. The most complicated parts
->> were sepolicy.search() and sepolicy.info() which were largely undocumented. I
->> dumped and diff'd the output from the old and new code so am fairly confident
->> that they are the same (barring some issues that setools3 appears to have with
->> cil). I also changed several places to just use setools directly, having the
->> indirection through search() mostly just complicates and slows things down.
->>
->> The first patch is just cleanup. Next imports and initializes setools.
->> Patches 3-4 update a lot of the users of search() and info() to work with the next
->> changes.
->> Patches 5-6 update search() and info() themselves and the last drops the C
->> module completely
->>
->> I dont know the status of setools4 on fedora (someone else will have to update
->> the README if needed) or others but I've added it masked in gentoo a fair while
->> ago. Once this patchset is merged we can finally get rid of setools3, its been
->> half-broken for a while now.
-> 
-> AFAICT, setools4 is not packaged for Fedora yet.
+sandbox tried to copy all affected files to the new home
+or tmp even though -M or -X was not specified and there was no new
+directory.
 
-I haven't updated it for some time but you can try
+Fixes:
+$ sandbox ls ~
+/usr/bin/sandbox: [Errno 17] File exists: '/root'
 
-https://copr.fedorainfracloud.org/coprs/plautrba/setools4/
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ policycoreutils/sandbox/sandbox | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-I would like setools4 to be packaged for Fedora 26. The conflict among
-setools 3 and setools 4 needs to be resolved first. The idea is to have
-legacy setools3-libs and setools4 with the tools.
-
-Petr
-
-> $ git clone https://github.com/TresysTechnology/setools
-> $ cd setools
-> $ git checkout 4.0
-> $ sudo python setup.py install
-> $ sesearch
-> Traceback (most recent call last):
->   File "/usr/bin/sesearch", line 4, in <module>
->     __import__('pkg_resources').run_script('setools==4.0.1', 'sesearch')
->   File "/usr/lib/python2.7/site-packages/pkg_resources/__init__.py",
-> line 724, in run_script
->     self.require(requires)[0].run_script(script_name, ns)
->   File "/usr/lib/python2.7/site-packages/pkg_resources/__init__.py",
-> line 1657, in run_script
->     exec(script_code, namespace, namespace)
->   File
-> "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-x86_64.egg/EGG-INFO/scripts/sesearch",
-> line 21, in <module>
-> 
->   File "build/bdist.linux-x86_64/egg/setools/__init__.py", line 30, in
-> <module>
->   File "build/bdist.linux-x86_64/egg/setools/policyrep/__init__.py",
-> line 34, in <module>
-> ImportError: cannot import name qpol
-> 
-> What I am doing wrong?
-> 
+diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+index 4ed57c1..9cc13c2 100644
+--- a/policycoreutils/sandbox/sandbox
++++ b/policycoreutils/sandbox/sandbox
+@@ -503,7 +503,8 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
+         try:
+             self.__parse_options()
+             self.__gen_context()
+-            self.__setup_dir()
++            if self.__mount:
++                self.__setup_dir()
+             return self.__execute()
+         except KeyboardInterrupt:
+             sys.exit(0)
+-- 
+2.9.3
