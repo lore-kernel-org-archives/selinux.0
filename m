@@ -1,117 +1,148 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8NEpDq7030549
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 10:51:13 -0400
-Received: by mail-wm0-f54.google.com with SMTP id l132so36233500wmf.0
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 07:51:11 -0700 (PDT)
+Subject: Re: [PATCH] libsemanage: use pp module headers as a source for a
+ module name
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+References: <1474622600-22721-1-git-send-email-plautrba@redhat.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <cde8f8f7-002a-d5d9-57d3-d8978c98b8aa@tycho.nsa.gov>
+Date: Fri, 23 Sep 2016 11:31:51 -0400
 MIME-Version: 1.0
-References: <883e1b35-467e-e3dd-5baa-1822ab003829@tycho.nsa.gov>
- <CAFftDdqgu0dNoetJXiRCVZ6uK_Qd4U+0xo2jTj=pscQAy48UWw@mail.gmail.com>
- <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
- <93d8efc2-3a4c-48d6-4452-7a9304eb98d7@tycho.nsa.gov>
-In-Reply-To: <93d8efc2-3a4c-48d6-4452-7a9304eb98d7@tycho.nsa.gov>
-From: Janis Danisevskis <jdanis@google.com>
-Date: Fri, 23 Sep 2016 14:50:58 +0000
-Message-ID: <CAAdwW5OA8YEYG2qitF_HZh8yniKtE9Z58fM48dAgpUqQY9+Cwg@mail.gmail.com>
-Subject: Re: selinux 2.6-rc1 release planned 9/30
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- William Roberts <bill.c.roberts@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a1130cb3c9c1eb6053d2de85c
+In-Reply-To: <1474622600-22721-1-git-send-email-plautrba@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1130cb3c9c1eb6053d2de85c
-Content-Type: text/plain; charset=UTF-8
-
-Exactly, the confusing message slipped in with the pcre2 patch.
-I will try and submit the arch detection patch on the weekend. I was pretty
-occupied this week.
-
-On Wed, Sep 21, 2016 at 5:39 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On 09/21/2016 11:52 AM, Stephen Smalley wrote:
-> > On 09/21/2016 11:40 AM, William Roberts wrote:
-> >> I'd like to see the -r flip change in by then, so no official release
-> >> is cut with that behavior.
-> >>
-> >> Also, I was looking at the help output for -r, and its quite
-> >> confusing, I cant tell if -r includes or omits, verbatim output:
-> >>
-> >> -r       Include precompiled regular expressions in the output.
-> >>         (PCRE2 only. Compiled PCRE2 regular expressions are
-> >>         not portable across architectures. When linked against
-> >>         PCRE this flag is ignored)
-> >>         Omit precompiled regular expressions (only meaningful
-> >>         when using PCRE2 regular expression back-end).
-> >> fc_file  The text based file contexts file to be processed.
-> >
-> > Yes, Janis actually posted a patch to fix that as well, but it presumes
-> > the prior patch to change the -r behavior.  So we can take those two
-> > patches once we have the arch detection and fallback patch in place.
+On 09/23/2016 05:23 AM, Petr Lautrbach wrote:
+> When a user installs a module, the filename is used as the module name.
+> This change was introduced with CIL language where a module name is not
+> stored in the module itself. It means that when a pp module has
+> different filename and stored module name, the filename is used instead
+> of the stored module name. It brings problems with compatibility for
+> scripts and modules which were built and used on older system and were
+> migrated to the new userspace.
 >
-> Actually, I'm wrong: the two patches were two different options, one of
-> which switched the default and the other left the default unchanged and
-> fixed the usage message.  So I'll apply the latter now until the arch
-> detection is in place.
+> This patch changes the behavior of semanage_direct_install_file() which
+> is used by 'semodule -i' so that when a module with pp language
+> extension is installed, it tries to get and use a stored module name
+> instead of a filename.
 >
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+
+I am not in favor of this for several reasons:
+1) There would be conflicts if a module name is the same as a different module's 
+file name.
+2) It would be confusing to have some modules referred to by their module name 
+and other modules by their file name.
+3) In practice, very few modules use a module name that is different from their 
+file name.
+
+In April checkmodule was modified to fail compiling a module when the module 
+name was different from the file name and pp (which does pp to CIL conversion) 
+will give a warning message when converting a pp file to CIL. Is that not 
+sufficient?
+
+Jim
+
+
+> ---
+>  libsemanage/src/direct_api.c | 62 +++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 61 insertions(+), 1 deletion(-)
 >
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index 2187b65..f98d3d1 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -363,6 +363,48 @@ static int semanage_direct_begintrans(semanage_handle_t * sh)
+>
+>  /********************* utility functions *********************/
+>
+> +/* Takes a module stored in 'module_data' and parses its headers.
+> + * Sets reference variables 'module_name' to module's name, and
+> + * 'version' to module's version.  The caller is responsible for
+> + * free()ing 'module_name', and 'version'; they will be
+> + * set to NULL upon entering this function.  Returns 0 on success, -1
+> + * if out of memory, or -2 if data did not represent a module.
+> + */
+> +static int parse_module_headers(semanage_handle_t * sh, char *module_data,
+> +                               size_t data_len, char **module_name,
+> +                               char **version)
+> +{
+> +       struct sepol_policy_file *pf;
+> +       int file_type;
+> +       *module_name = *version = NULL;
+> +
+> +       if (sepol_policy_file_create(&pf)) {
+> +               ERR(sh, "Out of memory!");
+> +               return -1;
+> +       }
+> +       sepol_policy_file_set_mem(pf, module_data, data_len);
+> +       sepol_policy_file_set_handle(pf, sh->sepolh);
+> +       if (module_data == NULL ||
+> +           data_len == 0 ||
+> +           sepol_module_package_info(pf, &file_type, module_name,
+> +                                     version) == -1) {
+> +               sepol_policy_file_free(pf);
+> +               ERR(sh, "Could not parse module data.");
+> +               return -2;
+> +       }
+> +       sepol_policy_file_free(pf);
+> +       if (file_type != SEPOL_POLICY_MOD) {
+> +               if (file_type == SEPOL_POLICY_BASE)
+> +                       ERR(sh,
+> +                           "Received a base module, expected a non-base module.");
+> +               else
+> +                       ERR(sh, "Data did not represent a module.");
+> +               return -2;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+>  #include <stdlib.h>
+>  #include <bzlib.h>
+>  #include <string.h>
+> @@ -1524,7 +1566,9 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>  	char *path = NULL;
+>  	char *filename;
+>  	char *lang_ext = NULL;
+> +	char *module_name = NULL;
+>  	char *separator;
+> +	char *version = NULL;
+>
+>  	if ((data_len = map_file(sh, install_filename, &data, &compressed)) <= 0) {
+>  		ERR(sh, "Unable to read file %s\n", install_filename);
+> @@ -1564,10 +1608,26 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>  		lang_ext = separator + 1;
+>  	}
+>
+> -	retval = semanage_direct_install(sh, data, data_len, filename, lang_ext);
+> +	if (strcmp(lang_ext, "pp") != 0)
+> +		module_name = strdup(filename);
+> +	else {
+> +		if (parse_module_headers(sh, data, data_len, &module_name, &version) != 0) {
+> +			free(module_name);
+> +			module_name = strdup(filename);
+> +		}
+> +		free(version);
+> +	}
+> +	if (module_name == NULL) {
+> +		ERR(sh, "No memory available for module_name.\n");
+> +		retval = -1;
+> +		goto cleanup;
+> +	}
+> +
+> +	retval = semanage_direct_install(sh, data, data_len, module_name, lang_ext);
+>
+>  cleanup:
+>  	if (data_len > 0) munmap(data, data_len);
+> +	free(module_name);
+>  	free(path);
+>
+>  	return retval;
 >
 
---001a1130cb3c9c1eb6053d2de85c
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr"><div>Exactly, the confusing message slipped in with the pc=
-re2 patch.<br></div><div>I will try and submit the arch detection patch on =
-the weekend. I was pretty occupied this week.</div></div><br><div class=3D"=
-gmail_quote"><div dir=3D"ltr">On Wed, Sep 21, 2016 at 5:39 PM Stephen Small=
-ey &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote=
-:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bor=
-der-left:1px #ccc solid;padding-left:1ex">On 09/21/2016 11:52 AM, Stephen S=
-malley wrote:<br class=3D"gmail_msg">
-&gt; On 09/21/2016 11:40 AM, William Roberts wrote:<br class=3D"gmail_msg">
-&gt;&gt; I&#39;d like to see the -r flip change in by then, so no official =
-release<br class=3D"gmail_msg">
-&gt;&gt; is cut with that behavior.<br class=3D"gmail_msg">
-&gt;&gt;<br class=3D"gmail_msg">
-&gt;&gt; Also, I was looking at the help output for -r, and its quite<br cl=
-ass=3D"gmail_msg">
-&gt;&gt; confusing, I cant tell if -r includes or omits, verbatim output:<b=
-r class=3D"gmail_msg">
-&gt;&gt;<br class=3D"gmail_msg">
-&gt;&gt; -r=C2=A0 =C2=A0 =C2=A0 =C2=A0Include precompiled regular expressio=
-ns in the output.<br class=3D"gmail_msg">
-&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0(PCRE2 only. Compiled PCRE2 regul=
-ar expressions are<br class=3D"gmail_msg">
-&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0not portable across architectures=
-. When linked against<br class=3D"gmail_msg">
-&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0PCRE this flag is ignored)<br cla=
-ss=3D"gmail_msg">
-&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Omit precompiled regular expressi=
-ons (only meaningful<br class=3D"gmail_msg">
-&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0when using PCRE2 regular expressi=
-on back-end).<br class=3D"gmail_msg">
-&gt;&gt; fc_file=C2=A0 The text based file contexts file to be processed.<b=
-r class=3D"gmail_msg">
-&gt;<br class=3D"gmail_msg">
-&gt; Yes, Janis actually posted a patch to fix that as well, but it presume=
-s<br class=3D"gmail_msg">
-&gt; the prior patch to change the -r behavior.=C2=A0 So we can take those =
-two<br class=3D"gmail_msg">
-&gt; patches once we have the arch detection and fallback patch in place.<b=
-r class=3D"gmail_msg">
-<br class=3D"gmail_msg">
-Actually, I&#39;m wrong: the two patches were two different options, one of=
-<br class=3D"gmail_msg">
-which switched the default and the other left the default unchanged and<br =
-class=3D"gmail_msg">
-fixed the usage message.=C2=A0 So I&#39;ll apply the latter now until the a=
-rch<br class=3D"gmail_msg">
-detection is in place.<br class=3D"gmail_msg">
-<br class=3D"gmail_msg">
-<br class=3D"gmail_msg">
-</blockquote></div>
-
---001a1130cb3c9c1eb6053d2de85c--
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
