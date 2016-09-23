@@ -1,217 +1,93 @@
-Subject: Re: [PATCH] libsemanage: use pp module headers as a source for a
- module name
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <1474622600-22721-1-git-send-email-plautrba@redhat.com>
- <cde8f8f7-002a-d5d9-57d3-d8978c98b8aa@tycho.nsa.gov>
- <cc78c259-7c85-6f91-bba3-003b83fe3c29@redhat.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <a853ebf7-5c55-2abf-2d22-02ca17e391c7@tycho.nsa.gov>
-Date: Fri, 23 Sep 2016 13:37:26 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8NHiK1l018387
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 13:44:20 -0400
+Received: by mail-pa0-f41.google.com with SMTP id wk8so42200623pab.1
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 10:44:17 -0700 (PDT)
+Date: Sat, 24 Sep 2016 01:44:13 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Petr Lautrbach <plautrba@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: setools4 support
+Message-ID: <20160923174413.GA1499@meriadoc>
+References: <1474557453-14379-1-git-send-email-jason@perfinion.com>
+ <dab0152e-1976-5eab-b834-6c1b572ff4bc@tycho.nsa.gov>
+ <22ff72d8-7d98-d35a-e193-52beb64e80e8@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <cc78c259-7c85-6f91-bba3-003b83fe3c29@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <22ff72d8-7d98-d35a-e193-52beb64e80e8@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/23/2016 12:05 PM, Petr Lautrbach wrote:
-> On 09/23/2016 05:31 PM, James Carter wrote:
->> On 09/23/2016 05:23 AM, Petr Lautrbach wrote:
->>> When a user installs a module, the filename is used as the module name.
->>> This change was introduced with CIL language where a module name is not
->>> stored in the module itself. It means that when a pp module has
->>> different filename and stored module name, the filename is used instead
->>> of the stored module name. It brings problems with compatibility for
->>> scripts and modules which were built and used on older system and were
->>> migrated to the new userspace.
->>>
->>> This patch changes the behavior of semanage_direct_install_file() which
->>> is used by 'semodule -i' so that when a module with pp language
->>> extension is installed, it tries to get and use a stored module name
->>> instead of a filename.
->>>
->>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->>
->> I am not in favor of this for several reasons:
->> 1) There would be conflicts if a module name is the same as a different
->> module's file name.
->
-> Do you mean a case where you try to install two modules moduleA.pp
-> moduleB.pp, where moduleA.pp uses "module moduleB 1.0;" ?
->
->
->> 2) It would be confusing to have some modules referred to by their
->> module name and other modules by their file name.
->
-> It's only pp modules specific and only for the initial install. 2.3
-> userspace used the same concept.
->
+On Fri, Sep 23, 2016 at 07:11:55PM +0200, Petr Lautrbach wrote:
+> On 09/23/2016 07:07 PM, Stephen Smalley wrote:
+> > On 09/22/2016 11:17 AM, Jason Zaman wrote:
+> >> Hi all,
+> >>
+> >> I finally got everything updated to use setools4. The most complicated parts
+> >> were sepolicy.search() and sepolicy.info() which were largely undocumented. I
+> >> dumped and diff'd the output from the old and new code so am fairly confident
+> >> that they are the same (barring some issues that setools3 appears to have with
+> >> cil). I also changed several places to just use setools directly, having the
+> >> indirection through search() mostly just complicates and slows things down.
+> >>
+> >> The first patch is just cleanup. Next imports and initializes setools.
+> >> Patches 3-4 update a lot of the users of search() and info() to work with the next
+> >> changes.
+> >> Patches 5-6 update search() and info() themselves and the last drops the C
+> >> module completely
+> >>
+> >> I dont know the status of setools4 on fedora (someone else will have to update
+> >> the README if needed) or others but I've added it masked in gentoo a fair while
+> >> ago. Once this patchset is merged we can finally get rid of setools3, its been
+> >> half-broken for a while now.
+> > 
+> > AFAICT, setools4 is not packaged for Fedora yet.
+> 
+> I haven't updated it for some time but you can try
+> 
+> https://copr.fedorainfracloud.org/coprs/plautrba/setools4/
+> 
+> I would like setools4 to be packaged for Fedora 26. The conflict among
+> setools 3 and setools 4 needs to be resolved first. The idea is to have
+> legacy setools3-libs and setools4 with the tools.
 
-Looking closer at the patch and libsemange, it looks like this will use the 
-module name of a pp file as the filename. After installation the module name and 
-filename would be the same. Is that correct?
+Once sepolicy is updated there is no conflict anymore. The problem was
+sepolicy needed old setools3 stuff, this makes it all use setools4 so
+you would be able to kill setools3 completely and just update setools to
+4.0
 
-If so, then I don't have a problem with the approach at all. I thought you were 
-proposing that pp modules would use their module name for operations while being 
-saved in the module store by their filename.
+-- Jason
 
-
->> 3) In practice, very few modules use a module name that is different
->> from their file name.
->
-> I've already seen few reports related to this problem. We fixed it in
-> Fedora and RHEL but there are 3rd party modules which have this problem
->
->> In April checkmodule was modified to fail compiling a module when the
->> module name was different from the file name and pp (which does pp to
->> CIL conversion) will give a warning message when converting a pp file to
->> CIL. Is that not sufficient?
->>
->
-> Unfortunately it doesn't affect semodule itself, there's no warning:
->
-> # /usr/libexec/selinux/hll/pp testfile.pp testfile.out
-> Warning: SELinux userspace will refer to the module from testfile.pp as
-> testfile rather than testmod
->
-> # semodule -l | grep test
-> # semodule -i testfile.pp
-> # semodule -l | grep test
-> testfile
->
-> # /usr/libexec/selinux/hll/pp testfile.pp testfile.out
-> Warning: SELinux userspace will refer to the module from testfile.pp as
-> testfile rather than testmod
->
->
-> The same warning should be either part of the patch and I' ready to add
-> it to the patch. Or at least there should be warning that the module
-> will use its filename not a name specified in the module.
->
->
-
-I tested pp, but must not have tested how it worked when used by semodule. We 
-should have a warning here and I would appreciate you adding it to the patch.
-
-Thanks,
-Jim
-
->
+> 
 > Petr
->
->
->>
->>> ---
->>>  libsemanage/src/direct_api.c | 62
->>> +++++++++++++++++++++++++++++++++++++++++++-
->>>  1 file changed, 61 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
->>> index 2187b65..f98d3d1 100644
->>> --- a/libsemanage/src/direct_api.c
->>> +++ b/libsemanage/src/direct_api.c
->>> @@ -363,6 +363,48 @@ static int
->>> semanage_direct_begintrans(semanage_handle_t * sh)
->>>
->>>  /********************* utility functions *********************/
->>>
->>> +/* Takes a module stored in 'module_data' and parses its headers.
->>> + * Sets reference variables 'module_name' to module's name, and
->>> + * 'version' to module's version.  The caller is responsible for
->>> + * free()ing 'module_name', and 'version'; they will be
->>> + * set to NULL upon entering this function.  Returns 0 on success, -1
->>> + * if out of memory, or -2 if data did not represent a module.
->>> + */
->>> +static int parse_module_headers(semanage_handle_t * sh, char
->>> *module_data,
->>> +                               size_t data_len, char **module_name,
->>> +                               char **version)
->>> +{
->>> +       struct sepol_policy_file *pf;
->>> +       int file_type;
->>> +       *module_name = *version = NULL;
->>> +
->>> +       if (sepol_policy_file_create(&pf)) {
->>> +               ERR(sh, "Out of memory!");
->>> +               return -1;
->>> +       }
->>> +       sepol_policy_file_set_mem(pf, module_data, data_len);
->>> +       sepol_policy_file_set_handle(pf, sh->sepolh);
->>> +       if (module_data == NULL ||
->>> +           data_len == 0 ||
->>> +           sepol_module_package_info(pf, &file_type, module_name,
->>> +                                     version) == -1) {
->>> +               sepol_policy_file_free(pf);
->>> +               ERR(sh, "Could not parse module data.");
->>> +               return -2;
->>> +       }
->>> +       sepol_policy_file_free(pf);
->>> +       if (file_type != SEPOL_POLICY_MOD) {
->>> +               if (file_type == SEPOL_POLICY_BASE)
->>> +                       ERR(sh,
->>> +                           "Received a base module, expected a
->>> non-base module.");
->>> +               else
->>> +                       ERR(sh, "Data did not represent a module.");
->>> +               return -2;
->>> +       }
->>> +
->>> +       return 0;
->>> +}
->>> +
->>>  #include <stdlib.h>
->>>  #include <bzlib.h>
->>>  #include <string.h>
->>> @@ -1524,7 +1566,9 @@ static int
->>> semanage_direct_install_file(semanage_handle_t * sh,
->>>      char *path = NULL;
->>>      char *filename;
->>>      char *lang_ext = NULL;
->>> +    char *module_name = NULL;
->>>      char *separator;
->>> +    char *version = NULL;
->>>
->>>      if ((data_len = map_file(sh, install_filename, &data,
->>> &compressed)) <= 0) {
->>>          ERR(sh, "Unable to read file %s\n", install_filename);
->>> @@ -1564,10 +1608,26 @@ static int
->>> semanage_direct_install_file(semanage_handle_t * sh,
->>>          lang_ext = separator + 1;
->>>      }
->>>
->>> -    retval = semanage_direct_install(sh, data, data_len, filename,
->>> lang_ext);
->>> +    if (strcmp(lang_ext, "pp") != 0)
->>> +        module_name = strdup(filename);
->>> +    else {
->>> +        if (parse_module_headers(sh, data, data_len, &module_name,
->>> &version) != 0) {
->>> +            free(module_name);
->>> +            module_name = strdup(filename);
->>> +        }
->>> +        free(version);
->>> +    }
->>> +    if (module_name == NULL) {
->>> +        ERR(sh, "No memory available for module_name.\n");
->>> +        retval = -1;
->>> +        goto cleanup;
->>> +    }
->>> +
->>> +    retval = semanage_direct_install(sh, data, data_len, module_name,
->>> lang_ext);
->>>
->>>  cleanup:
->>>      if (data_len > 0) munmap(data, data_len);
->>> +    free(module_name);
->>>      free(path);
->>>
->>>      return retval;
->>>
->>
->>
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> 
+> > $ git clone https://github.com/TresysTechnology/setools
+> > $ cd setools
+> > $ git checkout 4.0
+> > $ sudo python setup.py install
+> > $ sesearch
+> > Traceback (most recent call last):
+> >   File "/usr/bin/sesearch", line 4, in <module>
+> >     __import__('pkg_resources').run_script('setools==4.0.1', 'sesearch')
+> >   File "/usr/lib/python2.7/site-packages/pkg_resources/__init__.py",
+> > line 724, in run_script
+> >     self.require(requires)[0].run_script(script_name, ns)
+> >   File "/usr/lib/python2.7/site-packages/pkg_resources/__init__.py",
+> > line 1657, in run_script
+> >     exec(script_code, namespace, namespace)
+> >   File
+> > "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-x86_64.egg/EGG-INFO/scripts/sesearch",
+> > line 21, in <module>
+> > 
+> >   File "build/bdist.linux-x86_64/egg/setools/__init__.py", line 30, in
+> > <module>
+> >   File "build/bdist.linux-x86_64/egg/setools/policyrep/__init__.py",
+> > line 34, in <module>
+> > ImportError: cannot import name qpol
+> > 
+> > What I am doing wrong?
+> > 
+> 
