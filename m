@@ -1,115 +1,117 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8NEmqQA030035
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 10:48:52 -0400
-Received: by mail-wm0-f65.google.com with SMTP id w84so3189944wmg.0
- for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 07:48:46 -0700 (PDT)
-Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id bl3sm7562663wjc.26.2016.09.23.07.48.44
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 23 Sep 2016 07:48:44 -0700 (PDT)
-Subject: Re: [PATCH 0/1] supporting RBACSEP in genhomedircon
-To: selinux@tycho.nsa.gov
-References: <cover.1474639773.git.gary.tierney@gmx.com>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <912d73d6-ca69-f763-996e-d862fbcd1284@gmail.com>
-Date: Fri, 23 Sep 2016 16:48:35 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8NEpDq7030549
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 10:51:13 -0400
+Received: by mail-wm0-f54.google.com with SMTP id l132so36233500wmf.0
+ for <selinux@tycho.nsa.gov>; Fri, 23 Sep 2016 07:51:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cover.1474639773.git.gary.tierney@gmx.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="0UQi5v88bAlDpxHxWGH29X0g5d2qd0PRX"
+References: <883e1b35-467e-e3dd-5baa-1822ab003829@tycho.nsa.gov>
+ <CAFftDdqgu0dNoetJXiRCVZ6uK_Qd4U+0xo2jTj=pscQAy48UWw@mail.gmail.com>
+ <43a1504f-f8f7-7575-d97b-48412aefea3f@tycho.nsa.gov>
+ <93d8efc2-3a4c-48d6-4452-7a9304eb98d7@tycho.nsa.gov>
+In-Reply-To: <93d8efc2-3a4c-48d6-4452-7a9304eb98d7@tycho.nsa.gov>
+From: Janis Danisevskis <jdanis@google.com>
+Date: Fri, 23 Sep 2016 14:50:58 +0000
+Message-ID: <CAAdwW5OA8YEYG2qitF_HZh8yniKtE9Z58fM48dAgpUqQY9+Cwg@mail.gmail.com>
+Subject: Re: selinux 2.6-rc1 release planned 9/30
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <bill.c.roberts@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a1130cb3c9c1eb6053d2de85c
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---0UQi5v88bAlDpxHxWGH29X0g5d2qd0PRX
-Content-Type: multipart/mixed; boundary="gLM485bqCJ8OBDaEip2bj3dIiNPgwxk1r";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <912d73d6-ca69-f763-996e-d862fbcd1284@gmail.com>
-Subject: Re: [PATCH 0/1] supporting RBACSEP in genhomedircon
-References: <cover.1474639773.git.gary.tierney@gmx.com>
-In-Reply-To: <cover.1474639773.git.gary.tierney@gmx.com>
+--001a1130cb3c9c1eb6053d2de85c
+Content-Type: text/plain; charset=UTF-8
 
---gLM485bqCJ8OBDaEip2bj3dIiNPgwxk1r
-Content-Type: text/plain; charset=windows-1252
+Exactly, the confusing message slipped in with the pcre2 patch.
+I will try and submit the arch detection patch on the weekend. I was pretty
+occupied this week.
+
+On Wed, Sep 21, 2016 at 5:39 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On 09/21/2016 11:52 AM, Stephen Smalley wrote:
+> > On 09/21/2016 11:40 AM, William Roberts wrote:
+> >> I'd like to see the -r flip change in by then, so no official release
+> >> is cut with that behavior.
+> >>
+> >> Also, I was looking at the help output for -r, and its quite
+> >> confusing, I cant tell if -r includes or omits, verbatim output:
+> >>
+> >> -r       Include precompiled regular expressions in the output.
+> >>         (PCRE2 only. Compiled PCRE2 regular expressions are
+> >>         not portable across architectures. When linked against
+> >>         PCRE this flag is ignored)
+> >>         Omit precompiled regular expressions (only meaningful
+> >>         when using PCRE2 regular expression back-end).
+> >> fc_file  The text based file contexts file to be processed.
+> >
+> > Yes, Janis actually posted a patch to fix that as well, but it presumes
+> > the prior patch to change the -r behavior.  So we can take those two
+> > patches once we have the arch detection and fallback patch in place.
+>
+> Actually, I'm wrong: the two patches were two different options, one of
+> which switched the default and the other left the default unchanged and
+> fixed the usage message.  So I'll apply the latter now until the arch
+> detection is in place.
+>
+>
+>
+
+--001a1130cb3c9c1eb6053d2de85c
+Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On 09/23/2016 04:28 PM, Gary Tierney wrote:
-> This patch implements support for policies using RBACSEP in genhomedirc=
-on.  It
-> works by using an SELinux users "prefix" as the role in their homedir c=
-ontexts.
-> It seems that genhomedircon has previously supported something similar,=
- as it'll
+<div dir=3D"ltr"><div>Exactly, the confusing message slipped in with the pc=
+re2 patch.<br></div><div>I will try and submit the arch detection patch on =
+the weekend. I was pretty occupied this week.</div></div><br><div class=3D"=
+gmail_quote"><div dir=3D"ltr">On Wed, Sep 21, 2016 at 5:39 PM Stephen Small=
+ey &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote=
+:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;bor=
+der-left:1px #ccc solid;padding-left:1ex">On 09/21/2016 11:52 AM, Stephen S=
+malley wrote:<br class=3D"gmail_msg">
+&gt; On 09/21/2016 11:40 AM, William Roberts wrote:<br class=3D"gmail_msg">
+&gt;&gt; I&#39;d like to see the -r flip change in by then, so no official =
+release<br class=3D"gmail_msg">
+&gt;&gt; is cut with that behavior.<br class=3D"gmail_msg">
+&gt;&gt;<br class=3D"gmail_msg">
+&gt;&gt; Also, I was looking at the help output for -r, and its quite<br cl=
+ass=3D"gmail_msg">
+&gt;&gt; confusing, I cant tell if -r includes or omits, verbatim output:<b=
+r class=3D"gmail_msg">
+&gt;&gt;<br class=3D"gmail_msg">
+&gt;&gt; -r=C2=A0 =C2=A0 =C2=A0 =C2=A0Include precompiled regular expressio=
+ns in the output.<br class=3D"gmail_msg">
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0(PCRE2 only. Compiled PCRE2 regul=
+ar expressions are<br class=3D"gmail_msg">
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0not portable across architectures=
+. When linked against<br class=3D"gmail_msg">
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0PCRE this flag is ignored)<br cla=
+ss=3D"gmail_msg">
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0Omit precompiled regular expressi=
+ons (only meaningful<br class=3D"gmail_msg">
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0when using PCRE2 regular expressi=
+on back-end).<br class=3D"gmail_msg">
+&gt;&gt; fc_file=C2=A0 The text based file contexts file to be processed.<b=
+r class=3D"gmail_msg">
+&gt;<br class=3D"gmail_msg">
+&gt; Yes, Janis actually posted a patch to fix that as well, but it presume=
+s<br class=3D"gmail_msg">
+&gt; the prior patch to change the -r behavior.=C2=A0 So we can take those =
+two<br class=3D"gmail_msg">
+&gt; patches once we have the arch detection and fallback patch in place.<b=
+r class=3D"gmail_msg">
+<br class=3D"gmail_msg">
+Actually, I&#39;m wrong: the two patches were two different options, one of=
+<br class=3D"gmail_msg">
+which switched the default and the other left the default unchanged and<br =
+class=3D"gmail_msg">
+fixed the usage message.=C2=A0 So I&#39;ll apply the latter now until the a=
+rch<br class=3D"gmail_msg">
+detection is in place.<br class=3D"gmail_msg">
+<br class=3D"gmail_msg">
+<br class=3D"gmail_msg">
+</blockquote></div>
 
-You are referring to the old "privsep" model. This is indeed no longer
-used AFAIK.
-
-> currently replace the string "ROLE" with whatever a users prefix is.  H=
-owever,
-> if using CIL we can't leverage this, since secilc will complain about t=
-he
-> semantics of an invalid role named "ROLE" in a filecon statement.
->=20
-> Since there's no way for a CIL policy to tell genhomedircon whether a r=
-ole should
-> be replaced or not, a new "genhomedircon-rbacsep" option was added to
-> /etc/selinux/semanage.conf.
->=20
-> I'm not convinced that this is the best way to go about this.  Maybe an=
- initial
-> role can be implicitly figured out using libsepol's API? Anyway, I've s=
-ubmitted
-> this to see if there's any better options for supporting RBACSEP in hom=
-e dir
-> context generation.
->=20
-> There was some previous discussion about this here for reference:
-> http://oss.tresys.com/pipermail/refpolicy/2011-August/004417.html
->=20
-> Gary Tierney (1):
->   genhomedircon: support policies using RBACSEP
->=20
->  libsemanage/src/conf-parse.y    | 14 +++++++++++++-
->  libsemanage/src/conf-scan.l     |  1 +
->  libsemanage/src/genhomedircon.c | 30 +++++++++++++++++++++++++++++-
->  libsemanage/src/semanage_conf.h |  1 +
->  4 files changed, 44 insertions(+), 2 deletions(-)
->=20
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
-
-
---gLM485bqCJ8OBDaEip2bj3dIiNPgwxk1r--
-
---0UQi5v88bAlDpxHxWGH29X0g5d2qd0PRX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGbBAEBCAAGBQJX5UDHAAoJECV0jlU3+UdpaIIL92DsbGvLvewRGb2jLnfVSD+y
-YnDNnyCl23maaziqeLUNZo3yBjvIdDgHerkEEaOft9NSGc7FFEDtwKHRoNnHMzeE
-Wb9Sy8WJUW7mUqGOXCbwWnlM0Oi2YOWnqZPWbf78LLZ7uHUPMhpcchtU5cstSCma
-2KIdx2d5yCJ95H/bU6jG69sYNwUn8SlN+T6/WLvWRVOK0SLv8dD/yB27VdFGliYi
-gh2U+SYQ+2NYcA1/vB+r+m+wiHmj+u0XaKOy112MC/L4uLN6nRslzZwH/Bi1bOcK
-vbsADFPEqtFkuQayhXPh1DaGZTWnCiuXQBXwGr99k7h5uJ5h1/WOt7iLOUOldyRm
-v5FkwiMuJDYbaK4ot2seZUjNjW5UZiShtkBOHTYbaf1qhJm14lnwzbrGRZsN3yBq
-6YOu5iOsepeZgu0MxMfJrhzPBGgp65qIeObYP0jSIDF2q4IAQG7tB5WVEmrhcYyw
-9194QIAvJ1L9ss7PqaRJwX+CJd/65EUnuNYjUXrI
-=IBgN
------END PGP SIGNATURE-----
-
---0UQi5v88bAlDpxHxWGH29X0g5d2qd0PRX--
+--001a1130cb3c9c1eb6053d2de85c--
