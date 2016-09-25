@@ -1,42 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8PDQ0Mm021358
- for <selinux@tycho.nsa.gov>; Sun, 25 Sep 2016 09:26:00 -0400
-Received: by mail-vk0-f50.google.com with SMTP id 192so23034667vkl.2
- for <selinux@tycho.nsa.gov>; Sun, 25 Sep 2016 06:25:59 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20160924115740.18196b6yz71zn4kc@webmail.alunos.dcc.fc.up.pt>
-References: <20160923112350.89325hv7y899lack@webmail.alunos.dcc.fc.up.pt>
- <e6efcd0b-27cd-de33-d111-bc2bcb1dc0b1@tycho.nsa.gov>
- <20160924115740.18196b6yz71zn4kc@webmail.alunos.dcc.fc.up.pt>
-From: Paul Moore <paul@paul-moore.com>
-Date: Sun, 25 Sep 2016 09:25:58 -0400
-Message-ID: <CAHC9VhRAwGzNxz-4OofPLFKg5D-VvdSPGZWd9Gdoh4-0zB-8jA@mail.gmail.com>
-Subject: Re: SELinux sandbox escape via TIOCSTI ioctl
-To: up201407890@alunos.dcc.fc.up.pt
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8PEVnR4026972
+ for <selinux@tycho.nsa.gov>; Sun, 25 Sep 2016 10:31:49 -0400
+Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
+ [77.133.206.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id A6BCD564A39
+ for <selinux@tycho.nsa.gov>; Sun, 25 Sep 2016 16:31:46 +0200 (CEST)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/1] libsepol/tests: fix mispelling of optimization option
+Date: Sun, 25 Sep 2016 16:30:40 +0200
+Message-Id: <20160925143040.31378-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, Sep 24, 2016 at 5:57 AM,  <up201407890@alunos.dcc.fc.up.pt> wrote:
-> Quoting "Stephen Smalley" <sds@tycho.nsa.gov>:
->> Thank you for the bug report. This bug is now fixed in upstream commit
->> acca96a135a4d2a028ba9b636886af99c0915379.
->
-> Cool, thanks. Though it'll lose job control, that's why most 'su-like'
-> programs refuse to patch this and are still vulnerable.
+In CFLAGS, -o0 means "output in file 0", not "compile at optimization
+level 0".
 
-I think we should wait and and see if people complain about the loss
-of job control; I'd rather see us fix the problem with TIOCSTI.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsepol/tests/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Anyways, the same happens with the 'runcon' utility:
-
-I don't think we need to fix this for runcon, as it isn't as
-sandboxing tool like sandbox, and the loss of job control would likely
-be much more noticeable for runcon.
-
+diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
+index dd7bd333c58c..60b3e836cc94 100644
+--- a/libsepol/tests/Makefile
++++ b/libsepol/tests/Makefile
+@@ -2,7 +2,7 @@ M4 ?= m4
+ MKDIR ?= mkdir
+ EXE ?= libsepol-tests
+ 
+-CFLAGS += -g3 -gdwarf-2 -o0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter -Werror
++CFLAGS += -g3 -gdwarf-2 -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter -Werror
+ 
+ # Statically link libsepol on the assumption that we are going to
+ # be testing internal functions.
 -- 
-paul moore
-www.paul-moore.com
+2.10.0
