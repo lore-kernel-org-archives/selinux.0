@@ -4,8 +4,8 @@ References: <1474899756-93610-1-git-send-email-jdanis@android.com>
  <1474899756-93610-3-git-send-email-jdanis@android.com>
  <60891df7-2932-7d9a-d2d7-5252a0ccc946@tycho.nsa.gov>
 From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 26 Sep 2016 10:47:28 -0700
-Message-ID: <CAFftDdrc5SbfJDOoASae005J860p4eViN5LWOTvCw8oV2-r2fA@mail.gmail.com>
+Date: Mon, 26 Sep 2016 10:48:12 -0700
+Message-ID: <CAFftDdpQ2Cq+qp+xGun_cs6JqryLXxrwqdTmuGDY9ynQUevd1w@mail.gmail.com>
 Subject: Re: [PATCH 3/3] libselinux: sefcontext_compile invert semantics of
  "-r" flag
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -32,14 +32,64 @@ On Mon, Sep 26, 2016 at 10:43 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 1507941 file_contexts.bin (binary with pcre1 regexes)
 > 8304105 file_contexts.bin (binary with pcre2 regexes)
 > 540540  file_contexts.bin (binary omitting pcre2 regexes, via -r)
+
+What's the size of the textual intermediate file?
+
 >
 > The increase in file_contexts.bin size from pcre1 to pcre2 (unless using
 > -r) is quite substantial.  Wondering how that affects the cost/benefit
 > tradeoff...
+>
+>>
+>> Signed-off-by: Janis Danisevskis <jdanis@android.com>
+>> ---
+>>  libselinux/utils/sefcontext_compile.c | 12 +++++++-----
+>>  1 file changed, 7 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+>> index 8c48d32..b2746c7 100644
+>> --- a/libselinux/utils/sefcontext_compile.c
+>> +++ b/libselinux/utils/sefcontext_compile.c
+>> @@ -276,10 +276,12 @@ static void usage(const char *progname)
+>>           "         will be fc_file with the .bin suffix appended.\n\t"
+>>           "-p       Optional binary policy file that will be used to\n\t"
+>>           "         validate contexts defined in the fc_file.\n\t"
+>> -         "-r       Include precompiled regular expressions in the output.\n\t"
+>> +         "-r       Omit precompiled regular expressions from the output.\n\t"
+>>           "         (PCRE2 only. Compiled PCRE2 regular expressions are\n\t"
+>> -         "         not portable across architectures. When linked against\n\t"
+>> -         "         PCRE this flag is ignored)\n\t"
+>> +         "         not portable across architectures. Use this flag\n\t"
+>> +         "         if you know that you build for an incompatible\n\t"
+>> +         "         architecture to save space. When linked against\n\t"
+>> +         "         PCRE1 this flag is ignored.)\n\t"
+>>           "-i       Print regular expression info end exit. That is, back\n\t"
+>>           "         end version and architecture identifier.\n\t"
+>>           "         Arch identifier format (PCRE2):\n\t"
+>> @@ -294,7 +296,7 @@ int main(int argc, char *argv[])
+>>  {
+>>       const char *path = NULL;
+>>       const char *out_file = NULL;
+>> -     int do_write_precompregex = 0;
+>> +     int do_write_precompregex = 1;
+>>       char stack_path[PATH_MAX + 1];
+>>       char *tmp = NULL;
+>>       int fd, rc, opt;
+>> @@ -315,7 +317,7 @@ int main(int argc, char *argv[])
+>>                       policy_file = optarg;
+>>                       break;
+>>               case 'r':
+>> -                     do_write_precompregex = 1;
+>> +                     do_write_precompregex = 0;
+>>                       break;
+>>               case 'i':
+>>                       printf("%s (%s)\n", regex_version(),
+>>
+>
 
-I think a lot of it might be with how complex your regex's are. Android is
-pretty simple, which shows, as textual and binary load times are
-pretty close. I think judicious use of -r and knowing what works best for
-your arch/build/fc entries,  at the moment, is likely required.
 
-<snip>
+
+-- 
+Respectfully,
+
+William C Roberts
