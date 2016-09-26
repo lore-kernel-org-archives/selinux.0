@@ -1,189 +1,53 @@
-Subject: Re: [PATCH 1/1] genhomedircon: support policies using RBACSEP
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <cover.1474639773.git.gary.tierney@gmx.com>
- <1062ebe32922aec79a0232acfdd0005e9ce124da.1474639773.git.gary.tierney@gmx.com>
- <7be4daef-ca03-da40-0fb0-79bf39e3ce18@tycho.nsa.gov>
- <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
- <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <0fe93aff-8f37-0360-0499-f5f81d84c30a@gmail.com>
-Date: Mon, 26 Sep 2016 16:34:05 +0200
+Subject: Re: [PATCH 3/3] libsepol: fix unitialized variable 'nread' on mac
+ build
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ brindle@quarksecurity.com
+References: <1474664152-18727-1-git-send-email-william.c.roberts@intel.com>
+ <1474664152-18727-4-git-send-email-william.c.roberts@intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4c38efe6-ed00-0904-9439-38888ac2146b@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 10:37:53 -0400
 MIME-Version: 1.0
-In-Reply-To: <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="neJFAi3hWUkXDLxvtd9UM0IbuWTfC9V0r"
+In-Reply-To: <1474664152-18727-4-git-send-email-william.c.roberts@intel.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---neJFAi3hWUkXDLxvtd9UM0IbuWTfC9V0r
-Content-Type: multipart/mixed; boundary="k5OWeVwCfV46s2o5vX0gO7ml6mxbr4gEP";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Cc: "Christopher J. PeBenito" <pebenito@ieee.org>,
- Gary Tierney <gary.tierney@gmx.com>
-Message-ID: <0fe93aff-8f37-0360-0499-f5f81d84c30a@gmail.com>
-Subject: Re: [PATCH 1/1] genhomedircon: support policies using RBACSEP
-References: <cover.1474639773.git.gary.tierney@gmx.com>
- <1062ebe32922aec79a0232acfdd0005e9ce124da.1474639773.git.gary.tierney@gmx.com>
- <7be4daef-ca03-da40-0fb0-79bf39e3ce18@tycho.nsa.gov>
- <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
- <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
-In-Reply-To: <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
+On 09/23/2016 04:55 PM, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
+> 
+> Fix this:
+> genusers.c:63:14: warning: variable 'nread' is uninitialized when used here [-Wuninitialized]
+>                 if (buffer[nread - 1] == '\n')
+>                            ^~~~~
+> genusers.c:40:15: note: initialize the variable 'nread' to silence this warning
+>         ssize_t nread;
+>                      ^
+>                       = 0
+> 
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
---k5OWeVwCfV46s2o5vX0gO7ml6mxbr4gEP
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Thanks, applied all 3 patches.
+NB none of this code is actually used on the Mac or elsewhere in Android
+for that matter, and even on Linux, it is just legacy code (not used in
+modern distributions).
 
-On 09/26/2016 04:20 PM, Stephen Smalley wrote:
-> On 09/24/2016 04:26 AM, Dominick Grift wrote:
->> On 09/23/2016 09:36 PM, Stephen Smalley wrote:
->>> On 09/23/2016 10:28 AM, Gary Tierney wrote:
->>>> Introduces support for generating homedir/user contexts for
->>>> policies that implement RBACSEP.  The support works by taking
->>>> the prefix of a logins seuser and replacing the role field in
->>>> their context specifications with the prefix.  A new option
->>>> "genhomedircon-rbacsep" was added to /etc/selinux/semanage.conf
->>>> to allow toggling this behavior.
->>>
->>> The user prefix was previously used as a prefix for types, e.g.
->>> you could have: HOME_DIR/\.gnupg(/.+)?
->>> system_u:object_r:ROLE_gpg_secret_t and get it replaced with:=20
->>> /home/[^/]+/\.gnupg(/.+)?
->>> system_u:object_r:user_gpg_secret_t /root/\.gnupg(/.+)?
->>> system_u:object_r:sysadm_gpg_secret_t
->>>
->>> So I guess you could use it for the role field too, but for
->>> consistency you would want it to be: HOME_DIR/\.gnupg(/.+)?
->>> system_u:ROLE_r:ROLE_gpg_secret_t
->>>
->>> and the prefix would still just be "user".
->>
->> No one is actually using that privsep functionality anymore.
->> Reference policy removed support for it.
->>
->> Can we not instead just re-use that code for rbacsep?
->>
->> The alternative would be to add code similar to the privsep code
->> but then for rbacsep.
->>
->> Then we will have the issue that we can't reasonably rely on the=20
->> userprefix and prefix statements for rbacsep, because they might be
->> used for privsep (in theory at least)
->>
->> I other words if we were to implement rbacsep code similar to the=20
->> privsep code, then we would need a new policy statement similar to=20
->> userprefix and prefix.
->>
->> It seems much easier to me to just re-use the privsep code.
->>
->> rbacsep is the successor to privsep after all.
->=20
-> First, I'm not sure what you mean by privsep; usually that term refers
-> to privilege separation as in openssh.
-
-with privsep i mean prefixed user (home) content file contexts generated
-by genhomedircon.
-
->=20
-> There are at least three ways of implementing "role" separation for
-> objects in SELinux:
-> (1) via TE and the use of derived types on objects e.g. ROLE_home_t,
-> ROLE_devpts_t, etc,
-
-I wouldn't compare the two as ROLE_home_t is generated by genhomedircon
-and ROLE_devpts_t is not
-
-> (2) via RBAC and the use of roles on objects (originally problematic
-> because it required a set of changes to the kernel to support roles on
-> objects, but that's all history now),
-
-This is the way forward IMHO
-
-> (3) via UBAC and the use of SELinux user identities on objects to
-> represent roles.
-
-UBAC or more accurately IBACSEP is inadequate because you cannot
-implement automatic identity transitions as you can automatic role
-transitions.
-
->=20
-> refpolicy started with (1), experimented with (2) and seems to have
-> settled on (3), likely because (2) wasn't fully supported in the
-> kernel or userspace for a long time.  I guess libsemanage /
-> genhomedircon already support (3) adequately.
-
-1. was removed (i think due to redhat objecting to it). 2. refpolicy
-settled on 3 because at that time 2 was not an option (defaultrole did
-not exist). libsemanage supports 3 out of the box yes but we dont have
-automatic identity transitions and this makes RBACSEP a more flexible
-alternative. we need to be able to deal with instances where a automatic
-role transition is desired.
-
->=20
-> CIL apparently doesn't support (1), so that's broken regardless.
-
-(1) is currently "broken", yes or legacy
-
->=20
-> So I guess reusing the prefix for RBACSEP won't break any existing
-> users.  That said, it is clearly confusing to use something identified
-> in the policy language and documentation as a "prefix" for the purpose
-> of a "default role".  So maybe we should look to rename it in the
-> language and code, with backward compatibility.  That can be done as a
-> separate set of changes.  That might also help us with a different
-> problem - obsoleting security_compute_user() aka /sys/fs/selinux/user
-> and taking the get_default_context() logic to userspace.
->=20
-
-The name prefix, and userprefix would indeed ideally need to be changed
-by I would say that this would be a second step.
-
-> Has anyone compared UBAC vs RBAC now that the kernel and policy
-> support roles on objects?  Is there a strong reason for refpolicy to
-> stay with (3) other than compatibility with older distributions and
-> this genhomedircon issue?
-
-IBACSEP is not flexible enough mainly because we cannot define automatic
-identity transitions.
-
-Also until recently we did not have user attributes. but now we do so
-that is no longer an issue.
-
->=20
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
-
-
---k5OWeVwCfV46s2o5vX0gO7ml6mxbr4gEP--
-
---neJFAi3hWUkXDLxvtd9UM0IbuWTfC9V0r
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJX6THiAAoJECV0jlU3+Udps3sL/1UdBTVn0Q82q3pRY/nBhhgK
-s1TFksRTo4L/3dTWsOJDGCO3ZJLsq8Kcy5f/LKpvQq/RSt8opV6+IAZ/2hkDKUQ0
-LSdpjCim+FB94rud2UxYH2KK2nhFFl6QTXEwsk4qH5hnfAnpowOkX4qdL4PHWPKo
-mUkH/6q+tte5VGM2xQLKaN9bG7TppcnhK2CrMu9T5H1cPFvJPSxFl7B4Zb0MS8lp
-q6TdlI93LjWXyDE64E7FYJwclvgrMbkjtZquSZ5RyGZSai7TdbdxJr7dMOPRxs/Z
-bhDtcLfHPegZnLxqACr8fWqJfsDFSRg1//eZcPcNbKVeZ0swWV2YItSzlrDLXk5O
-t3zkkefrzfUNtCkNqn4kxPqWqJN0KaPnKB2NnqQeJzR7+ChAX6bi5vYBgxl8D87w
-A1rSPG9C1bPPReB0GnKC2O3fJ81w3cVMOd4BV9ytEIxtzPd2QPmjJ7dUV2uBwnjx
-klKn6Wf09hmJ3a61Nz0YHbH8IkjOvc8gNRzp2H4JBg==
-=am8S
------END PGP SIGNATURE-----
-
---neJFAi3hWUkXDLxvtd9UM0IbuWTfC9V0r--
+> ---
+>  libsepol/src/genusers.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/libsepol/src/genusers.c b/libsepol/src/genusers.c
+> index 57a9a2e..5568210 100644
+> --- a/libsepol/src/genusers.c
+> +++ b/libsepol/src/genusers.c
+> @@ -53,6 +53,7 @@ static int load_users(struct policydb *policydb, const char *path)
+>  	}
+>  
+>  	while(fgets(buffer, 255, fp) != NULL) {
+> +		nread = strlen(buffer);
+>  #else
+>  	size_t len = 0;
+>  	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+> 
