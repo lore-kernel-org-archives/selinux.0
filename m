@@ -1,563 +1,419 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8QFUAgj000683
- for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2016 11:30:10 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8QFUetw000706
+ for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2016 11:30:42 -0400
 From: Richard Haines <richard_c_haines@btinternet.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] libselinux: Add function to find security.restorecon_last
- entries
-Date: Mon, 26 Sep 2016 16:29:56 +0100
-Message-Id: <1474903796-4991-1-git-send-email-richard_c_haines@btinternet.com>
+Subject: [PATCH 2/2] policycoreutils: setfiles - Utility to find
+ security.restorecon_last entries
+Date: Mon, 26 Sep 2016 16:30:30 +0100
+Message-Id: <1474903830-5042-1-git-send-email-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This patch adds a new selinux_restorecon_xattr(3) function to find
-and/or remove security.restorecon_last entries added by setfiles(8)
-or restorecon(8).
-
-Also review and update the man pages.
+This patch adds restorecon_xattr(8) to find and/or remove
+security.restorecon_last entries added by setfiles(8) or
+restorecon(8). Uses the services of selinux_restorecon_xattr(3).
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- libselinux/include/selinux/restorecon.h            |  48 +++++
- libselinux/man/man3/selinux_restorecon.3           |   2 +
- .../man/man3/selinux_restorecon_default_handle.3   |   6 +-
- .../man/man3/selinux_restorecon_set_alt_rootpath.3 |   4 +-
- .../man/man3/selinux_restorecon_set_exclude_list.3 |   4 +-
- .../man/man3/selinux_restorecon_set_sehandle.3     |   9 +-
- libselinux/man/man3/selinux_restorecon_xattr.3     | 170 +++++++++++++++++
- libselinux/src/selinux_restorecon.c                | 207 +++++++++++++++++++++
- 8 files changed, 441 insertions(+), 9 deletions(-)
- create mode 100644 libselinux/man/man3/selinux_restorecon_xattr.3
+ policycoreutils/setfiles/Makefile           |  10 +-
+ policycoreutils/setfiles/restore.h          |   1 +
+ policycoreutils/setfiles/restorecon_xattr.8 | 119 +++++++++++++++
+ policycoreutils/setfiles/restorecon_xattr.c | 221 ++++++++++++++++++++++++++++
+ 4 files changed, 348 insertions(+), 3 deletions(-)
+ create mode 100644 policycoreutils/setfiles/restorecon_xattr.8
+ create mode 100644 policycoreutils/setfiles/restorecon_xattr.c
 
-diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-index e6db8f9..7cfdee1 100644
---- a/libselinux/include/selinux/restorecon.h
-+++ b/libselinux/include/selinux/restorecon.h
-@@ -128,6 +128,54 @@ extern void selinux_restorecon_set_exclude_list(const char **exclude_list);
-  */
- extern int selinux_restorecon_set_alt_rootpath(const char *alt_rootpath);
+diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
+index 98f4f7d..43364f9 100644
+--- a/policycoreutils/setfiles/Makefile
++++ b/policycoreutils/setfiles/Makefile
+@@ -17,13 +17,15 @@ ifeq ($(AUDITH), /usr/include/libaudit.h)
+ 	LDLIBS += -laudit
+ endif
  
-+/**
-+ * selinux_restorecon_xattr - Read/remove RESTORECON_LAST xattr entries.
-+ * @pathname: specifies directory path to check.
-+ * @xattr_flags: specifies the actions to be performed.
-+ * @xattr_list: a linked list of struct dir_xattr structures containing
-+ *              the directory, digest and result of the action on the
-+ *              RESTORECON_LAST entry.
-+ *
-+ * selinux_restorecon_xattr(3) will automatically call
-+ * selinux_restorecon_default_handle(3) and selinux_restorecon_set_sehandle(3)
-+ * first time through to set the selabel_open(3) parameters to use the
-+ * currently loaded policy file_contexts and request their computed digest.
-+ *
-+ * Should other selabel_open(3) parameters be required see
-+ * selinux_restorecon_set_sehandle(3), however note that a file_contexts
-+ * computed digest is required for selinux_restorecon_xattr().
-+ */
-+enum digest_result {
-+	MATCH = 0,
-+	NOMATCH,
-+	DELETED_MATCH,
-+	DELETED_NOMATCH,
-+	ERROR
-+};
+-all: setfiles restorecon man
++all: setfiles restorecon restorecon_xattr man
+ 
+ setfiles:  setfiles.o restore.o
+ 
+ restorecon: setfiles
+ 	ln -sf setfiles restorecon
+ 
++restorecon_xattr:  restorecon_xattr.o restore.o
 +
-+struct dir_xattr {
-+	char *directory;
-+	char *digest; /* A hex encoded string that can be printed. */
-+	enum digest_result result;
-+	struct dir_xattr *next;
-+};
-+
-+extern int selinux_restorecon_xattr(const char *pathname,
-+				    unsigned int xattr_flags,
-+				    struct dir_xattr ***xattr_list);
-+
-+/*
-+ * xattr_flags options
-+ */
-+/* Recursively descend directories. */
-+#define SELINUX_RESTORECON_XATTR_RECURSE			0x0001
-+/* Delete non-matching digests from each directory in pathname. */
-+#define SELINUX_RESTORECON_XATTR_DELETE_NONMATCH_DIGESTS	0x0002
-+/* Delete all digests found in pathname. */
-+#define SELINUX_RESTORECON_XATTR_DELETE_ALL_DIGESTS		0x0004
-+/* Do not read /proc/mounts. */
-+#define SELINUX_RESTORECON_XATTR_IGNORE_MOUNTS			0x0008
-+
- #ifdef __cplusplus
- }
+ man:
+ 	@cp -af setfiles.8 setfiles.8.man
+ 	@cp -af restorecon.8 restorecon.8.man
+@@ -35,14 +37,16 @@ install: all
+ 	-mkdir -p $(SBINDIR)
+ 	install -m 755 setfiles $(SBINDIR)
+ 	(cd $(SBINDIR) && ln -sf setfiles restorecon)
++	install -m 755 restorecon_xattr $(SBINDIR)
+ 	install -m 644 setfiles.8.man $(MANDIR)/man8/setfiles.8
+ 	install -m 644 restorecon.8.man $(MANDIR)/man8/restorecon.8
++	install -m 644 restorecon_xattr.8 $(MANDIR)/man8/restorecon_xattr.8
+ 
+ clean:
+-	rm -f setfiles restorecon *.o setfiles.8.man restorecon.8.man
++	rm -f setfiles restorecon restorecon_xattr *.o setfiles.8.man restorecon.8.man
+ 
+ indent:
+ 	../../scripts/Lindent $(wildcard *.[ch])
+ 
+ relabel: install
+-	$(SBINDIR)/restorecon $(SBINDIR)/setfiles
++	$(SBINDIR)/restorecon $(SBINDIR)/setfiles $(SBINDIR)/restorecon_xattr
+diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
+index bafb662..97fbdf4 100644
+--- a/policycoreutils/setfiles/restore.h
++++ b/policycoreutils/setfiles/restore.h
+@@ -56,5 +56,6 @@ void restore_init(struct restore_opts *opts);
+ void restore_finish(void);
+ void add_exclude(const char *directory);
+ int process_glob(char *name, struct restore_opts *opts);
++extern char **exclude_list;
+ 
  #endif
-diff --git a/libselinux/man/man3/selinux_restorecon.3 b/libselinux/man/man3/selinux_restorecon.3
-index ad8acdc..2d8274b 100644
---- a/libselinux/man/man3/selinux_restorecon.3
-+++ b/libselinux/man/man3/selinux_restorecon.3
-@@ -239,4 +239,6 @@ option.
- .br
- .BR selinux_restorecon_set_alt_rootpath (3),
- .br
-+.BR selinux_restorecon_xattr (3),
-+.br
- .BR selinux_set_callback (3)
-diff --git a/libselinux/man/man3/selinux_restorecon_default_handle.3 b/libselinux/man/man3/selinux_restorecon_default_handle.3
-index 0f1e737..52f5ad3 100644
---- a/libselinux/man/man3/selinux_restorecon_default_handle.3
-+++ b/libselinux/man/man3/selinux_restorecon_default_handle.3
-@@ -56,4 +56,8 @@ is set appropriately.
- .br
- .BR selinux_restorecon_set_sehandle (3),
- .br
--.BR selinux_restorecon_set_exclude_list (3)
-+.BR selinux_restorecon_set_exclude_list (3),
-+.br
-+.BR selinux_restorecon_set_alt_rootpath (3),
-+.br
-+.BR selinux_restorecon_xattr (3)
-diff --git a/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3 b/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
-index 6a33421..13a804a 100644
---- a/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
-+++ b/libselinux/man/man3/selinux_restorecon_set_alt_rootpath.3
-@@ -32,4 +32,6 @@ is set appropriately.
- .br
- .BR selinux_restorecon_default_handle (3),
- .br
--.BR selinux_restorecon_set_exclude_list (3)
-+.BR selinux_restorecon_set_exclude_list (3),
-+.br
-+.BR selinux_restorecon_xattr (3)
-diff --git a/libselinux/man/man3/selinux_restorecon_set_exclude_list.3 b/libselinux/man/man3/selinux_restorecon_set_exclude_list.3
-index 20c9d8d..373deec 100644
---- a/libselinux/man/man3/selinux_restorecon_set_exclude_list.3
-+++ b/libselinux/man/man3/selinux_restorecon_set_exclude_list.3
-@@ -30,4 +30,6 @@ must be called prior to
- .br
- .BR selinux_restorecon_default_handle (3),
- .br
--.BR selinux_restorecon_set_alt_rootpath (3)
-+.BR selinux_restorecon_set_alt_rootpath (3),
-+.br
-+.BR selinux_restorecon_xattr (3)
-diff --git a/libselinux/man/man3/selinux_restorecon_set_sehandle.3 b/libselinux/man/man3/selinux_restorecon_set_sehandle.3
-index 30e0ad5..978945e 100644
---- a/libselinux/man/man3/selinux_restorecon_set_sehandle.3
-+++ b/libselinux/man/man3/selinux_restorecon_set_sehandle.3
-@@ -25,11 +25,6 @@ is generally used when customised
- .BR selabel_open (3)
- parameters are required to perform relabeling operations with
- .BR selinux_restorecon (3).
--.sp
--.BR selinux_restorecon_set_sehandle ()
--will output to the default SELinux log information regarding whether a digest
--is available or not. If it were available, the message will contain the SHA1
--digest and a list of specfiles used to compute the digest.
- .
- .SH "SEE ALSO"
- .BR selinux_restorecon (3),
-@@ -38,4 +33,6 @@ digest and a list of specfiles used to compute the digest.
- .br
- .BR selinux_restorecon_default_handle (3),
- .br
--.BR selinux_restorecon_set_alt_rootpath (3)
-+.BR selinux_restorecon_set_alt_rootpath (3),
-+.br
-+.BR selinux_restorecon_xattr (3)
-diff --git a/libselinux/man/man3/selinux_restorecon_xattr.3 b/libselinux/man/man3/selinux_restorecon_xattr.3
+diff --git a/policycoreutils/setfiles/restorecon_xattr.8 b/policycoreutils/setfiles/restorecon_xattr.8
 new file mode 100644
-index 0000000..2f03f8f
+index 0000000..65b28ea
 --- /dev/null
-+++ b/libselinux/man/man3/selinux_restorecon_xattr.3
-@@ -0,0 +1,170 @@
-+.TH "selinux_restorecon_xattr" "3" "30 July 2016" "" "SELinux API documentation"
-+
++++ b/policycoreutils/setfiles/restorecon_xattr.8
+@@ -0,0 +1,119 @@
++.TH "restorecon_xattr" "8" "24 Sept 2016" "" "SELinux User Command"
 +.SH "NAME"
-+selinux_restorecon_xattr \- manage default
++restorecon_xattr \- manage
 +.I security.restorecon_last
 +extended attribute entries added by
-+.BR selinux_restorecon (3),
 +.BR setfiles (8)
 +or
 +.BR restorecon (8).
 +
 +.SH "SYNOPSIS"
-+.B #include <selinux/restorecon.h>
-+.sp
-+.BI "int selinux_restorecon_xattr(const char *" pathname ,
-+.in +\w'int selinux_restorecon('u
-+.br
-+.BI "unsigned int " xattr_flags ,
-+.br
-+.BI "struct dir_xattr ***" xattr_list ");"
-+.in
-+.
++.B restorecon_xattr
++.RB [ \-d ]
++.RB [ \-D ]
++.RB [ \-m ]
++.RB [ \-n ]
++.RB [ \-r ]
++.RB [ \-v ]
++.RB [ \-e
++.IR directory ]
++.RB [ \-f
++.IR specfile ]
++.I pathname
++
 +.SH "DESCRIPTION"
-+.BR selinux_restorecon_xattr ()
-+returns a linked list of
-+.B dir_xattr
-+structures containing information described below based on:
-+.sp
-+.RS
-+.IR pathname
-+containing a directory tree to be searched for
++.B restorecon_xattr
++will display the SHA1 digests added to extended attributes
 +.I security.restorecon_last
-+extended attribute entries.
++or delete the attribute completely. These attributes are set by
++.BR restorecon (8)
++or
++.BR setfiles (8)
++to specified directories when relabeling recursively.
 +.sp
-+.IR xattr_flags
-+contains options as follows:
++.B restorecon_xattr
++is useful for managing the extended attribute entries particularly when
++users forget what directories they ran
++.BR restorecon (8)
++or
++.BR setfiles (8)
++from.
 +.sp
-+.RS
-+.sp
-+.B SELINUX_RESTORECON_XATTR_RECURSE
-+recursively descend directories.
-+.sp
-+.B SELINUX_RESTORECON_XATTR_DELETE_NONMATCH_DIGESTS
-+delete non-matching digests from each directory in
-+.IR pathname .
-+.sp
-+.B SELINUX_RESTORECON_XATTR_DELETE_ALL_DIGESTS
-+delete all digests from each directory in
-+.IR pathname .
-+.sp
-+.B SELINUX_RESTORECON_XATTR_IGNORE_MOUNTS
-+do not read
-+.B /proc/mounts
-+to obtain a list of non-seclabel mounts to be excluded from the search.
-+.br
-+Setting
-+.B SELINUX_RESTORECON_XATTR_IGNORE_MOUNTS
-+is useful where there is a non-seclabel fs mounted with a seclabel fs mounted
-+on a directory below this.
-+.RE
-+.sp
-+.I xattr_list
-+is the returned pointer to a linked list of
-+.B dir_xattr
-+structures, each containing the following information:
-+.sp
-+.RS
-+.ta 4n 16n 24n
-+.nf
-+struct dir_xattr {
-+	char *directory;
-+	char *digest;    /* Printable hex encoded string */
-+	enum digest_result result;
-+	struct dir_xattr *next;
-+};
-+.fi
-+.ta
-+.RE
-+.sp
-+The
-+.B result
-+entry is enumerated as follows:
-+.RS
-+.ta 4n 16n 24n
-+.nf
-+enum digest_result {
-+	MATCH = 0,
-+	NOMATCH,
-+	DELETED_MATCH,
-+	DELETED_NOMATCH,
-+	ERROR
-+};
-+.fi
-+.ta
-+.RE
-+.sp
-+.I xattr_list
-+must be set to
-+.B NULL
-+before calling
-+.BR selinux_restorecon_xattr (3).
-+The caller is responsible for freeing the returned
-+.I xattr_list
-+entries in the linked list.
-+.RE
-+.sp
-+See the
-+.B NOTES
-+section for more information.
-+
-+.SH "RETURN VALUE"
-+On success, zero is returned.  On error, \-1 is returned and
-+.I errno
-+is set appropriately.
-+
-+.SH "NOTES"
-+.IP "1." 4
-+By default
-+.BR selinux_restorecon_xattr (3)
-+will use the default set of specfiles described in
-+.BR files_contexts (5)
-+to calculate the initial SHA1 digest to be used for comparision.
-+To change this default behavior
-+.BR selabel_open (3)
-+must be called specifying the required
-+.B SELABEL_OPT_PATH
-+and setting the
-+.B SELABEL_OPT_DIGEST
-+option to a non-NULL value.
-+.BR selinux_restorecon_set_sehandle (3)
-+is then called to set the handle to be used by
-+.BR selinux_restorecon_xattr (3).
-+.IP "2." 4
-+By default
-+.BR selinux_restorecon_xattr (3)
-+reads
-+.B /proc/mounts
-+to obtain a list of non-seclabel mounts to be excluded from searches unless the
-+.B SELINUX_RESTORECON_XATTR_IGNORE_MOUNTS
-+flag has been set.
-+.IP "3." 4
 +.B RAMFS
 +and
 +.B TMPFS
 +filesystems do not support the
-+.IR security.restorecon_last
++.I security.restorecon_last
 +extended attribute and are automatically excluded from searches.
-+.IP "4." 4
++.sp
 +By default
-+.B stderr
-+is used to log output messages and errors. This may be changed by calling
-+.BR selinux_set_callback (3)
-+with the
-+.B SELINUX_CB_LOG
-+.I type
++.B restorecon_xattr
++will display the SHA1 digests with "Match" appended if they match the default
++specfile set or the
++.I specfile
++set used with the
++.B \-f
++option. Non-matching SHA1 digests will be displayed with "No Match" appended.
++This feature can be disabled by the
++.B \-n
 +option.
 +
++.SH "OPTIONS"
++.TP
++.B \-d
++delete all non-matching
++.I security.restorecon_last
++directory digest entries.
++.TP
++.B \-D
++delete all
++.I security.restorecon_last
++directory digest entries.
++.TP
++.B \-m
++do not read
++.B /proc/mounts
++to obtain a list of non-seclabel mounts to be excluded from relabeling checks.
++.br
++Setting
++.B \-m
++is useful where there is a non-seclabel fs mounted with a seclabel fs mounted
++on a directory below this.
++.TP
++.B \-n
++Do not append "Match" or "No Match" to displayed digests.
++.TP
++.B \-r
++recursively descend directories.
++.TP
++.B \-v
++display SHA1 digest generated by specfile set.
++.TP
++.B \-e
++.I directory
++.br
++directory to exclude (repeat option for more than one directory).
++.TP
++.B \-f
++.I specfile
++.br
++an optional
++.I specfile
++containing file context entries as described in
++.BR file_contexts (5).
++This will be used by
++.BR selabel_open (3)
++to retrieve the set of labeling entries, with the SHA1 digest being
++retrieved by
++.BR selabel_digest (3).
++If the option is not specified, then the default file_contexts will be used.
++
++.SH "ARGUMENTS"
++.TP
++.I pathname
++.br
++the pathname of the directory tree to be searched.
++
 +.SH "SEE ALSO"
-+.BR selinux_restorecon (3)
-+.br
-+.BR selinux_restorecon_set_sehandle (3),
-+.br
-+.BR selinux_restorecon_default_handle (3),
-+.br
-+.BR selinux_restorecon_set_exclude_list (3),
-+.br
-+.BR selinux_restorecon_set_alt_rootpath (3),
-+.br
-+.BR selinux_set_callback (3)
++.BR restorecon (8),
++.BR setfiles (8)
+diff --git a/policycoreutils/setfiles/restorecon_xattr.c b/policycoreutils/setfiles/restorecon_xattr.c
+new file mode 100644
+index 0000000..1c39efe
+--- /dev/null
++++ b/policycoreutils/setfiles/restorecon_xattr.c
+@@ -0,0 +1,221 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <string.h>
++#include <getopt.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <sys/xattr.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <selinux/selinux.h>
++#include <selinux/label.h>
++#include <selinux/restorecon.h>
 +
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 0d3e4d5..0945138 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -64,6 +64,10 @@ static struct edir *exclude_lst = NULL;
- static uint64_t fc_count = 0;	/* Number of files processed so far */
- static uint64_t efile_count;	/* Estimated total number of files */
- 
-+/* Store information on directories with xattr's. */
-+struct dir_xattr *dir_xattr_list;
-+static struct dir_xattr *dir_xattr_last;
++#include "restore.h"
 +
- /*
-  * If SELINUX_RESTORECON_PROGRESS is set and mass_relabel = true, then
-  * output approx % complete, else output * for every STAR_COUNT files
-@@ -292,6 +296,90 @@ static int exclude_non_seclabel_mounts(void)
- 	return nfile * 1.05;
- }
- 
-+/* Called by selinux_restorecon_xattr(3) to build a linked list of entries. */
-+static int add_xattr_entry(const char *directory, bool delete_nonmatch,
-+			   bool delete_all)
++static void usage(const char *progname)
 +{
-+	char *sha1_buf = NULL;
-+	unsigned char *xattr_value = NULL;
-+	ssize_t xattr_size;
-+	size_t i;
-+	int rc, digest_result;
-+	struct dir_xattr *new_entry;
-+
-+	if (!directory) {
-+		errno = EINVAL;
-+		return -1;
-+	}
-+
-+	xattr_value = malloc(fc_digest_len);
-+	if (!xattr_value)
-+		goto oom;
-+
-+	xattr_size = getxattr(directory, RESTORECON_LAST, xattr_value,
-+			      fc_digest_len);
-+	if (xattr_size < 0) {
-+		free(xattr_value);
-+		return 1;
-+	}
-+
-+	/* Convert entry to a hex encoded string. */
-+	sha1_buf = malloc(xattr_size * 2 + 1);
-+	if (!sha1_buf) {
-+		free(xattr_value);
-+		goto oom;
-+	}
-+
-+	for (i = 0; i < (size_t)xattr_size; i++)
-+		sprintf((&sha1_buf[i * 2]), "%02x", xattr_value[i]);
-+
-+	rc = memcmp(fc_digest, xattr_value, fc_digest_len);
-+	digest_result = rc ? NOMATCH : MATCH;
-+
-+	if ((delete_nonmatch && rc != 0) || delete_all) {
-+		digest_result = rc ? DELETED_NOMATCH : DELETED_MATCH;
-+		rc = removexattr(directory, RESTORECON_LAST);
-+		if (rc) {
-+			selinux_log(SELINUX_ERROR,
-+				  "Error: %s removing xattr \"%s\" from: %s\n",
-+				  strerror(errno), RESTORECON_LAST, directory);
-+			digest_result = ERROR;
-+		}
-+	}
-+	free(xattr_value);
-+
-+	/* Now add entries to link list. */
-+	new_entry = malloc(sizeof(struct dir_xattr));
-+	if (!new_entry)
-+		goto oom;
-+	new_entry->next = NULL;
-+
-+	new_entry->directory = strdup(directory);
-+	if (!new_entry->directory)
-+		goto oom;
-+
-+	new_entry->digest = strdup(sha1_buf);
-+	if (!new_entry->digest)
-+		goto oom;
-+
-+	new_entry->result = digest_result;
-+
-+	if (!dir_xattr_list) {
-+		dir_xattr_list = new_entry;
-+		dir_xattr_last = new_entry;
-+	} else {
-+		dir_xattr_last->next = new_entry;
-+		dir_xattr_last = new_entry;
-+	}
-+
-+	free(sha1_buf);
-+	return 0;
-+
-+oom:
-+	selinux_log(SELINUX_ERROR, "%s:  Out of memory\n", __func__);
-+	return -1;
++	fprintf(stderr,
++		"\nusage: %s [-vnrmdD] [-e directory] [-f specfile] pathname\n"
++		"\nWhere:\n\t"
++		"-v  Display digest generated by specfile set.\n\t"
++		"-n  Do not append \"Match\" or \"No Match\" to displayed digests.\n\t"
++		"-r  Recursively descend directories.\n\t"
++		"-m  Do not read /proc/mounts for entries to be excluded.\n\t"
++		"-d  Delete non-matching digest entries.\n\t"
++		"-D  Delete all digest entries.\n\t"
++		"-e  Directory to exclude (repeat option for more than one directory).\n\t"
++		"-f  Optional specfile for calculating the digest.\n\t"
++		"pathname  Path to search for xattr \"security.restorecon_last\" entries.\n\n",
++		progname);
++	exit(-1);
 +}
 +
- /*
-  * Support filespec services filespec_add(), filespec_eval() and
-  * filespec_destroy().
-@@ -1028,3 +1116,122 @@ int selinux_restorecon_set_alt_rootpath(const char *alt_rootpath)
- 
- 	return 0;
- }
-+
-+/* selinux_restorecon_xattr(3) - Find RESTORECON_LAST entries. */
-+int selinux_restorecon_xattr(const char *pathname, unsigned int xattr_flags,
-+					    struct dir_xattr ***xattr_list)
++int main(int argc, char **argv)
 +{
-+	bool recurse = (xattr_flags &
-+	    SELINUX_RESTORECON_XATTR_RECURSE) ? true : false;
-+	bool delete_nonmatch = (xattr_flags &
-+	    SELINUX_RESTORECON_XATTR_DELETE_NONMATCH_DIGESTS) ? true : false;
-+	bool delete_all = (xattr_flags &
-+	    SELINUX_RESTORECON_XATTR_DELETE_ALL_DIGESTS) ? true : false;
-+	ignore_mounts = (xattr_flags &
-+	   SELINUX_RESTORECON_XATTR_IGNORE_MOUNTS) ? true : false;
++	int opt, rc;
++	unsigned int xattr_flags = 0, delete_digest = 0, recurse = 0;
++	unsigned int delete_all_digests = 0, ignore_mounts = 0;
++	bool display_digest = false;
++	char *sha1_buf, **specfiles, *fc_file = NULL;
++	unsigned char *fc_digest = NULL;
++	size_t i, fc_digest_len = 0, num_specfiles;
 +
-+	int rc, fts_flags;
 +	struct stat sb;
-+	struct statfs sfsb;
-+	struct dir_xattr *current, *next;
-+	FTS *fts;
-+	FTSENT *ftsent;
-+	char *paths[2] = { NULL, NULL };
++	struct selabel_handle *hnd = NULL;
++	struct dir_xattr *current, *next, **xattr_list = NULL;
 +
-+	__selinux_once(fc_once, restorecon_init);
++	bool no_comment = true;
 +
-+	if (!fc_sehandle || !fc_digest_len)
-+		return -1;
++	if (argc < 2)
++		usage(argv[0]);
 +
-+	if (lstat(pathname, &sb) < 0) {
-+		if (errno == ENOENT)
-+			return 0;
-+
-+		selinux_log(SELINUX_ERROR,
-+			    "lstat(%s) failed: %s\n",
-+			    pathname, strerror(errno));
-+		return -1;
++	if (is_selinux_enabled() <= 0) {
++		fprintf(stderr,
++		    "SELinux must be enabled to perform this operation.\n");
++		exit(-1);
 +	}
 +
-+	if (!recurse) {
-+		if (statfs(pathname, &sfsb) == 0) {
-+			if (sfsb.f_type == RAMFS_MAGIC ||
-+			    sfsb.f_type == TMPFS_MAGIC)
-+				return 0;
-+		}
++	exclude_list = NULL;
 +
-+		if (check_excluded(pathname))
-+			return 0;
-+
-+		rc = add_xattr_entry(pathname, delete_nonmatch, delete_all);
-+
-+		if (!rc && dir_xattr_list)
-+			*xattr_list = &dir_xattr_list;
-+		else if (rc == -1)
-+			return rc;
-+
-+		return 0;
-+	}
-+
-+	paths[0] = (char *)pathname;
-+	fts_flags = FTS_PHYSICAL | FTS_NOCHDIR;
-+
-+	fts = fts_open(paths, fts_flags, NULL);
-+	if (!fts) {
-+		selinux_log(SELINUX_ERROR,
-+			    "fts error on %s: %s\n",
-+			    paths[0], strerror(errno));
-+		return -1;
-+	}
-+
-+	while ((ftsent = fts_read(fts)) != NULL) {
-+		switch (ftsent->fts_info) {
-+		case FTS_DP:
-+			continue;
-+		case FTS_D:
-+			if (statfs(ftsent->fts_path, &sfsb) == 0) {
-+				if (sfsb.f_type == RAMFS_MAGIC ||
-+				    sfsb.f_type == TMPFS_MAGIC)
-+					continue;
++	while ((opt = getopt(argc, argv, "vnrmdDe:f:")) > 0) {
++		switch (opt) {
++		case 'v':
++			display_digest = true;
++			break;
++		case 'n':
++			no_comment = false;
++			break;
++		case 'r':
++			recurse = SELINUX_RESTORECON_XATTR_RECURSE;
++			break;
++		case 'm':
++			ignore_mounts = SELINUX_RESTORECON_XATTR_IGNORE_MOUNTS;
++			break;
++		case 'd':
++			delete_digest =
++			    SELINUX_RESTORECON_XATTR_DELETE_NONMATCH_DIGESTS;
++			break;
++		case 'D':
++			delete_all_digests =
++			    SELINUX_RESTORECON_XATTR_DELETE_ALL_DIGESTS;
++			break;
++		case 'e':
++			if (lstat(optarg, &sb) < 0 && errno != EACCES) {
++				fprintf(stderr, "Can't stat exclude path \"%s\", %s - ignoring.\n",
++					optarg, strerror(errno));
++				break;
 +			}
-+			if (check_excluded(ftsent->fts_path)) {
-+				fts_set(fts, ftsent, FTS_SKIP);
-+				continue;
-+			}
-+
-+			rc = add_xattr_entry(ftsent->fts_path,
-+					     delete_nonmatch, delete_all);
-+			if (rc == 1)
-+				continue;
-+			else if (rc == -1)
-+				goto cleanup;
++			add_exclude(optarg);
++			break;
++		case 'f':
++			fc_file = optarg;
 +			break;
 +		default:
-+			break;
++			usage(argv[0]);
 +		}
 +	}
 +
-+	if (dir_xattr_list)
-+		*xattr_list = &dir_xattr_list;
++	if (optind >= argc) {
++		fprintf(stderr, "No pathname specified\n");
++		exit(-1);
++	}
 +
-+	(void) fts_close(fts);
-+	return 0;
++	struct selinux_opt selinux_opts[] = {
++		{ SELABEL_OPT_PATH, fc_file },
++		{ SELABEL_OPT_DIGEST, (char *)1 }
++	};
 +
-+cleanup:
-+	rc = errno;
-+	(void) fts_close(fts);
-+	errno = rc;
++	hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 2);
++	if (!hnd) {
++		switch (errno) {
++		case EOVERFLOW:
++			fprintf(stderr, "Error: Number of specfiles or"
++				 " specfile buffer caused an overflow.\n");
++			break;
++		default:
++			fprintf(stderr, "Error: selabel_open: %s\n",
++							    strerror(errno));
++		}
++		exit(-1);
++	}
 +
-+	if (dir_xattr_list) {
-+		/* Free any used memory */
-+		current = dir_xattr_list;
++	/* Use own handle as need to allow different file_contexts. */
++	selinux_restorecon_set_sehandle(hnd);
++
++	if (display_digest) {
++		if (selabel_digest(hnd, &fc_digest, &fc_digest_len,
++				   &specfiles, &num_specfiles) < 0) {
++			fprintf(stderr,
++				"Error: selabel_digest: Digest not available.\n");
++			selabel_close(hnd);
++			exit(-1);
++		}
++
++		sha1_buf = malloc(fc_digest_len * 2 + 1);
++		if (!sha1_buf) {
++			fprintf(stderr,
++				"Error allocating digest buffer: %s\n",
++							    strerror(errno));
++			selabel_close(hnd);
++			exit(-1);
++		}
++
++		for (i = 0; i < fc_digest_len; i++)
++			sprintf((&sha1_buf[i * 2]), "%02x", fc_digest[i]);
++
++		printf("specfiles SHA1 digest: %s\n", sha1_buf);
++
++		printf("calculated using the following specfile(s):\n");
++		if (specfiles) {
++			for (i = 0; i < num_specfiles; i++)
++				printf("%s\n", specfiles[i]);
++		}
++		free(sha1_buf);
++		printf("\n");
++	}
++
++	if (exclude_list)
++		selinux_restorecon_set_exclude_list
++						 ((const char **)exclude_list);
++
++	xattr_flags = delete_digest | delete_all_digests |
++		      ignore_mounts | recurse;
++
++	if (selinux_restorecon_xattr(argv[optind], xattr_flags, &xattr_list)) {
++		fprintf(stderr,
++			"Error selinux_restorecon_xattr: %s\n",
++			strerror(errno));
++		rc = -1;
++		goto out;
++	}
++
++	if (xattr_list) {
++		current = *xattr_list;
++		while (current) {
++			next = current->next;
++			printf("%s ", current->directory);
++
++			switch (current->result) {
++			case MATCH:
++				printf("Digest: %s%s", current->digest,
++				       no_comment ? " Match\n" : "\n");
++				break;
++			case NOMATCH:
++				printf("Digest: %s%s", current->digest,
++				       no_comment ? " No Match\n" : "\n");
++				break;
++			case DELETED_MATCH:
++				printf("Deleted Digest: %s%s", current->digest,
++				       no_comment ? " Match\n" : "\n");
++				break;
++			case DELETED_NOMATCH:
++				printf("Deleted Digest: %s%s",
++				       current->digest,
++				       no_comment ? " No Match\n" : "\n");
++				break;
++			case ERROR:
++				printf("Digest: %s Error removing xattr\n",
++				       current->digest);
++				break;
++			}
++			current = next;
++		}
++		/* Free memory */
++		current = *xattr_list;
 +		while (current) {
 +			next = current->next;
 +			free(current->directory);
@@ -566,7 +422,12 @@ index 0d3e4d5..0945138 100644
 +			current = next;
 +		}
 +	}
-+	return -1;
++
++	rc = 0;
++out:
++	selabel_close(hnd);
++	restore_finish();
++	return rc;
 +}
 -- 
 2.7.4
