@@ -1,288 +1,151 @@
-Subject: Re: [PATCH 2/2] libselinux: add ifdef'ing for ANDROID and BUILD_HOST
-To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov
-References: <1474911219-20465-1-git-send-email-william.c.roberts@intel.com>
- <1474911219-20465-3-git-send-email-william.c.roberts@intel.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c6e68a13-7569-e792-b9b8-8fd4a21aaa54@tycho.nsa.gov>
-Date: Mon, 26 Sep 2016 15:22:09 -0400
-MIME-Version: 1.0
-In-Reply-To: <1474911219-20465-3-git-send-email-william.c.roberts@intel.com>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] sefcontext_compile: do not fail silently
+Date: Mon, 26 Sep 2016 15:28:09 -0400
+Message-Id: <1474918089-7298-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/26/2016 01:33 PM, william.c.roberts@intel.com wrote:
-> From: William Roberts <william.c.roberts@intel.com>
-> 
-> On Android, certain discrepancies arise for unused functionality or
-> for dealing with the differences in Bionic libc. This patch includes
-> all the "ifdef'ing" required and introduces the BUILD_HOST define.
-> 
-> The BUILD_HOST define removes functionality not needed when building
-> libselinux for the Android build host machine.
-> 
-> Note that not all the libselinux src files are used to build
-> the host and target libraries on Android.
-> 
-> Change-Id: I7984e7b769c4dfa627d6cf311411fa2c93bb7ef7
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+sefcontext_compile was failing silently on various error paths.
+Generate a suitable error message to stderr for each error.
 
-Thanks, applied both.
+Before:
+$ sefcontext_compile /path/to/unwritabledirectory/file_contexts
+<no output, although non-zero exit status>
 
-> ---
->  libselinux/src/callbacks.c      |   5 ++
->  libselinux/src/label_file.c     |   2 +
->  libselinux/src/label_internal.h |   5 ++
->  libselinux/src/load_policy.c    |   4 ++
->  libselinux/src/matchpathcon.c   | 116 ++++++++++++++++++++--------------------
->  libselinux/src/procattr.c       |   3 ++
->  6 files changed, 78 insertions(+), 57 deletions(-)
-> 
-> diff --git a/libselinux/src/callbacks.c b/libselinux/src/callbacks.c
-> index c3cf98b..c18ccc5 100644
-> --- a/libselinux/src/callbacks.c
-> +++ b/libselinux/src/callbacks.c
-> @@ -34,7 +34,12 @@ default_selinux_audit(void *ptr __attribute__((unused)),
->  static int
->  default_selinux_validate(char **ctx)
->  {
-> +#ifndef BUILD_HOST
->  	return security_check_context(*ctx);
-> +#else
-> +	(void) ctx;
-> +	return 0;
-> +#endif
->  }
->  
->  static int
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 8ff1170..5ba6a22 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -543,6 +543,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
->  			break;
->  		}
->  
-> +#if !defined(BUILD_HOST) && !defined(ANDROID)
->  	/* Process local and distribution substitution files */
->  	if (!path) {
->  		rec->dist_subs =
-> @@ -560,6 +561,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
->  							    rec->digest);
->  	}
->  
-> +#endif
->  	rec->spec_file = strdup(path);
->  
->  	/*
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-> index 0827ef6..7c55531 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -16,6 +16,11 @@
->  #include "dso.h"
->  #include "sha1.h"
->  
-> +#ifdef ANDROID
-> +// Android does not have fgets_unlocked()
-> +#define fgets_unlocked(buf, size, fp) fgets(buf, size, fp)
-> +#endif
-> +
->  /*
->   * Installed backends
->   */
-> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-> index 4f39fc7..249f82f 100644
-> --- a/libselinux/src/load_policy.c
-> +++ b/libselinux/src/load_policy.c
-> @@ -11,8 +11,10 @@
->  #include <string.h>
->  #include <errno.h>
->  #include "selinux_internal.h"
-> +#ifndef ANDROID
->  #include <sepol/sepol.h>
->  #include <sepol/policydb.h>
-> +#endif
->  #include <dlfcn.h>
->  #include "policy.h"
->  #include <limits.h>
-> @@ -45,6 +47,7 @@ int security_load_policy(void *data, size_t len)
->  
->  hidden_def(security_load_policy)
->  
-> +#ifndef ANDROID
->  int load_setlocaldefs hidden = 1;
->  
->  #undef max
-> @@ -465,3 +468,4 @@ int selinux_init_load_policy(int *enforce)
->  	 */
->  	return -1;
->  }
-> +#endif
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-> index 4764ab7..724eb65 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -7,6 +7,64 @@
->  #include "callbacks.h"
->  #include <limits.h>
->  
-> +static int (*myinvalidcon) (const char *p, unsigned l, char *c) = NULL;
-> +static int (*mycanoncon) (const char *p, unsigned l, char **c) =  NULL;
-> +
-> +static void
-> +#ifdef __GNUC__
-> +    __attribute__ ((format(printf, 1, 2)))
-> +#endif
-> +    default_printf(const char *fmt, ...)
-> +{
-> +	va_list ap;
-> +	va_start(ap, fmt);
-> +	vfprintf(stderr, fmt, ap);
-> +	va_end(ap);
-> +}
-> +
-> +void
-> +#ifdef __GNUC__
-> +    __attribute__ ((format(printf, 1, 2)))
-> +#endif
-> +    (*myprintf) (const char *fmt,...) = &default_printf;
-> +int myprintf_compat = 0;
-> +
-> +void set_matchpathcon_printf(void (*f) (const char *fmt, ...))
-> +{
-> +	myprintf = f ? f : &default_printf;
-> +	myprintf_compat = 1;
-> +}
-> +
-> +int compat_validate(struct selabel_handle *rec,
-> +		    struct selabel_lookup_rec *contexts,
-> +		    const char *path, unsigned lineno)
-> +{
-> +	int rc;
-> +	char **ctx = &contexts->ctx_raw;
-> +
-> +	if (myinvalidcon)
-> +		rc = myinvalidcon(path, lineno, *ctx);
-> +	else if (mycanoncon)
-> +		rc = mycanoncon(path, lineno, ctx);
-> +	else {
-> +		rc = selabel_validate(rec, contexts);
-> +		if (rc < 0) {
-> +			if (lineno) {
-> +				COMPAT_LOG(SELINUX_WARNING,
-> +					    "%s: line %u has invalid context %s\n",
-> +						path, lineno, *ctx);
-> +			} else {
-> +				COMPAT_LOG(SELINUX_WARNING,
-> +					    "%s: has invalid context %s\n", path, *ctx);
-> +			}
-> +		}
-> +	}
-> +
-> +	return rc ? -1 : 0;
-> +}
-> +
-> +#ifndef BUILD_HOST
-> +
->  static __thread struct selabel_handle *hnd;
->  
->  /*
-> @@ -54,33 +112,6 @@ static void free_array_elts(void)
->  	con_array = NULL;
->  }
->  
-> -static void
-> -#ifdef __GNUC__
-> -    __attribute__ ((format(printf, 1, 2)))
-> -#endif
-> -    default_printf(const char *fmt, ...)
-> -{
-> -	va_list ap;
-> -	va_start(ap, fmt);
-> -	vfprintf(stderr, fmt, ap);
-> -	va_end(ap);
-> -}
-> -
-> -void
-> -#ifdef __GNUC__
-> -    __attribute__ ((format(printf, 1, 2)))
-> -#endif
-> -    (*myprintf) (const char *fmt,...) = &default_printf;
-> -int myprintf_compat = 0;
-> -
-> -void set_matchpathcon_printf(void (*f) (const char *fmt, ...))
-> -{
-> -	myprintf = f ? f : &default_printf;
-> -	myprintf_compat = 1;
-> -}
-> -
-> -static int (*myinvalidcon) (const char *p, unsigned l, char *c) = NULL;
-> -
->  void set_matchpathcon_invalidcon(int (*f) (const char *p, unsigned l, char *c))
->  {
->  	myinvalidcon = f;
-> @@ -104,9 +135,6 @@ static int default_canoncon(const char *path, unsigned lineno, char **context)
->  	return 0;
->  }
->  
-> -static int (*mycanoncon) (const char *p, unsigned l, char **c) =
-> -    NULL;
-> -
->  void set_matchpathcon_canoncon(int (*f) (const char *p, unsigned l, char **c))
->  {
->  	if (f)
-> @@ -536,30 +564,4 @@ int selinux_lsetfilecon_default(const char *path)
->  	return rc;
->  }
->  
-> -int compat_validate(struct selabel_handle *rec,
-> -		    struct selabel_lookup_rec *contexts,
-> -		    const char *path, unsigned lineno)
-> -{
-> -	int rc;
-> -	char **ctx = &contexts->ctx_raw;
-> -
-> -	if (myinvalidcon)
-> -		rc = myinvalidcon(path, lineno, *ctx);
-> -	else if (mycanoncon)
-> -		rc = mycanoncon(path, lineno, ctx);
-> -	else {
-> -		rc = selabel_validate(rec, contexts);
-> -		if (rc < 0) {
-> -			if (lineno) {
-> -				COMPAT_LOG(SELINUX_WARNING,
-> -					    "%s: line %u has invalid context %s\n",
-> -						path, lineno, *ctx);
-> -			} else {
-> -				COMPAT_LOG(SELINUX_WARNING,
-> -					    "%s: has invalid context %s\n", path, *ctx);
-> -			}
-> -		}
-> -	}
-> -
-> -	return rc ? -1 : 0;
-> -}
-> +#endif
-> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-> index eee4612..7efcd7e 100644
-> --- a/libselinux/src/procattr.c
-> +++ b/libselinux/src/procattr.c
-> @@ -22,10 +22,13 @@ static pthread_key_t destructor_key;
->  static int destructor_key_initialized = 0;
->  static __thread char destructor_initialized;
->  
-> +#ifndef ANDROID
-> +/* Android declares this in unistd.h and has a definition for it */
->  static pid_t gettid(void)
->  {
->  	return syscall(__NR_gettid);
->  }
-> +#endif
->  
->  static void procattr_thread_destructor(void __attribute__((unused)) *unused)
->  {
-> 
+After:
+$ sefcontext_compile /path/to/unwritabledirectory/file_contexts
+sefcontext_compile: mkstemp /path/to/unwritabledirectory/file_contexts.binNmQJqa failed: Permission denied
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/utils/sefcontext_compile.c | 48 +++++++++++++++++++++++------------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
+
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index 70853e7..ebd1264 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
+ 
+ 	path = argv[optind];
+ 	if (stat(path, &buf) < 0) {
+-		fprintf(stderr, "Can not stat: %s: %m\n", path);
++		fprintf(stderr, "%s: could not stat: %s: %s\n", argv[0], path, strerror(errno));
+ 		exit(EXIT_FAILURE);
+ 	}
+ 
+@@ -318,14 +318,14 @@ int main(int argc, char *argv[])
+ 		policy_fp = fopen(policy_file, "r");
+ 
+ 		if (!policy_fp) {
+-			fprintf(stderr, "Failed to open policy: %s\n",
+-							    policy_file);
++			fprintf(stderr, "%s: failed to open %s: %s\n",
++				argv[0], policy_file, strerror(errno));
+ 			exit(EXIT_FAILURE);
+ 		}
+ 
+ 		if (sepol_set_policydb_from_file(policy_fp) < 0) {
+-			fprintf(stderr, "Failed to load policy: %s\n",
+-							    policy_file);
++			fprintf(stderr, "%s: failed to load policy from %s\n",
++				argv[0], policy_file);
+ 			fclose(policy_fp);
+ 			exit(EXIT_FAILURE);
+ 		}
+@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
+ 	/* Generate dummy handle for process_line() function */
+ 	rec = (struct selabel_handle *)calloc(1, sizeof(*rec));
+ 	if (!rec) {
+-		fprintf(stderr, "Failed to calloc handle\n");
++		fprintf(stderr, "%s: calloc failed: %s\n", argv[0], strerror(errno));
+ 		if (policy_fp)
+ 			fclose(policy_fp);
+ 		exit(EXIT_FAILURE);
+@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
+ 
+ 	data = (struct saved_data *)calloc(1, sizeof(*data));
+ 	if (!data) {
+-		fprintf(stderr, "Failed to calloc saved_data\n");
++		fprintf(stderr, "%s: calloc failed: %s\n", argv[0], strerror(errno));
+ 		free(rec);
+ 		if (policy_fp)
+ 			fclose(policy_fp);
+@@ -363,46 +363,62 @@ int main(int argc, char *argv[])
+ 	rec->data = data;
+ 
+ 	rc = process_file(rec, path);
+-	if (rc < 0)
++	if (rc < 0) {
++		fprintf(stderr, "%s: process_file failed\n", argv[0]);
+ 		goto err;
++	}
+ 
+ 	rc = sort_specs(data);
+-	if (rc)
++	if (rc) {
++		fprintf(stderr, "%s: sort_specs failed\n", argv[0]);
+ 		goto err;
++	}
+ 
+ 	if (out_file)
+ 		rc = snprintf(stack_path, sizeof(stack_path), "%s", out_file);
+ 	else
+ 		rc = snprintf(stack_path, sizeof(stack_path), "%s.bin", path);
+ 
+-	if (rc < 0 || rc >= (int)sizeof(stack_path))
++	if (rc < 0 || rc >= (int)sizeof(stack_path)) {
++		fprintf(stderr, "%s: snprintf failed\n", argv[0]);
+ 		goto err;
++	}
+ 
+ 	tmp = malloc(strlen(stack_path) + 7);
+-	if (!tmp)
++	if (!tmp) {
++		fprintf(stderr, "%s: malloc failed: %s\n", argv[0], strerror(errno));
+ 		goto err;
++	}
+ 
+ 	rc = sprintf(tmp, "%sXXXXXX", stack_path);
+-	if (rc < 0)
++	if (rc < 0) {
++		fprintf(stderr, "%s: sprintf failed\n", argv[0]);
+ 		goto err;
++	}
+ 
+ 	fd  = mkstemp(tmp);
+-	if (fd < 0)
++	if (fd < 0) {
++		fprintf(stderr, "%s: mkstemp %s failed: %s\n", argv[0], tmp, strerror(errno));
+ 		goto err;
++	}
+ 
+ 	rc = fchmod(fd, buf.st_mode);
+ 	if (rc < 0) {
+-		perror("fchmod failed to set permission on compiled regexs");
++		fprintf(stderr, "%s: fchmod %s failed: %s\n", argv[0], tmp, strerror(errno));
+ 		goto err_unlink;
+ 	}
+ 
+ 	rc = write_binary_file(data, fd, do_write_precompregex);
+-	if (rc < 0)
++	if (rc < 0) {
++		fprintf(stderr, "%s: write_binary_file %s failed\n", argv[0], tmp);
+ 		goto err_unlink;
++	}
+ 
+ 	rc = rename(tmp, stack_path);
+-	if (rc < 0)
++	if (rc < 0) {
++		fprintf(stderr, "%s: rename %s -> %s failed: %s\n", argv[0], tmp, stack_path, strerror(errno));
+ 		goto err_unlink;
++	}
+ 
+ 	rc = 0;
+ out:
+-- 
+2.7.4
