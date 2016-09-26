@@ -1,232 +1,40 @@
-Subject: Re: [PATCH 1/1] genhomedircon: support policies using RBACSEP
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <cover.1474639773.git.gary.tierney@gmx.com>
- <1062ebe32922aec79a0232acfdd0005e9ce124da.1474639773.git.gary.tierney@gmx.com>
- <7be4daef-ca03-da40-0fb0-79bf39e3ce18@tycho.nsa.gov>
- <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
- <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
- <0fe93aff-8f37-0360-0499-f5f81d84c30a@gmail.com>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <08d1e69f-4f74-94c5-aa97-87fdcd0c8086@gmail.com>
-Date: Mon, 26 Sep 2016 17:06:50 +0200
+Subject: Re: [PATCH 1/1] libsepol/tests: fix mispelling of optimization option
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20160925143040.31378-1-nicolas.iooss@m4x.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <49bc96ec-31e4-8155-3322-14d5efe6be97@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 11:10:44 -0400
 MIME-Version: 1.0
-In-Reply-To: <0fe93aff-8f37-0360-0499-f5f81d84c30a@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="cKMKsxtslDfShb89wrvKpVxRu9mtds2Kv"
+In-Reply-To: <20160925143040.31378-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---cKMKsxtslDfShb89wrvKpVxRu9mtds2Kv
-Content-Type: multipart/mixed; boundary="blc8vJVxe4NxFcuLSbSQUNQsMA01nhwDw";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Cc: "Christopher J. PeBenito" <pebenito@ieee.org>,
- Gary Tierney <gary.tierney@gmx.com>
-Message-ID: <08d1e69f-4f74-94c5-aa97-87fdcd0c8086@gmail.com>
-Subject: Re: [PATCH 1/1] genhomedircon: support policies using RBACSEP
-References: <cover.1474639773.git.gary.tierney@gmx.com>
- <1062ebe32922aec79a0232acfdd0005e9ce124da.1474639773.git.gary.tierney@gmx.com>
- <7be4daef-ca03-da40-0fb0-79bf39e3ce18@tycho.nsa.gov>
- <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
- <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
- <0fe93aff-8f37-0360-0499-f5f81d84c30a@gmail.com>
-In-Reply-To: <0fe93aff-8f37-0360-0499-f5f81d84c30a@gmail.com>
+On 09/25/2016 10:30 AM, Nicolas Iooss wrote:
+> In CFLAGS, -o0 means "output in file 0", not "compile at optimization
+> level 0".
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
---blc8vJVxe4NxFcuLSbSQUNQsMA01nhwDw
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Thanks, applied.
 
-On 09/26/2016 04:34 PM, Dominick Grift wrote:
-> On 09/26/2016 04:20 PM, Stephen Smalley wrote:
->> On 09/24/2016 04:26 AM, Dominick Grift wrote:
->>> On 09/23/2016 09:36 PM, Stephen Smalley wrote:
->>>> On 09/23/2016 10:28 AM, Gary Tierney wrote:
->>>>> Introduces support for generating homedir/user contexts for
->>>>> policies that implement RBACSEP.  The support works by taking
->>>>> the prefix of a logins seuser and replacing the role field in
->>>>> their context specifications with the prefix.  A new option
->>>>> "genhomedircon-rbacsep" was added to /etc/selinux/semanage.conf
->>>>> to allow toggling this behavior.
->>>>
->>>> The user prefix was previously used as a prefix for types, e.g.
->>>> you could have: HOME_DIR/\.gnupg(/.+)?
->>>> system_u:object_r:ROLE_gpg_secret_t and get it replaced with:=20
->>>> /home/[^/]+/\.gnupg(/.+)?
->>>> system_u:object_r:user_gpg_secret_t /root/\.gnupg(/.+)?
->>>> system_u:object_r:sysadm_gpg_secret_t
->>>>
->>>> So I guess you could use it for the role field too, but for
->>>> consistency you would want it to be: HOME_DIR/\.gnupg(/.+)?
->>>> system_u:ROLE_r:ROLE_gpg_secret_t
->>>>
->>>> and the prefix would still just be "user".
->>>
->>> No one is actually using that privsep functionality anymore.
->>> Reference policy removed support for it.
->>>
->>> Can we not instead just re-use that code for rbacsep?
->>>
->>> The alternative would be to add code similar to the privsep code
->>> but then for rbacsep.
->>>
->>> Then we will have the issue that we can't reasonably rely on the=20
->>> userprefix and prefix statements for rbacsep, because they might be
->>> used for privsep (in theory at least)
->>>
->>> I other words if we were to implement rbacsep code similar to the=20
->>> privsep code, then we would need a new policy statement similar to=20
->>> userprefix and prefix.
->>>
->>> It seems much easier to me to just re-use the privsep code.
->>>
->>> rbacsep is the successor to privsep after all.
->>
->> First, I'm not sure what you mean by privsep; usually that term refers=
-
->> to privilege separation as in openssh.
->=20
-> with privsep i mean prefixed user (home) content file contexts generate=
-d
-> by genhomedircon.
->=20
->>
->> There are at least three ways of implementing "role" separation for
->> objects in SELinux:
->> (1) via TE and the use of derived types on objects e.g. ROLE_home_t,
->> ROLE_devpts_t, etc,
->=20
-> I wouldn't compare the two as ROLE_home_t is generated by genhomedircon=
-
-> and ROLE_devpts_t is not
->=20
->> (2) via RBAC and the use of roles on objects (originally problematic
->> because it required a set of changes to the kernel to support roles on=
-
->> objects, but that's all history now),
->=20
-> This is the way forward IMHO
->=20
->> (3) via UBAC and the use of SELinux user identities on objects to
->> represent roles.
->=20
-> UBAC or more accurately IBACSEP is inadequate because you cannot
-> implement automatic identity transitions as you can automatic role
-> transitions.
->=20
->>
->> refpolicy started with (1), experimented with (2) and seems to have
->> settled on (3), likely because (2) wasn't fully supported in the
->> kernel or userspace for a long time.  I guess libsemanage /
->> genhomedircon already support (3) adequately.
->=20
-> 1. was removed (i think due to redhat objecting to it). 2. refpolicy
-> settled on 3 because at that time 2 was not an option (defaultrole did
-> not exist). libsemanage supports 3 out of the box yes but we dont have
-> automatic identity transitions and this makes RBACSEP a more flexible
-> alternative. we need to be able to deal with instances where a automati=
-c
-> role transition is desired.
->=20
->>
->> CIL apparently doesn't support (1), so that's broken regardless.
->=20
-> (1) is currently "broken", yes or legacy
->=20
->>
->> So I guess reusing the prefix for RBACSEP won't break any existing
->> users.  That said, it is clearly confusing to use something identified=
-
->> in the policy language and documentation as a "prefix" for the purpose=
-
->> of a "default role".  So maybe we should look to rename it in the
->> language and code, with backward compatibility.  That can be done as a=
-
->> separate set of changes.  That might also help us with a different
->> problem - obsoleting security_compute_user() aka /sys/fs/selinux/user
->> and taking the get_default_context() logic to userspace.
->>
->=20
-> The name prefix, and userprefix would indeed ideally need to be changed=
-
-> by I would say that this would be a second step.
->=20
->> Has anyone compared UBAC vs RBAC now that the kernel and policy
->> support roles on objects?  Is there a strong reason for refpolicy to
->> stay with (3) other than compatibility with older distributions and
->> this genhomedircon issue?
->=20
-> IBACSEP is not flexible enough mainly because we cannot define automati=
-c
-> identity transitions.
->=20
-> Also until recently we did not have user attributes. but now we do so
-> that is no longer an issue.
->=20
->>
->=20
->=20
-
-Here is one example of how i think automatic role transitions help a litt=
-le
-
-Example: sudo
-
-Whoever runs sudo first on the the system gets to create
-/var/run/sudo/lectured
-
-Imagine two selinux users associated with types that need to be able to
-run sudo (joe_u/jane_u)
-
-A user associated with joe_u runs sudo first, thus
-/var/run/sudo/lectured gets associated with the joe_u identity. Now the
-user associated with jane_u gets lectured all the time because the users
-sudo instance cannot access /var/run/sudo/leactured.
-
-With a automatic role transition we can tell SELinux to automatically
-role transition to system_r on sudo_var_run_t type dirs. This way
-RBACSEP constrained roles can access /var/run/sudo/lectured
-
-An alternative approach would be to lift the RBACSEP constraint from
-sudo_var_run_t, but that does not take away the argument that automatic
-role transitions make RBACSEP a more flexible alternative
-
-It makes RBACSEP just a small fraction more flexible than IBACSEP.
-
-(ideally the issue would be resolved with a tempfiles.d snippet for
-/run/sudo and /run/sudo/lectured (which is implemented on my request)
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
-
-
---blc8vJVxe4NxFcuLSbSQUNQsMA01nhwDw--
-
---cKMKsxtslDfShb89wrvKpVxRu9mtds2Kv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJX6TmKAAoJECV0jlU3+UdpG5cMAIMOLoJHDHJ0KV2AsArM0q02
-sNphzwVww7wIuKcqRfmEheQ3DqTaOU3QRiN83j0lSPcMPIlGMyzyh7kMRnneuveW
-KCPNfZGcDaUUCdXWRN7xVzt/E7hdRhodWWg24tOwx3qpVSj8f47Wmt4sb4RS/JFq
-LLg8BHpQxnm3bhMEbSJnf0oQskZ5oIphTL3/kRdPPKJmDaJUgB/7rlr0LdnjHHQP
-8VhqbTHGSr0Ti909cBeI5PRM7eIPr7GDj1aPEVP7ZDviprJRztpRC87t/eAx4f7M
-2F0KGMbf29kXkI3yHpeIMA11yiiTgewS0glyU+16t52JHR14yjxkkQCw/AXaQCCe
-Hp5y/L/hxvOtWXcY031ElQSHl7dO/PMUhhbFDksMFl+1+SroldWbK2f6j7sGpiA9
-V+VgEVA84JqV+ivScramRn8s//v1o2zLZZnjWoGlk9hyYMcrs48xOVj3S0hPEIFJ
-if5iB4WLYya7N5mIiY2/Rl1JOB/2/9q8GcZ3Vh5Ozw==
-=NZIy
------END PGP SIGNATURE-----
-
---cKMKsxtslDfShb89wrvKpVxRu9mtds2Kv--
+> ---
+>  libsepol/tests/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
+> index dd7bd333c58c..60b3e836cc94 100644
+> --- a/libsepol/tests/Makefile
+> +++ b/libsepol/tests/Makefile
+> @@ -2,7 +2,7 @@ M4 ?= m4
+>  MKDIR ?= mkdir
+>  EXE ?= libsepol-tests
+>  
+> -CFLAGS += -g3 -gdwarf-2 -o0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter -Werror
+> +CFLAGS += -g3 -gdwarf-2 -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter -Werror
+>  
+>  # Statically link libsepol on the assumption that we are going to
+>  # be testing internal functions.
+> 
