@@ -1,47 +1,46 @@
-Message-ID: <20160926083811.30682dgg5kr92vr4@webmail.alunos.dcc.fc.up.pt>
-Date: Mon, 26 Sep 2016 08:38:11 +0200
-From: up201407890@alunos.dcc.fc.up.pt
-To: "Paul Eggert" <eggert@cs.ucla.edu>
-Cc: 24541@debbugs.gnu.org, SE-Linux <SELinux@tycho.nsa.gov>
-Subject: Re: bug#24541: runcon tty hijacking via TIOCSTI ioctl
-References: <20160925133955.72163x0kftak7yqs@webmail.alunos.dcc.fc.up.pt>
- <ad807471-3549-b9fa-e718-8110e6a768b2@cs.ucla.edu>
-In-Reply-To: <ad807471-3549-b9fa-e718-8110e6a768b2@cs.ucla.edu>
+Subject: Re: SELinux sandbox escape via TIOCSTI ioctl
+To: Paul Moore <paul@paul-moore.com>, up201407890@alunos.dcc.fc.up.pt
+References: <20160923112350.89325hv7y899lack@webmail.alunos.dcc.fc.up.pt>
+ <e6efcd0b-27cd-de33-d111-bc2bcb1dc0b1@tycho.nsa.gov>
+ <20160924115740.18196b6yz71zn4kc@webmail.alunos.dcc.fc.up.pt>
+ <CAHC9VhRAwGzNxz-4OofPLFKg5D-VvdSPGZWd9Gdoh4-0zB-8jA@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <e330fa2a-f2e5-c79e-6bf3-324936554fe4@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 08:52:18 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=UTF-8;
-	DelSp="Yes";
-	format="flowed"
+In-Reply-To: <CAHC9VhRAwGzNxz-4OofPLFKg5D-VvdSPGZWd9Gdoh4-0zB-8jA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting "Paul Eggert" <eggert@cs.ucla.edu>:
+On 09/25/2016 09:25 AM, Paul Moore wrote:
+> On Sat, Sep 24, 2016 at 5:57 AM,  <up201407890@alunos.dcc.fc.up.pt> wrote:
+>> Quoting "Stephen Smalley" <sds@tycho.nsa.gov>:
+>>> Thank you for the bug report. This bug is now fixed in upstream commit
+>>> acca96a135a4d2a028ba9b636886af99c0915379.
+>>
+>> Cool, thanks. Though it'll lose job control, that's why most 'su-like'
+>> programs refuse to patch this and are still vulnerable.
+> 
+> I think we should wait and and see if people complain about the loss
+> of job control; I'd rather see us fix the problem with TIOCSTI.
+> 
+>> Anyways, the same happens with the 'runcon' utility:
+> 
+> I don't think we need to fix this for runcon, as it isn't as
+> sandboxing tool like sandbox, and the loss of job control would likely
+> be much more noticeable for runcon.
 
-Hello,
+FWIW, this issue can be addressed through policy without changes to
+runcon in one of two ways:
 
-I set the bug report here before I got a response from Paul Moore
-https://marc.info/?l=selinux&m=147481004710264&w=2
+1) Policy can prevent the new context from using the controlling tty at
+all, in which case the kernel will reset the controlling tty
+automatically (flush_unauthorized_files() in security/selinux/hooks.c),
 
-"I don't think we need to fix this for runcon, as it isn't as
-sandboxing tool like sandbox, and the loss of job control would likely
-be much more noticeable for runcon."
-
-
-> up201407890@alunos.dcc.fc.up.pt wrote re <http://bugs.gnu.org/24541>:
->> When executing a program via the runcon utility, the nonpriv session
->> can escape to the parent session by using the TIOCSTI ioctl to push
->> characters into the terminal's input buffer, allowing an attacker to
->> execute arbitrary commands without the SELinux security context.
->
-> Thanks for the bug report. Surely this is a bug in the setexeccon  
-> system call, not in the runcon command that uses the system call.  
-> That being said, perhaps runcon should work around the bug via  
-> something like the attached patch.
->
-
-
-
-----------------------------------------------------------------
-This message was sent using IMP, the Internet Messaging Program.
+2) Policy can allow the new context to read/write the tty but prevent
+use of TIOCSTI in particular via the ioctl whitelisting support
+introduced in Linux 4.3 and libsepol/checkpolicy 2.5.
