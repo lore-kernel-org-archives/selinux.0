@@ -1,59 +1,93 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8QDdCSX019565
- for <selinux@tycho.nsa.gov>; Mon, 26 Sep 2016 09:39:12 -0400
 Subject: Re: [PATCH 1/1] genhomedircon: support policies using RBACSEP
-To: selinux@tycho.nsa.gov
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
 References: <cover.1474639773.git.gary.tierney@gmx.com>
  <1062ebe32922aec79a0232acfdd0005e9ce124da.1474639773.git.gary.tierney@gmx.com>
- <20160923154356.GA8039@workstation.fluency.net.uk>
+ <7be4daef-ca03-da40-0fb0-79bf39e3ce18@tycho.nsa.gov>
+ <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <fc6a4dbc-8973-4629-9224-33a855d34eec@tycho.nsa.gov>
-Date: Mon, 26 Sep 2016 09:41:34 -0400
+Message-ID: <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 10:20:12 -0400
 MIME-Version: 1.0
-In-Reply-To: <20160923154356.GA8039@workstation.fluency.net.uk>
+In-Reply-To: <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/23/2016 11:43 AM, Gary Tierney wrote:
-> On Fri, Sep 23, 2016 at 03:28:44PM +0100, Gary Tierney wrote:
->> Introduces support for generating homedir/user contexts for
->> policies that implement RBACSEP.  The support works by taking the
->> prefix of a logins seuser and replacing the role field in their
->> context specifications with the prefix.  A new option
->> "genhomedircon-rbacsep" was added to /etc/selinux/semanage.conf
->> to allow toggling this behavior.
+On 09/24/2016 04:26 AM, Dominick Grift wrote:
+> On 09/23/2016 09:36 PM, Stephen Smalley wrote:
+>> On 09/23/2016 10:28 AM, Gary Tierney wrote:
+>>> Introduces support for generating homedir/user contexts for
+>>> policies that implement RBACSEP.  The support works by taking
+>>> the prefix of a logins seuser and replacing the role field in
+>>> their context specifications with the prefix.  A new option
+>>> "genhomedircon-rbacsep" was added to /etc/selinux/semanage.conf
+>>> to allow toggling this behavior.
 >> 
->> The user prefix can be set from both standard kernel policy and
->> CIL:
+>> The user prefix was previously used as a prefix for types, e.g.
+>> you could have: HOME_DIR/\.gnupg(/.+)?
+>> system_u:object_r:ROLE_gpg_secret_t and get it replaced with: 
+>> /home/[^/]+/\.gnupg(/.+)?
+>> system_u:object_r:user_gpg_secret_t /root/\.gnupg(/.+)?
+>> system_u:object_r:sysadm_gpg_secret_t
 >> 
->> CIL: (user user_u) (role user_r) (userrole user_u user_r) 
->> (userprefix user_u user_r)
+>> So I guess you could use it for the role field too, but for
+>> consistency you would want it to be: HOME_DIR/\.gnupg(/.+)?
+>> system_u:ROLE_r:ROLE_gpg_secret_t
 >> 
->> kernel policy language: role user_r; user user_u roles { user_r }
->> prefix user_r;
->> 
->> Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
-<snip>
-> perfinion at #selinux on freenode IRC suggested that the
-> genhomedircon-rbacsep option should be dropped, and instead a
-> RBACSEP context should be chosen first in all cases.  If validation
-> of this context fails, then it should fall back to whatever the
-> existing role is.
+>> and the prefix would still just be "user".
 > 
-> Anyone have thoughts on this?  This seems to me like a much better
-> solution than using a new genhomedircon-rbacsep option, but the
-> problem of using "userprefix" still remains.
+> No one is actually using that privsep functionality anymore.
+> Reference policy removed support for it.
+> 
+> Can we not instead just re-use that code for rbacsep?
+> 
+> The alternative would be to add code similar to the privsep code
+> but then for rbacsep.
+> 
+> Then we will have the issue that we can't reasonably rely on the 
+> userprefix and prefix statements for rbacsep, because they might be
+> used for privsep (in theory at least)
+> 
+> I other words if we were to implement rbacsep code similar to the 
+> privsep code, then we would need a new policy statement similar to 
+> userprefix and prefix.
+> 
+> It seems much easier to me to just re-use the privsep code.
+> 
+> rbacsep is the successor to privsep after all.
 
-Does a valid RBACSEP context necessarily mean that RBACSEP was
-desired/intended? (likely: otherwise the role-type association
-wouldn't be authorized)
+First, I'm not sure what you mean by privsep; usually that term refers
+to privilege separation as in openssh.
 
-Does an invalid RBACSEP context necessarily mean that RBACSEP was not
-desired/intended? (unclear: what if we just forgot the role-type
-statement for a particular type)
+There are at least three ways of implementing "role" separation for
+objects in SELinux:
+(1) via TE and the use of derived types on objects e.g. ROLE_home_t,
+ROLE_devpts_t, etc,
+(2) via RBAC and the use of roles on objects (originally problematic
+because it required a set of changes to the kernel to support roles on
+objects, but that's all history now),
+(3) via UBAC and the use of SELinux user identities on objects to
+represent roles.
 
-Also, we base it on context validation, then it could differ for
-different entries - some could end up with RBACSEP applied and others not.
+refpolicy started with (1), experimented with (2) and seems to have
+settled on (3), likely because (2) wasn't fully supported in the
+kernel or userspace for a long time.  I guess libsemanage /
+genhomedircon already support (3) adequately.
+
+CIL apparently doesn't support (1), so that's broken regardless.
+
+So I guess reusing the prefix for RBACSEP won't break any existing
+users.  That said, it is clearly confusing to use something identified
+in the policy language and documentation as a "prefix" for the purpose
+of a "default role".  So maybe we should look to rename it in the
+language and code, with backward compatibility.  That can be done as a
+separate set of changes.  That might also help us with a different
+problem - obsoleting security_compute_user() aka /sys/fs/selinux/user
+and taking the get_default_context() logic to userspace.
+
+Has anyone compared UBAC vs RBAC now that the kernel and policy
+support roles on objects?  Is there a strong reason for refpolicy to
+stay with (3) other than compatibility with older distributions and
+this genhomedircon issue?
