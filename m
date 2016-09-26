@@ -1,58 +1,167 @@
-MIME-Version: 1.0
-In-Reply-To: <a353aab5-b4ae-c6e5-82fa-4326f1f841f6@tycho.nsa.gov>
-References: <1474911219-20465-1-git-send-email-william.c.roberts@intel.com>
- <a353aab5-b4ae-c6e5-82fa-4326f1f841f6@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 26 Sep 2016 12:47:38 -0700
-Message-ID: <CAFftDdqZY4Cnbh5+pw9cW185m0mMSRT0bAMxd5GN9r9=APLwNw@mail.gmail.com>
-Subject: Re: Android Fork
-To: Stephen Smalley <sds@tycho.nsa.gov>, Nick Kralevich <nnk@google.com>,
- Daniel Cashman <dcashman@android.com>,
- Jeffrey Vander Stoep <jeffv@google.com>,
- Janis Danisevskis <jdanis@google.com>
-Cc: William Roberts <william.c.roberts@intel.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH] libselinux: add ANDROID_HOST=y build option
+Date: Mon, 26 Sep 2016 13:33:04 -0700
+Message-Id: <1474921984-24984-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Sep 26, 2016 at 12:10 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 09/26/2016 01:33 PM, william.c.roberts@intel.com wrote:
->> Below, are the last two majore patches to close the Android fork.
->>
->> Patch "libselinux: add ifdef'ing for ANDROID and BUILD_HOST" I
->> combined into 1 patch since some ANDROID and BUILD_HOST defines
->> are on the same line, I can split it appart if its really needed.
->>
->> Note, that you need the Android make recipe for some of these
->> configurations to work as Android doesn't use all the src files.
->>
->> The Build files are left out, for now, so AOSP can pull from
->> upstream without it breaking the AOSP build.
->>
->> Once merged AOSP can take the build files, once they drop
->> external/libselinux, and then the last patch u[stream will
->> be the enabling patch with the build files.
->
-> I was wondering whether the build files belong in upstream.
-> I know we have them for libsepol and checkpolicy currently, but
-> essentially they are just always out of date, any changes will be fed
-> through Android first anyway, and they aren't getting any testing or
-> updates from upstream.  Might be simpler to just keep those in Android
-> and drop the ones we already have from upstream.
+From: William Roberts <william.c.roberts@intel.com>
 
-+ AOSP folks.
+To build the selinux host configuration, specify
+ANDROID_HOST=y on the Make command line.
 
-I've been pondering the same thing, so I am glad one of us started this
-discussion. Based on what your stating, I think it makes sense to kill
-the Android.mk and Android.bp files upstream, but ill let the AOSP
-folks chime in as well.
+eg)
+make ANDROID_HOST=y
 
-I think it also makes sense to add ANDROID_HOST=y option for the build
-so we can at least test the Android host recipe within the upstream Makefiles,
-thoughts?
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libselinux/Makefile     | 13 ++++++++++--
+ libselinux/src/Makefile | 54 ++++++++++++++++++++++++++++++++-----------------
+ 2 files changed, 46 insertions(+), 21 deletions(-)
 
-<snip>
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index 5a8d42c..b9dc7bc 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -1,4 +1,4 @@
+-SUBDIRS = src include utils man
++SUBDIRS = src
+ 
+ DISABLE_AVC ?= n
+ DISABLE_SETRANS ?= n
+@@ -10,6 +10,11 @@ ifeq ($(EMBEDDED),y)
+ 	override DISABLE_RPM=y
+ 	override DISABLE_BOOL=y
+ endif
++ifeq ($(ANDROID_HOST),y)
++	override DISABLE_SETRANS=y
++	EMFLAGS+= -DDISABLE_RPM -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
++										-DBUILD_HOST
++endif
+ ifeq ($(DISABLE_AVC),y)
+ 	EMFLAGS+= -DDISABLE_AVC
+ endif
+@@ -22,7 +27,7 @@ endif
+ ifeq ($(DISABLE_SETRANS),y)
+ 	EMFLAGS+= -DDISABLE_SETRANS
+ endif
+-export DISABLE_AVC DISABLE_SETRANS DISABLE_RPM DISABLE_BOOL EMFLAGS
++export DISABLE_AVC DISABLE_SETRANS DISABLE_RPM DISABLE_BOOL EMFLAGS ANDROID_HOST
+ 
+ USE_PCRE2 ?= n
+ ifeq ($(USE_PCRE2),y)
+@@ -33,6 +38,10 @@ else
+ endif
+ export PCRE_CFLAGS PCRE_LDFLAGS
+ 
++ifneq ($(ANDROID_HOST), y)
++SUBDIRS += include utils man
++endif
++
+ all install relabel clean distclean indent:
+ 	@for subdir in $(SUBDIRS); do \
+ 		(cd $$subdir && $(MAKE) $@) || exit 1; \
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 36e42b8..a1c4114 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -47,9 +47,17 @@ endif
+ ifeq ($(DISABLE_BOOL),y)
+ 	UNUSED_SRCS+=booleans.c
+ endif
++ifeq ($(ANDROID_HOST),y)
++	SRCS=callbacks.c freecon.c label.c label_file.c \
++			label_android_property.c regex.c label_support.c \
++			matchpathcon.c setrans_client.c sha1.c
++	override CFLAGS += -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
++										-DBUILD_HOST
++else
++	SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
++endif
+ 
+ GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
+-SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
+ 
+ MAX_STACK_SIZE=32768
+ 
+@@ -74,9 +82,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+           -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
+           -Werror -Wno-aggregate-return -Wno-redundant-decls
+ 
+-PCRE_LDFLAGS ?= -lpcre
+-
+-override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(EMFLAGS) $(PCRE_CFLAGS)
++override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(EMFLAGS)
+ 
+ SWIG_CFLAGS += -Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter \
+ 		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations
+@@ -92,6 +98,28 @@ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./ $(EMFLAGS)
+ 
+ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(EMFLAGS)
+ 
++$(LIBA): $(OBJS)
++	$(AR) rcs $@ $^
++	$(RANLIB) $@
++
++$(LIBSO): $(LOBJS)
++	$(CC) $(CFLAGS) -shared -o $@ $^ $(PCRE_LDFLAGS) -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
++	ln -sf $@ $(TARGET)
++
++%.o:  %.c policy.h
++	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
++
++%.lo:  %.c policy.h
++	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
++
++# ANDROID_HOST Build option only builds the shared and static versions of
++# libselinux.
++ifeq ($(ANDROID_HOST),y)
++
++all: $(LIBA) $(LIBSO)
++
++else
++
+ all: $(LIBA) $(LIBSO) $(LIBPC)
+ 
+ pywrap: all $(SWIGFILES) $(AUDIT2WHYSO)
+@@ -110,14 +138,6 @@ $(SWIGSO): $(SWIGLOBJ)
+ $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
+ 	$(CC) $(CFLAGS) -shared -o $@ $^ -L. -lselinux $(LDFLAGS) -L$(LIBDIR)
+ 
+-$(LIBA): $(OBJS)
+-	$(AR) rcs $@ $^
+-	$(RANLIB) $@
+-
+-$(LIBSO): $(LOBJS)
+-	$(CC) $(CFLAGS) -shared -o $@ $^ $(PCRE_LDFLAGS) -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
+-	ln -sf $@ $(TARGET) 
+-
+ $(LIBPC): $(LIBPC).in ../VERSION
+ 	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+ 
+@@ -130,12 +150,6 @@ $(AUDIT2WHYLOBJ): audit2why.c
+ $(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
+ 	$(CC) $(CFLAGS) -shared -o $@ $^ -L. $(LDFLAGS) -lselinux $(LIBDIR)/libsepol.a -L$(LIBDIR)
+ 
+-%.o:  %.c policy.h
+-	$(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
+-
+-%.lo:  %.c policy.h
+-	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+-
+ $(SWIGCOUT): $(SWIGIF)
+ 	$(SWIG) $<
+ 
+@@ -178,4 +192,6 @@ distclean: clean
+ indent:
+ 	../../scripts/Lindent $(filter-out $(GENERATED),$(wildcard *.[ch]))
+ 
+-.PHONY: all clean pywrap rubywrap swigify install install-pywrap install-rubywrap distclean
++.PHONY: clean pywrap rubywrap swigify install install-pywrap install-rubywrap distclean
++endif
++.PHONY: all
+-- 
+1.9.1
