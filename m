@@ -1,48 +1,48 @@
-Date: Mon, 26 Sep 2016 12:17:03 -0600
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Daniel Jurgens <danielj@mellanox.com>, Leon Romanovsky <leon@kernel.org>,
- "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- "dledford@redhat.com" <dledford@redhat.com>,
- "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
-Message-ID: <20160926181703.GB28992@obsidianresearch.com>
-References: <CAHC9VhRUmbsuV40rRpG+LeNUgY7rVqOkt-fxTMAFDRRdLvEkug@mail.gmail.com>
- <VI1PR0501MB242949202A1DA23E5C8E1E8AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160830184633.GE7586@obsidianresearch.com>
- <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160830185548.GA9768@obsidianresearch.com>
- <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160901163418.GA6479@obsidianresearch.com>
- <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
- <20160906200221.GE28416@obsidianresearch.com>
- <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
+Subject: Re: Android Fork
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov
+References: <1474911219-20465-1-git-send-email-william.c.roberts@intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <a353aab5-b4ae-c6e5-82fa-4326f1f841f6@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 15:10:41 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
+In-Reply-To: <1474911219-20465-1-git-send-email-william.c.roberts@intel.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Sep 20, 2016 at 07:43:34PM -0400, Paul Moore wrote:
+On 09/26/2016 01:33 PM, william.c.roberts@intel.com wrote:
+> Below, are the last two majore patches to close the Android fork.
+> 
+> Patch "libselinux: add ifdef'ing for ANDROID and BUILD_HOST" I
+> combined into 1 patch since some ANDROID and BUILD_HOST defines
+> are on the same line, I can split it appart if its really needed.
+> 
+> Note, that you need the Android make recipe for some of these
+> configurations to work as Android doesn't use all the src files.
+> 
+> The Build files are left out, for now, so AOSP can pull from
+> upstream without it breaking the AOSP build.
+> 
+> Once merged AOSP can take the build files, once they drop
+> external/libselinux, and then the last patch u[stream will
+> be the enabling patch with the build files.
 
-> So far the discussion has been around providing access controls at the
-> transport layer, are there any RDMA entities that are transport
-> agnostic that might be better suited for what we are trying to do?  Or
-> is it simply that the RDMA layer is tied so tightly to the underlying
-> transport that we can't separate the two and have to consider them as
-> one?
+I was wondering whether the build files belong in upstream.
+I know we have them for libsepol and checkpolicy currently, but
+essentially they are just always out of date, any changes will be fed
+through Android first anyway, and they aren't getting any testing or
+updates from upstream.  Might be simpler to just keep those in Android
+and drop the ones we already have from upstream.
 
-The generic RDMA layer is called 'rdmacm' and it is the layer
-Mellanox's already applied patches for RDMA namespace enablement
-worked at.
-
-Jason
+> 
+> [PATCH 1/2] libselinux: introduce configurable backends
+> [PATCH 2/2] libselinux: add ifdef'ing for ANDROID and BUILD_HOST
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
