@@ -1,53 +1,45 @@
-Subject: Re: [PATCH 3/3] libsepol: fix unitialized variable 'nread' on mac
- build
-To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
- brindle@quarksecurity.com
-References: <1474664152-18727-1-git-send-email-william.c.roberts@intel.com>
- <1474664152-18727-4-git-send-email-william.c.roberts@intel.com>
+Subject: Re: [PATCH] libselinux: drop unused stdio_ext.h header file
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov
+References: <1474737005-1907-1-git-send-email-william.c.roberts@intel.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <4c38efe6-ed00-0904-9439-38888ac2146b@tycho.nsa.gov>
-Date: Mon, 26 Sep 2016 10:37:53 -0400
+Message-ID: <c9974ee5-670b-8573-7778-9fd1770ef4d4@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 11:05:17 -0400
 MIME-Version: 1.0
-In-Reply-To: <1474664152-18727-4-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1474737005-1907-1-git-send-email-william.c.roberts@intel.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/23/2016 04:55 PM, william.c.roberts@intel.com wrote:
+On 09/24/2016 01:10 PM, william.c.roberts@intel.com wrote:
 > From: William Roberts <william.c.roberts@intel.com>
 > 
-> Fix this:
-> genusers.c:63:14: warning: variable 'nread' is uninitialized when used here [-Wuninitialized]
->                 if (buffer[nread - 1] == '\n')
->                            ^~~~~
-> genusers.c:40:15: note: initialize the variable 'nread' to silence this warning
->         ssize_t nread;
->                      ^
->                       = 0
+> Nothing was being used from the stdio_ext.h header file, so
+> remove it. Additionally, Mac builds, required for the
+> Android build, do not have this header.
 > 
+> Change-Id: Ic61c87fcda79ffebeef93a20a2b3802f048bb0b0
 > Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
-Thanks, applied all 3 patches.
-NB none of this code is actually used on the Mac or elsewhere in Android
-for that matter, and even on Linux, it is just legacy code (not used in
-modern distributions).
+Thanks, applied. However, technically this was because an earlier change
+from you dropped the use of __fsetlocking(), so we may need to restore
+this at some point if that becomes an issue.
 
 > ---
->  libsepol/src/genusers.c | 1 +
->  1 file changed, 1 insertion(+)
+>  libselinux/src/label_file.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/libsepol/src/genusers.c b/libsepol/src/genusers.c
-> index 57a9a2e..5568210 100644
-> --- a/libsepol/src/genusers.c
-> +++ b/libsepol/src/genusers.c
-> @@ -53,6 +53,7 @@ static int load_users(struct policydb *policydb, const char *path)
->  	}
->  
->  	while(fgets(buffer, 255, fp) != NULL) {
-> +		nread = strlen(buffer);
->  #else
->  	size_t len = 0;
->  	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 7156825..8ff1170 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -10,7 +10,6 @@
+>  #include <stdarg.h>
+>  #include <string.h>
+>  #include <stdio.h>
+> -#include <stdio_ext.h>
+>  #include <ctype.h>
+>  #include <errno.h>
+>  #include <limits.h>
 > 
