@@ -1,45 +1,62 @@
-Subject: Re: [PATCH] libselinux: drop unused stdio_ext.h header file
-To: william.c.roberts@intel.com, selinux@tycho.nsa.gov
-References: <1474737005-1907-1-git-send-email-william.c.roberts@intel.com>
+Subject: Re: [PATCH 3/3] policycoreutils: Remove LDFLAGS from CFLAGS
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20160925121609.14516-1-nicolas.iooss@m4x.org>
+ <20160925121609.14516-3-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c9974ee5-670b-8573-7778-9fd1770ef4d4@tycho.nsa.gov>
-Date: Mon, 26 Sep 2016 11:05:17 -0400
+Message-ID: <ddf9396f-2b46-331a-738e-6e417d2f7122@tycho.nsa.gov>
+Date: Mon, 26 Sep 2016 11:05:38 -0400
 MIME-Version: 1.0
-In-Reply-To: <1474737005-1907-1-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <20160925121609.14516-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/24/2016 01:10 PM, william.c.roberts@intel.com wrote:
-> From: William Roberts <william.c.roberts@intel.com>
+On 09/25/2016 08:16 AM, Nicolas Iooss wrote:
+> Mixing LDFLAGS in CFLAGS can lead to compiler errors. For example in
+> policycoreutils/sandbox:
 > 
-> Nothing was being used from the stdio_ext.h header file, so
-> remove it. Additionally, Mac builds, required for the
-> Android build, do not have this header.
+>     $ make CC=clang LDFLAGS='-Wl,-as-needed,-no-undefined'
+>     clang -Wl,-as-needed,-no-undefined -I/usr/include
+>     -DPACKAGE="\"policycoreutils\"" -Wall -Werror -Wextra -W   -c -o
+>     seunshare.o seunshare.c
+>     clang-3.8: error: -Wl,-as-needed,-no-undefined: 'linker' input
+>     unused
 > 
-> Change-Id: Ic61c87fcda79ffebeef93a20a2b3802f048bb0b0
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Thanks, applied. However, technically this was because an earlier change
-from you dropped the use of __fsetlocking(), so we may need to restore
-this at some point if that becomes an issue.
+Thanks, applied all 3.
 
 > ---
->  libselinux/src/label_file.c | 1 -
->  1 file changed, 1 deletion(-)
+>  policycoreutils/newrole/Makefile | 2 +-
+>  policycoreutils/sandbox/Makefile | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 7156825..8ff1170 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -10,7 +10,6 @@
->  #include <stdarg.h>
->  #include <string.h>
->  #include <stdio.h>
-> -#include <stdio_ext.h>
->  #include <ctype.h>
->  #include <errno.h>
->  #include <limits.h>
+> diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
+> index 646cd4dd7214..8b41428cbbbc 100644
+> --- a/policycoreutils/newrole/Makefile
+> +++ b/policycoreutils/newrole/Makefile
+> @@ -22,7 +22,7 @@ VERSION = $(shell cat ../VERSION)
+>  
+>  CFLAGS ?= -Werror -Wall -W
+>  EXTRA_OBJS =
+> -override CFLAGS += -DVERSION=\"$(VERSION)\" $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+> +override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+>  LDLIBS += -lselinux -L$(PREFIX)/lib
+>  ifeq ($(PAMH), /usr/include/security/pam_appl.h)
+>  	override CFLAGS += -DUSE_PAM
+> diff --git a/policycoreutils/sandbox/Makefile b/policycoreutils/sandbox/Makefile
+> index a4861eab52b6..2716d691d81b 100644
+> --- a/policycoreutils/sandbox/Makefile
+> +++ b/policycoreutils/sandbox/Makefile
+> @@ -9,7 +9,7 @@ SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LOCALEDIR ?= /usr/share/locale
+>  SHAREDIR ?= $(PREFIX)/share/sandbox
+> -override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DPACKAGE="\"policycoreutils\"" -Wall -Werror -Wextra -W
+> +override CFLAGS += -I$(PREFIX)/include -DPACKAGE="\"policycoreutils\"" -Wall -Werror -Wextra -W
+>  LDLIBS += -lselinux -lcap-ng -L$(LIBDIR)
+>  SEUNSHARE_OBJS = seunshare.o
+>  
 > 
