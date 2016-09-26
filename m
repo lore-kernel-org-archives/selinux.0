@@ -1,52 +1,48 @@
-Subject: Re: [PATCH 0/2] selinux: Add features to find
- security.restorecon_last entries
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-References: <1474903749-4941-1-git-send-email-richard_c_haines@btinternet.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <2c13a8be-de16-2ee2-6c87-aa403b70ded1@tycho.nsa.gov>
-Date: Mon, 26 Sep 2016 14:14:38 -0400
+Date: Mon, 26 Sep 2016 12:17:03 -0600
+From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Daniel Jurgens <danielj@mellanox.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+Message-ID: <20160926181703.GB28992@obsidianresearch.com>
+References: <CAHC9VhRUmbsuV40rRpG+LeNUgY7rVqOkt-fxTMAFDRRdLvEkug@mail.gmail.com>
+ <VI1PR0501MB242949202A1DA23E5C8E1E8AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830184633.GE7586@obsidianresearch.com>
+ <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830185548.GA9768@obsidianresearch.com>
+ <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160901163418.GA6479@obsidianresearch.com>
+ <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+ <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <1474903749-4941-1-git-send-email-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/26/2016 11:29 AM, Richard Haines wrote:
-> This patch adds a new selinux_restorecon_xattr(3) function and a
-> supporting utility restorecon_xattr(8) to find and/or remove
-> security.restorecon_last entries added by setfiles(8) or
-> restorecon(8).
->
-> Richard Haines (2):
->   libselinux: Add function to find security.restorecon_last entries
->   policycoreutils: setfiles - Utility to find security.restorecon_last
->     entries
->
->  libselinux/include/selinux/restorecon.h            |  48 +++++
->  libselinux/man/man3/selinux_restorecon.3           |   2 +
->  .../man/man3/selinux_restorecon_default_handle.3   |   6 +-
->  .../man/man3/selinux_restorecon_set_alt_rootpath.3 |   4 +-
->  .../man/man3/selinux_restorecon_set_exclude_list.3 |   4 +-
->  .../man/man3/selinux_restorecon_set_sehandle.3     |   9 +-
->  libselinux/man/man3/selinux_restorecon_xattr.3     | 170 ++++++++++++++++
->  libselinux/src/selinux_restorecon.c                | 207 +++++++++++++++++++
->  policycoreutils/setfiles/Makefile                  |  10 +-
->  policycoreutils/setfiles/restore.h                 |   1 +
->  policycoreutils/setfiles/restorecon_xattr.8        | 119 +++++++++++
->  policycoreutils/setfiles/restorecon_xattr.c        | 221 +++++++++++++++++++++
->  12 files changed, 789 insertions(+), 12 deletions(-)
->  create mode 100644 libselinux/man/man3/selinux_restorecon_xattr.3
->  create mode 100644 policycoreutils/setfiles/restorecon_xattr.8
->  create mode 100644 policycoreutils/setfiles/restorecon_xattr.c
->
+On Tue, Sep 20, 2016 at 07:43:34PM -0400, Paul Moore wrote:
 
-Applied both patches.
+> So far the discussion has been around providing access controls at the
+> transport layer, are there any RDMA entities that are transport
+> agnostic that might be better suited for what we are trying to do?  Or
+> is it simply that the RDMA layer is tied so tightly to the underlying
+> transport that we can't separate the two and have to consider them as
+> one?
 
-Thanks,
-Jim
+The generic RDMA layer is called 'rdmacm' and it is the layer
+Mellanox's already applied patches for RDMA namespace enablement
+worked at.
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+Jason
