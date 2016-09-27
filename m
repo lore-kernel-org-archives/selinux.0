@@ -1,37 +1,51 @@
-Subject: Re: [Patch v3] sandbox: Use dbus-run-session instead of dbus-launch
- when available
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <20160927123949.24440-1-bigon@debian.org>
- <86f0359d-ff64-4f68-9899-c1219b30bfeb@tycho.nsa.gov>
- <a4570e73-8be1-e557-9f60-7319d2219da4@debian.org>
+Subject: Re: [PATCH v2] libselinux: add ANDROID_HOST=y build option
+To: William Roberts <bill.c.roberts@gmail.com>,
+ William Roberts <william.c.roberts@intel.com>
+References: <1474923189-26431-1-git-send-email-william.c.roberts@intel.com>
+ <CAFftDdrmSvjCJZMESYP3hzjwoT04G9iH7K7MryJxA2MaT5ye-g@mail.gmail.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a2bf7a5b-f84f-18e5-26a7-e5021e367e8d@tycho.nsa.gov>
-Date: Tue, 27 Sep 2016 09:58:10 -0400
+Message-ID: <b6e2eb23-40b3-aad2-dcd0-f7342ffa6018@tycho.nsa.gov>
+Date: Tue, 27 Sep 2016 10:03:14 -0400
 MIME-Version: 1.0
-In-Reply-To: <a4570e73-8be1-e557-9f60-7319d2219da4@debian.org>
+In-Reply-To: <CAFftDdrmSvjCJZMESYP3hzjwoT04G9iH7K7MryJxA2MaT5ye-g@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/27/2016 09:49 AM, Laurent Bigonville wrote:
-> Le 27/09/16 à 15:50, Stephen Smalley a écrit :
->> On 09/27/2016 08:39 AM, Laurent Bigonville wrote:
->>> From: Laurent Bigonville <bigon@bigon.be>
->>>
->>> According to dbus upstream: "dbus-launch is fairly horrible code,
->>> complicated by the historical need for it to support X11 autolaunching,
->>> so the D-Bus maintainers would like to move it out of the critical path
->>> and minimize its use."
->>>
->>> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=836289
->>>
->>> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
->> Thanks, applied.
-> Thanks,
+On 09/26/2016 04:55 PM, William Roberts wrote:
+> On Mon, Sep 26, 2016 at 1:53 PM,  <william.c.roberts@intel.com> wrote:
+>> From: William Roberts <william.c.roberts@intel.com>
+>>
+>> To build the selinux host configuration, specify
+>> ANDROID_HOST=y on the Make command line.
+>>
+>> eg)
+>> make ANDROID_HOST=y
+>>
+>> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+>> ---
+>>  libselinux/Makefile     |  8 +++++++-
+>>  libselinux/src/Makefile | 50 +++++++++++++++++++++++++++++++++----------------
+>>  2 files changed, 41 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/libselinux/Makefile b/libselinux/Makefile
+>> index 5a8d42c..50ae009 100644
+>> --- a/libselinux/Makefile
+>> +++ b/libselinux/Makefile
+>> @@ -10,6 +10,12 @@ ifeq ($(EMBEDDED),y)
+>>         override DISABLE_RPM=y
+>>         override DISABLE_BOOL=y
+>>  endif
+>> +ifeq ($(ANDROID_HOST),y)
+>> +       override DISABLE_SETRANS=y
+>> +       EMFLAGS+= -DDISABLE_RPM -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
 > 
-> Are there any plans to roll a new release of the userspace soon?
+> argghhh .. missing too much, drop DISABLE_RPM... copy+paste+edit fail.
+> Ill let v2 sit for a day, and aggregate other
+> feedback for v3. Sorry for the noise.
 
-Yes, 2.6-rc1 is planned on 9/30, and then 2.6 will follow once it seems
-stable.
+Sorry, why can't you override DISABLE_RPM=y?
