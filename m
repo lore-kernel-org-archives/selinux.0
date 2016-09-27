@@ -1,17 +1,19 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8RFpLrO016437
- for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2016 11:51:21 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8RFpLrP016437
+ for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2016 11:51:24 -0400
 Received: from int-mx14.intmail.prod.int.phx2.redhat.com
  (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id E018BC008AEC
- for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2016 15:51:18 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id B6D29ADAF9
+ for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2016 15:51:22 +0000 (UTC)
 From: Miroslav Grepl <mgrepl@redhat.com>
 To: selinux@tycho.nsa.gov
 Subject: [PATCH] libsemanage: Do not always print a module name warning
-Date: Tue, 27 Sep 2016 17:51:12 +0200
-Message-Id: <20160927155113.19322-1-mgrepl@redhat.com>
+Date: Tue, 27 Sep 2016 17:51:13 +0200
+Message-Id: <20160927155113.19322-2-mgrepl@redhat.com>
+In-Reply-To: <20160927155113.19322-1-mgrepl@redhat.com>
+References: <20160927155113.19322-1-mgrepl@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
