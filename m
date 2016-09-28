@@ -1,68 +1,37 @@
-Subject: Re: [PATCH 3/3] libselinux: sefcontext_compile invert semantics of
- "-r" flag
-To: Janis Danisevskis <jdanis@android.com>, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov, jwcart2@tycho.nsa.gov, jdanis@google.com
-References: <1475058512-76102-1-git-send-email-jdanis@android.com>
- <1475058512-76102-3-git-send-email-jdanis@android.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <17a8876f-8f77-f098-2d1b-8288e75644eb@tycho.nsa.gov>
-Date: Wed, 28 Sep 2016 08:10:52 -0400
 MIME-Version: 1.0
-In-Reply-To: <1475058512-76102-3-git-send-email-jdanis@android.com>
-Content-Type: text/plain; charset=utf-8
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 28 Sep 2016 10:39:35 -0400
+Message-ID: <CAFftDdo3rRxW=qEzcLJbAABxJ09XmEK6_=x_6TiiZ5avxM9opQ@mail.gmail.com>
+Subject: DISABLE_AVC=y
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/28/2016 06:28 AM, Janis Danisevskis wrote:
-> The "-r" flag of sefcontext_compile now causes it to omit the
-> precompiled regular expressions from the output.
-> 
-> Signed-off-by: Janis Danisevskis <jdanis@android.com>
+Does anyone actualy use this, this currently doesn't build:
 
-Thanks, all 3 applied.
+compute_av.c: In function ‘security_compute_av_flags_raw’:
+compute_av.c:65:28: error: suggest braces around empty body in an ‘if’
+statement [-Werror=empty-body]
+   map_decision(tclass, avd);
+                            ^
+cc1: all warnings being treated as errors
+make[1]: *** [compute_av.o] Error 1
 
-> ---
->  libselinux/utils/sefcontext_compile.c | 12 +++++++-----
->  1 file changed, 7 insertions(+), 5 deletions(-)
-> 
-> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-> index 8c48d32..b2746c7 100644
-> --- a/libselinux/utils/sefcontext_compile.c
-> +++ b/libselinux/utils/sefcontext_compile.c
-> @@ -276,10 +276,12 @@ static void usage(const char *progname)
->  	    "         will be fc_file with the .bin suffix appended.\n\t"
->  	    "-p       Optional binary policy file that will be used to\n\t"
->  	    "         validate contexts defined in the fc_file.\n\t"
-> -	    "-r       Include precompiled regular expressions in the output.\n\t"
-> +	    "-r       Omit precompiled regular expressions from the output.\n\t"
->  	    "         (PCRE2 only. Compiled PCRE2 regular expressions are\n\t"
-> -	    "         not portable across architectures. When linked against\n\t"
-> -	    "         PCRE this flag is ignored)\n\t"
-> +	    "         not portable across architectures. Use this flag\n\t"
-> +	    "         if you know that you build for an incompatible\n\t"
-> +	    "         architecture to save space. When linked against\n\t"
-> +	    "         PCRE1 this flag is ignored.)\n\t"
->  	    "-i       Print regular expression info end exit. That is, back\n\t"
->  	    "         end version and architecture identifier.\n\t"
->  	    "         Arch identifier format (PCRE2):\n\t"
-> @@ -294,7 +296,7 @@ int main(int argc, char *argv[])
->  {
->  	const char *path = NULL;
->  	const char *out_file = NULL;
-> -	int do_write_precompregex = 0;
-> +	int do_write_precompregex = 1;
->  	char stack_path[PATH_MAX + 1];
->  	char *tmp = NULL;
->  	int fd, rc, opt;
-> @@ -315,7 +317,7 @@ int main(int argc, char *argv[])
->  			policy_file = optarg;
->  			break;
->  		case 'r':
-> -			do_write_precompregex = 1;
-> +			do_write_precompregex = 0;
->  			break;
->  		case 'i':
->  			printf("%s (%s)\n", regex_version(),
-> 
+clude -D_GNU_SOURCE -DDISABLE_AVC   -c -o compute_av.o compute_av.c
+compute_av.c: In function ‘security_compute_av_flags_raw’:
+compute_av.c:65:28: error: expected expression before ‘;’ token
+   map_decision(tclass, avd);
+                            ^
+make[1]: *** [compute_av.o] Error 1
+make[1]: Leaving directory `/home/wc
+
+Should we fix it or kill it off?
+
+-- 
+Respectfully,
+
+William C Roberts
