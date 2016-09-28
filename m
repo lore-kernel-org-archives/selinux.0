@@ -1,48 +1,130 @@
-From: william.c.roberts@intel.com
-To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: [PATCH] libselinux: fix unused variable error
-Date: Wed, 28 Sep 2016 11:53:57 -0400
-Message-Id: <1475078037-20217-1-git-send-email-william.c.roberts@intel.com>
 MIME-Version: 1.0
+In-Reply-To: <b2f21a98-94ba-e986-fd90-fb718b91bd73@tycho.nsa.gov>
+References: <1475076369-13586-1-git-send-email-william.c.roberts@intel.com>
+ <1475076369-13586-3-git-send-email-william.c.roberts@intel.com>
+ <b2f21a98-94ba-e986-fd90-fb718b91bd73@tycho.nsa.gov>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 28 Sep 2016 11:55:18 -0400
+Message-ID: <CAFftDdrfW6xzSfpbptpO=ekve5GeOV4C6vRJPqifX6hBL9KKGQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] libselinux: drop DISABLE_BOOL=y option
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: William Roberts <william.c.roberts@intel.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+On Wed, Sep 28, 2016 at 11:51 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 09/28/2016 11:26 AM, william.c.roberts@intel.com wrote:
+>> From: William Roberts <william.c.roberts@intel.com>
+>>
+>> Build option DISABLE_BOOL=y is not being used, and is broken, drop it.
+>>
+>> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+>
+> Thanks, applied all three.  At some point we might want to rename
+> EMFLAGS (presumably short for embedded flags) to DISABLE_FLAGS or similar.
 
-When building for Android, this error manifests itself:
+Sure, I can do that, and set the RPM to true.
+>
+>> ---
+>>  libselinux/Makefile          | 6 +-----
+>>  libselinux/src/Makefile      | 6 +-----
+>>  libselinux/src/load_policy.c | 2 --
+>>  libselinux/utils/Makefile    | 5 -----
+>>  4 files changed, 2 insertions(+), 17 deletions(-)
+>>
+>> diff --git a/libselinux/Makefile b/libselinux/Makefile
+>> index c96695d..bfeb4b8 100644
+>> --- a/libselinux/Makefile
+>> +++ b/libselinux/Makefile
+>> @@ -2,17 +2,13 @@ SUBDIRS = src include utils man
+>>
+>>  DISABLE_SETRANS ?= n
+>>  DISABLE_RPM ?= n
+>> -DISABLE_BOOL ?= n
+>> -ifeq ($(DISABLE_BOOL),y)
+>> -     EMFLAGS+= -DDISABLE_BOOL
+>> -endif
+>>  ifeq ($(DISABLE_RPM),y)
+>>       EMFLAGS+= -DDISABLE_RPM
+>>  endif
+>>  ifeq ($(DISABLE_SETRANS),y)
+>>       EMFLAGS+= -DDISABLE_SETRANS
+>>  endif
+>> -export DISABLE_SETRANS DISABLE_RPM DISABLE_BOOL EMFLAGS
+>> +export DISABLE_SETRANS DISABLE_RPM EMFLAGS
+>>
+>>  USE_PCRE2 ?= n
+>>  ifeq ($(USE_PCRE2),y)
+>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+>> index 8cfdf34..d8a79b4 100644
+>> --- a/libselinux/src/Makefile
+>> +++ b/libselinux/src/Makefile
+>> @@ -41,12 +41,8 @@ LIBSO=$(TARGET).$(LIBVERSION)
+>>  AUDIT2WHYLOBJ=$(PYPREFIX)audit2why.lo
+>>  AUDIT2WHYSO=$(PYPREFIX)audit2why.so
+>>
+>> -ifeq ($(DISABLE_BOOL),y)
+>> -     UNUSED_SRCS+=booleans.c
+>> -endif
+>> -
+>>  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
+>> -SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
+>> +SRCS= $(filter-out $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
+>>
+>>  MAX_STACK_SIZE=32768
+>>
+>> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+>> index 249f82f..b7e1a6f 100644
+>> --- a/libselinux/src/load_policy.c
+>> +++ b/libselinux/src/load_policy.c
+>> @@ -256,7 +256,6 @@ checkbool:
+>>                       }
+>>               }
+>>
+>> -#ifndef DISABLE_BOOL
+>>               if (preservebools) {
+>>                       int *values, len, i;
+>>                       char **names;
+>> @@ -279,7 +278,6 @@ checkbool:
+>>                       (void)genbools(data, size,
+>>                                      (char *)selinux_booleans_path());
+>>               }
+>> -#endif
+>>       }
+>>
+>>
+>> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+>> index 9ec928b..0708d6d 100644
+>> --- a/libselinux/utils/Makefile
+>> +++ b/libselinux/utils/Makefile
+>> @@ -36,11 +36,6 @@ sefcontext_compile: sefcontext_compile.o ../src/regex.o
+>>
+>>  selinux_restorecon: LDLIBS += -lsepol
+>>
+>> -ifeq ($(DISABLE_BOOL),y)
+>> -     UNUSED_TARGETS+=getsebool togglesebool
+>> -endif
+>> -TARGETS:= $(filter-out $(UNUSED_TARGETS), $(TARGETS))
+>> -
+>>  all: $(TARGETS)
+>>
+>>  install: all
+>>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
-label_file.c:570:7: error: unused variable ‘subs_file’ [-Werror=unused-variable]
-  char subs_file[PATH_MAX + 1];
 
-Fix it by moving the variable into the ifdef'd usage block.
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libselinux/src/label_file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index adf3dcc..a4dc3cd 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -567,7 +567,6 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	const char *path = NULL;
- 	const char *prefix = NULL;
--	char subs_file[PATH_MAX + 1];
- 	int status = -1, baseonly = 0;
- 
- 	/* Process arguments */
-@@ -585,6 +584,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 		}
- 
- #if !defined(BUILD_HOST) && !defined(ANDROID)
-+	char subs_file[PATH_MAX + 1];
- 	/* Process local and distribution substitution files */
- 	if (!path) {
- 		rec->dist_subs =
 -- 
-1.9.1
+Respectfully,
+
+William C Roberts
