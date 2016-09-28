@@ -1,186 +1,171 @@
-Subject: Re: [PATCH] libselinux: android: fix lax service context lookup
-To: Janis Danisevskis <jdanis@android.com>
-References: <1475078690-42486-1-git-send-email-jdanis@android.com>
- <1a53409d-1773-187b-e0cb-d49c8ac2d1a2@tycho.nsa.gov>
- <CA+xTVEuYb0oo6tDa-w4bU9pu+Rzb+7mrvXQqCkg_zy-9ns5aGQ@mail.gmail.com>
-Cc: seandroid-list@tycho.nsa.gov, selinux@tycho.nsa.gov
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <638717f3-e434-938c-4edb-683784a4d94f@tycho.nsa.gov>
-Date: Wed, 28 Sep 2016 12:54:21 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8SJ5xeF026306
+ for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 15:05:59 -0400
+From: Raj Srinivasan <raj@bivio.net>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Question on restricting file access
+Date: Wed, 28 Sep 2016 19:05:53 +0000
+Message-ID: <DM5PR01MB257160569D7A4541EB83024FA9CF0@DM5PR01MB2571.prod.exchangelabs.com>
+Content-Type: multipart/alternative;
+ boundary="_000_DM5PR01MB257160569D7A4541EB83024FA9CF0DM5PR01MB2571prod_"
 MIME-Version: 1.0
-In-Reply-To: <CA+xTVEuYb0oo6tDa-w4bU9pu+Rzb+7mrvXQqCkg_zy-9ns5aGQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/28/2016 12:35 PM, Janis Danisevskis wrote:
-> 
-> 
-> On Wed, Sep 28, 2016 at 5:17 PM, Stephen Smalley <sds@tycho.nsa.gov
-> <mailto:sds@tycho.nsa.gov>> wrote:
-> 
->     On 09/28/2016 12:04 PM, Janis Danisevskis wrote:
->     > We use the same lookup function for service contexts
->     > that we use for property contexts. However, property
->     > contexts are namespace based and only compare the
->     > prefix. This may lead to service associations with
->     > a wrong label.
->     >
->     > This patch introduces a stricter lookup function for
->     > services contexts. Now the service name must match
->     > the key of the service label exactly.
->     >
->     > Signed-off-by: Janis Danisevskis <jdanis@android.com <mailto:jdanis@android.com>>
->     > ---
->     >  libselinux/include/selinux/label.h      |  2 ++
->     >  libselinux/src/label.c                  |  1 +
->     >  libselinux/src/label_android_property.c | 50 +++++++++++++++++++++++++++++++++
->     >  libselinux/src/label_internal.h         |  3 ++
->     >  4 files changed, 56 insertions(+)
-> 
->     Normally each backend would go into its own file, so service would get
->     its own.  Alternatively, since we are unlikely to ever support one
->     without the other, perhaps label_android_property.c should be renamed to
->     label_android.c and contain all of the Android-unique backends.
-> 
-> I was thinking along the same lines, was just eager to get home... I'll send
-> a refactored patch by tomorrow.
+--_000_DM5PR01MB257160569D7A4541EB83024FA9CF0DM5PR01MB2571prod_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Also, please update libselinux/utils/selabel_lookup.c and
-selabel_digest.c to know about your new backend.
->  
-> 
->     >
->     > diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
->     > index f0b1e10..277287e 100644
->     > --- a/libselinux/include/selinux/label.h
->     > +++ b/libselinux/include/selinux/label.h
->     > @@ -34,6 +34,8 @@ struct selabel_handle;
->     >  #define SELABEL_CTX_DB               3
->     >  /* Android property service contexts */
->     >  #define SELABEL_CTX_ANDROID_PROP 4
->     > +/* Android service contexts */
->     > +#define SELABEL_CTX_ANDROID_SERVICE 5
->     >
->     >  /*
->     >   * Available options
->     > diff --git a/libselinux/src/label.c b/libselinux/src/label.c
->     > index 96a4ff1..eb0e766 100644
->     > --- a/libselinux/src/label.c
->     > +++ b/libselinux/src/label.c
->     > @@ -45,6 +45,7 @@ static selabel_initfunc initfuncs[] = {
->     >       CONFIG_X_BACKEND(selabel_x_init),
->     >       CONFIG_DB_BACKEND(selabel_db_init),
->     >       &selabel_property_init,
->     > +     &selabel_service_init,
-> 
->     Wondering if we should support selective enablement of the property and
->     service backends too, similar to what William introduced for media, x,
->     and db so that he could disable them on Android (in our case, so we can
->     disable property and service backends on Linux distributions).
-> 
-> 
-> Oh, that is what these wrappers are for :-) . Sure.
->  
-> 
-> 
->     >  };
->     >
->     >  static void selabel_subs_fini(struct selabel_sub *ptr)
->     > diff --git a/libselinux/src/label_android_property.c
->     b/libselinux/src/label_android_property.c
->     > index 290b438..69d6afd 100644
->     > --- a/libselinux/src/label_android_property.c
->     > +++ b/libselinux/src/label_android_property.c
->     > @@ -279,6 +279,38 @@ finish:
->     >       return ret;
->     >  }
->     >
->     > +static struct selabel_lookup_rec *service_lookup(struct
->     selabel_handle *rec,
->     > +             const char *key, int __attribute__((unused)) type)
->     > +{
->     > +     struct saved_data *data = (struct saved_data *)rec->data;
->     > +     spec_t *spec_arr = data->spec_arr;
->     > +     unsigned int i;
->     > +     struct selabel_lookup_rec *ret = NULL;
->     > +
->     > +     if (!data->nspec) {
->     > +             errno = ENOENT;
->     > +             goto finish;
->     > +     }
->     > +
->     > +     for (i = 0; i < data->nspec; i++) {
->     > +             if (strcmp(spec_arr[i].property_key, key) == 0)
->     > +                     break;
->     > +             if (strcmp(spec_arr[i].property_key, "*") == 0)
->     > +                     break;
->     > +     }
->     > +
->     > +     if (i >= data->nspec) {
->     > +             /* No matching specification. */
->     > +             errno = ENOENT;
->     > +             goto finish;
->     > +     }
->     > +
->     > +     ret = &spec_arr[i].lr;
->     > +
->     > +finish:
->     > +     return ret;
->     > +}
->     > +
->     >  static void stats(struct selabel_handle __attribute__((unused)) *rec)
->     >  {
->     >       selinux_log(SELINUX_WARNING, "'stats' functionality not
->     implemented.\n");
->     > @@ -302,3 +334,21 @@ int selabel_property_init(struct
->     selabel_handle *rec,
->     >
->     >       return init(rec, opts, nopts);
->     >  }
->     > +
->     > +int selabel_service_init(struct selabel_handle *rec,
->     > +             const struct selinux_opt *opts, unsigned nopts)
->     > +{
->     > +     struct saved_data *data;
->     > +
->     > +     data = (struct saved_data *)malloc(sizeof(*data));
->     > +     if (!data)
->     > +             return -1;
->     > +     memset(data, 0, sizeof(*data));
->     > +
->     > +     rec->data = data;
->     > +     rec->func_close = &closef;
->     > +     rec->func_stats = &stats;
->     > +     rec->func_lookup = &service_lookup;
->     > +
->     > +     return init(rec, opts, nopts);
->     > +}
->     > diff --git a/libselinux/src/label_internal.h
->     b/libselinux/src/label_internal.h
->     > index 7c55531..6a9481a 100644
->     > --- a/libselinux/src/label_internal.h
->     > +++ b/libselinux/src/label_internal.h
->     > @@ -39,6 +39,9 @@ int selabel_db_init(struct selabel_handle *rec,
->     >  int selabel_property_init(struct selabel_handle *rec,
->     >                           const struct selinux_opt *opts,
->     >                           unsigned nopts) hidden;
->     > +int selabel_service_init(struct selabel_handle *rec,
->     > +                         const struct selinux_opt *opts,
->     > +                         unsigned nopts) hidden;
->     >
->     >  /*
->     >   * Labeling internal structures
->     >
-> 
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+Hi,
+
+I have just started with Selinux, and was trying (unsuccessfully) to restri=
+ct the sysadm role as my first exercise.
+
+I am using RHEL 7.1, and running Selinux with the minimum configuration in =
+enforcing mode.
+
+I have a user called "admin" with the context "sysadm_u:sysadm_r:sysadm_t:s=
+0-s0:c0.c1023", and uid 1000. When I login as admin and use su to become ro=
+ot, the context still remains the same, as one would expect.
+
+I created a simple policy to restrict the sysadm_r role for testing purpose=
+s, and was able to compile and load it.
+
+policy_module(localpolicy, 1.0.0)
+
+gen_require(`
+  type sysadm_t;
+  type sshd_key_t;
+')
+
+allow sysadm_t sshd_key_t:file { create_file_perms write_file_perms };
+
+The idea was to prevent the sysadm_r role from being able to read a file wi=
+th the sshd_key_t type even if the uid is changed to root via the su comman=
+d, by allowing "create" and "write" permissions, but not "read" permission.
+
+I would appreciate it very much if anyone could let me know what I am missi=
+ng, or if there is an easy way to troubleshoot. I tried to use the "neveral=
+low" directive (with "read" permission) but after waiting for 10 minutes, t=
+he policy did not even load. I suspect there is some other rule in effect t=
+hat grants read permission that I am not able to see using "sesearch -A".
+
+Thanks,
+Raj
+
+
+--_000_DM5PR01MB257160569D7A4541EB83024FA9CF0DM5PR01MB2571prod_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal">Hi,<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">I have just started with Selinux, and was trying (un=
+successfully) to restrict the sysadm role as my first exercise.<o:p></o:p><=
+/p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">I am using RHEL 7.1, and running Selinux with the mi=
+nimum configuration in enforcing mode.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">I have a user called &#8220;admin&#8221; with the co=
+ntext &#8220;sysadm_u:sysadm_r:sysadm_t:s0-s0:c0.c1023&#8221;, and uid 1000=
+. When I login as admin and use su to become root, the context still remain=
+s the same, as one would expect.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">I created a simple policy to restrict the sysadm_r r=
+ole for testing purposes, and was able to compile and load it.<o:p></o:p></=
+p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;">policy_module(localpolicy, 1.0.0)<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;">gen_require(`<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;">&nbsp; type sysadm_t;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;">&nbsp; type sshd_key_t;<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;">')<o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" style=3D"margin-left:.5in"><span style=3D"font-famil=
+y:&quot;Courier New&quot;">allow sysadm_t sshd_key_t:file { create_file_per=
+ms write_file_perms };<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">The idea was to prevent the sysadm_r role from being=
+ able to read a file with the sshd_key_t type even if the uid is changed to=
+ root via the su command, by allowing &#8220;create&#8221; and &#8220;write=
+&#8221; permissions, but not &#8220;read&#8221; permission.<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">I would appreciate it very much if anyone could let =
+me know what I am missing, or if there is an easy way to troubleshoot. I tr=
+ied to use the &#8220;neverallow&#8221; directive (with &#8220;read&#8221; =
+permission) but after waiting for 10 minutes, the policy did
+ not even load. I suspect there is some other rule in effect that grants re=
+ad permission that I am not able to see using &#8220;sesearch -A&#8221;.<o:=
+p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal">Thanks,<o:p></o:p></p>
+<p class=3D"MsoNormal">Raj<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body>
+</html>
+
+--_000_DM5PR01MB257160569D7A4541EB83024FA9CF0DM5PR01MB2571prod_--
