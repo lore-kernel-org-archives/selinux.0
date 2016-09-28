@@ -1,111 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8RMIgfn026531
- for <selinux@tycho.nsa.gov>; Tue, 27 Sep 2016 18:18:42 -0400
-Subject: Re: [PATCH 1/1] genhomedircon: support policies using RBACSEP
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
-References: <cover.1474639773.git.gary.tierney@gmx.com>
- <1062ebe32922aec79a0232acfdd0005e9ce124da.1474639773.git.gary.tierney@gmx.com>
- <7be4daef-ca03-da40-0fb0-79bf39e3ce18@tycho.nsa.gov>
- <52a12ae5-ccbf-2545-1525-011d2c768c54@gmail.com>
- <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
-From: Chris PeBenito <pebenito@ieee.org>
-Message-ID: <8cdb4401-3748-d1ce-2b83-8c0f973b34bf@ieee.org>
-Date: Tue, 27 Sep 2016 18:19:09 -0400
-MIME-Version: 1.0
-In-Reply-To: <ea1d8e6a-1bdf-8c54-aacc-41c068a7182f@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8SASj7e030021
+ for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 06:28:45 -0400
+Received: by mail-wm0-f52.google.com with SMTP id b130so63288340wmc.0
+ for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 03:28:44 -0700 (PDT)
+From: Janis Danisevskis <jdanis@android.com>
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov,
+ jwcart2@tycho.nsa.gov, jdanis@google.com
+Cc: Janis Danisevskis <jdanis@android.com>
+Subject: [PATCH 2/3] libselinux: sefcontext_compile: Add "-i" flag
+Date: Wed, 28 Sep 2016 11:28:31 +0100
+Message-Id: <1475058512-76102-2-git-send-email-jdanis@android.com>
+In-Reply-To: <1475058512-76102-1-git-send-email-jdanis@android.com>
+References: <1475058512-76102-1-git-send-email-jdanis@android.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/26/16 10:20, Stephen Smalley wrote:
-> On 09/24/2016 04:26 AM, Dominick Grift wrote:
->> On 09/23/2016 09:36 PM, Stephen Smalley wrote:
->>> On 09/23/2016 10:28 AM, Gary Tierney wrote:
->>>> Introduces support for generating homedir/user contexts for
->>>> policies that implement RBACSEP.  The support works by taking
->>>> the prefix of a logins seuser and replacing the role field in
->>>> their context specifications with the prefix.  A new option
->>>> "genhomedircon-rbacsep" was added to /etc/selinux/semanage.conf
->>>> to allow toggling this behavior.
->>>
->>> The user prefix was previously used as a prefix for types, e.g.
->>> you could have: HOME_DIR/\.gnupg(/.+)?
->>> system_u:object_r:ROLE_gpg_secret_t and get it replaced with:
->>> /home/[^/]+/\.gnupg(/.+)?
->>> system_u:object_r:user_gpg_secret_t /root/\.gnupg(/.+)?
->>> system_u:object_r:sysadm_gpg_secret_t
->>>
->>> So I guess you could use it for the role field too, but for
->>> consistency you would want it to be: HOME_DIR/\.gnupg(/.+)?
->>> system_u:ROLE_r:ROLE_gpg_secret_t
->>>
->>> and the prefix would still just be "user".
->>
->> No one is actually using that privsep functionality anymore.
->> Reference policy removed support for it.
->>
->> Can we not instead just re-use that code for rbacsep?
->>
->> The alternative would be to add code similar to the privsep code
->> but then for rbacsep.
->>
->> Then we will have the issue that we can't reasonably rely on the
->> userprefix and prefix statements for rbacsep, because they might be
->> used for privsep (in theory at least)
->>
->> I other words if we were to implement rbacsep code similar to the
->> privsep code, then we would need a new policy statement similar to
->> userprefix and prefix.
->>
->> It seems much easier to me to just re-use the privsep code.
->>
->> rbacsep is the successor to privsep after all.
->
-> First, I'm not sure what you mean by privsep; usually that term refers
-> to privilege separation as in openssh.
->
-> There are at least three ways of implementing "role" separation for
-> objects in SELinux:
-> (1) via TE and the use of derived types on objects e.g. ROLE_home_t,
-> ROLE_devpts_t, etc,
-> (2) via RBAC and the use of roles on objects (originally problematic
-> because it required a set of changes to the kernel to support roles on
-> objects, but that's all history now),
-> (3) via UBAC and the use of SELinux user identities on objects to
-> represent roles.
->
-> refpolicy started with (1), experimented with (2) and seems to have
-> settled on (3), likely because (2) wasn't fully supported in the
-> kernel or userspace for a long time.  I guess libsemanage /
-> genhomedircon already support (3) adequately.
->
-> CIL apparently doesn't support (1), so that's broken regardless.
->
-> So I guess reusing the prefix for RBACSEP won't break any existing
-> users.  That said, it is clearly confusing to use something identified
-> in the policy language and documentation as a "prefix" for the purpose
-> of a "default role".  So maybe we should look to rename it in the
-> language and code, with backward compatibility.  That can be done as a
-> separate set of changes.  That might also help us with a different
-> problem - obsoleting security_compute_user() aka /sys/fs/selinux/user
-> and taking the get_default_context() logic to userspace.
->
-> Has anyone compared UBAC vs RBAC now that the kernel and policy
-> support roles on objects?  Is there a strong reason for refpolicy to
-> stay with (3) other than compatibility with older distributions and
-> this genhomedircon issue?
+Adds the "-i" flag, which prints the version and
+architecture identifier of the regular expression back end.
 
-I'm open to reimplementing RBAC-based separations in refpolicy.  I 
-started working on it but couldn't decide how best to structure the 
-role-type associations and if role_transitions or default_role was the 
-cleaner way to go to get roles on objects (e.g. consider how to handle 
-non-separated types).  These days I'm more interested in getting a 
-refpolicy high-level language implemented, now that CIL is generally 
-available.  The problem is compilers isn't my thing, so I haven't really 
-gotten anywhere yet.
+Signed-off-by: Janis Danisevskis <jdanis@android.com>
+---
+ libselinux/utils/sefcontext_compile.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index d91db9a..8c48d32 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -280,6 +280,11 @@ static void usage(const char *progname)
+ 	    "         (PCRE2 only. Compiled PCRE2 regular expressions are\n\t"
+ 	    "         not portable across architectures. When linked against\n\t"
+ 	    "         PCRE this flag is ignored)\n\t"
++	    "-i       Print regular expression info end exit. That is, back\n\t"
++	    "         end version and architecture identifier.\n\t"
++	    "         Arch identifier format (PCRE2):\n\t"
++	    "         <pointer width>-<size type width>-<endianness>, e.g.,\n\t"
++	    "         \"8-8-el\" for x86_64.\n\t"
+ 	    "fc_file  The text based file contexts file to be processed.\n",
+ 	    progname);
+ 		exit(EXIT_FAILURE);
+@@ -301,7 +306,7 @@ int main(int argc, char *argv[])
+ 	if (argc < 2)
+ 		usage(argv[0]);
+ 
+-	while ((opt = getopt(argc, argv, "o:p:r")) > 0) {
++	while ((opt = getopt(argc, argv, "io:p:r")) > 0) {
+ 		switch (opt) {
+ 		case 'o':
+ 			out_file = optarg;
+@@ -312,6 +317,10 @@ int main(int argc, char *argv[])
+ 		case 'r':
+ 			do_write_precompregex = 1;
+ 			break;
++		case 'i':
++			printf("%s (%s)\n", regex_version(),
++					regex_arch_string());
++			return 0;
+ 		default:
+ 			usage(argv[0]);
+ 		}
 -- 
-Chris PeBenito
+2.8.0.rc3.226.g39d4020
