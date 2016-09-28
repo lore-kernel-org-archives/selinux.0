@@ -1,141 +1,54 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8SG5Xj0004621
- for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 12:05:35 -0400
-Received: by mail-lf0-f50.google.com with SMTP id y6so57669372lff.1
- for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 09:05:17 -0700 (PDT)
-From: Janis Danisevskis <jdanis@android.com>
-To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov,
- jwcart2@tycho.nsa.gov
-Cc: jdanis@google.com, Janis Danisevskis <jdanis@android.com>
-Subject: [PATCH] libselinux: android: fix lax service context lookup
-Date: Wed, 28 Sep 2016 17:04:50 +0100
-Message-Id: <1475078690-42486-1-git-send-email-jdanis@android.com>
+Subject: Re: [PATCH] libselinux: fix unused variable error
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov
+References: <1475078037-20217-1-git-send-email-william.c.roberts@intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <71042e4c-b3e3-92ec-3fc8-e03283e6fe00@tycho.nsa.gov>
+Date: Wed, 28 Sep 2016 12:09:59 -0400
+MIME-Version: 1.0
+In-Reply-To: <1475078037-20217-1-git-send-email-william.c.roberts@intel.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-We use the same lookup function for service contexts
-that we use for property contexts. However, property
-contexts are namespace based and only compare the
-prefix. This may lead to service associations with
-a wrong label.
+On 09/28/2016 11:53 AM, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
+> 
+> When building for Android, this error manifests itself:
+> 
+> label_file.c:570:7: error: unused variable ‘subs_file’ [-Werror=unused-variable]
+>   char subs_file[PATH_MAX + 1];
+> 
+> Fix it by moving the variable into the ifdef'd usage block.
 
-This patch introduces a stricter lookup function for
-services contexts. Now the service name must match
-the key of the service label exactly.
+Thanks, applied.
 
-Signed-off-by: Janis Danisevskis <jdanis@android.com>
----
- libselinux/include/selinux/label.h      |  2 ++
- libselinux/src/label.c                  |  1 +
- libselinux/src/label_android_property.c | 50 +++++++++++++++++++++++++++++++++
- libselinux/src/label_internal.h         |  3 ++
- 4 files changed, 56 insertions(+)
-
-diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
-index f0b1e10..277287e 100644
---- a/libselinux/include/selinux/label.h
-+++ b/libselinux/include/selinux/label.h
-@@ -34,6 +34,8 @@ struct selabel_handle;
- #define SELABEL_CTX_DB		3
- /* Android property service contexts */
- #define SELABEL_CTX_ANDROID_PROP 4
-+/* Android service contexts */
-+#define SELABEL_CTX_ANDROID_SERVICE 5
- 
- /*
-  * Available options
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 96a4ff1..eb0e766 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -45,6 +45,7 @@ static selabel_initfunc initfuncs[] = {
- 	CONFIG_X_BACKEND(selabel_x_init),
- 	CONFIG_DB_BACKEND(selabel_db_init),
- 	&selabel_property_init,
-+	&selabel_service_init,
- };
- 
- static void selabel_subs_fini(struct selabel_sub *ptr)
-diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
-index 290b438..69d6afd 100644
---- a/libselinux/src/label_android_property.c
-+++ b/libselinux/src/label_android_property.c
-@@ -279,6 +279,38 @@ finish:
- 	return ret;
- }
- 
-+static struct selabel_lookup_rec *service_lookup(struct selabel_handle *rec,
-+		const char *key, int __attribute__((unused)) type)
-+{
-+	struct saved_data *data = (struct saved_data *)rec->data;
-+	spec_t *spec_arr = data->spec_arr;
-+	unsigned int i;
-+	struct selabel_lookup_rec *ret = NULL;
-+
-+	if (!data->nspec) {
-+		errno = ENOENT;
-+		goto finish;
-+	}
-+
-+	for (i = 0; i < data->nspec; i++) {
-+		if (strcmp(spec_arr[i].property_key, key) == 0)
-+			break;
-+		if (strcmp(spec_arr[i].property_key, "*") == 0)
-+			break;
-+	}
-+
-+	if (i >= data->nspec) {
-+		/* No matching specification. */
-+		errno = ENOENT;
-+		goto finish;
-+	}
-+
-+	ret = &spec_arr[i].lr;
-+
-+finish:
-+	return ret;
-+}
-+
- static void stats(struct selabel_handle __attribute__((unused)) *rec)
- {
- 	selinux_log(SELINUX_WARNING, "'stats' functionality not implemented.\n");
-@@ -302,3 +334,21 @@ int selabel_property_init(struct selabel_handle *rec,
- 
- 	return init(rec, opts, nopts);
- }
-+
-+int selabel_service_init(struct selabel_handle *rec,
-+		const struct selinux_opt *opts, unsigned nopts)
-+{
-+	struct saved_data *data;
-+
-+	data = (struct saved_data *)malloc(sizeof(*data));
-+	if (!data)
-+		return -1;
-+	memset(data, 0, sizeof(*data));
-+
-+	rec->data = data;
-+	rec->func_close = &closef;
-+	rec->func_stats = &stats;
-+	rec->func_lookup = &service_lookup;
-+
-+	return init(rec, opts, nopts);
-+}
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-index 7c55531..6a9481a 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -39,6 +39,9 @@ int selabel_db_init(struct selabel_handle *rec,
- int selabel_property_init(struct selabel_handle *rec,
- 			    const struct selinux_opt *opts,
- 			    unsigned nopts) hidden;
-+int selabel_service_init(struct selabel_handle *rec,
-+			    const struct selinux_opt *opts,
-+			    unsigned nopts) hidden;
- 
- /*
-  * Labeling internal structures
--- 
-2.8.0.rc3.226.g39d4020
+> 
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  libselinux/src/label_file.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index adf3dcc..a4dc3cd 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -567,7 +567,6 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+>  	struct saved_data *data = (struct saved_data *)rec->data;
+>  	const char *path = NULL;
+>  	const char *prefix = NULL;
+> -	char subs_file[PATH_MAX + 1];
+>  	int status = -1, baseonly = 0;
+>  
+>  	/* Process arguments */
+> @@ -585,6 +584,7 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+>  		}
+>  
+>  #if !defined(BUILD_HOST) && !defined(ANDROID)
+> +	char subs_file[PATH_MAX + 1];
+>  	/* Process local and distribution substitution files */
+>  	if (!path) {
+>  		rec->dist_subs =
+> 
