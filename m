@@ -1,85 +1,121 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8SKvkTO005944
- for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 16:57:46 -0400
-Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
- [77.133.206.32])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 321045649AE
- for <selinux@tycho.nsa.gov>; Wed, 28 Sep 2016 22:57:17 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] libsepol/cil: do not heap-overflow when too many
- permissions are in a class
-Date: Wed, 28 Sep 2016 22:57:08 +0200
-Message-Id: <20160928205708.14686-1-nicolas.iooss@m4x.org>
+MIME-Version: 1.0
+In-Reply-To: <57EC2E10.4030207@quarksecurity.com>
+References: <CAFftDdqOWmwCihg4ujOz0qm3xWhRiTTT8dnD2dTPd-a903Ntkw@mail.gmail.com>
+ <57EC2A2F.5030908@quarksecurity.com> <57EC2E10.4030207@quarksecurity.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 28 Sep 2016 17:03:28 -0400
+Message-ID: <CAFftDdo04U_xFSDwLvU_A1jW2C0F7Awdhsn=jMfqtXUMmz0uqg@mail.gmail.com>
+Subject: Re: [RFC] Build ANDROID_HOST=y on mac
+To: Joshua Brindle <brindle@quarksecurity.com>
+Cc: seandroid-list@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a113eca6c69f15c053d97b187
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When compiling a CIL policy with more than 32 items in a class (e.g. in
-(class capability (chown ...)) with many items),
-cil_classorder_to_policydb() overflows perm_value_to_cil[class_index]
-array. As this array is allocated on the heap through
-calloc(PERMS_PER_CLASS+1, sizeof(...)), this makes secilc crash with the
-following message:
+--001a113eca6c69f15c053d97b187
+Content-Type: text/plain; charset=UTF-8
 
-    *** Error in `/usr/bin/secilc': double free or corruption (!prev): 0x000000000062be80 ***
-    ======= Backtrace: =========
-    /usr/lib/libc.so.6(+0x70c4b)[0x7ffff76a7c4b]
-    /usr/lib/libc.so.6(+0x76fe6)[0x7ffff76adfe6]
-    /usr/lib/libc.so.6(+0x777de)[0x7ffff76ae7de]
-    /lib/libsepol.so.1(+0x14fbda)[0x7ffff7b24bda]
-    /lib/libsepol.so.1(+0x152db8)[0x7ffff7b27db8]
-    /lib/libsepol.so.1(cil_build_policydb+0x63)[0x7ffff7af8723]
-    /usr/bin/secilc[0x40273b]
-    /usr/lib/libc.so.6(__libc_start_main+0xf1)[0x7ffff7657291]
-    /usr/bin/secilc[0x402f7a]
+On Sep 28, 2016 16:54, "Joshua Brindle" <brindle@quarksecurity.com> wrote:
+>
+> Joshua Brindle wrote:
+>>
+>> William Roberts wrote:
+>>>
+>>> From commit 35d702 on
+>>> https://github.com/williamcroberts/selinux/tree/fix-mac
+>>>
+>>> I have a branch that is building on my elcapitan mac, requesting any
+>>> comments anyone
+>>> wishes to make, before I send them out.
+>>>
+>>> If you wish to test, this is the procedure
+>>>
+>>> 1. Build libsepol (assumes at root of tree)
+>>> a, cd libsepol
+>>> b. make
+>>> 2. Build libselinux
+>>> a. cd libselinux (assumes at root of tree)
+>>> b. make ANDROID_HOST=y
+>>>
+>>
+>> This works for me.
+>
+>
+> make install DESTDIR=/tmp/someidr mostly works, Mac ln does not support
+--relative so that fails. ANDROID_HOST also needs to be set in the top
+level makefile so that it propagates down:
+>
+> ANDROID_HOST ?= n
 
-Fix this by detecting the overflow before adding new permissions to a
-class.
+Yeah install doesn't work on Mac, that's why for Darwin we just set the
+path to the libsepol location for sefcontext_compile.
 
-This bug has been found by fuzzing secilc with american fuzzy lop.
+As for ANDROID_HOST, why does it need to go higher? It's only used in
+libselinux and is declared and used just like DISABLE_SETRANS...I'm not
+following you?
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/cil/src/cil_binary.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+>
+>
+>>
+>>
+>>> This essentially gets us to where a build server/maintainer
+>>> can test patches quickly on mac, with some assurance
+>>> it's not busted without downloading all of Android.
+>>>
+>>> It's still wise to check in an Android tree if possible IMHO.
+>>>
+>>
+>
 
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index cc73648ad1b7..d3b3e90df45b 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -332,6 +332,11 @@ int cil_classorder_to_policydb(policydb_t *pdb, const struct cil_db *db, struct
- 					goto exit;
- 				}
- 			}
-+			if (sepol_class->permissions.nprim + sepol_common->permissions.nprim > PERMS_PER_CLASS) {
-+				cil_log(CIL_ERR, "Too many permissions in class '%s'\n", cil_class->datum.fqn);
-+				rc = SEPOL_ERR;
-+				goto exit;
-+			}
- 			sepol_class->comdatum = sepol_common;
- 			sepol_class->comkey = cil_strdup(key);
- 			sepol_class->permissions.nprim += sepol_common->permissions.nprim;
-@@ -344,9 +349,15 @@ int cil_classorder_to_policydb(policydb_t *pdb, const struct cil_db *db, struct
- 
- 		for (curr = NODE(cil_class)->cl_head; curr; curr = curr->next) {
- 			struct cil_perm *cil_perm = curr->data;
--			perm_datum_t *sepol_perm = cil_malloc(sizeof(*sepol_perm));
--			memset(sepol_perm, 0, sizeof(perm_datum_t));
-+			perm_datum_t *sepol_perm;
- 
-+			if (sepol_class->permissions.nprim + 1 > PERMS_PER_CLASS) {
-+				cil_log(CIL_ERR, "Too many permissions in class '%s'\n", cil_class->datum.fqn);
-+				rc = SEPOL_ERR;
-+				goto exit;
-+			}
-+			sepol_perm = cil_malloc(sizeof(*sepol_perm));
-+			memset(sepol_perm, 0, sizeof(perm_datum_t));
- 			key = cil_strdup(cil_perm->datum.fqn);
- 			rc = hashtab_insert(sepol_class->permissions.table, key, sepol_perm);
- 			if (rc != SEPOL_OK) {
--- 
-2.10.0
+--001a113eca6c69f15c053d97b187
+Content-Type: text/html; charset=UTF-8
+
+<p dir="ltr"></p>
+<p dir="ltr">On Sep 28, 2016 16:54, &quot;Joshua Brindle&quot; &lt;<a href="mailto:brindle@quarksecurity.com">brindle@quarksecurity.com</a>&gt; wrote:<br>
+&gt;<br>
+&gt; Joshua Brindle wrote:<br>
+&gt;&gt;<br>
+&gt;&gt; William Roberts wrote:<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; From commit 35d702 on<br>
+&gt;&gt;&gt; <a href="https://github.com/williamcroberts/selinux/tree/fix-mac">https://github.com/williamcroberts/selinux/tree/fix-mac</a><br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; I have a branch that is building on my elcapitan mac, requesting any<br>
+&gt;&gt;&gt; comments anyone<br>
+&gt;&gt;&gt; wishes to make, before I send them out.<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; If you wish to test, this is the procedure<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; 1. Build libsepol (assumes at root of tree)<br>
+&gt;&gt;&gt; a, cd libsepol<br>
+&gt;&gt;&gt; b. make<br>
+&gt;&gt;&gt; 2. Build libselinux<br>
+&gt;&gt;&gt; a. cd libselinux (assumes at root of tree)<br>
+&gt;&gt;&gt; b. make ANDROID_HOST=y<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;<br>
+&gt;&gt; This works for me.<br>
+&gt;<br>
+&gt;<br>
+&gt; make install DESTDIR=/tmp/someidr mostly works, Mac ln does not support --relative so that fails. ANDROID_HOST also needs to be set in the top level makefile so that it propagates down:<br>
+&gt;<br>
+&gt; ANDROID_HOST ?= n</p>
+<p dir="ltr">Yeah install doesn&#39;t work on Mac, that&#39;s why for Darwin we just set the path to the libsepol location for sefcontext_compile.</p>
+<p dir="ltr">As for ANDROID_HOST, why does it need to go higher? It&#39;s only used in libselinux and is declared and used just like DISABLE_SETRANS...I&#39;m not following you?</p>
+<p dir="ltr">&gt;<br>
+&gt;<br>
+&gt;&gt;<br>
+&gt;&gt;<br>
+&gt;&gt;&gt; This essentially gets us to where a build server/maintainer<br>
+&gt;&gt;&gt; can test patches quickly on mac, with some assurance<br>
+&gt;&gt;&gt; it&#39;s not busted without downloading all of Android.<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; It&#39;s still wise to check in an Android tree if possible IMHO.<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;<br>
+&gt;</p>
+
+--001a113eca6c69f15c053d97b187--
