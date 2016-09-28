@@ -1,151 +1,83 @@
-Subject: Re: [PATCH] libselinux: android: fix lax service context lookup
-To: Janis Danisevskis <jdanis@android.com>, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov, jwcart2@tycho.nsa.gov
-References: <1475078690-42486-1-git-send-email-jdanis@android.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <1a53409d-1773-187b-e0cb-d49c8ac2d1a2@tycho.nsa.gov>
-Date: Wed, 28 Sep 2016 12:17:37 -0400
-MIME-Version: 1.0
-In-Reply-To: <1475078690-42486-1-git-send-email-jdanis@android.com>
-Content-Type: text/plain; charset=utf-8
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH v3] libselinux: add ANDROID_HOST=y build option
+Date: Wed, 28 Sep 2016 12:17:59 -0400
+Message-Id: <1475079479-22016-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/28/2016 12:04 PM, Janis Danisevskis wrote:
-> We use the same lookup function for service contexts
-> that we use for property contexts. However, property
-> contexts are namespace based and only compare the
-> prefix. This may lead to service associations with
-> a wrong label.
-> 
-> This patch introduces a stricter lookup function for
-> services contexts. Now the service name must match
-> the key of the service label exactly.
-> 
-> Signed-off-by: Janis Danisevskis <jdanis@android.com>
-> ---
->  libselinux/include/selinux/label.h      |  2 ++
->  libselinux/src/label.c                  |  1 +
->  libselinux/src/label_android_property.c | 50 +++++++++++++++++++++++++++++++++
->  libselinux/src/label_internal.h         |  3 ++
->  4 files changed, 56 insertions(+)
+From: William Roberts <william.c.roberts@intel.com>
 
-Normally each backend would go into its own file, so service would get
-its own.  Alternatively, since we are unlikely to ever support one
-without the other, perhaps label_android_property.c should be renamed to
-label_android.c and contain all of the Android-unique backends.
+To build the selinux host configuration, specify
+ANDROID_HOST=y on the Make command line.
 
-> 
-> diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
-> index f0b1e10..277287e 100644
-> --- a/libselinux/include/selinux/label.h
-> +++ b/libselinux/include/selinux/label.h
-> @@ -34,6 +34,8 @@ struct selabel_handle;
->  #define SELABEL_CTX_DB		3
->  /* Android property service contexts */
->  #define SELABEL_CTX_ANDROID_PROP 4
-> +/* Android service contexts */
-> +#define SELABEL_CTX_ANDROID_SERVICE 5
->  
->  /*
->   * Available options
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 96a4ff1..eb0e766 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -45,6 +45,7 @@ static selabel_initfunc initfuncs[] = {
->  	CONFIG_X_BACKEND(selabel_x_init),
->  	CONFIG_DB_BACKEND(selabel_db_init),
->  	&selabel_property_init,
-> +	&selabel_service_init,
+eg)
+make ANDROID_HOST=y
+---
+ libselinux/Makefile       | 6 +++++-
+ libselinux/src/Makefile   | 8 ++++++++
+ libselinux/utils/Makefile | 4 ++++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
-Wondering if we should support selective enablement of the property and
-service backends too, similar to what William introduced for media, x,
-and db so that he could disable them on Android (in our case, so we can
-disable property and service backends on Linux distributions).
-
->  };
->  
->  static void selabel_subs_fini(struct selabel_sub *ptr)
-> diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
-> index 290b438..69d6afd 100644
-> --- a/libselinux/src/label_android_property.c
-> +++ b/libselinux/src/label_android_property.c
-> @@ -279,6 +279,38 @@ finish:
->  	return ret;
->  }
->  
-> +static struct selabel_lookup_rec *service_lookup(struct selabel_handle *rec,
-> +		const char *key, int __attribute__((unused)) type)
-> +{
-> +	struct saved_data *data = (struct saved_data *)rec->data;
-> +	spec_t *spec_arr = data->spec_arr;
-> +	unsigned int i;
-> +	struct selabel_lookup_rec *ret = NULL;
-> +
-> +	if (!data->nspec) {
-> +		errno = ENOENT;
-> +		goto finish;
-> +	}
-> +
-> +	for (i = 0; i < data->nspec; i++) {
-> +		if (strcmp(spec_arr[i].property_key, key) == 0)
-> +			break;
-> +		if (strcmp(spec_arr[i].property_key, "*") == 0)
-> +			break;
-> +	}
-> +
-> +	if (i >= data->nspec) {
-> +		/* No matching specification. */
-> +		errno = ENOENT;
-> +		goto finish;
-> +	}
-> +
-> +	ret = &spec_arr[i].lr;
-> +
-> +finish:
-> +	return ret;
-> +}
-> +
->  static void stats(struct selabel_handle __attribute__((unused)) *rec)
->  {
->  	selinux_log(SELINUX_WARNING, "'stats' functionality not implemented.\n");
-> @@ -302,3 +334,21 @@ int selabel_property_init(struct selabel_handle *rec,
->  
->  	return init(rec, opts, nopts);
->  }
-> +
-> +int selabel_service_init(struct selabel_handle *rec,
-> +		const struct selinux_opt *opts, unsigned nopts)
-> +{
-> +	struct saved_data *data;
-> +
-> +	data = (struct saved_data *)malloc(sizeof(*data));
-> +	if (!data)
-> +		return -1;
-> +	memset(data, 0, sizeof(*data));
-> +
-> +	rec->data = data;
-> +	rec->func_close = &closef;
-> +	rec->func_stats = &stats;
-> +	rec->func_lookup = &service_lookup;
-> +
-> +	return init(rec, opts, nopts);
-> +}
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-> index 7c55531..6a9481a 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -39,6 +39,9 @@ int selabel_db_init(struct selabel_handle *rec,
->  int selabel_property_init(struct selabel_handle *rec,
->  			    const struct selinux_opt *opts,
->  			    unsigned nopts) hidden;
-> +int selabel_service_init(struct selabel_handle *rec,
-> +			    const struct selinux_opt *opts,
-> +			    unsigned nopts) hidden;
->  
->  /*
->   * Labeling internal structures
-> 
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index cec2943..f607115 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -2,13 +2,17 @@ SUBDIRS = src include utils man
+ 
+ DISABLE_SETRANS ?= n
+ DISABLE_RPM ?= y
++ANDROID_HOST ?= n
++ifeq ($(ANDROID_HOST),y)
++	override DISABLE_SETRANS=y
++endif
+ ifeq ($(DISABLE_RPM),y)
+ 	DISABLE_FLAGS+= -DDISABLE_RPM
+ endif
+ ifeq ($(DISABLE_SETRANS),y)
+ 	DISABLE_FLAGS+= -DDISABLE_SETRANS
+ endif
+-export DISABLE_SETRANS DISABLE_RPM DISABLE_FLAGS
++export DISABLE_SETRANS DISABLE_RPM DISABLE_FLAGS ANDROID_HOST
+ 
+ USE_PCRE2 ?= n
+ ifeq ($(USE_PCRE2),y)
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 7bf11a8..2c61fad 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -81,6 +81,14 @@ ifneq (,$(filter i386,$(ARCH)))
+ TLSFLAGS += -mno-tls-direct-seg-refs
+ endif
+ 
++ifeq ($(ANDROID_HOST),y)
++DISABLE_FLAGS+= -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
++	-DBUILD_HOST
++SRCS= callbacks.c freecon.c label.c label_file.c \
++	label_android_property.c regex.c label_support.c \
++	matchpathcon.c setrans_client.c sha1.c
++endif
++
+ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./ $(DISABLE_FLAGS)
+ 
+ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_FLAGS)
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index 7898c08..e56a953 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -28,7 +28,11 @@ override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(DISABLE_FLAGS) $
+ LDLIBS += -L../src -lselinux -L$(LIBDIR)
+ PCRE_LDFLAGS ?= -lpcre
+ 
++ifeq ($(ANDROID_HOST),y)
++TARGETS=sefcontext_compile
++else
+ TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++endif
+ 
+ sefcontext_compile: LDLIBS += $(PCRE_LDFLAGS) ../src/libselinux.a -lsepol
+ 
+-- 
+1.9.1
