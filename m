@@ -1,72 +1,111 @@
-Subject: Re: DISABLE_AVC=y
-To: William Roberts <bill.c.roberts@gmail.com>
-References: <CAFftDdo3rRxW=qEzcLJbAABxJ09XmEK6_=x_6TiiZ5avxM9opQ@mail.gmail.com>
- <a1666e63-9f17-e61e-23ce-09ada3ff993a@tycho.nsa.gov>
- <CAFftDdo+WMWyZO0Wo4ofVfdr=41AocT12morEdb-PY=kCOAVpQ@mail.gmail.com>
- <4dfcb93c-7512-2987-7aae-418efa2443e6@tycho.nsa.gov>
- <CAFftDdo7vD0Gb2wfcOsQ87PJqP9urUh01XtDOH7mvfP9ANvt8g@mail.gmail.com>
- <140f34ab-ef19-ce66-c205-6ffa8cdbfae2@tycho.nsa.gov>
- <CAFftDdqYcF=JRHHJ2_GEkrWoePC1KHbKZTj7Xn_7fYnZDNDkxw@mail.gmail.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 3/3] libselinux: drop DISABLE_BOOL=y option
+To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
+ seandroid-list@tycho.nsa.gov
+References: <1475076369-13586-1-git-send-email-william.c.roberts@intel.com>
+ <1475076369-13586-3-git-send-email-william.c.roberts@intel.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <d49a470e-8cd7-022f-bc85-ae3551b8cf90@tycho.nsa.gov>
-Date: Wed, 28 Sep 2016 11:37:29 -0400
+Message-ID: <b2f21a98-94ba-e986-fd90-fb718b91bd73@tycho.nsa.gov>
+Date: Wed, 28 Sep 2016 11:51:29 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdqYcF=JRHHJ2_GEkrWoePC1KHbKZTj7Xn_7fYnZDNDkxw@mail.gmail.com>
+In-Reply-To: <1475076369-13586-3-git-send-email-william.c.roberts@intel.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/28/2016 11:32 AM, William Roberts wrote:
-> On Wed, Sep 28, 2016 at 11:24 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 09/28/2016 11:13 AM, William Roberts wrote:
->>> On Wed, Sep 28, 2016 at 11:10 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>> On 09/28/2016 11:00 AM, William Roberts wrote:
->>>>> Same thing for DISABLE_BOOL, should that die or be fixed?
->>>>
->>>> Would that be useful for the Android device/target build, since they
->>>> don't support booleans?
->>>
->>> We don't compile the full source, thats how we avoid needing this,
->>> booleans.c isn't included.
->>>
->>>>
->>>> I don't believe there are any users of EMBEDDED=y.  DISABLE_SETRANS=y
->>>> and DISABLE_BOOL=y may make sense for Android (host and target builds).
->>>> DISABLE_RPM is enabled in Fedora/RHEL now because they have updated rpm
->>>> to use the more general setexecfilecon() interface introduced to support
->>>> other package managers.  So we may want to even make DISABLE_RPM=y the
->>>> default.  Technically that is an ABI break but since Red Hat is already
->>>> shipping it that way and rpm has been updated, I'm not sure it matters.
->>>
->>> Good to know, so I am looking at all of this in the context of we
->>> don't accidentally want to install
->>> with ANDROID_HOST=y. I'm thinking of something where we could write
->>> the variables to
->>> a .config file, and check for changes, if theirs a change, we could
->>> force a clean, so you always
->>> get what you want.
->>>
->>> ie:
->>>   $ make XXX=y
->>>   $ make install
->>>
->>> is always correct, for any given changes in build parameters, thoughts?
->>
->> I don't think we really need it.
->>
->> There was work a long time ago on autotools support for selinux; you can
->> see that in the autotools branch.  But they never ran it to completion,
->> and I'm not really a fan of autotools anyway.
+On 09/28/2016 11:26 AM, william.c.roberts@intel.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 > 
-> Me either, so whats your though then on ANDROID_HOST=y, is installing
-> it on accident a killer issue or
-> user be careful?
+> Build option DISABLE_BOOL=y is not being used, and is broken, drop it.
+> 
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
-There is already a warning in selinux/README about the potential for a
-break by installing over your system libraries, since that is possible
-even aside from ANDROID_HOST=y.  So I think it is fine.  I wasn't
-planning to even mention ANDROID_HOST=y in the README because it is
-really only for maintainers, not users.
+Thanks, applied all three.  At some point we might want to rename
+EMFLAGS (presumably short for embedded flags) to DISABLE_FLAGS or similar.
+
+> ---
+>  libselinux/Makefile          | 6 +-----
+>  libselinux/src/Makefile      | 6 +-----
+>  libselinux/src/load_policy.c | 2 --
+>  libselinux/utils/Makefile    | 5 -----
+>  4 files changed, 2 insertions(+), 17 deletions(-)
+> 
+> diff --git a/libselinux/Makefile b/libselinux/Makefile
+> index c96695d..bfeb4b8 100644
+> --- a/libselinux/Makefile
+> +++ b/libselinux/Makefile
+> @@ -2,17 +2,13 @@ SUBDIRS = src include utils man
+>  
+>  DISABLE_SETRANS ?= n
+>  DISABLE_RPM ?= n
+> -DISABLE_BOOL ?= n
+> -ifeq ($(DISABLE_BOOL),y)
+> -	EMFLAGS+= -DDISABLE_BOOL
+> -endif
+>  ifeq ($(DISABLE_RPM),y)
+>  	EMFLAGS+= -DDISABLE_RPM
+>  endif
+>  ifeq ($(DISABLE_SETRANS),y)
+>  	EMFLAGS+= -DDISABLE_SETRANS
+>  endif
+> -export DISABLE_SETRANS DISABLE_RPM DISABLE_BOOL EMFLAGS
+> +export DISABLE_SETRANS DISABLE_RPM EMFLAGS
+>  
+>  USE_PCRE2 ?= n
+>  ifeq ($(USE_PCRE2),y)
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 8cfdf34..d8a79b4 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -41,12 +41,8 @@ LIBSO=$(TARGET).$(LIBVERSION)
+>  AUDIT2WHYLOBJ=$(PYPREFIX)audit2why.lo
+>  AUDIT2WHYSO=$(PYPREFIX)audit2why.so
+>  
+> -ifeq ($(DISABLE_BOOL),y)
+> -	UNUSED_SRCS+=booleans.c
+> -endif
+> -
+>  GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
+> -SRCS= $(filter-out $(UNUSED_SRCS) $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
+> +SRCS= $(filter-out $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
+>  
+>  MAX_STACK_SIZE=32768
+>  
+> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+> index 249f82f..b7e1a6f 100644
+> --- a/libselinux/src/load_policy.c
+> +++ b/libselinux/src/load_policy.c
+> @@ -256,7 +256,6 @@ checkbool:
+>  			}
+>  		}
+>  		
+> -#ifndef DISABLE_BOOL
+>  		if (preservebools) {
+>  			int *values, len, i;
+>  			char **names;
+> @@ -279,7 +278,6 @@ checkbool:
+>  			(void)genbools(data, size,
+>  				       (char *)selinux_booleans_path());
+>  		}
+> -#endif
+>  	}
+>  
+>  
+> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+> index 9ec928b..0708d6d 100644
+> --- a/libselinux/utils/Makefile
+> +++ b/libselinux/utils/Makefile
+> @@ -36,11 +36,6 @@ sefcontext_compile: sefcontext_compile.o ../src/regex.o
+>  
+>  selinux_restorecon: LDLIBS += -lsepol
+>  
+> -ifeq ($(DISABLE_BOOL),y)
+> -	UNUSED_TARGETS+=getsebool togglesebool
+> -endif
+> -TARGETS:= $(filter-out $(UNUSED_TARGETS), $(TARGETS))
+> -
+>  all: $(TARGETS)
+>  
+>  install: all
+> 
