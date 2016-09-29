@@ -1,77 +1,71 @@
-Subject: Re: [PATCH 1/1] Makefile: make distclean target work
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20160928214032.22092-1-nicolas.iooss@m4x.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <f459147a-5871-88f0-70c7-93ea41f3cbb7@tycho.nsa.gov>
-Date: Thu, 29 Sep 2016 10:50:49 -0400
-MIME-Version: 1.0
-In-Reply-To: <20160928214032.22092-1-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TGcf04026727
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 12:38:41 -0400
+Received: by mail-pa0-f47.google.com with SMTP id cd13so26113192pac.0
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 09:38:39 -0700 (PDT)
+From: Jeff Vander Stoep <jeffv@google.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: fix xperm mapping between avrule and avtab
+Date: Thu, 29 Sep 2016 09:38:25 -0700
+Message-Id: <1475167105-16420-1-git-send-email-jeffv@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/28/2016 05:40 PM, Nicolas Iooss wrote:
-> A mispelling in the Makefile in the root directory prevented "make
-> distclean" to go into subdirectories.
-> 
-> In libsemanage/src/, semanageswig_python_exception.i was not cleaned by
-> "make distclean" because the target did not use $(GENERATED) and this
-> variable was being redefined in the Makefile.
-> 
-> Fix these two bugs.
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Commit 915fa8f08f4f moves the xperm specified value directly from
+avrule to avtab. The mapping between them is currently the same,
+but may not always be. Instead these values should be mapped using
+values defined in av_extended_perms_t and avtab_extended_perms_t.
 
-Thanks, applied
+Fixes: 915fa8f08f4f ("checkpolicy: switch operations to extended perms")
 
-> ---
->  Makefile                 | 2 +-
->  libsemanage/src/Makefile | 6 ++----
->  2 files changed, 3 insertions(+), 5 deletions(-)
-> 
-> diff --git a/Makefile b/Makefile
-> index 93e10dee4820..bed16498d0e7 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -1,6 +1,6 @@
->  SUBDIRS=libsepol libselinux libsemanage sepolgen checkpolicy secilc policycoreutils # policy
->  PYSUBDIRS=libselinux libsemanage
-> -DISTCLEANSUBIDRS=libselinux libsemanage
-> +DISTCLEANSUBDIRS=libselinux libsemanage
->  
->  ifeq ($(DEBUG),1)
->  	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index 96ee652d06a9..68aab72cb619 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -51,7 +51,7 @@ SWIGFILES=$(SWIGSO) semanage.py
->  SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
->  LIBSO=$(TARGET).$(LIBVERSION)
->  
-> -GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i
-> +GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i $(wildcard conf-*.[ch])
->  SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
->  
->  OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
-> @@ -68,8 +68,6 @@ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
->  
->  SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
->  
-> -GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) $(wildcard conf-*.[ch])
-> -
->  all: $(LIBA) $(LIBSO) $(LIBPC)
->  
->  pywrap: all $(SWIGSO)
-> @@ -163,7 +161,7 @@ clean:
->  	-rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $(SWIGSO) $(TARGET) conf-parse.c conf-parse.h conf-scan.c *.o *.lo *~
->  
->  distclean: clean
-> -	rm -f $(SWIGCOUT) $(SWIGFILES)
-> +	rm -f $(GENERATED) $(SWIGFILES)
->  
->  indent:
->  	../../scripts/Lindent $(filter-out $(GENERATED),$(wildcard *.[ch]))
-> 
+Change-Id: Ic9f4031c9381b2ff6cc46043fb1602758ef4c224
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+---
+ libsepol/src/expand.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index e6d3ef1..004a029 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1855,20 +1855,31 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ 			else
+ 				avdatump->data = ~cur->data;
+ 		} else if (specified & AVRULE_XPERMS) {
+-			if (!avdatump->xperms) {
++			xperms = avdatump->xperms;
++			if (!xperms) {
+ 				xperms = (avtab_extended_perms_t *)
+ 					calloc(1, sizeof(avtab_extended_perms_t));
+ 				if (!xperms) {
+ 					ERR(handle, "Out of memory!");
+ 					return -1;
+ 				}
+-				node->datum.xperms = xperms;
++				avdatump->xperms = xperms;
+ 			}
+-			node->datum.xperms->specified = extended_perms->specified;
+-			node->datum.xperms->driver = extended_perms->driver;
+ 
++			switch (extended_perms->specified) {
++			case AVRULE_XPERMS_IOCTLFUNCTION:
++				xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
++				break;
++			case AVRULE_XPERMS_IOCTLDRIVER:
++				xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
++				break;
++			default:
++				return -1;
++			}
++
++			xperms->driver = extended_perms->driver;
+ 			for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
+-				node->datum.xperms->perms[i] |= extended_perms->perms[i];
++				xperms->perms[i] |= extended_perms->perms[i];
+ 		} else {
+ 			assert(0);	/* should never occur */
+ 		}
+-- 
+2.8.0.rc3.226.g39d4020
