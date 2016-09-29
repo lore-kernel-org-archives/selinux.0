@@ -1,73 +1,161 @@
-Subject: Re: [PATCH] libsepol: fix xperm mapping between avrule and avtab
-To: Jeff Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov
-References: <1475167105-16420-1-git-send-email-jeffv@google.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <d2f7a452-764a-1c87-f11d-fdc09dceed3c@tycho.nsa.gov>
-Date: Thu, 29 Sep 2016 13:03:04 -0400
-MIME-Version: 1.0
-In-Reply-To: <1475167105-16420-1-git-send-email-jeffv@google.com>
-Content-Type: text/plain; charset=utf-8
+From: william.c.roberts@intel.com
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: [PATCH] libselinux: re-introduce DISABLE_BOOL=y
+Date: Thu, 29 Sep 2016 14:02:25 -0400
+Message-Id: <1475172145-16428-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/29/2016 12:38 PM, Jeff Vander Stoep wrote:
-> Commit 915fa8f08f4f moves the xperm specified value directly from
-> avrule to avtab. The mapping between them is currently the same,
-> but may not always be. Instead these values should be mapped using
-> values defined in av_extended_perms_t and avtab_extended_perms_t.
-> 
-> Fixes: 915fa8f08f4f ("checkpolicy: switch operations to extended perms")
-> 
-> Change-Id: Ic9f4031c9381b2ff6cc46043fb1602758ef4c224
-> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+From: William Roberts <william.c.roberts@intel.com>
 
-Thanks, applied.
+Provide stubs to the public boolean API that always returns -1.
 
-> ---
->  libsepol/src/expand.c | 21 ++++++++++++++++-----
->  1 file changed, 16 insertions(+), 5 deletions(-)
-> 
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index e6d3ef1..004a029 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -1855,20 +1855,31 @@ static int expand_avrule_helper(sepol_handle_t * handle,
->  			else
->  				avdatump->data = ~cur->data;
->  		} else if (specified & AVRULE_XPERMS) {
-> -			if (!avdatump->xperms) {
-> +			xperms = avdatump->xperms;
-> +			if (!xperms) {
->  				xperms = (avtab_extended_perms_t *)
->  					calloc(1, sizeof(avtab_extended_perms_t));
->  				if (!xperms) {
->  					ERR(handle, "Out of memory!");
->  					return -1;
->  				}
-> -				node->datum.xperms = xperms;
-> +				avdatump->xperms = xperms;
->  			}
-> -			node->datum.xperms->specified = extended_perms->specified;
-> -			node->datum.xperms->driver = extended_perms->driver;
->  
-> +			switch (extended_perms->specified) {
-> +			case AVRULE_XPERMS_IOCTLFUNCTION:
-> +				xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
-> +				break;
-> +			case AVRULE_XPERMS_IOCTLDRIVER:
-> +				xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
-> +				break;
-> +			default:
-> +				return -1;
-> +			}
-> +
-> +			xperms->driver = extended_perms->driver;
->  			for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
-> -				node->datum.xperms->perms[i] |= extended_perms->perms[i];
-> +				xperms->perms[i] |= extended_perms->perms[i];
->  		} else {
->  			assert(0);	/* should never occur */
->  		}
-> 
+On Android, boolean symbols are needed for:
+external/ltrace/sysdeps/linux-gnu/trace.c
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libselinux/Makefile       |  4 +++
+ libselinux/src/booleans.c | 64 +++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 58 insertions(+), 10 deletions(-)
+
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index f607115..b5f32bb 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -5,6 +5,7 @@ DISABLE_RPM ?= y
+ ANDROID_HOST ?= n
+ ifeq ($(ANDROID_HOST),y)
+ 	override DISABLE_SETRANS=y
++	override DISABLE_BOOL=y
+ endif
+ ifeq ($(DISABLE_RPM),y)
+ 	DISABLE_FLAGS+= -DDISABLE_RPM
+@@ -12,6 +13,9 @@ endif
+ ifeq ($(DISABLE_SETRANS),y)
+ 	DISABLE_FLAGS+= -DDISABLE_SETRANS
+ endif
++ifeq ($(DISABLE_BOOL),y)
++	DISABLE_FLAGS+= -DDISABLE_BOOL
++endif
+ export DISABLE_SETRANS DISABLE_RPM DISABLE_FLAGS ANDROID_HOST
+ 
+ USE_PCRE2 ?= n
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index c438af1..cbb0610 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -25,6 +25,8 @@
+ 
+ #define SELINUX_BOOL_DIR "/booleans/"
+ 
++#ifndef DISABLE_BOOL
++
+ static int filename_select(const struct dirent *d)
+ {
+ 	if (d->d_name[0] == '.'
+@@ -85,8 +87,6 @@ int security_get_boolean_names(char ***names, int *len)
+ 	goto out;
+ }
+ 
+-hidden_def(security_get_boolean_names)
+-
+ char *selinux_boolean_sub(const char *name)
+ {
+ 	char *sub = NULL;
+@@ -141,8 +141,6 @@ out:
+ 	return sub;
+ }
+ 
+-hidden_def(selinux_boolean_sub)
+-
+ static int bool_open(const char *name, int flag) {
+ 	char *fname = NULL;
+ 	char *alt_name = NULL;
+@@ -262,8 +260,6 @@ int security_get_boolean_active(const char *name)
+ 	return val;
+ }
+ 
+-hidden_def(security_get_boolean_active)
+-
+ int security_set_boolean(const char *name, int value)
+ {
+ 	int fd, ret;
+@@ -297,8 +293,6 @@ int security_set_boolean(const char *name, int value)
+ 		return -1;
+ }
+ 
+-hidden_def(security_set_boolean)
+-
+ int security_commit_booleans(void)
+ {
+ 	int fd, ret;
+@@ -327,8 +321,6 @@ int security_commit_booleans(void)
+ 		return -1;
+ }
+ 
+-hidden_def(security_commit_booleans)
+-
+ static char *strtrim(char *dest, char *source, int size)
+ {
+ 	int i = 0;
+@@ -567,3 +559,55 @@ int security_load_booleans(char *path)
+ 		errno = EINVAL;
+ 	return errors ? -1 : 0;
+ }
++
++#else
++int security_set_boolean_list(size_t boolcnt __attribute__((unused)),
++	SELboolean * boollist __attribute__((unused)),
++	int permanent __attribute__((unused)))
++{
++	return -1;
++}
++
++int security_load_booleans(char *path __attribute__((unused)))
++{
++	return -1;
++}
++
++int security_get_boolean_names(char ***names __attribute__((unused)),
++	int *len __attribute__((unused)))
++{
++	return -1;
++}
++
++int security_get_boolean_pending(const char *name __attribute__((unused)))
++{
++	return -1;
++}
++
++int security_get_boolean_active(const char *name __attribute__((unused)))
++{
++	return -1;
++}
++
++int security_set_boolean(const char *name __attribute__((unused)),
++	int value __attribute__((unused)))
++{
++	return -1;
++}
++
++int security_commit_booleans(void)
++{
++	return -1;
++}
++
++char *selinux_boolean_sub(const char *name __attribute__((unused)))
++{
++	return NULL;
++}
++#endif
++
++hidden_def(security_get_boolean_names)
++hidden_def(selinux_boolean_sub)
++hidden_def(security_get_boolean_active)
++hidden_def(security_set_boolean)
++hidden_def(security_commit_booleans)
+-- 
+1.9.1
