@@ -1,72 +1,95 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TBeAUx026602
- for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 07:40:11 -0400
-Received: by mail-wm0-f41.google.com with SMTP id b4so22267912wmb.0
- for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 04:39:28 -0700 (PDT)
-From: Janis Danisevskis <jdanis@android.com>
-To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov,
- jwcart2@tycho.nsa.gov
-Cc: Janis Danisevskis <jdanis@android.com>
-Subject: [PATCH 3/3] libselinux: makes android label back ends configurable
-Date: Thu, 29 Sep 2016 12:39:19 +0100
-Message-Id: <1475149159-21757-3-git-send-email-jdanis@android.com>
-In-Reply-To: <1475149159-21757-1-git-send-email-jdanis@android.com>
-References: <1475149159-21757-1-git-send-email-jdanis@android.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TBlmli027029
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 07:47:48 -0400
+Subject: Re: [PATCH v2 1/1] libsepol/cil: do not heap-overflow when too many
+ permissions are in a class
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, <selinux@tycho.nsa.gov>
+References: <20160929055012.10460-1-nicolas.iooss@m4x.org>
+From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <862d631b-b80b-4941-5f56-0c13261badfb@tresys.com>
+Date: Thu, 29 Sep 2016 07:47:25 -0400
+MIME-Version: 1.0
+In-Reply-To: <20160929055012.10460-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Android label back ends are not configurable by NO_ANDROID_BACKEND,
-which is set if on ANDROID_HOST != y.
+On 09/29/2016 01:50 AM, Nicolas Iooss wrote:
+> When compiling a CIL policy with more than 32 items in a class (e.g. in
+> (class capability (chown ...)) with many items),
+> cil_classorder_to_policydb() overflows perm_value_to_cil[class_index]
+> array. As this array is allocated on the heap through
+> calloc(PERMS_PER_CLASS+1, sizeof(...)), this makes secilc crash with the
+> following message:
+> 
+>     *** Error in `/usr/bin/secilc': double free or corruption (!prev): 0x000000000062be80 ***
+>     ======= Backtrace: =========
+>     /usr/lib/libc.so.6(+0x70c4b)[0x7ffff76a7c4b]
+>     /usr/lib/libc.so.6(+0x76fe6)[0x7ffff76adfe6]
+>     /usr/lib/libc.so.6(+0x777de)[0x7ffff76ae7de]
+>     /lib/libsepol.so.1(+0x14fbda)[0x7ffff7b24bda]
+>     /lib/libsepol.so.1(+0x152db8)[0x7ffff7b27db8]
+>     /lib/libsepol.so.1(cil_build_policydb+0x63)[0x7ffff7af8723]
+>     /usr/bin/secilc[0x40273b]
+>     /usr/lib/libc.so.6(__libc_start_main+0xf1)[0x7ffff7657291]
+>     /usr/bin/secilc[0x402f7a]
+> 
+> Fix this by detecting the overflow before adding new permissions to a
+> class.
+> 
+> This bug has been found by fuzzing secilc with american fuzzy lop.
+> 
 
-Signed-off-by: Janis Danisevskis <jdanis@android.com>
----
- libselinux/src/Makefile |  3 +++
- libselinux/src/label.c  | 10 ++++++++--
- 2 files changed, 11 insertions(+), 2 deletions(-)
+I think I'd rather see these bounds checks done earlier in
+cil_build_ast.c in cil_gen_class, cil_gen_classcommon. And maybe in
+cil_resolve_classcommon as well for the class + classcommon < 32 check.
+That way we can avoid alot of unnecessary processing and provide an
+error message that includes file/line number information. This check
+shouldn't be necessary in cil_binary if we perform the validation earlier.
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index cba8383..7169230 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -87,6 +87,9 @@ DISABLE_FLAGS+= -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
- SRCS= callbacks.c freecon.c label.c label_file.c \
- 	label_backends_android.c regex.c label_support.c \
- 	matchpathcon.c setrans_client.c sha1.c
-+else
-+DISABLE_FLAGS+= -DNO_ANDROID_BACKEND
-+SRCS:= $(filter-out label_backends_android.c, $(SRCS))
- endif
- 
- SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./ $(DISABLE_FLAGS)
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index eb0e766..60639cf 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -35,6 +35,12 @@
- #define CONFIG_DB_BACKEND(fnptr) &fnptr
- #endif
- 
-+#ifdef NO_ANDROID_BACKEND
-+#define CONFIG_ANDROID_BACKEND(fnptr) NULL
-+#else
-+#define CONFIG_ANDROID_BACKEND(fnptr) (&(fnptr))
-+#endif
-+
- typedef int (*selabel_initfunc)(struct selabel_handle *rec,
- 				const struct selinux_opt *opts,
- 				unsigned nopts);
-@@ -44,8 +50,8 @@ static selabel_initfunc initfuncs[] = {
- 	CONFIG_MEDIA_BACKEND(selabel_media_init),
- 	CONFIG_X_BACKEND(selabel_x_init),
- 	CONFIG_DB_BACKEND(selabel_db_init),
--	&selabel_property_init,
--	&selabel_service_init,
-+	CONFIG_ANDROID_BACKEND(selabel_property_init),
-+	CONFIG_ANDROID_BACKEND(selabel_service_init),
- };
- 
- static void selabel_subs_fini(struct selabel_sub *ptr)
--- 
-1.9.1
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+> v2: check that sepol_common->permissions.nprim would not make
+>   sepol_class->permissions.nprim overflow when added to it.
+> 
+>  libsepol/cil/src/cil_binary.c | 16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
+> 
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> index cc73648ad1b7..f83dc2ddd1ee 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -332,6 +332,12 @@ int cil_classorder_to_policydb(policydb_t *pdb, const struct cil_db *db, struct
+>  					goto exit;
+>  				}
+>  			}
+> +			if (sepol_common->permissions.nprim > PERMS_PER_CLASS ||
+> +			    sepol_class->permissions.nprim + sepol_common->permissions.nprim > PERMS_PER_CLASS) {
+> +				cil_log(CIL_ERR, "Too many permissions in class '%s'\n", cil_class->datum.fqn);
+> +				rc = SEPOL_ERR;
+> +				goto exit;
+> +			}
+>  			sepol_class->comdatum = sepol_common;
+>  			sepol_class->comkey = cil_strdup(key);
+>  			sepol_class->permissions.nprim += sepol_common->permissions.nprim;
+> @@ -344,9 +350,15 @@ int cil_classorder_to_policydb(policydb_t *pdb, const struct cil_db *db, struct
+>  
+>  		for (curr = NODE(cil_class)->cl_head; curr; curr = curr->next) {
+>  			struct cil_perm *cil_perm = curr->data;
+> -			perm_datum_t *sepol_perm = cil_malloc(sizeof(*sepol_perm));
+> -			memset(sepol_perm, 0, sizeof(perm_datum_t));
+> +			perm_datum_t *sepol_perm;
+>  
+> +			if (sepol_class->permissions.nprim + 1 > PERMS_PER_CLASS) {
+> +				cil_log(CIL_ERR, "Too many permissions in class '%s'\n", cil_class->datum.fqn);
+> +				rc = SEPOL_ERR;
+> +				goto exit;
+> +			}
+> +			sepol_perm = cil_malloc(sizeof(*sepol_perm));
+> +			memset(sepol_perm, 0, sizeof(perm_datum_t));
+>  			key = cil_strdup(cil_perm->datum.fqn);
+>  			rc = hashtab_insert(sepol_class->permissions.table, key, sepol_perm);
+>  			if (rc != SEPOL_OK) {
+> 
