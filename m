@@ -1,170 +1,335 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8T7kdNg003051
- for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 03:46:39 -0400
-Received: by mail-wm0-f52.google.com with SMTP id b4so9513774wmb.0
- for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 00:46:33 -0700 (PDT)
-Received: from [84.245.30.81] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id a84sm26809903wme.6.2016.09.29.00.46.31
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Thu, 29 Sep 2016 00:46:31 -0700 (PDT)
-Subject: Re: Question on restricting file access
-To: selinux@tycho.nsa.gov
-References: <DM5PR01MB257160569D7A4541EB83024FA9CF0@DM5PR01MB2571.prod.exchangelabs.com>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <1cf62e3d-c674-97ce-e598-aff042f4e877@gmail.com>
-Date: Thu, 29 Sep 2016 09:46:19 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TBP7OT024942
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 07:25:07 -0400
+Received: by mail-it0-f67.google.com with SMTP id x192so4472581itb.0
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 04:24:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <DM5PR01MB257160569D7A4541EB83024FA9CF0@DM5PR01MB2571.prod.exchangelabs.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="fwpJh91xjm48khQWJNeJORDnjSDLMmAQr"
+In-Reply-To: <c5f03c00-fbad-fe5b-cbb0-330f0fbe7329@m4x.org>
+References: <20160928205708.14686-1-nicolas.iooss@m4x.org>
+ <CAFftDdryDVqUhm8YagFQKw5zOXFSjy4GWjPfgCy+NS7zD_Mx0Q@mail.gmail.com>
+ <049bd4f3-74d6-f460-b703-8135100f2f33@m4x.org>
+ <CAFftDdqsoqPgc9zk8YhcdLEQyGzNd2Q86Fhy6o=WQ5RprtTccQ@mail.gmail.com>
+ <c5f03c00-fbad-fe5b-cbb0-330f0fbe7329@m4x.org>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Thu, 29 Sep 2016 07:24:56 -0400
+Message-ID: <CAFftDdrrCsRSFxP4EMaUTufdS59xjHjPZrzknCGFSbpc=uLwwA@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libsepol/cil: do not heap-overflow when too many
+ permissions are in a class
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a1143ee8e4240d5053da3bacf
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---fwpJh91xjm48khQWJNeJORDnjSDLMmAQr
-Content-Type: multipart/mixed; boundary="Le2DM4ogFtCpMTgC5JHdtCABe6QSlD32R";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <1cf62e3d-c674-97ce-e598-aff042f4e877@gmail.com>
-Subject: Re: Question on restricting file access
-References: <DM5PR01MB257160569D7A4541EB83024FA9CF0@DM5PR01MB2571.prod.exchangelabs.com>
-In-Reply-To: <DM5PR01MB257160569D7A4541EB83024FA9CF0@DM5PR01MB2571.prod.exchangelabs.com>
+--001a1143ee8e4240d5053da3bacf
+Content-Type: text/plain; charset=UTF-8
 
---Le2DM4ogFtCpMTgC5JHdtCABe6QSlD32R
-Content-Type: text/plain; charset=windows-1252
+On Sep 29, 2016 01:44, "Nicolas Iooss" <nicolas.iooss@m4x.org> wrote:
+>
+> On 29/09/16 00:44, William Roberts wrote:
+> > On Wed, Sep 28, 2016 at 5:34 PM, Nicolas Iooss <nicolas.iooss@m4x.org>
+wrote:
+> >> On 28/09/16 23:06, William Roberts wrote:
+> >>> On Sep 28, 2016 17:02, "Nicolas Iooss" <nicolas.iooss@m4x.org
+> >>> <mailto:nicolas.iooss@m4x.org>> wrote:
+> >>>>
+> >>>> When compiling a CIL policy with more than 32 items in a class (e.g.
+in
+> >>>> (class capability (chown ...)) with many items),
+> >>>> cil_classorder_to_policydb() overflows perm_value_to_cil[class_index]
+> >>>> array. As this array is allocated on the heap through
+> >>>> calloc(PERMS_PER_CLASS+1, sizeof(...)), this makes secilc crash with
+the
+> >>>> following message:
+> >>>>
+> >>>>     *** Error in `/usr/bin/secilc': double free or corruption
+(!prev):
+> >>> 0x000000000062be80 ***
+> >>>>     ======= Backtrace: =========
+> >>>>     /usr/lib/libc.so.6(+0x70c4b)[0x7ffff76a7c4b]
+> >>>>     /usr/lib/libc.so.6(+0x76fe6)[0x7ffff76adfe6]
+> >>>>     /usr/lib/libc.so.6(+0x777de)[0x7ffff76ae7de]
+> >>>>     /lib/libsepol.so.1(+0x14fbda)[0x7ffff7b24bda]
+> >>>>     /lib/libsepol.so.1(+0x152db8)[0x7ffff7b27db8]
+> >>>>     /lib/libsepol.so.1(cil_build_policydb+0x63)[0x7ffff7af8723]
+> >>>>     /usr/bin/secilc[0x40273b]
+> >>>>     /usr/lib/libc.so.6(__libc_start_main+0xf1)[0x7ffff7657291]
+> >>>>     /usr/bin/secilc[0x402f7a]
+> >>>>
+> >>>> Fix this by detecting the overflow before adding new permissions to a
+> >>>> class.
+> >>>>
+> >>>> This bug has been found by fuzzing secilc with american fuzzy lop.
+> >>>>
+> >>>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org
+> >>> <mailto:nicolas.iooss@m4x.org>>
+> >>>> ---
+> >>>>  libsepol/cil/src/cil_binary.c | 15 +++++++++++++--
+> >>>>  1 file changed, 13 insertions(+), 2 deletions(-)
+> >>>>
+> >>>> diff --git a/libsepol/cil/src/cil_binary.c
+b/libsepol/cil/src/cil_binary.c
+> >>>> index cc73648ad1b7..d3b3e90df45b 100644
+> >>>> --- a/libsepol/cil/src/cil_binary.c
+> >>>> +++ b/libsepol/cil/src/cil_binary.c
+> >>>> @@ -332,6 +332,11 @@ int cil_classorder_to_policydb(policydb_t *pdb,
+> >>> const struct cil_db *db, struct
+> >>>>                                         goto exit;
+> >>>>                                 }
+> >>>>                         }
+> >>>> +                       if (sepol_class->permissions.nprim +
+> >>> sepol_common->permissions.nprim > PERMS_PER_CLASS) {
+> >>>> +                               cil_log(CIL_ERR, "Too many
+permissions
+> >>> in class '%s'\n", cil_class->datum.fqn);
+> >>>> +                               rc = SEPOL_ERR;
+> >>>> +                               goto exit;
+> >>>> +                       }
+> >>>>                         sepol_class->comdatum = sepol_common;
+> >>>>                         sepol_class->comkey = cil_strdup(key);
+> >>>>                         sepol_class->permissions.nprim +=
+> >>> sepol_common->permissions.nprim;
+> >>>> @@ -344,9 +349,15 @@ int cil_classorder_to_policydb(policydb_t *pdb,
+> >>> const struct cil_db *db, struct
+> >>>>
+> >>>>                 for (curr = NODE(cil_class)->cl_head; curr; curr =
+> >>> curr->next) {
+> >>>>                         struct cil_perm *cil_perm = curr->data;
+> >>>> -                       perm_datum_t *sepol_perm =
+> >>> cil_malloc(sizeof(*sepol_perm));
+> >>>> -                       memset(sepol_perm, 0, sizeof(perm_datum_t));
+> >>>> +                       perm_datum_t *sepol_perm;
+> >>>>
+> >>>> +                       if (sepol_class->permissions.nprim + 1 >
+> >>> PERMS_PER_CLASS)
+> >>>
+> >>> Is nprim input data? This could overflow here and be 0 right? You
+> >>> probably want to check if nprim is saturated assuming unsigned.
+> >>
+> >> I mostly read the code of cil_classorder_to_policydb() in the way it is
+> >> used in secilc: ...permissions.nprim is both the length of an array of
+> >> perm_value_to_cil[] (off one) and the length of a linked list of CIL
+> >> nodes. Therefore I did not consider the possibility of the addition to
+> >> overflow here, and afterwards I still fail to see how it could
+overflow.
+> >>
+> >> In case you want to reproduce the bug, please find attached the source
+> >> file I used (it is secilc/test/minimum.cil with 33 permissions defined
+> >> in the first class).
+> >>
+> >
+> > Its that both additions in that file, and the nprim++ statements are
+> > ripe for overflows.
+> >
+> > All those additions occur based on the inputs from source code.
+> > So, if you defined (uint32_t)~0 amount of classes, you should
+> > be able to hit an overflow. nprim itself is a uint32_t.
+>
+> After a good night sleep I see now "rc =
+> symtab_init(&sepol_class->permissions, PERM_SYMTAB_SIZE);" in
+> cil_classorder_to_policydb(). This statement initializes
+> sepol_class->permissions.nprim with 0. Later nprim is incremented both
+> with sepol_common->permissions.nprim (which should be <= 32 and I will
+> add a check for this) and one. If I define (uint32_t)~0 permissions in a
+> CIL class object, I hit the if() when it crosses 32.
+
+OK if it's hitting that check after every increment then I dont think it
+can, that's what i wanted verification .
+
+>
+> Is there a way to make nprim equals to a value which would overflow that
+> I am missing?
+
+Nothing
+
+>
+> -- Nicolas
+
+--001a1143ee8e4240d5053da3bacf
+Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-On 09/28/2016 09:05 PM, Raj Srinivasan wrote:
-> Hi,
->=20
-> I have just started with Selinux, and was trying (unsuccessfully) to re=
-strict the sysadm role as my first exercise.
->=20
-> I am using RHEL 7.1, and running Selinux with the minimum configuration=
- in enforcing mode.
->=20
+<p dir=3D"ltr"></p>
+<p dir=3D"ltr">On Sep 29, 2016 01:44, &quot;Nicolas Iooss&quot; &lt;<a href=
+=3D"mailto:nicolas.iooss@m4x.org">nicolas.iooss@m4x.org</a>&gt; wrote:<br>
+&gt;<br>
+&gt; On 29/09/16 00:44, William Roberts wrote:<br>
+&gt; &gt; On Wed, Sep 28, 2016 at 5:34 PM, Nicolas Iooss &lt;<a href=3D"mai=
+lto:nicolas.iooss@m4x.org">nicolas.iooss@m4x.org</a>&gt; wrote:<br>
+&gt; &gt;&gt; On 28/09/16 23:06, William Roberts wrote:<br>
+&gt; &gt;&gt;&gt; On Sep 28, 2016 17:02, &quot;Nicolas Iooss&quot; &lt;<a h=
+ref=3D"mailto:nicolas.iooss@m4x.org">nicolas.iooss@m4x.org</a><br>
+&gt; &gt;&gt;&gt; &lt;mailto:<a href=3D"mailto:nicolas.iooss@m4x.org">nicol=
+as.iooss@m4x.org</a>&gt;&gt; wrote:<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; When compiling a CIL policy with more than 32 items i=
+n a class (e.g. in<br>
+&gt; &gt;&gt;&gt;&gt; (class capability (chown ...)) with many items),<br>
+&gt; &gt;&gt;&gt;&gt; cil_classorder_to_policydb() overflows perm_value_to_=
+cil[class_index]<br>
+&gt; &gt;&gt;&gt;&gt; array. As this array is allocated on the heap through=
+<br>
+&gt; &gt;&gt;&gt;&gt; calloc(PERMS_PER_CLASS+1, sizeof(...)), this makes se=
+cilc crash with the<br>
+&gt; &gt;&gt;&gt;&gt; following message:<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0*** Error in `/usr/bin/secilc&#39;=
+: double free or corruption (!prev):<br>
+&gt; &gt;&gt;&gt; 0x000000000062be80 ***<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0=3D=3D=3D=3D=3D=3D=3D Backtrace: =
+=3D=3D=3D=3D=3D=3D=3D=3D=3D<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(+0x70c4b)[0x7ff=
+ff76a7c4b]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(+0x76fe6)[0x7ff=
+ff76adfe6]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(+0x777de)[0x7ff=
+ff76ae7de]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/lib/libsepol.so.1(+0x14fbda)[0x7f=
+fff7b24bda]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/lib/libsepol.so.1(+0x152db8)[0x7f=
+fff7b27db8]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/lib/libsepol.so.1(cil_build_polic=
+ydb+0x63)[0x7ffff7af8723]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/bin/secilc[0x40273b]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(__libc_start_ma=
+in+0xf1)[0x7ffff7657291]<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/bin/secilc[0x402f7a]<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; Fix this by detecting the overflow before adding new =
+permissions to a<br>
+&gt; &gt;&gt;&gt;&gt; class.<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; This bug has been found by fuzzing secilc with americ=
+an fuzzy lop.<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; Signed-off-by: Nicolas Iooss &lt;<a href=3D"mailto:ni=
+colas.iooss@m4x.org">nicolas.iooss@m4x.org</a><br>
+&gt; &gt;&gt;&gt; &lt;mailto:<a href=3D"mailto:nicolas.iooss@m4x.org">nicol=
+as.iooss@m4x.org</a>&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; ---<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 libsepol/cil/src/cil_binary.c | 15 ++++++++++++=
++--<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 1 file changed, 13 insertions(+), 2 deletions(-=
+)<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; diff --git a/libsepol/cil/src/cil_binary.c b/libsepol=
+/cil/src/cil_binary.c<br>
+&gt; &gt;&gt;&gt;&gt; index cc73648ad1b7..d3b3e90df45b 100644<br>
+&gt; &gt;&gt;&gt;&gt; --- a/libsepol/cil/src/cil_binary.c<br>
+&gt; &gt;&gt;&gt;&gt; +++ b/libsepol/cil/src/cil_binary.c<br>
+&gt; &gt;&gt;&gt;&gt; @@ -332,6 +332,11 @@ int cil_classorder_to_policydb(p=
+olicydb_t *pdb,<br>
+&gt; &gt;&gt;&gt; const struct cil_db *db, struct<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0goto exit;<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (sepol_class-&gt;permissions.nprim +<br>
+&gt; &gt;&gt;&gt; sepol_common-&gt;permissions.nprim &gt; PERMS_PER_CLASS) =
+{<br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0cil_log(CIL_ERR,=
+ &quot;Too many permissions<br>
+&gt; &gt;&gt;&gt; in class &#39;%s&#39;\n&quot;, cil_class-&gt;datum.fqn);<=
+br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0rc =3D SEPOL_ERR=
+;<br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto exit;<br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sepol_class-&gt;comdatum =3D sepol_co=
+mmon;<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sepol_class-&gt;comkey =3D cil_strdup=
+(key);<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sepol_class-&gt;permissions.nprim +=
+=3D<br>
+&gt; &gt;&gt;&gt; sepol_common-&gt;permissions.nprim;<br>
+&gt; &gt;&gt;&gt;&gt; @@ -344,9 +349,15 @@ int cil_classorder_to_policydb(p=
+olicydb_t *pdb,<br>
+&gt; &gt;&gt;&gt; const struct cil_db *db, struct<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0for (curr =3D NODE(cil_class)-&gt;cl_head; curr; curr =3D<br>
+&gt; &gt;&gt;&gt; curr-&gt;next) {<br>
+&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0struct cil_perm *cil_perm =3D curr-&g=
+t;data;<br>
+&gt; &gt;&gt;&gt;&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0perm_datum_t *sepol_perm =3D<br>
+&gt; &gt;&gt;&gt; cil_malloc(sizeof(*sepol_perm));<br>
+&gt; &gt;&gt;&gt;&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0memset(sepol_perm, 0, sizeof(perm_datum_t));=
+<br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0perm_datum_t *sepol_perm;<br>
+&gt; &gt;&gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (sepol_class-&gt;permissions.nprim + 1 &g=
+t;<br>
+&gt; &gt;&gt;&gt; PERMS_PER_CLASS)<br>
+&gt; &gt;&gt;&gt;<br>
+&gt; &gt;&gt;&gt; Is nprim input data? This could overflow here and be 0 ri=
+ght? You<br>
+&gt; &gt;&gt;&gt; probably want to check if nprim is saturated assuming uns=
+igned.<br>
+&gt; &gt;&gt;<br>
+&gt; &gt;&gt; I mostly read the code of cil_classorder_to_policydb() in the=
+ way it is<br>
+&gt; &gt;&gt; used in secilc: ...permissions.nprim is both the length of an=
+ array of<br>
+&gt; &gt;&gt; perm_value_to_cil[] (off one) and the length of a linked list=
+ of CIL<br>
+&gt; &gt;&gt; nodes. Therefore I did not consider the possibility of the ad=
+dition to<br>
+&gt; &gt;&gt; overflow here, and afterwards I still fail to see how it coul=
+d overflow.<br>
+&gt; &gt;&gt;<br>
+&gt; &gt;&gt; In case you want to reproduce the bug, please find attached t=
+he source<br>
+&gt; &gt;&gt; file I used (it is secilc/test/minimum.cil with 33 permission=
+s defined<br>
+&gt; &gt;&gt; in the first class).<br>
+&gt; &gt;&gt;<br>
+&gt; &gt;<br>
+&gt; &gt; Its that both additions in that file, and the nprim++ statements =
+are<br>
+&gt; &gt; ripe for overflows.<br>
+&gt; &gt;<br>
+&gt; &gt; All those additions occur based on the inputs from source code.<b=
+r>
+&gt; &gt; So, if you defined (uint32_t)~0 amount of classes, you should<br>
+&gt; &gt; be able to hit an overflow. nprim itself is a uint32_t.<br>
+&gt;<br>
+&gt; After a good night sleep I see now &quot;rc =3D<br>
+&gt; symtab_init(&amp;sepol_class-&gt;permissions, PERM_SYMTAB_SIZE);&quot;=
+ in<br>
+&gt; cil_classorder_to_policydb(). This statement initializes<br>
+&gt; sepol_class-&gt;permissions.nprim with 0. Later nprim is incremented b=
+oth<br>
+&gt; with sepol_common-&gt;permissions.nprim (which should be &lt;=3D 32 an=
+d I will<br>
+&gt; add a check for this) and one. If I define (uint32_t)~0 permissions in=
+ a<br>
+&gt; CIL class object, I hit the if() when it crosses 32.</p>
+<p dir=3D"ltr">OK if it&#39;s hitting that check after every increment then=
+ I dont think it can, that&#39;s what i wanted verification .</p>
+<p dir=3D"ltr">&gt;<br>
+&gt; Is there a way to make nprim equals to a value which would overflow th=
+at<br>
+&gt; I am missing?</p>
+<p dir=3D"ltr">Nothing</p>
+<p dir=3D"ltr">&gt;<br>
+&gt; -- Nicolas<br></p>
 
-Hi, This is not the optimal list for reference policy related questions.
-refpolicy@oss.tresys.com is the list for reference policy
-
-> I have a user called "admin" with the context "sysadm_u:sysadm_r:sysadm=
-_t:s0-s0:c0.c1023", and uid 1000. When I login as admin and use su to bec=
-ome root, the context still remains the same, as one would expect.
->=20
-> I created a simple policy to restrict the sysadm_r role for testing pur=
-poses, and was able to compile and load it.
->=20
-> policy_module(localpolicy, 1.0.0)
->=20
-> gen_require(`
->   type sysadm_t;
->   type sshd_key_t;
-> ')
->=20
-> allow sysadm_t sshd_key_t:file { create_file_perms write_file_perms };
->=20
-> The idea was to prevent the sysadm_r role from being able to read a fil=
-e with the sshd_key_t type even if the uid is changed to root via the su =
-command, by allowing "create" and "write" permissions, but not "read" per=
-mission.
->=20
-> I would appreciate it very much if anyone could let me know what I am m=
-issing, or if there is an easy way to troubleshoot. I tried to use the "n=
-everallow" directive (with "read" permission) but after waiting for 10 mi=
-nutes, the policy did not even load. I suspect there is some other rule i=
-n effect that grants read permission that I am not able to see using "ses=
-earch -A".
->=20
-
-The above is not easily possible currently. This is mainly due to
-limitations of the module policy language and due the reference policy mo=
-del
-
-SELinux is a denial-by-default access control framework. That means that
-access is denied unless it is explicitly allowed. In this case sysadm is
-explicitly allowed access to all non-auth files
-(https://github.com/TresysTechnology/refpolicy/blob/master/policy/modules=
-/system/userdomain.if#L1233).
-Ideally you would have to start by removing that rule (if you wish to
-not break the reference policy model).
-
-In theory it should have been possible to remove the rule by replacing
-the userdomain module with a version that does not include the above
-rule (at a minimum). However this, i believe, is currently not possible
-due to aforementioned limitations, and if it would be possible then it
-would be hard to maintain over time.
-
-There is a new (intermediate) policy language that should make things
-like this possible, but it is not available in RHEL7 yet, and even when
-it becomes available then it still requires a policy written in a new
-additional high-level language that takes advantage of the new
-(intermediate) policy language to be able to take advantage of the
-features that it brings.
-
-The alternative would be to create a new set of rules and identifiers,
-possibly based on the existing sysadm set of rules and identifiers, that
-is then tailored to your specific requirements.
-
-The above is however a non-trivial task, and not easy to explain in a
-e-mail thread.
-
-My advice to you is:
-
-You are clearly interested in taking advantage of SELinux. It may be
-worth it for you to learn more about the SELinux framework, security
-models, and language(s).
-
-Once you have enough knowledge of the aforementioned then you will find
-how to achieve your goals, and you will be able to implement solutions
-for a wide array of access control requirements with SELinux
-
-> Thanks,
-> Raj
->=20
->=20
->=20
->=20
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
->=20
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
-
-
---Le2DM4ogFtCpMTgC5JHdtCABe6QSlD32R--
-
---fwpJh91xjm48khQWJNeJORDnjSDLMmAQr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJX7MbRAAoJECV0jlU3+UdpFg4L/j2jP7aNFXOTC9cQIPbH2o2x
-TtOTL+q8+ZuAkIpI36p6yCeq6Sic/j1shLEj14+Gz/9jO8zmCqSIfI7/F8nSIwMM
-bGG2mm/fhaIGZb8/VQIJb5gUJQ2EjLss7E+EZule0eVqMDTk7WzL2qf4QwYBBoba
-seSeHvTRWI7+WVTkNgqcvgg0sLBab02FnsZyDc1juQXoOAxUEv2w0Ss9bt+u0lWy
-odUxj5AK7e5eVrnydEduwy5N2Yr9CyjW86jvy3Ly6fEQLlnOpBKv3AGYYL0dCV4r
-GYnTdEwxRDQ7Qc0HWt9hjGlpGl/4jf3DsgXwQsAnt4YzKLJ4uEA9Piu4DVTmKyLh
-AcBRcuZKoxe1hI3a00ykeNFmrlkVVNqSEzgVkEi5ZOTzdYeln1TI0cCzGeHeEVvU
-/P/VEgYdybX14jRdyFVnLsRJFRQzz7L4r5EUPn0ZS6c4Alt3Q5QPRtxTHj3UGY9j
-G2GuZV/CGTKBwBudgL0Wk67hmgtzec4D2AgxhizYsA==
-=rI1R
------END PGP SIGNATURE-----
-
---fwpJh91xjm48khQWJNeJORDnjSDLMmAQr--
+--001a1143ee8e4240d5053da3bacf--
