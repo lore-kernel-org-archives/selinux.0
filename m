@@ -1,201 +1,97 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TCs2VI001706
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 08:54:02 -0400
+From: Raj Srinivasan <raj@bivio.net>
+To: Dominick Grift <dac.override@gmail.com>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+Subject: RE: Question on restricting file access
+Date: Thu, 29 Sep 2016 12:53:57 +0000
+Message-ID: <DM5PR01MB25711347944701EE93A5901DA9CE0@DM5PR01MB2571.prod.exchangelabs.com>
+References: <DM5PR01MB257160569D7A4541EB83024FA9CF0@DM5PR01MB2571.prod.exchangelabs.com>
+ <1cf62e3d-c674-97ce-e598-aff042f4e877@gmail.com>
+In-Reply-To: <1cf62e3d-c674-97ce-e598-aff042f4e877@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <1475149159-21757-2-git-send-email-jdanis@android.com>
-References: <1475149159-21757-1-git-send-email-jdanis@android.com>
- <1475149159-21757-2-git-send-email-jdanis@android.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 29 Sep 2016 07:57:54 -0400
-Message-ID: <CAFftDdofw9O3FriN3PqFdMy5LEqFC79PGR10ePcVeD3csZ10oQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] libselinux: android: fix lax service context lookup
-To: Janis Danisevskis <jdanis@android.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>,
- Stephen Smalley <sds@tycho.nsa.gov>, James Carter <jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-do you have the corresponding changes to checkfc on AOSP?
+Thanks, Dominick. As my last email indicated, I think I have solved my issue, albeit sub-optimally. I will direct further questions, if I have any, to the mailing list you have indicated. Selinux is indeed a very complex framework, but the rewards seem to be well worth the effort spent learning it!
 
-On Thu, Sep 29, 2016 at 7:39 AM, Janis Danisevskis <jdanis@android.com> wrote:
-> We use the same lookup function for service contexts
-> that we use for property contexts. However, property
-> contexts are namespace based and only compare the
-> prefix. This may lead to service associations with
-> a wrong label.
->
-> This patch introduces a new back end for android
-> services with a stricter lookup function. Now the
-> service name must match the key of the service label
-> exactly.
->
-> Signed-off-by: Janis Danisevskis <jdanis@android.com>
-> ---
->  libselinux/include/selinux/label.h      |  2 ++
->  libselinux/src/label.c                  |  1 +
->  libselinux/src/label_backends_android.c | 54 +++++++++++++++++++++++++++++++--
->  libselinux/src/label_internal.h         |  3 ++
->  libselinux/utils/selabel_digest.c       |  2 ++
->  libselinux/utils/selabel_lookup.c       |  2 ++
->  6 files changed, 62 insertions(+), 2 deletions(-)
->
-> diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
-> index f0b1e10..277287e 100644
-> --- a/libselinux/include/selinux/label.h
-> +++ b/libselinux/include/selinux/label.h
-> @@ -34,6 +34,8 @@ struct selabel_handle;
->  #define SELABEL_CTX_DB         3
->  /* Android property service contexts */
->  #define SELABEL_CTX_ANDROID_PROP 4
-> +/* Android service contexts */
-> +#define SELABEL_CTX_ANDROID_SERVICE 5
->
->  /*
->   * Available options
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 96a4ff1..eb0e766 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -45,6 +45,7 @@ static selabel_initfunc initfuncs[] = {
->         CONFIG_X_BACKEND(selabel_x_init),
->         CONFIG_DB_BACKEND(selabel_db_init),
->         &selabel_property_init,
-> +       &selabel_service_init,
->  };
->
->  static void selabel_subs_fini(struct selabel_sub *ptr)
-> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
-> index 290b438..4d6ec86 100644
-> --- a/libselinux/src/label_backends_android.c
-> +++ b/libselinux/src/label_backends_android.c
-> @@ -244,7 +244,7 @@ static void closef(struct selabel_handle *rec)
->         free(data);
->  }
->
-> -static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
-> +static struct selabel_lookup_rec *property_lookup(struct selabel_handle *rec,
->                                          const char *key,
->                                          int __attribute__((unused)) type)
->  {
-> @@ -279,6 +279,38 @@ finish:
->         return ret;
->  }
->
-> +static struct selabel_lookup_rec *service_lookup(struct selabel_handle *rec,
-> +               const char *key, int __attribute__((unused)) type)
-> +{
-> +       struct saved_data *data = (struct saved_data *)rec->data;
-> +       spec_t *spec_arr = data->spec_arr;
-> +       unsigned int i;
-> +       struct selabel_lookup_rec *ret = NULL;
-> +
-> +       if (!data->nspec) {
-> +               errno = ENOENT;
-> +               goto finish;
-> +       }
-> +
-> +       for (i = 0; i < data->nspec; i++) {
-> +               if (strcmp(spec_arr[i].property_key, key) == 0)
-> +                       break;
-> +               if (strcmp(spec_arr[i].property_key, "*") == 0)
-> +                       break;
-> +       }
-> +
-> +       if (i >= data->nspec) {
-> +               /* No matching specification. */
-> +               errno = ENOENT;
-> +               goto finish;
-> +       }
-> +
-> +       ret = &spec_arr[i].lr;
-> +
-> +finish:
-> +       return ret;
-> +}
-> +
->  static void stats(struct selabel_handle __attribute__((unused)) *rec)
->  {
->         selinux_log(SELINUX_WARNING, "'stats' functionality not implemented.\n");
-> @@ -298,7 +330,25 @@ int selabel_property_init(struct selabel_handle *rec,
->         rec->data = data;
->         rec->func_close = &closef;
->         rec->func_stats = &stats;
-> -       rec->func_lookup = &lookup;
-> +       rec->func_lookup = &property_lookup;
-> +
-> +       return init(rec, opts, nopts);
-> +}
-> +
-> +int selabel_service_init(struct selabel_handle *rec,
-> +               const struct selinux_opt *opts, unsigned nopts)
-> +{
-> +       struct saved_data *data;
-> +
-> +       data = (struct saved_data *)malloc(sizeof(*data));
-> +       if (!data)
-> +               return -1;
-> +       memset(data, 0, sizeof(*data));
-> +
-> +       rec->data = data;
-> +       rec->func_close = &closef;
-> +       rec->func_stats = &stats;
-> +       rec->func_lookup = &service_lookup;
->
->         return init(rec, opts, nopts);
->  }
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-> index 7c55531..6a9481a 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -39,6 +39,9 @@ int selabel_db_init(struct selabel_handle *rec,
->  int selabel_property_init(struct selabel_handle *rec,
->                             const struct selinux_opt *opts,
->                             unsigned nopts) hidden;
-> +int selabel_service_init(struct selabel_handle *rec,
-> +                           const struct selinux_opt *opts,
-> +                           unsigned nopts) hidden;
->
->  /*
->   * Labeling internal structures
-> diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel_digest.c
-> index 38162a5..e4d84a5 100644
-> --- a/libselinux/utils/selabel_digest.c
-> +++ b/libselinux/utils/selabel_digest.c
-> @@ -92,6 +92,8 @@ int main(int argc, char **argv)
->                                 backend = SELABEL_CTX_DB;
->                         } else if (!strcmp(optarg, "prop")) {
->                                 backend = SELABEL_CTX_ANDROID_PROP;
-> +                       } else if (!strcmp(optarg, "service")) {
-> +                               backend = SELABEL_CTX_ANDROID_SERVICE;
->                         } else {
->                                 fprintf(stderr, "Unknown backend: %s\n",
->                                                                     optarg);
-> diff --git a/libselinux/utils/selabel_lookup.c b/libselinux/utils/selabel_lookup.c
-> index d0b1457..b678a89 100644
-> --- a/libselinux/utils/selabel_lookup.c
-> +++ b/libselinux/utils/selabel_lookup.c
-> @@ -57,6 +57,8 @@ int main(int argc, char **argv)
->                                 backend = SELABEL_CTX_DB;
->                         } else if (!strcmp(optarg, "prop")) {
->                                 backend = SELABEL_CTX_ANDROID_PROP;
-> +                       } else if (!strcmp(optarg, "service")) {
-> +                               backend = SELABEL_CTX_ANDROID_SERVICE;
->                         } else {
->                                 fprintf(stderr, "Unknown backend: %s\n",
->                                                                     optarg);
-> --
-> 1.9.1
->
+Regards,
+Raj
+
+-----Original Message-----
+From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of Dominick Grift
+Sent: Thursday, September 29, 2016 12:46 AM
+To: selinux@tycho.nsa.gov
+Subject: Re: Question on restricting file access
+
+On 09/28/2016 09:05 PM, Raj Srinivasan wrote:
+> Hi,
+> 
+> I have just started with Selinux, and was trying (unsuccessfully) to restrict the sysadm role as my first exercise.
+> 
+> I am using RHEL 7.1, and running Selinux with the minimum configuration in enforcing mode.
+> 
+
+Hi, This is not the optimal list for reference policy related questions.
+refpolicy@oss.tresys.com is the list for reference policy
+
+> I have a user called "admin" with the context "sysadm_u:sysadm_r:sysadm_t:s0-s0:c0.c1023", and uid 1000. When I login as admin and use su to become root, the context still remains the same, as one would expect.
+> 
+> I created a simple policy to restrict the sysadm_r role for testing purposes, and was able to compile and load it.
+> 
+> policy_module(localpolicy, 1.0.0)
+> 
+> gen_require(`
+>   type sysadm_t;
+>   type sshd_key_t;
+> ')
+> 
+> allow sysadm_t sshd_key_t:file { create_file_perms write_file_perms };
+> 
+> The idea was to prevent the sysadm_r role from being able to read a file with the sshd_key_t type even if the uid is changed to root via the su command, by allowing "create" and "write" permissions, but not "read" permission.
+> 
+> I would appreciate it very much if anyone could let me know what I am missing, or if there is an easy way to troubleshoot. I tried to use the "neverallow" directive (with "read" permission) but after waiting for 10 minutes, the policy did not even load. I suspect there is some other rule in effect that grants read permission that I am not able to see using "sesearch -A".
+> 
+
+The above is not easily possible currently. This is mainly due to limitations of the module policy language and due the reference policy model
+
+SELinux is a denial-by-default access control framework. That means that access is denied unless it is explicitly allowed. In this case sysadm is explicitly allowed access to all non-auth files (https://github.com/TresysTechnology/refpolicy/blob/master/policy/modules/system/userdomain.if#L1233).
+Ideally you would have to start by removing that rule (if you wish to not break the reference policy model).
+
+In theory it should have been possible to remove the rule by replacing the userdomain module with a version that does not include the above rule (at a minimum). However this, i believe, is currently not possible due to aforementioned limitations, and if it would be possible then it would be hard to maintain over time.
+
+There is a new (intermediate) policy language that should make things like this possible, but it is not available in RHEL7 yet, and even when it becomes available then it still requires a policy written in a new additional high-level language that takes advantage of the new
+(intermediate) policy language to be able to take advantage of the features that it brings.
+
+The alternative would be to create a new set of rules and identifiers, possibly based on the existing sysadm set of rules and identifiers, that is then tailored to your specific requirements.
+
+The above is however a non-trivial task, and not easy to explain in a e-mail thread.
+
+My advice to you is:
+
+You are clearly interested in taking advantage of SELinux. It may be worth it for you to learn more about the SELinux framework, security models, and language(s).
+
+Once you have enough knowledge of the aforementioned then you will find how to achieve your goals, and you will be able to implement solutions for a wide array of access control requirements with SELinux
+
+> Thanks,
+> Raj
+> 
+> 
+> 
+> 
 > _______________________________________________
 > Selinux mailing list
 > Selinux@tycho.nsa.gov
 > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
 > To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> 
 
 
-
--- 
-Respectfully,
-
-William C Roberts
+--
+Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Dominick Grift
