@@ -1,335 +1,661 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TBP7OT024942
- for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 07:25:07 -0400
-Received: by mail-it0-f67.google.com with SMTP id x192so4472581itb.0
- for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 04:24:58 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <c5f03c00-fbad-fe5b-cbb0-330f0fbe7329@m4x.org>
-References: <20160928205708.14686-1-nicolas.iooss@m4x.org>
- <CAFftDdryDVqUhm8YagFQKw5zOXFSjy4GWjPfgCy+NS7zD_Mx0Q@mail.gmail.com>
- <049bd4f3-74d6-f460-b703-8135100f2f33@m4x.org>
- <CAFftDdqsoqPgc9zk8YhcdLEQyGzNd2Q86Fhy6o=WQ5RprtTccQ@mail.gmail.com>
- <c5f03c00-fbad-fe5b-cbb0-330f0fbe7329@m4x.org>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 29 Sep 2016 07:24:56 -0400
-Message-ID: <CAFftDdrrCsRSFxP4EMaUTufdS59xjHjPZrzknCGFSbpc=uLwwA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] libsepol/cil: do not heap-overflow when too many
- permissions are in a class
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a1143ee8e4240d5053da3bacf
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8TBdVHk026058
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 07:39:33 -0400
+Received: by mail-wm0-f44.google.com with SMTP id w72so21346375wmf.1
+ for <selinux@tycho.nsa.gov>; Thu, 29 Sep 2016 04:39:26 -0700 (PDT)
+From: Janis Danisevskis <jdanis@android.com>
+To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov,
+ jwcart2@tycho.nsa.gov
+Cc: Janis Danisevskis <jdanis@android.com>
+Subject: [PATCH 1/3] libselinux: renamed andriod label backend source file
+Date: Thu, 29 Sep 2016 12:39:17 +0100
+Message-Id: <1475149159-21757-1-git-send-email-jdanis@android.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1143ee8e4240d5053da3bacf
-Content-Type: text/plain; charset=UTF-8
+Signed-off-by: Janis Danisevskis <jdanis@android.com>
+---
+ libselinux/src/Makefile                 |   2 +-
+ libselinux/src/label_android_property.c | 304 --------------------------------
+ libselinux/src/label_backends_android.c | 304 ++++++++++++++++++++++++++++++++
+ 3 files changed, 305 insertions(+), 305 deletions(-)
+ delete mode 100644 libselinux/src/label_android_property.c
+ create mode 100644 libselinux/src/label_backends_android.c
 
-On Sep 29, 2016 01:44, "Nicolas Iooss" <nicolas.iooss@m4x.org> wrote:
->
-> On 29/09/16 00:44, William Roberts wrote:
-> > On Wed, Sep 28, 2016 at 5:34 PM, Nicolas Iooss <nicolas.iooss@m4x.org>
-wrote:
-> >> On 28/09/16 23:06, William Roberts wrote:
-> >>> On Sep 28, 2016 17:02, "Nicolas Iooss" <nicolas.iooss@m4x.org
-> >>> <mailto:nicolas.iooss@m4x.org>> wrote:
-> >>>>
-> >>>> When compiling a CIL policy with more than 32 items in a class (e.g.
-in
-> >>>> (class capability (chown ...)) with many items),
-> >>>> cil_classorder_to_policydb() overflows perm_value_to_cil[class_index]
-> >>>> array. As this array is allocated on the heap through
-> >>>> calloc(PERMS_PER_CLASS+1, sizeof(...)), this makes secilc crash with
-the
-> >>>> following message:
-> >>>>
-> >>>>     *** Error in `/usr/bin/secilc': double free or corruption
-(!prev):
-> >>> 0x000000000062be80 ***
-> >>>>     ======= Backtrace: =========
-> >>>>     /usr/lib/libc.so.6(+0x70c4b)[0x7ffff76a7c4b]
-> >>>>     /usr/lib/libc.so.6(+0x76fe6)[0x7ffff76adfe6]
-> >>>>     /usr/lib/libc.so.6(+0x777de)[0x7ffff76ae7de]
-> >>>>     /lib/libsepol.so.1(+0x14fbda)[0x7ffff7b24bda]
-> >>>>     /lib/libsepol.so.1(+0x152db8)[0x7ffff7b27db8]
-> >>>>     /lib/libsepol.so.1(cil_build_policydb+0x63)[0x7ffff7af8723]
-> >>>>     /usr/bin/secilc[0x40273b]
-> >>>>     /usr/lib/libc.so.6(__libc_start_main+0xf1)[0x7ffff7657291]
-> >>>>     /usr/bin/secilc[0x402f7a]
-> >>>>
-> >>>> Fix this by detecting the overflow before adding new permissions to a
-> >>>> class.
-> >>>>
-> >>>> This bug has been found by fuzzing secilc with american fuzzy lop.
-> >>>>
-> >>>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org
-> >>> <mailto:nicolas.iooss@m4x.org>>
-> >>>> ---
-> >>>>  libsepol/cil/src/cil_binary.c | 15 +++++++++++++--
-> >>>>  1 file changed, 13 insertions(+), 2 deletions(-)
-> >>>>
-> >>>> diff --git a/libsepol/cil/src/cil_binary.c
-b/libsepol/cil/src/cil_binary.c
-> >>>> index cc73648ad1b7..d3b3e90df45b 100644
-> >>>> --- a/libsepol/cil/src/cil_binary.c
-> >>>> +++ b/libsepol/cil/src/cil_binary.c
-> >>>> @@ -332,6 +332,11 @@ int cil_classorder_to_policydb(policydb_t *pdb,
-> >>> const struct cil_db *db, struct
-> >>>>                                         goto exit;
-> >>>>                                 }
-> >>>>                         }
-> >>>> +                       if (sepol_class->permissions.nprim +
-> >>> sepol_common->permissions.nprim > PERMS_PER_CLASS) {
-> >>>> +                               cil_log(CIL_ERR, "Too many
-permissions
-> >>> in class '%s'\n", cil_class->datum.fqn);
-> >>>> +                               rc = SEPOL_ERR;
-> >>>> +                               goto exit;
-> >>>> +                       }
-> >>>>                         sepol_class->comdatum = sepol_common;
-> >>>>                         sepol_class->comkey = cil_strdup(key);
-> >>>>                         sepol_class->permissions.nprim +=
-> >>> sepol_common->permissions.nprim;
-> >>>> @@ -344,9 +349,15 @@ int cil_classorder_to_policydb(policydb_t *pdb,
-> >>> const struct cil_db *db, struct
-> >>>>
-> >>>>                 for (curr = NODE(cil_class)->cl_head; curr; curr =
-> >>> curr->next) {
-> >>>>                         struct cil_perm *cil_perm = curr->data;
-> >>>> -                       perm_datum_t *sepol_perm =
-> >>> cil_malloc(sizeof(*sepol_perm));
-> >>>> -                       memset(sepol_perm, 0, sizeof(perm_datum_t));
-> >>>> +                       perm_datum_t *sepol_perm;
-> >>>>
-> >>>> +                       if (sepol_class->permissions.nprim + 1 >
-> >>> PERMS_PER_CLASS)
-> >>>
-> >>> Is nprim input data? This could overflow here and be 0 right? You
-> >>> probably want to check if nprim is saturated assuming unsigned.
-> >>
-> >> I mostly read the code of cil_classorder_to_policydb() in the way it is
-> >> used in secilc: ...permissions.nprim is both the length of an array of
-> >> perm_value_to_cil[] (off one) and the length of a linked list of CIL
-> >> nodes. Therefore I did not consider the possibility of the addition to
-> >> overflow here, and afterwards I still fail to see how it could
-overflow.
-> >>
-> >> In case you want to reproduce the bug, please find attached the source
-> >> file I used (it is secilc/test/minimum.cil with 33 permissions defined
-> >> in the first class).
-> >>
-> >
-> > Its that both additions in that file, and the nprim++ statements are
-> > ripe for overflows.
-> >
-> > All those additions occur based on the inputs from source code.
-> > So, if you defined (uint32_t)~0 amount of classes, you should
-> > be able to hit an overflow. nprim itself is a uint32_t.
->
-> After a good night sleep I see now "rc =
-> symtab_init(&sepol_class->permissions, PERM_SYMTAB_SIZE);" in
-> cil_classorder_to_policydb(). This statement initializes
-> sepol_class->permissions.nprim with 0. Later nprim is incremented both
-> with sepol_common->permissions.nprim (which should be <= 32 and I will
-> add a check for this) and one. If I define (uint32_t)~0 permissions in a
-> CIL class object, I hit the if() when it crosses 32.
-
-OK if it's hitting that check after every increment then I dont think it
-can, that's what i wanted verification .
-
->
-> Is there a way to make nprim equals to a value which would overflow that
-> I am missing?
-
-Nothing
-
->
-> -- Nicolas
-
---001a1143ee8e4240d5053da3bacf
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"></p>
-<p dir=3D"ltr">On Sep 29, 2016 01:44, &quot;Nicolas Iooss&quot; &lt;<a href=
-=3D"mailto:nicolas.iooss@m4x.org">nicolas.iooss@m4x.org</a>&gt; wrote:<br>
-&gt;<br>
-&gt; On 29/09/16 00:44, William Roberts wrote:<br>
-&gt; &gt; On Wed, Sep 28, 2016 at 5:34 PM, Nicolas Iooss &lt;<a href=3D"mai=
-lto:nicolas.iooss@m4x.org">nicolas.iooss@m4x.org</a>&gt; wrote:<br>
-&gt; &gt;&gt; On 28/09/16 23:06, William Roberts wrote:<br>
-&gt; &gt;&gt;&gt; On Sep 28, 2016 17:02, &quot;Nicolas Iooss&quot; &lt;<a h=
-ref=3D"mailto:nicolas.iooss@m4x.org">nicolas.iooss@m4x.org</a><br>
-&gt; &gt;&gt;&gt; &lt;mailto:<a href=3D"mailto:nicolas.iooss@m4x.org">nicol=
-as.iooss@m4x.org</a>&gt;&gt; wrote:<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; When compiling a CIL policy with more than 32 items i=
-n a class (e.g. in<br>
-&gt; &gt;&gt;&gt;&gt; (class capability (chown ...)) with many items),<br>
-&gt; &gt;&gt;&gt;&gt; cil_classorder_to_policydb() overflows perm_value_to_=
-cil[class_index]<br>
-&gt; &gt;&gt;&gt;&gt; array. As this array is allocated on the heap through=
-<br>
-&gt; &gt;&gt;&gt;&gt; calloc(PERMS_PER_CLASS+1, sizeof(...)), this makes se=
-cilc crash with the<br>
-&gt; &gt;&gt;&gt;&gt; following message:<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0*** Error in `/usr/bin/secilc&#39;=
-: double free or corruption (!prev):<br>
-&gt; &gt;&gt;&gt; 0x000000000062be80 ***<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0=3D=3D=3D=3D=3D=3D=3D Backtrace: =
-=3D=3D=3D=3D=3D=3D=3D=3D=3D<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(+0x70c4b)[0x7ff=
-ff76a7c4b]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(+0x76fe6)[0x7ff=
-ff76adfe6]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(+0x777de)[0x7ff=
-ff76ae7de]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/lib/libsepol.so.1(+0x14fbda)[0x7f=
-fff7b24bda]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/lib/libsepol.so.1(+0x152db8)[0x7f=
-fff7b27db8]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/lib/libsepol.so.1(cil_build_polic=
-ydb+0x63)[0x7ffff7af8723]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/bin/secilc[0x40273b]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/lib/libc.so.6(__libc_start_ma=
-in+0xf1)[0x7ffff7657291]<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0/usr/bin/secilc[0x402f7a]<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; Fix this by detecting the overflow before adding new =
-permissions to a<br>
-&gt; &gt;&gt;&gt;&gt; class.<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; This bug has been found by fuzzing secilc with americ=
-an fuzzy lop.<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; Signed-off-by: Nicolas Iooss &lt;<a href=3D"mailto:ni=
-colas.iooss@m4x.org">nicolas.iooss@m4x.org</a><br>
-&gt; &gt;&gt;&gt; &lt;mailto:<a href=3D"mailto:nicolas.iooss@m4x.org">nicol=
-as.iooss@m4x.org</a>&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; ---<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 libsepol/cil/src/cil_binary.c | 15 ++++++++++++=
-+--<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 1 file changed, 13 insertions(+), 2 deletions(-=
-)<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; diff --git a/libsepol/cil/src/cil_binary.c b/libsepol=
-/cil/src/cil_binary.c<br>
-&gt; &gt;&gt;&gt;&gt; index cc73648ad1b7..d3b3e90df45b 100644<br>
-&gt; &gt;&gt;&gt;&gt; --- a/libsepol/cil/src/cil_binary.c<br>
-&gt; &gt;&gt;&gt;&gt; +++ b/libsepol/cil/src/cil_binary.c<br>
-&gt; &gt;&gt;&gt;&gt; @@ -332,6 +332,11 @@ int cil_classorder_to_policydb(p=
-olicydb_t *pdb,<br>
-&gt; &gt;&gt;&gt; const struct cil_db *db, struct<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 =C2=A0goto exit;<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (sepol_class-&gt;permissions.nprim +<br>
-&gt; &gt;&gt;&gt; sepol_common-&gt;permissions.nprim &gt; PERMS_PER_CLASS) =
-{<br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0cil_log(CIL_ERR,=
- &quot;Too many permissions<br>
-&gt; &gt;&gt;&gt; in class &#39;%s&#39;\n&quot;, cil_class-&gt;datum.fqn);<=
-br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0rc =3D SEPOL_ERR=
-;<br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0goto exit;<br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sepol_class-&gt;comdatum =3D sepol_co=
-mmon;<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sepol_class-&gt;comkey =3D cil_strdup=
-(key);<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sepol_class-&gt;permissions.nprim +=
-=3D<br>
-&gt; &gt;&gt;&gt; sepol_common-&gt;permissions.nprim;<br>
-&gt; &gt;&gt;&gt;&gt; @@ -344,9 +349,15 @@ int cil_classorder_to_policydb(p=
-olicydb_t *pdb,<br>
-&gt; &gt;&gt;&gt; const struct cil_db *db, struct<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0for (curr =3D NODE(cil_class)-&gt;cl_head; curr; curr =3D<br>
-&gt; &gt;&gt;&gt; curr-&gt;next) {<br>
-&gt; &gt;&gt;&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0struct cil_perm *cil_perm =3D curr-&g=
-t;data;<br>
-&gt; &gt;&gt;&gt;&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0perm_datum_t *sepol_perm =3D<br>
-&gt; &gt;&gt;&gt; cil_malloc(sizeof(*sepol_perm));<br>
-&gt; &gt;&gt;&gt;&gt; -=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0memset(sepol_perm, 0, sizeof(perm_datum_t));=
-<br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0perm_datum_t *sepol_perm;<br>
-&gt; &gt;&gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt;&gt; +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (sepol_class-&gt;permissions.nprim + 1 &g=
-t;<br>
-&gt; &gt;&gt;&gt; PERMS_PER_CLASS)<br>
-&gt; &gt;&gt;&gt;<br>
-&gt; &gt;&gt;&gt; Is nprim input data? This could overflow here and be 0 ri=
-ght? You<br>
-&gt; &gt;&gt;&gt; probably want to check if nprim is saturated assuming uns=
-igned.<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;&gt; I mostly read the code of cil_classorder_to_policydb() in the=
- way it is<br>
-&gt; &gt;&gt; used in secilc: ...permissions.nprim is both the length of an=
- array of<br>
-&gt; &gt;&gt; perm_value_to_cil[] (off one) and the length of a linked list=
- of CIL<br>
-&gt; &gt;&gt; nodes. Therefore I did not consider the possibility of the ad=
-dition to<br>
-&gt; &gt;&gt; overflow here, and afterwards I still fail to see how it coul=
-d overflow.<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;&gt; In case you want to reproduce the bug, please find attached t=
-he source<br>
-&gt; &gt;&gt; file I used (it is secilc/test/minimum.cil with 33 permission=
-s defined<br>
-&gt; &gt;&gt; in the first class).<br>
-&gt; &gt;&gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Its that both additions in that file, and the nprim++ statements =
-are<br>
-&gt; &gt; ripe for overflows.<br>
-&gt; &gt;<br>
-&gt; &gt; All those additions occur based on the inputs from source code.<b=
-r>
-&gt; &gt; So, if you defined (uint32_t)~0 amount of classes, you should<br>
-&gt; &gt; be able to hit an overflow. nprim itself is a uint32_t.<br>
-&gt;<br>
-&gt; After a good night sleep I see now &quot;rc =3D<br>
-&gt; symtab_init(&amp;sepol_class-&gt;permissions, PERM_SYMTAB_SIZE);&quot;=
- in<br>
-&gt; cil_classorder_to_policydb(). This statement initializes<br>
-&gt; sepol_class-&gt;permissions.nprim with 0. Later nprim is incremented b=
-oth<br>
-&gt; with sepol_common-&gt;permissions.nprim (which should be &lt;=3D 32 an=
-d I will<br>
-&gt; add a check for this) and one. If I define (uint32_t)~0 permissions in=
- a<br>
-&gt; CIL class object, I hit the if() when it crosses 32.</p>
-<p dir=3D"ltr">OK if it&#39;s hitting that check after every increment then=
- I dont think it can, that&#39;s what i wanted verification .</p>
-<p dir=3D"ltr">&gt;<br>
-&gt; Is there a way to make nprim equals to a value which would overflow th=
-at<br>
-&gt; I am missing?</p>
-<p dir=3D"ltr">Nothing</p>
-<p dir=3D"ltr">&gt;<br>
-&gt; -- Nicolas<br></p>
-
---001a1143ee8e4240d5053da3bacf--
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 2c61fad..cba8383 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -85,7 +85,7 @@ ifeq ($(ANDROID_HOST),y)
+ DISABLE_FLAGS+= -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
+ 	-DBUILD_HOST
+ SRCS= callbacks.c freecon.c label.c label_file.c \
+-	label_android_property.c regex.c label_support.c \
++	label_backends_android.c regex.c label_support.c \
+ 	matchpathcon.c setrans_client.c sha1.c
+ endif
+ 
+diff --git a/libselinux/src/label_android_property.c b/libselinux/src/label_android_property.c
+deleted file mode 100644
+index 290b438..0000000
+--- a/libselinux/src/label_android_property.c
++++ /dev/null
+@@ -1,304 +0,0 @@
+-/*
+- * Property Service contexts backend for labeling Android
+- * property keys
+- */
+-
+-#include <stdarg.h>
+-#include <string.h>
+-#include <ctype.h>
+-#include <errno.h>
+-#include <limits.h>
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include "callbacks.h"
+-#include "label_internal.h"
+-
+-/* A property security context specification. */
+-typedef struct spec {
+-	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
+-	char *property_key;		/* property key string */
+-} spec_t;
+-
+-/* Our stored configuration */
+-struct saved_data {
+-	/*
+-	 * The array of specifications is sorted for longest
+-	 * prefix match
+-	 */
+-	spec_t *spec_arr;
+-	unsigned int nspec;	/* total number of specifications */
+-};
+-
+-static int cmp(const void *A, const void *B)
+-{
+-	const struct spec *sp1 = A, *sp2 = B;
+-
+-	if (strncmp(sp1->property_key, "*", 1) == 0)
+-		return 1;
+-	if (strncmp(sp2->property_key, "*", 1) == 0)
+-		return -1;
+-
+-	size_t L1 = strlen(sp1->property_key);
+-	size_t L2 = strlen(sp2->property_key);
+-
+-	return (L1 < L2) - (L1 > L2);
+-}
+-
+-/*
+- * Warn about duplicate specifications.
+- */
+-static int nodups_specs(struct saved_data *data, const char *path)
+-{
+-	int rc = 0;
+-	unsigned int ii, jj;
+-	struct spec *curr_spec, *spec_arr = data->spec_arr;
+-
+-	for (ii = 0; ii < data->nspec; ii++) {
+-		curr_spec = &spec_arr[ii];
+-		for (jj = ii + 1; jj < data->nspec; jj++) {
+-			if (!strcmp(spec_arr[jj].property_key,
+-					    curr_spec->property_key)) {
+-				rc = -1;
+-				errno = EINVAL;
+-				if (strcmp(spec_arr[jj].lr.ctx_raw,
+-						    curr_spec->lr.ctx_raw)) {
+-					selinux_log
+-						(SELINUX_ERROR,
+-						 "%s: Multiple different specifications for %s  (%s and %s).\n",
+-						 path, curr_spec->property_key,
+-						 spec_arr[jj].lr.ctx_raw,
+-						 curr_spec->lr.ctx_raw);
+-				} else {
+-					selinux_log
+-						(SELINUX_ERROR,
+-						 "%s: Multiple same specifications for %s.\n",
+-						 path, curr_spec->property_key);
+-				}
+-			}
+-		}
+-	}
+-	return rc;
+-}
+-
+-static int process_line(struct selabel_handle *rec,
+-			const char *path, char *line_buf,
+-			int pass, unsigned lineno)
+-{
+-	int items;
+-	char *prop = NULL, *context = NULL;
+-	struct saved_data *data = (struct saved_data *)rec->data;
+-	spec_t *spec_arr = data->spec_arr;
+-	unsigned int nspec = data->nspec;
+-	const char *errbuf = NULL;
+-
+-	items = read_spec_entries(line_buf, &errbuf, 2, &prop, &context);
+-	if (items < 0) {
+-		items = errno;
+-		selinux_log(SELINUX_ERROR,
+-			"%s:  line %u error due to: %s\n", path,
+-			lineno, errbuf ?: strerror(errno));
+-		errno = items;
+-		return -1;
+-	}
+-
+-	if (items == 0)
+-		return items;
+-
+-	if (items != 2) {
+-		selinux_log(SELINUX_ERROR,
+-			    "%s:  line %u is missing fields\n", path,
+-			    lineno);
+-		free(prop);
+-		errno = EINVAL;
+-		return -1;
+-	}
+-
+-	if (pass == 0) {
+-		free(prop);
+-		free(context);
+-	} else if (pass == 1) {
+-		/* On the second pass, process and store the specification in spec. */
+-		spec_arr[nspec].property_key = prop;
+-		spec_arr[nspec].lr.ctx_raw = context;
+-
+-		if (rec->validating) {
+-			if (selabel_validate(rec, &spec_arr[nspec].lr) < 0) {
+-				selinux_log(SELINUX_ERROR,
+-					    "%s:  line %u has invalid context %s\n",
+-					    path, lineno, spec_arr[nspec].lr.ctx_raw);
+-				errno = EINVAL;
+-				return -1;
+-			}
+-		}
+-	}
+-
+-	data->nspec = ++nspec;
+-	return 0;
+-}
+-
+-static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+-		unsigned n)
+-{
+-	struct saved_data *data = (struct saved_data *)rec->data;
+-	const char *path = NULL;
+-	FILE *fp;
+-	char line_buf[BUFSIZ];
+-	unsigned int lineno, maxnspec, pass;
+-	int status = -1;
+-	struct stat sb;
+-
+-	/* Process arguments */
+-	while (n--)
+-		switch (opts[n].type) {
+-		case SELABEL_OPT_PATH:
+-			path = opts[n].value;
+-			break;
+-		}
+-
+-	if (!path)
+-		return -1;
+-
+-	/* Open the specification file. */
+-	if ((fp = fopen(path, "r")) == NULL)
+-		return -1;
+-
+-	if (fstat(fileno(fp), &sb) < 0)
+-		goto finish;
+-	errno = EINVAL;
+-	if (!S_ISREG(sb.st_mode))
+-		goto finish;
+-
+-	/*
+-	 * Two passes of the specification file. First is to get the size.
+-	 * After the first pass, the spec array is malloced to the appropriate
+-	 * size. Second pass is to populate the spec array and check for
+-	 * dups.
+-	 */
+-	maxnspec = UINT_MAX / sizeof(spec_t);
+-	for (pass = 0; pass < 2; pass++) {
+-		data->nspec = 0;
+-		lineno = 0;
+-
+-		while (fgets(line_buf, sizeof(line_buf) - 1, fp)
+-		       && data->nspec < maxnspec) {
+-			if (process_line(rec, path, line_buf, pass, ++lineno)
+-									  != 0)
+-				goto finish;
+-		}
+-
+-		if (pass == 1) {
+-			status = nodups_specs(data, path);
+-
+-			if (status)
+-				goto finish;
+-		}
+-
+-		if (pass == 0) {
+-			if (data->nspec == 0) {
+-				status = 0;
+-				goto finish;
+-			}
+-
+-			if (NULL == (data->spec_arr =
+-				     malloc(sizeof(spec_t) * data->nspec)))
+-				goto finish;
+-
+-			memset(data->spec_arr, 0, sizeof(spec_t) * data->nspec);
+-			maxnspec = data->nspec;
+-			rewind(fp);
+-		}
+-	}
+-
+-	qsort(data->spec_arr, data->nspec, sizeof(struct spec), cmp);
+-
+-	status = digest_add_specfile(rec->digest, fp, NULL, sb.st_size, path);
+-	if (status)
+-		goto finish;
+-
+-	digest_gen_hash(rec->digest);
+-
+-finish:
+-	fclose(fp);
+-	return status;
+-}
+-
+-/*
+- * Backend interface routines
+- */
+-static void closef(struct selabel_handle *rec)
+-{
+-	struct saved_data *data = (struct saved_data *)rec->data;
+-	struct spec *spec;
+-	unsigned int i;
+-
+-	for (i = 0; i < data->nspec; i++) {
+-		spec = &data->spec_arr[i];
+-		free(spec->property_key);
+-		free(spec->lr.ctx_raw);
+-		free(spec->lr.ctx_trans);
+-	}
+-
+-	if (data->spec_arr)
+-		free(data->spec_arr);
+-
+-	free(data);
+-}
+-
+-static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+-					 const char *key,
+-					 int __attribute__((unused)) type)
+-{
+-	struct saved_data *data = (struct saved_data *)rec->data;
+-	spec_t *spec_arr = data->spec_arr;
+-	unsigned int i;
+-	struct selabel_lookup_rec *ret = NULL;
+-
+-	if (!data->nspec) {
+-		errno = ENOENT;
+-		goto finish;
+-	}
+-
+-	for (i = 0; i < data->nspec; i++) {
+-		if (strncmp(spec_arr[i].property_key, key,
+-			    strlen(spec_arr[i].property_key)) == 0) {
+-			break;
+-		}
+-		if (strncmp(spec_arr[i].property_key, "*", 1) == 0)
+-			break;
+-	}
+-
+-	if (i >= data->nspec) {
+-		/* No matching specification. */
+-		errno = ENOENT;
+-		goto finish;
+-	}
+-
+-	ret = &spec_arr[i].lr;
+-
+-finish:
+-	return ret;
+-}
+-
+-static void stats(struct selabel_handle __attribute__((unused)) *rec)
+-{
+-	selinux_log(SELINUX_WARNING, "'stats' functionality not implemented.\n");
+-}
+-
+-int selabel_property_init(struct selabel_handle *rec,
+-			  const struct selinux_opt *opts,
+-			  unsigned nopts)
+-{
+-	struct saved_data *data;
+-
+-	data = (struct saved_data *)malloc(sizeof(*data));
+-	if (!data)
+-		return -1;
+-	memset(data, 0, sizeof(*data));
+-
+-	rec->data = data;
+-	rec->func_close = &closef;
+-	rec->func_stats = &stats;
+-	rec->func_lookup = &lookup;
+-
+-	return init(rec, opts, nopts);
+-}
+diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
+new file mode 100644
+index 0000000..290b438
+--- /dev/null
++++ b/libselinux/src/label_backends_android.c
+@@ -0,0 +1,304 @@
++/*
++ * Property Service contexts backend for labeling Android
++ * property keys
++ */
++
++#include <stdarg.h>
++#include <string.h>
++#include <ctype.h>
++#include <errno.h>
++#include <limits.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include "callbacks.h"
++#include "label_internal.h"
++
++/* A property security context specification. */
++typedef struct spec {
++	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
++	char *property_key;		/* property key string */
++} spec_t;
++
++/* Our stored configuration */
++struct saved_data {
++	/*
++	 * The array of specifications is sorted for longest
++	 * prefix match
++	 */
++	spec_t *spec_arr;
++	unsigned int nspec;	/* total number of specifications */
++};
++
++static int cmp(const void *A, const void *B)
++{
++	const struct spec *sp1 = A, *sp2 = B;
++
++	if (strncmp(sp1->property_key, "*", 1) == 0)
++		return 1;
++	if (strncmp(sp2->property_key, "*", 1) == 0)
++		return -1;
++
++	size_t L1 = strlen(sp1->property_key);
++	size_t L2 = strlen(sp2->property_key);
++
++	return (L1 < L2) - (L1 > L2);
++}
++
++/*
++ * Warn about duplicate specifications.
++ */
++static int nodups_specs(struct saved_data *data, const char *path)
++{
++	int rc = 0;
++	unsigned int ii, jj;
++	struct spec *curr_spec, *spec_arr = data->spec_arr;
++
++	for (ii = 0; ii < data->nspec; ii++) {
++		curr_spec = &spec_arr[ii];
++		for (jj = ii + 1; jj < data->nspec; jj++) {
++			if (!strcmp(spec_arr[jj].property_key,
++					    curr_spec->property_key)) {
++				rc = -1;
++				errno = EINVAL;
++				if (strcmp(spec_arr[jj].lr.ctx_raw,
++						    curr_spec->lr.ctx_raw)) {
++					selinux_log
++						(SELINUX_ERROR,
++						 "%s: Multiple different specifications for %s  (%s and %s).\n",
++						 path, curr_spec->property_key,
++						 spec_arr[jj].lr.ctx_raw,
++						 curr_spec->lr.ctx_raw);
++				} else {
++					selinux_log
++						(SELINUX_ERROR,
++						 "%s: Multiple same specifications for %s.\n",
++						 path, curr_spec->property_key);
++				}
++			}
++		}
++	}
++	return rc;
++}
++
++static int process_line(struct selabel_handle *rec,
++			const char *path, char *line_buf,
++			int pass, unsigned lineno)
++{
++	int items;
++	char *prop = NULL, *context = NULL;
++	struct saved_data *data = (struct saved_data *)rec->data;
++	spec_t *spec_arr = data->spec_arr;
++	unsigned int nspec = data->nspec;
++	const char *errbuf = NULL;
++
++	items = read_spec_entries(line_buf, &errbuf, 2, &prop, &context);
++	if (items < 0) {
++		items = errno;
++		selinux_log(SELINUX_ERROR,
++			"%s:  line %u error due to: %s\n", path,
++			lineno, errbuf ?: strerror(errno));
++		errno = items;
++		return -1;
++	}
++
++	if (items == 0)
++		return items;
++
++	if (items != 2) {
++		selinux_log(SELINUX_ERROR,
++			    "%s:  line %u is missing fields\n", path,
++			    lineno);
++		free(prop);
++		errno = EINVAL;
++		return -1;
++	}
++
++	if (pass == 0) {
++		free(prop);
++		free(context);
++	} else if (pass == 1) {
++		/* On the second pass, process and store the specification in spec. */
++		spec_arr[nspec].property_key = prop;
++		spec_arr[nspec].lr.ctx_raw = context;
++
++		if (rec->validating) {
++			if (selabel_validate(rec, &spec_arr[nspec].lr) < 0) {
++				selinux_log(SELINUX_ERROR,
++					    "%s:  line %u has invalid context %s\n",
++					    path, lineno, spec_arr[nspec].lr.ctx_raw);
++				errno = EINVAL;
++				return -1;
++			}
++		}
++	}
++
++	data->nspec = ++nspec;
++	return 0;
++}
++
++static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
++		unsigned n)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	const char *path = NULL;
++	FILE *fp;
++	char line_buf[BUFSIZ];
++	unsigned int lineno, maxnspec, pass;
++	int status = -1;
++	struct stat sb;
++
++	/* Process arguments */
++	while (n--)
++		switch (opts[n].type) {
++		case SELABEL_OPT_PATH:
++			path = opts[n].value;
++			break;
++		}
++
++	if (!path)
++		return -1;
++
++	/* Open the specification file. */
++	if ((fp = fopen(path, "r")) == NULL)
++		return -1;
++
++	if (fstat(fileno(fp), &sb) < 0)
++		goto finish;
++	errno = EINVAL;
++	if (!S_ISREG(sb.st_mode))
++		goto finish;
++
++	/*
++	 * Two passes of the specification file. First is to get the size.
++	 * After the first pass, the spec array is malloced to the appropriate
++	 * size. Second pass is to populate the spec array and check for
++	 * dups.
++	 */
++	maxnspec = UINT_MAX / sizeof(spec_t);
++	for (pass = 0; pass < 2; pass++) {
++		data->nspec = 0;
++		lineno = 0;
++
++		while (fgets(line_buf, sizeof(line_buf) - 1, fp)
++		       && data->nspec < maxnspec) {
++			if (process_line(rec, path, line_buf, pass, ++lineno)
++									  != 0)
++				goto finish;
++		}
++
++		if (pass == 1) {
++			status = nodups_specs(data, path);
++
++			if (status)
++				goto finish;
++		}
++
++		if (pass == 0) {
++			if (data->nspec == 0) {
++				status = 0;
++				goto finish;
++			}
++
++			if (NULL == (data->spec_arr =
++				     malloc(sizeof(spec_t) * data->nspec)))
++				goto finish;
++
++			memset(data->spec_arr, 0, sizeof(spec_t) * data->nspec);
++			maxnspec = data->nspec;
++			rewind(fp);
++		}
++	}
++
++	qsort(data->spec_arr, data->nspec, sizeof(struct spec), cmp);
++
++	status = digest_add_specfile(rec->digest, fp, NULL, sb.st_size, path);
++	if (status)
++		goto finish;
++
++	digest_gen_hash(rec->digest);
++
++finish:
++	fclose(fp);
++	return status;
++}
++
++/*
++ * Backend interface routines
++ */
++static void closef(struct selabel_handle *rec)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	struct spec *spec;
++	unsigned int i;
++
++	for (i = 0; i < data->nspec; i++) {
++		spec = &data->spec_arr[i];
++		free(spec->property_key);
++		free(spec->lr.ctx_raw);
++		free(spec->lr.ctx_trans);
++	}
++
++	if (data->spec_arr)
++		free(data->spec_arr);
++
++	free(data);
++}
++
++static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
++					 const char *key,
++					 int __attribute__((unused)) type)
++{
++	struct saved_data *data = (struct saved_data *)rec->data;
++	spec_t *spec_arr = data->spec_arr;
++	unsigned int i;
++	struct selabel_lookup_rec *ret = NULL;
++
++	if (!data->nspec) {
++		errno = ENOENT;
++		goto finish;
++	}
++
++	for (i = 0; i < data->nspec; i++) {
++		if (strncmp(spec_arr[i].property_key, key,
++			    strlen(spec_arr[i].property_key)) == 0) {
++			break;
++		}
++		if (strncmp(spec_arr[i].property_key, "*", 1) == 0)
++			break;
++	}
++
++	if (i >= data->nspec) {
++		/* No matching specification. */
++		errno = ENOENT;
++		goto finish;
++	}
++
++	ret = &spec_arr[i].lr;
++
++finish:
++	return ret;
++}
++
++static void stats(struct selabel_handle __attribute__((unused)) *rec)
++{
++	selinux_log(SELINUX_WARNING, "'stats' functionality not implemented.\n");
++}
++
++int selabel_property_init(struct selabel_handle *rec,
++			  const struct selinux_opt *opts,
++			  unsigned nopts)
++{
++	struct saved_data *data;
++
++	data = (struct saved_data *)malloc(sizeof(*data));
++	if (!data)
++		return -1;
++	memset(data, 0, sizeof(*data));
++
++	rec->data = data;
++	rec->func_close = &closef;
++	rec->func_stats = &stats;
++	rec->func_lookup = &lookup;
++
++	return init(rec, opts, nopts);
++}
+-- 
+1.9.1
