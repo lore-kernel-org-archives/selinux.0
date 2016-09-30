@@ -1,32 +1,91 @@
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8UHtZm9017029
+ for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2016 13:55:35 -0400
+To: SELinux <selinux@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: richard_c_haines@btinternet.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] policycoreutils: setfiles: make -I imply -D
-Date: Fri, 30 Sep 2016 12:13:35 -0400
-Message-Id: <1475252015-17100-1-git-send-email-sds@tycho.nsa.gov>
+Subject: ANN: SELinux userspace 2.6-rc1 release
+Message-ID: <cec13581-f719-24cb-c7a3-ed239a6288c0@tycho.nsa.gov>
+Date: Fri, 30 Sep 2016 13:57:53 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
--I only makes sense if we are also enabling digests.
+A release candidate for the SELinux userspace is now available at:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- policycoreutils/setfiles/setfiles.c | 1 +
- 1 file changed, 1 insertion(+)
+Please give it a test and let us know if there are any issues.
 
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 22eba0f..1a2d711 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -279,6 +279,7 @@ int main(int argc, char **argv)
- 		case 'I': /* Force label check by ignoring directory digest. */
- 			r_opts.ignore_digest =
- 					   SELINUX_RESTORECON_IGNORE_DIGEST;
-+			request_digest = 1;
- 			break;
- 		case 'D': /*
- 			   * Request file_contexts digest in selabel_open
--- 
-2.7.4
+Below are some notes on this release for packagers of the SELinux
+userspace.  Please see the individual ChangeLog files for a detailed
+list of changes.
+
+1) sepolicy converted to setools4:
+- sepolicy and its users now depend on setools4 instead of setools3.
+
+- Please convert any remaining users of setools3 to setools4 since
+setools3 is no longer being developed.
+
+2) genhomedircon enhancements and behavior changes:
+- genhomedircon supports the %{USERID} template for substituting the
+user's uid. %{USERNAME} has also been added as a new template for
+substituting the user's username.  The USER template is still supported
+for backward compatibility but is deprecated.
+
+- genhomedircon supports generating home directory contexts for login
+mappings using the %group syntax.  This may produce an error if the user
+belongs to multiple groups specified in the login mapping, which can be
+resolved by adding an explicit mapping for the user to override the
+group-based mapping.
+
+- genhomedircon will fully replace the SELinux user and range fields in
+each templated security context rather than only substituting for the
+hardcoded strings "system_u" and "s0".  As a side effect, genhomedircon
+no longer has special handling of "system_u" and will therefore trigger
+a warning if there is a "system_u" entry in seusers:
+    libsemanage.add_user: user system_u not in password file
+This warning is not fatal, but it would be preferable to remove system_u
+from the seusers file.
+See https://bugzilla.redhat.com/show_bug.cgi?id=1378204
+
+- genhomedircon will generate entries for logins mapped to the default
+user.  Previously no entries were generated for such logins, which could
+lead to no matching file_contexts.homedirs entries for users with home
+directories outside of LU_HOMEDIRECTORY in the absence of usepasswd=True.
+
+3) libselinux pcre2 support:
+- libselinux supports either pcre1 or pcre2 but not both at the same
+time. The default remains pcre1.
+
+- To use pcre2, build libselinux and sefcontext_compile with 'make
+USE_PCRE2=y". You must also rebuild your file_contexts.bin files with
+the rebuilt sefcontext_compile.
+
+- With pcre2, file_contexts.bin is no longer architecture-neutral. The
+relevant architecture properties are endianness, pointer width, and
+PCRE2_SIZE type.  libselinux will automatically detect an architecture
+mismatch and ignore the stored precompiled regexes in that case,
+recompiling them instead at runtime.  sefcontext_compile -i will report
+the pcre version and architecture strings that it will include in the
+file_contexts.bin file.
+
+- With pcre2, file_contexts.bin is substantially larger than for pcre1.
+With the Fedora policy, we see the following sizes:
+383165	file_contexts (text)
+1507941 file_contexts.bin (binary with pcre1 regexes)
+8304105 file_contexts.bin (binary with pcre2 regexes)
+
+- If you know that you will be generating file_contexts.bin for a target
+with a different architecture string or if you do not wish to pay the
+additional storage cost, you can use the -r option to sefcontext_compile
+to omit the compiled regexes.
+With the Fedora policy, this yields a much smaller file:
+540540 file_contexts.bin (binary omitting pcre2 regexes)
+You can make this the default when libsemanage invokes
+sefcontext_compile by adding the following stanza to semanage.conf:
+[sefcontext_compile]
+path = /usr/sbin/sefcontext_compile
+args = -r $@
+[end]
