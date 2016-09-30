@@ -1,91 +1,103 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8UHtZm9017029
- for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2016 13:55:35 -0400
-To: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: ANN: SELinux userspace 2.6-rc1 release
-Message-ID: <cec13581-f719-24cb-c7a3-ed239a6288c0@tycho.nsa.gov>
-Date: Fri, 30 Sep 2016 13:57:53 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u8UJxwOR030899
+ for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2016 15:59:58 -0400
+Received: by mail-ua0-f174.google.com with SMTP id v7so29413899uaa.0
+ for <selinux@tycho.nsa.gov>; Fri, 30 Sep 2016 12:59:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20160929224146.GE27229@obsidianresearch.com>
+References: <20160830184633.GE7586@obsidianresearch.com>
+ <VI1PR0501MB2429992B1165DFADC6A6C35AC4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160830185548.GA9768@obsidianresearch.com>
+ <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <20160901163418.GA6479@obsidianresearch.com>
+ <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
+ <20160906200221.GE28416@obsidianresearch.com>
+ <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
+ <VI1PR0501MB24299E036F1FCD335A2C2049C4C80@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+ <CAHC9VhShCgxonV1rN-J7LyezamzZtKNZ1SR7ywnTB9Kgia_u1w@mail.gmail.com>
+ <20160929224146.GE27229@obsidianresearch.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 30 Sep 2016 15:59:55 -0400
+Message-ID: <CAHC9VhTBW9VsMHag41x1GWUbwPQeLngi8_iq9CPuQ=UMxDebkg@mail.gmail.com>
+Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
+To: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+Cc: Daniel Jurgens <danielj@mellanox.com>, Leon Romanovsky <leon@kernel.org>,
+ "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A release candidate for the SELinux userspace is now available at:
-https://github.com/SELinuxProject/selinux/wiki/Releases
+On Thu, Sep 29, 2016 at 6:41 PM, Jason Gunthorpe
+<jgunthorpe@obsidianresearch.com> wrote:
+> On Thu, Sep 29, 2016 at 06:16:03PM -0400, Paul Moore wrote:
+>> The queue pair (QP) concept lives in the RDMA layer and isn't tied to
+>> any particular transport.  They appear to be somewhat analogous to
+>> network sockets, although I'm guessing they can't be shared/passed
+>> between process like a network socket, yes?
+>
+> Yes
 
-Please give it a test and let us know if there are any issues.
+Okay, that should make life easier.
 
-Below are some notes on this release for packagers of the SELinux
-userspace.  Please see the individual ChangeLog files for a detailed
-list of changes.
+>> The IB partition is similar to a ethernet VLAN in that it providedes
+>> enforced separation across the network; IB uses partition keys, VLANs
+>> use tags/IDs.  IB partition keys are a 16 bit number,
+>
+>> GIDs appear to be a 16 byte number created from some combination of
+>> IP address, MAC address, and VLAN ID.
+>
+> There are several gid formats
+>
+> IB/OPA: 128 bit IPv6 address
+> RoCEv1: Sort of a link local IPv6 (?), vlan is specified directly
+>         by apps
+> RoCEv2: Some sort of label that also implies a vlan tag
 
-1) sepolicy converted to setools4:
-- sepolicy and its users now depend on setools4 instead of setools3.
+Thanks for the extra information, but at this point I don't think the
+exact format is important; I'm just trying to get a basic
+understanding of what we might need to do.
 
-- Please convert any remaining users of setools3 to setools4 since
-setools3 is no longer being developed.
+> We also have iwarp vs rocee where AFAIK iwarp should get the vlan tag
+> from the IP socket that is allocated against the eth interface.
 
-2) genhomedircon enhancements and behavior changes:
-- genhomedircon supports the %{USERID} template for substituting the
-user's uid. %{USERNAME} has also been added as a new template for
-substituting the user's username.  The USER template is still supported
-for backward compatibility but is deprecated.
+Sigh.
 
-- genhomedircon supports generating home directory contexts for login
-mappings using the %group syntax.  This may produce an error if the user
-belongs to multiple groups specified in the login mapping, which can be
-resolved by adding an explicit mapping for the user to override the
-group-based mapping.
+So we've got RDMA over IB (does this have an acronym?  my googling
+isn't showing anything ...), RoCEv1 which appears to be RDMA over
+Ethernet (although it looks like it might still use an IP header?),
+RoCEv2 which appears to be RDMA over UDP, and iWARP which seems to be
+RDMA over TCP/SCTP.  Are there any others?
 
-- genhomedircon will fully replace the SELinux user and range fields in
-each templated security context rather than only substituting for the
-hardcoded strings "system_u" and "s0".  As a side effect, genhomedircon
-no longer has special handling of "system_u" and will therefore trigger
-a warning if there is a "system_u" entry in seusers:
-    libsemanage.add_user: user system_u not in password file
-This warning is not fatal, but it would be preferable to remove system_u
-from the seusers file.
-See https://bugzilla.redhat.com/show_bug.cgi?id=1378204
+We've already talked about the RDMA/IB's pkeys and RoCEv1's GID/VLANs,
+but RoCEv2 and iWARP are a little more interesting as they ride on top
+of a routable network transport.  Do RoCEv2 and iWARP use the kernel's
+stack, or is that off-loaded?  Actually, now that I think of it,
+RoCEv2 and iWARP are probably implemented as userspace libraries
+aren't they?  The kernel probably doesn't know or care about these
+protocols at all, or does it?
 
-- genhomedircon will generate entries for logins mapped to the default
-user.  Previously no entries were generated for such logins, which could
-lead to no matching file_contexts.homedirs entries for users with home
-directories outside of LU_HOMEDIRECTORY in the absence of usepasswd=True.
+>> In the case of RDMA over IB, we want to control QP access to
+>> partitions/pkeys; in the case of RDMA over ethernet we want to control
+>> QP access to VLANs/GIDs.
+>
+> Broadly, yes, and I don't know what restriction iwarp would
+> need. Probably restrict access based on the eth device, but that will
+> probably need additional selinux checking in the rdma core.
+>
+> There are also UD QPs which are like UDP sockets, so every address
+> handle creation will need a security check too.
 
-3) libselinux pcre2 support:
-- libselinux supports either pcre1 or pcre2 but not both at the same
-time. The default remains pcre1.
-
-- To use pcre2, build libselinux and sefcontext_compile with 'make
-USE_PCRE2=y". You must also rebuild your file_contexts.bin files with
-the rebuilt sefcontext_compile.
-
-- With pcre2, file_contexts.bin is no longer architecture-neutral. The
-relevant architecture properties are endianness, pointer width, and
-PCRE2_SIZE type.  libselinux will automatically detect an architecture
-mismatch and ignore the stored precompiled regexes in that case,
-recompiling them instead at runtime.  sefcontext_compile -i will report
-the pcre version and architecture strings that it will include in the
-file_contexts.bin file.
-
-- With pcre2, file_contexts.bin is substantially larger than for pcre1.
-With the Fedora policy, we see the following sizes:
-383165	file_contexts (text)
-1507941 file_contexts.bin (binary with pcre1 regexes)
-8304105 file_contexts.bin (binary with pcre2 regexes)
-
-- If you know that you will be generating file_contexts.bin for a target
-with a different architecture string or if you do not wish to pay the
-additional storage cost, you can use the -r option to sefcontext_compile
-to omit the compiled regexes.
-With the Fedora policy, this yields a much smaller file:
-540540 file_contexts.bin (binary omitting pcre2 regexes)
-You can make this the default when libsemanage invokes
-sefcontext_compile by adding the following stanza to semanage.conf:
-[sefcontext_compile]
-path = /usr/sbin/sefcontext_compile
-args = -r $@
-[end]
+-- 
+paul moore
+www.paul-moore.com
