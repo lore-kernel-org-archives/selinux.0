@@ -1,106 +1,48 @@
-Date: Fri, 30 Sep 2016 14:46:05 -0600
-From: Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Daniel Jurgens <danielj@mellanox.com>, Leon Romanovsky <leon@kernel.org>,
- "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- "dledford@redhat.com" <dledford@redhat.com>,
- "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: Re: [PATCH v3 0/9] SELinux support for Infiniband RDMA
-Message-ID: <20160930204605.GC5722@obsidianresearch.com>
-References: <20160830185548.GA9768@obsidianresearch.com>
- <VI1PR0501MB242974DEE5E0BF2FFE3A5DA0C4E00@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <20160901163418.GA6479@obsidianresearch.com>
- <CAHC9VhR-u-ZXMeLkZL7y3=DJP5XaH7CxcZ=b5z67wVwhaPcUhQ@mail.gmail.com>
- <20160906200221.GE28416@obsidianresearch.com>
- <CAHC9VhRXDMiK5V0rOQTvtZB0Q8jTX7XecGmAfRhm8oqF9aBaiw@mail.gmail.com>
- <VI1PR0501MB24299E036F1FCD335A2C2049C4C80@VI1PR0501MB2429.eurprd05.prod.outlook.com>
- <CAHC9VhShCgxonV1rN-J7LyezamzZtKNZ1SR7ywnTB9Kgia_u1w@mail.gmail.com>
- <20160929224146.GE27229@obsidianresearch.com>
- <CAHC9VhTBW9VsMHag41x1GWUbwPQeLngi8_iq9CPuQ=UMxDebkg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhTBW9VsMHag41x1GWUbwPQeLngi8_iq9CPuQ=UMxDebkg@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u924FLHm011646
+ for <selinux@tycho.nsa.gov>; Sun, 2 Oct 2016 00:15:21 -0400
+Received: by mail-pf0-f195.google.com with SMTP id t25so1521717pfg.2
+ for <selinux@tycho.nsa.gov>; Sat, 01 Oct 2016 21:15:19 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/2] libselinux: versioned ruby pkg-config and query
+ vendorarchdir properly
+Date: Sun,  2 Oct 2016 12:15:13 +0800
+Message-Id: <1475381714-9906-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Sep 30, 2016 at 03:59:55PM -0400, Paul Moore wrote:
-> > We also have iwarp vs rocee where AFAIK iwarp should get the vlan tag
-> > from the IP socket that is allocated against the eth interface.
-> 
-> Sigh.
-> 
-> So we've got RDMA over IB (does this have an acronym?  my googling
+Gentoo and Arch have pkg-config entries for "ruby-$(RUBYLIBVER)" but not
+for "ruby". Check if that exists first then fall back to plain ruby if
+it does not.
 
-We just call that IB
+The ruby install paths were incorrect. Fedora 20 installed to
+/usr/lib64/ruby/vendor_ruby/, Arch needs it to be vendor_ruby as well,
+site_ruby does not work. Thanks to Nicolas Iooss for the correct way to
+query for the path.
 
-> isn't showing anything ...), RoCEv1 which appears to be RDMA over
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ libselinux/src/Makefile | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Technically (IIRC) RoCEv1 is exactly the IB protocol with an ethernet
-MAC header tacked in front. It even has a slot for a pkey value, but
-no switches will inspect it.
-
-> Ethernet (although it looks like it might still use an IP header?),
-
-The 'IP' header is a IB GRH which is identical to a IPv6 header. We
-call the IPv6 address in this header a GID.
-
-> RoCEv2 which appears to be RDMA over UDP, and iWARP which seems to be
-> RDMA over TCP/SCTP.  Are there any others?
-
-RoCEv2 is the IB protocol with a UDP header added in.
-
-iWARP is a unique protocol that runs RDMA inside TCP.
-
-> We've already talked about the RDMA/IB's pkeys and RoCEv1's GID/VLANs,
-> but RoCEv2 and iWARP are a little more interesting as they ride on top
-> of a routable network transport.  Do RoCEv2 and iWARP use the kernel's
-> stack, or is that off-loaded?
-
-Gernally all off-loaded. There is one software implementation but it
-is not used for anything serious. Well, maybe two IB drivers don't
-offload this, I'm not sure.
-
-> Actually, now that I think of it, RoCEv2 and iWARP are probably
-> implemented as userspace libraries aren't they?
-
-Nope, there is a userspace library component, but the kernel is
-largely in charge. They are sort of distinct from the netstack, but
-part of the RDMA stack. It is very confusing because netdev is
-ideologically opposed (for good reason) to any form of offload, so
-even though these devices use the same physical network port, and use
-IP headers, they are not very well integrated.
-
-Eg iwarp calls out to a userspace process which opens a socket to
-reserve a port number and then feeds that back into the kernel to
-setup IP headers which are safe to use. :\ The nic steals those
-packets before the kernel ever sees them and processes them with an
-internal 'CPU' and then feeds the QP infrastructure. (this is what is
-ment by the term offload)
-
-This also means that likely all the SE linux protections that apply to
-ethernet are merrily voided by all this offload hardware and AFAIK
-nobody has done any work to try and do something about that.
-
-So Liran is right, when we talk about iWarp/RoCEv2 the SELinux stuff
-should follow the ethernet stack.
-
-However, every IB port typically has some number of child ipoib
-netdevices as well, and those devices also specify a Pkey. This is
-where the namespace patches source their pkey information from. I
-don't know why a different approach is proposed for selinux. (Well,
-aside from the fact the namespace patches were never completed and
-basically don't work for strong isolation..)
-
-.. and that is my basic concern, that selinux will get one patch
-series and be left essentially incomplete like namespaces were.
-
-Jason
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 7169230..f9e3de1 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -16,9 +16,8 @@ PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_i
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+ RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+-RUBYPLATFORM ?= $(shell $(RUBY) -e 'print RUBY_PLATFORM')
+-RUBYINC ?= $(shell $(PKG_CONFIG) --cflags ruby)
+-RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
++RUBYINC ?= $(shell $(PKG_CONFIG) --exists ruby-$(RUBYLIBVER) && $(PKG_CONFIG) --cflags ruby-$(RUBYLIBVER) || $(PKG_CONFIG) --cflags ruby)
++RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+ LIBBASE ?= $(shell basename $(LIBDIR))
+ 
+ VERSION = $(shell cat ../VERSION)
+-- 
+2.7.3
