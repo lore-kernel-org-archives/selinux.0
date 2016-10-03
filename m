@@ -1,105 +1,87 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u93Ie4ed023116
- for <selinux@tycho.nsa.gov>; Mon, 3 Oct 2016 14:40:04 -0400
+Subject: Re: [PATCH v2 1/1] libsepol/cil: create user and role caches when
+ building binary policy
+To: Gary Tierney <gary.tierney@gmx.com>, selinux@tycho.nsa.gov
+References: <cover.1475494730.git.gary.tierney@gmx.com>
+ <357ffe964dc8190d1945d6147e241bce587a0004.1475494730.git.gary.tierney@gmx.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsemanage: Fixes bug preventing the installation of base
- modules
-Date: Mon,  3 Oct 2016 14:41:12 -0400
-Message-Id: <1475520072-17880-1-git-send-email-jwcart2@tycho.nsa.gov>
+Message-ID: <29d2d67a-ddb8-019c-ec5c-c8e2d1eef704@tycho.nsa.gov>
+Date: Mon, 3 Oct 2016 15:11:17 -0400
+MIME-Version: 1.0
+In-Reply-To: <357ffe964dc8190d1945d6147e241bce587a0004.1475494730.git.gary.tierney@gmx.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Commit 7a728e46 changed module installation so that a module pp would
-be installed using its module name instead of its filename and a warning
-would be printed if they were different. With this change, base modules
-could no longer be installed because of the way error handling was done.
+On 10/03/2016 07:44 AM, Gary Tierney wrote:
+> Pre-expands the role and user caches used in context validation when
+> conerting a cildb to a binary policydb.  This is currently only done
+> when loading a binary policy and prevents context validation from
+> working correctly with a newly built policy (i.e., when semanage builds
+> a new policy and then runs genhomedircon).
+>
+> Also adds declarations for the hashtable mapping functions used:
+> policydb_role_cache and policydb_user_cache().
+>
+> Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
 
-This change fixes the error handling, so that when a base module is
-installed it will be installed using its filename (since it does not
-have a module name).
+Applied.
 
-Based on bug report by Jason Zaman
+Thanks,
+Jim
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsemanage/src/direct_api.c | 39 ++++++++++++++-------------------------
- 1 file changed, 14 insertions(+), 25 deletions(-)
+> ---
+>  libsepol/cil/src/cil_binary.c              | 13 +++++++++++++
+>  libsepol/include/sepol/policydb/policydb.h |  8 ++++++++
+>  2 files changed, 21 insertions(+)
+>
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> index cc73648..5402272 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -4794,6 +4794,19 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+>
+>  	}
+>
+> +	/* This pre-expands the roles and users for context validity checking */
+> +	if (hashtab_map(pdb->p_roles.table, policydb_role_cache, pdb)) {
+> +		cil_log(CIL_INFO, "Failure creating roles cache");
+> +		rc = SEPOL_ERR;
+> +		goto exit;
+> +    }
+> +
+> +	if (hashtab_map(pdb->p_users.table, policydb_user_cache, pdb)) {
+> +		cil_log(CIL_INFO, "Failure creating users cache");
+> +		rc = SEPOL_ERR;
+> +		goto exit;
+> +	}
+> +
+>  	rc = SEPOL_OK;
+>
+>  exit:
+> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+> index 26cec13..d99fcf4 100644
+> --- a/libsepol/include/sepol/policydb/policydb.h
+> +++ b/libsepol/include/sepol/policydb/policydb.h
+> @@ -608,6 +608,14 @@ extern int policydb_index_bools(policydb_t * p);
+>  extern int policydb_index_others(sepol_handle_t * handle, policydb_t * p,
+>  				 unsigned int verbose);
+>
+> +extern int policydb_role_cache(hashtab_key_t key,
+> +			       hashtab_datum_t datum,
+> +			       void *arg);
+> +
+> +extern int policydb_user_cache(hashtab_key_t key,
+> +			       hashtab_datum_t datum,
+> +			       void *arg);
+> +
+>  extern int policydb_reindex_users(policydb_t * p);
+>
+>  extern void policydb_destroy(policydb_t * p);
+>
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 3719cb1..e5c72cd 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -368,7 +368,7 @@ static int semanage_direct_begintrans(semanage_handle_t * sh)
-  * 'version' to module's version.  The caller is responsible for
-  * free()ing 'module_name', and 'version'; they will be
-  * set to NULL upon entering this function.  Returns 0 on success, -1
-- * if out of memory, or -2 if data did not represent a module.
-+ * if out of memory.
-  */
- static int parse_module_headers(semanage_handle_t * sh, char *module_data,
-                                size_t data_len, char **module_name,
-@@ -384,23 +384,10 @@ static int parse_module_headers(semanage_handle_t * sh, char *module_data,
-        }
-        sepol_policy_file_set_mem(pf, module_data, data_len);
-        sepol_policy_file_set_handle(pf, sh->sepolh);
--       if (module_data == NULL ||
--           data_len == 0 ||
-+       if (module_data != NULL && data_len > 0)
-            sepol_module_package_info(pf, &file_type, module_name,
--                                     version) == -1) {
--               sepol_policy_file_free(pf);
--               ERR(sh, "Could not parse module data.");
--               return -2;
--       }
-+                                     version);
-        sepol_policy_file_free(pf);
--       if (file_type != SEPOL_POLICY_MOD) {
--               if (file_type == SEPOL_POLICY_BASE)
--                       ERR(sh,
--                           "Received a base module, expected a non-base module.");
--               else
--                       ERR(sh, "Data did not represent a module.");
--               return -2;
--       }
- 
-        return 0;
- }
-@@ -1608,22 +1595,24 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
- 		lang_ext = separator + 1;
- 	}
- 
--	if (strcmp(lang_ext, "pp") != 0) {
-+	if (strcmp(lang_ext, "pp") == 0) {
-+		retval = parse_module_headers(sh, data, data_len, &module_name, &version);
-+		free(version);
-+		if (retval != 0)
-+			goto cleanup;
-+	}
-+
-+	if (module_name == NULL) {
- 		module_name = strdup(filename);
- 		if (module_name == NULL) {
- 			ERR(sh, "No memory available for module_name.\n");
- 			retval = -1;
- 			goto cleanup;
- 		}
--	} else {
--		if ((retval = parse_module_headers(sh, data, data_len, &module_name, &version)) != 0)
--			goto cleanup;
--
--		if (strcmp(module_name, filename) != 0)
--			fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", install_filename, module_name, filename);
--
--		free(version);
-+	} else if (strcmp(module_name, filename) != 0) {
-+		fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", install_filename, module_name, filename);
- 	}
-+
- 	retval = semanage_direct_install(sh, data, data_len, module_name, lang_ext);
- 
- cleanup:
+
 -- 
-2.7.4
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
