@@ -1,44 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u93GWG4g009796
- for <selinux@tycho.nsa.gov>; Mon, 3 Oct 2016 12:32:16 -0400
-Received: by mail-pf0-f169.google.com with SMTP id s13so65439119pfd.2
- for <selinux@tycho.nsa.gov>; Mon, 03 Oct 2016 09:32:13 -0700 (PDT)
-Received: from localhost ([2404:e800:e600:540:f89b:d512:8a67:782a])
- by smtp.gmail.com with ESMTPSA id c4sm48637524pab.5.2016.10.03.09.32.10
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Mon, 03 Oct 2016 09:32:10 -0700 (PDT)
-Date: Tue, 4 Oct 2016 00:32:08 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Subject: Received a base module, expected a non-base module.
-Message-ID: <20161003163208.GA19093@meriadoc>
+Subject: Re: Received a base module, expected a non-base module.
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
+References: <20161003163208.GA19093@meriadoc>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <34e9545e-3056-db34-f04a-0861beae5981@tycho.nsa.gov>
+Date: Mon, 3 Oct 2016 13:11:40 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20161003163208.GA19093@meriadoc>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hey,
+On 10/03/2016 12:32 PM, Jason Zaman wrote:
+> Hey,
+>
+> I cant load base.pp now on gentoo :(. this is with 2.6-rc1.
+>
+> meriadoc mcs # semodule -vvv -b base.pp -i $(ls *.pp | grep -v base.pp)
+> The --base option is deprecated. Use --install instead.
+> Attempting to install module 'base.pp':
+> libsemanage.parse_module_headers: Received a base module, expected a non-base module. (No such file or directory).
+> semodule:  Failed on base.pp!
+> meriadoc mcs # semodule -vvv -b base.pp
+> The --base option is deprecated. Use --install instead.
+> Attempting to install module 'base.pp':
+> libsemanage.parse_module_headers: Received a base module, expected a non-base module. (No such file or directory).
+> semodule:  Failed on base.pp!
+> meriadoc mcs # semodule -vvv -i base.pp
+> Attempting to install module 'base.pp':
+> libsemanage.parse_module_headers: Received a base module, expected a non-base module. (No such file or directory).
+> semodule:  Failed on base.pp!
+>
+> Anyone got any ideas?
 
-I cant load base.pp now on gentoo :(. this is with 2.6-rc1.
+It is due to the recent patch to use pp module name instead of the filename if 
+they are different. I will work on a fix.
 
-meriadoc mcs # semodule -vvv -b base.pp -i $(ls *.pp | grep -v base.pp)
-The --base option is deprecated. Use --install instead.
-Attempting to install module 'base.pp':
-libsemanage.parse_module_headers: Received a base module, expected a non-base module. (No such file or directory).
-semodule:  Failed on base.pp!
-meriadoc mcs # semodule -vvv -b base.pp
-The --base option is deprecated. Use --install instead.
-Attempting to install module 'base.pp':
-libsemanage.parse_module_headers: Received a base module, expected a non-base module. (No such file or directory).
-semodule:  Failed on base.pp!
-meriadoc mcs # semodule -vvv -i base.pp
-Attempting to install module 'base.pp':
-libsemanage.parse_module_headers: Received a base module, expected a non-base module. (No such file or directory).
-semodule:  Failed on base.pp!
+Thanks,
+Jim
 
-Anyone got any ideas?
+>
+> -- Jason
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
 
--- Jason
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
