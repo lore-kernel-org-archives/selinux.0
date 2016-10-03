@@ -1,81 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u93BoIBW011209
- for <selinux@tycho.nsa.gov>; Mon, 3 Oct 2016 07:50:18 -0400
-Received: from workstation.home ([86.151.246.244]) by mail.gmx.com (mrgmx102)
- with ESMTPSA (Nemesis) id 0LlXnX-1bImzd3Vo7-00bJnL for
- <selinux@tycho.nsa.gov>; Mon, 03 Oct 2016 13:45:15 +0200
-From: Gary Tierney <gary.tierney@gmx.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 1/1] libsepol/cil: create user and role caches when
- building binary policy
-Date: Mon,  3 Oct 2016 12:44:50 +0100
-Message-Id: <357ffe964dc8190d1945d6147e241bce587a0004.1475494730.git.gary.tierney@gmx.com>
-In-Reply-To: <cover.1475494730.git.gary.tierney@gmx.com>
-References: <cover.1475494730.git.gary.tierney@gmx.com>
-In-Reply-To: <cover.1475494730.git.gary.tierney@gmx.com>
-References: <cover.1475494730.git.gary.tierney@gmx.com>
+Subject: Re: [PATCH 2/2] libselinux: query for python site-packages dir
+ directly
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
+References: <1475381714-9906-1-git-send-email-jason@perfinion.com>
+ <1475381714-9906-2-git-send-email-jason@perfinion.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <fa22ce21-3ec2-485c-c0c0-499bff50792d@tycho.nsa.gov>
+Date: Mon, 3 Oct 2016 09:35:31 -0400
+MIME-Version: 1.0
+In-Reply-To: <1475381714-9906-2-git-send-email-jason@perfinion.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Pre-expands the role and user caches used in context validation when
-conerting a cildb to a binary policydb.  This is currently only done
-when loading a binary policy and prevents context validation from
-working correctly with a newly built policy (i.e., when semanage builds
-a new policy and then runs genhomedircon).
+On 10/02/2016 12:15 AM, Jason Zaman wrote:
+> instead of building the path manually which is more error prone
 
-Also adds declarations for the hashtable mapping functions used:
-policydb_role_cache and policydb_user_cache().
+Thanks, applied both.  I guess the only question I have is whether a)
+this same change ought to be applied to all other Makefiles (e.g.
+libsemanage, policycoreutils), and b) could this break any existing
+build recipes that relied on setting PYLIBDIR.  Doesn't appear that
+Fedora spec files do so, but not sure about other distribution packages.
 
-Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
----
- libsepol/cil/src/cil_binary.c              | 13 +++++++++++++
- libsepol/include/sepol/policydb/policydb.h |  8 ++++++++
- 2 files changed, 21 insertions(+)
-
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index cc73648..5402272 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -4794,6 +4794,19 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
- 
- 	}
- 
-+	/* This pre-expands the roles and users for context validity checking */
-+	if (hashtab_map(pdb->p_roles.table, policydb_role_cache, pdb)) {
-+		cil_log(CIL_INFO, "Failure creating roles cache");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+    }
-+
-+	if (hashtab_map(pdb->p_users.table, policydb_user_cache, pdb)) {
-+		cil_log(CIL_INFO, "Failure creating users cache");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
- 	rc = SEPOL_OK;
- 
- exit:
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 26cec13..d99fcf4 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -608,6 +608,14 @@ extern int policydb_index_bools(policydb_t * p);
- extern int policydb_index_others(sepol_handle_t * handle, policydb_t * p,
- 				 unsigned int verbose);
- 
-+extern int policydb_role_cache(hashtab_key_t key,
-+			       hashtab_datum_t datum,
-+			       void *arg);
-+
-+extern int policydb_user_cache(hashtab_key_t key,
-+			       hashtab_datum_t datum,
-+			       void *arg);
-+
- extern int policydb_reindex_users(policydb_t * p);
- 
- extern void policydb_destroy(policydb_t * p);
--- 
-2.4.11
+> 
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
+> ---
+>  libselinux/src/Makefile | 11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
+> 
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index f9e3de1..13501cd 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -12,9 +12,8 @@ PREFIX ?= $(DESTDIR)/usr
+>  LIBDIR ?= $(PREFIX)/lib
+>  SHLIBDIR ?= $(DESTDIR)/lib
+>  INCLUDEDIR ?= $(PREFIX)/include
+> -PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
+>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+> -PYLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+> +PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
+>  RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+>  RUBYINC ?= $(shell $(PKG_CONFIG) --exists ruby-$(RUBYLIBVER) && $(PKG_CONFIG) --cflags ruby-$(RUBYLIBVER) || $(PKG_CONFIG) --cflags ruby)
+>  RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+> @@ -160,10 +159,10 @@ install: all
+>  	ln -sf --relative $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
+>  
+>  install-pywrap: pywrap
+> -	test -d $(PYLIBDIR)/site-packages/selinux || install -m 755 -d $(PYLIBDIR)/site-packages/selinux
+> -	install -m 755 $(SWIGSO) $(PYLIBDIR)/site-packages/_selinux.so
+> -	install -m 755 $(AUDIT2WHYSO) $(PYLIBDIR)/site-packages/selinux/audit2why.so
+> -	install -m 644 $(SWIGPYOUT) $(PYLIBDIR)/site-packages/selinux/__init__.py
+> +	test -d $(PYSITEDIR)/selinux || install -m 755 -d $(PYSITEDIR)/selinux
+> +	install -m 755 $(SWIGSO) $(PYSITEDIR)/_selinux.so
+> +	install -m 755 $(AUDIT2WHYSO) $(PYSITEDIR)/selinux/audit2why.so
+> +	install -m 644 $(SWIGPYOUT) $(PYSITEDIR)/selinux/__init__.py
+>  
+>  install-rubywrap: rubywrap
+>  	test -d $(RUBYINSTALL) || install -m 755 -d $(RUBYINSTALL) 
+> 
