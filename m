@@ -1,94 +1,119 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u93HS36s015468
- for <selinux@tycho.nsa.gov>; Mon, 3 Oct 2016 13:28:03 -0400
-Received: by mail-yw0-f178.google.com with SMTP id i129so112525510ywb.0
- for <selinux@tycho.nsa.gov>; Mon, 03 Oct 2016 10:28:01 -0700 (PDT)
+Date: Tue, 4 Oct 2016 13:25:21 +0800
+From: Jason Zaman <perfinion@gentoo.org>
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] libsemanage: Fixes bug preventing the installation of
+ base modules
+Message-ID: <20161004052521.GA17807@meriadoc>
+References: <1475520072-17880-1-git-send-email-jwcart2@tycho.nsa.gov>
 MIME-Version: 1.0
-References: <1474573685-124428-1-git-send-email-bowgotsai@google.com>
- <f213e1a4-5a68-dff2-b1b6-354410ef7fe1@tycho.nsa.gov>
- <CAMFYTWcz6y9whm8_z4rwQBVtcK_YniTycwu-+zsSiqrYn-kj_A@mail.gmail.com>
- <9f04db8c-6e09-d5c8-9f95-b3f7805edbd7@tycho.nsa.gov>
- <CAFftDdr=sodunXnQoszCOe6P9s4oxrxWC0Vn6eVu5Fde-cEZMg@mail.gmail.com>
-In-Reply-To: <CAFftDdr=sodunXnQoszCOe6P9s4oxrxWC0Vn6eVu5Fde-cEZMg@mail.gmail.com>
-From: Daniel Cashman <dcashman@google.com>
-Date: Mon, 03 Oct 2016 17:27:50 +0000
-Message-ID: <CAJQetW5_guNJSPF1Y4fKM7-d8JGdpsc1wix7aOd4ZGcXQSG5OQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol, checkpolicy: Update Android.mk
-To: William Roberts <bill.c.roberts@gmail.com>,
- Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Bowgo Tsai <bowgotsai@google.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a113f1e9affb995053df94335
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1475520072-17880-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113f1e9affb995053df94335
-Content-Type: text/plain; charset=UTF-8
+On Mon, Oct 03, 2016 at 02:41:12PM -0400, James Carter wrote:
+> Commit 7a728e46 changed module installation so that a module pp would
+> be installed using its module name instead of its filename and a warning
+> would be printed if they were different. With this change, base modules
+> could no longer be installed because of the way error handling was done.
+> 
+> This change fixes the error handling, so that when a base module is
+> installed it will be installed using its filename (since it does not
+> have a module name).
+> 
+> Based on bug report by Jason Zaman
 
-+1 SGTM.
+Just confirming this fixes the issue for me. :D
 
-On Thu, Sep 29, 2016 at 7:06 AM William Roberts <bill.c.roberts@gmail.com>
-wrote:
+I bumped the gentoo package to sys-libs/libsemanage-2.6_rc1-r1
 
-> On Thu, Sep 29, 2016 at 9:28 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On 09/28/2016 10:17 PM, Bowgo Tsai wrote:
-> >> OK, please ignore these patches, will update new ones.
-> >> I'll update the top-level Android.mk if we still want to keep Android.mk
-> >> upstream.
-> >>
-> >> However, I was thinking the same thing: it seems better to only keep
-> >> Android.mk files in Android tree.
-> >> For other *.c/*.h files, keep these files up-to-date in the upstream as
-> >> well.
-> >>
-> >> If no one objects to this, I'll prepare two patches.
-> >>
-> >>  1. Update secilc/secilc.c
-> >>  2. Delete all Android.mk files in the upstream
-> >
-> > SGTM
->
-> SGTM
->
-
---001a113f1e9affb995053df94335
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">+1 SGTM.<br></div><br><div class=3D"gmail_quote"><div dir=
-=3D"ltr">On Thu, Sep 29, 2016 at 7:06 AM William Roberts &lt;<a href=3D"mai=
-lto:bill.c.roberts@gmail.com">bill.c.roberts@gmail.com</a>&gt; wrote:<br></=
-div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-lef=
-t:1px #ccc solid;padding-left:1ex">On Thu, Sep 29, 2016 at 9:28 AM, Stephen=
- Smalley &lt;<a href=3D"mailto:sds@tycho.nsa.gov" class=3D"gmail_msg" targe=
-t=3D"_blank">sds@tycho.nsa.gov</a>&gt; wrote:<br class=3D"gmail_msg">
-&gt; On 09/28/2016 10:17 PM, Bowgo Tsai wrote:<br class=3D"gmail_msg">
-&gt;&gt; OK, please ignore these patches, will update new ones.<br class=3D=
-"gmail_msg">
-&gt;&gt; I&#39;ll update the top-level Android.mk if we still want to keep =
-Android.mk<br class=3D"gmail_msg">
-&gt;&gt; upstream.<br class=3D"gmail_msg">
-&gt;&gt;<br class=3D"gmail_msg">
-&gt;&gt; However, I was thinking the same thing: it seems better to only ke=
-ep<br class=3D"gmail_msg">
-&gt;&gt; Android.mk files in Android tree.<br class=3D"gmail_msg">
-&gt;&gt; For other *.c/*.h files, keep these files up-to-date in the upstre=
-am as<br class=3D"gmail_msg">
-&gt;&gt; well.<br class=3D"gmail_msg">
-&gt;&gt;<br class=3D"gmail_msg">
-&gt;&gt; If no one objects to this, I&#39;ll prepare two patches.<br class=
-=3D"gmail_msg">
-&gt;&gt;<br class=3D"gmail_msg">
-&gt;&gt;=C2=A0 1. Update secilc/secilc.c<br class=3D"gmail_msg">
-&gt;&gt;=C2=A0 2. Delete all Android.mk files in the upstream<br class=3D"g=
-mail_msg">
-&gt;<br class=3D"gmail_msg">
-&gt; SGTM<br class=3D"gmail_msg">
-<br class=3D"gmail_msg">
-SGTM<br class=3D"gmail_msg">
-</blockquote></div>
-
---001a113f1e9affb995053df94335--
+-- Jason
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> ---
+>  libsemanage/src/direct_api.c | 39 ++++++++++++++-------------------------
+>  1 file changed, 14 insertions(+), 25 deletions(-)
+> 
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index 3719cb1..e5c72cd 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -368,7 +368,7 @@ static int semanage_direct_begintrans(semanage_handle_t * sh)
+>   * 'version' to module's version.  The caller is responsible for
+>   * free()ing 'module_name', and 'version'; they will be
+>   * set to NULL upon entering this function.  Returns 0 on success, -1
+> - * if out of memory, or -2 if data did not represent a module.
+> + * if out of memory.
+>   */
+>  static int parse_module_headers(semanage_handle_t * sh, char *module_data,
+>                                 size_t data_len, char **module_name,
+> @@ -384,23 +384,10 @@ static int parse_module_headers(semanage_handle_t * sh, char *module_data,
+>         }
+>         sepol_policy_file_set_mem(pf, module_data, data_len);
+>         sepol_policy_file_set_handle(pf, sh->sepolh);
+> -       if (module_data == NULL ||
+> -           data_len == 0 ||
+> +       if (module_data != NULL && data_len > 0)
+>             sepol_module_package_info(pf, &file_type, module_name,
+> -                                     version) == -1) {
+> -               sepol_policy_file_free(pf);
+> -               ERR(sh, "Could not parse module data.");
+> -               return -2;
+> -       }
+> +                                     version);
+>         sepol_policy_file_free(pf);
+> -       if (file_type != SEPOL_POLICY_MOD) {
+> -               if (file_type == SEPOL_POLICY_BASE)
+> -                       ERR(sh,
+> -                           "Received a base module, expected a non-base module.");
+> -               else
+> -                       ERR(sh, "Data did not represent a module.");
+> -               return -2;
+> -       }
+>  
+>         return 0;
+>  }
+> @@ -1608,22 +1595,24 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
+>  		lang_ext = separator + 1;
+>  	}
+>  
+> -	if (strcmp(lang_ext, "pp") != 0) {
+> +	if (strcmp(lang_ext, "pp") == 0) {
+> +		retval = parse_module_headers(sh, data, data_len, &module_name, &version);
+> +		free(version);
+> +		if (retval != 0)
+> +			goto cleanup;
+> +	}
+> +
+> +	if (module_name == NULL) {
+>  		module_name = strdup(filename);
+>  		if (module_name == NULL) {
+>  			ERR(sh, "No memory available for module_name.\n");
+>  			retval = -1;
+>  			goto cleanup;
+>  		}
+> -	} else {
+> -		if ((retval = parse_module_headers(sh, data, data_len, &module_name, &version)) != 0)
+> -			goto cleanup;
+> -
+> -		if (strcmp(module_name, filename) != 0)
+> -			fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", install_filename, module_name, filename);
+> -
+> -		free(version);
+> +	} else if (strcmp(module_name, filename) != 0) {
+> +		fprintf(stderr, "Warning: SELinux userspace will refer to the module from %s as %s rather than %s\n", install_filename, module_name, filename);
+>  	}
+> +
+>  	retval = semanage_direct_install(sh, data, data_len, module_name, lang_ext);
+>  
+>  cleanup:
+> -- 
+> 2.7.4
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
