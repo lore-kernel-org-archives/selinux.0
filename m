@@ -1,46 +1,82 @@
-Subject: Re: [PATCH 2/2] libselinux: query for python site-packages dir
- directly
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, Jason Zaman <jason@perfinion.com>,
- selinux@tycho.nsa.gov, Laurent Bigonville <bigon@debian.org>
-References: <1475381714-9906-1-git-send-email-jason@perfinion.com>
- <1475381714-9906-2-git-send-email-jason@perfinion.com>
- <fa22ce21-3ec2-485c-c0c0-499bff50792d@tycho.nsa.gov>
- <e7b6a5b3-1115-a216-eba4-c1fe787f4203@m4x.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <91e48a15-5fe8-b7d3-57d4-efce75594369@tycho.nsa.gov>
-Date: Tue, 4 Oct 2016 10:23:53 -0400
+Subject: Re: [PATCH 1/3] libsepol/cil: make cil_resolve_name() fail for '.'
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20161003204657.2635-1-nicolas.iooss@m4x.org>
+ <20161003204657.2635-2-nicolas.iooss@m4x.org>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <f347fc41-dbeb-b06e-5f19-d2287af87f7f@tycho.nsa.gov>
+Date: Tue, 4 Oct 2016 10:39:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <e7b6a5b3-1115-a216-eba4-c1fe787f4203@m4x.org>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20161003204657.2635-2-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/03/2016 04:10 PM, Nicolas Iooss wrote:
-> On 03/10/16 15:35, Stephen Smalley wrote:
->> On 10/02/2016 12:15 AM, Jason Zaman wrote:
->>> instead of building the path manually which is more error prone
->>
->> Thanks, applied both.  I guess the only question I have is whether a)
->> this same change ought to be applied to all other Makefiles (e.g.
->> libsemanage, policycoreutils), and b) could this break any existing
->> build recipes that relied on setting PYLIBDIR.  Doesn't appear that
->> Fedora spec files do so, but not sure about other distribution packages.
-> 
-> For the second question, ArchLinux packages will not break. I quickly
-> looked at the Debian packages and it appears libselinux is using
-> PYLIBDIR [1] but not libsemanage [2]. Also the Debian packages appear to
-> install the Python module into /usr/lib/python.../dist-packages instead
-> of the site-packages directory. I am wondering whether this may be
-> important.
-> 
-> Nicolas
-> 
-> [1]
-> https://anonscm.debian.org/cgit/selinux/libselinux.git/tree/debian/python.mk
-> [2] https://anonscm.debian.org/cgit/selinux/libsemanage.git/
-> [3] https://packages.debian.org/sid/amd64/python3-selinux/filelist
-> [4] https://packages.debian.org/sid/amd64/python3-semanage/filelist
+On 10/03/2016 04:46 PM, Nicolas Iooss wrote:
+> This CIL policy makes secilc crash with a NULL pointer dereference:
+>
+>     (class CLASS (PERM))
+>     (classorder (CLASS))
+>     (sid SID)
+>     (sidorder (SID))
+>     (user USER)
+>     (role ROLE)
+>     (type TYPE)
+>     (category CAT)
+>     (categoryorder (CAT))
+>     (sensitivity SENS)
+>     (sensitivityorder (SENS))
+>     (sensitivitycategory SENS (CAT))
+>     (allow TYPE self (CLASS (PERM)))
+>     (roletype ROLE TYPE)
+>     (userrole USER ROLE)
+>     (userlevel USER (SENS))
+>     (userrange USER ((SENS)(SENS (CAT))))
+>     (sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+>
+>     (allow . self (CLASS (PERM)))
+>
+> Using "." in the allow statement makes strtok_r() return NULL in
+> cil_resolve_name() and this result is then used in a call to
+> cil_symtab_get_datum(), which is thus invalid.
+>
+> Instead of crashing, make secilc fail with an error message.
+>
+> This bug has been found by fuzzing secilc with american fuzzy lop.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsepol/cil/src/cil_resolve_ast.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> index 917adf8d23da..5b86908c4120 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -4027,7 +4027,13 @@ int cil_resolve_name(struct cil_tree_node *ast_node, char *name, enum cil_sym_in
+>  		char *current = strtok_r(name_dup, ".", &sp);
+>  		char *next = strtok_r(NULL, ".", &sp);
+>  		symtab_t *symtab = NULL;
+> -		
+> +
+> +		if (current == NULL) {
+> +			/* Only dots */
+> +			cil_tree_log(ast_node, CIL_ERR, "Invalid name %s", name);
 
-(cc Debian selinux maintainer)
+I added "free(name_dup);" here when I applied the patch.
+
+Jim
+
+> +			goto exit;
+> +		}
+> +
+>  		node = ast_node;
+>  		if (*name == '.') {
+>  			/* Leading '.' */
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
