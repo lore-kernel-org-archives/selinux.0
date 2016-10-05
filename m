@@ -1,61 +1,78 @@
-Subject: Re: restorecon -r goes up the tree?
-To: Richard Haines <richard_c_haines@btinternet.com>,
- Jason Zaman <jason@perfinion.com>, SELinux <selinux@tycho.nsa.gov>,
- dac.override@gmail.com
-References: <20161005072834.GA8208@meriadoc>
- <1475677444.6421.6.camel@btinternet.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c6c6edc8-8da4-7739-2960-31a478579501@tycho.nsa.gov>
-Date: Wed, 5 Oct 2016 10:36:21 -0400
-MIME-Version: 1.0
-In-Reply-To: <1475677444.6421.6.camel@btinternet.com>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov, richard_c_haines@btinternet.com, jason@perfinion.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: selinux_restorecon: fix realpath logic
+Date: Wed,  5 Oct 2016 10:52:41 -0400
+Message-Id: <1475679161-24493-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/05/2016 10:24 AM, Richard Haines wrote:
-> On Wed, 2016-10-05 at 15:28 +0800, Jason Zaman wrote:
->> Hey all,
->>
->> There have been a few changes to restorecon just before RC1 and it
->> appears to not stay in the dir it was pointed at anymore?
->>
->> meriadoc ~ # mount | grep "/dev"
->> udev on /dev type devtmpfs
->> (rw,nosuid,relatime,seclabel,size=10240k,nr_inodes=1521608,mode=755)
->> devpts on /dev/pts type devpts
->> (rw,relatime,seclabel,gid=5,mode=620,ptmxmode=000)
->> mqueue on /dev/mqueue type mqueue
->> (rw,nosuid,nodev,noexec,relatime,seclabel)
->> shm on /dev/shm type tmpfs (rw,nosuid,nodev,noexec,relatime,seclabel)
->>
->> meriadoc ~ # restorecon -rv /dev/
->> Warning no default label for /run/sm-notify.pid
->> Warning no default label for /run/cgmanager/fs
->> Warning no default label for /run/user/1000/dconf
->> Warning no default label for /run/user/1000/dconf/user
->> Warning no default label for /run/user/1000/gvfs
->> Warning no default label for /run/lightdm.pid
->> Warning no default label for /run/dbus.pid
->> ^C
->>
->> I'd already run restorecon so this output isnt as verbose as it was
->> before (scrollback fell off). But the first time it was also going
->> into
->> /usr and /lib and many other places that are not /dev. /dev and /run
->> are
->> also separate mountpoints so its not just that its doing the entire
->> rootfs or something cuz if that was the case it would stay in /dev.
->> Also "/dev" vs "/dev/" makes no difference.
-> 
-> I can also see the problem and investigating. It appears it is in
-> the new selinux_restorecon(3) code regarding realpath conversion. This
-> code was lifted from Android.c and seems the same in latest Android.
-> Will send patch once resolved.
+The realpath logic in selinux_restorecon() was taken from the
+Android libselinux fork.  However, bionic dirname() and basename()
+do not modify their argument and therefore are safe to call on a
+const string.  POSIX dirname() and basename() can modify their argument.
+There is a GNU basename() that does not modify its argument, but not
+for dirname().
+For portability, create copies of the original pathname for each call
+and keep them around until finished using the result.
 
-It is a difference between glibc and bionic behaviors for dirname() and
-basename().  They can modify their argument under POSIX.  You cannot
-pass pathname_orig to them.  You would have gotten compiler warnings
-with the Android code, but apparently silenced those with (char *) casts.
+Fixes "restorecon -r goes up the tree?" bug reported by Jason Zaman.
+
+Reported-by: Jason Zaman <jason@perfinion.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/selinux_restorecon.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 0945138..a3f7d83 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -797,25 +797,38 @@ int selinux_restorecon(const char *pathname_orig,
+ 	 * realpath of containing dir, then appending last component name.
+ 	 */
+ 	if (flags.userealpath) {
+-		pathbname = basename((char *)pathname_orig);
++		char *basename_cpy = strdup(pathname_orig);
++		if (!basename_cpy)
++			return -1;
++		pathbname = basename(basename_cpy);
+ 		if (!strcmp(pathbname, "/") || !strcmp(pathbname, ".") ||
+ 					    !strcmp(pathbname, "..")) {
+ 			pathname = realpath(pathname_orig, NULL);
+-			if (!pathname)
++			if (!pathname) {
++				free(basename_cpy);
+ 				goto realpatherr;
++			}
+ 		} else {
+-			pathdname = dirname((char *)pathname_orig);
++			char *dirname_cpy = strdup(pathname_orig);
++			pathdname = dirname(dirname_cpy);
+ 			pathdnamer = realpath(pathdname, NULL);
+-			if (!pathdnamer)
++			if (!pathdnamer) {
++				free(basename_cpy);
++				free(dirname_cpy);
+ 				goto realpatherr;
++			}
+ 			if (!strcmp(pathdnamer, "/"))
+ 				error = asprintf(&pathname, "/%s", pathbname);
+ 			else
+ 				error = asprintf(&pathname, "%s/%s",
+ 						    pathdnamer, pathbname);
+-			if (error < 0)
++			free(dirname_cpy);
++			if (error < 0) {
++				free(basename_cpy);
+ 				goto oom;
++			}
+ 		}
++		free(basename_cpy);
+ 	} else {
+ 		pathname = strdup(pathname_orig);
+ 		if (!pathname)
+-- 
+2.7.4
