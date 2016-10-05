@@ -1,191 +1,51 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u94Edj8g009522
- for <selinux@tycho.nsa.gov>; Tue, 4 Oct 2016 10:39:45 -0400
-Subject: Re: [PATCH V2] libsepol: Add support for converting extended
- permissions to CIL
-To: selinux@tycho.nsa.gov
-References: <1475590240-8172-1-git-send-email-jwcart2@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <a83ebdd5-6f0d-7671-6e5b-45f3470a3e28@tycho.nsa.gov>
-Date: Tue, 4 Oct 2016 10:40:52 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u957T59K022394
+ for <selinux@tycho.nsa.gov>; Wed, 5 Oct 2016 03:29:06 -0400
+Received: by mail-pa0-f53.google.com with SMTP id ry6so6076873pac.3
+ for <selinux@tycho.nsa.gov>; Wed, 05 Oct 2016 00:28:39 -0700 (PDT)
+Received: from localhost ([2404:e800:e600:540:e4c7:e123:7bab:ce0b])
+ by smtp.gmail.com with ESMTPSA id y11sm60429610pfa.4.2016.10.05.00.28.36
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 05 Oct 2016 00:28:37 -0700 (PDT)
+Date: Wed, 5 Oct 2016 15:28:34 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: restorecon -r goes up the tree?
+Message-ID: <20161005072834.GA8208@meriadoc>
 MIME-Version: 1.0
-In-Reply-To: <1475590240-8172-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/04/2016 10:10 AM, James Carter wrote:
-> Checkpolicy has an option to produce CIL output and is dependent on
-> the policydb-to-CIL conversion in libsepol for that option. Add
-> support for converting extended permissions to CIL so that checlpolicy
-> can generate CIL.
->
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+Hey all,
 
-This has been applied.
+There have been a few changes to restorecon just before RC1 and it
+appears to not stay in the dir it was pointed at anymore?
 
-> ---
->  libsepol/src/module_to_cil.c | 115 +++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 111 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 508a861..b7d3b5e 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -609,6 +609,103 @@ exit:
->  	return rc;
->  }
->
-> +#define next_bit_in_range(i, p) ((i + 1 < sizeof(p)*8) && xperm_test((i + 1), p))
-> +
-> +static int xperms_to_cil(const av_extended_perms_t *xperms)
-> +{
-> +	uint16_t value;
-> +	uint16_t low_bit;
-> +	uint16_t low_value;
-> +	unsigned int bit;
-> +	unsigned int in_range = 0;
-> +	int first = 1;
-> +
-> +	if ((xperms->specified != AVTAB_XPERMS_IOCTLFUNCTION)
-> +		&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
-> +		return -1;
-> +
-> +	for (bit = 0; bit < sizeof(xperms->perms)*8; bit++) {
-> +		if (!xperm_test(bit, xperms->perms))
-> +			continue;
-> +
-> +		if (in_range && next_bit_in_range(bit, xperms->perms)) {
-> +			/* continue until high value found */
-> +			continue;
-> +		} else if (next_bit_in_range(bit, xperms->perms)) {
-> +			/* low value */
-> +			low_bit = bit;
-> +			in_range = 1;
-> +			continue;
-> +		}
-> +
-> +		if (!first)
-> +			cil_printf(" ");
-> +		else
-> +			first = 0;
-> +
-> +		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
-> +			value = xperms->driver<<8 | bit;
-> +			low_value = xperms->driver<<8 | low_bit;
-> +			if (in_range) {
-> +				cil_printf("(range 0x%hx 0x%hx)", low_value, value);
-> +				in_range = 0;
-> +			} else {
-> +				cil_printf("0x%hx", value);
-> +			}
-> +		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
-> +			value = bit << 8;
-> +			low_value = low_bit << 8;
-> +			if (in_range) {
-> +				cil_printf("(range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
-> +				in_range = 0;
-> +			} else {
-> +				cil_printf("(range 0x%hx 0x%hx)", value, (uint16_t) (value|0xff));
-> +			}
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int avrulex_to_cil(int indent, struct policydb *pdb, uint32_t type, const char *src, const char *tgt, const class_perm_node_t *classperms, const av_extended_perms_t *xperms)
-> +{
-> +	int rc = -1;
-> +	const char *rule;
-> +	const struct class_perm_node *classperm;
-> +
-> +	switch (type) {
-> +	case AVRULE_XPERMS_ALLOWED:
-> +		rule = "allowx";
-> +		break;
-> +	case AVRULE_XPERMS_AUDITALLOW:
-> +		rule = "auditallowx";
-> +		break;
-> +	case AVRULE_XPERMS_DONTAUDIT:
-> +		rule = "dontauditx";
-> +		break;
-> +	case AVRULE_XPERMS_NEVERALLOW:
-> +		rule = "neverallowx";
-> +		break;
-> +	default:
-> +		log_err("Unknown avrule xperm type: %i", type);
-> +		rc = -1;
-> +		goto exit;
-> +	}
-> +
-> +	for (classperm = classperms; classperm != NULL; classperm = classperm->next) {
-> +		cil_indent(indent);
-> +		cil_printf("(%s %s %s (%s %s (", rule, src, tgt,
-> +			   "ioctl", pdb->p_class_val_to_name[classperm->tclass - 1]);
-> +		xperms_to_cil(xperms);
-> +		cil_printf(")))\n");
-> +	}
-> +
-> +	return 0;
-> +
-> +exit:
-> +	return rc;
-> +}
-> +
->  static int num_digits(int n)
->  {
->  	int num = 1;
-> @@ -1077,7 +1174,8 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
->  	struct type_set *ts;
->
->  	for (avrule = avrule_list; avrule != NULL; avrule = avrule->next) {
-> -		if (avrule->specified == AVRULE_NEVERALLOW && avrule->source_filename) {
-> +		if ((avrule->specified & (AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
-> +		    avrule->source_filename) {
->  			cil_println(0, ";;* lmx %lu %s\n",avrule->source_line, avrule->source_filename);
->  		}
->
-> @@ -1095,14 +1193,22 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
->
->  		for (s = 0; s < num_snames; s++) {
->  			for (t = 0; t < num_tnames; t++) {
-> -				rc = avrule_to_cil(indent, pdb, avrule->specified, snames[s], tnames[t], avrule->perms);
-> +				if (avrule->specified & AVRULE_XPERMS) {
-> +					rc = avrulex_to_cil(indent, pdb, avrule->specified, snames[s], tnames[t], avrule->perms, avrule->xperms);
-> +				} else {
-> +					rc = avrule_to_cil(indent, pdb, avrule->specified, snames[s], tnames[t], avrule->perms);
-> +				}
->  				if (rc != 0) {
->  					goto exit;
->  				}
->  			}
->
->  			if (avrule->flags & RULE_SELF) {
-> -				rc = avrule_to_cil(indent, pdb, avrule->specified, snames[s], "self", avrule->perms);
-> +				if (avrule->specified & AVRULE_XPERMS) {
-> +					rc = avrulex_to_cil(indent, pdb, avrule->specified, snames[s], "self", avrule->perms, avrule->xperms);
-> +				} else {
-> +					rc = avrule_to_cil(indent, pdb, avrule->specified, snames[s], "self", avrule->perms);
-> +				}
->  				if (rc != 0) {
->  					goto exit;
->  				}
-> @@ -1112,7 +1218,8 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
->  		names_destroy(&snames, &num_snames);
->  		names_destroy(&tnames, &num_tnames);
->
-> -		if (avrule->specified == AVRULE_NEVERALLOW && avrule->source_filename) {
-> +		if ((avrule->specified & (AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
-> +		    avrule->source_filename) {
->  			cil_println(0, ";;* lme\n");
->  		}
->  	}
->
+meriadoc ~ # mount | grep "/dev"
+udev on /dev type devtmpfs (rw,nosuid,relatime,seclabel,size=10240k,nr_inodes=1521608,mode=755)
+devpts on /dev/pts type devpts (rw,relatime,seclabel,gid=5,mode=620,ptmxmode=000)
+mqueue on /dev/mqueue type mqueue (rw,nosuid,nodev,noexec,relatime,seclabel)
+shm on /dev/shm type tmpfs (rw,nosuid,nodev,noexec,relatime,seclabel)
 
+meriadoc ~ # restorecon -rv /dev/
+Warning no default label for /run/sm-notify.pid
+Warning no default label for /run/cgmanager/fs
+Warning no default label for /run/user/1000/dconf
+Warning no default label for /run/user/1000/dconf/user
+Warning no default label for /run/user/1000/gvfs
+Warning no default label for /run/lightdm.pid
+Warning no default label for /run/dbus.pid
+^C
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+I'd already run restorecon so this output isnt as verbose as it was
+before (scrollback fell off). But the first time it was also going into
+/usr and /lib and many other places that are not /dev. /dev and /run are
+also separate mountpoints so its not just that its doing the entire
+rootfs or something cuz if that was the case it would stay in /dev.
+Also "/dev" vs "/dev/" makes no difference.
+
+-- Jason
