@@ -1,185 +1,140 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u96BA01s027130
- for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2016 07:10:00 -0400
-Received: from workstation.fluency.net.uk ([185.34.9.224]) by mail.gmx.com
- (mrgmx103) with ESMTPSA (Nemesis) id 0LsD9n-1atWKg08ml-013tmT for
- <selinux@tycho.nsa.gov>; Thu, 06 Oct 2016 13:09:57 +0200
-From: Gary Tierney <gary.tierney@gmx.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u96CHiPC002022
+ for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2016 08:17:44 -0400
+Received: by mail-wm0-f68.google.com with SMTP id b201so3256085wmb.1
+ for <selinux@tycho.nsa.gov>; Thu, 06 Oct 2016 05:17:35 -0700 (PDT)
+Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
+ by smtp.gmail.com with ESMTPSA id f142sm14782267wmf.19.2016.10.06.05.17.32
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Thu, 06 Oct 2016 05:17:32 -0700 (PDT)
+Subject: Re: [PATCH v2 0/1] supporting RBACSEP in genhomedircon
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 1/1] genhomedircon: use userprefix as the role for homedir
- content
-Date: Thu,  6 Oct 2016 12:09:41 +0100
-Message-Id: <638048b6d79a18861e58155ca14012706af5b445.1475590141.git.gary.tierney@gmx.com>
-In-Reply-To: <cover.1475590141.git.gary.tierney@gmx.com>
 References: <cover.1475590141.git.gary.tierney@gmx.com>
+From: Dominick Grift <dac.override@gmail.com>
+Message-ID: <e9fe21ba-ebf5-ebb2-911e-da8a02be0ca2@gmail.com>
+Date: Thu, 6 Oct 2016 14:17:22 +0200
+MIME-Version: 1.0
 In-Reply-To: <cover.1475590141.git.gary.tierney@gmx.com>
-References: <cover.1475590141.git.gary.tierney@gmx.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="gFajSJxQjh52T8bAS0HGicC7lF8IK603i"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Treat a users prefix like a mapping to the role for file context
-specifications in users homedirs.  This behavior is only applicable when
-the users prefix is the identifier of a role which is valid for the
-given user.  If the prefix is not a valid role, then genhomedircon will
-write contexts out as normal.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--gFajSJxQjh52T8bAS0HGicC7lF8IK603i
+Content-Type: multipart/mixed; boundary="tjo6KBXC6VgMi4nvLqkeQ1dWlEbiIacaN";
+ protected-headers="v1"
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <e9fe21ba-ebf5-ebb2-911e-da8a02be0ca2@gmail.com>
+Subject: Re: [PATCH v2 0/1] supporting RBACSEP in genhomedircon
+References: <cover.1475590141.git.gary.tierney@gmx.com>
+In-Reply-To: <cover.1475590141.git.gary.tierney@gmx.com>
 
-Additionally, this commit enables configuring RBACSEP in policy:
+--tjo6KBXC6VgMi4nvLqkeQ1dWlEbiIacaN
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-(tunableif enable_rbacsep
-    (true
-        (userprefix user_u user_r)
-    (false
-        (userprefix user_u object_r))))
+On 10/06/2016 01:09 PM, Gary Tierney wrote:
+> New version of the previous genhomedircon-rbacsep patch with some chang=
+es.  A
+> bit of a delay as I had to get in a libsepol/cil fix which was blocking=
+ this.
+>=20
+> 1. Remove semanage.conf option
+> 2. Drop unrelated change
+> 3. Adds a new homedir_role member to the genhomedircon_user struct.
+> 4. Sets homedir_role if the SELinux users prefix is a valid role for th=
+at user.
+> 5. Replaces all roles with homedir_role in context specifications if ho=
+medir_role is set.
+>=20
+> One issue that came up when writing these patches is that genhomedircon=
 
-Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
----
- libsemanage/src/genhomedircon.c | 38 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 35 insertions(+), 3 deletions(-)
+> squashes logging [1] for some reason, which can result in no warning / =
+info
+> messages and an empty file_contexts.homedirs file if policy has been
+> incorrectly configured.  Can we get rid of this behavior or add a flag =
+to
+> conditionally enable logging?
+>=20
 
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 3fc9e7a..0dd2b29 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -100,6 +100,7 @@ typedef struct user_entry {
- 	char *home;
- 	char *level;
- 	char *login;
-+	char *homedir_role;
- 	struct user_entry *next;
- } genhomedircon_user_entry_t;
- 
-@@ -177,6 +178,13 @@ static int ignore(const char *homedir) {
- 	return 0;
- }
- 
-+static int prefix_is_homedir_role(const semanage_user_t *user,
-+				  const char *prefix)
-+{
-+	return strcmp(OBJECT_R, prefix) == 0 ||
-+		semanage_user_has_role(user, prefix);
-+}
-+
- static semanage_list_t *default_shell_list(void)
- {
- 	semanage_list_t *list = NULL;
-@@ -638,6 +646,11 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
- 			goto fail;
- 		}
- 
-+		if (user->homedir_role &&
-+		    sepol_context_set_role(sepolh, context, user->homedir_role) < 0) {
-+			goto fail;
-+		}
-+
- 		if (sepol_context_to_string(sepolh, context,
- 					    &new_context_str) < 0) {
- 			goto fail;
-@@ -756,7 +769,7 @@ static int name_user_cmp(char *key, semanage_user_t ** val)
- static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 			   const char *u, const char *g, const char *sen,
- 			   const char *pre, const char *h, const char *l,
--			   const char *ln)
-+			   const char *ln, const char *hd_role)
- {
- 	genhomedircon_user_entry_t *temp = NULL;
- 	char *name = NULL;
-@@ -767,6 +780,7 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 	char *home = NULL;
- 	char *level = NULL;
- 	char *lname = NULL;
-+	char *homedir_role = NULL;
- 
- 	temp = malloc(sizeof(genhomedircon_user_entry_t));
- 	if (!temp)
-@@ -795,6 +809,11 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 	lname = strdup(ln);
- 	if (!lname)
- 		goto cleanup;
-+	if (hd_role) {
-+		homedir_role = strdup(hd_role);
-+		if (!homedir_role)
-+			goto cleanup;
-+	}
- 
- 	temp->name = name;
- 	temp->uid = uid;
-@@ -804,6 +823,7 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 	temp->home = home;
- 	temp->level = level;
- 	temp->login = lname;
-+	temp->homedir_role = homedir_role;
- 	temp->next = (*list);
- 	(*list) = temp;
- 
-@@ -818,6 +838,7 @@ static int push_user_entry(genhomedircon_user_entry_t ** list, const char *n,
- 	free(home);
- 	free(level);
- 	free(lname);
-+	free(homedir_role);
- 	free(temp);
- 	return STATUS_ERR;
- }
-@@ -839,6 +860,7 @@ static void pop_user_entry(genhomedircon_user_entry_t ** list)
- 	free(temp->home);
- 	free(temp->level);
- 	free(temp->login);
-+	free(temp->homedir_role);
- 	free(temp);
- }
- 
-@@ -852,6 +874,7 @@ static int setup_fallback_user(genhomedircon_settings_t * s)
- 	const char *seuname = NULL;
- 	const char *prefix = NULL;
- 	const char *level = NULL;
-+	const char *homedir_role = NULL;
- 	unsigned int i;
- 	int retval;
- 	int errors = 0;
-@@ -886,10 +909,14 @@ static int setup_fallback_user(genhomedircon_settings_t * s)
- 					level = FALLBACK_LEVEL;
- 			}
- 
-+			if (prefix_is_homedir_role(u, prefix)) {
-+				homedir_role = prefix;
-+			}
-+
- 			if (push_user_entry(&(s->fallback), FALLBACK_NAME,
- 					    FALLBACK_UIDGID, FALLBACK_UIDGID,
- 					    seuname, prefix, "", level,
--					    FALLBACK_NAME) != 0)
-+					    FALLBACK_NAME, homedir_role) != 0)
- 				errors = STATUS_ERR;
- 			semanage_user_key_free(key);
- 			if (u)
-@@ -946,6 +973,7 @@ static int add_user(genhomedircon_settings_t * s,
- 	struct passwd pwstorage, *pwent = NULL;
- 	const char *prefix = NULL;
- 	const char *level = NULL;
-+	const char *homedir_role = NULL;
- 	char uid[11];
- 	char gid[11];
- 
-@@ -969,6 +997,10 @@ static int add_user(genhomedircon_settings_t * s,
- 		level = FALLBACK_LEVEL;
- 	}
- 
-+	if (prefix_is_homedir_role(user, prefix)) {
-+		homedir_role = prefix;
-+	}
-+
- 	retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen, &pwent);
- 	if (retval != 0 || pwent == NULL) {
- 		if (retval != 0 && retval != ENOENT) {
-@@ -1010,7 +1042,7 @@ static int add_user(genhomedircon_settings_t * s,
- 	}
- 
- 	retval = push_user_entry(head, name, uid, gid, sename, prefix,
--				pwent->pw_dir, level, selogin);
-+				pwent->pw_dir, level, selogin, homedir_role);
- cleanup:
- 	free(rbuf);
- 	return retval;
--- 
-2.4.11
+If we do that then i suspect that we can also use that for the messages
+where an seuser id cannot be found (e.g. that system_u, and gdm.id issue)=
+
+
+> Dominick Grift helpfully created some test images that demo DSSP policy=
+ working
+> with both RBACSEP and non-RBACEP:
+> https://tfirg.asu.su/2016/10/03/garys-patches/
+>=20
+> There are still some rough edges though, for example in policy you can'=
+t write a
+> statement like: (userprefix id role) and put it in an abstract namespac=
+e,
+> since it is interpreted as a literal:
+>=20
+> (block usersubj
+>     (blockabstract usersubj)
+>     (user id)
+>     (role role)
+>     (userrole id role)
+>     (userprefix id role))
+>=20
+> (block wheel
+>     (blockinherit usersubj))
+>=20
+> Which leaves us with a (userid, prefix) tuple of (wheel.id, role) [whee=
+l.id
+> might even just be id here, haven't checked if users are expanded or al=
+so taken
+> as literals].
+>=20
+> Though this is something I can look at later if all is well here.
+>=20
+> [1] https://github.com/SELinuxProject/selinux/blob/master/libsemanage/s=
+rc/genhomedircon.c#L568-L572
+>=20
+> Gary Tierney (1):
+>   genhomedircon: use userprefix as the role for homedir content
+>=20
+>  libsemanage/src/genhomedircon.c | 38 +++++++++++++++++++++++++++++++++=
+++---
+>  1 file changed, 35 insertions(+), 3 deletions(-)
+>=20
+
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
+2
+Dominick Grift
+
+
+--tjo6KBXC6VgMi4nvLqkeQ1dWlEbiIacaN--
+
+--gFajSJxQjh52T8bAS0HGicC7lF8IK603i
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJX9kDWAAoJECV0jlU3+Udp9NcL/Rll8sYxrrse+ISFIHfG65s4
+BGwVkrpFzzWCjNz9rbkZrbGFD3gV5Rdw+CZ+4+p5rvckklBcT29g4n1v9iPAWEeI
+sDwhvospRpzgtbamaMBoFioodQPpNYJy95RDPRYZnuBwPu3/k7ZXyJHe8CGnILM1
+xND1mwLk1icZInd6lR+HfL6tfimbNS22ECQtTHzTEU1tHF8NeginszrdWahpYoI+
+CRcRuTUgnxJ+eannwaqKeaXLvlkrEAVC20ic7FhQX8OPGs897U1duQ+gJeV42N4d
+gJoOlcmxNOq0GpgDk0wjWz45v4zJTzvyEx+JyLokEkHYPFEx+2TSlUeKqjKm5uSV
+WSQXf2hO5sdBvzWQcP/yY899acONcgYRDTJOi6yuC2dusZ8syYB2mEWphiprkzz9
+5mqeCvw2uUxogmMdgzd40DJcjaswpqRBIvlxLpjkKWUoRBnH0C3t2IzrwmC+kLKj
+4zBYkjK+7VqD822lOvvkrcvL6+mxweGMtRVgdTRp3Q==
+=u2E6
+-----END PGP SIGNATURE-----
+
+--gFajSJxQjh52T8bAS0HGicC7lF8IK603i--
