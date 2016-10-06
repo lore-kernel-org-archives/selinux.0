@@ -1,100 +1,113 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u96EgAPq018892
- for <selinux@tycho.nsa.gov>; Thu, 6 Oct 2016 10:42:10 -0400
-To: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: ANN: SELinux userspace 2.6-rc2 release
-Message-ID: <5c9e5333-9e5f-b16f-1572-c6ebbf3f030c@tycho.nsa.gov>
-Date: Thu, 6 Oct 2016 10:44:22 -0400
+Subject: Re: [PATCH v2 0/1] supporting RBACSEP in genhomedircon
+To: Gary Tierney <gary.tierney@gmx.com>, selinux@tycho.nsa.gov
+References: <cover.1475590141.git.gary.tierney@gmx.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <31a14a92-c2e5-ae4e-7366-e7d6177dc178@tycho.nsa.gov>
+Date: Thu, 6 Oct 2016 10:56:08 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <cover.1475590141.git.gary.tierney@gmx.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A second release candidate for the SELinux userspace is now available at:
-https://github.com/SELinuxProject/selinux/wiki/Releases
+On 10/06/2016 07:09 AM, Gary Tierney wrote:
+> New version of the previous genhomedircon-rbacsep patch with some changes.  A
+> bit of a delay as I had to get in a libsepol/cil fix which was blocking this.
+>
+> 1. Remove semanage.conf option
+> 2. Drop unrelated change
+> 3. Adds a new homedir_role member to the genhomedircon_user struct.
+> 4. Sets homedir_role if the SELinux users prefix is a valid role for that user.
+> 5. Replaces all roles with homedir_role in context specifications if homedir_role is set.
+>
+> One issue that came up when writing these patches is that genhomedircon
+> squashes logging [1] for some reason, which can result in no warning / info
+> messages and an empty file_contexts.homedirs file if policy has been
+> incorrectly configured.  Can we get rid of this behavior or add a flag to
+> conditionally enable logging?
+>
+> Dominick Grift helpfully created some test images that demo DSSP policy working
+> with both RBACSEP and non-RBACEP:
+> https://tfirg.asu.su/2016/10/03/garys-patches/
+>
+> There are still some rough edges though, for example in policy you can't write a
+> statement like: (userprefix id role) and put it in an abstract namespace,
+> since it is interpreted as a literal:
+>
+> (block usersubj
+>     (blockabstract usersubj)
+>     (user id)
+>     (role role)
+>     (userrole id role)
+>     (userprefix id role))
+>
+> (block wheel
+>     (blockinherit usersubj))
+>
+> Which leaves us with a (userid, prefix) tuple of (wheel.id, role) [wheel.id
+> might even just be id here, haven't checked if users are expanded or also taken
+> as literals].
+>
 
-This has been tagged as 20161006 in the git repository.
+Users are fully qualified, so it is "wheel.id". It is true though that "role" in 
+"(userprefix id role)" is taken as a string and is not expanded. The only 
+identifiers that are fully qualified are those that will exist in the kernel 
+policy and are stored in symbol tables.
 
-Please give it a test and let us know if there are any issues.
+To get what you want you need to write:
 
-Below are some notes on this release for packagers of the SELinux
-userspace.  Please see the individual ChangeLog files for a detailed
-list of changes.
+(block usersubj
+     (blockabstract usersubj)
+     (user id)
+     (userlevel id (SENS))
+     (userrange id ((SENS)(SENS (CAT))))
+     (role role)
+     (userrole id role))
 
-1) sepolicy converted to setools4:
-- sepolicy and its users now depend on setools4 instead of setools3.
+(block wheel
+     (blockinherit usersubj))
 
-- Please convert any remaining users of setools3 to setools4 since
-setools3 is no longer being developed.
+(userprefix wheel.id wheel.role)
 
-2) genhomedircon enhancements and behavior changes:
-- genhomedircon supports the %{USERID} template for substituting the
-user's uid. %{USERNAME} has also been added as a new template for
-substituting the user's username.  The USER template is still supported
-for backward compatibility but is deprecated.
+which is inconvenient. It seems to me that if the userprefix statement is 
+allowed in a block, then it makes sense to fully qualify it, but I tend to see 
+the prefix as a string, so it would make more sense to me to just not allow it 
+in blocks.
 
-- genhomedircon supports generating home directory contexts for login
-mappings using the %group syntax.  This may produce an error if the user
-belongs to multiple groups specified in the login mapping, which can be
-resolved by adding an explicit mapping for the user to override the
-group-based mapping.
+This makes more sense in the following example.
 
-- genhomedircon will fully replace the SELinux user and range fields in
-each templated security context rather than only substituting for the
-hardcoded strings "system_u" and "s0".  As a side effect, genhomedircon
-no longer has special handling of "system_u" and will therefore trigger
-a warning if there is a "system_u" entry in seusers:
-    libsemanage.add_user: user system_u not in password file
-This warning is not fatal, but it would be preferable to remove system_u
-from the seusers file.
-See https://bugzilla.redhat.com/show_bug.cgi?id=1378204
+(block userdecl
+     (blockabstract userdecl)
+     (user u)
+     (userlevel u (SENS))
+     (userrange u ((SENS) (SENS (CAT))))
+     (role r)
+     (userrole u r))
 
-- genhomedircon will replace the role field in each templated security
-context with the user prefix for the user if the user prefix is the
-identifier of a role valid for the given user, or if it is "object_r".
-This enables configuring RBACSEP (i.e. role-based separation of user
-home directories) in policy.  If the user prefix is not a valid role,
-then genhomedircon will leave the role field unmodified as before.
+(block user
+     (blockinherit userdecl))
 
-- genhomedircon will generate entries for logins mapped to the default
-user.  Previously no entries were generated for such logins, which could
-lead to no matching file_contexts.homedirs entries for users with home
-directories outside of LU_HOMEDIRECTORY in the absence of usepasswd=True.
+(userprefix user.u user)
 
-3) libselinux pcre2 support:
-- libselinux supports either pcre1 or pcre2 but not both at the same
-time. The default remains pcre1.
+Where user is acting like a true prefix for user user.u and role user.r.
 
-- To use pcre2, build libselinux and sefcontext_compile with 'make
-USE_PCRE2=y". You must also rebuild your file_contexts.bin files with
-the rebuilt sefcontext_compile.
+Jim
 
-- With pcre2, file_contexts.bin is no longer architecture-neutral. The
-relevant architecture properties are endianness, pointer width, and
-PCRE2_SIZE type.  libselinux will automatically detect an architecture
-mismatch and ignore the stored precompiled regexes in that case,
-recompiling them instead at runtime.  sefcontext_compile -i will report
-the pcre version and architecture strings that it will include in the
-file_contexts.bin file.
 
-- With pcre2, file_contexts.bin is substantially larger than for pcre1.
-With the Fedora policy, we see the following sizes:
-383165	file_contexts (text)
-1507941 file_contexts.bin (binary with pcre1 regexes)
-8304105 file_contexts.bin (binary with pcre2 regexes)
+> Though this is something I can look at later if all is well here.
+>
+> [1] https://github.com/SELinuxProject/selinux/blob/master/libsemanage/src/genhomedircon.c#L568-L572
+>
+> Gary Tierney (1):
+>   genhomedircon: use userprefix as the role for homedir content
+>
+>  libsemanage/src/genhomedircon.c | 38 +++++++++++++++++++++++++++++++++++---
+>  1 file changed, 35 insertions(+), 3 deletions(-)
+>
 
-- If you know that you will be generating file_contexts.bin for a target
-with a different architecture string or if you do not wish to pay the
-additional storage cost, you can use the -r option to sefcontext_compile
-to omit the compiled regexes.
-With the Fedora policy, this yields a much smaller file:
-540540 file_contexts.bin (binary omitting pcre2 regexes)
-You can make this the default when libsemanage invokes
-sefcontext_compile by adding the following stanza to semanage.conf:
-[sefcontext_compile]
-path = /usr/sbin/sefcontext_compile
-args = -r $@
-[end]
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
