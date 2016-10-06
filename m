@@ -1,127 +1,42 @@
-MIME-Version: 1.0
-In-Reply-To: <8089f554-5277-0771-5678-b7eaba6933b6@tycho.nsa.gov>
-References: <1722968607.809359.1475757444568.JavaMail.zimbra@redhat.com>
- <8089f554-5277-0771-5678-b7eaba6933b6@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 6 Oct 2016 09:52:40 -0400
-Message-ID: <CAFftDdqpD4GjHZEACukHmcWvZZiG3tHgcQ=gPFNJASp8GsbxmA@mail.gmail.com>
-Subject: Re: Fuzzing /usr/libexec/selinux/hll/pp with AFL
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Milos Malik <mmalik@redhat.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov, gary.tierney@gmx.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsemanage: genhomedircon: do not suppress logging from
+ libsepol
+Date: Thu,  6 Oct 2016 10:18:20 -0400
+Message-Id: <1475763500-32441-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Oct 6, 2016 at 9:50 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 10/06/2016 08:37 AM, Milos Malik wrote:
->> Hi all,
->>
->> inspired by Nicolas Iooss idea of fuzzing with AFL, I found few input files which cause a crash or a hang of hll/pp on RHEL-7.3. Hopefully, I discovered something else than what's already fixed in upstream.
->>
->> afl-2.35b
->> libselinux-2.5-6.el7.x86_64
->> libselinux-devel-2.5-6.el7.x86_64
->> libselinux-python-2.5-6.el7.x86_64
->> libselinux-utils-2.5-6.el7.x86_64
->> libsemanage-2.5-4.el7.x86_64
->> libsemanage-devel-2.5-4.el7.x86_64
->> libsemanage-python-2.5-4.el7.x86_64
->> libsemanage-static-2.5-4.el7.x86_64
->> libsepol-2.5-6.el7.x86_64
->> libsepol-devel-2.5-6.el7.x86_64
->> libsepol-static-2.5-6.el7.x86_64
->> policycoreutils-2.5-9.el7.x86_64
->> policycoreutils-debuginfo-2.5-9.el7.x86_64
->> policycoreutils-devel-2.5-9.el7.x86_64
->> policycoreutils-gui-2.5-9.el7.x86_64
->> policycoreutils-newrole-2.5-9.el7.x86_64
->> policycoreutils-python-2.5-9.el7.x86_64
->> policycoreutils-restorecond-2.5-9.el7.x86_64
->> policycoreutils-sandbox-2.5-9.el7.x86_64
->> selinux-policy-3.13.1-102.el7.noarch
->> selinux-policy-devel-3.13.1-102.el7.noarch
->> selinux-policy-minimum-3.13.1-102.el7.noarch
->> selinux-policy-mls-3.13.1-102.el7.noarch
->> selinux-policy-targeted-3.13.1-102.el7.noarch
->>
->> # /usr/libexec/selinux/hll/pp crash0
->> Segmentation fault
->> # /usr/libexec/selinux/hll/pp crash1
->> Segmentation fault
->> # dmesg
->> [10487.300325] pp[24302]: segfault at 0 ip 00007f5dff4f8a4f sp 00007fffe41e5ba0 error 4 in libsepol.so.1[7f5dff4d0000+95000]
->> [10489.509501] pp[24320]: segfault at 0 ip 00007f6067bec544 sp 00007fff17b0e5c0 error 4 in libsepol.so.1[7f6067bdb000+95000]
->> #
->>
->> I also tested checkmodule and checkpolicy with AFL, but nothing sofar.
->
-> I can't reproduce with current upstream / 2.6-rc1 which includes a
-> number of fixes from William Roberts for bugs found via AFL. See below
-> for the output I get.  hang0 does take a while to complete, but
-> eventually does so (but in general we don't presently try to cap various
-> values from the binary policy modules or kernel policies, so
-> long-running times aren't surprising or necessarily a bug per se).
+As reported by Gary Tierney, genhomedircon suppresses logging from
+libsepol when validating contexts.  This can result in an
+empty file_contexts.homedirs file without any warning to the user
+if policy has been incorrectly configured.  Remove the code that
+was suppressing the logging so that errors are reported to the user.
 
-Precisely, I ignored hangs. When I investigated them it was just the
-data structures to process were very large, so this is as designed.
+Reported-by: Gary Tierney <gary.tierney@gmx.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsemanage/src/genhomedircon.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
->
-> $ /usr/libexec/selinux/hll/pp crash0
-> libsepol.sepol_module_package_read: invalid module in module package (at
-> section 0)
-> Failed to read policy package
->
-> $ /usr/libexec/selinux/hll/pp crash1
-> libsepol.sepol_module_package_read: invalid module in module package (at
-> section 0)
-> Failed to read policy package
->
-> $ time /usr/libexec/selinux/hll/pp hang0
-> (type jetty_cache_t)
-> (roletype object_r jetty_cache_t)
-> (type jetty_log_t)
-> (roletype object_r jetty_log_t)
-> (type jetty_var_lib_t)
-> (roletype object_r jetty_var_lib_t)
-> (type jetty_var_run_t)
-> (roletype object_r jetty_var_run_t)
-> (roleattributeset cil_gen_require system_r)
-> (typeattributeset cil_gen_require file_type)
-> (typeattributeset file_type (jetty_cache_t jetty_log_t jetty_var_lib_t
-> jetty_var_run_t ))
-> (typeattributeset cil_gen_require non_security_file_type)
-> (typeattributeset non_security_file_type (jetty_cache_t jetty_log_t
-> jetty_var_lib_t jetty_var_run_t ))
-> (typeattributeset cil_gen_require non_auth_file_type)
-> (typeattributeset non_auth_file_type (jetty_cache_t jetty_log_t
-> jetty_var_lib_t jetty_var_run_t ))
-> (typeattributeset cil_gen_require logfile)
-> (typeattributeset logfile (jetty_log_t ))
-> (typeattributeset cil_gen_require tmp_t)
-> (typeattributeset cil_gen_require tmpfs_t)
-> (typeattributeset cil_gen_require pidfile)
-> (typeattributeset pidfile (jetty_var_run_t ))
-> (allow jetty_log_t tmp_t (filesystem (associate)))
-> (allow jetty_log_t tmpfs_t (filesystem (associate)))
-> Invalid file context line: /var/c
->
-> real    0m11.526s
-> user    0m11.523s
-> sys     0m0.001s
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-
-
-
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 0dd2b29..6991fff 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -573,11 +573,8 @@ static int check_line(genhomedircon_settings_t * s, Ustr *line)
+ 	result = sepol_context_from_string(s->h_semanage->sepolh,
+ 					   ctx_str, &ctx_record);
+ 	if (result == STATUS_SUCCESS && ctx_record != NULL) {
+-		sepol_msg_set_callback(s->h_semanage->sepolh, NULL, NULL);
+ 		result = sepol_context_check(s->h_semanage->sepolh,
+ 					     s->policydb, ctx_record);
+-		sepol_msg_set_callback(s->h_semanage->sepolh,
+-				       semanage_msg_relay_handler, s->h_semanage);
+ 		sepol_context_free(ctx_record);
+ 	}
+ 	return result;
 -- 
-Respectfully,
-
-William C Roberts
+2.7.4
