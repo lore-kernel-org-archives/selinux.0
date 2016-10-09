@@ -1,79 +1,210 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u998AqNg001044
- for <selinux@tycho.nsa.gov>; Sun, 9 Oct 2016 04:10:52 -0400
-Received: by mail-wm0-f66.google.com with SMTP id d128so567048wmf.0
- for <selinux@tycho.nsa.gov>; Sun, 09 Oct 2016 01:10:50 -0700 (PDT)
-Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id 4sm12027193wmu.2.2016.10.09.01.10.48
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u999gmGZ009309
+ for <selinux@tycho.nsa.gov>; Sun, 9 Oct 2016 05:42:48 -0400
+Received: by mail-wm0-f42.google.com with SMTP id b201so120140994wmb.0
+ for <selinux@tycho.nsa.gov>; Sun, 09 Oct 2016 02:42:42 -0700 (PDT)
+Received: from ?IPv6:2a02:8428:4da:9800:c476:6880:6772:3cfd?
+ (2a02-8428-04da-9800-c476-6880-6772-3cfd.rev.sfr.net.
+ [2a02:8428:4da:9800:c476:6880:6772:3cfd])
+ by smtp.googlemail.com with ESMTPSA id ct1sm655492wjd.13.2016.10.09.02.42.39
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Sun, 09 Oct 2016 01:10:48 -0700 (PDT)
-To: selinux@tycho.nsa.gov
-From: Dominick Grift <dac.override@gmail.com>
-Subject: should module_load be checked on a kernel module object?
-Message-ID: <5906c68c-4c9e-cdfc-1eec-a15701841d6a@gmail.com>
-Date: Sun, 9 Oct 2016 10:10:38 +0200
+ Sun, 09 Oct 2016 02:42:39 -0700 (PDT)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: CIL policies which make secilc crash
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Message-ID: <4fe9df1a-01e5-b199-1bb4-329e8c364fc2@m4x.org>
+Date: Sun, 9 Oct 2016 11:42:38 +0200
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="2uEg61U8B7FbaETWbxlF6VW4xeQ5oTFN1"
+Content-Type: multipart/mixed; boundary="------------11F5F21E538CC4A96854A7D3"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---2uEg61U8B7FbaETWbxlF6VW4xeQ5oTFN1
-Content-Type: multipart/mixed; boundary="XAFVwA1JqUIkf3E4b1idLh93KEpFX6L3h";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <5906c68c-4c9e-cdfc-1eec-a15701841d6a@gmail.com>
-Subject: should module_load be checked on a kernel module object?
-
---XAFVwA1JqUIkf3E4b1idLh93KEpFX6L3h
+This is a multi-part message in MIME format.
+--------------11F5F21E538CC4A96854A7D3
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 
+Hello,
 
-I encountered a system module_load event for the first time today.
-Howver i am a bit surprised:
+When fuzzing secilc with AFL, I got some files which made the CIL
+compiler crash. To understand better the conditions which led to the
+crash, I trimmed them down afterwards. This led to the 6 files attached
+to this email. On my system the crashes still exist with the 2.6-rc2
+release.
 
+I won't have time in the following days to perform the debugging which
+is needed to fix these crashes correctly, so feel free to do this and
+submit patches using these files.
 
-avc:  denied  { module_load } for  pid=3D473 comm=3D"modprobe"
-scontext=3Dwheel.id:sysadm.role:lmc.subj:s0-s0:c0.c1023
-tcontext=3Dwheel.id:sysadm.role:lmc.subj:s0-s0:c0.c1023 tclass=3Dsystem
-permissive=3D1
+By the way, from what I have seen so far, no policy which makes secilc
+crash is valid, and the bugs mainly lie in the way errors are
+detected/handled.
 
-Should that permission not have applied to a kernel module object
-instead of "self"?
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
+Thanks,
+Nicolas
 
+--------------11F5F21E538CC4A96854A7D3
+Content-Type: text/x-selinux-cil;
+ name="secilc-cat_in_cats.cil"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="secilc-cat_in_cats.cil"
 
---XAFVwA1JqUIkf3E4b1idLh93KEpFX6L3h--
+(class CLASS (PERM))
+(classorder (CLASS))
+(sid SID)
+(sidorder (SID))
+(user USER)
+(role ROLE)
+(type TYPE)
 
---2uEg61U8B7FbaETWbxlF6VW4xeQ5oTFN1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+(category c0)
+(category c1)
+(categoryorder (c0 c1))
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+(sensitivity SENS)
+(sensitivityorder (SENS))
+(sensitivitycategory SENS (range c1 c0)) ; Invalid range
+;(sensitivitycategory SENS (not (all)))
 
-iQGcBAEBCAAGBQJX+fuDAAoJECV0jlU3+UdpiOkMAKtSeN7fi+EIEdNBr7R5c6Oa
-eKLQvkmQBW+5stCNdqbGQXGjb4OyWCNmpgMyFFymw3VqEbIVtuL5ZhasgVTpeusc
-3M0FB0LALGKxN3RuflQvW3APKakjB3bujetUA3eLK+rqjioyvNnyN0neMQVfKBYT
-LbV4qC7sAcoJFqBwfW+3hwl8Mya4VPKX4rVQMFuRGGooJ0e/OMimNK0NnLUAEuWo
-hNEHwaPm9mxXf9pCRqLgPGooCtTD8m4f6G0xLQTCE+pjPeMVMTpIMG/7piVIZNNI
-rhOKxACpFxewVP+NXtw4ZAgEAC0APrAsn1eICpyJvlcQH+n6XTkJ37MvaEt5HpO8
-C6ZcHNf5/5YddvC23g/DWkUIzMYPCxfq4T26FGM86Tc6Jttn1G5bcy3WtLDrlxn6
-QDtIip3JpIUNCYvMv6nfD11lt9/m102lYJNHHUOQH+Yzt1LlMgCS/K87RWaPvszt
-pd2y5SOHFI5G4Ybrm/1ILsyeris5Lhcy530MipLNOg==
-=+kpV
------END PGP SIGNATURE-----
+(allow TYPE self (CLASS (PERM)))
+(roletype ROLE TYPE)
+(userrole USER ROLE)
+(userlevel USER (SENS))
+(userrange USER ((SENS)(SENS (c0))))
+(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
 
---2uEg61U8B7FbaETWbxlF6VW4xeQ5oTFN1--
+(levelrange LH ((SENS c0) (SENS c0)))
+
+--------------11F5F21E538CC4A96854A7D3
+Content-Type: text/x-selinux-cil;
+ name="secilc-classpermissionset-and.cil"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="secilc-classpermissionset-and.cil"
+
+(class CLASS (PERM))
+(classorder (CLASS))
+(sid SID)
+(sidorder (SID))
+(user USER)
+(role ROLE)
+(type TYPE)
+(category CAT)
+(categoryorder (CAT))
+(sensitivity SENS)
+(sensitivityorder (SENS))
+(sensitivitycategory SENS (CAT))
+(allow TYPE self (CLASS (PERM)))
+(roletype ROLE TYPE)
+(userrole USER ROLE)
+(userlevel USER (SENS))
+(userrange USER ((SENS)(SENS (CAT))))
+(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+
+(classpermission CPERM)
+(classpermissionset CPERM (CLASS (and unknow PERM)))
+
+--------------11F5F21E538CC4A96854A7D3
+Content-Type: text/x-selinux-cil;
+ name="secilc-empty-class.cil"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="secilc-empty-class.cil"
+
+(class C (()))
+
+--------------11F5F21E538CC4A96854A7D3
+Content-Type: text/x-selinux-cil;
+ name="secilc-sensitivityaliasactual-same.cil"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="secilc-sensitivityaliasactual-same.cil"
+
+(class CLASS (PERM))
+(classorder (CLASS))
+(sid SID)
+(sidorder (SID))
+(user USER)
+(role ROLE)
+(type TYPE)
+(category CAT)
+(categoryorder (CAT))
+(sensitivity SENS)
+(sensitivityorder (SENS))
+(sensitivitycategory SENS (CAT))
+(allow TYPE self (CLASS (PERM)))
+(roletype ROLE TYPE)
+(userrole USER ROLE)
+(userlevel USER (SENS))
+(userrange USER ((SENS)(SENS (CAT))))
+(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+
+(sensitivityaliasactual SENS SENS)
+
+--------------11F5F21E538CC4A96854A7D3
+Content-Type: text/x-selinux-cil;
+ name="secilc-sidcontext-invalid-catrange.cil"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="secilc-sidcontext-invalid-catrange.cil"
+
+(class CLASS (PERM))
+(classorder (CLASS))
+(sid SID)
+(sidorder (SID))
+(user USER)
+(role ROLE)
+(type TYPE)
+(category CAT0)
+(category CAT1)
+(categoryorder (CAT0 CAT1))
+(sensitivity SENS)
+(sensitivityorder (SENS))
+(sensitivitycategory SENS (CAT0 CAT1))
+(allow TYPE self (CLASS (PERM)))
+(roletype ROLE TYPE)
+(userrole USER ROLE)
+(userlevel USER (SENS))
+(userrange USER ((SENS)(SENS (CAT0))))
+
+(mls true)
+(level low (SENS))
+(sidcontext SID (USER ROLE TYPE (low (SENS (range CAT1 CAT0)))))
+
+--------------11F5F21E538CC4A96854A7D3
+Content-Type: text/x-selinux-cil;
+ name="secilc-typebounds.cil"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="secilc-typebounds.cil"
+
+(class CLASS (PERM))
+(classorder (CLASS))
+(sid SID)
+(sidorder (SID))
+(user USER)
+(role ROLE)
+(type TYPE)
+(category CAT)
+(categoryorder (CAT))
+(sensitivity SENS)
+(sensitivityorder (SENS))
+(sensitivitycategory SENS (CAT))
+(allow TYPE self (CLASS (PERM)))
+(roletype ROLE TYPE)
+(userrole USER ROLE)
+(userlevel USER (SENS))
+(userrange USER ((SENS)(SENS (CAT))))
+(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
+
+(type t1)
+(typeattribute ta1)
+(typeattributeset ta1 t1)
+(type t2)
+(typebounds t2 ta1)
+
+--------------11F5F21E538CC4A96854A7D3--
