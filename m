@@ -1,210 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u999gmGZ009309
- for <selinux@tycho.nsa.gov>; Sun, 9 Oct 2016 05:42:48 -0400
-Received: by mail-wm0-f42.google.com with SMTP id b201so120140994wmb.0
- for <selinux@tycho.nsa.gov>; Sun, 09 Oct 2016 02:42:42 -0700 (PDT)
-Received: from ?IPv6:2a02:8428:4da:9800:c476:6880:6772:3cfd?
- (2a02-8428-04da-9800-c476-6880-6772-3cfd.rev.sfr.net.
- [2a02:8428:4da:9800:c476:6880:6772:3cfd])
- by smtp.googlemail.com with ESMTPSA id ct1sm655492wjd.13.2016.10.09.02.42.39
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Sun, 09 Oct 2016 02:42:39 -0700 (PDT)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: CIL policies which make secilc crash
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Message-ID: <4fe9df1a-01e5-b199-1bb4-329e8c364fc2@m4x.org>
-Date: Sun, 9 Oct 2016 11:42:38 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9AF2cEc005446
+ for <selinux@tycho.nsa.gov>; Mon, 10 Oct 2016 11:02:38 -0400
+Received: by mail-qt0-f173.google.com with SMTP id q7so56751298qtq.1
+ for <selinux@tycho.nsa.gov>; Mon, 10 Oct 2016 08:02:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------11F5F21E538CC4A96854A7D3"
+In-Reply-To: <5906c68c-4c9e-cdfc-1eec-a15701841d6a@gmail.com>
+References: <5906c68c-4c9e-cdfc-1eec-a15701841d6a@gmail.com>
+From: Jeffrey Vander Stoep <jeffv@google.com>
+Date: Mon, 10 Oct 2016 08:02:07 -0700
+Message-ID: <CABXk95CgrCk+th6Oc4yvDMhf1kJTZ11kyG+ByE9_vyZv-+zMSQ@mail.gmail.com>
+Subject: Re: should module_load be checked on a kernel module object?
+To: Dominick Grift <dac.override@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+When loading a kernel module using init_module the module is copied
+from memory of the calling process. In that case, the target really is
+the calling process. When using finit_module a file is passed to the
+kernel and that file is the target object.
 
-Hello,
+See the commit message that added module_load for a more complete
+description: https://marc.info/?l=selinux&m=145988689809307&w=2
 
-When fuzzing secilc with AFL, I got some files which made the CIL
-compiler crash. To understand better the conditions which led to the
-crash, I trimmed them down afterwards. This led to the 6 files attached
-to this email. On my system the crashes still exist with the 2.6-rc2
-release.
-
-I won't have time in the following days to perform the debugging which
-is needed to fix these crashes correctly, so feel free to do this and
-submit patches using these files.
-
-By the way, from what I have seen so far, no policy which makes secilc
-crash is valid, and the bugs mainly lie in the way errors are
-detected/handled.
-
-Thanks,
-Nicolas
-
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/x-selinux-cil;
- name="secilc-cat_in_cats.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc-cat_in_cats.cil"
-
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-
-(category c0)
-(category c1)
-(categoryorder (c0 c1))
-
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (range c1 c0)) ; Invalid range
-;(sensitivitycategory SENS (not (all)))
-
-(allow TYPE self (CLASS (PERM)))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (c0))))
-(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-
-(levelrange LH ((SENS c0) (SENS c0)))
-
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/x-selinux-cil;
- name="secilc-classpermissionset-and.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc-classpermissionset-and.cil"
-
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-(category CAT)
-(categoryorder (CAT))
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (CAT))
-(allow TYPE self (CLASS (PERM)))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (CAT))))
-(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-
-(classpermission CPERM)
-(classpermissionset CPERM (CLASS (and unknow PERM)))
-
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/x-selinux-cil;
- name="secilc-empty-class.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc-empty-class.cil"
-
-(class C (()))
-
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/x-selinux-cil;
- name="secilc-sensitivityaliasactual-same.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc-sensitivityaliasactual-same.cil"
-
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-(category CAT)
-(categoryorder (CAT))
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (CAT))
-(allow TYPE self (CLASS (PERM)))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (CAT))))
-(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-
-(sensitivityaliasactual SENS SENS)
-
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/x-selinux-cil;
- name="secilc-sidcontext-invalid-catrange.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc-sidcontext-invalid-catrange.cil"
-
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-(category CAT0)
-(category CAT1)
-(categoryorder (CAT0 CAT1))
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (CAT0 CAT1))
-(allow TYPE self (CLASS (PERM)))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (CAT0))))
-
-(mls true)
-(level low (SENS))
-(sidcontext SID (USER ROLE TYPE (low (SENS (range CAT1 CAT0)))))
-
---------------11F5F21E538CC4A96854A7D3
-Content-Type: text/x-selinux-cil;
- name="secilc-typebounds.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc-typebounds.cil"
-
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-(category CAT)
-(categoryorder (CAT))
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (CAT))
-(allow TYPE self (CLASS (PERM)))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (CAT))))
-(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-
-(type t1)
-(typeattribute ta1)
-(typeattributeset ta1 t1)
-(type t2)
-(typebounds t2 ta1)
-
---------------11F5F21E538CC4A96854A7D3--
+On Sun, Oct 9, 2016 at 1:10 AM, Dominick Grift <dac.override@gmail.com> wrote:
+>
+> I encountered a system module_load event for the first time today.
+> Howver i am a bit surprised:
+>
+>
+> avc:  denied  { module_load } for  pid=473 comm="modprobe"
+> scontext=wheel.id:sysadm.role:lmc.subj:s0-s0:c0.c1023
+> tcontext=wheel.id:sysadm.role:lmc.subj:s0-s0:c0.c1023 tclass=system
+> permissive=1
+>
+> Should that permission not have applied to a kernel module object
+> instead of "self"?
+> --
+> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+> Dominick Grift
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
