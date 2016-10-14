@@ -1,5 +1,5 @@
-MIME-Version: 1.0
-In-Reply-To: <a136d750-2fb5-8fd0-0fe7-1d5253993c7b@tycho.nsa.gov>
+Subject: Re: speeding up nodups_specs, need large fc file.
+To: William Roberts <bill.c.roberts@gmail.com>
 References: <476DC76E7D1DF2438D32BFADF679FC561CD17F73@ORSMSX103.amr.corp.intel.com>
  <191f635c-992e-c7bb-e74d-afb5966b4f89@tycho.nsa.gov>
  <CAFftDdqg=A5CDin0YjYHWzhsVM2Bu-0qR_hhAG+jna0C862d_Q@mail.gmail.com>
@@ -8,19 +8,19 @@ References: <476DC76E7D1DF2438D32BFADF679FC561CD17F73@ORSMSX103.amr.corp.intel.c
  <CAFftDdoUdjL1UNyLTXZ6BEiBh1BcXrNmqTVjUqv4xCLxa9d6Fw@mail.gmail.com>
  <CAFftDdq6rdF3SW4pcf7Gqgu7OjJ7EKqAOu_d2HT_3XMW1y-spg@mail.gmail.com>
  <a136d750-2fb5-8fd0-0fe7-1d5253993c7b@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 14 Oct 2016 10:32:58 -0400
-Message-ID: <CAFftDdpxB28VJZo6Z5dsM+Aq2p2+f+FngruGHCtzDpS3pTkUgw@mail.gmail.com>
-Subject: Re: speeding up nodups_specs, need large fc file.
-To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <52bbb1b8-28fd-714e-5db7-6f5876273cb0@tycho.nsa.gov>
+Date: Fri, 14 Oct 2016 10:36:12 -0400
+MIME-Version: 1.0
+In-Reply-To: <a136d750-2fb5-8fd0-0fe7-1d5253993c7b@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Oct 14, 2016 at 10:32 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On 10/14/2016 10:32 AM, Stephen Smalley wrote:
 > On 10/14/2016 10:15 AM, William Roberts wrote:
 >> Is it to be expected that checkfc would actually fail on refpolicy?
 >>
@@ -29,17 +29,18 @@ On Fri, Oct 14, 2016 at 10:32 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >>
 >> I could comment out the validation callback... but just wondering if
 >> this is expected.
->
+> 
 > Yes, you hardcoded Android-specific type attributes in checkfc,
-> remember?
-
-Now I do, I totally forgot about that.
-
-That's fine since it is an Android-only tool.  In Linux, we
+> remember?  That's fine since it is an Android-only tool.  In Linux, we
 > just runs setfiles -c /path/to/policy /path/to/file_contexts to do the
 > same thing, or these days sefcontext_compile -p /path/to/policy
 > /path/to/file_contexts will validate it.
->
+
+Or if you want a test program that just processes file_contexts and
+looks up an entry, you can use selabel_lookup or matchpathcon from
+libselinux/utils.
+
+> 
 >>
 >>
 >> On Fri, Oct 14, 2016 at 9:08 AM, William Roberts
@@ -140,11 +141,4 @@ That's fine since it is an Android-only tool.  In Linux, we
 >>
 >>
 >>
->
-
-
-
--- 
-Respectfully,
-
-William C Roberts
+> 
