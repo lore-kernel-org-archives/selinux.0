@@ -1,144 +1,98 @@
-Subject: Re: speeding up nodups_specs, need large fc file.
-To: William Roberts <bill.c.roberts@gmail.com>
-References: <476DC76E7D1DF2438D32BFADF679FC561CD17F73@ORSMSX103.amr.corp.intel.com>
- <191f635c-992e-c7bb-e74d-afb5966b4f89@tycho.nsa.gov>
- <CAFftDdqg=A5CDin0YjYHWzhsVM2Bu-0qR_hhAG+jna0C862d_Q@mail.gmail.com>
- <03c59bb9-e57f-9768-3aa0-c0e9f01f742a@tycho.nsa.gov>
- <CAFftDdrS33y4LRvjPec3UV3sVq4+D+VKUS2X-40FQJrAp=EViw@mail.gmail.com>
- <CAFftDdoUdjL1UNyLTXZ6BEiBh1BcXrNmqTVjUqv4xCLxa9d6Fw@mail.gmail.com>
- <CAFftDdq6rdF3SW4pcf7Gqgu7OjJ7EKqAOu_d2HT_3XMW1y-spg@mail.gmail.com>
- <a136d750-2fb5-8fd0-0fe7-1d5253993c7b@tycho.nsa.gov>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9EFrIcU029746
+ for <selinux@tycho.nsa.gov>; Fri, 14 Oct 2016 11:53:18 -0400
+To: SELinux <selinux@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <52bbb1b8-28fd-714e-5db7-6f5876273cb0@tycho.nsa.gov>
-Date: Fri, 14 Oct 2016 10:36:12 -0400
+Subject: ANN: SELinux userspace release
+Message-ID: <8ab31077-8e8a-6467-374a-d1b5cadae2bb@tycho.nsa.gov>
+Date: Fri, 14 Oct 2016 11:55:23 -0400
 MIME-Version: 1.0
-In-Reply-To: <a136d750-2fb5-8fd0-0fe7-1d5253993c7b@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/14/2016 10:32 AM, Stephen Smalley wrote:
-> On 10/14/2016 10:15 AM, William Roberts wrote:
->> Is it to be expected that checkfc would actually fail on refpolicy?
->>
->> $ ./checkfc ../refpolicy/policy.30 ../refpolicy/file_contexts
->> Error: "fs_type" is not defined in this policy.
->>
->> I could comment out the validation callback... but just wondering if
->> this is expected.
-> 
-> Yes, you hardcoded Android-specific type attributes in checkfc,
-> remember?  That's fine since it is an Android-only tool.  In Linux, we
-> just runs setfiles -c /path/to/policy /path/to/file_contexts to do the
-> same thing, or these days sefcontext_compile -p /path/to/policy
-> /path/to/file_contexts will validate it.
+The 2016-10-14 / 2.6 release for the SELinux userspace is now available at:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Or if you want a test program that just processes file_contexts and
-looks up an entry, you can use selabel_lookup or matchpathcon from
-libselinux/utils.
+This has been tagged as 20161014 in the git repository.
 
-> 
->>
->>
->> On Fri, Oct 14, 2016 at 9:08 AM, William Roberts
->> <bill.c.roberts@gmail.com> wrote:
->>> Yeah I just exported CHECKPOLICY to be the one from the AOSP tree and
->>> it only took 4 seconds.
->>>
->>> On Fri, Oct 14, 2016 at 9:07 AM, William Roberts
->>> <bill.c.roberts@gmail.com> wrote:
->>>> Likely not, I see it compiling version 29 and I am on ubuntu which is
->>>> way out of date with this stuff... should I just use the checkpolicy
->>>> from my AOSP tree?
->>>>
->>>> Or should I just install with some particular set of options from
->>>> selinux master repo?
->>>>
->>>> On Fri, Oct 14, 2016 at 9:06 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>>> On 10/14/2016 09:02 AM, William Roberts wrote:
->>>>>> Looks like make MONOLITHIC=y policy to get the binary policy file....
->>>>>>
->>>>>> Is it normal for checkpolicy to take 5 minutes?
->>>>>
->>>>> No, at least not with a modern checkpolicy.  Are you using a current
->>>>> version?
->>>>>
->>>>> $ time make MONOLITHIC=y policy
->>>>> Compiling refpolicy policy.30
->>>>> /usr/bin/checkpolicy -U deny policy.conf -o policy.30
->>>>> /usr/bin/checkpolicy:  loading policy configuration from policy.conf
->>>>> /usr/bin/checkpolicy:  policy configuration loaded
->>>>> /usr/bin/checkpolicy:  writing binary representation (version 30) to
->>>>> policy.30
->>>>>
->>>>> real    0m3.341s
->>>>> user    0m3.280s
->>>>> sys     0m0.061s
->>>>>
->>>>>>
->>>>>> >From TOP:
->>>>>> 31178 wcrobert  20   0  812552 751940   1628 R 100.0  4.6   4:47.36
->>>>>> checkpolicy
->>>>>>
->>>>>> On Thu, Oct 13, 2016 at 4:37 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>>>>> On 10/13/2016 03:28 PM, Roberts, William C wrote:
->>>>>>>> I was looking back at my speedup patch for nodups specs…
->>>>>>>>
->>>>>>>> http://marc.info/?l=selinux&m=147249024230263&w=2
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> I was testing before with a large, generated file_context file. I was
->>>>>>>> wondering what would be a good source for
->>>>>>>>
->>>>>>>> A desktop version of a file_contexts (textual preference as I can run
->>>>>>>> sefcontext_compile on it) file as well as a binary
->>>>>>>>
->>>>>>>> policy file….
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> Should I just use refpolicy?
->>>>>>>
->>>>>>> That's probably fine, unless you happen to have Fedora installed and can
->>>>>>> just use its file_contexts file.
->>>>>>>
->>>>>>> $ cd refpolicy
->>>>>>> $ make MONOLITHIC=y conf
->>>>>>> $ make MONOLITHIC=y file_contexts
->>>>>>> $ wc -l file_contexts
->>>>>>> 4908 file_contexts
->>>>>>> $ wc -l /etc/selinux/targeted/contexts/files/file_contexts
->>>>>>> 6075 /etc/selinux/targeted/contexts/files/file_contexts
->>>>>>>
->>>>>>>
->>>>>>> _______________________________________________
->>>>>>> Selinux mailing list
->>>>>>> Selinux@tycho.nsa.gov
->>>>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>>>>>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->>>>>>
->>>>>>
->>>>>>
->>>>>
->>>>
->>>>
->>>>
->>>> --
->>>> Respectfully,
->>>>
->>>> William C Roberts
->>>
->>>
->>>
->>> --
->>> Respectfully,
->>>
->>> William C Roberts
->>
->>
->>
-> 
+Below are some notes on this release for packagers of the SELinux
+userspace.  Please see the individual ChangeLog files for a detailed
+list of changes.
+
+1) sepolicy converted to setools4:
+- sepolicy and its users now depend on setools4 instead of setools3.
+
+- Please convert any remaining users of setools3 to setools4 since
+setools3 is no longer being developed.
+
+2) genhomedircon enhancements and behavior changes:
+- genhomedircon supports the %{USERID} template for substituting the
+user's uid. %{USERNAME} has also been added as a new template for
+substituting the user's username.  The USER template is still supported
+for backward compatibility but is deprecated.
+
+- genhomedircon supports generating home directory contexts for login
+mappings using the %group syntax.  This may produce an error if the user
+belongs to multiple groups specified in the login mapping, which can be
+resolved by adding an explicit mapping for the user to override the
+group-based mapping.
+
+- genhomedircon will fully replace the SELinux user and range fields in
+each templated security context rather than only substituting for the
+hardcoded strings "system_u" and "s0".  As a side effect, genhomedircon
+no longer has special handling of "system_u" and will therefore trigger
+a warning if there is a "system_u" entry in seusers:
+    libsemanage.add_user: user system_u not in password file
+This warning is not fatal, but it would be preferable to remove system_u
+from the seusers file.
+See https://bugzilla.redhat.com/show_bug.cgi?id=1378204
+
+- genhomedircon will replace the role field in each templated security
+context with the user prefix for the user if the user prefix is the
+identifier of a role valid for the given user, or if it is "object_r".
+This enables configuring RBACSEP (i.e. role-based separation of user
+home directories) in policy.  If the user prefix is not a valid role,
+then genhomedircon will leave the role field unmodified as before.
+
+- genhomedircon will generate entries for logins mapped to the default
+user.  Previously no entries were generated for such logins, which could
+lead to no matching file_contexts.homedirs entries for users with home
+directories outside of LU_HOMEDIRECTORY in the absence of usepasswd=True.
+
+3) libselinux pcre2 support:
+- libselinux supports either pcre1 or pcre2 but not both at the same
+time. The default remains pcre1.
+
+- To use pcre2, build libselinux and sefcontext_compile with 'make
+USE_PCRE2=y". You must also rebuild your file_contexts.bin files with
+the rebuilt sefcontext_compile.
+
+- With pcre2, file_contexts.bin is no longer architecture-neutral. The
+relevant architecture properties are endianness, pointer width, and
+PCRE2_SIZE type.  libselinux will automatically detect an architecture
+mismatch and ignore the stored precompiled regexes in that case,
+recompiling them instead at runtime.  sefcontext_compile -i will report
+the pcre version and architecture strings that it will include in the
+file_contexts.bin file.
+
+- With pcre2, file_contexts.bin is substantially larger than for pcre1.
+With the Fedora policy, we see the following sizes:
+383165	file_contexts (text)
+1507941 file_contexts.bin (binary with pcre1 regexes)
+8304105 file_contexts.bin (binary with pcre2 regexes)
+
+- If you know that you will be generating file_contexts.bin for a target
+with a different architecture string or if you do not wish to pay the
+additional storage cost, you can use the -r option to sefcontext_compile
+to omit the compiled regexes.
+With the Fedora policy, this yields a much smaller file:
+540540 file_contexts.bin (binary omitting pcre2 regexes)
+You can make this the default when libsemanage invokes
+sefcontext_compile by adding the following stanza to semanage.conf:
+[sefcontext_compile]
+path = /usr/sbin/sefcontext_compile
+args = -r $@
+[end]
