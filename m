@@ -12,27 +12,27 @@ References: <1476466802-8500-1-git-send-email-sds@tycho.nsa.gov>
  <a8c2f5fa-8a6d-196a-2518-7b33d3979e42@tycho.nsa.gov>
 Cc: jwcart2@epoch.ncsc.mil
 From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <c0699045-7bef-9bd8-d177-70d1d6e402da@gmail.com>
-Date: Fri, 14 Oct 2016 22:00:02 +0200
+Message-ID: <5a7649ee-ef5e-afad-1291-e246ee916853@gmail.com>
+Date: Sat, 15 Oct 2016 10:17:48 +0200
 MIME-Version: 1.0
 In-Reply-To: <a8c2f5fa-8a6d-196a-2518-7b33d3979e42@tycho.nsa.gov>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="HXBXOltcGueHEfaQvOJfl6KoTB8Ugeign"
+ boundary="kax55IVwiDxrKj3QDF5RO37af3qopPu9s"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---HXBXOltcGueHEfaQvOJfl6KoTB8Ugeign
-Content-Type: multipart/mixed; boundary="qlKvWwir9dUR3j6TL6AehB0wJfNpJ9mNp";
+--kax55IVwiDxrKj3QDF5RO37af3qopPu9s
+Content-Type: multipart/mixed; boundary="C5BeEs9tNOTLV5CQOLvqReh8PFan4Uq0d";
  protected-headers="v1"
 From: Dominick Grift <dac.override@gmail.com>
 To: James Carter <jwcart2@tycho.nsa.gov>, Stephen Smalley
  <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 Cc: jwcart2@epoch.ncsc.mil
-Message-ID: <c0699045-7bef-9bd8-d177-70d1d6e402da@gmail.com>
+Message-ID: <5a7649ee-ef5e-afad-1291-e246ee916853@gmail.com>
 Subject: Re: [PATCH] libsemanage: genhomedircon: only set MLS level if MLS is
  enabled
 References: <1476466802-8500-1-git-send-email-sds@tycho.nsa.gov>
@@ -45,7 +45,7 @@ References: <1476466802-8500-1-git-send-email-sds@tycho.nsa.gov>
  <a8c2f5fa-8a6d-196a-2518-7b33d3979e42@tycho.nsa.gov>
 In-Reply-To: <a8c2f5fa-8a6d-196a-2518-7b33d3979e42@tycho.nsa.gov>
 
---qlKvWwir9dUR3j6TL6AehB0wJfNpJ9mNp
+--C5BeEs9tNOTLV5CQOLvqReh8PFan4Uq0d
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: quoted-printable
 
@@ -144,30 +144,29 @@ ng
 > They won't be effected. cil_selinuxusers_to_string() will only print th=
 e
 > mls parts if a MLS policy is specified.
-
-And the other way around? Could the patch above cause things to break
-because the seusers arent updated yet?
-
-e.g. switching on the fly from an mls policy to a standard policy.
-
-the seusers need to be processed. could it be that this patch makes it
-fail because the seusers havent been processed yet
-
-as you can see here:
-
-
- libsemanage.validate_handler: seuser mapping [kcinimod ->
-(wheel.id, s0-s0:c0.c1023)] is invalid (No such file or
- directory). libsemanage.dbase_llist_iterate: could not iterate
- over records (No such file or directory) semodule: failed!
-
-it is refereing to my seuser mapping. That mapping is from the initial
-mls policy. So it hasnt been processed yet, because if it was then it
-would not have mentioned the s0-s0:c0.c1023
-
-
-> Jim
 >=20
+> Jim
+>
+
+Thanks. I thought about this and I think i see now what the issue is.
+and i suppose i can live with this "limitation"
+
+It is indeed choking on seusers{.local}
+
+if i manually remove /etc/selinux/SELINUXTYPE/seusers and
+/var/lib/selinux/SELINUXTYPE/seusers{.local} then it works
+
+
+The problem is that i am switching model without switching SELINUXTYPE.
+libsemanage can't deal with that and I suppose there never was a need
+for this because It never was possible to switch models with semodule alo=
+ne
+
+So on the one hand the patch above works, but on the other hand it
+raises the question about whether libsemanage should support switching
+modules without switcing SELINUXTYPE.
+
+
 >>
 >>
 >> _______________________________________________
@@ -188,9 +187,9 @@ https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
 Dominick Grift
 
 
---qlKvWwir9dUR3j6TL6AehB0wJfNpJ9mNp--
+--C5BeEs9tNOTLV5CQOLvqReh8PFan4Uq0d--
 
---HXBXOltcGueHEfaQvOJfl6KoTB8Ugeign
+--kax55IVwiDxrKj3QDF5RO37af3qopPu9s
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -198,16 +197,16 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCAAGBQJYATlCAAoJECV0jlU3+Udp9iwL/AsYfST5V8DFS/quTcSL5v1m
-IgBuctHexUjaDn9Nr0HUdd3qAIrLRqMUMVCNESsXi6VNCPAqfLjClXoZHbp0yc4i
-NDicbXu46jGxV1YCx809Xg6/DzVJfwA5nVxZjYFguDwGT7SNhdpM5jxabeDfjF/7
-3wUbHzp2W9bpcb3pNo50LousT/K0H7UJmIssrDm8VTR/sUn7ODdMgG9+0wZKHg4j
-nT4j+KNYKMslMqb6jPQ3ACuUQu4ydC2GxJXYY7yoNMHX90bNf7pbpeu8O7+vlrCD
-Y7+FDAEzPybihMQ0b4ciNVo0FvfFfAbM7xUki4bsbl4879AKFXFeX2xBBszNVuJi
-zIHStyxpLQeaG9wXHcJRjaVKsEre9RzsEJsG4HkcZ+jyyBqEt+VxBmoOWiitNv7G
-J8sZhhpRXvKvAMxtSDA2hCkk9Vg2uqVkoze2l5Q/wmx9idFFTw0YjktWs7NuA7kS
-WWWquJ2dlp4PMPAWhhIMWkWoI/1Z09ZSrWDMg+CwyQ==
-=w/V9
+iQGcBAEBCAAGBQJYAeYxAAoJECV0jlU3+UdpjcMMALwi2+ECVT4cTiP6HB3bF3rP
+2x8dZ2RhGyGSGQxLCIWIAHyIxv6H2PPOUR4vwA2jPDS4rg/2Ae3Ubca9wRZYfQrg
+EVBlYtq5njzuigHKBgaVjMriQUttwHqtw/mMFemwE3FUZ8MFv4Afe5qTx3lWsdsA
+41ZX1BqS4CdzWIycRAZ08lsroGfni9MZIslubQt/jqR9WpYPV4k7bCnFTkLTMBXN
+oexFIDBJPTCKau3hm8JQ321bb4OSq+2M4hngvKTeimSyY4gm5WP8yg2QxuHphd61
+yccZ6RUle1bE5UrzUGtX0k1vH+zgl6QwNRruyq8Je4P3xC10T8dQBKo2pgfwgl7k
+Lo92/CcPtC1CfMYFgREogXmIb78U0p/YMfLhWJ46cmASL0VtakzZJW4g7FFo6l8b
+YlxONIUIAyFKJYasL0pj8kmZsfXhHlW7j0XN2rSQUO6lGQKArv/5cq6dq43prnSo
+o2JR7RT4zlYorXhM0vunnKGIUUAd380R0EOrpJUgjw==
+=Vt2U
 -----END PGP SIGNATURE-----
 
---HXBXOltcGueHEfaQvOJfl6KoTB8Ugeign--
+--kax55IVwiDxrKj3QDF5RO37af3qopPu9s--
