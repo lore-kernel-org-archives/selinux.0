@@ -1,8 +1,8 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: [PATCH 7/8] libselinux: DISABLE_BOOL move to include headers
-Date: Mon, 17 Oct 2016 16:24:09 -0400
-Message-Id: <1476735850-7844-7-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH 4/8] libselinux: fix required alignment for sha1.c on mac
+Date: Mon, 17 Oct 2016 16:24:06 -0400
+Message-Id: <1476735850-7844-4-git-send-email-william.c.roberts@intel.com>
 In-Reply-To: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
 References: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,48 +12,50 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Some systems, like Mac, don't have stdio_ext.h. Since we're
-building with DISABLE_BOOL=y on Mac, just include the
-header files with the DISABLE define, and use the bare
-minimum headers for DISABLE_BOOL=y.
+When building on mac with ANDROID_HOST=y, clang complains:
+sha1.c:73:33: error: cast from 'uint8_t *' (aka 'unsigned char *') to 'CHAR64LONG16 *' increases required alignment from 1 to 4 [-Werror,-Wcast-align]
+    CHAR64LONG16*       block = (CHAR64LONG16*) workspace;
+
+Rather then casting the bytearray to the CHAR64LONG16 union,
+just create a stack workspace of type CHAR64LONG16.
+
+This will prevent alignment issues with the data accesses.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/src/booleans.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ libselinux/src/sha1.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-index cbb0610..ba9d934 100644
---- a/libselinux/src/booleans.c
-+++ b/libselinux/src/booleans.c
-@@ -5,6 +5,8 @@
-  *   Dan Walsh <dwalsh@redhat.com> - Added security_load_booleans().
-  */
+diff --git a/libselinux/src/sha1.c b/libselinux/src/sha1.c
+index 5f02af8..9bcbb6e 100644
+--- a/libselinux/src/sha1.c
++++ b/libselinux/src/sha1.c
+@@ -8,8 +8,14 @@
+ //  Modified by WaterJuice retaining Public Domain license.
+ //
+ //  This is free and unencumbered software released into the public domain - June 2013 waterjuice.org
+-//  Modified to stop symbols being exported for libselinux shared library - October 2015
++//  Modified to:
++//    - stop symbols being exported for libselinux shared library - October 2015
+ //								       Richard Haines <richard_c_haines@btinternet.com>
++//    - Not cast the workspace from a byte array to a CHAR64LONG16 due to allignment isses.
++//      Fixes:
++//        sha1.c:73:33: error: cast from 'uint8_t *' (aka 'unsigned char *') to 'CHAR64LONG16 *' increases required alignment from 1 to 4 [-Werror,-Wcast-align]
++//             CHAR64LONG16*       block = (CHAR64LONG16*) workspace;
++//                                                                     William Roberts <william.c.roberts@intel.com>
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
-+#ifndef DISABLE_BOOL
-+
- #include <assert.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-@@ -25,8 +27,6 @@
+ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+@@ -69,8 +75,8 @@ void
+     uint32_t            c;
+     uint32_t            d;
+     uint32_t            e;
+-    uint8_t             workspace[64];
+-    CHAR64LONG16*       block = (CHAR64LONG16*) workspace;
++    CHAR64LONG16        workspace;
++    CHAR64LONG16*       block = &workspace;
  
- #define SELINUX_BOOL_DIR "/booleans/"
+     memcpy( block, buffer, 64 );
  
--#ifndef DISABLE_BOOL
--
- static int filename_select(const struct dirent *d)
- {
- 	if (d->d_name[0] == '.'
-@@ -561,6 +561,10 @@ int security_load_booleans(char *path)
- }
- 
- #else
-+
-+#include <stdlib.h>
-+#include "selinux_internal.h"
-+
- int security_set_boolean_list(size_t boolcnt __attribute__((unused)),
- 	SELboolean * boollist __attribute__((unused)),
- 	int permanent __attribute__((unused)))
 -- 
 1.9.1
