@@ -1,8 +1,8 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: [PATCH 5/8] libselinux/utils: add noreturn to sefcontext_compile
-Date: Mon, 17 Oct 2016 16:24:07 -0400
-Message-Id: <1476735850-7844-5-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH 2/8] libsepol: build on mac
+Date: Mon, 17 Oct 2016 16:24:04 -0400
+Message-Id: <1476735850-7844-2-git-send-email-william.c.roberts@intel.com>
 In-Reply-To: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
 References: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,28 +12,41 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-When building on mac, one encounters this error:
-sefcontext_compile.c:270:1: error: function 'usage' could be declared with attribute 'noreturn' [-Werror,-Wmissing-noreturn]
-
-To correct this, add the attribute noreturn to the function.
+Correct the build issues on mac, mostly flags for tools.
+libsepol and cil now build completley on Mac with a
+simple make command.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/utils/sefcontext_compile.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/src/Makefile | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-index 6b564b4..54600e2 100644
---- a/libselinux/utils/sefcontext_compile.c
-+++ b/libselinux/utils/sefcontext_compile.c
-@@ -266,7 +266,7 @@ static void free_specs(struct saved_data *data)
- 	memset(data, 0, sizeof(*data));
- }
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index b0c901f..7856213 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -30,6 +30,13 @@ LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_
+ override CFLAGS += -I$(CILDIR)/include
+ endif
  
--static void usage(const char *progname)
-+static __attribute__ ((__noreturn__)) void usage(const char *progname)
- {
- 	fprintf(stderr,
- 	    "usage: %s [-o out_file] [-p policy_file] fc_file\n"
++LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
++
++OS := $(shell uname)
++ifeq ($(OS), Darwin)
++LD_SONAME_FLAGS=-install_name,$(LIBSO)
++LDFLAGS += -undefined dynamic_lookup
++endif
+ 
+ all: $(LIBA) $(LIBSO) $(LIBPC)
+ 
+@@ -39,7 +46,7 @@ $(LIBA):  $(OBJS)
+ 	$(RANLIB) $@
+ 
+ $(LIBSO): $(LOBJS) $(LIBMAP)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
++	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,$(LD_SONAME_FLAGS)
+ 	ln -sf $@ $(TARGET) 
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
 -- 
 1.9.1
