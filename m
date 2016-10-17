@@ -1,8 +1,8 @@
 From: william.c.roberts@intel.com
 To: selinux@tycho.nsa.gov, seandroid-list@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: [PATCH 2/8] libsepol: build on mac
-Date: Mon, 17 Oct 2016 16:24:04 -0400
-Message-Id: <1476735850-7844-2-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH 3/8] libselinux: fix mac build warning when ANDROID_HOST=y
+Date: Mon, 17 Oct 2016 16:24:05 -0400
+Message-Id: <1476735850-7844-3-git-send-email-william.c.roberts@intel.com>
 In-Reply-To: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
 References: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,41 +12,34 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Correct the build issues on mac, mostly flags for tools.
-libsepol and cil now build completley on Mac with a
-simple make command.
+When building on Mac, outside of the Android tree, with ANDROID_HOST=y, this warning
+is observed:
+
+label.c:102:9: warning: implicit declaration of function 'fgets_unlocked' is invalid in C99 [-Wimplicit-function-declaration]
+        while (fgets_unlocked(buf, sizeof(buf) - 1, cfg)) {
+
+Fix it by using the fgets_unlocked define that was introduced for Android, just apply it for mac builds
+as well.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libsepol/src/Makefile | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ libselinux/src/label_internal.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index b0c901f..7856213 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -30,6 +30,13 @@ LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_
- override CFLAGS += -I$(CILDIR)/include
- endif
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index 6a9481a..3d7ff74 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -16,8 +16,8 @@
+ #include "dso.h"
+ #include "sha1.h"
  
-+LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
-+
-+OS := $(shell uname)
-+ifeq ($(OS), Darwin)
-+LD_SONAME_FLAGS=-install_name,$(LIBSO)
-+LDFLAGS += -undefined dynamic_lookup
-+endif
+-#ifdef ANDROID
+-// Android does not have fgets_unlocked()
++#if defined(ANDROID) || defined(__APPLE__)
++// Android and Mac do not have fgets_unlocked()
+ #define fgets_unlocked(buf, size, fp) fgets(buf, size, fp)
+ #endif
  
- all: $(LIBA) $(LIBSO) $(LIBPC)
- 
-@@ -39,7 +46,7 @@ $(LIBA):  $(OBJS)
- 	$(RANLIB) $@
- 
- $(LIBSO): $(LOBJS) $(LIBMAP)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
-+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,$(LD_SONAME_FLAGS)
- 	ln -sf $@ $(TARGET) 
- 
- $(LIBPC): $(LIBPC).in ../VERSION
 -- 
 1.9.1
