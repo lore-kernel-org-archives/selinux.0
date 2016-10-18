@@ -1,78 +1,52 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9IIvVje022041
- for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 14:57:32 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9IJI62l024405
+ for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 15:18:06 -0400
+Subject: Re: [PATCH 0/7] libsepol/cil: Fix bugs found by Nicolas Looss with AFL
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 6/7] libsepol/cil: Verify alias in aliasactual statement is
- really an alias
-Date: Tue, 18 Oct 2016 14:58:47 -0400
-Message-Id: <1476817128-16108-7-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <dc8534bf-de94-c7f9-7b68-b04dddc68c75@tycho.nsa.gov>
+Date: Tue, 18 Oct 2016 15:19:23 -0400
+MIME-Version: 1.0
+In-Reply-To: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Nicolas Looss found while fuzzing secilc with AFL that the statement
-"(sensitivityaliasactual SENS SENS)" will cause a segfault.
+On 10/18/2016 02:58 PM, James Carter wrote:
+> A series of patches to fix bugs found by Nicolas Looss while fuzzing
+> secilc with AFL.
+>
 
-The segfault occurs because when the aliasactual is resolved the first
-identifier is assumed to refer to an alias structure, but it is not.
+Iooss, not Looss.
 
-Add a check to verify that the datum retrieved is actually an alias
-and exit with an error if it is not.
+Sorry, Nicolas. My brain cannot process your last name correctly. I will fix 
+your name when I apply the series.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/cil/src/cil_resolve_ast.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+Jim
 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index f3f3e92..149e4f4 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -452,7 +452,7 @@ exit:
- 	return rc;
- }
- 
--int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enum cil_flavor flavor)
-+int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enum cil_flavor flavor, enum cil_flavor alias_flavor)
- {
- 	int rc = SEPOL_ERR;
- 	enum cil_sym_index sym_index;
-@@ -465,10 +465,15 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
- 	if (rc != SEPOL_OK) {
- 		goto exit;
- 	}
-+
- 	rc = cil_resolve_name(current, aliasactual->alias_str, sym_index, extra_args, &alias_datum);
- 	if (rc != SEPOL_OK) {
- 		goto exit;
- 	}
-+	if (NODE(alias_datum)->flavor != alias_flavor) {
-+		cil_log(CIL_ERR, "%s is not an alias\n",alias_datum->name);
-+		goto exit;
-+	}
- 
- 	rc = cil_resolve_name(current, aliasactual->actual_str, sym_index, extra_args, &actual_datum);
- 	if (rc != SEPOL_OK) {
-@@ -3365,13 +3370,13 @@ int __cil_resolve_ast_node(struct cil_tree_node *node, void *extra_args)
- 	case CIL_PASS_ALIAS1:
- 		switch (node->flavor) {
- 		case CIL_TYPEALIASACTUAL:
--			rc = cil_resolve_aliasactual(node, args, CIL_TYPE);
-+			rc = cil_resolve_aliasactual(node, args, CIL_TYPE, CIL_TYPEALIAS);
- 			break;
- 		case CIL_SENSALIASACTUAL:
--			rc = cil_resolve_aliasactual(node, args, CIL_SENS);
-+			rc = cil_resolve_aliasactual(node, args, CIL_SENS, CIL_SENSALIAS);
- 			break;
- 		case CIL_CATALIASACTUAL:
--			rc = cil_resolve_aliasactual(node, args, CIL_CAT);
-+			rc = cil_resolve_aliasactual(node, args, CIL_CAT, CIL_CATALIAS);
- 			break;
- 		default: 
- 			break;
+
+> James Carter (7):
+>   libsepol/cil: Check for improper category range
+>   libsepol/cil: Use empty list for category expression evaluated as
+>     empty
+>   libsepol/cil: Use an empty list to represent an unknown permission
+>   libsepol/cil: Check if identifier is NULL when verifying name
+>   libsepol/cil: Check that permission is not an empty list
+>   libsepol/cil: Verify alias in aliasactual statement is really an alias
+>   libsepol/cil: Verify neither child nor parent in a bounds is an
+>     attribute
+>
+>  libsepol/cil/src/cil_build_ast.c   |  7 +++++
+>  libsepol/cil/src/cil_post.c        | 13 ++++----
+>  libsepol/cil/src/cil_resolve_ast.c | 61 +++++++++++++++++++-------------------
+>  libsepol/cil/src/cil_verify.c      |  8 ++++-
+>  4 files changed, 51 insertions(+), 38 deletions(-)
+>
+
+
 -- 
-2.7.4
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
