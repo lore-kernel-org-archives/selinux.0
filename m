@@ -1,12 +1,11 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9IIvVja022041
- for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 14:57:31 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9IIvVjd022041
+ for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 14:57:32 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/7] libsepol/cil: Use empty list for category expression
- evaluated as empty
-Date: Tue, 18 Oct 2016 14:58:43 -0400
-Message-Id: <1476817128-16108-3-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 5/7] libsepol/cil: Check that permission is not an empty list
+Date: Tue, 18 Oct 2016 14:58:46 -0400
+Message-Id: <1476817128-16108-6-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,45 +13,58 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Nicolas Looss found while fuzzing secilc with AFL that the following
-policy will cause a segfault.
+Nicolas Looss found while fuzzing secilc with AFL that the statement
+"(class C (()))" will cause a segfault.
 
-(category c0)
-(category c1)
-(categoryorder (c0 c1))
-(sensitivity s0)
-(sensitivitycategory s0 (not (all)))
+CIL expects a list of permissions in the class declaration and "(())"
+is a valid list. Each item of the list is expected to be an identifier
+and as the list is processed each item is checked to see if it is a
+list. An error is given if it is a list, otherwise the item is assumed
+to be an identifier. Unfortunately, the check only works if the list
+is not empty. In this case, the item passes the check and is assumed
+to be an identifier and a NULL is passed as the string for name
+verification. If name verification assumes that a non-NULL value will
+be passed in, a segfault will occur.
 
-The expression "(not (all))" is evaluated as containing no categories.
-There is a check for the resulting empty list and the category datum
-expression is set to NULL. The segfault occurs because the datum
-expression is assumed to be non-NULL after evaluation.
-
-Assign the list to the datum expression even if it is empty.
+Add a check for an empty list when processing a permission list and
+improve the error handling for permissions when building the AST.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/cil/src/cil_post.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ libsepol/cil/src/cil_build_ast.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index caf3321..687962e 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -865,13 +865,7 @@ static int __evaluate_cat_expression(struct cil_cats *cats, struct cil_db *db)
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index ee283b5..e4a0539 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -482,6 +482,10 @@ int cil_gen_perm(struct cil_db *db, struct cil_tree_node *parse_current, struct
+ 	cil_perm_init(&perm);
  
- 	ebitmap_destroy(&bitmap);
- 	cil_list_destroy(&cats->datum_expr, CIL_FALSE);
--	if (new->head != NULL) { 
--		cats->datum_expr = new;
--	} else {
--		/* empty list */
--		cil_list_destroy(&new, CIL_FALSE);
--		cats->datum_expr = NULL;
--	}
-+	cats->datum_expr = new;
+ 	key = parse_current->data;
++	if (key == NULL) {
++		cil_log(CIL_ERR, "Bad permission\n");
++		goto exit;
++	}
  
- 	cats->evaluated = CIL_TRUE;
+ 	rc = cil_gen_node(db, ast_node, (struct cil_symtab_datum*)perm, (hashtab_key_t)key, CIL_SYM_PERMS, flavor);
+ 	if (rc != SEPOL_OK) {
+@@ -529,6 +533,7 @@ int cil_gen_perm_nodes(struct cil_db *db, struct cil_tree_node *current_perm, st
+ 
+ 		rc = cil_gen_perm(db, current_perm, new_ast, flavor, num_perms);
+ 		if (rc != SEPOL_OK) {
++			cil_tree_node_destroy(&new_ast);
+ 			goto exit;
+ 		}
+ 
+@@ -546,6 +551,8 @@ int cil_gen_perm_nodes(struct cil_db *db, struct cil_tree_node *current_perm, st
+ 
+ exit:
+ 	cil_log(CIL_ERR, "Bad permissions\n");
++	cil_tree_children_destroy(ast_node);
++	cil_clear_node(ast_node);
+ 	return rc;
+ }
  
 -- 
 2.7.4
