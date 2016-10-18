@@ -1,44 +1,35 @@
-Subject: Re: [PATCH 8/8] libselinux: add booleans.c to ANDROID_HOST=y recipe
-To: william.c.roberts@intel.com, selinux@tycho.nsa.gov,
- seandroid-list@tycho.nsa.gov
-References: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
- <1476735850-7844-8-git-send-email-william.c.roberts@intel.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3ae5b49a-f2ee-29e7-a0d2-003158e02503@tycho.nsa.gov>
-Date: Tue, 18 Oct 2016 14:07:02 -0400
-MIME-Version: 1.0
-In-Reply-To: <1476735850-7844-8-git-send-email-william.c.roberts@intel.com>
-Content-Type: text/plain; charset=utf-8
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9IIvVjY022041
+ for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 14:57:31 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/7] libsepol/cil: Fix bugs found by Nicolas Looss with AFL
+Date: Tue, 18 Oct 2016 14:58:41 -0400
+Message-Id: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/17/2016 04:24 PM, william.c.roberts@intel.com wrote:
-> From: William Roberts <william.c.roberts@intel.com>
-> 
-> We build booleans.c with DISABLE_BOOL set on Android host
-> and target. Add that file to the upstream Makefile.
-> 
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+A series of patches to fix bugs found by Nicolas Looss while fuzzing
+secilc with AFL.
 
-Thanks, applied the series.
+James Carter (7):
+  libsepol/cil: Check for improper category range
+  libsepol/cil: Use empty list for category expression evaluated as
+    empty
+  libsepol/cil: Use an empty list to represent an unknown permission
+  libsepol/cil: Check if identifier is NULL when verifying name
+  libsepol/cil: Check that permission is not an empty list
+  libsepol/cil: Verify alias in aliasactual statement is really an alias
+  libsepol/cil: Verify neither child nor parent in a bounds is an
+    attribute
 
-> ---
->  libselinux/src/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index 7a1ae05..ccd8442 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -100,7 +100,7 @@ DISABLE_FLAGS+= -DNO_MEDIA_BACKEND -DNO_DB_BACKEND -DNO_X_BACKEND \
->  	-DBUILD_HOST
->  SRCS= callbacks.c freecon.c label.c label_file.c \
->  	label_backends_android.c regex.c label_support.c \
-> -	matchpathcon.c setrans_client.c sha1.c
-> +	matchpathcon.c setrans_client.c sha1.c booleans.c
->  else
->  DISABLE_FLAGS+= -DNO_ANDROID_BACKEND
->  SRCS:= $(filter-out label_backends_android.c, $(SRCS))
-> 
+ libsepol/cil/src/cil_build_ast.c   |  7 +++++
+ libsepol/cil/src/cil_post.c        | 13 ++++----
+ libsepol/cil/src/cil_resolve_ast.c | 61 +++++++++++++++++++-------------------
+ libsepol/cil/src/cil_verify.c      |  8 ++++-
+ 4 files changed, 51 insertions(+), 38 deletions(-)
+
+-- 
+2.7.4
