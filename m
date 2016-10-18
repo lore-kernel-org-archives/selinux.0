@@ -1,52 +1,113 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9IJI62l024405
- for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 15:18:06 -0400
-Subject: Re: [PATCH 0/7] libsepol/cil: Fix bugs found by Nicolas Looss with AFL
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9ILWUdj005981
+ for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 17:32:30 -0400
+Received: by mail-pf0-f169.google.com with SMTP id 128so2980021pfz.0
+ for <selinux@tycho.nsa.gov>; Tue, 18 Oct 2016 14:32:04 -0700 (PDT)
+From: Daniel Cashman <dcashman@android.com>
 To: selinux@tycho.nsa.gov
-References: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <dc8534bf-de94-c7f9-7b68-b04dddc68c75@tycho.nsa.gov>
-Date: Tue, 18 Oct 2016 15:19:23 -0400
-MIME-Version: 1.0
-In-Reply-To: <1476817128-16108-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Cc: jwcart2@tycho.nsa.gov, jeffv@google.com, sds@tycho.nsa.gov,
+ dcashman <dcashman@android.com>
+Subject: [PATCH] libsepol: cil: cil_strpool: Allow multiple strpool users.
+Date: Tue, 18 Oct 2016 14:31:51 -0700
+Message-Id: <1476826311-31992-1-git-send-email-dcashman@android.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/18/2016 02:58 PM, James Carter wrote:
-> A series of patches to fix bugs found by Nicolas Looss while fuzzing
-> secilc with AFL.
->
+From: dcashman <dcashman@android.com>
 
-Iooss, not Looss.
+cil_strpool currently provides an interface to a statically stored
+global data structure.  This interface does not accomodate multiple
+consumers, however, as two calls to cil_strpool_init() will lead to a
+memory leak and a call to cil_strpool_destroy() by one consumer will
+remove data from use by others, and subsequently lead to a segfault on
+the next cil_strpool_destroy() invocation.
 
-Sorry, Nicolas. My brain cannot process your last name correctly. I will fix 
-your name when I apply the series.
+Add a reference counter so that the strpool is only initialized once and
+protect the exported interface with a mutex.
 
-Jim
+Tested by calling cil_db_init() on two cil_dbs and then calling
+cil_db_destroy() on each.
 
+Signed-off-by: Daniel Cashman <dcashman@android.com>
+---
+ libsepol/cil/src/cil_strpool.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-> James Carter (7):
->   libsepol/cil: Check for improper category range
->   libsepol/cil: Use empty list for category expression evaluated as
->     empty
->   libsepol/cil: Use an empty list to represent an unknown permission
->   libsepol/cil: Check if identifier is NULL when verifying name
->   libsepol/cil: Check that permission is not an empty list
->   libsepol/cil: Verify alias in aliasactual statement is really an alias
->   libsepol/cil: Verify neither child nor parent in a bounds is an
->     attribute
->
->  libsepol/cil/src/cil_build_ast.c   |  7 +++++
->  libsepol/cil/src/cil_post.c        | 13 ++++----
->  libsepol/cil/src/cil_resolve_ast.c | 61 +++++++++++++++++++-------------------
->  libsepol/cil/src/cil_verify.c      |  8 ++++-
->  4 files changed, 51 insertions(+), 38 deletions(-)
->
-
-
+diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
+index ad2a334..5b7df8c 100644
+--- a/libsepol/cil/src/cil_strpool.c
++++ b/libsepol/cil/src/cil_strpool.c
+@@ -27,6 +27,7 @@
+  * either expressed or implied, of Tresys Technology, LLC.
+  */
+ 
++#include <pthread.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -40,6 +41,8 @@ struct cil_strpool_entry {
+ 	char *str;
+ };
+ 
++static pthread_mutex_t cil_strpool_mutex = PTHREAD_MUTEX_INITIALIZER;
++static unsigned int cil_strpool_readers = 0;
+ static hashtab_t cil_strpool_tab = NULL;
+ 
+ static unsigned int cil_strpool_hash(hashtab_t h, hashtab_key_t key)
+@@ -68,16 +71,21 @@ char *cil_strpool_add(const char *str)
+ {
+ 	struct cil_strpool_entry *strpool_ref = NULL;
+ 
++	pthread_mutex_lock(&cil_strpool_mutex);
++
+ 	strpool_ref = hashtab_search(cil_strpool_tab, (hashtab_key_t)str);
+ 	if (strpool_ref == NULL) {
+ 		strpool_ref = cil_malloc(sizeof(*strpool_ref));
+ 		strpool_ref->str = cil_strdup(str);
+ 		int rc = hashtab_insert(cil_strpool_tab, (hashtab_key_t)strpool_ref->str, strpool_ref);
+ 		if (rc != SEPOL_OK) {
++			pthread_mutex_unlock(&cil_strpool_mutex);
+ 			(*cil_mem_error_handler)();
++			pthread_mutex_lock(&cil_strpool_mutex);
+ 		}
+ 	}
+ 
++	pthread_mutex_unlock(&cil_strpool_mutex);
+ 	return strpool_ref->str;
+ }
+ 
+@@ -91,14 +99,26 @@ static int cil_strpool_entry_destroy(hashtab_key_t k __attribute__ ((unused)), h
+ 
+ void cil_strpool_init(void)
+ {
+-	cil_strpool_tab = hashtab_create(cil_strpool_hash, cil_strpool_compare, CIL_STRPOOL_TABLE_SIZE);
++	pthread_mutex_lock(&cil_strpool_mutex);
+ 	if (cil_strpool_tab == NULL) {
+-		(*cil_mem_error_handler)();
++		cil_strpool_tab = hashtab_create(cil_strpool_hash, cil_strpool_compare, CIL_STRPOOL_TABLE_SIZE);
++		if (cil_strpool_tab == NULL) {
++			pthread_mutex_unlock(&cil_strpool_mutex);
++			(*cil_mem_error_handler)();
++			return;
++		}
+ 	}
++	cil_strpool_readers++;
++	pthread_mutex_unlock(&cil_strpool_mutex);
+ }
+ 
+ void cil_strpool_destroy(void)
+ {
+-	hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
+-	hashtab_destroy(cil_strpool_tab);
++	pthread_mutex_lock(&cil_strpool_mutex);
++	cil_strpool_readers--;
++	if (cil_strpool_readers == 0) {
++		hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
++		hashtab_destroy(cil_strpool_tab);
++	}
++	pthread_mutex_unlock(&cil_strpool_mutex);
+ }
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.8.0.rc3.226.g39d4020
