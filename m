@@ -1,122 +1,26 @@
-Subject: Re: [PATCH] libsepol: cil: cil_strpool: Allow multiple strpool users.
-To: Daniel Cashman <dcashman@android.com>, selinux@tycho.nsa.gov
-References: <1476826311-31992-1-git-send-email-dcashman@android.com>
-Cc: jeffv@google.com, sds@tycho.nsa.gov
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <c7736bbc-4553-990c-ee36-30bb1f5c7153@tycho.nsa.gov>
-Date: Wed, 19 Oct 2016 10:50:57 -0400
+From: "Roberts, William C" <william.c.roberts@intel.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: RE: [PATCH] [RFC] nodups_specs: speedup
+Date: Wed, 19 Oct 2016 20:09:24 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC561CD1A131@ORSMSX103.amr.corp.intel.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <1476826311-31992-1-git-send-email-dcashman@android.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/18/2016 05:31 PM, Daniel Cashman wrote:
-> From: dcashman <dcashman@android.com>
->
-> cil_strpool currently provides an interface to a statically stored
-> global data structure.  This interface does not accomodate multiple
-> consumers, however, as two calls to cil_strpool_init() will lead to a
-> memory leak and a call to cil_strpool_destroy() by one consumer will
-> remove data from use by others, and subsequently lead to a segfault on
-> the next cil_strpool_destroy() invocation.
->
-> Add a reference counter so that the strpool is only initialized once and
-> protect the exported interface with a mutex.
->
-> Tested by calling cil_db_init() on two cil_dbs and then calling
-> cil_db_destroy() on each.
->
-> Signed-off-by: Daniel Cashman <dcashman@android.com>
+Following up on:
+http://marc.info/?l=selinux&m=147249024230263&w=2
 
-Applied.
+The speedup only occurs when you have things with very long
+And common prefix's that cause strcmp() to run for long periods.
 
-Thanks,
-Jim
+Under actual usecases, like refpolicy and Android, no measurable speedup was
+discovered.
 
-> ---
->  libsepol/cil/src/cil_strpool.c | 28 ++++++++++++++++++++++++----
->  1 file changed, 24 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
-> index ad2a334..5b7df8c 100644
-> --- a/libsepol/cil/src/cil_strpool.c
-> +++ b/libsepol/cil/src/cil_strpool.c
-> @@ -27,6 +27,7 @@
->   * either expressed or implied, of Tresys Technology, LLC.
->   */
->
-> +#include <pthread.h>
->  #include <stdlib.h>
->  #include <stdio.h>
->  #include <string.h>
-> @@ -40,6 +41,8 @@ struct cil_strpool_entry {
->  	char *str;
->  };
->
-> +static pthread_mutex_t cil_strpool_mutex = PTHREAD_MUTEX_INITIALIZER;
-> +static unsigned int cil_strpool_readers = 0;
->  static hashtab_t cil_strpool_tab = NULL;
->
->  static unsigned int cil_strpool_hash(hashtab_t h, hashtab_key_t key)
-> @@ -68,16 +71,21 @@ char *cil_strpool_add(const char *str)
->  {
->  	struct cil_strpool_entry *strpool_ref = NULL;
->
-> +	pthread_mutex_lock(&cil_strpool_mutex);
-> +
->  	strpool_ref = hashtab_search(cil_strpool_tab, (hashtab_key_t)str);
->  	if (strpool_ref == NULL) {
->  		strpool_ref = cil_malloc(sizeof(*strpool_ref));
->  		strpool_ref->str = cil_strdup(str);
->  		int rc = hashtab_insert(cil_strpool_tab, (hashtab_key_t)strpool_ref->str, strpool_ref);
->  		if (rc != SEPOL_OK) {
-> +			pthread_mutex_unlock(&cil_strpool_mutex);
->  			(*cil_mem_error_handler)();
-> +			pthread_mutex_lock(&cil_strpool_mutex);
->  		}
->  	}
->
-> +	pthread_mutex_unlock(&cil_strpool_mutex);
->  	return strpool_ref->str;
->  }
->
-> @@ -91,14 +99,26 @@ static int cil_strpool_entry_destroy(hashtab_key_t k __attribute__ ((unused)), h
->
->  void cil_strpool_init(void)
->  {
-> -	cil_strpool_tab = hashtab_create(cil_strpool_hash, cil_strpool_compare, CIL_STRPOOL_TABLE_SIZE);
-> +	pthread_mutex_lock(&cil_strpool_mutex);
->  	if (cil_strpool_tab == NULL) {
-> -		(*cil_mem_error_handler)();
-> +		cil_strpool_tab = hashtab_create(cil_strpool_hash, cil_strpool_compare, CIL_STRPOOL_TABLE_SIZE);
-> +		if (cil_strpool_tab == NULL) {
-> +			pthread_mutex_unlock(&cil_strpool_mutex);
-> +			(*cil_mem_error_handler)();
-> +			return;
-> +		}
->  	}
-> +	cil_strpool_readers++;
-> +	pthread_mutex_unlock(&cil_strpool_mutex);
->  }
->
->  void cil_strpool_destroy(void)
->  {
-> -	hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
-> -	hashtab_destroy(cil_strpool_tab);
-> +	pthread_mutex_lock(&cil_strpool_mutex);
-> +	cil_strpool_readers--;
-> +	if (cil_strpool_readers == 0) {
-> +		hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
-> +		hashtab_destroy(cil_strpool_tab);
-> +	}
-> +	pthread_mutex_unlock(&cil_strpool_mutex);
->  }
->
+Unless anyone else has a use that they would like analyzed, I'll consider this
+dead.
 
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+-- Bill
