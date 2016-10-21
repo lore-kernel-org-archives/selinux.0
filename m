@@ -1,78 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9LL6ufI005789
- for <selinux@tycho.nsa.gov>; Fri, 21 Oct 2016 17:06:56 -0400
-Received: by mail-vk0-f68.google.com with SMTP id 2so5300962vkb.1
- for <selinux@tycho.nsa.gov>; Fri, 21 Oct 2016 14:06:53 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <25eb370a-c909-8f86-3bc9-41f4672789f5@redhat.com>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <25eb370a-c909-8f86-3bc9-41f4672789f5@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 21 Oct 2016 17:06:52 -0400
-Message-ID: <CAHC9VhSJo5gcVP2CSb29vU+LYJmHjxNbs6sXYK17qXdYpu_XVA@mail.gmail.com>
-Subject: Re: [RFC] Split up policycoreutils
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9LMKPhH012489
+ for <selinux@tycho.nsa.gov>; Fri, 21 Oct 2016 18:20:31 -0400
+Received: from eisenhower.gdm.nf (50-77-164-114-static.hfc.comcastbusiness.net
+ [50.77.164.114])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mailserver.chicago.vc (Postfix) with ESMTPSA id 981D9C053F22
+ for <selinux@tycho.nsa.gov>; Fri, 21 Oct 2016 17:20:19 -0500 (CDT)
+Message-ID: <1477088418.3651.15.camel@chicago.vc>
+Subject: Question for the experts -- DIRTY COW and SELinux
+From: Robert Lee <robert.lee@chicago.vc>
+To: SELinux <selinux@tycho.nsa.gov>
+Date: Fri, 21 Oct 2016 17:20:18 -0500
+Content-Type: multipart/alternative; boundary="=-dxf/VW1RpTJGmEj+K0Qr"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Oct 21, 2016 at 2:11 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> On 10/21/2016 01:47 PM, Stephen Smalley wrote:
->> Hi,
->>
->> policycoreutils started life as a small set of utilities that were
->> necessary or at least widely used in production on a SELinux system.
->> Over time though it has grown to include many optional components, and
->> even within a given subdirectory (e.g. sepolicy) there seem to be a
->> number of components that should be optional (e.g. the dbus service).
->> I'd like to propose that we move a number of components out of
->> policycoreutils into their own top-level subdirectory (possibly grouping
->> some of the related ones together).
->>
->> Some possible components to move and the rationale for doing so include:
->>
->> - gui: not required for operation.  Unsure if this is even used outside
->> of Fedora, or how widely it is used within Fedora compared to the
->> command line tools. Packaged separately by Fedora as part of
->> policycoreutils-gui.
->>
->> - mcstrans: not required for operation outside of MLS environments (and
->> even there, only if using that label encoding functionality), not built
->> by default even upstream (omitted from policycoreutils/Makefile).
->> Packaged separately in Fedora as mcstrans.
->>
->> - restorecond: not required for operation, adds dbus and glib
->> dependencies, largely obsoleted by name-based type transition support in
->> the kernel.  Packaged separately in Fedora as policycoreutils-restorecond.
->>
->> - sandbox: not required for basic operation of SELinux.  Packaged
->> separately by Fedora as policycoreutils-sandbox.
->>
->> - semodule_deps/expand/link: developer tools only, not required for
->> operation, unlike semodule.  Packaged separately by Fedora as part of
->> policycoreutils-devel.
->>
->> - sepolicy/{org.selinux*,selinux_client.py,selinux_server.py}: D-BUS
->> service for managing SELinux, not required for basic operation, not
->> desirable in high security environments. Packaged separately by Fedora
->> as part of policycoreutils-gui.  Could perhaps be combined with the gui
->> above, although I think they are logically distinct.
->>
->> We could of course go further, but those seem to be the most obvious
->> candidates.
->>
->> Thoughts?
->
-> I am fine with this. For the most part we have separated them apart in
-> Red Hat based Distributions.
 
-Agree with Dan, no problem with me.  It will add a small amount of
-difficulty to backporting fixes to distributions, but it shouldn't be
-too bad and this is arguably the right thing to do moving forward.
+--=-dxf/VW1RpTJGmEj+K0Qr
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
--- 
-paul moore
-www.paul-moore.com
+Given the unpleasant nature of CVE-2016-5195, would an SELinux confined
+application that exploited the Dirty COW vulnerability be capable also
+of escaping domain enforcement?##SELECTION_END##
+
+Hopefully my question is not ambiguous.
+
+Thanks in advance.
+
+Robert Lee
+--=-dxf/VW1RpTJGmEj+K0Qr
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<html><head></head><body><div>Given the unpleasant nature of CVE-2016-5195, would an SELinux confined application that exploited the Dirty COW vulnerability be capable also of escaping domain enforcement?</div><div><br></div><div>Hopefully my question is not ambiguous.</div><div><br></div><div>Thanks in advance.</div><div><br></div><div>Robert Lee</div></body></html>
+--=-dxf/VW1RpTJGmEj+K0Qr--
