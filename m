@@ -1,48 +1,24 @@
-Subject: Re: [RFC] Split up policycoreutils
-To: Chris PeBenito <pebenito@ieee.org>, SELinux <selinux@tycho.nsa.gov>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
- <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
+Subject: Re: Question for the experts -- DIRTY COW and SELinux
+To: Robert Lee <robert.lee@chicago.vc>, SELinux <selinux@tycho.nsa.gov>
+References: <1477088418.3651.15.camel@chicago.vc>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
-Date: Mon, 24 Oct 2016 09:21:06 -0400
+Message-ID: <576dac61-bebb-cdd2-f69d-ce369a79cede@tycho.nsa.gov>
+Date: Mon, 24 Oct 2016 10:35:58 -0400
 MIME-Version: 1.0
-In-Reply-To: <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
+In-Reply-To: <1477088418.3651.15.camel@chicago.vc>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/24/2016 09:13 AM, Stephen Smalley wrote:
-> On 10/22/2016 09:44 AM, Chris PeBenito wrote:
->> On 10/21/16 13:47, Stephen Smalley wrote:
->>> policycoreutils started life as a small set of utilities that were
->>> necessary or at least widely used in production on a SELinux system.
->>> Over time though it has grown to include many optional components, and
->>> even within a given subdirectory (e.g. sepolicy) there seem to be a
->>> number of components that should be optional (e.g. the dbus service).
->>> I'd like to propose that we move a number of components out of
->>> policycoreutils into their own top-level subdirectory (possibly grouping
->>> some of the related ones together).
->>
->> I'm not sure where the main part of sepolicy should go, but it would be
->> nice to split it out since it depends on setools which has heavier
->> dependencies than a core system package should typically have IMO
->> (NetworkX, which pulls in scipy, numpy, matplotlib, etc.)
+On 10/21/2016 06:20 PM, Robert Lee wrote:
+> Given the unpleasant nature of CVE-2016-5195, would an SELinux confined
+> application that exploited the Dirty COW vulnerability be capable also
+> of escaping domain enforcement?
 > 
-> I would be in favor of that too, but hesitated to do so because it would
-> require moving audit2allow and semanage out of policycoreutils as well.
-> Fedora does package those as part of policycoreutils-python (along with
-> sepolgen).  Arguably audit2allow isn't necessary for production (but
-> many users of SELinux in Linux distributions rely on it), but semanage
-> is more fundamental these days.
+> Hopefully my question is not ambiguous.
 > 
-> However, if people are open to moving sepolicy, audit2allow, and
-> semanage, possibly combining them with sepolgen in a new
-> subdirectory/package, then we could explore that.
+> Thanks in advance.
 
-We'd also need to move chcat, since it imports seobject.  However, on
-that topic, is there any reason to retain chcat?  It was created for the
-original discretionary MCS model and I'm not sure it is used anymore by
-anyone.
+Sorry, SELinux can't help with CVE-2016-5195.
