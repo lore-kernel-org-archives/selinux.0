@@ -1,30 +1,60 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9OJPlG0023478
- for <selinux@tycho.nsa.gov>; Mon, 24 Oct 2016 15:25:47 -0400
-Received: by mail-qt0-f197.google.com with SMTP id g49so191807668qtc.7
- for <selinux@tycho.nsa.gov>; Mon, 24 Oct 2016 12:25:45 -0700 (PDT)
+Subject: Re: [RFC] Split up policycoreutils
+To: Stephen Smalley <sds@tycho.nsa.gov>, Chris PeBenito <pebenito@ieee.org>,
+ SELinux <selinux@tycho.nsa.gov>
+References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
+ <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
+ <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
+ <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
+From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <48da99c2-e674-36c5-68d2-fcd2b9911801@redhat.com>
+Date: Mon, 24 Oct 2016 17:15:37 -0400
 MIME-Version: 1.0
-From: David Graziano <david.graziano@rockwellcollins.com>
-Date: Mon, 24 Oct 2016 14:25:24 -0500
-Message-ID: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
-Subject: POSIX mqueues
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I am attempting to write policy for a set of applications which use
-POSIX mqueues using named type_transistion rules to uniquely label the
-mqueue files in the /dev/mqueue directory then controlling access
-based on the types. Standard type transition rules seem to work but I
-cannot seem to get the named type transitions to apply the proper
-label. Are named type transitions not supported by the mqueue file
-system? I’m on a 3.14 series kernel with policy version 28 if that
-helps. I’d like to avoid needing to do a restorecon after a new queue
-is created. Named type transistions seem to work on other file systems
-like tmp and jffs2.
 
-Thanks in advance,
-David Graziano
+
+On 10/24/2016 09:21 AM, Stephen Smalley wrote:
+> On 10/24/2016 09:13 AM, Stephen Smalley wrote:
+>> On 10/22/2016 09:44 AM, Chris PeBenito wrote:
+>>> On 10/21/16 13:47, Stephen Smalley wrote:
+>>>> policycoreutils started life as a small set of utilities that were
+>>>> necessary or at least widely used in production on a SELinux system.
+>>>> Over time though it has grown to include many optional components, and
+>>>> even within a given subdirectory (e.g. sepolicy) there seem to be a
+>>>> number of components that should be optional (e.g. the dbus service).
+>>>> I'd like to propose that we move a number of components out of
+>>>> policycoreutils into their own top-level subdirectory (possibly grouping
+>>>> some of the related ones together).
+>>> I'm not sure where the main part of sepolicy should go, but it would be
+>>> nice to split it out since it depends on setools which has heavier
+>>> dependencies than a core system package should typically have IMO
+>>> (NetworkX, which pulls in scipy, numpy, matplotlib, etc.)
+>> I would be in favor of that too, but hesitated to do so because it would
+>> require moving audit2allow and semanage out of policycoreutils as well.
+>> Fedora does package those as part of policycoreutils-python (along with
+>> sepolgen).  Arguably audit2allow isn't necessary for production (but
+>> many users of SELinux in Linux distributions rely on it), but semanage
+>> is more fundamental these days.
+>>
+>> However, if people are open to moving sepolicy, audit2allow, and
+>> semanage, possibly combining them with sepolgen in a new
+>> subdirectory/package, then we could explore that.
+> We'd also need to move chcat, since it imports seobject.  However, on
+> that topic, is there any reason to retain chcat?  It was created for the
+> original discretionary MCS model and I'm not sure it is used anymore by
+> anyone.
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
+I would suggest we remove it.
