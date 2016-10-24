@@ -1,29 +1,76 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9NLTUoG031724
- for <selinux@tycho.nsa.gov>; Sun, 23 Oct 2016 17:29:30 -0400
-To: refpolicy <refpolicy@oss.tresys.com>, SELinux <selinux@tycho.nsa.gov>
-From: Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: Reference Policy Release
-Message-ID: <6f8bd54a-758b-01ba-0958-16bd6c5b15ed@ieee.org>
-Date: Sun, 23 Oct 2016 17:29:25 -0400
+Subject: Re: [RFC] Split up policycoreutils
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <bd8b0b8c-389c-4f6a-8515-5dc5554ed3af@redhat.com>
+Date: Mon, 24 Oct 2016 11:28:11 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A new release of the SELinux Reference Policy is now available on the
-GitHub site, https://github.com/TresysTechnology/refpolicy.
+On 10/21/2016 07:47 PM, Stephen Smalley wrote:
+> Hi,
+> 
+> policycoreutils started life as a small set of utilities that were
+> necessary or at least widely used in production on a SELinux system.
+> Over time though it has grown to include many optional components, and
+> even within a given subdirectory (e.g. sepolicy) there seem to be a
+> number of components that should be optional (e.g. the dbus service).
+> I'd like to propose that we move a number of components out of
+> policycoreutils into their own top-level subdirectory (possibly grouping
+> some of the related ones together).
+> 
+> Some possible components to move and the rationale for doing so include:
+> 
+> - gui: not required for operation.  Unsure if this is even used outside
+> of Fedora, or how widely it is used within Fedora compared to the
+> command line tools. Packaged separately by Fedora as part of
+> policycoreutils-gui.
+>
+> - mcstrans: not required for operation outside of MLS environments (and
+> even there, only if using that label encoding functionality), not built
+> by default even upstream (omitted from policycoreutils/Makefile).
+> Packaged separately in Fedora as mcstrans.
+>
+> - restorecond: not required for operation, adds dbus and glib
+> dependencies, largely obsoleted by name-based type transition support in
+> the kernel.  Packaged separately in Fedora as policycoreutils-restorecond.
+> 
+> - sandbox: not required for basic operation of SELinux.  Packaged
+> separately by Fedora as policycoreutils-sandbox.
+> 
+> - semodule_deps/expand/link: developer tools only, not required for
+> operation, unlike semodule.  Packaged separately by Fedora as part of
+> policycoreutils-devel.
+> 
+> - sepolicy/{org.selinux*,selinux_client.py,selinux_server.py}: D-BUS
+> service for managing SELinux, not required for basic operation, not
+> desirable in high security environments. Packaged separately by Fedora
+> as part of policycoreutils-gui.  Could perhaps be combined with the gui
+> above, although I think they are logically distinct.
+> 
+> We could of course go further, but those seem to be the most obvious
+> candidates.
+> 
+> Thoughts?
 
-The full changelog is too long to include in this email, so here's the
-diffstat instead:
+Generally the split makes sense to me.
 
-Core:
-82 files changed, 1411 insertions(+), 225 deletions(-)
+DBUS is used for generic interprocess communication even in low level
+system components like init and it's basically a mandatory component of
+so called modern systems. There are projects like Cockpit -
+http://cockpit-project.org/ - which uses DBUS as API to access and
+manage system resources.
 
-Contrib:
-125 files changed, 1275 insertions(+), 133 deletions(-)
+So I think that org.selinux DBUS API and selinux_server.py should be
+extracted from sepolicy to its own subdirectory to be available to all
+other projects without need to install gui application and libraries.
 
--- 
-Chris PeBenito
+Then sepolicy/ and gui/ could follow the current structure with a
+dependency on dbus/.
+
+Petr
