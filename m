@@ -1,100 +1,129 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9PDoMrG027057
- for <selinux@tycho.nsa.gov>; Tue, 25 Oct 2016 09:50:24 -0400
-Received: by mail-lf0-f52.google.com with SMTP id o16so10822815lff.7
- for <selinux@tycho.nsa.gov>; Tue, 25 Oct 2016 06:50:20 -0700 (PDT)
-Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id q125sm3836014wmd.2.2016.10.25.06.50.17
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Tue, 25 Oct 2016 06:50:17 -0700 (PDT)
-Subject: Re: POSIX mqueues
-To: selinux@tycho.nsa.gov
-References: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <977dbaf4-2064-5953-c4f7-4b9cd27d84e6@gmail.com>
-Date: Tue, 25 Oct 2016 15:50:12 +0200
+Date: Tue, 25 Oct 2016 12:26:37 +0800
+From: Jason Zaman <perfinion@gentoo.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Jason Zaman <jason@perfinion.com>, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Gold linker build failures
+Message-ID: <20161025042637.GB25830@meriadoc.perfinion.com>
+References: <20161005093306.GB8208@meriadoc>
+ <870fc9a1-a187-f8e4-dd51-e648b1ed5b21@tycho.nsa.gov>
+ <91d49ae1-92a2-a4e9-aaad-579bf2675763@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <91d49ae1-92a2-a4e9-aaad-579bf2675763@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF
-Content-Type: multipart/mixed; boundary="a3cuUTgak6UxlJhFkMAeS1638QBr8NjW0";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <977dbaf4-2064-5953-c4f7-4b9cd27d84e6@gmail.com>
-Subject: Re: POSIX mqueues
-References: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
-In-Reply-To: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
+On Wed, Oct 05, 2016 at 01:27:50PM -0400, Stephen Smalley wrote:
+> On 10/05/2016 01:02 PM, Stephen Smalley wrote:
+> > On 10/05/2016 05:33 AM, Jason Zaman wrote:
+> >> Hey all,
+> >>
+> >> libsepol (and probably the rest) fail when using ld.gold for me. We should
+> >> probably start supporting gold since it looks like things are slowly moving
+> >> towards using it by default. Gentoo and fedora both look like they have a way
+> >> to switch to it but for now the default is still ld.bfd. I dont think I'll have
+> >> much time to take a stab at this for a quite a while and don't know much about
+> >> linker scripts and versioned symbols either.
+> >>
+> >> On fedora this should switch: /usr/sbin/alternatives --set ld /usr/bin/ld.gold
+> >>
+> >> On Gentoo:
+> >> # binutils-config --linker ld.gold
+> >> # ld --version
+> >> GNU gold (Gentoo 2.25.1 p1.1 2.25.1) 1.11
+> >> Copyright (C) 2014 Free Software Foundation, Inc.
+> >> This program is free software; you may redistribute it under the terms of
+> >> the GNU General Public License version 3 or (at your option) a later version.
+> >> This program has absolutely no warranty.
+> >>
+> >>
+> >> cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -fPIC -DSHARED -c -o ../cil/src/cil_verify.lo ../cil/src/cil_verify.c
+> >> cp libsepol.map.in libsepol.map
+> >> cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -g -shared -o libsepol.so.1 assertion.lo avrule_block.lo avtab.lo boolean_record.lo booleans.lo conditional.lo constraint.lo context.lo context_record.lo debug.lo ebitmap.lo expand.lo genbools.lo genusers.lo handle.lo hashtab.lo hierarchy.lo iface_record.lo interfaces.lo link.lo mls.lo module.lo module_to_cil.lo node_record.lo nodes.lo polcaps.lo policydb.lo policydb_convert.lo policydb_public.lo port_record.lo ports.lo roles.lo services.lo sidtab.lo symtab.lo user_record.lo users.lo util.lo write.lo ../cil/src/cil.lo ../cil/src/cil_binary.lo ../cil/src/cil_build_ast.lo ../cil/src/cil_copy_ast.lo ../cil/src/cil_find.lo ../cil/src/cil_fqn.lo ../cil/src/cil_lexer.lo ../cil/src/cil_list.lo ../cil/src/cil_log.lo ../cil/src/cil_mem.lo ../cil/src/cil_parser.lo ../cil/src/cil_policy.lo ../cil/src/cil_post.lo ../cil/src/cil_reset_ast.lo ../cil/src/cil_resolve_ast.lo ../cil/src/cil_stack.lo ../cil/src/cil_strpool.lo ../cil/src/cil_symtab.lo ../cil/src/cil_tree.lo ../cil/src/cil_verify.lo -Wl,-soname,libsepol.so.1,--version-script=libsepol.map,-z,defs
+> >> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: warning: wildcard match appears in both version 'LIBSEPOL_1.0' and 'LIBSEPOL_1.1' in script
+> >> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: symbol cil_build_policydb has undefined version 
+> >> collect2: error: ld returned 1 exit status
+> >> Makefile:42: recipe for target 'libsepol.so.1' failed
+> >> make[2]: *** [libsepol.so.1] Error 1
+> > 
+> > I could reproduce and fix the wildcard match error - that's clearly a
+> > bug in the map files.  I don't see the second error though on Fedora
+> > with GNU gold version 2.26.1, and I'm not clear on what the underlying
+> > issue is.
+> 
+> Actually, reading:
+> https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_node/ld_25.html
+> I'm thinking that libsepol/cil/src/cil.c is wrong and ought to have
+> @LIBSEPOL_1.0 as the suffix rather than just @ for all of the old
+> symbols there.  But as I said, I couldn't reproduce the error.
+> 
+> 
 
---a3cuUTgak6UxlJhFkMAeS1638QBr8NjW0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+On master I get:
 
-On 10/24/2016 09:25 PM, David Graziano wrote:
-> I am attempting to write policy for a set of applications which use
-> POSIX mqueues using named type_transistion rules to uniquely label the
-> mqueue files in the /dev/mqueue directory then controlling access
-> based on the types. Standard type transition rules seem to work but I
-> cannot seem to get the named type transitions to apply the proper
-> label. Are named type transitions not supported by the mqueue file
-> system? I=E2=80=99m on a 3.14 series kernel with policy version 28 if t=
-hat
-> helps. I=E2=80=99d like to avoid needing to do a restorecon after a new=
- queue
-> is created. Named type transistions seem to work on other file systems
-> like tmp and jffs2.
->=20
-> Thanks in advance,
-> David Graziano
->=20
-
-FWIW, I can confirm the above. Am encountering the same.
-
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
->=20
+cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -g -shared -o libsepol.so.1 assertion.lo avrule_block.lo avtab.lo boolean_record.lo booleans.lo conditional.lo constraint.lo context.lo context_record.lo debug.lo ebitmap.lo expand.lo genbools.lo genusers.lo handle.lo hashtab.lo hierarchy.lo iface_record.lo interfaces.lo link.lo mls.lo module.lo module_to_cil.lo node_record.lo nodes.lo polcaps.lo policydb.lo policydb_convert.lo policydb_public.lo port_record.lo ports.lo roles.lo services.lo sidtab.lo symtab.lo user_record.lo users.lo util.lo write.lo ../cil/src/cil.lo ../cil/src/cil_binary.lo ../cil/src/cil_build_ast.lo ../cil/src/cil_copy_ast.lo ../cil/src/cil_find.lo ../cil/src/cil_fqn.lo ../cil/src/cil_lexer.lo ../cil/src/cil_list.lo ../cil/src/cil_log.lo ../cil/src/cil_mem.lo ../cil/src/cil_parser.lo ../cil/src/cil_policy.lo ../cil/src/cil_post.lo ../cil/src/cil_reset_ast.lo ../cil/src/cil_resolve_ast.lo ../cil/src/cil_stack.lo ../cil/src/cil_strpool.lo ../cil/src/cil_symtab.lo ../cil/src/cil_tree.lo ../cil/src/cil_verify.lo -Wl,-soname,libsepol.so.1,--version-script=libsepol.map,-z,defs
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: symbol cil_build_policydb has undefined version 
+collect2: error: ld returned 1 exit status
+Makefile:49: recipe for target 'libsepol.so.1' failed
+make[2]: *** [libsepol.so.1] Error 1
 
 
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
+Then I did the following:
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 929ab19..aed8c89 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -53,19 +53,19 @@
+ #include "dso.h"
+ 
+ #ifndef DISABLE_SYMVER
+-asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
++asm(".symver cil_build_policydb_pdb,        cil_build_policydb@@LIBSEPOL_1.0");
+ asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_compile_pdb,   cil_compile@");
++asm(".symver cil_compile_pdb,   cil_compile@@LIBSEPOL_1.0");
+ asm(".symver cil_compile_nopdb, cil_compile@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@");
++asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@@LIBSEPOL_1.0");
+ asm(".symver cil_userprefixes_to_string_nopdb, cil_userprefixes_to_string@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@");
++asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@@LIBSEPOL_1.0");
+ asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
++asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@@LIBSEPOL_1.0");
+ asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
+ #endif
+ 
+
+And now I get this instead:
+
+cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -g -shared -o libsepol.so.1 assertion.lo avrule_block.lo avtab.lo boolean_record.lo booleans.lo conditional.lo constraint.lo context.lo context_record.lo debug.lo ebitmap.lo expand.lo genbools.lo genusers.lo handle.lo hashtab.lo hierarchy.lo iface_record.lo interfaces.lo link.lo mls.lo module.lo module_to_cil.lo node_record.lo nodes.lo polcaps.lo policydb.lo policydb_convert.lo policydb_public.lo port_record.lo ports.lo roles.lo services.lo sidtab.lo symtab.lo user_record.lo users.lo util.lo write.lo ../cil/src/cil.lo ../cil/src/cil_binary.lo ../cil/src/cil_build_ast.lo ../cil/src/cil_copy_ast.lo ../cil/src/cil_find.lo ../cil/src/cil_fqn.lo ../cil/src/cil_lexer.lo ../cil/src/cil_list.lo ../cil/src/cil_log.lo ../cil/src/cil_mem.lo ../cil/src/cil_parser.lo ../cil/src/cil_policy.lo ../cil/src/cil_post.lo ../cil/src/cil_reset_ast.lo ../cil/src/cil_resolve_ast.lo ../cil/src/cil_stack.lo ../cil/src/cil_strpool.lo ../cil/src/cil_symtab.lo ../cil/src/cil_tree.lo ../cil/src/cil_verify.lo -Wl,-soname,libsepol.so.1,--version-script=libsepol.map,-z,defs
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_build_policydb'
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_compile'
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_userprefixes_to_string'
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_selinuxusers_to_string'
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_filecons_to_string'
+/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
+collect2: error: ld returned 1 exit status
+Makefile:49: recipe for target 'libsepol.so.1' failed
+make[2]: *** [libsepol.so.1] Error 1
 
 
---a3cuUTgak6UxlJhFkMAeS1638QBr8NjW0--
+I dont really know that much about symbol versioning tho. I am much less
+busy now than I was the last couple weeks so I have time to test stuff
+if you have other ideas? I get the same error using clang, that might
+help you repro? But I think that just uses the same linker so probably
+no diff. I will also try and update to a newer linker and see if 2.26
+makes the issue go away cuz im on 2.25.
 
---D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJYD2MUAAoJECV0jlU3+Udp2CQMALkb1k0Rmna/QefbshR5VVPd
-BqkXlN8H5M5QvnmBxPl9YOV1Kq65xWVn6ga/ticHzQf/7RJqxKqNbA1fCXmEK9eQ
-H1w3KyVMkuDR5jCIUSdhEJ0RSG9g0Cn0iJPuvR4mchzfKvMPVKBH5wZIpQtvdmtf
-pPnRIpsPhEonLE0YoNepsoXNM0gPVhYIo512Ot9NfhXeObP0TxmOMEMojCciMwQx
-Hsi3kXk8yBKjy3APX8xxeKRPngVLhs0oMgGKpz2g6Y687JeZq/d+0dGQaewkGB3Z
-1dngHAEVg23lEKmIosu7SeeqxkFrEzitrwbQ68e8juxOpet6EQZJhjQOFpyUWuaT
-YzN9R4dD8c2mlS5uXdrkYxCa2//TB/6w2NBkltR/cv6MbKVHmgu2yWOYsaKiFeqv
-xqvqXJSnn+f15GlaxtLqn58mEoQSh0N/kO5LV5NM1ZBRmIcZVak+keOevL8svdQH
-+u0kgTDha4Tyf7Hen2SEu2KHb6aEU6Ui2x+RrpkzBg==
-=RLfQ
------END PGP SIGNATURE-----
-
---D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF--
+-- Jason
