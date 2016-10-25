@@ -1,113 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9P5lJCv015359
- for <selinux@tycho.nsa.gov>; Tue, 25 Oct 2016 01:47:19 -0400
-Received: by mail-wm0-f67.google.com with SMTP id 79so245589wmy.4
- for <selinux@tycho.nsa.gov>; Mon, 24 Oct 2016 22:47:15 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9PDoMrG027057
+ for <selinux@tycho.nsa.gov>; Tue, 25 Oct 2016 09:50:24 -0400
+Received: by mail-lf0-f52.google.com with SMTP id o16so10822815lff.7
+ for <selinux@tycho.nsa.gov>; Tue, 25 Oct 2016 06:50:20 -0700 (PDT)
 Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id o62sm1566411wmg.9.2016.10.24.22.47.13
+ by smtp.gmail.com with ESMTPSA id q125sm3836014wmd.2.2016.10.25.06.50.17
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Mon, 24 Oct 2016 22:47:13 -0700 (PDT)
-Subject: Re: [RFC] Split up policycoreutils
+ Tue, 25 Oct 2016 06:50:17 -0700 (PDT)
+Subject: Re: POSIX mqueues
 To: selinux@tycho.nsa.gov
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
- <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
- <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
- <48da99c2-e674-36c5-68d2-fcd2b9911801@redhat.com>
+References: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
 From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <55b2b6a8-04fa-5a6b-795b-72d87de60eb4@gmail.com>
-Date: Tue, 25 Oct 2016 07:47:07 +0200
+Message-ID: <977dbaf4-2064-5953-c4f7-4b9cd27d84e6@gmail.com>
+Date: Tue, 25 Oct 2016 15:50:12 +0200
 MIME-Version: 1.0
-In-Reply-To: <48da99c2-e674-36c5-68d2-fcd2b9911801@redhat.com>
+In-Reply-To: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="Bq1u4aEadCo4IDenL5l3R7a6fVnwd0Wc2"
+ boundary="D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Bq1u4aEadCo4IDenL5l3R7a6fVnwd0Wc2
-Content-Type: multipart/mixed; boundary="QsaFVG6RaaSXvJ01sMOljgtqW4Vj1InV3";
+--D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF
+Content-Type: multipart/mixed; boundary="a3cuUTgak6UxlJhFkMAeS1638QBr8NjW0";
  protected-headers="v1"
 From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Message-ID: <55b2b6a8-04fa-5a6b-795b-72d87de60eb4@gmail.com>
-Subject: Re: [RFC] Split up policycoreutils
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
- <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
- <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
- <48da99c2-e674-36c5-68d2-fcd2b9911801@redhat.com>
-In-Reply-To: <48da99c2-e674-36c5-68d2-fcd2b9911801@redhat.com>
+Message-ID: <977dbaf4-2064-5953-c4f7-4b9cd27d84e6@gmail.com>
+Subject: Re: POSIX mqueues
+References: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
+In-Reply-To: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
 
---QsaFVG6RaaSXvJ01sMOljgtqW4Vj1InV3
-Content-Type: text/plain; charset=windows-1252
+--a3cuUTgak6UxlJhFkMAeS1638QBr8NjW0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On 10/24/2016 11:15 PM, Daniel J Walsh wrote:
+On 10/24/2016 09:25 PM, David Graziano wrote:
+> I am attempting to write policy for a set of applications which use
+> POSIX mqueues using named type_transistion rules to uniquely label the
+> mqueue files in the /dev/mqueue directory then controlling access
+> based on the types. Standard type transition rules seem to work but I
+> cannot seem to get the named type transitions to apply the proper
+> label. Are named type transitions not supported by the mqueue file
+> system? I=E2=80=99m on a 3.14 series kernel with policy version 28 if t=
+hat
+> helps. I=E2=80=99d like to avoid needing to do a restorecon after a new=
+ queue
+> is created. Named type transistions seem to work on other file systems
+> like tmp and jffs2.
 >=20
+> Thanks in advance,
+> David Graziano
 >=20
-> On 10/24/2016 09:21 AM, Stephen Smalley wrote:
->> On 10/24/2016 09:13 AM, Stephen Smalley wrote:
->>> On 10/22/2016 09:44 AM, Chris PeBenito wrote:
->>>> On 10/21/16 13:47, Stephen Smalley wrote:
->>>>> policycoreutils started life as a small set of utilities that were
->>>>> necessary or at least widely used in production on a SELinux system=
-=2E
->>>>> Over time though it has grown to include many optional components, =
-and
->>>>> even within a given subdirectory (e.g. sepolicy) there seem to be a=
 
->>>>> number of components that should be optional (e.g. the dbus service=
-).
->>>>> I'd like to propose that we move a number of components out of
->>>>> policycoreutils into their own top-level subdirectory (possibly gro=
-uping
->>>>> some of the related ones together).
->>>> I'm not sure where the main part of sepolicy should go, but it would=
- be
->>>> nice to split it out since it depends on setools which has heavier
->>>> dependencies than a core system package should typically have IMO
->>>> (NetworkX, which pulls in scipy, numpy, matplotlib, etc.)
->>> I would be in favor of that too, but hesitated to do so because it wo=
-uld
->>> require moving audit2allow and semanage out of policycoreutils as wel=
-l.
->>> Fedora does package those as part of policycoreutils-python (along wi=
-th
->>> sepolgen).  Arguably audit2allow isn't necessary for production (but
->>> many users of SELinux in Linux distributions rely on it), but semanag=
-e
->>> is more fundamental these days.
->>>
->>> However, if people are open to moving sepolicy, audit2allow, and
->>> semanage, possibly combining them with sepolgen in a new
->>> subdirectory/package, then we could explore that.
->> We'd also need to move chcat, since it imports seobject.  However, on
->> that topic, is there any reason to retain chcat?  It was created for t=
-he
->> original discretionary MCS model and I'm not sure it is used anymore b=
-y
->> anyone.
->>
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.=
-nsa.gov.
->>
->>
-> I would suggest we remove it.
-
-I would not mind terribly removing it either but I prefer that we first
-see if we can fit this in somewhere else. I do not see this as a core
-utility but if someone wants to implement the old MCS model then one
-should be able to do so.
+FWIW, I can confirm the above. Am encountering the same.
 
 > _______________________________________________
 > Selinux mailing list
@@ -125,9 +75,9 @@ https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
 Dominick Grift
 
 
---QsaFVG6RaaSXvJ01sMOljgtqW4Vj1InV3--
+--a3cuUTgak6UxlJhFkMAeS1638QBr8NjW0--
 
---Bq1u4aEadCo4IDenL5l3R7a6fVnwd0Wc2
+--D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -135,16 +85,16 @@ Content-Disposition: attachment; filename="signature.asc"
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2
 
-iQGcBAEBCAAGBQJYDvHbAAoJECV0jlU3+UdpbfwMAJ7rO1aqD6xbbgtSnU4sSlkU
-RriCZSQu9wWpTljoR2dxBOQNLYvyeTzuXuS620/XaYCub9dE6CRpOV3cMWhLGXGj
-QWsuPC3jjPsyn2dyThJ4KxoNGsmFtXw06ZZiVcJlUO3gHIhryNnA2IutH2Sn4FRc
-jdTfZwBAWi1P+4pF0xKKHRcX4k3F3ja+FcYw1vb8zQtrsWXJ9JirNLwnfUD+xVry
-RogWYMCB5PWT1jY6YXaG6ug7hQr4h6lYc51phAGuz5y3fZs2aIOlHSpt/w5NPTw2
-WENXc51R5aEsfvps9EWuYUSlDxdTgKic+nkdTsBz7FGsiPVnbbFo7vSdLzKGlO5Z
-PP06vm1ZXBB5OH2FUjBo96hanXzh1z1qilXbTJgEYPDMK7MLXfem0FlXgHxWd7qi
-TXvD9HE6RatxTbRPDdGGsnR7sBg3JSLSHBi0AiPiisBhXi/9gqmj2ff335GQ/fZg
-Qu4Mh/82Anig5PWjt1FhGsP35M4aD2AzRsFylB2ugQ==
-=GKqu
+iQGcBAEBCAAGBQJYD2MUAAoJECV0jlU3+Udp2CQMALkb1k0Rmna/QefbshR5VVPd
+BqkXlN8H5M5QvnmBxPl9YOV1Kq65xWVn6ga/ticHzQf/7RJqxKqNbA1fCXmEK9eQ
+H1w3KyVMkuDR5jCIUSdhEJ0RSG9g0Cn0iJPuvR4mchzfKvMPVKBH5wZIpQtvdmtf
+pPnRIpsPhEonLE0YoNepsoXNM0gPVhYIo512Ot9NfhXeObP0TxmOMEMojCciMwQx
+Hsi3kXk8yBKjy3APX8xxeKRPngVLhs0oMgGKpz2g6Y687JeZq/d+0dGQaewkGB3Z
+1dngHAEVg23lEKmIosu7SeeqxkFrEzitrwbQ68e8juxOpet6EQZJhjQOFpyUWuaT
+YzN9R4dD8c2mlS5uXdrkYxCa2//TB/6w2NBkltR/cv6MbKVHmgu2yWOYsaKiFeqv
+xqvqXJSnn+f15GlaxtLqn58mEoQSh0N/kO5LV5NM1ZBRmIcZVak+keOevL8svdQH
++u0kgTDha4Tyf7Hen2SEu2KHb6aEU6Ui2x+RrpkzBg==
+=RLfQ
 -----END PGP SIGNATURE-----
 
---Bq1u4aEadCo4IDenL5l3R7a6fVnwd0Wc2--
+--D4PklLW8WAGwbMEHKieUatPFhA5fxUgwF--
