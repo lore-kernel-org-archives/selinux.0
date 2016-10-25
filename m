@@ -1,154 +1,63 @@
-Subject: Re: Gold linker build failures
-To: Jason Zaman <perfinion@gentoo.org>
-References: <20161005093306.GB8208@meriadoc>
- <870fc9a1-a187-f8e4-dd51-e648b1ed5b21@tycho.nsa.gov>
- <91d49ae1-92a2-a4e9-aaad-579bf2675763@tycho.nsa.gov>
- <20161025042637.GB25830@meriadoc.perfinion.com>
- <20161025044533.GC25830@meriadoc.perfinion.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9PMCpJ4017523
+ for <selinux@tycho.nsa.gov>; Tue, 25 Oct 2016 18:12:51 -0400
+Subject: Re: [RFC] Split up policycoreutils
+To: Jason Zaman <jason@perfinion.com>, Stephen Smalley <sds@tycho.nsa.gov>
+References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
+ <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
+ <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
+ <20161025034900.GA14100@meriadoc.perfinion.com>
 Cc: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <197c012d-4efa-7d43-63d0-5650337163b9@tycho.nsa.gov>
-Date: Tue, 25 Oct 2016 13:58:41 -0400
+From: Chris PeBenito <pebenito@ieee.org>
+Message-ID: <69bc9988-47ed-5dec-c470-db721cb281a8@ieee.org>
+Date: Tue, 25 Oct 2016 18:12:18 -0400
 MIME-Version: 1.0
-In-Reply-To: <20161025044533.GC25830@meriadoc.perfinion.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20161025034900.GA14100@meriadoc.perfinion.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/25/2016 12:45 AM, Jason Zaman wrote:
-> On Tue, Oct 25, 2016 at 12:26:37PM +0800, Jason Zaman wrote:
->> On Wed, Oct 05, 2016 at 01:27:50PM -0400, Stephen Smalley wrote:
->>> On 10/05/2016 01:02 PM, Stephen Smalley wrote:
->>>> On 10/05/2016 05:33 AM, Jason Zaman wrote:
->>>>> Hey all,
->>>>>
->>>>> libsepol (and probably the rest) fail when using ld.gold for me. We should
->>>>> probably start supporting gold since it looks like things are slowly moving
->>>>> towards using it by default. Gentoo and fedora both look like they have a way
->>>>> to switch to it but for now the default is still ld.bfd. I dont think I'll have
->>>>> much time to take a stab at this for a quite a while and don't know much about
->>>>> linker scripts and versioned symbols either.
->>>>>
->>>>> On fedora this should switch: /usr/sbin/alternatives --set ld /usr/bin/ld.gold
->>>>>
->>>>> On Gentoo:
->>>>> # binutils-config --linker ld.gold
->>>>> # ld --version
->>>>> GNU gold (Gentoo 2.25.1 p1.1 2.25.1) 1.11
->>>>> Copyright (C) 2014 Free Software Foundation, Inc.
->>>>> This program is free software; you may redistribute it under the terms of
->>>>> the GNU General Public License version 3 or (at your option) a later version.
->>>>> This program has absolutely no warranty.
->>>>>
->>>>>
->>>>> cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -fPIC -DSHARED -c -o ../cil/src/cil_verify.lo ../cil/src/cil_verify.c
->>>>> cp libsepol.map.in libsepol.map
->>>>> cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -g -shared -o libsepol.so.1 assertion.lo avrule_block.lo avtab.lo boolean_record.lo booleans.lo conditional.lo constraint.lo context.lo context_record.lo debug.lo ebitmap.lo expand.lo genbools.lo genusers.lo handle.lo hashtab.lo hierarchy.lo iface_record.lo interfaces.lo link.lo mls.lo module.lo module_to_cil.lo node_record.lo nodes.lo polcaps.lo policydb.lo policydb_convert.lo policydb_public.lo port_record.lo ports.lo roles.lo services.lo sidtab.lo symtab.lo user_record.lo users.lo util.lo write.lo ../cil/src/cil.lo ../cil/src/cil_binary.lo ../cil/src/cil_build_ast.lo ../cil/src/cil_copy_ast.lo ../cil/src/cil_find.lo ../cil/src/cil_fqn.lo ../cil/src/cil_lexer.lo ../cil/src/cil_list.lo ../cil/src/cil_log.lo ../cil/src/cil_mem.lo ../cil/src/cil_parser.lo ../cil/src/cil_policy.lo ../cil/src/cil_post.lo ../cil/src/cil_reset_ast.lo ../cil/src/cil_resolve_ast.lo ../cil/src/cil_stack.lo ../cil/src/cil_strpool.lo ../cil/src/cil_symtab.lo ../cil/src/cil_tree.lo ../cil/src/cil_verify.lo -Wl,-soname,libsepol.so.1,--version-script=libsepol.map,-z,defs
->>>>> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: warning: wildcard match appears in both version 'LIBSEPOL_1.0' and 'LIBSEPOL_1.1' in script
->>>>> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: symbol cil_build_policydb has undefined version 
->>>>> collect2: error: ld returned 1 exit status
->>>>> Makefile:42: recipe for target 'libsepol.so.1' failed
->>>>> make[2]: *** [libsepol.so.1] Error 1
->>>>
->>>> I could reproduce and fix the wildcard match error - that's clearly a
->>>> bug in the map files.  I don't see the second error though on Fedora
->>>> with GNU gold version 2.26.1, and I'm not clear on what the underlying
->>>> issue is.
->>>
->>> Actually, reading:
->>> https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_node/ld_25.html
->>> I'm thinking that libsepol/cil/src/cil.c is wrong and ought to have
->>> @LIBSEPOL_1.0 as the suffix rather than just @ for all of the old
->>> symbols there.  But as I said, I couldn't reproduce the error.
->>>
->>>
+On 10/24/16 23:49, Jason Zaman wrote:
+> On Mon, Oct 24, 2016 at 09:13:42AM -0400, Stephen Smalley wrote:
+>> On 10/22/2016 09:44 AM, Chris PeBenito wrote:
+>>> On 10/21/16 13:47, Stephen Smalley wrote:
+>>> I'm not sure where the main part of sepolicy should go, but it would be
+>>> nice to split it out since it depends on setools which has heavier
+>>> dependencies than a core system package should typically have IMO
+>>> (NetworkX, which pulls in scipy, numpy, matplotlib, etc.)
 >>
->> On master I get:
+>> I would be in favor of that too, but hesitated to do so because it would
+>> require moving audit2allow and semanage out of policycoreutils as well.
+>> Fedora does package those as part of policycoreutils-python (along with
+>> sepolgen).  Arguably audit2allow isn't necessary for production (but
+>> many users of SELinux in Linux distributions rely on it), but semanage
+>> is more fundamental these days.
 >>
->> cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -g -shared -o libsepol.so.1 assertion.lo avrule_block.lo avtab.lo boolean_record.lo booleans.lo conditional.lo constraint.lo context.lo context_record.lo debug.lo ebitmap.lo expand.lo genbools.lo genusers.lo handle.lo hashtab.lo hierarchy.lo iface_record.lo interfaces.lo link.lo mls.lo module.lo module_to_cil.lo node_record.lo nodes.lo polcaps.lo policydb.lo policydb_convert.lo policydb_public.lo port_record.lo ports.lo roles.lo services.lo sidtab.lo symtab.lo user_record.lo users.lo util.lo write.lo ../cil/src/cil.lo ../cil/src/cil_binary.lo ../cil/src/cil_build_ast.lo ../cil/src/cil_copy_ast.lo ../cil/src/cil_find.lo ../cil/src/cil_fqn.lo ../cil/src/cil_lexer.lo ../cil/src/cil_list.lo ../cil/src/cil_log.lo ../cil/src/cil_mem.lo ../cil/src/cil_parser.lo ../cil/src/cil_policy.lo ../cil/src/cil_post.lo ../cil/src/cil_reset_ast.lo ../cil/src/cil_resolve_ast.lo ../cil/src/cil_stack.lo ../cil/src/cil_strpool.lo ../cil/src/cil_symtab.lo ../cil/src/cil_tree.lo ../cil/src/cil_verify.lo -Wl,-soname,libsepol.so.1,--version-script=libsepol.map,-z,defs
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: symbol cil_build_policydb has undefined version 
->> collect2: error: ld returned 1 exit status
->> Makefile:49: recipe for target 'libsepol.so.1' failed
->> make[2]: *** [libsepol.so.1] Error 1
->>
->>
->> Then I did the following:
->> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
->> index 929ab19..aed8c89 100644
->> --- a/libsepol/cil/src/cil.c
->> +++ b/libsepol/cil/src/cil.c
->> @@ -53,19 +53,19 @@
->>  #include "dso.h"
->>  
->>  #ifndef DISABLE_SYMVER
->> -asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
->> +asm(".symver cil_build_policydb_pdb,        cil_build_policydb@@LIBSEPOL_1.0");
->>  asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
->>  
->> -asm(".symver cil_compile_pdb,   cil_compile@");
->> +asm(".symver cil_compile_pdb,   cil_compile@@LIBSEPOL_1.0");
->>  asm(".symver cil_compile_nopdb, cil_compile@@LIBSEPOL_1.1");
->>  
->> -asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@");
->> +asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@@LIBSEPOL_1.0");
->>  asm(".symver cil_userprefixes_to_string_nopdb, cil_userprefixes_to_string@@LIBSEPOL_1.1");
->>  
->> -asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@");
->> +asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@@LIBSEPOL_1.0");
->>  asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSEPOL_1.1");
->>  
->> -asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
->> +asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@@LIBSEPOL_1.0");
->>  asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
->>  #endif
->>  
->>
->> And now I get this instead:
->>
->> cc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I. -I../include -D_GNU_SOURCE -I../cil/include -g -shared -o libsepol.so.1 assertion.lo avrule_block.lo avtab.lo boolean_record.lo booleans.lo conditional.lo constraint.lo context.lo context_record.lo debug.lo ebitmap.lo expand.lo genbools.lo genusers.lo handle.lo hashtab.lo hierarchy.lo iface_record.lo interfaces.lo link.lo mls.lo module.lo module_to_cil.lo node_record.lo nodes.lo polcaps.lo policydb.lo policydb_convert.lo policydb_public.lo port_record.lo ports.lo roles.lo services.lo sidtab.lo symtab.lo user_record.lo users.lo util.lo write.lo ../cil/src/cil.lo ../cil/src/cil_binary.lo ../cil/src/cil_build_ast.lo ../cil/src/cil_copy_ast.lo ../cil/src/cil_find.lo ../cil/src/cil_fqn.lo ../cil/src/cil_lexer.lo ../cil/src/cil_list.lo ../cil/src/cil_log.lo ../cil/src/cil_mem.lo ../cil/src/cil_parser.lo ../cil/src/cil_policy.lo ../cil/src/cil_post.lo ../cil/src/cil_reset_ast.lo ../cil/src/cil_resolve_ast.lo ../cil/src/cil_stack.lo ../cil/src/cil_strpool.lo ../cil/src/cil_symtab.lo ../cil/src/cil_tree.lo ../cil/src/cil_verify.lo -Wl,-soname,libsepol.so.1,--version-script=libsepol.map,-z,defs
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_build_policydb'
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_compile'
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_userprefixes_to_string'
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_selinuxusers_to_string'
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: error: ../cil/src/cil.lo: multiple definition of 'cil_filecons_to_string'
->> /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/../../../../x86_64-pc-linux-gnu/bin/ld: ../cil/src/cil.lo: previous definition here
->> collect2: error: ld returned 1 exit status
->> Makefile:49: recipe for target 'libsepol.so.1' failed
->> make[2]: *** [libsepol.so.1] Error 1
->>
->>
->> I dont really know that much about symbol versioning tho. I am much less
->> busy now than I was the last couple weeks so I have time to test stuff
->> if you have other ideas? I get the same error using clang, that might
->> help you repro? But I think that just uses the same linker so probably
->> no diff. I will also try and update to a newer linker and see if 2.26
->> makes the issue go away cuz im on 2.25.
->>
->> -- Jason
-> 
-> Aha! I was declaring them wrong.
-> https://blog.flameeyes.eu/2011/06/gold-readiness-obstacle-2-base-versioning/
-> https://sourceware.org/bugzilla/show_bug.cgi?id=12261
-> https://sourceforge.net/p/fuse/mailman/fuse-devel/thread/m3wrq48tso.fsf@pepe.airs.com/
-> 
-> I switched it to use @ instead of @@ in the patch above like this:
-> -asm(".symver cil_build_policydb_pdb, cil_build_policydb@");
-> +asm(".symver cil_build_policydb_pdb, cil_build_policydb@LIBSEPOL_1.0");
-> 
-> It builds fine with gold now for me but reading those links makes me
-> wonder if we have a bigger problem? It seems like having the unversioned
-> base symbol might not work as intended and im not sure what the right
-> solution is. If bintuils 2.26 works with the unversioned symbol maybe
-> we're better off leaving it like that?
+>> However, if people are open to moving sepolicy, audit2allow, and
+>> semanage, possibly combining them with sepolgen in a new
+>> subdirectory/package, then we could explore that.
+>
+> My eventual goal for seobject.py was to just kill it, there isnt really
+> anything that setools4 doesnt have. For the last release mostly due to
+> lack of time I changed several parts to just be sort of thin wrappers
+> around setools.
+>
+> sepolicy also seemed like two separate things. one part was a kind of
+> library thing which i updated to use setools4 too, that would be better
+> off dying or being a separate small lib. then there is the whole gui
+> part of sepolicy which can probably be split out. I dont think i've ever
+> personally used the gui. semanage only requires the lib parts.
+>
+> I havent looked too much into the core of setools4 other than what I
+> needed to update sepolicy so I'm not sure how important networkX and
+> stuff are. semanage might only require the base stuff if we're able to
+> split that out?
 
-I suspect we could just take your proposed change above, given that
-these symbols have only been used within the selinux userspace to date
-AFAIK and thus the potential for any breakage is minimal.  I notice that
-libsemanage always specifies an explicit version in its .symver
-declarations, so this would make them consistent with each other.
+NetworkX is a dependency for the domain transition and information flow 
+analyses only.  You could conceivably make those conditional, but I'm 
+not particularly fond of the idea.
+
+-- 
+Chris PeBenito
