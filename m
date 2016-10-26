@@ -1,45 +1,86 @@
-To: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>, "Serge E. Hallyn"
- <serge@hallyn.com>,
- "moderated list:SELINUX SECURITY MODULE" <selinux@tycho.nsa.gov>,
- "open list:SECURITY SUBSYSTEM" <linux-security-module@vger.kernel.org>,
- open list <linux-kernel@vger.kernel.org>,
- Stephen Smalley <sds@tycho.nsa.gov>
-From: Topi Miettinen <toiwoton@gmail.com>
-Subject: selinux: should execmem disable shmat(..., SHM_EXEC)?
-Message-ID: <3f453e5e-e70c-f00d-9b5b-f09addd04ada@gmail.com>
-Date: Wed, 26 Oct 2016 20:31:36 +0000
+Date: Wed, 26 Oct 2016 13:49:10 -0700
+From: Harry Waddell <waddell@caravan-epub.com>
+To: Kashif ali <kashif.ali.9498@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Simon Sekidde <ssekidde@redhat.com>,
+ SELinux <selinux@tycho.nsa.gov>
+Subject: Re: MLS issue
+Message-ID: <20161026134910.5eae6731@taliesin-3.local>
+In-Reply-To: <CAFC8oaeW27J9f4VJTHoCkCS+cD=jb5XA39G46xZBXLOQ74_iYA@mail.gmail.com>
+References: <CAFC8oacRU0fR=0Ynib0Bsdq21MGCgjwttAMXNrmjf9y9pVWE2A@mail.gmail.com>
+ <3fb854c4-fdf4-2bbf-8956-c713a17760b8@tycho.nsa.gov>
+ <20161026132751.36e45a7d@taliesin-3.local>
+ <CAFC8oaeW27J9f4VJTHoCkCS+cD=jb5XA39G46xZBXLOQ74_iYA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
 
-Maybe this is a stupid question and I didn't test this with SELinux, but
-it looks to me that SELinux execmem does not prevent process from
-getting writable and executable memory mappings by using shmat(...,
-SHM_EXEC). Shouldn't this be blocked by execmem, I suppose it is there
-to prevent this kind of memory access?
+Again, you're being far too vague. Can you login in text mode as root
+on the system console? Or are you trying to login to a desktop with a window
+manage, e.g. via xdm? These are completely different things. 
 
-Here's a test program:
-#include <sys/ipc.h>
-#include <sys/shm.h>
+1. Make sure you have the current and correct rpms installed, e.g. the mls policy. 
 
-int main(void) {
-        int shmid;
-        char *execmem;
-        void (*fn)(void);
+2. Relabel everything again and make sure it completes without errors.
 
-        shmid = shmget(IPC_PRIVATE, 4096, IPC_CREAT | 0777);
-        execmem = shmat(shmid, 0, SHM_EXEC);
-        shmctl(shmid, IPC_RMID, 0);
-        *execmem = 0xc3; // retq
-        fn = (void (*)(void))execmem;
-        fn();
-        shmdt(execmem);
-}
+3. If you still can't login in text mode as root from the console, look at the 
+specific causes listed in the auditd log. If you haven't already done so, 
+I would suggest you become good friends with audit2allow, etc... 
 
--Topi
+HW
+
+
+On Thu, 27 Oct 2016 01:32:36 +0500
+Kashif ali <kashif.ali.9498@gmail.com> wrote:
+
+> i am logging on local machine directly and if i put msl in permissive mode
+> it will just generate logs for the policy violation which is expected in
+> permissive but if i am unable to use mls in enforcing mode then it is quit
+> wrong behavior
+> 
+> On Thu, Oct 27, 2016 at 1:27 AM, Harry Waddell <waddell@caravan-epub.com>
+> wrote:
+> 
+> > On Wed, 26 Oct 2016 10:17:27 -0400
+> > Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >  
+> > > On 10/26/2016 03:47 AM, Kashif ali wrote:  
+> > > > Hi
+> > > >    Hope you're fine i know your busy but i need your little time if you
+> > > > can manage that will be great for me.
+> > > > i'm facing an issue in MLS Policy of Selinux when i relabel the system
+> > > > and reboot it it won't allow me to login(i'm signing in my machine ) i
+> > > > used these commands
+> > > >  * set the selinux to enforcing
+> > > >  * touch ./autorelabel for relabeling the system
+> > > >  * and then reboot the system and it won't allow me to login
+> > > >
+> > > > Kindly help in this problem because i'm stuck in it for a while and it
+> > > > will be very greatful. Thanks  
+> > >
+> > > Generally it is a good idea to first bring up the system in permissive
+> > > when switching to MLS, and check that there are no residual denials or
+> > > other SELinux errors that need to be addressed before putting it into
+> > > enforcing mode.  We would need to see the actual error messages to help
+> > > debug further.  And it would help to specify your specific distribution
+> > > and version.
+> > >  
+> >
+> > Agreed. At this point, I think the only recourse for Kashif is to
+> > boot the system into rescue mode, e.g. using the install dvd,
+> > mount the filesystem, and edit the /etc/sysconfig/selinux file to
+> > change enforcing to permissive.
+> >
+> > Saying "it won't allow me to login" is too vague. Is "me" root?
+> > Is login from the console of via ssh? It could be that a boolean
+> > needs to be changed, but that's just speculation at this point.
+> > Once it's in permissive mode, hopefully the problem will be somewhat
+> > obvious.
+> >
+> >
+> >
+> >
+> >  
