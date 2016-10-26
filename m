@@ -1,35 +1,21 @@
-Subject: Re: MLS issue
-To: Kashif ali <kashif.ali.9498@gmail.com>, Simon Sekidde <ssekidde@redhat.com>
-References: <CAFC8oacRU0fR=0Ynib0Bsdq21MGCgjwttAMXNrmjf9y9pVWE2A@mail.gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3fb854c4-fdf4-2bbf-8956-c713a17760b8@tycho.nsa.gov>
-Date: Wed, 26 Oct 2016 10:17:27 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9QHp7Sm008622
+ for <selinux@tycho.nsa.gov>; Wed, 26 Oct 2016 13:51:11 -0400
+To: SELinux <selinux@tycho.nsa.gov>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: Mapping of subject context to CIPSO
+Message-ID: <b2df6e05-1354-2ec0-178d-01b92cc1db85@schaufler-ca.com>
+Date: Wed, 26 Oct 2016 10:51:08 -0700
 MIME-Version: 1.0
-In-Reply-To: <CAFC8oacRU0fR=0Ynib0Bsdq21MGCgjwttAMXNrmjf9y9pVWE2A@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/26/2016 03:47 AM, Kashif ali wrote:
-> Hi 
->    Hope you're fine i know your busy but i need your little time if you
-> can manage that will be great for me.
-> i'm facing an issue in MLS Policy of Selinux when i relabel the system
-> and reboot it it won't allow me to login(i'm signing in my machine ) i
-> used these commands
->  * set the selinux to enforcing
->  * touch ./autorelabel for relabeling the system  
->  * and then reboot the system and it won't allow me to login
-> 
-> Kindly help in this problem because i'm stuck in it for a while and it
-> will be very greatful. Thanks
+I am looking for a way to dump the mapping of
+a process context to its associated CIPSO representation.
+I could hack a kernel to do this, but if there's an
+obvious way to do it already I'd rather not.
 
-Generally it is a good idea to first bring up the system in permissive
-when switching to MLS, and check that there are no residual denials or
-other SELinux errors that need to be addressed before putting it into
-enforcing mode.  We would need to see the actual error messages to help
-debug further.  And it would help to specify your specific distribution
-and version.
+Thank you.
