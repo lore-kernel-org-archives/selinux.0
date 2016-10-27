@@ -1,57 +1,46 @@
-Subject: Re: [PATCH] libselinux: fix pointer handling in realpath_not_final
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-References: <1477569156-12380-1-git-send-email-vmojzis@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <2d9fad41-9839-8ddc-10ed-ae50376b6e0b@tycho.nsa.gov>
-Date: Thu, 27 Oct 2016 10:49:55 -0400
-MIME-Version: 1.0
-In-Reply-To: <1477569156-12380-1-git-send-email-vmojzis@redhat.com>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, toiwoton@gmail.com,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 1/2] selinux-testsuite: mmap: fix shmat SHM_EXEC test for old
+ kernels
+Date: Thu, 27 Oct 2016 14:28:44 -0400
+Message-Id: <1477592925-9693-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/27/2016 07:52 AM, Vit Mojzis wrote:
-> From: vmojzis <vmojzis@redhat.com>
-> 
-> Loop designed for stripping leading "//" was changing
-> the only pointer referencing block of memory allocated
-> by "strdup", resulting in "free()" failure. The loop
-> had no effect because "realpath" is used later on.
-> 
-> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1376598
-> 
-> Signed-off-by: vmojzis <vmojzis@redhat.com>
+Older kernels checked read+write+execute to the backing tmpfs
+file for shmat SHM_EXEC instead of execmem.  Adjust the test policy
+to allow the tests to pass on these older kernels.
 
-Thanks, applied.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ policy/test_mmap.te | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-This reminds me that we want to get rid of all matchpathcon users,
-moving them over to selabel_lookup and selinux_restorecon.  Upstream
-setfiles no longer calls matchpathcon or realpath_not_final.  Looks like
-the python wrappers for libselinux define their own restorecon() method
-that uses matchpathcon() and implements their own tree walk  - that
-should be converted to use selinux_restorecon().
-
-> ---
->  libselinux/src/matchpathcon.c | 6 ------
->  1 file changed, 6 deletions(-)
-> 
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-> index 724eb65..58b4144 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -389,12 +389,6 @@ int realpath_not_final(const char *name, char *resolved_path)
->  		goto out;
->  	}
->  
-> -	/* strip leading // */
-> -	while (tmp_path[len] && tmp_path[len] == '/' &&
-> -	       tmp_path[len+1] && tmp_path[len+1] == '/') {
-> -		tmp_path++;
-> -		len++;
-> -	}
->  	last_component = strrchr(tmp_path, '/');
->  
->  	if (last_component == tmp_path) {
-> 
+diff --git a/policy/test_mmap.te b/policy/test_mmap.te
+index e039f76..8eed390 100644
+--- a/policy/test_mmap.te
++++ b/policy/test_mmap.te
+@@ -31,6 +31,8 @@ allow test_execmem_t self:process execmem;
+ allow test_execmem_t test_mmap_file_t:file { open read execute };
+ # For mmap_hugetlb_anon_shared test.
+ allow test_execmem_t hugetlbfs_t:file { read write execute };
++# For shmat test on old kernels.
++allow test_execmem_t tmpfs_t:file { read write execute };
+ 
+ type test_no_execmem_t;
+ domain_type(test_no_execmem_t)
+@@ -41,6 +43,8 @@ typeattribute test_no_execmem_t mmaptestdomain;
+ allow test_no_execmem_t test_mmap_file_t:file { open read };
+ # For mmap_hugetlb_anon_shared test.
+ allow test_no_execmem_t hugetlbfs_t:file { read write };
++# For shmat test on old kernels: no execmem check, only tmpfs write+execute.
++allow test_no_execmem_t tmpfs_t:file { read write };
+ 
+ type test_mprotect_anon_shared_t;
+ domain_type(test_mprotect_anon_shared_t)
+-- 
+2.7.4
