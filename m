@@ -1,36 +1,58 @@
-Subject: Re: [RFC] Split up policycoreutils
-To: Sven Vermeulen <sven.j.vermeulen@gmail.com>,
- SELinux <selinux@tycho.nsa.gov>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
- <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
- <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
- <CAPzO=Nz0V58vgM_1m7sZ2yYLe-YCEf9f06vRMCyRV6Xixw5XhA@mail.gmail.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3348bff8-b3ce-161f-e802-9fbbe87e0d76@tycho.nsa.gov>
-Date: Mon, 31 Oct 2016 10:29:20 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAPzO=Nz0V58vgM_1m7sZ2yYLe-YCEf9f06vRMCyRV6Xixw5XhA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9VFqbkL001250
+ for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 11:52:37 -0400
+Received: by mail-pf0-f194.google.com with SMTP id n85so9060184pfi.3
+ for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 08:52:32 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: Add symver with explicit version to build with
+ ld.gold
+Date: Mon, 31 Oct 2016 23:52:27 +0800
+Message-Id: <1477929147-18929-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/31/2016 05:27 AM, Sven Vermeulen wrote:
-> On Oct 24, 2016 3:19 PM, "Stephen Smalley" <sds@tycho.nsa.gov
-> <mailto:sds@tycho.nsa.gov>> wrote:
->> We'd also need to move chcat, since it imports seobject.  However, on
->> that topic, is there any reason to retain chcat?  It was created for the
->> original discretionary MCS model and I'm not sure it is used anymore by
->> anyone.
-> 
-> I am aware of at least one company using chcat. However, I don't know to
-> what extend they rely on it - they use it in their user provisioning
-> scripts.
-> 
-> I don't mind getting rid of it, assuming all its functionality is
-> covered elsewhere. Especially using the tool(s) in unattended scripts.
+The blank default symver fails to compile with ld.gold. This updates the
+symver from blank to LIBSEPOL_1.0. The dynamic linker will first look
+for the symbol with the explicit version specified. If there is none, it
+will pick the first listed symbol so there is no breakage.
+This also matches how symvers are defined in libsemanage.
 
-I think that for that situation chcat is just invoking semanage login
-with appropriate arguments, so you could just directly invoke semanage.
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ libsepol/cil/src/cil.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 929ab19..9b18773 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -53,19 +53,19 @@
+ #include "dso.h"
+ 
+ #ifndef DISABLE_SYMVER
+-asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
++asm(".symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0");
+ asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_compile_pdb,   cil_compile@");
++asm(".symver cil_compile_pdb,   cil_compile@LIBSEPOL_1.0");
+ asm(".symver cil_compile_nopdb, cil_compile@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@");
++asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@LIBSEPOL_1.0");
+ asm(".symver cil_userprefixes_to_string_nopdb, cil_userprefixes_to_string@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@");
++asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@LIBSEPOL_1.0");
+ asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSEPOL_1.1");
+ 
+-asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
++asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@LIBSEPOL_1.0");
+ asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
+ #endif
+ 
+-- 
+2.7.3
