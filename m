@@ -1,72 +1,55 @@
-Subject: Re: [PATCH 1/1] policycoreutils: restorecond: use pkg-config to find
- dbus-glib-1 files
+Subject: Re: [PATCH 1/1] policycoreutils: semodule_package: do not fail with
+ an empty fc file
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20161030191508.9155-1-nicolas.iooss@m4x.org>
+References: <20161030212722.24743-1-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b697b19a-f172-f465-4ccc-2d3290dc768f@tycho.nsa.gov>
-Date: Mon, 31 Oct 2016 12:52:12 -0400
+Message-ID: <9985da16-14f1-4d72-b60d-6dfeb20ae73a@tycho.nsa.gov>
+Date: Mon, 31 Oct 2016 12:52:31 -0400
 MIME-Version: 1.0
-In-Reply-To: <20161030191508.9155-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20161030212722.24743-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/30/2016 03:15 PM, Nicolas Iooss wrote:
-> On Ubuntu some header files are located in /usr/lib/x86_64-linux-gnu/,
-> not /usr/lib64/:
+On 10/30/2016 05:27 PM, Nicolas Iooss wrote:
+> When running sepolgen tests on a Linux 4.7 kernel, one test fails with
+> the following message:
 > 
->     $ pkg-config --cflags dbus-glib-1
->     -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include
->     -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+>     /usr/bin/semodule_package:  Failed to mmap
+>     tmp/module_compile_test.mod.fc:  Invalid argument
 > 
-> Use pkg-config instead of hard-coded paths to find glib and dbus-glib
-> headers and libraries.
-> 
-> This is needed in order to use environments provided for example by
-> https://travis-ci.org/.
+> The .fc file is empty, which is why it cannot be used with mmap().
+> Anyway the current code supports empty files (with if() conditions in
+> main()) so do not try to mmap an empty file in file_to_data().
 
 Thanks, applied.
 
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > ---
->  policycoreutils/restorecond/Makefile | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
 > 
-> diff --git a/policycoreutils/restorecond/Makefile b/policycoreutils/restorecond/Makefile
-> index 253246d7b5ea..93050f00d230 100644
-> --- a/policycoreutils/restorecond/Makefile
-> +++ b/policycoreutils/restorecond/Makefile
-> @@ -1,3 +1,5 @@
-> +PKG_CONFIG ?= pkg-config
-> +
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
->  SBINDIR ?= $(PREFIX)/sbin
-> @@ -11,11 +13,11 @@ autostart_DATA = sealertauto.desktop
->  INITDIR ?= $(DESTDIR)/etc/rc.d/init.d
->  SELINUXDIR = $(DESTDIR)/etc/selinux
+> While at it, it seems that neither seusersdata nor user_extradata are
+> unmapped at the end of main(). As this does not cause a test to fail
+> I will not send a patch to fix this.
+> 
+>  policycoreutils/semodule_package/semodule_package.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/policycoreutils/semodule_package/semodule_package.c b/policycoreutils/semodule_package/semodule_package.c
+> index d2a5fd07bd71..e472054826a3 100644
+> --- a/policycoreutils/semodule_package/semodule_package.c
+> +++ b/policycoreutils/semodule_package/semodule_package.c
+> @@ -72,6 +72,10 @@ static int file_to_data(const char *path, char **data, size_t * len)
+>  			path, strerror(errno));
+>  		goto err;
+>  	}
+> +	if (!sb.st_size) {
+> +		*len = 0;
+> +		return 0;
+> +	}
 >  
-> -DBUSFLAGS = -DHAVE_DBUS -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/lib/dbus-1.0/include
-> -DBUSLIB = -ldbus-glib-1 -ldbus-1
-> +DBUSFLAGS = -DHAVE_DBUS $(shell $(PKG_CONFIG) --cflags dbus-glib-1)
-> +DBUSLIB = $(shell $(PKG_CONFIG) --libs dbus-glib-1)
->  
->  CFLAGS ?= -g -Werror -Wall -W
-> -override CFLAGS += -I$(PREFIX)/include $(DBUSFLAGS) -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/lib/glib-2.0/include
-> +override CFLAGS += -I$(PREFIX)/include $(DBUSFLAGS)
->  
->  USE_PCRE2 ?= n
->  ifeq ($(USE_PCRE2),y)
-> @@ -24,7 +26,7 @@ else
->  	PCRE_LDFLAGS := -lpcre
->  endif
->  
-> -LDLIBS += -lselinux $(PCRE_LDFLAGS) $(DBUSLIB) -lglib-2.0 -L$(LIBDIR)
-> +LDLIBS += -lselinux $(PCRE_LDFLAGS) $(DBUSLIB) -L$(LIBDIR)
->  
->  all: restorecond
->  
+>  	*data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+>  	if (*data == MAP_FAILED) {
 > 
