@@ -1,60 +1,101 @@
-Subject: Re: [PATCH] libsepol: Add symver with explicit version to build with
- ld.gold
-To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
-References: <1477929147-18929-1-git-send-email-jason@perfinion.com>
+Subject: Re: [RFC] Split up policycoreutils
+To: SELinux <selinux@tycho.nsa.gov>
+References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <25a41cd3-ff3b-4db7-f1ce-3325e981a237@tycho.nsa.gov>
-Date: Mon, 31 Oct 2016 12:52:59 -0400
+Message-ID: <be8528f1-50ee-98da-91ea-0d0b0dfe0398@tycho.nsa.gov>
+Date: Mon, 31 Oct 2016 14:05:29 -0400
 MIME-Version: 1.0
-In-Reply-To: <1477929147-18929-1-git-send-email-jason@perfinion.com>
+In-Reply-To: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/31/2016 11:52 AM, Jason Zaman wrote:
-> The blank default symver fails to compile with ld.gold. This updates the
-> symver from blank to LIBSEPOL_1.0. The dynamic linker will first look
-> for the symbol with the explicit version specified. If there is none, it
-> will pick the first listed symbol so there is no breakage.
-> This also matches how symvers are defined in libsemanage.
+On 10/21/2016 01:47 PM, Stephen Smalley wrote:
+> Hi,
+> 
+> policycoreutils started life as a small set of utilities that were
+> necessary or at least widely used in production on a SELinux system.
+> Over time though it has grown to include many optional components, and
+> even within a given subdirectory (e.g. sepolicy) there seem to be a
+> number of components that should be optional (e.g. the dbus service).
+> I'd like to propose that we move a number of components out of
+> policycoreutils into their own top-level subdirectory (possibly grouping
+> some of the related ones together).
+> 
+> Some possible components to move and the rationale for doing so include:
+> 
+> - gui: not required for operation.  Unsure if this is even used outside
+> of Fedora, or how widely it is used within Fedora compared to the
+> command line tools. Packaged separately by Fedora as part of
+> policycoreutils-gui.
+> 
+> - mcstrans: not required for operation outside of MLS environments (and
+> even there, only if using that label encoding functionality), not built
+> by default even upstream (omitted from policycoreutils/Makefile).
+> Packaged separately in Fedora as mcstrans.
+> 
+> - restorecond: not required for operation, adds dbus and glib
+> dependencies, largely obsoleted by name-based type transition support in
+> the kernel.  Packaged separately in Fedora as policycoreutils-restorecond.
+> 
+> - sandbox: not required for basic operation of SELinux.  Packaged
+> separately by Fedora as policycoreutils-sandbox.
+>  restorecond
+> - semodule_deps/expand/link: developer tools only, not required for
+> operation, unlike semodule.  Packaged separately by Fedora as part of
+> policycoreutils-devel.
+> 
+> - sepolicy/{org.selinux*,selinux_client.py,selinux_server.py}: D-BUS
+> service for managing SELinux, not required for basic operation, not
+> desirable in high security environments. Packaged separately by Fedora
+> as part of policycoreutils-gui.  Could perhaps be combined with the gui
+> above, although I think they are logically distinct.
+> 
+> We could of course go further, but those seem to be the most obvious
+> candidates.
+> 
+> Thoughts?
 
-Thanks, applied.
+For discussion purposes, I've pushed a splitpolicycoreutils branch that
+moves the above components and others identified in the discussion
+thread, and makes it easy to omit the non-core components from the
+build.  Take a look and see what you think.  Known issues:
 
-> 
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
-> ---
->  libsepol/cil/src/cil.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index 929ab19..9b18773 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -53,19 +53,19 @@
->  #include "dso.h"
->  
->  #ifndef DISABLE_SYMVER
-> -asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
-> +asm(".symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0");
->  asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
->  
-> -asm(".symver cil_compile_pdb,   cil_compile@");
-> +asm(".symver cil_compile_pdb,   cil_compile@LIBSEPOL_1.0");
->  asm(".symver cil_compile_nopdb, cil_compile@@LIBSEPOL_1.1");
->  
-> -asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@");
-> +asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@LIBSEPOL_1.0");
->  asm(".symver cil_userprefixes_to_string_nopdb, cil_userprefixes_to_string@@LIBSEPOL_1.1");
->  
-> -asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@");
-> +asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@LIBSEPOL_1.0");
->  asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSEPOL_1.1");
->  
-> -asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
-> +asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@LIBSEPOL_1.0");
->  asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
->  #endif
->  
-> 
+- I did not deal with splitting the policycoreutils/po files and moving
+them around.  Not sure what the best way to handle that is.
+
+- python/sepolicy likely needs further rearrangement. I am unclear on
+the purpose/use of the desktop file and pixmaps; if those are only for
+the gui, then they can be moved to gui/, but I don't understand why they
+are called sepolicy* or located here.  Also, should
+python/sepolicy/sepolicy/sedbus.py be moved over to dbus/ or stay here?
+Dan?
+
+- dbus/selinux_client.py (formerly
+policycoreutils/sepolicy/selinux_client.py) seems like leftover testing
+cruft.  Remove?
+
+- restorecond presently reuses source code directly from setfiles, so
+building it as a separate package may be a nuisance.  OTOH, I'm not
+entirely clear on whether restorecond needs to be kept around at all
+anymore?
+
+- policycoreutils/sepolgen-ifgen contains a single C program,
+sepolgen-ifgen-attr-helper, that is only used by
+python/audit2allow/sepolgen-ifgen.  Any reason to not just coalesce it
+into python/audit2allow even though it is not python itself?
+
+- After the restructuring, the only script left in policycoreutils is
+fixfiles.  Technically, that's not required for production either as one
+can always just run setfiles or restorecon directly, but distros seem to
+rely on it.  Is it worth moving just to free policycoreutils of any bash
+dependencies, and if so, where?
+
+- I moved policycoreutils/semodule_{deps,expand,link} into a new
+semodule-utils directory.  This might however be slightly confusing
+since semodule and semodule_package remain in policycoreutils since they
+are required and not merely for developers.  Feel free to suggest
+another name or structure.  Actually, I guess semodule_package might be
+optional now with CIL, so perhaps that one can be moved too.
