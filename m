@@ -1,64 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9V9R3Sj027499
- for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 05:27:03 -0400
-Received: by mail-wm0-f54.google.com with SMTP id t79so37890688wmt.0
- for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 02:27:02 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9VCx60P014563
+ for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 08:59:06 -0400
+Received: by mail-yb0-f199.google.com with SMTP id t11so152935569yba.2
+ for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 05:59:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
- <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
- <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
-From: Sven Vermeulen <sven.j.vermeulen@gmail.com>
-Date: Mon, 31 Oct 2016 10:27:00 +0100
-Message-ID: <CAPzO=Nz0V58vgM_1m7sZ2yYLe-YCEf9f06vRMCyRV6Xixw5XhA@mail.gmail.com>
-Subject: Re: [RFC] Split up policycoreutils
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a11c3add6664f66054025cf69
+In-Reply-To: <CA+RmS-9-46XbVHSFU0LO8hfBCWJouvh6U=bZ2KsEyS6R_eyH8A@mail.gmail.com>
+References: <CA+RmS-_=5kQza1VcwXoqwF40nvXBv6t2z4=rESj494=nDJ7RnQ@mail.gmail.com>
+ <b5079eba-8796-c213-f61e-7e5fcdd18f5b@tycho.nsa.gov>
+ <476DC76E7D1DF2438D32BFADF679FC561CD1C1A2@ORSMSX103.amr.corp.intel.com>
+ <CA+RmS-9-46XbVHSFU0LO8hfBCWJouvh6U=bZ2KsEyS6R_eyH8A@mail.gmail.com>
+From: David Graziano <david.graziano@rockwellcollins.com>
+Date: Mon, 31 Oct 2016 07:58:42 -0500
+Message-ID: <CA+RmS-_zCMGLx16t-y=PZi3wRoCSXnLVfOqTKfX2=UDs82FYqQ@mail.gmail.com>
+Subject: Re: POSIX mqueues
+To: "Roberts, William C" <william.c.roberts@intel.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c3add6664f66054025cf69
-Content-Type: text/plain; charset=UTF-8
+On Wed, Oct 26, 2016 at 1:00 PM, David Graziano
+<david.graziano@rockwellcollins.com> wrote:
+> On Tue, Oct 25, 2016 at 11:35 AM, Roberts, William C
+> <william.c.roberts@intel.com> wrote:
+>>
+>>
+>>> -----Original Message-----
+>>> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of Stephen
+>>> Smalley
+>>> Sent: Tuesday, October 25, 2016 9:33 AM
+>>> To: David Graziano <david.graziano@rockwellcollins.com>;
+>>> selinux@tycho.nsa.gov
+>>> Subject: Re: POSIX mqueues
+>>>
+>>> On 10/24/2016 03:25 PM, David Graziano wrote:
+>>> > I am attempting to write policy for a set of applications which use
+>>> > POSIX mqueues using named type_transistion rules to uniquely label the
+>>> > mqueue files in the /dev/mqueue directory then controlling access
+>>> > based on the types. Standard type transition rules seem to work but I
+>>> > cannot seem to get the named type transitions to apply the proper
+>>> > label. Are named type transitions not supported by the mqueue file
+>>> > system? I’m on a 3.14 series kernel with policy version 28 if that
+>>> > helps. I’d like to avoid needing to do a restorecon after a new queue
+>>> > is created. Named type transistions seem to work on other file systems
+>>> > like tmp and jffs2.
+>>>
+>>> You would need to patch the kernel to support that; the filesystem
+>>> implementation must call security_inode_init_security() and pass the &dentry-
+>>> >d_name in order to support name-based transitions.
+>>>
+>>
+>> Interesting, is anyone currently working on that, David, are you going to do that? If no one
+>> Wants it, I'll do it ;-P
+>>
+>
+> Unless someone else is already working it I'll go ahead and start a patch.
+>
+> - David
 
-On Oct 24, 2016 3:19 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
-> We'd also need to move chcat, since it imports seobject.  However, on
-> that topic, is there any reason to retain chcat?  It was created for the
-> original discretionary MCS model and I'm not sure it is used anymore by
-> anyone.
 
-I am aware of at least one company using chcat. However, I don't know to
-what extend they rely on it - they use it in their user provisioning
-scripts.
-
-I don't mind getting rid of it, assuming all its functionality is covered
-elsewhere. Especially using the tool(s) in unattended scripts.
-
-Wkr,
-  Sven Vermeulen
-
---001a11c3add6664f66054025cf69
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr">On Oct 24, 2016 3:19 PM, &quot;Stephen Smalley&quot; &lt;<a =
-href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt; We&#39;d also need to move chcat, since it imports seobject.=C2=A0 How=
-ever, on<br>
-&gt; that topic, is there any reason to retain chcat?=C2=A0 It was created =
-for the<br>
-&gt; original discretionary MCS model and I&#39;m not sure it is used anymo=
-re by<br>
-&gt; anyone.</p>
-<p dir=3D"ltr">I am aware of at least one company using chcat. However, I d=
-on&#39;t know to what extend they rely on it - they use it in their user pr=
-ovisioning scripts.</p>
-<p dir=3D"ltr">I don&#39;t mind getting rid of it, assuming all its functio=
-nality is covered elsewhere. Especially using the tool(s) in unattended scr=
-ipts.</p>
-<p dir=3D"ltr">Wkr,<br>
-=C2=A0 Sven Vermeulen</p>
-
---001a11c3add6664f66054025cf69--
+I have a working patch. Where would you recommend submitting the patch
+for review/upstreaming? Is it something this mailing list would look
+at or should I submit elsewhere?
