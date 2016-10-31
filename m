@@ -1,55 +1,60 @@
-Subject: Re: [PATCH 1/1] policycoreutils: semodule_package: do not fail with
- an empty fc file
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20161030212722.24743-1-nicolas.iooss@m4x.org>
+Subject: Re: [PATCH] libsepol: Add symver with explicit version to build with
+ ld.gold
+To: Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov
+References: <1477929147-18929-1-git-send-email-jason@perfinion.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9985da16-14f1-4d72-b60d-6dfeb20ae73a@tycho.nsa.gov>
-Date: Mon, 31 Oct 2016 12:52:31 -0400
+Message-ID: <25a41cd3-ff3b-4db7-f1ce-3325e981a237@tycho.nsa.gov>
+Date: Mon, 31 Oct 2016 12:52:59 -0400
 MIME-Version: 1.0
-In-Reply-To: <20161030212722.24743-1-nicolas.iooss@m4x.org>
+In-Reply-To: <1477929147-18929-1-git-send-email-jason@perfinion.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/30/2016 05:27 PM, Nicolas Iooss wrote:
-> When running sepolgen tests on a Linux 4.7 kernel, one test fails with
-> the following message:
-> 
->     /usr/bin/semodule_package:  Failed to mmap
->     tmp/module_compile_test.mod.fc:  Invalid argument
-> 
-> The .fc file is empty, which is why it cannot be used with mmap().
-> Anyway the current code supports empty files (with if() conditions in
-> main()) so do not try to mmap an empty file in file_to_data().
+On 10/31/2016 11:52 AM, Jason Zaman wrote:
+> The blank default symver fails to compile with ld.gold. This updates the
+> symver from blank to LIBSEPOL_1.0. The dynamic linker will first look
+> for the symbol with the explicit version specified. If there is none, it
+> will pick the first listed symbol so there is no breakage.
+> This also matches how symvers are defined in libsemanage.
 
 Thanks, applied.
 
 > 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
 > ---
+>  libsepol/cil/src/cil.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 > 
-> While at it, it seems that neither seusersdata nor user_extradata are
-> unmapped at the end of main(). As this does not cause a test to fail
-> I will not send a patch to fix this.
-> 
->  policycoreutils/semodule_package/semodule_package.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/policycoreutils/semodule_package/semodule_package.c b/policycoreutils/semodule_package/semodule_package.c
-> index d2a5fd07bd71..e472054826a3 100644
-> --- a/policycoreutils/semodule_package/semodule_package.c
-> +++ b/policycoreutils/semodule_package/semodule_package.c
-> @@ -72,6 +72,10 @@ static int file_to_data(const char *path, char **data, size_t * len)
->  			path, strerror(errno));
->  		goto err;
->  	}
-> +	if (!sb.st_size) {
-> +		*len = 0;
-> +		return 0;
-> +	}
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index 929ab19..9b18773 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -53,19 +53,19 @@
+>  #include "dso.h"
 >  
->  	*data = mmap(NULL, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
->  	if (*data == MAP_FAILED) {
+>  #ifndef DISABLE_SYMVER
+> -asm(".symver cil_build_policydb_pdb,        cil_build_policydb@");
+> +asm(".symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0");
+>  asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
+>  
+> -asm(".symver cil_compile_pdb,   cil_compile@");
+> +asm(".symver cil_compile_pdb,   cil_compile@LIBSEPOL_1.0");
+>  asm(".symver cil_compile_nopdb, cil_compile@@LIBSEPOL_1.1");
+>  
+> -asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@");
+> +asm(".symver cil_userprefixes_to_string_pdb,   cil_userprefixes_to_string@LIBSEPOL_1.0");
+>  asm(".symver cil_userprefixes_to_string_nopdb, cil_userprefixes_to_string@@LIBSEPOL_1.1");
+>  
+> -asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@");
+> +asm(".symver cil_selinuxusers_to_string_pdb,   cil_selinuxusers_to_string@LIBSEPOL_1.0");
+>  asm(".symver cil_selinuxusers_to_string_nopdb, cil_selinuxusers_to_string@@LIBSEPOL_1.1");
+>  
+> -asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@");
+> +asm(".symver cil_filecons_to_string_pdb,   cil_filecons_to_string@LIBSEPOL_1.0");
+>  asm(".symver cil_filecons_to_string_nopdb, cil_filecons_to_string@@LIBSEPOL_1.1");
+>  #endif
+>  
 > 
