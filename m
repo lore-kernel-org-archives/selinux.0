@@ -1,86 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9UM5Sc0007800
- for <selinux@tycho.nsa.gov>; Sun, 30 Oct 2016 18:05:28 -0400
-Received: by mail-wm0-f44.google.com with SMTP id t79so20042276wmt.0
- for <selinux@tycho.nsa.gov>; Sun, 30 Oct 2016 15:04:56 -0700 (PDT)
-Received: from [192.168.0.14] (81-66-120-207.rev.numericable.fr.
- [81.66.120.207])
- by smtp.googlemail.com with ESMTPSA id au8sm26576622wjc.12.2016.10.30.15.04.53
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Sun, 30 Oct 2016 15:04:53 -0700 (PDT)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: secilc crashes on unknown permissions
-To: selinux@tycho.nsa.gov
-Message-ID: <39fb72d4-6135-3fb9-6671-6cbe8bd2a41b@m4x.org>
-Date: Sun, 30 Oct 2016 23:04:52 +0100
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id u9V9R3Sj027499
+ for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 05:27:03 -0400
+Received: by mail-wm0-f54.google.com with SMTP id t79so37890688wmt.0
+ for <selinux@tycho.nsa.gov>; Mon, 31 Oct 2016 02:27:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="------------0C12D849FAFC21D40FF89FCA"
+In-Reply-To: <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
+References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
+ <c9ef14f5-1062-21a5-e5ef-d6746a1868d8@ieee.org>
+ <db994f8e-27d9-7554-56f5-beb217274d1b@tycho.nsa.gov>
+ <3c579f68-4125-c2e2-a2d9-6d801f7f7de9@tycho.nsa.gov>
+From: Sven Vermeulen <sven.j.vermeulen@gmail.com>
+Date: Mon, 31 Oct 2016 10:27:00 +0100
+Message-ID: <CAPzO=Nz0V58vgM_1m7sZ2yYLe-YCEf9f06vRMCyRV6Xixw5XhA@mail.gmail.com>
+Subject: Re: [RFC] Split up policycoreutils
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a11c3add6664f66054025cf69
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------0C12D849FAFC21D40FF89FCA
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+--001a11c3add6664f66054025cf69
+Content-Type: text/plain; charset=UTF-8
 
-Hello,
+On Oct 24, 2016 3:19 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+> We'd also need to move chcat, since it imports seobject.  However, on
+> that topic, is there any reason to retain chcat?  It was created for the
+> original discretionary MCS model and I'm not sure it is used anymore by
+> anyone.
 
-After the crashes I found by running AFL on secilc were fixed (thanks!),
-I continued to run AFL. It found a new way to make secilc crash, using
-an unknown permission with a classmap, like what is done with the policy
-attached to this email.
+I am aware of at least one company using chcat. However, I don't know to
+what extend they rely on it - they use it in their user provisioning
+scripts.
 
-This policy does not make secilc 2.6 crash but triggers a NULL pointer
-dereference in __evaluate_classperms_list() (in cil_post.c) when using
-secilc from the master branch. More precisely if I revert commits
-1b3b36aeecf2 ("libsepol/cil: Use empty list for category expression
-evaluated as empty") and da51020d6f33 ("libsepol/cil: Use an empty list
-to represent an unknown permission"), secilc no longer crashes. But it
-produces a file which makes tools like apol, sesearch... behaves in a
-weird way:
+I don't mind getting rid of it, assuming all its functionality is covered
+elsewhere. Especially using the tool(s) in unattended scripts.
 
-    $ secilc secilc_crash_unknown_cm_perm.cil
-    $ echo $?
-    0
-    $ sesearch -A policy.30
-    [Errno 0] Error: 'policy.30'
+Wkr,
+  Sven Vermeulen
 
-I guess the internal structures of the generated policy get corrupted in
-a way that the policy loader does not like (I have not yet spent time to
-investigate where this "Errno 0 error" comes from).
+--001a11c3add6664f66054025cf69
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Nicolas
+<p dir=3D"ltr">On Oct 24, 2016 3:19 PM, &quot;Stephen Smalley&quot; &lt;<a =
+href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
+&gt; We&#39;d also need to move chcat, since it imports seobject.=C2=A0 How=
+ever, on<br>
+&gt; that topic, is there any reason to retain chcat?=C2=A0 It was created =
+for the<br>
+&gt; original discretionary MCS model and I&#39;m not sure it is used anymo=
+re by<br>
+&gt; anyone.</p>
+<p dir=3D"ltr">I am aware of at least one company using chcat. However, I d=
+on&#39;t know to what extend they rely on it - they use it in their user pr=
+ovisioning scripts.</p>
+<p dir=3D"ltr">I don&#39;t mind getting rid of it, assuming all its functio=
+nality is covered elsewhere. Especially using the tool(s) in unattended scr=
+ipts.</p>
+<p dir=3D"ltr">Wkr,<br>
+=C2=A0 Sven Vermeulen</p>
 
---------------0C12D849FAFC21D40FF89FCA
-Content-Type: text/x-selinux-cil;
- name="secilc_crash_unknown_cm_perm.cil"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="secilc_crash_unknown_cm_perm.cil"
-
-(class CLASS (PERM))
-(classorder (CLASS))
-(sid SID)
-(sidorder (SID))
-(user USER)
-(role ROLE)
-(type TYPE)
-(category CAT)
-(categoryorder (CAT))
-(sensitivity SENS)
-(sensitivityorder (SENS))
-(sensitivitycategory SENS (CAT))
-(roletype ROLE TYPE)
-(userrole USER ROLE)
-(userlevel USER (SENS))
-(userrange USER ((SENS)(SENS (CAT))))
-(sidcontext SID (USER ROLE TYPE ((SENS)(SENS))))
-
-(classmap cm1 (mp1))
-(classmapping cm1 mp1 (CLASS (PERM)))
-(allow TYPE TYPE (cm1 (unknown)))
-
---------------0C12D849FAFC21D40FF89FCA--
+--001a11c3add6664f66054025cf69--
