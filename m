@@ -1,108 +1,33 @@
-Subject: Re: [RFC] Split up policycoreutils
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA1BoYDf017051
+ for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2016 07:50:35 -0400
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id E1BBF85540
+ for <selinux@tycho.nsa.gov>; Tue,  1 Nov 2016 11:50:32 +0000 (UTC)
+Received: from dhcp-10-19-62-196.boston.devel.redhat.com
+ (dhcp-25-17.bos.redhat.com [10.18.25.17])
+ by int-mx14.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ uA1BoWDX014073
+ for <selinux@tycho.nsa.gov>; Tue, 1 Nov 2016 07:50:32 -0400
 To: SELinux <selinux@tycho.nsa.gov>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <be8528f1-50ee-98da-91ea-0d0b0dfe0398@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <21070507-2266-7689-56e1-74ab44f61f38@tycho.nsa.gov>
-Date: Mon, 31 Oct 2016 14:42:19 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Discussion on setting the /proc/self/oom_score_adj file label.
+Message-ID: <649de230-05ee-5b12-70dd-ac4f64cf9020@redhat.com>
+Date: Tue, 1 Nov 2016 07:50:32 -0400
 MIME-Version: 1.0
-In-Reply-To: <be8528f1-50ee-98da-91ea-0d0b0dfe0398@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/31/2016 02:05 PM, Stephen Smalley wrote:
-> On 10/21/2016 01:47 PM, Stephen Smalley wrote:
->> Hi,
->>
->> policycoreutils started life as a small set of utilities that were
->> necessary or at least widely used in production on a SELinux system.
->> Over time though it has grown to include many optional components, and
->> even within a given subdirectory (e.g. sepolicy) there seem to be a
->> number of components that should be optional (e.g. the dbus service).
->> I'd like to propose that we move a number of components out of
->> policycoreutils into their own top-level subdirectory (possibly grouping
->> some of the related ones together).
->>
->> Some possible components to move and the rationale for doing so include:
->>
->> - gui: not required for operation.  Unsure if this is even used outside
->> of Fedora, or how widely it is used within Fedora compared to the
->> command line tools. Packaged separately by Fedora as part of
->> policycoreutils-gui.
->>
->> - mcstrans: not required for operation outside of MLS environments (and
->> even there, only if using that label encoding functionality), not built
->> by default even upstream (omitted from policycoreutils/Makefile).
->> Packaged separately in Fedora as mcstrans.
->>
->> - restorecond: not required for operation, adds dbus and glib
->> dependencies, largely obsoleted by name-based type transition support in
->> the kernel.  Packaged separately in Fedora as policycoreutils-restorecond.
->>
->> - sandbox: not required for basic operation of SELinux.  Packaged
->> separately by Fedora as policycoreutils-sandbox.
->>  restorecond
->> - semodule_deps/expand/link: developer tools only, not required for
->> operation, unlike semodule.  Packaged separately by Fedora as part of
->> policycoreutils-devel.
->>
->> - sepolicy/{org.selinux*,selinux_client.py,selinux_server.py}: D-BUS
->> service for managing SELinux, not required for basic operation, not
->> desirable in high security environments. Packaged separately by Fedora
->> as part of policycoreutils-gui.  Could perhaps be combined with the gui
->> above, although I think they are logically distinct.
->>
->> We could of course go further, but those seem to be the most obvious
->> candidates.
->>
->> Thoughts?
-> 
-> For discussion purposes, I've pushed a splitpolicycoreutils branch that
-> moves the above components and others identified in the discussion
-> thread, and makes it easy to omit the non-core components from the
-> build.  Take a look and see what you think.  Known issues:
-> 
-> - I did not deal with splitting the policycoreutils/po files and moving
-> them around.  Not sure what the best way to handle that is.
-> 
-> - python/sepolicy likely needs further rearrangement. I am unclear on
-> the purpose/use of the desktop file and pixmaps; if those are only for
-> the gui, then they can be moved to gui/, but I don't understand why they
-> are called sepolicy* or located here.  Also, should
-> python/sepolicy/sepolicy/sedbus.py be moved over to dbus/ or stay here?
-> Dan?
-> 
-> - dbus/selinux_client.py (formerly
-> policycoreutils/sepolicy/selinux_client.py) seems like leftover testing
-> cruft.  Remove?
-> 
-> - restorecond presently reuses source code directly from setfiles, so
-> building it as a separate package may be a nuisance.  OTOH, I'm not
-> entirely clear on whether restorecond needs to be kept around at all
-> anymore?
-> 
-> - policycoreutils/sepolgen-ifgen contains a single C program,
-> sepolgen-ifgen-attr-helper, that is only used by
-> python/audit2allow/sepolgen-ifgen.  Any reason to not just coalesce it
-> into python/audit2allow even though it is not python itself?
+I wrote a blog http://danwalsh.livejournal.com/75282.html which talks
+about chrome sandbox and its attempt to change its parents oom_score_adj
+value.  Which is labeled unconfined_t, the question has come up on
+Twitter to be able to change the label on just this object.
 
-Actually, I suspect this helper program could be rewritten in python to
-use the setools4 interfaces these days.
-
-> 
-> - After the restructuring, the only script left in policycoreutils is
-> fixfiles.  Technically, that's not required for production either as one
-> can always just run setfiles or restorecon directly, but distros seem to
-> rely on it.  Is it worth moving just to free policycoreutils of any bash
-> dependencies, and if so, where?
-> 
-> - I moved policycoreutils/semodule_{deps,expand,link} into a new
-> semodule-utils directory.  This might however be slightly confusing
-> since semodule and semodule_package remain in policycoreutils since they
-> are required and not merely for developers.  Feel free to suggest
-> another name or structure.  Actually, I guess semodule_package might be
-> optional now with CIL, so perhaps that one can be moved too.
-> 
+I think we discussed this before, but how difficult would it be to
+change individual file labels under /proc/self/?
