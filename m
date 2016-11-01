@@ -1,228 +1,246 @@
-Subject: Re: [PATCH] libselinux/utils: fix all the noreturn errors
-To: william.c.roberts@intel.com, nicolas.iooss@m4x.org, selinux@tycho.nsa.gov
-References: <1478035390-24547-1-git-send-email-william.c.roberts@intel.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6c268883-4067-fc95-a717-cd920383c528@tycho.nsa.gov>
-Date: Tue, 1 Nov 2016 17:32:08 -0400
+Subject: Re: [PATCH 6/8] libselinux: support ANDROID_HOST=1 on Mac
+To: William Roberts <bill.c.roberts@gmail.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>
+References: <1476735850-7844-1-git-send-email-william.c.roberts@intel.com>
+ <1476735850-7844-6-git-send-email-william.c.roberts@intel.com>
+ <406e3a8c-f001-8a5b-5c69-32a837cb7e1a@m4x.org>
+ <CAFftDdpd_C3ovhawvBMR3D06VsYreYL+38MKnTaAyRHC3BmLkQ@mail.gmail.com>
+ <CAFftDdp8VSGOFawfiYOkGCX74k9kdQqY-jPyXc2KkVeg0ye+6A@mail.gmail.com>
+Cc: William Roberts <william.c.roberts@intel.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Message-ID: <a126193c-db52-9139-e1cd-1a8f92d1fd45@m4x.org>
+Date: Tue, 1 Nov 2016 22:29:23 +0100
 MIME-Version: 1.0
-In-Reply-To: <1478035390-24547-1-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <CAFftDdp8VSGOFawfiYOkGCX74k9kdQqY-jPyXc2KkVeg0ye+6A@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/01/2016 05:23 PM, william.c.roberts@intel.com wrote:
-> From: William Roberts <william.c.roberts@intel.com>
-> 
-> When building with clang, multiple noreturn issues arise,
-> for instance:
-> 
-> selabel_partial_match.c:11:1: error: function 'usage' could be declared with attribute 'noreturn' [-Werror,-Wmissing-noreturn]
-> 
-> Fix these.
+Actually this is the kind of error that clang reports that I find kind
+of useless, so I disabled this warning with some other ones in my build
+configuration. The full list of warnings I disabled is at the beginning
+of https://github.com/fishilico/selinux/blob/master/Makefile.
 
-Thanks, applied.
+Also, the last time I tried to compile the Python modules (in
+policycoreutils) with CC=clang only, I encountered linking-time issues
+which were solved by also defining LDSHARED=clang (I spent some time
+figuring out that this variable was needed).
 
+Finally I also have some patches which may fix some issues which I have
+not send to the list yet. If you are interested in taking a look to
+them, they are on https://github.com/fishilico/selinux/commits/master.
+
+Thanks,
+Nicolas
+
+On 01/11/16 21:16, William Roberts wrote:
+> On the current tip of master, with clang 3.8.0 on my Ubuntu box I get:
 > 
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  libselinux/utils/avcstat.c                         | 2 +-
->  libselinux/utils/getconlist.c                      | 2 +-
->  libselinux/utils/getdefaultcon.c                   | 2 +-
->  libselinux/utils/getsebool.c                       | 2 +-
->  libselinux/utils/matchpathcon.c                    | 2 +-
->  libselinux/utils/selabel_digest.c                  | 2 +-
->  libselinux/utils/selabel_lookup.c                  | 2 +-
->  libselinux/utils/selabel_lookup_best_match.c       | 2 +-
->  libselinux/utils/selabel_partial_match.c           | 2 +-
->  libselinux/utils/selinux_check_securetty_context.c | 2 +-
->  libselinux/utils/selinux_restorecon.c              | 2 +-
->  libselinux/utils/selinuxexeccon.c                  | 2 +-
->  libselinux/utils/setenforce.c                      | 2 +-
->  libselinux/utils/togglesebool.c                    | 2 +-
->  14 files changed, 14 insertions(+), 14 deletions(-)
+> avc_internal.c:105:25: error: cast from 'char *' to 'struct nlmsghdr
+> *' increases required alignment from 1 to 4 [-Werror,-Wcast-align]
+>         struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
+>                                ^~~~~~~~~~~~~~~~~~~~~~
+> avc_internal.c:161:25: error: cast from 'char *' to 'struct nlmsghdr
+> *' increases required alignment from 1 to 4 [-Werror,-Wcast-align]
+>         struct nlmsghdr *nlh = (struct nlmsghdr *)buf;
 > 
-> diff --git a/libselinux/utils/avcstat.c b/libselinux/utils/avcstat.c
-> index 1d4d5c8..70b3109 100644
-> --- a/libselinux/utils/avcstat.c
-> +++ b/libselinux/utils/avcstat.c
-> @@ -43,7 +43,7 @@ static char buf[DEF_BUF_SIZE];
->  /* selinuxfs mount point */
->  extern char *selinux_mnt;
->  
-> -static __attribute__((__format__(printf,1,2))) void die(const char *msg, ...)
-> +static __attribute__((__format__(printf,1,2),__noreturn__)) void die(const char *msg, ...)
->  {
->  	va_list args;
->  
-> diff --git a/libselinux/utils/getconlist.c b/libselinux/utils/getconlist.c
-> index 872ce05..adec178 100644
-> --- a/libselinux/utils/getconlist.c
-> +++ b/libselinux/utils/getconlist.c
-> @@ -9,7 +9,7 @@
->  #include <selinux/selinux.h>
->  #include <selinux/get_context_list.h>
->  
-> -static void usage(const char *name, const char *detail, int rc)
-> +static __attribute__ ((__noreturn__)) void usage(const char *name, const char *detail, int rc)
->  {
->  	fprintf(stderr, "usage:  %s [-l level] user [context]\n", name);
->  	if (detail)
-> diff --git a/libselinux/utils/getdefaultcon.c b/libselinux/utils/getdefaultcon.c
-> index c6f7151..96a5a8c 100644
-> --- a/libselinux/utils/getdefaultcon.c
-> +++ b/libselinux/utils/getdefaultcon.c
-> @@ -9,7 +9,7 @@
->  #include <selinux/selinux.h>
->  #include <selinux/get_context_list.h>
->  
-> -static void usage(const char *name, const char *detail, int rc)
-> +static __attribute__ ((__noreturn__)) void usage(const char *name, const char *detail, int rc)
->  {
->  	fprintf(stderr, "usage:  %s [-l level] [-s service] user [fromcon]\n", name);
->  	if (detail)
-> diff --git a/libselinux/utils/getsebool.c b/libselinux/utils/getsebool.c
-> index 9ae9243..3c6eba5 100644
-> --- a/libselinux/utils/getsebool.c
-> +++ b/libselinux/utils/getsebool.c
-> @@ -6,7 +6,7 @@
->  #include <string.h>
->  #include <selinux/selinux.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr, "usage:  %s -a or %s boolean...\n", progname, progname);
->  	exit(1);
-> diff --git a/libselinux/utils/matchpathcon.c b/libselinux/utils/matchpathcon.c
-> index d1f1348..fca8ee2 100644
-> --- a/libselinux/utils/matchpathcon.c
-> +++ b/libselinux/utils/matchpathcon.c
-> @@ -12,7 +12,7 @@
->  #include <limits.h>
->  #include <stdlib.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr,
->  		"usage:  %s [-N] [-n] [-f file_contexts] [ -P policy_root_path ] [-p prefix] [-Vq] path...\n",
-> diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel_digest.c
-> index e4d84a5..49408a0 100644
-> --- a/libselinux/utils/selabel_digest.c
-> +++ b/libselinux/utils/selabel_digest.c
-> @@ -8,7 +8,7 @@
->  
->  static size_t digest_len;
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr,
->  		"usage: %s -b backend [-d] [-v] [-B] [-i] [-f file]\n\n"
-> diff --git a/libselinux/utils/selabel_lookup.c b/libselinux/utils/selabel_lookup.c
-> index b678a89..1aef64d 100644
-> --- a/libselinux/utils/selabel_lookup.c
-> +++ b/libselinux/utils/selabel_lookup.c
-> @@ -6,7 +6,7 @@
->  #include <selinux/selinux.h>
->  #include <selinux/label.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr,
->  		"usage: %s -b backend [-v] [-r] -k key [-t type] [-f file]\n\n"
-> diff --git a/libselinux/utils/selabel_lookup_best_match.c b/libselinux/utils/selabel_lookup_best_match.c
-> index d74382f..6a71742 100644
-> --- a/libselinux/utils/selabel_lookup_best_match.c
-> +++ b/libselinux/utils/selabel_lookup_best_match.c
-> @@ -7,7 +7,7 @@
->  #include <selinux/selinux.h>
->  #include <selinux/label.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr,
->  		"usage: %s [-v] [-r] -p path [-m mode] [-f file] [link...]\n\n"
-> diff --git a/libselinux/utils/selabel_partial_match.c b/libselinux/utils/selabel_partial_match.c
-> index 017702d..c5932cb 100644
-> --- a/libselinux/utils/selabel_partial_match.c
-> +++ b/libselinux/utils/selabel_partial_match.c
-> @@ -7,7 +7,7 @@
->  #include <selinux/selinux.h>
->  #include <selinux/label.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr,
->  		"usage:  %s [-v] -p <path> [-f file]\n\n"
-> diff --git a/libselinux/utils/selinux_check_securetty_context.c b/libselinux/utils/selinux_check_securetty_context.c
-> index b158eb3..84f5907 100644
-> --- a/libselinux/utils/selinux_check_securetty_context.c
-> +++ b/libselinux/utils/selinux_check_securetty_context.c
-> @@ -9,7 +9,7 @@
->  #include <sys/errno.h>
->  #include <selinux/selinux.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr, "usage:  %s tty_context...\n", progname);
->  	exit(1);
-> diff --git a/libselinux/utils/selinux_restorecon.c b/libselinux/utils/selinux_restorecon.c
-> index 7aea81f..4d2b08f 100644
-> --- a/libselinux/utils/selinux_restorecon.c
-> +++ b/libselinux/utils/selinux_restorecon.c
-> @@ -34,7 +34,7 @@ static int validate_context(char **contextp)
->  	return 0;
->  }
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr,
->  		"\nusage: %s [-FCnRrdmiIaAsl] [-e dir] [-v|-P]\n"
-> diff --git a/libselinux/utils/selinuxexeccon.c b/libselinux/utils/selinuxexeccon.c
-> index e0212e4..b50e788 100644
-> --- a/libselinux/utils/selinuxexeccon.c
-> +++ b/libselinux/utils/selinuxexeccon.c
-> @@ -8,7 +8,7 @@
->  #include <ctype.h>
->  #include <selinux/selinux.h>
->  
-> -static void usage(const char *name, const char *detail, int rc)
-> +static __attribute__ ((__noreturn__)) void usage(const char *name, const char *detail, int rc)
->  {
->  	fprintf(stderr, "usage:  %s command [ fromcon ]\n", name);
->  	if (detail)
-> diff --git a/libselinux/utils/setenforce.c b/libselinux/utils/setenforce.c
-> index df58597..60a20a4 100644
-> --- a/libselinux/utils/setenforce.c
-> +++ b/libselinux/utils/setenforce.c
-> @@ -6,7 +6,7 @@
->  #include <strings.h>
->  #include <selinux/selinux.h>
->  
-> -static void usage(const char *progname)
-> +static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->  	fprintf(stderr, "usage:  %s [ Enforcing | Permissive | 1 | 0 ]\n",
->  		progname);
-> diff --git a/libselinux/utils/togglesebool.c b/libselinux/utils/togglesebool.c
-> index 309f83b..4a7c830 100644
-> --- a/libselinux/utils/togglesebool.c
-> +++ b/libselinux/utils/togglesebool.c
-> @@ -10,7 +10,7 @@
->  
->  /* Attempt to rollback the transaction. No need to check error
->     codes since this is rolling back something that blew up. */
-> -static void rollback(int argc, char **argv)
-> +static __attribute__ ((__noreturn__)) void rollback(int argc, char **argv)
->  {
->  	int i;
->  
+> 
+> I'm not sure of the best way to handle that, considering we don't
+> unsure  that buf is bigger than a nlmsghdr...
+> 
+> I'll send a test patch out in bit.
+> 
+> 
+> On Tue, Nov 1, 2016 at 12:48 PM, William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+>> On Tue, Nov 1, 2016 at 11:06 AM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>>> Hello,
+>>>
+>>> After this commit, libselinux fails to build with clang on Linux:
+>>>
+>>>   clang-3.9: warning: argument unused during compilation: '-undefined
+>>> dynamic_lookup'
+>>>   /usr/bin/ld: unrecognised option: -install_name
+>>>   clang-3.9: error: linker command failed with exit code 1 (use -v to
+>>> see invocation)
+>>>
+>>> It seems clang 3.9.0 does not like "-undefined dynamic_lookup" and
+>>> binutils 2.27 does not know about "-install_name". Would it be possible
+>>> to put the lines which add these two options to the compiler command
+>>> lines into a "ifeq ($(OS), Darwin)" block, if they are indeed targeted
+>>> to MacOS?
+>>
+>> I'll look into this, likely needs to be Darwin and clang
+>>
+>>>
+>>> Thanks,
+>>> Nicolas
+>>>
+>>> On 17/10/16 22:24, william.c.roberts@intel.com wrote:
+>>>> From: William Roberts <william.c.roberts@intel.com>
+>>>>
+>>>> To build on mac, first build libsepol with
+>>>> DISABLE_CIL=y and no DESTDIR set.
+>>>>
+>>>> Secondly, build libselinux with ANDROID_HOST=y
+>>>>
+>>>> This configuration can be used to test the Android
+>>>> host build on Mac.
+>>>>
+>>>> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+>>>> ---
+>>>>  libselinux/Makefile       | 10 ++++++++++
+>>>>  libselinux/src/Makefile   | 36 ++++++++++++++++++++++++++----------
+>>>>  libselinux/utils/Makefile | 29 +++++++++++++++++++++--------
+>>>>  3 files changed, 57 insertions(+), 18 deletions(-)
+>>>>
+>>>> diff --git a/libselinux/Makefile b/libselinux/Makefile
+>>>> index baa0db3..ef971f4 100644
+>>>> --- a/libselinux/Makefile
+>>>> +++ b/libselinux/Makefile
+>>>> @@ -27,6 +27,16 @@ else
+>>>>  endif
+>>>>  export PCRE_CFLAGS PCRE_LDFLAGS
+>>>>
+>>>> +OS := $(shell uname)
+>>>> +export OS
+>>>> +
+>>>> +ifeq ($(shell $(CC) -v 2>&1 | grep "clang"),)
+>>>> +COMPILER := gcc
+>>>> +else
+>>>> +COMPILER := clang
+>>>> +endif
+>>>> +export COMPILER
+>>>> +
+>>>>  all install relabel clean distclean indent:
+>>>>       @for subdir in $(SUBDIRS); do \
+>>>>               (cd $$subdir && $(MAKE) $@) || exit 1; \
+>>>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+>>>> index 13501cd..7a1ae05 100644
+>>>> --- a/libselinux/src/Makefile
+>>>> +++ b/libselinux/src/Makefile
+>>>> @@ -48,23 +48,39 @@ OBJS= $(patsubst %.c,%.o,$(SRCS))
+>>>>  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
+>>>>  CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissing-include-dirs \
+>>>>            -Wunused -Wunknown-pragmas -Wstrict-aliasing -Wshadow -Wpointer-arith \
+>>>> -          -Wbad-function-cast -Wcast-align -Wwrite-strings -Wlogical-op -Waggregate-return \
+>>>> +          -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return \
+>>>>            -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes \
+>>>>            -Wmissing-declarations -Wmissing-noreturn -Wmissing-format-attribute \
+>>>>            -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var \
+>>>> -          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wpacked-bitfield-compat \
+>>>> -          -Wsync-nand -Wattributes -Wcoverage-mismatch -Wmultichar -Wcpp \
+>>>> +          -Wdisabled-optimization -Wbuiltin-macro-redefined \
+>>>> +          -Wattributes -Wmultichar \
+>>>>            -Wdeprecated-declarations -Wdiv-by-zero -Wdouble-promotion -Wendif-labels -Wextra \
+>>>> -          -Wformat-contains-nul -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
+>>>> -          -Wnormalized=nfc -Woverflow -Wpointer-to-int-cast -Wpragmas -Wsuggest-attribute=const \
+>>>> -          -Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines \
+>>>> -          -Wno-missing-field-initializers -Wno-sign-compare -Wjump-misses-init \
+>>>> -          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -Wp,-D_FORTIFY_SOURCE=2 \
+>>>> +          -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
+>>>> +          -Woverflow -Wpointer-to-int-cast -Wpragmas \
+>>>> +          -Wno-missing-field-initializers -Wno-sign-compare \
+>>>> +          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) \
+>>>>            -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
+>>>>            -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
+>>>> -          -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
+>>>>            -Werror -Wno-aggregate-return -Wno-redundant-decls
+>>>>
+>>>> +LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro
+>>>> +
+>>>> +ifeq ($(COMPILER), gcc)
+>>>> +override CFLAGS += -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand \
+>>>> +     -Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
+>>>> +     -Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
+>>>> +     -Wno-suggest-attribute=pure -Wno-suggest-attribute=const -Wp,-D_FORTIFY_SOURCE=2
+>>>> +else
+>>>> +override CFLAGS += -Wunused-command-line-argument
+>>>> +override LDFLAGS += -L/opt/local/lib -undefined dynamic_lookup
+>>>> +LD_SONAME_FLAGS=-install_name,$(LIBSO)
+>>>> +endif
+>>>> +
+>>>> +ifeq ($(OS), Darwin)
+>>>> +override CFLAGS += -I/opt/local/include
+>>>> +override LDFLAGS += -L/opt/local/lib -undefined dynamic_lookup
+>>>> +endif
+>>>> +
+>>>>  PCRE_LDFLAGS ?= -lpcre
+>>>>
+>>>>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
+>>>> @@ -117,7 +133,7 @@ $(LIBA): $(OBJS)
+>>>>       $(RANLIB) $@
+>>>>
+>>>>  $(LIBSO): $(LOBJS)
+>>>> -     $(CC) $(CFLAGS) -shared -o $@ $^ $(PCRE_LDFLAGS) -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,-soname,$(LIBSO),-z,defs,-z,relro
+>>>> +     $(CC) $(CFLAGS) -shared -o $@ $^ $(PCRE_LDFLAGS) -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,$(LD_SONAME_FLAGS)
+>>>>       ln -sf $@ $(TARGET)
+>>>>
+>>>>  $(LIBPC): $(LIBPC).in ../VERSION
+>>>> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+>>>> index e56a953..a4f9903 100644
+>>>> --- a/libselinux/utils/Makefile
+>>>> +++ b/libselinux/utils/Makefile
+>>>> @@ -8,22 +8,35 @@ INCLUDEDIR ?= $(PREFIX)/include
+>>>>  MAX_STACK_SIZE=8192
+>>>>  CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissing-include-dirs \
+>>>>            -Wunused -Wunknown-pragmas -Wstrict-aliasing -Wshadow -Wpointer-arith \
+>>>> -          -Wbad-function-cast -Wcast-align -Wwrite-strings -Wlogical-op -Waggregate-return \
+>>>> +          -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return \
+>>>>            -Wstrict-prototypes -Wold-style-definition -Wmissing-prototypes \
+>>>>            -Wmissing-declarations -Wmissing-noreturn -Wmissing-format-attribute \
+>>>>            -Wredundant-decls -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var \
+>>>> -          -Wdisabled-optimization -Wbuiltin-macro-redefined -Wpacked-bitfield-compat \
+>>>> -          -Wsync-nand -Wattributes -Wcoverage-mismatch -Wmultichar -Wcpp \
+>>>> +          -Wdisabled-optimization -Wbuiltin-macro-redefined \
+>>>> +          -Wattributes -Wmultichar \
+>>>>            -Wdeprecated-declarations -Wdiv-by-zero -Wdouble-promotion -Wendif-labels -Wextra \
+>>>> -          -Wformat-contains-nul -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
+>>>> -          -Wnormalized=nfc -Woverflow -Wpointer-to-int-cast -Wpragmas -Wsuggest-attribute=const \
+>>>> -          -Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines \
+>>>> -          -Wno-missing-field-initializers -Wno-sign-compare -Wjump-misses-init \
+>>>> +          -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
+>>>> +          -Woverflow -Wpointer-to-int-cast -Wpragmas \
+>>>> +          -Wno-missing-field-initializers -Wno-sign-compare \
+>>>>            -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -Wp,-D_FORTIFY_SOURCE=2 \
+>>>>            -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
+>>>>            -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
+>>>> -          -fipa-pure-const -Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
+>>>>            -Werror -Wno-aggregate-return -Wno-redundant-decls
+>>>> +
+>>>> +LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro
+>>>> +
+>>>> +ifeq ($(COMPILER), gcc)
+>>>> +override CFLAGS += -fipa-pure-const -Wpacked-bitfield-compat -Wsync-nand -Wcoverage-mismatch \
+>>>> +     -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
+>>>> +     -Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
+>>>> +     -Wno-suggest-attribute=pure -Wno-suggest-attribute=const
+>>>> +endif
+>>>> +
+>>>> +ifeq ($(OS), Darwin)
+>>>> +override CFLAGS += -I/opt/local/include -I../../libsepol/include
+>>>> +override LDFLAGS += -L../../libsepol/src -undefined dynamic_lookup
+>>>> +endif
+>>>> +
+>>>>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
+>>>>  LDLIBS += -L../src -lselinux -L$(LIBDIR)
+>>>>  PCRE_LDFLAGS ?= -lpcre
+>>>>
+>>> _______________________________________________
+>>> Selinux mailing list
+>>> Selinux@tycho.nsa.gov
+>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
+>>
+>>
+>> --
+>> Respectfully,
+>>
+>> William C Roberts
+> 
+> 
 > 
