@@ -1,103 +1,78 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA2FOf5N006270
- for <selinux@tycho.nsa.gov>; Wed, 2 Nov 2016 11:24:41 -0400
-Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id AA7D81A1A8
- for <selinux@tycho.nsa.gov>; Wed,  2 Nov 2016 16:24:34 +0100 (CET)
-Received: from anor.bigon.be ([127.0.0.1])
- by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id FqjN4HXjxo2n for <selinux@tycho.nsa.gov>;
- Wed,  2 Nov 2016 16:24:32 +0100 (CET)
-Received: from valinor.bigon.be (d54c71dba.static.telenet.be [84.199.29.186])
- (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
- (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 746271A06E
- for <selinux@tycho.nsa.gov>; Wed,  2 Nov 2016 16:24:32 +0100 (CET)
-From: Laurent Bigonville <bigon@debian.org>
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA2GJoIU011886
+ for <selinux@tycho.nsa.gov>; Wed, 2 Nov 2016 12:19:50 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] Revert "libselinux: support new python3 functions"
-Date: Wed,  2 Nov 2016 16:24:31 +0100
-Message-Id: <20161102152431.30464-1-bigon@debian.org>
+Subject: [PATCH] libsepol/cil: Exit with an error for an unknown map permission
+Date: Wed,  2 Nov 2016 12:19:33 -0400
+Message-Id: <1478103573-19175-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Laurent Bigonville <bigon@bigon.be>
+Nicholas Iooss discovered that using an unknown permission with a
+map class will cause a segfault.
 
-With the reverted commit applied, some functions were returning arrays
-of bytes instead of python strings under python3 this was causing issues
-with string manipulation functions like split().
+CIL will only give a warning when it fails to resolve an unknown
+permission to support the use of policy module packages that use
+permissions that don't exit on the current system. When resolving
+the unknown map class permission an empty list is used to represent
+the unknown permission. When it is evaluated later the list is
+assumed to be a permission and a segfault occurs.
 
-Swig (checked with 3.0.7) is adding compatibility macros that take care
-of the differences between python2 and python3.
+There is no reason to allow unknown class map permissions because
+the class maps and permissions are defined by the policy.
 
-This reverts commit 63df0f7ef12844b9b86cc293299671da772fcf84.
+Exit with an error when failing to resolve a class map permission.
 
-Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libselinux/src/selinuxswig_python.i | 22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+ libsepol/cil/src/cil_resolve_ast.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
-index 8cea18d..43df291 100644
---- a/libselinux/src/selinuxswig_python.i
-+++ b/libselinux/src/selinuxswig_python.i
-@@ -64,7 +64,7 @@ def install(src, dest):
- 	PyObject* list = PyList_New(*$2);
- 	int i;
- 	for (i = 0; i < *$2; i++) {
--		PyList_SetItem(list, i, PyBytes_FromString((*$1)[i]));
-+		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
- 	}
- 	$result = SWIG_Python_AppendOutput($result, list);
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index ec547d3..7fe4a74 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -106,7 +106,7 @@ static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key,
+ 	return name;
  }
-@@ -97,9 +97,7 @@ def install(src, dest):
- 			len++;
- 		plist = PyList_New(len);
- 		for (i = 0; i < len; i++) {
--			PyList_SetItem(plist, i,
--                                       PyBytes_FromString((*$1)[i])
--                                       );
-+			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
- 		}
- 	} else {
- 		plist = PyList_New(0);
-@@ -116,9 +114,7 @@ def install(src, dest):
- 	if (*$1) {
- 		plist = PyList_New(result);
- 		for (i = 0; i < result; i++) {
--			PyList_SetItem(plist, i,
--                                       PyBytes_FromString((*$1)[i])
--                                       );
-+			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
- 		}
- 	} else {
- 		plist = PyList_New(0);
-@@ -171,20 +167,16 @@ def install(src, dest):
- 	$1 = (char**) malloc(size + 1);
  
- 	for(i = 0; i < size; i++) {
--		if (!PyBytes_Check(PySequence_GetItem($input, i))) {
--			PyErr_SetString(PyExc_ValueError, "Sequence must contain only bytes");
--
-+		if (!PyString_Check(PySequence_GetItem($input, i))) {
-+			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
- 			return NULL;
- 		}
--
+-static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab, struct cil_list *perm_strs, struct cil_list **perm_datums)
++static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab, struct cil_list *perm_strs, struct cil_list **perm_datums, enum cil_flavor class_flavor)
+ {
+ 	int rc = SEPOL_ERR;
+ 	struct cil_list_item *curr;
+@@ -116,7 +116,7 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
+ 	cil_list_for_each(curr, perm_strs) {
+ 		if (curr->flavor == CIL_LIST) {
+ 			struct cil_list *sub_list;
+-			rc = __cil_resolve_perms(class_symtab, common_symtab, curr->data, &sub_list);
++			rc = __cil_resolve_perms(class_symtab, common_symtab, curr->data, &sub_list, class_flavor);
+ 			if (rc != SEPOL_OK) {
+ 				cil_log(CIL_ERR, "Failed to resolve permission list\n");
+ 				goto exit;
+@@ -132,6 +132,10 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
+ 			}
+ 			if (rc != SEPOL_OK) {
+ 				struct cil_list *empty_list;
++				if (class_flavor == CIL_MAP_CLASS) {
++					cil_log(CIL_ERR, "Failed to resolve permission %s for map class\n", (char*)curr->data);
++					goto exit;
++				}
+ 				cil_log(CIL_WARN, "Failed to resolve permission %s\n", (char*)curr->data);
+ 				/* Use an empty list to represent unknown perm */
+ 				cil_list_init(&empty_list, perm_strs->flavor);
+@@ -170,7 +174,7 @@ int cil_resolve_classperms(struct cil_tree_node *current, struct cil_classperms
+ 
+ 	cp->class = class;
+ 
+-	rc = __cil_resolve_perms(&class->perms, common_symtab, cp->perm_strs, &cp->perms);
++	rc = __cil_resolve_perms(&class->perms, common_symtab, cp->perm_strs, &cp->perms, FLAVOR(datum));
+ 	if (rc != SEPOL_OK) {
+ 		goto exit;
  	}
- 		
- 	for(i = 0; i < size; i++) {
- 		s = PySequence_GetItem($input, i);
--
--		$1[i] = (char*) malloc(PyBytes_Size(s) + 1);
--		strcpy($1[i], PyBytes_AsString(s));
--
-+		$1[i] = (char*) malloc(PyString_Size(s) + 1);
-+		strcpy($1[i], PyString_AsString(s));
- 	}
- 	$1[size] = NULL;
- }
 -- 
-2.10.2
+2.7.4
