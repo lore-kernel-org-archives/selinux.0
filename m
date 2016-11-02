@@ -1,78 +1,80 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA2GJoIU011886
- for <selinux@tycho.nsa.gov>; Wed, 2 Nov 2016 12:19:50 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsepol/cil: Exit with an error for an unknown map permission
-Date: Wed,  2 Nov 2016 12:19:33 -0400
-Message-Id: <1478103573-19175-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: Re: Is it possible to prevent a binary executable file from being
+ read via SELinux?
+To: Patrick Doyle <wpdster@gmail.com>
+References: <CAF_dkJA-3FNQ1m-8AQxrnWXsbiP+P86OUxeXHeRchh3pYZz70g@mail.gmail.com>
+ <706f5fa7-f73a-641b-2a50-4e58ede933a4@tycho.nsa.gov>
+ <CAF_dkJAW6hyo8r+m=0AuJRkLV4kA_zFM=5tOQd2iWuFHJjb8Pw@mail.gmail.com>
+ <3d207136-9e4a-c61d-7939-2b5a3a7f47a2@tycho.nsa.gov>
+ <CAF_dkJDA64AaZBzoC3q0q+9=QPMWy6ju_OL7dK6HDmqtJTZf3g@mail.gmail.com>
+ <f25bd779-ea07-383e-f724-b86e2847edae@tycho.nsa.gov>
+ <CAF_dkJDFGQHxqPEUZ4gx-_fZaU0e+Kt62vTY7GLVSy3dvDrmuA@mail.gmail.com>
+Cc: selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <cd2ca3ad-5f4e-be6a-c901-9e2ce2f142ef@tycho.nsa.gov>
+Date: Wed, 2 Nov 2016 12:31:50 -0400
+MIME-Version: 1.0
+In-Reply-To: <CAF_dkJDFGQHxqPEUZ4gx-_fZaU0e+Kt62vTY7GLVSy3dvDrmuA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Nicholas Iooss discovered that using an unknown permission with a
-map class will cause a segfault.
+On 11/02/2016 11:10 AM, Patrick Doyle wrote:
+> On Wed, Nov 2, 2016 at 10:08 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> No.  For example, if all processes can access all /dev nodes, then they
+>> can perform raw reads/writes to the block devices and thereby circumvent
+>> any file-based access controls entirely.  If all processes can write to
+>> e.g. /lib, then they can replace the dynamic linker and any shared
+>> libraries used by your application and get it to execute their code in
+>> order to dump its memory.  If they can all execute your application,
+>> then they can run its binary in their own memory and then dump its
+>> contents.
+> I didn't realize that saying "Allow all access" would circumvent the
+> normal Linux based file permissions.  I assumed that SELinux was
+> layered on top of those permissions.  I guess I have more to learn.
 
-CIL will only give a warning when it fails to resolve an unknown
-permission to support the use of policy module packages that use
-permissions that don't exit on the current system. When resolving
-the unknown map class permission an empty list is used to represent
-the unknown permission. When it is evaluated later the list is
-assumed to be a permission and a segfault occurs.
+No, my comments were with respect to SELinux, not DAC.  DAC is still in
+effect and SELinux does not override DAC denials.  But the point
+remains: if you are trying to protect against an errant root process,
+then the policy you described won't provide any real protection.
 
-There is no reason to allow unknown class map permissions because
-the class maps and permissions are defined by the policy.
-
-Exit with an error when failing to resolve a class map permission.
-
-Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/cil/src/cil_resolve_ast.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index ec547d3..7fe4a74 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -106,7 +106,7 @@ static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key,
- 	return name;
- }
- 
--static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab, struct cil_list *perm_strs, struct cil_list **perm_datums)
-+static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab, struct cil_list *perm_strs, struct cil_list **perm_datums, enum cil_flavor class_flavor)
- {
- 	int rc = SEPOL_ERR;
- 	struct cil_list_item *curr;
-@@ -116,7 +116,7 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
- 	cil_list_for_each(curr, perm_strs) {
- 		if (curr->flavor == CIL_LIST) {
- 			struct cil_list *sub_list;
--			rc = __cil_resolve_perms(class_symtab, common_symtab, curr->data, &sub_list);
-+			rc = __cil_resolve_perms(class_symtab, common_symtab, curr->data, &sub_list, class_flavor);
- 			if (rc != SEPOL_OK) {
- 				cil_log(CIL_ERR, "Failed to resolve permission list\n");
- 				goto exit;
-@@ -132,6 +132,10 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
- 			}
- 			if (rc != SEPOL_OK) {
- 				struct cil_list *empty_list;
-+				if (class_flavor == CIL_MAP_CLASS) {
-+					cil_log(CIL_ERR, "Failed to resolve permission %s for map class\n", (char*)curr->data);
-+					goto exit;
-+				}
- 				cil_log(CIL_WARN, "Failed to resolve permission %s\n", (char*)curr->data);
- 				/* Use an empty list to represent unknown perm */
- 				cil_list_init(&empty_list, perm_strs->flavor);
-@@ -170,7 +174,7 @@ int cil_resolve_classperms(struct cil_tree_node *current, struct cil_classperms
- 
- 	cp->class = class;
- 
--	rc = __cil_resolve_perms(&class->perms, common_symtab, cp->perm_strs, &cp->perms);
-+	rc = __cil_resolve_perms(&class->perms, common_symtab, cp->perm_strs, &cp->perms, FLAVOR(datum));
- 	if (rc != SEPOL_OK) {
- 		goto exit;
- 	}
--- 
-2.7.4
+> 
+> 
+>>  Please, see my original email and answer the questions there
+>> (which you mostly ignored) to see whether this is even a worthwhile
+>> exercise, and then, if so, follow the guidance for using sound DAC
+>> ownership and modes first, then investigate SELinux to address residual
+>> gaps.
+> ok.  That is what I have been attempting to do... one residual gap I
+> see with that is that a root user can make a copy of my application.
+> I would like to prevent that.
+> 
+>>> Is anything besides your application even running on the device?
+> yes
+> 
+>>> Are there other services/applications that run on the device too?
+> yes
+> 
+>>> When you say "gain access to my device", what kind of access did you have in mind?
+> 
+> I am assuming that somebody has managed to gain root access to my
+> device, possibly via a serial port, or possibly via a remote exploit
+> of one of the other services running on the device.  (S)He will
+> certainly have physical access to the device, and therefore my kernel
+> & rootfs will be encrypted, (and the key would be protected by the
+> secure boot facilities of the SoC).  But if (s)he gains root access to
+> the file system, I don't want him/her to be able to be able to copy my
+> application code off the device.
+> 
+>>
+>> If you want a simple, small SELinux policy to start from, I would again
+>> recommend the Android SELinux policy.
+>>
+> Very well.  I will start there and save the rest of my questions until
+> after I have learned more.
+> 
+> Thanks again for your tips and advice.
+> 
+> --wpd
+> 
