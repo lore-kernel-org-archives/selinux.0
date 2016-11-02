@@ -1,71 +1,103 @@
-MIME-Version: 1.0
-In-Reply-To: <f25bd779-ea07-383e-f724-b86e2847edae@tycho.nsa.gov>
-References: <CAF_dkJA-3FNQ1m-8AQxrnWXsbiP+P86OUxeXHeRchh3pYZz70g@mail.gmail.com>
- <706f5fa7-f73a-641b-2a50-4e58ede933a4@tycho.nsa.gov>
- <CAF_dkJAW6hyo8r+m=0AuJRkLV4kA_zFM=5tOQd2iWuFHJjb8Pw@mail.gmail.com>
- <3d207136-9e4a-c61d-7939-2b5a3a7f47a2@tycho.nsa.gov>
- <CAF_dkJDA64AaZBzoC3q0q+9=QPMWy6ju_OL7dK6HDmqtJTZf3g@mail.gmail.com>
- <f25bd779-ea07-383e-f724-b86e2847edae@tycho.nsa.gov>
-From: Patrick Doyle <wpdster@gmail.com>
-Date: Wed, 2 Nov 2016 11:10:45 -0400
-Message-ID: <CAF_dkJDFGQHxqPEUZ4gx-_fZaU0e+Kt62vTY7GLVSy3dvDrmuA@mail.gmail.com>
-Subject: Re: Is it possible to prevent a binary executable file from being
- read via SELinux?
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA2FOf5N006270
+ for <selinux@tycho.nsa.gov>; Wed, 2 Nov 2016 11:24:41 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id AA7D81A1A8
+ for <selinux@tycho.nsa.gov>; Wed,  2 Nov 2016 16:24:34 +0100 (CET)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id FqjN4HXjxo2n for <selinux@tycho.nsa.gov>;
+ Wed,  2 Nov 2016 16:24:32 +0100 (CET)
+Received: from valinor.bigon.be (d54c71dba.static.telenet.be [84.199.29.186])
+ (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 746271A06E
+ for <selinux@tycho.nsa.gov>; Wed,  2 Nov 2016 16:24:32 +0100 (CET)
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] Revert "libselinux: support new python3 functions"
+Date: Wed,  2 Nov 2016 16:24:31 +0100
+Message-Id: <20161102152431.30464-1-bigon@debian.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Nov 2, 2016 at 10:08 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> No.  For example, if all processes can access all /dev nodes, then they
-> can perform raw reads/writes to the block devices and thereby circumvent
-> any file-based access controls entirely.  If all processes can write to
-> e.g. /lib, then they can replace the dynamic linker and any shared
-> libraries used by your application and get it to execute their code in
-> order to dump its memory.  If they can all execute your application,
-> then they can run its binary in their own memory and then dump its
-> contents.
-I didn't realize that saying "Allow all access" would circumvent the
-normal Linux based file permissions.  I assumed that SELinux was
-layered on top of those permissions.  I guess I have more to learn.
+From: Laurent Bigonville <bigon@bigon.be>
 
+With the reverted commit applied, some functions were returning arrays
+of bytes instead of python strings under python3 this was causing issues
+with string manipulation functions like split().
 
->  Please, see my original email and answer the questions there
-> (which you mostly ignored) to see whether this is even a worthwhile
-> exercise, and then, if so, follow the guidance for using sound DAC
-> ownership and modes first, then investigate SELinux to address residual
-> gaps.
-ok.  That is what I have been attempting to do... one residual gap I
-see with that is that a root user can make a copy of my application.
-I would like to prevent that.
+Swig (checked with 3.0.7) is adding compatibility macros that take care
+of the differences between python2 and python3.
 
->> Is anything besides your application even running on the device?
-yes
+This reverts commit 63df0f7ef12844b9b86cc293299671da772fcf84.
 
->> Are there other services/applications that run on the device too?
-yes
+Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+---
+ libselinux/src/selinuxswig_python.i | 22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
->> When you say "gain access to my device", what kind of access did you have in mind?
-
-I am assuming that somebody has managed to gain root access to my
-device, possibly via a serial port, or possibly via a remote exploit
-of one of the other services running on the device.  (S)He will
-certainly have physical access to the device, and therefore my kernel
-& rootfs will be encrypted, (and the key would be protected by the
-secure boot facilities of the SoC).  But if (s)he gains root access to
-the file system, I don't want him/her to be able to be able to copy my
-application code off the device.
-
->
-> If you want a simple, small SELinux policy to start from, I would again
-> recommend the Android SELinux policy.
->
-Very well.  I will start there and save the rest of my questions until
-after I have learned more.
-
-Thanks again for your tips and advice.
-
---wpd
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index 8cea18d..43df291 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -64,7 +64,7 @@ def install(src, dest):
+ 	PyObject* list = PyList_New(*$2);
+ 	int i;
+ 	for (i = 0; i < *$2; i++) {
+-		PyList_SetItem(list, i, PyBytes_FromString((*$1)[i]));
++		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
+ 	}
+ 	$result = SWIG_Python_AppendOutput($result, list);
+ }
+@@ -97,9 +97,7 @@ def install(src, dest):
+ 			len++;
+ 		plist = PyList_New(len);
+ 		for (i = 0; i < len; i++) {
+-			PyList_SetItem(plist, i,
+-                                       PyBytes_FromString((*$1)[i])
+-                                       );
++			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
+ 		}
+ 	} else {
+ 		plist = PyList_New(0);
+@@ -116,9 +114,7 @@ def install(src, dest):
+ 	if (*$1) {
+ 		plist = PyList_New(result);
+ 		for (i = 0; i < result; i++) {
+-			PyList_SetItem(plist, i,
+-                                       PyBytes_FromString((*$1)[i])
+-                                       );
++			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
+ 		}
+ 	} else {
+ 		plist = PyList_New(0);
+@@ -171,20 +167,16 @@ def install(src, dest):
+ 	$1 = (char**) malloc(size + 1);
+ 
+ 	for(i = 0; i < size; i++) {
+-		if (!PyBytes_Check(PySequence_GetItem($input, i))) {
+-			PyErr_SetString(PyExc_ValueError, "Sequence must contain only bytes");
+-
++		if (!PyString_Check(PySequence_GetItem($input, i))) {
++			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
+ 			return NULL;
+ 		}
+-
+ 	}
+ 		
+ 	for(i = 0; i < size; i++) {
+ 		s = PySequence_GetItem($input, i);
+-
+-		$1[i] = (char*) malloc(PyBytes_Size(s) + 1);
+-		strcpy($1[i], PyBytes_AsString(s));
+-
++		$1[i] = (char*) malloc(PyString_Size(s) + 1);
++		strcpy($1[i], PyString_AsString(s));
+ 	}
+ 	$1[size] = NULL;
+ }
+-- 
+2.10.2
