@@ -1,37 +1,38 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA24DPAY012733
+ for <selinux@tycho.nsa.gov>; Wed, 2 Nov 2016 00:13:25 -0400
+From: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Reply-To: russell@coker.com.au
+Cc: Chris PeBenito <pebenito@ieee.org>, refpolicy <refpolicy@oss.tresys.com>
+Subject: Re: ANN: Reference Policy Release
+Date: Wed, 02 Nov 2016 15:13:07 +1100
+Message-ID: <8799489.dRRxGQOAEO@russell.coker.com.au>
+In-Reply-To: <6f8bd54a-758b-01ba-0958-16bd6c5b15ed@ieee.org>
+References: <6f8bd54a-758b-01ba-0958-16bd6c5b15ed@ieee.org>
 MIME-Version: 1.0
-In-Reply-To: <706f5fa7-f73a-641b-2a50-4e58ede933a4@tycho.nsa.gov>
-References: <CAF_dkJA-3FNQ1m-8AQxrnWXsbiP+P86OUxeXHeRchh3pYZz70g@mail.gmail.com>
- <706f5fa7-f73a-641b-2a50-4e58ede933a4@tycho.nsa.gov>
-From: Patrick Doyle <wpdster@gmail.com>
-Date: Tue, 1 Nov 2016 18:41:13 -0400
-Message-ID: <CAF_dkJAW6hyo8r+m=0AuJRkLV4kA_zFM=5tOQd2iWuFHJjb8Pw@mail.gmail.com>
-Subject: Re: Is it possible to prevent a binary executable file from being
- read via SELinux?
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thank you for your reply.
+On Sunday, 23 October 2016 5:29:25 PM AEDT Chris PeBenito wrote:
+> A new release of the SELinux Reference Policy is now available on the
+> GitHub site, https://github.com/TresysTechnology/refpolicy.
 
-On Tue, Nov 1, 2016 at 3:45 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> If you can't get rid of root services entirely, then SELinux can extend
-> this protection to even root processes.  You'd probably want a custom
-> policy from scratch for that kind of scenario; see the Android policy
-> for an example.
-A custom policy is most likely what I want... my question is... can I
-set up such a policy that disallows reading (and, by extension,
-copying) of an executable binary, and yet still be able to execute it?
- A related question would be: can I bake that policy immutably into
-the kernel so that it cannot be disabled?  While I can't prevent
-physical access to the device, I can encrypt the kernel & rootfs
-(embedded as a cramfs) as a single binary blob, so I think (hope) that
-is as secure as my encryption key.  I would also do all of the normal
-hardening stuff of disabling loadable modules, shutting down network
-services, etc...
+https://github.com/TresysTechnology/refpolicy/wiki/DownloadRelease
 
---wpd
+The archive at the above page has the files policy.28 and policy.30.orig which 
+comprise more than half the compressed archive size.
+
+Could you make a new release without them?  Otherwise we are going to have 
+that in all the distribution archives and mirror sites.
+
+Also in future could we have more frequent releases?  More frequent upstream 
+releases makes it easier for distribution people to send changes upstream and 
+gives a greater incentive to do so.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
