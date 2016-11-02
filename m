@@ -1,38 +1,45 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA24DPAY012733
- for <selinux@tycho.nsa.gov>; Wed, 2 Nov 2016 00:13:25 -0400
-From: Russell Coker <russell@coker.com.au>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Reply-To: russell@coker.com.au
-Cc: Chris PeBenito <pebenito@ieee.org>, refpolicy <refpolicy@oss.tresys.com>
-Subject: Re: ANN: Reference Policy Release
-Date: Wed, 02 Nov 2016 15:13:07 +1100
-Message-ID: <8799489.dRRxGQOAEO@russell.coker.com.au>
-In-Reply-To: <6f8bd54a-758b-01ba-0958-16bd6c5b15ed@ieee.org>
-References: <6f8bd54a-758b-01ba-0958-16bd6c5b15ed@ieee.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Cc: bill.c.roberts@gmail.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsemanage: fix kernel pathname in semanage_verify_kernel()
+Date: Wed,  2 Nov 2016 09:00:27 -0400
+Message-Id: <1478091627-8111-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sunday, 23 October 2016 5:29:25 PM AEDT Chris PeBenito wrote:
-> A new release of the SELinux Reference Policy is now available on the
-> GitHub site, https://github.com/TresysTechnology/refpolicy.
+Building with CC=clang, we get the following errors:
 
-https://github.com/TresysTechnology/refpolicy/wiki/DownloadRelease
+semanage_store.c:2177:20: error: implicit conversion from enumeration type 'enum semanage_final_defs' to different enumeration type 'enum semanage_store_defs' [-Werror,-Wenum-conversion]
+            semanage_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
+            ~~~~~~~~~~~~~ ^~~~~~~~~~~~~~~~~~
+semanage_store.c:2177:40: error: implicit conversion from enumeration type 'enum semanage_final_path_defs' to different enumeration type 'enum semanage_sandbox_defs' [-Werror,-Wenum-conversion]
+            semanage_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
+            ~~~~~~~~~~~~~                     ^~~~~~~~~~~~~~~
 
-The archive at the above page has the files policy.28 and policy.30.orig which 
-comprise more than half the compressed archive size.
+This is an actual bug; semanage_verify_kernel() was never updated to
+use semanage_final_path() when the rest were converted.  Fix it.
+This pathname is only used if a kernel policy verifier is specified
+in semanage.conf, so this is not used by default.
 
-Could you make a new release without them?  Otherwise we are going to have 
-that in all the distribution archives and mirror sites.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsemanage/src/semanage_store.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Also in future could we have more frequent releases?  More frequent upstream 
-releases makes it easier for distribution people to send changes upstream and 
-gives a greater incentive to do so.
-
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index ca29257..58a58ef 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -2174,7 +2174,7 @@ int semanage_verify_kernel(semanage_handle_t * sh)
+ {
+ 	int retval = -1;
+ 	const char *kernel_filename =
+-	    semanage_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
++	    semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL);
+ 	semanage_conf_t *conf = sh->conf;
+ 	external_prog_t *e;
+ 	if (conf->kernel_prog == NULL) {
 -- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+2.7.4
