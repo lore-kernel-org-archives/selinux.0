@@ -1,6 +1,5 @@
-Subject: Re: Is it possible to prevent a binary executable file from being
- read via SELinux?
-To: Patrick Doyle <wpdster@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <cd2ca3ad-5f4e-be6a-c901-9e2ce2f142ef@tycho.nsa.gov>
 References: <CAF_dkJA-3FNQ1m-8AQxrnWXsbiP+P86OUxeXHeRchh3pYZz70g@mail.gmail.com>
  <706f5fa7-f73a-641b-2a50-4e58ede933a4@tycho.nsa.gov>
  <CAF_dkJAW6hyo8r+m=0AuJRkLV4kA_zFM=5tOQd2iWuFHJjb8Pw@mail.gmail.com>
@@ -8,73 +7,44 @@ References: <CAF_dkJA-3FNQ1m-8AQxrnWXsbiP+P86OUxeXHeRchh3pYZz70g@mail.gmail.com>
  <CAF_dkJDA64AaZBzoC3q0q+9=QPMWy6ju_OL7dK6HDmqtJTZf3g@mail.gmail.com>
  <f25bd779-ea07-383e-f724-b86e2847edae@tycho.nsa.gov>
  <CAF_dkJDFGQHxqPEUZ4gx-_fZaU0e+Kt62vTY7GLVSy3dvDrmuA@mail.gmail.com>
+ <cd2ca3ad-5f4e-be6a-c901-9e2ce2f142ef@tycho.nsa.gov>
+From: Patrick Doyle <wpdster@gmail.com>
+Date: Wed, 2 Nov 2016 14:42:52 -0400
+Message-ID: <CAF_dkJBGaTbQjp78ZCZ-JuCj-x-2L1ufkCKSWRPrfDWenrmbUA@mail.gmail.com>
+Subject: Re: Is it possible to prevent a binary executable file from being
+ read via SELinux?
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <cd2ca3ad-5f4e-be6a-c901-9e2ce2f142ef@tycho.nsa.gov>
-Date: Wed, 2 Nov 2016 12:31:50 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAF_dkJDFGQHxqPEUZ4gx-_fZaU0e+Kt62vTY7GLVSy3dvDrmuA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/02/2016 11:10 AM, Patrick Doyle wrote:
-> On Wed, Nov 2, 2016 at 10:08 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> No.  For example, if all processes can access all /dev nodes, then they
->> can perform raw reads/writes to the block devices and thereby circumvent
->> any file-based access controls entirely.  If all processes can write to
->> e.g. /lib, then they can replace the dynamic linker and any shared
->> libraries used by your application and get it to execute their code in
->> order to dump its memory.  If they can all execute your application,
->> then they can run its binary in their own memory and then dump its
->> contents.
-> I didn't realize that saying "Allow all access" would circumvent the
-> normal Linux based file permissions.  I assumed that SELinux was
-> layered on top of those permissions.  I guess I have more to learn.
+On Wed, Nov 2, 2016 at 12:31 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 11/02/2016 11:10 AM, Patrick Doyle wrote:
+>> I didn't realize that saying "Allow all access" would circumvent the
+>> normal Linux based file permissions.  I assumed that SELinux was
+>> layered on top of those permissions.  I guess I have more to learn.
+>
+> No, my comments were with respect to SELinux, not DAC.  DAC is still in
+> effect and SELinux does not override DAC denials.  But the point
+> remains: if you are trying to protect against an errant root process,
+> then the policy you described won't provide any real protection.
+>
+OK, thanks.  That's good to know.  I was (perhaps foolishly) trying to
+describe a policy that protected the one thing I knew I wanted
+protected, and left everything else as (un)protected as it would be
+without SELinux.  But I'm going to stop asking questions now until I
+spend more time reading the documentation, trying things, and
+understanding more things.
 
-No, my comments were with respect to SELinux, not DAC.  DAC is still in
-effect and SELinux does not override DAC denials.  But the point
-remains: if you are trying to protect against an errant root process,
-then the policy you described won't provide any real protection.
+I appreciate your time (and the patience) you have given me thus far.
+Now that I know my quest (executable, but not readable, even by root)
+is not impossible, it's time for me to go do some more legwork (and
+brainwork).  And at the end of this process, I expect I'll have a
+solution that is even more secure than my original quest.
 
-> 
-> 
->>  Please, see my original email and answer the questions there
->> (which you mostly ignored) to see whether this is even a worthwhile
->> exercise, and then, if so, follow the guidance for using sound DAC
->> ownership and modes first, then investigate SELinux to address residual
->> gaps.
-> ok.  That is what I have been attempting to do... one residual gap I
-> see with that is that a root user can make a copy of my application.
-> I would like to prevent that.
-> 
->>> Is anything besides your application even running on the device?
-> yes
-> 
->>> Are there other services/applications that run on the device too?
-> yes
-> 
->>> When you say "gain access to my device", what kind of access did you have in mind?
-> 
-> I am assuming that somebody has managed to gain root access to my
-> device, possibly via a serial port, or possibly via a remote exploit
-> of one of the other services running on the device.  (S)He will
-> certainly have physical access to the device, and therefore my kernel
-> & rootfs will be encrypted, (and the key would be protected by the
-> secure boot facilities of the SoC).  But if (s)he gains root access to
-> the file system, I don't want him/her to be able to be able to copy my
-> application code off the device.
-> 
->>
->> If you want a simple, small SELinux policy to start from, I would again
->> recommend the Android SELinux policy.
->>
-> Very well.  I will start there and save the rest of my questions until
-> after I have learned more.
-> 
-> Thanks again for your tips and advice.
-> 
-> --wpd
-> 
+Thanks again.
+
+--wpd
