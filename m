@@ -1,86 +1,76 @@
+From: Laurent Bigonville <bigon@debian.org>
+Subject: Re: [PATCH] policycoreutils: Use "new" sepolicy icon in .desktop file
+ for sepolicy gui
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <20161102130437.15464-1-bigon@debian.org>
+ <1fcd09f4-96fa-7c93-7b3b-7cae8c328733@tycho.nsa.gov>
+Message-ID: <a8c6f311-0769-d49c-e2f6-94314b6b1f6b@debian.org>
+Date: Thu, 3 Nov 2016 17:16:26 +0100
 MIME-Version: 1.0
-From: Naina Emmanuel <nemmanuel1992@gmail.com>
-Date: Thu, 3 Nov 2016 05:50:59 -0700
-Message-ID: <CAN=9EoTd3w=FVCAYSGRujAZyeosP5GtieSC=YOP-SpfSQOb5=g@mail.gmail.com>
-Subject: selinux user to linux mapping
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- Daniel J Walsh <dwalsh@redhat.com>, Vit Mojzis <vmojzis@redhat.com>
-Cc: Anas Tariq <anas.tariq1995@gmail.com>, masoom alam <masoom.alam@gmail.com>
-Content-Type: multipart/alternative; boundary=001a114331886fb1d60540650203
+In-Reply-To: <1fcd09f4-96fa-7c93-7b3b-7cae8c328733@tycho.nsa.gov>
+Content-Type: multipart/alternative;
+ boundary="------------13FF2CB4D07ECF0E48C0F4BF"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a114331886fb1d60540650203
-Content-Type: text/plain; charset=UTF-8
+This is a multi-part message in MIME format.
+--------------13FF2CB4D07ECF0E48C0F4BF
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Good Evening,
-I am assigning roles to customized users,roles have been created fine, I am
-facing problem in assigning this role to Linux account.
-using the command for assigning mailadm(role) to SELinux user
-*root #semanage user -a -R "mailadm_r system_r *
+Le 02/11/16 à 14:27, Stephen Smalley a écrit :
+> On 11/02/2016 09:04 AM, Laurent Bigonville wrote:
+>> From: Laurent Bigonville<bigon@bigon.be>
+>>
+>> New hires icons have been added to the repository end 2013 but the
+>> sepolicy .desktop file is not using it, let's fix that.
+> Thanks, applied.  I plan to move these icon files over to the gui/
+> directory in the splitpolicycoreutils branch.
+Thanks,
 
-But when I map this SELinux user to Linux user through
-*root #semanage login -a -s mailadm_u user1234*
-Getting error:
+I should probably reply to your initial mail about the split, but 
+shouldn't the gui directory completely dropped? I mean 
+system-config-selinux is python2 only and need to be ported to GObject 
+introspection and GTKBuilder if we want it to work in python3 (or it 
+should be ported, but it looked non trivial to my meager knowledge).
 
-libsemanage.dbase_llist_query: could not query record value
+--------------13FF2CB4D07ECF0E48C0F4BF
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
 
-ValueError: Could not query user for mailadm_u
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    Le 02/11/16 à 14:27, Stephen Smalley a écrit :<br>
+    <blockquote
+      cite="mid:1fcd09f4-96fa-7c93-7b3b-7cae8c328733@tycho.nsa.gov"
+      type="cite">
+      <pre wrap="">On 11/02/2016 09:04 AM, Laurent Bigonville wrote:
+</pre>
+      <blockquote type="cite">
+        <pre wrap="">From: Laurent Bigonville <a class="moz-txt-link-rfc2396E" href="mailto:bigon@bigon.be">&lt;bigon@bigon.be&gt;</a>
 
+New hires icons have been added to the repository end 2013 but the
+sepolicy .desktop file is not using it, let's fix that.
+</pre>
+      </blockquote>
+      <pre wrap="">Thanks, applied.  I plan to move these icon files over to the gui/
+directory in the splitpolicycoreutils branch.
+</pre>
+    </blockquote>
+    Thanks,<br>
+    <br>
+    I should probably reply to your initial mail about the split, but
+    shouldn't the gui directory completely dropped? I mean
+    system-config-selinux is python2 only and need to be ported to
+    GObject introspection and GTKBuilder if we want it to work in
+    python3 (or it should be ported, but it looked non trivial to my
+    meager knowledge).<br>
+  </body>
+</html>
 
-Help in this regard
-
-thanks
-
-*Engr. Naina Emmanuel*
-*Cryptography Certified*
-*Linux Essential Certified (LEPDC)*
-*Cisco Certified Network Associate (CCNA)*
-
-*Computer Engineering Department, UET Taxila*
-
-*Information Security, CS Department, CIIT Islamabad*
-
---001a114331886fb1d60540650203
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div class=3D"gmail_signature"><div dir=3D"ltr"><div =
-dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"=
-ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div><font size=3D"=
-4">Good Evening,</font></div><div>I am assigning roles to customized users,=
-roles have been created fine, I am facing problem in assigning=C2=A0this ro=
-le to Linux account.</div><div>using the command for assigning=C2=A0mailadm=
-(role) to SELinux user</div><div><b>root #semanage user -a -R &quot;mailadm=
-_r system_r=C2=A0</b></div><div><b><br></b></div><div>But when I map this S=
-ELinux=C2=A0user to Linux user through</div><b>root #semanage login -a -s m=
-ailadm_u user1234</b></div><div>Getting error:</div><div><pre class=3D"gmai=
-l-bz_comment_text gmail-bz_wrap_comment_text" style=3D"white-space:pre-wrap=
-;word-wrap:break-word;width:50em;color:rgb(0,0,0)">libsemanage.dbase_llist_=
-query: could not query record value</pre><pre class=3D"gmail-bz_comment_tex=
-t gmail-bz_wrap_comment_text" style=3D"white-space:pre-wrap;word-wrap:break=
--word;width:50em;color:rgb(0,0,0)">ValueError: Could not query user for mai=
-ladm_u</pre><pre class=3D"gmail-bz_comment_text gmail-bz_wrap_comment_text"=
- style=3D"white-space:pre-wrap;word-wrap:break-word;width:50em;color:rgb(0,=
-0,0)"><br></pre><pre class=3D"gmail-bz_comment_text gmail-bz_wrap_comment_t=
-ext" style=3D"white-space:pre-wrap;word-wrap:break-word;width:50em;color:rg=
-b(0,0,0)"><font face=3D"arial, helvetica, sans-serif">Help in this regard</=
-font></pre><pre class=3D"gmail-bz_comment_text gmail-bz_wrap_comment_text" =
-style=3D"white-space:pre-wrap;word-wrap:break-word;width:50em;color:rgb(0,0=
-,0)"><font face=3D"arial, helvetica, sans-serif">thanks</font></pre></div><=
-div dir=3D"ltr"><font size=3D"4"><font color=3D"#666666" style=3D"font-weig=
-ht:bold"><i>Engr. Naina Emmanuel</i></font></font></div><div dir=3D"ltr"><d=
-iv><b style=3D"color:rgb(102,102,102);font-size:small">Cryptography Certifi=
-ed</b></div><div><b style=3D"color:rgb(102,102,102);font-size:small">Linux =
-Essential Certified (LEPDC)</b><font color=3D"#666666" size=3D"2"><b><br></=
-b></font></div><div><font color=3D"#666666" size=3D"2"><b>Cisco Certified N=
-etwork Associate (CCNA)</b></font></div><div><b style=3D"color:rgb(102,102,=
-102);font-size:small">Computer Engineering Department, UET Taxila<br></b></=
-div><div><b style=3D"color:rgb(102,102,102);font-size:small">Information Se=
-curity, CS Department, CIIT Islamabad<br></b></div></div></div></div></div>=
-</div></div></div></div></div></div></div>
-</div>
-
---001a114331886fb1d60540650203--
+--------------13FF2CB4D07ECF0E48C0F4BF--
