@@ -1,117 +1,95 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA3KadcF014332
- for <selinux@tycho.nsa.gov>; Thu, 3 Nov 2016 16:36:39 -0400
-Subject: Re: [PATCH] mqueue: security xattr setting on inode creation
-To: selinux@tycho.nsa.gov, "linux-security-module@vger.kernel.org >> LSM"
- <linux-security-module@vger.kernel.org>
-References: <1478196668-37231-1-git-send-email-david.graziano@rockwellcollins.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <f3556755-a4cd-4281-df52-9adac3aad008@schaufler-ca.com>
-Date: Thu, 3 Nov 2016 13:36:32 -0700
+Subject: Re: [PATCH] Revert "libselinux: support new python3 functions"
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <20161102152431.30464-1-bigon@debian.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <49d3f921-1ef2-1045-bac5-6741a7e77c4f@tycho.nsa.gov>
+Date: Fri, 4 Nov 2016 15:41:56 -0400
 MIME-Version: 1.0
-In-Reply-To: <1478196668-37231-1-git-send-email-david.graziano@rockwellcollins.com>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <20161102152431.30464-1-bigon@debian.org>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/3/2016 11:11 AM, David Graziano wrote:
-> Adds generic xattr support by implementing initxattrs callback.
-> This enables setting of security attributes from LSM and EVM when
-> inode is created. Implementation based off tmpfs/shmem.
+On 11/02/2016 11:24 AM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
+> 
+> With the reverted commit applied, some functions were returning arrays
+> of bytes instead of python strings under python3 this was causing issues
+> with string manipulation functions like split().
+> 
+> Swig (checked with 3.0.7) is adding compatibility macros that take care
+> of the differences between python2 and python3.
+> 
+> This reverts commit 63df0f7ef12844b9b86cc293299671da772fcf84.
 
-This should go to the LSM linux-security-module@vger.kernel.org
-I've cced that list.
+Thanks, applied
 
->
-> Signed-off-by: David Graziano <david.graziano@rockwellcollins.com>
+> 
+> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 > ---
->  ipc/mqueue.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 46 insertions(+)
->
-> diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-> index 0b13ace..512a546 100644
-> --- a/ipc/mqueue.c
-> +++ b/ipc/mqueue.c
-> @@ -35,6 +35,7 @@
->  #include <linux/ipc_namespace.h>
->  #include <linux/user_namespace.h>
->  #include <linux/slab.h>
-> +#include <linux/xattr.h>
->  
->  #include <net/sock.h>
->  #include "util.h"
-> @@ -70,6 +71,7 @@ struct mqueue_inode_info {
->  	struct rb_root msg_tree;
->  	struct posix_msg_tree_node *node_cache;
->  	struct mq_attr attr;
-> +	struct simple_xattrs xattrs;	/* list of xattrs */
->  
->  	struct sigevent notify;
->  	struct pid *notify_owner;
-> @@ -254,6 +256,7 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
->  			info->attr.mq_maxmsg = attr->mq_maxmsg;
->  			info->attr.mq_msgsize = attr->mq_msgsize;
->  		}
-> +		simple_xattrs_init(&info->xattrs);
->  		/*
->  		 * We used to allocate a static array of pointers and account
->  		 * the size of that array as well as one msg_msg struct per
-> @@ -413,6 +416,41 @@ static void mqueue_evict_inode(struct inode *inode)
->  		put_ipc_ns(ipc_ns);
->  }
->  
-> +/*
-> + * Callback for security_inode_init_security() for acquiring xattrs.
-> + */
-> +static int mqueue_initxattrs(struct inode *inode,
-> +			    const struct xattr *xattr_array,
-> +			    void *fs_info)
-> +{
-> +	struct mqueue_inode_info *info = MQUEUE_I(inode);
-> +	const struct xattr *xattr;
-> +	struct simple_xattr *new_xattr;
-> +	size_t len;
-> +
-> +	for (xattr = xattr_array; xattr->name != NULL; xattr++) {
-> +		new_xattr = simple_xattr_alloc(xattr->value, xattr->value_len);
-> +		if (!new_xattr)
-> +			return -ENOMEM;
-> +		len = strlen(xattr->name) + 1;
-> +		new_xattr->name = kmalloc(XATTR_SECURITY_PREFIX_LEN + len,
-> +					  GFP_KERNEL);
-> +		if (!new_xattr->name) {
-> +			kfree(new_xattr);
-> +			return -ENOMEM;
-> +		}
-> +
-> +		memcpy(new_xattr->name, XATTR_SECURITY_PREFIX,
-> +		       XATTR_SECURITY_PREFIX_LEN);
-> +		memcpy(new_xattr->name + XATTR_SECURITY_PREFIX_LEN,
-> +		       xattr->name, len);
-> +
-> +		simple_xattr_list_add(&info->xattrs, new_xattr);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  static int mqueue_create(struct inode *dir, struct dentry *dentry,
->  				umode_t mode, bool excl)
->  {
-> @@ -443,6 +481,14 @@ static int mqueue_create(struct inode *dir, struct dentry *dentry,
->  		ipc_ns->mq_queues_count--;
->  		goto out_unlock;
+>  libselinux/src/selinuxswig_python.i | 22 +++++++---------------
+>  1 file changed, 7 insertions(+), 15 deletions(-)
+> 
+> diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+> index 8cea18d..43df291 100644
+> --- a/libselinux/src/selinuxswig_python.i
+> +++ b/libselinux/src/selinuxswig_python.i
+> @@ -64,7 +64,7 @@ def install(src, dest):
+>  	PyObject* list = PyList_New(*$2);
+>  	int i;
+>  	for (i = 0; i < *$2; i++) {
+> -		PyList_SetItem(list, i, PyBytes_FromString((*$1)[i]));
+> +		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
 >  	}
-> +	error = security_inode_init_security(inode, dir,
-> +					     &dentry->d_name,
-> +					     mqueue_initxattrs, NULL);
-> +	if (error && error != -EOPNOTSUPP) {
-> +		spin_lock(&mq_lock);
-> +		ipc_ns->mq_queues_count--;
-> +		goto out_unlock;
-> +	}
+>  	$result = SWIG_Python_AppendOutput($result, list);
+>  }
+> @@ -97,9 +97,7 @@ def install(src, dest):
+>  			len++;
+>  		plist = PyList_New(len);
+>  		for (i = 0; i < len; i++) {
+> -			PyList_SetItem(plist, i,
+> -                                       PyBytes_FromString((*$1)[i])
+> -                                       );
+> +			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
+>  		}
+>  	} else {
+>  		plist = PyList_New(0);
+> @@ -116,9 +114,7 @@ def install(src, dest):
+>  	if (*$1) {
+>  		plist = PyList_New(result);
+>  		for (i = 0; i < result; i++) {
+> -			PyList_SetItem(plist, i,
+> -                                       PyBytes_FromString((*$1)[i])
+> -                                       );
+> +			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
+>  		}
+>  	} else {
+>  		plist = PyList_New(0);
+> @@ -171,20 +167,16 @@ def install(src, dest):
+>  	$1 = (char**) malloc(size + 1);
 >  
->  	put_ipc_ns(ipc_ns);
->  	dir->i_size += DIRENT_SIZE;
+>  	for(i = 0; i < size; i++) {
+> -		if (!PyBytes_Check(PySequence_GetItem($input, i))) {
+> -			PyErr_SetString(PyExc_ValueError, "Sequence must contain only bytes");
+> -
+> +		if (!PyString_Check(PySequence_GetItem($input, i))) {
+> +			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
+>  			return NULL;
+>  		}
+> -
+>  	}
+>  		
+>  	for(i = 0; i < size; i++) {
+>  		s = PySequence_GetItem($input, i);
+> -
+> -		$1[i] = (char*) malloc(PyBytes_Size(s) + 1);
+> -		strcpy($1[i], PyBytes_AsString(s));
+> -
+> +		$1[i] = (char*) malloc(PyString_Size(s) + 1);
+> +		strcpy($1[i], PyString_AsString(s));
+>  	}
+>  	$1[size] = NULL;
+>  }
+> 
