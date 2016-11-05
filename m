@@ -1,114 +1,133 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA5J84Vh026521
- for <selinux@tycho.nsa.gov>; Sat, 5 Nov 2016 15:08:04 -0400
-Received: by mail-wm0-f51.google.com with SMTP id a197so110330128wmd.0
- for <selinux@tycho.nsa.gov>; Sat, 05 Nov 2016 12:07:44 -0700 (PDT)
-Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id k2sm9913046wjv.11.2016.11.05.12.07.42
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Sat, 05 Nov 2016 12:07:43 -0700 (PDT)
-Subject: Re: Security context of shared libraries
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA5KucDv002332
+ for <selinux@tycho.nsa.gov>; Sat, 5 Nov 2016 16:56:39 -0400
+Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
+ [77.133.206.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 41C3B56478A
+ for <selinux@tycho.nsa.gov>; Sat,  5 Nov 2016 21:56:04 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-References: <f195719b-bab5-6a83-0a13-8d62c077e808@gmail.com>
- <450453c1-af39-8875-2c2d-4db7b2171f0a@gmail.com>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <a9c13f40-9833-1693-2685-970e936fd86c@gmail.com>
-Date: Sat, 5 Nov 2016 20:07:37 +0100
-MIME-Version: 1.0
-In-Reply-To: <450453c1-af39-8875-2c2d-4db7b2171f0a@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="FEX024X2mCJAbibbxWji6RkAv6isq3iLo"
+Subject: [PATCH 1/1] libselinux: remove rpm_execcon from SWIG wrappers
+Date: Sat,  5 Nov 2016 21:55:32 +0100
+Message-Id: <20161105205532.3214-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---FEX024X2mCJAbibbxWji6RkAv6isq3iLo
-Content-Type: multipart/mixed; boundary="e90ptGqcnEVJ5FwEP3PfqhlnGKglGm9NR";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <a9c13f40-9833-1693-2685-970e936fd86c@gmail.com>
-Subject: Re: Security context of shared libraries
-References: <f195719b-bab5-6a83-0a13-8d62c077e808@gmail.com>
- <450453c1-af39-8875-2c2d-4db7b2171f0a@gmail.com>
-In-Reply-To: <450453c1-af39-8875-2c2d-4db7b2171f0a@gmail.com>
+The Python wrapper of rpm_execcon() has several flaws:
+* An invalid call like selinux.rpm_execcon() triggers a segmentation
+  fault.
+* The size of the buffer which is allocated to copy argv and envp is
+  too small to hold all the values.
+* This allocated memory is leaked if one argument of rpm_execon() is not
+  a sequence of bytes.
 
---e90ptGqcnEVJ5FwEP3PfqhlnGKglGm9NR
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+The Ruby wrapper has no such flaws but can not be used as it is because
+it misses some glue code to convert argv and envp arguments to char
+*const [] values (even though the destructor is present!).
 
-On 11/05/2016 08:04 PM, Dominick Grift wrote:
-> On 11/05/2016 07:55 PM, mm wrote:
->> Hi all,
->>
->> I have an executable started by /bin/foo which runs confined within th=
-e
->> context foo_t.
->> The process loads (actually does LD_PRELOAD) bar.so which needs to
->> access resources outside foo_t (actually unconfined_t).
->>
->> I can allow access to such resources from foo_t, but I would like to
->> allow such access only for code running within bar.so, instead of the
->> whole process.
->>
->> I have been looking in the docs, but I could not find if it is possibl=
-e
->> to specify a source context for shared libraries, instead of whole
->> processes.
->> My idea would be to define a context bar_t for code running within
->> bar.so, and allow the required access (to unconfined_t) from bar_t,
->> without extending access for foo_t.
->>
->> Makes sense? Is it possible?
->>
->=20
-> Makes sense, but is not possible AFAIK (not transparently anyway)
+As it is not possible to remove rpm_execcon() without changing
+libselinux soname (it would be an ABI break) like b67fefd991dd
+("libselinux: set DISABLE_RPM default to y.") tried to do, disable this
+interface locally in the SWIG wrappers.
 
-I mean it makes that you would want that.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libselinux/src/selinuxswig_python.i | 42 +++++--------------------------------
+ libselinux/src/selinuxswig_ruby.i   | 14 +++++--------
+ 2 files changed, 10 insertions(+), 46 deletions(-)
 
->> Thanks in advance,
->> M. Manfredini
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to
->> Selinux-request@tycho.nsa.gov.
->=20
->=20
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
-
-
---e90ptGqcnEVJ5FwEP3PfqhlnGKglGm9NR--
-
---FEX024X2mCJAbibbxWji6RkAv6isq3iLo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJYHi35AAoJECV0jlU3+Udpkw8MALoHLWs19YnJ9tqs9xr/RWFz
-9ZU8vL6Te028mYoO36B4eplVRPGyAANw0XtSMGykiS9gabkiCcr0W2bQ6SEFZr1e
-CoOWWUY+TsbmPsLTJ6+DGpeMQY7N9miuvhgUBmvUfdf508eMcEMS70HwMCxPIyvp
-TTPgSbXWk1tlDIC10raHM/QjFY/OEYuND+f4jP9V2DCT+iQEC51Yc/2Se3DEePGq
-uZql7UVQbZ4CjCK1z1eSM0AD4AccFyyf+Vn6tcY5ExYYbAN6sFr1Uv2E9TefOYKB
-4PhvdNQFnreAX4uHInQeeIFcJEu5+3GHjK4Sjp2GHOBwc0nerzDEhRLnyVtWp6+L
-esflKXTpQLglSVgHMAX62znsgr64j+7jyWgPNlpY7XskG/7aoHBpxV03xsjQtCC1
-TYaaAZXhpQP9//4QMolXC3qSVFISFMqQHnTxQFEw2HMUEQ4124qEOMstHN2MUIWc
-mHtTCvhH41SzcVgkJfVhhqJ6R7tSTw8uI9csis0xsQ==
-=aj07
------END PGP SIGNATURE-----
-
---FEX024X2mCJAbibbxWji6RkAv6isq3iLo--
+diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
+index 43df29153d7c..a239f30b4d2c 100644
+--- a/libselinux/src/selinuxswig_python.i
++++ b/libselinux/src/selinuxswig_python.i
+@@ -1,6 +1,11 @@
+ /* Author: James Athey
+  */
+ 
++/* Never build rpm_execcon interface */
++#ifndef DISABLE_RPM
++#define DISABLE_RPM
++#endif
++
+ %module selinux
+ %{
+ 	#include "selinux/selinux.h"
+@@ -153,42 +158,5 @@ def install(src, dest):
+ 	}
+ }
+ 
+-%typemap(in) char * const [] {
+-	int i, size;
+-	PyObject * s;
+-
+-	if (!PySequence_Check($input)) {
+-		PyErr_SetString(PyExc_ValueError, "Expected a sequence");
+-		return NULL;
+-	}
+-
+-	size = PySequence_Size($input);
+-	
+-	$1 = (char**) malloc(size + 1);
+-
+-	for(i = 0; i < size; i++) {
+-		if (!PyString_Check(PySequence_GetItem($input, i))) {
+-			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
+-			return NULL;
+-		}
+-	}
+-		
+-	for(i = 0; i < size; i++) {
+-		s = PySequence_GetItem($input, i);
+-		$1[i] = (char*) malloc(PyString_Size(s) + 1);
+-		strcpy($1[i], PyString_AsString(s));
+-	}
+-	$1[size] = NULL;
+-}
+-
+-%typemap(freearg,match="in") char * const [] {
+-	int i = 0;
+-	while($1[i]) {
+-		free($1[i]);
+-		i++;
+-	}
+-	free($1);
+-}
+-
+ %include "selinuxswig_python_exception.i"
+ %include "selinuxswig.i"
+diff --git a/libselinux/src/selinuxswig_ruby.i b/libselinux/src/selinuxswig_ruby.i
+index 12d63c4b1b29..51dacf877148 100644
+--- a/libselinux/src/selinuxswig_ruby.i
++++ b/libselinux/src/selinuxswig_ruby.i
+@@ -2,6 +2,11 @@
+    Based on selinuxswig_python.i by James Athey
+  */
+ 
++/* Never build rpm_execcon interface */
++#ifndef DISABLE_RPM
++#define DISABLE_RPM
++#endif
++
+ %module selinux
+ %{
+ 	#include "selinux/selinux.h"
+@@ -40,13 +45,4 @@
+ 	}
+ }
+ 
+-%typemap(freearg,match="in") char * const [] {
+-	int i = 0;
+-	while($1[i]) {
+-		free($1[i]);
+-		i++;
+-	}
+-	free($1);
+-}
+-
+ %include "selinuxswig.i"
+-- 
+2.10.2
