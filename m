@@ -1,95 +1,44 @@
-Subject: Re: [PATCH] Revert "libselinux: support new python3 functions"
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <20161102152431.30464-1-bigon@debian.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <49d3f921-1ef2-1045-bac5-6741a7e77c4f@tycho.nsa.gov>
-Date: Fri, 4 Nov 2016 15:41:56 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA5Itjws025255
+ for <selinux@tycho.nsa.gov>; Sat, 5 Nov 2016 14:55:45 -0400
+Received: by mail-wm0-f54.google.com with SMTP id f82so48238297wmf.1
+ for <selinux@tycho.nsa.gov>; Sat, 05 Nov 2016 11:55:40 -0700 (PDT)
+Received: from [192.168.0.25] ([151.58.14.242])
+ by smtp.googlemail.com with ESMTPSA id 18sm3634875wmr.6.2016.11.05.11.55.38
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Sat, 05 Nov 2016 11:55:38 -0700 (PDT)
+To: selinux@tycho.nsa.gov
+From: mm <mm19827@gmail.com>
+Subject: Security context of shared libraries
+Message-ID: <f195719b-bab5-6a83-0a13-8d62c077e808@gmail.com>
+Date: Sat, 5 Nov 2016 19:55:38 +0100
 MIME-Version: 1.0
-In-Reply-To: <20161102152431.30464-1-bigon@debian.org>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/02/2016 11:24 AM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
-> 
-> With the reverted commit applied, some functions were returning arrays
-> of bytes instead of python strings under python3 this was causing issues
-> with string manipulation functions like split().
-> 
-> Swig (checked with 3.0.7) is adding compatibility macros that take care
-> of the differences between python2 and python3.
-> 
-> This reverts commit 63df0f7ef12844b9b86cc293299671da772fcf84.
+Hi all,
 
-Thanks, applied
+I have an executable started by /bin/foo which runs confined within the 
+context foo_t.
+The process loads (actually does LD_PRELOAD) bar.so which needs to 
+access resources outside foo_t (actually unconfined_t).
 
-> 
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
-> ---
->  libselinux/src/selinuxswig_python.i | 22 +++++++---------------
->  1 file changed, 7 insertions(+), 15 deletions(-)
-> 
-> diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
-> index 8cea18d..43df291 100644
-> --- a/libselinux/src/selinuxswig_python.i
-> +++ b/libselinux/src/selinuxswig_python.i
-> @@ -64,7 +64,7 @@ def install(src, dest):
->  	PyObject* list = PyList_New(*$2);
->  	int i;
->  	for (i = 0; i < *$2; i++) {
-> -		PyList_SetItem(list, i, PyBytes_FromString((*$1)[i]));
-> +		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
->  	}
->  	$result = SWIG_Python_AppendOutput($result, list);
->  }
-> @@ -97,9 +97,7 @@ def install(src, dest):
->  			len++;
->  		plist = PyList_New(len);
->  		for (i = 0; i < len; i++) {
-> -			PyList_SetItem(plist, i,
-> -                                       PyBytes_FromString((*$1)[i])
-> -                                       );
-> +			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
->  		}
->  	} else {
->  		plist = PyList_New(0);
-> @@ -116,9 +114,7 @@ def install(src, dest):
->  	if (*$1) {
->  		plist = PyList_New(result);
->  		for (i = 0; i < result; i++) {
-> -			PyList_SetItem(plist, i,
-> -                                       PyBytes_FromString((*$1)[i])
-> -                                       );
-> +			PyList_SetItem(plist, i, PyString_FromString((*$1)[i]));
->  		}
->  	} else {
->  		plist = PyList_New(0);
-> @@ -171,20 +167,16 @@ def install(src, dest):
->  	$1 = (char**) malloc(size + 1);
->  
->  	for(i = 0; i < size; i++) {
-> -		if (!PyBytes_Check(PySequence_GetItem($input, i))) {
-> -			PyErr_SetString(PyExc_ValueError, "Sequence must contain only bytes");
-> -
-> +		if (!PyString_Check(PySequence_GetItem($input, i))) {
-> +			PyErr_SetString(PyExc_ValueError, "Sequence must contain only strings");
->  			return NULL;
->  		}
-> -
->  	}
->  		
->  	for(i = 0; i < size; i++) {
->  		s = PySequence_GetItem($input, i);
-> -
-> -		$1[i] = (char*) malloc(PyBytes_Size(s) + 1);
-> -		strcpy($1[i], PyBytes_AsString(s));
-> -
-> +		$1[i] = (char*) malloc(PyString_Size(s) + 1);
-> +		strcpy($1[i], PyString_AsString(s));
->  	}
->  	$1[size] = NULL;
->  }
-> 
+I can allow access to such resources from foo_t, but I would like to 
+allow such access only for code running within bar.so, instead of the 
+whole process.
+
+I have been looking in the docs, but I could not find if it is possible 
+to specify a source context for shared libraries, instead of whole 
+processes.
+My idea would be to define a context bar_t for code running within 
+bar.so, and allow the required access (to unconfined_t) from bar_t, 
+without extending access for foo_t.
+
+Makes sense? Is it possible?
+
+Thanks in advance,
+M. Manfredini
