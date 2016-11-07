@@ -1,26 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA781U6A006318
- for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2016 03:01:30 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA79pmFK015151
+ for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2016 04:51:48 -0500
 Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id 80DF61A1AE
- for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 09:01:22 +0100 (CET)
+ by anor.bigon.be (Postfix) with ESMTP id CCB411A1AE
+ for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 10:51:12 +0100 (CET)
 Received: from anor.bigon.be ([127.0.0.1])
  by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id 8A1i-ColBpbT for <selinux@tycho.nsa.gov>;
- Mon,  7 Nov 2016 09:01:18 +0100 (CET)
-Received: from fornost.bigon.be (unknown
- [IPv6:2a02:a03f:6c:e500:edf:2fd8:fc0a:f176])
+ with ESMTP id uwxXT7dehTRG for <selinux@tycho.nsa.gov>;
+ Mon,  7 Nov 2016 10:51:09 +0100 (CET)
+Received: from valinor.bigon.be (unknown [193.53.238.201])
  (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
  (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 14DEC1A1A8
- for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 09:01:18 +0100 (CET)
+ by anor.bigon.be (Postfix) with ESMTPSA id 2BC491A1A8
+ for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 10:51:09 +0100 (CET)
 From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] policycoreutils: Make sepolicy work with python3
-Date: Mon,  7 Nov 2016 09:01:17 +0100
-Message-Id: <20161107080117.24030-2-bigon@debian.org>
-In-Reply-To: <20161107080117.24030-1-bigon@debian.org>
-References: <20161107080117.24030-1-bigon@debian.org>
+Subject: [Patch v2 2/2] policycoreutils: Make sepolicy work with python3
+Date: Mon,  7 Nov 2016 10:51:08 +0100
+Message-Id: <20161107095108.22306-1-bigon@debian.org>
+In-Reply-To: <20161107080117.24030-2-bigon@debian.org>
+References: <20161107080117.24030-2-bigon@debian.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -232,7 +231,7 @@ index 8fbd5b4..fee6438 100644
              os_version = output.split(".")[-2]
      except:
 diff --git a/policycoreutils/sepolicy/sepolicy/communicate.py b/policycoreutils/sepolicy/sepolicy/communicate.py
-index b96c4b9..45d5abb 100755
+index b96c4b9..299316e 100755
 --- a/policycoreutils/sepolicy/sepolicy/communicate.py
 +++ b/policycoreutils/sepolicy/sepolicy/communicate.py
 @@ -34,8 +34,8 @@ def usage(parser, msg):
@@ -241,8 +240,8 @@ index b96c4b9..45d5abb 100755
      try:
 -        return sepolicy.info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
 -    except RuntimeError:
-+        return list(list(sepolicy.info(sepolicy.ATTRIBUTE, attribute))[0]["types"])
-+    except IndexError:
++        return list(next(sepolicy.info(sepolicy.ATTRIBUTE, attribute))["types"])
++    except StopIteration:
          return [attribute]
  
  
