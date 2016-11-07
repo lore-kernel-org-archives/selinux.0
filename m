@@ -1,49 +1,74 @@
-Subject: Re: Security context of shared libraries
-To: mm19827 <mm19827@gmail.com>, selinux@tycho.nsa.gov
-References: <f195719b-bab5-6a83-0a13-8d62c077e808@gmail.com>
- <8ff395c1-f0cd-061f-fb26-2bba74eb32d7@tycho.nsa.gov>
- <95ad1d72-8c8c-29eb-531c-e42dd02f6a19@gmail.com>
- <8e4c976b-8608-4331-fe4d-251db6763b0b@tycho.nsa.gov>
- <5abc1601-678f-0d76-e800-789941f5c22b@gmail.com>
- <d20db309-43e4-adcf-04e2-407290d52b93@tycho.nsa.gov>
- <85fa6e4c-9c24-1371-d5a8-332d18015818@gmail.com>
+Subject: Re: [PATCH 1/1] libselinux, libsemanage: remove
+ *swig_python_exception.i if its creation failed
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20161105212403.30462-1-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a2bc0a3f-279d-7748-91c3-771eaff94bae@tycho.nsa.gov>
-Date: Mon, 7 Nov 2016 10:25:41 -0500
+Message-ID: <61dd695f-31bd-069b-9865-bf45ea377de9@tycho.nsa.gov>
+Date: Mon, 7 Nov 2016 16:04:38 -0500
 MIME-Version: 1.0
-In-Reply-To: <85fa6e4c-9c24-1371-d5a8-332d18015818@gmail.com>
+In-Reply-To: <20161105212403.30462-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/07/2016 10:11 AM, mm19827 wrote:
+On 11/05/2016 05:24 PM, Nicolas Iooss wrote:
+> When compiling libselinux with CC=clang, "make pywrap" reports the
+> following message:
 > 
+>     bash exception.sh > selinuxswig_python_exception.i
+>     clang-3.9: error: no such file or directory: 'temp.aux'
+>     awk: fatal: cannot open file `temp.aux' for reading (No such file or
+>     directory)
 > 
-> On 11/07/2016 04:01 PM, Stephen Smalley wrote:
->>
->> I suppose that's true, depending on what it is that you have to allow
->> between foo_t and bar_t, e.g. you can allow foo_t to connect to a bar_t
->> socket or similar without allowing it to connect to unconfined_t
->> sockets.
-> Exactly.
+> This does not make the build fail as exception.sh returns an "OK"
+> status. Use "bash -e" with this script to make it return an error value.
 > 
->  If you truly want bar_t to be unconfined, you can always just
->> have it call the unconfined_domain() interface in refpolicy, e.g.
->> unconfined_domain(bar_t), and it will inherit all of the unconfined
->> domain rules.
->>
-> Thanks for the info.
-> It would be great (and this would be my last question), if you could
-> give a pointer to a complete documentation of refpolicy macros and
-> interfaces - I could find the kernel rules, and that it makes use of m4
-> macros, but not a complete documentation.
+> In order not to keep an empty selinuxswig_python_exception.i file after
+> a build fails (which would make a second run of "make pywrap" incorrectly
+> succeed), remove the file when exception.sh fails.
+> 
+> As libsemanage uses the same code to build
+> semanageswig_python_exception.i, modify its Makefile too.
+> 
+> By the way, on Linux clang does not seem to currently support -aux-info
+> so it cannot be used to craft selinuxswig_python_exception.i.
 
-http://oss.tresys.com/docs/refpolicy/api/
+Thanks, applied all three.  Maybe we need to just always set CC to gcc
+in exception.sh?
 
-It is generated from the refpolicy sources.
-
-refpolicy  mailing list is a better place to ask questions about
-refpolicy, see
-http://oss.tresys.com/mailman/listinfo/refpolicy
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libselinux/src/Makefile  | 2 +-
+>  libsemanage/src/Makefile | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index b92fe1c8f5f9..24946cee8a01 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -140,7 +140,7 @@ $(LIBPC): $(LIBPC).in ../VERSION
+>  	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+>  
+>  selinuxswig_python_exception.i: ../include/selinux/selinux.h
+> -	bash exception.sh > $@ 
+> +	bash -e exception.sh > $@ || (rm -f $@ ; false)
+>  
+>  $(AUDIT2WHYLOBJ): audit2why.c
+>  	$(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@ $<
+> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> index 55e3f469b0ba..cd29a8abf5ab 100644
+> --- a/libsemanage/src/Makefile
+> +++ b/libsemanage/src/Makefile
+> @@ -98,7 +98,7 @@ $(LIBPC): $(LIBPC).in ../VERSION
+>  	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+>  
+>  semanageswig_python_exception.i: ../include/semanage/semanage.h
+> -	bash exception.sh > $@
+> +	bash -e exception.sh > $@ || (rm -f $@ ; false)
+>  
+>  conf-scan.c: conf-scan.l conf-parse.h
+>  	$(LEX) $(LFLAGS) -t $< > $@
+> 
