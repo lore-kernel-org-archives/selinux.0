@@ -1,74 +1,64 @@
-Subject: Re: [PATCH 1/1] libselinux, libsemanage: remove
- *swig_python_exception.i if its creation failed
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20161105212403.30462-1-nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 1/2] Sandbox: Use next() over the sepolicy.info() result
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <20161107080117.24030-1-bigon@debian.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <61dd695f-31bd-069b-9865-bf45ea377de9@tycho.nsa.gov>
-Date: Mon, 7 Nov 2016 16:04:38 -0500
+Message-ID: <977fa45d-74cd-6a16-e353-7db25edd4b2b@tycho.nsa.gov>
+Date: Mon, 7 Nov 2016 16:13:38 -0500
 MIME-Version: 1.0
-In-Reply-To: <20161105212403.30462-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20161107080117.24030-1-bigon@debian.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/05/2016 05:24 PM, Nicolas Iooss wrote:
-> When compiling libselinux with CC=clang, "make pywrap" reports the
-> following message:
+On 11/07/2016 03:01 AM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
 > 
->     bash exception.sh > selinuxswig_python_exception.i
->     clang-3.9: error: no such file or directory: 'temp.aux'
->     awk: fatal: cannot open file `temp.aux' for reading (No such file or
->     directory)
-> 
-> This does not make the build fail as exception.sh returns an "OK"
-> status. Use "bash -e" with this script to make it return an error value.
-> 
-> In order not to keep an empty selinuxswig_python_exception.i file after
-> a build fails (which would make a second run of "make pywrap" incorrectly
-> succeed), remove the file when exception.sh fails.
-> 
-> As libsemanage uses the same code to build
-> semanageswig_python_exception.i, modify its Makefile too.
-> 
-> By the way, on Linux clang does not seem to currently support -aux-info
-> so it cannot be used to craft selinuxswig_python_exception.i.
+> sepolicy.info() now returns a generator, use next() to get the results.
 
-Thanks, applied all three.  Maybe we need to just always set CC to gcc
-in exception.sh?
+This breaks sandbox for me,
+$ /usr/bin/sandbox -X firefox
+Traceback (most recent call last):
+  File "/usr/bin/sandbox", line 529, in <module>
+    rc = sandbox.main()
+  File "/usr/bin/sandbox", line 513, in main
+    self.__parse_options()
+  File "/usr/bin/sandbox", line 308, in __parse_options
+    """) % "\n\t".join(next(sepolicy.info(sepolicy.ATTRIBUTE,
+"sandbox_type"))['types'])
+TypeError: list object is not an iterator
 
 > 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 > ---
->  libselinux/src/Makefile  | 2 +-
->  libsemanage/src/Makefile | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>  policycoreutils/sandbox/sandbox | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index b92fe1c8f5f9..24946cee8a01 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -140,7 +140,7 @@ $(LIBPC): $(LIBPC).in ../VERSION
->  	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+> diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
+> index 4010e83..c07a1d8 100644
+> --- a/policycoreutils/sandbox/sandbox
+> +++ b/policycoreutils/sandbox/sandbox
+> @@ -305,8 +305,8 @@ kill -TERM $WM_PID  2> /dev/null
+>              types = _("""
+>  Policy defines the following types for use with the -t:
+>  \t%s
+> -""") % "\n\t".join(list(sepolicy.info(sepolicy.ATTRIBUTE, "sandbox_type"))[0]['types'])
+> -        except RuntimeError:
+> +""") % "\n\t".join(next(sepolicy.info(sepolicy.ATTRIBUTE, "sandbox_type"))['types'])
+> +        except StopIteration:
+>              pass
 >  
->  selinuxswig_python_exception.i: ../include/selinux/selinux.h
-> -	bash exception.sh > $@ 
-> +	bash -e exception.sh > $@ || (rm -f $@ ; false)
+>          usage = _("""
+> @@ -380,8 +380,8 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
+>              self.setype = DEFAULT_X_TYPE
+>          else:
+>              try:
+> -                sepolicy.info(sepolicy.TYPE, "sandbox_t")
+> -            except RuntimeError:
+> +                next(sepolicy.info(sepolicy.TYPE, "sandbox_t"))
+> +            except StopIteration:
+>                  raise ValueError(_("Sandbox Policy is not currently installed.\nYou need to install the selinux-policy-sandbox package in order to run this command"))
 >  
->  $(AUDIT2WHYLOBJ): audit2why.c
->  	$(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@ $<
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index 55e3f469b0ba..cd29a8abf5ab 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -98,7 +98,7 @@ $(LIBPC): $(LIBPC).in ../VERSION
->  	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
->  
->  semanageswig_python_exception.i: ../include/semanage/semanage.h
-> -	bash exception.sh > $@
-> +	bash -e exception.sh > $@ || (rm -f $@ ; false)
->  
->  conf-scan.c: conf-scan.l conf-parse.h
->  	$(LEX) $(LFLAGS) -t $< > $@
+>          if self.__options.setype:
 > 
