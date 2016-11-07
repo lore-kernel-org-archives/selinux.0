@@ -1,24 +1,26 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA781U69006318
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA781U6A006318
  for <selinux@tycho.nsa.gov>; Mon, 7 Nov 2016 03:01:30 -0500
 Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
- by anor.bigon.be (Postfix) with ESMTP id EE4871A1AF
- for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 09:01:20 +0100 (CET)
+ by anor.bigon.be (Postfix) with ESMTP id 80DF61A1AE
+ for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 09:01:22 +0100 (CET)
 Received: from anor.bigon.be ([127.0.0.1])
  by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id cy3Ag4o_u-r6 for <selinux@tycho.nsa.gov>;
+ with ESMTP id 8A1i-ColBpbT for <selinux@tycho.nsa.gov>;
  Mon,  7 Nov 2016 09:01:18 +0100 (CET)
 Received: from fornost.bigon.be (unknown
  [IPv6:2a02:a03f:6c:e500:edf:2fd8:fc0a:f176])
  (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
  (Client did not present a certificate) (Authenticated sender: bigon)
- by anor.bigon.be (Postfix) with ESMTPSA id 2C8D01A1AE
+ by anor.bigon.be (Postfix) with ESMTPSA id 14DEC1A1A8
  for <selinux@tycho.nsa.gov>; Mon,  7 Nov 2016 09:01:18 +0100 (CET)
 From: Laurent Bigonville <bigon@debian.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] Sandbox: Use next() over the sepolicy.info() result
-Date: Mon,  7 Nov 2016 09:01:16 +0100
-Message-Id: <20161107080117.24030-1-bigon@debian.org>
+Subject: [PATCH 2/2] policycoreutils: Make sepolicy work with python3
+Date: Mon,  7 Nov 2016 09:01:17 +0100
+Message-Id: <20161107080117.24030-2-bigon@debian.org>
+In-Reply-To: <20161107080117.24030-1-bigon@debian.org>
+References: <20161107080117.24030-1-bigon@debian.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -26,38 +28,330 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Laurent Bigonville <bigon@bigon.be>
 
-sepolicy.info() now returns a generator, use next() to get the results.
+Add python3 support for sepolicy
 
 Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 ---
- policycoreutils/sandbox/sandbox | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ policycoreutils/sepolicy/selinux_client.py       |  6 ++--
+ policycoreutils/sepolicy/sepolicy.py             | 38 ++++++++++++------------
+ policycoreutils/sepolicy/sepolicy/__init__.py    | 16 ++++++----
+ policycoreutils/sepolicy/sepolicy/communicate.py |  4 +--
+ policycoreutils/sepolicy/sepolicy/generate.py    | 30 +++++++++----------
+ policycoreutils/sepolicy/sepolicy/interface.py   | 14 ++++++---
+ policycoreutils/sepolicy/sepolicy/manpage.py     |  7 +++--
+ 7 files changed, 65 insertions(+), 50 deletions(-)
 
-diff --git a/policycoreutils/sandbox/sandbox b/policycoreutils/sandbox/sandbox
-index 4010e83..c07a1d8 100644
---- a/policycoreutils/sandbox/sandbox
-+++ b/policycoreutils/sandbox/sandbox
-@@ -305,8 +305,8 @@ kill -TERM $WM_PID  2> /dev/null
-             types = _("""
- Policy defines the following types for use with the -t:
- \t%s
--""") % "\n\t".join(list(sepolicy.info(sepolicy.ATTRIBUTE, "sandbox_type"))[0]['types'])
--        except RuntimeError:
-+""") % "\n\t".join(next(sepolicy.info(sepolicy.ATTRIBUTE, "sandbox_type"))['types'])
-+        except StopIteration:
-             pass
+diff --git a/policycoreutils/sepolicy/selinux_client.py b/policycoreutils/sepolicy/selinux_client.py
+index 7f4a91c..dc29f28 100644
+--- a/policycoreutils/sepolicy/selinux_client.py
++++ b/policycoreutils/sepolicy/selinux_client.py
+@@ -39,6 +39,6 @@ if __name__ == "__main__":
+     try:
+         dbus_proxy = SELinuxDBus()
+         resp = dbus_proxy.customized()
+-        print convert_customization(resp)
+-    except dbus.DBusException, e:
+-        print e
++        print(convert_customization(resp))
++    except dbus.DBusException as e:
++        print(e)
+diff --git a/policycoreutils/sepolicy/sepolicy.py b/policycoreutils/sepolicy/sepolicy.py
+index 3e502a7..5bf9b52 100755
+--- a/policycoreutils/sepolicy/sepolicy.py
++++ b/policycoreutils/sepolicy/sepolicy.py
+@@ -262,7 +262,7 @@ def _print_net(src, protocol, perm):
+     if len(portdict) > 0:
+         bold_start = "\033[1m"
+         bold_end = "\033[0;0m"
+-        print "\n" + bold_start + "%s: %s %s" % (src, protocol, perm) + bold_end
++        print("\n" + bold_start + "%s: %s %s" % (src, protocol, perm) + bold_end)
+         port_strings = []
+         boolean_text = ""
+         for p in portdict:
+@@ -275,7 +275,7 @@ def _print_net(src, protocol, perm):
+                     port_strings.append("%s (%s)" % (", ".join(recs), t))
+         port_strings.sort(numcmp)
+         for p in port_strings:
+-            print "\t" + p
++            print("\t" + p)
  
-         usage = _("""
-@@ -380,8 +380,8 @@ sandbox [-h] [-l level ] [-[X|M] [-H homedir] [-T tempdir]] [-I includefile ] [-
-             self.setype = DEFAULT_X_TYPE
-         else:
+ 
+ def network(args):
+@@ -286,7 +286,7 @@ def network(args):
+             if i[0] not in all_ports:
+                 all_ports.append(i[0])
+         all_ports.sort()
+-        print "\n".join(all_ports)
++        print("\n".join(all_ports))
+ 
+     for port in args.port:
+         found = False
+@@ -297,18 +297,18 @@ def network(args):
+                 else:
+                     range = "%s-%s" % (i[0], i[1])
+                 found = True
+-                print "%d: %s %s %s" % (port, i[2], portrecsbynum[i][0], range)
++                print("%d: %s %s %s" % (port, i[2], portrecsbynum[i][0], range))
+         if not found:
+             if port < 500:
+-                print "Undefined reserved port type"
++                print("Undefined reserved port type")
+             else:
+-                print "Undefined port type"
++                print("Undefined port type")
+ 
+     for t in args.type:
+         if (t, 'tcp') in portrecs.keys():
+-            print "%s: tcp: %s" % (t, ",".join(portrecs[t, 'tcp']))
++            print("%s: tcp: %s" % (t, ",".join(portrecs[t, 'tcp'])))
+         if (t, 'udp') in portrecs.keys():
+-            print "%s: udp: %s" % (t, ",".join(portrecs[t, 'udp']))
++            print( "%s: udp: %s" % (t, ",".join(portrecs[t, 'udp'])))
+ 
+     for a in args.applications:
+         d = sepolicy.get_init_transtype(a)
+@@ -357,7 +357,7 @@ def manpage(args):
+ 
+     for domain in test_domains:
+         m = ManPage(domain, path, args.root, args.source_files, args.web)
+-        print m.get_man_page_path()
++        print(m.get_man_page_path())
+ 
+     if args.web:
+         HTMLManPages(manpage_roles, manpage_domains, path, args.os)
+@@ -418,7 +418,7 @@ def communicate(args):
+     out = list(set(writable) & set(readable))
+ 
+     for t in out:
+-        print t
++        print(t)
+ 
+ 
+ def gen_communicate_args(parser):
+@@ -445,7 +445,7 @@ def booleans(args):
+     args.booleans.sort()
+ 
+     for b in args.booleans:
+-        print "%s=_(\"%s\")" % (b, boolean_desc(b))
++        print("%s=_(\"%s\")" % (b, boolean_desc(b)))
+ 
+ 
+ def gen_booleans_args(parser):
+@@ -484,16 +484,16 @@ def print_interfaces(interfaces, args, append=""):
+     for i in interfaces:
+         if args.verbose:
              try:
--                sepolicy.info(sepolicy.TYPE, "sandbox_t")
--            except RuntimeError:
-+                next(sepolicy.info(sepolicy.TYPE, "sandbox_t"))
-+            except StopIteration:
-                 raise ValueError(_("Sandbox Policy is not currently installed.\nYou need to install the selinux-policy-sandbox package in order to run this command"))
+-                print get_interface_format_text(i + append)
++                print(get_interface_format_text(i + append))
+             except KeyError:
+-                print i
++                print(i)
+         if args.compile:
+             try:
+                 interface_compile_test(i)
+             except KeyError:
+-                print i
++                print(i)
+         else:
+-            print i
++            print(i)
  
-         if self.__options.setype:
+ 
+ def interface(args):
+@@ -565,7 +565,7 @@ def generate(args):
+     if args.policytype in APPLICATIONS:
+         mypolicy.gen_writeable()
+         mypolicy.gen_symbols()
+-    print mypolicy.generate(args.path)
++    print(mypolicy.generate(args.path))
+ 
+ 
+ def gen_interface_args(parser):
+@@ -698,12 +698,12 @@ if __name__ == '__main__':
+         args = parser.parse_args(args=parser_args)
+         args.func(args)
+         sys.exit(0)
+-    except ValueError, e:
++    except ValueError as e:
+         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
+         sys.exit(1)
+-    except IOError, e:
++    except IOError as e:
+         sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
+         sys.exit(1)
+     except KeyboardInterrupt:
+-        print "Out"
++        print("Out")
+         sys.exit(0)
+diff --git a/policycoreutils/sepolicy/sepolicy/__init__.py b/policycoreutils/sepolicy/sepolicy/__init__.py
+index 8fbd5b4..fee6438 100644
+--- a/policycoreutils/sepolicy/sepolicy/__init__.py
++++ b/policycoreutils/sepolicy/sepolicy/__init__.py
+@@ -695,7 +695,7 @@ def get_methods():
+     # List of per_role_template interfaces
+         ifs = interfaces.InterfaceSet()
+         ifs.from_file(fd)
+-        methods = ifs.interfaces.keys()
++        methods = list(ifs.interfaces.keys())
+         fd.close()
+     except:
+         sys.stderr.write("could not open interface info [%s]\n" % fn)
+@@ -752,7 +752,10 @@ def get_all_entrypoint_domains():
+ 
+ 
+ def gen_interfaces():
+-    import commands
++    try:
++        from commands import getstatusoutput
++    except ImportError:
++        from subprocess import getstatusoutput
+     ifile = defaults.interface_info()
+     headers = defaults.headers()
+     try:
+@@ -763,7 +766,7 @@ def gen_interfaces():
+ 
+     if os.getuid() != 0:
+         raise ValueError(_("You must regenerate interface info by running /usr/bin/sepolgen-ifgen"))
+-    print(commands.getstatusoutput("/usr/bin/sepolgen-ifgen")[1])
++    print(getstatusoutput("/usr/bin/sepolgen-ifgen")[1])
+ 
+ 
+ def gen_port_dict():
+@@ -1085,8 +1088,11 @@ def get_os_version():
+     os_version = ""
+     pkg_name = "selinux-policy"
+     try:
+-        import commands
+-        rc, output = commands.getstatusoutput("rpm -q '%s'" % pkg_name)
++        try:
++            from commands import getstatusoutput
++        except ImportError:
++            from subprocess import getstatusoutput
++        rc, output = getstatusoutput("rpm -q '%s'" % pkg_name)
+         if rc == 0:
+             os_version = output.split(".")[-2]
+     except:
+diff --git a/policycoreutils/sepolicy/sepolicy/communicate.py b/policycoreutils/sepolicy/sepolicy/communicate.py
+index b96c4b9..45d5abb 100755
+--- a/policycoreutils/sepolicy/sepolicy/communicate.py
++++ b/policycoreutils/sepolicy/sepolicy/communicate.py
+@@ -34,8 +34,8 @@ def usage(parser, msg):
+ 
+ def expand_attribute(attribute):
+     try:
+-        return sepolicy.info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
+-    except RuntimeError:
++        return list(list(sepolicy.info(sepolicy.ATTRIBUTE, attribute))[0]["types"])
++    except IndexError:
+         return [attribute]
+ 
+ 
+diff --git a/policycoreutils/sepolicy/sepolicy/generate.py b/policycoreutils/sepolicy/sepolicy/generate.py
+index 65b33b6..5696110 100644
+--- a/policycoreutils/sepolicy/sepolicy/generate.py
++++ b/policycoreutils/sepolicy/sepolicy/generate.py
+@@ -31,21 +31,21 @@ import time
+ import types
+ import platform
+ 
+-from templates import executable
+-from templates import boolean
+-from templates import etc_rw
+-from templates import unit_file
+-from templates import var_cache
+-from templates import var_spool
+-from templates import var_lib
+-from templates import var_log
+-from templates import var_run
+-from templates import tmp
+-from templates import rw
+-from templates import network
+-from templates import script
+-from templates import spec
+-from templates import user
++from .templates import executable
++from .templates import boolean
++from .templates import etc_rw
++from .templates import unit_file
++from .templates import var_cache
++from .templates import var_spool
++from .templates import var_lib
++from .templates import var_log
++from .templates import var_run
++from .templates import tmp
++from .templates import rw
++from .templates import network
++from .templates import script
++from .templates import spec
++from .templates import user
+ import sepolgen.interfaces as interfaces
+ import sepolgen.defaults as defaults
+ 
+diff --git a/policycoreutils/sepolicy/sepolicy/interface.py b/policycoreutils/sepolicy/sepolicy/interface.py
+index c2cb971..8956f39 100644
+--- a/policycoreutils/sepolicy/sepolicy/interface.py
++++ b/policycoreutils/sepolicy/sepolicy/interface.py
+@@ -192,10 +192,13 @@ def generate_compile_te(interface, idict, name="compiletest"):
+ def get_xml_file(if_file):
+     """ Returns xml format of interfaces for given .if policy file"""
+     import os
+-    import commands
++    try:
++            from commands import getstatusoutput
++    except ImportError:
++            from subprocess import getstatusoutput
+     basedir = os.path.dirname(if_file) + "/"
+     filename = os.path.basename(if_file).split(".")[0]
+-    rc, output = commands.getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
++    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
+     if rc != 0:
+         sys.stderr.write("\n Could not proceed selected interface file.\n")
+         sys.stderr.write("\n%s" % output)
+@@ -208,7 +211,10 @@ def interface_compile_test(interface, path="/usr/share/selinux/devel/policy.xml"
+     exclude_interfaces = ["userdom", "kernel", "corenet", "files", "dev"]
+     exclude_interface_type = ["template"]
+ 
+-    import commands
++    try:
++            from commands import getstatusoutput
++    except ImportError:
++            from subprocess import getstatusoutput
+     import os
+     policy_files = {'pp': "compiletest.pp", 'te': "compiletest.te", 'fc': "compiletest.fc", 'if': "compiletest.if"}
+     idict = get_interface_dict(path)
+@@ -219,7 +225,7 @@ def interface_compile_test(interface, path="/usr/share/selinux/devel/policy.xml"
+             fd = open(policy_files['te'], "w")
+             fd.write(generate_compile_te(interface, idict))
+             fd.close()
+-            rc, output = commands.getstatusoutput("make -f /usr/share/selinux/devel/Makefile %s" % policy_files['pp'])
++            rc, output = getstatusoutput("make -f /usr/share/selinux/devel/Makefile %s" % policy_files['pp'])
+             if rc != 0:
+                 sys.stderr.write(output)
+                 sys.stderr.write(_("\nCompile test for %s failed.\n") % interface)
+diff --git a/policycoreutils/sepolicy/sepolicy/manpage.py b/policycoreutils/sepolicy/sepolicy/manpage.py
+index 7365f93..773a9ab 100755
+--- a/policycoreutils/sepolicy/sepolicy/manpage.py
++++ b/policycoreutils/sepolicy/sepolicy/manpage.py
+@@ -27,7 +27,6 @@ __all__ = ['ManPage', 'HTMLManPages', 'manpage_domains', 'manpage_roles', 'gen_d
+ import string
+ import selinux
+ import sepolicy
+-import commands
+ import os
+ import time
+ 
+@@ -162,7 +161,11 @@ def get_alphabet_manpages(manpage_list):
+ 
+ 
+ def convert_manpage_to_html(html_manpage, manpage):
+-    rc, output = commands.getstatusoutput("/usr/bin/groff -man -Thtml %s 2>/dev/null" % manpage)
++    try:
++            from commands import getstatusoutput
++    except ImportError:
++            from subprocess import getstatusoutput
++    rc, output = getstatusoutput("/usr/bin/groff -man -Thtml %s 2>/dev/null" % manpage)
+     if rc == 0:
+         print(html_manpage, "has been created")
+         fd = open(html_manpage, 'w')
 -- 
 2.10.2
