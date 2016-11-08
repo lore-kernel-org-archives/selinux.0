@@ -1,117 +1,63 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA8LDY9r003609
- for <selinux@tycho.nsa.gov>; Tue, 8 Nov 2016 16:13:34 -0500
-From: Dan Jurgens <danielj@mellanox.com>
-To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
- eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
- hal.rosenstock@gmail.com
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com, liranl@mellanox.com,
- leonro@mellanox.com, Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v4 6/9] selinux: Allocate and free infiniband security hooks
-Date: Tue,  8 Nov 2016 23:06:22 +0200
-Message-Id: <1478639185-47521-7-git-send-email-danielj@mellanox.com>
-In-Reply-To: <1478639185-47521-1-git-send-email-danielj@mellanox.com>
-References: <1478639185-47521-1-git-send-email-danielj@mellanox.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA8LdXAO005930
+ for <selinux@tycho.nsa.gov>; Tue, 8 Nov 2016 16:39:33 -0500
+From: "Roberts, William C" <william.c.roberts@intel.com>
+To: Paul Moore <paul@paul-moore.com>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: RE: GPF in sidtab_context_to_sid
+Date: Tue, 8 Nov 2016 21:39:30 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC561CD21E34@ORSMSX103.amr.corp.intel.com>
+References: <476DC76E7D1DF2438D32BFADF679FC561CD2178D@ORSMSX103.amr.corp.intel.com>
+ <CAHC9VhS5Fg1qegytKsG5Tz6MvO=pLxn3qmzDsvkcVhC5jx7d3g@mail.gmail.com>
+In-Reply-To: <CAHC9VhS5Fg1qegytKsG5Tz6MvO=pLxn3qmzDsvkcVhC5jx7d3g@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Daniel Jurgens <danielj@mellanox.com>
 
-Implement and attach hooks to allocate and free Infiniband object
-security structures.
 
-issue: 736423
-Change-Id: I3bdbecee7aab6d7615a02967c39a5a8792a14d44
-Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+> -----Original Message-----
+> From: Paul Moore [mailto:paul@paul-moore.com]
+> Sent: Tuesday, November 8, 2016 12:57 PM
+> To: Roberts, William C <william.c.roberts@intel.com>
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: GPF in sidtab_context_to_sid
+> 
+> On Tue, Nov 8, 2016 at 1:26 PM, Roberts, William C <william.c.roberts@intel.com>
+> wrote:
+> > I found a very similar oops online:
+> >
+> > http://oops.kernel.org/oops/general-protection-fault-in-sidtab_context
+> > _to_sid/
+> >
+> > Has anyone encountered this bug?
+> >
+> > I had something reported to me very similar where the faulting
+> > instruction
+> > was:
+> >
+> > 0xffffffff8133c81e <+174>:   mov    0x14(%r12),%eax
+> >
+> > Addr2line on vmlinux produced:
+> >
+> > $ addr2line -f -e ./vmlinux ffffffff8133c81e context_cmp
+> > kernel/cht/security/selinux/ss/context.h:152
+> 
+> I'm guessing you don't have a reproducer?
 
----
-v2:
-- Use void * blobs for security structs.  Paul Moore
-- Shorten ib_end_port to ib_port.  Paul Moore
-- Allocate memory for security struct with GFP_KERNEL. Yuval Shaia
+Supposedly, I am digging that slowly out of the reporters. If I can use it to
+reproduce, I'll let you know.
 
-Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
----
- security/selinux/hooks.c          | 25 ++++++++++++++++++++++++-
- security/selinux/include/objsec.h |  5 +++++
- 2 files changed, 29 insertions(+), 1 deletion(-)
+> 
+> It looks like both these kernels are older (3.x), have you seen this on anything
+> recent?
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7578198..f48759d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -17,6 +17,7 @@
-  *	Paul Moore <paul@paul-moore.com>
-  *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
-  *		       Yuichi Nakamura <ynakam@hitachisoft.jp>
-+ *  Copyright (C) 2016 Mellanox Technologies
-  *
-  *	This program is free software; you can redistribute it and/or modify
-  *	it under the terms of the GNU General Public License version 2,
-@@ -6082,7 +6083,26 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
- 	*_buffer = context;
- 	return rc;
- }
-+#endif
-+
-+#ifdef CONFIG_SECURITY_INFINIBAND
-+static int selinux_ib_alloc_security(void **ib_sec)
-+{
-+	struct ib_security_struct *sec;
-+
-+	sec = kzalloc(sizeof(*sec), GFP_KERNEL);
-+	if (!sec)
-+		return -ENOMEM;
-+	sec->sid = current_sid();
-+
-+	*ib_sec = sec;
-+	return 0;
-+}
- 
-+static void selinux_ib_free_security(void *ib_sec)
-+{
-+	kfree(ib_sec);
-+}
- #endif
- 
- static struct security_hook_list selinux_hooks[] = {
-@@ -6269,7 +6289,10 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
- 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
- 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
- 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
--
-+#ifdef CONFIG_SECURITY_INFINIBAND
-+	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
-+	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
-+#endif
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
- 	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
- 	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index c21e135..8e7db43 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -10,6 +10,7 @@
-  *
-  *  Copyright (C) 2001,2002 Networks Associates Technology, Inc.
-  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ *  Copyright (C) 2016 Mellanox Technologies
-  *
-  *	This program is free software; you can redistribute it and/or modify
-  *	it under the terms of the GNU General Public License version 2,
-@@ -128,6 +129,10 @@ struct key_security_struct {
- 	u32 sid;	/* SID of key */
- };
- 
-+struct ib_security_struct {
-+	u32 sid;        /* SID of the queue pair or MAD agent */
-+};
-+
- extern unsigned int selinux_checkreqprot;
- 
- #endif /* _SELINUX_OBJSEC_H_ */
--- 
-1.8.3.1
+No.
+
+> 
+> --
+> paul moore
+> www.paul-moore.com
