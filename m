@@ -1,131 +1,74 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: nicolas.iooss@m4x.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libsepol: sepol_{bool|iface|user}_key_create: copy name
-Date: Tue,  8 Nov 2016 10:53:12 -0500
-Message-Id: <1478620392-16248-1-git-send-email-sds@tycho.nsa.gov>
+MIME-Version: 1.0
+In-Reply-To: <a0f11107-cf30-9aa1-155d-535996bad45e@m4x.org>
+References: <20161105212403.30462-1-nicolas.iooss@m4x.org>
+ <61dd695f-31bd-069b-9865-bf45ea377de9@tycho.nsa.gov>
+ <CAFftDdrN_vC0EgqT+co82486atTNBLzFOMGBPnZqBEmQ8bDNiA@mail.gmail.com>
+ <a0f11107-cf30-9aa1-155d-535996bad45e@m4x.org>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Tue, 8 Nov 2016 08:46:34 -0800
+Message-ID: <CAFftDdoo0dF1rzJ9eXyEdS4MNSrtL0Snf3r40XMrSo3aoiseDg@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libselinux,
+ libsemanage: remove *swig_python_exception.i if its creation failed
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The sepol_{bool|iface|user}_key_create() functions were not
-copying the name.  This produces a use-after-free in the
-swig-generated code for python3 bindings.  Copy the name
-in these functions, and free it upon sepol_{bool|iface|user}_key_free().
+On Mon, Nov 7, 2016 at 2:07 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> On 07/11/16 22:19, William Roberts wrote:
+>> On Nov 7, 2016 13:03, "Stephen Smalley" <sds@tycho.nsa.gov
+>> <mailto:sds@tycho.nsa.gov>> wrote:
+>>>
+>>> On 11/05/2016 05:24 PM, Nicolas Iooss wrote:
+>>> > When compiling libselinux with CC=clang, "make pywrap" reports the
+>>> > following message:
+>>> >
+>>> >     bash exception.sh > selinuxswig_python_exception.i
+>>> >     clang-3.9: error: no such file or directory: 'temp.aux'
+>>> >     awk: fatal: cannot open file `temp.aux' for reading (No such file or
+>>> >     directory)
+>>> >
+>>> > This does not make the build fail as exception.sh returns an "OK"
+>>> > status. Use "bash -e" with this script to make it return an error value.
+>>> >
+>>> > In order not to keep an empty selinuxswig_python_exception.i file after
+>>> > a build fails (which would make a second run of "make pywrap"
+>> incorrectly
+>>> > succeed), remove the file when exception.sh fails.
+>>> >
+>>> > As libsemanage uses the same code to build
+>>> > semanageswig_python_exception.i, modify its Makefile too.
+>>> >
+>>> > By the way, on Linux clang does not seem to currently support -aux-info
+>>> > so it cannot be used to craft selinuxswig_python_exception.i.
+>>>
+>>> Thanks, applied all three.  Maybe we need to just always set CC to gcc
+>>> in exception.sh?
+>>>
+>>
+>> What if you don't have GCC? We should support CC consistently and not
+>> set it under the hood IMHO.
+>
+> There are also valid scenarios where exception.sh works without CC being
+> gcc, for example when cross-compiling with CC=arm-....-gcc, or building
+> with wrappers like CC=musl-gcc, etc.
+> What about using gcc as a fallback if $CC did not work? i.e. something
+> like this in exception.sh:
+>
+> if ! ${CC:-gcc} -x c -c -I../include - -aux-info .... ; then
+>     # clang does not support -aux-info so fall back to gcc
+>     gcc -x c -c -I../include - -aux-info ....
+> fi
+>
+> Nicolas
 
-Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/src/boolean_record.c | 10 ++++++++--
- libsepol/src/iface_record.c   | 10 ++++++++--
- libsepol/src/user_record.c    | 10 ++++++++--
- 3 files changed, 24 insertions(+), 6 deletions(-)
+Looking at exception.sh it appears that it takes in selinux.h and
+produces custom
+exception handlers for the swig interface.
 
-diff --git a/libsepol/src/boolean_record.c b/libsepol/src/boolean_record.c
-index 8b64413..ebef7f1 100644
---- a/libsepol/src/boolean_record.c
-+++ b/libsepol/src/boolean_record.c
-@@ -15,7 +15,7 @@ struct sepol_bool {
- 
- struct sepol_bool_key {
- 	/* This boolean's name */
--	const char *name;
-+	char *name;
- };
- 
- int sepol_bool_key_create(sepol_handle_t * handle,
-@@ -30,7 +30,12 @@ int sepol_bool_key_create(sepol_handle_t * handle,
- 		return STATUS_ERR;
- 	}
- 
--	tmp_key->name = name;
-+	tmp_key->name = strdup(name);
-+	if (!tmp_key->name) {
-+		ERR(handle, "out of memory, " "could not create boolean key");
-+		free(tmp_key);
-+		return STATUS_ERR;
-+	}
- 
- 	*key_ptr = tmp_key;
- 	return STATUS_SUCCESS;
-@@ -62,6 +67,7 @@ int sepol_bool_key_extract(sepol_handle_t * handle,
- 
- void sepol_bool_key_free(sepol_bool_key_t * key)
- {
-+	free(key->name);
- 	free(key);
- }
- 
-diff --git a/libsepol/src/iface_record.c b/libsepol/src/iface_record.c
-index 09adeb7..c8b977c 100644
---- a/libsepol/src/iface_record.c
-+++ b/libsepol/src/iface_record.c
-@@ -20,7 +20,7 @@ struct sepol_iface {
- struct sepol_iface_key {
- 
- 	/* Interface name */
--	const char *name;
-+	char *name;
- };
- 
- /* Key */
-@@ -36,7 +36,12 @@ int sepol_iface_key_create(sepol_handle_t * handle,
- 		return STATUS_ERR;
- 	}
- 
--	tmp_key->name = name;
-+	tmp_key->name = strdup(name);
-+	if (!tmp_key->name) {
-+		ERR(handle, "out of memory, could not create interface key");
-+		free(tmp_key);
-+		return STATUS_ERR;
-+	}
- 
- 	*key_ptr = tmp_key;
- 	return STATUS_SUCCESS;
-@@ -68,6 +73,7 @@ int sepol_iface_key_extract(sepol_handle_t * handle,
- 
- void sepol_iface_key_free(sepol_iface_key_t * key)
- {
-+	free(key->name);
- 	free(key);
- }
- 
-diff --git a/libsepol/src/user_record.c b/libsepol/src/user_record.c
-index c59c54b..e7e2fc2 100644
---- a/libsepol/src/user_record.c
-+++ b/libsepol/src/user_record.c
-@@ -24,7 +24,7 @@ struct sepol_user {
- 
- struct sepol_user_key {
- 	/* This user's name */
--	const char *name;
-+	char *name;
- };
- 
- int sepol_user_key_create(sepol_handle_t * handle,
-@@ -40,7 +40,12 @@ int sepol_user_key_create(sepol_handle_t * handle,
- 		return STATUS_ERR;
- 	}
- 
--	tmp_key->name = name;
-+	tmp_key->name = strdup(name);
-+	if (!tmp_key->name) {
-+		ERR(handle, "out of memory, could not create selinux user key");
-+		free(tmp_key);
-+		return STATUS_ERR;
-+	}
- 
- 	*key_ptr = tmp_key;
- 	return STATUS_SUCCESS;
-@@ -71,6 +76,7 @@ int sepol_user_key_extract(sepol_handle_t * handle,
- 
- void sepol_user_key_free(sepol_user_key_t * key)
- {
-+	free(key->name);
- 	free(key);
- }
- 
--- 
-2.7.4
+We could potentially do this without -aux-info and just write the swig
+interface by hand.
