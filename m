@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA8L7DE5002566
- for <selinux@tycho.nsa.gov>; Tue, 8 Nov 2016 16:07:14 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA8LDO5M003590
+ for <selinux@tycho.nsa.gov>; Tue, 8 Nov 2016 16:13:24 -0500
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,9 +8,9 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com, liranl@mellanox.com,
  leonro@mellanox.com, Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v4 8/9] selinux: Add IB Port SMP access vector
-Date: Tue,  8 Nov 2016 23:06:24 +0200
-Message-Id: <1478639185-47521-9-git-send-email-danielj@mellanox.com>
+Subject: [PATCH v4 3/9] selinux lsm IB/core: Implement LSM notification system
+Date: Tue,  8 Nov 2016 23:06:19 +0200
+Message-Id: <1478639185-47521-4-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1478639185-47521-1-git-send-email-danielj@mellanox.com>
 References: <1478639185-47521-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,216 +20,237 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Add a type for Infiniband ports and an access vector for subnet
-management packets. Implement the ib_port_smp hook to check that the
-caller has permission to send and receive SMPs on the end port specified
-by the device name and port. Add interface to query the SID for a IB
-port, which walks the IB_PORT ocontexts to find an entry for the
-given name and port.
+Add a generic notificaiton mechanism in the LSM. Interested consumers
+can register a callback with the LSM and security modules can produce
+events.
+
+Because access to Infiniband QPs are enforced in the setup phase of a
+connection security should be enforced again if the policy changes.
+Register infiniband devices for policy change notification and check all
+QPs on that device when the notification is received.
+
+Add a call to the notification mechanism from SELinux when the AVC
+cache changes or setenforce is cleared.
 
 issue: 736423
-Change-Id: If8b365f3cf32e77a2060073f1a53e27ea846804d
+Change-Id: I9f5a13026c9219105ee5e0cd99edf8eabdafe946
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 
 ---
 v2:
-- Shorted ib_end_port. Paul Moore
-- Pass void blobs to security hooks. Paul Moore
-- Log specific IB port info in audit log. Paul Moore
-- Don't create a new intial sid, use unlabeled. Stephen Smalley
-- Changed "smp" to "manage_subnet". Paul Moore
+- new patch that has the generic notification, replaces selinux and
+  IB/core patches related to the ib_flush callback. Yuval Shaia and Paul
+  Moore
 
 v3:
-- ib_port -> ib_endport. Paul Moore
-- Don't log device name as untrusted string. Paul Moore
-- Reorder parameters of LSM hook. Paul Moore
+- use notifier chains. Paul Moore
+
+v4:
+- Seperate avc callback for LSM notifier. Paul Moore
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 ---
- include/linux/lsm_audit.h           |  8 +++++++
- security/lsm_audit.c                |  5 +++++
- security/selinux/hooks.c            | 25 ++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 ++
- security/selinux/include/security.h |  2 ++
- security/selinux/ss/services.c      | 42 +++++++++++++++++++++++++++++++++++++
- 6 files changed, 84 insertions(+)
+ drivers/infiniband/core/device.c | 53 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/security.h         |  8 ++++++
+ security/security.c              | 20 +++++++++++++++
+ security/selinux/hooks.c         | 11 +++++++++
+ security/selinux/selinuxfs.c     |  2 ++
+ 5 files changed, 94 insertions(+)
 
-diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-index 402b770..7047b4c 100644
---- a/include/linux/lsm_audit.h
-+++ b/include/linux/lsm_audit.h
-@@ -21,6 +21,7 @@
- #include <linux/path.h>
- #include <linux/key.h>
- #include <linux/skbuff.h>
-+#include <rdma/ib_verbs.h>
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 5b42e83..7b6fd06 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -39,6 +39,8 @@
+ #include <linux/init.h>
+ #include <linux/mutex.h>
+ #include <linux/netdevice.h>
++#include <linux/security.h>
++#include <linux/notifier.h>
+ #include <rdma/rdma_netlink.h>
+ #include <rdma/ib_addr.h>
+ #include <rdma/ib_cache.h>
+@@ -82,6 +84,14 @@ struct ib_client_data {
+ static DEFINE_MUTEX(device_mutex);
+ static DECLARE_RWSEM(lists_rwsem);
  
- struct lsm_network_audit {
- 	int netif;
-@@ -50,6 +51,11 @@ struct lsm_pkey_audit {
- 	u16	pkey;
- };
++static int ib_security_change(struct notifier_block *nb, unsigned long event,
++			      void *lsm_data);
++static void ib_policy_change_task(struct work_struct *work);
++static DECLARE_WORK(ib_policy_change_work, ib_policy_change_task);
++
++static struct notifier_block ibdev_lsm_nb = {
++	.notifier_call = ib_security_change,
++};
  
-+struct lsm_ib_endport_audit {
-+	char	dev_name[IB_DEVICE_NAME_MAX];
-+	u8	port_num;
+ static int ib_device_check_mandatory(struct ib_device *device)
+ {
+@@ -344,6 +354,40 @@ static int setup_port_pkey_list(struct ib_device *device)
+ 	return 0;
+ }
+ 
++static void ib_policy_change_task(struct work_struct *work)
++{
++	struct ib_device *dev;
++
++	down_read(&lists_rwsem);
++	list_for_each_entry(dev, &device_list, core_list) {
++		int i;
++
++		for (i = rdma_start_port(dev); i <= rdma_end_port(dev); i++) {
++			u64 sp;
++			int ret = ib_get_cached_subnet_prefix(dev,
++							      i,
++							      &sp);
++
++			WARN_ONCE(ret,
++				  "ib_get_cached_subnet_prefix err: %d, this should never happen here\n",
++				  ret);
++			ib_security_cache_change(dev, i, sp);
++		}
++	}
++	up_read(&lists_rwsem);
++}
++
++static int ib_security_change(struct notifier_block *nb, unsigned long event,
++			      void *lsm_data)
++{
++	if (event != LSM_POLICY_CHANGE)
++		return NOTIFY_DONE;
++
++	schedule_work(&ib_policy_change_work);
++
++	return NOTIFY_OK;
++}
++
+ /**
+  * ib_register_device - Register an IB device with IB core
+  * @device:Device to register
+@@ -1075,10 +1119,18 @@ static int __init ib_core_init(void)
+ 		goto err_sa;
+ 	}
+ 
++	ret = register_lsm_notifier(&ibdev_lsm_nb);
++	if (ret) {
++		pr_warn("Couldn't register LSM notifier. ret %d\n", ret);
++		goto err_ibnl_clients;
++	}
++
+ 	ib_cache_setup();
+ 
+ 	return 0;
+ 
++err_ibnl_clients:
++	ib_remove_ibnl_clients();
+ err_sa:
+ 	ib_sa_cleanup();
+ err_mad:
+@@ -1098,6 +1150,7 @@ static int __init ib_core_init(void)
+ 
+ static void __exit ib_core_cleanup(void)
+ {
++	unregister_lsm_notifier(&ibdev_lsm_nb);
+ 	ib_cache_cleanup();
+ 	ib_remove_ibnl_clients();
+ 	ib_sa_cleanup();
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 342ca4c..d8c29cd 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -69,6 +69,14 @@
+ struct user_namespace;
+ struct timezone;
+ 
++enum lsm_event {
++	LSM_POLICY_CHANGE,
 +};
 +
- /* Auxiliary data to use in generating the audit record. */
- struct common_audit_data {
- 	char type;
-@@ -66,6 +72,7 @@ struct common_audit_data {
- #define LSM_AUDIT_DATA_IOCTL_OP	11
- #define LSM_AUDIT_DATA_FILE	12
- #define LSM_AUDIT_DATA_PKEY	13
-+#define LSM_AUDIT_DATA_IB_ENDPORT 14
- 	union 	{
- 		struct path path;
- 		struct dentry *dentry;
-@@ -84,6 +91,7 @@ struct common_audit_data {
- 		struct lsm_ioctlop_audit *op;
- 		struct file *file;
- 		struct lsm_pkey_audit *pkey;
-+		struct lsm_ib_endport_audit *ib_endport;
- 	} u;
- 	/* this union contains LSM specific data */
- 	union {
-diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-index b18d277..549fe9d 100644
---- a/security/lsm_audit.c
-+++ b/security/lsm_audit.c
-@@ -423,6 +423,11 @@ static void dump_common_audit_data(struct audit_buffer *ab,
- 				 a->u.pkey->pkey, &sbn_pfx);
- 		break;
- 	}
-+	case LSM_AUDIT_DATA_IB_ENDPORT:
-+		audit_log_format(ab, " device=%s port_num=%u",
-+				 a->u.ib_endport->dev_name,
-+				 a->u.ib_endport->port_num);
-+		break;
- 	} /* switch (a->type) */
++int call_lsm_notifier(enum lsm_event event, void *data);
++int register_lsm_notifier(struct notifier_block *nb);
++int unregister_lsm_notifier(struct notifier_block *nb);
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, int audit);
+diff --git a/security/security.c b/security/security.c
+index 7d3bf2f..40326d4 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -33,6 +33,8 @@
+ /* Maximum number of letters for an LSM name string */
+ #define SECURITY_NAME_MAX	10
+ 
++static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
++
+ /* Boot-time LSM user choice */
+ static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
+ 	CONFIG_DEFAULT_SECURITY;
+@@ -98,6 +100,24 @@ int __init security_module_enable(const char *module)
+ 	return !strcmp(module, chosen_lsm);
  }
  
++int call_lsm_notifier(enum lsm_event event, void *data)
++{
++	return atomic_notifier_call_chain(&lsm_notifier_chain, event, data);
++}
++EXPORT_SYMBOL(call_lsm_notifier);
++
++int register_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_register(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(register_lsm_notifier);
++
++int unregister_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_unregister(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(unregister_lsm_notifier);
++
+ /*
+  * Hook list operation macros.
+  *
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 20fb292..ea3f6d0 100644
+index 09fd610..7578198 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6108,6 +6108,29 @@ static int selinux_ib_pkey_access(void *ib_sec, u64 subnet_prefix, u16 pkey_val)
- 			    INFINIBAND_PKEY__ACCESS, &ad);
+@@ -170,6 +170,14 @@ static int selinux_netcache_avc_callback(u32 event)
+ 	return 0;
  }
  
-+static int selinux_ib_endport_manage_subnet(void *ib_sec, const char *dev_name,
-+					    u8 port_num)
++static int selinux_lsm_notifier_avc_callback(u32 event)
 +{
-+	struct common_audit_data ad;
-+	int err;
-+	u32 sid = 0;
-+	struct ib_security_struct *sec = ib_sec;
-+	struct lsm_ib_endport_audit ib_endport;
-+
-+	err = security_ib_endport_sid(dev_name, port_num, &sid);
-+
-+	if (err)
-+		return err;
-+
-+	ad.type = LSM_AUDIT_DATA_IB_ENDPORT;
-+	strncpy(ib_endport.dev_name, dev_name, sizeof(ib_endport.dev_name));
-+	ib_endport.port_num = port_num;
-+	ad.u.ib_endport = &ib_endport;
-+	return avc_has_perm(sec->sid, sid,
-+			    SECCLASS_INFINIBAND_ENDPORT,
-+			    INFINIBAND_ENDPORT__MANAGE_SUBNET, &ad);
++	if (event == AVC_CALLBACK_RESET) {
++		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
++	}
++	return 0;
 +}
 +
- static int selinux_ib_alloc_security(void **ib_sec)
- {
- 	struct ib_security_struct *sec;
-@@ -6313,6 +6336,8 @@ static void selinux_ib_free_security(void *ib_sec)
- 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
- #ifdef CONFIG_SECURITY_INFINIBAND
- 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
-+	LSM_HOOK_INIT(ib_endport_manage_subnet,
-+		      selinux_ib_endport_manage_subnet),
- 	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
- 	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
- #endif
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index d42dd4d..f93b64b 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -167,5 +167,7 @@ struct security_class_mapping secclass_map[] = {
- 	  { COMMON_CAP2_PERMS, NULL } },
- 	{ "infiniband_pkey",
- 	  { "access", NULL } },
-+	{ "infiniband_endport",
-+	  { "manage_subnet", NULL } },
- 	{ NULL }
-   };
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 17afb7c..8a6e5e7 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -178,6 +178,8 @@ int security_get_user_sids(u32 callsid, char *username,
+ /*
+  * initialise the security for the init task
+  */
+@@ -6325,6 +6333,9 @@ static __init int selinux_init(void)
+ 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
+ 		panic("SELinux: Unable to register AVC netcache callback\n");
  
- int security_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
- 
-+int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid);
++	if (avc_add_callback(selinux_lsm_notifier_avc_callback, AVC_CALLBACK_RESET))
++		panic("SELinux: Unable to register AVC LSM notifier callback\n");
 +
- int security_netif_sid(char *name, u32 *if_sid);
- 
- int security_node_sid(u16 domain, void *addr, u32 addrlen,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 085c54b..db40ce7 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2244,6 +2244,48 @@ int security_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid)
- }
- 
- /**
-+ * security_ib_endport_sid - Obtain the SID for a subnet management interface.
-+ * @dev_name: device name
-+ * @port: port number
-+ * @out_sid: security identifier
-+ */
-+int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid)
-+{
-+	struct ocontext *c;
-+	int rc = 0;
-+
-+	read_lock(&policy_rwlock);
-+
-+	c = policydb.ocontexts[OCON_IB_ENDPORT];
-+	while (c) {
-+		if (c->u.ib_endport.port_num == port_num &&
-+		    !strncmp(c->u.ib_endport.dev_name,
-+			     dev_name,
-+			     IB_DEVICE_NAME_MAX))
-+			break;
-+
-+		c = c->next;
-+	}
-+
-+	if (c) {
-+		if (!c->sid[0]) {
-+			rc = sidtab_context_to_sid(&sidtab,
-+						   &c->context[0],
-+						   &c->sid[0]);
-+			if (rc)
-+				goto out;
-+		}
-+		*out_sid = c->sid[0];
-+	} else {
-+		*out_sid = SECINITSID_UNLABELED;
-+	}
-+
-+out:
-+	read_unlock(&policy_rwlock);
-+	return rc;
-+}
-+
-+/**
-  * security_netif_sid - Obtain the SID for a network interface.
-  * @name: interface name
-  * @if_sid: interface SID
+ 	if (selinux_enforcing)
+ 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	else
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 72c145d..d3f9192 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -177,6 +177,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			avc_ss_reset(0);
+ 		selnl_notify_setenforce(selinux_enforcing);
+ 		selinux_status_update_setenforce(selinux_enforcing);
++		if (!selinux_enforcing)
++			call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+ 	}
+ 	length = count;
+ out:
 -- 
 1.8.3.1
