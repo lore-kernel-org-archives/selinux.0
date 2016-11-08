@@ -1,347 +1,131 @@
-Subject: Re: [Patch v2 2/2] policycoreutils: Make sepolicy work with python3
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <20161107080117.24030-2-bigon@debian.org>
- <20161107095108.22306-1-bigon@debian.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6fe47ead-34c1-f894-b717-a34ef542c776@tycho.nsa.gov>
-Date: Tue, 8 Nov 2016 10:35:37 -0500
-MIME-Version: 1.0
-In-Reply-To: <20161107095108.22306-1-bigon@debian.org>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Cc: nicolas.iooss@m4x.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: sepol_{bool|iface|user}_key_create: copy name
+Date: Tue,  8 Nov 2016 10:53:12 -0500
+Message-Id: <1478620392-16248-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/07/2016 04:51 AM, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
-> 
-> Add python3 support for sepolicy
+The sepol_{bool|iface|user}_key_create() functions were not
+copying the name.  This produces a use-after-free in the
+swig-generated code for python3 bindings.  Copy the name
+in these functions, and free it upon sepol_{bool|iface|user}_key_free().
 
-Thanks, applied.
+Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/boolean_record.c | 10 ++++++++--
+ libsepol/src/iface_record.c   | 10 ++++++++--
+ libsepol/src/user_record.c    | 10 ++++++++--
+ 3 files changed, 24 insertions(+), 6 deletions(-)
 
-> 
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
-> ---
->  policycoreutils/sepolicy/selinux_client.py       |  6 ++--
->  policycoreutils/sepolicy/sepolicy.py             | 38 ++++++++++++------------
->  policycoreutils/sepolicy/sepolicy/__init__.py    | 16 ++++++----
->  policycoreutils/sepolicy/sepolicy/communicate.py |  4 +--
->  policycoreutils/sepolicy/sepolicy/generate.py    | 30 +++++++++----------
->  policycoreutils/sepolicy/sepolicy/interface.py   | 14 ++++++---
->  policycoreutils/sepolicy/sepolicy/manpage.py     |  7 +++--
->  7 files changed, 65 insertions(+), 50 deletions(-)
-> 
-> diff --git a/policycoreutils/sepolicy/selinux_client.py b/policycoreutils/sepolicy/selinux_client.py
-> index 7f4a91c..dc29f28 100644
-> --- a/policycoreutils/sepolicy/selinux_client.py
-> +++ b/policycoreutils/sepolicy/selinux_client.py
-> @@ -39,6 +39,6 @@ if __name__ == "__main__":
->      try:
->          dbus_proxy = SELinuxDBus()
->          resp = dbus_proxy.customized()
-> -        print convert_customization(resp)
-> -    except dbus.DBusException, e:
-> -        print e
-> +        print(convert_customization(resp))
-> +    except dbus.DBusException as e:
-> +        print(e)
-> diff --git a/policycoreutils/sepolicy/sepolicy.py b/policycoreutils/sepolicy/sepolicy.py
-> index 3e502a7..5bf9b52 100755
-> --- a/policycoreutils/sepolicy/sepolicy.py
-> +++ b/policycoreutils/sepolicy/sepolicy.py
-> @@ -262,7 +262,7 @@ def _print_net(src, protocol, perm):
->      if len(portdict) > 0:
->          bold_start = "\033[1m"
->          bold_end = "\033[0;0m"
-> -        print "\n" + bold_start + "%s: %s %s" % (src, protocol, perm) + bold_end
-> +        print("\n" + bold_start + "%s: %s %s" % (src, protocol, perm) + bold_end)
->          port_strings = []
->          boolean_text = ""
->          for p in portdict:
-> @@ -275,7 +275,7 @@ def _print_net(src, protocol, perm):
->                      port_strings.append("%s (%s)" % (", ".join(recs), t))
->          port_strings.sort(numcmp)
->          for p in port_strings:
-> -            print "\t" + p
-> +            print("\t" + p)
->  
->  
->  def network(args):
-> @@ -286,7 +286,7 @@ def network(args):
->              if i[0] not in all_ports:
->                  all_ports.append(i[0])
->          all_ports.sort()
-> -        print "\n".join(all_ports)
-> +        print("\n".join(all_ports))
->  
->      for port in args.port:
->          found = False
-> @@ -297,18 +297,18 @@ def network(args):
->                  else:
->                      range = "%s-%s" % (i[0], i[1])
->                  found = True
-> -                print "%d: %s %s %s" % (port, i[2], portrecsbynum[i][0], range)
-> +                print("%d: %s %s %s" % (port, i[2], portrecsbynum[i][0], range))
->          if not found:
->              if port < 500:
-> -                print "Undefined reserved port type"
-> +                print("Undefined reserved port type")
->              else:
-> -                print "Undefined port type"
-> +                print("Undefined port type")
->  
->      for t in args.type:
->          if (t, 'tcp') in portrecs.keys():
-> -            print "%s: tcp: %s" % (t, ",".join(portrecs[t, 'tcp']))
-> +            print("%s: tcp: %s" % (t, ",".join(portrecs[t, 'tcp'])))
->          if (t, 'udp') in portrecs.keys():
-> -            print "%s: udp: %s" % (t, ",".join(portrecs[t, 'udp']))
-> +            print( "%s: udp: %s" % (t, ",".join(portrecs[t, 'udp'])))
->  
->      for a in args.applications:
->          d = sepolicy.get_init_transtype(a)
-> @@ -357,7 +357,7 @@ def manpage(args):
->  
->      for domain in test_domains:
->          m = ManPage(domain, path, args.root, args.source_files, args.web)
-> -        print m.get_man_page_path()
-> +        print(m.get_man_page_path())
->  
->      if args.web:
->          HTMLManPages(manpage_roles, manpage_domains, path, args.os)
-> @@ -418,7 +418,7 @@ def communicate(args):
->      out = list(set(writable) & set(readable))
->  
->      for t in out:
-> -        print t
-> +        print(t)
->  
->  
->  def gen_communicate_args(parser):
-> @@ -445,7 +445,7 @@ def booleans(args):
->      args.booleans.sort()
->  
->      for b in args.booleans:
-> -        print "%s=_(\"%s\")" % (b, boolean_desc(b))
-> +        print("%s=_(\"%s\")" % (b, boolean_desc(b)))
->  
->  
->  def gen_booleans_args(parser):
-> @@ -484,16 +484,16 @@ def print_interfaces(interfaces, args, append=""):
->      for i in interfaces:
->          if args.verbose:
->              try:
-> -                print get_interface_format_text(i + append)
-> +                print(get_interface_format_text(i + append))
->              except KeyError:
-> -                print i
-> +                print(i)
->          if args.compile:
->              try:
->                  interface_compile_test(i)
->              except KeyError:
-> -                print i
-> +                print(i)
->          else:
-> -            print i
-> +            print(i)
->  
->  
->  def interface(args):
-> @@ -565,7 +565,7 @@ def generate(args):
->      if args.policytype in APPLICATIONS:
->          mypolicy.gen_writeable()
->          mypolicy.gen_symbols()
-> -    print mypolicy.generate(args.path)
-> +    print(mypolicy.generate(args.path))
->  
->  
->  def gen_interface_args(parser):
-> @@ -698,12 +698,12 @@ if __name__ == '__main__':
->          args = parser.parse_args(args=parser_args)
->          args.func(args)
->          sys.exit(0)
-> -    except ValueError, e:
-> +    except ValueError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->          sys.exit(1)
-> -    except IOError, e:
-> +    except IOError as e:
->          sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
->          sys.exit(1)
->      except KeyboardInterrupt:
-> -        print "Out"
-> +        print("Out")
->          sys.exit(0)
-> diff --git a/policycoreutils/sepolicy/sepolicy/__init__.py b/policycoreutils/sepolicy/sepolicy/__init__.py
-> index 8fbd5b4..fee6438 100644
-> --- a/policycoreutils/sepolicy/sepolicy/__init__.py
-> +++ b/policycoreutils/sepolicy/sepolicy/__init__.py
-> @@ -695,7 +695,7 @@ def get_methods():
->      # List of per_role_template interfaces
->          ifs = interfaces.InterfaceSet()
->          ifs.from_file(fd)
-> -        methods = ifs.interfaces.keys()
-> +        methods = list(ifs.interfaces.keys())
->          fd.close()
->      except:
->          sys.stderr.write("could not open interface info [%s]\n" % fn)
-> @@ -752,7 +752,10 @@ def get_all_entrypoint_domains():
->  
->  
->  def gen_interfaces():
-> -    import commands
-> +    try:
-> +        from commands import getstatusoutput
-> +    except ImportError:
-> +        from subprocess import getstatusoutput
->      ifile = defaults.interface_info()
->      headers = defaults.headers()
->      try:
-> @@ -763,7 +766,7 @@ def gen_interfaces():
->  
->      if os.getuid() != 0:
->          raise ValueError(_("You must regenerate interface info by running /usr/bin/sepolgen-ifgen"))
-> -    print(commands.getstatusoutput("/usr/bin/sepolgen-ifgen")[1])
-> +    print(getstatusoutput("/usr/bin/sepolgen-ifgen")[1])
->  
->  
->  def gen_port_dict():
-> @@ -1085,8 +1088,11 @@ def get_os_version():
->      os_version = ""
->      pkg_name = "selinux-policy"
->      try:
-> -        import commands
-> -        rc, output = commands.getstatusoutput("rpm -q '%s'" % pkg_name)
-> +        try:
-> +            from commands import getstatusoutput
-> +        except ImportError:
-> +            from subprocess import getstatusoutput
-> +        rc, output = getstatusoutput("rpm -q '%s'" % pkg_name)
->          if rc == 0:
->              os_version = output.split(".")[-2]
->      except:
-> diff --git a/policycoreutils/sepolicy/sepolicy/communicate.py b/policycoreutils/sepolicy/sepolicy/communicate.py
-> index b96c4b9..299316e 100755
-> --- a/policycoreutils/sepolicy/sepolicy/communicate.py
-> +++ b/policycoreutils/sepolicy/sepolicy/communicate.py
-> @@ -34,8 +34,8 @@ def usage(parser, msg):
->  
->  def expand_attribute(attribute):
->      try:
-> -        return sepolicy.info(sepolicy.ATTRIBUTE, attribute)[0]["types"]
-> -    except RuntimeError:
-> +        return list(next(sepolicy.info(sepolicy.ATTRIBUTE, attribute))["types"])
-> +    except StopIteration:
->          return [attribute]
->  
->  
-> diff --git a/policycoreutils/sepolicy/sepolicy/generate.py b/policycoreutils/sepolicy/sepolicy/generate.py
-> index 65b33b6..5696110 100644
-> --- a/policycoreutils/sepolicy/sepolicy/generate.py
-> +++ b/policycoreutils/sepolicy/sepolicy/generate.py
-> @@ -31,21 +31,21 @@ import time
->  import types
->  import platform
->  
-> -from templates import executable
-> -from templates import boolean
-> -from templates import etc_rw
-> -from templates import unit_file
-> -from templates import var_cache
-> -from templates import var_spool
-> -from templates import var_lib
-> -from templates import var_log
-> -from templates import var_run
-> -from templates import tmp
-> -from templates import rw
-> -from templates import network
-> -from templates import script
-> -from templates import spec
-> -from templates import user
-> +from .templates import executable
-> +from .templates import boolean
-> +from .templates import etc_rw
-> +from .templates import unit_file
-> +from .templates import var_cache
-> +from .templates import var_spool
-> +from .templates import var_lib
-> +from .templates import var_log
-> +from .templates import var_run
-> +from .templates import tmp
-> +from .templates import rw
-> +from .templates import network
-> +from .templates import script
-> +from .templates import spec
-> +from .templates import user
->  import sepolgen.interfaces as interfaces
->  import sepolgen.defaults as defaults
->  
-> diff --git a/policycoreutils/sepolicy/sepolicy/interface.py b/policycoreutils/sepolicy/sepolicy/interface.py
-> index c2cb971..8956f39 100644
-> --- a/policycoreutils/sepolicy/sepolicy/interface.py
-> +++ b/policycoreutils/sepolicy/sepolicy/interface.py
-> @@ -192,10 +192,13 @@ def generate_compile_te(interface, idict, name="compiletest"):
->  def get_xml_file(if_file):
->      """ Returns xml format of interfaces for given .if policy file"""
->      import os
-> -    import commands
-> +    try:
-> +            from commands import getstatusoutput
-> +    except ImportError:
-> +            from subprocess import getstatusoutput
->      basedir = os.path.dirname(if_file) + "/"
->      filename = os.path.basename(if_file).split(".")[0]
-> -    rc, output = commands.getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
-> +    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
->      if rc != 0:
->          sys.stderr.write("\n Could not proceed selected interface file.\n")
->          sys.stderr.write("\n%s" % output)
-> @@ -208,7 +211,10 @@ def interface_compile_test(interface, path="/usr/share/selinux/devel/policy.xml"
->      exclude_interfaces = ["userdom", "kernel", "corenet", "files", "dev"]
->      exclude_interface_type = ["template"]
->  
-> -    import commands
-> +    try:
-> +            from commands import getstatusoutput
-> +    except ImportError:
-> +            from subprocess import getstatusoutput
->      import os
->      policy_files = {'pp': "compiletest.pp", 'te': "compiletest.te", 'fc': "compiletest.fc", 'if': "compiletest.if"}
->      idict = get_interface_dict(path)
-> @@ -219,7 +225,7 @@ def interface_compile_test(interface, path="/usr/share/selinux/devel/policy.xml"
->              fd = open(policy_files['te'], "w")
->              fd.write(generate_compile_te(interface, idict))
->              fd.close()
-> -            rc, output = commands.getstatusoutput("make -f /usr/share/selinux/devel/Makefile %s" % policy_files['pp'])
-> +            rc, output = getstatusoutput("make -f /usr/share/selinux/devel/Makefile %s" % policy_files['pp'])
->              if rc != 0:
->                  sys.stderr.write(output)
->                  sys.stderr.write(_("\nCompile test for %s failed.\n") % interface)
-> diff --git a/policycoreutils/sepolicy/sepolicy/manpage.py b/policycoreutils/sepolicy/sepolicy/manpage.py
-> index 7365f93..773a9ab 100755
-> --- a/policycoreutils/sepolicy/sepolicy/manpage.py
-> +++ b/policycoreutils/sepolicy/sepolicy/manpage.py
-> @@ -27,7 +27,6 @@ __all__ = ['ManPage', 'HTMLManPages', 'manpage_domains', 'manpage_roles', 'gen_d
->  import string
->  import selinux
->  import sepolicy
-> -import commands
->  import os
->  import time
->  
-> @@ -162,7 +161,11 @@ def get_alphabet_manpages(manpage_list):
->  
->  
->  def convert_manpage_to_html(html_manpage, manpage):
-> -    rc, output = commands.getstatusoutput("/usr/bin/groff -man -Thtml %s 2>/dev/null" % manpage)
-> +    try:
-> +            from commands import getstatusoutput
-> +    except ImportError:
-> +            from subprocess import getstatusoutput
-> +    rc, output = getstatusoutput("/usr/bin/groff -man -Thtml %s 2>/dev/null" % manpage)
->      if rc == 0:
->          print(html_manpage, "has been created")
->          fd = open(html_manpage, 'w')
-> 
+diff --git a/libsepol/src/boolean_record.c b/libsepol/src/boolean_record.c
+index 8b64413..ebef7f1 100644
+--- a/libsepol/src/boolean_record.c
++++ b/libsepol/src/boolean_record.c
+@@ -15,7 +15,7 @@ struct sepol_bool {
+ 
+ struct sepol_bool_key {
+ 	/* This boolean's name */
+-	const char *name;
++	char *name;
+ };
+ 
+ int sepol_bool_key_create(sepol_handle_t * handle,
+@@ -30,7 +30,12 @@ int sepol_bool_key_create(sepol_handle_t * handle,
+ 		return STATUS_ERR;
+ 	}
+ 
+-	tmp_key->name = name;
++	tmp_key->name = strdup(name);
++	if (!tmp_key->name) {
++		ERR(handle, "out of memory, " "could not create boolean key");
++		free(tmp_key);
++		return STATUS_ERR;
++	}
+ 
+ 	*key_ptr = tmp_key;
+ 	return STATUS_SUCCESS;
+@@ -62,6 +67,7 @@ int sepol_bool_key_extract(sepol_handle_t * handle,
+ 
+ void sepol_bool_key_free(sepol_bool_key_t * key)
+ {
++	free(key->name);
+ 	free(key);
+ }
+ 
+diff --git a/libsepol/src/iface_record.c b/libsepol/src/iface_record.c
+index 09adeb7..c8b977c 100644
+--- a/libsepol/src/iface_record.c
++++ b/libsepol/src/iface_record.c
+@@ -20,7 +20,7 @@ struct sepol_iface {
+ struct sepol_iface_key {
+ 
+ 	/* Interface name */
+-	const char *name;
++	char *name;
+ };
+ 
+ /* Key */
+@@ -36,7 +36,12 @@ int sepol_iface_key_create(sepol_handle_t * handle,
+ 		return STATUS_ERR;
+ 	}
+ 
+-	tmp_key->name = name;
++	tmp_key->name = strdup(name);
++	if (!tmp_key->name) {
++		ERR(handle, "out of memory, could not create interface key");
++		free(tmp_key);
++		return STATUS_ERR;
++	}
+ 
+ 	*key_ptr = tmp_key;
+ 	return STATUS_SUCCESS;
+@@ -68,6 +73,7 @@ int sepol_iface_key_extract(sepol_handle_t * handle,
+ 
+ void sepol_iface_key_free(sepol_iface_key_t * key)
+ {
++	free(key->name);
+ 	free(key);
+ }
+ 
+diff --git a/libsepol/src/user_record.c b/libsepol/src/user_record.c
+index c59c54b..e7e2fc2 100644
+--- a/libsepol/src/user_record.c
++++ b/libsepol/src/user_record.c
+@@ -24,7 +24,7 @@ struct sepol_user {
+ 
+ struct sepol_user_key {
+ 	/* This user's name */
+-	const char *name;
++	char *name;
+ };
+ 
+ int sepol_user_key_create(sepol_handle_t * handle,
+@@ -40,7 +40,12 @@ int sepol_user_key_create(sepol_handle_t * handle,
+ 		return STATUS_ERR;
+ 	}
+ 
+-	tmp_key->name = name;
++	tmp_key->name = strdup(name);
++	if (!tmp_key->name) {
++		ERR(handle, "out of memory, could not create selinux user key");
++		free(tmp_key);
++		return STATUS_ERR;
++	}
+ 
+ 	*key_ptr = tmp_key;
+ 	return STATUS_SUCCESS;
+@@ -71,6 +76,7 @@ int sepol_user_key_extract(sepol_handle_t * handle,
+ 
+ void sepol_user_key_free(sepol_user_key_t * key)
+ {
++	free(key->name);
+ 	free(key);
+ }
+ 
+-- 
+2.7.4
