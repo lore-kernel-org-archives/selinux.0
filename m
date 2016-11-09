@@ -1,121 +1,192 @@
-Subject: Re: [SECILC] does not seem to filter redundant attributes and rules
-To: selinux@tycho.nsa.gov, Gary Tierney <gary.tierney@gmx.com>
-References: <a1c00b1d-c5fd-981e-489a-591f3bff3407@gmail.com>
- <823811d5-d5b2-585e-0ff9-5699768f1e91@tycho.nsa.gov>
- <20161109181753.GA14141@workstation.home>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <2056c5f4-fd07-1ecb-085a-17ca5c08d1a0@tycho.nsa.gov>
-Date: Wed, 9 Nov 2016 13:53:25 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uA9MPjZG021163
+ for <selinux@tycho.nsa.gov>; Wed, 9 Nov 2016 17:25:50 -0500
+Received: by mail-vk0-f66.google.com with SMTP id w194so10153721vkw.3
+ for <selinux@tycho.nsa.gov>; Wed, 09 Nov 2016 14:25:32 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20161109181753.GA14141@workstation.home>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <CA+RmS--i8PiHmt1foeVEYP+uGDxhGLaROzxLvU=GNXW76fDy5A@mail.gmail.com>
+References: <1478551587-33892-1-git-send-email-david.graziano@rockwellcollins.com>
+ <CAHC9VhQXrybHPt41-f-hcXZJ=i=N5qexdoM2VFLTxFfmuq8Yzg@mail.gmail.com>
+ <CA+RmS--i8PiHmt1foeVEYP+uGDxhGLaROzxLvU=GNXW76fDy5A@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 9 Nov 2016 17:25:31 -0500
+Message-ID: <CAHC9VhS1GmjyaY1GqvKJ9q_FoyH=t1EGS_0Eh+GOoGNuEJ2_8w@mail.gmail.com>
+Subject: Re: [PATCH 1/1 V2] mqueue: Implment generic xattr support
+To: David Graziano <david.graziano@rockwellcollins.com>
+Cc: golbi@mat.uni.torun.pl, michal.wronski@gmail.com,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ Stephen Smalley <sds@tycho.nsa.gov>, seth.forshee@canonical.com,
+ ebiederm@xmission.com, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/09/2016 01:17 PM, Gary Tierney wrote:
-> On Wed, Nov 09, 2016 at 09:52:35AM -0500, James Carter wrote:
->> On 11/09/2016 07:40 AM, Dominick Grift wrote:
->>> I am in the process of a DSSP rewrite, taking a different approach this
->>> time.
+On Wed, Nov 9, 2016 at 11:25 AM, David Graziano
+<david.graziano@rockwellcollins.com> wrote:
+> On Mon, Nov 7, 2016 at 4:23 PM, Paul Moore <paul@paul-moore.com> wrote:
+>> On Mon, Nov 7, 2016 at 3:46 PM, David Graziano
+>> <david.graziano@rockwellcollins.com> wrote:
+>>> This patch adds support for generic extended attributes within the
+>>> POSIX message queues filesystem and setting them by consulting the LSM.
+>>> This is needed so that the security.selinux extended attribute can be
+>>> set via a SELinux named type transition on file inodes created within
+>>> the filesystem. The implementation and LSM call back function are based
+>>> off tmpfs/shmem.
 >>>
->>> However I encountered something that seems suboptimal:
->>>
->>> SECILC seems to not filter redundant attributes and rules
->>>
->>> Example i have a type attribute and it has rules associated with it.
->>> However, the type attribute is not associated with any types.
->>>
->>> I was hoping that SECILC would be smart enough to determine that it
->>> might as well filter both the type attribute as well as the rules
->>> associated with it.
->>>
->>> To reproduce:
->>>
->>> git clone https://github.com/DefenSec/dssp1-base.git
->>> cd dssp1-base
->>> secilc `ls *.cil`
->>> sesearch -ASCT -s lib.ld_so.read_files_subj_type_attribute policy.30
->>> seinfo -xalib.ld_so.read_files_subj_type_attribute policy.30
->>>
->>>
->>> Am i expecting the impossible by expecting SECILC to be smart enough to
->>> determine that something is redundant, and that it can be filtered out
->>> until it becomes applicable?
->>>
->>>
+>>> Signed-off-by: David Graziano <david.graziano@rockwellcollins.com>
+>>> ---
+>>>  ipc/mqueue.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+>>>  1 file changed, 46 insertions(+)
 >>
->> I don't think that it would be too hard to remove attributes that have no
->> types associated with them along with rules containing those attributes. I
->> have this nagging feeling, though, that there is a reason that we didn't do
->> that. I'll have to think about it a bit.
+>> Hi David,
 >>
->> Jim
+>> At first glance this looks reasonable to me, I just have a two
+>> questions/comments:
 >>
+>> * Can you explain your current need for this functionality?  For
+>> example, what are you trying to do that is made easier by allowing
+>> greater message queue labeling flexibility?  This helps put things in
+>> context and helps people review and comment on your patch.
+>>
+>> * How have you tested this?  While this patch is not SELinux specific,
+>> I think adding a test to the selinux-testsuite[1] would be worthwhile.
+>> The other LSM maintainers may suggest something similar if they have
+>> an established public testsuite.
+>>
+>> [1] https://github.com/SELinuxProject/selinux-testsuite
 >
-> I had a hack 'n' slash attempt at this earlier for just avrules by adding
-> naive checks in avrule_write (libsepol/src/write.c) to check if both the
-> source and target type_set bitmaps have a cardinality of 0, though couldn't
-> help but think I was missing something else.  That didn't work in any case,
-> and didn't seem like the codepath is ever hit when a CIL policy is
-> written to disk (maybe it's only module policy avrule_write is called for?).
+> Hi Paul,
 >
-> Any hints on where I can start prodding?  Would be nice to get an idea of how
-> the binary policy is serialized too.
->>
+> I needed to write a selinux policy for a set of custom applications that use
+> POSIX message queues for their IPC. The queues are created by one
+> application and we needed a way for selinux to enforce which of the other
+> apps are able to read/write to each individual queue. Uniquely labeling them
+> based on the app that created them and the file name seemed to be our best
+> solution since it’s an embedded system and we don’t have restorecond to
+> handle any relabeling.
 
-In libsepol/src/write.c:policydb_write(), avtab_write(), and avtab_write_item() 
-checks could be added, but I am not sure off the top of my head what they would 
-look like. This would cause the rules to be removed for all kernel policies.
+In the future putting things like the above in the patch description
+can be helpful.  In other words, instead of simply saying this allows
+you to better control the labels assigned to message queues, you could
+expand upon it by saying that this patch allows you to better control
+which applications have access to a given queue.  Yes, I realize that
+is implied by better control over the labels, but being explicit is
+rarely a bad thing when it comes to patch descriptions.
 
-For CIL only, in libsepol/cil/src/cil_binary.c:__cil_avrule_to_avtab() you could 
-add a check for the src and tgt like the function below:
+I've never rejected a patch for a description that was too lengthy,
+but I have rejected patches that need better descriptions ;)
 
-static int cil_check_unused_attribute(struct cil_symtab_datum *datum)
-{
-	struct cil_tree_node *node = datum->nodes->head->data;
+> To test this patch I used both a selinux enabled, buildroot based qemu target
+> with a customized selinux policy and test C app to create the mqueues. I also
+> tested with our real apps and selinux policy on our target hardware. I can
+> certainly look at adding a test to the selinux-testsuite if that would
+> be helpful.
 
-	if (node->flavor == CIL_TYPEATTRIBUTE) {
-		struct cil_typeattribute *attr = (struct cil_typeattribute *)datum;
-		if (ebitmap_cardinality(attr->types) == 0) {
-			return CIL_TRUE;
-		}
-	}
+Please do.  I've been requiring tests for all new SELinux
+functionality lately; this isn't strictly a SELinux patch but I think
+it is a good practice regardless.
 
-	return CIL_FALSE;
-}
-
-Jim
-
+>>> diff --git a/ipc/mqueue.c b/ipc/mqueue.c
+>>> index 0b13ace..512a546 100644
+>>> --- a/ipc/mqueue.c
+>>> +++ b/ipc/mqueue.c
+>>> @@ -35,6 +35,7 @@
+>>>  #include <linux/ipc_namespace.h>
+>>>  #include <linux/user_namespace.h>
+>>>  #include <linux/slab.h>
+>>> +#include <linux/xattr.h>
 >>>
->>> _______________________________________________
->>> Selinux mailing list
->>> Selinux@tycho.nsa.gov
->>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>>  #include <net/sock.h>
+>>>  #include "util.h"
+>>> @@ -70,6 +71,7 @@ struct mqueue_inode_info {
+>>>         struct rb_root msg_tree;
+>>>         struct posix_msg_tree_node *node_cache;
+>>>         struct mq_attr attr;
+>>> +       struct simple_xattrs xattrs;    /* list of xattrs */
 >>>
->>
+>>>         struct sigevent notify;
+>>>         struct pid *notify_owner;
+>>> @@ -254,6 +256,7 @@ static struct inode *mqueue_get_inode(struct super_block *sb,
+>>>                         info->attr.mq_maxmsg = attr->mq_maxmsg;
+>>>                         info->attr.mq_msgsize = attr->mq_msgsize;
+>>>                 }
+>>> +               simple_xattrs_init(&info->xattrs);
+>>>                 /*
+>>>                  * We used to allocate a static array of pointers and account
+>>>                  * the size of that array as well as one msg_msg struct per
+>>> @@ -413,6 +416,41 @@ static void mqueue_evict_inode(struct inode *inode)
+>>>                 put_ipc_ns(ipc_ns);
+>>>  }
+>>>
+>>> +/*
+>>> + * Callback for security_inode_init_security() for acquiring xattrs.
+>>> + */
+>>> +static int mqueue_initxattrs(struct inode *inode,
+>>> +                           const struct xattr *xattr_array,
+>>> +                           void *fs_info)
+>>> +{
+>>> +       struct mqueue_inode_info *info = MQUEUE_I(inode);
+>>> +       const struct xattr *xattr;
+>>> +       struct simple_xattr *new_xattr;
+>>> +       size_t len;
+>>> +
+>>> +       for (xattr = xattr_array; xattr->name != NULL; xattr++) {
+>>> +               new_xattr = simple_xattr_alloc(xattr->value, xattr->value_len);
+>>> +               if (!new_xattr)
+>>> +                       return -ENOMEM;
+>>> +               len = strlen(xattr->name) + 1;
+>>> +               new_xattr->name = kmalloc(XATTR_SECURITY_PREFIX_LEN + len,
+>>> +                                         GFP_KERNEL);
+>>> +               if (!new_xattr->name) {
+>>> +                       kfree(new_xattr);
+>>> +                       return -ENOMEM;
+>>> +               }
+>>> +
+>>> +               memcpy(new_xattr->name, XATTR_SECURITY_PREFIX,
+>>> +                      XATTR_SECURITY_PREFIX_LEN);
+>>> +               memcpy(new_xattr->name + XATTR_SECURITY_PREFIX_LEN,
+>>> +                      xattr->name, len);
+>>> +
+>>> +               simple_xattr_list_add(&info->xattrs, new_xattr);
+>>> +       }
+>>> +
+>>> +       return 0;
+>>> +}
+>>> +
+>>>  static int mqueue_create(struct inode *dir, struct dentry *dentry,
+>>>                                 umode_t mode, bool excl)
+>>>  {
+>>> @@ -443,6 +481,14 @@ static int mqueue_create(struct inode *dir, struct dentry *dentry,
+>>>                 ipc_ns->mq_queues_count--;
+>>>                 goto out_unlock;
+>>>         }
+>>> +       error = security_inode_init_security(inode, dir,
+>>> +                                            &dentry->d_name,
+>>> +                                            mqueue_initxattrs, NULL);
+>>> +       if (error && error != -EOPNOTSUPP) {
+>>> +               spin_lock(&mq_lock);
+>>> +               ipc_ns->mq_queues_count--;
+>>> +               goto out_unlock;
+>>> +       }
+>>>
+>>>         put_ipc_ns(ipc_ns);
+>>>         dir->i_size += DIRENT_SIZE;
+>>> --
+>>> 1.9.1
+>>>
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >>
 >> --
->> James Carter <jwcart2@tycho.nsa.gov>
->> National Security Agency
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
+>> paul moore
+>> www.paul-moore.com
+
 
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+paul moore
+www.paul-moore.com
