@@ -1,64 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uABIBfb4001465
- for <selinux@tycho.nsa.gov>; Fri, 11 Nov 2016 13:11:41 -0500
-Received: by mail-wm0-f41.google.com with SMTP id t79so105742757wmt.0
- for <selinux@tycho.nsa.gov>; Fri, 11 Nov 2016 10:11:07 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <021477d4-6816-1915-e84a-f038b30dbbd1@gmail.com>
-References: <CAFJ0LnGZ-f1UUK+yJevWKu=En5CK3s8ywaef_jju4ZFuU+LonA@mail.gmail.com>
- <021477d4-6816-1915-e84a-f038b30dbbd1@gmail.com>
-From: Nick Kralevich <nnk@google.com>
-Date: Fri, 11 Nov 2016 10:11:05 -0800
-Message-ID: <CAFJ0LnFesuFFSi5C2MHs7qHgPvo3WjSuQ5RFXUixSEVENmzwrg@mail.gmail.com>
-Subject: Re: checkpolicy dontaudit compiler bug?
-To: Dominick Grift <dac.override@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uABJCvH9006720
+ for <selinux@tycho.nsa.gov>; Fri, 11 Nov 2016 14:12:57 -0500
+Received: by mail-pf0-f179.google.com with SMTP id i88so12777892pfk.2
+ for <selinux@tycho.nsa.gov>; Fri, 11 Nov 2016 11:12:56 -0800 (PST)
+From: Daniel Cashman <dcashman@android.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libsepol: cil: remove double-free.
+Date: Fri, 11 Nov 2016 11:12:44 -0800
+Message-Id: <1478891564-11770-1-git-send-email-dcashman@android.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Nov 11, 2016 at 9:59 AM, Dominick Grift <dac.override@gmail.com> wrote:
->> Specifically, the following dontaudit rule is in that file:
->>
->>   dontaudit su self:capability_class_set *;
->>
->> which expands out to:
->>
->>   dontaudit su self:{ capability capability2 } *;
->>
->
-> That should not work. AFAIK you cannot use the "*" with two different
-> classes
->
-> you would need to
->
-> dontaudit su self:capability *;
-> dontaudit su self:capability2 *;
->
-> Maybe the other policy "bullhead" does not have the invalid
-> dontaudit su self:capability_class_set *; rule
+From: dcashman <dcashman@android.com>
 
-They both have the same "dontaudit su self:capability_class_set *"
-statements, yet one compiles differently than the other.
+Test: Untested patch.
+Bug: https://code.google.com/p/android/issues/detail?id=226519
+Change-Id: Icaf992ba1487098f2c4f16ac1017012f611281e9
+Signed-off-by: Daniel Cashman <dcashman@android.com>
+---
+ libsepol/cil/src/cil_binary.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-nnk@nick:~$ wget -q http://kralevich.com/bullhead.policy.conf
-nnk@nick:~$ wget -q http://kralevich.com/marlin.policy.conf
-nnk@nick:~$ grep "dontaudit su" bullhead.policy.conf
-marlin.policy.conf | grep capability
-bullhead.policy.conf:  dontaudit su self:{ capability capability2 } *;
-marlin.policy.conf:  dontaudit su self:{ capability capability2 } *;
-
-And changing from
-
-  dontaudit su self:{ capability capability2 } *;
-
-to
-
-  dontaudit su self:capability *;
-  dontaudit su self:capability2 *;
-
-has no effect and the policy continues to not pick up the neverallow rules.
-
--- Nick
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 5402272..a813201 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -843,7 +843,6 @@ int cil_catalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias)
+ 	key = cil_strdup(cil_alias->datum.fqn);
+ 	rc = symtab_insert(pdb, SYM_CATS, key, sepol_alias, SCOPE_DECL, 0, NULL);
+ 	if (rc != SEPOL_OK) {
+-		free(key);
+ 		goto exit;
+ 	}
+ 	sepol_alias->s.value = sepol_cat->s.value;
+-- 
+2.8.0.rc3.226.g39d4020
