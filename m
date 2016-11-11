@@ -1,63 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAB0wGpr012509
- for <selinux@tycho.nsa.gov>; Thu, 10 Nov 2016 19:58:16 -0500
-Subject: Re: [Patch v2 2/2] policycoreutils: Make sepolicy work with python3
-To: Stephen Smalley <sds@tycho.nsa.gov>, Laurent Bigonville
- <bigon@debian.org>, selinux@tycho.nsa.gov
-References: <20161107080117.24030-2-bigon@debian.org>
- <20161107095108.22306-1-bigon@debian.org>
- <21527c6a-410d-d819-2e43-a90b2d757694@tycho.nsa.gov>
- <0218ca49-6e92-33e0-cb29-4a792c1b5b7c@tycho.nsa.gov>
-From: Chris PeBenito <pebenito@ieee.org>
-Message-ID: <7ce6bf50-c7e4-965f-e9df-eb5a3d4249dc@ieee.org>
-Date: Thu, 10 Nov 2016 19:58:18 -0500
 MIME-Version: 1.0
-In-Reply-To: <0218ca49-6e92-33e0-cb29-4a792c1b5b7c@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+From: Nick Kralevich <nnk@google.com>
+Date: Fri, 11 Nov 2016 09:51:42 -0800
+Message-ID: <CAFJ0LnGZ-f1UUK+yJevWKu=En5CK3s8ywaef_jju4ZFuU+LonA@mail.gmail.com>
+Subject: checkpolicy dontaudit compiler bug?
+To: SELinux <Selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/08/16 10:29, Stephen Smalley wrote:
-> On 11/08/2016 10:21 AM, Stephen Smalley wrote:
->> On 11/07/2016 04:51 AM, Laurent Bigonville wrote:
->>> From: Laurent Bigonville <bigon@bigon.be>
->>>
->>> Add python3 support for sepolicy
->>>
->>> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
->>> ---
->>>  policycoreutils/sepolicy/selinux_client.py       |  6 ++--
->>>  policycoreutils/sepolicy/sepolicy.py             | 38 ++++++++++++------------
->>>  policycoreutils/sepolicy/sepolicy/__init__.py    | 16 ++++++----
->>>  policycoreutils/sepolicy/sepolicy/communicate.py |  4 +--
->>>  policycoreutils/sepolicy/sepolicy/generate.py    | 30 +++++++++----------
->>>  policycoreutils/sepolicy/sepolicy/interface.py   | 14 ++++++---
->>>  policycoreutils/sepolicy/sepolicy/manpage.py     |  7 +++--
->>>  7 files changed, 65 insertions(+), 50 deletions(-)
->>
->> make test doesn't pass in policycoreutils/sepolicy, although I'm not
->> sure that's new to this patch.  I think the manpage ones were already
->> failing; I don't recall the network one hanging before though.  But
->> maybe that is because I wasn't testing with setools3 fully removed before?
->
-> Oh, I guess it is just very slow with setools4.  It did finally complete
-> sepolicy network -d and has moved on (next slow/hanging one is
-> transition -t).
+(apologies if you received this message twice. I believe the first
+message got stuck in a moderation queue somewhere)
 
-Yes, sadly setools4 is slower.  I haven't spent much time on trying to 
-improve the performance yet (preliminary profiling seems to indicate 
-that swig is the problem).  However, looking through the sepolicy code, 
-I found that it could use the setools code more efficiently (I realize 
-the first matter of business was just to get it over to setools4).
+I'm trying to hunt down what appears to be a weird checkpolicy bug.
 
-The biggest win will be to minimize how many times the code iterates 
-over all TE rules.  For example, in the search function, it runs the 
-TERuleQuery twice, when it could be done in one query.  Also, for the 
-transition command, it seems to manually implement a domain transition 
-analysis.  When I compared the sepolicy transition run time to sedta, 
-sedta was a minute faster for the same analysis.
+On Android, we have a special SELinux domain called "su". This domain
+is intended to be used during debugging and is always in permissive
+mode. To avoid generating a huge number of denials, we use a number of
+"dontaudit" rules to suppress SELinux denials.
+
+See https://android.googlesource.com/platform/system/sepolicy/+/0e1cbf568a9cc3dd0b26ead68a79d1f22dcb3add/private/su.te
+
+Specifically, the following dontaudit rule is in that file:
+
+  dontaudit su self:capability_class_set *;
+
+which expands out to:
+
+  dontaudit su self:{ capability capability2 } *;
+
+However, on one device in particular ("marlin"), we find that this
+dontaudit rule is ineffective. It appears that the checkpolicy
+compiler is ignoring the dontaudit statement.
+
+$ sesearch --dontaudit -s su -c capability,capability2 /tmp/marlin.sepolicy
+dontaudit su su:capability sys_module;
+dontaudit su su:capability2 { mac_admin mac_override wake_alarm
+block_suspend syslog audit_read };
+
+However, this isn't happening on the other device ("bullhead"), which
+is compiled with a very similar policy:
+
+$ sesearch --dontaudit -s su -c capability,capability2 /tmp/bullhead.sepolicy
+dontaudit su su:capability { setuid setfcap sys_chroot
+net_bind_service sys_nice mknod fsetid kill net_admin sys_rawio
+audit_control sys_pacct sys_resource sys_ptrace dac_read_search
+sys_boot sys_admin audit_write net_raw setgid sys_time lease
+dac_override net_broadcast linux_immutable fowner sys_tty_config
+setpcap sys_module ipc_lock chown ipc_owner };
+dontaudit su su:capability2 { mac_admin mac_override wake_alarm
+block_suspend syslog audit_read };
+
+Steps to reproduce:
+
+1) Download the following files and place them in /tmp
+
+  http://kralevich.com/bullhead.policy.conf
+  http://kralevich.com/marlin.policy.conf
+
+2) Run the following commands to compile the policy:
+
+  checkpolicy -M -c 30 -o /tmp/bullhead.sepolicy /tmp/bullhead.policy.conf
+  checkpolicy -M -c 30 -o /tmp/marlin.sepolicy /tmp/marlin.policy.conf
+
+3) Verify the dontaudit rules by running sesearch
+
+  sesearch --dontaudit -s su -c capability,capability2 /tmp/marlin.sepolicy
+  sesearch --dontaudit -s su -c capability,capability2 /tmp/bullhead.sepolicy
+
+Expected: the output from the sesearch command above is identical for
+each device.
+
+Actual: the output from the sesearch command differs.
+
+If anyone has any insight into this bug I'd appreciate it.
 
 -- 
-Chris PeBenito
+Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
