@@ -1,72 +1,78 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uACBwv5c020842
- for <selinux@tycho.nsa.gov>; Sat, 12 Nov 2016 06:58:57 -0500
-Received: by mail-wm0-f44.google.com with SMTP id f82so21767790wmf.1
- for <selinux@tycho.nsa.gov>; Sat, 12 Nov 2016 03:58:53 -0800 (PST)
-Received: from ?IPv6:2a02:8428:4da:9800:6062:ffbf:4c1c:db04?
- (2a02-8428-04da-9800-6062-ffbf-4c1c-db04.rev.sfr.net.
- [2a02:8428:4da:9800:6062:ffbf:4c1c:db04])
- by smtp.googlemail.com with ESMTPSA id l2sm16674747wjy.39.2016.11.12.03.58.49
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Sat, 12 Nov 2016 03:58:50 -0800 (PST)
-Subject: Re: MLS is disabled, but MLS context "s0" found
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <401f0398-226c-7059-8c5c-8ff5b5ba632a@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uACC5HI9021755
+ for <selinux@tycho.nsa.gov>; Sat, 12 Nov 2016 07:05:18 -0500
+Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
+ [77.133.206.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id EF791564875
+ for <selinux@tycho.nsa.gov>; Sat, 12 Nov 2016 13:05:09 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Message-ID: <c0557f08-5281-9296-8e1e-c806eab04bbe@m4x.org>
-Date: Sat, 12 Nov 2016 12:58:49 +0100
-MIME-Version: 1.0
-In-Reply-To: <401f0398-226c-7059-8c5c-8ff5b5ba632a@m4x.org>
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/1] libsemanage: semanage_seuser_key_create: copy name
+Date: Sat, 12 Nov 2016 13:05:03 +0100
+Message-Id: <20161112120503.2162-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/11/16 11:41, Nicolas Iooss wrote:
-> Hello,
-> 
-> When using semanage from policycoreutils 2.6 I get the following error
-> every time I update something (modifying a boolean, adding a user login...):
-> 
->   # semanage boolean --modify --on global_ssp
->   libsepol.context_from_record: MLS is disabled, but MLS context "s0"
->   found
->   libsepol.context_from_record: could not create context structure
->   (Invalid argument).
-> 
-> In the code is quite clear on the reason of this warning [1]: I have
-> some policy files which define file contexts with MLS context s0 even
-> though I am using a non-MLS policy.
-> 
-> At first I thought it was an issue in the way refpolicy is being build
-> (the policy I am using comes from refpolicy), but the hll files in
-> /var/lib/selinux do not define s0 in the file contexts (I verified this
-> using "bzcat < hll |cat -v", which showed the fc definitions).
-> 
-> Then I ran the hll/pp program on hll and saw that the CIL filecon
-> statements use "(systemlow systemlow)", and that the base module contains:
-> 
->   (sensitivity s0)
->   (sensitivityorder (s0))
->   (level systemlow (s0))
->   (mls false)
-> 
-> I also found a comment in module_to_cil.c describing why this is
-> necessary: "CIL requires that all contexts have a range" [2].
-> 
-> In short, context_from_record() does not like when a file context
-> defines a sensitivity level in a non-MLS policy and the current
-> pp-to-cil compiler generates file contexts with sensitivity levels, in a
-> non-MLS policy. Is this a bug in libsepol or something I misconfigured
-> on my system?
+When removing a login using semanage with Python 3 the following error
+occurs:
 
-After sending this email I found commit 4cf9b9ce2df0 ("libsemanage:
-genhomedircon: only set MLS level if MLS is enabled") and I took it in
-the libsemanage package I use on my system. This fixed the issue I had,
-and in fact I missed the genhomedircon step in my analysis.
+    # semanage login -l | grep my_user
+    my_user                   user_u
 
-Problem solved. Sorry for the noise!
+    # semanage login --delete my_user
+    ValueError: Login mapping for my_user is not defined
 
-Nicolas
+This is due to a use-after-free in the swig-generated code for python3
+bindings.
+
+Copy the user name in semanage_seuser_key_create() and free it in
+semanage_seuser_key_free(), like commit eac6f1f1b512 ("libsepol:
+sepol_{bool|iface|user}_key_create: copy name") did.
+
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsemanage/src/seuser_record.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/libsemanage/src/seuser_record.c b/libsemanage/src/seuser_record.c
+index 8823b1ed1c7b..1ed459486228 100644
+--- a/libsemanage/src/seuser_record.c
++++ b/libsemanage/src/seuser_record.c
+@@ -33,7 +33,7 @@ struct semanage_seuser {
+ 
+ struct semanage_seuser_key {
+ 	/* This user's name */
+-	const char *name;
++	char *name;
+ };
+ 
+ int semanage_seuser_key_create(semanage_handle_t * handle,
+@@ -48,7 +48,12 @@ int semanage_seuser_key_create(semanage_handle_t * handle,
+ 		ERR(handle, "out of memory, could not create seuser key");
+ 		return STATUS_ERR;
+ 	}
+-	tmp_key->name = name;
++	tmp_key->name = strdup(name);
++	if (!tmp_key->name) {
++		ERR(handle, "out of memory, could not create seuser key");
++		free(tmp_key);
++		return STATUS_ERR;
++	}
+ 
+ 	*key_ptr = tmp_key;
+ 	return STATUS_SUCCESS;
+@@ -75,7 +80,7 @@ hidden_def(semanage_seuser_key_extract)
+ 
+ void semanage_seuser_key_free(semanage_seuser_key_t * key)
+ {
+-
++	free(key->name);
+ 	free(key);
+ }
+ 
+-- 
+2.10.2
