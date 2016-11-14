@@ -1,140 +1,89 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: "Roberts, William C" <william.c.roberts@intel.com>, Stephen Smalley
- <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: RE: [PATCH v2] libsepol: fix checkpolicy dontaudit compiler bug
-Date: Mon, 14 Nov 2016 19:41:44 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC561CD24D0F@ORSMSX103.amr.corp.intel.com>
-References: <1479145685-4899-1-git-send-email-sds@tycho.nsa.gov>
- <476DC76E7D1DF2438D32BFADF679FC561CD24A5C@ORSMSX103.amr.corp.intel.com>
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC561CD24A5C@ORSMSX103.amr.corp.intel.com>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAEKS9kj018659
+ for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 15:28:10 -0500
+Received: by mail-vk0-f65.google.com with SMTP id p9so7293010vkd.1
+ for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 12:28:09 -0800 (PST)
 MIME-Version: 1.0
+In-Reply-To: <1478812710-17190-2-git-send-email-agruenba@redhat.com>
+References: <1478812710-17190-1-git-send-email-agruenba@redhat.com>
+ <1478812710-17190-2-git-send-email-agruenba@redhat.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 14 Nov 2016 15:28:08 -0500
+Message-ID: <CAHC9VhSnFe9At0zDh5oek+cA8duHZeNBpGQRdXaaomNM7Lz+Ng@mail.gmail.com>
+Subject: Re: [PATCH 1/4] selinux: Minor cleanups
+To: Andreas Gruenbacher <agruenba@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Thu, Nov 10, 2016 at 4:18 PM, Andreas Gruenbacher
+<agruenba@redhat.com> wrote:
+> Fix the comment for function __inode_security_revalidate, which returns
+> an integer.
+>
+> Use the LABEL_* constants consistently for isec->initialized.
+>
+> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+> ---
+>  security/selinux/hooks.c     | 3 ++-
+>  security/selinux/selinuxfs.c | 4 ++--
+>  2 files changed, 4 insertions(+), 3 deletions(-)
+
+Applied, thanks.
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 09fd610..b98ab2a 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -237,6 +237,7 @@ static int inode_alloc_security(struct inode *inode)
+>         isec->sid = SECINITSID_UNLABELED;
+>         isec->sclass = SECCLASS_FILE;
+>         isec->task_sid = sid;
+> +       isec->initialized = LABEL_INVALID;
+>         inode->i_security = isec;
+>
+>         return 0;
+> @@ -247,7 +248,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+>  /*
+>   * Try reloading inode security labels that have been marked as invalid.  The
+>   * @may_sleep parameter indicates when sleeping and thus reloading labels is
+> - * allowed; when set to false, returns ERR_PTR(-ECHILD) when the label is
+> + * allowed; when set to false, returns -ECHILD when the label is
+>   * invalid.  The @opt_dentry parameter should be set to a dentry of the inode;
+>   * when no dentry is available, set it to NULL instead.
+>   */
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 72c145d..50fca20 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1301,7 +1301,7 @@ static int sel_make_bools(void)
+>                         goto out;
+>
+>                 isec->sid = sid;
+> -               isec->initialized = 1;
+> +               isec->initialized = LABEL_INITIALIZED;
+>                 inode->i_fop = &sel_bool_ops;
+>                 inode->i_ino = i|SEL_BOOL_INO_OFFSET;
+>                 d_add(dentry, inode);
+> @@ -1834,7 +1834,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+>         isec = (struct inode_security_struct *)inode->i_security;
+>         isec->sid = SECINITSID_DEVNULL;
+>         isec->sclass = SECCLASS_CHR_FILE;
+> -       isec->initialized = 1;
+> +       isec->initialized = LABEL_INITIALIZED;
+>
+>         init_special_inode(inode, S_IFCHR | S_IRUGO | S_IWUGO, MKDEV(MEM_MAJOR, 3));
+>         d_add(dentry, inode);
+> --
+> 2.7.4
+>
 
 
-> -----Original Message-----
-> From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of Roberts,
-> William C
-> Sent: Monday, November 14, 2016 10:44 AM
-> To: Stephen Smalley <sds@tycho.nsa.gov>; selinux@tycho.nsa.gov
-> Subject: RE: [PATCH v2] libsepol: fix checkpolicy dontaudit compiler bug
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Selinux [mailto:selinux-bounces@tycho.nsa.gov] On Behalf Of
-> > Stephen Smalley
-> > Sent: Monday, November 14, 2016 9:48 AM
-> > To: selinux@tycho.nsa.gov
-> > Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> > Subject: [PATCH v2] libsepol: fix checkpolicy dontaudit compiler bug
-> >
-> > The combining logic for dontaudit rules was wrong, causing a dontaudit
-> > A B:C *; rule to be clobbered by a dontaudit A B:C p; rule.
-> >
-> > Reported-by: Nick Kralevich <nnk@google.com>
-> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > ---
-> >  libsepol/src/expand.c | 16 ++++++++++++----
-> >  1 file changed, 12 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c index
-> > 004a029..d7adbf8
-> > 100644
-> > --- a/libsepol/src/expand.c
-> > +++ b/libsepol/src/expand.c
-> > @@ -1604,7 +1604,8 @@ static int expand_range_trans(expand_state_t *
-> > state, static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
-> >  				   avtab_t * avtab, avtab_key_t * key,
-> >  				   cond_av_list_t ** cond,
-> > -				   av_extended_perms_t *xperms)
-> > +				   av_extended_perms_t *xperms,
-> > +				   char *alloced)
-> >  {
-> >  	avtab_ptr_t node;
-> >  	avtab_datum_t avdatum;
-> > @@ -1658,6 +1659,11 @@ static avtab_ptr_t
-> > find_avtab_node(sepol_handle_t * handle,
-> >  			nl->next = *cond;
-> >  			*cond = nl;
-> >  		}
-> > +		if (alloced)
-> > +			*alloced = 1;
-> > +	} else {
-> > +		if (alloced)
-> > +			*alloced = 0;
-> >  	}
-> >
-> >  	return node;
-> > @@ -1750,7 +1756,7 @@ static int expand_terule_helper(sepol_handle_t *
-> > handle,
-> >  			return EXPAND_RULE_CONFLICT;
-> >  		}
-> >
-> > -		node = find_avtab_node(handle, avtab, &avkey, cond, NULL);
-> > +		node = find_avtab_node(handle, avtab, &avkey, cond, NULL,
-> > NULL);
-> >  		if (!node)
-> >  			return -1;
-> >  		if (enabled) {
-> > @@ -1790,6 +1796,7 @@ static int expand_avrule_helper(sepol_handle_t *
-> > handle,
-> >  	class_perm_node_t *cur;
-> >  	uint32_t spec = 0;
-> >  	unsigned int i;
-> > +	char alloced;
-> >
-> >  	if (specified & AVRULE_ALLOWED) {
-> >  		spec = AVTAB_ALLOWED;
-> > @@ -1824,7 +1831,8 @@ static int expand_avrule_helper(sepol_handle_t *
-> > handle,
-> >  		avkey.target_class = cur->tclass;
-> >  		avkey.specified = spec;
-> >
-> > -		node = find_avtab_node(handle, avtab, &avkey, cond,
-> > extended_perms);
-> > +		node = find_avtab_node(handle, avtab, &avkey, cond,
-> > +				       extended_perms, &alloced);
-> >  		if (!node)
-> >  			return EXPAND_RULE_ERROR;
-> >  		if (enabled) {
-> > @@ -1850,7 +1858,7 @@ static int expand_avrule_helper(sepol_handle_t *
-> > handle,
-> >  			 */
-> >  			avdatump->data &= cur->data;
-> >  		} else if (specified & AVRULE_DONTAUDIT) {
-> > -			if (avdatump->data)
-> > +			if (!alloced)
-> >  				avdatump->data &= ~cur->data;
-> >  			else
-> >  				avdatump->data = ~cur->data;
-> 
-> This seems awkward to me. If the insertion created a new empty node why
-> wouldn't !avdump->data be true (note the addition of the not operator)?
 
-I misstated that a bit, but the !avdump->data was the else case. I am really
-saying why didn't this work before? In my mind, we don't care if its allocated
-we care if it's set or not.
-
-> 
-> Or perhaps a mechanism to actual set the data on allocation, this way the logic is
-> Just &=.
-> 
-> > --
-> > 2.7.4
-> >
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+-- 
+paul moore
+www.paul-moore.com
