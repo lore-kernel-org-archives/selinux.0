@@ -1,85 +1,74 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uADLK9x3016315
- for <selinux@tycho.nsa.gov>; Sun, 13 Nov 2016 16:20:09 -0500
-In-Reply-To: <20150915120820.GA18065@x250>
-References: <CA+=dQ-_wPGkCzK9EC0tdUbm+CTf2mLo9TY94fVaoJ5hCLR1gKw@mail.gmail.com>
- <20150915120820.GA18065@x250>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: Policy disable error
-From: Russell Coker <russell@coker.com.au>
-Date: Sun, 13 Nov 2016 20:49:34 +1100
-To: Dominick Grift <dac.override@gmail.com>, Divya Vyas <dvyas@mvista.com>
-CC: selinux <selinux@tycho.nsa.gov>
-Message-ID: <DC861750-BEA3-4585-AA17-DE55CEBF3995@coker.com.au>
+From: Naina Emmanuel <nemmanuel1992@gmail.com>
+Date: Sun, 13 Nov 2016 23:04:55 -0800
+Message-ID: <CAN=9EoQtwmkqK2_taVzv3iRTCZdw=Neq1zu=JqAURN=ATSfqvA@mail.gmail.com>
+Subject: how to assign process to user
+To: selinux@tycho.nsa.gov, selinux@lists.fedoraproject.org,
+ Daniel J Walsh <dwalsh@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Vit Mojzis <vmojzis@redhat.com>
+Content-Type: multipart/alternative; boundary=001a11422abc0d4e3905413d7569
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-That sort of thing is a bug and should be fixed. If it can't be fixed then IMHO the Apache module should be linked in base.pp to make it explicit that it shouldn't be removed.
+--001a11422abc0d4e3905413d7569
+Content-Type: text/plain; charset=UTF-8
 
-On 15 September 2015 10:08:21 pm AEST, Dominick Grift <dac.override@gmail.com> wrote:
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA512
->
->On Tue, Sep 15, 2015 at 05:25:58PM +0530, Divya Vyas wrote:
->> Hi,
->> 
->> I am getting below error while disabling the apache module policy
->> 
->> semodule -d apache
->> libsepol.context_from_record: type httpd_sys_content_t is not defined
->(No
->> such file or directory).
->> libsepol.context_from_record: could not create context structure
->(Invalid
->> argument).
->> libsemanage.validate_handler: invalid context
->> system_u:object_r:httpd_sys_content_t:s0 specified for htdocs/ [all
->files]
->> (Invalid argument).
->> libsemanage.dbase_llist_iterate: could not iterate over records
->(Invalid
->> argument).
->> semodule:  Failed!
->
->most likely a dependency issue. apache module is notorious for being
->essentially mandatory.
->
->You would have to identity all modules that depends on the apache
->module
->and then disable those as well in the same transaction. Be warned that
->those modules in turn may have dependencies of their own.
->
->kind of like "dll hell" in a sense
->
->- -- 
->02DFF788
->4D30 903A 1CF3 B756 FB48  1514 3148 83A2 02DF F788
->https://sks-keyservers.net/pks/lookup?op=get&search=0x314883A202DFF788
->Dominick Grift
->-----BEGIN PGP SIGNATURE-----
->Version: GnuPG v2
->
->iQGcBAEBCgAGBQJV+AovAAoJENAR6kfG5xmcx4wL/jZrT5OvwN3xpWd+/fHl/unO
->fqowsf+h+IPHIJblVpsd9byMRqmVtka5I630/g9UMpdj/oGyeLFqiNSvwveVAdJV
->LymzJ7+OT8R8oSakSK5xI3cf2l6yx1q+vDNueJaoP8Ss9XSmNf/tefSOc66QKtNy
->1KIXSqaQLZwhT85QjtKjBD8KmQkxIMO4nMNBiBkQCbbqBlHfYYZummSdHfQt8xz7
->2e05ycc2lUrJLlztQUWXrHkFRqM7g5I6SKOoCJfed1uxWb3gVNPVJIDpJeDdDNmF
->UpDvmlq72JTUvv1qjJskiIIU4NMfV469B/3OyMIrdORkEzPgiNNnUdyTro8Pwnk2
->C2g8Ef57CCQC78tPeAMP57IJKMhq32fc+TBgNAyNfQqNvFMmGEdqTWFmImpv6ula
->yW1oSJa+6NBhvkB44LVqwh2GY0ei1dfQV1sOOLc6QARmMQm3glSrk500z/3s55eo
->opuPIJN4XGy1ODI8Yy9i+7dsFTxUFl8qqM37rfoNpQ==
->=sDw/
->-----END PGP SIGNATURE-----
->_______________________________________________
->Selinux mailing list
->Selinux@tycho.nsa.gov
->To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->To get help, send an email containing "help" to
->Selinux-request@tycho.nsa.gov.
+Good afternoon!
+How to we can any process permission to any specific user ?
+As processes run with the privileges of user under which they are
+running....
 
--- 
-Sent from my Nexus 6P with K-9 Mail.
+do we have any policy module for that?
+
+
+thanks
+
+
+
+
+
+
+
+*Engr. Naina Emmanuel*
+*Cryptography Certified*
+*Linux Essential Certified (LEPDC)*
+*Cisco Certified Network Associate (CCNA)*
+
+*Computer Engineering Department, UET Taxila*
+
+*Information Security, CS Department, CIIT Islamabad*
+
+--001a11422abc0d4e3905413d7569
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div class=3D"gmail_signature" data-smartmail=3D"gmai=
+l_signature"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D=
+"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><=
+div dir=3D"ltr"><div><font size=3D"4">Good afternoon!</font></div><div><fon=
+t size=3D"4">How to we can any process permission to any specific user ?</f=
+ont></div><div><font size=3D"4">As processes run with the privileges=C2=A0o=
+f user under which they are running....</font></div><div><font size=3D"4"><=
+br></font></div><div><font size=3D"4">do we have any policy module for that=
+?=C2=A0</font></div><div><font size=3D"4"><br></font></div><div><font size=
+=3D"4"><br></font></div><div><font size=3D"4">thanks</font></div><font size=
+=3D"4"><b><div><font size=3D"4"><b><br></b></font></div><div><font size=3D"=
+4"><b><br></b></font></div><div><font size=3D"4"><b><br></b></font></div><d=
+iv><font size=3D"4"><b><br></b></font></div><div><font size=3D"4"><b><br></=
+b></font></div><div><font size=3D"4"><b><br></b></font></div><div><font siz=
+e=3D"4"><b><br></b></font></div><font color=3D"#666666"><i>Engr. Naina Emma=
+nuel</i></font></b></font></div><div dir=3D"ltr"><div><b style=3D"color:rgb=
+(102,102,102);font-size:small">Cryptography Certified</b></div><div><b styl=
+e=3D"color:rgb(102,102,102);font-size:small">Linux Essential Certified (LEP=
+DC)</b><font color=3D"#666666" size=3D"2"><b><br></b></font></div><div><fon=
+t color=3D"#666666" size=3D"2"><b>Cisco Certified Network Associate (CCNA)<=
+/b></font></div><div><b style=3D"color:rgb(102,102,102);font-size:small">Co=
+mputer Engineering Department, UET Taxila<br></b></div><div><b style=3D"col=
+or:rgb(102,102,102);font-size:small">Information Security, CS Department, C=
+IIT Islamabad<br></b></div></div></div></div></div></div></div></div></div>=
+</div></div></div>
+</div>
+
+--001a11422abc0d4e3905413d7569--
