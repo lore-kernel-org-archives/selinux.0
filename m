@@ -1,215 +1,134 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAEKioPZ020239
- for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 15:44:51 -0500
-Received: by mail-vk0-f67.google.com with SMTP id p9so7328219vkd.1
- for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 12:44:42 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAEKk4MI020346
+ for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 15:46:04 -0500
+Received: by mail-pf0-f194.google.com with SMTP id 144so6671990pfv.0
+ for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 12:46:03 -0800 (PST)
+Date: Tue, 15 Nov 2016 04:46:00 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: "Roberts, William C" <william.c.roberts@intel.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: fix subdir build and usage of cmdline CFLAGS
+Message-ID: <20161114204600.GB9733@meriadoc.perfinion.com>
+References: <1479147126-11727-1-git-send-email-sds@tycho.nsa.gov>
+ <476DC76E7D1DF2438D32BFADF679FC561CD24A31@ORSMSX103.amr.corp.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <1478812710-17190-3-git-send-email-agruenba@redhat.com>
-References: <1478812710-17190-1-git-send-email-agruenba@redhat.com>
- <1478812710-17190-3-git-send-email-agruenba@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 14 Nov 2016 15:44:41 -0500
-Message-ID: <CAHC9VhS9cCtStyZXvWbAmoS6A3sED7mGHeYd0Cg0+pkYOuGv6g@mail.gmail.com>
-Subject: Re: [PATCH 2/4] proc: Pass file mode to proc_pid_make_inode
-To: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC561CD24A31@ORSMSX103.amr.corp.intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Nov 10, 2016 at 4:18 PM, Andreas Gruenbacher
-<agruenba@redhat.com> wrote:
-> Pass the file mode of the proc inode to be created to
-> proc_pid_make_inode.  In proc_pid_make_inode, initialize inode->i_mode
-> before calling security_task_to_inode.  This allows selinux to set
-> isec->sclass right away without introducing "half-initialized" inode
-> security structs.
->
-> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-> ---
->  fs/proc/base.c           | 23 +++++++++--------------
->  fs/proc/fd.c             |  6 ++----
->  fs/proc/internal.h       |  2 +-
->  fs/proc/namespaces.c     |  3 +--
->  security/selinux/hooks.c |  1 +
->  5 files changed, 14 insertions(+), 21 deletions(-)
+On Mon, Nov 14, 2016 at 06:31:09PM +0000, Roberts, William C wrote:
+> 
+> 
+> > -----Original Message-----
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > Sent: Monday, November 14, 2016 10:12 AM
+> > To: selinux@tycho.nsa.gov
+> > Cc: Roberts, William C <william.c.roberts@intel.com>; Stephen Smalley
+> > <sds@tycho.nsa.gov>
+> > Subject: [PATCH] libselinux: fix subdir build and usage of cmdline CFLAGS
+> > 
+> > commit 16c123f4b1f3c8d20b3f597df161d7e635620923 ("libselinux:
+> > support ANDROID_HOST=1 on Mac") broke the ability to run make in the src
+> > subdirectory of libselinux (because OS and COMPILER were not defined) and also
+> > caused some warning flags that could be overridden via command-line CFLAGS to
+> > be mandatory.  Fix it.
+> 
+> Ack.
+> 
+> It would be nice if we could avoid the duplication running repent throughout these make files,
+> maybe include a file that has the definitions/callable functions for all of this stuff?
 
-Seems reasonable, merged.
+I just noticed some weirdness in a bunch of the makefiles too. Some of
+the variables randomly default to different things depending on the
+package. including a base makefile would be nice but the problem is when
+packaged up they are separate tarballs.
 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index ca651ac..6eae4d0 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -1664,7 +1664,8 @@ const struct inode_operations proc_pid_link_inode_operations = {
->
->  /* building an inode */
->
-> -struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *task)
-> +struct inode *proc_pid_make_inode(struct super_block * sb,
-> +                                 struct task_struct *task, umode_t mode)
->  {
->         struct inode * inode;
->         struct proc_inode *ei;
-> @@ -1678,6 +1679,7 @@ struct inode *proc_pid_make_inode(struct super_block * sb, struct task_struct *t
->
->         /* Common stuff */
->         ei = PROC_I(inode);
-> +       inode->i_mode = mode;
->         inode->i_ino = get_next_ino();
->         inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
->         inode->i_op = &proc_def_inode_operations;
-> @@ -2004,7 +2006,9 @@ proc_map_files_instantiate(struct inode *dir, struct dentry *dentry,
->         struct proc_inode *ei;
->         struct inode *inode;
->
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK |
-> +                                   ((mode & FMODE_READ ) ? S_IRUSR : 0) |
-> +                                   ((mode & FMODE_WRITE) ? S_IWUSR : 0));
->         if (!inode)
->                 return -ENOENT;
->
-> @@ -2013,12 +2017,6 @@ proc_map_files_instantiate(struct inode *dir, struct dentry *dentry,
->
->         inode->i_op = &proc_map_files_link_inode_operations;
->         inode->i_size = 64;
-> -       inode->i_mode = S_IFLNK;
-> -
-> -       if (mode & FMODE_READ)
-> -               inode->i_mode |= S_IRUSR;
-> -       if (mode & FMODE_WRITE)
-> -               inode->i_mode |= S_IWUSR;
->
->         d_set_d_op(dentry, &tid_map_files_dentry_operations);
->         d_add(dentry, inode);
-> @@ -2372,12 +2370,11 @@ static int proc_pident_instantiate(struct inode *dir,
->         struct inode *inode;
->         struct proc_inode *ei;
->
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, p->mode);
->         if (!inode)
->                 goto out;
->
->         ei = PROC_I(inode);
-> -       inode->i_mode = p->mode;
->         if (S_ISDIR(inode->i_mode))
->                 set_nlink(inode, 2);    /* Use getattr to fix if necessary */
->         if (p->iop)
-> @@ -3059,11 +3056,10 @@ static int proc_pid_instantiate(struct inode *dir,
->  {
->         struct inode *inode;
->
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
->         if (!inode)
->                 goto out;
->
-> -       inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
->         inode->i_op = &proc_tgid_base_inode_operations;
->         inode->i_fop = &proc_tgid_base_operations;
->         inode->i_flags|=S_IMMUTABLE;
-> @@ -3352,11 +3348,10 @@ static int proc_task_instantiate(struct inode *dir,
->         struct dentry *dentry, struct task_struct *task, const void *ptr)
->  {
->         struct inode *inode;
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, S_IFDIR | S_IRUGO | S_IXUGO);
->
->         if (!inode)
->                 goto out;
-> -       inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
->         inode->i_op = &proc_tid_base_inode_operations;
->         inode->i_fop = &proc_tid_base_operations;
->         inode->i_flags|=S_IMMUTABLE;
-> diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-> index d21dafe..4274f83 100644
-> --- a/fs/proc/fd.c
-> +++ b/fs/proc/fd.c
-> @@ -183,14 +183,13 @@ proc_fd_instantiate(struct inode *dir, struct dentry *dentry,
->         struct proc_inode *ei;
->         struct inode *inode;
->
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK);
->         if (!inode)
->                 goto out;
->
->         ei = PROC_I(inode);
->         ei->fd = fd;
->
-> -       inode->i_mode = S_IFLNK;
->         inode->i_op = &proc_pid_link_inode_operations;
->         inode->i_size = 64;
->
-> @@ -322,14 +321,13 @@ proc_fdinfo_instantiate(struct inode *dir, struct dentry *dentry,
->         struct proc_inode *ei;
->         struct inode *inode;
->
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, S_IFREG | S_IRUSR);
->         if (!inode)
->                 goto out;
->
->         ei = PROC_I(inode);
->         ei->fd = fd;
->
-> -       inode->i_mode = S_IFREG | S_IRUSR;
->         inode->i_fop = &proc_fdinfo_file_operations;
->
->         d_set_d_op(dentry, &tid_fd_dentry_operations);
-> diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-> index 5378441..f4494dc 100644
-> --- a/fs/proc/internal.h
-> +++ b/fs/proc/internal.h
-> @@ -162,7 +162,7 @@ extern int proc_pid_statm(struct seq_file *, struct pid_namespace *,
->  extern const struct dentry_operations pid_dentry_operations;
->  extern int pid_getattr(struct vfsmount *, struct dentry *, struct kstat *);
->  extern int proc_setattr(struct dentry *, struct iattr *);
-> -extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *);
-> +extern struct inode *proc_pid_make_inode(struct super_block *, struct task_struct *, umode_t);
->  extern int pid_revalidate(struct dentry *, unsigned int);
->  extern int pid_delete_dentry(const struct dentry *);
->  extern int proc_pid_readdir(struct file *, struct dir_context *);
-> diff --git a/fs/proc/namespaces.c b/fs/proc/namespaces.c
-> index 51b8b0a..766f0c6 100644
-> --- a/fs/proc/namespaces.c
-> +++ b/fs/proc/namespaces.c
-> @@ -92,12 +92,11 @@ static int proc_ns_instantiate(struct inode *dir,
->         struct inode *inode;
->         struct proc_inode *ei;
->
-> -       inode = proc_pid_make_inode(dir->i_sb, task);
-> +       inode = proc_pid_make_inode(dir->i_sb, task, S_IFLNK | S_IRWXUGO);
->         if (!inode)
->                 goto out;
->
->         ei = PROC_I(inode);
-> -       inode->i_mode = S_IFLNK|S_IRWXUGO;
->         inode->i_op = &proc_ns_link_inode_operations;
->         ei->ns_ops = ns_ops;
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index b98ab2a..e4527d9 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3954,6 +3954,7 @@ static void selinux_task_to_inode(struct task_struct *p,
->         struct inode_security_struct *isec = inode->i_security;
->         u32 sid = task_sid(p);
->
-> +       isec->sclass = inode_mode_to_security_class(inode->i_mode);
->         isec->sid = sid;
->         isec->initialized = LABEL_INITIALIZED;
->  }
-> --
-> 2.7.4
->
-
-
-
--- 
-paul moore
-www.paul-moore.com
+We'd probably need to unify everything and duplicate it in each of the
+subdirs and then the release script should diff them and make sure there
+are no discrepancies before release.
+> 
+> > 
+> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  libselinux/src/Makefile   | 12 ++++++++++--
+> >  libselinux/utils/Makefile | 10 +++++++++-
+> >  2 files changed, 19 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile index
+> > 24946ce..76efe49 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -23,6 +23,14 @@ LIBSEPOLA ?= $(LIBDIR)/libsepol.a  VERSION = $(shell cat
+> > ../VERSION)  LIBVERSION = 1
+> > 
+> > +OS ?= $(shell uname)
+> > +
+> > +ifeq ($(shell $(CC) -v 2>&1 | grep "clang"),) COMPILER ?= gcc else
+> > +COMPILER ?= clang endif
+> > +
+> >  LIBA=libselinux.a
+> >  TARGET=libselinux.so
+> >  LIBPC=libselinux.pc
+> > @@ -67,12 +75,12 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-
+> > security -Winit-self -Wmissi  LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-
+> > z,relro
+> > 
+> >  ifeq ($(COMPILER), gcc)
+> > -override CFLAGS += -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -
+> > Wsync-nand \
+> > +CFLAGS += -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat
+> > +-Wsync-nand \
+> >  	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -
+> > Wsuggest-attribute=const \
+> >  	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines
+> > -Wjump-misses-init \
+> >  	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -Wp,-
+> > D_FORTIFY_SOURCE=2  else -override CFLAGS += -Wunused-command-line-
+> > argument
+> > +CFLAGS += -Wunused-command-line-argument
+> >  endif
+> > 
+> >  ifeq ($(OS), Darwin)
+> > diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile index
+> > a4f9903..7744184 100644
+> > --- a/libselinux/utils/Makefile
+> > +++ b/libselinux/utils/Makefile
+> > @@ -5,6 +5,14 @@ USRBINDIR ?= $(PREFIX)/sbin  SBINDIR ?= $(DESTDIR)/sbin
+> > INCLUDEDIR ?= $(PREFIX)/include
+> > 
+> > +OS ?= $(shell uname)
+> > +
+> > +ifeq ($(shell $(CC) -v 2>&1 | grep "clang"),) COMPILER ?= gcc else
+> > +COMPILER ?= clang endif
+> > +
+> >  MAX_STACK_SIZE=8192
+> >  CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -
+> > Wmissing-include-dirs \
+> >            -Wunused -Wunknown-pragmas -Wstrict-aliasing -Wshadow -Wpointer-
+> > arith \ @@ -26,7 +34,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -
+> > Wformat-security -Winit-self -Wmissi  LD_SONAME_FLAGS=-soname,$(LIBSO),-
+> > z,defs,-z,relro
+> > 
+> >  ifeq ($(COMPILER), gcc)
+> > -override CFLAGS += -fipa-pure-const -Wpacked-bitfield-compat -Wsync-nand -
+> > Wcoverage-mismatch \
+> > +CFLAGS += -fipa-pure-const -Wpacked-bitfield-compat -Wsync-nand
+> > +-Wcoverage-mismatch \
+> >  	-Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-
+> > attribute=const \
+> >  	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines
+> > -Wjump-misses-init \
+> >  	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const
+> > --
+> > 2.7.4
+> 
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
