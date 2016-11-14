@@ -1,94 +1,76 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAEKu1Le021402
- for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 15:56:02 -0500
-Received: by mail-vk0-f66.google.com with SMTP id p9so7353930vkd.1
- for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 12:56:00 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <1478812710-17190-4-git-send-email-agruenba@redhat.com>
-References: <1478812710-17190-1-git-send-email-agruenba@redhat.com>
- <1478812710-17190-4-git-send-email-agruenba@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 14 Nov 2016 15:56:00 -0500
-Message-ID: <CAHC9VhSFvXrZCFLjDbS1zeu7L=vuXzFnzUizGYpDAfhMYFFBYQ@mail.gmail.com>
-Subject: Re: [PATCH 3/4] selinux: Clean up initialization of isec->sclass
-To: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAELT8Ap025304
+ for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 16:29:08 -0500
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id E6244564861
+ for <selinux@tycho.nsa.gov>; Mon, 14 Nov 2016 22:29:03 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/4] libselinux,libsemanage: use Ruby to define RUBYINC
+Date: Mon, 14 Nov 2016 22:28:14 +0100
+Message-Id: <20161114212817.15781-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Nov 10, 2016 at 4:18 PM, Andreas Gruenbacher
-<agruenba@redhat.com> wrote:
-> Now that isec->initialized == LABEL_INITIALIZED implies that
-> isec->sclass is valid, skip such inodes immediately in
-> inode_doinit_with_dentry.
->
-> For the remaining inodes, initialize isec->sclass at the beginning of
-> inode_doinit_with_dentry to simplify the code.
->
-> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-> ---
->  security/selinux/hooks.c | 10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
+This makes building libselinux and libsemanage  more robust on systems
+with several versions of Ruby installed: when building, only RUBY needs
+to be set, without wondering about PKG_CONFIG_PATH or other environment
+variables.
 
-Merged, thanks.
+Using RbConfig::CONFIG["rubyarchhdrdir"] only works with Ruby >= 2.0 but
+since previous Ruby versions are retired since 2015-02-23 this should
+not have any impact
+(https://www.ruby-lang.org/en/news/2015/02/23/support-for-ruby-1-9-3-has-ended/).
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e4527d9..cf5067e 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1389,12 +1389,15 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->         int rc = 0;
->
->         if (isec->initialized == LABEL_INITIALIZED)
-> -               goto out;
-> +               return 0;
->
->         mutex_lock(&isec->lock);
->         if (isec->initialized == LABEL_INITIALIZED)
->                 goto out_unlock;
->
-> +       if (isec->sclass == SECCLASS_FILE)
-> +               isec->sclass = inode_mode_to_security_class(inode->i_mode);
-> +
->         sbsec = inode->i_sb->s_security;
->         if (!(sbsec->flags & SE_SBINITIALIZED)) {
->                 /* Defer initialization until selinux_complete_init,
-> @@ -1512,7 +1515,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->                 isec->sid = sbsec->sid;
->
->                 /* Try to obtain a transition SID. */
-> -               isec->sclass = inode_mode_to_security_class(inode->i_mode);
->                 rc = security_transition_sid(isec->task_sid, sbsec->sid,
->                                              isec->sclass, NULL, &sid);
->                 if (rc)
-> @@ -1548,7 +1550,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->                          */
->                         if (!dentry)
->                                 goto out_unlock;
-> -                       isec->sclass = inode_mode_to_security_class(inode->i_mode);
->                         rc = selinux_genfs_get_sid(dentry, isec->sclass,
->                                                    sbsec->flags, &sid);
->                         dput(dentry);
-> @@ -1563,9 +1564,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->
->  out_unlock:
->         mutex_unlock(&isec->lock);
-> -out:
-> -       if (isec->sclass == SECCLASS_FILE)
-> -               isec->sclass = inode_mode_to_security_class(inode->i_mode);
->         return rc;
->  }
->
-> --
-> 2.7.4
->
+While at it, in libsemanage, use RbConfig::CONFIG["vendorarchdir"] to
+install the Ruby extension, like commit 1cd80faa53b6 ("libselinux:
+versioned ruby pkg-config and query vendorarchdir properly") did for
+libselinux.
 
+My main motivation with this patch is to make the build configuration
+easier to define on Travis-CI or other continuous integration platforms.
 
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libselinux/src/Makefile  | 3 +--
+ libsemanage/src/Makefile | 6 ++----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 76efe49586c0..4fe1f7002181 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -14,8 +14,7 @@ SHLIBDIR ?= $(DESTDIR)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
+-RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+-RUBYINC ?= $(shell $(PKG_CONFIG) --exists ruby-$(RUBYLIBVER) && $(PKG_CONFIG) --cflags ruby-$(RUBYLIBVER) || $(PKG_CONFIG) --cflags ruby)
++RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+ RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+ LIBBASE ?= $(shell basename $(LIBDIR))
+ LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index cd29a8abf5ab..c646f274cbc1 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -15,10 +15,8 @@ INCLUDEDIR ?= $(PREFIX)/include
+ PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" % sys.version_info[0:2])')
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+-RUBYLIBVER ?= $(shell $(RUBY) -e 'print RUBY_VERSION.split(".")[0..1].join(".")')
+-RUBYPLATFORM ?= $(shell $(RUBY) -e 'print RUBY_PLATFORM')
+-RUBYINC ?= $(shell $(PKG_CONFIG) --cflags ruby-$(RUBYLIBVER))
+-RUBYINSTALL ?= $(LIBDIR)/ruby/site_ruby/$(RUBYLIBVER)/$(RUBYPLATFORM)
++RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
++RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+ 
+ LIBBASE=$(shell basename $(LIBDIR))
+ 
 -- 
-paul moore
-www.paul-moore.com
+2.10.2
