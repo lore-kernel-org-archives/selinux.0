@@ -1,39 +1,38 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAFMG06S010231
- for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 17:16:00 -0500
-Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
- [81.66.120.207])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 9957B5646F9
- for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 23:15:56 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] libsemanage: use a macro prefixed with SEMANAGE to
- protect dso.h
-Date: Tue, 15 Nov 2016 23:15:23 +0100
-Message-Id: <20161115221523.17519-1-nicolas.iooss@m4x.org>
+Cc: jwcart2@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: cil_lexer: make warnings non-fatal for building
+Date: Tue, 15 Nov 2016 17:21:07 -0500
+Message-Id: <1479248467-24209-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsemanage/src/dso.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The flex skeleton often triggers compiler warnings; make these
+non-fatal for building.  We already do likewise for checkpolicy.
 
-diff --git a/libsemanage/src/dso.h b/libsemanage/src/dso.h
-index 5c69aaef0090..8c9a0140871f 100644
---- a/libsemanage/src/dso.h
-+++ b/libsemanage/src/dso.h
-@@ -1,5 +1,5 @@
--#ifndef _SEPOL_DSO_H
--#define _SEPOL_DSO_H	1
-+#ifndef _SEMANAGE_DSO_H
-+#define _SEMANAGE_DSO_H	1
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/Makefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 7856213..7272458 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -60,6 +60,12 @@ else
+ endif
  
- #ifdef SHARED
- # define hidden __attribute__ ((visibility ("hidden")))
+ ifneq ($(DISABLE_CIL),y)
++$(CILDIR)/src/cil_lexer.o: $(CILDIR)/src/cil_lexer.c
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -c -o $@ $<
++
++$(CILDIR)/src/cil_lexer.lo: $(CILDIR)/src/cil_lexer.c
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
++
+ $(CILDIR)/src/cil_lexer.c: $(CILDIR)/src/cil_lexer.l
+ 	$(LEX) -t $< > $@
+ endif
 -- 
-2.10.2
+2.7.4
