@@ -1,355 +1,50 @@
-From: Andreas Gruenbacher <agruenba@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Andreas Gruenbacher <agruenba@redhat.com>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 4/4] selinux: Convert isec->lock into a spinlock
-Date: Tue, 15 Nov 2016 11:06:40 +0100
-Message-Id: <1479204400-24557-1-git-send-email-agruenba@redhat.com>
-In-Reply-To: <CAHC9VhSrDfGOBrw+hV8xfZ-COOjHpW_73sz7VYLMnem-szWRWA@mail.gmail.com>
-References: <1478812710-17190-1-git-send-email-agruenba@redhat.com>
- <1478812710-17190-5-git-send-email-agruenba@redhat.com>
- <CAHC9VhSrDfGOBrw+hV8xfZ-COOjHpW_73sz7VYLMnem-szWRWA@mail.gmail.com>
+Subject: Re: load_policy fails to load policy with ENOENT
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+References: <ea84ceb6-d481-9ba2-8649-638f9c6690e6@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1c3181bc-fd63-bc43-1838-e8550b733096@tycho.nsa.gov>
+Date: Tue, 15 Nov 2016 09:58:10 -0500
+MIME-Version: 1.0
+In-Reply-To: <ea84ceb6-d481-9ba2-8649-638f9c6690e6@gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 14, 2016 at 11:22 PM, Paul Moore <paul@paul-moore.com> wrote:
-> We shouldn't need the spinlocks on the socket_post_create() and the
-> socket_accept() hooks as the callers should still have exclusive
-> access to the socket/inode at that point.
->
-> I didn't check all the callers of the inode_init_security(), but it
-> looks like the same idea applies.
+On 11/15/2016 07:19 AM, Dominick Grift wrote:
+> I finished porting dssp-base to dssp1-base, however when i try
+> testing it load_policy fails with ENOENT.
+> 
+> Even though load_policy returns error status the policy seems to
+> be loaded, except that it is not (or so it seems). When i reboot
+> the system freezes for whatever reason. Whether it is due to
+> systemd refusing due to load_policy failure or anything else i am
+> not sure.
+> 
+> I have double checked the policy.
+> 
+> 1. secilc has no problems with it 2. the initial sids are declared
+> and ordered 3. the classes are there (and the linux classes are
+> ordered)
+> 
+> I cannot think of anything that might cause this and i am looking
+> for suggestions.
+> 
+> It is easy to reproduce:
+> 
+> 1. git clone https://github.com/DefenSec/dssp1-base.git 2. cd
+> dssp1-base 3. secilc `ls *.cil` 4. seinfo policy.30 5. mv
+> /etc/selinux/targeted/policy/policy.30 
+> /etc/selinux/targeted/policy/policy.30.ori 6. cp policy.30
+> /etc/selinux/targeted/policy/ 7. setenforce 0 8. load_policy 9.
+> sestatus, seinfo, ps uaxZ
+> 
+> I have also uploaded a demo:
+> 
+> https://youtu.be/8NCME9dLZd4
+> 
+> Suggestions and help are appreciated
 
-Indeed.  An updated patch with the unnecessary locking removed follows.
-
-Thanks,
-Andreas
-
---
-
-Convert isec->lock from a mutex into a spinlock.  Instead of holding the
-lock while sleeping in inode_doinit_with_dentry, set isec->initialized
-to LABEL_PENDING and release the lock.  Then, when the sid has been
-determined, re-acquire the lock.  If isec->initialized is still set to
-LABEL_PENDING, set isec->sid; otherwise, the sid has been set by another
-task (LABEL_INITIALIZED) or invalidated (LABEL_INVALID) in the meantime.
-
-This fixes a deadlock on gfs2 where
-
- * one task is in inode_doinit_with_dentry -> gfs2_getxattr, holds
-   isec->lock, and tries to acquire the inode's glock, and
-
- * another task is in do_xmote -> inode_go_inval ->
-   selinux_inode_invalidate_secctx, holds the inode's glock, and tries
-   to acquire isec->lock.
-
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- security/selinux/hooks.c          | 102 +++++++++++++++++++++++---------------
- security/selinux/include/objsec.h |   5 +-
- 2 files changed, 66 insertions(+), 41 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index cf5067e..ea77ed3 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -231,7 +231,7 @@ static int inode_alloc_security(struct inode *inode)
- 	if (!isec)
- 		return -ENOMEM;
- 
--	mutex_init(&isec->lock);
-+	spin_lock_init(&isec->lock);
- 	INIT_LIST_HEAD(&isec->list);
- 	isec->inode = inode;
- 	isec->sid = SECINITSID_UNLABELED;
-@@ -1381,7 +1381,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- {
- 	struct superblock_security_struct *sbsec = NULL;
- 	struct inode_security_struct *isec = inode->i_security;
--	u32 sid;
-+	u32 task_sid, sid = 0;
-+	u16 sclass;
- 	struct dentry *dentry;
- #define INITCONTEXTLEN 255
- 	char *context = NULL;
-@@ -1391,7 +1392,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		return 0;
- 
--	mutex_lock(&isec->lock);
-+	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		goto out_unlock;
- 
-@@ -1410,12 +1411,18 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 		goto out_unlock;
- 	}
- 
-+	sclass = isec->sclass;
-+	task_sid = isec->task_sid;
-+	sid = isec->sid;
-+	isec->initialized = LABEL_PENDING;
-+	spin_unlock(&isec->lock);
-+
- 	switch (sbsec->behavior) {
- 	case SECURITY_FS_USE_NATIVE:
- 		break;
- 	case SECURITY_FS_USE_XATTR:
- 		if (!(inode->i_opflags & IOP_XATTR)) {
--			isec->sid = sbsec->def_sid;
-+			sid = sbsec->def_sid;
- 			break;
- 		}
- 		/* Need a dentry, since the xattr API requires one.
-@@ -1437,7 +1444,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * inode_doinit with a dentry, before these inodes could
- 			 * be used again by userspace.
- 			 */
--			goto out_unlock;
-+			goto out;
- 		}
- 
- 		len = INITCONTEXTLEN;
-@@ -1445,7 +1452,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 		if (!context) {
- 			rc = -ENOMEM;
- 			dput(dentry);
--			goto out_unlock;
-+			goto out;
- 		}
- 		context[len] = '\0';
- 		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
-@@ -1456,14 +1463,14 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
- 			if (rc < 0) {
- 				dput(dentry);
--				goto out_unlock;
-+				goto out;
- 			}
- 			len = rc;
- 			context = kmalloc(len+1, GFP_NOFS);
- 			if (!context) {
- 				rc = -ENOMEM;
- 				dput(dentry);
--				goto out_unlock;
-+				goto out;
- 			}
- 			context[len] = '\0';
- 			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
-@@ -1475,7 +1482,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 				       "%d for dev=%s ino=%ld\n", __func__,
- 				       -rc, inode->i_sb->s_id, inode->i_ino);
- 				kfree(context);
--				goto out_unlock;
-+				goto out;
- 			}
- 			/* Map ENODATA to the default file SID */
- 			sid = sbsec->def_sid;
-@@ -1505,28 +1512,25 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			}
- 		}
- 		kfree(context);
--		isec->sid = sid;
- 		break;
- 	case SECURITY_FS_USE_TASK:
--		isec->sid = isec->task_sid;
-+		sid = task_sid;
- 		break;
- 	case SECURITY_FS_USE_TRANS:
- 		/* Default to the fs SID. */
--		isec->sid = sbsec->sid;
-+		sid = sbsec->sid;
- 
- 		/* Try to obtain a transition SID. */
--		rc = security_transition_sid(isec->task_sid, sbsec->sid,
--					     isec->sclass, NULL, &sid);
-+		rc = security_transition_sid(task_sid, sid, sclass, NULL, &sid);
- 		if (rc)
--			goto out_unlock;
--		isec->sid = sid;
-+			goto out;
- 		break;
- 	case SECURITY_FS_USE_MNTPOINT:
--		isec->sid = sbsec->mntpoint_sid;
-+		sid = sbsec->mntpoint_sid;
- 		break;
- 	default:
- 		/* Default to the fs superblock SID. */
--		isec->sid = sbsec->sid;
-+		sid = sbsec->sid;
- 
- 		if ((sbsec->flags & SE_SBGENFS) && !S_ISLNK(inode->i_mode)) {
- 			/* We must have a dentry to determine the label on
-@@ -1549,21 +1553,29 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 * could be used again by userspace.
- 			 */
- 			if (!dentry)
--				goto out_unlock;
--			rc = selinux_genfs_get_sid(dentry, isec->sclass,
--						   sbsec->flags, &sid);
-+				goto out;
-+			rc = selinux_genfs_get_sid(dentry, sclass, sbsec->flags, &sid);
- 			dput(dentry);
- 			if (rc)
--				goto out_unlock;
--			isec->sid = sid;
-+				goto out;
- 		}
- 		break;
- 	}
- 
--	isec->initialized = LABEL_INITIALIZED;
-+out:
-+	spin_lock(&isec->lock);
-+	if (isec->initialized == LABEL_PENDING) {
-+		if (!sid || rc) {
-+			isec->initialized = LABEL_INVALID;
-+			goto out_unlock;
-+		}
-+
-+		isec->initialized = LABEL_INITIALIZED;
-+		isec->sid = sid;
-+	}
- 
- out_unlock:
--	mutex_unlock(&isec->lock);
-+	spin_unlock(&isec->lock);
- 	return rc;
- }
- 
-@@ -3194,9 +3206,11 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
- 	}
- 
- 	isec = backing_inode_security(dentry);
-+	spin_lock(&isec->lock);
- 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = newsid;
- 	isec->initialized = LABEL_INITIALIZED;
-+	spin_unlock(&isec->lock);
- 
- 	return;
- }
-@@ -3289,9 +3303,11 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
- 	if (rc)
- 		return rc;
- 
-+	spin_lock(&isec->lock);
- 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = newsid;
- 	isec->initialized = LABEL_INITIALIZED;
-+	spin_unlock(&isec->lock);
- 	return 0;
- }
- 
-@@ -3952,9 +3968,11 @@ static void selinux_task_to_inode(struct task_struct *p,
- 	struct inode_security_struct *isec = inode->i_security;
- 	u32 sid = task_sid(p);
- 
-+	spin_lock(&isec->lock);
- 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 	isec->sid = sid;
- 	isec->initialized = LABEL_INITIALIZED;
-+	spin_unlock(&isec->lock);
- }
- 
- /* Returns error only if unable to parse addresses */
-@@ -4273,24 +4291,24 @@ static int selinux_socket_post_create(struct socket *sock, int family,
- 	const struct task_security_struct *tsec = current_security();
- 	struct inode_security_struct *isec = inode_security_novalidate(SOCK_INODE(sock));
- 	struct sk_security_struct *sksec;
-+	u16 sclass = socket_type_to_security_class(family, type, protocol);
-+	u32 sid = SECINITSID_KERNEL;
- 	int err = 0;
- 
--	isec->sclass = socket_type_to_security_class(family, type, protocol);
--
--	if (kern)
--		isec->sid = SECINITSID_KERNEL;
--	else {
--		err = socket_sockcreate_sid(tsec, isec->sclass, &(isec->sid));
-+	if (!kern) {
-+		err = socket_sockcreate_sid(tsec, sclass, &sid);
- 		if (err)
- 			return err;
- 	}
- 
-+	isec->sclass = sclass;
-+	isec->sid = sid;
- 	isec->initialized = LABEL_INITIALIZED;
- 
- 	if (sock->sk) {
- 		sksec = sock->sk->sk_security;
--		sksec->sid = isec->sid;
--		sksec->sclass = isec->sclass;
-+		sksec->sclass = sclass;
-+		sksec->sid = sid;
- 		err = selinux_netlbl_socket_post_create(sock->sk, family);
- 	}
- 
-@@ -4466,16 +4484,22 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
- 	int err;
- 	struct inode_security_struct *isec;
- 	struct inode_security_struct *newisec;
-+	u16 sclass;
-+	u32 sid;
- 
- 	err = sock_has_perm(current, sock->sk, SOCKET__ACCEPT);
- 	if (err)
- 		return err;
- 
--	newisec = inode_security_novalidate(SOCK_INODE(newsock));
--
- 	isec = inode_security_novalidate(SOCK_INODE(sock));
--	newisec->sclass = isec->sclass;
--	newisec->sid = isec->sid;
-+	spin_lock(&isec->lock);
-+	sclass = isec->sclass;
-+	sid = isec->sid;
-+	spin_unlock(&isec->lock);
-+
-+	newisec = inode_security_novalidate(SOCK_INODE(newsock));
-+	newisec->sclass = sclass;
-+	newisec->sid = sid;
- 	newisec->initialized = LABEL_INITIALIZED;
- 
- 	return 0;
-@@ -5978,9 +6002,9 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
- {
- 	struct inode_security_struct *isec = inode->i_security;
- 
--	mutex_lock(&isec->lock);
-+	spin_lock(&isec->lock);
- 	isec->initialized = LABEL_INVALID;
--	mutex_unlock(&isec->lock);
-+	spin_unlock(&isec->lock);
- }
- 
- /*
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index c21e135..7e770e9 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -39,7 +39,8 @@ struct task_security_struct {
- 
- enum label_initialized {
- 	LABEL_INVALID,		/* invalid or not initialized */
--	LABEL_INITIALIZED	/* initialized */
-+	LABEL_INITIALIZED,	/* initialized */
-+	LABEL_PENDING
- };
- 
- struct inode_security_struct {
-@@ -52,7 +53,7 @@ struct inode_security_struct {
- 	u32 sid;		/* SID of this object */
- 	u16 sclass;		/* security class of this object */
- 	unsigned char initialized;	/* initialization flag */
--	struct mutex lock;
-+	struct spinlock lock;
- };
- 
- struct file_security_struct {
--- 
-2.7.4
+Any dmesg output at the time of the failed load?
+What does strace load_policy show?
