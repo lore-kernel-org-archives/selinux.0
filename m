@@ -1,109 +1,355 @@
-Subject: Re: [RFC] Split up policycoreutils
-To: Jason Zaman <jason@perfinion.com>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <be8528f1-50ee-98da-91ea-0d0b0dfe0398@tycho.nsa.gov>
- <d1be7324-fea8-1044-b3a0-64e590f38f43@tycho.nsa.gov>
- <20161114204113.GA9733@meriadoc.perfinion.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <10c2795c-b4b4-fbe7-6edd-7c24423f6e0a@tycho.nsa.gov>
-Date: Tue, 15 Nov 2016 09:47:12 -0500
-MIME-Version: 1.0
-In-Reply-To: <20161114204113.GA9733@meriadoc.perfinion.com>
-Content-Type: text/plain; charset=utf-8
+From: Andreas Gruenbacher <agruenba@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Andreas Gruenbacher <agruenba@redhat.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 4/4] selinux: Convert isec->lock into a spinlock
+Date: Tue, 15 Nov 2016 11:06:40 +0100
+Message-Id: <1479204400-24557-1-git-send-email-agruenba@redhat.com>
+In-Reply-To: <CAHC9VhSrDfGOBrw+hV8xfZ-COOjHpW_73sz7VYLMnem-szWRWA@mail.gmail.com>
+References: <1478812710-17190-1-git-send-email-agruenba@redhat.com>
+ <1478812710-17190-5-git-send-email-agruenba@redhat.com>
+ <CAHC9VhSrDfGOBrw+hV8xfZ-COOjHpW_73sz7VYLMnem-szWRWA@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/14/2016 03:41 PM, Jason Zaman wrote:
-> These look pretty good to me. I have written most of the ebuilds for
-> gentoo for these new packages but have not committed to the tree yet.
-> 
-> There are a couple issues:
-> 1) What is the license for each of the tarballs? there is no license or
-> COPYING file in the dirs.
+On Mon, Nov 14, 2016 at 11:22 PM, Paul Moore <paul@paul-moore.com> wrote:
+> We shouldn't need the spinlocks on the socket_post_create() and the
+> socket_accept() hooks as the callers should still have exclusive
+> access to the socket/inode at that point.
+>
+> I didn't check all the callers of the inode_init_security(), but it
+> looks like the same idea applies.
 
-Fixed; I copied the policycoreutils/COPYING file into each of the new
-ones since they were all moved from policycoreutils.
+Indeed.  An updated patch with the unnecessary locking removed follows.
 
-> 
-> 2) even tho i fixed up a lot of it so shouldnt be, I am *super* confused
-> about sepolicy vs sepolgen. there are like 4 separate dirs with those
-> names and the sepolicy Makefile makes a symlink for sepolgen. And then
-> there is the gui and the non-gui part of them. python/sepolicy/* should
-> hopefully die soon as things fully move over to setools4. should gui/ be
-> called system-config-selinux? also is it a redhatism or does it also
-> apply to other distros?
+Thanks,
+Andreas
 
-I also find this confusing; hopefully Dan (cc'd) can help clarify
-matters since he wrote most of this code.  I do know that the old
-sepolgen package (now python/sepolgen) was just a python module used as
-the backend for audit2allow and intended to become a more general policy
-analysis and generation backend, but never evolved that way, whereas
-gui/sepolgen was the old name for Dan's policy generation script/tool
-that is now just an alias for sepolicy generate. gui could be called
-system-config-selinux, but then it can also be invoked as sepolicy gui.
-It certainly started life as a Red Hat tool, but I'm not sure if anyone
-else is using it.  Refactoring all of it, including
-semanage/seobject.py, may make sense.
+--
 
-> 3) The deps of each of the bits is somewhat complicated to figure out.
-> semodule-utils looks like it only needs libsepol and libselinux and the
-> others look like they need most of the others? The makefile just builds
-> them in order but i'd like to specify more accurate deps in the gentoo
-> packages (especially external deps for each package) so they get
-> (re)built as required as things update.
+Convert isec->lock from a mutex into a spinlock.  Instead of holding the
+lock while sleeping in inode_doinit_with_dentry, set isec->initialized
+to LABEL_PENDING and release the lock.  Then, when the sid has been
+determined, re-acquire the lock.  If isec->initialized is still set to
+LABEL_PENDING, set isec->sid; otherwise, the sid has been set by another
+task (LABEL_INITIALIZED) or invalidated (LABEL_INVALID) in the meantime.
 
-I was also trying to make it easy to omit the optional components
-(OPT_SUBDIRS in the top-level Makefile), i.e. the ones that are not
-required for operation.  I would omit at least dbus, gui, mcstrans,
-restorecond, and sandbox by default from a base install.  python is
-likely needed for general purpose distros but could be omitted from
-embedded systems.  Actually, I don't see why semodule-utils components
-are linking with libselinux; they do not include selinux.h or make any
-calls to libselinux AFAICS, so I think that only truly depends on libsepol.
+This fixes a deadlock on gfs2 where
 
-> Also which of these are required to build refpolicy? the docs on that
-> may need updating later too.
+ * one task is in inode_doinit_with_dentry -> gfs2_getxattr, holds
+   isec->lock, and tries to acquire the inode's glock, and
 
-I would only expect libsepol, checkpolicy, and semodule-utils to be
-needed to build refpolicy, while libsemanage and policycoreutils would
-also be needed to install/load refpolicy.
+ * another task is in do_xmote -> inode_go_inval ->
+   selinux_inode_invalidate_secctx, holds the inode's glock, and tries
+   to acquire isec->lock.
 
-> 4) mcstrans fails to build on my laptop, i'll send patches later. I
-> might have stricter warnings on or something.
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+---
+ security/selinux/hooks.c          | 102 +++++++++++++++++++++++---------------
+ security/selinux/include/objsec.h |   5 +-
+ 2 files changed, 66 insertions(+), 41 deletions(-)
 
-Ok, I already had to fix a number of such warnings for it when I
-re-enabled building it by default on that branch (it was disabled
-before), so not surprised - just send the patches our way.
-
-> 5) in python/sepolicy/Makefile:
-> override CFLAGS += -I$(PREFIX)/include -DPACKAGE="policycoreutils"
-> should that be something instead of policycoreutils now?
-
-Probably can be removed entirely.
-
-> 6) we have a policycoreutils-extra thats been floating around as part of
-> policycoreutils in gentoo. Mainly has rlpkg and selocal. After this
-> split is as good a time as any to cleanup and upstream them.
-
-Ok, in that case we might want to think about what else if anything
-might go there.
-
-> 7) I just noticed when looking through different Makefiles that some
-> variables default to different things. I'll send patches for this too
-> later once its merged in. Its nothing huge just better to be the same.
-> 
->> Note that the release script will add the selinux- prefix for dbus, gui,
->> python, and sandbox when generating the source tarballs so that they
->> have unique names suitable for source packages.
-> 
-> This makes sense but I wonder if the name prefix is going to be annoying
-> when we end up needing to backport a patch on a release since the paths
-> would be different. But then again we've always had to edit them since
-> they are one level down so I dont think I mind this minor extra bit too.
-
-Open to suggestions; I could add the prefix in the source tree itself;
-it just seemed ugly/unnecessary.  Or we could split up the repository
-into multiple ones / submodules, but I'm not keen on that.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index cf5067e..ea77ed3 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -231,7 +231,7 @@ static int inode_alloc_security(struct inode *inode)
+ 	if (!isec)
+ 		return -ENOMEM;
+ 
+-	mutex_init(&isec->lock);
++	spin_lock_init(&isec->lock);
+ 	INIT_LIST_HEAD(&isec->list);
+ 	isec->inode = inode;
+ 	isec->sid = SECINITSID_UNLABELED;
+@@ -1381,7 +1381,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ {
+ 	struct superblock_security_struct *sbsec = NULL;
+ 	struct inode_security_struct *isec = inode->i_security;
+-	u32 sid;
++	u32 task_sid, sid = 0;
++	u16 sclass;
+ 	struct dentry *dentry;
+ #define INITCONTEXTLEN 255
+ 	char *context = NULL;
+@@ -1391,7 +1392,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	if (isec->initialized == LABEL_INITIALIZED)
+ 		return 0;
+ 
+-	mutex_lock(&isec->lock);
++	spin_lock(&isec->lock);
+ 	if (isec->initialized == LABEL_INITIALIZED)
+ 		goto out_unlock;
+ 
+@@ -1410,12 +1411,18 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		goto out_unlock;
+ 	}
+ 
++	sclass = isec->sclass;
++	task_sid = isec->task_sid;
++	sid = isec->sid;
++	isec->initialized = LABEL_PENDING;
++	spin_unlock(&isec->lock);
++
+ 	switch (sbsec->behavior) {
+ 	case SECURITY_FS_USE_NATIVE:
+ 		break;
+ 	case SECURITY_FS_USE_XATTR:
+ 		if (!(inode->i_opflags & IOP_XATTR)) {
+-			isec->sid = sbsec->def_sid;
++			sid = sbsec->def_sid;
+ 			break;
+ 		}
+ 		/* Need a dentry, since the xattr API requires one.
+@@ -1437,7 +1444,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			 * inode_doinit with a dentry, before these inodes could
+ 			 * be used again by userspace.
+ 			 */
+-			goto out_unlock;
++			goto out;
+ 		}
+ 
+ 		len = INITCONTEXTLEN;
+@@ -1445,7 +1452,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		if (!context) {
+ 			rc = -ENOMEM;
+ 			dput(dentry);
+-			goto out_unlock;
++			goto out;
+ 		}
+ 		context[len] = '\0';
+ 		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+@@ -1456,14 +1463,14 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
+ 			if (rc < 0) {
+ 				dput(dentry);
+-				goto out_unlock;
++				goto out;
+ 			}
+ 			len = rc;
+ 			context = kmalloc(len+1, GFP_NOFS);
+ 			if (!context) {
+ 				rc = -ENOMEM;
+ 				dput(dentry);
+-				goto out_unlock;
++				goto out;
+ 			}
+ 			context[len] = '\0';
+ 			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+@@ -1475,7 +1482,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 				       "%d for dev=%s ino=%ld\n", __func__,
+ 				       -rc, inode->i_sb->s_id, inode->i_ino);
+ 				kfree(context);
+-				goto out_unlock;
++				goto out;
+ 			}
+ 			/* Map ENODATA to the default file SID */
+ 			sid = sbsec->def_sid;
+@@ -1505,28 +1512,25 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			}
+ 		}
+ 		kfree(context);
+-		isec->sid = sid;
+ 		break;
+ 	case SECURITY_FS_USE_TASK:
+-		isec->sid = isec->task_sid;
++		sid = task_sid;
+ 		break;
+ 	case SECURITY_FS_USE_TRANS:
+ 		/* Default to the fs SID. */
+-		isec->sid = sbsec->sid;
++		sid = sbsec->sid;
+ 
+ 		/* Try to obtain a transition SID. */
+-		rc = security_transition_sid(isec->task_sid, sbsec->sid,
+-					     isec->sclass, NULL, &sid);
++		rc = security_transition_sid(task_sid, sid, sclass, NULL, &sid);
+ 		if (rc)
+-			goto out_unlock;
+-		isec->sid = sid;
++			goto out;
+ 		break;
+ 	case SECURITY_FS_USE_MNTPOINT:
+-		isec->sid = sbsec->mntpoint_sid;
++		sid = sbsec->mntpoint_sid;
+ 		break;
+ 	default:
+ 		/* Default to the fs superblock SID. */
+-		isec->sid = sbsec->sid;
++		sid = sbsec->sid;
+ 
+ 		if ((sbsec->flags & SE_SBGENFS) && !S_ISLNK(inode->i_mode)) {
+ 			/* We must have a dentry to determine the label on
+@@ -1549,21 +1553,29 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			 * could be used again by userspace.
+ 			 */
+ 			if (!dentry)
+-				goto out_unlock;
+-			rc = selinux_genfs_get_sid(dentry, isec->sclass,
+-						   sbsec->flags, &sid);
++				goto out;
++			rc = selinux_genfs_get_sid(dentry, sclass, sbsec->flags, &sid);
+ 			dput(dentry);
+ 			if (rc)
+-				goto out_unlock;
+-			isec->sid = sid;
++				goto out;
+ 		}
+ 		break;
+ 	}
+ 
+-	isec->initialized = LABEL_INITIALIZED;
++out:
++	spin_lock(&isec->lock);
++	if (isec->initialized == LABEL_PENDING) {
++		if (!sid || rc) {
++			isec->initialized = LABEL_INVALID;
++			goto out_unlock;
++		}
++
++		isec->initialized = LABEL_INITIALIZED;
++		isec->sid = sid;
++	}
+ 
+ out_unlock:
+-	mutex_unlock(&isec->lock);
++	spin_unlock(&isec->lock);
+ 	return rc;
+ }
+ 
+@@ -3194,9 +3206,11 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+ 	}
+ 
+ 	isec = backing_inode_security(dentry);
++	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
+ 	isec->initialized = LABEL_INITIALIZED;
++	spin_unlock(&isec->lock);
+ 
+ 	return;
+ }
+@@ -3289,9 +3303,11 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 	if (rc)
+ 		return rc;
+ 
++	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
+ 	isec->initialized = LABEL_INITIALIZED;
++	spin_unlock(&isec->lock);
+ 	return 0;
+ }
+ 
+@@ -3952,9 +3968,11 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	struct inode_security_struct *isec = inode->i_security;
+ 	u32 sid = task_sid(p);
+ 
++	spin_lock(&isec->lock);
+ 	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = sid;
+ 	isec->initialized = LABEL_INITIALIZED;
++	spin_unlock(&isec->lock);
+ }
+ 
+ /* Returns error only if unable to parse addresses */
+@@ -4273,24 +4291,24 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 	const struct task_security_struct *tsec = current_security();
+ 	struct inode_security_struct *isec = inode_security_novalidate(SOCK_INODE(sock));
+ 	struct sk_security_struct *sksec;
++	u16 sclass = socket_type_to_security_class(family, type, protocol);
++	u32 sid = SECINITSID_KERNEL;
+ 	int err = 0;
+ 
+-	isec->sclass = socket_type_to_security_class(family, type, protocol);
+-
+-	if (kern)
+-		isec->sid = SECINITSID_KERNEL;
+-	else {
+-		err = socket_sockcreate_sid(tsec, isec->sclass, &(isec->sid));
++	if (!kern) {
++		err = socket_sockcreate_sid(tsec, sclass, &sid);
+ 		if (err)
+ 			return err;
+ 	}
+ 
++	isec->sclass = sclass;
++	isec->sid = sid;
+ 	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	if (sock->sk) {
+ 		sksec = sock->sk->sk_security;
+-		sksec->sid = isec->sid;
+-		sksec->sclass = isec->sclass;
++		sksec->sclass = sclass;
++		sksec->sid = sid;
+ 		err = selinux_netlbl_socket_post_create(sock->sk, family);
+ 	}
+ 
+@@ -4466,16 +4484,22 @@ static int selinux_socket_accept(struct socket *sock, struct socket *newsock)
+ 	int err;
+ 	struct inode_security_struct *isec;
+ 	struct inode_security_struct *newisec;
++	u16 sclass;
++	u32 sid;
+ 
+ 	err = sock_has_perm(current, sock->sk, SOCKET__ACCEPT);
+ 	if (err)
+ 		return err;
+ 
+-	newisec = inode_security_novalidate(SOCK_INODE(newsock));
+-
+ 	isec = inode_security_novalidate(SOCK_INODE(sock));
+-	newisec->sclass = isec->sclass;
+-	newisec->sid = isec->sid;
++	spin_lock(&isec->lock);
++	sclass = isec->sclass;
++	sid = isec->sid;
++	spin_unlock(&isec->lock);
++
++	newisec = inode_security_novalidate(SOCK_INODE(newsock));
++	newisec->sclass = sclass;
++	newisec->sid = sid;
+ 	newisec->initialized = LABEL_INITIALIZED;
+ 
+ 	return 0;
+@@ -5978,9 +6002,9 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
+ {
+ 	struct inode_security_struct *isec = inode->i_security;
+ 
+-	mutex_lock(&isec->lock);
++	spin_lock(&isec->lock);
+ 	isec->initialized = LABEL_INVALID;
+-	mutex_unlock(&isec->lock);
++	spin_unlock(&isec->lock);
+ }
+ 
+ /*
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index c21e135..7e770e9 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -39,7 +39,8 @@ struct task_security_struct {
+ 
+ enum label_initialized {
+ 	LABEL_INVALID,		/* invalid or not initialized */
+-	LABEL_INITIALIZED	/* initialized */
++	LABEL_INITIALIZED,	/* initialized */
++	LABEL_PENDING
+ };
+ 
+ struct inode_security_struct {
+@@ -52,7 +53,7 @@ struct inode_security_struct {
+ 	u32 sid;		/* SID of this object */
+ 	u16 sclass;		/* security class of this object */
+ 	unsigned char initialized;	/* initialization flag */
+-	struct mutex lock;
++	struct spinlock lock;
+ };
+ 
+ struct file_security_struct {
+-- 
+2.7.4
