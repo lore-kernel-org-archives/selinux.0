@@ -1,78 +1,101 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAFJpm1D027426
- for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 14:51:49 -0500
-Received: by mail-it0-f49.google.com with SMTP id l8so24250579iti.1
- for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 11:51:47 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
-Date: Tue, 15 Nov 2016 14:51:42 -0500
-Message-ID: <158698b88b0.2852.85c95baa4474aabc7814e68940a78392@paul-moore.com>
-In-Reply-To: <524d951c-d491-3837-c020-e07460fbbca3@schaufler-ca.com>
-References: <3df72b00-f662-17be-e45d-a80911f7ec34@schaufler-ca.com>
- <5f8da5b2-1acf-fd89-8130-bee748793036@tycho.nsa.gov>
- <929a7231-35dc-315b-9f82-2cd1aa5db4fe@schaufler-ca.com>
- <c25ab412-06eb-1507-00fe-cb66f6133e1c@tycho.nsa.gov>
- <524d951c-d491-3837-c020-e07460fbbca3@schaufler-ca.com>
-Subject: Re: SELinux system configuration using CIPSO
+Subject: Re: [PATCH 2/2] libsepol: fix checkpolicy dontaudit compiler bug
+To: william.c.roberts@intel.com, nnk@google.com, selinux@tycho.nsa.gov
+References: <[PATCH] libsepol: fix checkpolicy dontaudit compiler bug>
+ <1479238801-13053-1-git-send-email-william.c.roberts@intel.com>
+ <1479238801-13053-3-git-send-email-william.c.roberts@intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <975ba9db-54e7-f220-dc7d-112e0fc734c9@tycho.nsa.gov>
+Date: Tue, 15 Nov 2016 15:11:15 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <1479238801-13053-3-git-send-email-william.c.roberts@intel.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I'm somewhat limited the next few days with just my phone for network
-access, but the link below has some basic examples. The netlabelctl manpage
-may also be helpful. Finally, as Stephen already pointed out, the
-LSPP/audit-test project has some inter-machine CIPSO tests, but you will
-have to do some digging to get at the configuration examples.
+On 11/15/2016 02:40 PM, william.c.roberts@intel.com wrote:
+> From: Stephen Smalley <sds@tycho.nsa.gov>
+> 
+> The combining logic for dontaudit rules was wrong, causing
+> a dontaudit A B:C *; rule to be clobbered by a dontaudit A B:C p;
+> rule.
+> 
+> This is a reimplimation of 6201bb5e2 that avoids the cumbersome
+> pointer assignments on alloced.
+> 
+> Reported-by: Nick Kralevich <nnk@google.com>
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  libsepol/src/expand.c | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
+> 
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 004a029..ef04908 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1604,7 +1604,8 @@ static int expand_range_trans(expand_state_t * state,
+>  static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+>  				   avtab_t * avtab, avtab_key_t * key,
+>  				   cond_av_list_t ** cond,
+> -				   av_extended_perms_t *xperms)
+> +				   av_extended_perms_t *xperms,
+> +				   uint32_t init_data)
+>  {
+>  	avtab_ptr_t node;
+>  	avtab_datum_t avdatum;
+> @@ -1640,6 +1641,7 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+>  
+>  	if (!node) {
+>  		memset(&avdatum, 0, sizeof avdatum);
+> +		avdatum.data = init_data;
+>  		/* this is used to get the node - insertion is actually unique */
+>  		node = avtab_insert_nonunique(avtab, key, &avdatum);
+>  		if (!node) {
+> @@ -1750,7 +1752,7 @@ static int expand_terule_helper(sepol_handle_t * handle,
+>  			return EXPAND_RULE_CONFLICT;
+>  		}
+>  
+> -		node = find_avtab_node(handle, avtab, &avkey, cond, NULL);
+> +		node = find_avtab_node(handle, avtab, &avkey, cond, NULL, 0);
+>  		if (!node)
+>  			return -1;
+>  		if (enabled) {
+> @@ -1824,7 +1826,15 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+>  		avkey.target_class = cur->tclass;
+>  		avkey.specified = spec;
+>  
+> -		node = find_avtab_node(handle, avtab, &avkey, cond, extended_perms);
+> +		node = find_avtab_node(handle, avtab, &avkey, cond,
+> +				       extended_perms,
+> +				       /*
+> +					* dontaudit rules need to be
+> +					* initialized on creation, others can
+> +					* be 0.
+> +					*/
+> +				       specified & AVRULE_DONTAUDIT
+> +					    ? ~cur->data : 0);
 
-* http://www.paul-moore.com/blog/d/2009/02/netlabel-address-selectors.html
+There seems to be a lack of symmetry here.  Either we should initialize
+them all to the proper value (including AUDITDENY, which I think might
+be broken too, although no one uses it anymore since the transition to
+DONTAUDIT), or we should initialize the ones that are ORed to 0 and the
+ones that are ANDed to ~0 and then let the subsequent OR'ing or AND'ing
+adjust appropriately.
 
---
-paul moore
-www.paul-moore.com
-
-
-
-On November 15, 2016 1:56:22 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-
-> On 11/15/2016 10:43 AM, Stephen Smalley wrote:
->> On 11/15/2016 01:34 PM, Casey Schaufler wrote:
->>> On 11/15/2016 10:14 AM, Stephen Smalley wrote:
->>>> On 11/15/2016 12:28 PM, Casey Schaufler wrote:
->>>>> I am looking for an SELinux configuration that uses CIPSO.
->>>>> Ideally, it would be based on a readily available distro,
->>>>> but I'm willing to perform semi-heroic acts if I have too.
->>>>> I'm not in a position to develop it myself, nor would that
->>>>> really suit my nefarious purposes. Thank you.
->>>> Can you clarify what you mean?  There is a sample NetLabel configuration
->>>> in the selinux-testsuite (in tests/inet_socket/netlabel-load) that
->>>> configures full SELinux labeling over loopback connections, used by the
->>>> inet_socket tests.  And the corresponding SELinux policy rules for those
->>>> tests can be found in policy/test_inet_socket.te within the testsuite.
->>> That will probably get me started. I'll have a look at the test
->>> documentation. I am also looking for a configuration that I can
->>> use for exploring a "real" CIPSO environment, where two or more
->>> machines are talking to each other using CIPSO. I think that I
->>> understand how that is supposed to work, but there's nothing like
->>> seeing the packets fly. Is there a case for that in the test suite?
->>> Thank you.
->> Not in the selinux-testsuite, since it doesn't presently require/expect
->> you to set up two different systems.  Probably the lspp testsuite or
->> Paul Moore's blog or maybe the SELinux Notebook for samples of that kind
->> of configuration.  Note that in that cross-machine case, CIPSO only
->> passes an encoding of the MLS label, not the user:role:type information.
->
-> Yeah, the cross machine MLS only encoding is one of the things
-> that I'm most interested in examining carefully. I can't help
-> but think that that is something that could be somewhat tricky
-> to set up, which is why I'm hoping that there's an example I
-> can look at and play with.
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>  		if (!node)
+>  			return EXPAND_RULE_ERROR;
+>  		if (enabled) {
+> @@ -1850,10 +1860,7 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+>  			 */
+>  			avdatump->data &= cur->data;
+>  		} else if (specified & AVRULE_DONTAUDIT) {
+> -			if (avdatump->data)
+> -				avdatump->data &= ~cur->data;
+> -			else
+> -				avdatump->data = ~cur->data;
+> +			avdatump->data &= ~cur->data;
+>  		} else if (specified & AVRULE_XPERMS) {
+>  			xperms = avdatump->xperms;
+>  			if (!xperms) {
+> 
