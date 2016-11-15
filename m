@@ -1,37 +1,73 @@
-Subject: Re: [PATCH 1/1] libsemanage: use a macro prefixed with SEMANAGE to
- protect dso.h
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20161115221523.17519-1-nicolas.iooss@m4x.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <59782110-9a3e-d418-1fb3-62178e641b90@tycho.nsa.gov>
-Date: Tue, 15 Nov 2016 17:29:21 -0500
+Date: Tue, 15 Nov 2016 14:36:13 -0800
+From: Harry Waddell <waddell@caravaninfotech.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
+Subject: Re: SELinux system configuration using CIPSO
+Message-ID: <20161115143613.47db4b5a@taliesin-3.local>
+In-Reply-To: <c25ab412-06eb-1507-00fe-cb66f6133e1c@tycho.nsa.gov>
+References: <3df72b00-f662-17be-e45d-a80911f7ec34@schaufler-ca.com>
+ <5f8da5b2-1acf-fd89-8130-bee748793036@tycho.nsa.gov>
+ <929a7231-35dc-315b-9f82-2cd1aa5db4fe@schaufler-ca.com>
+ <c25ab412-06eb-1507-00fe-cb66f6133e1c@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <20161115221523.17519-1-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/15/2016 05:15 PM, Nicolas Iooss wrote:
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Tue, 15 Nov 2016 13:43:28 -0500
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Thanks, applied
+> On 11/15/2016 01:34 PM, Casey Schaufler wrote:
+> > On 11/15/2016 10:14 AM, Stephen Smalley wrote:  
+> >> On 11/15/2016 12:28 PM, Casey Schaufler wrote:  
+> >>> I am looking for an SELinux configuration that uses CIPSO.
+> >>> Ideally, it would be based on a readily available distro,
+> >>> but I'm willing to perform semi-heroic acts if I have too.
+> >>> I'm not in a position to develop it myself, nor would that
+> >>> really suit my nefarious purposes. Thank you.  
+> >> Can you clarify what you mean?  There is a sample NetLabel configuration
+> >> in the selinux-testsuite (in tests/inet_socket/netlabel-load) that
+> >> configures full SELinux labeling over loopback connections, used by the
+> >> inet_socket tests.  And the corresponding SELinux policy rules for those
+> >> tests can be found in policy/test_inet_socket.te within the testsuite.  
+> > 
+> > That will probably get me started. I'll have a look at the test
+> > documentation. I am also looking for a configuration that I can
+> > use for exploring a "real" CIPSO environment, where two or more
+> > machines are talking to each other using CIPSO. I think that I
+> > understand how that is supposed to work, but there's nothing like
+> > seeing the packets fly. Is there a case for that in the test suite?
+> > Thank you.  
+> 
+> Not in the selinux-testsuite, since it doesn't presently require/expect
+> you to set up two different systems.  Probably the lspp testsuite or
+> Paul Moore's blog or maybe the SELinux Notebook for samples of that kind
+> of configuration.  Note that in that cross-machine case, CIPSO only
+> passes an encoding of the MLS label, not the user:role:type information.
+> 
+> 
 
-> ---
->  libsemanage/src/dso.h | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/libsemanage/src/dso.h b/libsemanage/src/dso.h
-> index 5c69aaef0090..8c9a0140871f 100644
-> --- a/libsemanage/src/dso.h
-> +++ b/libsemanage/src/dso.h
-> @@ -1,5 +1,5 @@
-> -#ifndef _SEPOL_DSO_H
-> -#define _SEPOL_DSO_H	1
-> +#ifndef _SEMANAGE_DSO_H
-> +#define _SEMANAGE_DSO_H	1
->  
->  #ifdef SHARED
->  # define hidden __attribute__ ((visibility ("hidden")))
-> 
+In addition to the user:role:type information, there are other limits to what 
+you can pass over the wire via netlabel due to the way the CIPSO information is encoded 
+in the packet. 
+
+You can only encode a single sensitivity because the CIPSO spec only stores it in a 
+single integer. s0:c0.c1023 passes fine, but s0-s2:c0.c1023 will get reduced to s0:c0.c1023. 
+
+Unlike the sensitivity it is possible to pass some
+fairly complex sets of categories. When you create a DOI, 
+you can specify how the categories will be encoded using a tag of 1, 2, or 5. 
+( these are bitmap, enumerated and range types respectively ) What categories 
+can be passed via netlabel is dependent on the limits of these types.
+
+The bottom line is that it's entirely possible to have a valid context that 
+netlabel will not be able to fully preserve. Netlabel is still very useful, 
+but you have to remain mindful of its limitations.
+
+The above is based on my reading of the CIPSO spec and my experience with netlabel.
+It's entirely possible my understanding is incomplete and/or out of date. Somone like Paul Moore
+can speak with much greater authority. 
+
+HW
