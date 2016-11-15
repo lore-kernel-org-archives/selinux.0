@@ -1,120 +1,125 @@
-Subject: Re: [RFC] Split up policycoreutils
-To: Jason Zaman <jason@perfinion.com>
-References: <4633f93f-9a5e-65e8-12d6-f11160be316f@tycho.nsa.gov>
- <be8528f1-50ee-98da-91ea-0d0b0dfe0398@tycho.nsa.gov>
- <d1be7324-fea8-1044-b3a0-64e590f38f43@tycho.nsa.gov>
- <20161114204113.GA9733@meriadoc.perfinion.com>
- <10c2795c-b4b4-fbe7-6edd-7c24423f6e0a@tycho.nsa.gov>
-Cc: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a465fc17-74a3-503a-1247-873efe41925f@tycho.nsa.gov>
-Date: Tue, 15 Nov 2016 10:01:12 -0500
+Subject: Re: load_policy fails to load policy with ENOENT
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <ea84ceb6-d481-9ba2-8649-638f9c6690e6@gmail.com>
+ <1c3181bc-fd63-bc43-1838-e8550b733096@tycho.nsa.gov>
+From: Dominick Grift <dac.override@gmail.com>
+Message-ID: <3f6232af-bcf5-661c-2531-28ba6c54fa8f@gmail.com>
+Date: Tue, 15 Nov 2016 16:02:36 +0100
 MIME-Version: 1.0
-In-Reply-To: <10c2795c-b4b4-fbe7-6edd-7c24423f6e0a@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1c3181bc-fd63-bc43-1838-e8550b733096@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Ugk6K6NtoJC5UlkbtMJRvX47mRgbBMV3k"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/15/2016 09:47 AM, Stephen Smalley wrote:
-> On 11/14/2016 03:41 PM, Jason Zaman wrote:
->> These look pretty good to me. I have written most of the ebuilds for
->> gentoo for these new packages but have not committed to the tree yet.
->>
->> There are a couple issues:
->> 1) What is the license for each of the tarballs? there is no license or
->> COPYING file in the dirs.
-> 
-> Fixed; I copied the policycoreutils/COPYING file into each of the new
-> ones since they were all moved from policycoreutils.
-> 
->>
->> 2) even tho i fixed up a lot of it so shouldnt be, I am *super* confused
->> about sepolicy vs sepolgen. there are like 4 separate dirs with those
->> names and the sepolicy Makefile makes a symlink for sepolgen. And then
->> there is the gui and the non-gui part of them. python/sepolicy/* should
->> hopefully die soon as things fully move over to setools4. should gui/ be
->> called system-config-selinux? also is it a redhatism or does it also
->> apply to other distros?
-> 
-> I also find this confusing; hopefully Dan (cc'd) can help clarify
-> matters since he wrote most of this code.  I do know that the old
-> sepolgen package (now python/sepolgen) was just a python module used as
-> the backend for audit2allow and intended to become a more general policy
-> analysis and generation backend, but never evolved that way, whereas
-> gui/sepolgen was the old name for Dan's policy generation script/tool
-> that is now just an alias for sepolicy generate. gui could be called
-> system-config-selinux, but then it can also be invoked as sepolicy gui.
-> It certainly started life as a Red Hat tool, but I'm not sure if anyone
-> else is using it.  Refactoring all of it, including
-> semanage/seobject.py, may make sense.
-> 
->> 3) The deps of each of the bits is somewhat complicated to figure out.
->> semodule-utils looks like it only needs libsepol and libselinux and the
->> others look like they need most of the others? The makefile just builds
->> them in order but i'd like to specify more accurate deps in the gentoo
->> packages (especially external deps for each package) so they get
->> (re)built as required as things update.
-> 
-> I was also trying to make it easy to omit the optional components
-> (OPT_SUBDIRS in the top-level Makefile), i.e. the ones that are not
-> required for operation.  I would omit at least dbus, gui, mcstrans,
-> restorecond, and sandbox by default from a base install.  python is
-> likely needed for general purpose distros but could be omitted from
-> embedded systems.  Actually, I don't see why semodule-utils components
-> are linking with libselinux; they do not include selinux.h or make any
-> calls to libselinux AFAICS, so I think that only truly depends on libsepol.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Ugk6K6NtoJC5UlkbtMJRvX47mRgbBMV3k
+Content-Type: multipart/mixed; boundary="3JO3A8Fes80aduG4uHRUJEnQdVKRJeQkG";
+ protected-headers="v1"
+From: Dominick Grift <dac.override@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Message-ID: <3f6232af-bcf5-661c-2531-28ba6c54fa8f@gmail.com>
+Subject: Re: load_policy fails to load policy with ENOENT
+References: <ea84ceb6-d481-9ba2-8649-638f9c6690e6@gmail.com>
+ <1c3181bc-fd63-bc43-1838-e8550b733096@tycho.nsa.gov>
+In-Reply-To: <1c3181bc-fd63-bc43-1838-e8550b733096@tycho.nsa.gov>
 
-Fixed this too on the branch - removed the -lselinux from semodule-utils
-Makefiles.
-> 
->> Also which of these are required to build refpolicy? the docs on that
->> may need updating later too.
-> 
-> I would only expect libsepol, checkpolicy, and semodule-utils to be
-> needed to build refpolicy, while libsemanage and policycoreutils would
-> also be needed to install/load refpolicy.
-> 
->> 4) mcstrans fails to build on my laptop, i'll send patches later. I
->> might have stricter warnings on or something.
-> 
-> Ok, I already had to fix a number of such warnings for it when I
-> re-enabled building it by default on that branch (it was disabled
-> before), so not surprised - just send the patches our way.
-> 
->> 5) in python/sepolicy/Makefile:
->> override CFLAGS += -I$(PREFIX)/include -DPACKAGE="policycoreutils"
->> should that be something instead of policycoreutils now?
-> 
-> Probably can be removed entirely.
-> 
->> 6) we have a policycoreutils-extra thats been floating around as part of
->> policycoreutils in gentoo. Mainly has rlpkg and selocal. After this
->> split is as good a time as any to cleanup and upstream them.
-> 
-> Ok, in that case we might want to think about what else if anything
-> might go there.
-> 
->> 7) I just noticed when looking through different Makefiles that some
->> variables default to different things. I'll send patches for this too
->> later once its merged in. Its nothing huge just better to be the same.
+--3JO3A8Fes80aduG4uHRUJEnQdVKRJeQkG
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+On 11/15/2016 03:58 PM, Stephen Smalley wrote:
+> On 11/15/2016 07:19 AM, Dominick Grift wrote:
+>> I finished porting dssp-base to dssp1-base, however when i try
+>> testing it load_policy fails with ENOENT.
 >>
->>> Note that the release script will add the selinux- prefix for dbus, gui,
->>> python, and sandbox when generating the source tarballs so that they
->>> have unique names suitable for source packages.
+>> Even though load_policy returns error status the policy seems to
+>> be loaded, except that it is not (or so it seems). When i reboot
+>> the system freezes for whatever reason. Whether it is due to
+>> systemd refusing due to load_policy failure or anything else i am
+>> not sure.
 >>
->> This makes sense but I wonder if the name prefix is going to be annoying
->> when we end up needing to backport a patch on a release since the paths
->> would be different. But then again we've always had to edit them since
->> they are one level down so I dont think I mind this minor extra bit too.
-> 
-> Open to suggestions; I could add the prefix in the source tree itself;
-> it just seemed ugly/unnecessary.  Or we could split up the repository
-> into multiple ones / submodules, but I'm not keen on that.
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
-> 
+>> I have double checked the policy.
+>>
+>> 1. secilc has no problems with it 2. the initial sids are declared
+>> and ordered 3. the classes are there (and the linux classes are
+>> ordered)
+>>
+>> I cannot think of anything that might cause this and i am looking
+>> for suggestions.
+>>
+>> It is easy to reproduce:
+>>
+>> 1. git clone https://github.com/DefenSec/dssp1-base.git 2. cd
+>> dssp1-base 3. secilc `ls *.cil` 4. seinfo policy.30 5. mv
+>> /etc/selinux/targeted/policy/policy.30=20
+>> /etc/selinux/targeted/policy/policy.30.ori 6. cp policy.30
+>> /etc/selinux/targeted/policy/ 7. setenforce 0 8. load_policy 9.
+>> sestatus, seinfo, ps uaxZ
+>>
+>> I have also uploaded a demo:
+>>
+>> https://youtu.be/8NCME9dLZd4
+>>
+>> Suggestions and help are appreciated
+>=20
+> Any dmesg output at the time of the failed load?
+> What does strace load_policy show?
+>=20
+
+write(4, "\214\377|\371\10\0\0\0SE
+Linux\36\0\0\0\1\0\0\0\10\0\0\0\7\0\0\0"..., 296645) =3D -1 ENOENT (No
+such file or directory)
+
+dmesg shows exactly what it would show on a successful policy load AFAICT=
+
+
+=46rom dmesg there is no indication that anything went wrong (all the
+expected output is there (the stats the unmapped/invalidated contexts.
+also sestatus shows that the policy is loaded). It *seems* that only
+load policy throws this error. However as i said the system freezes on
+boot and i cannot tell whether that is due to systemd, the policy or
+load_policy.
+
+following the steps to reproduce will take less than five minutes:
+
+>> 1. git clone https://github.com/DefenSec/dssp1-base.git 2. cd
+>> dssp1-base 3. secilc `ls *.cil` 4. seinfo policy.30 5. mv
+>> /etc/selinux/targeted/policy/policy.30
+>> /etc/selinux/targeted/policy/policy.30.ori 6. cp policy.30
+>> /etc/selinux/targeted/policy/ 7. setenforce 0 8. load_policy 9.
+>> sestatus, seinfo, ps uaxZ
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
+2
+Dominick Grift
+
+
+--3JO3A8Fes80aduG4uHRUJEnQdVKRJeQkG--
+
+--Ugk6K6NtoJC5UlkbtMJRvX47mRgbBMV3k
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJYKyOMAAoJECV0jlU3+UdpIK8MAJWDyxUFOirwBMRg6fP5BvK5
+3YGH8LQ/cTC3sIarz7ee5Ux2PiLo2mpbq1kPUPZtUj8AB2Nh84vZbSMtsks+MUfR
+N75u367+PzK5TLjVVX1fToCf/1N00aEJ/h669tdct3jPNu7FKiU324RT7Ub27uHQ
+96L9sFXCi5Jmxmr/9Exd9gRF+/kk1zRIfQ8l4UavrLBhIBkMVh/dfmVV7Gccbb0y
+VR5F7EUDUspIMVKr58zoSDb0AFNuupIdhi8bMSgPaQARUP/hI8vLNfvC8WO81zn0
+qv575jyfm5aPPHrtowHAu2IexvRa+znPm43bI1PPk7Zv3IEt/sLlSV8ETH0Xudc4
+efEf5ktEVhdoJbvvIx1drFlaEci2LlAQV1A4avRrdzT7JhcPSUnYrw5eaNA1aTpP
+NmiD6fRnI1C612veOMKOYIxiJuJ5Ihi7Qwp/AMVuaz2IeXfMFyYN1Rt5FMRsVArz
+RRbRTDCfdaP5cuPG5KrDOniPSNo6EP+oxCbwmUuGkA==
+=Wlcz
+-----END PGP SIGNATURE-----
+
+--Ugk6K6NtoJC5UlkbtMJRvX47mRgbBMV3k--
