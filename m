@@ -1,84 +1,78 @@
-From: william.c.roberts@intel.com
-To: sds@tycho.nsa.gov, nnk@google.com, selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] Revert "libsepol: fix checkpolicy dontaudit compiler bug"
-Date: Tue, 15 Nov 2016 11:40:00 -0800
-Message-Id: <1479238801-13053-2-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <1479238801-13053-1-git-send-email-william.c.roberts@intel.com>
-References: <[PATCH] libsepol: fix checkpolicy dontaudit compiler bug>
- <1479238801-13053-1-git-send-email-william.c.roberts@intel.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAFJpm1D027426
+ for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 14:51:49 -0500
+Received: by mail-it0-f49.google.com with SMTP id l8so24250579iti.1
+ for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 11:51:47 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Date: Tue, 15 Nov 2016 14:51:42 -0500
+Message-ID: <158698b88b0.2852.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+In-Reply-To: <524d951c-d491-3837-c020-e07460fbbca3@schaufler-ca.com>
+References: <3df72b00-f662-17be-e45d-a80911f7ec34@schaufler-ca.com>
+ <5f8da5b2-1acf-fd89-8130-bee748793036@tycho.nsa.gov>
+ <929a7231-35dc-315b-9f82-2cd1aa5db4fe@schaufler-ca.com>
+ <c25ab412-06eb-1507-00fe-cb66f6133e1c@tycho.nsa.gov>
+ <524d951c-d491-3837-c020-e07460fbbca3@schaufler-ca.com>
+Subject: Re: SELinux system configuration using CIPSO
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+I'm somewhat limited the next few days with just my phone for network
+access, but the link below has some basic examples. The netlabelctl manpage
+may also be helpful. Finally, as Stephen already pointed out, the
+LSPP/audit-test project has some inter-machine CIPSO tests, but you will
+have to do some digging to get at the configuration examples.
 
-This reverts commit 6201bb5e258e2b5bcc04d502d6fbc05c69d21d71.
----
- libsepol/src/expand.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+* http://www.paul-moore.com/blog/d/2009/02/netlabel-address-selectors.html
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index d7adbf8..004a029 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1604,8 +1604,7 @@ static int expand_range_trans(expand_state_t * state,
- static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
- 				   avtab_t * avtab, avtab_key_t * key,
- 				   cond_av_list_t ** cond,
--				   av_extended_perms_t *xperms,
--				   char *alloced)
-+				   av_extended_perms_t *xperms)
- {
- 	avtab_ptr_t node;
- 	avtab_datum_t avdatum;
-@@ -1659,11 +1658,6 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
- 			nl->next = *cond;
- 			*cond = nl;
- 		}
--		if (alloced)
--			*alloced = 1;
--	} else {
--		if (alloced)
--			*alloced = 0;
- 	}
- 
- 	return node;
-@@ -1756,7 +1750,7 @@ static int expand_terule_helper(sepol_handle_t * handle,
- 			return EXPAND_RULE_CONFLICT;
- 		}
- 
--		node = find_avtab_node(handle, avtab, &avkey, cond, NULL, NULL);
-+		node = find_avtab_node(handle, avtab, &avkey, cond, NULL);
- 		if (!node)
- 			return -1;
- 		if (enabled) {
-@@ -1796,7 +1790,6 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- 	class_perm_node_t *cur;
- 	uint32_t spec = 0;
- 	unsigned int i;
--	char alloced;
- 
- 	if (specified & AVRULE_ALLOWED) {
- 		spec = AVTAB_ALLOWED;
-@@ -1831,8 +1824,7 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- 		avkey.target_class = cur->tclass;
- 		avkey.specified = spec;
- 
--		node = find_avtab_node(handle, avtab, &avkey, cond,
--				       extended_perms, &alloced);
-+		node = find_avtab_node(handle, avtab, &avkey, cond, extended_perms);
- 		if (!node)
- 			return EXPAND_RULE_ERROR;
- 		if (enabled) {
-@@ -1858,7 +1850,7 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- 			 */
- 			avdatump->data &= cur->data;
- 		} else if (specified & AVRULE_DONTAUDIT) {
--			if (!alloced)
-+			if (avdatump->data)
- 				avdatump->data &= ~cur->data;
- 			else
- 				avdatump->data = ~cur->data;
--- 
-2.7.4
+--
+paul moore
+www.paul-moore.com
+
+
+
+On November 15, 2016 1:56:22 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+
+> On 11/15/2016 10:43 AM, Stephen Smalley wrote:
+>> On 11/15/2016 01:34 PM, Casey Schaufler wrote:
+>>> On 11/15/2016 10:14 AM, Stephen Smalley wrote:
+>>>> On 11/15/2016 12:28 PM, Casey Schaufler wrote:
+>>>>> I am looking for an SELinux configuration that uses CIPSO.
+>>>>> Ideally, it would be based on a readily available distro,
+>>>>> but I'm willing to perform semi-heroic acts if I have too.
+>>>>> I'm not in a position to develop it myself, nor would that
+>>>>> really suit my nefarious purposes. Thank you.
+>>>> Can you clarify what you mean?  There is a sample NetLabel configuration
+>>>> in the selinux-testsuite (in tests/inet_socket/netlabel-load) that
+>>>> configures full SELinux labeling over loopback connections, used by the
+>>>> inet_socket tests.  And the corresponding SELinux policy rules for those
+>>>> tests can be found in policy/test_inet_socket.te within the testsuite.
+>>> That will probably get me started. I'll have a look at the test
+>>> documentation. I am also looking for a configuration that I can
+>>> use for exploring a "real" CIPSO environment, where two or more
+>>> machines are talking to each other using CIPSO. I think that I
+>>> understand how that is supposed to work, but there's nothing like
+>>> seeing the packets fly. Is there a case for that in the test suite?
+>>> Thank you.
+>> Not in the selinux-testsuite, since it doesn't presently require/expect
+>> you to set up two different systems.  Probably the lspp testsuite or
+>> Paul Moore's blog or maybe the SELinux Notebook for samples of that kind
+>> of configuration.  Note that in that cross-machine case, CIPSO only
+>> passes an encoding of the MLS label, not the user:role:type information.
+>
+> Yeah, the cross machine MLS only encoding is one of the things
+> that I'm most interested in examining carefully. I can't help
+> but think that that is something that could be somewhat tricky
+> to set up, which is why I'm hoping that there's an example I
+> can look at and play with.
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
