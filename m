@@ -1,41 +1,50 @@
-Subject: Re: [PATCH] libsepol: cil: remove double-free.
-To: Daniel Cashman <dcashman@android.com>, selinux@tycho.nsa.gov
-References: <1478891564-11770-1-git-send-email-dcashman@android.com>
+Subject: Re: [PATCH 2/2] policycoreutils: Use GObject introspection binding
+ instead of python-gobject in selinux_server.py
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+References: <20161112202021.4469-1-bigon@debian.org>
+ <20161112202021.4469-2-bigon@debian.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <7651ac08-514f-cdbb-a55c-9cc08c9b757e@tycho.nsa.gov>
-Date: Tue, 15 Nov 2016 10:52:45 -0500
+Message-ID: <46a416a9-5847-bf74-07c0-dd6d23bbb05d@tycho.nsa.gov>
+Date: Tue, 15 Nov 2016 10:57:03 -0500
 MIME-Version: 1.0
-In-Reply-To: <1478891564-11770-1-git-send-email-dcashman@android.com>
+In-Reply-To: <20161112202021.4469-2-bigon@debian.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/11/2016 02:12 PM, Daniel Cashman wrote:
-> From: dcashman <dcashman@android.com>
+On 11/12/2016 03:20 PM, Laurent Bigonville wrote:
+> From: Laurent Bigonville <bigon@bigon.be>
 > 
-> Test: Untested patch.
-> Bug: https://code.google.com/p/android/issues/detail?id=226519
-> Change-Id: Icaf992ba1487098f2c4f16ac1017012f611281e9
-> Signed-off-by: Daniel Cashman <dcashman@android.com>
+> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 
-Thanks, applied.
+Thanks, applied both patches.
 
 > ---
->  libsepol/cil/src/cil_binary.c | 1 -
->  1 file changed, 1 deletion(-)
+>  policycoreutils/sepolicy/selinux_server.py | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index 5402272..a813201 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -843,7 +843,6 @@ int cil_catalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias)
->  	key = cil_strdup(cil_alias->datum.fqn);
->  	rc = symtab_insert(pdb, SYM_CATS, key, sepol_alias, SCOPE_DECL, 0, NULL);
->  	if (rc != SEPOL_OK) {
-> -		free(key);
->  		goto exit;
->  	}
->  	sepol_alias->s.value = sepol_cat->s.value;
+> diff --git a/policycoreutils/sepolicy/selinux_server.py b/policycoreutils/sepolicy/selinux_server.py
+> index cdf4d16..8bd1fe5 100644
+> --- a/policycoreutils/sepolicy/selinux_server.py
+> +++ b/policycoreutils/sepolicy/selinux_server.py
+> @@ -3,7 +3,7 @@
+>  import dbus
+>  import dbus.service
+>  import dbus.mainloop.glib
+> -import gobject
+> +from gi.repository import GObject
+>  import slip.dbus.service
+>  from slip.dbus import polkit
+>  import os
+> @@ -128,7 +128,7 @@ class selinux_server(slip.dbus.service.Object):
+>          raise ValueError("%s does not exist" % path)
+>  
+>  if __name__ == "__main__":
+> -    mainloop = gobject.MainLoop()
+> +    mainloop = GObject.MainLoop()
+>      dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+>      system_bus = dbus.SystemBus()
+>      name = dbus.service.BusName("org.selinux", system_bus)
 > 
