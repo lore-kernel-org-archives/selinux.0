@@ -1,39 +1,90 @@
 From: william.c.roberts@intel.com
 To: sds@tycho.nsa.gov, nnk@google.com, selinux@tycho.nsa.gov
-Subject: libsepol: fix checkpolicy dontaudit compiler bug
-Date: Tue, 15 Nov 2016 11:39:59 -0800
-Message-Id: <1479238801-13053-1-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <[PATCH] libsepol: fix checkpolicy dontaudit compiler bug>
+Subject: [PATCH 2/2] libsepol: fix checkpolicy dontaudit compiler bug
+Date: Tue, 15 Nov 2016 11:40:01 -0800
+Message-Id: <1479238801-13053-3-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1479238801-13053-1-git-send-email-william.c.roberts@intel.com>
 References: <[PATCH] libsepol: fix checkpolicy dontaudit compiler bug>
+ <1479238801-13053-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In continuing the recent discussions on the topics:
-  - [PATCH] libsepol: fix checkpolicy dontaudit compiler bug
-  - checkpolicy dontaudit compiler bug?
+From: Stephen Smalley <sds@tycho.nsa.gov>
 
-This is my proposed solution to the problem that avoids the
-return via-pointer alloced approach.
+The combining logic for dontaudit rules was wrong, causing
+a dontaudit A B:C *; rule to be clobbered by a dontaudit A B:C p;
+rule.
 
-Unfortunatly the proposed clear than set approach for
-bitsetting won't work here, becuase the initial set off of
-cur->data is required as noted by Stepehen's original patch.
+This is a reimplimation of 6201bb5e2 that avoids the cumbersome
+pointer assignments on alloced.
 
-ie a modification of this logic wont work:
-void setbit(u32 *data, u32 value, u32 position) {
-	*data = ((*data) & ~(1<<position)) | (value & 0x1 << position);
-}
+Reported-by: Nick Kralevich <nnk@google.com>
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsepol/src/expand.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
->From current master, with the old fix applied, and the new fix, the
-output from sesearch will always yield the same hash:
-
-$ sesearch --dontaudit -s su -c capability,capability2 ~/tmp/bullhead.policy | md5sum
-ba1c1e09b910127daeb474d641265950  -
-
-$ sesearch --dontaudit -s su -c capability,capability2 ~/tmp/marlin.policy | md5sum
-ba1c1e09b910127daeb474d641265950  -
-
-[PATCH 1/2] Revert "libsepol: fix checkpolicy dontaudit compiler bug"
-[PATCH 2/2] libsepol: fix checkpolicy dontaudit compiler bug
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 004a029..ef04908 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1604,7 +1604,8 @@ static int expand_range_trans(expand_state_t * state,
+ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+ 				   avtab_t * avtab, avtab_key_t * key,
+ 				   cond_av_list_t ** cond,
+-				   av_extended_perms_t *xperms)
++				   av_extended_perms_t *xperms,
++				   uint32_t init_data)
+ {
+ 	avtab_ptr_t node;
+ 	avtab_datum_t avdatum;
+@@ -1640,6 +1641,7 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+ 
+ 	if (!node) {
+ 		memset(&avdatum, 0, sizeof avdatum);
++		avdatum.data = init_data;
+ 		/* this is used to get the node - insertion is actually unique */
+ 		node = avtab_insert_nonunique(avtab, key, &avdatum);
+ 		if (!node) {
+@@ -1750,7 +1752,7 @@ static int expand_terule_helper(sepol_handle_t * handle,
+ 			return EXPAND_RULE_CONFLICT;
+ 		}
+ 
+-		node = find_avtab_node(handle, avtab, &avkey, cond, NULL);
++		node = find_avtab_node(handle, avtab, &avkey, cond, NULL, 0);
+ 		if (!node)
+ 			return -1;
+ 		if (enabled) {
+@@ -1824,7 +1826,15 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ 		avkey.target_class = cur->tclass;
+ 		avkey.specified = spec;
+ 
+-		node = find_avtab_node(handle, avtab, &avkey, cond, extended_perms);
++		node = find_avtab_node(handle, avtab, &avkey, cond,
++				       extended_perms,
++				       /*
++					* dontaudit rules need to be
++					* initialized on creation, others can
++					* be 0.
++					*/
++				       specified & AVRULE_DONTAUDIT
++					    ? ~cur->data : 0);
+ 		if (!node)
+ 			return EXPAND_RULE_ERROR;
+ 		if (enabled) {
+@@ -1850,10 +1860,7 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ 			 */
+ 			avdatump->data &= cur->data;
+ 		} else if (specified & AVRULE_DONTAUDIT) {
+-			if (avdatump->data)
+-				avdatump->data &= ~cur->data;
+-			else
+-				avdatump->data = ~cur->data;
++			avdatump->data &= ~cur->data;
+ 		} else if (specified & AVRULE_XPERMS) {
+ 			xperms = avdatump->xperms;
+ 			if (!xperms) {
+-- 
+2.7.4
