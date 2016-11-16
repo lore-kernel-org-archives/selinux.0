@@ -1,57 +1,124 @@
-From: william.c.roberts@intel.com
-To: sds@tycho.nsa.gov, nnk@google.com, selinux@tycho.nsa.gov
-Subject: [PATCH take2 v6] libsepol: fix checkpolicy dontaudit compiler bug
-Date: Tue, 15 Nov 2016 16:42:23 -0800
-Message-Id: <1479256943-26743-1-git-send-email-william.c.roberts@intel.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAG1SR9w028128
+ for <selinux@tycho.nsa.gov>; Tue, 15 Nov 2016 20:28:27 -0500
+Subject: Re: SELinux system configuration using CIPSO
+To: Harry Waddell <waddell@caravaninfotech.com>
+References: <3df72b00-f662-17be-e45d-a80911f7ec34@schaufler-ca.com>
+ <5f8da5b2-1acf-fd89-8130-bee748793036@tycho.nsa.gov>
+ <929a7231-35dc-315b-9f82-2cd1aa5db4fe@schaufler-ca.com>
+ <c25ab412-06eb-1507-00fe-cb66f6133e1c@tycho.nsa.gov>
+ <20161115143613.47db4b5a@taliesin-3.local>
+ <8db613b7-2bce-615f-c206-965e42b80c09@schaufler-ca.com>
+ <20161115155225.14ac80c5@taliesin-3.local>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <20506b42-47b2-3bfe-bcd2-92146d910287@schaufler-ca.com>
+Date: Tue, 15 Nov 2016 17:28:09 -0800
+MIME-Version: 1.0
+In-Reply-To: <20161115155225.14ac80c5@taliesin-3.local>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+On 11/15/2016 3:52 PM, Harry Waddell wrote:
+> On Tue, 15 Nov 2016 15:07:34 -0800
+> Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+>> On 11/15/2016 2:36 PM, Harry Waddell wrote:
+>>> On Tue, 15 Nov 2016 13:43:28 -0500
+>>> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>  
+>>>> On 11/15/2016 01:34 PM, Casey Schaufler wrote:  
+>>>>> On 11/15/2016 10:14 AM, Stephen Smalley wrote:    
+>>>>>> On 11/15/2016 12:28 PM, Casey Schaufler wrote:    
+>>>>>>> I am looking for an SELinux configuration that uses CIPSO.
+>>>>>>> Ideally, it would be based on a readily available distro,
+>>>>>>> but I'm willing to perform semi-heroic acts if I have too.
+>>>>>>> I'm not in a position to develop it myself, nor would that
+>>>>>>> really suit my nefarious purposes. Thank you.    
+>>>>>> Can you clarify what you mean?  There is a sample NetLabel configuration
+>>>>>> in the selinux-testsuite (in tests/inet_socket/netlabel-load) that
+>>>>>> configures full SELinux labeling over loopback connections, used by the
+>>>>>> inet_socket tests.  And the corresponding SELinux policy rules for those
+>>>>>> tests can be found in policy/test_inet_socket.te within the testsuite.    
+>>>>> That will probably get me started. I'll have a look at the test
+>>>>> documentation. I am also looking for a configuration that I can
+>>>>> use for exploring a "real" CIPSO environment, where two or more
+>>>>> machines are talking to each other using CIPSO. I think that I
+>>>>> understand how that is supposed to work, but there's nothing like
+>>>>> seeing the packets fly. Is there a case for that in the test suite?
+>>>>> Thank you.    
+>>>> Not in the selinux-testsuite, since it doesn't presently require/expect
+>>>> you to set up two different systems.  Probably the lspp testsuite or
+>>>> Paul Moore's blog or maybe the SELinux Notebook for samples of that kind
+>>>> of configuration.  Note that in that cross-machine case, CIPSO only
+>>>> passes an encoding of the MLS label, not the user:role:type information.
+>>>>
+>>>>  
+>>> In addition to the user:role:type information, there are other limits to what 
+>>> you can pass over the wire via netlabel due to the way the CIPSO information is encoded 
+>>> in the packet. 
+>>>
+>>> You can only encode a single sensitivity because the CIPSO spec only stores it in a 
+>>> single integer. s0:c0.c1023 passes fine, but s0-s2:c0.c1023 will get reduced to s0:c0.c1023. 
+>>>
+>>> Unlike the sensitivity it is possible to pass some
+>>> fairly complex sets of categories. When you create a DOI, 
+>>> you can specify how the categories will be encoded using a tag of 1, 2, or 5. 
+>>> ( these are bitmap, enumerated and range types respectively ) What categories 
+>>> can be passed via netlabel is dependent on the limits of these types.
+>>>
+>>> The bottom line is that it's entirely possible to have a valid context that 
+>>> netlabel will not be able to fully preserve. Netlabel is still very useful, 
+>>> but you have to remain mindful of its limitations.
+>>>
+>>> The above is based on my reading of the CIPSO spec and my experience with netlabel.
+>>> It's entirely possible my understanding is incomplete and/or out of date. Somone like Paul Moore
+>>> can speak with much greater authority. 
+>>>
+>>> HW  
+>> I understand CIPSO reasonably well, having been involved in
+>> its development back in the late 80's and early 90's*. What I'm
+>> looking for is a way to set up an SELinux system that uses
+>> CIPSO without having to learn all the gnarly details of SELinux
+>> network administration. A sample configuration would be a big
+>> help.
+>>
+>> ---
+>> * I was working at Sun, Silicon Graphics and Cray on B1 Unix systems.
+>>   They used CIPSO long before the RFC was published.
+>>
+> It depends entirely on what you mean by "uses"
 
-The combining logic for dontaudit rules was wrong, causing
-a dontaudit A B:C *; rule to be clobbered by a dontaudit A B:C p;
-rule.
+I'd be happy with any sort of demo that shows you can
+preserve separation across the network. It could be as
+simple as having two services on machine A and two clients
+on machine B where client B1 can talk to service A1 but
+not A2 and client B2 can talk to service A2 but not A1.
+I'm not planning to implement anything in particular, I
+really just want to see that it can be done. Then I'm
+going to use it to ensure that changes I make don't break
+it.
 
-This is a reimplementation of:
-commit 6201bb5e258e2b5bcc04d502d6fbc05c69d21d71 ("libsepol:
-fix checkpolicy dontaudit compiler bug")
-that avoids the cumbersome pointer assignments on alloced.
-
-Reported-by: Nick Kralevich <nnk@google.com>
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libsepol/src/expand.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 004a029..3e16f58 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1640,6 +1640,11 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
- 
- 	if (!node) {
- 		memset(&avdatum, 0, sizeof avdatum);
-+		/*
-+		 * AUDITDENY, aka DONTAUDIT, are &= assigned, versus |= for
-+		 * others. Initialize the data accordingly.
-+		 */
-+		avdatum.data = key->specified == AVTAB_AUDITDENY ? ~0 : 0;
- 		/* this is used to get the node - insertion is actually unique */
- 		node = avtab_insert_nonunique(avtab, key, &avdatum);
- 		if (!node) {
-@@ -1850,10 +1855,7 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- 			 */
- 			avdatump->data &= cur->data;
- 		} else if (specified & AVRULE_DONTAUDIT) {
--			if (avdatump->data)
--				avdatump->data &= ~cur->data;
--			else
--				avdatump->data = ~cur->data;
-+			avdatump->data &= ~cur->data;
- 		} else if (specified & AVRULE_XPERMS) {
- 			xperms = avdatump->xperms;
- 			if (!xperms) {
--- 
-2.7.4
+> and I totally get what you mean 
+> when you say you don't want to learn about selinux net admin, but depending on what you want to
+> do, I'm not sure you can get out of it. Paul Moore's blog posts are the best thing I know of
+> but they break everything up into pieces, so AFAIK, there's no single example that 
+> is comprehensive. It certainly wasn't easy going for me as there are a lot of 
+> parts that need to be set up. I now have what I need in a working state, 
+> but I'm pretty sure at least some of what I've done would have been redundant
+> and unnecessary if I'd just taken the time to define my nodes, booleans, etc... correctly. 
+>
+> For example, I have this intended to allow ping to work:
+>
+> #============= ping_t ==============
+> allow ping_t netlabel_peer_t:netif egress;
+>
+> I did what I expect most people do which is to set it up and see what breaks. 
+> My work is definitely not good enough to be an example for others just yet. 
+>
+> HW
+>
+>
