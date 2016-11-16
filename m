@@ -1,13 +1,13 @@
-Subject: Re: [PATCH 2/3] libsepol: test for ebitmap_read() negative return
- value
+Subject: Re: [PATCH 3/3] libsepol: make parsing symbol table headers more
+ robust
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
 References: <20161115230723.20043-1-nicolas.iooss@m4x.org>
- <20161115230723.20043-2-nicolas.iooss@m4x.org>
+ <20161115230723.20043-3-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <fde6c664-f627-3669-a783-cec0f98e2103@tycho.nsa.gov>
-Date: Wed, 16 Nov 2016 09:11:06 -0500
+Message-ID: <792180ec-fa24-b936-4c12-dee928951d13@tycho.nsa.gov>
+Date: Wed, 16 Nov 2016 09:12:29 -0500
 MIME-Version: 1.0
-In-Reply-To: <20161115230723.20043-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20161115230723.20043-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -15,51 +15,52 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 11/15/2016 06:07 PM, Nicolas Iooss wrote:
-> While fuzzing hll/pp, the fuzzer (AFL) crafted a policy which triggered
-> the following message without making the policy loading fail (the
-> program crashed with a segmentation fault later):
+> When hll/pp loads a policy file which has been modified so that the
+> nprim field of one of its non-empty symbol table was changed to zero, it
+> crashes with a segmentation fault. A quick analysis leads to
+> "p->sym_val_to_name[i] = (char **)alloc(p->symtab[i].nprim, sizeof(char
+> *));" in policydb_index_others(), which is not executed when
+> p->symtab[i].nprim is zero even though there are items in
+> p->symtab[i].table.
 > 
->     security: ebitmap: map size 192 does not match my size 64 (high bit
->     was 0)
-> 
-> This is because ebitmap_read() returned -EINVAL and this value was
-> handled as a successful return value by scope_index_read() because it
-> was not -1.
+> Detect such an oddity in the policy file early to exit with a clean
+> error message.
 
-I'll apply this, but this is a symptom of a wider problem within
-libsepol with respect to mixed error return values that we should
-someday fix.  It is a historical result of the fact that originally the
-core checkpolicy/libsepol code was shared in common between the kernel
-security server and checkpolicy/libsepol, and therefore used kernel
-return code conventions.  We should probably convert it all to set errno
-and return -1 but that obviously will take time.
+I'll apply this but I'd like to know where the segmentation fault
+occurred.  The index functions already check whether the value exceeds
+the nprim value, and therefore shouldn't try to set the _val_to_name[]
+entry.
 
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > ---
->  libsepol/src/policydb.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  libsepol/src/policydb.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
 > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index e36d82f0a1e8..b112fd5465b5 100644
+> index b112fd5465b5..d1019e42de16 100644
 > --- a/libsepol/src/policydb.c
 > +++ b/libsepol/src/policydb.c
-> @@ -3447,7 +3447,7 @@ static int scope_index_read(scope_index_t * scope_index,
->  	int rc;
->  
->  	for (i = 0; i < num_scope_syms; i++) {
-> -		if (ebitmap_read(scope_index->scope + i, fp) == -1) {
-> +		if (ebitmap_read(scope_index->scope + i, fp) < 0) {
+> @@ -3510,6 +3510,10 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
 >  			return -1;
->  		}
->  	}
-> @@ -3465,7 +3465,7 @@ static int scope_index_read(scope_index_t * scope_index,
->  		return -1;
->  	}
->  	for (i = 0; i < scope_index->class_perms_len; i++) {
-> -		if (ebitmap_read(scope_index->class_perms_map + i, fp) == -1) {
-> +		if (ebitmap_read(scope_index->class_perms_map + i, fp) < 0) {
->  			return -1;
->  		}
->  	}
+>  		nprim = le32_to_cpu(buf[0]);
+>  		nel = le32_to_cpu(buf[1]);
+> +		if (nel && !nprim) {
+> +			ERR(fp->handle, "unexpected items in decl symbol table with no symbol");
+> +			return -1;
+> +		}
+>  		for (j = 0; j < nel; j++) {
+>  			if (read_f[i] (p, decl->symtab[i].table, fp)) {
+>  				return -1;
+> @@ -3881,6 +3885,10 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  			goto bad;
+>  		nprim = le32_to_cpu(buf[0]);
+>  		nel = le32_to_cpu(buf[1]);
+> +		if (nel && !nprim) {
+> +			ERR(fp->handle, "unexpected items in symbol table with no symbol");
+> +			goto bad;
+> +		}
+>  		for (j = 0; j < nel; j++) {
+>  			if (read_f[i] (p, p->symtab[i].table, fp))
+>  				goto bad;
 > 
