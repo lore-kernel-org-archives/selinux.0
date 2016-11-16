@@ -1,96 +1,216 @@
-Subject: Re: what is the purpose of security initial sid?
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <61dffb53-5ce0-bde4-9c3e-d40f8eda5efb@gmail.com>
- <20968774-8d14-0843-c3ce-f7658864404b@tycho.nsa.gov>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <068368d2-6d91-ce5d-7743-cb7a36601432@gmail.com>
-Date: Wed, 16 Nov 2016 20:17:03 +0100
 MIME-Version: 1.0
-In-Reply-To: <20968774-8d14-0843-c3ce-f7658864404b@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="QqoaL64xobSxuR23B1CxIsFWijTWL8RMo"
+In-Reply-To: <1479323571-8501-2-git-send-email-william.c.roberts@intel.com>
+References: <1479323571-8501-1-git-send-email-william.c.roberts@intel.com>
+ <1479323571-8501-2-git-send-email-william.c.roberts@intel.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 16 Nov 2016 11:32:36 -0800
+Message-ID: <CAFftDdrMH63b2Y37HToZVmoWgqm0_fdD9w8LNZJjXeypC44vng@mail.gmail.com>
+Subject: Re: [PATCH 2/2] expand_avrule_helper: cleanup
+To: William Roberts <william.c.roberts@intel.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---QqoaL64xobSxuR23B1CxIsFWijTWL8RMo
-Content-Type: multipart/mixed; boundary="FMn2A1HwV2NJEnE54wqGgFaURfI31HQw8";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Message-ID: <068368d2-6d91-ce5d-7743-cb7a36601432@gmail.com>
-Subject: Re: what is the purpose of security initial sid?
-References: <61dffb53-5ce0-bde4-9c3e-d40f8eda5efb@gmail.com>
- <20968774-8d14-0843-c3ce-f7658864404b@tycho.nsa.gov>
-In-Reply-To: <20968774-8d14-0843-c3ce-f7658864404b@tycho.nsa.gov>
+sediff reports no delta between policies built on master and these 2 patches.
 
---FMn2A1HwV2NJEnE54wqGgFaURfI31HQw8
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+On Wed, Nov 16, 2016 at 11:12 AM,  <william.c.roberts@intel.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
+>
+> General clean up for expand_avrule_helper:
+> 1. Stop converting AVRULE specification to AVTAB specification, they are the
+>    same.
+> 2. Clean up if/else logic, collapse with a switch.
+> 3. Move xperms allocation and manipulation to its own helper.
+> 4. Stop checking handle for NULL, handle must never be NULL. Previous code and
+>    current code use ERR(), which depends on handle.
+> 5. Only write avkey for values that change.
+>
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  libsepol/src/expand.c | 124 ++++++++++++++++++++++++--------------------------
+>  1 file changed, 59 insertions(+), 65 deletions(-)
+>
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 3e16f58..81a827e 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -1781,6 +1781,41 @@ static int expand_terule_helper(sepol_handle_t * handle,
+>         return EXPAND_RULE_SUCCESS;
+>  }
+>
+> +/* 0 for success -1 indicates failure */
+> +static int allocate_xperms(sepol_handle_t * handle, avtab_datum_t * avdatump,
+> +                          av_extended_perms_t * extended_perms)
+> +{
+> +       unsigned int i;
+> +
+> +       avtab_extended_perms_t *xperms = avdatump->xperms;
+> +       if (!xperms) {
+> +               xperms = (avtab_extended_perms_t *)
+> +                       calloc(1, sizeof(avtab_extended_perms_t));
+> +               if (!xperms) {
+> +                       ERR(handle, "Out of memory!");
+> +                       return -1;
+> +               }
+> +               avdatump->xperms = xperms;
+> +       }
+> +
+> +       switch (extended_perms->specified) {
+> +       case AVRULE_XPERMS_IOCTLFUNCTION:
+> +               xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
+> +               break;
+> +       case AVRULE_XPERMS_IOCTLDRIVER:
+> +               xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
+> +               break;
+> +       default:
+> +               return -1;
+> +       }
+> +
+> +       xperms->driver = extended_perms->driver;
+> +       for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
+> +               xperms->perms[i] |= extended_perms->perms[i];
+> +
+> +       return 0;
+> +}
+> +
+>  static int expand_avrule_helper(sepol_handle_t * handle,
+>                                 uint32_t specified,
+>                                 cond_av_list_t ** cond,
+> @@ -1790,44 +1825,20 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+>  {
+>         avtab_key_t avkey;
+>         avtab_datum_t *avdatump;
+> -       avtab_extended_perms_t *xperms;
+>         avtab_ptr_t node;
+>         class_perm_node_t *cur;
+> -       uint32_t spec = 0;
+> -       unsigned int i;
+>
+> -       if (specified & AVRULE_ALLOWED) {
+> -               spec = AVTAB_ALLOWED;
+> -       } else if (specified & AVRULE_AUDITALLOW) {
+> -               spec = AVTAB_AUDITALLOW;
+> -       } else if (specified & AVRULE_AUDITDENY) {
+> -               spec = AVTAB_AUDITDENY;
+> -       } else if (specified & AVRULE_DONTAUDIT) {
+> -               if (handle && handle->disable_dontaudit)
+> -                       return EXPAND_RULE_SUCCESS;
+> -               spec = AVTAB_AUDITDENY;
+> -       } else if (specified & AVRULE_NEVERALLOW) {
+> -               spec = AVTAB_NEVERALLOW;
+> -       } else if (specified & AVRULE_XPERMS_ALLOWED) {
+> -               spec = AVTAB_XPERMS_ALLOWED;
+> -       } else if (specified & AVRULE_XPERMS_AUDITALLOW) {
+> -               spec = AVTAB_XPERMS_AUDITALLOW;
+> -       } else if (specified & AVRULE_XPERMS_DONTAUDIT) {
+> -               if (handle && handle->disable_dontaudit)
+> +       /* bail early if dontaudit's are disabled and it's a dontaudit rule */
+> +       if ((specified & (AVRULE_DONTAUDIT|AVRULE_XPERMS_DONTAUDIT)) && handle->disable_dontaudit)
+>                         return EXPAND_RULE_SUCCESS;
+> -               spec = AVTAB_XPERMS_DONTAUDIT;
+> -       } else if (specified & AVRULE_XPERMS_NEVERALLOW) {
+> -               spec = AVTAB_XPERMS_NEVERALLOW;
+> -       } else {
+> -               assert(0);      /* unreachable */
+> -       }
+> +
+> +       avkey.source_type = stype + 1;
+> +       avkey.target_type = ttype + 1;
+> +       avkey.specified = specified;
+>
+>         cur = perms;
+>         while (cur) {
+> -               avkey.source_type = stype + 1;
+> -               avkey.target_type = ttype + 1;
+>                 avkey.target_class = cur->tclass;
+> -               avkey.specified = spec;
+>
+>                 node = find_avtab_node(handle, avtab, &avkey, cond, extended_perms);
+>                 if (!node)
+> @@ -1839,13 +1850,15 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+>                 }
+>
+>                 avdatump = &node->datum;
+> -               if (specified & AVRULE_ALLOWED) {
+> -                       avdatump->data |= cur->data;
+> -               } else if (specified & AVRULE_AUDITALLOW) {
+> +               switch (specified) {
+> +               case AVRULE_ALLOWED:
+> +               case AVRULE_AUDITALLOW:
+> +               case AVRULE_NEVERALLOW:
+>                         avdatump->data |= cur->data;
+> -               } else if (specified & AVRULE_NEVERALLOW) {
+> -                       avdatump->data |= cur->data;
+> -               } else if (specified & AVRULE_AUDITDENY) {
+> +                       break;
+> +               case AVRULE_DONTAUDIT:
+> +                       cur->data = ~cur->data;
+> +               case AVRULE_AUDITDENY:
+>                         /* Since a '0' in an auditdeny mask represents
+>                          * a permission we do NOT want to audit
+>                          * (dontaudit), we use the '&' operand to
+> @@ -1854,35 +1867,16 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+>                          * auditallow cases).
+>                          */
+>                         avdatump->data &= cur->data;
+> -               } else if (specified & AVRULE_DONTAUDIT) {
+> -                       avdatump->data &= ~cur->data;
+> -               } else if (specified & AVRULE_XPERMS) {
+> -                       xperms = avdatump->xperms;
+> -                       if (!xperms) {
+> -                               xperms = (avtab_extended_perms_t *)
+> -                                       calloc(1, sizeof(avtab_extended_perms_t));
+> -                               if (!xperms) {
+> -                                       ERR(handle, "Out of memory!");
+> -                                       return -1;
+> -                               }
+> -                               avdatump->xperms = xperms;
+> -                       }
+> -
+> -                       switch (extended_perms->specified) {
+> -                       case AVRULE_XPERMS_IOCTLFUNCTION:
+> -                               xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
+> -                               break;
+> -                       case AVRULE_XPERMS_IOCTLDRIVER:
+> -                               xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
+> -                               break;
+> -                       default:
+> -                               return -1;
+> -                       }
+> -
+> -                       xperms->driver = extended_perms->driver;
+> -                       for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
+> -                               xperms->perms[i] |= extended_perms->perms[i];
+> -               } else {
+> +                       break;
+> +               case AVRULE_XPERMS_ALLOWED:
+> +               case AVRULE_XPERMS_AUDITALLOW:
+> +               case AVRULE_XPERMS_DONTAUDIT:
+> +               case AVRULE_XPERMS_NEVERALLOW:
+> +                       if (allocate_xperms(handle, avdatump, extended_perms))
+> +                               return EXPAND_RULE_ERROR;
+> +                       break;
+> +               default:
+> +                       ERR(handle, "Unkown specification: %x\n", specified);
+>                         assert(0);      /* should never occur */
+>                 }
+>
+> --
+> 2.7.4
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
-On 11/16/2016 07:10 PM, Stephen Smalley wrote:
-> On 11/16/2016 12:59 PM, Dominick Grift wrote:
->>
->> I forgot that add the genfscon's for selinuxfs and securityfs and
->> the selinux filesystem ended up associated with the context
->> associated with the unlabeled initial sid.
->>
->> Why did the security initial sid not kick in instead of unlabeled?
->>
->> If the security isid is not there to ensure selinuxfs is labeled=20
->> appropriately then what is it there for?
->=20
-> $ grep -r SECINITSID_SECURITY security/selinux
-> security/selinux/selinuxfs.c:	return avc_has_perm(sid,
-> SECINITSID_SECURITY,
->=20
-> It is used as the target/object SID for the permission checks on the
-> "security" class performed upon operations on selinuxfs (and
-> pre-selinuxfs, it was likewise used for the corresponding permission
-> checks on the added SELinux system calls).
->=20
-> Could probably make it used as the default for selinuxfs nodes as
-> well, but not presently done.
->=20
-
-Thanks that explains a lot and make me wonder whether i should just move
-selinuxfs/securityfs out of the "sec" module and into the "fs" module.
-After all , its just another fs and not different from any other in that
-sense.
-
-Traditionally the security isid context shares the context of the fs in
-common policy but I suppose it does not have to be that way
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
 
 
---FMn2A1HwV2NJEnE54wqGgFaURfI31HQw8--
+-- 
+Respectfully,
 
---QqoaL64xobSxuR23B1CxIsFWijTWL8RMo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQGcBAEBCAAGBQJYLLCvAAoJECV0jlU3+Udp7vML+gJHHB+Z2Gmwr20EBN+duRvJ
-k2f86NAf/SqAIT/jc1VRta+rH71wtZQ7e96a1art9LAdefQC2S7wo/mpCrOr6II+
-UNpg31iN4ZP0GtSP012pGD0K7fIaorKa62lnMA1UvZrd4Rrt5YfjlyH1Ltf4YzA7
-RQdpJqsruS0spHZG+vBrvp67krQNQNkkloChfGk9kKsW7FqNd1dqmmuL3svt9n9I
-IkoKR0SmFtwhLK/g7jF3jGpmQrSZ/NVgk8kG984drmP3h8aZvvVv2SbdymDCS4eF
-1u5+ZfCyFq2aVTw+VQkB1jFNCavlE66pkMRUEYkuxCKdCIiHLPLoDYDCMIGOFMhK
-88M0qO1vhIBEh5mkit6fAiTj8rZhmN5GNeL5p2RWYYR/Mr3Uom/6lhXTIPIefWMA
-xbe0/5gJQGDssClAAYf6kewGX7lvZaP8V+/JYh2o3ZUlpJRbPK41CKVney/bbavO
-V9YOxiFhsU0rwJXTF2/oAWqeM8wJm+I/HZmQr4VY6A==
-=F3L5
------END PGP SIGNATURE-----
-
---QqoaL64xobSxuR23B1CxIsFWijTWL8RMo--
+William C Roberts
