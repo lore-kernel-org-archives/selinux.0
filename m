@@ -1,13 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAGE5ZKN011164
- for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 09:05:38 -0500
-Received: by mail-pf0-f196.google.com with SMTP id i88so9916507pfk.2
- for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 06:05:37 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAGE5ZKO011164
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 09:05:42 -0500
+Received: by mail-pf0-f194.google.com with SMTP id i88so9916591pfk.2
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 06:05:41 -0800 (PST)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/5] mcstrans: take LIBDIR from args, dont guess
-Date: Wed, 16 Nov 2016 22:05:19 +0800
-Message-Id: <1479305122-2419-2-git-send-email-jason@perfinion.com>
+Subject: [PATCH 3/5] Add stub make test targets to new subdirs
+Date: Wed, 16 Nov 2016 22:05:20 +0800
+Message-Id: <1479305122-2419-3-git-send-email-jason@perfinion.com>
 In-Reply-To: <1479305122-2419-1-git-send-email-jason@perfinion.com>
 References: <1479305122-2419-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,72 +15,52 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-All the other makefiles just have LIBDIR optionally set so it can be
-overridden. These makefiles were autodetecting incorrectly. uname -i
-returns "GenuineIntel" so should have been uname -m.
-
 Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- mcstrans/src/Makefile   | 18 ++----------------
- mcstrans/utils/Makefile | 18 +-----------------
- 2 files changed, 3 insertions(+), 33 deletions(-)
+ dbus/Makefile        | 2 ++
+ gui/Makefile         | 2 ++
+ mcstrans/Makefile    | 2 ++
+ restorecond/Makefile | 1 +
+ 4 files changed, 7 insertions(+)
 
-diff --git a/mcstrans/src/Makefile b/mcstrans/src/Makefile
-index 907a1f1..ae74a16 100644
---- a/mcstrans/src/Makefile
-+++ b/mcstrans/src/Makefile
-@@ -1,20 +1,6 @@
--ARCH = $(shell uname -i)
--ifeq "$(ARCH)" "x86_64"
--	# In case of 64 bit system, use these lines
--	LIBDIR=/usr/lib64
--else 
--ifeq "$(ARCH)" "i686"
--	# In case of 32 bit system, use these lines
--	LIBDIR=/usr/lib
--else
--ifeq "$(ARCH)" "i386"
--	# In case of 32 bit system, use these lines
--	LIBDIR=/usr/lib
--endif
--endif
--endif
- # Installation directories.
--PREFIX  ?= $(DESTDIR)/usr
-+PREFIX ?= $(DESTDIR)/usr
-+LIBDIR ?= $(PREFIX)/lib
- SBINDIR ?= $(DESTDIR)/sbin
- INITDIR ?= $(DESTDIR)/etc/rc.d/init.d
- SYSTEMDDIR ?= $(DESTDIR)/usr/lib/systemd
-diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
-index 1ffb027..43608db 100644
---- a/mcstrans/utils/Makefile
-+++ b/mcstrans/utils/Makefile
-@@ -1,24 +1,8 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
-+LIBDIR ?= $(PREFIX)/lib
- BINDIR ?= $(PREFIX)/sbin
+diff --git a/dbus/Makefile b/dbus/Makefile
+index c924052..9a6cc90 100644
+--- a/dbus/Makefile
++++ b/dbus/Makefile
+@@ -13,3 +13,5 @@ install:
+ 	install -m 755 selinux_server.py $(DESTDIR)/usr/share/system-config-selinux
  
--ARCH = $(shell uname -i)
--ifeq "$(ARCH)" "x86_64"
--        # In case of 64 bit system, use these lines
--        LIBDIR=/usr/lib64
--else
--ifeq "$(ARCH)" "i686"
--        # In case of 32 bit system, use these lines
--        LIBDIR=/usr/lib
--else
--ifeq "$(ARCH)" "i386"
--        # In case of 32 bit system, use these lines
--        LIBDIR=/usr/lib
--endif
--endif
--endif
--
--
- CFLAGS ?= -Wall
- override CFLAGS += -I../src -D_GNU_SOURCE
- LDLIBS += -L../src ../src/mcstrans.o ../src/mls_level.o -lselinux -lpcre $(LIBDIR)/libsepol.a
+ relabel:
++
++test:
+diff --git a/gui/Makefile b/gui/Makefile
+index 4170e94..d49a7ce 100644
+--- a/gui/Makefile
++++ b/gui/Makefile
+@@ -54,3 +54,5 @@ clean:
+ indent:
+ 
+ relabel:
++
++test:
+diff --git a/mcstrans/Makefile b/mcstrans/Makefile
+index eb3d955..c993a9f 100644
+--- a/mcstrans/Makefile
++++ b/mcstrans/Makefile
+@@ -14,3 +14,5 @@ clean:
+ 	$(MAKE) -C man clean
+ 
+ relabel:
++
++test:
+diff --git a/restorecond/Makefile b/restorecond/Makefile
+index 02b7011..9f163f5 100644
+--- a/restorecond/Makefile
++++ b/restorecond/Makefile
+@@ -60,3 +60,4 @@ clean:
+ indent:
+ 	../../scripts/Lindent $(wildcard *.[ch])
+ 
++test:
 -- 
 2.7.3
