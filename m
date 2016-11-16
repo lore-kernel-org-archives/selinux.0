@@ -1,89 +1,270 @@
-Subject: Re: [PATCH 3/3] libsepol: make parsing symbol table headers more
- robust
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-References: <20161115230723.20043-1-nicolas.iooss@m4x.org>
- <20161115230723.20043-3-nicolas.iooss@m4x.org>
- <792180ec-fa24-b936-4c12-dee928951d13@tycho.nsa.gov>
- <CAJfZ7=nK_mMOS=hvwmzwd1xfOg+xbSuyR657U0WJ2FL1f6arTA@mail.gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3da5fe6e-5893-51ab-f1bb-88aa46cfabb7@tycho.nsa.gov>
-Date: Wed, 16 Nov 2016 10:51:52 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAGFvKAk024029
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 10:57:20 -0500
+Received: by mail-pf0-f195.google.com with SMTP id c4so7506578pfb.3
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 07:57:18 -0800 (PST)
+Received: from localhost ([2404:e800:e600:2a1:1075:c74:c994:18de])
+ by smtp.gmail.com with ESMTPSA id m66sm5483789pfm.3.2016.11.16.07.57.16
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 16 Nov 2016 07:57:16 -0800 (PST)
+Date: Wed, 16 Nov 2016 23:57:14 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/5] mcstrans: Fix Werror=shadow errors
+Message-ID: <20161116155714.GA6564@meriadoc.perfinion.com>
+References: <1479305122-2419-1-git-send-email-jason@perfinion.com>
 MIME-Version: 1.0
-In-Reply-To: <CAJfZ7=nK_mMOS=hvwmzwd1xfOg+xbSuyR657U0WJ2FL1f6arTA@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1479305122-2419-1-git-send-email-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/16/2016 10:29 AM, Nicolas Iooss wrote:
-> On Wed, Nov 16, 2016 at 3:12 PM, Stephen Smalley <sds@tycho.nsa.gov
-> <mailto:sds@tycho.nsa.gov>> wrote:
-> 
->     On 11/15/2016 06:07 PM, Nicolas Iooss wrote:
->     > When hll/pp loads a policy file which has been modified so that the
->     > nprim field of one of its non-empty symbol table was changed to zero, it
->     > crashes with a segmentation fault. A quick analysis leads to
->     > "p->sym_val_to_name[i] = (char **)alloc(p->symtab[i].nprim, sizeof(char
->     > *));" in policydb_index_others(), which is not executed when
->     > p->symtab[i].nprim is zero even though there are items in
->     > p->symtab[i].table.
->     >
->     > Detect such an oddity in the policy file early to exit with a clean
->     > error message.
-> 
->     I'll apply this but I'd like to know where the segmentation fault
->     occurred.  The index functions already check whether the value exceeds
->     the nprim value, and therefore shouldn't try to set the _val_to_name[]
->     entry.
-> 
-> 
-> Thanks. The segfault occurs in required_scopes_to_cil()
-> in module_to_cil.c. Here is a gdb session.
-> 
-> % gdb-run ./DESTDIR/usr/libexec/selinux/hll/pp
-> afl-out/pp/crashes.2016-11-15-16:49:07/id:000000,sig:11,*              
->             
-> Reading symbols from ./DESTDIR/usr/libexec/selinux/hll/pp...done.
-> Starting program: ./DESTDIR/usr/libexec/selinux/hll/pp
-> afl-out/pp/crashes.2016-11-15-16:49:07/id:000000,sig:11,src:000000,op:flip1,pos:109
-> 
-> Program received signal SIGSEGV, Segmentation fault.
-> required_scopes_to_cil (decl_stack=0x6030b0, block=0x606780,
-> pdb=0x6032e0, indent=0) at module_to_cil.c:3476
-> 3476                            key = pdb->sym_val_to_name[sym][i];
-> => 0x00007ffff7b6c708 <block_to_cil+1224>:      4a 8b 04 e8     mov  
->  (%rax,%r13,8),%rax
-> (gdb) bt
-> #0  required_scopes_to_cil (decl_stack=0x6030b0, block=0x606780,
-> pdb=0x6032e0, indent=0) at module_to_cil.c:3476
-> #1  block_to_cil (pdb=0x6032e0, block=0x606780, stack=0x6030b0,
-> indent=0) at module_to_cil.c:3622
-> #2  0x00007ffff7b6e0c6 in blocks_to_cil (pdb=0x6032e0) at
-> module_to_cil.c:3760
-> #3  sepol_module_policydb_to_cil (fp=fp@entry=0x7ffff7b405e0
-> <_IO_2_1_stdout_>, pdb=0x6032e0, linked=linked@entry=0) at
-> module_to_cil.c:4047
-> #4  0x00007ffff7b6e3c6 in sepol_module_package_to_cil
-> (fp=fp@entry=0x7ffff7b405e0 <_IO_2_1_stdout_>, mod_pkg=0x603280) at
-> module_to_cil.c:4076
-> #5  0x0000000000400e76 in main (argc=<optimized out>, argv=<optimized
-> out>) at pp.c:150
-> (gdb) list
-> 3471                    map = decl->required.scope[sym];
-> 3472                    ebitmap_for_each_bit(&map, node, i) {
-> 3473                            if (!ebitmap_get_bit(&map, i)) {
-> 3474                                    continue;
-> 3475                            }
-> 3476                            key = pdb->sym_val_to_name[sym][i];
-> 3477    
-> 3478                            scope_datum =
-> hashtab_search(pdb->scope[sym].table, key);
-> 3479                            for (j = 0; j <
-> scope_datum->decl_ids_len; j++) {
-> 3480                                    if (scope_datum->decl_ids[j] ==
-> decl->decl_id) {
+This whole series applies on top of the splitpolicycoreutils branch.
 
-So, don't we need to also check that i < pdb->symtab[sym].nprim before
-line 3476?
+On Wed, Nov 16, 2016 at 10:05:18PM +0800, Jason Zaman wrote:
+> gcc -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror -I../include -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -fPIE -c -o mcstrans.o mcstrans.c
+> mcstrans.c: In function ‘violates_constraints’:
+> mcstrans.c:551:14: error: declaration of ‘common’ shadows a previous local [-Werror=shadow]
+>     ebitmap_t common;
+>               ^
+> mcstrans.c:545:13: error: shadowed declaration is here [-Werror=shadow]
+>    ebitmap_t common;
+>              ^
+> mcstrans.c: In function ‘build_regexps’:
+> mcstrans.c:1048:7: error: declaration of ‘i’ shadows a previous local [-Werror=shadow]
+>    int i=0;
+>        ^
+> mcstrans.c:993:15: error: shadowed declaration is here [-Werror=shadow]
+>   size_t n_el, i;
+>                ^
+> mcstrans.c: In function ‘compute_raw_from_trans’:
+> mcstrans.c:1166:9: error: declaration of ‘rc’ shadows a previous local [-Werror=shadow]
+>      int rc = pcre_exec(g->prefix_regexp, 0, work, work_len, 0, 0, ovector, OVECCOUNT);
+>          ^
+> mcstrans.c:1123:6: error: shadowed declaration is here [-Werror=shadow]
+>   int rc = pcre_exec(domain->base_classification_regexp, 0, work, work_len, 0, PCRE_ANCHORED, ovector, OVECCOUNT);
+>       ^
+> mcstrans.c:1174:9: error: declaration of ‘rc’ shadows a previous local [-Werror=shadow]
+>      int rc = pcre_exec(g->suffix_regexp, 0, work, work_len, 0, 0, ovector, OVECCOUNT);
+>          ^
+> mcstrans.c:1123:6: error: shadowed declaration is here [-Werror=shadow]
+>   int rc = pcre_exec(domain->base_classification_regexp, 0, work, work_len, 0, PCRE_ANCHORED, ovector, OVECCOUNT);
+>       ^
+> mcstrans.c:1189:9: error: declaration of ‘rc’ shadows a previous local [-Werror=shadow]
+>      int rc = pcre_exec(g->word_regexp, 0, s, l, 0, 0, ovector, OVECCOUNT);
+>          ^
+> mcstrans.c:1123:6: error: shadowed declaration is here [-Werror=shadow]
+>   int rc = pcre_exec(domain->base_classification_regexp, 0, work, work_len, 0, PCRE_ANCHORED, ovector, OVECCOUNT);
+>       ^
+> mcstrans.c: In function ‘compute_trans_from_raw’:
+> mcstrans.c:1328:14: error: declaration of ‘unhandled’ shadows a previous local [-Werror=shadow]
+>     ebitmap_t unhandled, orig_unhandled;
+>               ^
+> mcstrans.c:1291:49: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>                                                  ^
+> mcstrans.c:1328:25: error: declaration of ‘orig_unhandled’ shadows a previous local [-Werror=shadow]
+>     ebitmap_t unhandled, orig_unhandled;
+>                          ^
+> mcstrans.c:1291:60: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>                                                             ^
+> mcstrans.c:1360:15: error: declaration of ‘handled’ shadows a previous local [-Werror=shadow]
+>      ebitmap_t handled, nothandled;
+>                ^
+> mcstrans.c:1291:28: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>                             ^
+> mcstrans.c:1360:24: error: declaration of ‘nothandled’ shadows a previous local [-Werror=shadow]
+>      ebitmap_t handled, nothandled;
+>                         ^
+> mcstrans.c:1291:37: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>                                      ^
+> mcstrans.c:1377:17: error: declaration of ‘temp’ shadows a previous local [-Werror=shadow]
+>        ebitmap_t temp;
+>                  ^
+> mcstrans.c:1291:22: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>                       ^
+> mcstrans.c:1378:17: error: declaration of ‘bit_diff’ shadows a previous local [-Werror=shadow]
+>        ebitmap_t bit_diff;
+>                  ^
+> mcstrans.c:1291:12: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>             ^
+> mcstrans.c:1403:16: error: declaration of ‘bit_diff’ shadows a previous local [-Werror=shadow]
+>       ebitmap_t bit_diff;
+>                 ^
+> mcstrans.c:1291:12: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>             ^
+> mcstrans.c:1407:16: error: declaration of ‘temp’ shadows a previous local [-Werror=shadow]
+>       ebitmap_t temp;
+>                 ^
+> mcstrans.c:1291:22: error: shadowed declaration is here [-Werror=shadow]
+>   ebitmap_t bit_diff, temp, handled, nothandled, unhandled, orig_unhandled;
+>                       ^
+> mcstrans.c:1434:19: error: declaration of ‘g’ shadows a previous local [-Werror=shadow]
+>      word_group_t *g;
+>                    ^
+> mcstrans.c:1335:18: error: shadowed declaration is here [-Werror=shadow]
+>     word_group_t *g;
+>                   ^
+> cc1: all warnings being treated as errors
+> Makefile:35: recipe for target 'mcstrans.o' failed
+> make[2]: *** [mcstrans.o] Error 1
+> 
+> Signed-off-by: Jason Zaman <jason@perfinion.com>
+> ---
+>  mcstrans/src/mcstrans.c | 24 ++++++++----------------
+>  1 file changed, 8 insertions(+), 16 deletions(-)
+> 
+> diff --git a/mcstrans/src/mcstrans.c b/mcstrans/src/mcstrans.c
+> index d7f094a..1b77d16 100644
+> --- a/mcstrans/src/mcstrans.c
+> +++ b/mcstrans/src/mcstrans.c
+> @@ -525,9 +525,9 @@ int
+>  violates_constraints(mls_level_t *l) {
+>  	int nbits;
+>  	sens_constraint_t *s;
+> +	ebitmap_t common;
+>  	for (s=sens_constraints; s; s=s->next) {
+>  		if (s->sens == l->sens) {
+> -			ebitmap_t common;
+>  			if (ebitmap_and(&common, &s->cat, &l->cat) < 0)
+>  				return 1;
+>  			nbits = ebitmap_cardinality(&common);
+> @@ -542,13 +542,11 @@ violates_constraints(mls_level_t *l) {
+>  	}
+>  	cat_constraint_t *c;
+>  	for (c=cat_constraints; c; c=c->next) {
+> -		ebitmap_t common;
+>  		if (ebitmap_and(&common, &c->mask, &l->cat) < 0)
+>  			return 1;
+>  		nbits = ebitmap_cardinality(&common);
+>  		ebitmap_destroy(&common);
+>  		if (nbits > 0) {
+> -			ebitmap_t common;
+>  			if (ebitmap_and(&common, &c->cat, &l->cat) < 0)
+>  				return 1;
+>  			nbits = ebitmap_cardinality(&common);
+> @@ -1045,7 +1043,7 @@ build_regexps(domain_t *domain) {
+>  			return -1;
+>  		}
+>  
+> -		int i=0;
+> +		i=0;
+>  		for (w = g->words; w; w = w->next)
+>  			g->sword[i++]=w;
+>  
+> @@ -1094,6 +1092,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+>  	gettimeofday(&startTime, 0);
+>  #endif
+>  
+> +	int rc = 0;
+>  	int ovector[OVECCOUNT];
+>  	word_group_t *g = NULL;
+>  	char *work = NULL;
+> @@ -1120,7 +1119,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+>  	if (!domain->base_classification_regexp)
+>  		goto err;
+>  	log_debug(" compute_raw_from_trans work = %s\n", work);
+> -	int rc = pcre_exec(domain->base_classification_regexp, 0, work, work_len, 0, PCRE_ANCHORED, ovector, OVECCOUNT);
+> +	rc = pcre_exec(domain->base_classification_regexp, 0, work, work_len, 0, PCRE_ANCHORED, ovector, OVECCOUNT);
+>  	if (rc > 0) {
+>  		match = NULL;
+>  		pcre_get_substring(work, ovector, rc, 0, &match);
+> @@ -1163,7 +1162,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+>  			int prefix_offset = 0, prefix_len = 0;
+>  			int suffix_offset = 0, suffix_len = 0;
+>  			if (g->prefix_regexp) {
+> -				int rc = pcre_exec(g->prefix_regexp, 0, work, work_len, 0, 0, ovector, OVECCOUNT);
+> +				rc = pcre_exec(g->prefix_regexp, 0, work, work_len, 0, 0, ovector, OVECCOUNT);
+>  				if (rc > 0) {
+>  					prefix = 1;
+>  					prefix_offset = ovector[0];
+> @@ -1171,7 +1170,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+>  				}
+>  			}
+>  			if (g->suffix_regexp) {
+> -				int rc = pcre_exec(g->suffix_regexp, 0, work, work_len, 0, 0, ovector, OVECCOUNT);
+> +				rc = pcre_exec(g->suffix_regexp, 0, work, work_len, 0, 0, ovector, OVECCOUNT);
+>  				if (rc > 0) {
+>  					suffix = 1;
+>  					suffix_offset = ovector[0];
+> @@ -1186,7 +1185,7 @@ compute_raw_from_trans(const char *level, domain_t *domain) {
+>  			     g->word_regexp) {
+>  				char *s = work + prefix_offset + prefix_len;
+>  				int l = (suffix_len ? suffix_offset : work_len) - prefix_len - prefix_offset;
+> -				int rc = pcre_exec(g->word_regexp, 0, s, l, 0, 0, ovector, OVECCOUNT);
+> +				rc = pcre_exec(g->word_regexp, 0, s, l, 0, 0, ovector, OVECCOUNT);
+>  				if (rc > 0) {
+>  					match = NULL;
+>  					pcre_get_substring(s, ovector, rc, 0, &match);
+> @@ -1285,6 +1284,7 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+>  	gettimeofday(&startTime, 0);
+>  #endif
+>  
+> +	word_group_t *g;
+>  	mls_level_t *l = NULL;
+>  	char *rval = NULL;
+>  	word_group_t *groups = NULL;
+> @@ -1325,14 +1325,12 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+>  				continue;
+>  
+>  			/* compute bits not consumed by base classification */
+> -			ebitmap_t unhandled, orig_unhandled;
+>  			if (ebitmap_xor(&unhandled, &l->cat, &bc->level->cat) < 0)
+>  				goto err;
+>  			if (ebitmap_cpy(&orig_unhandled, &unhandled) < 0)
+>  				goto err;
+>  
+>  			/* prebuild groups */
+> -			word_group_t *g;
+>  			for (g = domain->groups; g; g = g->next) {
+>  				word_group_t **t;
+>  				for (t = &groups; *t; t = &(*t)->next)
+> @@ -1357,7 +1355,6 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+>  			for (loops = 50; ebitmap_cardinality(&unhandled) && loops > 0 && change; loops--) {
+>  				change = 0;
+>  				hamming = 10000;
+> -				ebitmap_t handled, nothandled;
+>  				if (ebitmap_xor(&handled, &unhandled, &orig_unhandled) < 0)
+>  					goto err;
+>  				if (ebitmap_not(&nothandled, &handled, maxbit) < 0)
+> @@ -1374,8 +1371,6 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+>  						}
+>  
+>  						/* if only unhandled bits are different */
+> -						ebitmap_t temp;
+> -						ebitmap_t bit_diff;
+>  						if (ebitmap_or(&temp, &w->normal, &w->inverse) < 0)
+>  							goto err;
+>  						if (ebitmap_and(&bit_diff, &temp, &nothandled) < 0)
+> @@ -1400,11 +1395,9 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+>  				ebitmap_destroy(&nothandled);
+>  
+>  				if (currentWord) {
+> -					ebitmap_t bit_diff;
+>  					if (ebitmap_xor(&bit_diff, &currentWord->cat, &bc->level->cat) < 0)
+>  						goto err;
+>  
+> -					ebitmap_t temp;
+>  					if (ebitmap_cpy(&temp, &unhandled) < 0)
+>  						goto err;
+>  					ebitmap_destroy(&unhandled);
+> @@ -1431,7 +1424,6 @@ compute_trans_from_raw(const char *level, domain_t *domain) {
+>  				buffer[0] = 0;
+>  				strcat(buffer, bc->trans);
+>  				strcat(buffer, " ");
+> -				word_group_t *g;
+>  				for (g=groups; g; g = g->next) {
+>  					if (g->words && g->prefixes) {
+>  						strcat(buffer, g->prefixes->text);
+> -- 
+> 2.7.3
+> 
