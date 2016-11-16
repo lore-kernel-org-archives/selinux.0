@@ -4,8 +4,8 @@ To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
 References: <20161115230723.20043-1-nicolas.iooss@m4x.org>
  <20161115230723.20043-3-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <792180ec-fa24-b936-4c12-dee928951d13@tycho.nsa.gov>
-Date: Wed, 16 Nov 2016 09:12:29 -0500
+Message-ID: <786aed42-b323-3cc7-932d-bcb078fea4ea@tycho.nsa.gov>
+Date: Wed, 16 Nov 2016 09:15:20 -0500
 MIME-Version: 1.0
 In-Reply-To: <20161115230723.20043-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
@@ -25,14 +25,11 @@ On 11/15/2016 06:07 PM, Nicolas Iooss wrote:
 > 
 > Detect such an oddity in the policy file early to exit with a clean
 > error message.
-
-I'll apply this but I'd like to know where the segmentation fault
-occurred.  The index functions already check whether the value exceeds
-the nprim value, and therefore shouldn't try to set the _val_to_name[]
-entry.
-
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Thanks, applied all three.
+
 > ---
 >  libsepol/src/policydb.c | 8 ++++++++
 >  1 file changed, 8 insertions(+)
