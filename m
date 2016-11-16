@@ -1,107 +1,36 @@
-Date: Tue, 15 Nov 2016 15:52:25 -0800
-From: Harry Waddell <waddell@caravaninfotech.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: SELinux system configuration using CIPSO
-Message-ID: <20161115155225.14ac80c5@taliesin-3.local>
-In-Reply-To: <8db613b7-2bce-615f-c206-965e42b80c09@schaufler-ca.com>
-References: <3df72b00-f662-17be-e45d-a80911f7ec34@schaufler-ca.com>
- <5f8da5b2-1acf-fd89-8130-bee748793036@tycho.nsa.gov>
- <929a7231-35dc-315b-9f82-2cd1aa5db4fe@schaufler-ca.com>
- <c25ab412-06eb-1507-00fe-cb66f6133e1c@tycho.nsa.gov>
- <20161115143613.47db4b5a@taliesin-3.local>
- <8db613b7-2bce-615f-c206-965e42b80c09@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1479252622-20935-1-git-send-email-william.c.roberts@intel.com>
+References: <1479252622-20935-1-git-send-email-william.c.roberts@intel.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Tue, 15 Nov 2016 16:33:35 -0800
+Message-ID: <CAFftDdoxXB51B0-ZOG761oeSzHAes9njM7uJLDcmZCGgbKaVRg@mail.gmail.com>
+Subject: Re: [PATCH take2 v5] libsepol: fix checkpolicy dontaudit compiler bug
+To: William Roberts <william.c.roberts@intel.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Nick Kralevich <nnk@google.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 15 Nov 2016 15:07:34 -0800
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+<snip>
 
-> On 11/15/2016 2:36 PM, Harry Waddell wrote:
-> > On Tue, 15 Nov 2016 13:43:28 -0500
-> > Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >  
-> >> On 11/15/2016 01:34 PM, Casey Schaufler wrote:  
-> >>> On 11/15/2016 10:14 AM, Stephen Smalley wrote:    
-> >>>> On 11/15/2016 12:28 PM, Casey Schaufler wrote:    
-> >>>>> I am looking for an SELinux configuration that uses CIPSO.
-> >>>>> Ideally, it would be based on a readily available distro,
-> >>>>> but I'm willing to perform semi-heroic acts if I have too.
-> >>>>> I'm not in a position to develop it myself, nor would that
-> >>>>> really suit my nefarious purposes. Thank you.    
-> >>>> Can you clarify what you mean?  There is a sample NetLabel configuration
-> >>>> in the selinux-testsuite (in tests/inet_socket/netlabel-load) that
-> >>>> configures full SELinux labeling over loopback connections, used by the
-> >>>> inet_socket tests.  And the corresponding SELinux policy rules for those
-> >>>> tests can be found in policy/test_inet_socket.te within the testsuite.    
-> >>> That will probably get me started. I'll have a look at the test
-> >>> documentation. I am also looking for a configuration that I can
-> >>> use for exploring a "real" CIPSO environment, where two or more
-> >>> machines are talking to each other using CIPSO. I think that I
-> >>> understand how that is supposed to work, but there's nothing like
-> >>> seeing the packets fly. Is there a case for that in the test suite?
-> >>> Thank you.    
-> >> Not in the selinux-testsuite, since it doesn't presently require/expect
-> >> you to set up two different systems.  Probably the lspp testsuite or
-> >> Paul Moore's blog or maybe the SELinux Notebook for samples of that kind
-> >> of configuration.  Note that in that cross-machine case, CIPSO only
-> >> passes an encoding of the MLS label, not the user:role:type information.
-> >>
-> >>  
-> > In addition to the user:role:type information, there are other limits to what 
-> > you can pass over the wire via netlabel due to the way the CIPSO information is encoded 
-> > in the packet. 
-> >
-> > You can only encode a single sensitivity because the CIPSO spec only stores it in a 
-> > single integer. s0:c0.c1023 passes fine, but s0-s2:c0.c1023 will get reduced to s0:c0.c1023. 
-> >
-> > Unlike the sensitivity it is possible to pass some
-> > fairly complex sets of categories. When you create a DOI, 
-> > you can specify how the categories will be encoded using a tag of 1, 2, or 5. 
-> > ( these are bitmap, enumerated and range types respectively ) What categories 
-> > can be passed via netlabel is dependent on the limits of these types.
-> >
-> > The bottom line is that it's entirely possible to have a valid context that 
-> > netlabel will not be able to fully preserve. Netlabel is still very useful, 
-> > but you have to remain mindful of its limitations.
-> >
-> > The above is based on my reading of the CIPSO spec and my experience with netlabel.
-> > It's entirely possible my understanding is incomplete and/or out of date. Somone like Paul Moore
-> > can speak with much greater authority. 
-> >
-> > HW  
-> 
-> I understand CIPSO reasonably well, having been involved in
-> its development back in the late 80's and early 90's*. What I'm
-> looking for is a way to set up an SELinux system that uses
-> CIPSO without having to learn all the gnarly details of SELinux
-> network administration. A sample configuration would be a big
-> help.
-> 
-> ---
-> * I was working at Sun, Silicon Graphics and Cray on B1 Unix systems.
->   They used CIPSO long before the RFC was published.
-> 
+>                 memset(&avdatum, 0, sizeof avdatum);
+> +               /*
+> +                * AUDITDENY and DONTAUDIT are &= assigned, versus |= for
+> +                * others. Initialize the data accordingly.
+> +                */
+> +               avdatum.data = (key->specified &
+> +                              (AVRULE_AUDITDENY | AVRULE_DONTAUDIT)) ? ~0 : 0;
 
-It depends entirely on what you mean by "uses" and I totally get what you mean 
-when you say you don't want to learn about selinux net admin, but depending on what you want to
-do, I'm not sure you can get out of it. Paul Moore's blog posts are the best thing I know of
-but they break everything up into pieces, so AFAIK, there's no single example that 
-is comprehensive. It certainly wasn't easy going for me as there are a lot of 
-parts that need to be set up. I now have what I need in a working state, 
-but I'm pretty sure at least some of what I've done would have been redundant
-and unnecessary if I'd just taken the time to define my nodes, booleans, etc... correctly. 
+Nak this, surprising this is working and producing correct output, but
+we would want to check
+against the AVTAB defines...
 
-For example, I have this intended to allow ping to work:
+This patch, while simple, for some reason is getting the best of me :-P
 
-#============= ping_t ==============
-allow ping_t netlabel_peer_t:netif egress;
-
-I did what I expect most people do which is to set it up and see what breaks. 
-My work is definitely not good enough to be an example for others just yet. 
-
-HW
+>                 /* this is used to get the node - insertion is actually unique */
+>                 node = avtab_insert_nonunique(avtab, key, &avdatum);
+>                 if (!node) {
+<snip>
