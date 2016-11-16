@@ -1,61 +1,91 @@
-From: william.c.roberts@intel.com
-To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: [PATCH v2 1/2] policydb.h: use AVTAB macros to avoid duplications
-Date: Wed, 16 Nov 2016 13:47:37 -0800
-Message-Id: <1479332858-12948-1-git-send-email-william.c.roberts@intel.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAGMHHwr003655
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 17:17:19 -0500
+Received: from mail-wm0-f41.google.com (mail-wm0-f41.google.com [74.125.82.41])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id B2C5E564721
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 23:17:13 +0100 (CET)
+Received: by mail-wm0-f41.google.com with SMTP id t79so104538790wmt.0
+ for <selinux@tycho.nsa.gov>; Wed, 16 Nov 2016 14:17:13 -0800 (PST)
+MIME-Version: 1.0
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Wed, 16 Nov 2016 23:17:12 +0100
+Message-ID: <CAJfZ7=nN_w9kNKTWmFX01=0KZGm4cN1A-rut6=arH-M+Nydbog@mail.gmail.com>
+Subject: Using "override CFLAGS += -I$(PREFIX)/include" in mcstrans?
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a114a75a0556e490541726f44
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+--001a114a75a0556e490541726f44
+Content-Type: text/plain; charset=UTF-8
 
-Rather than having multiple copies of the AVTAB and AVRULE
-defines, consolidate them.
+Hello,
 
-This makes it clear that AVRULE to AVTAB conversion no longer
-need to occur.
+A few weeks ago I configured Travis-CI to build the SELinux userspace
+projects with several configurations (gcc and clang compilers, several
+Python and Ruby versions...). Since the merge of splitpolicycoreutils the
+builds I have done failed because of at least two things (cf. [1] for the
+raw result):
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libsepol/include/sepol/policydb/policydb.h | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+- sandbox test contains "if selinux.security_getenforce() == 1:" to skip
+the test on systems where SELinux is in enforcing mode. This fails with a
+FileNotFoundError on a system without SELinux (like Travis-CI build
+environments). To fix this I wrote a patch [1] that I'll send once I get
+the tests running fine again.
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index d99fcf4..77e46fb 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -258,20 +258,20 @@ typedef struct av_extended_perms {
- typedef struct avrule {
- /* these typedefs are almost exactly the same as those in avtab.h - they are
-  * here because of the need to include neverallow and dontaudit messages */
--#define AVRULE_ALLOWED			0x0001
--#define AVRULE_AUDITALLOW		0x0002
--#define AVRULE_AUDITDENY		0x0004
-+#define AVRULE_ALLOWED			AVTAB_ALLOWED
-+#define AVRULE_AUDITALLOW		AVTAB_AUDITALLOW
-+#define AVRULE_AUDITDENY		AVTAB_AUDITDENY
- #define AVRULE_DONTAUDIT		0x0008
--#define AVRULE_NEVERALLOW		0x0080
-+#define AVRULE_NEVERALLOW		AVTAB_NEVERALLOW
- #define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
--#define AVRULE_TRANSITION		0x0010
--#define AVRULE_MEMBER			0x0020
--#define AVRULE_CHANGE			0x0040
-+#define AVRULE_TRANSITION		AVTAB_TRANSITION
-+#define AVRULE_MEMBER			AVTAB_MEMBER
-+#define AVRULE_CHANGE			AVTAB_CHANGE
- #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
--#define AVRULE_XPERMS_ALLOWED 		0x0100
--#define AVRULE_XPERMS_AUDITALLOW	0x0200
--#define AVRULE_XPERMS_DONTAUDIT		0x0400
--#define AVRULE_XPERMS_NEVERALLOW	0x0800
-+#define AVRULE_XPERMS_ALLOWED 		AVTAB_XPERMS_ALLOWED
-+#define AVRULE_XPERMS_AUDITALLOW	AVTAB_XPERMS_AUDITALLOW
-+#define AVRULE_XPERMS_DONTAUDIT		AVTAB_XPERMS_DONTAUDIT
-+#define AVRULE_XPERMS_NEVERALLOW	AVTAB_XPERMS_NEVERALLOW
- #define AVRULE_XPERMS	(AVRULE_XPERMS_ALLOWED | AVRULE_XPERMS_AUDITALLOW | \
- 				AVRULE_XPERMS_DONTAUDIT | AVRULE_XPERMS_NEVERALLOW)
- 	uint32_t specified;
--- 
-2.7.4
+- When building mcstrans with a "make install" in the root directory, the
+compiler complains with "fatal error: selinux/selinux.h: No such file or
+directory". Other subdirectories have "override CFLAGS +=
+-I$(PREFIX)/include" to include files installed in $DESTDIR. This makes
+"make DESTDIR=/tmp/xxxx install" work on systems without SELinux. Moreover
+mcstrans/src/Makefile uses "override CFLAGS += -I../include" but
+mcstrans/include/ does not exist. I feel like this line should be modified
+to "...-I$(PREFIX)..." but it makes me quite uneasy so before writing a
+patch, I would like to be sure I am not missing something I have not seen
+in my quick reading of the files. This is why I am writing this email:
+could you please take a look at mcstrans Makefiles?
+
+Thanks,
+Nicolas
+
+[1] https://travis-ci.org/fishilico/selinux/jobs/176506142
+[2]
+https://github.com/fishilico/selinux/commit/1c3cae4a984a6dc9a5ba5190a69bf4e7a2362623
+
+--001a114a75a0556e490541726f44
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello,<div><br></div><div>A few weeks ago I configured Tra=
+vis-CI to build the SELinux userspace projects with several configurations =
+(gcc and clang compilers, several Python and Ruby versions...). Since the m=
+erge of=C2=A0splitpolicycoreutils the builds I have done failed because of =
+at least two things (cf. [1] for the raw result):</div><div><br></div><div>=
+- sandbox test contains &quot;if selinux.security_getenforce() =3D=3D 1:&qu=
+ot; to skip the test on systems where SELinux is in enforcing mode. This fa=
+ils with a FileNotFoundError on a system without SELinux (like Travis-CI bu=
+ild environments). To fix this I wrote a patch [1] that I&#39;ll send once =
+I get the tests running fine again.<br></div><div><br></div><div>- When bui=
+lding=C2=A0mcstrans with a &quot;make install&quot; in the root directory, =
+the compiler complains with &quot;fatal error: selinux/selinux.h: No such f=
+ile or directory&quot;. Other subdirectories have &quot;override CFLAGS +=
+=3D -I$(PREFIX)/include&quot; to include files installed in $DESTDIR. This =
+makes &quot;make DESTDIR=3D/tmp/xxxx install&quot; work on systems without =
+SELinux. Moreover mcstrans/src/Makefile uses &quot;override CFLAGS +=3D -I.=
+./include&quot; but mcstrans/include/ does not exist. I feel like this line=
+ should be modified to &quot;...-I$(PREFIX)...&quot; but it makes me quite =
+uneasy so before writing a patch, I would like to be sure I am not missing =
+something I have not seen in my quick reading of the files. This is why I a=
+m writing this email: could you please take a look at mcstrans Makefiles?</=
+div><div><br></div><div>Thanks,</div><div>Nicolas</div><div><br></div><div>=
+[1] <a href=3D"https://travis-ci.org/fishilico/selinux/jobs/176506142">http=
+s://travis-ci.org/fishilico/selinux/jobs/176506142</a></div><div>[2]=C2=A0<=
+a href=3D"https://github.com/fishilico/selinux/commit/1c3cae4a984a6dc9a5ba5=
+190a69bf4e7a2362623">https://github.com/fishilico/selinux/commit/1c3cae4a98=
+4a6dc9a5ba5190a69bf4e7a2362623</a></div></div>
+
+--001a114a75a0556e490541726f44--
