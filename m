@@ -1,10 +1,8 @@
 From: william.c.roberts@intel.com
 To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: [PATCH v3 3/3] expand_terule_helper: cleanups
-Date: Thu, 17 Nov 2016 08:56:08 -0800
-Message-Id: <1479401768-19811-3-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
-References: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v3 1/3] policydb.h: use AVTAB macros to avoid duplications
+Date: Thu, 17 Nov 2016 08:56:06 -0800
+Message-Id: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -12,71 +10,52 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-1. Use the new helper to convert from AVRULE to AVTAB values.
-2. Only check once for invalid AVRULE specified parameter.
-3. Drop assert and just return error on invalid specification.
+Rather than having multiple copies of the AVTAB and AVRULE
+defines, consolidate them.
+
+This makes it clear that AVRULE to AVTAB conversion no longer
+need to occur.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libsepol/src/expand.c | 32 ++++++++++----------------------
- 1 file changed, 10 insertions(+), 22 deletions(-)
+ libsepol/include/sepol/policydb/policydb.h | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 5e2c066..32df6f8 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1691,26 +1691,22 @@ static int expand_terule_helper(sepol_handle_t * handle,
- 	avtab_ptr_t node;
- 	class_perm_node_t *cur;
- 	int conflict;
--	uint32_t oldtype = 0, spec = 0;
--
--	if (specified & AVRULE_TRANSITION) {
--		spec = AVTAB_TRANSITION;
--	} else if (specified & AVRULE_MEMBER) {
--		spec = AVTAB_MEMBER;
--	} else if (specified & AVRULE_CHANGE) {
--		spec = AVTAB_CHANGE;
--	} else {
--		assert(0);	/* unreachable */
-+	uint32_t oldtype = 0;
-+
-+	if (!(specified & (AVRULE_TRANSITION|AVRULE_MEMBER|AVRULE_CHANGE))) {
-+		ERR(handle, "Invalid specification: %"PRIu32"\n", specified);
-+		return EXPAND_RULE_ERROR;
- 	}
- 
-+	avkey.specified = avrule_to_avtab_spec(specified);
-+	avkey.source_type = stype + 1;
-+	avkey.target_type = ttype + 1;
-+
- 	cur = perms;
- 	while (cur) {
- 		uint32_t remapped_data =
- 		    typemap ? typemap[cur->data - 1] : cur->data;
--		avkey.source_type = stype + 1;
--		avkey.target_type = ttype + 1;
- 		avkey.target_class = cur->tclass;
--		avkey.specified = spec;
- 
- 		conflict = 0;
- 		/* check to see if the expanded TE already exists --
-@@ -1772,15 +1768,7 @@ static int expand_terule_helper(sepol_handle_t * handle,
- 		}
- 
- 		avdatump = &node->datum;
--		if (specified & AVRULE_TRANSITION) {
--			avdatump->data = remapped_data;
--		} else if (specified & AVRULE_MEMBER) {
--			avdatump->data = remapped_data;
--		} else if (specified & AVRULE_CHANGE) {
--			avdatump->data = remapped_data;
--		} else {
--			assert(0);	/* should never occur */
--		}
-+		avdatump->data = remapped_data;
- 
- 		cur = cur->next;
- 	}
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index d99fcf4..77e46fb 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -258,20 +258,20 @@ typedef struct av_extended_perms {
+ typedef struct avrule {
+ /* these typedefs are almost exactly the same as those in avtab.h - they are
+  * here because of the need to include neverallow and dontaudit messages */
+-#define AVRULE_ALLOWED			0x0001
+-#define AVRULE_AUDITALLOW		0x0002
+-#define AVRULE_AUDITDENY		0x0004
++#define AVRULE_ALLOWED			AVTAB_ALLOWED
++#define AVRULE_AUDITALLOW		AVTAB_AUDITALLOW
++#define AVRULE_AUDITDENY		AVTAB_AUDITDENY
+ #define AVRULE_DONTAUDIT		0x0008
+-#define AVRULE_NEVERALLOW		0x0080
++#define AVRULE_NEVERALLOW		AVTAB_NEVERALLOW
+ #define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
+-#define AVRULE_TRANSITION		0x0010
+-#define AVRULE_MEMBER			0x0020
+-#define AVRULE_CHANGE			0x0040
++#define AVRULE_TRANSITION		AVTAB_TRANSITION
++#define AVRULE_MEMBER			AVTAB_MEMBER
++#define AVRULE_CHANGE			AVTAB_CHANGE
+ #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
+-#define AVRULE_XPERMS_ALLOWED 		0x0100
+-#define AVRULE_XPERMS_AUDITALLOW	0x0200
+-#define AVRULE_XPERMS_DONTAUDIT		0x0400
+-#define AVRULE_XPERMS_NEVERALLOW	0x0800
++#define AVRULE_XPERMS_ALLOWED 		AVTAB_XPERMS_ALLOWED
++#define AVRULE_XPERMS_AUDITALLOW	AVTAB_XPERMS_AUDITALLOW
++#define AVRULE_XPERMS_DONTAUDIT		AVTAB_XPERMS_DONTAUDIT
++#define AVRULE_XPERMS_NEVERALLOW	AVTAB_XPERMS_NEVERALLOW
+ #define AVRULE_XPERMS	(AVRULE_XPERMS_ALLOWED | AVRULE_XPERMS_AUDITALLOW | \
+ 				AVRULE_XPERMS_DONTAUDIT | AVRULE_XPERMS_NEVERALLOW)
+ 	uint32_t specified;
 -- 
 2.7.4
