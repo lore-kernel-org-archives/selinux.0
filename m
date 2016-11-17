@@ -1,219 +1,53 @@
-From: william.c.roberts@intel.com
-To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: [PATCH v3 2/3] expand_avrule_helper: cleanup
-Date: Thu, 17 Nov 2016 08:56:07 -0800
-Message-Id: <1479401768-19811-2-git-send-email-william.c.roberts@intel.com>
-In-Reply-To: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
-References: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAHLKFS3012144
+ for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2016 16:20:15 -0500
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 4A01C5647A2
+ for <selinux@tycho.nsa.gov>; Thu, 17 Nov 2016 22:20:12 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/1] sandbox: make test not fail on systems without SELinux
+Date: Thu, 17 Nov 2016 22:20:06 +0100
+Message-Id: <20161117212006.20697-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: William Roberts <william.c.roberts@intel.com>
+On systems without SELinux (eg. some continuous integration
+environments), "make test" fails with:
 
-General clean up for expand_avrule_helper:
-1. Minimize the conversions of AVRULE specification to AVTAB specification,
-   they are almost the same, the one exception is AVRULE_DONTAUDIT.
-2. Clean up the if/else logic, collapse with a switch.
-3. Move xperms allocation and manipulation to its own helper.
-4. Only write avkey for values that change.
-5. Return error rather than assert on invalid specification.
+    Traceback (most recent call last):
+      File "test_sandbox.py", line 110, in <module>
+        if selinux.security_getenforce() == 1:
+    FileNotFoundError: [Errno 2] No such file or directory
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
+This is exception is thrown because the selinuxfs file system is not
+mounted.
+
+Detect such configurations using selinux.is_selinux_enabled() and skip
+the test when SELinux is disabled accordingly.
+
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsepol/src/expand.c | 135 ++++++++++++++++++++++++++------------------------
- 1 file changed, 69 insertions(+), 66 deletions(-)
+ sandbox/test_sandbox.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 3e16f58..5e2c066 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -33,6 +33,7 @@
- #include <stdio.h>
- #include <string.h>
- #include <assert.h>
-+#include <inttypes.h>
+diff --git a/sandbox/test_sandbox.py b/sandbox/test_sandbox.py
+index bcecf66ee257..ba849a08141d 100644
+--- a/sandbox/test_sandbox.py
++++ b/sandbox/test_sandbox.py
+@@ -107,7 +107,7 @@ class SandboxTests(unittest.TestCase):
  
- #include "debug.h"
- #include "private.h"
-@@ -1668,6 +1669,12 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
- 	return node;
- }
- 
-+static uint32_t avrule_to_avtab_spec(uint32_t specification)
-+{
-+	return (specification == AVRULE_DONTAUDIT) ?
-+		AVTAB_AUDITDENY : specification;
-+}
-+
- #define EXPAND_RULE_SUCCESS   1
- #define EXPAND_RULE_CONFLICT  0
- #define EXPAND_RULE_ERROR    -1
-@@ -1781,6 +1788,41 @@ static int expand_terule_helper(sepol_handle_t * handle,
- 	return EXPAND_RULE_SUCCESS;
- }
- 
-+/* 0 for success -1 indicates failure */
-+static int allocate_xperms(sepol_handle_t * handle, avtab_datum_t * avdatump,
-+			   av_extended_perms_t * extended_perms)
-+{
-+	unsigned int i;
-+
-+	avtab_extended_perms_t *xperms = avdatump->xperms;
-+	if (!xperms) {
-+		xperms = (avtab_extended_perms_t *)
-+			calloc(1, sizeof(avtab_extended_perms_t));
-+		if (!xperms) {
-+			ERR(handle, "Out of memory!");
-+			return -1;
-+		}
-+		avdatump->xperms = xperms;
-+	}
-+
-+	switch (extended_perms->specified) {
-+	case AVRULE_XPERMS_IOCTLFUNCTION:
-+		xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
-+		break;
-+	case AVRULE_XPERMS_IOCTLDRIVER:
-+		xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
-+		break;
-+	default:
-+		return -1;
-+	}
-+
-+	xperms->driver = extended_perms->driver;
-+	for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
-+		xperms->perms[i] |= extended_perms->perms[i];
-+
-+	return 0;
-+}
-+
- static int expand_avrule_helper(sepol_handle_t * handle,
- 				uint32_t specified,
- 				cond_av_list_t ** cond,
-@@ -1790,44 +1832,21 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- {
- 	avtab_key_t avkey;
- 	avtab_datum_t *avdatump;
--	avtab_extended_perms_t *xperms;
- 	avtab_ptr_t node;
- 	class_perm_node_t *cur;
--	uint32_t spec = 0;
--	unsigned int i;
- 
--	if (specified & AVRULE_ALLOWED) {
--		spec = AVTAB_ALLOWED;
--	} else if (specified & AVRULE_AUDITALLOW) {
--		spec = AVTAB_AUDITALLOW;
--	} else if (specified & AVRULE_AUDITDENY) {
--		spec = AVTAB_AUDITDENY;
--	} else if (specified & AVRULE_DONTAUDIT) {
--		if (handle && handle->disable_dontaudit)
--			return EXPAND_RULE_SUCCESS;
--		spec = AVTAB_AUDITDENY;
--	} else if (specified & AVRULE_NEVERALLOW) {
--		spec = AVTAB_NEVERALLOW;
--	} else if (specified & AVRULE_XPERMS_ALLOWED) {
--		spec = AVTAB_XPERMS_ALLOWED;
--	} else if (specified & AVRULE_XPERMS_AUDITALLOW) {
--		spec = AVTAB_XPERMS_AUDITALLOW;
--	} else if (specified & AVRULE_XPERMS_DONTAUDIT) {
--		if (handle && handle->disable_dontaudit)
-+	/* bail early if dontaudit's are disabled and it's a dontaudit rule */
-+	if ((specified & (AVRULE_DONTAUDIT|AVRULE_XPERMS_DONTAUDIT))
-+	     && handle && handle->disable_dontaudit)
- 			return EXPAND_RULE_SUCCESS;
--		spec = AVTAB_XPERMS_DONTAUDIT;
--	} else if (specified & AVRULE_XPERMS_NEVERALLOW) {
--		spec = AVTAB_XPERMS_NEVERALLOW;
--	} else {
--		assert(0);	/* unreachable */
--	}
-+
-+	avkey.source_type = stype + 1;
-+	avkey.target_type = ttype + 1;
-+	avkey.specified = avrule_to_avtab_spec(specified);
- 
- 	cur = perms;
- 	while (cur) {
--		avkey.source_type = stype + 1;
--		avkey.target_type = ttype + 1;
- 		avkey.target_class = cur->tclass;
--		avkey.specified = spec;
- 
- 		node = find_avtab_node(handle, avtab, &avkey, cond, extended_perms);
- 		if (!node)
-@@ -1839,13 +1858,16 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- 		}
- 
- 		avdatump = &node->datum;
--		if (specified & AVRULE_ALLOWED) {
--			avdatump->data |= cur->data;
--		} else if (specified & AVRULE_AUDITALLOW) {
--			avdatump->data |= cur->data;
--		} else if (specified & AVRULE_NEVERALLOW) {
-+		switch (specified) {
-+		case AVRULE_ALLOWED:
-+		case AVRULE_AUDITALLOW:
-+		case AVRULE_NEVERALLOW:
- 			avdatump->data |= cur->data;
--		} else if (specified & AVRULE_AUDITDENY) {
-+			break;
-+		case AVRULE_DONTAUDIT:
-+			avdatump->data &= ~cur->data;
-+			break;
-+		case AVRULE_AUDITDENY:
- 			/* Since a '0' in an auditdeny mask represents
- 			 * a permission we do NOT want to audit
- 			 * (dontaudit), we use the '&' operand to
-@@ -1854,36 +1876,17 @@ static int expand_avrule_helper(sepol_handle_t * handle,
- 			 * auditallow cases).
- 			 */
- 			avdatump->data &= cur->data;
--		} else if (specified & AVRULE_DONTAUDIT) {
--			avdatump->data &= ~cur->data;
--		} else if (specified & AVRULE_XPERMS) {
--			xperms = avdatump->xperms;
--			if (!xperms) {
--				xperms = (avtab_extended_perms_t *)
--					calloc(1, sizeof(avtab_extended_perms_t));
--				if (!xperms) {
--					ERR(handle, "Out of memory!");
--					return -1;
--				}
--				avdatump->xperms = xperms;
--			}
--
--			switch (extended_perms->specified) {
--			case AVRULE_XPERMS_IOCTLFUNCTION:
--				xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
--				break;
--			case AVRULE_XPERMS_IOCTLDRIVER:
--				xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
--				break;
--			default:
--				return -1;
--			}
--
--			xperms->driver = extended_perms->driver;
--			for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
--				xperms->perms[i] |= extended_perms->perms[i];
--		} else {
--			assert(0);	/* should never occur */
-+			break;
-+		case AVRULE_XPERMS_ALLOWED:
-+		case AVRULE_XPERMS_AUDITALLOW:
-+		case AVRULE_XPERMS_DONTAUDIT:
-+		case AVRULE_XPERMS_NEVERALLOW:
-+			if (allocate_xperms(handle, avdatump, extended_perms))
-+				return EXPAND_RULE_ERROR;
-+			break;
-+		default:
-+			ERR(handle, "Unknown specification: %"PRIu32"\n", specified);
-+			return EXPAND_RULE_ERROR;
- 		}
- 
- 		cur = cur->next;
+ if __name__ == "__main__":
+     import selinux
+-    if selinux.security_getenforce() == 1:
++    if selinux.is_selinux_enabled() and selinux.security_getenforce() == 1:
+         unittest.main()
+     else:
+         print("SELinux must be in enforcing mode for this test")
 -- 
-2.7.4
+2.10.2
