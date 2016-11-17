@@ -1,8 +1,10 @@
 From: william.c.roberts@intel.com
 To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: [PATCH v3 1/3] policydb.h: use AVTAB macros to avoid duplications
-Date: Thu, 17 Nov 2016 08:56:06 -0800
-Message-Id: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH v3 2/3] expand_avrule_helper: cleanup
+Date: Thu, 17 Nov 2016 08:56:07 -0800
+Message-Id: <1479401768-19811-2-git-send-email-william.c.roberts@intel.com>
+In-Reply-To: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
+References: <1479401768-19811-1-git-send-email-william.c.roberts@intel.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -10,52 +12,208 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Rather than having multiple copies of the AVTAB and AVRULE
-defines, consolidate them.
-
-This makes it clear that AVRULE to AVTAB conversion no longer
-need to occur.
+General clean up for expand_avrule_helper:
+1. Minimize the conversions of AVRULE specification to AVTAB specification,
+   they are almost the same, the one exception is AVRULE_DONTAUDIT.
+2. Clean up the if/else logic, collapse with a switch.
+3. Move xperms allocation and manipulation to its own helper.
+4. Only write avkey for values that change.
+5. Return error rather than assert on invalid specification.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libsepol/include/sepol/policydb/policydb.h | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ libsepol/src/expand.c | 135 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 69 insertions(+), 66 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index d99fcf4..77e46fb 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -258,20 +258,20 @@ typedef struct av_extended_perms {
- typedef struct avrule {
- /* these typedefs are almost exactly the same as those in avtab.h - they are
-  * here because of the need to include neverallow and dontaudit messages */
--#define AVRULE_ALLOWED			0x0001
--#define AVRULE_AUDITALLOW		0x0002
--#define AVRULE_AUDITDENY		0x0004
-+#define AVRULE_ALLOWED			AVTAB_ALLOWED
-+#define AVRULE_AUDITALLOW		AVTAB_AUDITALLOW
-+#define AVRULE_AUDITDENY		AVTAB_AUDITDENY
- #define AVRULE_DONTAUDIT		0x0008
--#define AVRULE_NEVERALLOW		0x0080
-+#define AVRULE_NEVERALLOW		AVTAB_NEVERALLOW
- #define AVRULE_AV         (AVRULE_ALLOWED | AVRULE_AUDITALLOW | AVRULE_AUDITDENY | AVRULE_DONTAUDIT | AVRULE_NEVERALLOW)
--#define AVRULE_TRANSITION		0x0010
--#define AVRULE_MEMBER			0x0020
--#define AVRULE_CHANGE			0x0040
-+#define AVRULE_TRANSITION		AVTAB_TRANSITION
-+#define AVRULE_MEMBER			AVTAB_MEMBER
-+#define AVRULE_CHANGE			AVTAB_CHANGE
- #define AVRULE_TYPE       (AVRULE_TRANSITION | AVRULE_MEMBER | AVRULE_CHANGE)
--#define AVRULE_XPERMS_ALLOWED 		0x0100
--#define AVRULE_XPERMS_AUDITALLOW	0x0200
--#define AVRULE_XPERMS_DONTAUDIT		0x0400
--#define AVRULE_XPERMS_NEVERALLOW	0x0800
-+#define AVRULE_XPERMS_ALLOWED 		AVTAB_XPERMS_ALLOWED
-+#define AVRULE_XPERMS_AUDITALLOW	AVTAB_XPERMS_AUDITALLOW
-+#define AVRULE_XPERMS_DONTAUDIT		AVTAB_XPERMS_DONTAUDIT
-+#define AVRULE_XPERMS_NEVERALLOW	AVTAB_XPERMS_NEVERALLOW
- #define AVRULE_XPERMS	(AVRULE_XPERMS_ALLOWED | AVRULE_XPERMS_AUDITALLOW | \
- 				AVRULE_XPERMS_DONTAUDIT | AVRULE_XPERMS_NEVERALLOW)
- 	uint32_t specified;
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 3e16f58..5e2c066 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -33,6 +33,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <assert.h>
++#include <inttypes.h>
+ 
+ #include "debug.h"
+ #include "private.h"
+@@ -1668,6 +1669,12 @@ static avtab_ptr_t find_avtab_node(sepol_handle_t * handle,
+ 	return node;
+ }
+ 
++static uint32_t avrule_to_avtab_spec(uint32_t specification)
++{
++	return (specification == AVRULE_DONTAUDIT) ?
++		AVTAB_AUDITDENY : specification;
++}
++
+ #define EXPAND_RULE_SUCCESS   1
+ #define EXPAND_RULE_CONFLICT  0
+ #define EXPAND_RULE_ERROR    -1
+@@ -1781,6 +1788,41 @@ static int expand_terule_helper(sepol_handle_t * handle,
+ 	return EXPAND_RULE_SUCCESS;
+ }
+ 
++/* 0 for success -1 indicates failure */
++static int allocate_xperms(sepol_handle_t * handle, avtab_datum_t * avdatump,
++			   av_extended_perms_t * extended_perms)
++{
++	unsigned int i;
++
++	avtab_extended_perms_t *xperms = avdatump->xperms;
++	if (!xperms) {
++		xperms = (avtab_extended_perms_t *)
++			calloc(1, sizeof(avtab_extended_perms_t));
++		if (!xperms) {
++			ERR(handle, "Out of memory!");
++			return -1;
++		}
++		avdatump->xperms = xperms;
++	}
++
++	switch (extended_perms->specified) {
++	case AVRULE_XPERMS_IOCTLFUNCTION:
++		xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
++		break;
++	case AVRULE_XPERMS_IOCTLDRIVER:
++		xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
++		break;
++	default:
++		return -1;
++	}
++
++	xperms->driver = extended_perms->driver;
++	for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
++		xperms->perms[i] |= extended_perms->perms[i];
++
++	return 0;
++}
++
+ static int expand_avrule_helper(sepol_handle_t * handle,
+ 				uint32_t specified,
+ 				cond_av_list_t ** cond,
+@@ -1790,44 +1832,21 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ {
+ 	avtab_key_t avkey;
+ 	avtab_datum_t *avdatump;
+-	avtab_extended_perms_t *xperms;
+ 	avtab_ptr_t node;
+ 	class_perm_node_t *cur;
+-	uint32_t spec = 0;
+-	unsigned int i;
+ 
+-	if (specified & AVRULE_ALLOWED) {
+-		spec = AVTAB_ALLOWED;
+-	} else if (specified & AVRULE_AUDITALLOW) {
+-		spec = AVTAB_AUDITALLOW;
+-	} else if (specified & AVRULE_AUDITDENY) {
+-		spec = AVTAB_AUDITDENY;
+-	} else if (specified & AVRULE_DONTAUDIT) {
+-		if (handle && handle->disable_dontaudit)
+-			return EXPAND_RULE_SUCCESS;
+-		spec = AVTAB_AUDITDENY;
+-	} else if (specified & AVRULE_NEVERALLOW) {
+-		spec = AVTAB_NEVERALLOW;
+-	} else if (specified & AVRULE_XPERMS_ALLOWED) {
+-		spec = AVTAB_XPERMS_ALLOWED;
+-	} else if (specified & AVRULE_XPERMS_AUDITALLOW) {
+-		spec = AVTAB_XPERMS_AUDITALLOW;
+-	} else if (specified & AVRULE_XPERMS_DONTAUDIT) {
+-		if (handle && handle->disable_dontaudit)
++	/* bail early if dontaudit's are disabled and it's a dontaudit rule */
++	if ((specified & (AVRULE_DONTAUDIT|AVRULE_XPERMS_DONTAUDIT))
++	     && handle && handle->disable_dontaudit)
+ 			return EXPAND_RULE_SUCCESS;
+-		spec = AVTAB_XPERMS_DONTAUDIT;
+-	} else if (specified & AVRULE_XPERMS_NEVERALLOW) {
+-		spec = AVTAB_XPERMS_NEVERALLOW;
+-	} else {
+-		assert(0);	/* unreachable */
+-	}
++
++	avkey.source_type = stype + 1;
++	avkey.target_type = ttype + 1;
++	avkey.specified = avrule_to_avtab_spec(specified);
+ 
+ 	cur = perms;
+ 	while (cur) {
+-		avkey.source_type = stype + 1;
+-		avkey.target_type = ttype + 1;
+ 		avkey.target_class = cur->tclass;
+-		avkey.specified = spec;
+ 
+ 		node = find_avtab_node(handle, avtab, &avkey, cond, extended_perms);
+ 		if (!node)
+@@ -1839,13 +1858,16 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ 		}
+ 
+ 		avdatump = &node->datum;
+-		if (specified & AVRULE_ALLOWED) {
+-			avdatump->data |= cur->data;
+-		} else if (specified & AVRULE_AUDITALLOW) {
+-			avdatump->data |= cur->data;
+-		} else if (specified & AVRULE_NEVERALLOW) {
++		switch (specified) {
++		case AVRULE_ALLOWED:
++		case AVRULE_AUDITALLOW:
++		case AVRULE_NEVERALLOW:
+ 			avdatump->data |= cur->data;
+-		} else if (specified & AVRULE_AUDITDENY) {
++			break;
++		case AVRULE_DONTAUDIT:
++			avdatump->data &= ~cur->data;
++			break;
++		case AVRULE_AUDITDENY:
+ 			/* Since a '0' in an auditdeny mask represents
+ 			 * a permission we do NOT want to audit
+ 			 * (dontaudit), we use the '&' operand to
+@@ -1854,36 +1876,17 @@ static int expand_avrule_helper(sepol_handle_t * handle,
+ 			 * auditallow cases).
+ 			 */
+ 			avdatump->data &= cur->data;
+-		} else if (specified & AVRULE_DONTAUDIT) {
+-			avdatump->data &= ~cur->data;
+-		} else if (specified & AVRULE_XPERMS) {
+-			xperms = avdatump->xperms;
+-			if (!xperms) {
+-				xperms = (avtab_extended_perms_t *)
+-					calloc(1, sizeof(avtab_extended_perms_t));
+-				if (!xperms) {
+-					ERR(handle, "Out of memory!");
+-					return -1;
+-				}
+-				avdatump->xperms = xperms;
+-			}
+-
+-			switch (extended_perms->specified) {
+-			case AVRULE_XPERMS_IOCTLFUNCTION:
+-				xperms->specified = AVTAB_XPERMS_IOCTLFUNCTION;
+-				break;
+-			case AVRULE_XPERMS_IOCTLDRIVER:
+-				xperms->specified = AVTAB_XPERMS_IOCTLDRIVER;
+-				break;
+-			default:
+-				return -1;
+-			}
+-
+-			xperms->driver = extended_perms->driver;
+-			for (i = 0; i < ARRAY_SIZE(xperms->perms); i++)
+-				xperms->perms[i] |= extended_perms->perms[i];
+-		} else {
+-			assert(0);	/* should never occur */
++			break;
++		case AVRULE_XPERMS_ALLOWED:
++		case AVRULE_XPERMS_AUDITALLOW:
++		case AVRULE_XPERMS_DONTAUDIT:
++		case AVRULE_XPERMS_NEVERALLOW:
++			if (allocate_xperms(handle, avdatump, extended_perms))
++				return EXPAND_RULE_ERROR;
++			break;
++		default:
++			ERR(handle, "Unknown specification: %"PRIu32"\n", specified);
++			return EXPAND_RULE_ERROR;
+ 		}
+ 
+ 		cur = cur->next;
 -- 
 2.7.4
