@@ -1,282 +1,61 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAII5o83004033
- for <selinux@tycho.nsa.gov>; Fri, 18 Nov 2016 13:05:51 -0500
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] policycoreutils: Add cil2conf which creates a policy.conf
- from CIL policy
-Date: Fri, 18 Nov 2016 13:05:28 -0500
-Message-Id: <1479492328-12238-3-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1479492328-12238-1-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1479492328-12238-1-git-send-email-jwcart2@tycho.nsa.gov>
+Date: Fri, 18 Nov 2016 15:24:03 -0200
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Richard Haines <richard_c_haines@btinternet.com>,
+ SELinux-NSA <SELinux@tycho.nsa.gov>, linux-sctp@vger.kernel.org,
+ Paul Moore <paul@paul-moore.com>
+Subject: Re: github issue trackers
+Message-ID: <20161118172402.GC24936@localhost.localdomain>
+References: <74821043-5051-f05b-9ef8-e34af08f7a54@tycho.nsa.gov>
+ <1479487762.13487.6.camel@btinternet.com>
+ <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The program cil2conf uses the libsepol function cil_write_policy_conf()
-to create a policy.conf file from CIL policy.
+On Fri, Nov 18, 2016 at 12:02:33PM -0500, Stephen Smalley wrote:
+> On 11/18/2016 11:49 AM, Richard Haines wrote:
+> > On Fri, 2016-11-18 at 10:30 -0500, Stephen Smalley wrote:
+> >> Hi,
+> >>
+> >> I've populated the github issue trackers for the selinux (userspace)
+> >> and
+> >> selinux-kernel github projects, see:
+> >> https://github.com/SELinuxProject/selinux/issues
+> >> and
+> >> https://github.com/SELinuxProject/selinux-kernel/issues
+> >>
+> >> The old ToDo wiki pages are being migrated over, although I would
+> >> like
+> >> to drop items that are either a) already in progress, b)
+> >> vague/ill-defined, or c) unlikely to be done.  Going forward, we'll
+> >> just
+> >> use the issue trackers for all new items.
+> >>
+> >> Feel free to identify additional issues that I may have missed, but
+> >> please try to keep them well-defined and feasible.
+> > 
+> > Just thought I would update you regarding the status of the RFC SCTP
+> > kernel patches I sent a few years ago that are referenced at:
+> > https://github.com/SELinuxProject/selinux-kernel/issues/5
+> > 
+> > I have been keeping these updated and fixing problems as I find them,
+> > however I have not resubmitted. If there is interest I'm happy to
+> > submit again and see how far I can get. If anyone is interested
+> > I keep a set of patches at:
+> > http://arctic.selinuxproject.org/~rhaines/selinux-sctp
+> > 
+> > For the gory details read:
+> > http://arctic.selinuxproject.org/~rhaines/selinux-sctp/readme.txt
+> 
+> Thanks, I'd certainly like to see them upstreamed.  Were there specific
+> objections or just a lack of response?
 
-By default a file called "policy.conf" will be created, but the "-o"
-option can be used to write to a different file. The "-M" option can
-be used to override the mls statement in CIL. The "-P" option will
-cause tunables to be treated as booleans.
++1
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- policycoreutils/Makefile            |   2 +-
- policycoreutils/cil2conf/Makefile   |  33 +++++++
- policycoreutils/cil2conf/cil2conf.c | 192 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 226 insertions(+), 1 deletion(-)
- create mode 100644 policycoreutils/cil2conf/Makefile
- create mode 100644 policycoreutils/cil2conf/cil2conf.c
-
-diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
-index b930b29..b246e35 100644
---- a/policycoreutils/Makefile
-+++ b/policycoreutils/Makefile
-@@ -1,4 +1,4 @@
--SUBDIRS = setfiles load_policy newrole run_init secon sestatus semodule setsebool scripts po man hll
-+SUBDIRS = setfiles load_policy newrole run_init secon sestatus semodule setsebool scripts po man hll cil2conf
- 
- all install relabel clean indent:
- 	@for subdir in $(SUBDIRS); do \
-diff --git a/policycoreutils/cil2conf/Makefile b/policycoreutils/cil2conf/Makefile
-new file mode 100644
-index 0000000..4098679
---- /dev/null
-+++ b/policycoreutils/cil2conf/Makefile
-@@ -0,0 +1,33 @@
-+PREFIX ?= $(DESTDIR)/usr
-+BINDIR ?= $(PREFIX)/bin
-+MANDIR = $(PREFIX)/share/man
-+LIBDIR ?= $(PREFIX)/lib
-+INCLUDEDIR ?= $(PREFIX)/include
-+
-+LDLIBS = -lsepol -L$(LIBDIR)
-+CIL2CONF_SRCS = $(wildcard *.c)
-+CIL2CONF_OBJS = $(patsubst %.c,%.o,$(CIL2CONF_SRCS))
-+
-+CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align -Wstrict-prototypes -Wpointer-arith -Wunused
-+
-+override CFLAGS += -I$(INCLUDEDIR)
-+
-+all: cil2conf
-+
-+cil2conf: $(CIL2CONF_OBJS)
-+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-+
-+%.o: %.c
-+	$(CC) $(CFLAGS) -c -o $@ $^
-+
-+install: all
-+	-mkdir -p $(BINDDIR)
-+	install -m 755 cil2conf $(BINDIR)
-+
-+relabel:
-+
-+clean:
-+	-rm -f pp $(CIL2CONF_OBJS)
-+
-+indent:
-+	../../scripts/Lindent $(wildcard *.[ch])
-diff --git a/policycoreutils/cil2conf/cil2conf.c b/policycoreutils/cil2conf/cil2conf.c
-new file mode 100644
-index 0000000..ff564f0
---- /dev/null
-+++ b/policycoreutils/cil2conf/cil2conf.c
-@@ -0,0 +1,192 @@
-+/*
-+ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ *    1. Redistributions of source code must retain the above copyright notice,
-+ *       this list of conditions and the following disclaimer.
-+ *
-+ *    2. Redistributions in binary form must reproduce the above copyright notice,
-+ *       this list of conditions and the following disclaimer in the documentation
-+ *       and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
-+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-+ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ * The views and conclusions contained in the software and documentation are those
-+ * of the authors and should not be interpreted as representing official policies,
-+ * either expressed or implied, of Tresys Technology, LLC.
-+ */
-+
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <stdint.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <sys/stat.h>
-+
-+#ifdef ANDROID
-+#include <cil/cil.h>
-+#else
-+#include <sepol/cil/cil.h>
-+#endif
-+#include <sepol/policydb.h>
-+
-+void usage(char *prog)
-+{
-+	printf("Usage: %s [OPTION]... FILE...\n", prog);
-+	printf("\n");
-+	printf("Options:\n");
-+	printf("  -o, --output=<file>            write policy.conf to <file>\n");
-+	printf("                                 (default: policy.conf)\n");
-+	printf("  -M, --mls true|false           write an mls policy. Must be true or false.\n");
-+	printf("                                 This will override the (mls boolean) statement\n");
-+	printf("                                 if present in the policy\n");
-+	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
-+	printf("  -v, --verbose                  increment verbosity level\n");
-+	printf("  -h, --help                     display usage information\n");
-+	exit(1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int rc = SEPOL_ERR;
-+	FILE *file = NULL;
-+	char *buffer = NULL;
-+	struct stat filedata;
-+	uint32_t file_size;
-+	char *output = NULL;
-+	struct cil_db *db = NULL;
-+	int mls = -1;
-+	int preserve_tunables = 0;
-+	int opt_char;
-+	int opt_index = 0;
-+	enum cil_log_level log_level = CIL_ERR;
-+	static struct option long_opts[] = {
-+		{"help", no_argument, 0, 'h'},
-+		{"verbose", no_argument, 0, 'v'},
-+		{"mls", required_argument, 0, 'M'},
-+		{"preserve-tunables", no_argument, 0, 'P'},
-+		{"output", required_argument, 0, 'o'},
-+		{0, 0, 0, 0}
-+	};
-+	int i;
-+
-+	while (1) {
-+		opt_char = getopt_long(argc, argv, "o:hvM:P", long_opts, &opt_index);
-+		if (opt_char == -1) {
-+			break;
-+		}
-+		switch (opt_char) {
-+			case 'v':
-+				log_level++;
-+				break;
-+			case 'M':
-+				if (!strcasecmp(optarg, "true") || !strcasecmp(optarg, "1")) {
-+					mls = 1;
-+				} else if (!strcasecmp(optarg, "false") || !strcasecmp(optarg, "0")) {
-+					mls = 0;
-+				} else {
-+					usage(argv[0]);
-+				}
-+				break;
-+			case 'P':
-+				preserve_tunables = 1;
-+				break;
-+			case 'o':
-+				output = strdup(optarg);
-+				break;
-+			case 'h':
-+				usage(argv[0]);
-+			case '?':
-+				break;
-+			default:
-+					fprintf(stderr, "Unsupported option: %s\n", optarg);
-+				usage(argv[0]);
-+		}
-+	}
-+	if (optind >= argc) {
-+		fprintf(stderr, "No cil files specified\n");
-+		usage(argv[0]);
-+	}
-+
-+	cil_set_log_level(log_level);
-+
-+	cil_db_init(&db);
-+	cil_set_preserve_tunables(db, preserve_tunables);
-+	cil_set_mls(db, mls);
-+
-+	for (i = optind; i < argc; i++) {
-+		file = fopen(argv[i], "r");
-+		if (!file) {
-+			fprintf(stderr, "Could not open file: %s\n", argv[i]);
-+			rc = SEPOL_ERR;
-+			goto exit;
-+		}
-+		rc = stat(argv[i], &filedata);
-+		if (rc == -1) {
-+			fprintf(stderr, "Could not stat file: %s\n", argv[i]);
-+			goto exit;
-+		}
-+		file_size = filedata.st_size;
-+
-+		buffer = malloc(file_size);
-+		rc = fread(buffer, file_size, 1, file);
-+		if (rc != 1) {
-+			fprintf(stderr, "Failure reading file: %s\n", argv[i]);
-+			goto exit;
-+		}
-+		fclose(file);
-+		file = NULL;
-+
-+		rc = cil_add_file(db, argv[i], buffer, file_size);
-+		if (rc != SEPOL_OK) {
-+			fprintf(stderr, "Failure adding %s\n", argv[i]);
-+			goto exit;
-+		}
-+
-+		free(buffer);
-+		buffer = NULL;
-+	}
-+
-+	rc = cil_compile(db);
-+	if (rc != SEPOL_OK) {
-+		fprintf(stderr, "Failed to compile cildb: %d\n", rc);
-+		goto exit;
-+	}
-+
-+	if (output == NULL) {
-+		file = fopen("policy.conf", "w");
-+	} else {
-+		file = fopen(output, "w");
-+	}
-+	if (file == NULL) {
-+		fprintf(stderr, "Failure opening policy.conf file for writing\n");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	cil_write_policy_conf(file, db);
-+
-+	fclose(file);
-+	file = NULL;
-+	rc = SEPOL_OK;
-+
-+exit:
-+	if (file != NULL) {
-+		fclose(file);
-+	}
-+	free(buffer);
-+	free(output);
-+	cil_db_destroy(&db);
-+	return rc;
-+}
--- 
-2.7.4
+Thanks,
+Marcelo
