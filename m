@@ -1,61 +1,63 @@
-Date: Fri, 18 Nov 2016 15:24:03 -0200
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Richard Haines <richard_c_haines@btinternet.com>,
- SELinux-NSA <SELinux@tycho.nsa.gov>, linux-sctp@vger.kernel.org,
- Paul Moore <paul@paul-moore.com>
-Subject: Re: github issue trackers
-Message-ID: <20161118172402.GC24936@localhost.localdomain>
-References: <74821043-5051-f05b-9ef8-e34af08f7a54@tycho.nsa.gov>
- <1479487762.13487.6.camel@btinternet.com>
- <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
+Subject: Re: [PATCH 2/2] policycoreutils: Add cil2conf which creates a
+ policy.conf from CIL policy
+To: Nick Kralevich <nnk@google.com>
+References: <1479492328-12238-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1479492328-12238-3-git-send-email-jwcart2@tycho.nsa.gov>
+ <CAFJ0LnEr8q20QEcd4ZM0cdH7up7B=wrmP1r_eyM+6WEP=vgQzQ@mail.gmail.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <025c40f2-defe-78cc-b208-9aef5b92fb23@tycho.nsa.gov>
+Date: Fri, 18 Nov 2016 13:19:17 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
+In-Reply-To: <CAFJ0LnEr8q20QEcd4ZM0cdH7up7B=wrmP1r_eyM+6WEP=vgQzQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Nov 18, 2016 at 12:02:33PM -0500, Stephen Smalley wrote:
-> On 11/18/2016 11:49 AM, Richard Haines wrote:
-> > On Fri, 2016-11-18 at 10:30 -0500, Stephen Smalley wrote:
-> >> Hi,
-> >>
-> >> I've populated the github issue trackers for the selinux (userspace)
-> >> and
-> >> selinux-kernel github projects, see:
-> >> https://github.com/SELinuxProject/selinux/issues
-> >> and
-> >> https://github.com/SELinuxProject/selinux-kernel/issues
-> >>
-> >> The old ToDo wiki pages are being migrated over, although I would
-> >> like
-> >> to drop items that are either a) already in progress, b)
-> >> vague/ill-defined, or c) unlikely to be done.  Going forward, we'll
-> >> just
-> >> use the issue trackers for all new items.
-> >>
-> >> Feel free to identify additional issues that I may have missed, but
-> >> please try to keep them well-defined and feasible.
-> > 
-> > Just thought I would update you regarding the status of the RFC SCTP
-> > kernel patches I sent a few years ago that are referenced at:
-> > https://github.com/SELinuxProject/selinux-kernel/issues/5
-> > 
-> > I have been keeping these updated and fixing problems as I find them,
-> > however I have not resubmitted. If there is interest I'm happy to
-> > submit again and see how far I can get. If anyone is interested
-> > I keep a set of patches at:
-> > http://arctic.selinuxproject.org/~rhaines/selinux-sctp
-> > 
-> > For the gory details read:
-> > http://arctic.selinuxproject.org/~rhaines/selinux-sctp/readme.txt
-> 
-> Thanks, I'd certainly like to see them upstreamed.  Were there specific
-> objections or just a lack of response?
+On 11/18/2016 01:17 PM, Nick Kralevich wrote:
+> Is the copyright statement below accurate? This doesn't look to be
+> created in 2011, and I'm not sure it was created by Tresys...
+>
 
-+1
+It was derived from the secilc code, so I left the copyright notice.
 
-Thanks,
-Marcelo
+Jim
+
+> -- Nick
+>
+> On Fri, Nov 18, 2016 at 10:05 AM, James Carter <jwcart2@tycho.nsa.gov> wrote:
+>> +/*
+>> + * Copyright 2011 Tresys Technology, LLC. All rights reserved.
+>> + *
+>> + * Redistribution and use in source and binary forms, with or without
+>> + * modification, are permitted provided that the following conditions are met:
+>> + *
+>> + *    1. Redistributions of source code must retain the above copyright notice,
+>> + *       this list of conditions and the following disclaimer.
+>> + *
+>> + *    2. Redistributions in binary form must reproduce the above copyright notice,
+>> + *       this list of conditions and the following disclaimer in the documentation
+>> + *       and/or other materials provided with the distribution.
+>> + *
+>> + * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
+>> + * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+>> + * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+>> + * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+>> + * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+>> + * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+>> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+>> + * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+>> + * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+>> + * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+>> + *
+>> + * The views and conclusions contained in the software and documentation are those
+>> + * of the authors and should not be interpreted as representing official policies,
+>> + * either expressed or implied, of Tresys Technology, LLC.
+>> + */
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
