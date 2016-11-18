@@ -1,58 +1,50 @@
-Subject: Re: [PATCH 0/2] Add the ability to write policy.conf file from CIL AST
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1479492328-12238-1-git-send-email-jwcart2@tycho.nsa.gov>
- <21dbe2db-8048-d166-d628-dca9fcd34be3@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <8d036b45-a516-5ea2-351a-39537ab8b771@tycho.nsa.gov>
-Date: Fri, 18 Nov 2016 13:28:44 -0500
-MIME-Version: 1.0
-In-Reply-To: <21dbe2db-8048-d166-d628-dca9fcd34be3@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAILw9BP031575
+ for <selinux@tycho.nsa.gov>; Fri, 18 Nov 2016 16:58:09 -0500
+Received: by mail-pg0-f43.google.com with SMTP id x23so104150507pgx.1
+ for <selinux@tycho.nsa.gov>; Fri, 18 Nov 2016 13:58:08 -0800 (PST)
+From: Nick Kralevich <nnk@google.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] label_file.h: actually use the results of compat_validate
+Date: Fri, 18 Nov 2016 13:58:01 -0800
+Message-Id: <1479506281-69690-1-git-send-email-nnk@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/18/2016 01:26 PM, Stephen Smalley wrote:
-> On 11/18/2016 01:05 PM, James Carter wrote:
->> The first patch adds the cil_gen_policy() function to libsepol and the second
->> patch adds the cil2conf program to policycoreutils.
->>
->> I am open to a different name and/or location for cil2conf.
->
-> Maybe add it to secilc (no need for a separate subdir, just add it to
-> the secilc Makefile), and rename it to secil2conf?  It isn't needed for
-> a production system in general, so doesn't really fit into
-> policycoreutils, and seems like the inverse of secilc (analogous to
-> dismod/dispol in checkpolicy).
->
+process_line called compat_validate, but never actually looked at the
+return value. When an invalid entry is found, a warning is printed, but
+since the upper layers of the code don't see the error, validation
+appears to succeed.
 
-That sounds like a good idea. I originally had just added a flag to secilc, but 
-that made secilc more complex. I had not considered just keeping the new program 
-with secilc.
+Steps to reproduce on Android:
 
-Jim
+1) Edit system/sepolicy/private/file_contexts and create an entry with
+an invalid label.
+2) Recompile Android, which executes out/host/linux-x86/bin/checkfc to
+check if file_contexts is valid.
 
->>
->> James Carter (2):
->>   libsepol/cil: Add ability to write policy.conf file from CIL AST
->>   policycoreutils: Add cil2conf which creates a policy.conf from CIL
->>     policy
->>
->>  libsepol/cil/include/cil/cil.h      |    1 +
->>  libsepol/cil/src/cil.c              |    6 +
->>  libsepol/cil/src/cil_policy.c       | 2696 +++++++++++++++++++++--------------
->>  libsepol/cil/src/cil_policy.h       |   12 +-
->>  libsepol/src/libsepol.map.in        |    1 +
->>  policycoreutils/Makefile            |    2 +-
->>  policycoreutils/cil2conf/Makefile   |   33 +
->>  policycoreutils/cil2conf/cil2conf.c |  192 +++
->>  8 files changed, 1837 insertions(+), 1106 deletions(-)
->>  create mode 100644 policycoreutils/cil2conf/Makefile
->>  create mode 100644 policycoreutils/cil2conf/cil2conf.c
->>
+Expected: Compile failure.
+Actual: Compile succeeds with warnings.
 
+Change-Id: I20fa18c7b11b5ffdd243c3274bedc4518431e1fb
+---
+ libselinux/src/label_file.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 00c0a5c..4ac64d5 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -467,7 +467,7 @@ static inline int process_line(struct selabel_handle *rec,
+ 	spec_hasMetaChars(&spec_arr[nspec]);
+ 
+ 	if (strcmp(context, "<<none>>") && rec->validating)
+-		compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
++		return compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
+ 
+ 	return 0;
+ }
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.8.0.rc3.226.g39d4020
