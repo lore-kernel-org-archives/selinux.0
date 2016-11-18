@@ -1,63 +1,37 @@
-MIME-Version: 1.0
-In-Reply-To: <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
-References: <74821043-5051-f05b-9ef8-e34af08f7a54@tycho.nsa.gov>
- <1479487762.13487.6.camel@btinternet.com>
- <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 18 Nov 2016 13:00:19 -0500
-Message-ID: <CAHC9VhR4VhObCP9SGQxeE0n+WBw7fB+vWP1Xt7xc+=dkmLK6oQ@mail.gmail.com>
-Subject: Re: github issue trackers
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Richard Haines <richard_c_haines@btinternet.com>,
- SELinux-NSA <SELinux@tycho.nsa.gov>, linux-sctp@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAII5o81004033
+ for <selinux@tycho.nsa.gov>; Fri, 18 Nov 2016 13:05:50 -0500
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/2] Add the ability to write policy.conf file from CIL AST
+Date: Fri, 18 Nov 2016 13:05:26 -0500
+Message-Id: <1479492328-12238-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Nov 18, 2016 at 12:02 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 11/18/2016 11:49 AM, Richard Haines wrote:
->> On Fri, 2016-11-18 at 10:30 -0500, Stephen Smalley wrote:
->>> Hi,
->>>
->>> I've populated the github issue trackers for the selinux (userspace)
->>> and
->>> selinux-kernel github projects, see:
->>> https://github.com/SELinuxProject/selinux/issues
->>> and
->>> https://github.com/SELinuxProject/selinux-kernel/issues
->>>
->>> The old ToDo wiki pages are being migrated over, although I would
->>> like
->>> to drop items that are either a) already in progress, b)
->>> vague/ill-defined, or c) unlikely to be done.  Going forward, we'll
->>> just
->>> use the issue trackers for all new items.
->>>
->>> Feel free to identify additional issues that I may have missed, but
->>> please try to keep them well-defined and feasible.
->>
->> Just thought I would update you regarding the status of the RFC SCTP
->> kernel patches I sent a few years ago that are referenced at:
->> https://github.com/SELinuxProject/selinux-kernel/issues/5
->>
->> I have been keeping these updated and fixing problems as I find them,
->> however I have not resubmitted. If there is interest I'm happy to
->> submit again and see how far I can get. If anyone is interested
->> I keep a set of patches at:
->> http://arctic.selinuxproject.org/~rhaines/selinux-sctp
->>
->> For the gory details read:
->> http://arctic.selinuxproject.org/~rhaines/selinux-sctp/readme.txt
->
-> Thanks, I'd certainly like to see them upstreamed.  Were there specific
-> objections or just a lack of response?
+The first patch adds the cil_gen_policy() function to libsepol and the second
+patch adds the cil2conf program to policycoreutils.
 
-I believe I was the weak link in this; I had (still have for that
-matter) some gaps in my SCTP understanding and I wanted to be able to
-properly review those patches before merging.
+I am open to a different name and/or location for cil2conf.
+
+James Carter (2):
+  libsepol/cil: Add ability to write policy.conf file from CIL AST
+  policycoreutils: Add cil2conf which creates a policy.conf from CIL
+    policy
+
+ libsepol/cil/include/cil/cil.h      |    1 +
+ libsepol/cil/src/cil.c              |    6 +
+ libsepol/cil/src/cil_policy.c       | 2696 +++++++++++++++++++++--------------
+ libsepol/cil/src/cil_policy.h       |   12 +-
+ libsepol/src/libsepol.map.in        |    1 +
+ policycoreutils/Makefile            |    2 +-
+ policycoreutils/cil2conf/Makefile   |   33 +
+ policycoreutils/cil2conf/cil2conf.c |  192 +++
+ 8 files changed, 1837 insertions(+), 1106 deletions(-)
+ create mode 100644 policycoreutils/cil2conf/Makefile
+ create mode 100644 policycoreutils/cil2conf/cil2conf.c
 
 -- 
-paul moore
-www.paul-moore.com
+2.7.4
