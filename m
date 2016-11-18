@@ -1,61 +1,58 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] checkpolicy: treat -self as an error
-Date: Fri, 18 Nov 2016 11:13:02 -0500
-Message-Id: <1479485582-7028-1-git-send-email-sds@tycho.nsa.gov>
+Message-ID: <1479487762.13487.6.camel@btinternet.com>
+Subject: Re: github issue trackers
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux-NSA <SELinux@tycho.nsa.gov>,
+ linux-sctp@vger.kernel.org
+Date: Fri, 18 Nov 2016 16:49:22 +0000
+In-Reply-To: <74821043-5051-f05b-9ef8-e34af08f7a54@tycho.nsa.gov>
+References: <74821043-5051-f05b-9ef8-e34af08f7a54@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-checkpolicy wrongly handles "-self". At the least, it should handle it as
-an error. At best, it should support it correctly (which would involve
-libsepol support as well). At present, it looks like it will end up
-negating (-) the next type/attribute in the list after self, or if
-there are no entries after self, ignoring it entirely.
+On Fri, 2016-11-18 at 10:30 -0500, Stephen Smalley wrote:
+> Hi,
+> 
+> I've populated the github issue trackers for the selinux (userspace)
+> and
+> selinux-kernel github projects, see:
+> https://github.com/SELinuxProject/selinux/issues
+> and
+> https://github.com/SELinuxProject/selinux-kernel/issues
+> 
+> The old ToDo wiki pages are being migrated over, although I would
+> like
+> to drop items that are either a) already in progress, b)
+> vague/ill-defined, or c) unlikely to be done.  Going forward, we'll
+> just
+> use the issue trackers for all new items.
+> 
+> Feel free to identify additional issues that I may have missed, but
+> please try to keep them well-defined and feasible.
 
-This originally was raised by the Android team, which wanted to support
-something like the following:
-neverallow domain { domain -self }:dir search;
-to prohibit cross domain access to some resource but allow access within
-the same domain.
+Just thought I would update you regarding the status of the RFC SCTP
+kernel patches I sent a few years ago that are referenced at:
+https://github.com/SELinuxProject/selinux-kernel/issues/5
 
-This change just makes it a fatal error during compilation.
-Implementing real support for -self is left as future work.
+I have been keeping these updated and fixing problems as I find them,
+however I have not resubmitted. If there is interest I'm happy to
+submit again and see how far I can get. If anyone is interested
+I keep a set of patches at:
+http://arctic.selinuxproject.org/~rhaines/selinux-sctp
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- checkpolicy/policy_define.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+For the gory details read:
+http://arctic.selinuxproject.org/~rhaines/selinux-sctp/readme.txt
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 128869c..8b56a29 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1978,6 +1978,11 @@ int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 	while ((id = queue_remove(id_queue))) {
- 		if (strcmp(id, "self") == 0) {
- 			free(id);
-+			if (add == 0) {
-+				yyerror("-self is not supported");
-+				ret = -1;
-+				goto out;
-+			}
- 			avrule->flags |= RULE_SELF;
- 			continue;
- 		}
-@@ -2437,6 +2442,11 @@ int define_te_avtab_helper(int which, avrule_t ** rule)
- 	while ((id = queue_remove(id_queue))) {
- 		if (strcmp(id, "self") == 0) {
- 			free(id);
-+			if (add == 0) {
-+				yyerror("-self is not supported");
-+				ret = -1;
-+				goto out;
-+			}
- 			avrule->flags |= RULE_SELF;
- 			continue;
- 		}
--- 
-2.7.4
+> 
+> Thanks.
+> 
+> 
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho
+> .nsa.gov.
