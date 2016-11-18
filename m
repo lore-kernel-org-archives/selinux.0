@@ -1,51 +1,51 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: normalize enforce values from the kernel
-Date: Fri, 18 Nov 2016 09:52:06 -0500
-Message-Id: <1479480726-2898-1-git-send-email-sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov, paul@paul-moore.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: keep SELinux in sync with new capability definitions
+Date: Fri, 18 Nov 2016 10:23:09 -0500
+Message-Id: <1479482589-3889-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Normalize enforce values received from the kernel via
-/sys/fs/selinux/enforce or netlink selinux notifications
-to ensure that we always return a 0 or 1 to userspace code.
-selinux_status_getenforce(), which reads the enforce value
-via the SELinux kernel status page (/sys/fs/selinux/status)
-already normalizes its result, so we do not need to update it.
+When a new capability is defined, SELinux needs to be updated.
+Trigger a build error if a new capability is defined without
+corresponding update to security/selinux/include/classmap.h's
+COMMON_CAP2_PERMS.  This is similar to BUILD_BUG_ON() guards
+in the SELinux nlmsgtab code to ensure that SELinux tracks
+new netlink message types as needed.
+
+Note that there is already a similar build guard in
+security/selinux/hooks.c to detect when more than 64
+capabilities are defined, since that will require adding
+a third capability class to SELinux.
+
+A nicer way to do this would be to extend scripts/selinux/genheaders
+or a similar tool to auto-generate the necessary definitions and code
+for SELinux capability checking from include/uapi/linux/capability.h.
+AppArmor does something similar in its Makefile, although it only
+needs to generate a single table of names.  That is left as future work.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- libselinux/src/avc_internal.c | 1 +
- libselinux/src/getenforce.c   | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/include/classmap.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
-index 26f3360..49cecc9 100644
---- a/libselinux/src/avc_internal.c
-+++ b/libselinux/src/avc_internal.c
-@@ -176,6 +176,7 @@ static int avc_netlink_process(void *buf)
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 1f1f4b2..e2d4ad3a 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -24,6 +24,10 @@
+ #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+ 		"wake_alarm", "block_suspend", "audit_read"
  
- 	case SELNL_MSG_SETENFORCE:{
- 		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
-+		msg->val = !!msg->val;
- 		avc_log(SELINUX_INFO,
- 			"%s:  received setenforce notice (enforcing=%d)\n",
- 			avc_prefix, msg->val);
-diff --git a/libselinux/src/getenforce.c b/libselinux/src/getenforce.c
-index 4fb516a..03d3abc 100644
---- a/libselinux/src/getenforce.c
-+++ b/libselinux/src/getenforce.c
-@@ -34,7 +34,7 @@ int security_getenforce(void)
- 	if (sscanf(buf, "%d", &enforce) != 1)
- 		return -1;
- 
--	return enforce;
-+	return !!enforce;
- }
- 
- hidden_def(security_getenforce)
++#if CAP_LAST_CAP > CAP_AUDIT_READ
++#error New capability defined, please update COMMON_CAP2_PERMS.
++#endif
++
+ /*
+  * Note: The name for any socket class should be suffixed by "socket",
+  *	 and doesn't contain more than one substr of "socket".
 -- 
 2.7.4
