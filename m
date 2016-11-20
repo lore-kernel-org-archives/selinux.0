@@ -1,50 +1,39 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAILw9BP031575
- for <selinux@tycho.nsa.gov>; Fri, 18 Nov 2016 16:58:09 -0500
-Received: by mail-pg0-f43.google.com with SMTP id x23so104150507pgx.1
- for <selinux@tycho.nsa.gov>; Fri, 18 Nov 2016 13:58:08 -0800 (PST)
-From: Nick Kralevich <nnk@google.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] label_file.h: actually use the results of compat_validate
-Date: Fri, 18 Nov 2016 13:58:01 -0800
-Message-Id: <1479506281-69690-1-git-send-email-nnk@google.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAKMGq2I001571
+ for <selinux@tycho.nsa.gov>; Sun, 20 Nov 2016 17:16:53 -0500
+Received: by mail-ua0-f193.google.com with SMTP id b35so23578040uaa.1
+ for <selinux@tycho.nsa.gov>; Sun, 20 Nov 2016 14:16:51 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1479479438-7123-1-git-send-email-sds@tycho.nsa.gov>
+References: <1479479438-7123-1-git-send-email-sds@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sun, 20 Nov 2016 17:16:50 -0500
+Message-ID: <CAHC9VhQkHty-tj+fPJpZEj34EsuKs7p5m00Wqe0noJg2JYHKLg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: normalize input to /sys/fs/selinux/enforce
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-process_line called compat_validate, but never actually looked at the
-return value. When an invalid entry is found, a warning is printed, but
-since the upper layers of the code don't see the error, validation
-appears to succeed.
+On Fri, Nov 18, 2016 at 9:30 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> At present, one can write any signed integer value to
+> /sys/fs/selinux/enforce and it will be stored,
+> e.g. echo -1 > /sys/fs/selinux/enforce or echo 2 >
+> /sys/fs/selinux/enforce. This makes no real difference
+> to the kernel, since it only ever cares if it is zero or non-zero,
+> but some userspace code compares it with 1 to decide if SELinux
+> is enforcing, and this could confuse it. Only a process that is
+> already root and is allowed the setenforce permission in SELinux
+> policy can write to /sys/fs/selinux/enforce, so this is not considered
+> to be a security issue, but it should be fixed.
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Steps to reproduce on Android:
+Merged, thanks.
 
-1) Edit system/sepolicy/private/file_contexts and create an entry with
-an invalid label.
-2) Recompile Android, which executes out/host/linux-x86/bin/checkfc to
-check if file_contexts is valid.
-
-Expected: Compile failure.
-Actual: Compile succeeds with warnings.
-
-Change-Id: I20fa18c7b11b5ffdd243c3274bedc4518431e1fb
----
- libselinux/src/label_file.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index 00c0a5c..4ac64d5 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -467,7 +467,7 @@ static inline int process_line(struct selabel_handle *rec,
- 	spec_hasMetaChars(&spec_arr[nspec]);
- 
- 	if (strcmp(context, "<<none>>") && rec->validating)
--		compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
-+		return compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
- 
- 	return 0;
- }
 -- 
-2.8.0.rc3.226.g39d4020
+paul moore
+www.paul-moore.com
