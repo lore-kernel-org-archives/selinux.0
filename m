@@ -1,144 +1,78 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul@paul-moore.com>, linux-audit@redhat.com,
- selinux@tycho.nsa.gov
 Subject: Re: [PATCH] Fix AUDIT_MAC_POLICY_LOAD event formatting
-Date: Tue, 22 Nov 2016 09:28:19 -0500
-Message-ID: <67267460.FCN7LuPZon@x2>
-In-Reply-To: <0839aedc-39b9-7345-9cf7-606538204c9c@tycho.nsa.gov>
+To: Steve Grubb <sgrubb@redhat.com>
 References: <11128714.mipGzmS50p@x2>
  <CAHC9VhSYkymKzvbOW1vkZ_Ae=VGZc8TcMKimyXO0iO7e6M8GzQ@mail.gmail.com>
- <0839aedc-39b9-7345-9cf7-606538204c9c@tycho.nsa.gov>
+ <0839aedc-39b9-7345-9cf7-606538204c9c@tycho.nsa.gov> <67267460.FCN7LuPZon@x2>
+Cc: Paul Moore <paul@paul-moore.com>, linux-audit@redhat.com,
+ selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1be21bc4-e70f-092f-13cb-458cc0beefad@tycho.nsa.gov>
+Date: Tue, 22 Nov 2016 09:55:11 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+In-Reply-To: <67267460.FCN7LuPZon@x2>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tuesday, November 22, 2016 8:56:57 AM EST Stephen Smalley wrote:
-> On 11/21/2016 04:50 PM, Paul Moore wrote:
-> > On Mon, Nov 21, 2016 at 12:30 PM, Steve Grubb <sgrubb@redhat.com> wrote:
-> >> The AUDIT_MAC_POLICY_LOAD event has dangling text that means the same
-> >> thing
-> >> as the event type and is missing the uid and results field. The bigger
-> >> issue is that in some failure cases no event is emitted. This patch
-> >> fixes the noted problems.
+On 11/22/2016 09:28 AM, Steve Grubb wrote:
+> On Tuesday, November 22, 2016 8:56:57 AM EST Stephen Smalley wrote:
+>> On 11/21/2016 04:50 PM, Paul Moore wrote:
+>>> On Mon, Nov 21, 2016 at 12:30 PM, Steve Grubb <sgrubb@redhat.com> wrote:
+>>>> The AUDIT_MAC_POLICY_LOAD event has dangling text that means the same
+>>>> thing
+>>>> as the event type and is missing the uid and results field. The bigger
+>>>> issue is that in some failure cases no event is emitted. This patch
+>>>> fixes the noted problems.
+>>
+>> A potential problem with this patch is that it changes the semantic
+>> meaning of this audit record, from meaning "a policy was loaded into the
+>> kernel" to "there was an attempt to load a policy, check the res= field
+>> to determine whether it succeeded".  So anything in userspace that used
+>> the presence of this audit record to determine whether or not policy was
+>> successfully loaded (e.g. audit2allow -l) will be confused.
 > 
-> A potential problem with this patch is that it changes the semantic
-> meaning of this audit record, from meaning "a policy was loaded into the
-> kernel" to "there was an attempt to load a policy, check the res= field
-> to determine whether it succeeded".  So anything in userspace that used
-> the presence of this audit record to determine whether or not policy was
-> successfully loaded (e.g. audit2allow -l) will be confused.
+> I really can't have implicit success. I need to have a field to point to that 
+> says yes/no. It can be hard coded to res=1 (success), but it needs to be 
+> there.
 
-I really can't have implicit success. I need to have a field to point to that 
-says yes/no. It can be hard coded to res=1 (success), but it needs to be 
-there.
+Ok.  Why is it you use res=1|0 in these records but success=yes|no in
+syscall records?
 
+>> While there were failure cases that would still generate the audit record
+>> previously, those were all selinuxfs node creation failures; the policy
+>> would nonetheless have been loaded into the kernel and would be active
+>> at that point, so saying res=0 is somewhat misleading.
+> 
+> OK. We can move the point where res=1 is set. But I would think that its a 
+> requirement to have an audit record that states that policy failed to load. 
+> FMT_MSA.3 Static Attribute Initialization. Auditable events: All modifications 
+> of the initial value of security attributes. I would think this means changes 
+> such as booleans, modifying labels, loading a new policy, or failure to load a 
+> policy.
 
-> While there were failure cases that would still generate the audit record
-> previously, those were all selinuxfs node creation failures; the policy
-> would nonetheless have been loaded into the kernel and would be active
-> at that point, so saying res=0 is somewhat misleading.
+Failure to load a policy is not a modification to the initial value of
+the security attribute, is it?
 
-OK. We can move the point where res=1 is set. But I would think that its a 
-requirement to have an audit record that states that policy failed to load. 
-FMT_MSA.3 Static Attribute Initialization. Auditable events: All modifications 
-of the initial value of security attributes. I would think this means changes 
-such as booleans, modifying labels, loading a new policy, or failure to load a 
-policy.
+> 
+> 
+>> This overlapswith https://github.com/SELinuxProject/selinux-kernel/issues/1,
+>> which highlights the fact that we can end up in an intermediate state where
+>> policy is loaded but selinuxfs (particularly booleans, class/*, and
+>> policy_capabilities/*) has not been regenerated.
+> 
+> I see. That should be an audited event. If you have a datacenter with a 
+> thousand machines, its best to get this in the audit trail so it can be 
+> alerted on at a central collector.
+> 
+> So, what should we do about the patch? I'm willing to modify it.
 
-
-> This overlapswith https://github.com/SELinuxProject/selinux-kernel/issues/1,
-> which highlights the fact that we can end up in an intermediate state where
-> policy is loaded but selinuxfs (particularly booleans, class/*, and
-> policy_capabilities/*) has not been regenerated.
-
-I see. That should be an audited event. If you have a datacenter with a 
-thousand machines, its best to get this in the audit trail so it can be 
-alerted on at a central collector.
-
-So, what should we do about the patch? I'm willing to modify it.
-
--Steve
-
-> >> Signed-off-by: Steve Grubb <sgrubb@redhat.com>
-> > 
-> > First off, for patches such as these, I think it is good to CC the
-> > affected subsystem, SELinux in this case (fixed).
-> > 
-> > Beyond that, I'm a little concerned that you adding fields to record
-> > in the middle.  In the past you've warned against inserting fields in
-> > the middle of the record, or reordering fields in general ("you'll
-> > break the world") due to some poor userspace practices, yet you do
-> > these exact things when it suits you.
-> > 
-> > We need a consistent message when it comes to userspace record
-> > processing so we know what we can do in the kernel without causing
-> > massive failure.
-> > 
-> >> --- vanilla-4.9-rc5.orig/security/selinux/selinuxfs.c   2016-11-16
-> >> 15:16:34.738723900 -0500 +++
-> >> linux-4.9.0-0.rc5.git0.1.fc24.x86_64/security/selinux/selinuxfs.c  
-> >> 2016-11-21 12:16:08.046787604 -0500 @@ -494,6 +494,7 @@ static ssize_t
-> >> sel_write_load(struct fil
-> >> 
-> >>  {
-> >>  
-> >>         ssize_t length;
-> >>         void *data = NULL;
-> >> 
-> >> +       unsigned int result = 0;
-> >> 
-> >>         mutex_lock(&sel_mutex);
-> >> 
-> >> @@ -525,24 +526,26 @@ static ssize_t sel_write_load(struct fil
-> >> 
-> >>         length = sel_make_bools();
-> >>         if (length)
-> >> 
-> >> -               goto out1;
-> >> +               goto out;
-> >> 
-> >>         length = sel_make_classes();
-> >>         if (length)
-> >> 
-> >> -               goto out1;
-> >> +               goto out;
-> >> 
-> >>         length = sel_make_policycap();
-> >>         if (length)
-> >> 
-> >> -               goto out1;
-> >> +               goto out;
-> >> 
-> >>         length = count;
-> >> 
-> >> +       result = 1;
-> >> 
-> >> -out1:
-> >> 
-> >> +out:
-> >>         audit_log(current->audit_context, GFP_KERNEL,
-> >>         AUDIT_MAC_POLICY_LOAD,
-> >> 
-> >> -               "policy loaded auid=%u ses=%u",
-> >> +               "uid=%u auid=%u ses=%u res=%u",
-> >> +               from_kuid(&init_user_ns, task_uid(current)),
-> >> 
-> >>                 from_kuid(&init_user_ns, audit_get_loginuid(current)),
-> >> 
-> >> -               audit_get_sessionid(current));
-> >> -out:
-> >> +               audit_get_sessionid(current), result);
-> >> +
-> >> 
-> >>         mutex_unlock(&sel_mutex);
-> >>         vfree(data);
-> >>         return length;
-> >> 
-> >> --
-> >> Linux-audit mailing list
-> >> Linux-audit@redhat.com
-> >> https://www.redhat.com/mailman/listinfo/linux-audit
+At present, we only generate AUDIT_MAC_STATUS, AUDIT_MAC_LOAD, and
+AUDIT_MAC_CONFIG_CHANGE on success (or at least partial success).  If
+you truly need to audit failures, then it seems like you either need to
+a) do it through syscall audit filters, which already provide a success=
+field or b) add new audit message types for this purpose (e.g.
+AUDIT_MAC_STATUS_FAIL, AUDIT_MAC_LOAD_FAIL, ...).  To just add a res=
+field to the existing ones and change them to always be generated is a
+user-visible semantic change.
