@@ -1,69 +1,35 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAMN0ett022304
- for <selinux@tycho.nsa.gov>; Tue, 22 Nov 2016 18:00:40 -0500
-Received: by mail-vk0-f67.google.com with SMTP id p9so3344568vkd.1
- for <selinux@tycho.nsa.gov>; Tue, 22 Nov 2016 15:00:03 -0800 (PST)
+From: Daniel Jurgens <danielj@mellanox.com>
+To: James Morris <jmorris@namei.org>
+CC: "chrisw@sous-sol.org" <chrisw@sous-sol.org>, "paul@paul-moore.com"
+ <paul@paul-moore.com>, "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
+ "eparis@parisplace.org" <eparis@parisplace.org>, "dledford@redhat.com"
+ <dledford@redhat.com>, "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v5 8/9] selinux: Add IB Port SMP access vector
+Date: Tue, 22 Nov 2016 23:00:17 +0000
+Message-ID: <VI1PR0501MB242975002A23E40F567336E9C4B40@VI1PR0501MB2429.eurprd05.prod.outlook.com>
+References: <1479843638-67136-1-git-send-email-danielj@mellanox.com>
+ <1479843638-67136-9-git-send-email-danielj@mellanox.com>
+ <alpine.LRH.2.20.1611230945140.3895@namei.org>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <1479204400-24557-1-git-send-email-agruenba@redhat.com>
-References: <1478812710-17190-1-git-send-email-agruenba@redhat.com>
- <1478812710-17190-5-git-send-email-agruenba@redhat.com>
- <CAHC9VhSrDfGOBrw+hV8xfZ-COOjHpW_73sz7VYLMnem-szWRWA@mail.gmail.com>
- <1479204400-24557-1-git-send-email-agruenba@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 22 Nov 2016 18:00:02 -0500
-Message-ID: <CAHC9VhT6kgK9YW5F0hFuc-xqjr3AG3DqrYn+=OMqXF0dR8cHCg@mail.gmail.com>
-Subject: Re: [PATCH 4/4] selinux: Convert isec->lock into a spinlock
-To: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Nov 15, 2016 at 5:06 AM, Andreas Gruenbacher
-<agruenba@redhat.com> wrote:
-> On Mon, Nov 14, 2016 at 11:22 PM, Paul Moore <paul@paul-moore.com> wrote:
->> We shouldn't need the spinlocks on the socket_post_create() and the
->> socket_accept() hooks as the callers should still have exclusive
->> access to the socket/inode at that point.
->>
->> I didn't check all the callers of the inode_init_security(), but it
->> looks like the same idea applies.
+On 11/22/2016 4:47 PM, James Morris wrote:
+> On Tue, 22 Nov 2016, Dan Jurgens wrote:
 >
-> Indeed.  An updated patch with the unnecessary locking removed follows.
->
-> Thanks,
-> Andreas
->
-> --
->
-> Convert isec->lock from a mutex into a spinlock.  Instead of holding the
-> lock while sleeping in inode_doinit_with_dentry, set isec->initialized
-> to LABEL_PENDING and release the lock.  Then, when the sid has been
-> determined, re-acquire the lock.  If isec->initialized is still set to
-> LABEL_PENDING, set isec->sid; otherwise, the sid has been set by another
-> task (LABEL_INITIALIZED) or invalidated (LABEL_INVALID) in the meantime.
->
-> This fixes a deadlock on gfs2 where
->
->  * one task is in inode_doinit_with_dentry -> gfs2_getxattr, holds
->    isec->lock, and tries to acquire the inode's glock, and
->
->  * another task is in do_xmote -> inode_go_inval ->
->    selinux_inode_invalidate_secctx, holds the inode's glock, and tries
->    to acquire isec->lock.
->
-> Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-> ---
->  security/selinux/hooks.c          | 102 +++++++++++++++++++++++---------------
->  security/selinux/include/objsec.h |   5 +-
->  2 files changed, 66 insertions(+), 41 deletions(-)
+>> +		*out_sid = c->sid[0];
+>> +	} else {
+>> +		*out_sid = SECINITSID_UNLABELED;
+>> +	}
+> Per previous comment about the braces.
+The coding style says if one branch requires brackets they should be used on all branches:
 
-Merged with some minor tweaks to keep ./scripts/checkpatch.pl happy,
-e.g. use "spinlock_t".
-
--- 
-paul moore
-www.paul-moore.com
+"This does not apply if only one branch of a conditional statement is a single statement; in the latter case use braces in both branches: "
