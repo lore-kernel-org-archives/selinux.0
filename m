@@ -1,89 +1,81 @@
-Subject: Re: Finer grained SELinux controls for CAP_SYS_ADMIN functionality
-To: Nick Kralevich <nnk@google.com>
-References: <CAFJ0LnF39oRy0emD6JQn6ouQp0uwG_Q6a5NbWVczSfF=2t4yqg@mail.gmail.com>
- <f640a61d-9e8f-17ee-aff7-610eca121b55@tycho.nsa.gov>
- <CAFJ0LnFo47at_dcL6Xm=Ze4mjLLwz7Yh506-t7b_48GUHND5ug@mail.gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <657e2dda-3837-71d1-4532-13112fc79414@tycho.nsa.gov>
-Date: Tue, 22 Nov 2016 13:21:26 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAMIrCIl031426
+ for <selinux@tycho.nsa.gov>; Tue, 22 Nov 2016 13:53:12 -0500
+Received: by mail-oi0-f45.google.com with SMTP id y198so28259648oia.1
+ for <selinux@tycho.nsa.gov>; Tue, 22 Nov 2016 10:53:09 -0800 (PST)
+Subject: Re: [PATCH] Fix AUDIT_MAC_POLICY_LOAD event formatting
+To: selinux@tycho.nsa.gov, linux-audit@redhat.com
+References: <11128714.mipGzmS50p@x2>
+ <CAHC9VhSYkymKzvbOW1vkZ_Ae=VGZc8TcMKimyXO0iO7e6M8GzQ@mail.gmail.com>
+ <0839aedc-39b9-7345-9cf7-606538204c9c@tycho.nsa.gov> <67267460.FCN7LuPZon@x2>
+ <1be21bc4-e70f-092f-13cb-458cc0beefad@tycho.nsa.gov>
+From: Lenny Bruzenak <lenny@magitekltd.com>
+Message-ID: <d9a25cdc-0c3c-755a-d82d-4af2b866b65e@magitekltd.com>
+Date: Tue, 22 Nov 2016 12:53:05 -0600
 MIME-Version: 1.0
-In-Reply-To: <CAFJ0LnFo47at_dcL6Xm=Ze4mjLLwz7Yh506-t7b_48GUHND5ug@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1be21bc4-e70f-092f-13cb-458cc0beefad@tycho.nsa.gov>
+Content-Type: multipart/alternative;
+ boundary="------------839145B3E34ADB6CB7E074CC"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/22/2016 12:58 PM, Nick Kralevich wrote:
-> I briefly reviewed the current CAP_SYS_ADMIN capabilities, and I
-> didn't see any obvious commonality which would make it easy to define
-> an equivalence set. I'm not sure this is feasible or makes sense. I'm
-> also not confident of trying to split CAP_SYS_ADMIN as it's
-> traditionally been attempted (aka the CAP_SYSLOG type changes). It's
-> not going to scale to the hundreds of users of this capability.
-> 
-> Instead, as a strawman proposal, what if we introduced "capability
-> families"? A capability family is essentially a namespace for
-> capabilities. More specifically, instead of a call like:
-> 
->   if (!capable(CAP_SYS_ADMIN))
->     return -EPERM;
-> 
-> what if we modified the capable() call to take an extra string argument
-> 
->   if (!capable(CAP_SYS_ADMIN, "virtual_mem_subsystem"))
->     return -EPERM;
-> 
-> On the SELinux side, we can use the family string to assign names to
-> labels, and do a capability check against a particular label.
+This is a multi-part message in MIME format.
+--------------839145B3E34ADB6CB7E074CC
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Effectively, you are defining equivalence classes via these capability
-families - all CAP_SYS_ADMIN checks performed with the same capability
-family string will be checked in the same way by LSM/SELinux.
+On 11/22/2016 08:55 AM, Stephen Smalley wrote:
 
-> On the traditional DAC side, we could introduce a new prctl(), say
-> prctl(PR_CAPSET_FAMILIES), which took an array of strings which
-> restricted capabilities to the allowed families.
-> 
->   prctl(PR_CAPSET_FAMILIES, [ "virtual_mem_subsystem", "dev_random_subsystem" ])
-> 
-> On the prctl side, we'd need to think through the process lifecycle
-> problem. For instance, we wouldn't want a process to be able to update
-> it's list of allowed capability families, otherwise a process could
-> gain capabilities it shouldn't have access to.
-> 
-> DAC backwards compatibility is straight forward. If a process doesn't
-> opt-in to capability families, security controls remain the same.
+>> >OK. We can move the point where res=1 is set. But I would think that its a
+>> >requirement to have an audit record that states that policy failed to load.
+>> >FMT_MSA.3 Static Attribute Initialization. Auditable events: All modifications
+>> >of the initial value of security attributes. I would think this means changes
+>> >such as booleans, modifying labels, loading a new policy, or failure to load a
+>> >policy.
+> Failure to load a policy is not a modification to the initial value of
+> the security attribute, is it?
+>
+It is definitely relevant, if it falls under another category.
+Either a failed malicious intent or a failed supervisory function.
 
-I think an arbitrary string is too free form and prone to bugs and poor
-choices.  Explicitly defining a specific LSM hook and a corresponding
-SELinux permission for each of these "capability families" makes more
-sense to me, and allows for more flexiblity, e.g. including an object or
-other parameter as part of the permission check.
+LCB
 
-> 
-> -- Nick
-> 
-> On Tue, Nov 22, 2016 at 6:15 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> Has anyone given any thought into technically what we could do to have
->>> finer grained LSM control here? I have some ideas here, but I'd like
->>> to read about what has been previously been suggested...
->>
->> In general, we would audit the current set of CAP_SYS_ADMIN checks,
->> prioritize the most significant ones, organize them into equivalence
->> classes, and only define a single LSM hook and SELinux permission check
->> for each equivalence class.  That's if you want to just add
->> finer-grained LSM hooks and leave the CAP_SYS_ADMIN checks alone.
->>
->> If you want to split CAP_SYS_ADMIN into finer-grained capabilities, then
->> an example of doing that in the past was CAP_SYSLOG; you can see how
->> they provide backward compatibility there.  However, that is only
->> sufficient if you only need to perform a check based on the process'
->> credentials; if you want to take into consideration any object (e.g. in
->> the case of swapon, the target file) or any other parameters, then
->> you'll want a LSM hook instead.
-> 
-> 
-> 
-> 
+--------------839145B3E34ADB6CB7E074CC
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+    <meta content="text/html; charset=windows-1252"
+      http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <p>On 11/22/2016 08:55 AM, Stephen Smalley wrote:<br>
+    </p>
+    <blockquote
+      cite="mid:1be21bc4-e70f-092f-13cb-458cc0beefad@tycho.nsa.gov"
+      type="cite">
+      <blockquote type="cite" style="color: #000000;">
+        <pre wrap=""><span class="moz-txt-citetags">&gt; </span>OK. We can move the point where res=1 is set. But I would think that its a 
+<span class="moz-txt-citetags">&gt; </span>requirement to have an audit record that states that policy failed to load. 
+<span class="moz-txt-citetags">&gt; </span>FMT_MSA.3 Static Attribute Initialization. Auditable events: All modifications 
+<span class="moz-txt-citetags">&gt; </span>of the initial value of security attributes. I would think this means changes 
+<span class="moz-txt-citetags">&gt; </span>such as booleans, modifying labels, loading a new policy, or failure to load a 
+<span class="moz-txt-citetags">&gt; </span>policy.
+</pre>
+      </blockquote>
+      <pre wrap="">Failure to load a policy is not a modification to the initial value of
+the security attribute, is it?
+
+</pre>
+    </blockquote>
+    It is definitely relevant, if it falls under another category.<br>
+    Either a failed malicious intent or a failed supervisory function.<br>
+    <br>
+    LCB<br>
+  </body>
+</html>
+
+--------------839145B3E34ADB6CB7E074CC--
