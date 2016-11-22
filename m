@@ -1,110 +1,78 @@
-Subject: Re: segmentation fault in additive_scopes_to_cil()
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux <selinux@tycho.nsa.gov>
-References: <CAJfZ7=mvF8a32+-R1PK_kGP-uSFJFta427nnkzJbctUFGtu-DA@mail.gmail.com>
- <3334645b-cf98-b2c6-000a-3b74a480c04b@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <c7627c4a-7627-4e3b-3ab1-2f4996e6031f@tycho.nsa.gov>
-Date: Tue, 22 Nov 2016 10:09:37 -0500
-MIME-Version: 1.0
-In-Reply-To: <3334645b-cf98-b2c6-000a-3b74a480c04b@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Message-ID: <1479828936.4919.2.camel@btinternet.com>
+Subject: Re: github issue trackers
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux-NSA <SELinux@tycho.nsa.gov>,
+ linux-sctp@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Date: Tue, 22 Nov 2016 15:35:36 +0000
+In-Reply-To: <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
+References: <74821043-5051-f05b-9ef8-e34af08f7a54@tycho.nsa.gov>
+ <1479487762.13487.6.camel@btinternet.com>
+ <b54fe273-01bf-e128-0dcc-5fb764f865f8@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/22/2016 10:06 AM, James Carter wrote:
-> On 11/22/2016 08:55 AM, Nicolas Iooss wrote:
->> Hello,
->>
->> I have been fuzzing semodule_package and /usr/libexec/selinux/hll/pp for a few
->> days. After all the crashing policy modules it found because of missing bound
->> checks and missing NULL pointer checks in libsepol (I will send some patches
->> once I cleaned them [1]), the fuzzer found an other kind of crash: a NULL
->> pointer execution in additive_scopes_to_cil_map(). Here is what gdb says when
->> running pp on the file attached to this email:
->>
->> Starting program: /usr/libexec/selinux/hll/pp
->> afl-out/pp/crashes/id:000001,sig:11,src:003451,op:flip2,pos:401
->> libsepol.sepol_module_package_read: unknown magic number at section 1, offset:
->> 2d1, number: 0
->> (roleattributeset cil_gen_require object_r)
->>
->> Program received signal SIGSEGV, Segmentation fault.
->> 0x0000000000000000 in ?? ()
->> => 0x0000000000000000:Cannot access memory at address 0x0
->> (gdb) bt
->> #0  0x0000000000000000 in ?? ()
->> #1  0x00007ffff79ecd80 in additive_scopes_to_cil_map (key=<optimized out>,
->> data=<optimized out>, arg=<optimized out>) at module_to_cil.c:3522
->> #2  0x00007ffff79b096d in hashtab_map (h=0x60bd80,
->> apply=apply@entry=0x7ffff79ecd10 <additive_scopes_to_cil_map>,
->> args=args@entry=0x7fffffffd950) at hashtab.c:235
->> #3  0x00007ffff7a09bb6 in additive_scopes_to_cil (decl_stack=0x6080b0,
->> block=0x60b780, pdb=<optimized out>, indent=0) at module_to_cil.c:3544
->> #4  block_to_cil (pdb=pdb@entry=0x6082e0, block=block@entry=0x60b780,
->> stack=stack@entry=0x6080b0, indent=indent@entry=0) at module_to_cil.c:3631
->> #5  0x00007ffff7a11af8 in global_block_to_cil (pdb=pdb@entry=0x6082e0,
->> block=block@entry=0x60b780, stack=0x6080b0) at module_to_cil.c:3742
->> #6  0x00007ffff7a13dc3 in blocks_to_cil (pdb=0x6082e0) at module_to_cil.c:3768
->> #7  sepol_module_policydb_to_cil (fp=fp@entry=0x7ffff79165e0 <_IO_2_1_stdout_>,
->> pdb=0x6082e0, linked=linked@entry=0) at module_to_cil.c:4055
->> #8  0x00007ffff7a15a55 in sepol_module_package_to_cil
->> (fp=fp@entry=0x7ffff79165e0 <_IO_2_1_stdout_>, mod_pkg=0x608280) at
->> module_to_cil.c:4084
->> #9  0x00000000004021c0 in main (argc=<optimized out>, argv=<optimized out>) at
->> pp.c:150
->>
->>
->> As far as I understand, this is because additive_scopes_to_cil() calls
->> additive_scopes_to_cil_map() with args->sym_index = 0 [2], and func_to_cil[0] is
->> NULL [3]. A simple fix would consist in starting the for loop
->> in additive_scopes_to_cil() from args.sym_index = 1, but this may hide another
->> bug. An other way to fix this bug would be to detect such an invalid policy
->> earlier, if a valid policy is expected to always have empty decl->symtab[0]
->> tables. What would you recommend to fix this?
->>
->
-> I think that the safe way to fix it is to add a check before the call to
-> hashtab_map.
->
-> Something like:
-> if (decl->symtab[args.sym_index] == NULL)
->     continue;
->
+On Fri, 2016-11-18 at 12:02 -0500, Stephen Smalley wrote:
+> On 11/18/2016 11:49 AM, Richard Haines wrote:
+> > 
+> > On Fri, 2016-11-18 at 10:30 -0500, Stephen Smalley wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > I've populated the github issue trackers for the selinux
+> > > (userspace)
+> > > and
+> > > selinux-kernel github projects, see:
+> > > https://github.com/SELinuxProject/selinux/issues
+> > > and
+> > > https://github.com/SELinuxProject/selinux-kernel/issues
+> > > 
+> > > The old ToDo wiki pages are being migrated over, although I would
+> > > like
+> > > to drop items that are either a) already in progress, b)
+> > > vague/ill-defined, or c) unlikely to be done.  Going forward,
+> > > we'll
+> > > just
+> > > use the issue trackers for all new items.
+> > > 
+> > > Feel free to identify additional issues that I may have missed,
+> > > but
+> > > please try to keep them well-defined and feasible.
+> > 
+> > Just thought I would update you regarding the status of the RFC
+> > SCTP
+> > kernel patches I sent a few years ago that are referenced at:
+> > https://github.com/SELinuxProject/selinux-kernel/issues/5
+> > 
+> > I have been keeping these updated and fixing problems as I find
+> > them,
+> > however I have not resubmitted. If there is interest I'm happy to
+> > submit again and see how far I can get. If anyone is interested
+> > I keep a set of patches at:
+> > http://arctic.selinuxproject.org/~rhaines/selinux-sctp
+> > 
+> > For the gory details read:
+> > http://arctic.selinuxproject.org/~rhaines/selinux-sctp/readme.txt
+> 
+> Thanks, I'd certainly like to see them upstreamed.  Were there
+> specific
+> objections or just a lack of response?
 
-Oops, I meant:
-if (func_to_cil[args.sym_index] == NULL)
-	continue;
+It was really lack of response so I thought I would wait until
+someone had a real requirement. Paul gave me some feedback on the
+patches and I incorporated all except the "special accept()/child
+socket labeling trick" (see comments at 
+http://marc.info/?l=selinux&m=141801137004870&w=2), mainly because
+I was not sure if required or not.
+Also needed feedback from sctp maintainers particularly regarding
+the placing of security hooks in sm_statefuns.c (see the drawing in
+SELinux-sctp.txt)
 
-Jim
+What I can do is rebuild and test on latest Fedora 25 then submit
+again as a new RFC patch and see how it goes.
 
-> Jim
->
->> Cheers,
->> Nicolas
->>
->> [1] Right now, my work-in-progress patches are
->> in https://github.com/fishilico/selinux/commits/master
->> [2] The relevant code
->> is
->> https://github.com/SELinuxProject/selinux/blob/libsepol-2.6/libsepol/src/module_to_cil.c#L3506-L3542
->>
->> [3]
->> https://github.com/SELinuxProject/selinux/blob/libsepol-2.6/libsepol/src/module_to_cil.c#L3339
->>
->>
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->>
->
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> 
+> 
