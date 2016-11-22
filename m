@@ -1,402 +1,113 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAMJfNct017179
- for <selinux@tycho.nsa.gov>; Tue, 22 Nov 2016 14:41:25 -0500
-From: Dan Jurgens <danielj@mellanox.com>
-To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
- eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
- hal.rosenstock@gmail.com
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
- Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v5 9/9] selinux: Add a cache for quicker retreival of PKey SIDs
-Date: Tue, 22 Nov 2016 21:40:38 +0200
-Message-Id: <1479843638-67136-10-git-send-email-danielj@mellanox.com>
-In-Reply-To: <1479843638-67136-1-git-send-email-danielj@mellanox.com>
-References: <1479843638-67136-1-git-send-email-danielj@mellanox.com>
+Subject: Re: [PATCH] Fix AUDIT_MAC_POLICY_LOAD event formatting
+To: Steve Grubb <sgrubb@redhat.com>
+References: <11128714.mipGzmS50p@x2> <67267460.FCN7LuPZon@x2>
+ <1be21bc4-e70f-092f-13cb-458cc0beefad@tycho.nsa.gov> <1654303.4jsK0rGDo5@x2>
+Cc: Paul Moore <paul@paul-moore.com>, linux-audit@redhat.com,
+ selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <8fc7f4df-3c1a-3c5b-ceb9-67b140383ee7@tycho.nsa.gov>
+Date: Tue, 22 Nov 2016 14:47:15 -0500
+MIME-Version: 1.0
+In-Reply-To: <1654303.4jsK0rGDo5@x2>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Daniel Jurgens <danielj@mellanox.com>
+On 11/22/2016 02:39 PM, Steve Grubb wrote:
+> On Tuesday, November 22, 2016 9:55:11 AM EST Stephen Smalley wrote:
+>> On 11/22/2016 09:28 AM, Steve Grubb wrote:
+>>> On Tuesday, November 22, 2016 8:56:57 AM EST Stephen Smalley wrote:
+>>>> On 11/21/2016 04:50 PM, Paul Moore wrote:
+>>>>> On Mon, Nov 21, 2016 at 12:30 PM, Steve Grubb <sgrubb@redhat.com> wrote:
+>>>>>> The AUDIT_MAC_POLICY_LOAD event has dangling text that means the same
+>>>>>> thing as the event type and is missing the uid and results field. The
+>>>>>> bigger issue is that in some failure cases no event is emitted. This
+>>>>>> patch fixes the noted problems.
+>>>>
+>>>> A potential problem with this patch is that it changes the semantic
+>>>> meaning of this audit record, from meaning "a policy was loaded into the
+>>>> kernel" to "there was an attempt to load a policy, check the res= field
+>>>> to determine whether it succeeded".  So anything in userspace that used
+>>>> the presence of this audit record to determine whether or not policy was
+>>>> successfully loaded (e.g. audit2allow -l) will be confused.
+>>>
+>>> I really can't have implicit success. I need to have a field to point to
+>>> that says yes/no. It can be hard coded to res=1 (success), but it needs
+>>> to be there.
+>>
+>> Ok.  Why is it you use res=1|0 in these records but success=yes|no in
+>> syscall records?
+> 
+> Success is only used in syscall records. It was created to disambiguate the 
+> exit field which can look like a failure on some arches but is actually OK. 
+> Originally the exit field was all that existed. We found that one or two arches 
+> actually have 2 return codes. The whole rest of the audit system uses res= to 
+> mean a crisp yes/no this did or didn't happen. This predates the creation of 
+> the success field. It could be argued success should have been res, but 
+> ausearch/report will use either to mean the same thing.
+> 
+> The new auparse field classifier work will also map both to mean the same thing. 
+> That is how I found AUDIT_MAC_POLICY_LOAD missing any kind of success/fail 
+> indication.
+> 
+> 
+>>>> While there were failure cases that would still generate the audit record
+>>>> previously, those were all selinuxfs node creation failures; the policy
+>>>> would nonetheless have been loaded into the kernel and would be active
+>>>> at that point, so saying res=0 is somewhat misleading.
+>>>
+>>> OK. We can move the point where res=1 is set. But I would think that its a
+>>> requirement to have an audit record that states that policy failed to
+>>> load.
+>>> FMT_MSA.3 Static Attribute Initialization. Auditable events: All
+>>> modifications of the initial value of security attributes. I would think
+>>> this means changes such as booleans, modifying labels, loading a new
+>>> policy, or failure to load a policy.
+>>
+>> Failure to load a policy is not a modification to the initial value of
+>> the security attribute, is it?
+> 
+> Sure. If the state is intended to enabled and enforcing and its not, that 
+> would be a surprising result that there was no indication in the audit trail. 
+> Also, if for some reason it booted fine and a new policy was loaded at some 
+> point in the future and it failed, then we have a modification to initial 
+> state.
+> 
+>>>> This overlapswith
+>>>> https://github.com/SELinuxProject/selinux-kernel/issues/1, which
+>>>> highlights the fact that we can end up in an intermediate state where
+>>>> policy is loaded but selinuxfs (particularly booleans, class/*, and
+>>>> policy_capabilities/*) has not been regenerated.
+>>>
+>>> I see. That should be an audited event. If you have a datacenter with a
+>>> thousand machines, its best to get this in the audit trail so it can be
+>>> alerted on at a central collector.
+>>>
+>>> So, what should we do about the patch? I'm willing to modify it.
+>>
+>> At present, we only generate AUDIT_MAC_STATUS, AUDIT_MAC_LOAD, and
+>> AUDIT_MAC_CONFIG_CHANGE on success (or at least partial success).  If
+>> you truly need to audit failures, then it seems like you either need to
+>> a) do it through syscall audit filters, which already provide a success=
+>> field
+> 
+> I can't imagine what to audit on. There is an open syscall that has a path. 
+> But I suspect that does not fail because policy has not be written. There is a 
+> write syscall but triggering on that is pretty generic. This is not ideal.
 
-It is likely that the SID for the same PKey will be requested many
-times. To reduce the time to modify QPs and process MADs use a cache to
-store PKey SIDs.
+Can't you write an audit syscall filter or watch on
+/sys/fs/selinux/load?  Ditto for /sys/fs/selinux/enforce,
+/sys/fs/selinux/commit_pending_bools, etc.
 
-This code is heavily based on the "netif" and "netport" concept
-originally developed by James Morris <jmorris@redhat.com> and Paul Moore
-<paul@paul-moore.com> (see security/selinux/netif.c and
-security/selinux/netport.c for more information)
-
-Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-
----
-v2:
-- Renamed the files to ibpkey. Paul Moore
-- Fixed a braket indentation mismatch in sel_pkey_find. Yuval Shaia
-- Change spin_lock_bh to spin_lock_irqsave to resolve HARDIRQ lockdep
-  warning.  Dan Jurgens
----
- security/selinux/Makefile         |   2 +-
- security/selinux/hooks.c          |   7 +-
- security/selinux/ibpkey.c         | 245 ++++++++++++++++++++++++++++++++++++++
- security/selinux/include/ibpkey.h |  31 +++++
- security/selinux/include/objsec.h |   6 +
- 5 files changed, 288 insertions(+), 3 deletions(-)
- create mode 100644 security/selinux/ibpkey.c
- create mode 100644 security/selinux/include/ibpkey.h
-
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 3411c33..ff5895e 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -5,7 +5,7 @@
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
- 
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
--	     netnode.o netport.o exports.o \
-+	     netnode.o netport.o ibpkey.o exports.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
- 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0954dfe..2fe4320 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -90,6 +90,7 @@
- #include "netif.h"
- #include "netnode.h"
- #include "netport.h"
-+#include "ibpkey.h"
- #include "xfrm.h"
- #include "netlabel.h"
- #include "audit.h"
-@@ -173,8 +174,10 @@ static int selinux_netcache_avc_callback(u32 event)
- 
- static int selinux_lsm_notifier_avc_callback(u32 event)
- {
--	if (event == AVC_CALLBACK_RESET)
-+	if (event == AVC_CALLBACK_RESET) {
-+		sel_pkey_flush();
- 		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
-+	}
- 
- 	return 0;
- }
-@@ -6094,7 +6097,7 @@ static int selinux_ib_pkey_access(void *ib_sec, u64 subnet_prefix, u16 pkey_val)
- 	struct ib_security_struct *sec = ib_sec;
- 	struct lsm_pkey_audit pkey;
- 
--	err = security_pkey_sid(subnet_prefix, pkey_val, &sid);
-+	err = sel_pkey_sid(subnet_prefix, pkey_val, &sid);
- 
- 	if (err)
- 		return err;
-diff --git a/security/selinux/ibpkey.c b/security/selinux/ibpkey.c
-new file mode 100644
-index 0000000..6e52c54
---- /dev/null
-+++ b/security/selinux/ibpkey.c
-@@ -0,0 +1,245 @@
-+/*
-+ * Pkey table
-+ *
-+ * SELinux must keep a mapping of Infinband PKEYs to labels/SIDs.  This
-+ * mapping is maintained as part of the normal policy but a fast cache is
-+ * needed to reduce the lookup overhead.
-+ *
-+ * This code is heavily based on the "netif" and "netport" concept originally
-+ * developed by
-+ * James Morris <jmorris@redhat.com> and
-+ * Paul Moore <paul@paul-moore.com>
-+ *   (see security/selinux/netif.c and security/selinux/netport.c for more
-+ *   information)
-+ *
-+ */
-+
-+/*
-+ * (c) Mellanox Technologies, 2016
-+ *
-+ * This program is free software: you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/rcupdate.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+
-+#include "ibpkey.h"
-+#include "objsec.h"
-+
-+#define SEL_PKEY_HASH_SIZE       256
-+#define SEL_PKEY_HASH_BKT_LIMIT   16
-+
-+struct sel_pkey_bkt {
-+	int size;
-+	struct list_head list;
-+};
-+
-+struct sel_pkey {
-+	struct pkey_security_struct psec;
-+	struct list_head list;
-+	struct rcu_head rcu;
-+};
-+
-+static LIST_HEAD(sel_pkey_list);
-+static DEFINE_SPINLOCK(sel_pkey_lock);
-+static struct sel_pkey_bkt sel_pkey_hash[SEL_PKEY_HASH_SIZE];
-+
-+/**
-+ * sel_pkey_hashfn - Hashing function for the pkey table
-+ * @pkey: pkey number
-+ *
-+ * Description:
-+ * This is the hashing function for the pkey table, it returns the bucket
-+ * number for the given pkey.
-+ *
-+ */
-+static unsigned int sel_pkey_hashfn(u16 pkey)
-+{
-+	return (pkey & (SEL_PKEY_HASH_SIZE - 1));
-+}
-+
-+/**
-+ * sel_pkey_find - Search for a pkey record
-+ * @subnet_prefix: subnet_prefix
-+ * @pkey_num: pkey_num
-+ *
-+ * Description:
-+ * Search the pkey table and return the matching record.  If an entry
-+ * can not be found in the table return NULL.
-+ *
-+ */
-+static struct sel_pkey *sel_pkey_find(u64 subnet_prefix, u16 pkey_num)
-+{
-+	unsigned int idx;
-+	struct sel_pkey *pkey;
-+
-+	idx = sel_pkey_hashfn(pkey_num);
-+	list_for_each_entry_rcu(pkey, &sel_pkey_hash[idx].list, list) {
-+		if (pkey->psec.pkey == pkey_num &&
-+		    pkey->psec.subnet_prefix == subnet_prefix)
-+			return pkey;
-+	}
-+
-+	return NULL;
-+}
-+
-+/**
-+ * sel_pkey_insert - Insert a new pkey into the table
-+ * @pkey: the new pkey record
-+ *
-+ * Description:
-+ * Add a new pkey record to the hash table.
-+ *
-+ */
-+static void sel_pkey_insert(struct sel_pkey *pkey)
-+{
-+	unsigned int idx;
-+
-+	/* we need to impose a limit on the growth of the hash table so check
-+	 * this bucket to make sure it is within the specified bounds
-+	 */
-+	idx = sel_pkey_hashfn(pkey->psec.pkey);
-+	list_add_rcu(&pkey->list, &sel_pkey_hash[idx].list);
-+	if (sel_pkey_hash[idx].size == SEL_PKEY_HASH_BKT_LIMIT) {
-+		struct sel_pkey *tail;
-+
-+		tail = list_entry(
-+			rcu_dereference_protected(
-+				sel_pkey_hash[idx].list.prev,
-+				lockdep_is_held(&sel_pkey_lock)),
-+			struct sel_pkey, list);
-+		list_del_rcu(&tail->list);
-+		kfree_rcu(tail, rcu);
-+	} else {
-+		sel_pkey_hash[idx].size++;
-+	}
-+}
-+
-+/**
-+ * sel_pkey_sid_slow - Lookup the SID of a pkey using the policy
-+ * @subnet_prefix: subnet prefix
-+ * @pkey_num: pkey number
-+ * @sid: pkey SID
-+ *
-+ * Description:
-+ * This function determines the SID of a pkey by querying the security
-+ * policy.  The result is added to the pkey table to speedup future
-+ * queries.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int sel_pkey_sid_slow(u64 subnet_prefix, u16 pkey_num, u32 *sid)
-+{
-+	int ret = -ENOMEM;
-+	struct sel_pkey *pkey;
-+	struct sel_pkey *new = NULL;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sel_pkey_lock, flags);
-+	pkey = sel_pkey_find(subnet_prefix, pkey_num);
-+	if (pkey) {
-+		*sid = pkey->psec.sid;
-+		spin_unlock_irqrestore(&sel_pkey_lock, flags);
-+		return 0;
-+	}
-+
-+	ret = security_pkey_sid(subnet_prefix, pkey_num, sid);
-+	if (ret != 0)
-+		goto out;
-+
-+	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-+	if (!new)
-+		goto out;
-+
-+	new->psec.subnet_prefix = subnet_prefix;
-+	new->psec.pkey = pkey_num;
-+	new->psec.sid = *sid;
-+	sel_pkey_insert(new);
-+
-+out:
-+	spin_unlock_irqrestore(&sel_pkey_lock, flags);
-+	if (unlikely(ret))
-+		kfree(new);
-+
-+	return ret;
-+}
-+
-+/**
-+ * sel_pkey_sid - Lookup the SID of a PKEY
-+ * @subnet_prefix: subnet_prefix
-+ * @pkey_num: pkey number
-+ * @sid: pkey SID
-+ *
-+ * Description:
-+ * This function determines the SID of a PKEY using the fastest method
-+ * possible.  First the pkey table is queried, but if an entry can't be found
-+ * then the policy is queried and the result is added to the table to speedup
-+ * future queries.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+int sel_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *sid)
-+{
-+	struct sel_pkey *pkey;
-+
-+	rcu_read_lock();
-+	pkey = sel_pkey_find(subnet_prefix, pkey_num);
-+	if (pkey) {
-+		*sid = pkey->psec.sid;
-+		rcu_read_unlock();
-+		return 0;
-+	}
-+	rcu_read_unlock();
-+
-+	return sel_pkey_sid_slow(subnet_prefix, pkey_num, sid);
-+}
-+
-+/**
-+ * sel_pkey_flush - Flush the entire pkey table
-+ *
-+ * Description:
-+ * Remove all entries from the pkey table
-+ *
-+ */
-+void sel_pkey_flush(void)
-+{
-+	unsigned int idx;
-+	struct sel_pkey *pkey, *pkey_tmp;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sel_pkey_lock, flags);
-+	for (idx = 0; idx < SEL_PKEY_HASH_SIZE; idx++) {
-+		list_for_each_entry_safe(pkey, pkey_tmp,
-+					 &sel_pkey_hash[idx].list, list) {
-+			list_del_rcu(&pkey->list);
-+			kfree_rcu(pkey, rcu);
-+		}
-+		sel_pkey_hash[idx].size = 0;
-+	}
-+	spin_unlock_irqrestore(&sel_pkey_lock, flags);
-+}
-+
-+static __init int sel_pkey_init(void)
-+{
-+	int iter;
-+
-+	if (!selinux_enabled)
-+		return 0;
-+
-+	for (iter = 0; iter < SEL_PKEY_HASH_SIZE; iter++) {
-+		INIT_LIST_HEAD(&sel_pkey_hash[iter].list);
-+		sel_pkey_hash[iter].size = 0;
-+	}
-+
-+	return 0;
-+}
-+
-+subsys_initcall(sel_pkey_init);
-diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
-new file mode 100644
-index 0000000..387885a
---- /dev/null
-+++ b/security/selinux/include/ibpkey.h
-@@ -0,0 +1,31 @@
-+/*
-+ * pkey table
-+ *
-+ * SELinux must keep a mapping of pkeys to labels/SIDs.  This
-+ * mapping is maintained as part of the normal policy but a fast cache is
-+ * needed to reduce the lookup overhead.
-+ *
-+ */
-+
-+/*
-+ * (c) Mellanox Technologies, 2016
-+ *
-+ * This program is free software: you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#ifndef _SELINUX_IB_PKEY_H
-+#define _SELINUX_IB_PKEY_H
-+
-+void sel_pkey_flush(void);
-+
-+int sel_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
-+
-+#endif
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 8e7db43..4139f28 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -133,6 +133,12 @@ struct ib_security_struct {
- 	u32 sid;        /* SID of the queue pair or MAD agent */
- };
- 
-+struct pkey_security_struct {
-+	u64	subnet_prefix; /* Port subnet prefix */
-+	u16	pkey;	/* PKey number */
-+	u32	sid;	/* SID of pkey */
-+};
-+
- extern unsigned int selinux_checkreqprot;
- 
- #endif /* _SELINUX_OBJSEC_H_ */
--- 
-2.7.4
+> 
+>> or b) add new audit message types for this purpose (e.g.
+>> AUDIT_MAC_STATUS_FAIL, AUDIT_MAC_LOAD_FAIL, ...).  To just add a res=
+>> field to the existing ones and change them to always be generated is a
+>> user-visible semantic change.
+> 
+> OK. This is do-able. I'll hard code the 'res' field for each of them.
+> 
+> -Steve
+> 
