@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uANEPCo1023074
- for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 09:25:20 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uANEjHtE029703
+ for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 09:45:18 -0500
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,9 +8,9 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
  Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v6 6/9] selinux: Allocate and free infiniband security hooks
-Date: Wed, 23 Nov 2016 16:17:28 +0200
-Message-Id: <1479910651-43246-7-git-send-email-danielj@mellanox.com>
+Subject: [PATCH v6 3/9] selinux lsm IB/core: Implement LSM notification system
+Date: Wed, 23 Nov 2016 16:17:25 +0200
+Message-Id: <1479910651-43246-4-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
 References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,94 +20,265 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Implement and attach hooks to allocate and free Infiniband object
-security structures.
+Add a generic notificaiton mechanism in the LSM. Interested consumers
+can register a callback with the LSM and security modules can produce
+events.
+
+Because access to Infiniband QPs are enforced in the setup phase of a
+connection security should be enforced again if the policy changes.
+Register infiniband devices for policy change notification and check all
+QPs on that device when the notification is received.
+
+Add a call to the notification mechanism from SELinux when the AVC
+cache changes or setenforce is cleared.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 
 ---
 v2:
-- Use void * blobs for security structs.  Paul Moore
-- Shorten ib_end_port to ib_port.  Paul Moore
-- Allocate memory for security struct with GFP_KERNEL. Yuval Shaia
----
- security/selinux/hooks.c          | 25 ++++++++++++++++++++++++-
- security/selinux/include/objsec.h |  5 +++++
- 2 files changed, 29 insertions(+), 1 deletion(-)
+- new patch that has the generic notification, replaces selinux and
+  IB/core patches related to the ib_flush callback. Yuval Shaia and Paul
+  Moore
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2d7a7c1..d87e29d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -17,6 +17,7 @@
-  *	Paul Moore <paul@paul-moore.com>
-  *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
-  *		       Yuichi Nakamura <ynakam@hitachisoft.jp>
-+ *  Copyright (C) 2016 Mellanox Technologies
-  *
-  *	This program is free software; you can redistribute it and/or modify
-  *	it under the terms of the GNU General Public License version 2,
-@@ -6082,7 +6083,26 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
- 	*_buffer = context;
- 	return rc;
+v3:
+- use notifier chains. Paul Moore
+
+v4:
+- Seperate avc callback for LSM notifier. Paul Moore
+
+v5:
+- Fix link error when CONFIG_SECURITY is not set. Build Robot
+---
+ drivers/infiniband/core/device.c | 53 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/security.h         | 23 +++++++++++++++++
+ security/security.c              | 20 +++++++++++++++
+ security/selinux/hooks.c         | 11 +++++++++
+ security/selinux/selinuxfs.c     |  2 ++
+ 5 files changed, 109 insertions(+)
+
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 5b42e83..7b6fd06 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -39,6 +39,8 @@
+ #include <linux/init.h>
+ #include <linux/mutex.h>
+ #include <linux/netdevice.h>
++#include <linux/security.h>
++#include <linux/notifier.h>
+ #include <rdma/rdma_netlink.h>
+ #include <rdma/ib_addr.h>
+ #include <rdma/ib_cache.h>
+@@ -82,6 +84,14 @@ static LIST_HEAD(client_list);
+ static DEFINE_MUTEX(device_mutex);
+ static DECLARE_RWSEM(lists_rwsem);
+ 
++static int ib_security_change(struct notifier_block *nb, unsigned long event,
++			      void *lsm_data);
++static void ib_policy_change_task(struct work_struct *work);
++static DECLARE_WORK(ib_policy_change_work, ib_policy_change_task);
++
++static struct notifier_block ibdev_lsm_nb = {
++	.notifier_call = ib_security_change,
++};
+ 
+ static int ib_device_check_mandatory(struct ib_device *device)
+ {
+@@ -344,6 +354,40 @@ static int setup_port_pkey_list(struct ib_device *device)
+ 	return 0;
  }
-+#endif
-+
-+#ifdef CONFIG_SECURITY_INFINIBAND
-+static int selinux_ib_alloc_security(void **ib_sec)
+ 
++static void ib_policy_change_task(struct work_struct *work)
 +{
-+	struct ib_security_struct *sec;
++	struct ib_device *dev;
 +
-+	sec = kzalloc(sizeof(*sec), GFP_KERNEL);
-+	if (!sec)
-+		return -ENOMEM;
-+	sec->sid = current_sid();
++	down_read(&lists_rwsem);
++	list_for_each_entry(dev, &device_list, core_list) {
++		int i;
 +
-+	*ib_sec = sec;
-+	return 0;
++		for (i = rdma_start_port(dev); i <= rdma_end_port(dev); i++) {
++			u64 sp;
++			int ret = ib_get_cached_subnet_prefix(dev,
++							      i,
++							      &sp);
++
++			WARN_ONCE(ret,
++				  "ib_get_cached_subnet_prefix err: %d, this should never happen here\n",
++				  ret);
++			ib_security_cache_change(dev, i, sp);
++		}
++	}
++	up_read(&lists_rwsem);
 +}
- 
-+static void selinux_ib_free_security(void *ib_sec)
++
++static int ib_security_change(struct notifier_block *nb, unsigned long event,
++			      void *lsm_data)
 +{
-+	kfree(ib_sec);
++	if (event != LSM_POLICY_CHANGE)
++		return NOTIFY_DONE;
++
++	schedule_work(&ib_policy_change_work);
++
++	return NOTIFY_OK;
 +}
- #endif
++
+ /**
+  * ib_register_device - Register an IB device with IB core
+  * @device:Device to register
+@@ -1075,10 +1119,18 @@ static int __init ib_core_init(void)
+ 		goto err_sa;
+ 	}
  
- static struct security_hook_list selinux_hooks[] = {
-@@ -6269,7 +6289,10 @@ static struct security_hook_list selinux_hooks[] = {
- 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
- 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
- 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
--
-+#ifdef CONFIG_SECURITY_INFINIBAND
-+	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
-+	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
-+#endif
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
- 	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
- 	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index c21e135..8e7db43 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -10,6 +10,7 @@
-  *
-  *  Copyright (C) 2001,2002 Networks Associates Technology, Inc.
-  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ *  Copyright (C) 2016 Mellanox Technologies
-  *
-  *	This program is free software; you can redistribute it and/or modify
-  *	it under the terms of the GNU General Public License version 2,
-@@ -128,6 +129,10 @@ struct key_security_struct {
- 	u32 sid;	/* SID of key */
- };
++	ret = register_lsm_notifier(&ibdev_lsm_nb);
++	if (ret) {
++		pr_warn("Couldn't register LSM notifier. ret %d\n", ret);
++		goto err_ibnl_clients;
++	}
++
+ 	ib_cache_setup();
  
-+struct ib_security_struct {
-+	u32 sid;        /* SID of the queue pair or MAD agent */
+ 	return 0;
+ 
++err_ibnl_clients:
++	ib_remove_ibnl_clients();
+ err_sa:
+ 	ib_sa_cleanup();
+ err_mad:
+@@ -1098,6 +1150,7 @@ static int __init ib_core_init(void)
+ 
+ static void __exit ib_core_cleanup(void)
+ {
++	unregister_lsm_notifier(&ibdev_lsm_nb);
+ 	ib_cache_cleanup();
+ 	ib_remove_ibnl_clients();
+ 	ib_sa_cleanup();
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 342ca4c..0a5de0c 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -69,6 +69,10 @@ struct audit_krule;
+ struct user_namespace;
+ struct timezone;
+ 
++enum lsm_event {
++	LSM_POLICY_CHANGE,
 +};
 +
- extern unsigned int selinux_checkreqprot;
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, int audit);
+@@ -161,6 +165,10 @@ struct security_mnt_opts {
+ 	int num_mnt_opts;
+ };
  
- #endif /* _SELINUX_OBJSEC_H_ */
++int call_lsm_notifier(enum lsm_event event, void *data);
++int register_lsm_notifier(struct notifier_block *nb);
++int unregister_lsm_notifier(struct notifier_block *nb);
++
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+ 	opts->mnt_opts = NULL;
+@@ -377,6 +385,21 @@ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+ struct security_mnt_opts {
+ };
+ 
++static inline int call_lsm_notifier(enum lsm_event event, void *data)
++{
++	return 0;
++}
++
++static inline int register_lsm_notifier(struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline  int unregister_lsm_notifier(struct notifier_block *nb)
++{
++	return 0;
++}
++
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+ }
+diff --git a/security/security.c b/security/security.c
+index 7d3bf2f..40326d4 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -33,6 +33,8 @@
+ /* Maximum number of letters for an LSM name string */
+ #define SECURITY_NAME_MAX	10
+ 
++static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
++
+ /* Boot-time LSM user choice */
+ static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
+ 	CONFIG_DEFAULT_SECURITY;
+@@ -98,6 +100,24 @@ int __init security_module_enable(const char *module)
+ 	return !strcmp(module, chosen_lsm);
+ }
+ 
++int call_lsm_notifier(enum lsm_event event, void *data)
++{
++	return atomic_notifier_call_chain(&lsm_notifier_chain, event, data);
++}
++EXPORT_SYMBOL(call_lsm_notifier);
++
++int register_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_register(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(register_lsm_notifier);
++
++int unregister_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_unregister(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(unregister_lsm_notifier);
++
+ /*
+  * Hook list operation macros.
+  *
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 09fd610..2d7a7c1 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -170,6 +170,14 @@ static int selinux_netcache_avc_callback(u32 event)
+ 	return 0;
+ }
+ 
++static int selinux_lsm_notifier_avc_callback(u32 event)
++{
++	if (event == AVC_CALLBACK_RESET)
++		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
++
++	return 0;
++}
++
+ /*
+  * initialise the security for the init task
+  */
+@@ -6325,6 +6333,9 @@ static __init int selinux_init(void)
+ 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
+ 		panic("SELinux: Unable to register AVC netcache callback\n");
+ 
++	if (avc_add_callback(selinux_lsm_notifier_avc_callback, AVC_CALLBACK_RESET))
++		panic("SELinux: Unable to register AVC LSM notifier callback\n");
++
+ 	if (selinux_enforcing)
+ 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	else
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 72c145d..d3f9192 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -177,6 +177,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			avc_ss_reset(0);
+ 		selnl_notify_setenforce(selinux_enforcing);
+ 		selinux_status_update_setenforce(selinux_enforcing);
++		if (!selinux_enforcing)
++			call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+ 	}
+ 	length = count;
+ out:
 -- 
 2.7.4
