@@ -1,60 +1,138 @@
-From: Daniel Jurgens <danielj@mellanox.com>
-To: James Morris <jmorris@namei.org>
-CC: "chrisw@sous-sol.org" <chrisw@sous-sol.org>, "paul@paul-moore.com"
- <paul@paul-moore.com>, "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
- "eparis@parisplace.org" <eparis@parisplace.org>, "dledford@redhat.com"
- <dledford@redhat.com>, "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
- <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
-Subject: Re: [PATCH v5 2/9] IB/core: Enforce PKey security on QPs
-Date: Tue, 22 Nov 2016 23:39:21 +0000
-Message-ID: <VI1PR0501MB24296BD04561DA6EAF7AABF0C4B40@VI1PR0501MB2429.eurprd05.prod.outlook.com>
-References: <1479843638-67136-1-git-send-email-danielj@mellanox.com>
- <1479843638-67136-3-git-send-email-danielj@mellanox.com>
- <alpine.LRH.2.20.1611230923240.3895@namei.org>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uANEHvQi020006
+ for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 09:18:00 -0500
+From: Dan Jurgens <danielj@mellanox.com>
+To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
+ eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
+ hal.rosenstock@gmail.com
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
+ Daniel Jurgens <danielj@mellanox.com>
+Subject: [PATCH v6 1/9] IB/core: IB cache enhancements to support Infiniband
+ security
+Date: Wed, 23 Nov 2016 16:17:23 +0200
+Message-Id: <1479910651-43246-2-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
+References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/22/2016 5:24 PM, James Morris wrote:
-> On Tue, 22 Nov 2016, Dan Jurgens wrote:
->
->> From: Daniel Jurgens <danielj@mellanox.com>
->>
->> Add new LSM hooks to allocate and free security contexts and check for
->> permission to access a PKey.
-> I guess Doug's is best tree for these patches?
-Maybe? In earlier versions I had kept the LSM, RDMA, and SELinux changes in separate patches Paul Moore thought it was best to squash them together functionally. Once everyone agrees they can merged they could all go to one tree.  They apply cleanly to Paul and Doug's trees for sure.
->
->> ---
->> v2:
->> - Squashed LSM hook additions. Paul Moore
->> - Changed security blobs to void*. Paul Moore
->>
->> v3:
->> - Change parameter order of pkey_access hook. Paul Moore
->> ---
->>  drivers/infiniband/core/Makefile     |   3 +-
->>  drivers/infiniband/core/cache.c      |  21 +-
->>  drivers/infiniband/core/core_priv.h  |  77 +++++
->>  drivers/infiniband/core/device.c     |  33 ++
->>  drivers/infiniband/core/security.c   | 617 +++++++++++++++++++++++++++++++++++
->>  drivers/infiniband/core/uverbs_cmd.c |  20 +-
->>  drivers/infiniband/core/verbs.c      |  27 +-
->>  include/linux/lsm_hooks.h            |  27 ++
->>  include/linux/security.h             |  21 ++
->>  include/rdma/ib_verbs.h              |  48 +++
->>  security/Kconfig                     |   9 +
->>  security/security.c                  |  31 ++
->>  12 files changed, 925 insertions(+), 9 deletions(-)
->>  create mode 100644 drivers/infiniband/core/security.c
->
-> Acked-by: James Morris <james.l.morris@oracle.com>
->
->
+From: Daniel Jurgens <danielj@mellanox.com>
+
+Cache the subnet prefix and add a function to access it. Enforcing
+security requires frequent queries of the subnet prefix and the pkeys in
+the pkey table.
+
+Also removed an unneded pr_warn about memory allocation failure.
+
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Eli Cohen <eli@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+
+---
+v2:
+- In ib_get_cached_subnet_prefix wait to initialize p until after
+  validation.  Yuval Shaia
+---
+ drivers/infiniband/core/cache.c     | 36 ++++++++++++++++++++++++++++++++++--
+ drivers/infiniband/core/core_priv.h |  3 +++
+ include/rdma/ib_verbs.h             |  1 +
+ 3 files changed, 38 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
+index 1a2984c..affc8ef 100644
+--- a/drivers/infiniband/core/cache.c
++++ b/drivers/infiniband/core/cache.c
+@@ -934,6 +934,26 @@ int ib_get_cached_pkey(struct ib_device *device,
+ }
+ EXPORT_SYMBOL(ib_get_cached_pkey);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx)
++{
++	unsigned long flags;
++	int p;
++
++	if (port_num < rdma_start_port(device) ||
++	    port_num > rdma_end_port(device))
++		return -EINVAL;
++
++	p = port_num - rdma_start_port(device);
++	read_lock_irqsave(&device->cache.lock, flags);
++	*sn_pfx = device->cache.subnet_prefix_cache[p];
++	read_unlock_irqrestore(&device->cache.lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
++
+ int ib_find_cached_pkey(struct ib_device *device,
+ 			u8                port_num,
+ 			u16               pkey,
+@@ -1110,6 +1130,8 @@ static void ib_cache_update(struct ib_device *device,
+ 
+ 	device->cache.lmc_cache[port - rdma_start_port(device)] = tprops->lmc;
+ 
++	device->cache.subnet_prefix_cache[port - rdma_start_port(device)] =
++							tprops->subnet_prefix;
+ 	write_unlock_irq(&device->cache.lock);
+ 
+ 	kfree(gid_cache);
+@@ -1168,9 +1190,18 @@ int ib_cache_setup_one(struct ib_device *device)
+ 					  (rdma_end_port(device) -
+ 					   rdma_start_port(device) + 1),
+ 					  GFP_KERNEL);
++
++	device->cache.subnet_prefix_cache =
++		kcalloc((rdma_end_port(device) - rdma_start_port(device) + 1),
++			sizeof(*device->cache.subnet_prefix_cache),
++			GFP_KERNEL);
++
+ 	if (!device->cache.pkey_cache ||
+-	    !device->cache.lmc_cache) {
+-		pr_warn("Couldn't allocate cache for %s\n", device->name);
++	    !device->cache.lmc_cache ||
++	    !device->cache.subnet_prefix_cache) {
++		kfree(device->cache.pkey_cache);
++		kfree(device->cache.lmc_cache);
++		kfree(device->cache.subnet_prefix_cache);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -1213,6 +1244,7 @@ void ib_cache_release_one(struct ib_device *device)
+ 	gid_table_release_one(device);
+ 	kfree(device->cache.pkey_cache);
+ 	kfree(device->cache.lmc_cache);
++	kfree(device->cache.subnet_prefix_cache);
+ }
+ 
+ void ib_cache_cleanup_one(struct ib_device *device)
+diff --git a/drivers/infiniband/core/core_priv.h b/drivers/infiniband/core/core_priv.h
+index 19d499d..ce826e4 100644
+--- a/drivers/infiniband/core/core_priv.h
++++ b/drivers/infiniband/core/core_priv.h
+@@ -153,4 +153,7 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
+ int ib_nl_handle_ip_res_resp(struct sk_buff *skb,
+ 			     struct netlink_callback *cb);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx);
+ #endif /* _CORE_PRIV_H */
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 5ad43a4..db178fd 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -1761,6 +1761,7 @@ struct ib_cache {
+ 	struct ib_pkey_cache  **pkey_cache;
+ 	struct ib_gid_table   **gid_cache;
+ 	u8                     *lmc_cache;
++	u64                    *subnet_prefix_cache;
+ };
+ 
+ struct ib_dma_mapping_ops {
+-- 
+2.7.4
