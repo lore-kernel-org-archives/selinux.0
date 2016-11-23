@@ -1,48 +1,43 @@
-Subject: Re: [PATCH 5/5] libsepol: fix unknown magic section number error
- message
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20161122222342.16771-1-nicolas.iooss@m4x.org>
- <20161122222342.16771-5-nicolas.iooss@m4x.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8cb7bf82-3a8c-d22b-7fbc-ff15125f9026@tycho.nsa.gov>
-Date: Wed, 23 Nov 2016 12:35:06 -0500
-MIME-Version: 1.0
-In-Reply-To: <20161122222342.16771-5-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uANM7eoJ023722
+ for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 17:07:40 -0500
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 77F92564A0D
+ for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 23:07:36 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/5] libsepol: do not modify p->p_roles.nprim in
+ role_set_expand
+Date: Wed, 23 Nov 2016 23:06:42 +0100
+Message-Id: <20161123220646.23504-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/22/2016 05:23 PM, Nicolas Iooss wrote:
-> When running hll/pp on some invalid policy module, it can output:
-> 
->     libsepol.sepol_module_package_read: unknown magic number at section
->     1, offset: 251, number: 0x
-> 
-> The last number looks funny and was caused by using "%ux". "u" is not a
-> prefix like "l", "h", "z"... and "%x" already expects an unsigned
-> integer (cf. http://man7.org/linux/man-pages/man3/printf.3.html).
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+There is no reason to modify the number of roles defined in a policy
+when no role is being inserted.
 
-Thanks, applied all five patches.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsepol/src/expand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> ---
->  libsepol/src/module.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/libsepol/src/module.c b/libsepol/src/module.c
-> index 1c2becea5ef6..219355f30d27 100644
-> --- a/libsepol/src/module.c
-> +++ b/libsepol/src/module.c
-> @@ -627,7 +627,7 @@ int sepol_module_package_read(sepol_module_package_t * mod,
->  		default:
->  			/* unknown section, ignore */
->  			ERR(file->handle,
-> -			    "unknown magic number at section %u, offset: %zx, number: %ux ",
-> +			    "unknown magic number at section %u, offset: %zx, number: %x ",
->  			    i, offsets[i], le32_to_cpu(buf[0]));
->  			break;
->  		}
-> 
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 32df6f8b2ce6..7244e01fb50d 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2424,7 +2424,7 @@ int role_set_expand(role_set_t * x, ebitmap_t * r, policydb_t * out, policydb_t
+ 	ebitmap_init(r);
+ 
+ 	if (x->flags & ROLE_STAR) {
+-		for (i = 0; i < p->p_roles.nprim++; i++)
++		for (i = 0; i < p->p_roles.nprim; i++)
+ 			if (ebitmap_set_bit(r, i, 1))
+ 				return -1;
+ 		return 0;
+-- 
+2.10.2
