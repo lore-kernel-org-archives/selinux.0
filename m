@@ -1,71 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uANMng5e003676
- for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 17:49:42 -0500
-Received: by mail-qk0-f173.google.com with SMTP id n21so31682503qka.3
- for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 14:49:41 -0800 (PST)
-From: Paul Moore <pmoore@redhat.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: [GIT PULL] SELinux patches for 4.10
-Date: Wed, 23 Nov 2016 17:49:39 -0500
-Message-ID: <17624288.OmnOjAWxmJ@sifl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAO2lMdx008801
+ for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 21:47:22 -0500
+Received: by mail-pg0-f52.google.com with SMTP id p66so12780990pga.2
+ for <selinux@tycho.nsa.gov>; Wed, 23 Nov 2016 18:47:19 -0800 (PST)
+From: Nick Kralevich <nnk@google.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] procattr.c: Use __ANDROID__ instead of ANDROID
+Date: Wed, 23 Nov 2016 18:47:10 -0800
+Message-Id: <1479955630-85378-1-git-send-email-nnk@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi James,
+When code is compiled within the Android tree, the resulting binaries
+are intended to run either on the "host" (the machine doing the
+building) or the "target" (the machine running the Android operating
+system).
 
-Seven SELinux patches for v4.10, all being fixes and cleanups.  The four 
-patches from Andreas are geared towards fixing problems with the GFS2/
-SELinux integration, while the two from Stephen and the one from Tetsuo are 
-relatively obvious and straightforward.
+"ANDROID" is defined if the code is being compiled for the host or the
+target, whereas "__ANDROID__" is only defined for code being compiled for
+the target. (yes, I agree, this is not obvious).
 
-All of these patches pass the selinux-testsuite and merge cleanly with the 
-current linux-security#next branch, please apply.
+gettid() is only declared in the target environment, not the host
+environment, so adjust the #ifdef to properly emit the gettid()
+definition for binaries targeting the host.
 
-Thanks,
--Paul
-
+Signed-off-by: Nick Kralevich <nnk@google.com>
 ---
-The following changes since commit 07d9a380680d1c0eb51ef87ff2eab5c994949e69:    
-                                                                                
-  Linux 4.9-rc2 (2016-10-23 17:10:14 -0700)                                     
-                                                                                
-are available in the git repository at:                                         
-                                                                                
-  git://git.infradead.org/users/pcmoore/selinux stable-4.10                     
-                                                                                
-for you to fetch changes up to 9287aed2ad1ff1bde5eb190bcd6dccd5f1cf47d3:        
-                                                                                
-  selinux: Convert isec->lock into a spinlock (2016-11-22 17:44:02 -0500)       
-                                                                                
-----------------------------------------------------------------                
-Andreas Gruenbacher (4):                                                        
-      selinux: Minor cleanups                                                   
-      proc: Pass file mode to proc_pid_make_inode                               
-      selinux: Clean up initialization of isec->sclass                          
-      selinux: Convert isec->lock into a spinlock                               
-                                                                                
-Stephen Smalley (2):                                                            
-      selinux: normalize input to /sys/fs/selinux/enforce                       
-      selinux: keep SELinux in sync with new capability definitions             
-                                                                                
-Tetsuo Handa (1):                                                               
-      SELinux: Use GFP_KERNEL for selinux_parse_opts_str().                     
-                                                                                
- fs/proc/base.c                      |  23 +++----                              
- fs/proc/fd.c                        |   6 +-                                   
- fs/proc/internal.h                  |   2 +-                                   
- fs/proc/namespaces.c                |   3 +-                                   
- security/selinux/hooks.c            | 120 +++++++++++++++++++-----------
- security/selinux/include/classmap.h |   4 ++
- security/selinux/include/objsec.h   |   5 +-
- security/selinux/selinuxfs.c        |   6 +-
- 8 files changed, 97 insertions(+), 72 deletions(-)
+ libselinux/src/procattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+index 7efcd7e..8cd59af 100644
+--- a/libselinux/src/procattr.c
++++ b/libselinux/src/procattr.c
+@@ -22,7 +22,7 @@ static pthread_key_t destructor_key;
+ static int destructor_key_initialized = 0;
+ static __thread char destructor_initialized;
+ 
+-#ifndef ANDROID
++#ifndef __ANDROID__
+ /* Android declares this in unistd.h and has a definition for it */
+ static pid_t gettid(void)
+ {
 -- 
-paul moore
-security @ redhat
+2.8.0.rc3.226.g39d4020
