@@ -1,12 +1,13 @@
-Subject: Re: [PATCH 2/5] libsepol: do not check decl->symtab[i].nprim
+Subject: Re: [PATCH 3/5] libsepol: ebitmap: reject loading bitmaps with
+ incorrect high bit
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
 References: <20161123220646.23504-1-nicolas.iooss@m4x.org>
- <20161123220646.23504-2-nicolas.iooss@m4x.org>
+ <20161123220646.23504-3-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <e4e661fc-4a2e-ef19-28f4-c7ecd974f7eb@tycho.nsa.gov>
-Date: Mon, 28 Nov 2016 09:20:16 -0500
+Message-ID: <2727ee63-5c2c-9399-3916-533bc99fa03a@tycho.nsa.gov>
+Date: Mon, 28 Nov 2016 09:21:41 -0500
 MIME-Version: 1.0
-In-Reply-To: <20161123220646.23504-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20161123220646.23504-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -14,38 +15,50 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 11/23/2016 05:06 PM, Nicolas Iooss wrote:
-> Commit 02a7d77ef2bf ("libsepol: make parsing symbol table headers more
-> robust") broke refpolicy build, because checkmodule generates avrule
-> decl blocks with "decl->symtab[i].nprim = 0" for all possible i, even
-> when decl->symtab[SYM_ROLES] and decl->symtab[SYM_TYPES] are not
-> empty.
+> Currently ebitmap_load() accepts loading a bitmap with highbit=192 and
+> one node {startbit=0, map=0x2}. When iterating over the bitmap,
+> ebitmap_for_each_bit() is expected to only yield "1" but it gives the
+> following bits: 1, 65, 129.
 > 
-> More precisely, decl->symtab[i].nprim seems to be only updated in
-> libsepol/src/link.c (in *_copy_callback() functions).
+> This is due to two facts in ebitmap_for_each_bit() implementation:
+> * ebitmap_next() stays on the first (and only) node of the bitmap
+>   instead of stopping the iteration.
+> * the end condition of the for loop consists in comparing the bit with
+>   ebitmap_length() (ie. the bitmap highbit), which is above the limit of
+>   the last node here.
 > 
-> Revert the buggy part of commit 02a7d77ef2bf to fix this regression.
+> These are not bugs when the bitmap highbit is equals to
+> l->startbit+MAPSIZE, where l is the last node (this is how
+> ebitmap_set_bit() sets it). So a simple fix consists in making
+> ebitmap_load() reject bitmaps which are loaded with an invalid highbit
+> value.
+> 
+> This issue has been found while fuzzing semodule_package with the
+> American Fuzzy Lop.
 
-Thanks, applied.
+Thanks, applied
 
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > ---
->  libsepol/src/policydb.c | 4 ----
->  1 file changed, 4 deletions(-)
+>  libsepol/src/ebitmap.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
 > 
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index d1019e42de16..f9b2ec379c33 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -3510,10 +3510,6 @@ static int avrule_decl_read(policydb_t * p, avrule_decl_t * decl,
->  			return -1;
->  		nprim = le32_to_cpu(buf[0]);
->  		nel = le32_to_cpu(buf[1]);
-> -		if (nel && !nprim) {
-> -			ERR(fp->handle, "unexpected items in decl symbol table with no symbol");
-> -			return -1;
-> -		}
->  		for (j = 0; j < nel; j++) {
->  			if (read_f[i] (p, decl->symtab[i].table, fp)) {
->  				return -1;
+> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+> index fe8beb879a18..218adc293aae 100644
+> --- a/libsepol/src/ebitmap.c
+> +++ b/libsepol/src/ebitmap.c
+> @@ -453,6 +453,12 @@ int ebitmap_read(ebitmap_t * e, void *fp)
+>  
+>  		l = n;
+>  	}
+> +	if (count && l->startbit + MAPSIZE != e->highbit) {
+> +		printf
+> +		    ("security: ebitmap: hight bit %u has not the expected value %zu\n",
+> +		     e->highbit, l->startbit + MAPSIZE);
+> +		goto bad;
+> +	}
+>  
+>        ok:
+>  	rc = 0;
 > 
