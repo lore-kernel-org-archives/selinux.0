@@ -1,45 +1,63 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 0/2 v2] Enable direct compare of policy file with kernel policy
-Date: Mon, 28 Nov 2016 13:29:16 -0500
-Message-Id: <1480357758-7025-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH 1/2 v2] libsepol: do not write object_r types to policy file
+Date: Mon, 28 Nov 2016 13:29:17 -0500
+Message-Id: <1480357758-7025-2-git-send-email-sds@tycho.nsa.gov>
+In-Reply-To: <1480357758-7025-1-git-send-email-sds@tycho.nsa.gov>
+References: <1480357758-7025-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-To date we have been unable to directly compare a policy file, 
-e.g. /etc/selinux/targeted/policy/policy.30, with the kernel policy,
-i.e. /sys/fs/selinux/policy, due to non-semantic differences in
-the two policy images (e.g. ordering issues).  sediff can be used
-to compare the two, but sediff is incomplete in its coverage and
-is necessarily less efficient than a simple cmp of two files.
-These two commits make it possible to directly compare a policy
-file with a kernel policy after normalizing them both through
-checkpolicy, ala:
+Originally object_r's types bitmap was empty since we exempt
+object_r from the normal user-role and role-type checks.  CIL
+however sets object_r's types to all types to avoid special case
+logic.  However, the kernel does not load object_r types from the
+policy file; it predefines object_r and merely validates that the
+object_r definition in the policy has the expected value.  Thus,
+the actual policy file and the /sys/fs/selinux/policy file were
+differing in their object_r entry.  Fix this by not writing object_r's
+types to the policy file, since they are ignored by the kernel
+anyway.
 
-checkpolicy -M -b /etc/selinux/targeted/policy/policy.30 -o policy.1
-checkpolicy -M -b /sys/fs/selinux/policy -o policy.2
-cmp policy.1 policy.2
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/write.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-Caveat:  Un-tested with Android policy; might still differ on xperms
-ordering issues.
-
-Stephen Smalley (2):
-  libsepol: do not write object_r types to policy file
-  libsepol,checkpolicy: convert rangetrans and filenametrans to hashtabs
-
- checkpolicy/policy_define.c                |  57 ++---
- checkpolicy/test/dispol.c                  |  36 +++-
- libsepol/cil/src/cil_binary.c              |  79 ++++---
- libsepol/include/sepol/policydb/context.h  |  40 ++++
- libsepol/include/sepol/policydb/policydb.h |  18 +-
- libsepol/src/expand.c                      | 152 +++++++-------
- libsepol/src/mls.c                         |  52 +++--
- libsepol/src/policydb.c                    | 321 +++++++++++++++++++----------
- libsepol/src/write.c                       | 198 ++++++++++++------
- 9 files changed, 623 insertions(+), 330 deletions(-)
-
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index d87ea61..fbc6dad 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -1078,8 +1078,25 @@ static int role_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 	if (ebitmap_write(&role->dominates, fp))
+ 		return POLICYDB_ERROR;
+ 	if (p->policy_type == POLICY_KERN) {
+-		if (ebitmap_write(&role->types.types, fp))
+-			return POLICYDB_ERROR;
++		if (role->s.value == OBJECT_R_VAL) {
++			/*
++			 * CIL populates object_r's types map
++			 * rather than handling it as a special case.
++			 * However, this creates an inconsistency with
++			 * the kernel policy read from /sys/fs/selinux/policy
++			 * because the kernel ignores everything except for
++			 * object_r's value from the policy file.
++			 * Make them consistent by writing an empty
++			 * ebitmap instead.
++			 */
++			ebitmap_t empty;
++			ebitmap_init(&empty);
++			if (ebitmap_write(&empty, fp))
++				return POLICYDB_ERROR;
++		} else {
++			if (ebitmap_write(&role->types.types, fp))
++				return POLICYDB_ERROR;
++		}
+ 	} else {
+ 		if (type_set_write(&role->types, fp))
+ 			return POLICYDB_ERROR;
 -- 
 2.7.4
