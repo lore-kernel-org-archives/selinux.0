@@ -1,84 +1,163 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uASLZHPM024116
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uASLZHPN024116
  for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2016 16:35:18 -0500
 Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
  [81.66.120.207])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id C976C564909
- for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2016 22:35:13 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 350D8564909
+ for <selinux@tycho.nsa.gov>; Mon, 28 Nov 2016 22:35:16 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2 v2] libsepol: check decl_id bounds before using it
-Date: Mon, 28 Nov 2016 22:34:43 +0100
-Message-Id: <20161128213444.6738-1-nicolas.iooss@m4x.org>
+Subject: [PATCH 2/2 v2] libsepol: detect duplicated symbol IDs
+Date: Mon, 28 Nov 2016 22:34:44 +0100
+Message-Id: <20161128213444.6738-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20161128213444.6738-1-nicolas.iooss@m4x.org>
+References: <20161128213444.6738-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When loading an invalid module which uses a declaration ID 0,
-semodule_package crashes in policydb_index_decls():
+A valid policy would not have two symbols (classes, roles, users...)
+sharing the same unique identifier. Make policydb_read() rejects such
+policy files.
 
-    p->decl_val_to_struct[decl->decl_id - 1] = decl;
-
-gdb shows the following stack trace:
-
-    #0  0x00007ffff7aa1bbd in policydb_index_decls (p=p@entry=0x605360)
-    at policydb.c:1034
-    #1  0x00007ffff7aaa9fc in policydb_read (p=<optimized out>,
-    fp=fp@entry=0x605090, verbose=verbose@entry=0) at policydb.c:3958
-    #2  0x00007ffff7ab4764 in sepol_policydb_read (p=<optimized out>,
-    pf=pf@entry=0x605090) at policydb_public.c:174
-    #3  0x0000000000401d33 in main (argc=<optimized out>,
-    argv=0x7fffffffdc88) at semodule_package.c:220
-
-Change policydb_index_decls() to report an error instead:
-
-    libsepol.policydb_index_decls: invalid decl ID 0
+When ..._val_to_name translation tables were allocated with malloc(),
+change to calloc() in order to initialize the tables with NULLs.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsepol/src/policydb.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ libsepol/src/conditional.c |  3 +++
+ libsepol/src/policydb.c    | 27 ++++++++++++++++++++++-----
+ 2 files changed, 25 insertions(+), 5 deletions(-)
 
+diff --git a/libsepol/src/conditional.c b/libsepol/src/conditional.c
+index e1bc961b2b52..2883aeb6fab0 100644
+--- a/libsepol/src/conditional.c
++++ b/libsepol/src/conditional.c
+@@ -551,6 +551,9 @@ int cond_index_bool(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 	if (!booldatum->s.value || booldatum->s.value > p->p_bools.nprim)
+ 		return -EINVAL;
+ 
++	if (p->p_bool_val_to_name[booldatum->s.value - 1] != NULL)
++		return -EINVAL;
++
+ 	p->p_bool_val_to_name[booldatum->s.value - 1] = key;
+ 	p->bool_val_to_struct[booldatum->s.value - 1] = booldatum;
+ 
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 142bad8f09e2..26cdd9b13516 100644
+index 26cdd9b13516..ed4bdc8c821e 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
-@@ -1090,11 +1090,11 @@ int policydb_index_bools(policydb_t * p)
+@@ -932,6 +932,8 @@ static int common_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 	p = (policydb_t *) datap;
+ 	if (!comdatum->s.value || comdatum->s.value > p->p_commons.nprim)
+ 		return -EINVAL;
++	if (p->p_common_val_to_name[comdatum->s.value - 1] != NULL)
++		return -EINVAL;
+ 	p->p_common_val_to_name[comdatum->s.value - 1] = (char *)key;
+ 
  	return 0;
- }
+@@ -946,6 +948,8 @@ static int class_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 	p = (policydb_t *) datap;
+ 	if (!cladatum->s.value || cladatum->s.value > p->p_classes.nprim)
+ 		return -EINVAL;
++	if (p->p_class_val_to_name[cladatum->s.value - 1] != NULL)
++		return -EINVAL;
+ 	p->p_class_val_to_name[cladatum->s.value - 1] = (char *)key;
+ 	p->class_val_to_struct[cladatum->s.value - 1] = cladatum;
  
--int policydb_index_decls(policydb_t * p)
-+int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
+@@ -961,6 +965,8 @@ static int role_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 	p = (policydb_t *) datap;
+ 	if (!role->s.value || role->s.value > p->p_roles.nprim)
+ 		return -EINVAL;
++	if (p->p_role_val_to_name[role->s.value - 1] != NULL)
++		return -EINVAL;
+ 	p->p_role_val_to_name[role->s.value - 1] = (char *)key;
+ 	p->role_val_to_struct[role->s.value - 1] = role;
+ 
+@@ -978,6 +984,8 @@ static int type_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 	if (typdatum->primary) {
+ 		if (!typdatum->s.value || typdatum->s.value > p->p_types.nprim)
+ 			return -EINVAL;
++		if (p->p_type_val_to_name[typdatum->s.value - 1] != NULL)
++			return -EINVAL;
+ 		p->p_type_val_to_name[typdatum->s.value - 1] = (char *)key;
+ 		p->type_val_to_struct[typdatum->s.value - 1] = typdatum;
+ 	}
+@@ -995,7 +1003,8 @@ static int user_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 
+ 	if (!usrdatum->s.value || usrdatum->s.value > p->p_users.nprim)
+ 		return -EINVAL;
+-
++	if (p->p_user_val_to_name[usrdatum->s.value - 1] != NULL)
++		return -EINVAL;
+ 	p->p_user_val_to_name[usrdatum->s.value - 1] = (char *)key;
+ 	p->user_val_to_struct[usrdatum->s.value - 1] = usrdatum;
+ 
+@@ -1014,6 +1023,8 @@ static int sens_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 		if (!levdatum->level->sens ||
+ 		    levdatum->level->sens > p->p_levels.nprim)
+ 			return -EINVAL;
++		if (p->p_sens_val_to_name[levdatum->level->sens - 1] != NULL)
++			return -EINVAL;
+ 		p->p_sens_val_to_name[levdatum->level->sens - 1] = (char *)key;
+ 	}
+ 
+@@ -1031,6 +1042,8 @@ static int cat_index(hashtab_key_t key, hashtab_datum_t datum, void *datap)
+ 	if (!catdatum->isalias) {
+ 		if (!catdatum->s.value || catdatum->s.value > p->p_cats.nprim)
+ 			return -EINVAL;
++		if (p->p_cat_val_to_name[catdatum->s.value - 1] != NULL)
++			return -EINVAL;
+ 		p->p_cat_val_to_name[catdatum->s.value - 1] = (char *)key;
+ 	}
+ 
+@@ -1051,7 +1064,7 @@ int policydb_index_classes(policydb_t * p)
  {
- 	avrule_block_t *curblock;
- 	avrule_decl_t *decl;
--	int num_decls = 0;
-+	unsigned int num_decls = 0;
+ 	free(p->p_common_val_to_name);
+ 	p->p_common_val_to_name = (char **)
+-	    malloc(p->p_commons.nprim * sizeof(char *));
++	    calloc(p->p_commons.nprim, sizeof(char *));
+ 	if (!p->p_common_val_to_name)
+ 		return -1;
  
- 	free(p->decl_val_to_struct);
+@@ -1060,13 +1073,13 @@ int policydb_index_classes(policydb_t * p)
  
-@@ -1114,6 +1114,10 @@ int policydb_index_decls(policydb_t * p)
- 	for (curblock = p->global; curblock != NULL; curblock = curblock->next) {
- 		for (decl = curblock->branch_list; decl != NULL;
- 		     decl = decl->next) {
-+			if (decl->decl_id < 1 || decl->decl_id > num_decls) {
-+				ERR(handle, "invalid decl ID %u", decl->decl_id);
+ 	free(p->class_val_to_struct);
+ 	p->class_val_to_struct = (class_datum_t **)
+-	    malloc(p->p_classes.nprim * sizeof(class_datum_t *));
++	    calloc(p->p_classes.nprim, sizeof(class_datum_t *));
+ 	if (!p->class_val_to_struct)
+ 		return -1;
+ 
+ 	free(p->p_class_val_to_name);
+ 	p->p_class_val_to_name = (char **)
+-	    malloc(p->p_classes.nprim * sizeof(char *));
++	    calloc(p->p_classes.nprim, sizeof(char *));
+ 	if (!p->p_class_val_to_name)
+ 		return -1;
+ 
+@@ -1082,7 +1095,7 @@ int policydb_index_bools(policydb_t * p)
+ 	if (cond_init_bool_indexes(p) == -1)
+ 		return -1;
+ 	p->p_bool_val_to_name = (char **)
+-	    malloc(p->p_bools.nprim * sizeof(char *));
++	    calloc(p->p_bools.nprim, sizeof(char *));
+ 	if (!p->p_bool_val_to_name)
+ 		return -1;
+ 	if (hashtab_map(p->p_bools.table, cond_index_bool, p))
+@@ -1118,6 +1131,10 @@ int policydb_index_decls(sepol_handle_t * handle, policydb_t * p)
+ 				ERR(handle, "invalid decl ID %u", decl->decl_id);
+ 				return -1;
+ 			}
++			if (p->decl_val_to_struct[decl->decl_id - 1] != NULL) {
++				ERR(handle, "duplicated decl ID %u", decl->decl_id);
 +				return -1;
 +			}
  			p->decl_val_to_struct[decl->decl_id - 1] = decl;
  		}
  	}
-@@ -4039,7 +4043,7 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- 
- 	}
- 
--	if (policydb_index_decls(p))
-+	if (policydb_index_decls(fp->handle, p))
- 		goto bad;
- 
- 	if (policydb_index_classes(p))
 -- 
 2.10.2
