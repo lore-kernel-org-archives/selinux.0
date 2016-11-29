@@ -1,409 +1,1102 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uATEpEI2023914
- for <selinux@tycho.nsa.gov>; Tue, 29 Nov 2016 09:51:14 -0500
-From: James Carter <jwcart2@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2 v2] secilc: Add secil2conf which creates a policy.conf
- from CIL policy
-Date: Tue, 29 Nov 2016 09:50:57 -0500
-Message-Id: <1480431057-8768-3-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1480431057-8768-1-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1480431057-8768-1-git-send-email-jwcart2@tycho.nsa.gov>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: do not #include <sys/cdefs.h>
+Date: Tue, 29 Nov 2016 11:05:32 -0500
+Message-Id: <1480435532-24959-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The program secil2conf uses the libsepol function
-cil_write_policy_conf() to create a policy.conf file from CIL policy.
+ratbert90 submitted this patch via
+https://github.com/SELinuxProject/selinux/issues/19.
+Apparently musl does not provide sys/cdefs.h, see
+http://wiki.musl-libc.org/wiki/FAQ#Q:_I.27m_trying_to_compile_something_against_musl_and_I_get_error_messages_about_sys.2Fcdefs.h.
 
-By default a file called "policy.conf" will be created, but the "-o"
-option can be used to write to a different file. The "-M" option can
-be used to override the mls statement in CIL. The "-P" option will
-cause tunables to be treated as booleans.
-
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- secilc/.gitignore       |   2 +
- secilc/Makefile         |  32 ++++++--
- secilc/secil2conf.8.xml |  82 +++++++++++++++++++++
- secilc/secil2conf.c     | 192 ++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 300 insertions(+), 8 deletions(-)
- create mode 100644 secilc/secil2conf.8.xml
- create mode 100644 secilc/secil2conf.c
+ libsepol/include/sepol/boolean_record.h        | 10 +++++++---
+ libsepol/include/sepol/booleans.h              | 10 +++++++---
+ libsepol/include/sepol/context.h               | 10 +++++++---
+ libsepol/include/sepol/context_record.h        | 10 +++++++---
+ libsepol/include/sepol/debug.h                 | 10 +++++++---
+ libsepol/include/sepol/errcodes.h              | 10 +++++++---
+ libsepol/include/sepol/handle.h                | 11 +++++++----
+ libsepol/include/sepol/iface_record.h          | 10 +++++++---
+ libsepol/include/sepol/interfaces.h            | 10 +++++++---
+ libsepol/include/sepol/module.h                | 10 +++++++---
+ libsepol/include/sepol/node_record.h           | 10 +++++++---
+ libsepol/include/sepol/nodes.h                 | 10 +++++++---
+ libsepol/include/sepol/policydb.h              | 10 +++++++---
+ libsepol/include/sepol/policydb/avrule_block.h | 10 +++++++---
+ libsepol/include/sepol/policydb/avtab.h        | 10 +++++++---
+ libsepol/include/sepol/policydb/conditional.h  | 10 +++++++---
+ libsepol/include/sepol/policydb/constraint.h   |  9 +++++++--
+ libsepol/include/sepol/policydb/context.h      |  9 +++++++--
+ libsepol/include/sepol/policydb/ebitmap.h      | 10 +++++++---
+ libsepol/include/sepol/policydb/expand.h       | 10 +++++++---
+ libsepol/include/sepol/policydb/flask_types.h  | 10 +++++++---
+ libsepol/include/sepol/policydb/hashtab.h      | 10 +++++++---
+ libsepol/include/sepol/policydb/hierarchy.h    | 10 +++++++---
+ libsepol/include/sepol/policydb/link.h         | 10 +++++++---
+ libsepol/include/sepol/policydb/mls_types.h    | 10 +++++++---
+ libsepol/include/sepol/policydb/module.h       | 10 +++++++---
+ libsepol/include/sepol/policydb/polcaps.h      | 11 +++++++----
+ libsepol/include/sepol/policydb/policydb.h     | 10 +++++++---
+ libsepol/include/sepol/policydb/services.h     | 10 +++++++---
+ libsepol/include/sepol/policydb/sidtab.h       | 10 +++++++---
+ libsepol/include/sepol/policydb/symtab.h       | 10 +++++++---
+ libsepol/include/sepol/policydb/util.h         | 11 +++++++----
+ libsepol/include/sepol/port_record.h           | 10 +++++++---
+ libsepol/include/sepol/ports.h                 | 10 +++++++---
+ libsepol/include/sepol/roles.h                 | 11 +++++++----
+ libsepol/include/sepol/sepol.h                 | 10 +++++++---
+ libsepol/include/sepol/user_record.h           | 10 +++++++---
+ libsepol/include/sepol/users.h                 | 10 +++++++---
+ 38 files changed, 266 insertions(+), 116 deletions(-)
 
-diff --git a/secilc/.gitignore b/secilc/.gitignore
-index f659d80..2d3ff40 100644
---- a/secilc/.gitignore
-+++ b/secilc/.gitignore
-@@ -1,5 +1,7 @@
- secilc
- secilc.8
-+secil2conf
-+secil2conf.8
- policy.*
- file_contexts
- docs/html
-diff --git a/secilc/Makefile b/secilc/Makefile
-index 40254ce..e714a84 100644
---- a/secilc/Makefile
-+++ b/secilc/Makefile
-@@ -5,19 +5,24 @@ LIBDIR ?= $(PREFIX)/lib
- INCLUDEDIR ?= $(PREFIX)/include
+diff --git a/libsepol/include/sepol/boolean_record.h b/libsepol/include/sepol/boolean_record.h
+index 9af16be..09cd01f 100644
+--- a/libsepol/include/sepol/boolean_record.h
++++ b/libsepol/include/sepol/boolean_record.h
+@@ -3,9 +3,10 @@
  
- LDLIBS = -lsepol -L$(LIBDIR)
-+
- SECILC = secilc
- SECILC_SRCS := secilc.c
- SECILC_OBJS := $(patsubst %.c,%.o,$(SECILC_SRCS))
+ #include <stddef.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
  
--# The secilc man page:
--MANPAGE = secilc.8
-+SECIL2CONF = secil2conf
-+SECIL2CONF_SRCS := secil2conf.c
-+SECIL2CONF_OBJS := $(patsubst %.c,%.o,$(SECIL2CONF_SRCS))
-+
-+SECILC_MANPAGE = secilc.8
-+SECIL2CONF_MANPAGE = secil2conf.8
- XMLTO = xmlto
- 
- CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align -Wstrict-prototypes -Wpointer-arith -Wunused
- 
- override CFLAGS += -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
- 
--all: $(SECILC) man
-+all: $(SECILC) $(SECIL2CONF) man
- 
- $(SECILC): $(SECILC_OBJS)
- 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
-@@ -25,16 +30,24 @@ $(SECILC): $(SECILC_OBJS)
- test: $(SECILC)
- 	./$(SECILC) test/policy.cil
- 
--man: $(MANPAGE)
-+$(SECIL2CONF): $(SECIL2CONF_OBJS)
-+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
-+
-+man: $(SECILC_MANPAGE) $(SECIL2CONF_MANPAGE)
-+
-+$(SECILC_MANPAGE): $(SECILC_MANPAGE).xml
-+	$(XMLTO) man $(SECILC_MANPAGE).xml
- 
--$(MANPAGE): $(MANPAGE).xml
--	$(XMLTO) man $(MANPAGE).xml
-+$(SECIL2CONF_MANPAGE): $(SECIL2CONF_MANPAGE).xml
-+	$(XMLTO) man $(SECIL2CONF_MANPAGE).xml
- 
- install: all man
- 	-mkdir -p $(BINDIR)
- 	-mkdir -p $(MANDIR)/man8
- 	install -m 755 $(SECILC) $(BINDIR)
--	install -m 644 $(MANPAGE) $(MANDIR)/man8
-+	install -m 755 $(SECIL2CONF) $(BINDIR)
-+	install -m 644 $(SECILC_MANPAGE) $(MANDIR)/man8
-+	install -m 644 $(SECIL2CONF_MANPAGE) $(MANDIR)/man8
- 
- doc:
- 	$(MAKE) -C docs
-@@ -42,9 +55,12 @@ doc:
- clean:
- 	rm -f $(SECILC)
- 	rm -f $(SECILC_OBJS)
-+	rm -f $(SECIL2CONF)
-+	rm -f $(SECIL2CONF_OBJS)
- 	rm -f policy.*
- 	rm -f file_contexts
--	rm -f $(MANPAGE)
-+	rm -f $(SECILC_MANPAGE)
-+	rm -f $(SECIL2CONF_MANPAGE)
- 
- relabel:
- 
-diff --git a/secilc/secil2conf.8.xml b/secilc/secil2conf.8.xml
-new file mode 100644
-index 0000000..59d87a5
---- /dev/null
-+++ b/secilc/secil2conf.8.xml
-@@ -0,0 +1,82 @@
-+<?xml version="1.0" encoding="UTF-8"?>
-+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML//EN"
-+               "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-+
-+<refentry>
-+   <refentryinfo>
-+      <author>
-+         <firstname>James</firstname><surname>Carter</surname><contrib></contrib>
-+      </author>
-+   </refentryinfo>
-+
-+   <refmeta>
-+      <refentrytitle>SECIL2CONF</refentrytitle>
-+      <manvolnum>8</manvolnum>
-+      <refmiscinfo class="date">21 November 2016</refmiscinfo>
-+      <refmiscinfo class="source">secil2conf</refmiscinfo>
-+      <refmiscinfo class="manual">SELinux CIL to policy.conf Converter</refmiscinfo>
-+   </refmeta>
-+   <refnamediv id="name">
-+      <refname>secil2conf</refname>
-+      <refpurpose>invoke the SELinux Common Intermediate Language (CIL) to policy.conf converter</refpurpose>
-+   </refnamediv>
-+
-+   <refsynopsisdiv id="synopsis">
-+      <cmdsynopsis>
-+        <command>secil2conf</command>
-+          <arg choice="opt" rep="repeat"><replaceable>OPTION</replaceable></arg>
-+          <arg choice="plain"><replaceable>file</replaceable></arg>
-+      </cmdsynopsis>
-+   </refsynopsisdiv>
-+
-+   <refsect1 id="description"><title>DESCRIPTION</title>
-+      <para><emphasis role="italic">secil2conf</emphasis> invokes the CIL to policy.conf converter with the specified <emphasis role="italic">argument</emphasis>s.</para>
-+   </refsect1>
-+
-+   <refsect1 id="options"><title>OPTIONS</title>
-+      <variablelist>
-+         <varlistentry>
-+            <term><option>-o, --output=&lt;file></option></term>
-+            <listitem><para>Write policy.conf to <emphasis role="italic">file</emphasis> (default: policy.conf)</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-M, --mls true|false</option></term>
-+            <listitem><para>Build an mls policy.conf. Must be <emphasis role="bold">true</emphasis> or <emphasis role="bold">false</emphasis>. This will override the <emphasis role="bold">(mls <emphasis role="italic">boolean</emphasis></emphasis><emphasis role="bold">)</emphasis> statement if present in the policy.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-P, --preserve-tunables</option></term>
-+            <listitem><para>Treat tunables as booleans.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-v, --verbose</option></term>
-+            <listitem><para>Increment verbosity level.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-h, --help</option></term>
-+            <listitem><para>Display usage information.</para></listitem>
-+         </varlistentry>
-+      </variablelist>
-+   </refsect1>
-+
-+   <refsect1 id="see_also"><title>SEE ALSO</title>
-+      <para>
-+      <simplelist type="inline">
-+         <member><citerefentry>
-+            <refentrytitle>secilc</refentrytitle>
-+            <manvolnum>8</manvolnum>
-+         </citerefentry></member>
-+         <member><citerefentry>
-+            <refentrytitle>sestatus</refentrytitle>
-+            <manvolnum>8</manvolnum>
-+         </citerefentry></member>
-+      </simplelist>
-+      </para>
-+      <para>HTML documentation describing the CIL language statements is available starting with <emphasis role="italic">docs/html/index.html</emphasis>.</para>
-+      <para>PDF documentation describing the CIL language statements is available at: <emphasis role="italic">docs/pdf/CIL_Reference_Guide.pdf</emphasis>.</para>
-+      <para>There is a CIL Design Wiki at: <ulink url="http://github.com/SELinuxProject/cil/wiki"></ulink> that describes the goals and features of the CIL language.</para>
-+   </refsect1>
-+</refentry>
-diff --git a/secilc/secil2conf.c b/secilc/secil2conf.c
-new file mode 100644
-index 0000000..ff564f0
---- /dev/null
-+++ b/secilc/secil2conf.c
-@@ -0,0 +1,192 @@
-+/*
-+ * Copyright 2011 Tresys Technology, LLC. All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions are met:
-+ *
-+ *    1. Redistributions of source code must retain the above copyright notice,
-+ *       this list of conditions and the following disclaimer.
-+ *
-+ *    2. Redistributions in binary form must reproduce the above copyright notice,
-+ *       this list of conditions and the following disclaimer in the documentation
-+ *       and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY TRESYS TECHNOLOGY, LLC ``AS IS'' AND ANY EXPRESS
-+ * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-+ * EVENT SHALL TRESYS TECHNOLOGY, LLC OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ * The views and conclusions contained in the software and documentation are those
-+ * of the authors and should not be interpreted as representing official policies,
-+ * either expressed or implied, of Tresys Technology, LLC.
-+ */
-+
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <stdint.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <sys/stat.h>
-+
-+#ifdef ANDROID
-+#include <cil/cil.h>
-+#else
-+#include <sepol/cil/cil.h>
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
 +#endif
-+#include <sepol/policydb.h>
-+
-+void usage(char *prog)
-+{
-+	printf("Usage: %s [OPTION]... FILE...\n", prog);
-+	printf("\n");
-+	printf("Options:\n");
-+	printf("  -o, --output=<file>            write policy.conf to <file>\n");
-+	printf("                                 (default: policy.conf)\n");
-+	printf("  -M, --mls true|false           write an mls policy. Must be true or false.\n");
-+	printf("                                 This will override the (mls boolean) statement\n");
-+	printf("                                 if present in the policy\n");
-+	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
-+	printf("  -v, --verbose                  increment verbosity level\n");
-+	printf("  -h, --help                     display usage information\n");
-+	exit(1);
+ 
+ struct sepol_bool;
+ struct sepol_bool_key;
+@@ -51,5 +52,8 @@ extern int sepol_bool_clone(sepol_handle_t * handle,
+ 
+ extern void sepol_bool_free(sepol_bool_t * boolean);
+ 
+-__END_DECLS
++#ifdef __cplusplus
 +}
++#endif
 +
-+int main(int argc, char *argv[])
-+{
-+	int rc = SEPOL_ERR;
-+	FILE *file = NULL;
-+	char *buffer = NULL;
-+	struct stat filedata;
-+	uint32_t file_size;
-+	char *output = NULL;
-+	struct cil_db *db = NULL;
-+	int mls = -1;
-+	int preserve_tunables = 0;
-+	int opt_char;
-+	int opt_index = 0;
-+	enum cil_log_level log_level = CIL_ERR;
-+	static struct option long_opts[] = {
-+		{"help", no_argument, 0, 'h'},
-+		{"verbose", no_argument, 0, 'v'},
-+		{"mls", required_argument, 0, 'M'},
-+		{"preserve-tunables", no_argument, 0, 'P'},
-+		{"output", required_argument, 0, 'o'},
-+		{0, 0, 0, 0}
-+	};
-+	int i;
-+
-+	while (1) {
-+		opt_char = getopt_long(argc, argv, "o:hvM:P", long_opts, &opt_index);
-+		if (opt_char == -1) {
-+			break;
-+		}
-+		switch (opt_char) {
-+			case 'v':
-+				log_level++;
-+				break;
-+			case 'M':
-+				if (!strcasecmp(optarg, "true") || !strcasecmp(optarg, "1")) {
-+					mls = 1;
-+				} else if (!strcasecmp(optarg, "false") || !strcasecmp(optarg, "0")) {
-+					mls = 0;
-+				} else {
-+					usage(argv[0]);
-+				}
-+				break;
-+			case 'P':
-+				preserve_tunables = 1;
-+				break;
-+			case 'o':
-+				output = strdup(optarg);
-+				break;
-+			case 'h':
-+				usage(argv[0]);
-+			case '?':
-+				break;
-+			default:
-+					fprintf(stderr, "Unsupported option: %s\n", optarg);
-+				usage(argv[0]);
-+		}
-+	}
-+	if (optind >= argc) {
-+		fprintf(stderr, "No cil files specified\n");
-+		usage(argv[0]);
-+	}
-+
-+	cil_set_log_level(log_level);
-+
-+	cil_db_init(&db);
-+	cil_set_preserve_tunables(db, preserve_tunables);
-+	cil_set_mls(db, mls);
-+
-+	for (i = optind; i < argc; i++) {
-+		file = fopen(argv[i], "r");
-+		if (!file) {
-+			fprintf(stderr, "Could not open file: %s\n", argv[i]);
-+			rc = SEPOL_ERR;
-+			goto exit;
-+		}
-+		rc = stat(argv[i], &filedata);
-+		if (rc == -1) {
-+			fprintf(stderr, "Could not stat file: %s\n", argv[i]);
-+			goto exit;
-+		}
-+		file_size = filedata.st_size;
-+
-+		buffer = malloc(file_size);
-+		rc = fread(buffer, file_size, 1, file);
-+		if (rc != 1) {
-+			fprintf(stderr, "Failure reading file: %s\n", argv[i]);
-+			goto exit;
-+		}
-+		fclose(file);
-+		file = NULL;
-+
-+		rc = cil_add_file(db, argv[i], buffer, file_size);
-+		if (rc != SEPOL_OK) {
-+			fprintf(stderr, "Failure adding %s\n", argv[i]);
-+			goto exit;
-+		}
-+
-+		free(buffer);
-+		buffer = NULL;
-+	}
-+
-+	rc = cil_compile(db);
-+	if (rc != SEPOL_OK) {
-+		fprintf(stderr, "Failed to compile cildb: %d\n", rc);
-+		goto exit;
-+	}
-+
-+	if (output == NULL) {
-+		file = fopen("policy.conf", "w");
-+	} else {
-+		file = fopen(output, "w");
-+	}
-+	if (file == NULL) {
-+		fprintf(stderr, "Failure opening policy.conf file for writing\n");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	cil_write_policy_conf(file, db);
-+
-+	fclose(file);
-+	file = NULL;
-+	rc = SEPOL_OK;
-+
-+exit:
-+	if (file != NULL) {
-+		fclose(file);
-+	}
-+	free(buffer);
-+	free(output);
-+	cil_db_destroy(&db);
-+	return rc;
+ #endif
+diff --git a/libsepol/include/sepol/booleans.h b/libsepol/include/sepol/booleans.h
+index 7374dde..02356d1 100644
+--- a/libsepol/include/sepol/booleans.h
++++ b/libsepol/include/sepol/booleans.h
+@@ -5,9 +5,10 @@
+ #include <sepol/policydb.h>
+ #include <sepol/boolean_record.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /*--------------compatibility--------------*/
+ 
+@@ -59,5 +60,8 @@ extern int sepol_bool_iterate(sepol_handle_t * handle,
+ 			      int (*fn) (const sepol_bool_t * boolean,
+ 					 void *fn_arg), void *arg);
+ 
+-__END_DECLS
++#ifdef __cplusplus
 +}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/context.h b/libsepol/include/sepol/context.h
+index a69e8c9..b3e5497 100644
+--- a/libsepol/include/sepol/context.h
++++ b/libsepol/include/sepol/context.h
+@@ -4,9 +4,10 @@
+ #include <sepol/context_record.h>
+ #include <sepol/policydb.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* -- Deprecated -- */
+ 
+@@ -26,5 +27,8 @@ extern int sepol_mls_contains(sepol_handle_t * handle,
+ extern int sepol_mls_check(sepol_handle_t * handle,
+ 			   const sepol_policydb_t * policydb, const char *mls);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/context_record.h b/libsepol/include/sepol/context_record.h
+index c07da8f..1dcbebb 100644
+--- a/libsepol/include/sepol/context_record.h
++++ b/libsepol/include/sepol/context_record.h
+@@ -2,9 +2,10 @@
+ #define _SEPOL_CONTEXT_RECORD_H_
+ 
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_context;
+ typedef struct sepol_context sepol_context_t;
+@@ -53,5 +54,8 @@ extern int sepol_context_from_string(sepol_handle_t * handle,
+ extern int sepol_context_to_string(sepol_handle_t * handle,
+ 				   const sepol_context_t * con, char **str_ptr);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/debug.h b/libsepol/include/sepol/debug.h
+index b852c8d..972a4de 100644
+--- a/libsepol/include/sepol/debug.h
++++ b/libsepol/include/sepol/debug.h
+@@ -2,9 +2,10 @@
+ #define _SEPOL_DEBUG_H_
+ 
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Deprecated */
+ extern void sepol_debug(int on);
+@@ -35,5 +36,8 @@ extern void sepol_msg_set_callback(sepol_handle_t * handle,
+ 							 const char *fmt, ...),
+ 				   void *msg_callback_arg);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/errcodes.h b/libsepol/include/sepol/errcodes.h
+index eba7088..0136564 100644
+--- a/libsepol/include/sepol/errcodes.h
++++ b/libsepol/include/sepol/errcodes.h
+@@ -4,9 +4,10 @@
+ #define __sepol_errno_h__
+ 
+ #include <errno.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ #define SEPOL_OK             0
+ 
+@@ -25,5 +26,8 @@ __BEGIN_DECLS
+ #define SEPOL_EEXIST         -EEXIST
+ #define SEPOL_ENOENT         -ENOENT
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/handle.h b/libsepol/include/sepol/handle.h
+index 00ed0ed..27cbd6c 100644
+--- a/libsepol/include/sepol/handle.h
++++ b/libsepol/include/sepol/handle.h
+@@ -1,9 +1,9 @@
+ #ifndef _SEPOL_HANDLE_H_
+ #define _SEPOL_HANDLE_H_
+ 
+-#include <sys/cdefs.h>
+-
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_handle;
+ typedef struct sepol_handle sepol_handle_t;
+@@ -35,5 +35,8 @@ int sepol_get_preserve_tunables(sepol_handle_t * sh);
+  * 0 is default and discard such branch, 1 preserves them */
+ void sepol_set_preserve_tunables(sepol_handle_t * sh, int preserve_tunables);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/iface_record.h b/libsepol/include/sepol/iface_record.h
+index 81d7027..098bc77 100644
+--- a/libsepol/include/sepol/iface_record.h
++++ b/libsepol/include/sepol/iface_record.h
+@@ -3,9 +3,10 @@
+ 
+ #include <sepol/handle.h>
+ #include <sepol/context_record.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_iface;
+ struct sepol_iface_key;
+@@ -59,5 +60,8 @@ extern int sepol_iface_clone(sepol_handle_t * handle,
+ 
+ extern void sepol_iface_free(sepol_iface_t * iface);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/interfaces.h b/libsepol/include/sepol/interfaces.h
+index 3cb5043..7ef23ce 100644
+--- a/libsepol/include/sepol/interfaces.h
++++ b/libsepol/include/sepol/interfaces.h
+@@ -4,9 +4,10 @@
+ #include <sepol/policydb.h>
+ #include <sepol/iface_record.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Return the number of interfaces */
+ extern int sepol_iface_count(sepol_handle_t * handle,
+@@ -43,5 +44,8 @@ extern int sepol_iface_iterate(sepol_handle_t * handle,
+ 			       int (*fn) (const sepol_iface_t * iface,
+ 					  void *fn_arg), void *arg);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/module.h b/libsepol/include/sepol/module.h
+index ff27f96..0d34dab 100644
+--- a/libsepol/include/sepol/module.h
++++ b/libsepol/include/sepol/module.h
+@@ -7,9 +7,10 @@
+ 
+ #include <sepol/handle.h>
+ #include <sepol/policydb.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_module_package;
+ typedef struct sepol_module_package sepol_module_package_t;
+@@ -82,5 +83,8 @@ extern int sepol_expand_module(sepol_handle_t * handle,
+ 			       sepol_policydb_t * base,
+ 			       sepol_policydb_t * out, int verbose, int check);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/node_record.h b/libsepol/include/sepol/node_record.h
+index e2d3e6d..3873223 100644
+--- a/libsepol/include/sepol/node_record.h
++++ b/libsepol/include/sepol/node_record.h
+@@ -4,9 +4,10 @@
+ #include <stddef.h>
+ #include <sepol/context_record.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_node;
+ struct sepol_node_key;
+@@ -92,5 +93,8 @@ extern int sepol_node_clone(sepol_handle_t * handle,
+ 
+ extern void sepol_node_free(sepol_node_t * node);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/nodes.h b/libsepol/include/sepol/nodes.h
+index 6fa534e..3cf99d2 100644
+--- a/libsepol/include/sepol/nodes.h
++++ b/libsepol/include/sepol/nodes.h
+@@ -4,9 +4,10 @@
+ #include <sepol/handle.h>
+ #include <sepol/policydb.h>
+ #include <sepol/node_record.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Return the number of nodes */
+ extern int sepol_node_count(sepol_handle_t * handle,
+@@ -40,5 +41,8 @@ extern int sepol_node_iterate(sepol_handle_t * handle,
+ 			      int (*fn) (const sepol_node_t * node,
+ 					 void *fn_arg), void *arg);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb.h b/libsepol/include/sepol/policydb.h
+index c3943e9..6769b91 100644
+--- a/libsepol/include/sepol/policydb.h
++++ b/libsepol/include/sepol/policydb.h
+@@ -5,9 +5,10 @@
+ #include <stdio.h>
+ 
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_policy_file;
+ typedef struct sepol_policy_file sepol_policy_file_t;
+@@ -144,5 +145,8 @@ extern int sepol_policydb_mls_enabled(const sepol_policydb_t * p);
+  */
+ extern int sepol_policydb_compat_net(const sepol_policydb_t * p);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/avrule_block.h b/libsepol/include/sepol/policydb/avrule_block.h
+index ecd347b..27047d4 100644
+--- a/libsepol/include/sepol/policydb/avrule_block.h
++++ b/libsepol/include/sepol/policydb/avrule_block.h
+@@ -21,9 +21,10 @@
+ #define _SEPOL_AVRULE_BLOCK_H_
+ 
+ #include <sepol/policydb/policydb.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ extern avrule_block_t *avrule_block_create(void);
+ extern void avrule_block_destroy(avrule_block_t * x);
+@@ -37,5 +38,8 @@ extern cond_list_t *get_decl_cond_list(policydb_t * p,
+ extern int is_id_enabled(char *id, policydb_t * p, int symbol_table);
+ extern int is_perm_enabled(char *class_id, char *perm_id, policydb_t * p);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
+index d3ea84e..958848e 100644
+--- a/libsepol/include/sepol/policydb/avtab.h
++++ b/libsepol/include/sepol/policydb/avtab.h
+@@ -40,11 +40,12 @@
+ #ifndef _SEPOL_POLICYDB_AVTAB_H_
+ #define _SEPOL_POLICYDB_AVTAB_H_
+ 
+-#include <sys/cdefs.h>
+ #include <sys/types.h>
+ #include <stdint.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ typedef struct avtab_key {
+ 	uint16_t source_type;
+@@ -142,7 +143,10 @@ extern avtab_ptr_t avtab_search_node_next(avtab_ptr_t node, int specified);
+ /* avtab_alloc uses one bucket per 2-4 elements, so adjust to get maximum buckets */
+ #define MAX_AVTAB_SIZE (MAX_AVTAB_HASH_BUCKETS << 1)
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _AVTAB_H_ */
+ 
+ /* FLASK */
+diff --git a/libsepol/include/sepol/policydb/conditional.h b/libsepol/include/sepol/policydb/conditional.h
+index cd2a9a9..9c3df3e 100644
+--- a/libsepol/include/sepol/policydb/conditional.h
++++ b/libsepol/include/sepol/policydb/conditional.h
+@@ -25,9 +25,10 @@
+ #include <sepol/policydb/avtab.h>
+ #include <sepol/policydb/symtab.h>
+ #include <sepol/policydb/policydb.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ #define COND_EXPR_MAXDEPTH 10
+ 
+@@ -136,5 +137,8 @@ extern int cond_read_list(policydb_t * p, cond_list_t ** list, void *fp);
+ extern void cond_compute_av(avtab_t * ctab, avtab_key_t * key,
+ 			    struct sepol_av_decision *avd);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _CONDITIONAL_H_ */
+diff --git a/libsepol/include/sepol/policydb/constraint.h b/libsepol/include/sepol/policydb/constraint.h
+index ae7034d..927bdc0 100644
+--- a/libsepol/include/sepol/policydb/constraint.h
++++ b/libsepol/include/sepol/policydb/constraint.h
+@@ -22,7 +22,9 @@
+ #include <sepol/policydb/ebitmap.h>
+ #include <sepol/policydb/flask_types.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ #define CEXPR_MAXDEPTH 5
+ 
+@@ -73,7 +75,10 @@ struct policydb;
+ extern int constraint_expr_init(constraint_expr_t * expr);
+ extern void constraint_expr_destroy(constraint_expr_t * expr);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _CONSTRAINT_H_ */
+ 
+ /* FLASK */
+diff --git a/libsepol/include/sepol/policydb/context.h b/libsepol/include/sepol/policydb/context.h
+index c844c37..2eaa686 100644
+--- a/libsepol/include/sepol/policydb/context.h
++++ b/libsepol/include/sepol/policydb/context.h
+@@ -22,7 +22,9 @@
+ #include <sepol/policydb/ebitmap.h>
+ #include <sepol/policydb/mls_types.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /*
+  * A security context consists of an authenticated user
+@@ -135,5 +137,8 @@ static inline int context_cmp(context_struct_t * c1, context_struct_t * c2)
+ 		(c1->type == c2->type) && mls_context_cmp(c1, c2));
+ }
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
+index 7b3508d..e90371e 100644
+--- a/libsepol/include/sepol/policydb/ebitmap.h
++++ b/libsepol/include/sepol/policydb/ebitmap.h
+@@ -19,9 +19,10 @@
+ 
+ #include <stdint.h>
+ #include <string.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ #define MAPTYPE uint64_t	/* portion of bitmap in each node */
+ #define MAPSIZE (sizeof(MAPTYPE) * 8)	/* number of bits in node bitmap */
+@@ -92,7 +93,10 @@ extern int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value);
+ extern void ebitmap_destroy(ebitmap_t * e);
+ extern int ebitmap_read(ebitmap_t * e, void *fp);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _EBITMAP_H_ */
+ 
+ /* FLASK */
+diff --git a/libsepol/include/sepol/policydb/expand.h b/libsepol/include/sepol/policydb/expand.h
+index a8de41e..0410d14 100644
+--- a/libsepol/include/sepol/policydb/expand.h
++++ b/libsepol/include/sepol/policydb/expand.h
+@@ -28,9 +28,10 @@
+ #include <stddef.h>
+ #include <sepol/handle.h>
+ #include <sepol/policydb/conditional.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /*
+  * Expand only the avrules for a module. It is valid for this function
+@@ -79,5 +80,8 @@ extern int expand_avtab(policydb_t * p, avtab_t * a, avtab_t * expa);
+ extern int expand_cond_av_list(policydb_t * p, cond_av_list_t * l,
+ 			       cond_av_list_t ** newl, avtab_t * expa);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/flask_types.h b/libsepol/include/sepol/policydb/flask_types.h
+index 2a59565..e01669c 100644
+--- a/libsepol/include/sepol/policydb/flask_types.h
++++ b/libsepol/include/sepol/policydb/flask_types.h
+@@ -13,9 +13,10 @@
+ 
+ #include <sys/types.h>
+ #include <stdint.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /*
+  * A security context is a set of security attributes 
+@@ -61,5 +62,8 @@ struct sepol_av_decision {
+ 	uint32_t seqno;
+ };
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/hashtab.h b/libsepol/include/sepol/policydb/hashtab.h
+index 0afc59c..df49258 100644
+--- a/libsepol/include/sepol/policydb/hashtab.h
++++ b/libsepol/include/sepol/policydb/hashtab.h
+@@ -17,9 +17,10 @@
+ 
+ #include <stdint.h>
+ #include <stdio.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ typedef char *hashtab_key_t;	/* generic key type */
+ typedef void *hashtab_datum_t;	/* generic datum type */
+@@ -136,5 +137,8 @@ extern void hashtab_map_remove_on_error(hashtab_t h,
+ 
+ extern void hashtab_hash_eval(hashtab_t h, char *tag);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/hierarchy.h b/libsepol/include/sepol/policydb/hierarchy.h
+index 88bc02e..eff101f 100644
+--- a/libsepol/include/sepol/policydb/hierarchy.h
++++ b/libsepol/include/sepol/policydb/hierarchy.h
+@@ -27,9 +27,10 @@
+ 
+ #include <sepol/policydb/avtab.h>
+ #include <sepol/policydb/policydb.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ extern int hierarchy_add_bounds(sepol_handle_t *handle, policydb_t *p);
+ 
+@@ -43,5 +44,8 @@ extern int bounds_check_types(sepol_handle_t *handle, policydb_t *p);
+ 
+ extern int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/link.h b/libsepol/include/sepol/policydb/link.h
+index 7c7c9be..3ef8f1d 100644
+--- a/libsepol/include/sepol/policydb/link.h
++++ b/libsepol/include/sepol/policydb/link.h
+@@ -12,13 +12,17 @@
+ 
+ 
+ #include <stddef.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ extern int link_modules(sepol_handle_t * handle,
+ 			policydb_t * b, policydb_t ** mods, int len,
+ 			int verbose);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/mls_types.h b/libsepol/include/sepol/policydb/mls_types.h
+index 4bf7367..568386c 100644
+--- a/libsepol/include/sepol/policydb/mls_types.h
++++ b/libsepol/include/sepol/policydb/mls_types.h
+@@ -34,9 +34,10 @@
+ #include <stdlib.h>
+ #include <sepol/policydb/ebitmap.h>
+ #include <sepol/policydb/flask_types.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ typedef struct mls_level {
+ 	uint32_t sens;		/* sensitivity */
+@@ -152,5 +153,8 @@ extern void mls_semantic_range_init(mls_semantic_range_t *r);
+ extern void mls_semantic_range_destroy(mls_semantic_range_t *r);
+ extern int mls_semantic_range_cpy(mls_semantic_range_t *dst, mls_semantic_range_t *src);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/module.h b/libsepol/include/sepol/policydb/module.h
+index 3fe560c..d0d2c7a 100644
+--- a/libsepol/include/sepol/policydb/module.h
++++ b/libsepol/include/sepol/policydb/module.h
+@@ -27,11 +27,12 @@
+ 
+ #include <sepol/policydb/policydb.h>
+ #include <sepol/policydb/conditional.h>
+-#include <sys/cdefs.h>
+ 
+ #define SEPOL_MODULE_PACKAGE_MAGIC 0xf97cff8f
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_module_package {
+ 	sepol_policydb_t *policy;
+@@ -48,5 +49,8 @@ struct sepol_module_package {
+ 
+ extern int sepol_module_package_init(sepol_module_package_t * p);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
+index 74b7c9e..53d7994 100644
+--- a/libsepol/include/sepol/policydb/polcaps.h
++++ b/libsepol/include/sepol/policydb/polcaps.h
+@@ -1,9 +1,9 @@
+ #ifndef _SEPOL_POLICYDB_POLCAPS_H_
+ #define _SEPOL_POLICYDB_POLCAPS_H_
+ 
+-#include <sys/cdefs.h>
+-
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Policy capabilities */
+ enum {
+@@ -21,5 +21,8 @@ extern int sepol_polcap_getnum(const char *name);
+ /* Convert a capability number to name. */
+ extern const char *sepol_polcap_getname(int capnum);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif /* _SEPOL_POLICYDB_POLCAPS_H_ */
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 31cdd76..4336a3f 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -61,7 +61,6 @@
+ #include <sepol/policydb/context.h>
+ #include <sepol/policydb/constraint.h>
+ #include <sepol/policydb/sidtab.h>
+-#include <sys/cdefs.h>
+ 
+ #define ERRMSG_LEN 1024
+ 
+@@ -69,7 +68,9 @@
+ #define POLICYDB_ERROR       -1
+ #define POLICYDB_UNSUPPORTED -2
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /*
+  * A datum type is defined for each kind of symbol 
+@@ -776,7 +777,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_MOD_MAGIC SELINUX_MOD_MAGIC
+ #define POLICYDB_MOD_STRING "SE Linux Module"
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _POLICYDB_H_ */
+ 
+ /* FLASK */
+diff --git a/libsepol/include/sepol/policydb/services.h b/libsepol/include/sepol/policydb/services.h
+index 8a5dc9a..29f57cf 100644
+--- a/libsepol/include/sepol/policydb/services.h
++++ b/libsepol/include/sepol/policydb/services.h
+@@ -15,9 +15,10 @@
+ #include <sepol/policydb/flask_types.h>
+ #include <sepol/policydb/policydb.h>
+ #include <stddef.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Set the policydb and sidtab structures to be used by
+    the service functions.  If not set, then these default
+@@ -230,5 +231,8 @@ extern int sepol_genfs_sid(const char *fstype,	/* IN */
+ 			   sepol_security_class_t sclass,	/* IN */
+ 			   sepol_security_id_t * sid);	/* OUT  */
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/policydb/sidtab.h b/libsepol/include/sepol/policydb/sidtab.h
+index 4b93567..2df1a50 100644
+--- a/libsepol/include/sepol/policydb/sidtab.h
++++ b/libsepol/include/sepol/policydb/sidtab.h
+@@ -11,9 +11,10 @@
+ #define _SEPOL_POLICYDB_SIDTAB_H_
+ 
+ #include <sepol/policydb/context.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ typedef struct sidtab_node {
+ 	sepol_security_id_t sid;	/* security identifier */
+@@ -69,7 +70,10 @@ extern void sepol_sidtab_set(sidtab_t * dst, sidtab_t * src);
+ 
+ extern void sepol_sidtab_shutdown(sidtab_t * s);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _SIDTAB_H_ */
+ 
+ /* FLASK */
+diff --git a/libsepol/include/sepol/policydb/symtab.h b/libsepol/include/sepol/policydb/symtab.h
+index e0da337..68b5ad4 100644
+--- a/libsepol/include/sepol/policydb/symtab.h
++++ b/libsepol/include/sepol/policydb/symtab.h
+@@ -14,9 +14,10 @@
+ #define _SEPOL_POLICYDB_SYMTAB_H_
+ 
+ #include <sepol/policydb/hashtab.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* The symtab_datum struct stores the common information for
+  * all symtab datums. It should the first element in every
+@@ -37,7 +38,10 @@ typedef struct {
+ extern int symtab_init(symtab_t *, unsigned int size);
+ extern void symtab_destroy(symtab_t *);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif				/* _SYMTAB_H_ */
+ 
+ /* FLASK */
+diff --git a/libsepol/include/sepol/policydb/util.h b/libsepol/include/sepol/policydb/util.h
+index fa12661..ee236a2 100644
+--- a/libsepol/include/sepol/policydb/util.h
++++ b/libsepol/include/sepol/policydb/util.h
+@@ -23,9 +23,9 @@
+ #ifndef __SEPOL_UTIL_H__
+ #define __SEPOL_UTIL_H__
+ 
+-#include <sys/cdefs.h>
+-
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ extern int add_i_to_a(uint32_t i, uint32_t * cnt, uint32_t ** a);
+ 
+@@ -40,5 +40,8 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms);
+  */
+ extern int tokenize(char *line_buf, char delim, int num_args, ...);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/port_record.h b/libsepol/include/sepol/port_record.h
+index c07d1fa..df04ea0 100644
+--- a/libsepol/include/sepol/port_record.h
++++ b/libsepol/include/sepol/port_record.h
+@@ -3,9 +3,10 @@
+ 
+ #include <sepol/context_record.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_port;
+ struct sepol_port_key;
+@@ -67,5 +68,8 @@ extern int sepol_port_clone(sepol_handle_t * handle,
+ 
+ extern void sepol_port_free(sepol_port_t * port);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/ports.h b/libsepol/include/sepol/ports.h
+index b4622ba..cda246c 100644
+--- a/libsepol/include/sepol/ports.h
++++ b/libsepol/include/sepol/ports.h
+@@ -4,9 +4,10 @@
+ #include <sepol/handle.h>
+ #include <sepol/policydb.h>
+ #include <sepol/port_record.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /* Return the number of ports */
+ extern int sepol_port_count(sepol_handle_t * handle,
+@@ -40,5 +41,8 @@ extern int sepol_port_iterate(sepol_handle_t * handle,
+ 			      int (*fn) (const sepol_port_t * port,
+ 					 void *fn_arg), void *arg);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/roles.h b/libsepol/include/sepol/roles.h
+index 89b3af2..e750078 100644
+--- a/libsepol/include/sepol/roles.h
++++ b/libsepol/include/sepol/roles.h
+@@ -1,9 +1,9 @@
+ #ifndef _SEPOL_ROLES_H_
+ #define _SEPOL_ROLES_H_
+ 
+-#include <sys/cdefs.h>
+-
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ extern int sepol_role_exists(const sepol_policydb_t * policydb,
+ 			     const char *role, int *response);
+@@ -11,5 +11,8 @@ extern int sepol_role_exists(const sepol_policydb_t * policydb,
+ extern int sepol_role_list(const sepol_policydb_t * policydb,
+ 			   char ***roles, unsigned int *nroles);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/sepol.h b/libsepol/include/sepol/sepol.h
+index 00a2129..513f77d 100644
+--- a/libsepol/include/sepol/sepol.h
++++ b/libsepol/include/sepol/sepol.h
+@@ -3,9 +3,10 @@
+ 
+ #include <stddef.h>
+ #include <stdio.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ #include <sepol/user_record.h>
+ #include <sepol/context_record.h>
+@@ -28,5 +29,8 @@ __BEGIN_DECLS
+ /* Set internal policydb from a file for subsequent service calls. */
+ extern int sepol_set_policydb_from_file(FILE * fp);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/user_record.h b/libsepol/include/sepol/user_record.h
+index 9a39526..d17a3db 100644
+--- a/libsepol/include/sepol/user_record.h
++++ b/libsepol/include/sepol/user_record.h
+@@ -3,9 +3,10 @@
+ 
+ #include <stddef.h>
+ #include <sepol/handle.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ struct sepol_user;
+ struct sepol_user_key;
+@@ -76,5 +77,8 @@ extern int sepol_user_clone(sepol_handle_t * handle,
+ 
+ extern void sepol_user_free(sepol_user_t * user);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
+diff --git a/libsepol/include/sepol/users.h b/libsepol/include/sepol/users.h
+index 0e0f76e..ad23f89 100644
+--- a/libsepol/include/sepol/users.h
++++ b/libsepol/include/sepol/users.h
+@@ -5,9 +5,10 @@
+ #include <sepol/user_record.h>
+ #include <sepol/handle.h>
+ #include <stddef.h>
+-#include <sys/cdefs.h>
+ 
+-__BEGIN_DECLS
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ /*---------compatibility------------*/
+ 
+@@ -57,5 +58,8 @@ extern int sepol_user_iterate(sepol_handle_t * handle,
+ 			      int (*fn) (const sepol_user_t * user,
+ 					 void *fn_arg), void *arg);
+ 
+-__END_DECLS
++#ifdef __cplusplus
++}
++#endif
++
+ #endif
 -- 
 2.7.4
