@@ -1,116 +1,98 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAUDmGfl000669
- for <selinux@tycho.nsa.gov>; Wed, 30 Nov 2016 08:48:16 -0500
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 783CCC04D2AB
- for <selinux@tycho.nsa.gov>; Wed, 30 Nov 2016 13:47:59 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] python/semanage/semanage: Unify argument handling
-Date: Wed, 30 Nov 2016 14:47:55 +0100
-Message-Id: <1480513675-18212-1-git-send-email-vmojzis@redhat.com>
+Subject: Re: [PATCH] policycoreutils/sepolicy/gui: fix current selinux state
+ radiobutton
+To: Vit Mojzis <vmojzis@redhat.com>, SELinux <selinux@tycho.nsa.gov>
+References: <1480410540-5192-1-git-send-email-vmojzis@redhat.com>
+ <6c878032-bddc-2a83-2eec-818a6769a8ad@tycho.nsa.gov>
+ <5717f0f3-0322-21b2-692e-c1c5fc8ac40f@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <b1b99022-af12-0dec-194a-423765dd32e8@tycho.nsa.gov>
+Date: Wed, 30 Nov 2016 08:52:27 -0500
+MIME-Version: 1.0
+In-Reply-To: <5717f0f3-0322-21b2-692e-c1c5fc8ac40f@redhat.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Missing argument checks for "fcontext" and "boolean" were performed
-outside of "argparse", resulting in shortened help message (without
-argument details) and no error description.
-Fix: perform these checks using "argparse" as is the case with other
-semanage options.
+On 11/30/2016 08:44 AM, Vit Mojzis wrote:
+> The glade file is installed properly, only
+> python/sepolicy/sepolicy/gui.py is searching for it in the wrong place
+> (lib64). Please find attached patch that should fix the issue.
 
-Some "required argument" check were performed outside of "handle_opts"
-obscuring the code.
-Fix: Add required arguments to {fcontext boolean}_args and remove the
-checks from handle{Fcontext Boolean}.
+Thanks, but now I get:
+$ sepolicy gui
 
-Remove unpaired parentheses from "semanage fcontext" usage message.
+(sepolicy:18202): Gtk-WARNING **: Could not load image
+'images/booleans.png': Failed to open file
+'/usr/lib/python2.7/site-packages/sepolicy/images/booleans.png': No such
+file or directory
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/semanage/semanage | 31 +++++++++----------------------
- 1 file changed, 9 insertions(+), 22 deletions(-)
+(sepolicy:18202): Gtk-WARNING **: Overriding tab label for notebook
+Traceback (most recent call last):
+  File "/usr/bin/sepolicy", line 699, in <module>
+    args.func(args)
+  File "/usr/bin/sepolicy", line 327, in gui_run
+    sepolicy.gui.SELinuxGui(args.domain, args.test)
+  File "/usr/lib/python2.7/site-packages/sepolicy/gui.py", line 517, in
+__init__
+    path = sepolicy.find_entrypoint_path(entrypoint)
+  File "/usr/lib/python2.7/site-packages/sepolicy/__init__.py", line
+486, in find_entrypoint_path
+    if exe.endswith("_exec_t") and exe not in exclude_list:
+AttributeError: 'list' object has no attribute 'endswith'
 
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index a445d56..9659aac 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -50,7 +50,7 @@ usage_login = "semanage login [-h] [-n] [-N] [-S STORE] ["
- usage_login_dict = {' --add': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --modify': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --delete': ('LOGIN',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
- 
- usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
--usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC', ')',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC', ')',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC )',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
-+usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
- 
- usage_user = "semanage user [-h] [-n] [-N] [-S STORE] ["
- usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name'')'), ' --delete': ('selinux_name',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
-@@ -99,8 +99,8 @@ class seParser(argparse.ArgumentParser):
-     def error(self, message):
-         if len(sys.argv) == 2:
-             self.print_help()
--            sys.exit(2)
--        self.print_usage()
-+        else:
-+            self.print_usage()
-         self.exit(2, ('%s: error: %s\n') % (self.prog, message))
- 
- 
-@@ -346,10 +346,7 @@ def handleFcontext(args):
-     # we can not use mutually for equal because we can define some actions together with equal
-     fcontext_equal_args = {'equal': [('list', 'locallist', 'type', 'ftype', 'seuser', 'deleteall', 'extract'), ()]}
- 
--    if args.action is None:
--        print("usage: " + "%s" % generate_custom_usage(usage_fcontext, usage_fcontext_dict))
--        sys.exit(2)
--    elif args.action and args.equal:
-+    if args.action and args.equal:
-         handle_opts(args, fcontext_equal_args, "equal")
-     else:
-         handle_opts(args, fcontext_args, args.action)
-@@ -398,7 +395,7 @@ If you do not specify a file type, the file type will default to "all files".
-     parser_add_noreload(fcontextParser, "fcontext")
-     parser_add_store(fcontextParser, "fcontext")
- 
--    fcontext_action = fcontextParser.add_mutually_exclusive_group(required=False)
-+    fcontext_action = fcontextParser.add_mutually_exclusive_group(required=True)
-     parser_add_add(fcontext_action, "fcontext")
-     parser_add_delete(fcontext_action, "fcontext")
-     parser_add_modify(fcontext_action, "fcontext")
-@@ -645,19 +642,9 @@ def setupNodeParser(subparsers):
- 
- 
- def handleBoolean(args):
--    boolean_args = {'list': [('state', 'boolean'), ('')], 'modify': [('localist'), ('')], 'extract': [('locallist', 'state', 'boolean'), ('')], 'deleteall': [('locallist'), ('')], 'state': [('locallist', 'list', 'extract', 'deleteall'), ('modify')]}
--    if args.action is None:
--        print("Usage: " + "%s" % generate_custom_usage(usage_boolean, usage_boolean_dict))
--        sys.exit(2)
--    # TODO: should be added to handle_opts logic
--    elif args.action is "modify" and not args.boolean:
--        print("boolean name required ")
--        sys.exit(1)
--    elif args.action is "modify" and args.boolean and not args.state:
--        print("state option is needed")
--        sys.exit(1)
--    else:
--        handle_opts(args, boolean_args, args.action)
-+    boolean_args = {'list': [('state', 'boolean'), ('')], 'modify': [('localist'), ('boolean', 'state')], 'extract': [('locallist', 'state', 'boolean'), ('')], 'deleteall': [('locallist'), ('')], 'state': [('locallist', 'list', 'extract', 'deleteall'), ('modify')]}
-+
-+    handle_opts(args, boolean_args, args.action)
- 
-     OBJECT = object_dict['boolean']()
-     OBJECT.set_reload(args.noreload)
-@@ -683,7 +670,7 @@ def setupBooleanParser(subparsers):
-     parser_add_store(booleanParser, "boolean")
-     booleanParser.add_argument('boolean', nargs="?", default=None, help=_('boolean'))
- 
--    boolean_action = booleanParser.add_mutually_exclusive_group(required=False)
-+    boolean_action = booleanParser.add_mutually_exclusive_group(required=True)
-     #add_add(boolean_action)
-     parser_add_modify(boolean_action, "boolean")
-     parser_add_list(boolean_action, "boolean")
--- 
-2.7.4
+> 
+> 
+> On 29.11.2016 15:02, Stephen Smalley wrote:
+>> On 11/29/2016 04:09 AM, Vit Mojzis wrote:
+>>> Radiobutton was always set to "Permissive" and couldn't be switched.
+>>> Update radiobutton together with status text in bottom left corner.
+>>>
+>>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>> Thanks, applied.  However, sepolicy gui doesn't work for me (before or
+>> after this change):
+>> $ cd selinux
+>> $ sudo make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap
+>> relabel
+>> $ sepolicy gui
+>> Traceback (most recent call last):
+>>    File "/usr/bin/sepolicy", line 699, in <module>
+>>      args.func(args)
+>>    File "/usr/bin/sepolicy", line 327, in gui_run
+>>      sepolicy.gui.SELinuxGui(args.domain, args.test)
+>>    File "/usr/lib/python2.7/site-packages/sepolicy/gui.py", line 135, in
+>> __init__
+>>      builder.add_from_file(glade_file)
+>> GLib.Error: g-file-error-quark: Failed to open file
+>> '/usr/lib64/python2.7/site-packages/sepolicy/sepolicy.glade': No such
+>> file or directory (4)
+>>
+>> Are we failing to install the glade file properly in the Makefiles?
+>> And does python/sepolicy/sepolicy/sepolicy.glade belong under gui/
+>> instead?
+>>
+>>> ---
+>>>   python/sepolicy/sepolicy/gui.py | 3 ++-
+>>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/python/sepolicy/sepolicy/gui.py
+>>> b/python/sepolicy/sepolicy/gui.py
+>>> index ee78e0c..3c5a9d2 100644
+>>> --- a/python/sepolicy/sepolicy/gui.py
+>>> +++ b/python/sepolicy/sepolicy/gui.py
+>>> @@ -2609,9 +2609,10 @@ class SELinuxGui():
+>>>       def set_enforce_text(self, value):
+>>>           if value:
+>>>               self.status_bar.push(self.context_id, _("System Status:
+>>> Enforcing"))
+>>> +            self.current_status_enforcing.set_active(True)
+>>>           else:
+>>>               self.status_bar.push(self.context_id, _("System Status:
+>>> Permissive"))
+>>> -        self.current_status_permissive.set_active(True)
+>>> +            self.current_status_permissive.set_active(True)
+>>>         def set_enforce(self, button):
+>>>           self.dbus.setenforce(button.get_active())
+>>>
+> 
