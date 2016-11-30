@@ -1,174 +1,116 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uATL65hA022525
- for <selinux@tycho.nsa.gov>; Tue, 29 Nov 2016 16:06:05 -0500
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uAUDmGfl000669
+ for <selinux@tycho.nsa.gov>; Wed, 30 Nov 2016 08:48:16 -0500
+Received: from int-mx09.intmail.prod.int.phx2.redhat.com
+ (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 783CCC04D2AB
+ for <selinux@tycho.nsa.gov>; Wed, 30 Nov 2016 13:47:59 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsepol: Fix neverallow checking to also check the other
- types when self is included in a target type set.
-Date: Tue, 29 Nov 2016 16:05:48 -0500
-Message-Id: <1480453548-21901-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH] python/semanage/semanage: Unify argument handling
+Date: Wed, 30 Nov 2016 14:47:55 +0100
+Message-Id: <1480513675-18212-1-git-send-email-vmojzis@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When neverallow checking was refactored in commit 9e6840e, self
-was not handled correctly. The assumption was made that self only
-appeared by itself as a target type, when it may appear in a list of
-types. Because of this, if self appears in a target type set of a
-neverallow, the other types in the type set are not checked.
+Missing argument checks for "fcontext" and "boolean" were performed
+outside of "argparse", resulting in shortened help message (without
+argument details) and no error description.
+Fix: perform these checks using "argparse" as is the case with other
+semanage options.
 
-Example:
+Some "required argument" check were performed outside of "handle_opts"
+obscuring the code.
+Fix: Add required arguments to {fcontext boolean}_args and remove the
+checks from handle{Fcontext Boolean}.
 
-allow TYPE1 TYPE2:CLASS1 { PERM1 };
-neverallow TYPE1 {TYPE2 self}:CLASS1 { PERM1 };
+Remove unpaired parentheses from "semanage fcontext" usage message.
 
-The old assertion checking would not find a violation in the rules
-above because the target type TYPE2 would be ignored.
-
-This fix will cause all of the types in a target list that includes
-self to be checked.
-
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- libsepol/src/assertion.c | 53 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 35 insertions(+), 18 deletions(-)
+ python/semanage/semanage | 31 +++++++++----------------------
+ 1 file changed, 9 insertions(+), 22 deletions(-)
 
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index a4be880..27c39e7 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -218,7 +218,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	avrule_t *avrule = a->avrule;
- 	class_perm_node_t *cp;
- 	uint32_t perms;
--	ebitmap_t src_matches, tgt_matches, matches;
-+	ebitmap_t src_matches, tgt_matches, self_matches, matches;
- 	ebitmap_node_t *snode, *tnode;
- 	unsigned int i, j;
+diff --git a/python/semanage/semanage b/python/semanage/semanage
+index a445d56..9659aac 100644
+--- a/python/semanage/semanage
++++ b/python/semanage/semanage
+@@ -50,7 +50,7 @@ usage_login = "semanage login [-h] [-n] [-N] [-S STORE] ["
+ usage_login_dict = {' --add': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --modify': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --delete': ('LOGIN',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
  
-@@ -230,6 +230,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
+ usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
+-usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC', ')',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC', ')',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC )',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
++usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
  
- 	ebitmap_init(&src_matches);
- 	ebitmap_init(&tgt_matches);
-+	ebitmap_init(&self_matches);
- 	ebitmap_init(&matches);
+ usage_user = "semanage user [-h] [-n] [-N] [-S STORE] ["
+ usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name'')'), ' --delete': ('selinux_name',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+@@ -99,8 +99,8 @@ class seParser(argparse.ArgumentParser):
+     def error(self, message):
+         if len(sys.argv) == 2:
+             self.print_help()
+-            sys.exit(2)
+-        self.print_usage()
++        else:
++            self.print_usage()
+         self.exit(2, ('%s: error: %s\n') % (self.prog, message))
  
- 	rc = ebitmap_and(&src_matches, &avrule->stypes.types,
-@@ -240,17 +241,23 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	if (ebitmap_length(&src_matches) == 0)
- 		goto exit;
  
-+	rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
-+	if (rc)
-+		goto oom;
+@@ -346,10 +346,7 @@ def handleFcontext(args):
+     # we can not use mutually for equal because we can define some actions together with equal
+     fcontext_equal_args = {'equal': [('list', 'locallist', 'type', 'ftype', 'seuser', 'deleteall', 'extract'), ()]}
+ 
+-    if args.action is None:
+-        print("usage: " + "%s" % generate_custom_usage(usage_fcontext, usage_fcontext_dict))
+-        sys.exit(2)
+-    elif args.action and args.equal:
++    if args.action and args.equal:
+         handle_opts(args, fcontext_equal_args, "equal")
+     else:
+         handle_opts(args, fcontext_args, args.action)
+@@ -398,7 +395,7 @@ If you do not specify a file type, the file type will default to "all files".
+     parser_add_noreload(fcontextParser, "fcontext")
+     parser_add_store(fcontextParser, "fcontext")
+ 
+-    fcontext_action = fcontextParser.add_mutually_exclusive_group(required=False)
++    fcontext_action = fcontextParser.add_mutually_exclusive_group(required=True)
+     parser_add_add(fcontext_action, "fcontext")
+     parser_add_delete(fcontext_action, "fcontext")
+     parser_add_modify(fcontext_action, "fcontext")
+@@ -645,19 +642,9 @@ def setupNodeParser(subparsers):
+ 
+ 
+ def handleBoolean(args):
+-    boolean_args = {'list': [('state', 'boolean'), ('')], 'modify': [('localist'), ('')], 'extract': [('locallist', 'state', 'boolean'), ('')], 'deleteall': [('locallist'), ('')], 'state': [('locallist', 'list', 'extract', 'deleteall'), ('modify')]}
+-    if args.action is None:
+-        print("Usage: " + "%s" % generate_custom_usage(usage_boolean, usage_boolean_dict))
+-        sys.exit(2)
+-    # TODO: should be added to handle_opts logic
+-    elif args.action is "modify" and not args.boolean:
+-        print("boolean name required ")
+-        sys.exit(1)
+-    elif args.action is "modify" and args.boolean and not args.state:
+-        print("state option is needed")
+-        sys.exit(1)
+-    else:
+-        handle_opts(args, boolean_args, args.action)
++    boolean_args = {'list': [('state', 'boolean'), ('')], 'modify': [('localist'), ('boolean', 'state')], 'extract': [('locallist', 'state', 'boolean'), ('')], 'deleteall': [('locallist'), ('')], 'state': [('locallist', 'list', 'extract', 'deleteall'), ('modify')]}
 +
- 	if (avrule->flags == RULE_SELF) {
- 		rc = ebitmap_and(&matches, &p->attr_type_map[k->source_type - 1], &p->attr_type_map[k->target_type - 1]);
- 		if (rc)
- 			goto oom;
--		rc = ebitmap_and(&tgt_matches, &avrule->stypes.types, &matches);
--		if (rc)
--			goto oom;
--	} else {
--		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
-+		rc = ebitmap_and(&self_matches, &avrule->stypes.types, &matches);
- 		if (rc)
- 			goto oom;
-+
-+		if (ebitmap_length(&self_matches) > 0) {
-+			rc = ebitmap_union(&tgt_matches, &self_matches);
-+			if (rc)
-+				goto oom;
-+		}
- 	}
++    handle_opts(args, boolean_args, args.action)
  
- 	if (ebitmap_length(&tgt_matches) == 0)
-@@ -288,6 +295,7 @@ oom:
- exit:
- 	ebitmap_destroy(&src_matches);
- 	ebitmap_destroy(&tgt_matches);
-+	ebitmap_destroy(&self_matches);
- 	ebitmap_destroy(&matches);
- 	return rc;
- }
-@@ -382,7 +390,7 @@ static int check_assertion_extended_permissions_avtab(avrule_t *avrule, avtab_t
- static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab,
- 						avtab_key_t *k, policydb_t *p)
- {
--	ebitmap_t src_matches, tgt_matches, matches;
-+	ebitmap_t src_matches, tgt_matches, self_matches, matches;
- 	unsigned int i, j;
- 	ebitmap_node_t *snode, *tnode;
- 	class_perm_node_t *cp;
-@@ -391,7 +399,9 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
+     OBJECT = object_dict['boolean']()
+     OBJECT.set_reload(args.noreload)
+@@ -683,7 +670,7 @@ def setupBooleanParser(subparsers):
+     parser_add_store(booleanParser, "boolean")
+     booleanParser.add_argument('boolean', nargs="?", default=None, help=_('boolean'))
  
- 	ebitmap_init(&src_matches);
- 	ebitmap_init(&tgt_matches);
-+	ebitmap_init(&self_matches);
- 	ebitmap_init(&matches);
-+
- 	rc = ebitmap_and(&src_matches, &avrule->stypes.types,
- 			 &p->attr_type_map[k->source_type - 1]);
- 	if (rc)
-@@ -400,19 +410,25 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
- 	if (ebitmap_length(&src_matches) == 0)
- 		goto exit;
- 
-+	rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types,
-+			 &p->attr_type_map[k->target_type -1]);
-+	if (rc)
-+		goto oom;
-+
- 	if (avrule->flags == RULE_SELF) {
- 		rc = ebitmap_and(&matches, &p->attr_type_map[k->source_type - 1],
- 				&p->attr_type_map[k->target_type - 1]);
- 		if (rc)
- 			goto oom;
--		rc = ebitmap_and(&tgt_matches, &avrule->stypes.types, &matches);
--		if (rc)
--			goto oom;
--	} else {
--		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types,
--				&p->attr_type_map[k->target_type -1]);
-+		rc = ebitmap_and(&self_matches, &avrule->stypes.types, &matches);
- 		if (rc)
- 			goto oom;
-+
-+		if (ebitmap_length(&self_matches) > 0) {
-+			rc = ebitmap_union(&tgt_matches, &self_matches);
-+			if (rc)
-+				goto oom;
-+		}
- 	}
- 
- 	if (ebitmap_length(&tgt_matches) == 0)
-@@ -449,7 +465,7 @@ exit:
- 
- static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *args)
- {
--	int rc;
-+	int rc, rc2 = 0;
- 	struct avtab_match_args *a = (struct avtab_match_args *)args;
- 	policydb_t *p = a->p;
- 	avrule_t *avrule = a->avrule;
-@@ -477,12 +493,13 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
- 			ebitmap_destroy(&match);
- 			goto oom;
- 		}
--		rc = ebitmap_match_any(&avrule->stypes.types, &match);
-+		rc2 = ebitmap_match_any(&avrule->stypes.types, &match);
- 		ebitmap_destroy(&match);
--	} else {
--		rc = ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
- 	}
--	if (rc == 0)
-+
-+	/* neverallow may have tgts even if it uses SELF */
-+	rc = ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
-+	if (rc == 0 && rc2 == 0)
- 		goto exit;
- 
- 	if (avrule->specified == AVRULE_XPERMS_NEVERALLOW) {
+-    boolean_action = booleanParser.add_mutually_exclusive_group(required=False)
++    boolean_action = booleanParser.add_mutually_exclusive_group(required=True)
+     #add_add(boolean_action)
+     parser_add_modify(boolean_action, "boolean")
+     parser_add_list(boolean_action, "boolean")
 -- 
 2.7.4
