@@ -1,174 +1,103 @@
-Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
- address families
-To: Guido Trentalancia <guido@trentalancia.net>, selinux@tycho.nsa.gov
-References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
- <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
- <1480613322.4558.29.camel@trentalancia.net>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9b023671-606f-d3b2-9d70-3bbcbf5e5dba@tycho.nsa.gov>
-Date: Thu, 1 Dec 2016 13:03:52 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB1IGuX9030108
+ for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2016 13:16:57 -0500
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 43D69C05678F
+ for <selinux@tycho.nsa.gov>; Thu,  1 Dec 2016 18:16:51 +0000 (UTC)
+Received: from [10.40.3.114] ([10.40.3.114])
+ by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ uB1IGnAE012241
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2016 13:16:50 -0500
+To: SELinux <selinux@tycho.nsa.gov>
+From: Vit Mojzis <vmojzis@redhat.com>
+Subject: SETools 4 segfault - sepolicy gui
+Message-ID: <f0c560cc-fc2c-30ae-9df4-a2187bd6819c@redhat.com>
+Date: Thu, 1 Dec 2016 19:16:49 +0100
 MIME-Version: 1.0
-In-Reply-To: <1480613322.4558.29.camel@trentalancia.net>
-Content-Type: multipart/mixed; boundary="------------95CE6785C44B7E9D93BB1486"
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------95CE6785C44B7E9D93BB1486
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Hi,
 
-On 12/01/2016 12:28 PM, Guido Trentalancia wrote:
-> Hello again Stephen and Paul.
-> 
-> On Thu, 01/12/2016 at 10.57 -0500, Stephen Smalley wrote:
->> On 12/01/2016 10:07 AM, Stephen Smalley wrote:
-> 
-> [...]
-> 
->> A couple of notes on this change:
->>
->> - To fully test (beyond just confirming that it doesn't break
->> anything
->> when the policy capability is not defined), we'll need a patched
->> libsepol and policy (and unfortunately it requires patching the base
->> policy; can't be done via a policy module).  Can certainly provide
->> those
->> too but figured I'd wait to see the response to the kernel patch
->> first.
-> 
-> The libsepol patch is straightforward.
-> 
-> You can have a look at the one I have posted on the 23rd of August 2016
-> under the subject "[PATCH] Update libsepol to support the policy
-> capability for AF_ALG sockets" and adapt it to the new policy
-> capability name and to the fact that you are now removing the Redhat
-> policy capability.
-> 
-> As for the Reference Policy patch, if you want, I can forward to you
-> the one that I had created at that time for the ALG_SOCKET family, so
-> that you can adapt it to the multiple socket types.
-> 
-> Same thing for the SELinux Testsuite patch: if you want, I can forward
-> to you the one that I had created at that time for the ALG_SOCKET
-> family and that would be enough for testing the new capability because
-> it's representative of all the new socket types.
-> 
-> With kind regards,
+I hit a dead end while trying to revive sepolicy gui after sepolicy 
+started using SETools 4.
+I keep getting the following segfault in SETools 4 (libqpol).
 
-Actually, I realized belatedly that CIL makes it possible to enable
-testing of this change just through a policy module.  Attached is a CIL
-policy module that one can insert via semodule -i
-testextsockclass.cil (caveat: may break your system if using any of
-these socket classes). Also attached is the libsepol patch.  So now I
-just need a test case - will have a look at your AF_ALG patch.
+Thread 1 "python" received signal SIGSEGV, Segmentation fault.
+0x00007fffeb07b238 in filename_trans_state_next (iter=0x5555578b5cf0)
+     at libqpol/ftrule_query.c:79
+79        fts->cur = fts->cur->next;
+(gdb) bt
+#0  0x00007fffeb07b238 in filename_trans_state_next (iter=0x5555578b5cf0)
+     at libqpol/ftrule_query.c:79
+#1  0x00007fffeb060867 in qpol_iterator_next_ (self=<optimized out>)
+     at setools/policyrep/qpol_wrap.c:4153
+#2  0x00007fffeb060867 in _wrap_qpol_iterator_t_next_ (self=<optimized 
+out>, args=<optimized out>) at setools/policyrep/qpol_wrap.c:7386
+#3  0x00007ffff7adc36c in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#4  0x00007ffff7adc052 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#5  0x00007ffff7a5d60a in gen_send_ex.isra () at /lib64/libpython2.7.so.1.0
+#6  0x00007ffff7a443cb in PyIter_Next () at /lib64/libpython2.7.so.1.0
+#7  0x00007fffef13250a in chain_next ()
+     at /usr/lib64/python2.7/lib-dynload/itertoolsmodule.so
+#8  0x00007ffff7ad6f99 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#9  0x00007ffff7a5d60a in gen_send_ex.isra () at /lib64/libpython2.7.so.1.0
+#10 0x00007ffff7ad6f99 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#11 0x00007ffff7a5d60a in gen_send_ex.isra () at /lib64/libpython2.7.so.1.0
+#12 0x00007ffff7ad6f99 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#13 0x00007ffff7adc052 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#14 0x00007ffff7adc052 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#15 0x00007ffff7adc052 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#16 0x00007ffff7adf05c in PyEval_EvalCodeEx () at /lib64/libpython2.7.so.1.0
+#17 0x00007ffff7a67d6c in function_call () at /lib64/libpython2.7.so.1.0
+#18 0x00007ffff7a43003 in PyObject_Call () at /lib64/libpython2.7.so.1.0
+---Type <return> to continue, or q <return> to quit---
+#19 0x00007ffff7a51e5c in instancemethod_call () at 
+/lib64/libpython2.7.so.1.0
+#20 0x00007ffff7a43003 in PyObject_Call () at /lib64/libpython2.7.so.1.0
+#21 0x00007ffff7ad5107 in PyEval_CallObjectWithKeywords ()
+     at /lib64/libpython2.7.so.1.0
+#22 0x00007ffff7a52b80 in PyInstance_New () at /lib64/libpython2.7.so.1.0
+#23 0x00007ffff7a43003 in PyObject_Call () at /lib64/libpython2.7.so.1.0
+#24 0x00007ffff7adae66 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#25 0x00007ffff7adc052 in PyEval_EvalFrameEx () at 
+/lib64/libpython2.7.so.1.0
+#26 0x00007ffff7adf05c in PyEval_EvalCodeEx () at /lib64/libpython2.7.so.1.0
+#27 0x00007ffff7adf149 in PyEval_EvalCode () at /lib64/libpython2.7.so.1.0
+#28 0x00007ffff7af852f in run_mod () at /lib64/libpython2.7.so.1.0
+#29 0x00007ffff7af9762 in PyRun_FileExFlags () at /lib64/libpython2.7.so.1.0
+#30 0x00007ffff7afa975 in PyRun_SimpleFileExFlags ()
+     at /lib64/libpython2.7.so.1.0
+#31 0x00007ffff7b0c900 in Py_Main () at /lib64/libpython2.7.so.1.0
+#32 0x00007ffff6d25401 in __libc_start_main () at /lib64/libc.so.6
+#33 0x00005555555547da in _start ()
 
+(gdb) p fts->cur
+$1 = (filename_trans_t *) 0x60000000d
 
---------------95CE6785C44B7E9D93BB1486
-Content-Type: application/vnd.ms-artgalry;
- name="testextsockclass.cil"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="testextsockclass.cil"
+It seems that the qpol_iterator is not properly initialized 
+(iter->state->curr == 0x60000000d). Unfortunately the code runs in 
+separate thread and backtrace is therefore useless. Has anyone 
+encountered something similar? Any pointers would be appreciated.
+I'm using Fedora 25 with python 2.7.
 
-KHBvbGljeWNhcCBleHRlbmRlZF9zb2NrZXRfY2xhc3MpCgooY2xhc3Njb21tb24gYXgyNV9z
-b2NrZXQgc29ja2V0KQooY2xhc3MgYXgyNV9zb2NrZXQgKCkpCgooY2xhc3Njb21tb24gaXB4
-X3NvY2tldCBzb2NrZXQpCihjbGFzcyBpcHhfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9uIG5l
-dHJvbV9zb2NrZXQgc29ja2V0KQooY2xhc3MgbmV0cm9tX3NvY2tldCAoKSkKCihjbGFzc2Nv
-bW1vbiBicmlkZ2Vfc29ja2V0IHNvY2tldCkKKGNsYXNzIGJyaWRnZV9zb2NrZXQgKCkpCgoo
-Y2xhc3Njb21tb24gYXRtcHZjX3NvY2tldCBzb2NrZXQpCihjbGFzcyBhdG1wdmNfc29ja2V0
-ICgpKQoKKGNsYXNzY29tbW9uIHgyNV9zb2NrZXQgc29ja2V0KQooY2xhc3MgeDI1X3NvY2tl
-dCAoKSkKCihjbGFzc2NvbW1vbiByb3NlX3NvY2tldCBzb2NrZXQpCihjbGFzcyByb3NlX3Nv
-Y2tldCAoKSkKCihjbGFzc2NvbW1vbiBkZWNuZXRfc29ja2V0IHNvY2tldCkKKGNsYXNzIGRl
-Y25ldF9zb2NrZXQgKCkpCgooY2xhc3Njb21tb24gYXRtc3ZjX3NvY2tldCBzb2NrZXQpCihj
-bGFzcyBhdG1zdmNfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9uIHJkc19zb2NrZXQgc29ja2V0
-KQooY2xhc3MgcmRzX3NvY2tldCAoKSkKCihjbGFzc2NvbW1vbiBpcmRhX3NvY2tldCBzb2Nr
-ZXQpCihjbGFzcyBpcmRhX3NvY2tldCAoKSkKCihjbGFzc2NvbW1vbiBwcHBveF9zb2NrZXQg
-c29ja2V0KQooY2xhc3MgcHBwb3hfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9uIGxsY19zb2Nr
-ZXQgc29ja2V0KQooY2xhc3MgbGxjX3NvY2tldCAoKSkKCihjbGFzc2NvbW1vbiBpYl9zb2Nr
-ZXQgc29ja2V0KQooY2xhc3MgaWJfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9uIG1wbHNfc29j
-a2V0IHNvY2tldCkKKGNsYXNzIG1wbHNfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9uIGNhbl9z
-b2NrZXQgc29ja2V0KQooY2xhc3MgY2FuX3NvY2tldCAoKSkKCihjbGFzc2NvbW1vbiB0aXBj
-X3NvY2tldCBzb2NrZXQpCihjbGFzcyB0aXBjX3NvY2tldCAoKSkKCihjbGFzc2NvbW1vbiBi
-bHVldG9vdGhfc29ja2V0IHNvY2tldCkKKGNsYXNzIGJsdWV0b290aF9zb2NrZXQgKCkpCgoo
-Y2xhc3Njb21tb24gaXVjdl9zb2NrZXQgc29ja2V0KQooY2xhc3MgaXVjdl9zb2NrZXQgKCkp
-CgooY2xhc3Njb21tb24gcnhycGNfc29ja2V0IHNvY2tldCkKKGNsYXNzIHJ4cnBjX3NvY2tl
-dCAoKSkKCihjbGFzc2NvbW1vbiBpc2RuX3NvY2tldCBzb2NrZXQpCihjbGFzcyBpc2RuX3Nv
-Y2tldCAoKSkKCihjbGFzc2NvbW1vbiBwaG9uZXRfc29ja2V0IHNvY2tldCkKKGNsYXNzIHBo
-b25ldF9zb2NrZXQgKCkpCgooY2xhc3Njb21tb24gaWVlZTgwMjE1NF9zb2NrZXQgc29ja2V0
-KQooY2xhc3MgaWVlZTgwMjE1NF9zb2NrZXQgKCkpCgooY2xhc3Njb21tb24gY2FpZl9zb2Nr
-ZXQgc29ja2V0KQooY2xhc3MgY2FpZl9zb2NrZXQgKCkpCgooY2xhc3Njb21tb24gYWxnX3Nv
-Y2tldCBzb2NrZXQpCihjbGFzcyBhbGdfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9uIG5mY19z
-b2NrZXQgc29ja2V0KQooY2xhc3MgbmZjX3NvY2tldCAoKSkKCihjbGFzc2NvbW1vbiB2c29j
-a19zb2NrZXQgc29ja2V0KQooY2xhc3MgdnNvY2tfc29ja2V0ICgpKQoKKGNsYXNzY29tbW9u
-IGtjbV9zb2NrZXQgc29ja2V0KQooY2xhc3Mga2NtX3NvY2tldCAoKSkKCihjbGFzc2NvbW1v
-biBxaXBjcnRyX3NvY2tldCBzb2NrZXQpCihjbGFzcyBxaXBjcnRyX3NvY2tldCAoKSkKCihj
-bGFzc29yZGVyICh1bm9yZGVyZWQgYXgyNV9zb2NrZXQgaXB4X3NvY2tldCBuZXRyb21fc29j
-a2V0IGJyaWRnZV9zb2NrZXQgYXRtcHZjX3NvY2tldCB4MjVfc29ja2V0IHJvc2Vfc29ja2V0
-IGRlY25ldF9zb2NrZXQgYXRtc3ZjX3NvY2tldCByZHNfc29ja2V0IGlyZGFfc29ja2V0IHBw
-cG94X3NvY2tldCBsbGNfc29ja2V0IGliX3NvY2tldCBtcGxzX3NvY2tldCBjYW5fc29ja2V0
-IHRpcGNfc29ja2V0IGJsdWV0b290aF9zb2NrZXQgaXVjdl9zb2NrZXQgcnhycGNfc29ja2V0
-IGlzZG5fc29ja2V0IHBob25ldF9zb2NrZXQgaWVlZTgwMjE1NF9zb2NrZXQgY2FpZl9zb2Nr
-ZXQgYWxnX3NvY2tldCBuZmNfc29ja2V0IHZzb2NrX3NvY2tldCBrY21fc29ja2V0IHFpcGNy
-dHJfc29ja2V0KSkKCg==
---------------95CE6785C44B7E9D93BB1486
-Content-Type: text/x-patch;
- name="0001-libsepol-Define-extended_socket_class-policy-capabil.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-libsepol-Define-extended_socket_class-policy-capabil.pa";
- filename*1="tch"
+Thanks.
 
->From daaea4522b34a54c2cff319c458d7d1a0267ecbe Mon Sep 17 00:00:00 2001
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu, 1 Dec 2016 11:08:06 -0500
-Subject: [PATCH] libsepol: Define extended_socket_class policy capability
-
-Define the extended_socket_class policy capability used to enable
-the use of separate socket security classes for all network address
-families rather than the generic socket class.
-
-The legacy redhat1 policy capability that was only ever used in testing
-within Fedora for ptrace_child is reclaimed for this purpose; as far as
-I can tell, this policy capability is not enabled in any supported distro
-policy.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/include/sepol/policydb/polcaps.h | 2 +-
- libsepol/src/polcaps.c                    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-index 53d7994..c9e40f6 100644
---- a/libsepol/include/sepol/policydb/polcaps.h
-+++ b/libsepol/include/sepol/policydb/polcaps.h
-@@ -9,7 +9,7 @@ extern "C" {
- enum {
- 	POLICYDB_CAPABILITY_NETPEER,
- 	POLICYDB_CAPABILITY_OPENPERM,
--	POLICYDB_CAPABILITY_REDHAT1, /* reserved for RH testing of ptrace_child */
-+	POLICYDB_CAPABILITY_EXTSOCKCLASS,
- 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
- 	__POLICYDB_CAPABILITY_MAX
- };
-diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-index 43a71a7..3924cb8 100644
---- a/libsepol/src/polcaps.c
-+++ b/libsepol/src/polcaps.c
-@@ -8,7 +8,7 @@
- static const char *polcap_names[] = {
- 	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
- 	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
--	"redhat1",			/* POLICYDB_CAPABILITY_REDHAT1, aka ptrace_child */
-+	"extended_socket_class",	/* POLICYDB_CAPABILITY_EXTSOCKCLASS */
- 	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
- 	NULL
- };
--- 
-2.7.4
-
-
---------------95CE6785C44B7E9D93BB1486--
+Regards,
+Vit Mojzis
