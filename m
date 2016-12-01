@@ -1,108 +1,72 @@
-Subject: Re: SETools 4 segfault - sepolicy gui
-To: Vit Mojzis <vmojzis@redhat.com>, SELinux <selinux@tycho.nsa.gov>,
- "Christopher J. PeBenito" <pebenito@ieee.org>
-References: <f0c560cc-fc2c-30ae-9df4-a2187bd6819c@redhat.com>
+Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
+ address families
+To: Guido Trentalancia <guido@trentalancia.net>, selinux@tycho.nsa.gov
+References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
+ <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
+ <1480613322.4558.29.camel@trentalancia.net>
+ <9b023671-606f-d3b2-9d70-3bbcbf5e5dba@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <622a3756-2fec-ba27-7ecf-d6945093f44d@tycho.nsa.gov>
-Date: Thu, 1 Dec 2016 13:45:41 -0500
+Message-ID: <e3cd8c15-eb4a-24a7-f5b1-04dbb90d780b@tycho.nsa.gov>
+Date: Thu, 1 Dec 2016 13:53:20 -0500
 MIME-Version: 1.0
-In-Reply-To: <f0c560cc-fc2c-30ae-9df4-a2187bd6819c@redhat.com>
+In-Reply-To: <9b023671-606f-d3b2-9d70-3bbcbf5e5dba@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/01/2016 01:16 PM, Vit Mojzis wrote:
-> Hi,
+On 12/01/2016 01:03 PM, Stephen Smalley wrote:
+> On 12/01/2016 12:28 PM, Guido Trentalancia wrote:
+>> Hello again Stephen and Paul.
+>>
+>> On Thu, 01/12/2016 at 10.57 -0500, Stephen Smalley wrote:
+>>> On 12/01/2016 10:07 AM, Stephen Smalley wrote:
+>>
+>> [...]
+>>
+>>> A couple of notes on this change:
+>>>
+>>> - To fully test (beyond just confirming that it doesn't break
+>>> anything
+>>> when the policy capability is not defined), we'll need a patched
+>>> libsepol and policy (and unfortunately it requires patching the base
+>>> policy; can't be done via a policy module).  Can certainly provide
+>>> those
+>>> too but figured I'd wait to see the response to the kernel patch
+>>> first.
+>>
+>> The libsepol patch is straightforward.
+>>
+>> You can have a look at the one I have posted on the 23rd of August 2016
+>> under the subject "[PATCH] Update libsepol to support the policy
+>> capability for AF_ALG sockets" and adapt it to the new policy
+>> capability name and to the fact that you are now removing the Redhat
+>> policy capability.
+>>
+>> As for the Reference Policy patch, if you want, I can forward to you
+>> the one that I had created at that time for the ALG_SOCKET family, so
+>> that you can adapt it to the multiple socket types.
+>>
+>> Same thing for the SELinux Testsuite patch: if you want, I can forward
+>> to you the one that I had created at that time for the ALG_SOCKET
+>> family and that would be enough for testing the new capability because
+>> it's representative of all the new socket types.
+>>
+>> With kind regards,
 > 
-> I hit a dead end while trying to revive sepolicy gui after sepolicy
-> started using SETools 4.
-> I keep getting the following segfault in SETools 4 (libqpol).
+> Actually, I realized belatedly that CIL makes it possible to enable
+> testing of this change just through a policy module.  Attached is a CIL
+> policy module that one can insert via semodule -i
+> testextsockclass.cil (caveat: may break your system if using any of
+> these socket classes). Also attached is the libsepol patch.  So now I
+> just need a test case - will have a look at your AF_ALG patch.
 
-Can you specify what version/branch/commit of setools you built?
-And what version of selinux userspace was it built against?
-Is there an easy way for someone else to reproduce?
-
-> 
-> Thread 1 "python" received signal SIGSEGV, Segmentation fault.
-> 0x00007fffeb07b238 in filename_trans_state_next (iter=0x5555578b5cf0)
->     at libqpol/ftrule_query.c:79
-> 79        fts->cur = fts->cur->next;
-> (gdb) bt
-> #0  0x00007fffeb07b238 in filename_trans_state_next (iter=0x5555578b5cf0)
->     at libqpol/ftrule_query.c:79
-> #1  0x00007fffeb060867 in qpol_iterator_next_ (self=<optimized out>)
->     at setools/policyrep/qpol_wrap.c:4153
-> #2  0x00007fffeb060867 in _wrap_qpol_iterator_t_next_ (self=<optimized
-> out>, args=<optimized out>) at setools/policyrep/qpol_wrap.c:7386
-> #3  0x00007ffff7adc36c in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #4  0x00007ffff7adc052 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #5  0x00007ffff7a5d60a in gen_send_ex.isra () at /lib64/libpython2.7.so.1.0
-> #6  0x00007ffff7a443cb in PyIter_Next () at /lib64/libpython2.7.so.1.0
-> #7  0x00007fffef13250a in chain_next ()
->     at /usr/lib64/python2.7/lib-dynload/itertoolsmodule.so
-> #8  0x00007ffff7ad6f99 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #9  0x00007ffff7a5d60a in gen_send_ex.isra () at /lib64/libpython2.7.so.1.0
-> #10 0x00007ffff7ad6f99 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #11 0x00007ffff7a5d60a in gen_send_ex.isra () at /lib64/libpython2.7.so.1.0
-> #12 0x00007ffff7ad6f99 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #13 0x00007ffff7adc052 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #14 0x00007ffff7adc052 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #15 0x00007ffff7adc052 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #16 0x00007ffff7adf05c in PyEval_EvalCodeEx () at
-> /lib64/libpython2.7.so.1.0
-> #17 0x00007ffff7a67d6c in function_call () at /lib64/libpython2.7.so.1.0
-> #18 0x00007ffff7a43003 in PyObject_Call () at /lib64/libpython2.7.so.1.0
-> ---Type <return> to continue, or q <return> to quit---
-> #19 0x00007ffff7a51e5c in instancemethod_call () at
-> /lib64/libpython2.7.so.1.0
-> #20 0x00007ffff7a43003 in PyObject_Call () at /lib64/libpython2.7.so.1.0
-> #21 0x00007ffff7ad5107 in PyEval_CallObjectWithKeywords ()
->     at /lib64/libpython2.7.so.1.0
-> #22 0x00007ffff7a52b80 in PyInstance_New () at /lib64/libpython2.7.so.1.0
-> #23 0x00007ffff7a43003 in PyObject_Call () at /lib64/libpython2.7.so.1.0
-> #24 0x00007ffff7adae66 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #25 0x00007ffff7adc052 in PyEval_EvalFrameEx () at
-> /lib64/libpython2.7.so.1.0
-> #26 0x00007ffff7adf05c in PyEval_EvalCodeEx () at
-> /lib64/libpython2.7.so.1.0
-> #27 0x00007ffff7adf149 in PyEval_EvalCode () at /lib64/libpython2.7.so.1.0
-> #28 0x00007ffff7af852f in run_mod () at /lib64/libpython2.7.so.1.0
-> #29 0x00007ffff7af9762 in PyRun_FileExFlags () at
-> /lib64/libpython2.7.so.1.0
-> #30 0x00007ffff7afa975 in PyRun_SimpleFileExFlags ()
->     at /lib64/libpython2.7.so.1.0
-> #31 0x00007ffff7b0c900 in Py_Main () at /lib64/libpython2.7.so.1.0
-> #32 0x00007ffff6d25401 in __libc_start_main () at /lib64/libc.so.6
-> #33 0x00005555555547da in _start ()
-> 
-> (gdb) p fts->cur
-> $1 = (filename_trans_t *) 0x60000000d
-> 
-> It seems that the qpol_iterator is not properly initialized
-> (iter->state->curr == 0x60000000d). Unfortunately the code runs in
-> separate thread and backtrace is therefore useless. Has anyone
-> encountered something similar? Any pointers would be appreciated.
-> I'm using Fedora 25 with python 2.7.
-> 
-> Thanks.
-> 
-> Regards,
-> Vit Mojzis
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
+So I confirmed that using your test program, I get an avc denial for
+create on alg_socket unless I allow that permission to the domain
+running the program, as expected.  So no surprises there.  I'll defer
+putting together a real patch for selinux-testsuite until it is clear
+that the kernel patch is going to be accepted, and regardless, we'll
+have to work through how to make it conditional on all the right factors
+(kernel version, policy defines the capability and the new socket
+classes or we add them temporarily for the tests via the CIL policy module).
