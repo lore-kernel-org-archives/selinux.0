@@ -1,256 +1,299 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB1LcOpc030395
- for <selinux@tycho.nsa.gov>; Thu, 1 Dec 2016 16:38:26 -0500
-Message-ID: <1480628227.7565.7.camel@trentalancia.net>
 Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
  address families
-From: Guido Trentalancia <guido@trentalancia.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <e3cd8c15-eb4a-24a7-f5b1-04dbb90d780b@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
 References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
  <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
- <1480613322.4558.29.camel@trentalancia.net>
- <9b023671-606f-d3b2-9d70-3bbcbf5e5dba@tycho.nsa.gov>
- <e3cd8c15-eb4a-24a7-f5b1-04dbb90d780b@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Date: Thu, 01 Dec 2016 22:37:07 +0100
-Mime-Version: 1.0
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <d6892b99-64b8-838e-f024-aeacb35df6e1@tycho.nsa.gov>
+Date: Fri, 2 Dec 2016 12:40:15 -0500
+MIME-Version: 1.0
+In-Reply-To: <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello again !
-
-On Thu, 01/12/2016 at 13.53 -0500, Stephen Smalley wrote:
-> On 12/01/2016 01:03 PM, Stephen Smalley wrote:
-
-[...]
-
-> > Actually, I realized belatedly that CIL makes it possible to enable
-> > testing of this change just through a policy module.  Attached is a
-> > CIL
-> > policy module that one can insert via semodule -i
-> > testextsockclass.cil (caveat: may break your system if using any of
-> > these socket classes). Also attached is the libsepol patch.  So now
-> > I
-> > just need a test case - will have a look at your AF_ALG patch.
+On 12/01/2016 10:57 AM, Stephen Smalley wrote:
+> On 12/01/2016 10:07 AM, Stephen Smalley wrote:
+>> Extend SELinux to support distinctions among all network address families
+>> implemented by the kernel by defining new socket security classes
+>> and mapping to them. Otherwise, many sockets are mapped to the generic
+>> socket class and are indistinguishable in policy.  This has come up
+>> previously with regard to selectively allowing access to bluetooth sockets,
+>> and more recently with regard to selectively allowing access to AF_ALG
+>> sockets.  Guido Trentalancia submitted a patch that took a similar approach
+>> to add only support for distinguishing AF_ALG sockets, but this generalizes
+>> his approach to handle all address families implemented by the kernel.
+>> Socket security classes were not defined for AF_* values that are reserved
+>> but unimplemented in the kernel, e.g. AF_NETBEUI, AF_SECURITY, AF_ECONET,
+>> AF_SNA, AF_WANPIPE.
+>>
+>> Backward compatibility is provided by only enabling the finer-grained
+>> socket classes if a new policy capability is set in the policy; older
+>> policies will behave as before.  The legacy redhat1 policy capability
+>> that was only ever used in testing within Fedora for ptrace_child
+>> is reclaimed for this purpose; as far as I can tell, this policy
+>> capability is not enabled in any supported distro policy.
+>>
+>> Add a pair of conditional compilation guards to detect when new AF_* values
+>> are added so that we can update SELinux accordingly rather than having to
+>> belatedly update it long after new address families are introduced.
 > 
-> So I confirmed that using your test program, I get an avc denial for
-> create on alg_socket unless I allow that permission to the domain
-> running the program, as expected.  So no surprises there.  I'll defer
-> putting together a real patch for selinux-testsuite until it is clear
-> that the kernel patch is going to be accepted, and regardless, we'll
-> have to work through how to make it conditional on all the right
-> factors
-> (kernel version, policy defines the capability and the new socket
-> classes or we add them temporarily for the tests via the CIL policy
-> module).
+> A couple of notes on this change:
+> 
+> - To fully test (beyond just confirming that it doesn't break anything
+> when the policy capability is not defined), we'll need a patched
+> libsepol and policy (and unfortunately it requires patching the base
+> policy; can't be done via a policy module).  Can certainly provide those
+> too but figured I'd wait to see the response to the kernel patch first.
+> 
+> - There is a potential cost to this change when/if it is enabled in
+> policy, i.e. if we blindly allowing all of these new classes where we
+> previously allowed the generic socket class, we'll end up with
+> significant growth in policy avtab entries and in AVC entries (although
+> only if they are in fact used), since those are per-class.  However, I
+> wouldn't expect to do that except possibly for the unconfined domain;
+> many of these classes won't need to be allowed at all for most domains.
+> 
+> - There is a slight compatibility issue.  While the policy capability
+> ensures that we will not use the new socket classes with old policies,
+> we don't presently support a way to refresh socket security classes upon
+> a policy reload.  Hence, if you boot a kernel with a policy that has the
+> capability disabled, and then later load a policy that has the
+> capability enabled, any existing sockets won't be automatically moved
+> into the new security classes; they will continue to be treated as
+> having the generic socket security class.  I view this as a minor issue
+> and unlikely to cause any breakage, because refpolicy is likely to
+> merely add new rules for the new socket classes without removing the old
+> rules on the generic socket security class to provide backward
+> compatibility with kernels that predate this change.  Eventually we may
+> be able to drop those rules, but not for quite some time.  In any event,
+> be aware that taking full advantage of these new classes does require a
+> reboot.
 
-I have modified the SELinux Testsuite patch that I originally posted on
-the 24th of August 2016 with subject "Re: [PATCH v5] Classify AF_ALG
-sockets", so that it checks the kernel version (you have to edit the
-minimum version in the test source file)...
+I suppose a further question on this patch is whether it should also add
+new classes for ICMP, IGMP, and SCTP sockets (any others that are
+presently mapped to SECCLASS_RAWIP_SOCKET that ought to be given their
+own class?).  In the SCTP case, this would at least allow them to be
+distinguished, but we would still lack the full support added by the
+separate SCTP patchset.
 
-If you decide to use the standard tests instead of the CIL module, you
-can save some time by using the following:
-
-[cut]
-
-This patch for the SELinux testsuite aims to add a very simple test
-for sockets in the AF_ALG namespace.
-
-Such test is representative of the new set of socket families that
-the kernel supports if it supports the new extended_socket_class
-SELinux policy capability.
-
-BEFORE USING PLEASE EDIT THE KER_VERSION, KER_PATCHLEVEL AND
-KER_SUBLEVEL DEFINED IN THE TEST SOURCE FILE.
-
-Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
----
- policy/Makefile           |    2
- policy/test_alg_socket.te |   25 ++++++++++++
- tests/alg_socket/Makefile |    5 ++
- tests/alg_socket/client.c |   94 ++++++++++++++++++++++++++++++++++++++++++++++
- tests/alg_socket/test     |   26 ++++++++++++
- 5 files changed, 151 insertions(+), 1 deletion(-)
-
-diff -pruN selinux-testsuite-01122016-orig/policy/Makefile selinux-testsuite-01122016/policy/Makefile
---- selinux-testsuite-01122016-orig/policy/Makefile	2016-12-01 21:52:49.170252694 +0100
-+++ selinux-testsuite-01122016/policy/Makefile	2016-12-01 22:24:44.388153327 +0100
-@@ -20,7 +20,7 @@ TARGETS = \
- 	test_task_create.te test_task_getpgid.te test_task_getsched.te \
- 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
- 	test_transition.te test_inet_socket.te test_unix_socket.te \
--	test_wait.te test_mmap.te test_overlayfs.te
-+	test_alg_socket.te test_wait.te test_mmap.te test_overlayfs.te
- 
- ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
- TARGETS += test_bounds.te
-diff -pruN selinux-testsuite-01122016-orig/policy/test_alg_socket.te selinux-testsuite-01122016/policy/test_alg_socket.te
---- selinux-testsuite-01122016-orig/policy/test_alg_socket.te	1970-01-01 01:00:00.000000000 +0100
-+++ selinux-testsuite-01122016/policy/test_alg_socket.te	2016-12-01 21:53:30.813685402 +0100
-@@ -0,0 +1,25 @@
-+#################################
-+#
-+# Policy for testing sockets in
-+# the AF_ALG namespace (Crypto
-+# API).
-+#
-+
-+attribute algsocketdomain;
-+
-+# Domain for client process.
-+type test_alg_socket_client_t;
-+domain_type(test_alg_socket_client_t)
-+unconfined_runs_test(test_alg_socket_client_t)
-+typeattribute test_alg_socket_client_t testdomain;
-+typeattribute test_alg_socket_client_t algsocketdomain;
-+
-+# client can bind socket.
-+allow test_alg_socket_client_t self:alg_socket bind;
-+
-+# client can request to load a kernel module
-+kernel_request_load_module(algsocketdomain)
-+
-+# Allow all of these domains to be entered from the sysadm domain.
-+miscfiles_domain_entry_test_files(algsocketdomain)
-+userdom_sysadm_entry_spec_domtrans_to(algsocketdomain)
-diff -pruN selinux-testsuite-01122016-orig/tests/alg_socket/client.c selinux-testsuite-01122016/tests/alg_socket/client.c
---- selinux-testsuite-01122016-orig/tests/alg_socket/client.c	1970-01-01 01:00:00.000000000 +0100
-+++ selinux-testsuite-01122016/tests/alg_socket/client.c	2016-12-01 22:19:23.143815343 +0100
-@@ -0,0 +1,94 @@
-+/*
-+ * The alg_socket is representative of the new set of
-+ * socket families that the kernel is able to classify
-+ * when it supports the new extended_socket_class policy
-+ * capability.
-+ *
-+ * This test simply checks the result of bind() using
-+ * the Kernel Crypto API.
-+ */
-+
-+#include <sys/socket.h>
-+#include <linux/if_alg.h>
-+#include <linux/version.h>
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <unistd.h>
-+
-+/*
-+ * First kernel version that supports the new
-+ * extended_socket_class policy capability.
-+ */
-+
-+#define KER_VERSION	4
-+#define KER_PATCHLEVEL	99
-+#define KER_SUBLEVEL	99
-+
-+void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [succeed|fail]\n",
-+		progname);
-+	exit(1);
-+}
-+
-+int
-+main(int argc, char **argv)
-+{
-+	int succeed;
-+	int sock;
-+
-+	if (argc != 2)
-+		usage(argv[0]);
-+
-+	if (!strcmp(argv[1], "succeed"))
-+		succeed = 1;
-+	else if (!strcmp(argv[1], "fail"))
-+		succeed = 0;
-+	else
-+		usage(argv[0]);
-+
-+	sock = socket(AF_ALG, SOCK_SEQPACKET, 0);
-+	if (sock < 0) {
-+		perror("socket");
-+		exit(1);
-+	}
-+
-+	if (succeed == 1) {
-+		struct sockaddr_alg sa_good = {
-+			.salg_family = AF_ALG,
-+			.salg_type = "hash",
-+			.salg_name = "sha256",
-+		};
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(KER_VERSION,KER_PATCHLEVEL,KER_SUBLEVEL)
-+		if (bind(sock, (struct sockaddr *) &sa_good, sizeof(sa_good)) < 0) {
-+			perror("bind (algorithm available)");
-+			close(sock);
-+			exit(1);
-+		}
-+#else /* kernel does not support the new policy capability */
-+	exit(0);
-+#endif
-+	} else {
-+		struct sockaddr_alg sa_bad = {
-+			.salg_family = AF_ALG,
-+			.salg_type = "hash",
-+			.salg_name = "NOTAVAILABLE",
-+		};
-+
-+#if LINUX_VERSION_CODE >= KERNEL_VERSION(KER_VERSION,KER_PATCHLEVEL,KER_SUBLEVEL)
-+		if (bind(sock, (struct sockaddr *) &sa_bad, sizeof(sa_bad)) < 0) {
-+			perror("bind (algorithm not available)");
-+			close(sock);
-+			exit(1);
-+		}
-+#else /* kernel does not support the new policy capability */
-+	exit(1);
-+#endif
-+	}
-+
-+	close(sock);
-+	exit(0);
-+}
-diff -pruN selinux-testsuite-01122016-orig/tests/alg_socket/Makefile selinux-testsuite-01122016/tests/alg_socket/Makefile
---- selinux-testsuite-01122016-orig/tests/alg_socket/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ selinux-testsuite-01122016/tests/alg_socket/Makefile	2016-12-01 21:53:30.814685412 +0100
-@@ -0,0 +1,5 @@
-+TARGETS=client
-+
-+all: $(TARGETS)
-+clean:
-+	rm -f $(TARGETS)
-diff -pruN selinux-testsuite-01122016-orig/tests/alg_socket/test selinux-testsuite-01122016/tests/alg_socket/test
---- selinux-testsuite-01122016-orig/tests/alg_socket/test	1970-01-01 01:00:00.000000000 +0100
-+++ selinux-testsuite-01122016/tests/alg_socket/test	2016-12-01 22:19:42.868020293 +0100
-@@ -0,0 +1,26 @@
-+#!/usr/bin/perl
-+
-+use Test;
-+BEGIN { plan tests => 2}
-+
-+$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+#
-+# Tests for sockets in the AF_ALG namespace (Crypto API).
-+#
-+# The AF_ALG socket is representative of the new set of
-+# socket families that the kernel can classify when it
-+# supports the new extended_socket_class policy capability.
-+#
-+
-+# Verify that the client can initialize the server with an
-+# available algorithm.
-+$result = system "runcon -t test_alg_socket_client_t $basedir/client succeed";
-+ok($result, 0);
-+
-+# Verify that the client cannot initialize the server with an
-+# unavailable algorithm.
-+$result = system "runcon -t test_alg_socket_client_t $basedir/client fail";
-+ok($result);
-+
-+exit;
+> 
+>>
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> ---
+>>  security/selinux/hooks.c            | 67 +++++++++++++++++++++++++++++++++++++
+>>  security/selinux/include/classmap.h | 62 ++++++++++++++++++++++++++++++++++
+>>  security/selinux/include/security.h |  3 +-
+>>  security/selinux/selinuxfs.c        |  2 +-
+>>  security/selinux/ss/services.c      |  3 ++
+>>  5 files changed, 135 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 98a2e92..1ee2172 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -1342,6 +1342,73 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
+>>  		return SECCLASS_APPLETALK_SOCKET;
+>>  	}
+>>  
+>> +	if (!selinux_policycap_extsockclass)
+>> +		return SECCLASS_SOCKET;
+>> +
+>> +	switch (family) {
+>> +	case PF_AX25:
+>> +		return SECCLASS_AX25_SOCKET;
+>> +	case PF_IPX:
+>> +		return SECCLASS_IPX_SOCKET;
+>> +	case PF_NETROM:
+>> +		return SECCLASS_NETROM_SOCKET;
+>> +	case PF_BRIDGE:
+>> +		return SECCLASS_BRIDGE_SOCKET;
+>> +	case PF_ATMPVC:
+>> +		return SECCLASS_ATMPVC_SOCKET;
+>> +	case PF_X25:
+>> +		return SECCLASS_X25_SOCKET;
+>> +	case PF_ROSE:
+>> +		return SECCLASS_ROSE_SOCKET;
+>> +	case PF_DECnet:
+>> +		return SECCLASS_DECNET_SOCKET;
+>> +	case PF_ATMSVC:
+>> +		return SECCLASS_ATMSVC_SOCKET;
+>> +	case PF_RDS:
+>> +		return SECCLASS_RDS_SOCKET;
+>> +	case PF_IRDA:
+>> +		return SECCLASS_IRDA_SOCKET;
+>> +	case PF_PPPOX:
+>> +		return SECCLASS_PPPOX_SOCKET;
+>> +	case PF_LLC:
+>> +		return SECCLASS_LLC_SOCKET;
+>> +	case PF_IB:
+>> +		return SECCLASS_IB_SOCKET;
+>> +	case PF_MPLS:
+>> +		return SECCLASS_MPLS_SOCKET;
+>> +	case PF_CAN:
+>> +		return SECCLASS_CAN_SOCKET;
+>> +	case PF_TIPC:
+>> +		return SECCLASS_TIPC_SOCKET;
+>> +	case PF_BLUETOOTH:
+>> +		return SECCLASS_BLUETOOTH_SOCKET;
+>> +	case PF_IUCV:
+>> +		return SECCLASS_IUCV_SOCKET;
+>> +	case PF_RXRPC:
+>> +		return SECCLASS_RXRPC_SOCKET;
+>> +	case PF_ISDN:
+>> +		return SECCLASS_ISDN_SOCKET;
+>> +	case PF_PHONET:
+>> +		return SECCLASS_PHONET_SOCKET;
+>> +	case PF_IEEE802154:
+>> +		return SECCLASS_IEEE802154_SOCKET;
+>> +	case PF_CAIF:
+>> +		return SECCLASS_CAIF_SOCKET;
+>> +	case PF_ALG:
+>> +		return SECCLASS_ALG_SOCKET;
+>> +	case PF_NFC:
+>> +		return SECCLASS_NFC_SOCKET;
+>> +	case PF_VSOCK:
+>> +		return SECCLASS_VSOCK_SOCKET;
+>> +	case PF_KCM:
+>> +		return SECCLASS_KCM_SOCKET;
+>> +	case PF_QIPCRTR:
+>> +		return SECCLASS_QIPCRTR_SOCKET;
+>> +#if PF_MAX > 43
+>> +#error New address family defined, please update this function.
+>> +#endif
+>> +	}
+>> +
+>>  	return SECCLASS_SOCKET;
+>>  }
+>>  
+>> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+>> index e2d4ad3a..a11be76 100644
+>> --- a/security/selinux/include/classmap.h
+>> +++ b/security/selinux/include/classmap.h
+>> @@ -169,5 +169,67 @@ struct security_class_mapping secclass_map[] = {
+>>  	  { COMMON_CAP_PERMS, NULL } },
+>>  	{ "cap2_userns",
+>>  	  { COMMON_CAP2_PERMS, NULL } },
+>> +	{ "ax25_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "ipx_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "netrom_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "bridge_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "atmpvc_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "x25_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "rose_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "decnet_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "atmsvc_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "rds_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "irda_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "pppox_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "llc_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "ib_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "mpls_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "can_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "tipc_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "bluetooth_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "iucv_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "rxrpc_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "isdn_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "phonet_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "ieee802154_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "caif_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "alg_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "nfc_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "vsock_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "kcm_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>> +	{ "qipcrtr_socket",
+>> +	  { COMMON_SOCK_PERMS, NULL } },
+>>  	{ NULL }
+>>    };
+>> +
+>> +#if PF_MAX > 43
+>> +#error New address family defined, please update secclass_map.
+>> +#endif
+>> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+>> index 308a286..beaa14b 100644
+>> --- a/security/selinux/include/security.h
+>> +++ b/security/selinux/include/security.h
+>> @@ -69,7 +69,7 @@ extern int selinux_enabled;
+>>  enum {
+>>  	POLICYDB_CAPABILITY_NETPEER,
+>>  	POLICYDB_CAPABILITY_OPENPERM,
+>> -	POLICYDB_CAPABILITY_REDHAT1,
+>> +	POLICYDB_CAPABILITY_EXTSOCKCLASS,
+>>  	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+>>  	__POLICYDB_CAPABILITY_MAX
+>>  };
+>> @@ -77,6 +77,7 @@ enum {
+>>  
+>>  extern int selinux_policycap_netpeer;
+>>  extern int selinux_policycap_openperm;
+>> +extern int selinux_policycap_extsockclass;
+>>  extern int selinux_policycap_alwaysnetwork;
+>>  
+>>  /*
+>> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+>> index cf9293e..0aac402 100644
+>> --- a/security/selinux/selinuxfs.c
+>> +++ b/security/selinux/selinuxfs.c
+>> @@ -45,7 +45,7 @@
+>>  static char *policycap_names[] = {
+>>  	"network_peer_controls",
+>>  	"open_perms",
+>> -	"redhat1",
+>> +	"extended_socket_class",
+>>  	"always_check_network"
+>>  };
+>>  
+>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+>> index 082b20c..a70fcee 100644
+>> --- a/security/selinux/ss/services.c
+>> +++ b/security/selinux/ss/services.c
+>> @@ -72,6 +72,7 @@
+>>  
+>>  int selinux_policycap_netpeer;
+>>  int selinux_policycap_openperm;
+>> +int selinux_policycap_extsockclass;
+>>  int selinux_policycap_alwaysnetwork;
+>>  
+>>  static DEFINE_RWLOCK(policy_rwlock);
+>> @@ -1988,6 +1989,8 @@ static void security_load_policycaps(void)
+>>  						  POLICYDB_CAPABILITY_NETPEER);
+>>  	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+>>  						  POLICYDB_CAPABILITY_OPENPERM);
+>> +	selinux_policycap_extsockclass = ebitmap_get_bit(&policydb.policycaps,
+>> +					  POLICYDB_CAPABILITY_EXTSOCKCLASS);
+>>  	selinux_policycap_alwaysnetwork = ebitmap_get_bit(&policydb.policycaps,
+>>  						  POLICYDB_CAPABILITY_ALWAYSNETWORK);
+>>  }
+>>
+> 
