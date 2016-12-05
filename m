@@ -1,123 +1,69 @@
-Subject: Re: [PATCH] python: Fix some typos
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-References: <1480961028-26715-1-git-send-email-vmojzis@redhat.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c7452eba-1b83-5669-817f-0c1bb64dee5b@tycho.nsa.gov>
-Date: Mon, 5 Dec 2016 15:12:21 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB5Ms8KO016585
+ for <selinux@tycho.nsa.gov>; Mon, 5 Dec 2016 17:54:09 -0500
+Received: by mail-ua0-f175.google.com with SMTP id 51so364256911uai.1
+ for <selinux@tycho.nsa.gov>; Mon, 05 Dec 2016 14:54:07 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1480961028-26715-1-git-send-email-vmojzis@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <5c66b64e-19f1-3fe3-5efe-13083151f9bd@tycho.nsa.gov>
+References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
+ <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
+ <d6892b99-64b8-838e-f024-aeacb35df6e1@tycho.nsa.gov>
+ <CAHC9VhSh3v_u1hKvZAt0sdGm-PykApdu1j21Q56K036R7oN=Og@mail.gmail.com>
+ <5c66b64e-19f1-3fe3-5efe-13083151f9bd@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 5 Dec 2016 17:54:06 -0500
+Message-ID: <CAHC9VhReQ0-Yb+r=uL5UmWUj_1VmTGVFVASfGghf1TgF9sYEvw@mail.gmail.com>
+Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
+ address families
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, guido@trentalancia.net,
+ Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/05/2016 01:03 PM, Vit Mojzis wrote:
-> Aside from typos, change the way markup is applied to a tooltip
-> in sepolicy/gui so that the text can be translated.
-> 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+On Mon, Dec 5, 2016 at 9:11 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 12/02/2016 05:39 PM, Paul Moore wrote:
+>> On Fri, Dec 2, 2016 at 12:40 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> I suppose a further question on this patch is whether it should also add
+>>> new classes for ICMP, IGMP, and SCTP sockets (any others that are
+>>> presently mapped to SECCLASS_RAWIP_SOCKET that ought to be given their
+>>> own class?).  In the SCTP case, this would at least allow them to be
+>>> distinguished, but we would still lack the full support added by the
+>>> separate SCTP patchset.
+>>
+>> For the record, I'm okay with this patch and I agree that the
+>> compatibility concerns aren't likely to be significant.  However, I
+>> would like to continue the discussion on the idea to include classes
+>> for ICMP, IGMP, and SCTP.  I haven't looked into ICMP or IGMP, but
+>> considering the changes necessary for SCTP I think it is okay to leave
+>> SCTP out for now and add it in with proper SCTP support (and its own
+>> policy capability).
+>>
+>> Stephen, I'm assuming you feel the same since you left that out of the patch?
+>
+> It depends on whether we think full SCTP support will be merged sooner
+> or later.  If there is the possibility that full SCTP support will not
+> be merged for a while, then I think I'd rather just add a SCTP socket
+> class as part of this patch so that we can at least distinguish between
+> SCTP sockets and raw IP sockets in policy in the interim.
 
-Thanks, applied.
+As I sit here I would like to think that we'll get proper SCTP support
+merged sooner rather than later, but well ... things happen.  I guess
+there is no harm in adding the SCTP socket class now just in case.
 
-> ---
->  python/semanage/seobject.py             |  6 +++---
->  python/sepolicy/sepolicy/gui.py         | 12 ++++++------
->  python/sepolicy/sepolicy/sepolicy.glade |  6 +++---
->  3 files changed, 12 insertions(+), 12 deletions(-)
-> 
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index 5f5fdec..c836cc5 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -386,7 +386,7 @@ class moduleRecords(semanageRecords):
->  
->      def add(self, file, priority):
->          if not os.path.exists(file):
-> -            raise ValueError(_("Module does not exists %s ") % file)
-> +            raise ValueError(_("Module does not exist: %s ") % file)
->  
->          rc = semanage_set_default_priority(self.sh, priority)
->          if rc < 0:
-> @@ -492,7 +492,7 @@ class permissiveRecords(semanageRecords):
->          try:
->              import sepolgen.module as module
->          except ImportError:
-> -            raise ValueError(_("The sepolgen python module is required to setup permissive domains.\nIn some distributions it is included in the policycoreutils-devel patckage.\n# yum install policycoreutils-devel\nOr similar for your distro."))
-> +            raise ValueError(_("The sepolgen python module is required to setup permissive domains.\nIn some distributions it is included in the policycoreutils-devel package.\n# yum install policycoreutils-devel\nOr similar for your distro."))
->  
->          name = "permissive_%s" % type
->          modtxt = "(typepermissive %s)" % type
-> @@ -1823,7 +1823,7 @@ class fcontextRecords(semanageRecords):
->      def modify_equal(self, target, substitute):
->          self.begin()
->          if target not in self.equiv.keys():
-> -            raise ValueError(_("Equivalence class for %s does not exists") % target)
-> +            raise ValueError(_("Equivalence class for %s does not exist") % target)
->          self.equiv[target] = substitute
->          self.equal_ind = True
->  
-> diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-> index 814ad9a..518fd01 100644
-> --- a/python/sepolicy/sepolicy/gui.py
-> +++ b/python/sepolicy/sepolicy/gui.py
-> @@ -1068,9 +1068,9 @@ class SELinuxGui():
->          self.transitions_into_tab.set_label(_("Application Transitions Into '%s'" % app))
->          self.transitions_from_tab.set_label(_("Application Transitions From '%s'" % app))
->          self.transitions_file_tab.set_label(_("File Transitions From '%s'" % app))
-> -        self.transitions_into_tab.set_tooltip_text(_("Executables which will transition to the '%s', when executing a selected domains entrypoint.") % app)
-> -        self.transitions_from_tab.set_tooltip_text(_("Executables which will transition to a different domain, when the '%s' executes them.") % app)
-> -        self.transitions_file_tab.set_tooltip_text(_("Files by '%s' will transitions to a different label." % app))
-> +        self.transitions_into_tab.set_tooltip_text(_("Executables which will transition to '%s', when executing selected domains entrypoint.") % app)
-> +        self.transitions_from_tab.set_tooltip_text(_("Executables which will transition to a different domain, when '%s' executes them.") % app)
-> +        self.transitions_file_tab.set_tooltip_text(_("Files by '%s' with transitions to a different label." % app))
->          self.transitions_radio_button.set_tooltip_text(_("Display applications that can transition into or out of the '%s'." % app))
->  
->          self.application = app
-> @@ -1292,11 +1292,11 @@ class SELinuxGui():
->              niter = self.transitions_from_treestore.append(iter)
->              # active[0][1] is either T or F (enabled is all the way at the top)
->              self.transitions_from_treestore.set_value(iter, 0, enabled[active[0][1]])
-> -            markup = '<span foreground="blue"><u>%s</u></span>'
-> +            markup = ('<span foreground="blue"><u>','</u></span>')
->              if active[0][1]:
-> -                self.transitions_from_treestore.set_value(niter, 2, (_("To disable this transition, go to the " + markup % _("Boolean section."))))
-> +                self.transitions_from_treestore.set_value(niter, 2, (_("To disable this transition, go to the %sBoolean section%s.") % markup))
->              else:
-> -                self.transitions_from_treestore.set_value(niter, 2, (_("To enable this transition, go to the " + markup % _("Boolean section."))))
-> +                self.transitions_from_treestore.set_value(niter, 2, (_("To enable this transition, go to the %sBoolean section%s.") % markup))
->  
->              # active[0][0] is the Bool Name
->              self.transitions_from_treestore.set_value(niter, 1, active[0][0])
-> diff --git a/python/sepolicy/sepolicy/sepolicy.glade b/python/sepolicy/sepolicy/sepolicy.glade
-> index 1275c7f..00905e0 100644
-> --- a/python/sepolicy/sepolicy/sepolicy.glade
-> +++ b/python/sepolicy/sepolicy/sepolicy.glade
-> @@ -3909,7 +3909,7 @@ allow alternative access control.</property>
->                                          <property name="visible">True</property>
->                                          <property name="can_focus">True</property>
->                                          <property name="receives_default">False</property>
-> -                                        <property name="tooltip_text" translatable="yes">An permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
-> +                                        <property name="tooltip_text" translatable="yes">A permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
->                                          <property name="xalign">0</property>
->                                          <property name="draw_indicator">True</property>
->                                          <property name="group">enable_permissive</property>
-> @@ -3926,7 +3926,7 @@ allow alternative access control.</property>
->                                          <property name="visible">True</property>
->                                          <property name="can_focus">True</property>
->                                          <property name="receives_default">False</property>
-> -                                        <property name="tooltip_text" translatable="yes">An permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
-> +                                        <property name="tooltip_text" translatable="yes">A permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
->                                          <property name="xalign">0</property>
->                                          <property name="active">True</property>
->                                          <property name="draw_indicator">True</property>
-> @@ -3989,7 +3989,7 @@ allow alternative access control.</property>
->                                          <property name="visible">True</property>
->                                          <property name="can_focus">True</property>
->                                          <property name="receives_default">False</property>
-> -                                        <property name="tooltip_text" translatable="yes">An permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
-> +                                        <property name="tooltip_text" translatable="yes">A permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
->                                          <property name="xalign">0</property>
->                                          <property name="active">True</property>
->                                          <property name="draw_indicator">True</property>
-> 
+> The other question is whether you agreed with Guido's suggested change
+> for readability/maintainability or prefer the current style. I have no
+> strong opinion either way.
+
+I really don't care too much either way which is why I didn't comment
+on it.  I suppose I have a slight preference for Guido's suggested
+style, but I wouldn't respin the patch just for that.  However, if you
+are going to add SCTP (which I'm guessing we should) go ahead and use
+Guido's style.
+
+-- 
+paul moore
+www.paul-moore.com
