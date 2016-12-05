@@ -1,125 +1,125 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB5GGEQ3015411
- for <selinux@tycho.nsa.gov>; Mon, 5 Dec 2016 11:16:17 -0500
-Received: by mail-io0-f199.google.com with SMTP id g8so201657981ioi.0
- for <selinux@tycho.nsa.gov>; Mon, 05 Dec 2016 08:15:56 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhT544S9rNE5EwsY8yDUW6dGojVkPJxijGfXWmYQNgAs_w@mail.gmail.com>
-References: <1478551587-33892-1-git-send-email-david.graziano@rockwellcollins.com>
- <CAHC9VhQXrybHPt41-f-hcXZJ=i=N5qexdoM2VFLTxFfmuq8Yzg@mail.gmail.com>
- <CA+RmS--i8PiHmt1foeVEYP+uGDxhGLaROzxLvU=GNXW76fDy5A@mail.gmail.com>
- <CAHC9VhS1GmjyaY1GqvKJ9q_FoyH=t1EGS_0Eh+GOoGNuEJ2_8w@mail.gmail.com>
- <CA+RmS-_oMDkmtwYeq48HDMU0HE8hwe2w2cR5U77s5yeirCvw-Q@mail.gmail.com>
- <CAHC9VhT544S9rNE5EwsY8yDUW6dGojVkPJxijGfXWmYQNgAs_w@mail.gmail.com>
-From: David Graziano <david.graziano@rockwellcollins.com>
-Date: Mon, 5 Dec 2016 10:15:35 -0600
-Message-ID: <CA+RmS--S8RmtWixUhkw4sgtqKZaBH7pxFwJ7z4WOrDU-BQv=sA@mail.gmail.com>
-Subject: Re: [PATCH 1/1 V2] mqueue: Implment generic xattr support
-To: Paul Moore <paul@paul-moore.com>
-Cc: golbi@mat.uni.torun.pl, Michal Wronski <michal.wronski@gmail.com>,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Seth Forshee <seth.forshee@canonical.com>, ebiederm@xmission.com,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB5I49Bx021221
+ for <selinux@tycho.nsa.gov>; Mon, 5 Dec 2016 13:04:10 -0500
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id DEE1A3F724
+ for <selinux@tycho.nsa.gov>; Mon,  5 Dec 2016 18:03:51 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] python: Fix some typos
+Date: Mon,  5 Dec 2016 19:03:48 +0100
+Message-Id: <1480961028-26715-1-git-send-email-vmojzis@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Dec 5, 2016 at 9:37 AM, Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Nov 28, 2016 at 3:04 PM, David Graziano
-> <david.graziano@rockwellcollins.com> wrote:
->> On Wed, Nov 9, 2016 at 4:25 PM, Paul Moore <paul@paul-moore.com> wrote:
->>> On Wed, Nov 9, 2016 at 11:25 AM, David Graziano
->>> <david.graziano@rockwellcollins.com> wrote:
->>>> On Mon, Nov 7, 2016 at 4:23 PM, Paul Moore <paul@paul-moore.com> wrote:
->>>>> On Mon, Nov 7, 2016 at 3:46 PM, David Graziano
->>>>> <david.graziano@rockwellcollins.com> wrote:
->>>>>> This patch adds support for generic extended attributes within the
->>>>>> POSIX message queues filesystem and setting them by consulting the LSM.
->>>>>> This is needed so that the security.selinux extended attribute can be
->>>>>> set via a SELinux named type transition on file inodes created within
->>>>>> the filesystem. The implementation and LSM call back function are based
->>>>>> off tmpfs/shmem.
->>>>>>
->>>>>> Signed-off-by: David Graziano <david.graziano@rockwellcollins.com>
->>>>>> ---
->>>>>>  ipc/mqueue.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
->>>>>>  1 file changed, 46 insertions(+)
->>>>>
->>>>> Hi David,
->>>>>
->>>>> At first glance this looks reasonable to me, I just have a two
->>>>> questions/comments:
->>>>>
->>>>> * Can you explain your current need for this functionality?  For
->>>>> example, what are you trying to do that is made easier by allowing
->>>>> greater message queue labeling flexibility?  This helps put things in
->>>>> context and helps people review and comment on your patch.
->>>>>
->>>>> * How have you tested this?  While this patch is not SELinux specific,
->>>>> I think adding a test to the selinux-testsuite[1] would be worthwhile.
->>>>> The other LSM maintainers may suggest something similar if they have
->>>>> an established public testsuite.
->>>>>
->>>>> [1] https://github.com/SELinuxProject/selinux-testsuite
->>>>
->>>> Hi Paul,
->>>>
->>>> I needed to write a selinux policy for a set of custom applications that use
->>>> POSIX message queues for their IPC. The queues are created by one
->>>> application and we needed a way for selinux to enforce which of the other
->>>> apps are able to read/write to each individual queue. Uniquely labeling them
->>>> based on the app that created them and the file name seemed to be our best
->>>> solution since it’s an embedded system and we don’t have restorecond to
->>>> handle any relabeling.
->>>
->>> In the future putting things like the above in the patch description
->>> can be helpful.  In other words, instead of simply saying this allows
->>> you to better control the labels assigned to message queues, you could
->>> expand upon it by saying that this patch allows you to better control
->>> which applications have access to a given queue.  Yes, I realize that
->>> is implied by better control over the labels, but being explicit is
->>> rarely a bad thing when it comes to patch descriptions.
->>>
->>> I've never rejected a patch for a description that was too lengthy,
->>> but I have rejected patches that need better descriptions ;)
->>>
->>>> To test this patch I used both a selinux enabled, buildroot based qemu target
->>>> with a customized selinux policy and test C app to create the mqueues. I also
->>>> tested with our real apps and selinux policy on our target hardware. I can
->>>> certainly look at adding a test to the selinux-testsuite if that would
->>>> be helpful.
->>>
->>> Please do.  I've been requiring tests for all new SELinux
->>> functionality lately; this isn't strictly a SELinux patch but I think
->>> it is a good practice regardless.
->>
->> Sorry for the delay. I have created a pull request within the
->> selinux-testsuite github
->> project with a set of mqueue tests.
->
-> For anyone who is curious:
->
-> * https://github.com/SELinuxProject/selinux-testsuite/pull/10
->
-> Aside from a naming nit, the tests look good to me and I have no
-> problem with the kernel patch; it doesn't appear any of the other LSM
-> maintainers do either.  I'm happy to pull this into the SELinux tree
-> (for v4.11, it's a little late for v4.10 I think), but I think
-> Christoph made a good point about consolidation, have you had a chance
-> to look at that?
->
+Aside from typos, change the way markup is applied to a tooltip
+in sepolicy/gui so that the text can be translated.
 
-I've made the update for the naming nit in the pull request.
-I agree with Christoph's point but doing so is a bit outside my expertise at
-this point. I would be open to suggestions as to where the function should be
-consolidated and work on a second patchset with the update. Maybe in
-fs/xattr.c as a simple_xattr_initxattrs function?
--David
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ python/semanage/seobject.py             |  6 +++---
+ python/sepolicy/sepolicy/gui.py         | 12 ++++++------
+ python/sepolicy/sepolicy/sepolicy.glade |  6 +++---
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-
-> --
-> paul moore
-> www.paul-moore.com
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index 5f5fdec..c836cc5 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -386,7 +386,7 @@ class moduleRecords(semanageRecords):
+ 
+     def add(self, file, priority):
+         if not os.path.exists(file):
+-            raise ValueError(_("Module does not exists %s ") % file)
++            raise ValueError(_("Module does not exist: %s ") % file)
+ 
+         rc = semanage_set_default_priority(self.sh, priority)
+         if rc < 0:
+@@ -492,7 +492,7 @@ class permissiveRecords(semanageRecords):
+         try:
+             import sepolgen.module as module
+         except ImportError:
+-            raise ValueError(_("The sepolgen python module is required to setup permissive domains.\nIn some distributions it is included in the policycoreutils-devel patckage.\n# yum install policycoreutils-devel\nOr similar for your distro."))
++            raise ValueError(_("The sepolgen python module is required to setup permissive domains.\nIn some distributions it is included in the policycoreutils-devel package.\n# yum install policycoreutils-devel\nOr similar for your distro."))
+ 
+         name = "permissive_%s" % type
+         modtxt = "(typepermissive %s)" % type
+@@ -1823,7 +1823,7 @@ class fcontextRecords(semanageRecords):
+     def modify_equal(self, target, substitute):
+         self.begin()
+         if target not in self.equiv.keys():
+-            raise ValueError(_("Equivalence class for %s does not exists") % target)
++            raise ValueError(_("Equivalence class for %s does not exist") % target)
+         self.equiv[target] = substitute
+         self.equal_ind = True
+ 
+diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+index 814ad9a..518fd01 100644
+--- a/python/sepolicy/sepolicy/gui.py
++++ b/python/sepolicy/sepolicy/gui.py
+@@ -1068,9 +1068,9 @@ class SELinuxGui():
+         self.transitions_into_tab.set_label(_("Application Transitions Into '%s'" % app))
+         self.transitions_from_tab.set_label(_("Application Transitions From '%s'" % app))
+         self.transitions_file_tab.set_label(_("File Transitions From '%s'" % app))
+-        self.transitions_into_tab.set_tooltip_text(_("Executables which will transition to the '%s', when executing a selected domains entrypoint.") % app)
+-        self.transitions_from_tab.set_tooltip_text(_("Executables which will transition to a different domain, when the '%s' executes them.") % app)
+-        self.transitions_file_tab.set_tooltip_text(_("Files by '%s' will transitions to a different label." % app))
++        self.transitions_into_tab.set_tooltip_text(_("Executables which will transition to '%s', when executing selected domains entrypoint.") % app)
++        self.transitions_from_tab.set_tooltip_text(_("Executables which will transition to a different domain, when '%s' executes them.") % app)
++        self.transitions_file_tab.set_tooltip_text(_("Files by '%s' with transitions to a different label." % app))
+         self.transitions_radio_button.set_tooltip_text(_("Display applications that can transition into or out of the '%s'." % app))
+ 
+         self.application = app
+@@ -1292,11 +1292,11 @@ class SELinuxGui():
+             niter = self.transitions_from_treestore.append(iter)
+             # active[0][1] is either T or F (enabled is all the way at the top)
+             self.transitions_from_treestore.set_value(iter, 0, enabled[active[0][1]])
+-            markup = '<span foreground="blue"><u>%s</u></span>'
++            markup = ('<span foreground="blue"><u>','</u></span>')
+             if active[0][1]:
+-                self.transitions_from_treestore.set_value(niter, 2, (_("To disable this transition, go to the " + markup % _("Boolean section."))))
++                self.transitions_from_treestore.set_value(niter, 2, (_("To disable this transition, go to the %sBoolean section%s.") % markup))
+             else:
+-                self.transitions_from_treestore.set_value(niter, 2, (_("To enable this transition, go to the " + markup % _("Boolean section."))))
++                self.transitions_from_treestore.set_value(niter, 2, (_("To enable this transition, go to the %sBoolean section%s.") % markup))
+ 
+             # active[0][0] is the Bool Name
+             self.transitions_from_treestore.set_value(niter, 1, active[0][0])
+diff --git a/python/sepolicy/sepolicy/sepolicy.glade b/python/sepolicy/sepolicy/sepolicy.glade
+index 1275c7f..00905e0 100644
+--- a/python/sepolicy/sepolicy/sepolicy.glade
++++ b/python/sepolicy/sepolicy/sepolicy.glade
+@@ -3909,7 +3909,7 @@ allow alternative access control.</property>
+                                         <property name="visible">True</property>
+                                         <property name="can_focus">True</property>
+                                         <property name="receives_default">False</property>
+-                                        <property name="tooltip_text" translatable="yes">An permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
++                                        <property name="tooltip_text" translatable="yes">A permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
+                                         <property name="xalign">0</property>
+                                         <property name="draw_indicator">True</property>
+                                         <property name="group">enable_permissive</property>
+@@ -3926,7 +3926,7 @@ allow alternative access control.</property>
+                                         <property name="visible">True</property>
+                                         <property name="can_focus">True</property>
+                                         <property name="receives_default">False</property>
+-                                        <property name="tooltip_text" translatable="yes">An permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
++                                        <property name="tooltip_text" translatable="yes">A permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
+                                         <property name="xalign">0</property>
+                                         <property name="active">True</property>
+                                         <property name="draw_indicator">True</property>
+@@ -3989,7 +3989,7 @@ allow alternative access control.</property>
+                                         <property name="visible">True</property>
+                                         <property name="can_focus">True</property>
+                                         <property name="receives_default">False</property>
+-                                        <property name="tooltip_text" translatable="yes">An permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
++                                        <property name="tooltip_text" translatable="yes">A permissive domain is a process label that allows the process to do what it wants, with SELinux only logging the denials, but not enforcing them.  Usually permissive domains indicate experimental policy, disabling the module could cause SELinux to deny access to a domain, that should be allowed.</property>
+                                         <property name="xalign">0</property>
+                                         <property name="active">True</property>
+                                         <property name="draw_indicator">True</property>
+-- 
+2.7.4
