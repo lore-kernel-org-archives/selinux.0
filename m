@@ -1,48 +1,79 @@
-Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
- address families
-To: Paul Moore <paul@paul-moore.com>
-References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
- <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
- <d6892b99-64b8-838e-f024-aeacb35df6e1@tycho.nsa.gov>
- <CAHC9VhSh3v_u1hKvZAt0sdGm-PykApdu1j21Q56K036R7oN=Og@mail.gmail.com>
-Cc: selinux@tycho.nsa.gov, guido@trentalancia.net,
- Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: INTERP ELF header and SELinux
+To: Nick Kralevich <nnk@google.com>, SELinux <Selinux@tycho.nsa.gov>
+References: <CAFJ0LnF5CXaNDMKMLtmVung4RXUujeL3jBZFopzeOwy6+iiWRg@mail.gmail.com>
+ <d19e0642-04b4-094c-e759-7922979dae66@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <5c66b64e-19f1-3fe3-5efe-13083151f9bd@tycho.nsa.gov>
-Date: Mon, 5 Dec 2016 09:11:26 -0500
+Message-ID: <8aaae08c-8fde-45e6-82d6-e75183aa74d2@tycho.nsa.gov>
+Date: Mon, 5 Dec 2016 10:30:47 -0500
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSh3v_u1hKvZAt0sdGm-PykApdu1j21Q56K036R7oN=Og@mail.gmail.com>
+In-Reply-To: <d19e0642-04b4-094c-e759-7922979dae66@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/02/2016 05:39 PM, Paul Moore wrote:
-> On Fri, Dec 2, 2016 at 12:40 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> I suppose a further question on this patch is whether it should also add
->> new classes for ICMP, IGMP, and SCTP sockets (any others that are
->> presently mapped to SECCLASS_RAWIP_SOCKET that ought to be given their
->> own class?).  In the SCTP case, this would at least allow them to be
->> distinguished, but we would still lack the full support added by the
->> separate SCTP patchset.
+On 12/05/2016 08:43 AM, Stephen Smalley wrote:
+> On 12/04/2016 01:29 PM, Nick Kralevich wrote:
+>> Scenerio:
+>>
+>> 1) Process P is running in the "P" SELinux domain.
+>> 2) A type transition is defined such that when P executes Q_exec, P
+>> transitions into SELinux domain Q.
+>> 3) Q_exec is an ELF executable with an INTERP (dynamic linker) header
+>> pointing to a file labeled R_interp_lib
+>> 4) Domain P has file execute permission on R_interp_lib and Q_exec. P
+>> does NOT have execute_no_trans on Q_exec nor on R_interp_lib.
+>> 5) Domain Q has file execute permissions on Q_exec, but does NOT have
+>> file execute permissions on R_interp_lib.
+>> 6) P executes Q_exec
+>>
+>> What is the intended behavior? Is it:
+>>
+>> 1) P can successfully execute Q_exec. The process in domain Q has
+>> R_interp_lib mapped into the process as executable memory even though it
+>> wasn't explicitly allowed by policy. This was allowed because P has
+>> execute on R_interp_lib.
+>>
+>> 2) P gets "permission denied" attempting to run Q_exec, because the
+>> resulting domain Q does not have execute permission on R_interp_lib, and
+>> Q needs R_interp_lib to successfully run.
+>>
+>> Other?
+>>
+>> From my (admittedly weak) understanding of the current kernel code
+>> today, it appears the answer is #1. The permission checks performed by
+>> the kernel when loading the dynamic linker occur in the initiating
+>> SELinux domain, not the resulting SELinux domain. So as long as the
+>> executing process has execute on the dynamic linker, the target process
+>> will have the dynamic linker mapped into it's memory.
+>>
+>> Intuitively, I would have expected #2. In the same way that a process
+>> shouldn't be able to be executed it doesn't have file execute on it's
+>> own executable, it shouldn't be able to be executed if it doesn't have
+>> execute on it's dynamic linker.
+>>
+>> Thoughts?
 > 
-> For the record, I'm okay with this patch and I agree that the
-> compatibility concerns aren't likely to be significant.  However, I
-> would like to continue the discussion on the idea to include classes
-> for ICMP, IGMP, and SCTP.  I haven't looked into ICMP or IGMP, but
-> considering the changes necessary for SCTP I think it is okay to leave
-> SCTP out for now and add it in with proper SCTP support (and its own
-> policy capability).
-> 
-> Stephen, I'm assuming you feel the same since you left that out of the patch?
+> I agree that #2 is preferable, and I believe that is in fact the
+> behavior after commit 9f834ec18defc369d73ccf9e87a2790bfa05bf46 circa
+> Linux 4.8.  Easiest way to check is to add auditallow statements to see
+> what execute checks are being applied on a given domain transition.  The
+> SELinux support for domain transitions was implemented by hooking the
+> existing functions for setuid/setgid program execution, so there are
+> some suboptimal aspects of the current checking, not only this
+> particular issue but also the label in which the descriptor for the
+> interpreter is opened, which requires the new domain to be able to use
+> descriptors with its parent's label even if not passing any descriptors
+> opened by the parent.  Also execute_no_trans is rather imprecise; it
+> only gets checked upon execve(), so a userspace program loader can avoid
+> it entirely and only requires execute permission.
 
-It depends on whether we think full SCTP support will be merged sooner
-or later.  If there is the possibility that full SCTP support will not
-be merged for a while, then I think I'd rather just add a SCTP socket
-class as part of this patch so that we can at least distinguish between
-SCTP sockets and raw IP sockets in policy in the interim.
+Before the commit above, the permissions required were:
+P must be allowed execute to R_interp_lib and to Q_exec.
+Q must be allowed entrypoint to Q_exec.
 
-The other question is whether you agreed with Guido's suggested change
-for readability/maintainability or prefer the current style. I have no
-strong opinion either way.
+After the commit above, the permissions required are:
+P must be allowed execute to R_interp_lib and to Q_exec (unchanged).
+Q must be allowed entrypoint and execute to Q_exec (+execute).
+Q must be allowed execute to R_interp_lib (new).
