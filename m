@@ -1,64 +1,64 @@
-Subject: Re: [PATCH] quick selinux support for tracefs
-To: "Roberts, William C" <william.c.roberts@intel.com>,
- "nnk@google.com" <nnk@google.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-References: <1481045078-15000-1-git-send-email-william.c.roberts@intel.com>
- <1481045078-15000-2-git-send-email-william.c.roberts@intel.com>
- <53b7636e-5abe-0712-1954-b8c77c80c10d@tycho.nsa.gov>
- <476DC76E7D1DF2438D32BFADF679FC5622FF892E@ORSMSX103.amr.corp.intel.com>
-Cc: Yongqin Liu <yongqin.liu@linaro.org>, Paul Moore <paul@paul-moore.com>
+Subject: Re: Filtering an avtab in libsepol
+To: Gary Tierney <gary.tierney@gmx.com>, SELinux <selinux@tycho.nsa.gov>
+References: <20161206170055.GA30914@workstation>
+ <a351189a-cf18-0345-ec36-f2978f563c4a@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <1720815e-90f4-1780-9aaa-1742b05a4efc@tycho.nsa.gov>
-Date: Tue, 6 Dec 2016 13:00:56 -0500
+Message-ID: <f9410858-b9c1-d641-41b6-837c8b42f144@tycho.nsa.gov>
+Date: Tue, 6 Dec 2016 13:06:28 -0500
 MIME-Version: 1.0
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5622FF892E@ORSMSX103.amr.corp.intel.com>
+In-Reply-To: <a351189a-cf18-0345-ec36-f2978f563c4a@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/06/2016 12:50 PM, Roberts, William C wrote:
-> 
-> 
->> -----Original Message-----
->> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
->> Sent: Tuesday, December 6, 2016 9:41 AM
->> To: Roberts, William C <william.c.roberts@intel.com>; nnk@google.com;
->> selinux@tycho.nsa.gov
->> Cc: Yongqin Liu <yongqin.liu@linaro.org>; Paul Moore <paul@paul-moore.com>
->> Subject: Re: [PATCH] quick selinux support for tracefs
+On 12/06/2016 12:53 PM, Stephen Smalley wrote:
+> On 12/06/2016 12:00 PM, Gary Tierney wrote:
+>> Hi,
 >>
->> On 12/06/2016 12:24 PM, william.c.roberts@intel.com wrote:
->>> From: Yongqin Liu <yongqin.liu@linaro.org>
->>>
->>> Here is just the quick fix for tracefs with selinux.
->>> just add tracefs to the list of whitelisted filesystem types in
->>> selinux_is_sblabel_mnt(), but the right fix would be to generalize
->>> this logic as described in the last item on the todo list,
->>> https://bitbucket.org/seandroid/wiki/wiki/ToDo
->>>
->>> Change-Id: I2aa803ccffbcd2802a7287514da7648e6b364157
+>> I've been working on optimizing out AV rules with no applicable
+>> types as well as unused attributes to trim down the size of a
+>> policy which uses CIL blocks and attributes extensively.  Looking
+>> into the avtab code (and how creating a new avtab is implemented in
+>> expand.c) I have a question:
 >>
->> Please rewrite the subject line and patch description per the kernel's submission
->> guidelines, drop the Change-Id and the link to the SEAndroid todo list, and don't
->> say that this is a quick fix but
+>> Does the following suffice for taking an existing avtab and
+>> creating a new one with all of its elements?  Or do I need to
+>> consider avtab_insert_nonunique() like expand.c does?  If I'm
+>> following the expand_avtab() code correctly, I'd think I'd need to
+>> consider conditional avtabs in the following code:
+>>
+>> static int copy_avtab_map_fn(avtab_key_t *key, avtab_datum_t
+>> *datum, void *args) { avtab_t *avtab = (avtab_t *) args;
+>>
+>> return avtab_insert(avtab, key, datum); }
+>>
+>> static int copy_avtab(avtab_t *avtab, avtab_t **out) { avtab_t *tmp
+>> = NULL; if (avtab_init(tmp)) { return POLICYDB_ERROR; }
+>>
+>> if (avtab_alloc(tmp, MAX_AVTAB_SIZE)) { return POLICYDB_ERROR; }
+>>
+>> if (avtab_map(avtab, copy_avtab_map_fn, tmp)) { return
+>> POLICYDB_ERROR; }
+>>
+>> *out = tmp; return POLICYDB_SUCCESS; }
+>>
+>> Is that the right idea?
+>>
+>> Thanks.
 > 
-> Why would anyone do that for this patch when below you say it won’t be merged unless
-> we fix issue #2?
-
-I didn't say it couldn't be merged; I said it isn't a good idea to say
-"this is a quick fix but the right fix is X" in an upstream patch
-submission if you want it to be merged, unless it is for a serious
-security or stability bug that needs to be fixed right away.
-
+> Did you consider doing this at the CIL layer instead, given that CIL
+> already does similar optimizations and has more semantic information
+> available?  Note that CIL used to be more aggressive about removing
+> unused attributes but backed off because some attributes are used in
+> neverallows and we want to preserve those for neverallow checking in CTS.
 > 
-> the right fix is something else if you want this to
->> actually be merged.  Because in that case, you ought to just implement the right
->> fix.  There is now an upstream kernel issue for the right fix:
->> https://github.com/SELinuxProject/selinux-kernel/issues/2
-> 
-> The other question here is tracefs safe to label in this fashion, I would assume yes.
-> Looking through I didn't see any eviction code.
+> Conditional rules can indeed have non-unique entries, and so can
+> xperms rules.
 
-Yes, the inodes are pinned.
+The other thing to remember about the conditional rules is that the
+te_cond_avtab is only used for lookups; the "real" list of conditional
+rules is what is in cond_list, and it is cond_list that is written out
+to the kernel policy file.  So filtering the contents of te_cond_avtab
+won't alter what is written to the kernel policy.
