@@ -1,56 +1,53 @@
-Subject: Re: Why do we block context="foobar" from User Namespace
-To: Daniel J Walsh <dwalsh@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-References: <90ddcce6-a5eb-b05e-a347-ec8ef5c47db1@redhat.com>
-Cc: Seth Forshee <seth.forshee@canonical.com>,
- "Eric W. Biederman" <ebiederm@redhat.com>, Paul Moore <paul@paul-moore.com>
+Subject: Re: [PATCH v3] selinux: add security in-core xattr support for tracefs
+To: william.c.roberts@intel.com, nnk@google.com, paul@paul-moore.com,
+ selinux@tycho.nsa.gov
+References: <1481048848-21107-1-git-send-email-william.c.roberts@intel.com>
+Cc: Yongqin Liu <yongqin.liu@linaro.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <111a91e7-907d-6502-5715-ba8d8f3a850c@tycho.nsa.gov>
-Date: Tue, 6 Dec 2016 15:31:40 -0500
+Message-ID: <b9606b04-fdcb-3b65-9641-2d18ff7060b5@tycho.nsa.gov>
+Date: Tue, 6 Dec 2016 15:41:17 -0500
 MIME-Version: 1.0
-In-Reply-To: <90ddcce6-a5eb-b05e-a347-ec8ef5c47db1@redhat.com>
+In-Reply-To: <1481048848-21107-1-git-send-email-william.c.roberts@intel.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/06/2016 03:04 PM, Daniel J Walsh wrote:
-> Currently in SELinux and UserNamespace can not be enabled with Docker/runc at the same time.
+On 12/06/2016 01:27 PM, william.c.roberts@intel.com wrote:
+> From: Yongqin Liu <yongqin.liu@linaro.org>
 > 
-> Runc mounts tmpfs directories with --context="system_u:object_r:container_file_t:s0:c1,c2" type labels
-> but the following patch blocks the use of context mounts when using user namespace.
+> Since kernel 4.1 ftrace is supported as a new separate filesystem. It
+> gets automatically mounted by the kernel under the old path
+> /sys/kernel/debug/tracing. Because it lives now on a separate filesystem
+> SELinux needs to be updated to also support setting SELinux labels
+> on tracefs inodes.  This is required for compatibility in Android
+> when moving to Linux 4.1 or newer.
 > 
-> http://kernel.suse.com/cgit/kernel/commit/?id=aad82892af261b9903cc11c55be3ecf5f0b0b4f8
-> 
-> User Namespace has to be established before tmpfs are mounted so we are unable to mount a
-> tmpfs with a context=flag and UserNamespace enabled.
-> 
-> Controlling the ability to change the label of a mounted file systemd should be a MAC decision not a DAC, 
-> or UserNamespace. Setting the SELinux labels on an object like a file system mount point
-> should be controlled by SELinux.  SELinux should check if the label of the process doing the
-> mount is able to relabel from the label of the mount point, and labelto the specified label.
-> 
-> SELinux does this for privileged processes (running with SYS_ADMIN) so use namespace should not be
-> any different.  Also the process doing the mount would be allowed by DAC to set the label of the tmpfs after
-> it is mounted (As long as SELinux allowed).
-> 
-> There is no security difference between:
-> 
-> mount -o tmpfs context="foobar" none /dev
-> 
-> 
-> And
-> 
-> mount -o tmpfs none /dev
-> 
-> chcon foobar -R /dev
-> 
-> 
-> The second would not be blocked by usernamespace.  
-> 
-> Bottom line this patch should be reverted so container runtimes like docker can use both User Namespace
-> and SELinux at the same time.
+> Signed-off-by: Yongqin Liu <yongqin.liu@linaro.org>
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
-I doubt we want to revert it entirely.  Looks like Smack has an explicit
-exemption for tmpfs/ramfs (and sysfs, but it wouldn't really make sense
-to do it there).  We could do something similar.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+I'm ok with this under the view that it is needed for compatibility and
+the general purpose solution may take some time to implement and then
+will further require updated policy toolchain and policy.  Of course, it
+would be nice to start that sooner rather than later...
+
+> ---
+>  security/selinux/hooks.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 09fd610..24bd84d 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -491,6 +491,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+>  		!strcmp(sb->s_type->name, "sysfs") ||
+>  		!strcmp(sb->s_type->name, "pstore") ||
+>  		!strcmp(sb->s_type->name, "debugfs") ||
+> +		!strcmp(sb->s_type->name, "tracefs") ||
+>  		!strcmp(sb->s_type->name, "rootfs");
+>  }
+>  
+> 
