@@ -1,95 +1,93 @@
-Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
- address families
-To: Richard Haines <richard_c_haines@btinternet.com>,
- Paul Moore <paul@paul-moore.com>
-References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
- <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
- <d6892b99-64b8-838e-f024-aeacb35df6e1@tycho.nsa.gov>
- <CAHC9VhSh3v_u1hKvZAt0sdGm-PykApdu1j21Q56K036R7oN=Og@mail.gmail.com>
- <5c66b64e-19f1-3fe3-5efe-13083151f9bd@tycho.nsa.gov>
- <CAHC9VhReQ0-Yb+r=uL5UmWUj_1VmTGVFVASfGghf1TgF9sYEvw@mail.gmail.com>
- <1481033405.16934.1.camel@btinternet.com>
-Cc: selinux@tycho.nsa.gov
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <348a4f35-056b-9651-2e1d-162f5b6a5099@tycho.nsa.gov>
-Date: Tue, 6 Dec 2016 10:04:47 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB6H1050023660
+ for <selinux@tycho.nsa.gov>; Tue, 6 Dec 2016 12:01:01 -0500
+Received: from workstation ([185.34.9.224]) by mail.gmx.com (mrgmx102
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 0MT60g-1c3kS72shq-00SAc9 for
+ <selinux@tycho.nsa.gov>; Tue, 06 Dec 2016 18:00:57 +0100
+Date: Tue, 6 Dec 2016 17:00:55 +0000
+From: Gary Tierney <gary.tierney@gmx.com>
+To: selinux@tycho.nsa.gov
+Subject: Filtering an avtab in libsepol
+Message-ID: <20161206170055.GA30914@workstation>
 MIME-Version: 1.0
-In-Reply-To: <1481033405.16934.1.camel@btinternet.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/06/2016 09:10 AM, Richard Haines wrote:
-> On Mon, 2016-12-05 at 17:54 -0500, Paul Moore wrote:
->> On Mon, Dec 5, 2016 at 9:11 AM, Stephen Smalley <sds@tycho.nsa.gov>
->> wrote:
->>> On 12/02/2016 05:39 PM, Paul Moore wrote:
->>>> On Fri, Dec 2, 2016 at 12:40 PM, Stephen Smalley <sds@tycho.nsa.g
->>>> ov> wrote:
->>>>> I suppose a further question on this patch is whether it should
->>>>> also add
->>>>> new classes for ICMP, IGMP, and SCTP sockets (any others that
->>>>> are
->>>>> presently mapped to SECCLASS_RAWIP_SOCKET that ought to be
->>>>> given their
->>>>> own class?).  In the SCTP case, this would at least allow them
->>>>> to be
->>>>> distinguished, but we would still lack the full support added
->>>>> by the
->>>>> separate SCTP patchset.
->>>>
->>>> For the record, I'm okay with this patch and I agree that the
->>>> compatibility concerns aren't likely to be significant.  However,
->>>> I
->>>> would like to continue the discussion on the idea to include
->>>> classes
->>>> for ICMP, IGMP, and SCTP.  I haven't looked into ICMP or IGMP,
->>>> but
->>>> considering the changes necessary for SCTP I think it is okay to
->>>> leave
->>>> SCTP out for now and add it in with proper SCTP support (and its
->>>> own
->>>> policy capability).
->>>>
->>>> Stephen, I'm assuming you feel the same since you left that out
->>>> of the patch?
->>>
->>> It depends on whether we think full SCTP support will be merged
->>> sooner
->>> or later.  If there is the possibility that full SCTP support will
->>> not
->>> be merged for a while, then I think I'd rather just add a SCTP
->>> socket
->>> class as part of this patch so that we can at least distinguish
->>> between
->>> SCTP sockets and raw IP sockets in policy in the interim.
->>
->> As I sit here I would like to think that we'll get proper SCTP
->> support
->> merged sooner rather than later, but well ... things happen.  I guess
->> there is no harm in adding the SCTP socket class now just in case.
->>
->>> The other question is whether you agreed with Guido's suggested
->>> change
->>> for readability/maintainability or prefer the current style. I have
->>> no
->>> strong opinion either way.
->>
->> I really don't care too much either way which is why I didn't comment
->> on it.  I suppose I have a slight preference for Guido's suggested
->> style, but I wouldn't respin the patch just for that.  However, if
->> you
->> are going to add SCTP (which I'm guessing we should) go ahead and use
->> Guido's style.
-> 
-> Not sure if helpful but I plan to submit the SCTP patch next week after
-> testing on Fedora 25 with kernel 4.8.11.
 
-I chose to go ahead and add the SCTP socket security class to this patch
-so that we have all known socket classes defined by this patch, and then
-your patch can further add new permissions and other logic specific to
-SCTP under its own policy capability (at least I assume we'll want a
-policy capability unless we aren't overly concerned with breaking SCTP
-applications running under old policies with new kernels).
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+I've been working on optimizing out AV rules with no applicable types as=20
+well as unused attributes to trim down the size of a policy which uses=20
+CIL blocks and attributes extensively.  Looking into the avtab code (and=20
+how creating a new avtab is implemented in expand.c) I have a question:
+
+Does the following suffice for taking an existing avtab and creating a=20
+new one with all of its elements?  Or do I need to consider=20
+avtab_insert_nonunique() like expand.c does?  If I'm following the=20
+expand_avtab() code correctly, I'd think I'd need to consider conditional=
+=20
+avtabs in the following code:
+
+static int copy_avtab_map_fn(avtab_key_t *key, avtab_datum_t *datum,
+			     void *args)
+{
+	avtab_t *avtab =3D (avtab_t *) args;
+
+	return avtab_insert(avtab, key, datum);
+}
+
+static int copy_avtab(avtab_t *avtab, avtab_t **out)
+{
+	avtab_t *tmp =3D NULL;
+	if (avtab_init(tmp)) {
+		return POLICYDB_ERROR;
+	}
+
+	if (avtab_alloc(tmp, MAX_AVTAB_SIZE)) {
+		return POLICYDB_ERROR;
+	}
+
+	if (avtab_map(avtab, copy_avtab_map_fn, tmp)) {
+		return POLICYDB_ERROR;
+	}
+
+	*out =3D tmp;
+	return POLICYDB_SUCCESS;
+}
+
+Is that the right idea?
+
+Thanks.
+
+--=20
+Gary Tierney
+=20
+GPG fingerprint: 412C 0EF9 C305 68E6 B660BDAF 706E D765 85AA 79D8
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x706ED76585AA79D8=
+=20
+
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJYRu7AAAoJEHBu12WFqnnY6NEH/1IWJjDiN64trtgr3Xea9S0O
+wXvA+uLjGlt2uKpc1OXsHk/35fC1rZZ0e3CDm5mbs4vQDNSENbXDWglJMwzvmXWt
+oILYaaOHIbwT2k7tENfG9cxpuAg4yt0d8ue5pdzo5PiHeieULHJCfFHlVU8MWkl5
+Gd6DUQ4v25oN12CqJ+kuSZB6gAz7e9t+O3q8rXIdFQE1uaumPdtIRvm0EMnG7lEz
+8AijSOioitot9AOUp+AoTLNzHWj1wpfqdyRu4WQAWSRN9J+yVrHp27UJzhMDwFZq
+APo7r2MEHl+9oLit26e6DDhlbyYUJ4VPTpyxy95ZdmKMw/tzfomcCf1SmbW0k/o=
+=RRcF
+-----END PGP SIGNATURE-----
+
+--opJtzjQTFsWo+cga--
