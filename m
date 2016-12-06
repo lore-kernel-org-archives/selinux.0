@@ -1,48 +1,95 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB6Ewr6x014998
- for <selinux@tycho.nsa.gov>; Tue, 6 Dec 2016 09:58:53 -0500
-Received: from int-mx10.intmail.prod.int.phx2.redhat.com
- (int-mx10.intmail.prod.int.phx2.redhat.com [10.5.11.23])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 24E2EC05093D
- for <selinux@tycho.nsa.gov>; Tue,  6 Dec 2016 14:58:50 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] python/sepolicy/sepolicy/gui: Reflect sepolicy changes into
- gui
-Date: Tue,  6 Dec 2016 15:58:33 +0100
-Message-Id: <1481036313-11915-2-git-send-email-vmojzis@redhat.com>
-In-Reply-To: <1481036313-11915-1-git-send-email-vmojzis@redhat.com>
-References: <15202ae0-3133-0a2e-950c-1d4bf59c4eb9@redhat.com>
- <1481036313-11915-1-git-send-email-vmojzis@redhat.com>
+Subject: Re: [RFC][PATCH] selinux: support distinctions among all network
+ address families
+To: Richard Haines <richard_c_haines@btinternet.com>,
+ Paul Moore <paul@paul-moore.com>
+References: <1480604861-13982-1-git-send-email-sds@tycho.nsa.gov>
+ <f89685d0-2088-6b27-2671-bfaafea57786@tycho.nsa.gov>
+ <d6892b99-64b8-838e-f024-aeacb35df6e1@tycho.nsa.gov>
+ <CAHC9VhSh3v_u1hKvZAt0sdGm-PykApdu1j21Q56K036R7oN=Og@mail.gmail.com>
+ <5c66b64e-19f1-3fe3-5efe-13083151f9bd@tycho.nsa.gov>
+ <CAHC9VhReQ0-Yb+r=uL5UmWUj_1VmTGVFVASfGghf1TgF9sYEvw@mail.gmail.com>
+ <1481033405.16934.1.camel@btinternet.com>
+Cc: selinux@tycho.nsa.gov
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <348a4f35-056b-9651-2e1d-162f5b6a5099@tycho.nsa.gov>
+Date: Tue, 6 Dec 2016 10:04:47 -0500
+MIME-Version: 1.0
+In-Reply-To: <1481033405.16934.1.camel@btinternet.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-sepolicy.get_init_entrypoint() now returns list of Type objects
-instead of single string, which caused sepolicy gui to crash.
+On 12/06/2016 09:10 AM, Richard Haines wrote:
+> On Mon, 2016-12-05 at 17:54 -0500, Paul Moore wrote:
+>> On Mon, Dec 5, 2016 at 9:11 AM, Stephen Smalley <sds@tycho.nsa.gov>
+>> wrote:
+>>> On 12/02/2016 05:39 PM, Paul Moore wrote:
+>>>> On Fri, Dec 2, 2016 at 12:40 PM, Stephen Smalley <sds@tycho.nsa.g
+>>>> ov> wrote:
+>>>>> I suppose a further question on this patch is whether it should
+>>>>> also add
+>>>>> new classes for ICMP, IGMP, and SCTP sockets (any others that
+>>>>> are
+>>>>> presently mapped to SECCLASS_RAWIP_SOCKET that ought to be
+>>>>> given their
+>>>>> own class?).  In the SCTP case, this would at least allow them
+>>>>> to be
+>>>>> distinguished, but we would still lack the full support added
+>>>>> by the
+>>>>> separate SCTP patchset.
+>>>>
+>>>> For the record, I'm okay with this patch and I agree that the
+>>>> compatibility concerns aren't likely to be significant.  However,
+>>>> I
+>>>> would like to continue the discussion on the idea to include
+>>>> classes
+>>>> for ICMP, IGMP, and SCTP.  I haven't looked into ICMP or IGMP,
+>>>> but
+>>>> considering the changes necessary for SCTP I think it is okay to
+>>>> leave
+>>>> SCTP out for now and add it in with proper SCTP support (and its
+>>>> own
+>>>> policy capability).
+>>>>
+>>>> Stephen, I'm assuming you feel the same since you left that out
+>>>> of the patch?
+>>>
+>>> It depends on whether we think full SCTP support will be merged
+>>> sooner
+>>> or later.  If there is the possibility that full SCTP support will
+>>> not
+>>> be merged for a while, then I think I'd rather just add a SCTP
+>>> socket
+>>> class as part of this patch so that we can at least distinguish
+>>> between
+>>> SCTP sockets and raw IP sockets in policy in the interim.
+>>
+>> As I sit here I would like to think that we'll get proper SCTP
+>> support
+>> merged sooner rather than later, but well ... things happen.  I guess
+>> there is no harm in adding the SCTP socket class now just in case.
+>>
+>>> The other question is whether you agreed with Guido's suggested
+>>> change
+>>> for readability/maintainability or prefer the current style. I have
+>>> no
+>>> strong opinion either way.
+>>
+>> I really don't care too much either way which is why I didn't comment
+>> on it.  I suppose I have a slight preference for Guido's suggested
+>> style, but I wouldn't respin the patch just for that.  However, if
+>> you
+>> are going to add SCTP (which I'm guessing we should) go ahead and use
+>> Guido's style.
+> 
+> Not sure if helpful but I plan to submit the SCTP patch next week after
+> testing on Fedora 25 with kernel 4.8.11.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/sepolicy/sepolicy/gui.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index 3c5a9d2..6ccd02a 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -512,8 +512,8 @@ class SELinuxGui():
-             self.progress_bar.set_pulse_step(self.percentage)
-             self.idle_func()
- 
--            entrypoint = sepolicy.get_init_entrypoint(domain)
--            if entrypoint:
-+            entrypoints = [str(x) for x in sepolicy.get_init_entrypoint(domain)]
-+            for entrypoint in entrypoints:
-                 path = sepolicy.find_entrypoint_path(entrypoint)
-                 if path:
-                     self.combo_box_initialize(path, None)
--- 
-2.7.4
+I chose to go ahead and add the SCTP socket security class to this patch
+so that we have all known socket classes defined by this patch, and then
+your patch can further add new permissions and other logic specific to
+SCTP under its own policy capability (at least I assume we'll want a
+policy capability unless we aren't overly concerned with breaking SCTP
+applications running under old policies with new kernels).
