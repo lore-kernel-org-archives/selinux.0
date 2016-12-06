@@ -1,103 +1,81 @@
-Date: Tue, 6 Dec 2016 18:05:22 +0000
-From: Gary Tierney <gary.tierney@gmx.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: sds@tycho.nsa.gov
-Subject: Re: Filtering an avtab in libsepol
-Message-ID: <20161206180522.GB30914@workstation>
-References: <20161206170055.GA30914@workstation>
- <a351189a-cf18-0345-ec36-f2978f563c4a@tycho.nsa.gov>
+From: "Roberts, William C" <william.c.roberts@intel.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, "nnk@google.com" <nnk@google.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+CC: Yongqin Liu <yongqin.liu@linaro.org>, Paul Moore <paul@paul-moore.com>
+Subject: RE: [PATCH] quick selinux support for tracefs
+Date: Tue, 6 Dec 2016 18:05:20 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC5622FF8988@ORSMSX103.amr.corp.intel.com>
+References: <1481045078-15000-1-git-send-email-william.c.roberts@intel.com>
+ <1481045078-15000-2-git-send-email-william.c.roberts@intel.com>
+ <53b7636e-5abe-0712-1954-b8c77c80c10d@tycho.nsa.gov>
+ <476DC76E7D1DF2438D32BFADF679FC5622FF892E@ORSMSX103.amr.corp.intel.com>
+ <1720815e-90f4-1780-9aaa-1742b05a4efc@tycho.nsa.gov>
+In-Reply-To: <1720815e-90f4-1780-9aaa-1742b05a4efc@tycho.nsa.gov>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
-In-Reply-To: <a351189a-cf18-0345-ec36-f2978f563c4a@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
---eJnRUKwClWJh1Khz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 06, 2016 at 12:53:00PM -0500, Stephen Smalley wrote:
-> On 12/06/2016 12:00 PM, Gary Tierney wrote:
-> > Hi,
-> >=20
-> > I've been working on optimizing out AV rules with no applicable
-> > types as well as unused attributes to trim down the size of a
-> > policy which uses CIL blocks and attributes extensively.  Looking
-> > into the avtab code (and how creating a new avtab is implemented in
-> > expand.c) I have a question:
-> >=20
-> > Does the following suffice for taking an existing avtab and
-> > creating a new one with all of its elements?  Or do I need to
-> > consider avtab_insert_nonunique() like expand.c does?  If I'm
-> > following the expand_avtab() code correctly, I'd think I'd need to
-> > consider conditional avtabs in the following code:
-> >=20
-> > static int copy_avtab_map_fn(avtab_key_t *key, avtab_datum_t
-> > *datum, void *args) { avtab_t *avtab =3D (avtab_t *) args;
-> >=20
-> > return avtab_insert(avtab, key, datum); }
-> >=20
-> > static int copy_avtab(avtab_t *avtab, avtab_t **out) { avtab_t *tmp
-> > =3D NULL; if (avtab_init(tmp)) { return POLICYDB_ERROR; }
-> >=20
-> > if (avtab_alloc(tmp, MAX_AVTAB_SIZE)) { return POLICYDB_ERROR; }
-> >=20
-> > if (avtab_map(avtab, copy_avtab_map_fn, tmp)) { return
-> > POLICYDB_ERROR; }
-> >=20
-> > *out =3D tmp; return POLICYDB_SUCCESS; }
-> >=20
-> > Is that the right idea?
-> >=20
-> > Thanks.
->=20
-> Did you consider doing this at the CIL layer instead, given that CIL
-> already does similar optimizations and has more semantic information
-> available?  Note that CIL used to be more aggressive about removing
-> unused attributes but backed off because some attributes are used in
-> neverallows and we want to preserve those for neverallow checking in CTS.
->=20
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Tuesday, December 6, 2016 10:01 AM
+> To: Roberts, William C <william.c.roberts@intel.com>; nnk@google.com;
+> selinux@tycho.nsa.gov
+> Cc: Yongqin Liu <yongqin.liu@linaro.org>; Paul Moore <paul@paul-moore.com>
+> Subject: Re: [PATCH] quick selinux support for tracefs
+> 
+> On 12/06/2016 12:50 PM, Roberts, William C wrote:
+> >
+> >
+> >> -----Original Message-----
+> >> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> >> Sent: Tuesday, December 6, 2016 9:41 AM
+> >> To: Roberts, William C <william.c.roberts@intel.com>; nnk@google.com;
+> >> selinux@tycho.nsa.gov
+> >> Cc: Yongqin Liu <yongqin.liu@linaro.org>; Paul Moore
+> >> <paul@paul-moore.com>
+> >> Subject: Re: [PATCH] quick selinux support for tracefs
+> >>
+> >> On 12/06/2016 12:24 PM, william.c.roberts@intel.com wrote:
+> >>> From: Yongqin Liu <yongqin.liu@linaro.org>
+> >>>
+> >>> Here is just the quick fix for tracefs with selinux.
+> >>> just add tracefs to the list of whitelisted filesystem types in
+> >>> selinux_is_sblabel_mnt(), but the right fix would be to generalize
+> >>> this logic as described in the last item on the todo list,
+> >>> https://bitbucket.org/seandroid/wiki/wiki/ToDo
+> >>>
+> >>> Change-Id: I2aa803ccffbcd2802a7287514da7648e6b364157
+> >>
+> >> Please rewrite the subject line and patch description per the
+> >> kernel's submission guidelines, drop the Change-Id and the link to
+> >> the SEAndroid todo list, and don't say that this is a quick fix but
+> >
+> > Why would anyone do that for this patch when below you say it won’t be
+> > merged unless we fix issue #2?
+> 
+> I didn't say it couldn't be merged; I said it isn't a good idea to say "this is a quick fix
+> but the right fix is X" in an upstream patch submission if you want it to be
+> merged, unless it is for a serious security or stability bug that needs to be fixed
+> right away.
 
-Yes, I think I'll go down that route eventually once I move on to removing
-typeattributes with no good AV rules.  This was mostly an exercise in getti=
-ng
-my feet wet with the binary policy and figuring out what makes up the
-majority of its size.  I noticed that the CIL compiler currently does
-optimize away typeattributes that aren't used in any AV rules so the
-foundation seems to be there (and Jim also shared some input on this
-previously: http://marc.info/?l=3Dselinux&m=3D147871772206496&w=3D2).
+Oh sure, but I didn't right that patch message, Liu Yonggin is tha author, ill fix up the
+message and resubmit preserving him as the author.
 
-> Conditional rules can indeed have non-unique entries, and so can
-> xperms rules.
->=20
->=20
-
-Thanks, that makes sense.
-
---=20
-Gary Tierney
-
-GPG fingerprint: 412C 0EF9 C305 68E6 B660  BDAF 706E D765 85AA 79D8
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x706ED76585AA79D8
-
---eJnRUKwClWJh1Khz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQEcBAEBCAAGBQJYRv3aAAoJEHBu12WFqnnYjAYH/iEDt3ibFfX4qP6XmZbQ1QQy
-90PRsxjX66OY/e94kSwIksiMQ4+nhieFOJ/9KyWA/ohmoB90UbKWEXqVP5uPZkv4
-C6S8/xkMP2sgXTHScAUGL0SzqZyfbXosZAneDoMpzPfyPe++9G/VSXUgneBdUKtS
-9hEICdJXiAJ+fuCLci+XunGZCFTGMsXnma9crjrSmI17fvKiz2pmlAOLynry3Nuq
-rvayK3OsQw8q32i4gx3UFHdZ91tE3Fij/0wcKOdWrlf/vRQpHmuN2E7fU3yxNnMX
-WEm/PisyEArOzbNaJb1AKgBJze0jOmmA4N5FJr5bSuAQo+3vPsbOTBPfpBWnbUQ=
-=Jnve
------END PGP SIGNATURE-----
-
---eJnRUKwClWJh1Khz--
+> 
+> >
+> > the right fix is something else if you want this to
+> >> actually be merged.  Because in that case, you ought to just
+> >> implement the right fix.  There is now an upstream kernel issue for the right
+> fix:
+> >> https://github.com/SELinuxProject/selinux-kernel/issues/2
+> >
+> > The other question here is tracefs safe to label in this fashion, I would assume
+> yes.
+> > Looking through I didn't see any eviction code.
+> 
+> Yes, the inodes are pinned.
