@@ -1,104 +1,64 @@
-Date: Tue, 6 Dec 2016 21:32:16 +0000
-From: Gary Tierney <gary.tierney@gmx.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Cc: sds@tycho.nsa.gov
-Subject: Re: Filtering an avtab in libsepol
-Message-ID: <20161206213216.GA6753@home-pc>
-References: <20161206170055.GA30914@workstation>
- <a351189a-cf18-0345-ec36-f2978f563c4a@tycho.nsa.gov>
- <f9410858-b9c1-d641-41b6-837c8b42f144@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB6NCtda024699
+ for <selinux@tycho.nsa.gov>; Tue, 6 Dec 2016 18:12:55 -0500
+Received: by mail-ua0-f193.google.com with SMTP id 12so37207371uas.3
+ for <selinux@tycho.nsa.gov>; Tue, 06 Dec 2016 15:12:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-In-Reply-To: <f9410858-b9c1-d641-41b6-837c8b42f144@tycho.nsa.gov>
+In-Reply-To: <bced50a2-5d74-ec8b-a9c0-f8eaba06b170@tycho.nsa.gov>
+References: <20161205161403.9253-1-richard_c_haines@btinternet.com>
+ <bced50a2-5d74-ec8b-a9c0-f8eaba06b170@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 6 Dec 2016 18:12:48 -0500
+Message-ID: <CAHC9VhRW1gDHn+3Xqa4h=NdhPq9e5jU9guiyX0hEAbAWoX6k2Q@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/1] selinux-testsuite: Add IPv6 client/server support
+ plus tests
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Dec 06, 2016 at 01:06:28PM -0500, Stephen Smalley wrote:
->On 12/06/2016 12:53 PM, Stephen Smalley wrote:
->> On 12/06/2016 12:00 PM, Gary Tierney wrote:
->>> Hi,
->>>
->>> I've been working on optimizing out AV rules with no applicable
->>> types as well as unused attributes to trim down the size of a
->>> policy which uses CIL blocks and attributes extensively.  Looking
->>> into the avtab code (and how creating a new avtab is implemented in
->>> expand.c) I have a question:
->>>
->>> Does the following suffice for taking an existing avtab and
->>> creating a new one with all of its elements?  Or do I need to
->>> consider avtab_insert_nonunique() like expand.c does?  If I'm
->>> following the expand_avtab() code correctly, I'd think I'd need to
->>> consider conditional avtabs in the following code:
->>>
->>> static int copy_avtab_map_fn(avtab_key_t *key, avtab_datum_t
->>> *datum, void *args) { avtab_t *avtab =3D (avtab_t *) args;
->>>
->>> return avtab_insert(avtab, key, datum); }
->>>
->>> static int copy_avtab(avtab_t *avtab, avtab_t **out) { avtab_t *tmp
->>> =3D NULL; if (avtab_init(tmp)) { return POLICYDB_ERROR; }
->>>
->>> if (avtab_alloc(tmp, MAX_AVTAB_SIZE)) { return POLICYDB_ERROR; }
->>>
->>> if (avtab_map(avtab, copy_avtab_map_fn, tmp)) { return
->>> POLICYDB_ERROR; }
->>>
->>> *out =3D tmp; return POLICYDB_SUCCESS; }
->>>
->>> Is that the right idea?
->>>
->>> Thanks.
+On Mon, Dec 5, 2016 at 1:07 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 12/05/2016 11:14 AM, Richard Haines wrote:
+>> Split the Netlabel tests into two, one for full labeling and the
+>> other for plain CIPSO4.
 >>
->> Did you consider doing this at the CIL layer instead, given that CIL
->> already does similar optimizations and has more semantic information
->> available?  Note that CIL used to be more aggressive about removing
->> unused attributes but backed off because some attributes are used in
->> neverallows and we want to preserve those for neverallow checking in CTS.
->>
->> Conditional rules can indeed have non-unique entries, and so can
->> xperms rules.
+>> Added comments to tests where required to explain pass/fail as
+>> there is no support for retrieving UDP peer labels on IPv6 stack.
 >
->The other thing to remember about the conditional rules is that the
->te_cond_avtab is only used for lookups; the "real" list of conditional
->rules is what is in cond_list, and it is cond_list that is written out
->to the kernel policy file.  So filtering the contents of te_cond_avtab
->won't alter what is written to the kernel policy.
->
+> Thanks, this looks good to me except for the tests that are "expected to
+> fail", i.e. the SCM_SECURITY for IPv6 test and the UDP MLS/MCS
+> constraint denial.  I don't think I'd include those two, as I wouldn't
+> want to view a subsequent change in either behavior as a regression.
+> cc'd Paul for his opinion
 
-I'd skimmed over the write_cond_av_list() code, but wasn't aware that's=20
-what was going on.  Thanks for the clarification.  I suppose with that=20
-in mind then it is best to just go ahead and make these changes in=20
-libsepol/cil where we're dealing with high-level constructs than in the=20
-kernel policy writing code.
+I agree with Stephen about the "expected to fail" tests.  While I'm
+generally not a fan of adding dead/commented code, I imagine we could
+implement the tests as if SCM_SECURITY/IPv6 was functional and just
+leave that test disabled.  Either way, drop or leave disabled, we
+should probably make a note in the associated GitHub kernel issue
+tracker so we remember to add/enable the tests once we've fixed the
+kernel support.
 
---=20
-Gary Tierney
-=20
-GPG fingerprint: 412C 0EF9 C305 68E6 B660BDAF 706E D765 85AA 79D8
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x706ED76585AA79D8=
-=20
+ * https://github.com/SELinuxProject/selinux-kernel/issues/24
 
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
+Oh, one more thing regarding "CIPSO4" ... if we want to be really
+pedantic, it is just CIPSO, or if you want to stick with our
+convention in NetLabel/LSM/SELinux it would be "CIPSOv4".  The
+references you see to "cipsov4" (note the "v") in much of the code are
+to signify this is CIPSO for IPv4 as specified in FIPS-188 and the
+defunct IETF draft.  While CIPSO was never formally standardized for
+IPv6, Solaris did support a variation of CIPSO for IPv6 and in the
+early days of our NetLabel/CIPSO implementation it was unclear how we
+were going to interoperate over IPv6 (this was before
+CALIPSO/RFC-5570) and I wanted to make sure we would be able to
+support two different CIPSO protocols, one for IPv4 and one for IPv6,
+hence the "v4" suffix.  Needless to say, now that we have the CALIPSO
+specification we have no need for a "CIPSOv6", but the old "v4" naming
+legacy remains.
 
------BEGIN PGP SIGNATURE-----
-
-iQEbBAEBCgAGBQJYRy5aAAoJEHBu12WFqnnYcYkH9iuVFC1tLgl5/dG7f0/oNHJc
-J+BRgug4RJZInbxGNob4qXv6uDvtH/MDstuaK0VCQ7DcSbHs/hHctbP2wLju34QP
-CMSgzlalnAvNPbQc+4MnIioGNueUfgL31wIjWd0WN1pJqZhu2rBX0S6oO/drFuyI
-YuLWlThFl4BudfnQOefQ1IShCgnvWOgt1egYJ9DI/WVp1MgkzVnX/ae5l7EU6WLM
-OkqsmWkD8KKKPFnBD8+7qn8M2SQ1fvcE6kDpoezytvEk83kMzeWqMPXal3J3jNAJ
-B5/RnRj50c/SW4WyHDFu0P4DdHAu+6RxENNgetsT4HPecMbFmjcncPk+90fuPw==
-=yzeY
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+-- 
+paul moore
+www.paul-moore.com
