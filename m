@@ -1,88 +1,110 @@
-Subject: Re: Why do we block context="foobar" from User Namespace
-To: Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>
-References: <90ddcce6-a5eb-b05e-a347-ec8ef5c47db1@redhat.com>
- <111a91e7-907d-6502-5715-ba8d8f3a850c@tycho.nsa.gov>
- <CAHC9VhQVxgPfSA49VUN6Y0swsujA6V03AqkcNyoJ0HpOTjQoMQ@mail.gmail.com>
- <bd954799-5baa-7701-9af2-0b2c5f5dbf54@tycho.nsa.gov>
- <52e000a8-1816-19c5-b70c-5998f85cf970@tycho.nsa.gov>
-Cc: Seth Forshee <seth.forshee@canonical.com>, SELinux <selinux@tycho.nsa.gov>,
- "Eric W. Biederman" <ebiederm@redhat.com>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <1a03d6be-e03d-1745-5022-a1b39b27cf81@redhat.com>
-Date: Wed, 7 Dec 2016 17:05:22 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB7NWA46006174
+ for <selinux@tycho.nsa.gov>; Wed, 7 Dec 2016 18:32:10 -0500
+Received: by mail-vk0-f65.google.com with SMTP id w194so20680614vkw.3
+ for <selinux@tycho.nsa.gov>; Wed, 07 Dec 2016 15:32:08 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <52e000a8-1816-19c5-b70c-5998f85cf970@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252
+In-Reply-To: <f0075276-99eb-5aba-c009-7c760581be14@tycho.nsa.gov>
+References: <1481036419-30057-1-git-send-email-sds@tycho.nsa.gov>
+ <CAHC9VhQgD_oYn2zCzJCvUzzD_zJYKiQVbG_YMfoPpjphJzTOHA@mail.gmail.com>
+ <4d02c906-b208-ffe8-8a56-46734d764c34@tycho.nsa.gov>
+ <CAHC9VhT6E9vLebvBcTX7XtPkP6eGNM-7rxkKAydsDrUwO2Sj5Q@mail.gmail.com>
+ <f0075276-99eb-5aba-c009-7c760581be14@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 7 Dec 2016 18:32:07 -0500
+Message-ID: <CAHC9VhSEe_aXLob3oWtWDnijM5Ag8wNNA3_WLoU=7surmSXU7A@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: support distinctions among all network
+ address families
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, guido@trentalancia.net,
+ richard_c_haines@btinternet.com
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Wed, Dec 7, 2016 at 10:24 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 12/07/2016 10:14 AM, Paul Moore wrote:
+>> On Wed, Dec 7, 2016 at 8:25 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On 12/06/2016 07:13 PM, Paul Moore wrote:
+>>>> On Tue, Dec 6, 2016 at 10:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>>> Extend SELinux to support distinctions among all network address families
+>>>>> implemented by the kernel by defining new socket security classes
+>>>>> and mapping to them. Otherwise, many sockets are mapped to the generic
+>>>>> socket class and are indistinguishable in policy.  This has come up
+>>>>> previously with regard to selectively allowing access to bluetooth sockets,
+>>>>> and more recently with regard to selectively allowing access to AF_ALG
+>>>>> sockets.  Guido Trentalancia submitted a patch that took a similar approach
+>>>>> to add only support for distinguishing AF_ALG sockets, but this generalizes
+>>>>> his approach to handle all address families implemented by the kernel.
+>>>>> Socket security classes are also added for ICMP and SCTP sockets.
+>>>>> Socket security classes were not defined for AF_* values that are reserved
+>>>>> but unimplemented in the kernel, e.g. AF_NETBEUI, AF_SECURITY, AF_ASH,
+>>>>> AF_ECONET, AF_SNA, AF_WANPIPE.
+>>>>>
+>>>>> Backward compatibility is provided by only enabling the finer-grained
+>>>>> socket classes if a new policy capability is set in the policy; older
+>>>>> policies will behave as before.  The legacy redhat1 policy capability
+>>>>> that was only ever used in testing within Fedora for ptrace_child
+>>>>> is reclaimed for this purpose; as far as I can tell, this policy
+>>>>> capability is not enabled in any supported distro policy.
+>>>>>
+>>>>> Add a pair of conditional compilation guards to detect when new AF_* values
+>>>>> are added so that we can update SELinux accordingly rather than having to
+>>>>> belatedly update it long after new address families are introduced.
+>>>>>
+>>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>>> ---
+>>>>> v2 reworks the style based on comments from Guido Trentalancia and adds
+>>>>> security classes for SCTP and ICMP sockets.  The security class support
+>>>>> for SCTP sockets was based on Richard Haines' SCTP patch set.  For now,
+>>>>> we only duplicate the class definition for rawip_socket for SCTP and ICMP
+>>>>> sockets since that is how they were previously mapped.  The SCTP definition
+>>>>> can be further fleshed out by the SCTP patch set itself.
+>>>>>
+>>>>>  security/selinux/hooks.c            | 73 +++++++++++++++++++++++++++++++++++++
+>>>>>  security/selinux/include/classmap.h | 68 ++++++++++++++++++++++++++++++++++
+>>>>>  security/selinux/include/security.h |  3 +-
+>>>>>  security/selinux/selinuxfs.c        |  2 +-
+>>>>>  security/selinux/ss/services.c      |  3 ++
+>>>>>  5 files changed, 147 insertions(+), 2 deletions(-)
+>>>>
+>>>> You mentioned IGMP previously, if we have a class for ICMP, it seems
+>>>> reasonable to have one for IGMP, don't you think?  Although this does
+>>>> spiral a bit if we consider all the IPPROTO* protocols.
+>>>
+>>> I thought about it, but the kernel does not provide IGMP sockets per se,
+>>> unlike ICMP or SCTP sockets (i.e. ipv4/af_inet.c:inetsw_array[] defines
+>>> an entry for SOCK_DGRAM, IPPROTO_ICMP and sctp/protocol.c defines and
+>>> registers inet_protosw entries for SOCK_STREAM, IPPROTO_SCTP and
+>>> SOCK_SEQPACKET, IPPROTO_SCTP; there is no equivalent for IGMP unless I
+>>> missed it).  So IGMP sockets are just raw IP sockets with a particular
+>>> protocol value; they have no stream, seqpacket, or dgram semantics, and
+>>> it is unclear it is worthwhile to distinguish them in policy.
+>>
+>> Yes, sorry about that, it looks like you're right.  I thought there
+>> might be some sort of IGMP routing daemon or something that would need
+>> to create an IGMP socket, but it looks like you just configure the
+>> kernel's multicast routing table and the kernel takes care of the IGMP
+>> packets.
+>
+> Well, I think you can create an IGMP socket ala socket(PF_INET,
+> SOCK_RAW, IPPROTO_IGMP).  And we could map that to a IGMP socket class
+> if we really wanted to do so.  But that would be the first time we ever
+> mapped a (PF_INET, SOCK_RAW, proto) to something other than
+> SECCLASS_RAWIP_SOCKET.  And at that point we'd probably want to map
+> every individual protocol value.  Not sure we need/want to go there.
 
+Yes, creating classes for each IPPROTO value is not something I think
+we want to do, although I have no problem doing it for key protocols
+as necessary.
 
-On 12/07/2016 10:47 AM, Stephen Smalley wrote:
-> On 12/07/2016 10:30 AM, Stephen Smalley wrote:
->> On 12/06/2016 07:19 PM, Paul Moore wrote:
->>> On Tue, Dec 6, 2016 at 3:31 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>> On 12/06/2016 03:04 PM, Daniel J Walsh wrote:
->>>>> Currently in SELinux and UserNamespace can not be enabled with Docker/runc at the same time.
->>>>>
->>>>> Runc mounts tmpfs directories with --context="system_u:object_r:container_file_t:s0:c1,c2" type labels
->>>>> but the following patch blocks the use of context mounts when using user namespace.
->>>>>
->>>>> http://kernel.suse.com/cgit/kernel/commit/?id=aad82892af261b9903cc11c55be3ecf5f0b0b4f8
->>>>>
->>>>> User Namespace has to be established before tmpfs are mounted so we are unable to mount a
->>>>> tmpfs with a context=flag and UserNamespace enabled.
->>>>>
->>>>> Controlling the ability to change the label of a mounted file systemd should be a MAC decision not a DAC,
->>>>> or UserNamespace. Setting the SELinux labels on an object like a file system mount point
->>>>> should be controlled by SELinux.  SELinux should check if the label of the process doing the
->>>>> mount is able to relabel from the label of the mount point, and labelto the specified label.
->>>>>
->>>>> SELinux does this for privileged processes (running with SYS_ADMIN) so use namespace should not be
->>>>> any different.  Also the process doing the mount would be allowed by DAC to set the label of the tmpfs after
->>>>> it is mounted (As long as SELinux allowed).
->>>>>
->>>>> There is no security difference between:
->>>>>
->>>>> mount -o tmpfs context="foobar" none /dev
->>>>>
->>>>>
->>>>> And
->>>>>
->>>>> mount -o tmpfs none /dev
->>>>>
->>>>> chcon foobar -R /dev
->>>>>
->>>>>
->>>>> The second would not be blocked by usernamespace.
->>>>>
->>>>> Bottom line this patch should be reverted so container runtimes like docker can use both User Namespace
->>>>> and SELinux at the same time.
->>>> I doubt we want to revert it entirely.  Looks like Smack has an explicit
->>>> exemption for tmpfs/ramfs (and sysfs, but it wouldn't really make sense
->>>> to do it there).  We could do something similar.
->>> Yes, I still think the restriction makes sense for persistent
->>> filesystems, but for things like tmpfs it does seem silly.
->> Looking further at this, the set of filesystems that presently allow
->> userns mounting are mqueue, tmpfs, cgroup/cgroup2, sysfs, ramfs, proc,
->> and devpts.  I could see allowing context mounts for mqueue, tmpfs,
->> ramfs, and devpts within the user namespace.  For cgroup/cgroup2, sysfs
->> and proc we don't want the process to be able to override the
->> policy-defined labels.  Make sense?
-> Sorry, never mind about mqueue - unless the process is also in its own
-> IPC namespace, that could allow it to effectively relabel existing
-> mqueues.  So only tmpfs, ramfs, and devpts seem to be safe in this regard.
->
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
-That works for me.  The mqueue one we might have to visit later.  I
-think docker and
-user namespace with mqueue is currently a problem.
+I just merged this into selinux#next, the pull request for v4.10 was
+already sent up to James so this will go in during the v4.11 merge
+window (I think this can wait, it might give us time to get some of
+the policy ready).
+
+-- 
+paul moore
+www.paul-moore.com
