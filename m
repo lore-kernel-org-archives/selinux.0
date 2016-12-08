@@ -1,60 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB7NcqZZ007750
- for <selinux@tycho.nsa.gov>; Wed, 7 Dec 2016 18:38:52 -0500
-Received: by mail-ua0-f193.google.com with SMTP id 50so41029991uae.2
- for <selinux@tycho.nsa.gov>; Wed, 07 Dec 2016 15:38:20 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <1481048848-21107-1-git-send-email-william.c.roberts@intel.com>
-References: <1481048848-21107-1-git-send-email-william.c.roberts@intel.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 7 Dec 2016 18:38:19 -0500
-Message-ID: <CAHC9VhSWLpVB76ZEtjF1rMmmMxyLPNQWA0o-TqOEeC4isBgmbA@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: add security in-core xattr support for tracefs
-To: william.c.roberts@intel.com
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, nnk@google.com, selinux@tycho.nsa.gov,
- Yongqin Liu <yongqin.liu@linaro.org>
-Content-Type: text/plain; charset=UTF-8
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, dwalsh@redhat.com, seth.forshee@canonical.com,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH v2] selinux: allow context mounts on tmpfs, ramfs,
+ devpts within user namespaces
+Date: Thu,  8 Dec 2016 09:14:47 -0500
+Message-Id: <1481206487-544-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Dec 6, 2016 at 1:27 PM,  <william.c.roberts@intel.com> wrote:
-> From: Yongqin Liu <yongqin.liu@linaro.org>
->
-> Since kernel 4.1 ftrace is supported as a new separate filesystem. It
-> gets automatically mounted by the kernel under the old path
-> /sys/kernel/debug/tracing. Because it lives now on a separate filesystem
-> SELinux needs to be updated to also support setting SELinux labels
-> on tracefs inodes.  This is required for compatibility in Android
-> when moving to Linux 4.1 or newer.
->
-> Signed-off-by: Yongqin Liu <yongqin.liu@linaro.org>
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  security/selinux/hooks.c | 1 +
->  1 file changed, 1 insertion(+)
+commit aad82892af261b9903cc11c55be3ecf5f0b0b4f8 ("selinux: Add support for
+unprivileged mounts from user namespaces") prohibited any use of context
+mount options within non-init user namespaces.  However, this breaks
+use of context mount options for tmpfs mounts within user namespaces,
+which are being used by Docker/runc.  There is no reason to block such
+usage for tmpfs, ramfs or devpts.  Exempt these filesystem types
+from this restriction.
 
-Merged for v4.11, thanks.
+Before:
+sh$ userns_child_exec  -p -m -U -M '0 1000 1' -G '0 1000 1' bash
+sh# mount -t tmpfs -o context=system_u:object_r:user_tmp_t:s0:c13 none /tmp
+mount: tmpfs is write-protected, mounting read-only
+mount: cannot mount tmpfs read-only
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 09fd610..24bd84d 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -491,6 +491,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
->                 !strcmp(sb->s_type->name, "sysfs") ||
->                 !strcmp(sb->s_type->name, "pstore") ||
->                 !strcmp(sb->s_type->name, "debugfs") ||
-> +               !strcmp(sb->s_type->name, "tracefs") ||
->                 !strcmp(sb->s_type->name, "rootfs");
->  }
->
-> --
-> 2.7.4
->
+After:
+sh$ userns_child_exec  -p -m -U -M '0 1000 1' -G '0 1000 1' bash
+sh# mount -t tmpfs -o context=system_u:object_r:user_tmp_t:s0:c13 none /tmp
+sh# ls -Zd /tmp
+unconfined_u:object_r:user_tmp_t:s0:c13 /tmp
 
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8a90a0b..8fae174 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -834,10 +834,14 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	}
+ 
+ 	/*
+-	 * If this is a user namespace mount, no contexts are allowed
+-	 * on the command line and security labels must be ignored.
++	 * If this is a user namespace mount and the filesystem type is not
++	 * explicitly whitelisted, then no contexts are allowed on the command
++	 * line and security labels must be ignored.
+ 	 */
+-	if (sb->s_user_ns != &init_user_ns) {
++	if (sb->s_user_ns != &init_user_ns &&
++	    strcmp(sb->s_type->name, "tmpfs") &&
++	    strcmp(sb->s_type->name, "ramfs") &&
++	    strcmp(sb->s_type->name, "devpts")) {
+ 		if (context_sid || fscontext_sid || rootcontext_sid ||
+ 		    defcontext_sid) {
+ 			rc = -EACCES;
 -- 
-paul moore
-www.paul-moore.com
+2.7.4
