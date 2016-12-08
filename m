@@ -1,57 +1,138 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: guido@trentalancia.net, richard_c_haines@btinternet.com,
- paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libsepol: Define extended_socket_class policy capability
-Date: Thu,  8 Dec 2016 09:19:40 -0500
-Message-Id: <1481206780-731-1-git-send-email-sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uB8FGu3x031201
+ for <selinux@tycho.nsa.gov>; Thu, 8 Dec 2016 10:16:56 -0500
+Received: by mail-io0-f198.google.com with SMTP id f73so4549347ioe.1
+ for <selinux@tycho.nsa.gov>; Thu, 08 Dec 2016 07:16:52 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhT2_RBur1cVnYSvY0Y-W7WZwxwJYjBrVuBxRoALia_A3Q@mail.gmail.com>
+References: <1478551587-33892-1-git-send-email-david.graziano@rockwellcollins.com>
+ <CAHC9VhQXrybHPt41-f-hcXZJ=i=N5qexdoM2VFLTxFfmuq8Yzg@mail.gmail.com>
+ <CA+RmS--i8PiHmt1foeVEYP+uGDxhGLaROzxLvU=GNXW76fDy5A@mail.gmail.com>
+ <CAHC9VhS1GmjyaY1GqvKJ9q_FoyH=t1EGS_0Eh+GOoGNuEJ2_8w@mail.gmail.com>
+ <CA+RmS-_oMDkmtwYeq48HDMU0HE8hwe2w2cR5U77s5yeirCvw-Q@mail.gmail.com>
+ <CAHC9VhT544S9rNE5EwsY8yDUW6dGojVkPJxijGfXWmYQNgAs_w@mail.gmail.com>
+ <CA+RmS--S8RmtWixUhkw4sgtqKZaBH7pxFwJ7z4WOrDU-BQv=sA@mail.gmail.com>
+ <CAHC9VhT2_RBur1cVnYSvY0Y-W7WZwxwJYjBrVuBxRoALia_A3Q@mail.gmail.com>
+From: David Graziano <david.graziano@rockwellcollins.com>
+Date: Thu, 8 Dec 2016 09:16:30 -0600
+Message-ID: <CA+RmS--CPumc1bDRqF1MoqAAhiJo9adPN3h9eYmJh6hQjhUM5g@mail.gmail.com>
+Subject: Re: [PATCH 1/1 V2] mqueue: Implment generic xattr support
+To: Paul Moore <paul@paul-moore.com>
+Cc: Michal Wronski <michal.wronski@gmail.com>, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+ Seth Forshee <seth.forshee@canonical.com>, ebiederm@xmission.com,
+ selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Define the extended_socket_class policy capability used to enable
-the use of separate socket security classes for all network address
-families rather than the generic socket class. This also enables
-separate security classes for ICMP and SCTP sockets, which were previously
-mapped to the rawip_socket class.
-
-The legacy redhat1 policy capability that was only ever used in testing
-within Fedora for ptrace_child is reclaimed for this purpose; as far as
-I can tell, this policy capability is not enabled in any supported distro
-policy.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/include/sepol/policydb/polcaps.h | 2 +-
- libsepol/src/polcaps.c                    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-index 53d7994..c9e40f6 100644
---- a/libsepol/include/sepol/policydb/polcaps.h
-+++ b/libsepol/include/sepol/policydb/polcaps.h
-@@ -9,7 +9,7 @@ extern "C" {
- enum {
- 	POLICYDB_CAPABILITY_NETPEER,
- 	POLICYDB_CAPABILITY_OPENPERM,
--	POLICYDB_CAPABILITY_REDHAT1, /* reserved for RH testing of ptrace_child */
-+	POLICYDB_CAPABILITY_EXTSOCKCLASS,
- 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
- 	__POLICYDB_CAPABILITY_MAX
- };
-diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-index 43a71a7..3924cb8 100644
---- a/libsepol/src/polcaps.c
-+++ b/libsepol/src/polcaps.c
-@@ -8,7 +8,7 @@
- static const char *polcap_names[] = {
- 	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
- 	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
--	"redhat1",			/* POLICYDB_CAPABILITY_REDHAT1, aka ptrace_child */
-+	"extended_socket_class",	/* POLICYDB_CAPABILITY_EXTSOCKCLASS */
- 	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
- 	NULL
- };
--- 
-2.7.4
+On Mon, Dec 5, 2016 at 5:12 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Dec 5, 2016 at 11:15 AM, David Graziano
+> <david.graziano@rockwellcollins.com> wrote:
+>> On Mon, Dec 5, 2016 at 9:37 AM, Paul Moore <paul@paul-moore.com> wrote:
+>>> On Mon, Nov 28, 2016 at 3:04 PM, David Graziano
+>>> <david.graziano@rockwellcollins.com> wrote:
+>>>> On Wed, Nov 9, 2016 at 4:25 PM, Paul Moore <paul@paul-moore.com> wrote:
+>>>>> On Wed, Nov 9, 2016 at 11:25 AM, David Graziano
+>>>>> <david.graziano@rockwellcollins.com> wrote:
+>>>>>> On Mon, Nov 7, 2016 at 4:23 PM, Paul Moore <paul@paul-moore.com> wrote:
+>>>>>>> On Mon, Nov 7, 2016 at 3:46 PM, David Graziano
+>>>>>>> <david.graziano@rockwellcollins.com> wrote:
+>>>>>>>> This patch adds support for generic extended attributes within the
+>>>>>>>> POSIX message queues filesystem and setting them by consulting the LSM.
+>>>>>>>> This is needed so that the security.selinux extended attribute can be
+>>>>>>>> set via a SELinux named type transition on file inodes created within
+>>>>>>>> the filesystem. The implementation and LSM call back function are based
+>>>>>>>> off tmpfs/shmem.
+>>>>>>>>
+>>>>>>>> Signed-off-by: David Graziano <david.graziano@rockwellcollins.com>
+>>>>>>>> ---
+>>>>>>>>  ipc/mqueue.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+>>>>>>>>  1 file changed, 46 insertions(+)
+>>>>>>>
+>>>>>>> Hi David,
+>>>>>>>
+>>>>>>> At first glance this looks reasonable to me, I just have a two
+>>>>>>> questions/comments:
+>>>>>>>
+>>>>>>> * Can you explain your current need for this functionality?  For
+>>>>>>> example, what are you trying to do that is made easier by allowing
+>>>>>>> greater message queue labeling flexibility?  This helps put things in
+>>>>>>> context and helps people review and comment on your patch.
+>>>>>>>
+>>>>>>> * How have you tested this?  While this patch is not SELinux specific,
+>>>>>>> I think adding a test to the selinux-testsuite[1] would be worthwhile.
+>>>>>>> The other LSM maintainers may suggest something similar if they have
+>>>>>>> an established public testsuite.
+>>>>>>>
+>>>>>>> [1] https://github.com/SELinuxProject/selinux-testsuite
+>>>>>>
+>>>>>> Hi Paul,
+>>>>>>
+>>>>>> I needed to write a selinux policy for a set of custom applications that use
+>>>>>> POSIX message queues for their IPC. The queues are created by one
+>>>>>> application and we needed a way for selinux to enforce which of the other
+>>>>>> apps are able to read/write to each individual queue. Uniquely labeling them
+>>>>>> based on the app that created them and the file name seemed to be our best
+>>>>>> solution since it’s an embedded system and we don’t have restorecond to
+>>>>>> handle any relabeling.
+>>>>>
+>>>>> In the future putting things like the above in the patch description
+>>>>> can be helpful.  In other words, instead of simply saying this allows
+>>>>> you to better control the labels assigned to message queues, you could
+>>>>> expand upon it by saying that this patch allows you to better control
+>>>>> which applications have access to a given queue.  Yes, I realize that
+>>>>> is implied by better control over the labels, but being explicit is
+>>>>> rarely a bad thing when it comes to patch descriptions.
+>>>>>
+>>>>> I've never rejected a patch for a description that was too lengthy,
+>>>>> but I have rejected patches that need better descriptions ;)
+>>>>>
+>>>>>> To test this patch I used both a selinux enabled, buildroot based qemu target
+>>>>>> with a customized selinux policy and test C app to create the mqueues. I also
+>>>>>> tested with our real apps and selinux policy on our target hardware. I can
+>>>>>> certainly look at adding a test to the selinux-testsuite if that would
+>>>>>> be helpful.
+>>>>>
+>>>>> Please do.  I've been requiring tests for all new SELinux
+>>>>> functionality lately; this isn't strictly a SELinux patch but I think
+>>>>> it is a good practice regardless.
+>>>>
+>>>> Sorry for the delay. I have created a pull request within the
+>>>> selinux-testsuite github
+>>>> project with a set of mqueue tests.
+>>>
+>>> For anyone who is curious:
+>>>
+>>> * https://github.com/SELinuxProject/selinux-testsuite/pull/10
+>>>
+>>> Aside from a naming nit, the tests look good to me and I have no
+>>> problem with the kernel patch; it doesn't appear any of the other LSM
+>>> maintainers do either.  I'm happy to pull this into the SELinux tree
+>>> (for v4.11, it's a little late for v4.10 I think), but I think
+>>> Christoph made a good point about consolidation, have you had a chance
+>>> to look at that?
+>>
+>> I've made the update for the naming nit in the pull request.
+>
+> I saw that, thanks.
+>
+>> I agree with Christoph's point but doing so is a bit outside my expertise at
+>> this point. I would be open to suggestions as to where the function should be
+>> consolidated and work on a second patchset with the update. Maybe in
+>> fs/xattr.c as a simple_xattr_initxattrs function?
+>
+> That seems to make the most sense, doesn't it?  Looking at
+> {shmem,mqueue}_initxattrs() the only fs specific bit is the
+> {shmem,mqueue}_inode_info struct pointer; considering that the fs_info
+> parameter is currently unused in this case, you could pass a reference
+> to the simple_xattr struct via the fs_info parameter.
+>
+> I'd CC Andreas Gruenbacher <agruenba@redhat.com> on the patch(set),
+> he's recently done a bunch of work around xattrs and the LSM, he may
+> have some additional thoughts.
+>
+Thanks for the advice. I'm testing a patchset with the proposed changes and
+planning to submit them later today.
