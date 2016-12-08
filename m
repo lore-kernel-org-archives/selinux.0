@@ -8,23 +8,17 @@ References: <1481036419-30057-1-git-send-email-sds@tycho.nsa.gov>
  <f0075276-99eb-5aba-c009-7c760581be14@tycho.nsa.gov>
  <CAHC9VhSEe_aXLob3oWtWDnijM5Ag8wNNA3_WLoU=7surmSXU7A@mail.gmail.com>
 Cc: selinux@tycho.nsa.gov, guido@trentalancia.net,
- richard_c_haines@btinternet.com, "Christopher J. PeBenito"
- <pebenito@ieee.org>
+ richard_c_haines@btinternet.com
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b3bad269-c1b7-4b47-3709-039f060c9221@tycho.nsa.gov>
-Date: Thu, 8 Dec 2016 11:24:28 -0500
+Message-ID: <71adc3b1-e882-532c-de2a-7b9b7974d2ca@tycho.nsa.gov>
+Date: Thu, 8 Dec 2016 14:42:13 -0500
 MIME-Version: 1.0
 In-Reply-To: <CAHC9VhSEe_aXLob3oWtWDnijM5Ag8wNNA3_WLoU=7surmSXU7A@mail.gmail.com>
-Content-Type: multipart/mixed; boundary="------------558A31E8B95B58D4A5C2D717"
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
-
-This is a multi-part message in MIME format.
---------------558A31E8B95B58D4A5C2D717
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
 
 On 12/07/2016 06:32 PM, Paul Moore wrote:
 > On Wed, Dec 7, 2016 at 10:24 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
@@ -108,245 +102,17 @@ On 12/07/2016 06:32 PM, Paul Moore wrote:
 > window (I think this can wait, it might give us time to get some of
 > the policy ready).
 
-Yes, sounds good.  I just pushed the patch for libsepol that allows one
-to specify the new policy capability in policy, and attached is a patch
-for Fedora's policy that you can add to its .spec file and rebuild if
-you want to try it out (but you first have to build and install the
-updated selinux userspace that defines it).  May submit a modified form
-for upstream refpolicy that just comments out the policy capability so
-that we don't break building refpolicy on the currently released libsepol.
+Wanted to clarify one point and also mention a bug/deficiency of this
+patch that I just realized:
 
---------------558A31E8B95B58D4A5C2D717
-Content-Type: text/x-patch;
- name="refpolicy-extended-socket-class.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="refpolicy-extended-socket-class.patch"
+- Clarification: At present, the patch will map PF_INET, SOCK_DGRAM,
+IPPROTO_ICMP to icmp_socket, but will continue to map PF_INET, SOCK_RAW,
+IPPROTO_ICMP to rawip_socket.  That's intentional, since the SOCK_DGRAM
+IPPROTO_ICMP sockets were introduced to provide a more restricted form
+of ICMP sockets that could be exposed to unprivileged users (based on a
+sysctl), so distinguishing those in policy makes sense.  But it could be
+surprising.
 
-diff -ru serefpolicy-3.13.1.orig/policy/flask/access_vectors serefpolicy-3.13.1/policy/flask/access_vectors
---- serefpolicy-3.13.1.orig/policy/flask/access_vectors	2016-12-08 09:25:14.979787006 -0500
-+++ serefpolicy-3.13.1/policy/flask/access_vectors	2016-12-08 10:46:30.621989680 -0500
-@@ -950,3 +950,118 @@
- 
- class cap2_userns
- inherits cap2
-+
-+#
-+# Define the access vector interpretation for the new socket classes
-+# enabled by the extended_socket_class policy capability.
-+#
-+
-+#
-+# The next two classes were previously mapped to rawip_socket and therefore
-+# have the same definition as rawip_socket (until further permissions
-+# are defined).
-+#
-+class sctp_socket
-+inherits socket
-+{
-+	node_bind
-+}
-+
-+class icmp_socket
-+inherits socket
-+{
-+	node_bind
-+}
-+
-+#
-+# The remaining network socket classes were previously
-+# mapped to the socket class and therefore have the
-+# same definition as socket.
-+#
-+
-+class ax25_socket
-+inherits socket
-+
-+class ipx_socket
-+inherits socket
-+
-+class netrom_socket
-+inherits socket
-+
-+class bridge_socket
-+inherits socket
-+
-+class atmpvc_socket
-+inherits socket
-+
-+class x25_socket
-+inherits socket
-+
-+class rose_socket
-+inherits socket
-+
-+class decnet_socket
-+inherits socket
-+
-+class atmsvc_socket
-+inherits socket
-+
-+class rds_socket
-+inherits socket
-+
-+class irda_socket
-+inherits socket
-+
-+class pppox_socket
-+inherits socket
-+
-+class llc_socket
-+inherits socket
-+
-+class ib_socket
-+inherits socket
-+
-+class mpls_socket
-+inherits socket
-+
-+class can_socket
-+inherits socket
-+
-+class tipc_socket
-+inherits socket
-+
-+class bluetooth_socket
-+inherits socket
-+
-+class iucv_socket
-+inherits socket
-+
-+class rxrpc_socket
-+inherits socket
-+
-+class isdn_socket
-+inherits socket
-+
-+class phonet_socket
-+inherits socket
-+
-+class ieee802154_socket
-+inherits socket
-+
-+class caif_socket
-+inherits socket
-+
-+class alg_socket
-+inherits socket
-+
-+class nfc_socket
-+inherits socket
-+
-+class vsock_socket
-+inherits socket
-+
-+class kcm_socket
-+inherits socket
-+
-+class qipcrtr_socket
-+inherits socket
-diff -ru serefpolicy-3.13.1.orig/policy/flask/security_classes serefpolicy-3.13.1/policy/flask/security_classes
---- serefpolicy-3.13.1.orig/policy/flask/security_classes	2016-12-08 09:25:14.979787006 -0500
-+++ serefpolicy-3.13.1/policy/flask/security_classes	2016-12-08 10:40:29.799582596 -0500
-@@ -154,4 +154,39 @@
- class cap_userns
- class cap2_userns
- 
-+# New socket classes introduced by extended_socket_class policy capability.
-+# These two were previously mapped to rawip_socket.
-+class sctp_socket
-+class icmp_socket
-+# These were previously mapped to socket.
-+class ax25_socket
-+class ipx_socket
-+class netrom_socket
-+class bridge_socket
-+class atmpvc_socket
-+class x25_socket
-+class rose_socket
-+class decnet_socket
-+class atmsvc_socket
-+class rds_socket
-+class irda_socket
-+class pppox_socket
-+class llc_socket
-+class ib_socket
-+class mpls_socket
-+class can_socket
-+class tipc_socket
-+class bluetooth_socket
-+class iucv_socket
-+class rxrpc_socket
-+class isdn_socket
-+class phonet_socket
-+class ieee802154_socket
-+class caif_socket
-+class alg_socket
-+class nfc_socket
-+class vsock_socket
-+class kcm_socket
-+class qipcrtr_socket
-+
- # FLASK
-diff -ru serefpolicy-3.13.1.orig/policy/policy_capabilities serefpolicy-3.13.1/policy/policy_capabilities
---- serefpolicy-3.13.1.orig/policy/policy_capabilities	2013-11-13 03:56:14.000000000 -0500
-+++ serefpolicy-3.13.1/policy/policy_capabilities	2016-12-08 10:37:48.657007126 -0500
-@@ -31,3 +31,44 @@
- # blk_file: open
- #
- policycap open_perms;
-+
-+# Enable separate security classes for
-+# all network address families previously
-+# mapped to the socket class and for
-+# ICMP and SCTP sockets previously mapped
-+# to the rawip_socket class.
-+#
-+# Classes enabled:
-+# sctp_socket
-+# icmp_socket
-+# ax25_socket
-+# ipx_socket
-+# netrom_socket
-+# bridge_socket
-+# atmpvc_socket
-+# x25_socket
-+# rose_socket
-+# decnet_socket
-+# atmsvc_socket
-+# rds_socket
-+# irda_socket
-+# pppox_socket
-+# llc_socket
-+# ib_socket
-+# mpls_socket
-+# can_socket
-+# tipc_socket
-+# bluetooth_socket
-+# iucv_socket
-+# rxrpc_socket
-+# isdn_socket
-+# phonet_socket
-+# ieee802154_socket
-+# caif_socket
-+# alg_socket
-+# nfc_socket
-+# vsock_socket
-+# kcm_socket
-+# qipcrtr_socket
-+#
-+policycap extended_socket_class;
-diff -ru serefpolicy-3.13.1.orig/policy/support/obj_perm_sets.spt serefpolicy-3.13.1/policy/support/obj_perm_sets.spt
---- serefpolicy-3.13.1.orig/policy/support/obj_perm_sets.spt	2016-12-08 09:25:15.032787970 -0500
-+++ serefpolicy-3.13.1/policy/support/obj_perm_sets.spt	2016-12-08 10:50:08.497462292 -0500
-@@ -28,7 +28,7 @@
- #
- # All socket classes.
- #
--define(`socket_class_set', `{ tcp_socket udp_socket rawip_socket netlink_socket packet_socket unix_stream_socket unix_dgram_socket appletalk_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket netlink_kobject_uevent_socket tun_socket netlink_iscsi_socket netlink_fib_lookup_socket netlink_connector_socket netlink_netfilter_socket netlink_generic_socket netlink_scsitransport_socket netlink_rdma_socket netlink_crypto_socket }')
-+define(`socket_class_set', `{ tcp_socket udp_socket rawip_socket netlink_socket packet_socket unix_stream_socket unix_dgram_socket appletalk_socket netlink_route_socket netlink_firewall_socket netlink_tcpdiag_socket netlink_nflog_socket netlink_xfrm_socket netlink_selinux_socket netlink_audit_socket netlink_ip6fw_socket netlink_dnrt_socket netlink_kobject_uevent_socket tun_socket netlink_iscsi_socket netlink_fib_lookup_socket netlink_connector_socket netlink_netfilter_socket netlink_generic_socket netlink_scsitransport_socket netlink_rdma_socket netlink_crypto_socket sctp_socket icmp_socket ax25_socket ipx_socket netrom_socket bridge_socket atmpvc_socket x25_socket rose_socket decnet_socket atmsvc_socket rds_socket irda_socket pppox_socket llc_socket ib_socket mpls_socket can_socket tipc_socket bluetooth_socket iucv_socket rxrpc_socket isdn_socket phonet_socket ieee802154_socket caif_socket alg_socket nfc_socket vsock_socket kcm_socket qipcrtr_socket}')
- 
- #
- # Datagram socket classes.
-
---------------558A31E8B95B58D4A5C2D717--
+- Bug/deficiency:  I hadn't noticed that there is a separate
+IPPROTO_ICMPV6, so I'll need to modify this patch or post a follow-on
+that ensure that we map SOCK_DGRAM,IPPROTO_ICMPV6 to icmp_socket too.
