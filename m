@@ -1,62 +1,57 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, dwalsh@redhat.com, seth.forshee@canonical.com,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v2] selinux: allow context mounts on tmpfs, ramfs,
- devpts within user namespaces
-Date: Thu,  8 Dec 2016 09:14:47 -0500
-Message-Id: <1481206487-544-1-git-send-email-sds@tycho.nsa.gov>
+Cc: guido@trentalancia.net, richard_c_haines@btinternet.com,
+ paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: Define extended_socket_class policy capability
+Date: Thu,  8 Dec 2016 09:19:40 -0500
+Message-Id: <1481206780-731-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-commit aad82892af261b9903cc11c55be3ecf5f0b0b4f8 ("selinux: Add support for
-unprivileged mounts from user namespaces") prohibited any use of context
-mount options within non-init user namespaces.  However, this breaks
-use of context mount options for tmpfs mounts within user namespaces,
-which are being used by Docker/runc.  There is no reason to block such
-usage for tmpfs, ramfs or devpts.  Exempt these filesystem types
-from this restriction.
+Define the extended_socket_class policy capability used to enable
+the use of separate socket security classes for all network address
+families rather than the generic socket class. This also enables
+separate security classes for ICMP and SCTP sockets, which were previously
+mapped to the rawip_socket class.
 
-Before:
-sh$ userns_child_exec  -p -m -U -M '0 1000 1' -G '0 1000 1' bash
-sh# mount -t tmpfs -o context=system_u:object_r:user_tmp_t:s0:c13 none /tmp
-mount: tmpfs is write-protected, mounting read-only
-mount: cannot mount tmpfs read-only
-
-After:
-sh$ userns_child_exec  -p -m -U -M '0 1000 1' -G '0 1000 1' bash
-sh# mount -t tmpfs -o context=system_u:object_r:user_tmp_t:s0:c13 none /tmp
-sh# ls -Zd /tmp
-unconfined_u:object_r:user_tmp_t:s0:c13 /tmp
+The legacy redhat1 policy capability that was only ever used in testing
+within Fedora for ptrace_child is reclaimed for this purpose; as far as
+I can tell, this policy capability is not enabled in any supported distro
+policy.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/hooks.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ libsepol/include/sepol/policydb/polcaps.h | 2 +-
+ libsepol/src/polcaps.c                    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8a90a0b..8fae174 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -834,10 +834,14 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	}
- 
- 	/*
--	 * If this is a user namespace mount, no contexts are allowed
--	 * on the command line and security labels must be ignored.
-+	 * If this is a user namespace mount and the filesystem type is not
-+	 * explicitly whitelisted, then no contexts are allowed on the command
-+	 * line and security labels must be ignored.
- 	 */
--	if (sb->s_user_ns != &init_user_ns) {
-+	if (sb->s_user_ns != &init_user_ns &&
-+	    strcmp(sb->s_type->name, "tmpfs") &&
-+	    strcmp(sb->s_type->name, "ramfs") &&
-+	    strcmp(sb->s_type->name, "devpts")) {
- 		if (context_sid || fscontext_sid || rootcontext_sid ||
- 		    defcontext_sid) {
- 			rc = -EACCES;
+diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
+index 53d7994..c9e40f6 100644
+--- a/libsepol/include/sepol/policydb/polcaps.h
++++ b/libsepol/include/sepol/policydb/polcaps.h
+@@ -9,7 +9,7 @@ extern "C" {
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
+ 	POLICYDB_CAPABILITY_OPENPERM,
+-	POLICYDB_CAPABILITY_REDHAT1, /* reserved for RH testing of ptrace_child */
++	POLICYDB_CAPABILITY_EXTSOCKCLASS,
+ 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
+index 43a71a7..3924cb8 100644
+--- a/libsepol/src/polcaps.c
++++ b/libsepol/src/polcaps.c
+@@ -8,7 +8,7 @@
+ static const char *polcap_names[] = {
+ 	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
+ 	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
+-	"redhat1",			/* POLICYDB_CAPABILITY_REDHAT1, aka ptrace_child */
++	"extended_socket_class",	/* POLICYDB_CAPABILITY_EXTSOCKCLASS */
+ 	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
+ 	NULL
+ };
 -- 
 2.7.4
