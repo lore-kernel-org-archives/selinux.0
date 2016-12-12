@@ -1,283 +1,805 @@
-Subject: Re: [PATCH v6 0/9] SELinux support for Infiniband RDMA
-To: Dan Jurgens <danielj@mellanox.com>, chrisw@sous-sol.org,
- paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- sean.hefty@intel.com, hal.rosenstock@gmail.com
-References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com
-From: Doug Ledford <dledford@redhat.com>
-Message-ID: <f4591b41-019b-d55f-cede-d8f9eb72c3bd@redhat.com>
-Date: Mon, 12 Dec 2016 16:38:57 -0500
 MIME-Version: 1.0
-In-Reply-To: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="gfhOJrD47EX6aACVslQhoiotFCkXuau4R"
+In-Reply-To: <CAFftDdpUXqYvh0zRVPxhgneo0siZq=Z1miu0Q1QhaPL1v57TFw@mail.gmail.com>
+References: <1481477416-93493-1-git-send-email-nnk@google.com>
+ <CAFftDdqxdn=atdtzP3B+F7SX4CAtccttyZmCMDvdYSSycr3fJg@mail.gmail.com>
+ <CAFJ0LnFYFKWVLPSC67pT=YL9EZZMnF4F0_uK-Ks87pnsy_cwfg@mail.gmail.com>
+ <CAFftDdrM9GA=RSkg87+o_8=9A5Tudg4eBe5TEQnqk1pPVupuNQ@mail.gmail.com>
+ <3d566e66-43b2-f4bd-9f49-fb1856ac6f38@tycho.nsa.gov>
+ <CAFftDdpUXqYvh0zRVPxhgneo0siZq=Z1miu0Q1QhaPL1v57TFw@mail.gmail.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Mon, 12 Dec 2016 13:52:32 -0800
+Message-ID: <CAFftDdp6EvQfNZOXQzB3P9WXTM41veJbFzR_q=iHqRZ6z=1GNA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: add O_CLOEXEC
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Nick Kralevich <nnk@google.com>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---gfhOJrD47EX6aACVslQhoiotFCkXuau4R
-Content-Type: multipart/mixed; boundary="apaDITKQ14oBgj4V25p46COVEDhGo12hB";
- protected-headers="v1"
-From: Doug Ledford <dledford@redhat.com>
-To: Dan Jurgens <danielj@mellanox.com>, chrisw@sous-sol.org,
- paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- sean.hefty@intel.com, hal.rosenstock@gmail.com
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com
-Message-ID: <f4591b41-019b-d55f-cede-d8f9eb72c3bd@redhat.com>
-Subject: Re: [PATCH v6 0/9] SELinux support for Infiniband RDMA
-References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
-In-Reply-To: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
+On Mon, Dec 12, 2016 at 1:19 PM, William Roberts
+<bill.c.roberts@gmail.com> wrote:
+> On Mon, Dec 12, 2016 at 12:16 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 12/11/2016 07:25 PM, William Roberts wrote:
+>>> I'll test it tomorrow on Mac OS for you if you want?
+>>
+>> It would be good if someone were to test it on MacOS, particularly
+>> whichever version of MacOS is supported for building Android (not sure
+>> which one(s) that is).
+>>
+>> The other consideration is that it isn't always available in older libc
+>> or other libc implementations, which can be a problem for embedded.
+>> meta-selinux carries patches to make the existing usage of FD_CLOEXEC,
+>> SOCK_CLOEXEC, and O_CLOEXEC optional if not defined, so they would
+>> presumably have to do the same for all of these calls.  Maybe we could
+>> wrap this in a macro that gets defined once and drops the "e" or the
+>> O_CLOEXEC if not supported by the platform?
+>
+> That doesn't seem to be a bad idea. I have not tested on Mac OS yet,
+> But I will get to it by days end.
 
---apaDITKQ14oBgj4V25p46COVEDhGo12hB
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
+I just wrote a small test program to fopen() a file with "re" and it worked just
+fine. I can also put strings like so, "rqpoipj" and fopen returns a file pointer
+that is readable in all cases.
 
-On 11/23/2016 9:17 AM, Dan Jurgens wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
->=20
-> Infiniband applications access HW from user-space -- traffic is generat=
-ed
-> directly by HW, bypassing the kernel. Consequently, Infiniband Partitio=
-ns,
-> which are associated directly with HW transport endpoints, are a natura=
-l
-> choice for enforcing granular mandatory access control for Infiniband. =
-QPs may
-> only send or receives packets tagged with the corresponding partition k=
-ey
-> (PKey). The PKey is not a cryptographic key; it's a 16 bit number ident=
-ifying
-> the partition.
->=20
-> Every Infiniband fabric is controlled by a central Subnet Manager (SM).=
- The SM
-> provisions the partitions by assigning each port with the partitions it=
- can
-> access. In addition, the SM tags each port with a subnet prefix, which
-> identifies the subnet. Determining which users are allowed to access wh=
-ich
-> partition keys on a given subnet forms an effective policy for isolatin=
-g users
-> on the fabric. Any application that attempts to send traffic on a given=
- subnet
-> is automatically subject to the policy, regardless of which device and =
-port it
-> uses. SM software configures the subnet through a privileged Subnet Man=
-agement
-> Interface (SMI), which is presented by each Infiniband port. Thus, the =
-SMI must
-> also be controlled to prevent unauthorized changes to fabric configurat=
-ion and
-> partitioning.=20
->=20
-> To support access control for IB partitions and subnet management, secu=
-rity
-> contexts must be provided for two new types of objects - PKeys and IB p=
-orts.
->=20
-> A PKey label consists of a subnet prefix and a range of PKey values and=
- is
-> similar to the labeling mechanism for netports. Each Infiniband port ca=
-n reside
-> on a different subnet. So labeling the PKey values for specific subnet =
-prefixes
-> provides the user maximum flexibility, as PKey values may be determined=
+"re" seems supported. I am on version:
 
-> independently for different subnets. There is a single access vector fo=
-r PKeys
-> called "access".
->=20
-> An Infiniband port is labeled by device name and port number. There is =
-a single
-> access vector for IB ports called "manage_subnet".
->=20
-> Because RDMA allows kernel bypass, enforcement must be done during conn=
-ection
-> setup. Communication over RDMA requires a send and receive queue, colle=
-ctively
-> known as a Queue Pair (QP). A QP must be initialized by privileged syst=
-em calls
-> before it can be used to send or receive data. During initialization th=
-e user
-> must provide the PKey and port the QP will use; at this time access con=
-trol can
-> be enforced.
->=20
-> Because there is a possibility that the enforcement settings or securit=
-y
-> policy can change, a means of notifying the ib_core module of such chan=
-ges
-> is required. To facilitate this a generic notification callback mechani=
-sm
-> is added to the LSM. One callback is registered for checking the QP PKe=
-y
-> associations when the policy changes. Mad agents also register a callba=
-ck,
-> they cache the permission to send and receive SMPs to avoid another per=
+$ defaults read loginwindow SystemVersionStampAsString
+10.11.6
 
-> packet call to the LSM.
->=20
-> Because frequent accesses to the same PKey's SID is expected a cache is=
+>
+>>
+>>>
+>>> On Dec 11, 2016 3:22 PM, "Nick Kralevich" <nnk@google.com
+>>> <mailto:nnk@google.com>> wrote:
+>>>
+>>>     I don't know. I didn't test this change on a Mac.
+>>>
+>>>     -- Nick
+>>>
+>>>     On Sun, Dec 11, 2016 at 1:39 PM, William Roberts
+>>>     <bill.c.roberts@gmail.com <mailto:bill.c.roberts@gmail.com>> wrote:
+>>>
+>>>         Do you know if "re" poses any Mac issues? I would assume not,
+>>>         but I've never checked.
+>>>
+>>>         On Dec 11, 2016 09:32, "Nick Kralevich" <nnk@google.com
+>>>         <mailto:nnk@google.com>> wrote:
+>>>
+>>>             Makes libselinux safer and less likely to leak file
+>>>             descriptors when
+>>>             used as part of a multithreaded program.
+>>>
+>>>             Signed-off-by: Nick Kralevich <nnk@google.com
+>>>             <mailto:nnk@google.com>>
+>>>             ---
+>>>              libselinux/src/audit2why.c                       |  4 ++--
+>>>              libselinux/src/booleans.c                        | 14
+>>>             +++++++-------
+>>>              libselinux/src/canonicalize_context.c            |  2 +-
+>>>              libselinux/src/check_context.c                   |  2 +-
+>>>              libselinux/src/compute_av.c                      |  2 +-
+>>>              libselinux/src/compute_create.c                  |  2 +-
+>>>              libselinux/src/compute_member.c                  |  2 +-
+>>>              libselinux/src/compute_relabel.c                 |  2 +-
+>>>              libselinux/src/compute_user.c                    |  2 +-
+>>>              libselinux/src/deny_unknown.c                    |  2 +-
+>>>              libselinux/src/disable.c                         |  2 +-
+>>>              libselinux/src/enabled.c                         |  2 +-
+>>>              libselinux/src/get_context_list.c                |  6 +++---
+>>>              libselinux/src/get_default_type.c                |  2 +-
+>>>              libselinux/src/get_initial_context.c             |  2 +-
+>>>              libselinux/src/getenforce.c                      |  2 +-
+>>>              libselinux/src/init.c                            |  4 ++--
+>>>              libselinux/src/is_customizable_type.c            |  2 +-
+>>>              libselinux/src/label.c                           |  2 +-
+>>>              libselinux/src/label_backends_android.c          |  2 +-
+>>>              libselinux/src/label_file.c                      |  2 +-
+>>>              libselinux/src/label_media.c                     |  2 +-
+>>>              libselinux/src/label_x.c                         |  2 +-
+>>>              libselinux/src/load_policy.c                     |  8 ++++----
+>>>              libselinux/src/matchmediacon.c                   |  2 +-
+>>>              libselinux/src/policyvers.c                      |  2 +-
+>>>              libselinux/src/procattr.c                        |  4 ++--
+>>>              libselinux/src/selinux_check_securetty_context.c |  2 +-
+>>>              libselinux/src/selinux_config.c                  |  4 ++--
+>>>              libselinux/src/selinux_restorecon.c              |  2 +-
+>>>              libselinux/src/setenforce.c                      |  2 +-
+>>>              libselinux/src/seusers.c                         |  4 ++--
+>>>              libselinux/src/stringrep.c                       |  2 +-
+>>>              33 files changed, 49 insertions(+), 49 deletions(-)
+>>>
+>>>             diff --git a/libselinux/src/audit2why.c
+>>>             b/libselinux/src/audit2why.c
+>>>             index 3135eed..857383a 100644
+>>>             --- a/libselinux/src/audit2why.c
+>>>             +++ b/libselinux/src/audit2why.c
+>>>             @@ -201,7 +201,7 @@ static int __policy_init(const char
+>>>             *init_path)
+>>>                     path[PATH_MAX-1] = '\0';
+>>>                     if (init_path) {
+>>>                             strncpy(path, init_path, PATH_MAX-1);
+>>>             -               fp = fopen(path, "r");
+>>>             +               fp = fopen(path, "re");
+>>>                             if (!fp) {
+>>>                                     snprintf(errormsg, sizeof(errormsg),
+>>>                                              "unable to open %s:  %s\n",
+>>>             @@ -218,7 +218,7 @@ static int __policy_init(const char
+>>>             *init_path)
+>>>                                     PyErr_SetString( PyExc_ValueError,
+>>>             errormsg);
+>>>                                     return 1;
+>>>                             }
+>>>             -               fp = fopen(curpolicy, "r");
+>>>             +               fp = fopen(curpolicy, "re");
+>>>                             if (!fp) {
+>>>                                     snprintf(errormsg, sizeof(errormsg),
+>>>                                              "unable to open %s:  %s\n",
+>>>             diff --git a/libselinux/src/booleans.c
+>>>             b/libselinux/src/booleans.c
+>>>             index ba9d934..4a38a78 100644
+>>>             --- a/libselinux/src/booleans.c
+>>>             +++ b/libselinux/src/booleans.c
+>>>             @@ -97,7 +97,7 @@ char *selinux_boolean_sub(const char *name)
+>>>                     if (!name)
+>>>                             return NULL;
+>>>
+>>>             -       cfg = fopen(selinux_booleans_subs_path(), "r");
+>>>             +       cfg = fopen(selinux_booleans_subs_path(), "re");
+>>>                     if (!cfg)
+>>>                             goto out;
+>>>
+>>>             @@ -210,7 +210,7 @@ static int get_bool_value(const char
+>>>             *name, char **buf)
+>>>
+>>>                     (*buf)[STRBUF_SIZE] = 0;
+>>>
+>>>             -       fd = bool_open(name, O_RDONLY);
+>>>             +       fd = bool_open(name, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             goto out_err;
+>>>
+>>>             @@ -274,7 +274,7 @@ int security_set_boolean(const char
+>>>             *name, int value)
+>>>                             return -1;
+>>>                     }
+>>>
+>>>             -       fd = bool_open(name, O_WRONLY);
+>>>             +       fd = bool_open(name, O_WRONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             @@ -305,7 +305,7 @@ int security_commit_booleans(void)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path,
+>>>             "%s/commit_pending_bools", selinux_mnt);
+>>>             -       fd = open(path, O_WRONLY);
+>>>             +       fd = open(path, O_WRONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             @@ -399,7 +399,7 @@ static int save_booleans(size_t boolcnt,
+>>>             SELboolean * boollist)
+>>>
+>>>                     snprintf(local_bool_file, sizeof(local_bool_file),
+>>>             "%s.local",
+>>>                              bool_file);
+>>>             -       boolf = fopen(local_bool_file, "r");
+>>>             +       boolf = fopen(local_bool_file, "re");
+>>>                     if (boolf != NULL) {
+>>>                             ssize_t ret;
+>>>                             size_t size = 0;
+>>>             @@ -518,7 +518,7 @@ int security_load_booleans(char *path)
+>>>                     int val;
+>>>                     char name[BUFSIZ];
+>>>
+>>>             -       boolf = fopen(path ? path : selinux_booleans_path(),
+>>>             "r");
+>>>             +       boolf = fopen(path ? path : selinux_booleans_path(),
+>>>             "re");
+>>>                     if (boolf == NULL)
+>>>                             goto localbool;
+>>>
+>>>             @@ -536,7 +536,7 @@ int security_load_booleans(char *path)
+>>>                    localbool:
+>>>                     snprintf(localbools, sizeof(localbools), "%s.local",
+>>>                              (path ? path : selinux_booleans_path()));
+>>>             -       boolf = fopen(localbools, "r");
+>>>             +       boolf = fopen(localbools, "re");
+>>>
+>>>                     if (boolf != NULL) {
+>>>                             int ret;
+>>>             diff --git a/libselinux/src/canonicalize_context.c
+>>>             b/libselinux/src/canonicalize_context.c
+>>>             index 7cf3139..ba4c9a2 100644
+>>>             --- a/libselinux/src/canonicalize_context.c
+>>>             +++ b/libselinux/src/canonicalize_context.c
+>>>             @@ -23,7 +23,7 @@ int
+>>>             security_canonicalize_context_raw(const char * con,
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/context", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/check_context.c
+>>>             b/libselinux/src/check_context.c
+>>>             index 52063fa..8a7997f 100644
+>>>             --- a/libselinux/src/check_context.c
+>>>             +++ b/libselinux/src/check_context.c
+>>>             @@ -20,7 +20,7 @@ int security_check_context_raw(const char
+>>>             * con)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/context", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/compute_av.c
+>>>             b/libselinux/src/compute_av.c
+>>>             index 937e5c3..1d05e7b 100644
+>>>             --- a/libselinux/src/compute_av.c
+>>>             +++ b/libselinux/src/compute_av.c
+>>>             @@ -27,7 +27,7 @@ int security_compute_av_flags_raw(const
+>>>             char * scon,
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/access", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/compute_create.c
+>>>             b/libselinux/src/compute_create.c
+>>>             index 9559d42..0975aea 100644
+>>>             --- a/libselinux/src/compute_create.c
+>>>             +++ b/libselinux/src/compute_create.c
+>>>             @@ -65,7 +65,7 @@ int security_compute_create_name_raw(const
+>>>             char * scon,
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/create", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/compute_member.c
+>>>             b/libselinux/src/compute_member.c
+>>>             index 1fc7e41..4e2d221 100644
+>>>             --- a/libselinux/src/compute_member.c
+>>>             +++ b/libselinux/src/compute_member.c
+>>>             @@ -26,7 +26,7 @@ int security_compute_member_raw(const char
+>>>             * scon,
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/member", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/compute_relabel.c
+>>>             b/libselinux/src/compute_relabel.c
+>>>             index 4615aee..49f77ef 100644
+>>>             --- a/libselinux/src/compute_relabel.c
+>>>             +++ b/libselinux/src/compute_relabel.c
+>>>             @@ -26,7 +26,7 @@ int security_compute_relabel_raw(const
+>>>             char * scon,
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/relabel", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/compute_user.c
+>>>             b/libselinux/src/compute_user.c
+>>>             index b37c5d3..7b88121 100644
+>>>             --- a/libselinux/src/compute_user.c
+>>>             +++ b/libselinux/src/compute_user.c
+>>>             @@ -25,7 +25,7 @@ int security_compute_user_raw(const char *
+>>>             scon,
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/user", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/deny_unknown.c
+>>>             b/libselinux/src/deny_unknown.c
+>>>             index c93998a..77d04e3 100644
+>>>             --- a/libselinux/src/deny_unknown.c
+>>>             +++ b/libselinux/src/deny_unknown.c
+>>>             @@ -21,7 +21,7 @@ int security_deny_unknown(void)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof(path), "%s/deny_unknown",
+>>>             selinux_mnt);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/disable.c b/libselinux/src/disable.c
+>>>             index dac0f5b..8d66262 100644
+>>>             --- a/libselinux/src/disable.c
+>>>             +++ b/libselinux/src/disable.c
+>>>             @@ -21,7 +21,7 @@ int security_disable(void)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/disable", selinux_mnt);
+>>>             -       fd = open(path, O_WRONLY);
+>>>             +       fd = open(path, O_WRONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/enabled.c b/libselinux/src/enabled.c
+>>>             index 2ec6797..dd628fb 100644
+>>>             --- a/libselinux/src/enabled.c
+>>>             +++ b/libselinux/src/enabled.c
+>>>             @@ -36,7 +36,7 @@ int is_selinux_mls_enabled(void)
+>>>                             return enabled;
+>>>
+>>>                     snprintf(path, sizeof path, "%s/mls", selinux_mnt);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return enabled;
+>>>
+>>>             diff --git a/libselinux/src/get_context_list.c
+>>>             b/libselinux/src/get_context_list.c
+>>>             index f3fa4a9..689e465 100644
+>>>             --- a/libselinux/src/get_context_list.c
+>>>             +++ b/libselinux/src/get_context_list.c
+>>>             @@ -275,7 +275,7 @@ static int get_failsafe_context(const
+>>>             char *user, char ** newcon)
+>>>                     size_t plen, nlen;
+>>>                     int rc;
+>>>
+>>>             -       fp = fopen(selinux_failsafe_context_path(), "r");
+>>>             +       fp = fopen(selinux_failsafe_context_path(), "re");
+>>>                     if (!fp)
+>>>                             return -1;
+>>>
+>>>             @@ -437,7 +437,7 @@ int get_ordered_context_list(const char
+>>>             *user,
+>>>                     if (!fname)
+>>>                             goto failsafe;
+>>>                     snprintf(fname, fname_len, "%s%s",
+>>>             user_contexts_path, user);
+>>>             -       fp = fopen(fname, "r");
+>>>             +       fp = fopen(fname, "re");
+>>>                     if (fp) {
+>>>                             __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>                             rc = get_context_order(fp, fromcon,
+>>>             reachable, nreach, ordering,
+>>>             @@ -451,7 +451,7 @@ int get_ordered_context_list(const char
+>>>             *user,
+>>>                             }
+>>>                     }
+>>>                     free(fname);
+>>>             -       fp = fopen(selinux_default_context_path(), "r");
+>>>             +       fp = fopen(selinux_default_context_path(), "re");
+>>>                     if (fp) {
+>>>                             __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>                             rc = get_context_order(fp, fromcon,
+>>>             reachable, nreach, ordering,
+>>>             diff --git a/libselinux/src/get_default_type.c
+>>>             b/libselinux/src/get_default_type.c
+>>>             index 27f2ae5..dd7b5d7 100644
+>>>             --- a/libselinux/src/get_default_type.c
+>>>             +++ b/libselinux/src/get_default_type.c
+>>>             @@ -11,7 +11,7 @@ int get_default_type(const char *role,
+>>>             char **type)
+>>>              {
+>>>                     FILE *fp = NULL;
+>>>
+>>>             -       fp = fopen(selinux_default_type_path(), "r");
+>>>             +       fp = fopen(selinux_default_type_path(), "re");
+>>>                     if (!fp)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/get_initial_context.c
+>>>             b/libselinux/src/get_initial_context.c
+>>>             index 522ed78..5e919f4 100644
+>>>             --- a/libselinux/src/get_initial_context.c
+>>>             +++ b/libselinux/src/get_initial_context.c
+>>>             @@ -25,7 +25,7 @@ int security_get_initial_context_raw(const
+>>>             char * name, char ** con)
+>>>
+>>>                     snprintf(path, sizeof path, "%s%s%s",
+>>>                              selinux_mnt, SELINUX_INITCON_DIR, name);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/getenforce.c
+>>>             b/libselinux/src/getenforce.c
+>>>             index 03d3abc..d909dce 100644
+>>>             --- a/libselinux/src/getenforce.c
+>>>             +++ b/libselinux/src/getenforce.c
+>>>             @@ -21,7 +21,7 @@ int security_getenforce(void)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/enforce", selinux_mnt);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/init.c b/libselinux/src/init.c
+>>>             index ddf91f8..2690a72 100644
+>>>             --- a/libselinux/src/init.c
+>>>             +++ b/libselinux/src/init.c
+>>>             @@ -61,7 +61,7 @@ int selinuxfs_exists(void)
+>>>                     size_t len;
+>>>                     ssize_t num;
+>>>
+>>>             -       fp = fopen("/proc/filesystems", "r");
+>>>             +       fp = fopen("/proc/filesystems", "re");
+>>>                     if (!fp)
+>>>                             return 1; /* Fail as if it exists */
+>>>                     __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>             @@ -101,7 +101,7 @@ static void init_selinuxmnt(void)
+>>>
+>>>                     /* At this point, the usual spot doesn't have an
+>>>             selinuxfs so
+>>>                      * we look around for it */
+>>>             -       fp = fopen("/proc/mounts", "r");
+>>>             +       fp = fopen("/proc/mounts", "re");
+>>>                     if (!fp)
+>>>                             goto out;
+>>>
+>>>             diff --git a/libselinux/src/is_customizable_type.c
+>>>             b/libselinux/src/is_customizable_type.c
+>>>             index 0b33edc..92876f4 100644
+>>>             --- a/libselinux/src/is_customizable_type.c
+>>>             +++ b/libselinux/src/is_customizable_type.c
+>>>             @@ -16,7 +16,7 @@ static int get_customizable_type_list(char
+>>>             *** retlist)
+>>>                     unsigned int ctr = 0, i;
+>>>                     char **list = NULL;
+>>>
+>>>             -       fp = fopen(selinux_customizable_types_path(), "r");
+>>>             +       fp = fopen(selinux_customizable_types_path(), "re");
+>>>                     if (!fp)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+>>>             index 60639cf..5c9d8c1 100644
+>>>             --- a/libselinux/src/label.c
+>>>             +++ b/libselinux/src/label.c
+>>>             @@ -96,7 +96,7 @@ struct selabel_sub
+>>>             *selabel_subs_init(const char *path,
+>>>                                                         struct
+>>>             selabel_digest *digest)
+>>>              {
+>>>                     char buf[1024];
+>>>             -       FILE *cfg = fopen(path, "r");
+>>>             +       FILE *cfg = fopen(path, "re");
+>>>                     struct selabel_sub *sub = NULL;
+>>>                     struct stat sb;
+>>>
+>>>             diff --git a/libselinux/src/label_backends_android.c
+>>>             b/libselinux/src/label_backends_android.c
+>>>             index 4d6ec86..4ad71f9 100644
+>>>             --- a/libselinux/src/label_backends_android.c
+>>>             +++ b/libselinux/src/label_backends_android.c
+>>>             @@ -159,7 +159,7 @@ static int init(struct selabel_handle
+>>>             *rec, const struct selinux_opt *opts,
+>>>                             return -1;
+>>>
+>>>                     /* Open the specification file. */
+>>>             -       if ((fp = fopen(path, "r")) == NULL)
+>>>             +       if ((fp = fopen(path, "re")) == NULL)
+>>>                             return -1;
+>>>
+>>>                     if (fstat(fileno(fp), &sb) < 0)
+>>>             diff --git a/libselinux/src/label_file.c
+>>>             b/libselinux/src/label_file.c
+>>>             index a4dc3cd..0d4029b 100644
+>>>             --- a/libselinux/src/label_file.c
+>>>             +++ b/libselinux/src/label_file.c
+>>>             @@ -520,7 +520,7 @@ static FILE *open_file(const char *path,
+>>>             const char *suffix,
+>>>                     }
+>>>
+>>>                     memcpy(sb, &found->sb, sizeof(*sb));
+>>>             -       return fopen(save_path, "r");
+>>>             +       return fopen(save_path, "re");
+>>>              }
+>>>
+>>>              static int process_file(const char *path, const char *suffix,
+>>>             diff --git a/libselinux/src/label_media.c
+>>>             b/libselinux/src/label_media.c
+>>>             index 622741b..d202e5d 100644
+>>>             --- a/libselinux/src/label_media.c
+>>>             +++ b/libselinux/src/label_media.c
+>>>             @@ -90,7 +90,7 @@ static int init(struct selabel_handle
+>>>             *rec, const struct selinux_opt *opts,
+>>>                     /* Open the specification file. */
+>>>                     if (!path)
+>>>                             path = selinux_media_context_path();
+>>>             -       if ((fp = fopen(path, "r")) == NULL)
+>>>             +       if ((fp = fopen(path, "re")) == NULL)
+>>>                             return -1;
+>>>                     __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>
+>>>             diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+>>>             index 700def1..9674529 100644
+>>>             --- a/libselinux/src/label_x.c
+>>>             +++ b/libselinux/src/label_x.c
+>>>             @@ -117,7 +117,7 @@ static int init(struct selabel_handle
+>>>             *rec, const struct selinux_opt *opts,
+>>>                     /* Open the specification file. */
+>>>                     if (!path)
+>>>                             path = selinux_x_context_path();
+>>>             -       if ((fp = fopen(path, "r")) == NULL)
+>>>             +       if ((fp = fopen(path, "re")) == NULL)
+>>>                             return -1;
+>>>                     __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>
+>>>             diff --git a/libselinux/src/load_policy.c
+>>>             b/libselinux/src/load_policy.c
+>>>             index b7e1a6f..327cc6a 100644
+>>>             --- a/libselinux/src/load_policy.c
+>>>             +++ b/libselinux/src/load_policy.c
+>>>             @@ -34,7 +34,7 @@ int security_load_policy(void *data,
+>>>             size_t len)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/load", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             @@ -173,13 +173,13 @@ checkbool:
+>>>                    search:
+>>>                     snprintf(path, sizeof(path), "%s.%d",
+>>>                              selinux_binary_policy_path(), vers);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     while (fd < 0 && errno == ENOENT
+>>>                            && --vers >= minvers) {
+>>>                             /* Check prior versions to see if old policy
+>>>             is available */
+>>>                             snprintf(path, sizeof(path), "%s.%d",
+>>>                                      selinux_binary_policy_path(), vers);
+>>>             -               fd = open(path, O_RDONLY);
+>>>             +               fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     }
+>>>                     if (fd < 0) {
+>>>                             fprintf(stderr,
+>>>             @@ -335,7 +335,7 @@ int selinux_init_load_policy(int *enforce)
+>>>
+>>>                     /* Check for an override of the mode via the kernel
+>>>             command line. */
+>>>                     rc = mount("proc", "/proc", "proc", 0, 0);
+>>>             -       cfg = fopen("/proc/cmdline", "r");
+>>>             +       cfg = fopen("/proc/cmdline", "re");
+>>>                     if (cfg) {
+>>>                             char *tmp;
+>>>                             buf = malloc(selinux_page_size);
+>>>             diff --git a/libselinux/src/matchmediacon.c
+>>>             b/libselinux/src/matchmediacon.c
+>>>             index 46cba46..23d01af 100644
+>>>             --- a/libselinux/src/matchmediacon.c
+>>>             +++ b/libselinux/src/matchmediacon.c
+>>>             @@ -18,7 +18,7 @@ int matchmediacon(const char *media, char
+>>>             ** con)
+>>>                     char *ptr, *ptr2 = NULL;
+>>>                     int found = 0;
+>>>                     char current_line[PATH_MAX];
+>>>             -       if ((infile = fopen(path, "r")) == NULL)
+>>>             +       if ((infile = fopen(path, "re")) == NULL)
+>>>                             return -1;
+>>>                     while (!feof_unlocked(infile)) {
+>>>                             if (!fgets_unlocked(current_line,
+>>>             sizeof(current_line), infile)) {
+>>>             diff --git a/libselinux/src/policyvers.c
+>>>             b/libselinux/src/policyvers.c
+>>>             index 284a7f7..c97dd9d 100644
+>>>             --- a/libselinux/src/policyvers.c
+>>>             +++ b/libselinux/src/policyvers.c
+>>>             @@ -23,7 +23,7 @@ int security_policyvers(void)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/policyvers",
+>>>             selinux_mnt);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0) {
+>>>                             if (errno == ENOENT)
+>>>                                     return vers;
+>>>             diff --git a/libselinux/src/procattr.c
+>>>             b/libselinux/src/procattr.c
+>>>             index 8cd59af..ebc0ade 100644
+>>>             --- a/libselinux/src/procattr.c
+>>>             +++ b/libselinux/src/procattr.c
+>>>             @@ -143,7 +143,7 @@ static int getprocattrcon_raw(char **
+>>>             context,
+>>>                             return 0;
+>>>                     }
+>>>
+>>>             -       fd = openattr(pid, attr, O_RDONLY);
+>>>             +       fd = openattr(pid, attr, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             @@ -235,7 +235,7 @@ static int setprocattrcon_raw(const char
+>>>             * context,
+>>>                         && !strcmp(context, *prev_context))
+>>>                             return 0;
+>>>
+>>>             -       fd = openattr(pid, attr, O_RDWR);
+>>>             +       fd = openattr(pid, attr, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>                     if (context) {
+>>>             diff --git
+>>>             a/libselinux/src/selinux_check_securetty_context.c
+>>>             b/libselinux/src/selinux_check_securetty_context.c
+>>>             index 24e5e2c..55d4e03 100644
+>>>             --- a/libselinux/src/selinux_check_securetty_context.c
+>>>             +++ b/libselinux/src/selinux_check_securetty_context.c
+>>>             @@ -14,7 +14,7 @@ int selinux_check_securetty_context(const
+>>>             char * tty_context)
+>>>                     ssize_t len;
+>>>                     int found = -1;
+>>>                     FILE *fp;
+>>>             -       fp = fopen(selinux_securetty_types_path(), "r");
+>>>             +       fp = fopen(selinux_securetty_types_path(), "re");
+>>>                     if (fp) {
+>>>                             context_t con = context_new(tty_context);
+>>>                             if (con) {
+>>>             diff --git a/libselinux/src/selinux_config.c
+>>>             b/libselinux/src/selinux_config.c
+>>>             index 88bcc85..d8e140c 100644
+>>>             --- a/libselinux/src/selinux_config.c
+>>>             +++ b/libselinux/src/selinux_config.c
+>>>             @@ -88,7 +88,7 @@ static const uint16_t
+>>>             file_path_suffixes_idx[NEL] = {
+>>>              int selinux_getenforcemode(int *enforce)
+>>>              {
+>>>                     int ret = -1;
+>>>             -       FILE *cfg = fopen(SELINUXCONFIG, "r");
+>>>             +       FILE *cfg = fopen(SELINUXCONFIG, "re");
+>>>                     if (cfg) {
+>>>                             char *buf;
+>>>                             int len = sizeof(SELINUXTAG) - 1;
+>>>             @@ -163,7 +163,7 @@ static void init_selinux_config(void)
+>>>                     if (selinux_policyroot)
+>>>                             return;
+>>>
+>>>             -       fp = fopen(SELINUXCONFIG, "r");
+>>>             +       fp = fopen(SELINUXCONFIG, "re");
+>>>                     if (fp) {
+>>>                             __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>                             while ((len = getline(&line_buf, &line_len,
+>>>             fp)) > 0) {
+>>>             diff --git a/libselinux/src/selinux_restorecon.c
+>>>             b/libselinux/src/selinux_restorecon.c
+>>>             index e38d1d0..7ebfbdc 100644
+>>>             --- a/libselinux/src/selinux_restorecon.c
+>>>             +++ b/libselinux/src/selinux_restorecon.c
+>>>             @@ -247,7 +247,7 @@ static int exclude_non_seclabel_mounts(void)
+>>>                     if (uname(&uts) == 0 && strverscmp(uts.release,
+>>>             "2.6.30") < 0)
+>>>                             return 0;
+>>>
+>>>             -       fp = fopen("/proc/mounts", "r");
+>>>             +       fp = fopen("/proc/mounts", "re");
+>>>                     if (!fp)
+>>>                             return 0;
+>>>
+>>>             diff --git a/libselinux/src/setenforce.c
+>>>             b/libselinux/src/setenforce.c
+>>>             index e5e7612..09cad3c 100644
+>>>             --- a/libselinux/src/setenforce.c
+>>>             +++ b/libselinux/src/setenforce.c
+>>>             @@ -21,7 +21,7 @@ int security_setenforce(int value)
+>>>                     }
+>>>
+>>>                     snprintf(path, sizeof path, "%s/enforce", selinux_mnt);
+>>>             -       fd = open(path, O_RDWR);
+>>>             +       fd = open(path, O_RDWR | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             return -1;
+>>>
+>>>             diff --git a/libselinux/src/seusers.c b/libselinux/src/seusers.c
+>>>             index 09e704b..572a7b0 100644
+>>>             --- a/libselinux/src/seusers.c
+>>>             +++ b/libselinux/src/seusers.c
+>>>             @@ -185,7 +185,7 @@ int getseuserbyname(const char *name,
+>>>             char **r_seuser, char **r_level)
+>>>
+>>>                     gid_t gid = get_default_gid(name);
+>>>
+>>>             -       cfg = fopen(selinux_usersconf_path(), "r");
+>>>             +       cfg = fopen(selinux_usersconf_path(), "re");
+>>>                     if (!cfg)
+>>>                             goto nomatch;
+>>>
+>>>             @@ -278,7 +278,7 @@ int getseuser(const char *username,
+>>>             const char *service,
+>>>                     FILE *fp = NULL;
+>>>                     if (asprintf(&path,"%s/logins/%s",
+>>>             selinux_policy_root(), username) <  0)
+>>>                             goto err;
+>>>             -       fp = fopen(path, "r");
+>>>             +       fp = fopen(path, "re");
+>>>                     free(path);
+>>>                     if (fp == NULL) goto err;
+>>>                     __fsetlocking(fp, FSETLOCKING_BYCALLER);
+>>>             diff --git a/libselinux/src/stringrep.c
+>>>             b/libselinux/src/stringrep.c
+>>>             index 2dbec2b..2d83f96 100644
+>>>             --- a/libselinux/src/stringrep.c
+>>>             +++ b/libselinux/src/stringrep.c
+>>>             @@ -80,7 +80,7 @@ static struct discover_class_node *
+>>>             discover_class(const char *s)
+>>>
+>>>                     /* load up class index */
+>>>                     snprintf(path, sizeof path, "%s/class/%s/index",
+>>>             selinux_mnt,s);
+>>>             -       fd = open(path, O_RDONLY);
+>>>             +       fd = open(path, O_RDONLY | O_CLOEXEC);
+>>>                     if (fd < 0)
+>>>                             goto err3;
+>>>
+>>>             --
+>>>             2.8.0.rc3.226.g39d4020
+>>>
+>>>             _______________________________________________
+>>>             Selinux mailing list
+>>>             Selinux@tycho.nsa.gov <mailto:Selinux@tycho.nsa.gov>
+>>>             To unsubscribe, send email to Selinux-leave@tycho.nsa.gov
+>>>             <mailto:Selinux-leave@tycho.nsa.gov>.
+>>>             To get help, send an email containing "help" to
+>>>             Selinux-request@tycho.nsa.gov
+>>>             <mailto:Selinux-request@tycho.nsa.gov>.
+>>>
+>>>
+>>>
+>>>
+>>>
+>>>     --
+>>>     Nick Kralevich | Android Security | nnk@google.com
+>>>     <mailto:nnk@google.com> | 650.214.4037 <tel:(650)%20214-4037>
+>>>
+>>>
+>>>
+>>> _______________________________________________
+>>> Selinux mailing list
+>>> Selinux@tycho.nsa.gov
+>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>>
+>>
+>
+>
+>
+> --
+> Respectfully,
+>
+> William C Roberts
 
-> implemented which is very similar to the netport cache.
->=20
-> In order to properly enforce security when changes to the PKey table or=
-
-> security policy or enforcement occur ib_core must track which QPs are
-> using which port, pkey index, and alternate path for every IB device.
-> This makes operations that used to be atomic transactional.
->=20
-> When modifying a QP, ib_core must associate it with the PKey index, por=
-t,
-> and alternate path specified. If the QP was already associated with
-> different settings, the QP is added to the new list prior to the
-> modification. If the modify succeeds then the old listing is removed. I=
-f
-> the modify fails the new listing is removed and the old listing remains=
-
-> unchanged.
->=20
-> When destroying a QP the ib_qp structure is freed by the decive specifi=
-c
-> driver (i.e. mlx4_ib) if the 'destroy' is successful. This requires sto=
-ring
-> security related information in a separate structure. When a 'destroy'
-> request is in process the ib_qp structure is in an undefined state so i=
-f
-> there are changes to the security policy or PKey table, the security ch=
-ecks
-> cannot reset the QP if it doesn't have permission for the new setting. =
-If
-> the 'destroy' fails, security for that QP must be enforced again and it=
-s
-> status in the list is restored. If the 'destroy' succeeds the security =
-info
-> can be cleaned up and freed.
->=20
-> There are a number of locks required to protect the QP security structu=
-re
-> and the QP to device/port/pkey index lists. If multiple locks are requi=
-red,
-> the safe locking order is: QP security structure mutex first, followed =
-by
-> any list locks needed, which are sorted first by port followed by pkey
-> index.
-
-Ack for the IB parts.  Do we have a vote on the SELinux parts from the
-security people?
-
-> ---
-> v2:
-> - Use void* blobs in the LSM hooks. Paul Moore
-> - Make the policy change callback generic. Yuval Shaia, Paul Moore
-> - Squash LSM changes into the patches where the calls are added. Paul M=
-oore
-> - Don't add new initial SIDs. Stephen Smalley
-> - Squash MAD agent PKey and SMI patches and move logic to IB security. =
-Dan Jurgens
-> - Changed ib_end_port to ib_port. Paul Moore
-> - Changed ib_port access vector from smp to manage_subnet. Paul Moore
-> - Added pkey and ib_port details to the audit log. Paul Moore
-> - See individual patches for more detail.
->=20
-> v3:
-> - ib_port -> ib_endport. Paul Moore
-> - use notifier chains for LSM notifications. Paul Moore
-> - reorder parameters in hooks to put security blob first. Paul Moore
-> - Don't treat device name as untrusted string in audit log. Paul Moore
->=20
-> v4:
-> - Added separate AVC callback for LSM notifier. Paul Moore
-> - Removed unneeded braces in ocontext_read. Paul Moore
->=20
-> v5:
-> - Fix link error when CONFIG_SECURITY is not set. Build Robot
-> - Strip issue and Gerrit-Id: Leon Romanovsky
->=20
-> v6:
-> - Whitespace and bracket cleanup. James Morris
-> - Cleanup error flow in sel_pkey_sid_slow. James Morris
->=20
-> Daniel Jurgens (9):
->   IB/core: IB cache enhancements to support Infiniband security
->   IB/core: Enforce PKey security on QPs
->   selinux lsm IB/core: Implement LSM notification system
->   IB/core: Enforce security on management datagrams
->   selinux: Create policydb version for Infiniband support
->   selinux: Allocate and free infiniband security hooks
->   selinux: Implement Infiniband PKey "Access" access vector
->   selinux: Add IB Port SMP access vector
->   selinux: Add a cache for quicker retreival of PKey SIDs
->=20
->  drivers/infiniband/core/Makefile     |   3 +-
->  drivers/infiniband/core/cache.c      |  57 ++-
->  drivers/infiniband/core/core_priv.h  | 115 ++++++
->  drivers/infiniband/core/device.c     |  86 +++++
->  drivers/infiniband/core/mad.c        |  52 ++-
->  drivers/infiniband/core/security.c   | 709 +++++++++++++++++++++++++++=
-++++++++
->  drivers/infiniband/core/uverbs_cmd.c |  20 +-
->  drivers/infiniband/core/verbs.c      |  27 +-
->  include/linux/lsm_audit.h            |  15 +
->  include/linux/lsm_hooks.h            |  35 ++
->  include/linux/security.h             |  50 +++
->  include/rdma/ib_mad.h                |   4 +
->  include/rdma/ib_verbs.h              |  49 +++
->  security/Kconfig                     |   9 +
->  security/lsm_audit.c                 |  16 +
->  security/security.c                  |  59 +++
->  security/selinux/Makefile            |   2 +-
->  security/selinux/hooks.c             |  86 ++++-
->  security/selinux/ibpkey.c            | 245 ++++++++++++
->  security/selinux/include/classmap.h  |   4 +
->  security/selinux/include/ibpkey.h    |  31 ++
->  security/selinux/include/objsec.h    |  11 +
->  security/selinux/include/security.h  |   7 +-
->  security/selinux/selinuxfs.c         |   2 +
->  security/selinux/ss/policydb.c       | 129 ++++++-
->  security/selinux/ss/policydb.h       |  27 +-
->  security/selinux/ss/services.c       |  81 ++++
->  27 files changed, 1886 insertions(+), 45 deletions(-)
->  create mode 100644 drivers/infiniband/core/security.c
->  create mode 100644 security/selinux/ibpkey.c
->  create mode 100644 security/selinux/include/ibpkey.h
->=20
 
 
---=20
-Doug Ledford <dledford@redhat.com>
-    GPG Key ID: 0E572FDD
+-- 
+Respectfully,
 
-
---apaDITKQ14oBgj4V25p46COVEDhGo12hB--
-
---gfhOJrD47EX6aACVslQhoiotFCkXuau4R
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
-
-iQIcBAEBCAAGBQJYTxjxAAoJELgmozMOVy/dQkgP/RtLZ1y5yr8vC6ExttGiZMLq
-9HXG5d9EDkITMSH470VVvBN4HirjyoO2M8QR5tG0eh3LzqoumEGBekqeSyaWeu5l
-/qK0RoJJnxhYnROA77it6X0pb2OBChe+yuFYTVl7rGikHUS4Gs7MP2IBS6LKU+aC
-Fvy592xFneIH/1OLSaebkv2CXd9OTDONWeo8xqhJvRRenT8hEMPijSioeYCqsRfo
-iDn9TkQIoPtaT7UyKFZtP8utMI2LbxoSCmfDQxKzKflD0HkWHlNSzAYDLI0oh+kJ
-uNriYA0u6DFeY/0rbeYbu33uqXRgStjNpM8sXDsztrwBalnNzVDc98vjTvzu5vGU
-+QmGFAZfxGYpc44tHymuwquUbrsuPDw1YvIvxBvIFStXJOmAToMIO6JBE2FNYwGr
-iZvrm7ak5AZEI3MejvE5W/Ob61HhKDiRBknZPH8N3fzSwfE+d3dANhO+zDxDKI8D
-nfc8t9v8Lc1UHMdfj1GHojQcXCr8BRaTRs2I57edRkdZqU5mbulpDVW27tLOvk/v
-rfeUsY5xfUTFZLRCQH+3QYY50sp9WtLnM1XqWlb9tQT7RxokGKQldmYvhqOCxJhT
-say2q9/leAisdQArRMchf7mWJu3Z3WdI1vRVkxRw/u3K5TSLGvoqTxwSWjtZCN6w
-BCQkpLeawT2mRAG94XRr
-=sChk
------END PGP SIGNATURE-----
-
---gfhOJrD47EX6aACVslQhoiotFCkXuau4R--
+William C Roberts
