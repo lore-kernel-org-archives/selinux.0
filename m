@@ -1,107 +1,191 @@
-Subject: Re: [PATCH] libsepol/cil: remove avrules with no affected types
-To: Gary Tierney <gary.tierney@gmx.com>, selinux@tycho.nsa.gov
-References: <1481112959-26208-1-git-send-email-gary.tierney@gmx.com>
- <1481112959-26208-2-git-send-email-gary.tierney@gmx.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <9c6631cd-4729-92e9-302f-3dfa7b6ad8e5@tycho.nsa.gov>
-Date: Tue, 13 Dec 2016 11:03:11 -0500
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, "chrisw@sous-sol.org"
+ <chrisw@sous-sol.org>, "paul@paul-moore.com" <paul@paul-moore.com>,
+ "eparis@parisplace.org" <eparis@parisplace.org>, "dledford@redhat.com"
+ <dledford@redhat.com>, "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>
+CC: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH v6 0/9] SELinux support for Infiniband RDMA
+Date: Tue, 13 Dec 2016 16:25:44 +0000
+Message-ID: <DB6PR0501MB2422DCC01A577CDA280C2C82C49B0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
+References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
+ <a56c4be8-f908-4774-dd1c-c6bbab5c1b03@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <1481112959-26208-2-git-send-email-gary.tierney@gmx.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/07/2016 07:15 AM, Gary Tierney wrote:
-> Adds a check for avrules with type attributes that have a bitmap cardinality
-> of 0 (i.e., no types in their set) before adding them to the libsepol policy in
-> __cil_avrule_to_avtab().  Also adds an exception for neverallow rules to
-> prevent breaking anything from AOSP mentioned in
-> f9927d9370f90bd9d975ff933fe107ec4f93a9ac.
+On 12/13/2016 9:01 AM, Stephen Smalley wrote:
+> On 11/23/2016 09:17 AM, Dan Jurgens wrote:
+>> From: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> Infiniband applications access HW from user-space -- traffic is generated
+>> directly by HW, bypassing the kernel. Consequently, Infiniband Partitions,
+>> which are associated directly with HW transport endpoints, are a natural
+>> choice for enforcing granular mandatory access control for Infiniband. QPs may
+>> only send or receives packets tagged with the corresponding partition key
+>> (PKey). The PKey is not a cryptographic key; it's a 16 bit number identifying
+>> the partition.
+>>
+>> Every Infiniband fabric is controlled by a central Subnet Manager (SM). The SM
+>> provisions the partitions by assigning each port with the partitions it can
+>> access. In addition, the SM tags each port with a subnet prefix, which
+>> identifies the subnet. Determining which users are allowed to access which
+>> partition keys on a given subnet forms an effective policy for isolating users
+>> on the fabric. Any application that attempts to send traffic on a given subnet
+>> is automatically subject to the policy, regardless of which device and port it
+>> uses. SM software configures the subnet through a privileged Subnet Management
+>> Interface (SMI), which is presented by each Infiniband port. Thus, the SMI must
+>> also be controlled to prevent unauthorized changes to fabric configuration and
+>> partitioning. 
+>>
+>> To support access control for IB partitions and subnet management, security
+>> contexts must be provided for two new types of objects - PKeys and IB ports.
+>>
+>> A PKey label consists of a subnet prefix and a range of PKey values and is
+>> similar to the labeling mechanism for netports. Each Infiniband port can reside
+>> on a different subnet. So labeling the PKey values for specific subnet prefixes
+>> provides the user maximum flexibility, as PKey values may be determined
+>> independently for different subnets. There is a single access vector for PKeys
+>> called "access".
+>>
+>> An Infiniband port is labeled by device name and port number. There is a single
+>> access vector for IB ports called "manage_subnet".
+>>
+>> Because RDMA allows kernel bypass, enforcement must be done during connection
+>> setup. Communication over RDMA requires a send and receive queue, collectively
+>> known as a Queue Pair (QP). A QP must be initialized by privileged system calls
+>> before it can be used to send or receive data. During initialization the user
+>> must provide the PKey and port the QP will use; at this time access control can
+>> be enforced.
+>>
+>> Because there is a possibility that the enforcement settings or security
+>> policy can change, a means of notifying the ib_core module of such changes
+>> is required. To facilitate this a generic notification callback mechanism
+>> is added to the LSM. One callback is registered for checking the QP PKey
+>> associations when the policy changes. Mad agents also register a callback,
+>> they cache the permission to send and receive SMPs to avoid another per
+>> packet call to the LSM.
+>>
+>> Because frequent accesses to the same PKey's SID is expected a cache is
+>> implemented which is very similar to the netport cache.
+>>
+>> In order to properly enforce security when changes to the PKey table or
+>> security policy or enforcement occur ib_core must track which QPs are
+>> using which port, pkey index, and alternate path for every IB device.
+>> This makes operations that used to be atomic transactional.
+>>
+>> When modifying a QP, ib_core must associate it with the PKey index, port,
+>> and alternate path specified. If the QP was already associated with
+>> different settings, the QP is added to the new list prior to the
+>> modification. If the modify succeeds then the old listing is removed. If
+>> the modify fails the new listing is removed and the old listing remains
+>> unchanged.
+>>
+>> When destroying a QP the ib_qp structure is freed by the decive specific
+>> driver (i.e. mlx4_ib) if the 'destroy' is successful. This requires storing
+>> security related information in a separate structure. When a 'destroy'
+>> request is in process the ib_qp structure is in an undefined state so if
+>> there are changes to the security policy or PKey table, the security checks
+>> cannot reset the QP if it doesn't have permission for the new setting. If
+>> the 'destroy' fails, security for that QP must be enforced again and its
+>> status in the list is restored. If the 'destroy' succeeds the security info
+>> can be cleaned up and freed.
+>>
+>> There are a number of locks required to protect the QP security structure
+>> and the QP to device/port/pkey index lists. If multiple locks are required,
+>> the safe locking order is: QP security structure mutex first, followed by
+>> any list locks needed, which are sorted first by port followed by pkey
+>> index.
+>>
+>> ---
+>> v2:
+>> - Use void* blobs in the LSM hooks. Paul Moore
+>> - Make the policy change callback generic. Yuval Shaia, Paul Moore
+>> - Squash LSM changes into the patches where the calls are added. Paul Moore
+>> - Don't add new initial SIDs. Stephen Smalley
+>> - Squash MAD agent PKey and SMI patches and move logic to IB security. Dan Jurgens
+>> - Changed ib_end_port to ib_port. Paul Moore
+>> - Changed ib_port access vector from smp to manage_subnet. Paul Moore
+>> - Added pkey and ib_port details to the audit log. Paul Moore
+>> - See individual patches for more detail.
+>>
+>> v3:
+>> - ib_port -> ib_endport. Paul Moore
+>> - use notifier chains for LSM notifications. Paul Moore
+>> - reorder parameters in hooks to put security blob first. Paul Moore
+>> - Don't treat device name as untrusted string in audit log. Paul Moore
+>>
+>> v4:
+>> - Added separate AVC callback for LSM notifier. Paul Moore
+>> - Removed unneeded braces in ocontext_read. Paul Moore
+>>
+>> v5:
+>> - Fix link error when CONFIG_SECURITY is not set. Build Robot
+>> - Strip issue and Gerrit-Id: Leon Romanovsky
+>>
+>> v6:
+>> - Whitespace and bracket cleanup. James Morris
+>> - Cleanup error flow in sel_pkey_sid_slow. James Morris
+>>
+>> Daniel Jurgens (9):
+>>   IB/core: IB cache enhancements to support Infiniband security
+>>   IB/core: Enforce PKey security on QPs
+>>   selinux lsm IB/core: Implement LSM notification system
+>>   IB/core: Enforce security on management datagrams
+>>   selinux: Create policydb version for Infiniband support
+>>   selinux: Allocate and free infiniband security hooks
+>>   selinux: Implement Infiniband PKey "Access" access vector
+>>   selinux: Add IB Port SMP access vector
+>>   selinux: Add a cache for quicker retreival of PKey SIDs
+>>
+>>  drivers/infiniband/core/Makefile     |   3 +-
+>>  drivers/infiniband/core/cache.c      |  57 ++-
+>>  drivers/infiniband/core/core_priv.h  | 115 ++++++
+>>  drivers/infiniband/core/device.c     |  86 +++++
+>>  drivers/infiniband/core/mad.c        |  52 ++-
+>>  drivers/infiniband/core/security.c   | 709 +++++++++++++++++++++++++++++++++++
+>>  drivers/infiniband/core/uverbs_cmd.c |  20 +-
+>>  drivers/infiniband/core/verbs.c      |  27 +-
+>>  include/linux/lsm_audit.h            |  15 +
+>>  include/linux/lsm_hooks.h            |  35 ++
+>>  include/linux/security.h             |  50 +++
+>>  include/rdma/ib_mad.h                |   4 +
+>>  include/rdma/ib_verbs.h              |  49 +++
+>>  security/Kconfig                     |   9 +
+>>  security/lsm_audit.c                 |  16 +
+>>  security/security.c                  |  59 +++
+>>  security/selinux/Makefile            |   2 +-
+>>  security/selinux/hooks.c             |  86 ++++-
+>>  security/selinux/ibpkey.c            | 245 ++++++++++++
+>>  security/selinux/include/classmap.h  |   4 +
+>>  security/selinux/include/ibpkey.h    |  31 ++
+>>  security/selinux/include/objsec.h    |  11 +
+>>  security/selinux/include/security.h  |   7 +-
+>>  security/selinux/selinuxfs.c         |   2 +
+>>  security/selinux/ss/policydb.c       | 129 ++++++-
+>>  security/selinux/ss/policydb.h       |  27 +-
+>>  security/selinux/ss/services.c       |  81 ++++
+>>  27 files changed, 1886 insertions(+), 45 deletions(-)
+>>  create mode 100644 drivers/infiniband/core/security.c
+>>  create mode 100644 security/selinux/ibpkey.c
+>>  create mode 100644 security/selinux/include/ibpkey.h
+> For the LSM/SELinux bits,
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 >
-> Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
-> ---
->  libsepol/cil/src/cil_binary.c | 47 +++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 47 insertions(+)
+> Note that there will be a merge conflict on classmap.h due to commits in
+> the selinux next branch, but that should be easy to resolve.
 >
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index d33981b..3aa350a 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -1411,6 +1411,48 @@ exit:
->  	return rc;
->  }
+> We'll need the patches for the selinux userspace and refpolicy.
+Thanks Stephen, I need to rebase the user space and do some patch breakup.  I'll start on that soon.
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >
-> +static int __cil_type_datum_is_unused_attrib(struct cil_symtab_datum *src)
-> +{
-> +	struct cil_tree_node *node = NULL;
-> +	struct cil_typeattribute *attrib = NULL;
-> +
-> +	if (src->fqn == CIL_KEY_SELF) {
-> +		return CIL_FALSE;
-> +	}
-> +
-> +	node = src->nodes->head->data;
-
-There is a macro for this, so I changed this line to
-node = NODE(src);
-
-Everything else looked good, so I made the small change above and applied.
-
-Thanks,
-Jim
-
-> +
-> +	if (node->flavor != CIL_TYPEATTRIBUTE) {
-> +		return CIL_FALSE;
-> +	}
-> +
-> +	attrib = (struct cil_typeattribute *) src;
-> +	return ebitmap_cardinality(attrib->types) == 0;
-> +}
-> +
-> +static int __cil_avrule_can_remove(struct cil_avrule *cil_avrule)
-> +{
-> +	struct cil_symtab_datum *src = cil_avrule->src;
-> +	struct cil_symtab_datum *tgt = cil_avrule->tgt;
-> +
-> +	// Don't remove neverallow rules so they are written to
-> +	// the resulting policy and can be checked by tools in
-> +	// AOSP.
-> +	if (cil_avrule->rule_kind == CIL_AVRULE_NEVERALLOW) {
-> +		return CIL_FALSE;
-> +	}
-> +
-> +	if (__cil_type_datum_is_unused_attrib(src)) {
-> +		return CIL_TRUE;
-> +	}
-> +
-> +	if (__cil_type_datum_is_unused_attrib(tgt)) {
-> +		return CIL_TRUE;
-> +	}
-> +
-> +	return CIL_FALSE;
-> +}
-> +
->  int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule, cond_node_t *cond_node, enum cil_flavor cond_flavor)
->  {
->  	int rc = SEPOL_ERR;
-> @@ -1425,6 +1467,11 @@ int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_a
->  		goto exit;
->  	}
->
-> +	if (__cil_avrule_can_remove(cil_avrule)) {
-> +		rc = SEPOL_OK;
-> +		goto exit;
-> +	}
-> +
->  	src = cil_avrule->src;
->  	tgt = cil_avrule->tgt;
->
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
