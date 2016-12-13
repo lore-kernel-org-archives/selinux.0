@@ -1,335 +1,37 @@
-Subject: Re: [PATCH v6 5/9] selinux: Create policydb version for Infiniband
- support
-To: Dan Jurgens <danielj@mellanox.com>, chrisw@sous-sol.org,
- paul@paul-moore.com, eparis@parisplace.org, dledford@redhat.com,
- sean.hefty@intel.com, hal.rosenstock@gmail.com
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, "chrisw@sous-sol.org"
+ <chrisw@sous-sol.org>, "paul@paul-moore.com" <paul@paul-moore.com>,
+ "eparis@parisplace.org" <eparis@parisplace.org>, "dledford@redhat.com"
+ <dledford@redhat.com>, "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>
+CC: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH v6 3/9] selinux lsm IB/core: Implement LSM notification
+ system
+Date: Tue, 13 Dec 2016 14:38:54 +0000
+Message-ID: <DB6PR0501MB24224ED80DC88FB3BC44BF9FC49B0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
 References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
- <1479910651-43246-6-git-send-email-danielj@mellanox.com>
-Cc: linux-rdma@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <edb7cebd-cf0a-f115-741e-6d4e96edb0bd@tycho.nsa.gov>
-Date: Tue, 13 Dec 2016 09:38:18 -0500
+ <1479910651-43246-4-git-send-email-danielj@mellanox.com>
+ <8165ef76-d620-5904-e38e-90d258a30683@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-In-Reply-To: <1479910651-43246-6-git-send-email-danielj@mellanox.com>
-Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 11/23/2016 09:17 AM, Dan Jurgens wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
-> 
-> Support for Infiniband requires the addition of two new object contexts,
-> one for infiniband PKeys and another IB Ports. Added handlers to read
-> and write the new ocontext types when reading or writing a binary policy
-> representation.
-> 
-> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> Reviewed-by: Eli Cohen <eli@mellanox.com>
-
-I assume you have libsepol/checkpolicy patches for this as well?
-
-> 
-> ---
-> v2:
-> - Shorten ib_end_port to ib_port. Paul Moore
-> - Added bounds checking to port number. Paul Moore
-> - Eliminated {} in OCON_PKEY case statement.  Yuval Shaia
-> 
-> v3:
-> - ib_port -> ib_endport. Paul Moore
-> 
-> v4:
-> - removed unneeded brackets in ocontext_read. Paul Moore
-> ---
->  security/selinux/include/security.h |   3 +-
->  security/selinux/ss/policydb.c      | 129 +++++++++++++++++++++++++++++++-----
->  security/selinux/ss/policydb.h      |  27 +++++---
->  3 files changed, 135 insertions(+), 24 deletions(-)
-> 
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index 308a286..6bb9b0a 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -36,10 +36,11 @@
->  #define POLICYDB_VERSION_DEFAULT_TYPE	28
->  #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
->  #define POLICYDB_VERSION_XPERMS_IOCTL	30
-> +#define POLICYDB_VERSION_INFINIBAND		31
->  
->  /* Range of policy versions we understand*/
->  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
-> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_XPERMS_IOCTL
-> +#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_INFINIBAND
->  
->  /* Mask for just the mount related flags */
->  #define SE_MNTMASK	0x0f
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index d719db4..24e16da 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -17,6 +17,11 @@
->   *
->   *      Added support for the policy capability bitmap
->   *
-> + * Update: Mellanox Techonologies
-> + *
-> + *	Added Infiniband support
-> + *
-> + * Copyright (C) 2016 Mellanox Techonologies
->   * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
->   * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
->   * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-> @@ -76,81 +81,86 @@ static struct policydb_compat_info policydb_compat[] = {
->  	{
->  		.version	= POLICYDB_VERSION_BASE,
->  		.sym_num	= SYM_NUM - 3,
-> -		.ocon_num	= OCON_NUM - 1,
-> +		.ocon_num	= OCON_NUM - 3,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_BOOL,
->  		.sym_num	= SYM_NUM - 2,
-> -		.ocon_num	= OCON_NUM - 1,
-> +		.ocon_num	= OCON_NUM - 3,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_IPV6,
->  		.sym_num	= SYM_NUM - 2,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_NLCLASS,
->  		.sym_num	= SYM_NUM - 2,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_MLS,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_AVTAB,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_RANGETRANS,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_POLCAP,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_PERMISSIVE,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_BOUNDARY,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_FILENAME_TRANS,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_ROLETRANS,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_DEFAULT_TYPE,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_CONSTRAINT_NAMES,
->  		.sym_num	= SYM_NUM,
-> -		.ocon_num	= OCON_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
->  	},
->  	{
->  		.version	= POLICYDB_VERSION_XPERMS_IOCTL,
->  		.sym_num	= SYM_NUM,
-> +		.ocon_num	= OCON_NUM - 2,
-> +	},
-> +	{
-> +		.version	= POLICYDB_VERSION_INFINIBAND,
-> +		.sym_num	= SYM_NUM,
->  		.ocon_num	= OCON_NUM,
->  	},
->  };
-> @@ -2222,6 +2232,60 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
->  					goto out;
->  				break;
->  			}
-> +			case OCON_PKEY:
-> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 6);
-> +				if (rc)
-> +					goto out;
-> +
-> +				c->u.pkey.subnet_prefix = be64_to_cpu(*((__be64 *)nodebuf));
-> +				/* The subnet prefix is stored as an IPv6
-> +				 * address in the policy.
-> +				 *
-> +				 * Check that the lower 2 DWORDS are 0.
-> +				 */
-> +				if (nodebuf[2] || nodebuf[3]) {
-> +					rc = -EINVAL;
-> +					goto out;
-> +				}
-> +
-> +				if (nodebuf[4] > 0xffff ||
-> +				    nodebuf[5] > 0xffff) {
-> +					rc = -EINVAL;
-> +					goto out;
-> +				}
-> +
-> +				c->u.pkey.low_pkey = le32_to_cpu(nodebuf[4]);
-> +				c->u.pkey.high_pkey = le32_to_cpu(nodebuf[5]);
-> +
-> +				rc = context_read_and_validate(&c->context[0],
-> +							       p,
-> +							       fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
-> +			case OCON_IB_ENDPORT:
-> +				rc = next_entry(buf, fp, sizeof(u32) * 2);
-> +				if (rc)
-> +					goto out;
-> +				len = le32_to_cpu(buf[0]);
-> +
-> +				rc = str_read(&c->u.ib_endport.dev_name, GFP_KERNEL, fp, len);
-> +				if (rc)
-> +					goto out;
-> +
-> +				if (buf[1] > 0xff || buf[1] == 0) {
-> +					rc = -EINVAL;
-> +					goto out;
-> +				}
-> +
-> +				c->u.ib_endport.port_num = le32_to_cpu(buf[1]);
-> +
-> +				rc = context_read_and_validate(&c->context[0],
-> +							       p,
-> +							       fp);
-> +				if (rc)
-> +					goto out;
-> +				break;
->  			}
->  		}
->  	}
-> @@ -3151,6 +3215,41 @@ static int ocontext_write(struct policydb *p, struct policydb_compat_info *info,
->  				if (rc)
->  					return rc;
->  				break;
-> +			case OCON_PKEY:
-> +				*((__be64 *)nodebuf) = cpu_to_be64(c->u.pkey.subnet_prefix);
-> +
-> +				/*
-> +				 * The low order 2 bits were confirmed to be 0
-> +				 * when the policy was loaded. Write them out
-> +				 * as zero
-> +				 */
-> +				nodebuf[2] = 0;
-> +				nodebuf[3] = 0;
-> +
-> +				nodebuf[4] = cpu_to_le32(c->u.pkey.low_pkey);
-> +				nodebuf[5] = cpu_to_le32(c->u.pkey.high_pkey);
-> +
-> +				rc = put_entry(nodebuf, sizeof(u32), 6, fp);
-> +				if (rc)
-> +					return rc;
-> +				rc = context_write(p, &c->context[0], fp);
-> +				if (rc)
-> +					return rc;
-> +				break;
-> +			case OCON_IB_ENDPORT:
-> +				len = strlen(c->u.ib_endport.dev_name);
-> +				buf[0] = cpu_to_le32(len);
-> +				buf[1] = cpu_to_le32(c->u.ib_endport.port_num);
-> +				rc = put_entry(buf, sizeof(u32), 2, fp);
-> +				if (rc)
-> +					return rc;
-> +				rc = put_entry(c->u.ib_endport.dev_name, 1, len, fp);
-> +				if (rc)
-> +					return rc;
-> +				rc = context_write(p, &c->context[0], fp);
-> +				if (rc)
-> +					return rc;
-> +				break;
->  			}
->  		}
->  	}
-> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> index 725d594..edb329d 100644
-> --- a/security/selinux/ss/policydb.h
-> +++ b/security/selinux/ss/policydb.h
-> @@ -187,6 +187,15 @@ struct ocontext {
->  			u32 addr[4];
->  			u32 mask[4];
->  		} node6;        /* IPv6 node information */
-> +		struct {
-> +			u64 subnet_prefix;
-> +			u16 low_pkey;
-> +			u16 high_pkey;
-> +		} pkey;
-> +		struct {
-> +			char *dev_name;
-> +			u8 port_num;
-> +		} ib_endport;
->  	} u;
->  	union {
->  		u32 sclass;  /* security class for genfs */
-> @@ -215,14 +224,16 @@ struct genfs {
->  #define SYM_NUM     8
->  
->  /* object context array indices */
-> -#define OCON_ISID  0	/* initial SIDs */
-> -#define OCON_FS    1	/* unlabeled file systems */
-> -#define OCON_PORT  2	/* TCP and UDP port numbers */
-> -#define OCON_NETIF 3	/* network interfaces */
-> -#define OCON_NODE  4	/* nodes */
-> -#define OCON_FSUSE 5	/* fs_use */
-> -#define OCON_NODE6 6	/* IPv6 nodes */
-> -#define OCON_NUM   7
-> +#define OCON_ISID	0 /* initial SIDs */
-> +#define OCON_FS		1 /* unlabeled file systems */
-> +#define OCON_PORT	2 /* TCP and UDP port numbers */
-> +#define OCON_NETIF	3 /* network interfaces */
-> +#define OCON_NODE	4 /* nodes */
-> +#define OCON_FSUSE	5 /* fs_use */
-> +#define OCON_NODE6	6 /* IPv6 nodes */
-> +#define OCON_PKEY	7 /* Infiniband PKeys */
-> +#define OCON_IB_ENDPORT	8 /* Infiniband end ports */
-> +#define OCON_NUM	9
->  
->  /* The policy database */
->  struct policydb {
-> 
+On 12/13/2016 8:26 AM, Stephen Smalley wrote:
+> On 11/23/2016 09:17 AM, Dan Jurgens wrote:
+>> @@ -177,6 +177,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+>>  			avc_ss_reset(0);
+>>  		selnl_notify_setenforce(selinux_enforcing);
+>>  		selinux_status_update_setenforce(selinux_enforcing);
+>> +		if (!selinux_enforcing)
+>> +			call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+> Why do you need this notification?  When switching from permissive to
+> enforcing, you need (and already get) a notification since you may need
+> to revoke previously granted permissions.  But what action do you need
+> to take on switching to permissive?
+MAD (management datagram) Agents cache if they are allowed to send and receive subnet management protocol (SMP) datagrams.  Without this notification they will still drop all SMPs in permissive mode if they weren't allowed in enforcing mode.  This is handled in [PATCH v6 4/9] IB/core: Enforce security on management datagrams.
