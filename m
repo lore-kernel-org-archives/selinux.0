@@ -1,58 +1,220 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBDMHpln021528
- for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2016 17:17:51 -0500
-Received: by mail-vk0-f68.google.com with SMTP id l126so190172vkh.0
- for <selinux@tycho.nsa.gov>; Tue, 13 Dec 2016 14:17:50 -0800 (PST)
+Subject: Re: Unconfined label
+To: Naina Emmanuel <nemmanuel1992@gmail.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Vit Mojzis <vmojzis@redhat.com>
+References: <CAN=9EoSnUYQoC0SbnrVw+cKxNQFyUG+ekgK4JjRQZgChWjSCnw@mail.gmail.com>
+ <CAN=9EoQnJBAqkDGZNnQHxQBotAXd8hKM4Dyxt0H=1qF5AOiVrQ@mail.gmail.com>
+ <CAN=9EoS2brmWW2xwMHFqJNQeHOcx+WZzwBhLww+dSTLxyfzXBg@mail.gmail.com>
+ <CAN=9EoRCPwXn5QK9xrSenEoJpmEKU2xMkia=9BR5STkLEjW9EQ@mail.gmail.com>
+ <CAN=9EoS7bgfv4VPo31Aurx5JXEAUYbe3KBWqJGKx90A7D1rORg@mail.gmail.com>
+ <CAN=9EoTd6U0FvZpzZGeeXaCZ3XS=xcX8Y3S2nMMfxViho5zjQw@mail.gmail.com>
+ <CAN=9EoRHnWZHMiHsvBxQZna_MPoom1KuGjEgpq0xbUAz1NmbUw@mail.gmail.com>
+ <CAN=9EoRNLozdBh0LQufH+7X+z+tbUKcmwfonpCFJVoSHuVCdSA@mail.gmail.com>
+ <CAN=9EoSmJ8c+ZqSAUiHt3--3W9R-58JrycDhZQK=ukw0O7h9Mw@mail.gmail.com>
+ <CAN=9EoTWjzMHoGA0aQzhhFvFsmYKRMoZy3RkY32-u=fLSFVSFg@mail.gmail.com>
+ <CAN=9EoQRrQNu_AjrdwUZJwuXcwO6nVBGRVHSYL=QRGhqcwSMGg@mail.gmail.com>
+Cc: masoom alam <masoom.alam@gmail.com>, selinux@tycho.nsa.gov
+From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <48b38d07-c36d-777d-96ce-974276178c15@redhat.com>
+Date: Wed, 14 Dec 2016 08:24:12 -0500
 MIME-Version: 1.0
-In-Reply-To: <DB6PR0501MB2422DCC01A577CDA280C2C82C49B0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
-References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
- <a56c4be8-f908-4774-dd1c-c6bbab5c1b03@tycho.nsa.gov>
- <DB6PR0501MB2422DCC01A577CDA280C2C82C49B0@DB6PR0501MB2422.eurprd05.prod.outlook.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 13 Dec 2016 17:17:49 -0500
-Message-ID: <CAHC9VhTdntem1hK0arEo4p1MWPH5sjzDN0yG_=1S7ui=C4i8Yg@mail.gmail.com>
-Subject: Re: [PATCH v6 0/9] SELinux support for Infiniband RDMA
-To: Daniel Jurgens <danielj@mellanox.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
- "eparis@parisplace.org" <eparis@parisplace.org>,
- "dledford@redhat.com" <dledford@redhat.com>,
- "sean.hefty@intel.com" <sean.hefty@intel.com>,
- "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAN=9EoQRrQNu_AjrdwUZJwuXcwO6nVBGRVHSYL=QRGhqcwSMGg@mail.gmail.com>
+Content-Type: multipart/alternative;
+ boundary="------------C02BFB5929089C511A891860"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Dec 13, 2016 at 11:25 AM, Daniel Jurgens <danielj@mellanox.com> wrote:
-> On 12/13/2016 9:01 AM, Stephen Smalley wrote:
->> For the LSM/SELinux bits,
->> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->>
->> Note that there will be a merge conflict on classmap.h due to commits in
->> the selinux next branch, but that should be easy to resolve.
->>
->> We'll need the patches for the selinux userspace and refpolicy.
+This is a multi-part message in MIME format.
+--------------C02BFB5929089C511A891860
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+
+
+On 12/14/2016 05:25 AM, Naina Emmanuel wrote:
+> sir, I have following questions, I am using Centos 7,selinux in
+> Tagrgted Enforced mode, please help
 >
-> Thanks Stephen, I need to rebase the user space and do some patch breakup.  I'll start on that soon.
+> *Q1:* I have made a new user test1 and mapped that to SELINUX
+> user *user_u *but when I switch to *test3 *its shows a label
+> *unconfined why?*
+> [root@localhost ~]# /usr/sbin/useradd -Z user_u test3 && echo test3 |
+> passwd --stdin test3
+> Changing password for user test3.
+> passwd: all authentication tokens updated successfully.
+> [root@localhost ~]# su test3
+> [test3@localhost root]$ id -Z
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+> [test3@localhost root]$
+>
+su does not go through a full login process.  We only enter user domains
+through full login commands.
+> *Q2: *When I logout from root and login as *test3 *then its show it's
+> mapped label user_t why?
+> [test3@localhost ~]$ id -Z
+> user_u:user_r:user_t:s0
+> [test3@localhost ~]$ 
+>
+>
+See above.
+> *Q3: *If an unconfined process is compromised, SELinux does not
+> prevent an attacker from gaining access to system resources and
+> data...... So how can we restrict any *unconfined *process from
+> accessing the docker daemon?
+Don't run the process as unconfined if you want it confined.  Also
+access to the docker.socket is controlled using DAC,
+so an unconfined user running as non root cannot talk to the socket, he
+has to become root to talk to it.
 
-Sorry, I haven't had a chance to look at v6, but considering all our
-discussions on the previous versions I don't expect any issues from
-me.  I was hoping for some more generic hooks/controls, but that
-doesn't look to be possible given the nature of RDMA.  I also want to
-mention again the need for tests; we've talked about this in the past
-and while it isn't possible to run the tests without IB hardware, I
-would like to see us merge tests into the selinux-testsuite so that
-those who do have the required h/w available could run the tests.
+http://www.projectatomic.io/blog/2015/08/why-we-dont-let-non-root-users-run-docker-in-centos-fedora-or-rhel/
+> Please help in this regard thanks!
+>
+>
+> On 14-Dec-2016 10:37 am, "Naina Emmanuel" <nemmanuel1992@gmail.com
+> <mailto:nemmanuel1992@gmail.com>> wrote:
+>
+>     Good morning,
+>     I have a question that unconfined (processes, users , directories)
+>     are supposed to be not secured by selinux... and Docker daemon is
+>     not accessed by confined user(staff, user) 
+>     Q: if selinux by default producing unconfined_t users and root is
+>     also unconfined_t then where is the difference lies that root can
+>     talk to docker daemon and some user <user123> with same
+>     unconfined_t label can't access the docker daemon(creatte or start
+>     containers)
+>     Q: What these unconfined (user, Sir, processes) can do then? Means
+>     what processes or directories unconfined label can access??
+>
+>     Thanks in advance
+>
 
-Assuming we can sort out the SELinux userspace and and tests by the
-end of January, I see no reason why this couldn't go in for v4.11.
 
--- 
-paul moore
-www.paul-moore.com
+--------------C02BFB5929089C511A891860
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <p><br>
+    </p>
+    <br>
+    <div class="moz-cite-prefix">On 12/14/2016 05:25 AM, Naina Emmanuel
+      wrote:<br>
+    </div>
+    <blockquote
+cite="mid:CAN=9EoQRrQNu_AjrdwUZJwuXcwO6nVBGRVHSYL=QRGhqcwSMGg@mail.gmail.com"
+      type="cite">
+      <div dir="ltr">
+        <div dir="auto">sir, I have following questions, I am using
+          Centos 7,selinux in Tagrgted Enforced mode, please help</div>
+        <div dir="auto"><br>
+          <div><b>Q1:</b> I have made a new user test1 and mapped that
+            to SELINUX user <b>user_u </b>but when I switch to <b>test3 </b>its
+            shows a label <b>unconfined why?</b></div>
+          <div>
+            <div>[root@localhost ~]# /usr/sbin/useradd -Z user_u test3
+              &amp;&amp; echo test3 | passwd --stdin test3</div>
+            <div>Changing password for user test3.</div>
+            <div>passwd: all authentication tokens updated successfully.</div>
+            <div>[root@localhost ~]# su test3</div>
+            <div>[test3@localhost root]$ id -Z</div>
+            <div>unconfined_u:unconfined_r:<wbr>unconfined_t:s0-s0:c0.c1023</div>
+            <div>[test3@localhost root]$</div>
+          </div>
+          <div><br>
+          </div>
+        </div>
+      </div>
+    </blockquote>
+    su does not go through a full login process.  We only enter user
+    domains through full login commands.<br>
+    <blockquote
+cite="mid:CAN=9EoQRrQNu_AjrdwUZJwuXcwO6nVBGRVHSYL=QRGhqcwSMGg@mail.gmail.com"
+      type="cite">
+      <div dir="ltr">
+        <div dir="auto">
+          <div><b>Q2: </b>When I logout from root and login as <b>test3 </b>then
+            its show it's mapped label user_t why?</div>
+          <div>
+            <div>[test3@localhost ~]$ id -Z</div>
+            <div>user_u:user_r:user_t:s0</div>
+            <div>[test3@localhost ~]$ </div>
+          </div>
+          <div><br>
+          </div>
+          <div><br>
+          </div>
+        </div>
+      </div>
+    </blockquote>
+    See above.<br>
+    <blockquote
+cite="mid:CAN=9EoQRrQNu_AjrdwUZJwuXcwO6nVBGRVHSYL=QRGhqcwSMGg@mail.gmail.com"
+      type="cite">
+      <div dir="ltr">
+        <div dir="auto">
+          <div><b>Q3: </b><span style="background-color:transparent;color:rgb(0,0,0);font-family:arial;font-size:14.6667px;white-space:pre-wrap">If an unconfined process is compromised, SELinux does not prevent an attacker from gaining access to system resources and data...... So how can we restrict any <b>unconfined </b>process from accessing the docker daemon?</span></div>
+          <div><span style="background-color:transparent;color:rgb(0,0,0);font-family:arial;font-size:14.6667px;white-space:pre-wrap">
+</span></div>
+          <div><span style="background-color:transparent;color:rgb(0,0,0);font-family:arial;font-size:14.6667px;white-space:pre-wrap">
+</span></div>
+        </div>
+      </div>
+    </blockquote>
+    Don't run the process as unconfined if you want it confined.  Also
+    access to the docker.socket is controlled using DAC, <br>
+    so an unconfined user running as non root cannot talk to the socket,
+    he has to become root to talk to it.<br>
+    <br>
+<a class="moz-txt-link-freetext" href="http://www.projectatomic.io/blog/2015/08/why-we-dont-let-non-root-users-run-docker-in-centos-fedora-or-rhel/">http://www.projectatomic.io/blog/2015/08/why-we-dont-let-non-root-users-run-docker-in-centos-fedora-or-rhel/</a><br>
+    <blockquote
+cite="mid:CAN=9EoQRrQNu_AjrdwUZJwuXcwO6nVBGRVHSYL=QRGhqcwSMGg@mail.gmail.com"
+      type="cite">
+      <div dir="ltr">
+        <div dir="auto">
+          <div><span style="background-color:transparent;color:rgb(0,0,0);font-family:arial;font-size:14.6667px;white-space:pre-wrap">Please help in this regard thanks!</span></div>
+          <div><span style="background-color:transparent;color:rgb(0,0,0);font-family:arial;font-size:14.6667px;white-space:pre-wrap">
+</span></div>
+          <div><br>
+          </div>
+        </div>
+        <div class="gmail_extra"><br>
+          <div class="gmail_quote">On 14-Dec-2016 10:37 am, "Naina
+            Emmanuel" &lt;<a moz-do-not-send="true"
+              href="mailto:nemmanuel1992@gmail.com" target="_blank">nemmanuel1992@gmail.com</a>&gt;
+            wrote:<br type="attribution">
+            <blockquote class="gmail_quote" style="margin:0px 0px 0px
+              0.8ex;border-left:1px solid
+              rgb(204,204,204);padding-left:1ex">
+              <div dir="auto">Good morning,
+                <div dir="auto">I have a question that unconfined
+                  (processes, users , directories) are supposed to be
+                  not secured by selinux... and Docker daemon is not
+                  accessed by confined user(staff, user) </div>
+                <div dir="auto">Q: if selinux by default producing
+                  unconfined_t users and root is also unconfined_t then
+                  where is the difference lies that root can talk to
+                  docker daemon and some user &lt;user123&gt; with same
+                  unconfined_t label can't access the docker
+                  daemon(creatte or start containers)</div>
+                <div dir="auto">Q: What these unconfined (user, Sir,
+                  processes) can do then? Means what processes or
+                  directories unconfined label can access??</div>
+                <div dir="auto"><br>
+                </div>
+                <div dir="auto">Thanks in advance</div>
+              </div>
+            </blockquote>
+          </div>
+        </div>
+      </div>
+    </blockquote>
+    <br>
+  </body>
+</html>
+
+--------------C02BFB5929089C511A891860--
