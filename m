@@ -1,53 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBFNN7Ll002620
- for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2016 18:23:07 -0500
-Received: by mail-wm0-f44.google.com with SMTP id g23so8500202wme.1
- for <selinux@tycho.nsa.gov>; Thu, 15 Dec 2016 15:23:06 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBGCXfJI005278
+ for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 07:33:41 -0500
+From: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Reply-To: russell@coker.com.au
+Subject: Another getcon() vs getcon_raw() issue in systemd
+Date: Fri, 16 Dec 2016 23:33:27 +1100
+Message-ID: <4028608.pKKk40ccRB@russell.coker.com.au>
 MIME-Version: 1.0
-In-Reply-To: <1481839327.20082.14.camel@tycho.nsa.gov>
-References: <1481318475-7288-1-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhQ_VpmLPuJOoE9OY0aawHW_=Ka_=+M3Yghao9HmjDnxMA@mail.gmail.com>
- <1481839327.20082.14.camel@tycho.nsa.gov>
-From: Paul Moore <pmoore@redhat.com>
-Date: Thu, 15 Dec 2016 18:23:04 -0500
-Message-ID: <CAGH-KgutsirOv2O2-e4P+nmzR2Yq=-txjnrxikxPfYZR4dW63Q@mail.gmail.com>
-Subject: Re: [PATCH] selinux: clean up cred usage and simplify
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul@paul-moore.com>, dhowells@redhat.com,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Dec 15, 2016 at 5:02 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2016-12-15 at 16:10 -0500, Paul Moore wrote:
->> We should have a little more naming consistentcy between
->> current_has_system() and self_has_perm().  Something like
->> current_has_process/current_has_system,
->> self_has_process/self_has_system, or something else along the lines
->> ... I think you get the idea.
->
-> Not sure how to improve upon it in a manner that is concise and clear.
-> At present, the patch splits the old task_has_perm() into
-> task_has_perm_to_current() vs self_has_perm() and renames
-> task_has_system() to current_has_system().  If I rename self_has_perm()
-> to current_has_process(), then it seems confusingly similar and
-> inconsistent with the existing current_has_perm(), which is unchanged
-> by this patch. If I instead rename current_has_system() to
-> self_has_system(), then that also seems confusing/inconsistent;
-> self_has_perm() indicates it is a current-self check, whereas
-> current_has_system() is a current-kernel:system check.  I could do that
-> but not sure it is an improvement.
->
-> The other option would be to inline them all since they are all quite
-> trivial now.
+http://selinux.tycho.nsa.narkive.com/cZUV3wmW/selinux-set-callback-problem
 
-Perhaps this last option is best, as you point out, these are all
-basically just one-liner wrappers at this point and offer little
-standalone value.
+The above URL has the archive of the last time I raised an issue like this. 
+Thanks to Nicolas Iooss for pointing out the solution.
+
+type=USER_AVC msg=audit(1481891298.695:687055): pid=1 uid=0 auid=4294967295 
+ses=4294967295 subj=system_u:system_r:init_t:s0 msg='avc:  denied  { status } 
+for auid=n/a uid=0 gid=0 cmdline="/lib/systemd/systemd-machined" 
+scontext=system_u:system_r:systemd_machined_t:SystemLow 
+tcontext=system_u:system_r:init_t:s0 tclass=system  exe="/lib/systemd/systemd" 
+sauid=0 hostname=? addr=? terminal=?'
+
+Now in Debian/Unstable we have a similar issue with systemd 232-7 giving 
+audit.log entries like the above.
+
+# sed -e s/SystemLow/s0/ </var/log/audit/audit.log | audit2allow -l
+
+#============= systemd_machined_t ==============
+
+#!!!! This avc is allowed in the current policy
+allow systemd_machined_t init_t:system status;
+
+As an interesting twist it seems that I have some other problem with systemd-
+machined in that I have policy allowing the operation in question but it is 
+rejected anyway.  Audit2why says:
+
+        Was caused by:
+                Unknown - would be allowed by active policy
+                Possible mismatch between this policy and the one under which 
+the audit message was generated.
+
+                Possible mismatch between current in-memory boolean settings 
+vs. permanent ones.
+
+Any suggestions from systemd experts on where to look for a solution would be 
+appreciated.
 
 -- 
-paul moore
-security @ redhat
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
