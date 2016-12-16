@@ -1,16 +1,13 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBGIcILw028704
- for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 13:38:18 -0500
 Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
  /proc/pid/attr nodes to proc
 To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
  <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
 Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org, john.johansen@canonical.com
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <2dbd7774-7d95-7d1a-f940-81240f84f9d8@schaufler-ca.com>
-Date: Fri, 16 Dec 2016 10:38:06 -0800
+ linux-security-module@vger.kernel.org, casey@schaufler-ca.com
+From: John Johansen <john.johansen@canonical.com>
+Message-ID: <4cbe5a4f-f51d-30e1-9400-13673e8f64df@canonical.com>
+Date: Fri, 16 Dec 2016 11:06:51 -0800
 MIME-Version: 1.0
 In-Reply-To: <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
 Content-Type: text/plain; charset=windows-1252
@@ -19,7 +16,7 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/16/2016 9:41 AM, Stephen Smalley wrote:
+On 12/16/2016 09:41 AM, Stephen Smalley wrote:
 > Processes can only alter their own security attributes via
 > /proc/pid/attr nodes.  This is presently enforced by each individual
 > security module and is also imposed by the Linux credentials
@@ -28,11 +25,10 @@ On 12/16/2016 9:41 AM, Stephen Smalley wrote:
 > security modules to proc_pid_attr_write() before calling the security hook,
 > and drop the unnecessary task argument to the security hook since it can
 > only ever be the current task.
->
+> 
 > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
+Acked-by: John Johansen <john.johansen@canonical.com>
 
 > ---
 >  fs/proc/base.c             | 13 +++++++++----
@@ -43,7 +39,7 @@ Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 >  security/selinux/hooks.c   | 13 +------------
 >  security/smack/smack_lsm.c | 11 +----------
 >  7 files changed, 18 insertions(+), 37 deletions(-)
->
+> 
 > diff --git a/fs/proc/base.c b/fs/proc/base.c
 > index 6eae4d0..7b228ea 100644
 > --- a/fs/proc/base.c
@@ -223,3 +219,4 @@ Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 >  	if (!smack_privileged(CAP_MAC_ADMIN) && list_empty(&tsp->smk_relabel))
 >  		return -EPERM;
 >  
+> 
