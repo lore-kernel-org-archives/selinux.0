@@ -1,236 +1,202 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBGMDH5j031378
- for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 17:13:17 -0500
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- john.johansen@canonical.com, James Morris <james.l.morris@oracle.com>
-References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
- <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhQOjXUYxRaHcgxwiTFwwNsUuf646O-gDq7Bm_0aToMtgQ@mail.gmail.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <28224bb8-425e-5dec-472f-105c5cd7e098@schaufler-ca.com>
-Date: Fri, 16 Dec 2016 14:13:14 -0800
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBGNFubX017285
+ for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 18:15:57 -0500
+Received: from mail-it0-f53.google.com (mail-it0-f53.google.com
+ [209.85.214.53])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 502005646DC
+ for <selinux@tycho.nsa.gov>; Sat, 17 Dec 2016 00:15:47 +0100 (CET)
+Received: by mail-it0-f53.google.com with SMTP id y23so33417595itc.0
+ for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 15:15:47 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQOjXUYxRaHcgxwiTFwwNsUuf646O-gDq7Bm_0aToMtgQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <4028608.pKKk40ccRB@russell.coker.com.au>
+References: <4028608.pKKk40ccRB@russell.coker.com.au>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Sat, 17 Dec 2016 00:15:45 +0100
+Message-ID: <CAJfZ7==GE=E0LfnbtwLM1PRPKaiF9SCje+RSi3J8FG41HaP56g@mail.gmail.com>
+Subject: Re: Another getcon() vs getcon_raw() issue in systemd
+To: Russell Coker <russell@coker.com.au>
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a1144bb34f3adf10543cebfd4
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/16/2016 2:06 PM, Paul Moore wrote:
-> On Fri, Dec 16, 2016 at 12:41 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> Processes can only alter their own security attributes via
->> /proc/pid/attr nodes.  This is presently enforced by each individual
->> security module and is also imposed by the Linux credentials
->> implementation, which only allows a task to alter its own credentials.
->> Move the check enforcing this restriction from the individual
->> security modules to proc_pid_attr_write() before calling the security hook,
->> and drop the unnecessary task argument to the security hook since it can
->> only ever be the current task.
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->>  fs/proc/base.c             | 13 +++++++++----
->>  include/linux/lsm_hooks.h  |  3 +--
->>  include/linux/security.h   |  4 ++--
->>  security/apparmor/lsm.c    |  7 ++-----
->>  security/security.c        |  4 ++--
->>  security/selinux/hooks.c   | 13 +------------
->>  security/smack/smack_lsm.c | 11 +----------
->>  7 files changed, 18 insertions(+), 37 deletions(-)
-> Looks good to me.  I'm happy to pull this in via the SELinux tree
-> unless anyone else would rather take it?
+--001a1144bb34f3adf10543cebfd4
+Content-Type: text/plain; charset=UTF-8
 
-That works for me. It does need to go in atomically.
+On Fri, Dec 16, 2016 at 1:33 PM, Russell Coker <russell@coker.com.au> wrote:
+
+> http://selinux.tycho.nsa.narkive.com/cZUV3wmW/selinux-set-callback-problem
+>
+> The above URL has the archive of the last time I raised an issue like this.
+> Thanks to Nicolas Iooss for pointing out the solution.
+>
+> type=USER_AVC msg=audit(1481891298.695:687055): pid=1 uid=0
+> auid=4294967295
+> ses=4294967295 subj=system_u:system_r:init_t:s0 msg='avc:  denied  {
+> status }
+> for auid=n/a uid=0 gid=0 cmdline="/lib/systemd/systemd-machined"
+> scontext=system_u:system_r:systemd_machined_t:SystemLow
+> tcontext=system_u:system_r:init_t:s0 tclass=system
+> exe="/lib/systemd/systemd"
+> sauid=0 hostname=? addr=? terminal=?'
+>
+> Now in Debian/Unstable we have a similar issue with systemd 232-7 giving
+> audit.log entries like the above.
 
 
+Hi,
+I quickly searched in systemd git tree where the source context comes from.
+My starting point was the call to sd_bus_query_sender_creds()
+in mac_selinux_generic_access_check() [1]. This function may call
+sd_bus_get_name_creds() [2] -> bus_get_name_creds_dbus1() [3]
+-> sd_bus_call_method("org.freedesktop.DBus",
+..., "GetConnectionSELinuxSecurityContext", ..., "s", unique ? unique :
+name) [4]. As the audit entry you sent comes from a DBus call
+between systemd-machined and systemd, this code path is likely to have been
+the origin of the source context.
+
+The DBus method which is called is implemented in DBus function
+bus_driver_handle_get_connection_selinux_security_context() [5], which
+calls several functions until libselinux's getpeercon() [6]. As it is not
+getpeercon_raw(), this may give the translated label. In order to test
+this, could you please execute the following command and tell its output?
+
+dbus-send --system --print-reply --dest=org.freedesktop.DBus
+/org/freedesktop/DBus
+org.freedesktop.DBus.GetConnectionSELinuxSecurityContext
+'string:org.freedesktop.machine1'
+
+Or, if you have not got dbus-send but have gdbus:
+
+gdbus call --system --dest org.freedesktop.DBus --object-path
+/org/freedesktop/DBus --method
+org.freedesktop.DBus.GetConnectionSELinuxSecurityContext
+org.freedesktop.machine1
+
+On my system, which does not use MLS (so I am currently not able to
+reproduce the issue), I get: array of bytes
+"system_u:system_r:systemd_machined_t". If on your system it gives a
+context with SystemLow, it will confirm the origin of the issue. Also, the
+DBus specification is quite strange about the method: "Returns the security
+context used by SELinux, in an unspecified format. If you know what this
+means, please contribute documentation via the D-Bus bug tracking system."
+[7]. It seems GetConnectionCredentials should be preferred. In order to see
+whether modifying systemd code would be enough to fix this, or whether it
+is a bug in the D-Bus interfaces, what does this command return on your
+system?
+
+dbus-send --system --print-reply --dest=org.freedesktop.DBus
+/org/freedesktop/DBus org.freedesktop.DBus.GetConnectionCredentials
+'string:org.freedesktop.machine1'
+
+Cheers,
+Nicolas
+
+[1]
+https://github.com/systemd/systemd/blob/v232/src/core/selinux-access.c#L206
+[2]
+https://github.com/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-convenience.c#L542
+[3]
+https://github.com/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-control.c#L929
+[4]
+https://github.com/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-control.c#L865
+[5]
+https://cgit.freedesktop.org/dbus/dbus/tree/bus/driver.c?h=dbus-1.10#n1809
+[6]
+https://cgit.freedesktop.org/dbus/dbus/tree/bus/selinux.c?h=dbus-1.10#n724
+[7]
+https://cgit.freedesktop.org/dbus/dbus/tree/doc/dbus-specification.xml?h=dbus-1.10#n6200
+
+--001a1144bb34f3adf10543cebfd4
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On F=
+ri, Dec 16, 2016 at 1:33 PM, Russell Coker <span dir=3D"ltr">&lt;<a href=3D=
+"mailto:russell@coker.com.au" target=3D"_blank">russell@coker.com.au</a>&gt=
+;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0p=
+x 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><a hre=
+f=3D"http://selinux.tycho.nsa.narkive.com/cZUV3wmW/selinux-set-callback-pro=
+blem" rel=3D"noreferrer" target=3D"_blank">http://selinux.tycho.nsa.<wbr>na=
+rkive.com/cZUV3wmW/selinux-<wbr>set-callback-problem</a><br>
+<br>
+The above URL has the archive of the last time I raised an issue like this.=
+<br>
+Thanks to Nicolas Iooss for pointing out the solution.<br>
+<br>
+type=3DUSER_AVC msg=3Daudit(1481891298.695:<wbr>687055): pid=3D1 uid=3D0 au=
+id=3D4294967295<br>
+ses=3D4294967295 subj=3Dsystem_u:system_r:init_t:<wbr>s0 msg=3D&#39;avc:=C2=
+=A0 denied=C2=A0 { status }<br>
+for auid=3Dn/a uid=3D0 gid=3D0 cmdline=3D&quot;/lib/systemd/systemd-<wbr>ma=
+chined&quot;<br>
+scontext=3Dsystem_u:system_r:<wbr>systemd_machined_t:SystemLow<br>
+tcontext=3Dsystem_u:system_r:<wbr>init_t:s0 tclass=3Dsystem=C2=A0 exe=3D&qu=
+ot;/lib/systemd/systemd&quot;<br>
+sauid=3D0 hostname=3D? addr=3D? terminal=3D?&#39;<br>
+<br>
+Now in Debian/Unstable we have a similar issue with systemd 232-7 giving<br=
 >
-> Acked-by: Paul Moore <paul@paul-moore.com>
+audit.log entries like the above.</blockquote><div><br></div><div>Hi,</div>=
+<div>I quickly searched in systemd git tree where the source context comes =
+from. My starting point was the call to=C2=A0sd_bus_query_sender_creds() in=
+=C2=A0mac_selinux_generic_access_check() [1]. This function may call sd_bus=
+_get_name_creds() [2] -&gt; bus_get_name_creds_dbus1() [3] -&gt;=C2=A0sd_bu=
+s_call_method(&quot;org.freedesktop.DBus&quot;, ...,=C2=A0&quot;GetConnecti=
+onSELinuxSecurityContext&quot;, ..., &quot;s&quot;,=C2=A0unique ? unique : =
+name) [4]. As the audit entry you sent comes from a DBus call between=C2=A0=
+systemd-machined and systemd, this code path is likely to have been the ori=
+gin of the source context.</div><div><br></div><div>The DBus method which i=
+s called is implemented in DBus function=C2=A0<span style=3D"color:rgb(0,0,=
+0);font-size:13.3333px">bus_driver_handle_get_connection_selinux_security_c=
+ontext()</span>=C2=A0[5], which calls several functions until libselinux&#3=
+9;s getpeercon() [6]. As it is not getpeercon_raw(), this may give the tran=
+slated label. In order to test this, could you please execute the following=
+ command and tell its output?</div><div><br></div><div>dbus-send --system -=
+-print-reply --dest=3Dorg.freedesktop.DBus /org/freedesktop/DBus org.freede=
+sktop.DBus.GetConnectionSELinuxSecurityContext &#39;string:org.freedesktop.=
+machine1&#39;<br></div><div><br></div><div>Or, if you have not got dbus-sen=
+d but have gdbus:</div><div><br></div><div>gdbus call --system --dest org.f=
+reedesktop.DBus --object-path /org/freedesktop/DBus --method org.freedeskto=
+p.DBus.GetConnectionSELinuxSecurityContext org.freedesktop.machine1<br></di=
+v><div><br></div><div>On my system, which does not use MLS (so I am current=
+ly not able to reproduce the issue), I get:=C2=A0array of bytes &quot;syste=
+m_u:system_r:systemd_machined_t&quot;. If on your system it gives a context=
+ with SystemLow, it will confirm the origin of the issue. Also, the DBus sp=
+ecification is quite strange about the method: &quot;Returns the security c=
+ontext used by SELinux, in an unspecified=C2=A0format. If you know what thi=
+s means, please contribute=C2=A0documentation via the D-Bus bug tracking sy=
+stem.&quot; [7]. It seems=C2=A0GetConnectionCredentials should be preferred=
+. In order to see whether modifying systemd code would be enough to fix thi=
+s, or whether it is a bug in the D-Bus interfaces, what does this command r=
+eturn on your system?</div><div><br></div><div>dbus-send --system --print-r=
+eply --dest=3Dorg.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DB=
+us.GetConnectionCredentials &#39;string:org.freedesktop.machine1&#39;<br></=
+div><div><br></div><div>Cheers,</div><div>Nicolas</div><div><br></div><div>=
+[1]=C2=A0<a href=3D"https://github.com/systemd/systemd/blob/v232/src/core/s=
+elinux-access.c#L206">https://github.com/systemd/systemd/blob/v232/src/core=
+/selinux-access.c#L206</a></div><div>[2]=C2=A0<a href=3D"https://github.com=
+/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-convenience.c#L542">ht=
+tps://github.com/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-conven=
+ience.c#L542</a></div></div>[3]=C2=A0<a href=3D"https://github.com/systemd/=
+systemd/blob/v232/src/libsystemd/sd-bus/bus-control.c#L929">https://github.=
+com/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-control.c#L929</a><=
+/div><div class=3D"gmail_extra">[4]=C2=A0<a href=3D"https://github.com/syst=
+emd/systemd/blob/v232/src/libsystemd/sd-bus/bus-control.c#L865">https://git=
+hub.com/systemd/systemd/blob/v232/src/libsystemd/sd-bus/bus-control.c#L865<=
+/a></div><div class=3D"gmail_extra">[5]=C2=A0<a href=3D"https://cgit.freede=
+sktop.org/dbus/dbus/tree/bus/driver.c?h=3Ddbus-1.10#n1809">https://cgit.fre=
+edesktop.org/dbus/dbus/tree/bus/driver.c?h=3Ddbus-1.10#n1809</a></div><div =
+class=3D"gmail_extra">[6]=C2=A0<a href=3D"https://cgit.freedesktop.org/dbus=
+/dbus/tree/bus/selinux.c?h=3Ddbus-1.10#n724">https://cgit.freedesktop.org/d=
+bus/dbus/tree/bus/selinux.c?h=3Ddbus-1.10#n724</a></div><div class=3D"gmail=
+_extra">[7]=C2=A0<a href=3D"https://cgit.freedesktop.org/dbus/dbus/tree/doc=
+/dbus-specification.xml?h=3Ddbus-1.10#n6200">https://cgit.freedesktop.org/d=
+bus/dbus/tree/doc/dbus-specification.xml?h=3Ddbus-1.10#n6200</a></div></div=
 >
->> diff --git a/fs/proc/base.c b/fs/proc/base.c
->> index 6eae4d0..7b228ea 100644
->> --- a/fs/proc/base.c
->> +++ b/fs/proc/base.c
->> @@ -2485,6 +2485,12 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->>         length = -ESRCH;
->>         if (!task)
->>                 goto out_no_task;
->> +
->> +       /* A task may only write its own attributes. */
->> +       length = -EACCES;
->> +       if (current != task)
->> +               goto out;
->> +
->>         if (count > PAGE_SIZE)
->>                 count = PAGE_SIZE;
->>
->> @@ -2500,14 +2506,13 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->>         }
->>
->>         /* Guard against adverse ptrace interaction */
->> -       length = mutex_lock_interruptible(&task->signal->cred_guard_mutex);
->> +       length = mutex_lock_interruptible(&current->signal->cred_guard_mutex);
->>         if (length < 0)
->>                 goto out_free;
->>
->> -       length = security_setprocattr(task,
->> -                                     (char*)file->f_path.dentry->d_name.name,
->> +       length = security_setprocattr(file->f_path.dentry->d_name.name,
->>                                       page, count);
->> -       mutex_unlock(&task->signal->cred_guard_mutex);
->> +       mutex_unlock(&current->signal->cred_guard_mutex);
->>  out_free:
->>         kfree(page);
->>  out:
->> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
->> index 558adfa..0dde959 100644
->> --- a/include/linux/lsm_hooks.h
->> +++ b/include/linux/lsm_hooks.h
->> @@ -1547,8 +1547,7 @@ union security_list_options {
->>         void (*d_instantiate)(struct dentry *dentry, struct inode *inode);
->>
->>         int (*getprocattr)(struct task_struct *p, char *name, char **value);
->> -       int (*setprocattr)(struct task_struct *p, char *name, void *value,
->> -                               size_t size);
->> +       int (*setprocattr)(const char *name, void *value, size_t size);
->>         int (*ismaclabel)(const char *name);
->>         int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
->>         int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
->> diff --git a/include/linux/security.h b/include/linux/security.h
->> index c2125e9..f4ebac1 100644
->> --- a/include/linux/security.h
->> +++ b/include/linux/security.h
->> @@ -361,7 +361,7 @@ int security_sem_semop(struct sem_array *sma, struct sembuf *sops,
->>                         unsigned nsops, int alter);
->>  void security_d_instantiate(struct dentry *dentry, struct inode *inode);
->>  int security_getprocattr(struct task_struct *p, char *name, char **value);
->> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
->> +int security_setprocattr(const char *name, void *value, size_t size);
->>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
->>  int security_ismaclabel(const char *name);
->>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
->> @@ -1106,7 +1106,7 @@ static inline int security_getprocattr(struct task_struct *p, char *name, char *
->>         return -EINVAL;
->>  }
->>
->> -static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
->> +static inline int security_setprocattr(char *name, void *value, size_t size)
->>  {
->>         return -EINVAL;
->>  }
->> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
->> index 41b8cb1..8202e55 100644
->> --- a/security/apparmor/lsm.c
->> +++ b/security/apparmor/lsm.c
->> @@ -495,8 +495,8 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
->>         return error;
->>  }
->>
->> -static int apparmor_setprocattr(struct task_struct *task, char *name,
->> -                               void *value, size_t size)
->> +static int apparmor_setprocattr(const char *name, void *value,
->> +                               size_t size)
->>  {
->>         struct common_audit_data sa;
->>         struct apparmor_audit_data aad = {0,};
->> @@ -506,9 +506,6 @@ static int apparmor_setprocattr(struct task_struct *task, char *name,
->>
->>         if (size == 0)
->>                 return -EINVAL;
->> -       /* task can only write its own attributes */
->> -       if (current != task)
->> -               return -EACCES;
->>
->>         /* AppArmor requires that the buffer must be null terminated atm */
->>         if (args[size - 1] != '\0') {
->> diff --git a/security/security.c b/security/security.c
->> index f825304..32052f5 100644
->> --- a/security/security.c
->> +++ b/security/security.c
->> @@ -1170,9 +1170,9 @@ int security_getprocattr(struct task_struct *p, char *name, char **value)
->>         return call_int_hook(getprocattr, -EINVAL, p, name, value);
->>  }
->>
->> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
->> +int security_setprocattr(const char *name, void *value, size_t size)
->>  {
->> -       return call_int_hook(setprocattr, -EINVAL, p, name, value, size);
->> +       return call_int_hook(setprocattr, -EINVAL, name, value, size);
->>  }
->>
->>  int security_netlink_send(struct sock *sk, struct sk_buff *skb)
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 9992626..762276b 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -5859,8 +5859,7 @@ static int selinux_getprocattr(struct task_struct *p,
->>         return error;
->>  }
->>
->> -static int selinux_setprocattr(struct task_struct *p,
->> -                              char *name, void *value, size_t size)
->> +static int selinux_setprocattr(const char *name, void *value, size_t size)
->>  {
->>         struct task_security_struct *tsec;
->>         struct cred *new;
->> @@ -5868,16 +5867,6 @@ static int selinux_setprocattr(struct task_struct *p,
->>         int error;
->>         char *str = value;
->>
->> -       if (current != p) {
->> -               /*
->> -                * A task may only alter its own credentials.
->> -                * SELinux has always enforced this restriction,
->> -                * and it is now mandated by the Linux credentials
->> -                * infrastructure; see Documentation/security/credentials.txt.
->> -                */
->> -               return -EACCES;
->> -       }
->> -
->>         /*
->>          * Basic control over ability to set these attributes at all.
->>          */
->> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->> index 4d90257..9bde7f8 100644
->> --- a/security/smack/smack_lsm.c
->> +++ b/security/smack/smack_lsm.c
->> @@ -3620,7 +3620,6 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
->>
->>  /**
->>   * smack_setprocattr - Smack process attribute setting
->> - * @p: the object task
->>   * @name: the name of the attribute in /proc/.../attr
->>   * @value: the value to set
->>   * @size: the size of the value
->> @@ -3630,8 +3629,7 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
->>   *
->>   * Returns the length of the smack label or an error code
->>   */
->> -static int smack_setprocattr(struct task_struct *p, char *name,
->> -                            void *value, size_t size)
->> +static int smack_setprocattr(const char *name, void *value, size_t size)
->>  {
->>         struct task_smack *tsp = current_security();
->>         struct cred *new;
->> @@ -3639,13 +3637,6 @@ static int smack_setprocattr(struct task_struct *p, char *name,
->>         struct smack_known_list_elem *sklep;
->>         int rc;
->>
->> -       /*
->> -        * Changing another process' Smack value is too dangerous
->> -        * and supports no sane use case.
->> -        */
->> -       if (p != current)
->> -               return -EPERM;
->> -
->>         if (!smack_privileged(CAP_MAC_ADMIN) && list_empty(&tsp->smk_relabel))
->>                 return -EPERM;
->>
->> --
->> 2.7.4
->>
->
->
+
+--001a1144bb34f3adf10543cebfd4--
