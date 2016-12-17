@@ -1,86 +1,161 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJDCmuG022867
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 08:12:48 -0500
-Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
- [77.133.206.32])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id DE9E5564788
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 14:04:44 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 7/7] libsemanage: remove ustr library from Makefiles,
- README and pkg-config
-Date: Mon, 19 Dec 2016 14:04:04 +0100
-Message-Id: <20161219130404.11496-8-nicolas.iooss@m4x.org>
-In-Reply-To: <20161219130404.11496-1-nicolas.iooss@m4x.org>
-References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBH4i1a7010219
+ for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 23:44:02 -0500
+Received: by mail-pf0-f170.google.com with SMTP id 189so16922129pfz.3
+ for <selinux@tycho.nsa.gov>; Fri, 16 Dec 2016 20:44:01 -0800 (PST)
+From: John Stultz <john.stultz@linaro.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: John Stultz <john.stultz@linaro.org>, Tejun Heo <tj@kernel.org>,
+ Li Zefan <lizefan@huawei.com>, Jonathan Corbet <corbet@lwn.net>,
+ cgroups@vger.kernel.org, Android Kernel Team <kernel-team@android.com>,
+ Rom Lemarchand <romlem@android.com>, Colin Cross <ccross@android.com>,
+ Dmitry Shmidt <dimitrysh@google.com>, Todd Kjos <tkjos@google.com>,
+ Christian Poetzsch <christian.potzsch@imgtec.com>,
+ Amit Pundir <amit.pundir@linaro.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Kees Cook <keescook@chromium.org>, "Serge E . Hallyn" <serge@hallyn.com>,
+ Andy Lutomirski <luto@amacapital.net>, linux-api@vger.kernel.org,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ Jeff Vander Stoep <jeffv@google.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: [PATCH] cgroup: Add new capability to allow a process to migrate
+ other tasks between cgroups
+Date: Fri, 16 Dec 2016 20:43:46 -0800
+Message-Id: <1481949827-23613-1-git-send-email-john.stultz@linaro.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This library is no longer used by libsemanage.
+This patch adds CAP_GROUP and logic to allows a process to
+migrate other tasks between cgroups.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+In Android (where this feature originated), the ActivityManager
+tracks various application states (TOP_APP, FOREGROUND,
+BACKGROUND, SYSTEM, etc), and then as applications change
+states, the SchedPolicy logic will migrate the application tasks
+between different cgroups used to control the different
+application states (for example, there is a background cpuset
+cgroup which can limit background tasks to stay on one low-power
+cpu, and the bg_non_interactive cpuctrl cgroup can then further
+limit those background tasks to a small percentage of that one
+cpu's cpu time).
+
+However, for security reasons, Android doesn't want to make the
+system_server (the process that runs the ActivityManager and
+SchedPolicy logic), run as root. So in the Android common.git
+kernel, they have some logic to allow cgroups to loosen their
+permissions so CAP_SYS_NICE tasks can migrate other tasks between
+cgroups.
+
+I feel the approach taken there overloads CAP_SYS_NICE a bit much
+for non-android environments. Efforts to re-use CAP_SYS_RESOURCE
+for this purpose (which Android has since adopted) was also
+stymied by concerns about risks from future cgroups that could be
+considered "dangerous" by how they might change system semantics.
+
+So to avoid overlapping usage, this patch adds a brand new
+process capability flag (CAP_CGROUP), and uses it when checking
+if a task can migrate other tasks between cgroups.
+
+I've tested this with AOSP master (though its a bit hacked in as
+I still need to properly get the selinux userspace bits aware of
+the new capability bit) with selinux set to permissive and it
+seems to be working well.
+
+Thoughts and feedback would be appreciated!
+
+(Note, I'm going on holiday break after today, so I may not
+respond to feedback immediately, but I figured it would be
+better to give folks the chance to review this rather then sit
+it for two weeks. I'll resend after the new-year, addressing any
+feedback I do get.)
+
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Li Zefan <lizefan@huawei.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: cgroups@vger.kernel.org
+Cc: Android Kernel Team <kernel-team@android.com>
+Cc: Rom Lemarchand <romlem@android.com>
+Cc: Colin Cross <ccross@android.com>
+Cc: Dmitry Shmidt <dimitrysh@google.com>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Christian Poetzsch <christian.potzsch@imgtec.com>
+Cc: Amit Pundir <amit.pundir@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Serge E. Hallyn <serge@hallyn.com>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: linux-api@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: James Morris <james.l.morris@oracle.com>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: linux-security-module@vger.kernel.org
+Cc: selinux@tycho.nsa.gov
+Signed-off-by: John Stultz <john.stultz@linaro.org>
 ---
- README                            | 2 +-
- libsemanage/src/Makefile          | 2 +-
- libsemanage/src/libsemanage.pc.in | 2 +-
- libsemanage/tests/Makefile        | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+v2: Renamed to just CAP_CGROUP_MIGRATE as reccomended by Tejun
+v3: Switched to just using CAP_SYS_RESOURCE as suggested by Michael
+v4: Send out properly folded down version of the patch. :P
+v5: Switch back to CAP_CGROUP_MIGRATE due to concerns from Andy
+v6: Rename to CAP_CGROUP, as it might be used for other purposes
+    in the future. Also added selinux mappings for the new cap.
+---
+ include/uapi/linux/capability.h     | 5 ++++-
+ kernel/cgroup.c                     | 3 ++-
+ security/selinux/include/classmap.h | 4 ++--
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/README b/README
-index b58150b1bba3..e6f727648205 100644
---- a/README
-+++ b/README
-@@ -2,7 +2,7 @@ Please submit all bug reports and patches to selinux@tycho.nsa.gov.
- Subscribe via selinux-join@tycho.nsa.gov.
+diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+index 49bc062..726f767 100644
+--- a/include/uapi/linux/capability.h
++++ b/include/uapi/linux/capability.h
+@@ -349,8 +349,11 @@ struct vfs_cap_data {
  
- Build dependencies on Fedora:
--yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-glib-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-devel pam-devel pcre-devel python-devel setools-devel swig ustr-devel xmlto redhat-rpm-config
-+yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-glib-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-devel pam-devel pcre-devel python-devel setools-devel swig xmlto redhat-rpm-config
+ #define CAP_AUDIT_READ		37
  
- To build and install everything under a private directory, run:
- make DESTDIR=~/obj install install-pywrap
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index df5809645a00..92c829be234d 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -91,7 +91,7 @@ $(LIBA): $(OBJS)
- 	$(RANLIB) $@
++/* Allow migration of other tasks between cgroups */
  
- $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
-+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
- 	ln -sf $@ $(TARGET)
+-#define CAP_LAST_CAP         CAP_AUDIT_READ
++#define CAP_CGROUP		38
++
++#define CAP_LAST_CAP         CAP_CGROUP
  
- $(LIBPC): $(LIBPC).in ../VERSION
-diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
-index 81e1805b0826..d3eaa06299c4 100644
---- a/libsemanage/src/libsemanage.pc.in
-+++ b/libsemanage/src/libsemanage.pc.in
-@@ -7,7 +7,7 @@ Name: libsemanage
- Description: SELinux management library
- Version: @VERSION@
- URL: http://userspace.selinuxproject.org/
--Requires.private: libselinux libsepol ustr
-+Requires.private: libselinux libsepol
- Libs: -L${libdir} -lsemanage
- Libs.private: -lbz2
- Cflags: -I${includedir}
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index bd6a5fd74906..3fe7d16f3e72 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -12,7 +12,7 @@ LIBS = ../src/libsemanage.a -L$(LIBDIR) -lselinux -lsepol
- EXECUTABLE = libsemanage-tests
- CFLAGS += -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
- INCLUDE = -I../src -I../include
--LDFLAGS += -lcunit -lustr -lbz2 -laudit
-+LDFLAGS += -lcunit -lbz2 -laudit
- OBJECTS = $(SOURCES:.c=.o) 
+ #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
  
- all: $(EXECUTABLE) 
+diff --git a/kernel/cgroup.c b/kernel/cgroup.c
+index 2ee9ec3..8b42ae3 100644
+--- a/kernel/cgroup.c
++++ b/kernel/cgroup.c
+@@ -2856,7 +2856,8 @@ static int cgroup_procs_write_permission(struct task_struct *task,
+ 	 */
+ 	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
+ 	    !uid_eq(cred->euid, tcred->uid) &&
+-	    !uid_eq(cred->euid, tcred->suid))
++	    !uid_eq(cred->euid, tcred->suid) &&
++	    !ns_capable(tcred->user_ns, CAP_CGROUP))
+ 		ret = -EACCES;
+ 
+ 	if (!ret && cgroup_on_dfl(dst_cgrp)) {
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index e2d4ad3a..ee8c1ed 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -22,9 +22,9 @@
+ 	    "audit_control", "setfcap"
+ 
+ #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+-		"wake_alarm", "block_suspend", "audit_read"
++		"wake_alarm", "block_suspend", "audit_read", "cgroup"
+ 
+-#if CAP_LAST_CAP > CAP_AUDIT_READ
++#if CAP_LAST_CAP > CAP_CGROUP
+ #error New capability defined, please update COMMON_CAP2_PERMS.
+ #endif
+ 
 -- 
-2.11.0
+2.7.4
