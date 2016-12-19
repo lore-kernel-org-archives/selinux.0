@@ -1,267 +1,292 @@
-Subject: Re: [PATCH] cgroup: Add new capability to allow a process to migrate
- other tasks between cgroups
-To: John Stultz <john.stultz@linaro.org>, lkml <linux-kernel@vger.kernel.org>
-References: <1481949827-23613-1-git-send-email-john.stultz@linaro.org>
-Cc: Tejun Heo <tj@kernel.org>, Li Zefan <lizefan@huawei.com>,
- Jonathan Corbet <corbet@lwn.net>, cgroups@vger.kernel.org,
- Android Kernel Team <kernel-team@android.com>,
- Rom Lemarchand <romlem@android.com>, Colin Cross <ccross@android.com>,
- Dmitry Shmidt <dimitrysh@google.com>, Todd Kjos <tkjos@google.com>,
- Christian Poetzsch <christian.potzsch@imgtec.com>,
- Amit Pundir <amit.pundir@linaro.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Kees Cook <keescook@chromium.org>, "Serge E . Hallyn" <serge@hallyn.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-api@vger.kernel.org,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, James Morris
- <james.l.morris@oracle.com>, Jeff Vander Stoep <jeffv@google.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Michael Kerrisk <mtk.manpages@gmail.com>, Daniel Mack <daniel@zonque.org>
-From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <5855A8EB.8000005@digikod.net>
-Date: Sat, 17 Dec 2016 22:06:51 +0100
-MIME-Version: 1.0
-In-Reply-To: <1481949827-23613-1-git-send-email-john.stultz@linaro.org>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="fr0scPtoFDiROjB9iNgJDFGQwsmg913AD"
+Message-ID: <1482140693.2178.1.camel@nonadev.net>
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+From: =?ISO-8859-1?Q?Jos=E9?= Bollo <jobol@nonadev.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, james.l.morris@oracle.com,
+ linux-security-module@vger.kernel.org, casey@schaufler-ca.com,
+ john.johansen@canonical.com
+Date: Mon, 19 Dec 2016 10:44:53 +0100
+In-Reply-To: <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
+ <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---fr0scPtoFDiROjB9iNgJDFGQwsmg913AD
-Content-Type: multipart/mixed; boundary="NT58vVD25oV9ie81jtpVphIDedrpIuwsp";
- protected-headers="v1"
-From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-To: John Stultz <john.stultz@linaro.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: Tejun Heo <tj@kernel.org>, Li Zefan <lizefan@huawei.com>,
- Jonathan Corbet <corbet@lwn.net>, cgroups@vger.kernel.org,
- Android Kernel Team <kernel-team@android.com>,
- Rom Lemarchand <romlem@android.com>, Colin Cross <ccross@android.com>,
- Dmitry Shmidt <dimitrysh@google.com>, Todd Kjos <tkjos@google.com>,
- Christian Poetzsch <christian.potzsch@imgtec.com>,
- Amit Pundir <amit.pundir@linaro.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Kees Cook <keescook@chromium.org>, "Serge E . Hallyn" <serge@hallyn.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-api@vger.kernel.org,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, James Morris
- <james.l.morris@oracle.com>, Jeff Vander Stoep <jeffv@google.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Michael Kerrisk <mtk.manpages@gmail.com>, Daniel Mack <daniel@zonque.org>
-Message-ID: <5855A8EB.8000005@digikod.net>
-Subject: Re: [PATCH] cgroup: Add new capability to allow a process to migrate
- other tasks between cgroups
-References: <1481949827-23613-1-git-send-email-john.stultz@linaro.org>
-In-Reply-To: <1481949827-23613-1-git-send-email-john.stultz@linaro.org>
+Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen Smalley a écrit :
+> Processes can only alter their own security attributes via
+> /proc/pid/attr nodes.  This is presently enforced by each individual
+> security module and is also imposed by the Linux credentials
+> implementation, which only allows a task to alter its own
+> credentials.
+> Move the check enforcing this restriction from the individual
+> security modules to proc_pid_attr_write() before calling the security
+> hook,
+> and drop the unnecessary task argument to the security hook since it
+> can
+> only ever be the current task.
 
---NT58vVD25oV9ie81jtpVphIDedrpIuwsp
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Hi Stephen,
 
-Hi,
+The module PTAGS that I made relies on the ability to write files in
+/proc/pid/attr/...
 
-If I understand correctly, this patch is intended to add a delegation
-feature to cgroup v1, which does not really make sense for the v2
-because of the clean cgroup-v2 delegation design. However, this new
-capability impact both versions.
+Why did I used this files? Thaere are serious reasons:
+ - follows the life cycle of the process
+ - implements pid namespace
 
-As Michael said, capabilities are a limited numbers of silos and we
-should try to use existing ones as much as possible but without falling
-into the trap of using the same capability for everything (e.g.
-CAP_SYS_ADMIN) [1]. The CAP_CGROUP looks a lot like another
-CAP_SYS_ADMIN. It is not tied to any particular privilege.
+There is absolutely no way to get these features easyly outside that
+implementation context of /proc/pid/attr/xxx.
 
-Cgroups are not about resource limitation or any particular access
-control, they are just about managing a set of processes, which may then
-be subject to resource limitation or access control. This possible
-limitations only depend on cgroup controllers or netfilter rules or BPF
-programs.
+For these reasons I vote against that change.
 
-To avoid the current capability issue [1], I think it should be a good
-idea to reuse an existing capability (if one make sense) for each class
-of constraints a controller/eBPF program/netfilter rule can enforce.
-This may looks like CAP_NET_ADMIN (with network namespace handling) for
-netfilter and eBPF *socket* programs but CAP_SYS_RESOURCE for the CPU,
-memory and IO controllers.
-As Tejun said, it will be more complicated to handle such a case, but I
-don't see any other solution to keep a meaningful use of capabilities.
+You will probably ask me where is PTAGS used and what is is made for.
 
-However, even if a cgroup does not directly involve a limitation, it may
-be used to identify a group of processes for a security critical purpose
-(e.g. kill a group of process). It can then make sense to have a
-dedicated capability CAP_CGROUP to allow a process *without the right to
-write in cgroup.procs* to be allowed to move a process out of its
-current cgroup. This is similar to CAP_DAC_OVERRIDE but only for
-cgroup/controllers files (but not necessarily sufficient to modify all
-cgroups). This does not means that CAP_CGROUP should allow to move any
-process from any cgroup. The cgroup_procs_write_permission() should
-compose the checks for CAP_CGROUP and/or CAP_SYS_RESOURCE and/or
-CAP_SYS_ADMIN depending on the current use of the cgroup (i.e. cgroup
-controller, BPF program type, netfilter).
+So it is not used but the principle of its use is benefical to the
+community. It allows a kind of user land implementation of
+capabilities.
 
-Regards,
- Micka=EBl
+You probably know that the kernel can not do all things for a good
+reason: it is not intended to do all things. So there is a need for
+user land features. PTAGS is an intent to fulfill an empty gap.
 
+I made a presentation at FOSDEM on the subject that may allows you to
+understand the beginning of the issue that I'm writing about [2]. 
 
-[1] https://forums.grsecurity.net/viewtopic.php?f=3D7&t=3D2522
+[1] https://lkml.org/lkml/2016/11/23/122
+[2] https://archive.fosdem.org/2015/schedule/event/sec_enforcement/
 
-
-On 17/12/2016 05:43, John Stultz wrote:
-> This patch adds CAP_GROUP and logic to allows a process to
-> migrate other tasks between cgroups.
->=20
-> In Android (where this feature originated), the ActivityManager
-> tracks various application states (TOP_APP, FOREGROUND,
-> BACKGROUND, SYSTEM, etc), and then as applications change
-> states, the SchedPolicy logic will migrate the application tasks
-> between different cgroups used to control the different
-> application states (for example, there is a background cpuset
-> cgroup which can limit background tasks to stay on one low-power
-> cpu, and the bg_non_interactive cpuctrl cgroup can then further
-> limit those background tasks to a small percentage of that one
-> cpu's cpu time).
->=20
-> However, for security reasons, Android doesn't want to make the
-> system_server (the process that runs the ActivityManager and
-> SchedPolicy logic), run as root. So in the Android common.git
-> kernel, they have some logic to allow cgroups to loosen their
-> permissions so CAP_SYS_NICE tasks can migrate other tasks between
-> cgroups.
->=20
-> I feel the approach taken there overloads CAP_SYS_NICE a bit much
-> for non-android environments. Efforts to re-use CAP_SYS_RESOURCE
-> for this purpose (which Android has since adopted) was also
-> stymied by concerns about risks from future cgroups that could be
-> considered "dangerous" by how they might change system semantics.
->=20
-> So to avoid overlapping usage, this patch adds a brand new
-> process capability flag (CAP_CGROUP), and uses it when checking
-> if a task can migrate other tasks between cgroups.
->=20
-> I've tested this with AOSP master (though its a bit hacked in as
-> I still need to properly get the selinux userspace bits aware of
-> the new capability bit) with selinux set to permissive and it
-> seems to be working well.
->=20
-> Thoughts and feedback would be appreciated!
->=20
-> (Note, I'm going on holiday break after today, so I may not
-> respond to feedback immediately, but I figured it would be
-> better to give folks the chance to review this rather then sit
-> it for two weeks. I'll resend after the new-year, addressing any
-> feedback I do get.)
->=20
-> Cc: Tejun Heo <tj@kernel.org>
-> Cc: Li Zefan <lizefan@huawei.com>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: cgroups@vger.kernel.org
-> Cc: Android Kernel Team <kernel-team@android.com>
-> Cc: Rom Lemarchand <romlem@android.com>
-> Cc: Colin Cross <ccross@android.com>
-> Cc: Dmitry Shmidt <dimitrysh@google.com>
-> Cc: Todd Kjos <tkjos@google.com>
-> Cc: Christian Poetzsch <christian.potzsch@imgtec.com>
-> Cc: Amit Pundir <amit.pundir@linaro.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Serge E. Hallyn <serge@hallyn.com>
-> Cc: Andy Lutomirski <luto@amacapital.net>
-> Cc: linux-api@vger.kernel.org
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: James Morris <james.l.morris@oracle.com>
-> Cc: Jeff Vander Stoep <jeffv@google.com>
-> Cc: linux-security-module@vger.kernel.org
-> Cc: selinux@tycho.nsa.gov
-> Signed-off-by: John Stultz <john.stultz@linaro.org>
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
-> v2: Renamed to just CAP_CGROUP_MIGRATE as reccomended by Tejun
-> v3: Switched to just using CAP_SYS_RESOURCE as suggested by Michael
-> v4: Send out properly folded down version of the patch. :P
-> v5: Switch back to CAP_CGROUP_MIGRATE due to concerns from Andy
-> v6: Rename to CAP_CGROUP, as it might be used for other purposes
->     in the future. Also added selinux mappings for the new cap.
-> ---
->  include/uapi/linux/capability.h     | 5 ++++-
->  kernel/cgroup.c                     | 3 ++-
->  security/selinux/include/classmap.h | 4 ++--
->  3 files changed, 8 insertions(+), 4 deletions(-)
->=20
-> diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capab=
-ility.h
-> index 49bc062..726f767 100644
-> --- a/include/uapi/linux/capability.h
-> +++ b/include/uapi/linux/capability.h
-> @@ -349,8 +349,11 @@ struct vfs_cap_data {
-> =20
->  #define CAP_AUDIT_READ		37
-> =20
-> +/* Allow migration of other tasks between cgroups */
-> =20
-> -#define CAP_LAST_CAP         CAP_AUDIT_READ
-> +#define CAP_CGROUP		38
+>  fs/proc/base.c             | 13 +++++++++----
+>  include/linux/lsm_hooks.h  |  3 +--
+>  include/linux/security.h   |  4 ++--
+>  security/apparmor/lsm.c    |  7 ++-----
+>  security/security.c        |  4 ++--
+>  security/selinux/hooks.c   | 13 +------------
+>  security/smack/smack_lsm.c | 11 +----------
+>  7 files changed, 18 insertions(+), 37 deletions(-)
+> 
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 6eae4d0..7b228ea 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2485,6 +2485,12 @@ static ssize_t proc_pid_attr_write(struct file
+> * file, const char __user * buf,
+>  	length = -ESRCH;
+>  	if (!task)
+>  		goto out_no_task;
 > +
-> +#define CAP_LAST_CAP         CAP_CGROUP
-> =20
->  #define cap_valid(x) ((x) >=3D 0 && (x) <=3D CAP_LAST_CAP)
-> =20
-> diff --git a/kernel/cgroup.c b/kernel/cgroup.c
-> index 2ee9ec3..8b42ae3 100644
-> --- a/kernel/cgroup.c
-> +++ b/kernel/cgroup.c
-> @@ -2856,7 +2856,8 @@ static int cgroup_procs_write_permission(struct t=
-ask_struct *task,
->  	 */
->  	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
->  	    !uid_eq(cred->euid, tcred->uid) &&
-> -	    !uid_eq(cred->euid, tcred->suid))
-> +	    !uid_eq(cred->euid, tcred->suid) &&
-> +	    !ns_capable(tcred->user_ns, CAP_CGROUP))
->  		ret =3D -EACCES;
-> =20
->  	if (!ret && cgroup_on_dfl(dst_cgrp)) {
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/inc=
-lude/classmap.h
-> index e2d4ad3a..ee8c1ed 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -22,9 +22,9 @@
->  	    "audit_control", "setfcap"
-> =20
->  #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
-> -		"wake_alarm", "block_suspend", "audit_read"
-> +		"wake_alarm", "block_suspend", "audit_read", "cgroup"
-> =20
-> -#if CAP_LAST_CAP > CAP_AUDIT_READ
-> +#if CAP_LAST_CAP > CAP_CGROUP
->  #error New capability defined, please update COMMON_CAP2_PERMS.
->  #endif
-> =20
->=20
-
-
-
---NT58vVD25oV9ie81jtpVphIDedrpIuwsp--
-
---fr0scPtoFDiROjB9iNgJDFGQwsmg913AD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEUysCyY8er9Axt7hqIt7+33O9apUFAlhVqOsACgkQIt7+33O9
-apVZ9wf/WwxdzZA+HKnQ5m8eRh8pSIyjYSuhtTxKoln+qYCHtz7U2XrFuFw2d5IH
-wxYGQwyItJwAKOivB3zGqCbkWqCp0o/R5+WcvI8nIy5cGQD9Oi5ZWD81iL7YZoRS
-PNzmBX9Cy8fBB55m7jI6GzcSvCTqt4wGCfuoMvl9q2SC/fXmQknkFxzdM0z7nIVa
-XyfaFI7xcKo3Ig0TCegXbxoVZBXycjfmzbdMt9pxyDCQmXwHY6ajM/GP931wlYyK
-1eWYSSVFg2a783ZtLvZTzq3aA5liFx6EqtojGUz2KUBp8NZPEtyK/XPKqsXwFKJL
-HvVas04CwrdDiwHKskhzym6aRS2xkA==
-=dW2P
------END PGP SIGNATURE-----
-
---fr0scPtoFDiROjB9iNgJDFGQwsmg913AD--
+> +	/* A task may only write its own attributes. */
+> +	length = -EACCES;
+> +	if (current != task)
+> +		goto out;
+> +
+>  	if (count > PAGE_SIZE)
+>  		count = PAGE_SIZE;
+>  
+> @@ -2500,14 +2506,13 @@ static ssize_t proc_pid_attr_write(struct
+> file * file, const char __user * buf,
+>  	}
+>  
+>  	/* Guard against adverse ptrace interaction */
+> -	length = mutex_lock_interruptible(&task->signal-
+> >cred_guard_mutex);
+> +	length = mutex_lock_interruptible(&current->signal-
+> >cred_guard_mutex);
+>  	if (length < 0)
+>  		goto out_free;
+>  
+> -	length = security_setprocattr(task,
+> -				      (char*)file->f_path.dentry-
+> >d_name.name,
+> +	length = security_setprocattr(file->f_path.dentry-
+> >d_name.name,
+>  				      page, count);
+> -	mutex_unlock(&task->signal->cred_guard_mutex);
+> +	mutex_unlock(&current->signal->cred_guard_mutex);
+>  out_free:
+>  	kfree(page);
+>  out:
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 558adfa..0dde959 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1547,8 +1547,7 @@ union security_list_options {
+>  	void (*d_instantiate)(struct dentry *dentry, struct inode
+> *inode);
+>  
+>  	int (*getprocattr)(struct task_struct *p, char *name, char
+> **value);
+> -	int (*setprocattr)(struct task_struct *p, char *name, void
+> *value,
+> -				size_t size);
+> +	int (*setprocattr)(const char *name, void *value, size_t
+> size);
+>  	int (*ismaclabel)(const char *name);
+>  	int (*secid_to_secctx)(u32 secid, char **secdata, u32
+> *seclen);
+>  	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32
+> *secid);
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index c2125e9..f4ebac1 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -361,7 +361,7 @@ int security_sem_semop(struct sem_array *sma,
+> struct sembuf *sops,
+>  			unsigned nsops, int alter);
+>  void security_d_instantiate(struct dentry *dentry, struct inode
+> *inode);
+>  int security_getprocattr(struct task_struct *p, char *name, char
+> **value);
+> -int security_setprocattr(struct task_struct *p, char *name, void
+> *value, size_t size);
+> +int security_setprocattr(const char *name, void *value, size_t
+> size);
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+>  int security_ismaclabel(const char *name);
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32
+> *seclen);
+> @@ -1106,7 +1106,7 @@ static inline int security_getprocattr(struct
+> task_struct *p, char *name, char *
+>  	return -EINVAL;
+>  }
+>  
+> -static inline int security_setprocattr(struct task_struct *p, char
+> *name, void *value, size_t size)
+> +static inline int security_setprocattr(char *name, void *value,
+> size_t size)
+>  {
+>  	return -EINVAL;
+>  }
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 41b8cb1..8202e55 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -495,8 +495,8 @@ static int apparmor_getprocattr(struct
+> task_struct *task, char *name,
+>  	return error;
+>  }
+>  
+> -static int apparmor_setprocattr(struct task_struct *task, char
+> *name,
+> -				void *value, size_t size)
+> +static int apparmor_setprocattr(const char *name, void *value,
+> +				size_t size)
+>  {
+>  	struct common_audit_data sa;
+>  	struct apparmor_audit_data aad = {0,};
+> @@ -506,9 +506,6 @@ static int apparmor_setprocattr(struct
+> task_struct *task, char *name,
+>  
+>  	if (size == 0)
+>  		return -EINVAL;
+> -	/* task can only write its own attributes */
+> -	if (current != task)
+> -		return -EACCES;
+>  
+>  	/* AppArmor requires that the buffer must be null terminated
+> atm */
+>  	if (args[size - 1] != '\0') {
+> diff --git a/security/security.c b/security/security.c
+> index f825304..32052f5 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1170,9 +1170,9 @@ int security_getprocattr(struct task_struct *p,
+> char *name, char **value)
+>  	return call_int_hook(getprocattr, -EINVAL, p, name, value);
+>  }
+>  
+> -int security_setprocattr(struct task_struct *p, char *name, void
+> *value, size_t size)
+> +int security_setprocattr(const char *name, void *value, size_t size)
+>  {
+> -	return call_int_hook(setprocattr, -EINVAL, p, name, value,
+> size);
+> +	return call_int_hook(setprocattr, -EINVAL, name, value,
+> size);
+>  }
+>  
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9992626..762276b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5859,8 +5859,7 @@ static int selinux_getprocattr(struct
+> task_struct *p,
+>  	return error;
+>  }
+>  
+> -static int selinux_setprocattr(struct task_struct *p,
+> -			       char *name, void *value, size_t size)
+> +static int selinux_setprocattr(const char *name, void *value, size_t
+> size)
+>  {
+>  	struct task_security_struct *tsec;
+>  	struct cred *new;
+> @@ -5868,16 +5867,6 @@ static int selinux_setprocattr(struct
+> task_struct *p,
+>  	int error;
+>  	char *str = value;
+>  
+> -	if (current != p) {
+> -		/*
+> -		 * A task may only alter its own credentials.
+> -		 * SELinux has always enforced this restriction,
+> -		 * and it is now mandated by the Linux credentials
+> -		 * infrastructure; see
+> Documentation/security/credentials.txt.
+> -		 */
+> -		return -EACCES;
+> -	}
+> -
+>  	/*
+>  	 * Basic control over ability to set these attributes at
+> all.
+>  	 */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 4d90257..9bde7f8 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -3620,7 +3620,6 @@ static int smack_getprocattr(struct task_struct
+> *p, char *name, char **value)
+>  
+>  /**
+>   * smack_setprocattr - Smack process attribute setting
+> - * @p: the object task
+>   * @name: the name of the attribute in /proc/.../attr
+>   * @value: the value to set
+>   * @size: the size of the value
+> @@ -3630,8 +3629,7 @@ static int smack_getprocattr(struct task_struct
+> *p, char *name, char **value)
+>   *
+>   * Returns the length of the smack label or an error code
+>   */
+> -static int smack_setprocattr(struct task_struct *p, char *name,
+> -			     void *value, size_t size)
+> +static int smack_setprocattr(const char *name, void *value, size_t
+> size)
+>  {
+>  	struct task_smack *tsp = current_security();
+>  	struct cred *new;
+> @@ -3639,13 +3637,6 @@ static int smack_setprocattr(struct
+> task_struct *p, char *name,
+>  	struct smack_known_list_elem *sklep;
+>  	int rc;
+>  
+> -	/*
+> -	 * Changing another process' Smack value is too dangerous
+> -	 * and supports no sane use case.
+> -	 */
+> -	if (p != current)
+> -		return -EPERM;
+> -
+>  	if (!smack_privileged(CAP_MAC_ADMIN) && list_empty(&tsp-
+> >smk_relabel))
+>  		return -EPERM;
+>  
