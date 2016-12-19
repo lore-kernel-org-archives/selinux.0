@@ -1,15 +1,11 @@
-Message-ID: <1482161529.28570.25.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 1/2] selinux: log errors when loading new policy
+Message-ID: <1482162379.28570.29.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 4/7] libsemanage: simplify string utilities functions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Gary Tierney <gary.tierney@gmx.com>
-Cc: sgrubb@redhat.com, paul@paul-moore.com, linux-audit@redhat.com,
- selinux@tycho.nsa.gov
-Date: Mon, 19 Dec 2016 10:32:09 -0500
-In-Reply-To: <20161219151946.GA5359@workstation>
-References: <1482007719-14313-1-git-send-email-gary.tierney@gmx.com>
- <1482007719-14313-2-git-send-email-gary.tierney@gmx.com>
- <1482158586.28570.17.camel@tycho.nsa.gov>
- <20161219151946.GA5359@workstation>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 19 Dec 2016 10:46:19 -0500
+In-Reply-To: <20161219130404.11496-5-nicolas.iooss@m4x.org>
+References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
+ <20161219130404.11496-5-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,146 +13,116 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2016-12-19 at 15:19 +0000, Gary Tierney wrote:
-> On Mon, Dec 19, 2016 at 09:43:06AM -0500, Stephen Smalley wrote:
-> > 
-> > On Sat, 2016-12-17 at 20:48 +0000, Gary Tierney wrote:
-> > > 
-> > > Adds error and warning messages to the codepaths which can fail
-> > > when
-> > > loading a new policy.  If a policy fails to load, an error
-> > > message
-> > > will
-> > > be printed to dmesg with a description of what
-> > > failed.  Previously if
-> > > there was an error during policy loading there would be no
-> > > indication
-> > > that it failed.
-> > > 
-> > > Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
-> > > ---
-> > >  security/selinux/selinuxfs.c | 26 +++++++++++++++++++++-----
-> > >  1 file changed, 21 insertions(+), 5 deletions(-)
-> > > 
-> > > diff --git a/security/selinux/selinuxfs.c
-> > > b/security/selinux/selinuxfs.c
-> > > index 0aac402..2139cc7 100644
-> > > --- a/security/selinux/selinuxfs.c
-> > > +++ b/security/selinux/selinuxfs.c
-> > > @@ -522,20 +522,32 @@ static ssize_t sel_write_load(struct file
-> > > *file, const char __user *buf,
-> > >  		goto out;
-> > >  
-> > >  	length = security_load_policy(data, count);
-> > > -	if (length)
-> > > +	if (length) {
-> > > +		pr_err("SELinux: %s: failed to load policy\n",
-> > > +		      __func__);
-> > 
-> > Not sure about your usage of pr_err() vs pr_warn();
-> > security_load_policy() may simply fail due to invalid policy from
-> > userspace, not a kernel-internal error per se.
-> > 
+On Mon, 2016-12-19 at 14:04 +0100, Nicolas Iooss wrote:
+> Use string functions from C standard library instead of ustr. This
+> makes
+> the code simpler and make utilities.c no longer depend on ustr
+> library.
 > 
-> The intention was to make a distinction between failures on or after
-> security_load_policy().  If security_load_policy() fails then no
-> audit message
-> will be logged about loading a new policy, so it seemed more
-> appropriate to
-> treat that case as KERN_ERROR.  Though with what you said in mind, it
-> is
-> probably better to change this to pr_warn() as security_load_policy()
-> is
-> unlikely to cause an actual kernel-internal error.
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsemanage/src/utilities.c | 64 +++++++++++++--------------------
+> ------------
+>  1 file changed, 18 insertions(+), 46 deletions(-)
+> 
+> diff --git a/libsemanage/src/utilities.c
+> b/libsemanage/src/utilities.c
+> index f48ffa489d14..b5b92b085310 100644
+> --- a/libsemanage/src/utilities.c
+> +++ b/libsemanage/src/utilities.c
+> @@ -26,7 +26,6 @@
+>  #include <string.h>
+>  #include <sys/types.h>
+>  #include <assert.h>
+> -#include <ustr.h>
+>  
+>  #define TRUE 1
+>  #define FALSE 0
+> @@ -74,64 +73,37 @@ char *semanage_split_on_space(const char *str)
+>  {
+>  	/* as per the man page, these are the isspace() chars */
+>  	const char *seps = "\f\n\r\t\v ";
+> -	size_t slen = strlen(seps);
+> -	size_t off = 0, rside_len = 0;
+> -	char *retval = NULL;
+> -	Ustr *ustr = USTR_NULL, *temp = USTR_NULL;
+> +	size_t off = 0;
+>  
+>  	if (!str)
+> -		goto done;
+> -	if (!(ustr = ustr_dup_cstr(str)))
+> -		goto done;
+> -	temp =
+> -	    ustr_split_spn_chrs(ustr, &off, seps, slen, USTR_NULL,
+> -				USTR_FLAG_SPLIT_DEF);
+> -	if (!temp)
+> -		goto done;
+> -	/* throw away the left hand side */
+> -	ustr_sc_free(&temp);
+> -
+> -	rside_len = ustr_len(ustr) - off;
+> -	temp = ustr_dup_subustr(ustr, off + 1, rside_len);
+> -	if (!temp)
+> -		goto done;
+> -	retval = strdup(ustr_cstr(temp));
+> -	ustr_sc_free(&temp);
+> +		return NULL;
+>  
+> -      done:
+> -	ustr_sc_free(&ustr);
+> -	return retval;
+> +	/* skip one token and the spaces before and after it */
+> +	off = strspn(str, seps);
+> +	off += strcspn(str + off, seps);
+> +	off += strspn(str + off, seps);
+> +	return strdup(str + off);
+>  }
+>  
+>  char *semanage_split(const char *str, const char *delim)
+>  {
+> -	Ustr *ustr = USTR_NULL, *temp = USTR_NULL;
+> -	size_t off = 0, rside_len = 0;
+> -	char *retval = NULL;
+> +	char *retval;
+> +	size_t delim_len;
+>  
+>  	if (!str)
+> -		goto done;
+> +		return NULL;
+>  	if (!delim || !(*delim))
+>  		return semanage_split_on_space(str);
+> -	ustr = ustr_dup_cstr(str);
+> -	temp =
+> -	    ustr_split_cstr(ustr, &off, delim, USTR_NULL,
+> USTR_FLAG_SPLIT_DEF);
+> -	if (!temp)
+> -		goto done;
+> -	/* throw away the left hand side */
+> -	ustr_sc_free(&temp);
+> -
+> -	rside_len = ustr_len(ustr) - off;
+>  
+> -	temp = ustr_dup_subustr(ustr, off + 1, rside_len);
+> -	if (!temp)
+> -		goto done;
+> -	retval = strdup(ustr_cstr(temp));
+> -	ustr_sc_free(&temp);
+> +	retval = strstr(str, delim);
+> +	if (retval == NULL)
+> +		return NULL;
+>  
+> -      done:
+> -	ustr_sc_free(&ustr);
+> -	return retval;
+> +	delim_len = strlen(delim);
+> +	do {
+> +		retval += delim_len;
+> +	} while (!strncmp(retval, delim, delim_len));
 
-Yes, I tend to view them in the reverse; a failure on
-security_load_policy() is just a typical userspace-induced (or OOM)
-failure, whereas failure on any of the later calls will leave the
-kernel in an inconsistent internal state, so if anything, those should
-be the pr_err() cases instead, while security_load_policy() failure
-might even need/want a pr_warn_ratelimited() since it can be induced by
-userspace (albeit only root with :security load_policy permission).
+This seems unnecessarily complicated.  Do we expect this to ever be
+called on a string containing repeating instances of the delimeter?
 
-> 
-> > 
-> > I would tend to omit the function name; I don't think it is
-> > especially
-> > helpful.
-> > 
-> 
-> Agreed.  It seems to be used as a convention throughout
-> security/selinux,
-> though am happy to drop it from the patch.
-> 
-> I was planning to send a v2 with pr_err() swapped for pr_warn() and
-> __func__
-> dropped from the log message, though keeping in mind that Steve has
-> prepared a
-> patch for this (also, logging to the audit subsystem might be more
-> appropriate) would it be better to drop #1 and keep #2?
-
-Not sure - I'd have to see Steve's patch or at least hear more details
-from him to know whether his patch would obsolete yours or just
-complement it.
-
-> 
-> > 
-> > There was an earlier discussion about augmenting the audit logging
-> > from
-> > this function, so this might overlap with that.  I don't know where
-> > that stands.
-> > 
-> > > 
-> > >  		goto out;
-> > > +	}
-> > >  
-> > >  	length = sel_make_bools();
-> > > -	if (length)
-> > > +	if (length) {
-> > > +		pr_warn("SELinux: %s: failed to load policy
-> > > booleans\n",
-> > > +		       __func__);
-> > >  		goto out1;
-> > > +	}
-> > >  
-> > >  	length = sel_make_classes();
-> > > -	if (length)
-> > > +	if (length) {
-> > > +		pr_warn("SELinux: %s: failed to load policy
-> > > classes\n",
-> > > +		       __func__);
-> > >  		goto out1;
-> > > +	}
-> > >  
-> > >  	length = sel_make_policycap();
-> > > -	if (length)
-> > > +	if (length) {
-> > > +		pr_warn("SELinux: %s: failed to load policy
-> > > capabilities\n",
-> > > +		       __func__);
-> > >  		goto out1;
-> > > +	}
-> > >  
-> > >  	length = count;
-> > >  
-> > > @@ -1299,9 +1311,13 @@ static int sel_make_bools(void)
-> > >  
-> > >  		isec = (struct inode_security_struct *)inode-
-> > > > 
-> > > > i_security;
-> > >  		ret = security_genfs_sid("selinuxfs", page,
-> > > SECCLASS_FILE, &sid);
-> > > -		if (ret)
-> > > +		if (ret) {
-> > > +			pr_warn_ratelimited("SELinux: %s: failed
-> > > to
-> > > lookup sid for %s\n",
-> > > +					   __func__, page);
-> > >  			goto out;
-> > >  
-> > > +		}
-> > > +
-> > >  		isec->sid = sid;
-> > >  		isec->initialized = LABEL_INITIALIZED;
-> > >  		inode->i_fop = &sel_bool_ops;
-> 
+> +	return strdup(retval);
+>  }
+>  
+>  int semanage_list_push(semanage_list_t ** list, const char *data)
