@@ -1,22 +1,11 @@
-Message-ID: <1482171496.2178.10.camel@nonadev.net>
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
-From: =?ISO-8859-1?Q?Jos=E9?= Bollo <jobol@nonadev.net>
-To: Casey Schaufler <casey@schaufler-ca.com>, Stephen Smalley
- <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org, john.johansen@canonical.com
-Date: Mon, 19 Dec 2016 19:18:16 +0100
-In-Reply-To: <986562c7-08e2-3aa7-1a4c-4fa21d15f14a@schaufler-ca.com>
-References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
- <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <1482140693.2178.1.camel@nonadev.net>
- <1482158025.28570.10.camel@tycho.nsa.gov>
- <1482162073.2178.6.camel@nonadev.net>
- <1482162765.28570.33.camel@tycho.nsa.gov>
- <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
- <1482167344.28570.38.camel@tycho.nsa.gov>
- <986562c7-08e2-3aa7-1a4c-4fa21d15f14a@schaufler-ca.com>
+Message-ID: <1482172359.28570.53.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 6/7] libsemanage: genhomedircon: drop ustr dependency
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 19 Dec 2016 13:32:39 -0500
+In-Reply-To: <20161219130404.11496-7-nicolas.iooss@m4x.org>
+References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
+ <20161219130404.11496-7-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -24,31 +13,166 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le lundi 19 décembre 2016 à 10:00 -0800, Casey Schaufler a écrit :
-
-(snip)
-
-> Not every approach to security relies on being unable to change
-> another process' attributes. I know of people who believe that
-> SELinux would be more secure if an application launcher could set
-> the context on another process. While I do not agree with these
-> people I understand the logic they use and why it does not apply
-> to SELinux or Smack.
+On Mon, 2016-12-19 at 14:04 +0100, Nicolas Iooss wrote:
+> ustr library uses old (pre-C99) "extern inline" semantic. This makes
+> it
+> incompatible with recent versions of gcc and clang, which default to
+> C99 standard. Distributions have shipped patched versions of this
+> library to fix issues (e.g. Gentoo package uses this patch:
+> https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-libs/ustr/files/us
+> tr-1.0.4-gcc_5-
+> check.patch?id=7dea6f8820f36bf389e6315044bea7507553bed0
+> ) but there is no upstream solution to make ustr compatible with C99
+> standard.
 > 
-> Consider a module that does statistical analysis on program behavior
-> and tags (using PTAGS or something similar) processes that are
-> behaving in suspect ways. You probably don't want the math running
-> in the kernel. The kernel decides to start denying the suspect
-> process access once some tagging threshold is exceeded. Sure, you
-> might be able to come up with some mechanism to get the process to
-> tag itself, but it's kind of silly to make it hard when it doesn't
-> have to be.
+> The git tree of ustr (http://www.and.org/ustr/ustr.git) has not been
+> updated since 2008 and the developer of this project did not reply to
+> emails.
+> 
+> Therefore update genhomedircon implementation in order to no longer
+> rely on ustr library.
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsemanage/src/genhomedircon.c | 137 +++++++++++++++++++-----------
+> ----------
+>  1 file changed, 66 insertions(+), 71 deletions(-)
+> 
+> diff --git a/libsemanage/src/genhomedircon.c
+> b/libsemanage/src/genhomedircon.c
+> index 5e9d7224a06e..4b7352c8648a 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -239,46 +238,35 @@ static int fcontext_matches(const
+> semanage_fcontext_t *fcontext, void *varg)
+>  {
+>  	const char *oexpr = semanage_fcontext_get_expr(fcontext);
+>  	fc_match_handle_t *handp = varg;
+> -	struct Ustr *expr;
+> +	char *expr = NULL;
+>  	regex_t re;
+>  	int type, retval = -1;
+> +	size_t len;
+>  
+>  	/* Only match ALL or DIR */
+>  	type = semanage_fcontext_get_type(fcontext);
+>  	if (type != SEMANAGE_FCONTEXT_ALL && type !=
+> SEMANAGE_FCONTEXT_ALL)
+>  		return 0;
+>  
+> -	/* Convert oexpr into a Ustr and anchor it at the beginning
+> */
+> -	expr = ustr_dup_cstr("^");
+> -	if (expr == USTR_NULL)
+> -		goto done;
+> -	if (!ustr_add_cstr(&expr, oexpr))
+> -		goto done;
+> +	len = strlen(oexpr);
+>  
+>  	/* Strip off trailing ".+" or ".*" */
+> -	if (ustr_cmp_suffix_cstr_eq(expr, ".+") ||
+> -	    ustr_cmp_suffix_cstr_eq(expr, ".*")) {
+> -		if (!ustr_del(&expr, 2))
+> -			goto done;
+> -	}
+> +	if (len >= 2 && oexpr[len - 2] == '.' && strchr("+*",
+> oexpr[len - 1]))
+> +		len -= 2;
+>  
+>  	/* Strip off trailing "(/.*)?" */
+> -	if (ustr_cmp_suffix_cstr_eq(expr, "(/.*)?")) {
+> -		if (!ustr_del(&expr, 6))
+> -			goto done;
+> -	}
+> +	if (len >= 6 && !strncmp(oexpr + len - 6, "(/.*)?", 6))
+> +		len -= 2;
 
-That is a very example of what can be achieved using PTAGS. Thank you.
+Should be len -= 6;
+Maybe we should make this code less fragile, e.g. #define the
+expressions and use sizeof(X)-1 for the lengths in the strncmp() and -=
+statements, wrap it all up with a macro.
 
-> If you can suggest a mechanism that achieves Jose's goals (which
-> may not match your goals) that does not require allowing a process
-> to change another's security attributes I'm sure we'd all be
-> interested.
+> @@ -523,44 +511,51 @@ static semanage_list_t
+> *make_template(genhomedircon_settings_t * s,
+>  	return template_data;
+>  }
+>  
+> -static Ustr *replace_all(const char *str, const replacement_pair_t *
+> repl)
+> +static char *replace_all(const char *str, const replacement_pair_t *
+> repl)
+>  {
+> -	Ustr *retval = USTR_NULL;
+> +	char *retval, *retval2;
+>  	int i;
+>  
+>  	if (!str || !repl)
+> -		goto done;
+> -	if (!(retval = ustr_dup_cstr(str)))
+> -		goto done;
+> +		return NULL;
+>  
+> -	for (i = 0; repl[i].search_for; i++) {
+> -		ustr_replace_cstr(&retval, repl[i].search_for,
+> -				  repl[i].replace_with, 0);
+> +	retval = strdup(str);
+> +	for (i = 0; retval != NULL && repl[i].search_for; i++) {
+> +		retval2 = semanage_str_replace(repl[i].search_for,
+> +					       repl[i].replace_with,
+> retval, 0);
+> +		free(retval);
+> +		retval = retval2;
+>  	}
+> -	if (ustr_enomem(retval))
+> -		ustr_sc_free(&retval);
+> -
+> -      done:
+>  	return retval;
+>  }
+>  
+> -static const char * extract_context(Ustr *line)
+> +static const char *extract_context(const char *line)
+>  {
+> -	const char whitespace[] = " \t\n";
+> -	size_t off, len;
+> -
+> -	/* check for trailing whitespace */
+> -	off = ustr_spn_chrs_rev(line, 0, whitespace,
+> strlen(whitespace));
+> -
+> -	/* find the length of the last field in line */
+> -	len = ustr_cspn_chrs_rev(line, off, whitespace,
+> strlen(whitespace));
+> -
+> -	if (len == 0)
+> +	const char whitespace[] = {' ', '\t', '\n'};
+> +	const char *p = line;
+> +	size_t off;
+> +
+> +	off = strlen(p);
+> +	p += off;
+> +	/* consider trailing whitespaces */
+> +	while (off > 0) {
+> +		p -= 1;
+> +		off -= 1;
+> +		if (!memchr(whitespace, *p, sizeof(whitespace)))
 
-Yes. And what would imply the ability to write to /proc/pid/attr
+if (!isspace(*p))
+
+> +			break;
+> +	}
+> +	if (off == 0)
+>  		return NULL;
+> -	return ustr_cstr(line) + ustr_len(line) - (len + off);
+> +
+> +	/* find the last field in line */
+> +	while (off > 0 && !memchr(whitespace, *(p - 1),
+> sizeof(whitespace))) {
+
+while (off > 0 && !isspace(*p))
+
+> +		p -= 1;
+> +		off -= 1;
+> +	}
+> +	return p;
+>  }
