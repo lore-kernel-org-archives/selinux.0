@@ -1,10 +1,10 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJMW4VA005136
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 17:32:05 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJMnOJW009627
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 17:49:25 -0500
 Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
  /proc/pid/attr nodes to proc
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- John Johansen <john.johansen@canonical.com>, =?UTF-8?Q?Jos=c3=a9_Bollo?=
+To: John Johansen <john.johansen@canonical.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, =?UTF-8?Q?Jos=c3=a9_Bollo?=
  <jobol@nonadev.net>, selinux@tycho.nsa.gov
 References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
  <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
@@ -16,175 +16,165 @@ References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
  <8e8baad3-f39e-8d3a-661d-3302a96d43f1@canonical.com>
  <9b71f7ee-bbb3-5433-aae3-31a2c648908d@schaufler-ca.com>
  <1482184239.28570.68.camel@tycho.nsa.gov>
+ <58ad7a1a-958f-fc4d-ce0d-41676471a27a@canonical.com>
 Cc: paul@paul-moore.com, james.l.morris@oracle.com,
  linux-security-module@vger.kernel.org
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <d1b32ee5-e75c-a334-32af-5d6f5013aaee@schaufler-ca.com>
-Date: Mon, 19 Dec 2016 14:31:59 -0800
+Message-ID: <f6ff8ecf-fcac-f71d-d8ce-e7555392f137@schaufler-ca.com>
+Date: Mon, 19 Dec 2016 14:49:19 -0800
 MIME-Version: 1.0
-In-Reply-To: <1482184239.28570.68.camel@tycho.nsa.gov>
+In-Reply-To: <58ad7a1a-958f-fc4d-ce0d-41676471a27a@canonical.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/19/2016 1:50 PM, Stephen Smalley wrote:
-> On Mon, 2016-12-19 at 13:25 -0800, Casey Schaufler wrote:
->> On 12/19/2016 12:36 PM, John Johansen wrote:
->>> On 12/19/2016 08:32 AM, Casey Schaufler wrote:
->>>> On 12/19/2016 7:52 AM, Stephen Smalley wrote:
->>>>> On Mon, 2016-12-19 at 16:41 +0100, José Bollo wrote:
->>>>>> Le lundi 19 décembre 2016 à 09:33 -0500, Stephen Smalley a
->>>>>> écrit :
->>>>>>> On Mon, 2016-12-19 at 10:44 +0100, José Bollo wrote:
->>>>>>>> Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen
->>>>>>>> Smalley a
->>>>>>>> écrit :
->>>>>>>>> Processes can only alter their own security attributes
->>>>>>>>> via
->>>>>>>>> /proc/pid/attr nodes.  This is presently enforced by
->>>>>>>>> each
->>>>>>>>> individual
->>>>>>>>> security module and is also imposed by the Linux
->>>>>>>>> credentials
->>>>>>>>> implementation, which only allows a task to alter its
->>>>>>>>> own
->>>>>>>>> credentials.
->>>>>>>>> Move the check enforcing this restriction from the
->>>>>>>>> individual
->>>>>>>>> security modules to proc_pid_attr_write() before
->>>>>>>>> calling the
->>>>>>>>> security
->>>>>>>>> hook,
->>>>>>>>> and drop the unnecessary task argument to the security
->>>>>>>>> hook
->>>>>>>>> since
->>>>>>>>> it
->>>>>>>>> can
->>>>>>>>> only ever be the current task.
->>>>>>>> Hi Stephen,
->>>>>>>>
->>>>>>>> The module PTAGS that I made relies on the ability to
->>>>>>>> write files
->>>>>>>> in
->>>>>>>> /proc/pid/attr/...
->>>>>>>>
->>>>>>>> Why did I used this files? Thaere are serious reasons:
->>>>>>>>  - follows the life cycle of the process
->>>>>>>>  - implements pid namespace
->>>>>>>>
->>>>>>>> There is absolutely no way to get these features easyly
->>>>>>>> outside
->>>>>>>> that
->>>>>>>> implementation context of /proc/pid/attr/xxx.
->>>>>>>>
->>>>>>>> For these reasons I vote against that change.
->>>>>>> It is already prohibited by the credentials framework;
->>>>>> If it were REALLY prohibited, your patch shouldn't exist ;)
->>>>> You can't do it safely (and your current implementation is
->>>>> unsafe).
->>>>>  Please, read Documentation/security/credentials.txt in full,
->>>>> and look
->>>>> at the setprocattr implementations in the upstream security
->>>>> modules for
->>>>> reference.
->>>> I just reviewed the referenced documentation (thanks David)
->>>> and it does clearly identify why, from the viewpoint of the
->>>> credential implementation, modifying another task's credentials
->>>> is unsafe. Both Smack and SELinux view modification of task
->>>> credentials as unsafe from a security viewpoint, so neither of
->>>> these modules would force the credential implementation to
->>>> allow the behavior.
+On 12/19/2016 2:45 PM, John Johansen wrote:
+> On 12/19/2016 01:50 PM, Stephen Smalley wrote:
+>> On Mon, 2016-12-19 at 13:25 -0800, Casey Schaufler wrote:
+>>> On 12/19/2016 12:36 PM, John Johansen wrote:
+>>>> On 12/19/2016 08:32 AM, Casey Schaufler wrote:
+>>>>> On 12/19/2016 7:52 AM, Stephen Smalley wrote:
+>>>>>> On Mon, 2016-12-19 at 16:41 +0100, José Bollo wrote:
+>>>>>>> Le lundi 19 décembre 2016 à 09:33 -0500, Stephen Smalley a
+>>>>>>> écrit :
+>>>>>>>> On Mon, 2016-12-19 at 10:44 +0100, José Bollo wrote:
+>>>>>>>>> Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen
+>>>>>>>>> Smalley a
+>>>>>>>>> écrit :
+>>>>>>>>>> Processes can only alter their own security attributes
+>>>>>>>>>> via
+>>>>>>>>>> /proc/pid/attr nodes.  This is presently enforced by
+>>>>>>>>>> each
+>>>>>>>>>> individual
+>>>>>>>>>> security module and is also imposed by the Linux
+>>>>>>>>>> credentials
+>>>>>>>>>> implementation, which only allows a task to alter its
+>>>>>>>>>> own
+>>>>>>>>>> credentials.
+>>>>>>>>>> Move the check enforcing this restriction from the
+>>>>>>>>>> individual
+>>>>>>>>>> security modules to proc_pid_attr_write() before
+>>>>>>>>>> calling the
+>>>>>>>>>> security
+>>>>>>>>>> hook,
+>>>>>>>>>> and drop the unnecessary task argument to the security
+>>>>>>>>>> hook
+>>>>>>>>>> since
+>>>>>>>>>> it
+>>>>>>>>>> can
+>>>>>>>>>> only ever be the current task.
+>>>>>>>>> Hi Stephen,
+>>>>>>>>>
+>>>>>>>>> The module PTAGS that I made relies on the ability to
+>>>>>>>>> write files
+>>>>>>>>> in
+>>>>>>>>> /proc/pid/attr/...
+>>>>>>>>>
+>>>>>>>>> Why did I used this files? Thaere are serious reasons:
+>>>>>>>>>  - follows the life cycle of the process
+>>>>>>>>>  - implements pid namespace
+>>>>>>>>>
+>>>>>>>>> There is absolutely no way to get these features easyly
+>>>>>>>>> outside
+>>>>>>>>> that
+>>>>>>>>> implementation context of /proc/pid/attr/xxx.
+>>>>>>>>>
+>>>>>>>>> For these reasons I vote against that change.
+>>>>>>>> It is already prohibited by the credentials framework;
+>>>>>>> If it were REALLY prohibited, your patch shouldn't exist ;)
+>>>>>> You can't do it safely (and your current implementation is
+>>>>>> unsafe).
+>>>>>>  Please, read Documentation/security/credentials.txt in full,
+>>>>>> and look
+>>>>>> at the setprocattr implementations in the upstream security
+>>>>>> modules for
+>>>>>> reference.
+>>>>> I just reviewed the referenced documentation (thanks David)
+>>>>> and it does clearly identify why, from the viewpoint of the
+>>>>> credential implementation, modifying another task's credentials
+>>>>> is unsafe. Both Smack and SELinux view modification of task
+>>>>> credentials as unsafe from a security viewpoint, so neither of
+>>>>> these modules would force the credential implementation to
+>>>>> allow the behavior.
+>>>>>
+>>>>> This, unfortunately, leaves Jose in a bit of a bind. It looks
+>>>>> to me like there are options, so let's not just tell him to
+>>>>> go away. The options I see include:
+>>>>>
+>>>>>  - Fix the credential code so modifying another task is safe
+>>>>> 	I don't advocate this approach because the existing
+>>>>> 	implementation is only reasonable because of the
+>>>>> 	restriction.
+>>>>>  - Revert shared credentials
+>>>>> 	I confess to not being a fan of shared credentials,
+>>>>> 	for reason of complexity. I would not expect a
+>>>>> 	proposal to go back to embedding credentials in
+>>>>> 	their containing structures to be considered seriously.
+>>>>> 	Nonetheless, it would solve the problem.
+>>>>>  - Add a security blob for the task
+>>>>> 	It is unfortunate that when shared credentials were
+>>>>> 	introduced the task blob was not renamed a cred blob.
+>>>>> 	It would be simple and consistent to add a security
+>>>>> 	blob to the task in addition to the blob in the cred.
+>>>>> 	I would add a t_security field to the task structure
+>>>>> 	that associates security data with the task. This
+>>>>> 	blob would be used for data that does not meet intent
+>>>>> 	of a credential, which I believe may be the case for
+>>>>> 	Jose's PTAGS.
+>>>>>
+>>>>> I know which I would prefer, but as I expect someone to shout
+>>>>> that none can possibly be acceptable I think I'll stop here and
+>>>>> let the discussion go a while.
+>>>>>
+>>>>> ("Light fuse. Stand back. :))
+>>>>>
+>>>> Tetsuo has been asking for the return of the task security blob
+>>>> for years. It does makes sense as not everything fits the cred
+>>>> model, eg. seccomp rules aren't part of the cred, and I don't think
+>>>> it makes sense for PTAGS either.
 >>>>
->>>> This, unfortunately, leaves Jose in a bit of a bind. It looks
->>>> to me like there are options, so let's not just tell him to
->>>> go away. The options I see include:
->>>>
->>>>  - Fix the credential code so modifying another task is safe
->>>> 	I don't advocate this approach because the existing
->>>> 	implementation is only reasonable because of the
->>>> 	restriction.
->>>>  - Revert shared credentials
->>>> 	I confess to not being a fan of shared credentials,
->>>> 	for reason of complexity. I would not expect a
->>>> 	proposal to go back to embedding credentials in
->>>> 	their containing structures to be considered seriously.
->>>> 	Nonetheless, it would solve the problem.
->>>>  - Add a security blob for the task
->>>> 	It is unfortunate that when shared credentials were
->>>> 	introduced the task blob was not renamed a cred blob.
->>>> 	It would be simple and consistent to add a security
->>>> 	blob to the task in addition to the blob in the cred.
->>>> 	I would add a t_security field to the task structure
->>>> 	that associates security data with the task. This
->>>> 	blob would be used for data that does not meet intent
->>>> 	of a credential, which I believe may be the case for
->>>> 	Jose's PTAGS.
->>>>
->>>> I know which I would prefer, but as I expect someone to shout
->>>> that none can possibly be acceptable I think I'll stop here and
->>>> let the discussion go a while.
->>>>
->>>> ("Light fuse. Stand back. :))
->>>>
->>> Tetsuo has been asking for the return of the task security blob
->>> for years. It does makes sense as not everything fits the cred
->>> model, eg. seccomp rules aren't part of the cred, and I don't think
->>> it makes sense for PTAGS either.
->>>
->>> AppArmor could make use of it as well, as currently we abuse
->>> the cred a little bit to store the change_hat, and setexeccon info.
->> A brief look at the existing modules leads me to believe that
->> everyone ought to be happier if we moved the LSM task blob out
->> of the cred structure. SELinux keeps a small (6xu32) task blob
->> that has no reason to share and refcount. Smack has a couple of
->> lists in the task blob that really shouldn't be in the cred.
->> There would have to be some rework of the task_alloc and task_free
->> hooks to get the life of the blobs correct, but I think on the
->> whole it would be lots cleaner.
-> Moving everything back to per-task security blob is inadvisable; the
-> kernel now passes around cred structures,
-
-No, it passes around pointers to cred structures.
-
->  including to some of the security hooks,
-
-Most of which are related to the shared, copy on write
-nature of credentials. From a little bit of poking about
-it seems that in general if you have access to cred->security
-you're going to have access to task->security just as
-readily.
-
-> and you don't always want to check the credentials/sid
-> of the current task (that's one of the reasons creds were introduced).
-
-Who said anything about the current task?
-Sure, you've got outliers like dentry_create_files_as,
-but there's no reason they can't be corrected.
-
-> You could perhaps move the SIDs other than the current one (e.g.
-> exec_sid, create_sid, ...) to the per-task security blob without
-> harm/confusion, but it is unclear what you gain from doing so;
-
-SELinux, I'm sure to noone's surprise, is the best match for the
-current implementation. Even at that, I don't see that the change
-would have real impact beyond the regrettable code churn.
-
-> then we
-> would need to look in two places to find all the information we need
-> for certain hooks rather than one.  And certainly we'd end up consuming
-> more memory that way.
-
-Which is one reason why I didn't and wouldn't suggest it.
-
-> No, I don't think we want SELinux changed in this regard.
-
-I'm looking at what would be best for the LSM infrastructure.
-So far what I hear is that the proposed change would be better
-for three of the four existing "major" modules and required for
-two modules that are out, but targeting mainline. Moving the
-complete infrastructure from cred->security to task->security
-(NOT the hybrid you've suggested) appears generally beneficial.
-There does not appear to be harmful to SELinux. In fact, I suspect
-you'll see a minor performance improvement out of the deal.
+>>>> AppArmor could make use of it as well, as currently we abuse
+>>>> the cred a little bit to store the change_hat, and setexeccon info.
+>>> A brief look at the existing modules leads me to believe that
+>>> everyone ought to be happier if we moved the LSM task blob out
+>>> of the cred structure. SELinux keeps a small (6xu32) task blob
+>>> that has no reason to share and refcount. Smack has a couple of
+>>> lists in the task blob that really shouldn't be in the cred.
+>>> There would have to be some rework of the task_alloc and task_free
+>>> hooks to get the life of the blobs correct, but I think on the
+>>> whole it would be lots cleaner.
+>> Moving everything back to per-task security blob is inadvisable; the
+>> kernel now passes around cred structures, including to some of the
+>> security hooks, and you don't always want to check the credentials/sid
+>> of the current task (that's one of the reasons creds were introduced).
+>>
+> Unwinding the the cred, security relationship would be interesting.
+> I'm not sure its even advisable, I would want to see a patch attempting
+> it before I would make a call either way. I'm not convinced that they
+> should be split but I do think it wouldn't hurt to have a t_security
+> field for the ancillary data, and other models could benefit from it.
+>
+>> You could perhaps move the SIDs other than the current one (e.g.
+>> exec_sid, create_sid, ...) to the per-task security blob without
+>> harm/confusion, but it is unclear what you gain from doing so; then we
+>> would need to look in two places to find all the information we need
+>> for certain hooks rather than one.  And certainly we'd end up consuming
+>> more memory that way.
+>>
+> In apparmor's case it would actually save memory as we could share the
+> cred more often (instead of making new creds with none cred related
+> info), and we wouldn't allocate the ancillary information unless it was
+> needed.
+>
+> It would certainly introduce a little bit of extra overhead to access
+> the extra info when it is needed, but the overhead would be small for
+> apparmor's use cases.
+>
+>> No, I don't think we want SELinux changed in this regard.
+>>
+>
+I will also point out that SELinux and Smack predate the credential
+implementation. They worked before with a blob directly off of
+the task structure.
