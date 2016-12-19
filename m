@@ -1,177 +1,428 @@
-Date: Mon, 19 Dec 2016 16:00:41 +0000
-From: Gary Tierney <gary.tierney@gmx.com>
-To: sds@tycho.nsa.gov
-Cc: selinux@tycho.nsa.gov, paul@paul-moore.com, sgrubb@redhat.com,
- linux-audit@redhat.com
-Subject: Re: [PATCH 1/2] selinux: log errors when loading new policy
-Message-ID: <20161219160041.GB5359@workstation>
-References: <1482007719-14313-1-git-send-email-gary.tierney@gmx.com>
- <1482007719-14313-2-git-send-email-gary.tierney@gmx.com>
- <1482158586.28570.17.camel@tycho.nsa.gov>
- <20161219151946.GA5359@workstation>
- <1482161529.28570.25.camel@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJGWr7T019066
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 11:33:06 -0500
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+To: Stephen Smalley <sds@tycho.nsa.gov>, =?UTF-8?Q?Jos=c3=a9_Bollo?=
+ <jobol@nonadev.net>, selinux@tycho.nsa.gov
+References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
+ <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+ <1482140693.2178.1.camel@nonadev.net>
+ <1482158025.28570.10.camel@tycho.nsa.gov>
+ <1482162073.2178.6.camel@nonadev.net>
+ <1482162765.28570.33.camel@tycho.nsa.gov>
+Cc: paul@paul-moore.com, james.l.morris@oracle.com,
+ linux-security-module@vger.kernel.org, john.johansen@canonical.com
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
+Date: Mon, 19 Dec 2016 08:32:32 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1482161529.28570.25.camel@tycho.nsa.gov>
+In-Reply-To: <1482162765.28570.33.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Dec 19, 2016 at 10:32:09AM -0500, Stephen Smalley wrote:
-> On Mon, 2016-12-19 at 15:19 +0000, Gary Tierney wrote:
-> > On Mon, Dec 19, 2016 at 09:43:06AM -0500, Stephen Smalley wrote:
-> > > 
-> > > On Sat, 2016-12-17 at 20:48 +0000, Gary Tierney wrote:
-> > > > 
-> > > > Adds error and warning messages to the codepaths which can fail
-> > > > when
-> > > > loading a new policy.  If a policy fails to load, an error
-> > > > message
-> > > > will
-> > > > be printed to dmesg with a description of what
-> > > > failed.  Previously if
-> > > > there was an error during policy loading there would be no
-> > > > indication
-> > > > that it failed.
-> > > > 
-> > > > Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
-> > > > ---
-> > > >  security/selinux/selinuxfs.c | 26 +++++++++++++++++++++-----
-> > > >  1 file changed, 21 insertions(+), 5 deletions(-)
-> > > > 
-> > > > diff --git a/security/selinux/selinuxfs.c
-> > > > b/security/selinux/selinuxfs.c
-> > > > index 0aac402..2139cc7 100644
-> > > > --- a/security/selinux/selinuxfs.c
-> > > > +++ b/security/selinux/selinuxfs.c
-> > > > @@ -522,20 +522,32 @@ static ssize_t sel_write_load(struct file
-> > > > *file, const char __user *buf,
-> > > >  		goto out;
-> > > >  
-> > > >  	length = security_load_policy(data, count);
-> > > > -	if (length)
-> > > > +	if (length) {
-> > > > +		pr_err("SELinux: %s: failed to load policy\n",
-> > > > +		      __func__);
-> > > 
-> > > Not sure about your usage of pr_err() vs pr_warn();
-> > > security_load_policy() may simply fail due to invalid policy from
-> > > userspace, not a kernel-internal error per se.
-> > > 
-> > 
-> > The intention was to make a distinction between failures on or after
-> > security_load_policy().  If security_load_policy() fails then no
-> > audit message
-> > will be logged about loading a new policy, so it seemed more
-> > appropriate to
-> > treat that case as KERN_ERROR.  Though with what you said in mind, it
-> > is
-> > probably better to change this to pr_warn() as security_load_policy()
-> > is
-> > unlikely to cause an actual kernel-internal error.
-> 
-> Yes, I tend to view them in the reverse; a failure on
-> security_load_policy() is just a typical userspace-induced (or OOM)
-> failure, whereas failure on any of the later calls will leave the
-> kernel in an inconsistent internal state, so if anything, those should
-> be the pr_err() cases instead, while security_load_policy() failure
-> might even need/want a pr_warn_ratelimited() since it can be induced by
-> userspace (albeit only root with :security load_policy permission).
-> 
+On 12/19/2016 7:52 AM, Stephen Smalley wrote:
+> On Mon, 2016-12-19 at 16:41 +0100, JosÃ© Bollo wrote:
+>> Le lundi 19 dÃ©cembre 2016 Ã  09:33 -0500, Stephen Smalley a Ã©crit :
+>>> On Mon, 2016-12-19 at 10:44 +0100, JosÃ© Bollo wrote:
+>>>> Le vendredi 16 dÃ©cembre 2016 Ã  12:41 -0500, Stephen Smalley a
+>>>> Ã©crit :
+>>>>>
+>>>>> Processes can only alter their own security attributes via
+>>>>> /proc/pid/attr nodes.  This is presently enforced by each
+>>>>> individual
+>>>>> security module and is also imposed by the Linux credentials
+>>>>> implementation, which only allows a task to alter its own
+>>>>> credentials.
+>>>>> Move the check enforcing this restriction from the individual
+>>>>> security modules to proc_pid_attr_write() before calling the
+>>>>> security
+>>>>> hook,
+>>>>> and drop the unnecessary task argument to the security hook
+>>>>> since
+>>>>> it
+>>>>> can
+>>>>> only ever be the current task.
+>>>> Hi Stephen,
+>>>>
+>>>> The module PTAGS that I made relies on the ability to write files
+>>>> in
+>>>> /proc/pid/attr/...
+>>>>
+>>>> Why did I used this files? Thaere are serious reasons:
+>>>>  - follows the life cycle of the process
+>>>>  - implements pid namespace
+>>>>
+>>>> There is absolutely no way to get these features easyly outside
+>>>> that
+>>>> implementation context of /proc/pid/attr/xxx.
+>>>>
+>>>> For these reasons I vote against that change.
+>>> It is already prohibited by the credentials framework;
+>> If it were REALLY prohibited, your patch shouldn't exist ;)
+> You can't do it safely (and your current implementation is unsafe).
+>  Please, read Documentation/security/credentials.txt in full, and look
+> at the setprocattr implementations in the upstream security modules for
+> reference.
 
-Noted.
+I just reviewed the referenced documentation (thanks David)
+and it does clearly identify why, from the viewpoint of the
+credential implementation, modifying another task's credentials
+is unsafe. Both Smack and SELinux view modification of task
+credentials as unsafe from a security viewpoint, so neither of
+these modules would force the credential implementation to
+allow the behavior.
 
-> > 
-> > > 
-> > > I would tend to omit the function name; I don't think it is
-> > > especially
-> > > helpful.
-> > > 
-> > 
-> > Agreed.  It seems to be used as a convention throughout
-> > security/selinux,
-> > though am happy to drop it from the patch.
-> > 
-> > I was planning to send a v2 with pr_err() swapped for pr_warn() and
-> > __func__
-> > dropped from the log message, though keeping in mind that Steve has
-> > prepared a
-> > patch for this (also, logging to the audit subsystem might be more
-> > appropriate) would it be better to drop #1 and keep #2?
-> 
-> Not sure - I'd have to see Steve's patch or at least hear more details
-> from him to know whether his patch would obsolete yours or just
-> complement it.
-> 
+This, unfortunately, leaves Jose in a bit of a bind. It looks
+to me like there are options, so let's not just tell him to
+go away. The options I see include:
 
-Right, I'll spin up a v2 with the recommended changes and CC in Steve for his
-feedback.
+ - Fix the credential code so modifying another task is safe
+	I don't advocate this approach because the existing
+	implementation is only reasonable because of the
+	restriction.
+ - Revert shared credentials
+	I confess to not being a fan of shared credentials,
+	for reason of complexity. I would not expect a
+	proposal to go back to embedding credentials in
+	their containing structures to be considered seriously.
+	Nonetheless, it would solve the problem.
+ - Add a security blob for the task
+	It is unfortunate that when shared credentials were
+	introduced the task blob was not renamed a cred blob.
+	It would be simple and consistent to add a security
+	blob to the task in addition to the blob in the cred.
+	I would add a t_security field to the task structure
+	that associates security data with the task. This
+	blob would be used for data that does not meet intent
+	of a credential, which I believe may be the case for
+	Jose's PTAGS.
 
-> > 
-> > > 
-> > > There was an earlier discussion about augmenting the audit logging
-> > > from
-> > > this function, so this might overlap with that.  I don't know where
-> > > that stands.
-> > > 
-> > > > 
-> > > >  		goto out;
-> > > > +	}
-> > > >  
-> > > >  	length = sel_make_bools();
-> > > > -	if (length)
-> > > > +	if (length) {
-> > > > +		pr_warn("SELinux: %s: failed to load policy
-> > > > booleans\n",
-> > > > +		       __func__);
-> > > >  		goto out1;
-> > > > +	}
-> > > >  
-> > > >  	length = sel_make_classes();
-> > > > -	if (length)
-> > > > +	if (length) {
-> > > > +		pr_warn("SELinux: %s: failed to load policy
-> > > > classes\n",
-> > > > +		       __func__);
-> > > >  		goto out1;
-> > > > +	}
-> > > >  
-> > > >  	length = sel_make_policycap();
-> > > > -	if (length)
-> > > > +	if (length) {
-> > > > +		pr_warn("SELinux: %s: failed to load policy
-> > > > capabilities\n",
-> > > > +		       __func__);
-> > > >  		goto out1;
-> > > > +	}
-> > > >  
-> > > >  	length = count;
-> > > >  
-> > > > @@ -1299,9 +1311,13 @@ static int sel_make_bools(void)
-> > > >  
-> > > >  		isec = (struct inode_security_struct *)inode-
-> > > > > 
-> > > > > i_security;
-> > > >  		ret = security_genfs_sid("selinuxfs", page,
-> > > > SECCLASS_FILE, &sid);
-> > > > -		if (ret)
-> > > > +		if (ret) {
-> > > > +			pr_warn_ratelimited("SELinux: %s: failed
-> > > > to
-> > > > lookup sid for %s\n",
-> > > > +					   __func__, page);
-> > > >  			goto out;
-> > > >  
-> > > > +		}
-> > > > +
-> > > >  		isec->sid = sid;
-> > > >  		isec->initialized = LABEL_INITIALIZED;
-> > > >  		inode->i_fop = &sel_bool_ops;
-> > 
+I know which I would prefer, but as I expect someone to shout
+that none can possibly be acceptable I think I'll stop here and
+let the discussion go a while.
 
--- 
-Gary Tierney
+("Light fuse. Stand back. :))
 
-GPG fingerprint: 412C 0EF9 C305 68E6 B660  BDAF 706E D765 85AA 79D8
-https://sks-keyservers.net/pks/lookup?op=get&search=0x706ED76585AA79D8
+>
+>> Best regards
+>> JosÃ© Bollo
+>>
+>>>  see
+>>> Documentation/security/credentials.txt, under ALTERING CREDENTIALS.
+>>> We are not imposing a new restriction here, just recognizing that
+>>> it
+>>> already exists (ever since Linux moved to using cred structures).
+>>>  You
+>>> might not agree with that restriction, but we didn't invent it.
+>>>
+>>>> You will probably ask me where is PTAGS used and what is is made
+>>>> for.
+>>>>
+>>>> So it is not used but the principle of its use is benefical to
+>>>> the
+>>>> community. It allows a kind of user land implementation of
+>>>> capabilities.
+>>>>
+>>>> You probably know that the kernel can not do all things for a
+>>>> good
+>>>> reason: it is not intended to do all things. So there is a need
+>>>> for
+>>>> user land features. PTAGS is an intent to fulfill an empty gap.
+>>>>
+>>>> I made a presentation at FOSDEM on the subject that may allows
+>>>> you
+>>>> to
+>>>> understand the beginning of the issue that I'm writing about
+>>>> [2]. 
+>>>>
+>>>> [1] https://lkml.org/lkml/2016/11/23/122
+>>>> [2] https://archive.fosdem.org/2015/schedule/event/sec_enforcemen
+>>>> t/
+>>>>
+>>>>>
+>>>>>
+>>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>>> ---
+>>>>>  fs/proc/base.c             | 13 +++++++++----
+>>>>>  include/linux/lsm_hooks.h  |  3 +--
+>>>>>  include/linux/security.h   |  4 ++--
+>>>>>  security/apparmor/lsm.c    |  7 ++-----
+>>>>>  security/security.c        |  4 ++--
+>>>>>  security/selinux/hooks.c   | 13 +------------
+>>>>>  security/smack/smack_lsm.c | 11 +----------
+>>>>>  7 files changed, 18 insertions(+), 37 deletions(-)
+>>>>>
+>>>>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+>>>>> index 6eae4d0..7b228ea 100644
+>>>>> --- a/fs/proc/base.c
+>>>>> +++ b/fs/proc/base.c
+>>>>> @@ -2485,6 +2485,12 @@ static ssize_t
+>>>>> proc_pid_attr_write(struct
+>>>>> file
+>>>>> * file, const char __user * buf,
+>>>>>  	length = -ESRCH;
+>>>>>  	if (!task)
+>>>>>  		goto out_no_task;
+>>>>> +
+>>>>> +	/* A task may only write its own attributes. */
+>>>>> +	length = -EACCES;
+>>>>> +	if (current != task)
+>>>>> +		goto out;
+>>>>> +
+>>>>>  	if (count > PAGE_SIZE)
+>>>>>  		count = PAGE_SIZE;
+>>>>>  
+>>>>> @@ -2500,14 +2506,13 @@ static ssize_t
+>>>>> proc_pid_attr_write(struct
+>>>>> file * file, const char __user * buf,
+>>>>>  	}
+>>>>>  
+>>>>>  	/* Guard against adverse ptrace interaction */
+>>>>> -	length = mutex_lock_interruptible(&task->signal-
+>>>>>>
+>>>>>> cred_guard_mutex);
+>>>>> +	length = mutex_lock_interruptible(&current->signal-
+>>>>>>
+>>>>>> cred_guard_mutex);
+>>>>>  	if (length < 0)
+>>>>>  		goto out_free;
+>>>>>  
+>>>>> -	length = security_setprocattr(task,
+>>>>> -				      (char*)file-
+>>>>>> f_path.dentry-
+>>>>>>
+>>>>>> d_name.name,
+>>>>> +	length = security_setprocattr(file->f_path.dentry-
+>>>>>>
+>>>>>> d_name.name,
+>>>>>  				      page, count);
+>>>>> -	mutex_unlock(&task->signal->cred_guard_mutex);
+>>>>> +	mutex_unlock(&current->signal->cred_guard_mutex);
+>>>>>  out_free:
+>>>>>  	kfree(page);
+>>>>>  out:
+>>>>> diff --git a/include/linux/lsm_hooks.h
+>>>>> b/include/linux/lsm_hooks.h
+>>>>> index 558adfa..0dde959 100644
+>>>>> --- a/include/linux/lsm_hooks.h
+>>>>> +++ b/include/linux/lsm_hooks.h
+>>>>> @@ -1547,8 +1547,7 @@ union security_list_options {
+>>>>>  	void (*d_instantiate)(struct dentry *dentry, struct
+>>>>> inode
+>>>>> *inode);
+>>>>>  
+>>>>>  	int (*getprocattr)(struct task_struct *p, char *name,
+>>>>> char
+>>>>> **value);
+>>>>> -	int (*setprocattr)(struct task_struct *p, char *name,
+>>>>> void
+>>>>> *value,
+>>>>> -				size_t size);
+>>>>> +	int (*setprocattr)(const char *name, void *value,
+>>>>> size_t
+>>>>> size);
+>>>>>  	int (*ismaclabel)(const char *name);
+>>>>>  	int (*secid_to_secctx)(u32 secid, char **secdata, u32
+>>>>> *seclen);
+>>>>>  	int (*secctx_to_secid)(const char *secdata, u32
+>>>>> seclen,
+>>>>> u32
+>>>>> *secid);
+>>>>> diff --git a/include/linux/security.h
+>>>>> b/include/linux/security.h
+>>>>> index c2125e9..f4ebac1 100644
+>>>>> --- a/include/linux/security.h
+>>>>> +++ b/include/linux/security.h
+>>>>> @@ -361,7 +361,7 @@ int security_sem_semop(struct sem_array
+>>>>> *sma,
+>>>>> struct sembuf *sops,
+>>>>>  			unsigned nsops, int alter);
+>>>>>  void security_d_instantiate(struct dentry *dentry, struct
+>>>>> inode
+>>>>> *inode);
+>>>>>  int security_getprocattr(struct task_struct *p, char *name,
+>>>>> char
+>>>>> **value);
+>>>>> -int security_setprocattr(struct task_struct *p, char *name,
+>>>>> void
+>>>>> *value, size_t size);
+>>>>> +int security_setprocattr(const char *name, void *value, size_t
+>>>>> size);
+>>>>>  int security_netlink_send(struct sock *sk, struct sk_buff
+>>>>> *skb);
+>>>>>  int security_ismaclabel(const char *name);
+>>>>>  int security_secid_to_secctx(u32 secid, char **secdata, u32
+>>>>> *seclen);
+>>>>> @@ -1106,7 +1106,7 @@ static inline int
+>>>>> security_getprocattr(struct
+>>>>> task_struct *p, char *name, char *
+>>>>>  	return -EINVAL;
+>>>>>  }
+>>>>>  
+>>>>> -static inline int security_setprocattr(struct task_struct *p,
+>>>>> char
+>>>>> *name, void *value, size_t size)
+>>>>> +static inline int security_setprocattr(char *name, void
+>>>>> *value,
+>>>>> size_t size)
+>>>>>  {
+>>>>>  	return -EINVAL;
+>>>>>  }
+>>>>> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+>>>>> index 41b8cb1..8202e55 100644
+>>>>> --- a/security/apparmor/lsm.c
+>>>>> +++ b/security/apparmor/lsm.c
+>>>>> @@ -495,8 +495,8 @@ static int apparmor_getprocattr(struct
+>>>>> task_struct *task, char *name,
+>>>>>  	return error;
+>>>>>  }
+>>>>>  
+>>>>> -static int apparmor_setprocattr(struct task_struct *task, char
+>>>>> *name,
+>>>>> -				void *value, size_t size)
+>>>>> +static int apparmor_setprocattr(const char *name, void *value,
+>>>>> +				size_t size)
+>>>>>  {
+>>>>>  	struct common_audit_data sa;
+>>>>>  	struct apparmor_audit_data aad = {0,};
+>>>>> @@ -506,9 +506,6 @@ static int apparmor_setprocattr(struct
+>>>>> task_struct *task, char *name,
+>>>>>  
+>>>>>  	if (size == 0)
+>>>>>  		return -EINVAL;
+>>>>> -	/* task can only write its own attributes */
+>>>>> -	if (current != task)
+>>>>> -		return -EACCES;
+>>>>>  
+>>>>>  	/* AppArmor requires that the buffer must be null
+>>>>> terminated
+>>>>> atm */
+>>>>>  	if (args[size - 1] != '\0') {
+>>>>> diff --git a/security/security.c b/security/security.c
+>>>>> index f825304..32052f5 100644
+>>>>> --- a/security/security.c
+>>>>> +++ b/security/security.c
+>>>>> @@ -1170,9 +1170,9 @@ int security_getprocattr(struct
+>>>>> task_struct
+>>>>> *p,
+>>>>> char *name, char **value)
+>>>>>  	return call_int_hook(getprocattr, -EINVAL, p, name,
+>>>>> value);
+>>>>>  }
+>>>>>  
+>>>>> -int security_setprocattr(struct task_struct *p, char *name,
+>>>>> void
+>>>>> *value, size_t size)
+>>>>> +int security_setprocattr(const char *name, void *value, size_t
+>>>>> size)
+>>>>>  {
+>>>>> -	return call_int_hook(setprocattr, -EINVAL, p, name,
+>>>>> value,
+>>>>> size);
+>>>>> +	return call_int_hook(setprocattr, -EINVAL, name,
+>>>>> value,
+>>>>> size);
+>>>>>  }
+>>>>>  
+>>>>>  int security_netlink_send(struct sock *sk, struct sk_buff
+>>>>> *skb)
+>>>>> diff --git a/security/selinux/hooks.c
+>>>>> b/security/selinux/hooks.c
+>>>>> index 9992626..762276b 100644
+>>>>> --- a/security/selinux/hooks.c
+>>>>> +++ b/security/selinux/hooks.c
+>>>>> @@ -5859,8 +5859,7 @@ static int selinux_getprocattr(struct
+>>>>> task_struct *p,
+>>>>>  	return error;
+>>>>>  }
+>>>>>  
+>>>>> -static int selinux_setprocattr(struct task_struct *p,
+>>>>> -			       char *name, void *value, size_t
+>>>>> size)
+>>>>> +static int selinux_setprocattr(const char *name, void *value,
+>>>>> size_t
+>>>>> size)
+>>>>>  {
+>>>>>  	struct task_security_struct *tsec;
+>>>>>  	struct cred *new;
+>>>>> @@ -5868,16 +5867,6 @@ static int selinux_setprocattr(struct
+>>>>> task_struct *p,
+>>>>>  	int error;
+>>>>>  	char *str = value;
+>>>>>  
+>>>>> -	if (current != p) {
+>>>>> -		/*
+>>>>> -		 * A task may only alter its own credentials.
+>>>>> -		 * SELinux has always enforced this
+>>>>> restriction,
+>>>>> -		 * and it is now mandated by the Linux
+>>>>> credentials
+>>>>> -		 * infrastructure; see
+>>>>> Documentation/security/credentials.txt.
+>>>>> -		 */
+>>>>> -		return -EACCES;
+>>>>> -	}
+>>>>> -
+>>>>>  	/*
+>>>>>  	 * Basic control over ability to set these attributes
+>>>>> at
+>>>>> all.
+>>>>>  	 */
+>>>>> diff --git a/security/smack/smack_lsm.c
+>>>>> b/security/smack/smack_lsm.c
+>>>>> index 4d90257..9bde7f8 100644
+>>>>> --- a/security/smack/smack_lsm.c
+>>>>> +++ b/security/smack/smack_lsm.c
+>>>>> @@ -3620,7 +3620,6 @@ static int smack_getprocattr(struct
+>>>>> task_struct
+>>>>> *p, char *name, char **value)
+>>>>>  
+>>>>>  /**
+>>>>>   * smack_setprocattr - Smack process attribute setting
+>>>>> - * @p: the object task
+>>>>>   * @name: the name of the attribute in /proc/.../attr
+>>>>>   * @value: the value to set
+>>>>>   * @size: the size of the value
+>>>>> @@ -3630,8 +3629,7 @@ static int smack_getprocattr(struct
+>>>>> task_struct
+>>>>> *p, char *name, char **value)
+>>>>>   *
+>>>>>   * Returns the length of the smack label or an error code
+>>>>>   */
+>>>>> -static int smack_setprocattr(struct task_struct *p, char
+>>>>> *name,
+>>>>> -			     void *value, size_t size)
+>>>>> +static int smack_setprocattr(const char *name, void *value,
+>>>>> size_t
+>>>>> size)
+>>>>>  {
+>>>>>  	struct task_smack *tsp = current_security();
+>>>>>  	struct cred *new;
+>>>>> @@ -3639,13 +3637,6 @@ static int smack_setprocattr(struct
+>>>>> task_struct *p, char *name,
+>>>>>  	struct smack_known_list_elem *sklep;
+>>>>>  	int rc;
+>>>>>  
+>>>>> -	/*
+>>>>> -	 * Changing another process' Smack value is too
+>>>>> dangerous
+>>>>> -	 * and supports no sane use case.
+>>>>> -	 */
+>>>>> -	if (p != current)
+>>>>> -		return -EPERM;
+>>>>> -
+>>>>>  	if (!smack_privileged(CAP_MAC_ADMIN) &&
+>>>>> list_empty(&tsp-
+>>>>>>
+>>>>>> smk_relabel))
+>>>>>  		return -EPERM;
+>>>>>  
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-
+>>> security-module" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
