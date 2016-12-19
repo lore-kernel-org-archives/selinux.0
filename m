@@ -1,140 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJD4mss020578
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 08:04:48 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJD5Kaa020787
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 08:05:20 -0500
 Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
  [77.133.206.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 7450F564788
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 14:04:42 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 31B31564788
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 14:04:39 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 3/7] libsemanage/tests: test more cases of semanage_split*()
-Date: Mon, 19 Dec 2016 14:04:00 +0100
-Message-Id: <20161219130404.11496-4-nicolas.iooss@m4x.org>
-In-Reply-To: <20161219130404.11496-1-nicolas.iooss@m4x.org>
-References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
+Subject: [PATCH 0/7] Remove ustr library dependency
+Date: Mon, 19 Dec 2016 14:03:57 +0100
+Message-Id: <20161219130404.11496-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Before modifying semanage_split_on_space() and semanage_split(), test in
-test_utilities.c how these functions behave for example when several
-delimiter tokens are concatenated in the input string.
+Hello,
 
-While at it, fix the memory leaks which were present in libsemanage
-tests.
+ustr library uses old (pre-C99) "extern inline" semantic. This makes it
+incompatible with recent versions of gcc and clang, which default to
+C99 standard. Distributions have shipped patched versions of this
+library to fix issues [1] but there is no upstream solution to make ustr
+compatible with C99 standard. Moreover the git tree of ustr
+(http://www.and.org/ustr/ustr.git) has not been updated since 2008 and
+the developer of this project did not reply to emails.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsemanage/tests/test_utilities.c | 51 ++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 18 deletions(-)
+This patchset aims at removing ustr from SELinux userland libraries and
+tools. The library is currenlty only used by genhomedircon functions in
+libsemanage. Here is how the patches are organised:
 
-diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
-index 32cc33c1b510..27fa70dc2a57 100644
---- a/libsemanage/tests/test_utilities.c
-+++ b/libsemanage/tests/test_utilities.c
-@@ -129,7 +129,7 @@ void test_semanage_is_prefix(void)
- 
- void test_semanage_split_on_space(void)
- {
--	char *str = strdup("foo bar baz");
-+	char *str = strdup("   foo   bar    baz");
- 	char *temp;
- 
- 	if (!str) {
-@@ -137,24 +137,24 @@ void test_semanage_split_on_space(void)
- 		    ("semanage_split_on_space: unable to perform test, no memory");
- 	}
- 	temp = semanage_split_on_space(str);
--	if (strncmp(temp, "bar", 3)) {
--		CU_FAIL("semanage_split_on_space: token did not match");
--	}
--	temp = semanage_split_on_space(temp);
--	if (strncmp(temp, "baz", 3)) {
--		CU_FAIL("semanage_split_on_space: token did not match");
--	}
--	temp = semanage_split_on_space(temp);
--	if (strcmp(temp, "")) {
--		CU_FAIL("semanage_split_on_space: token did not match");
--	}
-+	CU_ASSERT_STRING_EQUAL(temp, "bar    baz");
-+	free(str);
-+	str = temp;
-+
-+	temp = semanage_split_on_space(str);
-+	CU_ASSERT_STRING_EQUAL(temp, "baz");
-+	free(str);
-+	str = temp;
- 
-+	temp = semanage_split_on_space(str);
-+	CU_ASSERT_STRING_EQUAL(temp, "");
- 	free(str);
-+	free(temp);
- }
- 
- void test_semanage_split(void)
- {
--	char *str = strdup("foo1 foo2 foo:bar");
-+	char *str = strdup("foo1 foo2   foo::bar:::");
- 	char *temp;
- 
- 	if (!str) {
-@@ -163,13 +163,24 @@ void test_semanage_split(void)
- 		return;
- 	}
- 	temp = semanage_split(str, NULL);
--	CU_ASSERT_NSTRING_EQUAL(temp, "foo2", 4);
--	temp = semanage_split(temp, "");
--	CU_ASSERT_NSTRING_EQUAL(temp, "foo", 3);
--	temp = semanage_split(temp, ":");
--	CU_ASSERT_NSTRING_EQUAL(temp, "bar", 3);
-+	CU_ASSERT_STRING_EQUAL(temp, "foo2   foo::bar:::");
-+	free(str);
-+	str = temp;
- 
-+	temp = semanage_split(str, "");
-+	CU_ASSERT_STRING_EQUAL(temp, "foo::bar:::");
- 	free(str);
-+	str = temp;
-+
-+	temp = semanage_split(str, ":");
-+	CU_ASSERT_STRING_EQUAL(temp, "bar:::");
-+	free(str);
-+	str = temp;
-+
-+	temp = semanage_split(str, ":");
-+	CU_ASSERT_STRING_EQUAL(temp, "");
-+	free(str);
-+	free(temp);
- }
- 
- void test_semanage_list(void)
-@@ -242,6 +253,8 @@ void test_semanage_rtrim(void)
- 	CU_ASSERT_STRING_EQUAL(str, "/blah/foo/bar/b");
- 	semanage_rtrim(str, '/');
- 	CU_ASSERT_STRING_EQUAL(str, "/blah/foo/bar");
-+
-+	free(str);
- }
- 
- void test_semanage_findval(void)
-@@ -252,6 +265,7 @@ void test_semanage_findval(void)
- 	}
- 	tok = semanage_findval(fname, "one", NULL);
- 	CU_ASSERT_STRING_EQUAL(tok, "");
-+	free(tok);
- 	rewind(fptr);
- 	tok = semanage_findval(fname, "one", "");
- 	CU_ASSERT_STRING_EQUAL(tok, "");
-@@ -259,6 +273,7 @@ void test_semanage_findval(void)
- 	rewind(fptr);
- 	tok = semanage_findval(fname, "sigma", "=");
- 	CU_ASSERT_STRING_EQUAL(tok, "foo");
-+	free(tok);
- }
- 
- int PREDICATE(const char *str)
+* patches 1 and 2 make libsemanage test infrastructure work properly,
+* patch 3 expands some test cases in order to better check the
+  modifications of the next patch,
+* patch 4 reimplements functions in libsemanage/src/utilities.c without
+  ustr,
+* patches 5 and 6 remove ustr from libsemanage/src/genhomedircon.c (I
+  introduced a new function, semanage_str_replace(), to replace
+  ustr_replace_cstr()),
+* patch 7 removes references to ustr in Makefile, README and pkg-config
+  files.
+
+Thanks,
+Nicolas
+
+[1] for example Gentoo package uses this patch:
+https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-libs/ustr/files/ustr-1.0.4-gcc_5-check.patch?id=7dea6f8820f36bf389e6315044bea7507553bed0
+
+Nicolas Iooss (7):
+  libsemanage/tests: make "make test" fail when a CUnit test fails
+  libsemanage/tests: make tests standalone
+  libsemanage/tests: test more cases of semanage_split*()
+  libsemanage: simplify string utilities functions
+  libsemanage: add semanage_str_replace() utility function
+  libsemanage: genhomedircon: drop ustr dependency
+  libsemanage: remove ustr library from Makefiles and pkg-config
+
+ README                                |   2 +-
+ libsemanage/src/Makefile              |   2 +-
+ libsemanage/src/genhomedircon.c       | 137 ++++++++++++++++------------------
+ libsemanage/src/libsemanage.pc.in     |   2 +-
+ libsemanage/src/utilities.c           | 119 +++++++++++++++++------------
+ libsemanage/src/utilities.h           |  10 +++
+ libsemanage/tests/Makefile            |  14 ++--
+ libsemanage/tests/libsemanage-tests.c |   9 ++-
+ libsemanage/tests/test_utilities.c    |  85 ++++++++++++++++-----
+ 9 files changed, 232 insertions(+), 148 deletions(-)
+
 -- 
 2.11.0
