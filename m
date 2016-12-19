@@ -1,20 +1,12 @@
-Message-ID: <1482167344.28570.38.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
+Message-ID: <1482170537.28570.44.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 5/7] libsemanage: add semanage_str_replace() utility
+ function
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>, =?ISO-8859-1?Q?Jos=E9?= Bollo
- <jobol@nonadev.net>, selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org, john.johansen@canonical.com
-Date: Mon, 19 Dec 2016 12:09:04 -0500
-In-Reply-To: <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
-References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
- <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <1482140693.2178.1.camel@nonadev.net>
- <1482158025.28570.10.camel@tycho.nsa.gov>
- <1482162073.2178.6.camel@nonadev.net>
- <1482162765.28570.33.camel@tycho.nsa.gov>
- <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 19 Dec 2016 13:02:17 -0500
+In-Reply-To: <20161219130404.11496-6-nicolas.iooss@m4x.org>
+References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
+ <20161219130404.11496-6-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -22,105 +14,185 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2016-12-19 at 08:32 -0800, Casey Schaufler wrote:
-> On 12/19/2016 7:52 AM, Stephen Smalley wrote:
-> > 
-> > On Mon, 2016-12-19 at 16:41 +0100, José Bollo wrote:
-> > > 
-> > > Le lundi 19 décembre 2016 à 09:33 -0500, Stephen Smalley a écrit
-> > > :
-> > > > 
-> > > > On Mon, 2016-12-19 at 10:44 +0100, José Bollo wrote:
-> > > > > 
-> > > > > Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen Smalley a
-> > > > > écrit :
-> > > > > > 
-> > > > > > 
-> > > > > > Processes can only alter their own security attributes via
-> > > > > > /proc/pid/attr nodes.  This is presently enforced by each
-> > > > > > individual
-> > > > > > security module and is also imposed by the Linux
-> > > > > > credentials
-> > > > > > implementation, which only allows a task to alter its own
-> > > > > > credentials.
-> > > > > > Move the check enforcing this restriction from the
-> > > > > > individual
-> > > > > > security modules to proc_pid_attr_write() before calling
-> > > > > > the
-> > > > > > security
-> > > > > > hook,
-> > > > > > and drop the unnecessary task argument to the security hook
-> > > > > > since
-> > > > > > it
-> > > > > > can
-> > > > > > only ever be the current task.
-> > > > > Hi Stephen,
-> > > > > 
-> > > > > The module PTAGS that I made relies on the ability to write
-> > > > > files
-> > > > > in
-> > > > > /proc/pid/attr/...
-> > > > > 
-> > > > > Why did I used this files? Thaere are serious reasons:
-> > > > >  - follows the life cycle of the process
-> > > > >  - implements pid namespace
-> > > > > 
-> > > > > There is absolutely no way to get these features easyly
-> > > > > outside
-> > > > > that
-> > > > > implementation context of /proc/pid/attr/xxx.
-> > > > > 
-> > > > > For these reasons I vote against that change.
-> > > > It is already prohibited by the credentials framework;
-> > > If it were REALLY prohibited, your patch shouldn't exist ;)
-> > You can't do it safely (and your current implementation is unsafe).
-> >  Please, read Documentation/security/credentials.txt in full, and
-> > look
-> > at the setprocattr implementations in the upstream security modules
-> > for
-> > reference.
+On Mon, 2016-12-19 at 14:04 +0100, Nicolas Iooss wrote:
+> This function will be used in the next commit.
 > 
-> I just reviewed the referenced documentation (thanks David)
-> and it does clearly identify why, from the viewpoint of the
-> credential implementation, modifying another task's credentials
-> is unsafe. Both Smack and SELinux view modification of task
-> credentials as unsafe from a security viewpoint, so neither of
-> these modules would force the credential implementation to
-> allow the behavior.
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsemanage/src/utilities.c        | 55
+> ++++++++++++++++++++++++++++++++++++++
+>  libsemanage/src/utilities.h        | 10 +++++++
+>  libsemanage/tests/test_utilities.c | 34 +++++++++++++++++++++++
+>  3 files changed, 99 insertions(+)
 > 
-> This, unfortunately, leaves Jose in a bit of a bind. It looks
-> to me like there are options, so let's not just tell him to
-> go away. The options I see include:
-> 
->  - Fix the credential code so modifying another task is safe
-> 	I don't advocate this approach because the existing
-> 	implementation is only reasonable because of the
-> 	restriction.
->  - Revert shared credentials
-> 	I confess to not being a fan of shared credentials,
-> 	for reason of complexity. I would not expect a
-> 	proposal to go back to embedding credentials in
-> 	their containing structures to be considered seriously.
-> 	Nonetheless, it would solve the problem.
->  - Add a security blob for the task
-> 	It is unfortunate that when shared credentials were
-> 	introduced the task blob was not renamed a cred blob.
-> 	It would be simple and consistent to add a security
-> 	blob to the task in addition to the blob in the cred.
-> 	I would add a t_security field to the task structure
-> 	that associates security data with the task. This
-> 	blob would be used for data that does not meet intent
-> 	of a credential, which I believe may be the case for
-> 	Jose's PTAGS.
-> 
-> I know which I would prefer, but as I expect someone to shout
-> that none can possibly be acceptable I think I'll stop here and
-> let the discussion go a while.
-> 
-> ("Light fuse. Stand back. :))
+> diff --git a/libsemanage/src/utilities.c
+> b/libsemanage/src/utilities.c
+> index b5b92b085310..0b4ee5e654be 100644
+> --- a/libsemanage/src/utilities.c
+> +++ b/libsemanage/src/utilities.c
+> @@ -235,6 +235,61 @@ void semanage_rtrim(char *str, char trim_to)
+>  	}
+>  }
+>  
+> +char *semanage_str_replace(const char *search, const char *replace,
+> +			   const char *src, size_t lim)
+> +{
+> +	size_t count = 0, slen, rlen, newsize;
+> +	char *p, *pres, *result;
+> +	const char *psrc;
+> +
+> +	slen = strlen(search);
+> +	rlen = strlen(replace);
+> +
+> +	/* Do not support empty search strings */
+> +	if (slen == 0)
+> +		return NULL;
+> +
+> +	/* Count the occurences of search in src and compute the new
+> size */
+> +	for (p = strstr(src, search); p != NULL; p = strstr(p +
+> slen, search)) {
+> +		count += 1;
 
-Why not:
+The usage of += 1 instead of just ++ and -= 1 instead of just -- seems
+odd to me, but I see that there are other cases of it in the existing
+code.  Personally, I'd favor switching to ++ and -- but I won't reject
+the patch just on that basis.
 
-- Reconsider the approach used in PTAGS in light of the security
-implications of allowing one task to change another task's security
-attributes, and rework PTAGS to use a more secure approach.
+> +		if (lim && count >= lim)
+> +			break;
+> +	}
+> +	if (!count)
+> +		return strdup(src);
+> +
+> +	/* Allocate the result string */
+> +	newsize = strlen(src) + 1 + count * (rlen - slen);
+> +	result = malloc(newsize);
+> +	if (!result)
+> +		return NULL;
+> +
+> +	/* Fill the result */
+> +	psrc = src;
+> +	pres = result;
+> +	for (p = strstr(src, search); p != NULL; p = strstr(psrc,
+> search)) {
+> +		/* Copy the part which has not been modified */
+> +		if (p != psrc) {
+> +			size_t length = (size_t)(p - psrc);
+> +			memcpy(pres, psrc, length);
+> +			pres += length;
+> +		}
+> +		/* Copy the replacement part */
+> +		if (rlen != 0) {
+> +			memcpy(pres, replace, rlen);
+> +			pres += rlen;
+> +		}
+> +		psrc = p + slen;
+> +		count -= 1;
+> +		if (!count)
+> +			break;
+> +	}
+> +	/* Copy the last part, after doing a sanity check */
+> +	assert(pres + strlen(psrc) + 1 == result + newsize);
+> +	strcpy(pres, psrc);
+> +	return result;
+> +}
+> +
+>  /* list_addafter_controlmem does *NOT* duplicate the data argument
+>   * use at your own risk, I am building a list out of malloc'd memory
+> and
+>   * it is only going to get stored into this list, thus when I
+> destroy it
+> diff --git a/libsemanage/src/utilities.h
+> b/libsemanage/src/utilities.h
+> index 5fa15efd08d0..f2ff31f0f5b6 100644
+> --- a/libsemanage/src/utilities.h
+> +++ b/libsemanage/src/utilities.h
+> @@ -116,6 +116,16 @@ int semanage_str_count(char *data, char what);
+>  void semanage_rtrim(char *str, char trim_to);
+>  
+>  /**
+> + * @param      value being searched for
+> + * @param      replacement value that replaces found search values
+> + * @param      string being searched and replaced on
+> + * @param      maximum number of value occurences (zero for
+> unlimited)
+> + * @return     newly-allocated string with the replaced values
+> + */
+> +char *semanage_str_replace(const char *search, const char *replace,
+> +			   const char *src, size_t lim);
+> +
+> +/**
+>   * @param data    some string
+>   * @return  modifies the string such that the first whitespace char
+> becomes
+>   *	    '\0', ending the string.
+> diff --git a/libsemanage/tests/test_utilities.c
+> b/libsemanage/tests/test_utilities.c
+> index 27fa70dc2a57..7a83596e1566 100644
+> --- a/libsemanage/tests/test_utilities.c
+> +++ b/libsemanage/tests/test_utilities.c
+> @@ -40,6 +40,7 @@ void test_semanage_split(void);
+>  void test_semanage_list(void);
+>  void test_semanage_str_count(void);
+>  void test_semanage_rtrim(void);
+> +void test_semanage_str_replace(void);
+>  void test_semanage_findval(void);
+>  void test_slurp_file_filter(void);
+>  
+> @@ -101,6 +102,10 @@ int semanage_utilities_add_tests(CU_pSuite
+> suite)
+>  	if (NULL == CU_add_test(suite, "semanage_rtrim",
+> test_semanage_rtrim)) {
+>  		goto err;
+>  	}
+> +	if (NULL == CU_add_test(suite, "semanage_str_replace",
+> +				test_semanage_str_replace)) {
+> +		goto err;
+> +	}
+>  	if (NULL == CU_add_test(suite, "semanage_findval",
+>  				test_semanage_findval)) {
+>  		goto err;
+> @@ -257,6 +262,35 @@ void test_semanage_rtrim(void)
+>  	free(str);
+>  }
+>  
+> +void test_semanage_str_replace(void)
+> +{
+> +	const char *test_str = "Hello, I am %{USERNAME} and my id is
+> %{USERID}";
+> +	char *str1, *str2;
+> +
+> +	str1 = semanage_str_replace("%{USERNAME}", "root", test_str,
+> 0);
+> +	CU_ASSERT_STRING_EQUAL(str1, "Hello, I am root and my id is
+> %{USERID}");
+> +
+> +	str2 = semanage_str_replace("%{USERID}", "0", str1, 1);
+> +	CU_ASSERT_STRING_EQUAL(str2, "Hello, I am root and my id is
+> 0");
+> +	free(str1);
+> +	free(str2);
+> +
+> +	str1 = semanage_str_replace(":(", ";)", "Test :( :) !
+> :(:(:))(:(", 0);
+> +	CU_ASSERT_STRING_EQUAL(str1, "Test ;) :) ! ;);):))(;)");
+> +	free(str1);
+> +
+> +	str1 = semanage_str_replace(":(", ";)", "Test :( :) !
+> :(:(:))(:(", 3);
+> +	CU_ASSERT_STRING_EQUAL(str1, "Test ;) :) ! ;);):))(:(");
+> +	free(str1);
+> +
+> +	str1 = semanage_str_replace("", "empty search string",
+> "test", 0);
+> +	CU_ASSERT_EQUAL(str1, NULL);
+> +
+> +	str1 = semanage_str_replace("a", "", "abracadabra", 0);
+> +	CU_ASSERT_STRING_EQUAL(str1, "brcdbr");
+> +	free(str1);
+> +}
+> +
+>  void test_semanage_findval(void)
+>  {
+>  	char *tok;
