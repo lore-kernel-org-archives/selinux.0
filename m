@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJD5Kab020787
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJD5Kac020787
  for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 08:05:20 -0500
 Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
  [77.133.206.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 51747564788
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 14:04:44 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id C50B9564788
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 14:04:43 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 6/7] libsemanage: genhomedircon: drop ustr dependency
-Date: Mon, 19 Dec 2016 14:04:03 +0100
-Message-Id: <20161219130404.11496-7-nicolas.iooss@m4x.org>
+Subject: [PATCH 5/7] libsemanage: add semanage_str_replace() utility function
+Date: Mon, 19 Dec 2016 14:04:02 +0100
+Message-Id: <20161219130404.11496-6-nicolas.iooss@m4x.org>
 In-Reply-To: <20161219130404.11496-1-nicolas.iooss@m4x.org>
 References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -19,306 +19,160 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-ustr library uses old (pre-C99) "extern inline" semantic. This makes it
-incompatible with recent versions of gcc and clang, which default to
-C99 standard. Distributions have shipped patched versions of this
-library to fix issues (e.g. Gentoo package uses this patch:
-https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-libs/ustr/files/ustr-1.0.4-gcc_5-check.patch?id=7dea6f8820f36bf389e6315044bea7507553bed0
-) but there is no upstream solution to make ustr compatible with C99
-standard.
-
-The git tree of ustr (http://www.and.org/ustr/ustr.git) has not been
-updated since 2008 and the developer of this project did not reply to
-emails.
-
-Therefore update genhomedircon implementation in order to no longer
-rely on ustr library.
+This function will be used in the next commit.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsemanage/src/genhomedircon.c | 137 +++++++++++++++++++---------------------
- 1 file changed, 66 insertions(+), 71 deletions(-)
+ libsemanage/src/utilities.c        | 55 ++++++++++++++++++++++++++++++++++++++
+ libsemanage/src/utilities.h        | 10 +++++++
+ libsemanage/tests/test_utilities.c | 34 +++++++++++++++++++++++
+ 3 files changed, 99 insertions(+)
 
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 5e9d7224a06e..4b7352c8648a 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -34,7 +34,6 @@
- 
- #include "utilities.h"
- #include "genhomedircon.h"
--#include <ustr.h>
- 
- #include <assert.h>
- #include <limits.h>
-@@ -239,46 +238,35 @@ static int fcontext_matches(const semanage_fcontext_t *fcontext, void *varg)
- {
- 	const char *oexpr = semanage_fcontext_get_expr(fcontext);
- 	fc_match_handle_t *handp = varg;
--	struct Ustr *expr;
-+	char *expr = NULL;
- 	regex_t re;
- 	int type, retval = -1;
-+	size_t len;
- 
- 	/* Only match ALL or DIR */
- 	type = semanage_fcontext_get_type(fcontext);
- 	if (type != SEMANAGE_FCONTEXT_ALL && type != SEMANAGE_FCONTEXT_ALL)
- 		return 0;
- 
--	/* Convert oexpr into a Ustr and anchor it at the beginning */
--	expr = ustr_dup_cstr("^");
--	if (expr == USTR_NULL)
--		goto done;
--	if (!ustr_add_cstr(&expr, oexpr))
--		goto done;
-+	len = strlen(oexpr);
- 
- 	/* Strip off trailing ".+" or ".*" */
--	if (ustr_cmp_suffix_cstr_eq(expr, ".+") ||
--	    ustr_cmp_suffix_cstr_eq(expr, ".*")) {
--		if (!ustr_del(&expr, 2))
--			goto done;
--	}
-+	if (len >= 2 && oexpr[len - 2] == '.' && strchr("+*", oexpr[len - 1]))
-+		len -= 2;
- 
- 	/* Strip off trailing "(/.*)?" */
--	if (ustr_cmp_suffix_cstr_eq(expr, "(/.*)?")) {
--		if (!ustr_del(&expr, 6))
--			goto done;
--	}
-+	if (len >= 6 && !strncmp(oexpr + len - 6, "(/.*)?", 6))
-+		len -= 2;
- 
--	if (ustr_cmp_suffix_cstr_eq(expr, "/")) {
--		if (!ustr_del(&expr, 1))
--			goto done;
--	}
-+	if (len >= 1 && oexpr[len - 1] == '/')
-+		len -= 1;
- 
--	/* Append pattern to eat up trailing slashes */
--	if (!ustr_add_cstr(&expr, "/*$"))
--		goto done;
-+	/* Anchor oexpr at the beginning and append pattern to eat up trailing slashes */
-+	if (asprintf(&expr, "^%.*s/*$", (int)len, oexpr) < 0)
-+		return -1;
- 
- 	/* Check dir against expr */
--	if (regcomp(&re, ustr_cstr(expr), REG_EXTENDED) != 0)
-+	if (regcomp(&re, expr, REG_EXTENDED) != 0)
- 		goto done;
- 	if (regexec(&re, handp->dir, 0, NULL, 0) == 0)
- 		handp->matched = 1;
-@@ -287,7 +275,7 @@ static int fcontext_matches(const semanage_fcontext_t *fcontext, void *varg)
- 	retval = 0;
- 
- done:
--	ustr_free(expr);
-+	free(expr);
- 
- 	return retval;
- }
-@@ -523,44 +511,51 @@ static semanage_list_t *make_template(genhomedircon_settings_t * s,
- 	return template_data;
- }
- 
--static Ustr *replace_all(const char *str, const replacement_pair_t * repl)
-+static char *replace_all(const char *str, const replacement_pair_t * repl)
- {
--	Ustr *retval = USTR_NULL;
-+	char *retval, *retval2;
- 	int i;
- 
- 	if (!str || !repl)
--		goto done;
--	if (!(retval = ustr_dup_cstr(str)))
--		goto done;
-+		return NULL;
- 
--	for (i = 0; repl[i].search_for; i++) {
--		ustr_replace_cstr(&retval, repl[i].search_for,
--				  repl[i].replace_with, 0);
-+	retval = strdup(str);
-+	for (i = 0; retval != NULL && repl[i].search_for; i++) {
-+		retval2 = semanage_str_replace(repl[i].search_for,
-+					       repl[i].replace_with, retval, 0);
-+		free(retval);
-+		retval = retval2;
+diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+index b5b92b085310..0b4ee5e654be 100644
+--- a/libsemanage/src/utilities.c
++++ b/libsemanage/src/utilities.c
+@@ -235,6 +235,61 @@ void semanage_rtrim(char *str, char trim_to)
  	}
--	if (ustr_enomem(retval))
--		ustr_sc_free(&retval);
--
--      done:
- 	return retval;
  }
  
--static const char * extract_context(Ustr *line)
-+static const char *extract_context(const char *line)
- {
--	const char whitespace[] = " \t\n";
--	size_t off, len;
--
--	/* check for trailing whitespace */
--	off = ustr_spn_chrs_rev(line, 0, whitespace, strlen(whitespace));
--
--	/* find the length of the last field in line */
--	len = ustr_cspn_chrs_rev(line, off, whitespace, strlen(whitespace));
--
--	if (len == 0)
-+	const char whitespace[] = {' ', '\t', '\n'};
-+	const char *p = line;
-+	size_t off;
++char *semanage_str_replace(const char *search, const char *replace,
++			   const char *src, size_t lim)
++{
++	size_t count = 0, slen, rlen, newsize;
++	char *p, *pres, *result;
++	const char *psrc;
 +
-+	off = strlen(p);
-+	p += off;
-+	/* consider trailing whitespaces */
-+	while (off > 0) {
-+		p -= 1;
-+		off -= 1;
-+		if (!memchr(whitespace, *p, sizeof(whitespace)))
++	slen = strlen(search);
++	rlen = strlen(replace);
++
++	/* Do not support empty search strings */
++	if (slen == 0)
++		return NULL;
++
++	/* Count the occurences of search in src and compute the new size */
++	for (p = strstr(src, search); p != NULL; p = strstr(p + slen, search)) {
++		count += 1;
++		if (lim && count >= lim)
 +			break;
 +	}
-+	if (off == 0)
- 		return NULL;
--	return ustr_cstr(line) + ustr_len(line) - (len + off);
++	if (!count)
++		return strdup(src);
 +
-+	/* find the last field in line */
-+	while (off > 0 && !memchr(whitespace, *(p - 1), sizeof(whitespace))) {
-+		p -= 1;
-+		off -= 1;
++	/* Allocate the result string */
++	newsize = strlen(src) + 1 + count * (rlen - slen);
++	result = malloc(newsize);
++	if (!result)
++		return NULL;
++
++	/* Fill the result */
++	psrc = src;
++	pres = result;
++	for (p = strstr(src, search); p != NULL; p = strstr(psrc, search)) {
++		/* Copy the part which has not been modified */
++		if (p != psrc) {
++			size_t length = (size_t)(p - psrc);
++			memcpy(pres, psrc, length);
++			pres += length;
++		}
++		/* Copy the replacement part */
++		if (rlen != 0) {
++			memcpy(pres, replace, rlen);
++			pres += rlen;
++		}
++		psrc = p + slen;
++		count -= 1;
++		if (!count)
++			break;
 +	}
-+	return p;
++	/* Copy the last part, after doing a sanity check */
++	assert(pres + strlen(psrc) + 1 == result + newsize);
++	strcpy(pres, psrc);
++	return result;
++}
++
+ /* list_addafter_controlmem does *NOT* duplicate the data argument
+  * use at your own risk, I am building a list out of malloc'd memory and
+  * it is only going to get stored into this list, thus when I destroy it
+diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
+index 5fa15efd08d0..f2ff31f0f5b6 100644
+--- a/libsemanage/src/utilities.h
++++ b/libsemanage/src/utilities.h
+@@ -116,6 +116,16 @@ int semanage_str_count(char *data, char what);
+ void semanage_rtrim(char *str, char trim_to);
+ 
+ /**
++ * @param      value being searched for
++ * @param      replacement value that replaces found search values
++ * @param      string being searched and replaced on
++ * @param      maximum number of value occurences (zero for unlimited)
++ * @return     newly-allocated string with the replaced values
++ */
++char *semanage_str_replace(const char *search, const char *replace,
++			   const char *src, size_t lim);
++
++/**
+  * @param data    some string
+  * @return  modifies the string such that the first whitespace char becomes
+  *	    '\0', ending the string.
+diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
+index 27fa70dc2a57..7a83596e1566 100644
+--- a/libsemanage/tests/test_utilities.c
++++ b/libsemanage/tests/test_utilities.c
+@@ -40,6 +40,7 @@ void test_semanage_split(void);
+ void test_semanage_list(void);
+ void test_semanage_str_count(void);
+ void test_semanage_rtrim(void);
++void test_semanage_str_replace(void);
+ void test_semanage_findval(void);
+ void test_slurp_file_filter(void);
+ 
+@@ -101,6 +102,10 @@ int semanage_utilities_add_tests(CU_pSuite suite)
+ 	if (NULL == CU_add_test(suite, "semanage_rtrim", test_semanage_rtrim)) {
+ 		goto err;
+ 	}
++	if (NULL == CU_add_test(suite, "semanage_str_replace",
++				test_semanage_str_replace)) {
++		goto err;
++	}
+ 	if (NULL == CU_add_test(suite, "semanage_findval",
+ 				test_semanage_findval)) {
+ 		goto err;
+@@ -257,6 +262,35 @@ void test_semanage_rtrim(void)
+ 	free(str);
  }
  
--static int check_line(genhomedircon_settings_t * s, Ustr *line)
-+static int check_line(genhomedircon_settings_t * s, const char *line)
++void test_semanage_str_replace(void)
++{
++	const char *test_str = "Hello, I am %{USERNAME} and my id is %{USERID}";
++	char *str1, *str2;
++
++	str1 = semanage_str_replace("%{USERNAME}", "root", test_str, 0);
++	CU_ASSERT_STRING_EQUAL(str1, "Hello, I am root and my id is %{USERID}");
++
++	str2 = semanage_str_replace("%{USERID}", "0", str1, 1);
++	CU_ASSERT_STRING_EQUAL(str2, "Hello, I am root and my id is 0");
++	free(str1);
++	free(str2);
++
++	str1 = semanage_str_replace(":(", ";)", "Test :( :) ! :(:(:))(:(", 0);
++	CU_ASSERT_STRING_EQUAL(str1, "Test ;) :) ! ;);):))(;)");
++	free(str1);
++
++	str1 = semanage_str_replace(":(", ";)", "Test :( :) ! :(:(:))(:(", 3);
++	CU_ASSERT_STRING_EQUAL(str1, "Test ;) :) ! ;);):))(:(");
++	free(str1);
++
++	str1 = semanage_str_replace("", "empty search string", "test", 0);
++	CU_ASSERT_EQUAL(str1, NULL);
++
++	str1 = semanage_str_replace("a", "", "abracadabra", 0);
++	CU_ASSERT_STRING_EQUAL(str1, "brcdbr");
++	free(str1);
++}
++
+ void test_semanage_findval(void)
  {
- 	sepol_context_t *ctx_record = NULL;
- 	const char *ctx_str;
-@@ -584,22 +579,22 @@ static int write_replacements(genhomedircon_settings_t * s, FILE * out,
- 			      const semanage_list_t * tpl,
- 			      const replacement_pair_t *repl)
- {
--	Ustr *line = USTR_NULL;
-+	char *line;
- 
- 	for (; tpl; tpl = tpl->next) {
- 		line = replace_all(tpl->data, repl);
- 		if (!line)
- 			goto fail;
- 		if (check_line(s, line) == STATUS_SUCCESS) {
--			if (!ustr_io_putfileline(&line, out))
-+			if (fprintf(out, "%s\n", line) < 0)
- 				goto fail;
- 		}
--		ustr_sc_free(&line);
-+		free(line);
- 	}
- 	return STATUS_SUCCESS;
- 
-       fail:
--	ustr_sc_free(&line);
-+	free(line);
- 	return STATUS_ERR;
- }
- 
-@@ -607,7 +602,7 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
- 			  semanage_list_t *tpl, const replacement_pair_t *repl,
- 			  const genhomedircon_user_entry_t *user)
- {
--	Ustr *line = USTR_NULL;
-+	char *line, *temp;
- 	sepol_context_t *context = NULL;
- 	char *new_context_str = NULL;
- 
-@@ -624,10 +619,9 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
- 
- 		if (strcmp(old_context_str, CONTEXT_NONE) == 0) {
- 			if (check_line(s, line) == STATUS_SUCCESS &&
--			    !ustr_io_putfileline(&line, out)) {
-+			    fprintf(out, "%s\n", line) < 0) {
- 				goto fail;
- 			}
--
- 			continue;
- 		}
- 
-@@ -657,25 +651,27 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
- 			goto fail;
- 		}
- 
--		if (!ustr_replace_cstr(&line, old_context_str,
--				       new_context_str, 1)) {
-+		temp = semanage_str_replace(old_context_str, new_context_str,
-+					    line, 1);
-+		if (!temp) {
- 			goto fail;
- 		}
-+		free(line);
-+		line = temp;
- 
- 		if (check_line(s, line) == STATUS_SUCCESS) {
--			if (!ustr_io_putfileline(&line, out)) {
-+			if (fprintf(out, "%s\n", line) < 0)
- 				goto fail;
--			}
- 		}
- 
--		ustr_sc_free(&line);
-+		free(line);
- 		sepol_context_free(context);
- 		free(new_context_str);
- 	}
- 
- 	return STATUS_SUCCESS;
- fail:
--	ustr_sc_free(&line);
-+	free(line);
- 	sepol_context_free(context);
- 	free(new_context_str);
- 	return STATUS_ERR;
-@@ -1288,20 +1284,19 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
- 		}
- 
- 		for (h = homedirs; h; h = h->next) {
--			Ustr *temp = ustr_dup_cstr(h->data);
-+			char *temp = NULL;
- 
--			if (!temp || !ustr_add_cstr(&temp, "/" FALLBACK_NAME)) {
--				ustr_sc_free(&temp);
-+			if (asprintf(&temp, "%s/%s", h->data, FALLBACK_NAME) < 0) {
- 				retval = STATUS_ERR;
- 				goto done;
- 			}
- 
- 			free(s->fallback->home);
--			s->fallback->home = (char*) ustr_cstr(temp);
-+			s->fallback->home = temp;
- 
- 			if (write_home_dir_context(s, out, homedir_context_tpl,
- 						   s->fallback) != STATUS_SUCCESS) {
--				ustr_sc_free(&temp);
-+				free(temp);
- 				s->fallback->home = NULL;
- 				retval = STATUS_ERR;
- 				goto done;
-@@ -1309,13 +1304,13 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
- 			if (write_home_root_context(s, out,
- 						    homeroot_context_tpl,
- 						    h->data) != STATUS_SUCCESS) {
--				ustr_sc_free(&temp);
-+				free(temp);
- 				s->fallback->home = NULL;
- 				retval = STATUS_ERR;
- 				goto done;
- 			}
- 
--			ustr_sc_free(&temp);
-+			free(temp);
- 			s->fallback->home = NULL;
- 		}
- 	}
+ 	char *tok;
 -- 
 2.11.0
