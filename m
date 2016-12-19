@@ -1,75 +1,90 @@
-Sender: Tejun Heo <htejun@gmail.com>
-Date: Mon, 19 Dec 2016 08:11:38 -0500
-From: Tejun Heo <tj@kernel.org>
-To: =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
-Cc: John Stultz <john.stultz@linaro.org>, lkml <linux-kernel@vger.kernel.org>,
- Li Zefan <lizefan@huawei.com>, Jonathan Corbet <corbet@lwn.net>,
- cgroups@vger.kernel.org, Android Kernel Team <kernel-team@android.com>,
- Rom Lemarchand <romlem@android.com>, Colin Cross <ccross@android.com>,
- Dmitry Shmidt <dimitrysh@google.com>, Todd Kjos <tkjos@google.com>,
- Christian Poetzsch <christian.potzsch@imgtec.com>,
- Amit Pundir <amit.pundir@linaro.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Kees Cook <keescook@chromium.org>, "Serge E . Hallyn" <serge@hallyn.com>,
- Andy Lutomirski <luto@amacapital.net>, linux-api@vger.kernel.org,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- Jeff Vander Stoep <jeffv@google.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Michael Kerrisk <mtk.manpages@gmail.com>, Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH] cgroup: Add new capability to allow a process to migrate
- other tasks between cgroups
-Message-ID: <20161219131138.GA14837@mtj.duckdns.org>
-References: <1481949827-23613-1-git-send-email-john.stultz@linaro.org>
- <5855A8EB.8000005@digikod.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <5855A8EB.8000005@digikod.net>
+Message-ID: <1482157462.28570.2.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: keep SELinux in sync with new capability
+ definitions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov,
+ paul@paul-moore.com
+Date: Mon, 19 Dec 2016 09:24:22 -0500
+In-Reply-To: <a0eae335-02c5-8280-9c5c-d4a7b7c8228a@m4x.org>
+References: <1479482589-3889-1-git-send-email-sds@tycho.nsa.gov>
+ <a0eae335-02c5-8280-9c5c-d4a7b7c8228a@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello,
+On Sun, 2016-12-18 at 21:06 +0100, Nicolas Iooss wrote:
+> On 18/11/16 16:23, Stephen Smalley wrote:
+> > 
+> > When a new capability is defined, SELinux needs to be updated.
+> > Trigger a build error if a new capability is defined without
+> > corresponding update to security/selinux/include/classmap.h's
+> > COMMON_CAP2_PERMS.  This is similar to BUILD_BUG_ON() guards
+> > in the SELinux nlmsgtab code to ensure that SELinux tracks
+> > new netlink message types as needed.
+> > 
+> > Note that there is already a similar build guard in
+> > security/selinux/hooks.c to detect when more than 64
+> > capabilities are defined, since that will require adding
+> > a third capability class to SELinux.
+> > 
+> > A nicer way to do this would be to extend
+> > scripts/selinux/genheaders
+> > or a similar tool to auto-generate the necessary definitions and
+> > code
+> > for SELinux capability checking from
+> > include/uapi/linux/capability.h.
+> > AppArmor does something similar in its Makefile, although it only
+> > needs to generate a single table of names.  That is left as future
+> > work.
+> > 
+> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  security/selinux/include/classmap.h | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/security/selinux/include/classmap.h
+> > b/security/selinux/include/classmap.h
+> > index 1f1f4b2..e2d4ad3a 100644
+> > --- a/security/selinux/include/classmap.h
+> > +++ b/security/selinux/include/classmap.h
+> > @@ -24,6 +24,10 @@
+> >  #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog",
+> > \
+> >  		"wake_alarm", "block_suspend", "audit_read"
+> >  
+> > +#if CAP_LAST_CAP > CAP_AUDIT_READ
+> > +#error New capability defined, please update COMMON_CAP2_PERMS.
+> > +#endif
+> > +
+> >  /*
+> >   * Note: The name for any socket class should be suffixed by
+> > "socket",
+> >   *	 and doesn't contain more than one substr of "socket".
+> > 
+> 
+> Hello,
+> This patch made the compiler I am using to build the kernel (clang)
+> report two new warnings when building
+> scripts/selinux/genheaders/genheaders.c and
+> scripts/selinux/mdp/mdp.c:
+> 
+> 'CAP_LAST_CAP' is not defined, evaluates to 0 [-Wundef]
+> 'CAP_AUDIT_READ' is not defined, evaluates to 0 [-Wundef]
+> 
+> Even though this is not detected by gcc, it seems like a bug to
+> compare
+> undefined values. There is no issue where classmap.h is included from
+> security/selinux/avc.c because include/uapi/linux/capability.h got
+> included too.
+> 
+> I see two ways of fixing these warnings: either by defining the
+> capability values in genheaders and mdp by adding #include
+> <linux/capability.h>, or by adding "defined(__KERNEL__) &&" before
+> the
+> test so that it is only processed from kernel code (avc.c). How would
+> you like this to be fixed?
 
-On Sat, Dec 17, 2016 at 10:06:51PM +0100, Micka�l Sala�n wrote:
-> If I understand correctly, this patch is intended to add a delegation
-> feature to cgroup v1, which does not really make sense for the v2
-
-It's more about upstreaming a workaround for android somewhat like
-including binder into kernel.  It isn't adding actual cgroup
-delegation to v1.  It's just splitting a small piece of CAP_SYS_ADMIN
-to accomodate what android has been doing.
-
-> because of the clean cgroup-v2 delegation design. However, this new
-> capability impact both versions.
-
-In the same way but it's not about cgroup delegation.  It's just
-allowing splitting up CAP_SYS_ADMIN so that "no extra restrictions on
-cgroup" can be given away in a safer way.
-
-> However, even if a cgroup does not directly involve a limitation, it may
-> be used to identify a group of processes for a security critical purpose
-> (e.g. kill a group of process). It can then make sense to have a
-> dedicated capability CAP_CGROUP to allow a process *without the right to
-> write in cgroup.procs* to be allowed to move a process out of its
-> current cgroup. This is similar to CAP_DAC_OVERRIDE but only for
-> cgroup/controllers files (but not necessarily sufficient to modify all
-> cgroups). This does not means that CAP_CGROUP should allow to move any
-> process from any cgroup. The cgroup_procs_write_permission() should
-> compose the checks for CAP_CGROUP and/or CAP_SYS_RESOURCE and/or
-> CAP_SYS_ADMIN depending on the current use of the cgroup (i.e. cgroup
-> controller, BPF program type, netfilter).
-
-There's no reason to invent a whole new set of security policies for
-cgroup.  It already got one which follows the filesystem permissions
-with some extra restrictions.  The CAP split is purely to accomodate
-android and that's it.  If that isn't good enough a reason, then
-android should just keep carrying the patches it needs.  This doesn't
-justify bolting on another permission model on cgroup in any way.
-
-Thanks.
-
--- 
-tejun
+I suppose we ought to #include <uapi/linux/capability.h> in classmap.h.
