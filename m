@@ -1,11 +1,12 @@
-Message-ID: <1482173007.28570.55.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 6/7] libsemanage: genhomedircon: drop ustr dependency
+Message-ID: <1482173368.28570.56.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] policycoreutils/setfiles: Mention customizable types in
+ restorecon man page
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Mon, 19 Dec 2016 13:43:27 -0500
-In-Reply-To: <20161219130404.11496-7-nicolas.iooss@m4x.org>
-References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
- <20161219130404.11496-7-nicolas.iooss@m4x.org>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+Date: Mon, 19 Dec 2016 13:49:28 -0500
+In-Reply-To: <1482170430-698-1-git-send-email-vmojzis@redhat.com>
+References: <1482159099.28570.22.camel@tycho.nsa.gov>
+ <1482170430-698-1-git-send-email-vmojzis@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,50 +14,50 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2016-12-19 at 14:04 +0100, Nicolas Iooss wrote:
-> ustr library uses old (pre-C99) "extern inline" semantic. This makes
-> it
-> incompatible with recent versions of gcc and clang, which default to
-> C99 standard. Distributions have shipped patched versions of this
-> library to fix issues (e.g. Gentoo package uses this patch:
-> https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-libs/ustr/files/us
-> tr-1.0.4-gcc_5-
-> check.patch?id=7dea6f8820f36bf389e6315044bea7507553bed0
-> ) but there is no upstream solution to make ustr compatible with C99
-> standard.
-> 
-> The git tree of ustr (http://www.and.org/ustr/ustr.git) has not been
-> updated since 2008 and the developer of this project did not reply to
-> emails.
-> 
-> Therefore update genhomedircon implementation in order to no longer
-> rely on ustr library.
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Mon, 2016-12-19 at 19:00 +0100, Vit Mojzis wrote:
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 > ---
->  libsemanage/src/genhomedircon.c | 137 +++++++++++++++++++-----------
-> ----------
->  1 file changed, 66 insertions(+), 71 deletions(-)
+>  policycoreutils/setfiles/restorecon.8 | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
 > 
-> diff --git a/libsemanage/src/genhomedircon.c
-> b/libsemanage/src/genhomedircon.c
-> index 5e9d7224a06e..4b7352c8648a 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-<snip>
-> @@ -624,10 +619,9 @@ static int
-> write_contexts(genhomedircon_settings_t *s, FILE *out,
->  
->  		if (strcmp(old_context_str, CONTEXT_NONE) == 0) {
->  			if (check_line(s, line) == STATUS_SUCCESS &&
-> -			    !ustr_io_putfileline(&line, out)) {
-> +			    fprintf(out, "%s\n", line) < 0) {
->  				goto fail;
->  			}
-> -
->  			continue;
+> diff --git a/policycoreutils/setfiles/restorecon.8
+> b/policycoreutils/setfiles/restorecon.8
+> index fdb468b..ec2b1b1 100644
+> --- a/policycoreutils/setfiles/restorecon.8
+> +++ b/policycoreutils/setfiles/restorecon.8
+> @@ -58,6 +58,12 @@ The
+>  .B \-F
+>  option will force a replacement of the entire context.
+>  .P
+> +If a file is labeled with
+> +.BR customizable
+> +SELinux type (for list of customizable
+> +types see /etc/selinux/{SELINUXTYPE}/contexts/customizable_types),
+> restorecon
+> +won't reset the label unless the \-F option is used.
+> +.P
+>  It is the same executable as
+>  .BR setfiles
+>  but operates in a slightly different manner depending on its
+> argv[0].
+> @@ -124,7 +130,7 @@ change files and directories file labels
+> recursively (descend directories).
+>  .br
+>  .TP
+>  .B \-v
+> -show changes in file labels. Note that the
+> +show changes in file labels. Multiple -v options increase the
+> verbosity. Note that the
+>  .B \-v
+>  and
+>  .B \-p
+> @@ -209,4 +215,5 @@ The program was written by Dan Walsh <dwalsh@redh
+> at.com>.
+>  .SH "SEE ALSO"
+>  .BR setfiles (8),
+>  .BR load_policy (8),
+> -.BR checkpolicy (8)
+> +.BR checkpolicy (8),
+> +.BR customizable_types (8)
 
-We will leak the memory referenced by 'line' here.
-
->  		}
->  
+Wrong section - should be 5.
