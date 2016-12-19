@@ -1,62 +1,145 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJI1MMd015365
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 13:01:25 -0500
-Received: from int-mx11.intmail.prod.int.phx2.redhat.com
- (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 0077685540
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 18:00:49 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] policycoreutils/setfiles: Mention customizable types in
- restorecon man page
-Date: Mon, 19 Dec 2016 19:00:30 +0100
-Message-Id: <1482170430-698-1-git-send-email-vmojzis@redhat.com>
-In-Reply-To: <1482159099.28570.22.camel@tycho.nsa.gov>
-References: <1482159099.28570.22.camel@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBJI14Em015348
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 13:01:12 -0500
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+To: Stephen Smalley <sds@tycho.nsa.gov>, =?UTF-8?Q?Jos=c3=a9_Bollo?=
+ <jobol@nonadev.net>, selinux@tycho.nsa.gov
+References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
+ <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+ <1482140693.2178.1.camel@nonadev.net>
+ <1482158025.28570.10.camel@tycho.nsa.gov>
+ <1482162073.2178.6.camel@nonadev.net>
+ <1482162765.28570.33.camel@tycho.nsa.gov>
+ <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
+ <1482167344.28570.38.camel@tycho.nsa.gov>
+Cc: paul@paul-moore.com, james.l.morris@oracle.com,
+ linux-security-module@vger.kernel.org, john.johansen@canonical.com
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <986562c7-08e2-3aa7-1a4c-4fa21d15f14a@schaufler-ca.com>
+Date: Mon, 19 Dec 2016 10:00:44 -0800
+MIME-Version: 1.0
+In-Reply-To: <1482167344.28570.38.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- policycoreutils/setfiles/restorecon.8 | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+On 12/19/2016 9:09 AM, Stephen Smalley wrote:
+> On Mon, 2016-12-19 at 08:32 -0800, Casey Schaufler wrote:
+>> On 12/19/2016 7:52 AM, Stephen Smalley wrote:
+>>> On Mon, 2016-12-19 at 16:41 +0100, José Bollo wrote:
+>>>> Le lundi 19 décembre 2016 à 09:33 -0500, Stephen Smalley a écrit
+>>>> :
+>>>>> On Mon, 2016-12-19 at 10:44 +0100, José Bollo wrote:
+>>>>>> Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen Smalley a
+>>>>>> écrit :
+>>>>>>>
+>>>>>>> Processes can only alter their own security attributes via
+>>>>>>> /proc/pid/attr nodes.  This is presently enforced by each
+>>>>>>> individual
+>>>>>>> security module and is also imposed by the Linux
+>>>>>>> credentials
+>>>>>>> implementation, which only allows a task to alter its own
+>>>>>>> credentials.
+>>>>>>> Move the check enforcing this restriction from the
+>>>>>>> individual
+>>>>>>> security modules to proc_pid_attr_write() before calling
+>>>>>>> the
+>>>>>>> security
+>>>>>>> hook,
+>>>>>>> and drop the unnecessary task argument to the security hook
+>>>>>>> since
+>>>>>>> it
+>>>>>>> can
+>>>>>>> only ever be the current task.
+>>>>>> Hi Stephen,
+>>>>>>
+>>>>>> The module PTAGS that I made relies on the ability to write
+>>>>>> files
+>>>>>> in
+>>>>>> /proc/pid/attr/...
+>>>>>>
+>>>>>> Why did I used this files? Thaere are serious reasons:
+>>>>>>  - follows the life cycle of the process
+>>>>>>  - implements pid namespace
+>>>>>>
+>>>>>> There is absolutely no way to get these features easyly
+>>>>>> outside
+>>>>>> that
+>>>>>> implementation context of /proc/pid/attr/xxx.
+>>>>>>
+>>>>>> For these reasons I vote against that change.
+>>>>> It is already prohibited by the credentials framework;
+>>>> If it were REALLY prohibited, your patch shouldn't exist ;)
+>>> You can't do it safely (and your current implementation is unsafe).
+>>>  Please, read Documentation/security/credentials.txt in full, and
+>>> look
+>>> at the setprocattr implementations in the upstream security modules
+>>> for
+>>> reference.
+>> I just reviewed the referenced documentation (thanks David)
+>> and it does clearly identify why, from the viewpoint of the
+>> credential implementation, modifying another task's credentials
+>> is unsafe. Both Smack and SELinux view modification of task
+>> credentials as unsafe from a security viewpoint, so neither of
+>> these modules would force the credential implementation to
+>> allow the behavior.
+>>
+>> This, unfortunately, leaves Jose in a bit of a bind. It looks
+>> to me like there are options, so let's not just tell him to
+>> go away. The options I see include:
+>>
+>>  - Fix the credential code so modifying another task is safe
+>> 	I don't advocate this approach because the existing
+>> 	implementation is only reasonable because of the
+>> 	restriction.
+>>  - Revert shared credentials
+>> 	I confess to not being a fan of shared credentials,
+>> 	for reason of complexity. I would not expect a
+>> 	proposal to go back to embedding credentials in
+>> 	their containing structures to be considered seriously.
+>> 	Nonetheless, it would solve the problem.
+>>  - Add a security blob for the task
+>> 	It is unfortunate that when shared credentials were
+>> 	introduced the task blob was not renamed a cred blob.
+>> 	It would be simple and consistent to add a security
+>> 	blob to the task in addition to the blob in the cred.
+>> 	I would add a t_security field to the task structure
+>> 	that associates security data with the task. This
+>> 	blob would be used for data that does not meet intent
+>> 	of a credential, which I believe may be the case for
+>> 	Jose's PTAGS.
+>>
+>> I know which I would prefer, but as I expect someone to shout
+>> that none can possibly be acceptable I think I'll stop here and
+>> let the discussion go a while.
+>>
+>> ("Light fuse. Stand back. :))
+> Why not:
+>
+> - Reconsider the approach used in PTAGS in light of the security
+> implications of allowing one task to change another task's security
+> attributes, and rework PTAGS to use a more secure approach.
 
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index fdb468b..ec2b1b1 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -58,6 +58,12 @@ The
- .B \-F
- option will force a replacement of the entire context.
- .P
-+If a file is labeled with
-+.BR customizable
-+SELinux type (for list of customizable
-+types see /etc/selinux/{SELINUXTYPE}/contexts/customizable_types), restorecon
-+won't reset the label unless the \-F option is used.
-+.P
- It is the same executable as
- .BR setfiles
- but operates in a slightly different manner depending on its argv[0].
-@@ -124,7 +130,7 @@ change files and directories file labels recursively (descend directories).
- .br
- .TP
- .B \-v
--show changes in file labels. Note that the
-+show changes in file labels. Multiple -v options increase the verbosity. Note that the
- .B \-v
- and
- .B \-p
-@@ -209,4 +215,5 @@ The program was written by Dan Walsh <dwalsh@redhat.com>.
- .SH "SEE ALSO"
- .BR setfiles (8),
- .BR load_policy (8),
--.BR checkpolicy (8)
-+.BR checkpolicy (8),
-+.BR customizable_types (8)
--- 
-2.7.4
+Not every approach to security relies on being unable to change
+another process' attributes. I know of people who believe that
+SELinux would be more secure if an application launcher could set
+the context on another process. While I do not agree with these
+people I understand the logic they use and why it does not apply
+to SELinux or Smack.
+
+Consider a module that does statistical analysis on program behavior
+and tags (using PTAGS or something similar) processes that are
+behaving in suspect ways. You probably don't want the math running
+in the kernel. The kernel decides to start denying the suspect
+process access once some tagging threshold is exceeded. Sure, you
+might be able to come up with some mechanism to get the process to
+tag itself, but it's kind of silly to make it hard when it doesn't
+have to be.
+
+If you can suggest a mechanism that achieves Jose's goals (which
+may not match your goals) that does not require allowing a process
+to change another's security attributes I'm sure we'd all be
+interested.
