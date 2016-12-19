@@ -1,12 +1,11 @@
-Message-ID: <1482158796.28570.20.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] selinux: default to security isid in
- sel_make_bools() if no sid is found
+Message-ID: <1482159099.28570.22.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] policycoreutils/setfiles: Mention customizable types in
+ restorecon man page
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Gary Tierney <gary.tierney@gmx.com>, selinux@tycho.nsa.gov
-Date: Mon, 19 Dec 2016 09:46:36 -0500
-In-Reply-To: <1482007719-14313-3-git-send-email-gary.tierney@gmx.com>
-References: <1482007719-14313-1-git-send-email-gary.tierney@gmx.com>
- <1482007719-14313-3-git-send-email-gary.tierney@gmx.com>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+Date: Mon, 19 Dec 2016 09:51:39 -0500
+In-Reply-To: <1482149576-13771-1-git-send-email-vmojzis@redhat.com>
+References: <1482149576-13771-1-git-send-email-vmojzis@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,43 +13,45 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, 2016-12-17 at 20:48 +0000, Gary Tierney wrote:
-> Use SECINITSID_SECURITY as the default SID for booleans which don't
-> have
-> a matching SID returned from security_genfs_sid().
-> 
-> This prevents the policy failing to load (and consequently the system
-> failing to boot) when there is no default genfscon statement matched
-> for
-> the selinuxfs in the new policy.
-> 
-> Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
+On Mon, 2016-12-19 at 13:12 +0100, Vit Mojzis wrote:
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 > ---
->  security/selinux/selinuxfs.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  policycoreutils/setfiles/restorecon.8 | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
 > 
-> diff --git a/security/selinux/selinuxfs.c
-> b/security/selinux/selinuxfs.c
-> index 2139cc7..c282150 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1312,10 +1312,10 @@ static int sel_make_bools(void)
->  		isec = (struct inode_security_struct *)inode-
-> >i_security;
->  		ret = security_genfs_sid("selinuxfs", page,
-> SECCLASS_FILE, &sid);
->  		if (ret) {
-> -			pr_warn_ratelimited("SELinux: %s: failed to
-> lookup sid for %s\n",
-> +			pr_warn_ratelimited("SELinux: %s: no sid
-> found, defaulting to security isid for %s\n",
->  					   __func__, page);
-> -			goto out;
->  
-> +			sid = SECINITSID_SECURITY;
+> diff --git a/policycoreutils/setfiles/restorecon.8
+> b/policycoreutils/setfiles/restorecon.8
+> index fdb468b..1803c12 100644
+> --- a/policycoreutils/setfiles/restorecon.8
+> +++ b/policycoreutils/setfiles/restorecon.8
+> @@ -58,6 +58,12 @@ The
+>  .B \-F
+>  option will force a replacement of the entire context.
+>  .P
+> +If a file is labeled with
+> +.BR customizable
+> +SELinux type (for list of customizable
+> +types see /etc/selinux/targeted/contexts/customizable_types), 
 
-I wouldn't include the function name; otherwise, LGTM.
+Should use {SELINUXTYPE} as we do in other man pages since not everyone
+is running targeted, and probably add a see also for the
+customizable_types man page.
 
->  		}
->  
->  		isec->sid = sid;
+> restorecon
+> +won't reset the label unless the \-F option is used.
+> +.P
+>  It is the same executable as
+>  .BR setfiles
+>  but operates in a slightly different manner depending on its
+> argv[0].
+> @@ -124,7 +130,7 @@ change files and directories file labels
+> recursively (descend directories).
+>  .br
+>  .TP
+>  .B \-v
+> -show changes in file labels. Note that the
+> +show changes in file labels. Multiple -v options increase the
+> verbosity. Note that the
+>  .B \-v
+>  and
+>  .B \-p
