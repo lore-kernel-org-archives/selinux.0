@@ -1,63 +1,117 @@
-Message-ID: <1482173368.28570.56.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] policycoreutils/setfiles: Mention customizable types in
- restorecon man page
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-Date: Mon, 19 Dec 2016 13:49:28 -0500
-In-Reply-To: <1482170430-698-1-git-send-email-vmojzis@redhat.com>
-References: <1482159099.28570.22.camel@tycho.nsa.gov>
- <1482170430-698-1-git-send-email-vmojzis@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, =?UTF-8?Q?Jos=c3=a9_Bollo?=
+ <jobol@nonadev.net>, selinux@tycho.nsa.gov
+References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
+ <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+ <1482140693.2178.1.camel@nonadev.net>
+ <1482158025.28570.10.camel@tycho.nsa.gov>
+ <1482162073.2178.6.camel@nonadev.net>
+ <1482162765.28570.33.camel@tycho.nsa.gov>
+ <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
+Cc: paul@paul-moore.com, james.l.morris@oracle.com,
+ linux-security-module@vger.kernel.org
+From: John Johansen <john.johansen@canonical.com>
+Message-ID: <8e8baad3-f39e-8d3a-661d-3302a96d43f1@canonical.com>
+Date: Mon, 19 Dec 2016 12:36:09 -0800
+MIME-Version: 1.0
+In-Reply-To: <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2016-12-19 at 19:00 +0100, Vit Mojzis wrote:
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> ---
->  policycoreutils/setfiles/restorecon.8 | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
+On 12/19/2016 08:32 AM, Casey Schaufler wrote:
+> On 12/19/2016 7:52 AM, Stephen Smalley wrote:
+>> On Mon, 2016-12-19 at 16:41 +0100, José Bollo wrote:
+>>> Le lundi 19 décembre 2016 à 09:33 -0500, Stephen Smalley a écrit :
+>>>> On Mon, 2016-12-19 at 10:44 +0100, José Bollo wrote:
+>>>>> Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen Smalley a
+>>>>> écrit :
+>>>>>>
+>>>>>> Processes can only alter their own security attributes via
+>>>>>> /proc/pid/attr nodes.  This is presently enforced by each
+>>>>>> individual
+>>>>>> security module and is also imposed by the Linux credentials
+>>>>>> implementation, which only allows a task to alter its own
+>>>>>> credentials.
+>>>>>> Move the check enforcing this restriction from the individual
+>>>>>> security modules to proc_pid_attr_write() before calling the
+>>>>>> security
+>>>>>> hook,
+>>>>>> and drop the unnecessary task argument to the security hook
+>>>>>> since
+>>>>>> it
+>>>>>> can
+>>>>>> only ever be the current task.
+>>>>> Hi Stephen,
+>>>>>
+>>>>> The module PTAGS that I made relies on the ability to write files
+>>>>> in
+>>>>> /proc/pid/attr/...
+>>>>>
+>>>>> Why did I used this files? Thaere are serious reasons:
+>>>>>  - follows the life cycle of the process
+>>>>>  - implements pid namespace
+>>>>>
+>>>>> There is absolutely no way to get these features easyly outside
+>>>>> that
+>>>>> implementation context of /proc/pid/attr/xxx.
+>>>>>
+>>>>> For these reasons I vote against that change.
+>>>> It is already prohibited by the credentials framework;
+>>> If it were REALLY prohibited, your patch shouldn't exist ;)
+>> You can't do it safely (and your current implementation is unsafe).
+>>  Please, read Documentation/security/credentials.txt in full, and look
+>> at the setprocattr implementations in the upstream security modules for
+>> reference.
 > 
-> diff --git a/policycoreutils/setfiles/restorecon.8
-> b/policycoreutils/setfiles/restorecon.8
-> index fdb468b..ec2b1b1 100644
-> --- a/policycoreutils/setfiles/restorecon.8
-> +++ b/policycoreutils/setfiles/restorecon.8
-> @@ -58,6 +58,12 @@ The
->  .B \-F
->  option will force a replacement of the entire context.
->  .P
-> +If a file is labeled with
-> +.BR customizable
-> +SELinux type (for list of customizable
-> +types see /etc/selinux/{SELINUXTYPE}/contexts/customizable_types),
-> restorecon
-> +won't reset the label unless the \-F option is used.
-> +.P
->  It is the same executable as
->  .BR setfiles
->  but operates in a slightly different manner depending on its
-> argv[0].
-> @@ -124,7 +130,7 @@ change files and directories file labels
-> recursively (descend directories).
->  .br
->  .TP
->  .B \-v
-> -show changes in file labels. Note that the
-> +show changes in file labels. Multiple -v options increase the
-> verbosity. Note that the
->  .B \-v
->  and
->  .B \-p
-> @@ -209,4 +215,5 @@ The program was written by Dan Walsh <dwalsh@redh
-> at.com>.
->  .SH "SEE ALSO"
->  .BR setfiles (8),
->  .BR load_policy (8),
-> -.BR checkpolicy (8)
-> +.BR checkpolicy (8),
-> +.BR customizable_types (8)
+> I just reviewed the referenced documentation (thanks David)
+> and it does clearly identify why, from the viewpoint of the
+> credential implementation, modifying another task's credentials
+> is unsafe. Both Smack and SELinux view modification of task
+> credentials as unsafe from a security viewpoint, so neither of
+> these modules would force the credential implementation to
+> allow the behavior.
+> 
+> This, unfortunately, leaves Jose in a bit of a bind. It looks
+> to me like there are options, so let's not just tell him to
+> go away. The options I see include:
+> 
+>  - Fix the credential code so modifying another task is safe
+> 	I don't advocate this approach because the existing
+> 	implementation is only reasonable because of the
+> 	restriction.
+>  - Revert shared credentials
+> 	I confess to not being a fan of shared credentials,
+> 	for reason of complexity. I would not expect a
+> 	proposal to go back to embedding credentials in
+> 	their containing structures to be considered seriously.
+> 	Nonetheless, it would solve the problem.
+>  - Add a security blob for the task
+> 	It is unfortunate that when shared credentials were
+> 	introduced the task blob was not renamed a cred blob.
+> 	It would be simple and consistent to add a security
+> 	blob to the task in addition to the blob in the cred.
+> 	I would add a t_security field to the task structure
+> 	that associates security data with the task. This
+> 	blob would be used for data that does not meet intent
+> 	of a credential, which I believe may be the case for
+> 	Jose's PTAGS.
+> 
+> I know which I would prefer, but as I expect someone to shout
+> that none can possibly be acceptable I think I'll stop here and
+> let the discussion go a while.
+> 
+> ("Light fuse. Stand back. :))
+> 
 
-Wrong section - should be 5.
+Tetsuo has been asking for the return of the task security blob
+for years. It does makes sense as not everything fits the cred
+model, eg. seccomp rules aren't part of the cred, and I don't think
+it makes sense for PTAGS either.
+
+AppArmor could make use of it as well, as currently we abuse
+the cred a little bit to store the change_hat, and setexeccon info.
