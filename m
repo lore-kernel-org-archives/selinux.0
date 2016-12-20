@@ -1,84 +1,75 @@
-Message-ID: <1482250452.28169.28.camel@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBKGLHnL013552
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 11:21:19 -0500
 Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
  /proc/pid/attr nodes to proc
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: =?ISO-8859-1?Q?Jos=E9?= Bollo <jobol@nonadev.net>, selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org, casey@schaufler-ca.com,
- john.johansen@canonical.com
-Date: Tue, 20 Dec 2016 11:14:12 -0500
-In-Reply-To: <1482140693.2178.1.camel@nonadev.net>
+To: =?UTF-8?Q?Jos=c3=a9_Bollo?= <jobol@nonadev.net>,
+ John Johansen <john.johansen@canonical.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
  <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
  <1482140693.2178.1.camel@nonadev.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+ <1482158025.28570.10.camel@tycho.nsa.gov>
+ <1482162073.2178.6.camel@nonadev.net>
+ <1482162765.28570.33.camel@tycho.nsa.gov>
+ <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
+ <8e8baad3-f39e-8d3a-661d-3302a96d43f1@canonical.com>
+ <9b71f7ee-bbb3-5433-aae3-31a2c648908d@schaufler-ca.com>
+ <1482244841.2203.5.camel@nonadev.net>
+Cc: paul@paul-moore.com, james.l.morris@oracle.com,
+ linux-security-module@vger.kernel.org
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <77fecdfb-d49d-a9fb-bdd0-bde97032015f@schaufler-ca.com>
+Date: Tue, 20 Dec 2016 08:21:06 -0800
+MIME-Version: 1.0
+In-Reply-To: <1482244841.2203.5.camel@nonadev.net>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2016-12-19 at 10:44 +0100, José Bollo wrote:
-> Le vendredi 16 décembre 2016 à 12:41 -0500, Stephen Smalley a écrit :
-> > 
-> > Processes can only alter their own security attributes via
-> > /proc/pid/attr nodes.  This is presently enforced by each
-> > individual
-> > security module and is also imposed by the Linux credentials
-> > implementation, which only allows a task to alter its own
-> > credentials.
-> > Move the check enforcing this restriction from the individual
-> > security modules to proc_pid_attr_write() before calling the
-> > security
-> > hook,
-> > and drop the unnecessary task argument to the security hook since
-> > it
-> > can
-> > only ever be the current task.
-> 
-> Hi Stephen,
-> 
-> The module PTAGS that I made relies on the ability to write files in
-> /proc/pid/attr/...
-> 
-> Why did I used this files? Thaere are serious reasons:
->  - follows the life cycle of the process
->  - implements pid namespace
-> 
-> There is absolutely no way to get these features easyly outside that
-> implementation context of /proc/pid/attr/xxx.
-> 
-> For these reasons I vote against that change.
-> 
-> You will probably ask me where is PTAGS used and what is is made for.
-> 
-> So it is not used but the principle of its use is benefical to the
-> community. It allows a kind of user land implementation of
-> capabilities.
-> 
-> You probably know that the kernel can not do all things for a good
-> reason: it is not intended to do all things. So there is a need for
-> user land features. PTAGS is an intent to fulfill an empty gap.
-> 
-> I made a presentation at FOSDEM on the subject that may allows you to
-> understand the beginning of the issue that I'm writing about [2]. 
-> 
-> [1] https://lkml.org/lkml/2016/11/23/122
-> [2] https://archive.fosdem.org/2015/schedule/event/sec_enforcement/
+On 12/20/2016 6:40 AM, José Bollo wrote:
+> Le lundi 19 décembre 2016 à 13:25 -0800, Casey Schaufler a écrit :
+>
+> snip
+>> A brief look at the existing modules leads me to believe that
+>> everyone ought to be happier if we moved the LSM task blob out
+>> of the cred structure. SELinux keeps a small (6xu32) task blob
+>> that has no reason to share and refcount. Smack has a couple of
+>> lists in the task blob that really shouldn't be in the cred.
+>> There would have to be some rework of the task_alloc and task_free
+>> hooks to get the life of the blobs correct, but I think on the
+>> whole it would be lots cleaner.
+>>
+> Hi Casey,
+>
+> Let suppose that creds is, in effect, the wrong place for implementing
+> PTAGS and let suppose that the correct way is to add a t_ptags element
+> in the task structure.
+>
+> How to use task_alloc and task_free? There is nothing there. Is it just
+> possible to inherit or copy the parent attributes? no.
+>
+> So there is a need to define a hook to copy or do something for the
+> child based on the parent. A new hook, a kind of 'task_child_init'
+> whose argument would be the task to init.
+>
+> Is it it?
+>
+> Best regards
+> José Bollo
 
-Looking at your PTAGS implementation, I feel it is only fair to warn
-you that your usage of /proc/pid/attr is insecure, regardless of
-whether you use task security blobs or cred security blobs.
-
-Getting the attributes of another process via /proc/pid files is
-inherently racy, as the process may exit and another process with
-different attributes may be created with the same pid (and no, this is
-not theoretical; it has been demonstrated). Similarly, setting the
-attributes of another process via /proc/pid files is likewise
-inherently racy; you may end up setting the attributes on the wrong
-process entirely.  Setting another process' attributes in this manner
-is also prone to other kinds of races, since there is no coordination
-between the process execution state and when the new tag is applied.
-
-Again, I encourage you to reconsider your approach if you want to have
-a secure solution.
+My suggestion at this point is that we introduce a "t_security"
+field to task_struct (in include/linux/sched.h) under #CONFIG_SECURITY.
+There is already a task_free hook that should suffice, but the existing
+task_create hook will either need to be changed to get passed the
+task_struct or supplemented with a task_alloc hook. A copy_task hook
+may prove necessary, but we'll have to look into that. Security module
+data that belongs associated with the task needs to get moved, but that
+can be done by the module maintainers. It doesn't sound like there
+would be resistance to this from the security side of the house, but
+it needs to get run past the task management maintainers. A patch set,
+used by an existing module would be the best approach for that. I
+do not think that Smack is a good example as it is the one module that
+would probably be best served by having some data in both places.
