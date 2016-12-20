@@ -1,129 +1,92 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBKJ1e2U030887
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 14:01:41 -0500
+Received: by mail-vk0-f68.google.com with SMTP id x186so15385052vkd.2
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 11:01:36 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAN=9EoRdmo3YSXBQxANk7o9bVYF5-CHiZcS9-oau9Hr7oRNg7g@mail.gmail.com>
-References: <CAN=9EoQa0EMEG26QVJ6vJvfFf5yBW6_eOc3XAifc9xuoijzwhA@mail.gmail.com>
- <CAN=9EoQx2Q2KA2sE58nKvinpU4Js1-Sctgn77MSQ5mGF-hi-2w@mail.gmail.com>
- <CAN=9EoSj3PXQt2ADBkMwJ9u9JBAnz9QfyORzG32aSOHk2ZqeTg@mail.gmail.com>
- <CAN=9EoQZfUoQ5Bty-D-B2dP1swZ=p5dAM9uJmywwWbcZnNPc9g@mail.gmail.com>
- <CAN=9EoSKzx4_C04D6iidyorb1t2xu9KtOt0sSU4zRxVNQSMeaA@mail.gmail.com>
- <CAN=9EoQgxLfMvAZZw0mY9U6wADChBe7a7-dsLusLaAdwcKwT2w@mail.gmail.com>
- <CAN=9EoQOHP=DDowW-zD6FOpEze5H+9wjSbi47Bf9vekmddH85Q@mail.gmail.com>
- <CAN=9EoS9u96H7t8ebuSjK=jLOcOq66Nds70g0sY4W_ELZk_J1Q@mail.gmail.com>
- <CAN=9EoR6KXaWcngW5tUDtnEYiAhRQWS1z-iXsnpgsc=L7oQ3-w@mail.gmail.com>
- <CAN=9EoTMHD3ridU7CZ5bgyXUaRN-vMcvr3T3TrSaHigstWn2mA@mail.gmail.com>
- <CAN=9EoTXW=31mCS-GtsUkhPB3CCj6_jdiiC3vq4pVAV_72DFZg@mail.gmail.com>
- <ce42b511-76db-f910-9034-06ca5224c7f5@redhat.com>
- <CAN=9EoRdmo3YSXBQxANk7o9bVYF5-CHiZcS9-oau9Hr7oRNg7g@mail.gmail.com>
-From: Naina Emmanuel <nemmanuel1992@gmail.com>
-Date: Tue, 20 Dec 2016 10:40:03 -0800
-Message-ID: <CAN=9EoQCyqLvna=z2Vhs-nsODGqrt0kJo72a5B79UGD=keZmdw@mail.gmail.com>
-Subject: Re: Issues Confined domain
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- masoom alam <masoom.alam@gmail.com>, Vit Mojzis <vmojzis@redhat.com>
-Content-Type: multipart/alternative; boundary=001a1146f0904c220005441b5de5
+In-Reply-To: <1482256710.28169.35.camel@tycho.nsa.gov>
+References: <148225595449.30954.6812336959299313160.stgit@sifl>
+ <1482256710.28169.35.camel@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 20 Dec 2016 14:01:35 -0500
+Message-ID: <CAHC9VhRqwq9gJMUsHUcYYU_KHDeJaz9CTB6N=dDD_DNXKW1Agw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: use the kernel headers when building
+ scripts/selinux/genheaders
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Paul Moore <pmoore@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1146f0904c220005441b5de5
-Content-Type: text/plain; charset=UTF-8
+On Tue, Dec 20, 2016 at 12:58 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Tue, 2016-12-20 at 12:45 -0500, Paul Moore wrote:
+>> From: Paul Moore <paul@paul-moore.com>
+>>
+>> Commit 3322d0d64f4e ("selinux: keep SELinux in sync with new
+>> capability
+>> definitions") added a check on the defined capabilities without
+>> explicitly including the capability header file which caused problems
+>> when building genheaders for users of clang/llvm.  Resolve this by
+>> using the kernel headers when building genheaders, which is arguably
+>> the right thing to do regardless, and explicitly including the
+>> kernel's capability.h header file in classmap.h.
+>>
+>> Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+>> ---
+>>  scripts/selinux/genheaders/Makefile     |    4 +++-
+>>  scripts/selinux/genheaders/genheaders.c |    4 ++++
+>>  security/selinux/include/classmap.h     |    2 ++
+>>  3 files changed, 9 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/scripts/selinux/genheaders/Makefile
+>> b/scripts/selinux/genheaders/Makefile
+>> index 1d1ac51359e3..6fc2b8789a0b 100644
+>> --- a/scripts/selinux/genheaders/Makefile
+>> +++ b/scripts/selinux/genheaders/Makefile
+>> @@ -1,4 +1,6 @@
+>>  hostprogs-y  := genheaders
+>> -HOST_EXTRACFLAGS += -Isecurity/selinux/include
+>> +HOST_EXTRACFLAGS += \
+>> +     -I$(srctree)/include/uapi -I$(srctree)/include \
+>> +     -I$(srctree)/security/selinux/include
+>>
+>>  always               := $(hostprogs-y)
+>> diff --git a/scripts/selinux/genheaders/genheaders.c
+>> b/scripts/selinux/genheaders/genheaders.c
+>> index 539855ff31f9..f4dd41f900d5 100644
+>> --- a/scripts/selinux/genheaders/genheaders.c
+>> +++ b/scripts/selinux/genheaders/genheaders.c
+>> @@ -1,3 +1,7 @@
+>> +
+>> +/* NOTE: we really do want to use the kernel headers here */
+>> +#define __EXPORTED_HEADERS__
+>> +
+>>  #include <stdio.h>
+>>  #include <stdlib.h>
+>>  #include <unistd.h>
+>> diff --git a/security/selinux/include/classmap.h
+>> b/security/selinux/include/classmap.h
+>> index e2d4ad3a4b4c..13ae49b0baa0 100644
+>> --- a/security/selinux/include/classmap.h
+>> +++ b/security/selinux/include/classmap.h
+>> @@ -1,3 +1,5 @@
+>> +#include <linux/capability.h>
+>
+> I think we only need uapi/linux/capability.h, not the kernel-private
+> definitions.
 
-su for switching users means I could switch from test to root and root to
-test a but I doesn't allow ssh or direct login for root
+Pulling in only uapi/linux/capability.h resulted in numerous conflicts
+between the system and kernel-private includes.  Some of these
+conflicts can be resolved by pre-defining a number of preprocessor
+macros, but the patch was starting to look very hackish and it wasn't
+clear to me that it would be possible to resolve all of the conflicts.
 
-On 20-Dec-2016 11:34 pm, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
+I am open to other suggestions so long as they solve the problem
+Nicolas reported.
 
-You would want to setup root as sysadm_u not staff_u.
-
-You should use sudo to change roles not su.
-
-If you can not login as a non root user then you probably have a labeling
-issue.
-
-restorecon -R -v -F /home
-
-
-
-On 12/20/2016 01:30 PM, Naina Emmanuel wrote:
-
-Good morning sir,
-I have questions about my finding....
-Working on SELinux centos 7 (enforcing mode). I don't want any unconfined_t
-label on my system, so I have confined my root and my users through
-# /usr/sbin/semanage login -a -s staff_u root
-# /usr/sbin/semanage login -a -s staff_u test
-Q: In enforcing mode I could switch user(su) but I am not able to ssh or
-login to root or any user that I am confining, it gives permission denied
-error?
-Same is the case when I am confining in staff_u or sysadm_u domain
-
-
-
-Please help in this regard
-Thanks
-
---001a1146f0904c220005441b5de5
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"auto">su for switching users means I could switch from test to =
-root and root to test a but I doesn&#39;t allow ssh or direct login for roo=
-t</div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On 20-Dec-=
-2016 11:34 pm, &quot;Daniel J Walsh&quot; &lt;<a href=3D"mailto:dwalsh@redh=
-at.com">dwalsh@redhat.com</a>&gt; wrote:<br type=3D"attribution"><blockquot=
-e class=3D"quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pad=
-ding-left:1ex">
- =20
-   =20
- =20
-  <div bgcolor=3D"#FFFFFF" text=3D"#000000">
-    <p>You would want to setup root as sysadm_u not staff_u.</p>
-    <p>You should use sudo to change roles not su.</p>
-    <p>If you can not login as a non root user then you probably have a
-      labeling issue.</p>
-    <p>restorecon -R -v -F /home</p><div class=3D"elided-text">
-    <p><br>
-    </p>
-    <br>
-    <div class=3D"m_-4766347967455461516moz-cite-prefix">On 12/20/2016 01:3=
-0 PM, Naina Emmanuel
-      wrote:<br>
-    </div>
-    <blockquote type=3D"cite">
-      <div dir=3D"auto">Good morning sir,
-        <div dir=3D"auto">I have questions about my finding....</div>
-        <div dir=3D"auto">Working on SELinux centos 7 (enforcing mode). I
-          don&#39;t want any unconfined_t label on my system, so I have
-          confined my root and my users through</div>
-        <div dir=3D"auto"># /usr/sbin/semanage login -a -s staff_u root</di=
-v>
-        <div dir=3D"auto">
-          <div dir=3D"auto" style=3D"font-family:sans-serif">#
-            /usr/sbin/semanage login -a -s staff_u test</div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif">Q: In enforcin=
-g
-            mode I could switch user(su) but I am not able to ssh or
-            login to root or any user that I am confining, it gives
-            permission denied error?</div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif">Same is the
-            case when I am confining in staff_u or sysadm_u domain =C2=A0</=
-div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif"><br>
-          </div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif"><br>
-          </div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif"><br>
-          </div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif">Please help in
-            this regard</div>
-          <div dir=3D"auto" style=3D"font-family:sans-serif">Thanks</div>
-        </div>
-      </div>
-    </blockquote>
-    <br>
-  </div></div>
-
-</blockquote></div><br></div>
-
---001a1146f0904c220005441b5de5--
+-- 
+paul moore
+www.paul-moore.com
