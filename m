@@ -1,85 +1,63 @@
-From: Gary Tierney <gary.tierney@gmx.com>
-To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, sgrubb@redhat.com
-Subject: [PATCH v2 1/2] selinux: log errors when loading new policy
-Date: Tue, 20 Dec 2016 01:28:46 +0000
-Message-Id: <8f6b74e709a3280457fc875207134f723ca152ab.1482195891.git.gary.tierney@gmx.com>
-In-Reply-To: <cover.1482195891.git.gary.tierney@gmx.com>
-References: <20161219160041.GB5359@workstation>
- <cover.1482195891.git.gary.tierney@gmx.com>
-In-Reply-To: <cover.1482195891.git.gary.tierney@gmx.com>
-References: <20161219160041.GB5359@workstation>
- <cover.1482195891.git.gary.tierney@gmx.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBK1URYP024087
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 20:30:27 -0500
+Received: by mail-vk0-f67.google.com with SMTP id l126so14289084vkh.0
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 17:30:26 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <28224bb8-425e-5dec-472f-105c5cd7e098@schaufler-ca.com>
+References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
+ <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+ <CAHC9VhQOjXUYxRaHcgxwiTFwwNsUuf646O-gDq7Bm_0aToMtgQ@mail.gmail.com>
+ <28224bb8-425e-5dec-472f-105c5cd7e098@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 19 Dec 2016 20:30:25 -0500
+Message-ID: <CAHC9VhRcHxEMjTwjq6ZiAjHcAyveWOnRdRayoq86tdUsD_OdMw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Cc: john.johansen@canonical.com, James Morris <james.l.morris@oracle.com>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Adds error logging to the code paths which can fail when loading a new
-policy in sel_write_load().  If the policy fails to be loaded from
-userspace then a warning message is printed, whereas if a failure occurs
-after loading policy from userspace an error message will be printed
-with details on where policy loading failed (recreating one of /classes/,
-/policy_capabilities/, /booleans/ in the SELinux fs).
+On Fri, Dec 16, 2016 at 5:13 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 12/16/2016 2:06 PM, Paul Moore wrote:
+>> On Fri, Dec 16, 2016 at 12:41 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> Processes can only alter their own security attributes via
+>>> /proc/pid/attr nodes.  This is presently enforced by each individual
+>>> security module and is also imposed by the Linux credentials
+>>> implementation, which only allows a task to alter its own credentials.
+>>> Move the check enforcing this restriction from the individual
+>>> security modules to proc_pid_attr_write() before calling the security hook,
+>>> and drop the unnecessary task argument to the security hook since it can
+>>> only ever be the current task.
+>>>
+>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>> ---
+>>>  fs/proc/base.c             | 13 +++++++++----
+>>>  include/linux/lsm_hooks.h  |  3 +--
+>>>  include/linux/security.h   |  4 ++--
+>>>  security/apparmor/lsm.c    |  7 ++-----
+>>>  security/security.c        |  4 ++--
+>>>  security/selinux/hooks.c   | 13 +------------
+>>>  security/smack/smack_lsm.c | 11 +----------
+>>>  7 files changed, 18 insertions(+), 37 deletions(-)
+>> Looks good to me.  I'm happy to pull this in via the SELinux tree
+>> unless anyone else would rather take it?
+>
+> That works for me. It does need to go in atomically.
 
-Also, if sel_make_bools() fails to obtain an SID for an entry in
-/booleans/* an error will be printed indicating the path of the
-boolean.
+Even with all the discussion today, I still think this patch has value
+and I don't believe it should impact the PTAGS work as there are
+clearly larger issues that need to be resolved (e.g. reintroduce a
+task based security blob?).  Unless I hear any objections that this
+will wreck everything for years to come (very doubtful), I'll go ahead
+and merge this into the SELinux tree tomorrow.
 
-Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
----
- security/selinux/selinuxfs.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 0aac402..e667c34 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -522,20 +522,28 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 		goto out;
- 
- 	length = security_load_policy(data, count);
--	if (length)
-+	if (length) {
-+		pr_warn_ratelimited("SELinux: failed to load policy\n");
- 		goto out;
-+	}
- 
- 	length = sel_make_bools();
--	if (length)
-+	if (length) {
-+		pr_err("SELinux: failed to load policy booleans\n");
- 		goto out1;
-+	}
- 
- 	length = sel_make_classes();
--	if (length)
-+	if (length) {
-+		pr_err("SELinux: failed to load policy classes\n");
- 		goto out1;
-+	}
- 
- 	length = sel_make_policycap();
--	if (length)
-+	if (length) {
-+		pr_err("SELinux: failed to load policy capabilities\n");
- 		goto out1;
-+	}
- 
- 	length = count;
- 
-@@ -1299,9 +1307,12 @@ static int sel_make_bools(void)
- 
- 		isec = (struct inode_security_struct *)inode->i_security;
- 		ret = security_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid);
--		if (ret)
-+		if (ret) {
-+			pr_err("SELinux: failed to lookup sid for %s\n", page);
- 			goto out;
- 
-+		}
-+
- 		isec->sid = sid;
- 		isec->initialized = LABEL_INITIALIZED;
- 		inode->i_fop = &sel_bool_ops;
 -- 
-2.7.4
+paul moore
+www.paul-moore.com
