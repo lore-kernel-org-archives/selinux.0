@@ -1,58 +1,53 @@
-Message-ID: <1482244841.2203.5.camel@nonadev.net>
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
-From: =?ISO-8859-1?Q?Jos=E9?= Bollo <jobol@nonadev.net>
-To: Casey Schaufler <casey@schaufler-ca.com>, John Johansen
- <john.johansen@canonical.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org
-Date: Tue, 20 Dec 2016 15:40:41 +0100
-In-Reply-To: <9b71f7ee-bbb3-5433-aae3-31a2c648908d@schaufler-ca.com>
-References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
- <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <1482140693.2178.1.camel@nonadev.net>
- <1482158025.28570.10.camel@tycho.nsa.gov>
- <1482162073.2178.6.camel@nonadev.net>
- <1482162765.28570.33.camel@tycho.nsa.gov>
- <c00d4c87-95bf-1538-5cdd-f0084127a2c9@schaufler-ca.com>
- <8e8baad3-f39e-8d3a-661d-3302a96d43f1@canonical.com>
- <9b71f7ee-bbb3-5433-aae3-31a2c648908d@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Date: Tue, 20 Dec 2016 14:44:55 +0000
+From: Gary Tierney <gary.tierney@gmx.com>
+To: sds@tycho.nsa.gov, selinux-owner@tycho.nsa.gov, selinux@tycho.nsa.gov
+Subject: Mailing list not receiving/sending mail?
+Message-ID: <20161220144455.GA7875@workstation>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le lundi 19 décembre 2016 à 13:25 -0800, Casey Schaufler a écrit :
 
-snip
-> 
-> A brief look at the existing modules leads me to believe that
-> everyone ought to be happier if we moved the LSM task blob out
-> of the cred structure. SELinux keeps a small (6xu32) task blob
-> that has no reason to share and refcount. Smack has a couple of
-> lists in the task blob that really shouldn't be in the cred.
-> There would have to be some rework of the task_alloc and task_free
-> hooks to get the life of the blobs correct, but I think on the
-> whole it would be lots cleaner.
-> 
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Casey,
+Hi Stephen,
 
-Let suppose that creds is, in effect, the wrong place for implementing
-PTAGS and let suppose that the correct way is to add a t_ptags element
-in the task structure.
+Me and a few others in #selinux IRC had noticed that we're not receiving ma=
+il
+=66rom selinux@tycho.nsa.gov.  Seems to have been like that from the 14th
+onwards.
 
-How to use task_alloc and task_free? There is nothing there. Is it just
-possible to inherit or copy the parent attributes? no.
+Wanted to make you (or the controller of selinux-owner@tycho.nsa.gov) aware=
+ in
+case you weren't already.
 
-So there is a need to define a hook to copy or do something for the
-child based on the parent. A new hook, a kind of 'task_child_init'
-whose argument would be the task to init.
+Thanks.
+--=20
+Gary Tierney
 
-Is it it?
+GPG fingerprint: 412C 0EF9 C305 68E6 B660  BDAF 706E D765 85AA 79D8
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x706ED76585AA79D8
 
-Best regards
-José Bollo
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQEcBAEBCAAGBQJYWUPiAAoJEHBu12WFqnnYM8QIAJXH2Vsh3ZQ/5RP0tF5mpL01
+j8ElqJ31YUR7R/vCkxWg4MrY3wjEstdYmc30Xx5TFEfXbi97G89qNYXpmLXfpZR8
++9DlNBxWfIqqcoqZidvGawlr+7440z/gDSvCdh0ZV6pwjnBY3t8vqg6HOMDyH2VQ
+8G5vJZUT+MVNa4ULNC9Hh5W0SPvvRP26bO8NnlbX/TVGphdIGlBAZS99XXv9oJfC
+6j+LF5Kma82rHScUBGMcanIuscz9WhLfsmbvpNYlJDkCjg2gbjvexwMDeo58hFq0
+s26O7wXbvhIDDinvWEcxwz2wafurH7uMm+rzYq5vJHeyzW2a5wYM5vberzE0ohU=
+=u1St
+-----END PGP SIGNATURE-----
+
+--mYCpIKhGyMATD0i+--
