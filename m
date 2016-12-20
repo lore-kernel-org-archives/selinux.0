@@ -1,39 +1,49 @@
 From: Gary Tierney <gary.tierney@gmx.com>
 To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, sgrubb@redhat.com
-Subject: [PATCH v2 0/2]
-Date: Tue, 20 Dec 2016 01:28:45 +0000
-Message-Id: <cover.1482195891.git.gary.tierney@gmx.com>
-In-Reply-To: <20161219160041.GB5359@workstation>
+Subject: [PATCH v2 2/2] selinux: default to security isid in sel_make_bools()
+ if no sid is found
+Date: Tue, 20 Dec 2016 01:28:47 +0000
+Message-Id: <61a07062f6ba9f90e3235160644f3b5e62439173.1482195891.git.gary.tierney@gmx.com>
+In-Reply-To: <cover.1482195891.git.gary.tierney@gmx.com>
 References: <20161219160041.GB5359@workstation>
-In-Reply-To: <20161219160041.GB5359@workstation>
+ <cover.1482195891.git.gary.tierney@gmx.com>
+In-Reply-To: <cover.1482195891.git.gary.tierney@gmx.com>
 References: <20161219160041.GB5359@workstation>
+ <cover.1482195891.git.gary.tierney@gmx.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Have updated the patches to print error messages for failures which result in
-indeterminate state and warnings for failures to load policy from userspace.
-Also updated the patches to remove the function name from log messages.
+Use SECINITSID_SECURITY as the default SID for booleans which don't have
+a matching SID returned from security_genfs_sid(), also update the
+error message to a warning which matches this.
 
-Steve,
+This prevents the policy failing to load (and consequently the system
+failing to boot) when there is no default genfscon statement matched for
+the selinuxfs in the new policy.
 
-Does your work on AUDIT_MAC_STATUS_FAIL/AUDIT_MAC_LOAD_FAIL messages (I'm
-assuming that's what Stephen's referencing in his previous mail) obsolete the
-printk logs in the first patch?  An AUDIT_MAC_POLICY_LOAD message would still
-be logged presently even if one of sel_make_{bools,classes,policycap} fails, so
-I'm not sure if you would also want an
-AUDIT_MAC_STATUS_FAIL/AUDIT_MAC_LOAD_FAIL message when that happens, though I
-think you might want one in the first case when security_load_policy() fails
-(or anything up until that point).
+Signed-off-by: Gary Tierney <gary.tierney@gmx.com>
+---
+ security/selinux/selinuxfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Gary Tierney (2):
-  selinux: log errors when loading new policy
-  selinux: default to security isid in sel_make_bools() if no sid is
-    found
-
- security/selinux/selinuxfs.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
-
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index e667c34..616a8d2 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1308,9 +1308,9 @@ static int sel_make_bools(void)
+ 		isec = (struct inode_security_struct *)inode->i_security;
+ 		ret = security_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid);
+ 		if (ret) {
+-			pr_err("SELinux: failed to lookup sid for %s\n", page);
+-			goto out;
+-
++			pr_warn_ratelimited("SELinux: no sid found, defaulting to security isid for %s\n",
++					   page);
++			sid = SECINITSID_SECURITY;
+ 		}
+ 
+ 		isec->sid = sid;
 -- 
 2.7.4
