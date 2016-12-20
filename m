@@ -1,104 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBK1aDL3025406
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 20:36:13 -0500
-Received: by mail-ua0-f194.google.com with SMTP id 50so13507238uae.2
- for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 17:35:19 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBK1q2Cg029110
+ for <selinux@tycho.nsa.gov>; Mon, 19 Dec 2016 20:52:02 -0500
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
+References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
+ <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
+ <CAHC9VhQOjXUYxRaHcgxwiTFwwNsUuf646O-gDq7Bm_0aToMtgQ@mail.gmail.com>
+ <28224bb8-425e-5dec-472f-105c5cd7e098@schaufler-ca.com>
+ <CAHC9VhRcHxEMjTwjq6ZiAjHcAyveWOnRdRayoq86tdUsD_OdMw@mail.gmail.com>
+Cc: john.johansen@canonical.com, James Morris <james.l.morris@oracle.com>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <1212df28-3cda-fcff-ab7e-f0f0a8e3493c@schaufler-ca.com>
+Date: Mon, 19 Dec 2016 17:51:56 -0800
 MIME-Version: 1.0
-In-Reply-To: <1482157462.28570.2.camel@tycho.nsa.gov>
-References: <1479482589-3889-1-git-send-email-sds@tycho.nsa.gov>
- <a0eae335-02c5-8280-9c5c-d4a7b7c8228a@m4x.org>
- <1482157462.28570.2.camel@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 19 Dec 2016 20:35:18 -0500
-Message-ID: <CAHC9VhTFcrPFa_z2g4Zh-tM0tYOX6UKMcQGGPzzm=-n2ss2crg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: keep SELinux in sync with new capability
- definitions
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <CAHC9VhRcHxEMjTwjq6ZiAjHcAyveWOnRdRayoq86tdUsD_OdMw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Dec 19, 2016 at 9:24 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Sun, 2016-12-18 at 21:06 +0100, Nicolas Iooss wrote:
->> On 18/11/16 16:23, Stephen Smalley wrote:
->> >
->> > When a new capability is defined, SELinux needs to be updated.
->> > Trigger a build error if a new capability is defined without
->> > corresponding update to security/selinux/include/classmap.h's
->> > COMMON_CAP2_PERMS.  This is similar to BUILD_BUG_ON() guards
->> > in the SELinux nlmsgtab code to ensure that SELinux tracks
->> > new netlink message types as needed.
->> >
->> > Note that there is already a similar build guard in
->> > security/selinux/hooks.c to detect when more than 64
->> > capabilities are defined, since that will require adding
->> > a third capability class to SELinux.
->> >
->> > A nicer way to do this would be to extend
->> > scripts/selinux/genheaders
->> > or a similar tool to auto-generate the necessary definitions and
->> > code
->> > for SELinux capability checking from
->> > include/uapi/linux/capability.h.
->> > AppArmor does something similar in its Makefile, although it only
->> > needs to generate a single table of names.  That is left as future
->> > work.
->> >
->> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> > ---
->> >  security/selinux/include/classmap.h | 4 ++++
->> >  1 file changed, 4 insertions(+)
->> >
->> > diff --git a/security/selinux/include/classmap.h
->> > b/security/selinux/include/classmap.h
->> > index 1f1f4b2..e2d4ad3a 100644
->> > --- a/security/selinux/include/classmap.h
->> > +++ b/security/selinux/include/classmap.h
->> > @@ -24,6 +24,10 @@
->> >  #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog",
->> > \
->> >             "wake_alarm", "block_suspend", "audit_read"
->> >
->> > +#if CAP_LAST_CAP > CAP_AUDIT_READ
->> > +#error New capability defined, please update COMMON_CAP2_PERMS.
->> > +#endif
->> > +
->> >  /*
->> >   * Note: The name for any socket class should be suffixed by
->> > "socket",
->> >   *  and doesn't contain more than one substr of "socket".
->> >
->>
->> Hello,
->> This patch made the compiler I am using to build the kernel (clang)
->> report two new warnings when building
->> scripts/selinux/genheaders/genheaders.c and
->> scripts/selinux/mdp/mdp.c:
->>
->> 'CAP_LAST_CAP' is not defined, evaluates to 0 [-Wundef]
->> 'CAP_AUDIT_READ' is not defined, evaluates to 0 [-Wundef]
->>
->> Even though this is not detected by gcc, it seems like a bug to
->> compare
->> undefined values. There is no issue where classmap.h is included from
->> security/selinux/avc.c because include/uapi/linux/capability.h got
->> included too.
->>
->> I see two ways of fixing these warnings: either by defining the
->> capability values in genheaders and mdp by adding #include
->> <linux/capability.h>, or by adding "defined(__KERNEL__) &&" before
->> the
->> test so that it is only processed from kernel code (avc.c). How would
->> you like this to be fixed?
->
-> I suppose we ought to #include <uapi/linux/capability.h> in classmap.h.
+On 12/19/2016 5:30 PM, Paul Moore wrote:
+> On Fri, Dec 16, 2016 at 5:13 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 12/16/2016 2:06 PM, Paul Moore wrote:
+>>> On Fri, Dec 16, 2016 at 12:41 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>> Processes can only alter their own security attributes via
+>>>> /proc/pid/attr nodes.  This is presently enforced by each individual
+>>>> security module and is also imposed by the Linux credentials
+>>>> implementation, which only allows a task to alter its own credentials.
+>>>> Move the check enforcing this restriction from the individual
+>>>> security modules to proc_pid_attr_write() before calling the security hook,
+>>>> and drop the unnecessary task argument to the security hook since it can
+>>>> only ever be the current task.
+>>>>
+>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>> ---
+>>>>  fs/proc/base.c             | 13 +++++++++----
+>>>>  include/linux/lsm_hooks.h  |  3 +--
+>>>>  include/linux/security.h   |  4 ++--
+>>>>  security/apparmor/lsm.c    |  7 ++-----
+>>>>  security/security.c        |  4 ++--
+>>>>  security/selinux/hooks.c   | 13 +------------
+>>>>  security/smack/smack_lsm.c | 11 +----------
+>>>>  7 files changed, 18 insertions(+), 37 deletions(-)
+>>> Looks good to me.  I'm happy to pull this in via the SELinux tree
+>>> unless anyone else would rather take it?
+>> That works for me. It does need to go in atomically.
+> Even with all the discussion today, I still think this patch has value
+> and I don't believe it should impact the PTAGS work as there are
+> clearly larger issues that need to be resolved (e.g. reintroduce a
+> task based security blob?).  Unless I hear any objections that this
+> will wreck everything for years to come (very doubtful), I'll go ahead
+> and merge this into the SELinux tree tomorrow.
 
-Yep.  Unless one of you wants to beat me to it, I'll put a quick patch
-together tomorrow.
-
--- 
-paul moore
-www.paul-moore.com
+I think this can go ahead without causing the end of western civilization.
