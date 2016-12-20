@@ -1,58 +1,74 @@
-Message-ID: <1482251949.25787.1.camel@nonadev.net>
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
-From: =?ISO-8859-1?Q?Jos=E9?= Bollo <jobol@nonadev.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org, casey@schaufler-ca.com,
- john.johansen@canonical.com
-Date: Tue, 20 Dec 2016 17:39:09 +0100
-In-Reply-To: <1482250452.28169.28.camel@tycho.nsa.gov>
-References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
- <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <1482140693.2178.1.camel@nonadev.net>
- <1482250452.28169.28.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBKHjvat006318
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 12:45:57 -0500
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id AA4D0C04B926
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 17:45:55 +0000 (UTC)
+Subject: [PATCH] selinux: use the kernel headers when building
+ scripts/selinux/genheaders
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Tue, 20 Dec 2016 12:45:54 -0500
+Message-ID: <148225595449.30954.6812336959299313160.stgit@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le mardi 20 décembre 2016 à 11:14 -0500, Stephen Smalley a écrit :
-> 
-> Looking at your PTAGS implementation, I feel it is only fair to warn
-> you that your usage of /proc/pid/attr is insecure, regardless of
-> whether you use task security blobs or cred security blobs.
+From: Paul Moore <paul@paul-moore.com>
 
-Fair?!
+Commit 3322d0d64f4e ("selinux: keep SELinux in sync with new capability
+definitions") added a check on the defined capabilities without
+explicitly including the capability header file which caused problems
+when building genheaders for users of clang/llvm.  Resolve this by
+using the kernel headers when building genheaders, which is arguably
+the right thing to do regardless, and explicitly including the
+kernel's capability.h header file in classmap.h.
 
-> Getting the attributes of another process via /proc/pid files is
-> inherently racy, as the process may exit and another process with
-> different attributes may be created with the same pid (and no, this
-> is not theoretical; it has been demonstrated).
+Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ scripts/selinux/genheaders/Makefile     |    4 +++-
+ scripts/selinux/genheaders/genheaders.c |    4 ++++
+ security/selinux/include/classmap.h     |    2 ++
+ 3 files changed, 9 insertions(+), 1 deletion(-)
 
-I know. And I'm surprized that you dont do anything to change that.
-
-> Similarly, setting the
-> attributes of another process via /proc/pid files is likewise
-> inherently racy; you may end up setting the attributes on the wrong
-> process entirely.
-
-I also know that.
-
-> Setting another process' attributes in this manner
-> is also prone to other kinds of races, since there is no coordination
-> between the process execution state and when the new tag is applied.
-
-Yes it is expected.
-
-> Again, I encourage you to reconsider your approach if you want to
-> have a secure solution.
-
-Well I know that managing processes is not secure because there is no
-kind of unique id. But please instead of thinking that it is to risky,
-please hear that some risks are manageable or acceptable.
-
-Best regards
-José
+diff --git a/scripts/selinux/genheaders/Makefile b/scripts/selinux/genheaders/Makefile
+index 1d1ac51359e3..6fc2b8789a0b 100644
+--- a/scripts/selinux/genheaders/Makefile
++++ b/scripts/selinux/genheaders/Makefile
+@@ -1,4 +1,6 @@
+ hostprogs-y	:= genheaders
+-HOST_EXTRACFLAGS += -Isecurity/selinux/include
++HOST_EXTRACFLAGS += \
++	-I$(srctree)/include/uapi -I$(srctree)/include \
++	-I$(srctree)/security/selinux/include
+ 
+ always		:= $(hostprogs-y)
+diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
+index 539855ff31f9..f4dd41f900d5 100644
+--- a/scripts/selinux/genheaders/genheaders.c
++++ b/scripts/selinux/genheaders/genheaders.c
+@@ -1,3 +1,7 @@
++
++/* NOTE: we really do want to use the kernel headers here */
++#define __EXPORTED_HEADERS__
++
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index e2d4ad3a4b4c..13ae49b0baa0 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -1,3 +1,5 @@
++#include <linux/capability.h>
++
+ #define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
+     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
+ 
