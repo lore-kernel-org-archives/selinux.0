@@ -1,74 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBKHjvat006318
- for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 12:45:57 -0500
-Received: from int-mx13.intmail.prod.int.phx2.redhat.com
- (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id AA4D0C04B926
- for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 17:45:55 +0000 (UTC)
-Subject: [PATCH] selinux: use the kernel headers when building
- scripts/selinux/genheaders
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue, 20 Dec 2016 12:45:54 -0500
-Message-ID: <148225595449.30954.6812336959299313160.stgit@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBKHoLxD007998
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 12:50:22 -0500
+Received: by mail-vk0-f65.google.com with SMTP id p9so15281508vkd.1
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 09:49:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <CAHC9VhTFcrPFa_z2g4Zh-tM0tYOX6UKMcQGGPzzm=-n2ss2crg@mail.gmail.com>
+References: <1479482589-3889-1-git-send-email-sds@tycho.nsa.gov>
+ <a0eae335-02c5-8280-9c5c-d4a7b7c8228a@m4x.org>
+ <1482157462.28570.2.camel@tycho.nsa.gov>
+ <CAHC9VhTFcrPFa_z2g4Zh-tM0tYOX6UKMcQGGPzzm=-n2ss2crg@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 20 Dec 2016 12:49:52 -0500
+Message-ID: <CAHC9VhQ9LvU1WcVDORTfA7UgbCQKYOON+NDZoGSLG8XsarbedQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: keep SELinux in sync with new capability
+ definitions
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <paul@paul-moore.com>
+On Mon, Dec 19, 2016 at 8:35 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Dec 19, 2016 at 9:24 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On Sun, 2016-12-18 at 21:06 +0100, Nicolas Iooss wrote:
+>>> Hello,
+>>> This patch made the compiler I am using to build the kernel (clang)
+>>> report two new warnings when building
+>>> scripts/selinux/genheaders/genheaders.c and
+>>> scripts/selinux/mdp/mdp.c:
+>>>
+>>> 'CAP_LAST_CAP' is not defined, evaluates to 0 [-Wundef]
+>>> 'CAP_AUDIT_READ' is not defined, evaluates to 0 [-Wundef]
+>>>
+>>> Even though this is not detected by gcc, it seems like a bug to
+>>> compare
+>>> undefined values. There is no issue where classmap.h is included from
+>>> security/selinux/avc.c because include/uapi/linux/capability.h got
+>>> included too.
+>>>
+>>> I see two ways of fixing these warnings: either by defining the
+>>> capability values in genheaders and mdp by adding #include
+>>> <linux/capability.h>, or by adding "defined(__KERNEL__) &&" before
+>>> the
+>>> test so that it is only processed from kernel code (avc.c). How would
+>>> you like this to be fixed?
+>>
+>> I suppose we ought to #include <uapi/linux/capability.h> in classmap.h.
+>
+> Yep.  Unless one of you wants to beat me to it, I'll put a quick patch
+> together tomorrow.
 
-Commit 3322d0d64f4e ("selinux: keep SELinux in sync with new capability
-definitions") added a check on the defined capabilities without
-explicitly including the capability header file which caused problems
-when building genheaders for users of clang/llvm.  Resolve this by
-using the kernel headers when building genheaders, which is arguably
-the right thing to do regardless, and explicitly including the
-kernel's capability.h header file in classmap.h.
+See the patch I just posted to the list.  It turns out it wasn't quite
+that easy due to conflicts between the kernel and system among the
+various nested includes, but I think the posted patch should solve
+everything, if not please let me know.  If I don't hear anything, I'll
+push this up to James later this week (tomorrow?) for inclusion into
+v4.10.
 
-Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- scripts/selinux/genheaders/Makefile     |    4 +++-
- scripts/selinux/genheaders/genheaders.c |    4 ++++
- security/selinux/include/classmap.h     |    2 ++
- 3 files changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/scripts/selinux/genheaders/Makefile b/scripts/selinux/genheaders/Makefile
-index 1d1ac51359e3..6fc2b8789a0b 100644
---- a/scripts/selinux/genheaders/Makefile
-+++ b/scripts/selinux/genheaders/Makefile
-@@ -1,4 +1,6 @@
- hostprogs-y	:= genheaders
--HOST_EXTRACFLAGS += -Isecurity/selinux/include
-+HOST_EXTRACFLAGS += \
-+	-I$(srctree)/include/uapi -I$(srctree)/include \
-+	-I$(srctree)/security/selinux/include
- 
- always		:= $(hostprogs-y)
-diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
-index 539855ff31f9..f4dd41f900d5 100644
---- a/scripts/selinux/genheaders/genheaders.c
-+++ b/scripts/selinux/genheaders/genheaders.c
-@@ -1,3 +1,7 @@
-+
-+/* NOTE: we really do want to use the kernel headers here */
-+#define __EXPORTED_HEADERS__
-+
- #include <stdio.h>
- #include <stdlib.h>
- #include <unistd.h>
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index e2d4ad3a4b4c..13ae49b0baa0 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -1,3 +1,5 @@
-+#include <linux/capability.h>
-+
- #define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
-     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
- 
+-- 
+paul moore
+www.paul-moore.com
