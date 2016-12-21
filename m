@@ -1,17 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBLIMCXl021001
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBLIMCXm021001
  for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 13:22:22 -0500
 Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
  [77.133.206.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 9B4795647EF
- for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 19:22:11 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 220695647EF
+ for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 19:22:13 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 3/7] libsemanage/tests: test more cases of semanage_split*()
-Date: Wed, 21 Dec 2016 19:21:00 +0100
-Message-Id: <20161221182104.16967-4-nicolas.iooss@m4x.org>
+Subject: [PATCH v2 5/7] libsemanage: add semanage_str_replace() utility
+ function
+Date: Wed, 21 Dec 2016 19:21:02 +0100
+Message-Id: <20161221182104.16967-6-nicolas.iooss@m4x.org>
 In-Reply-To: <20161221182104.16967-1-nicolas.iooss@m4x.org>
 References: <20161221182104.16967-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -19,122 +20,160 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Before modifying semanage_split_on_space() and semanage_split(), test in
-test_utilities.c how these functions behave for example when several
-delimiter tokens are concatenated in the input string.
-
-While at it, fix the memory leaks which were present in libsemanage
-tests.
+This function will be used in the next commit.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsemanage/tests/test_utilities.c | 51 ++++++++++++++++++++++++--------------
- 1 file changed, 33 insertions(+), 18 deletions(-)
+ libsemanage/src/utilities.c        | 55 ++++++++++++++++++++++++++++++++++++++
+ libsemanage/src/utilities.h        | 10 +++++++
+ libsemanage/tests/test_utilities.c | 34 +++++++++++++++++++++++
+ 3 files changed, 99 insertions(+)
 
+diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+index fa86cc77dc56..0d50d99026db 100644
+--- a/libsemanage/src/utilities.c
++++ b/libsemanage/src/utilities.c
+@@ -230,6 +230,61 @@ void semanage_rtrim(char *str, char trim_to)
+ 	}
+ }
+ 
++char *semanage_str_replace(const char *search, const char *replace,
++			   const char *src, size_t lim)
++{
++	size_t count = 0, slen, rlen, newsize;
++	char *p, *pres, *result;
++	const char *psrc;
++
++	slen = strlen(search);
++	rlen = strlen(replace);
++
++	/* Do not support empty search strings */
++	if (slen == 0)
++		return NULL;
++
++	/* Count the occurences of search in src and compute the new size */
++	for (p = strstr(src, search); p != NULL; p = strstr(p + slen, search)) {
++		count++;
++		if (lim && count >= lim)
++			break;
++	}
++	if (!count)
++		return strdup(src);
++
++	/* Allocate the result string */
++	newsize = strlen(src) + 1 + count * (rlen - slen);
++	result = malloc(newsize);
++	if (!result)
++		return NULL;
++
++	/* Fill the result */
++	psrc = src;
++	pres = result;
++	for (p = strstr(src, search); p != NULL; p = strstr(psrc, search)) {
++		/* Copy the part which has not been modified */
++		if (p != psrc) {
++			size_t length = (size_t)(p - psrc);
++			memcpy(pres, psrc, length);
++			pres += length;
++		}
++		/* Copy the replacement part */
++		if (rlen != 0) {
++			memcpy(pres, replace, rlen);
++			pres += rlen;
++		}
++		psrc = p + slen;
++		count--;
++		if (!count)
++			break;
++	}
++	/* Copy the last part, after doing a sanity check */
++	assert(pres + strlen(psrc) + 1 == result + newsize);
++	strcpy(pres, psrc);
++	return result;
++}
++
+ /* list_addafter_controlmem does *NOT* duplicate the data argument
+  * use at your own risk, I am building a list out of malloc'd memory and
+  * it is only going to get stored into this list, thus when I destroy it
+diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
+index 5fa15efd08d0..f2ff31f0f5b6 100644
+--- a/libsemanage/src/utilities.h
++++ b/libsemanage/src/utilities.h
+@@ -116,6 +116,16 @@ int semanage_str_count(char *data, char what);
+ void semanage_rtrim(char *str, char trim_to);
+ 
+ /**
++ * @param      value being searched for
++ * @param      replacement value that replaces found search values
++ * @param      string being searched and replaced on
++ * @param      maximum number of value occurences (zero for unlimited)
++ * @return     newly-allocated string with the replaced values
++ */
++char *semanage_str_replace(const char *search, const char *replace,
++			   const char *src, size_t lim);
++
++/**
+  * @param data    some string
+  * @return  modifies the string such that the first whitespace char becomes
+  *	    '\0', ending the string.
 diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
-index 32cc33c1b510..b46f18db2a99 100644
+index b46f18db2a99..30ac7f5823e6 100644
 --- a/libsemanage/tests/test_utilities.c
 +++ b/libsemanage/tests/test_utilities.c
-@@ -129,7 +129,7 @@ void test_semanage_is_prefix(void)
+@@ -40,6 +40,7 @@ void test_semanage_split(void);
+ void test_semanage_list(void);
+ void test_semanage_str_count(void);
+ void test_semanage_rtrim(void);
++void test_semanage_str_replace(void);
+ void test_semanage_findval(void);
+ void test_slurp_file_filter(void);
  
- void test_semanage_split_on_space(void)
- {
--	char *str = strdup("foo bar baz");
-+	char *str = strdup("   foo   bar    baz");
- 	char *temp;
- 
- 	if (!str) {
-@@ -137,24 +137,24 @@ void test_semanage_split_on_space(void)
- 		    ("semanage_split_on_space: unable to perform test, no memory");
+@@ -101,6 +102,10 @@ int semanage_utilities_add_tests(CU_pSuite suite)
+ 	if (NULL == CU_add_test(suite, "semanage_rtrim", test_semanage_rtrim)) {
+ 		goto err;
  	}
- 	temp = semanage_split_on_space(str);
--	if (strncmp(temp, "bar", 3)) {
--		CU_FAIL("semanage_split_on_space: token did not match");
--	}
--	temp = semanage_split_on_space(temp);
--	if (strncmp(temp, "baz", 3)) {
--		CU_FAIL("semanage_split_on_space: token did not match");
--	}
--	temp = semanage_split_on_space(temp);
--	if (strcmp(temp, "")) {
--		CU_FAIL("semanage_split_on_space: token did not match");
--	}
-+	CU_ASSERT_STRING_EQUAL(temp, "bar    baz");
-+	free(str);
-+	str = temp;
-+
-+	temp = semanage_split_on_space(str);
-+	CU_ASSERT_STRING_EQUAL(temp, "baz");
-+	free(str);
-+	str = temp;
- 
-+	temp = semanage_split_on_space(str);
-+	CU_ASSERT_STRING_EQUAL(temp, "");
++	if (NULL == CU_add_test(suite, "semanage_str_replace",
++				test_semanage_str_replace)) {
++		goto err;
++	}
+ 	if (NULL == CU_add_test(suite, "semanage_findval",
+ 				test_semanage_findval)) {
+ 		goto err;
+@@ -257,6 +262,35 @@ void test_semanage_rtrim(void)
  	free(str);
-+	free(temp);
  }
  
- void test_semanage_split(void)
- {
--	char *str = strdup("foo1 foo2 foo:bar");
-+	char *str = strdup("foo1 foo2   foo:bar:");
- 	char *temp;
- 
- 	if (!str) {
-@@ -163,13 +163,24 @@ void test_semanage_split(void)
- 		return;
- 	}
- 	temp = semanage_split(str, NULL);
--	CU_ASSERT_NSTRING_EQUAL(temp, "foo2", 4);
--	temp = semanage_split(temp, "");
--	CU_ASSERT_NSTRING_EQUAL(temp, "foo", 3);
--	temp = semanage_split(temp, ":");
--	CU_ASSERT_NSTRING_EQUAL(temp, "bar", 3);
-+	CU_ASSERT_STRING_EQUAL(temp, "foo2   foo:bar:");
-+	free(str);
-+	str = temp;
- 
-+	temp = semanage_split(str, "");
-+	CU_ASSERT_STRING_EQUAL(temp, "foo:bar:");
- 	free(str);
-+	str = temp;
++void test_semanage_str_replace(void)
++{
++	const char *test_str = "Hello, I am %{USERNAME} and my id is %{USERID}";
++	char *str1, *str2;
 +
-+	temp = semanage_split(str, ":");
-+	CU_ASSERT_STRING_EQUAL(temp, "bar:");
-+	free(str);
-+	str = temp;
++	str1 = semanage_str_replace("%{USERNAME}", "root", test_str, 0);
++	CU_ASSERT_STRING_EQUAL(str1, "Hello, I am root and my id is %{USERID}");
 +
-+	temp = semanage_split(str, ":");
-+	CU_ASSERT_STRING_EQUAL(temp, "");
-+	free(str);
-+	free(temp);
- }
- 
- void test_semanage_list(void)
-@@ -242,6 +253,8 @@ void test_semanage_rtrim(void)
- 	CU_ASSERT_STRING_EQUAL(str, "/blah/foo/bar/b");
- 	semanage_rtrim(str, '/');
- 	CU_ASSERT_STRING_EQUAL(str, "/blah/foo/bar");
++	str2 = semanage_str_replace("%{USERID}", "0", str1, 1);
++	CU_ASSERT_STRING_EQUAL(str2, "Hello, I am root and my id is 0");
++	free(str1);
++	free(str2);
 +
-+	free(str);
- }
- 
++	str1 = semanage_str_replace(":(", ";)", "Test :( :) ! :(:(:))(:(", 0);
++	CU_ASSERT_STRING_EQUAL(str1, "Test ;) :) ! ;);):))(;)");
++	free(str1);
++
++	str1 = semanage_str_replace(":(", ";)", "Test :( :) ! :(:(:))(:(", 3);
++	CU_ASSERT_STRING_EQUAL(str1, "Test ;) :) ! ;);):))(:(");
++	free(str1);
++
++	str1 = semanage_str_replace("", "empty search string", "test", 0);
++	CU_ASSERT_EQUAL(str1, NULL);
++
++	str1 = semanage_str_replace("a", "", "abracadabra", 0);
++	CU_ASSERT_STRING_EQUAL(str1, "brcdbr");
++	free(str1);
++}
++
  void test_semanage_findval(void)
-@@ -252,6 +265,7 @@ void test_semanage_findval(void)
- 	}
- 	tok = semanage_findval(fname, "one", NULL);
- 	CU_ASSERT_STRING_EQUAL(tok, "");
-+	free(tok);
- 	rewind(fptr);
- 	tok = semanage_findval(fname, "one", "");
- 	CU_ASSERT_STRING_EQUAL(tok, "");
-@@ -259,6 +273,7 @@ void test_semanage_findval(void)
- 	rewind(fptr);
- 	tok = semanage_findval(fname, "sigma", "=");
- 	CU_ASSERT_STRING_EQUAL(tok, "foo");
-+	free(tok);
- }
- 
- int PREDICATE(const char *str)
+ {
+ 	char *tok;
 -- 
 2.11.0
