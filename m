@@ -1,68 +1,138 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBLFGIO3028884
- for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 10:16:19 -0500
-Received: by mail-ua0-f196.google.com with SMTP id y22so2563595uay.0
- for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 07:16:01 -0800 (PST)
+Subject: Re: [PATCH 4/7] libsemanage: simplify string utilities functions
+To: Stephen Smalley <sds@tycho.nsa.gov>
+References: <20161219130404.11496-1-nicolas.iooss@m4x.org>
+ <20161219130404.11496-5-nicolas.iooss@m4x.org>
+ <1482162379.28570.29.camel@tycho.nsa.gov>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux@tycho.nsa.gov
+Message-ID: <42541232-2a16-2dc8-b843-7c7e1f31fb81@m4x.org>
+Date: Wed, 21 Dec 2016 16:23:18 +0100
 MIME-Version: 1.0
-In-Reply-To: <1482303877.2199.0.camel@nonadev.net>
-References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
- <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhTCtL3nT1ThPK9aa0fgVQYphk0Ax3xXSf0SbUSr33XC7Q@mail.gmail.com>
- <1482303877.2199.0.camel@nonadev.net>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 21 Dec 2016 10:15:59 -0500
-Message-ID: <CAHC9VhRLbudFKOdn2SVByG1hUg324vv9Xn-mWDXFn8DuJOw2Og@mail.gmail.com>
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
-To: =?UTF-8?Q?Jos=C3=A9_Bollo?= <jobol@nonadev.net>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- James Morris <james.l.morris@oracle.com>,
- linux-security-module@vger.kernel.org, casey@schaufler-ca.com,
- john.johansen@canonical.com
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1482162379.28570.29.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Dec 21, 2016 at 2:04 AM, José Bollo <jobol@nonadev.net> wrote:
-> Le mardi 20 décembre 2016 à 21:37 -0500, Paul Moore a écrit :
->> On Fri, Dec 16, 2016 at 12:41 PM, Stephen Smalley <sds@tycho.nsa.gov>
->> wrote:
->> > Processes can only alter their own security attributes via
->> > /proc/pid/attr nodes.  This is presently enforced by each
->> > individual
->> > security module and is also imposed by the Linux credentials
->> > implementation, which only allows a task to alter its own
->> > credentials.
->> > Move the check enforcing this restriction from the individual
->> > security modules to proc_pid_attr_write() before calling the
->> > security hook,
->> > and drop the unnecessary task argument to the security hook since
->> > it can
->> > only ever be the current task.
->> >
->> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> > ---
->> >  fs/proc/base.c             | 13 +++++++++----
->> >  include/linux/lsm_hooks.h  |  3 +--
->> >  include/linux/security.h   |  4 ++--
->> >  security/apparmor/lsm.c    |  7 ++-----
->> >  security/security.c        |  4 ++--
->> >  security/selinux/hooks.c   | 13 +------------
->> >  security/smack/smack_lsm.c | 11 +----------
->> >  7 files changed, 18 insertions(+), 37 deletions(-)
+On 19/12/16 16:46, Stephen Smalley wrote:
+> On Mon, 2016-12-19 at 14:04 +0100, Nicolas Iooss wrote:
+>> Use string functions from C standard library instead of ustr. This
+>> makes
+>> the code simpler and make utilities.c no longer depend on ustr
+>> library.
 >>
->> Merged into the selinux#next branch.
->
-> is it fair?
+>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>> ---
+>>  libsemanage/src/utilities.c | 64 +++++++++++++--------------------
+>> ------------
+>>  1 file changed, 18 insertions(+), 46 deletions(-)
+>>
+>> diff --git a/libsemanage/src/utilities.c
+>> b/libsemanage/src/utilities.c
+>> index f48ffa489d14..b5b92b085310 100644
+>> --- a/libsemanage/src/utilities.c
+>> +++ b/libsemanage/src/utilities.c
+>> @@ -26,7 +26,6 @@
+>>  #include <string.h>
+>>  #include <sys/types.h>
+>>  #include <assert.h>
+>> -#include <ustr.h>
+>>  
+>>  #define TRUE 1
+>>  #define FALSE 0
+>> @@ -74,64 +73,37 @@ char *semanage_split_on_space(const char *str)
+>>  {
+>>  	/* as per the man page, these are the isspace() chars */
+>>  	const char *seps = "\f\n\r\t\v ";
+>> -	size_t slen = strlen(seps);
+>> -	size_t off = 0, rside_len = 0;
+>> -	char *retval = NULL;
+>> -	Ustr *ustr = USTR_NULL, *temp = USTR_NULL;
+>> +	size_t off = 0;
+>>  
+>>  	if (!str)
+>> -		goto done;
+>> -	if (!(ustr = ustr_dup_cstr(str)))
+>> -		goto done;
+>> -	temp =
+>> -	    ustr_split_spn_chrs(ustr, &off, seps, slen, USTR_NULL,
+>> -				USTR_FLAG_SPLIT_DEF);
+>> -	if (!temp)
+>> -		goto done;
+>> -	/* throw away the left hand side */
+>> -	ustr_sc_free(&temp);
+>> -
+>> -	rside_len = ustr_len(ustr) - off;
+>> -	temp = ustr_dup_subustr(ustr, off + 1, rside_len);
+>> -	if (!temp)
+>> -		goto done;
+>> -	retval = strdup(ustr_cstr(temp));
+>> -	ustr_sc_free(&temp);
+>> +		return NULL;
+>>  
+>> -      done:
+>> -	ustr_sc_free(&ustr);
+>> -	return retval;
+>> +	/* skip one token and the spaces before and after it */
+>> +	off = strspn(str, seps);
+>> +	off += strcspn(str + off, seps);
+>> +	off += strspn(str + off, seps);
+>> +	return strdup(str + off);
+>>  }
+>>  
+>>  char *semanage_split(const char *str, const char *delim)
+>>  {
+>> -	Ustr *ustr = USTR_NULL, *temp = USTR_NULL;
+>> -	size_t off = 0, rside_len = 0;
+>> -	char *retval = NULL;
+>> +	char *retval;
+>> +	size_t delim_len;
+>>  
+>>  	if (!str)
+>> -		goto done;
+>> +		return NULL;
+>>  	if (!delim || !(*delim))
+>>  		return semanage_split_on_space(str);
+>> -	ustr = ustr_dup_cstr(str);
+>> -	temp =
+>> -	    ustr_split_cstr(ustr, &off, delim, USTR_NULL,
+>> USTR_FLAG_SPLIT_DEF);
+>> -	if (!temp)
+>> -		goto done;
+>> -	/* throw away the left hand side */
+>> -	ustr_sc_free(&temp);
+>> -
+>> -	rside_len = ustr_len(ustr) - off;
+>>  
+>> -	temp = ustr_dup_subustr(ustr, off + 1, rside_len);
+>> -	if (!temp)
+>> -		goto done;
+>> -	retval = strdup(ustr_cstr(temp));
+>> -	ustr_sc_free(&temp);
+>> +	retval = strstr(str, delim);
+>> +	if (retval == NULL)
+>> +		return NULL;
+>>  
+>> -      done:
+>> -	ustr_sc_free(&ustr);
+>> -	return retval;
+>> +	delim_len = strlen(delim);
+>> +	do {
+>> +		retval += delim_len;
+>> +	} while (!strncmp(retval, delim, delim_len));
+> 
+> This seems unnecessarily complicated.  Do we expect this to ever be
+> called on a string containing repeating instances of the delimeter?
 
-I believe so, yes.  As many have already mentioned, this patch doesn't
-introduce a new restriction, it simply cleans up an existing
-restriction.  If/when PTAGS is merged upstream it can make any changes
-needed as long as those changes do not cause a regression in the
-safety or behavior of the existing LSMs and the kernel as a whole.
+In the current code, semanage_split() is either called with delim=NULL
+(in which case the call is "forwarded" to semanage_split_on_space()) or
+with delim="=" in libsemanage/src/genhomedircon.c (in calls like path =
+semanage_findval(PATH_ETC_USERADD, "HOME", "=");). In this last case, it
+seems unlikely that parameter str contains several successive
+occurrences of the equal sign.
 
--- 
-paul moore
-www.paul-moore.com
+I will drop this do{}while loop in the second version of this patchset.
+
+Thanks,
+Nicolas
