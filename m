@@ -1,18 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBLIMCXn021001
- for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 13:22:23 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBLIMCXo021001
+ for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 13:22:24 -0500
 Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
  [77.133.206.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 8EAEE5647EF
- for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 19:22:14 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id D569C5647EF
+ for <selinux@tycho.nsa.gov>; Wed, 21 Dec 2016 19:22:13 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 7/7] libsemanage: remove ustr library from Makefiles,
- README and pkg-config
-Date: Wed, 21 Dec 2016 19:21:04 +0100
-Message-Id: <20161221182104.16967-8-nicolas.iooss@m4x.org>
+Subject: [PATCH v2 6/7] libsemanage: genhomedircon: drop ustr dependency
+Date: Wed, 21 Dec 2016 19:21:03 +0100
+Message-Id: <20161221182104.16967-7-nicolas.iooss@m4x.org>
 In-Reply-To: <20161221182104.16967-1-nicolas.iooss@m4x.org>
 References: <20161221182104.16967-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,67 +19,319 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This library is no longer used by libsemanage.
+ustr library uses old (pre-C99) "extern inline" semantic. This makes it
+incompatible with recent versions of gcc and clang, which default to
+C99 standard. Distributions have shipped patched versions of this
+library to fix issues (e.g. Gentoo package uses this patch:
+https://gitweb.gentoo.org/repo/gentoo.git/tree/dev-libs/ustr/files/ustr-1.0.4-gcc_5-check.patch?id=7dea6f8820f36bf389e6315044bea7507553bed0
+) but there is no upstream solution to make ustr compatible with C99
+standard.
+
+The git tree of ustr (http://www.and.org/ustr/ustr.git) has not been
+updated since 2008 and the developer of this project did not reply to
+emails.
+
+Therefore update genhomedircon implementation in order to no longer
+rely on ustr library.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- README                            | 2 +-
- libsemanage/src/Makefile          | 2 +-
- libsemanage/src/libsemanage.pc.in | 2 +-
- libsemanage/tests/Makefile        | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ libsemanage/src/genhomedircon.c | 154 ++++++++++++++++++++--------------------
+ 1 file changed, 77 insertions(+), 77 deletions(-)
 
-diff --git a/README b/README
-index b58150b1bba3..e6f727648205 100644
---- a/README
-+++ b/README
-@@ -2,7 +2,7 @@ Please submit all bug reports and patches to selinux@tycho.nsa.gov.
- Subscribe via selinux-join@tycho.nsa.gov.
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 5e9d7224a06e..7ceeafb7b5d9 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -34,9 +34,9 @@
  
- Build dependencies on Fedora:
--yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-glib-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-devel pam-devel pcre-devel python-devel setools-devel swig ustr-devel xmlto redhat-rpm-config
-+yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-glib-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-devel pam-devel pcre-devel python-devel setools-devel swig xmlto redhat-rpm-config
+ #include "utilities.h"
+ #include "genhomedircon.h"
+-#include <ustr.h>
  
- To build and install everything under a private directory, run:
- make DESTDIR=~/obj install install-pywrap
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index df5809645a00..92c829be234d 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -91,7 +91,7 @@ $(LIBA): $(OBJS)
- 	$(RANLIB) $@
+ #include <assert.h>
++#include <ctype.h>
+ #include <limits.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -239,46 +239,39 @@ static int fcontext_matches(const semanage_fcontext_t *fcontext, void *varg)
+ {
+ 	const char *oexpr = semanage_fcontext_get_expr(fcontext);
+ 	fc_match_handle_t *handp = varg;
+-	struct Ustr *expr;
++	char *expr = NULL;
+ 	regex_t re;
+ 	int type, retval = -1;
++	size_t len;
  
- $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
-+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
- 	ln -sf $@ $(TARGET)
+ 	/* Only match ALL or DIR */
+ 	type = semanage_fcontext_get_type(fcontext);
+ 	if (type != SEMANAGE_FCONTEXT_ALL && type != SEMANAGE_FCONTEXT_ALL)
+ 		return 0;
  
- $(LIBPC): $(LIBPC).in ../VERSION
-diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
-index 81e1805b0826..d3eaa06299c4 100644
---- a/libsemanage/src/libsemanage.pc.in
-+++ b/libsemanage/src/libsemanage.pc.in
-@@ -7,7 +7,7 @@ Name: libsemanage
- Description: SELinux management library
- Version: @VERSION@
- URL: http://userspace.selinuxproject.org/
--Requires.private: libselinux libsepol ustr
-+Requires.private: libselinux libsepol
- Libs: -L${libdir} -lsemanage
- Libs.private: -lbz2
- Cflags: -I${includedir}
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index bd6a5fd74906..3fe7d16f3e72 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -12,7 +12,7 @@ LIBS = ../src/libsemanage.a -L$(LIBDIR) -lselinux -lsepol
- EXECUTABLE = libsemanage-tests
- CFLAGS += -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
- INCLUDE = -I../src -I../include
--LDFLAGS += -lcunit -lustr -lbz2 -laudit
-+LDFLAGS += -lcunit -lbz2 -laudit
- OBJECTS = $(SOURCES:.c=.o) 
+-	/* Convert oexpr into a Ustr and anchor it at the beginning */
+-	expr = ustr_dup_cstr("^");
+-	if (expr == USTR_NULL)
+-		goto done;
+-	if (!ustr_add_cstr(&expr, oexpr))
+-		goto done;
+-
+-	/* Strip off trailing ".+" or ".*" */
+-	if (ustr_cmp_suffix_cstr_eq(expr, ".+") ||
+-	    ustr_cmp_suffix_cstr_eq(expr, ".*")) {
+-		if (!ustr_del(&expr, 2))
+-			goto done;
+-	}
+-
+-	/* Strip off trailing "(/.*)?" */
+-	if (ustr_cmp_suffix_cstr_eq(expr, "(/.*)?")) {
+-		if (!ustr_del(&expr, 6))
+-			goto done;
+-	}
+-
+-	if (ustr_cmp_suffix_cstr_eq(expr, "/")) {
+-		if (!ustr_del(&expr, 1))
+-			goto done;
+-	}
+-
+-	/* Append pattern to eat up trailing slashes */
+-	if (!ustr_add_cstr(&expr, "/*$"))
+-		goto done;
++	len = strlen(oexpr);
++	/* Define a macro to strip a literal string from the end of oexpr */
++#define rstrip_oexpr_len(cstr, cstrlen) \
++	do { \
++		if (len >= (cstrlen) && !strncmp(oexpr + len - (cstrlen), (cstr), (cstrlen))) \
++			len -= (cstrlen); \
++	} while (0)
++#define rstrip_oexpr(cstr) rstrip_oexpr_len(cstr, sizeof(cstr) - 1)
++
++	rstrip_oexpr(".+");
++	rstrip_oexpr(".*");
++	rstrip_oexpr("(/.*)?");
++	rstrip_oexpr("/");
++
++#undef rstrip_oexpr_len
++#undef rstrip_oexpr
++
++	/* Anchor oexpr at the beginning and append pattern to eat up trailing slashes */
++	if (asprintf(&expr, "^%.*s/*$", (int)len, oexpr) < 0)
++		return -1;
  
- all: $(EXECUTABLE) 
+ 	/* Check dir against expr */
+-	if (regcomp(&re, ustr_cstr(expr), REG_EXTENDED) != 0)
++	if (regcomp(&re, expr, REG_EXTENDED) != 0)
+ 		goto done;
+ 	if (regexec(&re, handp->dir, 0, NULL, 0) == 0)
+ 		handp->matched = 1;
+@@ -287,7 +280,7 @@ static int fcontext_matches(const semanage_fcontext_t *fcontext, void *varg)
+ 	retval = 0;
+ 
+ done:
+-	ustr_free(expr);
++	free(expr);
+ 
+ 	return retval;
+ }
+@@ -523,44 +516,50 @@ static semanage_list_t *make_template(genhomedircon_settings_t * s,
+ 	return template_data;
+ }
+ 
+-static Ustr *replace_all(const char *str, const replacement_pair_t * repl)
++static char *replace_all(const char *str, const replacement_pair_t * repl)
+ {
+-	Ustr *retval = USTR_NULL;
++	char *retval, *retval2;
+ 	int i;
+ 
+ 	if (!str || !repl)
+-		goto done;
+-	if (!(retval = ustr_dup_cstr(str)))
+-		goto done;
++		return NULL;
+ 
+-	for (i = 0; repl[i].search_for; i++) {
+-		ustr_replace_cstr(&retval, repl[i].search_for,
+-				  repl[i].replace_with, 0);
++	retval = strdup(str);
++	for (i = 0; retval != NULL && repl[i].search_for; i++) {
++		retval2 = semanage_str_replace(repl[i].search_for,
++					       repl[i].replace_with, retval, 0);
++		free(retval);
++		retval = retval2;
+ 	}
+-	if (ustr_enomem(retval))
+-		ustr_sc_free(&retval);
+-
+-      done:
+ 	return retval;
+ }
+ 
+-static const char * extract_context(Ustr *line)
++static const char *extract_context(const char *line)
+ {
+-	const char whitespace[] = " \t\n";
+-	size_t off, len;
+-
+-	/* check for trailing whitespace */
+-	off = ustr_spn_chrs_rev(line, 0, whitespace, strlen(whitespace));
+-
+-	/* find the length of the last field in line */
+-	len = ustr_cspn_chrs_rev(line, off, whitespace, strlen(whitespace));
+-
+-	if (len == 0)
++	const char *p = line;
++	size_t off;
++
++	off = strlen(p);
++	p += off;
++	/* consider trailing whitespaces */
++	while (off > 0) {
++		p--;
++		off--;
++		if (!isspace(*p))
++			break;
++	}
++	if (off == 0)
+ 		return NULL;
+-	return ustr_cstr(line) + ustr_len(line) - (len + off);
++
++	/* find the last field in line */
++	while (off > 0 && !isspace(*(p - 1))) {
++		p--;
++		off--;
++	}
++	return p;
+ }
+ 
+-static int check_line(genhomedircon_settings_t * s, Ustr *line)
++static int check_line(genhomedircon_settings_t * s, const char *line)
+ {
+ 	sepol_context_t *ctx_record = NULL;
+ 	const char *ctx_str;
+@@ -584,22 +583,22 @@ static int write_replacements(genhomedircon_settings_t * s, FILE * out,
+ 			      const semanage_list_t * tpl,
+ 			      const replacement_pair_t *repl)
+ {
+-	Ustr *line = USTR_NULL;
++	char *line;
+ 
+ 	for (; tpl; tpl = tpl->next) {
+ 		line = replace_all(tpl->data, repl);
+ 		if (!line)
+ 			goto fail;
+ 		if (check_line(s, line) == STATUS_SUCCESS) {
+-			if (!ustr_io_putfileline(&line, out))
++			if (fprintf(out, "%s\n", line) < 0)
+ 				goto fail;
+ 		}
+-		ustr_sc_free(&line);
++		free(line);
+ 	}
+ 	return STATUS_SUCCESS;
+ 
+       fail:
+-	ustr_sc_free(&line);
++	free(line);
+ 	return STATUS_ERR;
+ }
+ 
+@@ -607,7 +606,7 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
+ 			  semanage_list_t *tpl, const replacement_pair_t *repl,
+ 			  const genhomedircon_user_entry_t *user)
+ {
+-	Ustr *line = USTR_NULL;
++	char *line, *temp;
+ 	sepol_context_t *context = NULL;
+ 	char *new_context_str = NULL;
+ 
+@@ -624,10 +623,10 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
+ 
+ 		if (strcmp(old_context_str, CONTEXT_NONE) == 0) {
+ 			if (check_line(s, line) == STATUS_SUCCESS &&
+-			    !ustr_io_putfileline(&line, out)) {
++			    fprintf(out, "%s\n", line) < 0) {
+ 				goto fail;
+ 			}
+-
++			free(line);
+ 			continue;
+ 		}
+ 
+@@ -657,25 +656,27 @@ static int write_contexts(genhomedircon_settings_t *s, FILE *out,
+ 			goto fail;
+ 		}
+ 
+-		if (!ustr_replace_cstr(&line, old_context_str,
+-				       new_context_str, 1)) {
++		temp = semanage_str_replace(old_context_str, new_context_str,
++					    line, 1);
++		if (!temp) {
+ 			goto fail;
+ 		}
++		free(line);
++		line = temp;
+ 
+ 		if (check_line(s, line) == STATUS_SUCCESS) {
+-			if (!ustr_io_putfileline(&line, out)) {
++			if (fprintf(out, "%s\n", line) < 0)
+ 				goto fail;
+-			}
+ 		}
+ 
+-		ustr_sc_free(&line);
++		free(line);
+ 		sepol_context_free(context);
+ 		free(new_context_str);
+ 	}
+ 
+ 	return STATUS_SUCCESS;
+ fail:
+-	ustr_sc_free(&line);
++	free(line);
+ 	sepol_context_free(context);
+ 	free(new_context_str);
+ 	return STATUS_ERR;
+@@ -1288,20 +1289,19 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
+ 		}
+ 
+ 		for (h = homedirs; h; h = h->next) {
+-			Ustr *temp = ustr_dup_cstr(h->data);
++			char *temp = NULL;
+ 
+-			if (!temp || !ustr_add_cstr(&temp, "/" FALLBACK_NAME)) {
+-				ustr_sc_free(&temp);
++			if (asprintf(&temp, "%s/%s", h->data, FALLBACK_NAME) < 0) {
+ 				retval = STATUS_ERR;
+ 				goto done;
+ 			}
+ 
+ 			free(s->fallback->home);
+-			s->fallback->home = (char*) ustr_cstr(temp);
++			s->fallback->home = temp;
+ 
+ 			if (write_home_dir_context(s, out, homedir_context_tpl,
+ 						   s->fallback) != STATUS_SUCCESS) {
+-				ustr_sc_free(&temp);
++				free(temp);
+ 				s->fallback->home = NULL;
+ 				retval = STATUS_ERR;
+ 				goto done;
+@@ -1309,13 +1309,13 @@ static int write_context_file(genhomedircon_settings_t * s, FILE * out)
+ 			if (write_home_root_context(s, out,
+ 						    homeroot_context_tpl,
+ 						    h->data) != STATUS_SUCCESS) {
+-				ustr_sc_free(&temp);
++				free(temp);
+ 				s->fallback->home = NULL;
+ 				retval = STATUS_ERR;
+ 				goto done;
+ 			}
+ 
+-			ustr_sc_free(&temp);
++			free(temp);
+ 			s->fallback->home = NULL;
+ 		}
+ 	}
 -- 
 2.11.0
