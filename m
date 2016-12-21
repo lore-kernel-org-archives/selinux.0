@@ -1,148 +1,235 @@
-Message-ID: <1482269721.28169.78.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
- /proc/pid/attr nodes to proc
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>, =?ISO-8859-1?Q?Jos=E9?= Bollo
- <jobol@nonadev.net>, selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, james.l.morris@oracle.com,
- linux-security-module@vger.kernel.org, john.johansen@canonical.com
-Date: Tue, 20 Dec 2016 16:35:21 -0500
-In-Reply-To: <34661049-44ab-5eb1-0c25-b71a2cec90e3@schaufler-ca.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBL2bdrB024376
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 21:37:39 -0500
+Received: by mail-ua0-f196.google.com with SMTP id i68so469058uad.1
+ for <selinux@tycho.nsa.gov>; Tue, 20 Dec 2016 18:37:37 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
 References: <1481910072-11392-1-git-send-email-sds@tycho.nsa.gov>
  <1481910072-11392-2-git-send-email-sds@tycho.nsa.gov>
- <1482140693.2178.1.camel@nonadev.net>
- <1482250452.28169.28.camel@tycho.nsa.gov>
- <1482251949.25787.1.camel@nonadev.net>
- <1482252636.28169.34.camel@tycho.nsa.gov>
- <b8fd94ca-4bd8-6340-0199-e51587d32ce8@schaufler-ca.com>
- <1482258482.28169.40.camel@tycho.nsa.gov>
- <e1d6f6d6-7bbb-85bd-7070-70406e5546d7@schaufler-ca.com>
- <1482262534.28169.67.camel@tycho.nsa.gov>
- <34661049-44ab-5eb1-0c25-b71a2cec90e3@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 20 Dec 2016 21:37:36 -0500
+Message-ID: <CAHC9VhTCtL3nT1ThPK9aa0fgVQYphk0Ax3xXSf0SbUSr33XC7Q@mail.gmail.com>
+Subject: Re: [PATCH 2/2] proc,security: move restriction on writing
+ /proc/pid/attr nodes to proc
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <james.l.morris@oracle.com>,
+ linux-security-module@vger.kernel.org, casey@schaufler-ca.com,
+ john.johansen@canonical.com
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2016-12-20 at 12:03 -0800, Casey Schaufler wrote:
-> On 12/20/2016 11:35 AM, Stephen Smalley wrote:
-> > 
-> > On Tue, 2016-12-20 at 11:07 -0800, Casey Schaufler wrote:
-> > > 
-> > > On 12/20/2016 10:28 AM, Stephen Smalley wrote:
-> > > > 
-> > > > On Tue, 2016-12-20 at 10:17 -0800, Casey Schaufler wrote:
-> > > > > 
-> > > > > On 12/20/2016 8:50 AM, Stephen Smalley wrote:
-> > > > > > 
-> > > > > > On Tue, 2016-12-20 at 17:39 +0100, José Bollo wrote:
-> > > > > > > 
-> > > > > > > Le mardi 20 décembre 2016 à 11:14 -0500, Stephen Smalley
-> > > > > > > a
-> > > > > > > écrit
-> > > > > > > :
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > Looking at your PTAGS implementation, I feel it is only
-> > > > > > > > fair to
-> > > > > > > > warn
-> > > > > > > > you that your usage of /proc/pid/attr is insecure,
-> > > > > > > > regardless
-> > > > > > > > of
-> > > > > > > > whether you use task security blobs or cred security
-> > > > > > > > blobs.
-> > > > > > > Fair?!
-> > > > > > > 
-> > > > > > > > 
-> > > > > > > > Getting the attributes of another process via /proc/pid
-> > > > > > > > files
-> > > > > > > > is
-> > > > > > > > inherently racy, as the process may exit and another
-> > > > > > > > process
-> > > > > > > > with
-> > > > > > > > different attributes may be created with the same pid
-> > > > > > > > (and
-> > > > > > > > no,
-> > > > > > > > this
-> > > > > > > > is not theoretical; it has been demonstrated).
-> > > > > > > I know. And I'm surprized that you dont do anything to
-> > > > > > > change
-> > > > > > > that.
-> > > > > > There is a reason why SO_PEERSEC and SCM_SECURITY
-> > > > > > exist.  Again,
-> > > > > > learn
-> > > > > > from the upstream security modules rather than re-inventing
-> > > > > > them,
-> > > > > > badly.
-> > > > > SO_PEERSEC and SCM_SECURITY are spiffy for processes that are
-> > > > > sending each other messages, but they identify the attributes
-> > > > > associated with the message, not the process. Neither SELinux
-> > > > > nor Smack get the information to send off of the process, it
-> > > > > comes from the socket structure.
-> > > > Yes, but in the SELinux case at least, the socket is labeled
-> > > > with
-> > > > the
-> > > > label of the creating process (except in the rare case of using
-> > > > setsockcreatecon(3), which can only be used by suitably
-> > > > authorized
-> > > > processes).
-> > > Yes, it's the same with Smack. When it's not the label
-> > > of the process it's the label the system wants the peer
-> > > to think it is.
-> > > 
-> > > > 
-> > > >   So in general it serves quite well as a means of obtaining
-> > > > the peer label, which can then be used in access control (and
-> > > > this
-> > > > is
-> > > > in fact being used in a variety of applications in Linux and
-> > > > Android).
-> > > But only between processes that are in direct, explicit
-> > > communication.
-> > > There is no denying that these mechanisms work. They just aren't
-> > > applicable to Jose's use.
-> > If you say so (although it is unclear to me why or what exactly his
-> > use
-> > case is), but regardless, there is also no denying that getting and
-> > setting another process' attributes via /proc/pid files is
-> > inherently
-> > racy.  
-> 
-> You're right. How can we fix that? I have seen a gazillion cases
-> where system security would be much simpler and easier to enforce
-> and develop if we could (safely) ensure that the process under
-> /proc/pid wouldn't change on you without you knowing.
+On Fri, Dec 16, 2016 at 12:41 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> Processes can only alter their own security attributes via
+> /proc/pid/attr nodes.  This is presently enforced by each individual
+> security module and is also imposed by the Linux credentials
+> implementation, which only allows a task to alter its own credentials.
+> Move the check enforcing this restriction from the individual
+> security modules to proc_pid_attr_write() before calling the security hook,
+> and drop the unnecessary task argument to the security hook since it can
+> only ever be the current task.
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  fs/proc/base.c             | 13 +++++++++----
+>  include/linux/lsm_hooks.h  |  3 +--
+>  include/linux/security.h   |  4 ++--
+>  security/apparmor/lsm.c    |  7 ++-----
+>  security/security.c        |  4 ++--
+>  security/selinux/hooks.c   | 13 +------------
+>  security/smack/smack_lsm.c | 11 +----------
+>  7 files changed, 18 insertions(+), 37 deletions(-)
 
-I don't think that is viable.  systemd for example maintains its own
-cgroup hierarchy in order to manage processes.  But in the case of
-ptags, I don't even see why the kernel needs to be involved in storing
-the tags, since it never uses them and isn't even providing them in a
-robust manner.  Might as well just take the tag set/get interface to
-userspace too.  Or re-implement it using a capability-based model (in
-the classical sense) via binder or bus1 or just file/socket
-descriptors.  Or use polkit or any of the other userspace access
-control implementations that already exist.  What was the use case
-again?  And why aren't these processes communicating with each other?
+Merged into the selinux#next branch.
 
-> 
-> > 
-> > He even acknowledged as much.  So we are left with a "security"
-> > module whose only purpose is to support getting and setting process
-> > tags for security enforcement purposes, and yet does so in a known-
-> > insecure manner.  Again, this is why I keep suggesting that he
-> > needs to
-> > reconsider his approach, not merely figure out how to implement
-> > per-
-> > task security blobs.
-> 
-> Whether or not Jose moves forward with PTAGS we have identified
-> an issue with the current cred based hooks for AppArmor, TOMOYO
-> and at least one other proposed module. Regardless of the issues
-> of /proc/pid there is work to be done.
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 6eae4d0..7b228ea 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2485,6 +2485,12 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+>         length = -ESRCH;
+>         if (!task)
+>                 goto out_no_task;
+> +
+> +       /* A task may only write its own attributes. */
+> +       length = -EACCES;
+> +       if (current != task)
+> +               goto out;
+> +
+>         if (count > PAGE_SIZE)
+>                 count = PAGE_SIZE;
+>
+> @@ -2500,14 +2506,13 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+>         }
+>
+>         /* Guard against adverse ptrace interaction */
+> -       length = mutex_lock_interruptible(&task->signal->cred_guard_mutex);
+> +       length = mutex_lock_interruptible(&current->signal->cred_guard_mutex);
+>         if (length < 0)
+>                 goto out_free;
+>
+> -       length = security_setprocattr(task,
+> -                                     (char*)file->f_path.dentry->d_name.name,
+> +       length = security_setprocattr(file->f_path.dentry->d_name.name,
+>                                       page, count);
+> -       mutex_unlock(&task->signal->cred_guard_mutex);
+> +       mutex_unlock(&current->signal->cred_guard_mutex);
+>  out_free:
+>         kfree(page);
+>  out:
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 558adfa..0dde959 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1547,8 +1547,7 @@ union security_list_options {
+>         void (*d_instantiate)(struct dentry *dentry, struct inode *inode);
+>
+>         int (*getprocattr)(struct task_struct *p, char *name, char **value);
+> -       int (*setprocattr)(struct task_struct *p, char *name, void *value,
+> -                               size_t size);
+> +       int (*setprocattr)(const char *name, void *value, size_t size);
+>         int (*ismaclabel)(const char *name);
+>         int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+>         int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index c2125e9..f4ebac1 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -361,7 +361,7 @@ int security_sem_semop(struct sem_array *sma, struct sembuf *sops,
+>                         unsigned nsops, int alter);
+>  void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+>  int security_getprocattr(struct task_struct *p, char *name, char **value);
+> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size);
+> +int security_setprocattr(const char *name, void *value, size_t size);
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+>  int security_ismaclabel(const char *name);
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+> @@ -1106,7 +1106,7 @@ static inline int security_getprocattr(struct task_struct *p, char *name, char *
+>         return -EINVAL;
+>  }
+>
+> -static inline int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
+> +static inline int security_setprocattr(char *name, void *value, size_t size)
+>  {
+>         return -EINVAL;
+>  }
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 41b8cb1..8202e55 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -495,8 +495,8 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
+>         return error;
+>  }
+>
+> -static int apparmor_setprocattr(struct task_struct *task, char *name,
+> -                               void *value, size_t size)
+> +static int apparmor_setprocattr(const char *name, void *value,
+> +                               size_t size)
+>  {
+>         struct common_audit_data sa;
+>         struct apparmor_audit_data aad = {0,};
+> @@ -506,9 +506,6 @@ static int apparmor_setprocattr(struct task_struct *task, char *name,
+>
+>         if (size == 0)
+>                 return -EINVAL;
+> -       /* task can only write its own attributes */
+> -       if (current != task)
+> -               return -EACCES;
+>
+>         /* AppArmor requires that the buffer must be null terminated atm */
+>         if (args[size - 1] != '\0') {
+> diff --git a/security/security.c b/security/security.c
+> index f825304..32052f5 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1170,9 +1170,9 @@ int security_getprocattr(struct task_struct *p, char *name, char **value)
+>         return call_int_hook(getprocattr, -EINVAL, p, name, value);
+>  }
+>
+> -int security_setprocattr(struct task_struct *p, char *name, void *value, size_t size)
+> +int security_setprocattr(const char *name, void *value, size_t size)
+>  {
+> -       return call_int_hook(setprocattr, -EINVAL, p, name, value, size);
+> +       return call_int_hook(setprocattr, -EINVAL, name, value, size);
+>  }
+>
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9992626..762276b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5859,8 +5859,7 @@ static int selinux_getprocattr(struct task_struct *p,
+>         return error;
+>  }
+>
+> -static int selinux_setprocattr(struct task_struct *p,
+> -                              char *name, void *value, size_t size)
+> +static int selinux_setprocattr(const char *name, void *value, size_t size)
+>  {
+>         struct task_security_struct *tsec;
+>         struct cred *new;
+> @@ -5868,16 +5867,6 @@ static int selinux_setprocattr(struct task_struct *p,
+>         int error;
+>         char *str = value;
+>
+> -       if (current != p) {
+> -               /*
+> -                * A task may only alter its own credentials.
+> -                * SELinux has always enforced this restriction,
+> -                * and it is now mandated by the Linux credentials
+> -                * infrastructure; see Documentation/security/credentials.txt.
+> -                */
+> -               return -EACCES;
+> -       }
+> -
+>         /*
+>          * Basic control over ability to set these attributes at all.
+>          */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 4d90257..9bde7f8 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -3620,7 +3620,6 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+>
+>  /**
+>   * smack_setprocattr - Smack process attribute setting
+> - * @p: the object task
+>   * @name: the name of the attribute in /proc/.../attr
+>   * @value: the value to set
+>   * @size: the size of the value
+> @@ -3630,8 +3629,7 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+>   *
+>   * Returns the length of the smack label or an error code
+>   */
+> -static int smack_setprocattr(struct task_struct *p, char *name,
+> -                            void *value, size_t size)
+> +static int smack_setprocattr(const char *name, void *value, size_t size)
+>  {
+>         struct task_smack *tsp = current_security();
+>         struct cred *new;
+> @@ -3639,13 +3637,6 @@ static int smack_setprocattr(struct task_struct *p, char *name,
+>         struct smack_known_list_elem *sklep;
+>         int rc;
+>
+> -       /*
+> -        * Changing another process' Smack value is too dangerous
+> -        * and supports no sane use case.
+> -        */
+> -       if (p != current)
+> -               return -EPERM;
+> -
+>         if (!smack_privileged(CAP_MAC_ADMIN) && list_empty(&tsp->smk_relabel))
+>                 return -EPERM;
+>
+> --
+> 2.7.4
+>
 
-Just be aware that any checking or processing relying on task security
-blobs will not be affected by override_creds() elsewhere in the kernel,
-which is used not only by overlayfs but other parts of the kernel to
-switch credentials temporarily as needed.
+
+
+-- 
+paul moore
+www.paul-moore.com
