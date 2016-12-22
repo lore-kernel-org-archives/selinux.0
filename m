@@ -1,58 +1,56 @@
-Message-ID: <1482355333.16789.14.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 1/1] libselinux/utils: do not create an empty /sbin
- directory
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Wed, 21 Dec 2016 16:22:13 -0500
-In-Reply-To: <20161221210951.14337-1-nicolas.iooss@m4x.org>
-References: <20161221210951.14337-1-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBMChJVa011264
+ for <selinux@tycho.nsa.gov>; Thu, 22 Dec 2016 07:43:19 -0500
+Received: from int-mx11.intmail.prod.int.phx2.redhat.com
+ (int-mx11.intmail.prod.int.phx2.redhat.com [10.5.11.24])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id A43D5C05680F
+ for <selinux@tycho.nsa.gov>; Thu, 22 Dec 2016 12:43:17 +0000 (UTC)
+Received: from pl-workstation.usersys.redhat.com ([10.40.3.105])
+ by int-mx11.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ uBMChGik029556
+ for <selinux@tycho.nsa.gov>; Thu, 22 Dec 2016 07:43:16 -0500
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: Rewrite restorecon python method
+Date: Thu, 22 Dec 2016 13:43:07 +0100
+Message-Id: <20161222124309.27686-1-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2016-12-21 at 22:09 +0100, Nicolas Iooss wrote:
-> When building libselinux package, "make install" creates /sbin
-> directory
-> without putting anything in it. Remove this from the Makefile.
-> 
-> While at it, rename USRBINDIR variable USRSBINDIR (with an S) as it
-> refers to /usr/sbin.
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Hi.
 
-Thanks, applied.
+selinux.restorecon(path, recursive=True) uses matchpathcon() to get a
+label for a file and when the label is defined as <<None>>,it throws a
+backtrace with error:
 
-> ---
->  libselinux/utils/Makefile | 9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
-> 
-> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> index 774418495dbe..954da450c4d3 100644
-> --- a/libselinux/utils/Makefile
-> +++ b/libselinux/utils/Makefile
-> @@ -1,8 +1,7 @@
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
->  LIBDIR ?= $(PREFIX)/lib
-> -USRBINDIR ?= $(PREFIX)/sbin
-> -SBINDIR ?= $(DESTDIR)/sbin
-> +USRSBINDIR ?= $(PREFIX)/sbin
->  INCLUDEDIR ?= $(PREFIX)/include
->  
->  OS ?= $(shell uname)
-> @@ -64,9 +63,9 @@ selinux_restorecon: LDLIBS += -lsepol
->  all: $(TARGETS)
->  
->  install: all
-> -	-mkdir -p $(USRBINDIR)
-> -	install -m 755 $(TARGETS) $(USRBINDIR)
-> -	-mkdir -p $(SBINDIR)
-> +	-mkdir -p $(USRSBINDIR)
-> +	install -m 755 $(TARGETS) $(USRSBINDIR)
-> +
->  clean:
->  	rm -f $(TARGETS) *.o *~
->  
+"OSError: [Errno 2] No such file or directory"
+
+It creates a problem for scripts which tries to relabel whole directory tree
+when there a subdirectory with a specification like this:
+
+/var/lib/nfs/rpc_pipefs(/.*)?      all files   <<None>>
+
+>>> selinux.restorecon('/var/lib', recursive=True)                                   
+Traceback (most recent call last):
+  File "/usr/lib64/python3.5/site-packages/selinux/__init__.py", line 114, in restorecon
+    status, context = matchpathcon(path, mode)
+FileNotFoundError: [Errno 2] No such file or directory
+
+
+At the same time, there's a rfe to rewrite restorecon() to use
+selinux_restorecon() which uses selabel_lookup() instead of deprecated
+matchpathcon() - [1]
+
+The following 2 patches tries to address the described problem using the RFE.
+
+First patch exports selinux_restorecon() to SWIG bindings.
+Second one rewites python implementation of restorecon() to use it.
+
+
+[1] https://github.com/SELinuxProject/selinux/issues/29
+
+Petr
