@@ -1,69 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBQLIkwx018050
- for <selinux@tycho.nsa.gov>; Mon, 26 Dec 2016 16:18:52 -0500
-Received: from localhost.localdomain (private.iosenag.net [31.7.184.34])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 01F6156469F
- for <selinux@tycho.nsa.gov>; Mon, 26 Dec 2016 22:18:45 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/5] checkpolicy: free id in define_port_context()
-Date: Mon, 26 Dec 2016 22:18:29 +0100
-Message-Id: <20161226211832.7165-2-nicolas.iooss@m4x.org>
-In-Reply-To: <20161226211832.7165-1-nicolas.iooss@m4x.org>
-References: <20161226211832.7165-1-nicolas.iooss@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id uBRB21KP010010
+ for <selinux@tycho.nsa.gov>; Tue, 27 Dec 2016 06:02:01 -0500
+Received: from gentp.lnet (gentp.lnet [IPv6:::1])
+ by gentp.lnet (Postfix) with ESMTP id 12915263186
+ for <selinux@tycho.nsa.gov>; Tue, 27 Dec 2016 12:01:46 +0100 (CET)
+Date: Tue, 27 Dec 2016 12:01:45 +0100
+From: Luis Ressel <aranea@aixah.de>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Domain of kernel module initalization code
+Message-ID: <20161227120145.75ff429f@gentp.lnet>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Variable id is almost never freed in define_port_context().
+Hello,
 
-This leak has been detected with gcc Address Sanitizer.
+when a userspace program A (usually kmod or udev) instructs the kernel
+to load a kernel module via the finit_module syscall, the kernel loads
+the module into its address space and executes the initalization
+routine provided by the module.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- checkpolicy/policy_define.c | 5 +++++
- 1 file changed, 5 insertions(+)
+This initialization routine then runs in A's SELinux domain. While that
+makes sense implementation-wise and is indeed what I'd expected (going
+by my admittely fairly basic understanding of the SELinux internals),
+I'm not sure whether this is how the kernel should behave.
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 2ad98c3c851e..ff902787c2aa 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -4899,6 +4899,7 @@ int define_port_context(unsigned int low, unsigned int high)
- 		protocol = IPPROTO_DCCP;
- 	} else {
- 		yyerror2("unrecognized protocol %s", id);
-+		free(id);
- 		free(newc);
- 		return -1;
- 	}
-@@ -4909,11 +4910,13 @@ int define_port_context(unsigned int low, unsigned int high)
- 
- 	if (low > high) {
- 		yyerror2("low port %d exceeds high port %d", low, high);
-+		free(id);
- 		free(newc);
- 		return -1;
- 	}
- 
- 	if (parse_security_context(&newc->context[0])) {
-+		free(id);
- 		free(newc);
- 		return -1;
- 	}
-@@ -4945,9 +4948,11 @@ int define_port_context(unsigned int low, unsigned int high)
- 	else
- 		policydbp->ocontexts[OCON_PORT] = newc;
- 
-+	free(id);
- 	return 0;
- 
-       bad:
-+	free(id);
- 	free(newc);
- 	return -1;
- }
--- 
-2.11.0
+For example, this behaviour is currently triggering a bug on my
+systems: Since Linux 4.8, most graphics drivers need CAP_SYS_ADMIN
+during their module initialization (due to what is probably a kernel
+bug). Hence, loading them with udev works fine because my SELinux
+policy allows udev to use this capability, but those modules can't be
+loaded manually with kmod/modprobe.
+
+I could of course work around that by granting kmod the 'self:capability
+sys_admin' permission, but I'm reluctant to do this since kmod itself
+does not require CAP_SYS_ADMIN for its operations.
+
+Any thoughts on this matter?
+
+Regards,
+Luis Ressel
