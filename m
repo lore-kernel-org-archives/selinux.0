@@ -1,23 +1,25 @@
-Subject: Re: [PATCH 2/2] libsepol/tests: fix some memory leaks
+Subject: Re: [PATCH 1/5] checkpolicy: fix memory usage in define_bool_tunable()
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20161226211044.5978-1-nicolas.iooss@m4x.org>
- <20161226211044.5978-2-nicolas.iooss@m4x.org>
+References: <20161226211832.7165-1-nicolas.iooss@m4x.org>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <ef24071b-7ab0-77dd-55fb-b27daaff0216@tycho.nsa.gov>
-Date: Fri, 6 Jan 2017 14:23:00 -0500
+Message-ID: <fcf6b777-6c91-cef4-9337-d512141614c1@tycho.nsa.gov>
+Date: Fri, 6 Jan 2017 14:23:49 -0500
 MIME-Version: 1.0
-In-Reply-To: <20161226211044.5978-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20161226211832.7165-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 12/26/2016 04:10 PM, Nicolas Iooss wrote:
-> When running "make test" with the Address Sanitizer (by adding
-> -fsanitize=address to compiler flags), a lot of memory leaks are
-> reported from checkpolicy. Anyway some leaks come from the tests and it
-> seems cleaner to start fixing these ones.
+On 12/26/2016 04:18 PM, Nicolas Iooss wrote:
+> In an error path of define_bool_tunable(), variable id is freed after
+> being used by a successful call to declare_symbol(). This may cause
+> trouble as this pointer may have been used as-is in the policy symtab
+> hash table.
+>
+> Moreover bool_value is never freed after being used. Fix this memory
+> leak too. This leak has been detected with gcc Address Sanitizer.
 >
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
@@ -26,65 +28,26 @@ Applied.
 Thanks,
 
 > ---
->  libsepol/tests/test-deps.c     |  2 ++
->  libsepol/tests/test-expander.c | 17 +++++++++++++++++
->  2 files changed, 19 insertions(+)
+>  checkpolicy/policy_define.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/libsepol/tests/test-deps.c b/libsepol/tests/test-deps.c
-> index e7d2bebe0d93..ed23e0992ced 100644
-> --- a/libsepol/tests/test-deps.c
-> +++ b/libsepol/tests/test-deps.c
-> @@ -166,6 +166,7 @@ static void do_deps_modreq_global(int req_met, int b, char *policy, char *decl_t
->  	ret = link_modules(h, base, mods, 1, 0);
->  	CU_ASSERT_FATAL(ret == link_ret);
->  	policydb_destroy(&mod);
-> +	sepol_handle_destroy(h);
->
->  	if (!req_met)
->  		return;
-> @@ -246,6 +247,7 @@ static void do_deps_modreq_opt(int req_met, int ret_val, int b, char *policy, ch
->  	ret = link_modules(h, base, mods, 1, 0);
->  	CU_ASSERT_FATAL(ret == ret_val);
->  	policydb_destroy(&mod);
-> +	sepol_handle_destroy(h);
->  	if (ret_val < 0)
->  		return;
->
-> diff --git a/libsepol/tests/test-expander.c b/libsepol/tests/test-expander.c
-> index ded1d9de2003..bc946c778b1d 100644
-> --- a/libsepol/tests/test-expander.c
-> +++ b/libsepol/tests/test-expander.c
-> @@ -122,6 +122,9 @@ int expander_policy_init(policydb_t * mybase, int num_modules, policydb_t ** mym
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 864788992e5c..2ad98c3c851e 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -1704,11 +1704,11 @@ int define_bool_tunable(int is_tunable)
+>  	bool_value = (char *)queue_remove(id_queue);
+>  	if (!bool_value) {
+>  		yyerror("no default value for bool definition?");
+> -		free(id);
 >  		return -1;
 >  	}
 >
-> +	for (i = 0; i < num_modules + 1; i++) {
-> +		free(filename[i]);
-> +	}
+>  	datum->state = (int)(bool_value[0] == 'T') ? 1 : 0;
+> +	free(bool_value);
 >  	return 0;
->  }
->
-> @@ -173,6 +176,20 @@ int expander_test_cleanup(void)
->  {
->  	policydb_destroy(&basemod);
->  	policydb_destroy(&base_expanded);
-> +	policydb_destroy(&basemod2);
-> +	policydb_destroy(&base_expanded2);
-> +	policydb_destroy(&mod2);
-> +	policydb_destroy(&base_only_mod);
-> +	policydb_destroy(&base_only_expanded);
-> +	policydb_destroy(&role_basemod);
-> +	policydb_destroy(&role_expanded);
-> +	policydb_destroy(&role_mod);
-> +	policydb_destroy(&user_basemod);
-> +	policydb_destroy(&user_expanded);
-> +	policydb_destroy(&user_mod);
-> +	policydb_destroy(&alias_basemod);
-> +	policydb_destroy(&alias_expanded);
-> +	policydb_destroy(&alias_mod);
->  	free(typemap);
->
->  	return 0;
+>        cleanup:
+>  	cond_destroy_bool(id, datum, NULL);
 >
 
 
