@@ -1,12 +1,12 @@
-Subject: Re: [PATCH 1/2] libsepol/tests: fix -Wsometimes-uninitialized clang
- warnings
+Subject: Re: [PATCH 2/2] libsepol/tests: fix some memory leaks
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
 References: <20161226211044.5978-1-nicolas.iooss@m4x.org>
+ <20161226211044.5978-2-nicolas.iooss@m4x.org>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <f1891917-82c2-b1b2-c8b6-f06eb23a59e9@tycho.nsa.gov>
-Date: Fri, 6 Jan 2017 14:22:47 -0500
+Message-ID: <ef24071b-7ab0-77dd-55fb-b27daaff0216@tycho.nsa.gov>
+Date: Fri, 6 Jan 2017 14:23:00 -0500
 MIME-Version: 1.0
-In-Reply-To: <20161226211044.5978-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20161226211044.5978-2-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -14,58 +14,10 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 12/26/2016 04:10 PM, Nicolas Iooss wrote:
-> When compiling libsepol tests, clang complains about some uninitialized
-> variables:
->
->     test-common.c:171:14: error: variable 'my_primary' is used
->     uninitialized whenever 'if' condition is false
->     [-Werror,-Wsometimes-uninitialized]
->                     } else if (my_flavor == TYPE_ALIAS) {
->                                ^~~~~~~~~~~~~~~~~~~~~~~
->     test-common.c:179:30: note: uninitialized use occurs here
->                     CU_ASSERT(type->primary == my_primary);
->                                                ^~~~~~~~~~
->     /usr/include/CUnit/CUnit.h:123:30: note: expanded from macro
->     'CU_ASSERT'
->       { CU_assertImplementation((value), __LINE__, #value, __FILE__, "", CU_...
->                                  ^
->     test-common.c:171:10: note: remove the 'if' if its condition is
->     always true
->                     } else if (my_flavor == TYPE_ALIAS) {
->                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->     test-common.c:153:25: note: initialize the variable 'my_primary' to
->     silence this warning
->             unsigned int my_primary, my_flavor, my_value;
->                                    ^
->                                     = 0
->     test-common.c:171:14: error: variable 'my_value' is used
->     uninitialized whenever 'if' condition is false
->     [-Werror,-Wsometimes-uninitialized]
->                     } else if (my_flavor == TYPE_ALIAS) {
->                                ^~~~~~~~~~~~~~~~~~~~~~~
->     test-common.c:181:30: note: uninitialized use occurs here
->                     CU_ASSERT(type->s.value == my_value);
->                                                ^~~~~~~~
->     /usr/include/CUnit/CUnit.h:123:30: note: expanded from macro
->     'CU_ASSERT'
->       { CU_assertImplementation((value), __LINE__, #value, __FILE__, "", CU_...
->                                  ^
->     test-common.c:171:10: note: remove the 'if' if its condition is
->     always true
->                     } else if (my_flavor == TYPE_ALIAS) {
->                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->     test-common.c:153:46: note: initialize the variable 'my_value' to
->     silence this warning
->             unsigned int my_primary, my_flavor, my_value;
->                                                         ^
->                                                          = 0
->
-> This is because the call to CU_FAIL("not an alias") is not fatal in
-> test_alias_datum(), and variables my_primary and my_value are indeed
-> used uninitialized in a CU_ASSERT statement later.
->
-> Silent the warning by moving the elseif condition to a CU_ASSERT
-> statement which replaces the CU_FAIL.
+> When running "make test" with the Address Sanitizer (by adding
+> -fsanitize=address to compiler flags), a lot of memory leaks are
+> reported from checkpolicy. Anyway some leaks come from the tests and it
+> seems cleaner to start fixing these ones.
 >
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
@@ -74,28 +26,65 @@ Applied.
 Thanks,
 
 > ---
->  libsepol/tests/test-common.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+>  libsepol/tests/test-deps.c     |  2 ++
+>  libsepol/tests/test-expander.c | 17 +++++++++++++++++
+>  2 files changed, 19 insertions(+)
 >
-> diff --git a/libsepol/tests/test-common.c b/libsepol/tests/test-common.c
-> index 058b7435890e..dae47df3dd01 100644
-> --- a/libsepol/tests/test-common.c
-> +++ b/libsepol/tests/test-common.c
-> @@ -168,12 +168,11 @@ void test_alias_datum(policydb_t * p, char *id, char *primary_id, char mode, uns
->  		if (my_flavor == TYPE_TYPE) {
->  			my_primary = 0;
->  			my_value = primary->s.value;
-> -		} else if (my_flavor == TYPE_ALIAS) {
-> +		} else {
-> +			CU_ASSERT(my_flavor == TYPE_ALIAS);
->  			my_primary = primary->s.value;
->  			CU_ASSERT_NOT_EQUAL(type->s.value, primary->s.value);
->  			my_value = type->s.value;
-> -		} else {
-> -			CU_FAIL("not an alias");
->  		}
+> diff --git a/libsepol/tests/test-deps.c b/libsepol/tests/test-deps.c
+> index e7d2bebe0d93..ed23e0992ced 100644
+> --- a/libsepol/tests/test-deps.c
+> +++ b/libsepol/tests/test-deps.c
+> @@ -166,6 +166,7 @@ static void do_deps_modreq_global(int req_met, int b, char *policy, char *decl_t
+>  	ret = link_modules(h, base, mods, 1, 0);
+>  	CU_ASSERT_FATAL(ret == link_ret);
+>  	policydb_destroy(&mod);
+> +	sepol_handle_destroy(h);
 >
->  		CU_ASSERT(type->primary == my_primary);
+>  	if (!req_met)
+>  		return;
+> @@ -246,6 +247,7 @@ static void do_deps_modreq_opt(int req_met, int ret_val, int b, char *policy, ch
+>  	ret = link_modules(h, base, mods, 1, 0);
+>  	CU_ASSERT_FATAL(ret == ret_val);
+>  	policydb_destroy(&mod);
+> +	sepol_handle_destroy(h);
+>  	if (ret_val < 0)
+>  		return;
+>
+> diff --git a/libsepol/tests/test-expander.c b/libsepol/tests/test-expander.c
+> index ded1d9de2003..bc946c778b1d 100644
+> --- a/libsepol/tests/test-expander.c
+> +++ b/libsepol/tests/test-expander.c
+> @@ -122,6 +122,9 @@ int expander_policy_init(policydb_t * mybase, int num_modules, policydb_t ** mym
+>  		return -1;
+>  	}
+>
+> +	for (i = 0; i < num_modules + 1; i++) {
+> +		free(filename[i]);
+> +	}
+>  	return 0;
+>  }
+>
+> @@ -173,6 +176,20 @@ int expander_test_cleanup(void)
+>  {
+>  	policydb_destroy(&basemod);
+>  	policydb_destroy(&base_expanded);
+> +	policydb_destroy(&basemod2);
+> +	policydb_destroy(&base_expanded2);
+> +	policydb_destroy(&mod2);
+> +	policydb_destroy(&base_only_mod);
+> +	policydb_destroy(&base_only_expanded);
+> +	policydb_destroy(&role_basemod);
+> +	policydb_destroy(&role_expanded);
+> +	policydb_destroy(&role_mod);
+> +	policydb_destroy(&user_basemod);
+> +	policydb_destroy(&user_expanded);
+> +	policydb_destroy(&user_mod);
+> +	policydb_destroy(&alias_basemod);
+> +	policydb_destroy(&alias_expanded);
+> +	policydb_destroy(&alias_mod);
+>  	free(typemap);
+>
+>  	return 0;
 >
 
 
