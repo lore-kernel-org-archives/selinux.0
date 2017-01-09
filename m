@@ -1,44 +1,41 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v09FCfYY004694
- for <selinux@tycho.nsa.gov>; Mon, 9 Jan 2017 10:12:42 -0500
-Received: by mail-vk0-f43.google.com with SMTP id 137so343268462vkl.0
- for <selinux@tycho.nsa.gov>; Mon, 09 Jan 2017 07:12:36 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.20.1701091617200.13042@namei.org>
-References: <6f440a70-aab5-5486-d48f-030e95e44d59@schaufler-ca.com>
- <alpine.LRH.2.20.1701041717210.3918@namei.org>
- <0ad9be94-4fdf-5fe1-e4db-868ee10027bf@schaufler-ca.com>
- <alpine.LRH.2.20.1701091617200.13042@namei.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 9 Jan 2017 10:12:34 -0500
-Message-ID: <CAHC9VhSJWcBc8EczRdTZA1V=TF=Yt_dybR1CKqNX=wDz7YGP_A@mail.gmail.com>
-Subject: Fwd: Will security-next be updated for 4.10?
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1483979664.20858.75.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/2] libsemanage: genhomedircon: remove duplicated test
+ condition
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 09 Jan 2017 11:34:24 -0500
+In-Reply-To: <20170104214623.24674-1-nicolas.iooss@m4x.org>
+References: <20170104214623.24674-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-FYI, I've rebased the selinux/next branch on top of James' newly
-rebased linux-security/next branch.
+On Wed, 2017-01-04 at 22:46 +0100, Nicolas Iooss wrote:
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsemanage/src/genhomedircon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libsemanage/src/genhomedircon.c
+> b/libsemanage/src/genhomedircon.c
+> index 7ceeafb7b5d9..fd6d391984b6 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -246,7 +246,7 @@ static int fcontext_matches(const
+> semanage_fcontext_t *fcontext, void *varg)
+>  
+>  	/* Only match ALL or DIR */
+>  	type = semanage_fcontext_get_type(fcontext);
+> -	if (type != SEMANAGE_FCONTEXT_ALL && type !=
+> SEMANAGE_FCONTEXT_ALL)
+> +	if (type != SEMANAGE_FCONTEXT_ALL)
 
----------- Forwarded message ----------
-From: James Morris <jmorris@namei.org>
-Date: Mon, Jan 9, 2017 at 12:17 AM
-Subject: Re: Will security-next be updated for 4.10?
+The comment suggests the second test should be against
+SEMANAGE_FCONTEXT_DIR, not removed altogether.
 
-On Wed, 4 Jan 2017, Casey Schaufler wrote:
-> On 1/3/2017 10:17 PM, James Morris wrote:
-> > On Tue, 3 Jan 2017, Casey Schaufler wrote:
-> >
-> >> James, do you plan to update security-next for 4.10?
-> > Yep, soon.
->
-> Thanks. I'll hold off on updating my next.
-
-Ok, I've sync'd with v4.10-rc3.
-
--- 
-paul moore
-www.paul-moore.com
+>  		return 0;
+>  
+>  	len = strlen(oexpr);
