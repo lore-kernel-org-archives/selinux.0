@@ -1,15 +1,10 @@
-Message-ID: <1483987873.20858.87.camel@tycho.nsa.gov>
-Subject: Re: [PATCH v2] libsemanage: special handling of the identity
- reserved to system objects
+Message-ID: <1483992130.20858.96.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/5] checkpolicy: fix memory usage in define_bool_tunable()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Guido Trentalancia <guido@trentalancia.net>, selinux
- <selinux@tycho.nsa.gov>
-Date: Mon, 09 Jan 2017 13:51:13 -0500
-In-Reply-To: <8104068E-AEC9-47EC-B74A-4DBAF46812B7@trentalancia.net>
-References: <1482966318.30976.5.camel@trentalancia.net>
- <1483037107.25804.5.camel@trentalancia.net>
- <1483987150.20858.81.camel@tycho.nsa.gov>
- <8104068E-AEC9-47EC-B74A-4DBAF46812B7@trentalancia.net>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 09 Jan 2017 15:02:10 -0500
+In-Reply-To: <20161226211832.7165-1-nicolas.iooss@m4x.org>
+References: <20161226211832.7165-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,348 +12,38 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-01-09 at 19:46 +0100, Guido Trentalancia wrote:
-> Hello, 
+On Mon, 2016-12-26 at 22:18 +0100, Nicolas Iooss wrote:
+> In an error path of define_bool_tunable(), variable id is freed after
+> being used by a successful call to declare_symbol(). This may cause
+> trouble as this pointer may have been used as-is in the policy symtab
+> hash table.
 > 
-> the patch has been motivated by the fact that libsemanage currently
-> searches for the user "system_u" in the passwd file and reports "user
-> system_u not in passwd file".
+> Moreover bool_value is never freed after being used. Fix this memory
+> leak too. This leak has been detected with gcc Address Sanitizer.
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Don't shoot the messenger. That warning is because the Fedora policy
-wrongly has system_u in its seusers/login mapping as a login name.  We
-should fix it there instead by removing that entry, which should not be
-needed.
+Thanks, applied.
 
+> ---
+>  checkpolicy/policy_define.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Also, I have considered the notes in the file policy/users from
-> Reference Policy.
-> 
-> Finally, the prefix for system_u is wrongly set to "user_u" (it
-> shouldn't have it).
-> 
-> I have tested the patch and it seems to work fine.
-> 
-> I hope it helps. 
-> 
-> Kind regards, 
-> 
-> Guido Trentalancia 
-> 
-> On the 9th of January 2017 19:39:10 CET, Stephen Smalley <sds@tycho.n
-> sa.gov> wrote:
-> > 
-> > On Thu, 2016-12-29 at 19:45 +0100, Guido Trentalancia wrote:
-> > > 
-> > > The following patch makes sure that the SELinux identity
-> > > reserved for system processes and objects is skipped
-> > > when adding users.
-> > > 
-> > > A warning is produced when a Unix identity is found to be
-> > > equal to the SELinux user identity for system processes
-> > > and objects.
-> > > 
-> > > This patch also avoids creating an extra record for a user
-> > > if there is no prefix.
-> > 
-> > What problem are you encountering that motivated this patch?
-> > What is a test case for this problem?
-> > What is the behavior before and after this patch?
-> > 
-> > > 
-> > > 
-> > > Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
-> > > ---
-> > >  include/semanage/user_record.h |    2 ++
-> > >  src/genhomedircon.c            |   23 +++++++++++++++++++----
-> > >  src/user_extra_record.c        |   39
-> > > ++++++++++++++++++++++++++++++++-------
-> > >  src/user_record.c              |   40 +++++++++++++++++++++++++-
-> > > ----
-> > > ----------
-> > >  4 files changed, 78 insertions(+), 26 deletions(-)
-> > > 
-> > > diff -pru a/include/semanage/user_record.h
-> > > b/include/semanage/user_record.h
-> > > --- a/include/semanage/user_record.h	2016-10-14
-> > > 17:31:26.000000000 +0200
-> > > +++ b/include/semanage/user_record.h	2016-12-28
-> > > 23:22:50.848589870 +0100
-> > > @@ -6,6 +6,8 @@
-> > >  #include <stddef.h>
-> > >  #include <semanage/handle.h>
-> > >  
-> > > +#define SYS_OBJECTS_USERID	"system_u"
-> > > +
-> > >  struct semanage_user;
-> > >  typedef struct semanage_user semanage_user_t;
-> > >  
-> > > diff -pru a/src/genhomedircon.c b/src/genhomedircon.c
-> > > --- a/src/genhomedircon.c	2016-10-14 17:31:26.000000000
-> > > +0200
-> > > +++ b/src/genhomedircon.c	2016-12-29 17:50:10.781727455
-> > > +0100
-> > > @@ -181,6 +181,9 @@ static int ignore(const char *homedir) {
-> > >  static int prefix_is_homedir_role(const semanage_user_t *user,
-> > >  				  const char *prefix)
-> > >  {
-> > > +	if (!prefix)
-> > > +		return 0;
-> > > +
-> > >  	return strcmp(OBJECT_R, prefix) == 0 ||
-> > >  		semanage_user_has_role(user, prefix);
-> > >  }
-> > > @@ -998,14 +1001,26 @@ static int add_user(genhomedircon_settin
-> > >  		homedir_role = prefix;
-> > >  	}
-> > >  
-> > > +	/* There should be no Unix identity corresponding
-> > > +	 * to SELinux user reserved for system processes
-> > > +	 * and objects */
-> > >  	retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen,
-> > > &pwent);
-> > > -	if (retval != 0 || pwent == NULL) {
-> > > -		if (retval != 0 && retval != ENOENT) {
-> > > +	if (strcmp(name, SYS_OBJECTS_USERID)) {
-> > > +		if (retval != 0 || pwent == NULL) {
-> > > +			if (retval != 0 && retval != ENOENT) {
-> > > +				goto cleanup;
-> > > +			}
-> > > +
-> > > +			WARN(s->h_semanage,
-> > > +			     "user %s not in password file",
-> > > name);
-> > > +			retval = STATUS_SUCCESS;
-> > >  			goto cleanup;
-> > >  		}
-> > > +	} else {
-> > > +		if (retval)
-> > > +			WARN(s->h_semanage,
-> > > +			     "There should be no Unix identity
-> > > \"%s\" !", SYS_OBJECTS_USERID);
-> > >  
-> > > -		WARN(s->h_semanage,
-> > > -		     "user %s not in password file", name);
-> > >  		retval = STATUS_SUCCESS;
-> > >  		goto cleanup;
-> > >  	}
-> > > diff -pru a/src/user_extra_record.c b/src/user_extra_record.c
-> > > --- a/src/user_extra_record.c	2016-10-14
-> > > 17:31:26.000000000
-> > > +0200
-> > > +++ b/src/user_extra_record.c	2016-12-29
-> > > 17:17:26.168737139
-> > > +0100
-> > > @@ -37,8 +37,9 @@ static int semanage_user_extra_key_extra
-> > >  					   semanage_user_key_t
-> > > **
-> > > key_ptr)
-> > >  {
-> > >  
-> > > -	if (semanage_user_key_create(handle, user_extra->name,
-> > > key_ptr) < 0)
-> > > -		goto err;
-> > > +	if (user_extra)
-> > > +		if (semanage_user_key_create(handle, user_extra-
-> > > > 
-> > > > name, key_ptr) < 0)
-> > > +			goto err;
-> > >  
-> > >  	return STATUS_SUCCESS;
-> > >  
-> > > @@ -54,7 +55,10 @@ static int semanage_user_extra_compare(c
-> > >  	const char *name;
-> > >  	semanage_user_key_unpack(key, &name);
-> > >  
-> > > -	return strcmp(user_extra->name, name);
-> > > +	if (user_extra)
-> > > +		return strcmp(user_extra->name, name);
-> > > +	else
-> > > +		return 1;
-> > >  }
-> > >  
-> > >  static int semanage_user_extra_compare2(const
-> > > semanage_user_extra_t
-> > > *
-> > > @@ -63,7 +67,10 @@ static int semanage_user_extra_compare2(
-> > >  					user_extra2)
-> > >  {
-> > >  
-> > > -	return strcmp(user_extra->name, user_extra2->name);
-> > > +	if (user_extra && user_extra2)
-> > > +		return strcmp(user_extra->name, user_extra2-
-> > > >name);
-> > > +	else
-> > > +		return 1;
-> > >  }
-> > >  
-> > >  static int semanage_user_extra_compare2_qsort(const
-> > > semanage_user_extra_t **
-> > > @@ -72,7 +79,10 @@ static int semanage_user_extra_compare2_
-> > >  					      user_extra2)
-> > >  {
-> > >  
-> > > -	return strcmp((*user_extra)->name, (*user_extra2)-
-> > > >name);
-> > > +	if (*user_extra && *user_extra2)
-> > > +		return strcmp((*user_extra)->name,
-> > > (*user_extra2)-
-> > > > 
-> > > > name);
-> > > +	else
-> > > +		return 1;
-> > >  }
-> > >  
-> > >  /* Name */
-> > > @@ -80,7 +90,10 @@ hidden const char *semanage_user_extra_g
-> > >  						user_extra)
-> > >  {
-> > >  
-> > > -	return user_extra->name;
-> > > +	if (user_extra)
-> > > +		return user_extra->name;
-> > > +	else
-> > > +		return NULL;
-> > >  }
-> > >  
-> > >  hidden int semanage_user_extra_set_name(semanage_handle_t *
-> > > handle,
-> > > @@ -88,6 +101,9 @@ hidden int semanage_user_extra_set_name(
-> > >  					const char *name)
-> > >  {
-> > >  
-> > > +	if (!user_extra)
-> > > +		return STATUS_SUCCESS;
-> > > +
-> > >  	char *tmp_name = strdup(name);
-> > >  	if (!tmp_name) {
-> > >  		ERR(handle, "out of memory, could not set name
-> > > %s "
-> > > @@ -104,7 +120,10 @@ hidden const char *semanage_user_extra_g
-> > >  						  user_extra)
-> > >  {
-> > >  
-> > > -	return user_extra->prefix;
-> > > +	if (user_extra)
-> > > +		return user_extra->prefix;
-> > > +	else
-> > > +		return NULL;
-> > >  }
-> > >  
-> > >  hidden int semanage_user_extra_set_prefix(semanage_handle_t *
-> > > handle,
-> > > @@ -112,6 +131,9 @@ hidden int semanage_user_extra_set_prefi
-> > >  					  const char *prefix)
-> > >  {
-> > >  
-> > > +	if (!user_extra)
-> > > +		return STATUS_SUCCESS;
-> > > +
-> > >  	char *tmp_prefix = strdup(prefix);
-> > >  	if (!tmp_prefix) {
-> > >  		ERR(handle, "out of memory, could not set prefix
-> > > %s
-> > > "
-> > > @@ -162,6 +184,9 @@ hidden int semanage_user_extra_clone(sem
-> > >  				     semanage_user_extra_t **
-> > > user_extra_ptr)
-> > >  {
-> > >  
-> > > +	if (!user_extra)
-> > > +		return STATUS_SUCCESS;
-> > > +
-> > >  	semanage_user_extra_t *new_user_extra = NULL;
-> > >  
-> > >  	if (semanage_user_extra_create(handle, &new_user_extra)
-> > > < 0)
-> > > diff -pru a/src/user_record.c b/src/user_record.c
-> > > --- a/src/user_record.c	2016-10-14 17:31:26.000000000
-> > > +0200
-> > > +++ b/src/user_record.c	2016-12-29 19:23:11.783720792
-> > > +0100
-> > > @@ -313,6 +313,7 @@ hidden int semanage_user_join(semanage_h
-> > >  {
-> > >  
-> > >  	const char *name;
-> > > +	const char *prefix = NULL;
-> > >  	semanage_user_t *tmp_user = calloc(1,
-> > > sizeof(semanage_user_t));
-> > >  	if (!tmp_user)
-> > >  		goto omem;
-> > > @@ -324,6 +325,9 @@ hidden int semanage_user_join(semanage_h
-> > >  	else
-> > >  		name = semanage_user_base_get_name(record1);
-> > >  
-> > > +	if (record2)
-> > > +		prefix =
-> > > semanage_user_extra_get_prefix(record2);
-> > > +
-> > >  	/* Join base record if it exists, create a blank one
-> > > otherwise */
-> > >  	if (record1) {
-> > >  		if (semanage_user_base_clone(handle, record1,
-> > > &tmp_user->base) <
-> > > @@ -337,21 +341,27 @@ hidden int semanage_user_join(semanage_h
-> > >  			goto err;
-> > >  	}
-> > >  
-> > > -	/* Join extra record if it exists, create a blank one
-> > > otherwise */
-> > > -	if (record2) {
-> > > -		if (semanage_user_extra_clone(handle, record2,
-> > > &tmp_user->extra)
-> > > -		    < 0)
-> > > -			goto err;
-> > > -	} else {
-> > > -		if (semanage_user_extra_create(handle,
-> > > &tmp_user-
-> > > > 
-> > > > extra) < 0)
-> > > -			goto err;
-> > > -		if (semanage_user_extra_set_name(handle,
-> > > tmp_user-
-> > > > 
-> > > > extra, name)
-> > > -		    < 0)
-> > > -			goto err;
-> > > -		if (semanage_user_extra_set_prefix
-> > > -		    (handle, tmp_user->extra, "user") < 0)
-> > > -			goto err;
-> > > -	}
-> > > +	/* SELinux identities without a prefix shall not have an
-> > > extra record */
-> > > +	if (prefix) { 
-> > > +		/* Join extra record if it exists, create a
-> > > blank
-> > > one otherwise */
-> > > +		if (record2) {
-> > > +			if (&tmp_user->extra)
-> > > +				if
-> > > (semanage_user_extra_clone(handle, record2, &tmp_user->extra)
-> > > +				    < 0)
-> > > +					goto err;
-> > > +		} else {
-> > > +			if (semanage_user_extra_create(handle,
-> > > &tmp_user->extra) < 0)
-> > > +				goto err;
-> > > +			if (semanage_user_extra_set_name(handle,
-> > > tmp_user->extra, name)
-> > > +			    < 0)
-> > > +				goto err;
-> > > +
-> > > +			if (semanage_user_extra_set_prefix
-> > > +			    (handle, tmp_user->extra, "user") <
-> > > 0)
-> > > +				goto err;
-> > > +		}
-> > > +	} else
-> > > +		tmp_user->extra = NULL;
-> > >  
-> > >  	if (semanage_user_set_name(handle, tmp_user, name) < 0)
-> > >  		goto err;
-> > > _______________________________________________
-> > > Selinux mailing list
-> > > Selinux@tycho.nsa.gov
-> > > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > > To get help, send an email containing "help" to Selinux-request@t
-> > > ycho
-> > > .nsa.gov.
+> diff --git a/checkpolicy/policy_define.c
+> b/checkpolicy/policy_define.c
+> index 864788992e5c..2ad98c3c851e 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -1704,11 +1704,11 @@ int define_bool_tunable(int is_tunable)
+>  	bool_value = (char *)queue_remove(id_queue);
+>  	if (!bool_value) {
+>  		yyerror("no default value for bool definition?");
+> -		free(id);
+>  		return -1;
+>  	}
+>  
+>  	datum->state = (int)(bool_value[0] == 'T') ? 1 : 0;
+> +	free(bool_value);
+>  	return 0;
+>        cleanup:
+>  	cond_destroy_bool(id, datum, NULL);
