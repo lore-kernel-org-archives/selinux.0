@@ -1,435 +1,228 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0ADgIKK020727
- for <selinux@tycho.nsa.gov>; Tue, 10 Jan 2017 08:42:18 -0500
-In-Reply-To: <20170110131444.GA31676@meriadoc.perfinion.com>
-References: <1482966318.30976.5.camel@trentalancia.net>
- <1483037107.25804.5.camel@trentalancia.net>
- <1483987150.20858.81.camel@tycho.nsa.gov>
- <8104068E-AEC9-47EC-B74A-4DBAF46812B7@trentalancia.net>
- <1483987873.20858.87.camel@tycho.nsa.gov>
- <1b263857-6347-b706-a273-0dac251fe90e@redhat.com>
- <B32D70F8-36D8-4E9F-A60F-5FAA442A6123@trentalancia.net>
- <20170110131444.GA31676@meriadoc.perfinion.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: [PATCH v2] libsemanage: special handling of the identity reserved
- to system objects
-From: Guido Trentalancia <guido@trentalancia.net>
-Date: Tue, 10 Jan 2017 14:42:34 +0100
-CC: selinux <selinux@tycho.nsa.gov>
-Message-ID: <BC08AFE1-EF75-4F0D-84AB-9E69E4703B4C@trentalancia.net>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: paul@paul-moore.com
+Cc: selinux@tycho.nsa.gov, yangshukui@huawei.com, oleg@redhat.com,
+ casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+ james.l.morris@oracle.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] security,selinux,smack: kill security_task_wait hook
+Date: Tue, 10 Jan 2017 12:28:32 -0500
+Message-Id: <1484069312-26653-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello Jason, 
+As reported by yangshukui, a permission denial from security_task_wait()
+can lead to a soft lockup in zap_pid_ns_processes() since it only expects
+sys_wait4() to return 0 or -ECHILD. Further, security_task_wait() can
+in general lead to zombies; in the absence of some way to automatically
+reparent a child process upon a denial, the hook is not useful.  Remove
+the security hook and its implementations in SELinux and Smack.  Smack
+already removed its check from its hook.
 
-yes, you are right it's an obsolete problem in the Reference Policy. 
+Reported-by: yangshukui <yangshukui@huawei.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ include/linux/lsm_hooks.h  |  7 -------
+ include/linux/security.h   |  6 ------
+ kernel/exit.c              | 19 ++-----------------
+ security/security.c        |  6 ------
+ security/selinux/hooks.c   |  7 -------
+ security/smack/smack_lsm.c | 20 --------------------
+ 6 files changed, 2 insertions(+), 63 deletions(-)
 
-I was working on an obsolete git tree... 
-
-Regards, 
-
-Guido 
-
-On the 10th of January 2017 14:14:44 CET, Jason Zaman <jason@perfinion.com> wrote:
->On Tue, Jan 10, 2017 at 02:11:24PM +0100, Guido Trentalancia wrote:
->> Hello. 
->> 
->> I am not using the Fedora policy, but in Reference Policy, if I
->comment out the line containing "system_u" in the files
->config/appconfig-{standard,mcs,mls}/seusers then the problem
->disappears... 
->
->They were removed from refpolicy months ago:
->https://github.com/TresysTechnology/refpolicy/commit/79f31a04739dad7c7369616cd7c666a57c365511
->you should git pull or something.
->
->-- Jason
->
->> 
->> Regards, 
->> 
->> Guido 
->> 
->> Il 10 gennaio 2017 09:09:57 CET, Petr Lautrbach <plautrba@redhat.com>
->ha scritto:
->> >On 01/09/2017 07:51 PM, Stephen Smalley wrote:
->> >> On Mon, 2017-01-09 at 19:46 +0100, Guido Trentalancia wrote:
->> >>> Hello, 
->> >>>
->> >>> the patch has been motivated by the fact that libsemanage
->currently
->> >>> searches for the user "system_u" in the passwd file and reports
->> >"user
->> >>> system_u not in passwd file".
->> >> 
->> >> Don't shoot the messenger. That warning is because the Fedora
->policy
->> >> wrongly has system_u in its seusers/login mapping as a login name.
->
->> >We
->> >> should fix it there instead by removing that entry, which should
->not
->> >be
->> >> needed.
->> >
->> >This is supposed to be fixed in selinux-policy-3.13.1-219.fc25
->> >
->> >Currently there's no plan to backport it to Fedora 24 as
->genhomedircon
->> >in Fedora 24 still uses hardcoded system_u.
->> >
->> >
->> >>>
->> >>> Also, I have considered the notes in the file policy/users from
->> >>> Reference Policy.
->> >>>
->> >>> Finally, the prefix for system_u is wrongly set to "user_u" (it
->> >>> shouldn't have it).
->> >>>
->> >>> I have tested the patch and it seems to work fine.
->> >>>
->> >>> I hope it helps. 
->> >>>
->> >>> Kind regards, 
->> >>>
->> >>> Guido Trentalancia 
->> >>>
->> >>> On the 9th of January 2017 19:39:10 CET, Stephen Smalley
->> ><sds@tycho.n
->> >>> sa.gov> wrote:
->> >>>>
->> >>>> On Thu, 2016-12-29 at 19:45 +0100, Guido Trentalancia wrote:
->> >>>>>
->> >>>>> The following patch makes sure that the SELinux identity
->> >>>>> reserved for system processes and objects is skipped
->> >>>>> when adding users.
->> >>>>>
->> >>>>> A warning is produced when a Unix identity is found to be
->> >>>>> equal to the SELinux user identity for system processes
->> >>>>> and objects.
->> >>>>>
->> >>>>> This patch also avoids creating an extra record for a user
->> >>>>> if there is no prefix.
->> >>>>
->> >>>> What problem are you encountering that motivated this patch?
->> >>>> What is a test case for this problem?
->> >>>> What is the behavior before and after this patch?
->> >>>>
->> >>>>>
->> >>>>>
->> >>>>> Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
->> >>>>> ---
->> >>>>>  include/semanage/user_record.h |    2 ++
->> >>>>>  src/genhomedircon.c            |   23 +++++++++++++++++++----
->> >>>>>  src/user_extra_record.c        |   39
->> >>>>> ++++++++++++++++++++++++++++++++-------
->> >>>>>  src/user_record.c              |   40
->+++++++++++++++++++++++++-
->> >>>>> ----
->> >>>>> ----------
->> >>>>>  4 files changed, 78 insertions(+), 26 deletions(-)
->> >>>>>
->> >>>>> diff -pru a/include/semanage/user_record.h
->> >>>>> b/include/semanage/user_record.h
->> >>>>> --- a/include/semanage/user_record.h	2016-10-14
->> >>>>> 17:31:26.000000000 +0200
->> >>>>> +++ b/include/semanage/user_record.h	2016-12-28
->> >>>>> 23:22:50.848589870 +0100
->> >>>>> @@ -6,6 +6,8 @@
->> >>>>>  #include <stddef.h>
->> >>>>>  #include <semanage/handle.h>
->> >>>>>  
->> >>>>> +#define SYS_OBJECTS_USERID	"system_u"
->> >>>>> +
->> >>>>>  struct semanage_user;
->> >>>>>  typedef struct semanage_user semanage_user_t;
->> >>>>>  
->> >>>>> diff -pru a/src/genhomedircon.c b/src/genhomedircon.c
->> >>>>> --- a/src/genhomedircon.c	2016-10-14 17:31:26.000000000
->> >>>>> +0200
->> >>>>> +++ b/src/genhomedircon.c	2016-12-29 17:50:10.781727455
->> >>>>> +0100
->> >>>>> @@ -181,6 +181,9 @@ static int ignore(const char *homedir) {
->> >>>>>  static int prefix_is_homedir_role(const semanage_user_t *user,
->> >>>>>  				  const char *prefix)
->> >>>>>  {
->> >>>>> +	if (!prefix)
->> >>>>> +		return 0;
->> >>>>> +
->> >>>>>  	return strcmp(OBJECT_R, prefix) == 0 ||
->> >>>>>  		semanage_user_has_role(user, prefix);
->> >>>>>  }
->> >>>>> @@ -998,14 +1001,26 @@ static int add_user(genhomedircon_settin
->> >>>>>  		homedir_role = prefix;
->> >>>>>  	}
->> >>>>>  
->> >>>>> +	/* There should be no Unix identity corresponding
->> >>>>> +	 * to SELinux user reserved for system processes
->> >>>>> +	 * and objects */
->> >>>>>  	retval = getpwnam_r(name, &pwstorage, rbuf, rbuflen,
->> >>>>> &pwent);
->> >>>>> -	if (retval != 0 || pwent == NULL) {
->> >>>>> -		if (retval != 0 && retval != ENOENT) {
->> >>>>> +	if (strcmp(name, SYS_OBJECTS_USERID)) {
->> >>>>> +		if (retval != 0 || pwent == NULL) {
->> >>>>> +			if (retval != 0 && retval != ENOENT) {
->> >>>>> +				goto cleanup;
->> >>>>> +			}
->> >>>>> +
->> >>>>> +			WARN(s->h_semanage,
->> >>>>> +			     "user %s not in password file",
->> >>>>> name);
->> >>>>> +			retval = STATUS_SUCCESS;
->> >>>>>  			goto cleanup;
->> >>>>>  		}
->> >>>>> +	} else {
->> >>>>> +		if (retval)
->> >>>>> +			WARN(s->h_semanage,
->> >>>>> +			     "There should be no Unix identity
->> >>>>> \"%s\" !", SYS_OBJECTS_USERID);
->> >>>>>  
->> >>>>> -		WARN(s->h_semanage,
->> >>>>> -		     "user %s not in password file", name);
->> >>>>>  		retval = STATUS_SUCCESS;
->> >>>>>  		goto cleanup;
->> >>>>>  	}
->> >>>>> diff -pru a/src/user_extra_record.c b/src/user_extra_record.c
->> >>>>> --- a/src/user_extra_record.c	2016-10-14
->> >>>>> 17:31:26.000000000
->> >>>>> +0200
->> >>>>> +++ b/src/user_extra_record.c	2016-12-29
->> >>>>> 17:17:26.168737139
->> >>>>> +0100
->> >>>>> @@ -37,8 +37,9 @@ static int semanage_user_extra_key_extra
->> >>>>>  					   semanage_user_key_t
->> >>>>> **
->> >>>>> key_ptr)
->> >>>>>  {
->> >>>>>  
->> >>>>> -	if (semanage_user_key_create(handle, user_extra->name,
->> >>>>> key_ptr) < 0)
->> >>>>> -		goto err;
->> >>>>> +	if (user_extra)
->> >>>>> +		if (semanage_user_key_create(handle, user_extra-
->> >>>>>>
->> >>>>>> name, key_ptr) < 0)
->> >>>>> +			goto err;
->> >>>>>  
->> >>>>>  	return STATUS_SUCCESS;
->> >>>>>  
->> >>>>> @@ -54,7 +55,10 @@ static int semanage_user_extra_compare(c
->> >>>>>  	const char *name;
->> >>>>>  	semanage_user_key_unpack(key, &name);
->> >>>>>  
->> >>>>> -	return strcmp(user_extra->name, name);
->> >>>>> +	if (user_extra)
->> >>>>> +		return strcmp(user_extra->name, name);
->> >>>>> +	else
->> >>>>> +		return 1;
->> >>>>>  }
->> >>>>>  
->> >>>>>  static int semanage_user_extra_compare2(const
->> >>>>> semanage_user_extra_t
->> >>>>> *
->> >>>>> @@ -63,7 +67,10 @@ static int semanage_user_extra_compare2(
->> >>>>>  					user_extra2)
->> >>>>>  {
->> >>>>>  
->> >>>>> -	return strcmp(user_extra->name, user_extra2->name);
->> >>>>> +	if (user_extra && user_extra2)
->> >>>>> +		return strcmp(user_extra->name, user_extra2-
->> >>>>>> name);
->> >>>>> +	else
->> >>>>> +		return 1;
->> >>>>>  }
->> >>>>>  
->> >>>>>  static int semanage_user_extra_compare2_qsort(const
->> >>>>> semanage_user_extra_t **
->> >>>>> @@ -72,7 +79,10 @@ static int semanage_user_extra_compare2_
->> >>>>>  					      user_extra2)
->> >>>>>  {
->> >>>>>  
->> >>>>> -	return strcmp((*user_extra)->name, (*user_extra2)-
->> >>>>>> name);
->> >>>>> +	if (*user_extra && *user_extra2)
->> >>>>> +		return strcmp((*user_extra)->name,
->> >>>>> (*user_extra2)-
->> >>>>>>
->> >>>>>> name);
->> >>>>> +	else
->> >>>>> +		return 1;
->> >>>>>  }
->> >>>>>  
->> >>>>>  /* Name */
->> >>>>> @@ -80,7 +90,10 @@ hidden const char *semanage_user_extra_g
->> >>>>>  						user_extra)
->> >>>>>  {
->> >>>>>  
->> >>>>> -	return user_extra->name;
->> >>>>> +	if (user_extra)
->> >>>>> +		return user_extra->name;
->> >>>>> +	else
->> >>>>> +		return NULL;
->> >>>>>  }
->> >>>>>  
->> >>>>>  hidden int semanage_user_extra_set_name(semanage_handle_t *
->> >>>>> handle,
->> >>>>> @@ -88,6 +101,9 @@ hidden int semanage_user_extra_set_name(
->> >>>>>  					const char *name)
->> >>>>>  {
->> >>>>>  
->> >>>>> +	if (!user_extra)
->> >>>>> +		return STATUS_SUCCESS;
->> >>>>> +
->> >>>>>  	char *tmp_name = strdup(name);
->> >>>>>  	if (!tmp_name) {
->> >>>>>  		ERR(handle, "out of memory, could not set name
->> >>>>> %s "
->> >>>>> @@ -104,7 +120,10 @@ hidden const char *semanage_user_extra_g
->> >>>>>  						  user_extra)
->> >>>>>  {
->> >>>>>  
->> >>>>> -	return user_extra->prefix;
->> >>>>> +	if (user_extra)
->> >>>>> +		return user_extra->prefix;
->> >>>>> +	else
->> >>>>> +		return NULL;
->> >>>>>  }
->> >>>>>  
->> >>>>>  hidden int semanage_user_extra_set_prefix(semanage_handle_t *
->> >>>>> handle,
->> >>>>> @@ -112,6 +131,9 @@ hidden int semanage_user_extra_set_prefi
->> >>>>>  					  const char *prefix)
->> >>>>>  {
->> >>>>>  
->> >>>>> +	if (!user_extra)
->> >>>>> +		return STATUS_SUCCESS;
->> >>>>> +
->> >>>>>  	char *tmp_prefix = strdup(prefix);
->> >>>>>  	if (!tmp_prefix) {
->> >>>>>  		ERR(handle, "out of memory, could not set prefix
->> >>>>> %s
->> >>>>> "
->> >>>>> @@ -162,6 +184,9 @@ hidden int semanage_user_extra_clone(sem
->> >>>>>  				     semanage_user_extra_t **
->> >>>>> user_extra_ptr)
->> >>>>>  {
->> >>>>>  
->> >>>>> +	if (!user_extra)
->> >>>>> +		return STATUS_SUCCESS;
->> >>>>> +
->> >>>>>  	semanage_user_extra_t *new_user_extra = NULL;
->> >>>>>  
->> >>>>>  	if (semanage_user_extra_create(handle, &new_user_extra)
->> >>>>> < 0)
->> >>>>> diff -pru a/src/user_record.c b/src/user_record.c
->> >>>>> --- a/src/user_record.c	2016-10-14 17:31:26.000000000
->> >>>>> +0200
->> >>>>> +++ b/src/user_record.c	2016-12-29 19:23:11.783720792
->> >>>>> +0100
->> >>>>> @@ -313,6 +313,7 @@ hidden int semanage_user_join(semanage_h
->> >>>>>  {
->> >>>>>  
->> >>>>>  	const char *name;
->> >>>>> +	const char *prefix = NULL;
->> >>>>>  	semanage_user_t *tmp_user = calloc(1,
->> >>>>> sizeof(semanage_user_t));
->> >>>>>  	if (!tmp_user)
->> >>>>>  		goto omem;
->> >>>>> @@ -324,6 +325,9 @@ hidden int semanage_user_join(semanage_h
->> >>>>>  	else
->> >>>>>  		name = semanage_user_base_get_name(record1);
->> >>>>>  
->> >>>>> +	if (record2)
->> >>>>> +		prefix =
->> >>>>> semanage_user_extra_get_prefix(record2);
->> >>>>> +
->> >>>>>  	/* Join base record if it exists, create a blank one
->> >>>>> otherwise */
->> >>>>>  	if (record1) {
->> >>>>>  		if (semanage_user_base_clone(handle, record1,
->> >>>>> &tmp_user->base) <
->> >>>>> @@ -337,21 +341,27 @@ hidden int semanage_user_join(semanage_h
->> >>>>>  			goto err;
->> >>>>>  	}
->> >>>>>  
->> >>>>> -	/* Join extra record if it exists, create a blank one
->> >>>>> otherwise */
->> >>>>> -	if (record2) {
->> >>>>> -		if (semanage_user_extra_clone(handle, record2,
->> >>>>> &tmp_user->extra)
->> >>>>> -		    < 0)
->> >>>>> -			goto err;
->> >>>>> -	} else {
->> >>>>> -		if (semanage_user_extra_create(handle,
->> >>>>> &tmp_user-
->> >>>>>>
->> >>>>>> extra) < 0)
->> >>>>> -			goto err;
->> >>>>> -		if (semanage_user_extra_set_name(handle,
->> >>>>> tmp_user-
->> >>>>>>
->> >>>>>> extra, name)
->> >>>>> -		    < 0)
->> >>>>> -			goto err;
->> >>>>> -		if (semanage_user_extra_set_prefix
->> >>>>> -		    (handle, tmp_user->extra, "user") < 0)
->> >>>>> -			goto err;
->> >>>>> -	}
->> >>>>> +	/* SELinux identities without a prefix shall not have an
->> >>>>> extra record */
->> >>>>> +	if (prefix) { 
->> >>>>> +		/* Join extra record if it exists, create a
->> >>>>> blank
->> >>>>> one otherwise */
->> >>>>> +		if (record2) {
->> >>>>> +			if (&tmp_user->extra)
->> >>>>> +				if
->> >>>>> (semanage_user_extra_clone(handle, record2, &tmp_user->extra)
->> >>>>> +				    < 0)
->> >>>>> +					goto err;
->> >>>>> +		} else {
->> >>>>> +			if (semanage_user_extra_create(handle,
->> >>>>> &tmp_user->extra) < 0)
->> >>>>> +				goto err;
->> >>>>> +			if (semanage_user_extra_set_name(handle,
->> >>>>> tmp_user->extra, name)
->> >>>>> +			    < 0)
->> >>>>> +				goto err;
->> >>>>> +
->> >>>>> +			if (semanage_user_extra_set_prefix
->> >>>>> +			    (handle, tmp_user->extra, "user") <
->> >>>>> 0)
->> >>>>> +				goto err;
->> >>>>> +		}
->> >>>>> +	} else
->> >>>>> +		tmp_user->extra = NULL;
->> >>>>>  
->> >>>>>  	if (semanage_user_set_name(handle, tmp_user, name) < 0)
->> >>>>>  		goto err;
->> >>>>> _______________________________________________
->> >>>>> Selinux mailing list
->> >>>>> Selinux@tycho.nsa.gov
->> >>>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> >>>>> To get help, send an email containing "help" to
->Selinux-request@t
->> >>>>> ycho
->> >>>>> .nsa.gov.
->> >> _______________________________________________
->> >> Selinux mailing list
->> >> Selinux@tycho.nsa.gov
->> >> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> >> To get help, send an email containing "help" to
->> >Selinux-request@tycho.nsa.gov.
->> >> 
->> 
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to
->Selinux-request@tycho.nsa.gov.
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 0dde959..6fe7a5c 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -666,11 +666,6 @@
+  *	@sig contains the signal value.
+  *	@secid contains the sid of the process where the signal originated
+  *	Return 0 if permission is granted.
+- * @task_wait:
+- *	Check permission before allowing a process to reap a child process @p
+- *	and collect its status information.
+- *	@p contains the task_struct for process.
+- *	Return 0 if permission is granted.
+  * @task_prctl:
+  *	Check permission before performing a process control operation on the
+  *	current process.
+@@ -1507,7 +1502,6 @@ union security_list_options {
+ 	int (*task_movememory)(struct task_struct *p);
+ 	int (*task_kill)(struct task_struct *p, struct siginfo *info,
+ 				int sig, u32 secid);
+-	int (*task_wait)(struct task_struct *p);
+ 	int (*task_prctl)(int option, unsigned long arg2, unsigned long arg3,
+ 				unsigned long arg4, unsigned long arg5);
+ 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
+@@ -1767,7 +1761,6 @@ struct security_hook_heads {
+ 	struct list_head task_getscheduler;
+ 	struct list_head task_movememory;
+ 	struct list_head task_kill;
+-	struct list_head task_wait;
+ 	struct list_head task_prctl;
+ 	struct list_head task_to_inode;
+ 	struct list_head ipc_permission;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index f4ebac1..d3868f2 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -332,7 +332,6 @@ int security_task_getscheduler(struct task_struct *p);
+ int security_task_movememory(struct task_struct *p);
+ int security_task_kill(struct task_struct *p, struct siginfo *info,
+ 			int sig, u32 secid);
+-int security_task_wait(struct task_struct *p);
+ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			unsigned long arg4, unsigned long arg5);
+ void security_task_to_inode(struct task_struct *p, struct inode *inode);
+@@ -980,11 +979,6 @@ static inline int security_task_kill(struct task_struct *p,
+ 	return 0;
+ }
+ 
+-static inline int security_task_wait(struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+ static inline int security_task_prctl(int option, unsigned long arg2,
+ 				      unsigned long arg3,
+ 				      unsigned long arg4,
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 8f14b86..60f2451 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -14,7 +14,6 @@
+ #include <linux/tty.h>
+ #include <linux/iocontext.h>
+ #include <linux/key.h>
+-#include <linux/security.h>
+ #include <linux/cpu.h>
+ #include <linux/acct.h>
+ #include <linux/tsacct_kern.h>
+@@ -1360,7 +1359,7 @@ static int wait_task_continued(struct wait_opts *wo, struct task_struct *p)
+  * Returns nonzero for a final return, when we have unlocked tasklist_lock.
+  * Returns zero if the search for a child should continue;
+  * then ->notask_error is 0 if @p is an eligible child,
+- * or another error from security_task_wait(), or still -ECHILD.
++ * or still -ECHILD.
+  */
+ static int wait_consider_task(struct wait_opts *wo, int ptrace,
+ 				struct task_struct *p)
+@@ -1380,20 +1379,6 @@ static int wait_consider_task(struct wait_opts *wo, int ptrace,
+ 	if (!ret)
+ 		return ret;
+ 
+-	ret = security_task_wait(p);
+-	if (unlikely(ret < 0)) {
+-		/*
+-		 * If we have not yet seen any eligible child,
+-		 * then let this error code replace -ECHILD.
+-		 * A permission error will give the user a clue
+-		 * to look for security policy problems, rather
+-		 * than for mysterious wait bugs.
+-		 */
+-		if (wo->notask_error)
+-			wo->notask_error = ret;
+-		return 0;
+-	}
+-
+ 	if (unlikely(exit_state == EXIT_TRACE)) {
+ 		/*
+ 		 * ptrace == 0 means we are the natural parent. In this case
+@@ -1486,7 +1471,7 @@ static int wait_consider_task(struct wait_opts *wo, int ptrace,
+  * Returns nonzero for a final return, when we have unlocked tasklist_lock.
+  * Returns zero if the search for a child should continue; then
+  * ->notask_error is 0 if there were any eligible children,
+- * or another error from security_task_wait(), or still -ECHILD.
++ * or still -ECHILD.
+  */
+ static int do_wait_thread(struct wait_opts *wo, struct task_struct *tsk)
+ {
+diff --git a/security/security.c b/security/security.c
+index 32052f5..8c9fee5 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1025,11 +1025,6 @@ int security_task_kill(struct task_struct *p, struct siginfo *info,
+ 	return call_int_hook(task_kill, 0, p, info, sig, secid);
+ }
+ 
+-int security_task_wait(struct task_struct *p)
+-{
+-	return call_int_hook(task_wait, 0, p);
+-}
+-
+ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
+ 			 unsigned long arg4, unsigned long arg5)
+ {
+@@ -1769,7 +1764,6 @@ struct security_hook_heads security_hook_heads = {
+ 	.task_movememory =
+ 		LIST_HEAD_INIT(security_hook_heads.task_movememory),
+ 	.task_kill =	LIST_HEAD_INIT(security_hook_heads.task_kill),
+-	.task_wait =	LIST_HEAD_INIT(security_hook_heads.task_wait),
+ 	.task_prctl =	LIST_HEAD_INIT(security_hook_heads.task_prctl),
+ 	.task_to_inode =
+ 		LIST_HEAD_INIT(security_hook_heads.task_to_inode),
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index bada3cd..720dbd0 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3969,12 +3969,6 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
+ 	return avc_has_perm(secid, task_sid(p), SECCLASS_PROCESS, perm, NULL);
+ }
+ 
+-static int selinux_task_wait(struct task_struct *p)
+-{
+-	return avc_has_perm(task_sid(p), current_sid(), SECCLASS_PROCESS,
+-			    PROCESS__SIGCHLD, NULL);
+-}
+-
+ static void selinux_task_to_inode(struct task_struct *p,
+ 				  struct inode *inode)
+ {
+@@ -6217,7 +6211,6 @@ static struct security_hook_list selinux_hooks[] = {
+ 	LSM_HOOK_INIT(task_getscheduler, selinux_task_getscheduler),
+ 	LSM_HOOK_INIT(task_movememory, selinux_task_movememory),
+ 	LSM_HOOK_INIT(task_kill, selinux_task_kill),
+-	LSM_HOOK_INIT(task_wait, selinux_task_wait),
+ 	LSM_HOOK_INIT(task_to_inode, selinux_task_to_inode),
+ 
+ 	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 8da4a6b..2166373 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2272,25 +2272,6 @@ static int smack_task_kill(struct task_struct *p, struct siginfo *info,
+ }
+ 
+ /**
+- * smack_task_wait - Smack access check for waiting
+- * @p: task to wait for
+- *
+- * Returns 0
+- */
+-static int smack_task_wait(struct task_struct *p)
+-{
+-	/*
+-	 * Allow the operation to succeed.
+-	 * Zombies are bad.
+-	 * In userless environments (e.g. phones) programs
+-	 * get marked with SMACK64EXEC and even if the parent
+-	 * and child shouldn't be talking the parent still
+-	 * may expect to know when the child exits.
+-	 */
+-	return 0;
+-}
+-
+-/**
+  * smack_task_to_inode - copy task smack into the inode blob
+  * @p: task to copy from
+  * @inode: inode to copy to
+@@ -4658,7 +4639,6 @@ static struct security_hook_list smack_hooks[] = {
+ 	LSM_HOOK_INIT(task_getscheduler, smack_task_getscheduler),
+ 	LSM_HOOK_INIT(task_movememory, smack_task_movememory),
+ 	LSM_HOOK_INIT(task_kill, smack_task_kill),
+-	LSM_HOOK_INIT(task_wait, smack_task_wait),
+ 	LSM_HOOK_INIT(task_to_inode, smack_task_to_inode),
+ 
+ 	LSM_HOOK_INIT(ipc_permission, smack_ipc_permission),
+-- 
+2.7.4
