@@ -1,69 +1,50 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0CH0Xtu027191
- for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2017 12:00:34 -0500
-Received: by mail-vk0-f65.google.com with SMTP id r136so1860721vke.1
- for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2017 09:00:30 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <a8eb15b3-cef1-8b55-e757-102f4ccd04fc@schaufler-ca.com>
-References: <1484069312-26653-1-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhSbwTsR0QhGA8+JGX1EQ+Z73S-iD1Ys-XjQjh3jbvVtxA@mail.gmail.com>
- <a8eb15b3-cef1-8b55-e757-102f4ccd04fc@schaufler-ca.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 12 Jan 2017 12:00:28 -0500
-Message-ID: <CAHC9VhQNtX4k-mwHweV=4osaYCv=0HcxxwWRPZu_7ruTT1f7tA@mail.gmail.com>
-Subject: Re: [PATCH] security,selinux,smack: kill security_task_wait hook
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- yangshukui@huawei.com, oleg@redhat.com,
- linux-security-module@vger.kernel.org,
- James Morris <james.l.morris@oracle.com>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1484251293.16361.3.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] restorecon manpage: link back to fixfiles
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Alan Jenkins <alan.christopher.jenkins@gmail.com>, selinux@tycho.nsa.gov
+Date: Thu, 12 Jan 2017 15:01:33 -0500
+In-Reply-To: <20170111124110.5721-2-alan.christopher.jenkins@gmail.com>
+References: <20170111124110.5721-1-alan.christopher.jenkins@gmail.com>
+ <20170111124110.5721-2-alan.christopher.jenkins@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jan 12, 2017 at 11:49 AM, Casey Schaufler
-<casey@schaufler-ca.com> wrote:
-> On 1/12/2017 8:03 AM, Paul Moore wrote:
->> On Tue, Jan 10, 2017 at 12:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> As reported by yangshukui, a permission denial from security_task_wait()
->>> can lead to a soft lockup in zap_pid_ns_processes() since it only expects
->>> sys_wait4() to return 0 or -ECHILD. Further, security_task_wait() can
->>> in general lead to zombies; in the absence of some way to automatically
->>> reparent a child process upon a denial, the hook is not useful.  Remove
->>> the security hook and its implementations in SELinux and Smack.  Smack
->>> already removed its check from its hook.
->>>
->>> Reported-by: yangshukui <yangshukui@huawei.com>
->>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->
-> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
->
-> In case you miss my earlier Ack.
+On Wed, 2017-01-11 at 12:41 +0000, Alan Jenkins wrote:
+> fixfiles links to restorecon.  However if you start with restorecon
+> "restore file(s) default SELinux security contexts", you can easily
+> miss the fixfiles script.  fixfiles is more generally useful than
+> `restorecon -R`.   For example `restorecon -R /` is not as good as
+> `fixfiles restore`, because the restorecon command will try to
+> relabel
+> `/sys` and fail noisily.
 
-Yep, already go it.  I just wanted to try and avoid the situation
-where both of us push this patch up to James for the next merge
-window.
+Thanks, applied both patches.  Wondering though about the behavior
+you describe above; restorecon -R /sys only issues one error message
+for me and otherwise works fine,
+# restorecon -R /sys
+Could not set context for /sys/fs/cgroup:  Read-only file system
 
->>> ---
->>>  include/linux/lsm_hooks.h  |  7 -------
->>>  include/linux/security.h   |  6 ------
->>>  kernel/exit.c              | 19 ++-----------------
->>>  security/security.c        |  6 ------
->>>  security/selinux/hooks.c   |  7 -------
->>>  security/smack/smack_lsm.c | 20 --------------------
->>>  6 files changed, 2 insertions(+), 63 deletions(-)
->> Looks good to me and I'm not seeing any objections so I'll go ahead
->> and merge this into the selinux/next branch today unless Casey already
->> merged this into the Smack tree - Casey?
->
-> Please go ahead and merge into the SELinux tree.
-> It makes sense to do this atomically.
-> Thank you.
-
-Agreed.  It should be in selinux/next now if you want to play.
-
--- 
-paul moore
-www.paul-moore.com
+> 
+> Signed-off-by: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+> ---
+>  policycoreutils/setfiles/restorecon.8 | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/policycoreutils/setfiles/restorecon.8
+> b/policycoreutils/setfiles/restorecon.8
+> index b00bf4e..bd27113 100644
+> --- a/policycoreutils/setfiles/restorecon.8
+> +++ b/policycoreutils/setfiles/restorecon.8
+> @@ -214,6 +214,7 @@ The program was written by Dan Walsh <dwalsh@redh
+> at.com>.
+>  
+>  .SH "SEE ALSO"
+>  .BR setfiles (8),
+> +.BR fixfiles (8),
+>  .BR load_policy (8),
+>  .BR checkpolicy (8),
+>  .BR customizable_types (5)
