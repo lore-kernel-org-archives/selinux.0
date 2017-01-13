@@ -1,84 +1,63 @@
-Message-ID: <1484256222.16361.23.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] restorecon manpage: link back to fixfiles
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alan Jenkins <alan.christopher.jenkins@gmail.com>, selinux@tycho.nsa.gov
-Date: Thu, 12 Jan 2017 16:23:42 -0500
-In-Reply-To: <8194a97b-705d-d147-854a-32f95187bc6d@gmail.com>
-References: <20170111124110.5721-1-alan.christopher.jenkins@gmail.com>
- <20170111124110.5721-2-alan.christopher.jenkins@gmail.com>
- <1484251293.16361.3.camel@tycho.nsa.gov>
- <8194a97b-705d-d147-854a-32f95187bc6d@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0D5KsDH024575
+ for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2017 00:20:54 -0500
+Received: by mail-pf0-f178.google.com with SMTP id y143so25229670pfb.0
+ for <selinux@tycho.nsa.gov>; Thu, 12 Jan 2017 21:20:48 -0800 (PST)
+From: Sandeep Patil <sspatil@google.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] libselinux: replace all malloc + memset by calloc in android
+ label backend.
+Date: Thu, 12 Jan 2017 21:20:26 -0800
+Message-Id: <20170113052026.22069-1-sspatil@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-01-12 at 20:47 +0000, Alan Jenkins wrote:
-> On 12/01/17 20:01, Stephen Smalley wrote:
-> > On Wed, 2017-01-11 at 12:41 +0000, Alan Jenkins wrote:
-> > > fixfiles links to restorecon.  However if you start with
-> > > restorecon
-> > > "restore file(s) default SELinux security contexts", you can
-> > > easily
-> > > miss the fixfiles script.  fixfiles is more generally useful than
-> > > `restorecon -R`.   For example `restorecon -R /` is not as good
-> > > as
-> > > `fixfiles restore`, because the restorecon command will try to
-> > > relabel
-> > > `/sys` and fail noisily.
-> > Thanks, applied both patches.
->  yay!
-> 
-> >   Wondering though about the behavior
-> > you describe above; restorecon -R /sys only issues one error
-> > message
-> > for me and otherwise works fine,
-> > # restorecon -R /sys
-> > Could not set context for /sys/fs/cgroup:  Read-only file system
->  
-> It turned out fixfiles also generated similar noise.  I suspect this
-> involved `-v` (in both cases), sorry.
-> 
-> Fedora Workstation 25:
-> "fixfiles spams warnings about debugfs. (docs say it only touches
-> "real" filesystems!)" https://bugzilla.redhat.com/show_bug.cgi?id=141
-> 2747
-> 
-> Perhaps the root cause is actually the same.  I still prefer the
-> messages from fixfiles though.  It explicitly detected conflicting
-> labels on hardlinks
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=1411371
-> 
-> and informed me in advance when it decided to traverse and relabel
-> five of my virtual filesystems
-> Checking / /boot /dev /dev/hugepages /dev/mqueue /dev/pts /dev/shm
-> /home /run /run/user/1000 /run/user/1001 /run/user/42 /sys
-> /sys/fs/pstore /sys/kernel/debug /tmp
-> (I doubt devtmpfs files are _intended_ to be labeled like this
-> either.  OTOH the stupidity doesn't seem to affect it, so I won't
-> complain there).
+Signed-off-by: Sandeep Patil <sspatil@google.com>
+---
+ libselinux/src/label_backends_android.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-By default, it includes any filesystem with the seclabel mount option
-from /proc/mounts; this is a kernel-generated option that indicates
-that the filesystem is known to support setting of security labels by
-userspace.  restorecon (and setfiles) can be further instructed to skip
-specific directories via the -e option.  fixfiles is just a wrapper
-script around setfiles and/or restorecon depending on its options.
- setfiles was the original SELinux filesystem labeling utility,
-oriented to labeling a list of filesystems based on a specified
-file_contexts configuration, potentially even on a SELinux-disabled
-host.  fixfiles and restorecon were later additions by Red Hat as more
-user-friendly options, and then still later restorecon kept growing in
-functionality and duplicating setfiles that we coalesced them
-(restorecon is just a link that alters the default options and command-
-line interface).
-
-setfiles walks a filesystem at a time, which facilitates the hard link
-conflict detection logic.  restorecon in contrast just recurses a
-directory tree (with -R) and doesn't care about filesystem boundaries,
-so if we wanted to turn on hard link conflict detection for it, we'd
-need to augment that logic to save the device numbers too.  Possible
-but hasn't been a priority.
+diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
+index 4d6ec86..6442104 100644
+--- a/libselinux/src/label_backends_android.c
++++ b/libselinux/src/label_backends_android.c
+@@ -200,10 +200,9 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 			}
+ 
+ 			if (NULL == (data->spec_arr =
+-				     malloc(sizeof(spec_t) * data->nspec)))
++				     calloc(data->nspec, sizeof(spec_t))))
+ 				goto finish;
+ 
+-			memset(data->spec_arr, 0, sizeof(spec_t) * data->nspec);
+ 			maxnspec = data->nspec;
+ 			rewind(fp);
+ 		}
+@@ -322,10 +321,9 @@ int selabel_property_init(struct selabel_handle *rec,
+ {
+ 	struct saved_data *data;
+ 
+-	data = (struct saved_data *)malloc(sizeof(*data));
++	data = (struct saved_data *)calloc(1, sizeof(*data));
+ 	if (!data)
+ 		return -1;
+-	memset(data, 0, sizeof(*data));
+ 
+ 	rec->data = data;
+ 	rec->func_close = &closef;
+@@ -340,10 +338,9 @@ int selabel_service_init(struct selabel_handle *rec,
+ {
+ 	struct saved_data *data;
+ 
+-	data = (struct saved_data *)malloc(sizeof(*data));
++	data = (struct saved_data *)calloc(1, sizeof(*data));
+ 	if (!data)
+ 		return -1;
+-	memset(data, 0, sizeof(*data));
+ 
+ 	rec->data = data;
+ 	rec->func_close = &closef;
+-- 
+2.11.0.483.g087da7b7c-goog
