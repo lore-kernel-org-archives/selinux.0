@@ -1,156 +1,67 @@
-Subject: Re: [PATCH] restorecon manpage: link back to fixfiles
-To: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
- selinux@tycho.nsa.gov
-References: <20170111124110.5721-1-alan.christopher.jenkins@gmail.com>
- <20170111124110.5721-2-alan.christopher.jenkins@gmail.com>
- <1484251293.16361.3.camel@tycho.nsa.gov>
- <8194a97b-705d-d147-854a-32f95187bc6d@gmail.com>
- <1484256222.16361.23.camel@tycho.nsa.gov>
- <6cd88833-0af5-c935-3c8f-04afc000ceff@gmail.com>
- <1484318901.32375.32.camel@tycho.nsa.gov>
- <1484321279.32375.44.camel@tycho.nsa.gov>
- <6e56f621-188f-16e8-96f1-35cbbde1a0bc@redhat.com>
- <1484336327.32375.69.camel@tycho.nsa.gov>
- <e64eca90-c108-b950-375e-e69942ecd399@gmail.com>
-From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Message-ID: <dc06dfdb-3e57-602f-7bb6-1bc086f9fd4d@gmail.com>
-Date: Fri, 13 Jan 2017 20:13:49 +0000
-MIME-Version: 1.0
-In-Reply-To: <e64eca90-c108-b950-375e-e69942ecd399@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: alan.christopher.jenkins@gmail.com, dwalsh@redhat.com,
+ richard_c_haines@btinternet.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: selinux_restorecon: only log no default label
+ warning for caller-supplied pathname
+Date: Fri, 13 Jan 2017 15:31:21 -0500
+Message-Id: <1484339481-3260-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 13/01/17 19:56, Alan Jenkins wrote:
-> On 13/01/17 19:38, Stephen Smalley wrote:
->> On Fri, 2017-01-13 at 13:29 -0500, Daniel J Walsh wrote:
->>> On 01/13/2017 10:27 AM, Stephen Smalley wrote:
->>>> On Fri, 2017-01-13 at 09:48 -0500, Stephen Smalley wrote:
->>>>> On Thu, 2017-01-12 at 23:42 +0000, Alan Jenkins wrote:
->>>>>> My main puzzle here[*] is why `fixfiles` handles sysfs (/sys/)
->>>>>> fine,
->>>>>> but
->>>>>> then there's floods of warnings about debugfs
->>>>>> (/sys/kernel/debug/).  The
->>>>>> same seems to happen with /dev/ being fine, but not the other
->>>>>> virtual
->>>>>> fs's with seclabel which are mounted in subdirectories of
->>>>>> /dev/.
->>>>> This is a bug/regression.  Thanks for reporting it.  In commit
->>>>> 36f1ccbb5743749c404ad8f960867923544b90d9, Dan added this warning
->>>>> but
->>>>> only if the user explicitly does a restorecon /path/to/foo and
->>>>> /path/to/foo does not have any matching label in file_contexts;
->>>>> in
->>>>> the
->>>>> case of a restorecon -R or setfiles, it isn't supposed to happen.
->>>>>   The
->>>>> check on the recursive flag got dropped when this logic was taken
->>>>> into
->>>>> selinux_restorecon(3) in libselinux
->>>>> (commit f2e77865e144ab2e1313aa78d99b969f8f48695e).  Will fix.
->>>> Actually, I am wrong about this being a regression (and I should
->>>> have
->>>> known that, since the buggy version is 2.5 and that precedes the
->>>> latter
->>>> commit). Looking at the first commit, the original logic was to
->>>> display
->>>> a warning if not recursive OR verbose, so it would unconditionally
->>>> log
->>>> a warning if you did restorecon /path/to/foo or restorecon -v
->>>> /path/to/foo or restorecon -Rv /path/to/foo, just not if you did
->>>> restorecon -R /path/to/foo.  When it was moved to libselinux
->>>> selinux_restorecon(3), it was changed to log a warning if verbose,
->>>> so
->>>> it logs a warning if you pass -v (with or without -R) but not if
->>>> you
->>>> just do restorecon /path/to/foo. The patch I sent makes it only log
->>>> the
->>>> warning if verbose and not recursive, so it will only log if you
->>>> pass
->>>> -v without -R.
->>>>
->>>> To be honest, I'm not sure what the point of this warning is; it is
->>>> perfectly valid for an entry to have <<none>> to indicate that it
->>>> should not be relabeled at all by restorecon/setfiles. Maybe we
->>>> should
->>>> just remove the warning altogether.
->>>>
->>> The problem is people don't understand this.  If a user sees a
->>> user_home_t on /tmp and runs
->>> restorecon on it he expects it to have a label with tmp_t in the
->>> name,
->>> and if the tool finishes
->>> silently he thinks he is done.  This reveals to him that their is no
->>> default label, so perhaps he
->>> will do a chcon.  Or `rm -f`.
->> Old behavior (before moving to selinux_restorecon(3), <= 2.5):
->> $ touch /tmp/foo
->> $ chcon -t etc_t /tmp/foo
->> $ restorecon /tmp/foo
->> restorecon:  Warning no default label for /tmp/foo
->> $ restorecon -v /tmp/foo
->> restorecon:  Warning no default label for /tmp/foo
->> $ restorecon -R /tmp/foo
->> $ restorecon -Rv /tmp/foo
->> restorecon:  Warning no default label for /tmp/foo
->>
->> So we get the warning without -R or with -v.  Seems kind of surprising
->> that -R suppresses it but -Rv does not.
->>
->> New behavior (after moving to selinux_restorecon(3), 2.6, before my
->> patch):
->> $ restorecon /tmp/foo
->> $ restorecon -v /tmp/foo
->> Warning no default label
->> for /tmp/foo
->> $ restorecon -R /tmp/foo
->> $ restorecon -Rv /tmp/foo
->> Warning no
->> default label for /tmp/foo
->>
->> Here we get the warning only with -v, independent of -R.
->> Seems more consistent from a UI point of view.
->> This however doesn't help Alan with his goal of enabling fixfiles 
->> check or fixfiles restore -v to show no extraneous output if 
->> everything is labeled correctly.
->>
->> New behavior after my patch:
->> $ restorecon /tmp/foo
->> $ restorecon -v /tmp/foo
->> Warning no default label for /tmp/foo
->> $ restorecon -R /tmp/foo
->> $ restorecon -Rv /tmp/foo
->>
->> Here we only get the warning with -v without -R.
->> This avoids the problem for fixfiles check but doesn't help your 
->> situation and is confusing usage as well.
->>
->> Also, I think you only want this warning if the user-supplied pathname
->> has no default label.  Which would mean we need to do this check and
->> warning early, not down where we are checking or applying the labels 
->> to individual files within a tree walk.
->
-> Thank you for considering my report so seriously.
->
-> Your suggestion sounds very promising!
->
-> It sounds like a pretty nice compromise, if e.g. processing /var could 
-> omit the warnings caused by processing files under /var/tmp.
->
-> The corner case I wasn't 100% sure about, is if the path you pass is 
-> e.g. `/tmp`.  Looking at `file_contexts` it seems very sensible 
-> though.  /tmp itself is ignored, so passing `/tmp` would still provide 
-> our friendly warning.  (I guess the label on /tmp comes from the 
-> package, e.g. the `filesystem` rpm on Fedora).
+$ touch /tmp/foo
+$ chcon -t etc_t /tmp/foo
+$ restorecon /tmp/foo
+Warning no default label for /tmp/foo
+$ restorecon -R /tmp/foo
+Warning no default label for /tmp/foo
+$ restorecon -R /tmp
 
-oops, no.  We do label some files in /tmp, and /tmp _is_ labelled. So 
-the compromise is not _quite_ as nice for providing warnings as I first 
-thought.  I.e. processing /tmp would not provide any warning. However 
-attempting to process 
-/tmp/my-chroot-which-dnf-created-with-selinux-labels should still warn, 
-which is something I agree with.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/selinux_restorecon.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-Alan
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index f5fa8f5..7020669 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -90,6 +90,7 @@ struct rest_flags {
+ 	bool syslog_changes;
+ 	bool log_matches;
+ 	bool ignore_noent;
++	bool warnonnomatch;
+ };
+ 
+ static void restorecon_init(void)
+@@ -613,7 +614,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 						    sb->st_mode);
+ 
+ 	if (rc < 0) {
+-		if (errno == ENOENT && flags->verbose && !flags->recurse)
++		if (errno == ENOENT && flags->warnonnomatch)
+ 			selinux_log(SELINUX_INFO,
+ 				    "Warning no default label for %s\n",
+ 				    lookup_path);
+@@ -761,6 +762,7 @@ int selinux_restorecon(const char *pathname_orig,
+ 		   SELINUX_RESTORECON_LOG_MATCHES) ? true : false;
+ 	flags.ignore_noent = (restorecon_flags &
+ 		   SELINUX_RESTORECON_IGNORE_NOENTRY) ? true : false;
++	flags.warnonnomatch = true;
+ 	ignore_mounts = (restorecon_flags &
+ 		   SELINUX_RESTORECON_IGNORE_MOUNTS) ? true : false;
+ 
+@@ -983,7 +985,8 @@ int selinux_restorecon(const char *pathname_orig,
+ 		default:
+ 			error |= restorecon_sb(ftsent->fts_path,
+ 					       ftsent->fts_statp, &flags);
+-
++			if (flags.warnonnomatch)
++				flags.warnonnomatch = false;
+ 			if (error && flags.abort_on_error)
+ 				goto out;
+ 			break;
+-- 
+2.7.4
