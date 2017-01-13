@@ -1,71 +1,143 @@
-Subject: Re: [PATCH] restorecon manpage: link back to fixfiles
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Alan Jenkins <alan.christopher.jenkins@gmail.com>, selinux@tycho.nsa.gov
-References: <20170111124110.5721-1-alan.christopher.jenkins@gmail.com>
- <20170111124110.5721-2-alan.christopher.jenkins@gmail.com>
- <1484251293.16361.3.camel@tycho.nsa.gov>
- <8194a97b-705d-d147-854a-32f95187bc6d@gmail.com>
- <1484256222.16361.23.camel@tycho.nsa.gov>
- <6cd88833-0af5-c935-3c8f-04afc000ceff@gmail.com>
- <1484318901.32375.32.camel@tycho.nsa.gov>
- <1484321279.32375.44.camel@tycho.nsa.gov>
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <6e56f621-188f-16e8-96f1-35cbbde1a0bc@redhat.com>
-Date: Fri, 13 Jan 2017 13:29:51 -0500
-MIME-Version: 1.0
-In-Reply-To: <1484321279.32375.44.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: extend sockcreate to support other address
+ families
+Date: Fri, 13 Jan 2017 14:10:09 -0500
+Message-Id: <1484334609-17111-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Extend the sockcreate test program to support other address families.
+This is what I used to manually confirm the other extended socket classes.
+However, to avoid bloating the required kernel configuration for the
+selinux-testsuite and because some of the required kernel config options
+are not enabled in current Fedora kernels, I am not adding tests of these
+individual address families to the test script or policy.  We already test
+a representative sampling of the extended socket classes.
 
+IUCV is only supported on s390 and QIPCRTR is only supported on qcom.
+I did not test creating sockets with these two families but confirmed
+that they are supported socket families from the sources.
 
-On 01/13/2017 10:27 AM, Stephen Smalley wrote:
-> On Fri, 2017-01-13 at 09:48 -0500, Stephen Smalley wrote:
->> On Thu, 2017-01-12 at 23:42 +0000, Alan Jenkins wrote:
->>> My main puzzle here[*] is why `fixfiles` handles sysfs (/sys/)
->>> fine,
->>> but 
->>> then there's floods of warnings about debugfs
->>> (/sys/kernel/debug/).  The 
->>> same seems to happen with /dev/ being fine, but not the other
->>> virtual 
->>> fs's with seclabel which are mounted in subdirectories of /dev/.
->> This is a bug/regression.  Thanks for reporting it.  In commit
->> 36f1ccbb5743749c404ad8f960867923544b90d9, Dan added this warning but
->> only if the user explicitly does a restorecon /path/to/foo and
->> /path/to/foo does not have any matching label in file_contexts; in
->> the
->> case of a restorecon -R or setfiles, it isn't supposed to happen.
->>  The
->> check on the recursive flag got dropped when this logic was taken
->> into
->> selinux_restorecon(3) in libselinux
->> (commit f2e77865e144ab2e1313aa78d99b969f8f48695e).  Will fix.
-> Actually, I am wrong about this being a regression (and I should have
-> known that, since the buggy version is 2.5 and that precedes the latter
-> commit). Looking at the first commit, the original logic was to display
-> a warning if not recursive OR verbose, so it would unconditionally log
-> a warning if you did restorecon /path/to/foo or restorecon -v
-> /path/to/foo or restorecon -Rv /path/to/foo, just not if you did
-> restorecon -R /path/to/foo.  When it was moved to libselinux
-> selinux_restorecon(3), it was changed to log a warning if verbose, so
-> it logs a warning if you pass -v (with or without -R) but not if you
-> just do restorecon /path/to/foo. The patch I sent makes it only log the
-> warning if verbose and not recursive, so it will only log if you pass
-> -v without -R.
->
-> To be honest, I'm not sure what the point of this warning is; it is
-> perfectly valid for an entry to have <<none>> to indicate that it
-> should not be relabeled at all by restorecon/setfiles.  Maybe we should
-> just remove the warning altogether.
->
-The problem is people don't understand this.  If a user sees a
-user_home_t on /tmp and runs
-restorecon on it he expects it to have a label with tmp_t in the name,
-and if the tool finishes
-silently he thinks he is done.  This reveals to him that their is no
-default label, so perhaps he
-will do a chcon.  Or `rm -f`.
+Config options not already enabled in the Fedora kernel configs required
+to test creating sockets with these address families:
+CONFIG_CAIF=m
+CONFIG_DECNET=m
+CONFIG_LLC2=m
+CONFIG_PHONET=m
+CONFIG_X25=m
+CONFIG_AF_RXRPC=m
+
+Config options already enabled in the Fedora kernel configs required to
+test creating sockets with these address families:
+CONFIG_AX25=m
+CONFIG_NETROM=m
+CONFIG_ROSE=m
+CONFIG_ATM=m
+CONFIG_RDS=m
+CONFIG_IRDA=m
+CONFIG_MISDN=m
+CONFIG_LLC=m
+CONFIG_IPX=m
+CONFIG_CAN=m
+CONFIG_CAN_RAW=m
+CONFIG_TIPC=m
+CONFIG_L2TP=m
+CONFIG_L2TP_PPPOL2TP=m
+CONFIG_IEEE802154=m
+CONFIG_IEEE802154_SOCKET=m
+CONFIG_NFC=m
+CONFIG_VSOCKETS=m
+CONFIG_VMWARE_VMCI_VSOCKETS=m
+CONFIG_AF_KCM=m
+
+Sample invocation of sockcreate for each address family that should
+succeed (no output, exit 0):
+sockcreate atmpvc dgram default
+sockcreate atmsvc dgram default
+sockcreate ax25 dgram default
+sockcreate caif stream default
+sockcreate can raw can_raw
+sockcreate decnet stream default
+sockcreate ieee802154 dgram default
+sockcreate ipx dgram default
+sockcreate irda stream default
+sockcreate isdn raw default
+sockcreate kcm dgram default
+sockcreate llc stream default
+sockcreate netrom seqpacket default
+sockcreate nfc seqpacket default
+sockcreate phonet dgram default
+sockcreate pppox stream default
+sockcreate rds seqpacket default
+sockcreate rose seqpacket default
+sockcreate rxrpc dgram default
+sockcreate tipc stream default
+sockcreate vsock stream default
+sockcreate x25 seqpacket default
+
+Note that CAN required adding an explicit protocol value since it
+did not support creating sockets with the default/0 protocol value.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ tests/extended_socket_class/sockcreate.c | 34 ++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/tests/extended_socket_class/sockcreate.c b/tests/extended_socket_class/sockcreate.c
+index c5802ae..ee1d8f3 100644
+--- a/tests/extended_socket_class/sockcreate.c
++++ b/tests/extended_socket_class/sockcreate.c
+@@ -17,6 +17,36 @@ static struct nameval domains[] = {
+ 	{ "inet6", AF_INET6 },
+ 	{ "bluetooth", AF_BLUETOOTH },
+ 	{ "alg", AF_ALG },
++	{ "ax25", AF_AX25 },
++	{ "ipx", AF_IPX },
++	{ "netrom", AF_NETROM },
++	{ "atmpvc", AF_ATMPVC },
++	{ "x25", AF_X25 },
++	{ "rose", AF_ROSE },
++	{ "decnet", AF_DECnet },
++	{ "atmsvc", AF_ATMSVC },
++	{ "rds", AF_RDS },
++	{ "irda", AF_IRDA },
++	{ "pppox", AF_PPPOX },
++	{ "llc", AF_LLC },
++	{ "can", AF_CAN },
++	{ "tipc", AF_TIPC },
++	{ "iucv", AF_IUCV },
++	{ "rxrpc", AF_RXRPC },
++	{ "isdn", AF_ISDN },
++	{ "phonet", AF_PHONET },
++	{ "ieee802154", AF_IEEE802154 },
++	{ "caif", AF_CAIF },
++	{ "nfc", AF_NFC },
++	{ "vsock", AF_VSOCK },
++#ifndef AF_KCM
++#define AF_KCM 41
++#endif
++	{ "kcm", AF_KCM },
++#ifndef AF_QIPCRTR
++#define AF_QIPCRTR 42
++#endif
++	{ "qipcrtr", AF_QIPCRTR },
+ 	{ NULL, 0 }
+ };
+ 
+@@ -32,6 +62,10 @@ static struct nameval protocols[] = {
+ 	{ "icmp", IPPROTO_ICMP },
+ 	{ "icmpv6", IPPROTO_ICMPV6 },
+ 	{ "sctp", IPPROTO_SCTP },
++#ifndef CAN_RAW
++#define CAN_RAW 1
++#endif
++	{ "can_raw", CAN_RAW },
+ 	{ "default", 0 },
+ 	{ NULL, 0 }
+ };
+-- 
+2.7.4
