@@ -1,143 +1,77 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0DJGJ6h016637
+ for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2017 14:16:19 -0500
+Received: by mail-pf0-f176.google.com with SMTP id 127so34939552pfg.1
+ for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2017 11:16:17 -0800 (PST)
+From: Nick Kralevich <nnk@google.com>
 To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux-testsuite: extend sockcreate to support other address
- families
-Date: Fri, 13 Jan 2017 14:10:09 -0500
-Message-Id: <1484334609-17111-1-git-send-email-sds@tycho.nsa.gov>
+Subject: [PATCH] policy_define.c: don't free memory returned from queue_head()
+Date: Fri, 13 Jan 2017 11:15:59 -0800
+Message-Id: <20170113191559.12505-1-nnk@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Extend the sockcreate test program to support other address families.
-This is what I used to manually confirm the other extended socket classes.
-However, to avoid bloating the required kernel configuration for the
-selinux-testsuite and because some of the required kernel config options
-are not enabled in current Fedora kernels, I am not adding tests of these
-individual address families to the test script or policy.  We already test
-a representative sampling of the extended socket classes.
+Unlike queue_remove(), queue_head() does not modify the queue, but
+rather, returns a pointer to an element within the queue. Freeing the
+memory associated with a value returned from that function corrupts
+subsequent users of the queue, who may try to reference this
+now-deallocated memory.
 
-IUCV is only supported on s390 and QIPCRTR is only supported on qcom.
-I did not test creating sockets with these two families but confirmed
-that they are supported socket families from the sources.
+This causes the following policy generation errors on Android:
 
-Config options not already enabled in the Fedora kernel configs required
-to test creating sockets with these address families:
-CONFIG_CAIF=m
-CONFIG_DECNET=m
-CONFIG_LLC2=m
-CONFIG_PHONET=m
-CONFIG_X25=m
-CONFIG_AF_RXRPC=m
+  FAILED:
+  out/target/product/bullhead/obj/ETC/plat_sepolicy.cil_intermediates/plat_policy_nvr.cil
+  /bin/bash -c "out/host/linux-x86/bin/checkpolicy -M -C -c 30 -o
+  out/target/product/bullhead/obj/ETC/plat_sepolicy.cil_intermediates/plat_policy_nvr.cil
+  out/target/product/bullhead/obj/ETC/plat_sepolicy.cil_intermediates/plat_policy.conf"
+  system/sepolicy/public/app.te:241:ERROR 'only ioctl extended permissions
+  are supported' at token ';' on line 6784:
+  #line 241
+  } };
+  checkpolicy:  error(s) encountered while parsing configuration
 
-Config options already enabled in the Fedora kernel configs required to
-test creating sockets with these address families:
-CONFIG_AX25=m
-CONFIG_NETROM=m
-CONFIG_ROSE=m
-CONFIG_ATM=m
-CONFIG_RDS=m
-CONFIG_IRDA=m
-CONFIG_MISDN=m
-CONFIG_LLC=m
-CONFIG_IPX=m
-CONFIG_CAN=m
-CONFIG_CAN_RAW=m
-CONFIG_TIPC=m
-CONFIG_L2TP=m
-CONFIG_L2TP_PPPOL2TP=m
-CONFIG_IEEE802154=m
-CONFIG_IEEE802154_SOCKET=m
-CONFIG_NFC=m
-CONFIG_VSOCKETS=m
-CONFIG_VMWARE_VMCI_VSOCKETS=m
-CONFIG_AF_KCM=m
+because the value of "id" in:
 
-Sample invocation of sockcreate for each address family that should
-succeed (no output, exit 0):
-sockcreate atmpvc dgram default
-sockcreate atmsvc dgram default
-sockcreate ax25 dgram default
-sockcreate caif stream default
-sockcreate can raw can_raw
-sockcreate decnet stream default
-sockcreate ieee802154 dgram default
-sockcreate ipx dgram default
-sockcreate irda stream default
-sockcreate isdn raw default
-sockcreate kcm dgram default
-sockcreate llc stream default
-sockcreate netrom seqpacket default
-sockcreate nfc seqpacket default
-sockcreate phonet dgram default
-sockcreate pppox stream default
-sockcreate rds seqpacket default
-sockcreate rose seqpacket default
-sockcreate rxrpc dgram default
-sockcreate tipc stream default
-sockcreate vsock stream default
-sockcreate x25 seqpacket default
+  id = queue_remove(id_queue);
+  if (strcmp(id,"ioctl") == 0) {
+    ...
+  } else {
+    yyerror("only ioctl extended permissions are supported");
+    ...
+  }
 
-Note that CAN required adding an explicit protocol value since it
-did not support creating sockets with the default/0 protocol value.
+is now garbage.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+This is a partial revert of the following commit:
+
+  c1ba8311 checkpolicy: free id where it was leaked
+
+Signed-off-by: Nick Kralevich <nnk@google.com>
 ---
- tests/extended_socket_class/sockcreate.c | 34 ++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ checkpolicy/policy_define.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/tests/extended_socket_class/sockcreate.c b/tests/extended_socket_class/sockcreate.c
-index c5802ae..ee1d8f3 100644
---- a/tests/extended_socket_class/sockcreate.c
-+++ b/tests/extended_socket_class/sockcreate.c
-@@ -17,6 +17,36 @@ static struct nameval domains[] = {
- 	{ "inet6", AF_INET6 },
- 	{ "bluetooth", AF_BLUETOOTH },
- 	{ "alg", AF_ALG },
-+	{ "ax25", AF_AX25 },
-+	{ "ipx", AF_IPX },
-+	{ "netrom", AF_NETROM },
-+	{ "atmpvc", AF_ATMPVC },
-+	{ "x25", AF_X25 },
-+	{ "rose", AF_ROSE },
-+	{ "decnet", AF_DECnet },
-+	{ "atmsvc", AF_ATMSVC },
-+	{ "rds", AF_RDS },
-+	{ "irda", AF_IRDA },
-+	{ "pppox", AF_PPPOX },
-+	{ "llc", AF_LLC },
-+	{ "can", AF_CAN },
-+	{ "tipc", AF_TIPC },
-+	{ "iucv", AF_IUCV },
-+	{ "rxrpc", AF_RXRPC },
-+	{ "isdn", AF_ISDN },
-+	{ "phonet", AF_PHONET },
-+	{ "ieee802154", AF_IEEE802154 },
-+	{ "caif", AF_CAIF },
-+	{ "nfc", AF_NFC },
-+	{ "vsock", AF_VSOCK },
-+#ifndef AF_KCM
-+#define AF_KCM 41
-+#endif
-+	{ "kcm", AF_KCM },
-+#ifndef AF_QIPCRTR
-+#define AF_QIPCRTR 42
-+#endif
-+	{ "qipcrtr", AF_QIPCRTR },
- 	{ NULL, 0 }
- };
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index d158ad0..6bfadbe 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -2012,7 +2012,6 @@ int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 		    (class_perm_node_t *) malloc(sizeof(class_perm_node_t));
+ 		if (!cur_perms) {
+ 			yyerror("out of memory");
+-			free(id);
+ 			ret = -1;
+ 			goto out;
+ 		}
+@@ -2048,7 +2047,6 @@ int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 		}
+ 	}
  
-@@ -32,6 +62,10 @@ static struct nameval protocols[] = {
- 	{ "icmp", IPPROTO_ICMP },
- 	{ "icmpv6", IPPROTO_ICMPV6 },
- 	{ "sctp", IPPROTO_SCTP },
-+#ifndef CAN_RAW
-+#define CAN_RAW 1
-+#endif
-+	{ "can_raw", CAN_RAW },
- 	{ "default", 0 },
- 	{ NULL, 0 }
- };
+-	free(id);
+ 	ebitmap_destroy(&tclasses);
+ 
+ 	avrule->perms = perms;
 -- 
-2.7.4
+2.11.0.483.g087da7b7c-goog
