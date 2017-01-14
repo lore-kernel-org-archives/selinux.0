@@ -1,59 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0E8NMZB025210
- for <selinux@tycho.nsa.gov>; Sat, 14 Jan 2017 03:23:22 -0500
-Date: Sat, 14 Jan 2017 00:23:12 -0800
-From: Tracy Reed <treed@ultraviolet.org>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>,
- Fedora SELinux Users <selinux@lists.fedoraproject.org>
-Subject: Re: New Blog on how SELinux blocked Docker container escape.
-Message-ID: <20170114082311.GN12376@tracyreed.org>
-References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="W4pDZ/VvazBYHhxQ"
-In-Reply-To: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0EB0r1B007368
+ for <selinux@tycho.nsa.gov>; Sat, 14 Jan 2017 06:00:54 -0500
+Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
+ [77.133.206.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id B57EB564CE5
+ for <selinux@tycho.nsa.gov>; Sat, 14 Jan 2017 12:00:50 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/1] libsemanage: genhomedircon: consider
+ SEMANAGE_FCONTEXT_DIR in fcontext_matches()
+Date: Sat, 14 Jan 2017 12:00:11 +0100
+Message-Id: <20170114110011.13316-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+When generating file_contexts.homedirs, libsemanage enumerates the users
+on the system and tries to find misconfiguration issues by comparing
+their home directories with file contexts defined in the policy. The
+comparison is done by fcontext_matches().
 
---W4pDZ/VvazBYHhxQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Currently this function only operates on file contexts with type ALL,
+but it makes sense to also operate on the DIR ones, as a comment states
+in the function.
 
-On Fri, Jan 13, 2017 at 11:48:20AM PST, Daniel J Walsh spake thusly:
-> http://rhelblog.redhat.com/2017/01/13/docker-0-day-stopped-cold-by-selinu=
-x/
+For example on a system with the following entry in /etc/passwd:
 
-I have long been of the opinion that it is this sort of thing which best
-advocates the use of SELinux. We need more examples like this. I posted
-this to reddit a couple years ago:
+    mytestservice:x:2000:100::/var/lib/mytestservice/dir:/bin/bash
 
-https://www.reddit.com/r/linux/comments/1xdokz/selinux_saved_our_asses_xpos=
-t_rselinux/
+and with the following file context definition:
 
-And just a few months ago we had another SELinux save. I would say that
-in the years I've been using SELinux I've probably seen 5 cases where
-SELinux successfully contained an attack. I wish I would have written
-them all up at the time. Those 5 saves definitely made it worth it.
+    /var/lib/mytestservice/.* -d gen_context(system_u:object_r:var_lib_t,s0)
 
-Check out the comments on that reddit post, Daniel. :)
+"semodule -B" now shows the following warning:
 
---=20
-Tracy Reed
+    libsemanage.get_home_dirs: mytestservice homedir
+    /var/lib/mytestservice/dir or its parent directory conflicts with a
+    file context already specified in the policy.  This usually
+    indicates an incorrectly defined system account.  If it is a system
+    account please make sure its uid is less than 1000 or greater than
+    60000 or its login shell is /sbin/nologin.
 
---W4pDZ/VvazBYHhxQ
-Content-Type: application/pgp-signature; name="signature.asc"
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsemanage/src/genhomedircon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iEYEARECAAYFAlh53+8ACgkQBhSTPg0d/nTzGQCfW6cRt2duMs2JCpHi1PC7Y+Cr
-fA0An0f++pzK1wLJ5Eo/83MikzFVDqiR
-=Eltd
------END PGP SIGNATURE-----
-
---W4pDZ/VvazBYHhxQ--
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index fd6d391984b6..465dd8829403 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -246,7 +246,7 @@ static int fcontext_matches(const semanage_fcontext_t *fcontext, void *varg)
+ 
+ 	/* Only match ALL or DIR */
+ 	type = semanage_fcontext_get_type(fcontext);
+-	if (type != SEMANAGE_FCONTEXT_ALL)
++	if (type != SEMANAGE_FCONTEXT_ALL && type != SEMANAGE_FCONTEXT_DIR)
+ 		return 0;
+ 
+ 	len = strlen(oexpr);
+-- 
+2.11.0
