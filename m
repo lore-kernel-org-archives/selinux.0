@@ -1,94 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0DKhmAZ013418
- for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2017 15:43:48 -0500
-Received: by mail-wm0-f50.google.com with SMTP id c206so87974543wme.0
- for <selinux@tycho.nsa.gov>; Fri, 13 Jan 2017 12:43:41 -0800 (PST)
-Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id x135sm6740876wme.23.2017.01.13.12.43.39
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 13 Jan 2017 12:43:39 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0E8NMZB025210
+ for <selinux@tycho.nsa.gov>; Sat, 14 Jan 2017 03:23:22 -0500
+Date: Sat, 14 Jan 2017 00:23:12 -0800
+From: Tracy Reed <treed@ultraviolet.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SELinux <selinux@tycho.nsa.gov>,
+ Fedora SELinux Users <selinux@lists.fedoraproject.org>
 Subject: Re: New Blog on how SELinux blocked Docker container escape.
-To: selinux@tycho.nsa.gov
+Message-ID: <20170114082311.GN12376@tracyreed.org>
 References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
-From: Dominick Grift <dac.override@gmail.com>
-Message-ID: <dafd89f0-fb98-8f7b-89fe-8fce530be57f@gmail.com>
-Date: Fri, 13 Jan 2017 21:43:29 +0100
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature"; boundary="W4pDZ/VvazBYHhxQ"
 In-Reply-To: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="mP6I0TB7vX5ATloPGenGoQ5SU52vDJJhe"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---mP6I0TB7vX5ATloPGenGoQ5SU52vDJJhe
-Content-Type: multipart/mixed; boundary="bqIA4WRiLTsLTkWItwpfHuQ736Lb68rxw";
- protected-headers="v1"
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <dafd89f0-fb98-8f7b-89fe-8fce530be57f@gmail.com>
-Subject: Re: New Blog on how SELinux blocked Docker container escape.
-References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
-In-Reply-To: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
 
---bqIA4WRiLTsLTkWItwpfHuQ736Lb68rxw
-Content-Type: text/plain; charset=windows-1252
+--W4pDZ/VvazBYHhxQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On 01/13/2017 08:48 PM, Daniel J Walsh wrote:
-> http://rhelblog.redhat.com/2017/01/13/docker-0-day-stopped-cold-by-seli=
-nux/
+On Fri, Jan 13, 2017 at 11:48:20AM PST, Daniel J Walsh spake thusly:
+> http://rhelblog.redhat.com/2017/01/13/docker-0-day-stopped-cold-by-selinu=
+x/
 
-good job, but a minor suggestion. you raise the impression that SELinux
-did this, and even though SELinux made this possible, your policy is
-what actually achieved this by telling SELinux what to do.
+I have long been of the opinion that it is this sort of thing which best
+advocates the use of SELinux. We need more examples like this. I posted
+this to reddit a couple years ago:
 
-I think it is important to make this distinction, not for us, but for
-the crowd that is not so familiar with the matter. People often
-blame/praise SELinux for the policy it enforces.
+https://www.reddit.com/r/linux/comments/1xdokz/selinux_saved_our_asses_xpos=
+t_rselinux/
 
+And just a few months ago we had another SELinux save. I would say that
+in the years I've been using SELinux I've probably seen 5 cases where
+SELinux successfully contained an attack. I wish I would have written
+them all up at the time. Those 5 saves definitely made it worth it.
 
->=20
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
->=20
-
+Check out the comments on that reddit post, Daniel. :)
 
 --=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
-2
-Dominick Grift
+Tracy Reed
 
-
---bqIA4WRiLTsLTkWItwpfHuQ736Lb68rxw--
-
---mP6I0TB7vX5ATloPGenGoQ5SU52vDJJhe
+--W4pDZ/VvazBYHhxQ
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
+Version: GnuPG v2.0.22 (GNU/Linux)
 
-iQGcBAEBCAAGBQJYeTv1AAoJECV0jlU3+UdpOsAL/iU/LjazCkidy9uE04OxSizD
-iu5kRqMi46mC2HAkaiqo2AVB53L1Wp0c7WthOnOAa9Y/lvaLeUCc/6lcnTIsuHWX
-4ozWQrlcLrSrnaynXldViLWP9IoKY9Buuza3vOqY4oPM9MadEHp4mmblEXBRyg/Q
-HAONHQ2gt5KCm/bo07inQaGZlfEFjd427TXeULbIaL8hzuBNOrPuPazb4xixmIpm
-AIOIuPzH4VRwWMwRui6vpq+S2QB5M9fu7ySANn5ijgz0JYv5fqmZl9x83eSNQdfd
-hyH7Kwi8MFnn8QST/xiWLtDrftpDxPm6tseKYjls4eIJfowHp8AzAjTLXcsYAUnC
-fWL/pJD6qLwZ1hEAAuhmy0+LUC2/HJnazwi8I2kEdVg9tLkKYqPaisQ+36cu07Fp
-Q/9UISKZV9JVUPSLZGHjYAdAI0KMkS0lCQBST3z6CnDOXl4P9NL516l9dLts7SDg
-EGSyyGujrCmxic5RVDR6zDoWMGcF+ThDPJKTCt0SIg==
-=Jza1
+iEYEARECAAYFAlh53+8ACgkQBhSTPg0d/nTzGQCfW6cRt2duMs2JCpHi1PC7Y+Cr
+fA0An0f++pzK1wLJ5Eo/83MikzFVDqiR
+=Eltd
 -----END PGP SIGNATURE-----
 
---mP6I0TB7vX5ATloPGenGoQ5SU52vDJJhe--
+--W4pDZ/VvazBYHhxQ--
