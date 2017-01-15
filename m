@@ -1,5 +1,5 @@
-Subject: [PATCH 37/46] selinux: Move an assignment for the variable "rc" in
- policydb_load_isids()
+Subject: [PATCH 38/46] selinux: One function call less in five functions after
+ null pointer detection
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <9202247d-8f44-8839-cf78-453b6e3b7d1e@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:37:04 +0100
+Message-ID: <b71e766c-a9a2-cd9c-8f87-7aaeaaf896f0@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:38:12 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,32 +20,69 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 11:24:51 +0100
+Date: Sun, 15 Jan 2017 11:28:02 +0100
 
-A local variable was set to an error code in one case before a concrete
-error situation was detected. Thus move the corresponding assignment into
-an if branch to indicate a software failure there.
+Call the function "kfree" at the end only after it was determined
+that the passed parameter contained a non-null pointer.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/ss/policydb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 7cf635c650dc..faa6ecc2450d 100644
+index faa6ecc2450d..88730b372277 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -897,10 +897,10 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+@@ -620,8 +620,8 @@ static int common_destroy(void *key, void *datum, void *p)
+ 		comdatum = datum;
+ 		hashtab_map(comdatum->permissions.table, perm_destroy, NULL);
+ 		hashtab_destroy(comdatum->permissions.table);
++		kfree(datum);
+ 	}
+-	kfree(datum);
+ 	return 0;
+ }
  
- 	head = p->ocontexts[OCON_ISID];
- 	for (c = head; c; c = c->next) {
--		rc = -EINVAL;
- 		if (!c->context[0].user) {
- 			printk(KERN_ERR "SELinux:  SID %s was never defined.\n",
- 				c->u.name);
-+			rc = -EINVAL;
- 			goto out;
+@@ -675,8 +675,8 @@ static int cls_destroy(void *key, void *datum, void *p)
+ 			kfree(ctemp);
  		}
+ 		kfree(cladatum->comkey);
++		kfree(datum);
+ 	}
+-	kfree(datum);
+ 	return 0;
+ }
+ 
+@@ -689,8 +689,8 @@ static int role_destroy(void *key, void *datum, void *p)
+ 		role = datum;
+ 		ebitmap_destroy(&role->dominates);
+ 		ebitmap_destroy(&role->types);
++		kfree(datum);
+ 	}
+-	kfree(datum);
+ 	return 0;
+ }
+ 
+@@ -712,8 +712,8 @@ static int user_destroy(void *key, void *datum, void *p)
+ 		ebitmap_destroy(&usrdatum->range.level[0].cat);
+ 		ebitmap_destroy(&usrdatum->range.level[1].cat);
+ 		ebitmap_destroy(&usrdatum->dfltlevel.cat);
++		kfree(datum);
+ 	}
+-	kfree(datum);
+ 	return 0;
+ }
+ 
+@@ -726,8 +726,8 @@ static int sens_destroy(void *key, void *datum, void *p)
+ 		levdatum = datum;
+ 		ebitmap_destroy(&levdatum->level->cat);
+ 		kfree(levdatum->level);
++		kfree(datum);
+ 	}
+-	kfree(datum);
+ 	return 0;
+ }
  
 -- 
 2.11.0
