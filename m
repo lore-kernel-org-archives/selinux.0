@@ -1,5 +1,5 @@
-Subject: [PATCH 21/46] selinux: Two function calls less in range_read() after
- error detection
+Subject: [PATCH 22/46] selinux: Delete an unnecessary variable initialisation
+ in range_read()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <1e37fe86-2e83-c1f0-f43b-69ed2fb5c7aa@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:21:15 +0100
+Message-ID: <d5af857a-d19d-265a-2378-3e98b176c5ec@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:22:11 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,36 +20,29 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 14 Jan 2017 20:20:15 +0100
+Date: Sat, 14 Jan 2017 20:40:12 +0100
 
-Adjust a jump target to avoid two calls of the function "kfree" at the end
-after a memory allocation failed for the local variable "rt".
+The local variable "rt" will be set to an appropriate pointer a bit later.
+Thus omit the explicit initialisation at the beginning which became
+unnecessary with a previous update step.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/ss/policydb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 4cd96ce51322..0d2f64558c0a 100644
+index 0d2f64558c0a..6121a26ada64 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1857,7 +1857,7 @@ static int range_read(struct policydb *p, void *fp)
- 		rt = kzalloc(sizeof(*rt), GFP_KERNEL);
- 		if (!rt) {
- 			rc = -ENOMEM;
--			goto out;
-+			goto exit;
- 		}
+@@ -1839,7 +1839,7 @@ u32 string_to_av_perm(struct policydb *p, u16 tclass, const char *name)
  
- 		rc = next_entry(buf, fp, (sizeof(u32) * 2));
-@@ -1909,6 +1909,7 @@ static int range_read(struct policydb *p, void *fp)
- out:
- 	kfree(rt);
- 	kfree(r);
-+exit:
- 	return rc;
- }
- 
+ static int range_read(struct policydb *p, void *fp)
+ {
+-	struct range_trans *rt = NULL;
++	struct range_trans *rt;
+ 	struct mls_range *r = NULL;
+ 	int i, rc;
+ 	__le32 buf[2];
 -- 
 2.11.0
