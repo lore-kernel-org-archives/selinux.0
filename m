@@ -1,4 +1,4 @@
-Subject: [PATCH 04/46] selinux: Use kmalloc_array() in hashtab_create()
+Subject: [PATCH 05/46] selinux: Adjust four checks for null pointers
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -8,8 +8,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <66451d7e-f9ff-1d53-e919-d237a24ca8a2@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:01:11 +0100
+Message-ID: <44727e74-99ac-b0bd-2d7b-e5928d77ea75@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:02:30 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -19,31 +19,61 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 14 Jan 2017 12:06:13 +0100
+Date: Sat, 14 Jan 2017 12:36:59 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-A multiplication for the size determination of a memory allocation
-indicated that an array data structure should be processed.
-Thus use the corresponding function "kmalloc_array".
+The script "checkpatch.pl" pointed information out like the following.
 
-This issue was detected by using the Coccinelle software.
+Comparison to NULL could be written !…
+
+Thus fix affected source code places.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/hashtab.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/ss/hashtab.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-index 2cc496149842..dc99fff64ecb 100644
+index dc99fff64ecb..3858706a29fb 100644
 --- a/security/selinux/ss/hashtab.c
 +++ b/security/selinux/ss/hashtab.c
-@@ -24,7 +24,7 @@ struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *
- 	p->nel = 0;
+@@ -17,7 +17,7 @@ struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *
+ 	u32 i;
+ 
+ 	p = kzalloc(sizeof(*p), GFP_KERNEL);
+-	if (p == NULL)
++	if (!p)
+ 		return p;
+ 
+ 	p->size = size;
+@@ -25,7 +25,7 @@ struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *
  	p->hash_value = hash_value;
  	p->keycmp = keycmp;
--	p->htable = kmalloc(sizeof(*(p->htable)) * size, GFP_KERNEL);
-+	p->htable = kmalloc_array(size, sizeof(*p->htable), GFP_KERNEL);
- 	if (p->htable == NULL) {
+ 	p->htable = kmalloc_array(size, sizeof(*p->htable), GFP_KERNEL);
+-	if (p->htable == NULL) {
++	if (!p->htable) {
  		kfree(p);
  		return NULL;
+ 	}
+@@ -58,7 +58,7 @@ int hashtab_insert(struct hashtab *h, void *key, void *datum)
+ 		return -EEXIST;
+ 
+ 	newnode = kzalloc(sizeof(*newnode), GFP_KERNEL);
+-	if (newnode == NULL)
++	if (!newnode)
+ 		return -ENOMEM;
+ 	newnode->key = key;
+ 	newnode->datum = datum;
+@@ -87,7 +87,7 @@ void *hashtab_search(struct hashtab *h, const void *key)
+ 	while (cur && h->keycmp(h, key, cur->key) > 0)
+ 		cur = cur->next;
+ 
+-	if (cur == NULL || (h->keycmp(h, key, cur->key) != 0))
++	if (!cur || (h->keycmp(h, key, cur->key) != 0))
+ 		return NULL;
+ 
+ 	return cur->datum;
 -- 
 2.11.0
