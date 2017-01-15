@@ -1,32 +1,64 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0EFX6nH022392
- for <selinux@tycho.nsa.gov>; Sat, 14 Jan 2017 10:33:07 -0500
-Received: by mail-wm0-f44.google.com with SMTP id c85so102757605wmi.1
- for <selinux@tycho.nsa.gov>; Sat, 14 Jan 2017 07:33:02 -0800 (PST)
-MIME-Version: 1.0
-From: Sven Vermeulen <sven.j.vermeulen@gmail.com>
-Date: Sat, 14 Jan 2017 16:33:00 +0100
-Message-ID: <CAPzO=NwAzL1_XDVC3zeR_CH-4khEJs3NnhBYSN1xewMB1DOwOg@mail.gmail.com>
-Subject: audit.py required for seobject.py
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0FD4ofl000632
+ for <selinux@tycho.nsa.gov>; Sun, 15 Jan 2017 08:04:50 -0500
+Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
+ [77.133.206.32])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id B690956481B
+ for <selinux@tycho.nsa.gov>; Sun, 15 Jan 2017 14:04:20 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 3/5] libsepol: remove useless assignments
+Date: Sun, 15 Jan 2017 14:03:57 +0100
+Message-Id: <20170115130359.6108-3-nicolas.iooss@m4x.org>
+In-Reply-To: <20170115130359.6108-1-nicolas.iooss@m4x.org>
+References: <20170115130359.6108-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi all,
+There is no point in initializing a variable which gets
+almost-immediately assigned an other value.
 
-In seobject.py, there are a few calls to
-audit.audit_encode_nv_string() which seem to make the use of audit.py
-as offered by the Linux audit daemon's python support mandatory. In
-the past, the use of this audit module was not mandatory (cfr also
-seobject.py's wrapped usage of audit in the beginning).
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsepol/cil/src/cil_binary.c | 2 --
+ libsepol/src/write.c          | 1 -
+ 2 files changed, 3 deletions(-)
 
-Should we still focus on supporting semanage on systems without Linux
-audit? If so, do we need to wrap these calls?
-
-Wkr,
-  Sven Vermeulen
-
-PS Sorry for the first incomplete mail submission...
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index aaad364efce7..19cbc1b87c1e 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -2253,7 +2253,6 @@ int cil_roletrans_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+ 				new->tclass = sepol_obj->s.value;
+ 				new->new_role = sepol_result->s.value;
+ 
+-				rc = SEPOL_OK;
+ 				rc = hashtab_insert(role_trans_table, (hashtab_key_t)new, &(new->new_role));
+ 				if (rc != SEPOL_OK) {
+ 					if (rc == SEPOL_EEXIST) {
+@@ -3041,7 +3040,6 @@ int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, st
+ 					goto exit;
+ 				}
+ 
+-				rc = SEPOL_OK;
+ 				rc = hashtab_insert(range_trans_table, (hashtab_key_t)newkey, newdatum);
+ 				if (rc != SEPOL_OK) {
+ 					if (rc == SEPOL_EEXIST) {
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index c4c84ac48062..e75b9abc381c 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -926,7 +926,6 @@ static int write_cons_helper(policydb_t * p,
+ 		if (items != 2)
+ 			return POLICYDB_ERROR;
+ 		for (e = c->expr; e; e = e->next) {
+-			items = 0;
+ 			buf[0] = cpu_to_le32(e->expr_type);
+ 			buf[1] = cpu_to_le32(e->attr);
+ 			buf[2] = cpu_to_le32(e->op);
+-- 
+2.11.0
