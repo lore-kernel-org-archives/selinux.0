@@ -1,5 +1,5 @@
-Subject: [PATCH 17/46] selinux: Delete an unnecessary variable assignment in
- filename_trans_read()
+Subject: [PATCH 18/46] selinux: One function call less in
+ filename_trans_read() after error detection
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <71120ef7-6463-6497-f915-fcaf9e54239d@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:17:03 +0100
+Message-ID: <358b5114-aeb3-d5fa-bcf9-239bd383d3b5@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:18:06 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,28 +20,36 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 14 Jan 2017 19:02:42 +0100
+Date: Sat, 14 Jan 2017 19:19:42 +0100
 
-The local variable "ft" was set to a null pointer despite of an
-immediate reassignment.
-Thus remove this statement from the beginning of a loop.
+Adjust a jump target to avoid a function call at the end after a memory
+allocation failed for the local variable "ft".
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 1 -
- 1 file changed, 1 deletion(-)
+ security/selinux/ss/policydb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 106a1da1d68a..2be5b18eb149 100644
+index 2be5b18eb149..5f122e846332 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1927,7 +1927,6 @@ static int filename_trans_read(struct policydb *p, void *fp)
- 	nel = le32_to_cpu(buf[0]);
- 
- 	for (i = 0; i < nel; i++) {
--		ft = NULL;
- 		otype = NULL;
- 		name = NULL;
+@@ -1932,7 +1932,7 @@ static int filename_trans_read(struct policydb *p, void *fp)
  		ft = kzalloc(sizeof(*ft), GFP_KERNEL);
+ 		if (!ft) {
+ 			rc = -ENOMEM;
+-			goto out;
++			goto free_name;
+ 		}
+ 
+ 		otype = kmalloc(sizeof(*otype), GFP_KERNEL);
+@@ -1986,6 +1986,7 @@ static int filename_trans_read(struct policydb *p, void *fp)
+ 	return 0;
+ out:
+ 	kfree(ft);
++free_name:
+ 	kfree(name);
+ 	kfree(otype);
+ 
 -- 
 2.11.0
