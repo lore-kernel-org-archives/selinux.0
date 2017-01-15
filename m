@@ -1,5 +1,5 @@
-Subject: [PATCH 35/46] selinux: Return directly after a failed kzalloc() in
- perm_read()
+Subject: [PATCH 36/46] selinux: Move an assignment for the variable "rc" in
+ mls_read_range_helper()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <b7648542-fcd6-6852-ddcd-0b88b842e1a8@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:35:03 +0100
+Message-ID: <02c3392e-3507-4d91-a8c0-6d933a034058@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:36:01 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,31 +20,32 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 11:20:13 +0100
+Date: Sun, 15 Jan 2017 11:22:23 +0100
 
-Return directly after a call of the function "kzalloc" failed
-at the beginning.
+A local variable was set to an error code in one case before a concrete
+error situation was detected. Thus move the corresponding assignment into
+an if branch to indicate a software failure there.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/selinux/ss/policydb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 551685283399..9b595f2e0d9f 100644
+index 9b595f2e0d9f..7cf635c650dc 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1116,10 +1116,9 @@ static int perm_read(struct policydb *p, struct hashtab *h, void *fp)
- 	__le32 buf[2];
- 	u32 len;
- 
--	rc = -ENOMEM;
- 	perdatum = kzalloc(sizeof(*perdatum), GFP_KERNEL);
- 	if (!perdatum)
--		goto bad;
-+		return -ENOMEM;
- 
- 	rc = next_entry(buf, fp, sizeof buf);
+@@ -996,10 +996,10 @@ static int mls_read_range_helper(struct mls_range *r, void *fp)
  	if (rc)
+ 		goto out;
+ 
+-	rc = -EINVAL;
+ 	items = le32_to_cpu(buf[0]);
+ 	if (items > ARRAY_SIZE(buf)) {
+ 		printk(KERN_ERR "SELinux: mls:  range overflow\n");
++		rc = -EINVAL;
+ 		goto out;
+ 	}
+ 
 -- 
 2.11.0
