@@ -1,5 +1,5 @@
-Subject: [PATCH 23/46] selinux: Move an assignment for a pointer in
- range_read()
+Subject: [PATCH 24/46] selinux: Return directly after a failed kzalloc() in
+ cat_read()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <668d71a5-d55c-449e-9de8-b5d70d7e11c9@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:23:08 +0100
+Message-ID: <04142c87-5826-4796-c461-ec3e80f14928@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:24:03 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,37 +20,31 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 14 Jan 2017 21:00:45 +0100
+Date: Sat, 14 Jan 2017 21:20:43 +0100
 
-Move the assignment for the local variable "r" behind a call of the
-function "next_entry" at the beginning so that it will only be set
-after a successful call.
+Return directly after a call of the function "kzalloc" failed
+at the beginning.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/ss/policydb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 6121a26ada64..5101592ae172 100644
+index 5101592ae172..eb898dcbe502 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1840,7 +1840,7 @@ u32 string_to_av_perm(struct policydb *p, u16 tclass, const char *name)
- static int range_read(struct policydb *p, void *fp)
- {
- 	struct range_trans *rt;
--	struct mls_range *r = NULL;
-+	struct mls_range *r;
- 	int i, rc;
- 	__le32 buf[2];
- 	u32 nel;
-@@ -1852,6 +1852,7 @@ static int range_read(struct policydb *p, void *fp)
- 	if (rc)
- 		return rc;
+@@ -1635,10 +1635,9 @@ static int cat_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[3];
+ 	u32 len;
  
-+	r = NULL;
- 	nel = le32_to_cpu(buf[0]);
- 	for (i = 0; i < nel; i++) {
- 		rt = kzalloc(sizeof(*rt), GFP_KERNEL);
+-	rc = -ENOMEM;
+ 	catdatum = kzalloc(sizeof(*catdatum), GFP_ATOMIC);
+ 	if (!catdatum)
+-		goto bad;
++		return -ENOMEM;
+ 
+ 	rc = next_entry(buf, fp, sizeof buf);
+ 	if (rc)
 -- 
 2.11.0
