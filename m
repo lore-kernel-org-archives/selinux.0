@@ -1,5 +1,5 @@
-Subject: [PATCH 38/46] selinux: One function call less in five functions after
- null pointer detection
+Subject: [PATCH 39/46] selinux: Move two assignments for the variable "rc" in
+ ocontext_read()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <b71e766c-a9a2-cd9c-8f87-7aaeaaf896f0@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:38:12 +0100
+Message-ID: <1f2cc0bf-0904-0c9d-22f2-ee851214252e@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:39:11 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,69 +20,52 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 11:28:02 +0100
+Date: Sun, 15 Jan 2017 11:30:12 +0100
 
-Call the function "kfree" at the end only after it was determined
-that the passed parameter contained a non-null pointer.
+One local variable was set to an error code in two cases before
+a concrete error situation was detected. Thus move the corresponding
+assignments into if branches to indicate a software failure there.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ security/selinux/ss/policydb.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index faa6ecc2450d..88730b372277 100644
+index 88730b372277..8b9ed3f1b132 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -620,8 +620,8 @@ static int common_destroy(void *key, void *datum, void *p)
- 		comdatum = datum;
- 		hashtab_map(comdatum->permissions.table, perm_destroy, NULL);
- 		hashtab_destroy(comdatum->permissions.table);
-+		kfree(datum);
- 	}
--	kfree(datum);
- 	return 0;
- }
+@@ -2121,10 +2121,11 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
  
-@@ -675,8 +675,8 @@ static int cls_destroy(void *key, void *datum, void *p)
- 			kfree(ctemp);
- 		}
- 		kfree(cladatum->comkey);
-+		kfree(datum);
- 	}
--	kfree(datum);
- 	return 0;
- }
+ 		l = NULL;
+ 		for (j = 0; j < nel; j++) {
+-			rc = -ENOMEM;
+ 			c = kzalloc(sizeof(*c), GFP_KERNEL);
+-			if (!c)
++			if (!c) {
++				rc = -ENOMEM;
+ 				goto out;
++			}
+ 			if (l)
+ 				l->next = c;
+ 			else
+@@ -2186,13 +2187,13 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
+ 				if (rc)
+ 					goto out;
  
-@@ -689,8 +689,8 @@ static int role_destroy(void *key, void *datum, void *p)
- 		role = datum;
- 		ebitmap_destroy(&role->dominates);
- 		ebitmap_destroy(&role->types);
-+		kfree(datum);
- 	}
--	kfree(datum);
- 	return 0;
- }
+-				rc = -EINVAL;
+ 				c->v.behavior = le32_to_cpu(buf[0]);
+ 				/* Determined at runtime, not in policy DB. */
+-				if (c->v.behavior == SECURITY_FS_USE_MNTPOINT)
+-					goto out;
+-				if (c->v.behavior > SECURITY_FS_USE_MAX)
++				if (c->v.behavior == SECURITY_FS_USE_MNTPOINT ||
++				    c->v.behavior > SECURITY_FS_USE_MAX) {
++					rc = -EINVAL;
+ 					goto out;
++				}
  
-@@ -712,8 +712,8 @@ static int user_destroy(void *key, void *datum, void *p)
- 		ebitmap_destroy(&usrdatum->range.level[0].cat);
- 		ebitmap_destroy(&usrdatum->range.level[1].cat);
- 		ebitmap_destroy(&usrdatum->dfltlevel.cat);
-+		kfree(datum);
- 	}
--	kfree(datum);
- 	return 0;
- }
- 
-@@ -726,8 +726,8 @@ static int sens_destroy(void *key, void *datum, void *p)
- 		levdatum = datum;
- 		ebitmap_destroy(&levdatum->level->cat);
- 		kfree(levdatum->level);
-+		kfree(datum);
- 	}
--	kfree(datum);
- 	return 0;
- }
- 
+ 				len = le32_to_cpu(buf[1]);
+ 				rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
 -- 
 2.11.0
