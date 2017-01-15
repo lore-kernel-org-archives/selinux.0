@@ -1,5 +1,4 @@
-Subject: [PATCH 45/46] selinux: Use common error handling code in
- sidtab_insert()
+Subject: [PATCH 46/46] selinuxfs: Use seq_puts() in sel_avc_stats_seq_show()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +8,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <36f95c73-4ae1-efbf-393c-6f4239a91478@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:45:05 +0100
+Message-ID: <9c268e0b-a323-5f72-e445-dbf247f274d8@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:46:07 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,61 +19,36 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 13:45:45 +0100
+Date: Sun, 15 Jan 2017 14:04:53 +0100
 
-Add a jump target so that a bit of exception handling can be better reused
-at the end of this function.
+A string which did not contain data format specifications should be put
+into a sequence. Thus use the corresponding function "seq_puts".
+
+This issue was detected by using the Coccinelle software.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/sidtab.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ security/selinux/selinuxfs.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index f6915f257486..4130f882808c 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -35,10 +35,8 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
- 	int hvalue, rc = 0;
- 	struct sidtab_node *prev, *cur, *newnode;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 55345f84f17d..0d81ebf7ff23 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1445,10 +1445,10 @@ static int sel_avc_stats_seq_show(struct seq_file *seq, void *v)
+ {
+ 	struct avc_cache_stats *st = v;
  
--	if (!s) {
--		rc = -ENOMEM;
--		goto out;
--	}
-+	if (!s)
-+		goto failure_indication;
- 
- 	hvalue = SIDTAB_HASH(sid);
- 	prev = NULL;
-@@ -54,15 +52,12 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
- 	}
- 
- 	newnode = kmalloc(sizeof(*newnode), GFP_ATOMIC);
--	if (!newnode) {
--		rc = -ENOMEM;
--		goto out;
--	}
-+	if (!newnode)
-+		goto failure_indication;
- 	newnode->sid = sid;
- 	if (context_cpy(&newnode->context, context)) {
- 		kfree(newnode);
--		rc = -ENOMEM;
--		goto out;
-+		goto failure_indication;
- 	}
- 
- 	if (prev) {
-@@ -80,6 +75,9 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
- 		s->next_sid = sid + 1;
- out:
- 	return rc;
-+failure_indication:
-+	rc = -ENOMEM;
-+	goto out;
- }
- 
- static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
+-	if (v == SEQ_START_TOKEN)
+-		seq_printf(seq, "lookups hits misses allocations reclaims "
+-			   "frees\n");
+-	else {
++	if (v == SEQ_START_TOKEN) {
++		seq_puts(seq,
++			 "lookups hits misses allocations reclaims frees\n");
++	} else {
+ 		unsigned int lookups = st->lookups;
+ 		unsigned int misses = st->misses;
+ 		unsigned int hits = lookups - misses;
 -- 
 2.11.0
