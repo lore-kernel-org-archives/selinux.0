@@ -1,5 +1,5 @@
-Subject: [PATCH 27/46] selinux: Move an assignment for the variable "rc" in
- sens_read()
+Subject: [PATCH 28/46] selinux: Return directly after a failed kzalloc() in
+ user_read()
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +9,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <6b93ee88-d4c0-b5e3-6f7e-fc74acfddd43@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 16:27:08 +0100
+Message-ID: <3582dff5-b96a-dde7-2d1c-bca7ab4aeb0e@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:28:03 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,34 +20,31 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 14 Jan 2017 22:02:14 +0100
+Date: Sat, 14 Jan 2017 22:08:22 +0100
 
-A local variable was set to an error code in one case before a concrete
-error situation was detected. Thus move the corresponding assignment into
-an if branch to indicate a software failure there.
+Return directly after a call of the function "kzalloc" failed
+at the beginning.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ security/selinux/ss/policydb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index edfcfd3bbc60..3e43556e67b8 100644
+index 3e43556e67b8..1c046d39e2a7 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1608,10 +1608,11 @@ static int sens_read(struct policydb *p, struct hashtab *h, void *fp)
- 	if (rc)
- 		goto bad;
+@@ -1542,10 +1542,9 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+ 	__le32 buf[3];
+ 	u32 len;
  
 -	rc = -ENOMEM;
- 	levdatum->level = kmalloc(sizeof(*levdatum->level), GFP_ATOMIC);
--	if (!levdatum->level)
-+	if (!levdatum->level) {
-+		rc = -ENOMEM;
- 		goto bad;
-+	}
+ 	usrdatum = kzalloc(sizeof(*usrdatum), GFP_KERNEL);
+ 	if (!usrdatum)
+-		goto bad;
++		return -ENOMEM;
  
- 	rc = mls_read_level(levdatum->level, fp);
- 	if (rc)
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		to_read = 3;
 -- 
 2.11.0
