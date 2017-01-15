@@ -1,5 +1,4 @@
-Subject: [PATCH 02/46] selinux: Delete an unnecessary return statement in
- cond_compute_av()
+Subject: [PATCH 03/46] selinux: Improve size determinations in four functions
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>,
@@ -9,8 +8,8 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <86979267-24ac-ce16-a150-43677ac78a0b@users.sourceforge.net>
-Date: Sun, 15 Jan 2017 15:58:16 +0100
+Message-ID: <f36c8dc9-0d90-6eee-9229-fb02d6b27708@users.sourceforge.net>
+Date: Sun, 15 Jan 2017 16:00:04 +0100
 MIME-Version: 1.0
 In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -20,28 +19,56 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sat, 14 Jan 2017 11:00:23 +0100
+Date: Sat, 14 Jan 2017 11:22:12 +0100
 
-The script "checkpatch.pl" pointed information out like the following.
-
-WARNING: void function return statements are not generally useful
-
-Thus remove such a statement in the affected function.
+Replace the specification of data structures by pointer dereferences
+as the parameter for the operator "sizeof" to make the corresponding size
+determination a bit safer.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/conditional.c | 1 -
- 1 file changed, 1 deletion(-)
+ security/selinux/ss/conditional.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index fcfab2635c11..4a3bf29f7565 100644
+index 4a3bf29f7565..771c96afe1d5 100644
 --- a/security/selinux/ss/conditional.c
 +++ b/security/selinux/ss/conditional.c
-@@ -664,5 +664,4 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
- 				(node->key.specified & AVTAB_XPERMS))
- 			services_compute_xperms_drivers(xperms, node);
+@@ -227,7 +227,7 @@ int cond_read_bool(struct policydb *p, struct hashtab *h, void *fp)
+ 	u32 len;
+ 	int rc;
+ 
+-	booldatum = kzalloc(sizeof(struct cond_bool_datum), GFP_KERNEL);
++	booldatum = kzalloc(sizeof(*booldatum), GFP_KERNEL);
+ 	if (!booldatum)
+ 		return -ENOMEM;
+ 
+@@ -332,7 +332,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
+ 		goto err;
  	}
--	return;
- }
+ 
+-	list = kzalloc(sizeof(struct cond_av_list), GFP_KERNEL);
++	list = kzalloc(sizeof(*list), GFP_KERNEL);
+ 	if (!list) {
+ 		rc = -ENOMEM;
+ 		goto err;
+@@ -421,7 +421,7 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
+ 			goto err;
+ 
+ 		rc = -ENOMEM;
+-		expr = kzalloc(sizeof(struct cond_expr), GFP_KERNEL);
++		expr = kzalloc(sizeof(*expr), GFP_KERNEL);
+ 		if (!expr)
+ 			goto err;
+ 
+@@ -472,7 +472,7 @@ int cond_read_list(struct policydb *p, void *fp)
+ 
+ 	for (i = 0; i < len; i++) {
+ 		rc = -ENOMEM;
+-		node = kzalloc(sizeof(struct cond_node), GFP_KERNEL);
++		node = kzalloc(sizeof(*node), GFP_KERNEL);
+ 		if (!node)
+ 			goto err;
+ 
 -- 
 2.11.0
