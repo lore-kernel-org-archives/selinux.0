@@ -1,93 +1,72 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0HI2j8f003530
- for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2017 13:02:46 -0500
-Subject: Re: [PATCH 45/46] selinux: Use common error handling code in
- sidtab_insert()
-To: SF Markus Elfring <elfring@users.sourceforge.net>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Eric Paris <eparis@parisplace.org>, James Morris
- <james.l.morris@oracle.com>,
- Paul Moore <paul@paul-moore.com>, "Serge E. Hallyn" <serge@hallyn.com>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- William Roberts <william.c.roberts@intel.com>
-References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <36f95c73-4ae1-efbf-393c-6f4239a91478@users.sourceforge.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <923ce5f2-48ce-9d90-db19-7c94b7c43794@schaufler-ca.com>
-Date: Tue, 17 Jan 2017 10:02:40 -0800
-MIME-Version: 1.0
-In-Reply-To: <36f95c73-4ae1-efbf-393c-6f4239a91478@users.sourceforge.net>
-Content-Type: text/plain; charset=utf-8
+Message-ID: <1484689106.20454.21.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/1] libsemanage: genhomedircon: consider
+ SEMANAGE_FCONTEXT_DIR in fcontext_matches()
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Tue, 17 Jan 2017 16:38:26 -0500
+In-Reply-To: <20170114110011.13316-1-nicolas.iooss@m4x.org>
+References: <20170114110011.13316-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 1/15/2017 7:45 AM, SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 15 Jan 2017 13:45:45 +0100
->
-> Add a jump target so that a bit of exception handling can be better reused
-> at the end of this function.
->
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+On Sat, 2017-01-14 at 12:00 +0100, Nicolas Iooss wrote:
+> When generating file_contexts.homedirs, libsemanage enumerates the
+> users
+> on the system and tries to find misconfiguration issues by comparing
+> their home directories with file contexts defined in the policy. The
+> comparison is done by fcontext_matches().
+> 
+> Currently this function only operates on file contexts with type ALL,
+> but it makes sense to also operate on the DIR ones, as a comment
+> states
+> in the function.
+> 
+> For example on a system with the following entry in /etc/passwd:
+> 
+>     mytestservice:x:2000:100::/var/lib/mytestservice/dir:/bin/bash
+> 
+> and with the following file context definition:
+> 
+>     /var/lib/mytestservice/.* -d
+> gen_context(system_u:object_r:var_lib_t,s0)
+> 
+> "semodule -B" now shows the following warning:
+> 
+>     libsemanage.get_home_dirs: mytestservice homedir
+>     /var/lib/mytestservice/dir or its parent directory conflicts with
+> a
+>     file context already specified in the policy.  This usually
+>     indicates an incorrectly defined system account.  If it is a
+> system
+>     account please make sure its uid is less than 1000 or greater
+> than
+>     60000 or its login shell is /sbin/nologin.
+
+Thanks, applied.
+
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > ---
->  security/selinux/ss/sidtab.c | 18 ++++++++----------
->  1 file changed, 8 insertions(+), 10 deletions(-)
->
-> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> index f6915f257486..4130f882808c 100644
-> --- a/security/selinux/ss/sidtab.c
-> +++ b/security/selinux/ss/sidtab.c
-> @@ -35,10 +35,8 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
->  	int hvalue, rc = 0;
->  	struct sidtab_node *prev, *cur, *newnode;
->  
-> -	if (!s) {
-> -		rc = -ENOMEM;
-> -		goto out;
-> -	}
-> +	if (!s)
-> +		goto failure_indication;
->  
->  	hvalue = SIDTAB_HASH(sid);
->  	prev = NULL;
-> @@ -54,15 +52,12 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
->  	}
->  
->  	newnode = kmalloc(sizeof(*newnode), GFP_ATOMIC);
-> -	if (!newnode) {
-> -		rc = -ENOMEM;
-> -		goto out;
-
-Why not "return -ENOMEM;" ?
-
-> -	}
-> +	if (!newnode)
-> +		goto failure_indication;
->  	newnode->sid = sid;
->  	if (context_cpy(&newnode->context, context)) {
->  		kfree(newnode);
-> -		rc = -ENOMEM;
-> -		goto out;
-> +		goto failure_indication;
-
-Again, "return -ENOMEM:"
-
->  	}
->  
->  	if (prev) {
-> @@ -80,6 +75,9 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
->  		s->next_sid = sid + 1;
->  out:
->  	return rc;
-> +failure_indication:
-> +	rc = -ENOMEM;
-> +	goto out;
-
-Backward gotos are horrible. Don't do this.
-
->  }
->  
->  static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
+>  libsemanage/src/genhomedircon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libsemanage/src/genhomedircon.c
+> b/libsemanage/src/genhomedircon.c
+> index fd6d391984b6..465dd8829403 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -246,7 +246,7 @@ static int fcontext_matches(const
+> semanage_fcontext_t *fcontext, void *varg)
+>  
+>  	/* Only match ALL or DIR */
+>  	type = semanage_fcontext_get_type(fcontext);
+> -	if (type != SEMANAGE_FCONTEXT_ALL)
+> +	if (type != SEMANAGE_FCONTEXT_ALL && type !=
+> SEMANAGE_FCONTEXT_DIR)
+>  		return 0;
+>  
+>  	len = strlen(oexpr);
