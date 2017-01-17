@@ -1,11 +1,10 @@
-Message-ID: <1484689106.20454.21.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 1/1] libsemanage: genhomedircon: consider
- SEMANAGE_FCONTEXT_DIR in fcontext_matches()
+Message-ID: <1484689529.20454.23.camel@tycho.nsa.gov>
+Subject: Re: Wrong alignment when listing user/login with semanage in French
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Tue, 17 Jan 2017 16:38:26 -0500
-In-Reply-To: <20170114110011.13316-1-nicolas.iooss@m4x.org>
-References: <20170114110011.13316-1-nicolas.iooss@m4x.org>
+To: Laurent Bigonville <bigon@debian.org>, selinux <selinux@tycho.nsa.gov>
+Date: Tue, 17 Jan 2017 16:45:29 -0500
+In-Reply-To: <2b54cfbd-56fb-a074-eeb7-11ebe02b9ecd@debian.org>
+References: <2b54cfbd-56fb-a074-eeb7-11ebe02b9ecd@debian.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,60 +12,33 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, 2017-01-14 at 12:00 +0100, Nicolas Iooss wrote:
-> When generating file_contexts.homedirs, libsemanage enumerates the
-> users
-> on the system and tries to find misconfiguration issues by comparing
-> their home directories with file contexts defined in the policy. The
-> comparison is done by fcontext_matches().
+On Sat, 2017-01-14 at 13:48 +0100, Laurent Bigonville wrote:
+> Hi,
 > 
-> Currently this function only operates on file contexts with type ALL,
-> but it makes sense to also operate on the DIR ones, as a comment
-> states
-> in the function.
+> Not sure I already posted this on the ML.
 > 
-> For example on a system with the following entry in /etc/passwd:
+> When listing the user/login with semanage (login/user -l) in French
+> (and 
+> probably in other languages as well), the columns headers are not 
+> properly aligned.
 > 
->     mytestservice:x:2000:100::/var/lib/mytestservice/dir:/bin/bash
+> This makes it sometimes difficult to read the output(and it's ugly), 
+> see: https://i.imgur.com/zhZkebc.png
 > 
-> and with the following file context definition:
+> Some of the translations should maybe be fixed in this case to make
+> them 
+> shorter, but the alignment should probably be dynamic.
 > 
->     /var/lib/mytestservice/.* -d
-> gen_context(system_u:object_r:var_lib_t,s0)
-> 
-> "semodule -B" now shows the following warning:
-> 
->     libsemanage.get_home_dirs: mytestservice homedir
->     /var/lib/mytestservice/dir or its parent directory conflicts with
-> a
->     file context already specified in the policy.  This usually
->     indicates an incorrectly defined system account.  If it is a
-> system
->     account please make sure its uid is less than 1000 or greater
-> than
->     60000 or its login shell is /sbin/nologin.
+> RHEL/Fedora[1] contains the python binding for libsmartcols, maybe
+> this 
+> could be used to do the formating?
 
-Thanks, applied.
+Not sure.  Is it readily available in other distributions and in
+OpenEmbedded?
 
 > 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> ---
->  libsemanage/src/genhomedircon.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Regards,
 > 
-> diff --git a/libsemanage/src/genhomedircon.c
-> b/libsemanage/src/genhomedircon.c
-> index fd6d391984b6..465dd8829403 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-> @@ -246,7 +246,7 @@ static int fcontext_matches(const
-> semanage_fcontext_t *fcontext, void *varg)
->  
->  	/* Only match ALL or DIR */
->  	type = semanage_fcontext_get_type(fcontext);
-> -	if (type != SEMANAGE_FCONTEXT_ALL)
-> +	if (type != SEMANAGE_FCONTEXT_ALL && type !=
-> SEMANAGE_FCONTEXT_DIR)
->  		return 0;
->  
->  	len = strlen(oexpr);
+> Laurent Bigonvlle
+> 
+> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1369558
