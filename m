@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0IECaDg006789
- for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 09:12:36 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0IEENsA007331
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 09:14:23 -0500
 Subject: Re: New Blog on how SELinux blocked Docker container escape.
 To: =?UTF-8?B?6Z2i5ZKM5q+F?= <ka-omo@sios.com>
 References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
@@ -10,8 +10,8 @@ References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
 Cc: Fedora SELinux Users <selinux@lists.fedoraproject.org>,
  SELinux <selinux@tycho.nsa.gov>, Marko Rauhamaa <marko@pacujo.net>
 From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <8f668ea0-dd25-7f8c-f75d-cee9b9f69e0f@redhat.com>
-Date: Wed, 18 Jan 2017 09:12:18 -0500
+Message-ID: <ad7128b6-44a5-e2d9-4da6-743786665174@redhat.com>
+Date: Wed, 18 Jan 2017 09:14:22 -0500
 MIME-Version: 1.0
 In-Reply-To: <CAEKGoSHqxmHMyFVNTvLZcHC4unpONu2O2cq+Y3EZ5=z6=7Ld0A@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
@@ -50,17 +50,8 @@ On 01/18/2017 12:05 AM, 面和毅 wrote:
 > Kind Regards,
 >
 > OMO
-It mitigates the escape by controlling what can be written and most of
-what can be read.
-Currently policy allows for some information to be read off of the host
-system since the idea
-was to allow things like
+Attempt to cat /etc/shadow in your test to see the blockage.
 
-docker run -ti -v /etc/passwd:/etc/passwd fedora sh
+Here is a blog I wrote on the topic.
 
-Content in /usr and some content in /etc allowed to be read from inside
-of the container.  Content in /var, /home, /root or most other places
-where people would store data are blocked.
-
-To work.  I am tightening up the policy to remove the ability to read
-content in /etc
+http://rhelblog.redhat.com/2017/01/13/selinux-mitigates-container-vulnerability/
