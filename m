@@ -1,164 +1,214 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0ILK1lf003856
- for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 16:20:02 -0500
-Received: by mail-vk0-f65.google.com with SMTP id t8so2017193vke.0
- for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 13:20:00 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0ILZZxq008417
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 16:35:35 -0500
+Received: by mail-wm0-f68.google.com with SMTP id r144so7224040wme.0
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 13:35:32 -0800 (PST)
+Received: from [192.168.1.21] (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
+ by smtp.gmail.com with ESMTPSA id l67sm7696961wmf.1.2017.01.18.13.35.30
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 18 Jan 2017 13:35:30 -0800 (PST)
+Subject: Re: [PATCH] checkpolicy: Fix bug in handling type declaration in
+ optional block.
+To: selinux@tycho.nsa.gov
+References: <1484772829-15960-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <02cc173e-2a1a-3e7c-5de8-639b82585610@gmail.com>
+ <7adea64c-9095-2728-1220-6428260c48a8@tycho.nsa.gov>
+ <be48ba6b-9548-9b72-c60b-d16e4d393b5a@gmail.com>
+From: Dominick Grift <dac.override@gmail.com>
+Message-ID: <47c36656-8adf-366a-1f0e-299fc9c91b6f@gmail.com>
+Date: Wed, 18 Jan 2017 22:35:25 +0100
 MIME-Version: 1.0
-In-Reply-To: <1484334609-17111-1-git-send-email-sds@tycho.nsa.gov>
-References: <1484334609-17111-1-git-send-email-sds@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 18 Jan 2017 16:19:59 -0500
-Message-ID: <CAHC9VhRNe4Si2pcvrbfpHTF82rW0r1iiKwLiJ4Bf_9RKc+DNDg@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: extend sockcreate to support other
- address families
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <be48ba6b-9548-9b72-c60b-d16e4d393b5a@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="E8HdDP6uCpOpMkps7bt4ugo767FTci09P"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jan 13, 2017 at 2:10 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> Extend the sockcreate test program to support other address families.
-> This is what I used to manually confirm the other extended socket classes.
-> However, to avoid bloating the required kernel configuration for the
-> selinux-testsuite and because some of the required kernel config options
-> are not enabled in current Fedora kernels, I am not adding tests of these
-> individual address families to the test script or policy.  We already test
-> a representative sampling of the extended socket classes.
->
-> IUCV is only supported on s390 and QIPCRTR is only supported on qcom.
-> I did not test creating sockets with these two families but confirmed
-> that they are supported socket families from the sources.
->
-> Config options not already enabled in the Fedora kernel configs required
-> to test creating sockets with these address families:
-> CONFIG_CAIF=m
-> CONFIG_DECNET=m
-> CONFIG_LLC2=m
-> CONFIG_PHONET=m
-> CONFIG_X25=m
-> CONFIG_AF_RXRPC=m
->
-> Config options already enabled in the Fedora kernel configs required to
-> test creating sockets with these address families:
-> CONFIG_AX25=m
-> CONFIG_NETROM=m
-> CONFIG_ROSE=m
-> CONFIG_ATM=m
-> CONFIG_RDS=m
-> CONFIG_IRDA=m
-> CONFIG_MISDN=m
-> CONFIG_LLC=m
-> CONFIG_IPX=m
-> CONFIG_CAN=m
-> CONFIG_CAN_RAW=m
-> CONFIG_TIPC=m
-> CONFIG_L2TP=m
-> CONFIG_L2TP_PPPOL2TP=m
-> CONFIG_IEEE802154=m
-> CONFIG_IEEE802154_SOCKET=m
-> CONFIG_NFC=m
-> CONFIG_VSOCKETS=m
-> CONFIG_VMWARE_VMCI_VSOCKETS=m
-> CONFIG_AF_KCM=m
->
-> Sample invocation of sockcreate for each address family that should
-> succeed (no output, exit 0):
-> sockcreate atmpvc dgram default
-> sockcreate atmsvc dgram default
-> sockcreate ax25 dgram default
-> sockcreate caif stream default
-> sockcreate can raw can_raw
-> sockcreate decnet stream default
-> sockcreate ieee802154 dgram default
-> sockcreate ipx dgram default
-> sockcreate irda stream default
-> sockcreate isdn raw default
-> sockcreate kcm dgram default
-> sockcreate llc stream default
-> sockcreate netrom seqpacket default
-> sockcreate nfc seqpacket default
-> sockcreate phonet dgram default
-> sockcreate pppox stream default
-> sockcreate rds seqpacket default
-> sockcreate rose seqpacket default
-> sockcreate rxrpc dgram default
-> sockcreate tipc stream default
-> sockcreate vsock stream default
-> sockcreate x25 seqpacket default
->
-> Note that CAN required adding an explicit protocol value since it
-> did not support creating sockets with the default/0 protocol value.
->
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  tests/extended_socket_class/sockcreate.c | 34 ++++++++++++++++++++++++++++++++
->  1 file changed, 34 insertions(+)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--E8HdDP6uCpOpMkps7bt4ugo767FTci09P
+Content-Type: multipart/mixed; boundary="oVvqtJOVs4Ew9hHIFwQI2dNreuFg5kx5c";
+ protected-headers="v1"
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <47c36656-8adf-366a-1f0e-299fc9c91b6f@gmail.com>
+Subject: Re: [PATCH] checkpolicy: Fix bug in handling type declaration in
+ optional block.
+References: <1484772829-15960-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <02cc173e-2a1a-3e7c-5de8-639b82585610@gmail.com>
+ <7adea64c-9095-2728-1220-6428260c48a8@tycho.nsa.gov>
+ <be48ba6b-9548-9b72-c60b-d16e4d393b5a@gmail.com>
+In-Reply-To: <be48ba6b-9548-9b72-c60b-d16e4d393b5a@gmail.com>
 
-Thanks, merged.  This will be more interesting once the system
-policies support the new object classes, in the meantime it should be
-harmless.
+--oVvqtJOVs4Ew9hHIFwQI2dNreuFg5kx5c
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-> diff --git a/tests/extended_socket_class/sockcreate.c b/tests/extended_socket_class/sockcreate.c
-> index c5802ae..ee1d8f3 100644
-> --- a/tests/extended_socket_class/sockcreate.c
-> +++ b/tests/extended_socket_class/sockcreate.c
-> @@ -17,6 +17,36 @@ static struct nameval domains[] = {
->         { "inet6", AF_INET6 },
->         { "bluetooth", AF_BLUETOOTH },
->         { "alg", AF_ALG },
-> +       { "ax25", AF_AX25 },
-> +       { "ipx", AF_IPX },
-> +       { "netrom", AF_NETROM },
-> +       { "atmpvc", AF_ATMPVC },
-> +       { "x25", AF_X25 },
-> +       { "rose", AF_ROSE },
-> +       { "decnet", AF_DECnet },
-> +       { "atmsvc", AF_ATMSVC },
-> +       { "rds", AF_RDS },
-> +       { "irda", AF_IRDA },
-> +       { "pppox", AF_PPPOX },
-> +       { "llc", AF_LLC },
-> +       { "can", AF_CAN },
-> +       { "tipc", AF_TIPC },
-> +       { "iucv", AF_IUCV },
-> +       { "rxrpc", AF_RXRPC },
-> +       { "isdn", AF_ISDN },
-> +       { "phonet", AF_PHONET },
-> +       { "ieee802154", AF_IEEE802154 },
-> +       { "caif", AF_CAIF },
-> +       { "nfc", AF_NFC },
-> +       { "vsock", AF_VSOCK },
-> +#ifndef AF_KCM
-> +#define AF_KCM 41
-> +#endif
-> +       { "kcm", AF_KCM },
-> +#ifndef AF_QIPCRTR
-> +#define AF_QIPCRTR 42
-> +#endif
-> +       { "qipcrtr", AF_QIPCRTR },
->         { NULL, 0 }
->  };
->
-> @@ -32,6 +62,10 @@ static struct nameval protocols[] = {
->         { "icmp", IPPROTO_ICMP },
->         { "icmpv6", IPPROTO_ICMPV6 },
->         { "sctp", IPPROTO_SCTP },
-> +#ifndef CAN_RAW
-> +#define CAN_RAW 1
-> +#endif
-> +       { "can_raw", CAN_RAW },
->         { "default", 0 },
->         { NULL, 0 }
->  };
-> --
-> 2.7.4
->
+On 01/18/2017 10:15 PM, Dominick Grift wrote:
+> On 01/18/2017 10:09 PM, James Carter wrote:
+>> On 01/18/2017 03:58 PM, Dominick Grift wrote:
+>>> On 01/18/2017 09:53 PM, James Carter wrote:
+>>>> Nicolas Iooss discovered that requiring a type in an optional block
+>>>> after the type has already been declared in another optional block
+>>>> results in a duplicate declaration error.
+>>>>
+>>>
+>>> from what i have been told and from experience, types cannot, reliabl=
+y,
+>>> be declared in optional blocks.
+>>>
+>>> if the above is true, then the compiler should not allow one to decla=
+re
+>>> a type in an optional block in the first place
+>>>
+>>
+>> Well, this ordering issue reported by Nicolas would definitely cause
+>> their declaration to be unreliable. ;)
+>>
+>> I hope to make declaring types in optional blocks reliable.
+>=20
+> That would be nice, but just so you know. This was not the issue i was
+> encountering with declaring types in optionals. So even though this
+> might have made things unreliable. It was not what made it unreliable
+> for me.
+>=20
+
+Actually, sorry. I do actually recognize the second scenario (duplicate
+declaration). So this might in fact be related. I can't believe that
+this ancient bug would finally be fixed. Ive been lead to believe that
+this was just a fundamental limitation of module policy all this time.
+My whole policy was structured on the assumption that types cannot
+reliably be declared in optionals....
+
+>>
+>> Jim
+>>
+>>>> The following policy will trigger the error.
+>>>>
+>>>> optional {
+>>>>   type T1;
+>>>> }
+>>>>
+>>>> optional {
+>>>>   require { type T1; }
+>>>> }
+>>>>
+>>>> In this case, although symtab_insert() in libsepol properly identifi=
+es
+>>>> that the first T1 is a declaration while the second is a require, it=
+
+>>>> will return -2 which is the return value for a duplicate declaration=
+
+>>>> and expect the calling code to properly handle the situation. The
+>>>> caller is require_symbol() in checkpolicy and it checks if the previ=
+ous
+>>>> declaration is in the current scope. If it is, then the require can =
+be
+>>>> ignored. It also checks to see if the declaration is a type and the
+>>>> require an attribute or vice versa which is an error. The problem is=
+
+>>>> that -2 is returned if the declaration is not in scope which is
+>>>> interpreted as a duplicate declaration error.
+>>>>
+>>>> The function should return 1 instead which means that they symbol wa=
+s
+>>>> not
+>>>> added and needs to be freed later.
+>>>>
+>>>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>>>> ---
+>>>>  checkpolicy/module_compiler.c | 16 +++-------------
+>>>>  1 file changed, 3 insertions(+), 13 deletions(-)
+>>>>
+>>>> diff --git a/checkpolicy/module_compiler.c
+>>>> b/checkpolicy/module_compiler.c
+>>>> index 6e5483c..bb60f34 100644
+>>>> --- a/checkpolicy/module_compiler.c
+>>>> +++ b/checkpolicy/module_compiler.c
+>>>> @@ -647,7 +647,6 @@ int require_symbol(uint32_t symbol_type,
+>>>>      } else if (retval =3D=3D -2) {
+>>>>          /* ignore require statements if that symbol was
+>>>>           * previously declared and is in current scope */
+>>>> -        int prev_declaration_ok =3D 0;
+>>>>          if (is_id_in_scope(symbol_type, key)) {
+>>>>              if (symbol_type =3D=3D SYM_TYPES) {
+>>>>                  /* check that previous symbol has same
+>>>> @@ -661,23 +660,14 @@ int require_symbol(uint32_t symbol_type,
+>>>>                                      table, key);
+>>>>                  assert(old_datum !=3D NULL);
+>>>>                  unsigned char old_isattr =3D old_datum->flavor;
+>>>> -                prev_declaration_ok =3D
+>>>> -                    (old_isattr =3D=3D new_isattr ? 1 : 0);
+>>>> -            } else {
+>>>> -                prev_declaration_ok =3D 1;
+>>>> +                if (old_isattr !=3D new_isattr)
+>>>> +                    return -2;
+>>>>              }
+>>>> -        }
+>>>> -        if (prev_declaration_ok) {
+>>>>              /* ignore this require statement because it
+>>>>               * was already declared within my scope */
+>>>>              stack_top->require_given =3D 1;
+>>>> -            return 1;
+>>>> -        } else {
+>>>> -            /* previous declaration was not in scope or
+>>>> -             * had a mismatched type/attribute, so
+>>>> -             * generate an error */
+>>>> -            return -2;
+>>>>          }
+>>>> +        return 1;
+>>>>      } else if (retval < 0) {
+>>>>          return -3;
+>>>>      } else {        /* fall through possible if retval is 0 or 1 */=
+
+>>>>
+>>>
+>>>
+>>>
+>>>
+>>> _______________________________________________
+>>> Selinux mailing list
+>>> Selinux@tycho.nsa.gov
+>>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>>> To get help, send an email containing "help" to
+>>> Selinux-request@tycho.nsa.gov.
+>>>
+>>
+>>
+>=20
+>=20
 
 
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B0=
+2
+Dominick Grift
 
--- 
-paul moore
-www.paul-moore.com
+
+--oVvqtJOVs4Ew9hHIFwQI2dNreuFg5kx5c--
+
+--E8HdDP6uCpOpMkps7bt4ugo767FTci09P
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQGcBAEBCAAGBQJYf9+dAAoJECV0jlU3+UdppWQMAI5TIthC8G+JKfLWaCUKD4NW
+HTz+TYN5q5+seYjU8u8h8SP3i+BczXF91hgX60th6GC1huJofNyxH43QtV+QTcMt
+mGKrWgJKOJ8Sa59ROH7gcAe6hDmDtVgoywhVXk4sm5Y6Lw+XUvaNRx17rWinaYWz
+xsfBZDxkMbt0lfF1CTIT4tIaNHY4i7Hm4D0NOt5iuOe3rVr5AEJsDXvR4d2YEwaB
+HW23Dj5Wxo2hK6s/B79aAUmN2LoC7EfudVXfoI8QpAfa14LalwAmSf+Po2gkuD+M
+SlTTiehElEoW3YzEKlzB94Dcl4XQ65PRDvxH1QZcs0lntEqzdMtjGzKI8YUWr+eK
+Q9TLb2jpf0lRmE41SeU0/7QTY3HDxF663iX1xZLUM7SVw9cucI5gkieFoSyjAI7e
+ITO/eEQXa4CyNAt585Eq8cyX4lwVJj1kccu8Uu+PKuZBoJ3Kr94/IWJuRpdEEvmH
+GeGf/he6A+xG4N7Ai3xu7n8dAUPblVN0GrRO2qxTRA==
+=jmSF
+-----END PGP SIGNATURE-----
+
+--E8HdDP6uCpOpMkps7bt4ugo767FTci09P--
