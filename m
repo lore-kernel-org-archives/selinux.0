@@ -1,129 +1,161 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0I55f3d009477
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 00:05:41 -0500
+Received: by mail-it0-f43.google.com with SMTP id c7so110636121itd.1
+ for <selinux@tycho.nsa.gov>; Tue, 17 Jan 2017 21:05:33 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1484689682.20454.26.camel@tycho.nsa.gov>
-References: <20170114143825.4592-1-nicolas.iooss@m4x.org>
- <1484689682.20454.26.camel@tycho.nsa.gov>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Tue, 17 Jan 2017 23:01:26 +0100
-Message-ID: <CAJfZ7=mNS_hEnR9R4GdD1NHjnqxNqiB-seRA6EeGMmccE1rz=g@mail.gmail.com>
-Subject: Re: [PATCH 1/1] Re-link programs after libsepol.a is updated
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a1140138611d0b5054651711e
+In-Reply-To: <bc24daad-4944-925f-157c-3dfdc88e253e@redhat.com>
+References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
+ <20170114082311.GN12376@tracyreed.org> <87pojqj86o.fsf@elektro.pacujo.net>
+ <bc24daad-4944-925f-157c-3dfdc88e253e@redhat.com>
+From: =?UTF-8?B?6Z2i5ZKM5q+F?= <ka-omo@sios.com>
+Date: Wed, 18 Jan 2017 14:05:31 +0900
+Message-ID: <CAEKGoSHqxmHMyFVNTvLZcHC4unpONu2O2cq+Y3EZ5=z6=7Ld0A@mail.gmail.com>
+Subject: Re: New Blog on how SELinux blocked Docker container escape.
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Marko Rauhamaa <marko@pacujo.net>, Tracy Reed <treed@ultraviolet.org>,
+ SELinux <selinux@tycho.nsa.gov>,
+ Fedora SELinux Users <selinux@lists.fedoraproject.org>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1140138611d0b5054651711e
-Content-Type: text/plain; charset=UTF-8
+Dear Sir,
 
-On Tue, Jan 17, 2017 at 10:48 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+I'm member of Japan-SOSS SIG(Secure OSS Special
+Interest Group).
+We love SELinux(12years user) and we are promoting SELinux in Japan.
 
-> On Sat, 2017-01-14 at 15:38 +0100, Nicolas Iooss wrote:
-> > After libsepol is modified (for example while developing new features
-> > or
-> > fixing bugs), running "make install" in the top-level directory does
-> > not
-> > update the programs which use libsepol.a. Add this static library to
-> > the
-> > target dependencies in order to force their updates. This makes
-> > "make"
-> > use libsepol.a in the linking command without using LDLIBS.
-> >
-> > While at it, copy what commit 14d706434846 ("libselinux: Allow
-> > overriding libsepol.a location during build") introduced in
-> > libselinux
-> > Makefile by using a new LIBSEPOLA variable in all Makefiles.
+>From technical interesting(we are promoting Docker
+with SELinux), we did PoC for CVE-2016-9962 on Fedora25.
+
+Then we found current SELinux(maybe policy) does not
+mitigate that vulnerability.
+
+We could reproduce that vulnerability with
+- add CAP_SYS_PTRACE to container
+- modified runc because there’s not so much race window on runc.
+then we think it's not so easy in usual situation.
+Also we couldn't reproduce it on CentOS7(latest).
+
+We posted that PoC result on our community blog.
+https://jsosug.github.io/post/omok-selinux-docker-20170118/
+
+Also we wish to argue how can we protect this kind of
+vulnerability by using SELinux.
+
+Kind Regards,
+
+OMO
+-- 
+Kazuki Omo: ka-omo@sios.com
+OSS &Security Evangelist
+Secure OSS SIG
+https://jsosug.github.io/
+CISSP #366942
+Tel: +81364015149
+
+2017-01-17 22:48 GMT+09:00 Daniel J Walsh <dwalsh@redhat.com>:
 >
-
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> > index d17792c13350..5640a57d2768 100644
-> > --- a/libselinux/src/Makefile
-> > +++ b/libselinux/src/Makefile
-> > @@ -155,8 +155,8 @@ selinuxswig_python_exception.i:
-> > ../include/selinux/selinux.h
-> >  $(AUDIT2WHYLOBJ): audit2why.c
-> >       $(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC
-> > -DSHARED -c -o $@ $<
-> >
-> > -$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
-> > -     $(CC) $(CFLAGS) -shared -o $@ $^ -L. $(LDFLAGS) -lselinux
-> > $(LIBSEPOLA) $(PYLIBS) -L$(LIBDIR)
-> > +$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)
-> > +     $(CC) $(CFLAGS) -shared -o $@ $^ -L. $(LDFLAGS) -lselinux
-> > $(PYLIBS) -L$(LIBDIR)
 >
-> Why did you change this?
-
-
-When libsepol.a is updated, $(AUDIT2WHYSO) (which is a Python extension,
-named something like python3audit2why.so and installed as module
-"selinux.audit2why") was not rebuilt. Adding $(LIBSEPOLA) to the
-dependencies (in order to fix this) makes libsepol.a appear in the command
-line through $^ so I removed $(LIBSEPOLA) from the "$(CC)..." line.
-
-Thanks for your review,
-Nicolas
-
---001a1140138611d0b5054651711e
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div class=3D"gmail_extra"><div class=3D"gmail_quote">On T=
-ue, Jan 17, 2017 at 10:48 PM, Stephen Smalley <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&gt;</=
-span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0=
-px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex"><div clas=
-s=3D"gmail-HOEnZb"><div class=3D"gmail-h5">On Sat, 2017-01-14 at 15:38 +010=
-0, Nicolas Iooss wrote:<br>
-&gt; After libsepol is modified (for example while developing new features<=
-br>
-&gt; or<br>
-&gt; fixing bugs), running &quot;make install&quot; in the top-level direct=
-ory does<br>
-&gt; not<br>
-&gt; update the programs which use libsepol.a. Add this static library to<b=
-r>
-&gt; the<br>
-&gt; target dependencies in order to force their updates. This makes<br>
-&gt; &quot;make&quot;<br>
-&gt; use libsepol.a in the linking command without using LDLIBS.<br>
-&gt;<br>
-&gt; While at it, copy what commit 14d706434846 (&quot;libselinux: Allow<br=
+> On 01/14/2017 04:35 AM, Marko Rauhamaa wrote:
+>> Tracy Reed <treed@ultraviolet.org>:
+>>
+>>> On Fri, Jan 13, 2017 at 11:48:20AM PST, Daniel J Walsh spake thusly:
+>>>> http://rhelblog.redhat.com/2017/01/13/docker-0-day-stopped-cold-by-selinux/
+>>> I have long been of the opinion that it is this sort of thing which best
+>>> advocates the use of SELinux. We need more examples like this.
+>> The threats are obvious to anyone by now. What SELinux needs is a clear
+>> methodology. For example, this is *not* a methodology:
+>>
+>>    <URL: https://wiki.gentoo.org/wiki/SELinux/Tutorials/Creating_your_o
+>>    wn_policy_module_file>
+>>
+>>
+>> As a software developer, what am I expect to do wrt SELinux? Should I
+>> ship my product with an SELinux policy module? Or should I simply make
+>> it SELinux agnostic and supply information for the sysadmin so they can
+>> add a policy module for my product? If so, what information should I
+>> provide?
+> Either. You should definitely not advise to turn it off.  You should
+> either understand how SELinux would interact with
+> your product and tell admins with Booleans to set, Which labels to set,
+> andy modification of configuration required.
+> If you really want to push it you should ship additional policy with
+> your application to confine it.
 >
-&gt; overriding libsepol.a location during build&quot;) introduced in<br>
-&gt; libselinux<br>
-&gt; Makefile by using a new LIBSEPOLA variable in all Makefiles.<br></div>=
-</div></blockquote><div><br></div><blockquote class=3D"gmail_quote" style=
-=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding=
--left:1ex"><div class=3D"gmail-HOEnZb"><div class=3D"gmail-h5">
-&gt; diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile<br>
-&gt; index d17792c13350..5640a57d2768 100644<br>
-&gt; --- a/libselinux/src/Makefile<br>
-&gt; +++ b/libselinux/src/Makefile<br>
-&gt; @@ -155,8 +155,8 @@ selinuxswig_python_exception.<wbr>i:<br>
-&gt; ../include/selinux/selinux.h<br>
-&gt; =C2=A0$(AUDIT2WHYLOBJ): audit2why.c<br>
-&gt; =C2=A0=C2=A0 =C2=A0 =C2=A0$(CC) $(filter-out -Werror, $(CFLAGS)) $(PYI=
-NC) -fPIC<br>
-&gt; -DSHARED -c -o $@ $&lt;<br>
-&gt; =C2=A0<br>
-&gt; -$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)<br>
-&gt; -=C2=A0 =C2=A0 =C2=A0$(CC) $(CFLAGS) -shared -o $@ $^ -L. $(LDFLAGS) -=
-lselinux<br>
-&gt; $(LIBSEPOLA) $(PYLIBS) -L$(LIBDIR)<br>
-&gt; +$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0$(CC) $(CFLAGS) -shared -o $@ $^ -L. $(LDFLAGS) -=
-lselinux<br>
-&gt; $(PYLIBS) -L$(LIBDIR)<br>
-<br>
-</div></div>Why did you change this?</blockquote><div><br></div><div>When l=
-ibsepol.a is updated, $(AUDIT2WHYSO) (which is a Python extension, named so=
-mething like python3audit2why.so and installed as module &quot;selinux.audi=
-t2why&quot;) was not rebuilt. Adding=C2=A0$(LIBSEPOLA) to the dependencies =
-(in order to fix this) makes libsepol.a appear in the command line through =
-$^ so I removed $(LIBSEPOLA) from the &quot;$(CC)...&quot; line.</div><div>=
-<br></div><div>Thanks for your review,</div><div>Nicolas</div></div></div><=
-/div>
+> In the container world this becomes much easier, since SELinux can treat
+> all applications as a black box and just make
+> sure the application stays in the box, which is what the BLOG is about,
+> how SELinux keeps the container processes contained.
+>> As a sysadmin, should I accept RedHat's policy collection or come up
+>> with my own?
+> Yes you should most likely accept Red hat's Policy and customize it as
+> needed.
+>> If I need another boolean not supplied by RedHat, what am I
+>> to do?
+> You most likely would just add a policy module and not another boolean.
+> You can add allow rules
+> on the fly using semodule. This is what most admins do.  You would also
+> need to fix the labeling, which
+> is usually the problem.
+>> How do I make sure my policy is sound?
+> Probably best to have other people more expert review it.  But Policy is
+> not rocket science.  You are
+> basically defining labels which a process label can write to, and read
+> from.
+>> How do I find out what
+>> legitimate access I need to permit for a random service apart from
+>> monitoring the audit log?
+> That is the only way.  sepolicy generate does attempt to help you get
+> started but other the code analysys, we have
+> found that running an app through a test suite and collecting the logs
+> and processing them is the best way to figure
+> out what an application does.
+>> It's much easier to understand sandboxes, namespaces, containers,
+>> virtual machines and such. What happens in Vegas stays in Vegas.
+> I agree.  This is why we should be pushing towards containers.  90 % or
+> Android Cell Phones now run with SELinux (SEANdroid) in enforcing mode
+> and no one knows, because the applications are running in a form of
+> container.
+>> Take Daniel Walsh's link above. I didn't get any smarter reading it.
+>> Look at <URL: https://bugzilla.redhat.com/show_bug.cgi?id=1409531#c8>:
+>>
+>>    The proposed exploit scenario [...] is *not* possible under the
+>>    default SELinux configuration.
+>>
+>> Would it be possible under an SELinux configuration defined by me?
+> Does this help?
+> http://rhelblog.redhat.com/2017/01/13/docker-0-day-stopped-cold-by-selinux/
+>
+> Yes it would be possible if you disabled SELinux on the host. Or if you
+> disabled it inside of the container, or you ran
+> the container privileged.  Of if you added custom policy to allow a
+> process running as container_t to write elsewhere on
+> the system.
+>>
+>> Marko
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>>
+>>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
---001a1140138611d0b5054651711e--
+
+
+-- 
+Kazuki Omo: ka-omo@sios.com
+OSS &Security Evangelist
+OSS Business Planning Dept.
+CISSP #366942
+Tel: +81364015149
