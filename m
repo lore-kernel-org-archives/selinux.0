@@ -1,146 +1,66 @@
-Subject: Re: [PATCH 1/1] checkpolicy: do not leak memory when declaring a type
- which has been required
-To: Stephen Smalley <sds@tycho.nsa.gov>, Nicolas Iooss
- <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20170114131255.17598-1-nicolas.iooss@m4x.org>
- <1484689623.20454.25.camel@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <9faf1fa1-00cc-20a6-d942-2fceaed7c593@tycho.nsa.gov>
-Date: Wed, 18 Jan 2017 08:37:48 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0IECaDg006789
+ for <selinux@tycho.nsa.gov>; Wed, 18 Jan 2017 09:12:36 -0500
+Subject: Re: New Blog on how SELinux blocked Docker container escape.
+To: =?UTF-8?B?6Z2i5ZKM5q+F?= <ka-omo@sios.com>
+References: <81c53826-f45f-8e01-e64b-8b16285d575d@redhat.com>
+ <20170114082311.GN12376@tracyreed.org> <87pojqj86o.fsf@elektro.pacujo.net>
+ <bc24daad-4944-925f-157c-3dfdc88e253e@redhat.com>
+ <CAEKGoSHqxmHMyFVNTvLZcHC4unpONu2O2cq+Y3EZ5=z6=7Ld0A@mail.gmail.com>
+Cc: Fedora SELinux Users <selinux@lists.fedoraproject.org>,
+ SELinux <selinux@tycho.nsa.gov>, Marko Rauhamaa <marko@pacujo.net>
+From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <8f668ea0-dd25-7f8c-f75d-cee9b9f69e0f@redhat.com>
+Date: Wed, 18 Jan 2017 09:12:18 -0500
 MIME-Version: 1.0
-In-Reply-To: <1484689623.20454.25.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <CAEKGoSHqxmHMyFVNTvLZcHC4unpONu2O2cq+Y3EZ5=z6=7Ld0A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/17/2017 04:47 PM, Stephen Smalley wrote:
-> On Sat, 2017-01-14 at 14:12 +0100, Nicolas Iooss wrote:
->> This kind of strange construction is currently accepted by
->> checkmodule
->> but it makes memory to be leaked in declare_type():
->>
->>     optional {
->>         require { type TYPE1; }
->>     }
->>     optional {
->>         require { attribute ATTR; }
->>         type TYPE1, ATTR;
->>     }
->>
->> Moreover reversing the order of these two optional blocks leads to an
->> (expected) error:
->>
->>     ERROR 'duplicate declaration of type/attribute' at token 'TYPE1'
->>     on line 14:
->>             require { type TYPE1; }
+
+
+On 01/18/2017 12:05 AM, 面和毅 wrote:
+> Dear Sir,
 >
-> I could be wrong, but this error seems wrong to me.  It isn't declaring
-> the type multiple times but instead is requiring it in one optional
-> block (with an empty body besides the require) and then declaring it in
-> another.  Technically, that should turn on the first optional block
-> during link/expand IIUC.  cc'ing some others
+> I'm member of Japan-SOSS SIG(Secure OSS Special
+> Interest Group).
+> We love SELinux(12years user) and we are promoting SELinux in Japan.
 >
+> >From technical interesting(we are promoting Docker
+> with SELinux), we did PoC for CVE-2016-9962 on Fedora25.
+>
+> Then we found current SELinux(maybe policy) does not
+> mitigate that vulnerability.
+>
+> We could reproduce that vulnerability with
+> - add CAP_SYS_PTRACE to container
+> - modified runc because there’s not so much race window on runc.
+> then we think it's not so easy in usual situation.
+> Also we couldn't reproduce it on CentOS7(latest).
+>
+> We posted that PoC result on our community blog.
+> https://jsosug.github.io/post/omok-selinux-docker-20170118/
+>
+> Also we wish to argue how can we protect this kind of
+> vulnerability by using SELinux.
+>
+> Kind Regards,
+>
+> OMO
+It mitigates the escape by controlling what can be written and most of
+what can be read.
+Currently policy allows for some information to be read off of the host
+system since the idea
+was to allow things like
 
-The error looks wrong to me as well.
+docker run -ti -v /etc/passwd:/etc/passwd fedora sh
 
-Jim
+Content in /usr and some content in /etc allowed to be read from inside
+of the container.  Content in /var, /home, /root or most other places
+where people would store data are blocked.
 
->>
->> Make checkmodule fails with an error when encourntering the first
->> construction.
->>
->> Moreover the construction below also makes memory to be leaked:
->>
->>     optional {
->>         require { type TYPE2; attribute ATTR; }
->>         typeattribute TYPE2 ATTR;
->>     }
->>     type TYPE2;
->>
->> This example is valid and is used by several refpolicy modules. In
->> declare_type(), declare_symbol() returns 1, stack_top->parent is NULL
->> and the scope of TYPE2 has been updated when declare_symbol() called
->> symtab_insert(). When these conditions are met, declare_type() should
->> return the currently existing type in the policy database.
->>
->> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->> ---
->>
->> I have tested this patch both with "make test" and by compiling the
->> current master branch of refpolicy. I have not tested it to build any
->> Android policy.
->>
->>  checkpolicy/module_compiler.c | 31 +++++++++++++++++++++++++++++--
->>  1 file changed, 29 insertions(+), 2 deletions(-)
->>
->> diff --git a/checkpolicy/module_compiler.c
->> b/checkpolicy/module_compiler.c
->> index 6e5483c17540..04d09d1445a3 100644
->> --- a/checkpolicy/module_compiler.c
->> +++ b/checkpolicy/module_compiler.c
->> @@ -308,7 +308,7 @@ role_datum_t *declare_role(unsigned char isattr)
->>  type_datum_t *declare_type(unsigned char primary, unsigned char
->> isattr)
->>  {
->>  	char *id;
->> -	type_datum_t *typdatum;
->> +	type_datum_t *typdatum, *old_datum;
->>  	int retval;
->>  	uint32_t value = 0;
->>
->> @@ -335,10 +335,37 @@ type_datum_t *declare_type(unsigned char
->> primary, unsigned char isattr)
->>  	typdatum->flavor = isattr ? TYPE_ATTRIB : TYPE_TYPE;
->>
->>  	retval = declare_symbol(SYM_TYPES, id, typdatum, &value,
->> &value);
->> -	if (retval == 0 || retval == 1) {
->> +	if (retval == 0) {
->>  		if (typdatum->primary) {
->>  			typdatum->s.value = value;
->>  		}
->> +	} else if (retval == 1) {
->> +		/* the type has been previously marked as required
->> */
->> +		assert(stack_top->type == 1);
->> +		if (stack_top->parent == NULL) {
->> +			/* in global scope, the type has previously
->> been required and is now declared.
->> +			 * policydbp->scope[SYM_TYPES] has been
->> updated by declare_symbol() */
->> +			old_datum = (type_datum_t *)
->> hashtab_search(policydbp->p_types.table, id);
->> +
->> +			/* check that previous symbol has the same
->> type/attribute-ness */
->> +			if (typdatum->flavor == old_datum->flavor) {
->> +				type_datum_destroy(typdatum);
->> +				free(typdatum);
->> +				typdatum = old_datum;
->> +			} else {
->> +				yyerror("declaration of
->> type/attribute with an unexpected flavor");
->> +				type_datum_destroy(typdatum);
->> +				free(typdatum);
->> +				typdatum = NULL;
->> +			}
->> +			free(id);
->> +		} else {
->> +			yyerror("declaration of type/attribute after
->> it has been required");
->> +			free(id);
->> +			type_datum_destroy(typdatum);
->> +			free(typdatum);
->> +			return NULL;
->> +		}
->>  	} else {
->>  		/* error occurred (can't have duplicate type
->> declarations) */
->>  		free(id);
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+To work.  I am tightening up the policy to remove the ability to read
+content in /etc
