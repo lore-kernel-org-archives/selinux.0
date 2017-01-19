@@ -1,10 +1,12 @@
-Message-ID: <1484846420.28584.12.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] Compilation fixes for macOS
+Message-ID: <1484846495.28584.13.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] checkpolicy: Fix bug in handling type declaration in
+ optional block.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <karlwmacmillan@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-Date: Thu, 19 Jan 2017 12:20:20 -0500
-In-Reply-To: <CANjvhbOeeRaFw_DhEL=QqLnycvHDd4rAnuLNVikhjQOjPYQVkQ@mail.gmail.com>
-References: <CANjvhbOeeRaFw_DhEL=QqLnycvHDd4rAnuLNVikhjQOjPYQVkQ@mail.gmail.com>
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+Date: Thu, 19 Jan 2017 12:21:35 -0500
+In-Reply-To: <02cc173e-2a1a-3e7c-5de8-639b82585610@gmail.com>
+References: <1484772829-15960-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <02cc173e-2a1a-3e7c-5de8-639b82585610@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,84 +14,116 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-01-18 at 12:07 -0500, Karl MacMillan wrote:
-> Compilation fixes for macOS
+On Wed, 2017-01-18 at 21:58 +0100, Dominick Grift wrote:
+> On 01/18/2017 09:53 PM, James Carter wrote:
+> > 
+> > Nicolas Iooss discovered that requiring a type in an optional block
+> > after the type has already been declared in another optional block
+> > results in a duplicate declaration error.
+> > 
 > 
-> ln on macOS doesn't support --relative, so use the gnu version by
-> default.
-> 
-> Changes to how PREFIX is used in recent Makefiles make it so that
-> installation to /usr/local is broken on all systems, but /usr is not
-> writable on recent macOS versions so that is needed. This patch makes
-> 'PREFIX=/usr/local make install' work again, but will break the
-> default of having LIBDIR be /usr/lib and SHLIBDIR be /usr/lib. I'm
-> not
-> certain what this might break.
+> from what i have been told and from experience, types cannot,
+> reliably,
+> be declared in optional blocks.
 
-The default was LIBDIR=/usr/lib SHLIBDIR=/lib.
-We certainly don't want to break that.
-Of course, on usrmerge environments (i.e. modern Fedora), /lib is just
-a symlink to /usr/lib so it doesn't matter, but not everyone is using
-usrmerge.
-
-Also, your patch was corrupted and not appliable. Use git send-email.
-
+If true, that is likely a linker issue rather than a checkpolicy issue.
+But that would make optionals rather useless if true.
 
 > 
-> ---
->  README                | 3 +++
->  libsepol/src/Makefile | 6 ++++--
->  2 files changed, 7 insertions(+), 2 deletions(-)
+> if the above is true, then the compiler should not allow one to
+> declare
+> a type in an optional block in the first place
 > 
-> diff --git a/README b/README
-> index e6f7276..2e04fa6 100644
-> --- a/README
-> +++ b/README
-> @@ -14,6 +14,9 @@ make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install
-> install-pywrap relabel
->  or on x86 (32-bit), run:
->  make install install-pywrap relabel
+> > 
+> > The following policy will trigger the error.
+> > 
+> > optional {
+> >   type T1;
+> > }
+> > 
+> > optional {
+> >   require { type T1; }
+> > }
+> > 
+> > In this case, although symtab_insert() in libsepol properly
+> > identifies
+> > that the first T1 is a declaration while the second is a require,
+> > it
+> > will return -2 which is the return value for a duplicate
+> > declaration
+> > and expect the calling code to properly handle the situation. The
+> > caller is require_symbol() in checkpolicy and it checks if the
+> > previous
+> > declaration is in the current scope. If it is, then the require can
+> > be
+> > ignored. It also checks to see if the declaration is a type and the
+> > require an attribute or vice versa which is an error. The problem
+> > is
+> > that -2 is returned if the declaration is not in scope which is
+> > interpreted as a duplicate declaration error.
+> > 
+> > The function should return 1 instead which means that they symbol
+> > was not
+> > added and needs to be freed later.
+> > 
+> > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> > ---
+> >  checkpolicy/module_compiler.c | 16 +++-------------
+> >  1 file changed, 3 insertions(+), 13 deletions(-)
+> > 
+> > diff --git a/checkpolicy/module_compiler.c
+> > b/checkpolicy/module_compiler.c
+> > index 6e5483c..bb60f34 100644
+> > --- a/checkpolicy/module_compiler.c
+> > +++ b/checkpolicy/module_compiler.c
+> > @@ -647,7 +647,6 @@ int require_symbol(uint32_t symbol_type,
+> >  	} else if (retval == -2) {
+> >  		/* ignore require statements if that symbol was
+> >  		 * previously declared and is in current scope */
+> > -		int prev_declaration_ok = 0;
+> >  		if (is_id_in_scope(symbol_type, key)) {
+> >  			if (symbol_type == SYM_TYPES) {
+> >  				/* check that previous symbol has
+> > same
+> > @@ -661,23 +660,14 @@ int require_symbol(uint32_t symbol_type,
+> >  								  
+> >   table, key);
+> >  				assert(old_datum != NULL);
+> >  				unsigned char old_isattr =
+> > old_datum->flavor;
+> > -				prev_declaration_ok =
+> > -				    (old_isattr == new_isattr ? 1
+> > : 0);
+> > -			} else {
+> > -				prev_declaration_ok = 1;
+> > +				if (old_isattr != new_isattr)
+> > +					return -2;
+> >  			}
+> > -		}
+> > -		if (prev_declaration_ok) {
+> >  			/* ignore this require statement because
+> > it
+> >  			 * was already declared within my scope */
+> >  			stack_top->require_given = 1;
+> > -			return 1;
+> > -		} else {
+> > -			/* previous declaration was not in scope
+> > or
+> > -			 * had a mismatched type/attribute, so
+> > -			 * generate an error */
+> > -			return -2;
+> >  		}
+> > +		return 1;
+> >  	} else if (retval < 0) {
+> >  		return -3;
+> >  	} else {		/* fall through possible if retval
+> > is 0 or 1 */
+> > 
 > 
-> +To install everyting under /usr/local run:
-> +make PREFIX=/usr/local install install-pywrap relabel
-> +
->  This may render your system unusable if the upstream SELinux
-> userspace
->  lacks library functions or other dependencies relied upon by your
->  distribution.  If it breaks, you get to keep both pieces.
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index 497cd56..1a924e1 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -2,7 +2,7 @@
->  PREFIX ?= $(DESTDIR)/usr
->  INCLUDEDIR ?= $(PREFIX)/include
->  LIBDIR ?= $(PREFIX)/lib
-> -SHLIBDIR ?= $(DESTDIR)/lib
-> +SHLIBDIR ?= $(PREFIX)/lib
->  RANLIB ?= ranlib
->  LIBBASE ?= $(shell basename $(LIBDIR))
->  CILDIR ?= ../cil
-> @@ -32,10 +32,12 @@ endif
 > 
->  LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
-> 
-> +LN=ln
->  OS := $(shell uname)
->  ifeq ($(OS), Darwin)
->  LD_SONAME_FLAGS=-install_name,$(LIBSO)
->  LDFLAGS += -undefined dynamic_lookup
-> +LN=gln
->  endif
-> 
->  all: $(LIBA) $(LIBSO) $(LIBPC)
-> @@ -84,7 +86,7 @@ install: all
->         install -m 755 $(LIBSO) $(SHLIBDIR)
->         test -d $(LIBDIR)/pkgconfig || install -m 755 -d
-> $(LIBDIR)/pkgconfig
->         install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
-> -       ln -sf --relative $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
-> +       $(LN) -sf --relative $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
-> 
->  relabel:
->         /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho
+> .nsa.gov.
