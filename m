@@ -1,13 +1,10 @@
-Message-ID: <1484845904.28584.6.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: selinux_restorecon: only log no default
- label warning for caller-supplied pathname
+Message-ID: <1484846420.28584.12.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] Compilation fixes for macOS
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, richard_c_haines@btinternet.com
-Date: Thu, 19 Jan 2017 12:11:44 -0500
-In-Reply-To: <CANmMgnGvNHCigq8Nd3Tj33pRuh9jjzSdpGFLi2YTzhb=sFMhsg@mail.gmail.com>
-References: <1484339481-3260-1-git-send-email-sds@tycho.nsa.gov>
- <CANmMgnGvNHCigq8Nd3Tj33pRuh9jjzSdpGFLi2YTzhb=sFMhsg@mail.gmail.com>
+To: Karl MacMillan <karlwmacmillan@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
+Date: Thu, 19 Jan 2017 12:20:20 -0500
+In-Reply-To: <CANjvhbOeeRaFw_DhEL=QqLnycvHDd4rAnuLNVikhjQOjPYQVkQ@mail.gmail.com>
+References: <CANjvhbOeeRaFw_DhEL=QqLnycvHDd4rAnuLNVikhjQOjPYQVkQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,56 +12,84 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-01-17 at 15:30 +0000, Alan Jenkins wrote:
-> On 13/01/2017, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > 
-> > $ touch /tmp/foo
-> > $ chcon -t etc_t /tmp/foo
-> > $ restorecon /tmp/foo
-> > Warning no default label for /tmp/foo
-> > $ restorecon -R /tmp/foo
-> > Warning no default label for /tmp/foo
-> > $ restorecon -R /tmp
+On Wed, 2017-01-18 at 12:07 -0500, Karl MacMillan wrote:
+> Compilation fixes for macOS
 > 
-> Thanks again!
+> ln on macOS doesn't support --relative, so use the gnu version by
+> default.
 > 
-> restorecon works as advertised.  I notice there are some other
-> spurious messages from fixfiles on master, which I didn't see before.
-> I suspect in passing, you in particular might know where they came
-> from :-P.  Extract from `fixfiles check`:
-> 
-> filespec hash table stats: 89 elements, 89/65536 buckets used,
-> longest
-> chain length 1
+> Changes to how PREFIX is used in recent Makefiles make it so that
+> installation to /usr/local is broken on all systems, but /usr is not
+> writable on recent macOS versions so that is needed. This patch makes
+> 'PREFIX=/usr/local make install' work again, but will break the
+> default of having LIBDIR be /usr/lib and SHLIBDIR be /usr/lib. I'm
+> not
+> certain what this might break.
 
-Yes, I'll reduce that to debug level or drop it altogether.
+The default was LIBDIR=/usr/lib SHLIBDIR=/lib.
+We certainly don't want to break that.
+Of course, on usrmerge environments (i.e. modern Fedora), /lib is just
+a symlink to /usr/lib so it doesn't matter, but not everyone is using
+usrmerge.
 
-Also, should probably add a logging callback to setfiles/restorecon so
-that it can prepend any messages from libselinux with argv[0] so these
-don't show up with no indication of the program.
+Also, your patch was corrupted and not appliable. Use git send-email.
 
-> /dev/tty3 not reset as customized by admin to
-> unconfined_u:object_r:user_tty_device_t:s0
-> /dev/tty2 not reset as customized by admin to
-> unconfined_u:object_r:user_tty_device_t:s0
-> filespec hash table stats: 558 elements, 558/65536 buckets used,
-> longest chain length 1
+
 > 
-> Messages about /dev/tty* are informative; statistics about hash
-> tables are not.
+> ---
+>  README                | 3 +++
+>  libsepol/src/Makefile | 6 ++++--
+>  2 files changed, 7 insertions(+), 2 deletions(-)
 > 
-> Testing method:
+> diff --git a/README b/README
+> index e6f7276..2e04fa6 100644
+> --- a/README
+> +++ b/README
+> @@ -14,6 +14,9 @@ make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install
+> install-pywrap relabel
+>  or on x86 (32-bit), run:
+>  make install install-pywrap relabel
 > 
-> * install selinux to ~/obj, according to README
-> * backup /sbin/restorecon and /sbin/setfiles
-> * overwrite them
-> * run LD_LIBRARY_PATH=~/obj/lib fixfiles check
+> +To install everyting under /usr/local run:
+> +make PREFIX=/usr/local install install-pywrap relabel
+> +
+>  This may render your system unusable if the upstream SELinux
+> userspace
+>  lacks library functions or other dependencies relied upon by your
+>  distribution.  If it breaks, you get to keep both pieces.
+> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> index 497cd56..1a924e1 100644
+> --- a/libsepol/src/Makefile
+> +++ b/libsepol/src/Makefile
+> @@ -2,7 +2,7 @@
+>  PREFIX ?= $(DESTDIR)/usr
+>  INCLUDEDIR ?= $(PREFIX)/include
+>  LIBDIR ?= $(PREFIX)/lib
+> -SHLIBDIR ?= $(DESTDIR)/lib
+> +SHLIBDIR ?= $(PREFIX)/lib
+>  RANLIB ?= ranlib
+>  LIBBASE ?= $(shell basename $(LIBDIR))
+>  CILDIR ?= ../cil
+> @@ -32,10 +32,12 @@ endif
 > 
-> (I believe fixfiles is running "/sbin/restorecon" or
-> "/sbin/setfiles",
-> regardless of the install location or current PATH).
+>  LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
 > 
-> (I had some great undefined behaviour, before I realized I needed to
-> set LD_LIBRARY_PATH.  I've been spoilt by other projects, providing
-> scripts that magically set LD_LIBRARY_PATH when you try to run
-> something like restorecon from the build directory).
+> +LN=ln
+>  OS := $(shell uname)
+>  ifeq ($(OS), Darwin)
+>  LD_SONAME_FLAGS=-install_name,$(LIBSO)
+>  LDFLAGS += -undefined dynamic_lookup
+> +LN=gln
+>  endif
+> 
+>  all: $(LIBA) $(LIBSO) $(LIBPC)
+> @@ -84,7 +86,7 @@ install: all
+>         install -m 755 $(LIBSO) $(SHLIBDIR)
+>         test -d $(LIBDIR)/pkgconfig || install -m 755 -d
+> $(LIBDIR)/pkgconfig
+>         install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
+> -       ln -sf --relative $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
+> +       $(LN) -sf --relative $(SHLIBDIR)/$(LIBSO) $(LIBDIR)/$(TARGET)
+> 
+>  relabel:
+>         /sbin/restorecon $(SHLIBDIR)/$(LIBSO)
