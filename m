@@ -1,17 +1,18 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0LEQOog012692
- for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 09:26:24 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0LEQOoh012692
+ for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 09:26:26 -0500
 Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
  [81.66.120.207])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id A1B1E5647DE
- for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 15:26:22 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 319575647DE
+ for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 15:26:24 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/4] checkpolicy: fix memory leaks in define_filename_trans()
-Date: Sat, 21 Jan 2017 15:26:11 +0100
-Message-Id: <20170121142613.12375-2-nicolas.iooss@m4x.org>
+Subject: [PATCH 4/4] checkpolicy: do not leak memory when a class is not found
+ in an avrule
+Date: Sat, 21 Jan 2017 15:26:13 +0100
+Message-Id: <20170121142613.12375-4-nicolas.iooss@m4x.org>
 In-Reply-To: <20170121142613.12375-1-nicolas.iooss@m4x.org>
 References: <20170121142613.12375-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -19,87 +20,80 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When parsing type_transition statements with names, the memory allocated
-by the type set bitmaps of variable stypes and ttypes was never freed.
+While checkmodule tries to compile the following policy file and fails
+because class "process" is not found, it does not free some allocated
+memory:
 
-Call type_set_destroy() to free this memory and, while at it, make the
-function exits without leaking memory when exiting with an error.
+    module ckpol_leaktest 1.0.0;
+    require {type TYPE1;}
+    allow TYPE1 self:process fork;
+
+clang memory sanitier output is:
+
+=================================================================
+==16050==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 136 byte(s) in 1 object(s) allocated from:
+    #0 0x7f8bd8127608 in malloc (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0xf6608)
+    #1 0x41a620 in define_te_avtab_helper /usr/src/selinux/checkpolicy/policy_define.c:2450:24
+    #2 0x41b6c8 in define_te_avtab /usr/src/selinux/checkpolicy/policy_define.c:2621:6
+    #3 0x40522b in yyparse /usr/src/selinux/checkpolicy/policy_parse.y:470:10
+    #4 0x411816 in read_source_policy /usr/src/selinux/checkpolicy/parse_util.c:64:6
+    #5 0x7f8bd7cb3290 in __libc_start_main (/usr/lib/libc.so.6+0x20290)
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x7f8bd8127608 in malloc (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0xf6608)
+    #1 0x411c87 in insert_id /usr/src/selinux/checkpolicy/policy_define.c:120:18
+
+Indirect leak of 24 byte(s) in 1 object(s) allocated from:
+    #0 0x7f8bd8127608 in malloc (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0xf6608)
+    #1 0x43133c in ebitmap_set_bit /usr/src/selinux/libsepol/src/ebitmap.c:321:27
+
+Indirect leak of 18 byte(s) in 1 object(s) allocated from:
+    #0 0x7f8bd80b5eb0 in __interceptor___strdup (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0x84eb0)
+    #1 0x41a6e5 in define_te_avtab_helper /usr/src/selinux/checkpolicy/policy_define.c:2460:28
+    #2 0x41b6c8 in define_te_avtab /usr/src/selinux/checkpolicy/policy_define.c:2621:6
+    #3 0x40522b in yyparse /usr/src/selinux/checkpolicy/policy_parse.y:470:10
+    #4 0x411816 in read_source_policy /usr/src/selinux/checkpolicy/parse_util.c:64:6
+    #5 0x7f8bd7cb3290 in __libc_start_main (/usr/lib/libc.so.6+0x20290)
+
+SUMMARY: AddressSanitizer: 186 byte(s) leaked in 4 allocation(s).
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- checkpolicy/policy_define.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ checkpolicy/policy_define.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 03a0c18a9686..eab940878ad1 100644
+index e2e384d4599b..dbafadb01e21 100644
 --- a/checkpolicy/policy_define.c
 +++ b/checkpolicy/policy_define.c
-@@ -3256,22 +3256,24 @@ int define_filename_trans(void)
- 		return 0;
- 	}
- 
-+	type_set_init(&stypes);
-+	type_set_init(&ttypes);
-+	ebitmap_init(&e_stypes);
-+	ebitmap_init(&e_ttypes);
-+	ebitmap_init(&e_tclasses);
- 
- 	add = 1;
--	type_set_init(&stypes);
- 	while ((id = queue_remove(id_queue))) {
- 		if (set_types(&stypes, id, &add, 0))
- 			goto bad;
- 	}
- 
- 	add =1;
--	type_set_init(&ttypes);
- 	while ((id = queue_remove(id_queue))) {
- 		if (set_types(&ttypes, id, &add, 0))
- 			goto bad;
- 	}
- 
--	ebitmap_init(&e_tclasses);
- 	if (read_classes(&e_tclasses))
- 		goto bad;
- 
-@@ -3288,6 +3290,7 @@ int define_filename_trans(void)
- 	typdatum = hashtab_search(policydbp->p_types.table, id);
- 	if (!typdatum) {
- 		yyerror2("unknown type %s used in transition definition", id);
+@@ -348,13 +348,14 @@ static int read_classes(ebitmap_t *e_classes)
+ 		cladatum = hashtab_search(policydbp->p_classes.table, id);
+ 		if (!cladatum) {
+ 			yyerror2("unknown class %s", id);
++			free(id);
+ 			return -1;
+ 		}
 +		free(id);
- 		goto bad;
+ 		if (ebitmap_set_bit(e_classes, cladatum->s.value - 1, TRUE)) {
+ 			yyerror("Out of memory");
+ 			return -1;
+ 		}
+-		free(id);
  	}
- 	free(id);
-@@ -3302,11 +3305,9 @@ int define_filename_trans(void)
- 	/* We expand the class set into seperate rules.  We expand the types
- 	 * just to make sure there are not duplicates.  They will get turned
- 	 * into seperate rules later */
--	ebitmap_init(&e_stypes);
- 	if (type_set_expand(&stypes, &e_stypes, policydbp, 1))
- 		goto bad;
- 
--	ebitmap_init(&e_ttypes);
- 	if (type_set_expand(&ttypes, &e_ttypes, policydbp, 1))
- 		goto bad;
- 
-@@ -3386,11 +3387,18 @@ int define_filename_trans(void)
- 	ebitmap_destroy(&e_stypes);
- 	ebitmap_destroy(&e_ttypes);
- 	ebitmap_destroy(&e_tclasses);
-+	type_set_destroy(&stypes);
-+	type_set_destroy(&ttypes);
- 
  	return 0;
- 
- bad:
- 	free(name);
-+	ebitmap_destroy(&e_stypes);
-+	ebitmap_destroy(&e_ttypes);
-+	ebitmap_destroy(&e_tclasses);
-+	type_set_destroy(&stypes);
-+	type_set_destroy(&ttypes);
- 	return -1;
  }
+@@ -2552,6 +2553,10 @@ int define_te_avtab_helper(int which, avrule_t ** rule)
+ 	*rule = avrule;
  
+       out:
++	if (ret) {
++		avrule_destroy(avrule);
++		free(avrule);
++	}
+ 	return ret;
+ 
+ }
 -- 
 2.11.0
