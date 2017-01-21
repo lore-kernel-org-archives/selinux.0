@@ -1,99 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0LEQOoh012692
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0LEQOoi012692
  for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 09:26:26 -0500
 Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
  [81.66.120.207])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 319575647DE
- for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 15:26:24 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 2B4845647DE
+ for <selinux@tycho.nsa.gov>; Sat, 21 Jan 2017 15:26:21 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 4/4] checkpolicy: do not leak memory when a class is not found
- in an avrule
-Date: Sat, 21 Jan 2017 15:26:13 +0100
-Message-Id: <20170121142613.12375-4-nicolas.iooss@m4x.org>
-In-Reply-To: <20170121142613.12375-1-nicolas.iooss@m4x.org>
-References: <20170121142613.12375-1-nicolas.iooss@m4x.org>
+Subject: [PATCH 1/4] checkpolicy: always free id in define_type()
+Date: Sat, 21 Jan 2017 15:26:10 +0100
+Message-Id: <20170121142613.12375-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-While checkmodule tries to compile the following policy file and fails
-because class "process" is not found, it does not free some allocated
-memory:
-
-    module ckpol_leaktest 1.0.0;
-    require {type TYPE1;}
-    allow TYPE1 self:process fork;
-
-clang memory sanitier output is:
-
-=================================================================
-==16050==ERROR: LeakSanitizer: detected memory leaks
-
-Direct leak of 136 byte(s) in 1 object(s) allocated from:
-    #0 0x7f8bd8127608 in malloc (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0xf6608)
-    #1 0x41a620 in define_te_avtab_helper /usr/src/selinux/checkpolicy/policy_define.c:2450:24
-    #2 0x41b6c8 in define_te_avtab /usr/src/selinux/checkpolicy/policy_define.c:2621:6
-    #3 0x40522b in yyparse /usr/src/selinux/checkpolicy/policy_parse.y:470:10
-    #4 0x411816 in read_source_policy /usr/src/selinux/checkpolicy/parse_util.c:64:6
-    #5 0x7f8bd7cb3290 in __libc_start_main (/usr/lib/libc.so.6+0x20290)
-
-Direct leak of 8 byte(s) in 1 object(s) allocated from:
-    #0 0x7f8bd8127608 in malloc (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0xf6608)
-    #1 0x411c87 in insert_id /usr/src/selinux/checkpolicy/policy_define.c:120:18
-
-Indirect leak of 24 byte(s) in 1 object(s) allocated from:
-    #0 0x7f8bd8127608 in malloc (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0xf6608)
-    #1 0x43133c in ebitmap_set_bit /usr/src/selinux/libsepol/src/ebitmap.c:321:27
-
-Indirect leak of 18 byte(s) in 1 object(s) allocated from:
-    #0 0x7f8bd80b5eb0 in __interceptor___strdup (/usr/lib/clang/3.9.1/lib/linux/libclang_rt.asan-x86_64.so+0x84eb0)
-    #1 0x41a6e5 in define_te_avtab_helper /usr/src/selinux/checkpolicy/policy_define.c:2460:28
-    #2 0x41b6c8 in define_te_avtab /usr/src/selinux/checkpolicy/policy_define.c:2621:6
-    #3 0x40522b in yyparse /usr/src/selinux/checkpolicy/policy_parse.y:470:10
-    #4 0x411816 in read_source_policy /usr/src/selinux/checkpolicy/parse_util.c:64:6
-    #5 0x7f8bd7cb3290 in __libc_start_main (/usr/lib/libc.so.6+0x20290)
-
-SUMMARY: AddressSanitizer: 186 byte(s) leaked in 4 allocation(s).
+In function define_type(), some error conditions between "id =
+queue_remove(id_queue)" and "get_local_type(id, attr->s.value, 1)"
+returned without freeing id. Fix theses memory leaks.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- checkpolicy/policy_define.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ checkpolicy/policy_define.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index e2e384d4599b..dbafadb01e21 100644
+index 6bfadbe59c91..03a0c18a9686 100644
 --- a/checkpolicy/policy_define.c
 +++ b/checkpolicy/policy_define.c
-@@ -348,13 +348,14 @@ static int read_classes(ebitmap_t *e_classes)
- 		cladatum = hashtab_search(policydbp->p_classes.table, id);
- 		if (!cladatum) {
- 			yyerror2("unknown class %s", id);
+@@ -1426,11 +1426,13 @@ int define_type(int alias)
+ 		if (!attr) {
+ 			/* treat it as a fatal error */
+ 			yyerror2("attribute %s is not declared", id);
 +			free(id);
  			return -1;
  		}
-+		free(id);
- 		if (ebitmap_set_bit(e_classes, cladatum->s.value - 1, TRUE)) {
- 			yyerror("Out of memory");
+ 
+ 		if (attr->flavor != TYPE_ATTRIB) {
+ 			yyerror2("%s is a type, not an attribute", id);
++			free(id);
  			return -1;
  		}
--		free(id);
- 	}
- 	return 0;
- }
-@@ -2552,6 +2553,10 @@ int define_te_avtab_helper(int which, avrule_t ** rule)
- 	*rule = avrule;
  
-       out:
-+	if (ret) {
-+		avrule_destroy(avrule);
-+		free(avrule);
-+	}
- 	return ret;
- 
- }
 -- 
 2.11.0
