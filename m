@@ -1,55 +1,99 @@
-Date: Mon, 23 Jan 2017 10:35:17 +0100
-From: Steffen Klassert <steffen.klassert@secunet.com>
-To: Kevin Cernekee <cernekee@chromium.org>
-CC: <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
- <paul@paul-moore.com>, <sds@tycho.nsa.gov>, <eparis@parisplace.org>,
- <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
- <selinux@tycho.nsa.gov>, <fw@strlen.de>, <fan.du@windriver.com>,
- <dianders@chromium.org>, <dtor@chromium.org>
-Subject: Re: [PATCH 0/4] Make xfrm usable by 32-bit programs
-Message-ID: <20170123093517.GM3541@gauss.secunet.com>
-References: <20170121000507.34381-1-cernekee@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-In-Reply-To: <20170121000507.34381-1-cernekee@chromium.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0NCGVtE019963
+ for <selinux@tycho.nsa.gov>; Mon, 23 Jan 2017 07:16:31 -0500
+Received: by mail-wm0-f51.google.com with SMTP id r126so129856026wmr.0
+ for <selinux@tycho.nsa.gov>; Mon, 23 Jan 2017 04:16:11 -0800 (PST)
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+Subject: [PATCH] policycoreutils: let output of `fixfiles` be redirected (as
+ normal)
+Date: Mon, 23 Jan 2017 12:15:50 +0000
+Message-Id: <20170123121550.6818-1-alan.christopher.jenkins@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jan 20, 2017 at 04:05:03PM -0800, Kevin Cernekee wrote:
-> Several of the xfrm netlink and setsockopt() interfaces are not usable
-> from a 32-bit binary running on a 64-bit kernel due to struct padding
-> differences.  This has been the case for many, many years[0].  This
-> patch series deprecates the broken netlink messages and replaces them
-> with packed structs that are compatible between 64-bit and 32-bit
-> programs.  It retains support for legacy user programs (i.e. anything
-> that is currently working today), and allows legacy support to be
-> compiled out via CONFIG_XFRM_USER_LEGACY if it becomes unnecessary in
-> the future.
+fixfiles was redirecting log output to `tty`.  This overrides user intent
+e.g. when shell redirection is used.
 
-This would mean that we have to maintain two APIs from now on.
-This is something I really want to avoid because it is almost
-impossible to get rid of the old one.
+Redirect it to stdout, using /proc.  `tty` equally depended on /proc.
+We do not depend on /dev/stdout: it might not be present, if a rescue
+system is booted with devtmpfs (no udev daemon).
 
-> 
-> Earlier attempts at fixing the problem had implemented a compat layer.
-> A compat layer is helpful because it avoids the need to recompile old
-> user binaries, but there are many challenges involved in implementing
-> it.  I believe a compat layer is of limited value in this instance
-> because anybody who really needed to solve the problem without
-> recompiling their binaries has almost certainly found another solution
-> in the ~7 years since the compat patches were first proposed.
-> 
-> A benefit of this approach is that long-term, the broken netlink messages
-> will no longer be used.  A drawback is that in the short term, user
-> programs that want to adopt the new message formats will require a
-> modern kernel.  Projects like strongSwan and iproute2 bundle the xfrm.h
-> header inside their own source trees, so they will need to make a
-> judgment call on when to remove support for kernels that do not support
-> the new messages.  And programs built against the new kernel headers
-> will not work on old kernels.
+By default, log messages were redirected into the void when not run from a
+tty.  We consider this a bug, which is now fixed.
 
-So this creates new incompatibilities what is another argument against
-this approach. If you really need this, try to implement a full compat
-layer. I think this is the only sane solution for this.
+1. If calling scripts happen to require the old behaviour, they can easily
+   write the same code themselves.
+
+2. When fixfiles is run from Fedora's selinux-autorelabel.service,
+   the calling script is specifically run from a tty.
+
+   Also Fedora's calling script chooses to redirect stdout and stderr to
+   /dev/null.  This redirection will now suceed, improving the transparency
+   of the code.  The previous behaviour may be obtained by choosing not
+   to redirect the progress messages of this long-running process to
+   /dev/null.  A patch has been submitted to Fedora to suggest this novel
+   approach:  https://bugzilla.redhat.com/show_bug.cgi?id=1415674
+
+
+Complete disclosure:
+
+* Remove unused variable LOGGER.
+* Fix logfiles containing spaces.
+
+
+Disclaimer:
+
+1. "Log" output may contain escape sequences (backspace?) e.g. in
+   `fixfiles -l log.txt restore`.  This is not the usual understanding
+   of a log file.
+
+2.  For some reason, not all informative messages are sent to `-l` e.g.
+   the list of filesystems, and "cleaning up labels on /tmp".
+
+3. `function logit` is retained, but the logfile is also written to
+   outside this function.  Implementing support for the system log
+   would require another function which accepts piped input.
+   Also see point 1.
+
+Signed-off-by: Alan Jenkins <alan.christopher.jenkins@gmail.com>
+---
+ policycoreutils/scripts/fixfiles | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+index fa43a53..df6f766 100755
+--- a/policycoreutils/scripts/fixfiles
++++ b/policycoreutils/scripts/fixfiles
+@@ -119,11 +119,7 @@ VERBOSE="-p"
+ FORCEFLAG=""
+ DIRS=""
+ RPMILES=""
+-LOGFILE=`tty`
+-if [ $? != 0 ]; then
+-    LOGFILE="/dev/null"
+-fi
+-LOGGER=/usr/sbin/logger
++LOGFILE=/proc/self/fd/1
+ SETFILES=/sbin/setfiles
+ RESTORECON=/sbin/restorecon
+ FILESYSTEMSRW=`get_rw_labeled_mounts`
+@@ -138,11 +134,11 @@ else
+ fi
+ 
+ #
+-# Log to either syslog or a LOGFILE
++# Write to LOGFILE
+ #
+ logit () {
+ if [ -n $LOGFILE ]; then
+-    echo $1 >> $LOGFILE
++    echo $1 >> "$LOGFILE"
+ fi
+ }
+ #
+-- 
+2.9.3
