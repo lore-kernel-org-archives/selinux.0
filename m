@@ -1,54 +1,34 @@
-Subject: Re: [PATCH] libselinux: disable filespec hash table stats on
- non-debug builds
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1485287190-476-1-git-send-email-sds@tycho.nsa.gov>
-From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Message-ID: <492a9bf9-c577-f957-0adb-38539b9a3c22@gmail.com>
-Date: Wed, 25 Jan 2017 00:07:00 +0000
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0P6MbOf032521
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2017 01:22:37 -0500
+Received: from athena.localnet (ppp118-209-214-81.bras2.mel11.internode.on.net
+ [118.209.214.81])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ (Authenticated sender: russell@coker.com.au)
+ by smtp.sws.net.au (Postfix) with ESMTPSA id 9DA18EC7D
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2017 17:22:29 +1100 (AEDT)
+From: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Reply-To: russell@coker.com.au
+Subject: strange avc
+Date: Wed, 25 Jan 2017 17:22:29 +1100
+Message-ID: <1765226.bX7GAK7GcY@russell.coker.com.au>
 MIME-Version: 1.0
-In-Reply-To: <1485287190-476-1-git-send-email-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 24/01/17 19:46, Stephen Smalley wrote:
-> Disable generating filespec hash table stats on non-debug builds,
-> as they are not useful information for users and cause fixfiles
-> check to produce noisy output.
->
-> Reported-by: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+type=AVC msg=audit(1485258907.829:106): avc:  denied  { 0x800000 } for  
+pid=1280 comm="rewrite-0" name="after-the-deadline" dev="vda" ino=104107534 
+scontext=system_u:system_r:httpd_t:s0 
+tcontext=system_u:object_r:unlabeled_t:s0 tclass=file permissive=0
 
-Thanks!
-This patch looks exactly how I would want.
+I got the above after upgrading a system running kernel 3.16.0 to the latest 
+userspace.  Why is this happening?  Is this a bug?
 
-> ---
->   libselinux/src/selinux_restorecon.c | 6 ++++++
->   1 file changed, 6 insertions(+)
->
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-> index 7020669..38acbd2 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -487,6 +487,7 @@ oom:
->   /*
->    * Evaluate the association hash table distribution.
->    */
-> +#ifdef DEBUG
->   static void filespec_eval(void)
->   {
->   	file_spec_t *fl;
-> @@ -513,6 +514,11 @@ static void filespec_eval(void)
->   		     "filespec hash table stats: %d elements, %d/%d buckets used, longest chain length %d\n",
->   		     nel, used, HASH_BUCKETS, longest);
->   }
-> +#else
-> +static void filespec_eval(void)
-> +{
-> +}
-> +#endif
->   
->   /*
->    * Destroy the association hash table.
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
