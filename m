@@ -1,50 +1,280 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0PHHlKl013553
- for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2017 12:17:47 -0500
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] libsepol: fix pp module to cil nodecon statement
-Date: Wed, 25 Jan 2017 12:17:16 -0500
-Message-ID: <1485364636-21338-1-git-send-email-slawrence@tresys.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0PHQl2s016688
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2017 12:26:47 -0500
+Received: by mail-wm0-f50.google.com with SMTP id c206so42756185wme.0
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2017 09:26:43 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+From: cgzones <cgzones@googlemail.com>
+Date: Wed, 25 Jan 2017 18:26:42 +0100
+Message-ID: <CAJ2a_DePfW-F9Y48mr33XDg1s4RJE9-M_OToTpREQEaCP2DZnw@mail.gmail.com>
+Subject: pam_selinux: add new option to select from default_contexts
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Policy modules do not have the concept of named IP addresses like CIL
-does. So when converting nodecode statements from pp policy modules to
-CIL, we need to wrap the IP address and mask parameters in parentheses
-so that the CIL compiler does not try to resolve them as named
-addresses, but instead treats them as anonymous.
+Hi list,
+I created patch against pam_selinux, which is reported here:
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=852540
+Laurent suggested to post it also on this ML for discussion.
 
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+
+When an SELinux unaware login application, like sddm, tries to set up
+sessions via pam, it is not possible to set the new SELinux context
+accordingly.
+
+This patch adds an option to pam_selinux.so, so that via different pam
+configurations, like sddm does it
+https://github.com/sddm/sddm/blob/develop/src/helper/backend/PamBackend.cpp#L220,
+different contexts can be assigned.
+
+From: cgzones <cgzones@googlemail.com>
+Date: Tue, 3 Jan 2017 12:04:20 +0100
+Subject: [PATCH] pam_selinux: add select_default_context option
+
 ---
- libsepol/src/module_to_cil.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+modules/pam_selinux/README            | 11 +++++++++
+modules/pam_selinux/pam_selinux.8     | 11 ++++++++-
+modules/pam_selinux/pam_selinux.8.xml | 19 +++++++++++++++
+modules/pam_selinux/pam_selinux.c     | 46 ++++++++++++++++++++++++++++++-----
+4 files changed, 80 insertions(+), 7 deletions(-)
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 51a4784..2acb600 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -2721,7 +2721,7 @@ static int ocontext_selinux_node_to_cil(struct policydb *pdb, struct ocontext *n
- 			goto exit;
- 		}
- 
--		cil_printf("(nodecon %s %s ", addr, mask);
-+		cil_printf("(nodecon (%s) (%s) ", addr, mask);
- 
- 		context_to_cil(pdb, &node->context[0]);
- 
-@@ -2753,7 +2753,7 @@ static int ocontext_selinux_node6_to_cil(struct policydb *pdb, struct ocontext *
- 			goto exit;
- 		}
- 
--		cil_printf("(nodecon %s %s ", addr, mask);
-+		cil_printf("(nodecon (%s) (%s) ", addr, mask);
- 
- 		context_to_cil(pdb, &node->context[0]);
- 
--- 
-2.7.4
+diff --git a/modules/pam_selinux/README b/modules/pam_selinux/README
+index fb4d449..b1b6be2 100644
+--- a/modules/pam_selinux/README
++++ b/modules/pam_selinux/README
+@@ -72,6 +72,17 @@ use_current_range
+    instead of the default level. Also suppresses asking of the sensitivity
+    level from the user or obtaining it from PAM environment.
+
++select_default_context=
++
++    Select a specific context from the list of default contexts for the login
++    user returned by SELinux. By default the first entry is taken.
++    Valid values are 'last' or positiv numbers, to select a different context.
++    The list of available contexts can be viewed by 'compute_user
+src_context seuser'.
++
++    Usage:
++        select_default_context=2
++        select_default_context=last
++
+EXAMPLES
+
+auth     required  pam_unix.so
+diff --git a/modules/pam_selinux/pam_selinux.8
+b/modules/pam_selinux/pam_selinux.8
+index acd4f0d..d936cb9 100644
+--- a/modules/pam_selinux/pam_selinux.8
++++ b/modules/pam_selinux/pam_selinux.8
+@@ -31,7 +31,7 @@
+pam_selinux \- PAM module to set the default security context
+.SH "SYNOPSIS"
+.HP \w'\fBpam_selinux\&.so\fR\ 'u
+-\fBpam_selinux\&.so\fR [open] [close] [restore] [nottys] [debug]
+[verbose] [select_context] [env_params] [use_current_range]
++\fBpam_selinux\&.so\fR [open] [close] [restore] [nottys] [debug]
+[verbose] [select_context] [env_params] [use_current_range]
+[select_default_context=\fIlast|context_number\fR]
+.SH "DESCRIPTION"
+.PP
+pam_selinux is a PAM module that sets up the default SELinux security
+context for the next executed process\&.
+@@ -99,6 +99,15 @@ Attempt to obtain a custom security context role
+from PAM environment\&. If MLS
+.RS 4
+Use the sensitivity level of the current process for the user context
+instead of the default level\&. Also suppresses asking of the
+sensitivity level from the user or obtaining it from PAM
+environment\&.
+.RE
++.PP
++\fBselect_default_context\fR
++.RS 4
++Select a specific context from the list of default contexts for the
+login user returned by SELinux\&. By default the first entry is
+taken\&. Valid values are 'last' or positiv numbers, to select a
+different context\&. The list of a
+vailable contexts can be viewed by 'compute_user src_context seuser'\&.
++.RS 2
++Usage:
++.RS 2
++select_default_context=2
++.RE
+.SH "MODULE TYPES PROVIDED"
+.PP
+Only the
+diff --git a/modules/pam_selinux/pam_selinux.8.xml
+b/modules/pam_selinux/pam_selinux.8.xml
+index 28d465f..210e262 100644
+--- a/modules/pam_selinux/pam_selinux.8.xml
++++ b/modules/pam_selinux/pam_selinux.8.xml
+@@ -45,6 +45,9 @@
+      <arg choice="opt">
+       use_current_range
+      </arg>
++      <arg choice="opt">
++        select_default_context=<replaceable>conf-file</replaceable>
++      <arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+@@ -188,6 +191,22 @@
+          </para>
+        </listitem>
+      </varlistentry>
++      <varlistentry>
++        <term>
++          <option>select_default_context=<replaceable>last|context_number</replaceable></option>
++        </term>
++        <listitem>
++          <para>
++            Select a specific context from the list of default
+contexts for the login
++            user returned by SELinux. By default the first entry is taken.
++            Valid values are 'last' or positiv numbers, to select a
+different context.
++            The list of available contexts can be viewed by
+'compute_user src_context seuser'.
++            Usage:
++              select_default_context=2
++              select_default_context=last
++          </para>
++        </listitem>
++      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+diff --git a/modules/pam_selinux/pam_selinux.c
+b/modules/pam_selinux/pam_selinux.c
+index b96cc23..446b4fb 100644
+--- a/modules/pam_selinux/pam_selinux.c
++++ b/modules/pam_selinux/pam_selinux.c
+@@ -63,8 +63,6 @@
+
+#include <selinux/selinux.h>
+#include <selinux/get_context_list.h>
+-#include <selinux/flask.h>
+-#include <selinux/av_permissions.h>
+#include <selinux/selinux.h>
+#include <selinux/context.h>
+#include <selinux/get_default_type.h>
+@@ -480,7 +478,8 @@ set_file_context(const pam_handle_t *pamh,
+security_context_t context,
+static int
+compute_exec_context(pam_handle_t *pamh, module_data_t *data,
+                    int select_context, int use_current_range,
+-                    int env_params, int debug)
++                    int env_params, int debug,
++                    const char *select_default_context)
+{
+  const char *username;
+
+@@ -491,6 +490,7 @@ compute_exec_context(pam_handle_t *pamh,
+module_data_t *data,
+  char *level = NULL;
+  security_context_t *contextlist = NULL;
+  int num_contexts = 0;
++  int selected_context;
+
+  if (!(username = get_item(pamh, PAM_USER))) {
+    pam_syslog(pamh, LOG_ERR, "Cannot obtain the user name");
+@@ -516,7 +516,27 @@ compute_exec_context(pam_handle_t *pamh,
+module_data_t *data,
+  }
+  if (num_contexts > 0) {
+    free(seuser);
+-    data->default_user_context = strdup(contextlist[0]);
++    if (select_default_context) {
++      pam_syslog(pamh, LOG_DEBUG,
++                  "Selecting default context based on %s from %d contexts",
++                  select_default_context, num_contexts);
++      if (num_contexts == 1) {
++        data->default_user_context = strdup(contextlist[0]);
++      } else if (strcmp(select_default_context, "last") == 0) {
++        data->default_user_context = strdup(contextlist[num_contexts - 1]);
++      } else {
++        selected_context = atoi(select_default_context);
++        if (selected_context <= 0 || selected_context > num_contexts) {
++          pam_syslog(pamh, LOG_ERR,
++                "Invalid select option %s for %d contexts, fallback
+to default",
++                select_default_context, num_contexts);
++          selected_context = 1;
++        }
++        data->default_user_context = strdup(contextlist[selected_context - 1]);
++      }
++    } else {
++      data->default_user_context = strdup(contextlist[0]);
++    }
+     freeconary(contextlist);
+    if (!data->default_user_context) {
+      pam_syslog(pamh, LOG_ERR, "Out of memory");
+@@ -549,6 +569,7 @@ static int
+compute_tty_context(const pam_handle_t *pamh, module_data_t *data)
+{
+  const char *tty = get_item(pamh, PAM_TTY);
++  security_class_t tclass;
+
+  if (!tty || !*tty || !strcmp(tty, "ssh") || !strncmp(tty, "NODEV", 5)) {
+    tty = ttyname(STDIN_FILENO);
+@@ -584,8 +605,13 @@ compute_tty_context(const pam_handle_t *pamh,
+module_data_t *data)
+    return (security_getenforce() == 1) ? PAM_SESSION_ERR : PAM_SUCCESS;
+  }
+
++  tclass = string_to_security_class("chr_file");
++  if (!tclass) {
++    pam_syslog(pamh, LOG_ERR, "Failed to translate security class
+context. %m");
++    return PAM_SESSION_ERR;
++  }
+  if (security_compute_relabel(data->exec_context, data->prev_tty_context,
+-                              SECCLASS_CHR_FILE, &data->tty_context)) {
++                              tclass, &data->tty_context)) {
+    data->tty_context = NULL;
+    pam_syslog(pamh, LOG_ERR, "Failed to compute new context for %s: %m",
+              data->tty_path);
+@@ -691,6 +717,9 @@ create_context(pam_handle_t *pamh, int argc, const
+char **argv,
+  int select_context = 0;
+  int use_current_range = 0;
+  int env_params = 0;
++  const char *select_default_context = NULL;
++  const char *select_default_context_str = "select_default_context";
++  const size_t select_default_context_len = strlen(select_default_context_str);
+  module_data_t *data;
+
+  /* Parse arguments. */
+@@ -707,6 +736,11 @@ create_context(pam_handle_t *pamh, int argc,
+const char **argv,
+    if (strcmp(argv[i], "env_params") == 0) {
+      env_params = 1;
+    }
++    if (strncmp(argv[i], select_default_context_str,
++          select_default_context_len) == 0
++        && argv[i][select_default_context_len] == '=') {
++      select_default_context = argv[i] + select_default_context_len + 1;
++    }
+  }
+
+  if (is_selinux_enabled() <= 0) {
+@@ -727,7 +761,7 @@ create_context(pam_handle_t *pamh, int argc, const
+char **argv,
+  }
+
+  i = compute_exec_context(pamh, data, select_context, use_current_range,
+-                          env_params, debug);
++                          env_params, debug, select_default_context);
+  if (i != PAM_SUCCESS) {
+    free_module_data(data);
+    return i;
+--
+2.11.0
+
+
+
+Best Regards,
+       Christian Göttsche
