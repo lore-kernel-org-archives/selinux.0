@@ -1,60 +1,50 @@
-Message-ID: <1485354168.15074.30.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux/src/regex.c: support old compilers for the
- endian check
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>,
- selinux@tycho.nsa.gov
-Date: Wed, 25 Jan 2017 09:22:48 -0500
-In-Reply-To: <1485337456-16195-1-git-send-email-thomas.petazzoni@free-electrons.com>
-References: <1485337456-16195-1-git-send-email-thomas.petazzoni@free-electrons.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0PHHlKl013553
+ for <selinux@tycho.nsa.gov>; Wed, 25 Jan 2017 12:17:47 -0500
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] libsepol: fix pp module to cil nodecon statement
+Date: Wed, 25 Jan 2017 12:17:16 -0500
+Message-ID: <1485364636-21338-1-git-send-email-slawrence@tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-01-25 at 22:44 +1300, Thomas Petazzoni wrote:
-> libselinux 2.6 has added some code in regex.c that uses
-> __BYTE_ORDER__
-> to determine the system endianness. Unfortunately, this definition
-> provided directly by the compiler doesn't exist in older gcc versions
-> such as gcc 4.4.
-> 
-> In order to address this, this commit extends the logic to use
-> <endian.h> definitions if __BYTE_ORDER__ is not provided by the
-> compiler. This allows libselinux to build properly with gcc 4.4.
-> 
-> Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Policy modules do not have the concept of named IP addresses like CIL
+does. So when converting nodecode statements from pp policy modules to
+CIL, we need to wrap the IP address and mask parameters in parentheses
+so that the CIL compiler does not try to resolve them as named
+addresses, but instead treats them as anonymous.
 
-Thanks, applied
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/src/module_to_cil.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> ---
->  libselinux/src/regex.c | 13 ++++++++++++-
->  1 file changed, 12 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index a3b427b..0c5ad27 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -13,7 +13,18 @@
->  #endif
->  
->  #ifndef __BYTE_ORDER__
-> -#error __BYTE_ORDER__ not defined. Unable to determine endianness.
-> +
-> +/* If the compiler doesn't define __BYTE_ORDER__, try to use the C
-> + * library <endian.h> header definitions. */
-> +#include <endian.h>
-> +#ifndef __BYTE_ORDER
-> +#error Neither __BYTE_ORDER__ nor __BYTE_ORDER defined. Unable to
-> determine endianness.
-> +#endif
-> +
-> +#define __ORDER_LITTLE_ENDIAN __LITTLE_ENDIAN
-> +#define __ORDER_BIG_ENDIAN __BIG_ENDIAN
-> +#define __BYTE_ORDER__ __BYTE_ORDER
-> +
->  #endif
->  
->  #ifdef USE_PCRE2
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 51a4784..2acb600 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -2721,7 +2721,7 @@ static int ocontext_selinux_node_to_cil(struct policydb *pdb, struct ocontext *n
+ 			goto exit;
+ 		}
+ 
+-		cil_printf("(nodecon %s %s ", addr, mask);
++		cil_printf("(nodecon (%s) (%s) ", addr, mask);
+ 
+ 		context_to_cil(pdb, &node->context[0]);
+ 
+@@ -2753,7 +2753,7 @@ static int ocontext_selinux_node6_to_cil(struct policydb *pdb, struct ocontext *
+ 			goto exit;
+ 		}
+ 
+-		cil_printf("(nodecon %s %s ", addr, mask);
++		cil_printf("(nodecon (%s) (%s) ", addr, mask);
+ 
+ 		context_to_cil(pdb, &node->context[0]);
+ 
+-- 
+2.7.4
