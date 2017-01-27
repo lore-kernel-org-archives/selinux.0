@@ -1,125 +1,32 @@
-From: "Roberts, William C" <william.c.roberts@intel.com>
-To: "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, "'Nick Kralevich'" <nnk@google.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Subject: RE: CIL Typepermissive Symbol not inside parenthesis
-Date: Thu, 26 Jan 2017 19:21:46 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC562304D194@ORSMSX103.amr.corp.intel.com>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0R18UF5013066
+ for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2017 20:08:30 -0500
+Received: by mail-oi0-f43.google.com with SMTP id j15so148972701oih.2
+ for <selinux@tycho.nsa.gov>; Thu, 26 Jan 2017 17:08:25 -0800 (PST)
 MIME-Version: 1.0
+From: Bassam Alsanie <bassam.alsanie@gmail.com>
+Date: Thu, 26 Jan 2017 17:08:24 -0800
+Message-ID: <CAJW__LnFokzsgmA79WM8uzHM9MxDy4vmTY=TQ6KQ8DYAxV5p=g@mail.gmail.com>
+Subject: Where to troubleshoot and ask questions?
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a113cdc02491b0e0547091ad9
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+--001a113cdc02491b0e0547091ad9
+Content-Type: text/plain; charset=UTF-8
 
+I am wondering if there is a place to ask questions related to SELinux
+policy development.
 
-> -----Original Message-----
-> From: Roberts, William C
-> Sent: Thursday, January 26, 2017 11:17 AM
-> To: 'seandroid-list@tycho.nsa.gov' <seandroid-list@tycho.nsa.gov>
-> Cc: 'Stephen Smalley' <sds@tycho.nsa.gov>; 'Nick Kralevich' <nnk@google.com>;
-> 'selinux@tycho.nsa.gov' <selinux@tycho.nsa.gov>
-> Subject: RE: CIL Typepermissive Symbol not inside parenthesis
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Roberts, William C
-> > Sent: Thursday, January 26, 2017 10:39 AM
-> > To: seandroid-list@tycho.nsa.gov
-> > Cc: 'Stephen Smalley' <sds@tycho.nsa.gov>; 'Nick Kralevich'
-> > <nnk@google.com>; selinux@tycho.nsa.gov
-> > Subject: CIL Typepermissive Symbol not inside parenthesis
-> >
-> > Building for Hikey (Android) with a type permissive statement on
-> > hci_attach, yields this error:
-> >
-> > /bin/bash -c "(out/host/linux-x86/bin/secilc -M true -c 30
-> > out/target/product/hikey/obj/ETC/plat_sepolicy.cil_intermediates/plat_
-> > policy_n
-> > vr.cil
-> > out/target/product/hikey/obj/ETC/mapping_sepolicy.cil_intermediates/ma
-> > pping
-> > /current.cil
-> > out/target/product/hikey/obj/ETC/nonplat_sepolicy.cil_intermediates/no
-> > nplat_
-> > policy_nvr.cil  -o
-> > out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy.tmp )
-> > && (out/host/linux-x86/bin/sepolicy-analyze
-> > out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy.tmp
-> > permissive >
-> > out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy.permi
-> > ssived omains ) && (if [ \"userdebug\" = \"user\" -a -s
-> >
-> out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy.permissived
-> > omains ]; then 		echo \"==========\" 1>&2; 		echo
-> \"ERROR:
-> > permissive domains not allowed in user builds\" 1>&2; 		echo
-> \"List of
-> > invalid domains:\" 1>&2; 		cat
-> >
-> out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy.permissived
-> > omains 1>&2; 		exit 1; 		fi ) && (mv
-> > out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy.tmp
-> > out/target/product/hikey/obj/ETC/sepolicy_intermediates/sepolicy )"
-> > Symbol not inside parenthesis at line 1239 of
-> > out/target/product/hikey/obj/ETC/nonplat_sepolicy.cil_intermediates/no
-> > nplat_
-> > policy_nvr.cil
-> >
-> > To reproduce apply this patch to device/linaro/hikey:
-> > diff --git a/sepolicy/hci_attach.te b/sepolicy/hci_attach.te index
-> > d87f444..1990d54 100644
-> > --- a/sepolicy/hci_attach.te
-> > +++ b/sepolicy/hci_attach.te
-> > @@ -1,6 +1,8 @@
-> >  type hci_attach, domain;
-> >  type hci_attach_exec, exec_type, file_type;
-> >
-> > +permissive hci_attach;
-> > +
-> >  init_daemon_domain(hci_attach)
-> >
-> >  allow hci_attach kernel:system module_request;
-> >
-> > and build sepolicy
-> >
-> > make -j4 sepolicy
-> >
-> > I have no idea what's hgappening, but the statement looks different
-> > than all the other CIL statements:
-> >
-> > Failing CIL snippet:
-> >
-> > (type hci_attach)
-> > (roletype object_r hci_attach)
-> > CIL_TYPEPERMISSIVE (type hci_attach_exec) (roletype object_r
-> > hci_attach_exec) (type hci_attach_tmpfs)
-> >
-> >
-> 
-> Some of things call routines like cil_write_roletype() in write_ast.c, but some just
-> frpintf(CIL_<CAPS>). Are these features not implemented?
-> 
-> If I apply this hack it works:
-> diff --git a/libsepol/cil/src/cil_write_ast.c b/libsepol/cil/src/cil_write_ast.c
-> index 4ebda6a..8a25680 100644
-> --- a/libsepol/cil/src/cil_write_ast.c
-> +++ b/libsepol/cil/src/cil_write_ast.c
-> @@ -1255,7 +1255,7 @@ int __cil_write_node_helper(struct cil_tree_node
-> *node, uint32_t *finished, void
->                 fprintf(cil_out, "CIL_TYPEBOUNDS ");
->                 break;
->         case CIL_TYPEPERMISSIVE:
-> -               fprintf(cil_out, "CIL_TYPEPERMISSIVE ");
-> +               fprintf(cil_out, "(typepermissive hci_attach)\n");
->                 break;
->         case CIL_TYPEATTRIBUTE:
-> 
-> The output looks ok from sepolicy-analyze:
-> 
-> $ sepolicy-analyze $OUT/root/sepolicy permissive crash_dump su hci_attach
+Thank you
+Bassam
 
-FYI This does not affect upstream SE Linux, it looks like Dan Cashman over at Google authored the file,
-So ill drop common selinux mailing listr on further responses. I'll take a look at fixing this today...
+--001a113cdc02491b0e0547091ad9
+Content-Type: text/html; charset=UTF-8
+
+<div dir="ltr">I am wondering if there is a place to ask questions related to SELinux policy development.<div><br></div><div>Thank you</div><div>Bassam</div></div>
+
+--001a113cdc02491b0e0547091ad9--
