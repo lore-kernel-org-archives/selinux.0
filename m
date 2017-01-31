@@ -1,12 +1,11 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0VJfgGC019171
- for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2017 14:41:42 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v0VJfgGD019171
+ for <selinux@tycho.nsa.gov>; Tue, 31 Jan 2017 14:41:43 -0500
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 3/5] checkpolicy: Create common function for user declares and
- requires
-Date: Tue, 31 Jan 2017 14:41:56 -0500
-Message-Id: <1485891718-18829-4-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 4/5] checkpolicy: Cleanup error messages
+Date: Tue, 31 Jan 2017 14:41:57 -0500
+Message-Id: <1485891718-18829-5-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1485891718-18829-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1485891718-18829-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,289 +13,344 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Move common code out of declare_user() and require_user() into the
-new function create_user().
+Add the new function print_error_msg() to print an error message
+based on the local error number and symbol_type. Remove the
+duplicate switch statements used throughout module_complier.c
+to display error messages.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- checkpolicy/module_compiler.c | 224 +++++++++++++++++++++---------------------
- 1 file changed, 114 insertions(+), 110 deletions(-)
+ checkpolicy/module_compiler.c | 213 +++++++++++++-----------------------------
+ 1 file changed, 64 insertions(+), 149 deletions(-)
 
 diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 891cadf..90e82c2 100644
+index 90e82c2..7b35b56 100644
 --- a/checkpolicy/module_compiler.c
 +++ b/checkpolicy/module_compiler.c
-@@ -456,103 +456,132 @@ static int user_implicit_bounds(hashtab_t users_tab,
- 	return 0;
- }
+@@ -51,6 +51,34 @@ static scope_stack_t *stack_top = NULL;
+ static avrule_block_t *last_block;
+ static uint32_t next_decl_id = 1;
  
--user_datum_t *declare_user(void)
-+int create_user(uint32_t scope, user_datum_t **user, char **key)
- {
--	char *id = queue_remove(id_queue), *dest_id = NULL;
--	user_datum_t *user = NULL, *dest_user = NULL;
--	int retval;
--	uint32_t value = 0;
-+	char *id = queue_remove(id_queue);
-+	user_datum_t *datum = NULL;
-+	int ret;
-+	uint32_t value;
++static const char * const flavor_str[SYM_NUM] = {
++	[SYM_COMMONS] = "common",
++	[SYM_CLASSES] = "class",
++	[SYM_ROLES] = "role",
++	[SYM_TYPES] = "type",
++	[SYM_USERS] = "user",
++	[SYM_BOOLS] = "bool",
++	[SYM_LEVELS] = "level",
++	[SYM_CATS] = "cat"
++};
 +
-+	*user = NULL;
-+	*key = NULL;
- 
- 	if (id == NULL) {
- 		yyerror("no user name");
--		return NULL;
-+		return -1;
- 	}
--	if ((user = (user_datum_t *) malloc(sizeof(*user))) == NULL) {
-+
-+	datum = malloc(sizeof(*datum));
-+	if (datum == NULL) {
- 		yyerror("Out of memory!");
- 		free(id);
--		return NULL;
-+		return -1;
- 	}
--	user_datum_init(user);
- 
--	retval =
--	    declare_symbol(SYM_USERS, id, (hashtab_datum_t *) user, &value,
--			   &value);
-+	user_datum_init(datum);
- 
--	if (retval == 0) {
--		user->s.value = value;
--		if ((dest_id = strdup(id)) == NULL) {
-+	if (scope == SCOPE_DECL) {
-+		ret = declare_symbol(SYM_USERS, id, datum, &value, &value);
-+	} else {
-+		ret = require_symbol(SYM_USERS, id, datum, &value, &value);
++void print_error_msg(int ret, uint32_t symbol_type)
++{
++	switch (ret) {
++	case -3:
++		yyerror("Out of memory!");
++		break;
++	case -2:
++		yyerror2("Duplicate declaration of %s", flavor_str[symbol_type]);
++		break;
++	case -1:
++		yyerror2("Could not declare %s here", flavor_str[symbol_type]);
++		break;
++	default:
++		yyerror("Unknown error");
 +	}
-+
-+	datum->s.value = value;
-+
-+	if (ret == 0) {
-+		*user = datum;
-+		*key = strdup(id);
-+		if (*key == NULL) {
- 			yyerror("Out of memory!");
--			return NULL;
-+			return -1;
- 		}
-+	} else if (ret == 1) {
-+		*user = datum;
-+		*key = id;
- 	} else {
--		/* this user was already declared in this module, or error */
--		dest_id = id;
--		user_datum_destroy(user);
--		free(user);
--	}
--	if (retval == 0 || retval == 1) {
--		/* create a new user_datum_t for this decl, if necessary */
--		hashtab_t users_tab;
--		assert(stack_top->type == 1);
--		if (stack_top->parent == NULL) {
--			/* in parent, so use global symbol table */
--			users_tab = policydbp->p_users.table;
--		} else {
--			users_tab = stack_top->decl->p_users.table;
-+		free(id);
-+		user_datum_destroy(datum);
-+		free(datum);
-+
-+		switch (ret) {
-+		case -3:
-+			yyerror("Out of memory!");
-+			break;
-+		case -2:
-+			yyerror("duplicate declaration of user");
-+			break;
-+		case -1:
-+			yyerror("could not declare user here");
-+			break;
-+		default:
-+			abort();	/* should never get here */
- 		}
--		dest_user = (user_datum_t *) hashtab_search(users_tab, dest_id);
--		if (dest_user == NULL) {
--			if ((dest_user =
--			     (user_datum_t *) malloc(sizeof(*dest_user))) ==
--			    NULL) {
-+	}
-+
-+	return ret;
 +}
 +
-+user_datum_t *declare_user(void)
-+{
-+	char *key = NULL;
-+	user_datum_t *user = NULL;
-+	user_datum_t *dest_user = NULL;
-+	hashtab_t users_tab;
-+	int ret, ret2;
-+
-+	ret = create_user(SCOPE_DECL, &user, &key);
-+	if (ret < 0) {
-+		return NULL;
-+	}
-+
-+	/* create a new user_datum_t for this decl, if necessary */
-+	assert(stack_top->type == 1);
-+
-+	if (stack_top->parent == NULL) {
-+		/* in parent, so use global symbol table */
-+		users_tab = policydbp->p_users.table;
-+	} else {
-+		users_tab = stack_top->decl->p_users.table;
-+	}
-+
-+	dest_user = hashtab_search(users_tab, key);
-+	if (dest_user == NULL) {
-+		if (ret == 0) {
-+			dest_user = malloc(sizeof(*dest_user));
-+			if (dest_user == NULL) {
- 				yyerror("Out of memory!");
--				free(dest_id);
-+				free(key);
- 				return NULL;
- 			}
- 			user_datum_init(dest_user);
--			dest_user->s.value = value;
--			if (user_implicit_bounds(users_tab, dest_id, dest_user)) {
--				free(dest_id);
--				user_datum_destroy(dest_user);
--				free(dest_user);
--				return NULL;
--			}
--			if (hashtab_insert(users_tab, dest_id, dest_user)) {
--				yyerror("Out of memory!");
--				free(dest_id);
--				user_datum_destroy(dest_user);
--				free(dest_user);
--				return NULL;
--			}
-+			dest_user->s.value = user->s.value;
- 		} else {
--			free(dest_id);
--		}
--	} else {
--		free(dest_id);
--	}
--	switch (retval) {
--	case -3:{
+ int define_policy(int pass, int module_header_given)
+ {
+ 	char *id;
+@@ -246,23 +274,10 @@ int create_role(uint32_t scope, unsigned char isattr, role_datum_t **role, char
+ 		*role = datum;
+ 		*key = id;
+ 	} else {
++		print_error_msg(ret, SYM_ROLES);
+ 		free(id);
+ 		role_datum_destroy(datum);
+ 		free(datum);
+-
+-		switch (ret) {
+-		case -3:
 -			yyerror("Out of memory!");
--			return NULL;
-+			dest_user = user;
- 		}
--	case -2:{
+-			break;
+-		case -2:
+-			yyerror("duplicate declaration of role");
+-			break;
+-		case -1:
+-			yyerror("could not declare role here");
+-			break;
+-		default:
+-			abort();	/* should never get here */
+-		}
+ 	}
+ 
+ 	return ret;
+@@ -385,23 +400,10 @@ int create_type(uint32_t scope, unsigned char isattr, type_datum_t **type)
+ 		*type = hashtab_search(policydbp->symtab[SYM_TYPES].table, id);
+ 		free(id);
+ 	} else {
++		print_error_msg(ret, SYM_TYPES);
+ 		free(id);
+ 		type_datum_destroy(datum);
+ 		free(datum);
+-
+-		switch (ret) {
+-		case -3:
+-			yyerror("Out of memory!");
+-			break;
+-		case -2:
+-			yyerror2("duplicate declaration of type/attribute");
+-			break;
+-		case -1:
+-			yyerror("could not declare type/attribute here");
+-			break;
+-		default:
+-			abort();	/* should never get here */
+-		}
+ 	}
+ 
+ 	return ret;
+@@ -499,23 +501,10 @@ int create_user(uint32_t scope, user_datum_t **user, char **key)
+ 		*user = datum;
+ 		*key = id;
+ 	} else {
++		print_error_msg(ret, SYM_USERS);
+ 		free(id);
+ 		user_datum_destroy(datum);
+ 		free(datum);
+-
+-		switch (ret) {
+-		case -3:
+-			yyerror("Out of memory!");
+-			break;
+-		case -2:
 -			yyerror("duplicate declaration of user");
-+		ret2 = user_implicit_bounds(users_tab, key, dest_user);
-+		if (ret2 != 0) {
-+			free(key);
-+			user_datum_destroy(dest_user);
-+			free(dest_user);
- 			return NULL;
- 		}
--	case -1:{
+-			break;
+-		case -1:
 -			yyerror("could not declare user here");
-+		ret2 = hashtab_insert(users_tab, key, dest_user);
-+		if (ret2 != 0) {
-+			yyerror("Out of memory!");
-+			free(key);
-+			user_datum_destroy(dest_user);
-+			free(dest_user);
- 			return NULL;
- 		}
+-			break;
+-		default:
+-			abort();	/* should never get here */
+-		}
+ 	}
+ 
+ 	return ret;
+@@ -842,50 +831,29 @@ int require_class(int pass)
+ 	if ((datum = calloc(1, sizeof(*datum))) == NULL ||
+ 	    symtab_init(&datum->permissions, PERM_SYMTAB_SIZE)) {
+ 		yyerror("Out of memory!");
+-		goto cleanup;
++		return -1;
+ 	}
+ 	ret =
+ 	    require_symbol(SYM_CLASSES, class_id, datum, &datum->s.value,
+ 			   &datum->s.value);
+-	switch (ret) {
+-	case -3:{
++	if (ret < 0) {
++		print_error_msg(ret, SYM_CLASSES);
++		free(class_id);
++		class_datum_destroy(datum);
++		return -1;
++	}
++
++	if (ret == 0) {
++		/* a new class was added; reindex everything */
++		if (policydb_index_classes(policydbp)) {
+ 			yyerror("Out of memory!");
+-			free(class_id);
+-			class_datum_destroy(datum);
+-			goto cleanup;
+-		}
+-	case -2:{
+-			yyerror("duplicate declaration of class");
+-			free(class_id);
+-			class_datum_destroy(datum);
+-			goto cleanup;
+-		}
+-	case -1:{
+-			yyerror("could not require class here");
+-			free(class_id);
+-			class_datum_destroy(datum);
+-			goto cleanup;
+-		}
 -	case 0:{
--			return dest_user;
+-			/* a new class was added; reindex everything */
+-			if (policydb_index_classes(policydbp)) {
+-				yyerror("Out of memory!");
+-				goto cleanup;
+-			}
+-			break;
 -		}
 -	case 1:{
--			return dest_user;	/* user already declared for this block */
+-			class_datum_destroy(datum);
+-			datum =
+-			    hashtab_search(policydbp->p_classes.table,
+-					   class_id);
+-			assert(datum);	/* the class datum should have existed */
+-			free(class_id);
+-			break;
 -		}
 -	default:{
 -			abort();	/* should never get here */
-+	} else {
-+		free(key);
-+		if (ret == 1) {
-+			user_datum_destroy(user);
-+			free(user);
++			return -1;
  		}
++	} else {
++		class_datum_destroy(datum);
++		datum = hashtab_search(policydbp->p_classes.table, class_id);
++		assert(datum);	/* the class datum should have existed */
++		free(class_id);
  	}
-+
-+	return dest_user;
+ 
+ 	/* now add each of the permissions to this class's requirements */
+@@ -908,13 +876,13 @@ int require_class(int pass)
+ 				    ("Base policy - require of permission %s without prior declaration.",
+ 				     perm_id);
+ 				free(perm_id);
+-				goto cleanup;
++				return -1;
+ 			}
+ 			allocated = 1;
+ 			if ((perm = malloc(sizeof(*perm))) == NULL) {
+ 				yyerror("Out of memory!");
+ 				free(perm_id);
+-				goto cleanup;
++				return -1;
+ 			}
+ 			memset(perm, 0, sizeof(*perm));
+ 			ret =
+@@ -924,14 +892,14 @@ int require_class(int pass)
+ 				yyerror("Out of memory!");
+ 				free(perm_id);
+ 				free(perm);
+-				goto cleanup;
++				return -1;
+ 			}
+ 			perm->s.value = datum->permissions.nprim + 1;
+ 		}
+ 
+ 		if (add_perm_to_class(perm->s.value, datum->s.value) == -1) {
+ 			yyerror("Out of memory!");
+-			goto cleanup;
++			return -1;
+ 		}
+ 
+ 		/* Update number of primitives if we allocated one. */
+@@ -939,8 +907,6 @@ int require_class(int pass)
+ 			datum->permissions.nprim++;
+ 	}
+ 	return 0;
+-      cleanup:
+-	return -1;
  }
  
- /* Return a type_datum_t for the local avrule_decl with the given ID.
-@@ -987,53 +1016,28 @@ int require_attribute(int pass)
- 
- int require_user(int pass)
- {
--	char *id = queue_remove(id_queue);
-+	char *key = NULL;
- 	user_datum_t *user = NULL;
--	int retval;
-+	int ret;
-+
- 	if (pass == 1) {
--		free(id);
-+		free(queue_remove(id_queue));
- 		return 0;
- 	}
--	if (id == NULL) {
--		yyerror("no user name");
--		return -1;
+ static int require_role_or_attribute(int pass, unsigned char isattr)
+@@ -1065,30 +1031,13 @@ static int require_bool_tunable(int pass, int is_tunable)
+ 			   &booldatum->s.value, &booldatum->s.value);
+ 	if (retval != 0) {
+ 		cond_destroy_bool(id, booldatum, NULL);
 -	}
--	if ((user = malloc(sizeof(*user))) == NULL) {
--		free(id);
--		yyerror("Out of memory!");
-+
-+	ret = create_user(SCOPE_REQ, &user, &key);
-+	if (ret < 0) {
- 		return -1;
- 	}
--	user_datum_init(user);
--	retval =
--	    require_symbol(SYM_USERS, id, (hashtab_datum_t *) user,
--			   &user->s.value, &user->s.value);
--	if (retval != 0) {
--		free(id);
-+
-+	free(key);
-+
-+	if (ret == 1) {
- 		user_datum_destroy(user);
-+		free(user);
- 	}
 -	switch (retval) {
 -	case -3:{
 -			yyerror("Out of memory!");
--			return -1;
--		}
++		if (retval < 0) {
++			print_error_msg(retval, SYM_BOOLS);
+ 			return -1;
+ 		}
 -	case -2:{
--			yyerror("duplicate declaration of user");
+-			yyerror("duplicate declaration of boolean");
 -			return -1;
 -		}
 -	case -1:{
--			yyerror("could not require user here");
+-			yyerror("could not require boolean here");
 -			return -1;
 -		}
 -	case 0:{
 -			return 0;
 -		}
 -	case 1:{
--			return 0;	/* user already required */
+-			return 0;	/* boolean already required */
 -		}
 -	default:{
 -			abort();	/* should never get here */
 -		}
--	}
+ 	}
 +
 +	return 0;
  }
  
- static int require_bool_tunable(int pass, int is_tunable)
+ int require_bool(int pass)
+@@ -1138,30 +1087,13 @@ int require_sens(int pass)
+ 		free(level->level);
+ 		level_datum_destroy(level);
+ 		free(level);
+-	}
+-	switch (retval) {
+-	case -3:{
+-			yyerror("Out of memory!");
++		if (retval < 0) {
++			print_error_msg(retval, SYM_LEVELS);
+ 			return -1;
+ 		}
+-	case -2:{
+-			yyerror("duplicate declaration of sensitivity");
+-			return -1;
+-		}
+-	case -1:{
+-			yyerror("could not require sensitivity here");
+-			return -1;
+-		}
+-	case 0:{
+-			return 0;
+-		}
+-	case 1:{
+-			return 0;	/* sensitivity already required */
+-		}
+-	default:{
+-			abort();	/* should never get here */
+-		}
+ 	}
++
++	return 0;
+ }
+ 
+ int require_cat(int pass)
+@@ -1191,30 +1123,13 @@ int require_cat(int pass)
+ 		free(id);
+ 		cat_datum_destroy(cat);
+ 		free(cat);
+-	}
+-	switch (retval) {
+-	case -3:{
+-			yyerror("Out of memory!");
+-			return -1;
+-		}
+-	case -2:{
+-			yyerror("duplicate declaration of category");
++		if (retval < 0) {
++			print_error_msg(retval, SYM_CATS);
+ 			return -1;
+ 		}
+-	case -1:{
+-			yyerror("could not require category here");
+-			return -1;
+-		}
+-	case 0:{
+-			return 0;
+-		}
+-	case 1:{
+-			return 0;	/* category already required */
+-		}
+-	default:{
+-			abort();	/* should never get here */
+-		}
+ 	}
++
++	return 0;
+ }
+ 
+ static int is_scope_in_stack(scope_datum_t * scope, scope_stack_t * stack)
 -- 
 2.7.4
