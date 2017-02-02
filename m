@@ -1,53 +1,43 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v12Egjwj023889
+ for <selinux@tycho.nsa.gov>; Thu, 2 Feb 2017 09:42:45 -0500
+Received: by mail-wm0-f41.google.com with SMTP id r141so92185204wmg.1
+ for <selinux@tycho.nsa.gov>; Thu, 02 Feb 2017 06:42:41 -0800 (PST)
+From: Antonio Murdaca <amurdaca@redhat.com>
 To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: do not rely on non-POSIX behavior for write()
-Date: Tue, 31 Jan 2017 16:28:30 -0500
-Message-Id: <1485898110-24536-1-git-send-email-sds@tycho.nsa.gov>
+Cc: linux-kernel@vger.kernel.org, dwalsh@redhat.com, pmoore@redhat.com,
+ vgoyal@redhat.com, cgroups@vger.kernel.org
+Subject: [PATCH] security: selinux: allow changing labels for cgroupfs
+Date: Thu,  2 Feb 2017 15:42:28 +0100
+Message-Id: <20170202144228.24454-1-runcom@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The libselinux set{exec,fscreate,keycreate,sockcreate}con() functions
-can be passed a NULL argument to reset to the default policy behavior.
-Internally, this is implemented by calling write() with a 0 count
-on the corresponding /proc/pid/attr file, and the kernel handles such
-calls by clearing the corresponding attribute.  However, POSIX says that
-a write() with a 0 count will return 0 without causing any other effect.
-Change the libselinux implementation to first try writing a pair
-of NUL bytes to the /proc/pid/attr file, which is also handled
-by the kernel by clearing the corresponding attribute (for all kernels
->= 2.6.12), and only falling back to performing a write() with a 0 count
-if this fails (for kernels < 2.6.12).  A pair of NUL bytes is written
-rather than a single NUL byte to ensure that this is handled correctly
-even on kernels that were checking the wrong byte (buf[1] instead
-of buf[0]).
+This patch allows changing labels for cgroup mounts. Previously, running
+chcon on cgroupfs would throw an "Operation not supported". This patch
+specifically whitelist cgroupfs.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+The patch could also allow containers to write only to the systemd cgroup
+for instance, while the other cgroups are kept with cgroup_t label.
+
+Signed-off-by: Antonio Murdaca <runcom@redhat.com>
 ---
- libselinux/src/procattr.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ security/selinux/hooks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-index 8cd59af..c8792f2 100644
---- a/libselinux/src/procattr.c
-+++ b/libselinux/src/procattr.c
-@@ -247,9 +247,14 @@ static int setprocattrcon_raw(const char * context,
- 			ret = write(fd, context2, strlen(context2) + 1);
- 		} while (ret < 0 && errno == EINTR);
- 	} else {
-+		char buf[2];
-+
-+		buf[0] = buf[1] = '\0';
- 		do {
--			ret = write(fd, NULL, 0);	/* clear */
-+			ret = write(fd, buf, 2);	/* clear */
- 		} while (ret < 0 && errno == EINTR);
-+		if (ret < 0 && errno == EINVAL)
-+			ret = write(fd, NULL, 0);	/* clear */
- 	}
- out:
- 	errno_hold = errno;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3b955c6..4e84211 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -480,6 +480,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+ 		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
+ 		/* Special handling. Genfs but also in-core setxattr handler */
+ 		!strcmp(sb->s_type->name, "sysfs") ||
++		!strcmp(sb->s_type->name, "cgroup") ||
+ 		!strcmp(sb->s_type->name, "pstore") ||
+ 		!strcmp(sb->s_type->name, "debugfs") ||
+ 		!strcmp(sb->s_type->name, "tracefs") ||
 -- 
-2.7.4
+2.9.3
