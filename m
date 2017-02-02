@@ -1,53 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v12G8f0n018437
- for <selinux@tycho.nsa.gov>; Thu, 2 Feb 2017 11:08:41 -0500
-Subject: Re: [PATCH v2] security: selinux: allow changing labels for cgroupfs
-To: Antonio Murdaca <amurdaca@redhat.com>, selinux@tycho.nsa.gov
-References: <20170202152257.30220-1-runcom@redhat.com>
-Cc: linux-kernel@vger.kernel.org, cgroups@vger.kernel.org, vgoyal@redhat.com
-From: Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <a1f3b2a4-aded-eda0-2c1a-fa0f3d418187@redhat.com>
-Date: Thu, 2 Feb 2017 11:08:36 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v12HMsjk019805
+ for <selinux@tycho.nsa.gov>; Thu, 2 Feb 2017 12:22:54 -0500
+Received: from int-mx13.intmail.prod.int.phx2.redhat.com
+ (int-mx13.intmail.prod.int.phx2.redhat.com [10.5.11.26])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 1826B80464
+ for <selinux@tycho.nsa.gov>; Thu,  2 Feb 2017 17:22:50 +0000 (UTC)
+Received: from [10.40.3.114] ([10.40.3.114])
+ by int-mx13.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
+ v12HMlrL013346
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+ for <selinux@tycho.nsa.gov>; Thu, 2 Feb 2017 12:22:49 -0500
+To: SELinux <selinux@tycho.nsa.gov>
+From: Vit Mojzis <vmojzis@redhat.com>
+Subject: possible regression in "semanage user"
+Message-ID: <3837461d-1104-fcd3-eb01-77faf3bb4b0b@redhat.com>
+Date: Thu, 2 Feb 2017 18:22:46 +0100
 MIME-Version: 1.0
-In-Reply-To: <20170202152257.30220-1-runcom@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-We need this patch set to tighten security inside of containers to only
-allow certain directories in the cgroup file system to be used by the
-containers.  In order to make this work, SELinux policy also needs to be
-modified.
+Hi list,
+we have a report about a possible regression in "semanage user" and I'd 
+like to hear your opinion on what the correct behaviour should be.
+
+Given that local changes have been made to a SELinux user definition 
+(originally defined in policy)
+e.g. # semanage user -m staff_u -r "s0"
+and the SELinux user is mapped to some Linux user
+# semanage login -a -s staff_u staff
+both
+# semanage user -d staff_u
+and
+# semanage user --deleteall
+will fail to remove the local change with the following message:
+"libsemanage.lookup_seuser: staff_u is being used by staff login record 
+(Invalid argument)."
+
+Is this the intended behaviour?
+
+I would assume that this error message was intended only for locally 
+defined SELinux users (in which case "semanage user -d selinux_user" 
+would remove the only definition of "selinux_user"). If so, is there any 
+way to determine if a SELinux user has been defined only locally (as 
+opposed to being defined in policy) after some local changes have been made?
 
 
-On 02/02/2017 10:22 AM, Antonio Murdaca wrote:
-> This patch allows changing labels for cgroup mounts. Previously, running
-> chcon on cgroupfs would throw an "Operation not supported". This patch
-> specifically whitelist cgroupfs.
->
-> The patch could also allow containers to write only to the systemd cgroup
-> for instance, while the other cgroups are kept with cgroup_t label.
->
-> Signed-off-by: Antonio Murdaca <runcom@redhat.com>
-> ---
-> Changes in v2:
->   - whitelist cgroup2 fs type
->
->  security/selinux/hooks.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3b955c6..2789f0a 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -480,6 +480,8 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
->  		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
->  		/* Special handling. Genfs but also in-core setxattr handler */
->  		!strcmp(sb->s_type->name, "sysfs") ||
-> +		!strcmp(sb->s_type->name, "cgroup") ||
-> +		!strcmp(sb->s_type->name, "cgroup2") ||
->  		!strcmp(sb->s_type->name, "pstore") ||
->  		!strcmp(sb->s_type->name, "debugfs") ||
->  		!strcmp(sb->s_type->name, "tracefs") ||
+Best regards,
+
+Vit Mojzis
