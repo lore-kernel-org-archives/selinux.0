@@ -1,10 +1,11 @@
-Message-ID: <1486064676.1887.80.camel@tycho.nsa.gov>
-Subject: Re: possible regression in "semanage user"
+Message-ID: <1486064805.1887.82.camel@tycho.nsa.gov>
+Subject: Re: [PATCH v2] security: selinux: allow changing labels for cgroupfs
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vit Mojzis <vmojzis@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-Date: Thu, 02 Feb 2017 14:44:36 -0500
-In-Reply-To: <3837461d-1104-fcd3-eb01-77faf3bb4b0b@redhat.com>
-References: <3837461d-1104-fcd3-eb01-77faf3bb4b0b@redhat.com>
+To: Antonio Murdaca <amurdaca@redhat.com>, selinux@tycho.nsa.gov
+Cc: linux-kernel@vger.kernel.org, cgroups@vger.kernel.org, vgoyal@redhat.com
+Date: Thu, 02 Feb 2017 14:46:45 -0500
+In-Reply-To: <20170202152257.30220-1-runcom@redhat.com>
+References: <20170202152257.30220-1-runcom@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,38 +13,40 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-02-02 at 18:22 +0100, Vit Mojzis wrote:
-> Hi list,
-> we have a report about a possible regression in "semanage user" and
-> I'd 
-> like to hear your opinion on what the correct behaviour should be.
+On Thu, 2017-02-02 at 16:22 +0100, Antonio Murdaca wrote:
+> This patch allows changing labels for cgroup mounts. Previously,
+> running
+> chcon on cgroupfs would throw an "Operation not supported". This
+> patch
+> specifically whitelist cgroupfs.
 > 
-> Given that local changes have been made to a SELinux user definition 
-> (originally defined in policy)
-> e.g. # semanage user -m staff_u -r "s0"
-> and the SELinux user is mapped to some Linux user
-> # semanage login -a -s staff_u staff
-> both
-> # semanage user -d staff_u
-> and
-> # semanage user --deleteall
-> will fail to remove the local change with the following message:
-> "libsemanage.lookup_seuser: staff_u is being used by staff login
-> record 
-> (Invalid argument)."
+> The patch could also allow containers to write only to the systemd
+> cgroup
+> for instance, while the other cgroups are kept with cgroup_t label.
 > 
-> Is this the intended behaviour?
-> 
-> I would assume that this error message was intended only for locally 
-> defined SELinux users (in which case "semanage user -d selinux_user" 
-> would remove the only definition of "selinux_user"). If so, is there
-> any 
-> way to determine if a SELinux user has been defined only locally (as 
-> opposed to being defined in policy) after some local changes have
-> been made?
+> Signed-off-by: Antonio Murdaca <runcom@redhat.com>
 
-Looks like this change came in via commit
-56d9d20a647a52146494f0aef4494cafe328dc5d from Dan Walsh (in 2013).
-I agree it doesn't make sense for policy-defined users.  Offhand, I
-don't see a clean interface for doing what you want; I'm wondering if
-we truly need this check at all.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+> Changes in v2:
+>   - whitelist cgroup2 fs type
+> 
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3b955c6..2789f0a 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -480,6 +480,8 @@ static int selinux_is_sblabel_mnt(struct
+> super_block *sb)
+>  		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
+>  		/* Special handling. Genfs but also in-core setxattr
+> handler */
+>  		!strcmp(sb->s_type->name, "sysfs") ||
+> +		!strcmp(sb->s_type->name, "cgroup") ||
+> +		!strcmp(sb->s_type->name, "cgroup2") ||
+>  		!strcmp(sb->s_type->name, "pstore") ||
+>  		!strcmp(sb->s_type->name, "debugfs") ||
+>  		!strcmp(sb->s_type->name, "tracefs") ||
