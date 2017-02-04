@@ -1,75 +1,31 @@
-Message-ID: <1486149690.4106.5.camel@tycho.nsa.gov>
-Subject: Re: possible regression in "semanage user"
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
-Date: Fri, 03 Feb 2017 14:21:30 -0500
-In-Reply-To: <20b783f6-ac97-c35a-8384-66e5a8801a3c@redhat.com>
-References: <3837461d-1104-fcd3-eb01-77faf3bb4b0b@redhat.com>
- <1486064676.1887.80.camel@tycho.nsa.gov>
- <20b783f6-ac97-c35a-8384-66e5a8801a3c@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v14J2MPn021684
+ for <selinux@tycho.nsa.gov>; Sat, 4 Feb 2017 14:02:22 -0500
+From: Chris PeBenito <pebenito@ieee.org>
+Subject: ANN: Reference Policy Release
+To: refpolicy <refpolicy@oss.tresys.com>, SELinux <selinux@tycho.nsa.gov>
+Message-ID: <1d946001-c7c2-89b1-0fa2-cfcfd5aed534@ieee.org>
+Date: Sat, 4 Feb 2017 14:02:18 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-02-03 at 16:25 +0100, Vit Mojzis wrote:
-> 
-> On 2.2.2017 20:44, Stephen Smalley wrote:
-> > 
-> > On Thu, 2017-02-02 at 18:22 +0100, Vit Mojzis wrote:
-> > > 
-> > > Hi list,
-> > > we have a report about a possible regression in "semanage user"
-> > > and
-> > > I'd
-> > > like to hear your opinion on what the correct behaviour should
-> > > be.
-> > > 
-> > > Given that local changes have been made to a SELinux user
-> > > definition
-> > > (originally defined in policy)
-> > > e.g. # semanage user -m staff_u -r "s0"
-> > > and the SELinux user is mapped to some Linux user
-> > > # semanage login -a -s staff_u staff
-> > > both
-> > > # semanage user -d staff_u
-> > > and
-> > > # semanage user --deleteall
-> > > will fail to remove the local change with the following message:
-> > > "libsemanage.lookup_seuser: staff_u is being used by staff login
-> > > record
-> > > (Invalid argument)."
-> > > 
-> > > Is this the intended behaviour?
-> > > 
-> > > I would assume that this error message was intended only for
-> > > locally
-> > > defined SELinux users (in which case "semanage user -d
-> > > selinux_user"
-> > > would remove the only definition of "selinux_user"). If so, is
-> > > there
-> > > any
-> > > way to determine if a SELinux user has been defined only locally
-> > > (as
-> > > opposed to being defined in policy) after some local changes have
-> > > been made?
-> > Looks like this change came in via commit
-> > 56d9d20a647a52146494f0aef4494cafe328dc5d from Dan Walsh (in 2013).
-> > I agree it doesn't make sense for policy-defined users.  Offhand, I
-> > don't see a clean interface for doing what you want; I'm wondering
-> > if
-> > we truly need this check at all.
-> We do, I just tried defining new local SELinux user, assigned it to 
-> Linux user and then removed it (after removing the check). You can 
-> actually even log in to the account with invalid SELinux user, but 
-> "semanage login" and "semanage user" stop working (errors regarding 
-> non-existent user).
+A new release, 2.20170204, of the SELinux Reference Policy is now 
+available on the GitHub site:
 
-(restored list and cc)
+https://github.com/TresysTechnology/refpolicy/wiki/DownloadRelease
 
-I don't see any easy way to fix.  Obviously they could remove the login
-entry first and then the user, then re-add the login entry, but that's
-certainly sub-optimal.  Is this truly a regression though?
+The full changelog is too long to include in this email, so here's the
+diffstat instead:
+
+Core:
+155 files changed, 1930 insertions(+), 813 deletions(-)
+
+Contrib:
+505 files changed, 1840 insertions(+), 903 deletions(-)
+
+-- 
+Chris PeBenito
