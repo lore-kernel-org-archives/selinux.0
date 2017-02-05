@@ -1,108 +1,164 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v15EEkwU020146
- for <selinux@tycho.nsa.gov>; Sun, 5 Feb 2017 09:14:48 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v15FwipD005432
+ for <selinux@tycho.nsa.gov>; Sun, 5 Feb 2017 10:58:45 -0500
 Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
  [77.133.206.32])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 4DDB05613C5
- for <selinux@tycho.nsa.gov>; Sun,  5 Feb 2017 15:14:38 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 379FF564780
+ for <selinux@tycho.nsa.gov>; Sun,  5 Feb 2017 16:58:37 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] libsepol/cil: fix type confusion in cil_copy_ast
-Date: Sun,  5 Feb 2017 15:14:01 +0100
-Message-Id: <20170205141401.18021-1-nicolas.iooss@m4x.org>
+Subject: [PATCH 1/8] libsepol: fix -Wwrite-strings warnings
+Date: Sun,  5 Feb 2017 16:58:13 +0100
+Message-Id: <20170205155820.29157-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When running secilc on the following CIL file, the program tries to free
-the data associated with type X using cil_destroy_typeattribute():
+When compiling with -Wwrite-strings, clang reports some warnings like:
 
-    (macro sys_obj_type ((user ARG1)) (typeattribute X))
+    module_to_cil.c:784:13: error: assigning to 'char *' from 'const
+    char [5]' discards qualifiers
+    [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
+                    statement = "type";
+                              ^ ~~~~~~
+    module_to_cil.c:787:13: error: assigning to 'char *' from 'const
+    char [5]' discards qualifiers
+    [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
+                    statement = "role";
+                              ^ ~~~~~~
 
-    (block B
-        (type X)
-        (call sys_obj_type (Y))
-    )
-
-By adding some printf statements to cil_typeattribute_init(),
-cil_type_init() and cil_destroy_typeattribute(), the error message I get
-when using gcc's address sanitizer is:
-
-$ secilc -o /dev/null -f /dev/null test.cil -vvvvvv
-creating TYPE 0x60400000dfd0
-Parsing 2017-02-02_crashing_nulptrderef_cil.cil
-Building AST from Parse Tree
-creating TYPEATTR 0x60600000e420
-creating TYPE 0x60400000df50
-Destroying Parse Tree
-Resolving AST
-Failed to resolve call statement at 2017-02-02_crashing_nulptrderef_cil.cil:5
-Problem at 2017-02-02_crashing_nulptrderef_cil.cil:5
-Pass 8 of resolution failed
-Failed to resolve ast
-Failed to compile cildb: -2
-Destroying TYPEATTR 0x60600000e420, types (nil) name X
-Destroying TYPEATTR 0x60400000df50, types 0xbebebebe00000000 name X
-ASAN:DEADLYSIGNAL
-=================================================================
-==30684==ERROR: AddressSanitizer: SEGV on unknown address
-0x000000000000 (pc 0x7fc0539d114a bp 0x7ffc1fbcb300 sp
-0x7ffc1fbcb2f0 T0)
-    #0 0x7fc0539d1149 in ebitmap_destroy /usr/src/selinux/libsepol/src/ebitmap.c:356
-    #1 0x7fc053b96201 in cil_destroy_typeattribute ../cil/src/cil_build_ast.c:2370
-    #2 0x7fc053b42ea4 in cil_destroy_data ../cil/src/cil.c:616
-    #3 0x7fc053c595bf in cil_tree_node_destroy ../cil/src/cil_tree.c:235
-    #4 0x7fc053c59819 in cil_tree_children_destroy ../cil/src/cil_tree.c:201
-    #5 0x7fc053c59958 in cil_tree_subtree_destroy ../cil/src/cil_tree.c:172
-    #6 0x7fc053c59a27 in cil_tree_destroy ../cil/src/cil_tree.c:165
-    #7 0x7fc053b44fd7 in cil_db_destroy ../cil/src/cil.c:299
-    #8 0x4026a1 in main /usr/src/selinux/secilc/secilc.c:335
-    #9 0x7fc0535e5290 in __libc_start_main (/usr/lib/libc.so.6+0x20290)
-    #10 0x403af9 in _start (/usr/src/selinux/DESTDIR/usr/bin/secilc+0x403af9)
-
-AddressSanitizer can not provide additional info.
-SUMMARY: AddressSanitizer: SEGV /usr/src/selinux/libsepol/src/ebitmap.c:356 in ebitmap_destroy
-==30684==ABORTING
-
-When copying the AST tree in cil_resolve_call1(),
-__cil_copy_node_helper() calls cil_copy_typeattribute() to grab type X
-in the symbol table of block B, and creates a node with the data of X
-but with CIL_TYPEATTRIBUTE flavor.
-
-This example is a "type confusion" bug between cil_type and
-cil_typeattribute structures. It can be generalized to any couple of
-structures sharing the same symbol table (an easy way of finding other
-couples is by reading the code of cil_flavor_to_symtab_index()).
-
-Fix this issue in a "generic" way in __cil_copy_node_helper(), by
-verifying that the flavor of the found data is the same as expected and
-triggering an error when it is not.
+Add a const type attribute to local variables which only handle constant
+strings.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsepol/cil/src/cil_copy_ast.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ libsepol/cil/src/cil_binary.c |  4 ++--
+ libsepol/cil/src/cil_policy.c | 18 +++++++++---------
+ libsepol/src/module_to_cil.c  |  2 +-
+ 3 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-index 5debd0d5359c..17a8c991c66d 100644
---- a/libsepol/cil/src/cil_copy_ast.c
-+++ b/libsepol/cil/src/cil_copy_ast.c
-@@ -1987,6 +1987,13 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
- 		new->data = data;
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 19cbc1b87c1e..ac371aef7b2d 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -1923,7 +1923,7 @@ static void __cil_expr_to_string(struct cil_list *expr, enum cil_flavor flavor,
+ 				cil_asprintf(out, "%s %s", CIL_KEY_NOT, s1);
+ 				free(s1);
+ 			} else {
+-				char *opstr = "";
++				const char *opstr = "";
  
- 		if (orig->flavor >= CIL_MIN_DECLARATIVE) {
-+			/* Check the flavor of data if was found in the destination symtab */
-+			if (DATUM(data)->nodes->head && FLAVOR(data) != orig->flavor) {
-+				cil_tree_log(orig, CIL_ERR, "Incompatible flavor when trying to copy %s", DATUM(data)->name);
-+				cil_tree_log(NODE(data), CIL_ERR, "Note: conflicting declaration");
-+				rc = SEPOL_ERR;
-+				goto exit;
-+			}
- 			rc = cil_symtab_insert(symtab, ((struct cil_symtab_datum*)orig->data)->name, ((struct cil_symtab_datum*)data), new);
+ 				__cil_expr_to_string_helper(curr->next->next, flavor, &s2);
  
- 			namespace = new;
+@@ -4376,7 +4376,7 @@ static void __cil_print_classperm(struct cil_list *cp_list)
+ 
+ static void __cil_print_permissionx(struct cil_permissionx *px)
+ {
+-	char *kind_str = "";
++	const char *kind_str = "";
+ 	char *expr_str;
+ 
+ 	switch (px->kind) {
+diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
+index bb832f250db7..2e6814a60eae 100644
+--- a/libsepol/cil/src/cil_policy.c
++++ b/libsepol/cil/src/cil_policy.c
+@@ -183,7 +183,7 @@ static void cil_gather_statements(struct cil_tree_node *start, struct cil_list *
+ 	cil_tree_walk(start, __cil_gather_statements_helper, NULL, NULL, lists);
+ }
+ 
+-static void cil_simple_rules_to_policy(FILE *out, struct cil_list *rules, char *kind)
++static void cil_simple_rules_to_policy(FILE *out, struct cil_list *rules, const char *kind)
+ {
+ 	struct cil_list_item *i1;
+ 
+@@ -194,7 +194,7 @@ static void cil_simple_rules_to_policy(FILE *out, struct cil_list *rules, char *
+ 
+ static void cil_cats_to_policy(FILE *out, struct cil_cats *cats)
+ {
+-	char *lead = "";
++	const char *lead = "";
+ 	struct cil_cat *first = NULL, *last = NULL, *cat;
+ 	struct cil_list_item *i1;
+ 
+@@ -471,7 +471,7 @@ static char *__cil_cons_leaf_operand_to_string(struct cil_db *db, struct cil_lis
+ {
+ 	struct cil_list_item *i1;
+ 	enum cil_flavor flavor = operand->flavor;
+-	char *o_str;
++	const char *o_str;
+ 	size_t o_len;
+ 
+ 	if (flavor == CIL_CONS_OPERAND) {
+@@ -559,7 +559,7 @@ static char *__cil_cons_leaf_operand_to_string(struct cil_db *db, struct cil_lis
+ static char *__cil_cons_leaf_op_to_string(struct cil_list_item *op, char *new)
+ {
+ 	enum cil_flavor flavor = (enum cil_flavor)op->data;
+-	char *op_str;
++	const char *op_str;
+ 	size_t len;
+ 
+ 	switch (flavor) {
+@@ -1009,7 +1009,7 @@ static void cil_bools_to_policy(FILE *out, struct cil_list *bools)
+ {
+ 	struct cil_list_item *i1;
+ 	struct cil_bool *bool;
+-	char *value;
++	const char *value;
+ 
+ 	cil_list_for_each(i1, bools) {
+ 		bool = i1->data;
+@@ -1108,7 +1108,7 @@ static void cil_xperms_to_policy(FILE *out, struct cil_permissionx *permx)
+ 	ebitmap_node_t *node;
+ 	unsigned int i, first = 0, last = 0;
+ 	int need_first = CIL_TRUE, need_last = CIL_TRUE;
+-	char *kind;
++	const char *kind;
+ 
+ 	if (permx->kind == CIL_PERMX_KIND_IOCTL) {
+ 		kind = "ioctl";
+@@ -1156,7 +1156,7 @@ static void cil_xperms_to_policy(FILE *out, struct cil_permissionx *permx)
+ 
+ static void cil_av_rulex_to_policy(FILE *out, struct cil_avrule *rule)
+ {
+-	char *kind;
++	const char *kind;
+ 	struct cil_symtab_datum *src, *tgt;
+ 
+ 	src = rule->src;
+@@ -1187,7 +1187,7 @@ static void cil_av_rulex_to_policy(FILE *out, struct cil_avrule *rule)
+ 
+ static void cil_av_rule_to_policy(FILE *out, struct cil_avrule *rule)
+ {
+-	char *kind;
++	const char *kind;
+ 	struct cil_symtab_datum *src, *tgt;
+ 	struct cil_list *classperms_strs;
+ 	struct cil_list_item *i1;
+@@ -1225,7 +1225,7 @@ static void cil_av_rule_to_policy(FILE *out, struct cil_avrule *rule)
+ 
+ static void cil_type_rule_to_policy(FILE *out, struct cil_type_rule *rule)
+ {
+-	char *kind;
++	const char *kind;
+ 	struct cil_symtab_datum *src, *tgt, *res;
+ 	struct cil_list *class_list;
+ 	struct cil_list_item *i1;
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 2acb600dddae..8c4fff9c3d9f 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -775,7 +775,7 @@ static int cil_print_attr_strs(int indent, struct policydb *pdb, int is_type, st
+ 	int rc = 0;
+ 	struct ebitmap_node *node;
+ 	unsigned int i;
+-	char *statement;
++	const char *statement;
+ 	int has_positive = pos && (ebitmap_cardinality(pos) > 0);
+ 	int has_negative = neg && (ebitmap_cardinality(neg) > 0);
+ 	char **val_to_name;
 -- 
 2.11.0
