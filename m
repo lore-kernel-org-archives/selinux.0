@@ -1,50 +1,33 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v177e5dF009455
- for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2017 02:40:05 -0500
-Date: Tue, 07 Feb 2017 18:39:53 +1100
-In-Reply-To: <CAB9W1A0Ujj6vFhrQW_i9VcYMQutLTO149wY_TzFt9g9+VSBV3g@mail.gmail.com>
-References: <1765226.bX7GAK7GcY@russell.coker.com.au>
- <CAB9W1A0Ujj6vFhrQW_i9VcYMQutLTO149wY_TzFt9g9+VSBV3g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Subject: Re: strange avc
-To: selinux@tycho.nsa.gov, Stephen Smalley <stephen.smalley@gmail.com>
-CC: selinux <selinux@tycho.nsa.gov>
-From: Russell Coker <russell@coker.com.au>
-Message-ID: <8E3358CA-EE57-4E78-B85F-AE117FB099C5@coker.com.au>
+In-Reply-To: <CAByg-LDw0KCu9jyOF+CZuTGdfELkeBE55LV=7Ua7DZ7azTza7g@mail.gmail.com>
+References: <CAByg-LDw0KCu9jyOF+CZuTGdfELkeBE55LV=7Ua7DZ7azTza7g@mail.gmail.com>
+From: Anpu Ann mathews <anpu.amathews@gmail.com>
+Date: Tue, 7 Feb 2017 11:24:51 +0530
+Message-ID: <CAByg-LA+TBC3e-qmjdPyHS=_s19K0_NFijFMoLB6spEJnm==og@mail.gmail.com>
+Subject: SELinux help
+To: Selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001a1143e658f5aebe0547ea625f
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks for the information. That's the Debian/Jessie kernel and it's years too late to get it fixed. Oh well at least it fails closed.
+--001a1143e658f5aebe0547ea625f
+Content-Type: text/plain; charset=UTF-8
 
-On 26 January 2017 12:22:35 am LHDT, Stephen Smalley <stephen.smalley@gmail.com> wrote:
->On Wed, Jan 25, 2017 at 1:22 AM, Russell Coker <russell@coker.com.au>
->wrote:
->> type=AVC msg=audit(1485258907.829:106): avc:  denied  { 0x800000 }
->for
->> pid=1280 comm="rewrite-0" name="after-the-deadline" dev="vda"
->ino=104107534
->> scontext=system_u:system_r:httpd_t:s0
->> tcontext=system_u:object_r:unlabeled_t:s0 tclass=file permissive=0
->>
->> I got the above after upgrading a system running kernel 3.16.0 to the
->latest
->> userspace.  Why is this happening?  Is this a bug?
->
->That would be a kernel bug; it means that you have a directory inode
->(for which that permission would be rmdir permission) that is wrongly
->assigned the file security class.  Typically means that the filesystem
->did not set the file mode format bits before security_d_instantiate()
->was called.
->_______________________________________________
->Selinux mailing list
->Selinux@tycho.nsa.gov
->To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->To get help, send an email containing "help" to
->Selinux-request@tycho.nsa.gov.
+Hi, I'm Anpu Ann Mathews is a student of CFIS need to know more about the
+Linux policy and how to modify these policies for enhance the security.
+Thank you.
+Anpu Ann Mathews
+Kerala
 
--- 
-Sent from my Nexus 6P with K-9 Mail.
+--001a1143e658f5aebe0547ea625f
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"auto">Hi, I&#39;m Anpu Ann Mathews is a student of CFIS need to=
+ know more about the Linux policy and how to modify these policies for enha=
+nce the security.<div dir=3D"auto">Thank you.</div><div dir=3D"auto">Anpu A=
+nn Mathews</div><div dir=3D"auto">Kerala</div></div>
+
+--001a1143e658f5aebe0547ea625f--
