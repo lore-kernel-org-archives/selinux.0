@@ -1,68 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v182xqjF021167
- for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2017 21:59:52 -0500
-Received: by mail-vk0-f68.google.com with SMTP id t8so11012315vke.0
- for <selinux@tycho.nsa.gov>; Tue, 07 Feb 2017 18:59:33 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v183Ftta025882
+ for <selinux@tycho.nsa.gov>; Tue, 7 Feb 2017 22:15:55 -0500
+Received: by mail-ot0-f174.google.com with SMTP id 73so7295447otj.0
+ for <selinux@tycho.nsa.gov>; Tue, 07 Feb 2017 19:15:52 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CALCETrVAAJSOaWaoZCBJVDnBP7QhG8U52HfP6xXeieHNRWQGvw@mail.gmail.com>
-References: <1485881644-17740-1-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhTnCN1EoX-TAwtC6MUbf1K5LUDF1Dz2VemCs90f+idc+w@mail.gmail.com>
- <CALCETrVAAJSOaWaoZCBJVDnBP7QhG8U52HfP6xXeieHNRWQGvw@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 7 Feb 2017 21:59:32 -0500
-Message-ID: <CAHC9VhTaAmbOoVndj-vPACVaGfnWcG0NN_m7uXY0MHJtMAwnSw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix off-by-one in setprocattr
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux-NSA <selinux@tycho.nsa.gov>,
- "security@kernel.org" <security@kernel.org>
+From: Paul Moore <pmoore@redhat.com>
+Date: Tue, 7 Feb 2017 22:15:52 -0500
+Message-ID: <CAGH-KgvgcVQpuCES4-52Yj5qTjShwDUs5fzCi+gggzRvyMCW1A@mail.gmail.com>
+Subject: [GIT PULL] SELinux fixes for 4.10 (#2)
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Feb 7, 2017 at 6:30 PM, Andy Lutomirski <luto@amacapital.net> wrote:
-> On Tue, Feb 7, 2017 at 2:43 PM, Paul Moore <paul@paul-moore.com> wrote:
->> On Tue, Jan 31, 2017 at 11:54 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> SELinux tries to support setting/clearing of /proc/pid/attr attributes
->>> from the shell by ignoring terminating newlines and treating an
->>> attribute value that begins with a NUL or newline as an attempt to
->>> clear the attribute.  However, the test for clearing attributes has
->>> always been wrong; it has an off-by-one error, and this could further
->>> lead to reading past the end of the allocated buffer since commit
->>> bb646cdb12e75d82258c2f2e7746d5952d3e321a ("proc_pid_attr_write():
->>> switch to memdup_user()").  Fix the off-by-one error.
->>>
->>> Even with this fix, setting and clearing /proc/pid/attr attributes
->>> from the shell is not straightforward since the interface does not
->>> support multiple write() calls (so shells that write the value and
->>> newline separately will set and then immediately clear the attribute,
->>> requiring use of echo -n to set the attribute), whereas trying to use
->>> echo -n "" to clear the attribute causes the shell to skip the
->>> write() call altogether since POSIX says that a zero-length write
->>> causes no side effects. Thus, one must use echo -n to set and echo
->>> without -n to clear, as in the following example:
->>> $ echo -n unconfined_u:object_r:user_home_t:s0 > /proc/$$/attr/fscreate
->>> $ cat /proc/$$/attr/fscreate
->>> unconfined_u:object_r:user_home_t:s0
->>> $ echo "" > /proc/$$/attr/fscreate
->>> $ cat /proc/$$/attr/fscreate
->>>
->>> Note the use of /proc/$$ rather than /proc/self, as otherwise
->>> the cat command will read its own attribute value, not that of the shell.
->>>
->>> There are no users of this facility to my knowledge; possibly we
->>> should just get rid of it.
->
-> I'm not sure which facility you're referring to here, but setpriv(1)
-> uses /proc/self/attr/current and /proc/self/attr/exec.
+Hi James,
 
-The bug only is only problematic for /proc/self/attr/fscreate, and my
-understanding is that Stephen was only referring to the ability to
-clear fscreate.
+One small but significant SELinux patch to fix a bug in
+/proc/self/attr/fscreate.  I'll be sending the SELinux pull-request
+for v4.11 soon, but I wanted to get this out now in hopes we could
+still get it into v4.10; please merge this and try to get it to Linus
+before this weekend.
 
-Regardless, I'm not very keen on removing that capability just yet.
+Thanks,
+-Paul
+
+---
+The following changes since commit bfc5e3a6af397dcf9c99a6c1872458e7867c4680:
+
+  selinux: use the kernel headers when building scripts/selinux
+(2016-12-21 10:39:25 -0500)
+
+are available in the git repository at:
+
+  git://git.infradead.org/users/pcmoore/selinux stable-4.10
+
+for you to fetch changes up to a050a570db0190164e7250013214e29a5a9803ee:
+
+  selinux: fix off-by-one in setprocattr (2017-02-07 17:31:38 -0500)
+
+----------------------------------------------------------------
+Stephen Smalley (1):
+      selinux: fix off-by-one in setprocattr
+
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 -- 
 paul moore
-www.paul-moore.com
+security @ redhat
