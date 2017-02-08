@@ -1,198 +1,114 @@
-Subject: Re: [PATCH 1/1] Introduce Travis-CI tests
+Subject: Re: [PATCH 1/1] libsepol/cil: fix type confusion in cil_copy_ast
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20170205114001.6480-1-nicolas.iooss@m4x.org>
+References: <20170205141401.18021-1-nicolas.iooss@m4x.org>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <03ad3fd9-9da0-3b3a-0cb7-d863d6b8c600@tycho.nsa.gov>
-Date: Wed, 8 Feb 2017 10:51:35 -0500
+Message-ID: <a3084839-6486-c1bd-116e-a1a8535d86f1@tycho.nsa.gov>
+Date: Wed, 8 Feb 2017 10:56:03 -0500
 MIME-Version: 1.0
-In-Reply-To: <20170205114001.6480-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20170205141401.18021-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/05/2017 06:40 AM, Nicolas Iooss wrote:
-> Add a configuration file for https://travis-ci.org/. This continuous
-> integration platform can build the project for several configurations on
-> Linux, using different compilers, linkers, Python versions and Ruby
-> versions. An example of build results is available on
-> https://travis-ci.org/fishilico/selinux/builds/185912863
+On 02/05/2017 09:14 AM, Nicolas Iooss wrote:
+> When running secilc on the following CIL file, the program tries to free
+> the data associated with type X using cil_destroy_typeattribute():
 >
-> Even if the SELinux userland libraries and tools project does not enable
-> Travis-CI integration, the .travis.yml file may be helpful for
-> contributors who wish to run tests in several configurations.
+>     (macro sys_obj_type ((user ARG1)) (typeattribute X))
 >
-> Current limitations:
+>     (block B
+>         (type X)
+>         (call sys_obj_type (Y))
+>     )
 >
-> - It does not run an OS X build. Travis-CI provides free OS X
->   environments but it is quite difficult to configure a single
->   .travis.yml file which defines many Linux environments and some OS X
->   ones.
-> - It only runs Ubuntu 14.04 with an x86-64 CPU. This does not test
->   Android, ARM nor 32-bit x86 configurations.
-> - It only builds with glibc, not musl or other light C library.
+> By adding some printf statements to cil_typeattribute_init(),
+> cil_type_init() and cil_destroy_typeattribute(), the error message I get
+> when using gcc's address sanitizer is:
+>
+> $ secilc -o /dev/null -f /dev/null test.cil -vvvvvv
+> creating TYPE 0x60400000dfd0
+> Parsing 2017-02-02_crashing_nulptrderef_cil.cil
+> Building AST from Parse Tree
+> creating TYPEATTR 0x60600000e420
+> creating TYPE 0x60400000df50
+> Destroying Parse Tree
+> Resolving AST
+> Failed to resolve call statement at 2017-02-02_crashing_nulptrderef_cil.cil:5
+> Problem at 2017-02-02_crashing_nulptrderef_cil.cil:5
+> Pass 8 of resolution failed
+> Failed to resolve ast
+> Failed to compile cildb: -2
+> Destroying TYPEATTR 0x60600000e420, types (nil) name X
+> Destroying TYPEATTR 0x60400000df50, types 0xbebebebe00000000 name X
+> ASAN:DEADLYSIGNAL
+> =================================================================
+> ==30684==ERROR: AddressSanitizer: SEGV on unknown address
+> 0x000000000000 (pc 0x7fc0539d114a bp 0x7ffc1fbcb300 sp
+> 0x7ffc1fbcb2f0 T0)
+>     #0 0x7fc0539d1149 in ebitmap_destroy /usr/src/selinux/libsepol/src/ebitmap.c:356
+>     #1 0x7fc053b96201 in cil_destroy_typeattribute ../cil/src/cil_build_ast.c:2370
+>     #2 0x7fc053b42ea4 in cil_destroy_data ../cil/src/cil.c:616
+>     #3 0x7fc053c595bf in cil_tree_node_destroy ../cil/src/cil_tree.c:235
+>     #4 0x7fc053c59819 in cil_tree_children_destroy ../cil/src/cil_tree.c:201
+>     #5 0x7fc053c59958 in cil_tree_subtree_destroy ../cil/src/cil_tree.c:172
+>     #6 0x7fc053c59a27 in cil_tree_destroy ../cil/src/cil_tree.c:165
+>     #7 0x7fc053b44fd7 in cil_db_destroy ../cil/src/cil.c:299
+>     #8 0x4026a1 in main /usr/src/selinux/secilc/secilc.c:335
+>     #9 0x7fc0535e5290 in __libc_start_main (/usr/lib/libc.so.6+0x20290)
+>     #10 0x403af9 in _start (/usr/src/selinux/DESTDIR/usr/bin/secilc+0x403af9)
+>
+> AddressSanitizer can not provide additional info.
+> SUMMARY: AddressSanitizer: SEGV /usr/src/selinux/libsepol/src/ebitmap.c:356 in ebitmap_destroy
+> ==30684==ABORTING
+>
+> When copying the AST tree in cil_resolve_call1(),
+> __cil_copy_node_helper() calls cil_copy_typeattribute() to grab type X
+> in the symbol table of block B, and creates a node with the data of X
+> but with CIL_TYPEATTRIBUTE flavor.
+>
+> This example is a "type confusion" bug between cil_type and
+> cil_typeattribute structures. It can be generalized to any couple of
+> structures sharing the same symbol table (an easy way of finding other
+> couples is by reading the code of cil_flavor_to_symtab_index()).
+>
+> Fix this issue in a "generic" way in __cil_copy_node_helper(), by
+> verifying that the flavor of the found data is the same as expected and
+> triggering an error when it is not.
 >
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Applied.
+Applied with one addition. I added the line "new->flavor = FLAVOR(data);" to 
+make sure the data flavor matches. I don't think that that is needed because 
+cil_destroy_data() will not be called on the new node (since a previous node 
+exists), but I would rather be safe and have the flavor match.
 
 Thanks,
 Jim
 
 > ---
->  .travis.yml | 142 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 142 insertions(+)
->  create mode 100644 .travis.yml
+>  libsepol/cil/src/cil_copy_ast.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 >
-> diff --git a/.travis.yml b/.travis.yml
-> new file mode 100644
-> index 000000000000..6dce35165bd3
-> --- /dev/null
-> +++ b/.travis.yml
-> @@ -0,0 +1,142 @@
-> +# Define the building environment
-> +language: c
-> +
-> +matrix:
-> +  fast_finish: true
-> +
-> +compiler:
-> +  - clang
-> +  - gcc
-> +
-> +env:
-> +  matrix:
-> +    # Test the last version of Python and Ruby together, with some linkers
-> +    - PYVER=python3.5 RUBYLIBVER=2.3
-> +    - PYVER=python3.5 RUBYLIBVER=2.3 LINKER=gold
-> +    - PYVER=python3.5 RUBYLIBVER=2.3 LINKER=bfd
-> +
-> +    # Test several Python versions
-> +    - PYVER=python2.7 RUBYLIBVER=2.3
-> +    - PYVER=python3.3 RUBYLIBVER=2.3
-> +    - PYVER=python3.4 RUBYLIBVER=2.3
-> +    - PYVER=pypy RUBYLIBVER=2.3
-> +    #- PYVER=pypy3 RUBYLIBVER=2.3 # PyPy3 5.5.0 provides the Python2 form of some structures, which makes it incompatible with SWIG
-> +
-> +    # Test several Ruby versions
-> +    - PYVER=python3.5 RUBYLIBVER=2.0
-> +    - PYVER=python3.5 RUBYLIBVER=2.1
-> +    - PYVER=python3.5 RUBYLIBVER=2.2
-> +
-> +# Use Travis-CI Ubuntu 14.04 Trusty infrastructure
-> +sudo: required
-> +dist: trusty
-> +
-> +# Install SELinux userspace utilities dependencies
-> +addons:
-> +  apt:
-> +    packages:
-> +    - bison
-> +    - flex
-> +    - gawk
-> +    - gettext
-> +    - libaudit-dev
-> +    - libbz2-dev
-> +    - libcap-dev
-> +    - libcap-ng-dev # This package is not whitelisted for the container infrastructure (https://github.com/travis-ci/apt-package-whitelist/issues/1096)
-> +    - libcunit1-dev
-> +    - libdbus-glib-1-dev
-> +    - libncurses5-dev
-> +    - libpcre3-dev
-> +    - patch
-> +    - python3-dev
-> +    - python-dev
-> +    - swig
-> +    - xmlto
-> +
-> +install:
-> +  # Download refpolicy Makefile for sepolgen tests
-> +  - sudo mkdir -p /usr/share/selinux/default
-> +  - sudo curl -o /usr/share/selinux/default/Makefile 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/support/Makefile.devel'
-> +  - sudo sed "s,^PREFIX :=.*,PREFIX := $TRAVIS_BUILD_DIR/installdir/usr," -i /usr/share/selinux/default/Makefile
-> +  - sudo mkdir -p /usr/share/selinux/refpolicy/include
-> +  - sudo curl -o /usr/share/selinux/refpolicy/include/build.conf 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/build.conf'
-> +  - sudo mkdir -p /etc/selinux
-> +  - echo 'SELINUXTYPE=refpolicy' | sudo tee /etc/selinux/config
-> +
-> +  # Make sepolgen tests work without really installing anything in the real root (doing this would conflict with Ubuntu packages)
-> +  - sed -e "s,\"\(/usr/bin/[cs]\),\"$TRAVIS_BUILD_DIR/installdir\1," -i python/sepolgen/src/sepolgen/module.py
-> +
-> +before_script:
-> +  # clang on Travis-CI 14.04 environment is too old to support -Wdouble-promotion
-> +  - if "$CC" --version |grep -q clang; then sed 's/ -Wdouble-promotion / /' -i libselinux/src/Makefile libselinux/utils/Makefile ; fi
-> +
-> +  # Build and install in a temporary directory to run tests
-> +  - export DESTDIR="$TRAVIS_BUILD_DIR/installdir"
-> +
-> +  # Configure the variables for Python parts
-> +  - export VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
-> +  - export PYTHON="$VIRTUAL_ENV/bin/python"
-> +  - export PYPREFIX="$($PYTHON -c 'import sys;print("python%d" % sys.version_info[0])')"
-> +  # PyPy does not provide a config file for pkg-config nor a pypy-c.so
-> +  - if echo "$PYVER" | grep -q pypy ; then export PYINC=-I$($PYTHON -c 'import sys;print(sys.prefix)')/include PYLIBS= ; fi
-> +  # Python virtualenvs do not support "import site; print(site.getsitepackages()[0]"
-> +  # cf. https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452
-> +  - export PYSITEDIR="$DESTDIR/usr/lib/$($PYTHON -c 'import sys;print("python%d.%d" % sys.version_info[:2])')/site-packages"
-> +
-> +  # Find the Ruby executable with version $RUBYLIBVER
-> +  - export RUBY="$(ls -d -1 "$HOME/.rvm/rubies/ruby-$RUBYLIBVER"*/bin/ruby | head -n 1)"
-> +
-> +  # Set the linker in $CC so that it gets used everywhere
-> +  - if [ -n "$LINKER" ]; then CC="$CC -fuse-ld=$LINKER" ; fi
-> +
-> +  # Show variables and versions (to help debugging)
-> +  - echo "$CC" ; $CC --version
-> +  - echo "$PYTHON" ; $PYTHON --version
-> +  - echo "$RUBY" ; $RUBY --version
-> +
-> +script:
-> +  # Start by installing everything into $DESTDIR
-> +  - make install -k
-> +  - make install-pywrap -k
-> +  - make install-rubywrap -k
-> +
-> +  # Now that everything is installed, run "make all" to build everything which may have not been built
-> +  - make all -k
-> +
-> +  # Set up environment variables for the tests
-> +  - export CFLAGS="-I$DESTDIR/usr/include"
-> +  - export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
-> +  - export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
-> +  - export PYTHONPATH="$PYSITEDIR"
-> +  - export RUBYLIB="$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
-> +
-> +  # Show variables (to help debugging issues)
-> +  - echo "$CFLAGS"
-> +  - echo "$LD_LIBRARY_PATH"
-> +  - echo "$PATH"
-> +  - echo "$PYTHONPATH"
-> +  - echo "$RUBYLIB"
-> +
-> +  # Run tests
-> +  - make test
-> +
-> +  # Test Python and Ruby wrappers
-> +  - $PYTHON -c 'import selinux;import selinux.audit2why;import semanage;print(selinux.is_selinux_enabled())'
-> +  - $RUBY -e 'require "selinux";require "semanage";puts Selinux::is_selinux_enabled()'
-> +
-> +  # Remove every installed files
-> +  - rm -rf "$DESTDIR"
-> +
-> +  # Test that "git status" looks clean, or print a clear error message
-> +  - |-
-> +    git status --short | sed -n 's/^??/error: missing .gitignore entry for/p' | (! grep '^')
-> +
-> +  # Clean up everything and show which file would be added to "make clean"
-> +  - make clean distclean
-> +  - |-
-> +    git ls-files --ignored --others --exclude-standard | sed 's/^/error: "make clean distclean" did not remove /' | (! grep '^')
-> +
-> +# Do not spam by email so long as the build succeeds
-> +notifications:
-> +  email:
-> +    on_success: never
+> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+> index 5debd0d5359c..17a8c991c66d 100644
+> --- a/libsepol/cil/src/cil_copy_ast.c
+> +++ b/libsepol/cil/src/cil_copy_ast.c
+> @@ -1987,6 +1987,13 @@ int __cil_copy_node_helper(struct cil_tree_node *orig, __attribute__((unused)) u
+>  		new->data = data;
+>
+>  		if (orig->flavor >= CIL_MIN_DECLARATIVE) {
+> +			/* Check the flavor of data if was found in the destination symtab */
+> +			if (DATUM(data)->nodes->head && FLAVOR(data) != orig->flavor) {
+> +				cil_tree_log(orig, CIL_ERR, "Incompatible flavor when trying to copy %s", DATUM(data)->name);
+> +				cil_tree_log(NODE(data), CIL_ERR, "Note: conflicting declaration");
+> +				rc = SEPOL_ERR;
+> +				goto exit;
+> +			}
+>  			rc = cil_symtab_insert(symtab, ((struct cil_symtab_datum*)orig->data)->name, ((struct cil_symtab_datum*)data), new);
+>
+>  			namespace = new;
 >
 
 
