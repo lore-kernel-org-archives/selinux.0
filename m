@@ -1,56 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v19GEUmw015501
- for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2017 11:14:30 -0500
-Received: by mail-ua0-f194.google.com with SMTP id f2so718270uaf.3
- for <selinux@tycho.nsa.gov>; Thu, 09 Feb 2017 08:14:07 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v19HB3UY001615
+ for <selinux@tycho.nsa.gov>; Thu, 9 Feb 2017 12:11:03 -0500
+Received: from int-mx14.intmail.prod.int.phx2.redhat.com
+ (int-mx14.intmail.prod.int.phx2.redhat.com [10.5.11.27])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id D734CB59A2
+ for <selinux@tycho.nsa.gov>; Thu,  9 Feb 2017 17:11:01 +0000 (UTC)
+Subject: [PATCH] selinux-testsuite: allow netlink test domains to load
+ kernel modules
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 09 Feb 2017 12:10:59 -0500
+Message-ID: <148666025965.8273.14181813922260343065.stgit@sifl>
 MIME-Version: 1.0
-In-Reply-To: <20170209160242.23405-1-amurdaca@redhat.com>
-References: <20170209160242.23405-1-amurdaca@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 9 Feb 2017 11:14:05 -0500
-Message-ID: <CAHC9VhRFxDuRJHYEuRs7kc4ivgaT=-SxdU-o5Lq7H-O+5JJRxQ@mail.gmail.com>
-Subject: Re: [PATCH] security: selinux: allow per-file labeling for cgroupfs
-To: Antonio Murdaca <amurdaca@redhat.com>
-Cc: selinux@tycho.nsa.gov, Antonio Murdaca <runcom@redhat.com>,
- linux-kernel@vger.kernel.org, cgroups@vger.kernel.org, vgoyal@redhat.com
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Feb 9, 2017 at 11:02 AM, Antonio Murdaca <amurdaca@redhat.com> wrote:
-> From: Antonio Murdaca <runcom@redhat.com>
->
-> This patch allows genfscon per-file labeling for cgroupfs. For instance,
-> this allows to label the "release_agent" file within each
-> cgroup mount and limit writes to it.
->
-> Signed-off-by: Antonio Murdaca <amurdaca@redhat.com>
-> ---
->  security/selinux/hooks.c | 2 ++
->  1 file changed, 2 insertions(+)
+From: Paul Moore <paul@paul-moore.com>
 
-This was already merged ... ?
+Depending on the system state, the netlink tests added in
+2dbd45fd3a61 ("selinux-testsuite: add tests for new netlink socket
+classes") may need to load additional kernel modules to operate
+properly.
 
-* https://marc.info/?l=selinux&m=148652458620202&w=2
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ policy/test_netlink_socket.te |    3 +++
+ 1 file changed, 3 insertions(+)
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 9a8f12f..5a3138e 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -808,6 +808,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->
->         if (!strcmp(sb->s_type->name, "debugfs") ||
->             !strcmp(sb->s_type->name, "sysfs") ||
-> +           !strcmp(sb->s_type->name, "cgroup") ||
-> +           !strcmp(sb->s_type->name, "cgroup2") ||
->             !strcmp(sb->s_type->name, "pstore"))
->                 sbsec->flags |= SE_SBGENFS;
->
-> --
-> 2.9.3
-
--- 
-paul moore
-www.paul-moore.com
+diff --git a/policy/test_netlink_socket.te b/policy/test_netlink_socket.te
+index b56c06c..c852c04 100644
+--- a/policy/test_netlink_socket.te
++++ b/policy/test_netlink_socket.te
+@@ -48,3 +48,6 @@ netlink_socket_test(netlink_crypto_socket)
+ # Entry into the test domains via the test program.
+ miscfiles_domain_entry_test_files(netlinksocktestdomain)
+ userdom_sysadm_entry_spec_domtrans_to(netlinksocktestdomain)
++
++# Trigger kernel module auto-loading of the protocol implementations.
++kernel_request_load_module(netlinksocktestdomain)
