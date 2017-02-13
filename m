@@ -1,270 +1,368 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: linux-security-module@vger.kernel.org
-Cc: selinux@tycho.nsa.gov, james.l.morris@oracle.com, paul@paul-moore.com,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC] prlimit,security,selinux: add a security hook for prlimit
-Date: Mon, 13 Feb 2017 15:20:40 -0500
-Message-Id: <1487017240-26431-1-git-send-email-sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: Add tests for prlimit(2) permission checks
+Date: Mon, 13 Feb 2017 15:23:45 -0500
+Message-Id: <1487017425-26654-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When SELinux was first added to the kernel, a process could only get
-and set its own resource limits via getrlimit(2) and setrlimit(2), so no
-MAC checks were required for those operations, and thus no security hooks
-were defined for them. Later, SELinux introduced a hook for setlimit(2)
-with a check if the hard limit was being changed in order to be able to
-rely on the hard limit value as a safe reset point upon context
-transitions.
-
-Later on, when prlimit(2) was added to the kernel with the ability to get
-or set resource limits (hard or soft) of another process, LSM/SELinux was
-not updated other than to pass the target process to the setrlimit hook.
-This resulted in incomplete control over both getting and setting the
-resource limits of another process.
-
-Add a new security_task_prlimit() hook to the check_prlimit_permission()
-function to provide complete mediation.  The hook is only called when
-acting on another task, and only if the existing DAC/capability checks
-would allow access.  Pass flags down to the hook to indicate whether the
-prlimit(2) call will read, write, or both read and write the resource
-limits of the target process.
-
-The existing security_task_setrlimit() hook is left alone; it continues
-to serve a purpose in supporting the ability to make decisions based on
-the old and/or new resource limit values when setting limits.  This
-is consistent with the DAC/capability logic, where
-check_prlimit_permission() performs generic DAC/capability checks for
-acting on another task, while do_prlimit() performs a capability check
-based on a comparison of the old and new resource limits.  Fix the
-inline documentation for the hook to match the code.
-
-Implement the new hook for SELinux.  For setting resource limits, we
-reuse the existing setrlimit permission.  Note that this does overload
-the setrlimit permission to mean the ability to set the resource limit
-(soft or hard) of another process or the ability to change one's own
-hard limit.  For getting resource limits, a new getrlimit permission
-is defined.  This was not originally defined since getrlimit(2) could
-only be used to obtain a process' own limits.
+Add tests for prlimit(2) permission checks for getting and
+setting resource limits of other processes.  The tests are only
+executed if the new getrlimit permission is defined by the base policy.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- include/linux/lsm_hooks.h           | 18 +++++++++++++++---
- include/linux/security.h            |  6 ++++++
- kernel/sys.c                        | 30 ++++++++++++++++++------------
- security/security.c                 |  8 ++++++++
- security/selinux/hooks.c            | 14 ++++++++++++++
- security/selinux/include/classmap.h |  2 +-
- 6 files changed, 62 insertions(+), 16 deletions(-)
+ policy/Makefile        |   4 ++
+ policy/test_prlimit.te |  52 ++++++++++++++++
+ tests/Makefile         |   4 ++
+ tests/prlimit/Makefile |   7 +++
+ tests/prlimit/child.c  |  22 +++++++
+ tests/prlimit/parent.c | 164 +++++++++++++++++++++++++++++++++++++++++++++++++
+ tests/prlimit/test     |  30 +++++++++
+ 7 files changed, 283 insertions(+)
+ create mode 100644 policy/test_prlimit.te
+ create mode 100644 tests/prlimit/Makefile
+ create mode 100644 tests/prlimit/child.c
+ create mode 100644 tests/prlimit/parent.c
+ create mode 100755 tests/prlimit/test
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 6fe7a5c..5832f74 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -631,10 +631,19 @@
-  *	Check permission before getting the ioprio value of @p.
-  *	@p contains the task_struct of process.
-  *	Return 0 if permission is granted.
-+ * @task_prlimit:
-+ *	Check permission before getting and/or setting the resource limits of
-+ *	another task.
-+ *	@cred points to the cred structure for the current task.
-+ *	@tcred points to the cred structure for the target task.
-+ *	@flags contains the LSM_PRLIMIT_* flag bits indicating whether the
-+ *	resource limits are being read, modified, or both.
-+ *	Return 0 if permission is granted.
-  * @task_setrlimit:
-- *	Check permission before setting the resource limits of the current
-- *	process for @resource to @new_rlim.  The old resource limit values can
-- *	be examined by dereferencing (current->signal->rlim + resource).
-+ *	Check permission before setting the resource limits of process @p
-+ *	for @resource to @new_rlim.  The old resource limit values can
-+ *	be examined by dereferencing (p->signal->rlim + resource).
-+ *	@p points to the task_struct for the target task's group leader.
-  *	@resource contains the resource whose limit is being set.
-  *	@new_rlim contains the new limits for @resource.
-  *	Return 0 if permission is granted.
-@@ -1495,6 +1504,8 @@ union security_list_options {
- 	int (*task_setnice)(struct task_struct *p, int nice);
- 	int (*task_setioprio)(struct task_struct *p, int ioprio);
- 	int (*task_getioprio)(struct task_struct *p);
-+	int (*task_prlimit)(const struct cred *cred, const struct cred *tcred,
-+			    unsigned int flags);
- 	int (*task_setrlimit)(struct task_struct *p, unsigned int resource,
- 				struct rlimit *new_rlim);
- 	int (*task_setscheduler)(struct task_struct *p);
-@@ -1756,6 +1767,7 @@ struct security_hook_heads {
- 	struct list_head task_setnice;
- 	struct list_head task_setioprio;
- 	struct list_head task_getioprio;
-+	struct list_head task_prlimit;
- 	struct list_head task_setrlimit;
- 	struct list_head task_setscheduler;
- 	struct list_head task_getscheduler;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index d3868f2..cce29ba 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -133,6 +133,10 @@ extern unsigned long dac_mmap_min_addr;
- /* setfsuid or setfsgid, id0 == fsuid or fsgid */
- #define LSM_SETID_FS	8
+diff --git a/policy/Makefile b/policy/Makefile
+index de7b950..6537b68 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -38,6 +38,10 @@ ifeq ($(shell grep -q netlink_iscsi_socket $(POLDEV)/include/support/all_perms.s
+ TARGETS += test_netlink_socket.te
+ endif
  
-+/* Flags for security_task_prlimit(). */
-+#define LSM_PRLIMIT_READ  1
-+#define LSM_PRLIMIT_WRITE 2
++ifeq ($(shell grep -q getrlimit $(POLDEV)/include/support/all_perms.spt && echo true),true)
++TARGETS += test_prlimit.te
++endif
 +
- /* forward declares to avoid warnings */
- struct sched_param;
- struct request_sock;
-@@ -325,6 +329,8 @@ void security_task_getsecid(struct task_struct *p, u32 *secid);
- int security_task_setnice(struct task_struct *p, int nice);
- int security_task_setioprio(struct task_struct *p, int ioprio);
- int security_task_getioprio(struct task_struct *p);
-+int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
-+			  unsigned int flags);
- int security_task_setrlimit(struct task_struct *p, unsigned int resource,
- 		struct rlimit *new_rlim);
- int security_task_setscheduler(struct task_struct *p);
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 842914e..8a364f7 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1425,25 +1425,26 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
- }
- 
- /* rcu lock must be held */
--static int check_prlimit_permission(struct task_struct *task)
-+static int check_prlimit_permission(struct task_struct *task,
-+				    unsigned int flags)
- {
- 	const struct cred *cred = current_cred(), *tcred;
-+	bool id_match;
- 
- 	if (current == task)
- 		return 0;
- 
- 	tcred = __task_cred(task);
--	if (uid_eq(cred->uid, tcred->euid) &&
--	    uid_eq(cred->uid, tcred->suid) &&
--	    uid_eq(cred->uid, tcred->uid)  &&
--	    gid_eq(cred->gid, tcred->egid) &&
--	    gid_eq(cred->gid, tcred->sgid) &&
--	    gid_eq(cred->gid, tcred->gid))
--		return 0;
--	if (ns_capable(tcred->user_ns, CAP_SYS_RESOURCE))
--		return 0;
-+	id_match = (uid_eq(cred->uid, tcred->euid) &&
-+		    uid_eq(cred->uid, tcred->suid) &&
-+		    uid_eq(cred->uid, tcred->uid)  &&
-+		    gid_eq(cred->gid, tcred->egid) &&
-+		    gid_eq(cred->gid, tcred->sgid) &&
-+		    gid_eq(cred->gid, tcred->gid));
-+	if (!id_match && !ns_capable(tcred->user_ns, CAP_SYS_RESOURCE))
-+		return -EPERM;
- 
--	return -EPERM;
-+	return security_task_prlimit(cred, tcred, flags);
- }
- 
- SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource,
-@@ -1453,12 +1454,17 @@ SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource,
- 	struct rlimit64 old64, new64;
- 	struct rlimit old, new;
- 	struct task_struct *tsk;
-+	unsigned int checkflags = 0;
- 	int ret;
- 
-+	if (old_rlim)
-+		checkflags |= LSM_PRLIMIT_READ;
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te, $(TARGETS))
+ endif
+diff --git a/policy/test_prlimit.te b/policy/test_prlimit.te
+new file mode 100644
+index 0000000..d51d692
+--- /dev/null
++++ b/policy/test_prlimit.te
+@@ -0,0 +1,52 @@
++########################################
++#
++# Policy for testing prlimit(2) permission checks.
 +
- 	if (new_rlim) {
- 		if (copy_from_user(&new64, new_rlim, sizeof(new64)))
- 			return -EFAULT;
- 		rlim64_to_rlim(&new64, &new);
-+		checkflags |= LSM_PRLIMIT_WRITE;
- 	}
++attribute prlimittestdomain;
++
++# prlimit_test(permission)
++# Generate a pair of test domains and rules for
++# testing the specified permission check.
++#
++define(`prlimit_test', `
++# Domain that is allowed $1 permission to the child.
++type test_$1_t;
++domain_type(test_$1_t)
++unconfined_runs_test(test_$1_t)
++typeattribute test_$1_t prlimittestdomain;
++typeattribute test_$1_t testdomain;
++
++# Child domain
++type test_$1_child_t;
++domain_type(test_$1_child_t)
++unconfined_runs_test(test_$1_child_t)
++typeattribute test_$1_child_t prlimittestdomain;
++typeattribute test_$1_child_t testdomain;
++
++# Transition from parent to child.
++spec_domtrans_pattern(test_$1_t, test_file_t, test_$1_child_t)
++
++# Allow parent $1 to child.
++allow test_$1_t test_$1_child_t:process $1;
++
++# Domain that is not allowed $1 permission.
++type test_no_$1_t;
++domain_type(test_no_$1_t)
++unconfined_runs_test(test_no_$1_t)
++typeattribute test_no_$1_t prlimittestdomain;
++typeattribute test_no_$1_t testdomain;
++
++# Transition from parent to child.
++spec_domtrans_pattern(test_no_$1_t, test_file_t, test_$1_child_t)
++')
++
++prlimit_test(setrlimit)
++prlimit_test(getrlimit)
++
++#
++# Common rules for all prlimit test domains.
++#
++
++# Entry into the test domains via the test program.
++miscfiles_domain_entry_test_files(prlimittestdomain)
++userdom_sysadm_entry_spec_domtrans_to(prlimittestdomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index bb5868d..1311234 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -24,6 +24,10 @@ ifeq ($(shell grep -q netlink_iscsi_socket $(POLDEV)/include/support/all_perms.s
+ SUBDIRS += netlink_socket
+ endif
  
- 	rcu_read_lock();
-@@ -1467,7 +1473,7 @@ SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource,
- 		rcu_read_unlock();
- 		return -ESRCH;
- 	}
--	ret = check_prlimit_permission(tsk);
-+	ret = check_prlimit_permission(tsk, checkflags);
- 	if (ret) {
- 		rcu_read_unlock();
- 		return ret;
-diff --git a/security/security.c b/security/security.c
-index 8c9fee5..8178c84 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -998,6 +998,12 @@ int security_task_getioprio(struct task_struct *p)
- 	return call_int_hook(task_getioprio, 0, p);
- }
- 
-+int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
-+			  unsigned int flags)
++ifeq ($(shell grep -q getrlimit $(POLDEV)/include/support/all_perms.spt && echo true),true)
++SUBDIRS += prlimit
++endif
++
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/prlimit/Makefile b/tests/prlimit/Makefile
+new file mode 100644
+index 0000000..f11debe
+--- /dev/null
++++ b/tests/prlimit/Makefile
+@@ -0,0 +1,7 @@
++TARGETS=parent child
++
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/prlimit/child.c b/tests/prlimit/child.c
+new file mode 100644
+index 0000000..0c385d6
+--- /dev/null
++++ b/tests/prlimit/child.c
+@@ -0,0 +1,22 @@
++#include <unistd.h>
++#include <stdlib.h>
++#include <stdio.h>
++
++int main(void)
 +{
-+	return call_int_hook(task_prlimit, 0, cred, tcred, flags);
++	char buf[1];
++	int rc;
++
++	buf[0] = 0;
++	rc = write(1, buf, sizeof buf);
++	if (rc < 0) {
++		perror("write");
++		exit(-1);
++	}
++	rc = read(0, buf, sizeof buf);
++	if (rc < 0) {
++		perror("read");
++		exit(-1);
++	}
++	exit(0);
++}
+diff --git a/tests/prlimit/parent.c b/tests/prlimit/parent.c
+new file mode 100644
+index 0000000..be320f0
+--- /dev/null
++++ b/tests/prlimit/parent.c
+@@ -0,0 +1,164 @@
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#include <errno.h>
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/time.h>
++#include <sys/resource.h>
++#include <selinux/selinux.h>
++#include <selinux/context.h>
++
++void usage(char *progname)
++{
++	fprintf(stderr,
++		"usage:  %s [-g] [-s soft|hard] newdomain program\n",
++		progname);
++	exit(-1);
 +}
 +
- int security_task_setrlimit(struct task_struct *p, unsigned int resource,
- 		struct rlimit *new_rlim)
- {
-@@ -1755,6 +1761,8 @@ struct security_hook_heads security_hook_heads = {
- 		LIST_HEAD_INIT(security_hook_heads.task_setioprio),
- 	.task_getioprio =
- 		LIST_HEAD_INIT(security_hook_heads.task_getioprio),
-+	.task_prlimit =
-+		LIST_HEAD_INIT(security_hook_heads.task_prlimit),
- 	.task_setrlimit =
- 		LIST_HEAD_INIT(security_hook_heads.task_setrlimit),
- 	.task_setscheduler =
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 76af95f..be5cc90 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3917,6 +3917,19 @@ static int selinux_task_getioprio(struct task_struct *p)
- 			    PROCESS__GETSCHED, NULL);
- }
- 
-+int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
-+			 unsigned int flags)
++#define RESOURCE RLIMIT_NOFILE
++
++int main(int argc, char **argv)
 +{
-+	u32 av = 0;
++	char buf[1];
++	int pid, rc, fd[2], fd2[2], opt;
++	security_context_t context_s;
++	context_t context;
++	struct rlimit newrlim, oldrlim, *newrlimp = NULL, *oldrlimp = NULL;
++	bool get = false, set = false, soft = false;
 +
-+	if (flags & LSM_PRLIMIT_WRITE)
-+		av |= PROCESS__SETRLIMIT;
-+	if (flags & LSM_PRLIMIT_READ)
-+		av |= PROCESS__GETRLIMIT;
-+	return avc_has_perm(cred_sid(cred), cred_sid(tcred),
-+			    SECCLASS_PROCESS, av, NULL);
++	while ((opt = getopt(argc, argv, "gs:")) != -1) {
++		switch (opt) {
++		case 'g':
++			get = true;
++			break;
++		case 's':
++			set = true;
++			if (!strcasecmp(optarg, "soft"))
++				soft = true;
++			else if (!strcasecmp(optarg, "hard"))
++				soft = false;
++			else
++				usage(argv[0]);
++			break;
++		default:
++			usage(argv[0]);
++		}
++	}
++
++	if (!get && !set) {
++		usage(argv[0]);
++		exit(-1);
++	}
++
++	if ((argc - optind) != 2) {
++		usage(argv[0]);
++		exit(-1);
++	}
++
++	rc = getcon(&context_s);
++	if (rc < 0) {
++		fprintf(stderr, "%s:  unable to get my context\n", argv[0]);
++		exit(-1);
++
++	}
++
++	context = context_new(context_s);
++	if (!context) {
++		fprintf(stderr, "%s:  unable to create context structure\n", argv[0]);
++		exit(-1);
++	}
++
++	if (context_type_set(context, argv[optind])) {
++		fprintf(stderr, "%s:  unable to set new type\n", argv[0]);
++		exit(-1);
++	}
++
++	freecon(context_s);
++	context_s = context_str(context);
++	if (!context_s) {
++		fprintf(stderr, "%s:  unable to obtain new context string\n", argv[0]);
++		exit(-1);
++	}
++
++	rc = setexeccon(context_s);
++	if (rc < 0) {
++		fprintf(stderr, "%s:  unable to set exec context to %s\n", argv[0], context_s);
++		exit(-1);
++	}
++
++	rc = getrlimit(RESOURCE, &oldrlim);
++	if (rc < 0) {
++		perror("getrlimit");
++		exit(-1);
++	}
++
++	rc = pipe(fd);
++	if (rc < 0) {
++		perror("pipe");
++		exit(-1);
++	}
++
++	rc = pipe(fd2);
++	if (rc < 0) {
++		perror("pipe");
++		exit(-1);
++	}
++
++	pid = fork();
++	if (pid < 0) {
++		perror("fork");
++		exit(-1);
++	} else if (pid == 0) {
++		dup2(fd[0], 0);
++		dup2(fd2[1], 1);
++		execv(argv[optind + 1], argv + optind + 1);
++		buf[0] = -1;
++		write(1, buf, 1);
++		close(1);
++		perror(argv[optind + 1]);
++		exit(-1);
++	}
++
++	rc = read(fd2[0], buf, 1);
++	if (rc < 0) {
++		perror("read");
++		exit(-1);
++	}
++
++	if (get)
++		oldrlimp = &oldrlim;
++
++	if (set) {
++		newrlimp = &newrlim;
++		if (soft) {
++			newrlim.rlim_max = oldrlim.rlim_max;
++			if (newrlim.rlim_cur == RLIM_INFINITY)
++				newrlim.rlim_cur = 1024;
++			else
++				newrlim.rlim_cur = oldrlim.rlim_cur / 2;
++		} else {
++			newrlim.rlim_cur = oldrlim.rlim_cur;
++			if (newrlim.rlim_max == RLIM_INFINITY)
++				newrlim.rlim_max = 1024;
++			else
++				newrlim.rlim_max = oldrlim.rlim_max / 2;
++		}
++	}
++
++	rc =  prlimit(pid, RESOURCE, newrlimp, oldrlimp);
++	if (rc < 0) {
++		perror("prlimit");
++		write(fd[1], buf, 1);
++		close(fd[1]);
++		exit(1);
++	}
++
++	write(fd[1], buf, 1);
++	close(fd[1]);
++	exit(0);
 +}
+diff --git a/tests/prlimit/test b/tests/prlimit/test
+new file mode 100755
+index 0000000..5456ad5
+--- /dev/null
++++ b/tests/prlimit/test
+@@ -0,0 +1,30 @@
++#!/usr/bin/perl
 +
- static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
- 		struct rlimit *new_rlim)
- {
-@@ -6202,6 +6215,7 @@ static struct security_hook_list selinux_hooks[] = {
- 	LSM_HOOK_INIT(task_setnice, selinux_task_setnice),
- 	LSM_HOOK_INIT(task_setioprio, selinux_task_setioprio),
- 	LSM_HOOK_INIT(task_getioprio, selinux_task_getioprio),
-+	LSM_HOOK_INIT(task_prlimit, selinux_task_prlimit),
- 	LSM_HOOK_INIT(task_setrlimit, selinux_task_setrlimit),
- 	LSM_HOOK_INIT(task_setscheduler, selinux_task_setscheduler),
- 	LSM_HOOK_INIT(task_getscheduler, selinux_task_getscheduler),
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 7898ffa..da0e74c 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -47,7 +47,7 @@ struct security_class_mapping secclass_map[] = {
- 	    "getattr", "setexec", "setfscreate", "noatsecure", "siginh",
- 	    "setrlimit", "rlimitinh", "dyntransition", "setcurrent",
- 	    "execmem", "execstack", "execheap", "setkeycreate",
--	    "setsockcreate", NULL } },
-+	    "setsockcreate", "getrlimit", NULL } },
- 	{ "system",
- 	  { "ipc_info", "syslog_read", "syslog_mod",
- 	    "syslog_console", "module_request", "module_load", NULL } },
++use Test;
++BEGIN { plan tests => 6}
++
++$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
++
++# Verify that test_setrlimit_t can set soft limit of test_setrlimit_child_t
++$result = system ("runcon -t test_setrlimit_t $basedir/parent -s soft test_setrlimit_child_t $basedir/child 2>&1");
++ok($result, 0); # we expect this to succeed.
++
++# Verify that test_no_setrlimit_t cannot set soft limit of test_setrlimit_child_t
++$result = system ("runcon -t test_no_setrlimit_t $basedir/parent -s soft test_setrlimit_child_t $basedir/child 2>&1");
++ok($result); # we expect this to fail.
++
++# Verify that test_setrlimit_t can set hard limit of test_setrlimit_child_t
++$result = system ("runcon -t test_setrlimit_t $basedir/parent -s hard test_setrlimit_child_t $basedir/child 2>&1");
++ok($result, 0); # we expect this to succeed.
++
++# Verify that test_no_setrlimit_t cannot set hard limit of test_setrlimit_child_t
++$result = system ("runcon -t test_no_setrlimit_t $basedir/parent -s hard test_setrlimit_child_t $basedir/child 2>&1");
++ok($result); # we expect this to fail.
++
++# Verify that test_getrlimit_t can get limits of test_setrlimit_child_t
++$result = system ("runcon -t test_getrlimit_t $basedir/parent -g test_getrlimit_child_t $basedir/child 2>&1");
++ok($result, 0); # we expect this to succeed.
++
++# Verify that test_no_getrlimit_t cannot get limit of test_setrlimit_child_t
++$result = system ("runcon -t test_no_getrlimit_t $basedir/parent -g test_getrlimit_child_t $basedir/child 2>&1");
++ok($result); # we expect this to fail.
 -- 
 2.7.4
